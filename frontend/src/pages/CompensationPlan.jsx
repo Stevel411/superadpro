@@ -1408,11 +1408,9 @@ var CALC_TIERS = [
 function CalculatorSection() {
   var { t } = useTranslation();
   var [heroRef, heroVis] = useInView(0.1);
-  var [activeTiers, setActiveTiers] = useState([3]); // $100 tier on by default
-  var [directRefs, setDirectRefs] = useState(15);
+  var [activeTiers, setActiveTiers] = useState([1]); // Starter on by default
+  var [directRefs, setDirectRefs] = useState(5);
   var [gridAdvances, setGridAdvances] = useState(1);
-  var [sponsorTier, setSponsorTier] = useState('basic');
-  var commPerRef = sponsorTier === 'pro' ? 17.50 : 10.00;
 
   function toggleTier(n) {
     setActiveTiers(function(prev) {
@@ -1421,24 +1419,19 @@ function CalculatorSection() {
     });
   }
 
-  // ── Calculate earnings ──
-  var s1Monthly = directRefs * commPerRef;
-  var s1Annual = s1Monthly * 12;
-
-  var s2Direct = 0;
-  var s2UniLevel = 0;
-  var s2Bonus = 0;
+  // ── Calculate grid commissions only ──
+  var totalDirect = 0;
+  var totalUniLevel = 0;
+  var totalBonus = 0;
   activeTiers.forEach(function(n) {
     var tier = CALC_TIERS.find(function(t) { return t.n === n; });
     if (!tier) return;
     var p = tier.price;
-    s2Direct += directRefs * (p * 0.40) * gridAdvances;
-    s2UniLevel += (p * 0.0625) * 64 * gridAdvances;
-    s2Bonus += (p * 0.05) * 64 * gridAdvances;
+    totalDirect += directRefs * (p * 0.40) * gridAdvances;
+    totalUniLevel += (p * 0.0625) * 64 * gridAdvances;
+    totalBonus += (p * 0.05) * 64 * gridAdvances;
   });
-  var s2Total = s2Direct + s2UniLevel + s2Bonus;
-
-  var grandTotal = s1Annual + s2Total;
+  var grandTotal = totalDirect + totalUniLevel + totalBonus;
 
   function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
 
@@ -1455,13 +1448,13 @@ function CalculatorSection() {
         <div style={{position:'relative',zIndex:1}}>
           <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
             <Target size={20} color="rgba(255,255,255,.7)"/>
-            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>{t('compPlan.earningsCalculator')}</span>
+            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>Campaign Tier Calculator</span>
           </div>
           <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:'#fff',margin:'0 0 12px',lineHeight:1.2}}>
-            Commission Calculator
+            Grid Commission Calculator
           </h2>
           <p style={{fontSize:16,color:'rgba(255,255,255,.7)',maxWidth:560,lineHeight:1.7,margin:0}}>
-            Select your active campaign tiers, set your referral numbers, and see your commission breakdown across all income streams.
+            Select campaign tiers, set your referral numbers, and see the commission breakdown. All amounts are based on the actual commission split: 40% direct, 50% uni-level, 5% bonus pool.
           </p>
         </div>
       </div>
@@ -1472,31 +1465,13 @@ function CalculatorSection() {
         {/* LEFT — Controls */}
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
           <div style={{background:'#1c223d',padding:'16px 24px'}}>
-            <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>{t('compPlan.yourScenario')}</div>
+            <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>Your Settings</div>
           </div>
           <div style={{padding:'24px'}}>
 
-            {/* Your membership tier */}
-            <div style={{marginBottom:24}}>
-              <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:10}}>Your Membership Tier</div>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-                {[['basic','Basic — $10/ref','#16a34a'],['pro','Pro — $17.50/ref','#0ea5e9']].map(function([val,label,color]) {
-                  var on = sponsorTier === val;
-                  return (
-                    <button key={val} onClick={function(){ setSponsorTier(val); }}
-                      style={{padding:'10px 12px',borderRadius:8,border:on?'2px solid '+color:'2px solid #e8ecf2',
-                        background:on?color+'15':'#f8f9fb',cursor:'pointer',fontFamily:'inherit',transition:'all .15s',
-                        fontSize:13,fontWeight:on?800:600,color:on?color:'#94a3b8'}}>
-                      {label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
             {/* Tier selector */}
             <div style={{marginBottom:24}}>
-              <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:10}}>{t('compPlan.activeCampaignTiers')}</div>
+              <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:10}}>Select Campaign Tiers</div>
               <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6}}>
                 {CALC_TIERS.map(function(t) {
                   var on = activeTiers.indexOf(t.n) >= 0;
@@ -1515,20 +1490,20 @@ function CalculatorSection() {
             {/* Direct referrals slider */}
             <div style={{marginBottom:20}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
-                <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1}}>{t('compPlan.directReferralsSlider')}</div>
+                <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1}}>Direct Referrals (who activate same tier)</div>
                 <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0ea5e9'}}>{directRefs}</div>
               </div>
-              <input type="range" min={1} max={100} value={directRefs} onChange={function(e) { setDirectRefs(parseInt(e.target.value)); }}
+              <input type="range" min={1} max={64} value={directRefs} onChange={function(e) { setDirectRefs(parseInt(e.target.value)); }}
                 style={{width:'100%',accentColor:'#0ea5e9',cursor:'pointer'}}/>
               <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'#cbd5e1',fontWeight:600}}>
-                <span>1</span><span>100</span>
+                <span>1</span><span>64</span>
               </div>
             </div>
 
             {/* Grid advances slider */}
             <div style={{marginBottom:20}}>
               <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
-                <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1}}>{t('compPlan.gridAdvances')}</div>
+                <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1}}>Grid Completions</div>
                 <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#6366f1'}}>{gridAdvances}</div>
               </div>
               <input type="range" min={1} max={10} value={gridAdvances} onChange={function(e) { setGridAdvances(parseInt(e.target.value)); }}
@@ -1538,56 +1513,66 @@ function CalculatorSection() {
               </div>
             </div>
 
+            {/* Quick summary */}
+            <div style={{padding:14,background:'#f8f9fb',borderRadius:10,border:'1px solid #e8ecf2'}}>
+              <div style={{fontSize:11,fontWeight:700,color:'#64748b',marginBottom:6}}>Commission Split per Tier Purchase:</div>
+              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+                {[['40%','Direct Sponsor','#0ea5e9'],['50%','Uni-Level (8 levels)','#6366f1'],['5%','Bonus Pool','#10b981'],['5%','Platform','#94a3b8']].map(function([pct,label,color]) {
+                  return <div key={label} style={{fontSize:10,fontWeight:700,color:color}}>{pct} {label}</div>;
+                })}
+              </div>
+            </div>
+
           </div>
         </div>
 
         {/* RIGHT — Results */}
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)',display:'flex',flexDirection:'column'}}>
           <div style={{background:'#1c223d',padding:'16px 24px'}}>
-            <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>{t('compPlan.projectedEarnings')}</div>
+            <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>Commission Breakdown</div>
           </div>
           <div style={{padding:'24px',flex:1,display:'flex',flexDirection:'column'}}>
 
-            {/* Stream 1 */}
-            <div style={{padding:'16px',background:'#f0fdf4',borderRadius:12,border:'1px solid #dcfce7',marginBottom:12}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
-                <div style={{fontSize:11,fontWeight:800,color:'#16a34a',letterSpacing:1}}>STREAM 1 — MEMBERSHIP</div>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#16a34a'}}>{fmt(s1Annual)}</div>
-              </div>
-              <div style={{fontSize:11,color:'#64748b'}}>{directRefs} referrals × ${commPerRef.toFixed(2)}/mo × 12 months</div>
-              <div style={{fontSize:10,color:'#94a3b8',marginTop:2}}>Monthly: {fmt(s1Monthly)}</div>
-            </div>
+            {activeTiers.length === 0 ? (
+              <div style={{textAlign:'center',padding:40,color:'#94a3b8',fontSize:14}}>Select at least one campaign tier to see commissions</div>
+            ) : (
+              <>
+                {/* Direct Sponsor */}
+                <div style={{padding:'16px',background:'#f0f9ff',borderRadius:12,border:'1px solid #bae6fd',marginBottom:12}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+                    <div style={{fontSize:13,fontWeight:800,color:'#0ea5e9'}}>💰 Direct Sponsor (40%)</div>
+                    <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#0ea5e9'}}>{fmt(totalDirect)}</div>
+                  </div>
+                  <div style={{fontSize:11,color:'#64748b'}}>{directRefs} referrals × 40% of tier price × {gridAdvances} completion{gridAdvances!==1?'s':''}</div>
+                </div>
 
-            {/* Stream 2 */}
-            <div style={{padding:'16px',background:'#f0f9ff',borderRadius:12,border:'1px solid #bae6fd',marginBottom:12}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}>
-                <div style={{fontSize:11,fontWeight:800,color:'#0ea5e9',letterSpacing:1}}>STREAM 2 — PROFIT GRID</div>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0ea5e9'}}>{fmt(s2Total)}</div>
-              </div>
-              <div style={{display:'flex',flexDirection:'column',gap:4}}>
-                <div style={{display:'flex',justifyContent:'space-between',fontSize:11}}>
-                  <span style={{color:'#64748b'}}>Direct sponsor (40%)</span>
-                  <span style={{fontWeight:700,color:'#0ea5e9'}}>{fmt(s2Direct)}</span>
+                {/* Uni-Level */}
+                <div style={{padding:'16px',background:'#eef2ff',borderRadius:12,border:'1px solid #c7d2fe',marginBottom:12}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+                    <div style={{fontSize:13,fontWeight:800,color:'#6366f1'}}>🌐 Uni-Level (6.25% × 8 levels)</div>
+                    <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#6366f1'}}>{fmt(totalUniLevel)}</div>
+                  </div>
+                  <div style={{fontSize:11,color:'#64748b'}}>6.25% per level × 64 seats × {gridAdvances} completion{gridAdvances!==1?'s':''}</div>
                 </div>
-                <div style={{display:'flex',justifyContent:'space-between',fontSize:11}}>
-                  <span style={{color:'#64748b'}}>Uni-level (6.25% × 64 seats)</span>
-                  <span style={{fontWeight:700,color:'#6366f1'}}>{fmt(s2UniLevel)}</span>
+
+                {/* Bonus Pool */}
+                <div style={{padding:'16px',background:'#f0fdf4',borderRadius:12,border:'1px solid #dcfce7',marginBottom:12}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
+                    <div style={{fontSize:13,fontWeight:800,color:'#10b981'}}>🏆 Grid Completion Bonus (5%)</div>
+                    <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#10b981'}}>{fmt(totalBonus)}</div>
+                  </div>
+                  <div style={{fontSize:11,color:'#64748b'}}>5% of tier price × 64 seats × {gridAdvances} completion{gridAdvances!==1?'s':''}</div>
                 </div>
-                <div style={{display:'flex',justifyContent:'space-between',fontSize:11}}>
-                  <span style={{color:'#64748b'}}>Grid completion bonus (5%)</span>
-                  <span style={{fontWeight:700,color:'#10b981'}}>{fmt(s2Bonus)}</span>
-                </div>
-              </div>
-              <div style={{fontSize:10,color:'#94a3b8',marginTop:6}}>{activeTiers.length} tier{activeTiers.length!==1?'s':''} active × {gridAdvances} advance{gridAdvances!==1?'s':''}</div>
-            </div>
+              </>
+            )}
 
             {/* Grand total */}
             <div style={{marginTop:'auto',padding:'20px',background:'linear-gradient(135deg,#0f172a,#1e293b)',borderRadius:12,textAlign:'center'}}>
-              <div style={{fontSize:10,fontWeight:800,color:'#94a3b8',letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>Total Annual Commissions</div>
+              <div style={{fontSize:10,fontWeight:800,color:'#94a3b8',letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>Total Grid Commissions</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:800,color:'#4ade80',lineHeight:1,transition:'all .3s ease'}}>
                 {fmt(grandTotal)}
               </div>
-              <div style={{fontSize:11,color:'#64748b',marginTop:8}}>Based on your selected tiers and referrals</div>
+              <div style={{fontSize:11,color:'#64748b',marginTop:8}}>Across {activeTiers.length} selected tier{activeTiers.length!==1?'s':''}</div>
             </div>
           </div>
         </div>
@@ -1597,7 +1582,7 @@ function CalculatorSection() {
       {activeTiers.length > 0 && (
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
           <div style={{background:'#1c223d',padding:'16px 24px'}}>
-            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('compPlan.breakdownByTier')}</div>
+            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Breakdown by Tier</div>
           </div>
           <div style={{padding:'20px 24px'}}>
             <div style={{display:'grid',gridTemplateColumns:'repeat('+Math.min(activeTiers.length,4)+',1fr)',gap:12}}>
@@ -1624,9 +1609,9 @@ function CalculatorSection() {
         </div>
       )}
 
-      {/* ── Disclaimer ── */}
+      {/* ── Note ── */}
       <div style={{padding:'16px 20px',background:'#fffbeb',borderRadius:12,border:'1px solid #fef3c7',fontSize:12,color:'#92400e',lineHeight:1.6}}>
-        <strong>ℹ️ Note:</strong> Uni-level calculations assume full grid completion (64 seats) per advance. Direct sponsor commissions are based on all referrals activating the selected tiers. Actual earnings depend on your personal activity and network performance. Income is not guaranteed.
+        <strong>ℹ️ Note:</strong> Direct sponsor commissions are earned when your personal referrals activate the same tier. Uni-level commissions are earned across 8 levels as the grid fills (64 seats per grid). The bonus pool pays out when all 64 seats are filled. Income is not guaranteed and depends on network activity.
       </div>
     </div>
   );
