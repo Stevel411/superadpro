@@ -220,6 +220,23 @@ export default function Dashboard() {
         </div>
       </div>
 
+      {/* Upgrade Banner — only for Basic members */}
+      {user?.is_active && user?.membership_tier !== 'pro' && !user?.is_admin && (
+        <Link to="/upgrade" style={{ display: 'block', textDecoration: 'none', marginBottom: 20 }}>
+          <div style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81,#3730a3)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 14, padding: '18px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', overflow: 'hidden', position: 'relative' }}>
+            <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'radial-gradient(circle,rgba(139,92,246,0.2),transparent 70%)', pointerEvents: 'none' }}/>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16, position: 'relative', zIndex: 2 }}>
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>{"\u26A1"}</div>
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 3 }}>Unlock Pro — just $15 upgrade</div>
+                <div style={{ fontSize: 13, color: 'rgba(196,181,253,0.7)' }}>Get AI Funnels, ProSeller, Email Autoresponder, Campaign Studio & more. Pay only the difference.</div>
+              </div>
+            </div>
+            <div style={{ background: 'linear-gradient(135deg,#8b5cf6,#a855f7)', color: '#fff', fontSize: 13, fontWeight: 800, padding: '10px 20px', borderRadius: 10, flexShrink: 0, position: 'relative', zIndex: 2, boxShadow: '0 2px 8px rgba(139,92,246,0.3)' }}>Upgrade →</div>
+          </div>
+        </Link>
+      )}
+
       {/* 5 Income Streams */}
       <div className="income-grid grid-5-col" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
         {[
