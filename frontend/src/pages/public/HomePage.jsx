@@ -504,7 +504,7 @@ export default function HomePage(){
 
           {/* AD BOARD */}
           <div className="hp-card" style={{borderRadius:16,overflow:'hidden',border:'1px solid rgba(16,185,129,0.15)'}}>
-            <div style={{height:190,position:'relative',background:'linear-gradient(160deg,#031a12,#082a1a,#041510)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
+            <div style={{height:280,position:'relative',background:'linear-gradient(160deg,#031a12,#082a1a,#041510)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
               <svg viewBox="0 0 260 150" style={{width:'100%',height:'100%',position:'absolute',top:0,left:0}}>
                 <rect x="18" y="8" width="56" height="38" rx="4" fill="#0a1f16" stroke="#10b981" strokeWidth="0.8" opacity="0.5"/>
                 <rect x="22" y="12" width="48" height="18" rx="2" fill="#10b981" opacity="0.06"/>
@@ -544,7 +544,7 @@ export default function HomePage(){
                 <circle cx="220" cy="110" r="8" fill="#34d399" opacity="0.08" stroke="#34d399" strokeWidth="0.6" opacity="0.3"/>
                 <text x="220" y="113" textAnchor="middle" fill="#34d399" fontSize="6" opacity="0.4">📤</text>
               </svg>
-              <span style={{fontFamily:"'Sora',sans-serif",fontSize:18,fontWeight:800,color:'#fff',position:'absolute',bottom:14,zIndex:2,textShadow:'0 2px 8px rgba(0,0,0,0.8), 0 0 30px rgba(16,185,129,0.4)',background:'linear-gradient(180deg,transparent,rgba(3,26,18,0.9))',padding:'20px 24px 0',width:'100%',textAlign:'center',left:0,boxSizing:'border-box'}}>Ad Board</span>
+              <span style={{fontFamily:"'Sora',sans-serif",fontSize:24,fontWeight:800,color:'#fff',position:'absolute',bottom:0,zIndex:2,textShadow:'0 2px 8px rgba(0,0,0,0.8), 0 0 30px rgba(16,185,129,0.4)',background:'linear-gradient(180deg,transparent 0%,rgba(3,26,18,0.95) 70%)',padding:'40px 24px 18px',width:'100%',textAlign:'center',left:0,boxSizing:'border-box'}}>Ad Board</span>
             </div>
             <div style={{padding:20,background:'rgba(5,13,26,.95)',borderTop:'1px solid rgba(16,185,129,0.1)'}}>
               <p style={{fontSize:13,color:'rgba(200,220,255,.5)',lineHeight:1.65,marginBottom:12}}>A public, SEO-indexed community marketplace. Post unlimited listings for free — every ad gets its own Google-indexed page with a shareable URL.</p>
@@ -557,7 +557,7 @@ export default function HomePage(){
 
           {/* VIDEO LIBRARY */}
           <div className="hp-card" style={{borderRadius:16,overflow:'hidden',border:'1px solid rgba(245,158,11,0.15)'}}>
-            <div style={{height:190,position:'relative',background:'linear-gradient(160deg,#1a1000,#2a1a05,#150e02)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
+            <div style={{height:280,position:'relative',background:'linear-gradient(160deg,#1a1000,#2a1a05,#150e02)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
               <svg viewBox="0 0 260 150" style={{width:'100%',height:'100%',position:'absolute',top:0,left:0}}>
                 <rect x="45" y="8" width="170" height="90" rx="8" fill="#1a1205" stroke="#f59e0b" strokeWidth="1.2" opacity="0.5"/>
                 <rect x="50" y="13" width="160" height="75" rx="5" fill="#f59e0b" opacity="0.04"/>
@@ -586,7 +586,7 @@ export default function HomePage(){
                 <text x="55" y="116" fill="#fbbf24" fontSize="7" opacity="0.3">💰</text>
                 <text x="200" y="116" fill="#fbbf24" fontSize="7" opacity="0.3">💰</text>
               </svg>
-              <span style={{fontFamily:"'Sora',sans-serif",fontSize:18,fontWeight:800,color:'#fff',position:'absolute',bottom:14,zIndex:2,textShadow:'0 2px 8px rgba(0,0,0,0.8), 0 0 30px rgba(245,158,11,0.4)',background:'linear-gradient(180deg,transparent,rgba(26,16,0,0.9))',padding:'20px 24px 0',width:'100%',textAlign:'center',left:0,boxSizing:'border-box'}}>Video Library</span>
+              <span style={{fontFamily:"'Sora',sans-serif",fontSize:24,fontWeight:800,color:'#fff',position:'absolute',bottom:0,zIndex:2,textShadow:'0 2px 8px rgba(0,0,0,0.8), 0 0 30px rgba(245,158,11,0.4)',background:'linear-gradient(180deg,transparent 0%,rgba(26,16,0,0.95) 70%)',padding:'40px 24px 18px',width:'100%',textAlign:'center',left:0,boxSizing:'border-box'}}>Video Library</span>
             </div>
             <div style={{padding:20,background:'rgba(5,13,26,.95)',borderTop:'1px solid rgba(245,158,11,0.1)'}}>
               <p style={{fontSize:13,color:'rgba(200,220,255,.5)',lineHeight:1.65,marginBottom:12}}>Watch campaign videos from advertisers and earn rewards. A public-facing video library that brings organic viewers to the platform and generates real engagement.</p>
