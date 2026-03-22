@@ -3403,38 +3403,41 @@ def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
             test_users = r2.fetchall()
             deleted = [u[1] for u in test_users]
             user_ids = [u[0] for u in test_users]
+            conn.commit()
 
-            if user_ids:
-                ids_str = ",".join(str(i) for i in user_ids)
-                # Clean all FK-linked tables
-                tables_with_user_id = [
-                    "crypto_payment_orders", "linkhub_profiles", "linkhub_links",
-                    "video_watches", "grid_positions", "grid_memberships",
-                    "course_enrollments", "course_sales", "short_links",
-                    "ad_board_ads", "funnel_pages", "digital_products",
-                    "nurture_sequences", "nurture_emails", "lead_entries",
-                    "withdrawal_requests", "member_courses",
-                ]
-                for table in tables_with_user_id:
-                    try:
-                        conn.execute(_text(f"DELETE FROM {table} WHERE user_id IN ({ids_str})"))
-                    except Exception:
-                        pass
-                # Commissions
+        # Delete each table in its own transaction
+        if user_ids:
+            ids_str = ",".join(str(i) for i in user_ids)
+            tables_with_user_id = [
+                "crypto_payment_orders", "linkhub_profiles", "linkhub_links",
+                "video_watches", "grid_positions", "grid_memberships",
+                "course_enrollments", "course_sales", "short_links",
+                "ad_board_ads", "funnel_pages", "digital_products",
+                "nurture_sequences", "nurture_emails", "lead_entries",
+                "withdrawal_requests", "member_courses",
+            ]
+            for table in tables_with_user_id:
                 try:
-                    conn.execute(_text(f"DELETE FROM commissions WHERE earner_id IN ({ids_str}) OR source_user_id IN ({ids_str})"))
+                    with engine.connect() as c:
+                        c.execute(_text(f"DELETE FROM {table} WHERE user_id IN ({ids_str})"))
+                        c.commit()
                 except Exception:
                     pass
-                # Short link clicks (has link_id not user_id)
-                try:
-                    conn.execute(_text(f"DELETE FROM short_link_clicks WHERE link_id IN (SELECT id FROM short_links WHERE user_id IN ({ids_str}))"))
-                except Exception:
-                    pass
-                # Delete users
-                conn.execute(_text(f"DELETE FROM users WHERE id IN ({ids_str})"))
+            # Commissions
+            try:
+                with engine.connect() as c:
+                    c.execute(_text(f"DELETE FROM commissions WHERE earner_id IN ({ids_str}) OR source_user_id IN ({ids_str})"))
+                    c.commit()
+            except Exception:
+                pass
+            # Delete users
+            with engine.connect() as c:
+                c.execute(_text(f"DELETE FROM users WHERE id IN ({ids_str})"))
+                c.commit()
 
-            # Reset admin balances
-            conn.execute(_text("""
+        # Reset admin balances
+        with engine.connect() as c:
+            c.execute(_text("""
                 UPDATE users SET 
                     balance=0, total_earned=0, total_withdrawn=0,
                     grid_earnings=0, level_earnings=0, upline_earnings=0,
@@ -3442,15 +3445,21 @@ def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
                     personal_referrals=0, total_team=0, course_sale_count=0
                 WHERE id = :aid
             """), {"aid": admin_id})
+            c.commit()
 
-            # Clear all crypto orders and commissions
-            conn.execute(_text("DELETE FROM crypto_payment_orders"))
-            try:
-                conn.execute(_text("DELETE FROM commissions"))
-            except Exception:
-                pass
-
-            conn.commit()
+        # Clear all crypto orders and commissions
+        try:
+            with engine.connect() as c:
+                c.execute(_text("DELETE FROM crypto_payment_orders"))
+                c.commit()
+        except Exception:
+            pass
+        try:
+            with engine.connect() as c:
+                c.execute(_text("DELETE FROM commissions"))
+                c.commit()
+        except Exception:
+            pass
 
         return {"ok": True, "deleted_users": deleted, "admin_reset": True, "message": "All test data cleared. Fresh start."}
     except Exception as e:
