@@ -32,7 +32,7 @@ export default function MyNetwork() {
     });
 
   function copyLink() {
-    var link = window.location.origin + '/join/' + (d.username || 'member');
+    var link = 'https://www.superadpro.com/ref/' + (d.username || 'member');
     navigator.clipboard.writeText(link).then(function() {
       setCopied(true);
       setTimeout(function() { setCopied(false); }, 2000);
@@ -47,7 +47,7 @@ export default function MyNetwork() {
         <div>
           <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('network.yourReferralLink')}</div>
           <div style={{fontSize:14,fontWeight:600,color:'rgba(255,255,255,.6)',fontFamily:'monospace'}}>
-            {window.location.origin}/join/{d.username || 'member'}
+            https://www.superadpro.com/ref/{d.username || 'member'}
           </div>
         </div>
         <button onClick={copyLink}
