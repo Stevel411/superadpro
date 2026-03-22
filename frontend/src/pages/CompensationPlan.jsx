@@ -1411,8 +1411,8 @@ function CalculatorSection() {
   var [activeTiers, setActiveTiers] = useState([3]); // $100 tier on by default
   var [directRefs, setDirectRefs] = useState(15);
   var [gridAdvances, setGridAdvances] = useState(1);
-  var [memberPlan] = useState('mixed');
-  var commPerRef = 13.75; // blended average of Basic ($10) and Pro ($17.50)
+  var [sponsorTier, setSponsorTier] = useState('basic');
+  var commPerRef = sponsorTier === 'pro' ? 17.50 : 10.00;
 
   function toggleTier(n) {
     setActiveTiers(function(prev) {
@@ -1476,6 +1476,24 @@ function CalculatorSection() {
           </div>
           <div style={{padding:'24px'}}>
 
+            {/* Your membership tier */}
+            <div style={{marginBottom:24}}>
+              <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:10}}>Your Membership Tier</div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+                {[['basic','Basic — $10/ref','#16a34a'],['pro','Pro — $17.50/ref','#0ea5e9']].map(function([val,label,color]) {
+                  var on = sponsorTier === val;
+                  return (
+                    <button key={val} onClick={function(){ setSponsorTier(val); }}
+                      style={{padding:'10px 12px',borderRadius:8,border:on?'2px solid '+color:'2px solid #e8ecf2',
+                        background:on?color+'15':'#f8f9fb',cursor:'pointer',fontFamily:'inherit',transition:'all .15s',
+                        fontSize:13,fontWeight:on?800:600,color:on?color:'#94a3b8'}}>
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             {/* Tier selector */}
             <div style={{marginBottom:24}}>
               <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:10}}>{t('compPlan.activeCampaignTiers')}</div>
@@ -1536,7 +1554,7 @@ function CalculatorSection() {
                 <div style={{fontSize:11,fontWeight:800,color:'#16a34a',letterSpacing:1}}>STREAM 1 — MEMBERSHIP</div>
                 <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#16a34a'}}>{fmt(s1Annual)}</div>
               </div>
-              <div style={{fontSize:11,color:'#64748b'}}>{directRefs} referrals × {fmt(commPerRef)}/mo × 12 months</div>
+              <div style={{fontSize:11,color:'#64748b'}}>{directRefs} referrals × ${commPerRef.toFixed(2)}/mo × 12 months</div>
               <div style={{fontSize:10,color:'#94a3b8',marginTop:2}}>Monthly: {fmt(s1Monthly)}</div>
             </div>
 
