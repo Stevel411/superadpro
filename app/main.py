@@ -2869,6 +2869,19 @@ def _activate_membership(db, user, tier, source="stripe", subscription_id=None, 
             )
             db.add(comm)
 
+            # Send cha-ching commission email to sponsor
+            try:
+                from .email_utils import send_commission_email
+                if sponsor.email:
+                    send_commission_email(
+                        to_email=sponsor.email,
+                        first_name=sponsor.first_name or sponsor.username,
+                        commission_type="Membership Sponsor",
+                        from_username=user.username,
+                    )
+            except Exception:
+                pass
+
     # Create renewal record
     try:
         initialise_renewal_record(db, user.id, source=source)
