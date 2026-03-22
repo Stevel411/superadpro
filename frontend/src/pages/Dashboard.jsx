@@ -43,7 +43,7 @@ export default function Dashboard() {
   })();
 
   const copyRef = () => {
-    const link = `https://www.www.superadpro.com/ref/${user?.username}`;
+    const link = `https://superadpro.com/ref/${user?.username}`;
     navigator.clipboard.writeText(link);
     setRefCopied(true);
     setTimeout(() => setRefCopied(false), 2000);
@@ -442,7 +442,7 @@ export default function Dashboard() {
           <div style={{ background: '#f1f5f9', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
               <div style={{ fontSize: 12, fontWeight: 700, color: '#475569' }}>Your Referral Link</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0ea5e9', wordBreak: 'break-all' }}>www.superadpro.com/ref/{user?.username}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#0ea5e9', wordBreak: 'break-all' }}>superadpro.com/ref/{user?.username}</div>
             </div>
             <button onClick={copyRef} style={{
               padding: '6px 12px', borderRadius: 7, border: '1px solid #e5e7eb', background: '#fff',

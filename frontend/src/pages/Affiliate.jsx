@@ -22,7 +22,7 @@ export default function Affiliate() {
 
   useEffect(() => { apiGet('/api/affiliate').then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, []);
 
-  const refLink = `https://www.www.superadpro.com/ref/${user?.username}`;
+  const refLink = `https://superadpro.com/ref/${user?.username}`;
   const showToast = (msg) => { setToast(msg); setTimeout(() => setToast(''), 2500); };
   const copyRef = () => { navigator.clipboard.writeText(refLink); showToast('Referral link copied!'); };
   const copyCaption = () => { navigator.clipboard.writeText(CAPTIONS[capIdx].text.replace('{REF}', refLink)); showToast('Caption copied!'); };

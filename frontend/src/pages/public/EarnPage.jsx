@@ -328,7 +328,7 @@ export default function EarnPage() {
             {[
               ['🖼️','Personalised promo graphics — with your referral link embedded'],
               ['🤖','AI Social Post Generator — write posts for any platform in seconds'],
-              ['🔗','Your unique link — www.superadpro.com/ref/yourname'],
+              ['🔗','Your unique link — superadpro.com/ref/yourname'],
               ['📧','Email swipe files — proven templates ready to send'],
               ['📊','Real-time dashboard — track clicks, signups and earnings'],
             ].map(function([icon,text]) {

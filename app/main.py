@@ -1538,7 +1538,7 @@ def _old_affiliate_DISABLED(request: Request, user: User = Depends(get_current_u
     referrals = db.query(User).filter(User.sponsor_id == user.id).all()
     ctx.update({
         "referrals": referrals,
-        "ref_link": f"https://www.superadpro.com/ref/{user.username}",
+        "ref_link": f"https://superadpro.com/ref/{user.username}",
     })
     return templates.TemplateResponse("affiliate.html", ctx)
 
