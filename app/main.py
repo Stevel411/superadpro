@@ -3533,19 +3533,15 @@ def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
             """), {"aid": admin_id})
             c.commit()
 
-        # Clear all crypto orders and commissions
-        try:
-            with engine.connect() as c:
-                c.execute(_text("DELETE FROM crypto_payment_orders"))
-                c.commit()
-        except Exception:
-            pass
-        try:
-            with engine.connect() as c:
-                c.execute(_text("DELETE FROM commissions"))
-                c.commit()
-        except Exception:
-            pass
+        # Clear all crypto orders, commissions, payments, and grids
+        cleanup_tables = ["crypto_payment_orders", "commissions", "payments", "grid_positions", "grids"]
+        for table in cleanup_tables:
+            try:
+                with engine.connect() as c:
+                    c.execute(_text(f"DELETE FROM {table}"))
+                    c.commit()
+            except Exception:
+                pass
 
         return {"ok": True, "deleted_users": deleted, "admin_reset": True, "message": "All test data cleared. Fresh start."}
     except Exception as e:
