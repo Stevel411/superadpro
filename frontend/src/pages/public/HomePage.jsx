@@ -157,7 +157,7 @@ function RegisterModal({open,onClose,onSwitchToLogin,sponsor}){
         {sponsor ? (
           <div style={{marginBottom:14}}><label style={lS}>Your Sponsor</label><div style={{display:'flex',alignItems:'center',gap:10}}><input style={{...iS,opacity:.55,cursor:'default',flex:1}} value={sponsor} readOnly/><div style={{fontSize:12,color:'#10b981',fontWeight:700,whiteSpace:'nowrap'}}>✓ Verified</div></div></div>
         ) : (
-          <div style={{marginBottom:14}}><label style={lS}>Sponsor Username</label><input style={iS} value={form.ref} onChange={set('ref')} placeholder="Who referred you?" required/><div style={{fontSize:10,color:'rgba(148,163,184,.4)',marginTop:3}}>Enter the username of the person who told you about SuperAdPro</div></div>
+          <div style={{marginBottom:14}}><label style={lS}>Sponsor Username</label><input style={iS} value={form.ref} onChange={set('ref')} placeholder="SuperAdPro"/><div style={{fontSize:10,color:'rgba(148,163,184,.4)',marginTop:3}}>Enter your sponsor's username, or leave blank to join under the SuperAdPro team</div></div>
         )}
         <div style={{display:'flex',alignItems:'flex-start',gap:10,marginBottom:18,fontSize:13,color:'rgba(148,163,184,.6)',lineHeight:1.5}}>
           <input type="checkbox" checked={terms} onChange={function(e){setTerms(e.target.checked);}} style={{width:14,height:14,flexShrink:0,marginTop:1,accentColor:'#38bdf8',cursor:'pointer'}}/>

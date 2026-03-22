@@ -124,8 +124,8 @@ export default function Register() {
           ) : (
             <div style={styles.field}>
               <label style={styles.label}>Sponsor Username <span style={{ color: 'rgba(255,255,255,.3)', fontWeight: 400 }}>(who referred you?)</span></label>
-              <input value={form.ref} onChange={set('ref')} placeholder="Enter your sponsor's username" required style={styles.input} />
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,.3)', marginTop: 4, lineHeight: 1.4 }}>Every member needs a sponsor. If you don't have one, ask the person who told you about SuperAdPro for their username.</div>
+              <input value={form.ref} onChange={set('ref')} placeholder="SuperAdPro" style={styles.input} />
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,.3)', marginTop: 4, lineHeight: 1.4 }}>Enter your sponsor's username. If no one referred you, leave as default and you'll be placed under the SuperAdPro team.</div>
             </div>
           )}
 

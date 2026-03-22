@@ -912,6 +912,13 @@ def register_process(
         if sponsor:
             sponsor_id = sponsor.id
             sponsor.total_team = (sponsor.total_team or 0) + 1
+    
+    # Default to company account if no sponsor
+    if not sponsor_id:
+        company = db.query(User).filter(User.username == "SuperAdPro").first()
+        if company:
+            sponsor_id = company.id
+            company.total_team = (company.total_team or 0) + 1
 
     user = create_user(
         db, username, email, password,
@@ -7532,6 +7539,13 @@ async def api_register(
             if sponsor:
                 sponsor_id = sponsor.id
                 sponsor.total_team = (sponsor.total_team or 0) + 1
+        
+        # Default to company account if no sponsor
+        if not sponsor_id:
+            company = db.query(User).filter(User.username == "SuperAdPro").first()
+            if company:
+                sponsor_id = company.id
+                company.total_team = (company.total_team or 0) + 1
 
         user = create_user(
             db, username, email, password,
