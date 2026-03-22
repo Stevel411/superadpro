@@ -209,7 +209,7 @@ export default function Upgrade() {
                   ['✨', 'Everything in Basic', true],
                   ['🤖', 'ProSeller AI assistant', false],
                   ['🚀', 'AI Funnel Generator', false],
-                  ['📇', 'SuperLeads CRM', false],
+                  ['📇', 'Email Autoresponder & CRM', false],
                   ['🎯', 'Campaign Studio', false],
                   ['🔍', 'Niche Finder AI', false],
                   ['📱', 'Social Post Generator', false],
