@@ -320,8 +320,6 @@ export default function HomePage(){
                 <rect x="140" y="98" width="50" height="30" rx="4" fill="#050d1a" stroke="#38bdf8" strokeWidth="0.6" opacity="0.5"/>
                 <polyline points="146,122 154,118 160,120 168,112 174,108 182,104" fill="none" stroke="#0ea5e9" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
                 <circle cx="182" cy="104" r="2" fill="#38bdf8"/>
-                <rect x="76" y="110" width="48" height="18" rx="9" fill="#0ea5e9" opacity="0.15" stroke="#0ea5e9" strokeWidth="0.8"/>
-                <text x="100" y="122" textAnchor="middle" fill="#0ea5e9" fontSize="7" fontWeight="bold">8 CAMPAIGN TIERS</text>
               </svg>
               <span style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#0ea5e9',position:'absolute',bottom:14,zIndex:2,textShadow:'0 0 30px rgba(14,165,233,0.4)'}}>Advertise</span>
             </div>
