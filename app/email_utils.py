@@ -283,7 +283,7 @@ def send_commission_email(to_email: str, first_name: str, commission_type: str =
     html = _email_shell("Commission Alert", "linear-gradient(135deg,#f0fdf4,#dcfce7)", hero, body)
     return send_email(
         to_email=to_email,
-        subject=f"Cha-Ching! You received a {commission_type} commission on SuperAdPro!",
+        subject=f"Cha-Ching! You just earned a commission on SuperAdPro!",
         html_body=html,
     )
 
