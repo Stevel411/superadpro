@@ -432,25 +432,102 @@ export default function HomePage(){
           <p style={{fontSize:15,color:'rgba(200,220,255,.45)',maxWidth:640,margin:'0 auto'}}>Our Ad Board and Video Library are public, SEO-indexed, and designed to bring organic traffic to the platform — and to your listings.</p>
         </div>
         <div className="hp-two" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:24,marginBottom:32}}>
-          {[
-            {label:'Ad Board',color:'#10b981',href:'/ads',tags:['SEO Indexed','Free to Post','Unlimited Listings','Public Access'],desc:'A public, SEO-indexed community marketplace. Post unlimited listings for free — every ad gets its own Google-indexed page with a shareable URL.',cta:'Browse the Ad Board →'},
-            {label:'Video Library',color:'#f59e0b',href:'/videos',tags:['Watch to Earn','Real Engagement','YouTube + Vimeo','Public Access'],desc:'Watch campaign videos from advertisers and earn rewards. A public-facing video library that brings organic viewers to the platform and generates real engagement.',cta:'Watch Videos →'},
-          ].map(function(c){
-            return (
-              <div key={c.label} className="hp-card" style={{borderRadius:16,overflow:'hidden'}}>
-                <div style={{height:180,background:'rgba(5,13,26,.9)',display:'flex',alignItems:'flex-end',justifyContent:'center',paddingBottom:16,border:'1px solid rgba(255,255,255,.06)',borderBottom:'none'}}>
-                  <span style={{fontFamily:"'Sora',sans-serif",fontSize:18,fontWeight:800,color:'#fff'}}>{c.label}</span>
-                </div>
-                <div style={{padding:20,background:'rgba(5,13,26,.92)',borderTop:'1px solid rgba(255,255,255,.04)'}}>
-                  <p style={{fontSize:13,color:'rgba(200,220,255,.5)',lineHeight:1.65,marginBottom:12}}>{c.desc}</p>
-                  <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:14}}>
-                    {c.tags.map(function(t){return <span key={t} style={{fontSize:10,fontWeight:700,padding:'3px 10px',borderRadius:5,background:`rgba(${c.color==='#10b981'?'16,185,129':'245,158,11'},.1)`,color:c.color,border:`1px solid ${c.color}30`}}>{t}</span>;})}
-                  </div>
-                  <Link to={c.href} style={{fontSize:13,fontWeight:700,color:c.color,textDecoration:'none'}}>{c.cta}</Link>
-                </div>
+
+          {/* AD BOARD */}
+          <div className="hp-card" style={{borderRadius:16,overflow:'hidden',border:'1px solid rgba(16,185,129,0.15)'}}>
+            <div style={{height:190,position:'relative',background:'linear-gradient(160deg,#031a12,#082a1a,#041510)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
+              <svg viewBox="0 0 260 150" style={{width:'100%',height:'100%',position:'absolute',top:0,left:0}}>
+                <rect x="18" y="8" width="56" height="38" rx="4" fill="#0a1f16" stroke="#10b981" strokeWidth="0.8" opacity="0.5"/>
+                <rect x="22" y="12" width="48" height="18" rx="2" fill="#10b981" opacity="0.06"/>
+                <rect x="22" y="33" width="30" height="2.5" rx="1" fill="#10b981" opacity="0.2"/>
+                <rect x="22" y="38" width="20" height="2" rx="1" fill="#10b981" opacity="0.12"/>
+                <text x="64" y="15" textAnchor="end" fill="#10b981" fontSize="5" opacity="0.4">🏠</text>
+                <rect x="80" y="8" width="56" height="38" rx="4" fill="#0a1f16" stroke="#10b981" strokeWidth="0.8" opacity="0.6"/>
+                <rect x="84" y="12" width="48" height="18" rx="2" fill="#10b981" opacity="0.08"/>
+                <rect x="84" y="33" width="34" height="2.5" rx="1" fill="#10b981" opacity="0.25"/>
+                <rect x="84" y="38" width="22" height="2" rx="1" fill="#10b981" opacity="0.15"/>
+                <text x="126" y="15" textAnchor="end" fill="#34d399" fontSize="5" opacity="0.4">💼</text>
+                <rect x="142" y="8" width="56" height="38" rx="4" fill="#0a1f16" stroke="#34d399" strokeWidth="0.8" opacity="0.5"/>
+                <rect x="146" y="12" width="48" height="18" rx="2" fill="#34d399" opacity="0.06"/>
+                <rect x="146" y="33" width="28" height="2.5" rx="1" fill="#34d399" opacity="0.2"/>
+                <rect x="146" y="38" width="18" height="2" rx="1" fill="#34d399" opacity="0.12"/>
+                <text x="188" y="15" textAnchor="end" fill="#34d399" fontSize="5" opacity="0.4">🚗</text>
+                <rect x="204" y="8" width="46" height="38" rx="4" fill="#0a1f16" stroke="#10b981" strokeWidth="0.6" opacity="0.35"/>
+                <rect x="208" y="12" width="38" height="18" rx="2" fill="#10b981" opacity="0.04"/>
+                <rect x="18" y="52" width="56" height="38" rx="4" fill="#0a1f16" stroke="#34d399" strokeWidth="0.8" opacity="0.5"/>
+                <rect x="22" y="56" width="48" height="18" rx="2" fill="#34d399" opacity="0.07"/>
+                <rect x="22" y="77" width="32" height="2.5" rx="1" fill="#34d399" opacity="0.2"/>
+                <rect x="22" y="82" width="24" height="2" rx="1" fill="#34d399" opacity="0.12"/>
+                <text x="64" y="59" textAnchor="end" fill="#34d399" fontSize="5" opacity="0.4">📱</text>
+                <rect x="80" y="52" width="56" height="38" rx="4" fill="#0a1f16" stroke="#10b981" strokeWidth="0.8" opacity="0.7"/>
+                <rect x="84" y="56" width="48" height="18" rx="2" fill="#10b981" opacity="0.1"/>
+                <rect x="84" y="77" width="36" height="2.5" rx="1" fill="#10b981" opacity="0.3"/>
+                <rect x="84" y="82" width="26" height="2" rx="1" fill="#10b981" opacity="0.18"/>
+                <text x="126" y="59" textAnchor="end" fill="#10b981" fontSize="5" opacity="0.5">⭐</text>
+                <rect x="142" y="52" width="56" height="38" rx="4" fill="#0a1f16" stroke="#10b981" strokeWidth="0.8" opacity="0.5"/>
+                <rect x="146" y="56" width="48" height="18" rx="2" fill="#10b981" opacity="0.06"/>
+                <rect x="146" y="77" width="30" height="2.5" rx="1" fill="#10b981" opacity="0.2"/>
+                <rect x="204" y="52" width="46" height="38" rx="4" fill="#0a1f16" stroke="#34d399" strokeWidth="0.6" opacity="0.35"/>
+                <rect x="85" y="98" width="90" height="20" rx="10" fill="#0a1f16" stroke="#10b981" strokeWidth="0.8" opacity="0.7"/>
+                <text x="130" y="111" textAnchor="middle" fill="#10b981" fontSize="6.5" fontWeight="bold">🔍 SEO INDEXED</text>
+                <circle cx="30" cy="110" r="8" fill="#10b981" opacity="0.08" stroke="#10b981" strokeWidth="0.6" opacity="0.3"/>
+                <text x="30" y="113" textAnchor="middle" fill="#10b981" fontSize="6" opacity="0.4">🔗</text>
+                <circle cx="220" cy="110" r="8" fill="#34d399" opacity="0.08" stroke="#34d399" strokeWidth="0.6" opacity="0.3"/>
+                <text x="220" y="113" textAnchor="middle" fill="#34d399" fontSize="6" opacity="0.4">📤</text>
+              </svg>
+              <span style={{fontFamily:"'Sora',sans-serif",fontSize:18,fontWeight:800,color:'#fff',position:'absolute',bottom:14,zIndex:2,textShadow:'0 2px 8px rgba(0,0,0,0.8), 0 0 30px rgba(16,185,129,0.4)',background:'linear-gradient(180deg,transparent,rgba(3,26,18,0.9))',padding:'20px 24px 0',width:'100%',textAlign:'center',left:0,boxSizing:'border-box'}}>Ad Board</span>
+            </div>
+            <div style={{padding:20,background:'rgba(5,13,26,.95)',borderTop:'1px solid rgba(16,185,129,0.1)'}}>
+              <p style={{fontSize:13,color:'rgba(200,220,255,.5)',lineHeight:1.65,marginBottom:12}}>A public, SEO-indexed community marketplace. Post unlimited listings for free — every ad gets its own Google-indexed page with a shareable URL.</p>
+              <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:14}}>
+                {['SEO Indexed','Free to Post','Unlimited Listings','Public Access'].map(function(t){return <span key={t} style={{fontSize:10,fontWeight:700,padding:'3px 10px',borderRadius:5,background:'rgba(16,185,129,.1)',color:'#10b981',border:'1px solid rgba(16,185,129,.2)'}}>{t}</span>;})}
               </div>
-            );
-          })}
+              <Link to="/ads" style={{fontSize:13,fontWeight:700,color:'#10b981',textDecoration:'none'}}>Browse the Ad Board →</Link>
+            </div>
+          </div>
+
+          {/* VIDEO LIBRARY */}
+          <div className="hp-card" style={{borderRadius:16,overflow:'hidden',border:'1px solid rgba(245,158,11,0.15)'}}>
+            <div style={{height:190,position:'relative',background:'linear-gradient(160deg,#1a1000,#2a1a05,#150e02)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
+              <svg viewBox="0 0 260 150" style={{width:'100%',height:'100%',position:'absolute',top:0,left:0}}>
+                <rect x="45" y="8" width="170" height="90" rx="8" fill="#1a1205" stroke="#f59e0b" strokeWidth="1.2" opacity="0.5"/>
+                <rect x="50" y="13" width="160" height="75" rx="5" fill="#f59e0b" opacity="0.04"/>
+                <circle cx="130" cy="46" r="18" fill="#f59e0b" opacity="0.08" stroke="#f59e0b" strokeWidth="1.5" opacity="0.5"/>
+                <circle cx="130" cy="46" r="12" fill="#f59e0b" opacity="0.05"/>
+                <polygon points="125,37 125,55 140,46" fill="#f59e0b" opacity="0.6"/>
+                <rect x="55" y="78" width="150" height="3" rx="1.5" fill="#f59e0b" opacity="0.1"/>
+                <rect x="55" y="78" width="90" height="3" rx="1.5" fill="#f59e0b" opacity="0.35"/>
+                <circle cx="145" cy="79.5" r="4" fill="#f59e0b" opacity="0.5"/>
+                <text x="60" y="76" fill="#f59e0b" fontSize="5" opacity="0.4">2:34</text>
+                <text x="197" y="76" textAnchor="end" fill="#f59e0b" fontSize="5" opacity="0.3">5:12</text>
+                <rect x="8" y="14" width="30" height="20" rx="3" fill="#1a1205" stroke="#f59e0b" strokeWidth="0.6" opacity="0.4"/>
+                <polygon points="18,20 18,28 25,24" fill="#f59e0b" opacity="0.3"/>
+                <rect x="8" y="38" width="30" height="20" rx="3" fill="#1a1205" stroke="#fbbf24" strokeWidth="0.6" opacity="0.4"/>
+                <polygon points="18,44 18,52 25,48" fill="#fbbf24" opacity="0.3"/>
+                <rect x="8" y="62" width="30" height="20" rx="3" fill="#1a1205" stroke="#f59e0b" strokeWidth="0.6" opacity="0.3"/>
+                <polygon points="18,68 18,76 25,72" fill="#f59e0b" opacity="0.2"/>
+                <rect x="222" y="14" width="30" height="20" rx="3" fill="#1a1205" stroke="#fbbf24" strokeWidth="0.6" opacity="0.4"/>
+                <polygon points="232,20 232,28 239,24" fill="#fbbf24" opacity="0.3"/>
+                <rect x="222" y="38" width="30" height="20" rx="3" fill="#1a1205" stroke="#f59e0b" strokeWidth="0.6" opacity="0.4"/>
+                <polygon points="232,44 232,52 239,48" fill="#f59e0b" opacity="0.3"/>
+                <rect x="222" y="62" width="30" height="20" rx="3" fill="#1a1205" stroke="#fbbf24" strokeWidth="0.6" opacity="0.3"/>
+                <polygon points="232,68 232,76 239,72" fill="#fbbf24" opacity="0.2"/>
+                <rect x="75" y="105" width="110" height="22" rx="11" fill="#1a1205" stroke="#f59e0b" strokeWidth="0.8" opacity="0.7"/>
+                <text x="130" y="119" textAnchor="middle" fill="#f59e0b" fontSize="7" fontWeight="bold">👁️ WATCH TO EARN</text>
+                <text x="55" y="116" fill="#fbbf24" fontSize="7" opacity="0.3">💰</text>
+                <text x="200" y="116" fill="#fbbf24" fontSize="7" opacity="0.3">💰</text>
+              </svg>
+              <span style={{fontFamily:"'Sora',sans-serif",fontSize:18,fontWeight:800,color:'#fff',position:'absolute',bottom:14,zIndex:2,textShadow:'0 2px 8px rgba(0,0,0,0.8), 0 0 30px rgba(245,158,11,0.4)',background:'linear-gradient(180deg,transparent,rgba(26,16,0,0.9))',padding:'20px 24px 0',width:'100%',textAlign:'center',left:0,boxSizing:'border-box'}}>Video Library</span>
+            </div>
+            <div style={{padding:20,background:'rgba(5,13,26,.95)',borderTop:'1px solid rgba(245,158,11,0.1)'}}>
+              <p style={{fontSize:13,color:'rgba(200,220,255,.5)',lineHeight:1.65,marginBottom:12}}>Watch campaign videos from advertisers and earn rewards. A public-facing video library that brings organic viewers to the platform and generates real engagement.</p>
+              <div style={{display:'flex',gap:8,flexWrap:'wrap',marginBottom:14}}>
+                {['Watch to Earn','Real Engagement','YouTube + Vimeo','Public Access'].map(function(t){return <span key={t} style={{fontSize:10,fontWeight:700,padding:'3px 10px',borderRadius:5,background:'rgba(245,158,11,.1)',color:'#f59e0b',border:'1px solid rgba(245,158,11,.2)'}}>{t}</span>;})}
+              </div>
+              <Link to="/videos" style={{fontSize:13,fontWeight:700,color:'#f59e0b',textDecoration:'none'}}>Watch Videos →</Link>
+            </div>
+          </div>
+
         </div>
       </section>
 
