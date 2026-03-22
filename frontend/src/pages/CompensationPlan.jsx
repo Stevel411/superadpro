@@ -20,7 +20,7 @@ function useCountUp(target, duration, trigger) {
       if (!startTime) startTime = ts;
       var progress = Math.min((ts - startTime) / duration, 1);
       var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-      setVal(Math.round(start + (target - start) * eased));
+      setVal(target % 1 === 0 ? Math.round(start + (target - start) * eased) : parseFloat((start + (target - start) * eased).toFixed(2)));
       if (progress < 1) requestAnimationFrame(step);
     }
     requestAnimationFrame(step);
@@ -111,7 +111,7 @@ function MembershipSection() {
   var [tableRef, tableVisible] = useInView(0.1);
 
   var basicComm = useCountUp(10, 1200, earnVisible);
-  var proComm = useCountUp(15, 1200, earnVisible);
+  var proComm = useCountUp(17.50, 1200, earnVisible);
 
   return (
     <div>
@@ -283,7 +283,7 @@ function MembershipSection() {
             <div style={{textAlign:'center',padding:24,background:'#faf5ff',borderRadius:12,border:'1px solid #e9d5ff'}}>
               <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:8}}>{t('compPlan.proReferral')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:48,fontWeight:800,color:'#8b5cf6',lineHeight:1}}>
-                ${proComm}
+                ${typeof proComm === 'number' && proComm % 1 !== 0 ? proComm.toFixed(2) : proComm}
               </div>
               <div style={{fontSize:13,color:'#64748b',fontWeight:600,marginTop:4}}>/month per member</div>
               <div style={{marginTop:12,display:'flex',justifyContent:'center',gap:4}}>
@@ -365,7 +365,7 @@ function MembershipSection() {
               <tbody>
                 {[5,10,25,50,100,250,500].map(function(n, i) {
                   var bm = n * 10;
-                  var pm = n * 15;
+                  var pm = n * 17.50;
                   return (
                     <tr key={n} style={{
                       opacity:tableVisible?1:0,transform:tableVisible?'translateX(0)':'translateX(-20px)',
@@ -400,12 +400,12 @@ function MilestoneTracker(props) {
   var { t } = useTranslation();
   var [ref, inView] = useInView(0.2);
   var milestones = [
-    {n:5,label:'Starter',color:'#94a3b8',basic:50,pro:75},
-    {n:10,label:'Builder',color:'#0ea5e9',basic:100,pro:150},
-    {n:25,label:'Achiever',color:'#16a34a',basic:250,pro:375},
-    {n:50,label:'Leader',color:'#8b5cf6',basic:500,pro:750},
-    {n:100,label:'Elite',color:'#f59e0b',basic:1000,pro:1500},
-    {n:250,label:'Diamond',color:'#ec4899',basic:2500,pro:3750},
+    {n:5,label:'Starter',color:'#94a3b8',basic:50,pro:87.50},
+    {n:10,label:'Builder',color:'#0ea5e9',basic:100,pro:175},
+    {n:25,label:'Achiever',color:'#16a34a',basic:250,pro:437.50},
+    {n:50,label:'Leader',color:'#8b5cf6',basic:500,pro:875},
+    {n:100,label:'Elite',color:'#f59e0b',basic:1000,pro:1750},
+    {n:250,label:'Diamond',color:'#ec4899',basic:2500,pro:4375},
   ];
 
   return (
