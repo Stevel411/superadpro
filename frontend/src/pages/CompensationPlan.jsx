@@ -383,7 +383,7 @@ function MembershipSection() {
             </table>
           </div>
           <div style={{marginTop:16,padding:'12px 16px',background:'#fffbeb',borderRadius:10,border:'1px solid #fef3c7',fontSize:11,color:'#92400e',lineHeight:1.6}}>
-            <strong>Note:</strong> All figures represent potential earnings based on active referrals maintaining their membership. Actual income depends on your personal activity and referral retention. Income is not guaranteed.
+            <strong>Note:</strong> Commission amounts shown are per referral based on your membership tier. Actual earnings depend on your referral activity and retention.
           </div>
         </div>
       </div>
@@ -1458,10 +1458,10 @@ function CalculatorSection() {
             <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>{t('compPlan.earningsCalculator')}</span>
           </div>
           <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:'#fff',margin:'0 0 12px',lineHeight:1.2}}>
-            Estimate Your Income Potential
+            Commission Calculator
           </h2>
           <p style={{fontSize:16,color:'rgba(255,255,255,.7)',maxWidth:560,lineHeight:1.7,margin:0}}>
-            Select your active campaign tiers, set your referral numbers, and see projected earnings across all income streams. Adjust the sliders to explore different scenarios.
+            Select your active campaign tiers, set your referral numbers, and see your commission breakdown across all income streams.
           </p>
         </div>
       </div>
@@ -1583,11 +1583,11 @@ function CalculatorSection() {
 
             {/* Grand total */}
             <div style={{marginTop:'auto',padding:'20px',background:'linear-gradient(135deg,#0f172a,#1e293b)',borderRadius:12,textAlign:'center'}}>
-              <div style={{fontSize:10,fontWeight:800,color:'#94a3b8',letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>Total Projected Annual Income</div>
+              <div style={{fontSize:10,fontWeight:800,color:'#94a3b8',letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>Total Annual Commissions</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:800,color:'#4ade80',lineHeight:1,transition:'all .3s ease'}}>
                 {fmt(grandTotal)}
               </div>
-              <div style={{fontSize:11,color:'#64748b',marginTop:8}}>Across all selected tiers and streams</div>
+              <div style={{fontSize:11,color:'#64748b',marginTop:8}}>Based on your selected tiers and referrals</div>
             </div>
           </div>
         </div>
@@ -1626,7 +1626,7 @@ function CalculatorSection() {
 
       {/* ── Disclaimer ── */}
       <div style={{padding:'16px 20px',background:'#fffbeb',borderRadius:12,border:'1px solid #fef3c7',fontSize:12,color:'#92400e',lineHeight:1.6}}>
-        <strong>⚠️ Important:</strong> All figures are projections based on your selected scenario. Uni-level calculations assume full grid completion (64 seats) per advance. Direct sponsor commissions assume all referrals activate the selected tiers. Actual earnings depend entirely on your personal activity and network performance. Income is not guaranteed.
+        <strong>ℹ️ Note:</strong> Uni-level calculations assume full grid completion (64 seats) per advance. Direct sponsor commissions are based on all referrals activating the selected tiers. Actual earnings depend on your personal activity and network performance. Income is not guaranteed.
       </div>
     </div>
   );
