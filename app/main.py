@@ -734,6 +734,10 @@ def contact(request: Request):
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse(url="/", status_code=302)
 
+@app.get("/wallet-guide")
+def wallet_guide(request: Request):
+    return templates.TemplateResponse("wallet-guide.html", {"request": request})
+
 @app.get("/apple-touch-icon.png")
 @app.get("/apple-touch-icon-precomposed.png")
 def apple_touch_icon():
