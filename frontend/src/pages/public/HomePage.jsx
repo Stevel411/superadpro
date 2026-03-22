@@ -149,7 +149,7 @@ function RegisterModal({open,onClose,onSwitchToLogin,sponsor}){
       <form onSubmit={submit}>
         <div style={{marginBottom:14}}><label style={lS}>First Name</label><input style={iS} value={form.first_name} onChange={set('first_name')} placeholder="John" required/></div>
         <div style={{marginBottom:14}}><label style={lS}>Email Address</label><input style={iS} type="email" value={form.email} onChange={set('email')} placeholder="john@example.com" required/></div>
-        <div style={{marginBottom:14}}><label style={lS}>Username</label><input style={iS} value={form.username} onChange={set('username')} placeholder="johnsmith99" required pattern="[a-zA-Z0-9_]{3,30}"/></div>
+        <div style={{marginBottom:14}}><label style={lS}>Username</label><input style={iS} value={form.username} onChange={set('username')} placeholder="johnsmith99" required pattern="[a-zA-Z0-9_]{3,30}" autoComplete="off"/></div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
           <div><label style={lS}>Password</label><input style={iS} type="password" value={form.password} onChange={set('password')} placeholder="Min. 8 chars" required minLength={8}/></div>
           <div><label style={lS}>Confirm</label><input style={iS} type="password" value={form.confirm_password} onChange={set('confirm_password')} placeholder="Repeat" required/></div>
