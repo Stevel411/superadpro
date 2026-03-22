@@ -317,6 +317,34 @@ export default function Dashboard() {
       <div className="actions-grid grid-5-col" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
+            name: 'Watch to Earn', desc: 'Watch daily videos for bonus earnings', link: '/watch',
+            color: '#7c3aed', bg: 'linear-gradient(135deg,#faf5ff,#ede9fe)',
+            icon: (
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <rect x="2" y="5" width="20" height="14" rx="3" fill="#ede9fe" stroke="#7c3aed" strokeWidth="1.5"/>
+                <polygon points="10,9 10,15 16,12" fill="#7c3aed"/>
+                <circle cx="19" cy="7" r="3" fill="#f59e0b"/>
+                <text x="19" y="9" textAnchor="middle" fontSize="4" fontWeight="bold" fill="#fff">$</text>
+              </svg>
+            )
+          },
+          {
+            name: 'Campaign Tiers', desc: 'Activate a tier to unlock the earning engine', link: '/campaign-tiers',
+            color: '#16a34a', bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)',
+            icon: (
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="#16a34a"/>
+                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="url(#qaZap)"/>
+                <defs>
+                  <linearGradient id="qaZap" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
+                    <stop stopColor="#4ade80"/>
+                    <stop offset="1" stopColor="#16a34a"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            )
+          },
+          {
             name: 'Browse Courses', desc: 'Learn skills & earn 100% commissions', link: '/courses',
             color: '#6366f1', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
             icon: (
@@ -340,22 +368,6 @@ export default function Dashboard() {
             )
           },
           {
-            name: 'Campaign Tiers', desc: 'Activate a tier to unlock the earning engine', link: '/campaign-tiers',
-            color: '#16a34a', bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)',
-            icon: (
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="#16a34a"/>
-                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="url(#qaZap)"/>
-                <defs>
-                  <linearGradient id="qaZap" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#4ade80"/>
-                    <stop offset="1" stopColor="#16a34a"/>
-                  </linearGradient>
-                </defs>
-              </svg>
-            )
-          },
-          {
             name: 'AI Marketing', desc: 'Generate campaigns, social posts & scripts', link: '/campaign-studio',
             color: '#d97706', bg: 'linear-gradient(135deg,#fffbeb,#fef3c7)',
             icon: (
@@ -364,18 +376,6 @@ export default function Dashboard() {
                 <circle cx="12" cy="14" r="2.5" fill="#f59e0b"/>
                 <path d="M8 8V6a4 4 0 0 1 8 0v2" stroke="#d97706" strokeWidth="1.8" strokeLinecap="round"/>
                 <circle cx="12" cy="14" r="1" fill="#fff"/>
-              </svg>
-            )
-          },
-          {
-            name: 'Watch to Earn', desc: 'Watch daily videos for bonus earnings', link: '/watch',
-            color: '#7c3aed', bg: 'linear-gradient(135deg,#faf5ff,#ede9fe)',
-            icon: (
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <rect x="2" y="5" width="20" height="14" rx="3" fill="#ede9fe" stroke="#7c3aed" strokeWidth="1.5"/>
-                <polygon points="10,9 10,15 16,12" fill="#7c3aed"/>
-                <circle cx="19" cy="7" r="3" fill="#f59e0b"/>
-                <text x="19" y="9" textAnchor="middle" fontSize="4" fontWeight="bold" fill="#fff">$</text>
               </svg>
             )
           },
