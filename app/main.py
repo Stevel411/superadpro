@@ -3447,14 +3447,15 @@ def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
                 c.execute(_text(f"DELETE FROM users WHERE id IN ({ids_str})"))
                 c.commit()
 
-        # Reset admin balances
+        # Reset admin balances and set to Pro tier
         with engine.connect() as c:
             c.execute(_text("""
                 UPDATE users SET 
                     balance=0, total_earned=0, total_withdrawn=0,
                     grid_earnings=0, level_earnings=0, upline_earnings=0,
                     course_earnings=0, marketplace_earnings=0, bonus_earnings=0,
-                    personal_referrals=0, total_team=0, course_sale_count=0
+                    personal_referrals=0, total_team=0, course_sale_count=0,
+                    membership_tier='pro', is_active=true
                 WHERE id = :aid
             """), {"aid": admin_id})
             c.commit()
