@@ -296,22 +296,130 @@ export default function HomePage(){
           <p style={{fontSize:15,color:'rgba(200,220,255,.45)',maxWidth:600,margin:'0 auto'}}>A complete advertising and marketing platform — video campaigns, AI content tools, landing pages, and a built-in audience ready to engage.</p>
         </div>
         <div className="hp-three" style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:20,marginBottom:48}}>
-          {[
-            {label:'Advertise',color:'#0ea5e9',bg:'linear-gradient(145deg,#0c1e4a,#102a5c,#061230)',desc:'Launch video ad campaigns across 8 tiers. Your videos are watched by real, engaged members — not bots. Track views, measure engagement, and scale your reach.'},
-            {label:'Create',color:'#8b5cf6',bg:'linear-gradient(145deg,#120530,#220d52,#0e0628)',desc:'AI Campaign Studio, Social Post Generator, Video Script Writer, SuperPages landing page builder, LinkHub, and email tools. Create professional marketing content in seconds.'},
-            {label:'Grow',color:'#10b981',bg:'linear-gradient(145deg,#001a12,#003d22,#001510)',desc:'Build your audience through courses, the Ad Board marketplace, and an affiliate network that promotes your content. Earn commissions as your network grows.'},
-          ].map(function(c){
-            return (
-              <div key={c.label} className="hp-card" style={{borderRadius:16,overflow:'hidden'}}>
-                <div style={{height:160,position:'relative',background:c.bg,display:'flex',alignItems:'flex-end',justifyContent:'center',paddingBottom:16}}>
-                  <span style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:c.color,position:'relative',zIndex:2}}>{c.label}</span>
-                </div>
-                <div style={{padding:'18px 20px',background:'rgba(5,13,26,.92)',borderTop:'1px solid rgba(255,255,255,.04)'}}>
-                  <p style={{fontSize:13,color:'rgba(200,220,255,.5)',lineHeight:1.65}}>{c.desc}</p>
-                </div>
-              </div>
-            );
-          })}
+
+          {/* ADVERTISE */}
+          <div className="hp-card" style={{borderRadius:16,overflow:'hidden',border:'1px solid rgba(14,165,233,0.2)'}}>
+            <div style={{height:190,position:'relative',background:'linear-gradient(160deg,#030b1a,#0c1e4a,#061835)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
+              <svg viewBox="0 0 200 150" style={{width:'100%',height:'100%',position:'absolute',top:0,left:0}}>
+                <defs><linearGradient id="ag1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#0ea5e9" stopOpacity="0.6"/><stop offset="100%" stopColor="#38bdf8" stopOpacity="0.2"/></linearGradient></defs>
+                <circle cx="100" cy="62" r="38" fill="none" stroke="url(#ag1)" strokeWidth="2"/>
+                <circle cx="100" cy="62" r="32" fill="#0ea5e9" opacity="0.04"/>
+                <polygon points="90,46 90,78 118,62" fill="#0ea5e9" opacity="0.5"/>
+                <circle cx="100" cy="62" r="48" fill="none" stroke="#0ea5e9" strokeWidth="0.8" opacity="0.12"/>
+                <circle cx="100" cy="62" r="58" fill="none" stroke="#0ea5e9" strokeWidth="0.5" opacity="0.07"/>
+                <circle cx="100" cy="62" r="68" fill="none" stroke="#38bdf8" strokeWidth="0.3" opacity="0.04"/>
+                <rect x="8" y="15" width="48" height="24" rx="6" fill="#050d1a" stroke="#0ea5e9" strokeWidth="1" opacity="0.8"/>
+                <text x="32" y="24" textAnchor="middle" fill="#38bdf8" fontSize="6" opacity="0.6">VIEWS</text>
+                <text x="32" y="34" textAnchor="middle" fill="#0ea5e9" fontSize="9" fontWeight="bold">124.8K</text>
+                <rect x="144" y="18" width="48" height="24" rx="6" fill="#050d1a" stroke="#38bdf8" strokeWidth="1" opacity="0.7"/>
+                <text x="168" y="27" textAnchor="middle" fill="#38bdf8" fontSize="6" opacity="0.6">ENGAGE</text>
+                <text x="168" y="37" textAnchor="middle" fill="#38bdf8" fontSize="9" fontWeight="bold">94.2%</text>
+                <rect x="12" y="100" width="44" height="24" rx="6" fill="#050d1a" stroke="#0ea5e9" strokeWidth="0.8" opacity="0.6"/>
+                <text x="34" y="109" textAnchor="middle" fill="#0ea5e9" fontSize="5" opacity="0.5">REVENUE</text>
+                <text x="34" y="119" textAnchor="middle" fill="#0ea5e9" fontSize="9" fontWeight="bold">$2,840</text>
+                <rect x="140" y="98" width="50" height="30" rx="4" fill="#050d1a" stroke="#38bdf8" strokeWidth="0.6" opacity="0.5"/>
+                <polyline points="146,122 154,118 160,120 168,112 174,108 182,104" fill="none" stroke="#0ea5e9" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
+                <circle cx="182" cy="104" r="2" fill="#38bdf8"/>
+                <rect x="76" y="110" width="48" height="18" rx="9" fill="#0ea5e9" opacity="0.15" stroke="#0ea5e9" strokeWidth="0.8"/>
+                <text x="100" y="122" textAnchor="middle" fill="#0ea5e9" fontSize="7" fontWeight="bold">8 CAMPAIGN TIERS</text>
+              </svg>
+              <span style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#0ea5e9',position:'absolute',bottom:14,zIndex:2,textShadow:'0 0 30px rgba(14,165,233,0.4)'}}>Advertise</span>
+            </div>
+            <div style={{padding:'16px 18px',background:'rgba(5,13,26,.95)',borderTop:'1px solid rgba(14,165,233,0.1)'}}>
+              <p style={{fontSize:13,color:'rgba(200,220,255,.5)',lineHeight:1.65,margin:0}}>Launch video ad campaigns across 8 tiers. Your videos are watched by real, engaged members — not bots. Track views, measure engagement, and scale your reach.</p>
+            </div>
+          </div>
+
+          {/* CREATE */}
+          <div className="hp-card" style={{borderRadius:16,overflow:'hidden',border:'1px solid rgba(139,92,246,0.2)'}}>
+            <div style={{height:190,position:'relative',background:'linear-gradient(160deg,#08021a,#1a0845,#0e0330)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
+              <svg viewBox="0 0 200 150" style={{width:'100%',height:'100%',position:'absolute',top:0,left:0}}>
+                <defs><linearGradient id="cg1" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.5"/><stop offset="100%" stopColor="#a78bfa" stopOpacity="0.2"/></linearGradient></defs>
+                <polygon points="100,30 125,45 125,72 100,87 75,72 75,45" fill="#8b5cf6" opacity="0.05" stroke="url(#cg1)" strokeWidth="1.5"/>
+                <polygon points="100,40 115,48 115,65 100,73 85,65 85,48" fill="#8b5cf6" opacity="0.06" stroke="#a78bfa" strokeWidth="0.8" opacity="0.4"/>
+                <text x="100" y="56" textAnchor="middle" fill="#a78bfa" fontSize="10" fontWeight="bold" opacity="0.8">AI</text>
+                <text x="100" y="66" textAnchor="middle" fill="#8b5cf6" fontSize="6" opacity="0.5">ENGINE</text>
+                <rect x="10" y="8" width="52" height="35" rx="5" fill="#0e0330" stroke="#a78bfa" strokeWidth="0.8" opacity="0.6"/>
+                <circle cx="22" cy="18" r="5" fill="#8b5cf6" opacity="0.15" stroke="#a78bfa" strokeWidth="0.5"/>
+                <rect x="30" y="15" width="24" height="2.5" rx="1" fill="#a78bfa" opacity="0.25"/>
+                <rect x="30" y="20" width="18" height="2" rx="1" fill="#a78bfa" opacity="0.15"/>
+                <rect x="15" y="28" width="40" height="10" rx="2" fill="#8b5cf6" opacity="0.06"/>
+                <text x="35" y="35" textAnchor="middle" fill="#a78bfa" fontSize="4.5" opacity="0.5">Social Post</text>
+                <line x1="58" y1="30" x2="78" y2="48" stroke="#a78bfa" strokeWidth="0.6" opacity="0.2" strokeDasharray="3 2"/>
+                <rect x="138" y="8" width="52" height="35" rx="5" fill="#0e0330" stroke="#a78bfa" strokeWidth="0.8" opacity="0.6"/>
+                <polygon points="150,16 150,30 162,23" fill="#8b5cf6" opacity="0.25"/>
+                <rect x="165" y="16" width="18" height="2" rx="1" fill="#a78bfa" opacity="0.2"/>
+                <rect x="165" y="21" width="14" height="2" rx="1" fill="#a78bfa" opacity="0.15"/>
+                <text x="164" y="39" textAnchor="middle" fill="#a78bfa" fontSize="4.5" opacity="0.5">Video Script</text>
+                <line x1="142" y1="30" x2="122" y2="48" stroke="#a78bfa" strokeWidth="0.6" opacity="0.2" strokeDasharray="3 2"/>
+                <rect x="10" y="100" width="52" height="38" rx="5" fill="#0e0330" stroke="#a78bfa" strokeWidth="0.8" opacity="0.6"/>
+                <rect x="15" y="105" width="42" height="8" rx="2" fill="#8b5cf6" opacity="0.08"/>
+                <text x="36" y="111" textAnchor="middle" fill="#a78bfa" fontSize="4" fontWeight="bold" opacity="0.4">HERO</text>
+                <rect x="15" y="116" width="28" height="2" rx="1" fill="#a78bfa" opacity="0.15"/>
+                <rect x="15" y="128" width="18" height="6" rx="3" fill="#8b5cf6" opacity="0.15"/>
+                <text x="24" y="133" textAnchor="middle" fill="#a78bfa" fontSize="4" fontWeight="bold" opacity="0.5">CTA</text>
+                <line x1="58" y1="115" x2="78" y2="82" stroke="#a78bfa" strokeWidth="0.6" opacity="0.2" strokeDasharray="3 2"/>
+                <rect x="138" y="100" width="52" height="38" rx="5" fill="#0e0330" stroke="#a78bfa" strokeWidth="0.8" opacity="0.6"/>
+                <rect x="145" y="106" width="38" height="22" rx="2" fill="none" stroke="#a78bfa" strokeWidth="0.5" opacity="0.3"/>
+                <path d="M145,108 L164,118 L183,108" fill="none" stroke="#8b5cf6" strokeWidth="1" opacity="0.4"/>
+                <text x="164" y="135" textAnchor="middle" fill="#a78bfa" fontSize="4.5" opacity="0.5">Email Sequence</text>
+                <line x1="142" y1="115" x2="122" y2="82" stroke="#a78bfa" strokeWidth="0.6" opacity="0.2" strokeDasharray="3 2"/>
+                <circle cx="68" cy="38" r="1.5" fill="#a78bfa" opacity="0.5"/>
+                <circle cx="132" cy="38" r="1.5" fill="#a78bfa" opacity="0.5"/>
+                <circle cx="68" cy="90" r="1.5" fill="#a78bfa" opacity="0.4"/>
+                <circle cx="132" cy="90" r="1.5" fill="#a78bfa" opacity="0.4"/>
+              </svg>
+              <span style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#8b5cf6',position:'absolute',bottom:14,zIndex:2,textShadow:'0 0 30px rgba(139,92,246,0.4)'}}>Create</span>
+            </div>
+            <div style={{padding:'16px 18px',background:'rgba(5,13,26,.95)',borderTop:'1px solid rgba(139,92,246,0.1)'}}>
+              <p style={{fontSize:13,color:'rgba(200,220,255,.5)',lineHeight:1.65,margin:0}}>AI Campaign Studio, Social Post Generator, Video Script Writer, SuperPages landing page builder, LinkHub, and email tools. Create professional marketing content in seconds.</p>
+            </div>
+          </div>
+
+          {/* GROW */}
+          <div className="hp-card" style={{borderRadius:16,overflow:'hidden',border:'1px solid rgba(16,185,129,0.2)'}}>
+            <div style={{height:190,position:'relative',background:'linear-gradient(160deg,#011a10,#003d22,#001a12)',display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden'}}>
+              <svg viewBox="0 0 200 150" style={{width:'100%',height:'100%',position:'absolute',top:0,left:0}}>
+                <circle cx="100" cy="55" r="14" fill="#10b981" opacity="0.08" stroke="#10b981" strokeWidth="2" opacity="0.6"/>
+                <circle cx="100" cy="50" r="4" fill="#10b981" opacity="0.4"/>
+                <path d="M92,60 Q100,65 108,60" fill="none" stroke="#10b981" strokeWidth="1.5" opacity="0.3"/>
+                <line x1="88" y1="62" x2="45" y2="38" stroke="#10b981" strokeWidth="1.2" opacity="0.3"/>
+                <line x1="112" y1="62" x2="155" y2="38" stroke="#10b981" strokeWidth="1.2" opacity="0.3"/>
+                <line x1="100" y1="68" x2="100" y2="100" stroke="#10b981" strokeWidth="1.2" opacity="0.3"/>
+                <circle cx="45" cy="34" r="10" fill="#10b981" opacity="0.06" stroke="#10b981" strokeWidth="1.2" opacity="0.5"/>
+                <circle cx="45" cy="30" r="3" fill="#10b981" opacity="0.3"/>
+                <circle cx="155" cy="34" r="10" fill="#34d399" opacity="0.06" stroke="#34d399" strokeWidth="1.2" opacity="0.5"/>
+                <circle cx="155" cy="30" r="3" fill="#34d399" opacity="0.3"/>
+                <circle cx="100" cy="104" r="10" fill="#10b981" opacity="0.06" stroke="#10b981" strokeWidth="1.2" opacity="0.5"/>
+                <circle cx="100" cy="100" r="3" fill="#10b981" opacity="0.3"/>
+                <line x1="38" y1="42" x2="15" y2="65" stroke="#10b981" strokeWidth="0.8" opacity="0.2"/>
+                <line x1="52" y1="42" x2="60" y2="68" stroke="#10b981" strokeWidth="0.8" opacity="0.2"/>
+                <line x1="148" y1="42" x2="135" y2="68" stroke="#34d399" strokeWidth="0.8" opacity="0.2"/>
+                <line x1="162" y1="42" x2="185" y2="65" stroke="#34d399" strokeWidth="0.8" opacity="0.2"/>
+                <line x1="93" y1="112" x2="68" y2="128" stroke="#10b981" strokeWidth="0.8" opacity="0.2"/>
+                <line x1="107" y1="112" x2="132" y2="128" stroke="#34d399" strokeWidth="0.8" opacity="0.2"/>
+                <circle cx="15" cy="68" r="6" fill="#10b981" opacity="0.04" stroke="#10b981" strokeWidth="0.8" opacity="0.3"/>
+                <circle cx="60" cy="72" r="6" fill="#10b981" opacity="0.04" stroke="#10b981" strokeWidth="0.8" opacity="0.3"/>
+                <circle cx="135" cy="72" r="6" fill="#34d399" opacity="0.04" stroke="#34d399" strokeWidth="0.8" opacity="0.3"/>
+                <circle cx="185" cy="68" r="6" fill="#34d399" opacity="0.04" stroke="#34d399" strokeWidth="0.8" opacity="0.3"/>
+                <circle cx="68" cy="130" r="6" fill="#10b981" opacity="0.04" stroke="#10b981" strokeWidth="0.8" opacity="0.3"/>
+                <circle cx="132" cy="130" r="6" fill="#34d399" opacity="0.04" stroke="#34d399" strokeWidth="0.8" opacity="0.3"/>
+                <rect x="54" y="4" width="38" height="14" rx="7" fill="#10b981" opacity="0.12" stroke="#10b981" strokeWidth="0.6"/>
+                <text x="73" y="13" textAnchor="middle" fill="#10b981" fontSize="6" fontWeight="bold">50%</text>
+                <rect x="110" y="4" width="38" height="14" rx="7" fill="#34d399" opacity="0.12" stroke="#34d399" strokeWidth="0.6"/>
+                <text x="129" y="13" textAnchor="middle" fill="#34d399" fontSize="6" fontWeight="bold">8 LEVELS</text>
+                <text x="30" y="18" fill="#10b981" fontSize="8" opacity="0.2">$</text>
+                <text x="170" y="18" fill="#34d399" fontSize="8" opacity="0.2">$</text>
+                <text x="75" y="90" fill="#10b981" fontSize="6" opacity="0.15">$</text>
+                <text x="125" y="90" fill="#34d399" fontSize="6" opacity="0.15">$</text>
+              </svg>
+              <span style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#10b981',position:'absolute',bottom:14,zIndex:2,textShadow:'0 0 30px rgba(16,185,129,0.4)'}}>Grow</span>
+            </div>
+            <div style={{padding:'16px 18px',background:'rgba(5,13,26,.95)',borderTop:'1px solid rgba(16,185,129,0.1)'}}>
+              <p style={{fontSize:13,color:'rgba(200,220,255,.5)',lineHeight:1.65,margin:0}}>Build your audience through courses, the Ad Board marketplace, and an affiliate network that promotes your content. Earn commissions as your network grows.</p>
+            </div>
+          </div>
+
         </div>
         <div style={{textAlign:'center'}}>
           <Link to="/how-it-works" style={{fontSize:15,fontWeight:700,color:'#0ea5e9',textDecoration:'none',padding:'12px 32px',border:'1px solid rgba(14,165,233,.2)',borderRadius:10,display:'inline-block'}}>See full breakdown — How It Works →</Link>
