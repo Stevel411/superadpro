@@ -523,6 +523,36 @@ export default function HomePage(){
       </section>
       <div style={{maxWidth:1100,margin:'0 auto',padding:'0 40px'}}><div style={{height:1,background:'linear-gradient(90deg,transparent,rgba(56,189,248,.15),transparent)'}}/></div>
 
+      {/* CRYPTO PAYMENTS */}
+      <section style={{padding:'80px 40px',maxWidth:1100,margin:'0 auto'}}>
+        <div style={{textAlign:'center',marginBottom:40}}>
+          <div style={{display:'inline-flex',alignItems:'center',gap:8,background:'rgba(14,165,233,.08)',border:'1px solid rgba(14,165,233,.2)',borderRadius:99,padding:'6px 16px',fontSize:12,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'#38bdf8',marginBottom:16}}>Crypto Powered</div>
+          <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(26px,3.5vw,42px)',fontWeight:900,color:'#fff',lineHeight:1.15,marginBottom:14}}>Fast, secure payments.<br/><span style={{color:'#38bdf8'}}>No middlemen.</span></h2>
+          <p style={{fontSize:16,color:'rgba(200,220,255,.55)',maxWidth:520,margin:'0 auto'}}>SuperAdPro uses stablecoins on Polygon for instant payments and commission payouts — all for less than 1 cent per transaction.</p>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16,marginBottom:32}}>
+          {[
+            {icon:'🦊',title:'Set up in 5 minutes',desc:'Create a free MetaMask wallet. No bank account needed. Works worldwide.'},
+            {icon:'⚡',title:'Pay less than 1 cent',desc:'Polygon network means near-zero fees. Send $20 or $1,000 — same cost.'},
+            {icon:'💰',title:'Get paid instantly',desc:'Commissions hit your balance the moment a referral pays. Withdraw anytime.'}
+          ].map(function(c){
+            return (
+              <div key={c.title} style={{background:'rgba(255,255,255,.02)',border:'1px solid rgba(255,255,255,.06)',borderRadius:14,padding:'28px 24px',textAlign:'center'}}>
+                <div style={{fontSize:32,marginBottom:12}}>{c.icon}</div>
+                <div style={{fontSize:15,fontWeight:700,color:'#fff',marginBottom:6}}>{c.title}</div>
+                <div style={{fontSize:13,color:'rgba(200,220,255,.45)',lineHeight:1.6}}>{c.desc}</div>
+              </div>
+            );
+          })}
+        </div>
+        <div style={{textAlign:'center'}}>
+          <a href="/wallet-guide" style={{display:'inline-flex',alignItems:'center',gap:8,background:'transparent',border:'1px solid rgba(14,165,233,.3)',color:'#38bdf8',padding:'12px 28px',borderRadius:10,fontSize:14,fontWeight:600,textDecoration:'none',transition:'all 0.2s'}}>
+            Wallet Setup Guide →
+          </a>
+        </div>
+      </section>
+      <div style={{maxWidth:1100,margin:'0 auto',padding:'0 40px'}}><div style={{height:1,background:'linear-gradient(90deg,transparent,rgba(56,189,248,.15),transparent)'}}/></div>
+
       {/* CTA */}
       <section style={{textAlign:'center',padding:'70px 40px 40px'}}>
         <h2 style={{fontSize:'clamp(28px,4vw,52px)',fontWeight:800,color:'#fff',marginBottom:12}}>

@@ -64,6 +64,33 @@ export default function HowItWorks() {
           </div>
         </div>
 
+        {/* Crypto payments */}
+        <div style={{ marginBottom: 64 }}>
+          <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 28, fontWeight: 900, marginBottom: 8 }}>Payments &amp; withdrawals</h2>
+          <p style={{ color: 'rgba(255,255,255,0.45)', marginBottom: 32 }}>SuperAdPro uses stablecoins on Polygon — fast, secure, and costs less than 1 cent per transaction.</p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 16, marginBottom: 28 }}>
+            {[
+              { icon: '🦊', title: 'Free wallet setup', desc: 'Create a MetaMask wallet in 5 minutes. Works worldwide, no bank needed.', color: '#38bdf8' },
+              { icon: '💵', title: 'Pay in USDT or USDC', desc: 'Digital dollars on Polygon. Always worth $1. No currency conversion.', color: '#10b981' },
+              { icon: '⚡', title: 'Instant commissions', desc: 'Earnings credit instantly when referrals pay. Withdraw USDT to your wallet anytime.', color: '#f59e0b' },
+              { icon: '🔒', title: 'You control your money', desc: 'Self-custody wallet. No payment processor can freeze your funds.', color: '#818cf8' },
+            ].map(function(c) {
+              return (
+                <div key={c.title} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '24px 20px', textAlign: 'center' }}>
+                  <div style={{ fontSize: 28, marginBottom: 10 }}>{c.icon}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 4 }}>{c.title}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>{c.desc}</div>
+                </div>
+              );
+            })}
+          </div>
+          <div style={{ textAlign: 'center' }}>
+            <a href="/wallet-guide" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: '1px solid rgba(14,165,233,.3)', color: '#38bdf8', padding: '12px 28px', borderRadius: 10, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
+              Full Wallet Setup Guide →
+            </a>
+          </div>
+        </div>
+
         {/* CTA */}
         <div style={{ background: 'rgba(14,165,233,0.07)', border: '1px solid rgba(14,165,233,0.15)', borderRadius: 20, padding: '40px', textAlign: 'center' }}>
           <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 28, fontWeight: 900, margin: '0 0 12px' }}>Ready to get started?</h2>

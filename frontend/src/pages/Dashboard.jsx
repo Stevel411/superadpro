@@ -7,6 +7,7 @@ import AppLayout from '../components/layout/AppLayout';
 import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye, TrendingUp } from 'lucide-react';
 import PassiveIncome from './PassiveIncome';
 import CoPilot from './CoPilot';
+import WalletGuideCard from '../components/WalletGuideCard';
 
 export default function Dashboard() {
   var { t } = useTranslation();
@@ -100,6 +101,9 @@ export default function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* Wallet setup guide for free/new members */}
+      {!d.is_active && <WalletGuideCard />}
 
       {/* Onboarding Wizard */}
       {user && !user.onboarding_completed && (

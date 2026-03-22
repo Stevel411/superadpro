@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { apiPost } from '../utils/api';
 import { CreditCard, Coins } from 'lucide-react';
 import CryptoCheckout from '../components/CryptoCheckout';
+import WalletGuideCard from '../components/WalletGuideCard';
 
 export default function Upgrade() {
   var { user, refreshUser } = useAuth();
@@ -106,8 +107,12 @@ export default function Upgrade() {
           })}
         </div>
 
-        <p style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', marginTop: 24 }}>
-          Secure payment via Stripe or USDT on Polygon {"\u00B7"} All sales are final {"\u00B7"} No refunds
+        <div style={{ marginTop: 24 }}>
+          <WalletGuideCard compact />
+        </div>
+
+        <p style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', marginTop: 16 }}>
+          Secure payment via Stripe or USDT/USDC on Polygon {"\u00B7"} All sales are final {"\u00B7"} No refunds
         </p>
       </div>
 
