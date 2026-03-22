@@ -3408,29 +3408,40 @@ def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
         # Delete each table in its own transaction
         if user_ids:
             ids_str = ",".join(str(i) for i in user_ids)
-            tables_with_user_id = [
-                "linkhub_links", "linkhub_profiles",
-                "crypto_payment_orders", "video_watches",
-                "grid_positions", "grid_memberships",
-                "course_enrollments", "course_sales", "short_links",
-                "ad_board_ads", "funnel_pages", "digital_products",
-                "nurture_sequences", "nurture_emails", "lead_entries",
-                "withdrawal_requests", "member_courses",
-            ]
-            for table in tables_with_user_id:
+            
+            # Dynamically find ALL tables with FK to users
+            with engine.connect() as c:
+                fk_result = c.execute(_text("""
+                    SELECT DISTINCT tc.table_name, kcu.column_name
+                    FROM information_schema.table_constraints tc
+                    JOIN information_schema.key_column_usage kcu ON tc.constraint_name = kcu.constraint_name
+                    JOIN information_schema.constraint_column_usage ccu ON tc.constraint_name = ccu.constraint_name
+                    WHERE tc.constraint_type = 'FOREIGN KEY' AND ccu.table_name = 'users'
+                    ORDER BY tc.table_name
+                """))
+                fk_tables = [(row[0], row[1]) for row in fk_result.fetchall()]
+                c.commit()
+            
+            # Delete from each FK table
+            for table, col in fk_tables:
+                if table == 'users':
+                    continue
                 try:
                     with engine.connect() as c:
-                        c.execute(_text(f"DELETE FROM {table} WHERE user_id IN ({ids_str})"))
+                        c.execute(_text(f"DELETE FROM {table} WHERE {col} IN ({ids_str})"))
                         c.commit()
                 except Exception:
                     pass
-            # Commissions
+            
+            # Null out self-referencing FKs
             try:
                 with engine.connect() as c:
-                    c.execute(_text(f"DELETE FROM commissions WHERE earner_id IN ({ids_str}) OR source_user_id IN ({ids_str})"))
+                    c.execute(_text(f"UPDATE users SET sponsor_id = NULL WHERE sponsor_id IN ({ids_str})"))
+                    c.execute(_text(f"UPDATE users SET pass_up_sponsor_id = NULL WHERE pass_up_sponsor_id IN ({ids_str})"))
                     c.commit()
             except Exception:
                 pass
+
             # Delete users
             with engine.connect() as c:
                 c.execute(_text(f"DELETE FROM users WHERE id IN ({ids_str})"))
