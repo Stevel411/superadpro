@@ -6,24 +6,11 @@
 <title>SuperAdPro — Wallet Setup Guide</title>
 <link href="https://fonts.googleapis.com/css2?family=Rethink+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 <style>
-:root {
-  --navy: #1c223d;
-  --navy-light: #252d4a;
-  --bg: #050d1a;
-  --cyan: #0ea5e9;
-  --cyan-bright: #38bdf8;
-  --green: #10b981;
-  --gold: #f59e0b;
-  --purple: #818cf8;
-  --text: #e2eaf8;
-  --muted: #6b7a99;
-  --border: rgba(255,255,255,0.07);
-}
+:root{--navy:#1c223d;--navy-light:#252d4a;--bg:#050d1a;--cyan:#0ea5e9;--cyan-bright:#38bdf8;--green:#10b981;--gold:#f59e0b;--purple:#818cf8;--red:#ef4444;--text:#e2eaf8;--muted:#6b7a99;--border:rgba(255,255,255,0.07)}
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:'Rethink Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;line-height:1.6}
 
-/* NAV */
 nav{background:var(--navy);height:68px;display:flex;align-items:center;justify-content:space-between;padding:0 48px;position:sticky;top:0;z-index:100;border-bottom:1px solid rgba(255,255,255,0.06)}
 .brand{font-family:'Sora',sans-serif;font-size:20px;font-weight:800;color:#fff;text-decoration:none;letter-spacing:-0.3px}
 .brand span{color:var(--cyan)}
@@ -33,25 +20,44 @@ nav{background:var(--navy);height:68px;display:flex;align-items:center;justify-c
 .nav-btn{background:var(--cyan);color:#fff;padding:8px 20px;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;transition:all 0.2s}
 .nav-btn:hover{background:var(--cyan-bright)}
 
-/* HERO */
-.hero{padding:80px 48px 50px;text-align:center;max-width:900px;margin:0 auto;position:relative}
+.hero{padding:80px 48px 40px;text-align:center;max-width:900px;margin:0 auto;position:relative}
 .hero::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(ellipse,rgba(14,165,233,0.06) 0%,transparent 65%);pointer-events:none}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(14,165,233,0.08);border:1px solid rgba(14,165,233,0.2);border-radius:99px;padding:6px 16px;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--cyan);margin-bottom:24px}
 .hero h1{font-family:'Sora',sans-serif;font-size:clamp(32px,4.5vw,50px);font-weight:800;color:#fff;line-height:1.1;letter-spacing:-0.5px;margin-bottom:16px}
 .hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--cyan),var(--cyan-bright));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .hero p{font-size:17px;color:var(--muted);max-width:580px;margin:0 auto;line-height:1.7}
 
-/* TIME ESTIMATE */
-.time-bar{display:flex;justify-content:center;gap:32px;margin:36px auto 0;padding:20px 32px;background:rgba(14,165,233,0.05);border:1px solid rgba(14,165,233,0.1);border-radius:14px;max-width:500px}
-.time-item{text-align:center}
-.time-item .num{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:var(--cyan)}
-.time-item .label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.container{max-width:820px;margin:0 auto;padding:0 32px}
 
-/* CONTAINER */
-.container{max-width:800px;margin:0 auto;padding:0 32px}
+/* ANIMATED FLOW */
+.flow-visual{padding:50px 0 40px}
+.flow-track{display:flex;align-items:center;justify-content:center;gap:0;padding:20px 0}
+.flow-node{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:100px;opacity:0;animation:nodeIn 0.5s ease forwards}
+.flow-node:nth-child(1){animation-delay:0.2s}
+.flow-node:nth-child(3){animation-delay:0.6s}
+.flow-node:nth-child(5){animation-delay:1.0s}
+.flow-node:nth-child(7){animation-delay:1.4s}
+.flow-node:nth-child(9){animation-delay:1.8s}
+.flow-icon{width:60px;height:60px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:26px;position:relative}
+.flow-icon.wallet{background:rgba(14,165,233,0.12);border:1.5px solid rgba(14,165,233,0.3)}
+.flow-icon.polygon{background:rgba(129,140,248,0.12);border:1.5px solid rgba(129,140,248,0.3)}
+.flow-icon.usdt{background:rgba(16,185,129,0.12);border:1.5px solid rgba(16,185,129,0.3)}
+.flow-icon.pay{background:rgba(245,158,11,0.12);border:1.5px solid rgba(245,158,11,0.3)}
+.flow-icon.earn{background:rgba(14,165,233,0.12);border:1.5px solid rgba(14,165,233,0.3)}
+.pulse-ring{position:absolute;inset:-4px;border-radius:18px;border:2px solid rgba(14,165,233,0.3);animation:pulse 2s ease-in-out infinite}
+.flow-label{font-size:11px;font-weight:700;color:var(--text);text-align:center}
+.flow-sub{font-size:10px;color:var(--muted);text-align:center;margin-top:-4px}
+.flow-arrow{font-size:18px;color:rgba(255,255,255,0.15);min-width:32px;text-align:center;opacity:0;animation:arrowIn 0.3s ease forwards}
+.flow-arrow:nth-child(2){animation-delay:0.45s}
+.flow-arrow:nth-child(4){animation-delay:0.85s}
+.flow-arrow:nth-child(6){animation-delay:1.25s}
+.flow-arrow:nth-child(8){animation-delay:1.65s}
+@keyframes nodeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes arrowIn{from{opacity:0}to{opacity:1}}
+@keyframes pulse{0%,100%{opacity:0.4;transform:scale(1)}50%{opacity:0;transform:scale(1.25)}}
 
 /* STEP SECTIONS */
-.step-section{padding:60px 0}
+.step-section{padding:50px 0}
 .step-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:28px}
 .step-num{width:44px;height:44px;min-width:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-family:'Sora',sans-serif;font-size:18px;font-weight:800;color:#fff}
 .step-num.s1{background:var(--cyan)}
@@ -60,10 +66,64 @@ nav{background:var(--navy);height:68px;display:flex;align-items:center;justify-c
 .step-title{font-family:'Sora',sans-serif;font-size:26px;font-weight:800;color:#fff;line-height:1.2}
 .step-subtitle{font-size:14px;color:var(--muted);margin-top:4px}
 
+/* PHONE MOCKUP */
+.phone-demo{display:flex;justify-content:center;margin:30px 0}
+.phone-frame{width:256px;background:#111827;border-radius:28px;border:2px solid rgba(255,255,255,0.1);padding:12px;box-shadow:0 20px 60px rgba(0,0,0,0.4)}
+.phone-notch{width:90px;height:22px;background:#111827;border-radius:0 0 12px 12px;margin:-12px auto 0;position:relative;z-index:2}
+.phone-screen{background:#1a1f2e;border-radius:18px;min-height:360px;padding:32px 16px 20px;overflow:hidden}
+.ps-logo{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#f6851b,#e87426);display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:18px}
+.ps-header{font-size:13px;font-weight:700;color:#fff;text-align:center;margin-bottom:14px}
+.ps-steps{display:flex;flex-direction:column;gap:8px}
+.ps-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:rgba(255,255,255,0.04);border-radius:10px;position:relative;opacity:0;transform:translateX(-10px)}
+.ps-dot{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;color:#fff;min-width:24px}
+.ps-dot.c1{background:var(--cyan)}
+.ps-dot.c2{background:var(--green)}
+.ps-dot.c3{background:var(--gold)}
+.ps-dot.c4{background:var(--purple)}
+.ps-text{font-size:11px;color:rgba(255,255,255,0.7);line-height:1.3;flex:1}
+.ps-text strong{color:#fff}
+.ps-check{font-size:13px;opacity:0;transform:scale(0.5)}
+
+/* FEE COMPARISON */
+.fee-compare{display:flex;gap:16px;margin:30px 0;justify-content:center}
+.fee-bar{flex:1;max-width:280px;border-radius:14px;padding:24px;position:relative;overflow:hidden}
+.fee-bar.eth{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15)}
+.fee-bar.poly{background:rgba(129,140,248,0.06);border:1px solid rgba(129,140,248,0.15)}
+.fb-name{font-size:14px;font-weight:700;color:#fff;margin-bottom:4px}
+.fb-desc{font-size:12px;color:var(--muted);margin-bottom:14px}
+.fb-amount{font-family:'Sora',sans-serif;font-weight:800;font-size:36px;line-height:1}
+.fee-bar.eth .fb-amount{color:#ef4444}
+.fee-bar.poly .fb-amount{color:var(--purple)}
+.fb-label{font-size:11px;color:var(--muted);margin-top:4px}
+.fb-bar-track{width:100%;height:8px;background:rgba(255,255,255,0.05);border-radius:4px;margin-top:14px;overflow:hidden}
+.fb-bar-fill{height:100%;border-radius:4px;width:0}
+.fee-bar.eth .fb-bar-fill{background:var(--red)}
+.fee-bar.poly .fb-bar-fill{background:var(--purple)}
+.fb-savings{position:absolute;top:12px;right:12px;background:rgba(16,185,129,0.12);color:var(--green);font-size:10px;font-weight:800;padding:3px 10px;border-radius:6px;letter-spacing:0.5px}
+
+/* PAYMENT FLOW */
+.payment-flow{margin:30px 0;padding:28px;background:var(--navy-light);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.pf-title{font-size:14px;font-weight:700;color:#fff;text-align:center;margin-bottom:20px}
+.pf-track{display:flex;align-items:center;justify-content:space-between;padding:10px 0}
+.pf-node{display:flex;flex-direction:column;align-items:center;gap:6px}
+.pf-circle{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px}
+.pf-circle.you{background:rgba(14,165,233,0.12);border:1.5px solid rgba(14,165,233,0.3)}
+.pf-circle.sap{background:rgba(16,185,129,0.12);border:1.5px solid rgba(16,185,129,0.3)}
+.pf-circle.sponsor{background:rgba(245,158,11,0.12);border:1.5px solid rgba(245,158,11,0.3)}
+.pf-name{font-size:11px;font-weight:700;color:var(--text)}
+.pf-detail{font-size:10px;color:var(--muted)}
+.pf-connector{flex:1;height:3px;background:rgba(255,255,255,0.06);position:relative;min-width:30px;margin:0 -4px;margin-top:-20px}
+.pf-ball{position:absolute;width:10px;height:10px;border-radius:50%;top:-3.5px;left:0;opacity:0}
+.pf-ball.b1{background:var(--cyan)}
+.pf-ball.b2{background:var(--gold)}
+.pf-amt{position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:800;padding:2px 8px;border-radius:4px;white-space:nowrap;opacity:0}
+.pf-amt.a1{color:var(--cyan);background:rgba(14,165,233,0.08)}
+.pf-amt.a2{color:var(--gold);background:rgba(245,158,11,0.08)}
+
 /* CARDS */
 .wallet-cards{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:28px}
-.wallet-card{background:var(--navy-light,#252d4a);border:1px solid var(--border);border-radius:14px;padding:24px;transition:all 0.2s;cursor:default}
-.wallet-card:hover{border-color:rgba(14,165,233,0.3)}
+.wallet-card{background:var(--navy-light);border:1px solid var(--border);border-radius:14px;padding:24px;transition:all 0.25s}
+.wallet-card:hover{border-color:rgba(14,165,233,0.3);transform:translateY(-2px)}
 .wallet-card.recommended{border-color:var(--cyan);position:relative}
 .wallet-card.recommended::after{content:'RECOMMENDED';position:absolute;top:12px;right:12px;background:var(--cyan);color:#fff;font-size:9px;font-weight:800;padding:3px 10px;border-radius:6px;letter-spacing:1.5px}
 .wc-name{font-size:18px;font-weight:700;color:#fff;margin-bottom:4px}
@@ -72,8 +132,7 @@ nav{background:var(--navy);height:68px;display:flex;align-items:center;justify-c
 .wc-link{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-size:13px;font-weight:600;color:var(--cyan);text-decoration:none}
 .wc-link:hover{color:var(--cyan-bright)}
 
-/* INSTRUCTION STEPS */
-.instructions{background:var(--navy-light,#252d4a);border:1px solid var(--border);border-radius:14px;padding:28px;margin-bottom:20px}
+.instructions{background:var(--navy-light);border:1px solid var(--border);border-radius:14px;padding:28px;margin-bottom:20px}
 .instructions h3{font-size:16px;font-weight:700;color:#fff;margin-bottom:18px}
 .inst-step{display:flex;gap:14px;margin-bottom:16px;align-items:flex-start}
 .inst-step:last-child{margin-bottom:0}
@@ -82,67 +141,63 @@ nav{background:var(--navy);height:68px;display:flex;align-items:center;justify-c
 .inst-text strong{color:#fff}
 .inst-text code{background:rgba(14,165,233,0.1);color:var(--cyan);padding:2px 8px;border-radius:4px;font-size:13px;font-family:'Rethink Sans',sans-serif;font-weight:600}
 
-/* INFO BOXES */
 .info-box{display:flex;gap:12px;padding:16px 20px;border-radius:12px;margin-bottom:16px;align-items:flex-start}
 .info-box.warning{background:rgba(245,158,11,0.06);border:1px solid rgba(245,158,11,0.15)}
-.info-box.warning .ib-icon{color:var(--gold);font-size:18px}
-.info-box.warning .ib-text{color:rgba(245,200,120,0.9);font-size:14px;line-height:1.6}
+.info-box.warning .ib-text{color:rgba(245,200,120,0.9)}
 .info-box.tip{background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.15)}
-.info-box.tip .ib-icon{color:var(--green);font-size:18px}
-.info-box.tip .ib-text{color:rgba(160,235,200,0.9);font-size:14px;line-height:1.6}
+.info-box.tip .ib-text{color:rgba(160,235,200,0.9)}
 .info-box.danger{background:rgba(239,68,68,0.06);border:1px solid rgba(239,68,68,0.15)}
-.info-box.danger .ib-icon{color:#ef4444;font-size:18px}
-.info-box.danger .ib-text{color:rgba(255,180,180,0.9);font-size:14px;line-height:1.6}
+.info-box.danger .ib-text{color:rgba(255,180,180,0.9)}
+.ib-icon{font-size:18px;min-width:22px}
+.ib-text{font-size:14px;line-height:1.6}
 
-/* BUY OPTIONS */
 .buy-options{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px}
-.buy-card{background:var(--navy-light,#252d4a);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center}
-.buy-card .bc-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:6px}
-.buy-card .bc-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px}
-.buy-card .bc-tag{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:6px}
+.buy-card{background:var(--navy-light);border:1px solid var(--border);border-radius:12px;padding:20px;text-align:center;transition:all 0.25s}
+.buy-card:hover{border-color:rgba(255,255,255,0.15);transform:translateY(-2px)}
+.bc-icon{font-size:28px;margin-bottom:8px}
+.bc-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:6px}
+.bc-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px}
+.bc-tag{display:inline-block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;padding:3px 10px;border-radius:6px}
 .bc-tag.easy{background:rgba(16,185,129,0.1);color:var(--green)}
 .bc-tag.adv{background:rgba(129,140,248,0.1);color:var(--purple)}
 .bc-tag.int{background:rgba(245,158,11,0.1);color:var(--gold)}
 
-/* DIVIDER */
-.divider{width:100%;height:1px;background:var(--border);margin:0}
+.divider{width:100%;height:1px;background:var(--border)}
 
-/* NETWORK BOX */
-.network-box{display:flex;align-items:center;gap:16px;background:rgba(14,165,233,0.05);border:1px solid rgba(14,165,233,0.15);border-radius:14px;padding:20px 24px;margin:24px 0}
-.nb-icon{font-size:28px}
-.nb-content h4{font-size:15px;font-weight:700;color:#fff;margin-bottom:2px}
-.nb-content p{font-size:13px;color:var(--muted);line-height:1.5}
-.nb-content code{background:rgba(14,165,233,0.1);color:var(--cyan);padding:1px 6px;border-radius:3px;font-size:12px;font-family:'Rethink Sans',sans-serif;font-weight:600}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
 
-/* FAQ */
-.faq-section{padding:60px 0 80px}
+.faq-section{padding:60px 0 40px}
 .faq-title{font-family:'Sora',sans-serif;font-size:28px;font-weight:800;color:#fff;text-align:center;margin-bottom:36px}
-.faq-item{background:var(--navy-light,#252d4a);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:12px}
-.faq-q{font-size:15px;font-weight:700;color:#fff;cursor:pointer;display:flex;justify-content:space-between;align-items:center}
-.faq-q::after{content:'+';font-size:20px;color:var(--muted);transition:transform 0.2s}
+.faq-item{background:var(--navy-light);border:1px solid var(--border);border-radius:12px;padding:20px 24px;margin-bottom:12px;transition:border-color 0.2s}
+.faq-item:hover{border-color:rgba(255,255,255,0.12)}
+.faq-q{font-size:15px;font-weight:700;color:#fff;cursor:pointer;display:flex;justify-content:space-between;align-items:center;user-select:none}
+.faq-q::after{content:'+';font-size:20px;color:var(--muted);transition:all 0.25s}
 .faq-item.open .faq-q::after{transform:rotate(45deg);color:var(--cyan)}
-.faq-a{font-size:14px;color:var(--muted);line-height:1.7;max-height:0;overflow:hidden;transition:max-height 0.3s,padding 0.3s}
+.faq-a{font-size:14px;color:var(--muted);line-height:1.7;max-height:0;overflow:hidden;transition:max-height 0.35s ease,padding 0.35s ease}
 .faq-item.open .faq-a{max-height:400px;padding-top:12px}
 
-/* CTA */
 .cta-section{text-align:center;padding:40px 0 80px}
 .cta-btn{display:inline-flex;align-items:center;gap:10px;background:var(--cyan);color:#fff;padding:16px 36px;border-radius:12px;font-size:17px;font-weight:700;text-decoration:none;transition:all 0.25s}
 .cta-btn:hover{background:var(--cyan-bright);transform:translateY(-1px);box-shadow:0 8px 30px rgba(14,165,233,0.3)}
 
-/* RESPONSIVE */
 @media(max-width:700px){
   nav{padding:0 20px}
   .hero{padding:50px 20px 30px}
   .container{padding:0 20px}
   .wallet-cards,.buy-options{grid-template-columns:1fr}
-  .time-bar{gap:20px;padding:16px 24px}
-  .step-title{font-size:22px}
+  .fee-compare{flex-direction:column;align-items:center}
+  .fee-bar{max-width:100%}
+  .flow-track{overflow-x:auto;justify-content:flex-start;padding:20px 10px}
+  .flow-node{min-width:80px}
+  .pf-track{flex-wrap:wrap;gap:12px;justify-content:center}
+  .pf-connector{display:none}
+  .phone-frame{width:230px}
 }
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
   <a href="/" class="brand">SuperAd<span>Pro</span></a>
   <div class="nav-links">
@@ -152,238 +207,221 @@ nav{background:var(--navy);height:68px;display:flex;align-items:center;justify-c
   </div>
 </nav>
 
-<!-- HERO -->
 <div class="hero">
-  <div class="hero-badge">💰 Crypto Payments Guide</div>
+  <div class="hero-badge">Crypto Payments Guide</div>
   <h1>Set up your wallet in <em>5 minutes</em></h1>
   <p>SuperAdPro uses crypto for fast, secure payments with no middlemen. This guide walks you through everything — even if you've never used crypto before.</p>
-  <div class="time-bar">
-    <div class="time-item"><div class="num">5</div><div class="label">Minutes to set up</div></div>
-    <div class="time-item"><div class="num">$0</div><div class="label">Cost to create</div></div>
-    <div class="time-item"><div class="num">&lt;1¢</div><div class="label">Per transaction</div></div>
-  </div>
 </div>
 
 <div class="container">
 
-<!-- STEP 1: CHOOSE A WALLET -->
-<div class="step-section">
+<!-- ANIMATED FLOW -->
+<div class="flow-visual">
+  <div class="flow-track">
+    <div class="flow-node"><div class="flow-icon wallet">🦊<div class="pulse-ring"></div></div><div class="flow-label">Create wallet</div><div class="flow-sub">5 min</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node"><div class="flow-icon polygon">🔗</div><div class="flow-label">Add Polygon</div><div class="flow-sub">30 sec</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node"><div class="flow-icon usdt">💵</div><div class="flow-label">Get USDT</div><div class="flow-sub">5 min</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node"><div class="flow-icon pay">⚡</div><div class="flow-label">Pay &amp; join</div><div class="flow-sub">instant</div></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node"><div class="flow-icon earn">💰<div class="pulse-ring"></div></div><div class="flow-label">Start earning</div><div class="flow-sub">day 1</div></div>
+  </div>
+</div>
+
+<div class="divider"></div>
+
+<!-- STEP 1 -->
+<div class="step-section reveal">
   <div class="step-header">
     <div class="step-num s1">1</div>
-    <div>
-      <div class="step-title">Choose a wallet</div>
-      <div class="step-subtitle">A crypto wallet is like a digital bank account — it holds your funds and lets you send and receive payments.</div>
+    <div><div class="step-title">Choose a wallet</div><div class="step-subtitle">A crypto wallet is like a digital bank account — it holds your funds and lets you send and receive payments.</div></div>
+  </div>
+
+  <div class="phone-demo">
+    <div class="phone-frame">
+      <div class="phone-notch"></div>
+      <div class="phone-screen" id="phoneScreen">
+        <div class="ps-logo">🦊</div>
+        <div class="ps-header">MetaMask Setup</div>
+        <div class="ps-steps">
+          <div class="ps-row" id="pr1"><div class="ps-dot c1">1</div><div class="ps-text"><strong>Download app</strong><br>iOS or Android</div><div class="ps-check" id="pc1">✅</div></div>
+          <div class="ps-row" id="pr2"><div class="ps-dot c2">2</div><div class="ps-text"><strong>Create wallet</strong><br>Set your password</div><div class="ps-check" id="pc2">✅</div></div>
+          <div class="ps-row" id="pr3"><div class="ps-dot c3">3</div><div class="ps-text"><strong>Save 12 words</strong><br>Write them on paper</div><div class="ps-check" id="pc3">✅</div></div>
+          <div class="ps-row" id="pr4"><div class="ps-dot c4">4</div><div class="ps-text"><strong>Ready!</strong><br>Your address: 0x7F3...</div><div class="ps-check" id="pc4">✅</div></div>
+        </div>
+      </div>
     </div>
   </div>
 
   <div class="wallet-cards">
     <div class="wallet-card recommended">
-      <div class="wc-name">MetaMask</div>
-      <div class="wc-type">Browser + Mobile</div>
-      <div class="wc-desc">The most popular crypto wallet worldwide. Works as a browser extension on desktop and as a mobile app. Best for most users.</div>
+      <div class="wc-name">MetaMask</div><div class="wc-type">Browser + Mobile</div>
+      <div class="wc-desc">The most popular crypto wallet worldwide. Works as a browser extension and mobile app. Used by over 100 million people.</div>
       <a href="https://metamask.io/download/" target="_blank" class="wc-link">Download MetaMask →</a>
     </div>
     <div class="wallet-card">
-      <div class="wc-name">Trust Wallet</div>
-      <div class="wc-type">Mobile App</div>
-      <div class="wc-desc">Clean, simple mobile wallet backed by Binance. Great if you primarily use your phone. Supports all the networks we use.</div>
+      <div class="wc-name">Trust Wallet</div><div class="wc-type">Mobile App</div>
+      <div class="wc-desc">Clean mobile wallet backed by Binance. Great if you primarily use your phone. Supports all networks we use.</div>
       <a href="https://trustwallet.com/download" target="_blank" class="wc-link">Download Trust Wallet →</a>
     </div>
   </div>
 
-  <div class="info-box tip">
-    <div class="ib-icon">💡</div>
-    <div class="ib-text"><strong>We recommend MetaMask</strong> — it works on desktop and mobile, is used by over 100 million people, and is the easiest to set up. The steps below use MetaMask, but Trust Wallet is almost identical.</div>
-  </div>
-
-  <div class="instructions">
-    <h3>Setting up MetaMask</h3>
-    <div class="inst-step">
-      <div class="inst-dot">1</div>
-      <div class="inst-text">Visit <strong>metamask.io</strong> and download the browser extension (Chrome, Firefox, Edge) or mobile app (iOS, Android).</div>
-    </div>
-    <div class="inst-step">
-      <div class="inst-dot">2</div>
-      <div class="inst-text">Click <strong>"Create a new wallet"</strong> and set a strong password.</div>
-    </div>
-    <div class="inst-step">
-      <div class="inst-dot">3</div>
-      <div class="inst-text"><strong>Write down your 12-word recovery phrase</strong> on paper and store it somewhere safe. This is the ONLY way to recover your wallet if you lose access. Never share it with anyone.</div>
-    </div>
-    <div class="inst-step">
-      <div class="inst-dot">4</div>
-      <div class="inst-text">Confirm the recovery phrase and your wallet is ready. Your wallet address starts with <code>0x</code> — this is what you'll use for payments.</div>
-    </div>
-  </div>
-
-  <div class="info-box danger">
-    <div class="ib-icon">⚠️</div>
-    <div class="ib-text"><strong>Never share your recovery phrase.</strong> Not with SuperAdPro, not with anyone. Anyone who has your 12 words can access your funds. SuperAdPro will never ask for your recovery phrase.</div>
-  </div>
+  <div class="info-box danger"><div class="ib-icon">🔒</div><div class="ib-text"><strong>Your 12-word recovery phrase is everything.</strong> Write it on paper, not digitally. Store it safely. Anyone with these words can access your wallet. SuperAdPro will NEVER ask for your recovery phrase.</div></div>
 </div>
 
 <div class="divider"></div>
 
-<!-- STEP 2: ADD POLYGON NETWORK -->
-<div class="step-section">
+<!-- STEP 2 -->
+<div class="step-section reveal">
   <div class="step-header">
     <div class="step-num s2">2</div>
-    <div>
-      <div class="step-title">Add the Polygon network</div>
-      <div class="step-subtitle">SuperAdPro uses the Polygon network because transactions cost less than 1 cent and confirm in 2 seconds.</div>
-    </div>
+    <div><div class="step-title">Add the Polygon network</div><div class="step-subtitle">Polygon is a faster, cheaper version of Ethereum. Same security, fraction of the cost.</div></div>
   </div>
 
-  <div class="network-box">
-    <div class="nb-icon">🔗</div>
-    <div class="nb-content">
-      <h4>Why Polygon?</h4>
-      <p>Sending $20 on Ethereum costs $5-15 in fees. On Polygon, the same transfer costs less than <code>$0.01</code>. Same security, 1000x cheaper.</p>
+  <div class="fee-compare" id="feeCompare">
+    <div class="fee-bar eth">
+      <div class="fb-name">Ethereum</div><div class="fb-desc">Standard network</div>
+      <div class="fb-amount">$8.50</div><div class="fb-label">average fee per transfer</div>
+      <div class="fb-bar-track"><div class="fb-bar-fill" id="ethBar"></div></div>
+    </div>
+    <div class="fee-bar poly">
+      <div class="fb-savings">SAVE 99.9%</div>
+      <div class="fb-name">Polygon</div><div class="fb-desc">What SuperAdPro uses</div>
+      <div class="fb-amount">&lt;$0.01</div><div class="fb-label">average fee per transfer</div>
+      <div class="fb-bar-track"><div class="fb-bar-fill" id="polyBar"></div></div>
     </div>
   </div>
 
   <div class="instructions">
     <h3>Adding Polygon to MetaMask</h3>
-    <div class="inst-step">
-      <div class="inst-dot">1</div>
-      <div class="inst-text">Open MetaMask and click the <strong>network dropdown</strong> at the top (it usually says "Ethereum Mainnet").</div>
-    </div>
-    <div class="inst-step">
-      <div class="inst-dot">2</div>
-      <div class="inst-text">Click <strong>"Add network"</strong> and search for <strong>"Polygon"</strong>.</div>
-    </div>
-    <div class="inst-step">
-      <div class="inst-dot">3</div>
-      <div class="inst-text">Select <strong>Polygon Mainnet</strong> and click <strong>"Approve"</strong> then <strong>"Switch to network"</strong>.</div>
-    </div>
-    <div class="inst-step">
-      <div class="inst-dot">4</div>
-      <div class="inst-text">Done! MetaMask now shows Polygon. Your wallet address is the same on Polygon as on Ethereum — you don't need a new one.</div>
-    </div>
+    <div class="inst-step"><div class="inst-dot">1</div><div class="inst-text">Open MetaMask and tap the <strong>network dropdown</strong> at the top (usually says "Ethereum Mainnet").</div></div>
+    <div class="inst-step"><div class="inst-dot">2</div><div class="inst-text">Tap <strong>"Add network"</strong> and search for <strong>"Polygon"</strong>.</div></div>
+    <div class="inst-step"><div class="inst-dot">3</div><div class="inst-text">Select <strong>Polygon Mainnet</strong>, tap <strong>"Approve"</strong> then <strong>"Switch to network"</strong>.</div></div>
   </div>
 
-  <div class="info-box tip">
-    <div class="ib-icon">💡</div>
-    <div class="ib-text"><strong>Polygon is already built into MetaMask</strong> on most versions. You may just need to select it from the network list — no manual setup needed.</div>
-  </div>
+  <div class="info-box tip"><div class="ib-icon">💡</div><div class="ib-text"><strong>Polygon is already built into MetaMask.</strong> You may just need to select it from the network list. Your wallet address is the same on both networks.</div></div>
 </div>
 
 <div class="divider"></div>
 
-<!-- STEP 3: GET USDT/USDC -->
-<div class="step-section">
+<!-- STEP 3 -->
+<div class="step-section reveal">
   <div class="step-header">
     <div class="step-num s3">3</div>
-    <div>
-      <div class="step-title">Get USDT or USDC</div>
-      <div class="step-subtitle">USDT and USDC are digital dollars — always worth $1. SuperAdPro accepts both for payments and pays commissions in USDT.</div>
-    </div>
+    <div><div class="step-title">Get USDT or USDC</div><div class="step-subtitle">These are "stablecoins" — digital dollars always worth $1. SuperAdPro accepts both.</div></div>
   </div>
 
   <div class="buy-options">
-    <div class="buy-card">
-      <div class="bc-title">Buy on an exchange</div>
-      <div class="bc-desc">Buy USDT or USDC on Binance, Kraken, or Coinbase, then withdraw to your MetaMask on Polygon.</div>
-      <div class="bc-tag easy">Easiest</div>
-    </div>
-    <div class="buy-card">
-      <div class="bc-title">Use a card on-ramp</div>
-      <div class="bc-desc">Services like MoonPay or Transak let you buy crypto directly with a debit card into your wallet.</div>
-      <div class="bc-tag int">Quick</div>
-    </div>
-    <div class="buy-card">
-      <div class="bc-title">Swap existing crypto</div>
-      <div class="bc-desc">If you already have crypto, swap it to USDT/USDC using MetaMask's built-in swap feature.</div>
-      <div class="bc-tag adv">Advanced</div>
-    </div>
+    <div class="buy-card"><div class="bc-icon">🏦</div><div class="bc-title">Buy on an exchange</div><div class="bc-desc">Buy on Binance, Kraken, or Coinbase, then withdraw to MetaMask on Polygon.</div><div class="bc-tag easy">Easiest</div></div>
+    <div class="buy-card"><div class="bc-icon">💳</div><div class="bc-title">Card on-ramp</div><div class="bc-desc">Buy directly with debit card using MoonPay or Transak — straight to your wallet.</div><div class="bc-tag int">Quick</div></div>
+    <div class="buy-card"><div class="bc-icon">🔄</div><div class="bc-title">Swap crypto</div><div class="bc-desc">Already have crypto? Swap it to USDT using MetaMask's built-in swap.</div><div class="bc-tag adv">Advanced</div></div>
   </div>
 
   <div class="instructions">
     <h3>Buying on an exchange (most common)</h3>
-    <div class="inst-step">
-      <div class="inst-dot">1</div>
-      <div class="inst-text">Create an account on <strong>Binance</strong>, <strong>Kraken</strong>, or any major exchange. Complete their identity verification.</div>
-    </div>
-    <div class="inst-step">
-      <div class="inst-dot">2</div>
-      <div class="inst-text">Deposit funds via bank transfer or card, then <strong>buy USDT or USDC</strong>.</div>
-    </div>
-    <div class="inst-step">
-      <div class="inst-dot">3</div>
-      <div class="inst-text">Click <strong>"Withdraw"</strong>, paste your MetaMask wallet address, and <strong>select Polygon as the network</strong>. This is critical — choosing the wrong network means lost funds.</div>
-    </div>
-    <div class="inst-step">
-      <div class="inst-dot">4</div>
-      <div class="inst-text">Confirm the withdrawal. Your USDT/USDC will arrive in MetaMask within a few minutes.</div>
-    </div>
+    <div class="inst-step"><div class="inst-dot">1</div><div class="inst-text">Create an account on <strong>Binance</strong> or <strong>Kraken</strong>. Complete identity verification.</div></div>
+    <div class="inst-step"><div class="inst-dot">2</div><div class="inst-text">Deposit funds via bank transfer or card, then <strong>buy USDT or USDC</strong>.</div></div>
+    <div class="inst-step"><div class="inst-dot">3</div><div class="inst-text">Click <strong>"Withdraw"</strong>, paste your MetaMask address, and <strong>select Polygon as the network</strong>.</div></div>
+    <div class="inst-step"><div class="inst-dot">4</div><div class="inst-text">Confirm the withdrawal. Your crypto arrives in MetaMask within minutes.</div></div>
   </div>
 
-  <div class="info-box warning">
-    <div class="ib-icon">⚠️</div>
-    <div class="ib-text"><strong>Always select "Polygon" as the withdrawal network.</strong> If you send on Ethereum, Solana, or any other network, the funds will not arrive in your SuperAdPro-compatible wallet. Start with a small test amount first.</div>
-  </div>
+  <div class="info-box warning"><div class="ib-icon">⚠️</div><div class="ib-text"><strong>Always select "Polygon" as the withdrawal network.</strong> Sending on Ethereum or other networks means lost funds. Start with a small test amount first.</div></div>
+  <div class="info-box tip"><div class="ib-icon">💡</div><div class="ib-text"><strong>You'll also need ~$0.50 of POL</strong> (Polygon's gas token) for fees. That's enough for hundreds of transactions.</div></div>
+</div>
 
-  <div class="info-box tip">
-    <div class="ib-icon">💡</div>
-    <div class="ib-text"><strong>You'll also need a tiny amount of POL</strong> (Polygon's native token) for transaction fees — about $0.50 worth is enough for hundreds of transactions. Most exchanges let you withdraw POL on Polygon too.</div>
+<div class="divider"></div>
+
+<!-- ANIMATED PAYMENT FLOW -->
+<div class="step-section reveal">
+  <div class="payment-flow" id="payFlow">
+    <div class="pf-title">How payments and commissions work</div>
+    <div class="pf-track">
+      <div class="pf-node"><div class="pf-circle you">👤</div><div class="pf-name">You</div><div class="pf-detail">MetaMask</div></div>
+      <div class="pf-connector" id="c1"><div class="pf-ball b1" id="ball1"></div><div class="pf-amt a1" id="amt1">$20 USDT</div></div>
+      <div class="pf-node"><div class="pf-circle sap">🟢</div><div class="pf-name">SuperAdPro</div><div class="pf-detail">Activates you</div></div>
+      <div class="pf-connector" id="c2"><div class="pf-ball b2" id="ball2"></div><div class="pf-amt a2" id="amt2">$10 commission</div></div>
+      <div class="pf-node"><div class="pf-circle sponsor">⭐</div><div class="pf-name">Your sponsor</div><div class="pf-detail">Earns 50%</div></div>
+    </div>
   </div>
 </div>
 
 <div class="divider"></div>
 
 <!-- FAQ -->
-<div class="faq-section">
+<div class="faq-section reveal">
   <div class="faq-title">Common questions</div>
-
-  <div class="faq-item">
-    <div class="faq-q">What's the difference between USDT and USDC?</div>
-    <div class="faq-a">Both are "stablecoins" — digital tokens always worth $1. USDT (Tether) is the most widely used, USDC (USD Coin) is issued by Circle/Coinbase. SuperAdPro accepts both. Use whichever your exchange gives you.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-q">Can I use Coinbase to send payments?</div>
-    <div class="faq-a">We recommend using MetaMask or Trust Wallet instead. Coinbase's exchange sends from internal wallets which can cause payment matching issues. If you buy crypto on Coinbase, withdraw it to your MetaMask wallet first, then pay from there.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-q">What if I send on the wrong network?</div>
-    <div class="faq-a">Unfortunately, sending on the wrong network (like Ethereum instead of Polygon) means the funds won't arrive and cannot be recovered. Always double-check the network is set to Polygon before sending. We recommend sending a small test amount first.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-q">How do I receive my commissions?</div>
-    <div class="faq-a">Commissions are credited to your SuperAdPro balance. When you're ready to withdraw, go to your Wallet page and request a withdrawal. Your earnings are sent as USDT on Polygon directly to the wallet address in your account settings.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-q">Is my money safe in MetaMask?</div>
-    <div class="faq-a">Yes — MetaMask is a self-custody wallet, meaning only YOU control your funds. No company, including MetaMask and SuperAdPro, can access your wallet. The key is keeping your 12-word recovery phrase safe and private.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-q">How much do I need to get started?</div>
-    <div class="faq-a">A Basic membership is $20/month in USDT or USDC, plus about $0.50 worth of POL for transaction fees. That's it. Your wallet setup is completely free.</div>
-  </div>
-
-  <div class="faq-item">
-    <div class="faq-q">I've never used crypto before — is this complicated?</div>
-    <div class="faq-a">It's simpler than it sounds. Setting up MetaMask takes about 5 minutes — similar to creating any online account. Buying and sending USDT is like a bank transfer but faster and cheaper. Once set up, you won't need to think about it again.</div>
-  </div>
+  <div class="faq-item"><div class="faq-q">What's the difference between USDT and USDC?</div><div class="faq-a">Both are "stablecoins" worth $1 each. USDT (Tether) is the most widely used. USDC (USD Coin) is issued by Circle. SuperAdPro accepts both — use whichever your exchange provides.</div></div>
+  <div class="faq-item"><div class="faq-q">Can I use Coinbase to send payments?</div><div class="faq-a">We recommend MetaMask or Trust Wallet. If you buy crypto on Coinbase, withdraw it to your MetaMask wallet first, then pay from there. This ensures your payment is detected correctly.</div></div>
+  <div class="faq-item"><div class="faq-q">What if I send on the wrong network?</div><div class="faq-a">Funds sent on the wrong network cannot be recovered. Always verify the network is Polygon before sending. Send a small test amount first.</div></div>
+  <div class="faq-item"><div class="faq-q">How do I receive my commissions?</div><div class="faq-a">Commissions credit to your SuperAdPro balance instantly. When you withdraw, USDT is sent directly to your MetaMask wallet on Polygon.</div></div>
+  <div class="faq-item"><div class="faq-q">Is my money safe in MetaMask?</div><div class="faq-a">Yes. MetaMask is self-custody — only YOU control your funds. No company, including SuperAdPro, can access your wallet. Over 100 million people use it worldwide.</div></div>
+  <div class="faq-item"><div class="faq-q">How much do I need to get started?</div><div class="faq-a">Basic membership is $20/month in USDT or USDC, plus about $0.50 of POL for gas. Your wallet is free. Total to start: roughly $21.</div></div>
+  <div class="faq-item"><div class="faq-q">I've never used crypto — is this hard?</div><div class="faq-a">Setting up MetaMask takes 5 minutes. Sending crypto is like a bank transfer but faster and cheaper. Once set up, you won't need to think about it again.</div></div>
 </div>
 
-<!-- CTA -->
 <div class="cta-section">
-  <a href="/register" class="cta-btn">Ready to go? Join SuperAdPro →</a>
+  <a href="/register" class="cta-btn">Wallet ready? Join SuperAdPro →</a>
 </div>
 
-</div><!-- /container -->
+</div>
 
 <script>
-document.querySelectorAll('.faq-q').forEach(function(q){
-  q.addEventListener('click',function(){
-    this.parentElement.classList.toggle('open');
+/* Scroll reveal */
+var reveals=document.querySelectorAll('.reveal');
+function checkReveal(){reveals.forEach(function(el){if(el.getBoundingClientRect().top<window.innerHeight-80)el.classList.add('visible')})}
+window.addEventListener('scroll',checkReveal);checkReveal();
+
+/* FAQ */
+document.querySelectorAll('.faq-q').forEach(function(q){q.addEventListener('click',function(){this.parentElement.classList.toggle('open')})});
+
+/* Phone setup animation */
+(function(){
+  var rows=[{r:'pr1',c:'pc1',d:600},{r:'pr2',c:'pc2',d:1400},{r:'pr3',c:'pc3',d:2200},{r:'pr4',c:'pc4',d:3000}];
+  rows.forEach(function(item){
+    setTimeout(function(){
+      var row=document.getElementById(item.r);
+      if(row){row.style.transition='opacity 0.4s,transform 0.4s';row.style.opacity='1';row.style.transform='translateX(0)'}
+    },item.d);
+    setTimeout(function(){
+      var chk=document.getElementById(item.c);
+      if(chk){chk.style.transition='opacity 0.3s,transform 0.3s';chk.style.opacity='1';chk.style.transform='scale(1)'}
+    },item.d+500);
   });
-});
+})();
+
+/* Fee bar animation */
+var feeAnimated=false;
+function animFees(){
+  if(feeAnimated)return;
+  var el=document.getElementById('feeCompare');
+  if(!el||el.getBoundingClientRect().top>window.innerHeight-60)return;
+  feeAnimated=true;
+  setTimeout(function(){document.getElementById('ethBar').style.transition='width 1.2s ease';document.getElementById('ethBar').style.width='90%'},300);
+  setTimeout(function(){document.getElementById('polyBar').style.transition='width 1.2s ease';document.getElementById('polyBar').style.width='1.5%'},600);
+}
+window.addEventListener('scroll',animFees);animFees();
+
+/* Payment flow animation */
+var pfAnimated=false;
+function animPayFlow(){
+  if(pfAnimated)return;
+  var el=document.getElementById('payFlow');
+  if(!el||el.getBoundingClientRect().top>window.innerHeight-80)return;
+  pfAnimated=true;
+  var b1=document.getElementById('ball1'),a1=document.getElementById('amt1');
+  var b2=document.getElementById('ball2'),a2=document.getElementById('amt2');
+  setTimeout(function(){
+    a1.style.transition='opacity 0.3s';a1.style.opacity='1';
+    b1.style.opacity='1';b1.style.transition='left 1.2s ease-in-out';b1.style.left='calc(100% - 10px)';
+  },500);
+  setTimeout(function(){
+    a2.style.transition='opacity 0.3s';a2.style.opacity='1';
+    b2.style.opacity='1';b2.style.transition='left 1.2s ease-in-out';b2.style.left='calc(100% - 10px)';
+  },2000);
+}
+window.addEventListener('scroll',animPayFlow);animPayFlow();
 </script>
 </body>
 </html>
