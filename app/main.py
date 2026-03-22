@@ -2786,10 +2786,14 @@ def _stripe_process_supermarket(db, user, product_id, session_id, affiliate_id=N
     p.total_revenue = (p.total_revenue or Decimal("0")) + (p.price or Decimal("0"))
     db.commit()
 
-def _activate_membership(db, user, tier, source="stripe", subscription_id=None):
+def _activate_membership(db, user, tier, source="stripe", subscription_id=None, is_upgrade=False):
     """
     Shared membership activation — used by BOTH Stripe and Crypto.
     Handles: activation, payment record, sponsor commission, renewal record, welcome email.
+    
+    Commission rules:
+    - Sponsor commission is capped at their own tier level ($10 Basic, $17.50 Pro)
+    - Upgrades (Basic→Pro) pay $15 to company only, no sponsor commission
     """
     from datetime import datetime, timedelta
     from decimal import Decimal
@@ -2797,8 +2801,8 @@ def _activate_membership(db, user, tier, source="stripe", subscription_id=None):
 
     # Pricing — single source of truth
     MEMBERSHIP_PRICES = {"pro": Decimal("35.00"), "basic": Decimal("20.00")}
+    COMMISSION_CAPS = {"pro": Decimal("17.50"), "basic": Decimal("10.00")}
     fee = MEMBERSHIP_PRICES.get(tier, Decimal("20.00"))
-    sponsor_share = fee * Decimal("0.50")  # 50% to sponsor
 
     # Activate user
     user.is_active = True
@@ -2807,26 +2811,38 @@ def _activate_membership(db, user, tier, source="stripe", subscription_id=None):
     if subscription_id:
         user.stripe_subscription_id = subscription_id
 
-    # Record payment (idempotent — skip if already activated this cycle)
+    # Record payment
+    if is_upgrade:
+        actual_charge = Decimal("15.00")  # upgrade difference only
+        payment_type = "membership_upgrade"
+    else:
+        actual_charge = fee
+        payment_type = "membership"
+
     existing = db.query(Payment).filter(
         Payment.from_user_id == user.id,
-        Payment.payment_type == "membership",
+        Payment.payment_type == payment_type,
         Payment.status == "confirmed",
     ).first()
     if not existing:
         tx_ref = f"{source}_{uuid.uuid4().hex[:16]}"
         payment = Payment(
             from_user_id=user.id, to_user_id=None,
-            amount_usdt=fee, payment_type="membership",
+            amount_usdt=actual_charge, payment_type=payment_type,
             tx_hash=tx_ref, status="confirmed",
         )
         db.add(payment)
         db.flush()
 
-    # Credit sponsor commission
-    if user.sponsor_id:
+    # Credit sponsor commission (NOT on upgrades — upgrade fee goes 100% to company)
+    if user.sponsor_id and not is_upgrade:
         sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
         if sponsor:
+            # Cap commission at sponsor's own tier level
+            sponsor_tier = getattr(sponsor, "membership_tier", "basic") or "basic"
+            max_commission = COMMISSION_CAPS.get(sponsor_tier, Decimal("10.00"))
+            sponsor_share = min(fee * Decimal("0.50"), max_commission)
+
             sponsor.balance = Decimal(str(sponsor.balance or 0)) + sponsor_share
             sponsor.total_earned = Decimal(str(sponsor.total_earned or 0)) + sponsor_share
             sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
@@ -2834,7 +2850,7 @@ def _activate_membership(db, user, tier, source="stripe", subscription_id=None):
                 to_user_id=sponsor.id, from_user_id=user.id,
                 amount_usdt=sponsor_share, commission_type="membership_sponsor",
                 package_tier=0,
-                notes=f"Membership commission from {user.username} ({source})",
+                notes=f"Membership commission from {user.username} ({source}) — capped at {sponsor_tier} tier",
                 status="pending",
                 paid_at=datetime.utcnow(),
             )
@@ -2863,11 +2879,15 @@ def _stripe_activate_membership(db, user, tier, subscription_id):
 
 
 def _stripe_renew_membership(db, user, tier, subscription_id):
-    """Process monthly renewal."""
+    """Process monthly renewal — sponsor gets capped commission."""
     from datetime import datetime, timedelta
     from decimal import Decimal
     import uuid
+
+    COMMISSION_CAPS = {"pro": Decimal("17.50"), "basic": Decimal("10.00")}
     fee = Decimal("35.00") if tier == "pro" else Decimal("20.00")
+    sponsor_share = fee * Decimal("0.50")
+
     user.is_active = True
     user.membership_expires_at = datetime.utcnow() + timedelta(days=31)
     tx_ref = f"stripe_renew_{uuid.uuid4().hex[:12]}"
@@ -2877,7 +2897,39 @@ def _stripe_renew_membership(db, user, tier, subscription_id):
         tx_hash=tx_ref, status="confirmed",
     )
     db.add(payment)
+
+    # Pay sponsor commission on renewal (capped at sponsor's tier)
+    if user.sponsor_id:
+        sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
+        if sponsor:
+            sponsor_tier = getattr(sponsor, "membership_tier", "basic") or "basic"
+            max_commission = COMMISSION_CAPS.get(sponsor_tier, Decimal("10.00"))
+            capped_share = min(sponsor_share, max_commission)
+            sponsor.balance = Decimal(str(sponsor.balance or 0)) + capped_share
+            sponsor.total_earned = Decimal(str(sponsor.total_earned or 0)) + capped_share
+            db.add(Commission(
+                to_user_id=sponsor.id, from_user_id=user.id,
+                amount_usdt=capped_share, commission_type="membership_renewal",
+                package_tier=0,
+                notes=f"Renewal commission from {user.username} — capped at {sponsor_tier} tier",
+                status="pending", paid_at=datetime.utcnow(),
+            ))
+
     db.commit()
+
+
+@app.post("/api/upgrade-to-pro")
+async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
+                              user: User = Depends(get_current_user)):
+    """Upgrade Basic → Pro for $15 (difference). 100% to company, no sponsor commission."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not user.is_active:
+        return JSONResponse({"error": "You need an active Basic membership first"}, status_code=400)
+    if (user.membership_tier or "basic") == "pro":
+        return JSONResponse({"error": "You're already on Pro"}, status_code=400)
+
+    return _activate_membership(db, user, "pro", source="upgrade", is_upgrade=True)
 
 
 def _stripe_process_grid(db, user, package_tier, price_usd, session_id):

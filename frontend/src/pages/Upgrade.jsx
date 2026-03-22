@@ -31,6 +31,20 @@ export default function Upgrade() {
     setCryptoCheckout({ productKey: 'membership_' + tier, label: label });
   }
 
+  var isBasicActive = isActive && !isPro;
+
+  function handleUpgradeToPro() {
+    setLoading('upgrade');
+    setError('');
+    apiPost('/api/upgrade-to-pro', {})
+      .then(function(d) {
+        setLoading('');
+        if (d.message) { if (refreshUser) refreshUser(); }
+        else { setError(d.error || 'Upgrade failed.'); }
+      })
+      .catch(function(e) { setLoading(''); setError(e.message || 'Upgrade failed.'); });
+  }
+
   var plans = [
     {
       id: 'basic', name: 'Basic', price: '$20/mo',
@@ -38,9 +52,10 @@ export default function Upgrade() {
       current: isActive && !isPro, highlight: false,
     },
     {
-      id: 'pro', name: 'Pro', price: '$35/mo',
+      id: 'pro', name: 'Pro', price: isBasicActive ? '$15 upgrade' : '$35/mo',
+      priceNote: isBasicActive ? 'then $35/mo from next month' : 'per member per month',
       features: ['Everything in Basic', 'ProSeller AI assistant', 'AI Funnel Generator', 'SuperLeads CRM', 'Campaign Studio', 'Niche Finder AI', 'Social Post Generator', 'Video Script Generator', 'Email Swipes', 'Lead dashboard', 'Priority support'],
-      current: isPro, highlight: true,
+      current: isPro, highlight: true, isUpgrade: isBasicActive,
     },
   ];
 
@@ -65,7 +80,7 @@ export default function Upgrade() {
                 )}
                 <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: '#94a3b8', marginBottom: 8 }}>{p.name}</div>
                 <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 36, fontWeight: 900, color: '#0f172a', marginBottom: 4 }}>{p.price}</div>
-                <div style={{ fontSize: 12, color: '#7b91a8', marginBottom: 20 }}>per member per month</div>
+                <div style={{ fontSize: 12, color: '#7b91a8', marginBottom: 20 }}>{p.priceNote || 'per member per month'}</div>
                 <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', flex: 1 }}>
                   {p.features.map(function(f) {
                     return (
@@ -79,6 +94,17 @@ export default function Upgrade() {
                 {p.current ? (
                   <div style={{ padding: 13, borderRadius: 12, fontSize: 14, fontWeight: 700, textAlign: 'center', background: 'linear-gradient(180deg,#dcfce7,#bbf7d0)', color: '#059669' }}>
                     {"\u2713"} Current Plan
+                  </div>
+                ) : p.isUpgrade ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                    <button
+                      onClick={handleUpgradeToPro}
+                      disabled={loading === 'upgrade'}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', padding: 13, borderRadius: 12, fontSize: 14, fontWeight: 700, border: 'none', cursor: loading === 'upgrade' ? 'default' : 'pointer', fontFamily: 'inherit', background: loading === 'upgrade' ? '#94a3b8' : 'linear-gradient(135deg,#8b5cf6,#a855f7)', color: '#fff', boxShadow: loading === 'upgrade' ? 'none' : '0 4px 0 #6d28d9,0 6px 16px rgba(139,92,246,.3)' }}
+                    >
+                      {loading === 'upgrade' ? 'Upgrading...' : '\u26A1 Upgrade to Pro \u2014 $15'}
+                    </button>
+                    <div style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center' }}>Pay the $15 difference now. $35/mo from next renewal.</div>
                   </div>
                 ) : (
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>

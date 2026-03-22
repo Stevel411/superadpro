@@ -84,6 +84,17 @@ export function Legal() {
           <p style={p}>Participation in the platform involves financial risk and should be treated as a business venture. Past performance of other members is not indicative of your own results.</p>
         </LegalSection>
 
+        <LegalSection title="Commission Structure">
+          <p style={bold}>Membership commissions</p>
+          <p style={p}>Members earn 50% commission when a referred member activates a membership. However, commissions are capped at the referring member's own tier level. A Basic member ($20/mo) earns a maximum of $10 per referral, regardless of the product purchased. A Pro member ($35/mo) earns up to $17.50 per referral. This applies to both initial signups and monthly renewals.</p>
+          <p style={bold}>Upgrade policy</p>
+          <p style={p}>Members upgrading from Basic to Pro pay only the $15 difference between tiers. The upgrade fee goes 100% to the platform and does not generate a commission for the referring sponsor. From the next billing cycle onwards, the member renews at the Pro rate ($35/mo) and the sponsor earns their tier-capped commission on each renewal.</p>
+          <p style={bold}>Campaign tier commissions</p>
+          <p style={p}>Campaign tier purchases are split as follows: 40% to the direct sponsor, 50% distributed across 8 uni-level tiers (6.25% each), 5% to the grid completion bonus pool, and 5% to the platform. Commission qualification requires an active membership and completion of daily Watch to Earn requirements.</p>
+          <p style={bold}>Course commissions</p>
+          <p style={p}>Course sales follow a 100% pass-up system. Sales 1, 3, 5, and 7 are kept by the seller. Sales 2, 4, 6, and 8 pass up to the sponsor in the commission chain.</p>
+        </LegalSection>
+
         <LegalSection title="Privacy Policy">
           <p style={p}>We collect the minimum data necessary to operate the platform - your name, email, username, transaction history, and identity documents where required for withdrawal verification.</p>
           <p style={p}>We do not sell your data to third parties. We use industry-standard encryption to protect your information. You may request access to, correction of, or deletion of your data at any time by contacting support.</p>
