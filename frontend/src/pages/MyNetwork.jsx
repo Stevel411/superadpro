@@ -86,7 +86,7 @@ export default function MyNetwork() {
         </div>
         <div style={{padding:'20px 24px',display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14}}>
           {[
-            {label:t('network.membershipResidual'),value:'$'+(d.membership_earnings || d.total_earned * 0.3 || 0).toFixed(0),color:'#16a34a',desc:t('network.fiftyPercentPerReferral')},
+            {label:t('network.membershipResidual'),value:'$'+(d.membership_earnings || d.membership_earned || 0).toFixed(0),color:'#16a34a',desc:t('network.fiftyPercentPerReferral')},
             {label:t('network.gridCampaigns'),value:'$'+(d.grid_earnings || 0).toFixed(0),color:'#0ea5e9',desc:t('network.fortyDirectUniLevel')},
             {label:t('network.coursesSuperMarket'),value:'$'+((d.course_earnings || 0) + (d.marketplace_earnings || 0)).toFixed(0),color:'#8b5cf6',desc:t('network.passUpsMarketplace')},
           ].map(function(s, i) {
