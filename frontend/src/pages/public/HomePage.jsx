@@ -424,6 +424,75 @@ export default function HomePage(){
         </div>
       </section>
 
+      {/* EARN WITH SUPERADPRO — teaser section */}
+      <div style={{maxWidth:1100,margin:'0 auto',padding:'0 40px'}}><div style={{height:1,background:'linear-gradient(90deg,transparent,rgba(56,189,248,.15),transparent)'}}/></div>
+
+      <section style={{padding:'80px 40px',maxWidth:1100,margin:'0 auto'}}>
+        <div style={{background:'linear-gradient(135deg,#061530,#0a1f3a,#071020)',border:'1px solid rgba(56,189,248,.15)',borderRadius:20,padding:'52px 48px',position:'relative',overflow:'hidden'}}>
+          {/* Background glow */}
+          <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse 60% 80% at 100% 50%,rgba(14,165,233,.1),transparent 60%)',pointerEvents:'none'}}/>
+          <div style={{position:'absolute',top:-60,right:-60,width:240,height:240,borderRadius:'50%',background:'radial-gradient(circle,rgba(14,165,233,.15),transparent 70%)',pointerEvents:'none'}}/>
+
+          <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:40,alignItems:'center',position:'relative'}}>
+            <div>
+              <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'#38bdf8',marginBottom:14}}>💰 Affiliate Programme</div>
+              <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,42px)',fontWeight:900,color:'#fff',lineHeight:1.1,marginBottom:16}}>
+                Earn With SuperAdPro.<br/>
+                <span style={{background:'linear-gradient(135deg,#38bdf8,#10b981)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>50% Referral Commission.</span>
+              </h2>
+              <p style={{fontSize:15,color:'rgba(200,220,255,.55)',lineHeight:1.75,marginBottom:28,maxWidth:520}}>
+                Refer members and earn 50% of their monthly subscription — recurring, every month. Build your network, activate campaign tiers, sell courses. Four income streams running on autopilot.
+              </p>
+              {/* Mini income bullets */}
+              <div style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:28}}>
+                {[
+                  {emoji:'💰',text:'50% commission',color:'#4ade80'},
+                  {emoji:'⚡',text:'Up to $3,200 grid bonus',color:'#38bdf8'},
+                  {emoji:'🎓',text:'100% course commissions',color:'#a5b4fc'},
+                  {emoji:'🤖',text:'9 AI marketing tools',color:'#fbbf24'},
+                ].map(function(b){
+                  return (
+                    <div key={b.text} style={{display:'flex',alignItems:'center',gap:7,padding:'7px 12px',background:'rgba(255,255,255,.04)',border:'1px solid rgba(255,255,255,.07)',borderRadius:8}}>
+                      <span style={{fontSize:14}}>{b.emoji}</span>
+                      <span style={{fontFamily:"'Sora',sans-serif",fontSize:12,fontWeight:800,color:b.color}}>{b.text}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{display:'flex',gap:12,flexWrap:'wrap',alignItems:'center'}}>
+                <a href="/earn" style={{fontWeight:800,fontSize:15,color:'#050d1a',background:'linear-gradient(135deg,#38bdf8,#0ea5e9)',padding:'13px 32px',borderRadius:10,textDecoration:'none',boxShadow:'0 4px 24px rgba(14,165,233,.35)',display:'inline-block'}}>
+                  See the Full Opportunity →
+                </a>
+                <span style={{fontSize:13,color:'rgba(200,220,255,.35)'}}>✓ Free to join · ✓ No credit card</span>
+              </div>
+            </div>
+
+            {/* Mini promo card */}
+            <div style={{flexShrink:0,width:200}}>
+              <div style={{background:'rgba(5,13,26,.9)',border:'1.5px solid rgba(56,189,248,.2)',borderRadius:14,padding:'20px 16px',boxShadow:'0 0 40px rgba(14,165,233,.1)',position:'relative',overflow:'hidden',animation:'hpFloat 4s ease-in-out infinite'}}>
+                <div style={{position:'absolute',top:0,left:0,right:0,height:2,background:'linear-gradient(90deg,transparent,#38bdf8,transparent)'}}/>
+                <div style={{fontFamily:"'Sora',sans-serif",fontSize:13,fontWeight:900,color:'#fff',marginBottom:12,lineHeight:1.2}}>
+                  Earn With<br/><span style={{color:'#38bdf8'}}>SuperAdPro</span>
+                </div>
+                {[['💰','50% commission','per referral'],['⚡','$3,200','grid bonus'],['🎓','100%','commissions']].map(function([e,v,l]){
+                  return (
+                    <div key={l} style={{display:'flex',alignItems:'center',gap:8,padding:'6px 0',borderBottom:'1px solid rgba(255,255,255,.05)'}}>
+                      <span style={{fontSize:13}}>{e}</span>
+                      <div>
+                        <div style={{fontFamily:"'Sora',sans-serif",fontSize:12,fontWeight:900,color:'#38bdf8',lineHeight:1}}>{v}</div>
+                        <div style={{fontSize:9,color:'rgba(200,220,255,.35)',textTransform:'uppercase',letterSpacing:.5}}>{l}</div>
+                      </div>
+                    </div>
+                  );
+                })}
+                <div style={{marginTop:12,background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:7,padding:'8px',textAlign:'center',fontSize:11,fontWeight:800,color:'#fff'}}>Join Free →</div>
+                <div style={{position:'absolute',bottom:0,right:0,width:16,height:16,borderBottom:'2px solid rgba(56,189,248,.4)',borderRight:'2px solid rgba(56,189,248,.4)',borderRadius:'0 0 4px 0'}}/>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* EXPLORE — Ad Board + Video */}
       <section style={{padding:'80px 40px 0',maxWidth:1100,margin:'0 auto'}}>
         <div style={{textAlign:'center',marginBottom:48}}>
@@ -528,75 +597,6 @@ export default function HomePage(){
             </div>
           </div>
 
-        </div>
-      </section>
-
-      {/* EARN WITH SUPERADPRO — teaser section */}
-      <div style={{maxWidth:1100,margin:'0 auto',padding:'0 40px'}}><div style={{height:1,background:'linear-gradient(90deg,transparent,rgba(56,189,248,.15),transparent)'}}/></div>
-
-      <section style={{padding:'80px 40px',maxWidth:1100,margin:'0 auto'}}>
-        <div style={{background:'linear-gradient(135deg,#061530,#0a1f3a,#071020)',border:'1px solid rgba(56,189,248,.15)',borderRadius:20,padding:'52px 48px',position:'relative',overflow:'hidden'}}>
-          {/* Background glow */}
-          <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse 60% 80% at 100% 50%,rgba(14,165,233,.1),transparent 60%)',pointerEvents:'none'}}/>
-          <div style={{position:'absolute',top:-60,right:-60,width:240,height:240,borderRadius:'50%',background:'radial-gradient(circle,rgba(14,165,233,.15),transparent 70%)',pointerEvents:'none'}}/>
-
-          <div style={{display:'grid',gridTemplateColumns:'1fr auto',gap:40,alignItems:'center',position:'relative'}}>
-            <div>
-              <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'#38bdf8',marginBottom:14}}>💰 Affiliate Programme</div>
-              <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,42px)',fontWeight:900,color:'#fff',lineHeight:1.1,marginBottom:16}}>
-                Earn With SuperAdPro.<br/>
-                <span style={{background:'linear-gradient(135deg,#38bdf8,#10b981)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>50% Referral Commission.</span>
-              </h2>
-              <p style={{fontSize:15,color:'rgba(200,220,255,.55)',lineHeight:1.75,marginBottom:28,maxWidth:520}}>
-                Refer members and earn 50% of their monthly subscription — recurring, every month. Build your network, activate campaign tiers, sell courses. Four income streams running on autopilot.
-              </p>
-              {/* Mini income bullets */}
-              <div style={{display:'flex',gap:10,flexWrap:'wrap',marginBottom:28}}>
-                {[
-                  {emoji:'💰',text:'50% commission',color:'#4ade80'},
-                  {emoji:'⚡',text:'Up to $3,200 grid bonus',color:'#38bdf8'},
-                  {emoji:'🎓',text:'100% course commissions',color:'#a5b4fc'},
-                  {emoji:'🤖',text:'9 AI marketing tools',color:'#fbbf24'},
-                ].map(function(b){
-                  return (
-                    <div key={b.text} style={{display:'flex',alignItems:'center',gap:7,padding:'7px 12px',background:'rgba(255,255,255,.04)',border:'1px solid rgba(255,255,255,.07)',borderRadius:8}}>
-                      <span style={{fontSize:14}}>{b.emoji}</span>
-                      <span style={{fontFamily:"'Sora',sans-serif",fontSize:12,fontWeight:800,color:b.color}}>{b.text}</span>
-                    </div>
-                  );
-                })}
-              </div>
-              <div style={{display:'flex',gap:12,flexWrap:'wrap',alignItems:'center'}}>
-                <a href="/earn" style={{fontWeight:800,fontSize:15,color:'#050d1a',background:'linear-gradient(135deg,#38bdf8,#0ea5e9)',padding:'13px 32px',borderRadius:10,textDecoration:'none',boxShadow:'0 4px 24px rgba(14,165,233,.35)',display:'inline-block'}}>
-                  See the Full Opportunity →
-                </a>
-                <span style={{fontSize:13,color:'rgba(200,220,255,.35)'}}>✓ Free to join · ✓ No credit card</span>
-              </div>
-            </div>
-
-            {/* Mini promo card */}
-            <div style={{flexShrink:0,width:200}}>
-              <div style={{background:'rgba(5,13,26,.9)',border:'1.5px solid rgba(56,189,248,.2)',borderRadius:14,padding:'20px 16px',boxShadow:'0 0 40px rgba(14,165,233,.1)',position:'relative',overflow:'hidden',animation:'hpFloat 4s ease-in-out infinite'}}>
-                <div style={{position:'absolute',top:0,left:0,right:0,height:2,background:'linear-gradient(90deg,transparent,#38bdf8,transparent)'}}/>
-                <div style={{fontFamily:"'Sora',sans-serif",fontSize:13,fontWeight:900,color:'#fff',marginBottom:12,lineHeight:1.2}}>
-                  Earn With<br/><span style={{color:'#38bdf8'}}>SuperAdPro</span>
-                </div>
-                {[['💰','50% commission','per referral'],['⚡','$3,200','grid bonus'],['🎓','100%','commissions']].map(function([e,v,l]){
-                  return (
-                    <div key={l} style={{display:'flex',alignItems:'center',gap:8,padding:'6px 0',borderBottom:'1px solid rgba(255,255,255,.05)'}}>
-                      <span style={{fontSize:13}}>{e}</span>
-                      <div>
-                        <div style={{fontFamily:"'Sora',sans-serif",fontSize:12,fontWeight:900,color:'#38bdf8',lineHeight:1}}>{v}</div>
-                        <div style={{fontSize:9,color:'rgba(200,220,255,.35)',textTransform:'uppercase',letterSpacing:.5}}>{l}</div>
-                      </div>
-                    </div>
-                  );
-                })}
-                <div style={{marginTop:12,background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:7,padding:'8px',textAlign:'center',fontSize:11,fontWeight:800,color:'#fff'}}>Join Free →</div>
-                <div style={{position:'absolute',bottom:0,right:0,width:16,height:16,borderBottom:'2px solid rgba(56,189,248,.4)',borderRight:'2px solid rgba(56,189,248,.4)',borderRadius:'0 0 4px 0'}}/>
-              </div>
-            </div>
-          </div>
         </div>
       </section>
 
