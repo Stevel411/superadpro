@@ -4800,7 +4800,7 @@ def admin_api_finances(
     from sqlalchemy import func
 
     total_revenue = db.query(func.sum(Payment.amount_usdt)).filter(Payment.status == "confirmed").scalar() or 0
-    total_commissions = db.query(func.sum(Commission.amount_usdt)).filter(Commission.status == "paid").scalar() or 0
+    total_commissions = db.query(func.sum(Commission.amount_usdt)).filter(Commission.status.in_(["paid", "pending"])).scalar() or 0
     total_withdrawn = db.query(func.sum(Withdrawal.amount_usdt)).filter(Withdrawal.status == "paid").scalar() or 0
     pending_withdrawals = db.query(func.sum(Withdrawal.amount_usdt)).filter(Withdrawal.status == "pending").scalar() or 0
     total_balances = db.query(func.sum(User.balance)).scalar() or 0
@@ -4813,9 +4813,23 @@ def admin_api_finances(
     # Commissions by type
     comms_by_type = db.query(
         Commission.commission_type, func.sum(Commission.amount_usdt), func.count(Commission.id)
-    ).filter(Commission.status == "paid").group_by(Commission.commission_type).all()
+    ).filter(Commission.status.in_(["paid", "pending"])).group_by(Commission.commission_type).all()
+
+    # User counts
+    total_users = db.query(func.count(User.id)).filter(User.id != user.id).scalar() or 0  # exclude admin
+    active_users = db.query(func.count(User.id)).filter(User.is_active == True, User.id != user.id).scalar() or 0
+    active_grids = db.query(func.count(Grid.id)).filter(Grid.is_complete == False).scalar() or 0
+    pending_withdrawals_count = db.query(func.count(Withdrawal.id)).filter(Withdrawal.status == "pending").scalar() or 0
 
     return {
+        # Flat fields for overview cards
+        "total_users": total_users,
+        "active_users": active_users,
+        "total_revenue": round(float(total_revenue), 2),
+        "total_commissions_paid": round(float(total_commissions), 2),
+        "pending_withdrawals_count": pending_withdrawals_count,
+        "active_grids": active_grids,
+        # Detailed breakdown
         "overview": {
             "total_revenue": round(float(total_revenue), 2),
             "total_commissions_paid": round(float(total_commissions), 2),
