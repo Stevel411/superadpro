@@ -96,12 +96,12 @@ export default function Upgrade() {
                 <rect x="10" y="58" width="30" height="4" rx="2" fill="#38bdf8" opacity="0.3" style={{ animation: 'slideBar 4s ease-in-out infinite alternate' }}/>
               </svg>
               <div style={{ position: 'relative', zIndex: 2 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'rgba(255,255,255,.45)', marginBottom: 12 }}>Basic</div>
+                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'rgba(255,255,255,.45)', marginBottom: 12 }}>Basic</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
                   <span style={{ fontFamily: 'Sora,sans-serif', fontSize: 48, fontWeight: 900, color: '#fff', lineHeight: 1 }}>$20</span>
                   <span style={{ fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,.4)' }}>/mo</span>
                 </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,.35)', marginTop: 6 }}>Everything you need to start earning</div>
+                <div style={{ fontSize: 14, color: 'rgba(255,255,255,.4)', marginTop: 6 }}>Everything you need to start earning</div>
               </div>
             </div>
 
@@ -118,9 +118,9 @@ export default function Upgrade() {
                   ['💬', 'Basic support'],
                 ].map(function([icon, label]) {
                   return (
-                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid rgba(0,0,0,.04)' }}>
-                      <div style={{ width: 28, height: 28, borderRadius: 8, background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 14 }}>{icon}</div>
-                      <span style={{ fontSize: 13, color: '#334155' }}>{label}</span>
+                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: '1px solid rgba(0,0,0,.04)' }}>
+                      <div style={{ width: 34, height: 34, borderRadius: 10, background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 17 }}>{icon}</div>
+                      <span style={{ fontSize: 15, color: "#334155" }}>{label}</span>
                     </div>
                   );
                 })}
@@ -193,12 +193,12 @@ export default function Upgrade() {
               {/* Badge */}
               <div style={{ position: 'absolute', top: 16, right: 16, background: 'linear-gradient(135deg,#fbbf24,#f59e0b)', color: '#78350f', fontSize: 9, fontWeight: 800, letterSpacing: 0.8, padding: '5px 12px', borderRadius: 20, zIndex: 3 }}>{"\u2B50"} RECOMMENDED</div>
               <div style={{ position: 'relative', zIndex: 2 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'rgba(255,255,255,.5)', marginBottom: 12 }}>Pro</div>
+                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'rgba(255,255,255,.5)', marginBottom: 12 }}>Pro</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
                   <span style={{ fontFamily: 'Sora,sans-serif', fontSize: 48, fontWeight: 900, color: '#fff', lineHeight: 1 }}>{isBasicActive ? '$15' : '$35'}</span>
                   <span style={{ fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,.5)' }}>/{isBasicActive ? 'upgrade' : 'mo'}</span>
                 </div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,.4)', marginTop: 6 }}>{isBasicActive ? 'then $35/mo from next month' : 'Full AI-powered marketing suite'}</div>
+                <div style={{ fontSize: 14, color: 'rgba(255,255,255,.45)', marginTop: 6 }}>{isBasicActive ? 'then $35/mo from next month' : 'Full AI-powered marketing suite'}</div>
               </div>
             </div>
 
@@ -219,9 +219,9 @@ export default function Upgrade() {
                   ['⭐', 'Priority support', false],
                 ].map(function([icon, label, bold]) {
                   return (
-                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: '1px solid rgba(0,0,0,.04)' }}>
-                      <div style={{ width: 28, height: 28, borderRadius: 8, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 14 }}>{icon}</div>
-                      <span style={{ fontSize: 13, color: bold ? '#0f172a' : '#334155', fontWeight: bold ? 700 : 400 }}>{label}</span>
+                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: '1px solid rgba(0,0,0,.04)' }}>
+                      <div style={{ width: 34, height: 34, borderRadius: 10, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 17 }}>{icon}</div>
+                      <span style={{ fontSize: 15, color: bold ? '#0f172a' : '#334155', fontWeight: bold ? 700 : 400 }}>{label}</span>
                     </div>
                   );
                 })}
