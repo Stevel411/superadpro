@@ -3410,8 +3410,9 @@ def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
             for table in related_tables:
                 try:
                     db.execute(_text(f"DELETE FROM {table} WHERE user_id IN :ids"), {"ids": tuple(user_ids)})
+                    db.flush()
                 except Exception:
-                    pass
+                    db.rollback()
             # Also clean commissions by earner or source
             try:
                 db.execute(_text("DELETE FROM commissions WHERE earner_id IN :ids OR source_user_id IN :ids"), {"ids": tuple(user_ids)})
