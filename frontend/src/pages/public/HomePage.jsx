@@ -146,13 +146,13 @@ function RegisterModal({open,onClose,onSwitchToLogin,sponsor}){
       <div style={{fontSize:22,fontWeight:800,color:'#fff',marginBottom:4}}>Create Your Free Account</div>
       <div style={{fontSize:13,color:'rgba(148,163,184,.8)',marginBottom:22}}>Takes 60 seconds · No credit card required</div>
       {err&&<div style={{padding:'10px 14px',background:'rgba(239,68,68,.1)',border:'1px solid rgba(239,68,68,.3)',borderRadius:8,fontSize:14,color:'#f87171',marginBottom:14}}>{err}</div>}
-      <form onSubmit={submit}>
-        <div style={{marginBottom:14}}><label style={lS}>First Name</label><input style={iS} value={form.first_name} onChange={set('first_name')} placeholder="John" required/></div>
-        <div style={{marginBottom:14}}><label style={lS}>Email Address</label><input style={iS} type="email" value={form.email} onChange={set('email')} placeholder="john@example.com" required/></div>
-        <div style={{marginBottom:14}}><label style={lS}>Username</label><input style={iS} value={form.username} onChange={set('username')} placeholder="johnsmith99" required pattern="[a-zA-Z0-9_]{3,30}" autoComplete="off"/></div>
+      <form onSubmit={submit} autoComplete="off">
+        <div style={{marginBottom:14}}><label style={lS}>First Name</label><input style={iS} value={form.first_name} onChange={set('first_name')} placeholder="John" required autoComplete="nope"/></div>
+        <div style={{marginBottom:14}}><label style={lS}>Email Address</label><input style={iS} type="email" value={form.email} onChange={set('email')} placeholder="john@example.com" required autoComplete="nope"/></div>
+        <div style={{marginBottom:14}}><label style={lS}>Username</label><input style={iS} value={form.username} onChange={set('username')} placeholder="johnsmith99" required pattern="[a-zA-Z0-9_]{3,30}" autoComplete="nope" name="reg_username"/></div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
-          <div><label style={lS}>Password</label><input style={iS} type="password" value={form.password} onChange={set('password')} placeholder="Min. 8 chars" required minLength={8}/></div>
-          <div><label style={lS}>Confirm</label><input style={iS} type="password" value={form.confirm_password} onChange={set('confirm_password')} placeholder="Repeat" required/></div>
+          <div><label style={lS}>Password</label><input style={iS} type="password" value={form.password} onChange={set('password')} placeholder="Min. 8 chars" required minLength={8} autoComplete="new-password"/></div>
+          <div><label style={lS}>Confirm</label><input style={iS} type="password" value={form.confirm_password} onChange={set('confirm_password')} placeholder="Repeat" required autoComplete="new-password"/></div>
         </div>
         {sponsor ? (
           <div style={{marginBottom:14}}><label style={lS}>Your Sponsor</label><div style={{display:'flex',alignItems:'center',gap:10}}><input style={{...iS,opacity:.55,cursor:'default',flex:1}} value={sponsor} readOnly/><div style={{fontSize:12,color:'#10b981',fontWeight:700,whiteSpace:'nowrap'}}>✓ Verified</div></div></div>
