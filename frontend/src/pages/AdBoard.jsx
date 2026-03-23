@@ -23,6 +23,19 @@ export default function AdBoard() {
 
   return (
     <AppLayout title={t("adBoard.title")} subtitle={t("adBoard.subtitle")}>
+      {/* Action buttons */}
+      <div style={{display:'flex',gap:10,marginBottom:20}}>
+        <a href="/ads/my" style={{display:'inline-flex',alignItems:'center',gap:6,padding:'10px 20px',borderRadius:10,background:'linear-gradient(135deg,#10b981,#059669)',color:'#fff',fontWeight:700,fontSize:14,textDecoration:'none',fontFamily:'inherit',boxShadow:'0 4px 0 #047857,0 6px 12px rgba(16,185,129,.2)'}}>
+          + Create Ad
+        </a>
+        <a href="/banner-manager" style={{display:'inline-flex',alignItems:'center',gap:6,padding:'10px 20px',borderRadius:10,background:'linear-gradient(135deg,#f59e0b,#d97706)',color:'#fff',fontWeight:700,fontSize:14,textDecoration:'none',fontFamily:'inherit',boxShadow:'0 4px 0 #b45309,0 6px 12px rgba(245,158,11,.2)'}}>
+          + Create Banner
+        </a>
+        <a href="/ads/my" style={{display:'inline-flex',alignItems:'center',gap:6,padding:'10px 20px',borderRadius:10,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontWeight:700,fontSize:14,textDecoration:'none',fontFamily:'inherit'}}>
+          My Listings
+        </a>
+      </div>
+
       {/* Category filter */}
       <div style={{display:'flex',gap:4,marginBottom:20,flexWrap:'wrap'}}>
         {CATEGORIES.map(function(c) {
