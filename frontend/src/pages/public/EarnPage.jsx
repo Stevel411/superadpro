@@ -141,7 +141,7 @@ export default function EarnPage() {
           Affiliate Programme — Now Open
         </div>
 
-        <h1 className="earn-fade2" style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(32px,5vw,62px)',fontWeight:900,color:'#fff',lineHeight:1.05,marginBottom:20,letterSpacing:-1,position:'relative'}}>
+        <h1 className="earn-fade2" style={{fontFamily:"'DM Sans','Rethink Sans',sans-serif",fontSize:'clamp(32px,5vw,62px)',fontWeight:800,color:'#fff',lineHeight:1.05,marginBottom:20,letterSpacing:-1,position:'relative'}}>
           Get Paid Every Time<br/>
           <span style={{background:'linear-gradient(135deg,#38bdf8,#7dd3fc,#0ea5e9)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>Someone Joins Your Network</span>
         </h1>
