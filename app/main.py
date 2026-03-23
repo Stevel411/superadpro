@@ -1444,6 +1444,14 @@ def banner_manager(request: Request):
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
 
+
+@app.get("/ad-hub")
+def ad_hub(request: Request):
+    """Serve React SPA for unified Ad Hub."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
 def _old_income_grid_DISABLED(request: Request, user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")

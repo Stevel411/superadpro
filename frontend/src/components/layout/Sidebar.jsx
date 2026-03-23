@@ -23,8 +23,7 @@ function buildNav(t, isAdmin) {
     { type: 'group', label: t('nav.adHub'), key: 'adhub', items: [
       { label: t('nav.watchToEarn'), icon: Eye, path: '/watch' },
       { label: t('nav.campaignTiers'), icon: Zap, path: '/campaign-tiers' },
-      { label: t('nav.adBoard'), icon: LayoutGrid, path: '/ad-board' },
-      { label: 'Banner Ads', icon: LayoutGrid, path: '/banner-manager' },
+      { label: 'Ad Hub', icon: LayoutGrid, path: '/ad-hub' },
     ]},
     { type: 'divider' },
     { type: 'group', label: t('nav.creatorTools'), key: 'creator', items: [
