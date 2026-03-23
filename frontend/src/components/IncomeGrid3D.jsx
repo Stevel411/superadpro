@@ -44,12 +44,10 @@ function Controls() {
 /* Reusable person geometry — shared across all instances */
 var headGeo = new THREE.SphereGeometry(0.07, 10, 10);
 var torsoGeo = new THREE.CylinderGeometry(0.05, 0.06, 0.16, 8);
-var armGeo = new THREE.CylinderGeometry(0.02, 0.02, 0.13, 6);
 var legGeo = new THREE.CylinderGeometry(0.025, 0.02, 0.14, 6);
 var platformGeo = new THREE.CylinderGeometry(0.14, 0.16, 0.025, 12);
 var bigHeadGeo = new THREE.SphereGeometry(0.12, 12, 12);
 var bigTorsoGeo = new THREE.CylinderGeometry(0.08, 0.1, 0.26, 10);
-var bigArmGeo = new THREE.CylinderGeometry(0.03, 0.03, 0.2, 8);
 var bigLegGeo = new THREE.CylinderGeometry(0.04, 0.03, 0.22, 8);
 
 /* YOU — larger detailed person floating above */
@@ -67,10 +65,6 @@ function CenterPerson() {
       <mesh geometry={bigHeadGeo} position={[0, 0.42, 0]} material={skinMat} />
       {/* Torso */}
       <mesh geometry={bigTorsoGeo} position={[0, 0.16, 0]} material={mat} />
-      {/* Left arm */}
-      <mesh geometry={bigArmGeo} position={[-0.14, 0.18, 0]} rotation={[0, 0, 0.2]} material={mat} />
-      {/* Right arm */}
-      <mesh geometry={bigArmGeo} position={[0.14, 0.18, 0]} rotation={[0, 0, -0.2]} material={mat} />
       {/* Left leg */}
       <mesh geometry={bigLegGeo} position={[-0.05, -0.08, 0]} material={mat} />
       {/* Right leg */}
@@ -140,20 +134,12 @@ function PersonNode({ position, filled, tierColor, index }) {
         <mesh geometry={torsoGeo} position={[0, 0.15, 0]} ref={function(el) { bodyParts.current[1] = el; }}>
           <meshStandardMaterial color="#1e293b" transparent opacity={0.1} roughness={0.3} metalness={0.5} />
         </mesh>
-        {/* Left arm */}
-        <mesh geometry={armGeo} position={[-0.085, 0.17, 0]} rotation={[0, 0, 0.25]} ref={function(el) { bodyParts.current[2] = el; }}>
-          <meshStandardMaterial color="#1e293b" transparent opacity={0.1} roughness={0.3} metalness={0.5} />
-        </mesh>
-        {/* Right arm */}
-        <mesh geometry={armGeo} position={[0.085, 0.17, 0]} rotation={[0, 0, -0.25]} ref={function(el) { bodyParts.current[3] = el; }}>
-          <meshStandardMaterial color="#1e293b" transparent opacity={0.1} roughness={0.3} metalness={0.5} />
-        </mesh>
         {/* Left leg */}
-        <mesh geometry={legGeo} position={[-0.03, 0.04, 0]} ref={function(el) { bodyParts.current[4] = el; }}>
+        <mesh geometry={legGeo} position={[-0.03, 0.04, 0]} ref={function(el) { bodyParts.current[2] = el; }}>
           <meshStandardMaterial color="#1e293b" transparent opacity={0.1} roughness={0.3} metalness={0.5} />
         </mesh>
         {/* Right leg */}
-        <mesh geometry={legGeo} position={[0.03, 0.04, 0]} ref={function(el) { bodyParts.current[5] = el; }}>
+        <mesh geometry={legGeo} position={[0.03, 0.04, 0]} ref={function(el) { bodyParts.current[3] = el; }}>
           <meshStandardMaterial color="#1e293b" transparent opacity={0.1} roughness={0.3} metalness={0.5} />
         </mesh>
       </group>
