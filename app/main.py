@@ -4293,6 +4293,29 @@ def banner_click(banner_id: int, db: Session = Depends(get_db)):
     return RedirectResponse(url=banner.link_url, status_code=302)
 
 
+@app.get("/explore")
+def explore_marketplace(request: Request, db: Session = Depends(get_db)):
+    """Tabbed marketplace page — Ad Board + Banners + Videos in one place."""
+    from .database import BannerAd
+    # Ads
+    ads = db.query(AdListing).filter(AdListing.is_active == True).order_by(
+        AdListing.is_featured.desc(), AdListing.created_at.desc()).limit(24).all()
+    ad_categories = sorted(set(a.category for a in ads if a.category))
+    # Banners
+    banners = db.query(BannerAd).filter(BannerAd.is_active == True, BannerAd.status == "approved").order_by(
+        BannerAd.is_featured.desc(), BannerAd.created_at.desc()).limit(20).all()
+    banner_categories = sorted(set(b.category for b in banners if b.category and b.category != "general"))
+    # Videos
+    videos = db.query(VideoCampaign).filter(VideoCampaign.status == "active").order_by(
+        VideoCampaign.is_featured.desc(), VideoCampaign.created_at.desc()).limit(20).all()
+    video_categories = sorted(set(v.category for v in videos if v.category))
+    return templates.TemplateResponse("public-explore.html", {
+        "request": request, "ads": ads, "ad_categories": ad_categories,
+        "banners": banners, "banner_categories": banner_categories,
+        "videos": videos, "video_categories": video_categories,
+    })
+
+
 #  SOCIAL PROOF API — recent joiners notification feed
 # ═══════════════════════════════════════════════════════════════
 
