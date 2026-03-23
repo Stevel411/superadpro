@@ -16,10 +16,9 @@ var TIERS = [
   {price:1000,color:'#fbbf24',name:'Ultimate'},
 ];
 
-/* Generate 8x8 grid positions centred at origin */
 function genPositions() {
   var pts = [];
-  var spacing = 0.55;
+  var spacing = 0.6;
   var offset = (GRID - 1) * spacing * 0.5;
   for (var row = 0; row < GRID; row++) {
     for (var col = 0; col < GRID; col++) {
@@ -31,93 +30,111 @@ function genPositions() {
 
 function Controls() {
   var { camera, gl } = useThree();
-  var controls = useRef();
+  var c = useRef();
   useEffect(function() {
-    var c = new OrbitControls(camera, gl.domElement);
-    c.enablePan = false;
-    c.autoRotate = true;
-    c.autoRotateSpeed = 0.4;
-    c.minDistance = 3;
-    c.maxDistance = 10;
-    c.maxPolarAngle = Math.PI * 0.65;
-    c.minPolarAngle = Math.PI * 0.2;
-    controls.current = c;
-    return function() { c.dispose(); };
+    var ctrl = new OrbitControls(camera, gl.domElement);
+    ctrl.enablePan = false; ctrl.autoRotate = true; ctrl.autoRotateSpeed = 0.4;
+    ctrl.minDistance = 3; ctrl.maxDistance = 12;
+    ctrl.maxPolarAngle = Math.PI * 0.6; ctrl.minPolarAngle = Math.PI * 0.15;
+    c.current = ctrl;
+    return function() { ctrl.dispose(); };
   }, [camera, gl]);
-  useFrame(function() { if (controls.current) controls.current.update(); });
+  useFrame(function() { if (c.current) c.current.update(); });
   return null;
 }
 
-/* Central "YOU" node floating above the grid */
-function CenterNode() {
+/* YOU node — larger person at centre, floating above */
+function CenterPerson() {
   var ref = useRef();
   useFrame(function(s) {
     if (!ref.current) return;
-    ref.current.rotation.y += 0.01;
-    ref.current.position.y = 1.5 + Math.sin(s.clock.elapsedTime * 1.5) * 0.1;
+    ref.current.position.y = 0.6 + Math.sin(s.clock.elapsedTime * 1.5) * 0.08;
   });
   return (
-    <group>
-      <mesh ref={ref} position={[0, 1.5, 0]}>
-        <dodecahedronGeometry args={[0.3, 1]} />
-        <meshStandardMaterial color="#0ea5e9" emissive="#0ea5e9" emissiveIntensity={0.8} roughness={0.2} metalness={0.8} />
+    <group ref={ref} position={[0, 0.6, 0]}>
+      {/* Body */}
+      <mesh position={[0, 0.2, 0]}>
+        <cylinderGeometry args={[0.12, 0.16, 0.45, 12]} />
+        <meshStandardMaterial color="#0ea5e9" emissive="#0ea5e9" emissiveIntensity={0.6} roughness={0.3} metalness={0.7} />
       </mesh>
-      <mesh position={[0, 1.5, 0]}>
-        <sphereGeometry args={[0.5, 16, 16]} />
-        <meshBasicMaterial color="#38bdf8" transparent opacity={0.06} />
+      {/* Head */}
+      <mesh position={[0, 0.55, 0]}>
+        <sphereGeometry args={[0.14, 12, 12]} />
+        <meshStandardMaterial color="#38bdf8" emissive="#38bdf8" emissiveIntensity={0.5} roughness={0.3} metalness={0.6} />
+      </mesh>
+      {/* Glow ring */}
+      <mesh position={[0, 0.1, 0]} rotation={[-Math.PI / 2, 0, 0]}>
+        <ringGeometry args={[0.25, 0.35, 24]} />
+        <meshBasicMaterial color="#0ea5e9" transparent opacity={0.15} side={THREE.DoubleSide} />
       </mesh>
     </group>
   );
 }
 
-/* 8x8 grid of cube nodes */
-function GridNodes({ positions, filled, tierColor }) {
+/* Grid person figures */
+function PersonNode({ position, filled, tierColor, index }) {
+  var groupRef = useRef();
+  var bodyRef = useRef();
+  var headRef = useRef();
   var col = useMemo(function() { return new THREE.Color(tierColor); }, [tierColor]);
   var dim = useMemo(function() { return new THREE.Color('#1e293b'); }, []);
-  var refs = useRef([]);
+  var [scale, setScale] = useState(0);
 
   useFrame(function(s) {
-    for (var i = 0; i < positions.length; i++) {
-      var m = refs.current[i];
-      if (!m) continue;
-      var on = i < filled;
-      // Cube rises when filled
-      var targetScale = on ? 1 + Math.sin(s.clock.elapsedTime * 2 + i * 0.3) * 0.08 : 0.3;
-      m.scale.y = m.scale.y + (targetScale - m.scale.y) * 0.07;
-      m.position.y = m.scale.y * 0.2;
-      // Color
-      m.material.color.lerp(on ? col : dim, 0.1);
-      m.material.emissive.lerp(on ? col : dim, 0.1);
-      m.material.emissiveIntensity = on ? 0.5 + Math.sin(s.clock.elapsedTime * 2.5 + i * 0.2) * 0.2 : 0;
-      m.material.opacity = on ? 0.95 : 0.2;
+    if (!groupRef.current) return;
+    var target = filled ? 1 : 0;
+    var newScale = scale + (target - scale) * 0.08;
+    setScale(newScale);
+    groupRef.current.scale.setScalar(newScale);
+    groupRef.current.position.y = filled ? Math.sin(s.clock.elapsedTime * 1.5 + index * 0.4) * 0.02 : -0.2;
+
+    if (bodyRef.current) {
+      bodyRef.current.material.color.lerp(filled ? col : dim, 0.1);
+      bodyRef.current.material.emissive.lerp(filled ? col : dim, 0.1);
+      bodyRef.current.material.emissiveIntensity = filled ? 0.4 + Math.sin(s.clock.elapsedTime * 2 + index * 0.3) * 0.15 : 0;
+      bodyRef.current.material.opacity = filled ? 0.95 : 0.15;
+    }
+    if (headRef.current) {
+      headRef.current.material.color.lerp(filled ? new THREE.Color('#ffffff') : dim, 0.1);
+      headRef.current.material.emissive.lerp(filled ? col : dim, 0.1);
+      headRef.current.material.emissiveIntensity = filled ? 0.3 : 0;
+      headRef.current.material.opacity = filled ? 0.95 : 0.15;
     }
   });
 
   return (
-    <group>
-      {positions.map(function(p, i) {
-        return (
-          <mesh key={i} position={[p[0], 0.06, p[2]]} ref={function(el) { refs.current[i] = el; }}>
-            <boxGeometry args={[0.42, 0.42, 0.42]} />
-            <meshStandardMaterial color="#1e293b" transparent opacity={0.2} roughness={0.3} metalness={0.6} />
-          </mesh>
-        );
-      })}
+    <group position={[position[0], 0, position[2]]}>
+      <group ref={groupRef} scale={[0, 0, 0]}>
+        {/* Body */}
+        <mesh ref={bodyRef} position={[0, 0.15, 0]}>
+          <cylinderGeometry args={[0.06, 0.1, 0.3, 8]} />
+          <meshStandardMaterial color="#1e293b" transparent opacity={0.15} roughness={0.3} metalness={0.6} />
+        </mesh>
+        {/* Head */}
+        <mesh ref={headRef} position={[0, 0.38, 0]}>
+          <sphereGeometry args={[0.08, 10, 10]} />
+          <meshStandardMaterial color="#1e293b" transparent opacity={0.15} roughness={0.3} metalness={0.5} />
+        </mesh>
+      </group>
+      {/* Base platform */}
+      <mesh position={[0, -0.02, 0]}>
+        <cylinderGeometry args={[0.15, 0.15, 0.03, 8]} />
+        <meshStandardMaterial color={filled ? tierColor : '#0f172a'} transparent opacity={filled ? 0.6 : 0.15} roughness={0.5} />
+      </mesh>
     </group>
   );
 }
 
-/* Beam from YOU node down to each filled grid position */
+/* Beams from YOU to filled positions */
 function Beams({ positions, filled, tierColor }) {
   var ref = useRef();
   var col = useMemo(function() { return new THREE.Color(tierColor); }, [tierColor]);
-
   var geo = useMemo(function() {
     var pts = new Float32Array(TOTAL * 6);
     var cols = new Float32Array(TOTAL * 6);
     for (var i = 0; i < TOTAL; i++) {
-      pts[i * 6] = 0; pts[i * 6 + 1] = 1.5; pts[i * 6 + 2] = 0;
-      pts[i * 6 + 3] = positions[i][0]; pts[i * 6 + 4] = 0.2; pts[i * 6 + 5] = positions[i][2];
+      pts[i*6]=0; pts[i*6+1]=0.6; pts[i*6+2]=0;
+      pts[i*6+3]=positions[i][0]; pts[i*6+4]=0.15; pts[i*6+5]=positions[i][2];
     }
     var g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.BufferAttribute(pts, 3));
@@ -130,68 +147,49 @@ function Beams({ positions, filled, tierColor }) {
     var c = ref.current.geometry.attributes.color;
     for (var i = 0; i < TOTAL; i++) {
       var on = i < filled;
-      // Start vertex (at YOU node) - dimmer
-      c.array[i * 6] = on ? col.r * 0.4 : 0;
-      c.array[i * 6 + 1] = on ? col.g * 0.4 : 0;
-      c.array[i * 6 + 2] = on ? col.b * 0.4 : 0;
-      // End vertex (at grid node) - brighter
-      c.array[i * 6 + 3] = on ? col.r : 0;
-      c.array[i * 6 + 4] = on ? col.g : 0;
-      c.array[i * 6 + 5] = on ? col.b : 0;
+      c.array[i*6]=on?col.r*0.3:0; c.array[i*6+1]=on?col.g*0.3:0; c.array[i*6+2]=on?col.b*0.3:0;
+      c.array[i*6+3]=on?col.r:0; c.array[i*6+4]=on?col.g:0; c.array[i*6+5]=on?col.b:0;
     }
     c.needsUpdate = true;
   });
 
-  return (
-    <lineSegments ref={ref} geometry={geo}>
-      <lineBasicMaterial vertexColors transparent opacity={0.3} />
-    </lineSegments>
-  );
+  return <lineSegments ref={ref} geometry={geo}><lineBasicMaterial vertexColors transparent opacity={0.25} /></lineSegments>;
 }
 
-/* Grid base plane */
-function GridBase() {
-  return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.01, 0]}>
-      <planeGeometry args={[5, 5]} />
-      <meshBasicMaterial color="#0a1628" transparent opacity={0.5} />
-    </mesh>
-  );
-}
-
-/* Grid lines for the 8x8 structure */
 function GridLines() {
   var geo = useMemo(function() {
     var pts = [];
-    var spacing = 0.55;
+    var spacing = 0.6;
     var offset = (GRID - 1) * spacing * 0.5;
     var half = GRID * spacing * 0.5;
-    // Horizontal lines
     for (var i = 0; i <= GRID; i++) {
       var z = i * spacing - offset - spacing * 0.5;
-      pts.push(-half, 0.005, z, half, 0.005, z);
+      pts.push(-half, 0.001, z, half, 0.001, z);
     }
-    // Vertical lines
     for (var i = 0; i <= GRID; i++) {
       var x = i * spacing - offset - spacing * 0.5;
-      pts.push(x, 0.005, -half, x, 0.005, half);
+      pts.push(x, 0.001, -half, x, 0.001, half);
     }
     var g = new THREE.BufferGeometry();
     g.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
     return g;
   }, []);
+  return <lineSegments geometry={geo}><lineBasicMaterial color="#1e293b" transparent opacity={0.25} /></lineSegments>;
+}
 
+function GridBase() {
   return (
-    <lineSegments geometry={geo}>
-      <lineBasicMaterial color="#1e293b" transparent opacity={0.3} />
-    </lineSegments>
+    <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.04, 0]}>
+      <planeGeometry args={[5.5, 5.5]} />
+      <meshBasicMaterial color="#080e1a" transparent opacity={0.6} />
+    </mesh>
   );
 }
 
 function StarField() {
   var pts = useMemo(function() {
     var a = new Float32Array(300 * 3);
-    for (var i = 0; i < 300; i++) { a[i * 3] = (Math.random() - 0.5) * 30; a[i * 3 + 1] = (Math.random() - 0.5) * 30; a[i * 3 + 2] = (Math.random() - 0.5) * 30; }
+    for (var i = 0; i < 300; i++) { a[i*3]=(Math.random()-0.5)*30; a[i*3+1]=(Math.random()-0.5)*30; a[i*3+2]=(Math.random()-0.5)*30; }
     return a;
   }, []);
   var ref = useRef();
@@ -211,16 +209,18 @@ function Scene({ tierIdx, filled }) {
   var tier = TIERS[tierIdx] || TIERS[0];
   return (
     <>
-      <ambientLight intensity={0.3} />
+      <ambientLight intensity={0.35} />
       <pointLight position={[3, 5, 3]} intensity={0.8} color="#38bdf8" />
       <pointLight position={[-3, 4, -3]} intensity={0.4} color="#8b5cf6" />
       <pointLight position={[0, -2, 0]} intensity={0.2} color="#10b981" />
       <StarField />
       <GridBase />
       <GridLines />
-      <CenterNode />
+      <CenterPerson />
       <Beams positions={positions} filled={filled} tierColor={tier.color} />
-      <GridNodes positions={positions} filled={filled} tierColor={tier.color} />
+      {positions.map(function(p, i) {
+        return <PersonNode key={i} position={p} filled={i < filled} tierColor={tier.color} index={i} />;
+      })}
       <Controls />
     </>
   );
@@ -231,7 +231,7 @@ export default function IncomeGrid3D({ showControls, height, autoPlay }) {
   var [filled, setFilled] = useState(0);
   var intervalRef = useRef(null);
 
-  var start = useCallback(function(ti) {
+  var start = useCallback(function() {
     if (intervalRef.current) clearInterval(intervalRef.current);
     setFilled(0);
     var count = 0;
@@ -243,7 +243,7 @@ export default function IncomeGrid3D({ showControls, height, autoPlay }) {
   }, []);
 
   useEffect(function() {
-    if (autoPlay) { var t = setTimeout(function() { start(0); }, 600); return function() { clearTimeout(t); }; }
+    if (autoPlay) { var t = setTimeout(function() { start(); }, 600); return function() { clearTimeout(t); }; }
   }, []);
   useEffect(function() { return function() { if (intervalRef.current) clearInterval(intervalRef.current); }; }, []);
 
@@ -255,7 +255,7 @@ export default function IncomeGrid3D({ showControls, height, autoPlay }) {
 
   return (
     <div style={{ position: 'relative', width: '100%', height: height || 500, borderRadius: 16, overflow: 'hidden', background: '#050d1a' }}>
-      <Canvas camera={{ position: [3, 3.5, 5], fov: 45 }} dpr={[1, 1.5]}>
+      <Canvas camera={{ position: [3, 4, 5.5], fov: 42 }} dpr={[1, 1.5]}>
         <Scene tierIdx={tierIdx} filled={filled} />
       </Canvas>
 
@@ -264,9 +264,9 @@ export default function IncomeGrid3D({ showControls, height, autoPlay }) {
           <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 900, color: '#fff' }}>
             8×8 Income Grid <span style={{ color: tier.color }}>— ${tier.price} {tier.name}</span>
           </div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,.35)' }}>{filled}/{TOTAL} seats filled · Drag to rotate · Scroll to zoom</div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,.35)' }}>{filled}/{TOTAL} members joined · Drag to rotate</div>
         </div>
-        <button onClick={function() { start(tierIdx); }} style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)', color: '#38bdf8', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', pointerEvents: 'auto' }}>▶ Replay</button>
+        <button onClick={function() { start(); }} style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)', color: '#38bdf8', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', pointerEvents: 'auto' }}>▶ Replay</button>
       </div>
 
       <div style={{ position: 'absolute', top: '50%', right: 20, transform: 'translateY(-50%)', textAlign: 'right', pointerEvents: 'none' }}>
@@ -284,7 +284,7 @@ export default function IncomeGrid3D({ showControls, height, autoPlay }) {
           <div style={{ display: 'flex', gap: 4, justifyContent: 'center', flexWrap: 'wrap' }}>
             {TIERS.map(function(t, i) {
               var on = tierIdx === i;
-              return <button key={i} onClick={function() { setTierIdx(i); start(i); }} style={{ padding: '6px 14px', borderRadius: 6, border: on ? '2px solid ' + t.color : '1px solid rgba(255,255,255,.08)', background: on ? t.color + '20' : 'rgba(255,255,255,.03)', color: on ? t.color : 'rgba(255,255,255,.35)', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>${t.price}</button>;
+              return <button key={i} onClick={function() { setTierIdx(i); start(); }} style={{ padding: '6px 14px', borderRadius: 6, border: on ? '2px solid ' + t.color : '1px solid rgba(255,255,255,.08)', background: on ? t.color + '20' : 'rgba(255,255,255,.03)', color: on ? t.color : 'rgba(255,255,255,.35)', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>${t.price}</button>;
             })}
           </div>
         </div>
