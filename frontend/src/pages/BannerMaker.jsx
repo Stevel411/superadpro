@@ -237,7 +237,7 @@ export default function BannerMaker() {
             <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
               <div style={{
                 boxShadow: '0 12px 40px rgba(0,0,0,.2)', borderRadius: 4, overflow: 'hidden',
-                transform: 'scale(' + Math.min(1.8, 680 / canvasSize.w, 460 / canvasSize.h) + ')',
+                transform: 'scale(' + Math.min(3, 900 / canvasSize.w, 450 / canvasSize.h) + ')',
                 transformOrigin: 'center center',
               }}>
                 <CanvasEditor canvasSize={canvasSize} onCanvasReady={onCanvasReady} />
