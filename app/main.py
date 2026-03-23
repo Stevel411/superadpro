@@ -9503,6 +9503,60 @@ def admin_fix_owner(secret: str = "", db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.get("/admin/seed-owner-campaigns")
+def admin_seed_owner_campaigns(secret: str = "", db: Session = Depends(get_db)):
+    """Seed the owner account with active campaigns at all 8 tiers so they show in grid."""
+    from fastapi.responses import JSONResponse
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid"}, status_code=403)
+    try:
+        owner = db.query(User).filter(User.is_admin == True).first()
+        if not owner:
+            return JSONResponse({"error": "No admin user found"}, status_code=404)
+
+        from .database import VideoCampaign, CAMPAIGN_VIEW_TARGETS, GRID_TIER_NAMES
+        created = []
+        for tier in range(1, 9):
+            # Check if owner already has an active campaign at this tier
+            existing = db.query(VideoCampaign).filter(
+                VideoCampaign.user_id == owner.id,
+                VideoCampaign.campaign_tier == tier,
+                VideoCampaign.status == "active",
+                VideoCampaign.is_completed == False
+            ).first()
+            if existing:
+                created.append({"tier": tier, "status": "already_exists", "id": existing.id})
+                continue
+
+            tier_name = GRID_TIER_NAMES.get(tier, f"Tier {tier}")
+            campaign = VideoCampaign(
+                user_id=owner.id,
+                title=f"SuperAdPro {tier_name} Campaign",
+                description=f"Owner demonstration campaign — {tier_name} tier",
+                category="marketing",
+                platform="youtube",
+                video_url="https://www.youtube.com/watch?v=demo",
+                embed_url="https://www.youtube.com/embed/demo",
+                video_id="demo",
+                status="active",
+                views_target=CAMPAIGN_VIEW_TARGETS.get(tier, 2000),
+                views_delivered=0,
+                campaign_tier=tier,
+                is_completed=False,
+                owner_tier=tier,
+            )
+            db.add(campaign)
+            db.flush()
+            created.append({"tier": tier, "status": "created", "id": campaign.id, "name": tier_name})
+
+        db.commit()
+        return {"success": True, "owner": owner.username, "campaigns": created}
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({"error": str(e)}, status_code=500)
+
 def linkhub_debug(secret: str = "", db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
     from sqlalchemy import text as sqt
