@@ -1,5 +1,15 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
+
+var IncomeGrid3D = lazy(function() { return import('../../components/IncomeGrid3D'); });
+
+function Grid3DSection() {
+  return (
+    <Suspense fallback={<div style={{height:500,borderRadius:16,background:'#0a1628',display:'flex',alignItems:'center',justifyContent:'center',color:'#38bdf8',fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:700}}>Loading 3D Grid...</div>}>
+      <IncomeGrid3D height={520} showControls autoPlay />
+    </Suspense>
+  );
+}
 
 var cyan = '#38bdf8';
 var dark = '#050d1a';
@@ -219,6 +229,17 @@ export default function EarnPage() {
             );
           })}
         </div>
+      </section>
+
+      {/* 3D INCOME GRID */}
+      <div style={{maxWidth:1100,margin:'0 auto',padding:'0 40px'}}><div style={{height:1,background:'linear-gradient(90deg,transparent,rgba(56,189,248,.15),transparent)'}}/></div>
+      <section style={{padding:'60px 40px',maxWidth:1100,margin:'0 auto'}}>
+        <div style={{textAlign:'center',marginBottom:32}}>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'#ec4899',marginBottom:12}}>Interactive 3D Visualisation</div>
+          <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,40px)',fontWeight:900,color:'#fff',marginBottom:12}}>Watch Your Network Build in Real-Time</h2>
+          <p style={{fontSize:15,color:'rgba(200,220,255,.4)',maxWidth:550,margin:'0 auto',lineHeight:1.6}}>Select a campaign tier and see how 64 members filling your grid generates commissions at every level.</p>
+        </div>
+        <Grid3DSection />
       </section>
 
       {/* HOW IT WORKS */}
