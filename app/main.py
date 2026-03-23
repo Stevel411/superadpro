@@ -1461,6 +1461,14 @@ def superseller_page(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+@app.get("/income-grid-3d")
+def income_grid_3d(request: Request):
+    """Serve React SPA for 3D income grid visualisation."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 @app.get("/banner-maker")
 def banner_maker_page(request: Request):
     """Serve React SPA for banner maker."""

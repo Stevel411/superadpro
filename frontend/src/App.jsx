@@ -41,6 +41,7 @@ import Achievements from './pages/Achievements';
 import VideoLibrary from './pages/VideoLibrary';
 import Upgrade from './pages/Upgrade';
 import CompensationPlan from './pages/CompensationPlan';
+import IncomeGrid3DPage from './pages/IncomeGrid3DPage';
 import AiTool from './pages/AiTool';
 import MyNetwork from './pages/MyNetwork';
 import HowCommissionsWork from './pages/HowCommissionsWork';
@@ -143,6 +144,7 @@ function AppRoutes() {
 
       {/* Info Pages */}
       <Route path="/compensation-plan" element={<ProtectedRoute><CompensationPlan /></ProtectedRoute>} />
+      <Route path="/income-grid-3d" element={<IncomeGrid3DPage />} />
       <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
 
       {/* Complex tools — full React pages */}
