@@ -9,7 +9,7 @@ import json
 from datetime import datetime
 
 BREVO_API_KEY = os.environ.get("BREVO_API_KEY", "")
-BREVO_SENDER_EMAIL = os.environ.get("FROM_EMAIL", os.environ.get("BREVO_SENDER_EMAIL", "superadpro@proton.me"))
+BREVO_SENDER_EMAIL = os.environ.get("FROM_EMAIL", os.environ.get("BREVO_SENDER_EMAIL", "noreply@superadpro.com"))
 BREVO_SENDER_NAME = os.environ.get("BREVO_SENDER_NAME", "SuperAdPro")
 BREVO_BASE_URL = "https://api.brevo.com/v3"
 

@@ -10,7 +10,7 @@ import urllib.request
 logger = logging.getLogger(__name__)
 
 BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
-FROM_EMAIL    = os.getenv("FROM_EMAIL", "superadpro@proton.me")
+FROM_EMAIL    = os.getenv("FROM_EMAIL", "noreply@superadpro.com")
 SITE_URL      = os.getenv("SITE_URL", "https://www.superadpro.com")
 FROM_DISPLAY  = "SuperAdPro"
 

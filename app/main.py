@@ -12815,7 +12815,7 @@ def admin_test_autoresponder(secret: str = "", db: Session = Depends(get_db)):
     return {
         "brevo_configured": bool(brevo_key),
         "brevo_key_prefix": brevo_key[:8] + "..." if brevo_key else "NOT SET",
-        "from_email": os.getenv("FROM_EMAIL", "superadpro@proton.me"),
+        "from_email": os.getenv("FROM_EMAIL", "noreply@superadpro.com"),
         "site_url": os.getenv("SITE_URL", "https://www.superadpro.com"),
         "cron_secret_set": bool(os.getenv("CRON_SECRET", "")),
         "sequences": seq_list,
