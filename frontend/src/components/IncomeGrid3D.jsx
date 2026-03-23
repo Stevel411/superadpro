@@ -70,7 +70,7 @@ function CenterNode() {
   );
 }
 
-/* 8x8 grid of box nodes */
+/* 8x8 grid of cube nodes */
 function GridNodes({ positions, filled, tierColor }) {
   var col = useMemo(function() { return new THREE.Color(tierColor); }, [tierColor]);
   var dim = useMemo(function() { return new THREE.Color('#1e293b'); }, []);
@@ -81,18 +81,15 @@ function GridNodes({ positions, filled, tierColor }) {
       var m = refs.current[i];
       if (!m) continue;
       var on = i < filled;
-      // Scale up when filled
-      var targetY = on ? 0.35 + Math.sin(s.clock.elapsedTime * 2 + i * 0.3) * 0.05 : 0.08;
-      m.scale.y = m.scale.y + (targetY - m.scale.y) * 0.08;
-      m.scale.x = m.scale.x + ((on ? 0.9 : 0.7) - m.scale.x) * 0.08;
-      m.scale.z = m.scale.z + ((on ? 0.9 : 0.7) - m.scale.z) * 0.08;
-      // Position Y (rise when filled)
-      m.position.y = m.scale.y * 0.5;
+      // Cube rises when filled
+      var targetScale = on ? 1 + Math.sin(s.clock.elapsedTime * 2 + i * 0.3) * 0.08 : 0.3;
+      m.scale.y = m.scale.y + (targetScale - m.scale.y) * 0.07;
+      m.position.y = m.scale.y * 0.2;
       // Color
       m.material.color.lerp(on ? col : dim, 0.1);
       m.material.emissive.lerp(on ? col : dim, 0.1);
       m.material.emissiveIntensity = on ? 0.5 + Math.sin(s.clock.elapsedTime * 2.5 + i * 0.2) * 0.2 : 0;
-      m.material.opacity = on ? 0.95 : 0.25;
+      m.material.opacity = on ? 0.95 : 0.2;
     }
   });
 
@@ -100,9 +97,9 @@ function GridNodes({ positions, filled, tierColor }) {
     <group>
       {positions.map(function(p, i) {
         return (
-          <mesh key={i} position={[p[0], 0.04, p[2]]} ref={function(el) { refs.current[i] = el; }}>
-            <boxGeometry args={[0.4, 0.08, 0.4]} />
-            <meshStandardMaterial color="#1e293b" transparent opacity={0.25} roughness={0.4} metalness={0.5} />
+          <mesh key={i} position={[p[0], 0.06, p[2]]} ref={function(el) { refs.current[i] = el; }}>
+            <boxGeometry args={[0.42, 0.42, 0.42]} />
+            <meshStandardMaterial color="#1e293b" transparent opacity={0.2} roughness={0.3} metalness={0.6} />
           </mesh>
         );
       })}
