@@ -5006,9 +5006,9 @@ def admin_api_finances(
         Commission.commission_type, func.sum(Commission.amount_usdt), func.count(Commission.id)
     ).filter(Commission.status.in_(["paid", "pending"])).group_by(Commission.commission_type).all()
 
-    # User counts
-    total_users = db.query(func.count(User.id)).filter(User.id != user.id).scalar() or 0  # exclude admin
-    active_users = db.query(func.count(User.id)).filter(User.is_active == True, User.id != user.id).scalar() or 0
+    # User counts (include all members including admin — admin IS a member)
+    total_users = db.query(func.count(User.id)).scalar() or 0
+    active_users = db.query(func.count(User.id)).filter(User.is_active == True).scalar() or 0
     active_grids = db.query(func.count(Grid.id)).filter(Grid.is_complete == False).scalar() or 0
     pending_withdrawals_count = db.query(func.count(Withdrawal.id)).filter(Withdrawal.status == "pending").scalar() or 0
 
