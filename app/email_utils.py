@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 BREVO_API_KEY = os.getenv("BREVO_API_KEY", "")
 FROM_EMAIL    = os.getenv("FROM_EMAIL", "superadpro@proton.me")
-SITE_URL      = os.getenv("SITE_URL", "https://superadpro-production.up.railway.app")
+SITE_URL      = os.getenv("SITE_URL", "https://www.superadpro.com")
 FROM_DISPLAY  = "SuperAdPro"
 
 

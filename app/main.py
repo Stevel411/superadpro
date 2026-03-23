@@ -12587,17 +12587,33 @@ def _send_sequence_email(db, lead, email_index: int):
 
     email_data = emails[email_index]
     subject = email_data.get("subject", "A message for you")
-    body_html = email_data.get("body_html", "")
+    # Handle both field names: body_html (from transform) or body (direct from AI)
+    body_html = email_data.get("body_html", "") or email_data.get("body", "") or email_data.get("content", "")
+
+    if not body_html:
+        logger.warning(f"Empty email body for lead {lead.id}, index {email_index}")
+        return
 
     # Replace placeholders
+    site_url = os.getenv("SITE_URL", "https://www.superadpro.com")
     owner = db.query(User).filter(User.id == lead.user_id).first()
     if owner:
-        ref_link = f"{os.getenv('SITE_URL', '')}/join/{owner.username}"
+        ref_link = f"{site_url}/join/{owner.username}"
         member_name = owner.first_name or owner.username
         body_html = body_html.replace("{{referral_link}}", ref_link)
+        body_html = body_html.replace("{{funnel_url}}", ref_link)
         body_html = body_html.replace("{{member_name}}", member_name)
+    if lead.name:
+        body_html = body_html.replace("{{lead_name}}", lead.name)
+        body_html = body_html.replace("{{name}}", lead.name)
 
-    # Send via existing Brevo function
+    # Wrap in template if it's not already a full HTML doc
+    if not body_html.strip().lower().startswith("<!doctype") and not body_html.strip().lower().startswith("<html"):
+        from .brevo_service import wrap_email_html
+        owner_name = (owner.first_name or owner.username) if owner else "SuperAdPro"
+        body_html = wrap_email_html(body_html, owner_name)
+
+    # Send via Brevo
     from .email_utils import send_email
     success = send_email(lead.email, subject, body_html)
 
@@ -12612,6 +12628,9 @@ def _send_sequence_email(db, lead, email_index: int):
         lead.emails_sent = (lead.emails_sent or 0) + 1
         lead.status = "nurturing"
         db.commit()
+        logger.info(f"Autoresponder email {email_index+1} sent to {lead.email} for lead {lead.id}")
+    else:
+        logger.error(f"Autoresponder email {email_index+1} failed for lead {lead.email}")
 
 
 # ── Autoresponder Cron Job ──
@@ -12691,6 +12710,118 @@ async def cron_process_autoresponder(request: Request, db: Session = Depends(get
         "sent": sent_count,
         "errors": errors,
     })
+
+
+@app.get("/cron/process-autoresponder")
+async def cron_process_autoresponder_get(request: Request, secret: str = "", db: Session = Depends(get_db)):
+    """GET version for cron-job.org — auth via ?secret= query param."""
+    cron_secret = os.getenv("CRON_SECRET", "")
+    if not cron_secret or secret != cron_secret:
+        return JSONResponse({"error": "Invalid secret"}, status_code=401)
+
+    from .database import MemberLead, EmailSequence, EmailSendLog
+    import json as _j_cron2
+    from datetime import datetime, timedelta
+
+    now = datetime.utcnow()
+    sent_count = 0
+    errors = 0
+
+    nurturing_leads = db.query(MemberLead).filter(
+        MemberLead.status == "nurturing",
+        MemberLead.email_sequence_id != None
+    ).all()
+
+    for lead in nurturing_leads:
+        try:
+            sequence = db.query(EmailSequence).filter(
+                EmailSequence.id == lead.email_sequence_id,
+                EmailSequence.is_active == True
+            ).first()
+            if not sequence or not sequence.emails_json:
+                continue
+
+            emails = _j_cron2.loads(sequence.emails_json)
+            next_index = lead.emails_sent or 0
+
+            if next_index >= len(emails):
+                lead.status = "new" if not lead.is_hot else "hot"
+                continue
+
+            email_data = emails[next_index]
+            send_delay = email_data.get("send_delay_days", 0)
+            due_at = lead.created_at + timedelta(days=send_delay)
+
+            if now >= due_at:
+                already_sent = db.query(EmailSendLog).filter(
+                    EmailSendLog.lead_id == lead.id,
+                    EmailSendLog.email_index == next_index
+                ).first()
+                if already_sent:
+                    lead.emails_sent = next_index + 1
+                    continue
+
+                _send_sequence_email(db, lead, next_index)
+                sent_count += 1
+
+        except Exception as e:
+            logger.error(f"Autoresponder error for lead {lead.id}: {e}")
+            errors += 1
+
+    db.commit()
+    return JSONResponse({
+        "status": "ok",
+        "processed": len(nurturing_leads),
+        "sent": sent_count,
+        "errors": errors,
+    })
+
+
+@app.get("/admin/test-autoresponder")
+def admin_test_autoresponder(secret: str = "", db: Session = Depends(get_db)):
+    """Debug: show autoresponder status — sequences, nurturing leads, send log."""
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid"}, status_code=403)
+    from .database import MemberLead, EmailSequence, EmailSendLog
+    import json as _jt
+
+    sequences = db.query(EmailSequence).all()
+    seq_list = []
+    for s in sequences:
+        try:
+            emails = _jt.loads(s.emails_json) if s.emails_json else []
+        except:
+            emails = []
+        seq_list.append({
+            "id": s.id, "user_id": s.user_id, "title": s.title,
+            "niche": s.niche, "num_emails": len(emails), "is_active": s.is_active,
+        })
+
+    nurturing = db.query(MemberLead).filter(MemberLead.status == "nurturing").all()
+    lead_list = [{
+        "id": l.id, "email": l.email, "name": l.name,
+        "sequence_id": l.email_sequence_id, "emails_sent": l.emails_sent,
+        "status": l.status, "created_at": l.created_at.isoformat() if l.created_at else None,
+    } for l in nurturing]
+
+    recent_logs = db.query(EmailSendLog).order_by(EmailSendLog.sent_at.desc()).limit(20).all()
+    log_list = [{
+        "id": l.id, "lead_id": l.lead_id, "email_index": l.email_index,
+        "status": l.status, "sent_at": l.sent_at.isoformat() if l.sent_at else None,
+    } for l in recent_logs]
+
+    brevo_key = os.getenv("BREVO_API_KEY", "")
+
+    return {
+        "brevo_configured": bool(brevo_key),
+        "brevo_key_prefix": brevo_key[:8] + "..." if brevo_key else "NOT SET",
+        "from_email": os.getenv("FROM_EMAIL", "superadpro@proton.me"),
+        "site_url": os.getenv("SITE_URL", "https://www.superadpro.com"),
+        "cron_secret_set": bool(os.getenv("CRON_SECRET", "")),
+        "sequences": seq_list,
+        "nurturing_leads": lead_list,
+        "recent_send_log": log_list,
+    }
 
 
 # ═══════════════════════════════════════════════════════════════
