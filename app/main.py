@@ -9465,7 +9465,23 @@ def admin_run_migrations(secret: str = "", db: Session = Depends(get_db)):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
-@app.get("/admin/linkhub-debug")
+@app.get("/admin/fix-owner")
+def admin_fix_owner(secret: str = "", db: Session = Depends(get_db)):
+    """Force SuperAdPro account to Pro + admin."""
+    from fastapi.responses import JSONResponse
+    from sqlalchemy import text as sqt
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid"}, status_code=403)
+    try:
+        db.execute(sqt("UPDATE users SET membership_tier = 'pro', is_active = true, is_admin = true WHERE username = 'SuperAdPro'"))
+        db.commit()
+        user = db.query(User).filter(User.username == "SuperAdPro").first()
+        if user:
+            return {"success": True, "username": user.username, "membership_tier": user.membership_tier, "is_admin": user.is_admin, "is_active": user.is_active}
+        return {"error": "User SuperAdPro not found"}
+    except Exception as e:
+        db.rollback()
+        return JSONResponse({"error": str(e)}, status_code=500)
 def linkhub_debug(secret: str = "", db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
     from sqlalchemy import text as sqt
