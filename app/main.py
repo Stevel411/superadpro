@@ -1436,6 +1436,14 @@ def income_grid(request: Request):
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
 
+
+@app.get("/banner-manager")
+def banner_manager(request: Request):
+    """Serve React SPA for banner management."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
 def _old_income_grid_DISABLED(request: Request, user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
@@ -6970,28 +6978,159 @@ async def create_ad(request: Request, user: User = Depends(get_current_user), db
     from fastapi.responses import JSONResponse
     if not user:
         return JSONResponse({"error": "Please log in to post an ad"}, status_code=401)
+    if not user.is_active:
+        return JSONResponse({"error": "Active membership required to post ads"}, status_code=403)
+
     body = await request.json()
     title = (body.get("title") or "").strip()[:120]
     description = (body.get("description") or "").strip()[:500]
     category = body.get("category", "general")
     link_url = (body.get("link_url") or "").strip()
     image_url = (body.get("image_url") or "").strip() or None
+    keywords = (body.get("keywords") or "").strip()[:200]
+    location = (body.get("location") or "").strip()[:100]
+    price = (body.get("price") or "").strip()[:50]
+
     if not title or not description or not link_url:
         return JSONResponse({"error": "Title, description and link are required"}, status_code=400)
     if not link_url.startswith("http"):
         link_url = "https://" + link_url
-    # Generate URL-safe slug from title
+
+    # Weekly limit: Basic=3, Pro=6
+    from datetime import datetime, timedelta
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    weekly_count = db.query(AdListing).filter(
+        AdListing.user_id == user.id, AdListing.created_at >= week_ago
+    ).count()
+    weekly_limit = 6 if (user.membership_tier or "basic") == "pro" else 3
+    if weekly_count >= weekly_limit:
+        return JSONResponse({"error": f"Weekly limit reached ({weekly_limit} ads per week). Upgrade to Pro for higher limits."}, status_code=429)
+
+    # Generate slug
     import re, time
     slug_base = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')[:80]
     slug = f"{slug_base}-{int(time.time()) % 100000}"
-    # Limit: max 5 active ads per user
-    active_count = db.query(AdListing).filter(AdListing.user_id == user.id, AdListing.is_active == True).count()
-    if active_count >= 5:
-        return JSONResponse({"error": "Maximum 5 active ads. Deactivate one to post another."}, status_code=400)
-    ad = AdListing(user_id=user.id, title=title, slug=slug, description=description, category=category, link_url=link_url, image_url=image_url)
+
+    # AI content moderation
+    from .moderation import moderate_content
+    mod = moderate_content(title=title, description=description, keywords=keywords, category=category, link_url=link_url)
+    status = "active" if mod["decision"] == "approve" else "pending"
+
+    ad = AdListing(
+        user_id=user.id, title=title, slug=slug, description=description,
+        category=category, link_url=link_url, image_url=image_url,
+        keywords=keywords, location=location, price=price, status=status,
+        is_active=(status == "active"),
+    )
     db.add(ad)
     db.commit()
-    return {"success": True, "id": ad.id}
+
+    if status == "pending":
+        return {"success": True, "id": ad.id, "status": "pending", "message": "Your ad is under review and will be live shortly."}
+    return {"success": True, "id": ad.id, "status": "active", "message": "Your ad is live!"}
+
+
+# ── Banner Ad Creation ──
+@app.post("/api/banners/create")
+async def create_banner(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from fastapi.responses import JSONResponse
+    from .database import BannerAd
+    if not user:
+        return JSONResponse({"error": "Please log in to create a banner"}, status_code=401)
+    if not user.is_active:
+        return JSONResponse({"error": "Active membership required to create banners"}, status_code=403)
+
+    body = await request.json()
+    title = (body.get("title") or "").strip()[:120]
+    description = (body.get("description") or "").strip()[:300]
+    image_url = (body.get("image_url") or "").strip()
+    link_url = (body.get("link_url") or "").strip()
+    size = body.get("size", "728x90")
+    category = body.get("category", "general")
+    keywords = (body.get("keywords") or "").strip()[:200]
+    location = (body.get("location") or "").strip()[:100]
+
+    if not title or not image_url or not link_url:
+        return JSONResponse({"error": "Title, banner image URL, and click-through URL are required"}, status_code=400)
+    if not link_url.startswith("http"):
+        link_url = "https://" + link_url
+    if not image_url.startswith("http"):
+        return JSONResponse({"error": "Please provide a valid image URL (starting with http)"}, status_code=400)
+    if size not in ("728x90", "300x250", "160x600", "320x50", "970x250"):
+        return JSONResponse({"error": "Invalid banner size"}, status_code=400)
+
+    # Weekly limit: Basic=3, Pro=6
+    from datetime import datetime, timedelta
+    week_ago = datetime.utcnow() - timedelta(days=7)
+    weekly_count = db.query(BannerAd).filter(
+        BannerAd.user_id == user.id, BannerAd.created_at >= week_ago
+    ).count()
+    weekly_limit = 6 if (user.membership_tier or "basic") == "pro" else 3
+    if weekly_count >= weekly_limit:
+        return JSONResponse({"error": f"Weekly limit reached ({weekly_limit} banners per week). Upgrade to Pro for higher limits."}, status_code=429)
+
+    # Generate slug
+    import re, time
+    slug_base = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')[:80]
+    slug = f"{slug_base}-{int(time.time()) % 100000}"
+
+    # AI content moderation
+    from .moderation import moderate_content
+    mod = moderate_content(title=title, description=description, keywords=keywords, category=category, link_url=link_url)
+    status = "approved" if mod["decision"] == "approve" else "pending"
+
+    banner = BannerAd(
+        user_id=user.id, title=title, slug=slug, description=description,
+        image_url=image_url, link_url=link_url, size=size,
+        category=category, keywords=keywords, location=location,
+        status=status, is_active=(status == "approved"),
+    )
+    db.add(banner)
+    db.commit()
+
+    if status == "pending":
+        return {"success": True, "id": banner.id, "status": "pending", "message": "Your banner is under review and will be live shortly."}
+    return {"success": True, "id": banner.id, "status": "approved", "message": "Your banner is live!"}
+
+
+@app.get("/api/banners/my")
+def my_banners(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from .database import BannerAd
+    if not user:
+        return JSONResponse({"error": "Unauthorized"}, status_code=401)
+    banners = db.query(BannerAd).filter(BannerAd.user_id == user.id).order_by(BannerAd.created_at.desc()).all()
+    return {"banners": [{
+        "id": b.id, "title": b.title, "image_url": b.image_url, "link_url": b.link_url,
+        "size": b.size, "category": b.category, "status": b.status,
+        "clicks": b.clicks or 0, "impressions": b.impressions or 0,
+        "is_active": b.is_active, "created_at": b.created_at.isoformat() if b.created_at else None,
+    } for b in banners]}
+
+
+@app.post("/api/banners/{banner_id}/toggle")
+async def toggle_banner(banner_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from .database import BannerAd
+    if not user:
+        return JSONResponse({"error": "Unauthorized"}, status_code=401)
+    banner = db.query(BannerAd).filter(BannerAd.id == banner_id, BannerAd.user_id == user.id).first()
+    if not banner:
+        return JSONResponse({"error": "Banner not found"}, status_code=404)
+    banner.is_active = not banner.is_active
+    db.commit()
+    return {"success": True, "is_active": banner.is_active}
+
+
+@app.post("/api/banners/{banner_id}/delete")
+async def delete_banner(banner_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from .database import BannerAd
+    if not user:
+        return JSONResponse({"error": "Unauthorized"}, status_code=401)
+    banner = db.query(BannerAd).filter(BannerAd.id == banner_id, BannerAd.user_id == user.id).first()
+    if not banner:
+        return JSONResponse({"error": "Banner not found"}, status_code=404)
+    db.delete(banner)
+    db.commit()
+    return {"success": True}
 
 @app.post("/api/ads/{ad_id}/toggle")
 async def toggle_ad(ad_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):

@@ -24,6 +24,7 @@ function buildNav(t, isAdmin) {
       { label: t('nav.watchToEarn'), icon: Eye, path: '/watch' },
       { label: t('nav.campaignTiers'), icon: Zap, path: '/campaign-tiers' },
       { label: t('nav.adBoard'), icon: LayoutGrid, path: '/ad-board' },
+      { label: 'Banner Ads', icon: LayoutGrid, path: '/banner-manager' },
     ]},
     { type: 'divider' },
     { type: 'group', label: t('nav.creatorTools'), key: 'creator', items: [

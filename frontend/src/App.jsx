@@ -47,6 +47,7 @@ import HowCommissionsWork from './pages/HowCommissionsWork';
 import MyLeads from './pages/MyLeads';
 import LinkTools from './pages/LinkTools';
 import AdBoard from './pages/AdBoard';
+import BannerManager from './pages/BannerManager';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PassupVisualiser from './pages/PassupVisualiser';
 import ProSeller from './pages/ProSeller';
@@ -159,6 +160,7 @@ function AppRoutes() {
       <Route path="/courses/commissions" element={<ProtectedRoute><MyNetwork /></ProtectedRoute>} />
       <Route path="/courses/how-it-works" element={<ProtectedRoute><HowCommissionsWork /></ProtectedRoute>} />
       <Route path="/ad-board" element={<ProtectedRoute><AdBoard /></ProtectedRoute>} />
+      <Route path="/banner-manager" element={<ProtectedRoute><BannerManager /></ProtectedRoute>} />
 
       {/* Public pages — no auth required, no sidebar */}
       <Route path="/" element={<SmartHome />} />
