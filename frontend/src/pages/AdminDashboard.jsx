@@ -19,7 +19,7 @@ export default function AdminDashboard() {
   var [tab, setTab] = useState('overview');
   return (
     <AppLayout title="Admin Dashboard" subtitle="Platform Management — Owner Access">
-      <div style={{display:'flex',gap:6,marginBottom:24,borderBottom:'2px solid #e8ecf2',paddingBottom:0,flexWrap:'wrap'}}>
+      <div className="admin-tabs" style={{display:'flex',gap:6,marginBottom:24,borderBottom:'2px solid #e8ecf2',paddingBottom:0,flexWrap:'wrap'}}>
         {TABS.map(function(t) {
           var Icon = t.icon;
           var on = tab === t.key;

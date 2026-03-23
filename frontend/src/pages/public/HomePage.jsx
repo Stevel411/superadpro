@@ -25,11 +25,15 @@ var CSS = `
 @media(max-width:900px){
   .hp-nav-links{display:none!important}.hp-hamburger{display:block!important}
   .hp-hero-btns{flex-direction:column;align-items:center}
-  .hp-three{grid-template-columns:1fr 1fr!important}
+  .hp-three{grid-template-columns:1fr!important}
   .hp-two{grid-template-columns:1fr!important}
   footer.hp-foot{flex-direction:column;gap:12px;text-align:center}
 }
-@media(max-width:600px){.hp-three,.hp-stats{flex-wrap:wrap}.hp-pkgs{grid-template-columns:1fr 1fr!important}}
+@media(max-width:600px){
+  .hp-three,.hp-stats{flex-wrap:wrap}
+  .hp-pkgs{grid-template-columns:1fr!important}
+  .hp-three{grid-template-columns:1fr!important}
+}
 `;
 
 var JOINERS = [

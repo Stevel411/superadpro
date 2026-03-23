@@ -105,7 +105,7 @@ export default function AdHub() {
               .adhub-card-body{padding:20px 24px;background:#fff;text-align:center}
             `}</style>
             {/* Three creation cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 28 }}>
+            <div className="grid-5-col" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 28 }}>
 
               {/* Classified Ad */}
               <div className="adhub-card" onClick={function() { setView('create-ad'); setMsg(''); setError(''); }}

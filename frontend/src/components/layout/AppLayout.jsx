@@ -58,13 +58,45 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
       {/* Mobile bottom tab bar — only on the 3 key pages */}
       {isMobileTabPage && <MobileTabBar />}
 
-      {/* CSS to handle sidebar offset on desktop only */}
+      {/* CSS to handle sidebar offset on desktop only + MOBILE RESPONSIVE */}
       <style>{`
         @media(min-width:768px){
           :root { --sidebar-offset: 224px; }
         }
         @media(max-width:767px){
           :root { --sidebar-offset: 0px; }
+
+          /* ── Dashboard grids ── */
+          .grid-5-col { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
+          .grid-2-col { grid-template-columns: 1fr !important; }
+          .income-grid > div { min-width: 0 !important; }
+          .actions-grid > div { min-width: 0 !important; }
+
+          /* ── Generic grid overrides ── */
+          *[class*="grid"] { max-width: 100% !important; }
+
+          /* ── Table horizontal scroll ── */
+          table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+          
+          /* ── Admin tabs horizontal scroll ── */
+          .admin-tabs { overflow-x: auto !important; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch; }
+          .admin-tabs button { white-space: nowrap; flex-shrink: 0; padding-left: 10px !important; padding-right: 10px !important; font-size: 11px !important; }
+
+          /* ── Force all wide containers to fit ── */
+          main > div { max-width: 100% !important; overflow-x: hidden; }
+
+          /* ── Hero/banner sections compact ── */
+          div[style*="padding:48px"] { padding: 24px 16px !important; }
+          div[style*="padding:60px"] { padding: 32px 16px !important; }
+
+          /* ── Font scaling for huge text ── */
+          div[style*="fontSize:48"], div[style*="fontSize:36"], div[style*="fontSize:32"] {
+            font-size: 22px !important;
+          }
+
+          /* ── Comp plan 8x8 grid stays small ── */
+          div[style*="repeat(8"] { gap: 2px !important; }
+          div[style*="repeat(8"] > div { padding: 2px !important; font-size: 8px !important; }
         }
       `}</style>
     </div>
