@@ -114,7 +114,7 @@ export default function EarnPage() {
   function openReg() { setRegOpen(true); }
 
   return (
-    <div style={{background:dark,color:'#f0f2f8',fontFamily:"'Rethink Sans','DM Sans',sans-serif",overflowX:'hidden',minHeight:'100vh'}}>
+    <div style={{background:dark,color:'#f0f2f8',fontFamily:"'DM Sans','Rethink Sans',sans-serif",overflowX:'hidden',minHeight:'100vh'}}>
       <style>{CSS}</style>
 
       {/* NAV */}
