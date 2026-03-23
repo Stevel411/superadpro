@@ -24,6 +24,7 @@ export default function AdHub() {
   var [manageTab, setManageTab] = useState('ads');
   var [ads, setAds] = useState([]);
   var [banners, setBanners] = useState([]);
+  var [videos, setVideos] = useState([]);
   var [loading, setLoading] = useState(true);
   var [saving, setSaving] = useState(false);
   var [msg, setMsg] = useState('');
@@ -37,9 +38,11 @@ export default function AdHub() {
     Promise.all([
       apiGet('/api/ads/my').catch(function() { return { listings: [] }; }),
       apiGet('/api/banners/my').catch(function() { return { banners: [] }; }),
-    ]).then(function([adData, bannerData]) {
+      apiGet('/api/video-library').catch(function() { return { campaigns: [] }; }),
+    ]).then(function([adData, bannerData, videoData]) {
       setAds(adData.listings || []);
       setBanners(bannerData.banners || []);
+      setVideos((videoData.campaigns || []).filter(function(v) { return v.user_id === user?.id; }));
       setLoading(false);
     });
   }
@@ -90,50 +93,82 @@ export default function AdHub() {
         {/* ═══ HOME VIEW — Creation Cards ═══ */}
         {view === 'home' && (
           <div>
+            <style>{`
+              @keyframes adhub-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+              @keyframes adhub-pulse{0%,100%{opacity:.6}50%{opacity:1}}
+              @keyframes adhub-shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+              .adhub-card{border-radius:16px;padding:0;cursor:pointer;transition:all .3s;overflow:hidden;position:relative}
+              .adhub-card:hover{transform:translateY(-6px) scale(1.02)}
+              .adhub-card-bg{padding:28px 24px;text-align:center;position:relative;overflow:hidden}
+              .adhub-card-bg::before{content:'';position:absolute;inset:0;opacity:.12;background:radial-gradient(circle at 30% 20%,#fff 0%,transparent 60%)}
+              .adhub-icon{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 16px;animation:adhub-float 3s ease-in-out infinite;backdrop-filter:blur(8px)}
+              .adhub-card-body{padding:20px 24px;background:#fff;text-align:center}
+            `}</style>
             {/* Three creation cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 28 }}>
 
               {/* Classified Ad */}
-              <div onClick={function() { setView('create-ad'); setMsg(''); setError(''); }}
-                style={{ background: '#fff', border: '2px solid #dcfce7', borderRadius: 16, padding: 24, cursor: 'pointer', transition: 'all .2s', textAlign: 'center' }}
-                onMouseEnter={function(e) { e.currentTarget.style.borderColor = '#10b981'; e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(16,185,129,.12)'; }}
-                onMouseLeave={function(e) { e.currentTarget.style.borderColor = '#dcfce7'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
-                <div style={{ width: 56, height: 56, borderRadius: 14, background: 'linear-gradient(135deg,#f0fdf4,#dcfce7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, margin: '0 auto 14px' }}>📋</div>
-                <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 17, fontWeight: 800, color: '#0f172a', marginBottom: 6 }}>Create Listing</div>
-                <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5, marginBottom: 14 }}>Post a classified ad with images, links, and SEO keywords. Displayed on the public Ad Board.</div>
-                <div style={{ display: 'inline-block', padding: '8px 20px', borderRadius: 8, background: 'linear-gradient(135deg,#10b981,#059669)', color: '#fff', fontWeight: 700, fontSize: 13 }}>+ New Listing</div>
+              <div className="adhub-card" onClick={function() { setView('create-ad'); setMsg(''); setError(''); }}
+                style={{ boxShadow: '0 4px 20px rgba(16,185,129,.15)' }}
+                onMouseEnter={function(e) { e.currentTarget.style.boxShadow = '0 16px 40px rgba(16,185,129,.25)'; }}
+                onMouseLeave={function(e) { e.currentTarget.style.boxShadow = '0 4px 20px rgba(16,185,129,.15)'; }}>
+                <div className="adhub-card-bg" style={{ background: 'linear-gradient(135deg,#059669,#10b981,#34d399)' }}>
+                  <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,.1)', animation: 'adhub-pulse 4s ease-in-out infinite' }} />
+                  <div style={{ position: 'absolute', bottom: -30, left: -10, width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,.06)' }} />
+                  <div className="adhub-icon" style={{ background: 'rgba(255,255,255,.2)', border: '1px solid rgba(255,255,255,.3)' }}>📋</div>
+                  <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 20, fontWeight: 900, color: '#fff', marginBottom: 4, position: 'relative' }}>Create Listing</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,.75)', position: 'relative' }}>Classified Ads</div>
+                </div>
+                <div className="adhub-card-body">
+                  <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6, marginBottom: 16 }}>Post a classified ad with images, links, and SEO keywords. Displayed on the public Ad Board.</div>
+                  <div style={{ display: 'inline-block', padding: '10px 24px', borderRadius: 10, background: 'linear-gradient(135deg,#10b981,#059669)', color: '#fff', fontWeight: 800, fontSize: 14, boxShadow: '0 4px 0 #047857' }}>+ New Listing</div>
+                </div>
               </div>
 
               {/* Banner Ad */}
-              <div onClick={function() { setView('create-banner'); setMsg(''); setError(''); }}
-                style={{ background: '#fff', border: '2px solid #fef3c7', borderRadius: 16, padding: 24, cursor: 'pointer', transition: 'all .2s', textAlign: 'center' }}
-                onMouseEnter={function(e) { e.currentTarget.style.borderColor = '#f59e0b'; e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(245,158,11,.12)'; }}
-                onMouseLeave={function(e) { e.currentTarget.style.borderColor = '#fef3c7'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
-                <div style={{ width: 56, height: 56, borderRadius: 14, background: 'linear-gradient(135deg,#fffbeb,#fef3c7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, margin: '0 auto 14px' }}>🖼️</div>
-                <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 17, fontWeight: 800, color: '#0f172a', marginBottom: 6 }}>Create Banner</div>
-                <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5, marginBottom: 14 }}>Upload a visual banner ad with click tracking. Displayed in the public Banner Gallery.</div>
-                <div style={{ display: 'inline-block', padding: '8px 20px', borderRadius: 8, background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff', fontWeight: 700, fontSize: 13 }}>+ New Banner</div>
+              <div className="adhub-card" onClick={function() { setView('create-banner'); setMsg(''); setError(''); }}
+                style={{ boxShadow: '0 4px 20px rgba(245,158,11,.15)' }}
+                onMouseEnter={function(e) { e.currentTarget.style.boxShadow = '0 16px 40px rgba(245,158,11,.25)'; }}
+                onMouseLeave={function(e) { e.currentTarget.style.boxShadow = '0 4px 20px rgba(245,158,11,.15)'; }}>
+                <div className="adhub-card-bg" style={{ background: 'linear-gradient(135deg,#d97706,#f59e0b,#fbbf24)' }}>
+                  <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,.1)', animation: 'adhub-pulse 4s ease-in-out infinite .5s' }} />
+                  <div style={{ position: 'absolute', bottom: -30, left: -10, width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,.06)' }} />
+                  <div className="adhub-icon" style={{ background: 'rgba(255,255,255,.2)', border: '1px solid rgba(255,255,255,.3)', animationDelay: '.3s' }}>🖼️</div>
+                  <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 20, fontWeight: 900, color: '#fff', marginBottom: 4, position: 'relative' }}>Create Banner</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,.75)', position: 'relative' }}>Display Advertising</div>
+                </div>
+                <div className="adhub-card-body">
+                  <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6, marginBottom: 16 }}>Upload a visual banner ad with click tracking. Displayed in the public Banner Gallery.</div>
+                  <div style={{ display: 'inline-block', padding: '10px 24px', borderRadius: 10, background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff', fontWeight: 800, fontSize: 14, boxShadow: '0 4px 0 #b45309' }}>+ New Banner</div>
+                </div>
               </div>
 
               {/* Video Campaign */}
-              <div onClick={function() { window.location.href = '/campaign-tiers'; }}
-                style={{ background: '#fff', border: '2px solid #ede9fe', borderRadius: 16, padding: 24, cursor: 'pointer', transition: 'all .2s', textAlign: 'center' }}
-                onMouseEnter={function(e) { e.currentTarget.style.borderColor = '#8b5cf6'; e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 12px 32px rgba(139,92,246,.12)'; }}
-                onMouseLeave={function(e) { e.currentTarget.style.borderColor = '#ede9fe'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
-                <div style={{ width: 56, height: 56, borderRadius: 14, background: 'linear-gradient(135deg,#f5f3ff,#ede9fe)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 28, margin: '0 auto 14px' }}>🎬</div>
-                <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 17, fontWeight: 800, color: '#0f172a', marginBottom: 6 }}>Video Campaign</div>
-                <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5, marginBottom: 14 }}>Launch a video ad campaign through Campaign Tiers. Displayed in the public Video Library.</div>
-                <div style={{ display: 'inline-block', padding: '8px 20px', borderRadius: 8, background: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', color: '#fff', fontWeight: 700, fontSize: 13 }}>Campaign Tiers →</div>
+              <div className="adhub-card" onClick={function() { window.location.href = '/campaign-tiers'; }}
+                style={{ boxShadow: '0 4px 20px rgba(139,92,246,.15)' }}
+                onMouseEnter={function(e) { e.currentTarget.style.boxShadow = '0 16px 40px rgba(139,92,246,.25)'; }}
+                onMouseLeave={function(e) { e.currentTarget.style.boxShadow = '0 4px 20px rgba(139,92,246,.15)'; }}>
+                <div className="adhub-card-bg" style={{ background: 'linear-gradient(135deg,#7c3aed,#8b5cf6,#a78bfa)' }}>
+                  <div style={{ position: 'absolute', top: -20, right: -20, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,.1)', animation: 'adhub-pulse 4s ease-in-out infinite 1s' }} />
+                  <div style={{ position: 'absolute', bottom: -30, left: -10, width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,.06)' }} />
+                  <div className="adhub-icon" style={{ background: 'rgba(255,255,255,.2)', border: '1px solid rgba(255,255,255,.3)', animationDelay: '.6s' }}>🎬</div>
+                  <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 20, fontWeight: 900, color: '#fff', marginBottom: 4, position: 'relative' }}>Video Campaign</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,.75)', position: 'relative' }}>Video Advertising</div>
+                </div>
+                <div className="adhub-card-body">
+                  <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6, marginBottom: 16 }}>Launch a video ad campaign through Campaign Tiers. Displayed in the public Video Library.</div>
+                  <div style={{ display: 'inline-block', padding: '10px 24px', borderRadius: 10, background: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', color: '#fff', fontWeight: 800, fontSize: 14, boxShadow: '0 4px 0 #6d28d9' }}>Campaign Tiers →</div>
+                </div>
               </div>
             </div>
 
             {/* Manage section */}
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, overflow: 'hidden' }}>
               <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0' }}>
-                {[['ads', '📋 My Listings (' + ads.length + ')'], ['banners', '🖼️ My Banners (' + banners.length + ')']].map(function([k, l]) {
+                {[['ads', '📋 My Listings (' + ads.length + ')', '#10b981'], ['banners', '🖼️ My Banners (' + banners.length + ')', '#f59e0b'], ['videos', '🎬 My Videos (' + videos.length + ')', '#8b5cf6']].map(function([k, l, color]) {
                   return (
                     <button key={k} onClick={function() { setManageTab(k); }}
-                      style={{ flex: 1, padding: '14px 16px', fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit', borderBottom: manageTab === k ? '3px solid #0ea5e9' : '3px solid transparent', background: 'transparent', color: manageTab === k ? '#0f172a' : '#94a3b8' }}>
+                      style={{ flex: 1, padding: '14px 16px', fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit', borderBottom: manageTab === k ? '3px solid ' + color : '3px solid transparent', background: 'transparent', color: manageTab === k ? '#0f172a' : '#94a3b8' }}>
                       {l}
                     </button>
                   );
@@ -177,7 +212,7 @@ export default function AdHub() {
                       })}
                     </div>
                   )
-                ) : (
+                ) : manageTab === 'banners' ? (
                   banners.length === 0 ? (
                     <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>
                       <div style={{ fontSize: 32, marginBottom: 8, opacity: 0.3 }}>🖼️</div>
@@ -202,6 +237,31 @@ export default function AdHub() {
                               </button>
                               <button onClick={function() { deleteBanner(b.id); }} style={{ padding: '5px 10px', borderRadius: 6, fontSize: 11, fontWeight: 700, border: '1px solid #fecaca', background: '#fff', color: '#dc2626', cursor: 'pointer', fontFamily: 'inherit' }}>Delete</button>
                             </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )
+                ) : (
+                  videos.length === 0 ? (
+                    <div style={{ textAlign: 'center', padding: 40, color: '#94a3b8' }}>
+                      <div style={{ fontSize: 32, marginBottom: 8, opacity: 0.3 }}>🎬</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 4 }}>No video campaigns yet</div>
+                      <div style={{ fontSize: 12, color: '#b0b8c4' }}>Launch a campaign tier to create your first video ad</div>
+                    </div>
+                  ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {videos.map(function(v) {
+                        return (
+                          <div key={v.id} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '12px 16px', border: '1px solid #f1f5f9', borderRadius: 10 }}>
+                            <div style={{ width: 100, height: 56, borderRadius: 6, background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, flexShrink: 0 }}>▶️</div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 2 }}>{v.title}</div>
+                              <div style={{ fontSize: 11, color: '#94a3b8' }}>Tier {v.campaign_tier} · {v.views_delivered || 0}/{v.views_target || 0} views · {v.platform}</div>
+                            </div>
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 10px', borderRadius: 100, background: v.status === 'active' ? '#dcfce7' : v.status === 'completed' ? '#dbeafe' : '#fef2f2', color: v.status === 'active' ? '#16a34a' : v.status === 'completed' ? '#2563eb' : '#dc2626' }}>
+                              {v.status === 'active' ? 'Active' : v.status === 'completed' ? 'Completed' : v.status}
+                            </span>
                           </div>
                         );
                       })}
