@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@react-three/fiber": "^9.5.0",
+    "@react-three/fiber": "^8.17.10",
     "@tiptap/extension-image": "^3.20.4",
     "@tiptap/extension-link": "^3.20.4",
     "@tiptap/extension-placeholder": "^3.20.4",
