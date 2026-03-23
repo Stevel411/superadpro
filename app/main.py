@@ -4752,7 +4752,9 @@ def admin_api_users(
         "total": total,
         "users": [{
             "id": u.id, "username": u.username, "email": u.email,
+            "first_name": u.first_name, "last_name": u.last_name,
             "is_active": u.is_active, "is_admin": u.is_admin,
+            "membership_tier": u.membership_tier or "basic",
             "balance": round(float(u.balance or 0), 2),
             "total_earned": round(float(u.total_earned or 0), 2),
             "total_withdrawn": round(float(u.total_withdrawn or 0), 2),
@@ -4791,6 +4793,7 @@ def admin_api_user_detail(
             "id": u.id, "username": u.username, "email": u.email,
             "first_name": u.first_name, "last_name": u.last_name,
             "is_active": u.is_active, "is_admin": u.is_admin,
+            "membership_tier": u.membership_tier or "basic",
             "balance": round(float(u.balance or 0), 2),
             "total_earned": round(float(u.total_earned or 0), 2),
             "total_withdrawn": round(float(u.total_withdrawn or 0), 2),
@@ -4803,6 +4806,8 @@ def admin_api_user_detail(
             "sponsor_id": u.sponsor_id,
             "wallet_address": u.wallet_address,
             "country": u.country,
+            "kyc_status": getattr(u, 'kyc_status', None),
+            "two_factor_enabled": getattr(u, 'two_factor_enabled', False),
             "created_at": u.created_at.isoformat() if u.created_at else None,
         },
         "grids": [{
