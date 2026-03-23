@@ -85,7 +85,7 @@ export function AdBoardManage() {
   var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);
   var [showForm, setShowForm] = useState(false);
-  var [form, setForm] = useState({ title: '', description: '', category: '', link_url: '', image_url: '' });
+  var [form, setForm] = useState({ title: '', description: '', category: '', link_url: '', image_url: '', keywords: '', location: '', price: '' });
   var [saving, setSaving] = useState(false);
   var [msg, setMsg] = useState('');
   var navigate = useNavigate();
@@ -106,7 +106,7 @@ export function AdBoardManage() {
     apiPost('/api/ads/create', form)
       .then(function(d) {
         setSaving(false);
-        if (d.ok || d.id) { setShowForm(false); setForm({ title: '', description: '', category: '', link_url: '', image_url: '' }); load(); }
+        if (d.success || d.ok || d.id) { setShowForm(false); setForm({ title: '', description: '', category: '', link_url: '', image_url: '', keywords: '', location: '', price: '' }); setMsg(d.message || ''); load(); }
         else setMsg(d.error || 'Failed to create listing.');
       })
       .catch(function(e) { setSaving(false); setMsg(e.message || 'Failed.'); });
@@ -162,7 +162,7 @@ export function AdBoardManage() {
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Description *</label>
                 <textarea value={form.description} onChange={set('description')} rows={3} style={{ ...iS, background: '#f8fafc', color: '#0f172a', border: '1px solid #e2e8f0', resize: 'vertical' }} placeholder="Describe your listing..."/>
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 20 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Link URL *</label>
                   <input value={form.link_url} onChange={set('link_url')} style={{ ...iS, background: '#f8fafc', color: '#0f172a', border: '1px solid #e2e8f0' }} placeholder="https://..."/>
@@ -172,6 +172,21 @@ export function AdBoardManage() {
                   <input value={form.image_url} onChange={set('image_url')} style={{ ...iS, background: '#f8fafc', color: '#0f172a', border: '1px solid #e2e8f0' }} placeholder="https://..."/>
                 </div>
               </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Price (optional)</label>
+                  <input value={form.price} onChange={set('price')} style={{ ...iS, background: '#f8fafc', color: '#0f172a', border: '1px solid #e2e8f0' }} placeholder="$99" maxLength={50}/>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Location (optional)</label>
+                  <input value={form.location} onChange={set('location')} style={{ ...iS, background: '#f8fafc', color: '#0f172a', border: '1px solid #e2e8f0' }} placeholder="London, UK" maxLength={100}/>
+                </div>
+                <div>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: '#64748b', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>SEO Keywords</label>
+                  <input value={form.keywords} onChange={set('keywords')} style={{ ...iS, background: '#f8fafc', color: '#0f172a', border: '1px solid #e2e8f0' }} placeholder="marketing, digital" maxLength={200}/>
+                </div>
+              </div>
+              <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 16 }}>Keywords help people find your listing through search engines. Separate with commas.</div>
               <button type="submit" disabled={saving} style={{ padding: '10px 24px', borderRadius: 10, border: 'none', background: saving ? '#94a3b8' : 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 700, fontSize: 14, cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit' }}>
                 {saving ? 'Saving...' : 'Post Listing'}
               </button>
