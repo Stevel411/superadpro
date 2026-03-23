@@ -30,7 +30,6 @@ export default function PublicLayout({ children }) {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }} className="desktop-nav">
             {[
               ['How It Works', '/how-it-works'],
-              ['Explore', '/explore'],
               ['For Advertisers', '/for-advertisers'],
               ['FAQ', '/faq'],
             ].map(function([label, path]) {
@@ -42,6 +41,7 @@ export default function PublicLayout({ children }) {
                 </Link>
               );
             })}
+            <a href="/explore" style={{ padding: '8px 14px', borderRadius: 8, fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', transition: 'color .15s' }}>Explore</a>
           </div>
 
           {/* CTA buttons */}
@@ -79,10 +79,11 @@ export default function PublicLayout({ children }) {
             {/* Platform */}
             <div>
               <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>Platform</div>
-              {[['How It Works', '/how-it-works'], ['Explore', '/explore'], ['For Advertisers', '/for-advertisers'], ['Compensation Plan', '/compensation-plan'], ['Campaign Tiers', '/campaign-tiers']].map(function([l,h]){
+              {[['How It Works', '/how-it-works'], ['For Advertisers', '/for-advertisers'], ['Compensation Plan', '/compensation-plan'], ['Campaign Tiers', '/campaign-tiers']].map(function([l,h]){
                 return <Link key={h} to={h} style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: 8 }}
                   onMouseEnter={function(e){e.target.style.color='#fff';}} onMouseLeave={function(e){e.target.style.color='rgba(255,255,255,0.5)';}}>{l}</Link>;
               })}
+              <a href="/explore" style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: 8 }}>Explore</a>
             </div>
 
             {/* Account */}

@@ -201,9 +201,10 @@ export default function HomePage(){
           <span style={{fontFamily:"'Sora',sans-serif",fontWeight:800,fontSize:19,color:'#fff'}}>SuperAd<span style={{color:cyan}}>Pro</span></span>
         </Link>
         <ul className="hp-nav-links" style={{display:'flex',alignItems:'center',gap:6,listStyle:'none',margin:0,padding:0}}>
-          {[['How It Works','/how-it-works'],['Explore','/explore'],['For Advertisers','/for-advertisers'],['FAQ','/faq']].map(function([l,h]){
+          {[['How It Works','/how-it-works'],['For Advertisers','/for-advertisers'],['FAQ','/faq']].map(function([l,h]){
             return <li key={h}><Link to={h} style={{fontSize:15,fontWeight:500,color:'rgba(200,220,255,.7)',textDecoration:'none',padding:'4px 10px'}}>{l}</Link></li>;
           })}
+          <li><a href="/explore" style={{fontSize:15,fontWeight:500,color:'rgba(200,220,255,.7)',textDecoration:'none',padding:'4px 10px'}}>Explore</a></li>
         </ul>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
           <button onClick={openLogin} style={{fontSize:14,fontWeight:600,color:'rgba(200,230,210,.6)',background:'none',border:'1px solid rgba(255,255,255,.1)',borderRadius:7,padding:'7px 14px',cursor:'pointer',fontFamily:'inherit'}}>Sign In</button>
@@ -216,9 +217,10 @@ export default function HomePage(){
       {menuOpen&&(
         <div style={{position:'fixed',top:72,left:0,right:0,bottom:0,background:'rgba(5,13,26,.98)',backdropFilter:'blur(12px)',zIndex:99,overflowY:'auto'}}>
           <div style={{padding:24,display:'flex',flexDirection:'column',gap:4}}>
-            {[['How It Works','/how-it-works'],['Explore','/explore'],['For Advertisers','/for-advertisers'],['FAQ','/faq'],['Ad Board','/ads']].map(function([l,h]){
+            {[['How It Works','/how-it-works'],['For Advertisers','/for-advertisers'],['FAQ','/faq'],['Ad Board','/ads']].map(function([l,h]){
               return <Link key={h} to={h} onClick={function(){setMenuOpen(false);}} style={{display:'block',padding:'14px 16px',fontSize:16,fontWeight:600,color:'rgba(200,220,255,.8)',textDecoration:'none',borderRadius:8}}>{l}</Link>;
             })}
+            <a href="/explore" style={{display:'block',padding:'14px 16px',fontSize:16,fontWeight:600,color:'rgba(200,220,255,.8)',textDecoration:'none',borderRadius:8}}>Explore</a>
             <div style={{borderTop:'1px solid rgba(0,180,216,.15)',marginTop:12,paddingTop:12,display:'flex',flexDirection:'column',gap:10}}>
               <button onClick={openLogin} style={{background:'none',border:'none',color:'#38bdf8',fontSize:16,fontWeight:600,cursor:'pointer',fontFamily:'inherit',textAlign:'left',padding:'8px 16px'}}>Sign In</button>
               <button onClick={function(){openReg('');}} style={{background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',border:'none',borderRadius:10,color:'#fff',fontWeight:700,fontSize:16,cursor:'pointer',fontFamily:'inherit',padding:'12px 16px',textAlign:'center'}}>Join Free →</button>
