@@ -195,7 +195,7 @@ export default function HomePage(){
   function openLogin(){setLoginOpen(true);setMenuOpen(false);}
 
   return (
-    <div style={{background:dark,color:'#f0f2f8',fontFamily:"'DM Sans',sans-serif",overflowX:'hidden',minHeight:'100vh'}}>
+    <div style={{background:dark,color:'#f0f2f8',fontFamily:"'Rethink Sans','DM Sans',sans-serif",overflowX:'hidden',minHeight:'100vh'}}>
       <style>{CSS}</style>
 
       {/* NAV */}
