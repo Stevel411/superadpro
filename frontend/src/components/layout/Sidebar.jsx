@@ -6,7 +6,7 @@ import LanguageSelector from './LanguageSelector';
 import {
   Home, User, Wallet, Headphones, Eye, Zap, LayoutGrid, Link2,
   Globe, GraduationCap, Store, PenLine, Network, FileText, Users,
-  Target, Mail, Trophy, Award, Bot, Megaphone, Film,
+  Target, Mail, Trophy, Award, Bot, Megaphone, Film, Paintbrush,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X
 } from 'lucide-react';
 
@@ -24,6 +24,7 @@ function buildNav(t, isAdmin) {
       { label: t('nav.watchToEarn'), icon: Eye, path: '/watch' },
       { label: t('nav.campaignTiers'), icon: Zap, path: '/campaign-tiers' },
       { label: 'Ad Hub', icon: LayoutGrid, path: '/ad-hub' },
+      { label: 'Banner Maker', icon: Paintbrush, path: '/banner-maker', pro: true },
     ]},
     { type: 'divider' },
     { type: 'group', label: t('nav.creatorTools'), key: 'creator', items: [
