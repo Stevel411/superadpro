@@ -225,11 +225,23 @@ export default function BannerMaker() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 240px', gap: 12 }}>
 
           {/* Canvas */}
-          <div style={{ background: '#e2e8f0', border: '1px solid #cbd5e1', borderRadius: 14, padding: 24,
+          <div ref={function(el) {
+            if (el && !el._measured) {
+              el._measured = true;
+              var rect = el.getBoundingClientRect();
+              el.style.setProperty('--cw', rect.width - 48 + 'px');
+            }
+          }} style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 14, padding: 24,
             display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 500,
-            overflow: 'auto', backgroundImage: 'radial-gradient(circle,#cbd5e1 1px,transparent 1px)', backgroundSize: '20px 20px' }}>
-            <div style={{ boxShadow: '0 12px 40px rgba(0,0,0,.2)', borderRadius: 4, overflow: 'hidden', transform: canvasSize.w > 800 ? 'scale(0.85)' : 'scale(1)', transformOrigin: 'center center' }}>
-              <CanvasEditor canvasSize={canvasSize} onCanvasReady={onCanvasReady} />
+            overflow: 'hidden' }}>
+            <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <div style={{
+                boxShadow: '0 12px 40px rgba(0,0,0,.2)', borderRadius: 4, overflow: 'hidden',
+                transform: 'scale(' + Math.min(1.8, 680 / canvasSize.w, 460 / canvasSize.h) + ')',
+                transformOrigin: 'center center',
+              }}>
+                <CanvasEditor canvasSize={canvasSize} onCanvasReady={onCanvasReady} />
+              </div>
             </div>
           </div>
 
