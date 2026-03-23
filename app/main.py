@@ -9488,17 +9488,17 @@ def admin_run_migrations(secret: str = "", db: Session = Depends(get_db)):
 
 @app.get("/admin/fix-owner")
 def admin_fix_owner(secret: str = "", db: Session = Depends(get_db)):
-    """Force SuperAdPro account to Pro + admin."""
+    """Force SuperAdPro account to Pro + admin + permanent membership."""
     from fastapi.responses import JSONResponse
     from sqlalchemy import text as sqt
     if secret != "superadpro-owner-2026":
         return JSONResponse({"error": "Invalid"}, status_code=403)
     try:
-        db.execute(sqt("UPDATE users SET membership_tier = 'pro', is_active = true, is_admin = true WHERE username = 'SuperAdPro'"))
+        db.execute(sqt("UPDATE users SET membership_tier = 'pro', is_active = true, is_admin = true, membership_expires_at = '2099-12-31' WHERE username = 'SuperAdPro'"))
         db.commit()
         user = db.query(User).filter(User.username == "SuperAdPro").first()
         if user:
-            return {"success": True, "username": user.username, "membership_tier": user.membership_tier, "is_admin": user.is_admin, "is_active": user.is_active}
+            return {"success": True, "username": user.username, "membership_tier": user.membership_tier, "is_admin": user.is_admin, "is_active": user.is_active, "expires_at": str(user.membership_expires_at)}
         return {"error": "User SuperAdPro not found"}
     except Exception as e:
         db.rollback()

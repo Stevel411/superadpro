@@ -526,6 +526,16 @@ def process_auto_renewals(db: Session) -> dict:
         if not user or not user.is_active:
             continue
 
+        # Admin/owner accounts never expire — skip renewal processing
+        if user.is_admin:
+            # Keep renewal date rolling forward so dashboard looks clean
+            if now >= renewal.next_renewal_date:
+                renewal.last_renewed_at = now
+                renewal.next_renewal_date = now + timedelta(days=30)
+                renewal.total_renewals = (renewal.total_renewals or 0) + 1
+                renewal.in_grace_period = False
+            continue
+
         # ── 3-day low balance warning ──────────────────────────
         warning_threshold = renewal.next_renewal_date - timedelta(days=3)
         if now >= warning_threshold and not renewal.in_grace_period:
@@ -589,6 +599,20 @@ def get_renewal_status(db: Session, user_id: int) -> dict:
 
     if not renewal or not user:
         return {"has_renewal": False}
+
+    # Admin/owner accounts have permanent membership
+    if user.is_admin:
+        return {
+            "has_renewal":        True,
+            "next_renewal_date":  renewal.next_renewal_date,
+            "days_remaining":     9999,
+            "last_renewed_at":    renewal.last_renewed_at,
+            "total_renewals":     renewal.total_renewals,
+            "in_grace_period":    False,
+            "status":             "owner",
+            "can_afford":         True,
+            "balance":            round(user.balance or 0, 2),
+        }
 
     now  = datetime.utcnow()
     diff = (renewal.next_renewal_date - now).total_seconds() if renewal.next_renewal_date else 0
