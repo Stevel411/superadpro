@@ -150,7 +150,7 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # ── CORS — locked to our domain ──
 ALLOWED_ORIGINS = [
-    "https://superadpro-production.up.railway.app",
+    "https://www.superadpro.com",
     "https://superadpro.com",
     "https://www.superadpro.com",
 ]
@@ -1453,6 +1453,14 @@ def ad_hub(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+@app.get("/superseller")
+def superseller_page(request: Request):
+    """Serve React SPA for SuperSeller."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 @app.get("/banner-maker")
 def banner_maker_page(request: Request):
     """Serve React SPA for banner maker."""
@@ -1841,8 +1849,8 @@ async def coinbase_create_charge(
     if payment_type == "membership":
         amount = MEMBERSHIP_FEE
         description = f"Membership Activation — ${MEMBERSHIP_FEE}/month"
-        redirect = f"{os.getenv('BASE_URL', 'https://superadpro-production.up.railway.app')}/dashboard?activated=true"
-        cancel = f"{os.getenv('BASE_URL', 'https://superadpro-production.up.railway.app')}/pay-membership?cancelled=1"
+        redirect = f"{os.getenv('BASE_URL', 'https://www.superadpro.com')}/dashboard?activated=true"
+        cancel = f"{os.getenv('BASE_URL', 'https://www.superadpro.com')}/pay-membership?cancelled=1"
 
     elif payment_type == "grid_tier":
         price = GRID_PACKAGES.get(package_tier)
@@ -1853,8 +1861,8 @@ async def coinbase_create_charge(
         tier_name = {1:"Starter",2:"Builder",3:"Pro",4:"Advanced",5:"Elite",6:"Premium",7:"Executive",8:"Ultimate"}.get(package_tier, f"Tier {package_tier}")
         amount = price
         description = f"Income Grid — {tier_name} Tier (${price})"
-        redirect = f"{os.getenv('BASE_URL', 'https://superadpro-production.up.railway.app')}/income-grid?activated={package_tier}"
-        cancel = f"{os.getenv('BASE_URL', 'https://superadpro-production.up.railway.app')}/activate-grid?tier={package_tier}&cancelled=1"
+        redirect = f"{os.getenv('BASE_URL', 'https://www.superadpro.com')}/income-grid?activated={package_tier}"
+        cancel = f"{os.getenv('BASE_URL', 'https://www.superadpro.com')}/activate-grid?tier={package_tier}&cancelled=1"
 
     else:
         return JSONResponse({"error": "payment_type must be 'membership' or 'grid_tier'"}, status_code=400)
@@ -6946,7 +6954,7 @@ def _old_ad_board_DISABLED(request: Request, category: str = None, page: int = 1
             cat_match = [c for c in AD_CATEGORIES if c["id"] == category]
             cat_name = cat_match[0]["name"] if cat_match else category
         total_pages = max(1, (total_ads + per_page - 1) // per_page)
-        base_url = os.getenv("BASE_URL", "https://superadpro-production.up.railway.app")
+        base_url = os.getenv("BASE_URL", "https://www.superadpro.com")
         return templates.TemplateResponse("ad-board.html", {
             "request": request,
             "listings": listings,
@@ -7000,7 +7008,7 @@ def _old_ad_detail_DISABLED(slug: str, request: Request, db: Session = Depends(g
     for r in related:
         r_owner = db.query(User).filter(User.id == r.user_id).first()
         r.owner_name = r_owner.username if r_owner else "Member"
-    base_url = os.getenv("BASE_URL", "https://superadpro-production.up.railway.app")
+    base_url = os.getenv("BASE_URL", "https://www.superadpro.com")
     return templates.TemplateResponse("ad-detail.html", {
         "request": request,
         "ad": listing,
@@ -7531,7 +7539,7 @@ async def funnel_chat(page_id: int, request: Request, db: Session = Depends(get_
 
     owner = db.query(User).filter(User.id == page.user_id).first()
     owner_name = owner.first_name or owner.username if owner else "our team"
-    ref_link = f"https://superadpro-production.up.railway.app/ref/{owner.username}" if owner else "#"
+    ref_link = f"https://www.superadpro.com/ref/{owner.username}" if owner else "#"
 
     # Build page content summary for context
     page_context = f"Page headline: {page.headline or page.title}"
@@ -9968,7 +9976,7 @@ Higher tiers unlock larger ad campaigns and greater earning potential.
 - Password reset available via email
 
 ## GETTING STARTED
-1. Register at superadpro-production.up.railway.app
+1. Register at www.superadpro.com
 2. Choose a membership tier starting at $20
 3. Complete your profile
 4. Launch your first ad campaign from Campaign Studio
@@ -13613,7 +13621,7 @@ async def api_superseller_create(request: Request, background_tasks: BackgroundT
         return JSONResponse({"error": "Niche is required"}, status_code=400)
 
     # Build funnel URL
-    funnel_url = f"{os.getenv('BASE_URL', 'https://superadpro-production.up.railway.app')}/join/{user.username}"
+    funnel_url = f"{os.getenv('BASE_URL', 'https://www.superadpro.com')}/join/{user.username}"
 
     # Create campaign record
     from .database import SuperSellerCampaign
@@ -13704,7 +13712,7 @@ Generate a 30-day campaign strategy. Return ONLY valid JSON object with:
             bg_db.commit()
 
             # Landing page
-            tracked_url = f"{os.getenv('BASE_URL','https://superadpro-production.up.railway.app')}/superseller/go/{campaign_id}"
+            tracked_url = f"{os.getenv('BASE_URL','https://www.superadpro.com')}/superseller/go/{campaign_id}"
             lp_resp = await _call_ai(f"""{base_ctx}
 
 Generate a complete beautiful mobile-responsive HTML landing page for SuperAdPro.
@@ -13786,7 +13794,7 @@ def api_superseller_detail(campaign_id: int, request: Request,
         try: return _json.loads(s)
         except: return s
 
-    base = os.getenv('BASE_URL', 'https://superadpro-production.up.railway.app')
+    base = os.getenv('BASE_URL', 'https://www.superadpro.com')
     return {
         "id": c.id, "niche": c.niche, "audience": c.audience,
         "tone": c.tone, "goal": c.goal, "funnel_url": c.funnel_url,
@@ -14200,8 +14208,8 @@ async def api_superseller_regen_landing(campaign_id: int, request: Request,
     ).first()
     if not c:
         return JSONResponse({"error": "Campaign not found"}, status_code=404)
-    funnel_url = c.funnel_url or f"{os.getenv('BASE_URL','https://superadpro-production.up.railway.app')}/join/{user.username}"
-    tracked_url = f"{os.getenv('BASE_URL','https://superadpro-production.up.railway.app')}/superseller/go/{campaign_id}"
+    funnel_url = c.funnel_url or f"{os.getenv('BASE_URL','https://www.superadpro.com')}/join/{user.username}"
+    tracked_url = f"{os.getenv('BASE_URL','https://www.superadpro.com')}/superseller/go/{campaign_id}"
     prompt = f"""Niche: {c.niche}. Audience: {c.audience}. Tone: {c.tone}. Goal: {c.goal}. Funnel: {funnel_url}.
 Generate a complete beautiful mobile-responsive HTML landing page for SuperAdPro.
 Dark theme #050d1a background, cyan #38bdf8 accents. Lead capture form POSTing to /api/superseller/lead-capture/{campaign_id}.

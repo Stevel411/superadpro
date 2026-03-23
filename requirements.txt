@@ -70,3 +70,4 @@ geoip2>=4.8.0
 boto3>=1.34.0
 # cache-bust: 20260309R2
 stripe>=7.0.0
+httpx>=0.27.0
