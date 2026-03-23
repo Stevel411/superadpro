@@ -13803,56 +13803,85 @@ Funnel URL: {funnel_url_}
 IMPORTANT: Never make income guarantees. Focus on the tools and platform value.
 All CTAs should point to: {funnel_url_}"""
 
-            # Social posts
-            s_resp = await _call_ai(f"""{base_ctx}
+            steps_ok = 0
+            steps_total = 6
+
+            # Step 1: Social posts
+            try:
+                s_resp = await _call_ai(f"""{base_ctx}
 
 Generate 30 social media posts (one per day for 30 days). Return ONLY valid JSON array.
 Mix: 70% value/educational, 20% soft CTA, 10% direct CTA.
 Each post: {{"day": 1, "platform": "facebook|instagram|x|linkedin|tiktok", "content": "post text with emojis", "hashtags": "#tag1 #tag2", "type": "value|soft_cta|direct_cta"}}
 Rotate platforms. Keep posts natural and engaging, not salesy.""", model="claude-sonnet-4-20250514")
-            bg_c.social_posts_json = _extract_json(s_resp)
-            bg_db.commit()
+                bg_c.social_posts_json = _extract_json(s_resp)
+                bg_db.commit()
+                steps_ok += 1
+                logger.info(f"SuperSeller {campaign_id}: social posts OK")
+            except Exception as e:
+                logger.error(f"SuperSeller {campaign_id}: social posts FAILED: {e}")
 
-            # Email sequence
-            e_resp = await _call_ai(f"""{base_ctx}
+            # Step 2: Email sequence
+            try:
+                e_resp = await _call_ai(f"""{base_ctx}
 
 Generate a 5-email nurture sequence. Return ONLY valid JSON array.
 Sequence: Welcome (day 0) -> Value (day 1) -> Social Proof (day 3) -> Urgency (day 5) -> Final CTA (day 7)
 Each email: {{"email_num": 1, "subject": "subject line", "preview": "preview text", "body": "full email HTML body", "delay_days": 0, "type": "welcome|value|social_proof|urgency|final_cta"}}
 Professional HTML emails with inline styles. Include the funnel URL as CTA button.""", model="claude-sonnet-4-20250514")
-            bg_c.email_sequence_json = _extract_json(e_resp)
-            bg_db.commit()
+                bg_c.email_sequence_json = _extract_json(e_resp)
+                bg_db.commit()
+                steps_ok += 1
+                logger.info(f"SuperSeller {campaign_id}: email sequence OK")
+            except Exception as e:
+                logger.error(f"SuperSeller {campaign_id}: email sequence FAILED: {e}")
 
-            # Video scripts
-            v_resp = await _call_ai(f"""{base_ctx}
+            # Step 3: Video scripts
+            try:
+                v_resp = await _call_ai(f"""{base_ctx}
 
 Generate 3 video scripts for short-form content. Return ONLY valid JSON array.
 Durations: 30 seconds, 60 seconds, 2 minutes.
 Each: {{"title": "title", "duration": "30s|60s|2min", "hook": "first 3 seconds", "body": "main content", "cta": "call to action", "platform": "tiktok|reels|shorts"}}
 Hook must grab attention immediately. Use problem-agitation-solution framework.""", model="claude-sonnet-4-20250514")
-            bg_c.video_scripts_json = _extract_json(v_resp)
-            bg_db.commit()
+                bg_c.video_scripts_json = _extract_json(v_resp)
+                bg_db.commit()
+                steps_ok += 1
+                logger.info(f"SuperSeller {campaign_id}: video scripts OK")
+            except Exception as e:
+                logger.error(f"SuperSeller {campaign_id}: video scripts FAILED: {e}")
 
-            # Ad copy
-            a_resp = await _call_ai(f"""{base_ctx}
+            # Step 4: Ad copy
+            try:
+                a_resp = await _call_ai(f"""{base_ctx}
 
 Generate ad copy for 3 platforms. Return ONLY valid JSON array.
 Platforms: Facebook, Instagram, Google.
 Each: {{"platform": "facebook|instagram|google", "headline": "headline", "body": "ad body text", "cta_text": "button text", "description": "ad description"}}""", model="claude-haiku-4-5-20251001")
-            bg_c.ad_copy_json = _extract_json(a_resp)
-            bg_db.commit()
+                bg_c.ad_copy_json = _extract_json(a_resp)
+                bg_db.commit()
+                steps_ok += 1
+                logger.info(f"SuperSeller {campaign_id}: ad copy OK")
+            except Exception as e:
+                logger.error(f"SuperSeller {campaign_id}: ad copy FAILED: {e}")
 
-            # Strategy
-            st_resp = await _call_ai(f"""{base_ctx}
+            # Step 5: Strategy
+            try:
+                st_resp = await _call_ai(f"""{base_ctx}
 
 Generate a 30-day campaign strategy. Return ONLY valid JSON object with:
 {{"overview": "strategy summary", "daily_plan": [{{"day": 1, "task": "what to do", "platform": "where", "tip": "helpful tip"}}], "best_practices": ["tip1"], "posting_times": {{"facebook": "best time", "instagram": "best time", "tiktok": "best time"}}, "hashtag_strategy": "approach", "engagement_tips": ["tip1"]}}""", model="claude-sonnet-4-20250514")
-            bg_c.strategy_json = _extract_json(st_resp)
-            bg_db.commit()
+                bg_c.strategy_json = _extract_json(st_resp)
+                bg_db.commit()
+                steps_ok += 1
+                logger.info(f"SuperSeller {campaign_id}: strategy OK")
+            except Exception as e:
+                logger.error(f"SuperSeller {campaign_id}: strategy FAILED: {e}")
 
-            # Landing page
-            tracked_url = f"{os.getenv('BASE_URL','https://www.superadpro.com')}/superseller/go/{campaign_id}"
-            lp_resp = await _call_ai(f"""{base_ctx}
+            # Step 6: Landing page
+            try:
+                tracked_url = f"{os.getenv('BASE_URL','https://www.superadpro.com')}/superseller/go/{campaign_id}"
+                lp_resp = await _call_ai(f"""{base_ctx}
 
 Generate a complete beautiful mobile-responsive HTML landing page for SuperAdPro.
 - Compelling hero with niche-tailored headline
@@ -13864,14 +13893,24 @@ Generate a complete beautiful mobile-responsive HTML landing page for SuperAdPro
 - Self-contained HTML with embedded CSS/JS
 - Add before </body>: <script src="/static/js/superseller-chat.js" data-campaign="{campaign_id}"></script>
 Return ONLY complete HTML starting with <!DOCTYPE html>. No markdown.""", model="claude-sonnet-4-20250514")
-            lp = lp_resp.strip()
-            if lp.startswith("```"): lp = lp.split("\n", 1)[1] if "\n" in lp else lp[3:]
-            if lp.endswith("```"): lp = lp[:-3].strip()
-            bg_c.landing_page_html = lp
+                lp = lp_resp.strip()
+                if lp.startswith("```"): lp = lp.split("\n", 1)[1] if "\n" in lp else lp[3:]
+                if lp.endswith("```"): lp = lp[:-3].strip()
+                bg_c.landing_page_html = lp
+                bg_db.commit()
+                steps_ok += 1
+                logger.info(f"SuperSeller {campaign_id}: landing page OK")
+            except Exception as e:
+                logger.error(f"SuperSeller {campaign_id}: landing page FAILED: {e}")
 
-            bg_c.status = "active"
+            # Mark status based on results
+            if steps_ok >= 4:
+                bg_c.status = "active"
+                logger.info(f"SuperSeller campaign {campaign_id} generated: {steps_ok}/{steps_total} steps OK")
+            else:
+                bg_c.status = "failed"
+                logger.error(f"SuperSeller campaign {campaign_id} failed: only {steps_ok}/{steps_total} steps OK")
             bg_db.commit()
-            logger.info(f"SuperSeller campaign {campaign_id} generated successfully")
 
         except Exception as e:
             logger.error(f"SuperSeller generation failed for campaign {campaign_id}: {e}")
@@ -14033,23 +14072,34 @@ def api_superseller_delete(campaign_id: int, request: Request,
     return {"success": True, "message": "Campaign deleted"}
 
 
-async def _call_ai(prompt: str, model: str = "claude-sonnet-4-20250514") -> str:
-    """Call Claude API for SuperSeller generation."""
+async def _call_ai(prompt: str, model: str = "claude-sonnet-4-20250514", retries: int = 2) -> str:
+    """Call Claude API for SuperSeller generation with retry logic."""
     import httpx
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
     if not api_key:
         raise Exception("ANTHROPIC_API_KEY not set")
-    async with httpx.AsyncClient(timeout=120) as client:
-        resp = await client.post("https://api.anthropic.com/v1/messages", headers={
-            "x-api-key": api_key, "anthropic-version": "2023-06-01", "content-type": "application/json",
-        }, json={
-            "model": model, "max_tokens": 8000,
-            "messages": [{"role": "user", "content": prompt}],
-        })
-        data = resp.json()
-        if "content" in data and len(data["content"]) > 0:
-            return data["content"][0].get("text", "")
-        raise Exception(f"AI response error: {data}")
+    last_error = None
+    for attempt in range(retries):
+        try:
+            async with httpx.AsyncClient(timeout=180) as client:
+                resp = await client.post("https://api.anthropic.com/v1/messages", headers={
+                    "x-api-key": api_key, "anthropic-version": "2023-06-01", "content-type": "application/json",
+                }, json={
+                    "model": model, "max_tokens": 8000,
+                    "messages": [{"role": "user", "content": prompt}],
+                })
+                data = resp.json()
+                if "content" in data and len(data["content"]) > 0:
+                    return data["content"][0].get("text", "")
+                last_error = f"AI response error: {data}"
+                logger.warning(f"_call_ai attempt {attempt+1} failed: {last_error}")
+        except Exception as e:
+            last_error = str(e)
+            logger.warning(f"_call_ai attempt {attempt+1} exception: {last_error}")
+        if attempt < retries - 1:
+            import asyncio
+            await asyncio.sleep(3)
+    raise Exception(f"AI call failed after {retries} attempts: {last_error}")
 
 
 def _extract_json(text: str) -> str:
