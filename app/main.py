@@ -2976,7 +2976,7 @@ async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     if not user.is_active:
         return JSONResponse({"error": "You need an active Basic membership first"}, status_code=400)
-    if (user.membership_tier or "basic") == "pro":
+    if (user.membership_tier or "basic") == "pro" or user.is_admin:
         return JSONResponse({"error": "You're already on Pro"}, status_code=400)
 
     return _activate_membership(db, user, "pro", source="upgrade", is_upgrade=True)
@@ -7018,7 +7018,7 @@ async def create_ad(request: Request, user: User = Depends(get_current_user), db
     weekly_count = db.query(AdListing).filter(
         AdListing.user_id == user.id, AdListing.created_at >= week_ago
     ).count()
-    weekly_limit = 6 if (user.membership_tier or "basic") == "pro" else 3
+    weekly_limit = 6 if ((user.membership_tier or "basic") == "pro" or user.is_admin) else 3
     if weekly_count >= weekly_limit:
         return JSONResponse({"error": f"Weekly limit reached ({weekly_limit} ads per week). Upgrade to Pro for higher limits."}, status_code=429)
 
@@ -7081,7 +7081,7 @@ async def create_banner(request: Request, user: User = Depends(get_current_user)
     weekly_count = db.query(BannerAd).filter(
         BannerAd.user_id == user.id, BannerAd.created_at >= week_ago
     ).count()
-    weekly_limit = 6 if (user.membership_tier or "basic") == "pro" else 3
+    weekly_limit = 6 if ((user.membership_tier or "basic") == "pro" or user.is_admin) else 3
     if weekly_count >= weekly_limit:
         return JSONResponse({"error": f"Weekly limit reached ({weekly_limit} banners per week). Upgrade to Pro for higher limits."}, status_code=429)
 
@@ -8364,7 +8364,7 @@ def check_achievements(db: Session, user: User):
         "earned_500": earned >= 500,
         "earned_1000": earned >= 1000,
         "earned_5000": earned >= 5000,
-        "pro_member": getattr(user, 'membership_tier', None) == 'pro',
+        "pro_member": getattr(user, 'membership_tier', None) == 'pro' or getattr(user, 'is_admin', False),
         "first_funnel": db.query(FunnelPage).filter(FunnelPage.user_id == user.id).first() is not None,
         "first_linkhub": db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first() is not None,
     }

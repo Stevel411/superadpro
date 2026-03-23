@@ -185,7 +185,7 @@ export default function Sidebar({ open, onClose }) {
                     <div style={{paddingBottom:4}}>
                       {item.items.map(function(sub, j) {
                         var SubIcon = sub.icon;
-                        var isPro = sub.pro;
+                        var isPro = sub.pro && !(user && user.is_admin) && (user?.membership_tier || 'basic') !== 'pro';
                         var subActive = isActive(sub.path);
                         return (
                           <Link key={j} to={sub.path} style={{

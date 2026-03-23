@@ -1301,6 +1301,8 @@ def run_migrations():
         # Video campaign SEO columns
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS slug VARCHAR",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS keywords VARCHAR",
+        # Ensure admin/owner account is always Pro, active, and top of network
+        "UPDATE users SET membership_tier = 'pro', is_active = true WHERE is_admin = true",
     ]
     results = []
     with engine.connect() as conn:
