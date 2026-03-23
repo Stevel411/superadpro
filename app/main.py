@@ -13756,6 +13756,17 @@ def api_superseller_campaigns(request: Request, user: User = Depends(get_current
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     from .database import SuperSellerCampaign
+    from datetime import datetime, timedelta
+    # Auto-fail stuck "generating" campaigns older than 5 minutes
+    stuck = db.query(SuperSellerCampaign).filter(
+        SuperSellerCampaign.user_id == user.id,
+        SuperSellerCampaign.status == "generating",
+        SuperSellerCampaign.created_at < datetime.utcnow() - timedelta(minutes=5)
+    ).all()
+    for s in stuck:
+        s.status = "failed"
+    if stuck:
+        db.commit()
     campaigns = db.query(SuperSellerCampaign).filter(
         SuperSellerCampaign.user_id == user.id
     ).order_by(SuperSellerCampaign.created_at.desc()).all()
@@ -13781,6 +13792,7 @@ def api_superseller_detail(campaign_id: int, request: Request,
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     from .database import SuperSellerCampaign
+    from datetime import datetime, timedelta
     import json as _json
     c = db.query(SuperSellerCampaign).filter(
         SuperSellerCampaign.id == campaign_id,
@@ -13788,6 +13800,10 @@ def api_superseller_detail(campaign_id: int, request: Request,
     ).first()
     if not c:
         return JSONResponse({"error": "Campaign not found"}, status_code=404)
+    # Auto-fail stuck generating campaigns
+    if c.status == "generating" and c.created_at and c.created_at < datetime.utcnow() - timedelta(minutes=5):
+        c.status = "failed"
+        db.commit()
 
     def safe_json(s):
         if not s: return None
