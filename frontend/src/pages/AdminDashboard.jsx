@@ -6,6 +6,7 @@ import { Shield, Users, DollarSign, TrendingUp, AlertTriangle, CheckCircle, XCir
 var TABS = [
   {key:'overview',label:'Overview',icon:Activity},
   {key:'users',label:'Users',icon:Users},
+  {key:'moderation',label:'Moderation',icon:Eye},
   {key:'finances',label:'Finances',icon:DollarSign},
   {key:'withdrawals',label:'Withdrawals',icon:CreditCard},
   {key:'kyc',label:'KYC Queue',icon:UserCheck},
@@ -35,6 +36,7 @@ export default function AdminDashboard() {
       </div>
       {tab === 'overview' && <OverviewTab/>}
       {tab === 'users' && <UsersTab/>}
+      {tab === 'moderation' && <ModerationTab/>}
       {tab === 'finances' && <FinancesTab/>}
       {tab === 'withdrawals' && <WithdrawalsTab/>}
       {tab === 'kyc' && <KYCTab/>}
@@ -252,6 +254,22 @@ function UsersTab() {
                 {detail.is_active ? '⛔ Deactivate Account' : '✅ Activate Account'}
               </button>
 
+              {/* Change tier */}
+              {!detail.is_admin && (
+                <button onClick={function() {
+                  var newTier = (detail.membership_tier || 'basic') === 'pro' ? 'basic' : 'pro';
+                  if (!window.confirm('Change ' + detail.username + ' to ' + newTier.toUpperCase() + '?')) return;
+                  apiPost('/admin/api/user/' + selected + '/change-tier', {tier: newTier}).then(function(r) {
+                    setMsg(r.success ? 'Tier changed to ' + newTier : (r.error || 'Failed'));
+                    openUser(selected); loadUsers();
+                  });
+                }}
+                style={{width:'100%',padding:'10px',borderRadius:8,border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,
+                  background:(detail.membership_tier||'basic')==='pro'?'#fef3c7':'#ede9fe',color:(detail.membership_tier||'basic')==='pro'?'#d97706':'#7c3aed',marginBottom:8}}>
+                  {(detail.membership_tier||'basic')==='pro' ? '⬇ Downgrade to Basic' : '⬆ Upgrade to Pro'}
+                </button>
+              )}
+
               {/* Delete user */}
               {!detail.is_admin && (
                 <button onClick={function() {
@@ -281,6 +299,99 @@ function UsersTab() {
                 Apply Balance Adjustment
               </button>
             </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ══════════════════════════════════════════════════════════
+// MODERATION — Approve/reject flagged ads & banners
+// ══════════════════════════════════════════════════════════
+
+function ModerationTab() {
+  var [queue, setQueue] = useState({ ads: [], banners: [], total: 0 });
+  var [loading, setLoading] = useState(true);
+  var [msg, setMsg] = useState('');
+
+  function load() {
+    setLoading(true);
+    apiGet('/admin/api/moderation-queue').then(function(d) { setQueue(d); setLoading(false); }).catch(function() { setLoading(false); });
+  }
+  useEffect(load, []);
+
+  function approve(type, id) {
+    apiPost('/admin/api/moderation/' + type + '/' + id + '/approve', {}).then(function() { setMsg('Approved!'); load(); });
+  }
+  function reject(type, id) {
+    if (!window.confirm('Reject this item?')) return;
+    apiPost('/admin/api/moderation/' + type + '/' + id + '/reject', {}).then(function() { setMsg('Rejected'); load(); });
+  }
+
+  if (loading) return <div style={{textAlign:'center',padding:40,color:'#94a3b8'}}>Loading...</div>;
+
+  return (
+    <div>
+      {msg && <div style={{padding:'8px 14px',borderRadius:8,fontSize:12,fontWeight:700,background:'#dcfce7',color:'#16a34a',marginBottom:16}}>{msg}</div>}
+
+      <div style={{fontSize:13,fontWeight:700,color:'#64748b',marginBottom:16}}>
+        {queue.total === 0 ? '✅ Nothing to review — all content is approved' : queue.total + ' item' + (queue.total !== 1 ? 's' : '') + ' awaiting review'}
+      </div>
+
+      {queue.ads.length > 0 && (
+        <div style={{marginBottom:24}}>
+          <div style={{fontSize:12,fontWeight:800,color:'#10b981',textTransform:'uppercase',letterSpacing:1,marginBottom:10}}>📋 Classified Ads ({queue.ads.length})</div>
+          <div style={{display:'flex',flexDirection:'column',gap:10}}>
+            {queue.ads.map(function(a) {
+              return (
+                <div key={a.id} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:16}}>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'flex-start',gap:12}}>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>{a.title}</div>
+                      <div style={{fontSize:12,color:'#64748b',lineHeight:1.5,marginBottom:6}}>{a.description}</div>
+                      <div style={{fontSize:11,color:'#94a3b8'}}>
+                        {a.category} · by @{a.owner} · {a.created_at ? new Date(a.created_at).toLocaleDateString('en-GB') : ''}
+                      </div>
+                      {a.link_url && <div style={{fontSize:11,color:'#0ea5e9',marginTop:4}}>{a.link_url}</div>}
+                      {a.keywords && <div style={{fontSize:10,color:'#94a3b8',marginTop:4}}>Keywords: {a.keywords}</div>}
+                    </div>
+                    {a.image_url && <img src={a.image_url} alt="" style={{width:80,height:60,objectFit:'cover',borderRadius:6,flexShrink:0}} />}
+                  </div>
+                  <div style={{display:'flex',gap:8,marginTop:12}}>
+                    <button onClick={function(){approve('ad',a.id);}} style={{padding:'8px 20px',borderRadius:8,border:'none',background:'#16a34a',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>✅ Approve</button>
+                    <button onClick={function(){reject('ad',a.id);}} style={{padding:'8px 20px',borderRadius:8,border:'1px solid #fecaca',background:'#fff',color:'#dc2626',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>❌ Reject</button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {queue.banners.length > 0 && (
+        <div>
+          <div style={{fontSize:12,fontWeight:800,color:'#f59e0b',textTransform:'uppercase',letterSpacing:1,marginBottom:10}}>🖼️ Banner Ads ({queue.banners.length})</div>
+          <div style={{display:'flex',flexDirection:'column',gap:10}}>
+            {queue.banners.map(function(b) {
+              return (
+                <div key={b.id} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:16}}>
+                  <div style={{display:'flex',gap:16,alignItems:'center'}}>
+                    {b.image_url && <img src={b.image_url} alt="" style={{maxWidth:200,maxHeight:100,objectFit:'contain',borderRadius:6,flexShrink:0,background:'#f1f5f9'}} />}
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>{b.title}</div>
+                      {b.description && <div style={{fontSize:12,color:'#64748b',marginBottom:4}}>{b.description}</div>}
+                      <div style={{fontSize:11,color:'#94a3b8'}}>{b.size} · {b.category} · by @{b.owner}</div>
+                      {b.link_url && <div style={{fontSize:11,color:'#0ea5e9',marginTop:4}}>{b.link_url}</div>}
+                    </div>
+                  </div>
+                  <div style={{display:'flex',gap:8,marginTop:12}}>
+                    <button onClick={function(){approve('banner',b.id);}} style={{padding:'8px 20px',borderRadius:8,border:'none',background:'#16a34a',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>✅ Approve</button>
+                    <button onClick={function(){reject('banner',b.id);}} style={{padding:'8px 20px',borderRadius:8,border:'1px solid #fecaca',background:'#fff',color:'#dc2626',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>❌ Reject</button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       )}

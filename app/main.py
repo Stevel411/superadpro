@@ -4879,6 +4879,103 @@ def admin_api_toggle_active(
     logger.info(f"Admin toggle active: {target.username} → {'active' if target.is_active else 'inactive'}")
     return {"success": True, "username": target.username, "is_active": target.is_active}
 
+
+@app.post("/admin/api/user/{user_id}/change-tier")
+def admin_api_change_tier(
+    user_id: int, request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Change a user's membership tier (basic/pro)."""
+    _require_admin(user)
+    import asyncio
+    body = asyncio.get_event_loop().run_until_complete(request.json())
+    new_tier = body.get("tier", "basic")
+    if new_tier not in ("basic", "pro"):
+        raise HTTPException(status_code=400, detail="Invalid tier")
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found")
+    old_tier = target.membership_tier or "basic"
+    target.membership_tier = new_tier
+    db.commit()
+    logger.info(f"Admin changed tier: {target.username} {old_tier} → {new_tier}")
+    return {"success": True, "username": target.username, "old_tier": old_tier, "new_tier": new_tier}
+
+
+# ── Content Moderation Queue ──
+@app.get("/admin/api/moderation-queue")
+def admin_api_moderation_queue(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get all pending/flagged ads and banners."""
+    _require_admin(user)
+    from .database import BannerAd
+    pending_ads = db.query(AdListing).filter(AdListing.status == "pending").order_by(AdListing.created_at.desc()).all()
+    pending_banners = db.query(BannerAd).filter(BannerAd.status == "pending").order_by(BannerAd.created_at.desc()).all()
+    ads = []
+    for a in pending_ads:
+        owner = db.query(User).filter(User.id == a.user_id).first()
+        ads.append({"id": a.id, "type": "ad", "title": a.title, "description": a.description,
+            "category": a.category, "link_url": a.link_url, "image_url": a.image_url,
+            "keywords": a.keywords, "location": a.location,
+            "owner": owner.username if owner else "Unknown",
+            "created_at": a.created_at.isoformat() if a.created_at else None})
+    banners = []
+    for b in pending_banners:
+        owner = db.query(User).filter(User.id == b.user_id).first()
+        banners.append({"id": b.id, "type": "banner", "title": b.title, "description": b.description,
+            "image_url": b.image_url, "link_url": b.link_url, "size": b.size,
+            "category": b.category, "keywords": b.keywords,
+            "owner": owner.username if owner else "Unknown",
+            "created_at": b.created_at.isoformat() if b.created_at else None})
+    return {"ads": ads, "banners": banners, "total": len(ads) + len(banners)}
+
+
+@app.post("/admin/api/moderation/{item_type}/{item_id}/approve")
+def admin_approve_item(item_type: str, item_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    _require_admin(user)
+    from .database import BannerAd
+    if item_type == "ad":
+        item = db.query(AdListing).filter(AdListing.id == item_id).first()
+        if item:
+            item.status = "active"
+            item.is_active = True
+    elif item_type == "banner":
+        item = db.query(BannerAd).filter(BannerAd.id == item_id).first()
+        if item:
+            item.status = "approved"
+            item.is_active = True
+    else:
+        raise HTTPException(status_code=400, detail="Invalid type")
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    db.commit()
+    return {"success": True}
+
+
+@app.post("/admin/api/moderation/{item_type}/{item_id}/reject")
+def admin_reject_item(item_type: str, item_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    _require_admin(user)
+    from .database import BannerAd
+    if item_type == "ad":
+        item = db.query(AdListing).filter(AdListing.id == item_id).first()
+        if item:
+            item.status = "rejected"
+            item.is_active = False
+    elif item_type == "banner":
+        item = db.query(BannerAd).filter(BannerAd.id == item_id).first()
+        if item:
+            item.status = "rejected"
+            item.is_active = False
+    else:
+        raise HTTPException(status_code=400, detail="Invalid type")
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    db.commit()
+    return {"success": True}
+
 # ── Finances ─────────────────────────────────────────────────
 @app.get("/admin/api/finances")
 def admin_api_finances(
