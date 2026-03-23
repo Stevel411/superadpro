@@ -1,362 +1,274 @@
-import { useRef, useMemo, useState, useEffect } from 'react';
+import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Text, Float, MeshDistortMaterial, Stars } from '@react-three/drei';
+import { OrbitControls } from '@react-three/drei';
 import * as THREE from 'three';
 
-/* ── Config ── */
-var GRID_SIZE = 8;
-var TOTAL_SEATS = 64;
+var TOTAL = 64;
 var TIERS = [
-  { tier: 1, price: 20, color: '#10b981', name: 'Starter' },
-  { tier: 2, price: 50, color: '#0ea5e9', name: 'Builder' },
-  { tier: 3, price: 100, color: '#6366f1', name: 'Pro' },
-  { tier: 4, price: 200, color: '#8b5cf6', name: 'Advanced' },
-  { tier: 5, price: 400, color: '#f59e0b', name: 'Elite' },
-  { tier: 6, price: 600, color: '#ec4899', name: 'Premium' },
-  { tier: 7, price: 800, color: '#ef4444', name: 'Executive' },
-  { tier: 8, price: 1000, color: '#fbbf24', name: 'Ultimate' },
+  { price: 20, color: '#10b981', name: 'Starter' },
+  { price: 50, color: '#0ea5e9', name: 'Builder' },
+  { price: 100, color: '#6366f1', name: 'Pro' },
+  { price: 200, color: '#8b5cf6', name: 'Advanced' },
+  { price: 400, color: '#f59e0b', name: 'Elite' },
+  { price: 600, color: '#ec4899', name: 'Premium' },
+  { price: 800, color: '#ef4444', name: 'Executive' },
+  { price: 1000, color: '#fbbf24', name: 'Ultimate' },
 ];
 
-/* ── Central Node (You) ── */
-function CentralNode() {
-  var mesh = useRef();
-  var glow = useRef();
-  useFrame(function(state) {
-    if (mesh.current) {
-      mesh.current.rotation.y += 0.005;
-      mesh.current.scale.setScalar(1 + Math.sin(state.clock.elapsedTime * 2) * 0.05);
-    }
-    if (glow.current) {
-      glow.current.scale.setScalar(1.8 + Math.sin(state.clock.elapsedTime * 1.5) * 0.3);
-      glow.current.material.opacity = 0.15 + Math.sin(state.clock.elapsedTime * 2) * 0.05;
+function generatePositions() {
+  var pts = [];
+  for (var i = 0; i < TOTAL; i++) {
+    var angle = (i / TOTAL) * Math.PI * 6 + Math.floor(Math.sqrt(i)) * 0.5;
+    var r = 0.8 + (i / TOTAL) * 2.5;
+    pts.push([Math.cos(angle) * r, Math.sin(i * 0.3) * 0.3 - 0.3, Math.sin(angle) * r]);
+  }
+  return pts;
+}
+
+/* Central pulsing node */
+function CenterNode() {
+  var ref = useRef();
+  useFrame(function(s) {
+    if (ref.current) {
+      ref.current.rotation.y += 0.008;
+      ref.current.scale.setScalar(1 + Math.sin(s.clock.elapsedTime * 2) * 0.06);
     }
   });
   return (
-    <group position={[0, 0, 0]}>
-      {/* Glow sphere */}
-      <mesh ref={glow}>
-        <sphereGeometry args={[0.8, 32, 32]} />
-        <meshBasicMaterial color="#38bdf8" transparent opacity={0.15} />
+    <group>
+      <mesh ref={ref}>
+        <dodecahedronGeometry args={[0.45, 1]} />
+        <meshStandardMaterial color="#0ea5e9" emissive="#0ea5e9" emissiveIntensity={0.6} roughness={0.2} metalness={0.8} />
       </mesh>
-      {/* Core */}
-      <mesh ref={mesh}>
-        <dodecahedronGeometry args={[0.5, 1]} />
-        <MeshDistortMaterial color="#0ea5e9" emissive="#0ea5e9" emissiveIntensity={0.5} distort={0.2} speed={2} roughness={0.2} metalness={0.8} />
+      <mesh>
+        <sphereGeometry args={[0.7, 16, 16]} />
+        <meshBasicMaterial color="#38bdf8" transparent opacity={0.08} />
       </mesh>
-      <Float speed={1.5} rotationIntensity={0} floatIntensity={0.3}>
-        <Text position={[0, 1.2, 0]} fontSize={0.3} color="#38bdf8" anchorX="center" anchorY="middle">
-          YOU
-        </Text>
-      </Float>
     </group>
   );
 }
 
-/* ── Grid Node ── */
-function GridNode({ position, filled, delay, color, amount, index }) {
-  var mesh = useRef();
-  var [visible, setVisible] = useState(false);
-  var [scale, setScale] = useState(0);
+/* All grid nodes as individual meshes (lighter than InstancedMesh for this count) */
+function GridNodes({ positions, filled, tierColor }) {
+  var col = useMemo(function() { return new THREE.Color(tierColor); }, [tierColor]);
+  var dim = useMemo(function() { return new THREE.Color('#1e293b'); }, []);
+  var refs = useRef([]);
 
-  useEffect(function() {
-    var timer = setTimeout(function() { setVisible(true); }, delay);
-    return function() { clearTimeout(timer); };
-  }, [delay]);
-
-  useFrame(function(state) {
-    if (!mesh.current) return;
-    if (visible && scale < 1) {
-      setScale(function(s) { return Math.min(s + 0.04, 1); });
-    }
-    mesh.current.scale.setScalar(scale * (filled ? (1 + Math.sin(state.clock.elapsedTime * 3 + index) * 0.08) : 0.6));
-    if (filled && mesh.current.material) {
-      mesh.current.material.emissiveIntensity = 0.3 + Math.sin(state.clock.elapsedTime * 2 + index * 0.5) * 0.2;
+  useFrame(function(s) {
+    var t = s.clock.elapsedTime;
+    for (var i = 0; i < positions.length; i++) {
+      var m = refs.current[i];
+      if (!m) continue;
+      var isFilled = i < filled;
+      var target = isFilled ? 1 : 0.4;
+      var current = m.scale.x;
+      m.scale.setScalar(current + (target - current) * 0.08);
+      if (isFilled) {
+        m.material.color.lerp(col, 0.1);
+        m.material.emissive.lerp(col, 0.1);
+        m.material.emissiveIntensity = 0.4 + Math.sin(t * 2 + i) * 0.2;
+        m.material.opacity = 0.9;
+      } else {
+        m.material.color.lerp(dim, 0.1);
+        m.material.emissive.set(0, 0, 0);
+        m.material.opacity = 0.25;
+      }
     }
   });
 
-  if (!visible) return null;
-
   return (
-    <group position={position}>
-      <mesh ref={mesh}>
-        <sphereGeometry args={[0.18, 16, 16]} />
-        <meshStandardMaterial
-          color={filled ? color : '#334155'}
-          emissive={filled ? color : '#000000'}
-          emissiveIntensity={0.3}
-          transparent
-          opacity={filled ? 0.9 : 0.3}
-          roughness={0.3}
-          metalness={0.7}
-        />
-      </mesh>
-      {filled && amount && (
-        <Float speed={2} rotationIntensity={0} floatIntensity={0.5}>
-          <Text position={[0, 0.4, 0]} fontSize={0.12} color={color} anchorX="center" anchorY="middle">
-            +${amount}
-          </Text>
-        </Float>
-      )}
+    <group>
+      {positions.map(function(p, i) {
+        return (
+          <mesh key={i} position={p} ref={function(el) { refs.current[i] = el; }}>
+            <sphereGeometry args={[0.15, 12, 12]} />
+            <meshStandardMaterial color="#1e293b" transparent opacity={0.25} roughness={0.3} metalness={0.6} />
+          </mesh>
+        );
+      })}
     </group>
   );
 }
 
-/* ── Connection Beam ── */
-function ConnectionBeam({ from, to, color, delay, filled }) {
-  var line = useRef();
-  var [visible, setVisible] = useState(false);
-  var [progress, setProgress] = useState(0);
+/* Connection lines as a single LineSegments object */
+function Connections({ positions, filled, tierColor }) {
+  var ref = useRef();
+  var col = useMemo(function() { return new THREE.Color(tierColor); }, [tierColor]);
 
-  useEffect(function() {
-    var timer = setTimeout(function() { setVisible(true); }, delay + 200);
-    return function() { clearTimeout(timer); };
-  }, [delay]);
-
-  useFrame(function() {
-    if (visible && progress < 1) {
-      setProgress(function(p) { return Math.min(p + 0.03, 1); });
-    }
-  });
-
-  if (!visible || progress < 0.01) return null;
-
-  var points = [
-    new THREE.Vector3(from[0], from[1], from[2]),
-    new THREE.Vector3(
-      from[0] + (to[0] - from[0]) * progress,
-      from[1] + (to[1] - from[1]) * progress,
-      from[2] + (to[2] - from[2]) * progress
-    ),
-  ];
-  var geometry = new THREE.BufferGeometry().setFromPoints(points);
-
-  return (
-    <line ref={line} geometry={geometry}>
-      <lineBasicMaterial color={filled ? color : '#1e293b'} transparent opacity={filled ? 0.6 : 0.15} linewidth={1} />
-    </line>
-  );
-}
-
-/* ── Floating Dollar Signs ── */
-function FloatingDollar({ position, delay }) {
-  var mesh = useRef();
-  var [y, setY] = useState(0);
-  var [visible, setVisible] = useState(false);
-
-  useEffect(function() {
-    var timer = setTimeout(function() { setVisible(true); }, delay + 1000);
-    return function() { clearTimeout(timer); };
-  }, [delay]);
-
-  useFrame(function() {
-    if (!visible) return;
-    setY(function(v) { return v > 3 ? 0 : v + 0.015; });
-  });
-
-  if (!visible || y > 2.5) return null;
-
-  return (
-    <Text
-      position={[position[0], position[1] + y + 0.5, position[2]]}
-      fontSize={0.15}
-      color="#4ade80"
-      anchorX="center"
-      anchorY="middle"
-      transparent
-      fillOpacity={Math.max(0, 1 - y / 2.5)}
-    >
-      $
-    </Text>
-  );
-}
-
-/* ── Earnings Counter ── */
-function EarningsDisplay({ filled, tier }) {
-  var directEarning = Math.round(tier.price * 0.4 * filled);
-  var uniLevel = Math.round(tier.price * 0.0625 * filled);
-  var bonus = filled >= TOTAL_SEATS ? Math.round(tier.price * 0.05 * TOTAL_SEATS) : 0;
-  var total = directEarning + uniLevel + bonus;
-
-  return (
-    <group position={[0, -3.5, 0]}>
-      <Text position={[0, 0.3, 0]} fontSize={0.2} color="#94a3b8" anchorX="center">
-        {filled}/{TOTAL_SEATS} seats filled
-      </Text>
-      <Text position={[0, -0.1, 0]} fontSize={0.4} color="#4ade80" anchorX="center">
-        ${total.toLocaleString()}
-      </Text>
-      <Text position={[0, -0.5, 0]} fontSize={0.15} color="#64748b" anchorX="center">
-        Total Grid Commissions
-      </Text>
-    </group>
-  );
-}
-
-/* ── Main 3D Scene ── */
-function IncomeGridScene({ activeTier, filledCount, autoPlay }) {
-  var tier = TIERS[activeTier] || TIERS[0];
-  var [filled, setFilled] = useState(0);
-  var [autoFilling, setAutoFilling] = useState(autoPlay);
-
-  useEffect(function() {
-    setFilled(filledCount || 0);
-  }, [filledCount]);
-
-  useEffect(function() {
-    if (!autoFilling) return;
-    var interval = setInterval(function() {
-      setFilled(function(f) {
-        if (f >= TOTAL_SEATS) {
-          setAutoFilling(false);
-          return TOTAL_SEATS;
-        }
-        return f + 1;
-      });
-    }, 300);
-    return function() { clearInterval(interval); };
-  }, [autoFilling]);
-
-  // Generate grid positions in a spiral pattern from centre
-  var positions = useMemo(function() {
+  var geometry = useMemo(function() {
     var pts = [];
-    var radius = 2.5;
-    for (var i = 0; i < TOTAL_SEATS; i++) {
-      var ring = Math.floor(Math.sqrt(i));
-      var angle = (i / TOTAL_SEATS) * Math.PI * 6 + ring * 0.5;
-      var r = 0.8 + (i / TOTAL_SEATS) * radius;
-      var x = Math.cos(angle) * r;
-      var z = Math.sin(angle) * r;
-      var y = (Math.sin(i * 0.3) * 0.3) - 0.5;
-      pts.push([x, y, z]);
+    for (var i = 0; i < positions.length; i++) {
+      pts.push(0, 0, 0);
+      pts.push(positions[i][0], positions[i][1], positions[i][2]);
+    }
+    var geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(pts, 3));
+    var colors = new Float32Array(positions.length * 2 * 3);
+    geo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    return geo;
+  }, [positions]);
+
+  useFrame(function() {
+    if (!ref.current) return;
+    var colors = ref.current.geometry.attributes.color;
+    for (var i = 0; i < positions.length; i++) {
+      var isFilled = i < filled;
+      var r = isFilled ? col.r : 0.12;
+      var g = isFilled ? col.g : 0.16;
+      var b = isFilled ? col.b : 0.22;
+      var a = isFilled ? 0.5 : 0.08;
+      // start vertex
+      colors.array[i * 6] = r * a * 2;
+      colors.array[i * 6 + 1] = g * a * 2;
+      colors.array[i * 6 + 2] = b * a * 2;
+      // end vertex
+      colors.array[i * 6 + 3] = r;
+      colors.array[i * 6 + 4] = g;
+      colors.array[i * 6 + 5] = b;
+    }
+    colors.needsUpdate = true;
+  });
+
+  return (
+    <lineSegments ref={ref} geometry={geometry}>
+      <lineBasicMaterial vertexColors transparent opacity={0.4} />
+    </lineSegments>
+  );
+}
+
+/* Simple star field */
+function StarField() {
+  var ref = useRef();
+  var positions = useMemo(function() {
+    var pts = new Float32Array(600 * 3);
+    for (var i = 0; i < 600; i++) {
+      pts[i * 3] = (Math.random() - 0.5) * 40;
+      pts[i * 3 + 1] = (Math.random() - 0.5) * 40;
+      pts[i * 3 + 2] = (Math.random() - 0.5) * 40;
     }
     return pts;
   }, []);
 
+  useFrame(function(s) {
+    if (ref.current) ref.current.rotation.y = s.clock.elapsedTime * 0.02;
+  });
+
+  return (
+    <points ref={ref}>
+      <bufferGeometry>
+        <bufferAttribute attach="attributes-position" count={600} array={positions} itemSize={3} />
+      </bufferGeometry>
+      <pointsMaterial size={0.05} color="#475569" transparent opacity={0.6} sizeAttenuation />
+    </points>
+  );
+}
+
+/* Scene */
+function Scene({ tierIdx, filled }) {
+  var tier = TIERS[tierIdx] || TIERS[0];
+  var positions = useMemo(generatePositions, []);
+
   return (
     <>
-      {/* Lighting */}
-      <ambientLight intensity={0.3} />
-      <pointLight position={[5, 5, 5]} intensity={1} color="#38bdf8" />
-      <pointLight position={[-5, 3, -5]} intensity={0.5} color="#8b5cf6" />
-      <pointLight position={[0, -3, 0]} intensity={0.3} color="#10b981" />
-
-      {/* Stars background */}
-      <Stars radius={50} depth={50} count={2000} factor={3} saturation={0.5} fade speed={1} />
-
-      {/* Central node */}
-      <CentralNode />
-
-      {/* Grid nodes */}
-      {positions.map(function(pos, i) {
-        var isFilled = i < filled;
-        var amount = isFilled ? Math.round(tier.price * 0.0625) : null;
-        return (
-          <GridNode
-            key={i}
-            position={pos}
-            filled={isFilled}
-            delay={i * 80}
-            color={tier.color}
-            amount={amount}
-            index={i}
-          />
-        );
-      })}
-
-      {/* Connection beams */}
-      {positions.map(function(pos, i) {
-        var isFilled = i < filled;
-        return (
-          <ConnectionBeam
-            key={'beam-' + i}
-            from={[0, 0, 0]}
-            to={pos}
-            color={tier.color}
-            delay={i * 80}
-            filled={isFilled}
-          />
-        );
-      })}
-
-      {/* Floating dollars on filled nodes */}
-      {positions.slice(0, Math.min(filled, 10)).map(function(pos, i) {
-        return <FloatingDollar key={'dollar-' + i} position={pos} delay={i * 300} />;
-      })}
-
-      {/* Earnings display */}
-      <EarningsDisplay filled={filled} tier={tier} />
-
-      {/* Controls */}
-      <OrbitControls
-        enableZoom={true}
-        enablePan={false}
-        autoRotate={true}
-        autoRotateSpeed={0.5}
-        minDistance={3}
-        maxDistance={12}
-        maxPolarAngle={Math.PI * 0.75}
-        minPolarAngle={Math.PI * 0.25}
-      />
+      <ambientLight intensity={0.25} />
+      <pointLight position={[4, 4, 4]} intensity={0.8} color="#38bdf8" />
+      <pointLight position={[-4, 2, -4]} intensity={0.4} color="#8b5cf6" />
+      <StarField />
+      <CenterNode />
+      <Connections positions={positions} filled={filled} tierColor={tier.color} />
+      <GridNodes positions={positions} filled={filled} tierColor={tier.color} />
+      <OrbitControls enableZoom enablePan={false} autoRotate autoRotateSpeed={0.4} minDistance={3} maxDistance={10} maxPolarAngle={Math.PI * 0.75} minPolarAngle={Math.PI * 0.25} />
     </>
   );
 }
 
-/* ── Exported Component ── */
-export default function IncomeGrid3D({ showControls = true, height = 500, autoPlay = true, defaultTier = 0 }) {
-  var [activeTier, setActiveTier] = useState(defaultTier);
+/* Exported component */
+export default function IncomeGrid3D({ showControls = true, height = 500, autoPlay = true }) {
+  var [tierIdx, setTierIdx] = useState(0);
   var [filled, setFilled] = useState(0);
-  var [playing, setPlaying] = useState(autoPlay);
+  var [playing, setPlaying] = useState(false);
+  var intervalRef = useRef(null);
+
+  var start = useCallback(function(ti) {
+    if (intervalRef.current) clearInterval(intervalRef.current);
+    var idx = ti !== undefined ? ti : tierIdx;
+    setFilled(0);
+    setPlaying(true);
+    var count = 0;
+    intervalRef.current = setInterval(function() {
+      count++;
+      if (count > TOTAL) {
+        clearInterval(intervalRef.current);
+        setPlaying(false);
+        return;
+      }
+      setFilled(count);
+    }, 250);
+  }, [tierIdx]);
+
+  useEffect(function() {
+    if (autoPlay) {
+      var timer = setTimeout(function() { start(0); }, 500);
+      return function() { clearTimeout(timer); if (intervalRef.current) clearInterval(intervalRef.current); };
+    }
+  }, []);
+
+  useEffect(function() {
+    return function() { if (intervalRef.current) clearInterval(intervalRef.current); };
+  }, []);
+
+  var tier = TIERS[tierIdx] || TIERS[0];
+  var direct = Math.round(tier.price * 0.4 * Math.min(filled, 10));
+  var uni = Math.round(tier.price * 0.0625 * filled);
+  var bonus = filled >= TOTAL ? Math.round(tier.price * 0.05 * TOTAL) : 0;
+  var total = direct + uni + bonus;
 
   return (
     <div style={{ position: 'relative', width: '100%', height: height, borderRadius: 16, overflow: 'hidden', background: '#050d1a' }}>
-      <Canvas
-        camera={{ position: [0, 2, 7], fov: 50 }}
-        dpr={[1, 2]}
-        style={{ background: '#050d1a' }}
-        gl={{ antialias: true, alpha: false }}
-      >
-        <IncomeGridScene activeTier={activeTier} filledCount={filled} autoPlay={playing} />
+      <Canvas camera={{ position: [0, 1.5, 6], fov: 50 }} dpr={[1, 1.5]} gl={{ antialias: true, powerPreference: 'default' }}>
+        <Scene tierIdx={tierIdx} filled={filled} />
       </Canvas>
 
-      {/* Overlay controls */}
+      {/* Top overlay */}
+      <div style={{ position: 'absolute', top: 16, left: 20, right: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', pointerEvents: 'none' }}>
+        <div>
+          <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 900, color: '#fff' }}>
+            Income Grid <span style={{ color: tier.color }}>— ${tier.price} {tier.name}</span>
+          </div>
+          <div style={{ fontSize: 11, color: 'rgba(255,255,255,.35)' }}>{filled}/{TOTAL} positions · Drag to rotate</div>
+        </div>
+        <button onClick={function() { start(tierIdx); }} style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)', color: '#38bdf8', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', pointerEvents: 'auto' }}>
+          ▶ Replay
+        </button>
+      </div>
+
+      {/* Earnings overlay */}
+      <div style={{ position: 'absolute', top: '50%', right: 20, transform: 'translateY(-50%)', textAlign: 'right', pointerEvents: 'none' }}>
+        <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 32, fontWeight: 900, color: '#4ade80', lineHeight: 1 }}>${total.toLocaleString()}</div>
+        <div style={{ fontSize: 10, color: 'rgba(255,255,255,.3)', marginTop: 4 }}>Total Commissions</div>
+        <div style={{ marginTop: 8, fontSize: 11 }}>
+          <div style={{ color: '#0ea5e9' }}>Direct: ${direct.toLocaleString()}</div>
+          <div style={{ color: '#8b5cf6' }}>Uni-level: ${uni.toLocaleString()}</div>
+          {bonus > 0 && <div style={{ color: '#fbbf24' }}>Bonus: ${bonus.toLocaleString()}</div>}
+        </div>
+      </div>
+
+      {/* Bottom controls */}
       {showControls && (
-        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 20px', background: 'linear-gradient(0deg, rgba(5,13,26,.95) 0%, transparent 100%)' }}>
-          {/* Tier selector */}
-          <div style={{ display: 'flex', gap: 4, marginBottom: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '20px 20px 16px', background: 'linear-gradient(0deg, rgba(5,13,26,.9) 0%, transparent 100%)' }}>
+          <div style={{ display: 'flex', gap: 4, justifyContent: 'center', flexWrap: 'wrap' }}>
             {TIERS.map(function(t, i) {
-              var on = activeTier === i;
+              var on = tierIdx === i;
               return (
-                <button key={i} onClick={function() { setActiveTier(i); setFilled(0); setPlaying(true); }}
-                  style={{
-                    padding: '6px 12px', borderRadius: 6, border: on ? '2px solid ' + t.color : '1px solid rgba(255,255,255,.1)',
-                    background: on ? t.color + '20' : 'rgba(255,255,255,.03)',
-                    color: on ? t.color : 'rgba(255,255,255,.4)',
-                    fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit',
-                  }}>
+                <button key={i} onClick={function() { setTierIdx(i); start(i); }}
+                  style={{ padding: '6px 14px', borderRadius: 6, border: on ? '2px solid ' + t.color : '1px solid rgba(255,255,255,.08)', background: on ? t.color + '20' : 'rgba(255,255,255,.03)', color: on ? t.color : 'rgba(255,255,255,.35)', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
                   ${t.price}
                 </button>
               );
             })}
           </div>
-          <div style={{ textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,.4)' }}>
-            Drag to rotate · Scroll to zoom · Click a tier to see commissions build
-          </div>
         </div>
       )}
-
-      {/* Title overlay */}
-      <div style={{ position: 'absolute', top: 16, left: 20, right: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 900, color: '#fff' }}>
-            Income Grid <span style={{ color: TIERS[activeTier]?.color || '#0ea5e9' }}>— ${TIERS[activeTier]?.price || 20} {TIERS[activeTier]?.name || 'Starter'}</span>
-          </div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,.4)' }}>8×8 Campaign Grid · 64 Positions</div>
-        </div>
-        <button onClick={function() { setFilled(0); setPlaying(true); }}
-          style={{ padding: '6px 14px', borderRadius: 6, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)', color: '#38bdf8', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
-          ▶ Replay
-        </button>
-      </div>
     </div>
   );
 }
