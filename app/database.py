@@ -1136,6 +1136,13 @@ class SuperSellerCampaign(Base):
     link_clicks     = Column(Integer, default=0)
     page_views      = Column(Integer, default=0)
     chat_conversations = Column(Integer, default=0)
+    # Page customizations (editor overrides)
+    custom_video_url    = Column(String(500), nullable=True)   # YouTube/Vimeo/MP4
+    custom_headline     = Column(String(300), nullable=True)
+    custom_subtitle     = Column(Text, nullable=True)
+    custom_cta_text     = Column(String(100), nullable=True)
+    custom_cta_color    = Column(String(20), nullable=True)    # hex
+    custom_html_inject  = Column(Text, nullable=True)          # tracking pixels, scripts
     # Status
     status          = Column(String(20), default="generating")
     created_at      = Column(DateTime, default=datetime.utcnow)
@@ -1739,5 +1746,18 @@ try:
 
         conn.commit()
         print("✅ Force migration: interests + targeting + onboarding + linkhub + nurture + linkhub-v2 + R2 + courses confirmed")
+
+        # SuperSeller page customization columns
+        for col, typ in [
+            ("custom_video_url", "VARCHAR(500)"),
+            ("custom_headline", "VARCHAR(300)"),
+            ("custom_subtitle", "TEXT"),
+            ("custom_cta_text", "VARCHAR(100)"),
+            ("custom_cta_color", "VARCHAR(20)"),
+            ("custom_html_inject", "TEXT"),
+        ]:
+            conn.execute(text(f"ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS {col} {typ}"))
+        conn.commit()
+        print("✅ SuperSeller page editor columns added")
 except Exception as e:
     print(f"⚠️ Force migration note: {e}")

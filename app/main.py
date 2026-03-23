@@ -14008,6 +14008,12 @@ def api_superseller_detail(campaign_id: int, request: Request,
         "ad_copy": safe_json(c.ad_copy_json),
         "strategy": safe_json(c.strategy_json),
         "landing_page_html": c.landing_page_html,
+        "custom_video_url": c.custom_video_url or "",
+        "custom_headline": c.custom_headline or "",
+        "custom_subtitle": c.custom_subtitle or "",
+        "custom_cta_text": c.custom_cta_text or "",
+        "custom_cta_color": c.custom_cta_color or "",
+        "custom_html_inject": c.custom_html_inject or "",
         "leads_count": c.leads_count or 0,
         "conversions_count": c.conversions_count or 0,
         "link_clicks": c.link_clicks or 0,
@@ -14388,7 +14394,7 @@ def api_superseller_tracked_click(campaign_id: int, request: Request,
 @app.get("/superseller/page/{campaign_id}")
 def api_superseller_landing_page(campaign_id: int, request: Request,
                                    db: Session = Depends(get_db)):
-    """Serve the AI-generated SuperSeller landing page. Public."""
+    """Serve the AI-generated SuperSeller landing page with customizations. Public."""
     from .database import SuperSellerCampaign
     c = db.query(SuperSellerCampaign).filter(SuperSellerCampaign.id == campaign_id).first()
     if not c or not c.landing_page_html:
@@ -14397,7 +14403,88 @@ def api_superseller_landing_page(campaign_id: int, request: Request,
         </head><body><h2 style="color:#38bdf8">Landing page generating...</h2><p>Check back in a moment.</p></body></html>""")
     c.page_views = (c.page_views or 0) + 1
     db.commit()
-    return HTMLResponse(c.landing_page_html)
+
+    html = c.landing_page_html
+
+    # ── Inject customizations ──
+    import re as _re
+
+    # Video embed — inject after opening <body> tag
+    if c.custom_video_url:
+        video_url = c.custom_video_url.strip()
+        video_html = ""
+        yt_match = _re.match(r'(?:https?://)?(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)([\w-]+)', video_url)
+        vimeo_match = _re.match(r'(?:https?://)?(?:www\.)?vimeo\.com/(\d+)', video_url)
+        if yt_match:
+            vid = yt_match.group(1)
+            video_html = f'<div style="max-width:720px;margin:30px auto;border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5)"><div style="position:relative;padding-bottom:56.25%;height:0"><iframe src="https://www.youtube.com/embed/{vid}?rel=0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe></div></div>'
+        elif vimeo_match:
+            vid = vimeo_match.group(1)
+            video_html = f'<div style="max-width:720px;margin:30px auto;border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5)"><div style="position:relative;padding-bottom:56.25%;height:0"><iframe src="https://player.vimeo.com/video/{vid}" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none" allow="autoplay;fullscreen;picture-in-picture" allowfullscreen></iframe></div></div>'
+        elif video_url.lower().endswith('.mp4'):
+            video_html = f'<div style="max-width:720px;margin:30px auto;border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5)"><video controls playsinline style="width:100%;display:block" src="{video_url}"></video></div>'
+
+        if video_html:
+            # Try to inject after first </h1> or </h2> in the hero section, else after <body>
+            h1_end = html.find('</h1>')
+            if h1_end > 0:
+                # Find the next </p> or </div> after h1 for better placement
+                p_after = html.find('</p>', h1_end)
+                if p_after > 0 and p_after - h1_end < 500:
+                    html = html[:p_after+4] + video_html + html[p_after+4:]
+                else:
+                    html = html[:h1_end+5] + video_html + html[h1_end+5:]
+            else:
+                body_tag = _re.search(r'<body[^>]*>', html, _re.IGNORECASE)
+                if body_tag:
+                    pos = body_tag.end()
+                    html = html[:pos] + video_html + html[pos:]
+
+    # Custom headline — replace the first <h1> content
+    if c.custom_headline:
+        html = _re.sub(r'(<h1[^>]*>)(.*?)(</h1>)', r'\1' + c.custom_headline.replace('\\', '\\\\') + r'\3', html, count=1, flags=_re.DOTALL)
+
+    # Custom subtitle — replace the first <p> after <h1>
+    if c.custom_subtitle:
+        # Find first </h1>, then replace the next <p>...</p>
+        h1_pos = html.find('</h1>')
+        if h1_pos > 0:
+            p_match = _re.search(r'(<p[^>]*>)(.*?)(</p>)', html[h1_pos:], flags=_re.DOTALL)
+            if p_match:
+                start = h1_pos + p_match.start()
+                end = h1_pos + p_match.end()
+                html = html[:start] + p_match.group(1) + c.custom_subtitle + p_match.group(3) + html[end:]
+
+    # Custom CTA text — replace the first button/a with CTA-like text
+    if c.custom_cta_text:
+        # Replace first button or CTA link text
+        html = _re.sub(
+            r'(<(?:button|a)[^>]*class="[^"]*cta[^"]*"[^>]*>)(.*?)(</(?:button|a)>)',
+            r'\1' + c.custom_cta_text + r'\3', html, count=1, flags=_re.DOTALL | _re.IGNORECASE
+        )
+        # Also try common CTA patterns
+        html = _re.sub(
+            r'(>)(Get Started|Join Now|Start Now|Sign Up|Learn More|Join Free|Start Free)(</(?:button|a)>)',
+            r'\1' + c.custom_cta_text + r'\3', html, count=1, flags=_re.IGNORECASE
+        )
+
+    # Custom CTA colour
+    if c.custom_cta_color:
+        color = c.custom_cta_color.strip()
+        if _re.match(r'^#[0-9a-fA-F]{3,8}$', color):
+            # Inject a style block that overrides CTA buttons
+            cta_style = f'<style>button[type="submit"],a[href*="join"],a[href*="go/"],form button,.cta-btn,.cta{{background:{color}!important;background-image:none!important}}</style>'
+            head_end = html.find('</head>')
+            if head_end > 0:
+                html = html[:head_end] + cta_style + html[head_end:]
+
+    # Custom HTML injection — before </body>
+    if c.custom_html_inject:
+        body_end = html.rfind('</body>')
+        if body_end > 0:
+            html = html[:body_end] + c.custom_html_inject + html[body_end:]
+
+    return HTMLResponse(html)
 
 
 @app.post("/api/superseller/regenerate-landing/{campaign_id}")
@@ -14430,6 +14517,68 @@ Return ONLY complete HTML starting with <!DOCTYPE html>. No markdown."""
         return {"success": True}
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.get("/api/superseller/page-customizations/{campaign_id}")
+def api_superseller_get_customizations(campaign_id: int, request: Request,
+                                        user: User = Depends(get_current_user),
+                                        db: Session = Depends(get_db)):
+    """Get page customization fields for the editor."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import SuperSellerCampaign
+    c = db.query(SuperSellerCampaign).filter(
+        SuperSellerCampaign.id == campaign_id, SuperSellerCampaign.user_id == user.id
+    ).first()
+    if not c:
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+    return {
+        "custom_video_url": c.custom_video_url or "",
+        "custom_headline": c.custom_headline or "",
+        "custom_subtitle": c.custom_subtitle or "",
+        "custom_cta_text": c.custom_cta_text or "",
+        "custom_cta_color": c.custom_cta_color or "",
+        "custom_html_inject": c.custom_html_inject or "",
+    }
+
+
+@app.post("/api/superseller/page-customizations/{campaign_id}")
+async def api_superseller_save_customizations(campaign_id: int, request: Request,
+                                               user: User = Depends(get_current_user),
+                                               db: Session = Depends(get_db)):
+    """Save page customization fields and rebuild the landing page HTML with injections."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import SuperSellerCampaign
+    c = db.query(SuperSellerCampaign).filter(
+        SuperSellerCampaign.id == campaign_id, SuperSellerCampaign.user_id == user.id
+    ).first()
+    if not c:
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+
+    body = await request.json()
+
+    # Sanitize video URL — only allow YouTube, Vimeo, MP4
+    video_url = (body.get("custom_video_url") or "").strip()[:500]
+    if video_url:
+        import re
+        yt_match = re.match(r'(?:https?://)?(?:www\.)?(?:youtube\.com/watch\?v=|youtu\.be/)([\w-]+)', video_url)
+        vimeo_match = re.match(r'(?:https?://)?(?:www\.)?vimeo\.com/(\d+)', video_url)
+        is_mp4 = video_url.lower().endswith('.mp4')
+        if not (yt_match or vimeo_match or is_mp4):
+            return JSONResponse({"error": "Video URL must be YouTube, Vimeo, or .mp4"}, status_code=400)
+
+    c.custom_video_url = video_url
+    c.custom_headline = (body.get("custom_headline") or "").strip()[:300]
+    c.custom_subtitle = (body.get("custom_subtitle") or "").strip()[:1000]
+    c.custom_cta_text = (body.get("custom_cta_text") or "").strip()[:100]
+    c.custom_cta_color = (body.get("custom_cta_color") or "").strip()[:20]
+    # Sanitize custom HTML — strip script src to external domains for safety
+    custom_html = (body.get("custom_html_inject") or "").strip()[:5000]
+    c.custom_html_inject = custom_html
+
+    db.commit()
+    return {"success": True}
 
 
 @app.post("/api/superseller/chat/{campaign_id}")

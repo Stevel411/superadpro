@@ -754,7 +754,7 @@ function CampaignDashboard({ campaign, onBack, onRefresh }) {
       </div>
 
       {/* Tab content */}
-      {tab === 'landing' && <LandingPageTab campaign={c} landingUrl={landingUrl} onRegen={regenLanding} regenLoading={regenLoading}/>}
+      {tab === 'landing' && <LandingPageTab campaign={c} landingUrl={landingUrl} onRegen={regenLanding} regenLoading={regenLoading} onRefresh={onRefresh}/>}
       {tab === 'calendar' && <CalendarTab posts={c.social_posts} funnel={c.funnel_url} created={c.created_at}/>}
       {tab === 'emails' && <EmailsTab emails={c.email_sequence}/>}
       {tab === 'videos' && <VideosTab scripts={c.video_scripts}/>}
@@ -818,15 +818,66 @@ function CalendarTab({ posts, funnel, created }) {
   );
 }
 
-function LandingPageTab({ campaign, landingUrl, onRegen, regenLoading }) {
+function LandingPageTab({ campaign, landingUrl, onRegen, regenLoading, onRefresh }) {
   var [copied, setCopied] = useState(false);
+  var [editing, setEditing] = useState(false);
+  var [saving, setSaving] = useState(false);
+  var [saved, setSaved] = useState(false);
+  var [fields, setFields] = useState({
+    custom_video_url: campaign.custom_video_url || '',
+    custom_headline: campaign.custom_headline || '',
+    custom_subtitle: campaign.custom_subtitle || '',
+    custom_cta_text: campaign.custom_cta_text || '',
+    custom_cta_color: campaign.custom_cta_color || '',
+    custom_html_inject: campaign.custom_html_inject || '',
+  });
   var pageUrl = landingUrl || (window.location.origin + '/superseller/page/' + campaign.id);
+  var previewUrl = pageUrl + '?t=' + Date.now();
 
   function copyUrl() {
     navigator.clipboard.writeText(pageUrl);
     setCopied(true);
     setTimeout(function(){setCopied(false);}, 2000);
   }
+
+  function updateField(key, val) {
+    setFields(function(p) { var n = Object.assign({}, p); n[key] = val; return n; });
+    setSaved(false);
+  }
+
+  function saveCustomizations() {
+    setSaving(true);
+    fetch('/api/superseller/page-customizations/' + campaign.id, {
+      method: 'POST', credentials: 'include',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(fields),
+    }).then(function(r) { return r.json(); })
+      .then(function(data) {
+        setSaving(false);
+        if (data.success) {
+          setSaved(true);
+          setTimeout(function(){ setSaved(false); }, 3000);
+          if (onRefresh) onRefresh();
+        }
+      }).catch(function() { setSaving(false); });
+  }
+
+  // Detect video type for preview
+  function getVideoPreview(url) {
+    if (!url) return null;
+    var yt = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]+)/);
+    if (yt) return {type:'youtube',id:yt[1]};
+    var vim = url.match(/vimeo\.com\/(\d+)/);
+    if (vim) return {type:'vimeo',id:vim[1]};
+    if (url.toLowerCase().endsWith('.mp4')) return {type:'mp4',url:url};
+    return null;
+  }
+
+  var hasCustomizations = fields.custom_video_url || fields.custom_headline || fields.custom_subtitle || fields.custom_cta_text || fields.custom_cta_color || fields.custom_html_inject;
+
+  var inputStyle = {width:'100%',padding:'10px 14px',borderRadius:9,border:'1.5px solid #e2e8f0',background:'#f8fafc',color:'#0f172a',fontSize:13,fontFamily:'inherit',fontWeight:500,boxSizing:'border-box',outline:'none',transition:'border-color .15s'};
+  var labelStyle = {fontSize:11,fontWeight:800,color:'#475569',textTransform:'uppercase',letterSpacing:.8,marginBottom:5,display:'flex',alignItems:'center',gap:6};
+  var sectionStyle = {marginBottom:16};
 
   return (
     <div>
@@ -842,43 +893,160 @@ function LandingPageTab({ campaign, landingUrl, onRegen, regenLoading }) {
           </button>
           <a href={pageUrl} target="_blank" rel="noopener noreferrer"
             style={{display:'flex',alignItems:'center',gap:5,padding:'9px 16px',borderRadius:8,border:'1px solid #e8ecf2',background:'#fff',textDecoration:'none',fontSize:12,fontWeight:700,color:'#475569'}}>
-            <ExternalLink size={12}/> Open Page
+            <ExternalLink size={12}/> Open
           </a>
+          <button onClick={function(){setEditing(!editing);}} style={{display:'flex',alignItems:'center',gap:5,padding:'9px 16px',borderRadius:8,border:editing?'1.5px solid #8b5cf6':'1px solid #ddd6fe',background:editing?'#8b5cf6':'#faf5ff',cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,color:editing?'#fff':'#7c3aed',transition:'all .2s'}}>
+            <Wand2 size={12}/> {editing?'Close Editor':'Edit Page'}
+          </button>
           <button onClick={onRegen} disabled={regenLoading}
-            style={{display:'flex',alignItems:'center',gap:5,padding:'9px 14px',borderRadius:8,border:'1px solid #ddd6fe',background:'#faf5ff',cursor:regenLoading?'default':'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,color:'#7c3aed',opacity:regenLoading?.6:1}}>
-            <RefreshCcw size={12} style={{animation:regenLoading?'ssSpin .8s linear infinite':'none'}}/> {regenLoading?'Working...':'Regenerate'}
+            style={{display:'flex',alignItems:'center',gap:5,padding:'9px 14px',borderRadius:8,border:'1px solid #e8ecf2',background:'#fff',cursor:regenLoading?'default':'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,color:'#64748b',opacity:regenLoading?.6:1}}>
+            <RefreshCcw size={12} style={{animation:regenLoading?'ssSpin .8s linear infinite':'none'}}/> {regenLoading?'Working...':'Regen'}
           </button>
         </div>
       </div>
 
-      {/* Preview iframe */}
-      {campaign.landing_page_html ? (
-        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
-          <div style={{background:'#1c223d',padding:'10px 16px',display:'flex',alignItems:'center',gap:8}}>
-            <div style={{display:'flex',gap:5}}>
-              <div style={{width:10,height:10,borderRadius:'50%',background:'#ef4444'}}/>
-              <div style={{width:10,height:10,borderRadius:'50%',background:'#f59e0b'}}/>
-              <div style={{width:10,height:10,borderRadius:'50%',background:'#22c55e'}}/>
+      {/* Editor + Preview side by side */}
+      {editing ? (
+        <div style={{display:'grid',gridTemplateColumns:'380px 1fr',gap:16,alignItems:'start'}}>
+          {/* Editor Panel */}
+          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'20px',boxShadow:'0 4px 20px rgba(0,0,0,.06)',position:'sticky',top:16}}>
+            <div style={{fontSize:16,fontWeight:800,color:'#0f172a',marginBottom:4}}>Page Editor</div>
+            <div style={{fontSize:12,color:'#94a3b8',marginBottom:20}}>Customise your landing page. Changes apply to the live page instantly on save.</div>
+
+            {/* Video URL */}
+            <div style={sectionStyle}>
+              <div style={labelStyle}><Play size={12} color="#8b5cf6"/> Sales Video</div>
+              <input value={fields.custom_video_url} onChange={function(e){updateField('custom_video_url',e.target.value);}}
+                placeholder="YouTube, Vimeo, or .mp4 URL" style={inputStyle}
+                onFocus={function(e){e.target.style.borderColor='#8b5cf6';}}
+                onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+              {fields.custom_video_url && (function(){
+                var vp = getVideoPreview(fields.custom_video_url);
+                if (!vp) return <div style={{fontSize:11,color:'#ef4444',marginTop:4}}>Must be YouTube, Vimeo, or .mp4 URL</div>;
+                return <div style={{fontSize:11,color:'#16a34a',marginTop:4}}>✓ {vp.type === 'youtube' ? 'YouTube' : vp.type === 'vimeo' ? 'Vimeo' : 'MP4'} video detected — will appear in hero section</div>;
+              })()}
             </div>
-            <div style={{flex:1,background:'rgba(255,255,255,.08)',borderRadius:4,padding:'3px 10px',fontSize:11,color:'rgba(255,255,255,.4)',fontFamily:'monospace'}}>{pageUrl}</div>
+
+            {/* Headline */}
+            <div style={sectionStyle}>
+              <div style={labelStyle}><FileText size={12} color="#0ea5e9"/> Custom Headline</div>
+              <input value={fields.custom_headline} onChange={function(e){updateField('custom_headline',e.target.value);}}
+                placeholder="Override the main headline" style={inputStyle} maxLength={300}
+                onFocus={function(e){e.target.style.borderColor='#8b5cf6';}}
+                onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+              <div style={{fontSize:10,color:'#cbd5e1',marginTop:3,textAlign:'right'}}>{fields.custom_headline.length}/300</div>
+            </div>
+
+            {/* Subtitle */}
+            <div style={sectionStyle}>
+              <div style={labelStyle}><FileText size={12} color="#0ea5e9"/> Custom Subtitle</div>
+              <textarea value={fields.custom_subtitle} onChange={function(e){updateField('custom_subtitle',e.target.value);}}
+                placeholder="Override the subtitle/description" rows={3}
+                style={Object.assign({},inputStyle,{resize:'vertical',minHeight:60})} maxLength={1000}
+                onFocus={function(e){e.target.style.borderColor='#8b5cf6';}}
+                onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+            </div>
+
+            {/* CTA Text */}
+            <div style={sectionStyle}>
+              <div style={labelStyle}><Target size={12} color="#f59e0b"/> CTA Button Text</div>
+              <input value={fields.custom_cta_text} onChange={function(e){updateField('custom_cta_text',e.target.value);}}
+                placeholder='e.g. "Start Your Journey →"' style={inputStyle} maxLength={100}
+                onFocus={function(e){e.target.style.borderColor='#8b5cf6';}}
+                onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+            </div>
+
+            {/* CTA Colour */}
+            <div style={sectionStyle}>
+              <div style={labelStyle}><Sparkles size={12} color="#ec4899"/> CTA Button Colour</div>
+              <div style={{display:'flex',gap:8,alignItems:'center'}}>
+                <input type="color" value={fields.custom_cta_color || '#38bdf8'}
+                  onChange={function(e){updateField('custom_cta_color',e.target.value);}}
+                  style={{width:44,height:38,padding:0,border:'2px solid #e2e8f0',borderRadius:8,cursor:'pointer',background:'none'}}/>
+                <input value={fields.custom_cta_color} onChange={function(e){updateField('custom_cta_color',e.target.value);}}
+                  placeholder="#38bdf8" style={Object.assign({},inputStyle,{flex:1})} maxLength={20}
+                  onFocus={function(e){e.target.style.borderColor='#8b5cf6';}}
+                  onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+                {fields.custom_cta_color && (
+                  <button onClick={function(){updateField('custom_cta_color','');}} style={{fontSize:10,color:'#94a3b8',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit',fontWeight:700}}>Reset</button>
+                )}
+              </div>
+            </div>
+
+            {/* Custom HTML */}
+            <div style={sectionStyle}>
+              <div style={labelStyle}><Globe size={12} color="#64748b"/> Custom HTML / Tracking</div>
+              <textarea value={fields.custom_html_inject} onChange={function(e){updateField('custom_html_inject',e.target.value);}}
+                placeholder="Paste tracking pixels, scripts, or custom HTML here. Injected before </body>." rows={3}
+                style={Object.assign({},inputStyle,{resize:'vertical',minHeight:60,fontFamily:'monospace',fontSize:11})} maxLength={5000}
+                onFocus={function(e){e.target.style.borderColor='#8b5cf6';}}
+                onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+              <div style={{fontSize:10,color:'#cbd5e1',marginTop:3}}>Facebook Pixel, Google Analytics, etc.</div>
+            </div>
+
+            {/* Save button */}
+            <button onClick={saveCustomizations} disabled={saving}
+              style={{width:'100%',padding:'13px',borderRadius:10,border:'none',cursor:saving?'default':'pointer',fontFamily:'inherit',fontSize:14,fontWeight:800,
+                background:saved?'#16a34a':saving?'#94a3b8':'linear-gradient(135deg,#8b5cf6,#a78bfa)',
+                color:'#fff',boxShadow:saved?'none':'0 4px 16px rgba(139,92,246,.3)',transition:'all .2s',marginBottom:8}}>
+              {saved ? '✓ Saved — Live on Your Page!' : saving ? 'Saving...' : 'Save & Apply Changes'}
+            </button>
+
+            {hasCustomizations && (
+              <div style={{fontSize:11,color:'#64748b',textAlign:'center',lineHeight:1.5}}>
+                Changes are applied in real-time to your live landing page when you save.
+              </div>
+            )}
           </div>
-          <iframe
-            srcDoc={campaign.landing_page_html}
-            style={{width:'100%',height:600,border:'none',display:'block'}}
-            title="Landing Page Preview"
-            sandbox="allow-forms allow-scripts allow-same-origin"
-          />
+
+          {/* Live Preview */}
+          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
+            <div style={{background:'#1c223d',padding:'10px 16px',display:'flex',alignItems:'center',gap:8}}>
+              <div style={{display:'flex',gap:5}}>
+                <div style={{width:10,height:10,borderRadius:'50%',background:'#ef4444'}}/>
+                <div style={{width:10,height:10,borderRadius:'50%',background:'#f59e0b'}}/>
+                <div style={{width:10,height:10,borderRadius:'50%',background:'#22c55e'}}/>
+              </div>
+              <div style={{flex:1,background:'rgba(255,255,255,.08)',borderRadius:4,padding:'3px 10px',fontSize:11,color:'rgba(255,255,255,.4)',fontFamily:'monospace'}}>{pageUrl}</div>
+              <div style={{fontSize:10,fontWeight:700,color:'rgba(255,255,255,.3)'}}>LIVE PREVIEW</div>
+            </div>
+            <iframe
+              key={saved ? previewUrl : pageUrl}
+              src={saved ? previewUrl : pageUrl}
+              style={{width:'100%',height:700,border:'none',display:'block'}}
+              title="Landing Page Preview"
+            />
+          </div>
         </div>
       ) : (
-        <div style={{background:'#fff',border:'2px dashed #e8ecf2',borderRadius:14,padding:'60px 20px',textAlign:'center'}}>
-          <Layout size={40} color="#cbd5e1" style={{marginBottom:12}}/>
-          <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:6}}>Landing page not yet generated</div>
-          <div style={{fontSize:13,color:'#94a3b8',marginBottom:20}}>This campaign was created before the landing page feature. Click below to generate one now.</div>
-          <button onClick={onRegen} disabled={regenLoading}
-            style={{display:'inline-flex',alignItems:'center',gap:8,padding:'12px 28px',borderRadius:10,border:'none',cursor:regenLoading?'default':'pointer',fontFamily:'inherit',fontSize:14,fontWeight:800,background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',boxShadow:'0 4px 16px rgba(139,92,246,.3)',opacity:regenLoading?.6:1}}>
-            <Wand2 size={16}/> {regenLoading?'Generating...':'Generate Landing Page'}
-          </button>
-        </div>
+        /* Normal preview (no editor) */
+        campaign.landing_page_html ? (
+          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
+            <div style={{background:'#1c223d',padding:'10px 16px',display:'flex',alignItems:'center',gap:8}}>
+              <div style={{display:'flex',gap:5}}>
+                <div style={{width:10,height:10,borderRadius:'50%',background:'#ef4444'}}/>
+                <div style={{width:10,height:10,borderRadius:'50%',background:'#f59e0b'}}/>
+                <div style={{width:10,height:10,borderRadius:'50%',background:'#22c55e'}}/>
+              </div>
+              <div style={{flex:1,background:'rgba(255,255,255,.08)',borderRadius:4,padding:'3px 10px',fontSize:11,color:'rgba(255,255,255,.4)',fontFamily:'monospace'}}>{pageUrl}</div>
+            </div>
+            <iframe
+              src={pageUrl}
+              style={{width:'100%',height:600,border:'none',display:'block'}}
+              title="Landing Page Preview"
+            />
+          </div>
+        ) : (
+          <div style={{background:'#fff',border:'2px dashed #e8ecf2',borderRadius:14,padding:'60px 20px',textAlign:'center'}}>
+            <Layout size={40} color="#cbd5e1" style={{marginBottom:12}}/>
+            <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:6}}>Landing page not yet generated</div>
+            <div style={{fontSize:13,color:'#94a3b8',marginBottom:20}}>Click below to generate one now.</div>
+            <button onClick={onRegen} disabled={regenLoading}
+              style={{display:'inline-flex',alignItems:'center',gap:8,padding:'12px 28px',borderRadius:10,border:'none',cursor:regenLoading?'default':'pointer',fontFamily:'inherit',fontSize:14,fontWeight:800,background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',boxShadow:'0 4px 16px rgba(139,92,246,.3)',opacity:regenLoading?.6:1}}>
+              <Wand2 size={16}/> {regenLoading?'Generating...':'Generate Landing Page'}
+            </button>
+          </div>
+        )
       )}
     </div>
   );
