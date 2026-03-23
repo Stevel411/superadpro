@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% if selected_category %}{{ selected_category | title }} Ads{% else %}Community Ad Board{% endif %} | SuperAdPro</title>
+<meta name="description" content="{% if selected_category %}Browse {{ selected_category }} listings on SuperAdPro's community ad board. Free to post, SEO-indexed, public marketplace.{% else %}Free community marketplace. Post unlimited ads, each with its own Google-indexed page. Browse listings across all categories.{% endif %}">
+<meta name="keywords" content="free classifieds, community ads, marketplace, {{ selected_category or 'buy sell trade' }}, SuperAdPro">
+<meta property="og:title" content="{% if selected_category %}{{ selected_category | title }} Ads{% else %}SuperAdPro Ad Board{% endif %}">
+<meta property="og:description" content="Free community marketplace with SEO-indexed listings. Post your ad and get discovered.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://www.superadpro.com/ads{% if selected_category %}?category={{ selected_category }}{% endif %}">
+<link rel="canonical" href="https://www.superadpro.com/ads{% if selected_category %}?category={{ selected_category }}{% endif %}">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Sora:wght@700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#050d1a;color:#f0f2f8;min-height:100vh}
+a{text-decoration:none;color:inherit}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:16px 40px;border-bottom:1px solid rgba(255,255,255,.06)}
+.brand{font-family:'Sora',sans-serif;font-size:20px;font-weight:900;color:#fff}
+.brand span{color:#38bdf8}
+.nav-links{display:flex;gap:24px;align-items:center}
+.nav-links a{font-size:13px;font-weight:600;color:rgba(200,220,255,.6);transition:color .2s}
+.nav-links a:hover{color:#fff}
+.nav-btn{background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff!important;padding:8px 20px;border-radius:8px;font-weight:700}
+.hero{padding:60px 40px 40px;max-width:1200px;margin:0 auto;text-align:center}
+.hero-badge{display:inline-block;font-size:10px;font-weight:800;letter-spacing:2px;text-transform:uppercase;color:#10b981;border:1px solid rgba(16,185,129,.3);padding:6px 16px;border-radius:20px;margin-bottom:16px}
+.hero h1{font-family:'Sora',sans-serif;font-size:clamp(28px,4vw,48px);font-weight:900;margin-bottom:12px;line-height:1.1}
+.hero h1 em{font-style:normal;background:linear-gradient(135deg,#10b981,#34d399);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:16px;color:rgba(200,220,255,.5);max-width:600px;margin:0 auto 32px;line-height:1.7}
+.categories{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:40px;padding:0 40px}
+.cat-btn{padding:8px 18px;border-radius:8px;font-size:12px;font-weight:700;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.03);color:rgba(200,220,255,.6);cursor:pointer;transition:all .2s}
+.cat-btn:hover,.cat-btn.active{background:rgba(16,185,129,.15);border-color:rgba(16,185,129,.4);color:#10b981}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:20px;max-width:1200px;margin:0 auto;padding:0 40px 60px}
+.card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:14px;overflow:hidden;transition:all .3s}
+.card:hover{border-color:rgba(16,185,129,.3);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.3)}
+.card-img{width:100%;height:180px;object-fit:cover;background:#0a1628}
+.card-img-placeholder{width:100%;height:180px;background:linear-gradient(135deg,#0a1628,#132240);display:flex;align-items:center;justify-content:center;font-size:40px;opacity:.3}
+.card-body{padding:18px}
+.card-cat{font-size:10px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+.card-title{font-family:'Sora',sans-serif;font-size:16px;font-weight:800;color:#fff;margin-bottom:6px;line-height:1.3}
+.card-desc{font-size:13px;color:rgba(200,220,255,.5);line-height:1.6;margin-bottom:12px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card-meta{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:rgba(200,220,255,.3)}
+.card-price{font-family:'Sora',sans-serif;font-weight:800;color:#f59e0b;font-size:14px}
+.card-location{display:flex;align-items:center;gap:4px}
+.card-keywords{display:flex;gap:4px;flex-wrap:wrap;margin-top:8px}
+.card-kw{font-size:9px;padding:2px 8px;border-radius:4px;background:rgba(16,185,129,.08);color:rgba(16,185,129,.7);border:1px solid rgba(16,185,129,.12)}
+.empty{text-align:center;padding:80px 20px;color:rgba(200,220,255,.3)}
+.empty h2{font-size:22px;margin-bottom:8px;color:rgba(200,220,255,.5)}
+.post-cta{display:inline-block;margin-top:16px;padding:12px 28px;border-radius:10px;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-weight:700;font-size:14px}
+.footer{text-align:center;padding:40px;border-top:1px solid rgba(255,255,255,.04);font-size:12px;color:rgba(200,220,255,.2)}
+.seo-text{max-width:800px;margin:0 auto 40px;padding:0 40px;font-size:13px;color:rgba(200,220,255,.25);line-height:1.8;text-align:center}
+@media(max-width:768px){
+  .nav{padding:12px 20px}
+  .hero{padding:40px 20px 30px}
+  .grid{padding:0 20px 40px;grid-template-columns:1fr}
+  .categories{padding:0 20px}
+}
+</style>
+<!-- Schema.org for Ad Board -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "SuperAdPro Community Ad Board",
+  "description": "Free community marketplace with SEO-indexed listings.",
+  "url": "https://www.superadpro.com/ads",
+  "publisher": {
+    "@type": "Organization",
+    "name": "SuperAdPro",
+    "url": "https://www.superadpro.com"
+  }
+}
+</script>
+</head>
+<body>
+
+<nav class="nav">
+  <a href="/" class="brand">SuperAd<span>Pro</span></a>
+  <div class="nav-links">
+    <a href="/how-it-works">How It Works</a>
+    <a href="/earn">Earn</a>
+    <a href="/ads" style="color:#10b981">Ad Board</a>
+    <a href="/videos">Videos</a>
+    <a href="/register" class="nav-btn">Get Started</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-badge">Community Marketplace</div>
+  <h1>The <em>Ad Board</em></h1>
+  <p>Browse listings from our community. Every ad is free to post, gets its own page, and is indexed by search engines. Find what you need or post your own.</p>
+</div>
+
+<!-- Category Filter -->
+<div class="categories">
+  <a href="/ads" class="cat-btn {% if not selected_category %}active{% endif %}">All</a>
+  {% for cat in categories %}
+  <a href="/ads?category={{ cat }}" class="cat-btn {% if selected_category == cat %}active{% endif %}">{{ cat | title }}</a>
+  {% endfor %}
+</div>
+
+<!-- Ad Grid -->
+<div class="grid">
+  {% if listings and listings|length > 0 %}
+    {% for ad in listings %}
+    <a href="/ads/listing/{{ ad.slug }}" class="card">
+      {% if ad.image_url %}
+      <img src="{{ ad.image_url }}" alt="{{ ad.title }}" class="card-img" loading="lazy">
+      {% else %}
+      <div class="card-img-placeholder">📋</div>
+      {% endif %}
+      <div class="card-body">
+        <div class="card-cat">{{ ad.category or 'General' }}</div>
+        <div class="card-title">{{ ad.title }}</div>
+        <div class="card-desc">{{ ad.description }}</div>
+        <div class="card-meta">
+          {% if ad.price %}
+          <span class="card-price">{{ ad.price }}</span>
+          {% else %}
+          <span></span>
+          {% endif %}
+          {% if ad.location %}
+          <span class="card-location">📍 {{ ad.location }}</span>
+          {% endif %}
+          <span>{{ ad.views or 0 }} views</span>
+        </div>
+        {% if ad.keywords %}
+        <div class="card-keywords">
+          {% for kw in ad.keywords.split(',')[:4] %}
+          <span class="card-kw">{{ kw.strip() }}</span>
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </a>
+    {% endfor %}
+  {% else %}
+  <div class="empty" style="grid-column:1/-1">
+    <div style="font-size:48px;margin-bottom:16px;opacity:.3">📋</div>
+    <h2>No listings yet</h2>
+    <p>Be the first to post an ad on the SuperAdPro community board.</p>
+    <a href="/register" class="post-cta">Join Free & Post Your Ad →</a>
+  </div>
+  {% endif %}
+</div>
+
+<!-- SEO Content -->
+<div class="seo-text">
+  <p>SuperAdPro's Ad Board is a free community marketplace where members post classified ads across all categories. Every listing gets its own SEO-indexed page with a unique URL, making it easy for search engines and potential buyers to find your ad. Post unlimited listings, share them on social media, and drive traffic to your products, services, or affiliate links.</p>
+</div>
+
+<!-- Pagination -->
+{% if total_pages > 1 %}
+<div style="display:flex;justify-content:center;gap:8px;padding:0 40px 40px">
+  {% for p in range(1, total_pages + 1) %}
+  <a href="/ads?page={{ p }}{% if selected_category %}&category={{ selected_category }}{% endif %}" style="padding:8px 14px;border-radius:6px;font-size:12px;font-weight:700;{% if current_page == p %}background:#10b981;color:#fff{% else %}background:rgba(255,255,255,.05);color:rgba(200,220,255,.4){% endif %}">{{ p }}</a>
+  {% endfor %}
+</div>
+{% endif %}
+
+<div class="footer">
+  <p>© 2026 SuperAdPro. All rights reserved. <a href="/legal" style="color:rgba(56,189,248,.5)">Legal</a></p>
+</div>
+
+</body>
+</html>

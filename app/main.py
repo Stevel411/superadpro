@@ -4229,35 +4229,68 @@ def record_ad_watch(
 
 @app.get("/videos")
 def public_videos(request: Request, category: str = "", db: Session = Depends(get_db)):
-    """Public-facing video library. Browsable by anyone, SEO-indexed.
-    Members earn by watching inside /watch — this is bonus exposure for advertisers."""
+    """Public-facing video library — server-rendered for SEO."""
+    from sqlalchemy import func
     campaigns = db.query(VideoCampaign).filter(
         VideoCampaign.status == "active"
     ).order_by(VideoCampaign.is_spotlight.desc(), VideoCampaign.is_featured.desc(),
                VideoCampaign.priority_level.desc(), VideoCampaign.created_at.desc()).all()
-
-    # Get unique categories for filter
     categories = sorted(set(c.category for c in campaigns if c.category))
-
+    selected_category = category
     if category:
         campaigns = [c for c in campaigns if (c.category or "").lower() == category.lower()]
-
-    # Separate spotlight campaigns for hero treatment
     spotlight = [c for c in campaigns if getattr(c, 'is_spotlight', False)]
-    featured = [c for c in campaigns if getattr(c, 'is_featured', False) and not getattr(c, 'is_spotlight', False)]
-
-    return RedirectResponse(url="/", status_code=302)
+    total_views = sum(c.views_delivered or 0 for c in campaigns)
+    return templates.TemplateResponse("public-video-library.html", {
+        "request": request, "campaigns": campaigns, "spotlight": spotlight,
+        "categories": categories, "selected_category": selected_category,
+        "total_videos": len(campaigns), "total_views": total_views,
+        "total_categories": len(categories),
+    })
 
 def _old_public_videos_DISABLED(request: Request, category: str = "", db = None):
-    return templates.TemplateResponse("public-videos.html", {
-        "request": request,
-        "campaigns": campaigns,
-        "spotlight": spotlight,
-        "featured": featured,
-        "categories": categories,
-        "selected_category": category,
-        "total": len(campaigns),
+    pass
+
+
+# ═══════════════════════════════════════════════════════════════
+#  BANNER ADS — Public Gallery + Click Tracking
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/banners")
+def public_banners(request: Request, category: str = "", db: Session = Depends(get_db)):
+    """Public banner ad gallery — server-rendered for SEO."""
+    from .database import BannerAd
+    query = db.query(BannerAd).filter(BannerAd.is_active == True, BannerAd.status == "approved")
+    banners_all = query.order_by(BannerAd.is_featured.desc(), BannerAd.created_at.desc()).all()
+    categories = sorted(set(b.category for b in banners_all if b.category and b.category != "general"))
+    if category:
+        banners_all = [b for b in banners_all if (b.category or "").lower() == category.lower()]
+    total_impressions = sum(b.impressions or 0 for b in banners_all)
+    total_clicks = sum(b.clicks or 0 for b in banners_all)
+    # Increment impressions for displayed banners
+    for b in banners_all:
+        b.impressions = (b.impressions or 0) + 1
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
+    return templates.TemplateResponse("public-banners.html", {
+        "request": request, "banners": banners_all, "categories": categories,
+        "selected_category": category, "total_banners": len(banners_all),
+        "total_impressions": total_impressions, "total_clicks": total_clicks,
     })
+
+
+@app.get("/banners/click/{banner_id}")
+def banner_click(banner_id: int, db: Session = Depends(get_db)):
+    """Track banner click and redirect to advertiser URL."""
+    from .database import BannerAd
+    banner = db.query(BannerAd).filter(BannerAd.id == banner_id).first()
+    if not banner:
+        return RedirectResponse(url="/banners", status_code=302)
+    banner.clicks = (banner.clicks or 0) + 1
+    db.commit()
+    return RedirectResponse(url=banner.link_url, status_code=302)
 
 
 #  SOCIAL PROOF API — recent joiners notification feed
@@ -6729,11 +6762,20 @@ AD_CATEGORIES = [
 ]
 
 @app.get("/ads")
-def ad_board_public(request: Request):
-    """Serve React SPA."""
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return HTMLResponse("<h1>Loading...</h1>")
+def ad_board_public(request: Request, category: str = None, page: int = 1, db: Session = Depends(get_db)):
+    """Public Ad Board — server-rendered for SEO."""
+    query = db.query(AdListing).filter(AdListing.is_active == True)
+    if category:
+        query = query.filter(AdListing.category == category)
+    total_ads = query.count()
+    per_page = 24
+    total_pages = max(1, (total_ads + per_page - 1) // per_page)
+    listings = query.order_by(AdListing.is_featured.desc(), AdListing.created_at.desc()).offset((page - 1) * per_page).limit(per_page).all()
+    categories = sorted(set(a.category for a in db.query(AdListing).filter(AdListing.is_active == True).all() if a.category))
+    return templates.TemplateResponse("public-adboard.html", {
+        "request": request, "listings": listings, "categories": categories,
+        "selected_category": category, "total_pages": total_pages, "current_page": page,
+    })
 
 def _old_ad_board_DISABLED(request: Request, category: str = None, page: int = 1,
                     user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -6776,11 +6818,20 @@ def _old_ad_board_DISABLED(request: Request, category: str = None, page: int = 1
 
 @app.get("/ads/listing/{slug}")
 def ad_detail_page(slug: str, request: Request, db: Session = Depends(get_db)):
-    """Phase 4: serve React SPA — React calls /api/ads/listing/:slug."""
-    del slug
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/ads", status_code=302)
+    """Individual ad page — server-rendered for SEO with meta tags + Schema.org."""
+    listing = db.query(AdListing).filter(AdListing.slug == slug, AdListing.is_active == True).first()
+    if not listing:
+        raise HTTPException(status_code=404, detail="Ad not found")
+    listing.views = (listing.views or 0) + 1
+    db.commit()
+    owner = db.query(User).filter(User.id == listing.user_id).first()
+    listing.owner_name = owner.username if owner else "Member"
+    related = db.query(AdListing).filter(
+        AdListing.is_active == True, AdListing.category == listing.category, AdListing.id != listing.id
+    ).order_by(AdListing.is_featured.desc(), AdListing.created_at.desc()).limit(6).all()
+    return templates.TemplateResponse("public-ad-detail.html", {
+        "request": request, "ad": listing, "related": related,
+    })
 
 def _old_ad_detail_DISABLED(slug: str, request: Request, db: Session = Depends(get_db)):
     """Individual ad page — SEO-indexable, shareable, with OG tags"""
@@ -6823,22 +6874,34 @@ def ad_click(ad_id: int, db: Session = Depends(get_db)):
 
 @app.get("/sitemap.xml")
 def sitemap_xml(request: Request, db: Session = Depends(get_db)):
-    """Dynamic XML sitemap for SEO — includes all active ads and category pages"""
+    """Dynamic XML sitemap for SEO — includes all active ads, videos, banners, and category pages"""
     from fastapi.responses import Response
-    base_url = os.getenv("BASE_URL", "https://superadpro-production.up.railway.app")
+    base_url = "https://www.superadpro.com"
     urls = []
     # Static pages
-    for path in ["/", "/how-it-works", "/compensation-plan", "/courses", "/ads"]:
+    for path in ["/", "/how-it-works", "/earn", "/for-advertisers", "/faq", "/legal", "/ads", "/banners", "/videos", "/wallet-guide"]:
         urls.append(f'<url><loc>{base_url}{path}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>')
-    # Category pages
-    for cat in AD_CATEGORIES:
-        urls.append(f'<url><loc>{base_url}/ads?category={cat["id"]}</loc><changefreq>daily</changefreq><priority>0.7</priority></url>')
+    # Ad category pages
+    ad_cats = sorted(set(a.category for a in db.query(AdListing).filter(AdListing.is_active == True).all() if a.category))
+    for cat in ad_cats:
+        urls.append(f'<url><loc>{base_url}/ads?category={cat}</loc><changefreq>daily</changefreq><priority>0.7</priority></url>')
     # Individual ad pages
     active_ads = db.query(AdListing).filter(AdListing.is_active == True, AdListing.slug.isnot(None)).all()
     for ad in active_ads:
         lastmod = ad.updated_at.strftime("%Y-%m-%d") if ad.updated_at else ""
         lm = f"<lastmod>{lastmod}</lastmod>" if lastmod else ""
         urls.append(f'<url><loc>{base_url}/ads/listing/{ad.slug}</loc>{lm}<changefreq>weekly</changefreq><priority>0.6</priority></url>')
+    # Video pages
+    active_videos = db.query(VideoCampaign).filter(VideoCampaign.status == "active").all()
+    vid_cats = sorted(set(v.category for v in active_videos if v.category))
+    for cat in vid_cats:
+        urls.append(f'<url><loc>{base_url}/videos?category={cat}</loc><changefreq>daily</changefreq><priority>0.7</priority></url>')
+    # Banner category pages
+    from .database import BannerAd
+    active_banners = db.query(BannerAd).filter(BannerAd.is_active == True, BannerAd.status == "approved").all()
+    banner_cats = sorted(set(b.category for b in active_banners if b.category and b.category != "general"))
+    for cat in banner_cats:
+        urls.append(f'<url><loc>{base_url}/banners?category={cat}</loc><changefreq>daily</changefreq><priority>0.6</priority></url>')
 
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "\n".join(urls) + "\n</urlset>"
     return Response(content=xml, media_type="application/xml")
@@ -6848,22 +6911,27 @@ def sitemap_xml(request: Request, db: Session = Depends(get_db)):
 def robots_txt():
     """Robots.txt for search engine crawlers"""
     from fastapi.responses import Response
-    base_url = os.getenv("BASE_URL", "https://superadpro-production.up.railway.app")
-    content = f"""User-agent: *
+    content = """User-agent: *
 Allow: /
 Allow: /ads
 Allow: /ads/listing/
+Allow: /banners
+Allow: /videos
 Allow: /how-it-works
-Allow: /compensation-plan
-Allow: /courses
+Allow: /earn
+Allow: /for-advertisers
+Allow: /faq
+Allow: /legal
+Allow: /wallet-guide
 Disallow: /dashboard
 Disallow: /admin
 Disallow: /api/
 Disallow: /ads/my
 Disallow: /wallet
 Disallow: /settings
+Disallow: /app/
 
-Sitemap: {base_url}/sitemap.xml
+Sitemap: https://www.superadpro.com/sitemap.xml
 """
     return Response(content=content, media_type="text/plain")
 

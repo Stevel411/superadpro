@@ -535,6 +535,30 @@ class AdListing(Base):
     owner = relationship("User", backref="ad_listings")
 
 
+class BannerAd(Base):
+    __tablename__ = "banner_ads"
+    id           = Column(Integer, primary_key=True, index=True)
+    user_id      = Column(Integer, ForeignKey("users.id"), nullable=False)
+    title        = Column(String, nullable=False)
+    slug         = Column(String, unique=True, index=True, nullable=True)
+    description  = Column(String, nullable=True)
+    image_url    = Column(String, nullable=False)           # banner image URL (R2 or external)
+    link_url     = Column(String, nullable=False)           # click-through destination
+    size         = Column(String, default="728x90")         # standard banner size
+    category     = Column(String, default="general")
+    keywords     = Column(String, nullable=True)            # comma-separated SEO keywords
+    location     = Column(String, nullable=True)            # city/region for local targeting
+    is_active    = Column(Boolean, default=True)
+    is_featured  = Column(Boolean, default=False)
+    status       = Column(String, default="pending")        # pending/approved/rejected
+    clicks       = Column(Integer, default=0)
+    impressions  = Column(Integer, default=0)
+    created_at   = Column(DateTime, default=datetime.utcnow)
+    updated_at   = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    owner = relationship("User", backref="banner_ads")
+
+
 class ShortLink(Base):
     """Bitly-style short links: superadpro.com/go/slug"""
     __tablename__ = "short_links"
@@ -1266,6 +1290,17 @@ def run_migrations():
         # Crypto payment matching now uses sender wallet address — drop unique on amount
         "ALTER TABLE crypto_payment_orders DROP CONSTRAINT IF EXISTS crypto_payment_orders_unique_amount_key",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS sending_wallet VARCHAR",
+        # Ad Board SEO columns
+        "ALTER TABLE ad_listings ADD COLUMN IF NOT EXISTS keywords VARCHAR",
+        "ALTER TABLE ad_listings ADD COLUMN IF NOT EXISTS location VARCHAR",
+        "ALTER TABLE ad_listings ADD COLUMN IF NOT EXISTS price VARCHAR",
+        "ALTER TABLE ad_listings ADD COLUMN IF NOT EXISTS contact_info VARCHAR",
+        "ALTER TABLE ad_listings ADD COLUMN IF NOT EXISTS status VARCHAR DEFAULT 'active'",
+        # Banner Ads table
+        "CREATE TABLE IF NOT EXISTS banner_ads (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), title VARCHAR NOT NULL, slug VARCHAR UNIQUE, description VARCHAR, image_url VARCHAR NOT NULL, link_url VARCHAR NOT NULL, size VARCHAR DEFAULT '728x90', category VARCHAR DEFAULT 'general', keywords VARCHAR, location VARCHAR, is_active BOOLEAN DEFAULT TRUE, is_featured BOOLEAN DEFAULT FALSE, status VARCHAR DEFAULT 'pending', clicks INTEGER DEFAULT 0, impressions INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
+        # Video campaign SEO columns
+        "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS slug VARCHAR",
+        "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS keywords VARCHAR",
     ]
     results = []
     with engine.connect() as conn:
