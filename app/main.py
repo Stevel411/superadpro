@@ -9516,6 +9516,35 @@ def admin_run_migrations(secret: str = "", db: Session = Depends(get_db)):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
+@app.get("/admin/force-migrate")
+def admin_force_migrate(secret: str = "", db: Session = Depends(get_db)):
+    """Force run specific migrations that may have been missed."""
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid"}, status_code=403)
+    from sqlalchemy import text
+    results = []
+    migrations = [
+        "ALTER TABLE linkhub_profiles ADD COLUMN IF NOT EXISTS btn_text_color VARCHAR",
+        "ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS custom_video_url VARCHAR(500)",
+        "ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS custom_headline VARCHAR(300)",
+        "ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS custom_subtitle TEXT",
+        "ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS custom_cta_text VARCHAR(100)",
+        "ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS custom_cta_color VARCHAR(20)",
+        "ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS custom_html_inject TEXT",
+        "CREATE TABLE IF NOT EXISTS team_messages (id SERIAL PRIMARY KEY, from_user_id INTEGER REFERENCES users(id), to_user_id INTEGER REFERENCES users(id), message TEXT NOT NULL, is_read BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())",
+        "CREATE INDEX IF NOT EXISTS idx_team_msg_from ON team_messages(from_user_id)",
+        "CREATE INDEX IF NOT EXISTS idx_team_msg_to ON team_messages(to_user_id)",
+    ]
+    for sql in migrations:
+        try:
+            db.execute(text(sql))
+            results.append({"sql": sql[:60], "status": "ok"})
+        except Exception as e:
+            results.append({"sql": sql[:60], "status": "error", "error": str(e)[:200]})
+    db.commit()
+    return {"results": results}
+
+
 @app.get("/admin/debug-dashboard")
 def admin_debug_dashboard(secret: str = "", db: Session = Depends(get_db)):
     """Debug: test dashboard context loading for the owner account."""
