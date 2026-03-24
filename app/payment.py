@@ -163,7 +163,7 @@ def _cascade_auto_activation(
 
     # Free member with enough to activate ($20 membership) — auto-activate
     if recipient.balance >= MEMBERSHIP_FEE:
-        recipient.balance   -= MEMBERSHIP_FEE
+        recipient.balance   = Decimal(str(recipient.balance or 0)) - Decimal(str(MEMBERSHIP_FEE))
         recipient.is_active  = True
         activated_users.append((recipient, chain_depth))
 
@@ -549,7 +549,7 @@ def process_auto_renewals(db: Session) -> dict:
                 # Sufficient balance — auto-renew with 50/50 split
                 sponsor = db.query(User).filter(User.id == user.sponsor_id).first() if user.sponsor_id else None
 
-                user.balance      -= MEMBERSHIP_FEE
+                user.balance      = Decimal(str(user.balance or 0)) - Decimal(str(MEMBERSHIP_FEE))
                 user.low_balance_warned = False
 
                 if sponsor:
