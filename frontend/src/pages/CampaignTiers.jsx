@@ -15,16 +15,6 @@ var COLORS = [
   { bg: 'linear-gradient(135deg,#26215C,#3C3489)', light: '#EEEDFE', mid: '#AFA9EC', text: '#CECBF6', accent: '#534AB7', dark: '#3C3489', isGrad: true },
 ];
 
-var CARD_STYLE = document.createElement('style');
-CARD_STYLE.textContent = [
-  '@keyframes ctReveal{0%{opacity:0;transform:translateY(24px) scale(0.95)}100%{opacity:1;transform:translateY(0) scale(1)}}',
-  '.ct-anim{opacity:0;animation:ctReveal 0.65s ease forwards}',
-].join('\n');
-if (typeof document !== 'undefined' && !document.getElementById('ct-style')) {
-  CARD_STYLE.id = 'ct-style';
-  document.head.appendChild(CARD_STYLE);
-}
-
 export default function CampaignTiers() {
   var [tiers, setTiers] = useState([]);
   var [loading, setLoading] = useState(true);
@@ -66,14 +56,14 @@ export default function CampaignTiers() {
       {/* Row 1 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 12 }}>
         {tiers.slice(0, 4).map(function(t, i) {
-          return <Card key={t.tier} tier={t} col={COLORS[i]} isLast={false} idx={i} />;
+          return <Card key={t.tier} tier={t} col={COLORS[i]} isLast={false} />;
         })}
       </div>
 
       {/* Row 2 */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 20 }}>
         {tiers.slice(4).map(function(t, i) {
-          return <Card key={t.tier} tier={t} col={COLORS[i + 4]} isLast={i === 3} idx={i + 4} />;
+          return <Card key={t.tier} tier={t} col={COLORS[i + 4]} isLast={i === 3} />;
         })}
       </div>
 
@@ -109,27 +99,23 @@ export default function CampaignTiers() {
   );
 }
 
-function Card({ tier, col, isLast, idx }) {
+function Card({ tier, col, isLast }) {
   var t = tier;
   var c = col;
   var active = t.is_active;
   var grid = t.grid;
-  var delay = (0.08 + idx * 0.12) + 's';
 
   return (
-    <div className="ct-anim" style={{
-      borderRadius: 14,
-      overflow: 'hidden',
+    <div style={{
+      borderRadius: 14, overflow: 'hidden',
       border: active ? '2px solid ' + c.mid : '1px solid #e8ecf2',
       boxShadow: '0 2px 8px rgba(0,0,0,.06)',
-      cursor: 'default',
-      position: 'relative',
-      animationDelay: delay,
+      cursor: 'default', position: 'relative',
+      transition: 'transform .3s ease, box-shadow .3s ease',
     }}
-    onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.boxShadow = '0 16px 40px rgba(0,0,0,.18)'; e.currentTarget.style.transition = 'transform .3s ease, box-shadow .3s ease'; }}
+    onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.boxShadow = '0 16px 40px rgba(0,0,0,.18)'; }}
     onMouseLeave={function(e) { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
     >
-      {/* Coloured header */}
       <div style={{ background: c.isGrad ? c.bg : c.bg, padding: '18px 18px 14px', position: 'relative' }}>
         {active && (
           <div style={{ position: 'absolute', top: 10, right: 10, background: c.mid, color: c.dark, fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 3 }}>
@@ -144,7 +130,6 @@ function Card({ tier, col, isLast, idx }) {
         <div style={{ fontSize: 28, fontWeight: 900, color: '#fff' }}>${t.price.toLocaleString()}</div>
       </div>
 
-      {/* White body */}
       <div style={{ background: '#fff', padding: '16px 18px' }}>
         {active && grid && (
           <div style={{ marginBottom: 12 }}>
