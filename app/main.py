@@ -10596,7 +10596,9 @@ def admin_test_grid_e2e(
         vc = VideoCampaign(
             user_id=u.id,
             title=f"Test Campaign L{lvl}",
-            video_url="https://test.local/video.mp4",
+            video_url="https://www.youtube.com/watch?v=test",
+            embed_url="https://www.youtube.com/embed/test",
+            platform="youtube",
             campaign_tier=tier,
             status="active",
             is_completed=False,
@@ -10657,12 +10659,12 @@ def admin_test_grid_e2e(
     # Step 5: Collect all commissions from these test users
     test_user_ids = [u.id for u in chain_users] + [p["buyer_id"] for p in results["purchases"]]
     comms = db.query(Commission).filter(
-        Commission.buyer_id.in_(test_user_ids)
+        Commission.from_user_id.in_(test_user_ids)
     ).order_by(Commission.id).all()
 
     for c in comms:
-        recipient = db.query(User).filter(User.id == c.recipient_id).first() if c.recipient_id else None
-        buyer = db.query(User).filter(User.id == c.buyer_id).first() if c.buyer_id else None
+        recipient = db.query(User).filter(User.id == c.to_user_id).first() if c.to_user_id else None
+        buyer = db.query(User).filter(User.id == c.from_user_id).first() if c.from_user_id else None
         results["commissions"].append({
             "type": c.commission_type,
             "amount": round(float(c.amount_usdt or 0), 2),
@@ -10691,8 +10693,8 @@ def admin_test_grid_e2e(
             })
 
     # Summary calculations
-    total_paid_out = sum(float(c.amount_usdt or 0) for c in comms if c.recipient_id is not None)
-    total_company = sum(float(c.amount_usdt or 0) for c in comms if c.recipient_id is None)
+    total_paid_out = sum(float(c.amount_usdt or 0) for c in comms if c.to_user_id is not None)
+    total_company = sum(float(c.amount_usdt or 0) for c in comms if c.to_user_id is None)
     total_all = sum(float(c.amount_usdt or 0) for c in comms)
 
     results["summary"] = {
@@ -10735,7 +10737,7 @@ def admin_test_grid_cleanup(
 
     # Remove commissions
     comm_del = db.query(Commission).filter(
-        (Commission.buyer_id.in_(test_user_ids)) | (Commission.recipient_id.in_(test_user_ids))
+        (Commission.from_user_id.in_(test_user_ids)) | (Commission.recipient_id.in_(test_user_ids))
     ).delete(synchronize_session=False)
 
     # Remove campaigns
