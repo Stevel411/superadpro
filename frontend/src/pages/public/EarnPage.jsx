@@ -107,6 +107,185 @@ function Toast() {
   );
 }
 
+// Earnings Calculator / Simulator
+function EarningsCalculator({ onJoin }) {
+  var [directRefs, setDirectRefs] = useState(5);
+  var [refsPerPerson, setRefsPerPerson] = useState(3);
+  var [proRatio, setProRatio] = useState(30);
+  var [gridTier, setGridTier] = useState(1);
+
+  // Commission calculations
+  var proCount = Math.round(directRefs * proRatio / 100);
+  var basicCount = directRefs - proCount;
+  var monthlyDirect = (basicCount * 10) + (proCount * 17.50);
+
+  // Level 2 (their referrals)
+  var level2Total = directRefs * refsPerPerson;
+  var level2Pro = Math.round(level2Total * proRatio / 100);
+  var level2Basic = level2Total - level2Pro;
+
+  // Grid earnings (simplified — uni-level 6.25% per level)
+  var gridPrices = { 1: 20, 2: 50, 3: 100, 4: 200, 5: 400, 6: 600, 7: 800, 8: 1000 };
+  var gridNames = { 1: 'Starter', 2: 'Builder', 3: 'Pro', 4: 'Advanced', 5: 'Elite', 6: 'Premium', 7: 'Executive', 8: 'Ultimate' };
+  var gridPrice = gridPrices[gridTier];
+  var directGridComm = gridPrice * 0.40; // 40% direct
+  var uniLevelPerMember = gridPrice * 0.0625; // 6.25% per level
+  var gridDirectEarnings = directRefs * directGridComm;
+  var gridUniLevelEarnings = level2Total * uniLevelPerMember;
+
+  var totalMembership = monthlyDirect;
+  var totalGrid = gridDirectEarnings + gridUniLevelEarnings;
+  var grandTotal = totalMembership + totalGrid;
+
+  var sliderTrack = function(val, max) {
+    return { background: 'linear-gradient(90deg, #38bdf8 ' + (val/max*100) + '%, rgba(255,255,255,.1) ' + (val/max*100) + '%)' };
+  };
+
+  var sliderStyle = {width:'100%',height:6,borderRadius:3,appearance:'none',WebkitAppearance:'none',outline:'none',cursor:'pointer'};
+
+  return (
+    <div style={{background:'rgba(255,255,255,.03)',border:'1px solid rgba(56,189,248,.12)',borderRadius:18,overflow:'hidden'}}>
+      <style>{`
+        .ecalc-slider::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);cursor:pointer;box-shadow:0 2px 10px rgba(14,165,233,.5);border:2px solid #fff}
+        .ecalc-slider::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#38bdf8);cursor:pointer;box-shadow:0 2px 10px rgba(14,165,233,.5);border:2px solid #fff}
+      `}</style>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',minHeight:400}}>
+        {/* Left: Controls */}
+        <div style={{padding:'32px 28px',borderRight:'1px solid rgba(56,189,248,.08)'}}>
+          <div style={{fontSize:14,fontWeight:800,color:'#fff',marginBottom:24}}>Adjust Your Scenario</div>
+
+          {/* Direct referrals slider */}
+          <div style={{marginBottom:24}}>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
+              <span style={{fontSize:12,fontWeight:700,color:'rgba(200,220,255,.6)'}}>Your Direct Referrals</span>
+              <span style={{fontSize:16,fontWeight:900,color:'#38bdf8'}}>{directRefs}</span>
+            </div>
+            <input type="range" min={1} max={50} value={directRefs} onChange={function(e){setDirectRefs(parseInt(e.target.value));}}
+              className="ecalc-slider" style={Object.assign({}, sliderStyle, sliderTrack(directRefs, 50))}/>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'rgba(255,255,255,.2)',marginTop:3}}>
+              <span>1</span><span>50</span>
+            </div>
+          </div>
+
+          {/* Each person refers slider */}
+          <div style={{marginBottom:24}}>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
+              <span style={{fontSize:12,fontWeight:700,color:'rgba(200,220,255,.6)'}}>Each Person Refers</span>
+              <span style={{fontSize:16,fontWeight:900,color:'#38bdf8'}}>{refsPerPerson}</span>
+            </div>
+            <input type="range" min={0} max={20} value={refsPerPerson} onChange={function(e){setRefsPerPerson(parseInt(e.target.value));}}
+              className="ecalc-slider" style={Object.assign({}, sliderStyle, sliderTrack(refsPerPerson, 20))}/>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'rgba(255,255,255,.2)',marginTop:3}}>
+              <span>0</span><span>20</span>
+            </div>
+          </div>
+
+          {/* Pro ratio slider */}
+          <div style={{marginBottom:24}}>
+            <div style={{display:'flex',justifyContent:'space-between',marginBottom:8}}>
+              <span style={{fontSize:12,fontWeight:700,color:'rgba(200,220,255,.6)'}}>Pro Members (%)</span>
+              <span style={{fontSize:16,fontWeight:900,color:'#38bdf8'}}>{proRatio}%</span>
+            </div>
+            <input type="range" min={0} max={100} value={proRatio} onChange={function(e){setProRatio(parseInt(e.target.value));}}
+              className="ecalc-slider" style={Object.assign({}, sliderStyle, sliderTrack(proRatio, 100))}/>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'rgba(255,255,255,.2)',marginTop:3}}>
+              <span>0%</span><span>100%</span>
+            </div>
+          </div>
+
+          {/* Grid tier selector */}
+          <div style={{marginBottom:8}}>
+            <div style={{fontSize:12,fontWeight:700,color:'rgba(200,220,255,.6)',marginBottom:8}}>Campaign Tier</div>
+            <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6}}>
+              {[1,2,3,4,5,6,7,8].map(function(t) {
+                var on = gridTier === t;
+                return (
+                  <button key={t} onClick={function(){setGridTier(t);}}
+                    style={{padding:'8px 4px',borderRadius:8,border:on?'1.5px solid #38bdf8':'1px solid rgba(255,255,255,.08)',
+                      background:on?'rgba(56,189,248,.12)':'rgba(255,255,255,.03)',cursor:'pointer',fontFamily:'inherit',textAlign:'center'}}>
+                    <div style={{fontSize:11,fontWeight:800,color:on?'#38bdf8':'rgba(200,220,255,.5)'}}>${gridPrices[t]}</div>
+                    <div style={{fontSize:8,color:'rgba(200,220,255,.3)',fontWeight:600}}>{gridNames[t]}</div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* Right: Results */}
+        <div style={{padding:'32px 28px',display:'flex',flexDirection:'column',justifyContent:'space-between'}}>
+          <div>
+            <div style={{fontSize:14,fontWeight:800,color:'#fff',marginBottom:20}}>Your Potential Monthly Income</div>
+
+            {/* Membership commissions */}
+            <div style={{padding:'14px 16px',borderRadius:12,background:'rgba(16,185,129,.08)',border:'1px solid rgba(16,185,129,.15)',marginBottom:10}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <div>
+                  <div style={{fontSize:12,fontWeight:700,color:'#34d399'}}>Membership Commissions</div>
+                  <div style={{fontSize:10,color:'rgba(200,220,255,.35)',marginTop:2}}>{directRefs} referrals × 50% monthly</div>
+                </div>
+                <div style={{fontSize:22,fontWeight:900,color:'#34d399'}}>${totalMembership.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
+              </div>
+            </div>
+
+            {/* Grid direct */}
+            <div style={{padding:'14px 16px',borderRadius:12,background:'rgba(56,189,248,.06)',border:'1px solid rgba(56,189,248,.12)',marginBottom:10}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <div>
+                  <div style={{fontSize:12,fontWeight:700,color:'#38bdf8'}}>Grid Direct Sponsor (40%)</div>
+                  <div style={{fontSize:10,color:'rgba(200,220,255,.35)',marginTop:2}}>{directRefs} × ${directGridComm.toFixed(0)} per {gridNames[gridTier]} tier</div>
+                </div>
+                <div style={{fontSize:22,fontWeight:900,color:'#38bdf8'}}>${gridDirectEarnings.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
+              </div>
+            </div>
+
+            {/* Grid uni-level */}
+            <div style={{padding:'14px 16px',borderRadius:12,background:'rgba(139,92,246,.06)',border:'1px solid rgba(139,92,246,.12)',marginBottom:10}}>
+              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                <div>
+                  <div style={{fontSize:12,fontWeight:700,color:'#a78bfa'}}>Grid Uni-Level (6.25%/level)</div>
+                  <div style={{fontSize:10,color:'rgba(200,220,255,.35)',marginTop:2}}>{level2Total} level-2 members × ${uniLevelPerMember.toFixed(2)}</div>
+                </div>
+                <div style={{fontSize:22,fontWeight:900,color:'#a78bfa'}}>${gridUniLevelEarnings.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}</div>
+              </div>
+            </div>
+
+            {/* Network size */}
+            <div style={{padding:'10px 16px',borderRadius:10,background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.06)',marginBottom:16}}>
+              <div style={{display:'flex',justifyContent:'space-around',textAlign:'center'}}>
+                <div><div style={{fontSize:18,fontWeight:900,color:'#fff'}}>{directRefs}</div><div style={{fontSize:9,color:'rgba(200,220,255,.3)',fontWeight:700}}>DIRECT</div></div>
+                <div><div style={{fontSize:18,fontWeight:900,color:'#fff'}}>{level2Total}</div><div style={{fontSize:9,color:'rgba(200,220,255,.3)',fontWeight:700}}>LEVEL 2</div></div>
+                <div><div style={{fontSize:18,fontWeight:900,color:'#fff'}}>{directRefs + level2Total}</div><div style={{fontSize:9,color:'rgba(200,220,255,.3)',fontWeight:700}}>TOTAL NETWORK</div></div>
+              </div>
+            </div>
+          </div>
+
+          {/* Grand total */}
+          <div>
+            <div style={{padding:'20px',borderRadius:14,background:'linear-gradient(135deg,rgba(14,165,233,.15),rgba(56,189,248,.08))',border:'1.5px solid rgba(56,189,248,.25)',textAlign:'center',marginBottom:16}}>
+              <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(56,189,248,.7)',marginBottom:4}}>Estimated Monthly Total</div>
+              <div style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(36px,5vw,52px)',fontWeight:900,color:'#fff',lineHeight:1}}>
+                ${grandTotal.toLocaleString(undefined,{minimumFractionDigits:0,maximumFractionDigits:0})}
+              </div>
+              <div style={{fontSize:11,color:'rgba(200,220,255,.35)',marginTop:6}}>per month · recurring · passive income</div>
+            </div>
+
+            <button onClick={onJoin} className="earn-btn-p" style={{width:'100%',textAlign:'center',display:'block'}}>
+              Start Building Your Network →
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div style={{padding:'12px 28px',borderTop:'1px solid rgba(56,189,248,.06)',textAlign:'center'}}>
+        <div style={{fontSize:10,color:'rgba(200,220,255,.2)',lineHeight:1.5}}>
+          This calculator shows potential earnings based on your inputs. Actual results depend on individual effort, team activity, and market conditions. SuperAdPro does not guarantee income.
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function EarnPage() {
   var [regOpen, setRegOpen] = useState(false);
 
@@ -365,6 +544,18 @@ export default function EarnPage() {
             </div>
           </div>
         </div>
+      </section>
+
+      {/* EARNINGS CALCULATOR */}
+      <div style={{maxWidth:1100,margin:'0 auto',padding:'0 40px'}}><div style={{height:1,background:'linear-gradient(90deg,transparent,rgba(56,189,248,.15),transparent)'}}/></div>
+
+      <section style={{padding:'60px 40px',maxWidth:900,margin:'0 auto'}}>
+        <div style={{textAlign:'center',marginBottom:36}}>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'#38bdf8',marginBottom:12}}>Earnings Simulator</div>
+          <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,38px)',fontWeight:900,color:'#fff',marginBottom:12}}>See What You Could Earn</h2>
+          <p style={{fontSize:15,color:'rgba(200,220,255,.45)',maxWidth:520,margin:'0 auto'}}>Adjust the sliders and watch your potential monthly income grow in real-time.</p>
+        </div>
+        <EarningsCalculator onJoin={openReg}/>
       </section>
 
       {/* PRICING */}
