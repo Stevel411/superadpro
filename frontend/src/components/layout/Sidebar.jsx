@@ -7,7 +7,8 @@ import {
   Home, User, Wallet, Headphones, Eye, Zap, LayoutGrid, Link2,
   Globe, GraduationCap, Store, PenLine, Network, FileText, Users,
   Target, Mail, Trophy, Award, Bot, Megaphone, Film, Paintbrush,
-  LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X
+  LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
+  QrCode, MessageCircle, Flame, BookOpen
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
@@ -48,8 +49,10 @@ function buildNav(t, isAdmin) {
       { label: t('nav.myNetwork'), icon: Network, path: '/network' },
       { label: t('nav.compPlan'), icon: FileText, path: '/compensation-plan' },
       { label: t('nav.socialShare'), icon: Users, path: '/affiliate' },
+      { label: 'Team Messenger', icon: MessageCircle, path: '/team-messenger' },
       { label: t('nav.leaderboard'), icon: Trophy, path: '/leaderboard' },
       { label: t('nav.achievements'), icon: Award, path: '/achievements' },
+      { label: 'Challenges', icon: Flame, path: '/challenges' },
     ]},
     { type: 'divider' },
     { type: 'group', label: t('nav.marketingSuite'), key: 'marketing', items: [
@@ -58,6 +61,11 @@ function buildNav(t, isAdmin) {
       { label: t('nav.socialPosts'), icon: Megaphone, path: '/social-post-generator' },
       { label: t('nav.videoScripts'), icon: Film, path: '/video-script-generator' },
       { label: t('nav.emailSwipes'), icon: Mail, path: '/email-swipes' },
+      { label: 'QR Generator', icon: QrCode, path: '/qr-generator' },
+    ]},
+    { type: 'divider' },
+    { type: 'group', label: 'LEARN', key: 'learn', items: [
+      { label: 'Training Centre', icon: BookOpen, path: '/training' },
     ]},
   ];
 

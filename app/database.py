@@ -898,6 +898,17 @@ class EmailSendLog(Base):
 #  MEMBER COURSE MARKETPLACE
 # ═══════════════════════════════════════════════════════════════
 
+class TeamMessage(Base):
+    """Direct messages between sponsors and their referrals."""
+    __tablename__ = "team_messages"
+    id            = Column(Integer, primary_key=True, index=True)
+    from_user_id  = Column(Integer, ForeignKey("users.id"), index=True)
+    to_user_id    = Column(Integer, ForeignKey("users.id"), index=True)
+    message       = Column(Text, nullable=False)
+    is_read       = Column(Boolean, default=False)
+    created_at    = Column(DateTime, default=datetime.utcnow)
+
+
 class MemberCourse(Base):
     """Course created by a Pro member for the marketplace."""
     __tablename__ = "member_courses"
@@ -1759,5 +1770,21 @@ try:
             conn.execute(text(f"ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS {col} {typ}"))
         conn.commit()
         print("✅ SuperSeller page editor columns added")
+
+        # Team Messages table
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS team_messages (
+                id SERIAL PRIMARY KEY,
+                from_user_id INTEGER REFERENCES users(id),
+                to_user_id INTEGER REFERENCES users(id),
+                message TEXT NOT NULL,
+                is_read BOOLEAN DEFAULT FALSE,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        """))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_team_msg_from ON team_messages(from_user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_team_msg_to ON team_messages(to_user_id)"))
+        conn.commit()
+        print("✅ Team messages table added")
 except Exception as e:
     print(f"⚠️ Force migration note: {e}")

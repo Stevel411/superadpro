@@ -64,6 +64,10 @@ import LinkHubPage from './pages/LinkHub';
 import SuperMarketCreate from './pages/SuperMarketCreate';
 import SuperPagesEditor from './pages/superpages/SuperPagesEditor';
 import ActivateTier from './pages/ActivateTier';
+import TrainingCentre from './pages/TrainingCentre';
+import TeamMessenger from './pages/TeamMessenger';
+import Challenges from './pages/Challenges';
+import QRGenerator from './pages/QRGenerator';
 
 // Auth pages
 import Login from './pages/auth/Login';
@@ -154,6 +158,10 @@ function AppRoutes() {
       <Route path="/linkhub" element={<ProtectedRoute><LinkHubPage /></ProtectedRoute>} />
       <Route path="/proseller" element={<ProtectedRoute><ProSeller /></ProtectedRoute>} />
       <Route path="/superseller" element={<ProtectedRoute><SuperSeller /></ProtectedRoute>} />
+      <Route path="/training" element={<ProtectedRoute><TrainingCentre /></ProtectedRoute>} />
+      <Route path="/team-messenger" element={<ProtectedRoute><TeamMessenger /></ProtectedRoute>} />
+      <Route path="/challenges" element={<ProtectedRoute><Challenges /></ProtectedRoute>} />
+      <Route path="/qr-generator" element={<ProtectedRoute><QRGenerator /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
       <Route path="/pro/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
       <Route path="/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />

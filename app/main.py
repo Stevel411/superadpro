@@ -1461,6 +1461,34 @@ def superseller_page(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+@app.get("/training")
+def training_page(request: Request):
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/team-messenger")
+def team_messenger_page(request: Request):
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/challenges")
+def challenges_page(request: Request):
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/qr-generator")
+def qr_generator_page(request: Request):
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 @app.get("/income-grid-3d")
 def income_grid_3d(request: Request):
     """Serve React SPA for 3D income grid visualisation."""
@@ -16562,3 +16590,545 @@ def funnel_duplicate(page_id: int, request: Request, user: User = Depends(get_cu
     db.commit()
     return JSONResponse({"success": True, "id": new_page.id, "edit_url": f"/funnels/visual/{new_page.id}"})
 # deploy trigger Wed Mar 18 01:46:38 UTC 2026
+
+
+# ═══════════════════════════════════════════════════════════════
+#  QR CODE GENERATOR
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/qr-code")
+def api_generate_qr(url: str = "", request: Request = None, user: User = Depends(get_current_user)):
+    """Generate a QR code PNG for any URL. Returns base64 image."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not url or len(url) > 2000:
+        return JSONResponse({"error": "Valid URL required"}, status_code=400)
+
+    import qrcode, io, base64
+    qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=2)
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="#0f172a", back_color="#ffffff").convert("RGB")
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG")
+    b64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
+    return {"qr_base64": b64, "url": url}
+
+
+@app.get("/api/qr-code/download")
+def api_download_qr(url: str = "", request: Request = None, user: User = Depends(get_current_user)):
+    """Download QR code as PNG file."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not url or len(url) > 2000:
+        return JSONResponse({"error": "Valid URL required"}, status_code=400)
+
+    import qrcode, io
+    from fastapi.responses import StreamingResponse
+    qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=12, border=2)
+    qr.add_data(url)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="#0f172a", back_color="#ffffff").convert("RGB")
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+    return StreamingResponse(buffer, media_type="image/png",
+                             headers={"Content-Disposition": "attachment; filename=superadpro-qr.png"})
+
+
+# ═══════════════════════════════════════════════════════════════
+#  SMART NOTIFICATIONS / ACTIVITY FEED
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/activity-feed")
+def api_activity_feed(request: Request, user: User = Depends(get_current_user),
+                      db: Session = Depends(get_db)):
+    """Get recent activity feed for the member — commissions, team growth, grid progress."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from datetime import timedelta
+    now = datetime.utcnow()
+    week_ago = now - timedelta(days=7)
+    feed = []
+
+    # Recent commissions earned
+    recent_comms = db.query(Commission).filter(
+        Commission.to_user_id == user.id,
+        Commission.created_at >= week_ago,
+        Commission.status == "paid"
+    ).order_by(Commission.created_at.desc()).limit(20).all()
+    for c in recent_comms:
+        from_user = db.query(User).filter(User.id == c.from_user_id).first() if c.from_user_id else None
+        from_name = (from_user.first_name or from_user.username) if from_user else "System"
+        feed.append({
+            "type": "commission", "emoji": "💰",
+            "text": f"Earned ${round(float(c.amount_usdt), 2)} {c.commission_type.replace('_', ' ')} from {from_name}",
+            "time": c.created_at.isoformat(), "amount": round(float(c.amount_usdt), 2)
+        })
+
+    # New team members (direct referrals)
+    new_refs = db.query(User).filter(
+        User.sponsor_id == user.id,
+        User.created_at >= week_ago
+    ).order_by(User.created_at.desc()).limit(10).all()
+    for r in new_refs:
+        name = r.first_name or r.username
+        tier = "Pro" if r.membership_tier == "pro" else "Basic"
+        feed.append({
+            "type": "new_referral", "emoji": "🎉",
+            "text": f"{name} joined your team ({tier} member)",
+            "time": r.created_at.isoformat()
+        })
+
+    # Grid progress
+    grids = db.query(Grid).filter(Grid.owner_id == user.id, Grid.is_active == True).all()
+    for g in grids:
+        filled = g.positions_filled or 0
+        total = 64
+        remaining = total - filled
+        tier_name = GRID_TIER_NAMES.get(g.package_tier, f"Tier {g.package_tier}")
+        if remaining <= 10 and remaining > 0:
+            feed.append({
+                "type": "grid_progress", "emoji": "📊",
+                "text": f"Your {tier_name} grid is {remaining} members from completion! ({filled}/64)",
+                "time": now.isoformat()
+            })
+        elif remaining == 0:
+            feed.append({
+                "type": "grid_complete", "emoji": "🏆",
+                "text": f"Your {tier_name} grid is COMPLETE! Bonus: ${GRID_COMPLETION_BONUS.get(g.package_tier, 0)}",
+                "time": now.isoformat()
+            })
+
+    # Sort by time, most recent first
+    feed.sort(key=lambda x: x.get("time", ""), reverse=True)
+    return {"feed": feed[:30]}
+
+
+# ═══════════════════════════════════════════════════════════════
+#  REFERRAL CHALLENGES / CONTESTS
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/challenges")
+def api_get_challenges(request: Request, user: User = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    """Get active referral challenges and user's progress."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from datetime import timedelta
+    now = datetime.utcnow()
+
+    # Define current challenges (admin can later manage these via DB)
+    challenges = []
+
+    # Monthly referral challenge — always active
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    month_refs = db.query(User).filter(
+        User.sponsor_id == user.id,
+        User.created_at >= month_start,
+        User.is_active == True
+    ).count()
+
+    month_name = now.strftime("%B %Y")
+    challenges.append({
+        "id": "monthly_referrals",
+        "title": f"{month_name} Referral Sprint",
+        "description": "Refer new members this month. Hit milestones to earn bonus rewards.",
+        "type": "referral",
+        "milestones": [
+            {"target": 3, "reward": "Bronze Badge", "emoji": "🥉"},
+            {"target": 5, "reward": "$25 Wallet Bonus", "emoji": "💵"},
+            {"target": 10, "reward": "$75 Wallet Bonus", "emoji": "💰"},
+            {"target": 25, "reward": "$250 Wallet Bonus + VIP Status", "emoji": "🏆"},
+        ],
+        "progress": month_refs,
+        "starts": month_start.isoformat(),
+        "ends": (month_start + timedelta(days=32)).replace(day=1).isoformat(),
+        "active": True,
+    })
+
+    # Weekly engagement streak
+    week_start = now - timedelta(days=now.weekday())
+    week_start = week_start.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_logins = 1  # They're here now
+
+    challenges.append({
+        "id": "weekly_streak",
+        "title": "Weekly Engagement Streak",
+        "description": "Log in, watch videos, and share content every day this week.",
+        "type": "engagement",
+        "milestones": [
+            {"target": 3, "reward": "3-Day Streak Badge", "emoji": "🔥"},
+            {"target": 5, "reward": "5-Day Warrior Badge", "emoji": "⚡"},
+            {"target": 7, "reward": "Perfect Week + $10 Bonus", "emoji": "💎"},
+        ],
+        "progress": week_logins,
+        "starts": week_start.isoformat(),
+        "ends": (week_start + timedelta(days=7)).isoformat(),
+        "active": True,
+    })
+
+    # First grid completion challenge
+    completed_grids = db.query(Grid).filter(
+        Grid.owner_id == user.id, Grid.positions_filled >= 64
+    ).count()
+    if completed_grids == 0:
+        grids = db.query(Grid).filter(Grid.owner_id == user.id, Grid.is_active == True).all()
+        best_progress = max([g.positions_filled or 0 for g in grids]) if grids else 0
+        challenges.append({
+            "id": "first_grid",
+            "title": "Complete Your First Grid",
+            "description": "Fill all 64 positions in any grid tier to unlock your completion bonus.",
+            "type": "grid",
+            "milestones": [
+                {"target": 16, "reward": "25% Complete Badge", "emoji": "📊"},
+                {"target": 32, "reward": "Halfway Hero Badge", "emoji": "🎯"},
+                {"target": 48, "reward": "Almost There Badge", "emoji": "🚀"},
+                {"target": 64, "reward": "Grid Master + Completion Bonus!", "emoji": "🏆"},
+            ],
+            "progress": best_progress,
+            "active": True,
+        })
+
+    return {"challenges": challenges}
+
+
+# ═══════════════════════════════════════════════════════════════
+#  WEEKLY EARNINGS DIGEST (CRON)
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/cron/weekly-digest")
+def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
+    """Send weekly earnings digest email to all active members. Run Sundays via cron."""
+    cron_secret = os.getenv("CRON_SECRET", "")
+    if not cron_secret or secret != cron_secret:
+        return JSONResponse({"error": "Invalid secret"}, status_code=401)
+
+    from .email_utils import send_email
+    from datetime import timedelta
+    now = datetime.utcnow()
+    week_ago = now - timedelta(days=7)
+    sent_count = 0
+    errors = 0
+
+    active_users = db.query(User).filter(User.is_active == True).all()
+
+    for u in active_users:
+        try:
+            # Calculate weekly stats
+            weekly_earned = db.query(func.sum(Commission.amount_usdt)).filter(
+                Commission.to_user_id == u.id,
+                Commission.created_at >= week_ago,
+                Commission.status == "paid"
+            ).scalar() or 0
+
+            new_refs = db.query(User).filter(
+                User.sponsor_id == u.id,
+                User.created_at >= week_ago
+            ).count()
+
+            # Grid progress
+            grids = db.query(Grid).filter(Grid.owner_id == u.id, Grid.is_active == True).all()
+            grid_total = sum(g.positions_filled or 0 for g in grids)
+
+            total_balance = round(float(u.balance or 0), 2)
+            weekly_earned = round(float(weekly_earned), 2)
+            name = u.first_name or u.username
+
+            # Skip if nothing happened this week and balance is 0
+            if weekly_earned == 0 and new_refs == 0 and total_balance == 0:
+                continue
+
+            subject = f"Your SuperAdPro Week: ${weekly_earned} earned"
+            if weekly_earned == 0:
+                subject = f"Your SuperAdPro Weekly Update"
+
+            html = f"""<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:0;background:#f0f3f9;font-family:'DM Sans',Arial,sans-serif">
+<div style="max-width:560px;margin:0 auto;padding:24px">
+  <div style="background:#050d1a;border-radius:16px;padding:32px 28px;text-align:center;margin-bottom:20px">
+    <div style="font-size:22px;font-weight:800;color:#fff;margin-bottom:4px">
+      Super<span style="color:#38bdf8">Ad</span><span style="color:#38bdf8">Pro</span>
+    </div>
+    <div style="font-size:12px;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase">Weekly Earnings Digest</div>
+  </div>
+
+  <div style="background:#fff;border-radius:14px;padding:28px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.06)">
+    <div style="font-size:18px;font-weight:700;color:#0f172a;margin-bottom:20px">Hey {name} 👋</div>
+    <div style="font-size:14px;color:#64748b;line-height:1.7;margin-bottom:24px">
+      Here's your weekly snapshot from SuperAdPro. Keep building — consistency is what separates the top earners.
+    </div>
+
+    <div style="display:flex;gap:12px;margin-bottom:24px">
+      <div style="flex:1;background:linear-gradient(135deg,#065f46,#34d399);border-radius:12px;padding:18px 14px;text-align:center">
+        <div style="font-size:28px;font-weight:900;color:#fff">${weekly_earned}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:1px;margin-top:2px">Earned This Week</div>
+      </div>
+      <div style="flex:1;background:linear-gradient(135deg,#1e40af,#60a5fa);border-radius:12px;padding:18px 14px;text-align:center">
+        <div style="font-size:28px;font-weight:900;color:#fff">{new_refs}</div>
+        <div style="font-size:10px;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:1px;margin-top:2px">New Referrals</div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-bottom:24px">
+      <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px 14px;text-align:center">
+        <div style="font-size:22px;font-weight:800;color:#0f172a">${total_balance}</div>
+        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-top:2px">Wallet Balance</div>
+      </div>
+      <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px 14px;text-align:center">
+        <div style="font-size:22px;font-weight:800;color:#0f172a">{grid_total}</div>
+        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-top:2px">Grid Members</div>
+      </div>
+    </div>
+
+    <a href="https://www.superadpro.com/dashboard" style="display:block;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;text-decoration:none;text-align:center;padding:14px;border-radius:10px;font-weight:800;font-size:14px">
+      View Your Dashboard →
+    </a>
+  </div>
+
+  <div style="text-align:center;font-size:11px;color:#94a3b8;padding:12px 0">
+    SuperAdPro — Video Advertising & AI Marketing Platform<br>
+    <a href="https://www.superadpro.com" style="color:#0ea5e9;text-decoration:none">www.superadpro.com</a>
+  </div>
+</div>
+</body></html>"""
+
+            send_email(u.email, subject, html)
+            sent_count += 1
+        except Exception as e:
+            logger.error(f"Weekly digest failed for user {u.id}: {e}")
+            errors += 1
+
+    return {"status": "ok", "sent": sent_count, "errors": errors, "total_active": len(active_users)}
+
+
+# ═══════════════════════════════════════════════════════════════
+#  TEAM MESSENGER
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/team-messages")
+def api_team_messages(request: Request, user: User = Depends(get_current_user),
+                      db: Session = Depends(get_db)):
+    """Get messages for the current user — sent and received."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from .database import TeamMessage
+    received = db.query(TeamMessage).filter(
+        TeamMessage.to_user_id == user.id
+    ).order_by(TeamMessage.created_at.desc()).limit(50).all()
+
+    sent = db.query(TeamMessage).filter(
+        TeamMessage.from_user_id == user.id
+    ).order_by(TeamMessage.created_at.desc()).limit(50).all()
+
+    def msg_to_dict(m, direction):
+        other_id = m.from_user_id if direction == "received" else m.to_user_id
+        other = db.query(User).filter(User.id == other_id).first()
+        return {
+            "id": m.id, "direction": direction,
+            "other_user": {"id": other.id, "name": other.first_name or other.username,
+                           "username": other.username, "avatar": other.avatar_url} if other else None,
+            "message": m.message, "is_read": m.is_read,
+            "created_at": m.created_at.isoformat(),
+        }
+
+    messages = [msg_to_dict(m, "received") for m in received] + [msg_to_dict(m, "sent") for m in sent]
+    messages.sort(key=lambda x: x["created_at"], reverse=True)
+
+    # Mark received as read
+    for m in received:
+        if not m.is_read:
+            m.is_read = True
+    db.commit()
+
+    # Get team members (direct referrals) for the contact list
+    team = db.query(User).filter(User.sponsor_id == user.id, User.is_active == True).all()
+    # Also include sponsor
+    sponsor = db.query(User).filter(User.id == user.sponsor_id).first() if user.sponsor_id else None
+
+    contacts = []
+    for t in team:
+        contacts.append({
+            "id": t.id, "name": t.first_name or t.username,
+            "username": t.username, "avatar": t.avatar_url,
+            "relationship": "referral", "tier": t.membership_tier or "basic"
+        })
+    if sponsor:
+        contacts.insert(0, {
+            "id": sponsor.id, "name": sponsor.first_name or sponsor.username,
+            "username": sponsor.username, "avatar": sponsor.avatar_url,
+            "relationship": "sponsor", "tier": sponsor.membership_tier or "basic"
+        })
+
+    # Unread count
+    unread = db.query(TeamMessage).filter(
+        TeamMessage.to_user_id == user.id, TeamMessage.is_read == False
+    ).count()
+
+    return {"messages": messages[:50], "contacts": contacts, "unread_count": unread}
+
+
+@app.post("/api/team-messages/send")
+async def api_send_team_message(request: Request, user: User = Depends(get_current_user),
+                                 db: Session = Depends(get_db)):
+    """Send a message to a team member (sponsor or direct referral)."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from .database import TeamMessage
+    body = await request.json()
+    to_user_id = body.get("to_user_id")
+    message_text = (body.get("message") or "").strip()[:2000]
+
+    if not to_user_id or not message_text:
+        return JSONResponse({"error": "Recipient and message required"}, status_code=400)
+
+    # Verify relationship — can only message sponsor or direct referrals
+    recipient = db.query(User).filter(User.id == to_user_id).first()
+    if not recipient:
+        return JSONResponse({"error": "User not found"}, status_code=404)
+
+    is_sponsor = user.sponsor_id == to_user_id
+    is_referral = recipient.sponsor_id == user.id
+    is_admin = user.is_admin
+
+    if not (is_sponsor or is_referral or is_admin):
+        return JSONResponse({"error": "You can only message your sponsor or direct referrals"}, status_code=403)
+
+    # Rate limit: max 20 messages per hour
+    from datetime import timedelta
+    hour_ago = datetime.utcnow() - timedelta(hours=1)
+    recent_count = db.query(TeamMessage).filter(
+        TeamMessage.from_user_id == user.id,
+        TeamMessage.created_at >= hour_ago
+    ).count()
+    if recent_count >= 20 and not user.is_admin:
+        return JSONResponse({"error": "Message limit reached (20/hour). Try again later."}, status_code=429)
+
+    msg = TeamMessage(
+        from_user_id=user.id,
+        to_user_id=to_user_id,
+        message=message_text,
+        is_read=False,
+    )
+    db.add(msg)
+    db.commit()
+
+    # Send notification
+    send_notification(db, to_user_id, "message", "💬",
+        f"New message from {user.first_name or user.username}",
+        message_text[:100])
+
+    return {"success": True, "message_id": msg.id}
+
+
+@app.get("/api/team-messages/unread-count")
+def api_unread_messages(request: Request, user: User = Depends(get_current_user),
+                        db: Session = Depends(get_db)):
+    """Quick unread count for badge display."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import TeamMessage
+    count = db.query(TeamMessage).filter(
+        TeamMessage.to_user_id == user.id, TeamMessage.is_read == False
+    ).count()
+    return {"unread_count": count}
+
+
+# ═══════════════════════════════════════════════════════════════
+#  TRAINING CENTRE
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/training")
+def api_training_centre(request: Request, user: User = Depends(get_current_user)):
+    """Return the training centre content — curated guides and tutorials."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    modules = [
+        {
+            "id": "getting-started",
+            "title": "Getting Started",
+            "emoji": "🚀",
+            "color": "#0ea5e9",
+            "lessons": [
+                {"id": "gs-1", "title": "Welcome to SuperAdPro", "type": "guide", "duration": "3 min",
+                 "content": "Welcome to SuperAdPro! This platform gives you multiple ways to earn: referral commissions, campaign grid bonuses, course sales, and the Watch & Earn program. Your dashboard is your command centre — it shows your earnings, team growth, and available tools at a glance. Start by setting up your profile, then share your referral link to begin building your network."},
+                {"id": "gs-2", "title": "Understanding Your Dashboard", "type": "guide", "duration": "4 min",
+                 "content": "Your dashboard has four key sections: Income Streams (showing your earnings from each source), Network Overview (your team and grid progress), Quick Actions (shortcuts to your most-used tools), and Recent Activity (latest commissions and team updates). The wallet balance at the top shows your current earnings ready for withdrawal."},
+                {"id": "gs-3", "title": "Setting Up Your Profile", "type": "guide", "duration": "2 min",
+                 "content": "Head to Account > Profile to add your name, avatar, and bio. A complete profile builds trust when referrals check you out. Your member ID (shown on your profile) is unique — team members can use it to find and contact you."},
+                {"id": "gs-4", "title": "Your Referral Link Explained", "type": "guide", "duration": "3 min",
+                 "content": "Your referral link is www.superadpro.com/join/[your-username]. Anyone who signs up through this link becomes your direct referral. You earn 50% commission on their membership fee every month they stay active. Share it on social media, in messages, on your LinkHub page, or via QR code."},
+            ]
+        },
+        {
+            "id": "earning",
+            "title": "How to Earn",
+            "emoji": "💰",
+            "color": "#16a34a",
+            "lessons": [
+                {"id": "earn-1", "title": "Referral Commissions (50%)", "type": "guide", "duration": "4 min",
+                 "content": "When someone joins through your link and pays their membership ($20 Basic or $35 Pro), you earn 50% commission — $10 or $17.50 per month, every month they stay active. This is recurring income. Focus on finding people who will use the platform, not just sign up."},
+                {"id": "earn-2", "title": "The 8-Tier Campaign Grid", "type": "guide", "duration": "6 min",
+                 "content": "The grid system has 8 tiers from Starter ($20) to Ultimate ($1,000). When you purchase a campaign tier, you're placed in your sponsor's grid. As your grid fills with 64 members (through referrals and spillover), you earn commissions at each level. The key: you need an active campaign at a tier to earn commissions from that tier. Higher tiers = higher commissions."},
+                {"id": "earn-3", "title": "Course Marketplace", "type": "guide", "duration": "3 min",
+                 "content": "Pro members can create and sell courses on the marketplace. You set the price, create lessons with text, video, and quizzes, and earn from every sale. All courses go through AI review before publishing to maintain quality. The marketplace is open to all members as buyers."},
+                {"id": "earn-4", "title": "Watch & Earn Program", "type": "guide", "duration": "2 min",
+                 "content": "Watch video ads from advertisers to earn credits. Each video must be watched for the minimum duration (usually 30 seconds). Your daily watch quota and earnings depend on your tier. This creates real engaged views for advertisers while giving you an easy way to earn."},
+            ]
+        },
+        {
+            "id": "marketing-tools",
+            "title": "Marketing Tools",
+            "emoji": "🛠️",
+            "color": "#8b5cf6",
+            "lessons": [
+                {"id": "mkt-1", "title": "LinkHub — Your Bio Link Page", "type": "guide", "duration": "4 min",
+                 "content": "LinkHub lets you create a beautiful one-page website with all your links, social profiles, and referral links. Think of it as your personal landing page. Customise colours, fonts, and layout. Share a single LinkHub URL instead of multiple links. Perfect for social media bios."},
+                {"id": "mkt-2", "title": "Link Tools — Shortener, Rotator, Geo-Redirect", "type": "guide", "duration": "5 min",
+                 "content": "Link Tools gives you three powerful utilities: Short Links (branded shortlinks that track clicks), Link Rotators (split traffic across multiple URLs — great for A/B testing), and Geo-Redirects (send visitors to different pages based on their country). All links include click analytics."},
+                {"id": "mkt-3", "title": "The Marketing Suite", "type": "guide", "duration": "4 min",
+                 "content": "The Marketing Suite includes AI-powered tools for content creation: Niche Finder (discover profitable niches), Social Post Generator (30 days of posts), Video Script Generator (hooks + scripts), Email Swipe File (ready-to-send templates), and Launch Wizard (step-by-step launch plan). All content is generated specifically for your niche."},
+                {"id": "mkt-4", "title": "Ad Hub — Promote Your Business", "type": "guide", "duration": "3 min",
+                 "content": "The Ad Hub lets you create listings, banners, and video campaigns that appear on the public Ad Board, Banner Gallery, and Video Library. These public pages drive external traffic. Basic members can post 3 ads per week, Pro members get 6. All ads go through AI moderation."},
+            ]
+        },
+        {
+            "id": "pro-features",
+            "title": "Pro Member Tools",
+            "emoji": "⚡",
+            "color": "#f59e0b",
+            "lessons": [
+                {"id": "pro-1", "title": "SuperSeller — AI Sales Autopilot", "type": "guide", "duration": "6 min",
+                 "content": "SuperSeller is your AI-powered marketing machine. Enter your niche, and it generates a complete campaign: landing page, 30 social posts, 5-email nurture sequence, 3 video scripts, ad copy, and a 30-day strategy. Leads captured through your landing page automatically enter the email autoresponder. You can edit your page, add a sales video, customise the CTA, and inject tracking pixels."},
+                {"id": "pro-2", "title": "SuperPages — Landing Page Builder", "type": "guide", "duration": "5 min",
+                 "content": "SuperPages is a drag-and-drop landing page builder with 24 block types, 8 templates, gradient builder, responsive preview, and form editor. Build professional funnels without any coding. Pages are hosted on your SuperAdPro account and include lead capture forms that feed into your CRM."},
+                {"id": "pro-3", "title": "Email Autoresponder", "type": "guide", "duration": "4 min",
+                 "content": "When leads sign up through your SuperSeller or SuperPages funnels, they automatically receive a drip email sequence — 5 emails over 7 days. Each email is AI-generated for your niche and includes your referral link. The autoresponder runs automatically via the cron system. Track opens, clicks, and conversions in your Leads dashboard."},
+                {"id": "pro-4", "title": "ProSeller CRM & Lead Dashboard", "type": "guide", "duration": "3 min",
+                 "content": "Your Leads dashboard shows every email lead captured through your funnels. See their status (new, nurturing, hot, converted), how many emails they've opened, and which links they clicked. Hot leads (2+ opens or any click) are auto-flagged so you can follow up personally."},
+            ]
+        },
+        {
+            "id": "growth-tips",
+            "title": "Growth Strategies",
+            "emoji": "📈",
+            "color": "#ec4899",
+            "lessons": [
+                {"id": "tip-1", "title": "The 3-3-3 Method", "type": "guide", "duration": "3 min",
+                 "content": "Share 3 social posts per day, reach out to 3 new people, and follow up with 3 existing contacts. Consistency beats intensity. Most successful affiliates earn through steady daily action, not viral moments. Use the Social Post Generator to create your daily content in seconds."},
+                {"id": "tip-2", "title": "Leveraging Your SuperSeller Page", "type": "guide", "duration": "4 min",
+                 "content": "Your SuperSeller landing page is your 24/7 salesperson. Add a personal sales video to build trust. Share the link in your social bios, email signatures, and WhatsApp messages. The AI chat agent handles objections while you sleep. Check your leads dashboard daily for hot prospects."},
+                {"id": "tip-3", "title": "Building a Team That Stays", "type": "guide", "duration": "4 min",
+                 "content": "Retention is more valuable than recruitment. Help your referrals set up their profiles and create their first SuperSeller campaign within 24 hours of joining. Send them a welcome message through Team Messenger. Members who earn in their first week are 5x more likely to stay active."},
+                {"id": "tip-4", "title": "Using QR Codes for Offline Marketing", "type": "guide", "duration": "2 min",
+                 "content": "Generate QR codes for your referral link, LinkHub page, or SuperSeller funnel. Print them on business cards, flyers, or stickers. Place them in coffee shops, gyms, and co-working spaces. QR codes bridge the gap between offline networking and online signup."},
+            ]
+        },
+    ]
+
+    return {"modules": modules}
