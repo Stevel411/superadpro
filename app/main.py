@@ -1237,6 +1237,18 @@ def dashboard(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+# ── Missing React page routes ──
+@app.get("/network")
+@app.get("/ad-board")
+@app.get("/2fa-setup")
+@app.get("/supermarket/create")
+def serve_react_page(request: Request):
+    """Serve React SPA for pages without dedicated backend routes."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 @app.get("/api/dashboard")
 def api_dashboard(request: Request, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
