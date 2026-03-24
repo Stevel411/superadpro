@@ -334,7 +334,7 @@ export default function Dashboard() {
       <div className="actions-grid grid-5-col" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
-            name: 'Watch to Earn', desc: 'Watch daily videos for bonus earnings', link: '/watch',
+            name: 'Watch to Earn', desc: 'Watch daily videos to unlock your commissions', link: '/watch',
             color: '#7c3aed', bg: 'linear-gradient(135deg,#faf5ff,#ede9fe)',
             icon: (
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
