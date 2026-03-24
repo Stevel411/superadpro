@@ -24,6 +24,7 @@
 # Commissions paid per seat fill — no waiting for grid completion.
 # ═══════════════════════════════════════════════════════════════
 from sqlalchemy.orm import Session
+from decimal import Decimal
 from .database import (
     User, Grid, GridPosition, Commission, VideoCampaign,
     GRID_WIDTH, GRID_LEVELS, GRID_TOTAL,
@@ -264,9 +265,9 @@ def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: in
 
     # Check if sponsor is qualified at this tier or above
     if sponsor and _user_is_qualified(db, sponsor.id, package_tier):
-        sponsor.balance       += amount
-        sponsor.total_earned  += amount
-        sponsor.grid_earnings += amount
+        sponsor.balance       = Decimal(str(sponsor.balance or 0)) + Decimal(str(amount))
+        sponsor.total_earned  = Decimal(str(sponsor.total_earned or 0)) + Decimal(str(amount))
+        sponsor.grid_earnings = Decimal(str(sponsor.grid_earnings or 0)) + Decimal(str(amount))
         _record_commission(db, buyer.id, sponsor.id, amount, "direct_sponsor",
                            f"Direct sponsor 40% — buyer {buyer.id} on ${price} package",
                            package_tier)
@@ -297,9 +298,9 @@ def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: in
 
         if upline and _user_is_qualified(db, upline_id, package_tier):
             # Qualified — pay the commission
-            upline.balance        += per_level
-            upline.total_earned   += per_level
-            upline.level_earnings += per_level
+            upline.balance        = Decimal(str(upline.balance or 0)) + Decimal(str(per_level))
+            upline.total_earned   = Decimal(str(upline.total_earned or 0)) + Decimal(str(per_level))
+            upline.level_earnings = Decimal(str(upline.level_earnings or 0)) + Decimal(str(per_level))
             _record_commission(db, buyer.id, upline_id, per_level, "uni_level",
                                f"Uni-level {lvl} — 6.25% of ${price}",
                                package_tier)
@@ -340,9 +341,9 @@ def _complete_grid(db: Session, grid: Grid):
 
     if has_active_campaign and owner and bonus_amount > 0:
         # Pay the completion bonus
-        owner.balance        += bonus_amount
-        owner.total_earned   += bonus_amount
-        owner.bonus_earnings  = float(owner.bonus_earnings or 0) + bonus_amount
+        owner.balance        = Decimal(str(owner.balance or 0)) + Decimal(str(bonus_amount))
+        owner.total_earned   = Decimal(str(owner.total_earned or 0)) + Decimal(str(bonus_amount))
+        owner.bonus_earnings = Decimal(str(owner.bonus_earnings or 0)) + Decimal(str(bonus_amount))
         grid.bonus_paid      = True
         grid.owner_paid      = True
 
