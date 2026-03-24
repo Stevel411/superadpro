@@ -279,7 +279,7 @@ body{font-family:'Plus Jakarta Sans',-apple-system,sans-serif;background:var(--b
   {% set bfsize = profile.btn_font_size if profile and profile.btn_font_size else 15 %}
   {% set balign = profile.btn_align if profile and profile.btn_align else 'center' %}
   {% set btn_bg = profile.btn_color or '#0ea5e9' %}
-  {% set btn_tx = profile.accent_color or '#ffffff' %}
+  {% set btn_tx = profile.btn_text_color or profile.accent_color or '#ffffff' %}
   {% set ic_size = profile.icon_size if profile and profile.icon_size else 22 %}
   {% set ar_size = profile.arrow_size if profile and profile.arrow_size else 16 %}
   {% set ar_style = profile.arrow_style if profile and profile.arrow_style else 'arrow' %}

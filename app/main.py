@@ -10559,6 +10559,7 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
         profile.accent_color  = data.get("accent_color", "#00d4ff")
         profile.bg_color      = data.get("bg_color") or None
         profile.btn_color     = data.get("btn_color") or None
+        profile.btn_text_color = data.get("btn_text_color") or None
         profile.text_color    = data.get("text_color") or None
         profile.is_published  = bool(data.get("is_published", True))
         profile.soc_icon_shape = data.get("soc_icon_shape", "circle")
@@ -16490,6 +16491,7 @@ def api_linkhub_editor_data(request: Request, user: User = Depends(get_current_u
             "bg_image_url": (profile.bg_image or "") if profile else "",  # linkhub-specific bg only
             "text_color": (profile.text_color or "#ffffff") if profile else "#ffffff",
             "btn_color": (profile.btn_color or "#0ea5e9") if profile else "#0ea5e9",
+            "btn_text_color": (profile.btn_text_color or "#ffffff") if profile else "#ffffff",
             "accent_color": (profile.accent_color or "#ffffff") if profile else "#ffffff",
             "font_family": (profile.font_family or "DM Sans") if profile else "DM Sans",
             "btn_style_type": (getattr(profile, 'btn_style_type', None) or "3d") if profile else "3d",
