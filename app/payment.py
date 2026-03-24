@@ -600,13 +600,16 @@ def get_renewal_status(db: Session, user_id: int) -> dict:
     if not renewal or not user:
         return {"has_renewal": False}
 
+    def _dt(v):
+        return v.isoformat() if v else None
+
     # Admin/owner accounts have permanent membership
     if user.is_admin:
         return {
             "has_renewal":        True,
-            "next_renewal_date":  renewal.next_renewal_date,
+            "next_renewal_date":  _dt(renewal.next_renewal_date),
             "days_remaining":     9999,
-            "last_renewed_at":    renewal.last_renewed_at,
+            "last_renewed_at":    _dt(renewal.last_renewed_at),
             "total_renewals":     renewal.total_renewals,
             "in_grace_period":    False,
             "status":             "owner",
@@ -628,9 +631,9 @@ def get_renewal_status(db: Session, user_id: int) -> dict:
 
     return {
         "has_renewal":        True,
-        "next_renewal_date":  renewal.next_renewal_date,
+        "next_renewal_date":  _dt(renewal.next_renewal_date),
         "days_remaining":     days_remaining,
-        "last_renewed_at":    renewal.last_renewed_at,
+        "last_renewed_at":    _dt(renewal.last_renewed_at),
         "total_renewals":     renewal.total_renewals,
         "in_grace_period":    renewal.in_grace_period,
         "status":             status,
