@@ -15003,25 +15003,60 @@ def api_leaderboard(db: Session = Depends(get_db)):
 @app.get("/api/campaign-tiers")
 def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
                        db: Session = Depends(get_db)):
-    """JSON campaign tier data."""
+    """JSON campaign tier data with active status from both campaigns and grids."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    from .database import GRID_PACKAGES, GRID_TIER_NAMES
+    from .database import GRID_PACKAGES, GRID_TIER_NAMES, CAMPAIGN_VIEW_TARGETS, GRID_COMPLETION_BONUS
+
+    # Check active video campaigns (qualification)
+    active_campaigns = db.query(VideoCampaign).filter(
+        VideoCampaign.user_id == user.id,
+        VideoCampaign.status == "active",
+        VideoCampaign.is_completed == False
+    ).all()
+    active_campaign_tiers = {c.campaign_tier for c in active_campaigns}
+
+    # Check grids
     active_grids = db.query(Grid).filter(Grid.owner_id == user.id, Grid.is_complete == False).all()
     completed_grids = db.query(Grid).filter(Grid.owner_id == user.id, Grid.is_complete == True).all()
-    return {
-        "active_tiers": [g.package_tier for g in active_grids],
-        "active_grids": [{
-            "tier": g.package_tier,
-            "tier_name": GRID_TIER_NAMES.get(g.package_tier, f"Tier {g.package_tier}"),
-            "price": float(g.package_price or 0),
+    grid_by_tier = {}
+    for g in active_grids:
+        grid_by_tier[g.package_tier] = {
             "filled": g.positions_filled or 0,
             "pct": round((g.positions_filled or 0) / 64 * 100),
             "advance": g.advance_number or 1,
-        } for g in active_grids],
+        }
+
+    # Admin always active at all tiers
+    is_admin = user.is_admin
+
+    # Build tier data
+    tiers = []
+    for tier_num in range(1, 9):
+        price = GRID_PACKAGES.get(tier_num, 0)
+        direct_comm = round(price * 0.40, 2)
+        uni_level_per_member = round(price * 0.0625, 2)
+        bonus = GRID_COMPLETION_BONUS.get(tier_num, 0)
+        views = CAMPAIGN_VIEW_TARGETS.get(tier_num, 0)
+        is_active = is_admin or (tier_num in active_campaign_tiers)
+        grid_info = grid_by_tier.get(tier_num)
+
+        tiers.append({
+            "tier": tier_num,
+            "name": GRID_TIER_NAMES.get(tier_num, f"Tier {tier_num}"),
+            "price": price,
+            "views_target": views,
+            "direct_commission": direct_comm,
+            "uni_level_per_member": uni_level_per_member,
+            "completion_bonus": bonus,
+            "is_active": is_active,
+            "grid": grid_info,
+        })
+
+    return {
+        "tiers": tiers,
+        "active_tiers": [t["tier"] for t in tiers if t["is_active"]],
         "completed_count": len(completed_grids),
-        "packages": {str(k): v for k,v in GRID_PACKAGES.items()},
-        "tier_names": {str(k): v for k,v in GRID_TIER_NAMES.items()},
     }
 
 

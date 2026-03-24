@@ -1,190 +1,150 @@
-import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
+import { Zap, Check, ChevronRight } from 'lucide-react';
 
-const TIERS = [
-  { n:1, name:'Starter',     price:20,   color:'#4ade80' },
-  { n:2, name:'Builder',     price:50,   color:'#4ade80' },
-  { n:3, name:'Accelerator', price:100,  color:'#4ade80' },
-  { n:4, name:'Advanced',    price:200,  color:'#4ade80' },
-  { n:5, name:'Elite',       price:300,  color:'#4ade80' },
-  { n:6, name:'Premium',     price:500,  color:'#4ade80' },
-  { n:7, name:'Executive',   price:750,  color:'#4ade80' },
-  { n:8, name:'Ultimate',    price:1000, color:'#4ade80' },
+var TIER_COLORS = [
+  { bg: '#085041', light: '#E1F5EE', mid: '#5DCAA5', text: '#9FE1CB', accent: '#0F6E56', dark: '#04342C' },
+  { bg: '#185FA5', light: '#E6F1FB', mid: '#85B7EB', text: '#B5D4F4', accent: '#185FA5', dark: '#0C447C' },
+  { bg: '#534AB7', light: '#EEEDFE', mid: '#AFA9EC', text: '#CECBF6', accent: '#534AB7', dark: '#3C3489' },
+  { bg: '#D85A30', light: '#FAECE7', mid: '#F0997B', text: '#F5C4B3', accent: '#D85A30', dark: '#993C1D' },
+  { bg: '#D4537E', light: '#FBEAF0', mid: '#ED93B1', text: '#F4C0D1', accent: '#D4537E', dark: '#993556' },
+  { bg: '#BA7517', light: '#FAEEDA', mid: '#FAC775', text: '#FAC775', accent: '#BA7517', dark: '#854F0B' },
+  { bg: '#A32D2D', light: '#FCEBEB', mid: '#F09595', text: '#F7C1C1', accent: '#A32D2D', dark: '#791F1F' },
+  { bg: 'linear-gradient(135deg,#26215C,#3C3489)', light: '#EEEDFE', mid: '#AFA9EC', text: '#CECBF6', accent: '#534AB7', dark: '#3C3489', isGradient: true },
 ];
 
 export default function CampaignTiers() {
-  var { t } = useTranslation();
-  const [activeTiers, setActiveTiers] = useState([]);
-  const [loading, setLoading] = useState(true);
+  var [tiers, setTiers] = useState([]);
+  var [loading, setLoading] = useState(true);
+  var [completedCount, setCompletedCount] = useState(0);
 
-  useEffect(() => {
-    apiGet('/api/campaign-tiers').then(d => { setActiveTiers(d.active_tiers || []); setLoading(false); }).catch(() => setLoading(false));
+  useEffect(function() {
+    apiGet('/api/campaign-tiers').then(function(d) {
+      setTiers(d.tiers || []);
+      setCompletedCount(d.completed_count || 0);
+      setLoading(false);
+    }).catch(function() { setLoading(false); });
   }, []);
 
-  if (loading) return <AppLayout title={t("nav.campaignTiers")}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
+  if (loading) return <AppLayout title="Campaign Tiers"><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
 
   return (
-    <AppLayout title={t("nav.campaignTiers")} subtitle="Activate tiers to unlock advertising & earn commissions">
-      <div className="grid-4-col" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:14}}>
-        {TIERS.slice(0,4).map((t,i) => <TierCard key={t.n} tier={t} active={activeTiers.includes(t.n)} delay={i * 0.5} />)}
-      </div>
-      <div className="grid-4-col" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14}}>
-        {TIERS.slice(4).map((t,i) => <TierCard key={t.n} tier={t} active={activeTiers.includes(t.n)} delay={(i + 4) * 0.5} />)}
+    <AppLayout title="Campaign Tiers" subtitle="Activate tiers to advertise your videos and earn grid commissions">
+      <style>{'.ct-card{transition:all .25s ease}.ct-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.15)!important}'}</style>
+
+      {/* Intro section */}
+      <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'20px 24px',marginBottom:20,boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
+        <div style={{fontSize:16,fontWeight:800,color:'#0f172a',marginBottom:8}}>How Campaign Tiers Work</div>
+        <div style={{fontSize:13,color:'#64748b',lineHeight:1.8,marginBottom:14}}>
+          Activate a campaign tier to submit your video ad, earn commissions from your grid, and qualify for completion bonuses. Each tier delivers a set number of views through the Watch & Earn engine. When views are delivered, repurchase to stay qualified and keep earning.
+        </div>
+        <div style={{display:'flex',gap:20,fontSize:12,fontWeight:700,color:'#94a3b8'}}>
+          <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:6,height:6,borderRadius:'50%',background:'#0ea5e9'}}/> 40% direct sponsor commission</span>
+          <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:6,height:6,borderRadius:'50%',background:'#8b5cf6'}}/> 6.25% uni-level per grid member</span>
+          <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:6,height:6,borderRadius:'50%',background:'#16a34a'}}/> Grid completion bonus up to $3,200</span>
+        </div>
       </div>
 
-      <style>{`
-        @keyframes orbPulse {
-          0%, 100% { transform: scale(1); opacity: 0.6; }
-          50% { transform: scale(1.25); opacity: 1; }
-        }
-        @keyframes orbDrift {
-          0%, 100% { transform: translate(0, 0); opacity: 0.4; }
-          25% { transform: translate(-6px, 4px); opacity: 0.8; }
-          50% { transform: translate(4px, -5px); opacity: 0.6; }
-          75% { transform: translate(-3px, -3px); opacity: 0.9; }
-        }
-        @keyframes lineSlide {
-          0% { transform: translateX(-100%); opacity: 0; }
-          10% { opacity: 1; }
-          90% { opacity: 1; }
-          100% { transform: translateX(100%); opacity: 0; }
-        }
-        .dark-tier:hover {
-          transform: translateY(-4px) !important;
-          box-shadow: 0 16px 40px rgba(0,0,0,0.35), 0 0 20px rgba(14,165,233,0.15) !important;
-        }
-      `}</style>
+      {/* Tier cards - Row 1 */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:12}}>
+        {tiers.slice(0,4).map(function(t, i) {
+          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i]} isLast={false}/>;
+        })}
+      </div>
+
+      {/* Tier cards - Row 2 */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}}>
+        {tiers.slice(4).map(function(t, i) {
+          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i + 4]} isLast={i === 3}/>;
+        })}
+      </div>
+
+      {/* Earning example */}
+      <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'18px 24px',marginBottom:20,boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
+        <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:6}}>Earning example: Tier 3 Pro ($100)</div>
+        <div style={{fontSize:13,color:'#64748b',lineHeight:1.8}}>
+          When someone in your network purchases this tier, the direct sponsor earns $40. Each of the 8 upline levels earns $6.25 per member. With a full grid of 64 members, that is $6.25 × 64 = $400 in uni-level commissions across the grid, plus a $320 completion bonus when the grid fills. Repurchase to reactivate and repeat.
+        </div>
+      </div>
+
+      {/* How it works steps */}
+      <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'20px 24px',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
+        <div style={{fontSize:15,fontWeight:800,color:'#0f172a',marginBottom:16}}>How it works</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16}}>
+          {[
+            {num:'1',title:'Activate a tier',desc:'Purchase a tier and submit your video ad for views.',color:TIER_COLORS[0].bg},
+            {num:'2',title:'Views are delivered',desc:'The community watches your ad through Watch & Earn.',color:TIER_COLORS[1].bg},
+            {num:'3',title:'Earn commissions',desc:'40% direct to sponsor. 6.25% per level for each of 8 upline members.',color:TIER_COLORS[2].bg},
+            {num:'4',title:'Repurchase and repeat',desc:'Repurchase to stay qualified. Grid reactivates on completion with bonus.',color:TIER_COLORS[5].bg},
+          ].map(function(s) {
+            return (
+              <div key={s.num}>
+                <div style={{width:32,height:32,borderRadius:'50%',background:s.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:14,fontWeight:700,color:'#fff',marginBottom:10}}>{s.num}</div>
+                <div style={{fontSize:13,fontWeight:800,color:'#0f172a',marginBottom:4}}>{s.title}</div>
+                <div style={{fontSize:12,color:'#94a3b8',lineHeight:1.6}}>{s.desc}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </AppLayout>
   );
 }
 
-function TierCard({ tier, active, delay }) {
-  const t = tier;
+function TierCard({ tier, colors, isLast }) {
+  var t = tier;
+  var c = colors;
+  var active = t.is_active;
+  var grid = t.grid;
 
   return (
-    <div className="dark-tier" style={{
-      background: 'linear-gradient(135deg, #0b1729 0%, #132240 50%, #0e1c30 100%)',
-      borderRadius: 8,
-      padding: '22px 20px 20px',
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      textAlign: 'center',
-      position: 'relative',
-      overflow: 'hidden',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.15)',
-      transition: 'all 0.3s ease',
-      cursor: 'default',
-    }}>
-      {/* Animated orbs */}
-      <div style={{
-        position:'absolute', width:100, height:100, borderRadius:'50%',
-        background:'radial-gradient(circle, rgba(14,165,233,0.25), transparent 70%)',
-        top:-20, right:-10, pointerEvents:'none',
-        animation: `orbPulse ${3 + (delay * 0.3)}s ease-in-out ${delay}s infinite`,
-      }}/>
-      <div style={{
-        position:'absolute', width:70, height:70, borderRadius:'50%',
-        background:'radial-gradient(circle, rgba(99,102,241,0.2), transparent 70%)',
-        bottom:-15, left:-10, pointerEvents:'none',
-        animation: `orbPulse ${4 + (delay * 0.2)}s ease-in-out ${delay + 1}s infinite`,
-      }}/>
-      <div style={{
-        position:'absolute', width:50, height:50, borderRadius:'50%',
-        background:'radial-gradient(circle, rgba(16,185,129,0.18), transparent 70%)',
-        top:'40%', right:'20%', pointerEvents:'none',
-        animation: `orbDrift ${5 + (delay * 0.2)}s ease-in-out ${delay + 0.5}s infinite`,
-      }}/>
-
-      {/* Light streak */}
-      <div style={{
-        position:'absolute', height:1, width:'50%',
-        background:'linear-gradient(90deg, transparent, rgba(14,165,233,0.3), transparent)',
-        top:'30%', left:0, pointerEvents:'none',
-        animation: `lineSlide ${7 + delay}s linear ${delay}s infinite`,
-      }}/>
-
-      {/* Floating dots */}
-      <div style={{
-        position:'absolute', width:4, height:4, borderRadius:'50%',
-        background:'rgba(14,165,233,0.6)', top:'20%', right:'25%', pointerEvents:'none',
-        animation: `orbDrift ${4}s ease-in-out ${delay}s infinite`,
-      }}/>
-      <div style={{
-        position:'absolute', width:3, height:3, borderRadius:'50%',
-        background:'rgba(16,185,129,0.5)', bottom:'30%', left:'20%', pointerEvents:'none',
-        animation: `orbDrift ${5}s ease-in-out ${delay + 1.5}s infinite`,
-      }}/>
-
-      {/* Lock icon */}
-      <div style={{
-        width: 44, height: 44, borderRadius: '50%',
-        background: 'rgba(14,165,233,0.12)',
-        border: '1px solid rgba(14,165,233,0.2)',
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        marginBottom: 10, position: 'relative', zIndex: 1,
-      }}>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="rgba(56,189,248,0.7)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-        </svg>
-      </div>
-
-      {/* Name */}
-      <div style={{
-        fontSize: 15, fontWeight: 800, color: '#fff',
-        marginBottom: 4, position: 'relative', zIndex: 1,
-        letterSpacing: 0.3,
-      }}>{t.name}</div>
-
-      {/* Price */}
-      <div style={{
-        fontFamily: 'Sora, sans-serif',
-        fontSize: 36, fontWeight: 900, color: t.color,
-        lineHeight: 1, marginBottom: 14,
-        position: 'relative', zIndex: 1,
-      }}>${t.price.toLocaleString()}</div>
-
-      {/* Specs */}
-      <div style={{ width: '100%', marginBottom: 14, position: 'relative', zIndex: 1 }}>
-        {[
-          { label: 'Direct', value: '40%' },
-          { label: 'Uni-level', value: '50%' },
-          { label: 'Bonus Pool', value: '5%' },
-          { label: 'Grid Size', value: '8×8 (64)' },
-        ].map((s, i) => (
-          <div key={i} style={{
-            display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-            padding: '4px 0',
-            borderBottom: i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none',
-          }}>
-            <span style={{ fontSize: 13, color: 'rgba(200,220,255,0.45)', fontWeight: 500 }}>{s.label}</span>
-            <span style={{ fontSize: 13, fontWeight: 700, color: '#4ade80' }}>{s.value}</span>
+    <div className="ct-card" style={{borderRadius:14,overflow:'hidden',border:active?'2px solid '+c.mid:'1px solid #e8ecf2',boxShadow:'0 2px 8px rgba(0,0,0,.06)',cursor:'default',position:'relative'}}>
+      {/* Coloured header */}
+      <div style={{background:c.isGradient?c.bg:c.bg,padding:'16px 16px 12px',position:'relative'}}>
+        {active && (
+          <div style={{position:'absolute',top:8,right:8,background:c.mid,color:c.dark,fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:6,display:'flex',alignItems:'center',gap:3}}>
+            <Check size={10}/> Active
           </div>
-        ))}
+        )}
+        {isLast && !active && (
+          <div style={{position:'absolute',top:8,right:8,background:c.mid,color:c.dark,fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:6}}>Top tier</div>
+        )}
+        <div style={{fontSize:10,color:c.text,textTransform:'uppercase',letterSpacing:.5,marginBottom:2}}>Tier {t.tier}</div>
+        <div style={{fontSize:16,fontWeight:800,color:c.light,marginBottom:2}}>{t.name}</div>
+        <div style={{fontSize:26,fontWeight:900,color:'#fff'}}>${t.price.toLocaleString()}</div>
       </div>
 
-      {/* Button */}
-      {active ? (
-        <div style={{
-          width: '100%', padding: 11, borderRadius: 10,
-          fontSize: 14, fontWeight: 700, textAlign: 'center',
-          background: 'rgba(74,222,128,0.15)',
-          border: '1px solid rgba(74,222,128,0.25)',
-          color: '#4ade80', position: 'relative', zIndex: 1,
-        }}>✓ Active</div>
-      ) : (
-        <Link to={`/activate/${t.n}`} style={{
-          display: 'block', width: '100%', padding: 11, borderRadius: 10,
-          fontSize: 14, fontWeight: 700, textAlign: 'center', textDecoration: 'none',
-          background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)',
-          color: '#fff', position: 'relative', zIndex: 1,
-          boxShadow: '0 4px 14px rgba(14,165,233,0.3)',
-          boxSizing: 'border-box',
-        }}>Activate</Link>
-      )}
+      {/* White body */}
+      <div style={{background:'#fff',padding:'14px 16px'}}>
+        {/* Grid progress bar (if active and has grid) */}
+        {active && grid && (
+          <div style={{marginBottom:10}}>
+            <div style={{height:4,background:'#f1f5f9',borderRadius:2,marginBottom:4}}>
+              <div style={{height:'100%',width:grid.pct+'%',background:c.mid,borderRadius:2,transition:'width .5s'}}/>
+            </div>
+            <div style={{fontSize:11,color:'#94a3b8'}}>{grid.filled}/64 members · Grid #{grid.advance}</div>
+          </div>
+        )}
+
+        {/* Stats */}
+        <div style={{fontSize:12,color:'#64748b',lineHeight:2.1}}>
+          <div>{t.views_target.toLocaleString()} views target</div>
+          <div style={{color:'#0f172a',fontWeight:700}}>${t.direct_commission.toFixed(2)} direct (40%)</div>
+          <div style={{color:c.accent,fontWeight:700}}>${t.uni_level_per_member.toFixed(2)} per grid member</div>
+          <div style={{color:c.dark,fontWeight:700}}>${t.completion_bonus.toLocaleString()} completion bonus</div>
+        </div>
+
+        {/* Activate button (if not active) */}
+        {!active && (
+          <Link to={'/activate-tier?tier=' + t.tier} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:5,width:'100%',padding:'9px',borderRadius:8,border:'none',
+            background:c.bg,color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit',textDecoration:'none',marginTop:10,
+            boxSizing:'border-box'}}>
+            <Zap size={12}/> Activate Tier
+          </Link>
+        )}
+      </div>
     </div>
   );
 }
