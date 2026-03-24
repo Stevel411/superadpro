@@ -91,8 +91,19 @@ export function Legal() {
           <p style={p}>Members upgrading from Basic to Pro pay only the $15 difference between tiers. The upgrade fee goes 100% to the platform and does not generate a commission for the referring sponsor. From the next billing cycle onwards, the member renews at the Pro rate ($35/mo) and the sponsor earns their tier-capped commission on each renewal.</p>
           <p style={bold}>Campaign tier commissions</p>
           <p style={p}>Campaign tier purchases are split as follows: 40% to the direct sponsor, 50% distributed across 8 uni-level tiers (6.25% each), 5% to the grid completion bonus pool, and 5% to the platform. Commission qualification requires an active membership and completion of daily Watch to Earn requirements.</p>
+          <p style={bold}>Campaign view targets and repurchase</p>
+          <p style={p}>Each campaign tier includes a set number of video views delivered by the Watch & Earn community. Once the view target has been achieved, the campaign completes. Members may repurchase the same tier to reactivate their commission qualification and submit a new video ad. Grids reactivate automatically upon completion — when a grid reaches 64 members, the completion bonus is paid and a new grid opens. This creates a long-term recurring income opportunity through ongoing repurchase and grid reactivation.</p>
           <p style={bold}>Course commissions</p>
           <p style={p}>Course sales follow a 100% pass-up system. Sales 1, 3, 5, and 7 are kept by the seller. Sales 2, 4, 6, and 8 pass up to the sponsor in the commission chain.</p>
+        </LegalSection>
+
+        <LegalSection title="Platform Rights &amp; Modifications">
+          <p style={p}>SuperAdPro reserves the right to modify, adjust, or update the following at any time, with or without prior notice, in order to maintain the integrity, fairness, and sustainability of the platform:</p>
+          <p style={p}>Campaign view targets — the number of views required per campaign tier may be increased or decreased at the sole discretion of SuperAdPro to reflect changes in platform growth, community size, or operational requirements.</p>
+          <p style={p}>Commission rates and structures — including but not limited to referral commission percentages, uni-level distribution rates, grid completion bonus amounts, and course pass-up structures.</p>
+          <p style={p}>Membership pricing and tier features — including the addition, removal, or modification of features available at each membership level.</p>
+          <p style={p}>Platform policies and operational rules — including but not limited to Watch & Earn daily allocations, content moderation standards, and withdrawal thresholds.</p>
+          <p style={p}>Any significant changes to commission structures or campaign view targets will be communicated to members via email and platform notifications. Continued use of the platform after such changes constitutes acceptance of the updated terms.</p>
         </LegalSection>
 
         <LegalSection title="Privacy Policy">
