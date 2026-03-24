@@ -32,7 +32,13 @@ export default function CampaignTiers() {
 
   return (
     <AppLayout title="Campaign Tiers" subtitle="Activate tiers to advertise your videos and earn grid commissions">
-      <style>{'.ct-card{transition:all .25s ease}.ct-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.15)!important}'}</style>
+      <style>{`
+        .ct-card{transition:all .25s ease;opacity:0;animation:ctFadeUp .6s ease forwards}
+        .ct-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.15)!important}
+        @keyframes ctFadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        .ct-d0{animation-delay:.05s}.ct-d1{animation-delay:.1s}.ct-d2{animation-delay:.15s}.ct-d3{animation-delay:.2s}
+        .ct-d4{animation-delay:.25s}.ct-d5{animation-delay:.3s}.ct-d6{animation-delay:.35s}.ct-d7{animation-delay:.4s}
+      `}</style>
 
       {/* Intro section */}
       <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'20px 24px',marginBottom:20,boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
@@ -50,14 +56,14 @@ export default function CampaignTiers() {
       {/* Tier cards - Row 1 */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:12}}>
         {tiers.slice(0,4).map(function(t, i) {
-          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i]} isLast={false}/>;
+          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i]} isLast={false} delayClass={'ct-d'+i}/>;
         })}
       </div>
 
       {/* Tier cards - Row 2 */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}}>
         {tiers.slice(4).map(function(t, i) {
-          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i + 4]} isLast={i === 3}/>;
+          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i + 4]} isLast={i === 3} delayClass={'ct-d'+(i+4)}/>;
         })}
       </div>
 
@@ -93,43 +99,43 @@ export default function CampaignTiers() {
   );
 }
 
-function TierCard({ tier, colors, isLast }) {
+function TierCard({ tier, colors, isLast, delayClass }) {
   var t = tier;
   var c = colors;
   var active = t.is_active;
   var grid = t.grid;
 
   return (
-    <div className="ct-card" style={{borderRadius:14,overflow:'hidden',border:active?'2px solid '+c.mid:'1px solid #e8ecf2',boxShadow:'0 2px 8px rgba(0,0,0,.06)',cursor:'default',position:'relative'}}>
+    <div className={'ct-card ' + (delayClass||'')} style={{borderRadius:14,overflow:'hidden',border:active?'2px solid '+c.mid:'1px solid #e8ecf2',boxShadow:'0 2px 8px rgba(0,0,0,.06)',cursor:'default',position:'relative'}}>
       {/* Coloured header */}
-      <div style={{background:c.isGradient?c.bg:c.bg,padding:'16px 16px 12px',position:'relative'}}>
+      <div style={{background:c.isGradient?c.bg:c.bg,padding:'18px 18px 14px',position:'relative'}}>
         {active && (
-          <div style={{position:'absolute',top:8,right:8,background:c.mid,color:c.dark,fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:6,display:'flex',alignItems:'center',gap:3}}>
-            <Check size={10}/> Active
+          <div style={{position:'absolute',top:10,right:10,background:c.mid,color:c.dark,fontSize:11,fontWeight:700,padding:'3px 10px',borderRadius:6,display:'flex',alignItems:'center',gap:3}}>
+            <Check size={11}/> Active
           </div>
         )}
         {isLast && !active && (
-          <div style={{position:'absolute',top:8,right:8,background:c.mid,color:c.dark,fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:6}}>Top tier</div>
+          <div style={{position:'absolute',top:10,right:10,background:c.mid,color:c.dark,fontSize:11,fontWeight:700,padding:'3px 10px',borderRadius:6}}>Top tier</div>
         )}
-        <div style={{fontSize:10,color:c.text,textTransform:'uppercase',letterSpacing:.5,marginBottom:2}}>Tier {t.tier}</div>
-        <div style={{fontSize:16,fontWeight:800,color:c.light,marginBottom:2}}>{t.name}</div>
-        <div style={{fontSize:26,fontWeight:900,color:'#fff'}}>${t.price.toLocaleString()}</div>
+        <div style={{fontSize:11,color:c.text,textTransform:'uppercase',letterSpacing:.5,marginBottom:3}}>Tier {t.tier}</div>
+        <div style={{fontSize:18,fontWeight:800,color:c.light,marginBottom:2}}>{t.name}</div>
+        <div style={{fontSize:28,fontWeight:900,color:'#fff'}}>${t.price.toLocaleString()}</div>
       </div>
 
       {/* White body */}
-      <div style={{background:'#fff',padding:'14px 16px'}}>
+      <div style={{background:'#fff',padding:'16px 18px'}}>
         {/* Grid progress bar (if active and has grid) */}
         {active && grid && (
-          <div style={{marginBottom:10}}>
-            <div style={{height:4,background:'#f1f5f9',borderRadius:2,marginBottom:4}}>
-              <div style={{height:'100%',width:grid.pct+'%',background:c.mid,borderRadius:2,transition:'width .5s'}}/>
+          <div style={{marginBottom:12}}>
+            <div style={{height:5,background:'#f1f5f9',borderRadius:3,marginBottom:5}}>
+              <div style={{height:'100%',width:grid.pct+'%',background:c.mid,borderRadius:3,transition:'width .5s'}}/>
             </div>
-            <div style={{fontSize:11,color:'#94a3b8'}}>{grid.filled}/64 members · Grid #{grid.advance}</div>
+            <div style={{fontSize:13,color:'#94a3b8'}}>{grid.filled}/64 members · Grid #{grid.advance}</div>
           </div>
         )}
 
         {/* Stats */}
-        <div style={{fontSize:12,color:'#64748b',lineHeight:2.1}}>
+        <div style={{fontSize:14,color:'#64748b',lineHeight:2.2}}>
           <div>{t.views_target.toLocaleString()} views target</div>
           <div style={{color:'#0f172a',fontWeight:700}}>${t.direct_commission.toFixed(2)} direct (40%)</div>
           <div style={{color:c.accent,fontWeight:700}}>${t.uni_level_per_member.toFixed(2)} per grid member</div>
@@ -138,10 +144,10 @@ function TierCard({ tier, colors, isLast }) {
 
         {/* Activate button (if not active) */}
         {!active && (
-          <Link to={'/activate-tier?tier=' + t.tier} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:5,width:'100%',padding:'9px',borderRadius:8,border:'none',
-            background:c.bg,color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit',textDecoration:'none',marginTop:10,
+          <Link to={'/activate-tier?tier=' + t.tier} style={{display:'flex',alignItems:'center',justifyContent:'center',gap:5,width:'100%',padding:'10px',borderRadius:8,border:'none',
+            background:c.bg,color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',textDecoration:'none',marginTop:12,
             boxSizing:'border-box'}}>
-            <Zap size={12}/> Activate Tier
+            <Zap size={13}/> Activate Tier
           </Link>
         )}
       </div>
