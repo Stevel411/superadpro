@@ -1258,7 +1258,9 @@ def api_dashboard(request: Request, user: User = Depends(get_current_user),
                 safe[k] = str(v)
         return safe
     except Exception as exc:
-        return JSONResponse({"error": str(exc)}, status_code=500)
+        import traceback
+        logger.error(f"Dashboard API error for user {user.id}: {traceback.format_exc()}")
+        return JSONResponse({"error": str(exc), "trace": traceback.format_exc()[-500:]}, status_code=500)
 
 @app.get("/launch-wizard")
 def launch_wizard(request: Request):
