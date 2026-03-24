@@ -327,9 +327,10 @@ export default function HomePage(){
                 <polyline points="146,122 154,118 160,120 168,112 174,108 182,104" fill="none" stroke="#0ea5e9" strokeWidth="1.5" strokeLinecap="round" opacity="0.6"/>
                 <circle cx="182" cy="104" r="2" fill="#38bdf8"/>
               </svg>
-              <span style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#0ea5e9',position:'absolute',bottom:14,zIndex:2,textShadow:'0 0 30px rgba(14,165,233,0.4)'}}>Advertise</span>
+
             </div>
             <div style={{padding:'16px 18px',background:'rgba(5,13,26,.95)',borderTop:'1px solid rgba(14,165,233,0.1)'}}>
+              <div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:900,color:'#0ea5e9',marginBottom:8}}>Advertise</div>
               <p style={{fontSize:13,color:'rgba(200,220,255,.5)',lineHeight:1.65,margin:0}}>Launch video ad campaigns across 8 tiers. Your videos are watched by real, engaged members — not bots. Track views, measure engagement, and scale your reach.</p>
             </div>
           </div>
@@ -373,9 +374,10 @@ export default function HomePage(){
                 <circle cx="68" cy="90" r="1.5" fill="#a78bfa" opacity="0.4"/>
                 <circle cx="132" cy="90" r="1.5" fill="#a78bfa" opacity="0.4"/>
               </svg>
-              <span style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#8b5cf6',position:'absolute',bottom:14,zIndex:2,textShadow:'0 0 30px rgba(139,92,246,0.4)'}}>Create</span>
+
             </div>
             <div style={{padding:'16px 18px',background:'rgba(5,13,26,.95)',borderTop:'1px solid rgba(139,92,246,0.1)'}}>
+              <div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:900,color:'#8b5cf6',marginBottom:8}}>Create</div>
               <p style={{fontSize:13,color:'rgba(200,220,255,.5)',lineHeight:1.65,margin:0}}>AI Campaign Studio, Social Post Generator, Video Script Writer, SuperPages landing page builder, LinkHub, and email tools. Create professional marketing content in seconds.</p>
             </div>
           </div>
@@ -417,9 +419,10 @@ export default function HomePage(){
                 <text x="75" y="90" fill="#10b981" fontSize="6" opacity="0.15">$</text>
                 <text x="125" y="90" fill="#34d399" fontSize="6" opacity="0.15">$</text>
               </svg>
-              <span style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#10b981',position:'absolute',bottom:14,zIndex:2,textShadow:'0 0 30px rgba(16,185,129,0.4)'}}>Grow</span>
+
             </div>
             <div style={{padding:'16px 18px',background:'rgba(5,13,26,.95)',borderTop:'1px solid rgba(16,185,129,0.1)'}}>
+              <div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:900,color:'#10b981',marginBottom:8}}>Grow</div>
               <p style={{fontSize:13,color:'rgba(200,220,255,.5)',lineHeight:1.65,margin:0}}>Build your audience through courses, the Ad Board marketplace, and an affiliate network that promotes your content. Earn commissions as your network grows.</p>
             </div>
           </div>
