@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
@@ -15,75 +15,14 @@ var COLORS = [
   { bg: 'linear-gradient(135deg,#26215C,#3C3489)', light: '#EEEDFE', mid: '#AFA9EC', text: '#CECBF6', accent: '#534AB7', dark: '#3C3489', isGrad: true },
 ];
 
-function Card({ tier, col, isLast, idx }) {
-  var t = tier;
-  var c = col;
-  var active = t.is_active;
-  var grid = t.grid;
-  var ref = useRef(null);
-  var [show, setShow] = useState(false);
-
-  useEffect(function() {
-    var timer = setTimeout(function() { setShow(true); }, 80 + idx * 120);
-    return function() { clearTimeout(timer); };
-  }, [idx]);
-
-  return (
-    <div ref={ref} style={{
-      borderRadius: 14,
-      overflow: 'hidden',
-      border: active ? '2px solid ' + c.mid : '1px solid #e8ecf2',
-      boxShadow: '0 2px 8px rgba(0,0,0,.06)',
-      cursor: 'default',
-      position: 'relative',
-      opacity: show ? 1 : 0,
-      transform: show ? 'translateY(0) scale(1)' : 'translateY(24px) scale(0.95)',
-      transition: 'opacity 0.6s ease, transform 0.6s ease',
-    }}
-    onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.boxShadow = '0 16px 40px rgba(0,0,0,.18)'; }}
-    onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,.06)'; }}
-    >
-      {/* Coloured header */}
-      <div style={{ background: c.isGrad ? c.bg : c.bg, padding: '18px 18px 14px', position: 'relative' }}>
-        {active && (
-          <div style={{ position: 'absolute', top: 10, right: 10, background: c.mid, color: c.dark, fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 3 }}>
-            <Check size={11} /> Active
-          </div>
-        )}
-        {isLast && !active && (
-          <div style={{ position: 'absolute', top: 10, right: 10, background: c.mid, color: c.dark, fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 6 }}>Top tier</div>
-        )}
-        <div style={{ fontSize: 11, color: c.text, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 }}>Tier {t.tier}</div>
-        <div style={{ fontSize: 18, fontWeight: 800, color: c.light, marginBottom: 2 }}>{t.name}</div>
-        <div style={{ fontSize: 28, fontWeight: 900, color: '#fff' }}>${t.price.toLocaleString()}</div>
-      </div>
-
-      {/* White body */}
-      <div style={{ background: '#fff', padding: '16px 18px' }}>
-        {active && grid && (
-          <div style={{ marginBottom: 12 }}>
-            <div style={{ height: 5, background: '#f1f5f9', borderRadius: 3, marginBottom: 5 }}>
-              <div style={{ height: '100%', width: grid.pct + '%', background: c.mid, borderRadius: 3, transition: 'width .5s' }} />
-            </div>
-            <div style={{ fontSize: 13, color: '#94a3b8' }}>{grid.filled}/64 members · Grid #{grid.advance}</div>
-          </div>
-        )}
-
-        <div style={{ fontSize: 15, color: '#64748b', lineHeight: 2.4 }}>
-          <div style={{ fontSize: 14, color: '#94a3b8' }}>{t.views_target.toLocaleString()} views target</div>
-          <div style={{ color: '#0f172a', fontWeight: 800, fontSize: 16 }}>${t.direct_commission.toFixed(2)} direct (40%)</div>
-          <div style={{ color: c.accent, fontWeight: 800, fontSize: 16 }}>${t.uni_level_per_member.toFixed(2)} per grid member</div>
-          <div style={{ color: c.dark, fontWeight: 800, fontSize: 16 }}>${t.completion_bonus.toLocaleString()} completion bonus</div>
-        </div>
-
-        {!active && (
-          <Link to={'/activate-tier?tier=' + t.tier} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, width: '100%', padding: '10px', borderRadius: 8, border: 'none', background: c.bg, color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'none', marginTop: 12, boxSizing: 'border-box' }}>
-            <Zap size={13} /> Activate Tier
-          </Link>
-        )}
-      </div>
-    </div>
-  );
+var CARD_STYLE = document.createElement('style');
+CARD_STYLE.textContent = [
+  '@keyframes ctReveal{0%{opacity:0;transform:translateY(24px) scale(0.95)}100%{opacity:1;transform:translateY(0) scale(1)}}',
+  '.ct-anim{opacity:0;animation:ctReveal 0.65s ease forwards}',
+].join('\n');
+if (typeof document !== 'undefined' && !document.getElementById('ct-style')) {
+  CARD_STYLE.id = 'ct-style';
+  document.head.appendChild(CARD_STYLE);
 }
 
 export default function CampaignTiers() {
@@ -167,5 +106,68 @@ export default function CampaignTiers() {
         </div>
       </div>
     </AppLayout>
+  );
+}
+
+function Card({ tier, col, isLast, idx }) {
+  var t = tier;
+  var c = col;
+  var active = t.is_active;
+  var grid = t.grid;
+  var delay = (0.08 + idx * 0.12) + 's';
+
+  return (
+    <div className="ct-anim" style={{
+      borderRadius: 14,
+      overflow: 'hidden',
+      border: active ? '2px solid ' + c.mid : '1px solid #e8ecf2',
+      boxShadow: '0 2px 8px rgba(0,0,0,.06)',
+      cursor: 'default',
+      position: 'relative',
+      animationDelay: delay,
+    }}
+    onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-6px)'; e.currentTarget.style.boxShadow = '0 16px 40px rgba(0,0,0,.18)'; e.currentTarget.style.transition = 'transform .3s ease, box-shadow .3s ease'; }}
+    onMouseLeave={function(e) { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
+    >
+      {/* Coloured header */}
+      <div style={{ background: c.isGrad ? c.bg : c.bg, padding: '18px 18px 14px', position: 'relative' }}>
+        {active && (
+          <div style={{ position: 'absolute', top: 10, right: 10, background: c.mid, color: c.dark, fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 3 }}>
+            <Check size={11} /> Active
+          </div>
+        )}
+        {isLast && !active && (
+          <div style={{ position: 'absolute', top: 10, right: 10, background: c.mid, color: c.dark, fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 6 }}>Top tier</div>
+        )}
+        <div style={{ fontSize: 11, color: c.text, textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 3 }}>Tier {t.tier}</div>
+        <div style={{ fontSize: 18, fontWeight: 800, color: c.light, marginBottom: 2 }}>{t.name}</div>
+        <div style={{ fontSize: 28, fontWeight: 900, color: '#fff' }}>${t.price.toLocaleString()}</div>
+      </div>
+
+      {/* White body */}
+      <div style={{ background: '#fff', padding: '16px 18px' }}>
+        {active && grid && (
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ height: 5, background: '#f1f5f9', borderRadius: 3, marginBottom: 5 }}>
+              <div style={{ height: '100%', width: grid.pct + '%', background: c.mid, borderRadius: 3, transition: 'width .5s' }} />
+            </div>
+            <div style={{ fontSize: 13, color: '#94a3b8' }}>{grid.filled}/64 members · Grid #{grid.advance}</div>
+          </div>
+        )}
+
+        <div style={{ fontSize: 15, color: '#64748b', lineHeight: 2.4 }}>
+          <div style={{ fontSize: 14, color: '#94a3b8' }}>{t.views_target.toLocaleString()} views target</div>
+          <div style={{ color: '#0f172a', fontWeight: 800, fontSize: 16 }}>${t.direct_commission.toFixed(2)} direct (40%)</div>
+          <div style={{ color: c.accent, fontWeight: 800, fontSize: 16 }}>${t.uni_level_per_member.toFixed(2)} per grid member</div>
+          <div style={{ color: c.dark, fontWeight: 800, fontSize: 16 }}>${t.completion_bonus.toLocaleString()} completion bonus</div>
+        </div>
+
+        {!active && (
+          <Link to={'/activate-tier?tier=' + t.tier} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, width: '100%', padding: '10px', borderRadius: 8, border: 'none', background: c.bg, color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'none', marginTop: 12, boxSizing: 'border-box' }}>
+            <Zap size={13} /> Activate Tier
+          </Link>
+        )}
+      </div>
+    </div>
   );
 }
