@@ -33,9 +33,8 @@ export default function CampaignTiers() {
   return (
     <AppLayout title="Campaign Tiers" subtitle="Activate tiers to advertise your videos and earn grid commissions">
       <style>{`
-        @keyframes ctSlideUp{0%{opacity:0;transform:scale(.92) translateY(20px)}100%{opacity:1;transform:scale(1) translateY(0)}}
-        .ct-card{animation:ctSlideUp .7s ease both}
-        .ct-card:hover{transform:translateY(-6px)!important;box-shadow:0 16px 40px rgba(0,0,0,.18)!important;transition:transform .3s ease,box-shadow .3s ease}
+        .ct-card{transition:transform .3s ease,box-shadow .3s ease}
+        .ct-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.18)!important}
       `}</style>
 
       {/* Intro section */}
@@ -54,14 +53,14 @@ export default function CampaignTiers() {
       {/* Tier cards - Row 1 */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:12}}>
         {tiers.slice(0,4).map(function(t, i) {
-          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i]} isLast={false} delay={i * 0.12}/>;
+          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i]} isLast={false}/>;
         })}
       </div>
 
       {/* Tier cards - Row 2 */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}}>
         {tiers.slice(4).map(function(t, i) {
-          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i + 4]} isLast={i === 3} delay={(i + 4) * 0.12}/>;
+          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i + 4]} isLast={i === 3}/>;
         })}
       </div>
 
@@ -97,7 +96,7 @@ export default function CampaignTiers() {
   );
 }
 
-function TierCard({ tier, colors, isLast, delay }) {
+function TierCard({ tier, colors, isLast }) {
   var t = tier;
   var c = colors;
   var active = t.is_active;
@@ -105,8 +104,7 @@ function TierCard({ tier, colors, isLast, delay }) {
 
   return (
     <div className="ct-card" style={{borderRadius:14,overflow:'hidden',border:active?'2px solid '+c.mid:'1px solid #e8ecf2',
-      boxShadow:'0 2px 8px rgba(0,0,0,.06)',cursor:'default',position:'relative',
-      animationDelay:delay+'s'}}>
+      boxShadow:'0 2px 8px rgba(0,0,0,.06)',cursor:'default',position:'relative'}}>
       {/* Coloured header */}
       <div style={{background:c.isGradient?c.bg:c.bg,padding:'18px 18px 14px',position:'relative'}}>
         {active && (

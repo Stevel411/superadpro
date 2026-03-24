@@ -263,17 +263,12 @@ export default function LinkTools() {
       {/* ── Stats Cards + Controls ── */}
       <style>{`
         @keyframes ltSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
-        @keyframes ltPop{0%{opacity:0;transform:scale(.92) translateY(12px)}100%{opacity:1;transform:scale(1) translateY(0)}}
-        @keyframes ltShine{0%{left:-120%}100%{left:200%}}
-        @keyframes ltPulseRing{0%,100%{transform:scale(.95);opacity:.5}50%{transform:scale(1.08);opacity:.9}}
-        @keyframes ltFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-10px) rotate(3deg)}}
-        @keyframes ltCount{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-        .lt-stat{transition:all .28s cubic-bezier(.34,1.56,.64,1);animation:ltPop .8s ease both}
-        .lt-stat:hover{transform:translateY(-6px) scale(1.02)!important}
+        .lt-stat{transition:transform .25s ease,box-shadow .25s ease}
+        .lt-stat:hover{transform:translateY(-4px)!important;box-shadow:0 12px 32px rgba(0,0,0,.15)!important}
         .lt-action-btn{transition:all .18s ease}
         .lt-action-btn:hover{background:#f0f9ff!important;color:#0ea5e9!important;border-color:#bae6fd!important}
-        .lt-create-btn{transition:all .2s cubic-bezier(.34,1.56,.64,1)}
-        .lt-create-btn:hover{transform:translateY(-3px) scale(1.04)!important}
+        .lt-create-btn{transition:all .2s ease}
+        .lt-create-btn:hover{transform:translateY(-3px)!important}
       `}</style>
 
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:18,marginBottom:24}}>
@@ -287,20 +282,18 @@ export default function LinkTools() {
             background:s.grad,borderRadius:20,padding:'28px 26px 24px',
             boxShadow:`0 12px 40px ${s.shadow},0 4px 12px rgba(0,0,0,.1)`,
             position:'relative',overflow:'hidden',cursor:'default',
-            animationDelay:s.delay+'s',
+            
           }}>
-            {/* Shine sweep */}
-            <div style={{position:'absolute',top:0,bottom:0,width:'45%',background:'linear-gradient(105deg,transparent 35%,rgba(255,255,255,.18) 50%,transparent 65%)',animation:'ltShine 4.5s ease-in-out infinite',animationDelay:i*.8+'s',pointerEvents:'none'}}/>
+
             {/* Big decorative emoji */}
-            <div style={{position:'absolute',right:16,top:16,fontSize:52,opacity:.18,animation:'ltFloat '+(5+i)+'s ease-in-out infinite',animationDelay:i*1.2+'s',pointerEvents:'none',userSelect:'none'}}>{s.emoji}</div>
-            {/* Pulse ring */}
-            <div style={{position:'absolute',right:18,top:18,width:56,height:56,borderRadius:'50%',border:'2px solid rgba(255,255,255,.25)',animation:'ltPulseRing 3s ease-in-out infinite',animationDelay:i*.5+'s',pointerEvents:'none'}}/>
+            <div style={{position:'absolute',right:16,top:16,fontSize:52,opacity:.18,pointerEvents:'none',userSelect:'none'}}>{s.emoji}</div>
+
             {/* Icon */}
             <div style={{width:48,height:48,borderRadius:14,background:'rgba(255,255,255,.2)',backdropFilter:'blur(8px)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:18,border:'1px solid rgba(255,255,255,.3)'}}>
               <s.icon size={22} color="#fff"/>
             </div>
             {/* Number */}
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:52,fontWeight:900,color:'#fff',lineHeight:1,marginBottom:6,animation:'ltCount .6s ease both',animationDelay:s.delay+.1+'s',textShadow:'0 2px 8px rgba(0,0,0,.15)'}}>{s.val}</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:52,fontWeight:900,color:'#fff',lineHeight:1,marginBottom:6,textShadow:'0 2px 8px rgba(0,0,0,.15)'}}>{s.val}</div>
             {/* Labels */}
             <div style={{fontSize:15,fontWeight:800,color:'rgba(255,255,255,.95)',marginBottom:3,letterSpacing:.2}}>{s.label}</div>
             <div style={{fontSize:11,color:'rgba(255,255,255,.65)',fontWeight:600,textTransform:'uppercase',letterSpacing:.8}}>{s.sub}</div>
