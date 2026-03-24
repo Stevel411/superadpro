@@ -9521,32 +9521,46 @@ def admin_debug_dashboard(secret: str = "", db: Session = Depends(get_db)):
     """Debug: test dashboard context loading for the owner account."""
     if secret != "superadpro-owner-2026":
         return JSONResponse({"error": "Invalid"}, status_code=403)
+    import traceback as _tb
     try:
         user = db.query(User).filter(User.is_admin == True).first()
         if not user:
             return {"error": "No admin user"}
-        import traceback
+        # Step 1: check_achievements
+        try:
+            check_achievements(db, user)
+            step1 = "ok"
+        except Exception as e:
+            return {"step": "check_achievements_FAILED", "error": str(e), "tb": _tb.format_exc()[-1500:]}
+        # Step 2: build context
         try:
             from starlette.requests import Request as SRequest
             scope = {"type": "http", "method": "GET", "path": "/", "headers": [], "query_string": b""}
-            fake_req = SRequest(scope)
-            ctx = get_dashboard_context(fake_req, user, db)
-            # Replicate the exact serialisation from api_dashboard
-            safe = {}
-            for k, v in ctx.items():
-                if k in ('request', 'user'):
-                    continue
-                try:
-                    json.dumps(v)
-                    safe[k] = v
-                except (TypeError, ValueError) as e:
-                    safe[k] = f"SERIALISATION_FAILED: {type(v).__name__}: {str(e)[:100]}"
-            return {"step": "serialised_ok", "failed_keys": [k for k,v in safe.items() if isinstance(v, str) and v.startswith("SERIALISATION_FAILED")], "total_keys": len(safe)}
+            ctx = get_dashboard_context(SRequest(scope), user, db)
+            step2 = "ok"
         except Exception as e:
-            return {"step": "context_failed", "error": str(e), "traceback": traceback.format_exc()[-2000:]}
+            return {"step": "get_dashboard_context_FAILED", "error": str(e), "tb": _tb.format_exc()[-1500:]}
+        # Step 3: serialise each key individually
+        failures = {}
+        safe = {}
+        for k, v in ctx.items():
+            if k in ('request', 'user'):
+                continue
+            try:
+                json.dumps(v)
+                safe[k] = v
+            except (TypeError, ValueError) as e:
+                failures[k] = f"{type(v).__name__}: {str(e)[:200]}"
+                safe[k] = str(v)[:200]
+        # Step 4: final json.dumps on the whole thing
+        try:
+            json.dumps(safe)
+            step4 = "ok"
+        except Exception as e:
+            return {"step": "final_json_FAILED", "error": str(e), "failures": failures}
+        return {"step": "ALL_OK", "failures": failures, "total_keys": len(safe)}
     except Exception as e:
-        import traceback
-        return {"error": str(e), "traceback": traceback.format_exc()[-2000:]}
+        return {"error": str(e), "tb": _tb.format_exc()[-1500:]}
 
 
 @app.get("/admin/fix-owner")
