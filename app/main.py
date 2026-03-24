@@ -11419,8 +11419,10 @@ async def _old_upgrade_DISABLED(request: Request, db: Session = Depends(get_db))
 
 @app.get("/pro/funnels")
 async def pro_funnels_page(request: Request, db: Session = Depends(get_db)):
-    """Redirect to React SuperPages listing."""
-    return RedirectResponse("/pro/funnels", status_code=302)
+    """Serve React SuperPages listing."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 
 @app.post("/api/pro/generate-funnel")
@@ -11590,8 +11592,10 @@ Return ONLY a valid JSON array. No markdown."""
 
 @app.get("/pro/funnel/{funnel_id}/edit")
 async def pro_funnel_edit(funnel_id: int, request: Request, db: Session = Depends(get_db)):
-    """Redirect to React editor."""
-    return RedirectResponse(f"/pro/funnel/{funnel_id}/edit", status_code=302)
+    """Serve React SuperPages editor."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 
 
 @app.get("/pro/funnel/{funnel_id}/analytics")
