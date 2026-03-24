@@ -2007,8 +2007,8 @@ async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
         if user.sponsor_id:
             sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
             if sponsor:
-                sponsor.balance += sponsor_share
-                sponsor.total_earned += sponsor_share
+                sponsor.balance = (sponsor.balance or decimal.Decimal('0')) + sponsor_share
+                sponsor.total_earned = (sponsor.total_earned or decimal.Decimal('0')) + sponsor_share
                 sponsor.upline_earnings = (sponsor.upline_earnings or decimal.Decimal('0')) + sponsor_share
                 sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
 

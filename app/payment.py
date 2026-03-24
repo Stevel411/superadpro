@@ -174,7 +174,7 @@ def _cascade_auto_activation(
 
         # Credit the next person up the chain with sponsor share only
         if next_recipient:
-            next_recipient.balance          += MEMBERSHIP_SPONSOR_SHARE
+            next_recipient.balance          = Decimal(str(next_recipient.balance or 0)) + Decimal(str(MEMBERSHIP_SPONSOR_SHARE))
             next_recipient.total_earned     += MEMBERSHIP_SPONSOR_SHARE
             next_recipient.personal_referrals += 1
         # Company share ($10) stays consumed from the cascade payment
@@ -553,8 +553,8 @@ def process_auto_renewals(db: Session) -> dict:
                 user.low_balance_warned = False
 
                 if sponsor:
-                    sponsor.balance      += MEMBERSHIP_SPONSOR_SHARE
-                    sponsor.total_earned += MEMBERSHIP_SPONSOR_SHARE
+                    sponsor.balance      = Decimal(str(sponsor.balance or 0)) + Decimal(str(MEMBERSHIP_SPONSOR_SHARE))
+                    sponsor.total_earned = Decimal(str(sponsor.total_earned or 0)) + Decimal(str(MEMBERSHIP_SPONSOR_SHARE))
 
                 db.add(Commission(
                     from_user_id    = user.id,

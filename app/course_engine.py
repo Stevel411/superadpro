@@ -29,6 +29,7 @@ QUALIFICATION:
 
 from datetime import datetime
 from sqlalchemy.orm import Session
+from decimal import Decimal
 from sqlalchemy import text
 from app.database import (
     User, Course, CoursePurchase, CourseCommission
@@ -205,9 +206,9 @@ def _credit_earner(db, purchase, course, earner, amount,
         notes=notes
     )
     db.add(commission)
-    earner.balance += amount
-    earner.total_earned += amount
-    earner.course_earnings += amount
+    earner.balance = Decimal(str(earner.balance or 0)) + Decimal(str(amount))
+    earner.total_earned = Decimal(str(earner.total_earned or 0)) + Decimal(str(amount))
+    earner.course_earnings = Decimal(str(earner.course_earnings or 0)) + Decimal(str(amount))
     return {
         "earner_id": earner.id,
         "earner_username": earner.username,
@@ -232,8 +233,8 @@ def _credit_platform(db, purchase, course, amount, notes) -> dict:
     )
     db.add(commission)
     if admin:
-        admin.balance += amount
-        admin.total_earned += amount
+        admin.balance = Decimal(str(admin.balance or 0)) + Decimal(str(amount))
+        admin.total_earned = Decimal(str(admin.total_earned or 0)) + Decimal(str(amount))
     return {
         "earner_id": admin.id if admin else None,
         "earner_username": "PLATFORM" if not admin else admin.username,
