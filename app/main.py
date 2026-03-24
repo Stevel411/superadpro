@@ -9525,8 +9525,21 @@ def admin_debug_dashboard(secret: str = "", db: Session = Depends(get_db)):
             return {"error": "No admin user"}
         import traceback
         try:
-            ctx = get_dashboard_context(Request(scope={"type": "http", "method": "GET", "path": "/", "headers": [], "query_string": b""}), user, db)
-            return {"step": "full_context_ok", "keys": list(ctx.keys())[:30]}
+            from starlette.requests import Request as SRequest
+            scope = {"type": "http", "method": "GET", "path": "/", "headers": [], "query_string": b""}
+            fake_req = SRequest(scope)
+            ctx = get_dashboard_context(fake_req, user, db)
+            # Replicate the exact serialisation from api_dashboard
+            safe = {}
+            for k, v in ctx.items():
+                if k in ('request', 'user'):
+                    continue
+                try:
+                    json.dumps(v)
+                    safe[k] = v
+                except (TypeError, ValueError) as e:
+                    safe[k] = f"SERIALISATION_FAILED: {type(v).__name__}: {str(e)[:100]}"
+            return {"step": "serialised_ok", "failed_keys": [k for k,v in safe.items() if isinstance(v, str) and v.startswith("SERIALISATION_FAILED")], "total_keys": len(safe)}
         except Exception as e:
             return {"step": "context_failed", "error": str(e), "traceback": traceback.format_exc()[-2000:]}
     except Exception as e:
