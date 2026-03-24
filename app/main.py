@@ -9514,6 +9514,27 @@ def admin_run_migrations(secret: str = "", db: Session = Depends(get_db)):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 
+@app.get("/admin/debug-dashboard")
+def admin_debug_dashboard(secret: str = "", db: Session = Depends(get_db)):
+    """Debug: test dashboard context loading for the owner account."""
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid"}, status_code=403)
+    try:
+        user = db.query(User).filter(User.is_admin == True).first()
+        if not user:
+            return {"error": "No admin user"}
+        import traceback
+        try:
+            from .payment import get_renewal_status
+            renewal = get_renewal_status(db, user.id)
+            return {"step": "renewal_ok", "renewal": str(renewal)[:500]}
+        except Exception as e:
+            return {"step": "renewal_failed", "error": str(e), "traceback": traceback.format_exc()[-1000:]}
+    except Exception as e:
+        import traceback
+        return {"error": str(e), "traceback": traceback.format_exc()[-1000:]}
+
+
 @app.get("/admin/fix-owner")
 def admin_fix_owner(secret: str = "", db: Session = Depends(get_db)):
     """Force SuperAdPro account to Pro + admin + permanent membership."""
