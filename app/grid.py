@@ -152,11 +152,11 @@ def _spillover_fill(db: Session, buyer_id: int, package_tier: int) -> list:
                 db.add(gp)
 
                 grid.positions_filled += 1
-                grid.revenue_total    += price
+                grid.revenue_total    = Decimal(str(grid.revenue_total or 0)) + Decimal(str(price))
 
                 # Accrue 5% bonus pool on this grid
                 bonus_amount = round(float(price) * BONUS_POOL_PCT, 6)
-                grid.bonus_pool_accrued = float(grid.bonus_pool_accrued or 0) + bonus_amount
+                grid.bonus_pool_accrued = Decimal(str(grid.bonus_pool_accrued or 0)) + Decimal(str(bonus_amount))
 
                 owner = db.query(User).filter(User.id == upline_id).first()
                 if owner:
@@ -225,11 +225,11 @@ def place_member_in_grid(
     db.add(gp)
 
     grid.positions_filled += 1
-    grid.revenue_total    += price
+    grid.revenue_total    = Decimal(str(grid.revenue_total or 0)) + Decimal(str(price))
 
     # Accrue 5% bonus pool
     bonus_amount = round(float(price) * BONUS_POOL_PCT, 6)
-    grid.bonus_pool_accrued = float(grid.bonus_pool_accrued or 0) + bonus_amount
+    grid.bonus_pool_accrued = Decimal(str(grid.bonus_pool_accrued or 0)) + Decimal(str(bonus_amount))
 
     owner = db.query(User).filter(User.id == owner_id).first()
     if owner:
