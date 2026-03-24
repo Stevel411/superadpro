@@ -32,21 +32,19 @@ export default function CampaignTiers() {
 
   useEffect(function() {
     if (tiers.length > 0 && Object.keys(revealed).length === 0) {
-      // Wait one frame for the browser to paint the invisible cards first
-      requestAnimationFrame(function() {
-        requestAnimationFrame(function() {
-          tiers.forEach(function(_, i) {
-            setTimeout(function() {
-              setRevealed(function(prev) {
-                var next = {};
-                for (var k in prev) next[k] = prev[k];
-                next[i] = true;
-                return next;
-              });
-            }, i * 150);
-          });
+      // Hard delay to ensure browser paints the invisible cards first
+      setTimeout(function() {
+        tiers.forEach(function(_, i) {
+          setTimeout(function() {
+            setRevealed(function(prev) {
+              var next = {};
+              for (var k in prev) next[k] = prev[k];
+              next[i] = true;
+              return next;
+            });
+          }, i * 150);
         });
-      });
+      }, 50);
     }
   }, [tiers]);
 
