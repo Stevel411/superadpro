@@ -268,7 +268,7 @@ export default function LinkTools() {
         @keyframes ltPulseRing{0%,100%{transform:scale(.95);opacity:.5}50%{transform:scale(1.08);opacity:.9}}
         @keyframes ltFloat{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-10px) rotate(3deg)}}
         @keyframes ltCount{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-        .lt-stat{transition:all .28s cubic-bezier(.34,1.56,.64,1);animation:ltPop .55s ease both}
+        .lt-stat{transition:all .28s cubic-bezier(.34,1.56,.64,1);animation:ltPop .8s ease both}
         .lt-stat:hover{transform:translateY(-6px) scale(1.02)!important}
         .lt-action-btn{transition:all .18s ease}
         .lt-action-btn:hover{background:#f0f9ff!important;color:#0ea5e9!important;border-color:#bae6fd!important}

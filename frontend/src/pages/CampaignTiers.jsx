@@ -33,17 +33,9 @@ export default function CampaignTiers() {
   return (
     <AppLayout title="Campaign Tiers" subtitle="Activate tiers to advertise your videos and earn grid commissions">
       <style>{`
-        @keyframes ctSlideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes ctSlideUp{0%{opacity:0;transform:scale(.92) translateY(20px)}100%{opacity:1;transform:scale(1) translateY(0)}}
         .ct-card{animation:ctSlideUp .7s ease both}
-        .ct-row1 .ct-card:nth-child(1){animation-delay:.05s}
-        .ct-row1 .ct-card:nth-child(2){animation-delay:.15s}
-        .ct-row1 .ct-card:nth-child(3){animation-delay:.25s}
-        .ct-row1 .ct-card:nth-child(4){animation-delay:.35s}
-        .ct-row2 .ct-card:nth-child(1){animation-delay:.45s}
-        .ct-row2 .ct-card:nth-child(2){animation-delay:.55s}
-        .ct-row2 .ct-card:nth-child(3){animation-delay:.65s}
-        .ct-row2 .ct-card:nth-child(4){animation-delay:.75s}
-        .ct-card:hover{transform:translateY(-6px)!important;box-shadow:0 16px 40px rgba(0,0,0,.18)!important;transition:all .3s ease}
+        .ct-card:hover{transform:translateY(-6px)!important;box-shadow:0 16px 40px rgba(0,0,0,.18)!important;transition:transform .3s ease,box-shadow .3s ease}
       `}</style>
 
       {/* Intro section */}
@@ -60,16 +52,16 @@ export default function CampaignTiers() {
       </div>
 
       {/* Tier cards - Row 1 */}
-      <div className="ct-row1" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:12}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:12}}>
         {tiers.slice(0,4).map(function(t, i) {
-          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i]} isLast={false}/>;
+          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i]} isLast={false} delay={i * 0.12}/>;
         })}
       </div>
 
       {/* Tier cards - Row 2 */}
-      <div className="ct-row2" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}}>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}}>
         {tiers.slice(4).map(function(t, i) {
-          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i + 4]} isLast={i === 3}/>;
+          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i + 4]} isLast={i === 3} delay={(i + 4) * 0.12}/>;
         })}
       </div>
 
@@ -105,7 +97,7 @@ export default function CampaignTiers() {
   );
 }
 
-function TierCard({ tier, colors, isLast }) {
+function TierCard({ tier, colors, isLast, delay }) {
   var t = tier;
   var c = colors;
   var active = t.is_active;
@@ -113,7 +105,8 @@ function TierCard({ tier, colors, isLast }) {
 
   return (
     <div className="ct-card" style={{borderRadius:14,overflow:'hidden',border:active?'2px solid '+c.mid:'1px solid #e8ecf2',
-      boxShadow:'0 2px 8px rgba(0,0,0,.06)',cursor:'default',position:'relative'}}>
+      boxShadow:'0 2px 8px rgba(0,0,0,.06)',cursor:'default',position:'relative',
+      animationDelay:delay+'s'}}>
       {/* Coloured header */}
       <div style={{background:c.isGradient?c.bg:c.bg,padding:'18px 18px 14px',position:'relative'}}>
         {active && (
