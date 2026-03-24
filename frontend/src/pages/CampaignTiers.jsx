@@ -28,16 +28,25 @@ export default function CampaignTiers() {
     }).catch(function() { setLoading(false); });
   }, []);
 
+  var [visible, setVisible] = useState([]);
+
+  useEffect(function() {
+    if (tiers.length > 0 && visible.length === 0) {
+      tiers.forEach(function(_, i) {
+        setTimeout(function() {
+          setVisible(function(prev) { return prev.concat([i]); });
+        }, 100 + i * 120);
+      });
+    }
+  }, [tiers]);
+
   if (loading) return <AppLayout title="Campaign Tiers"><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
 
   return (
     <AppLayout title="Campaign Tiers" subtitle="Activate tiers to advertise your videos and earn grid commissions">
       <style>{`
-        .ct-card{transition:all .3s ease;opacity:0;animation:ctFadeUp .8s ease forwards}
-        .ct-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.18)!important}
-        @keyframes ctFadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-        .ct-d0{animation-delay:.1s}.ct-d1{animation-delay:.2s}.ct-d2{animation-delay:.3s}.ct-d3{animation-delay:.4s}
-        .ct-d4{animation-delay:.5s}.ct-d5{animation-delay:.6s}.ct-d6{animation-delay:.7s}.ct-d7{animation-delay:.8s}
+        .ct-card{transition:all .6s cubic-bezier(.23,1,.32,1)}
+        .ct-card:hover{transform:translateY(-6px)!important;box-shadow:0 16px 40px rgba(0,0,0,.18)!important}
       `}</style>
 
       {/* Intro section */}
@@ -46,24 +55,24 @@ export default function CampaignTiers() {
         <div style={{fontSize:13,color:'#64748b',lineHeight:1.8,marginBottom:14}}>
           Activate a campaign tier to submit your video ad, earn commissions from your grid, and qualify for completion bonuses. Each tier delivers a set number of views through the Watch & Earn engine. When views are delivered, repurchase to stay qualified and keep earning.
         </div>
-        <div style={{display:'flex',gap:20,fontSize:12,fontWeight:700,color:'#94a3b8'}}>
-          <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:6,height:6,borderRadius:'50%',background:'#0ea5e9'}}/> 40% direct sponsor commission</span>
-          <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:6,height:6,borderRadius:'50%',background:'#8b5cf6'}}/> 6.25% uni-level per grid member</span>
-          <span style={{display:'flex',alignItems:'center',gap:5}}><span style={{width:6,height:6,borderRadius:'50%',background:'#16a34a'}}/> Grid completion bonus up to $3,200</span>
+        <div style={{display:'flex',gap:24,fontSize:15,fontWeight:800,color:'#0f172a',flexWrap:'wrap'}}>
+          <span style={{display:'flex',alignItems:'center',gap:8}}><span style={{width:10,height:10,borderRadius:'50%',background:'#0ea5e9',flexShrink:0}}/> 40% direct sponsor commission</span>
+          <span style={{display:'flex',alignItems:'center',gap:8}}><span style={{width:10,height:10,borderRadius:'50%',background:'#8b5cf6',flexShrink:0}}/> 6.25% uni-level per grid member</span>
+          <span style={{display:'flex',alignItems:'center',gap:8}}><span style={{width:10,height:10,borderRadius:'50%',background:'#16a34a',flexShrink:0}}/> Grid completion bonus up to $3,200</span>
         </div>
       </div>
 
       {/* Tier cards - Row 1 */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:12}}>
         {tiers.slice(0,4).map(function(t, i) {
-          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i]} isLast={false} delayClass={'ct-d'+i}/>;
+          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i]} isLast={false} isVisible={visible.includes(i)}/>;
         })}
       </div>
 
       {/* Tier cards - Row 2 */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}}>
         {tiers.slice(4).map(function(t, i) {
-          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i + 4]} isLast={i === 3} delayClass={'ct-d'+(i+4)}/>;
+          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i + 4]} isLast={i === 3} isVisible={visible.includes(i + 4)}/>;
         })}
       </div>
 
@@ -99,14 +108,16 @@ export default function CampaignTiers() {
   );
 }
 
-function TierCard({ tier, colors, isLast, delayClass }) {
+function TierCard({ tier, colors, isLast, isVisible }) {
   var t = tier;
   var c = colors;
   var active = t.is_active;
   var grid = t.grid;
 
   return (
-    <div className={'ct-card ' + (delayClass||'')} style={{borderRadius:14,overflow:'hidden',border:active?'2px solid '+c.mid:'1px solid #e8ecf2',boxShadow:'0 2px 8px rgba(0,0,0,.06)',cursor:'default',position:'relative'}}>
+    <div className="ct-card" style={{borderRadius:14,overflow:'hidden',border:active?'2px solid '+c.mid:'1px solid #e8ecf2',
+      boxShadow:'0 2px 8px rgba(0,0,0,.06)',cursor:'default',position:'relative',
+      opacity:isVisible?1:0,transform:isVisible?'translateY(0)':'translateY(30px)'}}>
       {/* Coloured header */}
       <div style={{background:c.isGradient?c.bg:c.bg,padding:'18px 18px 14px',position:'relative'}}>
         {active && (
