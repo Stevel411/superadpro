@@ -40,16 +40,21 @@ export default function CampaignTiers() {
   return (
     <AppLayout title="Campaign Tiers" subtitle="Activate tiers to advertise your videos and earn grid commissions">
 
-      {/* Intro */}
-      <div style={{ background: '#fff', border: '1px solid #e8ecf2', borderRadius: 14, padding: '20px 24px', marginBottom: 20, boxShadow: '0 2px 8px rgba(0,0,0,.04)' }}>
-        <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>How Campaign Tiers Work</div>
-        <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.8, marginBottom: 14 }}>
-          Activate a campaign tier to submit your video ad, earn commissions from your grid, and qualify for completion bonuses. Each tier delivers a set number of views through the Watch & Earn engine. When views are delivered, repurchase to stay qualified and keep earning.
-        </div>
-        <div style={{ display: 'flex', gap: 24, fontSize: 15, fontWeight: 800, color: '#0f172a', flexWrap: 'wrap' }}>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ width: 10, height: 10, borderRadius: '50%', background: '#0ea5e9', flexShrink: 0 }} /> 40% direct sponsor commission</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ width: 10, height: 10, borderRadius: '50%', background: '#8b5cf6', flexShrink: 0 }} /> 6.25% uni-level per grid member</span>
-          <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><span style={{ width: 10, height: 10, borderRadius: '50%', background: '#16a34a', flexShrink: 0 }} /> Grid completion bonus up to $3,200</span>
+      {/* Hero banner — matches Dashboard style */}
+      <div style={{ background:'linear-gradient(135deg,#0c4a6e,#0369a1,#0284c7)', borderRadius:18, padding:'30px 34px', marginBottom:20, position:'relative', overflow:'hidden', boxShadow:'0 8px 32px rgba(3,105,161,0.35)' }}>
+        <div style={{ position:'absolute', top:-40, right:-40, width:200, height:200, borderRadius:'50%', background:'rgba(255,255,255,.05)', pointerEvents:'none' }}/>
+        <div style={{ position:'absolute', bottom:-30, left:-20, width:140, height:140, borderRadius:'50%', background:'rgba(255,255,255,.03)', pointerEvents:'none' }}/>
+        <div style={{ position:'relative', zIndex:1 }}>
+          <div style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,0.6)', marginBottom:10 }}>Campaign Grid System</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:900, color:'#fff', marginBottom:10 }}>Activate Tiers. Earn Commissions. Grow Your Grid.</div>
+          <div style={{ fontSize:15, color:'rgba(255,255,255,0.65)', lineHeight:1.7, maxWidth:600, marginBottom:18 }}>
+            Each tier delivers real video views through Watch & Earn. You earn commissions as your grid fills with members. When views are delivered, repurchase to stay qualified and keep earning.
+          </div>
+          <div style={{ display:'flex', gap:20, flexWrap:'wrap' }}>
+            <span style={{ display:'flex', alignItems:'center', gap:8, fontSize:14, fontWeight:700, color:'#fff' }}><span style={{ width:10, height:10, borderRadius:'50%', background:'#38bdf8', flexShrink:0 }}/> 40% direct commission</span>
+            <span style={{ display:'flex', alignItems:'center', gap:8, fontSize:14, fontWeight:700, color:'#fff' }}><span style={{ width:10, height:10, borderRadius:'50%', background:'#a78bfa', flexShrink:0 }}/> 6.25% per grid member</span>
+            <span style={{ display:'flex', alignItems:'center', gap:8, fontSize:14, fontWeight:700, color:'#fff' }}><span style={{ width:10, height:10, borderRadius:'50%', background:'#4ade80', flexShrink:0 }}/> Up to $3,200 completion bonus</span>
+          </div>
         </div>
       </div>
 
