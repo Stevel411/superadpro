@@ -58,7 +58,6 @@ function buildNav(t, isAdmin) {
     { type: 'group', label: t('nav.marketingSuite'), key: 'marketing', items: [
       { label: t('nav.campaignStudio'), icon: Bot, path: '/campaign-studio' },
       { label: t('nav.nicheFinder'), icon: Target, path: '/niche-finder' },
-      { label: t('nav.socialPosts'), icon: Megaphone, path: '/social-post-generator' },
       { label: t('nav.videoScripts'), icon: Film, path: '/video-script-generator' },
       { label: t('nav.emailSwipes'), icon: Mail, path: '/email-swipes' },
       { label: 'QR Generator', icon: QrCode, path: '/qr-generator' },
