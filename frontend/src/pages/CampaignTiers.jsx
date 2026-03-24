@@ -28,14 +28,24 @@ export default function CampaignTiers() {
     }).catch(function() { setLoading(false); });
   }, []);
 
-  var [visible, setVisible] = useState([]);
+  var [revealed, setRevealed] = useState({});
 
   useEffect(function() {
-    if (tiers.length > 0 && visible.length === 0) {
-      tiers.forEach(function(_, i) {
-        setTimeout(function() {
-          setVisible(function(prev) { return prev.concat([i]); });
-        }, 100 + i * 120);
+    if (tiers.length > 0 && Object.keys(revealed).length === 0) {
+      // Wait one frame for the browser to paint the invisible cards first
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          tiers.forEach(function(_, i) {
+            setTimeout(function() {
+              setRevealed(function(prev) {
+                var next = {};
+                for (var k in prev) next[k] = prev[k];
+                next[i] = true;
+                return next;
+              });
+            }, i * 150);
+          });
+        });
       });
     }
   }, [tiers]);
@@ -65,14 +75,14 @@ export default function CampaignTiers() {
       {/* Tier cards - Row 1 */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:12}}>
         {tiers.slice(0,4).map(function(t, i) {
-          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i]} isLast={false} isVisible={visible.includes(i)}/>;
+          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i]} isLast={false} isVisible={!!revealed[i]}/>;
         })}
       </div>
 
       {/* Tier cards - Row 2 */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}}>
         {tiers.slice(4).map(function(t, i) {
-          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i + 4]} isLast={i === 3} isVisible={visible.includes(i + 4)}/>;
+          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i + 4]} isLast={i === 3} isVisible={!!revealed[i + 4]}/>;
         })}
       </div>
 
