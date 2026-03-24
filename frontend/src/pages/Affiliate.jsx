@@ -126,11 +126,11 @@ export default function Affiliate() {
             return (
               <div key={p.key} onClick={function(){setPlatform(p.key);setPost('');}}
                 style={{background:p.isGrad?p.bg:p.bg,borderRadius:12,padding:'18px 10px',textAlign:'center',cursor:'pointer',
-                  opacity:on?1:0.55,transition:'all .2s',position:'relative',
+                  opacity:1,transition:'all .2s',position:'relative',
                   outline:on?'3px solid '+(p.isGrad?'#833AB4':p.bg):'none',outlineOffset:3,
                   transform:on?'scale(1.02)':'scale(1)'}}
-                onMouseEnter={function(e){if(!on)e.currentTarget.style.opacity='0.8';e.currentTarget.style.transform='translateY(-3px)';}}
-                onMouseLeave={function(e){if(!on)e.currentTarget.style.opacity='0.55';e.currentTarget.style.transform=on?'scale(1.02)':'scale(1)';}}>
+                onMouseEnter={function(e){e.currentTarget.style.transform='translateY(-3px)';}}
+                onMouseLeave={function(e){e.currentTarget.style.transform=on?'scale(1.02)':'scale(1)';}}>
                 <div style={{marginBottom:6,display:'flex',justifyContent:'center'}}><PlatformIcon p={p} size={26}/></div>
                 <div style={{fontSize:12,fontWeight:700,color:p.darkIcon?'#333':'#fff'}}>{p.label}</div>
               </div>
@@ -143,11 +143,11 @@ export default function Affiliate() {
             return (
               <div key={p.key} onClick={function(){setPlatform(p.key);setPost('');}}
                 style={{background:p.isGrad?p.bg:p.bg,borderRadius:12,padding:'18px 10px',textAlign:'center',cursor:'pointer',
-                  opacity:on?1:0.55,transition:'all .2s',position:'relative',
+                  opacity:1,transition:'all .2s',position:'relative',
                   outline:on?'3px solid '+(p.isGrad?'#833AB4':p.bg):'none',outlineOffset:3,
                   transform:on?'scale(1.02)':'scale(1)'}}
-                onMouseEnter={function(e){if(!on)e.currentTarget.style.opacity='0.8';e.currentTarget.style.transform='translateY(-3px)';}}
-                onMouseLeave={function(e){if(!on)e.currentTarget.style.opacity='0.55';e.currentTarget.style.transform=on?'scale(1.02)':'scale(1)';}}>
+                onMouseEnter={function(e){e.currentTarget.style.transform='translateY(-3px)';}}
+                onMouseLeave={function(e){e.currentTarget.style.transform=on?'scale(1.02)':'scale(1)';}}>
                 <div style={{marginBottom:6,display:'flex',justifyContent:'center'}}><PlatformIcon p={p} size={26}/></div>
                 <div style={{fontSize:12,fontWeight:700,color:p.darkIcon?'#333':'#fff'}}>{p.label}</div>
               </div>
