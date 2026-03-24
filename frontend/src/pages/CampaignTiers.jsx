@@ -28,33 +28,22 @@ export default function CampaignTiers() {
     }).catch(function() { setLoading(false); });
   }, []);
 
-  var [revealed, setRevealed] = useState({});
-
-  useEffect(function() {
-    if (tiers.length > 0 && Object.keys(revealed).length === 0) {
-      // Hard delay to ensure browser paints the invisible cards first
-      setTimeout(function() {
-        tiers.forEach(function(_, i) {
-          setTimeout(function() {
-            setRevealed(function(prev) {
-              var next = {};
-              for (var k in prev) next[k] = prev[k];
-              next[i] = true;
-              return next;
-            });
-          }, i * 150);
-        });
-      }, 50);
-    }
-  }, [tiers]);
-
   if (loading) return <AppLayout title="Campaign Tiers"><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
 
   return (
     <AppLayout title="Campaign Tiers" subtitle="Activate tiers to advertise your videos and earn grid commissions">
       <style>{`
-        .ct-card{transition:all .6s cubic-bezier(.23,1,.32,1)}
-        .ct-card:hover{transform:translateY(-6px)!important;box-shadow:0 16px 40px rgba(0,0,0,.18)!important}
+        @keyframes ctSlideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        .ct-card{animation:ctSlideUp .7s ease both}
+        .ct-row1 .ct-card:nth-child(1){animation-delay:.05s}
+        .ct-row1 .ct-card:nth-child(2){animation-delay:.15s}
+        .ct-row1 .ct-card:nth-child(3){animation-delay:.25s}
+        .ct-row1 .ct-card:nth-child(4){animation-delay:.35s}
+        .ct-row2 .ct-card:nth-child(1){animation-delay:.45s}
+        .ct-row2 .ct-card:nth-child(2){animation-delay:.55s}
+        .ct-row2 .ct-card:nth-child(3){animation-delay:.65s}
+        .ct-row2 .ct-card:nth-child(4){animation-delay:.75s}
+        .ct-card:hover{transform:translateY(-6px)!important;box-shadow:0 16px 40px rgba(0,0,0,.18)!important;transition:all .3s ease}
       `}</style>
 
       {/* Intro section */}
@@ -71,16 +60,16 @@ export default function CampaignTiers() {
       </div>
 
       {/* Tier cards - Row 1 */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:12}}>
+      <div className="ct-row1" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:12}}>
         {tiers.slice(0,4).map(function(t, i) {
-          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i]} isLast={false} isVisible={!!revealed[i]}/>;
+          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i]} isLast={false}/>;
         })}
       </div>
 
       {/* Tier cards - Row 2 */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}}>
+      <div className="ct-row2" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}}>
         {tiers.slice(4).map(function(t, i) {
-          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i + 4]} isLast={i === 3} isVisible={!!revealed[i + 4]}/>;
+          return <TierCard key={t.tier} tier={t} colors={TIER_COLORS[i + 4]} isLast={i === 3}/>;
         })}
       </div>
 
@@ -116,7 +105,7 @@ export default function CampaignTiers() {
   );
 }
 
-function TierCard({ tier, colors, isLast, isVisible }) {
+function TierCard({ tier, colors, isLast }) {
   var t = tier;
   var c = colors;
   var active = t.is_active;
@@ -124,8 +113,7 @@ function TierCard({ tier, colors, isLast, isVisible }) {
 
   return (
     <div className="ct-card" style={{borderRadius:14,overflow:'hidden',border:active?'2px solid '+c.mid:'1px solid #e8ecf2',
-      boxShadow:'0 2px 8px rgba(0,0,0,.06)',cursor:'default',position:'relative',
-      opacity:isVisible?1:0,transform:isVisible?'translateY(0)':'translateY(30px)'}}>
+      boxShadow:'0 2px 8px rgba(0,0,0,.06)',cursor:'default',position:'relative'}}>
       {/* Coloured header */}
       <div style={{background:c.isGradient?c.bg:c.bg,padding:'18px 18px 14px',position:'relative'}}>
         {active && (
