@@ -10516,6 +10516,249 @@ def admin_test_grid_reset(
     }
 
 
+@app.get("/admin/test-grid-e2e")
+def admin_test_grid_e2e(
+    secret: str,
+    tier: int = 1,
+    chain_depth: int = 8,
+    buyers_per_level: int = 2,
+    db: Session = Depends(get_db)
+):
+    """
+    E2E Grid Commission Test — creates a real sponsor chain and runs process_tier_purchase.
+
+    Creates:
+    1. A master owner (gridtest_owner) with an active campaign at the tier
+    2. chain_depth levels of sponsors below the owner (gridtest_L1, gridtest_L2, etc.)
+       Each sponsor also has an active campaign so they qualify for commissions
+    3. buyers_per_level "leaf" buyers at the bottom who purchase the tier,
+       triggering the FULL commission flow (40% direct, 50% uni-level, 5% platform, 5% bonus)
+
+    Usage: /admin/test-grid-e2e?secret=superadpro-owner-2026&tier=1&chain_depth=8&buyers_per_level=2
+    """
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+
+    from app.grid import process_tier_purchase, GRID_PACKAGES
+    import secrets as sec
+
+    price = GRID_PACKAGES.get(tier)
+    if not price:
+        return JSONResponse({"error": f"Invalid tier: {tier}"}, status_code=400)
+
+    chain_depth = min(chain_depth, 10)
+    buyers_per_level = min(buyers_per_level, 5)
+
+    results = {
+        "test": "grid_e2e",
+        "tier": tier,
+        "price": price,
+        "chain_depth": chain_depth,
+        "buyers_per_level": buyers_per_level,
+        "chain": [],
+        "purchases": [],
+        "balances_after": {},
+        "commissions": [],
+        "grids": [],
+    }
+
+    # Step 1: Create the owner at the top of the chain
+    owner_suffix = sec.token_hex(3)
+    owner = User(
+        username=f"gridtest_owner_{owner_suffix}",
+        email=f"gridtest_owner_{owner_suffix}@test.local",
+        password="test",
+        first_name="Owner",
+        is_active=True,
+        is_admin=True,  # Admin always qualifies
+    )
+    db.add(owner)
+    db.flush()
+    results["chain"].append({"level": 0, "username": owner.username, "id": owner.id, "role": "owner"})
+
+    # Step 2: Create the sponsor chain — each level sponsors the next
+    chain_users = [owner]
+    for lvl in range(1, chain_depth + 1):
+        suffix = sec.token_hex(3)
+        u = User(
+            username=f"gridtest_L{lvl}_{suffix}",
+            email=f"gridtest_L{lvl}_{suffix}@test.local",
+            password="test",
+            first_name=f"Level{lvl}",
+            sponsor_id=chain_users[-1].id,
+            is_active=True,
+            membership_tier="basic",
+        )
+        db.add(u)
+        db.flush()
+
+        # Give each chain member an active campaign at this tier so they qualify
+        vc = VideoCampaign(
+            user_id=u.id,
+            title=f"Test Campaign L{lvl}",
+            video_url="https://test.local/video.mp4",
+            campaign_tier=tier,
+            status="active",
+            is_completed=False,
+            views_target=1000,
+        )
+        db.add(vc)
+        db.flush()
+
+        chain_users.append(u)
+        results["chain"].append({"level": lvl, "username": u.username, "id": u.id, "role": f"sponsor_L{lvl}", "sponsor_id": chain_users[-2].id})
+
+    db.commit()
+
+    # Step 3: Create buyers at the bottom and process tier purchases
+    last_sponsor = chain_users[-1]
+    for b in range(buyers_per_level):
+        suffix = sec.token_hex(3)
+        buyer = User(
+            username=f"gridtest_buyer_{b+1}_{suffix}",
+            email=f"gridtest_buyer_{b+1}_{suffix}@test.local",
+            password="test",
+            first_name=f"Buyer{b+1}",
+            sponsor_id=last_sponsor.id,
+            is_active=True,
+            membership_tier="basic",
+        )
+        db.add(buyer)
+        db.flush()
+
+        # Process the REAL tier purchase — this triggers all commission logic
+        purchase_result = process_tier_purchase(
+            db=db,
+            buyer_id=buyer.id,
+            package_tier=tier,
+        )
+
+        results["purchases"].append({
+            "buyer": buyer.username,
+            "buyer_id": buyer.id,
+            "sponsor": last_sponsor.username,
+            "result": purchase_result,
+        })
+
+    db.commit()
+
+    # Step 4: Collect all balances
+    for u in chain_users:
+        db.refresh(u)
+        results["balances_after"][u.username] = {
+            "id": u.id,
+            "balance": round(float(u.balance or 0), 2),
+            "total_earned": round(float(u.total_earned or 0), 2),
+            "grid_earnings": round(float(u.grid_earnings or 0), 2),
+            "level_earnings": round(float(u.level_earnings or 0), 2),
+            "bonus_earnings": round(float(getattr(u, 'bonus_earnings', 0) or 0), 2),
+        }
+
+    # Step 5: Collect all commissions from these test users
+    test_user_ids = [u.id for u in chain_users] + [p["buyer_id"] for p in results["purchases"]]
+    comms = db.query(Commission).filter(
+        Commission.buyer_id.in_(test_user_ids)
+    ).order_by(Commission.id).all()
+
+    for c in comms:
+        recipient = db.query(User).filter(User.id == c.recipient_id).first() if c.recipient_id else None
+        buyer = db.query(User).filter(User.id == c.buyer_id).first() if c.buyer_id else None
+        results["commissions"].append({
+            "type": c.commission_type,
+            "amount": round(float(c.amount_usdt or 0), 2),
+            "buyer": buyer.username if buyer else "N/A",
+            "recipient": recipient.username if recipient else "COMPANY",
+            "description": c.description,
+        })
+
+    # Step 6: Collect grid states for the owner and chain members
+    for u in chain_users:
+        grids = db.query(Grid).filter(
+            Grid.owner_id == u.id,
+            Grid.package_tier == tier,
+        ).order_by(Grid.advance_number).all()
+        for g in grids:
+            positions = db.query(GridPosition).filter(GridPosition.grid_id == g.id).all()
+            results["grids"].append({
+                "owner": u.username,
+                "grid_id": g.id,
+                "advance": g.advance_number,
+                "filled": g.positions_filled,
+                "complete": g.is_complete,
+                "bonus_accrued": round(float(g.bonus_pool_accrued or 0), 2),
+                "bonus_paid": g.bonus_paid,
+                "positions": [{"member_id": p.member_id, "level": p.grid_level, "pos": p.position_num} for p in positions],
+            })
+
+    # Summary calculations
+    total_paid_out = sum(float(c.amount_usdt or 0) for c in comms if c.recipient_id is not None)
+    total_company = sum(float(c.amount_usdt or 0) for c in comms if c.recipient_id is None)
+    total_all = sum(float(c.amount_usdt or 0) for c in comms)
+
+    results["summary"] = {
+        "total_purchases": len(results["purchases"]),
+        "total_revenue": len(results["purchases"]) * price,
+        "total_paid_to_members": round(total_paid_out, 2),
+        "total_company_absorbed": round(total_company, 2),
+        "total_commissions_recorded": round(total_all, 2),
+        "commission_split_check": f"{round(total_all, 2)} should equal {round(len(results['purchases']) * price, 2)} (100% of revenue)",
+    }
+
+    return results
+
+
+@app.get("/admin/test-grid-cleanup")
+def admin_test_grid_cleanup(
+    secret: str,
+    db: Session = Depends(get_db)
+):
+    """
+    Clean up ALL gridtest_* users, their grids, positions, commissions, and campaigns.
+    Usage: /admin/test-grid-cleanup?secret=superadpro-owner-2026
+    """
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+
+    test_users = db.query(User).filter(User.username.like("gridtest_%")).all()
+    test_user_ids = [u.id for u in test_users]
+
+    if not test_user_ids:
+        return {"message": "No test users found"}
+
+    # Remove grid positions
+    grids = db.query(Grid).filter(Grid.owner_id.in_(test_user_ids)).all()
+    grid_ids = [g.id for g in grids]
+    pos_del = db.query(GridPosition).filter(GridPosition.grid_id.in_(grid_ids)).delete(synchronize_session=False) if grid_ids else 0
+
+    # Also remove positions where test users are members in OTHER grids
+    pos_del2 = db.query(GridPosition).filter(GridPosition.member_id.in_(test_user_ids)).delete(synchronize_session=False)
+
+    # Remove commissions
+    comm_del = db.query(Commission).filter(
+        (Commission.buyer_id.in_(test_user_ids)) | (Commission.recipient_id.in_(test_user_ids))
+    ).delete(synchronize_session=False)
+
+    # Remove campaigns
+    camp_del = db.query(VideoCampaign).filter(VideoCampaign.user_id.in_(test_user_ids)).delete(synchronize_session=False)
+
+    # Remove grids
+    grid_del = db.query(Grid).filter(Grid.owner_id.in_(test_user_ids)).delete(synchronize_session=False)
+
+    # Remove users
+    user_del = db.query(User).filter(User.id.in_(test_user_ids)).delete(synchronize_session=False)
+
+    db.commit()
+
+    return {
+        "cleaned": True,
+        "users_deleted": user_del,
+        "grids_deleted": grid_del,
+        "positions_deleted": pos_del + pos_del2,
+        "commissions_deleted": comm_del,
+        "campaigns_deleted": camp_del,
+    }
+
+
 @app.get("/admin/grid-audit")
 def admin_grid_audit(
     secret: str,
