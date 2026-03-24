@@ -330,7 +330,7 @@ export default function HomePage(){
 
             </div>
             <div style={{padding:'16px 18px',background:'rgba(5,13,26,.95)',borderTop:'1px solid rgba(14,165,233,0.1)'}}>
-              <div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:900,color:'#0ea5e9',marginBottom:8}}>Advertise</div>
+              <div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:900,color:'#0ea5e9',marginBottom:8,textAlign:'center'}}>Advertise</div>
               <p style={{fontSize:13,color:'rgba(200,220,255,.5)',lineHeight:1.65,margin:0}}>Launch video ad campaigns across 8 tiers. Your videos are watched by real, engaged members — not bots. Track views, measure engagement, and scale your reach.</p>
             </div>
           </div>
@@ -377,7 +377,7 @@ export default function HomePage(){
 
             </div>
             <div style={{padding:'16px 18px',background:'rgba(5,13,26,.95)',borderTop:'1px solid rgba(139,92,246,0.1)'}}>
-              <div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:900,color:'#8b5cf6',marginBottom:8}}>Create</div>
+              <div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:900,color:'#8b5cf6',marginBottom:8,textAlign:'center'}}>Create</div>
               <p style={{fontSize:13,color:'rgba(200,220,255,.5)',lineHeight:1.65,margin:0}}>AI Campaign Studio, Social Post Generator, Video Script Writer, SuperPages landing page builder, LinkHub, and email tools. Create professional marketing content in seconds.</p>
             </div>
           </div>
@@ -422,7 +422,7 @@ export default function HomePage(){
 
             </div>
             <div style={{padding:'16px 18px',background:'rgba(5,13,26,.95)',borderTop:'1px solid rgba(16,185,129,0.1)'}}>
-              <div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:900,color:'#10b981',marginBottom:8}}>Grow</div>
+              <div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:900,color:'#10b981',marginBottom:8,textAlign:'center'}}>Grow</div>
               <p style={{fontSize:13,color:'rgba(200,220,255,.5)',lineHeight:1.65,margin:0}}>Build your audience through courses, the Ad Board marketplace, and an affiliate network that promotes your content. Earn commissions as your network grows.</p>
             </div>
           </div>
