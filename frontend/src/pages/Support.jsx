@@ -27,9 +27,9 @@ export default function Support() {
         {/* Quick Links */}
         <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:24}}>
           {[
-            {icon:'📖',title:'FAQ & Guides',desc:'Browse common questions',link:'/courses/how-it-works'},
+            {icon:'📖',title:'Training Centre',desc:'Learn how to use the platform',link:'/training'},
             {icon:'💰',title:'Compensation Plan',desc:'How earnings work',link:'/compensation-plan'},
-            {icon:'🤝',title:'Community',desc:'Connect with members',link:'/ad-board'},
+            {icon:'💬',title:'Team Messenger',desc:'Message your sponsor or team',link:'/team-messenger'},
           ].map((q,i) => (
             <Link key={i} to={q.link} className="sup-card" style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:20,textDecoration:'none',textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.16),0 8px 24px rgba(0,0,0,.12)',transition:'all .15s'}}>
               <div style={{fontSize:28,marginBottom:8}}>{q.icon}</div>
