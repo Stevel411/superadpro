@@ -9525,14 +9525,13 @@ def admin_debug_dashboard(secret: str = "", db: Session = Depends(get_db)):
             return {"error": "No admin user"}
         import traceback
         try:
-            from .payment import get_renewal_status
-            renewal = get_renewal_status(db, user.id)
-            return {"step": "renewal_ok", "renewal": str(renewal)[:500]}
+            ctx = get_dashboard_context(Request(scope={"type": "http", "method": "GET", "path": "/", "headers": [], "query_string": b""}), user, db)
+            return {"step": "full_context_ok", "keys": list(ctx.keys())[:30]}
         except Exception as e:
-            return {"step": "renewal_failed", "error": str(e), "traceback": traceback.format_exc()[-1000:]}
+            return {"step": "context_failed", "error": str(e), "traceback": traceback.format_exc()[-2000:]}
     except Exception as e:
         import traceback
-        return {"error": str(e), "traceback": traceback.format_exc()[-1000:]}
+        return {"error": str(e), "traceback": traceback.format_exc()[-2000:]}
 
 
 @app.get("/admin/fix-owner")
