@@ -33,11 +33,11 @@ export default function CampaignTiers() {
   return (
     <AppLayout title="Campaign Tiers" subtitle="Activate tiers to advertise your videos and earn grid commissions">
       <style>{`
-        .ct-card{transition:all .25s ease;opacity:0;animation:ctFadeUp .6s ease forwards}
-        .ct-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.15)!important}
-        @keyframes ctFadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-        .ct-d0{animation-delay:.05s}.ct-d1{animation-delay:.1s}.ct-d2{animation-delay:.15s}.ct-d3{animation-delay:.2s}
-        .ct-d4{animation-delay:.25s}.ct-d5{animation-delay:.3s}.ct-d6{animation-delay:.35s}.ct-d7{animation-delay:.4s}
+        .ct-card{transition:all .3s ease;opacity:0;animation:ctFadeUp .8s ease forwards}
+        .ct-card:hover{transform:translateY(-6px);box-shadow:0 16px 40px rgba(0,0,0,.18)!important}
+        @keyframes ctFadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+        .ct-d0{animation-delay:.1s}.ct-d1{animation-delay:.2s}.ct-d2{animation-delay:.3s}.ct-d3{animation-delay:.4s}
+        .ct-d4{animation-delay:.5s}.ct-d5{animation-delay:.6s}.ct-d6{animation-delay:.7s}.ct-d7{animation-delay:.8s}
       `}</style>
 
       {/* Intro section */}
@@ -135,11 +135,11 @@ function TierCard({ tier, colors, isLast, delayClass }) {
         )}
 
         {/* Stats */}
-        <div style={{fontSize:14,color:'#64748b',lineHeight:2.2}}>
-          <div>{t.views_target.toLocaleString()} views target</div>
-          <div style={{color:'#0f172a',fontWeight:700}}>${t.direct_commission.toFixed(2)} direct (40%)</div>
-          <div style={{color:c.accent,fontWeight:700}}>${t.uni_level_per_member.toFixed(2)} per grid member</div>
-          <div style={{color:c.dark,fontWeight:700}}>${t.completion_bonus.toLocaleString()} completion bonus</div>
+        <div style={{fontSize:15,color:'#64748b',lineHeight:2.4}}>
+          <div style={{fontSize:14,color:'#94a3b8'}}>{t.views_target.toLocaleString()} views target</div>
+          <div style={{color:'#0f172a',fontWeight:800,fontSize:16}}>${t.direct_commission.toFixed(2)} direct (40%)</div>
+          <div style={{color:c.accent,fontWeight:800,fontSize:16}}>${t.uni_level_per_member.toFixed(2)} per grid member</div>
+          <div style={{color:c.dark,fontWeight:800,fontSize:16}}>${t.completion_bonus.toLocaleString()} completion bonus</div>
         </div>
 
         {/* Activate button (if not active) */}
