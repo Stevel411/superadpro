@@ -4851,7 +4851,7 @@ def admin_api_user_detail(
             "wallet_address": u.wallet_address,
             "country": u.country,
             "kyc_status": getattr(u, 'kyc_status', None),
-            "two_factor_enabled": getattr(u, 'two_factor_enabled', False),
+            "two_factor_enabled": getattr(u, 'totp_enabled', False),
             "created_at": u.created_at.isoformat() if u.created_at else None,
         },
         "grids": [{
