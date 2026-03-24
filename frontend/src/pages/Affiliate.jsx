@@ -117,15 +117,15 @@ export default function Affiliate() {
       </div>
 
       {/* Two column layout */}
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:18,alignItems:'start'}}>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:18,alignItems:'stretch'}}>
 
         {/* LEFT: AI Post Generator */}
-        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
+        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.04)',display:'flex',flexDirection:'column'}}>
           <div style={{background:'linear-gradient(135deg,#1c223d,#334155)',padding:'16px 20px',display:'flex',alignItems:'center',gap:8}}>
             <Share2 size={16} color="#38bdf8"/>
             <span style={{fontSize:14,fontWeight:800,color:'#fff'}}>Generate a Post</span>
           </div>
-          <div style={{padding:'18px 20px'}}>
+          <div style={{padding:'18px 20px',flex:1,display:'flex',flexDirection:'column'}}>
             {/* Platform selector */}
             <div style={{fontSize:12,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>Platform</div>
             <div style={{display:'flex',gap:5,marginBottom:14,flexWrap:'wrap'}}>
@@ -160,6 +160,14 @@ export default function Affiliate() {
             </button>
 
             {/* Output */}
+            {!post && !generating && (
+              <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',padding:'24px 16px',marginTop:14,background:'#f8f9fb',borderRadius:10,border:'1px dashed #e2e8f0'}}>
+                <div style={{textAlign:'center'}}>
+                  <div style={{fontSize:28,marginBottom:8,opacity:0.3}}>✍️</div>
+                  <div style={{fontSize:13,color:'#94a3b8',lineHeight:1.6}}>Pick a platform and tone, then hit generate.<br/>Your AI post will appear here.</div>
+                </div>
+              </div>
+            )}
             {post && (
               <div style={{marginTop:14}}>
                 <div style={{padding:'14px 16px',background:'#f8f9fb',borderRadius:10,border:'1px solid #e8ecf2',fontSize:13,color:'#334155',lineHeight:1.8,whiteSpace:'pre-wrap',maxHeight:220,overflowY:'auto'}}>{post}</div>
