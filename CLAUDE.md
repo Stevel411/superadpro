@@ -148,21 +148,22 @@ Add to `requirements.txt`. Railway deployment takes 3-4 minutes instead of the u
 - **5% → Platform** — SuperAdPro operations
 - **5% → Grid completion bonus pool** — accrues per seat fill, paid to grid owner when grid reaches 64/64
 
-**CRITICAL: Who earns what from a single purchase:**
-- The DIRECT SPONSOR earns 40% ($40 on a $100 tier) + they ALSO get 6.25% ($6.25) as level 1 of the uni-level chain = $46.25 total
-- The 7 other people in the sponsor chain above the buyer each get 6.25% ($6.25 on $100)
-- You do NOT earn 40% + all 8 uni-level positions. The 40% goes to the direct sponsor. The uni-level goes to 8 DIFFERENT people in the chain.
+**CRITICAL: The real earning power is the GRID, not a single purchase.**
+The grid has 64 positions (8 levels × 8 wide). Every position that fills in YOUR grid earns you 6.25% of the tier price via the uni-level chain. So the grid owner earns 6.25% × 64 = **400% of the tier price** in uni-level commissions from a full grid, PLUS the 5% completion bonus pool (64 × price × 5% = 320% of tier price), PLUS 40% direct on anyone they personally referred.
 
-**Grid completion bonus (paid from the 5% pool when grid fills to 64/64):**
-| Tier | Bonus (64 × price × 5%) |
-|------|------------------------|
-| 1 | $64 |
-| 2 | $160 |
-| 3 | $320 |
-| 4 | $640 |
-| 5 | $1,280 |
-| 6 | $1,920 |
-| 7 | $2,560 |
+**What a completed grid earns the grid owner (uni-level + bonus only, excludes direct referral commissions):**
+| Tier | Price | Uni-level (6.25% × 64) | Completion Bonus | Total per Grid |
+|------|-------|----------------------|-----------------|---------------|
+| 1 | $20 | $80 | $64 | **$144** |
+| 2 | $50 | $200 | $160 | **$360** |
+| 3 | $100 | $400 | $320 | **$720** |
+| 4 | $200 | $800 | $640 | **$1,440** |
+| 5 | $400 | $1,600 | $1,280 | **$2,880** |
+| 6 | $600 | $2,400 | $1,920 | **$4,320** |
+| 7 | $800 | $3,200 | $2,560 | **$5,760** |
+| 8 | $1,000 | $4,000 | $3,200 | **$7,200** |
+
+Grids auto-renew after completion — a new grid opens immediately and the cycle repeats.
 | 8 | $3,200 |
 
 **Spillover model:** When a member purchases a tier, they fill ONE seat in EVERY upline grid at that tier (walking up the full sponsor chain). One person, one seat per grid advance.
