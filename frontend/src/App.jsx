@@ -52,6 +52,44 @@ const QRGenerator = React.lazy(() => import('./pages/QRGenerator'));
 // Suspense wrapper for lazy routes
 function Lazy({ children }) { return <Suspense fallback={<div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'50vh'}}><div style={{width:36,height:36,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>}>{children}</Suspense>; }
 
+// Preload common pages after initial render so they're cached before user clicks
+if (typeof window !== 'undefined') {
+  window.addEventListener('load', function() {
+    setTimeout(function() {
+      import('./pages/Dashboard');
+      import('./pages/Wallet');
+      import('./pages/Affiliate');
+      import('./pages/Watch');
+      import('./pages/CampaignTiers');
+      import('./pages/Account');
+      import('./pages/MyNetwork');
+      import('./pages/Upgrade');
+      import('./pages/Support');
+      import('./pages/Analytics');
+      import('./pages/TeamMessenger');
+      import('./pages/Leaderboard');
+      import('./pages/Achievements');
+      import('./pages/TrainingCentre');
+      import('./pages/LinkTools');
+      import('./pages/CompensationPlan');
+    }, 2000);
+    setTimeout(function() {
+      import('./pages/AdHub');
+      import('./pages/Courses');
+      import('./pages/LinkHub');
+      import('./pages/Challenges');
+      import('./pages/Marketplace');
+      import('./pages/QRGenerator');
+      import('./pages/PassupVisualiser');
+      import('./pages/SuperSeller');
+      import('./pages/Funnels');
+      import('./pages/AiTool');
+      import('./pages/BannerManager');
+      import('./pages/MyCourses');
+    }, 5000);
+  });
+}
+
 
 
 // Error boundary to catch crashes
