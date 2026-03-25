@@ -50,7 +50,7 @@ const Challenges = React.lazy(() => import('./pages/Challenges'));
 const QRGenerator = React.lazy(() => import('./pages/QRGenerator'));
 
 // Suspense wrapper for lazy routes
-function Lazy({ children }) { return <Suspense fallback={<div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'50vh'}}><div style={{width:36,height:36,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>}>{children}</Suspense>; }
+function Lazy({ children }) { return <Suspense fallback={<div style={{minHeight:'60vh'}}/>}>{children}</Suspense>; }
 
 // Preload common pages after initial render so they're cached before user clicks
 if (typeof window !== 'undefined') {
