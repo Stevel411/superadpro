@@ -171,34 +171,42 @@ Pro-locked items (🔒): SuperPages, ProSeller AI, My Leads, Create Course — s
 - No opacity dimming on unselected cards — full vibrancy always
 - Test credentials: SuperAdPro / SuperAdPro@1411 (2FA enabled)
 
-## Current Status (Updated: 25 March 2026)
+## Current Status (Updated: 25 March 2026 — Session 2)
 
-### Last Session: 24 March 2026
+### Last Session: 25 March 2026
 
 **Completed:**
-- Social Share page — unified single-flow rebuild (pick platform → generate AI post → share). Removed standalone Social Post Generator from sidebar.
-- Earnings calculator on /earn — split into two separate calculators (membership monthly recurring vs grid per-purchase)
-- Homepage Advertise/Create/Grow card titles — moved below cards and centred
-- Campaign Tiers hero banner — rebuilt to match Dashboard gradient style
-- Pay It Forward specification document — full blueprint (Company Lead Rotator + Buddy System) saved as .docx
-- E2E grid commission test — built and verified. Commissions flow correctly across all 8 levels, spillover works, math = 100%.
-- CRITICAL FIX: Decimal/float type mismatch in ALL money operations across grid.py, course_engine.py, payment.py, main.py. Would have crashed every real payment.
-- Missing backend routes fixed: /network, /ad-board, /2fa-setup, /supermarket/create
-- Full platform robustness scan: 104 templates valid, 19 Python files valid, all pages responding, zero unsafe Decimal operations remaining
-- CLAUDE.md created
+- Code splitting with React.lazy — main bundle 2.3MB → 689KB (70% reduction). Used v7_startTransition on BrowserRouter to eliminate white flash on navigation (found via web search). Background preloading of common pages after 2s/5s.
+- Notification polling — topbar bell polls every 30 seconds for new messages/alerts.
+- New member notifications — sponsor gets email + auto welcome message in Team Messenger on registration. Team Messenger contacts filter fixed (shows all referrals, not just active).
+- Password reset fixed — two bugs: (1) reset_token vs reset_url keyword mismatch (500 error), (2) frontend sends new_password but backend reads password (always fails 8-char validation).
+- Campaign tier activation routing — link was /activate-tier?tier=1 but React route is /activate/:tierId. Fixed link + added backend route.
+- CRITICAL: Grid creation for buyers — process_tier_purchase was paying commissions and filling upline grids but never creating the buyer's own grid. Fixed.
+- Campaign tier "active" status — now checks for grid ownership (active or completed), not just video campaigns.
+- Commission display — all amounts now show exact 2 decimal places ($1.25 not $1). Income cards, activity feed, network stats all fixed.
+- Admin dashboard — sponsor shows @username (ID X) instead of #1, BASIC badge shown in cyan.
+- Profile page — sponsor shows @username instead of #1.
+- Wallet — commission status fixed from "Pending" to "Paid" (balance already credited).
+- Decimal/float safety — final sweep caught remaining issues in course_engine.py, payment.py (deductions), main.py (membership commission None safety). Zero unsafe operations remaining.
+- CLAUDE.md created with full project instructions + "Search Before Fixing" engineering principle added.
+
+**Live Testing Results:**
+- Stripe membership activation: working perfectly, $10 commission in 25 seconds ✅
+- Crypto tier 1 purchase: instant confirmation, $8 direct + $1.25 uni-level commissions correct ✅
+- Grid for buyer was NOT created (fixed mid-session) — next test should verify
+- steve1 (ID 85) test account active, sponsored by SuperAdPro
 
 **Pending / Next Session:**
-- Course pass-up cascade fix — currently single-level, needs true infinite cascade (received pass-ups should increment recipient's sale count and trigger their own pass-ups)
-- Live crypto payment test — Steve setting up test accounts with USDT on Polygon
-- Campaign Tiers card animations — parked, not worth the risk
+- Verify grid creation fix with next tier purchase test
+- Full 4-account sponsor chain grid commission test
+- Course pass-up cascade fix — write down the intended model and implement
+- Dashboard estimator — Steve wants real activity counts not monthly estimates (needs clarification on which component)
 - Stripe price update: $30 → $35 Pro, create Creator tier $59/mo
-- SuperSeller E2E test
-- TREASURY_PRIVATE_KEY + POL gas for auto-withdrawals
-- Crypto checkout React UI
+- Live crypto withdrawal test
 - Video Creator build (Phase 3 — multi-session)
-- Pay It Forward build (post-launch)
 
 ### Platform Stats
 - 99 Jinja2 templates, ~42 React pages, 370+ routes, 210+ API endpoints, 26 DB models
 - 3 income streams: Membership, Grid/Campaigns, Courses
 - Pricing: Basic $20/mo, Pro $35/mo, Creator $59/mo
+- Main JS bundle: 689KB (code-split with background preloading)
