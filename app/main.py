@@ -3001,7 +3001,7 @@ def _activate_membership(db, user, tier, source="stripe", subscription_id=None, 
                 amount_usdt=sponsor_share, commission_type="membership_sponsor",
                 package_tier=0,
                 notes=f"Membership commission from {user.username} ({source}) — capped at {sponsor_tier} tier",
-                status="pending",
+                status="paid",
                 paid_at=datetime.utcnow(),
             )
             db.add(comm)
@@ -4917,6 +4917,7 @@ def admin_api_user_detail(
             "personal_referrals": u.personal_referrals or 0,
             "total_team": u.total_team or 0,
             "sponsor_id": u.sponsor_id,
+            "sponsor_username": (db.query(User).filter(User.id == u.sponsor_id).first().username if u.sponsor_id else None),
             "wallet_address": u.wallet_address,
             "country": u.country,
             "kyc_status": getattr(u, 'kyc_status', None),

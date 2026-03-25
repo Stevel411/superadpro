@@ -204,6 +204,7 @@ function UsersTab() {
                 <div style={{display:'flex',alignItems:'center',gap:6}}>
                   <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:3,background:isActive?'#dcfce7':'#fef2f2',color:isActive?'#16a34a':'#dc2626'}}>{isActive?'Active':'Inactive'}</span>
                   {u.membership_tier === 'pro' && <span style={{fontSize:8,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(139,92,246,.1)',color:'#8b5cf6'}}>PRO</span>}
+                  {(!u.membership_tier || u.membership_tier === 'basic') && <span style={{fontSize:8,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(14,165,233,.1)',color:'#0ea5e9'}}>BASIC</span>}
                   <span style={{fontSize:10,fontWeight:700,color:'#0ea5e9'}}>${(u.balance||0).toFixed(0)}</span>
                 </div>
               </div>
@@ -232,7 +233,7 @@ function UsersTab() {
                 <div><span style={{fontWeight:700,color:'#64748b'}}>Balance:</span> <span style={{color:'#16a34a',fontWeight:800}}>${(detail.balance||0).toFixed(2)}</span></div>
                 <div><span style={{fontWeight:700,color:'#64748b'}}>Total Earned:</span> <span style={{color:'#0ea5e9',fontWeight:800}}>${(detail.total_earned||0).toFixed(2)}</span></div>
                 <div><span style={{fontWeight:700,color:'#64748b'}}>Status:</span> <span style={{color:detail.is_active?'#16a34a':'#dc2626',fontWeight:700}}>{detail.is_active?'Active':'Inactive'}</span></div>
-                <div><span style={{fontWeight:700,color:'#64748b'}}>Sponsor:</span> <span style={{color:'#0f172a'}}>{detail.sponsor_id ? '#'+detail.sponsor_id : 'Direct'}</span></div>
+                <div><span style={{fontWeight:700,color:'#64748b'}}>Sponsor:</span> <span style={{color:'#0f172a'}}>{detail.sponsor_username ? '@'+detail.sponsor_username+' (ID '+detail.sponsor_id+')' : 'Direct'}</span></div>
                 <div><span style={{fontWeight:700,color:'#64748b'}}>Referrals:</span> <span style={{color:'#0f172a'}}>{detail.personal_referrals || 0}</span></div>
                 <div><span style={{fontWeight:700,color:'#64748b'}}>Joined:</span> <span style={{color:'#0f172a'}}>{detail.created_at ? new Date(detail.created_at).toLocaleDateString('en-GB') : '—'}</span></div>
                 <div><span style={{fontWeight:700,color:'#64748b'}}>KYC:</span> <span style={{color:'#0f172a',textTransform:'capitalize'}}>{detail.kyc_status || 'none'}</span></div>
