@@ -167,3 +167,35 @@ Pro-locked items (🔒): SuperPages, ProSeller AI, My Leads, Create Course — s
 - Design philosophy: simplicity, single colour pickers not preset swatches, font dropdown not card grids
 - No opacity dimming on unselected cards — full vibrancy always
 - Test credentials: SuperAdPro / SuperAdPro@1411 (2FA enabled)
+
+## Current Status (Updated: 25 March 2026)
+
+### Last Session: 24 March 2026
+
+**Completed:**
+- Social Share page — unified single-flow rebuild (pick platform → generate AI post → share). Removed standalone Social Post Generator from sidebar.
+- Earnings calculator on /earn — split into two separate calculators (membership monthly recurring vs grid per-purchase)
+- Homepage Advertise/Create/Grow card titles — moved below cards and centred
+- Campaign Tiers hero banner — rebuilt to match Dashboard gradient style
+- Pay It Forward specification document — full blueprint (Company Lead Rotator + Buddy System) saved as .docx
+- E2E grid commission test — built and verified. Commissions flow correctly across all 8 levels, spillover works, math = 100%.
+- CRITICAL FIX: Decimal/float type mismatch in ALL money operations across grid.py, course_engine.py, payment.py, main.py. Would have crashed every real payment.
+- Missing backend routes fixed: /network, /ad-board, /2fa-setup, /supermarket/create
+- Full platform robustness scan: 104 templates valid, 19 Python files valid, all pages responding, zero unsafe Decimal operations remaining
+- CLAUDE.md created
+
+**Pending / Next Session:**
+- Course pass-up cascade fix — currently single-level, needs true infinite cascade (received pass-ups should increment recipient's sale count and trigger their own pass-ups)
+- Live crypto payment test — Steve setting up test accounts with USDT on Polygon
+- Campaign Tiers card animations — parked, not worth the risk
+- Stripe price update: $30 → $35 Pro, create Creator tier $59/mo
+- SuperSeller E2E test
+- TREASURY_PRIVATE_KEY + POL gas for auto-withdrawals
+- Crypto checkout React UI
+- Video Creator build (Phase 3 — multi-session)
+- Pay It Forward build (post-launch)
+
+### Platform Stats
+- 99 Jinja2 templates, ~42 React pages, 370+ routes, 210+ API endpoints, 26 DB models
+- 3 income streams: Membership, Grid/Campaigns, Courses
+- Pricing: Basic $20/mo, Pro $35/mo, Creator $59/mo
