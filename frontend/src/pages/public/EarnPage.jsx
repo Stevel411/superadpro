@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
+import { formatMoney } from '../../utils/money';
 
 var IncomeGrid3D = lazy(function() { return import('../../components/IncomeGrid3D'); });
 
@@ -271,7 +272,7 @@ function EarningsCalculator({ onJoin }) {
             <div style={{display:'flex',justifyContent:'space-between',padding:'10px 14px',borderRadius:10,background:'rgba(139,92,246,.06)',border:'1px solid rgba(139,92,246,.1)',marginBottom:8}}>
               <div>
                 <div style={{fontSize:12,fontWeight:700,color:'#a78bfa'}}>Uni-Level (6.25%/level)</div>
-                <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>{gL2Total} level-2 members × ${gUniLevel.toFixed(2)}</div>
+                <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>{gL2Total} level-2 members × ${formatMoney(gUniLevel)}</div>
               </div>
               <div style={{fontSize:20,fontWeight:900,color:'#a78bfa'}}>${gUniTotal.toFixed(0)}</div>
             </div>

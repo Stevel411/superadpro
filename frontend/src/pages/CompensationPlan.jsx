@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
+import { formatMoney } from '../utils/money';
 import {
   DollarSign, Users, Zap, GraduationCap, Eye, Link2, LayoutGrid,
   Target, Megaphone, Mail, Bot, Globe, Shield, Trophy, Award,
@@ -283,7 +284,7 @@ function MembershipSection() {
             <div style={{textAlign:'center',padding:24,background:'#faf5ff',borderRadius:12,border:'1px solid #e9d5ff'}}>
               <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:8}}>{t('compPlan.proReferral')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:48,fontWeight:800,color:'#8b5cf6',lineHeight:1}}>
-                ${typeof proComm === 'number' && proComm % 1 !== 0 ? proComm.toFixed(2) : proComm}
+                ${typeof proComm === 'number' && proComm % 1 !== 0 ? formatMoney(proComm) : proComm}
               </div>
               <div style={{fontSize:13,color:'#64748b',fontWeight:600,marginTop:4}}>/month per member</div>
               <div style={{marginTop:12,display:'flex',justifyContent:'center',gap:4}}>
@@ -669,7 +670,7 @@ function GridSection() {
                     }}>
                       <td style={Object.assign({},tdStyle,{fontWeight:800,color:colors[i]})}>Level {lvl}</td>
                       {TIERS.map(function(t) {
-                        var amt = (t.price * 0.0625).toFixed(2);
+                        var amt = formatMoney(t.price * 0.0625);
                         return <td key={t.n} style={Object.assign({},tdStyle,{color:colors[i],fontWeight:700})}>${amt}</td>;
                       })}
                     </tr>
@@ -679,7 +680,7 @@ function GridSection() {
                 <tr style={{background:'#f0f9ff'}}>
                   <td style={Object.assign({},tdStyle,{fontWeight:800,color:'#0f172a'})}>Total (×8)</td>
                   {TIERS.map(function(t) {
-                    return <td key={t.n} style={Object.assign({},tdStyle,{fontWeight:800,color:'#16a34a'})}>${(t.price*0.50).toFixed(2)}</td>;
+                    return <td key={t.n} style={Object.assign({},tdStyle,{fontWeight:800,color:'#16a34a'})}>${formatMoney(t.price*0.50)}</td>;
                   })}
                 </tr>
               </tbody>

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost, apiDelete } from '../utils/api';
 import { Shield, Users, DollarSign, TrendingUp, AlertTriangle, CheckCircle, XCircle, Search, ChevronRight, Eye, Ban, CreditCard, Activity, FileText, UserCheck, Clock, RefreshCw, ArrowUpDown } from 'lucide-react';
+import { formatMoney } from '../utils/money';
 
 var TABS = [
   {key:'overview',label:'Overview',icon:Activity},
@@ -230,8 +231,8 @@ function UsersTab() {
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,fontSize:12}}>
                 <div><span style={{fontWeight:700,color:'#64748b'}}>Email:</span> <span style={{color:'#0f172a'}}>{detail.email}</span></div>
                 <div><span style={{fontWeight:700,color:'#64748b'}}>Tier:</span> <span style={{color:'#0f172a',textTransform:'capitalize'}}>{detail.membership_tier || 'basic'}</span></div>
-                <div><span style={{fontWeight:700,color:'#64748b'}}>Balance:</span> <span style={{color:'#16a34a',fontWeight:800}}>${(detail.balance||0).toFixed(2)}</span></div>
-                <div><span style={{fontWeight:700,color:'#64748b'}}>Total Earned:</span> <span style={{color:'#0ea5e9',fontWeight:800}}>${(detail.total_earned||0).toFixed(2)}</span></div>
+                <div><span style={{fontWeight:700,color:'#64748b'}}>Balance:</span> <span style={{color:'#16a34a',fontWeight:800}}>${formatMoney(detail.balance)}</span></div>
+                <div><span style={{fontWeight:700,color:'#64748b'}}>Total Earned:</span> <span style={{color:'#0ea5e9',fontWeight:800}}>${formatMoney(detail.total_earned)}</span></div>
                 <div><span style={{fontWeight:700,color:'#64748b'}}>Status:</span> <span style={{color:detail.is_active?'#16a34a':'#dc2626',fontWeight:700}}>{detail.is_active?'Active':'Inactive'}</span></div>
                 <div><span style={{fontWeight:700,color:'#64748b'}}>Sponsor:</span> <span style={{color:'#0f172a'}}>{detail.sponsor_username ? '@'+detail.sponsor_username+' (ID '+detail.sponsor_id+')' : 'Direct'}</span></div>
                 <div><span style={{fontWeight:700,color:'#64748b'}}>Referrals:</span> <span style={{color:'#0f172a'}}>{detail.personal_referrals || 0}</span></div>
@@ -440,7 +441,7 @@ function FinancesTab() {
                     <div style={{fontSize:12,fontWeight:700,color:'#0f172a'}}>{p.username || 'User #'+p.user_id}</div>
                     <div style={{fontSize:10,color:'#94a3b8'}}>{p.type || 'payment'} · {p.date || '—'}</div>
                   </div>
-                  <div style={{fontSize:14,fontWeight:800,color:'#16a34a'}}>${(p.amount||0).toFixed(2)}</div>
+                  <div style={{fontSize:14,fontWeight:800,color:'#16a34a'}}>${formatMoney(p.amount)}</div>
                 </div>
               );
             })}
@@ -488,7 +489,7 @@ function WithdrawalsTab() {
                   <div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>{w.username || 'User #'+w.user_id}</div>
                   <div style={{fontSize:10,color:'#94a3b8'}}>Wallet: {(w.wallet_address||'').slice(0,20)}... · {w.date || '—'}</div>
                 </div>
-                <div style={{fontSize:16,fontWeight:800,color:'#dc2626'}}>${(w.amount||0).toFixed(2)}</div>
+                <div style={{fontSize:16,fontWeight:800,color:'#dc2626'}}>${formatMoney(w.amount)}</div>
               </div>
             );
           })}
@@ -509,7 +510,7 @@ function WithdrawalsTab() {
                     <div style={{fontSize:10,color:'#94a3b8'}}>{w.date || '—'}</div>
                   </div>
                   <div style={{display:'flex',alignItems:'center',gap:6}}>
-                    <span style={{fontSize:12,fontWeight:700,color:'#16a34a'}}>${(w.amount||0).toFixed(2)}</span>
+                    <span style={{fontSize:12,fontWeight:700,color:'#16a34a'}}>${formatMoney(w.amount)}</span>
                     <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:3,background:'#dcfce7',color:'#16a34a',textTransform:'capitalize'}}>{w.status}</span>
                   </div>
                 </div>
@@ -635,7 +636,7 @@ function CommissionsTab() {
                     <span style={{fontSize:12,fontWeight:600,color:'#0f172a'}}>{c.to_username || 'User #'+c.to_user_id}</span>
                     <span style={{fontSize:10,color:'#94a3b8'}}>from {c.from_username || 'User #'+c.from_user_id}</span>
                   </div>
-                  <span style={{fontSize:13,fontWeight:800,color:'#16a34a'}}>${(c.amount||0).toFixed(2)}</span>
+                  <span style={{fontSize:13,fontWeight:800,color:'#16a34a'}}>${formatMoney(c.amount)}</span>
                 </div>
               );
             })}

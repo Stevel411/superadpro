@@ -4,6 +4,7 @@ import AppLayout from '../components/layout/AppLayout';
 import RichTextEditor from '../components/editor/RichTextEditor';
 import { apiPost } from '../utils/api';
 import { Package, DollarSign, Tag, Image, Upload, Plus, Trash2, AlertTriangle, Shield, CheckCircle, Video, Link as LinkIcon, ChevronRight, ChevronLeft, Sparkles, Star, Eye } from 'lucide-react';
+import { formatMoney } from '../utils/money';
 
 var CATEGORIES = [
   {key:'ebook',label:'eBooks & Guides',icon:'📘'},
@@ -276,8 +277,8 @@ export default function SuperMarketCreate() {
           {/* Earnings preview */}
           <div style={{marginTop:12,background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:12,padding:'14px 16px'}}>
             <div style={{fontSize:11,fontWeight:800,color:'#10b981',marginBottom:6}}>Your Earnings Per Sale</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:900,color:'#10b981'}}>${((parseFloat(price)||0)*0.50).toFixed(2)}</div>
-            <div style={{fontSize:10,color:'#64748b',marginTop:4}}>50% of ${parseFloat(price||0).toFixed(0)} · Affiliate gets ${((parseFloat(price)||0)*0.25).toFixed(2)}</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:900,color:'#10b981'}}>${formatMoney((parseFloat(price)||0)*0.50)}</div>
+            <div style={{fontSize:10,color:'#64748b',marginTop:4}}>50% of ${parseFloat(price||0).toFixed(0)} · Affiliate gets ${formatMoney((parseFloat(price)||0)*0.25)}</div>
           </div>
         </div>
       </div>

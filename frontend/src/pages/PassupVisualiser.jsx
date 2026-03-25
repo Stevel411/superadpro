@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { Zap, GraduationCap, Play, Pause, RotateCcw, ArrowRight } from 'lucide-react';
+import { formatMoney } from '../utils/money';
 
 // ══════════════════════════════════════════════════════════════
 // COMBINED VISUALISER PAGE — Grid + Pass-Up
@@ -929,7 +930,7 @@ function GridVisSection() {
                         {l.isDirect?'DIRECT':'L'+l.depth}
                       </span>
                     </div>
-                    <span style={{fontWeight:700,color:color,fontSize:12}}>+${(l.uniAmt + l.directAmt).toFixed(2)}</span>
+                    <span style={{fontWeight:700,color:color,fontSize:12}}>+${formatMoney(l.uniAmt + l.directAmt)}</span>
                   </div>
                 );
               })}

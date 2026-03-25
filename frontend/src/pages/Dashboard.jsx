@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
+import { formatMoney } from '../utils/money';
 import AppLayout from '../components/layout/AppLayout';
 import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye, TrendingUp } from 'lucide-react';
 import PassiveIncome from './PassiveIncome';
@@ -67,7 +68,7 @@ export default function Dashboard() {
       topbarActions={<>
         <div style={{ background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: 10, padding: '7px 16px' }}>
           <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.2, textTransform: 'uppercase', color: '#64748b' }}>Balance</div>
-          <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 17, fontWeight: 900, color: '#16a34a' }}>${d.balance?.toFixed(2)}</div>
+          <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 17, fontWeight: 900, color: '#16a34a' }}>${formatMoney(d.balance)}</div>
         </div>
         <span style={{
           fontSize: 11, fontWeight: 700, padding: '7px 14px', borderRadius: 8,
@@ -200,7 +201,7 @@ export default function Dashboard() {
           <div style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,0.65)', marginBottom:8 }}>Welcome back</div>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#fff', marginBottom:8 }}>{d.display_name || user?.username}</div>
           <div style={{ fontSize:14, color:'rgba(255,255,255,0.6)', lineHeight:1.6, maxWidth:420 }}>
-            You have {d.total_team || 0} members in your network{(d.total_earned || 0) > 0 && ` and earned $${(d.total_earned || 0).toFixed(2)} across all income streams`}.
+            You have {d.total_team || 0} members in your network{(d.total_earned || 0) > 0 && ` and earned $${formatMoney(d.total_earned)} across all income streams`}.
           </div>
           <button onClick={function(){ setDashTab(dashTab === 'passive' ? 'overview' : 'passive'); }} style={{ display:'inline-flex', alignItems:'center', gap:7, marginTop:14, padding:'8px 16px', borderRadius:8, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit', background:'rgba(167,139,250,0.15)', color:'#c4b5fd', border:'1px solid rgba(167,139,250,0.35)', transition:'all .15s' }}>
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
@@ -322,7 +323,7 @@ export default function Dashboard() {
               </div>
               <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 9px', borderRadius: 20, letterSpacing: 0.3, background: s.bg, color: s.color }}>{s.badge}</span>
             </div>
-            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 34, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 6 }}>${(s.val || 0).toFixed(2)}</div>
+            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 34, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 6 }}>${formatMoney(s.val)}</div>
             <div style={{ fontSize: 15, fontWeight: 800, color: '#0f172a', marginBottom: 3 }}>{s.name}</div>
             <div style={{ fontSize: 12, color: '#64748b' }}>{s.detail}</div>
           </div>
@@ -431,7 +432,7 @@ export default function Dashboard() {
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{a.title}</div>
                   <div style={{ fontSize: 12, color: '#64748b' }}>{a.sub}</div>
                 </div>
-                <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 800, color: '#16a34a' }}>+${(a.amount || 0).toFixed(2)}</div>
+                <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 800, color: '#16a34a' }}>+${formatMoney(a.amount)}</div>
               </div>
             );
           })}
@@ -447,7 +448,7 @@ export default function Dashboard() {
             {[
               { val: d.personal_referrals || 0, lbl: 'Direct Referrals' },
               { val: d.total_team || 0, lbl: 'Total Network' },
-              { val: `$${(d.total_earned || 0).toFixed(2)}`, lbl: 'Lifetime Earned' },
+              { val: `$${formatMoney(d.total_earned)}`, lbl: 'Lifetime Earned' },
               { val: d.course_sale_count || 0, lbl: 'Course Sales' },
             ].map((s, i) => (
               <div key={i} style={{ background: '#f1f5f9', borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>

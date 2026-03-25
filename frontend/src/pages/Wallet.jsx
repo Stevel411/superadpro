@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
+import { formatMoney } from '../utils/money';
 
 export default function Wallet() {
   var { t } = useTranslation();
@@ -35,7 +36,7 @@ export default function Wallet() {
     try {
       const res = await apiPost('/api/p2p-transfer', { to_member_id: recipient, amount, note });
       if (res.success) {
-        setP2pResult({ type: 'success', msg: `✓ $${amount.toFixed(2)} sent to ${res.recipient_name} (${res.recipient_id}). New balance: $${res.new_balance.toFixed(2)}` });
+        setP2pResult({ type: 'success', msg: `✓ $${formatMoney(amount)} sent to ${res.recipient_name} (${res.recipient_id}). New balance: $${formatMoney(res.new_balance)}` });
         document.getElementById('p2pRecipient').value = '';
         document.getElementById('p2pAmount').value = '';
         document.getElementById('p2pNote').value = '';
@@ -59,15 +60,15 @@ export default function Wallet() {
       topbarActions={<>
         <div style={{ background: 'rgba(34,197,94,.09)', border: '1px solid rgba(34,197,94,.22)', borderRadius: 10, padding: '7px 16px', textAlign: 'center' }}>
           <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'rgba(148,163,184,.5)' }}>Balance</div>
-          <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 16, fontWeight: 800, color: '#4ade80' }}>${d.balance?.toFixed(2)}</div>
+          <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 16, fontWeight: 800, color: '#4ade80' }}>${formatMoney(d.balance)}</div>
         </div>
       </>}
     >
       {/* 3 Stat Pills */}
       <div className="grid-3-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
-        <StatPill value={`$${d.balance?.toFixed(2)}`} label="Available Balance" gradient="linear-gradient(90deg,#16a34a,#22c55e)" />
-        <StatPill value={`$${d.total_earned?.toFixed(2)}`} label="Total Earned" gradient="linear-gradient(90deg,#0ea5e9,#38bdf8)" />
-        <StatPill value={`$${d.total_withdrawn?.toFixed(2)}`} label="Total Withdrawn" gradient="linear-gradient(90deg,#6366f1,#818cf8)" />
+        <StatPill value={`$${formatMoney(d.balance)}`} label="Available Balance" gradient="linear-gradient(90deg,#16a34a,#22c55e)" />
+        <StatPill value={`$${formatMoney(d.total_earned)}`} label="Total Earned" gradient="linear-gradient(90deg,#0ea5e9,#38bdf8)" />
+        <StatPill value={`$${formatMoney(d.total_withdrawn)}`} label="Total Withdrawn" gradient="linear-gradient(90deg,#6366f1,#818cf8)" />
       </div>
 
       {/* Row 1: 3 columns */}
@@ -136,7 +137,7 @@ export default function Wallet() {
               <div style={{ textAlign: 'center', padding: '16px 0' }}>
                 <div style={{ fontSize: 36, marginBottom: 10 }}>◎</div>
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#3d5068', marginBottom: 6 }}>Minimum $10 USDT to withdraw</div>
-                <div style={{ fontSize: 13, color: '#7b91a8', marginBottom: 16 }}>Your balance is ${d.balance?.toFixed(2)}.</div>
+                <div style={{ fontSize: 13, color: '#7b91a8', marginBottom: 16 }}>Your balance is ${formatMoney(d.balance)}.</div>
                 <div style={{ fontSize: 12, color: '#7b91a8', marginTop: 8 }}>Minimum withdrawal is <strong style={{ color: '#3d5068' }}>$10 USDT</strong></div>
               </div>
             )
@@ -170,7 +171,7 @@ export default function Wallet() {
                          (c.commission_type || '').replace(/_/g, ' ')}
                       </td>
                       <td style={tdStyle}><span style={badgeCyan}>T{c.package_tier}</span></td>
-                      <td style={{ ...tdStyle, fontWeight: 800, color: '#16a34a' }}>+${(c.amount_usdt || 0).toFixed(2)}</td>
+                      <td style={{ ...tdStyle, fontWeight: 800, color: '#16a34a' }}>+${formatMoney(c.amount_usdt)}</td>
                       <td style={tdStyle}>
                         <span style={c.status === 'paid' ? badgeGreen : badgeAmber}>{(c.status || '').charAt(0).toUpperCase() + (c.status || '').slice(1)}</span>
                       </td>
@@ -217,8 +218,8 @@ export default function Wallet() {
                   <tbody>
                     {d.withdrawals.map((w, i) => (
                       <tr key={i}>
-                        <td style={{ ...tdStyle, fontWeight: 700 }}>${w.amount?.toFixed(2)}</td>
-                        <td style={{ ...tdStyle, fontWeight: 700, color: '#16a34a' }}>${(w.amount - 1).toFixed(2)}</td>
+                        <td style={{ ...tdStyle, fontWeight: 700 }}>${formatMoney(w.amount)}</td>
+                        <td style={{ ...tdStyle, fontWeight: 700, color: '#16a34a' }}>${formatMoney(w.amount - 1)}</td>
                         <td style={tdStyle}>
                           <span style={w.status === 'paid' ? badgeGreen : w.status === 'processing' ? badgeCyan : badgeAmber}>
                             {(w.status || '').charAt(0).toUpperCase() + (w.status || '').slice(1)}
@@ -322,7 +323,7 @@ export default function Wallet() {
                       <div style={{ fontSize: 13, color: '#7b91a8', marginTop: 2 }}>${c.package_tier} Campaign Tier · {c.created_at ? new Date(c.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}</div>
                     </div>
                   </div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: c.status === 'paid' ? '#16a34a' : '#f59e0b' }}>+${(c.amount_usdt || 0).toFixed(2)}</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: c.status === 'paid' ? '#16a34a' : '#f59e0b' }}>+${formatMoney(c.amount_usdt)}</div>
                 </div>
               );
             })}
@@ -354,7 +355,7 @@ export default function Wallet() {
                       <td style={{ ...tdStyle, fontSize: 16, fontWeight: 600 }}>{t.other_party || t.other_user}<br /><span style={{ fontSize: 13, color: '#7b91a8' }}>{t.other_id || ''}</span></td>
                       <td style={{ ...tdStyle, fontSize: 13, color: '#3d5068' }}>{t.note || '—'}</td>
                       <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: t.direction === 'sent' ? '#dc2626' : '#16a34a' }}>
-                        {t.direction === 'sent' ? '-' : '+'}${(t.amount || 0).toFixed(2)}
+                        {t.direction === 'sent' ? '-' : '+'}${formatMoney(t.amount)}
                       </td>
                     </tr>
                   ))}

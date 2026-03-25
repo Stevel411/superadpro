@@ -304,7 +304,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
             "icon": "🎓", "color": "purple",
             "title": f"{buyer.username if buyer else '?'} purchased Tier {c.course_tier}",
             "sub": "Course " + ("direct sale" if c.commission_type == "direct_sale" else "pass-up"),
-            "amount": round(float(c.amount), 2),
+            "amount": float(c.amount),
             "date": c.created_at
         })
     # General commissions
@@ -325,7 +325,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
             "icon": icon, "color": color,
             "title": f"{from_user.username if from_user else '?'}" + (" joined" if "membership" in ct else " — commission"),
             "sub": sub,
-            "amount": round(float(c.amount_usdt or 0), 2),
+            "amount": float(c.amount_usdt or 0),
             "date": c.created_at
         })
     activity.sort(key=lambda x: x["date"] or datetime.min, reverse=True)
@@ -338,7 +338,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
     course_sale_count = user.course_sale_count or 0
 
     # Marketplace stats
-    marketplace_earnings = round(float(user.marketplace_earnings or 0), 2)
+    marketplace_earnings = float(user.marketplace_earnings or 0)
     marketplace_sales = db.query(MemberCoursePurchase).filter(
         MemberCoursePurchase.course_id.in_(
             db.query(MemberCourse.id).filter(MemberCourse.creator_id == user.id)
@@ -353,13 +353,13 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "request":           request,
         "user":              user,
         "display_name":      user.first_name or user.username,
-        "balance":           round(float(user.balance or 0), 2),
-        "total_earned":      round(float(user.total_earned or 0), 2),
-        "grid_earnings":     round(float(user.grid_earnings or 0), 2),
-        "level_earnings":    round(float(user.level_earnings or 0), 2),
-        "upline_earnings":   round(float(user.upline_earnings or 0), 2),
-        "sponsor_earnings":  round(float(user.upline_earnings or 0), 2),
-        "course_earnings":   round(float(user.course_earnings or 0), 2),
+        "balance":           float(user.balance or 0),
+        "total_earned":      float(user.total_earned or 0),
+        "grid_earnings":     float(user.grid_earnings or 0),
+        "level_earnings":    float(user.level_earnings or 0),
+        "upline_earnings":   float(user.upline_earnings or 0),
+        "sponsor_earnings":  float(user.upline_earnings or 0),
+        "course_earnings":   float(user.course_earnings or 0),
         "membership_earned": round(membership_earned, 2),
         "boost_earned":      round(boost_earned, 2),
         "personal_referrals":user.personal_referrals or 0,
@@ -370,7 +370,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "recent_activity":   activity,
         "sponsor_username":  sponsor_username,
         "wallet_address":    user.wallet_address or "",
-        "total_withdrawn":    round(float(user.total_withdrawn or 0), 2),
+        "total_withdrawn":    float(user.total_withdrawn or 0),
         "is_active":         user.is_active,
         "member_id":         format_member_id(user.id, user.is_admin),
         "course_sale_count": course_sale_count,
@@ -418,15 +418,15 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "is_admin": user.is_admin,
         "is_active": user.is_active,
         "membership_tier": user.membership_tier or "basic",
-        "balance": round(float(user.balance or 0), 2),
-        "total_earned": round(float(user.total_earned or 0), 2),
-        "total_withdrawn": round(float(user.total_withdrawn or 0), 2),
-        "grid_earnings": round(float(user.grid_earnings or 0), 2),
-        "level_earnings": round(float(user.level_earnings or 0), 2),
-        "upline_earnings": round(float(user.upline_earnings or 0), 2),
-        "course_earnings": round(float(user.course_earnings or 0), 2),
-        "marketplace_earnings": round(float(user.marketplace_earnings or 0), 2),
-        "bonus_earnings": round(float(user.bonus_earnings or 0), 2),
+        "balance": float(user.balance or 0),
+        "total_earned": float(user.total_earned or 0),
+        "total_withdrawn": float(user.total_withdrawn or 0),
+        "grid_earnings": float(user.grid_earnings or 0),
+        "level_earnings": float(user.level_earnings or 0),
+        "upline_earnings": float(user.upline_earnings or 0),
+        "course_earnings": float(user.course_earnings or 0),
+        "marketplace_earnings": float(user.marketplace_earnings or 0),
+        "bonus_earnings": float(user.bonus_earnings or 0),
         "personal_referrals": user.personal_referrals or 0,
         "total_team": user.total_team or 0,
         "sponsor_id": user.sponsor_id,
@@ -862,11 +862,11 @@ def fomo_stats_api(db: Session = Depends(get_db)):
 
     return {
         "active_members": active_members,
-        "paid_today": round(float(today_commissions), 2),
+        "paid_today": float(today_commissions),
         "grids_completed": grids_completed,
         "avg_fill_time": f"{random.randint(3,6)}.{random.randint(1,9)} days",
         "positions_filled": int(avg_filled) if avg_filled > 5 else random.randint(35, 52),
-        "earned_today": round(float(today_commissions), 2),
+        "earned_today": float(today_commissions),
         "recent_activity": recent_activity[:8]
     }
 
@@ -1659,12 +1659,12 @@ def api_wallet_data(request: Request, user: User = Depends(get_current_user),
         "processed_at": w.processed_at.isoformat() if w.processed_at else None,
     } for w in withdrawals_raw]
     return {
-        "balance": round(float(user.balance or 0), 2),
-        "total_earned": round(float(user.total_earned or 0), 2),
-        "total_withdrawn": round(float(user.total_withdrawn or 0), 2),
-        "grid_earnings": round(float(user.grid_earnings or 0), 2),
-        "course_earnings": round(float(user.course_earnings or 0), 2),
-        "marketplace_earnings": round(float(user.marketplace_earnings or 0), 2),
+        "balance": float(user.balance or 0),
+        "total_earned": float(user.total_earned or 0),
+        "total_withdrawn": float(user.total_withdrawn or 0),
+        "grid_earnings": float(user.grid_earnings or 0),
+        "course_earnings": float(user.course_earnings or 0),
+        "marketplace_earnings": float(user.marketplace_earnings or 0),
         "membership_tier": user.membership_tier or "basic",
         "wallet_address": user.wallet_address or "",
         "commissions": commissions,
@@ -2456,14 +2456,14 @@ def _build_copilot_context(user, db) -> dict:
     return {
         "name": user.first_name or user.username,
         "tier": user.membership_tier or "pro",
-        "total_earned": round(float(user.total_earned or 0), 2),
-        "balance": round(float(user.balance or 0), 2),
+        "total_earned": float(user.total_earned or 0),
+        "balance": float(user.balance or 0),
         "total_team": user.total_team or 0,
         "personal_referrals": user.personal_referrals or 0,
-        "grid_earnings": round(float(user.grid_earnings or 0), 2),
-        "bonus_earnings": round(float(user.bonus_earnings or 0), 2),
-        "level_earnings": round(float(user.level_earnings or 0), 2),
-        "course_earnings": round(float(user.course_earnings or 0), 2),
+        "grid_earnings": float(user.grid_earnings or 0),
+        "bonus_earnings": float(user.bonus_earnings or 0),
+        "level_earnings": float(user.level_earnings or 0),
+        "course_earnings": float(user.course_earnings or 0),
         "active_grids": len(active_grids),
         "completions": grid_stats.get("completed_advances", 0),
         "closest_grid": closest_grid,
@@ -4872,9 +4872,9 @@ def admin_api_users(
             "first_name": u.first_name, "last_name": u.last_name,
             "is_active": u.is_active, "is_admin": u.is_admin,
             "membership_tier": u.membership_tier or "basic",
-            "balance": round(float(u.balance or 0), 2),
-            "total_earned": round(float(u.total_earned or 0), 2),
-            "total_withdrawn": round(float(u.total_withdrawn or 0), 2),
+            "balance": float(u.balance or 0),
+            "total_earned": float(u.total_earned or 0),
+            "total_withdrawn": float(u.total_withdrawn or 0),
             "personal_referrals": u.personal_referrals or 0,
             "total_team": u.total_team or 0,
             "sponsor_id": u.sponsor_id,
@@ -4911,13 +4911,13 @@ def admin_api_user_detail(
             "first_name": u.first_name, "last_name": u.last_name,
             "is_active": u.is_active, "is_admin": u.is_admin,
             "membership_tier": u.membership_tier or "basic",
-            "balance": round(float(u.balance or 0), 2),
-            "total_earned": round(float(u.total_earned or 0), 2),
-            "total_withdrawn": round(float(u.total_withdrawn or 0), 2),
-            "grid_earnings": round(float(u.grid_earnings or 0), 2),
-            "level_earnings": round(float(u.level_earnings or 0), 2),
-            "upline_earnings": round(float(u.upline_earnings or 0), 2),
-            "course_earnings": round(float(u.course_earnings or 0), 2),
+            "balance": float(u.balance or 0),
+            "total_earned": float(u.total_earned or 0),
+            "total_withdrawn": float(u.total_withdrawn or 0),
+            "grid_earnings": float(u.grid_earnings or 0),
+            "level_earnings": float(u.level_earnings or 0),
+            "upline_earnings": float(u.upline_earnings or 0),
+            "course_earnings": float(u.course_earnings or 0),
             "personal_referrals": u.personal_referrals or 0,
             "total_team": u.total_team or 0,
             "sponsor_id": u.sponsor_id,
@@ -4932,22 +4932,22 @@ def admin_api_user_detail(
             "id": g.id, "tier": g.package_tier, "price": float(g.package_price),
             "advance": g.advance_number, "filled": g.positions_filled,
             "is_complete": g.is_complete,
-            "revenue": round(float(g.revenue_total or 0), 2),
+            "revenue": float(g.revenue_total or 0),
         } for g in grids],
         "recent_commissions": [{
-            "id": c.id, "amount": round(float(c.amount_usdt or 0), 2),
+            "id": c.id, "amount": float(c.amount_usdt or 0),
             "type": c.commission_type, "from_user": c.from_user_id,
             "notes": c.notes, "status": c.status,
             "date": c.created_at.isoformat() if c.created_at else None,
         } for c in commissions],
         "payments": [{
-            "id": p.id, "amount": round(float(p.amount_usdt or 0), 2),
+            "id": p.id, "amount": float(p.amount_usdt or 0),
             "type": p.payment_type, "status": p.status,
             "tx_hash": p.tx_hash,
             "date": p.created_at.isoformat() if p.created_at else None,
         } for p in payments],
         "withdrawals": [{
-            "id": w.id, "amount": round(float(w.amount_usdt or 0), 2),
+            "id": w.id, "amount": float(w.amount_usdt or 0),
             "status": w.status, "wallet": w.wallet_address,
             "tx_hash": w.tx_hash,
             "requested": w.requested_at.isoformat() if w.requested_at else None,
@@ -4985,7 +4985,7 @@ async def admin_api_adjust_balance(
     db.add(comm)
     db.commit()
     logger.info(f"Admin balance adjust: {target.username} {'+' if amount > 0 else ''}{amount:.2f} ({reason})")
-    return {"success": True, "username": target.username, "old_balance": round(old_bal, 2), "new_balance": round(float(target.balance), 2)}
+    return {"success": True, "username": target.username, "old_balance": round(old_bal, 2), "new_balance": float(target.balance)}
 
 @app.post("/admin/api/user/{user_id}/toggle-active")
 def admin_api_toggle_active(
@@ -5134,24 +5134,24 @@ def admin_api_finances(
         # Flat fields for overview cards
         "total_users": total_users,
         "active_users": active_users,
-        "total_revenue": round(float(total_revenue), 2),
-        "total_commissions_paid": round(float(total_commissions), 2),
+        "total_revenue": float(total_revenue),
+        "total_commissions_paid": float(total_commissions),
         "pending_withdrawals_count": pending_withdrawals_count,
         "active_grids": active_grids,
         # Detailed breakdown
         "overview": {
-            "total_revenue": round(float(total_revenue), 2),
-            "total_commissions_paid": round(float(total_commissions), 2),
-            "total_withdrawn": round(float(total_withdrawn), 2),
-            "pending_withdrawals": round(float(pending_withdrawals), 2),
-            "total_user_balances": round(float(total_balances), 2),
-            "platform_profit": round(float(total_revenue) - float(total_commissions), 2),
+            "total_revenue": float(total_revenue),
+            "total_commissions_paid": float(total_commissions),
+            "total_withdrawn": float(total_withdrawn),
+            "pending_withdrawals": float(pending_withdrawals),
+            "total_user_balances": float(total_balances),
+            "platform_profit": float(total_revenue) - float(total_commissions),
         },
         "revenue_by_type": [{
-            "type": t, "total": round(float(s or 0), 2), "count": c
+            "type": t, "total": float(s or 0), "count": c
         } for t, s, c in payments_by_type],
         "commissions_by_type": [{
-            "type": t, "total": round(float(s or 0), 2), "count": c
+            "type": t, "total": float(s or 0), "count": c
         } for t, s, c in comms_by_type],
     }
 
@@ -5174,7 +5174,7 @@ def admin_api_commissions(
         "commissions": [{
             "id": c.id,
             "to_user_id": c.to_user_id, "from_user_id": c.from_user_id,
-            "amount": round(float(c.amount_usdt or 0), 2),
+            "amount": float(c.amount_usdt or 0),
             "type": c.commission_type, "status": c.status,
             "notes": c.notes,
             "date": c.created_at.isoformat() if c.created_at else None,
@@ -5201,7 +5201,7 @@ def admin_api_withdrawals(
         "withdrawals": [{
             "id": w.id, "user_id": w.user_id,
             "username": users_map.get(w.user_id, "?"),
-            "amount": round(float(w.amount_usdt or 0), 2),
+            "amount": float(w.amount_usdt or 0),
             "wallet": w.wallet_address, "status": w.status,
             "tx_hash": w.tx_hash,
             "requested": w.requested_at.isoformat() if w.requested_at else None,
@@ -5282,7 +5282,7 @@ def admin_api_health(
             "severity": "critical",
             "type": "negative_balance",
             "message": f"{len(neg_bal)} user(s) with negative balance",
-            "details": [{"id": u.id, "username": u.username, "balance": round(float(u.balance), 2)} for u in neg_bal]
+            "details": [{"id": u.id, "username": u.username, "balance": float(u.balance)} for u in neg_bal]
         })
 
     # Check for stuck pending withdrawals (>24h)
@@ -5297,7 +5297,7 @@ def admin_api_health(
             "severity": "warning",
             "type": "stuck_withdrawals",
             "message": f"{len(stuck_w)} withdrawal(s) pending > 24h",
-            "details": [{"id": w.id, "user_id": w.user_id, "amount": round(float(w.amount_usdt), 2),
+            "details": [{"id": w.id, "user_id": w.user_id, "amount": float(w.amount_usdt),
                          "requested": w.requested_at.isoformat()} for w in stuck_w]
         })
 
@@ -5412,7 +5412,7 @@ def admin_api_commission_flows(user: User = Depends(get_current_user), db: Sessi
             "buyer_id": c.buyer_id,
             "earner": earner.username if earner else "COMPANY",
             "earner_id": c.earner_id,
-            "amount": round(float(c.amount), 2),
+            "amount": float(c.amount),
             "tier": c.course_tier,
             "type": c.commission_type,
             "depth": c.pass_up_depth,
@@ -5451,8 +5451,8 @@ def admin_api_network_tree(user: User = Depends(get_current_user), db: Session =
             "is_admin": u.is_admin,
             "is_active": u.is_active,
             "sale_count": u.course_sale_count or 0,
-            "balance": round(float(u.balance or 0), 2),
-            "course_earnings": round(float(u.course_earnings or 0), 2),
+            "balance": float(u.balance or 0),
+            "course_earnings": float(u.course_earnings or 0),
             "owned_tiers": sorted(user_tiers.get(u.id, [])),
         })
     return {"nodes": nodes, "root_id": root_id}
@@ -9979,7 +9979,7 @@ async def api_my_commission_flows(request: Request, db: Session = Depends(get_db
         buyer = users_map.get(c.buyer_id)
         flows.append({
             "from": buyer.username if buyer else "?",
-            "amount": round(float(c.amount), 2),
+            "amount": float(c.amount),
             "stream": "course",
             "type": c.commission_type,
             "notes": c.notes or "",
@@ -10001,7 +10001,7 @@ async def api_my_commission_flows(request: Request, db: Session = Depends(get_db
 
         flows.append({
             "from": from_user.username if from_user else "?",
-            "amount": round(float(c.amount_usdt or 0), 2),
+            "amount": float(c.amount_usdt or 0),
             "stream": stream,
             "type": ct,
             "notes": c.notes or "",
@@ -10019,11 +10019,11 @@ async def api_my_commission_flows(request: Request, db: Session = Depends(get_db
     course_stats = get_user_course_stats(db, user.id)
 
     stats = {
-        "total_earned": round(float(user.total_earned or 0), 2),
+        "total_earned": float(user.total_earned or 0),
         "membership_earned": round(membership_earned, 2),
-        "grid_earned": round(float(user.grid_earnings or 0), 2),
+        "grid_earned": float(user.grid_earnings or 0),
         "boost_earned": round(boost_earned, 2),
-        "course_earned": round(float(user.course_earnings or 0), 2),
+        "course_earned": float(user.course_earnings or 0),
         "course_sale_count": course_stats.get("course_sale_count", 0),
         "direct_course_sales": course_stats.get("direct_commissions", 0),
         "passup_course_sales": course_stats.get("passup_commissions", 0),
@@ -10076,7 +10076,7 @@ async def api_my_network_tree(request: Request, db: Session = Depends(get_db)):
             "is_active": u.is_active,
             "is_you": u.id == user.id,
             "sale_count": u.course_sale_count or 0,
-            "course_earnings": round(float(u.course_earnings or 0), 2),
+            "course_earnings": float(u.course_earnings or 0),
             "owned_tiers": sorted(user_tiers.get(u.id, [])),
         })
 
@@ -10668,10 +10668,10 @@ def admin_test_grid_e2e(
             db.refresh(u)
             results["balances_after"][u.username] = {
                 "id": u.id,
-                "balance": round(float(u.balance or 0), 2),
-                "total_earned": round(float(u.total_earned or 0), 2),
-                "grid_earnings": round(float(u.grid_earnings or 0), 2),
-                "level_earnings": round(float(u.level_earnings or 0), 2),
+                "balance": float(u.balance or 0),
+                "total_earned": float(u.total_earned or 0),
+                "grid_earnings": float(u.grid_earnings or 0),
+                "level_earnings": float(u.level_earnings or 0),
             }
 
         # Step 5: Collect commissions
@@ -10685,7 +10685,7 @@ def admin_test_grid_e2e(
             from_user = db.query(User).filter(User.id == c.from_user_id).first() if c.from_user_id else None
             results["commissions"].append({
                 "type": c.commission_type,
-                "amount": round(float(c.amount_usdt or 0), 2),
+                "amount": float(c.amount_usdt or 0),
                 "from": from_user.username if from_user else "N/A",
                 "to": recipient.username if recipient else "COMPANY",
                 "notes": c.notes,
@@ -10699,7 +10699,7 @@ def admin_test_grid_e2e(
                 results["grids"].append({
                     "owner": u.username, "grid_id": g.id, "advance": g.advance_number,
                     "filled": g.positions_filled, "complete": g.is_complete,
-                    "bonus_accrued": round(float(g.bonus_pool_accrued or 0), 2),
+                    "bonus_accrued": float(g.bonus_pool_accrued or 0),
                     "bonus_paid": g.bonus_paid,
                     "positions_count": len(positions),
                 })
@@ -15214,7 +15214,7 @@ def api_affiliate_data(request: Request, user: User = Depends(get_current_user),
     return {
         "personal_referrals": user.personal_referrals or 0,
         "total_team": user.total_team or 0,
-        "total_earned": round(float(user.total_earned or 0), 2),
+        "total_earned": float(user.total_earned or 0),
         "linkhub_views": lh_profile.total_views if lh_profile else 0,
         "referrals": [{
             "id": r.id, "username": r.username, "first_name": r.first_name,
@@ -15236,7 +15236,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
     def user_entry(u, val):
         return {"username": u.username, "name": u.first_name or u.username, "value": val}
     return {
-        "top_earners": [user_entry(u, round(float(u.total_earned or 0), 2)) for u in top_earners],
+        "top_earners": [user_entry(u, float(u.total_earned or 0)) for u in top_earners],
         "top_recruiters": [user_entry(u, u.personal_referrals or 0) for u in top_recruiters],
         "top_teams": [user_entry(u, u.total_team or 0) for u in top_teams],
     }
@@ -16076,18 +16076,18 @@ def api_analytics_data(request: Request, user: User = Depends(get_current_user),
             "total_views": total_views + sum(c.views_delivered or 0 for c in campaigns),
             "total_clicks": total_clicks,
             "conversions": user.personal_referrals or 0,
-            "revenue": round(float(user.total_earned or 0), 2),
-            "balance": round(float(user.balance or 0), 2),
+            "revenue": float(user.total_earned or 0),
+            "balance": float(user.balance or 0),
             "membership_tier": user.membership_tier or "basic",
-            "grid_earnings": round(float(user.grid_earnings or 0), 2),
-            "course_earnings": round(float(user.course_earnings or 0), 2),
-            "marketplace_earnings": round(float(user.marketplace_earnings or 0), 2),
+            "grid_earnings": float(user.grid_earnings or 0),
+            "course_earnings": float(user.course_earnings or 0),
+            "marketplace_earnings": float(user.marketplace_earnings or 0),
             "total_commissions": total_commissions,
             "commission_by_type": commission_by_type,
             "direct_referrals": direct_refs,
             "active_referrals": active_refs,
             "total_team": user.total_team or 0,
-            "total_withdrawn": round(float(user.total_withdrawn or 0), 2),
+            "total_withdrawn": float(user.total_withdrawn or 0),
             "videos_watched": watches,
             "watch_streak": getattr(quota, 'streak_days', 0) or 0 if quota else 0,
             "watch_quota_met": bool(quota and getattr(quota, 'commissions_paused', False) == False) if quota else False,
@@ -16234,14 +16234,14 @@ def api_network_data(request: Request, user: User = Depends(get_current_user),
     return {
         "personal_referrals": user.personal_referrals or 0,
         "total_team": user.total_team or 0,
-        "total_earned": round(float(user.total_earned or 0), 2),
-        "course_earnings": round(float(user.course_earnings or 0), 2),
-        "grid_earnings": round(float(user.grid_earnings or 0), 2),
-        "marketplace_earnings": round(float(user.marketplace_earnings or 0), 2),
+        "total_earned": float(user.total_earned or 0),
+        "course_earnings": float(user.course_earnings or 0),
+        "grid_earnings": float(user.grid_earnings or 0),
+        "marketplace_earnings": float(user.marketplace_earnings or 0),
         "referrals": [{
             "id": r.id, "username": r.username, "first_name": r.first_name,
             "is_active": r.is_active, "membership_tier": r.membership_tier or "basic",
-            "total_earned": round(float(r.total_earned or 0), 2),
+            "total_earned": float(r.total_earned or 0),
             "personal_referrals": r.personal_referrals or 0,
             "created_at": r.created_at.isoformat() if r.created_at else None,
         } for r in referrals],
@@ -17025,8 +17025,8 @@ def api_activity_feed(request: Request, user: User = Depends(get_current_user),
         from_name = (from_user.first_name or from_user.username) if from_user else "System"
         feed.append({
             "type": "commission", "emoji": "💰",
-            "text": f"Earned ${round(float(c.amount_usdt), 2)} {c.commission_type.replace('_', ' ')} from {from_name}",
-            "time": c.created_at.isoformat(), "amount": round(float(c.amount_usdt), 2)
+            "text": f"Earned ${float(c.amount_usdt)} {c.commission_type.replace('_', ' ')} from {from_name}",
+            "time": c.created_at.isoformat(), "amount": float(c.amount_usdt)
         })
 
     # New team members (direct referrals)
@@ -17195,8 +17195,8 @@ def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
             grids = db.query(Grid).filter(Grid.owner_id == u.id, Grid.is_active == True).all()
             grid_total = sum(g.positions_filled or 0 for g in grids)
 
-            total_balance = round(float(u.balance or 0), 2)
-            weekly_earned = round(float(weekly_earned), 2)
+            total_balance = float(u.balance or 0)
+            weekly_earned = float(weekly_earned)
             name = u.first_name or u.username
 
             # Skip if nothing happened this week and balance is 0

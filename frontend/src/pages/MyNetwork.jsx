@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 import { Users, DollarSign, TrendingUp, Award, ChevronDown, ChevronUp, Copy, Check } from 'lucide-react';
+import { formatMoney } from '../utils/money';
 
 export default function MyNetwork() {
   var { t } = useTranslation();
@@ -227,7 +228,7 @@ export default function MyNetwork() {
                           </span>
                         </td>
                         <td style={Object.assign({},tdStyle,{fontWeight:800,color:'#16a34a',fontSize:14})}>
-                          +${(c.amount_usdt || c.amount || 0).toFixed(2)}
+                          +${formatMoney(c.amount_usdt || c.amount)}
                         </td>
                         <td style={tdStyle}>
                           <span style={{fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:6,

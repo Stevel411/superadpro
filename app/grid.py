@@ -512,8 +512,8 @@ def get_grid_stats(db: Session, user_id: int) -> dict:
         "completed_advances": len(completed),
         "active_grids":     len(active),
         "total_members":    sum(g.positions_filled for g in grids),
-        "total_earned":     round(total_earned, 2),
-        "total_bonus_earned": round(float(user.bonus_earnings or 0), 2) if user else 0,
+        "total_earned":     float(total_earned),
+        "total_bonus_earned": float(user.bonus_earnings or 0) if user else 0,
         "active_grids_detail": [
             {
                 "tier":            g.package_tier,
@@ -522,8 +522,8 @@ def get_grid_stats(db: Session, user_id: int) -> dict:
                 "filled":          g.positions_filled,
                 "pct":             round(float(g.positions_filled or 0) / float(GRID_TOTAL) * 100),
                 "revenue":         g.revenue_total,
-                "bonus_pool":      round(float(g.bonus_pool_accrued or 0), 2),
-                "owner_potential": round(float(g.revenue_total or 0) * float(PER_LEVEL_PCT), 2),
+                "bonus_pool":      float(g.bonus_pool_accrued or 0),
+                "owner_potential": float(g.revenue_total or 0) * float(PER_LEVEL_PCT),
             }
             for g in active
         ]

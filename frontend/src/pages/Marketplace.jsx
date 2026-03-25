@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost, apiDelete } from '../utils/api';
 import { Store, Search, Users, DollarSign, TrendingUp, Copy, Check, ShoppingCart, Star, Tag, Download, Plus, Eye, Package, Award, ExternalLink } from 'lucide-react';
+import { formatMoney } from '../utils/money';
 
 var CATEGORIES = [
   {key:'all',label:'All Products',icon:'🏪'},
@@ -204,7 +205,7 @@ function ProductDetail({ product, onBack, currentUserId }) {
   var [copied, setCopied] = useState(false);
   var p = product;
   var isOwner = currentUserId && p.creator_id === currentUserId;
-  var earnPerSale = ((p.price||0)*0.25).toFixed(2);
+  var earnPerSale = formatMoney((p.price||0)*0.25);
   var affLink = window.location.origin + '/supermarket/product/' + p.id;
 
   function copyLink() { navigator.clipboard.writeText(affLink); setCopied(true); setTimeout(function(){setCopied(false);},2000); }
@@ -283,9 +284,9 @@ function ProductDetail({ product, onBack, currentUserId }) {
           <div style={{background:'#f8f9fb',border:'1px solid #e8ecf2',borderRadius:12,padding:16}}>
             <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:10}}>Commission Split</div>
             {[
-              {label:'Product Creator',pct:'50%',amount:((p.price||0)*0.5).toFixed(2),color:'#16a34a'},
+              {label:'Product Creator',pct:'50%',amount:formatMoney((p.price||0)*0.5),color:'#16a34a'},
               {label:'You (Affiliate)',pct:'25%',amount:earnPerSale,color:'#0ea5e9'},
-              {label:'Platform',pct:'25%',amount:((p.price||0)*0.25).toFixed(2),color:'#8b5cf6'},
+              {label:'Platform',pct:'25%',amount:formatMoney((p.price||0)*0.25),color:'#8b5cf6'},
             ].map(function(s,i){
               return <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'8px 0',borderBottom:i<2?'1px solid #e8ecf2':'none'}}><div style={{display:'flex',alignItems:'center',gap:6}}><div style={{width:8,height:8,borderRadius:'50%',background:s.color}}/><span style={{fontSize:12,fontWeight:600,color:'#475569'}}>{s.label}</span></div><div style={{display:'flex',alignItems:'center',gap:8}}><span style={{fontSize:11,fontWeight:700,color:s.color}}>{s.pct}</span><span style={{fontSize:12,fontWeight:800,color:'#0f172a'}}>${s.amount}</span></div></div>;
             })}

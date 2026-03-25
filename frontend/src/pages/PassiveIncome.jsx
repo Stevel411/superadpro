@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { formatMoney } from '../utils/money';
 
 // ── Animated counter ──────────────────────────────────────
-function CountUp({ target, prefix = '', suffix = '', duration = 1800, decimals = 0 }) {
+function CountUp({ target, prefix = '', suffix = '', duration = 1800, isMoney = false, decimals = 0 }) {
   var [val, setVal] = useState(0);
   var rafRef = useRef(null);
   useEffect(function() {
@@ -18,7 +19,7 @@ function CountUp({ target, prefix = '', suffix = '', duration = 1800, decimals =
     rafRef.current = requestAnimationFrame(step);
     return function() { if (rafRef.current) cancelAnimationFrame(rafRef.current); };
   }, [target]);
-  var display = decimals > 0 ? val.toFixed(decimals) : Math.round(val).toLocaleString();
+  var display = isMoney ? formatMoney(val) : decimals > 0 ? val.toFixed(decimals) : Math.round(val).toLocaleString();
   return <>{prefix}{display}{suffix}</>;
 }
 
@@ -214,7 +215,7 @@ export default function PassiveIncome({ d }) {
             <div>
               <div style={{ fontSize:10, fontWeight:800, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,0.3)', marginBottom:4 }}>Total Earned — All Time</div>
               <div style={S.totalAmount}>
-                $<CountUp target={totalEarned} duration={2000}/>
+                $<CountUp target={totalEarned} duration={2000} isMoney/>
               </div>
             </div>
             <div style={{ width:1, height:64, background:'rgba(255,255,255,0.08)', flexShrink:0 }}/>
@@ -244,7 +245,7 @@ export default function PassiveIncome({ d }) {
               <div style={{ fontSize:42, marginBottom:12 }}>{s.emoji}</div>
               <div style={{ fontSize:11, fontWeight:800, textTransform:'uppercase', letterSpacing:1, color:'rgba(255,255,255,0.35)', marginBottom:8 }}>{s.name}</div>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:900, color:s.color, marginBottom:10 }}>
-                $<CountUp target={s.val} duration={1600}/>
+                $<CountUp target={s.val} duration={1600} isMoney/>
               </div>
               <Bar pct={maxStream > 0 ? (s.val/maxStream)*100 : 0} gradient={s.grad} height={8}/>
               <div style={{ fontSize:11, color:'rgba(255,255,255,0.25)', marginTop:8 }}>{s.tag}</div>
@@ -332,7 +333,7 @@ export default function PassiveIncome({ d }) {
             </div>
             <div style={{ textAlign:'right' }}>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:48, fontWeight:900, color:'#10b981', lineHeight:1 }}>
-                $<CountUp target={totalEarned} duration={1800} decimals={2}/>
+                $<CountUp target={totalEarned} duration={1800} isMoney/>
               </div>
               <div style={{ fontSize:13, color:'rgba(255,255,255,0.35)', marginTop:4 }}>total earned</div>
             </div>
@@ -347,7 +348,7 @@ export default function PassiveIncome({ d }) {
                     <Bar pct={maxStream > 0 ? (s.val/maxStream)*100 : 0} gradient={s.grad} height={10}/>
                   </div>
                   <div style={{ fontSize:14, fontWeight:700, color:'#fff', width:60, textAlign:'right', flexShrink:0 }}>
-                    ${Number(s.val).toFixed(2)}
+                    ${formatMoney(Number(s.val))}
                   </div>
                 </div>
               );
@@ -378,7 +379,7 @@ export default function PassiveIncome({ d }) {
                     <div style={{ fontSize:13, color:'rgba(255,255,255,0.35)' }}>{item.sub}</div>
                   </div>
                   <div style={{ textAlign:'right' }}>
-                    <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:c }}>+${item.amount?.toFixed(2)}</div>
+                    <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:c }}>+${formatMoney(item.amount || 0)}</div>
                     <div style={{ fontSize:11, color:'rgba(255,255,255,0.25)', marginTop:2 }}>
                       {item.date ? new Date(item.date).toLocaleDateString('en-GB', {day:'numeric',month:'short'}) : ''}
                     </div>

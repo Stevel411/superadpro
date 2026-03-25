@@ -4,6 +4,7 @@ import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { CreditCard, Coins } from 'lucide-react';
 import CryptoCheckout from '../components/CryptoCheckout';
+import { formatMoney } from '../utils/money';
 
 const TIERS = {
   1: { name:'Starter',     price:20,   views:'5,000',     monthly:'500',    bonus:64 },
@@ -192,9 +193,9 @@ export default function ActivateTier() {
           <div style={{padding:'16px 24px'}}>
             {[
               { label:'Direct Sponsor', pct:'40%', amount:`$${(t.price * 0.4).toFixed(0)}`, desc:'Per referral who activates this tier' },
-              { label:'Uni-Level (×8 levels)', pct:'50%', amount:`$${(t.price * 0.0625).toFixed(2)} each`, desc:'6.25% per level across 8 levels' },
+              { label:'Uni-Level (×8 levels)', pct:'50%', amount:`$${formatMoney(t.price * 0.0625)} each`, desc:'6.25% per level across 8 levels' },
               { label:'Bonus Pool', pct:'5%', amount:`$${t.bonus.toLocaleString()} payout`, desc:'Complete your 8×8 grid to claim' },
-              { label:'Platform', pct:'5%', amount:`$${(t.price * 0.05).toFixed(2)}`, desc:'Operations & development' },
+              { label:'Platform', pct:'5%', amount:`$${formatMoney(t.price * 0.05)}`, desc:'Operations & development' },
             ].map((r, i) => (
               <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'10px 0',borderBottom:i<3?'1px solid #f5f6f8':'none'}}>
                 <div>

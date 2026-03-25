@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 import { Zap, Check } from 'lucide-react';
+import { formatMoney } from '../utils/money';
 
 var COLORS = [
   { bg: '#085041', light: '#E1F5EE', mid: '#5DCAA5', text: '#9FE1CB', accent: '#0F6E56', dark: '#04342C' },
@@ -147,8 +148,8 @@ function Card({ tier, col, isLast }) {
 
         <div style={{ fontSize: 15, color: '#64748b', lineHeight: 2.4 }}>
           <div style={{ fontSize: 14, color: '#94a3b8' }}>{t.views_target.toLocaleString()} views target</div>
-          <div style={{ color: '#0f172a', fontWeight: 800, fontSize: 16 }}>${t.direct_commission.toFixed(2)} direct (40%)</div>
-          <div style={{ color: c.accent, fontWeight: 800, fontSize: 16 }}>${t.uni_level_per_member.toFixed(2)} per grid member</div>
+          <div style={{ color: '#0f172a', fontWeight: 800, fontSize: 16 }}>${formatMoney(t.direct_commission)} direct (40%)</div>
+          <div style={{ color: c.accent, fontWeight: 800, fontSize: 16 }}>${formatMoney(t.uni_level_per_member)} per grid member</div>
           <div style={{ color: c.dark, fontWeight: 800, fontSize: 16 }}>${t.completion_bonus.toLocaleString()} completion bonus</div>
         </div>
 

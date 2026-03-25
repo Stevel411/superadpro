@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 import { Eye, MousePointer, Users, DollarSign, TrendingUp, Target, Tv, Award, Wallet, BarChart3, PieChart, Activity } from 'lucide-react';
+import { formatMoney } from '../utils/money';
 
 export default function Analytics() {
   var { t } = useTranslation();
@@ -47,7 +48,7 @@ export default function Analytics() {
               {lbl:'Grid Earnings',val:`$${(data.grid_earnings||0).toFixed(0)}`,color:'#0ea5e9',pct:data.revenue>0?Math.round((data.grid_earnings||0)/data.revenue*100):0},
               {lbl:'Course Sales',val:`$${(data.course_earnings||0).toFixed(0)}`,color:'#6366f1',pct:data.revenue>0?Math.round((data.course_earnings||0)/data.revenue*100):0},
               {lbl:'Marketplace',val:`$${(data.marketplace_earnings||0).toFixed(0)}`,color:'#e11d48',pct:data.revenue>0?Math.round((data.marketplace_earnings||0)/data.revenue*100):0},
-              {lbl:'Balance',val:`$${(data.balance||0).toFixed(2)}`,color:'#16a34a',pct:null},
+              {lbl:'Balance',val:`$${formatMoney(data.balance)}`,color:'#16a34a',pct:null},
             ].map((r,i) => (
               <div key={i} style={{background:'#f8f9fb',borderRadius:8,padding:'12px 14px'}}>
                 <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
@@ -61,7 +62,7 @@ export default function Analytics() {
           </div>
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:10,padding:'10px 0',borderTop:'1px solid #f1f3f7'}}>
             <span style={{fontSize:11,fontWeight:700,color:'#94a3b8'}}>Total Withdrawn</span>
-            <span style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#0f172a'}}>${(data.total_withdrawn||0).toFixed(2)}</span>
+            <span style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#0f172a'}}>${formatMoney(data.total_withdrawn)}</span>
           </div>
         </Card>
 
@@ -120,9 +121,9 @@ export default function Analytics() {
           <div style={{display:'flex',flexDirection:'column',gap:8}}>
             {[
               {lbl:'Membership Tier',val:(data.membership_tier||'basic').charAt(0).toUpperCase()+(data.membership_tier||'basic').slice(1),color:'#0ea5e9'},
-              {lbl:'Available Balance',val:`$${(data.balance||0).toFixed(2)}`,color:'#16a34a'},
-              {lbl:'Total Withdrawn',val:`$${(data.total_withdrawn||0).toFixed(2)}`,color:'#d97706'},
-              {lbl:'Lifetime Revenue',val:`$${(data.revenue||0).toFixed(2)}`,color:'#6366f1'},
+              {lbl:'Available Balance',val:`$${formatMoney(data.balance)}`,color:'#16a34a'},
+              {lbl:'Total Withdrawn',val:`$${formatMoney(data.total_withdrawn)}`,color:'#d97706'},
+              {lbl:'Lifetime Revenue',val:`$${formatMoney(data.revenue)}`,color:'#6366f1'},
             ].map((r,i) => (
               <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 12px',background:'#f8f9fb',borderRadius:8}}>
                 <span style={{fontSize:12,fontWeight:600,color:'#64748b'}}>{r.lbl}</span>
