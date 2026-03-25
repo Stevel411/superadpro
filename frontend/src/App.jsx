@@ -6,90 +6,54 @@ import AppLayout from './components/layout/AppLayout';
 import './i18n';
 import { Component, Suspense } from 'react';
 
-// Lazy-loaded pages (code splitting)
-const Dashboard = React.lazy(() => import('./pages/Dashboard'));
-const Wallet = React.lazy(() => import('./pages/Wallet'));
-const Account = React.lazy(() => import('./pages/Account'));
-const Courses = React.lazy(() => import('./pages/Courses'));
-const Leaderboard = React.lazy(() => import('./pages/Leaderboard'));
-const Affiliate = React.lazy(() => import('./pages/Affiliate'));
-const CampaignTiers = React.lazy(() => import('./pages/CampaignTiers'));
-const Marketplace = React.lazy(() => import('./pages/Marketplace'));
-const MyCourses = React.lazy(() => import('./pages/MyCourses'));
-const Watch = React.lazy(() => import('./pages/Watch'));
-const Analytics = React.lazy(() => import('./pages/Analytics'));
-const Support = React.lazy(() => import('./pages/Support'));
-const Achievements = React.lazy(() => import('./pages/Achievements'));
-const VideoLibrary = React.lazy(() => import('./pages/VideoLibrary'));
-const Upgrade = React.lazy(() => import('./pages/Upgrade'));
-const CompensationPlan = React.lazy(() => import('./pages/CompensationPlan'));
-const AiTool = React.lazy(() => import('./pages/AiTool'));
-const MyNetwork = React.lazy(() => import('./pages/MyNetwork'));
-const HowCommissionsWork = React.lazy(() => import('./pages/HowCommissionsWork'));
-const MyLeads = React.lazy(() => import('./pages/MyLeads'));
-const LinkTools = React.lazy(() => import('./pages/LinkTools'));
-const AdBoard = React.lazy(() => import('./pages/AdBoard'));
-const BannerManager = React.lazy(() => import('./pages/BannerManager'));
-const AdHub = React.lazy(() => import('./pages/AdHub'));
+// ── Direct imports (core pages — instant navigation, no spinner) ──
+import Dashboard from './pages/Dashboard';
+import Wallet from './pages/Wallet';
+import Account from './pages/Account';
+import Courses from './pages/Courses';
+import Leaderboard from './pages/Leaderboard';
+import Affiliate from './pages/Affiliate';
+import CampaignTiers from './pages/CampaignTiers';
+import Marketplace from './pages/Marketplace';
+import MyCourses from './pages/MyCourses';
+import Watch from './pages/Watch';
+import Analytics from './pages/Analytics';
+import Support from './pages/Support';
+import Achievements from './pages/Achievements';
+import VideoLibrary from './pages/VideoLibrary';
+import Upgrade from './pages/Upgrade';
+import CompensationPlan from './pages/CompensationPlan';
+import AiTool from './pages/AiTool';
+import MyNetwork from './pages/MyNetwork';
+import HowCommissionsWork from './pages/HowCommissionsWork';
+import MyLeads from './pages/MyLeads';
+import LinkTools from './pages/LinkTools';
+import AdBoard from './pages/AdBoard';
+import BannerManager from './pages/BannerManager';
+import AdHub from './pages/AdHub';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PassupVisualiser from './pages/PassupVisualiser';
+import ProSeller from './pages/ProSeller';
+import SuperSeller from './pages/SuperSeller';
+import AdminDashboard from './pages/AdminDashboard';
+import Funnels from './pages/Funnels';
+import CourseCreate from './pages/CourseCreate';
+import CourseEditor from './pages/CourseEditor';
+import LinkHubPage from './pages/LinkHub';
+import SuperMarketCreate from './pages/SuperMarketCreate';
+import ActivateTier from './pages/ActivateTier';
+import TrainingCentre from './pages/TrainingCentre';
+import TeamMessenger from './pages/TeamMessenger';
+import Challenges from './pages/Challenges';
+import QRGenerator from './pages/QRGenerator';
+
+// ── Lazy imports (heavy/rare pages only) ──
 const BannerMaker = React.lazy(() => import('./pages/BannerMaker'));
-const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess'));
-const PassupVisualiser = React.lazy(() => import('./pages/PassupVisualiser'));
-const ProSeller = React.lazy(() => import('./pages/ProSeller'));
-const SuperSeller = React.lazy(() => import('./pages/SuperSeller'));
-const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
-const Funnels = React.lazy(() => import('./pages/Funnels'));
-const CourseCreate = React.lazy(() => import('./pages/CourseCreate'));
-const CourseEditor = React.lazy(() => import('./pages/CourseEditor'));
-const LinkHubPage = React.lazy(() => import('./pages/LinkHub'));
-const SuperMarketCreate = React.lazy(() => import('./pages/SuperMarketCreate'));
 const SuperPagesEditor = React.lazy(() => import('./pages/superpages/SuperPagesEditor'));
-const ActivateTier = React.lazy(() => import('./pages/ActivateTier'));
-const TrainingCentre = React.lazy(() => import('./pages/TrainingCentre'));
-const TeamMessenger = React.lazy(() => import('./pages/TeamMessenger'));
-const Challenges = React.lazy(() => import('./pages/Challenges'));
-const QRGenerator = React.lazy(() => import('./pages/QRGenerator'));
+const IncomeGrid3DPage = React.lazy(() => import('./pages/IncomeGrid3DPage'));
 
-// Suspense wrapper for lazy routes
+// Suspense wrapper for remaining lazy routes
 function Lazy({ children }) { return <Suspense fallback={<div style={{minHeight:'60vh'}}/>}>{children}</Suspense>; }
-
-// Preload common pages after initial render so they're cached before user clicks
-if (typeof window !== 'undefined') {
-  window.addEventListener('load', function() {
-    setTimeout(function() {
-      import('./pages/Dashboard');
-      import('./pages/Wallet');
-      import('./pages/Affiliate');
-      import('./pages/Watch');
-      import('./pages/CampaignTiers');
-      import('./pages/Account');
-      import('./pages/MyNetwork');
-      import('./pages/Upgrade');
-      import('./pages/Support');
-      import('./pages/Analytics');
-      import('./pages/TeamMessenger');
-      import('./pages/Leaderboard');
-      import('./pages/Achievements');
-      import('./pages/TrainingCentre');
-      import('./pages/LinkTools');
-      import('./pages/CompensationPlan');
-    }, 2000);
-    setTimeout(function() {
-      import('./pages/AdHub');
-      import('./pages/Courses');
-      import('./pages/LinkHub');
-      import('./pages/Challenges');
-      import('./pages/Marketplace');
-      import('./pages/QRGenerator');
-      import('./pages/PassupVisualiser');
-      import('./pages/SuperSeller');
-      import('./pages/Funnels');
-      import('./pages/AiTool');
-      import('./pages/BannerManager');
-      import('./pages/MyCourses');
-    }, 5000);
-  });
-}
-
 
 
 // Error boundary to catch crashes
@@ -110,9 +74,6 @@ class ErrorBoundary extends Component {
     return this.props.children;
   }
 }
-
-// Pages
-var IncomeGrid3DPage = React.lazy(function() { return import('./pages/IncomeGrid3DPage'); });
 
 // Auth pages
 import Login from './pages/auth/Login';
