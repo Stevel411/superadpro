@@ -4,48 +4,54 @@ import { AuthProvider, useAuth } from './hooks/useAuth';
 import { Spinner } from './components/ui';
 import AppLayout from './components/layout/AppLayout';
 import './i18n';
-import { Component } from 'react';
-import Dashboard from './pages/Dashboard';
-import Wallet from './pages/Wallet';
-import Account from './pages/Account';
-import Courses from './pages/Courses';
-import Leaderboard from './pages/Leaderboard';
-import Affiliate from './pages/Affiliate';
-import CampaignTiers from './pages/CampaignTiers';
-import Marketplace from './pages/Marketplace';
-import MyCourses from './pages/MyCourses';
-import Watch from './pages/Watch';
-import Analytics from './pages/Analytics';
-import Support from './pages/Support';
-import Achievements from './pages/Achievements';
-import VideoLibrary from './pages/VideoLibrary';
-import Upgrade from './pages/Upgrade';
-import CompensationPlan from './pages/CompensationPlan';
-import AiTool from './pages/AiTool';
-import MyNetwork from './pages/MyNetwork';
-import HowCommissionsWork from './pages/HowCommissionsWork';
-import MyLeads from './pages/MyLeads';
-import LinkTools from './pages/LinkTools';
-import AdBoard from './pages/AdBoard';
-import BannerManager from './pages/BannerManager';
-import AdHub from './pages/AdHub';
-import BannerMaker from './pages/BannerMaker';
-import PaymentSuccess from './pages/PaymentSuccess';
-import PassupVisualiser from './pages/PassupVisualiser';
-import ProSeller from './pages/ProSeller';
-import SuperSeller from './pages/SuperSeller';
-import AdminDashboard from './pages/AdminDashboard';
-import Funnels from './pages/Funnels';
-import CourseCreate from './pages/CourseCreate';
-import CourseEditor from './pages/CourseEditor';
-import LinkHubPage from './pages/LinkHub';
-import SuperMarketCreate from './pages/SuperMarketCreate';
-import SuperPagesEditor from './pages/superpages/SuperPagesEditor';
-import ActivateTier from './pages/ActivateTier';
-import TrainingCentre from './pages/TrainingCentre';
-import TeamMessenger from './pages/TeamMessenger';
-import Challenges from './pages/Challenges';
-import QRGenerator from './pages/QRGenerator';
+import { Component, Suspense } from 'react';
+
+// Lazy-loaded pages (code splitting)
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Wallet = React.lazy(() => import('./pages/Wallet'));
+const Account = React.lazy(() => import('./pages/Account'));
+const Courses = React.lazy(() => import('./pages/Courses'));
+const Leaderboard = React.lazy(() => import('./pages/Leaderboard'));
+const Affiliate = React.lazy(() => import('./pages/Affiliate'));
+const CampaignTiers = React.lazy(() => import('./pages/CampaignTiers'));
+const Marketplace = React.lazy(() => import('./pages/Marketplace'));
+const MyCourses = React.lazy(() => import('./pages/MyCourses'));
+const Watch = React.lazy(() => import('./pages/Watch'));
+const Analytics = React.lazy(() => import('./pages/Analytics'));
+const Support = React.lazy(() => import('./pages/Support'));
+const Achievements = React.lazy(() => import('./pages/Achievements'));
+const VideoLibrary = React.lazy(() => import('./pages/VideoLibrary'));
+const Upgrade = React.lazy(() => import('./pages/Upgrade'));
+const CompensationPlan = React.lazy(() => import('./pages/CompensationPlan'));
+const AiTool = React.lazy(() => import('./pages/AiTool'));
+const MyNetwork = React.lazy(() => import('./pages/MyNetwork'));
+const HowCommissionsWork = React.lazy(() => import('./pages/HowCommissionsWork'));
+const MyLeads = React.lazy(() => import('./pages/MyLeads'));
+const LinkTools = React.lazy(() => import('./pages/LinkTools'));
+const AdBoard = React.lazy(() => import('./pages/AdBoard'));
+const BannerManager = React.lazy(() => import('./pages/BannerManager'));
+const AdHub = React.lazy(() => import('./pages/AdHub'));
+const BannerMaker = React.lazy(() => import('./pages/BannerMaker'));
+const PaymentSuccess = React.lazy(() => import('./pages/PaymentSuccess'));
+const PassupVisualiser = React.lazy(() => import('./pages/PassupVisualiser'));
+const ProSeller = React.lazy(() => import('./pages/ProSeller'));
+const SuperSeller = React.lazy(() => import('./pages/SuperSeller'));
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const Funnels = React.lazy(() => import('./pages/Funnels'));
+const CourseCreate = React.lazy(() => import('./pages/CourseCreate'));
+const CourseEditor = React.lazy(() => import('./pages/CourseEditor'));
+const LinkHubPage = React.lazy(() => import('./pages/LinkHub'));
+const SuperMarketCreate = React.lazy(() => import('./pages/SuperMarketCreate'));
+const SuperPagesEditor = React.lazy(() => import('./pages/superpages/SuperPagesEditor'));
+const ActivateTier = React.lazy(() => import('./pages/ActivateTier'));
+const TrainingCentre = React.lazy(() => import('./pages/TrainingCentre'));
+const TeamMessenger = React.lazy(() => import('./pages/TeamMessenger'));
+const Challenges = React.lazy(() => import('./pages/Challenges'));
+const QRGenerator = React.lazy(() => import('./pages/QRGenerator'));
+
+// Suspense wrapper for lazy routes
+function Lazy({ children }) { return <Suspense fallback={<div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'50vh'}}><div style={{width:36,height:36,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>}>{children}</Suspense>; }
+
 
 
 // Error boundary to catch crashes
@@ -114,22 +120,22 @@ function AppRoutes() {
   return (
     <Routes>
       {/* Fully migrated pages */}
-      <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
-      <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
-      <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
-      <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
-      <Route path="/affiliate" element={<ProtectedRoute><Affiliate /></ProtectedRoute>} />
-      <Route path="/campaign-tiers" element={<ProtectedRoute><CampaignTiers /></ProtectedRoute>} />
-      <Route path="/activate/:tierId" element={<ProtectedRoute><ActivateTier /></ProtectedRoute>} />
-      <Route path="/marketplace" element={<Marketplace />} />
-      <Route path="/supermarket/create" element={<ProtectedRoute><SuperMarketCreate /></ProtectedRoute>} />
-      <Route path="/courses/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
-      <Route path="/watch" element={<ProtectedRoute><Watch /></ProtectedRoute>} />
-      <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
-      <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-      <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
-      <Route path="/video-library" element={<ProtectedRoute><VideoLibrary /></ProtectedRoute>} />
+      <Route path="/dashboard" element={<ProtectedRoute><Lazy><Dashboard /></Lazy></ProtectedRoute>} />
+      <Route path="/wallet" element={<ProtectedRoute><Lazy><Wallet /></Lazy></ProtectedRoute>} />
+      <Route path="/account" element={<ProtectedRoute><Lazy><Account /></Lazy></ProtectedRoute>} />
+      <Route path="/courses" element={<ProtectedRoute><Lazy><Courses /></Lazy></ProtectedRoute>} />
+      <Route path="/leaderboard" element={<ProtectedRoute><Lazy><Leaderboard /></Lazy></ProtectedRoute>} />
+      <Route path="/affiliate" element={<ProtectedRoute><Lazy><Affiliate /></Lazy></ProtectedRoute>} />
+      <Route path="/campaign-tiers" element={<ProtectedRoute><Lazy><CampaignTiers /></Lazy></ProtectedRoute>} />
+      <Route path="/activate/:tierId" element={<ProtectedRoute><Lazy><ActivateTier /></Lazy></ProtectedRoute>} />
+      <Route path="/marketplace" element={<Lazy><Marketplace /></Lazy>} />
+      <Route path="/supermarket/create" element={<ProtectedRoute><Lazy><SuperMarketCreate /></Lazy></ProtectedRoute>} />
+      <Route path="/courses/my-courses" element={<ProtectedRoute><Lazy><MyCourses /></Lazy></ProtectedRoute>} />
+      <Route path="/watch" element={<ProtectedRoute><Lazy><Watch /></Lazy></ProtectedRoute>} />
+      <Route path="/support" element={<ProtectedRoute><Lazy><Support /></Lazy></ProtectedRoute>} />
+      <Route path="/analytics" element={<ProtectedRoute><Lazy><Analytics /></Lazy></ProtectedRoute>} />
+      <Route path="/achievements" element={<ProtectedRoute><Lazy><Achievements /></Lazy></ProtectedRoute>} />
+      <Route path="/video-library" element={<ProtectedRoute><Lazy><VideoLibrary /></Lazy></ProtectedRoute>} />
 
       {/* AI Marketing Tools */}
       <Route path="/campaign-studio" element={<ProtectedRoute><AiTool title="Campaign Studio" subtitle="AI-powered campaign generator" apiEndpoint="/api/campaign-studio/generate"
@@ -149,34 +155,34 @@ function AppRoutes() {
         resultLabel="Your Email" /></ProtectedRoute>} />
 
       {/* Info Pages */}
-      <Route path="/compensation-plan" element={<ProtectedRoute><CompensationPlan /></ProtectedRoute>} />
-      <Route path="/income-grid-3d" element={<React.Suspense fallback={<div style={{background:'#050d1a',minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#38bdf8',fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:700}}>Loading 3D Grid...</div>}><IncomeGrid3DPage /></React.Suspense>} />
-      <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
+      <Route path="/compensation-plan" element={<ProtectedRoute><Lazy><CompensationPlan /></Lazy></ProtectedRoute>} />
+      <Route path="/income-grid-3d" element={<React.Suspense fallback={<div style={{background:'#050d1a',minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#38bdf8',fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:700}}>Loading 3D Grid...</div>}><Lazy><IncomeGrid3DPage /></Lazy></React.Suspense>} />
+      <Route path="/upgrade" element={<ProtectedRoute><Lazy><Upgrade /></Lazy></ProtectedRoute>} />
 
       {/* Complex tools — full React pages */}
-      <Route path="/courses/create" element={<ProtectedRoute><CourseCreate /></ProtectedRoute>} />
-      <Route path="/courses/edit/:id" element={<ProtectedRoute><CourseEditor /></ProtectedRoute>} />
-      <Route path="/linkhub" element={<ProtectedRoute><LinkHubPage /></ProtectedRoute>} />
-      <Route path="/proseller" element={<ProtectedRoute><ProSeller /></ProtectedRoute>} />
-      <Route path="/superseller" element={<ProtectedRoute><SuperSeller /></ProtectedRoute>} />
-      <Route path="/training" element={<ProtectedRoute><TrainingCentre /></ProtectedRoute>} />
-      <Route path="/team-messenger" element={<ProtectedRoute><TeamMessenger /></ProtectedRoute>} />
-      <Route path="/challenges" element={<ProtectedRoute><Challenges /></ProtectedRoute>} />
-      <Route path="/qr-generator" element={<ProtectedRoute><QRGenerator /></ProtectedRoute>} />
-      <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-      <Route path="/pro/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
-      <Route path="/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
-      <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><SuperPagesEditor /></ProtectedRoute>} />
-      <Route path="/pro/leads" element={<ProtectedRoute><MyLeads /></ProtectedRoute>} />
-      <Route path="/link-tools" element={<ProtectedRoute><LinkTools /></ProtectedRoute>} />
-      <Route path="/passup-visualiser" element={<ProtectedRoute><PassupVisualiser /></ProtectedRoute>} />
-      <Route path="/network" element={<ProtectedRoute><MyNetwork /></ProtectedRoute>} />
-      <Route path="/courses/commissions" element={<ProtectedRoute><MyNetwork /></ProtectedRoute>} />
-      <Route path="/courses/how-it-works" element={<ProtectedRoute><HowCommissionsWork /></ProtectedRoute>} />
-      <Route path="/ad-hub" element={<ProtectedRoute><AdHub /></ProtectedRoute>} />
-      <Route path="/banner-maker" element={<ProtectedRoute><BannerMaker /></ProtectedRoute>} />
-      <Route path="/ad-board" element={<ProtectedRoute><AdHub /></ProtectedRoute>} />
-      <Route path="/banner-manager" element={<ProtectedRoute><BannerManager /></ProtectedRoute>} />
+      <Route path="/courses/create" element={<ProtectedRoute><Lazy><CourseCreate /></Lazy></ProtectedRoute>} />
+      <Route path="/courses/edit/:id" element={<ProtectedRoute><Lazy><CourseEditor /></Lazy></ProtectedRoute>} />
+      <Route path="/linkhub" element={<ProtectedRoute><Lazy><LinkHubPage /></Lazy></ProtectedRoute>} />
+      <Route path="/proseller" element={<ProtectedRoute><Lazy><ProSeller /></Lazy></ProtectedRoute>} />
+      <Route path="/superseller" element={<ProtectedRoute><Lazy><SuperSeller /></Lazy></ProtectedRoute>} />
+      <Route path="/training" element={<ProtectedRoute><Lazy><TrainingCentre /></Lazy></ProtectedRoute>} />
+      <Route path="/team-messenger" element={<ProtectedRoute><Lazy><TeamMessenger /></Lazy></ProtectedRoute>} />
+      <Route path="/challenges" element={<ProtectedRoute><Lazy><Challenges /></Lazy></ProtectedRoute>} />
+      <Route path="/qr-generator" element={<ProtectedRoute><Lazy><QRGenerator /></Lazy></ProtectedRoute>} />
+      <Route path="/admin" element={<ProtectedRoute><Lazy><AdminDashboard /></Lazy></ProtectedRoute>} />
+      <Route path="/pro/funnels" element={<ProtectedRoute><Lazy><Funnels /></Lazy></ProtectedRoute>} />
+      <Route path="/funnels" element={<ProtectedRoute><Lazy><Funnels /></Lazy></ProtectedRoute>} />
+      <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><Lazy><SuperPagesEditor /></Lazy></ProtectedRoute>} />
+      <Route path="/pro/leads" element={<ProtectedRoute><Lazy><MyLeads /></Lazy></ProtectedRoute>} />
+      <Route path="/link-tools" element={<ProtectedRoute><Lazy><LinkTools /></Lazy></ProtectedRoute>} />
+      <Route path="/passup-visualiser" element={<ProtectedRoute><Lazy><PassupVisualiser /></Lazy></ProtectedRoute>} />
+      <Route path="/network" element={<ProtectedRoute><Lazy><MyNetwork /></Lazy></ProtectedRoute>} />
+      <Route path="/courses/commissions" element={<ProtectedRoute><Lazy><MyNetwork /></Lazy></ProtectedRoute>} />
+      <Route path="/courses/how-it-works" element={<ProtectedRoute><Lazy><HowCommissionsWork /></Lazy></ProtectedRoute>} />
+      <Route path="/ad-hub" element={<ProtectedRoute><Lazy><AdHub /></Lazy></ProtectedRoute>} />
+      <Route path="/banner-maker" element={<ProtectedRoute><Lazy><BannerMaker /></Lazy></ProtectedRoute>} />
+      <Route path="/ad-board" element={<ProtectedRoute><Lazy><AdHub /></Lazy></ProtectedRoute>} />
+      <Route path="/banner-manager" element={<ProtectedRoute><Lazy><BannerManager /></Lazy></ProtectedRoute>} />
 
       {/* Public pages — no auth required, no sidebar */}
       <Route path="/" element={<SmartHome />} />
@@ -207,7 +213,7 @@ function AppRoutes() {
       <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* Catch-all */}
-      <Route path="/payment-success" element={<ProtectedRoute><PaymentSuccess /></ProtectedRoute>} />
+      <Route path="/payment-success" element={<ProtectedRoute><Lazy><PaymentSuccess /></Lazy></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
