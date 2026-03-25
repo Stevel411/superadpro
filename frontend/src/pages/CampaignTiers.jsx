@@ -153,7 +153,7 @@ function Card({ tier, col, isLast }) {
         </div>
 
         {!active && (
-          <Link to={'/activate-tier?tier=' + t.tier} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, width: '100%', padding: '10px', borderRadius: 8, border: 'none', background: c.bg, color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'none', marginTop: 12, boxSizing: 'border-box' }}>
+          <Link to={'/activate/' + t.tier} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 5, width: '100%', padding: '10px', borderRadius: 8, border: 'none', background: c.bg, color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'none', marginTop: 12, boxSizing: 'border-box' }}>
             <Zap size={13} /> Activate Tier
           </Link>
         )}

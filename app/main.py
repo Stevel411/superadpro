@@ -1298,7 +1298,8 @@ def dashboard(request: Request):
 @app.get("/ad-board")
 @app.get("/2fa-setup")
 @app.get("/supermarket/create")
-def serve_react_page(request: Request):
+@app.get("/activate/{tier_id}")
+def serve_react_page(request: Request, tier_id: str = ""):
     """Serve React SPA for pages without dedicated backend routes."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
