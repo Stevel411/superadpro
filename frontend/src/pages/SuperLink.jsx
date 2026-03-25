@@ -188,12 +188,12 @@ export default function SuperLinkPage() {
           </Reveal>
 
           <Reveal delay={0.55}>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: 6, flexWrap: 'wrap', marginTop: 48 }}>
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap', marginTop: 36, marginBottom: 0 }}>
               {TIERS.map(function(t) {
                 return (
-                  <div key={t.tier} style={{ padding: '10px 16px', borderRadius: 12, textAlign: 'center', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', minWidth: 90, transition: 'all 0.3s', cursor: 'default' }}>
-                    <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#475569' }}>Tier {t.tier}</div>
-                    <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 900, color: t.color, marginTop: 2 }}>${t.payout.toLocaleString()}</div>
+                  <div key={t.tier} style={{ padding: '14px 20px', borderRadius: 14, textAlign: 'center', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', minWidth: 105, transition: 'all 0.3s', cursor: 'default' }}>
+                    <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#475569' }}>Tier {t.tier}</div>
+                    <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 20, fontWeight: 900, color: t.color, marginTop: 4 }}>${t.payout.toLocaleString()}</div>
                   </div>
                 );
               })}
@@ -209,7 +209,7 @@ export default function SuperLinkPage() {
           <Reveal><h2 style={S.h2}>Four Ways to Earn.</h2></Reveal>
           <Reveal delay={0.1}><p style={S.blurb}>Each stream works independently. Together, they compound into real recurring income.</p></Reveal>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, marginTop: 48 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 20, marginTop: 48 }}>
             {[
               { name: 'Membership Commissions', rate: '50% recurring', rateColor: '#34d399', desc: 'Earn $10 to $29.50 per member every month — for as long as they stay active. Three tiers: Basic, Pro, and Creator.', accent: '#10b981' },
               { name: '8×8 Profit Grid', rate: 'Up to $7,200 per cycle', rateColor: '#818cf8', desc: '8 campaign tiers from $20 to $1,000. Your grid has 64 positions — each one pays you 6.25%. Grids auto-renew on completion.', accent: '#6366f1' },
@@ -254,7 +254,7 @@ export default function SuperLinkPage() {
           <Reveal><h2 style={S.h2}>Your Total Marketing Suite.</h2></Reveal>
           <Reveal delay={0.1}><p style={S.blurb}>Build any business with the Super Tools that come from being a member of SuperAdPro.</p></Reveal>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16, marginTop: 48 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 48 }}>
             {TOOLS.map(function(t, i) {
               return (
                 <Reveal key={i} delay={i * 0.05}>
@@ -272,7 +272,7 @@ export default function SuperLinkPage() {
           </div>
 
           {/* Pricing */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24, maxWidth: 680, margin: '60px auto 0' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 24, maxWidth: 680, margin: '48px auto 0' }}>
             <Reveal>
               <div style={{ padding: '40px 28px', borderRadius: 24, textAlign: 'center', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)' }}>
                 <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 11, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase', color: '#64748b', marginBottom: 6 }}>Basic</div>
@@ -300,7 +300,7 @@ export default function SuperLinkPage() {
 
 
       {/* ═══ FINAL CTA ═══ */}
-      <section style={{ ...S.section, textAlign: 'center', padding: '160px 24px', position: 'relative' }}>
+      <section style={{ ...S.section, textAlign: 'center', padding: '80px 24px', position: 'relative' }}>
         <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)', width: 600, height: 600, borderRadius: '50%', background: 'radial-gradient(circle,rgba(251,191,36,0.06),transparent 60%)', pointerEvents: 'none' }}/>
         <div style={S.inner}>
           <Reveal>
