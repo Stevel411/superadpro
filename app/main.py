@@ -15262,6 +15262,7 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
     active_grids = db.query(Grid).filter(Grid.owner_id == user.id, Grid.is_complete == False).all()
     completed_grids = db.query(Grid).filter(Grid.owner_id == user.id, Grid.is_complete == True).all()
     grid_by_tier = {}
+    completed_tier_set = {g.package_tier for g in completed_grids}
     for g in active_grids:
         grid_by_tier[g.package_tier] = {
             "filled": g.positions_filled or 0,
@@ -15280,7 +15281,7 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
         uni_level_per_member = round(price * 0.0625, 2)
         bonus = GRID_COMPLETION_BONUS.get(tier_num, 0)
         views = CAMPAIGN_VIEW_TARGETS.get(tier_num, 0)
-        is_active = is_admin or (tier_num in active_campaign_tiers)
+        is_active = is_admin or (tier_num in active_campaign_tiers) or (tier_num in grid_by_tier) or (tier_num in completed_tier_set)
         grid_info = grid_by_tier.get(tier_num)
 
         tiers.append({

@@ -91,6 +91,9 @@ def process_tier_purchase(
     _pay_unilevel_chain(db, buyer, price, package_tier)
     _record_platform_fee(db, price, package_tier, buyer_id)
 
+    # Create the buyer's own grid at this tier (so they can receive spillover)
+    get_or_create_active_grid(db, buyer_id, package_tier)
+
     # Spillover: fill one seat in every upline grid at this tier
     grids_filled = _spillover_fill(db, buyer_id, package_tier)
 
