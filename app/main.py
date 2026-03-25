@@ -1190,10 +1190,11 @@ async def api_forgot_password(request: Request, db: Session = Depends(get_db)):
         )
         db.add(reset_token)
         db.commit()
+        reset_url = f"https://www.superadpro.com/reset-password?token={token}"
         send_password_reset_email(
             to_email=user.email,
             first_name=user.first_name or user.username,
-            reset_token=token,
+            reset_url=reset_url,
         )
     return {"success": True, "message": "If that email is registered, a reset link has been sent."}
 
@@ -3862,10 +3863,11 @@ def forgot_password_process(
     db.commit()
 
     # Send email (fails silently if SMTP not configured)
+    reset_url = f"https://www.superadpro.com/reset-password?token={token}"
     send_password_reset_email(
         to_email   = user.email,
         first_name = user.first_name or user.username,
-        reset_token = token,
+        reset_url  = reset_url,
     )
     logger.warning(f"Password reset requested for: {email}")
     return success_response()
