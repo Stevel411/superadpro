@@ -11735,24 +11735,8 @@ async def api_mark_lesson_complete(course_id: int, lesson_id: int,
 
 # ═══════════════════════════════════════════════════════════════
 #  AFFILIATE SALES FUNNEL — /join/{username}
+#  (Handled by the SuperLink route earlier in the file — line ~791)
 # ═══════════════════════════════════════════════════════════════
-
-@app.get("/join/{username}")
-async def join_funnel(username: str, request: Request, db: Session = Depends(get_db)):
-    """
-    Personal affiliate sales funnel.
-    Every member gets a done-for-you funnel at /join/their_username.
-    Registration form is pre-tagged with their referral code.
-    """
-    sponsor = db.query(User).filter(User.username == username).first()
-    if not sponsor:
-        # Fallback: redirect to main register page
-        return RedirectResponse("/register", status_code=302)
-
-    # Set referral cookie so it persists
-    response = HTMLResponse(_react_index.read_text()) if _react_index.exists() else RedirectResponse(url="/register")
-    response.set_cookie("ref", username, max_age=30*24*60*60, httponly=False, samesite="lax")
-    return response
 
 
 # ═══════════════════════════════════════════════════════════════

@@ -195,7 +195,7 @@ function AppRoutes() {
       <Route path="/packages" element={<Navigate to="/register" replace />} />
       <Route path="/what-you-get" element={<HowItWorks />} />
       <Route path="/vip" element={<Navigate to="/register" replace />} />
-      <Route path="/join/:username" element={<JoinFunnel />} />
+      {/* /join/:username handled by SuperLinkPage below */}
       <Route path="/ads" element={<PublicAdBoard />} />
       <Route path="/earn" element={<EarnPage />} />
       <Route path="/join/:username" element={<SuperLinkPage />} />
