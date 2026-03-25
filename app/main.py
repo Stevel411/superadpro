@@ -360,8 +360,8 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "upline_earnings":   float(user.upline_earnings or 0),
         "sponsor_earnings":  float(user.upline_earnings or 0),
         "course_earnings":   float(user.course_earnings or 0),
-        "membership_earned": round(membership_earned, 2),
-        "boost_earned":      round(boost_earned, 2),
+        "membership_earned": membership_earned,
+        "boost_earned":      boost_earned,
         "personal_referrals":user.personal_referrals or 0,
         "total_team":        user.total_team or 0,
         "grid_stats":        stats,
@@ -1314,8 +1314,12 @@ def api_dashboard(request: Request, user: User = Depends(get_current_user),
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     try:
+        import time as _t
+        t0 = _t.time()
         check_achievements(db, user)
+        t1 = _t.time()
         ctx = get_dashboard_context(request, user, db)
+        t2 = _t.time()
         # Strip non-serialisable items
         safe = {}
         for k, v in ctx.items():
@@ -1326,6 +1330,8 @@ def api_dashboard(request: Request, user: User = Depends(get_current_user),
                 safe[k] = v
             except (TypeError, ValueError):
                 safe[k] = str(v)
+        t3 = _t.time()
+        logger.info(f"Dashboard API timing: achievements={t1-t0:.3f}s context={t2-t1:.3f}s serialize={t3-t2:.3f}s total={t3-t0:.3f}s")
         return safe
     except Exception as exc:
         import traceback
@@ -10035,9 +10041,9 @@ async def api_my_commission_flows(request: Request, db: Session = Depends(get_db
 
     stats = {
         "total_earned": float(user.total_earned or 0),
-        "membership_earned": round(membership_earned, 2),
+        "membership_earned": membership_earned,
         "grid_earned": float(user.grid_earnings or 0),
-        "boost_earned": round(boost_earned, 2),
+        "boost_earned": boost_earned,
         "course_earned": float(user.course_earnings or 0),
         "course_sale_count": course_stats.get("course_sale_count", 0),
         "direct_course_sales": course_stats.get("direct_commissions", 0),

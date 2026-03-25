@@ -18,10 +18,16 @@ export default function Dashboard() {
   const [refCopied, setRefCopied] = useState(false);
   const [dashTab, setDashTab] = useState('overview');
 
+  const [error, setError] = useState(null);
+
   useEffect(() => {
+    var timeout = setTimeout(function() {
+      if (!data) { setError('Dashboard is taking too long to load. Please refresh the page.'); setLoading(false); }
+    }, 10000);
     apiGet('/api/dashboard')
-      .then(d => { setData(d); setLoading(false); })
-      .catch(() => setLoading(false));
+      .then(d => { clearTimeout(timeout); setData(d); setLoading(false); })
+      .catch(e => { clearTimeout(timeout); setError(e?.message || 'Failed to load dashboard'); setLoading(false); });
+    return function() { clearTimeout(timeout); };
   }, []);
 
   if (loading) {
@@ -31,8 +37,11 @@ export default function Dashboard() {
     </div></AppLayout>;
   }
 
-  if (!data) {
-    return <AppLayout title={t("dashboard.title")}><div style={{ textAlign: 'center', padding: 80, color: '#94a3b8' }}>Unable to load dashboard data</div></AppLayout>;
+  if (error || !data) {
+    return <AppLayout title={t("dashboard.title")}><div style={{ textAlign: 'center', padding: 80, color: '#94a3b8' }}>
+      <div style={{ fontSize: 16, marginBottom: 12 }}>{error || 'Unable to load dashboard data'}</div>
+      <button onClick={() => window.location.reload()} style={{ padding: '10px 24px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}>Refresh Page</button>
+    </div></AppLayout>;
   }
 
   const d = data;
