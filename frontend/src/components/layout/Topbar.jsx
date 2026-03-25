@@ -20,7 +20,11 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
       .catch(() => {});
   }
 
-  useEffect(() => { loadNotifs(); }, []);
+  useEffect(() => {
+    loadNotifs();
+    var interval = setInterval(loadNotifs, 30000);
+    return function() { clearInterval(interval); };
+  }, []);
 
   // Click outside to close
   useEffect(() => {
