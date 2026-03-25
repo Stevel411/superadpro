@@ -25,6 +25,9 @@ SuperAdPro is a video advertising and affiliate marketing platform. FastAPI/Pyth
 ### No Vibe Coding
 Diagnose root cause before fixing. If a fix takes more than 2 attempts, stop and rethink the approach entirely. Don't patch repeatedly. Test the actual user flow, not just whether code runs.
 
+### Search Before Fixing Framework Errors
+When hitting framework-specific errors (React, FastAPI, SQLAlchemy, Vite, etc.), search the web for the error message/code before attempting a fix. Others will have encountered and solved the same issue. Don't trial-and-error — find the proven solution first.
+
 ### No Half Measures
 Every feature must be fully thought through logically and executed precisely BEFORE pushing. Trace the COMPLETE flow end-to-end — not just "does the code run" but "does the money go to the right people."
 
