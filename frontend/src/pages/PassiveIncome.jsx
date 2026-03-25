@@ -63,15 +63,6 @@ export default function PassiveIncome({ d }) {
   var completions = gridStats.completed_advances || 0;
   var personalReferrals = d?.personal_referrals || 0;
 
-  // Monthly projection (simple estimate based on current data)
-  var monthlyProjection = Math.round(
-    (membershipEarned * 0.8) + // renewals are recurring
-    (levelEarnings * 1.2) +    // uni-level grows with team
-    (courseEarnings * 0.3) +   // some are one-off
-    (gridEarnings * 0.4) +     // depends on team activity
-    (marketEarnings * 0.2)
-  );
-
   // Passive score (0-100)
   var passiveScore = Math.min(100, Math.round(
     (totalTeam > 0 ? Math.min(40, totalTeam * 1.2) : 0) +
@@ -232,7 +223,6 @@ export default function PassiveIncome({ d }) {
                 { val: totalTeam, lbl: 'Team Members' },
                 { val: completions, lbl: 'Completions' },
                 { val: personalReferrals, lbl: 'Direct Referrals' },
-                { val: monthlyProjection, lbl: 'Est. Monthly*', prefix: '$' },
               ].map(function(s,i) {
                 return (
                   <div key={i} style={S.totalStat}>
@@ -242,9 +232,6 @@ export default function PassiveIncome({ d }) {
                 );
               })}
             </div>
-          </div>
-          <div style={{ marginTop:14, fontSize:10, color:'rgba(255,255,255,0.2)', fontStyle:'italic' }}>
-            * Monthly estimate based on historical earnings and assumed renewal rates. Not a guarantee of future income.
           </div>
         </div>
       </div>
@@ -336,21 +323,18 @@ export default function PassiveIncome({ d }) {
           </div>
         </div>
 
-        {/* Monthly Projection */}
+        {/* Earnings Breakdown */}
         <div style={S.darkCard}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:18 }}>
             <div>
-              <div style={S.sectionTitle}>Monthly Estimate *</div>
-              <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)' }}>Based on your historical earnings</div>
+              <div style={S.sectionTitle}>Earnings Breakdown</div>
+              <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)' }}>Your actual earnings by income stream</div>
             </div>
             <div style={{ textAlign:'right' }}>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:48, fontWeight:900, color:'#10b981', lineHeight:1 }}>
-                $<CountUp target={monthlyProjection} duration={1800}/>
+                $<CountUp target={totalEarned} duration={1800} decimals={2}/>
               </div>
-              <div style={{ fontSize:13, color:'rgba(255,255,255,0.35)', marginTop:4 }}>estimated / month</div>
-              <div style={{ fontSize:12, color:'#fbbf24', fontWeight:700, marginTop:4 }}>
-                ~$<CountUp target={monthlyProjection*12} duration={2000}/>/yr estimated
-              </div>
+              <div style={{ fontSize:13, color:'rgba(255,255,255,0.35)', marginTop:4 }}>total earned</div>
             </div>
           </div>
           <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
@@ -362,18 +346,12 @@ export default function PassiveIncome({ d }) {
                   <div style={{ flex:1 }}>
                     <Bar pct={maxStream > 0 ? (s.val/maxStream)*100 : 0} gradient={s.grad} height={10}/>
                   </div>
-                  <div style={{ fontSize:14, fontWeight:700, color:'#fff', width:44, textAlign:'right', flexShrink:0 }}>
-                    ${Math.round(s.val)}
+                  <div style={{ fontSize:14, fontWeight:700, color:'#fff', width:60, textAlign:'right', flexShrink:0 }}>
+                    ${Number(s.val).toFixed(2)}
                   </div>
                 </div>
               );
             })}
-          </div>
-          {/* Disclaimer */}
-          <div style={{ marginTop:16, padding:'10px 14px', borderRadius:10, background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)' }}>
-            <div style={{ fontSize:10, color:'rgba(255,255,255,0.25)', lineHeight:1.7 }}>
-              * <strong style={{ color:'rgba(255,255,255,0.35)' }}>Estimate only.</strong> This figure is calculated from your historical earnings using assumed renewal rates (80% membership, 40% grid, 30% courses). It does not guarantee future income. Actual earnings depend on member renewals, network activity, and market conditions. Past performance is not indicative of future results.
-            </div>
           </div>
         </div>
       </div>
