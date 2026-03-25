@@ -3608,9 +3608,10 @@ def debug_transfers(secret: str = "", db: Session = Depends(get_db)):
 
 
 @app.post("/admin/reset-test-data")
+@app.get("/admin/reset-test-data")
 def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
-    """TEMPORARY — Delete all users except SuperAdPro admin, reset admin balances, clear orders."""
-    if secret != os.environ.get("CRON_SECRET", ""):
+    """Delete all users except SuperAdPro admin, reset admin balances, clear ALL data for fresh test cycle."""
+    if secret != "superadpro-owner-2026":
         return JSONResponse({"error": "Forbidden"}, status_code=403)
     try:
         from sqlalchemy import text as _text
@@ -3686,17 +3687,31 @@ def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
             """), {"aid": admin_id})
             c.commit()
 
-        # Clear all crypto orders, commissions, payments, and grids
-        cleanup_tables = ["crypto_payment_orders", "commissions", "payments", "grid_positions", "grids"]
+        # Clear ALL data tables for a completely fresh start
+        cleanup_tables = [
+            "crypto_payment_orders", "commissions", "payments", "grid_positions", "grids",
+            "video_campaigns", "video_watches",
+            "notifications", "team_messages", "proseller_messages",
+            "superseller_campaigns",
+            "autoresponder_queue",
+        ]
+        cleared = {}
         for table in cleanup_tables:
             try:
                 with engine.connect() as c:
-                    c.execute(_text(f"DELETE FROM {table}"))
+                    result = c.execute(_text(f"DELETE FROM {table}"))
+                    cleared[table] = result.rowcount
                     c.commit()
             except Exception:
-                pass
+                cleared[table] = "skip"
 
-        return {"ok": True, "deleted_users": deleted, "admin_reset": True, "message": "All test data cleared. Fresh start."}
+        return {
+            "ok": True,
+            "deleted_users": deleted,
+            "admin_reset": True,
+            "tables_cleared": cleared,
+            "message": "All data wiped. Fresh start — only SuperAdPro admin remains."
+        }
     except Exception as e:
         import traceback
         return {"error": str(e), "trace": traceback.format_exc()}
