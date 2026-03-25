@@ -158,7 +158,7 @@ def _spillover_fill(db: Session, buyer_id: int, package_tier: int) -> list:
                 grid.revenue_total    = Decimal(str(grid.revenue_total or 0)) + Decimal(str(price))
 
                 # Accrue 5% bonus pool on this grid
-                bonus_amount = round(float(price) * BONUS_POOL_PCT, 6)
+                bonus_amount = round(float(price) * BONUS_POOL_PCT, 2)
                 grid.bonus_pool_accrued = Decimal(str(grid.bonus_pool_accrued or 0)) + Decimal(str(bonus_amount))
 
                 owner = db.query(User).filter(User.id == upline_id).first()
@@ -231,7 +231,7 @@ def place_member_in_grid(
     grid.revenue_total    = Decimal(str(grid.revenue_total or 0)) + Decimal(str(price))
 
     # Accrue 5% bonus pool
-    bonus_amount = round(float(price) * BONUS_POOL_PCT, 6)
+    bonus_amount = round(float(price) * BONUS_POOL_PCT, 2)
     grid.bonus_pool_accrued = Decimal(str(grid.bonus_pool_accrued or 0)) + Decimal(str(bonus_amount))
 
     owner = db.query(User).filter(User.id == owner_id).first()
@@ -256,7 +256,7 @@ def place_member_in_grid(
 
 def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: int):
     """40% to the buyer's personal sponsor."""
-    amount = round(float(price) * DIRECT_PCT, 6)
+    amount = round(float(price) * DIRECT_PCT, 2)
 
     if not buyer.sponsor_id:
         _record_commission(db, buyer.id, None, amount, "direct_sponsor",
@@ -284,7 +284,7 @@ def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: in
 def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: int):
     """6.25% to each of 8 sponsor chain levels above the buyer.
     Each level checked individually — if unqualified at this tier, company absorbs."""
-    per_level = round(float(price) * PER_LEVEL_PCT, 6)
+    per_level = round(float(price) * PER_LEVEL_PCT, 2)
     current_id = buyer.id
 
     for lvl in range(1, GRID_LEVELS + 1):
@@ -317,7 +317,7 @@ def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: in
 
 
 def _record_platform_fee(db: Session, price: float, package_tier: int, buyer_id: int = None):
-    amount = round(float(price) * PLATFORM_PCT, 6)
+    amount = round(float(price) * PLATFORM_PCT, 2)
     _record_commission(db, buyer_id, None, amount, "platform",
                        f"Platform 5% fee on ${price}",
                        package_tier)
