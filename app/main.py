@@ -3690,7 +3690,7 @@ def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
         # Clear ALL data tables for a completely fresh start
         cleanup_tables = [
             "crypto_payment_orders", "commissions", "payments", "grid_positions", "grids",
-            "video_campaigns", "video_watches",
+            "video_watches", "video_campaigns",
             "notifications", "team_messages", "proseller_messages",
             "superseller_campaigns",
             "autoresponder_queue",
@@ -3702,8 +3702,8 @@ def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
                     result = c.execute(_text(f"DELETE FROM {table}"))
                     cleared[table] = result.rowcount
                     c.commit()
-            except Exception:
-                cleared[table] = "skip"
+            except Exception as e:
+                cleared[table] = f"skip: {str(e)[:80]}"
 
         return {
             "ok": True,
