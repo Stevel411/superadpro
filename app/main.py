@@ -430,6 +430,7 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "personal_referrals": user.personal_referrals or 0,
         "total_team": user.total_team or 0,
         "sponsor_id": user.sponsor_id,
+        "sponsor_username": (db.query(User).filter(User.id == user.sponsor_id).first().username if user.sponsor_id else None),
         "created_at": user.created_at.isoformat() if user.created_at else None,
         "onboarding_completed": user.onboarding_completed,
         "kyc_status": user.kyc_status,

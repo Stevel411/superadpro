@@ -122,7 +122,7 @@ export default function Account() {
               <span style={{display:'inline-block',fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:4,marginTop:3,...(user.is_active?{background:'#dcfce7',color:'#16a34a'}:{background:'#fef3c7',color:'#d97706'})}}>{user.is_active?'● Active':'○ Inactive'}</span>
             </div>
           </div>
-          <Row k="Member ID" v={memberId} mono/><Row k="Email" v={user.email}/><Row k="Tier" v={(user.membership_tier||'basic').toUpperCase()}/><Row k="Country" v={user.country||'—'}/><Row k="Sponsor" v={user.sponsor_id?'#'+user.sponsor_id:'Direct'}/><Row k="Joined" v={user.created_at?new Date(user.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—'} last/>
+          <Row k="Member ID" v={memberId} mono/><Row k="Email" v={user.email}/><Row k="Tier" v={(user.membership_tier||'basic').toUpperCase()}/><Row k="Country" v={user.country||'—'}/><Row k="Sponsor" v={user.sponsor_username?'@'+user.sponsor_username:'Direct'}/><Row k="Joined" v={user.created_at?new Date(user.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—'} last/>
         </Card>
 
         <Card title="Edit Profile">
