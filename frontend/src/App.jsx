@@ -46,6 +46,7 @@ import TrainingCentre from './pages/TrainingCentre';
 import TeamMessenger from './pages/TeamMessenger';
 import Challenges from './pages/Challenges';
 import QRGenerator from './pages/QRGenerator';
+import SuperLinkPage from './pages/SuperLink';
 
 // ── Lazy imports (heavy/rare pages only) ──
 const BannerMaker = React.lazy(() => import('./pages/BannerMaker'));
@@ -197,6 +198,7 @@ function AppRoutes() {
       <Route path="/join/:username" element={<JoinFunnel />} />
       <Route path="/ads" element={<PublicAdBoard />} />
       <Route path="/earn" element={<EarnPage />} />
+      <Route path="/join/:username" element={<SuperLinkPage />} />
       <Route path="/ads/listing/:slug" element={<AdDetail />} />
 
       {/* Phase 4 member pages */}

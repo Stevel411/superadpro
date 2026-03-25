@@ -787,6 +787,24 @@ def referral_link(username: str, request: Request):
                         httponly=False, samesite="lax")
     return response
 
+
+@app.get("/join/{username}")
+def superlink_page(username: str, request: Request, db: Session = Depends(get_db)):
+    """SuperLink — personalised sales page for affiliate sharing.
+    Sets referral cookie and serves the React SPA which reads the username from the URL."""
+    # Verify sponsor exists
+    sponsor = db.query(User).filter(User.username == username).first()
+    if not sponsor:
+        return RedirectResponse(url="/", status_code=302)
+    # Serve React SPA with referral cookie
+    if _react_index.exists():
+        response = HTMLResponse(_react_index.read_text())
+    else:
+        response = RedirectResponse(url=f"/register?ref={username}", status_code=302)
+    response.set_cookie(key="ref", value=username, max_age=60*60*24*30,
+                        httponly=False, samesite="lax")
+    return response
+
 # ═══════════════════════════════════════════════════════════════
 #  FOMO CAMPAIGN PAGE
 # ═══════════════════════════════════════════════════════════════

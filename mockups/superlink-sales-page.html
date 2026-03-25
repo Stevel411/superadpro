@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuperLink Sales Page — Template Mockups</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: 'DM Sans', sans-serif; background: #0a0a1a; color: #e8f0fe; }
+
+/* ── Template Switcher ── */
+.switcher {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 999;
+  background: rgba(10,10,26,0.95); backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 14px 24px; display: flex; align-items: center; gap: 16px; justify-content: center;
+}
+.switcher-label { font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; }
+.switcher button {
+  padding: 8px 20px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04); color: #94a3b8; font-family: 'DM Sans', sans-serif;
+  font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.switcher button.active { background: linear-gradient(135deg, #0ea5e9, #6366f1); color: #fff; border-color: transparent; }
+.switcher button:hover:not(.active) { background: rgba(255,255,255,0.08); color: #fff; }
+
+.template { display: none; padding-top: 60px; }
+.template.active { display: block; }
+
+/* ── Shared ── */
+.cta-btn {
+  display: inline-block; padding: 16px 40px; border-radius: 12px; font-family: 'Sora', sans-serif;
+  font-size: 16px; font-weight: 700; text-decoration: none; cursor: pointer; border: none;
+  transition: all 0.3s; letter-spacing: 0.5px;
+}
+.section { padding: 80px 24px; max-width: 900px; margin: 0 auto; }
+.sponsor-badge {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 16px; border-radius: 99px;
+  font-size: 13px; font-weight: 600; margin-bottom: 24px;
+}
+.sponsor-avatar {
+  width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9, #6366f1);
+  display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; color: #fff;
+}
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 40px 0; }
+.stat-card { text-align: center; padding: 24px 12px; border-radius: 14px; }
+.stat-val { font-family: 'Sora', sans-serif; font-size: 28px; font-weight: 800; }
+.stat-lbl { font-size: 12px; font-weight: 600; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px; }
+.steps-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin: 40px 0; }
+.step-card { padding: 28px 20px; border-radius: 16px; }
+.step-num { font-family: 'Sora', sans-serif; font-size: 36px; font-weight: 800; line-height: 1; margin-bottom: 12px; }
+.step-title { font-family: 'Sora', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 8px; }
+.step-desc { font-size: 14px; line-height: 1.6; }
+.features-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 40px 0; }
+.feature-item { display: flex; gap: 14px; padding: 20px; border-radius: 12px; align-items: flex-start; }
+.feature-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+.feature-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; }
+.feature-desc { font-size: 13px; line-height: 1.5; }
+.pricing-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin: 40px 0; max-width: 700px; margin-left: auto; margin-right: auto; }
+.price-card { padding: 32px 24px; border-radius: 20px; text-align: center; }
+.price-tag { font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+.price-amount { font-family: 'Sora', sans-serif; font-size: 48px; font-weight: 800; line-height: 1; }
+.price-period { font-size: 14px; margin-top: 4px; margin-bottom: 16px; }
+.price-features { list-style: none; text-align: left; padding: 0; }
+.price-features li { padding: 8px 0; font-size: 14px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; gap: 10px; }
+.price-features li::before { content: '✓'; color: #10b981; font-weight: 800; }
+.final-cta { text-align: center; padding: 80px 24px; }
+
+
+/* ═══════════════════════════════════════
+   TEMPLATE 1 — "THE OPPORTUNITY"
+   Dark cinematic, income-focused
+   ═══════════════════════════════════════ */
+#t1 { background: #050d1a; }
+#t1 .hero {
+  text-align: center; padding: 100px 24px 60px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(99,102,241,0.12) 0%, transparent 60%);
+}
+#t1 .sponsor-badge { background: rgba(14,165,233,0.1); border: 1px solid rgba(14,165,233,0.2); color: #7dd3fc; }
+#t1 .hero h1 {
+  font-family: 'Sora', sans-serif; font-size: 48px; font-weight: 800; line-height: 1.1;
+  color: #fff; max-width: 700px; margin: 0 auto 16px;
+}
+#t1 .hero h1 span { background: linear-gradient(135deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+#t1 .hero p { font-size: 18px; color: #94a3b8; max-width: 560px; margin: 0 auto 32px; line-height: 1.6; }
+#t1 .cta-btn { background: linear-gradient(135deg, #0ea5e9, #6366f1); color: #fff; }
+#t1 .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(14,165,233,0.3); }
+#t1 .cta-sub { font-size: 13px; color: #475569; margin-top: 12px; }
+
+#t1 .stat-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+#t1 .stat-val { color: #38bdf8; }
+#t1 .stat-lbl { color: #64748b; }
+
+#t1 .section-title { font-family: 'Sora', sans-serif; font-size: 32px; font-weight: 800; text-align: center; margin-bottom: 8px; }
+#t1 .section-sub { font-size: 16px; color: #64748b; text-align: center; margin-bottom: 40px; }
+
+#t1 .step-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+#t1 .step-num { color: rgba(99,102,241,0.3); }
+#t1 .step-title { color: #fff; }
+#t1 .step-desc { color: #94a3b8; }
+
+#t1 .feature-item { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); }
+#t1 .feature-icon { background: rgba(14,165,233,0.1); color: #38bdf8; }
+#t1 .feature-title { color: #e2e8f0; }
+#t1 .feature-desc { color: #64748b; }
+
+#t1 .price-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); }
+#t1 .price-card.featured { background: linear-gradient(135deg, rgba(14,165,233,0.08), rgba(99,102,241,0.08)); border-color: rgba(14,165,233,0.3); }
+#t1 .price-tag { color: #64748b; }
+#t1 .price-amount { color: #fff; }
+#t1 .price-period { color: #64748b; }
+#t1 .price-features li { color: #94a3b8; border-color: rgba(255,255,255,0.06); }
+
+#t1 .trust-bar { text-align: center; padding: 40px 24px; }
+#t1 .trust-bar p { font-size: 13px; color: #475569; }
+
+
+/* ═══════════════════════════════════════
+   TEMPLATE 2 — "THE BUILDER"
+   Light, professional, tool-focused
+   ═══════════════════════════════════════ */
+#t2 { background: #f8fafc; color: #0f172a; }
+#t2 .hero {
+  text-align: center; padding: 100px 24px 60px;
+  background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%); color: #fff;
+  border-radius: 0 0 40px 40px;
+}
+#t2 .sponsor-badge { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; }
+#t2 .hero h1 {
+  font-family: 'Sora', sans-serif; font-size: 44px; font-weight: 800; line-height: 1.15;
+  color: #fff; max-width: 650px; margin: 0 auto 16px;
+}
+#t2 .hero h1 span { color: #38bdf8; }
+#t2 .hero p { font-size: 17px; color: #94a3b8; max-width: 520px; margin: 0 auto 32px; line-height: 1.6; }
+#t2 .cta-btn { background: #0ea5e9; color: #fff; }
+#t2 .cta-btn:hover { background: #0284c7; transform: translateY(-2px); box-shadow: 0 12px 40px rgba(14,165,233,0.25); }
+#t2 .cta-sub { font-size: 13px; color: #64748b; margin-top: 12px; }
+
+#t2 .stat-card { background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+#t2 .stat-val { color: #0f172a; }
+#t2 .stat-lbl { color: #64748b; }
+
+#t2 .section-title { font-family: 'Sora', sans-serif; font-size: 32px; font-weight: 800; text-align: center; color: #0f172a; margin-bottom: 8px; }
+#t2 .section-sub { font-size: 16px; color: #64748b; text-align: center; margin-bottom: 40px; }
+
+#t2 .step-card { background: #fff; border: 1px solid #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+#t2 .step-num { color: rgba(14,165,233,0.2); }
+#t2 .step-title { color: #0f172a; }
+#t2 .step-desc { color: #64748b; }
+
+#t2 .feature-item { background: #fff; border: 1px solid #e2e8f0; }
+#t2 .feature-icon { background: #eff6ff; color: #0ea5e9; }
+#t2 .feature-title { color: #0f172a; }
+#t2 .feature-desc { color: #64748b; }
+
+#t2 .price-card { background: #fff; border: 1px solid #e2e8f0; }
+#t2 .price-card.featured { border-color: #0ea5e9; box-shadow: 0 8px 30px rgba(14,165,233,0.12); }
+#t2 .price-tag { color: #64748b; }
+#t2 .price-amount { color: #0f172a; }
+#t2 .price-period { color: #64748b; }
+#t2 .price-features li { color: #475569; border-color: #f1f5f9; }
+
+#t2 .final-cta { background: linear-gradient(135deg, #0f172a, #1e293b); color: #fff; border-radius: 30px; margin: 40px 24px; }
+
+
+/* ═══════════════════════════════════════
+   TEMPLATE 3 — "THE MOMENTUM"
+   Bold, energetic, urgency-driven
+   ═══════════════════════════════════════ */
+#t3 { background: #0a0a0a; }
+#t3 .hero {
+  text-align: center; padding: 100px 24px 60px;
+  background: radial-gradient(ellipse at 50% 20%, rgba(251,191,36,0.08) 0%, transparent 50%);
+}
+#t3 .sponsor-badge { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25); color: #fbbf24; }
+#t3 .hero h1 {
+  font-family: 'Sora', sans-serif; font-size: 50px; font-weight: 800; line-height: 1.05;
+  color: #fff; max-width: 680px; margin: 0 auto 20px;
+}
+#t3 .hero h1 span { background: linear-gradient(135deg, #fbbf24, #f59e0b, #ef4444); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+#t3 .hero p { font-size: 18px; color: #a1a1aa; max-width: 540px; margin: 0 auto 32px; line-height: 1.6; }
+#t3 .cta-btn { background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #0a0a0a; font-weight: 800; }
+#t3 .cta-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 40px rgba(251,191,36,0.3); }
+#t3 .cta-sub { font-size: 13px; color: #52525b; margin-top: 12px; }
+
+#t3 .stat-card { background: rgba(251,191,36,0.04); border: 1px solid rgba(251,191,36,0.1); }
+#t3 .stat-val { color: #fbbf24; }
+#t3 .stat-lbl { color: #71717a; }
+
+#t3 .section-title { font-family: 'Sora', sans-serif; font-size: 32px; font-weight: 800; text-align: center; color: #fff; margin-bottom: 8px; }
+#t3 .section-sub { font-size: 16px; color: #71717a; text-align: center; margin-bottom: 40px; }
+
+#t3 .step-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); }
+#t3 .step-num { background: linear-gradient(135deg, #fbbf24, #f59e0b); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+#t3 .step-title { color: #fff; }
+#t3 .step-desc { color: #a1a1aa; }
+
+#t3 .feature-item { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); }
+#t3 .feature-icon { background: rgba(251,191,36,0.1); color: #fbbf24; }
+#t3 .feature-title { color: #e4e4e7; }
+#t3 .feature-desc { color: #71717a; }
+
+#t3 .price-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); }
+#t3 .price-card.featured { border-color: #fbbf24; background: rgba(251,191,36,0.05); }
+#t3 .price-tag { color: #71717a; }
+#t3 .price-amount { color: #fff; }
+#t3 .price-period { color: #71717a; }
+#t3 .price-features li { color: #a1a1aa; border-color: rgba(255,255,255,0.06); }
+
+#t3 .urgency-bar {
+  text-align: center; padding: 16px; margin: 40px auto; max-width: 500px;
+  background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 12px;
+}
+#t3 .urgency-bar p { color: #fca5a5; font-weight: 700; font-size: 14px; }
+
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .stats-row { grid-template-columns: repeat(2, 1fr); }
+  .steps-grid { grid-template-columns: 1fr; }
+  .features-grid { grid-template-columns: 1fr; }
+  .pricing-cards { grid-template-columns: 1fr; }
+  #t1 .hero h1, #t2 .hero h1, #t3 .hero h1 { font-size: 32px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Template Switcher -->
+<div class="switcher">
+  <span class="switcher-label">Template:</span>
+  <button class="active" onclick="showTemplate('t1', this)">1 — The Opportunity</button>
+  <button onclick="showTemplate('t2', this)">2 — The Builder</button>
+  <button onclick="showTemplate('t3', this)">3 — The Momentum</button>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     TEMPLATE 1 — THE OPPORTUNITY (dark, income-focused)
+     ═══════════════════════════════════════════════════════ -->
+<div id="t1" class="template active">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="sponsor-badge">
+      <div class="sponsor-avatar">S</div>
+      You were invited by <strong>Steve</strong>
+    </div>
+    <h1>Build <span>Real Income</span> Online — Without Starting From Scratch</h1>
+    <p>SuperAdPro gives you the tools, the training, and the system. You bring the ambition. No websites to build. No products to create. Just share, earn, repeat.</p>
+    <a class="cta-btn" href="#register">Create Your Free Account →</a>
+    <div class="cta-sub">Free to join · No credit card required</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="section">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-val">4</div><div class="stat-lbl">Income Streams</div></div>
+      <div class="stat-card"><div class="stat-val">50%</div><div class="stat-lbl">Commission Rate</div></div>
+      <div class="stat-card"><div class="stat-val">150+</div><div class="stat-lbl">Countries</div></div>
+      <div class="stat-card"><div class="stat-val">24/7</div><div class="stat-lbl">AI Tools</div></div>
+    </div>
+  </div>
+
+  <!-- How It Works -->
+  <div class="section">
+    <div class="section-title">How it works</div>
+    <div class="section-sub">Three steps. That's it.</div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-title">Create your account</div>
+        <div class="step-desc">Sign up in under 60 seconds. Get your own SuperLink — a personalised page that sells for you.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-title">Share your link</div>
+        <div class="step-desc">Post it on social media, message it to contacts, or use our AI marketing tools to drive traffic. One link is all you need.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-title">Earn commissions</div>
+        <div class="step-desc">When someone joins through your link, you earn. Recurring monthly commissions, grid bonuses, course royalties — automatically.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- What You Get -->
+  <div class="section">
+    <div class="section-title">What's inside SuperAdPro</div>
+    <div class="section-sub">Real tools. Real income. Not just another course.</div>
+    <div class="features-grid">
+      <div class="feature-item">
+        <div class="feature-icon">🔗</div>
+        <div><div class="feature-title">Your SuperLink</div><div class="feature-desc">One link that does everything — captures leads, sells memberships, and earns you commissions on autopilot.</div></div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🤖</div>
+        <div><div class="feature-title">AI Marketing Suite</div><div class="feature-desc">Generate social posts, email campaigns, video scripts, and complete sales funnels — all powered by AI.</div></div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📊</div>
+        <div><div class="feature-title">8×8 Income Grid</div><div class="feature-desc">A unique commission structure with 8 tiers. Earn from your direct referrals and 8 levels of your network.</div></div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🎓</div>
+        <div><div class="feature-title">Course Marketplace</div><div class="feature-desc">Sell courses and earn 100% commission. Or buy skills training to level up your marketing game.</div></div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📱</div>
+        <div><div class="feature-title">LinkHub & Link Tools</div><div class="feature-desc">Build your own bio link page and track every click. Use for SuperAdPro or any other business you run.</div></div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">💰</div>
+        <div><div class="feature-title">Crypto & Card Payments</div><div class="feature-desc">Get paid via Stripe or crypto (USDT). Withdraw to your bank or wallet anytime.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pricing -->
+  <div class="section">
+    <div class="section-title">Simple pricing</div>
+    <div class="section-sub">Start free. Upgrade when you're ready.</div>
+    <div class="pricing-cards">
+      <div class="price-card">
+        <div class="price-tag">Basic</div>
+        <div class="price-amount">$20</div>
+        <div class="price-period">per month</div>
+        <ul class="price-features">
+          <li>Your SuperLink</li>
+          <li>Watch & Earn grid access</li>
+          <li>Marketing Suite</li>
+          <li>LinkHub & Link Tools</li>
+          <li>Course Marketplace</li>
+          <li>50% referral commissions</li>
+        </ul>
+      </div>
+      <div class="price-card featured">
+        <div class="price-tag" style="color: #38bdf8;">Pro · Most Popular</div>
+        <div class="price-amount">$35</div>
+        <div class="price-period">per month</div>
+        <ul class="price-features">
+          <li>Everything in Basic</li>
+          <li>SuperSeller AI Autopilot</li>
+          <li>AI Funnel Generator</li>
+          <li>SuperPages editor</li>
+          <li>ProSeller AI assistant</li>
+          <li>Priority support</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Trust -->
+  <div class="trust-bar">
+    <p>🔒 Secure payments via Stripe & USDT · Cancel anytime · No hidden fees</p>
+  </div>
+
+  <!-- Final CTA -->
+  <div class="final-cta">
+    <h2 style="font-family: 'Sora', sans-serif; font-size: 36px; font-weight: 800; margin-bottom: 16px;">Ready to start building?</h2>
+    <p style="color: #94a3b8; font-size: 16px; margin-bottom: 28px;">Steve is already inside. Join now and start earning together.</p>
+    <a class="cta-btn" href="#register" style="background: linear-gradient(135deg, #0ea5e9, #6366f1); color: #fff;">Create Your Free Account →</a>
+    <div class="cta-sub" style="color: #475569;">Free to join · No credit card required</div>
+  </div>
+
+  <div style="height: 60px;"></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     TEMPLATE 2 — THE BUILDER (light, professional)
+     ═══════════════════════════════════════════════════════ -->
+<div id="t2" class="template">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="sponsor-badge">
+      <div class="sponsor-avatar">S</div>
+      Invited by <strong>Steve</strong>
+    </div>
+    <h1>Your Complete <span>Online Business</span> Toolkit</h1>
+    <p>AI-powered marketing tools, multiple income streams, and a community that helps you grow. Everything you need in one platform.</p>
+    <a class="cta-btn" href="#register">Get Started Free →</a>
+    <div class="cta-sub" style="color: #64748b;">No credit card · Set up in 60 seconds</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="section">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-val">20+</div><div class="stat-lbl">Marketing Tools</div></div>
+      <div class="stat-card"><div class="stat-val">AI</div><div class="stat-lbl">Content Engine</div></div>
+      <div class="stat-card"><div class="stat-val">4</div><div class="stat-lbl">Revenue Streams</div></div>
+      <div class="stat-card"><div class="stat-val">$0</div><div class="stat-lbl">To Start</div></div>
+    </div>
+  </div>
+
+  <!-- Tools Section -->
+  <div class="section">
+    <div class="section-title">Built for marketers, by marketers</div>
+    <div class="section-sub">Use these tools to promote SuperAdPro — or any offer you're involved with.</div>
+    <div class="features-grid">
+      <div class="feature-item">
+        <div class="feature-icon">⚡</div>
+        <div><div class="feature-title">SuperSeller AI</div><div class="feature-desc">Generate complete campaigns in minutes — landing pages, 30 social posts, email sequences, video scripts, and ad copy.</div></div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🎯</div>
+        <div><div class="feature-title">Campaign Studio</div><div class="feature-desc">AI-powered content generation for any niche. Blog posts, social captions, email swipes — all tailored to your audience.</div></div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🔗</div>
+        <div><div class="feature-title">LinkHub</div><div class="feature-desc">Your personal bio link page. Showcase all your offers, track clicks, and convert visitors — works for any business.</div></div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📐</div>
+        <div><div class="feature-title">SuperPages</div><div class="feature-desc">Drag-and-drop page builder. Create landing pages, opt-in forms, and sales funnels without code.</div></div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📧</div>
+        <div><div class="feature-title">Email Autoresponder</div><div class="feature-desc">Automated follow-up sequences that nurture your leads and close sales while you sleep.</div></div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📊</div>
+        <div><div class="feature-title">Analytics Dashboard</div><div class="feature-desc">Track your referrals, commissions, and network growth in real time. Know exactly what's working.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- How It Works -->
+  <div class="section">
+    <div class="section-title">Start earning in three steps</div>
+    <div class="section-sub">No tech skills needed. No experience required.</div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-title">Sign up free</div>
+        <div class="step-desc">Create your account and explore the platform. Browse the tools, take the training, and get familiar.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-title">Activate your plan</div>
+        <div class="step-desc">Choose Basic ($20/mo) or Pro ($35/mo). Unlock your SuperLink and start earning 50% commissions.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-title">Share & grow</div>
+        <div class="step-desc">Use the marketing tools to promote your link. The system handles follow-up, nurturing, and conversions.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Final CTA -->
+  <div class="final-cta">
+    <h2 style="font-family: 'Sora', sans-serif; font-size: 36px; font-weight: 800;">Start building today</h2>
+    <p style="color: #94a3b8; font-size: 16px; margin: 16px auto 28px; max-width: 440px;">Join Steve inside SuperAdPro and get access to every tool instantly.</p>
+    <a class="cta-btn" href="#register" style="background: #0ea5e9; color: #fff;">Create Your Free Account →</a>
+    <div class="cta-sub" style="color: #64748b;">Free to join · No credit card required</div>
+  </div>
+
+  <div style="height: 60px;"></div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════
+     TEMPLATE 3 — THE MOMENTUM (bold, urgency)
+     ═══════════════════════════════════════════════════════ -->
+<div id="t3" class="template">
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="sponsor-badge">
+      <div class="sponsor-avatar">S</div>
+      Steve invited you to join
+    </div>
+    <h1>Stop Scrolling. <span>Start Earning.</span></h1>
+    <p>Members are building real income every single day. One link. Four income streams. AI that does the marketing for you. Your turn.</p>
+    <a class="cta-btn" href="#register">Claim Your Free Account →</a>
+    <div class="cta-sub">Free to start · Takes 60 seconds</div>
+  </div>
+
+  <!-- Stats -->
+  <div class="section">
+    <div class="stats-row">
+      <div class="stat-card"><div class="stat-val">50%</div><div class="stat-lbl">Commissions</div></div>
+      <div class="stat-card"><div class="stat-val">8</div><div class="stat-lbl">Level Deep</div></div>
+      <div class="stat-card"><div class="stat-val">∞</div><div class="stat-lbl">Recurring</div></div>
+      <div class="stat-card"><div class="stat-val">1</div><div class="stat-lbl">Link Needed</div></div>
+    </div>
+  </div>
+
+  <!-- What Makes It Different -->
+  <div class="section">
+    <div class="section-title">This isn't another course</div>
+    <div class="section-sub">It's a business in a box — and you own it.</div>
+    <div class="steps-grid">
+      <div class="step-card">
+        <div class="step-num">⚡</div>
+        <div class="step-title">One link earns from four streams</div>
+        <div class="step-desc">Membership commissions, grid bonuses, course royalties, and marketplace sales — all from the same SuperLink.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">🤖</div>
+        <div class="step-title">AI builds your campaigns</div>
+        <div class="step-desc">SuperSeller AI generates your entire marketing strategy — posts, emails, scripts, funnels. You just approve and share.</div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">🔄</div>
+        <div class="step-title">System does the follow-up</div>
+        <div class="step-desc">Automated email sequences nurture every lead. Your prospects get warmed up and converted — even while you sleep.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Features -->
+  <div class="section">
+    <div class="section-title">Everything you need. Nothing you don't.</div>
+    <div class="features-grid">
+      <div class="feature-item">
+        <div class="feature-icon">🔗</div>
+        <div><div class="feature-title">SuperLink</div><div class="feature-desc">Your personalised sales page. Share one link anywhere — it handles the rest.</div></div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">📱</div>
+        <div><div class="feature-title">LinkHub</div><div class="feature-desc">Bio link page for all your offers. Use it for SuperAdPro or anything else.</div></div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">🎓</div>
+        <div><div class="feature-title">Training Centre</div><div class="feature-desc">Step-by-step lessons from zero to earning. No experience needed.</div></div>
+      </div>
+      <div class="feature-item">
+        <div class="feature-icon">💬</div>
+        <div><div class="feature-title">Team Messenger</div><div class="feature-desc">Direct line to your sponsor and team. Ask questions, get answers, stay motivated.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Urgency -->
+  <div class="urgency-bar">
+    <p>🔥 New members are joining every day — your network starts building the moment you sign up</p>
+  </div>
+
+  <!-- Final CTA -->
+  <div class="final-cta">
+    <h2 style="font-family: 'Sora', sans-serif; font-size: 40px; font-weight: 800; margin-bottom: 16px;">Your move.</h2>
+    <p style="color: #a1a1aa; font-size: 17px; margin-bottom: 28px;">Steve is already building. Are you in?</p>
+    <a class="cta-btn" href="#register" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #0a0a0a; font-weight: 800;">Claim Your Free Account →</a>
+    <div class="cta-sub" style="color: #52525b;">Free to join · No credit card required</div>
+  </div>
+
+  <div style="height: 60px;"></div>
+</div>
+
+
+<script>
+function showTemplate(id, btn) {
+  document.querySelectorAll('.template').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.switcher button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo(0, 0);
+}
+</script>
+
+</body>
+</html>
