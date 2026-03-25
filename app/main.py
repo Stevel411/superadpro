@@ -946,7 +946,62 @@ def register_process(
     if sponsor_id:
         sponsor_obj = db.query(User).filter(User.id == sponsor_id).first()
         assign_passup_sponsor(db, user, sponsor_obj)
-        db.commit()
+
+    db.commit()
+
+    # ── Post-registration notifications ──
+
+    # 1. Email the sponsor: "New member joined your team!"
+    if sponsor_id:
+        try:
+            sponsor_obj = db.query(User).filter(User.id == sponsor_id).first()
+            if sponsor_obj and sponsor_obj.email:
+                from .email_utils import send_email
+                send_email(
+                    to_email=sponsor_obj.email,
+                    subject=f"🎉 {first_name} just joined your SuperAdPro team!",
+                    html_body=f"""
+                    <div style="font-family:DM Sans,Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;">
+                        <div style="text-align:center;margin-bottom:24px;">
+                            <span style="font-family:Sora,sans-serif;font-size:22px;font-weight:800;">SuperAd<span style="color:#38bdf8;">Pro</span></span>
+                        </div>
+                        <div style="background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:16px;padding:28px 24px;text-align:center;margin-bottom:20px;">
+                            <div style="font-size:42px;margin-bottom:12px;">🎉</div>
+                            <h1 style="color:#fff;font-family:Sora,sans-serif;font-size:22px;font-weight:800;margin:0 0 8px;">New Team Member!</h1>
+                            <p style="color:rgba(200,220,255,.6);font-size:15px;margin:0;line-height:1.6;">
+                                <strong style="color:#38bdf8;">{first_name}</strong> ({username}) just joined SuperAdPro through your referral link.
+                            </p>
+                        </div>
+                        <div style="background:#f8f9fb;border-radius:12px;padding:20px 24px;margin-bottom:20px;">
+                            <p style="font-size:14px;color:#334155;line-height:1.7;margin:0 0 12px;">
+                                Welcome them with a message in <strong>Team Messenger</strong> — members who connect with their sponsor in the first 24 hours are 5x more likely to stay active.
+                            </p>
+                            <a href="https://www.superadpro.com/team-messenger" style="display:inline-block;padding:10px 24px;background:#0ea5e9;color:#fff;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;">Send a Welcome Message →</a>
+                        </div>
+                        <p style="font-size:12px;color:#94a3b8;text-align:center;">Your network is growing. Keep sharing your referral link to build your team.</p>
+                    </div>
+                    """,
+                    text_body=f"{first_name} ({username}) just joined your SuperAdPro team! Send them a welcome message in Team Messenger."
+                )
+        except Exception:
+            pass
+
+    # 2. Auto welcome message from sponsor via Team Messenger
+    if sponsor_id:
+        try:
+            sponsor_obj = db.query(User).filter(User.id == sponsor_id).first()
+            if sponsor_obj:
+                from .database import TeamMessage
+                welcome_msg = TeamMessage(
+                    from_user_id=sponsor_id,
+                    to_user_id=user.id,
+                    message=f"Hey {first_name}! 👋 Welcome to SuperAdPro! I'm {sponsor_obj.first_name or sponsor_obj.username}, your sponsor. If you need any help getting started, just message me here. First steps: set up your profile, check out the Training Centre, and share your referral link to start building your team. Let's go! 🚀",
+                    is_read=False,
+                )
+                db.add(welcome_msg)
+                db.commit()
+        except Exception:
+            pass
 
     response = RedirectResponse(url="/dashboard", status_code=303)
     set_secure_cookie(response, user.id)
