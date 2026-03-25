@@ -78,12 +78,72 @@ export default function PassiveIncome({ d }) {
     : passiveScore >= 20 ? { label: 'Bronze', color: '#f97316', emoji: '🥉' }
     : { label: 'Starter', color: '#6366f1', emoji: '🚀' };
 
+  // ── Stream icon SVGs ──
+  var StreamIcon = function({ type, color }) {
+    var size = 28;
+    if (type === 'grid') return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <rect x="3" y="3" width="7" height="7" rx="1.5" fill={color} opacity="0.9"/>
+        <rect x="14" y="3" width="7" height="7" rx="1.5" fill={color} opacity="0.6"/>
+        <rect x="3" y="14" width="7" height="7" rx="1.5" fill={color} opacity="0.6"/>
+        <rect x="14" y="14" width="7" height="7" rx="1.5" fill={color} opacity="0.9"/>
+        <path d="M12 7v10M7 12h10" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" opacity="0.5"/>
+      </svg>
+    );
+    if (type === 'membership') return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <circle cx="9" cy="7" r="3.5" fill={color} opacity="0.9"/>
+        <path d="M2 20v-1a6 6 0 0 1 14 0v1" fill={color} opacity="0.4"/>
+        <circle cx="18" cy="8" r="2.5" fill={color} opacity="0.7"/>
+        <path d="M22 20v-.5a4 4 0 0 0-5-3.87" stroke={color} strokeWidth="1.8" strokeLinecap="round" opacity="0.6"/>
+        <path d="M9 13l2 2 4-4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.7"/>
+      </svg>
+    );
+    if (type === 'unilevel') return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <circle cx="12" cy="4" r="2.5" fill={color} opacity="0.9"/>
+        <circle cx="5" cy="12" r="2" fill={color} opacity="0.7"/>
+        <circle cx="19" cy="12" r="2" fill={color} opacity="0.7"/>
+        <circle cx="3" cy="20" r="1.5" fill={color} opacity="0.5"/>
+        <circle cx="9" cy="20" r="1.5" fill={color} opacity="0.5"/>
+        <circle cx="15" cy="20" r="1.5" fill={color} opacity="0.5"/>
+        <circle cx="21" cy="20" r="1.5" fill={color} opacity="0.5"/>
+        <line x1="12" y1="6.5" x2="5" y2="10" stroke={color} strokeWidth="1.2" opacity="0.5"/>
+        <line x1="12" y1="6.5" x2="19" y2="10" stroke={color} strokeWidth="1.2" opacity="0.5"/>
+        <line x1="5" y1="14" x2="3" y2="18.5" stroke={color} strokeWidth="1" opacity="0.4"/>
+        <line x1="5" y1="14" x2="9" y2="18.5" stroke={color} strokeWidth="1" opacity="0.4"/>
+        <line x1="19" y1="14" x2="15" y2="18.5" stroke={color} strokeWidth="1" opacity="0.4"/>
+        <line x1="19" y1="14" x2="21" y2="18.5" stroke={color} strokeWidth="1" opacity="0.4"/>
+      </svg>
+    );
+    if (type === 'courses') return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <path d="M12 3L2 8l10 5 10-5-10-5z" fill={color} opacity="0.9"/>
+        <path d="M2 16l10 5 10-5" stroke={color} strokeWidth="1.8" strokeLinecap="round" opacity="0.5"/>
+        <path d="M2 12l10 5 10-5" stroke={color} strokeWidth="1.8" strokeLinecap="round" opacity="0.7"/>
+        <line x1="20" y1="8" x2="20" y2="16" stroke={color} strokeWidth="1.5" opacity="0.6"/>
+        <circle cx="20" cy="16.5" r="1" fill={color} opacity="0.6"/>
+      </svg>
+    );
+    if (type === 'market') return (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <path d="M4 7h16l-1.5 9H5.5L4 7z" fill={color} opacity="0.3"/>
+        <path d="M4 7l-1-3H1" stroke={color} strokeWidth="1.8" strokeLinecap="round"/>
+        <path d="M4 7h16l-1.5 9H5.5L4 7z" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        <circle cx="9" cy="20" r="1.5" fill={color}/>
+        <circle cx="17" cy="20" r="1.5" fill={color}/>
+        <path d="M9 10v4M12 9v5M15 10v4" stroke={color} strokeWidth="1.3" strokeLinecap="round" opacity="0.6"/>
+      </svg>
+    );
+    return null;
+  };
+
   var streams = [
-    { name: 'Grid Bonuses',  val: gridEarnings,     color: '#6366f1', grad: 'linear-gradient(90deg,#6366f1,#818cf8)', emoji: '⚡', tag: 'Completion bonuses' },
-    { name: 'Memberships',   val: membershipEarned,  color: '#10b981', grad: 'linear-gradient(90deg,#10b981,#34d399)', emoji: '👥', tag: 'Renewal commissions' },
-    { name: 'Uni-Level',     val: levelEarnings,     color: '#f59e0b', grad: 'linear-gradient(90deg,#f59e0b,#fbbf24)', emoji: '🔗', tag: '8-level network' },
-    { name: 'Courses',       val: courseEarnings,    color: '#8b5cf6', grad: 'linear-gradient(90deg,#8b5cf6,#a78bfa)', emoji: '🎓', tag: 'Pass-up royalties' },
-    { name: 'SuperMarket',   val: marketEarnings,    color: '#0ea5e9', grad: 'linear-gradient(90deg,#0ea5e9,#38bdf8)', emoji: '🛒', tag: 'Digital products' },
+    { name: 'Grid Bonuses',  val: gridEarnings,     color: '#6366f1', grad: 'linear-gradient(90deg,#6366f1,#818cf8)', iconType: 'grid', tag: 'Completion bonuses' },
+    { name: 'Memberships',   val: membershipEarned,  color: '#10b981', grad: 'linear-gradient(90deg,#10b981,#34d399)', iconType: 'membership', tag: 'Renewal commissions' },
+    { name: 'Uni-Level',     val: levelEarnings,     color: '#f59e0b', grad: 'linear-gradient(90deg,#f59e0b,#fbbf24)', iconType: 'unilevel', tag: '8-level network' },
+    { name: 'Courses',       val: courseEarnings,    color: '#8b5cf6', grad: 'linear-gradient(90deg,#8b5cf6,#a78bfa)', iconType: 'courses', tag: 'Pass-up royalties' },
+    { name: 'SuperMarket',   val: marketEarnings,    color: '#0ea5e9', grad: 'linear-gradient(90deg,#0ea5e9,#38bdf8)', iconType: 'market', tag: 'Digital products' },
   ];
 
   var maxStream = Math.max(1, ...streams.map(function(s) { return Number(s.val) || 0; }));
@@ -242,7 +302,11 @@ export default function PassiveIncome({ d }) {
         {streams.map(function(s,i) {
           return (
             <div key={i} className="sap-stream" style={{ ...S.streamCard, animationDelay:`${i*0.1}s` }}>
-              <div style={{ fontSize:42, marginBottom:12 }}>{s.emoji}</div>
+              <div style={{ marginBottom:12, display:'flex', justifyContent:'center' }}>
+                <div style={{ width:56, height:56, borderRadius:16, background:`${s.color}15`, border:`1px solid ${s.color}30`, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  <StreamIcon type={s.iconType} color={s.color}/>
+                </div>
+              </div>
               <div style={{ fontSize:11, fontWeight:800, textTransform:'uppercase', letterSpacing:1, color:'rgba(255,255,255,0.35)', marginBottom:8 }}>{s.name}</div>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:900, color:s.color, marginBottom:10 }}>
                 $<CountUp target={s.val} duration={1600} isMoney/>
@@ -342,7 +406,9 @@ export default function PassiveIncome({ d }) {
             {streams.map(function(s,i) {
               return (
                 <div key={i} style={{ display:'flex', alignItems:'center', gap:12 }}>
-                  <div style={{ fontSize:18 }}>{s.emoji}</div>
+                  <div style={{ width:28, height:28, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                    <StreamIcon type={s.iconType} color={s.color}/>
+                  </div>
                   <div style={{ fontSize:13, color:'rgba(255,255,255,0.5)', width:100, flexShrink:0 }}>{s.name}</div>
                   <div style={{ flex:1 }}>
                     <Bar pct={maxStream > 0 ? (s.val/maxStream)*100 : 0} gradient={s.grad} height={10}/>
