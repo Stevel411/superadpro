@@ -1208,7 +1208,7 @@ async def api_reset_password(request: Request, db: Session = Depends(get_db)):
     except Exception:
         return JSONResponse({"error": "Invalid request"}, status_code=400)
     token = body.get("token", "").strip()
-    password = body.get("password", "")
+    password = body.get("new_password", "") or body.get("password", "")
     confirm = body.get("confirm_password", "")
     if not token:
         return JSONResponse({"error": "Invalid reset link."}, status_code=400)
