@@ -17300,8 +17300,8 @@ def api_team_messages(request: Request, user: User = Depends(get_current_user),
             m.is_read = True
     db.commit()
 
-    # Get team members (direct referrals) for the contact list
-    team = db.query(User).filter(User.sponsor_id == user.id, User.is_active == True).all()
+    # Get team members (direct referrals) for the contact list — include all, not just active
+    team = db.query(User).filter(User.sponsor_id == user.id).all()
     # Also include sponsor
     sponsor = db.query(User).filter(User.id == user.sponsor_id).first() if user.sponsor_id else None
 
