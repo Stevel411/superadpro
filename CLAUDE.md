@@ -116,11 +116,78 @@ Add to `requirements.txt`. Railway deployment takes 3-4 minutes instead of the u
 ### Logo
 "SuperAd" in white, "Pro" in cyan `#38bdf8` — rendered via `_sidebar.html` across all pages.
 
-## Income Streams
+## Compensation Plan — DEFINITIVE (from source code, verified)
 
-1. **Membership:** Basic $20/mo, Pro $35/mo, Creator $59/mo. 50% commission to sponsor ($10/$17.50/$29.50).
-2. **8×8 Grid/Campaigns:** 8 tiers ($20–$1,000). Commission split: 40% direct sponsor, 50% uni-level (6.25% × 8 levels), 5% platform, 5% bonus pool.
-3. **Courses:** 100% commission, pass-up model (sales 2,4,6,8 pass up to pass_up_sponsor). Must own the tier to earn.
+### Stream 1: Membership Commissions
+- **Tiers:** Basic $20/mo, Pro $35/mo, Creator $59/mo
+- **Commission:** 50% of the member's fee goes to their direct sponsor (the person who personally referred them)
+- **Amounts:** Basic = $10/mo, Pro = $17.50/mo, Creator = $29.50/mo
+- **Renewal cap:** On renewals, the sponsor's commission is capped by the sponsor's OWN tier. A Basic sponsor earning from a Pro referral gets capped at $10, not $17.50. This prevents Basic members earning more than their own tier's value.
+- **Recurring:** Paid every month as long as the member stays active
+- **Depth:** 1 level only — your direct referrals. NOT multi-level.
+- **Source:** `app/payment.py` — `MEMBERSHIP_SPONSOR_SHARE = 10.0`, `_stripe_renew_membership()` with `COMMISSION_CAPS`
+
+### Stream 2: 8×8 Income Grid (Campaign Tiers)
+**Structure:** 8 levels × 8 positions per level = 64 positions per grid. NOT a pyramid — every level has exactly 8 slots.
+
+**Tier prices:**
+| Tier | Name | Price |
+|------|------|-------|
+| 1 | Starter | $20 |
+| 2 | Builder | $50 |
+| 3 | Pro | $100 |
+| 4 | Advanced | $200 |
+| 5 | Elite | $400 |
+| 6 | Premium | $600 |
+| 7 | Executive | $800 |
+| 8 | Ultimate | $1,000 |
+
+**Commission split per purchase (paid immediately when someone buys a tier):**
+- **40% → Direct sponsor** — the person who personally referred the buyer. ONE person gets this.
+- **50% → Uni-level pool** — 6.25% × 8 levels up the buyer's SPONSOR CHAIN (not the grid). Each of the 8 people in the chain above the buyer gets 6.25%. If the chain is shorter than 8, remaining levels go to company.
+- **5% → Platform** — SuperAdPro operations
+- **5% → Grid completion bonus pool** — accrues per seat fill, paid to grid owner when grid reaches 64/64
+
+**CRITICAL: Who earns what from a single purchase:**
+- The DIRECT SPONSOR earns 40% ($40 on a $100 tier) + they ALSO get 6.25% ($6.25) as level 1 of the uni-level chain = $46.25 total
+- The 7 other people in the sponsor chain above the buyer each get 6.25% ($6.25 on $100)
+- You do NOT earn 40% + all 8 uni-level positions. The 40% goes to the direct sponsor. The uni-level goes to 8 DIFFERENT people in the chain.
+
+**Grid completion bonus (paid from the 5% pool when grid fills to 64/64):**
+| Tier | Bonus (64 × price × 5%) |
+|------|------------------------|
+| 1 | $64 |
+| 2 | $160 |
+| 3 | $320 |
+| 4 | $640 |
+| 5 | $1,280 |
+| 6 | $1,920 |
+| 7 | $2,560 |
+| 8 | $3,200 |
+
+**Spillover model:** When a member purchases a tier, they fill ONE seat in EVERY upline grid at that tier (walking up the full sponsor chain). One person, one seat per grid advance.
+
+**Qualification rule:** To earn commissions at a tier, you must have an active (or in-grace) video campaign at that SAME tier or higher. 14-day grace period after campaign views are fully delivered. If unqualified, commission goes to company (does NOT walk up).
+
+**Grid auto-renewal:** When a grid completes (64/64), a new grid opens automatically. If the owner didn't have an active campaign at completion, the bonus rolls over into the next grid's pool.
+
+**Source:** `app/grid.py`, `app/database.py` lines 29-101
+
+### Stream 3: Course Marketplace (Infinite Pass-Up)
+- **Course tiers:** $100 (Starter), $300 (Advanced), $500 (Elite)
+- **Commission:** 100% of the course price on every sale
+- **Single sale counter** per affiliate (all tiers combined)
+- **Keep/pass-up pattern:** Sales 1, 3, 5, 7, 9+ → you KEEP 100%. Sales 2, 4, 6, 8 → passes up to your pass_up_sponsor.
+- **Pass-up sponsor assignment (set at registration):**
+  - If you are your sponsor's 1st, 3rd, 5th referral → your pass_up_sponsor = your direct sponsor
+  - If you are your sponsor's 2nd, 4th, 6th referral → your pass_up_sponsor = your sponsor's pass_up_sponsor
+- **Infinite cascade:** When a pass-up fires, the commission goes to your pass_up_sponsor. If that counts as THEIR 2nd/4th/6th/8th sale, it passes up again to THEIR pass_up_sponsor. This chains infinitely.
+- **Qualification:** Must own the course tier to earn commissions on that tier. If the recipient doesn't own the tier, commission goes to company (does NOT walk up). This creates FOMO.
+- **Source:** `app/course_engine.py`
+
+### Stream 4: SuperMarket (Digital Products)
+- **Split:** Creator 50%, Affiliate 25%, Platform 25%
+- **Source:** `app/main.py` line ~2910
 
 ## Key Files
 
