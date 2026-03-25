@@ -10,11 +10,16 @@ import PassiveIncome from './PassiveIncome';
 import CoPilot from './CoPilot';
 import WalletGuideCard from '../components/WalletGuideCard';
 
+// ── Dashboard data cache — survives navigation, clears on full page reload ──
+var _dashCache = { data: null, ts: 0 };
+
 export default function Dashboard() {
   var { t } = useTranslation();
   const { user } = useAuth();
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Start with cached data if fresh enough (< 30 seconds old)
+  var hasFreshCache = _dashCache.data && (Date.now() - _dashCache.ts < 30000);
+  const [data, setData] = useState(hasFreshCache ? _dashCache.data : null);
+  const [loading, setLoading] = useState(!hasFreshCache);
   const [refCopied, setRefCopied] = useState(false);
   const [dashTab, setDashTab] = useState('overview');
 
@@ -25,8 +30,8 @@ export default function Dashboard() {
       if (!data) { setError('Dashboard is taking too long to load. Please refresh the page.'); setLoading(false); }
     }, 10000);
     apiGet('/api/dashboard')
-      .then(d => { clearTimeout(timeout); setData(d); setLoading(false); })
-      .catch(e => { clearTimeout(timeout); setError(e?.message || 'Failed to load dashboard'); setLoading(false); });
+      .then(d => { clearTimeout(timeout); _dashCache.data = d; _dashCache.ts = Date.now(); setData(d); setLoading(false); })
+      .catch(e => { clearTimeout(timeout); if (!data) { setError(e?.message || 'Failed to load dashboard'); setLoading(false); } });
     return function() { clearTimeout(timeout); };
   }, []);
 
