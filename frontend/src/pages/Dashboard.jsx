@@ -326,8 +326,8 @@ export default function Dashboard() {
           },
         ].map((s, i) => (
           <div key={i} className="stream-card" style={{
-            background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: 20,
-            boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+            background: '#1c223d', border: '1px solid rgba(0,212,255,0.08)', borderRadius: 14, padding: 20,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.2)',
             position: 'relative', overflow: 'hidden', transition: 'all 0.2s',
           }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${s.color}, ${s.bg})`, borderRadius: '14px 14px 0 0' }} />
