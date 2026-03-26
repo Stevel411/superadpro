@@ -92,7 +92,7 @@ import HowItWorks from './pages/public/HowItWorks';
 import ExplorePage from './pages/public/ExplorePage';
 import JoinFunnel from './pages/public/JoinFunnel';
 import { FAQ, Legal, ForAdvertisers } from './pages/public/PublicPages';
-import EarnPage from './pages/public/EarnPage';
+import AffiliatePlan from './pages/public/AffiliatePlan';
 import PublicAdBoard from './pages/public/AdBoard';
 import { AdDetail, AdBoardManage } from './pages/AdPages';
 import CoursePlayer from './pages/CoursePlayer';
@@ -203,7 +203,7 @@ function AppRoutes() {
       <Route path="/vip" element={<Navigate to="/register" replace />} />
       {/* /join/:username handled by SuperLinkPage below */}
       <Route path="/ads" element={<PublicAdBoard />} />
-      <Route path="/earn" element={<EarnPage />} />
+      <Route path="/earn" element={<AffiliatePlan />} />
       <Route path="/join/:username" element={<SuperLinkPage />} />
       <Route path="/ads/listing/:slug" element={<AdDetail />} />
 
