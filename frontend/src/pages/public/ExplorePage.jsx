@@ -33,7 +33,7 @@ export default function ExplorePage() {
       <section style={{ position:'relative', minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', overflow:'hidden' }}>
         {/* Background image */}
         <div style={{ position:'absolute', inset:0, zIndex:0 }}>
-          <img src="/static/images/explore-bg.jpg" alt="" style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center' }}/>
+          <img src="/static/images/explore-bg2.jpg" alt="" style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center' }}/>
           <div style={{ position:'absolute', inset:0, background:'linear-gradient(180deg,rgba(3,7,18,0.6) 0%,rgba(3,7,18,0.4) 30%,rgba(3,7,18,0.5) 60%,rgba(3,7,18,0.95) 100%)' }}/>
         </div>
 
