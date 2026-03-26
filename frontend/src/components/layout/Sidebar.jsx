@@ -153,7 +153,7 @@ export default function Sidebar({ open, onClose }) {
         <nav style={{flex:1,overflowY:'auto',padding:'8px 0'}}>
           {NAV.map(function(item, i) {
             if (item.type === 'divider') {
-              return <div key={i} style={{height:1,background:'rgba(255,255,255,0.05)',margin:'6px 12px'}}/>;
+              return <div key={i} style={{height:1,background:'rgba(0,200,255,0.07)',margin:'6px 16px'}}/>;
             }
 
             if (item.type === 'standalone') {
@@ -162,8 +162,8 @@ export default function Sidebar({ open, onClose }) {
               return (
                 <Link key={i} to={item.path} style={{
                   display:'flex', alignItems:'center', gap:10,
-                  padding:'10px 20px', fontSize:13.5, fontWeight: active ? 700 : 500,
-                  color: active ? '#38bdf8' : 'rgba(255,255,255,0.55)',
+                  padding:'10px 20px', fontSize:13.5, fontWeight: active ? 700 : 600,
+                  color: active ? '#38bdf8' : 'rgba(255,255,255,0.9)',
                   textDecoration:'none', transition:'all .15s',
                   background: active ? 'rgba(56,189,248,0.08)' : 'transparent',
                 }}>
@@ -198,7 +198,7 @@ export default function Sidebar({ open, onClose }) {
                           <Link key={j} to={sub.path} style={{
                             display:'flex', alignItems:'center', gap:10,
                             padding:'9px 20px 9px 24px', fontSize:13, fontWeight: subActive ? 700 : 600,
-                            color: subActive ? '#38bdf8' : isPro ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.55)',
+                            color: subActive ? '#38bdf8' : isPro ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.9)',
                             textDecoration:'none', transition:'all .15s',
                             background: subActive ? 'rgba(56,189,248,0.08)' : 'transparent',
                           }}>
