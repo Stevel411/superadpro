@@ -117,11 +117,11 @@ export default function Sidebar({ open, onClose }) {
         position: 'fixed',
         top: 0, left: 0, bottom: 0,
         width: 224,
-        background: '#0f172a',
+        background: '#1c223d',
         zIndex: 50,
         display: 'flex',
         flexDirection: 'column',
-        borderRight: '1px solid rgba(255,255,255,0.05)',
+        borderRight: '1px solid rgba(0,212,255,0.08)',
         transition: 'transform 0.28s cubic-bezier(0.4,0,0.2,1)',
         // On mobile: slide in/out. On desktop: always visible.
         transform: undefined,
