@@ -8,7 +8,7 @@ import {
   Globe, GraduationCap, Store, PenLine, Network, FileText, Users,
   Target, Mail, Trophy, Award, Bot, Megaphone, Film, Paintbrush,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
-  QrCode, MessageCircle, Flame, BookOpen
+  QrCode, MessageCircle, Flame, BookOpen, PlusCircle, BarChart3
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
@@ -21,9 +21,12 @@ function buildNav(t, isAdmin) {
       { label: t('nav.support'), icon: Headphones, path: '/support' },
     ]},
     { type: 'divider' },
-    { type: 'group', label: t('nav.adHub'), key: 'adhub', items: [
+    { type: 'group', label: 'Video Hub', key: 'adhub', items: [
       { label: t('nav.watchToEarn'), icon: Eye, path: '/watch' },
+      { label: 'Create Campaign', icon: PlusCircle, path: '/create-campaign' },
+      { label: 'My Campaigns', icon: Film, path: '/video-library' },
       { label: t('nav.campaignTiers'), icon: Zap, path: '/campaign-tiers' },
+      { label: 'Analytics', icon: BarChart3, path: '/analytics' },
       { label: 'Ad Hub', icon: LayoutGrid, path: '/ad-hub' },
     ]},
     { type: 'divider' },
