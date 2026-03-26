@@ -8,6 +8,7 @@ import { Component, Suspense } from 'react';
 
 // ── Direct imports (core pages — instant navigation, no spinner) ──
 import Dashboard from './pages/Dashboard';
+import AnalyticsPage from './pages/Analytics';
 import Wallet from './pages/Wallet';
 import Account from './pages/Account';
 import Courses from './pages/Courses';
@@ -121,6 +122,7 @@ function AppRoutes() {
     <Routes>
       {/* Fully migrated pages */}
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+      <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
       <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
       <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />

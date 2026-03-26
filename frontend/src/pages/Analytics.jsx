@@ -1,189 +1,87 @@
-import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
-import AppLayout from '../components/layout/AppLayout';
-import { apiGet } from '../utils/api';
-import { Eye, MousePointer, Users, DollarSign, TrendingUp, Target, Tv, Award, Wallet, BarChart3, PieChart, Activity } from 'lucide-react';
-import { formatMoney } from '../utils/money';
+import { useState, useEffect, useRef } from 'react';
+import * as Chart from 'chart.js';
 
-export default function Analytics() {
-  var { t } = useTranslation();
-  const [d, setD] = useState(null);
-  const [loading, setLoading] = useState(true);
-  useEffect(() => { apiGet('/api/analytics').then(r => { setD(r); setLoading(false); }).catch(() => setLoading(false)); }, []);
+Chart.Chart.register(
+  Chart.LineController, Chart.BarController, Chart.DoughnutController,
+  Chart.LineElement, Chart.BarElement, Chart.ArcElement,
+  Chart.PointElement, Chart.CategoryScale, Chart.LinearScale,
+  Chart.Tooltip, Chart.Legend, Chart.Filler
+);
+Chart.Chart.defaults.font.family = "'DM Sans',sans-serif";
+Chart.Chart.defaults.font.size = 12;
+Chart.Chart.defaults.color = '#94a3b8';
 
-  if (loading) return <AppLayout title="Analytics"><Spin/></AppLayout>;
-  const data = d || {};
-
-  const convRate = data.total_views > 0 ? ((data.conversions / data.total_views) * 100).toFixed(1) : '0.0';
-  const ctr = data.total_views > 0 ? ((data.total_clicks / data.total_views) * 100).toFixed(1) : '0.0';
-
-  return (
-    <AppLayout title="Analytics" subtitle="Track your performance across all channels">
-
-      {/* Top stats — 4 primary metrics */}
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
-        {[
-          {Icon:Eye,val:data.total_views||0,lbl:'Total Views',color:'#0ea5e9',bg:'#e0f2fe'},
-          {Icon:MousePointer,val:data.total_clicks||0,lbl:'Link Clicks',color:'#6366f1',bg:'#ede9fe',sub:`${ctr}% CTR`},
-          {Icon:Users,val:data.conversions||0,lbl:'Referrals',color:'#16a34a',bg:'#dcfce7',sub:`${convRate}% conv rate`},
-          {Icon:DollarSign,val:`$${(data.revenue||0).toFixed(0)}`,lbl:'Total Revenue',color:'#d97706',bg:'#fef3c7'},
-        ].map((s,i) => (
-          <div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:8,padding:'16px 18px',boxShadow:'0 2px 8px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03)',position:'relative',overflow:'hidden'}}>
-            <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:s.color}}/>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
-              <div style={{width:36,height:36,borderRadius:8,background:s.bg,display:'flex',alignItems:'center',justifyContent:'center'}}><s.Icon size={18} color={s.color} strokeWidth={2}/></div>
-              {s.sub && <span style={{fontSize:10,fontWeight:700,color:s.color,background:s.bg,padding:'2px 8px',borderRadius:4}}>{s.sub}</span>}
-            </div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:800,color:s.color}}>{s.val}</div>
-            <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginTop:2}}>{s.lbl}</div>
-          </div>
-        ))}
-      </div>
-
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
-        {/* Revenue Breakdown */}
-        <Card title="Revenue Breakdown" Icon={PieChart} color="#d97706">
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-            {[
-              {lbl:'Grid Earnings',val:`$${(data.grid_earnings||0).toFixed(0)}`,color:'#0ea5e9',pct:data.revenue>0?Math.round((data.grid_earnings||0)/data.revenue*100):0},
-              {lbl:'Course Sales',val:`$${(data.course_earnings||0).toFixed(0)}`,color:'#6366f1',pct:data.revenue>0?Math.round((data.course_earnings||0)/data.revenue*100):0},
-              {lbl:'Marketplace',val:`$${(data.marketplace_earnings||0).toFixed(0)}`,color:'#e11d48',pct:data.revenue>0?Math.round((data.marketplace_earnings||0)/data.revenue*100):0},
-              {lbl:'Balance',val:`$${formatMoney(data.balance)}`,color:'#16a34a',pct:null},
-            ].map((r,i) => (
-              <div key={i} style={{background:'#f8f9fb',borderRadius:8,padding:'12px 14px'}}>
-                <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
-                  <span style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5}}>{r.lbl}</span>
-                  {r.pct !== null && <span style={{fontSize:9,fontWeight:700,color:r.color}}>{r.pct}%</span>}
-                </div>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:r.color}}>{r.val}</div>
-                {r.pct !== null && <div style={{height:3,background:'#e5e7eb',borderRadius:2,marginTop:6}}><div style={{height:'100%',background:r.color,borderRadius:2,width:`${r.pct}%`,transition:'width .5s'}}/></div>}
-              </div>
-            ))}
-          </div>
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:10,padding:'10px 0',borderTop:'1px solid #f1f3f7'}}>
-            <span style={{fontSize:11,fontWeight:700,color:'#94a3b8'}}>Total Withdrawn</span>
-            <span style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#0f172a'}}>${formatMoney(data.total_withdrawn)}</span>
-          </div>
-        </Card>
-
-        {/* Network Performance */}
-        <Card title="Network Performance" Icon={TrendingUp} color="#16a34a">
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8,marginBottom:12}}>
-            {[
-              {val:data.direct_referrals||0,lbl:'Direct Referrals',color:'#0ea5e9'},
-              {val:data.active_referrals||0,lbl:'Active Members',color:'#16a34a'},
-              {val:data.total_team||0,lbl:'Total Network',color:'#6366f1'},
-            ].map((s,i) => (
-              <div key={i} style={{background:'#f8f9fb',borderRadius:8,padding:'14px 12px',textAlign:'center'}}>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:s.color}}>{s.val}</div>
-                <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginTop:3}}>{s.lbl}</div>
-              </div>
-            ))}
-          </div>
-          {/* Referral conversion rate */}
-          <div style={{background:'#f8f9fb',borderRadius:8,padding:'12px 14px',marginBottom:8}}>
-            <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
-              <span style={{fontSize:11,fontWeight:700,color:'#0f172a'}}>Referral Activity Rate</span>
-              <span style={{fontSize:12,fontWeight:800,color:'#16a34a'}}>{data.direct_referrals>0?Math.round((data.active_referrals||0)/(data.direct_referrals)*100):0}%</span>
-            </div>
-            <div style={{height:6,background:'#e5e7eb',borderRadius:3}}>
-              <div style={{height:'100%',background:'linear-gradient(90deg,#0ea5e9,#16a34a)',borderRadius:3,width:`${data.direct_referrals>0?Math.round((data.active_referrals||0)/(data.direct_referrals)*100):0}%`,transition:'width .5s'}}/>
-            </div>
-          </div>
-          {/* Commission count */}
-          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'10px 0',borderTop:'1px solid #f1f3f7'}}>
-            <span style={{fontSize:11,fontWeight:700,color:'#94a3b8'}}>Total Commissions Received</span>
-            <span style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#0ea5e9'}}>{data.total_commissions||0}</span>
-          </div>
-        </Card>
-      </div>
-
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:16}}>
-        {/* Watch & Engagement */}
-        <Card title="Watch & Engagement" Icon={Activity} color="#0ea5e9">
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:8}}>
-            {[
-              {val:data.videos_watched||0,lbl:'Videos Watched',color:'#0ea5e9',Icon:Tv},
-              {val:data.watch_streak||0,lbl:'Day Streak',color:'#d97706',Icon:Award},
-              {val:data.watch_quota_met?'Active':'Paused',lbl:'Commission Status',color:data.watch_quota_met?'#16a34a':'#ef4444',Icon:Activity},
-            ].map((s,i) => (
-              <div key={i} style={{background:'#f8f9fb',borderRadius:8,padding:'14px 12px',textAlign:'center'}}>
-                <div style={{width:32,height:32,borderRadius:8,background:'#fff',border:'1px solid #e8ecf2',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 8px'}}><s.Icon size={16} color={s.color} strokeWidth={2}/></div>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:s.color}}>{s.val}</div>
-                <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.3,marginTop:3}}>{s.lbl}</div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        {/* Account Overview */}
-        <Card title="Account Overview" Icon={Wallet} color="#6366f1">
-          <div style={{display:'flex',flexDirection:'column',gap:8}}>
-            {[
-              {lbl:'Membership Tier',val:(data.membership_tier||'basic').charAt(0).toUpperCase()+(data.membership_tier||'basic').slice(1),color:'#0ea5e9'},
-              {lbl:'Available Balance',val:`$${formatMoney(data.balance)}`,color:'#16a34a'},
-              {lbl:'Total Withdrawn',val:`$${formatMoney(data.total_withdrawn)}`,color:'#d97706'},
-              {lbl:'Lifetime Revenue',val:`$${formatMoney(data.revenue)}`,color:'#6366f1'},
-            ].map((r,i) => (
-              <div key={i} style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 12px',background:'#f8f9fb',borderRadius:8}}>
-                <span style={{fontSize:12,fontWeight:600,color:'#64748b'}}>{r.lbl}</span>
-                <span style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:r.color}}>{r.val}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-      </div>
-
-      {/* Campaign Performance Table */}
-      <Card title="Campaign Performance" Icon={BarChart3} color="#0ea5e9">
-        {(data.campaigns||[]).length > 0 ? (
-          <div style={{overflowX:'auto'}}>
-            <table style={{width:'100%',borderCollapse:'collapse'}}>
-              <thead><tr>{['Campaign','Platform','Tier','Views','Target','Progress','Status'].map(h => <th key={h} style={thS}>{h}</th>)}</tr></thead>
-              <tbody>{data.campaigns.map((c,i) => (
-                <tr key={i} style={{borderBottom:'1px solid #f5f6f8'}}>
-                  <td style={tdS}><span style={{fontWeight:700}}>{c.title}</span></td>
-                  <td style={tdS}><span style={{fontSize:11,color:'#64748b'}}>{c.platform}</span></td>
-                  <td style={tdS}><span style={{fontSize:11,fontWeight:700,color:'#0ea5e9',background:'rgba(14,165,233,.06)',padding:'2px 8px',borderRadius:4}}>Tier {c.tier}</span></td>
-                  <td style={tdS}>{c.views_delivered.toLocaleString()}</td>
-                  <td style={tdS}>{c.views_target.toLocaleString()}</td>
-                  <td style={{...tdS,minWidth:120}}>
-                    <div style={{display:'flex',alignItems:'center',gap:8}}>
-                      <div style={{flex:1,height:6,background:'#eef1f8',borderRadius:3}}>
-                        <div style={{height:'100%',background:c.completion_pct>=100?'#16a34a':'linear-gradient(90deg,#0ea5e9,#38bdf8)',borderRadius:3,width:`${c.completion_pct}%`,transition:'width .5s'}}/>
-                      </div>
-                      <span style={{fontSize:11,fontWeight:700,color:c.completion_pct>=100?'#16a34a':'#0ea5e9',minWidth:32}}>{c.completion_pct}%</span>
-                    </div>
-                  </td>
-                  <td style={tdS}><span style={{fontSize:11,fontWeight:700,padding:'3px 10px',borderRadius:6,
-                    ...(c.status==='active'?{background:'rgba(22,163,74,.08)',color:'#16a34a'}:c.status==='completed'?{background:'rgba(14,165,233,.08)',color:'#0ea5e9'}:{background:'#f8f9fb',color:'#94a3b8'}),
-                  }}>{c.status}</span></td>
-                </tr>
-              ))}</tbody>
-            </table>
-          </div>
-        ) : (
-          <div style={{textAlign:'center',padding:'32px 20px'}}>
-            <Target size={36} color="#cbd5e1" strokeWidth={1.5} style={{marginBottom:10}}/>
-            <div style={{fontSize:14,fontWeight:700,color:'#94a3b8',marginBottom:4}}>No campaigns yet</div>
-            <div style={{fontSize:12,color:'#b8c4d0'}}>Activate a Campaign Tier to start advertising and tracking performance.</div>
-          </div>
-        )}
-      </Card>
-    </AppLayout>
-  );
-}
-
-function Card({title,Icon,color,children}){
-  return <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:8,boxShadow:'0 2px 8px rgba(0,0,0,.04),0 4px 16px rgba(0,0,0,.03)',overflow:'hidden'}}>
-    <div style={{padding:'10px 14px',borderBottom:'1px solid #f1f3f7',display:'flex',alignItems:'center',gap:8}}>
-      <div style={{width:24,height:24,borderRadius:6,background:`${color}10`,display:'flex',alignItems:'center',justifyContent:'center'}}><Icon size={14} color={color} strokeWidth={2}/></div>
-      <span style={{fontSize:13,fontWeight:800,color:'#0f172a'}}>{title}</span>
-    </div>
-    <div style={{padding:'14px'}}>{children}</div>
+function CB({ title, subtitle, children, style }) {
+  return <div style={{ background:'#fff', border:'1px solid #e8ecf2', borderRadius:14, padding:24, ...style }}>
+    <div style={{ fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:2 }}>{title}</div>
+    {subtitle && <div style={{ fontSize:13, color:'#94a3b8', marginBottom:20 }}>{subtitle}</div>}
+    {children}
   </div>;
 }
 
-const thS={fontSize:10,fontWeight:800,color:'#7b91a8',textTransform:'uppercase',letterSpacing:.8,padding:'10px 14px',borderBottom:'1px solid #f1f3f7',textAlign:'left',background:'#f8f9fb'};
-const tdS={padding:'10px 14px',fontSize:13,color:'#0f172a'};
-function Spin(){return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>}
+function useChart(cfg) {
+  var ref = useRef(null), ch = useRef(null);
+  useEffect(function() { if (!ref.current||!cfg) return; if (ch.current) ch.current.destroy(); ch.current = new Chart.Chart(ref.current, cfg); return function() { if (ch.current) ch.current.destroy(); }; }, [cfg]);
+  return ref;
+}
+
+var TL = { direct_sponsor:'Direct 40%', uni_level:'Uni-Level', grid_completion_bonus:'Grid Bonus', membership:'Membership', membership_renewal:'Renewal', course_direct_sale:'Course Sale', course_pass_up:'Course Pass-Up' };
+var TC = { direct_sponsor:'#10b981', uni_level:'#0ea5e9', grid_completion_bonus:'#f59e0b', membership:'#8b5cf6', membership_renewal:'#a78bfa', course_direct_sale:'#fbbf24', course_pass_up:'#f97316' };
+var TIER_COLORS = ['#10b981','#0ea5e9','#6366f1','#8b5cf6','#f59e0b','#f97316','#ef4444','#fbbf24'];
+
+export default function AnalyticsPage() {
+  var [data, setData] = useState(null), [loading, setLoading] = useState(true), [error, setError] = useState(null);
+  useEffect(function() { fetch('/api/analytics',{credentials:'include'}).then(function(r){return r.json()}).then(function(d){if(d.error){setError(d.error)}else{setData(d)}setLoading(false)}).catch(function(e){setError(e.message);setLoading(false)}); }, []);
+
+  var earningsRef = useChart(data ? { type:'line', data:{ labels:data.daily_earnings.map(function(d){var p=d.date.split('-');return p[1]+'/'+p[2]}), datasets:[{label:'Earnings',data:data.daily_earnings.map(function(d){return d.amount}),borderColor:'#0ea5e9',backgroundColor:'rgba(14,165,233,0.08)',borderWidth:2.5,fill:true,tension:0.4,pointRadius:0,pointHoverRadius:6,pointHoverBackgroundColor:'#0ea5e9',pointHoverBorderColor:'#fff',pointHoverBorderWidth:3}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f172a',padding:12,cornerRadius:10,displayColors:false,callbacks:{label:function(c){return '$'+c.parsed.y.toFixed(2)}}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8}},y:{grid:{color:'#f1f5f9'},ticks:{callback:function(v){return '$'+v}}}}} } : null);
+
+  var breakdownRef = useChart(data ? (function(){var b=data.income_breakdown,tot=b.grid+b.membership+b.courses+b.supermarket;if(tot===0)return{type:'doughnut',data:{labels:['No data'],datasets:[{data:[1],backgroundColor:['#e2e8f0'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'bottom'}}}};return{type:'doughnut',data:{labels:['Grid','Membership','Courses','SuperMarket'],datasets:[{data:[b.grid,b.membership,b.courses,b.supermarket],backgroundColor:['#6366f1','#10b981','#f59e0b','#0ea5e9'],borderWidth:0,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'68%',plugins:{legend:{position:'bottom',labels:{padding:16,usePointStyle:true,pointStyle:'circle',font:{size:12,weight:600}}},tooltip:{backgroundColor:'#0f172a',padding:12,cornerRadius:10,callbacks:{label:function(c){return c.label+': $'+c.parsed.toFixed(2)}}}}}}})():null);
+
+  var gridRef = useChart(data && data.grid_progress.length>0 ? {type:'bar',data:{labels:data.grid_progress.map(function(g){return 'T'+g.tier+' $'+g.price}),datasets:[{label:'Filled',data:data.grid_progress.map(function(g){return g.filled}),backgroundColor:data.grid_progress.map(function(g){return TIER_COLORS[g.tier-1]}),borderRadius:8,barThickness:28},{label:'Remaining',data:data.grid_progress.map(function(g){return 64-g.filled}),backgroundColor:'rgba(0,0,0,0.04)',borderRadius:8,barThickness:28}]},options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f172a',padding:12,cornerRadius:10,callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.x+'/64'}}}},scales:{x:{stacked:true,max:64,grid:{color:'#f1f5f9'},ticks:{callback:function(v){return v+'/64'}}},y:{stacked:true,grid:{display:false}}}}} : null);
+
+  var campaignRef = useChart(data && data.campaigns.length>0 ? {type:'bar',data:{labels:data.campaigns.map(function(c){return 'Tier '+c.tier}),datasets:[{label:'Delivered',data:data.campaigns.map(function(c){return c.views_delivered}),backgroundColor:'#6366f1',borderRadius:6},{label:'Target',data:data.campaigns.map(function(c){return c.views_target}),backgroundColor:'rgba(99,102,241,0.12)',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:16,usePointStyle:true,pointStyle:'circle',font:{size:12,weight:600}}},tooltip:{backgroundColor:'#0f172a',padding:12,cornerRadius:10,callbacks:{label:function(c){return c.dataset.label+': '+c.parsed.y.toLocaleString()}}}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f1f5f9'},ticks:{callback:function(v){return v>=1000?(v/1000)+'K':v}}}}}} : null);
+
+  var teamRef = useChart(data ? {type:'bar',data:{labels:data.team_weekly.map(function(w){return 'W'+w.week}),datasets:[{label:'New Referrals',data:data.team_weekly.map(function(w){return w.count}),backgroundColor:'#10b981',borderRadius:8,barThickness:20}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#0f172a',padding:12,cornerRadius:10}},scales:{x:{grid:{display:false}},y:{grid:{color:'#f1f5f9'},beginAtZero:true}}}} : null);
+
+  var streamRef = useChart(data && data.monthly_streams.length>0 ? {type:'bar',data:{labels:data.monthly_streams.map(function(m){return m.month}),datasets:[{label:'Membership',data:data.monthly_streams.map(function(m){return m.membership}),backgroundColor:'#10b981',borderRadius:4},{label:'Grid',data:data.monthly_streams.map(function(m){return m.grid}),backgroundColor:'#6366f1',borderRadius:4},{label:'Courses',data:data.monthly_streams.map(function(m){return m.courses}),backgroundColor:'#f59e0b',borderRadius:4},{label:'SuperMarket',data:data.monthly_streams.map(function(m){return m.supermarket}),backgroundColor:'#0ea5e9',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true,pointStyle:'circle',font:{size:11,weight:600}}},tooltip:{backgroundColor:'#0f172a',padding:12,cornerRadius:10,callbacks:{label:function(c){return c.dataset.label+': $'+c.parsed.y.toFixed(2)}}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#f1f5f9'},ticks:{callback:function(v){return '$'+v}}}}}} : null);
+
+  if (loading) return <div style={{minHeight:'100vh',background:'#f0f3f9',display:'flex',alignItems:'center',justifyContent:'center'}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:16,fontWeight:700,color:'#94a3b8'}}>Loading analytics...</div></div>;
+  if (error) return <div style={{minHeight:'100vh',background:'#f0f3f9',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:12}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:16,fontWeight:700,color:'#ef4444'}}>Error loading analytics</div><div style={{fontSize:14,color:'#64748b'}}>{error}</div><a href="/login" style={{marginTop:8,padding:'10px 24px',borderRadius:10,background:'#0ea5e9',color:'#fff',textDecoration:'none',fontWeight:700,fontSize:14}}>Sign In</a></div>;
+
+  var t = data.totals;
+  var empty = function(msg) { return <div style={{height:280,display:'flex',alignItems:'center',justifyContent:'center',color:'#94a3b8',fontSize:14}}>{msg}</div>; };
+
+  return (
+    <div style={{background:'#f0f3f9',minHeight:'100vh'}}>
+      <div style={{background:'#fff',borderBottom:'1px solid #e8ecf2',padding:'20px 32px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div><h1 style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:800,color:'#0f172a',margin:0}}>Analytics</h1><div style={{fontSize:13,color:'#94a3b8',marginTop:2}}>Your complete earnings overview</div></div>
+        <a href="/dashboard" style={{padding:'8px 20px',borderRadius:10,background:'#f1f5f9',color:'#334155',textDecoration:'none',fontWeight:700,fontSize:13,border:'1px solid #e2e8f0'}}>← Dashboard</a>
+      </div>
+      <div style={{maxWidth:1100,margin:'24px auto',padding:'0 24px'}}>
+        {/* Stats */}
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16,marginBottom:24}}>
+          {[{l:'Balance',v:'$'+t.balance.toFixed(2),s:'Available to withdraw',c:'#10b981',i:'💰'},{l:'Total Earned',v:'$'+t.total_earned.toFixed(2),s:'Lifetime earnings',c:'#0ea5e9',i:'📈'},{l:'Grid Earnings',v:'$'+t.grid_earnings.toFixed(2),s:(data.grid_progress.length||0)+' active grids',c:'#6366f1',i:'🔲'},{l:'Team Size',v:String(t.team_size),s:'Direct referrals',c:'#f59e0b',i:'👥'}].map(function(s,i){return<div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:24,position:'relative'}}><div style={{position:'absolute',top:16,right:16,width:44,height:44,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,background:s.c+'15'}}>{s.i}</div><div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>{s.l}</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:32,fontWeight:900,color:'#0f172a'}}>{s.v}</div><div style={{fontSize:13,fontWeight:600,color:s.c,marginTop:6}}>↑ {s.s}</div></div>})}
+        </div>
+        {/* Row 1 */}
+        <div style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:16,marginBottom:24}}>
+          <CB title="Earnings Trend" subtitle="Last 30 days"><div style={{height:280}}><canvas ref={earningsRef}/></div></CB>
+          <CB title="Income Breakdown" subtitle="Where your earnings come from"><div style={{height:280}}><canvas ref={breakdownRef}/></div></CB>
+        </div>
+        {/* Row 2 */}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:24}}>
+          <CB title="Grid Progress" subtitle="Positions filled per active tier">{data.grid_progress.length>0?<div style={{height:280}}><canvas ref={gridRef}/></div>:empty('No active grids yet')}</CB>
+          <CB title="Campaign Performance" subtitle="Views delivered vs target">{data.campaigns.length>0?<div style={{height:280}}><canvas ref={campaignRef}/></div>:empty('No active campaigns')}</CB>
+        </div>
+        {/* Row 3 */}
+        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:24}}>
+          <CB title="Team Growth" subtitle="New referrals per week — last 12 weeks"><div style={{height:280}}><canvas ref={teamRef}/></div></CB>
+          <CB title="Earnings by Stream" subtitle="Monthly — last 6 months"><div style={{height:280}}><canvas ref={streamRef}/></div></CB>
+        </div>
+        {/* Commission table */}
+        <CB title="Recent Commissions" style={{marginBottom:24}}>
+          {data.recent_commissions.length>0 ? <table style={{width:'100%',borderCollapse:'collapse',fontSize:13,marginTop:16}}><thead><tr>{['Date','Type','From','Tier','Amount'].map(function(h,i){return<th key={i} style={{textAlign:i===4?'right':'left',padding:'10px 12px',fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,borderBottom:'2px solid #f1f5f9'}}>{h}</th>})}</tr></thead><tbody>{data.recent_commissions.map(function(c,i){var tl=TL[c.type]||c.type,tc=TC[c.type]||'#64748b';return<tr key={i}><td style={{padding:'10px 12px',borderBottom:'1px solid #f1f5f9',color:'#334155'}}>{c.date}</td><td style={{padding:'10px 12px',borderBottom:'1px solid #f1f5f9'}}><span style={{display:'inline-block',padding:'3px 10px',borderRadius:6,fontSize:10,fontWeight:800,textTransform:'uppercase',background:tc+'15',color:tc}}>{tl}</span></td><td style={{padding:'10px 12px',borderBottom:'1px solid #f1f5f9',color:'#334155'}}>{c.from}</td><td style={{padding:'10px 12px',borderBottom:'1px solid #f1f5f9',color:'#334155'}}>{c.tier?'Tier '+c.tier:'—'}</td><td style={{padding:'10px 12px',borderBottom:'1px solid #f1f5f9',textAlign:'right',fontFamily:"'Sora',sans-serif",fontWeight:800,color:'#0f172a'}}>${c.amount.toFixed(2)}</td></tr>})}</tbody></table> : <div style={{padding:'40px 0',textAlign:'center',color:'#94a3b8',fontSize:14}}>No commissions yet. Start sharing your SuperLink!</div>}
+        </CB>
+      </div>
+    </div>
+  );
+}

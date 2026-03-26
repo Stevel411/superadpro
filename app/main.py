@@ -1356,6 +1356,205 @@ def api_dashboard(request: Request, user: User = Depends(get_current_user),
         logger.error(f"Dashboard API error for user {user.id}: {traceback.format_exc()}")
         return JSONResponse({"error": str(exc), "trace": traceback.format_exc()[-500:]}, status_code=500)
 
+@app.get("/analytics")
+def analytics_page(request: Request):
+    """Serve React SPA for analytics."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/api/analytics")
+def api_analytics(request: Request, user: User = Depends(get_current_user),
+                  db: Session = Depends(get_db)):
+    """Analytics data — earnings trends, breakdowns, grid progress, team growth."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from datetime import datetime, timedelta
+    from sqlalchemy import func, cast, Date
+    from collections import defaultdict
+
+    now = datetime.utcnow()
+    thirty_days_ago = now - timedelta(days=30)
+    twelve_weeks_ago = now - timedelta(weeks=12)
+    six_months_ago = now - timedelta(days=180)
+
+    # ── Daily earnings (last 30 days) ──
+    daily_commissions = db.query(
+        cast(Commission.paid_at, Date).label('day'),
+        func.sum(Commission.amount_usdt).label('total')
+    ).filter(
+        Commission.to_user_id == user.id,
+        Commission.paid_at >= thirty_days_ago
+    ).group_by(cast(Commission.paid_at, Date)).all()
+
+    daily_courses = db.query(
+        cast(CourseCommission.created_at, Date).label('day'),
+        func.sum(CourseCommission.amount).label('total')
+    ).filter(
+        CourseCommission.earner_id == user.id,
+        CourseCommission.created_at >= thirty_days_ago
+    ).group_by(cast(CourseCommission.created_at, Date)).all()
+
+    daily_map = defaultdict(float)
+    for row in daily_commissions:
+        if row.day:
+            daily_map[str(row.day)] += float(row.total or 0)
+    for row in daily_courses:
+        if row.day:
+            daily_map[str(row.day)] += float(row.total or 0)
+
+    # Build 30-day array
+    daily_earnings = []
+    for i in range(30):
+        d = (now - timedelta(days=29-i)).strftime('%Y-%m-%d')
+        daily_earnings.append({"date": d, "amount": round(daily_map.get(d, 0), 2)})
+
+    # ── Income breakdown by type ──
+    grid_total = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+        Commission.to_user_id == user.id,
+        Commission.commission_type.in_(['direct_sponsor', 'uni_level', 'grid_completion_bonus'])
+    ).scalar() or 0)
+
+    membership_total = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+        Commission.to_user_id == user.id,
+        Commission.commission_type.in_(['membership', 'membership_renewal'])
+    ).scalar() or 0)
+
+    course_total = float(db.query(func.coalesce(func.sum(CourseCommission.amount), 0)).filter(
+        CourseCommission.earner_id == user.id,
+    ).scalar() or 0)
+
+    # SuperMarket placeholder
+    supermarket_total = 0
+
+    # ── Grid progress ──
+    active_grids = db.query(Grid).filter(
+        Grid.owner_id == user.id, Grid.is_complete == False
+    ).order_by(Grid.package_tier).all()
+
+    grid_progress = [{
+        "tier": g.package_tier,
+        "price": float(g.package_price),
+        "filled": g.positions_filled,
+        "total": 64,
+        "advance": g.advance_number,
+        "bonus_pool": float(g.bonus_pool_accrued or 0),
+    } for g in active_grids]
+
+    # ── Campaign performance ──
+    active_campaigns = db.query(VideoCampaign).filter(
+        VideoCampaign.user_id == user.id,
+        VideoCampaign.is_completed == False
+    ).order_by(VideoCampaign.campaign_tier).all()
+
+    campaigns = [{
+        "tier": c.campaign_tier,
+        "views_delivered": c.views_delivered or 0,
+        "views_target": c.views_target or 0,
+        "status": c.status,
+    } for c in active_campaigns]
+
+    # ── Team growth (weekly, last 12 weeks) ──
+    team_weekly = []
+    for w in range(12):
+        week_start = now - timedelta(weeks=12-w)
+        week_end = now - timedelta(weeks=11-w)
+        count = db.query(func.count(User.id)).filter(
+            User.sponsor_id == user.id,
+            User.created_at >= week_start,
+            User.created_at < week_end
+        ).scalar() or 0
+        team_weekly.append({"week": w+1, "count": count})
+
+    # ── Monthly earnings by stream (last 6 months) ──
+    monthly_streams = []
+    for m in range(6):
+        month_start = (now.replace(day=1) - timedelta(days=30*m)).replace(day=1)
+        if m > 0:
+            month_end = (now.replace(day=1) - timedelta(days=30*(m-1))).replace(day=1)
+        else:
+            month_end = now
+
+        m_grid = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+            Commission.to_user_id == user.id,
+            Commission.commission_type.in_(['direct_sponsor', 'uni_level', 'grid_completion_bonus']),
+            Commission.paid_at >= month_start, Commission.paid_at < month_end
+        ).scalar() or 0)
+
+        m_memb = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+            Commission.to_user_id == user.id,
+            Commission.commission_type.in_(['membership', 'membership_renewal']),
+            Commission.paid_at >= month_start, Commission.paid_at < month_end
+        ).scalar() or 0)
+
+        m_course = float(db.query(func.coalesce(func.sum(CourseCommission.amount), 0)).filter(
+            CourseCommission.earner_id == user.id,
+            CourseCommission.created_at >= month_start, CourseCommission.created_at < month_end
+        ).scalar() or 0)
+
+        monthly_streams.insert(0, {
+            "month": month_start.strftime('%b'),
+            "grid": round(m_grid, 2),
+            "membership": round(m_memb, 2),
+            "courses": round(m_course, 2),
+            "supermarket": 0,
+        })
+
+    # ── Recent commissions ──
+    recent_grid = db.query(Commission).filter(
+        Commission.to_user_id == user.id
+    ).order_by(Commission.created_at.desc()).limit(15).all()
+
+    recent_course = db.query(CourseCommission).filter(
+        CourseCommission.earner_id == user.id
+    ).order_by(CourseCommission.created_at.desc()).limit(5).all()
+
+    recent = []
+    for c in recent_grid:
+        from_user = db.query(User).filter(User.id == c.from_user_id).first() if c.from_user_id else None
+        recent.append({
+            "date": c.created_at.strftime('%b %d') if c.created_at else '',
+            "type": c.commission_type or 'unknown',
+            "from": ('@' + from_user.username) if from_user else 'System',
+            "tier": c.package_tier,
+            "amount": float(c.amount_usdt or 0),
+        })
+    for c in recent_course:
+        buyer = db.query(User).filter(User.id == c.buyer_id).first() if c.buyer_id else None
+        recent.append({
+            "date": c.created_at.strftime('%b %d') if c.created_at else '',
+            "type": 'course_' + (c.commission_type or 'sale'),
+            "from": ('@' + buyer.username) if buyer else 'System',
+            "tier": c.course_tier,
+            "amount": float(c.amount or 0),
+        })
+    recent.sort(key=lambda x: x['date'], reverse=True)
+
+    return {
+        "daily_earnings": daily_earnings,
+        "income_breakdown": {
+            "grid": round(grid_total, 2),
+            "membership": round(membership_total, 2),
+            "courses": round(course_total, 2),
+            "supermarket": round(supermarket_total, 2),
+        },
+        "grid_progress": grid_progress,
+        "campaigns": campaigns,
+        "team_weekly": team_weekly,
+        "monthly_streams": monthly_streams,
+        "recent_commissions": recent[:15],
+        "totals": {
+            "balance": float(user.balance or 0),
+            "total_earned": float(user.total_earned or 0),
+            "grid_earnings": round(grid_total, 2),
+            "course_earnings": round(course_total, 2),
+            "membership_earnings": round(membership_total, 2),
+            "team_size": user.total_team or 0,
+        }
+    }
+
+
 @app.get("/launch-wizard")
 def launch_wizard(request: Request):
     """Phase 4: serve React SPA."""
