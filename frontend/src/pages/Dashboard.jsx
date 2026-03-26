@@ -326,8 +326,8 @@ export default function Dashboard() {
           },
         ].map((s, i) => (
           <div key={i} className="stream-card" style={{
-            background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 20,
-            boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
+            background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: 20,
+            boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
             position: 'relative', overflow: 'hidden', transition: 'all 0.2s',
           }}>
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${s.color}, ${s.bg})`, borderRadius: '14px 14px 0 0' }} />
@@ -338,8 +338,8 @@ export default function Dashboard() {
               <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 9px', borderRadius: 20, letterSpacing: 0.3, background: s.bg, color: s.color }}>{s.badge}</span>
             </div>
             <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 34, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 6 }}>${formatMoney(s.val)}</div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#0f172a', marginBottom: 3 }}>{s.name}</div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>{s.detail}</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 3 }}>{s.name}</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{s.detail}</div>
           </div>
         ))}
       </div>
