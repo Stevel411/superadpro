@@ -180,7 +180,9 @@ export default function Dashboard() {
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
           Back to Dashboard
         </button>
-        <PassiveIncome d={d} />
+        <div style={{ background:'#0c1a3a', borderRadius:20, padding:24, margin:'0 -8px' }}>
+          <PassiveIncome d={d} />
+        </div>
       </>}
 
       {dashTab !== 'passive' && <>
