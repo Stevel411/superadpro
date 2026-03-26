@@ -2001,6 +2001,7 @@ def delete_campaign(
     return RedirectResponse(url="/video-library", status_code=303)
 
 @app.get("/upload")
+@app.get("/create-campaign")
 def upload_video(request: Request):
     """Serve React SPA."""
     if _react_index.exists():

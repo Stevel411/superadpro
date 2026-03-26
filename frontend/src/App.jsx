@@ -9,6 +9,7 @@ import { Component, Suspense } from 'react';
 // ── Direct imports (core pages — instant navigation, no spinner) ──
 import Dashboard from './pages/Dashboard';
 import AnalyticsPage from './pages/Analytics';
+import CreateCampaign from './pages/CreateCampaign';
 import Wallet from './pages/Wallet';
 import Account from './pages/Account';
 import Courses from './pages/Courses';
@@ -122,7 +123,6 @@ function AppRoutes() {
     <Routes>
       {/* Fully migrated pages */}
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
       <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
       <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
@@ -135,9 +135,11 @@ function AppRoutes() {
       <Route path="/courses/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
       <Route path="/watch" element={<ProtectedRoute><Watch /></ProtectedRoute>} />
       <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
-      <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+      <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
       <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
       <Route path="/video-library" element={<ProtectedRoute><VideoLibrary /></ProtectedRoute>} />
+      <Route path="/upload" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />
+      <Route path="/create-campaign" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />
 
       {/* AI Marketing Tools */}
       <Route path="/campaign-studio" element={<ProtectedRoute><AiTool title="Campaign Studio" subtitle="AI-powered campaign generator" apiEndpoint="/api/campaign-studio/generate"
