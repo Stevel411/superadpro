@@ -89,6 +89,7 @@ import ResetPassword from './pages/auth/ResetPassword';
 // Public pages
 import HomePage from './pages/public/HomePage';
 import HowItWorks from './pages/public/HowItWorks';
+import ExplorePage from './pages/public/ExplorePage';
 import JoinFunnel from './pages/public/JoinFunnel';
 import { FAQ, Legal, ForAdvertisers } from './pages/public/PublicPages';
 import EarnPage from './pages/public/EarnPage';
@@ -191,6 +192,7 @@ function AppRoutes() {
       {/* Public pages — no auth required, no sidebar */}
       <Route path="/" element={<SmartHome />} />
       <Route path="/how-it-works" element={<HowItWorks />} />
+      <Route path="/explore" element={<ExplorePage />} />
       <Route path="/for-advertisers" element={<ForAdvertisers />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/legal" element={<Legal />} />

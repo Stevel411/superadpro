@@ -63,10 +63,7 @@ export default function HomePage() {
           <span style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:900, color:'#fff' }}>SuperAd<span style={{ color:'#38bdf8' }}>Pro</span></span>
         </Link>
         <div className="hp-nav-links hp-nav" style={{ display:'flex', alignItems:'center', gap:24 }}>
-          <Link to="/how-it-works" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>How It Works</Link>
-          <Link to="/earn" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>Earn</Link>
           <Link to="/explore" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>Explore</Link>
-          <Link to="/faq" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>FAQ</Link>
           <Link to="/login" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>Sign In</Link>
           <Link to="/register" style={{ padding:'10px 24px', borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', fontSize:13, fontWeight:800, textDecoration:'none', transition:'all 0.2s' }}>Join Free</Link>
         </div>
@@ -105,7 +102,7 @@ export default function HomePage() {
 
           <div className="hp-f4 hp-cta-row" style={{ display:'flex', gap:14, flexWrap:'wrap' }}>
             <Link to="/register" className="hp-cta-p" style={{ padding:'18px 44px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:800, textDecoration:'none', border:'none', background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', boxShadow:'0 4px 24px rgba(14,165,233,0.25)', transition:'all 0.3s' }}>Join Free →</Link>
-            <Link to="/earn" className="hp-cta-s" style={{ padding:'18px 44px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:800, textDecoration:'none', border:'1px solid rgba(255,255,255,0.15)', background:'rgba(0,0,0,0.2)', color:'#fff', transition:'all 0.3s', backdropFilter:'blur(4px)' }}>See How It Works</Link>
+            <Link to="/explore" className="hp-cta-s" style={{ padding:'18px 44px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:800, textDecoration:'none', border:'1px solid rgba(255,255,255,0.15)', background:'rgba(0,0,0,0.2)', color:'#fff', transition:'all 0.3s', backdropFilter:'blur(4px)' }}>Explore SuperAdPro</Link>
           </div>
 
           <div className="hp-f5 hp-social" style={{ display:'flex', gap:10, marginTop:32 }}>
