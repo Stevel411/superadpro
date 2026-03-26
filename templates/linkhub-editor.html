@@ -175,8 +175,8 @@ textarea.fi{min-height:70px;resize:vertical}
           <div class="fi-group">
             <div class="fi-label">Button text</div>
             <div class="color-pick">
-              <input type="color" id="edBtnText" value="{{ profile.accent_color or '#ffffff' if profile else '#ffffff' }}" oninput="updatePreview()">
-              <span id="edBtnTextHex">{{ profile.accent_color or '#ffffff' if profile else '#ffffff' }}</span>
+              <input type="color" id="edBtnText" value="{{ profile.btn_text_color or profile.accent_color or '#ffffff' if profile else '#ffffff' }}" oninput="updatePreview()">
+              <span id="edBtnTextHex">{{ profile.btn_text_color or profile.accent_color or '#ffffff' if profile else '#ffffff' }}</span>
             </div>
           </div>
         </div>
@@ -416,9 +416,12 @@ async function saveAll(){
     bg_color:document.getElementById('edBg').value,
     text_color:document.getElementById('edText').value,
     btn_color:document.getElementById('edBtnBg').value,
+    btn_text_color:document.getElementById('edBtnText').value,
     accent_color:document.getElementById('edBtnText').value,
     font_family:document.getElementById('edFont').value,
     theme:'dark',is_published:true,soc_icon_shape:'circle',
+    btn_style_type:btnStyle,
+    btn_radius:btnRadius,
     social_links:getSocials(),
     links:links.map(function(l,i){
       return{title:l.title,url:l.url,icon:l.icon||'🔗',btn_style:'filled',is_active:l.is_active!==false,sort_order:i,click_count:l.click_count||0};
