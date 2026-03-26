@@ -1,105 +1,232 @@
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import PublicLayout from '../../components/layout/PublicLayout';
+
+function Reveal({ children, delay }) {
+  var ref = useRef(null);
+  var [vis, setVis] = useState(false);
+  useEffect(function() {
+    var obs = new IntersectionObserver(function(entries) { if (entries[0].isIntersecting) setVis(true); }, { threshold: 0.08 });
+    if (ref.current) obs.observe(ref.current);
+    return function() { obs.disconnect(); };
+  }, []);
+  return <div ref={ref} style={{ opacity: vis ? 1 : 0, transform: vis ? 'translateY(0)' : 'translateY(40px)', transition: 'opacity 0.8s cubic-bezier(.16,1,.3,1) '+(delay||0)+'s, transform 0.8s cubic-bezier(.16,1,.3,1) '+(delay||0)+'s' }}>{children}</div>;
+}
 
 export default function HowItWorks() {
+  var [playing, setPlaying] = useState(false);
+  var vidRef = useRef(null);
+
+  function togglePlay() {
+    if (!vidRef.current) return;
+    if (playing) { vidRef.current.pause(); setPlaying(false); }
+    else { vidRef.current.play(); setPlaying(true); }
+  }
+
+  var accent = '#0ea5e9';
+
   return (
-    <PublicLayout>
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '60px 24px' }}>
+    <div style={{ background: '#030712', color: '#fff', fontFamily: "'DM Sans',sans-serif", minHeight: '100vh' }}>
+      <style>{`
+        .hiw-card:hover{transform:translateY(-4px)!important;border-color:rgba(14,165,233,0.2)!important}
+        .hiw-step:hover{border-color:rgba(14,165,233,0.25)!important;background:rgba(14,165,233,0.04)!important}
+        .hiw-nav a:hover{color:#fff!important}
+        @media(max-width:768px){
+          .hiw-nav-links{display:none!important}
+          .hiw-steps-grid{grid-template-columns:1fr!important}
+          .hiw-streams{grid-template-columns:1fr!important}
+        }
+      `}</style>
 
-        {/* Hero */}
-        <div style={{ textAlign: 'center', marginBottom: 64 }}>
-          <div style={{ fontSize: 12, fontWeight: 800, color: '#38bdf8', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Platform Overview</div>
-          <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 'clamp(32px,5vw,56px)', fontWeight: 900, margin: '0 0 20px' }}>How SuperAdPro Works</h1>
-          <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)', maxWidth: 580, margin: '0 auto', lineHeight: 1.7 }}>
-            A video advertising platform where members earn commissions by building teams and participating in campaign grids.
-          </p>
+      {/* Nav */}
+      <nav style={{ position:'fixed', top:0, left:0, right:0, zIndex:200, display:'flex', alignItems:'center', justifyContent:'space-between', padding:'0 32px', height:72, background:'rgba(3,7,18,0.7)', backdropFilter:'blur(16px)', borderBottom:'1px solid rgba(255,255,255,0.06)' }}>
+        <Link to="/" style={{ display:'flex', alignItems:'center', gap:10, textDecoration:'none' }}>
+          <div style={{ width:36, height:36, borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#6366f1)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 12px rgba(14,165,233,0.3)' }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><polygon points="10,4 10,20 21,12" fill="#fff"/></svg>
+          </div>
+          <span style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:900, color:'#fff' }}>SuperAd<span style={{ color:'#38bdf8' }}>Pro</span></span>
+        </Link>
+        <div className="hiw-nav-links hiw-nav" style={{ display:'flex', alignItems:'center', gap:24 }}>
+          <Link to="/explore" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>Explore</Link>
+          <Link to="/earn" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>Earn</Link>
+          <Link to="/login" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>Sign In</Link>
+          <Link to="/register" style={{ padding:'10px 24px', borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', fontSize:13, fontWeight:800, textDecoration:'none' }}>Join Free</Link>
         </div>
+      </nav>
 
-        {/* Step by step */}
-        <div style={{ marginBottom: 72 }}>
-          <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 28, fontWeight: 900, marginBottom: 32 }}>The journey</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+      {/* ═══ HERO — Full-screen image ═══ */}
+      <section style={{ position:'relative', minHeight:'100vh', display:'flex', alignItems:'center', overflow:'hidden' }}>
+        <div style={{ position:'absolute', inset:0, zIndex:0 }}>
+          <img src="/static/images/how-it-works-hero.png" alt="" style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center' }}/>
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(90deg,rgba(3,7,18,0.92) 0%,rgba(3,7,18,0.7) 40%,rgba(3,7,18,0.35) 70%,rgba(3,7,18,0.2) 100%)' }}/>
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(180deg,rgba(3,7,18,0.5) 0%,transparent 20%,transparent 80%,rgba(3,7,18,0.95) 100%)' }}/>
+        </div>
+        <div style={{ position:'relative', zIndex:2, maxWidth:1200, margin:'0 auto', padding:'120px 48px 60px', width:'100%' }}>
+          <Reveal>
+            <div style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'8px 20px', borderRadius:99, background:'rgba(0,0,0,0.3)', border:'1px solid rgba(14,165,233,0.2)', fontSize:12, fontWeight:700, color:accent, marginBottom:28, letterSpacing:1, textTransform:'uppercase', backdropFilter:'blur(8px)' }}>
+              <span style={{ width:6, height:6, borderRadius:'50%', background:accent }}/>
+              How It Works
+            </div>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <h1 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(40px,6vw,72px)', fontWeight:900, lineHeight:0.92, marginBottom:20, letterSpacing:-2, maxWidth:550 }}>
+              Three Steps to<br/><span style={{ color:accent }}>Real Income.</span>
+            </h1>
+          </Reveal>
+          <Reveal delay={0.2}>
+            <p style={{ fontSize:'clamp(15px,1.8vw,18px)', color:'rgba(255,255,255,0.55)', maxWidth:440, lineHeight:1.7, marginBottom:36 }}>
+              No experience needed. No tech skills required.<br/>
+              Share one link. The platform does the rest.
+            </p>
+          </Reveal>
+          <Reveal delay={0.3}>
+            <div style={{ display:'flex', gap:14, flexWrap:'wrap' }}>
+              <Link to="/register" style={{ padding:'18px 44px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:800, textDecoration:'none', background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', boxShadow:'0 4px 24px rgba(14,165,233,0.25)', transition:'all 0.3s' }}>Get Started Free →</Link>
+              <a href="#video" style={{ padding:'18px 44px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:800, textDecoration:'none', border:'1px solid rgba(255,255,255,0.12)', background:'rgba(0,0,0,0.2)', color:'#fff', transition:'all 0.3s', backdropFilter:'blur(4px)' }}>▶ Watch Video</a>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ═══ VIDEO SECTION ═══ */}
+      <section id="video" style={{ padding:'80px 24px', background:'linear-gradient(180deg,#030712,#0a1628,#030712)' }}>
+        <div style={{ maxWidth:800, margin:'0 auto' }}>
+          <Reveal>
+            <div style={{ textAlign:'center', marginBottom:32 }}>
+              <h2 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(24px,4vw,36px)', fontWeight:900, marginBottom:8 }}>See It in Action</h2>
+              <p style={{ fontSize:16, color:'rgba(255,255,255,0.45)' }}>Watch how SuperAdPro works in under 2 minutes</p>
+            </div>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <div style={{ position:'relative', borderRadius:20, overflow:'hidden', border:'1px solid rgba(14,165,233,0.15)', boxShadow:'0 20px 60px rgba(0,0,0,0.5)', cursor:'pointer' }} onClick={togglePlay}>
+              <video ref={vidRef} src="/static/images/how-it-works-video.mp4" style={{ width:'100%', display:'block', borderRadius:20 }} playsInline onEnded={function(){setPlaying(false)}}/>
+              {!playing && (
+                <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center', background:'rgba(0,0,0,0.3)' }}>
+                  <div style={{ width:80, height:80, borderRadius:'50%', background:'linear-gradient(135deg,#0ea5e9,#6366f1)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 8px 32px rgba(14,165,233,0.4)', transition:'transform 0.3s' }}>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><polygon points="9,5 9,19 20,12" fill="#fff"/></svg>
+                  </div>
+                </div>
+              )}
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ═══ 3 STEPS ═══ */}
+      <section style={{ padding:'80px 24px' }}>
+        <div style={{ maxWidth:960, margin:'0 auto' }}>
+          <Reveal><h2 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(28px,4vw,42px)', fontWeight:900, textAlign:'center', marginBottom:8 }}>Simple as 1, 2, 3.</h2></Reveal>
+          <Reveal delay={0.1}><p style={{ fontSize:17, color:'rgba(255,255,255,0.4)', textAlign:'center', maxWidth:480, margin:'0 auto 48px' }}>No complicated funnels. No tech headaches. Just three steps.</p></Reveal>
+
+          <div className="hiw-steps-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:20 }}>
             {[
-              { n: '01', title: 'Register for free', desc: 'Create your account in under 60 seconds. You get an affiliate link immediately — no payment needed to join.', color: '#38bdf8' },
-              { n: '02', title: 'Activate membership', desc: 'Choose Basic ($20/mo) or Pro ($35/mo). This activates your earning ability and commissions start flowing when you refer others.', color: '#818cf8' },
-              { n: '03', title: 'Share your link', desc: 'Every member gets a personalised join page at superadpro.com/ref/yourusername — share it everywhere.', color: '#10b981' },
-              { n: '04', title: 'Build your team', desc: 'When someone joins through your link, they\'re in your network. You earn 50% of their membership fee every month.', color: '#f59e0b' },
-              { n: '05', title: 'Join campaign grids', desc: 'Each campaign tier has an 8×8 grid of 64 positions. Your team\'s activity fills positions and triggers completion bonuses.', color: '#ef4444' },
-              { n: '06', title: 'Earn uni-level commissions', desc: 'Earn 6.25% across 8 levels of your network on all grid purchases — your team\'s activity earns you income automatically.', color: '#38bdf8' },
+              { num:'01', title:'Share Your Link', desc:'Every member gets a unique SuperLink. Share it on social media, in messages, via QR code — anywhere. When someone clicks it, they land on your personal sales page.', icon:'🔗', color:'#0ea5e9' },
+              { num:'02', title:'Grid Fills Up', desc:'When your referrals join and activate, they fill positions in your 8×8 grid. Each position pays you 6.25%. The grid has 64 slots — and it auto-renews when complete.', icon:'⚡', color:'#fbbf24' },
+              { num:'03', title:'Money Hits Your Wallet', desc:'Commissions are credited instantly. Withdraw to crypto or bank. Four income streams working simultaneously — memberships, grid, courses, and marketplace.', icon:'💰', color:'#10b981' },
+            ].map(function(step, i) {
+              return (
+                <Reveal key={i} delay={i * 0.15}>
+                  <div className="hiw-step" style={{ background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:20, padding:'36px 28px', transition:'all 0.3s', height:'100%' }}>
+                    <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:20 }}>
+                      <div style={{ fontFamily:"'Sora',sans-serif", fontSize:36, fontWeight:900, color:step.color, opacity:0.3, lineHeight:1 }}>{step.num}</div>
+                      <div style={{ fontSize:28 }}>{step.icon}</div>
+                    </div>
+                    <div style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:800, color:'#fff', marginBottom:10 }}>{step.title}</div>
+                    <div style={{ fontSize:14, color:'rgba(255,255,255,0.45)', lineHeight:1.7 }}>{step.desc}</div>
+                  </div>
+                </Reveal>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ FOUR INCOME STREAMS ═══ */}
+      <section style={{ padding:'80px 24px', background:'linear-gradient(180deg,#030712,#0c1025,#030712)' }}>
+        <div style={{ maxWidth:960, margin:'0 auto' }}>
+          <Reveal><h2 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(28px,4vw,42px)', fontWeight:900, textAlign:'center', marginBottom:8 }}>Four Income Streams. One Platform.</h2></Reveal>
+          <Reveal delay={0.1}><p style={{ fontSize:17, color:'rgba(255,255,255,0.4)', textAlign:'center', maxWidth:500, margin:'0 auto 48px' }}>Each one works independently. Together they compound.</p></Reveal>
+
+          <div className="hiw-streams" style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:16 }}>
+            {[
+              { name:'Membership Commissions', rate:'50%', sub:'recurring monthly', desc:'$10–$29.50 per member, every month they stay active.', color:'#10b981' },
+              { name:'8×8 Profit Grid', rate:'$7,200', sub:'per completed grid', desc:'64 positions × 6.25% each. Eight tiers from $20 to $1,000.', color:'#6366f1' },
+              { name:'Course Marketplace', rate:'100%', sub:'commissions', desc:'Keep every sale. Sales 2,4,6,8 pass up infinitely deep.', color:'#fbbf24' },
+              { name:'SuperMarket', rate:'50/25/25', sub:'creator / affiliate / platform', desc:'Sell digital products. Create once, earn forever.', color:'#0ea5e9' },
             ].map(function(s, i) {
               return (
-                <div key={s.n} style={{ display: 'flex', gap: 24, paddingBottom: 36, borderLeft: i < 5 ? '2px dashed rgba(255,255,255,0.08)' : 'none', marginLeft: 21, paddingLeft: 36, position: 'relative' }}>
-                  <div style={{ position: 'absolute', left: -22, top: 0, width: 44, height: 44, borderRadius: '50%', background: '#050d1a', border: `2px solid ${s.color}`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900, color: s.color, fontFamily: "'Sora',sans-serif" }}>
-                    {s.n}
+                <Reveal key={i} delay={i * 0.1}>
+                  <div className="hiw-card" style={{ background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)', borderTop:'3px solid '+s.color, borderRadius:20, padding:'32px 28px', transition:'all 0.3s', height:'100%' }}>
+                    <div style={{ fontFamily:"'Sora',sans-serif", fontSize:18, fontWeight:800, color:'#fff', marginBottom:6 }}>{s.name}</div>
+                    <div style={{ fontFamily:"'Sora',sans-serif", fontSize:36, fontWeight:900, color:s.color, marginBottom:4 }}>{s.rate}</div>
+                    <div style={{ fontSize:12, fontWeight:700, color:'rgba(255,255,255,0.3)', textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>{s.sub}</div>
+                    <div style={{ fontSize:14, color:'rgba(255,255,255,0.45)', lineHeight:1.6 }}>{s.desc}</div>
                   </div>
-                  <div style={{ paddingTop: 8 }}>
-                    <div style={{ fontSize: 18, fontWeight: 800, color: '#fff', marginBottom: 8 }}>{s.title}</div>
-                    <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: 560 }}>{s.desc}</div>
+                </Reveal>
+              );
+            })}
+          </div>
+
+          <Reveal delay={0.3}>
+            <div style={{ textAlign:'center', marginTop:40 }}>
+              <Link to="/earn" style={{ fontFamily:"'Sora',sans-serif", fontSize:15, fontWeight:800, color:accent, textDecoration:'none', borderBottom:'2px solid '+accent, paddingBottom:4, transition:'all 0.2s' }}>See the full compensation plan →</Link>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
+      {/* ═══ WHAT YOU GET ═══ */}
+      <section style={{ padding:'80px 24px' }}>
+        <div style={{ maxWidth:960, margin:'0 auto' }}>
+          <Reveal><h2 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(28px,4vw,42px)', fontWeight:900, textAlign:'center', marginBottom:8 }}>What's Included.</h2></Reveal>
+          <Reveal delay={0.1}><p style={{ fontSize:17, color:'rgba(255,255,255,0.4)', textAlign:'center', maxWidth:480, margin:'0 auto 48px' }}>Every member gets access to tools that power any online business.</p></Reveal>
+
+          <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }}>
+            {[
+              { name:'SuperLink', desc:'Your personal sales page — one link does everything', icon:'🔗' },
+              { name:'AI Campaign Studio', desc:'Generate social posts, emails, ad copy in seconds', icon:'🤖' },
+              { name:'LinkHub', desc:'Your bio link page — all offers, one URL', icon:'🌐' },
+              { name:'SuperPages', desc:'Drag-and-drop landing page builder', icon:'📄' },
+              { name:'Email Autoresponder', desc:'Automated follow-up that converts while you sleep', icon:'📧' },
+              { name:'Training Centre', desc:'Step-by-step from zero to earning', icon:'🎓' },
+            ].map(function(t, i) {
+              return (
+                <Reveal key={i} delay={i * 0.05}>
+                  <div className="hiw-card" style={{ background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:16, padding:'24px 20px', textAlign:'center', transition:'all 0.3s' }}>
+                    <div style={{ fontSize:28, marginBottom:12 }}>{t.icon}</div>
+                    <div style={{ fontFamily:"'Sora',sans-serif", fontSize:15, fontWeight:800, color:'#fff', marginBottom:6 }}>{t.name}</div>
+                    <div style={{ fontSize:13, color:'rgba(255,255,255,0.4)', lineHeight:1.5 }}>{t.desc}</div>
                   </div>
-                </div>
+                </Reveal>
               );
             })}
           </div>
         </div>
+      </section>
 
-        {/* Commission breakdown */}
-        <div style={{ marginBottom: 64 }}>
-          <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 28, fontWeight: 900, marginBottom: 8 }}>How commissions are split</h2>
-          <p style={{ color: 'rgba(255,255,255,0.45)', marginBottom: 32 }}>Every purchase on the platform distributes income across the network automatically.</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 16 }}>
-            {[
-              { pct: '40%', label: 'Direct Sponsor', desc: 'The person who referred the buyer', color: '#38bdf8' },
-              { pct: '50%', label: 'Uni-Level', desc: '8 levels deep at 6.25% each', color: '#818cf8' },
-              { pct: '5%', label: 'Grid Pool', desc: 'Grid completion bonus pool', color: '#10b981' },
-              { pct: '5%', label: 'Platform', desc: 'Running & development costs', color: '#f59e0b' },
-            ].map(function(c) {
-              return (
-                <div key={c.label} style={{ background: 'rgba(255,255,255,0.03)', border: `1px solid ${c.color}25`, borderRadius: 14, padding: '20px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 36, fontWeight: 900, color: c.color, fontFamily: "'Sora',sans-serif", marginBottom: 6 }}>{c.pct}</div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', marginBottom: 4 }}>{c.label}</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{c.desc}</div>
-                </div>
-              );
-            })}
-          </div>
+      {/* ═══ CTA ═══ */}
+      <section style={{ padding:'80px 24px', textAlign:'center' }}>
+        <div style={{ maxWidth:600, margin:'0 auto' }}>
+          <Reveal>
+            <h2 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(30px,5vw,48px)', fontWeight:900, marginBottom:16 }}>
+              Ready to start<br/><span style={{ color:accent }}>earning?</span>
+            </h2>
+          </Reveal>
+          <Reveal delay={0.1}>
+            <p style={{ fontSize:17, color:'rgba(255,255,255,0.4)', marginBottom:32 }}>Free to join. No credit card. Set up in 60 seconds.</p>
+          </Reveal>
+          <Reveal delay={0.2}>
+            <Link to="/register" style={{ display:'inline-block', padding:'20px 56px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:18, fontWeight:800, textDecoration:'none', background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', boxShadow:'0 4px 24px rgba(14,165,233,0.25)', transition:'all 0.3s' }}>Create Your Free Account →</Link>
+          </Reveal>
         </div>
+      </section>
 
-        {/* Crypto payments */}
-        <div style={{ marginBottom: 64 }}>
-          <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 28, fontWeight: 900, marginBottom: 8 }}>Payments &amp; withdrawals</h2>
-          <p style={{ color: 'rgba(255,255,255,0.45)', marginBottom: 32 }}>SuperAdPro uses stablecoins on Polygon — fast, secure, and costs less than 1 cent per transaction.</p>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(200px,1fr))', gap: 16, marginBottom: 28 }}>
-            {[
-              { icon: '🦊', title: 'Free wallet setup', desc: 'Create a MetaMask wallet in 5 minutes. Works worldwide, no bank needed.', color: '#38bdf8' },
-              { icon: '💵', title: 'Pay in USDT or USDC', desc: 'Digital dollars on Polygon. Always worth $1. No currency conversion.', color: '#10b981' },
-              { icon: '⚡', title: 'Instant commissions', desc: 'Earnings credit instantly when referrals pay. Withdraw USDT to your wallet anytime.', color: '#f59e0b' },
-              { icon: '🔒', title: 'You control your money', desc: 'Self-custody wallet. No payment processor can freeze your funds.', color: '#818cf8' },
-            ].map(function(c) {
-              return (
-                <div key={c.title} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: 14, padding: '24px 20px', textAlign: 'center' }}>
-                  <div style={{ fontSize: 28, marginBottom: 10 }}>{c.icon}</div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 4 }}>{c.title}</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>{c.desc}</div>
-                </div>
-              );
-            })}
-          </div>
-          <div style={{ textAlign: 'center' }}>
-            <a href="/wallet-guide" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, border: '1px solid rgba(14,165,233,.3)', color: '#38bdf8', padding: '12px 28px', borderRadius: 10, fontSize: 14, fontWeight: 600, textDecoration: 'none' }}>
-              Full Wallet Setup Guide →
-            </a>
-          </div>
-        </div>
-
-        {/* CTA */}
-        <div style={{ background: 'rgba(14,165,233,0.07)', border: '1px solid rgba(14,165,233,0.15)', borderRadius: 20, padding: '40px', textAlign: 'center' }}>
-          <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 28, fontWeight: 900, margin: '0 0 12px' }}>Ready to get started?</h2>
-          <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: 28 }}>Join free. No credit card required.</p>
-          <Link to="/register" style={{ display: 'inline-block', padding: '14px 36px', borderRadius: 12, background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, textDecoration: 'none', fontFamily: "'Sora',sans-serif" }}>
-            Create Free Account →
-          </Link>
-        </div>
-      </div>
-    </PublicLayout>
+      {/* Footer */}
+      <footer style={{ textAlign:'center', padding:'40px 24px', borderTop:'1px solid rgba(255,255,255,0.04)' }}>
+        <p style={{ fontSize:11, color:'rgba(255,255,255,0.15)', lineHeight:1.7 }}>
+          SuperAdPro · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>Terms</Link> · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>Privacy</Link> · <Link to="/support" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>Support</Link>
+        </p>
+        <p style={{ fontSize:11, color:'rgba(255,255,255,0.1)', marginTop:6 }}>Income figures represent the compensation plan structure. Results depend on individual effort.</p>
+      </footer>
+    </div>
   );
 }
