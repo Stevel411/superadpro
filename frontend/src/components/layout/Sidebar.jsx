@@ -112,6 +112,13 @@ export default function Sidebar({ open, onClose }) {
 
   return (
     <>
+      {/* Sidebar hover styles */}
+      <style>{`
+        .sb-item:hover { background: rgba(255,255,255,0.06) !important; color: #fff !important; }
+        .sb-item:active { background: rgba(255,255,255,0.1) !important; }
+        .sb-item.sb-active:hover { background: rgba(56,189,248,0.12) !important; }
+        .sb-group-hdr:hover { background: rgba(0,200,255,0.08) !important; color: #38bdf8 !important; }
+      `}</style>
       {/* Sidebar panel */}
       <aside style={{
         position: 'fixed',
@@ -160,12 +167,13 @@ export default function Sidebar({ open, onClose }) {
               var Icon = item.icon;
               var active = isActive(item.path);
               return (
-                <Link key={i} to={item.path} style={{
+                <Link key={i} to={item.path} className={'sb-item' + (active ? ' sb-active' : '')} style={{
                   display:'flex', alignItems:'center', gap:10,
                   padding:'10px 20px', fontSize:13.5, fontWeight: active ? 700 : 600,
                   color: active ? '#38bdf8' : 'rgba(255,255,255,0.9)',
                   textDecoration:'none', transition:'all .15s',
                   background: active ? 'rgba(56,189,248,0.08)' : 'transparent',
+                  borderRadius: 8, margin: '1px 8px',
                 }}>
                   <Icon style={{width:16,height:16,flexShrink:0}}/>
                   {item.label}
@@ -178,12 +186,12 @@ export default function Sidebar({ open, onClose }) {
               var isOpen = (item.key in manualOpen) ? manualOpen[item.key] : (hasActiveChild || false);
               return (
                 <div key={i}>
-                  <button onClick={function() { toggle(item.key); }} style={{
+                  <button onClick={function() { toggle(item.key); }} className="sb-group-hdr" style={{
                     width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between',
                     padding:'10px 20px', fontSize:11, fontWeight:700,
                     color:'rgba(56,189,248,0.7)', textTransform:'uppercase', letterSpacing:'0.07em',
                     cursor:'pointer', border:'none', background:'transparent', transition:'all .15s',
-                    fontFamily:'inherit',
+                    fontFamily:'inherit', borderRadius: 8, margin: '1px 0',
                   }}>
                     <span>{item.label}</span>
                     <ChevronRight style={{width:14,height:14,color:'rgba(255,255,255,0.2)',transform:isOpen?'rotate(90deg)':'none',transition:'transform .2s'}}/>
@@ -195,12 +203,13 @@ export default function Sidebar({ open, onClose }) {
                         var isPro = sub.pro && !(user && user.is_admin) && (user?.membership_tier || 'basic') !== 'pro';
                         var subActive = isActive(sub.path);
                         return (
-                          <Link key={j} to={sub.path} style={{
+                          <Link key={j} to={sub.path} className={'sb-item' + (subActive ? ' sb-active' : '')} style={{
                             display:'flex', alignItems:'center', gap:10,
-                            padding:'9px 20px 9px 24px', fontSize:13, fontWeight: subActive ? 700 : 600,
+                            padding:'9px 16px 9px 24px', fontSize:13, fontWeight: subActive ? 700 : 600,
                             color: subActive ? '#38bdf8' : isPro ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.9)',
                             textDecoration:'none', transition:'all .15s',
                             background: subActive ? 'rgba(56,189,248,0.08)' : 'transparent',
+                            borderRadius: 8, margin: '1px 8px',
                           }}>
                             <SubIcon style={{width:15,height:15,flexShrink:0}}/>
                             <span style={{flex:1}}>{sub.label}</span>
