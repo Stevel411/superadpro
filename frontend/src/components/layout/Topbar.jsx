@@ -58,7 +58,7 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
   };
 
   return (
-    <header className="flex items-center justify-between px-5 h-[72px] border-b border-white/5 sticky top-0 z-40 shrink-0" style={{background:'#0f172a'}}>
+    <header className="flex items-center justify-between px-5 h-[72px] border-b border-white/5 sticky top-0 z-40 shrink-0" style={{background:'#1c223d'}}>
       <div className="flex items-center gap-3 min-w-0">
         {/* Hamburger — mobile only */}
         <button
