@@ -173,9 +173,9 @@ export default function Sidebar({ open, onClose }) {
                 <Link key={i} to={item.path} className={'sb-item' + (active ? ' sb-active' : '')} style={{
                   display:'flex', alignItems:'center', gap:10,
                   padding:'10px 20px', fontSize:13.5, fontWeight: active ? 700 : 600,
-                  color: active ? '#38bdf8' : 'rgba(255,255,255,0.9)',
+                  color: '#fff',
                   textDecoration:'none', transition:'all .15s',
-                  background: active ? 'rgba(56,189,248,0.08)' : 'transparent',
+                  background: active ? 'rgba(255,255,255,0.08)' : 'transparent',
                   borderRadius: 8, margin: '1px 8px',
                 }}>
                   <Icon style={{width:16,height:16,flexShrink:0}}/>
