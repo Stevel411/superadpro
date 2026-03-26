@@ -62,7 +62,8 @@ export default function ExplorePage() {
       {/* ═══ HERO + VIDEO ═══ */}
       <section style={{ position:'relative', padding:'140px 24px 60px', overflow:'hidden', textAlign:'center' }}>
         <div style={{ position:'absolute', inset:0 }}>
-          <div style={{ position:'absolute', inset:0, background:'linear-gradient(135deg,#030712 0%,#0a1628 50%,#030712 100%)' }}/>
+          <img src="/static/images/explore-bg.jpg" alt="" style={{ width:'100%', height:'100%', objectFit:'cover', objectPosition:'center' }}/>
+          <div style={{ position:'absolute', inset:0, background:'linear-gradient(180deg,rgba(3,7,18,0.7) 0%,rgba(3,7,18,0.5) 30%,rgba(3,7,18,0.6) 70%,rgba(3,7,18,0.95) 100%)' }}/>
           <Particles />
         </div>
 
