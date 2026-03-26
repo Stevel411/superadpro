@@ -121,7 +121,7 @@ export default function HowItWorks() {
             {[
               { num:'01', title:'Share Your Link', desc:'Every member gets a unique SuperLink. Share it on social media, in messages, via QR code — anywhere. When someone clicks it, they land on your personal sales page.', icon:'🔗', color:'#0ea5e9' },
               { num:'02', title:'Grid Fills Up', desc:'When your referrals join and activate, they fill positions in your 8×8 grid. Each position pays you 6.25%. The grid has 64 slots — and it auto-renews when complete.', icon:'⚡', color:'#fbbf24' },
-              { num:'03', title:'Money Hits Your Wallet', desc:'Commissions are credited instantly. Withdraw to crypto or bank. Four income streams working simultaneously — memberships, grid, courses, and marketplace.', icon:'💰', color:'#10b981' },
+              { num:'03', title:'Money Hits Your Wallet', desc:'Commissions are credited instantly. Withdraw to crypto or bank. Multiple income streams working simultaneously — with more launching soon.', icon:'💰', color:'#10b981' },
             ].map(function(step, i) {
               return (
                 <Reveal key={i} delay={i * 0.15}>
@@ -148,10 +148,10 @@ export default function HowItWorks() {
 
           <div className="hiw-streams" style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:16 }}>
             {[
-              { name:'Membership Commissions', rate:'50%', sub:'recurring monthly', desc:'$10–$29.50 per member, every month they stay active.', color:'#10b981' },
-              { name:'8×8 Profit Grid', rate:'$7,200', sub:'per completed grid', desc:'64 positions × 6.25% each. Eight tiers from $20 to $1,000.', color:'#6366f1' },
-              { name:'Course Marketplace', rate:'100%', sub:'commissions', desc:'Keep every sale. Sales 2,4,6,8 pass up infinitely deep.', color:'#fbbf24' },
-              { name:'SuperMarket', rate:'50/25/25', sub:'creator / affiliate / platform', desc:'Sell digital products. Create once, earn forever.', color:'#0ea5e9' },
+              { name:'Membership Commissions', rate:'50%', sub:'recurring monthly', desc:'$10 per Basic member, $17.50 per Pro member — every month they stay active.', color:'#10b981' },
+              { name:'8×8 Profit Grid', rate:'$7,200+', sub:'per grid cycle at Tier 8', desc:'That\'s just the baseline. Personally refer them and earn up to $32,800 per grid. Eight tiers from $20 to $1,000 — each with its own grid that auto-renews.', color:'#6366f1' },
+              { name:'Course Marketplace', rate:'100%', sub:'commissions · coming soon', desc:'Keep every sale. Sales 2,4,6,8 pass up infinitely deep.', color:'#fbbf24' },
+              { name:'SuperMarket', rate:'50/25/25', sub:'creator / affiliate / platform · coming soon', desc:'Sell digital products. Create once, earn forever.', color:'#0ea5e9' },
             ].map(function(s, i) {
               return (
                 <Reveal key={i} delay={i * 0.1}>
