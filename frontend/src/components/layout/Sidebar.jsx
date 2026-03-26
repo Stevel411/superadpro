@@ -192,7 +192,7 @@ export default function Sidebar({ open, onClose }) {
                   <button onClick={function() { toggle(item.key); }} className="sb-group-hdr" style={{
                     width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between',
                     padding:'10px 20px', fontSize:11, fontWeight:700,
-                    color:'rgba(56,189,248,0.7)', textTransform:'uppercase', letterSpacing:'0.07em',
+                    color:'rgba(255,255,255,0.9)', textTransform:'uppercase', letterSpacing:'0.07em',
                     cursor:'pointer', border:'none', background:'transparent', transition:'all .15s',
                     fontFamily:'inherit', borderRadius: 8, margin: '1px 0',
                   }}>
