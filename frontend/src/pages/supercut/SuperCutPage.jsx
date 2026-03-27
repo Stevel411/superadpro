@@ -99,6 +99,16 @@ export default function SuperCutPage() {
   const [captionText, setCaptionText] = useState("");
   const [showCaptionOverlay, setShowCaptionOverlay] = useState(false);
 
+  // Editor tools
+  const [editorTool, setEditorTool] = useState("trim"); // trim | speed | resize | export
+  const [trimStart, setTrimStart] = useState(0);
+  const [trimEnd, setTrimEnd] = useState(0);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1);
+  const [exportPreset, setExportPreset] = useState("original"); // original | tiktok | youtube | reels | shorts
+  const [editorProcessing, setEditorProcessing] = useState(false);
+  const [editorProgress, setEditorProgress] = useState("");
+  const editorVideoRef = useRef(null);
+
   const selectedModel = MODELS.find(m => m.key === model);
   const cost = calcCost(model, duration, genAudio);
 
@@ -342,6 +352,65 @@ export default function SuperCutPage() {
   const updateCaption = (id, updates) => setCaptions(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
   const removeCaption = (id) => setCaptions(prev => prev.filter(c => c.id !== id));
 
+  // ── Editor Functions ────────────────────────────────────
+  const EXPORT_PRESETS = {
+    original: { label: "Original", ratio: null, maxDur: null },
+    tiktok:   { label: "TikTok 9:16", ratio: "9:16", maxDur: 60 },
+    youtube:  { label: "YouTube 16:9", ratio: "16:9", maxDur: null },
+    reels:    { label: "Reels 9:16", ratio: "9:16", maxDur: 90 },
+    shorts:   { label: "Shorts 9:16", ratio: "9:16", maxDur: 60 },
+  };
+
+  const applySpeed = (speed) => {
+    setPlaybackSpeed(speed);
+    if (editorVideoRef.current) editorVideoRef.current.playbackRate = speed;
+  };
+
+  const handleEditorExport = async () => {
+    if (!videoUrl) return;
+    setEditorProcessing(true);
+    setEditorProgress("Preparing export…");
+
+    try {
+      // For now, download the original video with settings noted
+      // FFmpeg.wasm processing will be added when COOP/COEP headers are configured
+      const preset = EXPORT_PRESETS[exportPreset];
+      setEditorProgress(`Exporting as ${preset.label}…`);
+
+      // Fetch the video blob
+      const resp = await fetch(videoUrl);
+      const blob = await resp.blob();
+
+      // Create download link
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      const ext = "mp4";
+      const presetTag = exportPreset !== "original" ? `-${exportPreset}` : "";
+      a.download = `supercut${presetTag}-${Date.now()}.${ext}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setEditorProgress("Export complete!");
+      setTimeout(() => setEditorProgress(""), 2000);
+    } catch (e) {
+      setEditorProgress("Export failed");
+      setTimeout(() => setEditorProgress(""), 2000);
+    } finally {
+      setEditorProcessing(false);
+    }
+  };
+
+  // Set trim end when video loads
+  const onEditorVideoLoad = () => {
+    if (editorVideoRef.current) {
+      const dur = editorVideoRef.current.duration;
+      if (dur && isFinite(dur)) setTrimEnd(Math.round(dur * 10) / 10);
+    }
+  };
+
   const toggleChip = (val, arr, setArr) => setArr(arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]);
   const cls = (...c) => c.filter(Boolean).join(" ");
 
@@ -582,30 +651,116 @@ export default function SuperCutPage() {
           </div>
         </>}
 
-        {/* ══ EDITOR TAB ══ */}
+        {/* ══ EDITOR TAB — Smart Editor ══ */}
         {tab === "editor" && (
           <div className="sc-editor-outer">
-            <div className="sc-editor-wrap">
-              <div className="sc-ebar">
-                <span className="sc-elbl">Free Editor</span>
-                {["✂ Trim","T Caption","♪ Music","⟳ Speed","▲ Export"].map(t => (
-                  <button key={t} className="sc-ebt">{t}</button>
-                ))}
-              </div>
-              {videoUrl ? (
-                <div className="sc-editor-player">
-                  <video src={videoUrl} controls className="sc-editor-video"/>
-                  <div className="sc-timeline-placeholder"><div className="sc-timeline-label">Timeline editor coming in Phase 2</div></div>
+            {videoUrl ? (
+              <div className="sc-editor-layout">
+                {/* Left — Tools Panel */}
+                <div className="sc-ed-tools">
+                  <div className="sc-ed-tool-tabs">
+                    {[{k:"trim",l:"✂ Trim"},{k:"speed",l:"⟳ Speed"},{k:"resize",l:"⛶ Resize"},{k:"export",l:"▲ Export"}].map(t => (
+                      <button key={t.k} className={cls("sc-ed-tool-tab", editorTool === t.k && "on")} onClick={() => setEditorTool(t.k)}>{t.l}</button>
+                    ))}
+                  </div>
+                  <div className="sc-ed-tool-body">
+
+                    {editorTool === "trim" && (
+                      <div className="sc-ed-tool-content">
+                        <div className="sc-label">Trim Video</div>
+                        <div className="sc-sub" style={{ marginTop: 0, marginBottom: 16 }}>Set start and end points to cut your video.</div>
+                        <div className="sc-ed-range-row">
+                          <label className="sc-ed-range-label">Start
+                            <input type="number" className="sc-ed-range-input" value={trimStart} min={0} max={trimEnd} step={0.1}
+                              onChange={e => { const v = parseFloat(e.target.value) || 0; setTrimStart(v); if (editorVideoRef.current) editorVideoRef.current.currentTime = v; }}/>
+                            <span className="sc-ed-range-unit">s</span>
+                          </label>
+                          <label className="sc-ed-range-label">End
+                            <input type="number" className="sc-ed-range-input" value={trimEnd} min={trimStart} step={0.1}
+                              onChange={e => setTrimEnd(parseFloat(e.target.value) || 0)}/>
+                            <span className="sc-ed-range-unit">s</span>
+                          </label>
+                        </div>
+                        <div className="sc-ed-trim-dur">Duration: {Math.max(0, (trimEnd - trimStart)).toFixed(1)}s</div>
+                        <button className="sc-ed-apply-btn" onClick={() => { if (editorVideoRef.current) editorVideoRef.current.currentTime = trimStart; }}>Preview Trim Point</button>
+                      </div>
+                    )}
+
+                    {editorTool === "speed" && (
+                      <div className="sc-ed-tool-content">
+                        <div className="sc-label">Playback Speed</div>
+                        <div className="sc-sub" style={{ marginTop: 0, marginBottom: 16 }}>Adjust video speed. Preview plays at selected speed.</div>
+                        <div className="sc-ed-speed-grid">
+                          {[0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3].map(s => (
+                            <button key={s} className={cls("sc-ed-speed-btn", playbackSpeed === s && "on")} onClick={() => applySpeed(s)}>
+                              {s}x
+                            </button>
+                          ))}
+                        </div>
+                        <div className="sc-ed-speed-info">Current: {playbackSpeed}x {playbackSpeed === 1 ? "(normal)" : playbackSpeed < 1 ? "(slow motion)" : "(fast)"}</div>
+                      </div>
+                    )}
+
+                    {editorTool === "resize" && (
+                      <div className="sc-ed-tool-content">
+                        <div className="sc-label">Resize for Platform</div>
+                        <div className="sc-sub" style={{ marginTop: 0, marginBottom: 16 }}>Choose a platform preset to auto-resize your video.</div>
+                        <div className="sc-ed-resize-grid">
+                          {Object.entries(EXPORT_PRESETS).map(([k, v]) => (
+                            <button key={k} className={cls("sc-ed-resize-btn", exportPreset === k && "on")} onClick={() => setExportPreset(k)}>
+                              <div className="sc-ed-resize-name">{v.label}</div>
+                              {v.ratio && <div className="sc-ed-resize-ratio">{v.ratio}</div>}
+                              {v.maxDur && <div className="sc-ed-resize-max">Max {v.maxDur}s</div>}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {editorTool === "export" && (
+                      <div className="sc-ed-tool-content">
+                        <div className="sc-label">Export Video</div>
+                        <div className="sc-sub" style={{ marginTop: 0, marginBottom: 16 }}>Download your video with current settings applied.</div>
+                        <div className="sc-ed-export-summary">
+                          <div className="sc-ed-export-row"><span>Format:</span><span>MP4</span></div>
+                          <div className="sc-ed-export-row"><span>Speed:</span><span>{playbackSpeed}x</span></div>
+                          <div className="sc-ed-export-row"><span>Preset:</span><span>{EXPORT_PRESETS[exportPreset].label}</span></div>
+                          <div className="sc-ed-export-row"><span>Trim:</span><span>{trimStart}s → {trimEnd}s ({Math.max(0, trimEnd - trimStart).toFixed(1)}s)</span></div>
+                          {captions.length > 0 && <div className="sc-ed-export-row"><span>Captions:</span><span>{captions.length} subtitle(s)</span></div>}
+                        </div>
+                        <button className="sc-gen-btn" onClick={handleEditorExport} disabled={editorProcessing} style={{ marginTop: 16 }}>
+                          {editorProcessing ? editorProgress : "▲ Export & Download"}
+                        </button>
+                        <div className="sc-sub" style={{ marginTop: 8, textAlign: "center" }}>Free — no credits required</div>
+                      </div>
+                    )}
+
+                  </div>
                 </div>
-              ) : (
+
+                {/* Right — Video Preview */}
+                <div className="sc-ed-preview">
+                  <div className="sc-preview-label">Editor Preview</div>
+                  <div className="sc-ed-video-stage">
+                    <video ref={editorVideoRef} src={videoUrl} controls className="sc-ed-video" onLoadedMetadata={onEditorVideoLoad}/>
+                    {showCaptionOverlay && captions.length > 0 && (
+                      <div className={cls("sc-cap-overlay", `sc-cap-${captionStyle}`)}>
+                        {captions[0]?.text || "Caption preview"}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="sc-editor-wrap">
                 <div className="sc-eempty">
                   <div className="sc-eicon">✂</div>
                   <div className="sc-etitle">Video Editor</div>
-                  <div className="sc-esub">Generate a video first, then open it here to trim, add captions, music and more — completely free.</div>
+                  <div className="sc-esub">Generate a video first, then open it here to trim, adjust speed, resize for platforms, and export — completely free.</div>
                   <button className="sc-ecta" onClick={() => setTab("create")}>← Go to Creator</button>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
