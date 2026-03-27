@@ -1789,7 +1789,12 @@ try:
         conn.commit()
         print("✅ Team messages table added")
 
-        # ── SuperCut tables ──────────────────────────────────────
+except Exception as e:
+    print(f"⚠️ Force migration note: {e}")
+
+# ── SuperCut tables (own block so earlier failures don't skip these) ──
+try:
+    with engine.connect() as conn:
         conn.execute(text("""
             CREATE TABLE IF NOT EXISTS supercut_credits (
                 id SERIAL PRIMARY KEY,
