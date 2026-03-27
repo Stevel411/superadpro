@@ -1847,6 +1847,20 @@ try:
 except Exception as e:
     print(f"⚠️ Force migration note: {e}")
 
+# ── Always-run: ensure SAP-00001 has at least 500 SuperCut credits ──
+try:
+    with engine.connect() as conn:
+        conn.execute(text("""
+            INSERT INTO supercut_credits (user_id, balance)
+            VALUES (1, 500)
+            ON CONFLICT (user_id) DO UPDATE
+              SET balance = GREATEST(supercut_credits.balance, 500)
+        """))
+        conn.commit()
+        print("✅ SuperCut: SAP-00001 credit floor confirmed (500)")
+except Exception as e:
+    print(f"⚠️ SuperCut seed note: {e}")
+
 
 # ─────────────────────────────────────────────
 # SuperCut Models
