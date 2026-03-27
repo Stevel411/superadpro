@@ -87,11 +87,15 @@ export default function SuperScenePage() {
   const [styleRefs, setStyleRefs] = useState([]); // [{file, preview, url, uploading}]
   const styleRefInput = useRef(null);
 
-  // Storyboard
-  const [sbScenes, setSbScenes] = useState([{ id: 1, prompt: "", duration: 5, model: "kling3", status: "draft", videoUrl: null, taskId: null, progress: 0 }]);
-  const [sbGenerating, setSbGenerating] = useState(null); // scene id currently generating
+  // Storyboard (extend from last frame)
+  const [sbScenes, setSbScenes] = useState([]); // [{id, prompt, duration, model, status, videoUrl, taskId, progress, frameUrl}]
+  const [sbGenerating, setSbGenerating] = useState(false);
+  const [sbPrompt, setSbPrompt] = useState("");
+  const [sbDuration, setSbDuration] = useState(5);
+  const [sbModel, setSbModel] = useState("kling3");
   const sbPollRef = useRef(null);
   const sbProgRef = useRef(null);
+  const sbCanvasRef = useRef(null);
 
   // Captions
   const [captions, setCaptions] = useState([]); // [{id, start, end, text}]
@@ -301,22 +305,51 @@ export default function SuperScenePage() {
   };
   const removeStyleRef = (id) => setStyleRefs(prev => prev.filter(r => r.id !== id));
 
-  // ── Storyboard Functions ───────────────────────────────
-  const sbAddScene = () => {
-    const nextId = Math.max(...sbScenes.map(s => s.id), 0) + 1;
-    setSbScenes(prev => [...prev, { id: nextId, prompt: "", duration: 5, model: model, status: "draft", videoUrl: null, taskId: null, progress: 0 }]);
+  // ── Storyboard: Extend from Last Frame ──────────────────
+  const extractLastFrame = (videoUrl) => {
+    return new Promise((resolve, reject) => {
+      const video = document.createElement("video");
+      video.crossOrigin = "anonymous";
+      video.src = videoUrl;
+      video.muted = true;
+      video.onloadeddata = () => {
+        video.currentTime = video.duration - 0.1;
+      };
+      video.onseeked = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = video.videoWidth;
+          canvas.height = video.videoHeight;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(video, 0, 0);
+          canvas.toBlob(async (blob) => {
+            if (!blob) { reject("Failed to extract frame"); return; }
+            // Upload to R2
+            const fd = new FormData();
+            fd.append("file", blob, "lastframe.jpg");
+            try {
+              const res = await fetch("/api/superscene/upload-image", { method: "POST", body: fd });
+              const data = await res.json();
+              if (data.success && data.file_url) resolve(data.file_url);
+              else reject("Frame upload failed");
+            } catch (e) { reject(e); }
+          }, "image/jpeg", 0.92);
+        } catch (e) { reject(e); }
+      };
+      video.onerror = () => reject("Video load failed");
+      video.load();
+    });
   };
-  const sbUpdateScene = (id, updates) => setSbScenes(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
-  const sbRemoveScene = (id) => { if (sbScenes.length > 1) setSbScenes(prev => prev.filter(s => s.id !== id)); };
 
-  const sbGenerate = async (sceneId) => {
-    const scene = sbScenes.find(s => s.id === sceneId);
-    if (!scene || !scene.prompt.trim()) return;
-    const sceneCost = calcCost(scene.model, scene.duration, false);
+  const sbGenerate = async () => {
+    if (!sbPrompt.trim() || sbGenerating) return;
+    const sceneCost = calcCost(sbModel, sbDuration, false);
     if (credits < sceneCost) { alert(`Need ${sceneCost} credits, have ${credits}`); return; }
 
-    setSbGenerating(sceneId);
-    sbUpdateScene(sceneId, { status: "generating", progress: 0 });
+    setSbGenerating(true);
+    const sceneId = Date.now();
+    const newScene = { id: sceneId, prompt: sbPrompt, duration: sbDuration, model: sbModel, status: "generating", videoUrl: null, taskId: null, progress: 0, frameUrl: null };
+    setSbScenes(prev => [...prev, newScene]);
 
     // Fake progress
     if (sbProgRef.current) clearInterval(sbProgRef.current);
@@ -324,36 +357,58 @@ export default function SuperScenePage() {
       setSbScenes(prev => prev.map(s => s.id === sceneId ? { ...s, progress: Math.min(s.progress + Math.random() * 2 + 0.5, 85) } : s));
     }, 400);
 
-    // Find previous scene's video URL for chaining
-    const sceneIdx = sbScenes.findIndex(s => s.id === sceneId);
-    const prevScene = sceneIdx > 0 ? sbScenes[sceneIdx - 1] : null;
-    const chainImageUrls = prevScene?.videoUrl ? [] : []; // TODO: extract last frame for chaining
-
     try {
-      const payload = { model_key: scene.model, prompt: scene.prompt, duration: scene.duration, ratio };
+      // If there's a previous completed scene, extract its last frame
+      const lastCompleted = [...sbScenes].reverse().find(s => s.status === "completed" && s.videoUrl);
+      let imageUrls = [];
+      if (lastCompleted) {
+        try {
+          const frameUrl = await extractLastFrame(lastCompleted.videoUrl);
+          imageUrls = [frameUrl];
+          setSbScenes(prev => prev.map(s => s.id === sceneId ? { ...s, frameUrl } : s));
+        } catch (e) {
+          console.warn("Could not extract last frame, generating without:", e);
+        }
+      }
+
+      const payload = { model_key: sbModel, prompt: sbPrompt, duration: sbDuration, ratio };
+      if (imageUrls.length > 0) payload.image_urls = imageUrls;
+
       const res = await fetch("/api/superscene/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const data = await res.json();
-      if (!res.ok) { sbUpdateScene(sceneId, { status: "failed" }); clearInterval(sbProgRef.current); setSbGenerating(null); return; }
+      if (!res.ok) {
+        setSbScenes(prev => prev.map(s => s.id === sceneId ? { ...s, status: "failed" } : s));
+        clearInterval(sbProgRef.current); setSbGenerating(false);
+        alert(data.detail || "Generation failed");
+        return;
+      }
       setCredits(data.credits_remaining);
-      sbUpdateScene(sceneId, { taskId: data.task_id });
+      setSbScenes(prev => prev.map(s => s.id === sceneId ? { ...s, taskId: data.task_id } : s));
 
-      // Poll for this scene
+      // Poll
       if (sbPollRef.current) clearInterval(sbPollRef.current);
       sbPollRef.current = setInterval(async () => {
         try {
           const pr = await fetch(`/api/superscene/status/${data.task_id}`);
           const pd = await pr.json();
           if (pd.status === "completed" && pd.video_url) {
-            sbUpdateScene(sceneId, { status: "completed", videoUrl: pd.video_url, progress: 100 });
-            clearInterval(sbPollRef.current); clearInterval(sbProgRef.current); setSbGenerating(null);
+            setSbScenes(prev => prev.map(s => s.id === sceneId ? { ...s, status: "completed", videoUrl: pd.video_url, progress: 100 } : s));
+            clearInterval(sbPollRef.current); clearInterval(sbProgRef.current); setSbGenerating(false);
+            setSbPrompt("");
             fetch("/api/superscene/credits").then(r => r.json()).then(d => setCredits(d.balance || 0));
           } else if (pd.status === "failed") {
-            sbUpdateScene(sceneId, { status: "failed" }); clearInterval(sbPollRef.current); clearInterval(sbProgRef.current); setSbGenerating(null);
+            setSbScenes(prev => prev.map(s => s.id === sceneId ? { ...s, status: "failed" } : s));
+            clearInterval(sbPollRef.current); clearInterval(sbProgRef.current); setSbGenerating(false);
           }
         } catch {}
       }, 3000);
-    } catch { sbUpdateScene(sceneId, { status: "failed" }); clearInterval(sbProgRef.current); setSbGenerating(null); }
+    } catch (e) {
+      setSbScenes(prev => prev.map(s => s.id === sceneId ? { ...s, status: "failed" } : s));
+      clearInterval(sbProgRef.current); setSbGenerating(false);
+    }
   };
+
+  const sbRemoveScene = (id) => setSbScenes(prev => prev.filter(s => s.id !== id));
 
   // ── Captions Functions ─────────────────────────────────
   const addCaption = () => {
@@ -1089,67 +1144,115 @@ export default function SuperScenePage() {
           </div>
         )}
 
-        {/* ══ STORYBOARD TAB ══ */}
+        {/* ══ STORYBOARD TAB — Extend from Last Frame ══ */}
         {tab === "storyboard" && (
           <div className="sc-storyboard-view">
             <div className="sc-sb-header">
               <div>
                 <div className="sc-label" style={{ marginBottom: 4 }}>Storyboard</div>
-                <div className="sc-sub" style={{ marginTop: 0 }}>Build multi-scene videos. Generate each scene, then stitch them together.</div>
+                <div className="sc-sub" style={{ marginTop: 0 }}>Extend your video scene by scene. Each new scene starts from the last frame of the previous one for visual continuity.</div>
               </div>
-              <button className="sc-sb-add-btn" onClick={sbAddScene}>+ Add Scene</button>
             </div>
-            <div className="sc-sb-scenes">
-              {sbScenes.map((scene, idx) => (
-                <div key={scene.id} className={cls("sc-sb-scene", scene.status === "completed" && "done", scene.status === "generating" && "active")}>
-                  <div className="sc-sb-scene-head">
-                    <span className="sc-sb-scene-num">Scene {idx + 1}</span>
-                    <div className="sc-sb-scene-controls">
-                      <select className="sc-sb-model-sel" value={scene.model} onChange={e => sbUpdateScene(scene.id, { model: e.target.value })} disabled={scene.status === "generating"}>
-                        {MODELS.map(m => <option key={m.key} value={m.key}>{m.name}</option>)}
-                      </select>
-                      <select className="sc-sb-dur-sel" value={scene.duration} onChange={e => sbUpdateScene(scene.id, { duration: parseInt(e.target.value) })} disabled={scene.status === "generating"}>
-                        {DURATIONS.map(d => <option key={d} value={d}>{d}s</option>)}
-                      </select>
-                      {sbScenes.length > 1 && <button className="sc-sb-remove" onClick={() => sbRemoveScene(scene.id)} disabled={scene.status === "generating"}>✕</button>}
+
+            {/* Timeline of completed + generating scenes */}
+            {sbScenes.length > 0 && (
+              <div className="sc-sb-timeline">
+                {sbScenes.map((scene, idx) => (
+                  <div key={scene.id} className={cls("sc-sb-scene", scene.status === "completed" && "done", scene.status === "generating" && "active", scene.status === "failed" && "fail")}>
+                    <div className="sc-sb-scene-head">
+                      <span className="sc-sb-scene-num">Scene {idx + 1}</span>
+                      <div className="sc-sb-scene-controls">
+                        <span className="sc-sb-scene-meta">{MODELS.find(m => m.key === scene.model)?.name} · {scene.duration}s</span>
+                        {scene.status !== "generating" && <button className="sc-sb-remove" onClick={() => sbRemoveScene(scene.id)} title="Remove">✕</button>}
+                      </div>
                     </div>
-                  </div>
-                  <textarea className="sc-sb-prompt" placeholder={`Describe scene ${idx + 1}…`}
-                    value={scene.prompt} onChange={e => sbUpdateScene(scene.id, { prompt: e.target.value })}
-                    disabled={scene.status === "generating"}/>
-                  <div className="sc-sb-scene-footer">
-                    <span className="sc-sb-cost">Cost: {calcCost(scene.model, scene.duration, false)} credits</span>
-                    {scene.status === "draft" && <button className="sc-sb-gen-btn" onClick={() => sbGenerate(scene.id)} disabled={!scene.prompt.trim() || sbGenerating !== null}>Generate</button>}
+                    <div className="sc-sb-prompt-display">{scene.prompt}</div>
+
                     {scene.status === "generating" && (
                       <div className="sc-sb-progress">
                         <div className="sc-sb-prog-bar"><div className="sc-sb-prog-fill" style={{ width: `${scene.progress}%` }}/></div>
                         <span className="sc-sb-prog-pct">{Math.round(scene.progress)}%</span>
                       </div>
                     )}
-                    {scene.status === "completed" && (
-                      <div className="sc-sb-done-actions">
-                        <span className="sc-sb-done-check">✓ Done</span>
-                        <button className="sc-sb-preview-btn" onClick={() => { setVideoUrl(scene.videoUrl); setTab("create"); }}>Preview</button>
+
+                    {scene.status === "completed" && scene.videoUrl && (
+                      <div className="sc-sb-scene-preview">
+                        <video src={scene.videoUrl} className="sc-sb-video" controls/>
+                        <div className="sc-sb-done-actions">
+                          <span className="sc-sb-done-check">✓ Done</span>
+                          <button className="sc-sa-btn" onClick={() => downloadVideo(scene.videoUrl, `superscene-scene-${idx+1}.mp4`)}>⬇ Download</button>
+                        </div>
                       </div>
                     )}
+
                     {scene.status === "failed" && (
                       <div className="sc-sb-fail">
-                        <span style={{ color: "#f87171" }}>✕ Failed</span>
-                        <button className="sc-sb-gen-btn" onClick={() => { sbUpdateScene(scene.id, { status: "draft" }); }}>Retry</button>
+                        <span style={{ color: "#f87171" }}>✕ Generation failed</span>
+                      </div>
+                    )}
+
+                    {/* Connector arrow between scenes */}
+                    {idx < sbScenes.length - 1 && scene.status === "completed" && (
+                      <div className="sc-sb-connector">
+                        <div className="sc-sb-connector-line"/>
+                        <div className="sc-sb-connector-label">Last frame → Next scene</div>
                       </div>
                     )}
                   </div>
-                  {scene.status === "completed" && scene.videoUrl && (
-                    <div className="sc-sb-scene-preview">
-                      <video src={scene.videoUrl} className="sc-sb-video" controls/>
-                    </div>
-                  )}
+                ))}
+              </div>
+            )}
+
+            {/* Empty state */}
+            {sbScenes.length === 0 && !sbGenerating && (
+              <div className="sc-sb-empty">
+                <div className="s-icon">🎬</div>
+                <div className="s-title">Start your storyboard</div>
+                <div className="s-sub">Write a prompt for your first scene below. Each new scene will extend from the last frame of the previous one.</div>
+              </div>
+            )}
+
+            {/* Input for next scene */}
+            <div className="sc-sb-input-area">
+              <div className="sc-sb-input-header">
+                <div className="sc-label" style={{ marginBottom: 0 }}>
+                  {sbScenes.length === 0 ? "Scene 1 — First Scene" : `Scene ${sbScenes.length + 1} — Extend from Scene ${sbScenes.length}`}
                 </div>
-              ))}
+                {sbScenes.length > 0 && sbScenes[sbScenes.length - 1]?.status === "completed" && (
+                  <div className="sc-sb-chain-badge">🔗 Chaining from last frame</div>
+                )}
+              </div>
+
+              <textarea className="sc-sb-prompt-input" rows={3}
+                placeholder={sbScenes.length === 0
+                  ? "Describe your first scene… e.g. A cinematic sunset over the ocean, golden light, slow camera pan"
+                  : "Describe what happens next… The camera continues to the same characters now walking along the beach"}
+                value={sbPrompt} onChange={e => setSbPrompt(e.target.value)}
+                disabled={sbGenerating}/>
+
+              <div className="sc-sb-input-controls">
+                <div className="sc-sb-input-settings">
+                  <select className="sc-sb-model-sel" value={sbModel} onChange={e => setSbModel(e.target.value)} disabled={sbGenerating}>
+                    {MODELS.map(m => <option key={m.key} value={m.key}>{m.name}</option>)}
+                  </select>
+                  <select className="sc-sb-dur-sel" value={sbDuration} onChange={e => setSbDuration(parseInt(e.target.value))} disabled={sbGenerating}>
+                    {DURATIONS.map(d => <option key={d} value={d}>{d}s</option>)}
+                  </select>
+                  <span className="sc-sb-cost-label">{calcCost(sbModel, sbDuration, false)} credits</span>
+                </div>
+                <button className="sc-gen-btn" style={{ maxWidth: 220 }} onClick={sbGenerate}
+                  disabled={!sbPrompt.trim() || sbGenerating}>
+                  {sbGenerating ? "Generating…" : sbScenes.length === 0 ? "▶ Generate First Scene" : "▶ Extend Scene"}
+                </button>
+              </div>
             </div>
-            <div className="sc-sb-footer-info">
-              <div className="sc-sub">Total: {sbScenes.length} scenes · {sbScenes.reduce((a, s) => a + s.duration, 0)}s · {sbScenes.reduce((a, s) => a + calcCost(s.model, s.duration, false), 0)} credits</div>
-            </div>
+
+            {/* Total summary */}
+            {sbScenes.length > 0 && (
+              <div className="sc-sb-footer-info">
+                <div className="sc-sub">Total: {sbScenes.filter(s => s.status === "completed").length}/{sbScenes.length} scenes · {sbScenes.filter(s => s.status === "completed").reduce((a, s) => a + s.duration, 0)}s of video</div>
+              </div>
+            )}
           </div>
         )}
 
