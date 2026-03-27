@@ -1,16 +1,16 @@
 """
 SuperScene — EvoLink API Integration
-AI Video Generation via EvoLink (aggregates Kling 3.0, Seedance 2.0, Sora 2 Pro, Veo 3.1)
+AI Video Generation via EvoLink
 Base URL: https://api.evolink.ai/v1
+File Upload: https://files-api.evolink.ai
 Auth: Bearer token (EVOLINK_API_KEY env var)
-Format: OpenAI-compatible
 
-Supports:
-  - Text-to-Video (all models)
-  - Image-to-Video (all models)
-  - Style References (Veo 3.1 REFERENCE mode, Seedance 2.0 multi-ref)
-  - AI Audio generation (Seedance 2.0, Veo 3.1)
-  - Storyboard: generate scenes individually, chain via last-frame-as-first
+Documented endpoints (verified against EvoLink docs):
+  - POST /v1/videos/generations  → submit video generation task
+  - GET  /v1/tasks/{task_id}     → poll task status
+  - POST https://files-api.evolink.ai/upload → upload files
+
+Models: kling-v3, seedance-2-0, sora-2-pro, veo-3.1
 """
 import os
 import logging
@@ -21,10 +21,12 @@ logger = logging.getLogger("superadpro.superscene")
 
 EVOLINK_API_KEY = os.getenv("EVOLINK_API_KEY", "")
 EVOLINK_BASE_URL = "https://api.evolink.ai/v1"
+EVOLINK_FILES_URL = "https://files-api.evolink.ai"
 
+# Model ID mapping — verified against EvoLink docs
 MODEL_MAP = {
     "kling3":    "kling-v3",
-    "seedance2": "seedance-2.0",
+    "seedance2": "seedance-2-0",
     "sora2":     "sora-2-pro",
     "veo31":     "veo-3.1",
 }
@@ -40,7 +42,6 @@ AUDIO_EXTRA_PER_5S = 1
 
 I2V_SUPPORTED = {"kling3", "seedance2", "sora2", "veo31"}
 AUDIO_SUPPORTED = {"seedance2", "veo31"}
-# Style reference: Veo supports REFERENCE mode (up to 3 images), Seedance supports multi-ref
 STYLE_REF_SUPPORTED = {"seedance2", "veo31"}
 STYLE_REF_MAX = {"seedance2": 9, "veo31": 3}
 
@@ -85,11 +86,8 @@ async def generate_video(
 ) -> dict:
     """
     Submit a video generation task to EvoLink.
-    Modes:
-      - TEXT: prompt only
-      - Image-to-Video: prompt + image_urls (first frame)
-      - REFERENCE: prompt + style_refs (style guidance, Veo/Seedance)
-      - FIRST&LAST: prompt + 2 image_urls (start + end frame, Veo)
+    Endpoint: POST /v1/videos/generations
+    Returns: {success, task_id, mode} or {success, error}
     """
     if not EVOLINK_API_KEY:
         return {"success": False, "error": "EvoLink API key not configured"}
@@ -133,15 +131,18 @@ async def generate_video(
     # Audio generation
     if generate_audio and model_key in AUDIO_SUPPORTED:
         payload["generate_audio"] = True
+        payload["audio"] = True  # some models use 'audio' param
 
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.post(
-                f"{EVOLINK_BASE_URL}/video/generations",
+                f"{EVOLINK_BASE_URL}/videos/generations",
                 json=payload,
                 headers=_headers(),
             )
             data = resp.json()
+
+        logger.info(f"EvoLink generate response ({resp.status_code}): {data}")
 
         if resp.status_code in (200, 201):
             task_id = data.get("id") or data.get("task_id")
@@ -149,7 +150,14 @@ async def generate_video(
                 return {"success": True, "task_id": str(task_id), "mode": mode}
             return {"success": False, "error": "No task_id in response", "raw": data}
 
-        return {"success": False, "error": data.get("error", {}).get("message", "EvoLink error"), "status": resp.status_code}
+        err_msg = "EvoLink error"
+        if isinstance(data.get("error"), dict):
+            err_msg = data["error"].get("message", err_msg)
+        elif isinstance(data.get("error"), str):
+            err_msg = data["error"]
+        elif data.get("message"):
+            err_msg = data["message"]
+        return {"success": False, "error": err_msg, "status": resp.status_code}
 
     except httpx.TimeoutException:
         return {"success": False, "error": "EvoLink request timed out"}
@@ -158,11 +166,11 @@ async def generate_video(
         return {"success": False, "error": str(e)}
 
 
-EVOLINK_FILES_URL = "https://files-api.evolink.ai"
-
-
 async def upload_image(image_data: bytes, filename: str, content_type: str) -> dict:
-    """Upload an image to EvoLink file hosting for I2V or style refs."""
+    """
+    Upload an image to EvoLink file hosting for I2V or style refs.
+    Endpoint: POST https://files-api.evolink.ai/upload
+    """
     if not EVOLINK_API_KEY:
         return {"success": False, "error": "EvoLink API key not configured"}
     try:
@@ -173,39 +181,69 @@ async def upload_image(image_data: bytes, filename: str, content_type: str) -> d
                 files={"file": (filename, image_data, content_type)},
             )
             data = resp.json()
+
+        logger.info(f"EvoLink upload response ({resp.status_code}): {data}")
+
         if resp.status_code in (200, 201):
-            file_url = data.get("url") or data.get("file_url") or data.get("data", {}).get("url")
+            # Try multiple response formats
+            file_url = (
+                data.get("url")
+                or data.get("file_url")
+                or data.get("data", {}).get("url")
+                or data.get("data", {}).get("file_url")
+            )
             if file_url:
                 return {"success": True, "file_url": file_url}
             return {"success": False, "error": "No file_url in response", "raw": data}
-        return {"success": False, "error": data.get("error", {}).get("message", f"Upload failed ({resp.status_code})"), "status": resp.status_code, "raw": data}
+
+        err_msg = f"Upload failed ({resp.status_code})"
+        if isinstance(data.get("error"), dict):
+            err_msg = data["error"].get("message", err_msg)
+        elif isinstance(data.get("error"), str):
+            err_msg = data["error"]
+        elif data.get("message"):
+            err_msg = data["message"]
+        return {"success": False, "error": err_msg, "status": resp.status_code, "raw": data}
+
     except Exception as e:
         logger.exception("EvoLink upload_image error")
         return {"success": False, "error": str(e)}
 
 
 async def poll_status(task_id: str) -> dict:
-    """Poll EvoLink for video generation status."""
+    """
+    Poll EvoLink for video generation status.
+    Endpoint: GET /v1/tasks/{task_id}
+    Returns: {success, status, video_url} or {success, error}
+    """
     if not EVOLINK_API_KEY:
         return {"success": False, "error": "EvoLink API key not configured"}
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
             resp = await client.get(
-                f"{EVOLINK_BASE_URL}/video/generations/{task_id}",
+                f"{EVOLINK_BASE_URL}/tasks/{task_id}",
                 headers=_headers(),
             )
             data = resp.json()
+
         if resp.status_code == 200:
             status = data.get("status", "pending")
             video_url = None
+
             if status == "completed":
+                # EvoLink docs: result is in results[0] or various locations
+                results = data.get("results") or []
                 video_url = (
-                    data.get("video_url")
+                    (results[0] if results else None)
+                    or data.get("video_url")
                     or data.get("output", {}).get("url")
                     or (data.get("choices") or [{}])[0].get("video", {}).get("url")
                 )
+
             return {"success": True, "status": status, "video_url": video_url, "raw": data}
+
         return {"success": False, "error": f"EvoLink poll error: {resp.status_code}"}
+
     except Exception as e:
         logger.exception("EvoLink poll_status error")
         return {"success": False, "error": str(e)}
