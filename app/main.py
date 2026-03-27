@@ -17765,6 +17765,25 @@ async def supercut_page(request: Request):
     return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
 
 
+@app.post("/api/supercut/admin/grant-credits")
+async def sc_admin_grant_credits(request: Request, db: Session = Depends(get_db)):
+    """Admin-only: grant SuperCut credits to a user for testing."""
+    user = get_current_user(request, db)
+    if not user or not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+    body = await request.json()
+    target_id = int(body.get("user_id", user.id))
+    amount = int(body.get("amount", 100))
+    if amount < 1 or amount > 5000:
+        raise HTTPException(status_code=400, detail="Amount must be 1-5000")
+    row = _get_or_create_sc_credits(target_id, db)
+    row.balance += amount
+    db.commit()
+    db.refresh(row)
+    logger.warning(f"SuperCut ADMIN: granted {amount} credits to user {target_id} (new balance: {row.balance})")
+    return {"success": True, "user_id": target_id, "granted": amount, "new_balance": row.balance}
+
+
 @app.get("/api/supercut/credits")
 async def sc_get_credits(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
