@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import "./supercut.css";
+import "./superscene.css";
 
 // ── Constants ──────────────────────────────────────────────
 const MODELS = [
@@ -37,7 +37,7 @@ function calcCost(modelKey, dur, withAudio) {
 }
 
 // ── Main Component ─────────────────────────────────────────
-export default function SuperCutPage() {
+export default function SuperScenePage() {
   const [tab, setTab]           = useState("create");
   const [dark, setDark]         = useState(true);
   const [helpOpen, setHelpOpen] = useState(false);
@@ -114,20 +114,20 @@ export default function SuperCutPage() {
 
   // ── Fetch credits on mount ─────────────────────────────
   useEffect(() => {
-    fetch("/api/supercut/credits")
+    fetch("/api/superscene/credits")
       .then(r => r.json())
       .then(d => { setCredits(d.balance || 0); setLoadingCredits(false); })
       .catch(() => setLoadingCredits(false));
     fetchVideos();
     const params = new URLSearchParams(window.location.search);
     if (params.get("pack_success")) {
-      fetch("/api/supercut/credits").then(r => r.json()).then(d => setCredits(d.balance || 0));
-      window.history.replaceState({}, "", "/supercut");
+      fetch("/api/superscene/credits").then(r => r.json()).then(d => setCredits(d.balance || 0));
+      window.history.replaceState({}, "", "/superscene");
     }
   }, []);
 
   const fetchVideos = () => {
-    fetch("/api/supercut/videos").then(r => r.json()).then(d => setVideos(d.videos || []));
+    fetch("/api/superscene/videos").then(r => r.json()).then(d => setVideos(d.videos || []));
   };
 
   // ── Polling ────────────────────────────────────────────
@@ -135,7 +135,7 @@ export default function SuperCutPage() {
     if (pollRef.current) clearInterval(pollRef.current);
     pollRef.current = setInterval(async () => {
       try {
-        const res = await fetch(`/api/supercut/status/${tid}`);
+        const res = await fetch(`/api/superscene/status/${tid}`);
         const data = await res.json();
         setGenStatus(data.status);
         if (data.status === "completed" && data.video_url) {
@@ -145,7 +145,7 @@ export default function SuperCutPage() {
           clearInterval(fakeProgRef.current);
           setGenProgress(100);
           fetchVideos();
-          fetch("/api/supercut/credits").then(r => r.json()).then(d => setCredits(d.balance || 0));
+          fetch("/api/superscene/credits").then(r => r.json()).then(d => setCredits(d.balance || 0));
         } else if (data.status === "failed") {
           setGenerating(false);
           clearInterval(pollRef.current);
@@ -176,7 +176,7 @@ export default function SuperCutPage() {
     const fd = new FormData();
     fd.append("file", file);
     try {
-      const res = await fetch("/api/supercut/upload-image", { method: "POST", body: fd });
+      const res = await fetch("/api/superscene/upload-image", { method: "POST", body: fd });
       const data = await res.json();
       if (data.success && data.file_url) {
         setImageUrl(data.file_url);
@@ -214,7 +214,7 @@ export default function SuperCutPage() {
       if (mode === "image" && imageUrl) payload.image_urls = [imageUrl];
       if (styleRefs.length > 0) payload.style_refs = styleRefs.filter(r => r.url).map(r => r.url);
 
-      const res = await fetch("/api/supercut/generate", {
+      const res = await fetch("/api/superscene/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -249,7 +249,7 @@ export default function SuperCutPage() {
   const buyStripe = async (slug) => {
     setBuyingPack(slug);
     try {
-      const res = await fetch("/api/supercut/buy/stripe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pack_slug: slug }) });
+      const res = await fetch("/api/superscene/buy/stripe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pack_slug: slug }) });
       const data = await res.json();
       if (data.url) window.location.href = data.url; else alert(data.detail || "Checkout failed");
     } finally { setBuyingPack(null); }
@@ -257,7 +257,7 @@ export default function SuperCutPage() {
   const buyCrypto = async (slug) => {
     setBuyingPack(slug);
     try {
-      const res = await fetch("/api/supercut/buy/crypto", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pack_slug: slug }) });
+      const res = await fetch("/api/superscene/buy/crypto", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pack_slug: slug }) });
       const data = await res.json();
       if (data.success) setCryptoOrder({ ...data, slug }); else alert(data.detail || "Crypto order failed");
     } finally { setBuyingPack(null); }
@@ -274,7 +274,7 @@ export default function SuperCutPage() {
       setStyleRefs(prev => [...prev, { id, file, preview, url: null, uploading: true }]);
       const fd = new FormData(); fd.append("file", file);
       try {
-        const res = await fetch("/api/supercut/upload-image", { method: "POST", body: fd });
+        const res = await fetch("/api/superscene/upload-image", { method: "POST", body: fd });
         const data = await res.json();
         if (data.success && data.file_url) {
           setStyleRefs(prev => prev.map(r => r.id === id ? { ...r, url: data.file_url, uploading: false } : r));
@@ -317,7 +317,7 @@ export default function SuperCutPage() {
 
     try {
       const payload = { model_key: scene.model, prompt: scene.prompt, duration: scene.duration, ratio };
-      const res = await fetch("/api/supercut/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const res = await fetch("/api/superscene/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
       const data = await res.json();
       if (!res.ok) { sbUpdateScene(sceneId, { status: "failed" }); clearInterval(sbProgRef.current); setSbGenerating(null); return; }
       setCredits(data.credits_remaining);
@@ -327,12 +327,12 @@ export default function SuperCutPage() {
       if (sbPollRef.current) clearInterval(sbPollRef.current);
       sbPollRef.current = setInterval(async () => {
         try {
-          const pr = await fetch(`/api/supercut/status/${data.task_id}`);
+          const pr = await fetch(`/api/superscene/status/${data.task_id}`);
           const pd = await pr.json();
           if (pd.status === "completed" && pd.video_url) {
             sbUpdateScene(sceneId, { status: "completed", videoUrl: pd.video_url, progress: 100 });
             clearInterval(sbPollRef.current); clearInterval(sbProgRef.current); setSbGenerating(null);
-            fetch("/api/supercut/credits").then(r => r.json()).then(d => setCredits(d.balance || 0));
+            fetch("/api/superscene/credits").then(r => r.json()).then(d => setCredits(d.balance || 0));
           } else if (pd.status === "failed") {
             sbUpdateScene(sceneId, { status: "failed" }); clearInterval(sbPollRef.current); clearInterval(sbProgRef.current); setSbGenerating(null);
           }
@@ -387,7 +387,7 @@ export default function SuperCutPage() {
       a.href = url;
       const ext = "mp4";
       const presetTag = exportPreset !== "original" ? `-${exportPreset}` : "";
-      a.download = `supercut${presetTag}-${Date.now()}.${ext}`;
+      a.download = `superscene${presetTag}-${Date.now()}.${ext}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -446,7 +446,7 @@ export default function SuperCutPage() {
           <a href="/dashboard" className="sc-back-btn">← Dashboard</a>
           <div className="sc-topbar-divider"/>
           <div className="sc-logo-mark">✂</div>
-          <div className="sc-logo-text"><span className="lw">Super</span><span className="lc">Cut</span></div>
+          <div className="sc-logo-text"><span className="lw">Super</span><span className="lc">Scene</span></div>
           <div className="sc-logo-badge">BETA</div>
         </div>
         <div className="sc-tabs">
@@ -1025,7 +1025,7 @@ export default function SuperCutPage() {
       {/* ── HELP DRAWER ──────────────────────────────────── */}
       {helpOpen && (
         <div className="sc-hdrawer">
-          <div className="sc-hhead"><span className="sc-htitle">How SuperCut Works</span>
+          <div className="sc-hhead"><span className="sc-htitle">How SuperScene Works</span>
             <button className="sc-hclose" onClick={() => setHelpOpen(false)}>×</button></div>
           <div className="sc-hbody">
             {[["1 · Write your prompt", "Describe your scene — camera movement, lighting, mood. Or use the AI Prompt Builder tab."],

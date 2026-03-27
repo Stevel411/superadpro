@@ -33,7 +33,7 @@ function buildNav(t, isAdmin) {
     { type: 'group', label: t('nav.creatorTools'), key: 'creator', items: [
       { label: t('nav.linkHub'), icon: Link2, path: '/linkhub' },
       { label: t('nav.linkTools'), icon: LayoutGrid, path: '/link-tools' },
-      { label: 'SuperCut', icon: Scissors, path: '/supercut' },
+      { label: 'SuperScene', icon: Scissors, path: '/superscene' },
     ]},
     { type: 'divider' },
     { type: 'group', label: t('nav.superProducts'), key: 'super', items: [

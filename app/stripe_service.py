@@ -265,22 +265,22 @@ def create_supermarket_checkout(user_id: int, product_id: int, product_title: st
         return {"success": False, "error": str(e)}
 
 
-# ── SuperCut Credit Pack Checkout ────────────────────────────
+# ── SuperScene Credit Pack Checkout ────────────────────────────
 
-SUPERCUT_PACKS = {
-    "starter": {"credits": 50,   "price_usd": 8.00,  "label": "SuperCut Starter"},
-    "creator": {"credits": 150,  "price_usd": 20.00, "label": "SuperCut Creator"},
-    "studio":  {"credits": 500,  "price_usd": 50.00, "label": "SuperCut Studio"},
-    "pro":     {"credits": 1200, "price_usd": 99.00, "label": "SuperCut Pro"},
+SUPERSCENE_PACKS = {
+    "starter": {"credits": 50,   "price_usd": 8.00,  "label": "SuperScene Starter"},
+    "creator": {"credits": 150,  "price_usd": 20.00, "label": "SuperScene Creator"},
+    "studio":  {"credits": 500,  "price_usd": 50.00, "label": "SuperScene Studio"},
+    "pro":     {"credits": 1200, "price_usd": 99.00, "label": "SuperScene Pro"},
 }
 
 
-def create_supercut_checkout(user_id: int, pack_slug: str, email: str) -> dict:
+def create_superscene_checkout(user_id: int, pack_slug: str, email: str) -> dict:
     """
-    Create a one-time Stripe Checkout Session for a SuperCut credit pack.
+    Create a one-time Stripe Checkout Session for a SuperScene credit pack.
     Returns: {success, url, session_id} or {success, error}
     """
-    pack = SUPERCUT_PACKS.get(pack_slug)
+    pack = SUPERSCENE_PACKS.get(pack_slug)
     if not pack:
         return {"success": False, "error": f"Unknown pack: {pack_slug}"}
 
@@ -296,16 +296,16 @@ def create_supercut_checkout(user_id: int, pack_slug: str, email: str) -> dict:
                     "unit_amount": int(pack["price_usd"] * 100),
                     "product_data": {
                         "name": pack["label"],
-                        "description": f"{pack['credits']} SuperCut video generation credits",
+                        "description": f"{pack['credits']} SuperScene video generation credits",
                     },
                 },
                 "quantity": 1,
             }],
-            success_url=f"{SITE_URL}/supercut?pack_success=1&session_id={{CHECKOUT_SESSION_ID}}",
-            cancel_url=f"{SITE_URL}/supercut?pack_cancelled=1",
+            success_url=f"{SITE_URL}/superscene?pack_success=1&session_id={{CHECKOUT_SESSION_ID}}",
+            cancel_url=f"{SITE_URL}/superscene?pack_cancelled=1",
             metadata={
                 "user_id":        str(user_id),
-                "payment_type":   "supercut_credits",
+                "payment_type":   "superscene_credits",
                 "pack_slug":      pack_slug,
                 "credits":        str(pack["credits"]),
             },

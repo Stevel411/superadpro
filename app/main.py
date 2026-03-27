@@ -3069,25 +3069,25 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 affiliate_id = int(affiliate_id) if affiliate_id else None
                 _stripe_process_supermarket(db, user, product_id, session["id"], affiliate_id)
 
-            elif payment_type == "supercut_credits":
-                from .database import SuperCutCredit, SuperCutOrder
+            elif payment_type == "superscene_credits":
+                from .database import SuperSceneCredit, SuperSceneOrder
                 from datetime import datetime as _dt
                 pack_slug = meta.get("pack_slug", "")
                 credits   = int(meta.get("credits", 0))
                 if credits > 0:
-                    sc_row = db.query(SuperCutCredit).filter(SuperCutCredit.user_id == user_id).first()
+                    sc_row = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == user_id).first()
                     if not sc_row:
-                        sc_row = SuperCutCredit(user_id=user_id, balance=0)
+                        sc_row = SuperSceneCredit(user_id=user_id, balance=0)
                         db.add(sc_row)
                     sc_row.balance += credits
-                    sc_order = db.query(SuperCutOrder).filter(
-                        SuperCutOrder.stripe_session_id == session["id"]
+                    sc_order = db.query(SuperSceneOrder).filter(
+                        SuperSceneOrder.stripe_session_id == session["id"]
                     ).first()
                     if sc_order:
                         sc_order.status = "completed"
                         sc_order.completed_at = _dt.utcnow()
                     db.commit()
-                    logger.warning(f"SuperCut: +{credits} credits to user {user_id} (pack={pack_slug})")
+                    logger.warning(f"SuperScene: +{credits} credits to user {user_id} (pack={pack_slug})")
 
         except Exception as e:
             import traceback
@@ -17725,18 +17725,18 @@ def api_training_centre(request: Request, user: User = Depends(get_current_user)
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# SUPERCUT — AI Video Creator
+# SUPERSCENE — AI Video Creator
 # Routes: credits, generate, poll, history, buy (Stripe + Crypto)
 # ═══════════════════════════════════════════════════════════════════════════════
 
-SUPERCUT_PACK_CREDITS = {
+SUPERSCENE_PACK_CREDITS = {
     "starter": 50,
     "creator": 150,
     "studio":  500,
     "pro":     1200,
 }
 
-SUPERCUT_PACK_PRICES = {
+SUPERSCENE_PACK_PRICES = {
     "starter": 8.00,
     "creator": 20.00,
     "studio":  50.00,
@@ -17744,30 +17744,36 @@ SUPERCUT_PACK_PRICES = {
 }
 
 
-def _get_or_create_sc_credits(user_id: int, db) -> "SuperCutCredit":
-    """Get or create a SuperCutCredit row for this user."""
-    from .database import SuperCutCredit
-    row = db.query(SuperCutCredit).filter(SuperCutCredit.user_id == user_id).first()
+def _get_or_create_sc_credits(user_id: int, db) -> "SuperSceneCredit":
+    """Get or create a SuperSceneCredit row for this user."""
+    from .database import SuperSceneCredit
+    row = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == user_id).first()
     if not row:
-        row = SuperCutCredit(user_id=user_id, balance=0)
+        row = SuperSceneCredit(user_id=user_id, balance=0)
         db.add(row)
         db.commit()
         db.refresh(row)
     return row
 
 
-@app.get("/supercut")
-async def supercut_page(request: Request):
-    """Serve the SuperCut page — handled by React router client-side."""
+@app.get("/superscene")
+async def superscene_page(request: Request):
+    """Serve the SuperScene page — handled by React router client-side."""
     _idx = pathlib.Path("static/app/index.html")
     if _idx.exists():
         return HTMLResponse(_idx.read_text())
     return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
 
 
-@app.post("/api/supercut/admin/grant-credits")
+@app.get("/supercut")
+async def supercut_redirect():
+    """Redirect old SuperCut URL to SuperScene."""
+    return RedirectResponse(url="/superscene", status_code=301)
+
+
+@app.post("/api/superscene/admin/grant-credits")
 async def sc_admin_grant_credits(request: Request, db: Session = Depends(get_db)):
-    """Admin-only: grant SuperCut credits to a user for testing."""
+    """Admin-only: grant SuperScene credits to a user for testing."""
     user = get_current_user(request, db)
     if not user or not getattr(user, "is_admin", False):
         raise HTTPException(status_code=403, detail="Admin only")
@@ -17780,13 +17786,13 @@ async def sc_admin_grant_credits(request: Request, db: Session = Depends(get_db)
     row.balance += amount
     db.commit()
     db.refresh(row)
-    logger.warning(f"SuperCut ADMIN: granted {amount} credits to user {target_id} (new balance: {row.balance})")
+    logger.warning(f"SuperScene ADMIN: granted {amount} credits to user {target_id} (new balance: {row.balance})")
     return {"success": True, "user_id": target_id, "granted": amount, "new_balance": row.balance}
 
 
-@app.get("/admin/supercut/grant/{amount}")
+@app.get("/admin/superscene/grant/{amount}")
 async def sc_admin_grant_credits_get(amount: int, request: Request, db: Session = Depends(get_db)):
-    """Admin-only: grant yourself SuperCut credits by visiting this URL."""
+    """Admin-only: grant yourself SuperScene credits by visiting this URL."""
     user = get_current_user(request, db)
     if not user or not getattr(user, "is_admin", False):
         raise HTTPException(status_code=403, detail="Admin only")
@@ -17796,20 +17802,20 @@ async def sc_admin_grant_credits_get(amount: int, request: Request, db: Session 
     row.balance += amount
     db.commit()
     db.refresh(row)
-    logger.warning(f"SuperCut ADMIN: granted {amount} credits to user {user.id} (new balance: {row.balance})")
+    logger.warning(f"SuperScene ADMIN: granted {amount} credits to user {user.id} (new balance: {row.balance})")
     return HTMLResponse(f"""
     <html><body style="font-family:sans-serif;text-align:center;padding:60px;background:#0a0a0a;color:#fff">
-    <h1 style="color:#f43f5e">✂ SuperCut Credits Granted</h1>
+    <h1 style="color:#f43f5e">✂ SuperScene Credits Granted</h1>
     <p style="font-size:24px">+{amount} credits added</p>
     <p style="font-size:18px;color:#94a3b8">New balance: <strong style="color:#22d3ee">{row.balance}</strong></p>
-    <a href="/supercut" style="display:inline-block;margin-top:30px;padding:14px 32px;background:#f43f5e;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px">Go to SuperCut →</a>
+    <a href="/superscene" style="display:inline-block;margin-top:30px;padding:14px 32px;background:#f43f5e;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px">Go to SuperScene →</a>
     </body></html>
     """)
 
 
-@app.get("/api/supercut/seed-credits")
+@app.get("/api/superscene/seed-credits")
 async def sc_seed_credits(secret: str, user_id: int = 1, amount: int = 500, db: Session = Depends(get_db)):
-    """Secret-key protected: seed SuperCut credits without login. For testing only."""
+    """Secret-key protected: seed SuperScene credits without login. For testing only."""
     if secret != "sap-sc-seed-2026-X9kR":
         raise HTTPException(status_code=403, detail="Invalid secret")
     if amount < 1 or amount > 5000:
@@ -17817,23 +17823,23 @@ async def sc_seed_credits(secret: str, user_id: int = 1, amount: int = 500, db: 
     try:
         from sqlalchemy import text as sa_text
         result = db.execute(sa_text("""
-            INSERT INTO supercut_credits (user_id, balance)
+            INSERT INTO superscene_credits (user_id, balance)
             VALUES (:uid, :amt)
             ON CONFLICT (user_id) DO UPDATE
-              SET balance = supercut_credits.balance + :amt,
+              SET balance = superscene_credits.balance + :amt,
                   updated_at = NOW()
             RETURNING balance
         """), {"uid": user_id, "amt": amount})
         new_balance = result.fetchone()[0]
         db.commit()
-        logger.warning(f"SuperCut SEED: +{amount} credits to user {user_id} (new balance: {new_balance})")
+        logger.warning(f"SuperScene SEED: +{amount} credits to user {user_id} (new balance: {new_balance})")
         return {"success": True, "user_id": user_id, "granted": amount, "new_balance": new_balance}
     except Exception as e:
-        logger.exception("SuperCut seed-credits error")
+        logger.exception("SuperScene seed-credits error")
         raise HTTPException(status_code=500, detail=str(e))
 
 
-@app.get("/api/supercut/credits")
+@app.get("/api/superscene/credits")
 async def sc_get_credits(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
     if not user:
@@ -17842,14 +17848,14 @@ async def sc_get_credits(request: Request, db: Session = Depends(get_db)):
     return {"balance": row.balance}
 
 
-@app.post("/api/supercut/generate")
+@app.post("/api/superscene/generate")
 async def sc_generate(request: Request, db: Session = Depends(get_db)):
     """
     Submit a video generation task.
     Body: {model_key, prompt, duration, ratio, image_urls?, generate_audio?}
     """
-    from .database import SuperCutCredit, SuperCutVideo
-    from .supercut_evolink import generate_video, calc_credits
+    from .database import SuperSceneCredit, SuperSceneVideo
+    from .superscene_evolink import generate_video, calc_credits
 
     user = get_current_user(request, db)
     if not user:
@@ -17904,7 +17910,7 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
     }
 
     # Record video
-    video = SuperCutVideo(
+    video = SuperSceneVideo(
         user_id=user.id,
         task_id=task_id,
         model_key=model_key,
@@ -17929,10 +17935,10 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
     }
 
 
-@app.post("/api/supercut/upload-image")
+@app.post("/api/superscene/upload-image")
 async def sc_upload_image(request: Request, db: Session = Depends(get_db)):
     """Upload an image for image-to-video generation. Returns a hosted URL."""
-    from .supercut_evolink import upload_image
+    from .superscene_evolink import upload_image
 
     user = get_current_user(request, db)
     if not user:
@@ -17960,11 +17966,11 @@ async def sc_upload_image(request: Request, db: Session = Depends(get_db)):
     return {"success": True, "file_url": result["file_url"]}
 
 
-@app.get("/api/supercut/status/{task_id}")
+@app.get("/api/superscene/status/{task_id}")
 async def sc_poll_status(task_id: str, request: Request, db: Session = Depends(get_db)):
     """Poll EvoLink for video generation status and update DB."""
-    from .database import SuperCutVideo
-    from .supercut_evolink import poll_status
+    from .database import SuperSceneVideo
+    from .superscene_evolink import poll_status
     from datetime import datetime
 
     user = get_current_user(request, db)
@@ -17976,9 +17982,9 @@ async def sc_poll_status(task_id: str, request: Request, db: Session = Depends(g
         raise HTTPException(status_code=502, detail=result.get("error"))
 
     # Update DB record
-    video = db.query(SuperCutVideo).filter(
-        SuperCutVideo.task_id == task_id,
-        SuperCutVideo.user_id == user.id,
+    video = db.query(SuperSceneVideo).filter(
+        SuperSceneVideo.task_id == task_id,
+        SuperSceneVideo.user_id == user.id,
     ).first()
 
     if video:
@@ -17995,19 +18001,19 @@ async def sc_poll_status(task_id: str, request: Request, db: Session = Depends(g
     }
 
 
-@app.get("/api/supercut/videos")
+@app.get("/api/superscene/videos")
 async def sc_videos(request: Request, db: Session = Depends(get_db)):
     """Return the user's video history."""
-    from .database import SuperCutVideo
+    from .database import SuperSceneVideo
 
     user = get_current_user(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
     videos = (
-        db.query(SuperCutVideo)
-        .filter(SuperCutVideo.user_id == user.id)
-        .order_by(SuperCutVideo.created_at.desc())
+        db.query(SuperSceneVideo)
+        .filter(SuperSceneVideo.user_id == user.id)
+        .order_by(SuperSceneVideo.created_at.desc())
         .limit(50)
         .all()
     )
@@ -18029,12 +18035,12 @@ async def sc_videos(request: Request, db: Session = Depends(get_db)):
     ]}
 
 
-# ── SuperCut — Buy Credits via Stripe ────────────────────────
+# ── SuperScene — Buy Credits via Stripe ────────────────────────
 
-@app.post("/api/supercut/buy/stripe")
+@app.post("/api/superscene/buy/stripe")
 async def sc_buy_stripe(request: Request, db: Session = Depends(get_db)):
-    from .database import SuperCutOrder
-    from .stripe_service import create_supercut_checkout
+    from .database import SuperSceneOrder
+    from .stripe_service import create_superscene_checkout
 
     user = get_current_user(request, db)
     if not user:
@@ -18043,19 +18049,19 @@ async def sc_buy_stripe(request: Request, db: Session = Depends(get_db)):
     body = await request.json()
     pack_slug = body.get("pack_slug", "").lower()
 
-    if pack_slug not in SUPERCUT_PACK_CREDITS:
+    if pack_slug not in SUPERSCENE_PACK_CREDITS:
         raise HTTPException(status_code=400, detail="Invalid pack")
 
-    result = create_supercut_checkout(user.id, pack_slug, user.email)
+    result = create_superscene_checkout(user.id, pack_slug, user.email)
     if not result["success"]:
         raise HTTPException(status_code=500, detail=result["error"])
 
     # Record pending order
-    order = SuperCutOrder(
+    order = SuperSceneOrder(
         user_id=user.id,
         pack_slug=pack_slug,
-        credits=SUPERCUT_PACK_CREDITS[pack_slug],
-        amount_usd=SUPERCUT_PACK_PRICES[pack_slug],
+        credits=SUPERSCENE_PACK_CREDITS[pack_slug],
+        amount_usd=SUPERSCENE_PACK_PRICES[pack_slug],
         payment_method="stripe",
         status="pending",
         stripe_session_id=result["session_id"],
@@ -18066,11 +18072,11 @@ async def sc_buy_stripe(request: Request, db: Session = Depends(get_db)):
     return {"success": True, "url": result["url"]}
 
 
-# ── SuperCut — Buy Credits via Crypto ────────────────────────
+# ── SuperScene — Buy Credits via Crypto ────────────────────────
 
-@app.post("/api/supercut/buy/crypto")
+@app.post("/api/superscene/buy/crypto")
 async def sc_buy_crypto(request: Request, db: Session = Depends(get_db)):
-    from .database import SuperCutOrder, CryptoPaymentOrder
+    from .database import SuperSceneOrder, CryptoPaymentOrder
     from .crypto_payments import create_payment_order
 
     user = get_current_user(request, db)
@@ -18080,21 +18086,21 @@ async def sc_buy_crypto(request: Request, db: Session = Depends(get_db)):
     body = await request.json()
     pack_slug = body.get("pack_slug", "").lower()
 
-    if pack_slug not in SUPERCUT_PACK_CREDITS:
+    if pack_slug not in SUPERSCENE_PACK_CREDITS:
         raise HTTPException(status_code=400, detail="Invalid pack")
 
-    product_key = f"supercut_{pack_slug}"
+    product_key = f"superscene_{pack_slug}"
     crypto_result = create_payment_order(user.id, product_key, db)
 
     if not crypto_result.get("success"):
         raise HTTPException(status_code=500, detail=crypto_result.get("error", "Crypto order failed"))
 
-    # Record pending SuperCut order linked to crypto order
-    order = SuperCutOrder(
+    # Record pending SuperScene order linked to crypto order
+    order = SuperSceneOrder(
         user_id=user.id,
         pack_slug=pack_slug,
-        credits=SUPERCUT_PACK_CREDITS[pack_slug],
-        amount_usd=SUPERCUT_PACK_PRICES[pack_slug],
+        credits=SUPERSCENE_PACK_CREDITS[pack_slug],
+        amount_usd=SUPERSCENE_PACK_PRICES[pack_slug],
         payment_method="crypto",
         status="pending",
         crypto_order_id=crypto_result.get("order_id"),
@@ -18111,15 +18117,15 @@ async def sc_buy_crypto(request: Request, db: Session = Depends(get_db)):
     }
 
 
-# ── SuperCut — Stripe Webhook ─────────────────────────────────
+# ── SuperScene — Stripe Webhook ─────────────────────────────────
 
-@app.post("/webhooks/supercut/stripe")
+@app.post("/webhooks/superscene/stripe")
 async def sc_stripe_webhook(request: Request, db: Session = Depends(get_db)):
     """
-    Handle Stripe webhook for SuperCut credit pack payments.
-    Credits the user on checkout.session.completed with payment_type=supercut_credits.
+    Handle Stripe webhook for SuperScene credit pack payments.
+    Credits the user on checkout.session.completed with payment_type=superscene_credits.
     """
-    from .database import SuperCutCredit, SuperCutOrder
+    from .database import SuperSceneCredit, SuperSceneOrder
     import stripe
 
     payload = await request.body()
@@ -18140,15 +18146,15 @@ async def sc_stripe_webhook(request: Request, db: Session = Depends(get_db)):
         pack_slug= meta.get("pack_slug", "")
         credits  = int(meta.get("credits", 0))
 
-        if ptype == "supercut_credits" and user_id and credits:
+        if ptype == "superscene_credits" and user_id and credits:
             # Credit the user
             credit_row = _get_or_create_sc_credits(user_id, db)
             credit_row.balance += credits
             db.commit()
 
             # Mark order complete
-            order = db.query(SuperCutOrder).filter(
-                SuperCutOrder.stripe_session_id == session["id"]
+            order = db.query(SuperSceneOrder).filter(
+                SuperSceneOrder.stripe_session_id == session["id"]
             ).first()
             if order:
                 from datetime import datetime
@@ -18159,15 +18165,15 @@ async def sc_stripe_webhook(request: Request, db: Session = Depends(get_db)):
     return {"received": True}
 
 
-# ── SuperCut — Crypto Confirmation (called by cron/webhook) ──
+# ── SuperScene — Crypto Confirmation (called by cron/webhook) ──
 
-@app.post("/api/supercut/confirm-crypto/{order_id}")
+@app.post("/api/superscene/confirm-crypto/{order_id}")
 async def sc_confirm_crypto(order_id: int, request: Request, db: Session = Depends(get_db)):
     """
-    Called when a crypto payment for SuperCut is confirmed.
+    Called when a crypto payment for SuperScene is confirmed.
     Internal route — triggered by the existing crypto confirmation flow.
     """
-    from .database import SuperCutCredit, SuperCutOrder
+    from .database import SuperSceneCredit, SuperSceneOrder
     from datetime import datetime
 
     # Verify cron secret
@@ -18176,9 +18182,9 @@ async def sc_confirm_crypto(order_id: int, request: Request, db: Session = Depen
     if secret != expected:
         raise HTTPException(status_code=403, detail="Forbidden")
 
-    order = db.query(SuperCutOrder).filter(
-        SuperCutOrder.crypto_order_id == order_id,
-        SuperCutOrder.status == "pending",
+    order = db.query(SuperSceneOrder).filter(
+        SuperSceneOrder.crypto_order_id == order_id,
+        SuperSceneOrder.status == "pending",
     ).first()
 
     if not order:
@@ -18193,10 +18199,10 @@ async def sc_confirm_crypto(order_id: int, request: Request, db: Session = Depen
     return {"ok": True, "credits_added": order.credits, "new_balance": credit_row.balance}
 
 
-@app.post("/api/supercut/admin/add-credits")
+@app.post("/api/superscene/admin/add-credits")
 async def sc_admin_add_credits(request: Request, db: Session = Depends(get_db)):
-    """Admin only — add SuperCut credits to any user."""
-    from .database import SuperCutCredit
+    """Admin only — add SuperScene credits to any user."""
+    from .database import SuperSceneCredit
 
     user = get_current_user(request, db)
     if not user or not getattr(user, "is_admin", False):

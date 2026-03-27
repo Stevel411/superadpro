@@ -1,5 +1,5 @@
 """
-SuperCut — EvoLink API Integration
+SuperScene — EvoLink API Integration
 AI Video Generation via EvoLink (aggregates Kling 3.0, Seedance 2.0, Sora 2 Pro, Veo 3.1)
 Base URL: https://api.evolink.ai/v1
 Auth: Bearer token (EVOLINK_API_KEY env var)
@@ -17,7 +17,7 @@ import logging
 import httpx
 from typing import Optional, List
 
-logger = logging.getLogger("superadpro.supercut")
+logger = logging.getLogger("superadpro.superscene")
 
 EVOLINK_API_KEY = os.getenv("EVOLINK_API_KEY", "")
 EVOLINK_BASE_URL = "https://api.evolink.ai/v1"

@@ -53,7 +53,7 @@ import SuperLinkPage from './pages/SuperLink';
 // ── Lazy imports (heavy/rare pages only) ──
 const BannerMaker = React.lazy(() => import('./pages/BannerMaker'));
 const SuperPagesEditor = React.lazy(() => import('./pages/superpages/SuperPagesEditor'));
-const SuperCutPage = React.lazy(() => import('./pages/supercut/SuperCutPage'));
+const SuperScenePage = React.lazy(() => import('./pages/superscene/SuperScenePage'));
 const IncomeGrid3DPage = React.lazy(() => import('./pages/IncomeGrid3DPage'));
 
 // Suspense wrapper for remaining lazy routes
@@ -179,7 +179,7 @@ function AppRoutes() {
       <Route path="/pro/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
       <Route path="/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
       <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><SuperPagesEditor /></ProtectedRoute>} />
-      <Route path="/supercut" element={<React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#080c0e',color:'#22d3ee',fontFamily:'DM Sans,sans-serif'}}>Loading SuperCut…</div>}><SuperCutPage /></React.Suspense>} />
+      <Route path="/superscene" element={<React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#080c0e',color:'#22d3ee',fontFamily:'DM Sans,sans-serif'}}>Loading SuperScene…</div>}><SuperScenePage /></React.Suspense>} />
       <Route path="/pro/leads" element={<ProtectedRoute><MyLeads /></ProtectedRoute>} />
       <Route path="/link-tools" element={<ProtectedRoute><LinkTools /></ProtectedRoute>} />
       <Route path="/passup-visualiser" element={<ProtectedRoute><PassupVisualiser /></ProtectedRoute>} />

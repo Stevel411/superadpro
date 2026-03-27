@@ -1792,11 +1792,31 @@ try:
 except Exception as e:
     print(f"⚠️ Force migration note: {e}")
 
-# ── SuperCut tables (own block so earlier failures don't skip these) ──
+# ── Rename supercut -> superscene tables (one-time migration) ──
+try:
+    with engine.connect() as conn:
+        # Rename tables if old names exist
+        for old, new in [("supercut_credits", "superscene_credits"), ("supercut_videos", "superscene_videos"), ("supercut_orders", "superscene_orders")]:
+            try:
+                conn.execute(text(f"ALTER TABLE IF EXISTS {old} RENAME TO {new}"))
+            except Exception:
+                pass
+        # Rename indexes
+        for old, new in [("idx_sc_videos_user", "idx_ss_videos_user"), ("idx_sc_videos_task", "idx_ss_videos_task"), ("idx_sc_orders_user", "idx_ss_orders_user")]:
+            try:
+                conn.execute(text(f"ALTER INDEX IF EXISTS {old} RENAME TO {new}"))
+            except Exception:
+                pass
+        conn.commit()
+        print("✅ supercut -> superscene table rename migration done")
+except Exception as e:
+    print(f"⚠️ Table rename note: {e}")
+
+# ── SuperScene tables (own block so earlier failures don't skip these) ──
 try:
     with engine.connect() as conn:
         conn.execute(text("""
-            CREATE TABLE IF NOT EXISTS supercut_credits (
+            CREATE TABLE IF NOT EXISTS superscene_credits (
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL UNIQUE REFERENCES users(id),
                 balance INTEGER NOT NULL DEFAULT 0,
@@ -1804,7 +1824,7 @@ try:
             )
         """))
         conn.execute(text("""
-            CREATE TABLE IF NOT EXISTS supercut_videos (
+            CREATE TABLE IF NOT EXISTS superscene_videos (
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL REFERENCES users(id),
                 task_id VARCHAR(200) NOT NULL,
@@ -1820,10 +1840,10 @@ try:
                 completed_at TIMESTAMP
             )
         """))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_sc_videos_user ON supercut_videos(user_id)"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_sc_videos_task ON supercut_videos(task_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ss_videos_user ON superscene_videos(user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ss_videos_task ON superscene_videos(task_id)"))
         conn.execute(text("""
-            CREATE TABLE IF NOT EXISTS supercut_orders (
+            CREATE TABLE IF NOT EXISTS superscene_orders (
                 id SERIAL PRIMARY KEY,
                 user_id INTEGER NOT NULL REFERENCES users(id),
                 pack_slug VARCHAR(30) NOT NULL,
@@ -1837,42 +1857,42 @@ try:
                 completed_at TIMESTAMP
             )
         """))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_sc_orders_user ON supercut_orders(user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ss_orders_user ON superscene_orders(user_id)"))
 
         # Seed master affiliate (SAP-00001 / user 1) with 500 free credits
         conn.execute(text("""
-            INSERT INTO supercut_credits (user_id, balance)
+            INSERT INTO superscene_credits (user_id, balance)
             VALUES (1, 500)
             ON CONFLICT (user_id) DO UPDATE
-              SET balance = GREATEST(supercut_credits.balance, 500)
+              SET balance = GREATEST(superscene_credits.balance, 500)
         """))
         conn.commit()
-        print("✅ SuperCut tables created + 500 credits seeded for SAP-00001")
+        print("✅ SuperScene tables created + 500 credits seeded for SAP-00001")
 
 except Exception as e:
     print(f"⚠️ Force migration note: {e}")
 
-# ── Always-run: ensure SAP-00001 has at least 500 SuperCut credits ──
+# ── Always-run: ensure SAP-00001 has at least 500 SuperScene credits ──
 try:
     with engine.connect() as conn:
         conn.execute(text("""
-            INSERT INTO supercut_credits (user_id, balance)
+            INSERT INTO superscene_credits (user_id, balance)
             VALUES (1, 500)
             ON CONFLICT (user_id) DO UPDATE
-              SET balance = GREATEST(supercut_credits.balance, 500)
+              SET balance = GREATEST(superscene_credits.balance, 500)
         """))
         conn.commit()
-        print("✅ SuperCut: SAP-00001 credit floor confirmed (500)")
+        print("✅ SuperScene: SAP-00001 credit floor confirmed (500)")
 except Exception as e:
-    print(f"⚠️ SuperCut seed note: {e}")
+    print(f"⚠️ SuperScene seed note: {e}")
 
 
 # ─────────────────────────────────────────────
-# SuperCut Models
+# SuperScene Models
 # ─────────────────────────────────────────────
 
-class SuperCutCredit(Base):
-    __tablename__ = "supercut_credits"
+class SuperSceneCredit(Base):
+    __tablename__ = "superscene_credits"
     id         = Column(Integer, primary_key=True, index=True)
     user_id    = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
     balance    = Column(Integer, default=0, nullable=False)
@@ -1881,8 +1901,8 @@ class SuperCutCredit(Base):
     user = relationship("User", foreign_keys=[user_id])
 
 
-class SuperCutVideo(Base):
-    __tablename__ = "supercut_videos"
+class SuperSceneVideo(Base):
+    __tablename__ = "superscene_videos"
     id            = Column(Integer, primary_key=True, index=True)
     user_id       = Column(Integer, ForeignKey("users.id"), nullable=False)
     task_id       = Column(String, nullable=False, index=True)
@@ -1900,8 +1920,8 @@ class SuperCutVideo(Base):
     user = relationship("User", foreign_keys=[user_id])
 
 
-class SuperCutOrder(Base):
-    __tablename__ = "supercut_orders"
+class SuperSceneOrder(Base):
+    __tablename__ = "superscene_orders"
     id               = Column(Integer, primary_key=True, index=True)
     user_id          = Column(Integer, ForeignKey("users.id"), nullable=False)
     pack_slug        = Column(String(30), nullable=False)   # starter|creator|studio|pro
