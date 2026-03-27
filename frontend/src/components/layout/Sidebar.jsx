@@ -8,7 +8,7 @@ import {
   Globe, GraduationCap, Store, PenLine, Network, FileText, Users,
   Target, Mail, Trophy, Award, Bot, Megaphone, Film, Paintbrush,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
-  QrCode, MessageCircle, Flame, BookOpen, PlusCircle, BarChart3
+  QrCode, MessageCircle, Flame, BookOpen, PlusCircle, BarChart3, Scissors
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
@@ -33,6 +33,7 @@ function buildNav(t, isAdmin) {
     { type: 'group', label: t('nav.creatorTools'), key: 'creator', items: [
       { label: t('nav.linkHub'), icon: Link2, path: '/linkhub' },
       { label: t('nav.linkTools'), icon: LayoutGrid, path: '/link-tools' },
+      { label: 'SuperCut', icon: Scissors, path: '/supercut' },
     ]},
     { type: 'divider' },
     { type: 'group', label: t('nav.superProducts'), key: 'super', items: [

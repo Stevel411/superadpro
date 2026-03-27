@@ -1788,5 +1788,103 @@ try:
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_team_msg_to ON team_messages(to_user_id)"))
         conn.commit()
         print("✅ Team messages table added")
+
+        # ── SuperCut tables ──────────────────────────────────────
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS supercut_credits (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL UNIQUE REFERENCES users(id),
+                balance INTEGER NOT NULL DEFAULT 0,
+                updated_at TIMESTAMP DEFAULT NOW()
+            )
+        """))
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS supercut_videos (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                task_id VARCHAR(200) NOT NULL,
+                model_key VARCHAR(20) NOT NULL,
+                model_name VARCHAR(50),
+                prompt TEXT NOT NULL,
+                duration INTEGER NOT NULL,
+                ratio VARCHAR(10) NOT NULL,
+                status VARCHAR(20) DEFAULT 'pending',
+                video_url TEXT,
+                credits_used INTEGER NOT NULL DEFAULT 0,
+                created_at TIMESTAMP DEFAULT NOW(),
+                completed_at TIMESTAMP
+            )
+        """))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_sc_videos_user ON supercut_videos(user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_sc_videos_task ON supercut_videos(task_id)"))
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS supercut_orders (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                pack_slug VARCHAR(30) NOT NULL,
+                credits INTEGER NOT NULL,
+                amount_usd NUMERIC(10,2) NOT NULL,
+                payment_method VARCHAR(20) NOT NULL,
+                status VARCHAR(20) DEFAULT 'pending',
+                stripe_session_id VARCHAR(200),
+                crypto_order_id INTEGER,
+                created_at TIMESTAMP DEFAULT NOW(),
+                completed_at TIMESTAMP
+            )
+        """))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_sc_orders_user ON supercut_orders(user_id)"))
+        conn.commit()
+        print("✅ SuperCut tables created")
+
 except Exception as e:
     print(f"⚠️ Force migration note: {e}")
+
+
+# ─────────────────────────────────────────────
+# SuperCut Models
+# ─────────────────────────────────────────────
+
+class SuperCutCredit(Base):
+    __tablename__ = "supercut_credits"
+    id         = Column(Integer, primary_key=True, index=True)
+    user_id    = Column(Integer, ForeignKey("users.id"), unique=True, nullable=False)
+    balance    = Column(Integer, default=0, nullable=False)
+    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", foreign_keys=[user_id])
+
+
+class SuperCutVideo(Base):
+    __tablename__ = "supercut_videos"
+    id            = Column(Integer, primary_key=True, index=True)
+    user_id       = Column(Integer, ForeignKey("users.id"), nullable=False)
+    task_id       = Column(String, nullable=False, index=True)
+    model_key     = Column(String(20), nullable=False)
+    model_name    = Column(String(50))
+    prompt        = Column(Text, nullable=False)
+    duration      = Column(Integer, nullable=False)
+    ratio         = Column(String(10), nullable=False)
+    status        = Column(String(20), default="pending")   # pending|processing|completed|failed
+    video_url     = Column(Text)
+    credits_used  = Column(Integer, nullable=False, default=0)
+    created_at    = Column(DateTime, default=datetime.utcnow)
+    completed_at  = Column(DateTime)
+
+    user = relationship("User", foreign_keys=[user_id])
+
+
+class SuperCutOrder(Base):
+    __tablename__ = "supercut_orders"
+    id               = Column(Integer, primary_key=True, index=True)
+    user_id          = Column(Integer, ForeignKey("users.id"), nullable=False)
+    pack_slug        = Column(String(30), nullable=False)   # starter|creator|studio|pro
+    credits          = Column(Integer, nullable=False)
+    amount_usd       = Column(Numeric(10, 2), nullable=False)
+    payment_method   = Column(String(20), nullable=False)   # stripe|crypto
+    status           = Column(String(20), default="pending") # pending|completed|failed
+    stripe_session_id= Column(String(200))
+    crypto_order_id  = Column(Integer)                       # FK to crypto_payment_orders
+    created_at       = Column(DateTime, default=datetime.utcnow)
+    completed_at     = Column(DateTime)
+
+    user = relationship("User", foreign_keys=[user_id])

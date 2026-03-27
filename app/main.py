@@ -17702,3 +17702,364 @@ def api_training_centre(request: Request, user: User = Depends(get_current_user)
     ]
 
     return {"modules": modules}
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# SUPERCUT — AI Video Creator
+# Routes: credits, generate, poll, history, buy (Stripe + Crypto)
+# ═══════════════════════════════════════════════════════════════════════════════
+
+SUPERCUT_PACK_CREDITS = {
+    "starter": 50,
+    "creator": 150,
+    "studio":  500,
+    "pro":     1200,
+}
+
+SUPERCUT_PACK_PRICES = {
+    "starter": 8.00,
+    "creator": 20.00,
+    "studio":  50.00,
+    "pro":     99.00,
+}
+
+
+def _get_or_create_sc_credits(user_id: int, db) -> "SuperCutCredit":
+    """Get or create a SuperCutCredit row for this user."""
+    from .database import SuperCutCredit
+    row = db.query(SuperCutCredit).filter(SuperCutCredit.user_id == user_id).first()
+    if not row:
+        row = SuperCutCredit(user_id=user_id, balance=0)
+        db.add(row)
+        db.commit()
+        db.refresh(row)
+    return row
+
+
+@app.get("/supercut")
+async def supercut_page(request: Request):
+    """Serve the SuperCut page — handled by React router client-side."""
+    _idx = pathlib.Path("static/app/index.html")
+    if _idx.exists():
+        return HTMLResponse(_idx.read_text())
+    return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
+
+
+@app.get("/api/supercut/credits")
+async def sc_get_credits(request: Request, db: Session = Depends(get_db)):
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    row = _get_or_create_sc_credits(user.id, db)
+    return {"balance": row.balance}
+
+
+@app.post("/api/supercut/generate")
+async def sc_generate(request: Request, db: Session = Depends(get_db)):
+    """
+    Submit a video generation task.
+    Body: {model_key, prompt, duration, ratio}
+    """
+    from .database import SuperCutCredit, SuperCutVideo
+    from .supercut_evolink import generate_video, calc_credits
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    body = await request.json()
+    model_key = body.get("model_key", "kling3")
+    prompt    = (body.get("prompt") or "").strip()
+    duration  = int(body.get("duration", 10))
+    ratio     = body.get("ratio", "16:9")
+
+    if not prompt:
+        raise HTTPException(status_code=400, detail="Prompt is required")
+    if duration not in (5, 10, 15, 30):
+        raise HTTPException(status_code=400, detail="Duration must be 5, 10, 15, or 30")
+
+    credits_needed = calc_credits(model_key, duration)
+
+    # Check balance
+    credit_row = _get_or_create_sc_credits(user.id, db)
+    if credit_row.balance < credits_needed:
+        raise HTTPException(status_code=402, detail=f"Insufficient credits. Need {credits_needed}, have {credit_row.balance}.")
+
+    # Deduct credits optimistically
+    credit_row.balance -= credits_needed
+    db.commit()
+
+    # Submit to EvoLink
+    result = await generate_video(model_key, prompt, duration, ratio)
+
+    if not result["success"]:
+        # Refund on failure
+        credit_row.balance += credits_needed
+        db.commit()
+        raise HTTPException(status_code=502, detail=result.get("error", "Video generation failed"))
+
+    task_id = result["task_id"]
+
+    # Model name map for display
+    model_names = {
+        "kling3": "Kling 3.0", "seedance2": "Seedance 2.0",
+        "sora2": "Sora 2 Pro", "veo31": "Veo 3.1",
+    }
+
+    # Record video
+    video = SuperCutVideo(
+        user_id=user.id,
+        task_id=task_id,
+        model_key=model_key,
+        model_name=model_names.get(model_key, model_key),
+        prompt=prompt,
+        duration=duration,
+        ratio=ratio,
+        status="pending",
+        credits_used=credits_needed,
+    )
+    db.add(video)
+    db.commit()
+    db.refresh(video)
+
+    return {
+        "success": True,
+        "task_id": task_id,
+        "video_id": video.id,
+        "credits_used": credits_needed,
+        "credits_remaining": credit_row.balance,
+    }
+
+
+@app.get("/api/supercut/status/{task_id}")
+async def sc_poll_status(task_id: str, request: Request, db: Session = Depends(get_db)):
+    """Poll EvoLink for video generation status and update DB."""
+    from .database import SuperCutVideo
+    from .supercut_evolink import poll_status
+    from datetime import datetime
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    result = await poll_status(task_id)
+    if not result["success"]:
+        raise HTTPException(status_code=502, detail=result.get("error"))
+
+    # Update DB record
+    video = db.query(SuperCutVideo).filter(
+        SuperCutVideo.task_id == task_id,
+        SuperCutVideo.user_id == user.id,
+    ).first()
+
+    if video:
+        video.status = result["status"]
+        if result.get("video_url"):
+            video.video_url = result["video_url"]
+        if result["status"] in ("completed", "failed"):
+            video.completed_at = datetime.utcnow()
+        db.commit()
+
+    return {
+        "status":    result["status"],
+        "video_url": result.get("video_url"),
+    }
+
+
+@app.get("/api/supercut/videos")
+async def sc_videos(request: Request, db: Session = Depends(get_db)):
+    """Return the user's video history."""
+    from .database import SuperCutVideo
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    videos = (
+        db.query(SuperCutVideo)
+        .filter(SuperCutVideo.user_id == user.id)
+        .order_by(SuperCutVideo.created_at.desc())
+        .limit(50)
+        .all()
+    )
+
+    return {"videos": [
+        {
+            "id":          v.id,
+            "task_id":     v.task_id,
+            "model_name":  v.model_name,
+            "prompt":      v.prompt,
+            "duration":    v.duration,
+            "ratio":       v.ratio,
+            "status":      v.status,
+            "video_url":   v.video_url,
+            "credits_used":v.credits_used,
+            "created_at":  v.created_at.isoformat() if v.created_at else None,
+        }
+        for v in videos
+    ]}
+
+
+# ── SuperCut — Buy Credits via Stripe ────────────────────────
+
+@app.post("/api/supercut/buy/stripe")
+async def sc_buy_stripe(request: Request, db: Session = Depends(get_db)):
+    from .database import SuperCutOrder
+    from .stripe_service import create_supercut_checkout
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    body = await request.json()
+    pack_slug = body.get("pack_slug", "").lower()
+
+    if pack_slug not in SUPERCUT_PACK_CREDITS:
+        raise HTTPException(status_code=400, detail="Invalid pack")
+
+    result = create_supercut_checkout(user.id, pack_slug, user.email)
+    if not result["success"]:
+        raise HTTPException(status_code=500, detail=result["error"])
+
+    # Record pending order
+    order = SuperCutOrder(
+        user_id=user.id,
+        pack_slug=pack_slug,
+        credits=SUPERCUT_PACK_CREDITS[pack_slug],
+        amount_usd=SUPERCUT_PACK_PRICES[pack_slug],
+        payment_method="stripe",
+        status="pending",
+        stripe_session_id=result["session_id"],
+    )
+    db.add(order)
+    db.commit()
+
+    return {"success": True, "url": result["url"]}
+
+
+# ── SuperCut — Buy Credits via Crypto ────────────────────────
+
+@app.post("/api/supercut/buy/crypto")
+async def sc_buy_crypto(request: Request, db: Session = Depends(get_db)):
+    from .database import SuperCutOrder, CryptoPaymentOrder
+    from .crypto_payments import create_payment_order
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    body = await request.json()
+    pack_slug = body.get("pack_slug", "").lower()
+
+    if pack_slug not in SUPERCUT_PACK_CREDITS:
+        raise HTTPException(status_code=400, detail="Invalid pack")
+
+    product_key = f"supercut_{pack_slug}"
+    crypto_result = create_payment_order(user.id, product_key, db)
+
+    if not crypto_result.get("success"):
+        raise HTTPException(status_code=500, detail=crypto_result.get("error", "Crypto order failed"))
+
+    # Record pending SuperCut order linked to crypto order
+    order = SuperCutOrder(
+        user_id=user.id,
+        pack_slug=pack_slug,
+        credits=SUPERCUT_PACK_CREDITS[pack_slug],
+        amount_usd=SUPERCUT_PACK_PRICES[pack_slug],
+        payment_method="crypto",
+        status="pending",
+        crypto_order_id=crypto_result.get("order_id"),
+    )
+    db.add(order)
+    db.commit()
+
+    return {
+        "success": True,
+        "order_id": crypto_result["order_id"],
+        "pay_address": crypto_result["pay_address"],
+        "amount_usdt": str(crypto_result["amount_usdt"]),
+        "expires_at": crypto_result["expires_at"],
+    }
+
+
+# ── SuperCut — Stripe Webhook ─────────────────────────────────
+
+@app.post("/webhooks/supercut/stripe")
+async def sc_stripe_webhook(request: Request, db: Session = Depends(get_db)):
+    """
+    Handle Stripe webhook for SuperCut credit pack payments.
+    Credits the user on checkout.session.completed with payment_type=supercut_credits.
+    """
+    from .database import SuperCutCredit, SuperCutOrder
+    import stripe
+
+    payload = await request.body()
+    sig     = request.headers.get("stripe-signature", "")
+
+    try:
+        from .stripe_service import STRIPE_WEBHOOK_SECRET, get_stripe
+        s = get_stripe()
+        event = s.Webhook.construct_event(payload, sig, STRIPE_WEBHOOK_SECRET)
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    if event["type"] == "checkout.session.completed":
+        session  = event["data"]["object"]
+        meta     = session.get("metadata", {})
+        ptype    = meta.get("payment_type", "")
+        user_id  = int(meta.get("user_id", 0))
+        pack_slug= meta.get("pack_slug", "")
+        credits  = int(meta.get("credits", 0))
+
+        if ptype == "supercut_credits" and user_id and credits:
+            # Credit the user
+            credit_row = _get_or_create_sc_credits(user_id, db)
+            credit_row.balance += credits
+            db.commit()
+
+            # Mark order complete
+            order = db.query(SuperCutOrder).filter(
+                SuperCutOrder.stripe_session_id == session["id"]
+            ).first()
+            if order:
+                from datetime import datetime
+                order.status = "completed"
+                order.completed_at = datetime.utcnow()
+                db.commit()
+
+    return {"received": True}
+
+
+# ── SuperCut — Crypto Confirmation (called by cron/webhook) ──
+
+@app.post("/api/supercut/confirm-crypto/{order_id}")
+async def sc_confirm_crypto(order_id: int, request: Request, db: Session = Depends(get_db)):
+    """
+    Called when a crypto payment for SuperCut is confirmed.
+    Internal route — triggered by the existing crypto confirmation flow.
+    """
+    from .database import SuperCutCredit, SuperCutOrder
+    from datetime import datetime
+
+    # Verify cron secret
+    secret = request.headers.get("X-Cron-Secret", "")
+    expected = os.getenv("CRON_SECRET", "sap-renewal-cron-2026-X7kP9mQr")
+    if secret != expected:
+        raise HTTPException(status_code=403, detail="Forbidden")
+
+    order = db.query(SuperCutOrder).filter(
+        SuperCutOrder.crypto_order_id == order_id,
+        SuperCutOrder.status == "pending",
+    ).first()
+
+    if not order:
+        return {"ok": False, "detail": "Order not found or already processed"}
+
+    credit_row = _get_or_create_sc_credits(order.user_id, db)
+    credit_row.balance += order.credits
+    order.status = "completed"
+    order.completed_at = datetime.utcnow()
+    db.commit()
+
+    return {"ok": True, "credits_added": order.credits, "new_balance": credit_row.balance}
+

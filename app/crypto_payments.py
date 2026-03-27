@@ -52,6 +52,11 @@ PRODUCT_PRICES = {
     "email_boost_5000":   Decimal("19.00"),
     "email_boost_10000":  Decimal("29.00"),
     "email_boost_50000":  Decimal("99.00"),
+    # SuperCut credit packs (100% company revenue)
+    "supercut_starter":   Decimal("8.00"),
+    "supercut_creator":   Decimal("20.00"),
+    "supercut_studio":    Decimal("50.00"),
+    "supercut_pro":       Decimal("99.00"),
 }
 
 
