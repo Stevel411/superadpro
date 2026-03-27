@@ -989,6 +989,14 @@ export default function SuperScenePage() {
                       <div className="sc-gcas">
                         <button className="sc-gca" onClick={() => { setVideoUrl(v.video_url); setTab("editor"); }}>Edit</button>
                         {v.video_url && <button className="sc-gca" onClick={() => downloadVideo(v.video_url, `superscene-${v.model_name}-${v.id}.mp4`)}>Download</button>}
+                        <button className="sc-gca sc-gca-del" onClick={async () => {
+                          if (!confirm("Delete this video?")) return;
+                          try {
+                            const res = await fetch(`/api/superscene/videos/${v.id}`, { method: "DELETE" });
+                            if (res.ok) fetchVideos();
+                            else alert("Delete failed");
+                          } catch { alert("Delete failed"); }
+                        }}>Delete</button>
                       </div>
                     </div>
                   </div>

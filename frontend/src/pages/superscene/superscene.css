@@ -399,3 +399,7 @@
 .sc-music-icon { font-size: 48px; color: var(--cyan); margin-bottom: 16px; }
 .sc-music-title { font-size: 16px; font-weight: 600; color: var(--text); margin-bottom: 20px; }
 .sc-music-player { width: 100%; border-radius: 8px; }
+
+/* Delete button in gallery */
+.sc-gca-del { color: #f87171 !important; border-color: rgba(248,113,113,.3) !important; }
+.sc-gca-del:hover { background: rgba(248,113,113,.1) !important; border-color: #f87171 !important; }

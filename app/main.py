@@ -18037,6 +18037,28 @@ async def sc_videos(request: Request, db: Session = Depends(get_db)):
     ]}
 
 
+@app.delete("/api/superscene/videos/{video_id}")
+async def sc_delete_video(video_id: int, request: Request, db: Session = Depends(get_db)):
+    """Delete a video from the user's gallery."""
+    from .database import SuperSceneVideo
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    video = db.query(SuperSceneVideo).filter(
+        SuperSceneVideo.id == video_id,
+        SuperSceneVideo.user_id == user.id,
+    ).first()
+
+    if not video:
+        raise HTTPException(status_code=404, detail="Video not found")
+
+    db.delete(video)
+    db.commit()
+    return {"success": True, "deleted": video_id}
+
+
 # ── SuperScene — Buy Credits via Stripe ────────────────────────
 
 @app.post("/api/superscene/buy/stripe")
