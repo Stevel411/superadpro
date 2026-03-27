@@ -17814,12 +17814,23 @@ async def sc_seed_credits(secret: str, user_id: int = 1, amount: int = 500, db: 
         raise HTTPException(status_code=403, detail="Invalid secret")
     if amount < 1 or amount > 5000:
         raise HTTPException(status_code=400, detail="Amount must be 1-5000")
-    row = _get_or_create_sc_credits(user_id, db)
-    row.balance += amount
-    db.commit()
-    db.refresh(row)
-    logger.warning(f"SuperCut SEED: +{amount} credits to user {user_id} (new balance: {row.balance})")
-    return {"success": True, "user_id": user_id, "granted": amount, "new_balance": row.balance}
+    try:
+        from sqlalchemy import text as sa_text
+        result = db.execute(sa_text("""
+            INSERT INTO supercut_credits (user_id, balance)
+            VALUES (:uid, :amt)
+            ON CONFLICT (user_id) DO UPDATE
+              SET balance = supercut_credits.balance + :amt,
+                  updated_at = NOW()
+            RETURNING balance
+        """), {"uid": user_id, "amt": amount})
+        new_balance = result.fetchone()[0]
+        db.commit()
+        logger.warning(f"SuperCut SEED: +{amount} credits to user {user_id} (new balance: {new_balance})")
+        return {"success": True, "user_id": user_id, "granted": amount, "new_balance": new_balance}
+    except Exception as e:
+        logger.exception("SuperCut seed-credits error")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.get("/api/supercut/credits")
