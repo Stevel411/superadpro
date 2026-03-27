@@ -414,6 +414,25 @@ export default function SuperScenePage() {
   const toggleChip = (val, arr, setArr) => setArr(arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]);
   const cls = (...c) => c.filter(Boolean).join(" ");
 
+  // ── Download helper (cross-origin safe) ────────────────
+  const downloadVideo = async (url, filename) => {
+    try {
+      const resp = await fetch(url);
+      const blob = await resp.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = filename || `superscene-${Date.now()}.mp4`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    } catch (e) {
+      // Fallback: open in new tab
+      window.open(url, "_blank");
+    }
+  };
+
   // ── Stage content ──────────────────────────────────────
   const StageContent = () => {
     if (generating) return (
@@ -638,7 +657,7 @@ export default function SuperScenePage() {
             {videoUrl && (
               <div className="sc-stage-actions">
                 <button className="sc-sa-btn" onClick={() => setTab("editor")}>✂ Edit</button>
-                <a href={videoUrl} download className="sc-sa-btn">⬇ Download</a>
+                <button className="sc-sa-btn" onClick={() => downloadVideo(videoUrl, `superscene-${Date.now()}.mp4`)}>⬇ Download</button>
               </div>
             )}
             <div className="sc-playbar">
@@ -783,7 +802,7 @@ export default function SuperScenePage() {
                       <div className="sc-gcmod">{v.model_name} · {v.ratio}</div>
                       <div className="sc-gcas">
                         <button className="sc-gca" onClick={() => { setVideoUrl(v.video_url); setTab("editor"); }}>Edit</button>
-                        {v.video_url && <a href={v.video_url} download className="sc-gca">Download</a>}
+                        {v.video_url && <button className="sc-gca" onClick={() => downloadVideo(v.video_url, `superscene-${v.model_name}-${v.id}.mp4`)}>Download</button>}
                       </div>
                     </div>
                   </div>
