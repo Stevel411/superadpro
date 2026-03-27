@@ -3069,6 +3069,26 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
                 affiliate_id = int(affiliate_id) if affiliate_id else None
                 _stripe_process_supermarket(db, user, product_id, session["id"], affiliate_id)
 
+            elif payment_type == "supercut_credits":
+                from .database import SuperCutCredit, SuperCutOrder
+                from datetime import datetime as _dt
+                pack_slug = meta.get("pack_slug", "")
+                credits   = int(meta.get("credits", 0))
+                if credits > 0:
+                    sc_row = db.query(SuperCutCredit).filter(SuperCutCredit.user_id == user_id).first()
+                    if not sc_row:
+                        sc_row = SuperCutCredit(user_id=user_id, balance=0)
+                        db.add(sc_row)
+                    sc_row.balance += credits
+                    sc_order = db.query(SuperCutOrder).filter(
+                        SuperCutOrder.stripe_session_id == session["id"]
+                    ).first()
+                    if sc_order:
+                        sc_order.status = "completed"
+                        sc_order.completed_at = _dt.utcnow()
+                    db.commit()
+                    logger.warning(f"SuperCut: +{credits} credits to user {user_id} (pack={pack_slug})")
+
         except Exception as e:
             import traceback
             tb = traceback.format_exc()
