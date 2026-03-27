@@ -24,9 +24,11 @@ EVOLINK_BASE_URL = "https://api.evolink.ai/v1"
 EVOLINK_FILES_URL = "https://files-api.evolink.ai"
 
 # Model ID mapping — verified against EvoLink docs
+# Note: seedance-2-0 may not be available on all accounts yet;
+# using seedance-1.5-pro as the production Seedance model (confirmed available with audio)
 MODEL_MAP = {
     "kling3":    "kling-v3",
-    "seedance2": "seedance-2-0",
+    "seedance2": "seedance-1.5-pro",
     "sora2":     "sora-2-pro",
     "veo31":     "veo-3.1",
 }

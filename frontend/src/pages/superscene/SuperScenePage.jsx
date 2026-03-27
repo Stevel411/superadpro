@@ -4,7 +4,7 @@ import "./superscene.css";
 // ── Constants ──────────────────────────────────────────────
 const MODELS = [
   { key: "kling3",    name: "Kling 3.0",    desc: "Cinematic realism, smooth motion",  badge: "POPULAR", cost: 3, color: "#22d3ee", i2v: true,  audio: false },
-  { key: "seedance2", name: "Seedance 2.0", desc: "Fast generation, native audio",     badge: "AUDIO",   cost: 2, color: "#fb923c", i2v: true,  audio: true  },
+  { key: "seedance2", name: "Seedance 1.5 Pro", desc: "Fast generation, native audio",     badge: "AUDIO",   cost: 2, color: "#fb923c", i2v: true,  audio: true  },
   { key: "sora2",     name: "Sora 2 Pro",   desc: "OpenAI flagship, photorealistic",   badge: "HD",      cost: 4, color: "#a78bfa", i2v: true,  audio: false },
   { key: "veo31",     name: "Veo 3.1",      desc: "Google latest, audio + detail",     badge: "NEW",     cost: 5, color: "#38bdf8", i2v: true,  audio: true  },
 ];
