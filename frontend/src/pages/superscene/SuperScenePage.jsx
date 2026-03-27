@@ -947,11 +947,11 @@ export default function SuperScenePage() {
               {/* Left — Caption Editor */}
               <div className="sc-cap-editor">
                 <div className="sc-label">Add Captions</div>
-                <div className="sc-sub" style={{ marginTop: 0, marginBottom: 16 }}>Add styled subtitles to your generated video. Type captions manually or auto-transcribe in Phase 3.</div>
+                <div className="sc-sub" style={{ marginTop: 0, marginBottom: 16 }}>Add styled subtitles to your generated video. Type captions manually or use auto-transcribe.</div>
 
                 {/* Caption Style Selector */}
                 <div className="sc-cap-styles">
-                  {[{k:"tiktok",l:"TikTok",color:"#fff",bg:"rgba(0,0,0,.7)"},{k:"youtube",l:"YouTube",color:"#fff",bg:"rgba(0,0,0,.85)"},{k:"minimal",l:"Minimal",color:"#fff",bg:"transparent"},{k:"bold",l:"Bold Pop",color:"#ff0",bg:"rgba(0,0,0,.6)"}].map(s => (
+                  {[{k:"tiktok",l:"TikTok",color:"#fff",bg:"rgba(0,0,0,.7)"},{k:"youtube",l:"YouTube",color:"#fff",bg:"rgba(0,0,0,.85)"},{k:"minimal",l:"Minimal",color:"#fff",bg:"rgba(0,0,0,.45)"},{k:"bold",l:"Bold Pop",color:"#ff0",bg:"rgba(0,0,0,.6)"}].map(s => (
                     <button key={s.k} className={cls("sc-cap-style-btn", captionStyle === s.k && "on")} onClick={() => setCaptionStyle(s.k)}>
                       <div className="sc-cap-style-preview" style={{ color: s.color, background: s.bg }}>{s.l}</div>
                     </button>
