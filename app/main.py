@@ -18083,3 +18083,30 @@ async def sc_confirm_crypto(order_id: int, request: Request, db: Session = Depen
 
     return {"ok": True, "credits_added": order.credits, "new_balance": credit_row.balance}
 
+
+@app.post("/api/supercut/admin/add-credits")
+async def sc_admin_add_credits(request: Request, db: Session = Depends(get_db)):
+    """Admin only — add SuperCut credits to any user."""
+    from .database import SuperCutCredit
+
+    user = get_current_user(request, db)
+    if not user or not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+
+    body = await request.json()
+    target_user_id = int(body.get("user_id", user.id))
+    credits_to_add = int(body.get("credits", 0))
+
+    if credits_to_add <= 0:
+        raise HTTPException(status_code=400, detail="Credits must be positive")
+
+    credit_row = _get_or_create_sc_credits(target_user_id, db)
+    credit_row.balance += credits_to_add
+    db.commit()
+
+    return {
+        "ok": True,
+        "user_id": target_user_id,
+        "credits_added": credits_to_add,
+        "new_balance": credit_row.balance,
+    }
