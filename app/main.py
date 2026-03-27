@@ -17784,6 +17784,29 @@ async def sc_admin_grant_credits(request: Request, db: Session = Depends(get_db)
     return {"success": True, "user_id": target_id, "granted": amount, "new_balance": row.balance}
 
 
+@app.get("/admin/supercut/grant/{amount}")
+async def sc_admin_grant_credits_get(amount: int, request: Request, db: Session = Depends(get_db)):
+    """Admin-only: grant yourself SuperCut credits by visiting this URL."""
+    user = get_current_user(request, db)
+    if not user or not getattr(user, "is_admin", False):
+        raise HTTPException(status_code=403, detail="Admin only")
+    if amount < 1 or amount > 5000:
+        raise HTTPException(status_code=400, detail="Amount must be 1-5000")
+    row = _get_or_create_sc_credits(user.id, db)
+    row.balance += amount
+    db.commit()
+    db.refresh(row)
+    logger.warning(f"SuperCut ADMIN: granted {amount} credits to user {user.id} (new balance: {row.balance})")
+    return HTMLResponse(f"""
+    <html><body style="font-family:sans-serif;text-align:center;padding:60px;background:#0a0a0a;color:#fff">
+    <h1 style="color:#f43f5e">✂ SuperCut Credits Granted</h1>
+    <p style="font-size:24px">+{amount} credits added</p>
+    <p style="font-size:18px;color:#94a3b8">New balance: <strong style="color:#22d3ee">{row.balance}</strong></p>
+    <a href="/supercut" style="display:inline-block;margin-top:30px;padding:14px 32px;background:#f43f5e;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px">Go to SuperCut →</a>
+    </body></html>
+    """)
+
+
 @app.get("/api/supercut/credits")
 async def sc_get_credits(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
