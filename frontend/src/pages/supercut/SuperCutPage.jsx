@@ -258,6 +258,10 @@ export default function SuperCutPage() {
       {/* ── TOPBAR ─────────────────────────────────────── */}
       <div className="sc-topbar">
         <div className="sc-logo">
+          <a href="/dashboard" className="sc-back-btn" title="Back to dashboard">
+            ← Dashboard
+          </a>
+          <div className="sc-topbar-divider"/>
           <div className="sc-logo-mark">✂</div>
           <div className="sc-logo-text">
             <span className="lw">Super</span><span className="lc">Cut</span>
