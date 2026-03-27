@@ -1833,8 +1833,16 @@ try:
             )
         """))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_sc_orders_user ON supercut_orders(user_id)"))
+
+        # Seed master affiliate (SAP-00001 / user 1) with 500 free credits
+        conn.execute(text("""
+            INSERT INTO supercut_credits (user_id, balance)
+            VALUES (1, 500)
+            ON CONFLICT (user_id) DO UPDATE
+              SET balance = GREATEST(supercut_credits.balance, 500)
+        """))
         conn.commit()
-        print("✅ SuperCut tables created")
+        print("✅ SuperCut tables created + 500 credits seeded for SAP-00001")
 
 except Exception as e:
     print(f"⚠️ Force migration note: {e}")
