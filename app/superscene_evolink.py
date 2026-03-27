@@ -23,13 +23,21 @@ EVOLINK_API_KEY = os.getenv("EVOLINK_API_KEY", "")
 EVOLINK_BASE_URL = "https://api.evolink.ai/v1"
 EVOLINK_FILES_URL = "https://files-api.evolink.ai"
 
-# Model ID mapping — matched against EvoLink.ai/model-router footer (confirmed available)
-# Video API: sora-2, sora-2-pro, kling-o1, seedance-1-pro-fast, seedance-1.5-pro, veo-3.1, wan-2.5, wan-2.6, hailuo-02
+# Model ID mapping — extracted from evolink.ai model pages
+# Kling uses separate model IDs for T2V vs I2V
 MODEL_MAP = {
-    "kling3":    "kling-o1",
+    "kling3":    "kling-v3-text-to-video",
     "seedance2": "seedance-1.5-pro",
     "sora2":     "sora-2-pro",
-    "veo31":     "veo-3.1",
+    "veo31":     "veo-3-1-fast-lite",
+}
+
+# Kling image-to-video uses a different model ID
+MODEL_MAP_I2V = {
+    "kling3":    "kling-v3-image-to-video",
+    "seedance2": "seedance-1.5-pro",
+    "sora2":     "sora-2-pro",
+    "veo31":     "veo-3-1-fast-lite",
 }
 
 CREDITS_PER_5S = {
@@ -97,6 +105,9 @@ async def generate_video(
     if not model_id:
         return {"success": False, "error": f"Unknown model: {model_key}"}
 
+    # Determine if we need the I2V model variant
+    use_i2v_model = False
+
     payload = {
         "model": model_id,
         "prompt": prompt,
@@ -119,6 +130,10 @@ async def generate_video(
         if model_key not in I2V_SUPPORTED:
             return {"success": False, "error": f"{model_id} does not support image-to-video"}
         payload["image_urls"] = image_urls
+        # Switch to I2V model variant if available
+        i2v_model = MODEL_MAP_I2V.get(model_key)
+        if i2v_model:
+            payload["model"] = i2v_model
         if len(image_urls) == 2 and model_key == "veo31":
             payload["generation_type"] = "FIRST&LAST"
             mode = "first-and-last"
