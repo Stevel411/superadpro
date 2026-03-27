@@ -128,6 +128,19 @@ export default function SuperScenePage() {
   const musicPollRef = useRef(null);
   const musicProgRef = useRef(null);
 
+  // Voiceover
+  const [voText, setVoText] = useState("");
+  const [voVoice, setVoVoice] = useState("en-US-GuyNeural");
+  const [voGenerating, setVoGenerating] = useState(false);
+  const [voAudioUrl, setVoAudioUrl] = useState(null);
+  const [voImageUrl, setVoImageUrl] = useState(null);
+  const [voLipSyncing, setVoLipSyncing] = useState(false);
+  const [voLipSyncUrl, setVoLipSyncUrl] = useState(null);
+  const [voLipSyncProgress, setVoLipSyncProgress] = useState(0);
+  const voLipPollRef = useRef(null);
+  const voLipProgRef = useRef(null);
+  const voImageInputRef = useRef(null);
+
   const selectedModel = MODELS.find(m => m.key === model);
   const cost = calcCost(model, duration, genAudio);
 
@@ -422,6 +435,95 @@ export default function SuperScenePage() {
   const updateCaption = (id, updates) => setCaptions(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
   const removeCaption = (id) => setCaptions(prev => prev.filter(c => c.id !== id));
 
+  // ── Voiceover Functions ─────────────────────────────────
+  const VO_VOICES = [
+    { id: "en-US-GuyNeural",     name: "Guy",     gender: "M", accent: "US" },
+    { id: "en-US-JennyNeural",   name: "Jenny",   gender: "F", accent: "US" },
+    { id: "en-US-AriaNeural",    name: "Aria",    gender: "F", accent: "US" },
+    { id: "en-US-DavisNeural",   name: "Davis",   gender: "M", accent: "US" },
+    { id: "en-US-JaneNeural",    name: "Jane",    gender: "F", accent: "US" },
+    { id: "en-US-JasonNeural",   name: "Jason",   gender: "M", accent: "US" },
+    { id: "en-GB-RyanNeural",    name: "Ryan",    gender: "M", accent: "UK" },
+    { id: "en-GB-SoniaNeural",   name: "Sonia",   gender: "F", accent: "UK" },
+    { id: "en-AU-WilliamNeural", name: "William", gender: "M", accent: "AU" },
+    { id: "en-AU-NatashaNeural", name: "Natasha", gender: "F", accent: "AU" },
+  ];
+
+  const generateVoiceover = async () => {
+    if (!voText.trim() || voGenerating) return;
+    setVoGenerating(true);
+    setVoAudioUrl(null);
+    try {
+      const res = await fetch("/api/superscene/voiceover/generate", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: voText, voice: voVoice }),
+      });
+      const data = await res.json();
+      if (data.success && data.audio_url) {
+        setVoAudioUrl(data.audio_url);
+      } else {
+        alert(data.detail || data.error || "Voiceover failed");
+      }
+    } catch { alert("Network error"); }
+    setVoGenerating(false);
+  };
+
+  const handleVoImageUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const fd = new FormData();
+    fd.append("file", file);
+    try {
+      const res = await fetch("/api/superscene/upload-image", { method: "POST", body: fd });
+      const data = await res.json();
+      if (data.success && data.file_url) setVoImageUrl(data.file_url);
+      else alert("Image upload failed");
+    } catch { alert("Upload error"); }
+  };
+
+  const generateLipSync = async () => {
+    if (!voAudioUrl || !voImageUrl || voLipSyncing) return;
+    setVoLipSyncing(true);
+    setVoLipSyncUrl(null);
+    setVoLipSyncProgress(0);
+
+    voLipProgRef.current = setInterval(() => {
+      setVoLipSyncProgress(p => Math.min(p + Math.random() * 2 + 0.5, 85));
+    }, 500);
+
+    try {
+      const res = await fetch("/api/superscene/lipsync/generate", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image_url: voImageUrl, audio_url: voAudioUrl }),
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.detail || "Lip sync failed"); setVoLipSyncing(false); clearInterval(voLipProgRef.current); return; }
+      setCredits(data.credits_remaining);
+
+      // Poll via /api/superscene/status/{task_id}
+      if (voLipPollRef.current) clearInterval(voLipPollRef.current);
+      voLipPollRef.current = setInterval(async () => {
+        try {
+          const pr = await fetch(`/api/superscene/status/${data.task_id}`);
+          const pd = await pr.json();
+          if (pd.status === "completed" && pd.video_url) {
+            setVoLipSyncUrl(pd.video_url);
+            setVoLipSyncing(false);
+            setVoLipSyncProgress(100);
+            clearInterval(voLipPollRef.current);
+            clearInterval(voLipProgRef.current);
+            fetch("/api/superscene/credits").then(r => r.json()).then(d => setCredits(d.balance || 0));
+          } else if (pd.status === "failed") {
+            setVoLipSyncing(false);
+            clearInterval(voLipPollRef.current);
+            clearInterval(voLipProgRef.current);
+            alert("Lip sync generation failed");
+          }
+        } catch {}
+      }, 3000);
+    } catch { alert("Network error"); setVoLipSyncing(false); clearInterval(voLipProgRef.current); }
+  };
+
   // ── Music Generation ────────────────────────────────────
   const MUSIC_MODELS = [
     { key: "suno-v4",   name: "Suno V4",   cost: 1 },
@@ -613,7 +715,7 @@ export default function SuperScenePage() {
           <div className="sc-logo-badge">BETA</div>
         </div>
         <div className="sc-tabs">
-          {[{k:"create",l:"Create"},{k:"storyboard",l:"Storyboard"},{k:"captions",l:"Captions"},{k:"music",l:"Music"},{k:"editor",l:"Editor"},{k:"gallery",l:"Gallery"},{k:"packs",l:"Packs"},{k:"builder",l:"AI Builder"}].map(t => (
+          {[{k:"create",l:"Create"},{k:"storyboard",l:"Storyboard"},{k:"captions",l:"Captions"},{k:"music",l:"Music"},{k:"voiceover",l:"Voiceover"},{k:"editor",l:"Editor"},{k:"gallery",l:"Gallery"},{k:"packs",l:"Packs"},{k:"builder",l:"AI Builder"}].map(t => (
             <button key={t.k} className={cls("sc-tab", tab === t.k && "active")} onClick={() => setTab(t.k)}>
               <span className="tdot"/>{t.l}
             </button>
@@ -934,6 +1036,122 @@ export default function SuperScenePage() {
                       <div className="s-icon">♪</div>
                       <div className="s-title">Your music will appear here</div>
                       <div className="s-sub">Describe your track, choose a model, and hit Generate</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══ VOICEOVER TAB ══ */}
+        {tab === "voiceover" && (
+          <div className="sc-music-view">
+            <div className="sc-music-layout">
+              {/* Left — Controls */}
+              <div className="sc-music-controls">
+                <div className="sc-label">AI Voiceover</div>
+                <div className="sc-sub" style={{ marginTop: 0, marginBottom: 20 }}>Generate professional voiceovers from text. Optionally create a lip-synced talking avatar.</div>
+
+                {/* Step 1: Script */}
+                <div className="sc-section">
+                  <div className="sc-label">① Script</div>
+                  <div className="sc-prompt-box">
+                    <textarea className="sc-prompt-ta" rows={6}
+                      placeholder="Type your voiceover script here... e.g. Welcome to SuperAdPro, the platform where your creativity pays."
+                      value={voText} onChange={e => setVoText(e.target.value)}/>
+                    <span className="sc-prompt-counter">{voText.length}/5000</span>
+                  </div>
+                </div>
+
+                {/* Voice Selection */}
+                <div className="sc-section">
+                  <div className="sc-label">② Voice</div>
+                  <select className="sc-music-input" value={voVoice} onChange={e => setVoVoice(e.target.value)} style={{ cursor: "pointer" }}>
+                    {VO_VOICES.map(v => <option key={v.id} value={v.id}>{v.name} ({v.gender === "M" ? "Male" : "Female"} · {v.accent})</option>)}
+                  </select>
+                </div>
+
+                {/* Generate Voiceover */}
+                <div className="sc-section">
+                  <button className="sc-gen-btn" onClick={generateVoiceover} disabled={!voText.trim() || voGenerating}>
+                    {voGenerating ? "Generating voiceover…" : "🎙 Generate Voiceover"}
+                  </button>
+                  <div className="sc-sub" style={{ marginTop: 6, fontSize: 11 }}>Free — no credits required for voiceover</div>
+                </div>
+
+                {/* Step 3: Lip Sync (optional) */}
+                {voAudioUrl && (
+                  <>
+                    <div style={{ borderTop: "1px solid var(--border)", margin: "20px 0" }}/>
+                    <div className="sc-label">③ Lip Sync Avatar (Optional)</div>
+                    <div className="sc-sub" style={{ marginTop: 0, marginBottom: 12 }}>Upload a photo of a person and create a talking avatar video synced to your voiceover.</div>
+
+                    <div className="sc-section">
+                      <input type="file" ref={voImageInputRef} accept="image/jpeg,image/png,image/webp" style={{ display: "none" }} onChange={handleVoImageUpload}/>
+                      <button className="sc-sa-btn" onClick={() => voImageInputRef.current?.click()} style={{ width: "100%" }}>
+                        {voImageUrl ? "✓ Photo uploaded — Change" : "📷 Upload Person Photo"}
+                      </button>
+                    </div>
+
+                    {voImageUrl && (
+                      <div className="sc-section">
+                        <img src={voImageUrl} alt="Avatar" style={{ width: "100%", maxHeight: 200, objectFit: "cover", borderRadius: 10, border: "1px solid var(--border)" }}/>
+                      </div>
+                    )}
+
+                    {voImageUrl && voAudioUrl && (
+                      <div className="sc-section">
+                        <div className="sc-credit-line">
+                          <div className="sc-cl-icon">◈</div>
+                          <span className="sc-cl-label">Cost:</span>
+                          <span className="sc-cl-value">5 credits</span>
+                        </div>
+                        <button className="sc-gen-btn" onClick={generateLipSync} disabled={voLipSyncing}>
+                          {voLipSyncing ? "Generating avatar…" : "🎬 Generate Talking Avatar"}
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+
+              {/* Right — Preview */}
+              <div className="sc-music-preview">
+                <div className="sc-preview-label">Preview</div>
+                <div className="sc-music-stage">
+                  {voLipSyncing ? (
+                    <div className="gst">
+                      <div className="spin"><div className="r1"/><div className="r2"/></div>
+                      <div className="gst-title">Creating talking avatar…</div>
+                      <div className="gst-sub">OmniHuman 1.5 · Lip Sync</div>
+                      <div className="pt"><div className="pf" style={{ width: `${Math.min(voLipSyncProgress, 100)}%` }}/></div>
+                      <div className="gst-pct">{Math.round(voLipSyncProgress)}%</div>
+                    </div>
+                  ) : voLipSyncUrl ? (
+                    <div className="sc-music-result">
+                      <div className="sc-music-title">Talking Avatar Ready</div>
+                      <video src={voLipSyncUrl} controls className="sc-sb-video" style={{ maxWidth: "100%", borderRadius: 10 }}/>
+                      <button className="sc-sa-btn" onClick={() => downloadVideo(voLipSyncUrl, `superscene-avatar-${Date.now()}.mp4`)} style={{ marginTop: 12 }}>⬇ Download Video</button>
+                    </div>
+                  ) : voGenerating ? (
+                    <div className="gst">
+                      <div className="spin"><div className="r1"/><div className="r2"/></div>
+                      <div className="gst-title">Generating voiceover…</div>
+                    </div>
+                  ) : voAudioUrl ? (
+                    <div className="sc-music-result">
+                      <div className="sc-music-icon">🎙</div>
+                      <div className="sc-music-title">Voiceover Ready</div>
+                      <audio src={voAudioUrl} controls className="sc-music-player"/>
+                      <button className="sc-sa-btn" onClick={() => downloadVideo(voAudioUrl, `superscene-voiceover-${Date.now()}.mp3`)} style={{ marginTop: 12 }}>⬇ Download MP3</button>
+                      <div className="sc-sub" style={{ marginTop: 16 }}>Want a talking avatar? Upload a photo in Step ③ on the left.</div>
+                    </div>
+                  ) : (
+                    <div className="s-empty">
+                      <div className="s-icon">🎙</div>
+                      <div className="s-title">Your voiceover will appear here</div>
+                      <div className="s-sub">Write a script, pick a voice, and generate your voiceover. Then optionally create a lip-synced avatar.</div>
                     </div>
                   )}
                 </div>

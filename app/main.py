@@ -18373,3 +18373,156 @@ Format the lyrics with [Verse], [Chorus], [Bridge] sections. Keep it 2-3 verses 
     except Exception as e:
         logger.exception("Lyrics generation error")
         raise HTTPException(status_code=502, detail=str(e))
+
+# ── SuperScene — Voiceover (edge-tts) ────────────────────────
+
+@app.post("/api/superscene/voiceover/generate")
+async def sc_voiceover_generate(request: Request, db: Session = Depends(get_db)):
+    """Generate a voiceover from text using edge-tts (free Microsoft TTS)."""
+    import edge_tts
+    import uuid as _uuid
+    from .r2_storage import upload_image as r2_upload
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    body = await request.json()
+    text  = (body.get("text") or "").strip()
+    voice = body.get("voice", "en-US-GuyNeural")
+
+    if not text:
+        raise HTTPException(status_code=400, detail="Text is required")
+    if len(text) > 5000:
+        raise HTTPException(status_code=400, detail="Text must be under 5000 characters")
+
+    try:
+        # Generate audio with edge-tts
+        comm = edge_tts.Communicate(text, voice)
+        audio_bytes = b""
+        async for chunk in comm.stream():
+            if chunk["type"] == "audio":
+                audio_bytes += chunk["data"]
+
+        if not audio_bytes:
+            raise HTTPException(status_code=502, detail="No audio generated")
+
+        # Upload to R2
+        audio_url = r2_upload(audio_bytes, "superscene/voiceovers", ext="mp3", content_type="audio/mpeg")
+
+        return {"success": True, "audio_url": audio_url}
+
+    except Exception as e:
+        logger.exception("Voiceover generation error")
+        raise HTTPException(status_code=502, detail=str(e))
+
+
+@app.get("/api/superscene/voiceover/voices")
+async def sc_voiceover_voices():
+    """Return available TTS voices."""
+    voices = [
+        {"id": "en-US-GuyNeural",           "name": "Guy",          "gender": "Male",   "accent": "US"},
+        {"id": "en-US-JennyNeural",         "name": "Jenny",        "gender": "Female", "accent": "US"},
+        {"id": "en-US-AriaNeural",          "name": "Aria",         "gender": "Female", "accent": "US"},
+        {"id": "en-US-DavisNeural",         "name": "Davis",        "gender": "Male",   "accent": "US"},
+        {"id": "en-US-JaneNeural",          "name": "Jane",         "gender": "Female", "accent": "US"},
+        {"id": "en-US-JasonNeural",         "name": "Jason",        "gender": "Male",   "accent": "US"},
+        {"id": "en-US-TonyNeural",          "name": "Tony",         "gender": "Male",   "accent": "US"},
+        {"id": "en-US-NancyNeural",         "name": "Nancy",        "gender": "Female", "accent": "US"},
+        {"id": "en-GB-RyanNeural",          "name": "Ryan",         "gender": "Male",   "accent": "British"},
+        {"id": "en-GB-SoniaNeural",         "name": "Sonia",        "gender": "Female", "accent": "British"},
+        {"id": "en-AU-NatashaNeural",       "name": "Natasha",      "gender": "Female", "accent": "Australian"},
+        {"id": "en-AU-WilliamNeural",       "name": "William",      "gender": "Male",   "accent": "Australian"},
+    ]
+    return {"voices": voices}
+
+
+# ── SuperScene — Lip Sync (OmniHuman 1.5 via EvoLink) ────────
+
+@app.post("/api/superscene/lipsync/generate")
+async def sc_lipsync_generate(request: Request, db: Session = Depends(get_db)):
+    """Generate lip-synced avatar video using OmniHuman 1.5.
+    Body: {image_url, audio_url}
+    """
+    from .database import SuperSceneCredit, SuperSceneVideo
+    import httpx
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    body = await request.json()
+    image_url = (body.get("image_url") or "").strip()
+    audio_url = (body.get("audio_url") or "").strip()
+
+    if not image_url or not audio_url:
+        raise HTTPException(status_code=400, detail="Both image_url and audio_url are required")
+
+    # Lip sync costs 5 credits
+    credits_needed = 5
+    credit_row = _get_or_create_sc_credits(user.id, db)
+    if credit_row.balance < credits_needed:
+        raise HTTPException(status_code=402, detail=f"Insufficient credits. Need {credits_needed}, have {credit_row.balance}.")
+
+    credit_row.balance -= credits_needed
+    db.commit()
+
+    api_key = os.getenv("EVOLINK_API_KEY", "")
+    if not api_key:
+        credit_row.balance += credits_needed
+        db.commit()
+        raise HTTPException(status_code=503, detail="EvoLink API key not configured")
+
+    payload = {
+        "model": "omnihuman-1.5",
+        "image_urls": [image_url],
+        "audio_url": audio_url,
+    }
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.post(
+                "https://api.evolink.ai/v1/videos/generations",
+                json=payload,
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                },
+            )
+            data = resp.json()
+
+        logger.info(f"OmniHuman response ({resp.status_code}): {data}")
+
+        if resp.status_code in (200, 201):
+            task_id = data.get("id") or data.get("task_id")
+            if task_id:
+                # Save to videos table
+                video = SuperSceneVideo(
+                    user_id=user.id, task_id=str(task_id), model_key="omnihuman",
+                    model_name="OmniHuman 1.5", prompt="Lip sync avatar",
+                    duration=0, ratio="9:16", status="pending", credits_used=credits_needed,
+                )
+                db.add(video)
+                db.commit()
+                return {
+                    "success": True,
+                    "task_id": str(task_id),
+                    "credits_used": credits_needed,
+                    "credits_remaining": credit_row.balance,
+                }
+            credit_row.balance += credits_needed
+            db.commit()
+            raise HTTPException(status_code=502, detail="No task_id in response")
+
+        credit_row.balance += credits_needed
+        db.commit()
+        err = data.get("error", {}).get("message", "OmniHuman generation failed") if isinstance(data.get("error"), dict) else str(data.get("error", "Failed"))
+        raise HTTPException(status_code=502, detail=err)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        credit_row.balance += credits_needed
+        db.commit()
+        logger.exception("OmniHuman error")
+        raise HTTPException(status_code=502, detail=str(e))
