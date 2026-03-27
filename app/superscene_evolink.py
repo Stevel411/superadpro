@@ -23,11 +23,10 @@ EVOLINK_API_KEY = os.getenv("EVOLINK_API_KEY", "")
 EVOLINK_BASE_URL = "https://api.evolink.ai/v1"
 EVOLINK_FILES_URL = "https://files-api.evolink.ai"
 
-# Model ID mapping — verified against EvoLink docs
-# Note: seedance-2-0 may not be available on all accounts yet;
-# using seedance-1.5-pro as the production Seedance model (confirmed available with audio)
+# Model ID mapping — matched against EvoLink.ai/model-router footer (confirmed available)
+# Video API: sora-2, sora-2-pro, kling-o1, seedance-1-pro-fast, seedance-1.5-pro, veo-3.1, wan-2.5, wan-2.6, hailuo-02
 MODEL_MAP = {
-    "kling3":    "kling-v3",
+    "kling3":    "kling-o1",
     "seedance2": "seedance-1.5-pro",
     "sora2":     "sora-2-pro",
     "veo31":     "veo-3.1",

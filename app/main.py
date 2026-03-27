@@ -17905,7 +17905,7 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
 
     # Model name map for display
     model_names = {
-        "kling3": "Kling 3.0", "seedance2": "Seedance 2.0",
+        "kling3": "Kling O1", "seedance2": "Seedance 1.5 Pro",
         "sora2": "Sora 2 Pro", "veo31": "Veo 3.1",
     }
 
