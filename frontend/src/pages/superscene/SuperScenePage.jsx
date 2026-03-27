@@ -124,6 +124,7 @@ export default function SuperScenePage() {
   const [musicGenerating, setMusicGenerating] = useState(false);
   const [musicUrl, setMusicUrl] = useState(null);
   const [musicProgress, setMusicProgress] = useState(0);
+  const [lyricsGenerating, setLyricsGenerating] = useState(false);
   const musicPollRef = useRef(null);
   const musicProgRef = useRef(null);
 
@@ -427,6 +428,27 @@ export default function SuperScenePage() {
     { key: "suno-v4.5", name: "Suno V4.5", cost: 2 },
     { key: "suno-v5",   name: "Suno V5",   cost: 3, badge: "BEST" },
   ];
+
+  const generateLyrics = async () => {
+    if (lyricsGenerating) return;
+    const desc = musicPrompt.trim() || musicTitle.trim() || musicStyle.trim();
+    if (!desc) { alert("Enter a description, title, or style first so AI knows what to write about"); return; }
+    setLyricsGenerating(true);
+    try {
+      const res = await fetch("/api/superscene/music/generate-lyrics", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ description: desc, style: musicStyle }),
+      });
+      const data = await res.json();
+      if (data.success && data.lyrics) {
+        setMusicPrompt(data.lyrics);
+      } else {
+        alert(data.error || data.detail || "Lyrics generation failed");
+      }
+    } catch { alert("Network error"); }
+    setLyricsGenerating(false);
+  };
 
   const generateMusic = async () => {
     if (!musicPrompt.trim() || musicGenerating) return;
@@ -826,6 +848,15 @@ export default function SuperScenePage() {
                     <textarea className="sc-prompt-ta" rows={musicCustom ? 8 : 4}
                       placeholder={musicCustom ? "[Verse]\nWalking down the road...\n\n[Chorus]\nHere we go again..." : "Upbeat pop song for Instagram Reels, energetic and fun"}
                       value={musicPrompt} onChange={e => setMusicPrompt(e.target.value)}/>
+                    {musicCustom && (
+                      <div className="sc-prompt-ai-row">
+                        <button className="sc-prompt-ai-btn" onClick={generateLyrics} disabled={lyricsGenerating}>
+                          {lyricsGenerating ? "Generating…" : "✦ Generate Lyrics With AI"}
+                        </button>
+                        <span className="sc-prompt-counter">{musicPrompt.length}/3000</span>
+                      </div>
+                    )}
+                    {musicCustom && <div className="sc-sub" style={{ marginTop: 4, fontSize: 11 }}>Tip: Enter a song title or style first, then click Generate Lyrics. You can edit the result before generating music.</div>}
                   </div>
                 </div>
 

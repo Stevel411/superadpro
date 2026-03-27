@@ -18321,3 +18321,55 @@ async def sc_music_poll(task_id: str, request: Request, db: Session = Depends(ge
         "status": result["status"],
         "audio_url": result.get("audio_url"),
     }
+
+@app.post("/api/superscene/music/generate-lyrics")
+async def sc_generate_lyrics(request: Request, db: Session = Depends(get_db)):
+    """Generate song lyrics using Claude AI based on a description."""
+    import httpx
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    body = await request.json()
+    description = (body.get("description") or "").strip()
+    style = (body.get("style") or "").strip()
+
+    if not description:
+        raise HTTPException(status_code=400, detail="Description required")
+
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        raise HTTPException(status_code=503, detail="AI service not configured")
+
+    style_hint = f" in a {style} style" if style else ""
+    prompt = f"""Write song lyrics{style_hint} based on this description: "{description}"
+
+Format the lyrics with [Verse], [Chorus], [Bridge] sections. Keep it 2-3 verses with a catchy chorus. Make the lyrics feel authentic and emotionally engaging. Only output the lyrics, nothing else."""
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "x-api-key": api_key,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json",
+                },
+                json={
+                    "model": "claude-haiku-4-5-20251001",
+                    "max_tokens": 1000,
+                    "messages": [{"role": "user", "content": prompt}],
+                },
+            )
+            data = resp.json()
+
+        if resp.status_code == 200:
+            lyrics = data.get("content", [{}])[0].get("text", "")
+            return {"success": True, "lyrics": lyrics}
+
+        return {"success": False, "error": data.get("error", {}).get("message", "AI generation failed")}
+
+    except Exception as e:
+        logger.exception("Lyrics generation error")
+        raise HTTPException(status_code=502, detail=str(e))
