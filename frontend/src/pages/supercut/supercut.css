@@ -4,42 +4,50 @@
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
-/* ── DARK THEME (default) ── */
+/* ── DARK THEME (default) — uses platform dark blue #1c223d family ── */
 .sc-root.dark {
-  --bg:       #080c0e;
-  --surface:  #0f1519;
-  --surface2: #141d22;
-  --surface3: #1a2630;
-  --border:   #1e2e38;
-  --border2:  #27404e;
+  --bg:       #0e1225;
+  --surface:  #151a30;
+  --surface2: #1c223d;
+  --surface3: #252c4a;
+  --border:   #2a3258;
+  --border2:  #3a4370;
   --text:     #ffffff;
-  --text2:    #c8d8e0;
-  --muted:    #7090a0;
-  --muted2:   #3d5566;
+  --text2:    #c8d0e8;
+  --muted:    #7080b0;
+  --muted2:   #3d4a70;
   --cyan:     #22d3ee;
   --cdim:     rgba(34,211,238,.08);
   --cdim2:    rgba(34,211,238,.14);
   --lw: 340px;
   --rw: 320px;
+  --topbar-bg:     #1c223d;
+  --topbar-border: #2a3258;
+  --topbar-text:   #ffffff;
+  --topbar-muted:  #7080b0;
 }
 
-/* ── LIGHT THEME ── */
+/* ── LIGHT THEME — topbar stays dark blue ── */
 .sc-root.light {
-  --bg:       #f2f6f8;
+  --bg:       #f0f3f9;
   --surface:  #ffffff;
-  --surface2: #eaf2f6;
-  --surface3: #dceaf0;
-  --border:   #c8dde6;
-  --border2:  #a8ccd8;
+  --surface2: #eaeff8;
+  --surface3: #dce3f0;
+  --border:   #c8d0e2;
+  --border2:  #a8b4d0;
   --text:     #0a1520;
-  --text2:    #2a4050;
-  --muted:    #507080;
-  --muted2:   #8aaabb;
+  --text2:    #2a3550;
+  --muted:    #506080;
+  --muted2:   #8a9abb;
   --cyan:     #0891b2;
   --cdim:     rgba(8,145,178,.08);
   --cdim2:    rgba(8,145,178,.14);
   --lw: 340px;
   --rw: 320px;
+  --topbar-bg:     #1c223d;
+  --topbar-border: #2a3258;
+  --topbar-text:   #ffffff;
+  --topbar-muted:  #9098b8;
 }
 
 /* ── BASE ── */
@@ -52,47 +60,47 @@
   gap: 5px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--topbar-muted);
   text-decoration: none;
   padding: 6px 10px;
   border-radius: 7px;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255,255,255,.1);
   background: transparent;
   transition: all .2s;
   white-space: nowrap;
   font-family: 'DM Sans', sans-serif;
 }
-.sc-back-btn:hover { color: var(--text); border-color: var(--border2); background: var(--surface2); }
-.sc-topbar-divider { width: 1px; height: 20px; background: var(--border); margin: 0 4px; flex-shrink: 0; }
+.sc-back-btn:hover { color: #ffffff; border-color: rgba(255,255,255,.2); background: rgba(255,255,255,.06); }
+.sc-topbar-divider { width: 1px; height: 20px; background: rgba(255,255,255,.12); margin: 0 4px; flex-shrink: 0; }
 
-/* ── TOPBAR ── */
-.sc-topbar { height: 52px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 22px; background: var(--surface); border-bottom: 1px solid var(--border); z-index: 20; }
+/* ── TOPBAR — always dark blue (#1c223d) in both themes ── */
+.sc-topbar { height: 52px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; padding: 0 22px; background: var(--topbar-bg); border-bottom: 1px solid var(--topbar-border); z-index: 20; }
 .sc-logo { display: flex; align-items: center; gap: 10px; }
 .sc-logo-mark { width: 28px; height: 28px; border-radius: 7px; background: linear-gradient(135deg,#0891b2,#22d3ee); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; color: #fff; }
 .sc-logo-text { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -.3px; }
 .sc-root.dark  .lw { color: #ffffff; }
 .sc-root.dark  .lc { color: var(--cyan); }
-.sc-root.light .lw { color: #0a1520; }
+.sc-root.light .lw { color: #ffffff; }
 .sc-root.light .lc { color: var(--cyan); }
 .sc-logo-badge { font-size: 9px; font-weight: 700; background: var(--cdim); color: var(--cyan); padding: 2px 7px; border-radius: 12px; border: 1px solid rgba(34,211,238,.2); letter-spacing: .5px; }
 
-/* ── TABS ── */
-.sc-tabs { display: flex; gap: 1px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
-.sc-tab { padding: 5px 20px; border-radius: 7px; border: none; cursor: pointer; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; background: transparent; color: var(--muted); transition: all .2s; display: flex; align-items: center; gap: 6px; }
-.sc-tab.active { background: var(--surface3); color: var(--text); }
-.tdot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted2); transition: background .2s; }
+/* ── TABS — sit on dark topbar ── */
+.sc-tabs { display: flex; gap: 1px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 3px; }
+.sc-tab { padding: 5px 20px; border-radius: 7px; border: none; cursor: pointer; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; background: transparent; color: var(--topbar-muted); transition: all .2s; display: flex; align-items: center; gap: 6px; }
+.sc-tab.active { background: rgba(255,255,255,.1); color: #ffffff; }
+.tdot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,.2); transition: background .2s; }
 .sc-tab.active .tdot { background: var(--cyan); }
 
-/* ── TOPBAR RIGHT ── */
+/* ── TOPBAR RIGHT — on dark blue topbar ── */
 .sc-topbar-r { display: flex; align-items: center; gap: 8px; }
-.sc-cpill { display: flex; align-items: center; gap: 7px; background: var(--surface2); border: 1px solid var(--border); border-radius: 20px; padding: 5px 10px 5px 8px; }
+.sc-cpill { display: flex; align-items: center; gap: 7px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 20px; padding: 5px 10px 5px 8px; }
 .sc-cicon { width: 18px; height: 18px; border-radius: 50%; background: linear-gradient(135deg,#0891b2,#22d3ee); display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; color: #fff; }
-.sc-cnum { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; color: var(--text); }
-.sc-clbl { font-size: 11px; color: var(--muted); }
-.sc-cadd { width: 20px; height: 20px; border-radius: 50%; background: var(--cdim); border: 1px solid var(--border2); color: var(--muted); font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; }
-.sc-cadd:hover { color: var(--text); }
-.sc-ibt { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: all .2s; }
-.sc-ibt:hover { color: var(--text); border-color: var(--border2); }
+.sc-cnum { font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700; color: #ffffff; }
+.sc-clbl { font-size: 11px; color: var(--topbar-muted); }
+.sc-cadd { width: 20px; height: 20px; border-radius: 50%; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); color: var(--topbar-muted); font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; }
+.sc-cadd:hover { color: #ffffff; }
+.sc-ibt { width: 32px; height: 32px; border-radius: 8px; border: 1px solid rgba(255,255,255,.1); background: transparent; color: var(--topbar-muted); cursor: pointer; font-size: 13px; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+.sc-ibt:hover { color: #ffffff; border-color: rgba(255,255,255,.2); }
 
 /* ── WORKSPACE ── */
 .sc-ws { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 52px); }
