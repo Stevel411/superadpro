@@ -17937,8 +17937,8 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
 
 @app.post("/api/superscene/upload-image")
 async def sc_upload_image(request: Request, db: Session = Depends(get_db)):
-    """Upload an image for image-to-video generation. Returns a hosted URL."""
-    from .superscene_evolink import upload_image
+    """Upload an image for image-to-video generation. Stores in R2, returns public URL."""
+    from .r2_storage import upload_image as r2_upload
 
     user = get_current_user(request, db)
     if not user:
@@ -17951,7 +17951,8 @@ async def sc_upload_image(request: Request, db: Session = Depends(get_db)):
 
     # Validate file type
     ct = file.content_type or ""
-    if ct not in ("image/jpeg", "image/png", "image/webp"):
+    ext_map = {"image/jpeg": "jpg", "image/png": "png", "image/webp": "webp"}
+    if ct not in ext_map:
         raise HTTPException(status_code=400, detail="Only JPEG, PNG, and WebP images are accepted")
 
     # Read file (max 10MB)
@@ -17959,11 +17960,12 @@ async def sc_upload_image(request: Request, db: Session = Depends(get_db)):
     if len(data) > 10 * 1024 * 1024:
         raise HTTPException(status_code=400, detail="Image must be under 10MB")
 
-    result = await upload_image(data, file.filename or "image.jpg", ct)
-    if not result["success"]:
-        raise HTTPException(status_code=502, detail=result.get("error", "Upload failed"))
-
-    return {"success": True, "file_url": result["file_url"]}
+    try:
+        file_url = r2_upload(data, "superscene", ext=ext_map[ct], content_type=ct)
+        return {"success": True, "file_url": file_url}
+    except Exception as e:
+        logger.exception("SuperScene image upload failed")
+        raise HTTPException(status_code=502, detail=f"Upload failed: {str(e)}")
 
 
 @app.get("/api/superscene/status/{task_id}")
