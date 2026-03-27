@@ -1223,7 +1223,7 @@ export default function SuperScenePage() {
                 )}
               </div>
 
-              <textarea className="sc-sb-prompt-input" rows={3}
+              <textarea className="sc-sb-prompt-input" rows={5}
                 placeholder={sbScenes.length === 0
                   ? "Describe your first scene… e.g. A cinematic sunset over the ocean, golden light, slow camera pan"
                   : "Describe what happens next… The camera continues to the same characters now walking along the beach"}
