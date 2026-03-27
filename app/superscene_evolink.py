@@ -263,3 +263,128 @@ async def poll_status(task_id: str) -> dict:
     except Exception as e:
         logger.exception("EvoLink poll_status error")
         return {"success": False, "error": str(e)}
+
+# ── Music Generation (Suno via EvoLink) ──────────────────────
+
+MUSIC_MODELS = {
+    "suno-v4":      "suno-v4-beta",
+    "suno-v4.5":    "suno-v4.5-beta",
+    "suno-v5":      "suno-v5-beta",
+}
+
+MUSIC_CREDITS = {
+    "suno-v4": 1,
+    "suno-v4.5": 2,
+    "suno-v5": 3,
+}
+
+
+async def generate_music(
+    model_key: str,
+    prompt: str,
+    custom_mode: bool = False,
+    style: str = "",
+    title: str = "",
+    instrumental: bool = False,
+    vocal_gender: str = "",
+    negative_style: str = "",
+) -> dict:
+    """
+    Generate music via Suno on EvoLink.
+    Endpoint: POST /v1/audios/generations
+    Returns: {success, task_id} or {success, error}
+    """
+    if not EVOLINK_API_KEY:
+        return {"success": False, "error": "EvoLink API key not configured"}
+
+    model_id = MUSIC_MODELS.get(model_key)
+    if not model_id:
+        return {"success": False, "error": f"Unknown music model: {model_key}"}
+
+    payload = {
+        "model": model_id,
+        "prompt": prompt,
+        "custom_mode": custom_mode,
+        "instrumental": instrumental,
+    }
+
+    if custom_mode:
+        if style:
+            payload["style"] = style
+        if title:
+            payload["title"] = title
+        if vocal_gender:
+            payload["vocal_gender"] = vocal_gender
+        if negative_style:
+            payload["negative_style"] = negative_style
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.post(
+                f"{EVOLINK_BASE_URL}/audios/generations",
+                json=payload,
+                headers=_headers(),
+            )
+            data = resp.json()
+
+        logger.info(f"EvoLink music generate response ({resp.status_code}): {data}")
+
+        if resp.status_code in (200, 201):
+            task_id = data.get("id") or data.get("task_id")
+            if task_id:
+                return {"success": True, "task_id": str(task_id)}
+            return {"success": False, "error": "No task_id in response", "raw": data}
+
+        err_msg = "EvoLink music error"
+        if isinstance(data.get("error"), dict):
+            err_msg = data["error"].get("message", err_msg)
+        elif isinstance(data.get("error"), str):
+            err_msg = data["error"]
+        elif data.get("message"):
+            err_msg = data["message"]
+        return {"success": False, "error": err_msg, "status": resp.status_code}
+
+    except httpx.TimeoutException:
+        return {"success": False, "error": "EvoLink music request timed out"}
+    except Exception as e:
+        logger.exception("EvoLink generate_music error")
+        return {"success": False, "error": str(e)}
+
+
+async def poll_music_status(task_id: str) -> dict:
+    """
+    Poll EvoLink for music generation status.
+    Endpoint: GET /v1/tasks/{task_id}  (same as video)
+    """
+    if not EVOLINK_API_KEY:
+        return {"success": False, "error": "EvoLink API key not configured"}
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(
+                f"{EVOLINK_BASE_URL}/tasks/{task_id}",
+                headers=_headers(),
+            )
+            data = resp.json()
+
+        if resp.status_code == 200:
+            status = data.get("status", "pending")
+            audio_url = None
+
+            if status == "completed":
+                results = data.get("results") or []
+                # Suno returns audio URLs in results array
+                if results and isinstance(results[0], str):
+                    audio_url = results[0]
+                elif results and isinstance(results[0], dict):
+                    audio_url = results[0].get("audio_url") or results[0].get("url")
+                # Fallback
+                if not audio_url:
+                    audio_url = data.get("audio_url") or data.get("output", {}).get("url")
+
+            return {"success": True, "status": status, "audio_url": audio_url, "raw": data}
+
+        return {"success": False, "error": f"EvoLink poll error: {resp.status_code}"}
+
+    except Exception as e:
+        logger.exception("EvoLink poll_music_status error")
+        return {"success": False, "error": str(e)}

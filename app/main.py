@@ -18227,3 +18227,75 @@ async def sc_admin_add_credits(request: Request, db: Session = Depends(get_db)):
         "credits_added": credits_to_add,
         "new_balance": credit_row.balance,
     }
+
+# ── SuperScene — Music Generation (Suno via EvoLink) ─────────
+
+@app.post("/api/superscene/music/generate")
+async def sc_music_generate(request: Request, db: Session = Depends(get_db)):
+    """Generate music via Suno. Body: {model, prompt, custom_mode?, style?, title?, instrumental?, vocal_gender?}"""
+    from .superscene_evolink import generate_music, MUSIC_CREDITS
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    body = await request.json()
+    model_key    = body.get("model", "suno-v4")
+    prompt       = (body.get("prompt") or "").strip()
+    custom_mode  = bool(body.get("custom_mode", False))
+    style        = (body.get("style") or "").strip()
+    title        = (body.get("title") or "").strip()
+    instrumental = bool(body.get("instrumental", False))
+    vocal_gender = (body.get("vocal_gender") or "").strip()
+    negative     = (body.get("negative_style") or "").strip()
+
+    if not prompt:
+        raise HTTPException(status_code=400, detail="Prompt or lyrics required")
+
+    credits_needed = MUSIC_CREDITS.get(model_key, 2)
+
+    # Check balance
+    credit_row = _get_or_create_sc_credits(user.id, db)
+    if credit_row.balance < credits_needed:
+        raise HTTPException(status_code=402, detail=f"Insufficient credits. Need {credits_needed}, have {credit_row.balance}.")
+
+    credit_row.balance -= credits_needed
+    db.commit()
+
+    result = await generate_music(
+        model_key, prompt,
+        custom_mode=custom_mode, style=style, title=title,
+        instrumental=instrumental, vocal_gender=vocal_gender,
+        negative_style=negative,
+    )
+
+    if not result["success"]:
+        credit_row.balance += credits_needed
+        db.commit()
+        raise HTTPException(status_code=502, detail=result.get("error", "Music generation failed"))
+
+    return {
+        "success": True,
+        "task_id": result["task_id"],
+        "credits_used": credits_needed,
+        "credits_remaining": credit_row.balance,
+    }
+
+
+@app.get("/api/superscene/music/status/{task_id}")
+async def sc_music_poll(task_id: str, request: Request, db: Session = Depends(get_db)):
+    """Poll music generation status."""
+    from .superscene_evolink import poll_music_status
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    result = await poll_music_status(task_id)
+    if not result["success"]:
+        raise HTTPException(status_code=502, detail=result.get("error"))
+
+    return {
+        "status": result["status"],
+        "audio_url": result.get("audio_url"),
+    }

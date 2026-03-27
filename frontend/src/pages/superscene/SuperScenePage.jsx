@@ -109,6 +109,20 @@ export default function SuperScenePage() {
   const [editorProgress, setEditorProgress] = useState("");
   const editorVideoRef = useRef(null);
 
+  // Music
+  const [musicModel, setMusicModel] = useState("suno-v4");
+  const [musicPrompt, setMusicPrompt] = useState("");
+  const [musicCustom, setMusicCustom] = useState(false);
+  const [musicStyle, setMusicStyle] = useState("");
+  const [musicTitle, setMusicTitle] = useState("");
+  const [musicInstrumental, setMusicInstrumental] = useState(false);
+  const [musicGender, setMusicGender] = useState("");
+  const [musicGenerating, setMusicGenerating] = useState(false);
+  const [musicUrl, setMusicUrl] = useState(null);
+  const [musicProgress, setMusicProgress] = useState(0);
+  const musicPollRef = useRef(null);
+  const musicProgRef = useRef(null);
+
   const selectedModel = MODELS.find(m => m.key === model);
   const cost = calcCost(model, duration, genAudio);
 
@@ -352,6 +366,59 @@ export default function SuperScenePage() {
   const updateCaption = (id, updates) => setCaptions(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
   const removeCaption = (id) => setCaptions(prev => prev.filter(c => c.id !== id));
 
+  // ── Music Generation ────────────────────────────────────
+  const MUSIC_MODELS = [
+    { key: "suno-v4",   name: "Suno V4",   cost: 1 },
+    { key: "suno-v4.5", name: "Suno V4.5", cost: 2 },
+    { key: "suno-v5",   name: "Suno V5",   cost: 3, badge: "BEST" },
+  ];
+
+  const generateMusic = async () => {
+    if (!musicPrompt.trim() || musicGenerating) return;
+    const mc = MUSIC_MODELS.find(m => m.key === musicModel)?.cost || 2;
+    if (credits < mc) { alert(`Need ${mc} credits, have ${credits}`); return; }
+
+    setMusicGenerating(true);
+    setMusicUrl(null);
+    setMusicProgress(0);
+
+    musicProgRef.current = setInterval(() => {
+      setMusicProgress(p => { if (p >= 85) { clearInterval(musicProgRef.current); return p; } return p + Math.random() * 3 + 1; });
+    }, 500);
+
+    try {
+      const payload = { model: musicModel, prompt: musicPrompt, custom_mode: musicCustom, instrumental: musicInstrumental };
+      if (musicCustom) { payload.style = musicStyle; payload.title = musicTitle; payload.vocal_gender = musicGender; }
+
+      const res = await fetch("/api/superscene/music/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const data = await res.json();
+      if (!res.ok) { alert(data.detail || "Music generation failed"); setMusicGenerating(false); clearInterval(musicProgRef.current); return; }
+      setCredits(data.credits_remaining);
+
+      // Poll
+      if (musicPollRef.current) clearInterval(musicPollRef.current);
+      musicPollRef.current = setInterval(async () => {
+        try {
+          const pr = await fetch(`/api/superscene/music/status/${data.task_id}`);
+          const pd = await pr.json();
+          if (pd.status === "completed" && pd.audio_url) {
+            setMusicUrl(pd.audio_url);
+            setMusicGenerating(false);
+            setMusicProgress(100);
+            clearInterval(musicPollRef.current);
+            clearInterval(musicProgRef.current);
+            fetch("/api/superscene/credits").then(r => r.json()).then(d => setCredits(d.balance || 0));
+          } else if (pd.status === "failed") {
+            setMusicGenerating(false);
+            clearInterval(musicPollRef.current);
+            clearInterval(musicProgRef.current);
+            alert("Music generation failed");
+          }
+        } catch {}
+      }, 3000);
+    } catch { alert("Network error"); setMusicGenerating(false); clearInterval(musicProgRef.current); }
+  };
+
   // ── Editor Functions ────────────────────────────────────
   const EXPORT_PRESETS = {
     original: { label: "Original", ratio: null, maxDur: null },
@@ -469,7 +536,7 @@ export default function SuperScenePage() {
           <div className="sc-logo-badge">BETA</div>
         </div>
         <div className="sc-tabs">
-          {[{k:"create",l:"Create"},{k:"storyboard",l:"Storyboard"},{k:"captions",l:"Captions"},{k:"editor",l:"Editor"},{k:"gallery",l:"Gallery"},{k:"packs",l:"Packs"},{k:"builder",l:"AI Builder"}].map(t => (
+          {[{k:"create",l:"Create"},{k:"storyboard",l:"Storyboard"},{k:"captions",l:"Captions"},{k:"music",l:"Music"},{k:"editor",l:"Editor"},{k:"gallery",l:"Gallery"},{k:"packs",l:"Packs"},{k:"builder",l:"AI Builder"}].map(t => (
             <button key={t.k} className={cls("sc-tab", tab === t.k && "active")} onClick={() => setTab(t.k)}>
               <span className="tdot"/>{t.l}
             </button>
@@ -669,6 +736,125 @@ export default function SuperScenePage() {
             </div>
           </div>
         </>}
+
+        {/* ══ MUSIC TAB ══ */}
+        {tab === "music" && (
+          <div className="sc-music-view">
+            <div className="sc-music-layout">
+              {/* Left — Controls */}
+              <div className="sc-music-controls">
+                <div className="sc-label">AI Music Generator</div>
+                <div className="sc-sub" style={{ marginTop: 0, marginBottom: 20 }}>Generate royalty-free music with Suno AI. Describe your track or write custom lyrics.</div>
+
+                {/* Mode toggle */}
+                <div className="sc-mode-toggle" style={{ marginBottom: 20 }}>
+                  <button className={cls("sc-mode-btn", !musicCustom && "on")} onClick={() => setMusicCustom(false)}>Simple Mode</button>
+                  <button className={cls("sc-mode-btn", musicCustom && "on")} onClick={() => setMusicCustom(true)}>Custom Mode</button>
+                </div>
+
+                {/* Model */}
+                <div className="sc-section">
+                  <div className="sc-label">Model</div>
+                  <div className="sc-pills">
+                    {MUSIC_MODELS.map(m => (
+                      <button key={m.key} className={cls("sc-pill", musicModel === m.key && "on")} onClick={() => setMusicModel(m.key)}>
+                        {m.name} {m.badge && <span style={{ fontSize: 8, marginLeft: 4, color: "#22d3ee" }}>{m.badge}</span>}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Prompt / Lyrics */}
+                <div className="sc-section">
+                  <div className="sc-label">{musicCustom ? "Lyrics" : "Describe your music"}</div>
+                  <div className="sc-prompt-box">
+                    <textarea className="sc-prompt-ta" rows={musicCustom ? 8 : 4}
+                      placeholder={musicCustom ? "[Verse]\nWalking down the road...\n\n[Chorus]\nHere we go again..." : "Upbeat pop song for Instagram Reels, energetic and fun"}
+                      value={musicPrompt} onChange={e => setMusicPrompt(e.target.value)}/>
+                  </div>
+                </div>
+
+                {/* Custom mode fields */}
+                {musicCustom && (
+                  <>
+                    <div className="sc-section">
+                      <div className="sc-label">Style</div>
+                      <input className="sc-music-input" placeholder="pop, rock, electronic, jazz, lo-fi, cinematic…" value={musicStyle} onChange={e => setMusicStyle(e.target.value)}/>
+                    </div>
+                    <div className="sc-section">
+                      <div className="sc-label">Title</div>
+                      <input className="sc-music-input" placeholder="Song title" value={musicTitle} onChange={e => setMusicTitle(e.target.value)}/>
+                    </div>
+                    <div className="sc-section">
+                      <div className="sc-label">Vocal Gender</div>
+                      <div className="sc-pills">
+                        {["","m","f"].map(g => (
+                          <button key={g} className={cls("sc-pill", musicGender === g && "on")} onClick={() => setMusicGender(g)}>
+                            {g === "" ? "Auto" : g === "m" ? "Male" : "Female"}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Instrumental toggle */}
+                <div className="sc-section">
+                  <div className="sc-audio-toggle" onClick={() => setMusicInstrumental(!musicInstrumental)}>
+                    <div className={cls("sc-toggle-track", musicInstrumental && "on")}>
+                      <div className="sc-toggle-thumb"/>
+                    </div>
+                    <div className="sc-audio-info">
+                      <div className="sc-label" style={{ marginBottom: 0 }}>Instrumental Only</div>
+                      <div className="sc-sub" style={{ marginTop: 2 }}>No vocals — background music only</div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Generate */}
+                <div className="sc-section">
+                  <div className="sc-credit-line">
+                    <div className="sc-cl-icon">◈</div>
+                    <span className="sc-cl-label">Cost:</span>
+                    <span className="sc-cl-value">{MUSIC_MODELS.find(m => m.key === musicModel)?.cost || 2} credits</span>
+                  </div>
+                  <button className="sc-gen-btn" onClick={generateMusic} disabled={!musicPrompt.trim() || musicGenerating}>
+                    {musicGenerating ? "Generating…" : !musicPrompt.trim() ? "Enter a description" : `♪ Generate Music`}
+                  </button>
+                </div>
+              </div>
+
+              {/* Right — Preview */}
+              <div className="sc-music-preview">
+                <div className="sc-preview-label">Music Preview</div>
+                <div className="sc-music-stage">
+                  {musicGenerating ? (
+                    <div className="gst">
+                      <div className="spin"><div className="r1"/><div className="r2"/></div>
+                      <div className="gst-title">Generating your track…</div>
+                      <div className="gst-sub">{MUSIC_MODELS.find(m => m.key === musicModel)?.name} · {musicInstrumental ? "Instrumental" : "Vocal"}</div>
+                      <div className="pt"><div className="pf" style={{ width: `${Math.min(musicProgress, 100)}%` }}/></div>
+                      <div className="gst-pct">{Math.round(musicProgress)}%</div>
+                    </div>
+                  ) : musicUrl ? (
+                    <div className="sc-music-result">
+                      <div className="sc-music-icon">♪</div>
+                      <div className="sc-music-title">Your track is ready</div>
+                      <audio src={musicUrl} controls className="sc-music-player"/>
+                      <button className="sc-sa-btn" onClick={() => downloadVideo(musicUrl, `superscene-music-${Date.now()}.mp3`)} style={{ marginTop: 12 }}>⬇ Download MP3</button>
+                    </div>
+                  ) : (
+                    <div className="s-empty">
+                      <div className="s-icon">♪</div>
+                      <div className="s-title">Your music will appear here</div>
+                      <div className="s-sub">Describe your track, choose a model, and hit Generate</div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ══ EDITOR TAB — Smart Editor ══ */}
         {tab === "editor" && (
