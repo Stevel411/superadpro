@@ -158,6 +158,9 @@ async def generate_video(
         return {"success": False, "error": str(e)}
 
 
+EVOLINK_FILES_URL = "https://files-api.evolink.ai"
+
+
 async def upload_image(image_data: bytes, filename: str, content_type: str) -> dict:
     """Upload an image to EvoLink file hosting for I2V or style refs."""
     if not EVOLINK_API_KEY:
@@ -165,17 +168,17 @@ async def upload_image(image_data: bytes, filename: str, content_type: str) -> d
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.post(
-                f"{EVOLINK_BASE_URL}/files",
+                f"{EVOLINK_FILES_URL}/upload",
                 headers={"Authorization": f"Bearer {EVOLINK_API_KEY}"},
                 files={"file": (filename, image_data, content_type)},
             )
             data = resp.json()
         if resp.status_code in (200, 201):
-            file_url = data.get("url") or data.get("file_url")
+            file_url = data.get("url") or data.get("file_url") or data.get("data", {}).get("url")
             if file_url:
                 return {"success": True, "file_url": file_url}
             return {"success": False, "error": "No file_url in response", "raw": data}
-        return {"success": False, "error": data.get("error", {}).get("message", "Upload failed"), "status": resp.status_code}
+        return {"success": False, "error": data.get("error", {}).get("message", f"Upload failed ({resp.status_code})"), "status": resp.status_code, "raw": data}
     except Exception as e:
         logger.exception("EvoLink upload_image error")
         return {"success": False, "error": str(e)}
