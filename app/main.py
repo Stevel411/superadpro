@@ -17846,7 +17846,7 @@ async def sc_get_credits(request: Request, db: Session = Depends(get_db)):
 async def sc_generate(request: Request, db: Session = Depends(get_db)):
     """
     Submit a video generation task.
-    Body: {model_key, prompt, duration, ratio}
+    Body: {model_key, prompt, duration, ratio, image_urls?, generate_audio?}
     """
     from .database import SuperCutCredit, SuperCutVideo
     from .supercut_evolink import generate_video, calc_credits
@@ -17856,17 +17856,19 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Not authenticated")
 
     body = await request.json()
-    model_key = body.get("model_key", "kling3")
-    prompt    = (body.get("prompt") or "").strip()
-    duration  = int(body.get("duration", 10))
-    ratio     = body.get("ratio", "16:9")
+    model_key      = body.get("model_key", "kling3")
+    prompt         = (body.get("prompt") or "").strip()
+    duration       = int(body.get("duration", 10))
+    ratio          = body.get("ratio", "16:9")
+    image_urls     = body.get("image_urls") or []
+    gen_audio      = bool(body.get("generate_audio", False))
 
     if not prompt:
         raise HTTPException(status_code=400, detail="Prompt is required")
     if duration not in (5, 10, 15, 30):
         raise HTTPException(status_code=400, detail="Duration must be 5, 10, 15, or 30")
 
-    credits_needed = calc_credits(model_key, duration)
+    credits_needed = calc_credits(model_key, duration, with_audio=gen_audio)
 
     # Check balance
     credit_row = _get_or_create_sc_credits(user.id, db)
@@ -17878,7 +17880,11 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
     db.commit()
 
     # Submit to EvoLink
-    result = await generate_video(model_key, prompt, duration, ratio)
+    result = await generate_video(
+        model_key, prompt, duration, ratio,
+        image_urls=image_urls if image_urls else None,
+        generate_audio=gen_audio,
+    )
 
     if not result["success"]:
         # Refund on failure
@@ -17887,6 +17893,7 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=502, detail=result.get("error", "Video generation failed"))
 
     task_id = result["task_id"]
+    mode = result.get("mode", "text-to-video")
 
     # Model name map for display
     model_names = {
@@ -17914,9 +17921,41 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
         "success": True,
         "task_id": task_id,
         "video_id": video.id,
+        "mode": mode,
         "credits_used": credits_needed,
         "credits_remaining": credit_row.balance,
     }
+
+
+@app.post("/api/supercut/upload-image")
+async def sc_upload_image(request: Request, db: Session = Depends(get_db)):
+    """Upload an image for image-to-video generation. Returns a hosted URL."""
+    from .supercut_evolink import upload_image
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    form = await request.form()
+    file = form.get("file")
+    if not file:
+        raise HTTPException(status_code=400, detail="No file uploaded")
+
+    # Validate file type
+    ct = file.content_type or ""
+    if ct not in ("image/jpeg", "image/png", "image/webp"):
+        raise HTTPException(status_code=400, detail="Only JPEG, PNG, and WebP images are accepted")
+
+    # Read file (max 10MB)
+    data = await file.read()
+    if len(data) > 10 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="Image must be under 10MB")
+
+    result = await upload_image(data, file.filename or "image.jpg", ct)
+    if not result["success"]:
+        raise HTTPException(status_code=502, detail=result.get("error", "Upload failed"))
+
+    return {"success": True, "file_url": result["file_url"]}
 
 
 @app.get("/api/supercut/status/{task_id}")
