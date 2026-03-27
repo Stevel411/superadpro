@@ -83,6 +83,22 @@ export default function SuperCutPage() {
   const [buyingPack, setBuyingPack] = useState(null);
   const [cryptoOrder, setCryptoOrder] = useState(null);
 
+  // Style references
+  const [styleRefs, setStyleRefs] = useState([]); // [{file, preview, url, uploading}]
+  const styleRefInput = useRef(null);
+
+  // Storyboard
+  const [sbScenes, setSbScenes] = useState([{ id: 1, prompt: "", duration: 5, model: "kling3", status: "draft", videoUrl: null, taskId: null, progress: 0 }]);
+  const [sbGenerating, setSbGenerating] = useState(null); // scene id currently generating
+  const sbPollRef = useRef(null);
+  const sbProgRef = useRef(null);
+
+  // Captions
+  const [captions, setCaptions] = useState([]); // [{id, start, end, text}]
+  const [captionStyle, setCaptionStyle] = useState("tiktok"); // tiktok | youtube | minimal | bold
+  const [captionText, setCaptionText] = useState("");
+  const [showCaptionOverlay, setShowCaptionOverlay] = useState(false);
+
   const selectedModel = MODELS.find(m => m.key === model);
   const cost = calcCost(model, duration, genAudio);
 
@@ -186,6 +202,7 @@ export default function SuperCutPage() {
     try {
       const payload = { model_key: model, prompt, duration, ratio, generate_audio: genAudio };
       if (mode === "image" && imageUrl) payload.image_urls = [imageUrl];
+      if (styleRefs.length > 0) payload.style_refs = styleRefs.filter(r => r.url).map(r => r.url);
 
       const res = await fetch("/api/supercut/generate", {
         method: "POST",
@@ -236,6 +253,95 @@ export default function SuperCutPage() {
     } finally { setBuyingPack(null); }
   };
 
+  // ── Style Reference Upload ──────────────────────────────
+  const handleStyleRefUpload = async (e) => {
+    const files = Array.from(e.target.files || []);
+    for (const file of files) {
+      if (!["image/jpeg","image/png","image/webp"].includes(file.type)) continue;
+      if (file.size > 10 * 1024 * 1024) continue;
+      const id = Date.now() + Math.random();
+      const preview = URL.createObjectURL(file);
+      setStyleRefs(prev => [...prev, { id, file, preview, url: null, uploading: true }]);
+      const fd = new FormData(); fd.append("file", file);
+      try {
+        const res = await fetch("/api/supercut/upload-image", { method: "POST", body: fd });
+        const data = await res.json();
+        if (data.success && data.file_url) {
+          setStyleRefs(prev => prev.map(r => r.id === id ? { ...r, url: data.file_url, uploading: false } : r));
+        } else {
+          setStyleRefs(prev => prev.filter(r => r.id !== id));
+        }
+      } catch { setStyleRefs(prev => prev.filter(r => r.id !== id)); }
+    }
+    if (styleRefInput.current) styleRefInput.current.value = "";
+  };
+  const removeStyleRef = (id) => setStyleRefs(prev => prev.filter(r => r.id !== id));
+
+  // ── Storyboard Functions ───────────────────────────────
+  const sbAddScene = () => {
+    const nextId = Math.max(...sbScenes.map(s => s.id), 0) + 1;
+    setSbScenes(prev => [...prev, { id: nextId, prompt: "", duration: 5, model: model, status: "draft", videoUrl: null, taskId: null, progress: 0 }]);
+  };
+  const sbUpdateScene = (id, updates) => setSbScenes(prev => prev.map(s => s.id === id ? { ...s, ...updates } : s));
+  const sbRemoveScene = (id) => { if (sbScenes.length > 1) setSbScenes(prev => prev.filter(s => s.id !== id)); };
+
+  const sbGenerate = async (sceneId) => {
+    const scene = sbScenes.find(s => s.id === sceneId);
+    if (!scene || !scene.prompt.trim()) return;
+    const sceneCost = calcCost(scene.model, scene.duration, false);
+    if (credits < sceneCost) { alert(`Need ${sceneCost} credits, have ${credits}`); return; }
+
+    setSbGenerating(sceneId);
+    sbUpdateScene(sceneId, { status: "generating", progress: 0 });
+
+    // Fake progress
+    if (sbProgRef.current) clearInterval(sbProgRef.current);
+    sbProgRef.current = setInterval(() => {
+      setSbScenes(prev => prev.map(s => s.id === sceneId ? { ...s, progress: Math.min(s.progress + Math.random() * 2 + 0.5, 85) } : s));
+    }, 400);
+
+    // Find previous scene's video URL for chaining
+    const sceneIdx = sbScenes.findIndex(s => s.id === sceneId);
+    const prevScene = sceneIdx > 0 ? sbScenes[sceneIdx - 1] : null;
+    const chainImageUrls = prevScene?.videoUrl ? [] : []; // TODO: extract last frame for chaining
+
+    try {
+      const payload = { model_key: scene.model, prompt: scene.prompt, duration: scene.duration, ratio };
+      const res = await fetch("/api/supercut/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) });
+      const data = await res.json();
+      if (!res.ok) { sbUpdateScene(sceneId, { status: "failed" }); clearInterval(sbProgRef.current); setSbGenerating(null); return; }
+      setCredits(data.credits_remaining);
+      sbUpdateScene(sceneId, { taskId: data.task_id });
+
+      // Poll for this scene
+      if (sbPollRef.current) clearInterval(sbPollRef.current);
+      sbPollRef.current = setInterval(async () => {
+        try {
+          const pr = await fetch(`/api/supercut/status/${data.task_id}`);
+          const pd = await pr.json();
+          if (pd.status === "completed" && pd.video_url) {
+            sbUpdateScene(sceneId, { status: "completed", videoUrl: pd.video_url, progress: 100 });
+            clearInterval(sbPollRef.current); clearInterval(sbProgRef.current); setSbGenerating(null);
+            fetch("/api/supercut/credits").then(r => r.json()).then(d => setCredits(d.balance || 0));
+          } else if (pd.status === "failed") {
+            sbUpdateScene(sceneId, { status: "failed" }); clearInterval(sbPollRef.current); clearInterval(sbProgRef.current); setSbGenerating(null);
+          }
+        } catch {}
+      }, 3000);
+    } catch { sbUpdateScene(sceneId, { status: "failed" }); clearInterval(sbProgRef.current); setSbGenerating(null); }
+  };
+
+  // ── Captions Functions ─────────────────────────────────
+  const addCaption = () => {
+    if (!captionText.trim()) return;
+    const id = Date.now();
+    const lastEnd = captions.length > 0 ? captions[captions.length - 1].end : 0;
+    setCaptions(prev => [...prev, { id, start: lastEnd, end: lastEnd + 2, text: captionText.trim() }]);
+    setCaptionText("");
+  };
+  const updateCaption = (id, updates) => setCaptions(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
+  const removeCaption = (id) => setCaptions(prev => prev.filter(c => c.id !== id));
+
   const toggleChip = (val, arr, setArr) => setArr(arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]);
   const cls = (...c) => c.filter(Boolean).join(" ");
 
@@ -275,9 +381,9 @@ export default function SuperCutPage() {
           <div className="sc-logo-badge">BETA</div>
         </div>
         <div className="sc-tabs">
-          {["create","editor","gallery","packs","builder"].map(t => (
-            <button key={t} className={cls("sc-tab", tab === t && "active")} onClick={() => setTab(t)}>
-              <span className="tdot"/>{t === "builder" ? "AI Builder" : t.charAt(0).toUpperCase() + t.slice(1)}
+          {[{k:"create",l:"Create"},{k:"storyboard",l:"Storyboard"},{k:"captions",l:"Captions"},{k:"editor",l:"Editor"},{k:"gallery",l:"Gallery"},{k:"packs",l:"Packs"},{k:"builder",l:"AI Builder"}].map(t => (
+            <button key={t.k} className={cls("sc-tab", tab === t.k && "active")} onClick={() => setTab(t.k)}>
+              <span className="tdot"/>{t.l}
             </button>
           ))}
         </div>
@@ -406,6 +512,32 @@ export default function SuperCutPage() {
                       <div className="sc-sub" style={{ marginTop: 2 }}>Generate sound effects, music & dialogue (+{AUDIO_EXTRA_PER_5S} cr/5s)</div>
                     </div>
                   </div>
+                </div>
+              )}
+
+              {/* Style References (Seedance 2.0 & Veo 3.1) */}
+              {(selectedModel?.key === "seedance2" || selectedModel?.key === "veo31") && (
+                <div className="sc-section">
+                  <div className="sc-label">Style References <span className="sc-label-badge">Optional</span></div>
+                  <div className="sc-sub" style={{ marginTop: 0, marginBottom: 8 }}>
+                    Upload images to guide the visual style. {selectedModel?.key === "veo31" ? "Up to 3" : "Up to 9"} reference images.
+                  </div>
+                  <div className="sc-style-refs">
+                    {styleRefs.map(ref => (
+                      <div key={ref.id} className="sc-sref-item">
+                        <img src={ref.preview} alt="" className="sc-sref-thumb"/>
+                        {ref.uploading && <div className="sc-sref-loading">…</div>}
+                        {!ref.uploading && <div className="sc-sref-ok">✓</div>}
+                        <button className="sc-sref-remove" onClick={() => removeStyleRef(ref.id)}>✕</button>
+                      </div>
+                    ))}
+                    {styleRefs.length < (selectedModel?.key === "veo31" ? 3 : 9) && (
+                      <div className="sc-sref-add" onClick={() => styleRefInput.current?.click()}>
+                        <span>+</span>
+                      </div>
+                    )}
+                  </div>
+                  <input ref={styleRefInput} type="file" accept="image/jpeg,image/png,image/webp" multiple style={{ display: "none" }} onChange={handleStyleRefUpload}/>
                 </div>
               )}
 
@@ -589,6 +721,150 @@ export default function SuperCutPage() {
           </div>
         )}
 
+        {/* ══ STORYBOARD TAB ══ */}
+        {tab === "storyboard" && (
+          <div className="sc-storyboard-view">
+            <div className="sc-sb-header">
+              <div>
+                <div className="sc-label" style={{ marginBottom: 4 }}>Storyboard</div>
+                <div className="sc-sub" style={{ marginTop: 0 }}>Build multi-scene videos. Generate each scene, then stitch them together.</div>
+              </div>
+              <button className="sc-sb-add-btn" onClick={sbAddScene}>+ Add Scene</button>
+            </div>
+            <div className="sc-sb-scenes">
+              {sbScenes.map((scene, idx) => (
+                <div key={scene.id} className={cls("sc-sb-scene", scene.status === "completed" && "done", scene.status === "generating" && "active")}>
+                  <div className="sc-sb-scene-head">
+                    <span className="sc-sb-scene-num">Scene {idx + 1}</span>
+                    <div className="sc-sb-scene-controls">
+                      <select className="sc-sb-model-sel" value={scene.model} onChange={e => sbUpdateScene(scene.id, { model: e.target.value })} disabled={scene.status === "generating"}>
+                        {MODELS.map(m => <option key={m.key} value={m.key}>{m.name}</option>)}
+                      </select>
+                      <select className="sc-sb-dur-sel" value={scene.duration} onChange={e => sbUpdateScene(scene.id, { duration: parseInt(e.target.value) })} disabled={scene.status === "generating"}>
+                        {DURATIONS.map(d => <option key={d} value={d}>{d}s</option>)}
+                      </select>
+                      {sbScenes.length > 1 && <button className="sc-sb-remove" onClick={() => sbRemoveScene(scene.id)} disabled={scene.status === "generating"}>✕</button>}
+                    </div>
+                  </div>
+                  <textarea className="sc-sb-prompt" placeholder={`Describe scene ${idx + 1}…`}
+                    value={scene.prompt} onChange={e => sbUpdateScene(scene.id, { prompt: e.target.value })}
+                    disabled={scene.status === "generating"}/>
+                  <div className="sc-sb-scene-footer">
+                    <span className="sc-sb-cost">Cost: {calcCost(scene.model, scene.duration, false)} credits</span>
+                    {scene.status === "draft" && <button className="sc-sb-gen-btn" onClick={() => sbGenerate(scene.id)} disabled={!scene.prompt.trim() || sbGenerating !== null}>Generate</button>}
+                    {scene.status === "generating" && (
+                      <div className="sc-sb-progress">
+                        <div className="sc-sb-prog-bar"><div className="sc-sb-prog-fill" style={{ width: `${scene.progress}%` }}/></div>
+                        <span className="sc-sb-prog-pct">{Math.round(scene.progress)}%</span>
+                      </div>
+                    )}
+                    {scene.status === "completed" && (
+                      <div className="sc-sb-done-actions">
+                        <span className="sc-sb-done-check">✓ Done</span>
+                        <button className="sc-sb-preview-btn" onClick={() => { setVideoUrl(scene.videoUrl); setTab("create"); }}>Preview</button>
+                      </div>
+                    )}
+                    {scene.status === "failed" && (
+                      <div className="sc-sb-fail">
+                        <span style={{ color: "#f87171" }}>✕ Failed</span>
+                        <button className="sc-sb-gen-btn" onClick={() => { sbUpdateScene(scene.id, { status: "draft" }); }}>Retry</button>
+                      </div>
+                    )}
+                  </div>
+                  {scene.status === "completed" && scene.videoUrl && (
+                    <div className="sc-sb-scene-preview">
+                      <video src={scene.videoUrl} className="sc-sb-video" controls/>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="sc-sb-footer-info">
+              <div className="sc-sub">Total: {sbScenes.length} scenes · {sbScenes.reduce((a, s) => a + s.duration, 0)}s · {sbScenes.reduce((a, s) => a + calcCost(s.model, s.duration, false), 0)} credits</div>
+            </div>
+          </div>
+        )}
+
+        {/* ══ CAPTIONS TAB ══ */}
+        {tab === "captions" && (
+          <div className="sc-captions-view">
+            <div className="sc-cap-layout">
+              {/* Left — Caption Editor */}
+              <div className="sc-cap-editor">
+                <div className="sc-label">Add Captions</div>
+                <div className="sc-sub" style={{ marginTop: 0, marginBottom: 16 }}>Add styled subtitles to your generated video. Type captions manually or auto-transcribe in Phase 3.</div>
+
+                {/* Caption Style Selector */}
+                <div className="sc-cap-styles">
+                  {[{k:"tiktok",l:"TikTok",color:"#fff",bg:"rgba(0,0,0,.7)"},{k:"youtube",l:"YouTube",color:"#fff",bg:"rgba(0,0,0,.85)"},{k:"minimal",l:"Minimal",color:"#fff",bg:"transparent"},{k:"bold",l:"Bold Pop",color:"#ff0",bg:"rgba(0,0,0,.6)"}].map(s => (
+                    <button key={s.k} className={cls("sc-cap-style-btn", captionStyle === s.k && "on")} onClick={() => setCaptionStyle(s.k)}>
+                      <div className="sc-cap-style-preview" style={{ color: s.color, background: s.bg }}>{s.l}</div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Add Caption */}
+                <div className="sc-cap-add-row">
+                  <input className="sc-cap-input" placeholder="Type caption text…" value={captionText} onChange={e => setCaptionText(e.target.value)}
+                    onKeyDown={e => { if (e.key === "Enter") addCaption(); }}/>
+                  <button className="sc-cap-add-btn" onClick={addCaption} disabled={!captionText.trim()}>+ Add</button>
+                </div>
+
+                {/* Caption List */}
+                <div className="sc-cap-list">
+                  {captions.length === 0 ? (
+                    <div className="sc-cap-empty">No captions yet. Type text above and click Add.</div>
+                  ) : captions.map((cap, idx) => (
+                    <div key={cap.id} className="sc-cap-item">
+                      <div className="sc-cap-item-num">{idx + 1}</div>
+                      <div className="sc-cap-item-body">
+                        <input className="sc-cap-item-text" value={cap.text} onChange={e => updateCaption(cap.id, { text: e.target.value })}/>
+                        <div className="sc-cap-timing">
+                          <label>Start: <input type="number" className="sc-cap-time-input" value={cap.start} min={0} step={0.5}
+                            onChange={e => updateCaption(cap.id, { start: parseFloat(e.target.value) || 0 })}/> s</label>
+                          <label>End: <input type="number" className="sc-cap-time-input" value={cap.end} min={0} step={0.5}
+                            onChange={e => updateCaption(cap.id, { end: parseFloat(e.target.value) || 0 })}/> s</label>
+                        </div>
+                      </div>
+                      <button className="sc-cap-item-remove" onClick={() => removeCaption(cap.id)}>✕</button>
+                    </div>
+                  ))}
+                </div>
+
+                {captions.length > 0 && (
+                  <button className="sc-cap-preview-btn" onClick={() => setShowCaptionOverlay(!showCaptionOverlay)}>
+                    {showCaptionOverlay ? "Hide Preview" : "Preview with Captions"}
+                  </button>
+                )}
+              </div>
+
+              {/* Right — Preview */}
+              <div className="sc-cap-preview">
+                <div className="sc-preview-label">Caption Preview</div>
+                <div className="sc-cap-stage">
+                  {videoUrl ? (
+                    <div className="sc-cap-video-wrap">
+                      <video src={videoUrl} controls className="sc-cap-video" id="cap-preview-video"/>
+                      {showCaptionOverlay && captions.length > 0 && (
+                        <div className={cls("sc-cap-overlay", `sc-cap-${captionStyle}`)}>
+                          {captions[0]?.text || "Caption preview"}
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="s-empty">
+                      <div className="s-icon">T</div>
+                      <div className="s-title">No video to caption</div>
+                      <div className="s-sub">Generate a video first in the Create tab, then come here to add captions.</div>
+                      <button className="sc-ecta" onClick={() => setTab("create")}>← Go to Creator</button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>{/* /ws */}
 
       {/* ── HELP DRAWER ──────────────────────────────────── */}
@@ -600,8 +876,10 @@ export default function SuperCutPage() {
             {[["1 · Write your prompt", "Describe your scene — camera movement, lighting, mood. Or use the AI Prompt Builder tab."],
               ["2 · Choose a model", "Kling excels at cinematic realism. Seedance has native audio. Sora 2 is photorealistic. Veo 3.1 delivers Google's finest detail + audio."],
               ["3 · Upload an image (optional)", "Switch to Image-to-Video mode to animate a reference image. All models support it."],
-              ["4 · Enable AI Audio", "Seedance 2.0 and Veo 3.1 can generate sound effects, music and dialogue with your video."],
-              ["5 · Generate & edit", "Credits deducted only on success. Open the free Editor to trim, caption, add music and export."],
+              ["4 · Style References", "Upload reference images to guide visual style. Seedance supports up to 9 refs, Veo up to 3."],
+              ["5 · Storyboard", "Build multi-scene videos. Each scene generates independently. Chain scenes for longer narratives."],
+              ["6 · AI Audio", "Seedance 2.0 and Veo 3.1 generate sound effects, music and dialogue with your video."],
+              ["7 · Captions", "Add styled subtitles. Choose from TikTok, YouTube, Minimal, or Bold styles. Set timing per caption."],
             ].map(([t, b]) => (
               <div key={t} className="sc-hitem"><div className="sc-hititle">{t}</div><div className="sc-hibody">{b}</div></div>
             ))}

@@ -17861,6 +17861,7 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
     duration       = int(body.get("duration", 10))
     ratio          = body.get("ratio", "16:9")
     image_urls     = body.get("image_urls") or []
+    style_refs     = body.get("style_refs") or []
     gen_audio      = bool(body.get("generate_audio", False))
 
     if not prompt:
@@ -17883,6 +17884,7 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
     result = await generate_video(
         model_key, prompt, duration, ratio,
         image_urls=image_urls if image_urls else None,
+        style_refs=style_refs if style_refs else None,
         generate_audio=gen_audio,
     )
 

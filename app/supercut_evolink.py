@@ -8,7 +8,9 @@ Format: OpenAI-compatible
 Supports:
   - Text-to-Video (all models)
   - Image-to-Video (all models)
+  - Style References (Veo 3.1 REFERENCE mode, Seedance 2.0 multi-ref)
   - AI Audio generation (Seedance 2.0, Veo 3.1)
+  - Storyboard: generate scenes individually, chain via last-frame-as-first
 """
 import os
 import logging
@@ -20,7 +22,6 @@ logger = logging.getLogger("superadpro.supercut")
 EVOLINK_API_KEY = os.getenv("EVOLINK_API_KEY", "")
 EVOLINK_BASE_URL = "https://api.evolink.ai/v1"
 
-# Model ID mapping: our internal key -> EvoLink model string
 MODEL_MAP = {
     "kling3":    "kling-v3",
     "seedance2": "seedance-2.0",
@@ -28,7 +29,6 @@ MODEL_MAP = {
     "veo31":     "veo-3.1",
 }
 
-# Credit cost per 5 seconds of video
 CREDITS_PER_5S = {
     "kling3":    3,
     "seedance2": 2,
@@ -36,20 +36,18 @@ CREDITS_PER_5S = {
     "veo31":     5,
 }
 
-# Extra credit cost for AI audio generation
 AUDIO_EXTRA_PER_5S = 1
 
-# Which models support image-to-video
 I2V_SUPPORTED = {"kling3", "seedance2", "sora2", "veo31"}
-
-# Which models support native audio generation
 AUDIO_SUPPORTED = {"seedance2", "veo31"}
+# Style reference: Veo supports REFERENCE mode (up to 3 images), Seedance supports multi-ref
+STYLE_REF_SUPPORTED = {"seedance2", "veo31"}
+STYLE_REF_MAX = {"seedance2": 9, "veo31": 3}
 
 
 def calc_credits(model_key: str, duration_seconds: int, with_audio: bool = False) -> int:
-    """Calculate credit cost for a given model, duration, and audio option."""
     rate = CREDITS_PER_5S.get(model_key, 3)
-    segments = duration_seconds // 5
+    segments = max(duration_seconds // 5, 1)
     base = rate * segments
     if with_audio and model_key in AUDIO_SUPPORTED:
         base += AUDIO_EXTRA_PER_5S * segments
@@ -62,6 +60,10 @@ def model_supports_i2v(model_key: str) -> bool:
 
 def model_supports_audio(model_key: str) -> bool:
     return model_key in AUDIO_SUPPORTED
+
+
+def model_supports_style_ref(model_key: str) -> bool:
+    return model_key in STYLE_REF_SUPPORTED
 
 
 def _headers():
@@ -77,12 +79,17 @@ async def generate_video(
     duration: int,
     ratio: str,
     image_urls: Optional[List[str]] = None,
+    style_refs: Optional[List[str]] = None,
     generate_audio: bool = False,
+    generation_type: Optional[str] = None,
 ) -> dict:
     """
     Submit a video generation task to EvoLink.
-    Supports text-to-video and image-to-video modes.
-    Returns: {success, task_id, mode} or {success, error}
+    Modes:
+      - TEXT: prompt only
+      - Image-to-Video: prompt + image_urls (first frame)
+      - REFERENCE: prompt + style_refs (style guidance, Veo/Seedance)
+      - FIRST&LAST: prompt + 2 image_urls (start + end frame, Veo)
     """
     if not EVOLINK_API_KEY:
         return {"success": False, "error": "EvoLink API key not configured"}
@@ -98,13 +105,30 @@ async def generate_video(
         "aspect_ratio": ratio,
     }
 
-    # Determine generation mode
     mode = "text-to-video"
-    if image_urls and len(image_urls) > 0:
+
+    # Style references (REFERENCE mode)
+    if style_refs and len(style_refs) > 0 and model_key in STYLE_REF_SUPPORTED:
+        max_refs = STYLE_REF_MAX.get(model_key, 3)
+        payload["image_urls"] = style_refs[:max_refs]
+        if model_key == "veo31":
+            payload["generation_type"] = "REFERENCE"
+        mode = "style-reference"
+
+    # Image-to-video (overrides style refs if both provided)
+    elif image_urls and len(image_urls) > 0:
         if model_key not in I2V_SUPPORTED:
             return {"success": False, "error": f"{model_id} does not support image-to-video"}
         payload["image_urls"] = image_urls
-        mode = "image-to-video"
+        if len(image_urls) == 2 and model_key == "veo31":
+            payload["generation_type"] = "FIRST&LAST"
+            mode = "first-and-last"
+        else:
+            mode = "image-to-video"
+
+    # Explicit generation_type override
+    if generation_type:
+        payload["generation_type"] = generation_type
 
     # Audio generation
     if generate_audio and model_key in AUDIO_SUPPORTED:
@@ -135,13 +159,9 @@ async def generate_video(
 
 
 async def upload_image(image_data: bytes, filename: str, content_type: str) -> dict:
-    """
-    Upload an image to EvoLink file hosting for image-to-video.
-    Returns: {success, file_url} or {success, error}
-    """
+    """Upload an image to EvoLink file hosting for I2V or style refs."""
     if not EVOLINK_API_KEY:
         return {"success": False, "error": "EvoLink API key not configured"}
-
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
             resp = await client.post(
@@ -150,29 +170,21 @@ async def upload_image(image_data: bytes, filename: str, content_type: str) -> d
                 files={"file": (filename, image_data, content_type)},
             )
             data = resp.json()
-
         if resp.status_code in (200, 201):
             file_url = data.get("url") or data.get("file_url")
             if file_url:
                 return {"success": True, "file_url": file_url}
             return {"success": False, "error": "No file_url in response", "raw": data}
-
         return {"success": False, "error": data.get("error", {}).get("message", "Upload failed"), "status": resp.status_code}
-
     except Exception as e:
         logger.exception("EvoLink upload_image error")
         return {"success": False, "error": str(e)}
 
 
 async def poll_status(task_id: str) -> dict:
-    """
-    Poll EvoLink for video generation status.
-    Returns: {success, status, video_url} or {success, error}
-    status values: 'pending' | 'processing' | 'completed' | 'failed'
-    """
+    """Poll EvoLink for video generation status."""
     if not EVOLINK_API_KEY:
         return {"success": False, "error": "EvoLink API key not configured"}
-
     try:
         async with httpx.AsyncClient(timeout=15.0) as client:
             resp = await client.get(
@@ -180,27 +192,17 @@ async def poll_status(task_id: str) -> dict:
                 headers=_headers(),
             )
             data = resp.json()
-
         if resp.status_code == 200:
             status = data.get("status", "pending")
             video_url = None
-
             if status == "completed":
                 video_url = (
                     data.get("video_url")
                     or data.get("output", {}).get("url")
                     or (data.get("choices") or [{}])[0].get("video", {}).get("url")
                 )
-
-            return {
-                "success": True,
-                "status": status,
-                "video_url": video_url,
-                "raw": data,
-            }
-
+            return {"success": True, "status": status, "video_url": video_url, "raw": data}
         return {"success": False, "error": f"EvoLink poll error: {resp.status_code}"}
-
     except Exception as e:
         logger.exception("EvoLink poll_status error")
         return {"success": False, "error": str(e)}
