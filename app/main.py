@@ -17807,6 +17807,21 @@ async def sc_admin_grant_credits_get(amount: int, request: Request, db: Session 
     """)
 
 
+@app.get("/api/supercut/seed-credits")
+async def sc_seed_credits(secret: str, user_id: int = 1, amount: int = 500, db: Session = Depends(get_db)):
+    """Secret-key protected: seed SuperCut credits without login. For testing only."""
+    if secret != "sap-sc-seed-2026-X9kR":
+        raise HTTPException(status_code=403, detail="Invalid secret")
+    if amount < 1 or amount > 5000:
+        raise HTTPException(status_code=400, detail="Amount must be 1-5000")
+    row = _get_or_create_sc_credits(user_id, db)
+    row.balance += amount
+    db.commit()
+    db.refresh(row)
+    logger.warning(f"SuperCut SEED: +{amount} credits to user {user_id} (new balance: {row.balance})")
+    return {"success": True, "user_id": user_id, "granted": amount, "new_balance": row.balance}
+
+
 @app.get("/api/supercut/credits")
 async def sc_get_credits(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
