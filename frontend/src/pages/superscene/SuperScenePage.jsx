@@ -851,12 +851,12 @@ export default function SuperScenePage() {
                     {musicCustom && (
                       <div className="sc-prompt-ai-row">
                         <button className="sc-prompt-ai-btn" onClick={generateLyrics} disabled={lyricsGenerating}>
-                          {lyricsGenerating ? "Generating…" : "✦ Generate Lyrics With AI"}
+                          {lyricsGenerating ? "Writing lyrics…" : "✦ SuperAdPro Lyrics Writer"}
                         </button>
                         <span className="sc-prompt-counter">{musicPrompt.length}/3000</span>
                       </div>
                     )}
-                    {musicCustom && <div className="sc-sub" style={{ marginTop: 4, fontSize: 11 }}>Tip: Enter a song title or style first, then click Generate Lyrics. You can edit the result before generating music.</div>}
+                    {musicCustom && <div className="sc-sub" style={{ marginTop: 4, fontSize: 11 }}>Tip: Enter a song title or style first, then click SuperAdPro Lyrics Writer. You can edit the result before generating music.</div>}
                   </div>
                 </div>
 
