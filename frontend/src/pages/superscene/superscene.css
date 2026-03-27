@@ -4,11 +4,11 @@
 
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700;9..40,800&family=Space+Grotesk:wght@500;600;700&display=swap');
 
-/* ── DARK THEME ── */
+/* ── DARK THEME — Camtasia-style neutral greys, topbar stays #1c223d ── */
 .sc-root.dark {
-  --bg: #0e1225; --surface: #151a30; --surface2: #1c223d; --surface3: #252c4a;
-  --border: #2a3258; --border2: #3a4370; --text: #ffffff; --text2: #c8d0e8;
-  --muted: #7080b0; --muted2: #3d4a70; --cyan: #22d3ee;
+  --bg: #1a1a1a; --surface: #222222; --surface2: #2a2a2a; --surface3: #333333;
+  --border: #3a3a3a; --border2: #4a4a4a; --text: #ffffff; --text2: #d0d0d0;
+  --muted: #888888; --muted2: #555555; --cyan: #22d3ee;
   --cdim: rgba(34,211,238,.08); --cdim2: rgba(34,211,238,.14);
 }
 
