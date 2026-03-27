@@ -129,7 +129,14 @@ async def generate_video(
     elif image_urls and len(image_urls) > 0:
         if model_key not in I2V_SUPPORTED:
             return {"success": False, "error": f"{model_id} does not support image-to-video"}
-        payload["image_urls"] = image_urls
+        # Different models expect different image parameter names
+        # Kling: image_url (singular string) or image_start
+        # Seedance/Veo/Sora: image_urls (array)
+        if model_key == "kling3":
+            payload["image_url"] = image_urls[0]
+            payload["image_start"] = image_urls[0]
+        else:
+            payload["image_urls"] = image_urls
         # Switch to I2V model variant if available
         i2v_model = MODEL_MAP_I2V.get(model_key)
         if i2v_model:
