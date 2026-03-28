@@ -141,6 +141,17 @@ export default function SuperScenePage() {
   const voLipProgRef = useRef(null);
   const voImageInputRef = useRef(null);
 
+  // Image Generator
+  const [imgModel, setImgModel] = useState("nano-banana-2");
+  const [imgPrompt, setImgPrompt] = useState("");
+  const [imgQuality, setImgQuality] = useState("1K");
+  const [imgSize, setImgSize] = useState("1:1");
+  const [imgGenerating, setImgGenerating] = useState(false);
+  const [imgResults, setImgResults] = useState([]);
+  const [imgProgress, setImgProgress] = useState(0);
+  const imgProgRef = useRef(null);
+  const imgPollRef = useRef(null);
+
   const selectedModel = MODELS.find(m => m.key === model);
   const cost = calcCost(model, duration, genAudio);
 
@@ -435,6 +446,70 @@ export default function SuperScenePage() {
   const updateCaption = (id, updates) => setCaptions(prev => prev.map(c => c.id === id ? { ...c, ...updates } : c));
   const removeCaption = (id) => setCaptions(prev => prev.filter(c => c.id !== id));
 
+  // ── Image Generator Functions ───────────────────────────
+  const IMG_MODELS = [
+    { key: "nano-banana-2",       name: "Nano Banana 2",  desc: "Best quality, text rendering", badge: "BEST" },
+    { key: "nano-banana-pro",     name: "Nano Banana Pro", desc: "Cost-effective, high volume" },
+    { key: "doubao-seedream-5.0-lite", name: "Seedream 5.0",   desc: "2K/4K, web search, batch" },
+    { key: "gpt-image-1",        name: "GPT Image",      desc: "OpenAI image generation" },
+  ];
+  const IMG_SIZES = ["1:1","16:9","9:16","4:3","3:4","3:2","2:3","4:5","5:4"];
+  const IMG_QUALITIES = ["0.5K","1K","2K","4K"];
+  const IMG_CREDIT_MAP = {"0.5K": 1, "1K": 2, "2K": 3, "4K": 5};
+
+  const generateImage = async () => {
+    if (!imgPrompt.trim() || imgGenerating) return;
+    const cost = IMG_CREDIT_MAP[imgQuality] || 2;
+    if (credits < cost) { alert(`Need ${cost} credits, have ${credits}`); return; }
+
+    setImgGenerating(true);
+    setImgResults([]);
+    setImgProgress(0);
+
+    imgProgRef.current = setInterval(() => {
+      setImgProgress(p => Math.min(p + Math.random() * 4 + 2, 90));
+    }, 300);
+
+    try {
+      const res = await fetch("/api/superscene/image/generate", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ model: imgModel, prompt: imgPrompt, quality: imgQuality, size: imgSize, n: 1 }),
+      });
+      const data = await res.json();
+      if (!res.ok) { alert(data.detail || "Image generation failed"); setImgGenerating(false); clearInterval(imgProgRef.current); return; }
+      setCredits(data.credits_remaining);
+
+      // Check if sync (images returned) or async (task_id for polling)
+      if (data.images && data.images.length > 0) {
+        setImgResults(data.images);
+        setImgGenerating(false);
+        setImgProgress(100);
+        clearInterval(imgProgRef.current);
+      } else if (data.task_id) {
+        // Poll for async
+        if (imgPollRef.current) clearInterval(imgPollRef.current);
+        imgPollRef.current = setInterval(async () => {
+          try {
+            const pr = await fetch(`/api/superscene/image/status/${data.task_id}`);
+            const pd = await pr.json();
+            if (pd.status === "completed" && pd.images?.length > 0) {
+              setImgResults(pd.images);
+              setImgGenerating(false);
+              setImgProgress(100);
+              clearInterval(imgPollRef.current);
+              clearInterval(imgProgRef.current);
+            } else if (pd.status === "failed") {
+              setImgGenerating(false);
+              clearInterval(imgPollRef.current);
+              clearInterval(imgProgRef.current);
+              alert("Image generation failed");
+            }
+          } catch {}
+        }, 2000);
+      }
+    } catch { alert("Network error"); setImgGenerating(false); clearInterval(imgProgRef.current); }
+  };
+
   // ── Voiceover Functions ─────────────────────────────────
   const VO_VOICES = [
     { id: "en-US-GuyNeural",     name: "Guy",     gender: "M", accent: "US" },
@@ -715,7 +790,7 @@ export default function SuperScenePage() {
           <div className="sc-logo-badge">BETA</div>
         </div>
         <div className="sc-tabs">
-          {[{k:"create",l:"Create"},{k:"storyboard",l:"Storyboard"},{k:"captions",l:"Captions"},{k:"music",l:"Music"},{k:"voiceover",l:"Voiceover"},{k:"editor",l:"Editor"},{k:"gallery",l:"Gallery"},{k:"packs",l:"Packs"},{k:"builder",l:"AI Builder"}].map(t => (
+          {[{k:"create",l:"Create"},{k:"images",l:"Images"},{k:"storyboard",l:"Storyboard"},{k:"captions",l:"Captions"},{k:"music",l:"Music"},{k:"voiceover",l:"Voiceover"},{k:"editor",l:"Editor"},{k:"gallery",l:"Gallery"},{k:"packs",l:"Packs"},{k:"builder",l:"AI Builder"}].map(t => (
             <button key={t.k} className={cls("sc-tab", tab === t.k && "active")} onClick={() => setTab(t.k)}>
               <span className="tdot"/>{t.l}
             </button>
@@ -1388,6 +1463,109 @@ export default function SuperScenePage() {
                     </div>
                   </div>
                 )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══ IMAGES TAB — AI Image Generator ══ */}
+        {tab === "images" && (
+          <div className="sc-music-view">
+            <div className="sc-music-layout">
+              {/* Left — Controls */}
+              <div className="sc-music-controls">
+                <div className="sc-label">AI Image Generator</div>
+                <div className="sc-sub" style={{ marginTop: 0, marginBottom: 20 }}>Create stunning images from text descriptions. Product photos, thumbnails, social graphics, and more.</div>
+
+                {/* Model */}
+                <div className="sc-section">
+                  <div className="sc-label">Model</div>
+                  {IMG_MODELS.map(m => (
+                    <button key={m.key} className={cls("sc-img-model-btn", imgModel === m.key && "on")} onClick={() => setImgModel(m.key)}>
+                      <div className="sc-img-model-name">{m.name} {m.badge && <span className="sc-img-badge">{m.badge}</span>}</div>
+                      <div className="sc-img-model-desc">{m.desc}</div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Prompt */}
+                <div className="sc-section">
+                  <div className="sc-label">Prompt</div>
+                  <div className="sc-prompt-box">
+                    <textarea className="sc-prompt-ta" rows={5}
+                      placeholder="A professional product photo of wireless earbuds on a marble surface, soft studio lighting, shallow depth of field, 8K, photorealistic"
+                      value={imgPrompt} onChange={e => setImgPrompt(e.target.value)}/>
+                    <span className="sc-prompt-counter">{imgPrompt.length}/2000</span>
+                  </div>
+                </div>
+
+                {/* Size */}
+                <div className="sc-section">
+                  <div className="sc-label">Aspect Ratio</div>
+                  <div className="sc-pills" style={{ flexWrap: "wrap" }}>
+                    {IMG_SIZES.map(s => (
+                      <button key={s} className={cls("sc-pill", imgSize === s && "on")} onClick={() => setImgSize(s)}>{s}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Quality */}
+                <div className="sc-section">
+                  <div className="sc-label">Quality</div>
+                  <div className="sc-pills">
+                    {IMG_QUALITIES.map(q => (
+                      <button key={q} className={cls("sc-pill", imgQuality === q && "on")} onClick={() => setImgQuality(q)}>
+                        {q} <span style={{ fontSize: 10, color: "var(--muted)", marginLeft: 4 }}>{IMG_CREDIT_MAP[q]}cr</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Generate */}
+                <div className="sc-section">
+                  <div className="sc-credit-line">
+                    <div className="sc-cl-icon">◈</div>
+                    <span className="sc-cl-label">Cost:</span>
+                    <span className="sc-cl-value">{IMG_CREDIT_MAP[imgQuality] || 2} credits</span>
+                  </div>
+                  <button className="sc-gen-btn" onClick={generateImage} disabled={!imgPrompt.trim() || imgGenerating}>
+                    {imgGenerating ? "Generating…" : !imgPrompt.trim() ? "Enter a prompt" : "🖼 Generate Image"}
+                  </button>
+                </div>
+              </div>
+
+              {/* Right — Preview */}
+              <div className="sc-music-preview">
+                <div className="sc-preview-label">Generated Image</div>
+                <div className="sc-music-stage" style={{ padding: 20 }}>
+                  {imgGenerating ? (
+                    <div className="gst">
+                      <div className="spin"><div className="r1"/><div className="r2"/></div>
+                      <div className="gst-title">Generating image…</div>
+                      <div className="gst-sub">{IMG_MODELS.find(m => m.key === imgModel)?.name} · {imgQuality} · {imgSize}</div>
+                      <div className="pt"><div className="pf" style={{ width: `${Math.min(imgProgress, 100)}%` }}/></div>
+                      <div className="gst-pct">{Math.round(imgProgress)}%</div>
+                    </div>
+                  ) : imgResults.length > 0 ? (
+                    <div className="sc-img-results">
+                      {imgResults.map((url, i) => (
+                        <div key={i} className="sc-img-result-item">
+                          <img src={url} alt={`Generated ${i+1}`} className="sc-img-result-img"/>
+                          <div className="sc-img-result-actions">
+                            <button className="sc-sa-btn" onClick={() => downloadVideo(url, `superscene-image-${Date.now()}.png`)}>⬇ Download</button>
+                            <button className="sc-sa-btn" onClick={() => { navigator.clipboard.writeText(url); alert("Image URL copied!"); }}>📋 Copy URL</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="s-empty">
+                      <div className="s-icon">🖼</div>
+                      <div className="s-title">Your image will appear here</div>
+                      <div className="s-sub">Choose a model, describe what you want, and generate</div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>

@@ -18526,3 +18526,162 @@ async def sc_lipsync_generate(request: Request, db: Session = Depends(get_db)):
         db.commit()
         logger.exception("OmniHuman error")
         raise HTTPException(status_code=502, detail=str(e))
+
+# ── SuperScene — AI Image Generator ──────────────────────────
+
+@app.post("/api/superscene/image/generate")
+async def sc_image_generate(request: Request, db: Session = Depends(get_db)):
+    """Generate an image using EvoLink (Nano Banana 2, Seedream, GPT Image).
+    Body: {model, prompt, quality, size, n?, image_urls?}
+    """
+    import httpx
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    body = await request.json()
+    model_id   = body.get("model", "nano-banana-2")
+    prompt     = (body.get("prompt") or "").strip()
+    quality    = body.get("quality", "1K")
+    size       = body.get("size", "1:1")
+    n          = int(body.get("n", 1))
+    image_urls = body.get("image_urls") or []
+
+    if not prompt:
+        raise HTTPException(status_code=400, detail="Prompt is required")
+
+    # Credit cost based on quality
+    credit_map = {"0.5K": 1, "1K": 2, "2K": 3, "4K": 5}
+    credits_needed = credit_map.get(quality, 2) * n
+
+    credit_row = _get_or_create_sc_credits(user.id, db)
+    if credit_row.balance < credits_needed:
+        raise HTTPException(status_code=402, detail=f"Insufficient credits. Need {credits_needed}, have {credit_row.balance}.")
+
+    credit_row.balance -= credits_needed
+    db.commit()
+
+    api_key = os.getenv("EVOLINK_API_KEY", "")
+    if not api_key:
+        credit_row.balance += credits_needed
+        db.commit()
+        raise HTTPException(status_code=503, detail="EvoLink API key not configured")
+
+    payload = {
+        "model": model_id,
+        "prompt": prompt,
+        "quality": quality,
+        "size": size,
+        "n": n,
+    }
+    if image_urls:
+        payload["image_urls"] = image_urls
+
+    try:
+        async with httpx.AsyncClient(timeout=60.0) as client:
+            resp = await client.post(
+                "https://api.evolink.ai/v1/images/generations",
+                json=payload,
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json",
+                },
+            )
+            data = resp.json()
+
+        logger.info(f"EvoLink image response ({resp.status_code}): {str(data)[:500]}")
+
+        if resp.status_code in (200, 201):
+            # Check if async (has task_id) or sync (has images directly)
+            task_id = data.get("id") or data.get("task_id")
+            images = data.get("data") or data.get("images") or []
+
+            # If images returned directly
+            if images and isinstance(images, list):
+                urls = []
+                for img in images:
+                    if isinstance(img, dict):
+                        urls.append(img.get("url") or img.get("image_url") or "")
+                    elif isinstance(img, str):
+                        urls.append(img)
+                if urls and urls[0]:
+                    return {
+                        "success": True,
+                        "images": urls,
+                        "credits_used": credits_needed,
+                        "credits_remaining": credit_row.balance,
+                    }
+
+            # If async, return task_id for polling
+            if task_id:
+                return {
+                    "success": True,
+                    "task_id": str(task_id),
+                    "async": True,
+                    "credits_used": credits_needed,
+                    "credits_remaining": credit_row.balance,
+                }
+
+            # Fallback — check results
+            results = data.get("results") or []
+            if results:
+                return {
+                    "success": True,
+                    "images": results if isinstance(results[0], str) else [r.get("url", "") for r in results],
+                    "credits_used": credits_needed,
+                    "credits_remaining": credit_row.balance,
+                }
+
+            credit_row.balance += credits_needed
+            db.commit()
+            return {"success": False, "error": "No images in response", "raw": data}
+
+        credit_row.balance += credits_needed
+        db.commit()
+        err = data.get("error", {}).get("message", "Image generation failed") if isinstance(data.get("error"), dict) else str(data.get("error", "Failed"))
+        raise HTTPException(status_code=502, detail=err)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        credit_row.balance += credits_needed
+        db.commit()
+        logger.exception("Image generation error")
+        raise HTTPException(status_code=502, detail=str(e))
+
+
+@app.get("/api/superscene/image/status/{task_id}")
+async def sc_image_poll(task_id: str, request: Request, db: Session = Depends(get_db)):
+    """Poll image generation status (for async models)."""
+    import httpx
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    api_key = os.getenv("EVOLINK_API_KEY", "")
+    try:
+        async with httpx.AsyncClient(timeout=15.0) as client:
+            resp = await client.get(
+                f"https://api.evolink.ai/v1/tasks/{task_id}",
+                headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
+            )
+            data = resp.json()
+
+        if resp.status_code == 200:
+            status = data.get("status", "pending")
+            images = []
+            if status == "completed":
+                results = data.get("results") or data.get("data") or []
+                for r in results:
+                    if isinstance(r, str):
+                        images.append(r)
+                    elif isinstance(r, dict):
+                        images.append(r.get("url") or r.get("image_url") or "")
+            return {"status": status, "images": images}
+
+        return {"status": "pending", "images": []}
+    except Exception as e:
+        logger.exception("Image poll error")
+        raise HTTPException(status_code=502, detail=str(e))

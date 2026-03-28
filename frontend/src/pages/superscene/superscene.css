@@ -421,3 +421,15 @@
 .sc-sb-input-controls { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; gap: 12px; }
 .sc-sb-input-settings { display: flex; align-items: center; gap: 10px; }
 .sc-sb-cost-label { font-size: 12px; color: var(--muted); }
+
+/* ── IMAGE GENERATOR ── */
+.sc-img-model-btn { width: 100%; text-align: left; padding: 10px 14px; margin-bottom: 6px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; color: var(--text); cursor: pointer; transition: all .15s; }
+.sc-img-model-btn:hover { border-color: var(--border2); }
+.sc-img-model-btn.on { border-color: var(--cyan); background: var(--cdim2); }
+.sc-img-model-name { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 6px; }
+.sc-img-model-desc { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.sc-img-badge { font-size: 9px; font-weight: 700; color: var(--cyan); background: var(--cdim); padding: 2px 6px; border-radius: 4px; }
+.sc-img-results { display: flex; flex-direction: column; align-items: center; gap: 16px; width: 100%; }
+.sc-img-result-item { text-align: center; width: 100%; }
+.sc-img-result-img { max-width: 100%; max-height: 500px; border-radius: 12px; border: 1px solid var(--border); object-fit: contain; }
+.sc-img-result-actions { display: flex; gap: 10px; justify-content: center; margin-top: 12px; }
