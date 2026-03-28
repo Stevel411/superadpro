@@ -778,10 +778,53 @@ export default function SuperScenePage() {
       <div className="s-empty"><div className="s-icon" style={{ color: "#f87171" }}>✕</div>
         <div className="s-title">Generation Failed</div><div className="s-sub">Something went wrong. Your credits have been refunded.</div></div>
     );
+    // Preview images by tier
+    const tierPreviews = {
+      quick: [
+        { img: "https://cdn.evolink.ai/2026/01/9950e1e6404479f6bfdb01c1f564f003.webp", prompt: "A mouse runs toward the camera, smiling and blinking, Pixar style animation" },
+        { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764733309.webp", prompt: "A golden retriever puppy playing in autumn leaves, warm afternoon light" },
+      ],
+      standard: [
+        { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764733217.webp", prompt: "Cinematic aerial shot over a misty mountain lake at sunrise, slow camera pan" },
+        { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734176.webp", prompt: "A professional woman walking through a modern office, natural lighting, tracking shot" },
+      ],
+      premium: [
+        { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734126.webp", prompt: "A lone astronaut standing on Mars, cinematic lighting, dust particles in air, photorealistic" },
+        { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764733217.webp", prompt: "Underwater coral reef scene with tropical fish, volumetric light rays, 4K detail" },
+      ],
+      ultra: [
+        { img: "https://media.nanobananaproapi.com/2025/11/c909eb7af0b71ba4c65a84943bbe7faa.webp", prompt: "Epic 4K cinematic flyover of a neon-lit futuristic city at night, rain reflections, Blade Runner atmosphere" },
+        { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734126.webp", prompt: "4K macro shot of a hummingbird drinking nectar, extreme detail, natural documentary style" },
+      ],
+    };
+    const previews = tierPreviews[model] || tierPreviews.standard;
     return (
-      <div className="s-empty"><div className="s-icon">▶</div>
-        <div className="s-title">Your video will appear here</div>
-        <div className="s-sub">Fill in your prompt, choose a model and settings, then hit Generate</div></div>
+      <div className="s-empty" style={{ padding: 16 }}>
+        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', marginBottom: 4 }}>
+          {TIERS.find(t => t.key === model)?.name || 'Standard'} Quality Preview
+        </div>
+        <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 14 }}>
+          Example outputs from this tier. Generate your own below.
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, width: '100%' }}>
+          {previews.map((p, i) => (
+            <div key={i} style={{ position: 'relative', borderRadius: 10, overflow: 'hidden', cursor: 'pointer', border: '1px solid var(--border)' }}
+              onClick={() => { setPrompt(p.prompt); }}>
+              <img src={p.img} alt={`Preview ${i+1}`} style={{ width: '100%', height: 120, objectFit: 'cover', display: 'block' }}
+                onError={e => { e.target.style.display = 'none'; }} />
+              <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '16px 8px 6px', background: 'linear-gradient(transparent, rgba(0,0,0,0.8))', fontSize: 10, color: '#fff', lineHeight: 1.4 }}>
+                {p.prompt.length > 60 ? p.prompt.slice(0, 60) + '…' : p.prompt}
+              </div>
+              <div style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', color: '#22d3ee', fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 4 }}>
+                Try this
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{ fontSize: 10, color: 'var(--muted)', marginTop: 10, textAlign: 'center' }}>
+          Click a preview to use its prompt
+        </div>
+      </div>
     );
   };
 
@@ -1001,6 +1044,44 @@ export default function SuperScenePage() {
               <div className="sc-pb-track"/>
               <span className="sc-pb-icon">🔊</span>
               <span className="sc-pb-icon">⛶</span>
+            </div>
+          </div>
+
+          {/* ── Showcase Gallery ── */}
+          <div style={{ padding: '24px 0 12px' }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 4, paddingLeft: 4 }}>Showcase — What SuperScene Can Create</div>
+            <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 14, paddingLeft: 4 }}>Click any example to use its prompt. Powered by the world's best AI video models.</div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
+              {[
+                { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734126.webp", prompt: "A lone astronaut standing on the surface of Mars, cinematic wide shot, dust particles floating in orange light, photorealistic", tier: "Premium", model: "Kling O3" },
+                { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764733217.webp", prompt: "Cinematic aerial drone shot gliding over a misty mountain lake at golden hour, slow camera pan revealing snow-capped peaks", tier: "Standard", model: "Kling 3.0" },
+                { img: "https://media.nanobananaproapi.com/2025/11/c909eb7af0b71ba4c65a84943bbe7faa.webp", prompt: "Epic 4K cinematic flyover of a neon-lit futuristic cyberpunk city at night, rain-soaked streets, volumetric fog, Blade Runner atmosphere", tier: "Ultra", model: "VEO 3.1 Pro" },
+                { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734176.webp", prompt: "A confident professional woman walking through a sunlit modern glass office, tracking shot, natural bokeh, warm tones", tier: "Standard", model: "Seedance 1.5" },
+                { img: "https://cdn.evolink.ai/2026/01/9950e1e6404479f6bfdb01c1f564f003.webp", prompt: "A cute cartoon mouse running toward the camera with a big smile, Pixar-style 3D animation, soft studio lighting", tier: "Quick", model: "Hailuo 2.3" },
+                { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764733309.webp", prompt: "Macro close-up of a monarch butterfly landing on a wildflower, shallow depth of field, morning dew drops, 4K nature documentary", tier: "Premium", model: "Sora 2 Pro" },
+                { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734126.webp", prompt: "A samurai warrior standing in a bamboo forest, wind blowing his cloak, cinematic lighting with god rays, Japanese aesthetic", tier: "Premium", model: "Kling O3" },
+                { img: "https://media.nanobananaproapi.com/2025/11/c909eb7af0b71ba4c65a84943bbe7faa.webp", prompt: "Underwater scene of a coral reef with tropical fish, volumetric light rays penetrating clear blue water, BBC documentary style", tier: "Ultra", model: "VEO 3.1 Pro" },
+              ].map((item, i) => (
+                <div key={i} style={{ position: 'relative', borderRadius: 10, overflow: 'hidden', cursor: 'pointer', border: '1px solid var(--border)', transition: 'transform .15s' }}
+                  onClick={() => { setPrompt(item.prompt); setModel(item.tier.toLowerCase()); }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = ''; }}>
+                  <img src={item.img} alt={`Showcase ${i+1}`} style={{ width: '100%', height: 140, objectFit: 'cover', display: 'block' }}
+                    onError={e => { e.target.parentElement.style.display = 'none'; }} />
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '20px 10px 8px', background: 'linear-gradient(transparent, rgba(0,0,0,0.85))' }}>
+                    <div style={{ fontSize: 11, color: '#fff', lineHeight: 1.4, marginBottom: 4 }}>
+                      {item.prompt.length > 70 ? item.prompt.slice(0, 70) + '…' : item.prompt}
+                    </div>
+                    <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                      <span style={{ fontSize: 9, fontWeight: 700, padding: '2px 6px', borderRadius: 4, background: 'rgba(34,211,238,0.2)', color: '#22d3ee' }}>{item.tier}</span>
+                      <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.5)' }}>{item.model}</span>
+                    </div>
+                  </div>
+                  <div style={{ position: 'absolute', top: 6, right: 6, background: 'rgba(0,0,0,0.6)', color: '#22d3ee', fontSize: 9, fontWeight: 700, padding: '3px 8px', borderRadius: 4 }}>
+                    Try this ▸
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </>}
