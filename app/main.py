@@ -18565,7 +18565,7 @@ async def sc_image_generate(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Prompt is required")
 
     # Credit cost based on quality
-    credit_map = {"0.5K": 1, "1K": 2, "2K": 3, "4K": 5}
+    credit_map = {"1K": 1, "2K": 2, "4K": 4}
     credits_needed = credit_map.get(quality, 2) * n
 
     credit_row = _get_or_create_sc_credits(user.id, db)
