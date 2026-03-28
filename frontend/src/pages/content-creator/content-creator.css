@@ -1,5 +1,5 @@
 /* ── Content Creator ── */
-.cc-root { min-height: 100vh; font-family: 'DM Sans', 'Rethink Sans', sans-serif; }
+.cc-root { font-family: 'DM Sans', 'Rethink Sans', sans-serif; }
 
 /* Header */
 .cc-header { background: linear-gradient(135deg, #1a103d, #2d1b69); padding: 20px 24px 16px; }
@@ -19,7 +19,7 @@
 .cc-tool-card.active .cc-tool-label { color: #22d3ee; }
 
 /* Workspace */
-.cc-workspace { display: flex; min-height: calc(100vh - 160px); background: #f1f5f9; }
+.cc-workspace { display: flex; min-height: 500px; background: #f1f5f9; }
 .cc-panel-left { width: 380px; flex-shrink: 0; background: #fff; border-right: 1px solid #e2e8f0; padding: 22px; overflow-y: auto; }
 .cc-panel-right { flex: 1; padding: 22px; display: flex; flex-direction: column; }
 
@@ -83,7 +83,7 @@
 }
 
 /* ── AI SALES CHAT ── */
-.cc-chat-workspace { background: #f1f5f9; min-height: calc(100vh - 160px); display: flex; justify-content: center; padding: 20px; }
+.cc-chat-workspace { background: #f1f5f9; min-height: 500px; display: flex; justify-content: center; padding: 20px; }
 .cc-chat-container { width: 100%; max-width: 800px; background: #fff; border-radius: 16px; border: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow: hidden; }
 .cc-chat-messages { flex: 1; overflow-y: auto; padding: 20px; min-height: 400px; max-height: calc(100vh - 320px); }
 .cc-chat-welcome { text-align: center; padding: 40px 20px; }

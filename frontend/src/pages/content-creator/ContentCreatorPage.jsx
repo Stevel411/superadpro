@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import AppLayout from "../../components/layout/AppLayout";
 import "./content-creator.css";
 
 const TOOLS = [
@@ -82,6 +83,7 @@ export default function ContentCreatorPage() {
   const switchTool = (key) => { setTool(key); setOutput(""); setQrUrl(""); };
 
   return (
+    <AppLayout title="Content Creator">
     <div className="cc-root">
       <div className="cc-header">
         <div className="cc-header-inner">
@@ -154,5 +156,6 @@ export default function ContentCreatorPage() {
         </div>
       )}
     </div>
+    </AppLayout>
   );
 }
