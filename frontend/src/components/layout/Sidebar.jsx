@@ -8,28 +8,29 @@ import {
   Globe, GraduationCap, PenLine, Network, FileText, Users,
   Target, Mail, Trophy, Bot, Film,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
-  BookOpen, PlusCircle, Scissors, Clock
+  BookOpen, PlusCircle, Scissors, Clock, UserCircle, Tv,
+  Wrench, Share2, Megaphone
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
   var items = [
     { type: 'standalone', label: t('nav.dashboard'), icon: Home, path: '/dashboard' },
     { type: 'divider' },
-    { type: 'group', label: t('nav.account'), key: 'account', items: [
+    { type: 'group', label: t('nav.account'), key: 'account', icon: UserCircle, items: [
       { label: t('nav.myProfile'), icon: User, path: '/account' },
       { label: t('nav.wallet'), icon: Wallet, path: '/wallet' },
       { label: t('nav.support'), icon: Headphones, path: '/support' },
     ]},
     { type: 'divider' },
-    { type: 'group', label: 'Watch To Earn', key: 'earn', items: [
+    { type: 'group', label: 'Watch To Earn', key: 'earn', icon: Tv, items: [
       { label: 'Watch', icon: Eye, path: '/watch' },
       { label: 'Create Campaign', icon: PlusCircle, path: '/create-campaign' },
       { label: 'My Campaigns', icon: Film, path: '/video-library' },
     ]},
     { type: 'divider' },
-    { type: 'standalone', label: 'Ad Hub', icon: LayoutGrid, path: '/ad-hub' },
+    { type: 'standalone', label: 'Ad Hub', icon: Megaphone, path: '/ad-hub' },
     { type: 'divider' },
-    { type: 'group', label: t('nav.creatorTools'), key: 'creator', items: [
+    { type: 'group', label: t('nav.creatorTools'), key: 'creator', icon: Wrench, items: [
       { label: t('nav.linkHub'), icon: Link2, path: '/linkhub' },
       { label: t('nav.linkTools'), icon: LayoutGrid, path: '/link-tools' },
       { label: 'Content Creator', icon: Bot, path: '/content-creator' },
@@ -38,12 +39,12 @@ function buildNav(t, isAdmin) {
       { label: 'AutoResponder', icon: Mail, path: '/pro/leads', pro: true },
     ]},
     { type: 'divider' },
-    { type: 'group', label: t('nav.courses') + ' (Coming Soon)', key: 'courses', items: [
+    { type: 'group', label: t('nav.courses') + ' (Coming Soon)', key: 'courses', icon: GraduationCap, items: [
       { label: t('nav.courseLibrary'), icon: GraduationCap, path: '/courses', comingSoon: true },
       { label: t('nav.createCourse'), icon: PenLine, path: '/courses/create', pro: true, comingSoon: true },
     ]},
     { type: 'divider' },
-    { type: 'group', label: 'Share & Earn', key: 'affiliate', items: [
+    { type: 'group', label: 'Share & Earn', key: 'affiliate', icon: Share2, items: [
       { label: t('nav.myNetwork'), icon: Network, path: '/network' },
       { label: t('nav.compPlan'), icon: FileText, path: '/compensation-plan' },
       { label: t('nav.socialShare'), icon: Users, path: '/affiliate' },
@@ -54,7 +55,7 @@ function buildNav(t, isAdmin) {
 
   if (isAdmin) {
     items.push({ type: 'divider' });
-    items.push({ type: 'group', label: 'ADMIN', key: 'admin', items: [
+    items.push({ type: 'group', label: 'ADMIN', key: 'admin', icon: Shield, items: [
       { label: 'Admin Dashboard', icon: Shield, path: '/admin' },
     ]});
   }
@@ -171,13 +172,14 @@ export default function Sidebar({ open, onClose }) {
               return (
                 <div key={i}>
                   <button onClick={function() { toggle(item.key); }} className="sb-group-hdr" style={{
-                    width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between',
+                    width:'100%', display:'flex', alignItems:'center',
                     padding:'10px 20px', fontSize:11, fontWeight:700,
                     color:'rgba(255,255,255,0.9)', textTransform:'uppercase', letterSpacing:'0.07em',
                     cursor:'pointer', border:'none', background:'transparent', transition:'all .15s',
-                    fontFamily:'inherit', borderRadius: 8, margin: '1px 0',
+                    fontFamily:'inherit', borderRadius: 8, margin: '1px 0', gap: 8,
                   }}>
-                    <span>{item.label}</span>
+                    {item.icon && <item.icon style={{width:15,height:15,flexShrink:0,color:'rgba(255,255,255,0.45)'}}/>}
+                    <span style={{flex:1,textAlign:'left'}}>{item.label}</span>
                     <ChevronRight style={{width:14,height:14,color:'rgba(255,255,255,0.2)',transform:isOpen?'rotate(90deg)':'none',transition:'transform .2s'}}/>
                   </button>
                   {isOpen && (
