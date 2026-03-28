@@ -18458,8 +18458,8 @@ async def sc_lipsync_generate(request: Request, db: Session = Depends(get_db)):
     if not image_url or not audio_url:
         raise HTTPException(status_code=400, detail="Both image_url and audio_url are required")
 
-    # Lip sync costs 5 credits
-    credits_needed = 5
+    # Lip sync costs 8 credits (~$0.80 revenue vs ~$0.50 cost = 37% margin)
+    credits_needed = 8
     credit_row = _get_or_create_sc_credits(user.id, db)
     if credit_row.balance < credits_needed:
         raise HTTPException(status_code=402, detail=f"Insufficient credits. Need {credits_needed}, have {credit_row.balance}.")

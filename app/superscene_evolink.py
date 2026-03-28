@@ -41,10 +41,10 @@ MODEL_MAP_I2V = {
 }
 
 CREDITS_PER_5S = {
-    "kling3":    3,
-    "seedance2": 2,
-    "sora2":     4,
-    "veo31":     5,
+    "kling3":    5,    # EvoLink: $0.375/5s → we charge $0.50 (33% margin)
+    "seedance2": 2,    # EvoLink: $0.125/5s → we charge $0.20 (37% margin)
+    "sora2":     15,   # EvoLink: $1.20/5s  → we charge $1.50 (20% margin)
+    "veo31":     3,    # EvoLink: $0.169/8s → we charge $0.30 (43% margin)
 }
 
 AUDIO_EXTRA_PER_5S = 1
