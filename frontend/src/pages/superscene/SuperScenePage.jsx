@@ -827,6 +827,7 @@ export default function SuperScenePage() {
 
         {/* ══ CREATE TAB — 2-panel Viddo layout ══ */}
         {tab === "create" && <>
+          <div className="sc-ws-panels">
           <div className="sc-lp">
             <div className="sc-lp-scroll">
 
@@ -1039,6 +1040,7 @@ export default function SuperScenePage() {
               <span className="sc-pb-icon">⛶</span>
             </div>
           </div>
+          </div>{/* close sc-ws-panels */}
         </>}
 
         {/* ── Community Showcase — BELOW workspace, full width ── */}

@@ -52,7 +52,8 @@
 .sc-ibt:hover { color: #fff; }
 
 /* ── WORKSPACE — 2-panel ── */
-.sc-ws { display: flex; flex: 1; overflow: hidden; height: calc(100vh - 52px); }
+.sc-ws { display: flex; flex-direction: column; flex: 1; overflow-y: auto; min-height: calc(100vh - 52px); }
+.sc-ws-panels { display: flex; flex: none; min-height: 500px; }
 
 /* ── LEFT PANEL ── */
 .sc-lp { width: 440px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
