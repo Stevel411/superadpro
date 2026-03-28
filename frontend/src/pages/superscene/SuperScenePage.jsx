@@ -1488,12 +1488,12 @@ export default function SuperScenePage() {
                 {/* Model */}
                 <div className="sc-section">
                   <div className="sc-label">Model</div>
-                  {IMG_MODELS.map(m => (
-                    <button key={m.key} className={cls("sc-img-model-btn", imgModel === m.key && "on")} onClick={() => setImgModel(m.key)}>
-                      <div className="sc-img-model-name">{m.name} {m.badge && <span className="sc-img-badge">{m.badge}</span>}</div>
-                      <div className="sc-img-model-desc">{m.desc}</div>
-                    </button>
-                  ))}
+                  <select className="sc-select" value={imgModel} onChange={e => setImgModel(e.target.value)}
+                    style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', fontSize: 13, fontFamily: 'inherit', cursor: 'pointer', appearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%238e8e98\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center' }}>
+                    {IMG_MODELS.map(m => (
+                      <option key={m.key} value={m.key}>{m.name}{m.badge ? ` — ${m.badge}` : ''} · {m.desc}</option>
+                    ))}
+                  </select>
                 </div>
 
                 {/* Prompt */}
@@ -1568,7 +1568,11 @@ export default function SuperScenePage() {
                     </div>
                   ) : (
                     <div className="s-empty">
-                      <div className="s-icon">🖼</div>
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#5a5a62" strokeWidth="1.5" style={{ marginBottom: 12, opacity: 0.4 }}>
+                        <rect x="3" y="3" width="18" height="18" rx="3"/>
+                        <circle cx="8.5" cy="8.5" r="1.5"/>
+                        <path d="M21 15l-5-5L5 21"/>
+                      </svg>
                       <div className="s-title">Your image will appear here</div>
                       <div className="s-sub">Choose a model, describe what you want, and generate</div>
                     </div>
