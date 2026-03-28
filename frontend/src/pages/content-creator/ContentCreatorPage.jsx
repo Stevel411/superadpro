@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import "./content-creator.css";
 
 const TOOLS = [
-  { key: "social",        label: "Social Posts",   icon: "📱" },
-  { key: "video_scripts", label: "Video Scripts",  icon: "🎬" },
-  { key: "email",         label: "Email Copy",     icon: "📧" },
-  { key: "ad_copy",       label: "Ad Copy",        icon: "📢" },
-  { key: "niche",         label: "Niche Finder",   icon: "💡" },
-  { key: "qr",            label: "QR Code",        icon: "📷" },
+  { key: "social",        label: "Social Posts",    icon: "📱" },
+  { key: "video_scripts", label: "Video Scripts",   icon: "🎬" },
+  { key: "email",         label: "Email Copy",      icon: "📧" },
+  { key: "ad_copy",       label: "Ad Copy",         icon: "📢" },
+  { key: "niche",         label: "Niche Finder",    icon: "💡" },
+  { key: "qr",            label: "QR Code",         icon: "📷" },
+  { key: "chat",          label: "AI Sales Chat",   icon: "💬" },
 ];
 
 const PLATFORMS = [
@@ -30,6 +31,7 @@ const TOOL_CONFIG = {
   ad_copy:       { title: "Ad Copy Generator",        desc: "Create compelling ad headlines, copy, and CTAs.", showTone: true, showCount: true, placeholder: "What are you advertising? Who is your target audience?" },
   niche:         { title: "Niche Finder",             desc: "Research profitable niches with audience insights and monetisation strategies.", placeholder: "Enter a niche, topic, or industry to analyse..." },
   qr:            { title: "QR Code Generator",        desc: "Generate QR codes for your referral links and landing pages.", isQR: true, placeholder: "Enter the URL for your QR code..." },
+  chat:          { title: "AI Sales Chat",            desc: "Your AI sales assistant for pitches, objections, and closing.", isChat: true },
 };
 
 export default function ContentCreatorPage() {
@@ -42,61 +44,50 @@ export default function ContentCreatorPage() {
   const [generating, setGenerating] = useState(false);
   const [output, setOutput] = useState("");
   const [qrUrl, setQrUrl] = useState("");
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const chatEndRef = useRef(null);
+
+  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chatMessages]);
 
   const config = TOOL_CONFIG[tool];
 
   const generate = async () => {
-    if (tool === "qr") {
-      if (!prompt.trim()) return;
-      setQrUrl(`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(prompt)}`);
-      return;
-    }
+    if (tool === "qr") { if (!prompt.trim()) return; setQrUrl(`https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(prompt)}`); return; }
     if (!prompt.trim() || generating) return;
-    setGenerating(true);
-    setOutput("");
+    setGenerating(true); setOutput("");
     try {
-      const res = await fetch("/api/content-creator/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tool, prompt, platform, tone, count, format }),
-      });
+      const res = await fetch("/api/content-creator/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ tool, prompt, platform, tone, count, format }) });
       const data = await res.json();
-      if (data.success && data.content) {
-        setOutput(data.content);
-      } else {
-        setOutput("Error: " + (data.detail || data.error || "Generation failed"));
-      }
-    } catch {
-      setOutput("Error: Network error. Please try again.");
-    }
+      if (data.success && data.content) setOutput(data.content);
+      else setOutput("Error: " + (data.detail || data.error || "Generation failed"));
+    } catch { setOutput("Error: Network error."); }
     setGenerating(false);
   };
 
-  const copyOutput = () => {
-    navigator.clipboard.writeText(output);
-    alert("Copied to clipboard!");
+  const sendChat = async () => {
+    if (!chatInput.trim() || chatLoading) return;
+    const msg = chatInput.trim(); setChatInput("");
+    setChatMessages(prev => [...prev, { role: "user", content: msg }]);
+    setChatLoading(true);
+    try {
+      const res = await fetch("/api/proseller/chat", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: msg, history: chatMessages }) });
+      const data = await res.json();
+      setChatMessages(prev => [...prev, { role: "assistant", content: data.response || "Sorry, something went wrong." }]);
+    } catch { setChatMessages(prev => [...prev, { role: "assistant", content: "Network error." }]); }
+    setChatLoading(false);
   };
 
-  const switchTool = (key) => {
-    setTool(key);
-    setOutput("");
-    setQrUrl("");
-  };
+  const switchTool = (key) => { setTool(key); setOutput(""); setQrUrl(""); };
 
   return (
     <div className="cc-root">
-      {/* Header */}
       <div className="cc-header">
         <div className="cc-header-inner">
-          <div>
-            <div className="cc-title">Content Creator</div>
-            <div className="cc-subtitle">AI-powered marketing content — choose a tool below</div>
-          </div>
-          <a href="/dashboard" className="cc-back">← Dashboard</a>
+          <div><div className="cc-title">Content Creator</div><div className="cc-subtitle">AI-powered marketing content — choose a tool below</div></div>
         </div>
       </div>
-
-      {/* Tool selector cards */}
       <div className="cc-tools">
         {TOOLS.map(t => (
           <div key={t.key} className={`cc-tool-card ${tool === t.key ? "active" : ""}`} onClick={() => switchTool(t.key)}>
@@ -106,128 +97,62 @@ export default function ContentCreatorPage() {
         ))}
       </div>
 
-      {/* Workspace */}
-      <div className="cc-workspace">
-        {/* Left panel */}
-        <div className="cc-panel-left">
-          <div className="cc-tool-title">{config.title}</div>
-          <div className="cc-tool-desc">{config.desc}</div>
-
-          {/* Platform selector (social posts only) */}
-          {config.showPlatform && (
-            <div className="cc-section">
-              <div className="cc-label">Platform</div>
-              <div className="cc-platform-grid">
-                {PLATFORMS.map(p => (
-                  <div key={p.key}
-                    className={`cc-platform-pill ${platform === p.key ? "on" : ""}`}
-                    style={platform === p.key ? { borderColor: p.color, background: `${p.color}10` } : {}}
-                    onClick={() => setPlatform(p.key)}>
-                    <svg width="16" height="16" viewBox={p.vb || "0 0 24 24"} fill={platform === p.key ? p.color : "#94a3b8"} dangerouslySetInnerHTML={{ __html: p.svg }} />
-                    <span className="cc-plat-name" style={platform === p.key ? { color: p.color } : {}}>{p.key}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Prompt */}
-          <div className="cc-section">
-            <div className="cc-label">{tool === "qr" ? "URL" : "Describe your topic"}</div>
-            <textarea className="cc-textarea"
-              rows={tool === "niche" ? 3 : 5}
-              placeholder={config.placeholder}
-              value={prompt}
-              onChange={e => setPrompt(e.target.value)} />
-          </div>
-
-          {/* Tone */}
-          {config.showTone && (
-            <div className="cc-section">
-              <div className="cc-label">Tone</div>
-              <div className="cc-pills">
-                {TONES.map(t => (
-                  <button key={t} className={`cc-pill ${tone === t ? "on" : ""}`} onClick={() => setTone(t)}>{t}</button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Video format */}
-          {config.showFormat && (
-            <div className="cc-section">
-              <div className="cc-label">Format</div>
-              <div className="cc-pills">
-                {VIDEO_FORMATS.map(f => (
-                  <button key={f} className={`cc-pill ${format === f ? "on" : ""}`} onClick={() => setFormat(f)}>{f}</button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Count */}
-          {config.showCount && (
-            <div className="cc-section">
-              <div className="cc-label">Number to generate</div>
-              <div className="cc-pills">
-                {COUNTS.map(c => (
-                  <button key={c} className={`cc-pill ${count === c ? "on" : ""}`} onClick={() => setCount(c)}>{c}</button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Generate button */}
-          <div className="cc-section" style={{ marginTop: 24 }}>
-            <button className="cc-gen-btn" onClick={generate} disabled={!prompt.trim() || generating}>
-              {generating ? "Generating…" : !prompt.trim() ? "Enter a topic to start" : tool === "qr" ? "📷 Generate QR Code" : "✦ Generate Content"}
-            </button>
-          </div>
-        </div>
-
-        {/* Right panel */}
-        <div className="cc-panel-right">
-          <div className="cc-output-label">Generated Content</div>
-          <div className="cc-output-box">
-            {generating ? (
-              <div className="cc-generating">
-                <div>
-                  <div className="cc-gen-spinner" />
-                  <div className="cc-gen-text">Generating your {config.title.toLowerCase().replace(" generator", "")}…</div>
-                </div>
-              </div>
-            ) : output ? (
-              <>
-                <div className="cc-output-content">
-                  <pre>{output}</pre>
-                </div>
-                <div className="cc-output-actions">
-                  <button className="cc-action-btn" onClick={copyOutput}>📋 Copy All</button>
-                  <button className="cc-action-btn" onClick={() => { setOutput(""); }}>🗑 Clear</button>
-                  <button className="cc-action-btn primary" onClick={generate}>↻ Regenerate</button>
-                </div>
-              </>
-            ) : tool === "qr" && qrUrl ? (
-              <div className="cc-output-empty">
-                <div className="cc-output-empty-inner">
-                  <img src={qrUrl} alt="QR Code" style={{ width: 250, height: 250, borderRadius: 12 }} />
-                  <div style={{ marginTop: 16 }}>
-                    <a href={qrUrl} download="superadpro-qr.png" className="cc-action-btn" style={{ textDecoration: "none", display: "inline-block" }}>⬇ Download QR</a>
+      {tool === "chat" ? (
+        <div className="cc-chat-workspace">
+          <div className="cc-chat-container">
+            <div className="cc-chat-messages">
+              {chatMessages.length === 0 && (
+                <div className="cc-chat-welcome">
+                  <div style={{ fontSize: 36, marginBottom: 12 }}>💬</div>
+                  <div className="cc-chat-welcome-title">AI Sales Assistant</div>
+                  <div className="cc-chat-welcome-sub">Ask me anything about sales, objections, pitches, follow-ups, or closing techniques.</div>
+                  <div className="cc-chat-suggestions">
+                    {["How do I handle 'I need to think about it'?", "Write a follow-up message for a cold lead", "Create an elevator pitch for SuperAdPro", "Best closing techniques for network marketing"].map((s, i) => (
+                      <button key={i} className="cc-chat-suggestion" onClick={() => setChatInput(s)}>{s}</button>
+                    ))}
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div className="cc-output-empty">
-                <div className="cc-output-empty-inner">
-                  <div className="cc-output-icon">✦</div>
-                  <div className="cc-output-title">Your content will appear here</div>
-                  <div className="cc-output-sub">Choose a tool, describe your topic, and hit generate</div>
+              )}
+              {chatMessages.map((m, i) => (
+                <div key={i} className={`cc-chat-msg ${m.role}`}>
+                  <div className={`cc-chat-bubble ${m.role}`}>
+                    <pre className="cc-chat-msg-text">{m.content}</pre>
+                    {m.role === "assistant" && <button className="cc-chat-copy" onClick={() => { navigator.clipboard.writeText(m.content); }}>📋</button>}
+                  </div>
                 </div>
-              </div>
-            )}
+              ))}
+              {chatLoading && <div className="cc-chat-msg assistant"><div className="cc-chat-bubble assistant"><div className="cc-chat-typing">Thinking...</div></div></div>}
+              <div ref={chatEndRef} />
+            </div>
+            <div className="cc-chat-input-bar">
+              <input className="cc-chat-input" placeholder="Ask your AI sales assistant..." value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendChat()} disabled={chatLoading} />
+              <button className="cc-chat-send" onClick={sendChat} disabled={!chatInput.trim() || chatLoading}>Send</button>
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        <div className="cc-workspace">
+          <div className="cc-panel-left">
+            <div className="cc-tool-title">{config.title}</div>
+            <div className="cc-tool-desc">{config.desc}</div>
+            {config.showPlatform && (<div className="cc-section"><div className="cc-label">Platform</div><div className="cc-platform-grid">{PLATFORMS.map(p => (<div key={p.key} className={`cc-platform-pill ${platform === p.key ? "on" : ""}`} style={platform === p.key ? { borderColor: p.color, background: `${p.color}10` } : {}} onClick={() => setPlatform(p.key)}><svg width="16" height="16" viewBox={p.vb || "0 0 24 24"} fill={platform === p.key ? p.color : "#94a3b8"} dangerouslySetInnerHTML={{ __html: p.svg }} /><span className="cc-plat-name" style={platform === p.key ? { color: p.color } : {}}>{p.key}</span></div>))}</div></div>)}
+            <div className="cc-section"><div className="cc-label">{tool === "qr" ? "URL" : "Describe your topic"}</div><textarea className="cc-textarea" rows={tool === "niche" ? 3 : 5} placeholder={config.placeholder} value={prompt} onChange={e => setPrompt(e.target.value)} /></div>
+            {config.showTone && (<div className="cc-section"><div className="cc-label">Tone</div><div className="cc-pills">{TONES.map(t => (<button key={t} className={`cc-pill ${tone === t ? "on" : ""}`} onClick={() => setTone(t)}>{t}</button>))}</div></div>)}
+            {config.showFormat && (<div className="cc-section"><div className="cc-label">Format</div><div className="cc-pills">{VIDEO_FORMATS.map(f => (<button key={f} className={`cc-pill ${format === f ? "on" : ""}`} onClick={() => setFormat(f)}>{f}</button>))}</div></div>)}
+            {config.showCount && (<div className="cc-section"><div className="cc-label">Number to generate</div><div className="cc-pills">{COUNTS.map(c => (<button key={c} className={`cc-pill ${count === c ? "on" : ""}`} onClick={() => setCount(c)}>{c}</button>))}</div></div>)}
+            <div className="cc-section" style={{ marginTop: 24 }}><button className="cc-gen-btn" onClick={generate} disabled={!prompt.trim() || generating}>{generating ? "Generating…" : !prompt.trim() ? "Enter a topic to start" : tool === "qr" ? "📷 Generate QR Code" : "✦ Generate Content"}</button></div>
+          </div>
+          <div className="cc-panel-right">
+            <div className="cc-output-label">Generated Content</div>
+            <div className="cc-output-box">
+              {generating ? (<div className="cc-generating"><div><div className="cc-gen-spinner" /><div className="cc-gen-text">Generating…</div></div></div>
+              ) : output ? (<><div className="cc-output-content"><pre>{output}</pre></div><div className="cc-output-actions"><button className="cc-action-btn" onClick={() => { navigator.clipboard.writeText(output); alert("Copied!"); }}>📋 Copy All</button><button className="cc-action-btn" onClick={() => setOutput("")}>🗑 Clear</button><button className="cc-action-btn primary" onClick={generate}>↻ Regenerate</button></div></>
+              ) : tool === "qr" && qrUrl ? (<div className="cc-output-empty"><div className="cc-output-empty-inner"><img src={qrUrl} alt="QR" style={{ width: 250, height: 250, borderRadius: 12 }} /><div style={{ marginTop: 16 }}><a href={qrUrl} download="superadpro-qr.png" className="cc-action-btn" style={{ textDecoration: "none", display: "inline-block" }}>⬇ Download QR</a></div></div></div>
+              ) : (<div className="cc-output-empty"><div className="cc-output-empty-inner"><div className="cc-output-icon">✦</div><div className="cc-output-title">Your content will appear here</div><div className="cc-output-sub">Choose a tool, describe your topic, and hit generate</div></div></div>)}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -60,7 +60,6 @@
         <a href="/content-creator" class="nav-item{% if active_page=='content-creator' %} active{% endif %}"><span class="nav-icon">🤖</span>Content Creator</a>
         <a href="/pro/funnels" class="nav-item{% if active_page=='funnels' %} active{% endif %}" style="{% if not user or user.tier == 'basic' %}color:#64748b{% endif %}"><span class="nav-icon">🚀</span>SuperPages{% if not user or user.tier == 'basic' %} 🔒{% endif %}</a>
         <a href="/superseller" class="nav-item{% if active_page=='superseller' %} active{% endif %}" style="{% if not user or user.tier == 'basic' %}color:#64748b{% endif %}"><span class="nav-icon">⚡</span>SuperSeller{% if not user or user.tier == 'basic' %} 🔒{% endif %}</a>
-        <a href="/proseller" class="nav-item{% if active_page=='proseller' %} active{% endif %}" style="{% if not user or user.tier == 'basic' %}color:#64748b{% endif %}"><span class="nav-icon">🎯</span>ProSeller AI{% if not user or user.tier == 'basic' %} 🔒{% endif %}</a>
         <a href="/pro/leads" class="nav-item{% if active_page=='pro-leads' %} active{% endif %}" style="{% if not user or user.tier == 'basic' %}color:#64748b{% endif %}"><span class="nav-icon">📧</span>AutoResponder{% if not user or user.tier == 'basic' %} 🔒{% endif %}</a>
       </div>
     </div>

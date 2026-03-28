@@ -17115,7 +17115,7 @@ async def api_proseller_chat(request: Request, user: User = Depends(get_current_
                 messages.append({"role": h["role"], "content": h["content"]})
         messages.append({"role": "user", "content": message})
         resp = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-haiku-4-5-20251001",
             max_tokens=1024,
             system="You are ProSeller AI, a sales assistant for SuperAdPro members. Help them write pitches, handle objections, create follow-up messages, and close more sales. Be practical, concise, and action-oriented. Focus on affiliate marketing, network marketing, and online sales techniques. The member's username is " + (user.username or ""),
             messages=messages,
