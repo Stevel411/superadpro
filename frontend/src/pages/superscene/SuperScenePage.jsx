@@ -861,6 +861,12 @@ export default function SuperScenePage() {
                   </div>
                 )}
               </div>
+              <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4, paddingLeft: 2, opacity: 0.7 }}>
+                Powered by: {model === "quick" ? (mode === "image" ? "Hailuo 2.3 Fast" : "Hailuo 2.3") :
+                  model === "standard" ? (mode === "image" ? "Seedance 1.5 Pro" : "Kling 3.0") :
+                  model === "premium" ? "Kling O3" :
+                  model === "ultra" ? (mode === "image" ? "Sora 2 Pro" : "VEO 3.1 Pro 4K") : model}
+              </div>
 
               {/* Image Upload (when image mode) */}
               {mode === "image" && (
@@ -1780,22 +1786,80 @@ export default function SuperScenePage() {
       {/* ── HELP DRAWER ──────────────────────────────────── */}
       {helpOpen && (
         <div className="sc-hdrawer">
-          <div className="sc-hhead"><span className="sc-htitle">How SuperScene Works</span>
+          <div className="sc-hhead"><span className="sc-htitle">SuperScene Guide</span>
             <button className="sc-hclose" onClick={() => setHelpOpen(false)}>×</button></div>
           <div className="sc-hbody">
-            {[["1 · Write your prompt", "Describe your scene — camera movement, lighting, mood. Or use the AI Prompt Builder tab."],
-              ["2 · Choose a model", "Kling excels at cinematic realism. Seedance has native audio. Sora 2 is photorealistic. Veo 3.1 delivers Google's finest detail + audio."],
-              ["3 · Upload an image (optional)", "Switch to Image-to-Video mode to animate a reference image. All models support it."],
+
+            <div className="sc-hitem"><div className="sc-hititle" style={{ fontSize: 15, marginBottom: 12 }}>Quality Tiers Explained</div>
+              <div className="sc-hibody">SuperScene automatically selects the best AI model for your chosen quality level. Here's what each tier delivers:</div>
+            </div>
+
+            {[
+              { tier: "Quick", cr: "1-2", speed: "~30 seconds", models: "Hailuo 2.3 · WAN 2.6", 
+                desc: "Fast drafts for iteration. Great for testing ideas and concepts before committing to higher quality. Good motion, solid output.",
+                best: "Social media drafts, quick concepts, storyboard testing",
+                img: "https://cdn.evolink.ai/2026/01/9950e1e6404479f6bfdb01c1f564f003.webp" },
+              { tier: "Standard", cr: "2-3", speed: "~1-2 minutes", models: "Kling 3.0 · Seedance 1.5 Pro",
+                desc: "Best balance of quality and cost. Cinematic motion, smooth transitions. Seedance includes AI-generated audio. Most popular choice.",
+                best: "Marketing videos, product demos, social content, videos with audio",
+                img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764733217.webp" },
+              { tier: "Premium", cr: "5-8", speed: "~2-4 minutes", models: "Kling O3 · Sora 2 Pro",
+                desc: "Top-tier quality from the latest AI models. Kling O3 is the next generation with exceptional detail. Sora 2 Pro delivers photorealistic output.",
+                best: "Professional ads, brand content, hero videos, high-stakes projects",
+                img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734126.webp" },
+              { tier: "Ultra", cr: "15-25", speed: "~3-5 minutes", models: "VEO 3.1 Pro (4K)",
+                desc: "Maximum quality at 4K resolution. Google's most advanced video model with stunning cinematic detail, native audio, and reference image support.",
+                best: "Film-quality content, 4K production, cinematic storytelling",
+                img: "https://media.nanobananaproapi.com/2025/11/c909eb7af0b71ba4c65a84943bbe7faa.webp" },
+            ].map(t => (
+              <div key={t.tier} className="sc-hitem" style={{ borderLeft: '3px solid var(--accent)', paddingLeft: 14 }}>
+                <div className="sc-hititle">{t.tier} — {t.cr} credits/5s</div>
+                <div className="sc-hibody" style={{ marginBottom: 6 }}>{t.desc}</div>
+                <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 4 }}>Models: {t.models}</div>
+                <div style={{ fontSize: 11, color: 'var(--muted)', marginBottom: 8 }}>Speed: {t.speed} · Best for: {t.best}</div>
+                <img src={t.img} alt={`${t.tier} example`} style={{ width: '100%', borderRadius: 8, maxHeight: 140, objectFit: 'cover', opacity: 0.85 }}
+                  onError={e => { e.target.style.display = 'none'; }} />
+              </div>
+            ))}
+
+            <div className="sc-hitem" style={{ marginTop: 8 }}><div className="sc-hititle" style={{ fontSize: 15, marginBottom: 12 }}>Image Models</div>
+              <div className="sc-hibody">
+                {[
+                  { n: "Z Turbo", d: "Ultra-fast (~3 seconds). Great for quick iterations." },
+                  { n: "Nano Banana 2", d: "Best all-round quality with text rendering support." },
+                  { n: "NB2 Beta", d: "Web search grounding — generates images based on real-world references." },
+                  { n: "Seedream 5.0", d: "ByteDance model with flexible sizes and batch support." },
+                  { n: "Seedream 4.5", d: "Multi-image editing, up to 4K resolution." },
+                  { n: "GPT Image", d: "OpenAI's image generation model." },
+                  { n: "GPT Image 1.5", d: "Enhanced true-color precision, structured visual outputs." },
+                  { n: "Nano Banana Pro", d: "Photo-realistic, professional quality. Premium option." },
+                ].map(m => (
+                  <div key={m.n} style={{ marginBottom: 8 }}><span style={{ fontWeight: 700, color: 'var(--text)' }}>{m.n}</span> — {m.d}</div>
+                ))}
+              </div>
+            </div>
+
+            <div className="sc-hitem"><div className="sc-hititle" style={{ fontSize: 15, marginBottom: 12 }}>How It Works</div></div>
+            {[["1 · Write your prompt", "Describe your scene — camera movement, lighting, mood. Or use the AI Prompt Builder."],
+              ["2 · Choose a quality tier", "Quick for drafts, Standard for most content, Premium for important work, Ultra for 4K cinematic."],
+              ["3 · Upload an image (optional)", "Switch to Image-to-Video mode to animate a reference image. All tiers support it."],
               ["4 · Style References", "Upload reference images to guide visual style. Seedance supports up to 9 refs, Veo up to 3."],
-              ["5 · Storyboard", "Build multi-scene videos. Each scene generates independently. Chain scenes for longer narratives."],
-              ["6 · AI Audio", "Seedance 2.0 and Veo 3.1 generate sound effects, music and dialogue with your video."],
-              ["7 · Captions", "Add styled subtitles. Choose from TikTok, YouTube, Minimal, or Bold styles. Set timing per caption."],
+              ["5 · Storyboard", "Build multi-scene videos. Each scene extends from the last frame of the previous one."],
+              ["6 · AI Audio", "Standard and Ultra tiers include AI-generated sound effects, music, and dialogue."],
+              ["7 · Captions", "Add styled subtitles: TikTok, YouTube, Minimal, or Bold Pop styles."],
             ].map(([t, b]) => (
               <div key={t} className="sc-hitem"><div className="sc-hititle">{t}</div><div className="sc-hibody">{b}</div></div>
             ))}
+
             <div className="sc-htip">
-              <div className="sc-httitle">💡 Pro tips</div>
-              {["Use Image-to-Video to animate product shots","Enable AI Audio on Seedance for full soundscapes","Add camera moves: 'slow push-in', 'aerial pan'","9:16 ratio for TikTok and Instagram Reels"].map(t => (
+              <div className="sc-httitle">Pro tips</div>
+              {["Quick tier is perfect for testing prompts before upgrading to Premium",
+                "Standard tier with Seedance generates video + audio together",
+                "Use Image-to-Video to animate product shots or artwork",
+                "Add camera moves: 'slow push-in', 'aerial pan', 'dolly zoom'",
+                "9:16 ratio for TikTok/Reels, 16:9 for YouTube",
+                "Credits never expire — buy once, use whenever",
+              ].map(t => (
                 <div key={t} className="sc-hti">{t}</div>
               ))}
             </div>
