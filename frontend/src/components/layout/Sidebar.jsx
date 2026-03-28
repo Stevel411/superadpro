@@ -28,8 +28,6 @@ function buildNav(t, isAdmin) {
       { label: 'My Campaigns', icon: Film, path: '/video-library' },
     ]},
     { type: 'divider' },
-    { type: 'standalone', label: 'Ad Hub', icon: Megaphone, path: '/ad-hub' },
-    { type: 'divider' },
     { type: 'group', label: t('nav.creatorTools'), key: 'creator', icon: Wrench, items: [
       { label: t('nav.linkHub'), icon: Link2, path: '/linkhub' },
       { label: t('nav.linkTools'), icon: LayoutGrid, path: '/link-tools' },

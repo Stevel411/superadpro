@@ -322,7 +322,7 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 14 }}>Quick Actions</div>
-      <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
+      <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
             name: 'Watch to Earn', desc: 'Watch daily videos to unlock your commissions', link: '/watch',
@@ -360,6 +360,17 @@ export default function Dashboard() {
                 <rect x="2" y="4" width="20" height="14" rx="3" fill="#cffafe" stroke="#22d3ee" strokeWidth="1.5"/>
                 <polygon points="10,8 10,15 16,11.5" fill="#0891b2"/>
                 <rect x="6" y="20" width="12" height="2" rx="1" fill="#22d3ee"/>
+              </svg>
+            )
+          },
+          {
+            name: 'Ad Hub', desc: 'Place & manage your video, banner & text ads', link: '/ad-hub',
+            color: '#ef4444', bg: 'linear-gradient(135deg,#fef2f2,#fecaca)',
+            icon: (
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                <path d="M3 12l4-8h10l4 8-4 8H7l-4-8z" fill="#fecaca" stroke="#ef4444" strokeWidth="1.5"/>
+                <circle cx="12" cy="12" r="3" fill="#ef4444"/>
+                <path d="M12 6v2M12 16v2M6.5 9l1.5 1M16 14l1.5 1M6.5 15l1.5-1M16 10l1.5-1" stroke="#f87171" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             )
           },
