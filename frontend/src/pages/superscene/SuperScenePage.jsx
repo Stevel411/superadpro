@@ -453,13 +453,17 @@ export default function SuperScenePage() {
   // ── Image Generator Functions ───────────────────────────
   const IMG_MODELS = [
     { key: "nano-banana-2",       name: "Nano Banana 2",  desc: "Best quality, text rendering", badge: "BEST" },
-    { key: "nano-banana-pro",     name: "Nano Banana Pro", desc: "Cost-effective, high volume" },
-    { key: "doubao-seedream-5.0-lite", name: "Seedream 5.0",   desc: "2K/4K, web search, batch" },
+    { key: "nano-banana-pro",     name: "Nano Banana Pro", desc: "Photo-realistic, professional" },
+    { key: "nano-banana-2-beta",  name: "NB2 Beta",       desc: "Web search grounding", badge: "NEW" },
+    { key: "doubao-seedream-5.0-lite", name: "Seedream 5.0",   desc: "ByteDance, flexible sizes" },
+    { key: "doubao-seedream-4.5", name: "Seedream 4.5",   desc: "Multi-image editing, 4K", badge: "NEW" },
     { key: "gpt-image-1",        name: "GPT Image",      desc: "OpenAI image generation" },
+    { key: "gpt-image-1.5",      name: "GPT Image 1.5",  desc: "True-color precision", badge: "NEW" },
+    { key: "z-image-turbo",      name: "Z Turbo",        desc: "Ultra-fast ~3 seconds", badge: "FAST" },
   ];
   const IMG_SIZES = ["1:1","16:9","9:16","4:3","3:4","3:2","2:3","4:5","5:4"];
-  const IMG_QUALITIES = ["0.5K","1K","2K","4K"];
-  const IMG_CREDIT_MAP = {"0.5K": 1, "1K": 2, "2K": 3, "4K": 5};
+  const IMG_QUALITIES = ["1K","2K","4K"];
+  const IMG_CREDIT_MAP = {"1K": 1, "2K": 2, "4K": 4};
 
   const generateImage = async () => {
     if (!imgPrompt.trim() || imgGenerating) return;
