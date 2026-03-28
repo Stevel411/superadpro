@@ -379,37 +379,36 @@ export default function Dashboard() {
             )
           },
           {
-            name: 'Browse Courses', desc: 'Learn skills & earn 100% commissions', link: '/courses',
-            color: '#6366f1', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
+            name: 'SuperScene', desc: 'AI Creative Studio — video, music, images & more', link: '/superscene',
+            color: '#22d3ee', bg: 'linear-gradient(135deg,#ecfeff,#cffafe)',
             icon: (
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <path d="M4 19V6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v13" stroke="#6366f1" strokeWidth="1.8"/>
-                <path d="M4 19a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2" stroke="#6366f1" strokeWidth="1.8"/>
-                <line x1="9" y1="9" x2="15" y2="9" stroke="#818cf8" strokeWidth="1.8" strokeLinecap="round"/>
-                <line x1="9" y1="12" x2="15" y2="12" stroke="#a5b4fc" strokeWidth="1.8" strokeLinecap="round"/>
-                <line x1="9" y1="15" x2="12" y2="15" stroke="#a5b4fc" strokeWidth="1.8" strokeLinecap="round"/>
+                <rect x="2" y="4" width="20" height="14" rx="3" fill="#cffafe" stroke="#22d3ee" strokeWidth="1.5"/>
+                <polygon points="10,8 10,15 16,11.5" fill="#0891b2"/>
+                <rect x="6" y="20" width="12" height="2" rx="1" fill="#22d3ee"/>
               </svg>
             )
           },
           {
-            name: 'Create Course', desc: 'Build & sell courses on the marketplace', link: '/courses/create',
-            color: '#0ea5e9', bg: 'linear-gradient(135deg,#eff6ff,#dbeafe)',
+            name: 'Analytics', desc: 'Review your stats, earnings & campaign performance', link: '/analytics',
+            color: '#8b5cf6', bg: 'linear-gradient(135deg,#faf5ff,#ede9fe)',
             icon: (
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="3" width="18" height="18" rx="3" fill="#dbeafe" stroke="#0ea5e9" strokeWidth="1.5"/>
-                <path d="M8 12h8M12 8v8" stroke="#0ea5e9" strokeWidth="2.2" strokeLinecap="round"/>
+                <rect x="3" y="14" width="4" height="7" rx="1" fill="#c4b5fd"/>
+                <rect x="10" y="9" width="4" height="12" rx="1" fill="#a78bfa"/>
+                <rect x="17" y="4" width="4" height="17" rx="1" fill="#8b5cf6"/>
               </svg>
             )
           },
           {
-            name: 'AI Marketing', desc: 'Generate campaigns, social posts & scripts', link: '/campaign-studio',
+            name: 'Content Creator', desc: 'AI posts, scripts, emails, ad copy & sales chat', link: '/content-creator',
             color: '#d97706', bg: 'linear-gradient(135deg,#fffbeb,#fef3c7)',
             icon: (
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="8" width="18" height="13" rx="2.5" fill="#fef3c7" stroke="#d97706" strokeWidth="1.5"/>
-                <circle cx="12" cy="14" r="2.5" fill="#f59e0b"/>
-                <path d="M8 8V6a4 4 0 0 1 8 0v2" stroke="#d97706" strokeWidth="1.8" strokeLinecap="round"/>
-                <circle cx="12" cy="14" r="1" fill="#fff"/>
+                <rect x="3" y="3" width="18" height="18" rx="3" fill="#fef3c7" stroke="#d97706" strokeWidth="1.5"/>
+                <path d="M7 8h10M7 12h7M7 16h10" stroke="#d97706" strokeWidth="1.5" strokeLinecap="round"/>
+                <circle cx="17" cy="17" r="4" fill="#f59e0b"/>
+                <path d="M16 17h2M17 16v2" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             )
           },
