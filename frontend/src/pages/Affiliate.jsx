@@ -52,7 +52,7 @@ export default function Affiliate() {
       topic: 'SuperAdPro — earn by watching video ads and building an affiliate network',
       platform: platform, tone: tone.toLowerCase(), niche: niche || 'affiliate marketing',
       link: refLink, goal: 'drive signups through referral link'
-    }).then(function(r) { setPost(r.result || r.content || ''); setGenerating(false); })
+    }).then(function(r) { setPost(r.posts || r.result || r.content || ''); setGenerating(false); })
       .catch(function(e) { setPost('Error: ' + (e.message || 'Generation failed')); setGenerating(false); });
   }
 
