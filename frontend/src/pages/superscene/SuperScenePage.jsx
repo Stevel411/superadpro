@@ -2,12 +2,16 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import "./superscene.css";
 
 // ── Constants ──────────────────────────────────────────────
-const MODELS = [
-  { key: "kling3",    name: "Kling 3.0",       desc: "Cinematic realism, smooth motion",  badge: "POPULAR", cost: 5, color: "#22d3ee", i2v: true,  audio: false },
-  { key: "seedance2", name: "Seedance 1.5 Pro", desc: "Fast generation, native audio",     badge: "AUDIO",   cost: 2, color: "#fb923c", i2v: true,  audio: true  },
-  { key: "sora2",     name: "Sora 2 Pro",   desc: "OpenAI flagship, photorealistic",   badge: "PREMIUM", cost: 15, color: "#a78bfa", i2v: true,  audio: false },
-  { key: "veo31",     name: "Veo 3.1",      desc: "Google latest, audio + detail",     badge: "NEW",     cost: 3, color: "#38bdf8", i2v: true,  audio: true  },
+// Quality tiers — users pick these instead of specific models
+const TIERS = [
+  { key: "quick",    name: "Quick",    desc: "Fastest, budget-friendly",     badge: "FAST",    cost: 1,  color: "#22d3ee", i2v: true,  audio: false },
+  { key: "standard", name: "Standard", desc: "Best balance of speed & quality", badge: "POPULAR", cost: 3,  color: "#10b981", i2v: true,  audio: true  },
+  { key: "premium",  name: "Premium",  desc: "Highest quality output",       badge: "BEST",    cost: 5,  color: "#8b5cf6", i2v: true,  audio: false },
+  { key: "ultra",    name: "Ultra",    desc: "4K cinematic, maximum detail",  badge: "4K",      cost: 15, color: "#f59e0b", i2v: true,  audio: true  },
 ];
+
+// Keep MODELS as alias so existing code references still work
+const MODELS = TIERS;
 
 const DURATIONS = [5, 10, 15, 30];
 const RATIOS    = ["16:9", "9:16", "1:1", "4:3"];
@@ -45,7 +49,7 @@ export default function SuperScenePage() {
   // Create state
   const [mode, setMode]         = useState("text"); // text | image
   const [prompt, setPrompt]     = useState("");
-  const [model, setModel]       = useState("kling3");
+  const [model, setModel]       = useState("standard");
   const [duration, setDuration] = useState(10);
   const [ratio, setRatio]       = useState("16:9");
   const [dropOpen, setDropOpen] = useState(false);
@@ -92,7 +96,7 @@ export default function SuperScenePage() {
   const [sbGenerating, setSbGenerating] = useState(false);
   const [sbPrompt, setSbPrompt] = useState("");
   const [sbDuration, setSbDuration] = useState(5);
-  const [sbModel, setSbModel] = useState("kling3");
+  const [sbModel, setSbModel] = useState("standard");
   const sbPollRef = useRef(null);
   const sbProgRef = useRef(null);
   const sbCanvasRef = useRef(null);

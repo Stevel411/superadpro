@@ -1,14 +1,16 @@
 """
 SuperScene — EvoLink API Integration
-AI Video, Image & Music Generation via EvoLink
+AI Video Generation via EvoLink
 Base URL: https://api.evolink.ai/v1
+File Upload: https://files-api.evolink.ai
 Auth: Bearer token (EVOLINK_API_KEY env var)
 
-Smart Routing: Users select quality tiers (Quick/Standard/Premium/Ultra)
-and the system auto-selects the best model for the job.
+Documented endpoints (verified against EvoLink docs):
+  - POST /v1/videos/generations  → submit video generation task
+  - GET  /v1/tasks/{task_id}     → poll task status
+  - POST https://files-api.evolink.ai/upload → upload files
 
-Models integrated: Kling O3, Kling 3.0, Seedance 1.5 Pro, Sora 2 Pro,
-VEO 3.1, Hailuo 2.3, WAN 2.6, Grok Imagine, + image & music models.
+Models: kling-v3, seedance-2-0, sora-2-pro, veo-3.1
 """
 import os
 import logging
@@ -21,181 +23,36 @@ EVOLINK_API_KEY = os.getenv("EVOLINK_API_KEY", "")
 EVOLINK_BASE_URL = "https://api.evolink.ai/v1"
 EVOLINK_FILES_URL = "https://files-api.evolink.ai"
 
-# ═══ VIDEO MODELS ═══════════════════════════════════════════
-# model_key → EvoLink model ID
-
+# Model ID mapping — extracted from evolink.ai model pages
+# Kling uses separate model IDs for T2V vs I2V
 MODEL_MAP = {
-    # Kling O3 (next-gen)
-    "kling-o3":           "kling-o3-text-to-video",
-    # Kling 3.0
-    "kling3":             "kling-v3-text-to-video",
-    # Seedance 1.5 Pro (supports audio)
-    "seedance":           "seedance-1.5-pro",
-    # Sora 2 Pro Preview (per-second billing)
-    "sora2":              "sora-2-pro-preview",
-    # VEO 3.1 Fast (supports 4K + reference)
-    "veo31":              "veo-3-1-fast-lite",
-    # VEO 3.1 Pro (highest quality, 4K)
-    "veo31-pro":          "veo-3.1-generate-preview",
-    # Hailuo 2.3 (T2V + I2V)
-    "hailuo23":           "MiniMax-Hailuo-2.3",
-    # Hailuo 2.3 Fast (I2V only, fastest)
-    "hailuo23-fast":      "MiniMax-Hailuo-2.3-Fast",
-    # Hailuo 02 (T2V + I2V + FLF)
-    "hailuo02":           "MiniMax-Hailuo-02",
-    # WAN 2.6 (T2V)
-    "wan26":              "wan2.6-text-to-video",
-    # Grok Imagine Video
-    "grok-video":         "grok-imagine-video",
-    # Sora 2 Beta Max (no watermark)
-    "sora2-max":          "sora-2-beta-max",
-    # Kling Motion Control
-    "kling-motion":       "kling-v3-motion-control",
-    # Kling O3 Video Edit
-    "kling-edit":         "kling-o3-video-edit",
-    # VEO 3.1 Extend
-    "veo31-extend":       "veo3.1-fast-extend",
+    "kling3":    "kling-v3-text-to-video",
+    "seedance2": "seedance-1.5-pro",
+    "sora2":     "sora-2-pro",
+    "veo31":     "veo-3-1-fast-lite",
 }
 
-# I2V model variants (some models use different IDs for image-to-video)
+# Kling image-to-video uses a different model ID
 MODEL_MAP_I2V = {
-    "kling-o3":           "kling-o3-image-to-video",
-    "kling3":             "kling-v3-image-to-video",
-    "seedance":           "seedance-1.5-pro",
-    "sora2":              "sora-2-pro-preview",
-    "veo31":              "veo-3-1-fast-lite",
-    "veo31-pro":          "veo-3.1-generate-preview",
-    "hailuo23":           "MiniMax-Hailuo-2.3",
-    "hailuo23-fast":      "MiniMax-Hailuo-2.3-Fast",
-    "hailuo02":           "MiniMax-Hailuo-02",
-    "wan26":              "wan2.6-image-to-video",
-    "wan26-flash":        "wan-2.6-i2v-flash",
-    "grok-video":         "grok-imagine-video",
+    "kling3":    "kling-v3-image-to-video",
+    "seedance2": "seedance-1.5-pro",
+    "sora2":     "sora-2-pro",
+    "veo31":     "veo-3-1-fast-lite",
 }
 
-# ═══ SMART ROUTING: Quality Tiers ═══════════════════════════
-# Maps tier → best model for text-to-video and image-to-video
-
-TIER_ROUTES_T2V = {
-    "quick":    "hailuo23",       # Fastest, cheapest
-    "standard": "kling3",         # Best balance
-    "premium":  "kling-o3",       # Highest quality
-    "ultra":    "veo31-pro",      # 4K cinematic
-}
-
-TIER_ROUTES_I2V = {
-    "quick":    "hailuo23-fast",  # Fastest I2V
-    "standard": "seedance",       # Good I2V with audio option
-    "premium":  "kling-o3",       # Best I2V quality
-    "ultra":    "sora2",          # Premium I2V
-}
-
-# Credits per 5 seconds by model (ensures profitability)
 CREDITS_PER_5S = {
-    # Quick tier
-    "hailuo23":        1,
-    "hailuo23-fast":   1,
-    "hailuo02":        1,
-    "wan26":           1,
-    # Standard tier
-    "kling3":          3,
-    "seedance":        2,
-    # Premium tier
-    "kling-o3":        5,
-    "sora2":           8,
-    "grok-video":      4,
-    "sora2-max":       10,
-    # Ultra tier
-    "veo31":           3,
-    "veo31-pro":       15,
-    # Special features
-    "kling-motion":    8,
-    "kling-edit":      8,
-    "veo31-extend":    4,
+    "kling3":    5,    # EvoLink: $0.375/5s → we charge $0.50 (33% margin)
+    "seedance2": 2,    # EvoLink: $0.125/5s → we charge $0.20 (37% margin)
+    "sora2":     15,   # EvoLink: $1.20/5s  → we charge $1.50 (20% margin)
+    "veo31":     3,    # EvoLink: $0.169/8s → we charge $0.30 (43% margin)
 }
 
 AUDIO_EXTRA_PER_5S = 1
 
-I2V_SUPPORTED = {
-    "kling-o3", "kling3", "seedance", "sora2", "veo31", "veo31-pro",
-    "hailuo23", "hailuo23-fast", "hailuo02", "wan26", "grok-video",
-}
-AUDIO_SUPPORTED = {"seedance", "veo31", "veo31-pro"}
-STYLE_REF_SUPPORTED = {"seedance", "veo31", "veo31-pro"}
-STYLE_REF_MAX = {"seedance": 9, "veo31": 3, "veo31-pro": 3}
-
-# Models that use Kling-style image params (singular image_url)
-KLING_STYLE_MODELS = {"kling3", "kling-o3", "kling-motion", "kling-edit"}
-
-# ═══ IMAGE MODELS ═══════════════════════════════════════════
-
-IMAGE_MODELS = {
-    "nano-banana-2":     "nano-banana-2",
-    "nano-banana-pro":   "nano-banana-pro",
-    "nano-banana-beta":  "nano-banana-2-beta",
-    "seedream-5":        "doubao-seedream-5.0-lite",
-    "seedream-4.5":      "doubao-seedream-4.5",
-    "gpt-image":         "gpt-image-1",
-    "gpt-image-1.5":     "gpt-image-1.5",
-    "z-turbo":           "z-image-turbo",
-}
-
-IMAGE_CREDITS = {
-    "nano-banana-2":    {"1k": 1, "2k": 2, "4k": 4},
-    "nano-banana-pro":  {"1k": 3, "2k": 4, "4k": 5},
-    "nano-banana-beta": {"1k": 1, "2k": 2, "4k": 4},
-    "seedream-5":       {"1k": 1, "2k": 2, "4k": 4},
-    "seedream-4.5":     {"1k": 2, "2k": 3, "4k": 5},
-    "gpt-image":        {"1k": 2, "2k": 3, "4k": 5},
-    "gpt-image-1.5":    {"1k": 3, "2k": 4, "4k": 5},
-    "z-turbo":          {"1k": 1, "2k": 1, "4k": 2},
-}
-
-IMAGE_TIER_ROUTES = {
-    "quick":    "z-turbo",
-    "standard": "nano-banana-2",
-    "premium":  "gpt-image-1.5",
-    "ultra":    "nano-banana-pro",
-}
-
-# ═══ MUSIC MODELS ═══════════════════════════════════════════
-
-MUSIC_MODELS = {
-    "suno-v4":      "suno-v4-beta",
-    "suno-v4.5":    "suno-v4.5-beta",
-    "suno-v5":      "suno-v5-beta",
-    "suno-persona": "suno-persona",
-}
-
-MUSIC_CREDITS = {
-    "suno-v4": 1,
-    "suno-v4.5": 2,
-    "suno-v5": 3,
-    "suno-persona": 1,
-}
-
-MUSIC_TIER_ROUTES = {
-    "quick":    "suno-v4",
-    "standard": "suno-v4.5",
-    "premium":  "suno-v5",
-}
-
-
-# ═══ ROUTING FUNCTIONS ══════════════════════════════════════
-
-def resolve_video_model(tier: str, is_i2v: bool = False) -> str:
-    """Resolve quality tier to best model key."""
-    if is_i2v:
-        return TIER_ROUTES_I2V.get(tier, "kling3")
-    return TIER_ROUTES_T2V.get(tier, "kling3")
-
-
-def resolve_image_model(tier: str) -> str:
-    return IMAGE_TIER_ROUTES.get(tier, "nano-banana-2")
-
-
-def resolve_music_model(tier: str) -> str:
-    return MUSIC_TIER_ROUTES.get(tier, "suno-v4")
+I2V_SUPPORTED = {"kling3", "seedance2", "sora2", "veo31"}
+AUDIO_SUPPORTED = {"seedance2", "veo31"}
+STYLE_REF_SUPPORTED = {"seedance2", "veo31"}
+STYLE_REF_MAX = {"seedance2": 9, "veo31": 3}
 
 
 def calc_credits(model_key: str, duration_seconds: int, with_audio: bool = False) -> int:
@@ -205,11 +62,6 @@ def calc_credits(model_key: str, duration_seconds: int, with_audio: bool = False
     if with_audio and model_key in AUDIO_SUPPORTED:
         base += AUDIO_EXTRA_PER_5S * segments
     return base
-
-
-def calc_image_credits(model_key: str, quality: str = "1k") -> int:
-    costs = IMAGE_CREDITS.get(model_key, {"1k": 2, "2k": 3, "4k": 5})
-    return costs.get(quality, costs.get("1k", 2))
 
 
 def model_supports_i2v(model_key: str) -> bool:
@@ -278,9 +130,9 @@ async def generate_video(
         if model_key not in I2V_SUPPORTED:
             return {"success": False, "error": f"{model_id} does not support image-to-video"}
         # Different models expect different image parameter names
-        # Kling models: image_url (singular string) + image_start
-        # Other models: image_urls (array)
-        if model_key in KLING_STYLE_MODELS:
+        # Kling: image_url (singular string) or image_start
+        # Seedance/Veo/Sora: image_urls (array)
+        if model_key == "kling3":
             payload["image_url"] = image_urls[0]
             payload["image_start"] = image_urls[0]
         else:

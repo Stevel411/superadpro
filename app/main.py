@@ -17855,14 +17855,14 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
     Body: {model_key, prompt, duration, ratio, image_urls?, generate_audio?}
     """
     from .database import SuperSceneCredit, SuperSceneVideo
-    from .superscene_evolink import generate_video, calc_credits
+    from .superscene_evolink import generate_video, calc_credits, resolve_video_model
 
     user = get_current_user(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
     body = await request.json()
-    model_key      = body.get("model_key", "kling3")
+    model_key      = body.get("model_key", "standard")
     prompt         = (body.get("prompt") or "").strip()
     duration       = int(body.get("duration", 10))
     ratio          = body.get("ratio", "16:9")
@@ -17874,6 +17874,13 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Prompt is required")
     if duration not in (5, 10, 15, 30):
         raise HTTPException(status_code=400, detail="Duration must be 5, 10, 15, or 30")
+
+    # Smart routing: if model_key is a tier name, resolve to actual model
+    tier_keys = {"quick", "standard", "premium", "ultra"}
+    tier_used = model_key if model_key in tier_keys else None
+    if tier_used:
+        is_i2v = bool(image_urls and len(image_urls) > 0)
+        model_key = resolve_video_model(tier_used, is_i2v=is_i2v)
 
     credits_needed = calc_credits(model_key, duration, with_audio=gen_audio)
 
@@ -17905,8 +17912,14 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
 
     # Model name map for display
     model_names = {
-        "kling3": "Kling 3.0", "seedance2": "Seedance 1.5 Pro",
-        "sora2": "Sora 2 Pro", "veo31": "Veo 3.1",
+        "kling-o3": "Kling O3", "kling3": "Kling 3.0",
+        "seedance": "Seedance 1.5 Pro", "sora2": "Sora 2 Pro",
+        "veo31": "Veo 3.1 Fast", "veo31-pro": "Veo 3.1 Pro 4K",
+        "hailuo23": "Hailuo 2.3", "hailuo23-fast": "Hailuo 2.3 Fast",
+        "hailuo02": "Hailuo 02", "wan26": "WAN 2.6",
+        "grok-video": "Grok Imagine", "sora2-max": "Sora 2 Max",
+        "kling-motion": "Kling Motion Control", "kling-edit": "Kling O3 Edit",
+        "veo31-extend": "Veo 3.1 Extend",
     }
 
     # Record video
