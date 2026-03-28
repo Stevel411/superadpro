@@ -172,14 +172,13 @@ export default function Sidebar({ open, onClose }) {
               return (
                 <div key={i}>
                   <button onClick={function() { toggle(item.key); }} className="sb-group-hdr" style={{
-                    width:'100%', display:'flex', alignItems:'center',
+                    width:'100%', display:'flex', alignItems:'center', justifyContent:'space-between',
                     padding:'10px 20px', fontSize:11, fontWeight:700,
                     color:'rgba(255,255,255,0.9)', textTransform:'uppercase', letterSpacing:'0.07em',
                     cursor:'pointer', border:'none', background:'transparent', transition:'all .15s',
-                    fontFamily:'inherit', borderRadius: 8, margin: '1px 0', gap: 8,
+                    fontFamily:'inherit', borderRadius: 8, margin: '1px 0',
                   }}>
-                    {item.icon && <item.icon style={{width:15,height:15,flexShrink:0,color:'rgba(255,255,255,0.45)'}}/>}
-                    <span style={{flex:1,textAlign:'left'}}>{item.label}</span>
+                    <span>{item.label}</span>
                     <ChevronRight style={{width:14,height:14,color:'rgba(255,255,255,0.2)',transform:isOpen?'rotate(90deg)':'none',transition:'transform .2s'}}/>
                   </button>
                   {isOpen && (
