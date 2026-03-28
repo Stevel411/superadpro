@@ -5,10 +5,10 @@ import { useTranslation } from 'react-i18next';
 import LanguageSelector from './LanguageSelector';
 import {
   Home, User, Wallet, Headphones, Eye, Zap, LayoutGrid, Link2,
-  Globe, GraduationCap, Store, PenLine, Network, FileText, Users,
-  Target, Mail, Trophy, Award, Bot, Megaphone, Film, Paintbrush,
+  Globe, GraduationCap, PenLine, Network, FileText, Users,
+  Target, Mail, Trophy, Bot, Film,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
-  QrCode, MessageCircle, Flame, BookOpen, PlusCircle, BarChart3, Scissors
+  BookOpen, PlusCircle, Scissors, Clock
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
@@ -21,54 +21,35 @@ function buildNav(t, isAdmin) {
       { label: t('nav.support'), icon: Headphones, path: '/support' },
     ]},
     { type: 'divider' },
-    { type: 'group', label: 'Video Hub', key: 'adhub', items: [
-      { label: t('nav.watchToEarn'), icon: Eye, path: '/watch' },
+    { type: 'group', label: 'Watch To Earn', key: 'earn', items: [
+      { label: 'Watch', icon: Eye, path: '/watch' },
       { label: 'Create Campaign', icon: PlusCircle, path: '/create-campaign' },
       { label: 'My Campaigns', icon: Film, path: '/video-library' },
-      { label: t('nav.campaignTiers'), icon: Zap, path: '/campaign-tiers' },
-      { label: 'Analytics', icon: BarChart3, path: '/analytics' },
-      { label: 'Ad Hub', icon: LayoutGrid, path: '/ad-hub' },
     ]},
+    { type: 'divider' },
+    { type: 'standalone', label: 'Ad Hub', icon: LayoutGrid, path: '/ad-hub' },
     { type: 'divider' },
     { type: 'group', label: t('nav.creatorTools'), key: 'creator', items: [
       { label: t('nav.linkHub'), icon: Link2, path: '/linkhub' },
       { label: t('nav.linkTools'), icon: LayoutGrid, path: '/link-tools' },
-      { label: 'SuperScene', icon: Scissors, path: '/superscene' },
-    ]},
-    { type: 'divider' },
-    { type: 'group', label: t('nav.superProducts'), key: 'super', items: [
+      { label: 'Content Creator', icon: Bot, path: '/content-creator' },
       { label: t('nav.superPages'), icon: Globe, path: '/pro/funnels', pro: true },
       { label: t('nav.superSeller'), icon: Zap, path: '/superseller', pro: true },
-      { label: t('nav.superMarket'), icon: Store, path: '/marketplace' },
       { label: t('nav.proSellerAi'), icon: Target, path: '/proseller', pro: true },
-      { label: t('nav.myLeads'), icon: Mail, path: '/pro/leads', pro: true },
+      { label: 'AutoResponder', icon: Mail, path: '/pro/leads', pro: true },
     ]},
     { type: 'divider' },
-    { type: 'group', label: t('nav.courses'), key: 'courses', items: [
-      { label: t('nav.courseLibrary'), icon: GraduationCap, path: '/courses' },
-      { label: t('nav.createCourse'), icon: PenLine, path: '/courses/create', pro: true },
+    { type: 'group', label: t('nav.courses') + ' (Coming Soon)', key: 'courses', items: [
+      { label: t('nav.courseLibrary'), icon: GraduationCap, path: '/courses', comingSoon: true },
+      { label: t('nav.createCourse'), icon: PenLine, path: '/courses/create', pro: true, comingSoon: true },
     ]},
     { type: 'divider' },
-    { type: 'group', label: t('nav.affiliate'), key: 'affiliate', items: [
+    { type: 'group', label: 'Share & Earn', key: 'affiliate', items: [
       { label: t('nav.myNetwork'), icon: Network, path: '/network' },
       { label: t('nav.compPlan'), icon: FileText, path: '/compensation-plan' },
       { label: t('nav.socialShare'), icon: Users, path: '/affiliate' },
-      { label: 'Team Messenger', icon: MessageCircle, path: '/team-messenger' },
       { label: t('nav.leaderboard'), icon: Trophy, path: '/leaderboard' },
-      { label: t('nav.achievements'), icon: Award, path: '/achievements' },
-      { label: 'Challenges', icon: Flame, path: '/challenges' },
-    ]},
-    { type: 'divider' },
-    { type: 'group', label: t('nav.marketingSuite'), key: 'marketing', items: [
-      { label: t('nav.campaignStudio'), icon: Bot, path: '/campaign-studio' },
-      { label: t('nav.nicheFinder'), icon: Target, path: '/niche-finder' },
-      { label: t('nav.videoScripts'), icon: Film, path: '/video-script-generator' },
-      { label: t('nav.emailSwipes'), icon: Mail, path: '/email-swipes' },
-      { label: 'QR Generator', icon: QrCode, path: '/qr-generator' },
-    ]},
-    { type: 'divider' },
-    { type: 'group', label: 'LEARN', key: 'learn', items: [
-      { label: 'Training Centre', icon: BookOpen, path: '/training' },
+      { label: 'Affiliate Guide', icon: BookOpen, path: '/training' },
     ]},
   ];
 

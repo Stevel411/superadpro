@@ -8,7 +8,7 @@
   </a>
 
   <div class="nav-scroll">
-    <!-- ── Dashboard (always visible) ── -->
+    <!-- ── Dashboard ── -->
     <a href="/dashboard" class="nav-item nav-standalone{% if active_page=='dashboard' %} active{% endif %}"><span class="nav-icon">🏠</span>Dashboard</a>
 
     <div class="nav-divider"></div>
@@ -28,96 +28,73 @@
 
     <div class="nav-divider"></div>
 
-    <!-- ── Video ── -->
-    <div class="nav-group" data-group="video">
-      <div class="nav-header" onclick="toggleNav('video')">
-        <span>Video Hub</span>
+    <!-- ── Watch To Earn ── -->
+    <div class="nav-group" data-group="earn">
+      <div class="nav-header" onclick="toggleNav('earn')">
+        <span>Watch To Earn</span>
         <span class="nav-chevron">›</span>
       </div>
       <div class="nav-children">
-        <a href="/watch" class="nav-item{% if active_page=='watch' %} active{% endif %}"><span class="nav-icon">👁️</span>Watch to Earn</a>
+        <a href="/watch" class="nav-item{% if active_page=='watch' %} active{% endif %}"><span class="nav-icon">👁️</span>Watch</a>
         <a href="/create-campaign" class="nav-item{% if active_page=='create-campaign' %} active{% endif %}"><span class="nav-icon">➕</span>Create Campaign</a>
         <a href="/video-library" class="nav-item{% if active_page=='video-library' %} active{% endif %}"><span class="nav-icon">🎬</span>My Campaigns</a>
-        <a href="/analytics" class="nav-item{% if active_page=='analytics' %} active{% endif %}"><span class="nav-icon">📈</span>Analytics</a>
       </div>
     </div>
 
     <div class="nav-divider"></div>
 
-    <!-- ── Marketing Suite ── -->
-    <div class="nav-group" data-group="marketing">
-      <div class="nav-header" onclick="toggleNav('marketing')">
-        <span>Marketing Suite</span>
-        <span class="nav-chevron">›</span>
-      </div>
-      <div class="nav-children">
-        <a href="/campaign-studio" class="nav-item{% if active_page=='campaign-studio' %} active{% endif %}"><span class="nav-icon">🤖</span>AI Campaign</a>
-        <a href="/social-post-generator" class="nav-item{% if active_page=='social-post-generator' %} active{% endif %}"><span class="nav-icon">📱</span>Social Post Generator</a>
-        <a href="/video-script-generator" class="nav-item{% if active_page=='video-script-generator' %} active{% endif %}"><span class="nav-icon">🎬</span>Video Script Generator</a>
-        <a href="/niche-finder" class="nav-item{% if active_page=='niche-finder' %} active{% endif %}"><span class="nav-icon">💡</span>Niche Finder</a>
-        <a href="/swipe-file" class="nav-item{% if active_page=='swipe-file' %} active{% endif %}"><span class="nav-icon">📋</span>Swipe File</a>
-        <a href="/email-swipes" class="nav-item{% if active_page=='email-swipes' %} active{% endif %}"><span class="nav-icon">📧</span>Email Swipes</a>
-      </div>
-    </div>
+    <!-- ── Ad Hub (standalone) ── -->
+    <a href="/ad-hub" class="nav-item nav-standalone{% if active_page=='ad-hub' %} active{% endif %}"><span class="nav-icon">📢</span>Ad Hub</a>
 
     <div class="nav-divider"></div>
 
-    <!-- ── AdStudio ── -->
+    <!-- ── Creator Tools ── -->
     <div class="nav-group" data-group="tools">
       <div class="nav-header" onclick="toggleNav('tools')">
-        <span>AdStudio</span>
+        <span>Creator Tools</span>
         <span class="nav-chevron">›</span>
       </div>
       <div class="nav-children">
-        <a href="/pro/funnels" class="nav-item{% if active_page=='funnels' %} active{% endif %}"><span class="nav-icon">🚀</span>SuperPages</a>
-        <a href="/link-tools" class="nav-item{% if active_page=='link-tools' %} active{% endif %}"><span class="nav-icon">🔗</span>Link Tools</a>
         <a href="/linkhub" class="nav-item{% if active_page=='linkhub' %} active{% endif %}"><span class="nav-icon">🌐</span>LinkHub</a>
-        <a href="/superscene" class="nav-item{% if active_page=='superscene' %} active{% endif %}"><span class="nav-icon">🎬</span>SuperScene</a>
-        </div>
+        <a href="/link-tools" class="nav-item{% if active_page=='link-tools' %} active{% endif %}"><span class="nav-icon">🔗</span>Link Tools</a>
+        <a href="/content-creator" class="nav-item{% if active_page=='content-creator' %} active{% endif %}"><span class="nav-icon">🤖</span>Content Creator</a>
+        <a href="/pro/funnels" class="nav-item{% if active_page=='funnels' %} active{% endif %}" style="{% if not user or user.tier == 'basic' %}color:#64748b{% endif %}"><span class="nav-icon">🚀</span>SuperPages{% if not user or user.tier == 'basic' %} 🔒{% endif %}</a>
+        <a href="/superseller" class="nav-item{% if active_page=='superseller' %} active{% endif %}" style="{% if not user or user.tier == 'basic' %}color:#64748b{% endif %}"><span class="nav-icon">⚡</span>SuperSeller{% if not user or user.tier == 'basic' %} 🔒{% endif %}</a>
+        <a href="/proseller" class="nav-item{% if active_page=='proseller' %} active{% endif %}" style="{% if not user or user.tier == 'basic' %}color:#64748b{% endif %}"><span class="nav-icon">🎯</span>ProSeller AI{% if not user or user.tier == 'basic' %} 🔒{% endif %}</a>
+        <a href="/pro/leads" class="nav-item{% if active_page=='pro-leads' %} active{% endif %}" style="{% if not user or user.tier == 'basic' %}color:#64748b{% endif %}"><span class="nav-icon">📧</span>AutoResponder{% if not user or user.tier == 'basic' %} 🔒{% endif %}</a>
+      </div>
     </div>
 
     <div class="nav-divider"></div>
 
-    <!-- ── Courses ── -->
+    <!-- ── Courses (Coming Soon) ── -->
     <div class="nav-group" data-group="courses">
       <div class="nav-header" onclick="toggleNav('courses')">
-        <span>Courses</span>
+        <span>Courses <span style="font-size:9px;color:#8b5cf6;font-weight:600">COMING SOON</span></span>
         <span class="nav-chevron">›</span>
       </div>
       <div class="nav-children">
-        <a href="/courses" class="nav-item{% if active_page=='courses' %} active{% endif %}"><span class="nav-icon">🎓</span>Course Library</a>
-        <a href="/courses/my-courses" class="nav-item{% if active_page=='my-courses' %} active{% endif %}"><span class="nav-icon">📦</span>My Courses</a>
-        <a href="/courses/create" class="nav-item{% if active_page=='course-create' %} active{% endif %}"><span class="nav-icon">✏️</span>Create Course</a>
-        <a href="/marketplace" class="nav-item{% if active_page=='marketplace' %} active{% endif %}"><span class="nav-icon">🏪</span>Marketplace</a>
+        <a href="/courses" class="nav-item{% if active_page=='courses' %} active{% endif %}" style="color:#64748b"><span class="nav-icon">🎓</span>Course Library</a>
+        <a href="/courses/create" class="nav-item{% if active_page=='course-create' %} active{% endif %}" style="color:#64748b"><span class="nav-icon">✏️</span>Create Course 🔒</a>
       </div>
     </div>
 
     <div class="nav-divider"></div>
 
-    <!-- ── Affiliate ── -->
+    <!-- ── Share & Earn ── -->
     <div class="nav-group" data-group="affiliate">
       <div class="nav-header" onclick="toggleNav('affiliate')">
-        <span>Affiliate</span>
+        <span>Share & Earn</span>
         <span class="nav-chevron">›</span>
       </div>
       <div class="nav-children">
-        <a href="/courses/commissions" class="nav-item{% if active_page=='course-commissions' %} active{% endif %}"><span class="nav-icon">📊</span>My Network</a>
-        <a href="/courses/how-it-works" class="nav-item{% if active_page=='course-how-it-works' %} active{% endif %}"><span class="nav-icon">💰</span>How Commissions Work</a>
+        <a href="/network" class="nav-item{% if active_page=='network' %} active{% endif %}"><span class="nav-icon">🌐</span>My Network</a>
         <a href="/compensation-plan" class="nav-item{% if active_page=='compensation-plan' %} active{% endif %}"><span class="nav-icon">📋</span>Comp Plan</a>
         <a href="/affiliate" class="nav-item{% if active_page=='affiliate' %} active{% endif %}"><span class="nav-icon">🤝</span>Social Share</a>
-        <a href="/proseller" class="nav-item{% if active_page=='proseller' %} active{% endif %}"><span class="nav-icon">🎯</span>ProSeller AI</a>
-        <a href="/pro/funnels" class="nav-item{% if active_page=='pro-funnels' %} active{% endif %}"><span class="nav-icon">✨</span>AI Funnels</a>
-        <a href="/pro/leads" class="nav-item{% if active_page=='pro-leads' %} active{% endif %}"><span class="nav-icon">📩</span>My Leads</a>
-        <a href="/passup-visualiser" class="nav-item{% if active_page=='passup-visualiser' %} active{% endif %}"><span class="nav-icon">⬆️</span>Pass-Up Visualiser</a>
         <a href="/leaderboard" class="nav-item{% if active_page=='leaderboard' %} active{% endif %}"><span class="nav-icon">🏆</span>Leaderboard</a>
-        <a href="/achievements" class="nav-item{% if active_page=='achievements' %} active{% endif %}"><span class="nav-icon">🎖</span>Achievements</a>
+        <a href="/training" class="nav-item{% if active_page=='training' %} active{% endif %}"><span class="nav-icon">📖</span>Affiliate Guide</a>
       </div>
     </div>
-
-    <div class="nav-divider"></div>
-
-    <!-- ── Ad Board ── -->
-    <a href="/ads/my" class="nav-item{% if active_page=='ads' %} active{% endif %}" style="color:#fbbf24;font-weight:700"><span class="nav-icon">📢</span>Ad Board</a>
 
     {% if user and user.is_admin %}
     <div class="nav-divider"></div>
