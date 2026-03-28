@@ -246,7 +246,7 @@ export default function Dashboard() {
               <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>{"\u26A1"}</div>
               <div>
                 <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 3 }}>Unlock Pro — just $15 upgrade</div>
-                <div style={{ fontSize: 13, color: 'rgba(196,181,253,0.7)' }}>Get AI Funnels, ProSeller, Email Autoresponder, Campaign Studio & more. Pay only the difference.</div>
+                <div style={{ fontSize: 13, color: 'rgba(196,181,253,0.7)' }}>Get SuperPages, SuperSeller, AutoResponder & more Pro tools. Pay only the difference.</div>
               </div>
             </div>
             <div style={{ background: 'linear-gradient(135deg,#8b5cf6,#a855f7)', color: '#fff', fontSize: 13, fontWeight: 800, padding: '10px 20px', borderRadius: 10, flexShrink: 0, position: 'relative', zIndex: 2, boxShadow: '0 2px 8px rgba(139,92,246,0.3)' }}>Upgrade →</div>
@@ -254,8 +254,8 @@ export default function Dashboard() {
         </Link>
       )}
 
-      {/* 5 Income Streams */}
-      <div className="income-grid grid-5-col" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
+      {/* 3 Income Streams */}
+      <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
             color: '#16a34a', bg: '#dcfce7', badge: '$10 / referral',
@@ -284,18 +284,6 @@ export default function Dashboard() {
             )
           },
           {
-            color: '#6366f1', bg: '#ede9fe', badge: '100% commission',
-            val: d.course_earnings, name: 'Course Sales',
-            detail: `${d.course_sale_count || 0} sale${d.course_sale_count !== 1 ? 's' : ''} made`,
-            icon: (
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <path d="M12 3L2 8l10 5 10-5-10-5z" fill="#6366f1"/>
-                <path d="M2 16l10 5 10-5" stroke="#818cf8" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M2 12l10 5 10-5" stroke="#a5b4fc" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-            )
-          },
-          {
             color: '#d97706', bg: '#fef3c7', badge: 'tier bonus',
             val: d.boost_earned, name: 'Campaigns',
             detail: 'Video campaign earnings',
@@ -309,20 +297,6 @@ export default function Dashboard() {
                     <stop offset="1" stopColor="#d97706"/>
                   </linearGradient>
                 </defs>
-              </svg>
-            )
-          },
-          {
-            color: '#e11d48', bg: '#ffe4e6', badge: '50 / 25 / 25',
-            val: d.marketplace_earnings, name: 'Marketplace',
-            detail: `${d.marketplace_sales || 0} sales · ${d.marketplace_courses || 0} courses`,
-            icon: (
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <path d="M3 6h18l-2 10H5L3 6z" fill="#fb7185" opacity="0.85"/>
-                <path d="M3 6l-1-3H1" stroke="#e11d48" strokeWidth="2" strokeLinecap="round"/>
-                <circle cx="9" cy="20" r="1.5" fill="#e11d48"/>
-                <circle cx="17" cy="20" r="1.5" fill="#e11d48"/>
-                <path d="M9 10v4M12 9v5M15 10v4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             )
           },
@@ -348,7 +322,7 @@ export default function Dashboard() {
 
       {/* Quick Actions */}
       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 14 }}>Quick Actions</div>
-      <div className="actions-grid grid-5-col" style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 14, marginBottom: 20 }}>
+      <div className="actions-grid grid-4-col" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
             name: 'Watch to Earn', desc: 'Watch daily videos to unlock your commissions', link: '/watch',
@@ -464,7 +438,7 @@ export default function Dashboard() {
               { val: d.personal_referrals || 0, lbl: 'Direct Referrals' },
               { val: d.total_team || 0, lbl: 'Total Network' },
               { val: `$${formatMoney(d.total_earned)}`, lbl: 'Lifetime Earned' },
-              { val: d.course_sale_count || 0, lbl: 'Course Sales' },
+              { val: d.grid_stats?.completed_advances || 0, lbl: 'Grid Advances' },
             ].map((s, i) => (
               <div key={i} style={{ background: '#f1f5f9', borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
                 <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 24, fontWeight: 800, color: '#16a34a' }}>{s.val}</div>

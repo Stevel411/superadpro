@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import AppLayout from '../components/layout/AppLayout';
 import * as Chart from 'chart.js';
 
 Chart.Chart.register(
@@ -45,19 +46,16 @@ export default function AnalyticsPage() {
 
   var streamRef = useChart(data && data.monthly_streams.length>0 ? {type:'bar',data:{labels:data.monthly_streams.map(function(m){return m.month}),datasets:[{label:'Membership',data:data.monthly_streams.map(function(m){return m.membership}),backgroundColor:'#10b981',borderRadius:4},{label:'Grid',data:data.monthly_streams.map(function(m){return m.grid}),backgroundColor:'#6366f1',borderRadius:4},{label:'Courses',data:data.monthly_streams.map(function(m){return m.courses}),backgroundColor:'#f59e0b',borderRadius:4},{label:'SuperMarket',data:data.monthly_streams.map(function(m){return m.supermarket}),backgroundColor:'#0ea5e9',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true,pointStyle:'circle',font:{size:11,weight:600}}},tooltip:{backgroundColor:'#0f172a',padding:12,cornerRadius:10,callbacks:{label:function(c){return c.dataset.label+': $'+c.parsed.y.toFixed(2)}}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'#f1f5f9'},ticks:{callback:function(v){return '$'+v}}}}}} : null);
 
-  if (loading) return <div style={{minHeight:'100vh',background:'#f0f3f9',display:'flex',alignItems:'center',justifyContent:'center'}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:16,fontWeight:700,color:'#94a3b8'}}>Loading analytics...</div></div>;
-  if (error) return <div style={{minHeight:'100vh',background:'#f0f3f9',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:12}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:16,fontWeight:700,color:'#ef4444'}}>Error loading analytics</div><div style={{fontSize:14,color:'#64748b'}}>{error}</div><a href="/login" style={{marginTop:8,padding:'10px 24px',borderRadius:10,background:'#0ea5e9',color:'#fff',textDecoration:'none',fontWeight:700,fontSize:14}}>Sign In</a></div>;
+  if (loading) return <AppLayout title="Analytics"><div style={{display:'flex',alignItems:'center',justifyContent:'center',padding:80}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:16,fontWeight:700,color:'#94a3b8'}}>Loading analytics...</div></div></AppLayout>;
+  if (error) return <AppLayout title="Analytics"><div style={{display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:12,padding:80}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:16,fontWeight:700,color:'#ef4444'}}>Error loading analytics</div><div style={{fontSize:14,color:'#64748b'}}>{error}</div><a href="/login" style={{marginTop:8,padding:'10px 24px',borderRadius:10,background:'#0ea5e9',color:'#fff',textDecoration:'none',fontWeight:700,fontSize:14}}>Sign In</a></div></AppLayout>;
 
   var t = data.totals;
   var empty = function(msg) { return <div style={{height:280,display:'flex',alignItems:'center',justifyContent:'center',color:'#94a3b8',fontSize:14}}>{msg}</div>; };
 
   return (
-    <div style={{background:'#f0f3f9',minHeight:'100vh'}}>
-      <div style={{background:'#fff',borderBottom:'1px solid #e8ecf2',padding:'20px 32px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-        <div><h1 style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:800,color:'#0f172a',margin:0}}>Analytics</h1><div style={{fontSize:13,color:'#94a3b8',marginTop:2}}>Your complete earnings overview</div></div>
-        <a href="/dashboard" style={{padding:'8px 20px',borderRadius:10,background:'#f1f5f9',color:'#334155',textDecoration:'none',fontWeight:700,fontSize:13,border:'1px solid #e2e8f0'}}>← Dashboard</a>
-      </div>
-      <div style={{maxWidth:1100,margin:'24px auto',padding:'0 24px'}}>
+    <AppLayout title="Analytics">
+    <div style={{background:'#f0f3f9'}}>
+      <div style={{maxWidth:1100,margin:'0 auto',padding:'24px 24px'}}>
         {/* Stats */}
         <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16,marginBottom:24}}>
           {[{l:'Balance',v:'$'+t.balance.toFixed(2),s:'Available to withdraw',c:'#10b981',i:'💰'},{l:'Total Earned',v:'$'+t.total_earned.toFixed(2),s:'Lifetime earnings',c:'#0ea5e9',i:'📈'},{l:'Grid Earnings',v:'$'+t.grid_earnings.toFixed(2),s:(data.grid_progress.length||0)+' active grids',c:'#6366f1',i:'🔲'},{l:'Team Size',v:String(t.team_size),s:'Direct referrals',c:'#f59e0b',i:'👥'}].map(function(s,i){return<div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:24,position:'relative'}}><div style={{position:'absolute',top:16,right:16,width:44,height:44,borderRadius:12,display:'flex',alignItems:'center',justifyContent:'center',fontSize:20,background:s.c+'15'}}>{s.i}</div><div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>{s.l}</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:32,fontWeight:900,color:'#0f172a'}}>{s.v}</div><div style={{fontSize:13,fontWeight:600,color:s.c,marginTop:6}}>↑ {s.s}</div></div>})}
@@ -83,5 +81,6 @@ export default function AnalyticsPage() {
         </CB>
       </div>
     </div>
+    </AppLayout>
   );
 }
