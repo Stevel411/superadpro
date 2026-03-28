@@ -18685,3 +18685,136 @@ async def sc_image_poll(task_id: str, request: Request, db: Session = Depends(ge
     except Exception as e:
         logger.exception("Image poll error")
         raise HTTPException(status_code=502, detail=str(e))
+
+# ── Content Creator — AI Marketing Content Generator ─────────
+
+@app.get("/content-creator")
+def content_creator_page(request: Request):
+    """Serve the React Content Creator page."""
+    return _serve_react(request)
+
+
+@app.post("/api/content-creator/generate")
+async def content_creator_generate(request: Request, db: Session = Depends(get_db)):
+    """Generate marketing content using Claude Haiku.
+    Body: {tool, prompt, platform?, tone?, count?, format?}
+    """
+    import httpx
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    # Rate limit using existing quota system
+    rl = check_and_increment_ai_quota(db, user.id, "campaign_studio")
+    if not rl["allowed"]:
+        raise HTTPException(status_code=429, detail=f"Daily AI limit reached. Resets in {rl['resets_in']}.")
+
+    body = await request.json()
+    tool     = body.get("tool", "social")
+    prompt   = (body.get("prompt") or "").strip()
+    platform = body.get("platform", "Facebook")
+    tone     = body.get("tone", "Professional")
+    count    = min(int(body.get("count", 3)), 10)
+    fmt      = body.get("format", "")
+
+    if not prompt:
+        raise HTTPException(status_code=400, detail="Topic/prompt is required")
+
+    # Build AI prompt based on tool type
+    tool_prompts = {
+        "social": f"""You are an expert social media marketer. Write {count} engaging {platform} posts about: "{prompt}"
+
+Tone: {tone}
+Platform rules:
+- Facebook: storytelling, can be longer, use line breaks
+- Instagram: hashtag-heavy (5-10 relevant hashtags), emoji-friendly, visual descriptions
+- X: punchy and concise (under 280 chars each), hook-driven
+- TikTok: trendy, casual, hook in first line, use relevant hashtags
+- YouTube: community post style, engaging questions, call-to-action
+- Telegram: informative, can include formatting, direct style
+
+Return each post separated by "---". Include relevant emojis and hashtags for the platform. Make each post unique with different angles.""",
+
+        "video_scripts": f"""You are a professional video scriptwriter. Write a compelling video script about: "{prompt}"
+
+Tone: {tone}
+Format: {fmt or 'short-form (30-60 seconds)'}
+Structure each script with:
+- HOOK (first 3 seconds — grab attention)
+- BODY (main content — deliver value)
+- CTA (call to action — what to do next)
+
+Include [VISUAL] notes describing what should appear on screen.
+Make it feel natural, not salesy.""",
+
+        "email": f"""You are an expert email copywriter for affiliate and network marketing. Write {count} email(s) about: "{prompt}"
+
+Tone: {tone}
+For each email include:
+- SUBJECT LINE (curiosity-driven, under 50 chars)
+- PREVIEW TEXT (compelling, under 90 chars)
+- BODY (conversational, benefit-focused, 150-300 words)
+- CTA (clear call to action)
+- PS LINE (add urgency or social proof)
+
+Separate each email with "---". Make each email work as part of a sequence.""",
+
+        "ad_copy": f"""You are a direct-response advertising expert. Write {count} ad variation(s) for: "{prompt}"
+
+Tone: {tone}
+For each ad include:
+- HEADLINE (attention-grabbing, under 40 chars)
+- PRIMARY TEXT (benefit-driven, 125-150 words)
+- DESCRIPTION (under 30 words)
+- CTA BUTTON TEXT (action-oriented, 2-5 words)
+
+Separate each ad with "---". Test different angles: pain point, aspiration, social proof, urgency.""",
+
+        "niche": f"""You are a niche market research expert for online business and affiliate marketing. Analyse this niche/topic: "{prompt}"
+
+Provide:
+1. NICHE OVERVIEW — Is this profitable? Market size estimate.
+2. TARGET AUDIENCE — 3 specific audience segments with demographics and psychographics.
+3. PAIN POINTS — 5 specific problems this audience faces.
+4. CONTENT ANGLES — 5 content ideas that would resonate.
+5. MONETISATION — 3 ways to monetise in this niche.
+6. COMPETITION LEVEL — Low/Medium/High with explanation.
+7. RECOMMENDED APPROACH — Your strategic recommendation.""",
+    }
+
+    ai_prompt = tool_prompts.get(tool, tool_prompts["social"])
+
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        raise HTTPException(status_code=503, detail="AI service not configured")
+
+    try:
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            resp = await client.post(
+                "https://api.anthropic.com/v1/messages",
+                headers={
+                    "x-api-key": api_key,
+                    "anthropic-version": "2023-06-01",
+                    "content-type": "application/json",
+                },
+                json={
+                    "model": "claude-haiku-4-5-20251001",
+                    "max_tokens": 2000,
+                    "messages": [{"role": "user", "content": ai_prompt}],
+                },
+            )
+            data = resp.json()
+
+        if resp.status_code == 200:
+            content = data.get("content", [{}])[0].get("text", "")
+            return {"success": True, "content": content, "tool": tool, "platform": platform}
+
+        err = data.get("error", {}).get("message", "AI generation failed")
+        raise HTTPException(status_code=502, detail=err)
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Content Creator generation error")
+        raise HTTPException(status_code=502, detail=str(e))
