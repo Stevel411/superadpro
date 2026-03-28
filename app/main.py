@@ -18689,9 +18689,13 @@ async def sc_image_poll(task_id: str, request: Request, db: Session = Depends(ge
 # ── Content Creator — AI Marketing Content Generator ─────────
 
 @app.get("/content-creator")
-def content_creator_page(request: Request):
+async def content_creator_page(request: Request):
     """Serve the React Content Creator page."""
-    return _serve_react(request)
+    import pathlib
+    _idx = pathlib.Path("static/app/index.html")
+    if _idx.exists():
+        return HTMLResponse(_idx.read_text())
+    return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
 
 
 @app.post("/api/content-creator/generate")
