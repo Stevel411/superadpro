@@ -1029,7 +1029,7 @@ export default function SuperScenePage() {
           <div className="sc-logo-badge">BETA</div>
         </div>
         <div className="sc-tabs">
-          {[{k:"create",l:"Create"},{k:"studio",l:"Studio"},{k:"images",l:"Images"},{k:"storyboard",l:"Storyboard"},{k:"captions",l:"Captions"},{k:"music",l:"Music"},{k:"voiceover",l:"Voiceover"},{k:"editor",l:"Editor"},{k:"gallery",l:"Gallery"},{k:"packs",l:"Packs"},{k:"builder",l:"AI Builder"}].map(t => (
+          {[{k:"create",l:"Create"},{k:"studio",l:"Studio"},{k:"images",l:"Images"},{k:"captions",l:"Captions"},{k:"music",l:"Music"},{k:"voiceover",l:"Voiceover"},{k:"editor",l:"Editor"},{k:"gallery",l:"Gallery"},{k:"packs",l:"Packs"},{k:"builder",l:"AI Builder"}].map(t => (
             <button key={t.k} className={cls("sc-tab", tab === t.k && "active")} onClick={() => setTab(t.k)}>
               <span className="tdot"/>{t.l}
             </button>
@@ -2538,118 +2538,6 @@ export default function SuperScenePage() {
                 </div>
               </div>
             </div>
-          </div>
-        )}
-
-        {/* ══ STORYBOARD TAB — Extend from Last Frame ══ */}
-        {tab === "storyboard" && (
-          <div className="sc-storyboard-view">
-            <div className="sc-sb-header">
-              <div>
-                <div className="sc-label" style={{ marginBottom: 4 }}>Storyboard</div>
-                <div className="sc-sub" style={{ marginTop: 0 }}>Extend your video scene by scene. Each new scene starts from the last frame of the previous one for visual continuity.</div>
-              </div>
-            </div>
-
-            {/* Timeline of completed + generating scenes */}
-            {sbScenes.length > 0 && (
-              <div className="sc-sb-timeline">
-                {sbScenes.map((scene, idx) => (
-                  <div key={scene.id} className={cls("sc-sb-scene", scene.status === "completed" && "done", scene.status === "generating" && "active", scene.status === "failed" && "fail")}>
-                    <div className="sc-sb-scene-head">
-                      <span className="sc-sb-scene-num">Scene {idx + 1}</span>
-                      <div className="sc-sb-scene-controls">
-                        <span className="sc-sb-scene-meta">{MODELS.find(m => m.key === scene.model)?.name} · {scene.duration}s</span>
-                        {scene.status !== "generating" && <button className="sc-sb-remove" onClick={() => sbRemoveScene(scene.id)} title="Remove">✕</button>}
-                      </div>
-                    </div>
-                    <div className="sc-sb-prompt-display">{scene.prompt}</div>
-
-                    {scene.status === "generating" && (
-                      <div className="sc-sb-progress">
-                        <div className="sc-sb-prog-bar"><div className="sc-sb-prog-fill" style={{ width: `${scene.progress}%` }}/></div>
-                        <span className="sc-sb-prog-pct">{Math.round(scene.progress)}%</span>
-                      </div>
-                    )}
-
-                    {scene.status === "completed" && scene.videoUrl && (
-                      <div className="sc-sb-scene-preview">
-                        <video src={scene.videoUrl} className="sc-sb-video" controls/>
-                        <div className="sc-sb-done-actions">
-                          <span className="sc-sb-done-check">✓ Done</span>
-                          <button className="sc-sa-btn" onClick={() => downloadVideo(scene.videoUrl, `superscene-scene-${idx+1}.mp4`)}>⬇ Download</button>
-                        </div>
-                      </div>
-                    )}
-
-                    {scene.status === "failed" && (
-                      <div className="sc-sb-fail">
-                        <span style={{ color: "#f87171" }}>✕ Generation failed</span>
-                      </div>
-                    )}
-
-                    {/* Connector arrow between scenes */}
-                    {idx < sbScenes.length - 1 && scene.status === "completed" && (
-                      <div className="sc-sb-connector">
-                        <div className="sc-sb-connector-line"/>
-                        <div className="sc-sb-connector-label">Last frame → Next scene</div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Empty state */}
-            {sbScenes.length === 0 && !sbGenerating && (
-              <div className="sc-sb-empty">
-                <div className="s-icon">🎬</div>
-                <div className="s-title">Start your storyboard</div>
-                <div className="s-sub">Write a prompt for your first scene below. Each new scene will extend from the last frame of the previous one.</div>
-              </div>
-            )}
-
-            {/* Input for next scene */}
-            <div className="sc-sb-input-area">
-              <div className="sc-sb-input-header">
-                <div className="sc-label" style={{ marginBottom: 0 }}>
-                  {sbScenes.length === 0 ? "Scene 1 — First Scene" : `Scene ${sbScenes.length + 1} — Extend from Scene ${sbScenes.length}`}
-                </div>
-                {sbScenes.length > 0 && sbScenes[sbScenes.length - 1]?.status === "completed" && (
-                  <div className="sc-sb-chain-badge">🔗 Chaining from last frame</div>
-                )}
-              </div>
-
-              <textarea className="sc-sb-prompt-input" rows={5}
-                placeholder={sbScenes.length === 0
-                  ? "Describe your first scene… e.g. A cinematic sunset over the ocean, golden light, slow camera pan"
-                  : "Describe what happens next… The camera continues to the same characters now walking along the beach"}
-                value={sbPrompt} onChange={e => setSbPrompt(e.target.value)}
-                disabled={sbGenerating}/>
-
-              <div className="sc-sb-input-controls">
-                <div className="sc-sb-input-settings">
-                  <select className="sc-sb-model-sel" value={sbModel} onChange={e => setSbModel(e.target.value)} disabled={sbGenerating}>
-                    {MODELS.map(m => <option key={m.key} value={m.key}>{m.name}</option>)}
-                  </select>
-                  <select className="sc-sb-dur-sel" value={sbDuration} onChange={e => setSbDuration(parseInt(e.target.value))} disabled={sbGenerating}>
-                    {DURATIONS.map(d => <option key={d} value={d}>{d}s</option>)}
-                  </select>
-                  <span className="sc-sb-cost-label">{calcCost(sbModel, sbDuration, false)} credits</span>
-                </div>
-                <button className="sc-gen-btn" style={{ maxWidth: 220 }} onClick={sbGenerate}
-                  disabled={!sbPrompt.trim() || sbGenerating}>
-                  {sbGenerating ? "Generating…" : sbScenes.length === 0 ? "▶ Generate First Scene" : "▶ Extend Scene"}
-                </button>
-              </div>
-            </div>
-
-            {/* Total summary */}
-            {sbScenes.length > 0 && (
-              <div className="sc-sb-footer-info">
-                <div className="sc-sub">Total: {sbScenes.filter(s => s.status === "completed").length}/{sbScenes.length} scenes · {sbScenes.filter(s => s.status === "completed").reduce((a, s) => a + s.duration, 0)}s of video</div>
-              </div>
-            )}
           </div>
         )}
 
