@@ -221,6 +221,7 @@ export default function SuperScenePage() {
   // Voiceover
   const [voText, setVoText] = useState("");
   const [voVoice, setVoVoice] = useState("en-US-GuyNeural");
+  const [voDropOpen, setVoDropOpen] = useState(false);
   const [voGenerating, setVoGenerating] = useState(false);
   const [voAudioUrl, setVoAudioUrl] = useState(null);
   const [voImageUrl, setVoImageUrl] = useState(null);
@@ -1512,8 +1513,17 @@ export default function SuperScenePage() {
             <div className="sc-music-layout">
               {/* Left — Controls */}
               <div className="sc-music-controls">
-                <div className="sc-label">AI Voiceover</div>
-                <div className="sc-sub" style={{ marginTop: 0, marginBottom: 20 }}>Generate professional voiceovers from text. Optionally create a lip-synced talking avatar.</div>
+                <div className="sc-studio-hero">
+                  <div className="sc-studio-hero-icon" style={{ background: 'linear-gradient(135deg, #f472b6, #ec4899)' }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="sc-studio-title">AI Voiceover</div>
+                    <div className="sc-studio-desc">Generate professional voiceovers from text. Optionally create a lip-synced talking avatar.</div>
+                  </div>
+                </div>
 
                 {/* Step 1: Script */}
                 <div className="sc-section">
@@ -1522,16 +1532,46 @@ export default function SuperScenePage() {
                     <textarea className="sc-prompt-ta" rows={6}
                       placeholder="Type your voiceover script here... e.g. Welcome to SuperAdPro, the platform where your creativity pays."
                       value={voText} onChange={e => setVoText(e.target.value)}/>
-                    <span className="sc-prompt-counter">{voText.length}/5000</span>
+                    <div className="sc-prompt-footer">
+                      <span/>
+                      <span className="sc-prompt-count">{voText.length}/5000</span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Voice Selection */}
+                {/* Voice Selection — Custom Dropdown */}
                 <div className="sc-section">
                   <div className="sc-label">② Voice</div>
-                  <select className="sc-music-input" value={voVoice} onChange={e => setVoVoice(e.target.value)} style={{ cursor: "pointer" }}>
-                    {VO_VOICES.map(v => <option key={v.id} value={v.id}>{v.name} ({v.gender === "M" ? "Male" : "Female"} · {v.accent})</option>)}
-                  </select>
+                  <div className="sc-model-sel" onClick={() => setVoDropOpen(!voDropOpen)}>
+                    <div className="sc-model-icon" style={{ background: 'linear-gradient(135deg, #f472b6, #ec489988)' }}>🎙</div>
+                    <div className="sc-model-info">
+                      <div className="sc-model-name">{VO_VOICES.find(v => v.id === voVoice)?.name || "Select voice"}</div>
+                      <div className="sc-model-desc">{VO_VOICES.find(v => v.id === voVoice)?.gender === "M" ? "Male" : "Female"} · {VO_VOICES.find(v => v.id === voVoice)?.accent}</div>
+                    </div>
+                    <span className={cls("sc-model-chev", voDropOpen && "open")}>▼</span>
+                  </div>
+                  {voDropOpen && (
+                    <div className="sc-model-drop">
+                      {["American", "British", "Australian"].map(cat => {
+                        const voices = VO_VOICES.filter(v => v.accent === (cat === "American" ? "US" : cat === "British" ? "UK" : "AU"));
+                        return voices.length ? <div key={cat}>
+                          <div className="sc-voice-cat">{cat}</div>
+                          {voices.map(v => (
+                            <button key={v.id} className={cls("sc-model-opt", voVoice === v.id && "sel")}
+                              onClick={() => { setVoVoice(v.id); setVoDropOpen(false); }}>
+                              <div className="sc-model-icon" style={{ background: 'linear-gradient(135deg, #f472b6, #ec489988)', fontSize: 14 }}>
+                                {v.gender === "M" ? "♂" : "♀"}
+                              </div>
+                              <div className="sc-model-info">
+                                <div className="sc-model-name">{v.name}</div>
+                                <div className="sc-model-desc">{v.gender === "M" ? "Male" : "Female"} · {v.accent}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div> : null;
+                      })}
+                    </div>
+                  )}
                 </div>
 
                 {/* Generate Voiceover */}
@@ -1539,26 +1579,26 @@ export default function SuperScenePage() {
                   <button className="sc-gen-btn" onClick={generateVoiceover} disabled={!voText.trim() || voGenerating}>
                     {voGenerating ? "Generating voiceover…" : "🎙 Generate Voiceover"}
                   </button>
-                  <div className="sc-sub" style={{ marginTop: 6, fontSize: 11 }}>Free — no credits required for voiceover</div>
+                  <div className="sc-sub sc-vo-free-note">Free — no credits required for voiceover</div>
                 </div>
 
                 {/* Step 3: Lip Sync (optional) */}
                 {voAudioUrl && (
                   <>
-                    <div style={{ borderTop: "1px solid var(--border)", margin: "20px 0" }}/>
+                    <div className="sc-vo-divider"/>
                     <div className="sc-label">③ Lip Sync Avatar (Optional)</div>
-                    <div className="sc-sub" style={{ marginTop: 0, marginBottom: 12 }}>Upload a photo of a person and create a talking avatar video synced to your voiceover.</div>
+                    <div className="sc-sub sc-vo-lipsync-desc">Upload a photo of a person and create a talking avatar video synced to your voiceover.</div>
 
                     <div className="sc-section">
-                      <input type="file" ref={voImageInputRef} accept="image/jpeg,image/png,image/webp" style={{ display: "none" }} onChange={handleVoImageUpload}/>
-                      <button className="sc-sa-btn" onClick={() => voImageInputRef.current?.click()} style={{ width: "100%" }}>
+                      <input type="file" ref={voImageInputRef} accept="image/jpeg,image/png,image/webp" className="sc-vo-file-input" onChange={handleVoImageUpload}/>
+                      <button className="sc-vo-upload-btn" onClick={() => voImageInputRef.current?.click()}>
                         {voImageUrl ? "✓ Photo uploaded — Change" : "📷 Upload Person Photo"}
                       </button>
                     </div>
 
                     {voImageUrl && (
                       <div className="sc-section">
-                        <img src={voImageUrl} alt="Avatar" style={{ width: "100%", maxHeight: 200, objectFit: "cover", borderRadius: 10, border: "1px solid var(--border)" }}/>
+                        <img src={voImageUrl} alt="Avatar" className="sc-vo-avatar-preview"/>
                       </div>
                     )}
 
@@ -1593,8 +1633,8 @@ export default function SuperScenePage() {
                   ) : voLipSyncUrl ? (
                     <div className="sc-music-result">
                       <div className="sc-music-title">Talking Avatar Ready</div>
-                      <video src={voLipSyncUrl} controls className="sc-sb-video" style={{ maxWidth: "100%", borderRadius: 10 }}/>
-                      <button className="sc-sa-btn" onClick={() => downloadVideo(voLipSyncUrl, `superscene-avatar-${Date.now()}.mp4`)} style={{ marginTop: 12 }}>⬇ Download Video</button>
+                      <video src={voLipSyncUrl} controls className="sc-vo-result-video"/>
+                      <button className="sc-sa-btn sc-vo-download-btn" onClick={() => downloadVideo(voLipSyncUrl, `superscene-avatar-${Date.now()}.mp4`)}>⬇ Download Video</button>
                     </div>
                   ) : voGenerating ? (
                     <div className="gst">
@@ -1606,12 +1646,14 @@ export default function SuperScenePage() {
                       <div className="sc-music-icon">🎙</div>
                       <div className="sc-music-title">Voiceover Ready</div>
                       <audio src={voAudioUrl} controls className="sc-music-player"/>
-                      <button className="sc-sa-btn" onClick={() => downloadVideo(voAudioUrl, `superscene-voiceover-${Date.now()}.mp3`)} style={{ marginTop: 12 }}>⬇ Download MP3</button>
-                      <div className="sc-sub" style={{ marginTop: 16 }}>Want a talking avatar? Upload a photo in Step ③ on the left.</div>
+                      <button className="sc-sa-btn sc-vo-download-btn" onClick={() => downloadVideo(voAudioUrl, `superscene-voiceover-${Date.now()}.mp3`)}>⬇ Download MP3</button>
+                      <div className="sc-sub sc-vo-hint">Want a talking avatar? Upload a photo in Step ③ on the left.</div>
                     </div>
                   ) : (
                     <div className="s-empty">
-                      <div className="s-icon">🎙</div>
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.2">
+                        <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/>
+                      </svg>
                       <div className="s-title">Your voiceover will appear here</div>
                       <div className="s-sub">Write a script, pick a voice, and generate your voiceover. Then optionally create a lip-synced avatar.</div>
                     </div>
