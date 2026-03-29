@@ -2298,7 +2298,7 @@ export default function SuperScenePage() {
                   <div className="sc-pcred">{pack.credits}</div>
                   <div className="sc-pcl">credits</div>
                   <div className="sc-ppr">${pack.price}</div>
-                  <div className="sc-pper">{(pack.price / pack.credits * 100).toFixed(1)}¢ per credit</div>
+                  <div className="sc-pper">{(pack.price / pack.credits * 100).toFixed(2)}¢ per credit</div>
                   <button className={cls("sc-pbtn sc-pbtn-stripe", pack.popular ? "pop" : "n")} onClick={() => buyStripe(pack.slug)} disabled={buyingPack === pack.slug}>
                     {buyingPack === pack.slug ? "…" : "💳 Pay with Card"}</button>
                   <button className="sc-pbtn sc-pbtn-crypto" onClick={() => buyCrypto(pack.slug)} disabled={buyingPack === pack.slug}>🔷 Pay with USDT</button>
