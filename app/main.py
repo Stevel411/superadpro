@@ -17862,18 +17862,20 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Not authenticated")
 
     body = await request.json()
-    model_key      = body.get("model_key", "standard")
+    model_key      = body.get("model_key", "kling3")
     prompt         = (body.get("prompt") or "").strip()
     duration       = int(body.get("duration", 10))
     ratio          = body.get("ratio", "16:9")
+    resolution     = body.get("resolution", "1080p")
+    neg_prompt     = (body.get("negative_prompt") or "").strip()
     image_urls     = body.get("image_urls") or []
     style_refs     = body.get("style_refs") or []
     gen_audio      = bool(body.get("generate_audio", False))
 
     if not prompt:
         raise HTTPException(status_code=400, detail="Prompt is required")
-    if duration not in (5, 10, 15, 30):
-        raise HTTPException(status_code=400, detail="Duration must be 5, 10, 15, or 30")
+    if duration < 3 or duration > 30:
+        raise HTTPException(status_code=400, detail="Duration must be between 3 and 30 seconds")
 
     # Smart routing: if model_key is a tier name, resolve to actual model
     tier_keys = {"quick", "standard", "premium", "ultra"}
@@ -17899,6 +17901,8 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
         image_urls=image_urls if image_urls else None,
         style_refs=style_refs if style_refs else None,
         generate_audio=gen_audio,
+        resolution=resolution,
+        negative_prompt=neg_prompt if neg_prompt else None,
     )
 
     if not result["success"]:

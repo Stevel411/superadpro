@@ -5,17 +5,27 @@ import "./superscene.css";
 // Quality tiers — users pick these instead of specific models
 // Model definitions — real names, real descriptions, real costs
 const MODELS = [
-  { key: "kling3",    name: "Kling 3.0",         desc: "Cinematic realism, smooth motion",     badge: "POPULAR", cost: 3,  color: "#22d3ee", i2v: true,  audio: true  },
-  { key: "kling-o3",  name: "Kling O3",          desc: "Next-gen, exceptional detail",          badge: "BEST",    cost: 5,  color: "#8b5cf6", i2v: true,  audio: true  },
-  { key: "seedance",  name: "Seedance 1.5 Pro",  desc: "Fast generation, native audio",         badge: "AUDIO",   cost: 2,  color: "#fb923c", i2v: true,  audio: true  },
-  { key: "sora2",     name: "Sora 2 Pro",        desc: "OpenAI flagship, photorealistic",       badge: "PREMIUM", cost: 8,  color: "#a78bfa", i2v: true,  audio: false },
-  { key: "veo31",     name: "VEO 3.1 Fast",      desc: "Google, audio + fine detail",           badge: "NEW",     cost: 3,  color: "#38bdf8", i2v: true,  audio: true  },
-  { key: "veo31-pro", name: "VEO 3.1 Pro 4K",    desc: "Maximum quality, 4K resolution",        badge: "4K",      cost: 15, color: "#f59e0b", i2v: true,  audio: true  },
-  { key: "hailuo23",  name: "Hailuo 2.3",        desc: "Budget-friendly, fast drafts",           badge: "FAST",    cost: 1,  color: "#10b981", i2v: true,  audio: false },
-  { key: "grok-video",name: "Grok Imagine",      desc: "Creative, fun/normal/spicy modes",       badge: "FUN",     cost: 4,  color: "#ef4444", i2v: true,  audio: false },
+  { key: "kling3",     name: "Kling 3.0",        desc: "Cinematic realism, smooth motion",  badge: "POPULAR", cost: 3,  color: "#22d3ee", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15],     resolutions: ["720p","1080p"],         durationLabel: "3-15s" },
+  { key: "kling-o3",   name: "Kling O3",         desc: "Next-gen, exceptional detail",       badge: "BEST",    cost: 5,  color: "#8b5cf6", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15],     resolutions: ["720p","1080p"],         durationLabel: "3-15s" },
+  { key: "seedance",   name: "Seedance 1.5 Pro", desc: "Fast generation, native audio",      badge: "AUDIO",   cost: 2,  color: "#fb923c", i2v: true,  audio: true,  negPrompt: false, durations: [4,5,8,10,12],     resolutions: ["480p","720p","1080p"],  durationLabel: "4-12s" },
+  { key: "sora2",      name: "Sora 2 Pro",       desc: "OpenAI flagship, photorealistic",    badge: "PREMIUM", cost: 8,  color: "#a78bfa", i2v: true,  audio: false, negPrompt: false, durations: [4,8,12],          resolutions: ["720p","1080p"],         durationLabel: "4/8/12s" },
+  { key: "veo31",      name: "VEO 3.1 Fast",     desc: "Google, audio + fine detail",        badge: "NEW",     cost: 3,  color: "#38bdf8", i2v: true,  audio: true,  negPrompt: false, durations: [4,6,8],           resolutions: ["720p","1080p","4K"],    durationLabel: "4/6/8s" },
+  { key: "veo31-pro",  name: "VEO 3.1 Pro 4K",   desc: "Maximum quality, 4K resolution",     badge: "4K",      cost: 15, color: "#f59e0b", i2v: true,  audio: true,  negPrompt: false, durations: [4,6,8],           resolutions: ["720p","1080p","4K"],    durationLabel: "4/6/8s" },
+  { key: "hailuo23",   name: "Hailuo 2.3",       desc: "Budget-friendly, fast drafts",        badge: "FAST",    cost: 1,  color: "#10b981", i2v: true,  audio: false, negPrompt: false, durations: [6,10],            resolutions: ["768p","1080p"],         durationLabel: "6/10s" },
+  { key: "grok-video", name: "Grok Imagine",     desc: "Creative, fun/normal/spicy modes",    badge: "FUN",     cost: 4,  color: "#ef4444", i2v: true,  audio: false, negPrompt: false, durations: [6,10],            resolutions: ["480p","720p"],          durationLabel: "6/10s" },
 ];
 
-const DURATIONS = [5, 10, 15, 30];
+const PROMPT_SUGGESTIONS = [
+  "A cinematic aerial drone shot gliding over a misty mountain lake at golden hour, slow camera pan",
+  "A lone astronaut standing on Mars, dust particles floating in orange light, photorealistic",
+  "Close-up of a barista pouring latte art, warm cafe lighting, shallow depth of field, 4K",
+  "A golden retriever puppy running through autumn leaves, slow motion, warm afternoon light",
+  "Underwater coral reef scene with tropical fish, volumetric light rays, BBC documentary style",
+  "A futuristic cyberpunk city at night, neon reflections on wet streets, camera dolly forward",
+  "Time-lapse of a flower blooming, macro lens, studio lighting, black background",
+  "A samurai warrior in a bamboo forest, wind blowing, cinematic god rays, Japanese aesthetic",
+];
+
 const RATIOS    = ["16:9", "9:16", "1:1", "4:3"];
 const AUDIO_EXTRA_PER_5S = 1;
 
@@ -54,6 +64,8 @@ export default function SuperScenePage() {
   const [model, setModel]       = useState("kling3");
   const [duration, setDuration] = useState(10);
   const [ratio, setRatio]       = useState("16:9");
+  const [resolution, setResolution] = useState("1080p");
+  const [negPrompt, setNegPrompt] = useState("");
   const [dropOpen, setDropOpen] = useState(false);
   const [genAudio, setGenAudio] = useState(false);
 
@@ -259,7 +271,8 @@ export default function SuperScenePage() {
     }, 400);
 
     try {
-      const payload = { model_key: model, prompt, duration, ratio, generate_audio: genAudio };
+      const payload = { model_key: model, prompt, duration, ratio, resolution, generate_audio: genAudio };
+      if (negPrompt.trim()) payload.negative_prompt = negPrompt.trim();
       if (mode === "image" && imageUrl) payload.image_urls = [imageUrl];
       if (styleRefs.length > 0) payload.style_refs = styleRefs.filter(r => r.url).map(r => r.url);
 
@@ -857,7 +870,15 @@ export default function SuperScenePage() {
                   <div className="sc-model-drop">
                     {MODELS.map(m => (
                       <button key={m.key} className={cls("sc-model-opt", model === m.key && "sel")}
-                        onClick={() => { setModel(m.key); setDropOpen(false); if (!m.audio) setGenAudio(false); }}>
+                        onClick={() => {
+                          setModel(m.key);
+                          setDropOpen(false);
+                          if (!m.audio) setGenAudio(false);
+                          // Auto-correct duration if not valid for new model
+                          if (!m.durations.includes(duration)) setDuration(m.durations[Math.floor(m.durations.length / 2)]);
+                          // Auto-correct resolution if not valid for new model
+                          if (!m.resolutions.includes(resolution)) setResolution(m.resolutions[m.resolutions.length - 1]);
+                        }}>
                         <div className="sc-model-icon" style={{ background: `linear-gradient(135deg, ${m.color}, ${m.color}88)` }}>✦</div>
                         <div className="sc-model-info"><div className="sc-model-name">{m.name}</div><div className="sc-model-desc">{m.desc}</div></div>
                         <div className="sc-model-meta">
@@ -901,20 +922,60 @@ export default function SuperScenePage() {
                 <div className="sc-prompt-box">
                   <textarea className="sc-prompt-ta" rows={5}
                     placeholder="A cinematic drone shot over a misty mountain valley at golden hour, warm light, slow push-in…"
-                    value={prompt} onChange={e => setPrompt(e.target.value.slice(0, 500))}/>
+                    value={prompt} onChange={e => setPrompt(e.target.value.slice(0, 2000))}/>
                   <div className="sc-prompt-footer">
                     <span className="sc-prompt-ai" onClick={() => setTab("builder")}>✦ Generate With AI</span>
-                    <span className="sc-prompt-count">{prompt.length}/500</span>
+                    <span className="sc-prompt-count">{prompt.length}/2000</span>
                   </div>
                 </div>
                 <div className="sc-sub">If you're not satisfied, you can generate again or enter a prompt of your own.</div>
+
+                {/* Prompt suggestions */}
+                {!prompt.trim() && (
+                  <div className="sc-section" style={{ marginTop: 8, marginBottom: 0 }}>
+                    <div className="sc-sub" style={{ marginTop: 0, marginBottom: 6 }}>Try one of these:</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+                      {PROMPT_SUGGESTIONS.slice(0, 4).map((s, i) => (
+                        <button key={i} className="sc-chip" onClick={() => setPrompt(s)} style={{ fontSize: 12, padding: '4px 10px' }}>
+                          {s.slice(0, 40)}…
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
-              {/* Duration */}
+              {/* Negative Prompt (models that support it) */}
+              {selectedModel?.negPrompt && (
+                <div className="sc-section">
+                  <div className="sc-label">Negative Prompt <span className="sc-label-badge">Optional</span></div>
+                  <div className="sc-prompt-box" style={{ minHeight: 'auto' }}>
+                    <textarea className="sc-prompt-ta" rows={2} style={{ minHeight: 40 }}
+                      placeholder="Things to avoid: blurry, low quality, text, watermark, distorted faces..."
+                      value={negPrompt} onChange={e => setNegPrompt(e.target.value.slice(0, 500))}/>
+                  </div>
+                </div>
+              )}
+
+              {/* Duration — model-aware options */}
               <div className="sc-section">
-                <div className="sc-label">Duration</div>
+                <div className="sc-label">Duration <span className="sc-label-badge">{selectedModel?.durationLabel}</span></div>
+                <div className="sc-pills" style={{ flexWrap: 'wrap' }}>
+                  {(selectedModel?.durations || [5,10]).map(d => (
+                    <button key={d} className={cls("sc-pill", duration === d && "on")}
+                      onClick={() => setDuration(d)}>{d}s</button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Resolution — model-aware options */}
+              <div className="sc-section">
+                <div className="sc-label">Resolution</div>
                 <div className="sc-pills">
-                  {DURATIONS.map(d => <button key={d} className={cls("sc-pill", duration === d && "on")} onClick={() => setDuration(d)}>{d}s</button>)}
+                  {(selectedModel?.resolutions || ["720p","1080p"]).map(r => (
+                    <button key={r} className={cls("sc-pill", resolution === r && "on")}
+                      onClick={() => setResolution(r)}>{r}</button>
+                  ))}
                 </div>
               </div>
 

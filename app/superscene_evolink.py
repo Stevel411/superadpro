@@ -240,6 +240,8 @@ async def generate_video(
     style_refs: Optional[List[str]] = None,
     generate_audio: bool = False,
     generation_type: Optional[str] = None,
+    resolution: Optional[str] = None,
+    negative_prompt: Optional[str] = None,
 ) -> dict:
     """
     Submit a video generation task to EvoLink.
@@ -262,6 +264,14 @@ async def generate_video(
         "duration": duration,
         "aspect_ratio": ratio,
     }
+
+    # Resolution (quality parameter — EvoLink uses "quality" for most models)
+    if resolution:
+        payload["quality"] = resolution
+
+    # Negative prompt (supported by Kling models)
+    if negative_prompt:
+        payload["negative_prompt"] = negative_prompt
 
     mode = "text-to-video"
 
