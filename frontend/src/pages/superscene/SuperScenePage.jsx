@@ -390,15 +390,46 @@ export default function SuperScenePage() {
     const video = framePickerVideoRef.current;
     const canvas = framePickerCanvasRef.current;
     if (!video || !canvas) return;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const ctx = canvas.getContext("2d");
-    ctx.drawImage(video, 0, 0);
-    setFramePickerPreview(canvas.toDataURL("image/png"));
+    try {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0);
+      setFramePickerPreview(canvas.toDataURL("image/png"));
+    } catch (err) {
+      // CORS tainted canvas — fallback: use video poster or capture without crossOrigin
+      console.warn("Frame preview failed (CORS):", err);
+    }
   };
 
   const confirmFrameExtend = async () => {
+    const video = framePickerVideoRef.current;
     const canvas = framePickerCanvasRef.current;
+
+    // If canvas preview failed (CORS), try re-drawing without crossOrigin check
+    if (!framePickerPreview && video && canvas) {
+      try {
+        canvas.width = video.videoWidth || 1280;
+        canvas.height = video.videoHeight || 720;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(video, 0, 0);
+      } catch (e) {
+        // If this also fails, fall back to using the video URL as image input directly
+        setFramePickerOpen(false);
+        setTab("create");
+        setMode("image");
+        // Use the video URL as a frame reference — backend can handle video URLs for I2V
+        setImageUrl(framePickerUrl);
+        setImagePreview(framePickerUrl);
+        setPrompt(prev => prev ? prev : "continues seamlessly from previous shot, smooth motion, consistent lighting");
+        setVideoUrl(null);
+        setGenStatus(null);
+        setGenProgress(0);
+        setMotionPresets([]);
+        return;
+      }
+    }
+
     if (!canvas) return;
 
     try {
@@ -407,8 +438,9 @@ export default function SuperScenePage() {
 
       const file = new File([blob], `extend-frame-${Date.now()}.png`, { type: "image/png" });
 
-      // Close picker, set preview, switch to I2V
+      // Close picker, switch to Create tab, set preview, switch to I2V
       setFramePickerOpen(false);
+      setTab("create");
       setImagePreview(URL.createObjectURL(blob));
       setMode("image");
       setUploading(true);
@@ -2835,15 +2867,19 @@ export default function SuperScenePage() {
                 <video
                   ref={framePickerVideoRef}
                   src={framePickerUrl}
-                  crossOrigin="anonymous"
                   muted
+                  playsInline
                   className="sc-fp-video"
                   onLoadedMetadata={(e) => {
                     setFramePickerDuration(e.target.duration);
-                    e.target.currentTime = e.target.duration - 0.05;
+                    e.target.currentTime = Math.max(0, e.target.duration - 0.05);
                   }}
                   onSeeked={updateFramePreview}
                   onTimeUpdate={() => setFramePickerTime(framePickerVideoRef.current?.currentTime || 0)}
+                  onError={() => {
+                    alert("Could not load video for frame selection. The video URL may have expired.");
+                    setFramePickerOpen(false);
+                  }}
                 />
               </div>
               <div className="sc-fp-controls">
