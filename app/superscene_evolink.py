@@ -120,7 +120,10 @@ I2V_SUPPORTED = {
     "kling-o3", "kling3", "seedance", "sora2", "veo31", "veo31-pro",
     "hailuo23", "hailuo23-fast", "hailuo02", "wan26", "grok-video",
 }
-AUDIO_SUPPORTED = {"seedance", "veo31", "veo31-pro"}
+AUDIO_SUPPORTED = {"seedance", "veo31-pro", "kling3", "kling-o3"}
+# Note: veo31 (fast-lite) does NOT support audio — only veo31-pro (preview) does
+# Note: sora2 does NOT support audio generation
+# Note: wan26 generates audio by DEFAULT — no parameter needed
 STYLE_REF_SUPPORTED = {"seedance", "veo31", "veo31-pro"}
 STYLE_REF_MAX = {"seedance": 9, "veo31": 3, "veo31-pro": 3}
 
@@ -310,10 +313,14 @@ async def generate_video(
     if generation_type:
         payload["generation_type"] = generation_type
 
-    # Audio generation
+    # Audio generation — different models use different param names
     if generate_audio and model_key in AUDIO_SUPPORTED:
-        payload["generate_audio"] = True
-        payload["audio"] = True  # some models use 'audio' param
+        if model_key in KLING_STYLE_MODELS:
+            # Kling 3.0 and O3 use 'sound' parameter (on/off)
+            payload["sound"] = "on"
+        else:
+            # Seedance, VEO preview use 'generate_audio'
+            payload["generate_audio"] = True
 
     # Seed for reproducibility
     if seed is not None:
