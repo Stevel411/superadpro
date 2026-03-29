@@ -1643,7 +1643,7 @@ export default function SuperScenePage() {
                     {editorTool === "trim" && (
                       <div className="sc-ed-tool-content">
                         <div className="sc-label">Trim Video</div>
-                        <div className="sc-sub" style={{ marginTop: 0, marginBottom: 16 }}>Set start and end points to cut your video.</div>
+                        <div className="sc-sub sc-ed-desc">Set start and end points to cut your video.</div>
                         <div className="sc-ed-range-row">
                           <label className="sc-ed-range-label">Start
                             <input type="number" className="sc-ed-range-input" value={trimStart} min={0} max={trimEnd} step={0.1}
@@ -1664,7 +1664,7 @@ export default function SuperScenePage() {
                     {editorTool === "speed" && (
                       <div className="sc-ed-tool-content">
                         <div className="sc-label">Playback Speed</div>
-                        <div className="sc-sub" style={{ marginTop: 0, marginBottom: 16 }}>Adjust video speed. Preview plays at selected speed.</div>
+                        <div className="sc-sub sc-ed-desc">Adjust video speed. Preview plays at selected speed.</div>
                         <div className="sc-ed-speed-grid">
                           {[0.25, 0.5, 0.75, 1, 1.25, 1.5, 2, 3].map(s => (
                             <button key={s} className={cls("sc-ed-speed-btn", playbackSpeed === s && "on")} onClick={() => applySpeed(s)}>
@@ -1679,7 +1679,7 @@ export default function SuperScenePage() {
                     {editorTool === "resize" && (
                       <div className="sc-ed-tool-content">
                         <div className="sc-label">Resize for Platform</div>
-                        <div className="sc-sub" style={{ marginTop: 0, marginBottom: 16 }}>Choose a platform preset to auto-resize your video.</div>
+                        <div className="sc-sub sc-ed-desc">Choose a platform preset to auto-resize your video.</div>
                         <div className="sc-ed-resize-grid">
                           {Object.entries(EXPORT_PRESETS).map(([k, v]) => (
                             <button key={k} className={cls("sc-ed-resize-btn", exportPreset === k && "on")} onClick={() => setExportPreset(k)}>
@@ -1695,7 +1695,7 @@ export default function SuperScenePage() {
                     {editorTool === "export" && (
                       <div className="sc-ed-tool-content">
                         <div className="sc-label">Export Video</div>
-                        <div className="sc-sub" style={{ marginTop: 0, marginBottom: 16 }}>Download your video with current settings applied.</div>
+                        <div className="sc-sub sc-ed-desc">Download your video with current settings applied.</div>
                         <div className="sc-ed-export-summary">
                           <div className="sc-ed-export-row"><span>Format:</span><span>MP4</span></div>
                           <div className="sc-ed-export-row"><span>Speed:</span><span>{playbackSpeed}x</span></div>
@@ -1703,10 +1703,10 @@ export default function SuperScenePage() {
                           <div className="sc-ed-export-row"><span>Trim:</span><span>{trimStart}s → {trimEnd}s ({Math.max(0, trimEnd - trimStart).toFixed(1)}s)</span></div>
                           {captions.length > 0 && <div className="sc-ed-export-row"><span>Captions:</span><span>{captions.length} subtitle(s)</span></div>}
                         </div>
-                        <button className="sc-gen-btn" onClick={handleEditorExport} disabled={editorProcessing} style={{ marginTop: 16 }}>
+                        <button className="sc-gen-btn sc-ed-export-btn" onClick={handleEditorExport} disabled={editorProcessing}>
                           {editorProcessing ? editorProgress : "▲ Export & Download"}
                         </button>
-                        <div className="sc-sub" style={{ marginTop: 8, textAlign: "center" }}>Free — no credits required</div>
+                        <div className="sc-sub sc-ed-export-note">Free — no credits required</div>
                       </div>
                     )}
 
@@ -2652,7 +2652,7 @@ export default function SuperScenePage() {
               {/* Left — Caption Editor */}
               <div className="sc-cap-editor">
                 <div className="sc-label">Add Captions</div>
-                <div className="sc-sub" style={{ marginTop: 0, marginBottom: 16 }}>Add styled subtitles to your generated video. Type captions manually or use auto-transcribe.</div>
+                <div className="sc-sub sc-ed-desc">Add styled subtitles to your generated video. Type captions manually or use auto-transcribe.</div>
 
                 {/* Caption Style Selector */}
                 <div className="sc-cap-styles">
