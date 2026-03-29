@@ -153,6 +153,17 @@
 .sc-pill:hover { border-color: var(--border2); color: var(--text2); }
 .sc-pill.on { background: var(--accent-dim); border-color: rgba(34,211,238,.3); color: var(--accent); }
 
+/* Ratio cards */
+.sc-ratio-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.sc-ratio-card { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 6px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
+.sc-ratio-card:hover { border-color: var(--border2); }
+.sc-ratio-card.on { background: var(--accent-dim); border-color: rgba(34,211,238,.3); }
+.sc-ratio-value { font-size: 14px; font-weight: 700; color: var(--muted); transition: color .15s; }
+.sc-ratio-card.on .sc-ratio-value { color: var(--accent); }
+.sc-ratio-label { font-size: 11px; font-weight: 600; color: var(--muted); transition: color .15s; }
+.sc-ratio-card.on .sc-ratio-label { color: var(--text2); }
+.sc-ratio-desc { font-size: 10px; color: var(--muted2); text-align: center; line-height: 1.3; }
+
 /* Audio toggle */
 .sc-audio-toggle { display: flex; align-items: center; gap: 12px; cursor: pointer; padding: 12px 14px; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; }
 .sc-toggle-track { width: 40px; height: 22px; border-radius: 11px; background: var(--border); position: relative; transition: background .2s; flex-shrink: 0; }

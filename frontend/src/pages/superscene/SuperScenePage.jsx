@@ -59,7 +59,12 @@ const VOICES = [
   { id: "en-AU-NatashaNeural", name: "Natasha", gender: "Female", accent: "AU",  cat: "Australian" },
 ];
 
-const RATIOS    = ["16:9", "9:16", "1:1", "4:3"];
+const RATIOS = [
+  { key: "16:9", label: "Landscape", desc: "YouTube / Widescreen" },
+  { key: "9:16", label: "Portrait",  desc: "Reels / Shorts / TikTok" },
+  { key: "1:1",  label: "Square",    desc: "Instagram / Socials" },
+  { key: "4:3",  label: "Classic",   desc: "Presentations / Ads" },
+];
 const AUDIO_EXTRA_PER_5S = 1;
 
 const PACKS = [
@@ -1070,8 +1075,14 @@ export default function SuperScenePage() {
               {/* Aspect Ratio */}
               <div className="sc-section">
                 <div className="sc-label">Aspect Ratio</div>
-                <div className="sc-pills">
-                  {RATIOS.map(r => <button key={r} className={cls("sc-pill", ratio === r && "on")} onClick={() => setRatio(r)}>{r}</button>)}
+                <div className="sc-ratio-grid">
+                  {RATIOS.map(r => (
+                    <button key={r.key} className={cls("sc-ratio-card", ratio === r.key && "on")} onClick={() => setRatio(r.key)}>
+                      <span className="sc-ratio-value">{r.key}</span>
+                      <span className="sc-ratio-label">{r.label}</span>
+                      <span className="sc-ratio-desc">{r.desc}</span>
+                    </button>
+                  ))}
                 </div>
               </div>
 
