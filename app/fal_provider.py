@@ -24,19 +24,14 @@ FAL_QUEUE_URL = "https://queue.fal.run"
 # model_key → fal.ai model endpoint path
 
 FAL_MODELS_T2V = {
-    "kling3":        "fal-ai/kling-video/v3/standard/text-to-video",
-    "kling3-pro":    "fal-ai/kling-video/v3/pro/text-to-video",
-    "kling-o3":      "fal-ai/kling-video/v3/standard/text-to-video",  # O3 uses same endpoint on fal
-    "seedance":      "fal-ai/bytedance/seedance/v1.5/pro/text-to-video",
+    # Only models where fal.ai is cheaper or EvoLink doesn't have them
+    # Kling 3.0: fal=$0.084/s vs EvoLink=$0.075/s → EvoLink cheaper, REMOVED
+    # Seedance: similar pricing, keep as fallback
     "wan26":         "fal-ai/wan/v2.6/text-to-video",
     "hailuo23":      "fal-ai/minimax-video/video-01",
 }
 
 FAL_MODELS_I2V = {
-    "kling3":        "fal-ai/kling-video/v3/standard/image-to-video",
-    "kling3-pro":    "fal-ai/kling-video/v3/pro/image-to-video",
-    "kling-o3":      "fal-ai/kling-video/v3/standard/image-to-video",
-    "seedance":      "fal-ai/bytedance/seedance/v1.5/pro/image-to-video",
     "wan26":         "fal-ai/wan/v2.6/image-to-video",
 }
 
