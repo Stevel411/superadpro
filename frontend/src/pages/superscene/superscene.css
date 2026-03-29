@@ -139,6 +139,7 @@
 .sc-prompt-ta::placeholder { color: var(--muted2); }
 .sc-prompt-footer { display: flex; justify-content: space-between; align-items: flex-start; padding-top: 10px; border-top: 1px solid var(--border); margin-top: 10px; }
 .sc-prompt-ai { font-size: 13px; font-weight: 600; color: #a78bfa; cursor: pointer; line-height: 1.4; }
+.sc-prompt-ai-sub { padding-left: 15px; }
 .sc-prompt-ai:hover { color: #c4b5fd; }
 .sc-prompt-actions { display: flex; align-items: center; gap: 6px; }
 .sc-prompt-action { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 7px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: all .15s; }
