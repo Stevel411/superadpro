@@ -17990,6 +17990,66 @@ async def sc_upload_image(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=502, detail=f"Upload failed: {str(e)}")
 
 
+@app.post("/api/superscene/extract-frame")
+async def sc_extract_frame(request: Request, db: Session = Depends(get_db)):
+    """
+    Extract a frame from a video at a given timestamp using FFmpeg.
+    Server-side extraction avoids CORS canvas tainting issues.
+    Body: {video_url, timestamp}
+    Returns: {success, frame_url}
+    """
+    import subprocess, tempfile, os
+    from .r2_storage import upload_image as r2_upload
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    body = await request.json()
+    video_url = body.get("video_url", "").strip()
+    timestamp = float(body.get("timestamp", 0))
+
+    if not video_url:
+        raise HTTPException(status_code=400, detail="video_url is required")
+
+    try:
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "frame.png")
+
+            # FFmpeg: seek to timestamp, extract 1 frame as PNG
+            cmd = [
+                "ffmpeg", "-y",
+                "-ss", str(round(timestamp, 2)),
+                "-i", video_url,
+                "-frames:v", "1",
+                "-q:v", "2",
+                output_path
+            ]
+
+            result = subprocess.run(cmd, capture_output=True, timeout=30)
+            if result.returncode != 0:
+                logger.error(f"FFmpeg frame extraction failed: {result.stderr.decode()[:500]}")
+                raise HTTPException(status_code=502, detail="Frame extraction failed")
+
+            if not os.path.exists(output_path):
+                raise HTTPException(status_code=502, detail="FFmpeg did not produce output")
+
+            # Read the frame and upload to R2
+            with open(output_path, "rb") as f:
+                frame_data = f.read()
+
+            frame_url = r2_upload(frame_data, "superscene/frames", ext="png", content_type="image/png")
+            return {"success": True, "frame_url": frame_url}
+
+    except subprocess.TimeoutExpired:
+        raise HTTPException(status_code=504, detail="Frame extraction timed out")
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Frame extraction error")
+        raise HTTPException(status_code=502, detail=f"Frame extraction failed: {str(e)}")
+
+
 @app.get("/api/superscene/status/{task_id}")
 async def sc_poll_status(task_id: str, request: Request, db: Session = Depends(get_db)):
     """Poll EvoLink for video generation status and update DB."""

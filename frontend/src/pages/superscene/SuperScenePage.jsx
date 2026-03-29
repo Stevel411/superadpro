@@ -403,57 +403,39 @@ export default function SuperScenePage() {
   };
 
   const confirmFrameExtend = async () => {
-    const video = framePickerVideoRef.current;
-    const canvas = framePickerCanvasRef.current;
-    if (!video || !canvas) { alert("Video not loaded"); return; }
+    if (!framePickerUrl) return;
 
     try {
-      // Always capture the current frame fresh
-      canvas.width = video.videoWidth || 1280;
-      canvas.height = video.videoHeight || 720;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-      const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
-      if (!blob) { alert("Failed to extract frame"); return; }
-
-      const file = new File([blob], `extend-frame-${Date.now()}.png`, { type: "image/png" });
-
-      // Close picker, switch to Create tab, set preview, switch to I2V
       setFramePickerOpen(false);
       setTab("create");
-      setImagePreview(URL.createObjectURL(blob));
       setMode("image");
       setUploading(true);
+      setVideoUrl(null);
+      setGenStatus(null);
+      setGenProgress(0);
+      setMotionPresets([]);
+      setPrompt(prev => prev ? prev : "continues seamlessly from previous shot, smooth motion, consistent lighting");
 
-      // Upload via existing endpoint
-      const fd = new FormData();
-      fd.append("file", file);
-      const res = await fetch("/api/superscene/upload-image", { method: "POST", body: fd });
+      // Server-side frame extraction via FFmpeg — avoids CORS entirely
+      const res = await fetch("/api/superscene/extract-frame", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ video_url: framePickerUrl, timestamp: framePickerTime }),
+      });
       const data = await res.json();
 
-      if (data.success && data.file_url) {
-        setImageUrl(data.file_url);
-        setPrompt(prev => prev ? prev : "continues seamlessly from previous shot, smooth motion, consistent lighting");
-        setVideoUrl(null);
-        setGenStatus(null);
-        setGenProgress(0);
-        setMotionPresets([]);
+      if (res.ok && data.success && data.frame_url) {
+        setImageUrl(data.frame_url);
+        setImagePreview(data.frame_url);
       } else {
-        alert(data.detail || "Frame upload failed");
+        alert(data.detail || "Frame extraction failed");
         setImagePreview(null);
       }
       setUploading(false);
     } catch (err) {
       console.error("Extend from frame error:", err);
-      // CORS failure — switch to Create tab and ask user to upload manually
-      setFramePickerOpen(false);
-      setTab("create");
-      setMode("image");
-      setPrompt("continues seamlessly from previous shot, smooth motion, consistent lighting");
-      setVideoUrl(null);
-      setGenStatus(null);
-      alert("Could not extract frame automatically. Please take a screenshot and upload it manually.");
+      setUploading(false);
+      alert("Could not extract frame. Please try again.");
     }
   };
 
