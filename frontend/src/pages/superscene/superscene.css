@@ -201,6 +201,16 @@
 }
 .sc-preview-label { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 14px; }
 .sc-stage { flex: 1; background: var(--surface); border-radius: 14px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; min-height: 380px; overflow: hidden; position: relative; }
+.sc-stage-frame { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; transition: all .3s ease; }
+.sc-stage-frame.sc-ratio-16x9 { aspect-ratio: 16/9; max-height: 100%; }
+.sc-stage-frame.sc-ratio-9x16 { aspect-ratio: 9/16; max-width: 45%; height: 100%; }
+.sc-stage-frame.sc-ratio-1x1  { aspect-ratio: 1/1; max-width: 70%; max-height: 100%; }
+.sc-stage-frame.sc-ratio-4x3  { aspect-ratio: 4/3; max-height: 100%; }
+.sc-stage-hero { width: 100%; height: 100%; position: relative; overflow: hidden; border-radius: 4px; }
+.sc-stage-hero-vid { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sc-stage-hero-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 48px 24px 24px; background: linear-gradient(transparent, rgba(0,0,0,0.85)); }
+.sc-stage-hero-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+.sc-stage-hero-sub { font-size: 14px; color: rgba(255,255,255,0.6); line-height: 1.5; }
 .sc-stage-actions { display: flex; gap: 8px; margin-top: 12px; }
 .sc-sa-btn { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text2); font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; text-align: center; }
 .sc-playbar { display: flex; align-items: center; gap: 12px; margin-top: 14px; padding: 8px 0; }

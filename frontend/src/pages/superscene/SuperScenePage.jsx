@@ -1152,25 +1152,27 @@ export default function SuperScenePage() {
           <div className="sc-rp">
             <div className="sc-preview-label">Preview</div>
             <div className="sc-stage">
+              <div className={`sc-stage-frame sc-ratio-${ratio.replace(":", "x")}`}>
               {generating || videoUrl || genStatus === "failed" ? (
                 <StageContent />
               ) : (
-                <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+                <div className="sc-stage-hero">
                   <video
                     src="https://static.getimg.ai/media/protagonist_gazes_out_train_window_at_sunset.mp4"
                     autoPlay muted loop playsInline
-                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                    className="sc-stage-hero-vid"
                   />
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '48px 24px 24px', background: 'linear-gradient(transparent, rgba(0,0,0,0.85))' }}>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 6 }}>
+                  <div className="sc-stage-hero-overlay">
+                    <div className="sc-stage-hero-title">
                       Create videos like this with AI
                     </div>
-                    <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>
+                    <div className="sc-stage-hero-sub">
                       Choose a model, write a prompt, and generate cinematic AI video in minutes
                     </div>
                   </div>
                 </div>
               )}
+              </div>
             </div>
             {videoUrl && (
               <div className="sc-stage-actions">
