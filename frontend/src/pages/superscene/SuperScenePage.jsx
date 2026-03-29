@@ -1721,6 +1721,7 @@ export default function SuperScenePage() {
                       EXPORT_PRESETS[exportPreset].ratio === "9:16" && "sc-ed-frame-9x16",
                       EXPORT_PRESETS[exportPreset].ratio === "16:9" && "sc-ed-frame-16x9",
                       EXPORT_PRESETS[exportPreset].ratio === "1:1" && "sc-ed-frame-1x1",
+                      EXPORT_PRESETS[exportPreset].ratio === "4:3" && "sc-ed-frame-4x3",
                       !EXPORT_PRESETS[exportPreset].ratio && "sc-ed-frame-full"
                     )}>
                       <video ref={editorVideoRef} src={videoUrl} controls className="sc-ed-video" onLoadedMetadata={onEditorVideoLoad}/>
