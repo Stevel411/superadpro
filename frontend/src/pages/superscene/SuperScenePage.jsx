@@ -2264,11 +2264,6 @@ export default function SuperScenePage() {
                       </button>
                     ))}
                   </div>
-                  <div className="sc-pills">
-                    {["3:4","3:2","2:3","4:5","5:4"].map(s => (
-                      <button key={s} className={cls("sc-pill", imgSize === s && "on")} onClick={() => setImgSize(s)}>{s}</button>
-                    ))}
-                  </div>
                 </div>
 
                 {/* Quality */}
