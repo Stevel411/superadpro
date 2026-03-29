@@ -1859,6 +1859,48 @@ try:
         """))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ss_orders_user ON superscene_orders(user_id)"))
 
+        # ── Pipeline tables (long-form video) ──
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS superscene_pipelines (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                title VARCHAR(200),
+                script TEXT NOT NULL,
+                style VARCHAR(50) DEFAULT 'cinematic',
+                model_key VARCHAR(30) DEFAULT 'kling3',
+                voice VARCHAR(50) DEFAULT 'en-US-GuyNeural',
+                resolution VARCHAR(10) DEFAULT '1080p',
+                status VARCHAR(20) DEFAULT 'draft',
+                total_scenes INTEGER DEFAULT 0,
+                completed_scenes INTEGER DEFAULT 0,
+                credits_used INTEGER DEFAULT 0,
+                final_video_url TEXT,
+                error_message TEXT,
+                created_at TIMESTAMP DEFAULT NOW(),
+                updated_at TIMESTAMP DEFAULT NOW()
+            )
+        """))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ss_pipe_user ON superscene_pipelines(user_id)"))
+
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS superscene_pipeline_scenes (
+                id SERIAL PRIMARY KEY,
+                pipeline_id INTEGER NOT NULL REFERENCES superscene_pipelines(id) ON DELETE CASCADE,
+                scene_number INTEGER NOT NULL,
+                narration_text TEXT,
+                visual_prompt TEXT,
+                transition_type VARCHAR(20) DEFAULT 'cut',
+                duration_seconds NUMERIC(6,2),
+                voiceover_url TEXT,
+                video_url TEXT,
+                video_task_id VARCHAR(100),
+                status VARCHAR(20) DEFAULT 'pending',
+                error_message TEXT,
+                created_at TIMESTAMP DEFAULT NOW()
+            )
+        """))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ss_pipe_scene ON superscene_pipeline_scenes(pipeline_id)"))
+
         # Seed master affiliate (SAP-00001 / user 1) with 500 free credits
         conn.execute(text("""
             INSERT INTO superscene_credits (user_id, balance)
@@ -1924,14 +1966,58 @@ class SuperSceneOrder(Base):
     __tablename__ = "superscene_orders"
     id               = Column(Integer, primary_key=True, index=True)
     user_id          = Column(Integer, ForeignKey("users.id"), nullable=False)
-    pack_slug        = Column(String(30), nullable=False)   # starter|creator|studio|pro
+    pack_slug        = Column(String(30), nullable=False)
     credits          = Column(Integer, nullable=False)
     amount_usd       = Column(Numeric(10, 2), nullable=False)
-    payment_method   = Column(String(20), nullable=False)   # stripe|crypto
-    status           = Column(String(20), default="pending") # pending|completed|failed
+    payment_method   = Column(String(20), nullable=False)
+    status           = Column(String(20), default="pending")
     stripe_session_id= Column(String(200))
-    crypto_order_id  = Column(Integer)                       # FK to crypto_payment_orders
+    crypto_order_id  = Column(Integer)
     created_at       = Column(DateTime, default=datetime.utcnow)
     completed_at     = Column(DateTime)
 
     user = relationship("User", foreign_keys=[user_id])
+
+
+class SuperScenePipeline(Base):
+    """Long-form video pipeline — script to scenes to voiceover to video to assembly."""
+    __tablename__ = "superscene_pipelines"
+    id               = Column(Integer, primary_key=True, index=True)
+    user_id          = Column(Integer, ForeignKey("users.id"), nullable=False)
+    title            = Column(String(200))
+    script           = Column(Text, nullable=False)
+    style            = Column(String(50), default="cinematic")
+    model_key        = Column(String(30), default="kling3")
+    voice            = Column(String(50), default="en-US-GuyNeural")
+    resolution       = Column(String(10), default="1080p")
+    status           = Column(String(20), default="draft")
+    total_scenes     = Column(Integer, default=0)
+    completed_scenes = Column(Integer, default=0)
+    credits_used     = Column(Integer, default=0)
+    final_video_url  = Column(Text)
+    error_message    = Column(Text)
+    created_at       = Column(DateTime, default=datetime.utcnow)
+    updated_at       = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user   = relationship("User", foreign_keys=[user_id])
+    scenes = relationship("SuperScenePipelineScene", back_populates="pipeline", cascade="all, delete-orphan", order_by="SuperScenePipelineScene.scene_number")
+
+
+class SuperScenePipelineScene(Base):
+    """Individual scene within a long-form video pipeline."""
+    __tablename__ = "superscene_pipeline_scenes"
+    id               = Column(Integer, primary_key=True, index=True)
+    pipeline_id      = Column(Integer, ForeignKey("superscene_pipelines.id", ondelete="CASCADE"), nullable=False)
+    scene_number     = Column(Integer, nullable=False)
+    narration_text   = Column(Text)
+    visual_prompt    = Column(Text)
+    transition_type  = Column(String(20), default="cut")
+    duration_seconds = Column(Numeric(6, 2))
+    voiceover_url    = Column(Text)
+    video_url        = Column(Text)
+    video_task_id    = Column(String(100))
+    status           = Column(String(20), default="pending")
+    error_message    = Column(Text)
+    created_at       = Column(DateTime, default=datetime.utcnow)
+
+    pipeline = relationship("SuperScenePipeline", back_populates="scenes")
