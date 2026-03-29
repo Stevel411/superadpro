@@ -1129,17 +1129,18 @@ export default function SuperScenePage() {
               {generating || videoUrl || genStatus === "failed" ? (
                 <StageContent />
               ) : (
-                <div style={{ width: '100%', height: '100%', position: 'relative', cursor: 'pointer' }}
-                  onClick={() => setPrompt("A lone astronaut standing on Mars, cinematic wide shot, dust particles floating in orange light, photorealistic")}>
-                  <img src="https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734126.webp"
-                    alt="SuperScene preview" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                    onError={e => { e.target.style.display = 'none'; }} />
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '40px 24px 20px', background: 'linear-gradient(transparent, rgba(0,0,0,0.85))' }}>
-                    <div style={{ fontSize: 15, color: '#fff', lineHeight: 1.5, marginBottom: 8 }}>
-                      Write a prompt or choose from Prompt Ideas, select your model and settings, then hit Generate.
+                <div style={{ width: '100%', height: '100%', position: 'relative' }}>
+                  <video
+                    src="https://static.getimg.ai/media/protagonist_gazes_out_train_window_at_sunset.mp4"
+                    autoPlay muted loop playsInline
+                    style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                  />
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '48px 24px 24px', background: 'linear-gradient(transparent, rgba(0,0,0,0.85))' }}>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 6 }}>
+                      Create videos like this with AI
                     </div>
-                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
-                      Click this preview to try a sample prompt
+                    <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>
+                      Choose a model, write a prompt, and generate cinematic AI video in minutes
                     </div>
                   </div>
                 </div>
