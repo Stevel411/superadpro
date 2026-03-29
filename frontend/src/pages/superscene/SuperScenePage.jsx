@@ -366,6 +366,76 @@ export default function SuperScenePage() {
     setSeedValue(Math.floor(Math.random() * 2147483647));
   };
 
+  // ── Extend Video — extract last frame, upload, switch to I2V ──
+  const extendFromLastFrame = async (sourceVideoUrl) => {
+    try {
+      // Create a temporary video element to extract the last frame
+      const video = document.createElement("video");
+      video.crossOrigin = "anonymous";
+      video.src = sourceVideoUrl;
+      video.muted = true;
+
+      await new Promise((resolve, reject) => {
+        video.onloadedmetadata = () => {
+          // Seek to the last frame (duration minus a tiny offset)
+          video.currentTime = Math.max(0, video.duration - 0.05);
+        };
+        video.onseeked = resolve;
+        video.onerror = reject;
+        // Timeout after 15 seconds
+        setTimeout(() => reject(new Error("Video load timeout")), 15000);
+      });
+
+      // Draw the last frame to a canvas
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0);
+
+      // Convert canvas to blob
+      const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
+      if (!blob) { alert("Failed to extract frame"); return; }
+
+      // Create a File from the blob for upload
+      const file = new File([blob], `extend-frame-${Date.now()}.png`, { type: "image/png" });
+
+      // Set preview immediately
+      setImagePreview(URL.createObjectURL(blob));
+      setMode("image");
+      setUploading(true);
+
+      // Upload via existing endpoint
+      const fd = new FormData();
+      fd.append("file", file);
+      const res = await fetch("/api/superscene/upload-image", { method: "POST", body: fd });
+      const data = await res.json();
+
+      if (data.success && data.file_url) {
+        setImageUrl(data.file_url);
+        // Pre-fill prompt with continuation instruction
+        setPrompt(prev => prev ? prev : "continues seamlessly from previous shot, smooth motion, consistent lighting");
+        // Clear the generated video so user sees the frame in preview
+        setVideoUrl(null);
+        setGenStatus(null);
+        setGenProgress(0);
+        // Clear motion presets — let user choose fresh
+        setMotionPresets([]);
+      } else {
+        alert(data.detail || "Frame upload failed");
+        setImagePreview(null);
+      }
+      setUploading(false);
+
+      // Clean up
+      video.remove();
+      canvas.remove();
+    } catch (err) {
+      console.error("Extend from frame error:", err);
+      alert("Could not extract frame from video. The video may not support cross-origin access.");
+    }
+  };
+
   // ── Generate ───────────────────────────────────────────
   const generate = async () => {
     if (!prompt.trim() || generating || credits < cost) return;
@@ -1288,6 +1358,7 @@ export default function SuperScenePage() {
             </div>
             {videoUrl && (
               <div className="sc-stage-actions">
+                <button className="sc-sa-btn" onClick={() => extendFromLastFrame(videoUrl)}>⟼ Extend</button>
                 <button className="sc-sa-btn" onClick={() => setTab("editor")}>✂ Edit</button>
                 <button className="sc-sa-btn" onClick={() => downloadVideo(videoUrl, `superscene-${Date.now()}.mp4`)}>⬇ Download</button>
               </div>
