@@ -1,4 +1,4 @@
-import{r as Le,y as q_,j as ze}from"./index-0dF7w2VW.js";/**
+import{r as Le,y as q_,j as ze}from"./index-BiF2ckrw.js";/**
  * @license
  * Copyright 2010-2026 Three.js Authors
  * SPDX-License-Identifier: MIT

@@ -47,16 +47,16 @@ const PROMPT_SUGGESTIONS = [
 ];
 
 const VOICES = [
-  { id: "en-US-GuyNeural",     name: "Guy",     gender: "Male",   accent: "US",  cat: "American" },
-  { id: "en-US-JennyNeural",   name: "Jenny",   gender: "Female", accent: "US",  cat: "American" },
-  { id: "en-US-AriaNeural",    name: "Aria",    gender: "Female", accent: "US",  cat: "American" },
-  { id: "en-US-DavisNeural",   name: "Davis",   gender: "Male",   accent: "US",  cat: "American" },
-  { id: "en-US-JaneNeural",    name: "Jane",    gender: "Female", accent: "US",  cat: "American" },
-  { id: "en-US-JasonNeural",   name: "Jason",   gender: "Male",   accent: "US",  cat: "American" },
-  { id: "en-GB-RyanNeural",    name: "Ryan",    gender: "Male",   accent: "UK",  cat: "British" },
-  { id: "en-GB-SoniaNeural",   name: "Sonia",   gender: "Female", accent: "UK",  cat: "British" },
-  { id: "en-AU-WilliamNeural", name: "William", gender: "Male",   accent: "AU",  cat: "Australian" },
-  { id: "en-AU-NatashaNeural", name: "Natasha", gender: "Female", accent: "AU",  cat: "Australian" },
+  { id: "en-US-GuyNeural",     name: "Guy",     gender: "Male",   accent: "US",  cat: "American", desc: "Warm, conversational narrator" },
+  { id: "en-US-JennyNeural",   name: "Jenny",   gender: "Female", accent: "US",  cat: "American", desc: "Friendly, clear corporate voice" },
+  { id: "en-US-AriaNeural",    name: "Aria",    gender: "Female", accent: "US",  cat: "American", desc: "Professional, smooth delivery" },
+  { id: "en-US-DavisNeural",   name: "Davis",   gender: "Male",   accent: "US",  cat: "American", desc: "Deep, authoritative tone" },
+  { id: "en-US-JaneNeural",    name: "Jane",    gender: "Female", accent: "US",  cat: "American", desc: "Calm, documentary style" },
+  { id: "en-US-JasonNeural",   name: "Jason",   gender: "Male",   accent: "US",  cat: "American", desc: "Energetic, upbeat presenter" },
+  { id: "en-GB-RyanNeural",    name: "Ryan",    gender: "Male",   accent: "UK",  cat: "British",  desc: "Polished, BBC-style narrator" },
+  { id: "en-GB-SoniaNeural",   name: "Sonia",   gender: "Female", accent: "UK",  cat: "British",  desc: "Elegant, refined tone" },
+  { id: "en-AU-WilliamNeural", name: "William", gender: "Male",   accent: "AU",  cat: "Australian", desc: "Relaxed, natural storyteller" },
+  { id: "en-AU-NatashaNeural", name: "Natasha", gender: "Female", accent: "AU",  cat: "Australian", desc: "Bright, engaging presenter" },
 ];
 
 const RATIOS = [
@@ -1653,10 +1653,20 @@ export default function SuperScenePage() {
               /* ── STEP 1: Script Input ── */
               <div className="sc-music-layout">
                 <div className="sc-music-controls">
-                  <div className="sc-studio-title">Video Studio</div>
-                  <div className="sc-studio-desc">
-                    Paste your script and SuperScene will break it into scenes, generate voiceover,
-                    create AI video for each scene, and assemble a complete long-form video.
+                  <div className="sc-studio-hero">
+                    <div className="sc-studio-hero-icon">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="2" y="3" width="20" height="14" rx="3"/><polygon points="10,7 10,14 16,10.5"/>
+                        <path d="M7 21h10"/><path d="M12 17v4"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="sc-studio-title">Video Studio</div>
+                      <div className="sc-studio-desc">
+                        Paste your script and SuperScene will break it into scenes, generate voiceover,
+                        create AI video for each scene, and assemble a complete long-form video.
+                      </div>
+                    </div>
                   </div>
 
                   <div className="sc-section">
@@ -1737,8 +1747,8 @@ export default function SuperScenePage() {
                     <div className="sc-model-sel" onClick={() => setPipeVoiceOpen(!pipeVoiceOpen)}>
                       <div className="sc-model-icon" style={{ background: 'linear-gradient(135deg, #a78bfa, #a78bfa88)' }}>🎙</div>
                       <div className="sc-model-info">
-                        <div className="sc-model-name">{VOICES.find(v => v.id === pipeVoice)?.name || "Guy"}</div>
-                        <div className="sc-model-desc">{VOICES.find(v => v.id === pipeVoice)?.gender} · {VOICES.find(v => v.id === pipeVoice)?.accent}</div>
+                        <div className="sc-model-name">{VOICES.find(v => v.id === pipeVoice)?.name || "Guy"} · {VOICES.find(v => v.id === pipeVoice)?.gender} · {VOICES.find(v => v.id === pipeVoice)?.cat}</div>
+                        <div className="sc-model-desc">{VOICES.find(v => v.id === pipeVoice)?.desc || ""}</div>
                       </div>
                       {pipeVoicePlaying === pipeVoice && <span className="sc-voice-playing">Playing…</span>}
                       <span className={cls("sc-model-chev", pipeVoiceOpen && "open")}>▼</span>
@@ -1752,8 +1762,8 @@ export default function SuperScenePage() {
                               <div key={v.id} className={cls("sc-model-opt", pipeVoice === v.id && "sel")}
                                 onClick={() => { setPipeVoice(v.id); setPipeVoiceOpen(false); }}>
                                 <div className="sc-model-info">
-                                  <div className="sc-model-name">{v.name}</div>
-                                  <div className="sc-model-desc">{v.gender} · {v.accent}</div>
+                                  <div className="sc-model-name">{v.name} · {v.gender}</div>
+                                  <div className="sc-model-desc">{v.desc}</div>
                                 </div>
                                 <button className={cls("sc-voice-play", pipeVoicePlaying === v.id && "playing")}
                                   onClick={e => {
