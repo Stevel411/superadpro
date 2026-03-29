@@ -1129,24 +1129,19 @@ export default function SuperScenePage() {
               {generating || videoUrl || genStatus === "failed" ? (
                 <StageContent />
               ) : (
-                <div className="sc-preview-examples">
-                  <div className="sc-preview-grid">
-                    {[
-                      { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734126.webp", prompt: "A lone astronaut on Mars, cinematic wide shot, dust particles in orange light", model: "Kling O3" },
-                      { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764733217.webp", prompt: "Aerial drone over misty mountain lake at golden hour, slow pan", model: "Kling 3.0" },
-                      { img: "https://media.nanobananaproapi.com/2025/11/c909eb7af0b71ba4c65a84943bbe7faa.webp", prompt: "4K neon cyberpunk city flyover at night, rain reflections", model: "VEO 3.1 Pro" },
-                      { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734176.webp", prompt: "Professional woman in sunlit modern office, tracking shot", model: "Seedance" },
-                    ].map((ex, i) => (
-                      <div key={i} className="sc-preview-card" onClick={() => setPrompt(ex.prompt)}>
-                        <img src={ex.img} alt="" onError={e => { e.target.style.opacity = '0.1'; }} />
-                        <div className="sc-preview-card-overlay">
-                          <div className="sc-preview-card-prompt">{ex.prompt.length > 55 ? ex.prompt.slice(0, 55) + '…' : ex.prompt}</div>
-                          <span className="sc-preview-card-badge">{ex.model}</span>
-                        </div>
-                      </div>
-                    ))}
+                <div style={{ width: '100%', height: '100%', position: 'relative', cursor: 'pointer' }}
+                  onClick={() => setPrompt("A lone astronaut standing on Mars, cinematic wide shot, dust particles floating in orange light, photorealistic")}>
+                  <img src="https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734126.webp"
+                    alt="SuperScene preview" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+                    onError={e => { e.target.style.display = 'none'; }} />
+                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '40px 24px 20px', background: 'linear-gradient(transparent, rgba(0,0,0,0.85))' }}>
+                    <div style={{ fontSize: 15, color: '#fff', lineHeight: 1.5, marginBottom: 8 }}>
+                      Write a prompt or choose from Prompt Ideas, select your model and settings, then hit Generate.
+                    </div>
+                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>
+                      Click this preview to try a sample prompt
+                    </div>
                   </div>
-                  <div className="sc-preview-hint">Click any example to use its prompt</div>
                 </div>
               )}
             </div>
@@ -1156,56 +1151,9 @@ export default function SuperScenePage() {
                 <button className="sc-sa-btn" onClick={() => downloadVideo(videoUrl, `superscene-${Date.now()}.mp4`)}>⬇ Download</button>
               </div>
             )}
-            <div className="sc-playbar">
-              <span className="sc-pb-play">▶</span>
-              <span className="sc-pb-time">0:00 / 0:00</span>
-              <div className="sc-pb-track"/>
-              <span className="sc-pb-icon">🔊</span>
-              <span className="sc-pb-icon">⛶</span>
-            </div>
           </div>
           </div>{/* close sc-ws-panels */}
         </>}
-
-        {/* ── Community Showcase — BELOW workspace, full width ── */}
-        {tab === "create" && (
-          <div className="sc-showcase">
-            <div className="sc-showcase-head">
-              <div>
-                <div className="sc-showcase-title">Community Showcase</div>
-                <div className="sc-showcase-sub">Click any creation to use its prompt</div>
-              </div>
-            </div>
-            <div className="sc-showcase-grid">
-              {[
-                { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734126.webp", prompt: "A lone astronaut standing on the surface of Mars, cinematic wide shot, dust particles floating in orange light, photorealistic", model: "Kling O3", dur: "10s" },
-                { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764733217.webp", prompt: "Cinematic aerial drone shot gliding over a misty mountain lake at golden hour, slow camera pan revealing snow-capped peaks", model: "Kling 3.0", dur: "5s" },
-                { img: "https://media.nanobananaproapi.com/2025/11/c909eb7af0b71ba4c65a84943bbe7faa.webp", prompt: "Epic 4K cinematic flyover of a neon-lit futuristic cyberpunk city at night, rain-soaked streets, volumetric fog", model: "VEO 3.1 Pro", dur: "8s" },
-                { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734176.webp", prompt: "A confident professional woman walking through a sunlit modern glass office, tracking shot, natural bokeh, warm tones", model: "Seedance", dur: "10s" },
-                { img: "https://cdn.evolink.ai/2026/01/9950e1e6404479f6bfdb01c1f564f003.webp", prompt: "A cute cartoon mouse running toward the camera with a big smile, Pixar-style 3D animation, soft studio lighting", model: "Hailuo 2.3", dur: "6s" },
-                { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764733309.webp", prompt: "Macro close-up of a monarch butterfly landing on a wildflower, shallow depth of field, morning dew drops, nature documentary", model: "Sora 2 Pro", dur: "10s" },
-                { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734126.webp", prompt: "A samurai warrior standing in a bamboo forest, wind blowing his cloak, cinematic lighting with god rays, Japanese aesthetic", model: "Kling O3", dur: "15s" },
-                { img: "https://media.nanobananaproapi.com/2025/11/c909eb7af0b71ba4c65a84943bbe7faa.webp", prompt: "Underwater scene of a coral reef with tropical fish, volumetric light rays penetrating clear blue water, documentary style", model: "VEO 3.1", dur: "8s" },
-              ].map((item, i) => (
-                <div key={i} className="sc-showcase-card"
-                  onClick={() => { setPrompt(item.prompt); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
-                  <img src={item.img} alt="" className="sc-showcase-img"
-                    onError={e => { e.target.parentElement.style.background = 'var(--surface2)'; }} />
-                  <div className="sc-showcase-overlay">
-                    <div className="sc-showcase-prompt">
-                      {item.prompt.length > 75 ? item.prompt.slice(0, 75) + '…' : item.prompt}
-                    </div>
-                    <div className="sc-showcase-meta">
-                      <span className="sc-showcase-badge">{item.model}</span>
-                      <span className="sc-showcase-dur">{item.dur}</span>
-                    </div>
-                  </div>
-                  <div className="sc-showcase-cta">Create similar</div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* ══ MUSIC TAB ══ */}
         {tab === "music" && (
