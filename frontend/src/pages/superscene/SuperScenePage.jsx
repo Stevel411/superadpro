@@ -1378,6 +1378,7 @@ export default function SuperScenePage() {
                 <button className="sc-sa-btn" onClick={() => openFramePicker(videoUrl)}>⟼ Extend</button>
                 <button className="sc-sa-btn" onClick={() => setTab("editor")}>✂ Edit</button>
                 <button className="sc-sa-btn" onClick={() => downloadVideo(videoUrl, `superscene-${Date.now()}.mp4`)}>⬇ Download</button>
+                <button className="sc-sa-btn" onClick={() => { setVideoUrl(null); setGenStatus(null); setGenProgress(0); }}>✕ Clear</button>
               </div>
             )}
           </div>
