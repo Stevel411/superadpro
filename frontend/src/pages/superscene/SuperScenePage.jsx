@@ -414,18 +414,14 @@ export default function SuperScenePage() {
         const ctx = canvas.getContext("2d");
         ctx.drawImage(video, 0, 0);
       } catch (e) {
-        // If this also fails, fall back to using the video URL as image input directly
+        // Canvas totally failed — switch to Create tab and let user upload manually
         setFramePickerOpen(false);
         setTab("create");
         setMode("image");
-        // Use the video URL as a frame reference — backend can handle video URLs for I2V
-        setImageUrl(framePickerUrl);
-        setImagePreview(framePickerUrl);
-        setPrompt(prev => prev ? prev : "continues seamlessly from previous shot, smooth motion, consistent lighting");
+        setPrompt("continues seamlessly from previous shot, smooth motion, consistent lighting");
         setVideoUrl(null);
         setGenStatus(null);
-        setGenProgress(0);
-        setMotionPresets([]);
+        alert("Could not extract frame automatically. Please upload a screenshot of the frame you want to extend from.");
         return;
       }
     }
@@ -1763,6 +1759,10 @@ export default function SuperScenePage() {
                         </div>
                       )}
                     </div>
+                  </div>
+                  <div className="sc-stage-actions">
+                    <button className="sc-sa-btn" onClick={() => openFramePicker(videoUrl)}>⟼ Extend</button>
+                    <button className="sc-sa-btn" onClick={() => downloadVideo(videoUrl, `superscene-${Date.now()}.mp4`)}>⬇ Download</button>
                   </div>
                 </div>
               </div>
