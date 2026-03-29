@@ -46,6 +46,19 @@ const PROMPT_SUGGESTIONS = [
   { cat: "Social", text: "Unboxing a premium product with close-up details, hands visible, clean white background" },
 ];
 
+const VOICES = [
+  { id: "en-US-GuyNeural",     name: "Guy",     gender: "Male",   accent: "US",  cat: "American" },
+  { id: "en-US-JennyNeural",   name: "Jenny",   gender: "Female", accent: "US",  cat: "American" },
+  { id: "en-US-AriaNeural",    name: "Aria",    gender: "Female", accent: "US",  cat: "American" },
+  { id: "en-US-DavisNeural",   name: "Davis",   gender: "Male",   accent: "US",  cat: "American" },
+  { id: "en-US-JaneNeural",    name: "Jane",    gender: "Female", accent: "US",  cat: "American" },
+  { id: "en-US-JasonNeural",   name: "Jason",   gender: "Male",   accent: "US",  cat: "American" },
+  { id: "en-GB-RyanNeural",    name: "Ryan",    gender: "Male",   accent: "UK",  cat: "British" },
+  { id: "en-GB-SoniaNeural",   name: "Sonia",   gender: "Female", accent: "UK",  cat: "British" },
+  { id: "en-AU-WilliamNeural", name: "William", gender: "Male",   accent: "AU",  cat: "Australian" },
+  { id: "en-AU-NatashaNeural", name: "Natasha", gender: "Female", accent: "AU",  cat: "Australian" },
+];
+
 const RATIOS    = ["16:9", "9:16", "1:1", "4:3"];
 const AUDIO_EXTRA_PER_5S = 1;
 
@@ -207,6 +220,9 @@ export default function SuperScenePage() {
   const [pipeCompleted, setPipeCompleted] = useState(0);
   const pipePollRef = useRef(null);
   const [pipeModelOpen, setPipeModelOpen] = useState(false);
+  const [pipeVoiceOpen, setPipeVoiceOpen] = useState(false);
+  const [pipeVoicePlaying, setPipeVoicePlaying] = useState(null);
+  const pipeVoiceAudioRef = useRef(null);
   const [imgModelOpen, setImgModelOpen] = useState(false);
 
   const selectedModel = MODELS.find(m => m.key === model);
@@ -1623,39 +1639,59 @@ export default function SuperScenePage() {
 
                   <div className="sc-section">
                     <div className="sc-label">Voiceover</div>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      {[
-                        { id: "en-US-GuyNeural", name: "Guy", gender: "Male", accent: "US" },
-                        { id: "en-US-JennyNeural", name: "Jenny", gender: "Female", accent: "US" },
-                        { id: "en-US-AriaNeural", name: "Aria", gender: "Female", accent: "US" },
-                        { id: "en-US-DavisNeural", name: "Davis", gender: "Male", accent: "US" },
-                        { id: "en-GB-RyanNeural", name: "Ryan", gender: "Male", accent: "UK" },
-                        { id: "en-GB-SoniaNeural", name: "Sonia", gender: "Female", accent: "UK" },
-                        { id: "en-AU-WilliamNeural", name: "William", gender: "Male", accent: "AU" },
-                        { id: "en-AU-NatashaNeural", name: "Natasha", gender: "Female", accent: "AU" },
-                      ].map(v => (
-                        <div key={v.id} className={cls("sc-model-opt")} style={{
-                          padding: '10px 12px', borderRadius: 8, cursor: 'pointer',
-                          border: `1px solid ${pipeVoice === v.id ? 'rgba(34,211,238,0.3)' : 'var(--border)'}`,
-                          background: pipeVoice === v.id ? 'var(--accent-dim)' : 'var(--surface2)',
-                          display: 'flex', alignItems: 'center', gap: 10,
-                        }} onClick={() => setPipeVoice(v.id)}>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{v.name}</div>
-                            <div style={{ fontSize: 12, color: 'var(--muted)' }}>{v.gender} · {v.accent}</div>
-                          </div>
-                          <button style={{
-                            width: 32, height: 32, borderRadius: '50%', border: '1px solid var(--border)',
-                            background: 'var(--surface3)', color: 'var(--text)', cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flexShrink: 0,
-                          }} onClick={e => {
-                            e.stopPropagation();
-                            const audio = new Audio(`/api/superscene/voiceover/preview/${v.id}`);
-                            audio.play();
-                          }} title="Preview voice">▶</button>
-                        </div>
-                      ))}
+                    <div className="sc-model-sel" onClick={() => setPipeVoiceOpen(!pipeVoiceOpen)}>
+                      <div className="sc-model-icon" style={{ background: 'linear-gradient(135deg, #a78bfa, #a78bfa88)' }}>♪</div>
+                      <div className="sc-model-info">
+                        <div className="sc-model-name">{VOICES.find(v => v.id === pipeVoice)?.name || "Guy"}</div>
+                        <div className="sc-model-desc">{VOICES.find(v => v.id === pipeVoice)?.gender} · {VOICES.find(v => v.id === pipeVoice)?.accent}</div>
+                      </div>
+                      {pipeVoicePlaying === pipeVoice && (
+                        <span style={{ fontSize: 12, color: '#22c55e', fontWeight: 600 }}>Playing…</span>
+                      )}
+                      <span className={cls("sc-model-chev", pipeVoiceOpen && "open")}>▼</span>
                     </div>
+                    {pipeVoiceOpen && (
+                      <div className="sc-model-drop" style={{ maxHeight: 360, overflowY: 'auto' }}>
+                        {["American", "British", "Australian"].map(cat => (
+                          <div key={cat}>
+                            <div style={{ padding: '8px 14px 4px', fontSize: 12, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', borderTop: '1px solid var(--border)' }}>{cat}</div>
+                            {VOICES.filter(v => v.cat === cat).map(v => (
+                              <div key={v.id} className={cls("sc-model-opt", pipeVoice === v.id && "sel")}
+                                style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                                onClick={() => { setPipeVoice(v.id); setPipeVoiceOpen(false); }}>
+                                <div className="sc-model-info" style={{ flex: 1 }}>
+                                  <div className="sc-model-name">{v.name}</div>
+                                  <div className="sc-model-desc">{v.gender} · {v.accent}</div>
+                                </div>
+                                <button style={{
+                                  width: 30, height: 30, borderRadius: '50%', border: '1px solid var(--border)',
+                                  background: pipeVoicePlaying === v.id ? 'rgba(248,113,113,0.15)' : 'var(--surface3)',
+                                  color: pipeVoicePlaying === v.id ? '#f87171' : 'var(--text)',
+                                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                  fontSize: 12, flexShrink: 0,
+                                }} onClick={e => {
+                                  e.stopPropagation();
+                                  if (pipeVoicePlaying === v.id && pipeVoiceAudioRef.current) {
+                                    pipeVoiceAudioRef.current.pause();
+                                    pipeVoiceAudioRef.current = null;
+                                    setPipeVoicePlaying(null);
+                                  } else {
+                                    if (pipeVoiceAudioRef.current) { pipeVoiceAudioRef.current.pause(); }
+                                    const audio = new Audio(`/api/superscene/voiceover/preview/${v.id}`);
+                                    pipeVoiceAudioRef.current = audio;
+                                    setPipeVoicePlaying(v.id);
+                                    audio.play();
+                                    audio.onended = () => { setPipeVoicePlaying(null); pipeVoiceAudioRef.current = null; };
+                                  }
+                                }} title={pipeVoicePlaying === v.id ? "Stop" : "Preview"}>
+                                  {pipeVoicePlaying === v.id ? "■" : "▶"}
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div className="sc-section">
