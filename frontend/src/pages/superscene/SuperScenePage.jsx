@@ -1715,14 +1715,21 @@ export default function SuperScenePage() {
 
                 {/* Right — Video Preview */}
                 <div className="sc-ed-preview">
-                  <div className="sc-preview-label">Editor Preview</div>
+                  <div className="sc-preview-label">Editor Preview {EXPORT_PRESETS[exportPreset].ratio ? `· ${EXPORT_PRESETS[exportPreset].label}` : ""}</div>
                   <div className="sc-ed-video-stage">
-                    <video ref={editorVideoRef} src={videoUrl} controls className="sc-ed-video" onLoadedMetadata={onEditorVideoLoad}/>
-                    {showCaptionOverlay && captions.length > 0 && (
-                      <div className={cls("sc-cap-overlay", `sc-cap-${captionStyle}`)}>
-                        {captions[0]?.text || "Caption preview"}
-                      </div>
-                    )}
+                    <div className={cls("sc-ed-frame",
+                      EXPORT_PRESETS[exportPreset].ratio === "9:16" && "sc-ed-frame-9x16",
+                      EXPORT_PRESETS[exportPreset].ratio === "16:9" && "sc-ed-frame-16x9",
+                      EXPORT_PRESETS[exportPreset].ratio === "1:1" && "sc-ed-frame-1x1",
+                      !EXPORT_PRESETS[exportPreset].ratio && "sc-ed-frame-full"
+                    )}>
+                      <video ref={editorVideoRef} src={videoUrl} controls className="sc-ed-video" onLoadedMetadata={onEditorVideoLoad}/>
+                      {showCaptionOverlay && captions.length > 0 && (
+                        <div className={cls("sc-cap-overlay", `sc-cap-${captionStyle}`)}>
+                          {captions[0]?.text || "Caption preview"}
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
