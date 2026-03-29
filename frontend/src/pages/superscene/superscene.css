@@ -165,9 +165,8 @@
 .sc-prompt-box { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; transition: all .2s ease; }
 .sc-prompt-box.sc-prompt-expanded { min-height: 300px; }
 .sc-prompt-ta { flex: 1; background: transparent; border: none; outline: none; resize: none; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); line-height: 1.65; min-height: 80px; }
-.sc-prompt-ta::-webkit-scrollbar { width: 3px; }
-.sc-prompt-ta::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
-.sc-prompt-ta::-webkit-scrollbar-track { background: transparent; }
+.sc-prompt-ta::-webkit-scrollbar { display: none; }
+.sc-prompt-ta { scrollbar-width: none; }
 .sc-prompt-ta::placeholder { color: var(--muted2); }
 .sc-prompt-footer { display: flex; justify-content: space-between; align-items: flex-start; padding-top: 10px; border-top: 1px solid var(--border); margin-top: 10px; }
 .sc-prompt-ai { font-size: 13px; font-weight: 600; color: #a78bfa; cursor: pointer; line-height: 1.4; }
@@ -187,7 +186,7 @@
 .sc-pill.on { background: var(--accent-dim); border-color: rgba(34,211,238,.3); color: var(--accent); }
 
 /* Ratio cards */
-.sc-ratio-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.sc-ratio-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 10px; }
 .sc-ratio-card { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 6px; border-radius: 8px; background: var(--surface2); border: 1px solid var(--border); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
 .sc-ratio-card:hover { border-color: var(--border2); }
 .sc-ratio-card.on { background: var(--accent-dim); border-color: rgba(34,211,238,.3); }
