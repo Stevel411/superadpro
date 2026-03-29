@@ -1355,20 +1355,13 @@ export default function SuperScenePage() {
                   </div>
                 </div>
               ) : (
-                <div className="sc-stage-hero">
-                  <video
-                    src="https://static.getimg.ai/media/protagonist_gazes_out_train_window_at_sunset.mp4"
-                    autoPlay muted loop playsInline
-                    className="sc-stage-hero-vid"
-                  />
-                  <div className="sc-stage-hero-overlay">
-                    <div className="sc-stage-hero-title">
-                      Create videos like this with AI
-                    </div>
-                    <div className="sc-stage-hero-sub">
-                      Choose a model, write a prompt, and generate cinematic AI video in minutes
-                    </div>
-                  </div>
+                <div className="s-empty">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.2">
+                    <rect x="2" y="4" width="20" height="14" rx="3"/>
+                    <polygon points="10,8 10,15 16,11.5"/>
+                  </svg>
+                  <div className="s-title">Your video will appear here</div>
+                  <div className="s-sub">Choose a model, write a prompt, and hit Generate</div>
                 </div>
               )}
               </div>
