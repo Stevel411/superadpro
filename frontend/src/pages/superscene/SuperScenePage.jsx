@@ -1385,11 +1385,20 @@ export default function SuperScenePage() {
             <div className="sc-music-layout">
               {/* Left — Controls */}
               <div className="sc-music-controls">
-                <div className="sc-label">AI Music Generator</div>
-                <div className="sc-sub" style={{ marginTop: 0, marginBottom: 20 }}>Generate royalty-free music with Suno AI. Describe your track or write custom lyrics.</div>
+                <div className="sc-studio-hero">
+                  <div className="sc-studio-hero-icon" style={{ background: 'linear-gradient(135deg, #f59e0b, #fbbf24)' }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="sc-studio-title">AI Music Generator</div>
+                    <div className="sc-studio-desc">Generate royalty-free music with Suno AI. Describe your track or write custom lyrics.</div>
+                  </div>
+                </div>
 
                 {/* Mode toggle */}
-                <div className="sc-mode-toggle" style={{ marginBottom: 20 }}>
+                <div className="sc-mode-toggle sc-mu-mode-toggle">
                   <button className={cls("sc-mode-btn", !musicCustom && "on")} onClick={() => setMusicCustom(false)}>Simple Mode</button>
                   <button className={cls("sc-mode-btn", musicCustom && "on")} onClick={() => setMusicCustom(true)}>Custom Mode</button>
                 </div>
@@ -1400,7 +1409,7 @@ export default function SuperScenePage() {
                   <div className="sc-pills">
                     {MUSIC_MODELS.map(m => (
                       <button key={m.key} className={cls("sc-pill", musicModel === m.key && "on")} onClick={() => setMusicModel(m.key)}>
-                        {m.name} {m.badge && <span style={{ fontSize: 8, marginLeft: 4, color: "#22d3ee" }}>{m.badge}</span>}
+                        {m.name} {m.badge && <span className="sc-pill-credit">{m.badge}</span>}
                       </button>
                     ))}
                   </div>
@@ -1418,10 +1427,10 @@ export default function SuperScenePage() {
                         <button className="sc-prompt-ai-btn" onClick={generateLyrics} disabled={lyricsGenerating}>
                           {lyricsGenerating ? "Writing lyrics…" : "✦ SuperAdPro Lyrics Writer"}
                         </button>
-                        <span className="sc-prompt-counter">{musicPrompt.length}/3000</span>
+                        <span className="sc-prompt-count">{musicPrompt.length}/3000</span>
                       </div>
                     )}
-                    {musicCustom && <div className="sc-sub" style={{ marginTop: 4, fontSize: 11 }}>Tip: Enter a song title or style first, then click SuperAdPro Lyrics Writer. You can edit the result before generating music.</div>}
+                    {musicCustom && <div className="sc-sub sc-mu-tip">Tip: Enter a song title or style first, then click SuperAdPro Lyrics Writer. You can edit the result before generating music.</div>}
                   </div>
                 </div>
 
@@ -1456,8 +1465,8 @@ export default function SuperScenePage() {
                       <div className="sc-toggle-thumb"/>
                     </div>
                     <div className="sc-audio-info">
-                      <div className="sc-label" style={{ marginBottom: 0 }}>Instrumental Only</div>
-                      <div className="sc-sub" style={{ marginTop: 2 }}>No vocals — background music only</div>
+                      <div className="sc-label sc-mu-toggle-label">Instrumental Only</div>
+                      <div className="sc-sub sc-mu-toggle-sub">No vocals — background music only</div>
                     </div>
                   </div>
                 </div>
@@ -1492,11 +1501,13 @@ export default function SuperScenePage() {
                       <div className="sc-music-icon">♪</div>
                       <div className="sc-music-title">Your track is ready</div>
                       <audio src={musicUrl} controls className="sc-music-player"/>
-                      <button className="sc-sa-btn" onClick={() => downloadVideo(musicUrl, `superscene-music-${Date.now()}.mp3`)} style={{ marginTop: 12 }}>⬇ Download MP3</button>
+                      <button className="sc-sa-btn sc-mu-download" onClick={() => downloadVideo(musicUrl, `superscene-music-${Date.now()}.mp3`)}>⬇ Download MP3</button>
                     </div>
                   ) : (
                     <div className="s-empty">
-                      <div className="s-icon">♪</div>
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.2">
+                        <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+                      </svg>
                       <div className="s-title">Your music will appear here</div>
                       <div className="s-sub">Describe your track, choose a model, and hit Generate</div>
                     </div>
