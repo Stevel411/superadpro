@@ -211,6 +211,17 @@
 .video-ready { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
 .sc-video { width: 100%; height: 100%; object-fit: contain; border-radius: 12px; }
 
+/* Preview examples grid (empty state) */
+.sc-preview-examples { width: 100%; height: 100%; display: flex; flex-direction: column; }
+.sc-preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: 1; padding: 14px; }
+.sc-preview-card { position: relative; border-radius: 10px; overflow: hidden; cursor: pointer; border: 1px solid var(--border); transition: transform .15s; }
+.sc-preview-card:hover { transform: scale(1.02); }
+.sc-preview-card img { width: 100%; height: 100%; object-fit: cover; display: block; min-height: 140px; }
+.sc-preview-card-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 24px 12px 10px; background: linear-gradient(transparent, rgba(0,0,0,.9)); }
+.sc-preview-card-prompt { font-size: 13px; color: #fff; line-height: 1.4; margin-bottom: 4px; }
+.sc-preview-card-badge { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 4px; background: rgba(255,255,255,.1); color: rgba(255,255,255,.7); }
+.sc-preview-hint { text-align: center; padding: 10px 0 14px; font-size: 13px; color: var(--muted); }
+
 /* ══ SHOWCASE ══ */
 .sc-showcase { padding: 28px 24px 32px; border-top: 1px solid var(--border); }
 .sc-showcase-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }

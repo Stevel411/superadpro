@@ -988,37 +988,31 @@ export default function SuperScenePage() {
             </div>
           </div>
 
-          {/* RIGHT — Preview */}
+          {/* ═══ RIGHT PANEL — Preview ═══ */}
           <div className="sc-rp">
             <div className="sc-preview-label">Preview</div>
             <div className="sc-stage">
-              {generating || genStatus === "polling" ? (
-                <StageContent />
-              ) : videoUrl ? (
+              {generating || videoUrl || genStatus === "failed" ? (
                 <StageContent />
               ) : (
-                /* Empty state — show model examples */
-                <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column' }}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, flex: 1, padding: 12 }}>
+                <div className="sc-preview-examples">
+                  <div className="sc-preview-grid">
                     {[
                       { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734126.webp", prompt: "A lone astronaut on Mars, cinematic wide shot, dust particles in orange light", model: "Kling O3" },
                       { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764733217.webp", prompt: "Aerial drone over misty mountain lake at golden hour, slow pan", model: "Kling 3.0" },
                       { img: "https://media.nanobananaproapi.com/2025/11/c909eb7af0b71ba4c65a84943bbe7faa.webp", prompt: "4K neon cyberpunk city flyover at night, rain reflections", model: "VEO 3.1 Pro" },
                       { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734176.webp", prompt: "Professional woman in sunlit modern office, tracking shot", model: "Seedance" },
                     ].map((ex, i) => (
-                      <div key={i} onClick={() => setPrompt(ex.prompt)} style={{ position: 'relative', borderRadius: 8, overflow: 'hidden', cursor: 'pointer', border: '1px solid var(--border)' }}>
-                        <img src={ex.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', minHeight: 120 }}
-                          onError={e => { e.target.style.opacity = '0.1'; }} />
-                        <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '20px 10px 8px', background: 'linear-gradient(transparent, rgba(0,0,0,0.9))' }}>
-                          <div style={{ fontSize: 12, color: '#fff', lineHeight: 1.4, marginBottom: 4 }}>{ex.prompt.length > 55 ? ex.prompt.slice(0, 55) + '…' : ex.prompt}</div>
-                          <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 8px', borderRadius: 4, background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }}>{ex.model}</span>
+                      <div key={i} className="sc-preview-card" onClick={() => setPrompt(ex.prompt)}>
+                        <img src={ex.img} alt="" onError={e => { e.target.style.opacity = '0.1'; }} />
+                        <div className="sc-preview-card-overlay">
+                          <div className="sc-preview-card-prompt">{ex.prompt.length > 55 ? ex.prompt.slice(0, 55) + '…' : ex.prompt}</div>
+                          <span className="sc-preview-card-badge">{ex.model}</span>
                         </div>
                       </div>
                     ))}
                   </div>
-                  <div style={{ textAlign: 'center', padding: '8px 0 12px', fontSize: 13, color: 'var(--muted)' }}>
-                    Click any example to use its prompt, or write your own above
-                  </div>
+                  <div className="sc-preview-hint">Click any example to use its prompt</div>
                 </div>
               )}
             </div>
@@ -1041,14 +1035,14 @@ export default function SuperScenePage() {
 
         {/* ── Community Showcase — BELOW workspace, full width ── */}
         {tab === "create" && (
-          <div style={{ padding: '24px 20px 20px', borderTop: '1px solid var(--border)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <div className="sc-showcase">
+            <div className="sc-showcase-head">
               <div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)' }}>Community Showcase</div>
-                <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 2 }}>Click any example to use its prompt</div>
+                <div className="sc-showcase-title">Community Showcase</div>
+                <div className="sc-showcase-sub">Click any creation to use its prompt</div>
               </div>
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
+            <div className="sc-showcase-grid">
               {[
                 { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734126.webp", prompt: "A lone astronaut standing on the surface of Mars, cinematic wide shot, dust particles floating in orange light, photorealistic", model: "Kling O3", dur: "10s" },
                 { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764733217.webp", prompt: "Cinematic aerial drone shot gliding over a misty mountain lake at golden hour, slow camera pan revealing snow-capped peaks", model: "Kling 3.0", dur: "5s" },
@@ -1059,24 +1053,20 @@ export default function SuperScenePage() {
                 { img: "https://media.nanobananaproapi.com/uploads/2025/12/03/20251203-1764734126.webp", prompt: "A samurai warrior standing in a bamboo forest, wind blowing his cloak, cinematic lighting with god rays, Japanese aesthetic", model: "Kling O3", dur: "15s" },
                 { img: "https://media.nanobananaproapi.com/2025/11/c909eb7af0b71ba4c65a84943bbe7faa.webp", prompt: "Underwater scene of a coral reef with tropical fish, volumetric light rays penetrating clear blue water, documentary style", model: "VEO 3.1", dur: "8s" },
               ].map((item, i) => (
-                <div key={i} style={{ position: 'relative', borderRadius: 10, overflow: 'hidden', cursor: 'pointer', border: '1px solid var(--border)', transition: 'transform .15s', aspectRatio: '16/10' }}
-                  onClick={() => { setPrompt(item.prompt); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                  onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.transform = ''; }}>
-                  <img src={item.img} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                    onError={e => { e.target.parentElement.style.background = '#2b2b30'; }} />
-                  <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '28px 12px 10px', background: 'linear-gradient(transparent, rgba(0,0,0,0.9))' }}>
-                    <div style={{ fontSize: 13, color: '#fff', lineHeight: 1.4, marginBottom: 6 }}>
-                      {item.prompt.length > 70 ? item.prompt.slice(0, 70) + '…' : item.prompt}
+                <div key={i} className="sc-showcase-card"
+                  onClick={() => { setPrompt(item.prompt); window.scrollTo({ top: 0, behavior: 'smooth' }); }}>
+                  <img src={item.img} alt="" className="sc-showcase-img"
+                    onError={e => { e.target.parentElement.style.background = 'var(--surface2)'; }} />
+                  <div className="sc-showcase-overlay">
+                    <div className="sc-showcase-prompt">
+                      {item.prompt.length > 75 ? item.prompt.slice(0, 75) + '…' : item.prompt}
                     </div>
-                    <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                      <span style={{ fontSize: 12, fontWeight: 600, padding: '3px 10px', borderRadius: 5, background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.8)', border: '1px solid rgba(255,255,255,0.08)' }}>{item.model}</span>
-                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)' }}>{item.dur}</span>
+                    <div className="sc-showcase-meta">
+                      <span className="sc-showcase-badge">{item.model}</span>
+                      <span className="sc-showcase-dur">{item.dur}</span>
                     </div>
                   </div>
-                  <div style={{ position: 'absolute', top: 8, right: 8, background: 'rgba(0,0,0,0.65)', color: '#fff', fontSize: 12, fontWeight: 600, padding: '5px 12px', borderRadius: 6 }}>
-                    Create similar
-                  </div>
+                  <div className="sc-showcase-cta">Create similar</div>
                 </div>
               ))}
             </div>
