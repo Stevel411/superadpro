@@ -990,6 +990,16 @@ export default function SuperScenePage() {
     }
   };
 
+  // ── Cancel generation ──────────────────────────────────
+  const cancelGeneration = () => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    if (fakeProgRef.current) clearInterval(fakeProgRef.current);
+    setGenerating(false);
+    setGenStatus(null);
+    setGenProgress(0);
+    setVideoUrl(null);
+  };
+
   // ── Stage content ──────────────────────────────────────
   const StageContent = () => {
     if (generating) return (
@@ -999,6 +1009,7 @@ export default function SuperScenePage() {
         <div className="gst-sub">{selectedModel?.name} · {duration}s · {ratio}{genAudio ? " · Audio" : ""}</div>
         <div className="pt"><div className="pf" style={{ width: `${Math.min(genProgress, 100)}%` }}/></div>
         <div className="gst-pct">{Math.round(genProgress)}%</div>
+        <button className="sc-cancel-btn" onClick={cancelGeneration}>✕ Cancel</button>
       </div>
     );
     if (videoUrl) return <div className="video-ready"><video src={videoUrl} controls autoPlay className="sc-video"/></div>;
