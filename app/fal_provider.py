@@ -126,8 +126,10 @@ async def generate_video(
             request_id = data.get("request_id")
             if request_id:
                 # Store the model path with the request_id so we can poll correctly
-                # Format: "fal:{model_path}:{request_id}"
-                composite_id = f"fal:{model_path}:{request_id}"
+                # Format: "fal:{model_path_with_pipes}:{request_id}"
+                # Replace / with | to avoid URL path issues
+                safe_path = model_path.replace("/", "|")
+                composite_id = f"fal:{safe_path}:{request_id}"
                 return {"success": True, "task_id": composite_id, "provider": "fal"}
             return {"success": False, "error": "No request_id in fal.ai response", "raw": data}
 
@@ -157,7 +159,8 @@ async def poll_status(composite_task_id: str) -> dict:
         if len(parts) != 3 or parts[0] != "fal":
             return {"success": False, "error": "Invalid fal.ai task ID format"}
         
-        model_path = parts[1]
+        # Restore slashes from pipe encoding
+        model_path = parts[1].replace("|", "/")
         request_id = parts[2]
         
         status_url = f"{FAL_QUEUE_URL}/{model_path}/requests/{request_id}/status"
