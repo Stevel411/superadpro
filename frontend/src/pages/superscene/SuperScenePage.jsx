@@ -154,6 +154,7 @@ export default function SuperScenePage() {
   // AI Prompt Builder
   const [aiSubject, setAiSubject]   = useState("");
   const [aiStyle, setAiStyle]       = useState("");
+  const [aiStyleOpen, setAiStyleOpen] = useState(false);
   const [aiCams, setAiCams]         = useState([]);
   const [aiLights, setAiLights]     = useState([]);
   const [aiResult, setAiResult]     = useState("");
@@ -2194,10 +2195,48 @@ export default function SuperScenePage() {
                 <div className="sc-af"><div className="sc-afl">Subject / Scene</div>
                   <input className="sc-ainp" placeholder="e.g. mountain valley, city at night, ocean at sunset…" value={aiSubject} onChange={e => setAiSubject(e.target.value)}/></div>
                 <div className="sc-af"><div className="sc-afl">Style</div>
-                  <select className="sc-asel" value={aiStyle} onChange={e => setAiStyle(e.target.value)}>
-                    <option value="">Choose a style…</option>
-                    {["Cinematic","Documentary","Lo-fi / Dreamy","Hyper-realistic","Anime / Stylised","Dark & Dramatic","Bright & Vibrant"].map(s => <option key={s}>{s}</option>)}
-                  </select></div>
+                  <div className="sc-section">
+                    <div className="sc-model-sel" onClick={() => setAiStyleOpen(!aiStyleOpen)}>
+                      <div className="sc-model-icon" style={{ background: 'linear-gradient(135deg, #a78bfa, #8b5cf688)' }}>◆</div>
+                      <div className="sc-model-info">
+                        <div className="sc-model-name">{aiStyle || "Choose a style…"}</div>
+                        <div className="sc-model-desc">{
+                          aiStyle === "Cinematic" ? "Film-quality, dramatic framing and color" :
+                          aiStyle === "Documentary" ? "Natural, observational, real-world feel" :
+                          aiStyle === "Lo-fi / Dreamy" ? "Soft focus, muted tones, nostalgic" :
+                          aiStyle === "Hyper-realistic" ? "Ultra-detailed, photographic precision" :
+                          aiStyle === "Anime / Stylised" ? "Bold lines, vibrant, animated aesthetic" :
+                          aiStyle === "Dark & Dramatic" ? "High contrast, moody shadows, tension" :
+                          aiStyle === "Bright & Vibrant" ? "Saturated colours, energetic, upbeat" :
+                          "Select a visual style for your prompt"
+                        }</div>
+                      </div>
+                      <span className={cls("sc-model-chev", aiStyleOpen && "open")}>▼</span>
+                    </div>
+                    {aiStyleOpen && (
+                      <div className="sc-model-drop">
+                        {[
+                          { key: "Cinematic",         desc: "Film-quality, dramatic framing and color",    icon: "🎬" },
+                          { key: "Documentary",       desc: "Natural, observational, real-world feel",     icon: "📹" },
+                          { key: "Lo-fi / Dreamy",    desc: "Soft focus, muted tones, nostalgic",          icon: "🌙" },
+                          { key: "Hyper-realistic",   desc: "Ultra-detailed, photographic precision",      icon: "📷" },
+                          { key: "Anime / Stylised",  desc: "Bold lines, vibrant, animated aesthetic",     icon: "✨" },
+                          { key: "Dark & Dramatic",   desc: "High contrast, moody shadows, tension",       icon: "🖤" },
+                          { key: "Bright & Vibrant",  desc: "Saturated colours, energetic, upbeat",         icon: "☀" },
+                        ].map(s => (
+                          <button key={s.key} className={cls("sc-model-opt", aiStyle === s.key && "sel")}
+                            onClick={() => { setAiStyle(s.key); setAiStyleOpen(false); }}>
+                            <div className="sc-model-icon" style={{ background: 'linear-gradient(135deg, #a78bfa, #8b5cf688)', fontSize: 16 }}>{s.icon}</div>
+                            <div className="sc-model-info">
+                              <div className="sc-model-name">{s.key}</div>
+                              <div className="sc-model-desc">{s.desc}</div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
                 <div className="sc-af"><div className="sc-afl">Camera Movement</div>
                   <div className="sc-achips">
                     {["Slow push-in","Aerial pan","Tracking shot","Handheld","Crane shot","Static","Dolly zoom","Orbit"].map(c => (
