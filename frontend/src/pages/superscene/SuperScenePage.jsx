@@ -185,6 +185,8 @@ export default function SuperScenePage() {
   const [pipeError, setPipeError] = useState(null);
   const [pipeCompleted, setPipeCompleted] = useState(0);
   const pipePollRef = useRef(null);
+  const [pipeModelOpen, setPipeModelOpen] = useState(false);
+  const [imgModelOpen, setImgModelOpen] = useState(false);
 
   const selectedModel = MODELS.find(m => m.key === model);
   const cost = calcCost(model, duration, genAudio);
@@ -1551,11 +1553,33 @@ export default function SuperScenePage() {
 
                   <div className="sc-section">
                     <div className="sc-label">Video Model</div>
-                    <select className="sc-select" value={pipeModel} onChange={e => setPipeModel(e.target.value)}>
-                      {MODELS.map(m => (
-                        <option key={m.key} value={m.key}>{m.name} — {m.desc} ({m.cost} cr/5s)</option>
-                      ))}
-                    </select>
+                    <div className="sc-model-sel" onClick={() => setPipeModelOpen(!pipeModelOpen)}>
+                      <div className="sc-model-icon" style={{ background: `linear-gradient(135deg, ${MODELS.find(m => m.key === pipeModel)?.color || '#22d3ee'}, ${MODELS.find(m => m.key === pipeModel)?.color || '#22d3ee'}88)` }}>✦</div>
+                      <div className="sc-model-info">
+                        <div className="sc-model-name">{MODELS.find(m => m.key === pipeModel)?.name || pipeModel}</div>
+                        <div className="sc-model-desc">{MODELS.find(m => m.key === pipeModel)?.desc || ""}</div>
+                      </div>
+                      <div className="sc-model-meta">
+                        <span className="sc-model-badge" style={{ background: `${MODELS.find(m => m.key === pipeModel)?.color || '#22d3ee'}22`, color: MODELS.find(m => m.key === pipeModel)?.color || '#22d3ee' }}>{MODELS.find(m => m.key === pipeModel)?.badge || ""}</span>
+                        <span className="sc-model-cost">{MODELS.find(m => m.key === pipeModel)?.cost || 3} cr/5s</span>
+                      </div>
+                      <span className={cls("sc-model-chev", pipeModelOpen && "open")}>▼</span>
+                    </div>
+                    {pipeModelOpen && (
+                      <div className="sc-model-drop">
+                        {MODELS.map(m => (
+                          <button key={m.key} className={cls("sc-model-opt", pipeModel === m.key && "sel")}
+                            onClick={() => { setPipeModel(m.key); setPipeModelOpen(false); }}>
+                            <div className="sc-model-icon" style={{ background: `linear-gradient(135deg, ${m.color}, ${m.color}88)` }}>✦</div>
+                            <div className="sc-model-info"><div className="sc-model-name">{m.name}</div><div className="sc-model-desc">{m.desc}</div></div>
+                            <div className="sc-model-meta">
+                              <span className="sc-model-badge" style={{ background: `${m.color}22`, color: m.color }}>{m.badge}</span>
+                              <span className="sc-model-cost">{m.cost} cr/5s</span>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <div className="sc-section">
@@ -1941,12 +1965,35 @@ export default function SuperScenePage() {
                 {/* Model */}
                 <div className="sc-section">
                   <div className="sc-label">Model</div>
-                  <select className="sc-select" value={imgModel} onChange={e => setImgModel(e.target.value)}
-                    style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1px solid var(--border)', background: 'var(--surface2)', color: 'var(--text)', fontSize: 13, fontFamily: 'inherit', cursor: 'pointer', appearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%238e8e98\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 14px center' }}>
-                    {IMG_MODELS.map(m => (
-                      <option key={m.key} value={m.key}>{m.name}{m.badge ? ` — ${m.badge}` : ''} · {m.desc}</option>
-                    ))}
-                  </select>
+                  <div className="sc-model-sel" onClick={() => setImgModelOpen(!imgModelOpen)}>
+                    <div className="sc-model-icon" style={{ background: 'linear-gradient(135deg, #8b5cf6, #8b5cf688)' }}>✦</div>
+                    <div className="sc-model-info">
+                      <div className="sc-model-name">{IMG_MODELS.find(m => m.key === imgModel)?.name || imgModel}</div>
+                      <div className="sc-model-desc">{IMG_MODELS.find(m => m.key === imgModel)?.desc || ""}</div>
+                    </div>
+                    {IMG_MODELS.find(m => m.key === imgModel)?.badge && (
+                      <div className="sc-model-meta">
+                        <span className="sc-model-badge" style={{ background: 'rgba(34,211,238,0.1)', color: '#22d3ee' }}>{IMG_MODELS.find(m => m.key === imgModel)?.badge}</span>
+                      </div>
+                    )}
+                    <span className={cls("sc-model-chev", imgModelOpen && "open")}>▼</span>
+                  </div>
+                  {imgModelOpen && (
+                    <div className="sc-model-drop">
+                      {IMG_MODELS.map(m => (
+                        <button key={m.key} className={cls("sc-model-opt", imgModel === m.key && "sel")}
+                          onClick={() => { setImgModel(m.key); setImgModelOpen(false); }}>
+                          <div className="sc-model-icon" style={{ background: 'linear-gradient(135deg, #8b5cf6, #8b5cf688)' }}>✦</div>
+                          <div className="sc-model-info"><div className="sc-model-name">{m.name}</div><div className="sc-model-desc">{m.desc}</div></div>
+                          {m.badge && (
+                            <div className="sc-model-meta">
+                              <span className="sc-model-badge" style={{ background: 'rgba(34,211,238,0.1)', color: '#22d3ee' }}>{m.badge}</span>
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
 
                 {/* Prompt */}
