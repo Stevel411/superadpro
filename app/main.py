@@ -1,5 +1,6 @@
 # build: 20260306-1
 import os
+import asyncio
 import anthropic
 import json
 import logging
@@ -18702,6 +18703,415 @@ async def sc_image_poll(task_id: str, request: Request, db: Session = Depends(ge
     except Exception as e:
         logger.exception("Image poll error")
         raise HTTPException(status_code=502, detail=str(e))
+
+# ── SuperScene Pipeline — Long-form Video Production ─────────
+
+@app.post("/api/superscene/pipeline/analyse")
+async def sc_pipeline_analyse(request: Request, db: Session = Depends(get_db)):
+    """Analyse a script and break it into scenes.
+    Body: {script, style?, model_key?, voice?, resolution?}
+    Returns: {success, pipeline_id, scenes: [...]}
+    """
+    from .database import SuperScenePipeline, SuperScenePipelineScene, SuperSceneCredit
+    from .superscene_pipeline import analyse_script
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    body = await request.json()
+    script    = (body.get("script") or "").strip()
+    style     = body.get("style", "cinematic")
+    model_key = body.get("model_key", "kling3")
+    voice     = body.get("voice", "en-US-GuyNeural")
+    resolution = body.get("resolution", "1080p")
+    title     = body.get("title", "")
+
+    if not script:
+        raise HTTPException(status_code=400, detail="Script is required")
+    if len(script) > 20000:
+        raise HTTPException(status_code=400, detail="Script must be under 20,000 characters")
+
+    # Check user has at least some credits
+    credit_row = db.query(SuperSceneCredit).filter_by(user_id=user.id).first()
+    if not credit_row or credit_row.balance < 1:
+        raise HTTPException(status_code=402, detail="Insufficient credits for script analysis")
+
+    # Deduct 1 credit for analysis
+    credit_row.balance -= 1
+    db.commit()
+
+    # Analyse script with Claude Haiku
+    result = await analyse_script(script, style)
+    if not result["success"]:
+        credit_row.balance += 1
+        db.commit()
+        raise HTTPException(status_code=502, detail=result.get("error", "Script analysis failed"))
+
+    scenes = result["scenes"]
+
+    # Auto-generate title if not provided
+    if not title:
+        title = script[:60].strip().replace("\n", " ")
+        if len(script) > 60:
+            title += "…"
+
+    # Create pipeline record
+    pipeline = SuperScenePipeline(
+        user_id=user.id,
+        title=title,
+        script=script,
+        style=style,
+        model_key=model_key,
+        voice=voice,
+        resolution=resolution,
+        status="draft",
+        total_scenes=len(scenes),
+        credits_used=1,
+    )
+    db.add(pipeline)
+    db.flush()
+
+    # Create scene records
+    for s in scenes:
+        scene = SuperScenePipelineScene(
+            pipeline_id=pipeline.id,
+            scene_number=s.get("scene_number", 0),
+            narration_text=s.get("narration_text", ""),
+            visual_prompt=s.get("visual_prompt", ""),
+            transition_type=s.get("transition_type", "cut"),
+            duration_seconds=s.get("estimated_duration", 10),
+            status="pending",
+        )
+        db.add(scene)
+
+    db.commit()
+
+    return {
+        "success": True,
+        "pipeline_id": pipeline.id,
+        "title": pipeline.title,
+        "total_scenes": len(scenes),
+        "scenes": scenes,
+        "credits_remaining": credit_row.balance,
+    }
+
+
+@app.post("/api/superscene/pipeline/{pipeline_id}/generate")
+async def sc_pipeline_generate(pipeline_id: int, request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
+    """Start generating all scenes for a pipeline.
+    This kicks off the background orchestrator that:
+    1. Generates voiceover for each scene
+    2. Generates video for each scene (sequential for continuity)
+    3. Assembles the final video with FFmpeg
+    """
+    from .database import SuperScenePipeline, SuperScenePipelineScene, SuperSceneCredit
+    from .superscene_evolink import calc_credits
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    pipeline = db.query(SuperScenePipeline).filter_by(id=pipeline_id, user_id=user.id).first()
+    if not pipeline:
+        raise HTTPException(status_code=404, detail="Pipeline not found")
+    if pipeline.status not in ("draft", "failed"):
+        raise HTTPException(status_code=400, detail=f"Pipeline is already {pipeline.status}")
+
+    scenes = db.query(SuperScenePipelineScene).filter_by(pipeline_id=pipeline.id).order_by(SuperScenePipelineScene.scene_number).all()
+    if not scenes:
+        raise HTTPException(status_code=400, detail="No scenes in pipeline")
+
+    # Calculate total credit cost
+    total_credits = 0
+    for scene in scenes:
+        dur = int(scene.duration_seconds or 10)
+        total_credits += calc_credits(pipeline.model_key, dur)
+
+    credit_row = db.query(SuperSceneCredit).filter_by(user_id=user.id).first()
+    if not credit_row or credit_row.balance < total_credits:
+        raise HTTPException(status_code=402, detail=f"Need {total_credits} credits, have {credit_row.balance if credit_row else 0}")
+
+    # Deduct credits
+    credit_row.balance -= total_credits
+    pipeline.credits_used += total_credits
+    pipeline.status = "generating"
+    db.commit()
+
+    # Start background orchestrator
+    background_tasks.add_task(
+        _run_pipeline,
+        pipeline_id=pipeline.id,
+        user_id=user.id,
+    )
+
+    return {
+        "success": True,
+        "pipeline_id": pipeline.id,
+        "status": "generating",
+        "total_scenes": len(scenes),
+        "credits_used": total_credits,
+        "credits_remaining": credit_row.balance,
+    }
+
+
+@app.get("/api/superscene/pipeline/{pipeline_id}/status")
+async def sc_pipeline_status(pipeline_id: int, request: Request, db: Session = Depends(get_db)):
+    """Get pipeline progress."""
+    from .database import SuperScenePipeline, SuperScenePipelineScene
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    pipeline = db.query(SuperScenePipeline).filter_by(id=pipeline_id, user_id=user.id).first()
+    if not pipeline:
+        raise HTTPException(status_code=404, detail="Pipeline not found")
+
+    scenes = db.query(SuperScenePipelineScene).filter_by(pipeline_id=pipeline.id).order_by(SuperScenePipelineScene.scene_number).all()
+
+    return {
+        "pipeline_id": pipeline.id,
+        "title": pipeline.title,
+        "status": pipeline.status,
+        "total_scenes": pipeline.total_scenes,
+        "completed_scenes": pipeline.completed_scenes,
+        "credits_used": pipeline.credits_used,
+        "final_video_url": pipeline.final_video_url,
+        "error_message": pipeline.error_message,
+        "scenes": [{
+            "scene_number": s.scene_number,
+            "narration_text": s.narration_text,
+            "visual_prompt": s.visual_prompt,
+            "duration_seconds": float(s.duration_seconds or 0),
+            "status": s.status,
+            "voiceover_url": s.voiceover_url,
+            "video_url": s.video_url,
+            "error_message": s.error_message,
+        } for s in scenes],
+    }
+
+
+@app.get("/api/superscene/pipeline/list")
+async def sc_pipeline_list(request: Request, db: Session = Depends(get_db)):
+    """List user's pipelines."""
+    from .database import SuperScenePipeline
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    pipelines = db.query(SuperScenePipeline).filter_by(user_id=user.id).order_by(SuperScenePipeline.created_at.desc()).limit(20).all()
+
+    return {
+        "pipelines": [{
+            "id": p.id,
+            "title": p.title,
+            "status": p.status,
+            "total_scenes": p.total_scenes,
+            "completed_scenes": p.completed_scenes,
+            "final_video_url": p.final_video_url,
+            "created_at": p.created_at.isoformat() if p.created_at else None,
+        } for p in pipelines],
+    }
+
+
+@app.post("/api/superscene/pipeline/{pipeline_id}/update-scene")
+async def sc_pipeline_update_scene(pipeline_id: int, request: Request, db: Session = Depends(get_db)):
+    """Update a scene's narration or visual prompt before generation.
+    Body: {scene_number, narration_text?, visual_prompt?, duration_seconds?}
+    """
+    from .database import SuperScenePipeline, SuperScenePipelineScene
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    pipeline = db.query(SuperScenePipeline).filter_by(id=pipeline_id, user_id=user.id).first()
+    if not pipeline:
+        raise HTTPException(status_code=404, detail="Pipeline not found")
+    if pipeline.status not in ("draft", "failed"):
+        raise HTTPException(status_code=400, detail="Cannot edit scenes while generating")
+
+    body = await request.json()
+    scene_num = body.get("scene_number")
+    if scene_num is None:
+        raise HTTPException(status_code=400, detail="scene_number is required")
+
+    scene = db.query(SuperScenePipelineScene).filter_by(pipeline_id=pipeline.id, scene_number=scene_num).first()
+    if not scene:
+        raise HTTPException(status_code=404, detail=f"Scene {scene_num} not found")
+
+    if "narration_text" in body:
+        scene.narration_text = body["narration_text"]
+    if "visual_prompt" in body:
+        scene.visual_prompt = body["visual_prompt"]
+    if "duration_seconds" in body:
+        scene.duration_seconds = body["duration_seconds"]
+
+    db.commit()
+    return {"success": True, "scene_number": scene_num}
+
+
+# ── Pipeline Background Orchestrator ──────────────────────────
+
+async def _run_pipeline(pipeline_id: int, user_id: int):
+    """Background task that orchestrates the entire pipeline:
+    1. Generate voiceover for all scenes
+    2. Generate video for each scene (sequential for visual continuity)
+    3. Assemble final video with FFmpeg
+    """
+    from .database import SessionLocal, SuperScenePipeline, SuperScenePipelineScene, SuperSceneCredit
+    from .superscene_pipeline import generate_voiceover, assemble_video
+    from .superscene_evolink import generate_video, poll_status, MODEL_MAP
+
+    db = SessionLocal()
+    try:
+        pipeline = db.query(SuperScenePipeline).get(pipeline_id)
+        if not pipeline:
+            return
+
+        scenes = db.query(SuperScenePipelineScene).filter_by(
+            pipeline_id=pipeline_id
+        ).order_by(SuperScenePipelineScene.scene_number).all()
+
+        # ── STAGE 2: Generate voiceover for all scenes (parallel) ──
+        logger.info(f"Pipeline {pipeline_id}: Starting voiceover for {len(scenes)} scenes")
+        vo_tasks = []
+        for scene in scenes:
+            scene.status = "voiceover"
+            db.commit()
+            result = await generate_voiceover(scene.narration_text or "", pipeline.voice)
+            if result["success"]:
+                scene.voiceover_url = result["audio_url"]
+                # Use actual audio duration for video generation
+                scene.duration_seconds = result["duration_seconds"]
+            else:
+                scene.error_message = result.get("error", "Voiceover failed")
+                logger.warning(f"Pipeline {pipeline_id} scene {scene.scene_number}: voiceover failed: {scene.error_message}")
+            db.commit()
+
+        # ── STAGE 3: Generate video for each scene (sequential) ──
+        logger.info(f"Pipeline {pipeline_id}: Starting video generation")
+        last_frame_url = None
+
+        for scene in scenes:
+            scene.status = "generating"
+            db.commit()
+
+            # Determine duration (round to nearest supported duration)
+            dur = int(round(float(scene.duration_seconds or 10)))
+            dur = max(3, min(dur, 15))  # Clamp to 3-15s range
+
+            # Build generation parameters
+            image_urls = None
+            if last_frame_url:
+                image_urls = [last_frame_url]
+
+            result = await generate_video(
+                model_key=pipeline.model_key,
+                prompt=scene.visual_prompt or "",
+                duration=dur,
+                ratio="16:9",
+                image_urls=image_urls,
+                resolution=pipeline.resolution,
+            )
+
+            if not result["success"]:
+                scene.status = "failed"
+                scene.error_message = result.get("error", "Video generation failed")
+                db.commit()
+                logger.warning(f"Pipeline {pipeline_id} scene {scene.scene_number}: video gen failed: {scene.error_message}")
+                continue
+
+            scene.video_task_id = result["task_id"]
+            db.commit()
+
+            # Poll for completion
+            max_polls = 120  # 6 minutes max per scene
+            for poll_count in range(max_polls):
+                await asyncio.sleep(3)
+                poll_result = await poll_status(result["task_id"])
+
+                if poll_result.get("status") == "completed" and poll_result.get("video_url"):
+                    scene.video_url = poll_result["video_url"]
+                    scene.status = "completed"
+                    pipeline.completed_scenes = (pipeline.completed_scenes or 0) + 1
+                    db.commit()
+
+                    # Extract last frame for next scene continuity
+                    # Note: last_frame_url extraction happens client-side in Storyboard
+                    # For pipeline, we skip frame extraction and use text-to-video for each scene
+                    # This is a deliberate trade-off: speed over visual continuity
+                    break
+
+                elif poll_result.get("status") == "failed":
+                    scene.status = "failed"
+                    scene.error_message = "Video generation failed during processing"
+                    db.commit()
+                    break
+            else:
+                # Timeout
+                scene.status = "failed"
+                scene.error_message = "Video generation timed out"
+                db.commit()
+
+        # ── Check if all scenes completed ──
+        completed_scenes = [s for s in scenes if s.status == "completed" and s.video_url]
+        if not completed_scenes:
+            pipeline.status = "failed"
+            pipeline.error_message = "No scenes completed successfully"
+            db.commit()
+            # Refund credits
+            credit_row = db.query(SuperSceneCredit).filter_by(user_id=user_id).first()
+            if credit_row:
+                credit_row.balance += pipeline.credits_used
+                pipeline.credits_used = 0
+                db.commit()
+            return
+
+        # ── STAGE 5: Assemble final video ──
+        logger.info(f"Pipeline {pipeline_id}: Assembling {len(completed_scenes)} scenes")
+        pipeline.status = "assembling"
+        db.commit()
+
+        scene_clips = []
+        for scene in completed_scenes:
+            scene_clips.append({
+                "video_url": scene.video_url,
+                "voiceover_url": scene.voiceover_url,
+                "duration_seconds": float(scene.duration_seconds or 10),
+            })
+
+        assembly_result = await assemble_video(
+            scene_clips=scene_clips,
+            output_filename=f"pipeline_{pipeline_id}.mp4",
+        )
+
+        if assembly_result["success"]:
+            pipeline.final_video_url = assembly_result["video_url"]
+            pipeline.status = "completed"
+            logger.info(f"Pipeline {pipeline_id}: COMPLETED — {pipeline.final_video_url}")
+        else:
+            pipeline.status = "failed"
+            pipeline.error_message = assembly_result.get("error", "Assembly failed")
+            logger.error(f"Pipeline {pipeline_id}: Assembly failed: {pipeline.error_message}")
+
+        db.commit()
+
+    except Exception as e:
+        logger.exception(f"Pipeline {pipeline_id} orchestrator error")
+        try:
+            pipeline = db.query(SuperScenePipeline).get(pipeline_id)
+            if pipeline:
+                pipeline.status = "failed"
+                pipeline.error_message = str(e)[:500]
+                db.commit()
+        except:
+            pass
+    finally:
+        db.close()
+
 
 # ── Content Creator — AI Marketing Content Generator ─────────
 
