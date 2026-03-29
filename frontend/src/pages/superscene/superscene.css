@@ -43,8 +43,9 @@
 .sc-logo-text { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; letter-spacing: -.3px; }
 .lw { color: #fff; } .lc { color: #22d3ee; }
 .sc-logo-badge { font-size: 8px; font-weight: 700; color: #22d3ee; background: rgba(34,211,238,.1); padding: 2px 7px; border-radius: 10px; border: 1px solid rgba(34,211,238,.2); }
-.sc-tabs { display: flex; gap: 1px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 9px; padding: 3px; }
-.sc-tab { padding: 5px 16px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif; background: transparent; color: #7080b0; transition: all .15s; display: flex; align-items: center; gap: 6px; }
+.sc-tabs { display: flex; gap: 1px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 9px; padding: 3px; overflow-x: auto; flex-shrink: 1; min-width: 0; }
+.sc-tabs::-webkit-scrollbar { display: none; }
+.sc-tab { padding: 5px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 11px; font-weight: 600; font-family: 'DM Sans', sans-serif; background: transparent; color: #7080b0; transition: all .15s; display: flex; align-items: center; gap: 5px; white-space: nowrap; flex-shrink: 0; }
 .sc-tab.active { background: rgba(255,255,255,.1); color: #fff; }
 .tdot { width: 5px; height: 5px; border-radius: 50%; background: rgba(255,255,255,.15); } .sc-tab.active .tdot { background: #22d3ee; }
 .sc-topbar-r { display: flex; align-items: center; gap: 8px; }
@@ -174,7 +175,7 @@
 .sc-prompt-counter { font-size: 12px; color: var(--muted2); text-align: right; margin-top: 4px; }
 
 /* Pills */
-.sc-pills { display: flex; gap: 8px; }
+.sc-pills { display: flex; gap: 8px; flex-wrap: wrap; }
 .sc-pill { flex: 1; text-align: center; padding: 10px; border-radius: 8px; font-size: 13px; font-weight: 600; background: var(--surface2); border: 1px solid var(--border); color: var(--muted); cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all .15s; }
 .sc-pill:hover { border-color: var(--border2); color: var(--text2); }
 .sc-pill.on { background: var(--accent-dim); border-color: rgba(34,211,238,.3); color: var(--accent); }

@@ -251,6 +251,8 @@ export default function SuperScenePage() {
   const [pipeVoiceOpen, setPipeVoiceOpen] = useState(false);
   const [pipeVoicePlaying, setPipeVoicePlaying] = useState(null);
   const pipeVoiceAudioRef = useRef(null);
+  const [studioGuideOpen, setStudioGuideOpen] = useState(false);
+  const [scriptExpanded, setScriptExpanded] = useState(false);
   const [imgModelOpen, setImgModelOpen] = useState(false);
 
   const selectedModel = MODELS.find(m => m.key === model);
@@ -1659,11 +1661,26 @@ export default function SuperScenePage() {
 
                   <div className="sc-section">
                     <div className="sc-label">Script</div>
-                    <div className="sc-prompt-box">
-                      <textarea className="sc-prompt-ta" rows={10} placeholder={"Paste your script here. Each paragraph will become a scene.\n\nExample:\nThe sun rises over the mountain valley, casting golden light across the landscape.\n\nA lone hiker reaches the summit, looking out over the endless horizon.\n\nAs clouds roll in, the scene transforms into a dramatic display of nature's power."}
+                    <div className={cls("sc-prompt-box", scriptExpanded && "sc-prompt-expanded")}>
+                      <textarea className="sc-prompt-ta" rows={scriptExpanded ? 16 : 10} placeholder={"Paste your script here. Each paragraph will become a scene.\n\nExample:\nThe sun rises over the mountain valley, casting golden light across the landscape.\n\nA lone hiker reaches the summit, looking out over the endless horizon.\n\nAs clouds roll in, the scene transforms into a dramatic display of nature's power."}
                         value={pipeScript} onChange={e => setPipeScript(e.target.value.slice(0, 20000))}/>
                       <div className="sc-prompt-footer">
-                        <span className="sc-prompt-count">{pipeScript.length} / 20,000</span>
+                        <span className="sc-prompt-ai" onClick={() => setTab("builder")}>✦ Generate<br/><span className="sc-prompt-ai-sub">With AI</span></span>
+                        <div className="sc-prompt-actions">
+                          <button className="sc-prompt-action" title="Copy" onClick={() => { if (pipeScript) navigator.clipboard.writeText(pipeScript); }}>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                          </button>
+                          <button className="sc-prompt-action" title="Clear" onClick={() => setPipeScript("")}>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                          </button>
+                          <button className="sc-prompt-action" title="Paste" onClick={async () => { try { const t = await navigator.clipboard.readText(); if (t) setPipeScript(p => (p + t).slice(0, 20000)); } catch {} }}>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+                          </button>
+                          <button className={cls("sc-prompt-action", scriptExpanded && "sc-prompt-action-active")} title={scriptExpanded ? "Collapse" : "Expand"} onClick={() => setScriptExpanded(x => !x)}>
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{scriptExpanded ? <><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></> : <><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></>}</svg>
+                          </button>
+                          <span className="sc-prompt-count">{pipeScript.length}/20,000</span>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -1804,27 +1821,57 @@ export default function SuperScenePage() {
                 </div>
 
                 <div className="sc-music-preview">
-                  <div className="sc-preview-label">How it works</div>
+                  <div className="sc-preview-label">Preview</div>
                   <div className="sc-music-stage">
-                    <div className="sc-studio-steps">
-                      {[
-                        { num: "1", title: "Paste your script", desc: "Write or paste the narration for your video. Each paragraph becomes a scene." },
-                        { num: "2", title: "AI breaks it into scenes", desc: "Claude AI analyses your script and creates visual prompts for each scene." },
-                        { num: "3", title: "Review and edit", desc: "Adjust the visual description for any scene before generating." },
-                        { num: "4", title: "Generate", desc: "SuperScene generates voiceover + AI video for each scene automatically." },
-                        { num: "5", title: "Final video", desc: "All scenes are assembled into one complete video with voiceover narration." },
-                      ].map(step => (
-                        <div key={step.num} className="sc-studio-step">
-                          <div className="sc-studio-step-num">{step.num}</div>
-                          <div>
-                            <div className="sc-studio-step-title">{step.title}</div>
-                            <div className="sc-studio-step-desc">{step.desc}</div>
-                          </div>
-                        </div>
-                      ))}
+                    <div className="s-empty">
+                      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.2">
+                        <rect x="2" y="3" width="20" height="14" rx="3"/><path d="M8 21h8"/><path d="M12 17v4"/><polygon points="10,7 10,14 16,10.5"/>
+                      </svg>
+                      <div className="s-title">Your video will appear here</div>
+                      <div className="s-sub">Paste a script, configure settings, and analyse to begin</div>
+                      <button className="sc-ecta" onClick={() => setStudioGuideOpen(true)}>📖 How it works</button>
                     </div>
                   </div>
                 </div>
+
+                {/* Studio Guide Modal */}
+                {studioGuideOpen && (
+                  <>
+                    <div className="sc-overlay" onClick={() => setStudioGuideOpen(false)}/>
+                    <div className="sc-hdrawer">
+                      <div className="sc-hhead">
+                        <div className="sc-htitle">How Video Studio Works</div>
+                        <button className="sc-hclose" onClick={() => setStudioGuideOpen(false)}>✕</button>
+                      </div>
+                      <div className="sc-hbody">
+                        {[
+                          { num: "1", title: "Paste your script", desc: "Write or paste the narration for your video. Each paragraph becomes a scene." },
+                          { num: "2", title: "AI breaks it into scenes", desc: "Claude AI analyses your script and creates visual prompts for each scene." },
+                          { num: "3", title: "Review and edit", desc: "Adjust the visual description for any scene before generating." },
+                          { num: "4", title: "Generate", desc: "SuperScene generates voiceover + AI video for each scene automatically." },
+                          { num: "5", title: "Final video", desc: "All scenes are assembled into one complete video with voiceover narration." },
+                        ].map(step => (
+                          <div key={step.num} className="sc-hitem">
+                            <div className="sc-studio-step">
+                              <div className="sc-studio-step-num">{step.num}</div>
+                              <div>
+                                <div className="sc-studio-step-title">{step.title}</div>
+                                <div className="sc-studio-step-desc">{step.desc}</div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                        <div className="sc-htip">
+                          <div className="sc-httitle">Tips</div>
+                          <div className="sc-hti">Keep paragraphs short — each becomes one scene</div>
+                          <div className="sc-hti">Write narration as spoken word, not prose</div>
+                          <div className="sc-hti">You can edit visual prompts after AI analysis</div>
+                          <div className="sc-hti">Lower-cost models are great for drafts</div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             ) : pipeStatus === "draft" ? (
               /* ── STEP 2: Scene Review & Edit ── */
