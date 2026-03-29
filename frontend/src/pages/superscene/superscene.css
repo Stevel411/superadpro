@@ -181,10 +181,10 @@
   flex: 1; min-width: 0;
   background: var(--bg);
   display: flex; flex-direction: column;
-  padding: 20px 24px;
+  padding: 24px 28px;
 }
 .sc-preview-label { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 14px; }
-.sc-stage { flex: 1; background: var(--surface); border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; min-height: 420px; overflow: hidden; position: relative; }
+.sc-stage { flex: 1; background: var(--surface); border-radius: 14px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; min-height: 380px; overflow: hidden; position: relative; }
 .sc-stage-actions { display: flex; gap: 8px; margin-top: 12px; }
 .sc-sa-btn { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border2); background: var(--surface2); color: var(--text2); font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; text-align: center; }
 .sc-playbar { display: flex; align-items: center; gap: 12px; margin-top: 14px; padding: 8px 0; }
