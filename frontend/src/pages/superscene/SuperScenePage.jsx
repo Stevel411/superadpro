@@ -170,6 +170,22 @@ export default function SuperScenePage() {
   const imgProgRef = useRef(null);
   const imgPollRef = useRef(null);
 
+  // Pipeline (Studio)
+  const [pipeScript, setPipeScript] = useState("");
+  const [pipeTitle, setPipeTitle] = useState("");
+  const [pipeStyle, setPipeStyle] = useState("cinematic");
+  const [pipeModel, setPipeModel] = useState("kling3");
+  const [pipeVoice, setPipeVoice] = useState("en-US-GuyNeural");
+  const [pipeRes, setPipeRes] = useState("1080p");
+  const [pipeScenes, setPipeScenes] = useState([]); // scene objects from analysis
+  const [pipeId, setPipeId] = useState(null);
+  const [pipeStatus, setPipeStatus] = useState(null); // null|draft|generating|assembling|completed|failed
+  const [pipeAnalysing, setPipeAnalysing] = useState(false);
+  const [pipeFinalUrl, setPipeFinalUrl] = useState(null);
+  const [pipeError, setPipeError] = useState(null);
+  const [pipeCompleted, setPipeCompleted] = useState(0);
+  const pipePollRef = useRef(null);
+
   const selectedModel = MODELS.find(m => m.key === model);
   const cost = calcCost(model, duration, genAudio);
 
@@ -819,7 +835,7 @@ export default function SuperScenePage() {
           <div className="sc-logo-badge">BETA</div>
         </div>
         <div className="sc-tabs">
-          {[{k:"create",l:"Create"},{k:"images",l:"Images"},{k:"storyboard",l:"Storyboard"},{k:"captions",l:"Captions"},{k:"music",l:"Music"},{k:"voiceover",l:"Voiceover"},{k:"editor",l:"Editor"},{k:"gallery",l:"Gallery"},{k:"packs",l:"Packs"},{k:"builder",l:"AI Builder"}].map(t => (
+          {[{k:"create",l:"Create"},{k:"studio",l:"Studio"},{k:"images",l:"Images"},{k:"storyboard",l:"Storyboard"},{k:"captions",l:"Captions"},{k:"music",l:"Music"},{k:"voiceover",l:"Voiceover"},{k:"editor",l:"Editor"},{k:"gallery",l:"Gallery"},{k:"packs",l:"Packs"},{k:"builder",l:"AI Builder"}].map(t => (
             <button key={t.k} className={cls("sc-tab", tab === t.k && "active")} onClick={() => setTab(t.k)}>
               <span className="tdot"/>{t.l}
             </button>
@@ -1485,6 +1501,287 @@ export default function SuperScenePage() {
                   <div className="sc-etitle">Video Editor</div>
                   <div className="sc-esub">Generate a video first, then open it here to trim, adjust speed, resize for platforms, and export — completely free.</div>
                   <button className="sc-ecta" onClick={() => setTab("create")}>← Go to Creator</button>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ══ STUDIO TAB — Long-form Video Pipeline ══ */}
+        {tab === "studio" && (
+          <div className="sc-music-view">
+            {!pipeStatus ? (
+              /* ── STEP 1: Script Input ── */
+              <div className="sc-music-layout">
+                <div className="sc-music-controls">
+                  <div className="sc-label" style={{ fontSize: 18 }}>Video Studio</div>
+                  <div className="sc-sub" style={{ marginTop: 0, marginBottom: 20 }}>
+                    Paste your script and SuperScene will break it into scenes, generate voiceover,
+                    create AI video for each scene, and assemble a complete long-form video.
+                  </div>
+
+                  <div className="sc-section">
+                    <div className="sc-label">Script</div>
+                    <div className="sc-prompt-box">
+                      <textarea className="sc-prompt-ta" rows={10} style={{ minHeight: 180 }}
+                        placeholder={"Paste your script here. Each paragraph will become a scene.\n\nExample:\nThe sun rises over the mountain valley, casting golden light across the landscape.\n\nA lone hiker reaches the summit, looking out over the endless horizon.\n\nAs clouds roll in, the scene transforms into a dramatic display of nature's power."}
+                        value={pipeScript} onChange={e => setPipeScript(e.target.value.slice(0, 20000))}/>
+                      <div className="sc-prompt-footer">
+                        <span className="sc-prompt-count">{pipeScript.length} / 20,000</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="sc-section">
+                    <div className="sc-label">Title <span className="sc-label-badge">Optional</span></div>
+                    <input type="text" className="sc-prompt-ta" style={{ minHeight: 'auto', padding: '10px 14px', background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 10, width: '100%', color: 'var(--text)', fontFamily: "'DM Sans', sans-serif", fontSize: 14 }}
+                      placeholder="My Video Project"
+                      value={pipeTitle} onChange={e => setPipeTitle(e.target.value.slice(0, 200))}/>
+                  </div>
+
+                  <div className="sc-section">
+                    <div className="sc-label">Visual Style</div>
+                    <div className="sc-pills" style={{ flexWrap: 'wrap' }}>
+                      {["cinematic", "corporate", "documentary", "social media", "anime", "abstract"].map(s => (
+                        <button key={s} className={cls("sc-pill", pipeStyle === s && "on")} onClick={() => setPipeStyle(s)}
+                          style={{ textTransform: 'capitalize' }}>{s}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="sc-section">
+                    <div className="sc-label">Video Model</div>
+                    <select className="sc-select" value={pipeModel} onChange={e => setPipeModel(e.target.value)}>
+                      {MODELS.map(m => (
+                        <option key={m.key} value={m.key}>{m.name} — {m.desc} ({m.cost} cr/5s)</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="sc-section">
+                    <div className="sc-label">Voiceover</div>
+                    <select className="sc-select" value={pipeVoice} onChange={e => setPipeVoice(e.target.value)}>
+                      {[
+                        { id: "en-US-GuyNeural", name: "Guy (US Male)" },
+                        { id: "en-US-JennyNeural", name: "Jenny (US Female)" },
+                        { id: "en-US-AriaNeural", name: "Aria (US Female)" },
+                        { id: "en-US-DavisNeural", name: "Davis (US Male)" },
+                        { id: "en-GB-RyanNeural", name: "Ryan (UK Male)" },
+                        { id: "en-GB-SoniaNeural", name: "Sonia (UK Female)" },
+                        { id: "en-AU-WilliamNeural", name: "William (AU Male)" },
+                        { id: "en-AU-NatashaNeural", name: "Natasha (AU Female)" },
+                      ].map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="sc-section">
+                    <div className="sc-label">Resolution</div>
+                    <div className="sc-pills">
+                      {["720p", "1080p"].map(r => (
+                        <button key={r} className={cls("sc-pill", pipeRes === r && "on")} onClick={() => setPipeRes(r)}>{r}</button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="sc-section">
+                    <button className="sc-gen-btn" onClick={async () => {
+                      if (!pipeScript.trim() || pipeAnalysing) return;
+                      setPipeAnalysing(true);
+                      setPipeError(null);
+                      try {
+                        const res = await fetch("/api/superscene/pipeline/analyse", {
+                          method: "POST", headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ script: pipeScript, style: pipeStyle, model_key: pipeModel, voice: pipeVoice, resolution: pipeRes, title: pipeTitle }),
+                        });
+                        const data = await res.json();
+                        if (!res.ok) { setPipeError(data.detail || "Analysis failed"); setPipeAnalysing(false); return; }
+                        setPipeId(data.pipeline_id);
+                        setPipeScenes(data.scenes);
+                        setPipeStatus("draft");
+                        setCredits(data.credits_remaining);
+                      } catch (e) { setPipeError("Network error — please try again"); }
+                      setPipeAnalysing(false);
+                    }} disabled={!pipeScript.trim() || pipeAnalysing}>
+                      {pipeAnalysing ? "Analysing script…" : !pipeScript.trim() ? "Paste a script to get started" : "Analyse Script — 1 credit"}
+                    </button>
+                    {pipeError && <div className="sc-sub" style={{ color: '#f87171', marginTop: 8 }}>{pipeError}</div>}
+                  </div>
+                </div>
+
+                <div className="sc-music-preview">
+                  <div className="sc-preview-label">How it works</div>
+                  <div className="sc-music-stage" style={{ flexDirection: 'column', padding: 32, alignItems: 'flex-start', justifyContent: 'flex-start', gap: 20 }}>
+                    {[
+                      { num: "1", title: "Paste your script", desc: "Write or paste the narration for your video. Each paragraph becomes a scene." },
+                      { num: "2", title: "AI breaks it into scenes", desc: "Claude AI analyses your script and creates visual prompts for each scene." },
+                      { num: "3", title: "Review and edit", desc: "Adjust the visual description for any scene before generating." },
+                      { num: "4", title: "Generate", desc: "SuperScene generates voiceover + AI video for each scene automatically." },
+                      { num: "5", title: "Final video", desc: "All scenes are assembled into one complete video with voiceover narration." },
+                    ].map(step => (
+                      <div key={step.num} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                        <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--surface2)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: 'var(--text)', flexShrink: 0 }}>{step.num}</div>
+                        <div>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)', marginBottom: 2 }}>{step.title}</div>
+                          <div style={{ fontSize: 13, color: 'var(--muted)', lineHeight: 1.5 }}>{step.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : pipeStatus === "draft" ? (
+              /* ── STEP 2: Scene Review & Edit ── */
+              <div style={{ padding: 24 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                  <div>
+                    <div className="sc-label" style={{ fontSize: 18, marginBottom: 4 }}>{pipeTitle || "Scene Breakdown"}</div>
+                    <div className="sc-sub" style={{ marginTop: 0 }}>{pipeScenes.length} scenes · Review and edit before generating</div>
+                  </div>
+                  <div style={{ display: 'flex', gap: 8 }}>
+                    <button className="sc-ecta" onClick={() => { setPipeStatus(null); setPipeScenes([]); setPipeId(null); }}>← Back to Script</button>
+                    <button className="sc-gen-btn" style={{ width: 'auto', padding: '12px 28px' }} onClick={async () => {
+                      setPipeError(null);
+                      try {
+                        const res = await fetch(`/api/superscene/pipeline/${pipeId}/generate`, {
+                          method: "POST", headers: { "Content-Type": "application/json" },
+                        });
+                        const data = await res.json();
+                        if (!res.ok) { setPipeError(data.detail || "Generation failed"); return; }
+                        setPipeStatus("generating");
+                        setPipeCompleted(0);
+                        setCredits(data.credits_remaining);
+                        // Start polling
+                        if (pipePollRef.current) clearInterval(pipePollRef.current);
+                        pipePollRef.current = setInterval(async () => {
+                          try {
+                            const pr = await fetch(`/api/superscene/pipeline/${pipeId}/status`);
+                            const pd = await pr.json();
+                            setPipeStatus(pd.status);
+                            setPipeCompleted(pd.completed_scenes);
+                            setPipeScenes(pd.scenes);
+                            if (pd.status === "completed") {
+                              setPipeFinalUrl(pd.final_video_url);
+                              clearInterval(pipePollRef.current);
+                              fetch("/api/superscene/credits").then(r => r.json()).then(d => setCredits(d.balance || 0));
+                            } else if (pd.status === "failed") {
+                              setPipeError(pd.error_message || "Pipeline failed");
+                              clearInterval(pipePollRef.current);
+                            }
+                          } catch {}
+                        }, 5000);
+                      } catch (e) { setPipeError("Network error"); }
+                    }}>Generate All Scenes</button>
+                  </div>
+                </div>
+                {pipeError && <div className="sc-sub" style={{ color: '#f87171', marginBottom: 16 }}>{pipeError}</div>}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {pipeScenes.map((scene, i) => (
+                    <div key={i} className="sc-sb-scene">
+                      <div className="sc-sb-scene-head">
+                        <span className="sc-sb-scene-num">Scene {scene.scene_number || i + 1}</span>
+                        <span className="sc-sb-scene-meta">{scene.estimated_duration || scene.duration_seconds || 10}s · {scene.transition_type || "cut"}</span>
+                      </div>
+                      <div style={{ marginBottom: 8 }}>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)', marginBottom: 4 }}>Narration</div>
+                        <textarea className="sc-prompt-ta" rows={2} style={{ minHeight: 40, background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 8, padding: 10, width: '100%' }}
+                          value={scene.narration_text || ""} onChange={e => {
+                            const updated = [...pipeScenes];
+                            updated[i] = { ...updated[i], narration_text: e.target.value };
+                            setPipeScenes(updated);
+                          }}/>
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--muted)', marginBottom: 4 }}>Visual Prompt</div>
+                        <textarea className="sc-prompt-ta" rows={2} style={{ minHeight: 40, background: 'var(--surface2)', border: '1px solid var(--border)', borderRadius: 8, padding: 10, width: '100%' }}
+                          value={scene.visual_prompt || ""} onChange={e => {
+                            const updated = [...pipeScenes];
+                            updated[i] = { ...updated[i], visual_prompt: e.target.value };
+                            setPipeScenes(updated);
+                          }}/>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              /* ── STEP 3: Generation Progress / Completed ── */
+              <div style={{ padding: 24 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                  <div>
+                    <div className="sc-label" style={{ fontSize: 18, marginBottom: 4 }}>{pipeTitle || "Video Production"}</div>
+                    <div className="sc-sub" style={{ marginTop: 0 }}>
+                      {pipeStatus === "completed" ? "Video complete!" :
+                       pipeStatus === "failed" ? "Production failed" :
+                       pipeStatus === "assembling" ? "Assembling final video…" :
+                       `Generating scenes… ${pipeCompleted} / ${pipeScenes.length} complete`}
+                    </div>
+                  </div>
+                  {pipeStatus === "completed" && (
+                    <button className="sc-ecta" onClick={() => { setPipeStatus(null); setPipeScenes([]); setPipeId(null); setPipeFinalUrl(null); }}>
+                      Create New Video
+                    </button>
+                  )}
+                  {pipeStatus === "failed" && (
+                    <button className="sc-ecta" onClick={() => { setPipeStatus("draft"); setPipeError(null); }}>
+                      ← Back to Scenes
+                    </button>
+                  )}
+                </div>
+
+                {/* Progress bar */}
+                {pipeStatus !== "completed" && pipeStatus !== "failed" && (
+                  <div style={{ marginBottom: 24 }}>
+                    <div className="pt" style={{ width: '100%', height: 6 }}>
+                      <div className="pf" style={{ width: `${pipeScenes.length > 0 ? (pipeCompleted / pipeScenes.length) * 100 : 0}%` }}/>
+                    </div>
+                    <div style={{ fontSize: 13, color: 'var(--muted)', marginTop: 8, textAlign: 'center' }}>
+                      {pipeStatus === "assembling" ? "Assembling video with FFmpeg…" : `Scene ${pipeCompleted + 1} of ${pipeScenes.length}`}
+                    </div>
+                  </div>
+                )}
+
+                {pipeError && <div className="sc-sub" style={{ color: '#f87171', marginBottom: 16 }}>{pipeError}</div>}
+
+                {/* Final video player */}
+                {pipeStatus === "completed" && pipeFinalUrl && (
+                  <div style={{ marginBottom: 24 }}>
+                    <div className="sc-stage" style={{ minHeight: 400 }}>
+                      <video src={pipeFinalUrl} controls autoPlay style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 12 }}/>
+                    </div>
+                    <div className="sc-stage-actions" style={{ marginTop: 12 }}>
+                      <button className="sc-sa-btn" onClick={() => downloadVideo(pipeFinalUrl, `superscene-studio-${Date.now()}.mp4`)}>⬇ Download Video</button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Scene status cards */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                  {pipeScenes.map((scene, i) => (
+                    <div key={i} className={cls("sc-sb-scene",
+                      scene.status === "completed" && "done",
+                      (scene.status === "generating" || scene.status === "voiceover") && "active",
+                      scene.status === "failed" && "fail")}>
+                      <div className="sc-sb-scene-head">
+                        <span className="sc-sb-scene-num">Scene {scene.scene_number || i + 1}</span>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <span className="sc-sb-scene-meta">{scene.duration_seconds || 10}s</span>
+                          <span style={{ fontSize: 12, fontWeight: 600, padding: '2px 8px', borderRadius: 4,
+                            background: scene.status === "completed" ? 'rgba(34,197,94,0.1)' :
+                                       scene.status === "failed" ? 'rgba(248,113,113,0.1)' :
+                                       scene.status === "generating" ? 'rgba(34,211,238,0.1)' :
+                                       scene.status === "voiceover" ? 'rgba(251,146,60,0.1)' : 'var(--surface2)',
+                            color: scene.status === "completed" ? '#22c55e' :
+                                  scene.status === "failed" ? '#f87171' :
+                                  scene.status === "generating" ? '#22d3ee' :
+                                  scene.status === "voiceover" ? '#fb923c' : 'var(--muted)',
+                          }}>{scene.status === "voiceover" ? "Voiceover" : scene.status === "generating" ? "Generating" : scene.status === "completed" ? "Done" : scene.status === "failed" ? "Failed" : "Pending"}</span>
+                        </div>
+                      </div>
+                      <div className="sc-sb-prompt">{scene.narration_text}</div>
+                      {scene.visual_prompt && <div className="sc-sub" style={{ marginTop: 0, fontSize: 12 }}>Visual: {scene.visual_prompt.slice(0, 100)}…</div>}
+                      {scene.error_message && <div className="sc-sub" style={{ color: '#f87171', marginTop: 4 }}>{scene.error_message}</div>}
+                    </div>
+                  ))}
                 </div>
               </div>
             )}
