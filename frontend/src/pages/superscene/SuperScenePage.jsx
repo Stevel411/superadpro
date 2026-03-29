@@ -3,15 +3,17 @@ import "./superscene.css";
 
 // ── Constants ──────────────────────────────────────────────
 // Quality tiers — users pick these instead of specific models
-// Quality tiers — users pick these, system routes to best model
-const TIERS = [
-  { key: "quick",    name: "Quick",    desc: "Fast drafts, budget-friendly (Hailuo 2.3)",  badge: "FAST",    cost: 1,  color: "#10b981", i2v: true,  audio: false },
-  { key: "standard", name: "Standard", desc: "Best balance — Kling 3.0 / Seedance",       badge: "POPULAR", cost: 3,  color: "#22d3ee", i2v: true,  audio: true  },
-  { key: "premium",  name: "Premium",  desc: "Top quality — Kling O3 / Sora 2 Pro",       badge: "BEST",    cost: 5,  color: "#8b5cf6", i2v: true,  audio: false },
-  { key: "ultra",    name: "Ultra 4K", desc: "Maximum quality — VEO 3.1 Pro (4K)",         badge: "4K",      cost: 15, color: "#f59e0b", i2v: true,  audio: true  },
+// Model definitions — real names, real descriptions, real costs
+const MODELS = [
+  { key: "kling3",    name: "Kling 3.0",         desc: "Cinematic realism, smooth motion",     badge: "POPULAR", cost: 3,  color: "#22d3ee", i2v: true,  audio: true  },
+  { key: "kling-o3",  name: "Kling O3",          desc: "Next-gen, exceptional detail",          badge: "BEST",    cost: 5,  color: "#8b5cf6", i2v: true,  audio: true  },
+  { key: "seedance",  name: "Seedance 1.5 Pro",  desc: "Fast generation, native audio",         badge: "AUDIO",   cost: 2,  color: "#fb923c", i2v: true,  audio: true  },
+  { key: "sora2",     name: "Sora 2 Pro",        desc: "OpenAI flagship, photorealistic",       badge: "PREMIUM", cost: 8,  color: "#a78bfa", i2v: true,  audio: false },
+  { key: "veo31",     name: "VEO 3.1 Fast",      desc: "Google, audio + fine detail",           badge: "NEW",     cost: 3,  color: "#38bdf8", i2v: true,  audio: true  },
+  { key: "veo31-pro", name: "VEO 3.1 Pro 4K",    desc: "Maximum quality, 4K resolution",        badge: "4K",      cost: 15, color: "#f59e0b", i2v: true,  audio: true  },
+  { key: "hailuo23",  name: "Hailuo 2.3",        desc: "Budget-friendly, fast drafts",           badge: "FAST",    cost: 1,  color: "#10b981", i2v: true,  audio: false },
+  { key: "grok-video",name: "Grok Imagine",      desc: "Creative, fun/normal/spicy modes",       badge: "FUN",     cost: 4,  color: "#ef4444", i2v: true,  audio: false },
 ];
-
-const MODELS = TIERS;
 
 const DURATIONS = [5, 10, 15, 30];
 const RATIOS    = ["16:9", "9:16", "1:1", "4:3"];
@@ -49,7 +51,7 @@ export default function SuperScenePage() {
   // Create state
   const [mode, setMode]         = useState("text"); // text | image
   const [prompt, setPrompt]     = useState("");
-  const [model, setModel]       = useState("standard");
+  const [model, setModel]       = useState("kling3");
   const [duration, setDuration] = useState(10);
   const [ratio, setRatio]       = useState("16:9");
   const [dropOpen, setDropOpen] = useState(false);
@@ -96,7 +98,7 @@ export default function SuperScenePage() {
   const [sbGenerating, setSbGenerating] = useState(false);
   const [sbPrompt, setSbPrompt] = useState("");
   const [sbDuration, setSbDuration] = useState(5);
-  const [sbModel, setSbModel] = useState("standard");
+  const [sbModel, setSbModel] = useState("kling3");
   const sbPollRef = useRef(null);
   const sbProgRef = useRef(null);
   const sbCanvasRef = useRef(null);
@@ -868,12 +870,6 @@ export default function SuperScenePage() {
                   </div>
                 )}
               </div>
-              <div style={{ fontSize: 11, color: 'var(--muted)', marginTop: 4, paddingLeft: 2, opacity: 0.7 }}>
-                Powered by: {model === "quick" ? (mode === "image" ? "Hailuo 2.3 Fast" : "Hailuo 2.3") :
-                  model === "standard" ? (mode === "image" ? "Seedance 1.5 Pro" : "Kling 3.0") :
-                  model === "premium" ? "Kling O3" :
-                  model === "ultra" ? (mode === "image" ? "Sora 2 Pro" : "VEO 3.1 Pro 4K") : model}
-              </div>
 
               {/* Image Upload (when image mode) */}
               {mode === "image" && (
@@ -945,12 +941,12 @@ export default function SuperScenePage() {
                 </div>
               )}
 
-              {/* Style References (Standard=Seedance, Ultra=VEO support refs) */}
-              {(model === "standard" || model === "ultra") && (
+              {/* Style References (Seedance & VEO models support refs) */}
+              {(model === "seedance" || model === "veo31" || model === "veo31-pro") && (
                 <div className="sc-section">
                   <div className="sc-label">Style References <span className="sc-label-badge">Optional</span></div>
                   <div className="sc-sub" style={{ marginTop: 0, marginBottom: 8 }}>
-                    Upload images to guide the visual style. {model === "ultra" ? "Up to 3" : "Up to 9"} reference images.
+                    Upload images to guide the visual style. {(model === "veo31" || model === "veo31-pro") ? "Up to 3" : "Up to 9"} reference images.
                   </div>
                   <div className="sc-style-refs">
                     {styleRefs.map(ref => (
@@ -961,7 +957,7 @@ export default function SuperScenePage() {
                         <button className="sc-sref-remove" onClick={() => removeStyleRef(ref.id)}>✕</button>
                       </div>
                     ))}
-                    {styleRefs.length < (model === "ultra" ? 3 : 9) && (
+                    {styleRefs.length < ((model === "veo31" || model === "veo31-pro") ? 3 : 9) && (
                       <div className="sc-sref-add" onClick={() => styleRefInput.current?.click()}>
                         <span>+</span>
                       </div>
