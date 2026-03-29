@@ -338,7 +338,41 @@
 .sc-evid { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
 
 /* ══ Gallery ══ */
-.sc-gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; padding: 24px; }
+.sc-gallery-view { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+.sc-gallery-view::-webkit-scrollbar { width: 3px; }
+.sc-gallery-view::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+.sc-gallery-header { padding: 24px 28px 0; }
+.sc-gallery-header .sc-studio-hero { margin-bottom: 16px; }
+.sc-gallery-filters { display: flex; gap: 6px; margin-bottom: 20px; }
+.sc-gallery-filter { padding: 6px 14px; border-radius: 20px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .15s; }
+.sc-gallery-filter:hover { border-color: var(--border2); color: var(--text2); }
+.sc-gallery-filter.on { background: var(--accent-dim2); border-color: rgba(34,211,238,.35); color: var(--accent); }
+.sc-gallery-count { font-size: 12px; color: var(--muted); padding: 6px 0; }
+.sc-gallery-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 60px 20px; }
+.sc-gg { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; padding: 0 28px 28px; }
+.sc-gc { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; display: flex; flex-direction: column; transition: border-color .15s; }
+.sc-gc:hover { border-color: var(--border2); }
+.sc-gct { position: relative; width: 100%; aspect-ratio: 16/9; background: #000; overflow: hidden; cursor: pointer; }
+.sc-gvid { width: 100%; height: 100%; object-fit: cover; display: block; }
+.sc-gcd { position: absolute; bottom: 8px; right: 8px; font-size: 11px; font-weight: 700; color: #fff; background: rgba(0,0,0,.7); padding: 2px 8px; border-radius: 4px; }
+.sc-gc-status { position: absolute; top: 8px; left: 8px; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 4px; }
+.sc-gc-status-pending { background: rgba(251,146,60,.15); color: #fb923c; }
+.sc-gc-status-failed { background: rgba(248,113,113,.15); color: #f87171; }
+.sc-gc-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--muted2); font-size: 28px; }
+.sc-gcb { padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+.sc-gctitle { font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.sc-gcmod { font-size: 11px; color: var(--muted); }
+.sc-gcdate { font-size: 11px; color: var(--muted2); }
+.sc-gcas { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
+.sc-gca { padding: 4px 10px; border-radius: 6px; border: 1px solid var(--border); background: transparent; color: var(--muted); font-family: 'DM Sans', sans-serif; font-size: 11px; font-weight: 600; cursor: pointer; transition: all .15s; }
+.sc-gca:hover { color: var(--text); border-color: var(--border2); }
+.sc-gca-del { color: #f87171; border-color: rgba(248,113,113,.2); }
+.sc-gca-del:hover { background: rgba(248,113,113,.1); }
+.sc-gca-extend { color: var(--accent); border-color: rgba(34,211,238,.2); }
+.sc-gca-extend:hover { background: var(--accent-dim); }
+.sc-gadd { background: var(--surface); border: 2px dashed var(--border); border-radius: 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 200px; cursor: pointer; color: var(--muted); font-size: 13px; font-weight: 600; transition: all .15s; }
+.sc-gadd:hover { border-color: var(--accent); color: var(--accent); }
+.sc-gadd-icon { font-size: 28px; }
 .sc-gal-card { background: var(--surface); border-radius: 12px; border: 1px solid var(--border); overflow: hidden; transition: transform .15s; }
 .sc-gal-card:hover { transform: translateY(-2px); }
 .sc-gal-video { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; }

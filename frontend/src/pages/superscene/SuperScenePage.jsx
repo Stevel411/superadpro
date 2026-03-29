@@ -158,6 +158,7 @@ export default function SuperScenePage() {
   // Credits & history
   const [credits, setCredits]   = useState(0);
   const [videos, setVideos]     = useState([]);
+  const [galleryFilter, setGalleryFilter] = useState("all");
   const [loadingCredits, setLoadingCredits] = useState(true);
 
   // AI Prompt Builder
@@ -950,6 +951,20 @@ export default function SuperScenePage() {
 
   const toggleChip = (val, arr, setArr) => setArr(arr.includes(val) ? arr.filter(x => x !== val) : [...arr, val]);
   const cls = (...c) => c.filter(Boolean).join(" ");
+  const formatDate = (iso) => {
+    if (!iso) return "";
+    const d = new Date(iso);
+    const now = new Date();
+    const diffMs = now - d;
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 1) return "Just now";
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHrs = Math.floor(diffMins / 60);
+    if (diffHrs < 24) return `${diffHrs}h ago`;
+    const diffDays = Math.floor(diffHrs / 24);
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return d.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  };
 
   // ── Download helper (cross-origin safe) ────────────────
   const downloadVideo = async (url, filename) => {
@@ -2111,22 +2126,68 @@ export default function SuperScenePage() {
         {/* ══ GALLERY TAB ══ */}
         {tab === "gallery" && (
           <div className="sc-gallery-view">
+            <div className="sc-gallery-header">
+              <div className="sc-studio-hero">
+                <div className="sc-studio-hero-icon" style={{ background: 'linear-gradient(135deg, #10b981, #34d399)' }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                    <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+                  </svg>
+                </div>
+                <div>
+                  <div className="sc-studio-title">Gallery</div>
+                  <div className="sc-studio-desc">Your generated videos and creations. Click to play, extend, edit, or download.</div>
+                </div>
+              </div>
+              <div className="sc-gallery-filters">
+                {[
+                  { key: "all", label: "All" },
+                  { key: "completed", label: "Completed" },
+                  { key: "pending", label: "Pending" },
+                  { key: "failed", label: "Failed" },
+                ].map(f => (
+                  <button key={f.key} className={cls("sc-gallery-filter", galleryFilter === f.key && "on")}
+                    onClick={() => setGalleryFilter(f.key)}>{f.label}</button>
+                ))}
+                <div className="sc-gallery-count">{videos.length} video{videos.length !== 1 ? "s" : ""}</div>
+              </div>
+            </div>
+
             {videos.length === 0 ? (
               <div className="sc-gallery-empty">
-                <div className="s-icon">◫</div><div className="s-title">No videos yet</div>
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.2">
+                  <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+                  <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+                </svg>
+                <div className="s-title">No videos yet</div>
                 <div className="s-sub">Generate your first video to see it here.</div>
                 <button className="sc-ecta" onClick={() => setTab("create")}>← Go to Creator</button>
               </div>
             ) : (
               <div className="sc-gg">
-                {videos.map(v => (
+                {videos
+                  .filter(v => galleryFilter === "all" || v.status === galleryFilter)
+                  .map(v => (
                   <div key={v.id} className="sc-gc">
-                    <div className="sc-gct">{v.video_url ? <video src={v.video_url} className="sc-gvid"/> : "▶"}<div className="sc-gcd">{v.duration}s</div></div>
+                    <div className="sc-gct" onClick={() => { if (v.video_url) { setVideoUrl(v.video_url); setTab("create"); } }}>
+                      {v.video_url ? (
+                        <video src={v.video_url} className="sc-gvid" muted
+                          onMouseEnter={e => e.target.play()}
+                          onMouseLeave={e => { e.target.pause(); e.target.currentTime = 0; }}/>
+                      ) : (
+                        <div className="sc-gc-placeholder">▶</div>
+                      )}
+                      <div className="sc-gcd">{v.duration}s</div>
+                      {v.status === "pending" && <div className="sc-gc-status sc-gc-status-pending">Pending</div>}
+                      {v.status === "failed" && <div className="sc-gc-status sc-gc-status-failed">Failed</div>}
+                    </div>
                     <div className="sc-gcb">
-                      <div className="sc-gctitle">{v.prompt.slice(0, 40)}…</div>
-                      <div className="sc-gcmod">{v.model_name} · {v.ratio}</div>
+                      <div className="sc-gctitle">{v.prompt.length > 80 ? v.prompt.slice(0, 80) + "…" : v.prompt}</div>
+                      <div className="sc-gcmod">{v.model_name} · {v.ratio} · {v.credits_used} cr</div>
+                      <div className="sc-gcdate">{formatDate(v.created_at)}</div>
                       <div className="sc-gcas">
-                        <button className="sc-gca" onClick={() => { setVideoUrl(v.video_url); setTab("editor"); }}>Edit</button>
+                        {v.video_url && <button className="sc-gca sc-gca-extend" onClick={() => openFramePicker(v.video_url)}>⟼ Extend</button>}
+                        {v.video_url && <button className="sc-gca" onClick={() => { setVideoUrl(v.video_url); setTab("editor"); }}>Edit</button>}
                         {v.video_url && <button className="sc-gca" onClick={() => downloadVideo(v.video_url, `superscene-${v.model_name}-${v.id}.mp4`)}>Download</button>}
                         <button className="sc-gca sc-gca-del" onClick={async () => {
                           if (!confirm("Delete this video?")) return;
@@ -2140,7 +2201,10 @@ export default function SuperScenePage() {
                     </div>
                   </div>
                 ))}
-                <div className="sc-gadd" onClick={() => setTab("create")}><span style={{ fontSize: 22 }}>+</span><span>Generate new video</span></div>
+                <div className="sc-gadd" onClick={() => setTab("create")}>
+                  <span className="sc-gadd-icon">+</span>
+                  <span>Generate new video</span>
+                </div>
               </div>
             )}
           </div>
