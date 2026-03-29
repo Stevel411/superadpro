@@ -405,30 +405,15 @@ export default function SuperScenePage() {
   const confirmFrameExtend = async () => {
     const video = framePickerVideoRef.current;
     const canvas = framePickerCanvasRef.current;
-
-    // If canvas preview failed (CORS), try re-drawing without crossOrigin check
-    if (!framePickerPreview && video && canvas) {
-      try {
-        canvas.width = video.videoWidth || 1280;
-        canvas.height = video.videoHeight || 720;
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(video, 0, 0);
-      } catch (e) {
-        // Canvas totally failed — switch to Create tab and let user upload manually
-        setFramePickerOpen(false);
-        setTab("create");
-        setMode("image");
-        setPrompt("continues seamlessly from previous shot, smooth motion, consistent lighting");
-        setVideoUrl(null);
-        setGenStatus(null);
-        alert("Could not extract frame automatically. Please upload a screenshot of the frame you want to extend from.");
-        return;
-      }
-    }
-
-    if (!canvas) return;
+    if (!video || !canvas) { alert("Video not loaded"); return; }
 
     try {
+      // Always capture the current frame fresh
+      canvas.width = video.videoWidth || 1280;
+      canvas.height = video.videoHeight || 720;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
       const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
       if (!blob) { alert("Failed to extract frame"); return; }
 
@@ -461,7 +446,14 @@ export default function SuperScenePage() {
       setUploading(false);
     } catch (err) {
       console.error("Extend from frame error:", err);
-      alert("Could not extract frame from video.");
+      // CORS failure — switch to Create tab and ask user to upload manually
+      setFramePickerOpen(false);
+      setTab("create");
+      setMode("image");
+      setPrompt("continues seamlessly from previous shot, smooth motion, consistent lighting");
+      setVideoUrl(null);
+      setGenStatus(null);
+      alert("Could not extract frame automatically. Please take a screenshot and upload it manually.");
     }
   };
 
@@ -2872,7 +2864,7 @@ export default function SuperScenePage() {
                   className="sc-fp-video"
                   onLoadedMetadata={(e) => {
                     setFramePickerDuration(e.target.duration);
-                    e.target.currentTime = Math.max(0, e.target.duration - 0.05);
+                    e.target.currentTime = 0;
                   }}
                   onSeeked={updateFramePreview}
                   onTimeUpdate={() => setFramePickerTime(framePickerVideoRef.current?.currentTime || 0)}
@@ -2908,7 +2900,7 @@ export default function SuperScenePage() {
               <canvas ref={framePickerCanvasRef} style={{ display: 'none' }}/>
               <div className="sc-fp-actions">
                 <button className="sc-ecta" onClick={() => setFramePickerOpen(false)}>Cancel</button>
-                <button className="sc-gen-btn" onClick={confirmFrameExtend} disabled={!framePickerPreview}>
+                <button className="sc-gen-btn" onClick={confirmFrameExtend}>
                   ⟼ Use This Frame & Extend
                 </button>
               </div>
