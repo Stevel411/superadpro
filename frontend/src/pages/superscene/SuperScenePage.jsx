@@ -16,14 +16,34 @@ const MODELS = [
 ];
 
 const PROMPT_SUGGESTIONS = [
-  "A cinematic aerial drone shot gliding over a misty mountain lake at golden hour, slow camera pan",
-  "A lone astronaut standing on Mars, dust particles floating in orange light, photorealistic",
-  "Close-up of a barista pouring latte art, warm cafe lighting, shallow depth of field, 4K",
-  "A golden retriever puppy running through autumn leaves, slow motion, warm afternoon light",
-  "Underwater coral reef scene with tropical fish, volumetric light rays, BBC documentary style",
-  "A futuristic cyberpunk city at night, neon reflections on wet streets, camera dolly forward",
-  "Time-lapse of a flower blooming, macro lens, studio lighting, black background",
-  "A samurai warrior in a bamboo forest, wind blowing, cinematic god rays, Japanese aesthetic",
+  { cat: "Cinematic", text: "A cinematic aerial drone shot gliding over a misty mountain lake at golden hour, slow camera pan" },
+  { cat: "Cinematic", text: "A lone astronaut standing on Mars, dust particles floating in orange light, photorealistic wide shot" },
+  { cat: "Cinematic", text: "A samurai warrior in a bamboo forest, wind blowing his cloak, god rays through the canopy" },
+  { cat: "Cinematic", text: "Underwater coral reef with tropical fish, volumetric light rays, BBC documentary style" },
+  { cat: "Cinematic", text: "A lighthouse on a rocky cliff during a dramatic storm, crashing waves, dark clouds, lightning" },
+  { cat: "Product", text: "Close-up of a barista pouring latte art, warm cafe lighting, shallow depth of field, 4K" },
+  { cat: "Product", text: "A luxury watch rotating slowly on a dark marble surface, studio lighting, reflections" },
+  { cat: "Product", text: "Wireless earbuds floating in mid-air, holographic light effects, minimalist dark background" },
+  { cat: "Product", text: "A perfume bottle with golden liquid, slow motion splash, elegant studio lighting" },
+  { cat: "Nature", text: "A golden retriever puppy running through autumn leaves, slow motion, warm afternoon light" },
+  { cat: "Nature", text: "Time-lapse of a flower blooming, macro lens, studio lighting, black background" },
+  { cat: "Nature", text: "Northern lights dancing over a frozen lake, slow camera movement, timelapse stars" },
+  { cat: "Nature", text: "A hummingbird hovering at a flower, extreme close-up, 4K nature documentary" },
+  { cat: "Urban", text: "A futuristic cyberpunk city at night, neon reflections on wet streets, camera dolly forward" },
+  { cat: "Urban", text: "Busy Tokyo street crossing at sunset, cinematic slow motion, shallow depth of field" },
+  { cat: "Urban", text: "Aerial flyover of New York City skyline at golden hour, smooth helicopter shot" },
+  { cat: "Urban", text: "A neon-lit alleyway in Hong Kong, steam rising from vents, moody atmosphere" },
+  { cat: "People", text: "A confident professional woman walking through a sunlit modern office, tracking shot" },
+  { cat: "People", text: "A chef preparing sushi with precise movements, top-down camera, warm restaurant lighting" },
+  { cat: "People", text: "A dancer performing contemporary dance in an empty warehouse, dramatic side lighting" },
+  { cat: "People", text: "A musician playing piano in a grand concert hall, cinematic push-in, emotional lighting" },
+  { cat: "Abstract", text: "Liquid gold flowing in slow motion, abstract macro, high-speed camera, black background" },
+  { cat: "Abstract", text: "Colourful ink drops falling into water, swirling patterns, macro lens, studio lighting" },
+  { cat: "Abstract", text: "Geometric shapes transforming in 3D space, smooth transitions, dark background, neon accents" },
+  { cat: "Social", text: "A cute cartoon mouse running toward the camera with a big smile, Pixar-style 3D animation" },
+  { cat: "Social", text: "Satisfying food preparation montage, bright colours, top-down shot, upbeat energy" },
+  { cat: "Social", text: "A before-and-after home transformation, smooth transition reveal, bright natural light" },
+  { cat: "Social", text: "Unboxing a premium product with close-up details, hands visible, clean white background" },
 ];
 
 const RATIOS    = ["16:9", "9:16", "1:1", "4:3"];
@@ -67,6 +87,7 @@ export default function SuperScenePage() {
   const [resolution, setResolution] = useState("1080p");
   const [negPrompt, setNegPrompt] = useState("");
   const [dropOpen, setDropOpen] = useState(false);
+  const [promptDropOpen, setPromptDropOpen] = useState(false);
   const [genAudio, setGenAudio] = useState(false);
 
   // Image upload
@@ -947,18 +968,36 @@ export default function SuperScenePage() {
                   </div>
                 </div>
                 <div className="sc-sub">If you're not satisfied, you can generate again or enter a prompt of your own.</div>
+              </div>
 
-                {/* Prompt suggestions */}
-                {!prompt.trim() && (
-                  <div className="sc-section" style={{ marginTop: 8, marginBottom: 0 }}>
-                    <div className="sc-sub" style={{ marginTop: 0, marginBottom: 6 }}>Try one of these:</div>
-                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
-                      {PROMPT_SUGGESTIONS.slice(0, 4).map((s, i) => (
-                        <button key={i} className="sc-chip" onClick={() => setPrompt(s)} style={{ fontSize: 12, padding: '4px 10px' }}>
-                          {s.slice(0, 40)}…
-                        </button>
-                      ))}
-                    </div>
+              {/* Prompt Ideas dropdown */}
+              <div className="sc-section">
+                <div className="sc-model-sel" onClick={() => setPromptDropOpen(!promptDropOpen)} style={{ padding: '10px 14px' }}>
+                  <div className="sc-model-info">
+                    <div className="sc-model-name" style={{ fontSize: 13 }}>Prompt Ideas</div>
+                    <div className="sc-model-desc">Browse {PROMPT_SUGGESTIONS.length} ready-made prompts</div>
+                  </div>
+                  <span className={cls("sc-model-chev", promptDropOpen && "open")}>▼</span>
+                </div>
+                {promptDropOpen && (
+                  <div className="sc-model-drop" style={{ maxHeight: 320, overflowY: 'auto' }}>
+                    {["Cinematic", "Product", "Nature", "Urban", "People", "Abstract", "Social"].map(cat => {
+                      const items = PROMPT_SUGGESTIONS.filter(s => s.cat === cat);
+                      if (!items.length) return null;
+                      return (
+                        <div key={cat}>
+                          <div style={{ padding: '8px 14px 4px', fontSize: 12, fontWeight: 700, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.5px', borderTop: '1px solid var(--border)' }}>{cat}</div>
+                          {items.map((s, i) => (
+                            <button key={i} className="sc-model-opt" style={{ padding: '8px 14px' }}
+                              onClick={() => { setPrompt(s.text); setPromptDropOpen(false); }}>
+                              <div className="sc-model-info">
+                                <div className="sc-model-desc" style={{ color: 'var(--text2)', fontSize: 13 }}>{s.text.length > 80 ? s.text.slice(0, 80) + '…' : s.text}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
