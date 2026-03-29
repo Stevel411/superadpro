@@ -101,6 +101,7 @@ export default function SuperScenePage() {
   const [negPrompt, setNegPrompt] = useState("");
   const [dropOpen, setDropOpen] = useState(false);
   const [promptDropOpen, setPromptDropOpen] = useState(false);
+  const [promptExpanded, setPromptExpanded] = useState(false);
   const [genAudio, setGenAudio] = useState(false);
 
   // Image upload
@@ -974,13 +975,27 @@ export default function SuperScenePage() {
               {/* Prompt */}
               <div className="sc-section">
                 <div className="sc-label">Prompt</div>
-                <div className="sc-prompt-box">
-                  <textarea className="sc-prompt-ta" rows={5}
+                <div className={cls("sc-prompt-box", promptExpanded && "sc-prompt-expanded")}>
+                  <textarea className="sc-prompt-ta" rows={promptExpanded ? 12 : 5}
                     placeholder="A cinematic drone shot over a misty mountain valley at golden hour, warm light, slow push-in…"
                     value={prompt} onChange={e => setPrompt(e.target.value.slice(0, 2000))}/>
                   <div className="sc-prompt-footer">
                     <span className="sc-prompt-ai" onClick={() => setTab("builder")}>✦ Generate With AI</span>
-                    <span className="sc-prompt-count">{prompt.length}/2000</span>
+                    <div className="sc-prompt-actions">
+                      <button className="sc-prompt-action" title="Copy" onClick={() => { if (prompt) navigator.clipboard.writeText(prompt); }}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                      </button>
+                      <button className="sc-prompt-action" title="Clear" onClick={() => setPrompt("")}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                      </button>
+                      <button className="sc-prompt-action" title="Paste" onClick={async () => { try { const t = await navigator.clipboard.readText(); if (t) setPrompt(p => (p + t).slice(0, 2000)); } catch {} }}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+                      </button>
+                      <button className={cls("sc-prompt-action", promptExpanded && "sc-prompt-action-active")} title={promptExpanded ? "Collapse" : "Expand"} onClick={() => setPromptExpanded(x => !x)}>
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{promptExpanded ? <><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></> : <><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></>}</svg>
+                      </button>
+                      <span className="sc-prompt-count">{prompt.length}/2000</span>
+                    </div>
                   </div>
                 </div>
                 <div className="sc-sub">If you're not satisfied, you can generate again or enter a prompt of your own.</div>
