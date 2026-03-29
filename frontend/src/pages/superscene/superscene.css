@@ -113,7 +113,10 @@
 .sc-model-cost { font-size: 12px; color: var(--muted); }
 .sc-model-chev { color: var(--muted); font-size: 12px; transition: transform .2s; }
 .sc-model-chev.open { transform: rotate(180deg); }
-.sc-model-drop { position: absolute; left: 0; right: 0; top: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; z-index: 50; overflow: hidden; margin-top: 4px; box-shadow: 0 8px 24px rgba(0,0,0,.3); max-height: 400px; overflow-y: auto; }
+.sc-model-drop { position: absolute; left: 0; right: 0; top: 100%; background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; z-index: 50; overflow: hidden; margin-top: 4px; box-shadow: 0 8px 24px rgba(0,0,0,.3); max-height: 320px; overflow-y: auto; }
+.sc-model-drop::-webkit-scrollbar { width: 3px; }
+.sc-model-drop::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+.sc-model-drop::-webkit-scrollbar-track { background: transparent; }
 .sc-model-opt { width: 100%; display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: none; background: transparent; cursor: pointer; font-family: 'DM Sans', sans-serif; text-align: left; transition: background .1s; }
 .sc-model-opt:hover { background: var(--surface3); }
 .sc-model-opt.sel { background: var(--surface3); }
@@ -295,7 +298,10 @@
 /* ══ TABS — Music, Voiceover, Captions ══ */
 .sc-music-view { display: flex; flex-direction: column; flex: 1; padding: 24px; }
 .sc-music-layout { display: flex; gap: 24px; flex: 1; }
-.sc-music-controls { width: 380px; flex-shrink: 0; overflow-y: auto; }
+.sc-music-controls { width: 380px; flex-shrink: 0; overflow-y: auto; overflow-x: hidden; }
+.sc-music-controls::-webkit-scrollbar { width: 3px; }
+.sc-music-controls::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+.sc-music-controls::-webkit-scrollbar-track { background: transparent; }
 .sc-music-preview { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .sc-music-stage { flex: 1; background: var(--surface); border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; min-height: 300px; }
 .sc-cap-view { flex: 1; display: flex; flex-direction: column; padding: 24px; }

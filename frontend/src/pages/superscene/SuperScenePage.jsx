@@ -1093,7 +1093,7 @@ export default function SuperScenePage() {
                   <span className={cls("sc-model-chev", promptDropOpen && "open")}>▼</span>
                 </div>
                 {promptDropOpen && (
-                  <div className="sc-model-drop" style={{ maxHeight: 320, overflowY: 'auto' }}>
+                  <div className="sc-model-drop">
                     {["Cinematic", "Product", "Nature", "Urban", "People", "Abstract", "Social"].map(cat => {
                       const items = PROMPT_SUGGESTIONS.filter(s => s.cat === cat);
                       if (!items.length) return null;
@@ -1744,7 +1744,7 @@ export default function SuperScenePage() {
                       <span className={cls("sc-model-chev", pipeVoiceOpen && "open")}>▼</span>
                     </div>
                     {pipeVoiceOpen && (
-                      <div className="sc-model-drop" style={{ maxHeight: 360, overflowY: 'auto' }}>
+                      <div className="sc-model-drop">
                         {["American", "British", "Australian"].map(cat => (
                           <div key={cat}>
                             <div className="sc-voice-cat">{cat}</div>
