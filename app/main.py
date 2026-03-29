@@ -17899,16 +17899,37 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
     credit_row.balance -= credits_needed
     db.commit()
 
-    # Submit to EvoLink
-    result = await generate_video(
-        model_key, prompt, duration, ratio,
-        image_urls=image_urls if image_urls else None,
-        style_refs=style_refs if style_refs else None,
-        generate_audio=gen_audio,
-        resolution=resolution,
-        negative_prompt=neg_prompt if neg_prompt else None,
-        seed=seed,
-    )
+    # Submit to provider — fal.ai first (cheaper), fallback to EvoLink
+    from .fal_provider import is_available as fal_available, generate_video as fal_generate
+
+    result = None
+    # Try fal.ai first for supported models (61% cheaper for Kling 3.0)
+    if fal_available(model_key) and not style_refs:
+        logger.info(f"Routing {model_key} to fal.ai (cheaper provider)")
+        result = await fal_generate(
+            model_key, prompt, duration, ratio,
+            image_urls=image_urls if image_urls else None,
+            generate_audio=gen_audio,
+            resolution=resolution,
+            negative_prompt=neg_prompt if neg_prompt else None,
+            seed=seed,
+        )
+        if not result["success"]:
+            logger.warning(f"fal.ai failed for {model_key}, falling back to EvoLink: {result.get('error')}")
+            result = None  # Fall through to EvoLink
+
+    # Fallback to EvoLink
+    if result is None:
+        logger.info(f"Routing {model_key} to EvoLink")
+        result = await generate_video(
+            model_key, prompt, duration, ratio,
+            image_urls=image_urls if image_urls else None,
+            style_refs=style_refs if style_refs else None,
+            generate_audio=gen_audio,
+            resolution=resolution,
+            negative_prompt=neg_prompt if neg_prompt else None,
+            seed=seed,
+        )
 
     if not result["success"]:
         # Refund on failure
@@ -18050,18 +18071,24 @@ async def sc_extract_frame(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=502, detail=f"Frame extraction failed: {str(e)}")
 
 
-@app.get("/api/superscene/status/{task_id}")
+@app.get("/api/superscene/status/{task_id:path}")
 async def sc_poll_status(task_id: str, request: Request, db: Session = Depends(get_db)):
-    """Poll EvoLink for video generation status and update DB."""
+    """Poll provider for video generation status and update DB."""
     from .database import SuperSceneVideo
-    from .superscene_evolink import poll_status
     from datetime import datetime
 
     user = get_current_user(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
-    result = await poll_status(task_id)
+    # Route to correct provider based on task_id prefix
+    if task_id.startswith("fal:"):
+        from .fal_provider import poll_status as fal_poll
+        result = await fal_poll(task_id)
+    else:
+        from .superscene_evolink import poll_status
+        result = await poll_status(task_id)
+
     if not result["success"]:
         raise HTTPException(status_code=502, detail=result.get("error"))
 
