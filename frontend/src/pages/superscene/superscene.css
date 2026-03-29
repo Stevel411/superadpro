@@ -8,9 +8,9 @@
 
 /* ── Themes ── */
 .sc-root.dark {
-  --bg: #1f1f1f; --surface: #2a2a2a; --surface2: #323232; --surface3: #3b3b3b;
-  --border: #434343; --border2: #525252; --text: #ffffff; --text2: #cfcfcf;
-  --muted: #8a8a8a; --muted2: #5c5c5c; --accent: #22d3ee;
+  --bg: #1e2428; --surface: #282f35; --surface2: #313a41; --surface3: #3a444c;
+  --border: #434e57; --border2: #546069; --text: #ffffff; --text2: #c8ced4;
+  --muted: #7f8d99; --muted2: #536170; --accent: #22d3ee;
   --accent-dim: rgba(34,211,238,.08); --accent-dim2: rgba(34,211,238,.14);
 }
 .sc-root.light {
