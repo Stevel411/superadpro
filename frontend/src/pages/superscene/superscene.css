@@ -392,9 +392,16 @@
 /* ══ Image generator ══ */
 .sc-select { width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface2); color: var(--text); font-size: 13px; font-family: 'DM Sans', sans-serif; cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238e8e98' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; }
 .sc-img-results { display: grid; grid-template-columns: 1fr; gap: 12px; padding: 12px; width: 100%; }
+.sc-img-results.sc-img-grid-2 { grid-template-columns: 1fr 1fr; }
 .sc-img-result-item { position: relative; border-radius: 8px; overflow: hidden; }
 .sc-img-result-item img { width: 100%; display: block; border-radius: 8px; }
 .sc-img-result-actions { display: flex; gap: 6px; margin-top: 8px; position: absolute; bottom: 8px; right: 8px; }
+
+/* Pill credit badge */
+.sc-pill-credit { font-size: 10px; color: var(--muted); margin-left: 4px; }
+
+/* Image empty state icon */
+.sc-img-empty-icon { margin-bottom: 12px; opacity: 0.4; }
 .sc-img-dl-btn { padding: 6px 12px; border-radius: 6px; background: rgba(0,0,0,.6); color: #fff; border: none; cursor: pointer; font-size: 12px; font-weight: 600; }
 
 /* ══ Help drawer ══ */

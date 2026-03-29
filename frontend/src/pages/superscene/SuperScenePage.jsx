@@ -223,11 +223,14 @@ export default function SuperScenePage() {
   // Image Generator
   const [imgModel, setImgModel] = useState("nano-banana-2");
   const [imgPrompt, setImgPrompt] = useState("");
+  const [imgNegPrompt, setImgNegPrompt] = useState("");
   const [imgQuality, setImgQuality] = useState("1K");
   const [imgSize, setImgSize] = useState("1:1");
+  const [imgBatch, setImgBatch] = useState(1);
   const [imgGenerating, setImgGenerating] = useState(false);
   const [imgResults, setImgResults] = useState([]);
   const [imgProgress, setImgProgress] = useState(0);
+  const [imgPromptExpanded, setImgPromptExpanded] = useState(false);
   const imgProgRef = useRef(null);
   const imgPollRef = useRef(null);
 
@@ -598,7 +601,7 @@ export default function SuperScenePage() {
 
   const generateImage = async () => {
     if (!imgPrompt.trim() || imgGenerating) return;
-    const cost = IMG_CREDIT_MAP[imgQuality] || 2;
+    const cost = (IMG_CREDIT_MAP[imgQuality] || 2) * imgBatch;
     if (credits < cost) { alert(`Need ${cost} credits, have ${credits}`); return; }
 
     setImgGenerating(true);
@@ -610,9 +613,13 @@ export default function SuperScenePage() {
     }, 300);
 
     try {
+      const payload = { model: imgModel, prompt: imgPrompt, quality: imgQuality, size: imgSize, n: imgBatch };
+      if (imgNegPrompt.trim()) payload.negative_prompt = imgNegPrompt.trim();
+      if (seedLocked && seedValue !== null) payload.seed = seedValue;
+
       const res = await fetch("/api/superscene/image/generate", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: imgModel, prompt: imgPrompt, quality: imgQuality, size: imgSize, n: 1 }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) { alert(data.detail || "Image generation failed"); setImgGenerating(false); clearInterval(imgProgRef.current); return; }
@@ -2156,8 +2163,17 @@ export default function SuperScenePage() {
             <div className="sc-music-layout">
               {/* Left — Controls */}
               <div className="sc-music-controls">
-                <div className="sc-label">AI Image Generator</div>
-                <div className="sc-sub" style={{ marginTop: 0, marginBottom: 20 }}>Create stunning images from text descriptions. Product photos, thumbnails, social graphics, and more.</div>
+                <div className="sc-studio-hero">
+                  <div className="sc-studio-hero-icon" style={{ background: 'linear-gradient(135deg, #8b5cf6, #a78bfa)' }}>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <div className="sc-studio-title">AI Image Generator</div>
+                    <div className="sc-studio-desc">Create stunning images from text descriptions. Product photos, thumbnails, social graphics, and more.</div>
+                  </div>
+                </div>
 
                 {/* Model */}
                 <div className="sc-section">
@@ -2170,7 +2186,7 @@ export default function SuperScenePage() {
                     </div>
                     {IMG_MODELS.find(m => m.key === imgModel)?.badge && (
                       <div className="sc-model-meta">
-                        <span className="sc-model-badge" style={{ background: 'rgba(34,211,238,0.1)', color: '#22d3ee' }}>{IMG_MODELS.find(m => m.key === imgModel)?.badge}</span>
+                        <span className="sc-model-badge" style={{ background: 'rgba(139,92,246,0.1)', color: '#8b5cf6' }}>{IMG_MODELS.find(m => m.key === imgModel)?.badge}</span>
                       </div>
                     )}
                     <span className={cls("sc-model-chev", imgModelOpen && "open")}>▼</span>
@@ -2184,7 +2200,7 @@ export default function SuperScenePage() {
                           <div className="sc-model-info"><div className="sc-model-name">{m.name}</div><div className="sc-model-desc">{m.desc}</div></div>
                           {m.badge && (
                             <div className="sc-model-meta">
-                              <span className="sc-model-badge" style={{ background: 'rgba(34,211,238,0.1)', color: '#22d3ee' }}>{m.badge}</span>
+                              <span className="sc-model-badge" style={{ background: 'rgba(139,92,246,0.1)', color: '#8b5cf6' }}>{m.badge}</span>
                             </div>
                           )}
                         </button>
@@ -2193,22 +2209,63 @@ export default function SuperScenePage() {
                   )}
                 </div>
 
-                {/* Prompt */}
+                {/* Prompt — enhanced with action buttons */}
                 <div className="sc-section">
                   <div className="sc-label">Prompt</div>
-                  <div className="sc-prompt-box">
-                    <textarea className="sc-prompt-ta" rows={5}
+                  <div className={cls("sc-prompt-box", imgPromptExpanded && "sc-prompt-expanded")}>
+                    <textarea className="sc-prompt-ta" rows={imgPromptExpanded ? 12 : 5}
                       placeholder="A professional product photo of wireless earbuds on a marble surface, soft studio lighting, shallow depth of field, 8K, photorealistic"
-                      value={imgPrompt} onChange={e => setImgPrompt(e.target.value)}/>
-                    <span className="sc-prompt-counter">{imgPrompt.length}/2000</span>
+                      value={imgPrompt} onChange={e => setImgPrompt(e.target.value.slice(0, 2000))}/>
+                    <div className="sc-prompt-footer">
+                      <span className="sc-prompt-ai" onClick={() => setTab("builder")}>✦ Generate<br/><span className="sc-prompt-ai-sub">With AI</span></span>
+                      <div className="sc-prompt-actions">
+                        <button className="sc-prompt-action" title="Copy" onClick={() => { if (imgPrompt) navigator.clipboard.writeText(imgPrompt); }}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                        </button>
+                        <button className="sc-prompt-action" title="Clear" onClick={() => setImgPrompt("")}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+                        </button>
+                        <button className="sc-prompt-action" title="Paste" onClick={async () => { try { const t = await navigator.clipboard.readText(); if (t) setImgPrompt(p => (p + t).slice(0, 2000)); } catch {} }}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+                        </button>
+                        <button className={cls("sc-prompt-action", imgPromptExpanded && "sc-prompt-action-active")} title={imgPromptExpanded ? "Collapse" : "Expand"} onClick={() => setImgPromptExpanded(x => !x)}>
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{imgPromptExpanded ? <><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></> : <><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></>}</svg>
+                        </button>
+                        <span className="sc-prompt-count">{imgPrompt.length}/2000</span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                {/* Size */}
+                {/* Negative Prompt */}
+                <div className="sc-section">
+                  <div className="sc-label">Negative Prompt <span className="sc-label-badge">Optional</span></div>
+                  <div className="sc-prompt-box">
+                    <textarea className="sc-prompt-ta sc-scene-textarea" rows={2}
+                      placeholder="Things to exclude: blurry, low quality, watermark, text, distorted, cropped…"
+                      value={imgNegPrompt} onChange={e => setImgNegPrompt(e.target.value.slice(0, 500))}/>
+                  </div>
+                </div>
+
+                {/* Aspect Ratio — labelled cards */}
                 <div className="sc-section">
                   <div className="sc-label">Aspect Ratio</div>
-                  <div className="sc-pills" style={{ flexWrap: "wrap" }}>
-                    {IMG_SIZES.map(s => (
+                  <div className="sc-ratio-grid">
+                    {[
+                      { key: "1:1",  label: "Square",    desc: "Instagram / Social" },
+                      { key: "16:9", label: "Landscape", desc: "YouTube / Banner" },
+                      { key: "9:16", label: "Portrait",  desc: "Stories / Reels" },
+                      { key: "4:3",  label: "Classic",   desc: "Presentations" },
+                    ].map(r => (
+                      <button key={r.key} className={cls("sc-ratio-card", imgSize === r.key && "on")} onClick={() => setImgSize(r.key)}>
+                        <span className="sc-ratio-value">{r.key}</span>
+                        <span className="sc-ratio-label">{r.label}</span>
+                        <span className="sc-ratio-desc">{r.desc}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <div className="sc-pills">
+                    {["3:4","3:2","2:3","4:5","5:4"].map(s => (
                       <button key={s} className={cls("sc-pill", imgSize === s && "on")} onClick={() => setImgSize(s)}>{s}</button>
                     ))}
                   </div>
@@ -2220,9 +2277,37 @@ export default function SuperScenePage() {
                   <div className="sc-pills">
                     {IMG_QUALITIES.map(q => (
                       <button key={q} className={cls("sc-pill", imgQuality === q && "on")} onClick={() => setImgQuality(q)}>
-                        {q} <span style={{ fontSize: 10, color: "var(--muted)", marginLeft: 4 }}>{IMG_CREDIT_MAP[q]}cr</span>
+                        {q} <span className="sc-pill-credit">{IMG_CREDIT_MAP[q]}cr</span>
                       </button>
                     ))}
+                  </div>
+                </div>
+
+                {/* Batch Count */}
+                <div className="sc-section">
+                  <div className="sc-label">Number of Images</div>
+                  <div className="sc-pills">
+                    {[1, 2, 4].map(n => (
+                      <button key={n} className={cls("sc-pill", imgBatch === n && "on")} onClick={() => setImgBatch(n)}>
+                        {n} {n === 1 ? "image" : "images"}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Seed Control */}
+                <div className="sc-section">
+                  <div className="sc-seed-row">
+                    <button className={cls("sc-seed-toggle", seedLocked && "on")} onClick={toggleSeedLock} title={seedLocked ? "Unlock seed" : "Lock seed"}>
+                      {seedLocked ? "🔒" : "🔓"}
+                    </button>
+                    <div className="sc-seed-info">
+                      <span className="sc-seed-label">Seed</span>
+                      <span className="sc-seed-value">{seedLocked ? seedValue : "Random"}</span>
+                    </div>
+                    {seedLocked && (
+                      <button className="sc-seed-refresh" onClick={refreshSeed} title="New seed">↻</button>
+                    )}
                   </div>
                 </div>
 
@@ -2231,10 +2316,10 @@ export default function SuperScenePage() {
                   <div className="sc-credit-line">
                     <div className="sc-cl-icon">◈</div>
                     <span className="sc-cl-label">Cost:</span>
-                    <span className="sc-cl-value">{IMG_CREDIT_MAP[imgQuality] || 2} credits</span>
+                    <span className="sc-cl-value">{(IMG_CREDIT_MAP[imgQuality] || 2) * imgBatch} credits</span>
                   </div>
                   <button className="sc-gen-btn" onClick={generateImage} disabled={!imgPrompt.trim() || imgGenerating}>
-                    {imgGenerating ? "Generating…" : !imgPrompt.trim() ? "Enter a prompt" : "🖼 Generate Image"}
+                    {imgGenerating ? "Generating…" : !imgPrompt.trim() ? "Enter a prompt" : `🖼 Generate ${imgBatch > 1 ? imgBatch + " Images" : "Image"} — ${(IMG_CREDIT_MAP[imgQuality] || 2) * imgBatch} credits`}
                   </button>
                 </div>
               </div>
@@ -2242,30 +2327,30 @@ export default function SuperScenePage() {
               {/* Right — Preview */}
               <div className="sc-music-preview">
                 <div className="sc-preview-label">Generated Image</div>
-                <div className="sc-music-stage" style={{ padding: 20 }}>
+                <div className="sc-music-stage">
                   {imgGenerating ? (
                     <div className="gst">
                       <div className="spin"><div className="r1"/><div className="r2"/></div>
-                      <div className="gst-title">Generating image…</div>
+                      <div className="gst-title">Generating {imgBatch > 1 ? `${imgBatch} images` : "image"}…</div>
                       <div className="gst-sub">{IMG_MODELS.find(m => m.key === imgModel)?.name} · {imgQuality} · {imgSize}</div>
                       <div className="pt"><div className="pf" style={{ width: `${Math.min(imgProgress, 100)}%` }}/></div>
                       <div className="gst-pct">{Math.round(imgProgress)}%</div>
                     </div>
                   ) : imgResults.length > 0 ? (
-                    <div className="sc-img-results">
+                    <div className={cls("sc-img-results", imgResults.length >= 2 && "sc-img-grid-2")}>
                       {imgResults.map((url, i) => (
                         <div key={i} className="sc-img-result-item">
                           <img src={url} alt={`Generated ${i+1}`} className="sc-img-result-img"/>
                           <div className="sc-img-result-actions">
                             <button className="sc-sa-btn" onClick={() => downloadVideo(url, `superscene-image-${Date.now()}.png`)}>⬇ Download</button>
-                            <button className="sc-sa-btn" onClick={() => { navigator.clipboard.writeText(url); alert("Image URL copied!"); }}>📋 Copy URL</button>
+                            <button className="sc-sa-btn" onClick={() => { navigator.clipboard.writeText(url); }}>📋 Copy URL</button>
                           </div>
                         </div>
                       ))}
                     </div>
                   ) : (
                     <div className="s-empty">
-                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#5a5a62" strokeWidth="1.5" style={{ marginBottom: 12, opacity: 0.4 }}>
+                      <svg className="sc-img-empty-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#5a5a62" strokeWidth="1.5">
                         <rect x="3" y="3" width="18" height="18" rx="3"/>
                         <circle cx="8.5" cy="8.5" r="1.5"/>
                         <path d="M21 15l-5-5L5 21"/>
