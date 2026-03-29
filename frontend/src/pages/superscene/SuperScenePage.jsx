@@ -130,6 +130,15 @@ export default function SuperScenePage() {
   const [seedValue, setSeedValue]     = useState(null);
   const [dragging, setDragging]       = useState(false);
 
+  // Frame picker for Extend Video
+  const [framePickerOpen, setFramePickerOpen] = useState(false);
+  const [framePickerUrl, setFramePickerUrl]   = useState(null);
+  const [framePickerTime, setFramePickerTime] = useState(0);
+  const [framePickerDuration, setFramePickerDuration] = useState(0);
+  const [framePickerPreview, setFramePickerPreview] = useState(null);
+  const framePickerVideoRef = useRef(null);
+  const framePickerCanvasRef = useRef(null);
+
   // Image upload
   const [imageFile, setImageFile]     = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -367,41 +376,38 @@ export default function SuperScenePage() {
     setSeedValue(Math.floor(Math.random() * 2147483647));
   };
 
-  // ── Extend Video — extract last frame, upload, switch to I2V ──
-  const extendFromLastFrame = async (sourceVideoUrl) => {
+  // ── Frame Picker — Grok Imagine-style frame selection ──
+  const openFramePicker = (sourceVideoUrl) => {
+    setFramePickerUrl(sourceVideoUrl);
+    setFramePickerTime(0);
+    setFramePickerDuration(0);
+    setFramePickerPreview(null);
+    setFramePickerOpen(true);
+  };
+
+  const updateFramePreview = () => {
+    const video = framePickerVideoRef.current;
+    const canvas = framePickerCanvasRef.current;
+    if (!video || !canvas) return;
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(video, 0, 0);
+    setFramePickerPreview(canvas.toDataURL("image/png"));
+  };
+
+  const confirmFrameExtend = async () => {
+    const canvas = framePickerCanvasRef.current;
+    if (!canvas) return;
+
     try {
-      // Create a temporary video element to extract the last frame
-      const video = document.createElement("video");
-      video.crossOrigin = "anonymous";
-      video.src = sourceVideoUrl;
-      video.muted = true;
-
-      await new Promise((resolve, reject) => {
-        video.onloadedmetadata = () => {
-          // Seek to the last frame (duration minus a tiny offset)
-          video.currentTime = Math.max(0, video.duration - 0.05);
-        };
-        video.onseeked = resolve;
-        video.onerror = reject;
-        // Timeout after 15 seconds
-        setTimeout(() => reject(new Error("Video load timeout")), 15000);
-      });
-
-      // Draw the last frame to a canvas
-      const canvas = document.createElement("canvas");
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      const ctx = canvas.getContext("2d");
-      ctx.drawImage(video, 0, 0);
-
-      // Convert canvas to blob
       const blob = await new Promise(resolve => canvas.toBlob(resolve, "image/png"));
       if (!blob) { alert("Failed to extract frame"); return; }
 
-      // Create a File from the blob for upload
       const file = new File([blob], `extend-frame-${Date.now()}.png`, { type: "image/png" });
 
-      // Set preview immediately
+      // Close picker, set preview, switch to I2V
+      setFramePickerOpen(false);
       setImagePreview(URL.createObjectURL(blob));
       setMode("image");
       setUploading(true);
@@ -414,26 +420,19 @@ export default function SuperScenePage() {
 
       if (data.success && data.file_url) {
         setImageUrl(data.file_url);
-        // Pre-fill prompt with continuation instruction
         setPrompt(prev => prev ? prev : "continues seamlessly from previous shot, smooth motion, consistent lighting");
-        // Clear the generated video so user sees the frame in preview
         setVideoUrl(null);
         setGenStatus(null);
         setGenProgress(0);
-        // Clear motion presets — let user choose fresh
         setMotionPresets([]);
       } else {
         alert(data.detail || "Frame upload failed");
         setImagePreview(null);
       }
       setUploading(false);
-
-      // Clean up
-      video.remove();
-      canvas.remove();
     } catch (err) {
       console.error("Extend from frame error:", err);
-      alert("Could not extract frame from video. The video may not support cross-origin access.");
+      alert("Could not extract frame from video.");
     }
   };
 
@@ -1359,7 +1358,7 @@ export default function SuperScenePage() {
             </div>
             {videoUrl && (
               <div className="sc-stage-actions">
-                <button className="sc-sa-btn" onClick={() => extendFromLastFrame(videoUrl)}>⟼ Extend</button>
+                <button className="sc-sa-btn" onClick={() => openFramePicker(videoUrl)}>⟼ Extend</button>
                 <button className="sc-sa-btn" onClick={() => setTab("editor")}>✂ Edit</button>
                 <button className="sc-sa-btn" onClick={() => downloadVideo(videoUrl, `superscene-${Date.now()}.mp4`)}>⬇ Download</button>
               </div>
@@ -2749,6 +2748,66 @@ export default function SuperScenePage() {
       )}
 
       {dropOpen && <div className="sc-overlay" onClick={() => setDropOpen(false)}/>}
+
+      {/* ══ FRAME PICKER MODAL ══ */}
+      {framePickerOpen && (
+        <>
+          <div className="sc-fp-overlay" onClick={() => setFramePickerOpen(false)}/>
+          <div className="sc-fp-modal">
+            <div className="sc-fp-header">
+              <div className="sc-studio-title">Select Frame to Extend</div>
+              <button className="sc-hclose" onClick={() => setFramePickerOpen(false)}>✕</button>
+            </div>
+            <div className="sc-fp-body">
+              <div className="sc-fp-video-wrap">
+                <video
+                  ref={framePickerVideoRef}
+                  src={framePickerUrl}
+                  crossOrigin="anonymous"
+                  muted
+                  className="sc-fp-video"
+                  onLoadedMetadata={(e) => {
+                    setFramePickerDuration(e.target.duration);
+                    e.target.currentTime = e.target.duration - 0.05;
+                  }}
+                  onSeeked={updateFramePreview}
+                  onTimeUpdate={() => setFramePickerTime(framePickerVideoRef.current?.currentTime || 0)}
+                />
+              </div>
+              <div className="sc-fp-controls">
+                <div className="sc-fp-time">{framePickerTime.toFixed(2)}s / {framePickerDuration.toFixed(2)}s</div>
+                <input
+                  type="range"
+                  className="sc-fp-slider"
+                  min={0}
+                  max={framePickerDuration || 1}
+                  step={0.01}
+                  value={framePickerTime}
+                  onChange={(e) => {
+                    const t = parseFloat(e.target.value);
+                    setFramePickerTime(t);
+                    if (framePickerVideoRef.current) framePickerVideoRef.current.currentTime = t;
+                  }}
+                />
+                <div className="sc-fp-hint">Drag the slider to select the frame you want to extend from</div>
+              </div>
+              {framePickerPreview && (
+                <div className="sc-fp-preview-section">
+                  <div className="sc-scene-label">Selected Frame</div>
+                  <img src={framePickerPreview} alt="Selected frame" className="sc-fp-preview-img"/>
+                </div>
+              )}
+              <canvas ref={framePickerCanvasRef} style={{ display: 'none' }}/>
+              <div className="sc-fp-actions">
+                <button className="sc-ecta" onClick={() => setFramePickerOpen(false)}>Cancel</button>
+                <button className="sc-gen-btn" onClick={confirmFrameExtend} disabled={!framePickerPreview}>
+                  ⟼ Use This Frame & Extend
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

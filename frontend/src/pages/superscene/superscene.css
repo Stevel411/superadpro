@@ -493,3 +493,23 @@
 .sc-voice-play { width: 30px; height: 30px; border-radius: 50%; border: 1px solid var(--border); background: var(--surface3); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0; transition: all .15s; }
 .sc-voice-play.playing { background: rgba(248,113,113,0.15); color: #f87171; }
 .sc-voice-playing { font-size: 12px; color: #22c55e; font-weight: 600; }
+
+/* ══ Frame Picker Modal ══ */
+.sc-fp-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.7); backdrop-filter: blur(4px); }
+.sc-fp-modal { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 101; width: 90%; max-width: 720px; max-height: 90vh; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+.sc-fp-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+.sc-fp-body { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; }
+.sc-fp-body::-webkit-scrollbar { width: 3px; }
+.sc-fp-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+.sc-fp-video-wrap { width: 100%; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); background: #000; }
+.sc-fp-video { width: 100%; display: block; max-height: 360px; object-fit: contain; }
+.sc-fp-controls { display: flex; flex-direction: column; gap: 8px; }
+.sc-fp-time { font-size: 13px; font-weight: 600; color: var(--text2); font-family: 'DM Sans', monospace; }
+.sc-fp-slider { width: 100%; height: 6px; appearance: none; background: var(--border); border-radius: 3px; outline: none; cursor: pointer; }
+.sc-fp-slider::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 2px solid #fff; cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.3); }
+.sc-fp-slider::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 2px solid #fff; cursor: pointer; }
+.sc-fp-hint { font-size: 12px; color: var(--muted); }
+.sc-fp-preview-section { display: flex; flex-direction: column; gap: 8px; }
+.sc-fp-preview-img { width: 100%; max-height: 200px; object-fit: contain; border-radius: 8px; border: 1px solid var(--border); background: #000; }
+.sc-fp-actions { display: flex; gap: 10px; justify-content: flex-end; padding-top: 4px; }
+.sc-fp-actions .sc-gen-btn { width: auto; padding: 12px 28px; }
