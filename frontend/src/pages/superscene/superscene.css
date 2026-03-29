@@ -299,13 +299,13 @@
 .sc-showcase-card:hover .sc-showcase-cta { opacity: 1; }
 
 /* ══ TABS — Music, Voiceover, Captions ══ */
-.sc-music-view { display: flex; flex-direction: column; flex: 1; padding: 24px; }
-.sc-music-layout { display: flex; gap: 24px; flex: 1; }
-.sc-music-controls { width: 380px; flex-shrink: 0; overflow-y: auto; overflow-x: hidden; }
+.sc-music-view { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+.sc-music-layout { display: flex; gap: 0; flex: 1; min-height: 0; }
+.sc-music-controls { width: 380px; flex-shrink: 0; overflow-y: auto; overflow-x: hidden; padding: 20px 22px; background: var(--surface); border-right: 1px solid var(--border); }
 .sc-music-controls::-webkit-scrollbar { width: 3px; }
 .sc-music-controls::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 .sc-music-controls::-webkit-scrollbar-track { background: transparent; }
-.sc-music-preview { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.sc-music-preview { flex: 1; min-width: 0; display: flex; flex-direction: column; padding: 24px 28px; }
 .sc-music-stage { flex: 1; background: var(--surface); border-radius: 12px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; min-height: 300px; }
 .sc-cap-view { flex: 1; display: flex; flex-direction: column; padding: 24px; }
 .sc-cap-layout { display: flex; gap: 24px; flex: 1; }
