@@ -17872,6 +17872,9 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
     image_urls     = body.get("image_urls") or []
     style_refs     = body.get("style_refs") or []
     gen_audio      = bool(body.get("generate_audio", False))
+    seed           = body.get("seed")
+    if seed is not None:
+        seed = int(seed)
 
     if not prompt:
         raise HTTPException(status_code=400, detail="Prompt is required")
@@ -17904,6 +17907,7 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
         generate_audio=gen_audio,
         resolution=resolution,
         negative_prompt=neg_prompt if neg_prompt else None,
+        seed=seed,
     )
 
     if not result["success"]:

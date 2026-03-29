@@ -67,6 +67,21 @@ const RATIOS = [
 ];
 const AUDIO_EXTRA_PER_5S = 1;
 
+const CAMERA_MOTIONS = [
+  { key: "zoom-in",   label: "Zoom In",       icon: "⊕", prompt: "slow cinematic zoom in" },
+  { key: "zoom-out",  label: "Zoom Out",      icon: "⊖", prompt: "slow zoom out revealing the full scene" },
+  { key: "pan-left",  label: "Pan Left",      icon: "←", prompt: "smooth camera pan to the left" },
+  { key: "pan-right", label: "Pan Right",     icon: "→", prompt: "smooth camera pan to the right" },
+  { key: "tilt-up",   label: "Tilt Up",       icon: "↑", prompt: "gentle camera tilt upward" },
+  { key: "tilt-down", label: "Tilt Down",     icon: "↓", prompt: "gentle camera tilt downward" },
+  { key: "orbit",     label: "Orbit",         icon: "◎", prompt: "slow orbital camera movement around subject" },
+  { key: "dolly-in",  label: "Dolly In",      icon: "⟼", prompt: "steady dolly push toward subject" },
+  { key: "tracking",  label: "Tracking",      icon: "⟿", prompt: "smooth tracking shot following motion" },
+  { key: "crane-up",  label: "Crane Up",      icon: "⤴", prompt: "dramatic crane shot rising upward" },
+  { key: "static",    label: "Static",        icon: "▪", prompt: "static camera, subtle ambient motion only" },
+  { key: "handheld",  label: "Handheld",      icon: "≋", prompt: "slight handheld camera shake, natural feel" },
+];
+
 const PACKS = [
   { slug: "starter", label: "Starter", credits: 50,   price: 8  },
   { slug: "creator", label: "Creator", credits: 150,  price: 20, popular: true },
@@ -108,6 +123,12 @@ export default function SuperScenePage() {
   const [promptDropOpen, setPromptDropOpen] = useState(false);
   const [promptExpanded, setPromptExpanded] = useState(false);
   const [genAudio, setGenAudio] = useState(false);
+
+  // Image-to-Video enhancements
+  const [motionPresets, setMotionPresets] = useState([]);
+  const [seedLocked, setSeedLocked]   = useState(false);
+  const [seedValue, setSeedValue]     = useState(null);
+  const [dragging, setDragging]       = useState(false);
 
   // Image upload
   const [imageFile, setImageFile]     = useState(null);
@@ -283,8 +304,7 @@ export default function SuperScenePage() {
   }, []);
 
   // ── Image upload handler ────────────────────────────────
-  const handleImageSelect = async (e) => {
-    const file = e.target.files?.[0];
+  const processImageFile = async (file) => {
     if (!file) return;
     if (!["image/jpeg","image/png","image/webp"].includes(file.type)) {
       alert("Only JPEG, PNG, and WebP images are accepted"); return;
@@ -311,9 +331,33 @@ export default function SuperScenePage() {
     } finally { setUploading(false); }
   };
 
+  const handleImageSelect = (e) => processImageFile(e.target.files?.[0]);
+
+  const handleDragOver = (e) => { e.preventDefault(); e.stopPropagation(); setDragging(true); };
+  const handleDragLeave = (e) => { e.preventDefault(); e.stopPropagation(); setDragging(false); };
+  const handleDrop = (e) => { e.preventDefault(); e.stopPropagation(); setDragging(false); processImageFile(e.dataTransfer.files?.[0]); };
+
   const clearImage = () => {
     setImageFile(null); setImagePreview(null); setImageUrl(null);
     if (fileRef.current) fileRef.current.value = "";
+  };
+
+  const toggleMotion = (key) => {
+    setMotionPresets(prev => prev.includes(key) ? prev.filter(k => k !== key) : [...prev, key]);
+  };
+
+  const toggleSeedLock = () => {
+    if (!seedLocked) {
+      setSeedValue(Math.floor(Math.random() * 2147483647));
+      setSeedLocked(true);
+    } else {
+      setSeedLocked(false);
+      setSeedValue(null);
+    }
+  };
+
+  const refreshSeed = () => {
+    setSeedValue(Math.floor(Math.random() * 2147483647));
   };
 
   // ── Generate ───────────────────────────────────────────
@@ -332,10 +376,18 @@ export default function SuperScenePage() {
     }, 400);
 
     try {
-      const payload = { model_key: model, prompt, duration, ratio, resolution, generate_audio: genAudio };
+      // Build final prompt — prepend camera motion presets if in I2V mode
+      let finalPrompt = prompt;
+      if (mode === "image" && motionPresets.length > 0) {
+        const motionText = motionPresets.map(k => CAMERA_MOTIONS.find(m => m.key === k)?.prompt).filter(Boolean).join(", ");
+        finalPrompt = motionText + ", " + prompt;
+      }
+
+      const payload = { model_key: model, prompt: finalPrompt, duration, ratio, resolution, generate_audio: genAudio };
       if (negPrompt.trim()) payload.negative_prompt = negPrompt.trim();
       if (mode === "image" && imageUrl) payload.image_urls = [imageUrl];
       if (styleRefs.length > 0) payload.style_refs = styleRefs.filter(r => r.url).map(r => r.url);
+      if (seedLocked && seedValue !== null) payload.seed = seedValue;
 
       const res = await fetch("/api/superscene/generate", {
         method: "POST",
@@ -957,7 +1009,7 @@ export default function SuperScenePage() {
               {mode === "image" && (
                 <div className="sc-section">
                   <div className="sc-label">Upload Image</div>
-                  <div className="sc-sub">Accepted types: JPEG, PNG, WebP; Max size: 10MB</div>
+                  <div className="sc-sub">Accepted types: JPEG, PNG, WebP · Max size: 10MB</div>
                   {imagePreview ? (
                     <div className="sc-img-preview">
                       <img src={imagePreview} alt="Preview" className="sc-img-thumb"/>
@@ -967,7 +1019,9 @@ export default function SuperScenePage() {
                       </div>
                     </div>
                   ) : (
-                    <div className="sc-img-dropzone" onClick={() => fileRef.current?.click()}>
+                    <div className={cls("sc-img-dropzone", dragging && "dragging")}
+                      onClick={() => fileRef.current?.click()}
+                      onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
                       <div className="sc-img-dz-icon">⬆</div>
                       <div className="sc-img-dz-text"><strong>Select Image</strong></div>
                       <div className="sc-img-dz-sub">Drag or click to upload your image</div>
@@ -977,12 +1031,30 @@ export default function SuperScenePage() {
                 </div>
               )}
 
+              {/* Camera Motion Presets (Image-to-Video only) */}
+              {mode === "image" && (
+                <div className="sc-section">
+                  <div className="sc-label">Camera Motion <span className="sc-label-badge">Select one or more</span></div>
+                  <div className="sc-motion-grid">
+                    {CAMERA_MOTIONS.map(m => (
+                      <button key={m.key} className={cls("sc-motion-card", motionPresets.includes(m.key) && "on")}
+                        onClick={() => toggleMotion(m.key)}>
+                        <span className="sc-motion-icon">{m.icon}</span>
+                        <span className="sc-motion-label">{m.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Prompt */}
               <div className="sc-section">
                 <div className="sc-label">Prompt</div>
                 <div className={cls("sc-prompt-box", promptExpanded && "sc-prompt-expanded")}>
                   <textarea className="sc-prompt-ta" rows={promptExpanded ? 12 : 5}
-                    placeholder="A cinematic drone shot over a misty mountain valley at golden hour, warm light, slow push-in…"
+                    placeholder={mode === "image"
+                      ? "Describe how this image should move — e.g. slow zoom into the subject's face, wind blowing through hair, camera orbits around the scene…"
+                      : "A cinematic drone shot over a misty mountain valley at golden hour, warm light, slow push-in…"}
                     value={prompt} onChange={e => setPrompt(e.target.value.slice(0, 2000))}/>
                   <div className="sc-prompt-footer">
                     <span className="sc-prompt-ai" onClick={() => setTab("builder")}>✦ Generate<br/><span className="sc-prompt-ai-sub">With AI</span></span>
@@ -1003,7 +1075,9 @@ export default function SuperScenePage() {
                     </div>
                   </div>
                 </div>
-                <div className="sc-sub">If you're not satisfied, you can generate again or enter a prompt of your own.</div>
+                <div className="sc-sub">{mode === "image"
+                  ? "Describe the motion, camera movement, and atmosphere. Select camera presets above for quick control."
+                  : "If you're not satisfied, you can generate again or enter a prompt of your own."}</div>
               </div>
 
               {/* Prompt Ideas dropdown */}
@@ -1127,6 +1201,22 @@ export default function SuperScenePage() {
                 </div>
               )}
 
+              {/* Seed Control */}
+              <div className="sc-section">
+                <div className="sc-seed-row">
+                  <button className={cls("sc-seed-toggle", seedLocked && "on")} onClick={toggleSeedLock} title={seedLocked ? "Unlock seed (random)" : "Lock seed (consistent results)"}>
+                    {seedLocked ? "🔒" : "🔓"}
+                  </button>
+                  <div className="sc-seed-info">
+                    <span className="sc-seed-label">Seed</span>
+                    <span className="sc-seed-value">{seedLocked ? seedValue : "Random"}</span>
+                  </div>
+                  {seedLocked && (
+                    <button className="sc-seed-refresh" onClick={refreshSeed} title="Generate new seed">↻</button>
+                  )}
+                </div>
+              </div>
+
               {/* Credit + Generate */}
               <div className="sc-section">
                 <div className="sc-credit-line">
@@ -1155,6 +1245,18 @@ export default function SuperScenePage() {
               <div className={`sc-stage-frame sc-ratio-${ratio.replace(":", "x")}`}>
               {generating || videoUrl || genStatus === "failed" ? (
                 <StageContent />
+              ) : mode === "image" && imagePreview ? (
+                <div className="sc-stage-hero">
+                  <img src={imagePreview} alt="Uploaded" className="sc-preview-img"/>
+                  <div className="sc-stage-hero-overlay">
+                    <div className="sc-stage-hero-title">Your image</div>
+                    <div className="sc-stage-hero-sub">
+                      {motionPresets.length > 0
+                        ? `Motion: ${motionPresets.map(k => CAMERA_MOTIONS.find(m => m.key === k)?.label).join(", ")}`
+                        : "Select camera motion and generate"}
+                    </div>
+                  </div>
+                </div>
               ) : (
                 <div className="sc-stage-hero">
                   <video

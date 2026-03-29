@@ -242,6 +242,7 @@ async def generate_video(
     generation_type: Optional[str] = None,
     resolution: Optional[str] = None,
     negative_prompt: Optional[str] = None,
+    seed: Optional[int] = None,
 ) -> dict:
     """
     Submit a video generation task to EvoLink.
@@ -313,6 +314,10 @@ async def generate_video(
     if generate_audio and model_key in AUDIO_SUPPORTED:
         payload["generate_audio"] = True
         payload["audio"] = True  # some models use 'audio' param
+
+    # Seed for reproducibility
+    if seed is not None:
+        payload["seed"] = seed
 
     try:
         async with httpx.AsyncClient(timeout=30.0) as client:
