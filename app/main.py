@@ -18455,6 +18455,46 @@ async def sc_voiceover_voices():
     return {"voices": voices}
 
 
+@app.get("/api/superscene/voiceover/preview/{voice_id}")
+async def sc_voiceover_preview(voice_id: str):
+    """Generate a short audio preview of a voice. Returns audio/mpeg stream.
+    Free — no credits charged. Cached on first request.
+    """
+    import edge_tts
+    import tempfile
+    from fastapi.responses import FileResponse
+
+    # Validate voice ID
+    valid_voices = {
+        "en-US-GuyNeural", "en-US-JennyNeural", "en-US-AriaNeural",
+        "en-US-DavisNeural", "en-US-JaneNeural", "en-US-JasonNeural",
+        "en-US-TonyNeural", "en-US-NancyNeural",
+        "en-GB-RyanNeural", "en-GB-SoniaNeural",
+        "en-AU-NatashaNeural", "en-AU-WilliamNeural",
+    }
+    if voice_id not in valid_voices:
+        raise HTTPException(status_code=400, detail="Invalid voice ID")
+
+    # Check for cached preview
+    import pathlib
+    cache_dir = pathlib.Path("/tmp/voice_previews")
+    cache_dir.mkdir(exist_ok=True)
+    cache_file = cache_dir / f"{voice_id}.mp3"
+
+    if cache_file.exists():
+        return FileResponse(str(cache_file), media_type="audio/mpeg")
+
+    # Generate preview
+    sample_text = "Welcome to SuperScene, the AI creative studio. This is a preview of how this voice sounds for your video narration."
+    try:
+        communicate = edge_tts.Communicate(sample_text, voice_id)
+        await communicate.save(str(cache_file))
+        return FileResponse(str(cache_file), media_type="audio/mpeg")
+    except Exception as e:
+        logger.exception(f"Voice preview error for {voice_id}")
+        raise HTTPException(status_code=502, detail="Voice preview generation failed")
+
+
 # ── SuperScene — Lip Sync (OmniHuman 1.5 via EvoLink) ────────
 
 @app.post("/api/superscene/lipsync/generate")

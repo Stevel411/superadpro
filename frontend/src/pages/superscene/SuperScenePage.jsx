@@ -1560,18 +1560,39 @@ export default function SuperScenePage() {
 
                   <div className="sc-section">
                     <div className="sc-label">Voiceover</div>
-                    <select className="sc-select" value={pipeVoice} onChange={e => setPipeVoice(e.target.value)}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
                       {[
-                        { id: "en-US-GuyNeural", name: "Guy (US Male)" },
-                        { id: "en-US-JennyNeural", name: "Jenny (US Female)" },
-                        { id: "en-US-AriaNeural", name: "Aria (US Female)" },
-                        { id: "en-US-DavisNeural", name: "Davis (US Male)" },
-                        { id: "en-GB-RyanNeural", name: "Ryan (UK Male)" },
-                        { id: "en-GB-SoniaNeural", name: "Sonia (UK Female)" },
-                        { id: "en-AU-WilliamNeural", name: "William (AU Male)" },
-                        { id: "en-AU-NatashaNeural", name: "Natasha (AU Female)" },
-                      ].map(v => <option key={v.id} value={v.id}>{v.name}</option>)}
-                    </select>
+                        { id: "en-US-GuyNeural", name: "Guy", gender: "Male", accent: "US" },
+                        { id: "en-US-JennyNeural", name: "Jenny", gender: "Female", accent: "US" },
+                        { id: "en-US-AriaNeural", name: "Aria", gender: "Female", accent: "US" },
+                        { id: "en-US-DavisNeural", name: "Davis", gender: "Male", accent: "US" },
+                        { id: "en-GB-RyanNeural", name: "Ryan", gender: "Male", accent: "UK" },
+                        { id: "en-GB-SoniaNeural", name: "Sonia", gender: "Female", accent: "UK" },
+                        { id: "en-AU-WilliamNeural", name: "William", gender: "Male", accent: "AU" },
+                        { id: "en-AU-NatashaNeural", name: "Natasha", gender: "Female", accent: "AU" },
+                      ].map(v => (
+                        <div key={v.id} className={cls("sc-model-opt")} style={{
+                          padding: '10px 12px', borderRadius: 8, cursor: 'pointer',
+                          border: `1px solid ${pipeVoice === v.id ? 'rgba(34,211,238,0.3)' : 'var(--border)'}`,
+                          background: pipeVoice === v.id ? 'var(--accent-dim)' : 'var(--surface2)',
+                          display: 'flex', alignItems: 'center', gap: 10,
+                        }} onClick={() => setPipeVoice(v.id)}>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{v.name}</div>
+                            <div style={{ fontSize: 12, color: 'var(--muted)' }}>{v.gender} · {v.accent}</div>
+                          </div>
+                          <button style={{
+                            width: 32, height: 32, borderRadius: '50%', border: '1px solid var(--border)',
+                            background: 'var(--surface3)', color: 'var(--text)', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flexShrink: 0,
+                          }} onClick={e => {
+                            e.stopPropagation();
+                            const audio = new Audio(`/api/superscene/voiceover/preview/${v.id}`);
+                            audio.play();
+                          }} title="Preview voice">▶</button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="sc-section">
