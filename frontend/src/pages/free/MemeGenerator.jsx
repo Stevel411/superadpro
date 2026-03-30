@@ -147,14 +147,14 @@ export default function MemeGenerator() {
       </nav>
 
       {/* MAIN WORKSPACE — fills viewport below nav */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 420px', height: 'calc(100vh - 50px)', overflow: 'hidden' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '480px 1fr', height: 'calc(100vh - 50px)', overflow: 'hidden' }}>
 
         {/* ═══ LEFT: Preview + actions ═══ */}
         <div style={{ display: 'flex', flexDirection: 'column', background: '#0f1729', borderRight: '1px solid rgba(56,189,248,0.08)' }}>
 
-          {/* Canvas area — centered, padded */}
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20, minHeight: 0, overflow: 'hidden' }}>
-            <canvas ref={canvasRef} style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: 6, display: 'block', background: '#1a2236', objectFit: 'contain' }} />
+          {/* Canvas area — centered, constrained */}
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16, minHeight: 0, overflow: 'hidden' }}>
+            <canvas ref={canvasRef} style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: 6, display: 'block', background: '#1a2236' }} />
           </div>
 
           {/* Action bar */}
@@ -229,7 +229,7 @@ export default function MemeGenerator() {
 
           {/* Template grid — scrollable, fills remaining space */}
           <div style={{ flex: 1, overflow: 'auto', padding: '4px 16px 16px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 6 }}>
               {vis.map(t => (
                 <div key={t.id} onClick={() => pick(t)}
                   style={{
