@@ -188,7 +188,7 @@ export default function MemeGenerator() {
         .tmpl-thumb:hover{border-color:rgba(56,189,248,0.5);transform:scale(1.04)}
         .tmpl-thumb.active{border-color:#0ea5e9;box-shadow:0 0 12px rgba(14,165,233,0.3)}
         .tmpl-thumb img{width:100%;height:100%;object-fit:cover;display:block}
-        .tmpl-name{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.8));padding:2px 4px;font-size:8px;font-weight:700;color:#fff;text-align:center;line-height:1.2}
+        .tmpl-name{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,0.85));padding:4px 4px 3px;font-size:9px;font-weight:700;color:#fff;text-align:center;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .mg-btn{padding:10px 16px;border-radius:10px;font-weight:800;font-size:13px;border:none;cursor:pointer;font-family:inherit;transition:all .15s;letter-spacing:.3px}
         .mg-btn:active{transform:scale(.97)}
       `}</style>
@@ -258,7 +258,7 @@ export default function MemeGenerator() {
                 <input ref={fileInputRef} type="file" accept="image/*" onChange={handleUpload} style={{ display: 'none' }} />
                 <button onClick={() => fileInputRef.current?.click()} className="mg-btn" style={{ padding: '6px 10px', fontSize: 11, background: '#f1f5f9', color: '#475569', border: '1px solid #e2e8f0' }}>Upload</button>
               </div>
-              <div style={{ padding: 6, display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4, maxHeight: 260, overflowY: 'auto' }}>
+              <div style={{ padding: 8, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, maxHeight: 260, overflowY: 'auto' }}>
                 {filtered.map(t => (
                   <div key={t.id} className={`tmpl-thumb${selected?.id === t.id ? ' active' : ''}`} onClick={() => selectTemplate(t)}>
                     <img src={t.url} alt={t.name} loading="lazy" />
