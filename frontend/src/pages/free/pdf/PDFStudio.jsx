@@ -32,7 +32,7 @@ export default function PDFStudio() {
       </nav>
 
       {/* TOOL TABS */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '0 28px', height: 44, background: '#0a1220', borderBottom: '1px solid rgba(0,180,216,0.06)', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '0 28px', height: 44, background: '#0a1220', borderBottom: '1px solid rgba(0,180,216,0.06)', flexShrink: 0 }}>
         {TABS.map(t => (
           <button key={t.id} onClick={() => setTab(t.id)}
             style={{
