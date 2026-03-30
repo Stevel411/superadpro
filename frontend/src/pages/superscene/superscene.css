@@ -229,10 +229,10 @@
   flex: 1; min-width: 0;
   background: var(--bg);
   display: flex; flex-direction: column;
-  padding: 16px 28px 28px;
+  padding: 24px 36px 32px;
 }
 .sc-preview-label { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 14px; display: none; }
-.sc-stage { flex: 1; background: var(--surface); border-radius: 14px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; min-height: 340px; overflow: hidden; position: relative; margin-bottom: 8px; }
+.sc-stage { flex: 1; background: var(--surface); border-radius: 14px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; min-height: 320px; overflow: hidden; position: relative; }
 .sc-stage-frame { display: flex; align-items: center; justify-content: center; transition: all .3s ease; overflow: hidden; }
 .sc-stage-frame.sc-ratio-16x9 { aspect-ratio: 16/9; width: 100%; max-height: 100%; }
 .sc-stage-frame.sc-ratio-9x16 { aspect-ratio: 9/16; height: 100%; max-width: 100%; }
