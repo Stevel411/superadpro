@@ -1,393 +1,344 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 
-// ── Meme templates with text zones ─────────────────────────────────
-const TEMPLATES = [
-  { id: 'drake', name: 'Drake', emoji: '🙅', zones: [{ x: .52, y: .02, w: .46, h: .46, label: 'Top text' }, { x: .52, y: .52, w: .46, h: .46, label: 'Bottom text' }], bg: '#f5f0e8', desc: 'Nah vs Yeah' },
-  { id: 'distracted', name: 'Distracted BF', emoji: '😤', zones: [{ x: .02, y: .02, w: .3, h: .25, label: 'Her' }, { x: .35, y: .02, w: .3, h: .25, label: 'Him' }, { x: .7, y: .02, w: .28, h: .25, label: 'You' }], bg: '#e8ddd0', desc: '3 panels' },
-  { id: 'brain', name: 'Galaxy Brain', emoji: '🧠', zones: [{ x: .52, y: .01, w: .46, h: .22, label: 'Small brain' }, { x: .52, y: .26, w: .46, h: .22, label: 'Medium brain' }, { x: .52, y: .51, w: .46, h: .22, label: 'Big brain' }, { x: .52, y: .76, w: .46, h: .22, label: 'Galaxy brain' }], bg: '#e0e0e8', desc: '4 levels' },
-  { id: 'change', name: 'Change My Mind', emoji: '☕', zones: [{ x: .1, y: .05, w: .8, h: .3, label: 'Your hot take' }], bg: '#d4e8d0', desc: 'One statement' },
-  { id: 'twobuttons', name: 'Two Buttons', emoji: '😰', zones: [{ x: .05, y: .05, w: .4, h: .2, label: 'Option A' }, { x: .5, y: .05, w: .4, h: .2, label: 'Option B' }], bg: '#dde0f0', desc: '2 choices' },
-  { id: 'classic', name: 'Classic Meme', emoji: '😂', zones: [{ x: .05, y: .02, w: .9, h: .15, label: 'Top text' }, { x: .05, y: .83, w: .9, h: .15, label: 'Bottom text' }], bg: '#e8e8e8', desc: 'Top + bottom' },
-  { id: 'disaster', name: 'Disaster Girl', emoji: '🔥', zones: [{ x: .05, y: .02, w: .9, h: .15, label: 'Top text' }, { x: .05, y: .83, w: .9, h: .15, label: 'Bottom text' }], bg: '#f0e0d0', desc: 'Chaos energy' },
-  { id: 'doge', name: 'Doge', emoji: '🐕', zones: [{ x: .05, y: .02, w: .4, h: .15, label: 'Such text' }, { x: .5, y: .4, w: .45, h: .15, label: 'Much text' }, { x: .1, y: .8, w: .5, h: .15, label: 'Wow' }], bg: '#f8f0d0', desc: 'Much wow' },
-  { id: 'blank', name: 'Upload Image', emoji: '📤', zones: [{ x: .05, y: .02, w: .9, h: .15, label: 'Top text' }, { x: .05, y: .83, w: .9, h: .15, label: 'Bottom text' }], bg: '#f0f0f0', desc: 'Your image', isUpload: true },
-];
-
 const FONTS = [
-  { id: 'impact', name: 'Impact (Classic)', family: 'Impact, Haettenschweiler, sans-serif' },
+  { id: 'impact', name: 'Impact', family: 'Impact, Haettenschweiler, sans-serif' },
   { id: 'arial', name: 'Arial Black', family: '"Arial Black", Gadget, sans-serif' },
   { id: 'comic', name: 'Comic Sans', family: '"Comic Sans MS", cursive' },
-  { id: 'bebas', name: 'Bebas Neue', family: '"Bebas Neue", Impact, sans-serif' },
 ];
 
-const TEXT_STYLES = [
-  { id: 'white', name: 'White + Black outline', fill: '#FFFFFF', stroke: '#000000' },
-  { id: 'black', name: 'Black + White outline', fill: '#000000', stroke: '#FFFFFF' },
-  { id: 'yellow', name: 'Yellow + Black outline', fill: '#FFD700', stroke: '#000000' },
-  { id: 'red', name: 'Red + White outline', fill: '#FF3333', stroke: '#FFFFFF' },
+const TEXT_COLORS = [
+  { id: 'white', name: 'White', fill: '#FFFFFF', stroke: '#000000' },
+  { id: 'black', name: 'Black', fill: '#000000', stroke: '#FFFFFF' },
+  { id: 'yellow', name: 'Yellow', fill: '#FFD700', stroke: '#000000' },
 ];
-
-const CANVAS_W = 800;
-const CANVAS_H = 600;
 
 export default function MemeGenerator() {
-  const [template, setTemplate] = useState(TEMPLATES[0]);
+  const [templates, setTemplates] = useState([]);
+  const [selected, setSelected] = useState(null);
   const [texts, setTexts] = useState({});
   const [font, setFont] = useState(FONTS[0]);
-  const [textStyle, setTextStyle] = useState(TEXT_STYLES[0]);
-  const [fontSize, setFontSize] = useState(42);
+  const [textColor, setTextColor] = useState(TEXT_COLORS[0]);
+  const [fontSize, setFontSize] = useState(38);
+  const [loadedImg, setLoadedImg] = useState(null);
+  const [search, setSearch] = useState('');
   const [uploadedImg, setUploadedImg] = useState(null);
   const canvasRef = useRef(null);
-  const fileInputRef = useRef(null);
+  const fileRef = useRef(null);
 
-  // Update text for a zone
-  const setText = (zoneIdx, val) => {
-    setTexts(prev => ({ ...prev, [template.id + '_' + zoneIdx]: val }));
+  // ── Load templates from Imgflip API ────────────────────
+  useEffect(() => {
+    fetch('https://api.imgflip.com/get_memes')
+      .then(r => r.json())
+      .then(d => {
+        if (d.success && d.data?.memes) {
+          setTemplates(d.data.memes);
+          setSelected(d.data.memes[0]);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  // ── Load selected template image ───────────────────────
+  useEffect(() => {
+    if (!selected && !uploadedImg) return;
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => setLoadedImg(img);
+    img.onerror = () => setLoadedImg(null);
+    img.src = uploadedImg || selected?.url || '';
+  }, [selected, uploadedImg]);
+
+  // ── Text helpers ───────────────────────────────────────
+  const boxCount = uploadedImg ? 2 : (selected?.box_count || 2);
+  const getKey = (i) => (uploadedImg ? 'upload' : selected?.id) + '_' + i;
+  const getText = (i) => texts[getKey(i)] || '';
+  const setText = (i, val) => setTexts(prev => ({ ...prev, [getKey(i)]: val }));
+
+  const boxLabels = (count) => {
+    if (count === 1) return ['Text'];
+    if (count === 2) return ['Top text', 'Bottom text'];
+    if (count === 3) return ['Text 1', 'Text 2', 'Text 3'];
+    return Array.from({ length: count }, (_, i) => 'Text ' + (i + 1));
   };
-  const getText = (zoneIdx) => texts[template.id + '_' + zoneIdx] || '';
 
-  // ── Canvas rendering ────────────────────────────────────
-  const renderCanvas = useCallback(() => {
+  // ── Canvas rendering ──────────────────────────────────
+  const render = useCallback(() => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    if (!canvas || !loadedImg) return;
     const ctx = canvas.getContext('2d');
-    canvas.width = CANVAS_W;
-    canvas.height = CANVAS_H;
+    const w = loadedImg.naturalWidth;
+    const h = loadedImg.naturalHeight;
+    canvas.width = w;
+    canvas.height = h;
 
-    // Background
-    ctx.fillStyle = template.bg;
-    ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
+    // Draw image
+    ctx.drawImage(loadedImg, 0, 0, w, h);
 
-    // Draw uploaded image if available and template is upload
-    if (uploadedImg && template.isUpload) {
-      const img = new Image();
-      img.onload = () => {
-        // Cover fill
-        const scale = Math.max(CANVAS_W / img.width, CANVAS_H / img.height);
-        const w = img.width * scale;
-        const h = img.height * scale;
-        ctx.drawImage(img, (CANVAS_W - w) / 2, (CANVAS_H - h) / 2, w, h);
-        drawTexts(ctx);
-        drawWatermark(ctx);
-      };
-      img.src = uploadedImg;
-      return;
-    }
+    // Scale font relative to image size
+    const scale = Math.min(w, h) / 600;
+    const fs = Math.round(fontSize * scale);
 
-    // Draw template placeholder graphics
-    drawTemplatePlaceholder(ctx, template);
-    drawTexts(ctx);
-    drawWatermark(ctx);
-  }, [template, texts, font, textStyle, fontSize, uploadedImg]);
-
-  const drawTemplatePlaceholder = (ctx, tmpl) => {
-    // Draw styled template placeholders based on template type
-    ctx.save();
-    if (tmpl.id === 'drake') {
-      // Two rows — reject/accept
-      ctx.fillStyle = '#d4c4a8'; ctx.fillRect(0, 0, CANVAS_W * 0.5, CANVAS_H * 0.5);
-      ctx.fillStyle = '#c8b898'; ctx.fillRect(0, CANVAS_H * 0.5, CANVAS_W * 0.5, CANVAS_H * 0.5);
-      ctx.fillStyle = '#f5efe5'; ctx.fillRect(CANVAS_W * 0.5, 0, CANVAS_W * 0.5, CANVAS_H * 0.5);
-      ctx.fillStyle = '#f0eadf'; ctx.fillRect(CANVAS_W * 0.5, CANVAS_H * 0.5, CANVAS_W * 0.5, CANVAS_H * 0.5);
-      ctx.strokeStyle = 'rgba(0,0,0,0.08)'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(CANVAS_W * 0.5, 0); ctx.lineTo(CANVAS_W * 0.5, CANVAS_H); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0, CANVAS_H * 0.5); ctx.lineTo(CANVAS_W, CANVAS_H * 0.5); ctx.stroke();
-      // Emoji faces
-      ctx.font = '80px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('🙅', CANVAS_W * 0.25, CANVAS_H * 0.3);
-      ctx.fillText('👉', CANVAS_W * 0.25, CANVAS_H * 0.78);
-    } else if (tmpl.id === 'brain') {
-      for (let i = 0; i < 4; i++) {
-        const y = i * (CANVAS_H / 4);
-        ctx.fillStyle = i % 2 === 0 ? '#d8d8e4' : '#e4e4ec';
-        ctx.fillRect(0, y, CANVAS_W * 0.5, CANVAS_H / 4);
-        ctx.fillStyle = i % 2 === 0 ? '#ececf4' : '#f4f4fc';
-        ctx.fillRect(CANVAS_W * 0.5, y, CANVAS_W * 0.5, CANVAS_H / 4);
-        ctx.strokeStyle = 'rgba(0,0,0,0.06)'; ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(CANVAS_W, y); ctx.stroke();
-      }
-      ctx.font = '48px sans-serif'; ctx.textAlign = 'center';
-      const brains = ['🧠', '🧠✨', '🧠💫', '🧠🌌'];
-      for (let i = 0; i < 4; i++) {
-        ctx.fillText(brains[i], CANVAS_W * 0.25, (i + 0.55) * (CANVAS_H / 4));
-      }
-      ctx.strokeStyle = 'rgba(0,0,0,0.06)'; ctx.lineWidth = 2;
-      ctx.beginPath(); ctx.moveTo(CANVAS_W * 0.5, 0); ctx.lineTo(CANVAS_W * 0.5, CANVAS_H); ctx.stroke();
-    } else if (tmpl.id === 'distracted') {
-      ctx.fillStyle = '#d8cfc0';
-      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-      ctx.font = '72px sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('👩', CANVAS_W * 0.2, CANVAS_H * 0.6);
-      ctx.fillText('👨', CANVAS_W * 0.5, CANVAS_H * 0.55);
-      ctx.fillText('👩', CANVAS_W * 0.8, CANVAS_H * 0.6);
-    } else {
-      // Generic meme background with faint grid
-      ctx.fillStyle = tmpl.bg;
-      ctx.fillRect(0, 0, CANVAS_W, CANVAS_H);
-      ctx.font = '120px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText(tmpl.emoji, CANVAS_W / 2, CANVAS_H / 2);
-    }
-    ctx.restore();
-  };
-
-  const drawTexts = (ctx) => {
-    template.zones.forEach((zone, i) => {
+    // Draw text in standard meme positions
+    const labels = boxLabels(boxCount);
+    labels.forEach((_, i) => {
       const text = getText(i);
       if (!text) return;
 
-      const x = zone.x * CANVAS_W + (zone.w * CANVAS_W) / 2;
-      const y = zone.y * CANVAS_H + (zone.h * CANVAS_H) / 2;
-      const maxW = zone.w * CANVAS_W - 20;
-
       ctx.save();
-      ctx.font = `bold ${fontSize}px ${font.family}`;
+      ctx.font = `bold ${fs}px ${font.family}`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.lineWidth = fontSize / 6;
+      ctx.lineWidth = fs / 5;
       ctx.lineJoin = 'round';
       ctx.miterLimit = 2;
 
-      // Word wrap
+      // Position: distribute evenly vertically
+      let x = w / 2;
+      let y;
+      if (boxCount === 1) {
+        y = h * 0.12;
+      } else if (boxCount === 2) {
+        y = i === 0 ? h * 0.08 : h * 0.92;
+      } else {
+        y = h * (0.08 + (i * 0.84 / (boxCount - 1)));
+      }
+      const maxW = w * 0.92;
+
       const lines = wrapText(ctx, text.toUpperCase(), maxW);
-      const lineHeight = fontSize * 1.2;
-      const startY = y - ((lines.length - 1) * lineHeight) / 2;
+      const lh = fs * 1.15;
+      const startY = y - ((lines.length - 1) * lh) / 2;
 
       lines.forEach((line, li) => {
-        const ly = startY + li * lineHeight;
-        ctx.strokeStyle = textStyle.stroke;
+        const ly = startY + li * lh;
+        ctx.strokeStyle = textColor.stroke;
         ctx.strokeText(line, x, ly);
-        ctx.fillStyle = textStyle.fill;
+        ctx.fillStyle = textColor.fill;
         ctx.fillText(line, x, ly);
       });
       ctx.restore();
     });
-  };
 
-  const drawWatermark = (ctx) => {
+    // Watermark
     ctx.save();
-    ctx.font = '500 16px "DM Sans", sans-serif';
+    const wmSize = Math.max(12, Math.round(w * 0.018));
+    ctx.font = `500 ${wmSize}px "DM Sans", sans-serif`;
     ctx.textAlign = 'right';
     ctx.textBaseline = 'bottom';
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    ctx.strokeStyle = 'rgba(0,0,0,0.3)';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 2;
     ctx.lineJoin = 'round';
-    ctx.strokeText('SuperAdPro.com', CANVAS_W - 12, CANVAS_H - 10);
-    ctx.fillText('SuperAdPro.com', CANVAS_W - 12, CANVAS_H - 10);
+    ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+    ctx.strokeText('SuperAdPro.com', w - 8, h - 6);
+    ctx.fillStyle = 'rgba(255,255,255,0.6)';
+    ctx.fillText('SuperAdPro.com', w - 8, h - 6);
     ctx.restore();
-  };
+  }, [loadedImg, texts, font, textColor, fontSize, boxCount, selected, uploadedImg]);
 
-  const wrapText = (ctx, text, maxWidth) => {
+  useEffect(() => { render(); }, [render]);
+
+  const wrapText = (ctx, text, maxW) => {
     const words = text.split(' ');
     const lines = [];
-    let current = '';
+    let cur = '';
     for (const word of words) {
-      const test = current ? current + ' ' + word : word;
-      if (ctx.measureText(test).width > maxWidth && current) {
-        lines.push(current);
-        current = word;
-      } else {
-        current = test;
-      }
+      const test = cur ? cur + ' ' + word : word;
+      if (ctx.measureText(test).width > maxW && cur) {
+        lines.push(cur);
+        cur = word;
+      } else { cur = test; }
     }
-    if (current) lines.push(current);
+    if (cur) lines.push(cur);
     return lines.length ? lines : [''];
   };
 
-  useEffect(() => { renderCanvas(); }, [renderCanvas]);
-
-  // ── Download ────────────────────────────────────────────
-  const downloadPNG = () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const link = document.createElement('a');
-    link.download = 'meme-superadpro.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+  // ── Actions ────────────────────────────────────────────
+  const download = () => {
+    const c = canvasRef.current;
+    if (!c) return;
+    const a = document.createElement('a');
+    a.download = 'meme-superadpro.png';
+    a.href = c.toDataURL('image/png');
+    a.click();
   };
 
-  const copyToClipboard = async () => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  const copy = async () => {
+    const c = canvasRef.current;
+    if (!c) return;
     try {
-      const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+      const blob = await new Promise(r => c.toBlob(r, 'image/png'));
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
       alert('Copied to clipboard!');
-    } catch { alert('Copy not supported in this browser — use Download instead.'); }
+    } catch { alert('Use Download instead — clipboard not supported here.'); }
   };
 
-  const handleImageUpload = (e) => {
+  const handleUpload = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (ev) => {
-      setUploadedImg(ev.target.result);
-      // Auto-select the upload template
-      const uploadTmpl = TEMPLATES.find(t => t.isUpload);
-      if (uploadTmpl) setTemplate(uploadTmpl);
-    };
+    reader.onload = (ev) => { setUploadedImg(ev.target.result); setSelected(null); };
     reader.readAsDataURL(file);
   };
 
+  const selectTemplate = (t) => { setSelected(t); setUploadedImg(null); };
+
+  // ── Filter templates ───────────────────────────────────
+  const filtered = search.trim()
+    ? templates.filter(t => t.name.toLowerCase().includes(search.toLowerCase()))
+    : templates.slice(0, 100);
+
   return (
     <div style={{ background: '#050d1a', minHeight: '100vh', fontFamily: '"DM Sans","Rethink Sans",sans-serif' }}>
+      <style>{`
+        @keyframes mfloat{0%,100%{transform:translateY(0);opacity:.3}50%{transform:translateY(-8px);opacity:.7}}
+        @keyframes mpulse{0%,100%{opacity:1}50%{opacity:.2}}
+        .tmpl-thumb{cursor:pointer;border-radius:6px;overflow:hidden;border:2px solid transparent;transition:all .15s;position:relative;aspect-ratio:1;background:#1e293b}
+        .tmpl-thumb:hover{border-color:#38bdf8;transform:translateY(-2px)}
+        .tmpl-thumb.active{border-color:#0ea5e9;box-shadow:0 0 0 2px rgba(14,165,233,.3)}
+        .tmpl-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+        .tmpl-name{position:absolute;bottom:0;left:0;right:0;padding:2px 4px;background:rgba(0,0,0,.7);font-size:9px;color:#fff;font-weight:600;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .mg-btn{padding:10px 16px;border-radius:10px;font-weight:700;font-size:13px;border:none;cursor:pointer;font-family:inherit;transition:all .15s}
+        .mg-btn:active{transform:scale(.97)}
+      `}</style>
+
       {/* ── NAV ── */}
-      <nav style={{ position: 'sticky', top: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 28px', height: 64, background: 'rgba(10,18,40,0.97)', backdropFilter: 'blur(18px)', borderBottom: '1px solid rgba(0,180,216,0.12)' }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
-          <div style={{ width: 30, height: 30, background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 13, color: '#050d1a' }}>S</div>
-          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 18, color: '#fff' }}>Super<span style={{ color: '#38bdf8' }}>AdPro</span></span>
+      <nav style={{ position: 'sticky', top: 0, zIndex: 100, display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 24px', height: 56, background: 'rgba(10,18,40,0.97)', backdropFilter: 'blur(18px)', borderBottom: '1px solid rgba(0,180,216,0.12)' }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 8, textDecoration: 'none' }}>
+          <div style={{ width: 28, height: 28, background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', borderRadius: 6, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 12, color: '#050d1a' }}>S</div>
+          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 16, color: '#fff' }}>Super<span style={{ color: '#38bdf8' }}>AdPro</span></span>
         </Link>
-        <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-          <Link to="/register" style={{ background: '#0ea5e9', color: '#fff', fontSize: 13, fontWeight: 700, padding: '8px 20px', borderRadius: 10, textDecoration: 'none', boxShadow: '0 2px 12px rgba(14,165,233,0.25)', transition: 'all .3s' }}>Get started free</Link>
-        </div>
+        <Link to="/register" style={{ background: '#0ea5e9', color: '#fff', fontSize: 12, fontWeight: 700, padding: '7px 18px', borderRadius: 8, textDecoration: 'none' }}>Get started free</Link>
       </nav>
 
-      {/* ── HERO ── */}
-      <div style={{ background: 'linear-gradient(180deg,#050d1a 0%,#0a1830 50%,#091428 100%)', padding: '20px 24px 20px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-        {/* Floating particles */}
-        <style>{`
-          @keyframes mfloat{0%,100%{transform:translateY(0);opacity:.3}50%{transform:translateY(-12px);opacity:.8}}
-          @keyframes mpulse{0%,100%{opacity:1}50%{opacity:.2}}
-        `}</style>
-        <div style={{ position: 'absolute', top: '15%', left: '12%', width: 5, height: 5, borderRadius: '50%', background: 'rgba(56,189,248,0.4)', animation: 'mfloat 4s ease-in-out infinite' }} />
-        <div style={{ position: 'absolute', top: '30%', right: '18%', width: 4, height: 4, borderRadius: '50%', background: 'rgba(139,92,246,0.35)', animation: 'mfloat 5s ease-in-out infinite 1s' }} />
-        <div style={{ position: 'absolute', bottom: '25%', left: '30%', width: 3, height: 3, borderRadius: '50%', background: 'rgba(14,165,233,0.3)', animation: 'mfloat 6s ease-in-out infinite 0.5s' }} />
-
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: '#0ea5e9', border: '1px solid rgba(0,180,216,0.3)', borderRadius: 50, padding: '3px 14px', marginBottom: 10 }}>
-          <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#0ea5e9', animation: 'mpulse 2s ease-in-out infinite' }} />
+      {/* ── HERO (compact) ── */}
+      <div style={{ background: 'linear-gradient(180deg,#050d1a,#0a1830)', padding: '16px 24px 14px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: '20%', left: '10%', width: 4, height: 4, borderRadius: '50%', background: 'rgba(56,189,248,0.35)', animation: 'mfloat 4s ease-in-out infinite' }} />
+        <div style={{ position: 'absolute', top: '40%', right: '15%', width: 3, height: 3, borderRadius: '50%', background: 'rgba(139,92,246,0.3)', animation: 'mfloat 5s ease-in-out infinite 1s' }} />
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 9, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: '#0ea5e9', border: '1px solid rgba(0,180,216,0.25)', borderRadius: 50, padding: '3px 12px', marginBottom: 8 }}>
+          <div style={{ width: 4, height: 4, borderRadius: '50%', background: '#0ea5e9', animation: 'mpulse 2s ease-in-out infinite' }} />
           Free tool — No signup required
         </div>
-
-        <h1 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 'clamp(24px,3.5vw,36px)', color: '#fff', lineHeight: 1.1, margin: '0 0 6px' }}>
-          Meme <span style={{ background: 'linear-gradient(135deg,#38bdf8,#7c9fff,#0ea5e9)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Generator</span>
+        <h1 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 'clamp(22px,3vw,32px)', color: '#fff', lineHeight: 1.1, margin: '0 0 4px' }}>
+          Meme <span style={{ background: 'linear-gradient(135deg,#38bdf8,#7c9fff)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Generator</span>
         </h1>
-        <p style={{ fontSize: 13, color: 'rgba(200,225,210,0.5)', maxWidth: 460, margin: '0 auto', lineHeight: 1.5 }}>
-          Create viral memes in seconds. Pick a template, add your text, download and share.
+        <p style={{ fontSize: 12, color: 'rgba(200,225,210,0.45)', margin: 0 }}>
+          100+ real templates. Add your text. Download and share.
         </p>
       </div>
 
       {/* ── WORKSPACE ── */}
-      <div style={{ background: 'linear-gradient(180deg,#091428 0%,#0e1a30 3%,#f3f4f6 3%,#f3f4f6 100%)', padding: '0 16px 40px' }}>
-        <div style={{ maxWidth: 1060, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 340px', gap: 16, alignItems: 'start' }}>
+      <div style={{ background: '#f3f4f6', padding: '16px 16px 40px' }}>
+        <div style={{ maxWidth: 1100, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 360px', gap: 14, alignItems: 'start' }}>
 
-          {/* ── Left: Canvas ── */}
-          <div>
-            <div style={{ background: '#fff', borderRadius: 14, boxShadow: '0 8px 40px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.04)', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.06)' }}>
-              <div style={{ padding: 12 }}>
-                <canvas ref={canvasRef} style={{ width: '100%', height: 'auto', borderRadius: 8, display: 'block', background: '#e2e8f0' }} />
-              </div>
-
-              {/* Action buttons */}
-              <div style={{ padding: '0 12px 12px', display: 'flex', gap: 8 }}>
-                <button onClick={downloadPNG} style={{ flex: 1, padding: 11, borderRadius: 10, background: 'linear-gradient(135deg,#0ea5e9,#0284c7)', color: '#fff', fontWeight: 800, fontSize: 13, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 3px 0 #075985,0 4px 12px rgba(14,165,233,0.3)', letterSpacing: 0.3 }}>
-                  Download PNG
-                </button>
-                <button onClick={copyToClipboard} style={{ flex: 1, padding: 11, borderRadius: 10, background: '#fff', color: '#64748b', fontWeight: 700, fontSize: 13, border: '1.5px solid #e2e8f0', cursor: 'pointer', fontFamily: 'inherit' }}>
-                  Copy to clipboard
-                </button>
-              </div>
+          {/* ── LEFT: Canvas + actions ── */}
+          <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 4px 24px rgba(0,0,0,0.08)', border: '1px solid rgba(0,0,0,0.06)', overflow: 'hidden' }}>
+            <div style={{ padding: 10, background: '#f8f9fb' }}>
+              <canvas ref={canvasRef} style={{ width: '100%', height: 'auto', borderRadius: 6, display: 'block', background: '#1e293b' }} />
             </div>
-
-            {/* CTA banner */}
-            <div style={{ marginTop: 14, background: 'linear-gradient(135deg,#0f172a,#1e293b)', borderRadius: 12, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, border: '1px solid rgba(0,180,216,0.15)' }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 13, color: '#fff', marginBottom: 3 }}>Want AI-powered video, music & voiceover?</div>
-                <div style={{ fontSize: 11, color: 'rgba(200,225,210,0.45)', lineHeight: 1.4 }}>SuperAdPro gives you a complete AI creative studio plus a business-in-a-box with income opportunities.</div>
-              </div>
-              <Link to="/register" style={{ background: '#0ea5e9', color: '#fff', fontWeight: 700, fontSize: 13, padding: '11px 22px', borderRadius: 10, textDecoration: 'none', whiteSpace: 'nowrap', boxShadow: '0 0 20px rgba(14,165,233,0.3)' }}>
-                Join free
-              </Link>
+            <div style={{ padding: '10px 12px', display: 'flex', gap: 8 }}>
+              <button onClick={download} className="mg-btn" style={{ flex: 1, background: 'linear-gradient(135deg,#0ea5e9,#0284c7)', color: '#fff', boxShadow: '0 3px 0 #075985' }}>
+                Download PNG
+              </button>
+              <button onClick={copy} className="mg-btn" style={{ flex: 1, background: '#fff', color: '#64748b', border: '1.5px solid #e2e8f0' }}>
+                Copy to clipboard
+              </button>
             </div>
           </div>
 
-          {/* ── Right: Controls ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-
-            {/* Template picker */}
-            <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-              <div style={{ padding: '8px 14px', borderBottom: '1px solid #f0f0f0', fontSize: 11, fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: 1.5 }}>Templates</div>
-              <div style={{ padding: 8, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
-                {TEMPLATES.map(t => (
-                  <div key={t.id} onClick={() => setTemplate(t)}
-                    style={{
-                      aspectRatio: '1', background: template.id === t.id ? '#eff6ff' : '#f8fafc', borderRadius: 8,
-                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                      cursor: 'pointer', border: template.id === t.id ? '2px solid #0ea5e9' : '1.5px solid #e8ecf2',
-                      transition: 'all .15s', position: 'relative',
-                    }}
-                  >
-                    <div style={{ fontSize: 20, marginBottom: 1 }}>{t.emoji}</div>
-                    <div style={{ fontSize: 8, fontWeight: 700, color: template.id === t.id ? '#0ea5e9' : '#64748b', textAlign: 'center', lineHeight: 1.2 }}>{t.name}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Upload button (if upload template selected) */}
-            {template.isUpload && (
-              <div>
-                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} style={{ display: 'none' }} />
-                <button onClick={() => fileInputRef.current?.click()} style={{ width: '100%', padding: 13, borderRadius: 12, background: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', color: '#fff', fontWeight: 800, fontSize: 14, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 0 #5b21b6', letterSpacing: 0.3 }}>
-                  {uploadedImg ? 'Change image' : 'Upload your image'}
-                </button>
-              </div>
-            )}
+          {/* ── RIGHT: Controls ── */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
 
             {/* Text inputs */}
-            <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-              <div style={{ padding: '8px 14px', borderBottom: '1px solid #f0f0f0', fontSize: 11, fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: 1.5 }}>Text</div>
+            <div style={{ background: '#fff', borderRadius: 10, border: '1px solid rgba(0,0,0,0.06)', overflow: 'hidden' }}>
+              <div style={{ padding: '7px 12px', borderBottom: '1px solid #f0f0f0', fontSize: 10, fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: 1.5 }}>Caption</div>
               <div style={{ padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {template.zones.map((zone, i) => (
-                  <input key={template.id + '_' + i} type="text" placeholder={zone.label + '...'} value={getText(i)}
+                {boxLabels(boxCount).map((label, i) => (
+                  <input key={getKey(i)} type="text" placeholder={label + '...'} value={getText(i)}
                     onChange={e => setText(i, e.target.value)}
                     style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #e8ecf2', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' }}
-                    onFocus={e => e.target.style.borderColor = '#0ea5e9'}
-                    onBlur={e => e.target.style.borderColor = '#e8ecf2'}
+                    onFocus={e => { e.target.style.borderColor = '#0ea5e9'; }}
+                    onBlur={e => { e.target.style.borderColor = '#e8ecf2'; }}
                   />
                 ))}
               </div>
             </div>
 
-            {/* Style controls */}
-            <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-              <div style={{ padding: '8px 14px', borderBottom: '1px solid #f0f0f0', fontSize: 11, fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: 1.5 }}>Style</div>
-              <div style={{ padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: 8 }}>
-                <div>
-                  <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 3, fontWeight: 600 }}>Font</div>
-                  <select value={font.id} onChange={e => setFont(FONTS.find(f => f.id === e.target.value) || FONTS[0])}
-                    style={{ width: '100%', padding: '7px 8px', border: '1.5px solid #e8ecf2', borderRadius: 8, fontSize: 12, fontFamily: 'inherit', color: '#334155', background: '#fff', cursor: 'pointer' }}>
-                    {FONTS.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 3, fontWeight: 600 }}>Text colour</div>
-                  <select value={textStyle.id} onChange={e => setTextStyle(TEXT_STYLES.find(s => s.id === e.target.value) || TEXT_STYLES[0])}
-                    style={{ width: '100%', padding: '7px 8px', border: '1.5px solid #e8ecf2', borderRadius: 8, fontSize: 12, fontFamily: 'inherit', color: '#334155', background: '#fff', cursor: 'pointer' }}>
-                    {TEXT_STYLES.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
-                    <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600 }}>Font size</span>
-                    <span style={{ fontSize: 10, color: '#334155', fontWeight: 700 }}>{fontSize}px</span>
-                  </div>
-                  <input type="range" min="20" max="80" value={fontSize} onChange={e => setFontSize(parseInt(e.target.value))}
-                    style={{ width: '100%', accentColor: '#0ea5e9' }} />
-                </div>
+            {/* Style */}
+            <div style={{ background: '#fff', borderRadius: 10, border: '1px solid rgba(0,0,0,0.06)', overflow: 'hidden' }}>
+              <div style={{ padding: '7px 12px', borderBottom: '1px solid #f0f0f0', fontSize: 10, fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: 1.5 }}>Style</div>
+              <div style={{ padding: '8px 10px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                <select value={font.id} onChange={e => setFont(FONTS.find(f => f.id === e.target.value))}
+                  style={{ padding: '7px 8px', border: '1.5px solid #e8ecf2', borderRadius: 8, fontSize: 11, fontFamily: 'inherit', color: '#334155', cursor: 'pointer' }}>
+                  {FONTS.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
+                </select>
+                <select value={textColor.id} onChange={e => setTextColor(TEXT_COLORS.find(c => c.id === e.target.value))}
+                  style={{ padding: '7px 8px', border: '1.5px solid #e8ecf2', borderRadius: 8, fontSize: 11, fontFamily: 'inherit', color: '#334155', cursor: 'pointer' }}>
+                  {TEXT_COLORS.map(c => <option key={c.id} value={c.id}>{c.name} text</option>)}
+                </select>
               </div>
+              <div style={{ padding: '4px 10px 10px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                  <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600 }}>Size</span>
+                  <span style={{ fontSize: 10, color: '#334155', fontWeight: 700 }}>{fontSize}px</span>
+                </div>
+                <input type="range" min="16" max="72" value={fontSize} onChange={e => setFontSize(+e.target.value)}
+                  style={{ width: '100%', accentColor: '#0ea5e9' }} />
+              </div>
+            </div>
+
+            {/* Template grid */}
+            <div style={{ background: '#fff', borderRadius: 10, border: '1px solid rgba(0,0,0,0.06)', overflow: 'hidden' }}>
+              <div style={{ padding: '7px 12px', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: 1.5 }}>Templates</span>
+                <span style={{ fontSize: 9, color: '#94a3b8' }}>{templates.length} available</span>
+              </div>
+              <div style={{ padding: '6px 10px 4px' }}>
+                <input type="text" placeholder="Search templates..." value={search} onChange={e => setSearch(e.target.value)}
+                  style={{ width: '100%', padding: '6px 10px', border: '1.5px solid #e8ecf2', borderRadius: 8, fontSize: 12, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none', marginBottom: 6 }}
+                  onFocus={e => { e.target.style.borderColor = '#0ea5e9'; }}
+                  onBlur={e => { e.target.style.borderColor = '#e8ecf2'; }}
+                />
+              </div>
+              <div style={{ padding: '0 10px 8px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 5, maxHeight: 280, overflowY: 'auto' }}>
+                {/* Upload own */}
+                <div className={`tmpl-thumb ${uploadedImg ? 'active' : ''}`}
+                  onClick={() => fileRef.current?.click()}
+                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f1f5f9' }}>
+                  <div style={{ textAlign: 'center' }}>
+                    <div style={{ fontSize: 18 }}>📤</div>
+                    <div style={{ fontSize: 8, fontWeight: 700, color: '#64748b' }}>Upload</div>
+                  </div>
+                </div>
+                {filtered.map(t => (
+                  <div key={t.id} className={`tmpl-thumb ${selected?.id === t.id && !uploadedImg ? 'active' : ''}`}
+                    onClick={() => selectTemplate(t)}>
+                    <img src={t.url} alt={t.name} loading="lazy" />
+                    <div className="tmpl-name">{t.name}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div style={{ background: 'linear-gradient(135deg,#0f172a,#1e293b)', borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 14, border: '1px solid rgba(0,180,216,0.12)' }}>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 12, color: '#fff', marginBottom: 3 }}>Want AI video, music & voiceover?</div>
+                <div style={{ fontSize: 10, color: 'rgba(200,225,210,0.4)', lineHeight: 1.4 }}>Complete AI creative studio + business-in-a-box.</div>
+              </div>
+              <Link to="/register" style={{ background: '#0ea5e9', color: '#fff', fontWeight: 700, fontSize: 11, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap' }}>
+                Join free
+              </Link>
             </div>
           </div>
         </div>
       </div>
 
+      {/* Hidden file input */}
+      <input ref={fileRef} type="file" accept="image/*" onChange={handleUpload} style={{ display: 'none' }} />
+
       {/* ── FOOTER ── */}
-      <div style={{ background: '#050d1a', borderTop: '1px solid rgba(0,180,216,0.1)', padding: '20px 24px', textAlign: 'center' }}>
-        <p style={{ fontSize: 13, color: 'rgba(200,225,210,0.3)', margin: '0 0 8px' }}>
-          Made with ❤️ by <Link to="/" style={{ color: '#38bdf8', textDecoration: 'none' }}>SuperAdPro.com</Link> — Your business-in-a-box platform
-        </p>
-        <p style={{ fontSize: 11, color: 'rgba(200,225,210,0.2)', margin: 0 }}>
-          Free meme generator — no signup, no watermark removal fees, no BS. Just make memes.
+      <div style={{ background: '#050d1a', borderTop: '1px solid rgba(0,180,216,0.1)', padding: '16px 24px', textAlign: 'center' }}>
+        <p style={{ fontSize: 12, color: 'rgba(200,225,210,0.3)', margin: 0 }}>
+          Made with ❤️ by <Link to="/" style={{ color: '#38bdf8', textDecoration: 'none' }}>SuperAdPro.com</Link> — Free meme generator, no signup, no BS
         </p>
       </div>
     </div>
