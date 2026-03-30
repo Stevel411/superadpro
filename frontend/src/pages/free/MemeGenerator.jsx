@@ -191,6 +191,16 @@ export default function MemeGenerator() {
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
               Choose template <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: '#7b8594' }}>— {templates.length} available (scroll to browse)</span>
             </div>
+            {/* Search + Upload — above the grid */}
+            <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
+              <input type="text" placeholder="Search templates..." value={search} onChange={e => setSearch(e.target.value)} style={{ ...inp, flex: 1 }}
+                onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#2a3040'} />
+              <input ref={fileRef} type="file" accept="image/*" onChange={onUpload} style={{ display: 'none' }} />
+              <button onClick={() => fileRef.current?.click()}
+                style={{ padding: '9px 16px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 10, fontSize: 12, fontWeight: 600, color: '#c5cad1', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', whiteSpace: 'nowrap', transition: 'border-color .2s' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = '#0ea5e9'} onMouseLeave={e => e.currentTarget.style.borderColor = '#2a3040'}
+              >Upload image</button>
+            </div>
             <div className="mg-scroll" style={{ height: 320, overflow: 'auto', borderRadius: 10, border: '1px solid #2a3040', background: '#0d1628', padding: 8 }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
               {vis.map(t => (
@@ -262,16 +272,6 @@ export default function MemeGenerator() {
               <span style={{ fontSize: 11, color: '#fff', fontWeight: 700, minWidth: 32, textAlign: 'right' }}>{fontSize}px</span>
             </div>
 
-            {/* Search + Upload */}
-            <div style={{ display: 'flex', gap: 6 }}>
-              <input type="text" placeholder="Search templates..." value={search} onChange={e => setSearch(e.target.value)} style={{ ...inp, flex: 1 }}
-                onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#2a3040'} />
-              <input ref={fileRef} type="file" accept="image/*" onChange={onUpload} style={{ display: 'none' }} />
-              <button onClick={() => fileRef.current?.click()}
-                style={{ padding: '9px 14px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 10, fontSize: 11, fontWeight: 600, color: '#c5cad1', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', whiteSpace: 'nowrap' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#0ea5e9'} onMouseLeave={e => e.currentTarget.style.borderColor = '#2a3040'}
-              >Upload</button>
-            </div>
           </div>
 
           {/* Earn CTA */}
