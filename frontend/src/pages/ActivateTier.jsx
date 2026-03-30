@@ -97,7 +97,7 @@ export default function ActivateTier() {
             {"\u26A1"} Pay with Crypto (USDT / USDC)
           </button>
 
-          {/* Card / Any Crypto button SECOND — outline style */}
+          {/* 350+ Cryptos button SECOND — outline style */}
           <button onClick={handleNowPayments} disabled={paying} style={{
             display:'flex',alignItems:'center',justifyContent:'center',gap:10,
             width:'100%', padding:15, borderRadius:12,
@@ -111,10 +111,10 @@ export default function ActivateTier() {
             onMouseOut={function(e){ e.currentTarget.style.borderColor='#e2e8f0'; e.currentTarget.style.color='#64748b'; }}
           >
             <Globe size={17} />
-            {paying ? 'Creating payment...' : `\uD83D\uDCB3 Pay with Card / Any Crypto — $${t.price.toLocaleString()}`}
+            {paying ? 'Creating payment...' : `\uD83C\uDF10 Pay with 350+ Cryptos — $${t.price.toLocaleString()}`}
           </button>
 
-          <div style={{textAlign:'center',fontSize:10,color:'#94a3b8'}}>{"\uD83D\uDD12"} Secure payment · Instant activation</div>
+          <div style={{textAlign:'center',fontSize:10,color:'#94a3b8'}}>{"\uD83D\uDD12"} Secure payment · Instant activation · {"\uD83D\uDCB3"} Card payments coming soon</div>
         </div>
 
         <div style={{padding:'10px 14px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:10,marginBottom:24,fontSize:12,color:'#991b1b',lineHeight:1.5,textAlign:'center'}}>

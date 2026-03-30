@@ -152,9 +152,9 @@ export default function Upgrade() {
                       onMouseOut={function(e) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'; }}
                     >
                       <Globe size={16} />
-                      {loading === 'basic_np' ? 'Loading...' : '\uD83D\uDCB3 Pay with Card / Any Crypto \u2014 $20'}
+                      {loading === 'basic_np' ? 'Loading...' : '\uD83C\uDF10 Pay with 350+ Cryptos \u2014 $20'}
                     </button>
-                    <div style={{ textAlign: 'center', fontSize: 10, color: '#94a3b8' }}>{"\uD83D\uDD12"} Secure payment · Instant activation</div>
+                    <div style={{ textAlign: 'center', fontSize: 10, color: '#94a3b8' }}>{"\uD83D\uDD12"} Secure payment · Instant activation · {"\uD83D\uDCB3"} Card payments coming soon</div>
                   </>
                 )}
               </div>
@@ -261,9 +261,9 @@ export default function Upgrade() {
                       onMouseOut={function(e) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'; }}
                     >
                       <Globe size={16} />
-                      {loading === 'pro_np' ? 'Loading...' : '\uD83D\uDCB3 Pay with Card / Any Crypto \u2014 $35'}
+                      {loading === 'pro_np' ? 'Loading...' : '\uD83C\uDF10 Pay with 350+ Cryptos \u2014 $35'}
                     </button>
-                    <div style={{ textAlign: 'center', fontSize: 10, color: '#94a3b8' }}>{"\uD83D\uDD12"} Secure payment · Instant activation</div>
+                    <div style={{ textAlign: 'center', fontSize: 10, color: '#94a3b8' }}>{"\uD83D\uDD12"} Secure payment · Instant activation · {"\uD83D\uDCB3"} Card payments coming soon</div>
                   </>
                 )}
               </div>
@@ -277,7 +277,7 @@ export default function Upgrade() {
         </div>
 
         <p style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', marginTop: 16 }}>
-          Secure payment via USDT/USDC on Polygon or Card/Crypto via NOWPayments {"\u00B7"} All sales are final {"\u00B7"} No refunds
+          Secure payment via USDT/USDC on Polygon or 350+ cryptos via NOWPayments {"\u00B7"} {"\uD83D\uDCB3"} Card payments coming soon {"\u00B7"} All sales are final
         </p>
       </div>
 

@@ -2288,7 +2288,7 @@ export default function SuperScenePage() {
         {tab === "packs" && (
           <div className="sc-packs-view">
             <div className="sc-ph"><h2>Credit Packs</h2><p>Pay once, generate anytime. Credits never expire.</p>
-              <div className="sc-payment-badges"><span className="sc-pay-badge">💳 Card / Crypto</span><span className="sc-pay-badge">🔷 USDT Direct</span></div>
+              <div className="sc-payment-badges"><span className="sc-pay-badge">🌐 350+ Cryptos</span><span className="sc-pay-badge">🔷 USDT Direct</span></div>
             </div>
             <div className="sc-pgrid">
               {PACKS.map(pack => (
@@ -2300,12 +2300,12 @@ export default function SuperScenePage() {
                   <div className="sc-ppr">${pack.price}</div>
                   <div className="sc-pper">{(pack.price / pack.credits * 100).toFixed(2)}¢ per credit</div>
                   <button className={cls("sc-pbtn sc-pbtn-stripe", pack.popular ? "pop" : "n")} onClick={() => buyNowPayments(pack.slug)} disabled={buyingPack === pack.slug}>
-                    {buyingPack === pack.slug ? "…" : "💳 Pay with Card / Crypto"}</button>
+                    {buyingPack === pack.slug ? "…" : "🌐 Pay with 350+ Cryptos"}</button>
                   <button className="sc-pbtn sc-pbtn-crypto" onClick={() => buyCrypto(pack.slug)} disabled={buyingPack === pack.slug}>🔷 Pay with USDT</button>
                 </div>
               ))}
             </div>
-            <div className="sc-pfooter">🔒 Card/Crypto via NOWPayments · Direct USDT/Polygon · Credits never expire</div>
+            <div className="sc-pfooter">🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · 💳 Card payments coming soon · Credits never expire</div>
             {cryptoOrder && (
               <div className="sc-modal-overlay" onClick={() => setCryptoOrder(null)}>
                 <div className="sc-modal" onClick={e => e.stopPropagation()}>
