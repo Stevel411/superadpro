@@ -56,6 +56,7 @@ const SuperPagesEditor = React.lazy(() => import('./pages/superpages/SuperPagesE
 const SuperScenePage = React.lazy(() => import('./pages/superscene/SuperScenePage'));
 const ContentCreatorPage = React.lazy(() => import('./pages/content-creator/ContentCreatorPage'));
 const IncomeGrid3DPage = React.lazy(() => import('./pages/IncomeGrid3DPage'));
+const MemeGenerator = React.lazy(() => import('./pages/free/MemeGenerator'));
 
 // Suspense wrapper for remaining lazy routes
 function Lazy({ children }) { return <Suspense fallback={<div style={{minHeight:'60vh'}}/>}>{children}</Suspense>; }
@@ -207,6 +208,7 @@ function AppRoutes() {
       <Route path="/vip" element={<Navigate to="/register" replace />} />
       {/* /join/:username handled by SuperLinkPage below */}
       <Route path="/ads" element={<PublicAdBoard />} />
+      <Route path="/free/meme-generator" element={<Lazy><MemeGenerator /></Lazy>} />
       <Route path="/earn" element={<AffiliatePlan />} />
       <Route path="/join/:username" element={<SuperLinkPage />} />
       <Route path="/ads/listing/:slug" element={<AdDetail />} />
