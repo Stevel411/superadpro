@@ -2,7 +2,7 @@ import { useState } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiPost } from '../utils/api';
-import { CreditCard, Coins } from 'lucide-react';
+import { CreditCard, Coins, Globe } from 'lucide-react';
 import CryptoCheckout from '../components/CryptoCheckout';
 import WalletGuideCard from '../components/WalletGuideCard';
 
@@ -14,13 +14,13 @@ export default function Upgrade() {
   var [error, setError] = useState('');
   var [cryptoCheckout, setCryptoCheckout] = useState(null);
 
-  function stripeCheckout(tier) {
-    setLoading(tier + '_stripe');
+  function nowPaymentsCheckout(tier) {
+    setLoading(tier + '_np');
     setError('');
-    apiPost('/api/stripe/create-membership-checkout', { tier })
+    apiPost('/api/nowpayments/create-invoice', { product_key: 'membership_' + tier })
       .then(function(d) {
         setLoading('');
-        if (d.url) { window.location.href = d.url; }
+        if (d.invoice_url) { window.location.href = d.invoice_url; }
         else { setError(d.error || 'Could not start checkout. Please try again.'); }
       })
       .catch(function(e) { setLoading(''); setError(e.message || 'Checkout failed.'); });
@@ -145,14 +145,14 @@ export default function Upgrade() {
                       {"\u26A1"} Pay with Crypto (USDT / USDC)
                     </button>
                     <button
-                      onClick={function() { stripeCheckout('basic'); }}
-                      disabled={loading === 'basic_stripe'}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', padding: 13, borderRadius: 12, fontSize: 14, fontWeight: 700, border: '1.5px solid #e2e8f0', cursor: loading === 'basic_stripe' ? 'default' : 'pointer', fontFamily: 'inherit', background: '#fff', color: '#64748b', transition: 'all .2s' }}
+                      onClick={function() { nowPaymentsCheckout('basic'); }}
+                      disabled={loading === 'basic_np'}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', padding: 13, borderRadius: 12, fontSize: 14, fontWeight: 700, border: '1.5px solid #e2e8f0', cursor: loading === 'basic_np' ? 'default' : 'pointer', fontFamily: 'inherit', background: '#fff', color: '#64748b', transition: 'all .2s' }}
                       onMouseOver={function(e) { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.color = '#0ea5e9'; }}
                       onMouseOut={function(e) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'; }}
                     >
-                      <CreditCard size={16} />
-                      {loading === 'basic_stripe' ? 'Loading...' : '\uD83D\uDCB3 Pay with Card \u2014 $20/mo'}
+                      <Globe size={16} />
+                      {loading === 'basic_np' ? 'Loading...' : '\uD83D\uDCB3 Pay with Card / Any Crypto \u2014 $20'}
                     </button>
                     <div style={{ textAlign: 'center', fontSize: 10, color: '#94a3b8' }}>{"\uD83D\uDD12"} Secure payment · Instant activation</div>
                   </>
@@ -254,14 +254,14 @@ export default function Upgrade() {
                       {"\u26A1"} Pay with Crypto (USDT / USDC)
                     </button>
                     <button
-                      onClick={function() { stripeCheckout('pro'); }}
-                      disabled={loading === 'pro_stripe'}
-                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', padding: 13, borderRadius: 12, fontSize: 14, fontWeight: 700, border: '1.5px solid #e2e8f0', cursor: loading === 'pro_stripe' ? 'default' : 'pointer', fontFamily: 'inherit', background: '#fff', color: '#64748b', transition: 'all .2s' }}
+                      onClick={function() { nowPaymentsCheckout('pro'); }}
+                      disabled={loading === 'pro_np'}
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, width: '100%', padding: 13, borderRadius: 12, fontSize: 14, fontWeight: 700, border: '1.5px solid #e2e8f0', cursor: loading === 'pro_np' ? 'default' : 'pointer', fontFamily: 'inherit', background: '#fff', color: '#64748b', transition: 'all .2s' }}
                       onMouseOver={function(e) { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.color = '#0ea5e9'; }}
                       onMouseOut={function(e) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'; }}
                     >
-                      <CreditCard size={16} />
-                      {loading === 'pro_stripe' ? 'Loading...' : '\uD83D\uDCB3 Pay with Card \u2014 $35/mo'}
+                      <Globe size={16} />
+                      {loading === 'pro_np' ? 'Loading...' : '\uD83D\uDCB3 Pay with Card / Any Crypto \u2014 $35'}
                     </button>
                     <div style={{ textAlign: 'center', fontSize: 10, color: '#94a3b8' }}>{"\uD83D\uDD12"} Secure payment · Instant activation</div>
                   </>
@@ -277,7 +277,7 @@ export default function Upgrade() {
         </div>
 
         <p style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', marginTop: 16 }}>
-          Secure payment via Stripe or USDT/USDC on Polygon {"\u00B7"} All sales are final {"\u00B7"} No refunds
+          Secure payment via USDT/USDC on Polygon or Card/Crypto via NOWPayments {"\u00B7"} All sales are final {"\u00B7"} No refunds
         </p>
       </div>
 

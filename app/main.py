@@ -4313,6 +4313,40 @@ def _nowpayments_activate_product(db, user, order, meta):
         if credits:
             user.email_credits = (user.email_credits or 0) + credits
 
+    # ── SuperScene Credit Packs ──
+    elif order.product_type == "superscene":
+        pack_map = {
+            "superscene_starter": 50,
+            "superscene_creator": 150,
+            "superscene_studio": 500,
+            "superscene_pro": 1200,
+        }
+        credits = pack_map.get(product_key, 0)
+        if credits:
+            from .database import SuperSceneCredit
+            sc = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == user.id).first()
+            if not sc:
+                sc = SuperSceneCredit(user_id=user.id, balance=0)
+                db.add(sc)
+                db.flush()
+            sc.balance = (sc.balance or 0) + credits
+            # Also record in superscene_orders for history
+            try:
+                from .database import SuperSceneOrder
+                slug = product_key.replace("superscene_", "")
+                sc_order = SuperSceneOrder(
+                    user_id=user.id,
+                    pack_slug=slug,
+                    credits=credits,
+                    amount_usd=order.price_usd,
+                    payment_method="nowpayments",
+                    status="completed",
+                )
+                sc_order.completed_at = datetime.utcnow()
+                db.add(sc_order)
+            except Exception as e:
+                logger.error(f"SuperScene order record failed: {e}")
+
 
 @app.get("/api/nowpayments/order/{order_id}")
 async def nowpayments_order_status(order_id: int, request: Request,

@@ -503,12 +503,12 @@ export default function SuperScenePage() {
   const useAiPrompt = () => { setPrompt(aiResult); setAiResult(""); setTab("create"); };
 
   // ── Buy credits ────────────────────────────────────────
-  const buyStripe = async (slug) => {
+  const buyNowPayments = async (slug) => {
     setBuyingPack(slug);
     try {
-      const res = await fetch("/api/superscene/buy/stripe", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pack_slug: slug }) });
+      const res = await fetch("/api/nowpayments/create-invoice", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ product_key: "superscene_" + slug }) });
       const data = await res.json();
-      if (data.url) window.location.href = data.url; else alert(data.detail || "Checkout failed");
+      if (data.invoice_url) window.location.href = data.invoice_url; else alert(data.error || "Checkout failed");
     } finally { setBuyingPack(null); }
   };
   const buyCrypto = async (slug) => {
@@ -2288,7 +2288,7 @@ export default function SuperScenePage() {
         {tab === "packs" && (
           <div className="sc-packs-view">
             <div className="sc-ph"><h2>Credit Packs</h2><p>Pay once, generate anytime. Credits never expire.</p>
-              <div className="sc-payment-badges"><span className="sc-pay-badge">💳 Stripe</span><span className="sc-pay-badge">🔷 USDT Crypto</span></div>
+              <div className="sc-payment-badges"><span className="sc-pay-badge">💳 Card / Crypto</span><span className="sc-pay-badge">🔷 USDT Direct</span></div>
             </div>
             <div className="sc-pgrid">
               {PACKS.map(pack => (
@@ -2299,13 +2299,13 @@ export default function SuperScenePage() {
                   <div className="sc-pcl">credits</div>
                   <div className="sc-ppr">${pack.price}</div>
                   <div className="sc-pper">{(pack.price / pack.credits * 100).toFixed(2)}¢ per credit</div>
-                  <button className={cls("sc-pbtn sc-pbtn-stripe", pack.popular ? "pop" : "n")} onClick={() => buyStripe(pack.slug)} disabled={buyingPack === pack.slug}>
-                    {buyingPack === pack.slug ? "…" : "💳 Pay with Card"}</button>
+                  <button className={cls("sc-pbtn sc-pbtn-stripe", pack.popular ? "pop" : "n")} onClick={() => buyNowPayments(pack.slug)} disabled={buyingPack === pack.slug}>
+                    {buyingPack === pack.slug ? "…" : "💳 Pay with Card / Crypto"}</button>
                   <button className="sc-pbtn sc-pbtn-crypto" onClick={() => buyCrypto(pack.slug)} disabled={buyingPack === pack.slug}>🔷 Pay with USDT</button>
                 </div>
               ))}
             </div>
-            <div className="sc-pfooter">🔒 Card payments via Stripe · Crypto via USDT/Polygon · Credits never expire</div>
+            <div className="sc-pfooter">🔒 Card/Crypto via NOWPayments · Direct USDT/Polygon · Credits never expire</div>
             {cryptoOrder && (
               <div className="sc-modal-overlay" onClick={() => setCryptoOrder(null)}>
                 <div className="sc-modal" onClick={e => e.stopPropagation()}>

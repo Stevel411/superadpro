@@ -55,6 +55,11 @@ PRODUCT_CATALOG = {
     "email_boost_5000":     {"price": Decimal("19.00"), "type": "email_boost", "desc": "Email Boost — 5,000 Credits"},
     "email_boost_10000":    {"price": Decimal("29.00"), "type": "email_boost", "desc": "Email Boost — 10,000 Credits"},
     "email_boost_50000":    {"price": Decimal("99.00"), "type": "email_boost", "desc": "Email Boost — 50,000 Credits"},
+    # SuperScene Credit Packs
+    "superscene_starter":   {"price": Decimal("8.00"),  "type": "superscene", "desc": "SuperScene Starter — 50 Credits"},
+    "superscene_creator":   {"price": Decimal("20.00"), "type": "superscene", "desc": "SuperScene Creator — 150 Credits"},
+    "superscene_studio":    {"price": Decimal("50.00"), "type": "superscene", "desc": "SuperScene Studio — 500 Credits"},
+    "superscene_pro":       {"price": Decimal("99.00"), "type": "superscene", "desc": "SuperScene Pro — 1,200 Credits"},
 }
 
 

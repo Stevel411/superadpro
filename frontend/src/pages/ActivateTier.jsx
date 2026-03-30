@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
-import { CreditCard, Coins } from 'lucide-react';
+import { Globe, Coins } from 'lucide-react';
 import CryptoCheckout from '../components/CryptoCheckout';
 import { formatMoney } from '../utils/money';
 
@@ -29,20 +29,20 @@ export default function ActivateTier() {
 
   if (!t) return <AppLayout title="Campaign Tier"><div style={{textAlign:'center',padding:80,color:'#94a3b8'}}>Invalid tier</div></AppLayout>;
 
-  const handlePayment = async () => {
+  const handleNowPayments = async () => {
     if (paying) return;
     setPaying(true);
     setError('');
     try {
-      const res = await fetch('/api/stripe/create-grid-checkout', {
+      const res = await fetch('/api/nowpayments/create-invoice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ package_tier: n }),
+        body: JSON.stringify({ product_key: 'grid_' + n }),
       });
       const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
+      if (data.invoice_url) {
+        window.location.href = data.invoice_url;
       } else {
         setError(data.error || 'Payment service unavailable. Please try again.');
         setPaying(false);
@@ -97,8 +97,8 @@ export default function ActivateTier() {
             {"\u26A1"} Pay with Crypto (USDT / USDC)
           </button>
 
-          {/* Card button SECOND — outline style */}
-          <button onClick={handlePayment} disabled={paying} style={{
+          {/* Card / Any Crypto button SECOND — outline style */}
+          <button onClick={handleNowPayments} disabled={paying} style={{
             display:'flex',alignItems:'center',justifyContent:'center',gap:10,
             width:'100%', padding:15, borderRadius:12,
             fontSize:15, fontWeight:700, cursor:paying?'wait':'pointer',
@@ -110,8 +110,8 @@ export default function ActivateTier() {
             onMouseOver={function(e){ e.currentTarget.style.borderColor='#0ea5e9'; e.currentTarget.style.color='#0ea5e9'; }}
             onMouseOut={function(e){ e.currentTarget.style.borderColor='#e2e8f0'; e.currentTarget.style.color='#64748b'; }}
           >
-            <CreditCard size={17} />
-            {paying ? 'Creating payment...' : `\uD83D\uDCB3 Pay with Card — $${t.price.toLocaleString()}`}
+            <Globe size={17} />
+            {paying ? 'Creating payment...' : `\uD83D\uDCB3 Pay with Card / Any Crypto — $${t.price.toLocaleString()}`}
           </button>
 
           <div style={{textAlign:'center',fontSize:10,color:'#94a3b8'}}>{"\uD83D\uDD12"} Secure payment · Instant activation</div>
