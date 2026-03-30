@@ -1020,7 +1020,7 @@ export default function SuperScenePage() {
     // Preview images by tier
     return (
       <div className="s-empty">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1.2" style={{ marginBottom: 14 }}>
+        <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth="1" style={{ marginBottom: 16 }}>
           <rect x="2" y="4" width="20" height="14" rx="3"/>
           <polygon points="10,8 10,15 16,11.5"/>
         </svg>
