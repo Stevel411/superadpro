@@ -178,12 +178,6 @@ export default function BannerCreator() {
       cx.fillText(subText, W / 2, H * 0.62);
     }
 
-    // Watermark
-    const ws = Math.max(10, Math.round(W * 0.012));
-    cx.font = `500 ${ws}px sans-serif`;
-    cx.textAlign = 'right'; cx.textBaseline = 'bottom';
-    cx.fillStyle = 'rgba(255,255,255,0.2)';
-    cx.fillText('SuperAdPro.com', W - 10, H - 8);
   };
 
   useEffect(() => { draw(); }, [draw]);

@@ -82,7 +82,7 @@ export default function MemeGenerator() {
       lines.forEach((ln, li) => { cx.strokeStyle = color.stroke; cx.strokeText(ln, x, sy + li * lh); cx.fillStyle = color.fill; cx.fillText(ln, x, sy + li * lh); });
       cx.restore();
     });
-    cx.save(); const ws = Math.max(11, Math.round(W * 0.016)); cx.font = `500 ${ws}px sans-serif`; cx.textAlign = 'right'; cx.textBaseline = 'bottom'; cx.lineWidth = 2; cx.lineJoin = 'round'; cx.strokeStyle = 'rgba(0,0,0,.4)'; cx.strokeText('SuperAdPro.com', W - 8, H - 6); cx.fillStyle = 'rgba(255,255,255,.55)'; cx.fillText('SuperAdPro.com', W - 8, H - 6); cx.restore();
+    cx.restore();
   }, [loadedImg, texts, fontId, colorId, fontSize, bc]);
 
   useEffect(() => { draw(); }, [draw]);
