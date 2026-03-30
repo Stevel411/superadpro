@@ -58,6 +58,7 @@ const ContentCreatorPage = React.lazy(() => import('./pages/content-creator/Cont
 const IncomeGrid3DPage = React.lazy(() => import('./pages/IncomeGrid3DPage'));
 const MemeGenerator = React.lazy(() => import('./pages/free/MemeGenerator'));
 const QRCodeGen = React.lazy(() => import('./pages/free/QRCodeGen'));
+const PDFStudio = React.lazy(() => import('./pages/free/pdf/PDFStudio'));
 
 // Suspense wrapper for remaining lazy routes
 function Lazy({ children }) { return <Suspense fallback={<div style={{minHeight:'60vh'}}/>}>{children}</Suspense>; }
@@ -211,6 +212,7 @@ function AppRoutes() {
       <Route path="/ads" element={<PublicAdBoard />} />
       <Route path="/free/meme-generator" element={<Lazy><MemeGenerator /></Lazy>} />
       <Route path="/free/qr-code-generator" element={<Lazy><QRCodeGen /></Lazy>} />
+      <Route path="/free/pdf-studio" element={<Lazy><PDFStudio /></Lazy>} />
       <Route path="/earn" element={<AffiliatePlan />} />
       <Route path="/join/:username" element={<SuperLinkPage />} />
       <Route path="/ads/listing/:slug" element={<AdDetail />} />
