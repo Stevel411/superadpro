@@ -1,42 +1,52 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 
+/* ═══════════════════════════════════════════════════════════
+   SuperAdPro — Free Meme Generator v6
+   Built to Steve's mockup: balanced 50/50, templates top-right,
+   controls bottom-right, SC-style rich dropdowns
+   ═══════════════════════════════════════════════════════════ */
+
 const FONTS = [
-  { id: 'impact', name: 'Impact', family: 'Impact, Haettenschweiler, sans-serif' },
-  { id: 'arial', name: 'Arial Black', family: '"Arial Black", Gadget, sans-serif' },
-  { id: 'comic', name: 'Comic Sans MS', family: '"Comic Sans MS", cursive' },
-  { id: 'georgia', name: 'Georgia', family: 'Georgia, serif' },
-  { id: 'verdana', name: 'Verdana Bold', family: 'Verdana, Geneva, sans-serif' },
-  { id: 'trebuchet', name: 'Trebuchet MS', family: '"Trebuchet MS", sans-serif' },
-  { id: 'courier', name: 'Courier New', family: '"Courier New", monospace' },
-  { id: 'tahoma', name: 'Tahoma', family: 'Tahoma, Geneva, sans-serif' },
+  { id: 'impact', name: 'Impact', desc: 'Classic meme font', color: '#0ea5e9', badge: 'POPULAR' },
+  { id: 'arial', name: 'Arial Black', desc: 'Bold and clean', color: '#22d3ee', badge: null },
+  { id: 'comic', name: 'Comic Sans MS', desc: 'Fun and playful', color: '#a78bfa', badge: null },
+  { id: 'georgia', name: 'Georgia', desc: 'Elegant serif', color: '#f59e0b', badge: null },
+  { id: 'verdana', name: 'Verdana Bold', desc: 'Wide and readable', color: '#34d399', badge: null },
+  { id: 'trebuchet', name: 'Trebuchet MS', desc: 'Modern humanist', color: '#fb7185', badge: null },
+  { id: 'courier', name: 'Courier New', desc: 'Typewriter monospace', color: '#94a3b8', badge: null },
+  { id: 'tahoma', name: 'Tahoma', desc: 'Compact and sharp', color: '#c084fc', badge: null },
 ];
+const FONT_FAMILIES = { impact: 'Impact, Haettenschweiler, sans-serif', arial: '"Arial Black", Gadget, sans-serif', comic: '"Comic Sans MS", cursive', georgia: 'Georgia, serif', verdana: 'Verdana, Geneva, sans-serif', trebuchet: '"Trebuchet MS", sans-serif', courier: '"Courier New", monospace', tahoma: 'Tahoma, Geneva, sans-serif' };
+
 const COLORS = [
-  { id: 'white', name: 'White + Black outline', fill: '#fff', stroke: '#000' },
-  { id: 'black', name: 'Black + White outline', fill: '#000', stroke: '#fff' },
-  { id: 'yellow', name: 'Yellow + Black outline', fill: '#FFD700', stroke: '#000' },
-  { id: 'red', name: 'Red + Black outline', fill: '#FF3333', stroke: '#000' },
-  { id: 'lime', name: 'Lime + Black outline', fill: '#00FF00', stroke: '#000' },
-  { id: 'cyan', name: 'Cyan + Black outline', fill: '#00E5FF', stroke: '#000' },
-  { id: 'pink', name: 'Pink + Black outline', fill: '#FF69B4', stroke: '#000' },
-  { id: 'orange', name: 'Orange + Black outline', fill: '#FF8C00', stroke: '#000' },
+  { id: 'white', name: 'White', desc: 'Black outline', fill: '#fff', stroke: '#000', swatch: '#ffffff', badge: 'CLASSIC' },
+  { id: 'black', name: 'Black', desc: 'White outline', fill: '#000', stroke: '#fff', swatch: '#000000', badge: null },
+  { id: 'yellow', name: 'Yellow', desc: 'Black outline', fill: '#FFD700', stroke: '#000', swatch: '#FFD700', badge: null },
+  { id: 'red', name: 'Red', desc: 'Black outline', fill: '#FF3333', stroke: '#000', swatch: '#FF3333', badge: null },
+  { id: 'lime', name: 'Lime', desc: 'Black outline', fill: '#00FF00', stroke: '#000', swatch: '#00FF00', badge: null },
+  { id: 'cyan', name: 'Cyan', desc: 'Black outline', fill: '#00E5FF', stroke: '#000', swatch: '#00E5FF', badge: null },
+  { id: 'pink', name: 'Hot Pink', desc: 'Black outline', fill: '#FF69B4', stroke: '#000', swatch: '#FF69B4', badge: null },
+  { id: 'orange', name: 'Orange', desc: 'Black outline', fill: '#FF8C00', stroke: '#000', swatch: '#FF8C00', badge: null },
 ];
-const chevron = `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238e8e98' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`;
-const sel = { width: '100%', padding: '9px 30px 9px 12px', borderRadius: 10, border: '1px solid #3f4650', background: '#2d323a', color: '#fff', fontSize: 13, fontFamily: '"DM Sans",sans-serif', cursor: 'pointer', appearance: 'none', WebkitAppearance: 'none', backgroundImage: chevron, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center' };
-const inp = { width: '100%', padding: '9px 12px', background: '#2d323a', border: '1px solid #3f4650', borderRadius: 10, fontSize: 13, color: '#fff', fontFamily: '"DM Sans",sans-serif', boxSizing: 'border-box', outline: 'none', transition: 'border-color .2s' };
 
 export default function MemeGenerator() {
   const [templates, setTemplates] = useState([]);
   const [selected, setSelected] = useState(null);
   const [texts, setTexts] = useState({});
-  const [font, setFont] = useState(FONTS[0]);
-  const [color, setColor] = useState(COLORS[0]);
+  const [fontId, setFontId] = useState('impact');
+  const [colorId, setColorId] = useState('white');
   const [fontSize, setFontSize] = useState(36);
   const [loadedImg, setLoadedImg] = useState(null);
   const [search, setSearch] = useState('');
   const [uploadSrc, setUploadSrc] = useState(null);
+  const [fontOpen, setFontOpen] = useState(false);
+  const [colorOpen, setColorOpen] = useState(false);
   const canvasRef = useRef(null);
   const fileRef = useRef(null);
+
+  const font = FONTS.find(f => f.id === fontId) || FONTS[0];
+  const color = COLORS.find(c => c.id === colorId) || COLORS[0];
 
   useEffect(() => {
     fetch('https://api.imgflip.com/get_memes').then(r => r.json())
@@ -62,9 +72,10 @@ export default function MemeGenerator() {
     cv.width = W; cv.height = H;
     cx.drawImage(loadedImg, 0, 0, W, H);
     const sc = Math.min(W, H) / 600, fs = Math.round(fontSize * sc);
+    const fam = FONT_FAMILIES[fontId] || FONT_FAMILIES.impact;
     labels.forEach((_, i) => {
       const t = gt(i); if (!t) return;
-      cx.save(); cx.font = `bold ${fs}px ${font.family}`;
+      cx.save(); cx.font = `bold ${fs}px ${fam}`;
       cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.lineWidth = fs / 5; cx.lineJoin = 'round'; cx.miterLimit = 2;
       const x = W / 2, y = bc <= 1 ? H * 0.1 : bc === 2 ? (i === 0 ? H * 0.08 : H * 0.92) : H * (0.08 + i * 0.84 / (bc - 1));
       const lines = wrap(cx, t.toUpperCase(), W * 0.92), lh = fs * 1.15, sy = y - ((lines.length - 1) * lh) / 2;
@@ -72,10 +83,9 @@ export default function MemeGenerator() {
       cx.restore();
     });
     cx.save(); const ws = Math.max(11, Math.round(W * 0.016)); cx.font = `500 ${ws}px sans-serif`; cx.textAlign = 'right'; cx.textBaseline = 'bottom'; cx.lineWidth = 2; cx.lineJoin = 'round'; cx.strokeStyle = 'rgba(0,0,0,.4)'; cx.strokeText('SuperAdPro.com', W - 8, H - 6); cx.fillStyle = 'rgba(255,255,255,.55)'; cx.fillText('SuperAdPro.com', W - 8, H - 6); cx.restore();
-  }, [loadedImg, texts, font, color, fontSize, bc]);
+  }, [loadedImg, texts, fontId, colorId, fontSize, bc]);
 
   useEffect(() => { draw(); }, [draw]);
-
   function wrap(cx, t, mw) { const w = t.split(' '), lines = []; let c = ''; for (const word of w) { const test = c ? c + ' ' + word : word; if (cx.measureText(test).width > mw && c) { lines.push(c); c = word; } else c = test; } if (c) lines.push(c); return lines.length ? lines : ['']; }
 
   const dlPNG = () => { const c = canvasRef.current; if (!c) return; const a = document.createElement('a'); a.download = 'meme-superadpro.png'; a.href = c.toDataURL('image/png'); a.click(); };
@@ -84,120 +94,103 @@ export default function MemeGenerator() {
   const pick = (t) => { setSelected(t); setUploadSrc(null); };
   const vis = search.trim() ? templates.filter(t => t.name.toLowerCase().includes(search.toLowerCase())) : templates.slice(0, 100);
 
+  // Close dropdowns on outside click
+  useEffect(() => {
+    const handler = () => { setFontOpen(false); setColorOpen(false); };
+    document.addEventListener('click', handler);
+    return () => document.removeEventListener('click', handler);
+  }, []);
+
+  // ── Rich dropdown component (SuperScene style) ─────────
+  function RichDropdown({ items, value, onChange, open, setOpen, renderItem }) {
+    const current = items.find(i => i.id === value) || items[0];
+    return (
+      <div style={{ position: 'relative' }}>
+        <div onClick={e => { e.stopPropagation(); setOpen(!open); }}
+          style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 12, cursor: 'pointer', transition: 'border-color .2s', borderColor: open ? '#0ea5e9' : '#2a3040' }}>
+          {renderItem(current, true)}
+          <svg style={{ marginLeft: 'auto', flexShrink: 0, opacity: 0.4 }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8e8e98" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
+        </div>
+        {open && (
+          <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, marginTop: 4, background: '#1b2030', border: '1px solid #2a3040', borderRadius: 12, overflow: 'hidden', boxShadow: '0 12px 40px rgba(0,0,0,.5)', maxHeight: 280, overflowY: 'auto' }}>
+            {items.map(item => (
+              <div key={item.id} onClick={e => { e.stopPropagation(); onChange(item.id); setOpen(false); }}
+                style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', cursor: 'pointer', background: item.id === value ? 'rgba(14,165,233,.08)' : 'transparent', borderLeft: item.id === value ? '3px solid #0ea5e9' : '3px solid transparent', transition: 'background .15s' }}
+                onMouseEnter={e => { if (item.id !== value) e.currentTarget.style.background = 'rgba(255,255,255,.03)'; }}
+                onMouseLeave={e => { if (item.id !== value) e.currentTarget.style.background = 'transparent'; }}
+              >
+                {renderItem(item, false)}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  const inp = { width: '100%', padding: '9px 12px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 10, fontSize: 13, color: '#fff', fontFamily: '"DM Sans",sans-serif', boxSizing: 'border-box', outline: 'none', transition: 'border-color .2s' };
+
   return (
     <div style={{ background: '#050d1a', minHeight: '100vh', fontFamily: '"DM Sans","Rethink Sans",sans-serif', color: '#f0f2f8', display: 'flex', flexDirection: 'column' }}>
       <style>{`
         .mg-tmpl{position:relative;border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .15s;aspect-ratio:1}
-        .mg-tmpl:hover{border-color:rgba(56,189,248,.4);transform:scale(1.04)}
+        .mg-tmpl:hover{border-color:rgba(56,189,248,.4);transform:scale(1.03)}
         .mg-tmpl.sel{border-color:#0ea5e9;box-shadow:0 0 12px rgba(14,165,233,.25)}
         .mg-tmpl img{width:100%;height:100%;object-fit:cover;display:block}
         .mg-tname{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(0,0,0,.85));padding:8px 5px 4px;font-size:10px;font-weight:600;color:#fff;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .mg-scroll::-webkit-scrollbar{width:5px}
         .mg-scroll::-webkit-scrollbar-track{background:transparent}
-        .mg-scroll::-webkit-scrollbar-thumb{background:#3f4650;border-radius:3px}
+        .mg-scroll::-webkit-scrollbar-thumb{background:#2a3040;border-radius:3px}
       `}</style>
 
-      {/* ═══ NAV — homepage exact match ═══ */}
-      <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 36px', height: 56, background: 'rgba(10,18,40,0.95)', backdropFilter: 'blur(18px)', borderBottom: '1px solid rgba(0,180,216,0.12)', flexShrink: 0 }}>
+      {/* ═══ NAV — homepage exact ═══ */}
+      <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 36px', height: 60, background: 'rgba(10,18,40,0.95)', backdropFilter: 'blur(18px)', borderBottom: '1px solid rgba(0,180,216,0.12)', flexShrink: 0 }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none' }}>
-          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 18, color: '#fff' }}>
-            <svg style={{ width: 22, height: 22, verticalAlign: 'middle', marginRight: 7 }} viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
+          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 19, color: '#fff' }}>
+            <svg style={{ width: 24, height: 24, verticalAlign: 'middle', marginRight: 7 }} viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
             SuperAd<span style={{ color: '#38bdf8' }}>Pro</span>
           </span>
         </Link>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 15, color: '#fff' }}>Free Meme Generator</span>
-          <span style={{ fontSize: 10, fontWeight: 700, color: '#0ea5e9', border: '1px solid rgba(14,165,233,0.3)', borderRadius: 20, padding: '2px 10px', letterSpacing: 1 }}>FREE</span>
-          <Link to="/register" style={{ background: '#0ea5e9', color: '#fff', fontSize: 14, fontWeight: 600, padding: '8px 20px', borderRadius: 10, textDecoration: 'none', boxShadow: '0 2px 12px rgba(14,165,233,0.25)' }}>Get started free</Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 16, color: '#fff', fontStyle: 'italic' }}>Free Meme Generator</span>
+          <span style={{ fontSize: 10, fontWeight: 700, color: '#0ea5e9', border: '1px solid rgba(14,165,233,0.4)', borderRadius: 20, padding: '3px 12px', letterSpacing: 1.5 }}>FREE</span>
+          <Link to="/register" style={{ background: '#0ea5e9', color: '#fff', fontSize: 14, fontWeight: 600, padding: '9px 22px', borderRadius: 10, textDecoration: 'none', boxShadow: '0 2px 12px rgba(14,165,233,0.25)' }}>Get started free</Link>
         </div>
       </nav>
 
-      {/* ═══ MAIN: 3-column — marketing | preview | controls ═══ */}
-      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '10% 40% 40% 10%', overflow: 'hidden' }}>
+      {/* ═══ WORKSPACE — 50/50 ═══ */}
+      <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '1fr 1fr', overflow: 'hidden' }}>
 
-        {/* Left gutter — marketing */}
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '20px 8px', gap: 16, background: '#050d1a' }}>
-          <div style={{ writingMode: 'vertical-rl', transform: 'rotate(180deg)', fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', color: 'rgba(0,180,216,0.2)' }}>SuperAdPro.com</div>
-        </div>
-
-        {/* ═══ PREVIEW COLUMN (40%) ═══ */}
-        <div style={{ display: 'flex', flexDirection: 'column', background: '#050d1a', padding: '12px 12px 0' }}>
+        {/* ═══ LEFT HALF ═══ */}
+        <div style={{ display: 'flex', flexDirection: 'column', padding: '20px 24px 16px', borderRight: '1px solid rgba(0,180,216,0.06)' }}>
 
           {/* Canvas */}
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 0, overflow: 'hidden', padding: '0 0 8px' }}>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 0, overflow: 'hidden' }}>
             <canvas ref={canvasRef} style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: 8, display: 'block', background: '#0a1525' }} />
           </div>
 
           {/* Buttons */}
-          <div style={{ display: 'flex', gap: 8, padding: '0 0 10px' }}>
-            <button onClick={dlPNG} style={{ flex: 1, padding: '10px 0', borderRadius: 10, background: '#0ea5e9', color: '#fff', fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>Download PNG</button>
-            <button onClick={copyClip} style={{ flex: 1, padding: '10px 0', borderRadius: 10, background: 'rgba(255,255,255,.05)', color: 'rgba(200,220,255,.6)', fontWeight: 600, fontSize: 13, border: '1px solid rgba(255,255,255,.12)', cursor: 'pointer', fontFamily: 'inherit' }}>Copy to clipboard</button>
+          <div style={{ display: 'flex', gap: 10, padding: '14px 0 12px' }}>
+            <button onClick={dlPNG} style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: '#0ea5e9', color: '#fff', fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>Download PNG</button>
+            <button onClick={copyClip} style={{ flex: 1, padding: '12px 0', borderRadius: 10, background: 'rgba(255,255,255,.05)', color: 'rgba(200,220,255,.6)', fontWeight: 600, fontSize: 14, border: '1px solid rgba(255,255,255,.12)', cursor: 'pointer', fontFamily: 'inherit' }}>Copy to clipboard</button>
           </div>
 
-          {/* Marketing CTA strip */}
-          <div style={{ background: 'rgba(14,165,233,0.05)', border: '1px solid rgba(0,180,216,0.1)', borderRadius: 10, padding: '10px 14px', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#fff', marginBottom: 2 }}>Start your online business today</div>
-              <div style={{ fontSize: 10, color: 'rgba(200,220,255,.35)', lineHeight: 1.4 }}>AI creative tools, income opportunities, and everything you need to earn online — all in one platform.</div>
+          {/* CTA */}
+          <div style={{ background: 'rgba(14,165,233,0.04)', border: '1px solid rgba(0,180,216,0.1)', borderRadius: 12, padding: '12px 16px' }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 4 }}>Start your online business today</div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 12, color: 'rgba(200,220,255,.35)', lineHeight: 1.5, flex: 1 }}>AI creative tools, income opportunities, and everything you need to earn online — all in one platform.</span>
+              <Link to="/register" style={{ background: '#0ea5e9', color: '#fff', fontWeight: 700, fontSize: 12, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>Learn more</Link>
             </div>
-            <Link to="/register" style={{ background: '#0ea5e9', color: '#fff', fontWeight: 700, fontSize: 10, padding: '6px 12px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>Learn more</Link>
           </div>
         </div>
 
-        {/* ═══ CONTROLS COLUMN (40%) ═══ */}
-        <div style={{ display: 'flex', flexDirection: 'column', background: '#0a1525', borderLeft: '1px solid rgba(0,180,216,0.06)', overflow: 'hidden' }}>
+        {/* ═══ RIGHT HALF ═══ */}
+        <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#0a1220' }}>
 
-          {/* Caption */}
-          <div style={{ padding: '14px 16px 10px' }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.35)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
-              Caption {selected && <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>— {selected.name}</span>}
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              {labels.map((lbl, i) => (
-                <input key={ky(i)} type="text" placeholder={lbl + '...'} value={gt(i)} onChange={e => st(i, e.target.value)} style={inp}
-                  onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#3f4650'} />
-              ))}
-            </div>
-          </div>
-
-          {/* Style */}
-          <div style={{ padding: '0 16px 10px' }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.35)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Style</div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
-              <div>
-                <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>Font</div>
-                <select value={font.id} onChange={e => setFont(FONTS.find(f => f.id === e.target.value))} style={sel}>
-                  {FONTS.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
-                </select>
-              </div>
-              <div>
-                <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>Text colour</div>
-                <select value={color.id} onChange={e => setColor(COLORS.find(c => c.id === e.target.value))} style={sel}>
-                  {COLORS.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-                </select>
-              </div>
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 10, color: '#7b8594', fontWeight: 600, whiteSpace: 'nowrap' }}>Size</span>
-              <input type="range" min="16" max="80" value={fontSize} onChange={e => setFontSize(+e.target.value)} style={{ flex: 1, accentColor: '#0ea5e9' }} />
-              <span style={{ fontSize: 11, color: '#fff', fontWeight: 700, minWidth: 32, textAlign: 'right' }}>{fontSize}px</span>
-            </div>
-          </div>
-
-          {/* Search + upload */}
-          <div style={{ padding: '0 16px 8px', display: 'flex', gap: 6 }}>
-            <input type="text" placeholder="Search templates..." value={search} onChange={e => setSearch(e.target.value)} style={{ ...inp, flex: 1 }}
-              onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#3f4650'} />
-            <input ref={fileRef} type="file" accept="image/*" onChange={onUpload} style={{ display: 'none' }} />
-            <button onClick={() => fileRef.current?.click()}
-              style={{ padding: '9px 14px', background: '#2d323a', border: '1px solid #3f4650', borderRadius: 10, fontSize: 11, fontWeight: 600, color: '#c5cad1', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', whiteSpace: 'nowrap' }}
-              onMouseEnter={e => e.currentTarget.style.borderColor = '#0ea5e9'} onMouseLeave={e => e.currentTarget.style.borderColor = '#3f4650'}
-            >Upload</button>
-          </div>
-
-          {/* Template grid — scrollable */}
-          <div className="mg-scroll" style={{ flex: 1, overflow: 'auto', padding: '0 16px 12px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6 }}>
+          {/* TOP: Template grid — scrollable */}
+          <div className="mg-scroll" style={{ flex: 1, overflow: 'auto', padding: '16px 16px 8px', minHeight: 0 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
               {vis.map(t => (
                 <div key={t.id} className={`mg-tmpl${selected?.id === t.id && !uploadSrc ? ' sel' : ''}`} onClick={() => pick(t)}>
                   <img src={t.url} alt={t.name} loading="lazy" />
@@ -208,21 +201,81 @@ export default function MemeGenerator() {
             </div>
           </div>
 
-          {/* Bottom marketing */}
-          <div style={{ padding: '8px 16px 10px', borderTop: '1px solid rgba(0,180,216,0.06)', background: 'rgba(14,165,233,0.03)' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#fff' }}>Earn money with SuperAdPro</div>
-                <div style={{ fontSize: 9, color: 'rgba(200,220,255,.3)', lineHeight: 1.4 }}>Join thousands building an online income with our AI tools, affiliate program & income grid.</div>
+          {/* BOTTOM: Controls */}
+          <div style={{ padding: '12px 16px 14px', borderTop: '1px solid rgba(0,180,216,0.06)', background: '#0d1628' }}>
+
+            {/* Caption */}
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
+              Caption {selected && <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>— {selected.name}</span>}
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
+              {labels.map((lbl, i) => (
+                <input key={ky(i)} type="text" placeholder={lbl + '...'} value={gt(i)} onChange={e => st(i, e.target.value)} style={inp}
+                  onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#2a3040'} />
+              ))}
+            </div>
+
+            {/* Style — rich dropdowns */}
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Style</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
+              <div>
+                <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>Font</div>
+                <RichDropdown items={FONTS} value={fontId} onChange={setFontId} open={fontOpen} setOpen={v => { setFontOpen(v); setColorOpen(false); }}
+                  renderItem={(f, isTrigger) => (
+                    <>
+                      <div style={{ width: 32, height: 32, borderRadius: 8, background: `${f.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: f.color, flexShrink: 0, fontFamily: FONT_FAMILIES[f.id] }}>Aa</div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{f.name}</div>
+                        {!isTrigger && <div style={{ fontSize: 10, color: '#7b8594' }}>{f.desc}</div>}
+                      </div>
+                      {f.badge && <span style={{ fontSize: 9, fontWeight: 700, color: '#0ea5e9', border: '1px solid rgba(14,165,233,.3)', borderRadius: 4, padding: '1px 6px', letterSpacing: 0.5, flexShrink: 0 }}>{f.badge}</span>}
+                    </>
+                  )}
+                />
               </div>
-              <Link to="/earn" style={{ fontSize: 10, fontWeight: 700, color: '#0ea5e9', textDecoration: 'none', whiteSpace: 'nowrap' }}>See how →</Link>
+              <div>
+                <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>Text colour</div>
+                <RichDropdown items={COLORS} value={colorId} onChange={setColorId} open={colorOpen} setOpen={v => { setColorOpen(v); setFontOpen(false); }}
+                  renderItem={(c, isTrigger) => (
+                    <>
+                      <div style={{ width: 32, height: 32, borderRadius: 8, background: '#1b2030', border: `2px solid ${c.swatch}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <div style={{ width: 16, height: 16, borderRadius: 4, background: c.swatch }} />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{c.name}</div>
+                        {!isTrigger && <div style={{ fontSize: 10, color: '#7b8594' }}>{c.desc}</div>}
+                      </div>
+                      {c.badge && <span style={{ fontSize: 9, fontWeight: 700, color: '#22d3ee', border: '1px solid rgba(34,211,238,.3)', borderRadius: 4, padding: '1px 6px', letterSpacing: 0.5, flexShrink: 0 }}>{c.badge}</span>}
+                    </>
+                  )}
+                />
+              </div>
+            </div>
+
+            {/* Size slider */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
+              <span style={{ fontSize: 10, color: '#7b8594', fontWeight: 600 }}>Size</span>
+              <input type="range" min="16" max="80" value={fontSize} onChange={e => setFontSize(+e.target.value)} style={{ flex: 1, accentColor: '#0ea5e9' }} />
+              <span style={{ fontSize: 11, color: '#fff', fontWeight: 700, minWidth: 32, textAlign: 'right' }}>{fontSize}px</span>
+            </div>
+
+            {/* Search + Upload */}
+            <div style={{ display: 'flex', gap: 6 }}>
+              <input type="text" placeholder="Search templates..." value={search} onChange={e => setSearch(e.target.value)} style={{ ...inp, flex: 1 }}
+                onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#2a3040'} />
+              <input ref={fileRef} type="file" accept="image/*" onChange={onUpload} style={{ display: 'none' }} />
+              <button onClick={() => fileRef.current?.click()}
+                style={{ padding: '9px 14px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 10, fontSize: 11, fontWeight: 600, color: '#c5cad1', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', whiteSpace: 'nowrap' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = '#0ea5e9'} onMouseLeave={e => e.currentTarget.style.borderColor = '#2a3040'}
+              >Upload</button>
             </div>
           </div>
-        </div>
 
-        {/* Right gutter — marketing */}
-        <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '20px 8px', gap: 16, background: '#050d1a' }}>
-          <div style={{ writingMode: 'vertical-rl', fontSize: 11, fontWeight: 700, letterSpacing: 3, textTransform: 'uppercase', color: 'rgba(0,180,216,0.2)' }}>Free tools by SuperAdPro</div>
+          {/* Earn CTA */}
+          <div style={{ padding: '8px 16px 10px', borderTop: '1px solid rgba(0,180,216,0.06)', background: 'rgba(14,165,233,0.03)', display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#fff', flex: 1 }}>Earn money online with SuperAdPro</span>
+            <Link to="/earn" style={{ fontSize: 10, fontWeight: 700, color: '#0ea5e9', textDecoration: 'none' }}>See how →</Link>
+          </div>
         </div>
       </div>
     </div>
