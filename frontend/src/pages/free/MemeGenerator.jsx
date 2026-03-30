@@ -89,7 +89,7 @@ export default function MemeGenerator() {
   function wrap(cx, t, mw) { const w = t.split(' '), lines = []; let c = ''; for (const word of w) { const test = c ? c + ' ' + word : word; if (cx.measureText(test).width > mw && c) { lines.push(c); c = word; } else c = test; } if (c) lines.push(c); return lines.length ? lines : ['']; }
 
   const dlPNG = () => { const c = canvasRef.current; if (!c) return; const a = document.createElement('a'); a.download = 'meme-superadpro.png'; a.href = c.toDataURL('image/png'); a.click(); };
-  const copyClip = async () => { const c = canvasRef.current; if (!c) return; try { const b = await new Promise(r => c.toBlob(r, 'image/png')); await navigator.clipboard.write([new ClipboardItem({ 'image/png': b })]); alert('Copied!'); } catch { alert('Use Download instead.'); } };
+  const resetMeme = () => { setTexts({}); setUploadSrc(null); setFontSize(36); setFontId('impact'); setColorId('white'); if (templates.length) setSelected(templates[0]); };
   const onUpload = (e) => { const f = e.target.files?.[0]; if (!f) return; const r = new FileReader(); r.onload = (ev) => { setUploadSrc(ev.target.result); setSelected(null); }; r.readAsDataURL(f); };
   const pick = (t) => { setSelected(t); setUploadSrc(null); };
   const vis = search.trim() ? templates.filter(t => t.name.toLowerCase().includes(search.toLowerCase())) : templates.slice(0, 100);
@@ -170,7 +170,7 @@ export default function MemeGenerator() {
           {/* Buttons */}
           <div style={{ display: 'flex', gap: 10, padding: '12px 0 10px', flexShrink: 0 }}>
             <button onClick={dlPNG} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: '#0ea5e9', color: '#fff', fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>Download PNG</button>
-            <button onClick={copyClip} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'rgba(255,255,255,.05)', color: 'rgba(200,220,255,.6)', fontWeight: 600, fontSize: 14, border: '1px solid rgba(255,255,255,.12)', cursor: 'pointer', fontFamily: 'inherit' }}>Copy to clipboard</button>
+            <button onClick={resetMeme} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'rgba(255,255,255,.05)', color: 'rgba(200,220,255,.6)', fontWeight: 600, fontSize: 14, border: '1px solid rgba(255,255,255,.12)', cursor: 'pointer', fontFamily: 'inherit' }}>Reset Meme</button>
           </div>
 
           {/* CTA */}
