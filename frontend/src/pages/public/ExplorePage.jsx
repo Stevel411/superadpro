@@ -47,8 +47,8 @@ export default function ExplorePage() {
             <div style={{ fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:700, color:'rgba(255,255,255,0.7)' }}>Welcome Video Coming Soon</div>
           </div>
 
-          {/* Two Path Cards */}
-          <div className="exp-paths" style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:24 }}>
+          {/* Two Path Cards + Free Tools */}
+          <div className="exp-paths" style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:24 }}>
             <Link to="/how-it-works" className="exp-path" style={{ textDecoration:'none', background:'rgba(14,165,233,0.06)', border:'1px solid rgba(14,165,233,0.15)', borderRadius:24, padding:'44px 32px', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', backdropFilter:'blur(8px)' }}>
               <div style={{ width:72, height:72, borderRadius:20, background:'rgba(14,165,233,0.1)', border:'1px solid rgba(14,165,233,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:32, marginBottom:24 }}>🚀</div>
               <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:900, color:'#fff', marginBottom:10 }}>What is SuperAdPro?</div>
@@ -70,6 +70,18 @@ export default function ExplorePage() {
               </p>
               <div style={{ fontFamily:"'Sora',sans-serif", fontSize:15, fontWeight:800, color:'#fbbf24', display:'flex', alignItems:'center', gap:8 }}>
                 See the plan <span style={{ fontSize:18 }}>→</span>
+              </div>
+            </Link>
+
+            <Link to="/free/meme-generator" className="exp-path" style={{ textDecoration:'none', background:'rgba(34,211,238,0.06)', border:'1px solid rgba(34,211,238,0.15)', borderRadius:24, padding:'44px 32px', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', backdropFilter:'blur(8px)' }}>
+              <div style={{ width:72, height:72, borderRadius:20, background:'rgba(34,211,238,0.1)', border:'1px solid rgba(34,211,238,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:32, marginBottom:24 }}>🎨</div>
+              <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:900, color:'#fff', marginBottom:10 }}>Free Tools</div>
+              <p style={{ fontSize:15, color:'rgba(255,255,255,0.45)', lineHeight:1.7, marginBottom:24, flex:1 }}>
+                Meme generator, image tools, and more.<br/>
+                100% free, no signup required.
+              </p>
+              <div style={{ fontFamily:"'Sora',sans-serif", fontSize:15, fontWeight:800, color:'#22d3ee', display:'flex', alignItems:'center', gap:8 }}>
+                Try free tools <span style={{ fontSize:18 }}>→</span>
               </div>
             </Link>
           </div>
