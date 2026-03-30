@@ -29,7 +29,7 @@ const TEXT_STYLES = [
 ];
 
 const CANVAS_W = 800;
-const CANVAS_H = 800;
+const CANVAS_H = 600;
 
 export default function MemeGenerator() {
   const [template, setTemplate] = useState(TEMPLATES[0]);
@@ -244,7 +244,7 @@ export default function MemeGenerator() {
       </nav>
 
       {/* ── HERO ── */}
-      <div style={{ background: 'linear-gradient(180deg,#050d1a 0%,#0a1830 50%,#091428 100%)', padding: '48px 24px 40px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: 'linear-gradient(180deg,#050d1a 0%,#0a1830 50%,#091428 100%)', padding: '20px 24px 20px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         {/* Floating particles */}
         <style>{`
           @keyframes mfloat{0%,100%{transform:translateY(0);opacity:.3}50%{transform:translateY(-12px);opacity:.8}}
@@ -253,48 +253,47 @@ export default function MemeGenerator() {
         <div style={{ position: 'absolute', top: '15%', left: '12%', width: 5, height: 5, borderRadius: '50%', background: 'rgba(56,189,248,0.4)', animation: 'mfloat 4s ease-in-out infinite' }} />
         <div style={{ position: 'absolute', top: '30%', right: '18%', width: 4, height: 4, borderRadius: '50%', background: 'rgba(139,92,246,0.35)', animation: 'mfloat 5s ease-in-out infinite 1s' }} />
         <div style={{ position: 'absolute', bottom: '25%', left: '30%', width: 3, height: 3, borderRadius: '50%', background: 'rgba(14,165,233,0.3)', animation: 'mfloat 6s ease-in-out infinite 0.5s' }} />
-        <div style={{ position: 'absolute', top: '50%', right: '8%', width: 4, height: 4, borderRadius: '50%', background: 'rgba(56,189,248,0.25)', animation: 'mfloat 4.5s ease-in-out infinite 2s' }} />
 
-        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 11, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: '#0ea5e9', border: '1px solid rgba(0,180,216,0.3)', borderRadius: 50, padding: '5px 16px', marginBottom: 18 }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: 7, fontSize: 10, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: '#0ea5e9', border: '1px solid rgba(0,180,216,0.3)', borderRadius: 50, padding: '3px 14px', marginBottom: 10 }}>
           <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#0ea5e9', animation: 'mpulse 2s ease-in-out infinite' }} />
           Free tool — No signup required
         </div>
 
-        <h1 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 'clamp(28px,4.5vw,48px)', color: '#fff', lineHeight: 1.1, margin: '0 0 12px' }}>
+        <h1 style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 'clamp(24px,3.5vw,36px)', color: '#fff', lineHeight: 1.1, margin: '0 0 6px' }}>
           Meme <span style={{ background: 'linear-gradient(135deg,#38bdf8,#7c9fff,#0ea5e9)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Generator</span>
         </h1>
-        <p style={{ fontSize: 'clamp(13px,1.4vw,16px)', color: 'rgba(200,225,210,0.5)', maxWidth: 500, margin: '0 auto 28px', lineHeight: 1.6 }}>
-          Create viral memes in seconds. Pick a template, add your text, download and share. Completely free, forever.
+        <p style={{ fontSize: 13, color: 'rgba(200,225,210,0.5)', maxWidth: 460, margin: '0 auto', lineHeight: 1.5 }}>
+          Create viral memes in seconds. Pick a template, add your text, download and share.
         </p>
       </div>
 
       {/* ── WORKSPACE ── */}
-      <div style={{ background: 'linear-gradient(180deg,#091428 0%,#0e1a30 4%,#f3f4f6 4%,#f3f4f6 100%)', padding: '0 16px 60px' }}>
-        <div style={{ maxWidth: 960, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 320px', gap: 20, alignItems: 'start' }}>
+      <div style={{ background: 'linear-gradient(180deg,#091428 0%,#0e1a30 3%,#f3f4f6 3%,#f3f4f6 100%)', padding: '0 16px 40px' }}>
+        <div style={{ maxWidth: 1060, margin: '0 auto', display: 'grid', gridTemplateColumns: '1fr 340px', gap: 16, alignItems: 'start' }}>
 
           {/* ── Left: Canvas ── */}
           <div>
-            <div style={{ background: '#fff', borderRadius: 16, boxShadow: '0 8px 40px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.04)', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.06)' }}>
-              <div style={{ padding: 16 }}>
-                <canvas ref={canvasRef} style={{ width: '100%', height: 'auto', borderRadius: 10, display: 'block', background: '#e2e8f0' }} />
+            <div style={{ background: '#fff', borderRadius: 14, boxShadow: '0 8px 40px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.04)', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.06)' }}>
+              <div style={{ padding: 12 }}>
+                <canvas ref={canvasRef} style={{ width: '100%', height: 'auto', borderRadius: 8, display: 'block', background: '#e2e8f0' }} />
               </div>
 
               {/* Action buttons */}
-              <div style={{ padding: '0 16px 16px', display: 'flex', gap: 10 }}>
-                <button onClick={downloadPNG} style={{ flex: 1, padding: 14, borderRadius: 12, background: 'linear-gradient(135deg,#0ea5e9,#0284c7)', color: '#fff', fontWeight: 800, fontSize: 15, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 4px 0 #075985,0 6px 16px rgba(14,165,233,0.3)', letterSpacing: 0.3 }}>
+              <div style={{ padding: '0 12px 12px', display: 'flex', gap: 8 }}>
+                <button onClick={downloadPNG} style={{ flex: 1, padding: 11, borderRadius: 10, background: 'linear-gradient(135deg,#0ea5e9,#0284c7)', color: '#fff', fontWeight: 800, fontSize: 13, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 3px 0 #075985,0 4px 12px rgba(14,165,233,0.3)', letterSpacing: 0.3 }}>
                   Download PNG
                 </button>
-                <button onClick={copyToClipboard} style={{ flex: 1, padding: 14, borderRadius: 12, background: '#fff', color: '#64748b', fontWeight: 700, fontSize: 15, border: '1.5px solid #e2e8f0', cursor: 'pointer', fontFamily: 'inherit' }}>
+                <button onClick={copyToClipboard} style={{ flex: 1, padding: 11, borderRadius: 10, background: '#fff', color: '#64748b', fontWeight: 700, fontSize: 13, border: '1.5px solid #e2e8f0', cursor: 'pointer', fontFamily: 'inherit' }}>
                   Copy to clipboard
                 </button>
               </div>
             </div>
 
             {/* CTA banner */}
-            <div style={{ marginTop: 20, background: 'linear-gradient(135deg,#0f172a,#1e293b)', borderRadius: 14, padding: '22px 24px', display: 'flex', alignItems: 'center', gap: 20, border: '1px solid rgba(0,180,216,0.15)' }}>
+            <div style={{ marginTop: 14, background: 'linear-gradient(135deg,#0f172a,#1e293b)', borderRadius: 12, padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16, border: '1px solid rgba(0,180,216,0.15)' }}>
               <div style={{ flex: 1 }}>
-                <div style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 15, color: '#fff', marginBottom: 5 }}>Want AI-powered video, music & voiceover?</div>
-                <div style={{ fontSize: 13, color: 'rgba(200,225,210,0.45)', lineHeight: 1.5 }}>SuperAdPro gives you a complete AI creative studio plus a business-in-a-box with income opportunities.</div>
+                <div style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 13, color: '#fff', marginBottom: 3 }}>Want AI-powered video, music & voiceover?</div>
+                <div style={{ fontSize: 11, color: 'rgba(200,225,210,0.45)', lineHeight: 1.4 }}>SuperAdPro gives you a complete AI creative studio plus a business-in-a-box with income opportunities.</div>
               </div>
               <Link to="/register" style={{ background: '#0ea5e9', color: '#fff', fontWeight: 700, fontSize: 13, padding: '11px 22px', borderRadius: 10, textDecoration: 'none', whiteSpace: 'nowrap', boxShadow: '0 0 20px rgba(14,165,233,0.3)' }}>
                 Join free
@@ -303,23 +302,23 @@ export default function MemeGenerator() {
           </div>
 
           {/* ── Right: Controls ── */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
             {/* Template picker */}
-            <div style={{ background: '#fff', borderRadius: 14, boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-              <div style={{ padding: '12px 16px', borderBottom: '1px solid #f0f0f0', fontSize: 12, fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: 1.5 }}>Templates</div>
-              <div style={{ padding: 12, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8 }}>
+            <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.06)', overflow: 'hidden' }}>
+              <div style={{ padding: '8px 14px', borderBottom: '1px solid #f0f0f0', fontSize: 11, fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: 1.5 }}>Templates</div>
+              <div style={{ padding: 8, display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 6 }}>
                 {TEMPLATES.map(t => (
                   <div key={t.id} onClick={() => setTemplate(t)}
                     style={{
-                      aspectRatio: '1', background: template.id === t.id ? '#eff6ff' : '#f8fafc', borderRadius: 10,
+                      aspectRatio: '1', background: template.id === t.id ? '#eff6ff' : '#f8fafc', borderRadius: 8,
                       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                       cursor: 'pointer', border: template.id === t.id ? '2px solid #0ea5e9' : '1.5px solid #e8ecf2',
                       transition: 'all .15s', position: 'relative',
                     }}
                   >
-                    <div style={{ fontSize: 24, marginBottom: 2 }}>{t.emoji}</div>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: template.id === t.id ? '#0ea5e9' : '#64748b', textAlign: 'center', lineHeight: 1.2 }}>{t.name}</div>
+                    <div style={{ fontSize: 20, marginBottom: 1 }}>{t.emoji}</div>
+                    <div style={{ fontSize: 8, fontWeight: 700, color: template.id === t.id ? '#0ea5e9' : '#64748b', textAlign: 'center', lineHeight: 1.2 }}>{t.name}</div>
                   </div>
                 ))}
               </div>
@@ -336,13 +335,13 @@ export default function MemeGenerator() {
             )}
 
             {/* Text inputs */}
-            <div style={{ background: '#fff', borderRadius: 14, boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-              <div style={{ padding: '12px 16px', borderBottom: '1px solid #f0f0f0', fontSize: 12, fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: 1.5 }}>Text</div>
-              <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.06)', overflow: 'hidden' }}>
+              <div style={{ padding: '8px 14px', borderBottom: '1px solid #f0f0f0', fontSize: 11, fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: 1.5 }}>Text</div>
+              <div style={{ padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: 6 }}>
                 {template.zones.map((zone, i) => (
                   <input key={template.id + '_' + i} type="text" placeholder={zone.label + '...'} value={getText(i)}
                     onChange={e => setText(i, e.target.value)}
-                    style={{ width: '100%', padding: '10px 12px', border: '1.5px solid #e8ecf2', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' }}
+                    style={{ width: '100%', padding: '8px 10px', border: '1.5px solid #e8ecf2', borderRadius: 8, fontSize: 13, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' }}
                     onFocus={e => e.target.style.borderColor = '#0ea5e9'}
                     onBlur={e => e.target.style.borderColor = '#e8ecf2'}
                   />
@@ -351,27 +350,27 @@ export default function MemeGenerator() {
             </div>
 
             {/* Style controls */}
-            <div style={{ background: '#fff', borderRadius: 14, boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.06)', overflow: 'hidden' }}>
-              <div style={{ padding: '12px 16px', borderBottom: '1px solid #f0f0f0', fontSize: 12, fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: 1.5 }}>Style</div>
-              <div style={{ padding: 12, display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ background: '#fff', borderRadius: 12, boxShadow: '0 4px 20px rgba(0,0,0,0.06)', border: '1px solid rgba(0,0,0,0.06)', overflow: 'hidden' }}>
+              <div style={{ padding: '8px 14px', borderBottom: '1px solid #f0f0f0', fontSize: 11, fontWeight: 700, color: '#334155', textTransform: 'uppercase', letterSpacing: 1.5 }}>Style</div>
+              <div style={{ padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <div>
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4, fontWeight: 600 }}>Font</div>
+                  <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 3, fontWeight: 600 }}>Font</div>
                   <select value={font.id} onChange={e => setFont(FONTS.find(f => f.id === e.target.value) || FONTS[0])}
-                    style={{ width: '100%', padding: '9px 10px', border: '1.5px solid #e8ecf2', borderRadius: 10, fontSize: 13, fontFamily: 'inherit', color: '#334155', background: '#fff', cursor: 'pointer' }}>
+                    style={{ width: '100%', padding: '7px 8px', border: '1.5px solid #e8ecf2', borderRadius: 8, fontSize: 12, fontFamily: 'inherit', color: '#334155', background: '#fff', cursor: 'pointer' }}>
                     {FONTS.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4, fontWeight: 600 }}>Text colour</div>
+                  <div style={{ fontSize: 10, color: '#94a3b8', marginBottom: 3, fontWeight: 600 }}>Text colour</div>
                   <select value={textStyle.id} onChange={e => setTextStyle(TEXT_STYLES.find(s => s.id === e.target.value) || TEXT_STYLES[0])}
-                    style={{ width: '100%', padding: '9px 10px', border: '1.5px solid #e8ecf2', borderRadius: 10, fontSize: 13, fontFamily: 'inherit', color: '#334155', background: '#fff', cursor: 'pointer' }}>
+                    style={{ width: '100%', padding: '7px 8px', border: '1.5px solid #e8ecf2', borderRadius: 8, fontSize: 12, fontFamily: 'inherit', color: '#334155', background: '#fff', cursor: 'pointer' }}>
                     {TEXT_STYLES.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
                   </select>
                 </div>
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600 }}>Font size</span>
-                    <span style={{ fontSize: 11, color: '#334155', fontWeight: 700 }}>{fontSize}px</span>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                    <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600 }}>Font size</span>
+                    <span style={{ fontSize: 10, color: '#334155', fontWeight: 700 }}>{fontSize}px</span>
                   </div>
                   <input type="range" min="20" max="80" value={fontSize} onChange={e => setFontSize(parseInt(e.target.value))}
                     style={{ width: '100%', accentColor: '#0ea5e9' }} />
@@ -383,7 +382,7 @@ export default function MemeGenerator() {
       </div>
 
       {/* ── FOOTER ── */}
-      <div style={{ background: '#050d1a', borderTop: '1px solid rgba(0,180,216,0.1)', padding: '28px 24px', textAlign: 'center' }}>
+      <div style={{ background: '#050d1a', borderTop: '1px solid rgba(0,180,216,0.1)', padding: '20px 24px', textAlign: 'center' }}>
         <p style={{ fontSize: 13, color: 'rgba(200,225,210,0.3)', margin: '0 0 8px' }}>
           Made with ❤️ by <Link to="/" style={{ color: '#38bdf8', textDecoration: 'none' }}>SuperAdPro.com</Link> — Your business-in-a-box platform
         </p>
