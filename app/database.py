@@ -1,6 +1,6 @@
 import os
 from dotenv import load_dotenv
-from sqlalchemy import create_engine, Column, Integer, String, ForeignKey, Float, Boolean, DateTime, Text, text, Numeric
+from sqlalchemy import create_engine, Column, Integer, BigInteger, String, ForeignKey, Float, Boolean, DateTime, Text, text, Numeric
 
 # Precision type for all financial columns — 18 digits, 6 decimal places
 # Prevents floating-point drift across millions of transactions
@@ -1182,6 +1182,35 @@ class CryptoPaymentOrder(Base):
     created_at      = Column(DateTime, default=datetime.utcnow)
 
 
+class NowPaymentsOrder(Base):
+    """NOWPayments invoice-based payment orders (crypto + fiat card)."""
+    __tablename__ = "nowpayments_orders"
+    id              = Column(Integer, primary_key=True, autoincrement=True)
+    user_id         = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    # Product info
+    product_type    = Column(String(50), nullable=False)   # membership, grid, email_boost, superscene
+    product_key     = Column(String(100), nullable=False)  # membership_basic, grid_3, etc.
+    product_meta    = Column(Text, nullable=True)           # JSON: extra info
+    # Pricing
+    price_usd       = Column(Numeric(18, 6), nullable=False)  # Price in USD
+    # NOWPayments references
+    np_invoice_id   = Column(BigInteger, nullable=True, index=True)  # NOWPayments invoice ID
+    np_payment_id   = Column(BigInteger, nullable=True, index=True)  # NOWPayments payment ID
+    internal_order_id = Column(String(100), nullable=True, index=True)  # SAP-{user}-{id}
+    invoice_url     = Column(Text, nullable=True)
+    # Payment details (filled by IPN)
+    pay_currency    = Column(String(20), nullable=True)    # btc, eth, usdttrc20, etc.
+    pay_amount      = Column(Numeric(18, 8), nullable=True)
+    actually_paid   = Column(Numeric(18, 8), nullable=True)
+    outcome_amount  = Column(Numeric(18, 8), nullable=True)
+    outcome_currency = Column(String(20), nullable=True)
+    # Status
+    status          = Column(String(30), default="pending")  # pending / waiting / confirming / confirmed / finished / failed / expired / refunded
+    confirmed_at    = Column(DateTime, nullable=True)
+    created_at      = Column(DateTime, default=datetime.utcnow)
+    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
 try:
     Base.metadata.create_all(bind=engine)
 except Exception as e:
@@ -1858,6 +1887,35 @@ try:
             )
         """))
         conn.execute(text("CREATE INDEX IF NOT EXISTS idx_ss_orders_user ON superscene_orders(user_id)"))
+
+        # ── NOWPayments orders table ──
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS nowpayments_orders (
+                id SERIAL PRIMARY KEY,
+                user_id INTEGER NOT NULL REFERENCES users(id),
+                product_type VARCHAR(50) NOT NULL,
+                product_key VARCHAR(100) NOT NULL,
+                product_meta TEXT,
+                price_usd NUMERIC(18,6) NOT NULL,
+                np_invoice_id BIGINT,
+                np_payment_id BIGINT,
+                internal_order_id VARCHAR(100),
+                invoice_url TEXT,
+                pay_currency VARCHAR(20),
+                pay_amount NUMERIC(18,8),
+                actually_paid NUMERIC(18,8),
+                outcome_amount NUMERIC(18,8),
+                outcome_currency VARCHAR(20),
+                status VARCHAR(30) DEFAULT 'pending',
+                confirmed_at TIMESTAMP,
+                created_at TIMESTAMP DEFAULT NOW(),
+                updated_at TIMESTAMP DEFAULT NOW()
+            )
+        """))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_np_orders_user ON nowpayments_orders(user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_np_orders_invoice ON nowpayments_orders(np_invoice_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_np_orders_payment ON nowpayments_orders(np_payment_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_np_orders_internal ON nowpayments_orders(internal_order_id)"))
 
         # ── Pipeline tables (long-form video) ──
         conn.execute(text("""

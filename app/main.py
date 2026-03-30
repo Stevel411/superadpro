@@ -4041,6 +4041,309 @@ async def cancel_stripe_subscription(request: Request, db: Session = Depends(get
         return {"ok": True, "message": "Subscription cancelled"}
     return JSONResponse({"error": "Cancellation failed"}, status_code=400)
 
+
+# ════════════════════════════════════════════════════════════════════
+#  NOWPayments — Crypto + Fiat Card Payment Gateway
+# ════════════════════════════════════════════════════════════════════
+
+@app.get("/api/nowpayments/config")
+def nowpayments_config(user: User = Depends(get_current_user)):
+    """Return whether NOWPayments is configured (no secrets exposed)."""
+    from . import nowpayments_service as nps
+    return {"configured": nps.is_configured()}
+
+
+@app.post("/api/nowpayments/create-invoice")
+async def nowpayments_create_invoice(request: Request, db: Session = Depends(get_db),
+                                      user: User = Depends(get_current_user)):
+    """
+    Create a NOWPayments invoice for any product.
+
+    Body: {
+        "product_key": "membership_basic" | "grid_3" | "email_boost_5000" | ...,
+        "meta": { ... optional extra data ... }
+    }
+
+    Returns: { "success": true, "invoice_url": "...", "order_id": int }
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from . import nowpayments_service as nps
+    from .database import NowPaymentsOrder
+    from decimal import Decimal
+    import json as _json
+
+    if not nps.is_configured():
+        return JSONResponse({"error": "Payment service not configured"}, status_code=503)
+
+    body = await request.json()
+    product_key = body.get("product_key", "").strip()
+    product_meta = body.get("meta", {})
+
+    # ── Validate product ──
+    if product_key in nps.PRODUCT_CATALOG:
+        product = nps.PRODUCT_CATALOG[product_key]
+        price_usd = product["price"]
+        product_type = product["type"]
+    else:
+        return JSONResponse({"error": f"Unknown product: {product_key}"}, status_code=400)
+
+    if price_usd <= 0:
+        return JSONResponse({"error": "Invalid price"}, status_code=400)
+
+    # ── Membership: check if upgrading ──
+    if product_type == "membership":
+        tier = "pro" if "pro" in product_key else "basic"
+        if tier == "basic" and user.is_active and user.membership_tier == "basic":
+            return JSONResponse({"error": "You already have an active Basic membership"}, status_code=400)
+        if tier == "pro" and user.is_active and user.membership_tier == "pro":
+            return JSONResponse({"error": "You already have an active Pro membership"}, status_code=400)
+        # Upgrade: Basic → Pro = $15 difference
+        if tier == "pro" and user.is_active and user.membership_tier == "basic":
+            price_usd = Decimal("15.00")
+            product_meta["is_upgrade"] = True
+
+    # ── Grid: check active membership ──
+    if product_type == "grid" and not user.is_active:
+        return JSONResponse({"error": "Active membership required to purchase Campaign Tiers"}, status_code=400)
+
+    # ── Cancel existing pending NOWPayments orders for same product ──
+    db.query(NowPaymentsOrder).filter(
+        NowPaymentsOrder.user_id == user.id,
+        NowPaymentsOrder.product_key == product_key,
+        NowPaymentsOrder.status == "pending",
+    ).update({"status": "cancelled"})
+    db.flush()
+
+    # ── Create local order record first ──
+    order = NowPaymentsOrder(
+        user_id=user.id,
+        product_type=product_type,
+        product_key=product_key,
+        product_meta=_json.dumps(product_meta) if product_meta else None,
+        price_usd=price_usd,
+        status="pending",
+    )
+    db.add(order)
+    db.flush()  # Get order.id
+
+    internal_order_id = f"SAP-{user.id}-{order.id}"
+    order.internal_order_id = internal_order_id
+
+    # ── Create NOWPayments invoice ──
+    result = nps.create_invoice(
+        product_key=product_key,
+        user_id=user.id,
+        order_id=order.id,
+        custom_price=price_usd if product_meta.get("is_upgrade") else None,
+        custom_description=f"SuperAdPro — {nps.PRODUCT_CATALOG.get(product_key, {}).get('desc', product_key)}"
+            if not product_meta.get("is_upgrade")
+            else "SuperAdPro Pro Membership Upgrade",
+    )
+
+    if not result["success"]:
+        order.status = "failed"
+        db.commit()
+        return JSONResponse({"error": result["error"]}, status_code=502)
+
+    order.np_invoice_id = result.get("np_id")
+    order.invoice_url = result.get("invoice_url")
+    db.commit()
+
+    return {
+        "success": True,
+        "invoice_url": result["invoice_url"],
+        "order_id": order.id,
+        "internal_order_id": internal_order_id,
+    }
+
+
+@app.post("/api/webhook/nowpayments")
+async def nowpayments_ipn_webhook(request: Request, db: Session = Depends(get_db)):
+    """
+    NOWPayments IPN (Instant Payment Notification) webhook.
+    Called by NOWPayments on every payment status change.
+
+    Verifies HMAC-SHA512 signature, updates order, activates product on success.
+    """
+    from . import nowpayments_service as nps
+    from .database import NowPaymentsOrder
+    from decimal import Decimal
+    from datetime import datetime
+    import json as _json
+
+    # ── Read raw body + signature ──
+    body_bytes = await request.body()
+    signature = request.headers.get("x-nowpayments-sig", "")
+
+    # ── Verify signature ──
+    if not nps.verify_ipn_signature(body_bytes, signature):
+        logger.warning("NOWPayments IPN: invalid signature")
+        return JSONResponse({"error": "Invalid signature"}, status_code=403)
+
+    data = nps.parse_ipn_body(body_bytes)
+    if not data:
+        return JSONResponse({"error": "Invalid body"}, status_code=400)
+
+    payment_status = data.get("payment_status", "")
+    order_id_str = data.get("order_id", "")  # "SAP-{user_id}-{order_id}"
+    np_payment_id = data.get("payment_id")
+
+    logger.info(f"NOWPayments IPN: status={payment_status} order={order_id_str} payment_id={np_payment_id}")
+
+    if not order_id_str or not order_id_str.startswith("SAP-"):
+        logger.warning(f"NOWPayments IPN: unrecognized order_id format: {order_id_str}")
+        return {"status": "ignored", "reason": "unrecognized order_id"}
+
+    # ── Find our order ──
+    order = db.query(NowPaymentsOrder).filter(
+        NowPaymentsOrder.internal_order_id == order_id_str
+    ).first()
+
+    if not order:
+        logger.warning(f"NOWPayments IPN: order not found: {order_id_str}")
+        return {"status": "ignored", "reason": "order_not_found"}
+
+    # ── Update payment details ──
+    order.np_payment_id = np_payment_id
+    order.pay_currency = data.get("pay_currency")
+    order.pay_amount = data.get("pay_amount")
+    order.actually_paid = data.get("actually_paid")
+    order.outcome_amount = data.get("outcome_amount")
+    order.outcome_currency = data.get("outcome_currency")
+
+    prev_status = order.status
+
+    # ── Handle status transitions ──
+    if payment_status in ("waiting", "confirming", "sending"):
+        order.status = payment_status
+        db.commit()
+        return {"status": "updated", "payment_status": payment_status}
+
+    if payment_status == "partially_paid":
+        order.status = "partially_paid"
+        db.commit()
+        logger.warning(f"NOWPayments IPN: partial payment for order {order_id_str}")
+        return {"status": "updated", "payment_status": "partially_paid"}
+
+    if payment_status in ("failed", "refunded", "expired"):
+        order.status = payment_status
+        db.commit()
+        logger.info(f"NOWPayments IPN: order {order_id_str} → {payment_status}")
+        return {"status": "updated", "payment_status": payment_status}
+
+    # ── Payment confirmed/finished — activate the product ──
+    if nps.is_payment_finished(payment_status):
+        # Prevent double-activation
+        if prev_status in ("confirmed", "finished"):
+            logger.info(f"NOWPayments IPN: order {order_id_str} already fulfilled (status={prev_status})")
+            return {"status": "already_processed"}
+
+        order.status = "finished"
+        order.confirmed_at = datetime.utcnow()
+        db.flush()
+
+        # Load the user
+        user = db.query(User).filter(User.id == order.user_id).first()
+        if not user:
+            logger.error(f"NOWPayments IPN: user {order.user_id} not found for order {order_id_str}")
+            db.commit()
+            return JSONResponse({"error": "User not found"}, status_code=404)
+
+        meta = _json.loads(order.product_meta) if order.product_meta else {}
+
+        # Record payment in main payments table
+        import uuid
+        payment = Payment(
+            from_user_id=user.id, to_user_id=None,
+            amount_usdt=order.price_usd,
+            payment_type=f"nowpayments_{order.product_type}",
+            tx_hash=f"np_{np_payment_id or uuid.uuid4().hex[:12]}",
+            status="confirmed",
+        )
+        db.add(payment)
+        db.flush()
+
+        # ── Activate product using same shared logic as crypto payments ──
+        _nowpayments_activate_product(db, user, order, meta)
+
+        db.commit()
+        logger.info(f"NOWPayments IPN: order {order_id_str} FULFILLED — {order.product_type}/{order.product_key}")
+        return {"status": "fulfilled", "payment_status": payment_status}
+
+    # Unknown status
+    order.status = payment_status
+    db.commit()
+    return {"status": "updated", "payment_status": payment_status}
+
+
+def _nowpayments_activate_product(db, user, order, meta):
+    """Activate the correct product after NOWPayments payment is confirmed.
+    Mirrors _crypto_activate_product logic exactly."""
+    from datetime import datetime, timedelta
+    from decimal import Decimal
+    import uuid
+
+    product_key = order.product_key
+
+    # ── Membership ──
+    if order.product_type == "membership":
+        tier = "pro" if "pro" in product_key else "basic"
+        is_upgrade = meta.get("is_upgrade", False)
+        _activate_membership(db, user, tier, source="nowpayments", is_upgrade=is_upgrade)
+
+    # ── Grid / Campaign Tier ──
+    elif order.product_type == "grid":
+        package_tier = int(product_key.split("_")[1])
+        from .grid import process_tier_purchase
+        result = process_tier_purchase(db=db, buyer_id=user.id, package_tier=package_tier)
+        if not result["success"]:
+            logger.error(f"NOWPayments grid purchase failed for user {user.id} tier {package_tier}: {result.get('error')}")
+
+    # ── Email Boost ──
+    elif order.product_type == "email_boost":
+        pack_map = {
+            "email_boost_1000": 1000,
+            "email_boost_5000": 5000,
+            "email_boost_10000": 10000,
+            "email_boost_50000": 50000,
+        }
+        credits = pack_map.get(product_key, 0)
+        if credits:
+            user.email_credits = (user.email_credits or 0) + credits
+
+
+@app.get("/api/nowpayments/order/{order_id}")
+async def nowpayments_order_status(order_id: int, request: Request,
+                                    db: Session = Depends(get_db),
+                                    user: User = Depends(get_current_user)):
+    """Check the status of a NOWPayments order."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from .database import NowPaymentsOrder
+    order = db.query(NowPaymentsOrder).filter(
+        NowPaymentsOrder.id == order_id,
+        NowPaymentsOrder.user_id == user.id,
+    ).first()
+
+    if not order:
+        return JSONResponse({"error": "Order not found"}, status_code=404)
+
+    return {
+        "order_id": order.id,
+        "status": order.status,
+        "product_key": order.product_key,
+        "price_usd": str(order.price_usd),
+        "invoice_url": order.invoice_url,
+        "pay_currency": order.pay_currency,
+        "actually_paid": str(order.actually_paid) if order.actually_paid else None,
+        "confirmed_at": order.confirmed_at.isoformat() if order.confirmed_at else None,
+        "created_at": order.created_at.isoformat() if order.created_at else None,
+    }
+
+
 @app.post("/withdraw")
 def withdraw(
     request: Request,
