@@ -186,11 +186,15 @@ export default function MemeGenerator() {
         </div>
 
         {/* ═══ RIGHT HALF ═══ */}
-        <div style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#0a1220' }}>
+        <div style={{ overflowY: 'auto', background: '#0a1220' }}>
 
-          {/* TOP: Template grid — scrollable */}
-          <div className="mg-scroll" style={{ flex: 1, overflow: 'auto', padding: '16px 16px 8px', minHeight: 0 }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
+          {/* TOP: Template grid — CONTAINED with internal scroll */}
+          <div style={{ padding: '16px 16px 8px' }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
+              Choose template <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: '#7b8594' }}>— {templates.length} available (scroll to browse)</span>
+            </div>
+            <div className="mg-scroll" style={{ height: 320, overflow: 'auto', borderRadius: 10, border: '1px solid #2a3040', background: '#0d1628', padding: 8 }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8 }}>
               {vis.map(t => (
                 <div key={t.id} className={`mg-tmpl${selected?.id === t.id && !uploadSrc ? ' sel' : ''}`} onClick={() => pick(t)}>
                   <img src={t.url} alt={t.name} loading="lazy" />
@@ -198,6 +202,7 @@ export default function MemeGenerator() {
                 </div>
               ))}
               {vis.length === 0 && <div style={{ gridColumn: '1/-1', padding: 24, textAlign: 'center', fontSize: 13, color: '#7b8594' }}>No templates found</div>}
+              </div>
             </div>
           </div>
 
