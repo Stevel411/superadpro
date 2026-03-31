@@ -188,7 +188,13 @@ export default function QRCodeGenerator() {
   };
 
   return (
-    <div style={{ background: '#050d1a', minHeight: '100vh', fontFamily: '"DM Sans","Rethink Sans",sans-serif', color: '#f0f2f8', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ position: 'relative', minHeight: '100vh', fontFamily: '"DM Sans","Rethink Sans",sans-serif', color: '#f0f2f8', display: 'flex', flexDirection: 'column' }}>
+      {/* Background image + overlay */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
+        <img src="/static/images/explore-bg2.jpg" alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center' }} />
+        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg,rgba(3,7,18,0.85) 0%,rgba(3,7,18,0.75) 30%,rgba(3,7,18,0.8) 60%,rgba(3,7,18,0.95) 100%)' }} />
+      </div>
+      <div style={{ position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column' }}>
 
       {/* ═══ NAV ═══ */}
       <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 36px', height: 80, background: 'rgba(10,18,40,0.95)', backdropFilter: 'blur(18px)', borderBottom: '1px solid rgba(0,180,216,0.12)', flexShrink: 0, position: 'relative' }}>
@@ -321,6 +327,7 @@ export default function QRCodeGenerator() {
             <Link to="/earn" style={{ fontSize: 10, fontWeight: 700, color: '#0ea5e9', textDecoration: 'none' }}>See how →</Link>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
