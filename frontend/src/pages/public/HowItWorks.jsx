@@ -58,9 +58,10 @@ function ToolMiniCard({ name, desc, color }) {
   );
 }
 
-function IncomeCard({ title, amount, sub, desc, color }) {
+function IncomeCard({ title, amount, sub, desc, color, comingSoon }) {
   return (
-    <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderTop: `3px solid ${color}`, borderRadius: 16, padding: '28px 24px' }}>
+    <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderTop: `3px solid ${color}`, borderRadius: 16, padding: '28px 24px', position: 'relative' }}>
+      {comingSoon && <div style={{ position: 'absolute', top: 16, right: 16, padding: '4px 12px', borderRadius: 8, background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)', fontFamily: "'Sora',sans-serif", fontSize: 9, fontWeight: 800, color: '#fbbf24', letterSpacing: 1.5, textTransform: 'uppercase' }}>Coming Soon</div>}
       <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 800, marginBottom: 6 }}>{title}</div>
       <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 32, fontWeight: 900, color, marginBottom: 4 }}>{amount}</div>
       <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>{sub}</div>
@@ -202,8 +203,8 @@ export default function HowItWorks() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
             <IncomeCard title="Membership Commissions" amount="50%" sub="Recurring monthly" desc="$10 per Basic member, $17.50 per Pro member — every single month they stay active." color="#10b981" />
             <IncomeCard title="8×8 Income Grid" amount="$7,200+" sub="Per grid cycle" desc="Eight tiers from $20 to $1,000. Each grid has 64 positions that auto-renew when complete." color="#6366f1" />
-            <IncomeCard title="Course Marketplace" amount="100%" sub="Commissions" desc="Keep every sale. Sales 2, 4, 6, 8 pass up to your sponsor — creating an infinite depth chain." color="#fbbf24" />
-            <IncomeCard title="Watch & Earn" amount="Daily" sub="Commission qualification" desc="Watch campaign videos daily to keep your commissions active and your campaigns running." color="#0ea5e9" />
+            <IncomeCard title="Course Marketplace" amount="100%" sub="Commissions" desc="Keep every sale. Sales 2, 4, 6, 8 pass up to your sponsor — creating an infinite depth chain." color="#fbbf24" comingSoon />
+            <IncomeCard title="SuperMarket" amount="50/25/25" sub="Creator / Affiliate / Platform" desc="Sell digital products. Create once, earn forever. Your affiliates promote for you." color="#0ea5e9" comingSoon />
           </div>
           <div style={{ textAlign: 'center', marginTop: 32 }}>
             <Link to="/earn" style={{ fontFamily: "'Sora',sans-serif", fontSize: 15, fontWeight: 800, color: '#fbbf24', textDecoration: 'none', borderBottom: '2px solid #fbbf24', paddingBottom: 4 }}>See the full compensation plan →</Link>
