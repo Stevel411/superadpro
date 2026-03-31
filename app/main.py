@@ -13438,8 +13438,8 @@ async def cron_process_autoresponder(request: Request, db: Session = Depends(get
     """
     # Auth check
     auth = request.headers.get("authorization", "")
-    cron_secret = os.getenv("CRON_SECRET", "")
-    if cron_secret and auth != f"Bearer {cron_secret}":
+    cron_secret = os.getenv("CRON_SECRET", "sap-renewal-cron-2026-X7kP9mQr")
+    if auth != f"Bearer {cron_secret}":
         return JSONResponse({"error": "Unauthorized"}, status_code=401)
 
     from .database import MemberLead, EmailSequence, EmailSendLog
@@ -13509,8 +13509,8 @@ async def cron_process_autoresponder(request: Request, db: Session = Depends(get
 @app.get("/cron/process-autoresponder")
 async def cron_process_autoresponder_get(request: Request, secret: str = "", db: Session = Depends(get_db)):
     """GET version for cron-job.org — auth via ?secret= query param."""
-    cron_secret = os.getenv("CRON_SECRET", "")
-    if not cron_secret or secret != cron_secret:
+    cron_secret = os.getenv("CRON_SECRET", "sap-renewal-cron-2026-X7kP9mQr")
+    if not secret or secret != cron_secret:
         return JSONResponse({"error": "Invalid secret"}, status_code=401)
 
     from .database import MemberLead, EmailSequence, EmailSendLog
