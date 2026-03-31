@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import AppLayout from '../components/layout/AppLayout';
 
 export default function CreateCampaign() {
   var [title, setTitle] = useState('');
@@ -88,17 +89,8 @@ export default function CreateCampaign() {
   };
 
   return (
-    <div style={S.page}>
-      <div style={S.header}>
-        <div>
-          <h1 style={S.h1}>Create Video Campaign</h1>
-          <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 2 }}>Upload a video and start getting views from the SuperAdPro network</div>
-        </div>
-        <div style={{ display: 'flex', gap: 12 }}>
-          <a href="/video-library" style={{ padding: '8px 20px', borderRadius: 10, background: '#f1f5f9', color: '#334155', textDecoration: 'none', fontWeight: 700, fontSize: 13, border: '1px solid #e2e8f0' }}>My Campaigns</a>
-          <a href="/dashboard" style={{ padding: '8px 20px', borderRadius: 10, background: '#f1f5f9', color: '#334155', textDecoration: 'none', fontWeight: 700, fontSize: 13, border: '1px solid #e2e8f0' }}>← Dashboard</a>
-        </div>
-      </div>
+    <AppLayout title="Create Video Campaign" subtitle="Upload a video and start getting views from the SuperAdPro network">
+      <div style={{ maxWidth: 720, margin: '0 auto' }}>
 
       <div style={S.wrap}>
         <div style={S.card}>
@@ -172,6 +164,7 @@ export default function CreateCampaign() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </AppLayout>
   );
 }
