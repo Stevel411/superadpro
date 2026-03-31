@@ -23,8 +23,11 @@ from .database import (
 )
 from .database import Course, CoursePurchase, CourseCommission, CoursePassUpTracker, CourseChapter, CourseLesson, CourseProgress
 from .coinbase_commerce import create_charge as cb_create_charge, verify_webhook_signature as cb_verify_sig, parse_webhook_event as cb_parse_event, SANDBOX_MODE as CB_SANDBOX
-from . import stripe_service
-from .stripe_service import BOOST_PACKS as STRIPE_BOOST_PACKS, STRIPE_PUBLISHABLE_KEY
+# Stripe disabled — platform uses NOWPayments + direct crypto only
+# from . import stripe_service
+# from .stripe_service import BOOST_PACKS as STRIPE_BOOST_PACKS, STRIPE_PUBLISHABLE_KEY
+STRIPE_BOOST_PACKS = {}
+STRIPE_PUBLISHABLE_KEY = ""
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick, Notification, Achievement, BADGES
 from .database import DigitalProduct, DigitalProductPurchase, DigitalProductReview, DigitalProductAffiliate
 from .database import CoPilotBriefing
@@ -2957,181 +2960,26 @@ STRICT RULES — you must follow these without exception:
 @app.post("/api/stripe/create-membership-checkout")
 async def stripe_membership_checkout(request: Request, db: Session = Depends(get_db),
                                       user: User = Depends(get_current_user)):
-    """Create Stripe Checkout session for membership subscription (monthly or annual)."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    body = await request.json()
-    tier = body.get("tier", "basic")
-    billing = body.get("billing", "monthly")
-    if tier not in ("basic", "pro"):
-        return JSONResponse({"error": "Invalid tier"}, status_code=400)
-    if billing not in ("monthly", "annual"):
-        return JSONResponse({"error": "Invalid billing period"}, status_code=400)
-    result = stripe_service.create_membership_checkout(user.id, tier, user.email, billing=billing)
-    if result["success"]:
-        return {"url": result["url"]}
-    return JSONResponse({"error": result["error"]}, status_code=400)
+    """DISABLED — use NOWPayments or direct crypto."""
+    return JSONResponse({"error": "Card payments are not available. Please use crypto payments."}, status_code=410)
 
 
 @app.post("/api/stripe/create-grid-checkout")
 async def stripe_grid_checkout(request: Request, db: Session = Depends(get_db),
                                 user: User = Depends(get_current_user)):
-    """Create Stripe Checkout session for a Campaign Tier purchase."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if not user.is_active:
-        return JSONResponse({"error": "Active membership required"}, status_code=400)
-    body = await request.json()
-    package_tier = int(body.get("package_tier", 0))
-    from .database import GRID_PACKAGES, GRID_TIER_NAMES
-    price = GRID_PACKAGES.get(package_tier)
-    tier_name = GRID_TIER_NAMES.get(package_tier, f"Tier {package_tier}")
-    if not price:
-        return JSONResponse({"error": "Invalid package tier"}, status_code=400)
-    result = stripe_service.create_grid_checkout(user.id, package_tier, price, tier_name, user.email)
-    if result["success"]:
-        return {"url": result["url"]}
-    return JSONResponse({"error": result["error"]}, status_code=400)
-
+    """DISABLED — use NOWPayments or direct crypto."""
+    return JSONResponse({"error": "Card payments are not available. Please use crypto payments."}, status_code=410)
 
 @app.post("/api/stripe/create-boost-checkout")
 async def stripe_boost_checkout(request: Request, db: Session = Depends(get_db),
                                  user: User = Depends(get_current_user)):
-    """Create Stripe Checkout session for an email boost pack."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    body = await request.json()
-    pack_key = body.get("pack_key", "")
-    result = stripe_service.create_boost_checkout(user.id, pack_key, user.email)
-    if result["success"]:
-        return {"url": result["url"]}
-    return JSONResponse({"error": result["error"]}, status_code=400)
-
-
-
-
+    """DISABLED — use NOWPayments or direct crypto."""
+    return JSONResponse({"error": "Card payments are not available. Please use crypto payments."}, status_code=410)
 
 @app.post("/api/webhook/stripe")
 async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
-    """Handle Stripe webhook events."""
-    payload = await request.body()
-    sig_header = request.headers.get("stripe-signature", "")
-    try:
-        event = stripe_service.verify_webhook(payload, sig_header)
-    except Exception as e:
-        logger.error(f"Stripe webhook verify error: {e}")
-        return JSONResponse({"error": f"Verify error: {str(e)}"}, status_code=500)
-    if not event:
-        return JSONResponse({"error": "Invalid signature"}, status_code=400)
-
-    event_type = event["type"]
-
-    # ── Checkout completed ────────────────────────────────────
-    logger.warning(f"Stripe webhook received: {event_type}")
-    if event_type == "checkout.session.completed":
-        try:
-            # Stripe >= 7 returns StripeObject — convert to plain dict for safety
-            import json as _j
-            session = _j.loads(_j.dumps(dict(event["data"]["object"])))
-            meta = session.get("metadata") or {}
-            user_id = int(meta.get("user_id") or 0)
-            payment_type = meta.get("payment_type") or ""
-            logger.warning(f"Stripe webhook: {payment_type} for user_id={user_id}")
-            user = db.query(User).filter(User.id == user_id).first()
-            if not user:
-                logger.warning(f"Stripe webhook: user {user_id} not found")
-                return {"received": True}
-
-            if payment_type == "membership":
-                tier = meta.get("tier") or "basic"
-                billing = meta.get("billing") or "monthly"
-                _stripe_activate_membership(db, user, tier, session.get("subscription"), billing=billing)
-
-            elif payment_type == "grid":
-                package_tier = int(meta.get("package_tier", 1))
-                price_usd = float(meta.get("price_usd", 0))
-                _stripe_process_grid(db, user, package_tier, price_usd, session["id"])
-
-            elif payment_type == "email_boost":
-                pack_key = meta.get("pack_key", "")
-                emails = int(meta.get("emails", 0))
-                if emails > 0:
-                    user.email_credits = (user.email_credits or 0) + emails
-                    payment = Payment(
-                        from_user_id=user_id, to_user_id=None,
-                        amount_usdt=float(STRIPE_BOOST_PACKS.get(pack_key, {}).get("price", 0)),
-                        payment_type="email_boost", tx_hash=session["id"], status="confirmed",
-                    )
-                    db.add(payment)
-                    db.commit()
-
-            elif payment_type == "course":
-                course_id = int(meta.get("course_id", 0))
-                tx_ref = f"stripe_{session['id'][:20]}"
-                result = process_course_purchase(db, user_id, course_id,
-                                                 payment_method="stripe", tx_ref=tx_ref)
-
-            elif payment_type == "supermarket":
-                product_id = int(meta.get("product_id", 0))
-                affiliate_id = meta.get("affiliate_id")
-                affiliate_id = int(affiliate_id) if affiliate_id else None
-                _stripe_process_supermarket(db, user, product_id, session["id"], affiliate_id)
-
-            elif payment_type == "superscene_credits":
-                from .database import SuperSceneCredit, SuperSceneOrder
-                from datetime import datetime as _dt
-                pack_slug = meta.get("pack_slug", "")
-                credits   = int(meta.get("credits", 0))
-                if credits > 0:
-                    sc_row = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == user_id).first()
-                    if not sc_row:
-                        sc_row = SuperSceneCredit(user_id=user_id, balance=0)
-                        db.add(sc_row)
-                    sc_row.balance += credits
-                    sc_order = db.query(SuperSceneOrder).filter(
-                        SuperSceneOrder.stripe_session_id == session["id"]
-                    ).first()
-                    if sc_order:
-                        sc_order.status = "completed"
-                        sc_order.completed_at = _dt.utcnow()
-                    db.commit()
-                    logger.warning(f"SuperScene: +{credits} credits to user {user_id} (pack={pack_slug})")
-
-        except Exception as e:
-            import traceback
-            tb = traceback.format_exc()
-            logger.error(f"Stripe webhook checkout error: {e}\n{tb}")
-            return JSONResponse({"error": str(e), "detail": tb}, status_code=500)
-
-    # ── Subscription renewed (monthly) ───────────────────────
-    elif event_type == "invoice.payment_succeeded":
-        invoice = event["data"]["object"]
-        if invoice.get("billing_reason") == "subscription_cycle":
-            sub_id = invoice.get("subscription")
-            if sub_id:
-                sub = stripe_service.get_subscription(sub_id)
-                if sub:
-                    user_id = int(sub.get("metadata", {}).get("user_id", 0))
-                    tier = sub.get("metadata", {}).get("tier", "basic")
-                    user = db.query(User).filter(User.id == user_id).first()
-                    if user:
-                        _stripe_renew_membership(db, user, tier, sub_id)
-
-    # ── Subscription cancelled / payment failed ───────────────
-    elif event_type in ("customer.subscription.deleted", "invoice.payment_failed"):
-        obj = event["data"]["object"]
-        sub_id = obj.get("id") if event_type == "customer.subscription.deleted" else obj.get("subscription")
-        if sub_id:
-            user = db.query(User).filter(User.stripe_subscription_id == sub_id).first()
-            if user:
-                user.is_active = False
-                user.membership_tier = "basic"
-                db.commit()
-
-    return {"received": True}
-
-
-
+    """DISABLED — use NOWPayments or direct crypto."""
+    return JSONResponse({"error": "Card payments are not available. Please use crypto payments."}, status_code=410)
 
 def _stripe_process_supermarket(db, user, product_id, session_id, affiliate_id=None):
     """Complete a SuperMarket purchase after Stripe payment confirmed."""
@@ -3191,7 +3039,7 @@ def _stripe_process_supermarket(db, user, product_id, session_id, affiliate_id=N
     p.total_revenue = (p.total_revenue or Decimal("0")) + (p.price or Decimal("0"))
     db.commit()
 
-def _activate_membership(db, user, tier, source="stripe", subscription_id=None, is_upgrade=False, billing="monthly"):
+def _activate_membership(db, user, tier, source="crypto", subscription_id=None, is_upgrade=False, billing="monthly"):
     """
     Shared membership activation — used by BOTH Stripe and Crypto.
     Handles: activation, payment record, sponsor commission, renewal record, welcome email.
@@ -3983,80 +3831,25 @@ def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
 @app.post("/api/stripe/create-course-checkout")
 async def stripe_course_checkout(request: Request, db: Session = Depends(get_db),
                                   user: User = Depends(get_current_user)):
-    """Create Stripe Checkout session for a course purchase."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    body = await request.json()
-    course_id = int(body.get("course_id", 0))
-    from .database import Course
-    course = db.query(Course).filter(Course.id == course_id, Course.is_active == True).first()
-    if not course:
-        return JSONResponse({"error": "Course not found"}, status_code=404)
-    result = stripe_service.create_course_checkout(
-        user.id, course.id, course.title, course.tier, float(course.price), user.email
-    )
-    if result["success"]:
-        return {"url": result["url"]}
-    return JSONResponse({"error": result["error"]}, status_code=400)
-
+    """DISABLED — use NOWPayments or direct crypto."""
+    return JSONResponse({"error": "Card payments are not available. Please use crypto payments."}, status_code=410)
 
 @app.post("/api/stripe/create-supermarket-checkout")
 async def stripe_supermarket_checkout(request: Request, db: Session = Depends(get_db),
                                        user: User = Depends(get_current_user)):
-    """Create Stripe Checkout session for a SuperMarket product."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    body = await request.json()
-    product_id = int(body.get("product_id", 0))
-    affiliate_id = body.get("affiliate_id")
-    p = db.query(DigitalProduct).filter(
-        DigitalProduct.id == product_id, DigitalProduct.status == "published"
-    ).first()
-    if not p:
-        return JSONResponse({"error": "Product not found"}, status_code=404)
-    if p.creator_id == user.id:
-        return JSONResponse({"error": "Cannot purchase your own product"}, status_code=400)
-    # Check not already purchased
-    from .database import DigitalProductPurchase
-    existing = db.query(DigitalProductPurchase).filter(
-        DigitalProductPurchase.product_id == product_id,
-        DigitalProductPurchase.buyer_id == user.id,
-        DigitalProductPurchase.status == "completed"
-    ).first()
-    if existing:
-        return JSONResponse({"error": "Already purchased", "download_token": existing.download_token}, status_code=400)
-    result = stripe_service.create_supermarket_checkout(
-        user.id, p.id, p.title, float(p.price), user.email, affiliate_id
-    )
-    if result["success"]:
-        return {"url": result["url"]}
-    return JSONResponse({"error": result["error"]}, status_code=400)
+    """DISABLED — use NOWPayments or direct crypto."""
+    return JSONResponse({"error": "Card payments are not available. Please use crypto payments."}, status_code=410)
 
 @app.get("/api/stripe/config")
 def stripe_config(user: User = Depends(get_current_user)):
-    """Return Stripe publishable key for frontend."""
-    return {
-        "publishable_key": STRIPE_PUBLISHABLE_KEY,
-        "configured": stripe_service.is_configured(),
-    }
-
+    """DISABLED — use NOWPayments or direct crypto."""
+    return JSONResponse({"error": "Card payments are not available. Please use crypto payments."}, status_code=410)
 
 @app.post("/api/stripe/cancel-subscription")
 async def cancel_stripe_subscription(request: Request, db: Session = Depends(get_db),
                                       user: User = Depends(get_current_user)):
-    """Cancel a member's Stripe subscription."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    sub_id = getattr(user, "stripe_subscription_id", None)
-    if not sub_id:
-        return JSONResponse({"error": "No active subscription found"}, status_code=400)
-    success = stripe_service.cancel_subscription(sub_id)
-    if success:
-        user.stripe_subscription_id = None
-        db.commit()
-        return {"ok": True, "message": "Subscription cancelled"}
-    return JSONResponse({"error": "Cancellation failed"}, status_code=400)
-
+    """DISABLED — use NOWPayments or direct crypto."""
+    return JSONResponse({"error": "Card payments are not available. Please use crypto payments."}, status_code=410)
 
 # ════════════════════════════════════════════════════════════════════
 #  NOWPayments — Crypto + Fiat Card Payment Gateway
@@ -18563,40 +18356,8 @@ async def sc_delete_video(video_id: int, request: Request, db: Session = Depends
 
 @app.post("/api/superscene/buy/stripe")
 async def sc_buy_stripe(request: Request, db: Session = Depends(get_db)):
-    from .database import SuperSceneOrder
-    from .stripe_service import create_superscene_checkout
-
-    user = get_current_user(request, db)
-    if not user:
-        raise HTTPException(status_code=401, detail="Not authenticated")
-
-    body = await request.json()
-    pack_slug = body.get("pack_slug", "").lower()
-
-    if pack_slug not in SUPERSCENE_PACK_CREDITS:
-        raise HTTPException(status_code=400, detail="Invalid pack")
-
-    result = create_superscene_checkout(user.id, pack_slug, user.email)
-    if not result["success"]:
-        raise HTTPException(status_code=500, detail=result["error"])
-
-    # Record pending order
-    order = SuperSceneOrder(
-        user_id=user.id,
-        pack_slug=pack_slug,
-        credits=SUPERSCENE_PACK_CREDITS[pack_slug],
-        amount_usd=SUPERSCENE_PACK_PRICES[pack_slug],
-        payment_method="stripe",
-        status="pending",
-        stripe_session_id=result["session_id"],
-    )
-    db.add(order)
-    db.commit()
-
-    return {"success": True, "url": result["url"]}
-
-
-# ── SuperScene — Buy Credits via Crypto ────────────────────────
+    """DISABLED — use NOWPayments or direct crypto."""
+    return JSONResponse({"error": "Card payments are not available. Please use crypto payments."}, status_code=410)
 
 @app.post("/api/superscene/buy/crypto")
 async def sc_buy_crypto(request: Request, db: Session = Depends(get_db)):
@@ -18645,51 +18406,8 @@ async def sc_buy_crypto(request: Request, db: Session = Depends(get_db)):
 
 @app.post("/webhooks/superscene/stripe")
 async def sc_stripe_webhook(request: Request, db: Session = Depends(get_db)):
-    """
-    Handle Stripe webhook for SuperScene credit pack payments.
-    Credits the user on checkout.session.completed with payment_type=superscene_credits.
-    """
-    from .database import SuperSceneCredit, SuperSceneOrder
-    import stripe
-
-    payload = await request.body()
-    sig     = request.headers.get("stripe-signature", "")
-
-    try:
-        from .stripe_service import STRIPE_WEBHOOK_SECRET, get_stripe
-        s = get_stripe()
-        event = s.Webhook.construct_event(payload, sig, STRIPE_WEBHOOK_SECRET)
-    except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
-    if event["type"] == "checkout.session.completed":
-        session  = event["data"]["object"]
-        meta     = session.get("metadata", {})
-        ptype    = meta.get("payment_type", "")
-        user_id  = int(meta.get("user_id", 0))
-        pack_slug= meta.get("pack_slug", "")
-        credits  = int(meta.get("credits", 0))
-
-        if ptype == "superscene_credits" and user_id and credits:
-            # Credit the user
-            credit_row = _get_or_create_sc_credits(user_id, db)
-            credit_row.balance += credits
-            db.commit()
-
-            # Mark order complete
-            order = db.query(SuperSceneOrder).filter(
-                SuperSceneOrder.stripe_session_id == session["id"]
-            ).first()
-            if order:
-                from datetime import datetime
-                order.status = "completed"
-                order.completed_at = datetime.utcnow()
-                db.commit()
-
-    return {"received": True}
-
-
-# ── SuperScene — Crypto Confirmation (called by cron/webhook) ──
+    """DISABLED — use NOWPayments or direct crypto."""
+    return JSONResponse({"error": "Card payments are not available. Please use crypto payments."}, status_code=410)
 
 @app.post("/api/superscene/confirm-crypto/{order_id}")
 async def sc_confirm_crypto(order_id: int, request: Request, db: Session = Depends(get_db)):

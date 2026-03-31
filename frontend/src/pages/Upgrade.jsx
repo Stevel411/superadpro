@@ -2,7 +2,7 @@ import { useState } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiPost } from '../utils/api';
-import { CreditCard, Coins, Globe } from 'lucide-react';
+import { Coins, Globe } from 'lucide-react';
 import CryptoCheckout from '../components/CryptoCheckout';
 import WalletGuideCard from '../components/WalletGuideCard';
 
@@ -16,18 +16,6 @@ export default function Upgrade() {
   var [billing, setBilling] = useState('monthly');
 
   var isAnnual = billing === 'annual';
-
-  function stripeCheckout(tier) {
-    setLoading(tier + '_stripe');
-    setError('');
-    apiPost('/api/stripe/create-membership-checkout', { tier: tier, billing: billing })
-      .then(function(d) {
-        setLoading('');
-        if (d.url) { window.location.href = d.url; }
-        else { setError(d.error || 'Could not start checkout.'); }
-      })
-      .catch(function(e) { setLoading(''); setError(e.message || 'Checkout failed.'); });
-  }
 
   function nowPaymentsCheckout(tier) {
     setLoading(tier + '_np');
@@ -184,7 +172,7 @@ export default function Upgrade() {
                       <Globe size={16} />
                       {loading === 'basic_np' ? 'Loading...' : '\uD83C\uDF10 Pay with 350+ Cryptos \u2014 ' + (isAnnual ? '$200' : '$20')}
                     </button>
-                    <div style={{ textAlign: 'center', fontSize: 10, color: '#94a3b8' }}>{"\uD83D\uDD12"} Secure payment · Instant activation · {"\uD83D\uDCB3"} Card payments coming soon</div>
+                    <div style={{ textAlign: 'center', fontSize: 10, color: '#94a3b8' }}>{"\uD83D\uDD12"} Secure payment · Instant activation </div>
                   </>
                 )}
               </div>
@@ -293,7 +281,7 @@ export default function Upgrade() {
                       <Globe size={16} />
                       {loading === 'pro_np' ? 'Loading...' : '\uD83C\uDF10 Pay with 350+ Cryptos \u2014 ' + (isAnnual ? '$350' : '$35')}
                     </button>
-                    <div style={{ textAlign: 'center', fontSize: 10, color: '#94a3b8' }}>{"\uD83D\uDD12"} Secure payment · Instant activation · {"\uD83D\uDCB3"} Card payments coming soon</div>
+                    <div style={{ textAlign: 'center', fontSize: 10, color: '#94a3b8' }}>{"\uD83D\uDD12"} Secure payment · Instant activation </div>
                   </>
                 )}
               </div>
@@ -307,7 +295,7 @@ export default function Upgrade() {
         </div>
 
         <p style={{ textAlign: 'center', fontSize: 12, color: '#94a3b8', marginTop: 16 }}>
-          Secure payment via USDT/USDC on Polygon or 350+ cryptos via NOWPayments {"\u00B7"} {"\uD83D\uDCB3"} Card payments coming soon {"\u00B7"} All sales are final
+          Secure payment via USDT/USDC on Polygon or 350+ cryptos via NOWPayments {"\u00B7"} All sales are final
         </p>
       </div>
 
