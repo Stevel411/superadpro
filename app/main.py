@@ -14513,6 +14513,7 @@ async def purchase_marketplace_course(course_id: int, request: Request,
 
     # ── Generate access token for guest purchases ──
     import secrets
+    from decimal import Decimal
     access_token = secrets.token_urlsafe(32) if not user else None
 
     # ── Create purchase record ──
