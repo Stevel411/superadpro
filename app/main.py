@@ -7772,10 +7772,15 @@ Allow: /banners
 Allow: /videos
 Allow: /how-it-works
 Allow: /earn
+Allow: /explore
 Allow: /for-advertisers
 Allow: /faq
 Allow: /legal
 Allow: /wallet-guide
+Allow: /free/
+Allow: /free/meme-generator
+Allow: /free/qr-code-generator
+Allow: /free/banner-creator
 Disallow: /dashboard
 Disallow: /admin
 Disallow: /api/
@@ -14531,23 +14536,23 @@ async def purchase_marketplace_course(course_id: int, request: Request,
     # ── Credit commissions ──
     # 50% to creator
     if creator:
-        creator.balance = (creator.balance or 0) + creator_share
-        creator.total_earned = (creator.total_earned or 0) + creator_share
-        creator.marketplace_earnings = float(creator.marketplace_earnings or 0) + creator_share
-        creator.course_earnings = float(creator.course_earnings or 0) + creator_share
+        creator.balance = Decimal(str(creator.balance or 0)) + Decimal(str(creator_share))
+        creator.total_earned = Decimal(str(creator.total_earned or 0)) + Decimal(str(creator_share))
+        creator.marketplace_earnings = Decimal(str(creator.marketplace_earnings or 0)) + Decimal(str(creator_share))
+        creator.course_earnings = Decimal(str(creator.course_earnings or 0)) + Decimal(str(creator_share))
 
     # 25% to creator's sponsor
     sponsor = db.query(User).filter(User.id == sponsor_id).first() if sponsor_id else None
     if sponsor:
-        sponsor.balance = (sponsor.balance or Decimal("0")) + Decimal(str(sponsor_share))
-        sponsor.total_earned = (sponsor.total_earned or 0) + sponsor_share
-        sponsor.marketplace_earnings = float(sponsor.marketplace_earnings or 0) + sponsor_share
+        sponsor.balance = Decimal(str(sponsor.balance or 0)) + Decimal(str(sponsor_share))
+        sponsor.total_earned = Decimal(str(sponsor.total_earned or 0)) + Decimal(str(sponsor_share))
+        sponsor.marketplace_earnings = Decimal(str(sponsor.marketplace_earnings or 0)) + Decimal(str(sponsor_share))
 
     # 25% company — no wallet credit needed (revenue stays in system)
 
     # ── Update course stats ──
     course.total_sales = (course.total_sales or 0) + 1
-    course.total_revenue = float(course.total_revenue or 0) + price
+    course.total_revenue = Decimal(str(course.total_revenue or 0)) + Decimal(str(price))
 
     # ── Notifications ──
     if creator:
