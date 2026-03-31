@@ -154,17 +154,6 @@ limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-# ── Global exception handler — exposes actual error for debugging ──
-@app.exception_handler(Exception)
-async def global_exception_handler(request: Request, exc: Exception):
-    import traceback
-    tb = traceback.format_exc()
-    logger.exception(f"Unhandled exception on {request.method} {request.url.path}: {exc}")
-    return JSONResponse(
-        status_code=500,
-        content={"error": str(exc), "path": str(request.url.path), "traceback": tb}
-    )
-
 # ── CORS — locked to our domain ──
 ALLOWED_ORIGINS = [
     "https://www.superadpro.com",
@@ -1056,7 +1045,7 @@ def login_form(request: Request):
     return RedirectResponse(url="/", status_code=302)
 
 @app.post("/login")
-# @limiter.limit("10/minute")  # temporarily disabled for debugging
+@limiter.limit("10/minute")
 def login_process(
     request: Request,
     username: str = Form(), password: str = Form(),
@@ -1084,17 +1073,8 @@ def login_process(
     return JSONResponse({"error": "Invalid username or password."}, status_code=401)
 
 
-@app.post("/api/debug-login-test")
-async def debug_login_test(request: Request, db: Session = Depends(get_db)):
-    """Bare test — same deps as login, no logic."""
-    try:
-        body = await request.json()
-        return {"ok": True, "got": list(body.keys())}
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
-
 @app.post("/api/login")
-# @limiter.limit("10/minute")  # temporarily disabled for debugging
+@limiter.limit("10/minute")
 async def api_login(
     request: Request,
     db: Session = Depends(get_db)
@@ -1103,35 +1083,33 @@ async def api_login(
     from fastapi.responses import JSONResponse
     try:
         body = await request.json()
-        username = sanitize(body.get("username", "").strip())
-        password = body.get("password", "")
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
 
-        if is_locked_out(username):
-            return JSONResponse({
-                "error": f"Account locked — too many failed attempts. Try again in {LOCKOUT_MINUTES} minutes."
-            }, status_code=429)
+    username = sanitize(body.get("username", "").strip())
+    password = body.get("password", "")
 
-        user = db.query(User).filter(
-            (User.username == username) | (User.email == username)
-        ).first()
+    if is_locked_out(username):
+        return JSONResponse({
+            "error": f"Account locked — too many failed attempts. Try again in {LOCKOUT_MINUTES} minutes."
+        }, status_code=429)
 
-        if user and verify_password(password, user.password):
-            clear_failed_attempts(username)
-            if getattr(user, 'totp_enabled', False) and user.totp_secret:
-                response = JSONResponse({"success": True, "requires_2fa": True, "redirect": "/login/2fa"})
-                response.set_cookie("pre_auth", str(user.id), max_age=300, httponly=True, samesite="lax")
-                return response
-            response = JSONResponse({"success": True, "redirect": "/dashboard"})
-            set_secure_cookie(response, user.id)
+    user = db.query(User).filter(
+        (User.username == username) | (User.email == username)
+    ).first()
+
+    if user and verify_password(password, user.password):
+        clear_failed_attempts(username)
+        if getattr(user, 'totp_enabled', False) and user.totp_secret:
+            response = JSONResponse({"success": True, "requires_2fa": True, "redirect": "/login/2fa"})
+            response.set_cookie("pre_auth", str(user.id), max_age=300, httponly=True, samesite="lax")
             return response
+        response = JSONResponse({"success": True, "redirect": "/dashboard"})
+        set_secure_cookie(response, user.id)
+        return response
 
-        record_failed_attempt(username)
-        return JSONResponse({"error": "Invalid username or password."}, status_code=401)
-    except Exception as _fatal:
-        import traceback
-        tb = traceback.format_exc()
-        logger.exception(f"LOGIN CRASH: {_fatal}")
-        return JSONResponse({"error": f"Login crash: {str(_fatal)}", "traceback": tb}, status_code=500)
+    record_failed_attempt(username)
+    return JSONResponse({"error": "Invalid username or password."}, status_code=401)
 
 
 @app.get("/logout")
@@ -3085,7 +3063,11 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     # Activate user
     user.is_active = True
     user.membership_tier = tier
-    user.membership_billing = "annual" if is_annual else "monthly"
+    # Set billing type (safe — column may not exist yet in DB)
+    try:
+        user.membership_billing = "annual" if is_annual else "monthly"
+    except Exception:
+        pass  # Column not yet created in DB
     user.membership_expires_at = datetime.utcnow() + timedelta(days=365 if is_annual else 31)
     if subscription_id:
         user.stripe_subscription_id = subscription_id
@@ -19612,4 +19594,3 @@ async def grok_sales_agent_endpoint(request: Request):
 
     reply = await grok_sales_agent(message, product_info, history)
     return {"success": True, "reply": reply}
-# Deploy trigger: 1774967758
