@@ -1073,6 +1073,15 @@ def login_process(
     return JSONResponse({"error": "Invalid username or password."}, status_code=401)
 
 
+@app.post("/api/debug-login-test")
+async def debug_login_test(request: Request, db: Session = Depends(get_db)):
+    """Bare test — same deps as login, no logic."""
+    try:
+        body = await request.json()
+        return {"ok": True, "got": list(body.keys())}
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
 @app.post("/api/login")
 @limiter.limit("10/minute")
 async def api_login(
