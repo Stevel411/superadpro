@@ -223,14 +223,19 @@ export default function HowItWorks() {
 
         {/* ═══ MEMBERSHIP PRICING ═══ */}
         <Section bg="linear-gradient(180deg,transparent,rgba(14,165,233,0.03),transparent)">
-          <SectionHeader tag="Membership" tagColor="#38bdf8" title="Simple, Affordable Pricing" subtitle="Two plans. No hidden fees. Cancel anytime." />
+          <SectionHeader tag="Membership" tagColor="#38bdf8" title="Simple, Affordable Pricing" subtitle="Two plans. No hidden fees. Cancel anytime. Save 17% with annual." />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, maxWidth: 800, margin: '0 auto' }}>
             {/* Basic */}
             <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '36px 28px' }}>
               <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 700, color: '#38bdf8', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Basic</div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
                 <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 40, fontWeight: 900 }}>$20</span>
                 <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)' }}>/month</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>or</span>
+                <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: '#10b981' }}>$200/year</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 6 }}>SAVE $40</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
                 {['Full affiliate commissions', '8×8 income grid access', 'Campaign video advertising', 'LinkHub bio page', 'Marketing suite tools', 'SuperScene credit packs'].map(f => (
@@ -243,9 +248,14 @@ export default function HowItWorks() {
             <div style={{ background: 'rgba(14,165,233,0.05)', border: '2px solid rgba(14,165,233,0.2)', borderRadius: 20, padding: '36px 28px', position: 'relative' }}>
               <div style={{ position: 'absolute', top: -12, right: 20, padding: '4px 16px', borderRadius: 20, background: '#0ea5e9', fontFamily: "'Sora',sans-serif", fontSize: 11, fontWeight: 800, color: '#fff', letterSpacing: 1 }}>RECOMMENDED</div>
               <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 700, color: '#38bdf8', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Pro</div>
-              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
                 <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 40, fontWeight: 900 }}>$35</span>
                 <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)' }}>/month</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>or</span>
+                <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: '#10b981' }}>$350/year</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 6 }}>SAVE $70</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>✓ Everything in Basic</div>

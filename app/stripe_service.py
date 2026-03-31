@@ -16,6 +16,8 @@ SITE_URL                = os.getenv("SITE_URL", "https://www.superadpro.com")
 # products in Stripe dashboard
 STRIPE_BASIC_PRICE_ID   = os.getenv("STRIPE_BASIC_PRICE_ID", "")   # $20/mo recurring
 STRIPE_PRO_PRICE_ID     = os.getenv("STRIPE_PRO_PRICE_ID", "")     # $35/mo recurring — price_1TD1KEBxEFGz0qoH2yZNibw1
+STRIPE_BASIC_ANNUAL_PRICE_ID = os.getenv("STRIPE_BASIC_ANNUAL_PRICE_ID", "")   # $200 one-time
+STRIPE_PRO_ANNUAL_PRICE_ID   = os.getenv("STRIPE_PRO_ANNUAL_PRICE_ID", "")     # $350 one-time
 
 
 def get_stripe():
@@ -26,39 +28,65 @@ def get_stripe():
 
 # ── Membership Checkout ──────────────────────────────────────
 
-def create_membership_checkout(user_id: int, tier: str, email: str) -> dict:
+def create_membership_checkout(user_id: int, tier: str, email: str, billing: str = "monthly") -> dict:
     """
-    Create a Stripe Checkout Session for membership subscription.
-    tier: 'basic' ($20/mo) or 'pro' ($35/mo)
+    Create a Stripe Checkout Session for membership.
+    Monthly: subscription mode ($20/$35 recurring)
+    Annual: one-time payment mode ($200/$350)
     Returns: {success, url} or {success, error}
     """
     s = get_stripe()
-    price_id = STRIPE_PRO_PRICE_ID if tier == "pro" else STRIPE_BASIC_PRICE_ID
+    is_annual = (billing == "annual")
+
+    if is_annual:
+        price_id = STRIPE_PRO_ANNUAL_PRICE_ID if tier == "pro" else STRIPE_BASIC_ANNUAL_PRICE_ID
+    else:
+        price_id = STRIPE_PRO_PRICE_ID if tier == "pro" else STRIPE_BASIC_PRICE_ID
 
     if not price_id:
-        return {"success": False, "error": "Stripe price not configured. Contact admin."}
+        return {"success": False, "error": f"Stripe {'annual' if is_annual else 'monthly'} price not configured. Contact admin."}
 
     try:
-        session = s.checkout.Session.create(
-            payment_method_types=["card"],
-            mode="subscription",
-            customer_email=email,
-            line_items=[{"price": price_id, "quantity": 1}],
-            success_url=f"{SITE_URL}/payment-success?session_id={{CHECKOUT_SESSION_ID}}&type=membership&tier={tier}",
-            cancel_url=f"{SITE_URL}/upgrade?cancelled=1",
-            metadata={
-                "user_id": str(user_id),
-                "payment_type": "membership",
-                "tier": tier,
-            },
-            subscription_data={
-                "metadata": {
+        if is_annual:
+            # Annual = one-time payment (not subscription)
+            session = s.checkout.Session.create(
+                payment_method_types=["card"],
+                mode="payment",
+                customer_email=email,
+                line_items=[{"price": price_id, "quantity": 1}],
+                success_url=f"{SITE_URL}/payment-success?session_id={{CHECKOUT_SESSION_ID}}&type=membership&tier={tier}&billing=annual",
+                cancel_url=f"{SITE_URL}/upgrade?cancelled=1",
+                metadata={
                     "user_id": str(user_id),
+                    "payment_type": "membership",
                     "tier": tier,
-                }
-            },
-            allow_promotion_codes=True,
-        )
+                    "billing": "annual",
+                },
+                allow_promotion_codes=True,
+            )
+        else:
+            # Monthly = recurring subscription
+            session = s.checkout.Session.create(
+                payment_method_types=["card"],
+                mode="subscription",
+                customer_email=email,
+                line_items=[{"price": price_id, "quantity": 1}],
+                success_url=f"{SITE_URL}/payment-success?session_id={{CHECKOUT_SESSION_ID}}&type=membership&tier={tier}&billing=monthly",
+                cancel_url=f"{SITE_URL}/upgrade?cancelled=1",
+                metadata={
+                    "user_id": str(user_id),
+                    "payment_type": "membership",
+                    "tier": tier,
+                    "billing": "monthly",
+                },
+                subscription_data={
+                    "metadata": {
+                        "user_id": str(user_id),
+                        "tier": tier,
+                    }
+                },
+                allow_promotion_codes=True,
+            )
         return {"success": True, "url": session.url, "session_id": session.id}
     except Exception as e:
         return {"success": False, "error": str(e)}

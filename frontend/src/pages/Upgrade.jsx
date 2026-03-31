@@ -13,11 +13,27 @@ export default function Upgrade() {
   var [loading, setLoading] = useState('');
   var [error, setError] = useState('');
   var [cryptoCheckout, setCryptoCheckout] = useState(null);
+  var [billing, setBilling] = useState('monthly');
+
+  var isAnnual = billing === 'annual';
+
+  function stripeCheckout(tier) {
+    setLoading(tier + '_stripe');
+    setError('');
+    apiPost('/api/stripe/create-membership-checkout', { tier: tier, billing: billing })
+      .then(function(d) {
+        setLoading('');
+        if (d.url) { window.location.href = d.url; }
+        else { setError(d.error || 'Could not start checkout.'); }
+      })
+      .catch(function(e) { setLoading(''); setError(e.message || 'Checkout failed.'); });
+  }
 
   function nowPaymentsCheckout(tier) {
     setLoading(tier + '_np');
     setError('');
-    apiPost('/api/nowpayments/create-invoice', { product_key: 'membership_' + tier })
+    var productKey = isAnnual ? 'membership_' + tier + '_annual' : 'membership_' + tier;
+    apiPost('/api/nowpayments/create-invoice', { product_key: productKey })
       .then(function(d) {
         setLoading('');
         if (d.invoice_url) { window.location.href = d.invoice_url; }
@@ -27,8 +43,11 @@ export default function Upgrade() {
   }
 
   function openCryptoCheckout(tier) {
-    var label = tier === 'pro' ? 'Pro Membership — $35/mo' : 'Basic Membership — $20/mo';
-    setCryptoCheckout({ productKey: 'membership_' + tier, label: label });
+    var label = isAnnual
+      ? (tier === 'pro' ? 'Pro Annual — $350/year' : 'Basic Annual — $200/year')
+      : (tier === 'pro' ? 'Pro Membership — $35/mo' : 'Basic Membership — $20/mo');
+    var productKey = isAnnual ? 'membership_' + tier + '_annual' : 'membership_' + tier;
+    setCryptoCheckout({ productKey: productKey, label: label });
   }
 
   var isBasicActive = isActive && !isPro;
@@ -70,6 +89,17 @@ export default function Upgrade() {
           </div>
         )}
 
+        {/* ── Billing Toggle ── */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 28 }}>
+          <div style={{ display: 'flex', background: '#f1f5f9', borderRadius: 12, padding: 4, gap: 4 }}>
+            <button onClick={function(){setBilling('monthly')}} style={{ padding: '10px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, background: billing === 'monthly' ? '#0ea5e9' : 'transparent', color: billing === 'monthly' ? '#fff' : '#64748b', transition: 'all .2s' }}>Monthly</button>
+            <button onClick={function(){setBilling('annual')}} style={{ padding: '10px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, background: billing === 'annual' ? '#0ea5e9' : 'transparent', color: billing === 'annual' ? '#fff' : '#64748b', transition: 'all .2s', position: 'relative' }}>
+              Annual
+              <span style={{ position: 'absolute', top: -8, right: -12, padding: '2px 8px', borderRadius: 10, background: '#10b981', color: '#fff', fontSize: 9, fontWeight: 800, letterSpacing: .5 }}>SAVE 17%</span>
+            </button>
+          </div>
+        </div>
+
         <div className="grid-2-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, alignItems: 'stretch' }}>
 
           {/* ── BASIC CARD ── */}
@@ -98,10 +128,10 @@ export default function Upgrade() {
               <div style={{ position: 'relative', zIndex: 2 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'rgba(255,255,255,.45)', marginBottom: 12 }}>Basic</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
-                  <span style={{ fontFamily: 'Sora,sans-serif', fontSize: 48, fontWeight: 900, color: '#fff', lineHeight: 1 }}>$20</span>
-                  <span style={{ fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,.4)' }}>/mo</span>
+                  <span style={{ fontFamily: 'Sora,sans-serif', fontSize: 48, fontWeight: 900, color: '#fff', lineHeight: 1 }}>{isAnnual ? '$200' : '$20'}</span>
+                  <span style={{ fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,.4)' }}>{isAnnual ? '/year' : '/mo'}</span>
                 </div>
-                <div style={{ fontSize: 14, color: 'rgba(255,255,255,.4)', marginTop: 6 }}>Everything you need to start earning</div>
+                <div style={{ fontSize: 14, color: 'rgba(255,255,255,.4)', marginTop: 6 }}>{isAnnual ? 'Save $40 vs monthly — pay once' : 'Everything you need to start earning'}</div>
               </div>
             </div>
 
@@ -152,7 +182,7 @@ export default function Upgrade() {
                       onMouseOut={function(e) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'; }}
                     >
                       <Globe size={16} />
-                      {loading === 'basic_np' ? 'Loading...' : '\uD83C\uDF10 Pay with 350+ Cryptos \u2014 $20'}
+                      {loading === 'basic_np' ? 'Loading...' : '\uD83C\uDF10 Pay with 350+ Cryptos \u2014 ' + (isAnnual ? '$200' : '$20')}
                     </button>
                     <div style={{ textAlign: 'center', fontSize: 10, color: '#94a3b8' }}>{"\uD83D\uDD12"} Secure payment · Instant activation · {"\uD83D\uDCB3"} Card payments coming soon</div>
                   </>
@@ -195,10 +225,10 @@ export default function Upgrade() {
               <div style={{ position: 'relative', zIndex: 2 }}>
                 <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'rgba(255,255,255,.5)', marginBottom: 12 }}>Pro</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
-                  <span style={{ fontFamily: 'Sora,sans-serif', fontSize: 48, fontWeight: 900, color: '#fff', lineHeight: 1 }}>{isBasicActive ? '$15' : '$35'}</span>
-                  <span style={{ fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,.5)' }}>/{isBasicActive ? 'upgrade' : 'mo'}</span>
+                  <span style={{ fontFamily: 'Sora,sans-serif', fontSize: 48, fontWeight: 900, color: '#fff', lineHeight: 1 }}>{isBasicActive ? '$15' : isAnnual ? '$350' : '$35'}</span>
+                  <span style={{ fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,.5)' }}>/{isBasicActive ? 'upgrade' : isAnnual ? 'year' : 'mo'}</span>
                 </div>
-                <div style={{ fontSize: 14, color: 'rgba(255,255,255,.45)', marginTop: 6 }}>{isBasicActive ? 'then $35/mo from next month' : 'Full AI-powered marketing suite'}</div>
+                <div style={{ fontSize: 14, color: 'rgba(255,255,255,.45)', marginTop: 6 }}>{isBasicActive ? 'then $35/mo from next month' : isAnnual ? 'Save $70 vs monthly — pay once' : 'Full AI-powered marketing suite'}</div>
               </div>
             </div>
 
@@ -261,7 +291,7 @@ export default function Upgrade() {
                       onMouseOut={function(e) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#64748b'; }}
                     >
                       <Globe size={16} />
-                      {loading === 'pro_np' ? 'Loading...' : '\uD83C\uDF10 Pay with 350+ Cryptos \u2014 $35'}
+                      {loading === 'pro_np' ? 'Loading...' : '\uD83C\uDF10 Pay with 350+ Cryptos \u2014 ' + (isAnnual ? '$350' : '$35')}
                     </button>
                     <div style={{ textAlign: 'center', fontSize: 10, color: '#94a3b8' }}>{"\uD83D\uDD12"} Secure payment · Instant activation · {"\uD83D\uDCB3"} Card payments coming soon</div>
                   </>

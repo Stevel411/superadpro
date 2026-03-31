@@ -47,6 +47,8 @@ from .payment import (
     initialise_renewal_record, process_auto_renewals,
     _find_overspill_placement, _cascade_auto_activation,
     MEMBERSHIP_SPONSOR_SHARE, MEMBERSHIP_COMPANY_SHARE,
+    ANNUAL_PRICES, ANNUAL_SPONSOR_SHARE, ANNUAL_COMPANY_SHARE,
+    PRO_MONTHLY_FEE, PRO_SPONSOR_SHARE, PRO_COMPANY_SHARE,
 )
 from .grid import place_member_in_grid
 import re
@@ -2955,14 +2957,17 @@ STRICT RULES — you must follow these without exception:
 @app.post("/api/stripe/create-membership-checkout")
 async def stripe_membership_checkout(request: Request, db: Session = Depends(get_db),
                                       user: User = Depends(get_current_user)):
-    """Create Stripe Checkout session for membership subscription."""
+    """Create Stripe Checkout session for membership subscription (monthly or annual)."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     body = await request.json()
     tier = body.get("tier", "basic")
+    billing = body.get("billing", "monthly")
     if tier not in ("basic", "pro"):
         return JSONResponse({"error": "Invalid tier"}, status_code=400)
-    result = stripe_service.create_membership_checkout(user.id, tier, user.email)
+    if billing not in ("monthly", "annual"):
+        return JSONResponse({"error": "Invalid billing period"}, status_code=400)
+    result = stripe_service.create_membership_checkout(user.id, tier, user.email, billing=billing)
     if result["success"]:
         return {"url": result["url"]}
     return JSONResponse({"error": result["error"]}, status_code=400)
@@ -3039,7 +3044,8 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
 
             if payment_type == "membership":
                 tier = meta.get("tier") or "basic"
-                _stripe_activate_membership(db, user, tier, session.get("subscription"))
+                billing = meta.get("billing") or "monthly"
+                _stripe_activate_membership(db, user, tier, session.get("subscription"), billing=billing)
 
             elif payment_type == "grid":
                 package_tier = int(meta.get("package_tier", 1))
@@ -3185,7 +3191,7 @@ def _stripe_process_supermarket(db, user, product_id, session_id, affiliate_id=N
     p.total_revenue = (p.total_revenue or Decimal("0")) + (p.price or Decimal("0"))
     db.commit()
 
-def _activate_membership(db, user, tier, source="stripe", subscription_id=None, is_upgrade=False):
+def _activate_membership(db, user, tier, source="stripe", subscription_id=None, is_upgrade=False, billing="monthly"):
     """
     Shared membership activation — used by BOTH Stripe and Crypto.
     Handles: activation, payment record, sponsor commission, renewal record, welcome email.
@@ -3200,13 +3206,18 @@ def _activate_membership(db, user, tier, source="stripe", subscription_id=None, 
 
     # Pricing — single source of truth
     MEMBERSHIP_PRICES = {"pro": Decimal("35.00"), "basic": Decimal("20.00")}
+    ANNUAL_MEMBERSHIP_PRICES = {"pro": Decimal("350.00"), "basic": Decimal("200.00")}
     COMMISSION_CAPS = {"pro": Decimal("17.50"), "basic": Decimal("10.00")}
-    fee = MEMBERSHIP_PRICES.get(tier, Decimal("20.00"))
+    ANNUAL_COMMISSION = {"pro": Decimal("175.00"), "basic": Decimal("100.00")}
+
+    is_annual = (billing == "annual")
+    fee = ANNUAL_MEMBERSHIP_PRICES.get(tier, Decimal("200.00")) if is_annual else MEMBERSHIP_PRICES.get(tier, Decimal("20.00"))
 
     # Activate user
     user.is_active = True
     user.membership_tier = tier
-    user.membership_expires_at = datetime.utcnow() + timedelta(days=31)
+    user.membership_billing = "annual" if is_annual else "monthly"
+    user.membership_expires_at = datetime.utcnow() + timedelta(days=365 if is_annual else 31)
     if subscription_id:
         user.stripe_subscription_id = subscription_id
 
@@ -3237,10 +3248,14 @@ def _activate_membership(db, user, tier, source="stripe", subscription_id=None, 
     if user.sponsor_id and not is_upgrade:
         sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
         if sponsor:
-            # Cap commission at sponsor's own tier level
-            sponsor_tier = getattr(sponsor, "membership_tier", "basic") or "basic"
-            max_commission = COMMISSION_CAPS.get(sponsor_tier, Decimal("10.00"))
-            sponsor_share = min(fee * Decimal("0.50"), max_commission)
+            if is_annual:
+                # Annual: flat 50% commission, no tier cap
+                sponsor_share = ANNUAL_COMMISSION.get(tier, Decimal("100.00"))
+            else:
+                # Monthly: cap commission at sponsor's own tier level
+                sponsor_tier = getattr(sponsor, "membership_tier", "basic") or "basic"
+                max_commission = COMMISSION_CAPS.get(sponsor_tier, Decimal("10.00"))
+                sponsor_share = min(fee * Decimal("0.50"), max_commission)
 
             sponsor.balance = Decimal(str(sponsor.balance or 0)) + sponsor_share
             sponsor.total_earned = Decimal(str(sponsor.total_earned or 0)) + sponsor_share
@@ -3285,9 +3300,9 @@ def _activate_membership(db, user, tier, source="stripe", subscription_id=None, 
     return {"message": f"{tier.title()} membership activated! Expires {user.membership_expires_at.strftime('%d %b %Y')}."}
 
 
-def _stripe_activate_membership(db, user, tier, subscription_id):
+def _stripe_activate_membership(db, user, tier, subscription_id, billing="monthly"):
     """Stripe membership activation — delegates to shared function."""
-    return _activate_membership(db, user, tier, source="stripe", subscription_id=subscription_id)
+    return _activate_membership(db, user, tier, source="stripe", subscription_id=subscription_id, billing=billing)
 
 
 def _stripe_renew_membership(db, user, tier, subscription_id):

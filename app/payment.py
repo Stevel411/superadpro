@@ -54,6 +54,23 @@ MEMBERSHIP_FEE = 20.0
 MEMBERSHIP_SPONSOR_SHARE = 10.0   # 50% to sponsor
 MEMBERSHIP_COMPANY_SHARE = 10.0   # 50% to company treasury
 
+# Annual pricing (17% discount vs monthly)
+ANNUAL_PRICES = {
+    "basic": 200.0,   # vs $240/year monthly ($20 × 12)
+    "pro":   350.0,   # vs $420/year monthly ($35 × 12)
+}
+ANNUAL_SPONSOR_SHARE = {
+    "basic": 100.0,   # 50% of $200
+    "pro":   175.0,   # 50% of $350
+}
+ANNUAL_COMPANY_SHARE = {
+    "basic": 100.0,   # 50% of $200
+    "pro":   175.0,   # 50% of $350
+}
+PRO_MONTHLY_FEE = 35.0
+PRO_SPONSOR_SHARE = 17.50
+PRO_COMPANY_SHARE = 17.50
+
 
 def get_usdt_contract():
     return w3.eth.contract(
@@ -535,6 +552,14 @@ def process_auto_renewals(db: Session) -> dict:
                 renewal.total_renewals = (renewal.total_renewals or 0) + 1
                 renewal.in_grace_period = False
             continue
+
+        # Annual members don't auto-renew monthly — they expire after 365 days
+        # When their membership_expires_at passes, they lapse like anyone else
+        if getattr(user, 'membership_billing', 'monthly') == 'annual':
+            # Check if annual membership has expired
+            if user.membership_expires_at and now < user.membership_expires_at:
+                continue  # Still active, skip
+            # If expired, fall through to lapse logic below
 
         # ── 3-day low balance warning ──────────────────────────
         warning_threshold = renewal.next_renewal_date - timedelta(days=3)
