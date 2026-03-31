@@ -10026,6 +10026,7 @@ def admin_force_migrate(secret: str = "", db: Session = Depends(get_db)):
         "CREATE TABLE IF NOT EXISTS team_messages (id SERIAL PRIMARY KEY, from_user_id INTEGER REFERENCES users(id), to_user_id INTEGER REFERENCES users(id), message TEXT NOT NULL, is_read BOOLEAN DEFAULT FALSE, created_at TIMESTAMP DEFAULT NOW())",
         "CREATE INDEX IF NOT EXISTS idx_team_msg_from ON team_messages(from_user_id)",
         "CREATE INDEX IF NOT EXISTS idx_team_msg_to ON team_messages(to_user_id)",
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_billing VARCHAR DEFAULT 'monthly'",
     ]
     for sql in migrations:
         try:
