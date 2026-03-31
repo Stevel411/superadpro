@@ -18451,6 +18451,14 @@ async def sc_poll_status(task_id: str, request: Request, db: Session = Depends(g
             video.video_url = result["video_url"]
         if result["status"] in ("completed", "failed"):
             video.completed_at = datetime.utcnow()
+        # Refund credits on async failure
+        if result["status"] == "failed" and video.credits_used and video.credits_used > 0:
+            from .database import SuperSceneCredit
+            credit_row = db.query(SuperSceneCredit).filter_by(user_id=user.id).first()
+            if credit_row:
+                credit_row.balance += video.credits_used
+                logger.info(f"SuperScene: Refunded {video.credits_used} credits to user {user.id} for failed video {task_id}")
+                video.credits_used = 0  # Mark as refunded so we don't double-refund
         db.commit()
 
     return {
