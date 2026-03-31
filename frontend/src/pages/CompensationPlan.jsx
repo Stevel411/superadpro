@@ -389,8 +389,6 @@ function MembershipSection() {
         </div>
       </div>
 
-      {/* ── Progress Bar Visual ── */}
-      <MilestoneTracker visible={tableVisible}/>
     </div>
   );
 }
