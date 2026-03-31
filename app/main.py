@@ -154,6 +154,17 @@ limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+# ── Global exception handler — exposes actual error for debugging ──
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    import traceback
+    tb = traceback.format_exc()
+    logger.exception(f"Unhandled exception on {request.method} {request.url.path}: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={"error": str(exc), "path": str(request.url.path), "traceback": tb}
+    )
+
 # ── CORS — locked to our domain ──
 ALLOWED_ORIGINS = [
     "https://www.superadpro.com",
