@@ -136,8 +136,13 @@ export default function HomePage() {
       </section>
 
       {/* ═══ FOOTER ═══ */}
-      <footer style={{ position:'relative', zIndex:1, textAlign:'center', padding:'40px 24px', borderTop:'1px solid rgba(255,255,255,0.04)' }}>
-        <p style={{ fontSize:11, color:'rgba(255,255,255,0.15)', lineHeight:1.7 }}>
+      <footer style={{ position:'relative', zIndex:1, padding:'40px 24px', borderTop:'1px solid rgba(255,255,255,0.04)' }}>
+        <div style={{ display:'flex', justifyContent:'center', gap:20, marginBottom:14, flexWrap:'wrap' }}>
+          <Link to="/free/meme-generator" style={{ fontSize:12, color:'rgba(255,255,255,0.35)', textDecoration:'none' }}>Free Meme Generator</Link>
+          <Link to="/free/qr-code-generator" style={{ fontSize:12, color:'rgba(255,255,255,0.35)', textDecoration:'none' }}>Free QR Code Generator</Link>
+          <Link to="/free/banner-creator" style={{ fontSize:12, color:'rgba(255,255,255,0.35)', textDecoration:'none' }}>Free Banner Creator</Link>
+        </div>
+        <p style={{ fontSize:11, color:'rgba(255,255,255,0.15)', lineHeight:1.7, textAlign:'center' }}>
           SuperAdPro · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>Terms</Link> · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>Privacy</Link> · <Link to="/support" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>Support</Link>
         </p>
       </footer>
