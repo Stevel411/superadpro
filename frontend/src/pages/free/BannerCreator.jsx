@@ -106,6 +106,15 @@ const PlatformIcon = ({ icon, size = 20 }) => {
 const inp = { width: '100%', padding: '10px 14px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 10, fontSize: 14, color: '#fff', fontFamily: '"DM Sans",sans-serif', boxSizing: 'border-box', outline: 'none', transition: 'border-color .2s' };
 
 export default function BannerCreator() {
+  useEffect(() => {
+    document.title = 'Free Social Media Banner & Profile Creator | SuperAdPro';
+    const meta = document.querySelector('meta[name="description"]') || document.createElement('meta');
+    meta.name = 'description';
+    meta.content = 'Create free social media banners and profile pictures for YouTube, Instagram, Facebook, TikTok, X/Twitter, LinkedIn, and Pinterest. Exact platform dimensions, custom backgrounds, text styling. Download as PNG.';
+    if (!meta.parentNode) document.head.appendChild(meta);
+    return () => { document.title = 'SuperAdPro'; };
+  }, []);
+
   const [platform, setPlatform] = useState(PLATFORMS[0]);
   const [catFilter, setCatFilter] = useState('banner');
   const [bgMode, setBgMode] = useState('gradient');

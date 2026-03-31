@@ -73,17 +73,19 @@ export default function ExplorePage() {
               </div>
             </Link>
 
-            <Link to="/free/meme-generator" className="exp-path" style={{ textDecoration:'none', background:'rgba(34,211,238,0.06)', border:'1px solid rgba(34,211,238,0.15)', borderRadius:24, padding:'44px 32px', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', backdropFilter:'blur(8px)' }}>
+            <div className="exp-path" style={{ textDecoration:'none', background:'rgba(34,211,238,0.06)', border:'1px solid rgba(34,211,238,0.15)', borderRadius:24, padding:'44px 32px', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', backdropFilter:'blur(8px)' }}>
               <div style={{ width:72, height:72, borderRadius:20, background:'rgba(34,211,238,0.1)', border:'1px solid rgba(34,211,238,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:32, marginBottom:24 }}>🎨</div>
               <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:900, color:'#fff', marginBottom:10 }}>Free Tools</div>
               <p style={{ fontSize:15, color:'rgba(255,255,255,0.45)', lineHeight:1.7, marginBottom:24, flex:1 }}>
-                Meme generator, image tools, and more.<br/>
+                Meme generator, QR codes, social media banners & profile pictures.<br/>
                 100% free, no signup required.
               </p>
-              <div style={{ fontFamily:"'Sora',sans-serif", fontSize:15, fontWeight:800, color:'#22d3ee', display:'flex', alignItems:'center', gap:8 }}>
-                Try free tools <span style={{ fontSize:18 }}>→</span>
+              <div style={{ display:'flex', flexDirection:'column', gap:8, width:'100%' }}>
+                <Link to="/free/meme-generator" style={{ display:'block', padding:'10px 16px', borderRadius:10, background:'rgba(34,211,238,0.08)', border:'1px solid rgba(34,211,238,0.15)', color:'#22d3ee', fontFamily:"'Sora',sans-serif", fontSize:13, fontWeight:700, textDecoration:'none', transition:'all 0.2s' }}>Meme Generator →</Link>
+                <Link to="/free/qr-code-generator" style={{ display:'block', padding:'10px 16px', borderRadius:10, background:'rgba(34,211,238,0.08)', border:'1px solid rgba(34,211,238,0.15)', color:'#22d3ee', fontFamily:"'Sora',sans-serif", fontSize:13, fontWeight:700, textDecoration:'none', transition:'all 0.2s' }}>QR Code Generator →</Link>
+                <Link to="/free/banner-creator" style={{ display:'block', padding:'10px 16px', borderRadius:10, background:'rgba(34,211,238,0.08)', border:'1px solid rgba(34,211,238,0.15)', color:'#22d3ee', fontFamily:"'Sora',sans-serif", fontSize:13, fontWeight:700, textDecoration:'none', transition:'all 0.2s' }}>Banner & Profile Creator →</Link>
               </div>
-            </Link>
+            </div>
           </div>
 
           {/* Quick CTA */}

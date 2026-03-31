@@ -31,6 +31,15 @@ const COLORS = [
 ];
 
 export default function MemeGenerator() {
+  useEffect(() => {
+    document.title = 'Free Meme Generator — Create Memes Online | SuperAdPro';
+    const meta = document.querySelector('meta[name="description"]') || document.createElement('meta');
+    meta.name = 'description';
+    meta.content = 'Create hilarious memes for free with 100+ templates. Choose a template, add your text, customise fonts and colours, download as PNG. No signup required.';
+    if (!meta.parentNode) document.head.appendChild(meta);
+    return () => { document.title = 'SuperAdPro'; };
+  }, []);
+
   const [templates, setTemplates] = useState([]);
   const [selected, setSelected] = useState(null);
   const [texts, setTexts] = useState({});

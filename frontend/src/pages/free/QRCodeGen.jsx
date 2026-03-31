@@ -27,6 +27,15 @@ const EC_LEVELS = [
 const inp = { width: '100%', padding: '10px 14px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 10, fontSize: 13, color: '#fff', fontFamily: '"DM Sans",sans-serif', boxSizing: 'border-box', outline: 'none', transition: 'border-color .2s' };
 
 export default function QRCodeGenerator() {
+  useEffect(() => {
+    document.title = 'Free QR Code Generator — Create Custom QR Codes | SuperAdPro';
+    const meta = document.querySelector('meta[name="description"]') || document.createElement('meta');
+    meta.name = 'description';
+    meta.content = 'Generate free QR codes for URLs, text, WiFi, email, phone, and SMS. Customise colours, size, and error correction. Download as PNG or SVG. No signup required.';
+    if (!meta.parentNode) document.head.appendChild(meta);
+    return () => { document.title = 'SuperAdPro'; };
+  }, []);
+
   const [mode, setMode] = useState('url');
   const [url, setUrl] = useState('https://www.superadpro.com');
   const [text, setText] = useState('');

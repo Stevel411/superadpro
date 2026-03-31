@@ -7729,8 +7729,11 @@ def sitemap_xml(request: Request, db: Session = Depends(get_db)):
     base_url = "https://www.superadpro.com"
     urls = []
     # Static pages
-    for path in ["/", "/how-it-works", "/earn", "/for-advertisers", "/faq", "/legal", "/ads", "/banners", "/videos", "/wallet-guide"]:
+    for path in ["/", "/how-it-works", "/earn", "/for-advertisers", "/faq", "/legal", "/ads", "/banners", "/videos", "/wallet-guide", "/explore"]:
         urls.append(f'<url><loc>{base_url}{path}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>')
+    # Free tools — high priority for SEO traffic
+    for path in ["/free/meme-generator", "/free/qr-code-generator", "/free/banner-creator"]:
+        urls.append(f'<url><loc>{base_url}{path}</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>')
     # Ad category pages
     ad_cats = sorted(set(a.category for a in db.query(AdListing).filter(AdListing.is_active == True).all() if a.category))
     for cat in ad_cats:
@@ -19718,3 +19721,87 @@ Provide:
     except Exception as e:
         logger.exception("Content Creator generation error")
         raise HTTPException(status_code=502, detail=str(e))
+
+
+# ═══════════════════════════════════════════════════════════
+# GROK AI ROUTES (xAI) — Cheap AI for content, prompts, sales
+# ═══════════════════════════════════════════════════════════
+
+@app.get("/api/grok/status")
+async def grok_status():
+    """Check if Grok API is configured."""
+    from .grok_service import is_configured
+    return {"configured": is_configured()}
+
+
+@app.post("/api/grok/chat")
+async def grok_chat_endpoint(request: Request, user=Depends(get_current_user)):
+    """General Grok chat — authenticated users only."""
+    from .grok_service import grok_chat
+    body = await request.json()
+    messages = body.get("messages", [])
+    model = body.get("model", "fast")
+    temperature = body.get("temperature", 0.7)
+    max_tokens = body.get("max_tokens", 1024)
+    system_prompt = body.get("system_prompt", None)
+
+    if not messages:
+        raise HTTPException(status_code=400, detail="Messages required")
+
+    result = await grok_chat(
+        messages=messages, model=model, temperature=temperature,
+        max_tokens=max_tokens, system_prompt=system_prompt,
+    )
+
+    if "error" in result:
+        raise HTTPException(status_code=502, detail=result["error"])
+
+    return {"success": True, **result}
+
+
+@app.post("/api/grok/generate-prompt")
+async def grok_generate_prompt_endpoint(request: Request, user=Depends(get_current_user)):
+    """Generate a creative prompt for SuperScene."""
+    from .grok_service import grok_generate_prompt
+    body = await request.json()
+    topic = body.get("topic", "")
+    style = body.get("style", "cinematic")
+
+    if not topic:
+        raise HTTPException(status_code=400, detail="Topic required")
+
+    prompt = await grok_generate_prompt(topic, style)
+    return {"success": True, "prompt": prompt}
+
+
+@app.post("/api/grok/generate-content")
+async def grok_generate_content_endpoint(request: Request, user=Depends(get_current_user)):
+    """Generate marketing content for SuperSeller."""
+    from .grok_service import grok_generate_content
+    body = await request.json()
+    content_type = body.get("type", "social_post")
+    topic = body.get("topic", "")
+    tone = body.get("tone", "professional")
+    length = body.get("length", "medium")
+
+    if not topic:
+        raise HTTPException(status_code=400, detail="Topic required")
+
+    content = await grok_generate_content(content_type, topic, tone, length)
+    return {"success": True, "content": content, "type": content_type}
+
+
+@app.post("/api/grok/sales-agent")
+async def grok_sales_agent_endpoint(request: Request):
+    """AI Sales Agent — public endpoint for prospect chat."""
+    from .grok_service import grok_sales_agent
+    body = await request.json()
+    message = body.get("message", "")
+    product_info = body.get("product_info", "SuperAdPro is a business-in-a-box platform for digital marketers with AI creative tools, income opportunities, and affiliate marketing.")
+    history = body.get("history", [])
+
+    if not message:
+        raise HTTPException(status_code=400, detail="Message required")
+
+    reply = await grok_sales_agent(message, product_info, history)
+    return {"success": True, "reply": reply}
