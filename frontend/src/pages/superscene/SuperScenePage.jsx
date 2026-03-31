@@ -5,16 +5,17 @@ import "./superscene.css";
 // Quality tiers — users pick these instead of specific models
 // Model definitions — real names, real descriptions, real costs
 const MODELS = [
-  { key: "kling3",     name: "Kling 3.0",        desc: "Cinematic realism, smooth motion",  badge: "POPULAR", cost: 3,  color: "#22d3ee", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15],     resolutions: ["720p","1080p"],         durationLabel: "3-15s" },
-  { key: "kling-o3",   name: "Kling O3",         desc: "Next-gen, exceptional detail",       badge: "BEST",    cost: 5,  color: "#8b5cf6", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15],     resolutions: ["720p","1080p"],         durationLabel: "3-15s" },
-  { key: "seedance",   name: "Seedance 1.5 Pro", desc: "Fast generation, native audio",      badge: "AUDIO",   cost: 2,  color: "#fb923c", i2v: true,  audio: true,  negPrompt: false, durations: [4,5,8,10,12],     resolutions: ["480p","720p","1080p"],  durationLabel: "4-12s" },
-  { key: "sora2",      name: "Sora 2 Pro",       desc: "OpenAI flagship, photorealistic",    badge: "PREMIUM", cost: 8,  color: "#a78bfa", i2v: true,  audio: false, negPrompt: false, durations: [4,8,12],          resolutions: ["720p","1080p"],         durationLabel: "4/8/12s" },
-  { key: "veo31",      name: "VEO 3.1 Fast",     desc: "Google, fast + fine detail",         badge: "NEW",     cost: 3,  color: "#38bdf8", i2v: true,  audio: false, negPrompt: false, durations: [4,6,8],           resolutions: ["720p","1080p","4K"],    durationLabel: "4/6/8s" },
-  { key: "veo31-pro",  name: "VEO 3.1 Pro 4K",   desc: "Maximum quality, 4K + audio",        badge: "4K",      cost: 15, color: "#f59e0b", i2v: true,  audio: true,  negPrompt: false, durations: [4,6,8],           resolutions: ["720p","1080p","4K"],    durationLabel: "4/6/8s" },
-  { key: "wan26",      name: "WAN 2.6",          desc: "Alibaba, audio by default, budget",   badge: "VALUE",   cost: 1,  color: "#6366f1", i2v: true,  audio: false, negPrompt: false, durations: [3,5,8],           resolutions: ["480p","720p"],          durationLabel: "3-8s" },
-  { key: "hailuo23",   name: "Hailuo 2.3",       desc: "Budget-friendly, fast drafts",        badge: "FAST",    cost: 1,  color: "#10b981", i2v: true,  audio: false, negPrompt: false, durations: [6,10],            resolutions: ["768p","1080p"],         durationLabel: "6/10s" },
-  { key: "sora2-max",  name: "Sora 2 Max",       desc: "No watermark, premium OpenAI",        badge: "PRO",     cost: 10, color: "#c084fc", i2v: false, audio: false, negPrompt: false, durations: [10,15],           resolutions: ["720p","1080p"],         durationLabel: "10/15s" },
-  { key: "grok-video", name: "Grok Imagine",     desc: "Creative, fun/normal/spicy modes",    badge: "FUN",     cost: 4,  color: "#ef4444", i2v: true,  audio: false, negPrompt: false, durations: [6,10],            resolutions: ["480p","720p"],          durationLabel: "6/10s" },
+  // Sorted by price: Budget → Standard → Premium → Ultra
+  { key: "wan26",      name: "WAN 2.6",          desc: "Budget-friendly, good quality",        badge: "CHEAPEST", cost: 1,  color: "#10b981", i2v: true,  audio: false, negPrompt: false, durations: [3,5,8],           resolutions: ["480p","720p"],          durationLabel: "3-8s",   pricePer10s: "$0.25",  tier: "budget" },
+  { key: "hailuo23",   name: "Hailuo 2.3",       desc: "Fast drafts, quick iterations",        badge: "FAST",     cost: 1,  color: "#6366f1", i2v: true,  audio: false, negPrompt: false, durations: [6,10],            resolutions: ["768p","1080p"],         durationLabel: "6/10s",  pricePer10s: "$0.30",  tier: "budget" },
+  { key: "seedance",   name: "Seedance 1.5 Pro", desc: "Great quality + native audio",         badge: "VALUE",    cost: 2,  color: "#fb923c", i2v: true,  audio: true,  negPrompt: false, durations: [4,5,8,10,12],     resolutions: ["480p","720p","1080p"],  durationLabel: "4-12s",  pricePer10s: "$0.50",  tier: "standard" },
+  { key: "kling3",     name: "Kling 3.0",        desc: "Cinematic realism, smooth motion",     badge: "POPULAR",  cost: 3,  color: "#22d3ee", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15],     resolutions: ["720p","1080p"],         durationLabel: "3-15s",  pricePer10s: "$0.60",  tier: "standard" },
+  { key: "veo31",      name: "VEO 3.1 Fast",     desc: "Google, fast + fine detail",           badge: "NEW",      cost: 3,  color: "#38bdf8", i2v: true,  audio: false, negPrompt: false, durations: [4,6,8],           resolutions: ["720p","1080p","4K"],    durationLabel: "4/6/8s", pricePer10s: "$0.80",  tier: "standard" },
+  { key: "grok-video", name: "Grok Imagine",     desc: "Creative with built-in audio",         badge: "AUDIO",    cost: 4,  color: "#ef4444", i2v: true,  audio: false, negPrompt: false, durations: [6,10],            resolutions: ["480p","720p"],          durationLabel: "6/10s",  pricePer10s: "$0.70",  tier: "standard" },
+  { key: "kling-o3",   name: "Kling O3",         desc: "Next-gen, exceptional detail",         badge: "BEST",     cost: 5,  color: "#8b5cf6", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15],     resolutions: ["720p","1080p"],         durationLabel: "3-15s",  pricePer10s: "$1.00",  tier: "premium" },
+  { key: "sora2",      name: "Sora 2 Pro",       desc: "OpenAI flagship, photorealistic",      badge: "PREMIUM",  cost: 8,  color: "#a78bfa", i2v: true,  audio: false, negPrompt: false, durations: [4,8,12],          resolutions: ["720p","1080p"],         durationLabel: "4/8/12s",pricePer10s: "$1.50",  tier: "premium" },
+  { key: "sora2-max",  name: "Sora 2 Max",       desc: "No watermark, premium OpenAI",         badge: "PRO",      cost: 10, color: "#c084fc", i2v: false, audio: false, negPrompt: false, durations: [10,15],           resolutions: ["720p","1080p"],         durationLabel: "10/15s", pricePer10s: "$2.00",  tier: "ultra" },
+  { key: "veo31-pro",  name: "VEO 3.1 Pro 4K",   desc: "Maximum quality, 4K + audio",          badge: "4K",       cost: 15, color: "#f59e0b", i2v: true,  audio: true,  negPrompt: false, durations: [4,6,8],           resolutions: ["720p","1080p","4K"],    durationLabel: "4/6/8s", pricePer10s: "$4.00",  tier: "ultra" },
 ];
 
 const PROMPT_SUGGESTIONS = [
@@ -1107,6 +1108,7 @@ export default function SuperScenePage() {
                         <div className="sc-model-icon" style={{ background: `linear-gradient(135deg, ${m.color}, ${m.color}88)` }}>✦</div>
                         <div className="sc-model-info"><div className="sc-model-name">{m.name}</div><div className="sc-model-desc">{m.desc}</div></div>
                         <div className="sc-model-meta">
+                          {m.pricePer10s && <span className="sc-model-price" style={{ background: m.tier === 'budget' ? 'rgba(16,185,129,0.15)' : m.tier === 'ultra' ? 'rgba(245,158,11,0.15)' : 'rgba(255,255,255,0.06)', color: m.tier === 'budget' ? '#10b981' : m.tier === 'ultra' ? '#f59e0b' : 'rgba(255,255,255,0.5)', fontSize: 10, fontWeight: 800, padding: '2px 8px', borderRadius: 6 }}>~{m.pricePer10s}/10s</span>}
                           <span className="sc-model-badge" style={{ background: `${m.color}22`, color: m.color }}>{m.badge}</span>
                           {m.i2v && <span className="sc-feat-tag">I2V</span>}
                           {m.audio && <span className="sc-feat-tag sc-feat-audio">Audio</span>}
@@ -1342,7 +1344,7 @@ export default function SuperScenePage() {
                     : !prompt.trim() ? "Enter a prompt first"
                     : mode === "image" && !imageUrl ? "Upload an image first"
                     : credits < cost ? "Not enough credits"
-                    : `Generate — ${cost} credits`}
+                    : `Generate — ${cost} credits${selectedModel?.pricePer10s ? ` (~${selectedModel.pricePer10s})` : ''}`}
                 </button>
                 {credits < cost && <button className="sc-buymore" onClick={() => setTab("packs")}>Buy more credits →</button>}
               </div>
