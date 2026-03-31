@@ -1086,8 +1086,12 @@ async def api_login(
     except Exception:
         return JSONResponse({"error": "Invalid request"}, status_code=400)
 
-    username = sanitize(body.get("username", "").strip())
-    password = body.get("password", "")
+    try:
+        username = sanitize(body.get("username", "").strip())
+        password = body.get("password", "")
+    except Exception as _login_err:
+        logger.exception("Login sanitize crash")
+        return JSONResponse({"error": f"Login error: {str(_login_err)}"}, status_code=500)
 
     if is_locked_out(username):
         return JSONResponse({
