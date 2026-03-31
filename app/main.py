@@ -1092,38 +1092,35 @@ async def api_login(
     from fastapi.responses import JSONResponse
     try:
         body = await request.json()
-    except Exception:
-        return JSONResponse({"error": "Invalid request"}, status_code=400)
-
-    try:
         username = sanitize(body.get("username", "").strip())
         password = body.get("password", "")
-    except Exception as _login_err:
-        logger.exception("Login sanitize crash")
-        return JSONResponse({"error": f"Login error: {str(_login_err)}"}, status_code=500)
 
-    if is_locked_out(username):
-        return JSONResponse({
-            "error": f"Account locked — too many failed attempts. Try again in {LOCKOUT_MINUTES} minutes."
-        }, status_code=429)
+        if is_locked_out(username):
+            return JSONResponse({
+                "error": f"Account locked — too many failed attempts. Try again in {LOCKOUT_MINUTES} minutes."
+            }, status_code=429)
 
-    user = db.query(User).filter(
-        (User.username == username) | (User.email == username)
-    ).first()
+        user = db.query(User).filter(
+            (User.username == username) | (User.email == username)
+        ).first()
 
-    if user and verify_password(password, user.password):
-        clear_failed_attempts(username)
-        # Check 2FA
-        if getattr(user, 'totp_enabled', False) and user.totp_secret:
-            response = JSONResponse({"success": True, "requires_2fa": True, "redirect": "/login/2fa"})
-            response.set_cookie("pre_auth", str(user.id), max_age=300, httponly=True, samesite="lax")
+        if user and verify_password(password, user.password):
+            clear_failed_attempts(username)
+            if getattr(user, 'totp_enabled', False) and user.totp_secret:
+                response = JSONResponse({"success": True, "requires_2fa": True, "redirect": "/login/2fa"})
+                response.set_cookie("pre_auth", str(user.id), max_age=300, httponly=True, samesite="lax")
+                return response
+            response = JSONResponse({"success": True, "redirect": "/dashboard"})
+            set_secure_cookie(response, user.id)
             return response
-        response = JSONResponse({"success": True, "redirect": "/dashboard"})
-        set_secure_cookie(response, user.id)
-        return response
 
-    record_failed_attempt(username)
-    return JSONResponse({"error": "Invalid username or password."}, status_code=401)
+        record_failed_attempt(username)
+        return JSONResponse({"error": "Invalid username or password."}, status_code=401)
+    except Exception as _fatal:
+        import traceback
+        tb = traceback.format_exc()
+        logger.exception(f"LOGIN CRASH: {_fatal}")
+        return JSONResponse({"error": f"Login crash: {str(_fatal)}", "traceback": tb}, status_code=500)
 
 
 @app.get("/logout")
