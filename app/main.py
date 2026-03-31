@@ -1045,7 +1045,7 @@ def login_form(request: Request):
     return RedirectResponse(url="/", status_code=302)
 
 @app.post("/login")
-@limiter.limit("10/minute")
+# @limiter.limit("10/minute")  # temporarily disabled for debugging
 def login_process(
     request: Request,
     username: str = Form(), password: str = Form(),
@@ -1083,7 +1083,7 @@ async def debug_login_test(request: Request, db: Session = Depends(get_db)):
         return JSONResponse({"error": str(e)}, status_code=500)
 
 @app.post("/api/login")
-@limiter.limit("10/minute")
+# @limiter.limit("10/minute")  # temporarily disabled for debugging
 async def api_login(
     request: Request,
     db: Session = Depends(get_db)
