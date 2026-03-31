@@ -168,8 +168,7 @@ class User(Base):
     # Stripe
     stripe_subscription_id  = Column(String, nullable=True)                 # active Stripe subscription ID
     membership_expires_at   = Column(DateTime, nullable=True)               # next renewal date
-    # membership_billing — will be added after DB column is confirmed created
-    # membership_billing      = Column(String, default="monthly")           # "monthly" or "annual"
+    membership_billing      = Column(String, default="monthly")             # "monthly" or "annual"
 
 class Grid(Base):
     """One grid instance per user per package tier."""
