@@ -225,7 +225,7 @@ function ProductDetail({ product, onBack, currentUserId }) {
           )}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
             <div style={{background:'#0c1e4a',padding:'14px 20px'}}><div style={{fontSize:14,fontWeight:800,color:'#fff'}}>About This Product</div></div>
-            <div style={{padding:'20px',fontSize:13,color:'#334155',lineHeight:1.8}} dangerouslySetInnerHTML={{__html:p.description||'No description provided.'}}/>
+            <div style={{padding:'20px',fontSize:13,color:'#334155',lineHeight:1.8,whiteSpace:'pre-wrap'}}>{(p.description||'No description provided.').replace(/<[^>]*>/g, '')}</div>
           </div>
           {Array.isArray(p.features) && p.features.length > 0 && (
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginTop:14}}>

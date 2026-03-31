@@ -19806,15 +19806,16 @@ async def grok_generate_content_endpoint(request: Request, user=Depends(get_curr
 
 
 @app.post("/api/grok/sales-agent")
+@limiter.limit("10/minute")
 async def grok_sales_agent_endpoint(request: Request):
-    """AI Sales Agent — public endpoint for prospect chat."""
+    """AI Sales Agent — public endpoint for prospect chat. Rate limited to prevent abuse."""
     from .grok_service import grok_sales_agent
     body = await request.json()
-    message = body.get("message", "")
+    message = (body.get("message", "") or "")[:500]  # Cap message length
     product_info = body.get("product_info", "SuperAdPro is a business-in-a-box platform for digital marketers with AI creative tools, income opportunities, and affiliate marketing.")
-    history = body.get("history", [])
+    history = body.get("history", [])[-10:]  # Cap conversation history to last 10 messages
 
-    if not message:
+    if not message.strip():
         raise HTTPException(status_code=400, detail="Message required")
 
     reply = await grok_sales_agent(message, product_info, history)

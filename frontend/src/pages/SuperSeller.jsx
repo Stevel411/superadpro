@@ -1070,7 +1070,7 @@ function EmailsTab({ emails }) {
               <span style={{fontSize:10,fontWeight:600,color:isOpen?'rgba(255,255,255,.4)':'#94a3b8'}}>Day {e.delay_days || i*2}</span>
             </div>
             {isOpen && (
-              <div style={{padding:'18px',fontSize:13,color:'#334155',lineHeight:1.8,whiteSpace:'pre-wrap'}} dangerouslySetInnerHTML={{__html: e.body || e.content || ''}}/>
+              <div style={{padding:'18px',fontSize:13,color:'#334155',lineHeight:1.8,whiteSpace:'pre-wrap'}}>{(e.body || e.content || '').replace(/<[^>]*>/g, '')}</div>
             )}
           </div>
         );
