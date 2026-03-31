@@ -669,6 +669,7 @@ export default function SuperScenePage() {
     { key: "doubao-seedream-4.5", name: "Seedream 4.5",   desc: "Multi-image editing, 4K", badge: "NEW" },
     { key: "gpt-image-1",        name: "GPT Image",      desc: "OpenAI image generation" },
     { key: "gpt-image-1.5",      name: "GPT Image 1.5",  desc: "True-color precision", badge: "NEW" },
+    { key: "grok-image",         name: "Grok Imagine",   desc: "xAI creative image gen", badge: "NEW" },
     { key: "z-image-turbo",      name: "Z Turbo",        desc: "Ultra-fast ~3 seconds", badge: "FAST" },
   ];
   const IMG_SIZES = ["1:1","16:9","9:16","4:3","3:4","3:2","2:3","4:5","5:4"];

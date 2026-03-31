@@ -18246,12 +18246,30 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
     credit_row.balance -= credits_needed
     db.commit()
 
-    # Submit to provider — fal.ai first (cheaper), fallback to EvoLink
+    # Submit to provider — route based on model
+    # Priority: Grok direct (for grok-video) → fal.ai (cheaper) → EvoLink (fallback)
     from .fal_provider import is_available as fal_available, generate_video as fal_generate
+    from .grok_imagine import is_available as grok_available, generate_video as grok_generate
 
     result = None
-    # Try fal.ai first for supported models (61% cheaper for Kling 3.0)
-    if fal_available(model_key) and not style_refs:
+
+    # Try Grok Imagine direct for grok-video (uses xAI API key, no EvoLink markup)
+    if grok_available(model_key):
+        logger.info(f"Routing {model_key} to Grok Imagine (direct xAI)")
+        result = await grok_generate(
+            model_key, prompt, duration, ratio,
+            image_urls=image_urls if image_urls else None,
+            generate_audio=gen_audio,
+            resolution=resolution,
+            negative_prompt=neg_prompt if neg_prompt else None,
+            seed=seed,
+        )
+        if not result["success"]:
+            logger.warning(f"Grok Imagine failed for {model_key}, falling back to EvoLink: {result.get('error')}")
+            result = None
+
+    # Try fal.ai for supported models (cheaper than EvoLink)
+    if result is None and fal_available(model_key) and not style_refs:
         logger.info(f"Routing {model_key} to fal.ai (cheaper provider)")
         result = await fal_generate(
             model_key, prompt, duration, ratio,
@@ -18429,7 +18447,10 @@ async def sc_poll_status(task_id: str, request: Request, db: Session = Depends(g
         raise HTTPException(status_code=401, detail="Not authenticated")
 
     # Route to correct provider based on task_id prefix
-    if task_id.startswith("fal:"):
+    if task_id.startswith("grok:"):
+        from .grok_imagine import poll_video_status as grok_poll
+        result = await grok_poll(task_id)
+    elif task_id.startswith("fal:"):
         from .fal_provider import poll_status as fal_poll
         result = await fal_poll(task_id)
     else:
@@ -19065,6 +19086,22 @@ async def sc_image_generate(request: Request, db: Session = Depends(get_db)):
 
     credit_row.balance -= credits_needed
     db.commit()
+
+    # Route to Grok Imagine direct for grok-image model (no EvoLink markup)
+    if model_id == "grok-image":
+        from .grok_imagine import generate_image as grok_img
+        grok_result = await grok_img(prompt, n=n)
+        if grok_result["success"]:
+            return {
+                "success": True,
+                "images": grok_result["images"],
+                "credits_used": credits_needed,
+                "credits_remaining": credit_row.balance,
+            }
+        else:
+            credit_row.balance += credits_needed
+            db.commit()
+            raise HTTPException(status_code=502, detail=grok_result.get("error", "Grok image generation failed"))
 
     api_key = os.getenv("EVOLINK_API_KEY", "")
     if not api_key:
