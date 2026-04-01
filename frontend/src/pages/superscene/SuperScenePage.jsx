@@ -1325,13 +1325,13 @@ export default function SuperScenePage() {
               )}
 
               {/* Recent Gallery */}
-              {videos.length > 0 && (
+              {videos.filter(v => v.status === "completed" && v.video_url).length > 0 && (
                 <div className="sc-recent-strip">
                   <div className="sc-recent-label">Recent</div>
                   <div className="sc-recent-grid">
-                    {videos.slice(0, 6).map(v => (
+                    {videos.filter(v => v.status === "completed" && v.video_url).slice(0, 8).map(v => (
                       <div key={v.id} className="sc-recent-thumb" onClick={() => { setVideoUrl(v.video_url); setGenStatus("done"); }}>
-                        {v.video_url ? <video src={v.video_url} muted preload="metadata" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} /> : <div className="sc-recent-placeholder">▶</div>}
+                        <video src={v.video_url} muted preload="metadata" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                       </div>
                     ))}
                   </div>
