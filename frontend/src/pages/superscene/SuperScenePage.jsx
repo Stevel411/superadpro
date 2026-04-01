@@ -1074,7 +1074,6 @@ export default function SuperScenePage() {
             <div className="sc-cadd" onClick={() => setTab("packs")}>+</div>
           </div>
           <button className="sc-ibt" onClick={() => setHelpOpen(!helpOpen)}>?</button>
-          <button className="sc-ibt" onClick={() => setDark(!dark)}>{dark ? "☀" : "◑"}</button>
         </div>
       </div>
 
