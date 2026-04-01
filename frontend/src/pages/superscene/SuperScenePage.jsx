@@ -1330,7 +1330,7 @@ export default function SuperScenePage() {
                   <div className="sc-recent-label">Recent</div>
                   <div className="sc-recent-grid">
                     {videos.filter(v => v.status === "completed" && v.video_url).slice(0, 8).map(v => (
-                      <div key={v.id} className="sc-recent-thumb" onClick={() => { setVideoUrl(v.video_url); setGenStatus("done"); }}>
+                      <div key={v.id} className="sc-recent-thumb" onClick={() => { setVideoUrl(v.video_url); setGenStatus("done"); if (v.ratio) setRatio(v.ratio); }}>
                         <video src={v.video_url} muted preload="metadata" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
                       </div>
                     ))}
