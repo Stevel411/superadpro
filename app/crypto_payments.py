@@ -38,8 +38,10 @@ ORDER_EXPIRY_MINUTES = 30
 
 # Products and their base prices
 PRODUCT_PRICES = {
-    "membership_basic":   Decimal("20.00"),
-    "membership_pro":     Decimal("35.00"),
+    "membership_basic":         Decimal("20.00"),
+    "membership_pro":           Decimal("35.00"),
+    "membership_basic_annual":  Decimal("200.00"),
+    "membership_pro_annual":    Decimal("350.00"),
     "grid_1":   Decimal("20.00"),
     "grid_2":   Decimal("50.00"),
     "grid_3":   Decimal("100.00"),

@@ -3499,7 +3499,8 @@ def _crypto_activate_product(db, user, order, meta):
     # ── Membership ──
     if order.product_type == "membership":
         tier = "pro" if "pro" in product_key else "basic"
-        return _activate_membership(db, user, tier, source="crypto")
+        billing = "annual" if "annual" in product_key else "monthly"
+        return _activate_membership(db, user, tier, source="crypto", billing=billing)
     # ── Grid / Campaign Tier ──
     elif order.product_type == "grid":
         package_tier = int(product_key.split("_")[1])
@@ -3907,12 +3908,13 @@ async def nowpayments_create_invoice(request: Request, db: Session = Depends(get
     # ── Membership: check if upgrading ──
     if product_type == "membership":
         tier = "pro" if "pro" in product_key else "basic"
-        if tier == "basic" and user.is_active and user.membership_tier == "basic":
+        is_annual = "annual" in product_key
+        if tier == "basic" and user.is_active and user.membership_tier == "basic" and not is_annual:
             return JSONResponse({"error": "You already have an active Basic membership"}, status_code=400)
-        if tier == "pro" and user.is_active and user.membership_tier == "pro":
+        if tier == "pro" and user.is_active and user.membership_tier == "pro" and not is_annual:
             return JSONResponse({"error": "You already have an active Pro membership"}, status_code=400)
-        # Upgrade: Basic → Pro = $15 difference
-        if tier == "pro" and user.is_active and user.membership_tier == "basic":
+        # Upgrade: Basic → Pro = $15 difference (monthly only, not annual)
+        if tier == "pro" and user.is_active and user.membership_tier == "basic" and not is_annual:
             price_usd = Decimal("15.00")
             product_meta["is_upgrade"] = True
 
@@ -4102,8 +4104,9 @@ def _nowpayments_activate_product(db, user, order, meta):
     # ── Membership ──
     if order.product_type == "membership":
         tier = "pro" if "pro" in product_key else "basic"
+        billing = "annual" if "annual" in product_key else "monthly"
         is_upgrade = meta.get("is_upgrade", False)
-        _activate_membership(db, user, tier, source="nowpayments", is_upgrade=is_upgrade)
+        _activate_membership(db, user, tier, source="nowpayments", is_upgrade=is_upgrade, billing=billing)
 
     # ── Grid / Campaign Tier ──
     elif order.product_type == "grid":

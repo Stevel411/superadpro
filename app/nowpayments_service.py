@@ -39,8 +39,10 @@ SITE_URL = os.environ.get("SITE_URL", "https://www.superadpro.com")
 # Memberships & grids share prices with crypto_payments.py
 PRODUCT_CATALOG = {
     # Memberships
-    "membership_basic":     {"price": Decimal("20.00"), "type": "membership",  "desc": "SuperAdPro Basic Membership (Monthly)"},
-    "membership_pro":       {"price": Decimal("35.00"), "type": "membership",  "desc": "SuperAdPro Pro Membership (Monthly)"},
+    "membership_basic":         {"price": Decimal("20.00"),  "type": "membership",  "desc": "SuperAdPro Basic Membership (Monthly)"},
+    "membership_pro":           {"price": Decimal("35.00"),  "type": "membership",  "desc": "SuperAdPro Pro Membership (Monthly)"},
+    "membership_basic_annual":  {"price": Decimal("200.00"), "type": "membership",  "desc": "SuperAdPro Basic Membership (Annual — Save $40)"},
+    "membership_pro_annual":    {"price": Decimal("350.00"), "type": "membership",  "desc": "SuperAdPro Pro Membership (Annual — Save $70)"},
     # Grid / Campaign Tiers
     "grid_1":               {"price": Decimal("20.00"),   "type": "grid", "desc": "Campaign Tier 1 — Starter"},
     "grid_2":               {"price": Decimal("50.00"),   "type": "grid", "desc": "Campaign Tier 2 — Builder"},
