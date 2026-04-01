@@ -514,11 +514,13 @@ export default function SuperScenePage() {
     } finally { setBuyingPack(null); }
   };
   const buyCrypto = async (slug) => {
+    var addr = prompt("Enter your Polygon wallet address (the address you'll send USDT FROM):");
+    if (!addr || !addr.startsWith("0x") || addr.length < 40) { alert("Please enter a valid Polygon wallet address starting with 0x"); return; }
     setBuyingPack(slug);
     try {
-      const res = await fetch("/api/superscene/buy/crypto", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pack_slug: slug }) });
+      const res = await fetch("/api/superscene/buy/crypto", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ pack_slug: slug, from_address: addr }) });
       const data = await res.json();
-      if (data.success) setCryptoOrder({ ...data, slug }); else alert(data.detail || "Crypto order failed");
+      if (data.success) setCryptoOrder({ ...data, slug }); else alert(data.detail || data.error || "Crypto order failed");
     } finally { setBuyingPack(null); }
   };
 
@@ -2316,7 +2318,7 @@ export default function SuperScenePage() {
                   <div className="sc-modal-title">🔷 USDT Payment</div>
                   <div className="sc-modal-body">
                     <p>Send exactly <strong>{cryptoOrder.amount_usdt} USDT</strong> on Polygon network to:</p>
-                    <div className="sc-wallet">{cryptoOrder.pay_address}</div>
+                    <div className="sc-wallet">{cryptoOrder.wallet_address}</div>
                     <p className="sc-modal-note">Your {PACKS.find(p => p.slug === cryptoOrder.slug)?.credits} credits will be added automatically once confirmed on-chain.</p>
                     <p className="sc-modal-expire">⏱ Order expires in 30 minutes</p>
                   </div>

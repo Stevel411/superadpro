@@ -3548,6 +3548,38 @@ def _crypto_activate_product(db, user, order, meta):
                                      affiliate_id)
         return {"message": "Product purchased!"}
 
+    # ── SuperScene Credit Packs ──
+    elif order.product_type == "superscene":
+        pack_map = {
+            "superscene_starter": 50,
+            "superscene_creator": 150,
+            "superscene_studio": 500,
+            "superscene_pro": 1200,
+        }
+        credits = pack_map.get(product_key, 0)
+        if credits:
+            from .database import SuperSceneCredit, SuperSceneOrder
+            sc = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == user.id).first()
+            if not sc:
+                sc = SuperSceneCredit(user_id=user.id, balance=0)
+                db.add(sc)
+                db.flush()
+            sc.balance = (sc.balance or 0) + credits
+            # Update linked SuperSceneOrder to completed
+            try:
+                slug = product_key.replace("superscene_", "")
+                sc_order = db.query(SuperSceneOrder).filter(
+                    SuperSceneOrder.user_id == user.id,
+                    SuperSceneOrder.crypto_order_id == order.id,
+                    SuperSceneOrder.status == "pending",
+                ).first()
+                if sc_order:
+                    sc_order.status = "completed"
+                    sc_order.completed_at = datetime.utcnow()
+            except Exception:
+                pass
+        return {"message": f"{credits} SuperScene credits added!"}
+
     return {"message": "Payment confirmed!"}
 
 
@@ -18369,7 +18401,9 @@ async def sc_buy_stripe(request: Request, db: Session = Depends(get_db)):
 @app.post("/api/superscene/buy/crypto")
 async def sc_buy_crypto(request: Request, db: Session = Depends(get_db)):
     from .database import SuperSceneOrder, CryptoPaymentOrder
-    from .crypto_payments import create_payment_order
+    from .crypto_payments import TREASURY_WALLET, PRODUCT_PRICES, ORDER_EXPIRY_MINUTES
+    from decimal import Decimal
+    from datetime import datetime, timedelta
 
     user = get_current_user(request, db)
     if not user:
@@ -18377,35 +18411,71 @@ async def sc_buy_crypto(request: Request, db: Session = Depends(get_db)):
 
     body = await request.json()
     pack_slug = body.get("pack_slug", "").lower()
+    from_address = body.get("from_address", "").strip()
 
     if pack_slug not in SUPERSCENE_PACK_CREDITS:
         raise HTTPException(status_code=400, detail="Invalid pack")
 
-    product_key = f"superscene_{pack_slug}"
-    crypto_result = create_payment_order(user.id, product_key, db)
+    if not from_address or len(from_address) < 40 or not from_address.startswith("0x"):
+        raise HTTPException(status_code=400, detail="Please enter a valid Polygon wallet address (starts with 0x)")
 
-    if not crypto_result.get("success"):
-        raise HTTPException(status_code=500, detail=crypto_result.get("error", "Crypto order failed"))
+    product_key = f"superscene_{pack_slug}"
+    base_price = PRODUCT_PRICES.get(product_key, Decimal(str(SUPERSCENE_PACK_PRICES[pack_slug])))
+
+    # Save sending wallet
+    try:
+        from sqlalchemy import text as _text
+        db.execute(_text("UPDATE users SET sending_wallet = :w WHERE id = :uid"), {"w": from_address, "uid": user.id})
+        db.flush()
+    except Exception:
+        pass
+
+    # Cancel existing pending orders for same product
+    db.query(CryptoPaymentOrder).filter(
+        CryptoPaymentOrder.user_id == user.id,
+        CryptoPaymentOrder.product_key == product_key,
+        CryptoPaymentOrder.status == "pending",
+    ).update({"status": "cancelled"})
+    db.flush()
+
+    # Create crypto payment order
+    order = CryptoPaymentOrder(
+        user_id=user.id,
+        product_type="superscene",
+        product_key=product_key,
+        base_amount=base_price,
+        unique_amount=base_price,
+        from_address=from_address,
+        status="pending",
+        expires_at=datetime.utcnow() + timedelta(minutes=ORDER_EXPIRY_MINUTES),
+    )
+    db.add(order)
+    db.commit()
+    db.refresh(order)
 
     # Record pending SuperScene order linked to crypto order
-    order = SuperSceneOrder(
+    sc_order = SuperSceneOrder(
         user_id=user.id,
         pack_slug=pack_slug,
         credits=SUPERSCENE_PACK_CREDITS[pack_slug],
-        amount_usd=SUPERSCENE_PACK_PRICES[pack_slug],
+        amount_usd=float(base_price),
         payment_method="crypto",
         status="pending",
-        crypto_order_id=crypto_result.get("order_id"),
+        crypto_order_id=order.id,
     )
-    db.add(order)
+    db.add(sc_order)
     db.commit()
 
     return {
         "success": True,
-        "order_id": crypto_result["order_id"],
-        "pay_address": crypto_result["pay_address"],
-        "amount_usdt": str(crypto_result["amount_usdt"]),
-        "expires_at": crypto_result["expires_at"],
+        "order_id": order.id,
+        "wallet_address": TREASURY_WALLET,
+        "amount_usdt": str(base_price.quantize(Decimal("0.01"))),
+        "chain": "Polygon",
+        "token": "USDT",
+        "token_contract": "0xc2132D05D31c914a87C6611C10748AEb04B58e8F",
+        "expires_at": order.expires_at.isoformat(),
+        "expires_in_seconds": ORDER_EXPIRY_MINUTES * 60,
     }
 
 
