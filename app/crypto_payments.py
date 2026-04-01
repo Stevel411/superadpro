@@ -55,10 +55,10 @@ PRODUCT_PRICES = {
     "email_boost_10000":  Decimal("29.00"),
     "email_boost_50000":  Decimal("99.00"),
     # SuperScene credit packs (100% company revenue)
-    "superscene_starter":   Decimal("8.00"),
-    "superscene_creator":   Decimal("25.00"),
-    "superscene_studio":    Decimal("83.00"),
-    "superscene_pro":       Decimal("198.00"),
+    "superscene_starter":   Decimal("11.00"),
+    "superscene_creator":   Decimal("33.00"),
+    "superscene_studio":    Decimal("110.00"),
+    "superscene_pro":       Decimal("264.00"),
 }
 
 
