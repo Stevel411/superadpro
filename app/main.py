@@ -18182,6 +18182,33 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
         credits_used=credits_needed,
     )
     db.add(video)
+
+    # ── SuperScene Usage Commission ──
+    # Sponsor earns $0.025 per credit their referral uses
+    # This is 50% of our ~$0.05 margin per credit
+    SPONSOR_RATE_PER_CREDIT = decimal.Decimal("0.025")
+    if user.sponsor_id and credits_needed > 0:
+        try:
+            sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
+            if sponsor:
+                commission_amount = SPONSOR_RATE_PER_CREDIT * credits_needed
+                sponsor.balance = (sponsor.balance or decimal.Decimal('0')) + commission_amount
+                sponsor.total_earned = (sponsor.total_earned or decimal.Decimal('0')) + commission_amount
+
+                db.add(Commission(
+                    from_user_id=user.id,
+                    to_user_id=sponsor.id,
+                    amount_usdt=commission_amount,
+                    commission_type="superscene_usage",
+                    package_tier=0,
+                    status="paid",
+                    paid_at=datetime.utcnow(),
+                    notes=f"SuperScene usage: {credits_needed} credits × ${SPONSOR_RATE_PER_CREDIT}/cr = ${commission_amount:.4f} ({model_names.get(model_key, model_key)}, {duration}s)",
+                ))
+                logger.info(f"SuperScene sponsor commission: ${commission_amount:.4f} to user {sponsor.id} from user {user.id} ({credits_needed} credits)")
+        except Exception as e:
+            logger.error(f"SuperScene sponsor commission failed: {e}")
+
     db.commit()
     db.refresh(video)
 
@@ -18331,6 +18358,30 @@ async def sc_poll_status(task_id: str, request: Request, db: Session = Depends(g
             if credit_row:
                 credit_row.balance += video.credits_used
                 logger.info(f"SuperScene: Refunded {video.credits_used} credits to user {user.id} for failed video {task_id}")
+
+                # Reverse sponsor commission
+                SPONSOR_RATE_PER_CREDIT = decimal.Decimal("0.025")
+                if user.sponsor_id:
+                    try:
+                        sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
+                        if sponsor:
+                            reversal = SPONSOR_RATE_PER_CREDIT * video.credits_used
+                            sponsor.balance = max(decimal.Decimal('0'), (sponsor.balance or decimal.Decimal('0')) - reversal)
+                            sponsor.total_earned = max(decimal.Decimal('0'), (sponsor.total_earned or decimal.Decimal('0')) - reversal)
+                            db.add(Commission(
+                                from_user_id=user.id,
+                                to_user_id=sponsor.id,
+                                amount_usdt=-reversal,
+                                commission_type="superscene_usage",
+                                package_tier=0,
+                                status="paid",
+                                paid_at=datetime.utcnow(),
+                                notes=f"SuperScene refund reversal: {video.credits_used} credits (failed video {task_id})",
+                            ))
+                            logger.info(f"SuperScene sponsor commission reversed: ${reversal:.4f} from user {sponsor.id}")
+                    except Exception as e:
+                        logger.error(f"SuperScene sponsor commission reversal failed: {e}")
+
                 video.credits_used = 0  # Mark as refunded so we don't double-refund
         db.commit()
 
