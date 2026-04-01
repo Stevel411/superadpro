@@ -3296,6 +3296,15 @@ async def crypto_create_checkout(request: Request, db: Session = Depends(get_db)
                     return JSONResponse({"error": "Product not found"}, status_code=404)
                 base_price = Decimal(str(product.price or 0))
                 product_type = "supermarket"
+            elif product_key.startswith("superscene_custom_"):
+                try:
+                    custom_credits = int(product_key.split("_")[-1])
+                    if custom_credits < 10 or custom_credits > 5000:
+                        return JSONResponse({"error": "Credits must be between 10 and 5000"}, status_code=400)
+                    base_price = Decimal(str(custom_credits)) * SUPERSCENE_CREDIT_RATE
+                    product_type = "superscene"
+                except (ValueError, IndexError):
+                    return JSONResponse({"error": "Invalid custom credit amount"}, status_code=400)
             else:
                 return JSONResponse({"error": f"Unknown product: {product_key}"}, status_code=400)
         else:
@@ -3306,6 +3315,8 @@ async def crypto_create_checkout(request: Request, db: Session = Depends(get_db)
                 product_type = "grid"
             elif product_key.startswith("email_boost"):
                 product_type = "email_boost"
+            elif product_key.startswith("superscene"):
+                product_type = "superscene"
             else:
                 product_type = "other"
 
@@ -3497,7 +3508,33 @@ async def crypto_verify_payment(request: Request, db: Session = Depends(get_db),
     }
 
 
+def _resolve_superscene_credits(product_key: str) -> int:
+    """Resolve how many SuperScene credits a product_key represents.
+    Handles both preset packs and custom amounts (superscene_custom_XXX)."""
+    pack_map = {
+        "superscene_starter": 50,
+        "superscene_creator": 150,
+        "superscene_studio": 500,
+        "superscene_pro": 1200,
+    }
+    if product_key in pack_map:
+        return pack_map[product_key]
+    if product_key.startswith("superscene_custom_"):
+        try:
+            credits = int(product_key.split("_")[-1])
+            if 10 <= credits <= 5000:
+                return credits
+        except (ValueError, IndexError):
+            pass
+    return 0
+
+
+SUPERSCENE_CREDIT_RATE = Decimal("0.22")  # price per credit for custom packs
+
+
 def _crypto_activate_product(db, user, order, meta):
+
+    SUPERSCENE_CREDIT_RATE = Decimal("0.22")  # price per credit
     """Activate the correct product after crypto payment is confirmed."""
     from datetime import datetime, timedelta
     from decimal import Decimal
@@ -3557,15 +3594,9 @@ def _crypto_activate_product(db, user, order, meta):
                                      affiliate_id)
         return {"message": "Product purchased!"}
 
-    # ── SuperScene Credit Packs ──
+    # ── SuperScene Credit Packs (preset + custom) ──
     elif order.product_type == "superscene":
-        pack_map = {
-            "superscene_starter": 50,
-            "superscene_creator": 150,
-            "superscene_studio": 500,
-            "superscene_pro": 1200,
-        }
-        credits = pack_map.get(product_key, 0)
+        credits = _resolve_superscene_credits(product_key)
         if credits:
             from .database import SuperSceneCredit, SuperSceneOrder
             sc = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == user.id).first()
@@ -3940,6 +3971,16 @@ async def nowpayments_create_invoice(request: Request, db: Session = Depends(get
         product = nps.PRODUCT_CATALOG[product_key]
         price_usd = product["price"]
         product_type = product["type"]
+    elif product_key.startswith("superscene_custom_"):
+        # Custom credit amount: superscene_custom_XXX
+        try:
+            custom_credits = int(product_key.split("_")[-1])
+            if custom_credits < 10 or custom_credits > 5000:
+                return JSONResponse({"error": "Credits must be between 10 and 5000"}, status_code=400)
+            price_usd = Decimal(str(custom_credits)) * SUPERSCENE_CREDIT_RATE
+            product_type = "superscene"
+        except (ValueError, IndexError):
+            return JSONResponse({"error": "Invalid custom credit amount"}, status_code=400)
     else:
         return JSONResponse({"error": f"Unknown product: {product_key}"}, status_code=400)
 
@@ -4169,15 +4210,9 @@ def _nowpayments_activate_product(db, user, order, meta):
         if credits:
             user.email_credits = (user.email_credits or 0) + credits
 
-    # ── SuperScene Credit Packs ──
+    # ── SuperScene Credit Packs (preset + custom) ──
     elif order.product_type == "superscene":
-        pack_map = {
-            "superscene_starter": 50,
-            "superscene_creator": 150,
-            "superscene_studio": 500,
-            "superscene_pro": 1200,
-        }
-        credits = pack_map.get(product_key, 0)
+        credits = _resolve_superscene_credits(product_key)
         if credits:
             from .database import SuperSceneCredit
             sc = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == user.id).first()
