@@ -2120,7 +2120,7 @@ def upload_video_post(
     db.add(campaign)
     db.commit()
 
-    return RedirectResponse(url="/video-library?added=1", status_code=303)
+    return JSONResponse({"success": True, "status": campaign.status, "id": campaign.id, "title": campaign.title})
 
 #  PAYMENT ROUTES
 # ═══════════════════════════════════════════════════════════════
