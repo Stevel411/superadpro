@@ -88,9 +88,9 @@ const CAMERA_MOTIONS = [
 
 const PACKS = [
   { slug: "starter", label: "Starter", credits: 50,   price: 8  },
-  { slug: "creator", label: "Creator", credits: 150,  price: 20, popular: true },
-  { slug: "studio",  label: "Studio",  credits: 500,  price: 50 },
-  { slug: "pro",     label: "Pro",     credits: 1200, price: 99 },
+  { slug: "creator", label: "Creator", credits: 150,  price: 25, popular: true },
+  { slug: "studio",  label: "Studio",  credits: 500,  price: 83 },
+  { slug: "pro",     label: "Pro",     credits: 1200, price: 198 },
 ];
 
 const PROMPT_TEMPLATES = [

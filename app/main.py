@@ -17933,9 +17933,9 @@ SUPERSCENE_PACK_CREDITS = {
 
 SUPERSCENE_PACK_PRICES = {
     "starter": 8.00,
-    "creator": 20.00,
-    "studio":  50.00,
-    "pro":     99.00,
+    "creator": 25.00,
+    "studio":  83.00,
+    "pro":     198.00,
 }
 
 
