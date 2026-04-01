@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
+import CryptoCheckout from "../../components/CryptoCheckout";
 import "./superscene.css";
 
 // ── Constants ──────────────────────────────────────────────
@@ -517,15 +518,9 @@ export default function SuperScenePage() {
       if (data.invoice_url) window.location.href = data.invoice_url; else alert(data.error || "Checkout failed");
     } finally { setBuyingPack(null); }
   };
-  const buyCrypto = async (slug) => {
-    var addr = prompt("Enter your Polygon wallet address (the address you'll send USDT FROM):");
-    if (!addr || !addr.startsWith("0x") || addr.length < 40) { alert("Please enter a valid Polygon wallet address starting with 0x"); return; }
-    setBuyingPack(slug);
-    try {
-      const res = await fetch("/api/superscene/buy/crypto", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "include", body: JSON.stringify({ pack_slug: slug, from_address: addr }) });
-      const data = await res.json();
-      if (data.success) setCryptoOrder({ ...data, slug }); else alert(data.detail || data.error || "Crypto order failed");
-    } finally { setBuyingPack(null); }
+  const openCryptoCheckout = (slug) => {
+    const pack = PACKS.find(p => p.slug === slug);
+    setCryptoOrder({ productKey: "superscene_" + slug, label: pack ? `SuperScene ${pack.label} — ${pack.credits} Credits` : slug });
   };
 
   // ── Style Reference Upload ──────────────────────────────
@@ -2311,24 +2306,18 @@ export default function SuperScenePage() {
                   <div className="sc-pper">{(pack.price / pack.credits * 100).toFixed(2)}¢ per credit</div>
                   <button className={cls("sc-pbtn sc-pbtn-buy", pack.popular ? "pop" : "n")} onClick={() => buyNowPayments(pack.slug)} disabled={buyingPack === pack.slug}>
                     {buyingPack === pack.slug ? "…" : "🌐 Pay with 350+ Cryptos"}</button>
-                  <button className="sc-pbtn sc-pbtn-crypto" onClick={() => buyCrypto(pack.slug)} disabled={buyingPack === pack.slug}>🔷 Pay with USDT</button>
+                  <button className="sc-pbtn sc-pbtn-crypto" onClick={() => openCryptoCheckout(pack.slug)} disabled={buyingPack === pack.slug}>🔷 Pay with USDT</button>
                 </div>
               ))}
             </div>
             <div className="sc-pfooter">🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire</div>
             {cryptoOrder && (
-              <div className="sc-modal-overlay" onClick={() => setCryptoOrder(null)}>
-                <div className="sc-modal" onClick={e => e.stopPropagation()}>
-                  <div className="sc-modal-title">🔷 USDT Payment</div>
-                  <div className="sc-modal-body">
-                    <p>Send exactly <strong>{cryptoOrder.amount_usdt} USDT</strong> on Polygon network to:</p>
-                    <div className="sc-wallet">{cryptoOrder.wallet_address}</div>
-                    <p className="sc-modal-note">Your {PACKS.find(p => p.slug === cryptoOrder.slug)?.credits} credits will be added automatically once confirmed on-chain.</p>
-                    <p className="sc-modal-expire">⏱ Order expires in 30 minutes</p>
-                  </div>
-                  <button className="sc-modal-close" onClick={() => setCryptoOrder(null)}>Close</button>
-                </div>
-              </div>
+              <CryptoCheckout
+                productKey={cryptoOrder.productKey}
+                productLabel={cryptoOrder.label}
+                onSuccess={() => { setCryptoOrder(null); fetch("/api/superscene/credits", { credentials: "include" }).then(r => r.json()).then(d => setCredits(d.balance || 0)); }}
+                onCancel={() => setCryptoOrder(null)}
+              />
             )}
           </div>
         )}
