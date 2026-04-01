@@ -17,8 +17,8 @@ SuperAdPro is a video advertising and affiliate marketing platform. FastAPI/Pyth
 - **Database:** PostgreSQL on Railway
 - **Storage:** Cloudflare R2 (`superadpro-media` bucket) for avatars/banners
 - **Email:** Brevo (transactional + autoresponder), Zoho (noreply@superadpro.com)
-- **Payments:** Stripe (cards), USDT/Polygon via Alchemy (crypto)
-- **AI:** Anthropic Claude API (Haiku for cost-optimised generation)
+- **Payments:** NOWPayments (350+ cryptos + card via Banxa), direct USDT/USDC on Polygon via Alchemy. Stripe fully removed.
+- **AI:** Anthropic Claude API (Haiku for cost-optimised generation), xAI Grok API (sales agent, content, prompts), EvoLink + fal.ai (video/image generation)
 
 ## Engineering Principles — NON-NEGOTIABLE
 
@@ -36,6 +36,9 @@ Always diagnose from first principles before writing any fix. Understand the roo
 
 ### Use Existing Logic
 If commission logic exists in a module, USE IT — don't write simplified duplicates in route handlers.
+
+### Reuse Existing Components
+Before building ANY new feature, check how similar features work elsewhere in the codebase. If a component exists (e.g. CryptoCheckout, AppLayout, CryptoPaymentOrder flow), USE IT. Never write a custom version of something that already works. Ask: "How does this work everywhere else on the platform?"
 
 ## Mandatory Checks Before Every Push
 
@@ -119,13 +122,14 @@ Add to `requirements.txt`. Railway deployment takes 3-4 minutes instead of the u
 ## Compensation Plan — DEFINITIVE (from source code, verified)
 
 ### Stream 1: Membership Commissions
-- **Tiers:** Basic $20/mo, Pro $35/mo, Creator $59/mo
-- **Commission:** 50% of the member's fee goes to their direct sponsor (the person who personally referred them)
-- **Amounts:** Basic = $10/mo, Pro = $17.50/mo, Creator = $29.50/mo
-- **Renewal cap:** On renewals, the sponsor's commission is capped by the sponsor's OWN tier. A Basic sponsor earning from a Pro referral gets capped at $10, not $17.50. This prevents Basic members earning more than their own tier's value.
-- **Recurring:** Paid every month as long as the member stays active
+- **Tiers:** Basic $20/mo ($200/year), Pro $35/mo ($350/year). Creator tier abandoned.
+- **Commission:** 50% of the member's fee goes to their direct sponsor
+- **Monthly amounts:** Basic = $10/mo, Pro = $17.50/mo
+- **Annual amounts:** Basic = $100 one-time, Pro = $175 one-time (flat 50%, no tier cap)
+- **Renewal cap:** On monthly renewals, the sponsor's commission is capped by the sponsor's OWN tier. A Basic sponsor earning from a Pro referral gets capped at $10, not $17.50. Annual payments bypass this cap.
+- **Recurring:** Monthly paid every month; annual paid once for 365 days
 - **Depth:** 1 level only — your direct referrals. NOT multi-level.
-- **Source:** `app/payment.py` — `MEMBERSHIP_SPONSOR_SHARE = 10.0`, `_stripe_renew_membership()` with `COMMISSION_CAPS`
+- **Source:** `app/payment.py`, `app/main.py` `_activate_membership()`
 
 ### Stream 2: 8×8 Income Grid (Campaign Tiers)
 **Structure:** 8 levels × 8 positions per level = 64 positions per grid. NOT a pyramid — every level has exactly 8 slots.
@@ -199,8 +203,12 @@ Grids auto-renew after completion — a new grid opens immediately and the cycle
 | `app/course_engine.py` | Course pass-up commission system |
 | `app/database.py` | SQLAlchemy models + migrations |
 | `app/payment.py` | Membership renewals, auto-activation |
-| `app/crypto_payments.py` | USDT/Polygon payment processing |
-| `app/stripe_service.py` | Stripe checkout sessions |
+| `app/crypto_payments.py` | USDT/Polygon payment processing, PRODUCT_PRICES |
+| `app/nowpayments_service.py` | NOWPayments invoice creation, PRODUCT_CATALOG |
+| `app/grok_service.py` | xAI Grok API — chat, content, sales agent |
+| `app/grok_imagine.py` | Grok direct video/image generation |
+| `app/superscene_evolink.py` | EvoLink/fal.ai video routing, credit calculations |
+| `app/stripe_service.py` | DISABLED — Stripe removed, file kept as dead code |
 | `app/brevo_service.py` | Email sending via Brevo API |
 | `app/moderation.py` | AI content moderation (Claude API) |
 | `frontend/src/App.jsx` | React router — all page routes |
@@ -239,42 +247,51 @@ Pro-locked items (🔒): SuperPages, ProSeller AI, My Leads, Create Course — s
 - No opacity dimming on unselected cards — full vibrancy always
 - Test credentials: SuperAdPro / SuperAdPro@1411 (2FA enabled)
 
-## Current Status (Updated: 25 March 2026 — Session 2)
+## Current Status (Updated: 1 April 2026)
 
-### Last Session: 25 March 2026
+### Recent Sessions: 30-31 March + 1 April 2026
 
 **Completed:**
-- Code splitting with React.lazy — main bundle 2.3MB → 689KB (70% reduction). Used v7_startTransition on BrowserRouter to eliminate white flash on navigation (found via web search). Background preloading of common pages after 2s/5s.
-- Notification polling — topbar bell polls every 30 seconds for new messages/alerts.
-- New member notifications — sponsor gets email + auto welcome message in Team Messenger on registration. Team Messenger contacts filter fixed (shows all referrals, not just active).
-- Password reset fixed — two bugs: (1) reset_token vs reset_url keyword mismatch (500 error), (2) frontend sends new_password but backend reads password (always fails 8-char validation).
-- Campaign tier activation routing — link was /activate-tier?tier=1 but React route is /activate/:tierId. Fixed link + added backend route.
-- CRITICAL: Grid creation for buyers — process_tier_purchase was paying commissions and filling upline grids but never creating the buyer's own grid. Fixed.
-- Campaign tier "active" status — now checks for grid ownership (active or completed), not just video campaigns.
-- Commission display — all amounts now show exact 2 decimal places ($1.25 not $1). Income cards, activity feed, network stats all fixed.
-- Admin dashboard — sponsor shows @username (ID X) instead of #1, BASIC badge shown in cyan.
-- Profile page — sponsor shows @username instead of #1.
-- Wallet — commission status fixed from "Pending" to "Paid" (balance already credited).
-- Decimal/float safety — final sweep caught remaining issues in course_engine.py, payment.py (deductions), main.py (membership commission None safety). Zero unsafe operations remaining.
-- CLAUDE.md created with full project instructions + "Search Before Fixing" engineering principle added.
+- Stripe removed entirely — all payments via NOWPayments + direct USDT/USDC
+- Annual membership: $200 Basic / $350 Pro, 365-day expiry, flat 50% sponsor commission
+- Upgrade page: monthly/annual toggle with SAVE 17% badge
+- How It Works page: full 7-section public page with pricing
+- SuperScene: 10 video models with real dollar pricing (50% markup), sorted cheapest-first
+- SuperScene credit packs: prices corrected for 50% markup ($8/$25/$83/$198)
+- SuperScene USDT checkout: uses standard CryptoCheckout component
+- SuperScene tabs sync with URL (?tab=packs survives refresh)
+- Grok AI: text API (grok_service.py), video+image direct provider (grok_imagine.py)
+- Free tools: Meme Generator, QR Code Generator, Social Media Banner Creator
+- SEO: sitemap, meta tags, footer links, explore page links
+- Codebase audit: Decimal fixes, XSS sanitisation, rate limiting, orphan cleanup
+- Autoresponder: fully operational, all 6 cron jobs running on cron-job.org
+- Brevo domain auth + FROM_EMAIL configured
+- CreateCampaign page wrapped in AppLayout
+- Explainer video script written
 
-**Live Testing Results:**
-- Stripe membership activation: working perfectly, $10 commission in 25 seconds ✅
-- Crypto tier 1 purchase: instant confirmation, $8 direct + $1.25 uni-level commissions correct ✅
-- Grid for buyer was NOT created (fixed mid-session) — next test should verify
-- steve1 (ID 85) test account active, sponsored by SuperAdPro
-
-**Pending / Next Session:**
-- Verify grid creation fix with next tier purchase test
-- Full 4-account sponsor chain grid commission test
-- Course pass-up cascade fix — write down the intended model and implement
-- Dashboard estimator — Steve wants real activity counts not monthly estimates (needs clarification on which component)
-- Stripe price update: $30 → $35 Pro, create Creator tier $59/mo
-- Live crypto withdrawal test
-- Video Creator build (Phase 3 — multi-session)
+**Pending:**
+- NOWPayments Banxa KYB approval (card payments)
+- Non-www redirect (superadpro.com causes redirect loops)
+- Google Search Console — submit sitemap
+- SuperSeller E2E test
+- SuperScene: convert credit system to real USD wallet (pay-per-use)
+- TREASURY_PRIVATE_KEY + POL gas for auto-withdrawals
+- Duplicate Jinja2/React route cleanup (15 routes)
+- MaxMind GeoIP update (last: 17 Mar 2026)
+- Course Marketplace (Phase 2)
+- SuperMarket (Phase 2)
+- How It Works videos + screenshots
 
 ### Platform Stats
 - 99 Jinja2 templates, ~42 React pages, 370+ routes, 210+ API endpoints, 26 DB models
-- 3 income streams: Membership, Grid/Campaigns, Courses
-- Pricing: Basic $20/mo, Pro $35/mo, Creator $59/mo
+- 4 income streams: Membership, Grid/Campaigns, Courses (coming soon), SuperMarket (coming soon)
+- Pricing: Basic $20/mo or $200/yr, Pro $35/mo or $350/yr
+- Payments: NOWPayments (350+ cryptos) + direct USDT/USDC on Polygon. No Stripe.
 - Main JS bundle: 689KB (code-split with background preloading)
+
+## Maintenance Reminders
+
+- MaxMind GeoLite2-Country.mmdb — update monthly from maxmind.com
+- GitHub token "Claude Access" expires mid-Sep 2026
+- GitHub token "SuperAdPro Claude" expires ~Apr 30 2026 — renew before then
+- Run E2E tests quarterly
