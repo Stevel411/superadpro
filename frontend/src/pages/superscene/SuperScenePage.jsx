@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { useSearchParams } from "react-router-dom";
 import "./superscene.css";
 
 // ── Constants ──────────────────────────────────────────────
@@ -111,7 +112,10 @@ function calcCost(modelKey, dur, withAudio) {
 
 // ── Main Component ─────────────────────────────────────────
 export default function SuperScenePage() {
-  const [tab, setTab]           = useState("create");
+  const [searchParams, setSearchParams] = useSearchParams();
+  const initialTab = searchParams.get("tab") || "create";
+  const [tab, _setTab]          = useState(initialTab);
+  const setTab = (t) => { _setTab(t); setSearchParams(t === "create" ? {} : { tab: t }, { replace: true }); };
   const [dark, setDark]         = useState(true);
   const [helpOpen, setHelpOpen] = useState(false);
 
