@@ -1331,7 +1331,7 @@ export default function SuperScenePage() {
                   <div className="sc-recent-grid">
                     {videos.slice(0, 6).map(v => (
                       <div key={v.id} className="sc-recent-thumb" onClick={() => { setVideoUrl(v.video_url); setGenStatus("done"); }}>
-                        {v.thumbnail_url ? <img src={v.thumbnail_url} alt="" /> : <div className="sc-recent-placeholder">▶</div>}
+                        {v.video_url ? <video src={v.video_url} muted preload="metadata" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} /> : <div className="sc-recent-placeholder">▶</div>}
                       </div>
                     ))}
                   </div>
