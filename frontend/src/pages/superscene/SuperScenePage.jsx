@@ -1072,20 +1072,14 @@ export default function SuperScenePage() {
         {tab === "create" && <>
           <div className="sc-create-studio">
 
-            {/* ── HERO: Mode + Prompt + Upload ── */}
-            <div className="sc-hero-section">
-              <div className="sc-hero-inner">
+            {/* ═══ LEFT PANEL — Controls ═══ */}
+            <div className="sc-create-left">
+              <div className="sc-create-left-scroll">
 
                 {/* Mode Toggle */}
                 <div className="sc-mode-toggle">
-                  <button className={cls("sc-mode-btn", mode === "text" && "on")} onClick={() => setMode("text")}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-                    Text to Video
-                  </button>
-                  <button className={cls("sc-mode-btn", mode === "image" && "on")} onClick={() => setMode("image")}>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                    Image to Video
-                  </button>
+                  <button className={cls("sc-mode-btn", mode === "text" && "on")} onClick={() => setMode("text")}>Text to Video</button>
+                  <button className={cls("sc-mode-btn", mode === "image" && "on")} onClick={() => setMode("image")}>Image to Video</button>
                 </div>
 
                 {/* Image Upload (when image mode) */}
@@ -1104,17 +1098,38 @@ export default function SuperScenePage() {
                         onClick={() => fileRef.current?.click()}
                         onDragOver={handleDragOver} onDragLeave={handleDragLeave} onDrop={handleDrop}>
                         <div className="sc-img-dz-icon">
-                          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                         </div>
-                        <div className="sc-img-dz-text">Drop your image here</div>
-                        <div className="sc-img-dz-sub">or click to browse · JPEG, PNG, WebP · Max 10MB</div>
+                        <div className="sc-img-dz-text">Click or drop an image</div>
+                        <div className="sc-img-dz-sub">JPEG, PNG, WebP · Max 10MB</div>
                       </div>
                     )}
                     <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" style={{ display: "none" }} onChange={handleImageSelect}/>
                   </div>
                 )}
 
-                {/* Camera Motion Presets (Image-to-Video only) */}
+                {/* Prompt */}
+                <div className="sc-section">
+                  <div className="sc-label">AI Prompt</div>
+                  <div className={cls("sc-prompt-box", promptExpanded && "sc-prompt-expanded")}>
+                    <textarea className="sc-prompt-ta" rows={promptExpanded ? 10 : 4}
+                      placeholder={mode === "image"
+                        ? "Describe how this image should move — e.g. slow zoom in, wind blowing through hair, camera orbits…"
+                        : "A cinematic drone shot over a misty mountain valley at golden hour, warm light, slow push-in…"}
+                      value={prompt} onChange={e => setPrompt(e.target.value.slice(0, 2000))}/>
+                    <div className="sc-prompt-footer">
+                      <span className="sc-prompt-ai" onClick={() => setTab("builder")}>✦ AI Builder</span>
+                      <div className="sc-prompt-actions">
+                        <span className="sc-prompt-count">{prompt.length}/2000</span>
+                        <button className={cls("sc-prompt-action", promptExpanded && "sc-prompt-action-active")} onClick={() => setPromptExpanded(x => !x)}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{promptExpanded ? <><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></> : <><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></>}</svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Camera Motion (Image mode only) */}
                 {mode === "image" && (
                   <div className="sc-section">
                     <div className="sc-label">Camera Motion</div>
@@ -1130,66 +1145,175 @@ export default function SuperScenePage() {
                   </div>
                 )}
 
-                {/* Prompt */}
+                {/* Model Selector — compact dropdown */}
                 <div className="sc-section">
-                  <div className={cls("sc-prompt-box", promptExpanded && "sc-prompt-expanded")}>
-                    <textarea className="sc-prompt-ta" rows={promptExpanded ? 12 : 4}
-                      placeholder={mode === "image"
-                        ? "Describe how this image should move — e.g. slow zoom into the subject's face, wind blowing through hair, camera orbits around the scene…"
-                        : "Describe your scene — A cinematic drone shot over a misty mountain valley at golden hour, warm light, slow push-in…"}
-                      value={prompt} onChange={e => setPrompt(e.target.value.slice(0, 2000))}/>
-                    <div className="sc-prompt-footer">
-                      <span className="sc-prompt-ai" onClick={() => setTab("builder")}>✦ AI Prompt Builder</span>
-                      <div className="sc-prompt-actions">
-                        <span className="sc-prompt-count">{prompt.length}/2000</span>
-                        <button className={cls("sc-prompt-action", promptExpanded && "sc-prompt-action-active")} title={promptExpanded ? "Collapse" : "Expand"} onClick={() => setPromptExpanded(x => !x)}>
-                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">{promptExpanded ? <><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></> : <><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></>}</svg>
-                        </button>
+                  <div className="sc-create-row">
+                    <div className="sc-create-sel" onClick={() => {
+                      const el = document.querySelector('.sc-model-drop-v2');
+                      if (el) el.classList.toggle('open');
+                    }}>
+                      <div className="sc-model-icon" style={{ background: `linear-gradient(135deg, ${selectedModel?.color}, ${selectedModel?.color}88)`, width: 24, height: 24, borderRadius: 6, fontSize: 10 }}>✦</div>
+                      <span style={{ flex: 1, fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{selectedModel?.name}</span>
+                      <span style={{ fontSize: 11, color: 'var(--muted)' }}>~{selectedModel?.pricePer10s}/10s</span>
+                      <span className="sc-model-chev">▼</span>
+                    </div>
+                    <div className="sc-create-sel" style={{ flex: '0 0 auto', minWidth: 70, justifyContent: 'center' }}>
+                      <select style={{ background: 'transparent', border: 'none', color: 'var(--text)', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, outline: 'none', cursor: 'pointer', width: '100%', textAlign: 'center' }}
+                        value={resolution} onChange={e => setResolution(e.target.value)}>
+                        {(selectedModel?.resolutions || ["720p","1080p"]).map(r => <option key={r} value={r}>{r}</option>)}
+                      </select>
+                    </div>
+                    <div className="sc-create-sel" style={{ flex: '0 0 auto', minWidth: 60, justifyContent: 'center' }}>
+                      <select style={{ background: 'transparent', border: 'none', color: 'var(--text)', fontFamily: 'DM Sans, sans-serif', fontSize: 13, fontWeight: 600, outline: 'none', cursor: 'pointer', width: '100%', textAlign: 'center' }}
+                        value={duration} onChange={e => setDuration(Number(e.target.value))}>
+                        {(selectedModel?.durations || [5,10]).map(d => <option key={d} value={d}>{d}s</option>)}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="sc-model-drop-v2">
+                    {MODELS.map(m => (
+                      <button key={m.key} className={cls("sc-model-opt", model === m.key && "sel")}
+                        onClick={() => {
+                          setModel(m.key);
+                          if (!m.audio) setGenAudio(false);
+                          if (!m.durations.includes(duration)) setDuration(m.durations[Math.floor(m.durations.length / 2)]);
+                          if (!m.resolutions.includes(resolution)) setResolution(m.resolutions[m.resolutions.length - 1]);
+                          document.querySelector('.sc-model-drop-v2')?.classList.remove('open');
+                        }}>
+                        <div className="sc-model-icon" style={{ background: `linear-gradient(135deg, ${m.color}, ${m.color}88)`, width: 24, height: 24, borderRadius: 6, fontSize: 10 }}>✦</div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text)' }}>{m.name}</div>
+                          <div style={{ fontSize: 11, color: 'var(--muted)' }}>{m.desc}</div>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3 }}>
+                          <span className="sc-model-badge" style={{ background: `${m.color}22`, color: m.color, fontSize: 9, padding: '1px 6px' }}>{m.badge}</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: m.tier === 'budget' ? '#10b981' : m.tier === 'ultra' ? '#f59e0b' : 'var(--muted)' }}>~{m.pricePer10s}/10s</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Negative Prompt */}
+                {selectedModel?.negPrompt && (
+                  <div className="sc-section">
+                    <div className="sc-label" style={{ fontSize: 12 }}>Negative Prompt <span className="sc-label-badge">Optional</span></div>
+                    <div className="sc-prompt-box" style={{ minHeight: 'auto', padding: 10 }}>
+                      <textarea className="sc-prompt-ta" rows={2} style={{ minHeight: 36, fontSize: 12 }}
+                        placeholder="blurry, low quality, text, watermark, distorted…"
+                        value={negPrompt} onChange={e => setNegPrompt(e.target.value.slice(0, 500))}/>
+                    </div>
+                  </div>
+                )}
+
+                {/* Aspect Ratio — compact pills */}
+                <div className="sc-section">
+                  <div className="sc-label" style={{ fontSize: 12 }}>Aspect Ratio</div>
+                  <div className="sc-pills" style={{ gap: 5 }}>
+                    {RATIOS.map(r => (
+                      <button key={r.key} className={cls("sc-pill", ratio === r.key && "on")} style={{ padding: '7px 0', fontSize: 12 }}
+                        onClick={() => setRatio(r.key)}>{r.key}</button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Audio Toggle */}
+                {selectedModel?.audio && (
+                  <div className="sc-section">
+                    <div className="sc-audio-toggle" onClick={() => setGenAudio(!genAudio)} style={{ padding: '10px 12px' }}>
+                      <div className={cls("sc-toggle-track", genAudio && "on")} style={{ width: 34, height: 18 }}>
+                        <div className="sc-toggle-thumb" style={{ width: 14, height: 14 }}/>
+                      </div>
+                      <div className="sc-audio-info">
+                        <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text2)' }}>AI Audio (+{AUDIO_EXTRA_PER_5S} cr/5s)</div>
                       </div>
                     </div>
                   </div>
+                )}
+
+                {/* Style References */}
+                {(model === "seedance" || model === "veo31" || model === "veo31-pro") && (
+                  <div className="sc-section">
+                    <div className="sc-label" style={{ fontSize: 12 }}>Style References <span className="sc-label-badge">Optional</span></div>
+                    <div className="sc-style-refs">
+                      {styleRefs.map(ref => (
+                        <div key={ref.id} className="sc-sref-item">
+                          <img src={ref.preview} alt="" className="sc-sref-thumb"/>
+                          {ref.uploading && <div className="sc-sref-loading">…</div>}
+                          {!ref.uploading && <div className="sc-sref-ok">✓</div>}
+                          <button className="sc-sref-remove" onClick={() => removeStyleRef(ref.id)}>✕</button>
+                        </div>
+                      ))}
+                      {styleRefs.length < ((model === "veo31" || model === "veo31-pro") ? 3 : 9) && (
+                        <div className="sc-sref-add" onClick={() => styleRefInput.current?.click()}><span>+</span></div>
+                      )}
+                    </div>
+                    <input ref={styleRefInput} type="file" accept="image/jpeg,image/png,image/webp" multiple style={{ display: "none" }} onChange={handleStyleRefUpload}/>
+                  </div>
+                )}
+
+                {/* Seed */}
+                <div className="sc-section">
+                  <div className="sc-seed-row" style={{ padding: '8px 12px' }}>
+                    <button className={cls("sc-seed-toggle", seedLocked && "on")} onClick={toggleSeedLock} style={{ width: 28, height: 28, fontSize: 12 }}>
+                      {seedLocked ? "🔒" : "🔓"}
+                    </button>
+                    <div className="sc-seed-info">
+                      <span className="sc-seed-label" style={{ fontSize: 11 }}>Seed</span>
+                      <span className="sc-seed-value">{seedLocked ? seedValue : "Random"}</span>
+                    </div>
+                    {seedLocked && <button className="sc-seed-refresh" onClick={refreshSeed} style={{ width: 24, height: 24, fontSize: 12 }}>↻</button>}
+                  </div>
                 </div>
 
-                {/* Generate Button — THE HERO CTA */}
-                <button className="sc-gen-btn" onClick={generate}
-                  disabled={!prompt.trim() || generating || credits < cost || (mode === "image" && !imageUrl)}>
-                  {generating ? "✦ Generating…"
-                    : !prompt.trim() ? "Enter a prompt to get started"
-                    : mode === "image" && !imageUrl ? "Upload an image first"
-                    : credits < cost ? "Not enough credits"
-                    : `✦ Generate — ${cost} credits${selectedModel?.pricePer10s ? ` (~${selectedModel.pricePer10s})` : ''}`}
-                </button>
-                {credits < cost && <button className="sc-buymore" onClick={() => setTab("packs")}>Buy more credits →</button>}
+                {/* Generate Button */}
+                <div className="sc-section">
+                  <button className="sc-gen-btn" onClick={generate}
+                    disabled={!prompt.trim() || generating || credits < cost || (mode === "image" && !imageUrl)}>
+                    {generating ? "Generating…"
+                      : !prompt.trim() ? "Enter a prompt"
+                      : mode === "image" && !imageUrl ? "Upload an image"
+                      : credits < cost ? "Not enough credits"
+                      : `Create`}
+                  </button>
+                  <div className="sc-gen-meta">
+                    <span>◈ {cost} credits{selectedModel?.pricePer10s ? ` (~${selectedModel.pricePer10s})` : ''}</span>
+                    {credits < cost && <span className="sc-buymore" onClick={() => setTab("packs")}>Buy more →</span>}
+                  </div>
+                </div>
+
               </div>
             </div>
 
-            {/* ── PREVIEW STAGE ── */}
-            <div className="sc-preview-stage">
-              <div className={`sc-stage-frame sc-ratio-${ratio.replace(":", "x")}`}>
-              {generating || videoUrl || genStatus === "failed" ? (
-                <StageContent />
-              ) : mode === "image" && imagePreview ? (
-                <div className="sc-stage-hero">
-                  <img src={imagePreview} alt="Uploaded" className="sc-preview-img"/>
-                  <div className="sc-stage-hero-overlay">
-                    <div className="sc-stage-hero-title">Your image</div>
-                    <div className="sc-stage-hero-sub">
-                      {motionPresets.length > 0
-                        ? `Motion: ${motionPresets.map(k => CAMERA_MOTIONS.find(m => m.key === k)?.label).join(", ")}`
-                        : "Select camera motion and generate"}
+            {/* ═══ RIGHT PANEL — Preview + Gallery ═══ */}
+            <div className="sc-create-right">
+              <div className="sc-stage">
+                <div className={`sc-stage-frame sc-ratio-${ratio.replace(":", "x")}`}>
+                {generating || videoUrl || genStatus === "failed" ? (
+                  <StageContent />
+                ) : mode === "image" && imagePreview ? (
+                  <div className="sc-stage-hero">
+                    <img src={imagePreview} alt="Uploaded" className="sc-preview-img"/>
+                    <div className="sc-stage-hero-overlay">
+                      <div className="sc-stage-hero-title">Your image</div>
+                      <div className="sc-stage-hero-sub">
+                        {motionPresets.length > 0
+                          ? `Motion: ${motionPresets.map(k => CAMERA_MOTIONS.find(m => m.key === k)?.label).join(", ")}`
+                          : "Write a prompt and hit Create"}
+                      </div>
                     </div>
                   </div>
+                ) : (
+                  <div className="s-empty">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1">
+                      <rect x="2" y="4" width="20" height="14" rx="3"/>
+                      <polygon points="10,8 10,15 16,11.5"/>
+                    </svg>
+                    <div className="s-title">Your video will appear here</div>
+                    <div className="s-sub">Choose a model, write a prompt, and hit Create</div>
+                  </div>
+                )}
                 </div>
-              ) : (
-                <div className="s-empty">
-                  <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1">
-                    <rect x="2" y="4" width="20" height="14" rx="3"/>
-                    <polygon points="10,8 10,15 16,11.5"/>
-                  </svg>
-                  <div className="s-title">Your video will appear here</div>
-                  <div className="s-sub">Choose a model, write a prompt, and hit Generate</div>
-                </div>
-              )}
               </div>
               {videoUrl && (
                 <div className="sc-stage-actions">
@@ -1199,180 +1323,18 @@ export default function SuperScenePage() {
                   <button className="sc-sa-btn" onClick={() => { setVideoUrl(null); setGenStatus(null); setGenProgress(0); }}>✕ Clear</button>
                 </div>
               )}
-            </div>
 
-            {/* ── MODEL SELECTOR — Visual Cards Grid ── */}
-            <div className="sc-models-section">
-              <div className="sc-models-header">
-                <div className="sc-label">AI Model</div>
-                <div className="sc-sub" style={{ marginTop: 0 }}>10 models · Cheapest first · Price per 10-second clip</div>
-              </div>
-              <div className="sc-models-grid">
-                {MODELS.map(m => (
-                  <button key={m.key} className={cls("sc-model-card", model === m.key && "selected")}
-                    onClick={() => {
-                      setModel(m.key);
-                      if (!m.audio) setGenAudio(false);
-                      if (!m.durations.includes(duration)) setDuration(m.durations[Math.floor(m.durations.length / 2)]);
-                      if (!m.resolutions.includes(resolution)) setResolution(m.resolutions[m.resolutions.length - 1]);
-                    }}>
-                    <div className="sc-mc-top">
-                      <div className="sc-mc-icon" style={{ background: `linear-gradient(135deg, ${m.color}, ${m.color}88)` }}>✦</div>
-                      <div className="sc-mc-badge" style={{ background: `${m.color}22`, color: m.color }}>{m.badge}</div>
-                    </div>
-                    <div className="sc-mc-name">{m.name}</div>
-                    <div className="sc-mc-desc">{m.desc}</div>
-                    <div className="sc-mc-bottom">
-                      <span className="sc-mc-price" style={{ color: m.tier === 'budget' ? '#10b981' : m.tier === 'ultra' ? '#f59e0b' : 'var(--text2)' }}>~{m.pricePer10s}/10s</span>
-                      <div className="sc-mc-tags">
-                        {m.i2v && <span className="sc-mc-tag">I2V</span>}
-                        {m.audio && <span className="sc-mc-tag sc-mc-tag-audio">Audio</span>}
+              {/* Recent Gallery */}
+              {videos.length > 0 && (
+                <div className="sc-recent-strip">
+                  <div className="sc-recent-label">Recent</div>
+                  <div className="sc-recent-grid">
+                    {videos.slice(0, 6).map(v => (
+                      <div key={v.id} className="sc-recent-thumb" onClick={() => { setVideoUrl(v.video_url); setGenStatus("done"); }}>
+                        {v.thumbnail_url ? <img src={v.thumbnail_url} alt="" /> : <div className="sc-recent-placeholder">▶</div>}
                       </div>
-                    </div>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* ── SETTINGS — Collapsible ── */}
-            <div className="sc-settings-section">
-              <button className="sc-settings-toggle" onClick={() => setDropOpen(!dropOpen)}>
-                <span>⚙ Settings</span>
-                <span style={{ fontSize: 11, color: 'var(--muted)' }}>{selectedModel?.name} · {duration}s · {resolution} · {ratio}</span>
-                <span className={cls("sc-model-chev", dropOpen && "open")}>▼</span>
-              </button>
-              {dropOpen && (
-                <div className="sc-settings-body">
-                  {/* Negative Prompt */}
-                  {selectedModel?.negPrompt && (
-                    <div className="sc-section">
-                      <div className="sc-label">Negative Prompt <span className="sc-label-badge">Optional</span></div>
-                      <div className="sc-prompt-box" style={{ minHeight: 'auto' }}>
-                        <textarea className="sc-prompt-ta" rows={2} style={{ minHeight: 40 }}
-                          placeholder="Things to avoid: blurry, low quality, text, watermark, distorted faces..."
-                          value={negPrompt} onChange={e => setNegPrompt(e.target.value.slice(0, 500))}/>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Duration */}
-                  <div className="sc-section">
-                    <div className="sc-label">Duration <span className="sc-label-badge">{selectedModel?.durationLabel}</span></div>
-                    <div className="sc-pills" style={{ flexWrap: 'wrap' }}>
-                      {(selectedModel?.durations || [5,10]).map(d => (
-                        <button key={d} className={cls("sc-pill", duration === d && "on")} onClick={() => setDuration(d)}>{d}s</button>
-                      ))}
-                    </div>
+                    ))}
                   </div>
-
-                  {/* Resolution */}
-                  <div className="sc-section">
-                    <div className="sc-label">Resolution</div>
-                    <div className="sc-pills">
-                      {(selectedModel?.resolutions || ["720p","1080p"]).map(r => (
-                        <button key={r} className={cls("sc-pill", resolution === r && "on")} onClick={() => setResolution(r)}>{r}</button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Aspect Ratio */}
-                  <div className="sc-section">
-                    <div className="sc-label">Aspect Ratio</div>
-                    <div className="sc-ratio-grid">
-                      {RATIOS.map(r => (
-                        <button key={r.key} className={cls("sc-ratio-card", ratio === r.key && "on")} onClick={() => setRatio(r.key)}>
-                          <span className="sc-ratio-value">{r.key}</span>
-                          <span className="sc-ratio-label">{r.label}</span>
-                          <span className="sc-ratio-desc">{r.desc}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* AI Audio Toggle */}
-                  {selectedModel?.audio && (
-                    <div className="sc-section">
-                      <div className="sc-audio-toggle" onClick={() => setGenAudio(!genAudio)}>
-                        <div className={cls("sc-toggle-track", genAudio && "on")}>
-                          <div className="sc-toggle-thumb"/>
-                        </div>
-                        <div className="sc-audio-info">
-                          <div className="sc-label" style={{ marginBottom: 0 }}>AI Audio</div>
-                          <div className="sc-sub" style={{ marginTop: 2 }}>Generate sound effects, music & dialogue (+{AUDIO_EXTRA_PER_5S} cr/5s)</div>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Style References */}
-                  {(model === "seedance" || model === "veo31" || model === "veo31-pro") && (
-                    <div className="sc-section">
-                      <div className="sc-label">Style References <span className="sc-label-badge">Optional</span></div>
-                      <div className="sc-sub" style={{ marginTop: 0, marginBottom: 8 }}>
-                        Upload images to guide the visual style. {(model === "veo31" || model === "veo31-pro") ? "Up to 3" : "Up to 9"} reference images.
-                      </div>
-                      <div className="sc-style-refs">
-                        {styleRefs.map(ref => (
-                          <div key={ref.id} className="sc-sref-item">
-                            <img src={ref.preview} alt="" className="sc-sref-thumb"/>
-                            {ref.uploading && <div className="sc-sref-loading">…</div>}
-                            {!ref.uploading && <div className="sc-sref-ok">✓</div>}
-                            <button className="sc-sref-remove" onClick={() => removeStyleRef(ref.id)}>✕</button>
-                          </div>
-                        ))}
-                        {styleRefs.length < ((model === "veo31" || model === "veo31-pro") ? 3 : 9) && (
-                          <div className="sc-sref-add" onClick={() => styleRefInput.current?.click()}>
-                            <span>+</span>
-                          </div>
-                        )}
-                      </div>
-                      <input ref={styleRefInput} type="file" accept="image/jpeg,image/png,image/webp" multiple style={{ display: "none" }} onChange={handleStyleRefUpload}/>
-                    </div>
-                  )}
-
-                  {/* Seed */}
-                  <div className="sc-section">
-                    <div className="sc-seed-row">
-                      <button className={cls("sc-seed-toggle", seedLocked && "on")} onClick={toggleSeedLock} title={seedLocked ? "Unlock seed (random)" : "Lock seed (consistent results)"}>
-                        {seedLocked ? "🔒" : "🔓"}
-                      </button>
-                      <div className="sc-seed-info">
-                        <span className="sc-seed-label">Seed</span>
-                        <span className="sc-seed-value">{seedLocked ? seedValue : "Random"}</span>
-                      </div>
-                      {seedLocked && (
-                        <button className="sc-seed-refresh" onClick={refreshSeed} title="Generate new seed">↻</button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* ── PROMPT IDEAS ── */}
-            <div className="sc-ideas-section">
-              <button className="sc-settings-toggle" onClick={() => setPromptDropOpen(!promptDropOpen)}>
-                <span>💡 Prompt Ideas</span>
-                <span style={{ fontSize: 11, color: 'var(--muted)' }}>{PROMPT_SUGGESTIONS.length} ready-made prompts</span>
-                <span className={cls("sc-model-chev", promptDropOpen && "open")}>▼</span>
-              </button>
-              {promptDropOpen && (
-                <div className="sc-ideas-body">
-                  {["Cinematic", "Product", "Nature", "Urban", "People", "Abstract", "Social"].map(cat => {
-                    const items = PROMPT_SUGGESTIONS.filter(s => s.cat === cat);
-                    if (!items.length) return null;
-                    return (
-                      <div key={cat}>
-                        <div className="sc-ideas-cat">{cat}</div>
-                        {items.map((s, i) => (
-                          <button key={i} className="sc-ideas-item"
-                            onClick={() => { setPrompt(s.text); setPromptDropOpen(false); }}>
-                            {s.text.length > 90 ? s.text.slice(0, 90) + '…' : s.text}
-                          </button>
-                        ))}
-                      </div>
-                    );
-                  })}
                 </div>
               )}
             </div>
