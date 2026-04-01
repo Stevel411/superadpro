@@ -1887,6 +1887,14 @@ def api_wallet_data(request: Request, user: User = Depends(get_current_user),
         "requested_at": w.requested_at.isoformat() if w.requested_at else None,
         "processed_at": w.processed_at.isoformat() if w.processed_at else None,
     } for w in withdrawals_raw]
+    # Calculate SuperScene usage earnings
+    from sqlalchemy import func as _func
+    sc_earnings = db.query(_func.coalesce(_func.sum(Commission.amount_usdt), 0)).filter(
+        Commission.to_user_id == user.id,
+        Commission.commission_type == "superscene_usage",
+        Commission.amount_usdt > 0,
+    ).scalar()
+
     return {
         "balance": float(user.balance or 0),
         "total_earned": float(user.total_earned or 0),
@@ -1894,6 +1902,7 @@ def api_wallet_data(request: Request, user: User = Depends(get_current_user),
         "grid_earnings": float(user.grid_earnings or 0),
         "course_earnings": float(user.course_earnings or 0),
         "marketplace_earnings": float(user.marketplace_earnings or 0),
+        "superscene_earnings": float(sc_earnings or 0),
         "membership_tier": user.membership_tier or "basic",
         "wallet_address": user.wallet_address or "",
         "commissions": commissions,

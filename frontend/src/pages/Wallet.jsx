@@ -64,12 +64,23 @@ export default function Wallet() {
         </div>
       </>}
     >
-      {/* 3 Stat Pills */}
-      <div className="grid-3-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
+      {/* 4 Stat Pills */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
         <StatPill value={`$${formatMoney(d.balance)}`} label="Available Balance" gradient="linear-gradient(90deg,#16a34a,#22c55e)" />
         <StatPill value={`$${formatMoney(d.total_earned)}`} label="Total Earned" gradient="linear-gradient(90deg,#0ea5e9,#38bdf8)" />
         <StatPill value={`$${formatMoney(d.total_withdrawn)}`} label="Total Withdrawn" gradient="linear-gradient(90deg,#6366f1,#818cf8)" />
+        <StatPill value={`$${formatMoney(d.superscene_earnings || 0)}`} label="SuperScene Earnings" gradient="linear-gradient(90deg,#ec4899,#f472b6)" />
       </div>
+
+      {/* Earnings Breakdown */}
+      {(d.superscene_earnings > 0 || d.grid_earnings > 0) && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
+          <EarningsCard icon="👥" label="Membership" value={d.total_earned - (d.grid_earnings || 0) - (d.course_earnings || 0) - (d.marketplace_earnings || 0) - (d.superscene_earnings || 0)} color="#22c55e" />
+          <EarningsCard icon="⚡" label="Income Grid" value={d.grid_earnings || 0} color="#0ea5e9" />
+          <EarningsCard icon="🎬" label="SuperScene" value={d.superscene_earnings || 0} color="#ec4899" desc="Earned from referral video usage" />
+          <EarningsCard icon="📚" label="Courses & Market" value={(d.course_earnings || 0) + (d.marketplace_earnings || 0)} color="#f59e0b" />
+        </div>
+      )}
 
       {/* Row 1: 3 columns */}
       <div className="grid-3-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18, marginBottom: 18, alignItems: 'stretch' }}>
@@ -168,6 +179,8 @@ export default function Wallet() {
                         {c.commission_type === 'direct_sponsor' ? '💚 Direct' :
                          c.commission_type === 'uni_level' ? '⚡ Uni-Level' :
                          c.commission_type === 'upline' ? '🔗 Upline' :
+                         c.commission_type === 'membership_sponsor' ? '👥 Membership' :
+                         c.commission_type === 'superscene_usage' ? '🎬 SuperScene' :
                          (c.commission_type || '').replace(/_/g, ' ')}
                       </td>
                       <td style={tdStyle}><span style={badgeCyan}>T{c.package_tier}</span></td>
@@ -410,6 +423,22 @@ function MiniStat({ val, lbl }) {
     <div style={{ background: '#f6f8fc', border: '1px solid rgba(15,25,60,.07)', borderRadius: 10, padding: 12, textAlign: 'center' }}>
       <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a' }}>{val}</div>
       <div style={{ fontSize: 10, color: '#7b91a8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 3 }}>{lbl}</div>
+    </div>
+  );
+}
+
+function EarningsCard({ icon, label, value, color, desc }) {
+  return (
+    <div style={{
+      background: '#fff', border: '1px solid rgba(15,25,60,.08)', borderRadius: 10, padding: '16px 18px',
+      display: 'flex', alignItems: 'center', gap: 14,
+    }}>
+      <div style={{ width: 42, height: 42, borderRadius: 10, background: `${color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>{icon}</div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#7b91a8', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
+        <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 20, fontWeight: 800, color: '#0f172a', marginTop: 2 }}>${formatMoney(value)}</div>
+        {desc && <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{desc}</div>}
+      </div>
     </div>
   );
 }
