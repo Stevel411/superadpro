@@ -219,6 +219,7 @@ export default function Watch() {
   const ringOffset = ringC * (1 - Math.min(1, watched / limit));
   const isCurrentWatched = current?.is_watched;
   const allWatched = videos.length > 0 && videos.every(v => v.is_watched);
+  const quotaComplete = d.quota_reached || watched >= limit;
   const btnReady = timerDone && !isCurrentWatched && !submitted;
   const statusText = isCurrentWatched ? '✓ Watched' : timerDone ? '✓ Ready — tap to mark as watched' : paused ? '⏸ Paused — return to this tab' : '⏱ Watching — keep this tab open';
   const statusColor = isCurrentWatched || timerDone ? '#16a34a' : paused ? '#d97706' : '#0ea5e9';
@@ -270,8 +271,34 @@ export default function Watch() {
     </div>
   );
 
+  // ── ALL AVAILABLE VIDEOS WATCHED BUT QUOTA NOT MET ──
+  if (allWatched && !quotaComplete) {
+    return (
+      <AppLayout title={t('watch.title')} subtitle={`${watched} of ${limit} videos watched`}>
+        <style>{CSS}</style>
+        <div style={{maxWidth:700,margin:'0 auto'}}>
+          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:'56px 32px',textAlign:'center',boxShadow:'0 1px 4px rgba(0,0,0,.06)'}}>
+            <div style={{fontSize:48,marginBottom:16,opacity:.5}}>⏳</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0f172a',marginBottom:8}}>No More Videos Right Now</div>
+            <div style={{fontSize:14,color:'#64748b',lineHeight:1.7,marginBottom:12}}>You've watched all {watched} available video{watched !== 1 ? 's' : ''} but your daily quota is {limit}. Check back later as new campaigns are added.</div>
+            <div style={{display:'flex',gap:10,justifyContent:'center',marginBottom:24}}>
+              {Array.from({length:limit}).map((_,i)=>(
+                <div key={i} style={{width:28,height:28,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,
+                  background: i < watched ? 'linear-gradient(135deg,#06b6d4,#0891b2)' : '#e2e8f0',
+                  color: i < watched ? '#fff' : '#94a3b8'}}>
+                  {i < watched ? '✓' : i+1}
+                </div>
+              ))}
+            </div>
+            <a href="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>← Back to Dashboard</a>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
   // ── QUOTA COMPLETE ──
-  if (d.quota_reached || allWatched) {
+  if (quotaComplete) {
     const done = limit;  // On completion, show the full quota as done
     const actualWatched = Math.max(watched, videos.filter(v => v.is_watched).length);
     return (
