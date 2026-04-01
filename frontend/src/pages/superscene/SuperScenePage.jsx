@@ -2250,79 +2250,81 @@ export default function SuperScenePage() {
         {/* ══ PACKS TAB ══ */}
         {tab === "packs" && (
           <div className="sc-packs-view">
-            <div className="sc-ph"><h2>Buy Credits</h2><p>Choose your amount or pick a pack. Credits never expire.</p>
+            <div className="sc-ph"><h2>Buy Credits</h2><p>Choose your own amount or pick a pack. Credits never expire.</p>
               <div className="sc-payment-badges"><span className="sc-pay-badge">🌐 350+ Cryptos</span><span className="sc-pay-badge">🔷 USDT Direct</span></div>
             </div>
 
-            {/* ── Custom Credit Selector ── */}
-            <div style={{ maxWidth: 640, margin: '0 auto 32px', background: '#12161c', border: '1px solid rgba(255,255,255,.08)', borderRadius: 16, padding: '28px 28px 24px' }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 4 }}>Choose Your Amount</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,.4)', marginBottom: 20 }}>Slide or type any amount from 10 to 5,000 credits</div>
+            <div style={{ display: 'flex', gap: 20, maxWidth: 1000, margin: '0 auto', alignItems: 'flex-start' }}>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 16 }}>
+              {/* ── LEFT: Custom Credit Selector ── */}
+              <div style={{ flex: 1, background: '#12161c', border: '1px solid rgba(255,255,255,.08)', borderRadius: 16, padding: '28px 24px' }}>
+                <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 4 }}>Choose Your Amount</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,.35)', marginBottom: 20 }}>10 to 5,000 credits</div>
+
                 <input type="range" min={10} max={2000} step={10} value={Math.min(customCredits, 2000)}
                   onChange={e => setCustomCredits(Number(e.target.value))}
-                  style={{ flex: 1, accentColor: '#22d3ee', height: 6, cursor: 'pointer' }} />
-                <div style={{ display: 'flex', alignItems: 'center', gap: 4, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 10, padding: '6px 4px 6px 14px' }}>
-                  <input type="number" min={10} max={5000} value={customCredits}
-                    onChange={e => { const v = Math.max(10, Math.min(5000, Number(e.target.value) || 10)); setCustomCredits(v); }}
-                    style={{ width: 60, background: 'transparent', border: 'none', color: '#fff', fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, outline: 'none', textAlign: 'right' }} />
-                  <span style={{ fontSize: 12, color: 'rgba(255,255,255,.3)', fontWeight: 600 }}>credits</span>
+                  style={{ width: '100%', accentColor: '#22d3ee', height: 6, cursor: 'pointer', marginBottom: 14 }} />
+
+                {/* Quick select */}
+                <div style={{ display: 'flex', gap: 5, marginBottom: 16, flexWrap: 'wrap' }}>
+                  {[10, 25, 50, 100, 200, 500, 1000].map(n => (
+                    <button key={n} onClick={() => setCustomCredits(n)}
+                      style={{ padding: '5px 12px', borderRadius: 7, border: '1px solid ' + (customCredits === n ? 'rgba(34,211,238,.4)' : 'rgba(255,255,255,.08)'),
+                        background: customCredits === n ? 'rgba(34,211,238,.1)' : 'transparent',
+                        color: customCredits === n ? '#22d3ee' : 'rgba(255,255,255,.4)',
+                        fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>{n}</button>
+                  ))}
+                </div>
+
+                {/* Amount + Price */}
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 18px', background: 'rgba(34,211,238,.05)', border: '1px solid rgba(34,211,238,.12)', borderRadius: 12, marginBottom: 16 }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                      <input type="number" min={10} max={5000} value={customCredits}
+                        onChange={e => { const v = Math.max(10, Math.min(5000, Number(e.target.value) || 10)); setCustomCredits(v); }}
+                        style={{ width: 55, background: 'transparent', border: 'none', color: '#fff', fontFamily: 'Sora,sans-serif', fontSize: 24, fontWeight: 800, outline: 'none', textAlign: 'left' }} />
+                      <span style={{ fontSize: 12, color: 'rgba(255,255,255,.3)', fontWeight: 600 }}>credits</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,.25)', marginTop: 2 }}>$0.22 per credit</div>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 800, color: '#22d3ee' }}>${(customCredits * 0.22).toFixed(2)}</div>
+                  </div>
+                </div>
+
+                {/* Buy buttons */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <button onClick={buyCustomNowPayments} disabled={buyingPack === "custom"}
+                    style={{ width: '100%', padding: 13, borderRadius: 10, border: 'none', background: 'linear-gradient(135deg,#0891b2,#22d3ee)', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
+                    {buyingPack === "custom" ? "…" : "🌐 Pay with 350+ Cryptos"}</button>
+                  <button onClick={openCustomCryptoCheckout} disabled={buyingPack === "custom"}
+                    style={{ width: '100%', padding: 13, borderRadius: 10, border: '1px solid rgba(255,255,255,.1)', background: 'transparent', color: 'rgba(255,255,255,.6)', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
+                    🔷 Pay with USDT</button>
                 </div>
               </div>
 
-              {/* Quick select buttons */}
-              <div style={{ display: 'flex', gap: 6, marginBottom: 20, flexWrap: 'wrap' }}>
-                {[10, 25, 50, 100, 200, 500, 1000, 2000].map(n => (
-                  <button key={n} onClick={() => setCustomCredits(n)}
-                    style={{ padding: '6px 14px', borderRadius: 8, border: '1px solid ' + (customCredits === n ? 'rgba(34,211,238,.4)' : 'rgba(255,255,255,.08)'),
-                      background: customCredits === n ? 'rgba(34,211,238,.1)' : 'rgba(255,255,255,.04)',
-                      color: customCredits === n ? '#22d3ee' : 'rgba(255,255,255,.5)',
-                      fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>{n}</button>
-                ))}
-              </div>
-
-              {/* Price display */}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 20px', background: 'rgba(34,211,238,.05)', border: '1px solid rgba(34,211,238,.15)', borderRadius: 12, marginBottom: 18 }}>
-                <div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,.4)', fontWeight: 600 }}>Total Price</div>
-                  <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 800, color: '#fff' }}>${(customCredits * 0.22).toFixed(2)}</div>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,.4)', fontWeight: 600 }}>{customCredits} credits</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,.3)' }}>$0.22 per credit</div>
-                </div>
-              </div>
-
-              {/* Buy buttons */}
-              <div style={{ display: 'flex', gap: 8 }}>
-                <button onClick={buyCustomNowPayments} disabled={buyingPack === "custom"}
-                  style={{ flex: 1, padding: 14, borderRadius: 10, border: 'none', background: 'linear-gradient(135deg,#0891b2,#22d3ee)', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
-                  {buyingPack === "custom" ? "…" : "🌐 Pay with 350+ Cryptos"}</button>
-                <button onClick={openCustomCryptoCheckout} disabled={buyingPack === "custom"}
-                  style={{ flex: 1, padding: 14, borderRadius: 10, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.04)', color: 'rgba(255,255,255,.7)', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif' }}>
-                  🔷 Pay with USDT</button>
-              </div>
-            </div>
-
-            {/* ── Preset Packs ── */}
-            <div style={{ maxWidth: 960, margin: '0 auto' }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 14, textAlign: 'center' }}>Or choose a pack</div>
-              <div className="sc-pgrid">
+              {/* ── RIGHT: Preset Packs ── */}
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {PACKS.map(pack => (
-                  <div key={pack.slug} className={cls("sc-pk", pack.popular && "pop")}>
-                    {pack.popular && <div className="sc-pbdg">MOST POPULAR</div>}
-                    <div className="sc-pname">{pack.label}</div>
-                    <div className="sc-pcred">{pack.credits}</div>
-                    <div className="sc-pcl">credits</div>
-                    <div className="sc-ppr">${pack.price}</div>
-                    <div className="sc-pper">{(pack.price / pack.credits * 100).toFixed(1)}¢ per credit</div>
-                    <button className={cls("sc-pbtn sc-pbtn-buy", pack.popular ? "pop" : "n")} onClick={() => buyNowPayments(pack.slug)} disabled={buyingPack === pack.slug}>
-                      {buyingPack === pack.slug ? "…" : "🌐 Pay with 350+ Cryptos"}</button>
-                    <button className="sc-pbtn sc-pbtn-crypto" onClick={() => openCryptoCheckout(pack.slug)} disabled={buyingPack === pack.slug}>🔷 Pay with USDT</button>
+                  <div key={pack.slug} style={{ background: '#12161c', border: '1px solid ' + (pack.popular ? 'rgba(34,211,238,.25)' : 'rgba(255,255,255,.06)'), borderRadius: 14, padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 16, position: 'relative' }}>
+                    {pack.popular && <div style={{ position: 'absolute', top: -9, right: 16, fontSize: 9, fontWeight: 800, letterSpacing: .5, textTransform: 'uppercase', color: '#fff', background: 'linear-gradient(135deg,#0891b2,#22d3ee)', padding: '3px 10px', borderRadius: 10 }}>Popular</div>}
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>{pack.label}</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,.35)', marginTop: 2 }}>{pack.credits} credits · {(pack.price / pack.credits * 100).toFixed(1)}¢/credit</div>
+                    </div>
+                    <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 800, color: '#fff', flexShrink: 0 }}>${pack.price}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 4, flexShrink: 0 }}>
+                      <button onClick={() => buyNowPayments(pack.slug)} disabled={buyingPack === pack.slug}
+                        style={{ padding: '7px 14px', borderRadius: 8, border: 'none', background: pack.popular ? 'linear-gradient(135deg,#0891b2,#22d3ee)' : 'rgba(255,255,255,.06)', color: pack.popular ? '#fff' : 'rgba(255,255,255,.5)', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', whiteSpace: 'nowrap' }}>
+                        {buyingPack === pack.slug ? "…" : "🌐 Crypto"}</button>
+                      <button onClick={() => openCryptoCheckout(pack.slug)} disabled={buyingPack === pack.slug}
+                        style={{ padding: '7px 14px', borderRadius: 8, border: '1px solid rgba(255,255,255,.08)', background: 'transparent', color: 'rgba(255,255,255,.4)', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: 'DM Sans,sans-serif', whiteSpace: 'nowrap' }}>
+                        🔷 USDT</button>
+                    </div>
                   </div>
                 ))}
               </div>
+
             </div>
 
             <div className="sc-pfooter">🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire</div>
