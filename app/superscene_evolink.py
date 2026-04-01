@@ -77,14 +77,14 @@ MODEL_MAP_I2V = {
 # Maps tier → best model for text-to-video and image-to-video
 
 TIER_ROUTES_T2V = {
-    "quick":    "hailuo23",       # Fastest, cheapest
+    "quick":    "wan26",           # Fastest, cheapest
     "standard": "kling3",         # Best balance
     "premium":  "kling-o3",       # Highest quality
     "ultra":    "veo31-pro",      # 4K cinematic
 }
 
 TIER_ROUTES_I2V = {
-    "quick":    "hailuo23-fast",  # Fastest I2V
+    "quick":    "wan26",           # Fast budget I2V
     "standard": "seedance",       # Good I2V with audio option
     "premium":  "kling-o3",       # Best I2V quality
     "ultra":    "sora2",          # Premium I2V
@@ -93,9 +93,6 @@ TIER_ROUTES_I2V = {
 # Credits per 5 seconds by model (ensures profitability)
 CREDITS_PER_5S = {
     # Quick tier
-    "hailuo23":        1,
-    "hailuo23-fast":   1,
-    "hailuo02":        1,
     "wan26":           1,
     # Standard tier
     "kling3":          3,
@@ -106,12 +103,16 @@ CREDITS_PER_5S = {
     "grok-video":      4,
     "sora2-max":       10,
     # Ultra tier
-    "veo31":           3,
-    "veo31-pro":       15,
+    "veo31":           4,
+    "veo31-pro":       16,
     # Special features
     "kling-motion":    8,
     "kling-edit":      8,
     "veo31-extend":    4,
+    # Legacy (kept for existing videos, not offered to new users)
+    "hailuo23":        1,
+    "hailuo23-fast":   1,
+    "hailuo02":        1,
 }
 
 AUDIO_EXTRA_PER_5S = 1
