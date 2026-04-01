@@ -7568,6 +7568,11 @@ def ad_click(ad_id: int, db: Session = Depends(get_db)):
     return RedirectResponse(url=listing.link_url, status_code=302)
 
 
+@app.get("/google718f4df27dcf0df8.html")
+def google_verification():
+    """Google Search Console verification file."""
+    return HTMLResponse("google-site-verification: google718f4df27dcf0df8.html")
+
 @app.get("/sitemap.xml")
 def sitemap_xml(request: Request, db: Session = Depends(get_db)):
     """Dynamic XML sitemap for SEO — includes all active ads, videos, banners, and category pages"""
