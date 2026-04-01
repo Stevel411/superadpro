@@ -3529,12 +3529,12 @@ def _resolve_superscene_credits(product_key: str) -> int:
     return 0
 
 
-SUPERSCENE_CREDIT_RATE = Decimal("0.22")  # price per credit for custom packs
+SUPERSCENE_CREDIT_RATE = decimal.Decimal("0.22")  # price per credit for custom packs
 
 
 def _crypto_activate_product(db, user, order, meta):
 
-    SUPERSCENE_CREDIT_RATE = Decimal("0.22")  # price per credit
+    SUPERSCENE_CREDIT_RATE = decimal.Decimal("0.22")  # price per credit
     """Activate the correct product after crypto payment is confirmed."""
     from datetime import datetime, timedelta
     from decimal import Decimal
