@@ -2309,7 +2309,7 @@ export default function SuperScenePage() {
                 </div>
               ))}
             </div>
-            <div className="sc-pfooter">🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · 💳 Card payments coming soon · Credits never expire</div>
+            <div className="sc-pfooter">🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire</div>
             {cryptoOrder && (
               <div className="sc-modal-overlay" onClick={() => setCryptoOrder(null)}>
                 <div className="sc-modal" onClick={e => e.stopPropagation()}>
