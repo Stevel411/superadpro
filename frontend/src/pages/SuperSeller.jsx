@@ -398,7 +398,10 @@ function SetupWizard({ onComplete, onCancel }) {
           <div style={{textAlign:'center',fontSize:13,color:'#10b981',fontWeight:700}}>Opening your campaign...</div>
         )}
         {!isWaiting && !isComplete && (
-          <div style={{textAlign:'center',fontSize:12,color:'#94a3b8'}}>{genMsg}</div>
+          <div style={{textAlign:'center'}}>
+            <div style={{fontSize:12,color:'#94a3b8',marginBottom:8}}>{genMsg}</div>
+            <div style={{fontSize:11,color:'#b0b8c4'}}>Each step can take up to 2 minutes. The full process typically takes 3-5 minutes.</div>
+          </div>
         )}
 
         <style>{'@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}} @keyframes spin{to{transform:rotate(360deg)}}'}</style>
