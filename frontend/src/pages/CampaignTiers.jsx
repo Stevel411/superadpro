@@ -6,9 +6,7 @@ import { Check, X } from 'lucide-react';
 import { formatMoney } from '../utils/money';
 
 /* ─────────────────────────────────────────────
-   Campaign Tiers — Click-to-expand detail panel
-   Compact 4-col cards → inline expand with full
-   earnings breakdown + activate CTA
+   Campaign Tiers — Cyan-blue cards + modal popup
    ───────────────────────────────────────────── */
 
 var TIER_ACCENTS = {
@@ -47,6 +45,16 @@ export default function CampaignTiers() {
     }).catch(function() { setLoading(false); });
   }, []);
 
+  /* Lock body scroll when modal is open */
+  useEffect(function() {
+    if (selected !== null) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return function() { document.body.style.overflow = ''; };
+  }, [selected]);
+
   if (loading) return (
     <AppLayout title="Campaign Tiers">
       <div style={{ display:'flex', justifyContent:'center', padding:80 }}>
@@ -63,34 +71,32 @@ export default function CampaignTiers() {
     return Math.round(direct + (perMem * 64) + bonus);
   }
 
-  function toggleTier(tierNum) {
-    setSelected(selected === tierNum ? null : tierNum);
-  }
-
-  /* Work out which row (0-based) the selected tier sits in so we can insert the panel after that row */
-  var selectedRow = selected !== null ? Math.floor((selected - 1) / 4) : -1;
-
-  /* Build rows of 4 */
-  var rows = [];
-  for (var i = 0; i < tiers.length; i += 4) {
-    rows.push(tiers.slice(i, i + 4));
-  }
+  /* Modal data */
+  var modalTier = selected !== null ? tiers.find(function(x) { return x.tier === selected; }) : null;
+  var modalAccent = modalTier ? (TIER_ACCENTS[modalTier.tier] || TIER_ACCENTS[1]) : null;
+  var modalFeats = modalTier ? (FEATURES_BY_TIER[modalTier.tier] || []) : [];
+  var modalTotal = modalTier ? calcTotal(modalTier.tier, modalTier.price) : 0;
 
   return (
     <AppLayout title="Campaign Tiers" subtitle="Activate tiers to advertise your videos and earn grid commissions">
 
       <style>{[
         '@keyframes spin{to{transform:rotate(360deg)}}',
-        '@keyframes expandIn{from{opacity:0;max-height:0;margin-top:0}to{opacity:1;max-height:600px;margin-top:12px}}',
-        '.ct-card{transition:transform .15s,box-shadow .15s,border-color .15s;cursor:pointer}',
-        '.ct-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)!important}',
+        '@keyframes fadeIn{from{opacity:0}to{opacity:1}}',
+        '@keyframes slideUp{from{opacity:0;transform:translateY(30px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}',
+        '.ct-card{transition:transform .15s,box-shadow .15s;cursor:pointer}',
+        '.ct-card:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(0,0,0,.12)!important}',
         '.ct-btn{transition:transform .1s!important}',
         '.ct-btn:hover{transform:translateY(-1px)!important}',
         '.ct-btn:active{transform:translateY(1px)!important}',
-        '.ct-expand{animation:expandIn .25s ease-out forwards;overflow:hidden}',
+        '.ct-overlay{animation:fadeIn .2s ease-out}',
+        '.ct-modal{animation:slideUp .25s ease-out}',
         '@media(max-width:767px){',
         '  .ct-grid{grid-template-columns:1fr 1fr!important}',
         '  .ct-detail-stats{grid-template-columns:1fr 1fr!important}',
+        '  .ct-modal-inner{padding:24px 20px!important}',
+        '  .ct-modal-header{flex-direction:column!important;gap:12px!important}',
+        '  .ct-modal-price{text-align:left!important}',
         '}',
         '@media(max-width:480px){',
         '  .ct-grid{grid-template-columns:1fr!important}',
@@ -104,170 +110,174 @@ export default function CampaignTiers() {
           Activate Tiers. Earn Commissions. Grow Your Grid.
         </div>
         <div style={{ fontSize:13, color:'#64748b', lineHeight:1.7, maxWidth:520, margin:'0 auto' }}>
-          Each tier delivers real video views through Watch & Earn. You earn commissions as your grid fills with 64 members. Select a tier to see full details.
+          Each tier delivers real video views through Watch & Earn. You earn commissions as your grid fills with 64 members. Tap a tier to see full details.
         </div>
       </div>
 
-      {/* ── Tier Cards + Expand Panels ── */}
-      {rows.map(function(row, rowIdx) {
+      {/* ── Tier Cards — 4-column grid ── */}
+      {[0, 4].map(function(start) {
+        var row = tiers.slice(start, start + 4);
+        if (row.length === 0) return null;
         return (
-          <div key={rowIdx}>
-            {/* Card row */}
-            <div className="ct-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom: (selectedRow === rowIdx) ? 0 : 12 }}>
-              {row.map(function(t) {
-                var a = TIER_ACCENTS[t.tier] || TIER_ACCENTS[1];
-                var active = t.is_active;
-                var isSel = selected === t.tier;
-                var isPopular = t.tier === 3;
-                var isMax = t.tier === 8;
-
-                return (
-                  <div key={t.tier} className="ct-card" onClick={function() { toggleTier(t.tier); }}
-                    style={{
-                      background:'#fff',
-                      border: isSel ? '2px solid ' + a.border : '1px solid #e2e8f0',
-                      borderRadius:12, padding:18,
-                      display:'flex', flexDirection:'column', gap:10,
-                      borderTop:'3px solid ' + a.color, position:'relative',
-                      boxShadow: isSel ? '0 4px 16px rgba(0,0,0,.08)' : '0 1px 3px rgba(0,0,0,.04)',
-                      textAlign:'center',
-                    }}>
-
-                    {isSel && <span style={{ position:'absolute', top:-9, left:'50%', transform:'translateX(-50%)', fontSize:9, fontWeight:700, padding:'2px 10px', borderRadius:4, background:a.color, color:'#fff' }}>Selected</span>}
-                    {!isSel && isPopular && <span style={{ position:'absolute', top:8, right:8, fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:4, background:a.bg, color:a.dark }}>Popular</span>}
-                    {!isSel && isMax && <span style={{ position:'absolute', top:8, right:8, fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:4, background:a.bg, color:a.dark }}>Max</span>}
-
-                    <div style={{ fontSize:15, fontWeight:800, color:'#0f172a' }}>{t.name}</div>
-                    <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'#0f172a' }}>${t.price.toLocaleString()}</div>
-                    <div style={{ fontSize:11, color:'#94a3b8' }}>{t.views_target.toLocaleString()} views</div>
-
-                    {active ? (
-                      <div style={{ padding:8, borderRadius:8, background:a.bg, border:'1px solid ' + a.border, marginTop:'auto' }}>
-                        <span style={{ display:'inline-flex', alignItems:'center', gap:4, color:a.dark, fontSize:12, fontWeight:700 }}>
-                          <Check size={12}/> Active
-                        </span>
-                      </div>
-                    ) : (
-                      <div style={{ padding:8, borderRadius:8, background: isSel ? a.bg : '#f8fafc', border:'1px solid ' + (isSel ? a.border : '#e2e8f0'), color: isSel ? a.dark : '#94a3b8', fontSize:12, fontWeight: isSel ? 700 : 600, marginTop:'auto' }}>
-                        {isSel ? 'Viewing' : 'View details'}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Expanded detail panel — appears after the row containing the selected tier */}
-            {selectedRow === rowIdx && (function() {
-              var t = tiers.find(function(x) { return x.tier === selected; });
-              if (!t) return null;
+          <div key={start} className="ct-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:12 }}>
+            {row.map(function(t) {
               var a = TIER_ACCENTS[t.tier] || TIER_ACCENTS[1];
-              var feats = FEATURES_BY_TIER[t.tier] || [];
-              var total = calcTotal(t.tier, t.price);
+              var active = t.is_active;
+              var isPopular = t.tier === 3;
+              var isMax = t.tier === 8;
 
               return (
-                <div key={'detail-' + t.tier} className="ct-expand" style={{
-                  background:'#fff', border:'2px solid ' + a.border, borderRadius:16,
-                  padding:'28px 32px', marginTop:12, marginBottom:12,
-                  boxShadow:'0 8px 32px rgba(0,0,0,.06)',
-                }}>
+                <div key={t.tier} className="ct-card" onClick={function() { setSelected(t.tier); }}
+                  style={{
+                    background:'linear-gradient(135deg,#0c4a6e,#0369a1,#0ea5e9)',
+                    borderRadius:14, padding:20,
+                    display:'flex', flexDirection:'column', gap:10,
+                    position:'relative', textAlign:'center', overflow:'hidden',
+                    boxShadow:'0 2px 8px rgba(0,0,0,.1)',
+                  }}>
 
-                  {/* Header row */}
-                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:20 }}>
-                    <div>
-                      <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:4 }}>
-                        <span style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#0f172a' }}>{t.name}</span>
-                        <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:a.bg, color:a.dark }}>Tier {t.tier}</span>
-                        {t.tier === 3 && <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:a.bg, color:a.dark }}>Popular</span>}
-                        {t.tier === 8 && <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:a.bg, color:a.dark }}>Max earnings</span>}
-                      </div>
-                      <div style={{ fontSize:13, color:'#64748b' }}>
-                        {t.views_target.toLocaleString()} video views across your campaigns
-                      </div>
-                    </div>
-                    <div style={{ display:'flex', alignItems:'flex-start', gap:16 }}>
-                      <div style={{ textAlign:'right' }}>
-                        <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, color:'#0f172a' }}>${t.price.toLocaleString()}</div>
-                        <div style={{ fontSize:11, color:'#94a3b8' }}>one-time USDT</div>
-                      </div>
-                      <div onClick={function(e) { e.stopPropagation(); setSelected(null); }}
-                        style={{ width:28, height:28, borderRadius:8, border:'1px solid #e2e8f0', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0, marginTop:4 }}>
-                        <X size={14} color="#94a3b8"/>
-                      </div>
-                    </div>
-                  </div>
+                  {/* Decorative circle */}
+                  <div style={{ position:'absolute', top:-30, right:-30, width:100, height:100, borderRadius:'50%', background:'rgba(255,255,255,.06)', pointerEvents:'none' }}/>
 
-                  {/* Earnings stats */}
-                  <div className="ct-detail-stats" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20 }}>
-                    <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'#f8fafc', border:'1px solid #f1f5f9' }}>
-                      <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:a.dark }}>${formatMoney(t.direct_commission)}</div>
-                      <div style={{ fontSize:11, color:'#94a3b8', marginTop:2 }}>Direct earn (40%)</div>
-                    </div>
-                    <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'#f8fafc', border:'1px solid #f1f5f9' }}>
-                      <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:a.dark }}>${formatMoney(t.uni_level_per_member)}</div>
-                      <div style={{ fontSize:11, color:'#94a3b8', marginTop:2 }}>Per member (6.25%)</div>
-                    </div>
-                    <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'#f8fafc', border:'1px solid #f1f5f9' }}>
-                      <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:a.dark }}>${t.completion_bonus.toLocaleString()}</div>
-                      <div style={{ fontSize:11, color:'#94a3b8', marginTop:2 }}>Grid bonus</div>
-                    </div>
-                    <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:a.bg, border:'1px solid ' + a.border }}>
-                      <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:a.dark }}>${total.toLocaleString()}</div>
-                      <div style={{ fontSize:11, color:a.dark, marginTop:2, fontWeight:600 }}>Total potential</div>
-                    </div>
-                  </div>
+                  {isPopular && <span style={{ position:'absolute', top:10, right:10, fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:4, background:'rgba(255,255,255,.15)', color:'#fff' }}>Popular</span>}
+                  {isMax && <span style={{ position:'absolute', top:10, right:10, fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:4, background:'rgba(255,255,255,.15)', color:'#fff' }}>Max</span>}
 
-                  {/* Feature tags */}
-                  <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:20 }}>
-                    {feats.map(function(f) {
-                      return (
-                        <span key={f} style={{ fontSize:12, fontWeight:600, padding:'5px 14px', borderRadius:8, background:'#f8fafc', border:'1px solid #e2e8f0', color:'#475569' }}>{f}</span>
-                      );
-                    })}
-                  </div>
+                  <div style={{ fontSize:15, fontWeight:800, color:'#fff', position:'relative' }}>{t.name}</div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#fff', position:'relative' }}>${t.price.toLocaleString()}</div>
+                  <div style={{ fontSize:11, color:'rgba(255,255,255,.6)', position:'relative' }}>{t.views_target.toLocaleString()} views</div>
 
-                  {/* Grid progress if active */}
-                  {t.is_active && t.grid && (
-                    <div style={{ marginBottom:20 }}>
-                      <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
-                        <span style={{ fontSize:12, fontWeight:700, color:'#0f172a' }}>Grid progress</span>
-                        <span style={{ fontSize:12, color:'#64748b' }}>{t.grid.filled}/64 members · Grid #{t.grid.advance}</span>
-                      </div>
-                      <div style={{ height:6, background:'#f1f5f9', borderRadius:4 }}>
-                        <div style={{ height:'100%', width:t.grid.pct+'%', background:a.grad, borderRadius:4, transition:'width .5s' }}/>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Action buttons */}
-                  {t.is_active ? (
-                    <div style={{
-                      textAlign:'center', padding:14, borderRadius:10,
-                      background:a.bg, border:'1px solid ' + a.border,
-                    }}>
-                      <span style={{ display:'inline-flex', alignItems:'center', gap:5, color:a.dark, fontSize:14, fontWeight:700 }}>
-                        <Check size={14}/> This tier is active
+                  {active ? (
+                    <div style={{ padding:9, borderRadius:8, background:'rgba(255,255,255,.12)', border:'1px solid rgba(255,255,255,.15)', marginTop:'auto', position:'relative' }}>
+                      <span style={{ display:'inline-flex', alignItems:'center', gap:4, color:'#fff', fontSize:12, fontWeight:700 }}>
+                        <Check size={12}/> Active
                       </span>
                     </div>
                   ) : (
-                    <Link to={'/activate/' + t.tier} className="ct-btn" style={{
-                      display:'block', textAlign:'center', padding:14, borderRadius:10,
-                      background:a.grad, textDecoration:'none',
-                    }}>
-                      <span style={{ color:'#fff', fontWeight:700, fontSize:15 }}>Activate {t.name} — ${t.price.toLocaleString()} USDT</span>
-                    </Link>
+                    <div style={{ padding:9, borderRadius:8, background:'rgba(255,255,255,.1)', border:'1px solid rgba(255,255,255,.12)', color:'rgba(255,255,255,.8)', fontSize:12, fontWeight:600, marginTop:'auto', position:'relative' }}>
+                      View Details
+                    </div>
                   )}
                 </div>
               );
-            })()}
+            })}
           </div>
         );
       })}
 
       {/* Footer */}
-      <div style={{ textAlign:'center', fontSize:11, color:'#94a3b8', paddingTop:4, paddingBottom:8 }}>
+      <div style={{ textAlign:'center', fontSize:11, color:'#94a3b8', paddingTop:8, paddingBottom:8 }}>
         All one-time USDT payments. 64 members per grid. Per member amount paid on each of 64 positions filled.
       </div>
+
+      {/* ── Modal Overlay ── */}
+      {modalTier && (
+        <div className="ct-overlay"
+          onClick={function() { setSelected(null); }}
+          style={{
+            position:'fixed', top:0, left:0, right:0, bottom:0, zIndex:9999,
+            background:'rgba(0,0,0,.55)', backdropFilter:'blur(4px)', WebkitBackdropFilter:'blur(4px)',
+            display:'flex', alignItems:'center', justifyContent:'center',
+            padding:20,
+          }}>
+          <div className="ct-modal"
+            onClick={function(e) { e.stopPropagation(); }}
+            style={{ width:'100%', maxWidth:580, maxHeight:'90vh', overflowY:'auto' }}>
+            <div className="ct-modal-inner" style={{
+              background:'#fff', borderRadius:18, padding:'32px 36px',
+              boxShadow:'0 20px 60px rgba(0,0,0,.2)',
+              borderTop:'4px solid ' + modalAccent.color,
+            }}>
+
+              {/* Header */}
+              <div className="ct-modal-header" style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:24 }}>
+                <div>
+                  <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
+                    <span style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'#0f172a' }}>{modalTier.name}</span>
+                    <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>Tier {modalTier.tier}</span>
+                    {modalTier.tier === 3 && <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>Popular</span>}
+                    {modalTier.tier === 8 && <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>Max earnings</span>}
+                  </div>
+                  <div style={{ fontSize:13, color:'#64748b' }}>
+                    {modalTier.views_target.toLocaleString()} video views across your campaigns
+                  </div>
+                </div>
+                <div style={{ display:'flex', alignItems:'flex-start', gap:16 }}>
+                  <div className="ct-modal-price" style={{ textAlign:'right' }}>
+                    <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, color:'#0f172a' }}>${modalTier.price.toLocaleString()}</div>
+                    <div style={{ fontSize:11, color:'#94a3b8' }}>one-time USDT</div>
+                  </div>
+                  <div onClick={function() { setSelected(null); }}
+                    style={{ width:32, height:32, borderRadius:8, border:'1px solid #e2e8f0', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0 }}>
+                    <X size={16} color="#94a3b8"/>
+                  </div>
+                </div>
+              </div>
+
+              {/* Earnings stats */}
+              <div className="ct-detail-stats" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20 }}>
+                <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'#f8fafc', border:'1px solid #f1f5f9' }}>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${formatMoney(modalTier.direct_commission)}</div>
+                  <div style={{ fontSize:11, color:'#94a3b8', marginTop:3 }}>Direct earn (40%)</div>
+                </div>
+                <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'#f8fafc', border:'1px solid #f1f5f9' }}>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${formatMoney(modalTier.uni_level_per_member)}</div>
+                  <div style={{ fontSize:11, color:'#94a3b8', marginTop:3 }}>Per member (6.25%)</div>
+                </div>
+                <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'#f8fafc', border:'1px solid #f1f5f9' }}>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${modalTier.completion_bonus.toLocaleString()}</div>
+                  <div style={{ fontSize:11, color:'#94a3b8', marginTop:3 }}>Grid bonus</div>
+                </div>
+                <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:modalAccent.bg, border:'1px solid ' + modalAccent.border }}>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${modalTotal.toLocaleString()}</div>
+                  <div style={{ fontSize:11, color:modalAccent.dark, marginTop:3, fontWeight:600 }}>Total potential</div>
+                </div>
+              </div>
+
+              {/* Feature tags */}
+              <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:20 }}>
+                {modalFeats.map(function(f) {
+                  return (
+                    <span key={f} style={{ fontSize:12, fontWeight:600, padding:'5px 14px', borderRadius:8, background:'#f8fafc', border:'1px solid #e2e8f0', color:'#475569' }}>{f}</span>
+                  );
+                })}
+              </div>
+
+              {/* Grid progress if active */}
+              {modalTier.is_active && modalTier.grid && (
+                <div style={{ marginBottom:20 }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
+                    <span style={{ fontSize:12, fontWeight:700, color:'#0f172a' }}>Grid progress</span>
+                    <span style={{ fontSize:12, color:'#64748b' }}>{modalTier.grid.filled}/64 members · Grid #{modalTier.grid.advance}</span>
+                  </div>
+                  <div style={{ height:6, background:'#f1f5f9', borderRadius:4 }}>
+                    <div style={{ height:'100%', width:modalTier.grid.pct+'%', background:modalAccent.grad, borderRadius:4, transition:'width .5s' }}/>
+                  </div>
+                </div>
+              )}
+
+              {/* Action button */}
+              {modalTier.is_active ? (
+                <div style={{
+                  textAlign:'center', padding:14, borderRadius:10,
+                  background:modalAccent.bg, border:'1px solid ' + modalAccent.border,
+                }}>
+                  <span style={{ display:'inline-flex', alignItems:'center', gap:5, color:modalAccent.dark, fontSize:14, fontWeight:700 }}>
+                    <Check size={14}/> This tier is active
+                  </span>
+                </div>
+              ) : (
+                <Link to={'/activate/' + modalTier.tier} className="ct-btn" style={{
+                  display:'block', textAlign:'center', padding:14, borderRadius:10,
+                  background:modalAccent.grad, textDecoration:'none',
+                }}>
+                  <span style={{ color:'#fff', fontWeight:700, fontSize:15 }}>Activate {modalTier.name} — ${modalTier.price.toLocaleString()} USDT</span>
+                </Link>
+              )}
+
+            </div>
+          </div>
+        </div>
+      )}
 
     </AppLayout>
   );
