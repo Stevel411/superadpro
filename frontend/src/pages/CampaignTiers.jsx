@@ -105,7 +105,7 @@ export default function CampaignTiers() {
 
       {/* ── Header Banner ── */}
       <div style={{
-        background:'linear-gradient(135deg,#450a0a,#991b1b,#ef4444)',
+        background:'linear-gradient(135deg,#0c1222,#1c223d,#2d3561)',
         borderRadius:18, padding:'32px 36px', marginBottom:24,
         textAlign:'center', position:'relative', overflow:'hidden',
       }}>
