@@ -255,6 +255,10 @@ export default function CampaignTiers() {
                 </div>
               </div>
 
+              <div style={{ fontSize:11, color:'#94a3b8', fontStyle:'italic', marginBottom:20 }}>
+                Earnings will vary according to the number of personal referrals you register into your grid.
+              </div>
+
               {/* Feature tags */}
               <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:20 }}>
                 {modalFeats.map(function(f) {
