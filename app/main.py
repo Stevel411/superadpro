@@ -16450,45 +16450,53 @@ async def api_supermarket_admin_review(product_id: int, request: Request,
 @app.get("/api/watch")
 def api_watch_data(request: Request, user: User = Depends(get_current_user),
                    db: Session = Depends(get_db)):
-    """JSON watch-to-earn data."""
+    """JSON watch-to-earn data — uses smart rotation from get_next_content()."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     try:
-        quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
+        quota = get_or_create_quota(db, user)
+        db.commit()
+
         today_str = datetime.utcnow().strftime("%Y-%m-%d")
-        watched_today = 0
-        if quota and getattr(quota, 'today_date', None) == today_str:
-            watched_today = getattr(quota, 'today_watched', 0) or 0
-        daily_limit = getattr(quota, 'daily_required', 10) if quota else 10
-        # Get available videos
-        campaigns = db.query(VideoCampaign).filter(
-            VideoCampaign.status == "active",
-            VideoCampaign.views_delivered < VideoCampaign.views_target
-        ).order_by(VideoCampaign.created_at.desc()).limit(20).all()
-        # Which ones has user watched today?
-        watched_ids = set()
-        if user:
-            today_watches = db.query(VideoWatch).filter(
-                VideoWatch.user_id == user.id,
-                VideoWatch.watched_at >= datetime.utcnow().replace(hour=0, minute=0, second=0)
-            ).all()
-            watched_ids = {w.campaign_id for w in today_watches}
+        watched_today = quota.today_watched or 0
+        daily_limit = quota.daily_required or 8
+        quota_reached = watched_today >= daily_limit
+
+        # Get next content using the smart scoring/rotation algorithm
+        # This handles: priority scoring, re-watches, own-campaign fallback,
+        # geo/interest targeting, and ad board interleaving
+        next_content = None
+        next_video = None
+        if not quota_reached:
+            next_content = get_next_content(db, user.id)
+            if next_content:
+                if next_content["type"] == "video":
+                    c = next_content["data"]
+                    next_video = {"id": c.id, "title": c.title, "platform": c.platform or "youtube",
+                                  "category": c.category or "General", "embed_url": c.embed_url, "is_watched": False}
+                elif next_content["type"] == "adboard":
+                    a = next_content["data"]
+                    next_video = {"id": a.id, "title": a.title, "platform": "adboard",
+                                  "category": a.category or "Ad", "embed_url": "",
+                                  "image_url": a.image_url or "", "link_url": a.link_url or "",
+                                  "description": a.description or "", "is_watched": False, "type": "adboard"}
+
+        # Build videos list: the next video to watch (if any)
+        videos = [next_video] if next_video else []
+
         return {
             "watched_today": watched_today,
             "daily_limit": daily_limit,
-            "quota_reached": watched_today >= daily_limit,
-            "tier": getattr(quota, 'package_tier', 1) if quota else 1,
-            "daily_required": getattr(quota, 'daily_required', 10) if quota else 10,
-            "streak_days": getattr(quota, 'streak_days', 0) or 0 if quota else 0,
-            "total_watched": getattr(quota, 'total_watched', 0) or 0 if quota else 0,
-            "commissions_paused": getattr(quota, 'commissions_paused', False) if quota else False,
+            "daily_required": daily_limit,
+            "quota_reached": quota_reached,
+            "tier": quota.package_tier or 1,
+            "streak_days": getattr(quota, 'streak_days', 0) or 0,
+            "total_watched": getattr(quota, 'total_watched', 0) or 0,
+            "commissions_paused": getattr(quota, 'commissions_paused', False),
             "total_minutes": 0,
             "total_watch_earnings": 0,
-            "videos": [{
-                "id": c.id, "title": c.title, "platform": c.platform or "youtube",
-                "category": c.category or "General", "embed_url": c.embed_url,
-                "is_watched": c.id in watched_ids,
-            } for c in campaigns],
+            "videos": videos,
+            "has_more": next_video is not None,
         }
     except Exception as e:
         import traceback
@@ -16641,44 +16649,75 @@ async def api_support_ticket(request: Request, user: User = Depends(get_current_
 @app.post("/api/watch/complete")
 async def api_watch_complete(request: Request, user: User = Depends(get_current_user),
                              db: Session = Depends(get_db)):
-    """Mark a video as watched and credit the user."""
+    """Mark a video as watched, update quota, and return the next video via smart rotation."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     try:
-        from decimal import Decimal
+        from datetime import date
         body = await request.json()
         video_id = body.get("video_id")
         if not video_id:
             return JSONResponse({"error": "video_id required"}, status_code=400)
+
         campaign = db.query(VideoCampaign).filter(VideoCampaign.id == video_id).first()
         if not campaign:
             return JSONResponse({"error": "Video not found"}, status_code=404)
-        # Check quota
-        today_str = datetime.utcnow().strftime("%Y-%m-%d")
-        quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
-        if not quota:
-            quota = WatchQuota(user_id=user.id, today_date=today_str, today_watched=0)
-            db.add(quota)
-            db.flush()
-        if (getattr(quota, 'today_date', None) or '') != today_str:
-            quota.today_date = today_str
-            quota.today_watched = 0
-        if (quota.today_watched or 0) >= 10:
-            return JSONResponse({"error": "Daily limit reached"}, status_code=400)
-        # Check not already watched today
-        existing = db.query(VideoWatch).filter(
-            VideoWatch.user_id == user.id, VideoWatch.campaign_id == video_id,
-            VideoWatch.watched_at >= datetime.utcnow().replace(hour=0, minute=0, second=0)
-        ).first()
-        if existing:
-            return JSONResponse({"error": "Already watched today"}, status_code=400)
-        # Record watch
-        watch = VideoWatch(user_id=user.id, campaign_id=video_id)
+
+        # Use the proper quota system (handles day reset, tier sync, streak)
+        quota = get_or_create_quota(db, user)
+        today_str = str(date.today())
+
+        # Check quota not already met
+        if quota.today_watched >= quota.daily_required:
+            return {"success": False, "error": "Daily quota already completed", "quota_met": True}
+
+        # Record the watch
+        watch = VideoWatch(
+            user_id=user.id,
+            campaign_id=video_id,
+            watch_date=today_str,
+            duration_secs=WATCH_DURATION,
+        )
         db.add(watch)
+
+        # Update quota counter
+        quota.today_watched += 1
+        if quota.today_watched >= quota.daily_required:
+            quota.last_quota_met = today_str
+            quota.consecutive_missed = 0
+            quota.commissions_paused = False
+
+        # Increment campaign views delivered
         campaign.views_delivered = (campaign.views_delivered or 0) + 1
-        quota.today_watched = (quota.today_watched or 0) + 1
+
         db.commit()
-        return {"ok": True, "qualified": True}
+
+        # Get next content using smart rotation
+        quota_met = quota.today_watched >= quota.daily_required
+        next_data = None
+        if not quota_met:
+            next_content = get_next_content(db, user.id)
+            if next_content:
+                if next_content["type"] == "video":
+                    c = next_content["data"]
+                    next_data = {"type": "video", "id": c.id, "title": c.title,
+                                 "embed_url": c.embed_url, "platform": c.platform or "youtube",
+                                 "category": c.category or "General"}
+                elif next_content["type"] == "adboard":
+                    a = next_content["data"]
+                    next_data = {"type": "adboard", "id": a.id, "title": a.title,
+                                 "description": a.description or "", "image_url": a.image_url or "",
+                                 "link_url": a.link_url or "", "category": a.category or "Ad"}
+
+        return {
+            "success": True,
+            "watched_today": quota.today_watched,
+            "required": quota.daily_required,
+            "quota_met": quota_met,
+            "next_content": next_data,
+            "next_campaign": next_data if next_data and next_data.get("type") == "video" else None,
+            "has_more": next_data is not None,
+        }
     except Exception as e:
         import traceback
         tb = traceback.format_exc()
