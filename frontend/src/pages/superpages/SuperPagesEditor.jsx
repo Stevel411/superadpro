@@ -214,6 +214,12 @@ export default function SuperPagesEditor() {
         {(previewMode || deviceView !== 'desktop') ? (
           /* Preview mode — shows rendered HTML with responsive CSS */
           <div style={{flex:1,background:'#1a1a2e',overflow:'auto',display:'flex',flexDirection:'column',alignItems:'center',padding:20}}>
+            {previewMode && (
+              <div style={{marginBottom:12,padding:'10px 24px',background:'rgba(99,102,241,.12)',border:'1px solid rgba(99,102,241,.25)',borderRadius:10,fontSize:13,color:'#a5b4fc',fontWeight:700,display:'flex',alignItems:'center',gap:12}}>
+                <span>👁 Preview Mode</span>
+                <button onClick={() => setPreviewMode(false)} style={{padding:'6px 16px',borderRadius:8,border:'none',background:'#6366f1',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>← Back to Editor</button>
+              </div>
+            )}
             {deviceView !== 'desktop' && !previewMode && (
               <div style={{marginBottom:12,padding:'8px 16px',background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.2)',borderRadius:8,fontSize:11,color:'#38bdf8',fontWeight:600}}>
                 📱 Responsive Preview — switch to Desktop to edit elements
