@@ -65,10 +65,12 @@ export default function CampaignTiers() {
   );
 
   function calcTotal(tierNum, price) {
-    var direct = price * 0.4;
-    var perMem = price * 0.0625;
+    var personals = 5;
+    var spillover = 59;
+    var directEarn = personals * price * 0.4;
+    var spilloverEarn = spillover * price * 0.0625;
     var bonus = BONUSES[tierNum] || 0;
-    return Math.round(direct + (perMem * 64) + bonus);
+    return Math.round(directEarn + spilloverEarn + bonus);
   }
 
   /* Modal data */
@@ -251,12 +253,12 @@ export default function CampaignTiers() {
                 </div>
                 <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:modalAccent.bg, border:'1px solid ' + modalAccent.border }}>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${modalTotal.toLocaleString()}</div>
-                  <div style={{ fontSize:11, color:modalAccent.dark, marginTop:3, fontWeight:600 }}>Total potential</div>
+                  <div style={{ fontSize:11, color:modalAccent.dark, marginTop:3, fontWeight:600 }}>Est. earnings</div>
                 </div>
               </div>
 
               <div style={{ fontSize:11, color:'#94a3b8', fontStyle:'italic', marginBottom:20 }}>
-                Earnings will vary according to the number of personal referrals you register into your grid.
+                Earnings based on 5 personal referrals. Income may vary depending on the number of personals referred into your grid.
               </div>
 
               {/* Feature tags */}
