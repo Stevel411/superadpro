@@ -52,16 +52,42 @@ const PROMPT_SUGGESTIONS = [
 ];
 
 const VOICES = [
-  { id: "en-US-GuyNeural",     name: "Guy",     gender: "Male",   accent: "US",  cat: "American", desc: "Warm, conversational narrator" },
-  { id: "en-US-JennyNeural",   name: "Jenny",   gender: "Female", accent: "US",  cat: "American", desc: "Friendly, clear corporate voice" },
-  { id: "en-US-AriaNeural",    name: "Aria",    gender: "Female", accent: "US",  cat: "American", desc: "Professional, smooth delivery" },
-  { id: "en-US-DavisNeural",   name: "Davis",   gender: "Male",   accent: "US",  cat: "American", desc: "Deep, authoritative tone" },
-  { id: "en-US-JaneNeural",    name: "Jane",    gender: "Female", accent: "US",  cat: "American", desc: "Calm, documentary style" },
-  { id: "en-US-JasonNeural",   name: "Jason",   gender: "Male",   accent: "US",  cat: "American", desc: "Energetic, upbeat presenter" },
-  { id: "en-GB-RyanNeural",    name: "Ryan",    gender: "Male",   accent: "UK",  cat: "British",  desc: "Polished, BBC-style narrator" },
-  { id: "en-GB-SoniaNeural",   name: "Sonia",   gender: "Female", accent: "UK",  cat: "British",  desc: "Elegant, refined tone" },
-  { id: "en-AU-WilliamNeural", name: "William", gender: "Male",   accent: "AU",  cat: "Australian", desc: "Relaxed, natural storyteller" },
-  { id: "en-AU-NatashaNeural", name: "Natasha", gender: "Female", accent: "AU",  cat: "Australian", desc: "Bright, engaging presenter" },
+  // American
+  { id: "en-US-GuyNeural",              name: "Guy",       gender: "Male",   accent: "US",  cat: "American", desc: "Warm, conversational narrator — great for explainers" },
+  { id: "en-US-JennyNeural",            name: "Jenny",     gender: "Female", accent: "US",  cat: "American", desc: "Friendly, clear corporate voice — perfect for business" },
+  { id: "en-US-AriaNeural",             name: "Aria",      gender: "Female", accent: "US",  cat: "American", desc: "Professional, smooth delivery — ideal for presentations" },
+  { id: "en-US-DavisNeural",            name: "Davis",     gender: "Male",   accent: "US",  cat: "American", desc: "Deep, authoritative tone — suited for trailers" },
+  { id: "en-US-JaneNeural",             name: "Jane",      gender: "Female", accent: "US",  cat: "American", desc: "Calm, documentary style — educational content" },
+  { id: "en-US-JasonNeural",            name: "Jason",     gender: "Male",   accent: "US",  cat: "American", desc: "Energetic, upbeat presenter — ads and promos" },
+  { id: "en-US-TonyNeural",             name: "Tony",      gender: "Male",   accent: "US",  cat: "American", desc: "Casual, friendly guy-next-door — social media" },
+  { id: "en-US-NancyNeural",            name: "Nancy",     gender: "Female", accent: "US",  cat: "American", desc: "Warm, mature professional — trustworthy narration" },
+  { id: "en-US-SaraNeural",             name: "Sara",      gender: "Female", accent: "US",  cat: "American", desc: "Young, cheerful — lifestyle and vlogs" },
+  { id: "en-US-AndrewNeural",           name: "Andrew",    gender: "Male",   accent: "US",  cat: "American", desc: "Confident, polished — corporate and tech" },
+  { id: "en-US-EmmaNeural",             name: "Emma",      gender: "Female", accent: "US",  cat: "American", desc: "Natural, versatile — works for any content" },
+  { id: "en-US-BrianNeural",            name: "Brian",     gender: "Male",   accent: "US",  cat: "American", desc: "Strong, cinematic narrator — dramatic content" },
+  { id: "en-US-ChristopherNeural",      name: "Christopher", gender: "Male", accent: "US",  cat: "American", desc: "Reliable, steady news anchor style" },
+  { id: "en-US-EricNeural",             name: "Eric",      gender: "Male",   accent: "US",  cat: "American", desc: "Clear, precise — tutorials and how-tos" },
+  { id: "en-US-MichelleNeural",         name: "Michelle",  gender: "Female", accent: "US",  cat: "American", desc: "Engaging, warm storyteller" },
+  { id: "en-US-RogerNeural",            name: "Roger",     gender: "Male",   accent: "US",  cat: "American", desc: "Mature, commanding — leadership content" },
+  { id: "en-US-SteffanNeural",          name: "Steffan",   gender: "Male",   accent: "US",  cat: "American", desc: "Modern, approachable — podcasts" },
+  // British
+  { id: "en-GB-RyanNeural",             name: "Ryan",      gender: "Male",   accent: "UK",  cat: "British",  desc: "Polished, BBC-style narrator — most natural flow" },
+  { id: "en-GB-SoniaNeural",            name: "Sonia",     gender: "Female", accent: "UK",  cat: "British",  desc: "Elegant, refined — luxury and premium content" },
+  { id: "en-GB-ThomasNeural",           name: "Thomas",    gender: "Male",   accent: "UK",  cat: "British",  desc: "Articulate, distinguished gentleman" },
+  { id: "en-GB-LibbyNeural",            name: "Libby",     gender: "Female", accent: "UK",  cat: "British",  desc: "Young, bright — modern British voice" },
+  { id: "en-GB-MaisieNeural",           name: "Maisie",    gender: "Female", accent: "UK",  cat: "British",  desc: "Soft, gentle — audiobooks and meditation" },
+  // Australian
+  { id: "en-AU-WilliamNeural",          name: "William",   gender: "Male",   accent: "AU",  cat: "Australian", desc: "Relaxed, natural storyteller — outdoor and lifestyle" },
+  { id: "en-AU-NatashaNeural",          name: "Natasha",   gender: "Female", accent: "AU",  cat: "Australian", desc: "Bright, engaging presenter — travel and adventure" },
+  // Indian
+  { id: "en-IN-NeerjaNeural",           name: "Neerja",    gender: "Female", accent: "IN",  cat: "Indian",   desc: "Clear, professional — tech and business" },
+  { id: "en-IN-PrabhatNeural",          name: "Prabhat",   gender: "Male",   accent: "IN",  cat: "Indian",   desc: "Articulate, formal — corporate and educational" },
+  // Irish
+  { id: "en-IE-ConnorNeural",           name: "Connor",    gender: "Male",   accent: "IE",  cat: "Irish",    desc: "Warm Irish charm — storytelling and heritage" },
+  { id: "en-IE-EmilyNeural",            name: "Emily",     gender: "Female", accent: "IE",  cat: "Irish",    desc: "Friendly, approachable Irish voice" },
+  // South African
+  { id: "en-ZA-LeahNeural",             name: "Leah",      gender: "Female", accent: "ZA",  cat: "South African", desc: "Distinctive, clear South African tone" },
+  { id: "en-ZA-LukeNeural",             name: "Luke",      gender: "Male",   accent: "ZA",  cat: "South African", desc: "Strong, confident South African voice" },
 ];
 
 const RATIOS = [
@@ -750,18 +776,7 @@ export default function SuperScenePage() {
   };
 
   // ── Voiceover Functions ─────────────────────────────────
-  const VO_VOICES = [
-    { id: "en-US-GuyNeural",     name: "Guy",     gender: "M", accent: "US" },
-    { id: "en-US-JennyNeural",   name: "Jenny",   gender: "F", accent: "US" },
-    { id: "en-US-AriaNeural",    name: "Aria",    gender: "F", accent: "US" },
-    { id: "en-US-DavisNeural",   name: "Davis",   gender: "M", accent: "US" },
-    { id: "en-US-JaneNeural",    name: "Jane",    gender: "F", accent: "US" },
-    { id: "en-US-JasonNeural",   name: "Jason",   gender: "M", accent: "US" },
-    { id: "en-GB-RyanNeural",    name: "Ryan",    gender: "M", accent: "UK" },
-    { id: "en-GB-SoniaNeural",   name: "Sonia",   gender: "F", accent: "UK" },
-    { id: "en-AU-WilliamNeural", name: "William", gender: "M", accent: "AU" },
-    { id: "en-AU-NatashaNeural", name: "Natasha", gender: "F", accent: "AU" },
-  ];
+  const VO_VOICES = VOICES.map(v => ({ id: v.id, name: v.name, gender: v.gender === "Male" ? "M" : "F", accent: v.accent, desc: v.desc }));
 
   const generateVoiceover = async () => {
     if (!voText.trim() || voGenerating) return;
@@ -1532,26 +1547,30 @@ export default function SuperScenePage() {
                     <div className="sc-model-icon" style={{ background: 'linear-gradient(135deg, #f472b6, #ec489988)' }}>🎙</div>
                     <div className="sc-model-info">
                       <div className="sc-model-name">{VO_VOICES.find(v => v.id === voVoice)?.name || "Select voice"}</div>
-                      <div className="sc-model-desc">{VO_VOICES.find(v => v.id === voVoice)?.gender === "M" ? "Male" : "Female"} · {VO_VOICES.find(v => v.id === voVoice)?.accent}</div>
+                      <div className="sc-model-desc">{VO_VOICES.find(v => v.id === voVoice)?.gender === "M" ? "Male" : "Female"} · {VO_VOICES.find(v => v.id === voVoice)?.accent} · {VO_VOICES.find(v => v.id === voVoice)?.desc}</div>
                     </div>
                     <span className={cls("sc-model-chev", voDropOpen && "open")}>▼</span>
                   </div>
                   {voDropOpen && (
-                    <div className="sc-model-drop">
-                      {["American", "British", "Australian"].map(cat => {
-                        const voices = VO_VOICES.filter(v => v.accent === (cat === "American" ? "US" : cat === "British" ? "UK" : "AU"));
+                    <div className="sc-model-drop" style={{ maxHeight: 400 }}>
+                      {["American", "British", "Australian", "Indian", "Irish", "South African"].map(cat => {
+                        const accentMap = { American: "US", British: "UK", Australian: "AU", Indian: "IN", Irish: "IE", "South African": "ZA" };
+                        const voices = VO_VOICES.filter(v => v.accent === accentMap[cat]);
                         return voices.length ? <div key={cat}>
-                          <div className="sc-voice-cat">{cat}</div>
+                          <div className="sc-voice-cat">{cat} <span style={{ fontSize: 10, color: 'var(--muted2)', fontWeight: 400 }}>({voices.length} voices)</span></div>
                           {voices.map(v => (
-                            <button key={v.id} className={cls("sc-model-opt", voVoice === v.id && "sel")}
+                            <button key={v.id} className={cls("sc-model-opt", voVoice === v.id && "sel")} style={{ alignItems: 'center' }}
                               onClick={() => { setVoVoice(v.id); setVoDropOpen(false); }}>
-                              <div className="sc-model-icon" style={{ background: 'linear-gradient(135deg, #f472b6, #ec489988)', fontSize: 14 }}>
+                              <div className="sc-model-icon" style={{ background: v.gender === "M" ? 'linear-gradient(135deg, #3b82f6, #1d4ed888)' : 'linear-gradient(135deg, #f472b6, #ec489988)', fontSize: 14, width: 28, height: 28, borderRadius: 7 }}>
                                 {v.gender === "M" ? "♂" : "♀"}
                               </div>
-                              <div className="sc-model-info">
-                                <div className="sc-model-name">{v.name}</div>
-                                <div className="sc-model-desc">{v.gender === "M" ? "Male" : "Female"} · {v.accent}</div>
+                              <div className="sc-model-info" style={{ flex: 1 }}>
+                                <div className="sc-model-name" style={{ fontSize: 13 }}>{v.name}</div>
+                                <div className="sc-model-desc" style={{ fontSize: 11 }}>{v.desc}</div>
                               </div>
+                              <div onClick={e => { e.stopPropagation(); const a = new Audio(`/api/superscene/voiceover/preview/${v.id}`); a.play(); }}
+                                style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 11, color: 'var(--accent)', flexShrink: 0 }}
+                                title="Preview voice">▶</div>
                             </button>
                           ))}
                         </div> : null;
@@ -1884,10 +1903,11 @@ export default function SuperScenePage() {
                     </div>
                     {pipeVoiceOpen && (
                       <div className="sc-model-drop">
-                        {["American", "British", "Australian"].map(cat => (
-                          <div key={cat}>
-                            <div className="sc-voice-cat">{cat}</div>
-                            {VOICES.filter(v => v.cat === cat).map(v => (
+                        {["American", "British", "Australian", "Indian", "Irish", "South African"].map(cat => {
+                          const catVoices = VOICES.filter(v => v.cat === cat);
+                          return catVoices.length ? <div key={cat}>
+                            <div className="sc-voice-cat">{cat} <span style={{ fontSize: 10, color: 'var(--muted2)', fontWeight: 400 }}>({catVoices.length})</span></div>
+                            {catVoices.map(v => (
                               <div key={v.id} className={cls("sc-model-opt", pipeVoice === v.id && "sel")}
                                 onClick={() => { setPipeVoice(v.id); setPipeVoiceOpen(false); }}>
                                 <div className="sc-model-info">
@@ -1910,8 +1930,8 @@ export default function SuperScenePage() {
                                 </button>
                               </div>
                             ))}
-                          </div>
-                        ))}
+                          </div> : null;
+                        })}
                       </div>
                     )}
                   </div>

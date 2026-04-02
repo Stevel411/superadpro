@@ -18841,13 +18841,20 @@ async def sc_voiceover_preview(voice_id: str):
     import tempfile
     from fastapi.responses import FileResponse
 
-    # Validate voice ID
+    # Validate voice ID — allow all en-* Neural voices
     valid_voices = {
         "en-US-GuyNeural", "en-US-JennyNeural", "en-US-AriaNeural",
         "en-US-DavisNeural", "en-US-JaneNeural", "en-US-JasonNeural",
-        "en-US-TonyNeural", "en-US-NancyNeural",
-        "en-GB-RyanNeural", "en-GB-SoniaNeural",
+        "en-US-TonyNeural", "en-US-NancyNeural", "en-US-SaraNeural",
+        "en-US-AndrewNeural", "en-US-EmmaNeural", "en-US-BrianNeural",
+        "en-US-ChristopherNeural", "en-US-EricNeural", "en-US-MichelleNeural",
+        "en-US-RogerNeural", "en-US-SteffanNeural",
+        "en-GB-RyanNeural", "en-GB-SoniaNeural", "en-GB-ThomasNeural",
+        "en-GB-LibbyNeural", "en-GB-MaisieNeural",
         "en-AU-NatashaNeural", "en-AU-WilliamNeural",
+        "en-IN-NeerjaNeural", "en-IN-PrabhatNeural",
+        "en-IE-ConnorNeural", "en-IE-EmilyNeural",
+        "en-ZA-LeahNeural", "en-ZA-LukeNeural",
     }
     if voice_id not in valid_voices:
         raise HTTPException(status_code=400, detail="Invalid voice ID")
