@@ -33,6 +33,7 @@ export default function CampaignTiers() {
   var [tiers, setTiers] = useState([]);
   var [loading, setLoading] = useState(true);
   var [calcTier, setCalcTier] = useState(3);
+  var [calcOpen, setCalcOpen] = useState(false);
 
   useEffect(function() {
     apiGet('/api/campaign-tiers').then(function(d) {
@@ -190,15 +191,44 @@ export default function CampaignTiers() {
       <div style={{ background:'#fff', border:'1px solid #e8ecf2', borderRadius:16, padding:'24px 28px', marginBottom:16, boxShadow:'0 2px 8px rgba(0,0,0,.04)' }}>
         <div style={{ fontFamily:'Sora,sans-serif', fontSize:17, fontWeight:800, color:'#0f172a', textAlign:'center', marginBottom:4 }}>Earnings calculator</div>
         <div style={{ fontSize:13, color:'#64748b', textAlign:'center', marginBottom:16 }}>How much could you earn when your grid fills with 64 members?</div>
-        <div style={{ display:'flex', alignItems:'center', gap:12, maxWidth:440, margin:'0 auto' }}>
-          <label style={{ fontSize:13, color:'#64748b', whiteSpace:'nowrap' }}>Select tier</label>
-          <select value={calcTier} onChange={function(e) { setCalcTier(Number(e.target.value)); }}
-            style={{ flex:1, padding:'10px 14px', borderRadius:10, border:'1px solid #e2e8f0', fontSize:14, fontFamily:'inherit', background:'#f8fafc', cursor:'pointer' }}>
-            {tiers.map(function(t) {
-              return <option key={t.tier} value={t.tier}>T{t.tier} {t.name} (${t.price.toLocaleString()})</option>;
-            })}
-          </select>
+
+        {/* Custom dropdown */}
+        <div style={{ maxWidth:440, margin:'0 auto', position:'relative' }}>
+          <div onClick={function() { setCalcOpen(!calcOpen); }}
+            style={{ display:'flex', alignItems:'center', justifyContent:'space-between', padding:'12px 16px', borderRadius:12, border:'1px solid #e2e8f0', background:'#f8fafc', cursor:'pointer', transition:'border-color .15s' }}>
+            <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+              <span style={{ fontSize:10, fontWeight:700, letterSpacing:1, textTransform:'uppercase', padding:'3px 10px', borderRadius:14, background:(TIER_COLORS[calcTier] || TIER_COLORS[1]).strip, color:'#fff' }}>T{calcTier}</span>
+              <span style={{ fontSize:15, fontWeight:700, color:'#0f172a' }}>
+                {(tiers.find(function(t) { return t.tier === calcTier; }) || {}).name || 'Pro'}
+              </span>
+              <span style={{ fontSize:13, color:'#64748b' }}>
+                ${((tiers.find(function(t) { return t.tier === calcTier; }) || {}).price || 100).toLocaleString()}
+              </span>
+            </div>
+            <span style={{ fontSize:12, color:'#94a3b8', transition:'transform .2s', transform: calcOpen ? 'rotate(180deg)' : 'rotate(0)' }}>▼</span>
+          </div>
+
+          {calcOpen && (
+            <div style={{ position:'absolute', top:'100%', left:0, right:0, marginTop:4, background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, boxShadow:'0 8px 24px rgba(0,0,0,.12)', zIndex:20, overflow:'hidden', maxHeight:320, overflowY:'auto' }}>
+              {tiers.map(function(t) {
+                var c = TIER_COLORS[t.tier] || TIER_COLORS[1];
+                var selected = t.tier === calcTier;
+                return (
+                  <div key={t.tier} onClick={function() { setCalcTier(t.tier); setCalcOpen(false); }}
+                    style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 16px', cursor:'pointer', background: selected ? c.tagBg : 'transparent', borderLeft: selected ? '3px solid ' + c.strip : '3px solid transparent', transition:'background .1s' }}
+                    onMouseEnter={function(e) { if (!selected) e.currentTarget.style.background = '#f8fafc'; }}
+                    onMouseLeave={function(e) { if (!selected) e.currentTarget.style.background = 'transparent'; }}>
+                    <span style={{ fontSize:9, fontWeight:700, letterSpacing:1, textTransform:'uppercase', padding:'2px 8px', borderRadius:12, background:c.strip, color:'#fff', flexShrink:0 }}>T{t.tier}</span>
+                    <span style={{ fontSize:14, fontWeight: selected ? 700 : 500, color: selected ? c.statText : '#0f172a', flex:1 }}>{t.name}</span>
+                    <span style={{ fontSize:13, fontWeight:600, color: selected ? c.statText : '#64748b' }}>${t.price.toLocaleString()}</span>
+                    {selected && <Check size={14} color={c.strip}/>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
+
         <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:800, color:'#0ea5e9', textAlign:'center', marginTop:16 }}>${calc.total.toLocaleString()}</div>
         <div style={{ fontSize:13, color:'#94a3b8', textAlign:'center', marginTop:4 }}>
           ${calc.direct} direct + ${calc.perMem.toFixed(2)} x 64 members + ${calc.bonus.toLocaleString()} bonus
