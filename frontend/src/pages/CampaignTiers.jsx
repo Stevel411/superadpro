@@ -103,14 +103,25 @@ export default function CampaignTiers() {
         '}',
       ].join('\n')}</style>
 
-      {/* ── Header ── */}
-      <div style={{ textAlign:'center', marginBottom:28 }}>
-        <div style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'#94a3b8', marginBottom:6 }}>Campaign Grid System</div>
-        <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#0f172a', marginBottom:8 }}>
-          Activate Tiers. Earn Commissions. Grow Your Grid.
-        </div>
-        <div style={{ fontSize:13, color:'#64748b', lineHeight:1.7, maxWidth:520, margin:'0 auto' }}>
-          Each tier delivers real video views through Watch & Earn. You earn commissions as your grid fills with 64 members. Tap a tier to see full details.
+      {/* ── Header Banner ── */}
+      <div style={{
+        background:'linear-gradient(135deg,#0c4a6e,#0369a1,#0284c7)',
+        borderRadius:18, padding:'32px 36px', marginBottom:24,
+        textAlign:'center', position:'relative', overflow:'hidden',
+      }}>
+        <div style={{ position:'absolute', top:-50, right:-50, width:180, height:180, borderRadius:'50%', background:'rgba(255,255,255,.05)', pointerEvents:'none' }}/>
+        <div style={{ position:'absolute', bottom:-40, left:-40, width:140, height:140, borderRadius:'50%', background:'rgba(255,255,255,.04)', pointerEvents:'none' }}/>
+        <div style={{ position:'relative' }}>
+          <div style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,.45)', marginBottom:8 }}>Campaign Grid System</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#fff', marginBottom:4 }}>
+            Activate Tiers. Earn Commissions.
+          </div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#38bdf8', marginBottom:12 }}>
+            Grow Your Grid.
+          </div>
+          <div style={{ fontSize:14, color:'rgba(255,255,255,.6)', lineHeight:1.7, maxWidth:520, margin:'0 auto' }}>
+            Each tier delivers real video views through Watch & Earn. You earn commissions as your grid fills with 64 members.
+          </div>
         </div>
       </div>
 
