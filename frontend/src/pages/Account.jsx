@@ -14,6 +14,9 @@ export default function Account() {
   var [firstName, setFirstName] = useState(user?.first_name || '');
   var [lastName, setLastName] = useState(user?.last_name || '');
   var [country, setCountry] = useState(user?.country || '');
+  var [interests, setInterests] = useState(user?.interests || '');
+  var [gender, setGender] = useState(user?.gender || '');
+  var [ageRange, setAgeRange] = useState(user?.age_range || '');
   var [avatarUrl, setAvatarUrl] = useState(user?.avatar_url || '');
   var [savingProfile, setSavingProfile] = useState(false);
 
@@ -52,7 +55,7 @@ export default function Account() {
 
   function saveProfile() {
     setSavingProfile(true);
-    apiPost('/api/account/update', {first_name: firstName, last_name: lastName, country: country}).then(function() {
+    apiPost('/api/account/update', {first_name: firstName, last_name: lastName, country: country, interests: interests, gender: gender, age_range: ageRange}).then(function() {
       refreshUser(); showToast('Profile saved', 'ok'); setSavingProfile(false);
     }).catch(function(e) { showToast(e.message || 'Failed', 'err'); setSavingProfile(false); });
   }
@@ -129,6 +132,15 @@ export default function Account() {
           <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>First Name</label><input value={firstName} onChange={function(e){setFirstName(e.target.value);}} style={iS} onFocus={foc} onBlur={blu}/></div>
           <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Last Name</label><input value={lastName} onChange={function(e){setLastName(e.target.value);}} style={iS} onFocus={foc} onBlur={blu}/></div>
           <div style={{marginBottom:14}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Country</label><select value={country} onChange={function(e){setCountry(e.target.value);}} style={iS}><option value="">Select...</option>{COUNTRIES.map(function(c){return <option key={c} value={c}>{c}</option>;})}</select></div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
+            <div><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Gender</label><select value={gender} onChange={function(e){setGender(e.target.value);}} style={iS}><option value="">Prefer not to say</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>
+            <div><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Age Range</label><select value={ageRange} onChange={function(e){setAgeRange(e.target.value);}} style={iS}><option value="">Select...</option><option value="18-24">18-24</option><option value="25-34">25-34</option><option value="35-44">35-44</option><option value="45-54">45-54</option><option value="55+">55+</option></select></div>
+          </div>
+          <div style={{marginBottom:14}}>
+            <label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Interests <span style={{fontWeight:400,textTransform:'none'}}>(helps match you with relevant content)</span></label>
+            <input value={interests} onChange={function(e){setInterests(e.target.value);}} placeholder="e.g. crypto, marketing, fitness, tech, forex" style={iS} onFocus={foc} onBlur={blu}/>
+            <div style={{fontSize:10,color:'#64748b',marginTop:4}}>Separate interests with commas. These help us show you the most relevant campaign videos.</div>
+          </div>
           <button onClick={saveProfile} disabled={savingProfile} style={Object.assign({},btnS,{background:'#0ea5e9'})}>{savingProfile?'Saving...':'Save Profile'}</button>
         </Card>
 

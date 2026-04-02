@@ -450,6 +450,9 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "totp_enabled": user.totp_enabled,
         "avatar_url": user.avatar_url or None,
         "country": user.country or "",
+        "interests": user.interests or "",
+        "gender": user.gender or "",
+        "age_range": user.age_range or "",
         "wallet_address": user.wallet_address or "",
         "sending_wallet": getattr(user, "sending_wallet", "") or "",
         "member_id": getattr(user, "member_id", None),
@@ -15621,6 +15624,18 @@ async def api_account_update(request: Request, user: User = Depends(get_current_
         user.avatar_url = body["avatar_url"]
     if "country" in body:
         user.country = (body["country"] or "").strip()[:100]
+    if "interests" in body:
+        # Comma-separated interest tags, sanitise each
+        raw = (body["interests"] or "").strip()[:500]
+        user.interests = ", ".join([t.strip()[:50] for t in raw.split(",") if t.strip()][:20])
+    if "gender" in body:
+        g = (body["gender"] or "").strip().lower()
+        if g in ("male", "female", "other", ""):
+            user.gender = g or None
+    if "age_range" in body:
+        ar = (body["age_range"] or "").strip()
+        if ar in ("18-24", "25-34", "35-44", "45-54", "55+", ""):
+            user.age_range = ar or None
     if "wallet_address" in body:
         wa = (body["wallet_address"] or "").strip()
         if wa and not validate_wallet(wa):
