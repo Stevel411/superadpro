@@ -175,9 +175,20 @@ export default function CampaignTiers() {
         );
       })}
 
-      {/* Footer */}
-      <div style={{ textAlign:'center', fontSize:11, color:'#94a3b8', paddingTop:8, paddingBottom:8 }}>
-        All one-time USDT payments. 64 members per grid. Per member amount paid on each of 64 positions filled.
+      {/* How it works + Renewal info */}
+      <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:'20px 24px', marginTop:4, marginBottom:16 }}>
+        <div style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'#0f172a', marginBottom:10 }}>How it works</div>
+        <div style={{ fontSize:13, color:'#64748b', lineHeight:1.8 }}>
+          Each tier gives your videos real views through the Watch & Earn network. When you activate a tier, you are placed into an 8×8 grid with 64 member positions. You earn <span style={{ fontWeight:700, color:'#0f172a' }}>40% direct commission</span> on every referral who activates the same tier, plus <span style={{ fontWeight:700, color:'#0f172a' }}>6.25% per grid member</span> as positions fill, plus a <span style={{ fontWeight:700, color:'#0f172a' }}>completion bonus</span> when the grid is full.
+        </div>
+        <div style={{ borderTop:'1px solid #f1f5f9', marginTop:14, paddingTop:14, display:'flex', alignItems:'flex-start', gap:10 }}>
+          <div style={{ width:20, height:20, borderRadius:6, background:'#fef3c7', border:'1px solid #fde68a', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:1 }}>
+            <span style={{ fontSize:11, color:'#d97706', fontWeight:800 }}>!</span>
+          </div>
+          <div style={{ fontSize:13, color:'#64748b', lineHeight:1.7 }}>
+            <span style={{ fontWeight:700, color:'#0f172a' }}>Renewal:</span> Tiers expire once all allocated views have been delivered. To continue receiving views and earning grid commissions, simply re-activate the tier. All one-time USDT payments — no subscriptions or recurring charges.
+          </div>
+        </div>
       </div>
 
       {/* ── Modal Overlay ── */}
