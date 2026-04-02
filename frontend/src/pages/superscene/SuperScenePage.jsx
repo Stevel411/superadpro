@@ -2281,7 +2281,7 @@ export default function SuperScenePage() {
                     <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
                       <input type="number" min={10} max={5000} value={customCredits}
                         onChange={e => { const v = Math.max(10, Math.min(5000, Number(e.target.value) || 10)); setCustomCredits(v); }}
-                        style={{ width: 55, background: 'transparent', border: 'none', color: '#fff', fontFamily: 'Sora,sans-serif', fontSize: 24, fontWeight: 800, outline: 'none', textAlign: 'left' }} />
+                        style={{ width: 80, background: 'transparent', border: 'none', color: '#fff', fontFamily: 'Sora,sans-serif', fontSize: 24, fontWeight: 800, outline: 'none', textAlign: 'left' }} />
                       <span style={{ fontSize: 12, color: 'rgba(255,255,255,.3)', fontWeight: 600 }}>credits</span>
                     </div>
                     <div style={{ fontSize: 11, color: 'rgba(255,255,255,.25)', marginTop: 2 }}>$0.22 per credit</div>
