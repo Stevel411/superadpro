@@ -154,6 +154,13 @@ limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Catch unhandled exceptions and return JSON instead of HTML error pages."""
+    import traceback
+    logger.error(f"Unhandled error: {exc}\n{traceback.format_exc()}")
+    return JSONResponse({"error": str(exc)}, status_code=500)
+
 # ── CORS — locked to our domain ──
 ALLOWED_ORIGINS = [
     "https://www.superadpro.com",
@@ -2042,13 +2049,13 @@ def upload_video_post(
 ):
     if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
+    def err(msg):
+        return JSONResponse({"error": msg}, status_code=400)
+
     title       = sanitize(title)[:120]
     description = sanitize(description)[:500]
     category    = sanitize(category)[:50]
     video_url   = video_url.strip()
-
-    def err(msg):
-        return JSONResponse({"error": msg}, status_code=400)
 
     highest_grid = db.query(Grid).filter(
         Grid.owner_id == user.id,
