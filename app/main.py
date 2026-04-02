@@ -5495,15 +5495,14 @@ def admin_api_toggle_active(
 
 
 @app.post("/admin/api/user/{user_id}/change-tier")
-def admin_api_change_tier(
+async def admin_api_change_tier(
     user_id: int, request: Request,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
     """Change a user's membership tier (basic/pro)."""
     _require_admin(user)
-    import asyncio
-    body = asyncio.get_event_loop().run_until_complete(request.json())
+    body = await request.json()
     new_tier = body.get("tier", "basic")
     if new_tier not in ("basic", "pro"):
         raise HTTPException(status_code=400, detail="Invalid tier")
