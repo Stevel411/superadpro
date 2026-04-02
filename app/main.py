@@ -2025,6 +2025,24 @@ def delete_campaign(
         db.commit()
     return RedirectResponse(url="/video-library", status_code=303)
 
+
+@app.delete("/api/campaigns/{campaign_id}")
+def api_delete_campaign(campaign_id: int, request: Request,
+                        db: Session = Depends(get_db),
+                        user: User = Depends(get_current_user)):
+    """Delete (soft) a video campaign. JSON API for React frontend."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    campaign = db.query(VideoCampaign).filter(
+        VideoCampaign.id == campaign_id,
+        VideoCampaign.user_id == user.id,
+    ).first()
+    if not campaign:
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+    campaign.status = "deleted"
+    db.commit()
+    return {"success": True, "message": "Campaign deleted"}
+
 @app.get("/upload")
 @app.get("/create-campaign")
 def upload_video(request: Request):
@@ -16619,7 +16637,8 @@ def api_video_library(request: Request, user: User = Depends(get_current_user),
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     campaigns = db.query(VideoCampaign).filter(
-        VideoCampaign.user_id == user.id
+        VideoCampaign.user_id == user.id,
+        VideoCampaign.status != "deleted",
     ).order_by(VideoCampaign.created_at.desc()).all()
     active = sum(1 for c in campaigns if c.status == "active")
     total_views = sum(c.views_delivered or 0 for c in campaigns)
@@ -16631,6 +16650,8 @@ def api_video_library(request: Request, user: User = Depends(get_current_user),
             "id": c.id, "title": c.title, "platform": c.platform,
             "category": c.category, "status": c.status,
             "embed_url": c.embed_url, "video_url": c.video_url,
+            "target_country": c.target_country or "",
+            "target_interests": c.target_interests or "",
             "views_delivered": c.views_delivered or 0, "views_target": c.views_target or 0,
         } for c in campaigns],
     }

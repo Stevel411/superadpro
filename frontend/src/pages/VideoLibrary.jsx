@@ -1,17 +1,31 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
-import { Film, Eye, Play, CheckCircle, Clock, AlertCircle } from 'lucide-react';
+import { Film, Eye, Play, CheckCircle, Clock, AlertCircle, Trash2, Plus } from 'lucide-react';
 
 export default function VideoLibrary() {
   var { t } = useTranslation();
   var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);
+  var [deleting, setDeleting] = useState(null);
 
-  useEffect(function() {
+  function load() {
     apiGet('/api/video-library').then(function(r) { setData(r); setLoading(false); }).catch(function() { setLoading(false); });
-  }, []);
+  }
+  useEffect(function() { load(); }, []);
+
+  async function deleteCampaign(id, title) {
+    if (!confirm('Delete campaign "' + title + '"? This cannot be undone.')) return;
+    setDeleting(id);
+    try {
+      var res = await fetch('/api/campaigns/' + id, { method: 'DELETE', credentials: 'include' });
+      var d = await res.json();
+      if (d.success) { load(); } else { alert(d.error || 'Delete failed'); }
+    } catch (e) { alert(e.message || 'Delete failed'); }
+    setDeleting(null);
+  }
 
   if (loading) return <AppLayout title={t("videos.title")}><Spin/></AppLayout>;
 
@@ -23,12 +37,18 @@ export default function VideoLibrary() {
     if (s === 'pending') return <Clock size={12} color="#f59e0b"/>;
     return <AlertCircle size={12} color="#94a3b8"/>;
   };
-
   var statusColor = function(s) {
     if (s === 'active') return {bg:'rgba(22,163,74,.08)',color:'#16a34a',border:'rgba(22,163,74,.15)'};
     if (s === 'pending') return {bg:'rgba(245,158,11,.08)',color:'#f59e0b',border:'rgba(245,158,11,.15)'};
     return {bg:'#f8f9fb',color:'#94a3b8',border:'#e8ecf2'};
   };
+  function getThumb(c) {
+    if (c.platform === 'youtube' && c.embed_url) {
+      var match = c.embed_url.match(/embed\/([a-zA-Z0-9_-]+)/);
+      if (match) return 'https://img.youtube.com/vi/' + match[1] + '/mqdefault.jpg';
+    }
+    return null;
+  }
 
   return (
     <AppLayout title={t("videos.title")} subtitle={t("videos.subtitle")}>
@@ -59,55 +79,89 @@ export default function VideoLibrary() {
             <Film size={16} color="#38bdf8"/>
             <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('videos.yourCampaigns')}</div>
           </div>
-          <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.4)'}}>{campaigns.length} campaigns</div>
+          <div style={{display:'flex',alignItems:'center',gap:12}}>
+            <span style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.4)'}}>{campaigns.length} campaign{campaigns.length !== 1 ? 's' : ''}</span>
+            <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,color:'#fff',background:'#0ea5e9',padding:'6px 14px',borderRadius:8,textDecoration:'none'}}>
+              <Plus size={12}/> New Campaign
+            </Link>
+          </div>
         </div>
         {campaigns.length > 0 ? (
-          <table style={{width:'100%',borderCollapse:'collapse'}}>
-            <thead>
-              <tr>
-                {[t('videos.campaign'),t('videos.platform'),t('common.status'),t('videos.views'),t('videos.progress')].map(function(h) {
-                  return <th key={h} style={{fontSize:10,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,padding:'12px 16px',borderBottom:'2px solid #e8ecf2',textAlign:'left',background:'#f8f9fb'}}>{h}</th>;
-                })}
-              </tr>
-            </thead>
-            <tbody>
-              {campaigns.map(function(c, i) {
-                var sc = statusColor(c.status);
-                var pct = c.views_target > 0 ? Math.min(100, Math.round((c.views_delivered / c.views_target) * 100)) : 0;
-                return (
-                  <tr key={c.id || i}>
-                    <td style={{padding:'14px 16px',borderBottom:'1px solid #f5f6f8'}}>
-                      <div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>{c.title || 'Untitled'}</div>
-                      <div style={{fontSize:10,color:'#94a3b8'}}>{c.category || '—'}</div>
-                    </td>
-                    <td style={{padding:'14px 16px',borderBottom:'1px solid #f5f6f8',fontSize:12,color:'#64748b'}}>{c.platform || '—'}</td>
-                    <td style={{padding:'14px 16px',borderBottom:'1px solid #f5f6f8'}}>
-                      <span style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:10,fontWeight:700,padding:'3px 8px',borderRadius:6,
-                        background:sc.bg,color:sc.color,border:'1px solid '+sc.border,textTransform:'capitalize'}}>
+          <div style={{padding:16,display:'flex',flexDirection:'column',gap:12}}>
+            {campaigns.map(function(c) {
+              var sc = statusColor(c.status);
+              var pct = c.views_target > 0 ? Math.min(100, Math.round((c.views_delivered / c.views_target) * 100)) : 0;
+              var thumb = getThumb(c);
+              return (
+                <div key={c.id} style={{display:'flex',gap:16,padding:16,background:'#f8f9fb',border:'1px solid #e8ecf2',borderRadius:12,alignItems:'center'}}>
+                  {/* Thumbnail */}
+                  <div style={{width:160,height:90,borderRadius:8,overflow:'hidden',background:'#0f172a',flexShrink:0,position:'relative'}}>
+                    {thumb ? (
+                      <img src={thumb} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
+                    ) : (
+                      <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                        <Film size={24} color="#334155"/>
+                      </div>
+                    )}
+                    {c.video_url && (
+                      <a href={c.video_url} target="_blank" rel="noreferrer"
+                        style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',background:'rgba(0,0,0,.35)',opacity:0,transition:'opacity .2s',cursor:'pointer'}}
+                        onMouseEnter={function(e){e.currentTarget.style.opacity='1';}}
+                        onMouseLeave={function(e){e.currentTarget.style.opacity='0';}}>
+                        <Play size={28} color="#fff" fill="#fff"/>
+                      </a>
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div style={{flex:1,minWidth:0}}>
+                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
+                      <div style={{fontSize:15,fontWeight:700,color:'#0f172a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.title || 'Untitled'}</div>
+                      <span style={{display:'inline-flex',alignItems:'center',gap:3,fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:6,
+                        background:sc.bg,color:sc.color,border:'1px solid '+sc.border,textTransform:'capitalize',flexShrink:0}}>
                         {statusIcon(c.status)} {c.status}
                       </span>
-                    </td>
-                    <td style={{padding:'14px 16px',borderBottom:'1px solid #f5f6f8',fontSize:13,fontWeight:700,color:'#0ea5e9'}}>
-                      {(c.views_delivered||0).toLocaleString()} <span style={{fontSize:10,color:'#94a3b8',fontWeight:500}}>/ {(c.views_target||0).toLocaleString()}</span>
-                    </td>
-                    <td style={{padding:'14px 16px',borderBottom:'1px solid #f5f6f8'}}>
-                      <div style={{display:'flex',alignItems:'center',gap:8}}>
-                        <div style={{flex:1,height:6,background:'#f1f5f9',borderRadius:3,overflow:'hidden'}}>
-                          <div style={{height:'100%',borderRadius:3,background:pct>=100?'#16a34a':'#0ea5e9',width:pct+'%',transition:'width .3s'}}/>
-                        </div>
-                        <span style={{fontSize:11,fontWeight:700,color:pct>=100?'#16a34a':'#0ea5e9',minWidth:30}}>{pct}%</span>
+                    </div>
+                    <div style={{fontSize:11,color:'#94a3b8',marginBottom:8}}>
+                      {c.platform || '—'} · {c.category || 'General'}
+                      {c.target_country ? ' · 🎯 ' + c.target_country : ''}
+                      {c.target_interests ? ' · ' + c.target_interests : ''}
+                    </div>
+                    <div style={{display:'flex',alignItems:'center',gap:10}}>
+                      <div style={{flex:1,height:6,background:'#e2e8f0',borderRadius:3,overflow:'hidden',maxWidth:200}}>
+                        <div style={{height:'100%',borderRadius:3,background:pct>=100?'#16a34a':'#0ea5e9',width:pct+'%',transition:'width .3s'}}/>
                       </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      <span style={{fontSize:12,fontWeight:700,color:'#0ea5e9'}}>{(c.views_delivered||0).toLocaleString()}</span>
+                      <span style={{fontSize:10,color:'#94a3b8'}}>/ {(c.views_target||0).toLocaleString()} views</span>
+                      <span style={{fontSize:11,fontWeight:700,color:pct>=100?'#16a34a':'#64748b'}}>{pct}%</span>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div style={{display:'flex',flexDirection:'column',gap:6,flexShrink:0}}>
+                    {c.video_url && (
+                      <a href={c.video_url} target="_blank" rel="noreferrer"
+                        style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,color:'#0ea5e9',padding:'6px 12px',borderRadius:8,border:'1px solid rgba(14,165,233,.2)',background:'rgba(14,165,233,.04)',textDecoration:'none',cursor:'pointer'}}>
+                        <Eye size={12}/> View
+                      </a>
+                    )}
+                    <button onClick={function(){deleteCampaign(c.id, c.title);}} disabled={deleting === c.id}
+                      style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,color:'#dc2626',padding:'6px 12px',borderRadius:8,border:'1px solid rgba(220,38,38,.15)',background:'rgba(220,38,38,.04)',cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>
+                      <Trash2 size={12}/> {deleting === c.id ? '...' : 'Delete'}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         ) : (
           <div style={{textAlign:'center',padding:'60px 20px'}}>
             <div style={{fontSize:40,marginBottom:12,opacity:.3}}>🎬</div>
             <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:4}}>{t('videos.noCampaignsYet')}</div>
-            <div style={{fontSize:13,color:'#94a3b8'}}>{t('videos.activateATier')}</div>
+            <div style={{fontSize:13,color:'#94a3b8',marginBottom:20}}>{t('videos.activateATier')}</div>
+            <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#6366f1)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>
+              <Plus size={16}/> Create Your First Campaign
+            </Link>
           </div>
         )}
       </div>
