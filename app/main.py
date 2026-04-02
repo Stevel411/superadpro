@@ -2040,7 +2040,7 @@ def upload_video_post(
     db: Session = Depends(get_db),
     user: User  = Depends(get_current_user)
 ):
-    if not user: return RedirectResponse(url="/?login=1", status_code=302)
+    if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
     title       = sanitize(title)[:120]
     description = sanitize(description)[:500]
@@ -2048,11 +2048,6 @@ def upload_video_post(
     video_url   = video_url.strip()
 
     def err(msg):
-        ctx = get_dashboard_context(request, user, db)
-        ctx.update({"error": msg, "prefill": {
-            "title": title, "video_url": video_url,
-            "category": category, "description": description
-        }})
         return JSONResponse({"error": msg}, status_code=400)
 
     highest_grid = db.query(Grid).filter(

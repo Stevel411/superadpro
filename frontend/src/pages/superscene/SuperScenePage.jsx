@@ -256,6 +256,8 @@ export default function SuperScenePage() {
   // Voiceover
   const [voText, setVoText] = useState("");
   const [voVoice, setVoVoice] = useState("en-US-GuyNeural");
+  const [voPreviewPlaying, setVoPreviewPlaying] = useState(null);
+  const voPreviewRef = useRef(null);
   const [voDropOpen, setVoDropOpen] = useState(false);
   const [voGenerating, setVoGenerating] = useState(false);
   const [voAudioUrl, setVoAudioUrl] = useState(null);
@@ -1568,9 +1570,19 @@ export default function SuperScenePage() {
                                 <div className="sc-model-name" style={{ fontSize: 13 }}>{v.name}</div>
                                 <div className="sc-model-desc" style={{ fontSize: 11 }}>{v.desc}</div>
                               </div>
-                              <div onClick={e => { e.stopPropagation(); const a = new Audio(`/api/superscene/voiceover/preview/${v.id}`); a.play(); }}
-                                style={{ width: 28, height: 28, borderRadius: 7, background: 'rgba(255,255,255,.06)', border: '1px solid rgba(255,255,255,.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 11, color: 'var(--accent)', flexShrink: 0 }}
-                                title="Preview voice">▶</div>
+                              <div onClick={e => {
+                                e.stopPropagation();
+                                if (voPreviewPlaying === v.id && voPreviewRef.current) {
+                                  voPreviewRef.current.pause(); voPreviewRef.current = null; setVoPreviewPlaying(null);
+                                } else {
+                                  if (voPreviewRef.current) { voPreviewRef.current.pause(); }
+                                  const a = new Audio(`/api/superscene/voiceover/preview/${v.id}`);
+                                  a.onended = () => setVoPreviewPlaying(null);
+                                  a.play(); voPreviewRef.current = a; setVoPreviewPlaying(v.id);
+                                }
+                              }}
+                                style={{ width: 28, height: 28, borderRadius: 7, background: voPreviewPlaying === v.id ? 'rgba(34,211,238,.15)' : 'rgba(255,255,255,.06)', border: '1px solid ' + (voPreviewPlaying === v.id ? 'rgba(34,211,238,.3)' : 'rgba(255,255,255,.1)'), display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 11, color: voPreviewPlaying === v.id ? '#22d3ee' : 'var(--muted)', flexShrink: 0 }}
+                                title={voPreviewPlaying === v.id ? "Stop preview" : "Preview voice"}>{voPreviewPlaying === v.id ? '■' : '▶'}</div>
                             </button>
                           ))}
                         </div> : null;
