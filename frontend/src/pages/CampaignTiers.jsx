@@ -10,14 +10,14 @@ import { formatMoney } from '../utils/money';
    ───────────────────────────────────────────── */
 
 var TIER_ACCENTS = {
-  1: { color:'#10b981', dark:'#059669', bg:'#f0fdf4', border:'#bbf7d0', grad:'linear-gradient(135deg,#059669,#10b981)' },
-  2: { color:'#3b82f6', dark:'#2563eb', bg:'#eff6ff', border:'#bfdbfe', grad:'linear-gradient(135deg,#2563eb,#3b82f6)' },
-  3: { color:'#8b5cf6', dark:'#7c3aed', bg:'#ede9fe', border:'#c4b5fd', grad:'linear-gradient(135deg,#7c3aed,#8b5cf6)' },
-  4: { color:'#f59e0b', dark:'#d97706', bg:'#fef3c7', border:'#fde68a', grad:'linear-gradient(135deg,#d97706,#f59e0b)' },
-  5: { color:'#ec4899', dark:'#db2777', bg:'#fce7f3', border:'#f9a8d4', grad:'linear-gradient(135deg,#db2777,#ec4899)' },
-  6: { color:'#06b6d4', dark:'#0891b2', bg:'#ecfeff', border:'#a5f3fc', grad:'linear-gradient(135deg,#0891b2,#06b6d4)' },
-  7: { color:'#f97316', dark:'#ea580c', bg:'#fff7ed', border:'#fed7aa', grad:'linear-gradient(135deg,#ea580c,#f97316)' },
-  8: { color:'#ef4444', dark:'#dc2626', bg:'#fef2f2', border:'#fecaca', grad:'linear-gradient(135deg,#dc2626,#ef4444)' },
+  1: { color:'#10b981', dark:'#059669', bg:'#f0fdf4', border:'#bbf7d0', grad:'linear-gradient(135deg,#059669,#10b981)', cardGrad:'linear-gradient(135deg,#064e3b,#047857,#10b981)' },
+  2: { color:'#3b82f6', dark:'#2563eb', bg:'#eff6ff', border:'#bfdbfe', grad:'linear-gradient(135deg,#2563eb,#3b82f6)', cardGrad:'linear-gradient(135deg,#1e3a5f,#2563eb,#3b82f6)' },
+  3: { color:'#8b5cf6', dark:'#7c3aed', bg:'#ede9fe', border:'#c4b5fd', grad:'linear-gradient(135deg,#7c3aed,#8b5cf6)', cardGrad:'linear-gradient(135deg,#1e1b4b,#4c1d95,#8b5cf6)' },
+  4: { color:'#ec4899', dark:'#db2777', bg:'#fce7f3', border:'#f9a8d4', grad:'linear-gradient(135deg,#db2777,#ec4899)', cardGrad:'linear-gradient(135deg,#831843,#be185d,#ec4899)' },
+  5: { color:'#14b8a6', dark:'#0d9488', bg:'#ccfbf1', border:'#99f6e4', grad:'linear-gradient(135deg,#0d9488,#14b8a6)', cardGrad:'linear-gradient(135deg,#134e4a,#0d9488,#2dd4bf)' },
+  6: { color:'#9ca3af', dark:'#6b7280', bg:'#f3f4f6', border:'#d1d5db', grad:'linear-gradient(135deg,#6b7280,#9ca3af)', cardGrad:'linear-gradient(135deg,#6b7280,#9ca3af,#d1d5db)', darkText:true },
+  7: { color:'#f59e0b', dark:'#b45309', bg:'#fef3c7', border:'#fde68a', grad:'linear-gradient(135deg,#b45309,#f59e0b)', cardGrad:'linear-gradient(135deg,#78350f,#b45309,#fbbf24)' },
+  8: { color:'#ef4444', dark:'#dc2626', bg:'#fef2f2', border:'#fecaca', grad:'linear-gradient(135deg,#dc2626,#ef4444)', cardGrad:'linear-gradient(135deg,#450a0a,#991b1b,#ef4444)' },
 };
 
 var FEATURES_BY_TIER = {
@@ -105,7 +105,7 @@ export default function CampaignTiers() {
 
       {/* ── Header Banner ── */}
       <div style={{
-        background:'linear-gradient(135deg,#0c4a6e,#0369a1,#0284c7)',
+        background:'linear-gradient(135deg,#450a0a,#991b1b,#ef4444)',
         borderRadius:18, padding:'32px 36px', marginBottom:24,
         textAlign:'center', position:'relative', overflow:'hidden',
       }}>
@@ -116,7 +116,7 @@ export default function CampaignTiers() {
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#fff', marginBottom:4 }}>
             Activate Tiers. Earn Commissions.
           </div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#38bdf8', marginBottom:12 }}>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#fbbf24', marginBottom:12 }}>
             Grow Your Grid.
           </div>
           <div style={{ fontSize:14, color:'rgba(255,255,255,.6)', lineHeight:1.7, maxWidth:520, margin:'0 auto' }}>
@@ -140,7 +140,7 @@ export default function CampaignTiers() {
               return (
                 <div key={t.tier} className="ct-card" onClick={function() { setSelected(t.tier); }}
                   style={{
-                    background:'linear-gradient(135deg,#0c4a6e,#0369a1,#0ea5e9)',
+                    background:a.cardGrad,
                     borderRadius:14, padding:20,
                     display:'flex', flexDirection:'column', gap:10,
                     position:'relative', textAlign:'center', overflow:'hidden',
@@ -150,21 +150,21 @@ export default function CampaignTiers() {
                   {/* Decorative circle */}
                   <div style={{ position:'absolute', top:-30, right:-30, width:100, height:100, borderRadius:'50%', background:'rgba(255,255,255,.06)', pointerEvents:'none' }}/>
 
-                  {isPopular && <span style={{ position:'absolute', top:10, right:10, fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:4, background:'rgba(255,255,255,.15)', color:'#fff' }}>Popular</span>}
-                  {isMax && <span style={{ position:'absolute', top:10, right:10, fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:4, background:'rgba(255,255,255,.15)', color:'#fff' }}>Max</span>}
+                  {isPopular && <span style={{ position:'absolute', top:10, right:10, fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>Popular</span>}
+                  {isMax && <span style={{ position:'absolute', top:10, right:10, fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>Max</span>}
 
-                  <div style={{ fontSize:15, fontWeight:800, color:'#fff', position:'relative' }}>{t.name}</div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#fff', position:'relative' }}>${t.price.toLocaleString()}</div>
-                  <div style={{ fontSize:11, color:'rgba(255,255,255,.6)', position:'relative' }}>{t.views_target.toLocaleString()} views</div>
+                  <div style={{ fontSize:15, fontWeight:800, color: a.darkText ? '#1f2937' : '#fff', position:'relative' }}>{t.name}</div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color: a.darkText ? '#1f2937' : '#fff', position:'relative' }}>${t.price.toLocaleString()}</div>
+                  <div style={{ fontSize:11, color: a.darkText ? 'rgba(0,0,0,.4)' : 'rgba(255,255,255,.6)', position:'relative' }}>{t.views_target.toLocaleString()} views</div>
 
                   {active ? (
-                    <div style={{ padding:9, borderRadius:8, background:'rgba(255,255,255,.12)', border:'1px solid rgba(255,255,255,.15)', marginTop:'auto', position:'relative' }}>
-                      <span style={{ display:'inline-flex', alignItems:'center', gap:4, color:'#fff', fontSize:12, fontWeight:700 }}>
+                    <div style={{ padding:9, borderRadius:8, background: a.darkText ? 'rgba(0,0,0,.06)' : 'rgba(255,255,255,.12)', border:'1px solid ' + (a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)'), marginTop:'auto', position:'relative' }}>
+                      <span style={{ display:'inline-flex', alignItems:'center', gap:4, color: a.darkText ? '#1f2937' : '#fff', fontSize:12, fontWeight:700 }}>
                         <Check size={12}/> Active
                       </span>
                     </div>
                   ) : (
-                    <div style={{ padding:9, borderRadius:8, background:'rgba(255,255,255,.1)', border:'1px solid rgba(255,255,255,.12)', color:'rgba(255,255,255,.8)', fontSize:12, fontWeight:600, marginTop:'auto', position:'relative' }}>
+                    <div style={{ padding:9, borderRadius:8, background: a.darkText ? 'rgba(0,0,0,.05)' : 'rgba(255,255,255,.1)', border:'1px solid ' + (a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.12)'), color: a.darkText ? '#1f2937' : 'rgba(255,255,255,.8)', fontSize:12, fontWeight:600, marginTop:'auto', position:'relative' }}>
                       View Details
                     </div>
                   )}
