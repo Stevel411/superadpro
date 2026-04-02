@@ -39,7 +39,7 @@ export const ELEMENT_TYPES = {
 
 // Types that should auto-centre on the canvas
 export const CENTRE_TYPES = [
-  'heading', 'text', 'announcement', 'separator', 'logostrip', 'countdown', 'progress',
+  'heading', 'text', 'button', 'announcement', 'separator', 'logostrip', 'countdown', 'progress',
   'socialicons', 'video', 'audio', 'embed', 'form', 'testimonial', 'faq', 'icontext', 'review'
 ];
 
