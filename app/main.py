@@ -14613,10 +14613,10 @@ def _old_creator_agreement_DISABLED(request=None):
 # ═══════════════════════════════════════════════════════════════
 
 @app.post("/api/superseller/create")
-async def api_superseller_create(request: Request, background_tasks: BackgroundTasks,
+async def api_superseller_create(request: Request,
                                   user: User = Depends(get_current_user),
                                   db: Session = Depends(get_db)):
-    """Create a new SuperSeller campaign — fires AI generation in background."""
+    """Create a new SuperSeller campaign — just creates the record, no AI yet."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     if user.membership_tier != "pro" and not user.is_admin:
@@ -14628,7 +14628,6 @@ async def api_superseller_create(request: Request, background_tasks: BackgroundT
     MAX_AGENTS = 5
     MAX_GENERATIONS_PER_MONTH = 5
 
-    # Check total agents
     total_agents = db.query(SuperSellerCampaign).filter(
         SuperSellerCampaign.user_id == user.id,
         SuperSellerCampaign.status != "failed"
@@ -14636,7 +14635,6 @@ async def api_superseller_create(request: Request, background_tasks: BackgroundT
     if total_agents >= MAX_AGENTS and not user.is_admin:
         return JSONResponse({"error": f"Maximum {MAX_AGENTS} campaigns allowed. Delete an existing campaign to create a new one."}, status_code=429)
 
-    # Check monthly generation limit
     from datetime import datetime, timedelta
     month_ago = datetime.utcnow() - timedelta(days=30)
     recent_gens = db.query(SuperSellerCampaign).filter(
@@ -14644,7 +14642,7 @@ async def api_superseller_create(request: Request, background_tasks: BackgroundT
         SuperSellerCampaign.created_at >= month_ago
     ).count()
     if recent_gens >= MAX_GENERATIONS_PER_MONTH and not user.is_admin:
-        return JSONResponse({"error": f"Maximum {MAX_GENERATIONS_PER_MONTH} campaign generations per month. Try again next month or delete unused campaigns."}, status_code=429)
+        return JSONResponse({"error": f"Maximum {MAX_GENERATIONS_PER_MONTH} campaign generations per month."}, status_code=429)
 
     body = await request.json()
     niche = (body.get("niche") or "").strip()[:200]
@@ -14655,129 +14653,64 @@ async def api_superseller_create(request: Request, background_tasks: BackgroundT
     if not niche:
         return JSONResponse({"error": "Niche is required"}, status_code=400)
 
-    # Build funnel URL
     funnel_url = f"{os.getenv('BASE_URL', 'https://www.superadpro.com')}/join/{user.username}"
 
-    # Create campaign record
-    from .database import SuperSellerCampaign
     campaign = SuperSellerCampaign(
         user_id=user.id,
         niche=niche, audience=audience, tone=tone, goal=goal,
-        funnel_url=funnel_url, status="generating"
+        funnel_url=funnel_url, status="created"
     )
     db.add(campaign)
     db.commit()
     db.refresh(campaign)
 
-    # Fire generation in background — return immediately to avoid timeout
-    import json as _json
+    return {"success": True, "campaign_id": campaign.id, "status": "created"}
 
-    async def _run_generation(campaign_id: int, niche_: str, audience_: str,
-                               tone_: str, goal_: str, funnel_url_: str, user_id_: int):
-        """Background task: generate all SuperSeller assets."""
-        from .database import SessionLocal, SuperSellerCampaign as SSC
-        bg_db = SessionLocal()
-        bg_c = None
-        try:
-            bg_c = bg_db.query(SSC).filter(SSC.id == campaign_id).first()
-            if not bg_c:
-                return
 
-            base_ctx = f"""You are generating marketing content for a SuperAdPro member.
+def _build_superseller_context(niche, audience, tone, goal, funnel_url):
+    """Build the shared AI context string for SuperSeller generation."""
+    return f"""You are generating marketing content for a SuperAdPro member.
 SuperAdPro is a video advertising and AI marketing platform. Members pay $20-35/month for:
 - Video ad campaigns with real engaged viewers
 - AI marketing tools (campaign studio, social posts, funnels, email)
 - Course marketplace (create and sell courses)
 - Affiliate network (earn commissions by referring others)
 
-Member niche: {niche_}
-Target audience: {audience_}
-Tone: {tone_}
-Goal: {goal_}
-Funnel URL: {funnel_url_}
+Member niche: {niche}
+Target audience: {audience}
+Tone: {tone}
+Goal: {goal}
+Funnel URL: {funnel_url}
 
 IMPORTANT: Never make income guarantees. Focus on the tools and platform value.
-All CTAs should point to: {funnel_url_}"""
+All CTAs should point to: {funnel_url}"""
 
-            steps_ok = 0
-            steps_total = 6
 
-            # Step 1: Social posts
-            try:
-                s_resp = await _call_ai(f"""{base_ctx}
+@app.post("/api/superseller/campaign/{campaign_id}/generate-step1")
+async def api_superseller_step1(campaign_id: int,
+                                 user: User = Depends(get_current_user),
+                                 db: Session = Depends(get_db)):
+    """Step 1: Generate landing page + social posts."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import SuperSellerCampaign
+    c = db.query(SuperSellerCampaign).filter(
+        SuperSellerCampaign.id == campaign_id,
+        SuperSellerCampaign.user_id == user.id
+    ).first()
+    if not c:
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
 
-Generate 30 social media posts (one per day for 30 days). Return ONLY valid JSON array.
-Mix: 70% value/educational, 20% soft CTA, 10% direct CTA.
-Each post: {{"day": 1, "platform": "facebook|instagram|x|linkedin|tiktok", "content": "post text with emojis", "hashtags": "#tag1 #tag2", "type": "value|soft_cta|direct_cta"}}
-Rotate platforms. Keep posts natural and engaging, not salesy.""", model="claude-sonnet-4-20250514")
-                bg_c.social_posts_json = _extract_json(s_resp)
-                bg_db.commit()
-                steps_ok += 1
-                logger.info(f"SuperSeller {campaign_id}: social posts OK")
-            except Exception as e:
-                logger.error(f"SuperSeller {campaign_id}: social posts FAILED: {e}")
+    c.status = "generating_step1"
+    db.commit()
 
-            # Step 2: Email sequence
-            try:
-                e_resp = await _call_ai(f"""{base_ctx}
+    base_ctx = _build_superseller_context(c.niche, c.audience, c.tone, c.goal, c.funnel_url)
+    errors = []
 
-Generate a 5-email nurture sequence. Return ONLY valid JSON array.
-Sequence: Welcome (day 0) -> Value (day 1) -> Social Proof (day 3) -> Urgency (day 5) -> Final CTA (day 7)
-Each email: {{"email_num": 1, "subject": "subject line", "preview": "preview text", "body": "full email HTML body", "delay_days": 0, "type": "welcome|value|social_proof|urgency|final_cta"}}
-Professional HTML emails with inline styles. Include the funnel URL as CTA button.""", model="claude-sonnet-4-20250514")
-                bg_c.email_sequence_json = _extract_json(e_resp)
-                bg_db.commit()
-                steps_ok += 1
-                logger.info(f"SuperSeller {campaign_id}: email sequence OK")
-            except Exception as e:
-                logger.error(f"SuperSeller {campaign_id}: email sequence FAILED: {e}")
-
-            # Step 3: Video scripts
-            try:
-                v_resp = await _call_ai(f"""{base_ctx}
-
-Generate 3 video scripts for short-form content. Return ONLY valid JSON array.
-Durations: 30 seconds, 60 seconds, 2 minutes.
-Each: {{"title": "title", "duration": "30s|60s|2min", "hook": "first 3 seconds", "body": "main content", "cta": "call to action", "platform": "tiktok|reels|shorts"}}
-Hook must grab attention immediately. Use problem-agitation-solution framework.""", model="claude-sonnet-4-20250514")
-                bg_c.video_scripts_json = _extract_json(v_resp)
-                bg_db.commit()
-                steps_ok += 1
-                logger.info(f"SuperSeller {campaign_id}: video scripts OK")
-            except Exception as e:
-                logger.error(f"SuperSeller {campaign_id}: video scripts FAILED: {e}")
-
-            # Step 4: Ad copy
-            try:
-                a_resp = await _call_ai(f"""{base_ctx}
-
-Generate ad copy for 3 platforms. Return ONLY valid JSON array.
-Platforms: Facebook, Instagram, Google.
-Each: {{"platform": "facebook|instagram|google", "headline": "headline", "body": "ad body text", "cta_text": "button text", "description": "ad description"}}""", model="claude-haiku-4-5-20251001")
-                bg_c.ad_copy_json = _extract_json(a_resp)
-                bg_db.commit()
-                steps_ok += 1
-                logger.info(f"SuperSeller {campaign_id}: ad copy OK")
-            except Exception as e:
-                logger.error(f"SuperSeller {campaign_id}: ad copy FAILED: {e}")
-
-            # Step 5: Strategy
-            try:
-                st_resp = await _call_ai(f"""{base_ctx}
-
-Generate a 30-day campaign strategy. Return ONLY valid JSON object with:
-{{"overview": "strategy summary", "daily_plan": [{{"day": 1, "task": "what to do", "platform": "where", "tip": "helpful tip"}}], "best_practices": ["tip1"], "posting_times": {{"facebook": "best time", "instagram": "best time", "tiktok": "best time"}}, "hashtag_strategy": "approach", "engagement_tips": ["tip1"]}}""", model="claude-sonnet-4-20250514")
-                bg_c.strategy_json = _extract_json(st_resp)
-                bg_db.commit()
-                steps_ok += 1
-                logger.info(f"SuperSeller {campaign_id}: strategy OK")
-            except Exception as e:
-                logger.error(f"SuperSeller {campaign_id}: strategy FAILED: {e}")
-
-            # Step 6: Landing page
-            try:
-                tracked_url = f"{os.getenv('BASE_URL','https://www.superadpro.com')}/superseller/go/{campaign_id}"
-                lp_resp = await _call_ai(f"""{base_ctx}
+    # 1a: Landing page
+    try:
+        tracked_url = f"{os.getenv('BASE_URL','https://www.superadpro.com')}/superseller/go/{campaign_id}"
+        lp_resp = await _call_ai(f"""{base_ctx}
 
 Generate a complete beautiful mobile-responsive HTML landing page for SuperAdPro.
 - Compelling hero with niche-tailored headline
@@ -14789,38 +14722,160 @@ Generate a complete beautiful mobile-responsive HTML landing page for SuperAdPro
 - Self-contained HTML with embedded CSS/JS
 - Add before </body>: <script src="/static/js/superseller-chat.js" data-campaign="{campaign_id}"></script>
 Return ONLY complete HTML starting with <!DOCTYPE html>. No markdown.""", model="claude-sonnet-4-20250514")
-                lp = lp_resp.strip()
-                if lp.startswith("```"): lp = lp.split("\n", 1)[1] if "\n" in lp else lp[3:]
-                if lp.endswith("```"): lp = lp[:-3].strip()
-                bg_c.landing_page_html = lp
-                bg_db.commit()
-                steps_ok += 1
-                logger.info(f"SuperSeller {campaign_id}: landing page OK")
-            except Exception as e:
-                logger.error(f"SuperSeller {campaign_id}: landing page FAILED: {e}")
+        lp = lp_resp.strip()
+        if lp.startswith("```"): lp = lp.split("\n", 1)[1] if "\n" in lp else lp[3:]
+        if lp.endswith("```"): lp = lp[:-3].strip()
+        c.landing_page_html = lp
+        db.commit()
+        logger.info(f"SuperSeller {campaign_id} step1: landing page OK")
+    except Exception as e:
+        errors.append(f"Landing page: {e}")
+        logger.error(f"SuperSeller {campaign_id} step1: landing page FAILED: {e}")
 
-            # Mark status based on results
-            if steps_ok >= 4:
-                bg_c.status = "active"
-                logger.info(f"SuperSeller campaign {campaign_id} generated: {steps_ok}/{steps_total} steps OK")
-            else:
-                bg_c.status = "failed"
-                logger.error(f"SuperSeller campaign {campaign_id} failed: only {steps_ok}/{steps_total} steps OK")
-            bg_db.commit()
+    # 1b: Social posts
+    try:
+        s_resp = await _call_ai(f"""{base_ctx}
 
-        except Exception as e:
-            logger.error(f"SuperSeller generation failed for campaign {campaign_id}: {e}")
-            if bg_c:
-                try:
-                    bg_c.status = "failed"
-                    bg_db.commit()
-                except Exception:
-                    pass
-        finally:
-            bg_db.close()
+Generate 30 social media posts (one per day for 30 days). Return ONLY valid JSON array.
+Mix: 70% value/educational, 20% soft CTA, 10% direct CTA.
+Each post: {{"day": 1, "platform": "facebook|instagram|x|linkedin|tiktok", "content": "post text with emojis", "hashtags": "#tag1 #tag2", "type": "value|soft_cta|direct_cta"}}
+Rotate platforms. Keep posts natural and engaging, not salesy.""", model="claude-sonnet-4-20250514")
+        c.social_posts_json = _extract_json(s_resp)
+        db.commit()
+        logger.info(f"SuperSeller {campaign_id} step1: social posts OK")
+    except Exception as e:
+        errors.append(f"Social posts: {e}")
+        logger.error(f"SuperSeller {campaign_id} step1: social posts FAILED: {e}")
 
-    background_tasks.add_task(_run_generation, campaign.id, niche, audience, tone, goal, funnel_url, user.id)
-    return {"success": True, "campaign_id": campaign.id, "status": "generating"}
+    if len(errors) <= 1:
+        c.status = "step1_done"
+        db.commit()
+        return {"success": True, "status": "step1_done", "has_landing_page": c.landing_page_html is not None, "has_social_posts": c.social_posts_json is not None}
+    else:
+        c.status = "failed"
+        db.commit()
+        return JSONResponse({"error": "Step 1 failed", "details": errors}, status_code=500)
+
+
+@app.post("/api/superseller/campaign/{campaign_id}/generate-step2")
+async def api_superseller_step2(campaign_id: int,
+                                 user: User = Depends(get_current_user),
+                                 db: Session = Depends(get_db)):
+    """Step 2: Generate email sequence + ad copy."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import SuperSellerCampaign
+    c = db.query(SuperSellerCampaign).filter(
+        SuperSellerCampaign.id == campaign_id,
+        SuperSellerCampaign.user_id == user.id
+    ).first()
+    if not c:
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+
+    c.status = "generating_step2"
+    db.commit()
+
+    base_ctx = _build_superseller_context(c.niche, c.audience, c.tone, c.goal, c.funnel_url)
+    errors = []
+
+    # 2a: Email sequence
+    try:
+        e_resp = await _call_ai(f"""{base_ctx}
+
+Generate a 5-email nurture sequence. Return ONLY valid JSON array.
+Sequence: Welcome (day 0) -> Value (day 1) -> Social Proof (day 3) -> Urgency (day 5) -> Final CTA (day 7)
+Each email: {{"email_num": 1, "subject": "subject line", "preview": "preview text", "body": "full email HTML body", "delay_days": 0, "type": "welcome|value|social_proof|urgency|final_cta"}}
+Professional HTML emails with inline styles. Include the funnel URL as CTA button.""", model="claude-sonnet-4-20250514")
+        c.email_sequence_json = _extract_json(e_resp)
+        db.commit()
+        logger.info(f"SuperSeller {campaign_id} step2: email sequence OK")
+    except Exception as e:
+        errors.append(f"Email sequence: {e}")
+        logger.error(f"SuperSeller {campaign_id} step2: email sequence FAILED: {e}")
+
+    # 2b: Ad copy
+    try:
+        a_resp = await _call_ai(f"""{base_ctx}
+
+Generate ad copy for 3 platforms. Return ONLY valid JSON array.
+Platforms: Facebook, Instagram, Google.
+Each: {{"platform": "facebook|instagram|google", "headline": "headline", "body": "ad body text", "cta_text": "button text", "description": "ad description"}}""", model="claude-haiku-4-5-20251001")
+        c.ad_copy_json = _extract_json(a_resp)
+        db.commit()
+        logger.info(f"SuperSeller {campaign_id} step2: ad copy OK")
+    except Exception as e:
+        errors.append(f"Ad copy: {e}")
+        logger.error(f"SuperSeller {campaign_id} step2: ad copy FAILED: {e}")
+
+    if len(errors) <= 1:
+        c.status = "step2_done"
+        db.commit()
+        return {"success": True, "status": "step2_done", "has_emails": c.email_sequence_json is not None, "has_ad_copy": c.ad_copy_json is not None}
+    else:
+        c.status = "failed"
+        db.commit()
+        return JSONResponse({"error": "Step 2 failed", "details": errors}, status_code=500)
+
+
+@app.post("/api/superseller/campaign/{campaign_id}/generate-step3")
+async def api_superseller_step3(campaign_id: int,
+                                 user: User = Depends(get_current_user),
+                                 db: Session = Depends(get_db)):
+    """Step 3: Generate video scripts + strategy."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import SuperSellerCampaign
+    c = db.query(SuperSellerCampaign).filter(
+        SuperSellerCampaign.id == campaign_id,
+        SuperSellerCampaign.user_id == user.id
+    ).first()
+    if not c:
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+
+    c.status = "generating_step3"
+    db.commit()
+
+    base_ctx = _build_superseller_context(c.niche, c.audience, c.tone, c.goal, c.funnel_url)
+    errors = []
+
+    # 3a: Video scripts
+    try:
+        v_resp = await _call_ai(f"""{base_ctx}
+
+Generate 3 video scripts for short-form content. Return ONLY valid JSON array.
+Durations: 30 seconds, 60 seconds, 2 minutes.
+Each: {{"title": "title", "duration": "30s|60s|2min", "hook": "first 3 seconds", "body": "main content", "cta": "call to action", "platform": "tiktok|reels|shorts"}}
+Hook must grab attention immediately. Use problem-agitation-solution framework.""", model="claude-sonnet-4-20250514")
+        c.video_scripts_json = _extract_json(v_resp)
+        db.commit()
+        logger.info(f"SuperSeller {campaign_id} step3: video scripts OK")
+    except Exception as e:
+        errors.append(f"Video scripts: {e}")
+        logger.error(f"SuperSeller {campaign_id} step3: video scripts FAILED: {e}")
+
+    # 3b: Strategy
+    try:
+        st_resp = await _call_ai(f"""{base_ctx}
+
+Generate a 30-day campaign strategy. Return ONLY valid JSON object with:
+{{"overview": "strategy summary", "daily_plan": [{{"day": 1, "task": "what to do", "platform": "where", "tip": "helpful tip"}}], "best_practices": ["tip1"], "posting_times": {{"facebook": "best time", "instagram": "best time", "tiktok": "best time"}}, "hashtag_strategy": "approach", "engagement_tips": ["tip1"]}}""", model="claude-sonnet-4-20250514")
+        c.strategy_json = _extract_json(st_resp)
+        db.commit()
+        logger.info(f"SuperSeller {campaign_id} step3: strategy OK")
+    except Exception as e:
+        errors.append(f"Strategy: {e}")
+        logger.error(f"SuperSeller {campaign_id} step3: strategy FAILED: {e}")
+
+    # All done — mark active
+    if len(errors) <= 1:
+        c.status = "active"
+        db.commit()
+        logger.info(f"SuperSeller campaign {campaign_id} fully generated")
+        return {"success": True, "status": "active", "has_video_scripts": c.video_scripts_json is not None, "has_strategy": c.strategy_json is not None}
+    else:
+        c.status = "failed"
+        db.commit()
+        return JSONResponse({"error": "Step 3 failed", "details": errors}, status_code=500)
 
 
 @app.get("/api/superseller/campaigns")
@@ -14831,11 +14886,11 @@ def api_superseller_campaigns(request: Request, user: User = Depends(get_current
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     from .database import SuperSellerCampaign
     from datetime import datetime, timedelta
-    # Auto-fail stuck "generating" campaigns older than 5 minutes
+    # Auto-fail stuck "generating" campaigns older than 10 minutes
     stuck = db.query(SuperSellerCampaign).filter(
         SuperSellerCampaign.user_id == user.id,
-        SuperSellerCampaign.status == "generating",
-        SuperSellerCampaign.created_at < datetime.utcnow() - timedelta(minutes=5)
+        SuperSellerCampaign.status.in_(["generating", "generating_step1", "generating_step2", "generating_step3"]),
+        SuperSellerCampaign.created_at < datetime.utcnow() - timedelta(minutes=10)
     ).all()
     for s in stuck:
         s.status = "failed"

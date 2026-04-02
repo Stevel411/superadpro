@@ -226,18 +226,17 @@ function SetupWizard({ onComplete, onCancel }) {
   var [tone, setTone] = useState('Professional');
   var [goal, setGoal] = useState('Lead Generation');
   var [generating, setGenerating] = useState(false);
-  var [genStep, setGenStep] = useState('');
+  var [genPhase, setGenPhase] = useState(0); // 0=not started, 1=step1, 2=step2, 3=step3
+  var [genMsg, setGenMsg] = useState('');
+  var [genCampaignId, setGenCampaignId] = useState(null);
+  var [genResults, setGenResults] = useState({step1:null,step2:null,step3:null});
   var [error, setError] = useState('');
 
   function generate() {
     var finalNiche = niche === 'Other' ? customNiche : niche;
     if (!finalNiche) { setError('Please select a niche'); return; }
-    setGenerating(true); setError('');
-
-    var steps = ['Analyzing your niche...','Building your landing page...','Writing 30 social posts...','Crafting email sequence...','Creating video scripts...','Generating ad copy...','Building your strategy...','Finalizing your campaign...'];
-    var si = 0;
-    var interval = setInterval(function() { si++; if (si < steps.length) setGenStep(steps[si]); }, 4000);
-    setGenStep(steps[0]);
+    setGenerating(true); setError(''); setGenPhase(0);
+    setGenMsg('Creating your campaign...');
 
     var audienceStr = audience.join(', ') + (customAudience ? ', ' + customAudience : '');
 
@@ -245,56 +244,164 @@ function SetupWizard({ onComplete, onCancel }) {
       niche: finalNiche, audience: audienceStr, tone: tone, goal: goal,
     }).then(function(r) {
       if (!r.success) {
-        clearInterval(interval);
-        setError(r.error || 'Generation failed');
+        setError(r.error || 'Failed to create campaign');
         setGenerating(false);
         return;
       }
-      // Campaign created — poll until status is active or failed
-      var campaignId = r.campaign_id;
-      var pollCount = 0;
-      var pollInterval = setInterval(function() {
-        pollCount++;
-        if (pollCount > 60) { // 5 min timeout
-          clearInterval(pollInterval);
-          clearInterval(interval);
-          setError('Generation timed out. Please try again.');
-          setGenerating(false);
-          return;
-        }
-        apiGet('/api/superseller/campaign/' + campaignId).then(function(d) {
-          if (d.status === 'active') {
-            clearInterval(pollInterval);
-            clearInterval(interval);
-            onComplete(campaignId);
-          } else if (d.status === 'failed') {
-            clearInterval(pollInterval);
-            clearInterval(interval);
-            setError('Generation failed. Please try again.');
-            setGenerating(false);
-          }
-        }).catch(function(){});
-      }, 5000); // poll every 5 seconds
+      setGenCampaignId(r.campaign_id);
+      runStep1(r.campaign_id);
     }).catch(function(e) {
-      clearInterval(interval);
-      setError(e.message || 'Generation failed');
+      setError(e.message || 'Failed to create campaign');
+      setGenerating(false);
+    });
+  }
+
+  function runStep1(campaignId) {
+    setGenPhase(1);
+    setGenMsg('Building your landing page & social posts...');
+    apiPost('/api/superseller/campaign/' + campaignId + '/generate-step1', {}).then(function(r) {
+      if (r.success) {
+        setGenResults(function(prev) { return Object.assign({}, prev, {step1:r}); });
+        setGenPhase(1.5); // step1 complete, waiting for user
+      } else {
+        setError(r.error || 'Step 1 failed');
+        setGenerating(false);
+      }
+    }).catch(function(e) {
+      setError(e.message || 'Step 1 failed');
+      setGenerating(false);
+    });
+  }
+
+  function runStep2() {
+    setGenPhase(2);
+    setGenMsg('Crafting your email sequence & ad copy...');
+    apiPost('/api/superseller/campaign/' + genCampaignId + '/generate-step2', {}).then(function(r) {
+      if (r.success) {
+        setGenResults(function(prev) { return Object.assign({}, prev, {step2:r}); });
+        setGenPhase(2.5);
+      } else {
+        setError(r.error || 'Step 2 failed');
+        setGenerating(false);
+      }
+    }).catch(function(e) {
+      setError(e.message || 'Step 2 failed');
+      setGenerating(false);
+    });
+  }
+
+  function runStep3() {
+    setGenPhase(3);
+    setGenMsg('Creating video scripts & strategy...');
+    apiPost('/api/superseller/campaign/' + genCampaignId + '/generate-step3', {}).then(function(r) {
+      if (r.success) {
+        setGenPhase(3.5);
+        // Small delay then navigate to campaign
+        setTimeout(function() { onComplete(genCampaignId); }, 1000);
+      } else {
+        setError(r.error || 'Step 3 failed');
+        setGenerating(false);
+      }
+    }).catch(function(e) {
+      setError(e.message || 'Step 3 failed');
       setGenerating(false);
     });
   }
 
   if (generating) {
+    var stepsDone = genPhase >= 1.5 ? (genPhase >= 2.5 ? (genPhase >= 3.5 ? 3 : 2) : 1) : 0;
+    var isWaiting = genPhase === 1.5 || genPhase === 2.5;
+    var isComplete = genPhase === 3.5;
     return (
-      <div style={{textAlign:'center',padding:'80px 20px'}}>
-        <div style={{width:64,height:64,borderRadius:16,background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 24px',animation:'pulse 2s ease-in-out infinite'}}>
-          <Sparkles size={28} color="#fff"/>
+      <div style={{maxWidth:500,margin:'0 auto',padding:'40px 20px'}}>
+        <div style={{textAlign:'center',marginBottom:32}}>
+          <div style={{width:64,height:64,borderRadius:16,background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 20px',animation:isWaiting||isComplete?'none':'pulse 2s ease-in-out infinite'}}>
+            {isComplete ? <Check size={28} color="#fff"/> : <Sparkles size={28} color="#fff"/>}
+          </div>
+          <h2 style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#0f172a',margin:'0 0 8px'}}>
+            {isComplete ? 'Campaign ready!' : 'Building your campaign'}
+          </h2>
         </div>
-        <h2 style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'#0f172a',margin:'0 0 8px'}}>SuperSeller is building your campaign</h2>
-        <p style={{fontSize:14,color:'#64748b',marginBottom:24}}>{genStep}</p>
-        <div style={{width:200,height:4,background:'#e8ecf2',borderRadius:2,margin:'0 auto',overflow:'hidden'}}>
-          <div style={{height:'100%',background:'linear-gradient(90deg,#8b5cf6,#0ea5e9)',borderRadius:2,animation:'progress 30s linear'}}/>
+
+        {error && <div style={{padding:'10px 14px',background:'#fef2f2',borderRadius:8,border:'1px solid #fecaca',marginBottom:16,fontSize:12,fontWeight:700,color:'#dc2626'}}>{error}</div>}
+
+        {/* Step progress cards */}
+        <div style={{display:'flex',flexDirection:'column',gap:12,marginBottom:24}}>
+
+          {/* Step 1 */}
+          <div style={{padding:'16px 20px',borderRadius:12,border:'1px solid ' + (stepsDone >= 1 ? '#bbf7d0' : genPhase >= 1 && genPhase < 1.5 ? '#c4b5fd' : '#e8ecf2'),background:stepsDone >= 1 ? '#f0fdf4' : genPhase >= 1 && genPhase < 1.5 ? '#faf5ff' : '#fff'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div style={{display:'flex',alignItems:'center',gap:10}}>
+                <div style={{width:28,height:28,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:800,color:'#fff',background:stepsDone >= 1 ? '#10b981' : genPhase >= 1 && genPhase < 1.5 ? '#8b5cf6' : '#cbd5e1'}}>
+                  {stepsDone >= 1 ? <Check size={14}/> : '1'}
+                </div>
+                <div>
+                  <div style={{fontSize:14,fontWeight:700,color:'#0f172a'}}>Landing Page & Social Posts</div>
+                  <div style={{fontSize:11,color:'#94a3b8'}}>Your funnel page + 30 days of content</div>
+                </div>
+              </div>
+              {genPhase >= 1 && genPhase < 1.5 && <div style={{width:16,height:16,border:'2px solid #8b5cf6',borderTopColor:'transparent',borderRadius:'50%',animation:'spin .8s linear infinite'}}/>}
+              {stepsDone >= 1 && <span style={{fontSize:11,fontWeight:700,color:'#10b981'}}>Done</span>}
+            </div>
+          </div>
+
+          {/* Step 2 */}
+          <div style={{padding:'16px 20px',borderRadius:12,border:'1px solid ' + (stepsDone >= 2 ? '#bbf7d0' : genPhase >= 2 && genPhase < 2.5 ? '#c4b5fd' : '#e8ecf2'),background:stepsDone >= 2 ? '#f0fdf4' : genPhase >= 2 && genPhase < 2.5 ? '#faf5ff' : '#fff'}}> 
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div style={{display:'flex',alignItems:'center',gap:10}}>
+                <div style={{width:28,height:28,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:800,color:'#fff',background:stepsDone >= 2 ? '#10b981' : genPhase >= 2 && genPhase < 2.5 ? '#8b5cf6' : '#cbd5e1'}}>
+                  {stepsDone >= 2 ? <Check size={14}/> : '2'}
+                </div>
+                <div>
+                  <div style={{fontSize:14,fontWeight:700,color:'#0f172a'}}>Email Sequence & Ad Copy</div>
+                  <div style={{fontSize:11,color:'#94a3b8'}}>5-email nurture + platform ads</div>
+                </div>
+              </div>
+              {genPhase >= 2 && genPhase < 2.5 && <div style={{width:16,height:16,border:'2px solid #8b5cf6',borderTopColor:'transparent',borderRadius:'50%',animation:'spin .8s linear infinite'}}/>}
+              {stepsDone >= 2 && <span style={{fontSize:11,fontWeight:700,color:'#10b981'}}>Done</span>}
+            </div>
+          </div>
+
+          {/* Step 3 */}
+          <div style={{padding:'16px 20px',borderRadius:12,border:'1px solid ' + (stepsDone >= 3 ? '#bbf7d0' : genPhase >= 3 && genPhase < 3.5 ? '#c4b5fd' : '#e8ecf2'),background:stepsDone >= 3 ? '#f0fdf4' : genPhase >= 3 && genPhase < 3.5 ? '#faf5ff' : '#fff'}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+              <div style={{display:'flex',alignItems:'center',gap:10}}>
+                <div style={{width:28,height:28,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:800,color:'#fff',background:stepsDone >= 3 ? '#10b981' : genPhase >= 3 && genPhase < 3.5 ? '#8b5cf6' : '#cbd5e1'}}>
+                  {stepsDone >= 3 ? <Check size={14}/> : '3'}
+                </div>
+                <div>
+                  <div style={{fontSize:14,fontWeight:700,color:'#0f172a'}}>Video Scripts & Strategy</div>
+                  <div style={{fontSize:11,color:'#94a3b8'}}>3 video scripts + 30-day plan</div>
+                </div>
+              </div>
+              {genPhase >= 3 && genPhase < 3.5 && <div style={{width:16,height:16,border:'2px solid #8b5cf6',borderTopColor:'transparent',borderRadius:'50%',animation:'spin .8s linear infinite'}}/>}
+              {stepsDone >= 3 && <span style={{fontSize:11,fontWeight:700,color:'#10b981'}}>Done</span>}
+            </div>
+          </div>
+
         </div>
-        <p style={{fontSize:11,color:'#94a3b8',marginTop:16}}>This usually takes 30-60 seconds</p>
-        <style>{'@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}} @keyframes progress{0%{width:0%}100%{width:100%}}'}</style>
+
+        {/* Action button — continue to next step */}
+        {genPhase === 1.5 && (
+          <button onClick={runStep2}
+            style={{width:'100%',padding:'14px',borderRadius:10,border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:14,fontWeight:800,color:'#fff',background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',boxShadow:'0 4px 16px rgba(139,92,246,.3)'}}>
+            Continue — Generate Emails & Ads
+          </button>
+        )}
+        {genPhase === 2.5 && (
+          <button onClick={runStep3}
+            style={{width:'100%',padding:'14px',borderRadius:10,border:'none',cursor:'pointer',fontFamily:'inherit',fontSize:14,fontWeight:800,color:'#fff',background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',boxShadow:'0 4px 16px rgba(139,92,246,.3)'}}>
+            Continue — Generate Scripts & Strategy
+          </button>
+        )}
+        {isComplete && (
+          <div style={{textAlign:'center',fontSize:13,color:'#10b981',fontWeight:700}}>Opening your campaign...</div>
+        )}
+        {!isWaiting && !isComplete && (
+          <div style={{textAlign:'center',fontSize:12,color:'#94a3b8'}}>{genMsg}</div>
+        )}
+
+        <style>{'@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}} @keyframes spin{to{transform:rotate(360deg)}}'}</style>
       </div>
     );
   }
