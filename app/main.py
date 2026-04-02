@@ -2057,12 +2057,7 @@ def upload_video_post(
     category    = sanitize(category)[:50]
     video_url   = video_url.strip()
 
-    highest_grid = db.query(Grid).filter(
-        Grid.owner_id == user.id,
-        Grid.is_complete == False
-    ).order_by(Grid.package_tier.desc()).first()
-
-    user_tier = highest_grid.package_tier if highest_grid else 1
+    user_tier = get_user_highest_tier(db, user.id) or 1
     from .database import CAMPAIGN_TIER_FEATURES, GRID_TIER_NAMES
     tier_features = CAMPAIGN_TIER_FEATURES.get(user_tier, CAMPAIGN_TIER_FEATURES[1])
 
