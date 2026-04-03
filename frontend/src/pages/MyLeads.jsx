@@ -68,26 +68,31 @@ export default function MyLeads() {
         .sl-select option{background:#fff;color:#0f172a;padding:8px}
       `}</style>
 
-      <div style={{background:'linear-gradient(135deg,#0c1222,#1c223d,#2d3561)',borderRadius:16,padding:'28px 32px',marginBottom:20,position:'relative',overflow:'hidden'}}>
+      <div style={{background:'linear-gradient(135deg,#0c1222,#1c223d,#2d3561)',borderRadius:16,padding:'32px 36px',marginBottom:20,position:'relative',overflow:'hidden'}}>
         <div style={{position:'absolute',top:-40,right:-40,width:140,height:140,borderRadius:'50%',background:'rgba(255,255,255,.04)',pointerEvents:'none'}}/>
         <div style={{position:'relative',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-          <div>
-            <div style={{fontSize:11,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.35)',marginBottom:6}}>SuperLeads CRM</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#fff',marginBottom:4}}>Email Autoresponder</div>
-            <div style={{fontSize:13,color:'rgba(255,255,255,.5)'}}>Capture leads, nurture with sequences, broadcast to your audience.</div>
+          <div style={{display:'flex',alignItems:'center',gap:16}}>
+            <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(135deg,#6366f1,#818cf8)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#fff" strokeWidth="1.5"/><polyline points="22,6 12,13 2,6" stroke="#fff" strokeWidth="1.5"/><circle cx="18" cy="15" r="4" fill="#fbbf24"/><path d="M17 15h2M18 14v2" stroke="#1c223d" strokeWidth="1.5" strokeLinecap="round"/></svg>
+            </div>
+            <div>
+              <div style={{fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.45)',marginBottom:4}}>SuperLeads CRM</div>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:800,color:'#fff',marginBottom:4}}>Email Autoresponder</div>
+              <div style={{fontSize:14,color:'rgba(255,255,255,.55)'}}>Capture leads, nurture with sequences, broadcast to your audience.</div>
+            </div>
           </div>
           <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:5,padding:'8px 16px',borderRadius:8,border:'1px solid rgba(255,255,255,.12)',background:'rgba(255,255,255,.05)',color:'rgba(255,255,255,.6)',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit',flexShrink:0}}><HelpCircle size={14}/> Help</button>
         </div>
       </div>
 
       <div className="sl-stats" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:20}}>
-        {[{v:stats.total||0,l:'Total leads',c:'#6366f1'},{v:sequences.length,l:'Sequences',c:'#0ea5e9'},{v:emailStats.sent_today||0,l:'Sent today',c:'#16a34a'},{v:stats.hot||0,l:'Hot leads',c:'#f59e0b'}].map(function(s,i){return <div key={i} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:16,textAlign:'center'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:s.c}}>{s.v}</div><div style={{fontSize:11,color:'#64748b',marginTop:2}}>{s.l}</div></div>;})}
+        {[{v:stats.total||0,l:'Total leads',c:'#6366f1'},{v:sequences.length,l:'Sequences',c:'#0ea5e9'},{v:emailStats.sent_today||0,l:'Sent today',c:'#16a34a'},{v:stats.hot||0,l:'Hot leads',c:'#f59e0b'}].map(function(s,i){return <div key={i} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:16,textAlign:'center'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:s.c}}>{s.v}</div><div style={{fontSize:13,color:'#475569',fontWeight:600,marginTop:4}}>{s.l}</div></div>;})}
       </div>
 
       {msg && <div style={{padding:'10px 16px',borderRadius:10,marginBottom:16,fontSize:13,fontWeight:700,background:msgType==='ok'?'#f0fdf4':'#fef2f2',border:'1px solid '+(msgType==='ok'?'#bbf7d0':'#fecaca'),color:msgType==='ok'?'#059669':'#dc2626'}}>{msg}</div>}
 
       <div style={{display:'flex',gap:4,marginBottom:20,background:'#fff',border:'1px solid #e2e8f0',borderRadius:10,padding:4}}>
-        {TABS.map(function(t){var a=tab===t.key;var I=t.icon;return <div key={t.key} className={a?'':'sl-tab'} onClick={function(){setTab(t.key);}} style={{flex:1,textAlign:'center',padding:'10px 8px',borderRadius:8,background:a?'#6366f1':'transparent',color:a?'#fff':'#64748b',fontSize:12,fontWeight:a?700:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:5}}><I size={14}/> {t.label}</div>;})}
+        {TABS.map(function(t){var a=tab===t.key;var I=t.icon;return <div key={t.key} className={a?'':'sl-tab'} onClick={function(){setTab(t.key);}} style={{flex:1,textAlign:'center',padding:'12px 8px',borderRadius:8,background:a?'#6366f1':'transparent',color:a?'#fff':'#475569',fontSize:14,fontWeight:a?800:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}><I size={16}/> {t.label}</div>;})}
       </div>
 
       {tab==='leads' && <LeadsTab leads={leads} lists={lists} sequences={sequences} refresh={refresh} flash={flash}/>}
