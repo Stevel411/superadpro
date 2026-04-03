@@ -1,1633 +1,272 @@
-import { useState, useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { formatMoney } from '../utils/money';
-import {
-  DollarSign, Users, Zap, GraduationCap, Eye, Link2, LayoutGrid,
-  Target, Megaphone, Mail, Bot, Globe, Shield, Trophy, Award,
-  ChevronRight, Star, Check, Lock, Sparkles, ArrowRight, BarChart3
-} from 'lucide-react';
+import { Users, Zap, GraduationCap, Heart, DollarSign, HelpCircle } from 'lucide-react';
 
-// ── Animated counter hook ──
-function useCountUp(target, duration, trigger) {
-  var ref = useRef(null);
-  var [val, setVal] = useState(0);
-  useEffect(function() {
-    if (!trigger) return;
-    var start = 0;
-    var startTime = null;
-    function step(ts) {
-      if (!startTime) startTime = ts;
-      var progress = Math.min((ts - startTime) / duration, 1);
-      var eased = 1 - Math.pow(1 - progress, 3); // ease-out cubic
-      setVal(target % 1 === 0 ? Math.round(start + (target - start) * eased) : parseFloat((start + (target - start) * eased).toFixed(2)));
-      if (progress < 1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }, [target, trigger, duration]);
-  return val;
-}
-
-// ── Intersection observer hook ──
-function useInView(threshold) {
-  var ref = useRef(null);
-  var [inView, setInView] = useState(false);
-  useEffect(function() {
-    if (!ref.current) return;
-    var obs = new IntersectionObserver(function(entries) {
-      if (entries[0].isIntersecting) { setInView(true); obs.disconnect(); }
-    }, { threshold: threshold || 0.2 });
-    obs.observe(ref.current);
-    return function() { obs.disconnect(); };
-  }, []);
-  return [ref, inView];
-}
-
-// ── Tab definitions ──
-var TABS = [
-  { key: 'membership', label: 'membership', icon: DollarSign, color: '#16a34a' },
-  { key: 'grid', label: 'profitGrid', icon: Zap, color: '#0ea5e9' },
-  { key: 'courses', label: 'coursesSuperMarket', icon: GraduationCap, color: '#8b5cf6' },
-  { key: 'calculator', label: 'calculator', icon: Target, color: '#f59e0b' },
-  { key: 'visualiser', label: 'visualiser', icon: BarChart3, color: '#ec4899', link: '/passup-visualiser' },
+var TIER_PRICES = [0, 20, 50, 100, 200, 400, 600, 800, 1000];
+var TIER_NAMES = ['', 'Starter', 'Builder', 'Pro', 'Advanced', 'Elite', 'Premium', 'Executive', 'Ultimate'];
+var TIER_GRADS = [
+  '', 'linear-gradient(135deg,#064e3b,#10b981)', 'linear-gradient(135deg,#1e3a5f,#3b82f6)',
+  'linear-gradient(135deg,#1e1b4b,#8b5cf6)', 'linear-gradient(135deg,#831843,#ec4899)',
+  'linear-gradient(135deg,#134e4a,#2dd4bf)', 'linear-gradient(135deg,#374151,#d1d5db)',
+  'linear-gradient(135deg,#78350f,#fbbf24)', 'linear-gradient(135deg,#450a0a,#ef4444)',
 ];
 
 export default function CompensationPlan() {
-  var { t } = useTranslation();
-  var [tab, setTab] = useState('membership');
-  var navigate = useNavigate();
+  var [showHelp, setShowHelp] = useState(false);
+  var [refs, setRefs] = useState(5);
+  var [tier, setTier] = useState(3);
+  var [team, setTeam] = useState(10);
+  var [proPct, setProPct] = useState(30);
+
+  if (showHelp) return <AppLayout title="Compensation Plan"><CompPlanHelp onBack={function() { setShowHelp(false); }}/></AppLayout>;
+
+  var basicRefs = Math.round(refs * (1 - proPct / 100));
+  var proRefs = refs - basicRefs;
+  var memMonthly = (basicRefs * 10) + (proRefs * 17.50);
+  var tierPrice = TIER_PRICES[tier] || 0;
+  var directComm = refs * tierPrice * 0.40;
+  var uniLevel = team * tierPrice * 0.0625;
+  var gridTotal = directComm + uniLevel;
+  var ssCredits = refs * 15;
+  var ssEarnings = ssCredits * 0.025;
+  var total = memMonthly + gridTotal + ssEarnings;
 
   return (
-    <AppLayout title={t("compPlan.title")} subtitle={t("compPlan.subtitle")}>
+    <AppLayout title="Compensation Plan" subtitle="5 income streams — 95% paid to members"
+      topbarActions={
+        <button onClick={function() { setShowHelp(true); }} style={{ padding:'7px 14px', borderRadius:10, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:12, fontWeight:600, color:'#64748b', display:'flex', alignItems:'center', gap:4 }}><HelpCircle size={14}/> Help</button>
+      }>
 
-      {/* ── Tab Navigation ── */}
-      <div style={{display:'flex',gap:6,marginBottom:28,borderBottom:'2px solid #e8ecf2',paddingBottom:0,flexWrap:'wrap'}}>
-        {TABS.map(function(tb) {
-          var Icon = tb.icon;
-          var active = tab === tb.key;
-          return (
-            <button key={tb.key} onClick={function() { if (tb.link) { navigate(tb.link); } else if (!tb.soon) { setTab(tb.key); } }}
-              style={{
-                display:'flex',alignItems:'center',gap:6,padding:'12px 20px',fontSize:13,fontWeight:active?800:600,
-                border:'none',borderBottom:active?'3px solid '+tb.color:'3px solid transparent',
-                cursor:tb.soon?'default':'pointer',fontFamily:'inherit',
-                background:active?'rgba(14,165,233,.04)':'transparent',
-                color:active?tb.color:tb.soon?'#cbd5e1':'#64748b',
-                marginBottom:-2,borderRadius:'8px 8px 0 0',transition:'all .2s',
-                opacity:tb.soon?0.5:1,
-              }}>
-              <Icon size={15}/>
-              {t('compPlan.' + tb.label)}
-              {tb.soon && <span style={{fontSize:9,fontWeight:700,background:'#f1f5f9',color:'#94a3b8',padding:'2px 6px',borderRadius:4}}>SOON</span>}
-            </button>
-          );
-        })}
+      {/* Hero Banner */}
+      <div style={{
+        background:'linear-gradient(135deg,#1a103d,#2d1b69,#4338ca)', borderRadius:18,
+        padding:'32px 34px 26px', marginBottom:20, textAlign:'center',
+        position:'relative', overflow:'hidden',
+      }}>
+        <div style={{ position:'absolute', top:-30, right:-30, width:140, height:140, borderRadius:'50%', background:'rgba(139,92,246,.12)' }}/>
+        <div style={{ position:'absolute', bottom:-20, left:-20, width:100, height:100, borderRadius:'50%', background:'rgba(59,130,246,.1)' }}/>
+        <div style={{ fontSize:11, letterSpacing:3, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>Compensation plan</div>
+        <div style={{ fontFamily:'Sora,sans-serif', fontSize:30, fontWeight:800, color:'#fff', marginBottom:6 }}>5 income streams</div>
+        <div style={{ fontSize:14, color:'rgba(255,255,255,.55)', marginBottom:20 }}>95% of all revenue paid to members — only 5% retained by the platform</div>
+        <div style={{ display:'flex', justifyContent:'center', gap:16, flexWrap:'wrap' }}>
+          {[
+            { val:'$10–$17.50', label:'Per referral', color:'#4ade80' },
+            { val:'8 levels', label:'Uni-level depth', color:'#60a5fa' },
+            { val:'$64–$3,200', label:'Grid completion bonus', color:'#c084fc' },
+          ].map(function(s, i) {
+            return <div key={i} style={{ background:'rgba(255,255,255,.06)', border:'1px solid rgba(255,255,255,.1)', borderRadius:12, padding:'12px 20px', textAlign:'center', minWidth:130 }}>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:s.color }}>{s.val}</div>
+              <div style={{ fontSize:11, color:'rgba(255,255,255,.4)', marginTop:3 }}>{s.label}</div>
+            </div>;
+          })}
+        </div>
       </div>
 
-      {/* ── Membership Tab ── */}
-      {tab === 'membership' && <MembershipSection />}
+      {/* Stream 1: Membership Referrals */}
+      <StreamCard num="1" title="Membership referrals" subtitle="Earn every time someone joins through your link"
+        Icon={Users} statVal="50%" statLabel="Commission" statColor="#16a34a"
+        iconBg="rgba(34,197,94,.09)" iconColor="#16a34a">
+        <FlowArrow steps={[
+          { title:'Referral joins', sub:'Basic $20 / Pro $35' },
+          { title:'50% to you', sub:'$10 or $17.50', highlight:true },
+          { title:'Affiliate wallet', sub:'Withdraw anytime' },
+        ]}/>
+        <div style={{ fontSize:13, color:'#475569', lineHeight:1.7 }}>Paid instantly on every new signup. Recurring monthly as long as your referral stays active. No tier required — earn from day one.</div>
+      </StreamCard>
 
-      {/* ── Placeholder for future tabs ── */}
-      {tab === 'grid' && <GridSection />}
-      {tab === 'courses' && <CoursesSection />}
-      {tab === 'calculator' && <CalculatorSection />}
+      {/* Stream 2: Campaign Grid */}
+      <StreamCard num="2" title="8×8 campaign grid" subtitle="Three commission types from your grid network"
+        Icon={Zap} statVal="95%" statLabel="Total payout" statColor="#6366f1"
+        iconBg="rgba(99,102,241,.09)" iconColor="#6366f1">
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, margin:'0 0 14px' }}>
+          {[
+            { val:'40%', label:'Direct sponsor', sub:'Your referral buys a tier' },
+            { val:'6.25%', label:'× 8 levels deep', sub:'Earn from entire network' },
+            { val:'5%', label:'Completion bonus', sub:'Grid fills 64 positions' },
+          ].map(function(c, i) {
+            return <div key={i} style={{ background:'rgba(99,102,241,.04)', border:'1px solid rgba(99,102,241,.1)', borderRadius:10, padding:'14px 10px', textAlign:'center' }}>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#6366f1' }}>{c.val}</div>
+              <div style={{ fontSize:11, fontWeight:700, color:'#475569', marginTop:4 }}>{c.label}</div>
+              <div style={{ fontSize:11, color:'#94a3b8', marginTop:2 }}>{c.sub}</div>
+            </div>;
+          })}
+        </div>
+        <div style={{ display:'flex', gap:5, overflowX:'auto', paddingBottom:4, marginBottom:10 }}>
+          {[1,2,3,4,5,6,7,8].map(function(t) {
+            return <div key={t} style={{ minWidth:74, background:TIER_GRADS[t], borderRadius:8, padding:'7px 8px', textAlign:'center', flexShrink:0 }}>
+              <div style={{ fontSize:10, color:'rgba(255,255,255,.65)' }}>T{t}</div>
+              <div style={{ fontSize:13, fontWeight:700, color:'#fff' }}>${TIER_PRICES[t]}</div>
+            </div>;
+          })}
+        </div>
+        <div style={{ fontSize:13, color:'#475569', lineHeight:1.7 }}>Activate a campaign tier to unlock grid commissions. Your referrals and their referrals fill your 8×8 grid. Earnings go to your campaign wallet (requires active tier + daily watch quota).</div>
+      </StreamCard>
+
+      {/* Stream 3: SuperScene */}
+      <StreamCard num="3" title="SuperScene sponsor earnings" subtitle="Earn when your referrals create AI videos, images, and music"
+        Icon={Zap} statVal="$0.025" statLabel="Per credit" statColor="#ec4899"
+        iconBg="rgba(236,72,153,.09)" iconColor="#ec4899">
+        <FlowArrow steps={[
+          { title:'Referral uses credits', sub:'Video, image, music' },
+          { title:'$0.025 per credit', sub:'Auto micro-payment', highlight:true },
+          { title:'Affiliate wallet', sub:'Passive recurring income' },
+        ]}/>
+        <div style={{ fontSize:13, color:'#475569', lineHeight:1.7 }}>Every time your referrals use SuperScene AI tools, you earn. With active users generating content regularly, this becomes a steady passive income stream.</div>
+      </StreamCard>
+
+      {/* Stream 4: Courses */}
+      <StreamCard num="4" title="Course marketplace" subtitle="100% commission on first sale, pass-up cascade to upline"
+        Icon={GraduationCap} statVal="" statLabel="" statColor="#f59e0b"
+        iconBg="rgba(245,158,11,.09)" iconColor="#f59e0b" badge="Coming soon">
+        <div style={{ fontSize:13, color:'#475569', lineHeight:1.7 }}>Create and sell courses on the marketplace. Keep 100% of your first sale. Subsequent sales pass up to your sponsor in a cascade — the deeper your network, the more pass-ups flow to you.</div>
+      </StreamCard>
+
+      {/* Stream 5: Pay It Forward */}
+      <StreamCard num="5" title="Pay It Forward" subtitle="Gift memberships, become the sponsor, earn commissions"
+        Icon={Heart} statVal="$20" statLabel="Per gift" statColor="#ec4899"
+        iconBg="rgba(236,72,153,.09)" iconColor="#ec4899">
+        <div style={{ fontSize:13, color:'#475569', lineHeight:1.7 }}>Pay $20 to gift someone a Basic membership. You become their sponsor and earn referral commissions on everything they do. When they earn $20+, they're prompted to pay it forward — creating an organic growth chain.</div>
+      </StreamCard>
+
+      {/* Earnings Calculator */}
+      <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:'24px', marginBottom:18 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:18 }}>
+          <div style={{ width:40, height:40, borderRadius:10, background:'rgba(99,102,241,.08)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <DollarSign size={20} color="#6366f1"/>
+          </div>
+          <div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800 }}>Earnings calculator</div>
+            <div style={{ fontSize:12, color:'#64748b' }}>Adjust the sliders to see your projected earnings</div>
+          </div>
+        </div>
+
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
+          <div>
+            <SliderRow label="Personal referrals" value={refs} min={0} max={20} display={String(refs)} onChange={function(v) { setRefs(v); }}/>
+            <SliderRow label="Campaign tier" value={tier} min={0} max={8} display={tier === 0 ? 'None' : 'T' + tier} onChange={function(v) { setTier(v); }}/>
+            <SliderRow label="Team members buying tiers" value={team} min={0} max={60} display={String(team)} onChange={function(v) { setTeam(v); }}/>
+            <SliderRow label="% referrals on Pro ($35)" value={proPct} min={0} max={100} step={5} display={proPct + '%'} onChange={function(v) { setProPct(v); }}/>
+          </div>
+          <div style={{ background:'#f8fafc', borderRadius:12, padding:'20px', display:'flex', flexDirection:'column', justifyContent:'center' }}>
+            <div style={{ fontSize:11, fontWeight:700, letterSpacing:1, textTransform:'uppercase', color:'#94a3b8', marginBottom:6 }}>Projected monthly earnings</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:800, color:'#0f172a', marginBottom:16 }}>${Math.round(total).toLocaleString()}</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+              <CalcRow label="Membership referrals" value={memMonthly} total={total} color="#16a34a"/>
+              <CalcRow label="Grid commissions" value={gridTotal} total={total} color="#6366f1"/>
+              <CalcRow label="SuperScene sponsor" value={ssEarnings} total={total} color="#ec4899"/>
+            </div>
+          </div>
+        </div>
+      </div>
 
     </AppLayout>
   );
 }
 
-
-// ══════════════════════════════════════════════════════════════
-// ── MEMBERSHIP SECTION ──
-// ══════════════════════════════════════════════════════════════
-
-function MembershipSection() {
-  var { t } = useTranslation();
-  var [heroRef, heroVisible] = useInView(0.1);
-  var [plansRef, plansVisible] = useInView(0.15);
-  var [basicRef, basicVisible] = useInView(0.1);
-  var [proRef, proVisible] = useInView(0.1);
-  var [earnRef, earnVisible] = useInView(0.1);
-  var [tableRef, tableVisible] = useInView(0.1);
-
-  var basicComm = useCountUp(10, 1200, earnVisible);
-  var proComm = useCountUp(17.50, 1200, earnVisible);
-
+function StreamCard(props) {
+  var Icon = props.Icon;
   return (
-    <div>
-      {/* ── Hero Banner ── */}
-      <div ref={heroRef} style={{
-        background:'linear-gradient(135deg,#0f4c3a,#16a34a,#22c55e)',
-        borderRadius:16,padding:'48px 40px',marginBottom:28,position:'relative',overflow:'hidden',
-        opacity:heroVisible?1:0,transform:heroVisible?'translateY(0)':'translateY(30px)',
-        transition:'all .8s cubic-bezier(.16,1,.3,1)',
-      }}>
-        {/* Decorative circles */}
-        <div style={{position:'absolute',top:-40,right:-40,width:200,height:200,borderRadius:'50%',background:'rgba(255,255,255,.06)'}}/>
-        <div style={{position:'absolute',bottom:-60,left:-30,width:180,height:180,borderRadius:'50%',background:'rgba(255,255,255,.04)'}}/>
-        <div style={{position:'relative',zIndex:1}}>
-          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
-            <DollarSign size={20} color="rgba(255,255,255,.7)"/>
-            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>{t('compPlan.stream01')}</span>
-          </div>
-          <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:'#fff',margin:'0 0 12px',lineHeight:1.2}}>
-            Membership Affiliate Income
-          </h2>
-          <p style={{fontSize:16,color:'rgba(255,255,255,.7)',maxWidth:560,lineHeight:1.7,margin:0}}>
-            Refer members and earn recurring monthly commissions for as long as they stay active. Two tiers, two commission levels, one simple model.
-          </p>
+    <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:'20px 24px', marginBottom:14 }}>
+      <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
+        <div style={{ width:40, height:40, borderRadius:10, background:props.iconBg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+          <Icon size={20} color={props.iconColor}/>
         </div>
+        <div style={{ flex:1 }}>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:15, fontWeight:800, color:'#0f172a' }}>{props.title}</div>
+          <div style={{ fontSize:12, color:'#64748b' }}>{props.subtitle}</div>
+        </div>
+        {props.badge ? (
+          <div style={{ padding:'4px 12px', borderRadius:20, background:'rgba(245,158,11,.08)', fontSize:12, fontWeight:700, color:'#d97706' }}>{props.badge}</div>
+        ) : props.statVal ? (
+          <div style={{ textAlign:'right' }}>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:props.statColor }}>{props.statVal}</div>
+            {props.statLabel && <div style={{ fontSize:11, color:'#64748b' }}>{props.statLabel}</div>}
+          </div>
+        ) : null}
       </div>
-
-      {/* ── Two Plan Cards ── */}
-      <div ref={plansRef} style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,marginBottom:28}}>
-
-        {/* Basic Plan */}
-        <div style={{
-          background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',
-          boxShadow:'0 4px 20px rgba(0,0,0,.06)',
-          opacity:plansVisible?1:0,transform:plansVisible?'translateX(0)':'translateX(-40px)',
-          transition:'all .7s cubic-bezier(.16,1,.3,1)',transitionDelay:'.1s',
-        }}>
-          <div style={{background:'#1c223d',padding:'20px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-            <div>
-              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('compPlan.basicPlan')}</div>
-              <div style={{display:'flex',alignItems:'baseline',gap:4}}>
-                <span style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:800,color:'#fff'}}>$20</span>
-                <span style={{fontSize:13,color:'rgba(255,255,255,.4)'}}>/month</span>
-              </div>
-            </div>
-            <div style={{width:48,height:48,borderRadius:12,background:'rgba(14,165,233,.15)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-              <Users size={22} color="#38bdf8"/>
-            </div>
-          </div>
-          <div style={{padding:'24px'}}>
-            <div style={{fontSize:12,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:14}}>What you get</div>
-            {[
-              { icon: Eye, label: 'Watch to Earn', desc: 'Earn rewards watching video ads' },
-              { icon: LayoutGrid, label: 'LinkHub', desc: 'Link-in-bio page builder' },
-              { icon: Link2, label: 'Link Tools', desc: 'Short links, QR codes, UTM tracking' },
-              { icon: GraduationCap, label: 'Course Library & Marketplace', desc: 'Access all courses' },
-              { icon: LayoutGrid, label: 'Ad Board', desc: 'Community marketplace' },
-              { icon: Zap, label: 'Campaign Tiers', desc: '8 campaign levels ($20–$1,000)' },
-              { icon: Bot, label: 'Marketing Suite', desc: 'AI content generators' },
-              { icon: Users, label: 'Affiliate Tools', desc: 'Network, social share, leaderboard' },
-              { icon: Trophy, label: 'Leaderboard & Achievements', desc: 'Track your progress' },
-            ].map(function(f, i) {
-              var FIcon = f.icon;
-              return (
-                <div key={i} style={{
-                  display:'flex',alignItems:'center',gap:12,padding:'10px 0',
-                  borderBottom:i < 8 ? '1px solid #f5f6f8' : 'none',
-                  opacity:plansVisible?1:0,transform:plansVisible?'translateY(0)':'translateY(10px)',
-                  transition:'all .5s ease',transitionDelay:(0.2 + i * 0.05) + 's',
-                }}>
-                  <div style={{width:32,height:32,borderRadius:8,background:'#f0f9ff',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                    <FIcon size={15} color="#0ea5e9"/>
-                  </div>
-                  <div>
-                    <div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>{f.label}</div>
-                    <div style={{fontSize:11,color:'#94a3b8'}}>{f.desc}</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Pro Plan */}
-        <div style={{
-          background:'#fff',border:'2px solid #8b5cf6',borderRadius:14,overflow:'hidden',
-          boxShadow:'0 4px 20px rgba(139,92,246,.12)',position:'relative',
-          opacity:plansVisible?1:0,transform:plansVisible?'translateX(0)':'translateX(40px)',
-          transition:'all .7s cubic-bezier(.16,1,.3,1)',transitionDelay:'.2s',
-        }}>
-          {/* Popular badge */}
-          <div style={{position:'absolute',top:16,right:16,background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',padding:'4px 12px',borderRadius:20,fontSize:10,fontWeight:800,color:'#fff',letterSpacing:1,textTransform:'uppercase',zIndex:1}}>
-            Popular
-          </div>
-          <div style={{background:'linear-gradient(135deg,#1c223d,#2d1b69)',padding:'20px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-            <div>
-              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>{t('compPlan.proPlan')}</div>
-              <div style={{display:'flex',alignItems:'baseline',gap:4}}>
-                <span style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:800,color:'#fff'}}>$35</span>
-                <span style={{fontSize:13,color:'rgba(255,255,255,.4)'}}>/month</span>
-              </div>
-            </div>
-            <div style={{width:48,height:48,borderRadius:12,background:'rgba(139,92,246,.2)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-              <Sparkles size={22} color="#a78bfa"/>
-            </div>
-          </div>
-          <div style={{padding:'24px'}}>
-            <div style={{fontSize:12,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:14}}>Everything in Basic, plus</div>
-            {[
-              { icon: Globe, label: 'SuperPages', desc: 'Drag-and-drop landing page builder', pro: true },
-              { icon: Target, label: 'ProSeller AI', desc: 'AI-powered sales coach & prospect CRM', pro: true },
-              { icon: Mail, label: 'My Leads Dashboard', desc: 'Track and nurture captured leads', pro: true },
-              { icon: GraduationCap, label: 'Create & Sell Courses', desc: 'Build courses, sell on marketplace', pro: true },
-            ].map(function(f, i) {
-              var FIcon = f.icon;
-              return (
-                <div key={i} style={{
-                  display:'flex',alignItems:'center',gap:12,padding:'10px 0',
-                  borderBottom:i < 3 ? '1px solid #f5f6f8' : 'none',
-                  opacity:plansVisible?1:0,transform:plansVisible?'translateY(0)':'translateY(10px)',
-                  transition:'all .5s ease',transitionDelay:(0.3 + i * 0.06) + 's',
-                }}>
-                  <div style={{width:32,height:32,borderRadius:8,background:'rgba(139,92,246,.08)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                    <FIcon size={15} color="#8b5cf6"/>
-                  </div>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>{f.label}</div>
-                    <div style={{fontSize:11,color:'#94a3b8'}}>{f.desc}</div>
-                  </div>
-                  <div style={{fontSize:9,fontWeight:800,background:'rgba(139,92,246,.08)',color:'#8b5cf6',padding:'3px 8px',borderRadius:4}}>PRO</div>
-                </div>
-              );
-            })}
-            <div style={{marginTop:16,padding:'14px 16px',background:'rgba(139,92,246,.04)',borderRadius:10,border:'1px solid rgba(139,92,246,.1)'}}>
-              <div style={{fontSize:11,color:'#8b5cf6',fontWeight:700}}>+ All 9 Basic features included</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Affiliate Earnings Section ── */}
-      <div ref={earnRef} style={{
-        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
-        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
-        opacity:earnVisible?1:0,transform:earnVisible?'translateY(0)':'translateY(30px)',
-        transition:'all .7s cubic-bezier(.16,1,.3,1)',
-      }}>
-        <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('compPlan.affiliateCommissions')}</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>{t('compPlan.whatYouEarnPerReferral')}</div>
-        </div>
-        <div style={{padding:'28px 24px'}}>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,marginBottom:28}}>
-
-            {/* Basic Commission */}
-            <div style={{textAlign:'center',padding:24,background:'#f8fffe',borderRadius:12,border:'1px solid #dcfce7'}}>
-              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#16a34a',marginBottom:8}}>{t('compPlan.basicReferral')}</div>
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:48,fontWeight:800,color:'#16a34a',lineHeight:1}}>
-                ${basicComm}
-              </div>
-              <div style={{fontSize:13,color:'#64748b',fontWeight:600,marginTop:4}}>/month per member</div>
-              <div style={{marginTop:12,display:'flex',justifyContent:'center',gap:4}}>
-                <span style={{fontSize:11,fontWeight:700,background:'#dcfce7',color:'#16a34a',padding:'3px 10px',borderRadius:20}}>50% of $20</span>
-                <span style={{fontSize:11,fontWeight:700,background:'#f0fdf4',color:'#16a34a',padding:'3px 10px',borderRadius:20}}>Recurring</span>
-              </div>
-            </div>
-
-            {/* Pro Commission */}
-            <div style={{textAlign:'center',padding:24,background:'#faf5ff',borderRadius:12,border:'1px solid #e9d5ff'}}>
-              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:8}}>{t('compPlan.proReferral')}</div>
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:48,fontWeight:800,color:'#8b5cf6',lineHeight:1}}>
-                ${typeof proComm === 'number' && proComm % 1 !== 0 ? formatMoney(proComm) : proComm}
-              </div>
-              <div style={{fontSize:13,color:'#64748b',fontWeight:600,marginTop:4}}>/month per member</div>
-              <div style={{marginTop:12,display:'flex',justifyContent:'center',gap:4}}>
-                <span style={{fontSize:11,fontWeight:700,background:'#e9d5ff',color:'#8b5cf6',padding:'3px 10px',borderRadius:20}}>50% of $35</span>
-                <span style={{fontSize:11,fontWeight:700,background:'#f5f3ff',color:'#8b5cf6',padding:'3px 10px',borderRadius:20}}>Recurring</span>
-              </div>
-            </div>
-          </div>
-
-          {/* How it works flow */}
-          <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:12,marginBottom:28,flexWrap:'wrap'}}>
-            {[
-              {label:'You refer a member',icon:'👤',color:'#0ea5e9'},
-              {label:'They subscribe',icon:'💳',color:'#f59e0b'},
-              {label:'You earn 50% monthly',icon:'💰',color:'#16a34a'},
-              {label:'Recurring forever',icon:'♾️',color:'#8b5cf6'},
-            ].map(function(s, i) {
-              return (
-                <div key={i} style={{display:'flex',alignItems:'center',gap:12}}>
-                  <div style={{
-                    textAlign:'center',padding:'16px 14px',background:'#f8f9fb',borderRadius:12,border:'1px solid #e8ecf2',minWidth:120,
-                    opacity:earnVisible?1:0,transform:earnVisible?'translateY(0)':'translateY(20px)',
-                    transition:'all .6s ease',transitionDelay:(0.2 + i * 0.15) + 's',
-                  }}>
-                    <div style={{fontSize:24,marginBottom:6}}>{s.icon}</div>
-                    <div style={{fontSize:11,fontWeight:700,color:'#475569',lineHeight:1.3}}>{s.label}</div>
-                  </div>
-                  {i < 3 && <ArrowRight size={16} color="#cbd5e1"/>}
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Key points */}
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:14}}>
-            {[
-              {icon:'🔄',title:'100% Recurring',desc:'Earn every month your referral stays active — not just the first month'},
-              {icon:'🚫',title:'No Caps or Limits',desc:'Refer as many members as you want. No ceiling on membership commissions'},
-              {icon:'⚡',title:'Instant Credit',desc:'Commission credited to your wallet the moment their payment processes'},
-            ].map(function(p, i) {
-              return (
-                <div key={i} style={{
-                  padding:18,background:'#f8f9fb',borderRadius:12,border:'1px solid #e8ecf2',
-                  opacity:earnVisible?1:0,transform:earnVisible?'scale(.95)':'scale(.95)',
-                  transition:'all .5s ease',transitionDelay:(0.5 + i * 0.1) + 's',
-                  ...(earnVisible ? {opacity:1,transform:'scale(1)'} : {}),
-                }}>
-                  <div style={{fontSize:20,marginBottom:8}}>{p.icon}</div>
-                  <div style={{fontSize:13,fontWeight:800,color:'#0f172a',marginBottom:4}}>{p.title}</div>
-                  <div style={{fontSize:11,color:'#64748b',lineHeight:1.6}}>{p.desc}</div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Residual Income Table ── */}
-      <div ref={tableRef} style={{
-        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
-        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
-        opacity:tableVisible?1:0,transform:tableVisible?'translateY(0)':'translateY(30px)',
-        transition:'all .7s cubic-bezier(.16,1,.3,1)',
-      }}>
-        <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('compPlan.incomeProjection')}</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>{t('compPlan.residualIncomePotential')}</div>
-        </div>
-        <div style={{padding:'24px'}}>
-          <div style={{overflowX:'auto'}}>
-            <table style={{width:'100%',borderCollapse:'collapse'}}>
-              <thead>
-                <tr>
-                  {['Members Referred','Basic Monthly','Pro Monthly','Basic Annual','Pro Annual'].map(function(h) {
-                    return <th key={h} style={{fontSize:10,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,padding:'12px 16px',borderBottom:'2px solid #e8ecf2',textAlign:'left',background:'#f8f9fb'}}>{h}</th>;
-                  })}
-                </tr>
-              </thead>
-              <tbody>
-                {[5,10,25,50,100,250,500].map(function(n, i) {
-                  var bm = n * 10;
-                  var pm = n * 17.50;
-                  return (
-                    <tr key={n} style={{
-                      opacity:tableVisible?1:0,transform:tableVisible?'translateX(0)':'translateX(-20px)',
-                      transition:'all .5s ease',transitionDelay:(0.1 + i * 0.06) + 's',
-                    }}>
-                      <td style={{padding:'12px 16px',borderBottom:'1px solid #f5f6f8',fontWeight:700,color:'#0f172a',fontSize:13}}>{n} members</td>
-                      <td style={{padding:'12px 16px',borderBottom:'1px solid #f5f6f8',fontWeight:700,color:'#16a34a',fontSize:13}}>${bm.toLocaleString()}/mo</td>
-                      <td style={{padding:'12px 16px',borderBottom:'1px solid #f5f6f8',fontWeight:700,color:'#8b5cf6',fontSize:13}}>${pm.toLocaleString()}/mo</td>
-                      <td style={{padding:'12px 16px',borderBottom:'1px solid #f5f6f8',fontWeight:800,color:'#16a34a',fontSize:13}}>${(bm*12).toLocaleString()}</td>
-                      <td style={{padding:'12px 16px',borderBottom:'1px solid #f5f6f8',fontWeight:800,color:'#8b5cf6',fontSize:13}}>${(pm*12).toLocaleString()}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-          <div style={{marginTop:16,padding:'12px 16px',background:'#fffbeb',borderRadius:10,border:'1px solid #fef3c7',fontSize:11,color:'#92400e',lineHeight:1.6}}>
-            <strong>Note:</strong> Commission amounts shown are per referral based on your membership tier. Actual earnings depend on your referral activity and retention.
-          </div>
-        </div>
-      </div>
-
+      {props.children}
     </div>
   );
 }
 
+function FlowArrow(props) {
+  return (
+    <div style={{ display:'flex', alignItems:'center', gap:0, margin:'0 0 14px' }}>
+      {props.steps.map(function(s, i) {
+        return <div key={i} style={{ display:'contents' }}>
+          {i > 0 && <div style={{ width:28, textAlign:'center', fontSize:16, color:'#cbd5e1' }}>→</div>}
+          <div style={{ flex:1, background:s.highlight ? 'rgba(34,197,94,.06)' : '#f8fafc', border:s.highlight ? '1px solid rgba(34,197,94,.15)' : '1px solid #f1f5f9', borderRadius:10, padding:'10px 12px', textAlign:'center' }}>
+            <div style={{ fontSize:12, fontWeight:700, color:'#0f172a' }}>{s.title}</div>
+            <div style={{ fontSize:11, color: s.highlight ? '#16a34a' : '#64748b', marginTop:2, fontWeight: s.highlight ? 700 : 400 }}>{s.sub}</div>
+          </div>
+        </div>;
+      })}
+    </div>
+  );
+}
 
-// ── Milestone Progress Tracker ──
-function MilestoneTracker(props) {
-  var { t } = useTranslation();
-  var [ref, inView] = useInView(0.2);
-  var milestones = [
-    {n:5,label:'Starter',color:'#94a3b8',basic:50,pro:87.50},
-    {n:10,label:'Builder',color:'#0ea5e9',basic:100,pro:175},
-    {n:25,label:'Achiever',color:'#16a34a',basic:250,pro:437.50},
-    {n:50,label:'Leader',color:'#8b5cf6',basic:500,pro:875},
-    {n:100,label:'Elite',color:'#f59e0b',basic:1000,pro:1750},
-    {n:250,label:'Diamond',color:'#ec4899',basic:2500,pro:4375},
+function SliderRow(props) {
+  return (
+    <div style={{ marginBottom:14 }}>
+      <div style={{ fontSize:12, fontWeight:600, color:'#475569', marginBottom:6 }}>{props.label}</div>
+      <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+        <input type="range" min={props.min} max={props.max} step={props.step || 1} value={props.value}
+          onChange={function(e) { props.onChange(parseInt(e.target.value)); }}
+          style={{ flex:1, accentColor:'#6366f1' }}/>
+        <span style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:700, minWidth:32, textAlign:'right', color:'#0f172a' }}>{props.display}</span>
+      </div>
+    </div>
+  );
+}
+
+function CalcRow(props) {
+  var pct = props.total > 0 ? (props.value / props.total * 100) : 0;
+  return (
+    <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+      <span style={{ fontSize:13, color:'#64748b' }}>{props.label}</span>
+      <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+        <div style={{ width:60, height:4, background:'#e2e8f0', borderRadius:2, overflow:'hidden' }}>
+          <div style={{ width:Math.min(100, pct) + '%', height:4, background:props.color, borderRadius:2 }}/>
+        </div>
+        <span style={{ fontFamily:'Sora,sans-serif', fontSize:13, fontWeight:700, minWidth:48, textAlign:'right', color:'#0f172a' }}>${Math.round(props.value).toLocaleString()}</span>
+      </div>
+    </div>
+  );
+}
+
+function CompPlanHelp(props) {
+  var [open, setOpen] = useState(null);
+  var sections = [
+    { title:'How do I earn from memberships?', desc:'When someone joins SuperAdPro through your referral link, you earn 50% of their membership fee. Basic ($20/mo) pays you $10, Pro ($35/mo) pays you $17.50. This is recurring — you earn every month they stay active. No campaign tier required.' },
+    { title:'How does the 8×8 grid work?', desc:'When you activate a Campaign Tier, you get an 8×8 grid (64 positions). Your personal referrals and their referrals (spillover) fill the grid. You earn 40% direct sponsor commission, 6.25% uni-level from 8 levels deep, and a 5% completion bonus when the grid fills all 64 positions.' },
+    { title:'What is the difference between wallets?', desc:'Your Affiliate Wallet holds membership and SuperScene commissions — always withdrawable. Your Campaign Wallet holds grid commissions — requires an active tier and daily Watch-to-Earn quota to withdraw.' },
+    { title:'How do SuperScene earnings work?', desc:'Every time someone you referred uses SuperScene AI tools (video, images, music), you earn $0.025 per credit they consume. This accumulates automatically as passive income in your Affiliate Wallet.' },
+    { title:'What are Campaign Tiers?', desc:'Campaign Tiers (T1-T8, $20-$1,000) activate your participation in the 8×8 Income Grid. Higher tiers unlock more daily campaign video views and larger grid completion bonuses. You must also watch your daily video quota to keep campaign earnings active.' },
+    { title:'How does Pay It Forward work?', desc:'Pay $20 from your wallet to gift someone a Basic membership. You become their sponsor and earn referral commissions on everything they do. When they earn $20+, they are prompted to pay it forward too — creating a chain of organic growth.' },
+    { title:'What is the course marketplace?', desc:'Coming soon. Create and sell courses on the marketplace. Keep 100% of your first sale. Subsequent sales pass up to your sponsor in a cascade. The deeper your network, the more pass-ups flow to you.' },
   ];
-
   return (
-    <div ref={ref} style={{
-      background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',
-      boxShadow:'0 4px 20px rgba(0,0,0,.06)',
-      opacity:inView?1:0,transform:inView?'translateY(0)':'translateY(30px)',
-      transition:'all .7s cubic-bezier(.16,1,.3,1)',
-    }}>
-      <div style={{background:'#1c223d',padding:'20px 24px'}}>
-        <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('compPlan.milestones')}</div>
-        <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>{t('compPlan.yourPathToFinancialFreedom')}</div>
+    <div style={{ maxWidth:700, margin:'0 auto' }}>
+      <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:20 }}>
+        <div>
+          <h2 style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, margin:0 }}>Compensation plan FAQ</h2>
+          <p style={{ margin:'2px 0 0', fontSize:13, color:'#64748b' }}>Understanding how you earn with SuperAdPro</p>
+        </div>
+        <button onClick={props.onBack} style={{ padding:'7px 14px', borderRadius:8, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontSize:12, fontWeight:600, color:'#64748b', fontFamily:'inherit' }}>← Back</button>
       </div>
-      <div style={{padding:'28px 24px'}}>
-        <div style={{display:'flex',flexDirection:'column',gap:16}}>
-          {milestones.map(function(m, i) {
-            var pct = Math.min(100, (m.n / 250) * 100);
-            return (
-              <div key={i} style={{
-                display:'flex',alignItems:'center',gap:16,
-                opacity:inView?1:0,transform:inView?'translateX(0)':'translateX(-30px)',
-                transition:'all .6s ease',transitionDelay:(0.1 + i * 0.1) + 's',
-              }}>
-                <div style={{width:70,textAlign:'right'}}>
-                  <div style={{fontSize:13,fontWeight:800,color:m.color}}>{m.n}</div>
-                  <div style={{fontSize:9,color:'#94a3b8',fontWeight:700}}>{m.label}</div>
-                </div>
-                <div style={{flex:1,height:28,background:'#f1f5f9',borderRadius:14,overflow:'hidden',position:'relative'}}>
-                  <div style={{
-                    height:'100%',borderRadius:14,background:'linear-gradient(90deg,' + m.color + ',' + m.color + 'aa)',
-                    width:inView?pct+'%':'0%',transition:'width 1.2s cubic-bezier(.16,1,.3,1)',transitionDelay:(0.3 + i * 0.12) + 's',
-                    display:'flex',alignItems:'center',justifyContent:'flex-end',paddingRight:10,
-                  }}>
-                    {pct > 15 && <span style={{fontSize:10,fontWeight:800,color:'#fff'}}>${m.basic.toLocaleString()}/mo</span>}
-                  </div>
-                </div>
-                <div style={{width:80,textAlign:'right'}}>
-                  <div style={{fontSize:12,fontWeight:800,color:'#16a34a'}}>${m.basic.toLocaleString()}</div>
-                  <div style={{fontSize:10,color:'#8b5cf6',fontWeight:700}}>${m.pro.toLocaleString()}</div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-        <div style={{display:'flex',gap:16,justifyContent:'center',marginTop:20,fontSize:11,color:'#94a3b8',fontWeight:600}}>
-          <span><span style={{display:'inline-block',width:8,height:8,borderRadius:4,background:'#16a34a',marginRight:4,verticalAlign:'middle'}}/>Basic /mo</span>
-          <span><span style={{display:'inline-block',width:8,height:8,borderRadius:4,background:'#8b5cf6',marginRight:4,verticalAlign:'middle'}}/>Pro /mo</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-
-// ══════════════════════════════════════════════════════════════
-// ── PROFIT GRID SECTION ──
-// ══════════════════════════════════════════════════════════════
-
-var TIERS = [
-  {n:1,name:'Starter',price:20,color:'#4ade80'},
-  {n:2,name:'Builder',price:50,color:'#38bdf8'},
-  {n:3,name:'Pro',price:100,color:'#0ea5e9'},
-  {n:4,name:'Advanced',price:200,color:'#6366f1'},
-  {n:5,name:'Elite',price:400,color:'#8b5cf6'},
-  {n:6,name:'Premium',price:600,color:'#f59e0b'},
-  {n:7,name:'Executive',price:800,color:'#f97316'},
-  {n:8,name:'Ultimate',price:1000,color:'#ec4899'},
-];
-
-function GridSection() {
-  var { t } = useTranslation();
-  var [heroRef, heroVis] = useInView(0.1);
-  var [splitRef, splitVis] = useInView(0.1);
-  var [tierRef, tierVis] = useInView(0.1);
-  var [uniRef, uniVis] = useInView(0.1);
-  var [spillRef, spillVis] = useInView(0.1);
-  var [bonusRef, bonusVis] = useInView(0.1);
-
-  var d40 = useCountUp(40, 1000, splitVis);
-  var d50 = useCountUp(50, 1000, splitVis);
-  var d5a = useCountUp(5, 800, splitVis);
-  var d5b = useCountUp(5, 800, splitVis);
-
-  return (
-    <div>
-      {/* ── Hero ── */}
-      <div ref={heroRef} style={{
-        background:'linear-gradient(135deg,#0c4a6e,#0284c7,#0ea5e9)',
-        borderRadius:16,padding:'48px 40px',marginBottom:28,position:'relative',overflow:'hidden',
-        opacity:heroVis?1:0,transform:heroVis?'translateY(0)':'translateY(30px)',
-        transition:'all .8s cubic-bezier(.16,1,.3,1)',
-      }}>
-        <div style={{position:'absolute',top:-50,right:-50,width:220,height:220,borderRadius:'50%',background:'rgba(255,255,255,.05)'}}/>
-        <div style={{position:'absolute',bottom:-40,left:-20,width:160,height:160,borderRadius:'50%',background:'rgba(255,255,255,.04)'}}/>
-        <div style={{position:'relative',zIndex:1}}>
-          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
-            <Zap size={20} color="rgba(255,255,255,.7)"/>
-            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>{t('compPlan.stream02')}</span>
+      {sections.map(function(s, i) {
+        var isOpen = open === i;
+        return <div key={i} style={{ marginBottom:8 }}>
+          <div onClick={function() { setOpen(isOpen ? null : i); }}
+            style={{ padding:'14px 18px', background:'#fff', border:'1px solid #e2e8f0', borderRadius: isOpen ? '12px 12px 0 0' : 12, cursor:'pointer', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+            <span style={{ fontSize:14, fontWeight:700, color:'#0f172a' }}>{s.title}</span>
+            <span style={{ color:'#94a3b8', transform: isOpen ? 'rotate(90deg)' : 'none', transition:'transform .2s', fontSize:14 }}>▸</span>
           </div>
-          <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:'#fff',margin:'0 0 12px',lineHeight:1.2}}>
-            8×8 Profit Engine Grid
-          </h2>
-          <p style={{fontSize:16,color:'rgba(255,255,255,.7)',maxWidth:560,lineHeight:1.7,margin:0}}>
-            Activate campaign tiers from $20 to $1,000 and earn commissions from your entire network — 8 levels deep. Every entry pays you instantly.
-          </p>
-        </div>
-      </div>
-
-      {/* ── Commission Split (40/50/5/5) ── */}
-      <div ref={splitRef} style={{
-        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
-        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
-        opacity:splitVis?1:0,transform:splitVis?'translateY(0)':'translateY(30px)',
-        transition:'all .7s cubic-bezier(.16,1,.3,1)',
-      }}>
-        <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('compPlan.commissionArchitecture')}</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>{t('compPlan.howEveryDollarIsSplit')}</div>
-        </div>
-        <div style={{padding:'28px 24px'}}>
-          {/* Animated bar */}
-          <div style={{height:40,borderRadius:10,overflow:'hidden',display:'flex',marginBottom:24}}>
-            {[
-              {pct:40,color:'#0ea5e9',label:'40% Sponsor'},
-              {pct:50,color:'#6366f1',label:'50% Uni-Level'},
-              {pct:5,color:'#f59e0b',label:'5% Platform'},
-              {pct:5,color:'#10b981',label:'5% Bonus Pool'},
-            ].map(function(s, i) {
-              return (
-                <div key={i} style={{
-                  width:splitVis?s.pct+'%':'0%',transition:'width 1s cubic-bezier(.16,1,.3,1)',transitionDelay:(0.2+i*0.15)+'s',
-                  background:s.color,display:'flex',alignItems:'center',justifyContent:'center',
-                  fontSize:s.pct>=10?11:0,fontWeight:800,color:'#fff',whiteSpace:'nowrap',overflow:'hidden',
-                }}>{s.pct >= 10 ? s.label : ''}</div>
-              );
-            })}
-          </div>
-
-          {/* 4 split cards */}
-          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14}}>
-            {[
-              {pct:d40,label:'Direct Sponsor',desc:'Paid instantly when someone you personally referred activates any tier',color:'#0ea5e9',icon:'💰'},
-              {pct:d50,label:'Uni-Level Pool',desc:'6.25% × 8 levels in the entrant\'s upline chain. Equal pay per level',color:'#6366f1',icon:'🌐'},
-              {pct:d5a,label:'Platform Fee',desc:'SuperAdPro operational costs, development, and support',color:'#f59e0b',icon:'🏢'},
-              {pct:d5b,label:'Bonus Pool',desc:'Accrues per seat fill. Paid to grid owner on grid completion (64 seats)',color:'#10b981',icon:'🎁'},
-            ].map(function(s, i) {
-              return (
-                <div key={i} style={{
-                  textAlign:'center',padding:20,borderRadius:12,border:'1px solid #e8ecf2',background:'#f8f9fb',
-                  opacity:splitVis?1:0,transform:splitVis?'translateY(0)':'translateY(20px)',
-                  transition:'all .6s ease',transitionDelay:(0.4+i*0.1)+'s',
-                }}>
-                  <div style={{fontSize:24,marginBottom:8}}>{s.icon}</div>
-                  <div style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:800,color:s.color,lineHeight:1}}>{s.pct}%</div>
-                  <div style={{fontSize:12,fontWeight:800,color:'#0f172a',marginTop:6,marginBottom:4}}>{s.label}</div>
-                  <div style={{fontSize:11,color:'#94a3b8',lineHeight:1.5}}>{s.desc}</div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* ── 8 Tier Cards ── */}
-      <div ref={tierRef} style={{
-        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
-        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
-        opacity:tierVis?1:0,transform:tierVis?'translateY(0)':'translateY(30px)',
-        transition:'all .7s cubic-bezier(.16,1,.3,1)',
-      }}>
-        <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('compPlan.campaignTiers')}</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>8 Tiers — Full Grid Earnings Breakdown</div>
-        </div>
-        <div style={{padding:'24px'}}>
-          <p style={{fontSize:13,color:'#64748b',lineHeight:1.7,marginBottom:20,maxWidth:650}}>
-            Each tier has its own 8×8 grid (64 seats). As members join and fill seats, you accumulate uni-level commissions on every entry. When all 64 seats are filled, the grid completes and you receive the bonus pool. The grid then advances to the next round. Future earnings depend entirely on continued network activity — new members must join and activate the same tier for commissions to be generated.
-          </p>
-          <GridSimulator visible={tierVis}/>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginTop:28}}>
-            {TIERS.map(function(t, i) {
-              var directPer = (t.price * 0.40);
-              var uniTotal = (t.price * 0.0625 * 64);
-              var bonusPool = (t.price * 0.05 * 64);
-              var gridTotal = uniTotal + bonusPool;
-              return (
-                <div key={i} style={{
-                  borderRadius:12,border:'1px solid #e8ecf2',overflow:'hidden',display:'flex',flexDirection:'column',
-                  opacity:tierVis?1:0,transform:tierVis?'scale(1)':'scale(.9)',
-                  transition:'all .5s ease',transitionDelay:(0.1+i*0.06)+'s',
-                }}>
-                  <div style={{background:t.color,padding:'14px 16px',textAlign:'center'}}>
-                    <div style={{fontSize:10,fontWeight:800,color:'rgba(255,255,255,.7)',letterSpacing:1,textTransform:'uppercase'}}>Campaign {t.n}</div>
-                    <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'#fff'}}>${t.price}</div>
-                    <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.8)'}}>{t.name}</div>
-                  </div>
-                  <div style={{padding:'12px 14px',flex:1,display:'flex',flexDirection:'column'}}>
-                    {/* Direct per referral */}
-                    <div style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
-                      <span style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>DIRECT 40%</span>
-                      <span style={{fontSize:12,fontWeight:800,color:'#0ea5e9'}}>${directPer.toFixed(0)} <span style={{fontSize:9,fontWeight:600,color:'#94a3b8'}}>per ref</span></span>
-                    </div>
-                    {/* Uni-level full grid */}
-                    <div style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
-                      <span style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>UNI-LEVEL ×64</span>
-                      <span style={{fontSize:12,fontWeight:800,color:'#6366f1'}}>${uniTotal.toLocaleString()}</span>
-                    </div>
-                    {/* Bonus pool */}
-                    <div style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
-                      <span style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>BONUS POOL</span>
-                      <span style={{fontSize:12,fontWeight:800,color:'#10b981'}}>${bonusPool.toLocaleString()}</span>
-                    </div>
-                    {/* Total per grid */}
-                    <div style={{marginTop:'auto',paddingTop:10}}>
-                      <div style={{textAlign:'center',padding:'10px 8px',background:'linear-gradient(135deg,'+t.color+'10,'+t.color+'20)',borderRadius:8}}>
-                        <div style={{fontSize:9,fontWeight:800,color:t.color,letterSpacing:1,textTransform:'uppercase',marginBottom:2}}>Per Grid Completion</div>
-                        <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:t.color}}>${gridTotal.toLocaleString()}</div>
-                      </div>
-                    </div>
-                  </div>
-                  {/* Advance note */}
-                  <div style={{padding:'8px 14px',background:'#f8f9fb',borderTop:'1px solid #e8ecf2',textAlign:'center'}}>
-                    <span style={{fontSize:9,fontWeight:700,color:'#94a3b8'}}>🔄 Repeats on every advance</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Uni-Level Payout Table ── */}
-      <div ref={uniRef} style={{
-        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
-        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
-        opacity:uniVis?1:0,transform:uniVis?'translateY(0)':'translateY(30px)',
-        transition:'all .7s cubic-bezier(.16,1,.3,1)',
-      }}>
-        <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('compPlan.uniLevelCommissions')}</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>6.25% Per Level — 8 Levels Deep</div>
-        </div>
-        <div style={{padding:'24px'}}>
-          <div style={{overflowX:'auto'}}>
-            <table style={{width:'100%',borderCollapse:'collapse',minWidth:700}}>
-              <thead>
-                <tr>
-                  <th style={thStyle}>Level</th>
-                  {TIERS.map(function(t) {
-                    return <th key={t.n} style={Object.assign({},thStyle,{color:t.color})}>${t.price}</th>;
-                  })}
-                </tr>
-              </thead>
-              <tbody>
-                {[1,2,3,4,5,6,7,8].map(function(lvl, i) {
-                  var colors = ['#0ea5e9','#6366f1','#0284c7','#4f46e5','#0369a1','#7c3aed','#1d4ed8','#2563eb'];
-                  return (
-                    <tr key={lvl} style={{
-                      opacity:uniVis?1:0,transform:uniVis?'translateX(0)':'translateX(-20px)',
-                      transition:'all .5s ease',transitionDelay:(0.1+i*0.06)+'s',
-                    }}>
-                      <td style={Object.assign({},tdStyle,{fontWeight:800,color:colors[i]})}>Level {lvl}</td>
-                      {TIERS.map(function(t) {
-                        var amt = formatMoney(t.price * 0.0625);
-                        return <td key={t.n} style={Object.assign({},tdStyle,{color:colors[i],fontWeight:700})}>${amt}</td>;
-                      })}
-                    </tr>
-                  );
-                })}
-                {/* Total row */}
-                <tr style={{background:'#f0f9ff'}}>
-                  <td style={Object.assign({},tdStyle,{fontWeight:800,color:'#0f172a'})}>Total (×8)</td>
-                  {TIERS.map(function(t) {
-                    return <td key={t.n} style={Object.assign({},tdStyle,{fontWeight:800,color:'#16a34a'})}>${formatMoney(t.price*0.50)}</td>;
-                  })}
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          <div style={{marginTop:12,fontSize:11,color:'#94a3b8',lineHeight:1.6}}>
-            Each level pays exactly 6.25% of the tier price (50% ÷ 8 levels). Commissions are paid per seat fill — no waiting for grid completion.
-          </div>
-        </div>
-      </div>
-
-      {/* ── Network Placement Model ── */}
-      <div ref={spillRef} style={{
-        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
-        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
-        opacity:spillVis?1:0,transform:spillVis?'translateY(0)':'translateY(30px)',
-        transition:'all .7s cubic-bezier(.16,1,.3,1)',
-      }}>
-        <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>How It Works</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>{t('compPlan.networkPlacementModel')}</div>
-        </div>
-        <div style={{padding:'28px 24px'}}>
-          {/* Step flow */}
-          <div style={{display:'flex',flexDirection:'column',gap:16,marginBottom:28}}>
-            {[
-              {step:'1',title:'Member Purchases a Tier',desc:'E.g. $100 Pro tier. Payment goes to the platform.',color:'#0ea5e9',icon:'💳'},
-              {step:'2',title:'40% Paid to Direct Sponsor',desc:'$40 instantly credited to the person who referred them.',color:'#16a34a',icon:'💰'},
-              {step:'3',title:'50% Split Across 8 Upline Levels',desc:'$6.25 paid to each of the 8 people above in the upline chain.',color:'#6366f1',icon:'🌐'},
-              {step:'4',title:'One Seat Filled in Every Upline Grid',desc:'The new member fills one position in each upline member\'s grid at that tier.',color:'#f59e0b',icon:'📊'},
-              {step:'5',title:'64 Unique Members to Complete',desc:'Each grid needs 64 unique members to fill all 8 levels × 8 positions.',color:'#ec4899',icon:'🎯'},
-            ].map(function(s, i) {
-              return (
-                <div key={i} style={{
-                  display:'flex',alignItems:'flex-start',gap:16,
-                  opacity:spillVis?1:0,transform:spillVis?'translateX(0)':'translateX(-30px)',
-                  transition:'all .6s ease',transitionDelay:(0.2+i*0.12)+'s',
-                }}>
-                  <div style={{width:44,height:44,borderRadius:12,background:s.color,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:20,boxShadow:'0 4px 12px '+s.color+'33'}}>
-                    {s.icon}
-                  </div>
-                  <div style={{flex:1,paddingTop:4}}>
-                    <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
-                      <span style={{fontSize:10,fontWeight:800,color:s.color,background:s.color+'15',padding:'2px 8px',borderRadius:4}}>STEP {s.step}</span>
-                      <span style={{fontSize:14,fontWeight:800,color:'#0f172a'}}>{s.title}</span>
-                    </div>
-                    <div style={{fontSize:12,color:'#64748b',lineHeight:1.6}}>{s.desc}</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Qualification rule */}
-          <div style={{padding:'16px 20px',background:'#fffbeb',borderRadius:12,border:'1px solid #fef3c7',display:'flex',alignItems:'flex-start',gap:12}}>
-            <div style={{fontSize:20,flexShrink:0}}>⚠️</div>
-            <div>
-              <div style={{fontSize:13,fontWeight:800,color:'#92400e',marginBottom:4}}>{t('compPlan.qualificationRule')}</div>
-              <div style={{fontSize:12,color:'#a16207',lineHeight:1.6}}>
-                To earn commissions at a tier, you must have an active (or in-grace) campaign at that same tier or higher. If unqualified, the commission goes to the platform. Each upline level is checked individually.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Grid Completion Bonus ── */}
-      <div ref={bonusRef} style={{
-        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
-        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
-        opacity:bonusVis?1:0,transform:bonusVis?'translateY(0)':'translateY(30px)',
-        transition:'all .7s cubic-bezier(.16,1,.3,1)',
-      }}>
-        <div style={{background:'linear-gradient(135deg,#1c223d,#0f4c3a)',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#4ade80',marginBottom:4}}>Bonus Reward</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>{t('compPlan.gridCompletionBonusPool')}</div>
-        </div>
-        <div style={{padding:'28px 24px'}}>
-          <p style={{fontSize:13,color:'#64748b',lineHeight:1.7,marginBottom:24,maxWidth:600}}>
-            5% of every tier entry accrues in a bonus pool for that grid. When all 64 positions are filled, the grid owner receives the accumulated bonus. Larger tiers = bigger bonus pools.
-          </p>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
-            {TIERS.map(function(t, i) {
-              var bonus = (t.price * 0.05 * 64);
-              return (
-                <div key={i} style={{
-                  textAlign:'center',padding:16,borderRadius:12,
-                  background:'linear-gradient(135deg,'+t.color+'08,'+t.color+'15)',
-                  border:'1px solid '+t.color+'22',
-                  opacity:bonusVis?1:0,transform:bonusVis?'scale(1)':'scale(.85)',
-                  transition:'all .5s ease',transitionDelay:(0.1+i*0.06)+'s',
-                }}>
-                  <div style={{fontSize:10,fontWeight:800,color:t.color,letterSpacing:1,textTransform:'uppercase',marginBottom:4}}>${t.price} Tier</div>
-                  <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:t.color}}>${bonus.toLocaleString()}</div>
-                  <div style={{fontSize:10,color:'#94a3b8',marginTop:2}}>on completion</div>
-                </div>
-              );
-            })}
-          </div>
-          <div style={{marginTop:20,display:'flex',gap:14}}>
-            {[
-              {icon:'🔄',title:'Per Advance',desc:'Each grid advance accrues its own pool — you can earn this bonus multiple times'},
-              {icon:'⏱️',title:'64 Seats',desc:'Grid completes when 64 unique members have each filled one seat'},
-              {icon:'💎',title:'Up to $3,200',desc:'The $1,000 Ultimate tier pays the maximum completion bonus'},
-            ].map(function(p, i) {
-              return (
-                <div key={i} style={{flex:1,padding:16,background:'#f8f9fb',borderRadius:10,border:'1px solid #e8ecf2'}}>
-                  <div style={{fontSize:20,marginBottom:6}}>{p.icon}</div>
-                  <div style={{fontSize:12,fontWeight:800,color:'#0f172a',marginBottom:4}}>{p.title}</div>
-                  <div style={{fontSize:11,color:'#64748b',lineHeight:1.5}}>{p.desc}</div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Grid Flow Simulator ──
-function GridSimulator(props) {
-  var { t } = useTranslation();
-  var [running, setRunning] = useState(false);
-  var [filled, setFilled] = useState(0);
-  var [earned, setEarned] = useState(0);
-  var [bonus, setBonus] = useState(0);
-  var [complete, setComplete] = useState(false);
-  var timerRef = useRef(null);
-  var PRICE = 100;
-  var PER_SEAT_UNI = PRICE * 0.0625;
-  var PER_SEAT_BONUS = PRICE * 0.05;
-
-  function startSim() {
-    setRunning(true); setFilled(0); setEarned(0); setBonus(0); setComplete(false);
-    var seat = 0;
-    timerRef.current = setInterval(function() {
-      seat++;
-      if (seat <= 64) {
-        setFilled(seat);
-        setEarned(function(p) { return p + PER_SEAT_UNI; });
-        setBonus(function(p) { return p + PER_SEAT_BONUS; });
-      }
-      if (seat === 64) { setComplete(true); }
-      if (seat >= 66) { clearInterval(timerRef.current); setRunning(false); }
-    }, 80);
-  }
-
-  function resetSim() {
-    if (timerRef.current) clearInterval(timerRef.current);
-    setRunning(false); setFilled(0); setEarned(0); setBonus(0); setComplete(false);
-  }
-
-  useEffect(function() { return function() { if (timerRef.current) clearInterval(timerRef.current); }; }, []);
-
-  return (
-    <div style={{display:'grid',gridTemplateColumns:'55fr 45fr',gap:0,background:'#0f172a',borderRadius:14,overflow:'hidden',marginBottom:0}}>
-
-      {/* LEFT — Explainer text */}
-      <div style={{padding:'36px 32px',display:'flex',flexDirection:'column',justifyContent:'center'}}>
-        <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:10}}>{t('compPlan.howTheGridWorks')}</div>
-        <h3 style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#fff',margin:'0 0 16px',lineHeight:1.3}}>
-          Every new member fills a seat in your grid
-        </h3>
-
-        <div style={{display:'flex',flexDirection:'column',gap:14,marginBottom:24}}>
-          {[
-            {num:'1',text:'When someone in your network activates a campaign tier, they fill one seat in your grid at that tier.',color:'#0ea5e9'},
-            {num:'2',text:'You earn 6.25% uni-level commission on every seat filled — that\'s $6.25 per seat on the $100 tier.',color:'#6366f1'},
-            {num:'3',text:'5% of each entry accrues in a bonus pool. When all 64 seats are filled, the bonus is paid to you.',color:'#10b981'},
-            {num:'4',text:'The grid then advances. New commissions require new members to join and activate the same tier.',color:'#f59e0b'},
-          ].map(function(s, i) {
-            return (
-              <div key={i} style={{display:'flex',gap:12,alignItems:'flex-start'}}>
-                <div style={{width:26,height:26,borderRadius:7,background:s.color,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:12,fontWeight:800,color:'#fff'}}>{s.num}</div>
-                <div style={{fontSize:13,color:'rgba(255,255,255,.65)',lineHeight:1.7,paddingTop:2}}>{s.text}</div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div style={{padding:'14px 16px',background:'rgba(255,255,255,.04)',borderRadius:10,border:'1px solid rgba(255,255,255,.06)'}}>
-          <div style={{fontSize:11,color:'rgba(255,255,255,.4)',lineHeight:1.6}}>
-            <strong style={{color:'rgba(255,255,255,.6)'}}>Important:</strong> Earnings shown are based on the $100 tier example. Actual income depends entirely on your network activity and is not guaranteed.
-          </div>
-        </div>
-      </div>
-
-      {/* RIGHT — Animation (constrained) */}
-      <div style={{padding:'20px 20px',background:'#0a0f1e',borderLeft:'1px solid #1e293b',display:'flex',flexDirection:'column',justifyContent:'center'}}>
-        {/* Header + controls */}
-        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
-          <div style={{fontSize:12,fontWeight:800,color:'#fff'}}>$100 Tier Grid</div>
-          <div style={{display:'flex',gap:6}}>
-            <button onClick={startSim} disabled={running}
-              style={{padding:'5px 12px',borderRadius:6,fontSize:10,fontWeight:800,border:'none',cursor:running?'default':'pointer',
-                background:running?'#334155':'#0ea5e9',color:'#fff',fontFamily:'inherit',opacity:running?0.5:1,transition:'all .2s'}}>
-              {filled===0?'▶ Start':running?'Running...':'▶ Replay'}
-            </button>
-            {filled>0&&!running&&<button onClick={resetSim} style={{padding:'5px 8px',borderRadius:6,fontSize:10,fontWeight:700,border:'1px solid #334155',cursor:'pointer',background:'transparent',color:'#64748b',fontFamily:'inherit'}}>Reset</button>}
-          </div>
-        </div>
-
-        {/* 8×8 grid — balanced size */}
-        <div style={{maxWidth:300,margin:'0 auto 12px',width:'100%'}}>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(8,1fr)',gap:3}}>
-            {Array.from({length:64}).map(function(_, i) {
-              var isFilled = i < filled;
-              var isLatest = i === filled - 1 && running;
-              return (
-                <div key={i} style={{
-                  aspectRatio:'1',borderRadius:4,
-                  background:isFilled?(isLatest?'#22d3ee':'#0ea5e9'):'#1e293b',
-                  border:'1px solid '+(isFilled?'#0ea5e999':'#293548'),
-                  transition:'all .12s ease',
-                  transform:isLatest?'scale(1.15)':'scale(1)',
-                  boxShadow:isLatest?'0 0 10px rgba(14,165,233,.5)':'none',
-                }}/>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Compact inline stats */}
-        <div style={{display:'flex',gap:6,marginBottom:10}}>
-          <div style={{flex:1,textAlign:'center',padding:'6px 4px',background:'#1e293b',borderRadius:6}}>
-            <div style={{fontSize:8,fontWeight:700,color:'#475569'}}>SEATS</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'#fff'}}>{filled}<span style={{fontSize:9,color:'#475569'}}>/64</span></div>
-          </div>
-          <div style={{flex:1,textAlign:'center',padding:'6px 4px',background:'#1e293b',borderRadius:6}}>
-            <div style={{fontSize:8,fontWeight:700,color:'#475569'}}>UNI-LEVEL</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'#6366f1'}}>${earned.toFixed(0)}</div>
-          </div>
-          <div style={{flex:1,textAlign:'center',padding:'6px 4px',background:'#1e293b',borderRadius:6}}>
-            <div style={{fontSize:8,fontWeight:700,color:'#475569'}}>BONUS</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'#10b981'}}>${bonus.toFixed(0)}</div>
-          </div>
-          <div style={{flex:1,textAlign:'center',padding:'6px 4px',background:'#1e293b',borderRadius:6}}>
-            <div style={{fontSize:8,fontWeight:700,color:'#475569'}}>STATUS</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:10,fontWeight:800,color:complete?'#4ade80':filled===0?'#475569':'#f59e0b',marginTop:2}}>
-              {complete?'COMPLETE':filled===0?'READY':'FILLING...'}
-            </div>
-          </div>
-        </div>
-
-        {/* Completion summary — compact */}
-        {complete && (
-          <div style={{
-            textAlign:'center',padding:'10px',
-            background:'linear-gradient(135deg,rgba(74,222,128,.08),rgba(14,165,233,.08))',
-            borderRadius:8,border:'1px solid rgba(74,222,128,.15)',
-            animation:'fadeSlideUp .5s ease',
-          }}>
-            <div style={{fontSize:12,fontWeight:800,color:'#4ade80',marginBottom:6}}>🎉 Grid Complete</div>
-            <div style={{display:'flex',justifyContent:'center',gap:14}}>
-              <div>
-                <div style={{fontSize:8,fontWeight:700,color:'#64748b'}}>UNI-LEVEL</div>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'#6366f1'}}>$400</div>
-              </div>
-              <div>
-                <div style={{fontSize:8,fontWeight:700,color:'#64748b'}}>BONUS</div>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'#10b981'}}>$320</div>
-              </div>
-              <div>
-                <div style={{fontSize:8,fontWeight:700,color:'#64748b'}}>TOTAL</div>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'#4ade80'}}>$720</div>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      <style>{'\
-        @keyframes fadeSlideUp {\
-          from { opacity:0; transform:translateY(10px); }\
-          to { opacity:1; transform:translateY(0); }\
-        }\
-      '}</style>
-    </div>
-  );
-}
-
-// ══════════════════════════════════════════════════════════════
-// ── COURSES & SUPERMARKET SECTION ──
-// ══════════════════════════════════════════════════════════════
-
-function CoursesSection() {
-  var { t } = useTranslation();
-  var [heroRef, heroVis] = useInView(0.1);
-  var [passRef, passVis] = useInView(0.1);
-  var [flowRef, flowVis] = useInView(0.1);
-  var [createRef, createVis] = useInView(0.1);
-  var [marketRef, marketVis] = useInView(0.1);
-  var [splitRef, splitVis] = useInView(0.1);
-  var [compareRef, compareVis] = useInView(0.1);
-
-  var c50 = useCountUp(50, 1000, splitVis);
-  var c25a = useCountUp(25, 1000, splitVis);
-  var c25b = useCountUp(25, 1000, splitVis);
-
-  return (
-    <div>
-      {/* ── Hero ── */}
-      <div ref={heroRef} style={{
-        background:'linear-gradient(135deg,#4c1d95,#7c3aed,#a78bfa)',
-        borderRadius:16,padding:'48px 40px',marginBottom:28,position:'relative',overflow:'hidden',
-        opacity:heroVis?1:0,transform:heroVis?'translateY(0)':'translateY(30px)',
-        transition:'all .8s cubic-bezier(.16,1,.3,1)',
-      }}>
-        <div style={{position:'absolute',top:-50,right:-50,width:220,height:220,borderRadius:'50%',background:'rgba(255,255,255,.05)'}}/>
-        <div style={{position:'absolute',bottom:-40,left:-20,width:160,height:160,borderRadius:'50%',background:'rgba(255,255,255,.04)'}}/>
-        <div style={{position:'relative',zIndex:1}}>
-          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
-            <GraduationCap size={20} color="rgba(255,255,255,.7)"/>
-            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>{t('compPlan.stream03')}</span>
-          </div>
-          <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:'#fff',margin:'0 0 12px',lineHeight:1.2}}>
-            Courses & SuperMarket
-          </h2>
-          <p style={{fontSize:16,color:'rgba(255,255,255,.7)',maxWidth:560,lineHeight:1.7,margin:0}}>
-            Two powerful ways to earn — sell courses with 100% commissions through the pass-up system, or list digital products on SuperMarket and let the entire network promote them for you.
-          </p>
-        </div>
-      </div>
-
-      {/* ══ PART 1: COURSE PASS-UP SYSTEM ══ */}
-
-      {/* ── Pass-Up Explainer ── */}
-      <div ref={passRef} style={{
-        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
-        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
-        opacity:passVis?1:0,transform:passVis?'translateY(0)':'translateY(30px)',
-        transition:'all .7s cubic-bezier(.16,1,.3,1)',
-      }}>
-        <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>{t('compPlan.courseCommissions')}</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>{t('compPlan.theHundredPercentPassUpSystem')}</div>
-        </div>
-        <div style={{padding:'28px 24px'}}>
-          <div style={{display:'grid',gridTemplateColumns:'55fr 45fr',gap:0,background:'#0f172a',borderRadius:14,overflow:'hidden',marginBottom:24}}>
-            {/* Left — explanation */}
-            <div style={{padding:'28px 24px',display:'flex',flexDirection:'column',justifyContent:'center'}}>
-              <h3 style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#fff',margin:'0 0 14px',lineHeight:1.3}}>
-                Keep 100% of your sales — pass odd sales to your sponsor
-              </h3>
-              <div style={{display:'flex',flexDirection:'column',gap:12}}>
-                {[
-                  {text:'When you sell a course, you earn 100% of the sale price. No platform deduction on kept sales.',color:'#8b5cf6'},
-                  {text:'You keep your 1st, 3rd, 5th sale (odd numbers). Sales 2, 4, 6, 8... (even numbers) pass up to your direct sponsor.',color:'#f59e0b'},
-                  {text:'When your sponsor receives a pass-up, it counts toward their own pattern — triggering their next pass-up upward.',color:'#10b981'},
-                  {text:'This creates an infinite cascading chain. There is no level cap on pass-ups.',color:'#ec4899'},
-                ].map(function(s, i) {
-                  return (
-                    <div key={i} style={{display:'flex',gap:10,alignItems:'flex-start'}}>
-                      <div style={{width:6,height:6,borderRadius:3,background:s.color,flexShrink:0,marginTop:7}}/>
-                      <div style={{fontSize:12,color:'rgba(255,255,255,.6)',lineHeight:1.7}}>{s.text}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            {/* Right — animated pass-up visual */}
-            <div style={{padding:'24px 20px',background:'#0a0f1e',borderLeft:'1px solid #1e293b',display:'flex',alignItems:'center',justifyContent:'center'}}>
-              <PassUpAnimator visible={passVis}/>
-            </div>
-          </div>
-
-          {/* Key rules */}
-          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14}}>
-            {[
-              {icon:'💯',title:'100% Commission',desc:'Full course price on every kept sale — zero platform fees'},
-              {icon:'♾️',title:'Infinite Pass-Up',desc:'No cap on how far up the chain pass-ups can travel'},
-              {icon:'🔄',title:'Cascading Pattern',desc:'Received pass-ups count in the recipient\'s own pattern'},
-              {icon:'🔑',title:'Active Sub Required',desc:'Must have active $20/mo membership to earn course commissions'},
-            ].map(function(p, i) {
-              return (
-                <div key={i} style={{
-                  padding:16,background:'#f8f9fb',borderRadius:12,border:'1px solid #e8ecf2',
-                  opacity:passVis?1:0,transform:passVis?'scale(.95)':'scale(.95)',
-                  transition:'all .5s ease',transitionDelay:(0.3+i*0.08)+'s',
-                  ...(passVis?{opacity:1,transform:'scale(1)'}:{}),
-                }}>
-                  <div style={{fontSize:20,marginBottom:6}}>{p.icon}</div>
-                  <div style={{fontSize:12,fontWeight:800,color:'#0f172a',marginBottom:4}}>{p.title}</div>
-                  <div style={{fontSize:11,color:'#64748b',lineHeight:1.5}}>{p.desc}</div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* ── Create & Sell Your Own Courses ── */}
-      <div ref={createRef} style={{
-        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
-        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
-        opacity:createVis?1:0,transform:createVis?'translateY(0)':'translateY(30px)',
-        transition:'all .7s cubic-bezier(.16,1,.3,1)',
-      }}>
-        <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#a78bfa',marginBottom:4}}>{t('compPlan.proFeature')}</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>Create & Sell Your Own Courses</div>
-        </div>
-        <div style={{padding:'28px 24px'}}>
-          <p style={{fontSize:13,color:'#64748b',lineHeight:1.7,marginBottom:20,maxWidth:600}}>
-            Pro members ($35/mo) can create their own courses and list them on the SuperAdPro marketplace. Other members promote your course through their affiliate links, and you earn on every sale.
-          </p>
-          <div style={{display:'flex',alignItems:'center',justifyContent:'center',gap:12,flexWrap:'wrap'}}>
-            {[
-              {label:'Create your course',icon:'📝',color:'#8b5cf6'},
-              {label:'List on marketplace',icon:'🏪',color:'#0ea5e9'},
-              {label:'Members promote it',icon:'📣',color:'#f59e0b'},
-              {label:'You earn on every sale',icon:'💰',color:'#16a34a'},
-            ].map(function(s, i) {
-              return (
-                <div key={i} style={{display:'flex',alignItems:'center',gap:12}}>
-                  <div style={{
-                    textAlign:'center',padding:'14px 16px',background:'#f8f9fb',borderRadius:12,border:'1px solid #e8ecf2',minWidth:130,
-                    opacity:createVis?1:0,transform:createVis?'translateY(0)':'translateY(15px)',
-                    transition:'all .6s ease',transitionDelay:(0.15+i*0.12)+'s',
-                  }}>
-                    <div style={{fontSize:22,marginBottom:4}}>{s.icon}</div>
-                    <div style={{fontSize:11,fontWeight:700,color:'#475569',lineHeight:1.3}}>{s.label}</div>
-                  </div>
-                  {i < 3 && <ArrowRight size={16} color="#cbd5e1"/>}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* ══ PART 2: SUPERMARKET ══ */}
-
-      {/* ── SuperMarket Hero ── */}
-      <div ref={marketRef} style={{
-        background:'linear-gradient(135deg,#0f172a,#1e293b)',
-        borderRadius:16,padding:'40px',marginBottom:28,position:'relative',overflow:'hidden',
-        border:'1px solid #334155',
-        opacity:marketVis?1:0,transform:marketVis?'translateY(0)':'translateY(30px)',
-        transition:'all .8s cubic-bezier(.16,1,.3,1)',
-      }}>
-        <div style={{position:'absolute',top:-30,right:-30,width:180,height:180,borderRadius:'50%',background:'rgba(14,165,233,.05)'}}/>
-        <div style={{position:'relative',zIndex:1}}>
-          <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
-            <div style={{padding:'6px 12px',background:'linear-gradient(135deg,#0ea5e9,#6366f1)',borderRadius:8,fontSize:11,fontWeight:800,color:'#fff',letterSpacing:1}}>NEW</div>
-            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.4)'}}>{t('compPlan.digitalProductMarketplace')}</span>
-          </div>
-          <h2 style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'#fff',margin:'0 0 12px',lineHeight:1.2}}>
-            Super<span style={{color:'#0ea5e9'}}>Market</span>
-          </h2>
-          <p style={{fontSize:15,color:'rgba(255,255,255,.5)',maxWidth:520,lineHeight:1.7,margin:'0 0 20px'}}>
-            A JVZoo-style digital product marketplace built right into SuperAdPro. Members create digital products, list them on SuperMarket, and the entire network promotes them for commissions.
-          </p>
-          <div style={{display:'flex',gap:8}}>
-            <span style={{fontSize:11,fontWeight:700,padding:'6px 14px',borderRadius:20,background:'rgba(14,165,233,.1)',color:'#38bdf8',border:'1px solid rgba(14,165,233,.2)'}}>eBooks</span>
-            <span style={{fontSize:11,fontWeight:700,padding:'6px 14px',borderRadius:20,background:'rgba(139,92,246,.1)',color:'#a78bfa',border:'1px solid rgba(139,92,246,.2)'}}>Software</span>
-            <span style={{fontSize:11,fontWeight:700,padding:'6px 14px',borderRadius:20,background:'rgba(245,158,11,.1)',color:'#fbbf24',border:'1px solid rgba(245,158,11,.2)'}}>Templates</span>
-            <span style={{fontSize:11,fontWeight:700,padding:'6px 14px',borderRadius:20,background:'rgba(16,185,129,.1)',color:'#34d399',border:'1px solid rgba(16,185,129,.2)'}}>Courses</span>
-            <span style={{fontSize:11,fontWeight:700,padding:'6px 14px',borderRadius:20,background:'rgba(236,72,153,.1)',color:'#f472b6',border:'1px solid rgba(236,72,153,.2)'}}>Tools</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── 50/25/25 Split ── */}
-      <div ref={splitRef} style={{
-        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
-        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
-        opacity:splitVis?1:0,transform:splitVis?'translateY(0)':'translateY(30px)',
-        transition:'all .7s cubic-bezier(.16,1,.3,1)',
-      }}>
-        <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>SuperMarket Commission Split</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>50 / 25 / 25 — Three-Way Split</div>
-        </div>
-        <div style={{padding:'28px 24px'}}>
-          {/* Animated bar */}
-          <div style={{height:44,borderRadius:12,overflow:'hidden',display:'flex',marginBottom:28}}>
-            {[
-              {pct:50,color:'#8b5cf6',label:'50% Product Owner'},
-              {pct:25,color:'#0ea5e9',label:'25% Sponsor'},
-              {pct:25,color:'#16a34a',label:'25% Platform'},
-            ].map(function(s, i) {
-              return (
-                <div key={i} style={{
-                  width:splitVis?s.pct+'%':'0%',transition:'width 1s cubic-bezier(.16,1,.3,1)',transitionDelay:(0.2+i*0.15)+'s',
-                  background:s.color,display:'flex',alignItems:'center',justifyContent:'center',
-                  fontSize:12,fontWeight:800,color:'#fff',whiteSpace:'nowrap',overflow:'hidden',
-                }}>{s.label}</div>
-              );
-            })}
-          </div>
-
-          {/* 3 split cards */}
-          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:16}}>
-            {[
-              {pct:c50,label:'Product Owner',desc:'The member who created the digital product earns 50% of every sale. Create once, earn on every purchase.',color:'#8b5cf6',icon:'🏗️'},
-              {pct:c25a,label:'Affiliate Sponsor',desc:'The member who referred the buyer earns 25%. Promote other people\'s products and earn commissions.',color:'#0ea5e9',icon:'🤝'},
-              {pct:c25b,label:'SuperAdPro',desc:'25% goes to the platform for hosting, payment processing, support, and continued development.',color:'#16a34a',icon:'🏢'},
-            ].map(function(s, i) {
-              return (
-                <div key={i} style={{
-                  textAlign:'center',padding:24,borderRadius:14,border:'1px solid #e8ecf2',background:'#f8f9fb',
-                  opacity:splitVis?1:0,transform:splitVis?'translateY(0)':'translateY(20px)',
-                  transition:'all .6s ease',transitionDelay:(0.5+i*0.12)+'s',
-                }}>
-                  <div style={{fontSize:28,marginBottom:10}}>{s.icon}</div>
-                  <div style={{fontFamily:'Sora,sans-serif',fontSize:42,fontWeight:800,color:s.color,lineHeight:1}}>{s.pct}%</div>
-                  <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginTop:8,marginBottom:6}}>{s.label}</div>
-                  <div style={{fontSize:12,color:'#64748b',lineHeight:1.6}}>{s.desc}</div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* ── How SuperMarket Works ── */}
-      <div style={{
-        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
-        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
-      }}>
-        <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('compPlan.theFlywheel')}</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>Everyone Benefits from Every Sale</div>
-        </div>
-        <div style={{padding:'28px 24px'}}>
-          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20}}>
-            {/* For Creators */}
-            <div style={{padding:24,background:'linear-gradient(135deg,rgba(139,92,246,.03),rgba(139,92,246,.08))',borderRadius:14,border:'1px solid rgba(139,92,246,.12)'}}>
-              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:10}}>For Product Creators</div>
-              <h4 style={{fontSize:16,fontWeight:800,color:'#0f172a',margin:'0 0 14px'}}>Create Once, Earn Forever</h4>
-              <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                {[
-                  'Upload any digital product — eBooks, templates, software, tools',
-                  'Set your own price point',
-                  'Earn 50% on every single sale',
-                  'The entire SuperAdPro network becomes your sales force',
-                  'No marketing costs — affiliates promote for you',
-                ].map(function(t, i) {
-                  return (
-                    <div key={i} style={{display:'flex',gap:8,alignItems:'flex-start'}}>
-                      <Check size={14} color="#8b5cf6" style={{marginTop:2,flexShrink:0}}/>
-                      <div style={{fontSize:12,color:'#475569',lineHeight:1.5}}>{t}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-            {/* For Affiliates */}
-            <div style={{padding:24,background:'linear-gradient(135deg,rgba(14,165,233,.03),rgba(14,165,233,.08))',borderRadius:14,border:'1px solid rgba(14,165,233,.12)'}}>
-              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#0ea5e9',marginBottom:10}}>For Affiliates</div>
-              <h4 style={{fontSize:16,fontWeight:800,color:'#0f172a',margin:'0 0 14px'}}>Promote & Earn 25%</h4>
-              <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                {[
-                  'Browse hundreds of digital products on the marketplace',
-                  'Share your unique affiliate link for any product',
-                  'Earn 25% commission on every sale you generate',
-                  'No need to create anything yourself',
-                  'Stack with your membership and grid income',
-                ].map(function(t, i) {
-                  return (
-                    <div key={i} style={{display:'flex',gap:8,alignItems:'flex-start'}}>
-                      <Check size={14} color="#0ea5e9" style={{marginTop:2,flexShrink:0}}/>
-                      <div style={{fontSize:12,color:'#475569',lineHeight:1.5}}>{t}</div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-
-          {/* Flywheel note */}
-          <div style={{marginTop:20,padding:'16px 20px',background:'#f8f9fb',borderRadius:12,border:'1px solid #e8ecf2',textAlign:'center'}}>
-            <div style={{fontSize:13,fontWeight:800,color:'#0f172a',marginBottom:4}}>The Self-Sustaining Flywheel</div>
-            <div style={{fontSize:12,color:'#64748b',lineHeight:1.6,maxWidth:500,margin:'0 auto'}}>
-              More products attract more affiliates. More affiliates drive more sales. More sales attract more creators. Every participant benefits from every sale — creator, affiliate, and platform.
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Comparison: Courses vs SuperMarket ── */}
-      <div ref={compareRef} style={{
-        background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,
-        boxShadow:'0 4px 20px rgba(0,0,0,.06)',
-        opacity:compareVis?1:0,transform:compareVis?'translateY(0)':'translateY(30px)',
-        transition:'all .7s cubic-bezier(.16,1,.3,1)',
-      }}>
-        <div style={{background:'#1c223d',padding:'20px 24px'}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>At a Glance</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#fff'}}>Course Pass-Up vs SuperMarket</div>
-        </div>
-        <div style={{padding:'24px'}}>
-          <table style={{width:'100%',borderCollapse:'collapse'}}>
-            <thead>
-              <tr>
-                <th style={{fontSize:10,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,padding:'12px 16px',borderBottom:'2px solid #e8ecf2',textAlign:'left',background:'#f8f9fb'}}></th>
-                <th style={{fontSize:10,fontWeight:800,color:'#8b5cf6',textTransform:'uppercase',letterSpacing:1,padding:'12px 16px',borderBottom:'2px solid #e8ecf2',textAlign:'center',background:'#f8f9fb'}}>Course Pass-Up</th>
-                <th style={{fontSize:10,fontWeight:800,color:'#0ea5e9',textTransform:'uppercase',letterSpacing:1,padding:'12px 16px',borderBottom:'2px solid #e8ecf2',textAlign:'center',background:'#f8f9fb'}}>{t('compPlan.superMarket')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                {label:'Commission Model',course:'100% kept / odd sales pass up',market:'50% creator / 25% sponsor / 25% platform'},
-                {label:'Product Type',course:'Courses only',market:'Any digital product'},
-                {label:'Who Can Create',course:'Pro members ($35/mo)',market:'All members'},
-                {label:'Who Earns',course:'Seller + sponsor chain (pass-up)',market:'Creator + referring affiliate + platform'},
-                {label:'Network Effect',course:'Infinite cascading pass-ups',market:'Entire network promotes all products'},
-                {label:'Best For',course:'High-ticket course creators',market:'Digital product sellers & affiliate promoters'},
-              ].map(function(r, i) {
-                return (
-                  <tr key={i} style={{
-                    opacity:compareVis?1:0,transform:compareVis?'translateX(0)':'translateX(-15px)',
-                    transition:'all .5s ease',transitionDelay:(0.1+i*0.06)+'s',
-                  }}>
-                    <td style={{padding:'12px 16px',borderBottom:'1px solid #f5f6f8',fontSize:12,fontWeight:800,color:'#0f172a'}}>{r.label}</td>
-                    <td style={{padding:'12px 16px',borderBottom:'1px solid #f5f6f8',fontSize:12,color:'#64748b',textAlign:'center'}}>{r.course}</td>
-                    <td style={{padding:'12px 16px',borderBottom:'1px solid #f5f6f8',fontSize:12,color:'#64748b',textAlign:'center'}}>{r.market}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-          <div style={{marginTop:16,padding:'12px 16px',background:'#fffbeb',borderRadius:10,border:'1px solid #fef3c7',fontSize:11,color:'#92400e',lineHeight:1.6}}>
-            <strong>Note:</strong> SuperMarket is coming soon. Course commissions are active now. Both systems can be used simultaneously — they are independent income streams.
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ── Pass-Up Animator ──
-function PassUpAnimator(props) {
-  var { t } = useTranslation();
-  var [step, setStep] = useState(0);
-  var [running, setRunning] = useState(false);
-  var timerRef = useRef(null);
-
-  var sales = [
-    {n:1,action:'YOU KEEP',to:'You',color:'#8b5cf6',kept:true},
-    {n:2,action:'PASS UP',to:'Sponsor',color:'#f59e0b',kept:false},
-    {n:3,action:'YOU KEEP',to:'You',color:'#8b5cf6',kept:true},
-    {n:4,action:'PASS UP',to:'Sponsor',color:'#f59e0b',kept:false},
-    {n:5,action:'YOU KEEP',to:'You',color:'#8b5cf6',kept:true},
-    {n:6,action:'PASS UP',to:'Sponsor',color:'#f59e0b',kept:false},
-    {n:7,action:'YOU KEEP',to:'You',color:'#8b5cf6',kept:true},
-    {n:8,action:'PASS UP',to:'Sponsor',color:'#f59e0b',kept:false},
-  ];
-
-  function startAnim() {
-    setRunning(true); setStep(0);
-    var s = 0;
-    timerRef.current = setInterval(function() {
-      s++;
-      if (s <= 8) { setStep(s); }
-      if (s >= 10) { clearInterval(timerRef.current); setRunning(false); }
-    }, 600);
-  }
-
-  useEffect(function() { return function() { if (timerRef.current) clearInterval(timerRef.current); }; }, []);
-
-  var kept = sales.filter(function(s) { return s.kept && s.n <= step; }).length;
-  var passed = sales.filter(function(s) { return !s.kept && s.n <= step; }).length;
-
-  return (
-    <div style={{width:'100%',maxWidth:260}}>
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
-        <div style={{fontSize:11,fontWeight:800,color:'#fff'}}>Pass-Up Pattern</div>
-        <button onClick={startAnim} disabled={running}
-          style={{padding:'4px 12px',borderRadius:6,fontSize:10,fontWeight:800,border:'none',cursor:running?'default':'pointer',
-            background:running?'#334155':'#8b5cf6',color:'#fff',fontFamily:'inherit',opacity:running?0.5:1}}>
-          {step===0?'▶ Play':running?'...':'▶ Replay'}
-        </button>
-      </div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:4,marginBottom:12}}>
-        {sales.map(function(s, i) {
-          var active = s.n <= step;
-          var isLatest = s.n === step && running;
-          return (
-            <div key={i} style={{
-              textAlign:'center',padding:'8px 4px',borderRadius:6,
-              background:active?s.color+'20':'#1e293b',
-              border:'1px solid '+(active?s.color+'44':'#293548'),
-              transition:'all .2s ease',
-              transform:isLatest?'scale(1.08)':'scale(1)',
-            }}>
-              <div style={{fontSize:9,fontWeight:800,color:active?s.color:'#475569'}}>Sale {s.n}</div>
-              <div style={{fontSize:8,fontWeight:700,color:active?(s.kept?'#a78bfa':'#fbbf24'):'#334155',marginTop:2}}>
-                {active?s.action:'—'}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-      <div style={{display:'flex',gap:8}}>
-        <div style={{flex:1,textAlign:'center',padding:'6px',background:'#1e293b',borderRadius:6}}>
-          <div style={{fontSize:8,fontWeight:700,color:'#475569'}}>KEPT</div>
-          <div style={{fontSize:16,fontWeight:800,color:'#8b5cf6'}}>{kept}</div>
-        </div>
-        <div style={{flex:1,textAlign:'center',padding:'6px',background:'#1e293b',borderRadius:6}}>
-          <div style={{fontSize:8,fontWeight:700,color:'#475569'}}>PASSED UP</div>
-          <div style={{fontSize:16,fontWeight:800,color:'#f59e0b'}}>{passed}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ══════════════════════════════════════════════════════════════
-// ── CALCULATOR SECTION ──
-// ══════════════════════════════════════════════════════════════
-
-var CALC_TIERS = [
-  {n:1,name:'Starter',price:20,color:'#4ade80'},
-  {n:2,name:'Builder',price:50,color:'#38bdf8'},
-  {n:3,name:'Pro',price:100,color:'#0ea5e9'},
-  {n:4,name:'Advanced',price:200,color:'#6366f1'},
-  {n:5,name:'Elite',price:400,color:'#8b5cf6'},
-  {n:6,name:'Premium',price:600,color:'#f59e0b'},
-  {n:7,name:'Executive',price:800,color:'#f97316'},
-  {n:8,name:'Ultimate',price:1000,color:'#ec4899'},
-];
-
-function CalculatorSection() {
-  var { t } = useTranslation();
-  var [heroRef, heroVis] = useInView(0.1);
-  var [activeTiers, setActiveTiers] = useState([1]); // Starter on by default
-  var [directRefs, setDirectRefs] = useState(5);
-  var [gridAdvances, setGridAdvances] = useState(1);
-
-  function toggleTier(n) {
-    setActiveTiers(function(prev) {
-      if (prev.indexOf(n) >= 0) return prev.filter(function(t) { return t !== n; });
-      return prev.concat([n]);
-    });
-  }
-
-  // ── Calculate grid commissions only ──
-  var totalDirect = 0;
-  var totalUniLevel = 0;
-  var totalBonus = 0;
-  activeTiers.forEach(function(n) {
-    var tier = CALC_TIERS.find(function(t) { return t.n === n; });
-    if (!tier) return;
-    var p = tier.price;
-    totalDirect += directRefs * (p * 0.40) * gridAdvances;
-    totalUniLevel += (p * 0.0625) * 64 * gridAdvances;
-    totalBonus += (p * 0.05) * 64 * gridAdvances;
-  });
-  var grandTotal = totalDirect + totalUniLevel + totalBonus;
-
-  function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
-
-  return (
-    <div>
-      {/* ── Hero ── */}
-      <div ref={heroRef} style={{
-        background:'linear-gradient(135deg,#78350f,#d97706,#f59e0b)',
-        borderRadius:16,padding:'48px 40px',marginBottom:28,position:'relative',overflow:'hidden',
-        opacity:heroVis?1:0,transform:heroVis?'translateY(0)':'translateY(30px)',
-        transition:'all .8s cubic-bezier(.16,1,.3,1)',
-      }}>
-        <div style={{position:'absolute',top:-50,right:-50,width:220,height:220,borderRadius:'50%',background:'rgba(255,255,255,.05)'}}/>
-        <div style={{position:'relative',zIndex:1}}>
-          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
-            <Target size={20} color="rgba(255,255,255,.7)"/>
-            <span style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.6)'}}>Campaign Tier Calculator</span>
-          </div>
-          <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:'#fff',margin:'0 0 12px',lineHeight:1.2}}>
-            Grid Commission Calculator
-          </h2>
-          <p style={{fontSize:16,color:'rgba(255,255,255,.7)',maxWidth:560,lineHeight:1.7,margin:0}}>
-            Select campaign tiers, set your referral numbers, and see the commission breakdown. All amounts are based on the actual commission split: 40% direct, 50% uni-level, 5% bonus pool.
-          </p>
-        </div>
-      </div>
-
-      {/* ── Controls + Results ── */}
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,marginBottom:28}}>
-
-        {/* LEFT — Controls */}
-        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
-          <div style={{background:'#1c223d',padding:'16px 24px'}}>
-            <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>Your Settings</div>
-          </div>
-          <div style={{padding:'24px'}}>
-
-            {/* Tier selector */}
-            <div style={{marginBottom:24}}>
-              <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:10}}>Select Campaign Tiers</div>
-              <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6}}>
-                {CALC_TIERS.map(function(t) {
-                  var on = activeTiers.indexOf(t.n) >= 0;
-                  return (
-                    <button key={t.n} onClick={function() { toggleTier(t.n); }}
-                      style={{padding:'10px 6px',borderRadius:8,border:on?'2px solid '+t.color:'2px solid #e8ecf2',
-                        background:on?t.color+'15':'#f8f9fb',cursor:'pointer',fontFamily:'inherit',transition:'all .15s'}}>
-                      <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:on?t.color:'#94a3b8'}}>${t.price}</div>
-                      <div style={{fontSize:9,fontWeight:700,color:on?t.color:'#cbd5e1'}}>{t.name}</div>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Direct referrals slider */}
-            <div style={{marginBottom:20}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
-                <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1}}>Direct Referrals (who activate same tier)</div>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0ea5e9'}}>{directRefs}</div>
-              </div>
-              <input type="range" min={1} max={64} value={directRefs} onChange={function(e) { setDirectRefs(parseInt(e.target.value)); }}
-                style={{width:'100%',accentColor:'#0ea5e9',cursor:'pointer'}}/>
-              <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'#cbd5e1',fontWeight:600}}>
-                <span>1</span><span>64</span>
-              </div>
-            </div>
-
-            {/* Grid advances slider */}
-            <div style={{marginBottom:20}}>
-              <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
-                <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1}}>Grid Completions</div>
-                <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#6366f1'}}>{gridAdvances}</div>
-              </div>
-              <input type="range" min={1} max={10} value={gridAdvances} onChange={function(e) { setGridAdvances(parseInt(e.target.value)); }}
-                style={{width:'100%',accentColor:'#6366f1',cursor:'pointer'}}/>
-              <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'#cbd5e1',fontWeight:600}}>
-                <span>1</span><span>10</span>
-              </div>
-            </div>
-
-            {/* Quick summary */}
-            <div style={{padding:14,background:'#f8f9fb',borderRadius:10,border:'1px solid #e8ecf2'}}>
-              <div style={{fontSize:11,fontWeight:700,color:'#64748b',marginBottom:6}}>Commission Split per Tier Purchase:</div>
-              <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-                {[['40%','Direct Sponsor','#0ea5e9'],['50%','Uni-Level (8 levels)','#6366f1'],['5%','Bonus Pool','#10b981'],['5%','Platform','#94a3b8']].map(function([pct,label,color]) {
-                  return <div key={label} style={{fontSize:10,fontWeight:700,color:color}}>{pct} {label}</div>;
-                })}
-              </div>
-            </div>
-
-          </div>
-        </div>
-
-        {/* RIGHT — Results */}
-        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)',display:'flex',flexDirection:'column'}}>
-          <div style={{background:'#1c223d',padding:'16px 24px'}}>
-            <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>Commission Breakdown</div>
-          </div>
-          <div style={{padding:'24px',flex:1,display:'flex',flexDirection:'column'}}>
-
-            {activeTiers.length === 0 ? (
-              <div style={{textAlign:'center',padding:40,color:'#94a3b8',fontSize:14}}>Select at least one campaign tier to see commissions</div>
-            ) : (
-              <>
-                {/* Direct Sponsor */}
-                <div style={{padding:'16px',background:'#f0f9ff',borderRadius:12,border:'1px solid #bae6fd',marginBottom:12}}>
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
-                    <div style={{fontSize:13,fontWeight:800,color:'#0ea5e9'}}>💰 Direct Sponsor (40%)</div>
-                    <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#0ea5e9'}}>{fmt(totalDirect)}</div>
-                  </div>
-                  <div style={{fontSize:11,color:'#64748b'}}>{directRefs} referrals × 40% of tier price × {gridAdvances} completion{gridAdvances!==1?'s':''}</div>
-                </div>
-
-                {/* Uni-Level */}
-                <div style={{padding:'16px',background:'#eef2ff',borderRadius:12,border:'1px solid #c7d2fe',marginBottom:12}}>
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
-                    <div style={{fontSize:13,fontWeight:800,color:'#6366f1'}}>🌐 Uni-Level (6.25% × 8 levels)</div>
-                    <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#6366f1'}}>{fmt(totalUniLevel)}</div>
-                  </div>
-                  <div style={{fontSize:11,color:'#64748b'}}>6.25% per level × 64 seats × {gridAdvances} completion{gridAdvances!==1?'s':''}</div>
-                </div>
-
-                {/* Bonus Pool */}
-                <div style={{padding:'16px',background:'#f0fdf4',borderRadius:12,border:'1px solid #dcfce7',marginBottom:12}}>
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:4}}>
-                    <div style={{fontSize:13,fontWeight:800,color:'#10b981'}}>🏆 Grid Completion Bonus (5%)</div>
-                    <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#10b981'}}>{fmt(totalBonus)}</div>
-                  </div>
-                  <div style={{fontSize:11,color:'#64748b'}}>5% of tier price × 64 seats × {gridAdvances} completion{gridAdvances!==1?'s':''}</div>
-                </div>
-              </>
-            )}
-
-            {/* Grand total */}
-            <div style={{marginTop:'auto',padding:'20px',background:'linear-gradient(135deg,#0f172a,#1e293b)',borderRadius:12,textAlign:'center'}}>
-              <div style={{fontSize:10,fontWeight:800,color:'#94a3b8',letterSpacing:1.5,textTransform:'uppercase',marginBottom:6}}>Total Grid Commissions</div>
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:800,color:'#4ade80',lineHeight:1,transition:'all .3s ease'}}>
-                {fmt(grandTotal)}
-              </div>
-              <div style={{fontSize:11,color:'#64748b',marginTop:8}}>Across {activeTiers.length} selected tier{activeTiers.length!==1?'s':''}</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Per-tier breakdown ── */}
-      {activeTiers.length > 0 && (
-        <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:28,boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
-          <div style={{background:'#1c223d',padding:'16px 24px'}}>
-            <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Breakdown by Tier</div>
-          </div>
-          <div style={{padding:'20px 24px'}}>
-            <div style={{display:'grid',gridTemplateColumns:'repeat('+Math.min(activeTiers.length,4)+',1fr)',gap:12}}>
-              {activeTiers.map(function(n) {
-                var tier = CALC_TIERS.find(function(t) { return t.n === n; });
-                if (!tier) return null;
-                var p = tier.price;
-                var tDirect = directRefs * (p * 0.40) * gridAdvances;
-                var tUni = (p * 0.0625) * 64 * gridAdvances;
-                var tBonus = (p * 0.05) * 64 * gridAdvances;
-                var tTotal = tDirect + tUni + tBonus;
-                return (
-                  <div key={n} style={{padding:16,borderRadius:12,background:tier.color+'08',border:'1px solid '+tier.color+'20',textAlign:'center'}}>
-                    <div style={{fontSize:10,fontWeight:800,color:tier.color,letterSpacing:1,textTransform:'uppercase'}}>${p} {tier.name}</div>
-                    <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:tier.color,margin:'6px 0'}}>{fmt(tTotal)}</div>
-                    <div style={{fontSize:10,color:'#94a3b8'}}>
-                      Direct: {fmt(tDirect)} · Uni: {fmt(tUni)} · Bonus: {fmt(tBonus)}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── Note ── */}
-      <div style={{padding:'16px 20px',background:'#fffbeb',borderRadius:12,border:'1px solid #fef3c7',fontSize:12,color:'#92400e',lineHeight:1.6}}>
-        <strong>ℹ️ Note:</strong> Direct sponsor commissions are earned when your personal referrals activate the same tier. Uni-level commissions are earned across 8 levels as the grid fills (64 seats per grid). The bonus pool pays out when all 64 seats are filled. Income is not guaranteed and depends on network activity.
-      </div>
-    </div>
-  );
-}
-
-var thStyle = {fontSize:10,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,padding:'12px 10px',borderBottom:'2px solid #e8ecf2',textAlign:'center',background:'#f8f9fb'};
-var tdStyle = {padding:'10px',borderBottom:'1px solid #f5f6f8',textAlign:'center',fontSize:12};
-
-
-// ── Coming Soon placeholder ──
-function ComingSoon(props) {
-  var { t } = useTranslation();
-  return (
-    <div style={{textAlign:'center',padding:'80px 20px'}}>
-      <div style={{fontSize:40,marginBottom:12,opacity:.3}}>🚧</div>
-      <div style={{fontSize:18,fontWeight:800,color:'#0f172a',marginBottom:4}}>{props.label}</div>
-      <div style={{fontSize:13,color:'#94a3b8'}}>This section is coming next</div>
+          {isOpen && <div style={{ padding:'0 18px 14px', background:'#fff', border:'1px solid #e2e8f0', borderTop:'none', borderRadius:'0 0 12px 12px', fontSize:13, color:'#475569', lineHeight:1.8 }}>{s.desc}</div>}
+        </div>;
+      })}
     </div>
   );
 }
