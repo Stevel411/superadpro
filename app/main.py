@@ -530,10 +530,10 @@ def affiliates_public(request: Request):
 
 @app.get("/compensation-plan")
 def compensation_plan(request: Request, user: User = Depends(get_current_user)):
-    """Phase 1 migration: redirect to React for members, keep public page for non-members."""
-    if user:
-        return RedirectResponse(url="/compensation-plan", status_code=302)
-    return RedirectResponse(url="/compensation-plan", status_code=302)
+    """Serve React SPA for compensation plan page."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/", status_code=302)
 
 def _old_compensation_plan_DISABLED(request: Request, user: User = Depends(get_current_user)):
     ctx = {
