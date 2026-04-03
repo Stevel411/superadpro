@@ -386,14 +386,15 @@ export default function Dashboard() {
             )
           },
           {
-            name: 'Content Creator', desc: 'AI posts, scripts, emails, ad copy & sales chat', link: '/content-creator',
-            color: '#d97706', bg: 'linear-gradient(135deg,#fffbeb,#fef3c7)',
+            name: 'Pay It Forward', desc: 'Gift a free membership and change someone\'s life', link: '/pay-it-forward',
+            color: '#ec4899', bg: 'linear-gradient(135deg,#fdf2f8,#fce7f3)',
             icon: (
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="3" width="18" height="18" rx="3" fill="#fef3c7" stroke="#d97706" strokeWidth="1.5"/>
-                <path d="M7 8h10M7 12h7M7 16h10" stroke="#d97706" strokeWidth="1.5" strokeLinecap="round"/>
-                <circle cx="17" cy="17" r="4" fill="#f59e0b"/>
-                <path d="M16 17h2M17 16v2" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"/>
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" fill="#ec4899"/>
+                <path d="M12 21.23l8.84-8.84a5.5 5.5 0 0 0-7.78-7.78L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23z" fill="url(#pifHeart)"/>
+                <rect x="9" y="10" width="6" height="5" rx="1" fill="#fff" opacity="0.9"/>
+                <path d="M10.5 12.5h3M12 11v3" stroke="#ec4899" strokeWidth="1.2" strokeLinecap="round"/>
+                <defs><linearGradient id="pifHeart" x1="3" y1="4" x2="21" y2="21" gradientUnits="userSpaceOnUse"><stop stopColor="#f9a8d4"/><stop offset="1" stopColor="#ec4899"/></linearGradient></defs>
               </svg>
             )
           },
