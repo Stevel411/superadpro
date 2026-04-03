@@ -6,14 +6,14 @@ import { Globe, Coins } from 'lucide-react';
 import CryptoCheckout from '../components/CryptoCheckout';
 
 const TIERS = {
-  1: { name:'Starter',     price:20,   views:'5,000',     monthly:'500',    bonus:64 },
-  2: { name:'Builder',     price:50,   views:'15,000',    monthly:'1,500',  bonus:160 },
-  3: { name:'Pro',         price:100,  views:'35,000',    monthly:'5,000',  bonus:320 },
-  4: { name:'Advanced',    price:200,  views:'80,000',    monthly:'10,000', bonus:640 },
-  5: { name:'Elite',       price:400,  views:'150,000',   monthly:'20,000', bonus:1280 },
-  6: { name:'Premium',     price:600,  views:'250,000',   monthly:'30,000', bonus:1920 },
-  7: { name:'Executive',   price:800,  views:'400,000',   monthly:'40,000', bonus:2560 },
-  8: { name:'Ultimate',    price:1000, views:'600,000',   monthly:'50,000', bonus:3200 },
+  1: { name:'Starter',     price:20,   views:'5,000',     monthly:'500',    bonus:64,   grad:'linear-gradient(135deg,#064e3b,#047857,#10b981)' },
+  2: { name:'Builder',     price:50,   views:'15,000',    monthly:'1,500',  bonus:160,  grad:'linear-gradient(135deg,#1e3a5f,#2563eb,#3b82f6)' },
+  3: { name:'Pro',         price:100,  views:'35,000',    monthly:'5,000',  bonus:320,  grad:'linear-gradient(135deg,#1e1b4b,#4c1d95,#8b5cf6)' },
+  4: { name:'Advanced',    price:200,  views:'80,000',    monthly:'10,000', bonus:640,  grad:'linear-gradient(135deg,#831843,#be185d,#ec4899)' },
+  5: { name:'Elite',       price:400,  views:'150,000',   monthly:'20,000', bonus:1280, grad:'linear-gradient(135deg,#134e4a,#0d9488,#2dd4bf)' },
+  6: { name:'Premium',     price:600,  views:'250,000',   monthly:'30,000', bonus:1920, grad:'linear-gradient(135deg,#6b7280,#9ca3af,#d1d5db)' },
+  7: { name:'Executive',   price:800,  views:'400,000',   monthly:'40,000', bonus:2560, grad:'linear-gradient(135deg,#78350f,#b45309,#fbbf24)' },
+  8: { name:'Ultimate',    price:1000, views:'600,000',   monthly:'50,000', bonus:3200, grad:'linear-gradient(135deg,#450a0a,#991b1b,#ef4444)' },
 };
 
 export default function ActivateTier() {
@@ -58,7 +58,7 @@ export default function ActivateTier() {
 
         {/* Tier hero — dark theme with animations */}
         <div style={{
-          background:'linear-gradient(135deg, #78350f, #b45309, #fbbf24)',
+          background:t.grad,
           borderRadius:8, padding:'32px 36px', marginBottom:20,
           position:'relative', overflow:'hidden',
           boxShadow:'0 2px 8px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.15)',
@@ -66,10 +66,10 @@ export default function ActivateTier() {
           <div style={{position:'absolute',top:-30,right:-30,width:120,height:120,borderRadius:'50%',background:'rgba(255,255,255,.08)',pointerEvents:'none'}}/>
 
           <div style={{position:'relative',zIndex:1,textAlign:'center'}}>
-            <div style={{fontSize:12,fontWeight:700,color:'rgba(255,255,255,0.6)',textTransform:'uppercase',letterSpacing:1.5,marginBottom:8}}>Campaign Tier</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:900,color:'#fff',marginBottom:4}}>{t.name}</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:48,fontWeight:900,color:'#fff',lineHeight:1,marginBottom:8}}>${t.price.toLocaleString()}</div>
-            <div style={{fontSize:13,color:'rgba(255,255,255,0.5)'}}>One-time activation · Up to {t.views} views</div>
+            <div style={{fontSize:12,fontWeight:700,color:n===6?'rgba(0,0,0,0.4)':'rgba(255,255,255,0.6)',textTransform:'uppercase',letterSpacing:1.5,marginBottom:8}}>Campaign Tier</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:900,color:n===6?'#1f2937':'#fff',marginBottom:4}}>{t.name}</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:48,fontWeight:900,color:n===6?'#1f2937':'#fff',lineHeight:1,marginBottom:8}}>${t.price.toLocaleString()}</div>
+            <div style={{fontSize:13,color:n===6?'rgba(0,0,0,0.4)':'rgba(255,255,255,0.5)'}}>One-time activation · Up to {t.views} views</div>
           </div>
         </div>
 
