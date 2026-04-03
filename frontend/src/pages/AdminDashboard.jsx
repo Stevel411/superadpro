@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost, apiDelete } from '../utils/api';
-import { Shield, Users, DollarSign, TrendingUp, AlertTriangle, CheckCircle, XCircle, Search, ChevronRight, Eye, Ban, CreditCard, Activity, FileText, UserCheck, Clock, RefreshCw, ArrowUpDown, Mail } from 'lucide-react';
+import { Shield, Users, DollarSign, TrendingUp, AlertTriangle, CheckCircle, XCircle, Search, ChevronRight, Eye, Ban, CreditCard, Activity, FileText, UserCheck, Clock, RefreshCw, ArrowUpDown, Mail, Sparkles } from 'lucide-react';
 import { formatMoney } from '../utils/money';
 
 var TABS = [
@@ -14,6 +14,7 @@ var TABS = [
   {key:'commissions',label:'Commissions',icon:TrendingUp},
   {key:'supermarket',label:'SuperMarket',icon:Shield},
   {key:'email',label:'Email Analytics',icon:Mail},
+  {key:'superscene',label:'SuperScene',icon:Sparkles},
   {key:'health',label:'System Health',icon:Shield},
 ];
 
@@ -45,6 +46,7 @@ export default function AdminDashboard() {
       {tab === 'commissions' && <CommissionsTab/>}
       {tab === 'supermarket' && <SuperMarketTab/>}
       {tab === 'email' && <EmailAnalyticsTab/>}
+      {tab === 'superscene' && <SuperSceneAnalyticsTab/>}
       {tab === 'health' && <HealthTab/>}
     </AppLayout>
   );
@@ -934,6 +936,185 @@ function EmailAnalyticsTab() {
                 return <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:2}} title={d.date+': '+d.count+' emails'}>
                   <div style={{fontSize:9,color:'#94a3b8',fontWeight:600}}>{d.count>0?d.count:''}</div>
                   <div style={{width:'100%',height:h,background:'linear-gradient(180deg,#6366f1,#818cf8)',borderRadius:'3px 3px 0 0',minHeight:4}}/>
+                </div>;
+              });
+            })()}
+          </div>
+          <div style={{display:'flex',justifyContent:'space-between',marginTop:6}}>
+            <span style={{fontSize:9,color:'#94a3b8'}}>{data.daily_breakdown[0]?.date}</span>
+            <span style={{fontSize:9,color:'#94a3b8'}}>{data.daily_breakdown[data.daily_breakdown.length-1]?.date}</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function SuperSceneAnalyticsTab() {
+  var [data, setData] = useState(null);
+  useEffect(function() { apiGet('/admin/api/superscene-analytics').then(setData).catch(function(){}); }, []);
+  if (!data) return <Spin/>;
+
+  var v = data.volume || {};
+  var cr = data.credits || {};
+  var fin = data.financials || {};
+
+  return (
+    <div>
+      <h3 style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,margin:'0 0 16px'}}>SuperScene Credit Analytics</h3>
+
+      {/* Generation volume */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:20}}>
+        {[
+          {v:v.today||0, l:'Generations today', c:'#8b5cf6'},
+          {v:v.this_week||0, l:'This week', c:'#0ea5e9'},
+          {v:(v.this_month||0).toLocaleString(), l:'This month', c:'#16a34a'},
+          {v:(v.total||0).toLocaleString(), l:'All time', c:'#6366f1'},
+        ].map(function(s,i){return <div key={i} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:16,textAlign:'center'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:s.c}}>{s.v}</div><div style={{fontSize:12,color:'#475569',fontWeight:600,marginTop:4}}>{s.l}</div></div>;})}
+      </div>
+
+      {/* Financial overview */}
+      <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,padding:'20px 24px',marginBottom:20}}>
+        <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:14}}>Financial Overview</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
+          <div style={{background:'#f0fdf4',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#059669',marginBottom:4}}>Revenue (month)</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#059669'}}>${fin.revenue_this_month||0}</div>
+          </div>
+          <div style={{background:'#fef2f2',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#dc2626',marginBottom:4}}>Est. provider cost</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#dc2626'}}>${fin.estimated_provider_cost||0}</div>
+          </div>
+          <div style={{background:'#f0fdf4',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#059669',marginBottom:4}}>Est. margin</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#059669'}}>${fin.estimated_margin||0}</div>
+          </div>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Margin %</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:fin.margin_pct>=50?'#059669':fin.margin_pct>=20?'#d97706':'#dc2626'}}>{fin.margin_pct||0}%</div>
+          </div>
+        </div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12}}>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Total revenue (all time)</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0f172a'}}>${fin.total_revenue||0}</div>
+          </div>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Credit sell price</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0f172a'}}>${cr.credit_sell_price||'0.22'}</div>
+          </div>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Avg provider cost/credit</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0f172a'}}>${fin.cost_per_credit||'0.08'}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Credit stats */}
+      <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,padding:'20px 24px',marginBottom:20}}>
+        <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:14}}>Credit Usage</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Used this month</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#8b5cf6'}}>{(cr.used_this_month||0).toLocaleString()}</div>
+          </div>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Used this week</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0ea5e9'}}>{(cr.used_this_week||0).toLocaleString()}</div>
+          </div>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Total used (all time)</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#6366f1'}}>{(cr.total_used||0).toLocaleString()}</div>
+          </div>
+          <div style={{background:'#fef3c7',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#d97706',marginBottom:4}}>Outstanding balance</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#d97706'}}>{(cr.outstanding_balance||0).toLocaleString()}</div>
+          </div>
+        </div>
+        {cr.outstanding_balance > 0 && <div style={{marginTop:10,padding:'10px 14px',background:'#fef3c7',borderRadius:8,fontSize:12,color:'#92400e',fontWeight:600}}>Outstanding credits represent your liability — credits purchased but not yet used. Est. provider cost to fulfil: ${((cr.outstanding_balance||0) * (fin.cost_per_credit||0.08)).toFixed(2)}</div>}
+      </div>
+
+      {/* Model usage breakdown */}
+      {data.model_usage && data.model_usage.length > 0 && (
+        <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden',marginBottom:20}}>
+          <div style={{padding:'16px 20px',borderBottom:'1px solid #f1f5f9',fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800}}>Model Usage (30 days)</div>
+          <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
+            <thead><tr style={{background:'#f8fafc'}}>
+              <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Model</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Generations</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Credits used</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Est. cost</th>
+            </tr></thead>
+            <tbody>
+              {data.model_usage.map(function(m,i){return <tr key={i} style={{borderTop:'1px solid #f1f5f9'}}>
+                <td style={{padding:'10px 16px',fontWeight:600,color:'#0f172a'}}>{m.model}</td>
+                <td style={{padding:'10px 16px',textAlign:'right',color:'#475569'}}>{m.generations}</td>
+                <td style={{padding:'10px 16px',textAlign:'right',fontWeight:700,color:'#8b5cf6'}}>{m.credits}</td>
+                <td style={{padding:'10px 16px',textAlign:'right',color:'#475569'}}>${(m.credits * (fin.cost_per_credit||0.08)).toFixed(2)}</td>
+              </tr>;})}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Pack sales */}
+      {data.pack_sales && data.pack_sales.length > 0 && (
+        <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden',marginBottom:20}}>
+          <div style={{padding:'16px 20px',borderBottom:'1px solid #f1f5f9',fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800}}>Credit Pack Sales</div>
+          <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
+            <thead><tr style={{background:'#f8fafc'}}>
+              <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Pack</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Sales</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Credits sold</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Revenue</th>
+            </tr></thead>
+            <tbody>
+              {data.pack_sales.map(function(p,i){return <tr key={i} style={{borderTop:'1px solid #f1f5f9'}}>
+                <td style={{padding:'10px 16px',fontWeight:600,color:'#0f172a',textTransform:'capitalize'}}>{p.pack}</td>
+                <td style={{padding:'10px 16px',textAlign:'right',color:'#475569'}}>{p.sales}</td>
+                <td style={{padding:'10px 16px',textAlign:'right',color:'#8b5cf6',fontWeight:600}}>{(p.credits_sold||0).toLocaleString()}</td>
+                <td style={{padding:'10px 16px',textAlign:'right',fontWeight:700,color:'#059669'}}>${p.revenue.toFixed(2)}</td>
+              </tr>;})}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Top users */}
+      {data.top_users && data.top_users.length > 0 && (
+        <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden',marginBottom:20}}>
+          <div style={{padding:'16px 20px',borderBottom:'1px solid #f1f5f9',fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800}}>Top Users (30 days)</div>
+          <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
+            <thead><tr style={{background:'#f8fafc'}}>
+              <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>User</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Generations</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Credits used</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Remaining</th>
+            </tr></thead>
+            <tbody>
+              {data.top_users.map(function(u,i){return <tr key={i} style={{borderTop:'1px solid #f1f5f9'}}>
+                <td style={{padding:'10px 16px',fontWeight:600,color:'#0f172a'}}>{u.name} <span style={{color:'#94a3b8',fontWeight:400}}>@{u.username}</span></td>
+                <td style={{padding:'10px 16px',textAlign:'right',color:'#475569'}}>{u.generations}</td>
+                <td style={{padding:'10px 16px',textAlign:'right',fontWeight:700,color:'#8b5cf6'}}>{u.credits_used}</td>
+                <td style={{padding:'10px 16px',textAlign:'right',color:'#64748b'}}>{u.credits_remaining}</td>
+              </tr>;})}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Daily chart */}
+      {data.daily_breakdown && data.daily_breakdown.length > 0 && (
+        <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,padding:'20px 24px'}}>
+          <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:14}}>Daily Generation Volume (30 days)</div>
+          <div style={{display:'flex',alignItems:'flex-end',gap:2,height:120}}>
+            {(function(){
+              var maxVal = Math.max.apply(null, data.daily_breakdown.map(function(d){return d.credits;})) || 1;
+              return data.daily_breakdown.map(function(d,i){
+                var h = Math.max(4, (d.credits / maxVal) * 100);
+                return <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:2}} title={d.date+': '+d.generations+' gens, '+d.credits+' credits'}>
+                  <div style={{fontSize:9,color:'#94a3b8',fontWeight:600}}>{d.credits>0?d.credits:''}</div>
+                  <div style={{width:'100%',height:h,background:'linear-gradient(180deg,#8b5cf6,#a78bfa)',borderRadius:'3px 3px 0 0',minHeight:4}}/>
                 </div>;
               });
             })()}

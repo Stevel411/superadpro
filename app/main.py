@@ -5767,6 +5767,139 @@ def admin_api_email_analytics(
     }
 
 
+@app.get("/admin/api/superscene-analytics")
+def admin_api_superscene_analytics(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """SuperScene credit usage analytics — track AI provider costs and revenue."""
+    _require_admin(user)
+    from sqlalchemy import func, cast, Date
+    from .database import SuperSceneVideo, SuperSceneOrder, SuperSceneCredit
+    from datetime import datetime, timedelta
+
+    now = datetime.utcnow()
+    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_ago = today - timedelta(days=7)
+    month_ago = today - timedelta(days=30)
+
+    # ── Generation volume ──
+    total_generations = db.query(func.count(SuperSceneVideo.id)).scalar() or 0
+    gens_today = db.query(func.count(SuperSceneVideo.id)).filter(SuperSceneVideo.created_at >= today).scalar() or 0
+    gens_week = db.query(func.count(SuperSceneVideo.id)).filter(SuperSceneVideo.created_at >= week_ago).scalar() or 0
+    gens_month = db.query(func.count(SuperSceneVideo.id)).filter(SuperSceneVideo.created_at >= month_ago).scalar() or 0
+
+    # ── Credits consumed ──
+    total_credits_used = db.query(func.sum(SuperSceneVideo.credits_used)).scalar() or 0
+    credits_month = db.query(func.sum(SuperSceneVideo.credits_used)).filter(SuperSceneVideo.created_at >= month_ago).scalar() or 0
+    credits_week = db.query(func.sum(SuperSceneVideo.credits_used)).filter(SuperSceneVideo.created_at >= week_ago).scalar() or 0
+
+    # ── Revenue from credit packs ──
+    total_revenue = float(db.query(func.sum(SuperSceneOrder.amount_usd)).filter(SuperSceneOrder.status == "completed").scalar() or 0)
+    revenue_month = float(db.query(func.sum(SuperSceneOrder.amount_usd)).filter(SuperSceneOrder.status == "completed", SuperSceneOrder.completed_at >= month_ago).scalar() or 0)
+
+    # ── Outstanding credits (liability) ──
+    total_credits_outstanding = db.query(func.sum(SuperSceneCredit.balance)).scalar() or 0
+
+    # ── Usage by model (this month) ──
+    model_usage = db.query(
+        SuperSceneVideo.model_key,
+        func.count(SuperSceneVideo.id).label('count'),
+        func.sum(SuperSceneVideo.credits_used).label('credits')
+    ).filter(
+        SuperSceneVideo.created_at >= month_ago
+    ).group_by(SuperSceneVideo.model_key).order_by(func.sum(SuperSceneVideo.credits_used).desc()).all()
+
+    # ── Estimated provider cost ──
+    # Credit rate: $0.22 per credit sold to user
+    # Provider cost varies: fal.ai ~$0.03-0.08 per credit, EvoLink ~$0.05-0.15
+    # We estimate ~$0.08 avg provider cost per credit used
+    ESTIMATED_COST_PER_CREDIT = 0.08
+    estimated_provider_cost_month = int(credits_month or 0) * ESTIMATED_COST_PER_CREDIT
+    margin = revenue_month - estimated_provider_cost_month if revenue_month > 0 else 0
+
+    # ── Top users (this month) ──
+    top_users = db.query(
+        SuperSceneVideo.user_id,
+        func.count(SuperSceneVideo.id).label('gen_count'),
+        func.sum(SuperSceneVideo.credits_used).label('credits')
+    ).filter(
+        SuperSceneVideo.created_at >= month_ago
+    ).group_by(SuperSceneVideo.user_id).order_by(func.sum(SuperSceneVideo.credits_used).desc()).limit(10).all()
+
+    top_user_details = []
+    for uid, gen_count, creds in top_users:
+        u = db.query(User).filter(User.id == uid).first()
+        cr = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == uid).first()
+        if u:
+            top_user_details.append({
+                "user_id": u.id, "username": u.username,
+                "name": u.first_name or u.username,
+                "generations": gen_count, "credits_used": int(creds or 0),
+                "credits_remaining": cr.balance if cr else 0,
+            })
+
+    # ── Daily breakdown ──
+    daily_gens = db.query(
+        cast(SuperSceneVideo.created_at, Date).label('day'),
+        func.count(SuperSceneVideo.id).label('count'),
+        func.sum(SuperSceneVideo.credits_used).label('credits')
+    ).filter(
+        SuperSceneVideo.created_at >= month_ago
+    ).group_by('day').order_by('day').all()
+
+    # ── Pack sales breakdown ──
+    pack_sales = db.query(
+        SuperSceneOrder.pack_slug,
+        func.count(SuperSceneOrder.id).label('count'),
+        func.sum(SuperSceneOrder.amount_usd).label('revenue'),
+        func.sum(SuperSceneOrder.credits).label('credits')
+    ).filter(
+        SuperSceneOrder.status == "completed"
+    ).group_by(SuperSceneOrder.pack_slug).all()
+
+    # Model name mapping
+    model_names = {
+        "wan26": "WAN 2.6", "kling3": "Kling 3.0", "seedance": "Seedance 1.5",
+        "kling-o3": "Kling O3", "sora2": "Sora 2 Pro", "veo31": "VEO 3.1",
+        "veo31-pro": "VEO 3.1 Pro", "hailuo23": "Hailuo 2.3", "grok-video": "Grok Video",
+        "sora2-max": "Sora 2 Max", "hailuo23-fast": "Hailuo Fast", "hailuo02": "Hailuo 02",
+    }
+
+    return {
+        "volume": {
+            "total": total_generations, "today": gens_today,
+            "this_week": gens_week, "this_month": gens_month,
+        },
+        "credits": {
+            "total_used": int(total_credits_used),
+            "used_this_month": int(credits_month or 0),
+            "used_this_week": int(credits_week or 0),
+            "outstanding_balance": int(total_credits_outstanding),
+            "credit_sell_price": 0.22,
+        },
+        "financials": {
+            "total_revenue": round(total_revenue, 2),
+            "revenue_this_month": round(revenue_month, 2),
+            "estimated_provider_cost": round(estimated_provider_cost_month, 2),
+            "estimated_margin": round(margin, 2),
+            "margin_pct": round((margin / revenue_month * 100) if revenue_month > 0 else 0, 1),
+            "cost_per_credit": ESTIMATED_COST_PER_CREDIT,
+        },
+        "model_usage": [{
+            "model": model_names.get(m, m), "key": m,
+            "generations": c, "credits": int(cr or 0),
+        } for m, c, cr in model_usage],
+        "top_users": top_user_details,
+        "daily_breakdown": [{
+            "date": str(d), "generations": c, "credits": int(cr or 0),
+        } for d, c, cr in daily_gens],
+        "pack_sales": [{
+            "pack": p, "sales": c, "revenue": float(r or 0), "credits_sold": int(cr or 0),
+        } for p, c, r, cr in pack_sales],
+    }
+
+
 @app.get("/admin/api/commissions")
 def admin_api_commissions(
     user: User = Depends(get_current_user),
