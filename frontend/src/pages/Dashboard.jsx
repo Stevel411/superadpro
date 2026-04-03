@@ -6,7 +6,6 @@ import { apiGet, apiPost } from '../utils/api';
 import { formatMoney } from '../utils/money';
 import AppLayout from '../components/layout/AppLayout';
 import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye, TrendingUp } from 'lucide-react';
-import PassiveIncome from './PassiveIncome';
 import CoPilot from './CoPilot';
 import WalletGuideCard from '../components/WalletGuideCard';
 
@@ -21,7 +20,6 @@ export default function Dashboard() {
   const [data, setData] = useState(hasFreshCache ? _dashCache.data : null);
   const [loading, setLoading] = useState(!hasFreshCache);
   const [refCopied, setRefCopied] = useState(false);
-  const [dashTab, setDashTab] = useState('overview');
 
   const [error, setError] = useState(null);
 
@@ -174,19 +172,6 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* ── Recurring Income toggle ── */}
-      {dashTab === 'passive' && <>
-        <button onClick={function(){ setDashTab('overview'); }} style={{ display:'inline-flex', alignItems:'center', gap:7, marginBottom:16, padding:'8px 16px', borderRadius:8, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit', background:'#fff', color:'#6366f1', border:'1px solid #e2e8f0' }}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="15 18 9 12 15 6"/></svg>
-          Back to Dashboard
-        </button>
-        <div style={{ background:'#0c1a3a', borderRadius:20, padding:24, margin:'0 -8px' }}>
-          <PassiveIncome d={d} />
-        </div>
-      </>}
-
-      {dashTab !== 'passive' && <>
-
       {/* Welcome Banner — Cosmic Purple */}
       <div style={{
         background: 'linear-gradient(135deg,#1e1b4b,#2d2a7a,#4338ca)',
@@ -219,11 +204,7 @@ export default function Dashboard() {
           <div style={{ fontSize:14, color:'rgba(255,255,255,0.6)', lineHeight:1.6, maxWidth:420 }}>
             You have {d.total_team || 0} members in your network{(d.total_earned || 0) > 0 && ` and earned $${formatMoney(d.total_earned)} across all income streams`}.
           </div>
-          <button onClick={function(){ setDashTab(dashTab === 'passive' ? 'overview' : 'passive'); }} style={{ display:'inline-flex', alignItems:'center', gap:7, marginTop:14, padding:'8px 16px', borderRadius:8, fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit', background:'rgba(167,139,250,0.15)', color:'#c4b5fd', border:'1px solid rgba(167,139,250,0.35)', transition:'all .15s' }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-            {dashTab === 'passive' ? '← Back to Dashboard' : 'View Recurring Income →'}
-          </button>
-        </div>
+          </div>
 
         <div style={{ display:'flex', gap:8, position:'relative', zIndex:2, marginRight:140 }}>
           <Link to="/affiliate" style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:8, fontSize:12, fontWeight:700, textDecoration:'none', background:'#7c3aed', color:'#fff' }}>
@@ -485,8 +466,6 @@ export default function Dashboard() {
         }
         .action-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16)!important;transform:translateY(-3px)}
       `}</style>
-      </>
-    }
     </AppLayout>
   );
 }
