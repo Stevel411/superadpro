@@ -9,7 +9,7 @@ import {
   Target, Mail, Trophy, Bot, Film,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
   BookOpen, PlusCircle, Scissors, Clock, UserCircle, Tv,
-  Wrench, Share2, Megaphone, Heart
+  Wrench, Share2, Megaphone, Heart, Monitor
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
@@ -32,6 +32,7 @@ function buildNav(t, isAdmin) {
       { label: t('nav.linkHub'), icon: Link2, path: '/linkhub' },
       { label: t('nav.linkTools'), icon: LayoutGrid, path: '/link-tools' },
       { label: 'Content Creator', icon: Bot, path: '/content-creator' },
+      { label: 'SuperDeck', icon: Monitor, path: '/superdeck', pro: true },
       { label: t('nav.superPages'), icon: Globe, path: '/pro/funnels', pro: true },
       { label: t('nav.superSeller'), icon: Zap, path: '/superseller', pro: true },
       { label: 'AutoResponder', icon: Mail, path: '/pro/leads', pro: true },

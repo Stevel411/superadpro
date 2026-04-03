@@ -56,6 +56,7 @@ import SuperLinkPage from './pages/SuperLink';
 const BannerMaker = React.lazy(() => import('./pages/BannerMaker'));
 const SuperPagesEditor = React.lazy(() => import('./pages/superpages/SuperPagesEditor'));
 const SuperScenePage = React.lazy(() => import('./pages/superscene/SuperScenePage'));
+const SuperDeckPage = React.lazy(() => import('./pages/SuperDeckPage'));
 const ContentCreatorPage = React.lazy(() => import('./pages/content-creator/ContentCreatorPage'));
 const IncomeGrid3DPage = React.lazy(() => import('./pages/IncomeGrid3DPage'));
 const MemeGenerator = React.lazy(() => import('./pages/free/MemeGenerator'));
@@ -188,6 +189,7 @@ function AppRoutes() {
       <Route path="/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
       <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><SuperPagesEditor /></ProtectedRoute>} />
       <Route path="/superscene" element={<React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#080c0e',color:'#22d3ee',fontFamily:'DM Sans,sans-serif'}}>Loading SuperScene…</div>}><SuperScenePage /></React.Suspense>} />
+      <Route path="/superdeck" element={<React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh'}}><div>Loading SuperDeck…</div></div>}><SuperDeckPage /></React.Suspense>} />
       <Route path="/content-creator" element={<ProtectedRoute><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>Loading Content Creator…</div>}><ContentCreatorPage /></React.Suspense></ProtectedRoute>} />
       <Route path="/pro/leads" element={<ProtectedRoute><MyLeads /></ProtectedRoute>} />
       <Route path="/link-tools" element={<ProtectedRoute><LinkTools /></ProtectedRoute>} />
