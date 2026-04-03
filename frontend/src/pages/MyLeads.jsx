@@ -3,6 +3,7 @@ import AppLayout from '../components/layout/AppLayout';
 import RichTextEditor from '../components/editor/RichTextEditor';
 import { apiGet, apiPost, apiPut, apiDelete } from '../utils/api';
 import { Mail, UserPlus, Send, Upload, Trash2, Plus, Zap, Rocket, Search, Sparkles, HelpCircle } from 'lucide-react';
+import CustomSelect from '../components/ui/CustomSelect';
 import MyLeadsHelp from './MyLeadsHelp';
 
 var TABS = [
@@ -112,9 +113,9 @@ function LeadsTab({leads,lists,sequences,refresh,flash}) {
   return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
     <div style={{padding:'14px 18px',borderBottom:'1px solid #e2e8f0',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
       <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-        <div style={{position:'relative'}}><Search size={14} color="#94a3b8" style={{position:'absolute',left:10,top:10}}/><input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder="Search leads..." style={{padding:'8px 8px 8px 30px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:12,fontFamily:'inherit',width:180}}/></div>
-        <select value={fS} onChange={function(e){setFS(e.target.value);}} className="sl-select"><option value="all">All statuses</option><option value="new">New</option><option value="nurturing">Nurturing</option><option value="hot">Hot</option><option value="converted">Converted</option></select>
-        <select value={fL} onChange={function(e){setFL(e.target.value);}} className="sl-select"><option value="">All lists</option>{lists.map(function(l){return <option key={l.id} value={l.id}>{l.name}</option>;})}</select>
+        <div style={{position:'relative'}}><Search size={14} color="#94a3b8" style={{position:'absolute',left:10,top:10}}/><input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder="Search leads..." style={{padding:'8px 8px 8px 30px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',width:180,outline:'none',transition:'border-color .15s'}}/></div>
+        <CustomSelect value={fS} onChange={setFS} style={{width:160}} options={[{value:'all',label:'All statuses'},{value:'new',label:'New'},{value:'nurturing',label:'Nurturing'},{value:'hot',label:'Hot'},{value:'converted',label:'Converted'}]}/>
+        <CustomSelect value={fL} onChange={setFL} style={{width:150}} options={[{value:'',label:'All lists'}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))} />
       </div>
       <div style={{fontSize:12,color:'#64748b',fontWeight:600}}>{filtered.length} leads</div>
     </div>
@@ -132,7 +133,7 @@ function LeadsTab({leads,lists,sequences,refresh,flash}) {
       <td style={{padding:'10px 16px'}}><span style={{padding:'3px 8px',borderRadius:4,background:st.bg,color:st.color,fontSize:10,fontWeight:700}}>{st.label}</span></td>
       <td style={{padding:'10px 16px'}}>{li?<span style={{padding:'3px 8px',borderRadius:4,background:li.color+'18',color:li.color,fontSize:10,fontWeight:600}}>{li.name}</span>:<span style={{color:'#94a3b8',fontSize:10}}>—</span>}</td>
       <td style={{padding:'10px 16px',color:'#475569'}}>{l.emails_sent||0} sent</td>
-      <td style={{padding:'10px 16px'}}><select value={l.sequence_id||''} onChange={function(e){assignSeq(l.id,e.target.value);}} className="sl-select" style={{padding:'8px 12px',maxWidth:130,fontSize:11}}><option value="">None</option>{sequences.map(function(s){return <option key={s.id} value={s.id}>{s.title}</option>;})}</select></td>
+      <td style={{padding:'10px 16px'}}><CustomSelect value={String(l.sequence_id||'')} onChange={function(v){assignSeq(l.id,v);}} small={true} style={{maxWidth:140}} options={[{value:'',label:'None'}].concat(sequences.map(function(s){return {value:String(s.id),label:s.title};}))}/></td>
       <td style={{padding:'10px 16px',textAlign:'right'}}><button onClick={function(){del(l.id);}} style={{padding:'4px 8px',borderRadius:4,border:'1px solid #fecaca',background:'#fff',color:'#dc2626',fontSize:10,cursor:'pointer',fontFamily:'inherit'}}><Trash2 size={10}/></button></td>
     </tr>;})}</tbody></table></div>
     :<div style={{textAlign:'center',padding:'60px 20px'}}><UserPlus size={32} color="#cbd5e1" style={{marginBottom:8}}/><div style={{fontSize:14,fontWeight:700,color:'#64748b'}}>No leads yet</div><div style={{fontSize:12,color:'#94a3b8',marginTop:4}}>Leads are captured from your SuperPages funnel forms</div></div>}
@@ -197,8 +198,8 @@ function BcastTab({leads,lists,flash}) {
     <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:4}}>Broadcast</div><div style={{fontSize:12,color:'#64748b'}}>Send a one-off email to your leads</div></div>
     <div style={{padding:'20px 24px'}}>
       <div style={{display:'flex',gap:10,marginBottom:16}}>
-        <div style={{flex:1}}><label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>List</label><select value={fL} onChange={function(e){setFL(e.target.value);}} className="sl-select"><option value="">All lists</option>{lists.map(function(l){return <option key={l.id} value={l.id}>{l.name}</option>;})}</select></div>
-        <div style={{flex:1}}><label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>Status</label><select value={fS} onChange={function(e){setFS(e.target.value);}} className="sl-select"><option value="all">All</option><option value="new">New</option><option value="nurturing">Nurturing</option><option value="hot">Hot</option></select></div>
+        <div style={{flex:1}}><label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>List</label><CustomSelect value={fL} onChange={setFL} options={[{value:'',label:'All lists'}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))}/></div>
+        <div style={{flex:1}}><label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>Status</label><CustomSelect value={fS} onChange={setFS} options={[{value:'all',label:'All'},{value:'new',label:'New'},{value:'nurturing',label:'Nurturing'},{value:'hot',label:'Hot'}]}/></div>
         <div style={{display:'flex',alignItems:'flex-end',paddingBottom:2}}><span style={{fontSize:14,fontWeight:800,color:'#6366f1'}}>{ct} recipients</span></div>
       </div>
       <div style={{marginBottom:16}}><label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>Subject</label><input value={sub} onChange={function(e){setSub(e.target.value);}} style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
@@ -218,7 +219,7 @@ function ImpTab({stats,lists,refresh,flash}) {
     <div style={{padding:'20px 24px'}}>
       <div style={{display:'flex',gap:12,marginBottom:16}}>
         <div style={{flex:1,background:'rgba(99,102,241,.04)',border:'1px solid rgba(99,102,241,.12)',borderRadius:10,padding:12}}><div style={{fontSize:10,fontWeight:700,color:'#6366f1'}}>Leads</div><div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#6366f1'}}>{stats.total||0}<span style={{fontSize:12,color:'#64748b'}}>/{stats.limit||5000}</span></div></div>
-        <div style={{flex:2}}><label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>Import into list</label><select value={lid} onChange={function(e){setLid(e.target.value);}} className="sl-select"><option value="">Unsorted</option>{lists.map(function(l){return <option key={l.id} value={l.id}>{l.name}</option>;})}</select></div>
+        <div style={{flex:2}}><label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>Import into list</label><CustomSelect value={lid} onChange={setLid} options={[{value:'',label:'Unsorted'}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))}/></div>
       </div>
       <label style={{display:'flex',flexDirection:'column',alignItems:'center',gap:6,padding:28,borderRadius:12,border:'2px dashed #d1d5db',cursor:'pointer',marginBottom:12,transition:'border-color .15s'}} onMouseEnter={function(e){e.currentTarget.style.borderColor='#6366f1';}} onMouseLeave={function(e){e.currentTarget.style.borderColor='#d1d5db';}}>
         <Upload size={24} color="#6366f1"/><span style={{fontSize:13,fontWeight:600,color:'#475569'}}>Upload CSV</span><input type="file" accept=".csv,.txt" onChange={function(e){var f=e.target.files[0];if(f){var rd=new FileReader();rd.onload=function(ev){setCsv(ev.target.result);};rd.readAsText(f);}}} style={{display:'none'}}/>
