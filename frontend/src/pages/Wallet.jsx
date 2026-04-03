@@ -93,7 +93,7 @@ export default function Wallet() {
       )}
 
       {/* Row 1: Two wallet cards side by side */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18, alignItems: 'stretch' }}>
           {/* Affiliate Wallet Withdraw */}
           <Card title="Affiliate Wallet" dotColor="#16a34a">
             <div style={{ padding:'10px 14px', background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:10, marginBottom:14 }}>
