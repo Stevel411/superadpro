@@ -1334,6 +1334,7 @@ def dashboard(request: Request):
 @app.get("/supermarket/create")
 @app.get("/activate/{tier_id}")
 @app.get("/free/{tool_path:path}")
+@app.get("/pay-it-forward")
 def serve_react_page(request: Request, tier_id: str = "", tool_path: str = ""):
     """Serve React SPA for pages without dedicated backend routes."""
     if _react_index.exists():
