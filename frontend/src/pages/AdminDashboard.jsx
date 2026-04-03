@@ -976,36 +976,44 @@ function SuperSceneAnalyticsTab() {
       {/* Financial overview */}
       <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,padding:'20px 24px',marginBottom:20}}>
         <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:14}}>Financial Overview</div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
-          <div style={{background:'#f0fdf4',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:10,marginBottom:16}}>
+          <div style={{background:'#f0fdf4',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
             <div style={{fontSize:10,fontWeight:700,color:'#059669',marginBottom:4}}>Revenue (month)</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#059669'}}>${fin.revenue_this_month||0}</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#059669'}}>${fin.revenue_this_month||0}</div>
           </div>
-          <div style={{background:'#fef2f2',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'#dc2626',marginBottom:4}}>Est. provider cost</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#dc2626'}}>${fin.estimated_provider_cost||0}</div>
+          <div style={{background:'#fef2f2',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#dc2626',marginBottom:4}}>Provider cost</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#dc2626'}}>${fin.estimated_provider_cost||0}</div>
           </div>
-          <div style={{background:'#f0fdf4',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'#059669',marginBottom:4}}>Est. margin</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#059669'}}>${fin.estimated_margin||0}</div>
+          <div style={{background:'#fff7ed',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#ea580c',marginBottom:4}}>Sponsor comms</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#ea580c'}}>${fin.sponsor_commissions||0}</div>
           </div>
-          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+          <div style={{background:'#f0fdf4',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#059669',marginBottom:4}}>Net margin</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#059669'}}>${fin.estimated_margin||0}</div>
+          </div>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
             <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Margin %</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:fin.margin_pct>=50?'#059669':fin.margin_pct>=20?'#d97706':'#dc2626'}}>{fin.margin_pct||0}%</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:fin.margin_pct>=50?'#059669':fin.margin_pct>=20?'#d97706':'#dc2626'}}>{fin.margin_pct||0}%</div>
           </div>
         </div>
-        <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12}}>
-          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Total revenue (all time)</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0f172a'}}>${fin.total_revenue||0}</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10}}>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Total revenue</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#0f172a'}}>${fin.total_revenue||0}</div>
           </div>
-          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Credit sell price</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0f172a'}}>${cr.credit_sell_price||'0.22'}</div>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Sell price/credit</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#0f172a'}}>${cr.credit_sell_price||'0.22'}</div>
           </div>
-          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Avg provider cost/credit</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0f172a'}}>${fin.cost_per_credit||'0.08'}</div>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Provider/credit</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#0f172a'}}>${fin.provider_cost_per_credit||'0.08'}</div>
+          </div>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Sponsor/credit</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#0f172a'}}>${fin.sponsor_rate_per_credit||'0.025'}</div>
           </div>
         </div>
       </div>
@@ -1031,7 +1039,7 @@ function SuperSceneAnalyticsTab() {
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#d97706'}}>{(cr.outstanding_balance||0).toLocaleString()}</div>
           </div>
         </div>
-        {cr.outstanding_balance > 0 && <div style={{marginTop:10,padding:'10px 14px',background:'#fef3c7',borderRadius:8,fontSize:12,color:'#92400e',fontWeight:600}}>Outstanding credits represent your liability — credits purchased but not yet used. Est. provider cost to fulfil: ${((cr.outstanding_balance||0) * (fin.cost_per_credit||0.08)).toFixed(2)}</div>}
+        {cr.outstanding_balance > 0 && <div style={{marginTop:10,padding:'10px 14px',background:'#fef3c7',borderRadius:8,fontSize:12,color:'#92400e',fontWeight:600}}>Outstanding credits represent your liability — credits purchased but not yet used. Est. cost to fulfil: ${((cr.outstanding_balance||0) * (fin.total_cost_per_credit||0.105)).toFixed(2)} (provider ${((cr.outstanding_balance||0) * (fin.provider_cost_per_credit||0.08)).toFixed(2)} + sponsor comms ${((cr.outstanding_balance||0) * (fin.sponsor_rate_per_credit||0.025)).toFixed(2)})</div>}
       </div>
 
       {/* Model usage breakdown */}

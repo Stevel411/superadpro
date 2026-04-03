@@ -5810,13 +5810,17 @@ def admin_api_superscene_analytics(
         SuperSceneVideo.created_at >= month_ago
     ).group_by(SuperSceneVideo.model_key).order_by(func.sum(SuperSceneVideo.credits_used).desc()).all()
 
-    # ── Estimated provider cost ──
-    # Credit rate: $0.22 per credit sold to user
-    # Provider cost varies: fal.ai ~$0.03-0.08 per credit, EvoLink ~$0.05-0.15
-    # We estimate ~$0.08 avg provider cost per credit used
-    ESTIMATED_COST_PER_CREDIT = 0.08
-    estimated_provider_cost_month = int(credits_month or 0) * ESTIMATED_COST_PER_CREDIT
-    margin = revenue_month - estimated_provider_cost_month if revenue_month > 0 else 0
+    # ── Estimated costs per credit ──
+    # Provider cost: fal.ai ~$0.03-0.08, EvoLink ~$0.05-0.15, avg ~$0.08
+    # Sponsor commission: $0.025 per credit used
+    ESTIMATED_PROVIDER_COST = 0.08
+    SPONSOR_COMMISSION_RATE = 0.025
+    TOTAL_COST_PER_CREDIT = ESTIMATED_PROVIDER_COST + SPONSOR_COMMISSION_RATE
+
+    estimated_provider_cost_month = int(credits_month or 0) * ESTIMATED_PROVIDER_COST
+    sponsor_commissions_month = int(credits_month or 0) * SPONSOR_COMMISSION_RATE
+    total_cost_month = int(credits_month or 0) * TOTAL_COST_PER_CREDIT
+    margin = revenue_month - total_cost_month if revenue_month > 0 else 0
 
     # ── Top users (this month) ──
     top_users = db.query(
@@ -5882,9 +5886,13 @@ def admin_api_superscene_analytics(
             "total_revenue": round(total_revenue, 2),
             "revenue_this_month": round(revenue_month, 2),
             "estimated_provider_cost": round(estimated_provider_cost_month, 2),
+            "sponsor_commissions": round(sponsor_commissions_month, 2),
+            "total_cost": round(total_cost_month, 2),
             "estimated_margin": round(margin, 2),
             "margin_pct": round((margin / revenue_month * 100) if revenue_month > 0 else 0, 1),
-            "cost_per_credit": ESTIMATED_COST_PER_CREDIT,
+            "provider_cost_per_credit": ESTIMATED_PROVIDER_COST,
+            "sponsor_rate_per_credit": SPONSOR_COMMISSION_RATE,
+            "total_cost_per_credit": TOTAL_COST_PER_CREDIT,
         },
         "model_usage": [{
             "model": model_names.get(m, m), "key": m,
