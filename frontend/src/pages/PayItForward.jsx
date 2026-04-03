@@ -81,6 +81,7 @@ export default function PayItForward() {
         borderRadius:18, padding:'32px 36px', marginBottom:24,
         textAlign:'center', position:'relative', overflow:'hidden',
       }}>
+        <div style={{ position:'absolute', inset:0, backgroundImage:'url(https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=900&q=75)', backgroundSize:'cover', backgroundPosition:'center', opacity:0.12, pointerEvents:'none' }}/>
         <div style={{ position:'absolute', top:-40, right:-40, width:150, height:150, borderRadius:'50%', background:'rgba(255,255,255,.06)', pointerEvents:'none' }}/>
         <div style={{ position:'absolute', bottom:-30, left:-30, width:120, height:120, borderRadius:'50%', background:'rgba(255,255,255,.04)', pointerEvents:'none' }}/>
         <div style={{ position:'relative' }}>
