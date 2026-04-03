@@ -58,18 +58,24 @@ export default function Wallet() {
   return (
     <AppLayout title="◎ Wallet" subtitle="Your balance, commissions & withdrawals"
       topbarActions={<>
-        <div style={{ background: 'rgba(34,197,94,.09)', border: '1px solid rgba(34,197,94,.22)', borderRadius: 10, padding: '7px 16px', textAlign: 'center' }}>
-          <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'rgba(148,163,184,.5)' }}>Balance</div>
-          <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 16, fontWeight: 800, color: '#4ade80' }}>${formatMoney(d.balance)}</div>
+        <div style={{ display:'flex', gap:8 }}>
+          <div style={{ background: 'rgba(34,197,94,.09)', border: '1px solid rgba(34,197,94,.22)', borderRadius: 10, padding: '7px 14px', textAlign: 'center' }}>
+            <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'rgba(148,163,184,.5)' }}>Affiliate</div>
+            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: '#4ade80' }}>${formatMoney(d.balance)}</div>
+          </div>
+          <div style={{ background: 'rgba(99,102,241,.09)', border: '1px solid rgba(99,102,241,.22)', borderRadius: 10, padding: '7px 14px', textAlign: 'center' }}>
+            <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'rgba(148,163,184,.5)' }}>Campaign</div>
+            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: '#818cf8' }}>${formatMoney(d.campaign_balance || 0)}</div>
+          </div>
         </div>
       </>}
     >
       {/* 4 Stat Pills */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
-        <StatPill value={`$${formatMoney(d.balance)}`} label="Available Balance" gradient="linear-gradient(90deg,#16a34a,#22c55e)" />
+        <StatPill value={`$${formatMoney(d.balance)}`} label="Affiliate Wallet" gradient="linear-gradient(90deg,#16a34a,#22c55e)" />
+        <StatPill value={`$${formatMoney(d.campaign_balance || 0)}`} label="Campaign Wallet" gradient="linear-gradient(90deg,#6366f1,#818cf8)" />
         <StatPill value={`$${formatMoney(d.total_earned)}`} label="Total Earned" gradient="linear-gradient(90deg,#0ea5e9,#38bdf8)" />
-        <StatPill value={`$${formatMoney(d.total_withdrawn)}`} label="Total Withdrawn" gradient="linear-gradient(90deg,#6366f1,#818cf8)" />
-        <StatPill value={`$${formatMoney(d.superscene_earnings || 0)}`} label="SuperScene Earnings" gradient="linear-gradient(90deg,#ec4899,#f472b6)" />
+        <StatPill value={`$${formatMoney(d.total_withdrawn)}`} label="Total Withdrawn" gradient="linear-gradient(90deg,#f59e0b,#fbbf24)" />
       </div>
 
       {/* Earnings Breakdown */}
@@ -85,82 +91,82 @@ export default function Wallet() {
       {/* Row 1: 3 columns */}
       <div className="grid-3-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18, marginBottom: 18, alignItems: 'stretch' }}>
         {/* Col 1: Withdraw */}
-        <Card title="Withdraw USDT" dotColor="#16a34a">
-          {/* Withdrawal info notice */}
-          <div style={{ padding: '12px 14px', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 10, marginBottom: 14 }}>
-            <div style={{ fontSize: 12, fontWeight: 700, color: '#0369a1', marginBottom: 8 }}>Before you withdraw:</div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-              <div style={{ display: 'flex', gap: 8, fontSize: 12, color: '#0c4a6e', lineHeight: 1.5 }}>
-                <span style={{ flexShrink: 0 }}>💰</span>
-                <span>Withdrawals are paid in <strong>USDT on the Polygon network</strong></span>
-              </div>
-              <div style={{ display: 'flex', gap: 8, fontSize: 12, color: '#0c4a6e', lineHeight: 1.5 }}>
-                <span style={{ flexShrink: 0 }}>👛</span>
-                <span>Your wallet must support <strong>Polygon</strong> (MetaMask, Trust Wallet, and Coinbase Wallet all support it)</span>
-              </div>
-              <div style={{ display: 'flex', gap: 8, fontSize: 12, color: '#991b1b', lineHeight: 1.5 }}>
-                <span style={{ flexShrink: 0 }}>⚠️</span>
-                <span><strong>Sending to the wrong network will result in lost funds.</strong> Make sure your wallet address is on the Polygon network.</span>
-              </div>
+        <div style={{ display:'flex', flexDirection:'column', gap:18 }}>
+          {/* Affiliate Wallet Withdraw */}
+          <Card title="Affiliate Wallet" dotColor="#16a34a">
+            <div style={{ padding:'10px 14px', background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:10, marginBottom:14 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:'#059669', marginBottom:2 }}>Always withdrawable</div>
+              <div style={{ fontSize:11, color:'#475569', lineHeight:1.6 }}>Membership referrals, SuperScene sponsor commissions, course sales, Pay It Forward.</div>
             </div>
-          </div>
-          {/* KYC gate */}
-          {d.kyc_status !== 'approved' && (
-            <div style={{ padding: '12px 14px', background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.25)', borderRadius: 10, marginBottom: 14 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#d97706', marginBottom: 4 }}>
-                {d.kyc_status === 'pending' ? '⏳ KYC Under Review' : '🔒 Identity Verification Required'}
-              </div>
-              <div style={{ fontSize: 12, color: '#92400e', lineHeight: 1.6 }}>
-                {d.kyc_status === 'pending'
-                  ? 'Your documents are being reviewed. Withdrawals will be enabled once approved (usually 24-48 hours).'
-                  : 'You must complete identity verification (KYC) before your first withdrawal. Go to Account to submit your documents.'}
-              </div>
-              {d.kyc_status !== 'pending' && (
-                <a href="/account" style={{ display: 'inline-block', marginTop: 8, fontSize: 12, fontWeight: 700, color: '#0ea5e9', textDecoration: 'none' }}>
-                  Go to Account → Verify Identity
-                </a>
-              )}
-            </div>
-          )}
-          {d.wallet_address ? (
-            d.balance >= 10 ? (
-              <form method="POST" action="/withdraw" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div>
-                  <label style={labelStyle}>Amount (USDT)</label>
-                  <input style={inputStyle} type="number" name="amount" min="10" max={d.balance} step="0.01" placeholder="0.00" required />
-                </div>
-                {user?.totp_enabled && (
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#16a34a', textAlign:'center', marginBottom:14 }}>${formatMoney(d.balance)}</div>
+            {d.wallet_address ? (
+              d.balance >= 10 ? (
+                <form method="POST" action="/withdraw" style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                  <input type="hidden" name="wallet_type" value="affiliate"/>
                   <div>
-                    <label style={labelStyle}>2FA Code</label>
-                    <input style={{ ...inputStyle, textAlign: 'center', letterSpacing: 6, fontWeight: 700, fontSize: 18 }} type="text" name="totp_code" maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric" required />
+                    <label style={labelStyle}>Amount (USDT)</label>
+                    <input style={inputStyle} type="number" name="amount" min="10" max={d.balance} step="0.01" placeholder="0.00" required/>
                   </div>
-                )}
-                <button type="submit" style={btnPrimary}>Withdraw →</button>
-                <div style={{ marginTop: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
-                  <div style={{ fontSize: 13, color: '#3d5068' }}>💳 <span style={{ fontFamily: 'monospace', fontSize: 12, color: '#0284c7' }}>{d.wallet_address?.slice(0, 10)}…{d.wallet_address?.slice(-6)}</span></div>
-                  <div style={{ fontSize: 13, color: '#3d5068' }}>💰 Min <strong>$10</strong> · 🏷️ Fee <strong>$1.00</strong></div>
-                </div>
-                <div style={{ marginTop: 10, padding: '10px 12px', background: 'rgba(22,163,74,.06)', border: '1px solid rgba(22,163,74,.18)', borderRadius: 10, fontSize: 13, color: '#16a34a' }}>
-                  ⚡ Sent automatically as USDT on the Polygon network.
-                </div>
-              </form>
+                  {user?.totp_enabled && (
+                    <div>
+                      <label style={labelStyle}>2FA Code</label>
+                      <input style={{ ...inputStyle, textAlign:'center', letterSpacing:6, fontWeight:700, fontSize:18 }} type="text" name="totp_code" maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric" required/>
+                    </div>
+                  )}
+                  <button type="submit" style={btnPrimary}>Withdraw from Affiliate Wallet →</button>
+                  <div style={{ fontSize:11, color:'#64748b', textAlign:'center' }}>Min $10 · Fee $1.00 · USDT on Polygon</div>
+                </form>
+              ) : (
+                <div style={{ textAlign:'center', fontSize:13, color:'#64748b' }}>Minimum $10 to withdraw. Balance: ${formatMoney(d.balance)}</div>
+              )
             ) : (
-              <div style={{ textAlign: 'center', padding: '16px 0' }}>
-                <div style={{ fontSize: 36, marginBottom: 10 }}>◎</div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#3d5068', marginBottom: 6 }}>Minimum $10 USDT to withdraw</div>
-                <div style={{ fontSize: 13, color: '#7b91a8', marginBottom: 16 }}>Your balance is ${formatMoney(d.balance)}.</div>
-                <div style={{ fontSize: 12, color: '#7b91a8', marginTop: 8 }}>Minimum withdrawal is <strong style={{ color: '#3d5068' }}>$10 USDT</strong></div>
+              <div style={{ textAlign:'center' }}>
+                <div style={{ fontSize:13, color:'#64748b', marginBottom:10 }}>No wallet address set</div>
+                <Link to="/account" style={{ fontSize:12, fontWeight:700, color:'#0ea5e9', textDecoration:'none' }}>Add wallet in Account Settings →</Link>
               </div>
-            )
-          ) : (
-            <div style={{ textAlign: 'center', padding: '16px 0' }}>
-              <div style={{ fontSize: 36, marginBottom: 10 }}>💳</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#3d5068', marginBottom: 6 }}>No wallet address set</div>
-              <div style={{ fontSize: 13, color: '#7b91a8', marginBottom: 16 }}>Add your Polygon wallet address in Account settings.</div>
-              <Link to="/account" style={btnPrimary}>Go to Account Settings</Link>
+            )}
+          </Card>
+
+          {/* Campaign Wallet Withdraw */}
+          <Card title="Campaign Wallet" dotColor="#6366f1">
+            <div style={{ padding:'10px 14px', background:'#eef2ff', border:'1px solid #c7d2fe', borderRadius:10, marginBottom:14 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:'#4338ca', marginBottom:2 }}>Requires active tier + daily videos</div>
+              <div style={{ fontSize:11, color:'#475569', lineHeight:1.6 }}>Grid commissions: 40% direct sponsor, 6.25% uni-level, completion bonus.</div>
             </div>
-          )}
-        </Card>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#6366f1', textAlign:'center', marginBottom:14 }}>${formatMoney(d.campaign_balance || 0)}</div>
+            {d.wallet_address ? (
+              (d.campaign_balance || 0) >= 10 ? (
+                <form method="POST" action="/withdraw" style={{ display:'flex', flexDirection:'column', gap:10 }}>
+                  <input type="hidden" name="wallet_type" value="campaign"/>
+                  <div>
+                    <label style={labelStyle}>Amount (USDT)</label>
+                    <input style={inputStyle} type="number" name="amount" min="10" max={d.campaign_balance || 0} step="0.01" placeholder="0.00" required/>
+                  </div>
+                  {user?.totp_enabled && (
+                    <div>
+                      <label style={labelStyle}>2FA Code</label>
+                      <input style={{ ...inputStyle, textAlign:'center', letterSpacing:6, fontWeight:700, fontSize:18 }} type="text" name="totp_code" maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric" required/>
+                    </div>
+                  )}
+                  <button type="submit" style={{ ...btnPrimary, background:'linear-gradient(135deg,#6366f1,#818cf8)' }}>Withdraw from Campaign Wallet →</button>
+                  <div style={{ fontSize:11, color:'#64748b', textAlign:'center' }}>Min $10 · Fee $1.00 · Active tier + watch quota required</div>
+                </form>
+              ) : (
+                <div style={{ textAlign:'center', fontSize:13, color:'#64748b' }}>
+                  {(d.campaign_balance || 0) > 0
+                    ? `Minimum $10 to withdraw. Balance: $${formatMoney(d.campaign_balance || 0)}`
+                    : 'No campaign earnings yet. Activate a Campaign Tier to start earning grid commissions.'
+                  }
+                </div>
+              )
+            ) : (
+              <div style={{ textAlign:'center' }}>
+                <div style={{ fontSize:13, color:'#64748b', marginBottom:10 }}>No wallet address set</div>
+                <Link to="/account" style={{ fontSize:12, fontWeight:700, color:'#0ea5e9', textDecoration:'none' }}>Add wallet in Account Settings →</Link>
+              </div>
+            )}
+          </Card>
+        </div>
 
         {/* Col 2: Commission History */}
         <Card title="Commission History" dotColor="#0284c7">
