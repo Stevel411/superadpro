@@ -70,9 +70,9 @@ export default function CompensationPlan() {
         Icon={Users} statVal="50%" statLabel="Commission" statColor="#16a34a"
         iconBg="rgba(34,197,94,.09)" iconColor="#16a34a">
         <FlowArrow steps={[
-          { title:'Referral joins', sub:'Basic $20 / Pro $35' },
-          { title:'50% to you', sub:'$10 or $17.50', highlight:true },
-          { title:'Affiliate wallet', sub:'Withdraw anytime' },
+          { title:'Referral joins', sub:'Basic $20 / Pro $35', bg:'rgba(99,102,241,.06)', border:'rgba(99,102,241,.15)', color:'#6366f1' },
+          { title:'50% to you', sub:'$10 or $17.50', bg:'rgba(34,197,94,.06)', border:'rgba(34,197,94,.15)', color:'#16a34a' },
+          { title:'Affiliate wallet', sub:'Withdraw anytime', bg:'rgba(14,165,233,.06)', border:'rgba(14,165,233,.15)', color:'#0ea5e9' },
         ]}/>
         <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Paid instantly on every new signup. Recurring monthly as long as your referral stays active. No tier required — earn from day one.</div>
       </StreamCard>
@@ -110,9 +110,9 @@ export default function CompensationPlan() {
         Icon={Zap} statVal="$0.025" statLabel="Per credit" statColor="#ec4899"
         iconBg="rgba(236,72,153,.09)" iconColor="#ec4899">
         <FlowArrow steps={[
-          { title:'Referral uses credits', sub:'Video, image, music' },
-          { title:'$0.025 per credit', sub:'Auto micro-payment', highlight:true },
-          { title:'Affiliate wallet', sub:'Passive recurring income' },
+          { title:'Referral uses credits', sub:'Video, image, music', bg:'rgba(99,102,241,.06)', border:'rgba(99,102,241,.15)', color:'#6366f1' },
+          { title:'$0.025 per credit', sub:'Auto micro-payment', bg:'rgba(236,72,153,.06)', border:'rgba(236,72,153,.15)', color:'#ec4899' },
+          { title:'Affiliate wallet', sub:'Passive recurring income', bg:'rgba(14,165,233,.06)', border:'rgba(14,165,233,.15)', color:'#0ea5e9' },
         ]}/>
         <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Every time your referrals use SuperScene AI tools, you earn. With active users generating content regularly, this becomes a steady passive income stream.</div>
       </StreamCard>
@@ -240,13 +240,13 @@ function StreamCard(props) {
 
 function FlowArrow(props) {
   return (
-    <div style={{ display:'flex', alignItems:'center', gap:0, margin:'0 0 16px' }}>
+    <div style={{ display:'grid', gridTemplateColumns:'1fr auto 1fr auto 1fr', alignItems:'center', gap:0, margin:'0 0 18px' }}>
       {props.steps.map(function(s, i) {
         return <div key={i} style={{ display:'contents' }}>
-          {i > 0 && <div style={{ width:32, textAlign:'center', fontSize:20, color:'#cbd5e1' }}>→</div>}
-          <div style={{ flex:1, background:s.highlight ? 'rgba(34,197,94,.06)' : '#f8fafc', border:s.highlight ? '1px solid rgba(34,197,94,.15)' : '1px solid #f1f5f9', borderRadius:12, padding:'14px 14px', textAlign:'center' }}>
-            <div style={{ fontSize:14, fontWeight:700, color:'#0f172a' }}>{s.title}</div>
-            <div style={{ fontSize:13, color: s.highlight ? '#16a34a' : '#64748b', marginTop:3, fontWeight: s.highlight ? 700 : 400 }}>{s.sub}</div>
+          {i > 0 && <div style={{ textAlign:'center', fontSize:24, color:'#cbd5e1', padding:'0 4px' }}>→</div>}
+          <div style={{ background:s.bg || '#f8fafc', border:'1px solid '+(s.border || '#f1f5f9'), borderRadius:12, padding:'20px 14px', textAlign:'center' }}>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a' }}>{s.title}</div>
+            <div style={{ fontSize:14, color:s.color || '#64748b', marginTop:5, fontWeight:600 }}>{s.sub}</div>
           </div>
         </div>;
       })}
