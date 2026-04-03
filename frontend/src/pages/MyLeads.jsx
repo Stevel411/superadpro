@@ -15,7 +15,7 @@ var TABS = [
 var STATUS_STYLES = {
   new:{bg:'#ede9fe',color:'#7c3aed',label:'New'}, nurturing:{bg:'#f0fdf4',color:'#059669',label:'Nurturing'},
   hot:{bg:'#fce7f3',color:'#db2777',label:'Hot'}, converted:{bg:'#ecfeff',color:'#0891b2',label:'Converted'},
-  unsubscribed:{bg:'#f1f5f9',color:'#94a3b8',label:'Unsubscribed'},
+  unsubscribed:{bg:'#f1f5f9',color:'#64748b',label:'Unsubscribed'},
 };
 var TC = ['#6366f1','#0ea5e9','#16a34a','#f59e0b','#ef4444','#ec4899','#8b5cf6','#06b6d4'];
 
@@ -61,7 +61,7 @@ export default function MyLeads() {
       </div>
 
       <div className="sl-stats" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:20}}>
-        {[{v:stats.total||0,l:'Total leads',c:'#6366f1'},{v:sequences.length,l:'Sequences',c:'#0ea5e9'},{v:emailStats.sent_today||0,l:'Sent today',c:'#16a34a'},{v:stats.hot||0,l:'Hot leads',c:'#f59e0b'}].map(function(s,i){return <div key={i} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:16,textAlign:'center'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:s.c}}>{s.v}</div><div style={{fontSize:11,color:'#94a3b8',marginTop:2}}>{s.l}</div></div>;})}
+        {[{v:stats.total||0,l:'Total leads',c:'#6366f1'},{v:sequences.length,l:'Sequences',c:'#0ea5e9'},{v:emailStats.sent_today||0,l:'Sent today',c:'#16a34a'},{v:stats.hot||0,l:'Hot leads',c:'#f59e0b'}].map(function(s,i){return <div key={i} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:16,textAlign:'center'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:s.c}}>{s.v}</div><div style={{fontSize:11,color:'#64748b',marginTop:2}}>{s.l}</div></div>;})}
       </div>
 
       {msg && <div style={{padding:'10px 16px',borderRadius:10,marginBottom:16,fontSize:13,fontWeight:700,background:msgType==='ok'?'#f0fdf4':'#fef2f2',border:'1px solid '+(msgType==='ok'?'#bbf7d0':'#fecaca'),color:msgType==='ok'?'#059669':'#dc2626'}}>{msg}</div>}
@@ -97,26 +97,26 @@ function LeadsTab({leads,lists,sequences,refresh,flash}) {
         <select value={fS} onChange={function(e){setFS(e.target.value);}} className="sl-select" style={{}}><option value="all">All statuses</option><option value="new">New</option><option value="nurturing">Nurturing</option><option value="hot">Hot</option><option value="converted">Converted</option></select>
         <select value={fL} onChange={function(e){setFL(e.target.value);}} className="sl-select" style={{}}><option value="">All lists</option>{lists.map(function(l){return <option key={l.id} value={l.id}>{l.name}</option>;})}</select>
       </div>
-      <div style={{fontSize:12,color:'#94a3b8',fontWeight:600}}>{filtered.length} leads</div>
+      <div style={{fontSize:12,color:'#64748b',fontWeight:600}}>{filtered.length} leads</div>
     </div>
     {filtered.length>0?<div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:12,minWidth:600}}><thead><tr style={{background:'#f8fafc'}}>
-      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#64748b',fontSize:11}}>Name</th>
-      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#64748b',fontSize:11}}>Email</th>
-      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#64748b',fontSize:11}}>Status</th>
-      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#64748b',fontSize:11}}>List</th>
-      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#64748b',fontSize:11}}>Emails</th>
-      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#64748b',fontSize:11}}>Sequence</th>
+      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Name</th>
+      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Email</th>
+      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Status</th>
+      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>List</th>
+      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Emails</th>
+      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Sequence</th>
       <th style={{textAlign:'right',padding:'10px 16px'}}></th>
     </tr></thead><tbody>{filtered.map(function(l){var st=STATUS_STYLES[l.is_hot?'hot':l.status]||STATUS_STYLES.new;var li=lm[l.list_id];return <tr key={l.id} className="sl-row" style={{borderTop:'1px solid #f1f5f9'}}>
       <td style={{padding:'10px 16px',fontWeight:600,color:'#0f172a'}}>{l.name||'—'}</td>
-      <td style={{padding:'10px 16px',color:'#64748b'}}>{l.email}</td>
+      <td style={{padding:'10px 16px',color:'#475569'}}>{l.email}</td>
       <td style={{padding:'10px 16px'}}><span style={{padding:'3px 8px',borderRadius:4,background:st.bg,color:st.color,fontSize:10,fontWeight:700}}>{st.label}</span></td>
-      <td style={{padding:'10px 16px'}}>{li?<span style={{padding:'3px 8px',borderRadius:4,background:li.color+'18',color:li.color,fontSize:10,fontWeight:600}}>{li.name}</span>:<span style={{color:'#cbd5e1',fontSize:10}}>—</span>}</td>
-      <td style={{padding:'10px 16px',color:'#64748b'}}>{l.emails_sent||0} sent</td>
+      <td style={{padding:'10px 16px'}}>{li?<span style={{padding:'3px 8px',borderRadius:4,background:li.color+'18',color:li.color,fontSize:10,fontWeight:600}}>{li.name}</span>:<span style={{color:'#94a3b8',fontSize:10}}>—</span>}</td>
+      <td style={{padding:'10px 16px',color:'#475569'}}>{l.emails_sent||0} sent</td>
       <td style={{padding:'10px 16px'}}><select value={l.sequence_id||''} onChange={function(e){assignSeq(l.id,e.target.value);}} className="sl-select" style={{padding:'8px 12px',maxWidth:130,fontSize:11}}><option value="">None</option>{sequences.map(function(s){return <option key={s.id} value={s.id}>{s.title}</option>;})}</select></td>
       <td style={{padding:'10px 16px',textAlign:'right'}}><button onClick={function(){del(l.id);}} style={{padding:'4px 8px',borderRadius:4,border:'1px solid #fecaca',background:'#fff',color:'#dc2626',fontSize:10,cursor:'pointer',fontFamily:'inherit'}}><Trash2 size={10}/></button></td>
     </tr>;})}</tbody></table></div>
-    :<div style={{textAlign:'center',padding:'60px 20px'}}><UserPlus size={32} color="#cbd5e1" style={{marginBottom:8}}/><div style={{fontSize:14,fontWeight:700,color:'#94a3b8'}}>No leads yet</div><div style={{fontSize:12,color:'#cbd5e1',marginTop:4}}>Leads are captured from your SuperPages funnel forms</div></div>}
+    :<div style={{textAlign:'center',padding:'60px 20px'}}><UserPlus size={32} color="#cbd5e1" style={{marginBottom:8}}/><div style={{fontSize:14,fontWeight:700,color:'#64748b'}}>No leads yet</div><div style={{fontSize:12,color:'#94a3b8',marginTop:4}}>Leads are captured from your SuperPages funnel forms</div></div>}
   </div>;
 }
 
@@ -130,11 +130,11 @@ function SeqTab({sequences,refresh,flash}) {
   function sendNext(sid){apiPost('/api/leads/send-sequence-email',{sequence_id:sid}).then(function(r){flash('Sent '+(r.sent||0)+' emails');refresh();}).catch(function(e){flash(e.message,'err');});}
 
   if(ed!==null)return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
-    <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9',display:'flex',justifyContent:'space-between',alignItems:'center'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800}}>{ed==='new'?'Create':'Edit'} Sequence</div><button onClick={function(){setEd(null);}} style={{fontSize:12,color:'#94a3b8',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit'}}>Cancel</button></div>
+    <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9',display:'flex',justifyContent:'space-between',alignItems:'center'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800}}>{ed==='new'?'Create':'Edit'} Sequence</div><button onClick={function(){setEd(null);}} style={{fontSize:12,color:'#64748b',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit'}}>Cancel</button></div>
     <div style={{padding:'20px 24px'}}>
-      <div style={{marginBottom:16}}><label style={{fontSize:12,fontWeight:700,color:'#64748b',display:'block',marginBottom:6}}>Sequence name</label><input value={t} onChange={function(e){setT(e.target.value);}} placeholder="e.g. Fitness Welcome Series" style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
+      <div style={{marginBottom:16}}><label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Sequence name</label><input value={t} onChange={function(e){setT(e.target.value);}} placeholder="e.g. Fitness Welcome Series" style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
       {em.map(function(e,i){var color=TC[i%TC.length];return <div key={i} style={{background:'#f8f9fb',borderRadius:12,padding:16,marginBottom:10,border:'1px solid #e8ecf2',borderLeft:'3px solid '+color}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}><span style={{fontSize:12,fontWeight:800,color:color}}>Email {i+1}</span><div style={{display:'flex',gap:6,alignItems:'center'}}><span style={{fontSize:10,color:'#94a3b8'}}>after</span><input type="number" min="0" value={e.send_delay_days} onChange={function(ev){setEm(em.map(function(x,j){return j===i?Object.assign({},x,{send_delay_days:parseInt(ev.target.value)||0}):x;}));}} style={{width:45,padding:4,border:'1px solid #e2e8f0',borderRadius:5,fontSize:11,textAlign:'center'}}/><span style={{fontSize:10,color:'#94a3b8'}}>days</span>{em.length>1&&<button onClick={function(){setEm(em.filter(function(x,j){return j!==i;}));}} style={{color:'#dc2626',background:'none',border:'none',cursor:'pointer',padding:2}}><Trash2 size={12}/></button>}</div></div>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}><span style={{fontSize:12,fontWeight:800,color:color}}>Email {i+1}</span><div style={{display:'flex',gap:6,alignItems:'center'}}><span style={{fontSize:10,color:'#64748b'}}>after</span><input type="number" min="0" value={e.send_delay_days} onChange={function(ev){setEm(em.map(function(x,j){return j===i?Object.assign({},x,{send_delay_days:parseInt(ev.target.value)||0}):x;}));}} style={{width:45,padding:4,border:'1px solid #e2e8f0',borderRadius:5,fontSize:11,textAlign:'center'}}/><span style={{fontSize:10,color:'#64748b'}}>days</span>{em.length>1&&<button onClick={function(){setEm(em.filter(function(x,j){return j!==i;}));}} style={{color:'#dc2626',background:'none',border:'none',cursor:'pointer',padding:2}}><Trash2 size={12}/></button>}</div></div>
         <input value={e.subject} onChange={function(ev){setEm(em.map(function(x,j){return j===i?Object.assign({},x,{subject:ev.target.value}):x;}));}} placeholder="Subject line" style={{width:'100%',padding:'9px 12px',border:'1.5px solid #e2e8f0',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',marginBottom:8,background:'#fff'}}/>
         <RichTextEditor content={e.body_html} onChange={function(h){setEm(em.map(function(x,j){return j===i?Object.assign({},x,{body_html:h}):x;}));}} placeholder="Email body..."/>
       </div>;})}
@@ -149,11 +149,11 @@ function SeqTab({sequences,refresh,flash}) {
     </div>
     {sequences.length>0?sequences.map(function(sq){var se=sq.emails||[];return <div key={sq.id} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden',marginBottom:12}}>
       <div style={{padding:'16px 20px',borderBottom:'1px solid #f1f5f9',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
-        <div><div style={{fontSize:14,fontWeight:800,color:'#0f172a'}}>{sq.title}</div><div style={{fontSize:11,color:'#94a3b8',marginTop:2}}>{sq.num_emails} emails</div></div>
+        <div><div style={{fontSize:14,fontWeight:800,color:'#0f172a'}}>{sq.title}</div><div style={{fontSize:11,color:'#64748b',marginTop:2}}>{sq.num_emails} emails</div></div>
         <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
           <span style={{padding:'4px 10px',borderRadius:6,background:sq.is_active?'#f0fdf4':'#f1f5f9',color:sq.is_active?'#059669':'#94a3b8',fontSize:10,fontWeight:700}}>{sq.is_active?'Active':'Paused'}</span>
           <button onClick={function(){sendNext(sq.id);}} style={{padding:'4px 12px',borderRadius:6,border:'none',background:'#16a34a',color:'#fff',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Send Next</button>
-          <button onClick={function(){editEx(sq);}} style={{padding:'4px 12px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Edit</button>
+          <button onClick={function(){editEx(sq);}} style={{padding:'4px 12px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'#475569',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Edit</button>
           <button onClick={function(){delSeq(sq.id);}} style={{padding:'4px 12px',borderRadius:6,border:'1px solid #fecaca',background:'#fff',color:'#dc2626',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Delete</button>
         </div>
       </div>
@@ -161,11 +161,11 @@ function SeqTab({sequences,refresh,flash}) {
         <div style={{textAlign:'center',minWidth:80}}>
           <div style={{width:36,height:36,borderRadius:10,background:c,display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 6px'}}><Mail size={16} color="#fff"/></div>
           <div style={{fontSize:11,fontWeight:700,color:'#0f172a',maxWidth:90,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{e.subject||'Email '+(i+1)}</div>
-          <div style={{fontSize:10,color:'#94a3b8'}}>Day {e.send_delay_days||0}</div>
+          <div style={{fontSize:10,color:'#64748b'}}>Day {e.send_delay_days||0}</div>
         </div>
         {!last&&<div style={{flex:1,height:2,background:'#e2e8f0',margin:'0 4px',marginBottom:24}}/>}
       </div>;})}</div>}
-    </div>;}):<div style={{textAlign:'center',padding:'60px 20px',background:'#fff',borderRadius:14,border:'1px solid #e2e8f0'}}><Zap size={32} color="#cbd5e1" style={{marginBottom:8}}/><div style={{fontSize:14,fontWeight:700,color:'#94a3b8'}}>No sequences yet</div><div style={{fontSize:12,color:'#cbd5e1',marginTop:4}}>Create a sequence to start nurturing your leads automatically</div></div>}
+    </div>;}):<div style={{textAlign:'center',padding:'60px 20px',background:'#fff',borderRadius:14,border:'1px solid #e2e8f0'}}><Zap size={32} color="#cbd5e1" style={{marginBottom:8}}/><div style={{fontSize:14,fontWeight:700,color:'#64748b'}}>No sequences yet</div><div style={{fontSize:12,color:'#94a3b8',marginTop:4}}>Create a sequence to start nurturing your leads automatically</div></div>}
   </div>;
 }
 
@@ -175,15 +175,15 @@ function BcastTab({leads,lists,flash}) {
   function send(){if(!sub.trim()){flash('Subject required','err');return;}setS(true);apiPost('/api/leads/broadcast',{subject:sub,html_content:html,filter_status:fS,list_id:fL?parseInt(fL):null}).then(function(r){setS(false);setSent(r.sent||0);flash('Broadcast sent to '+(r.sent||0)+' leads');}).catch(function(e){setS(false);flash(e.message,'err');});}
 
   return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
-    <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:4}}>Broadcast</div><div style={{fontSize:12,color:'#94a3b8'}}>Send a one-off email to your leads</div></div>
+    <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:4}}>Broadcast</div><div style={{fontSize:12,color:'#64748b'}}>Send a one-off email to your leads</div></div>
     <div style={{padding:'20px 24px'}}>
       <div style={{display:'flex',gap:10,marginBottom:16}}>
-        <div style={{flex:1}}><label style={{fontSize:11,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>List</label><select value={fL} onChange={function(e){setFL(e.target.value);}} className="sl-select" style={{}}><option value="">All lists</option>{lists.map(function(l){return <option key={l.id} value={l.id}>{l.name}</option>;})}</select></div>
-        <div style={{flex:1}}><label style={{fontSize:11,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>Status</label><select value={fS} onChange={function(e){setFS(e.target.value);}} className="sl-select" style={{}}><option value="all">All</option><option value="new">New</option><option value="nurturing">Nurturing</option><option value="hot">Hot</option></select></div>
+        <div style={{flex:1}}><label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>List</label><select value={fL} onChange={function(e){setFL(e.target.value);}} className="sl-select" style={{}}><option value="">All lists</option>{lists.map(function(l){return <option key={l.id} value={l.id}>{l.name}</option>;})}</select></div>
+        <div style={{flex:1}}><label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>Status</label><select value={fS} onChange={function(e){setFS(e.target.value);}} className="sl-select" style={{}}><option value="all">All</option><option value="new">New</option><option value="nurturing">Nurturing</option><option value="hot">Hot</option></select></div>
         <div style={{display:'flex',alignItems:'flex-end',paddingBottom:2}}><span style={{fontSize:14,fontWeight:800,color:'#6366f1'}}>{ct} recipients</span></div>
       </div>
-      <div style={{marginBottom:16}}><label style={{fontSize:11,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>Subject</label><input value={sub} onChange={function(e){setSub(e.target.value);}} style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
-      <div style={{marginBottom:16}}><label style={{fontSize:11,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>Content</label><RichTextEditor content={html} onChange={setHtml} placeholder="Write your broadcast email..."/></div>
+      <div style={{marginBottom:16}}><label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>Subject</label><input value={sub} onChange={function(e){setSub(e.target.value);}} style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
+      <div style={{marginBottom:16}}><label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>Content</label><RichTextEditor content={html} onChange={setHtml} placeholder="Write your broadcast email..."/></div>
       <button onClick={send} disabled={s} style={{display:'flex',alignItems:'center',gap:6,padding:'12px 24px',borderRadius:10,border:'none',background:s?'#cbd5e1':'linear-gradient(135deg,#16a34a,#22c55e)',color:'#fff',fontSize:13,fontWeight:800,cursor:s?'default':'pointer',fontFamily:'Sora,sans-serif'}}><Send size={14}/>{s?'Sending...':'Send to '+ct}</button>
       {sent!==null&&<div style={{marginTop:10,fontSize:12,fontWeight:700,color:'#16a34a'}}>Sent to {sent} leads</div>}
     </div></div>;
@@ -195,11 +195,11 @@ function ImpTab({stats,lists,refresh,flash}) {
   function upload(){if(!p.length)return;setU(true);apiPost('/api/leads/upload-csv',{leads:p,list_id:lid?parseInt(lid):null}).then(function(r){setU(false);setRes(r);flash('+'+r.imported+' imported');refresh();}).catch(function(e){setU(false);flash(e.message,'err');});}
 
   return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
-    <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:4}}>Import Leads</div><div style={{fontSize:12,color:'#94a3b8'}}>Upload a CSV file with email addresses</div></div>
+    <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:4}}>Import Leads</div><div style={{fontSize:12,color:'#64748b'}}>Upload a CSV file with email addresses</div></div>
     <div style={{padding:'20px 24px'}}>
       <div style={{display:'flex',gap:12,marginBottom:16}}>
-        <div style={{flex:1,background:'rgba(99,102,241,.04)',border:'1px solid rgba(99,102,241,.12)',borderRadius:10,padding:12}}><div style={{fontSize:10,fontWeight:700,color:'#6366f1'}}>Leads</div><div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#6366f1'}}>{stats.total||0}<span style={{fontSize:12,color:'#94a3b8'}}>/{stats.limit||5000}</span></div></div>
-        <div style={{flex:2}}><label style={{fontSize:11,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>Import into list</label><select value={lid} onChange={function(e){setLid(e.target.value);}} className="sl-select" style={{}}><option value="">Unsorted</option>{lists.map(function(l){return <option key={l.id} value={l.id}>{l.name}</option>;})}</select></div>
+        <div style={{flex:1,background:'rgba(99,102,241,.04)',border:'1px solid rgba(99,102,241,.12)',borderRadius:10,padding:12}}><div style={{fontSize:10,fontWeight:700,color:'#6366f1'}}>Leads</div><div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#6366f1'}}>{stats.total||0}<span style={{fontSize:12,color:'#64748b'}}>/{stats.limit||5000}</span></div></div>
+        <div style={{flex:2}}><label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>Import into list</label><select value={lid} onChange={function(e){setLid(e.target.value);}} className="sl-select" style={{}}><option value="">Unsorted</option>{lists.map(function(l){return <option key={l.id} value={l.id}>{l.name}</option>;})}</select></div>
       </div>
       <label style={{display:'flex',flexDirection:'column',alignItems:'center',gap:6,padding:28,borderRadius:12,border:'2px dashed #d1d5db',cursor:'pointer',marginBottom:12,transition:'border-color .15s'}} onMouseEnter={function(e){e.currentTarget.style.borderColor='#6366f1';}} onMouseLeave={function(e){e.currentTarget.style.borderColor='#d1d5db';}}>
         <Upload size={24} color="#6366f1"/><span style={{fontSize:13,fontWeight:600,color:'#475569'}}>Upload CSV</span><input type="file" accept=".csv,.txt" onChange={function(e){var f=e.target.files[0];if(f){var rd=new FileReader();rd.onload=function(ev){setCsv(ev.target.result);};rd.readAsText(f);}}} style={{display:'none'}}/>
@@ -223,22 +223,22 @@ function BoostTab({emailStats,refresh,flash}) {
     <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,padding:'20px 24px',marginBottom:16}}>
       <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:12}}>Email Credits</div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10}}>
-        <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:10,fontWeight:700,color:'#94a3b8',marginBottom:4}}>Free today</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#16a34a'}}>{emailStats.free_remaining||0}</div><div style={{fontSize:10,color:'#cbd5e1'}}>of {emailStats.daily_limit||200}</div></div>
-        <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:10,fontWeight:700,color:'#94a3b8',marginBottom:4}}>Boost credits</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#8b5cf6'}}>{(emailStats.boost_credits||0).toLocaleString()}</div></div>
-        <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:10,fontWeight:700,color:'#94a3b8',marginBottom:4}}>Total available</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0ea5e9'}}>{(emailStats.total_available||0).toLocaleString()}</div></div>
+        <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Free today</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#16a34a'}}>{emailStats.free_remaining||0}</div><div style={{fontSize:10,color:'#94a3b8'}}>of {emailStats.daily_limit||200}</div></div>
+        <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Boost credits</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#8b5cf6'}}>{(emailStats.boost_credits||0).toLocaleString()}</div></div>
+        <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Total available</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0ea5e9'}}>{(emailStats.total_available||0).toLocaleString()}</div></div>
       </div>
     </div>
     <div style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,marginBottom:12}}>Buy Email Boost Packs</div>
     <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:10}}>
       {packs.map(function(pk){var ib=buying===pk.id;return <div key={pk.id} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:'18px 20px',display:'flex',flexDirection:'column'}}>
         <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:2}}>{(pk.label||'').replace(/[^\w\s,]/g,'')}</div>
-        <div style={{fontSize:11,color:'#94a3b8',marginBottom:12,flex:1}}>{pk.desc}</div>
+        <div style={{fontSize:11,color:'#64748b',marginBottom:12,flex:1}}>{pk.desc}</div>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0f172a'}}>${pk.price}</div>
           <button onClick={function(){buy(pk.id);}} disabled={ib} style={{padding:'8px 16px',borderRadius:8,border:'none',background:ib?'#cbd5e1':'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:11,fontWeight:700,cursor:ib?'wait':'pointer',fontFamily:'inherit'}}>{ib?'Buying...':'Buy'}</button>
         </div>
       </div>;})}
     </div>
-    <div style={{fontSize:11,color:'#94a3b8',marginTop:12,textAlign:'center'}}>Boost credits are paid from your wallet balance. Credits never expire.</div>
+    <div style={{fontSize:11,color:'#64748b',marginTop:12,textAlign:'center'}}>Boost credits are paid from your wallet balance. Credits never expire.</div>
   </div>;
 }
