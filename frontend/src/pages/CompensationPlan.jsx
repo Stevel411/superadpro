@@ -47,18 +47,18 @@ export default function CompensationPlan() {
       }}>
         <div style={{ position:'absolute', top:-30, right:-30, width:140, height:140, borderRadius:'50%', background:'rgba(139,92,246,.12)' }}/>
         <div style={{ position:'absolute', bottom:-20, left:-20, width:100, height:100, borderRadius:'50%', background:'rgba(59,130,246,.1)' }}/>
-        <div style={{ fontSize:11, letterSpacing:3, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>Compensation plan</div>
-        <div style={{ fontFamily:'Sora,sans-serif', fontSize:30, fontWeight:800, color:'#fff', marginBottom:6 }}>5 income streams</div>
-        <div style={{ fontSize:14, color:'rgba(255,255,255,.55)', marginBottom:20 }}>95% of all revenue paid to members — only 5% retained by the platform</div>
+        <div style={{ fontSize:13, letterSpacing:3, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:10 }}>Compensation plan</div>
+        <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:800, color:'#fff', marginBottom:8 }}>5 income streams</div>
+        <div style={{ fontSize:16, color:'rgba(255,255,255,.55)', marginBottom:24 }}>95% of all revenue paid to members — only 5% retained by the platform</div>
         <div style={{ display:'flex', justifyContent:'center', gap:16, flexWrap:'wrap' }}>
           {[
             { val:'$10–$17.50', label:'Per referral', color:'#4ade80' },
             { val:'8 levels', label:'Uni-level depth', color:'#60a5fa' },
             { val:'$64–$3,200', label:'Grid completion bonus', color:'#c084fc' },
           ].map(function(s, i) {
-            return <div key={i} style={{ background:'rgba(255,255,255,.06)', border:'1px solid rgba(255,255,255,.1)', borderRadius:12, padding:'12px 20px', textAlign:'center', minWidth:130 }}>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:s.color }}>{s.val}</div>
-              <div style={{ fontSize:11, color:'rgba(255,255,255,.4)', marginTop:3 }}>{s.label}</div>
+            return <div key={i} style={{ background:'rgba(255,255,255,.06)', border:'1px solid rgba(255,255,255,.1)', borderRadius:14, padding:'16px 28px', textAlign:'center', minWidth:160 }}>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:s.color }}>{s.val}</div>
+              <div style={{ fontSize:13, color:'rgba(255,255,255,.45)', marginTop:4 }}>{s.label}</div>
             </div>;
           })}
         </div>
@@ -73,35 +73,35 @@ export default function CompensationPlan() {
           { title:'50% to you', sub:'$10 or $17.50', highlight:true },
           { title:'Affiliate wallet', sub:'Withdraw anytime' },
         ]}/>
-        <div style={{ fontSize:13, color:'#475569', lineHeight:1.7 }}>Paid instantly on every new signup. Recurring monthly as long as your referral stays active. No tier required — earn from day one.</div>
+        <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Paid instantly on every new signup. Recurring monthly as long as your referral stays active. No tier required — earn from day one.</div>
       </StreamCard>
 
       {/* Stream 2: Campaign Grid */}
       <StreamCard num="2" title="8×8 campaign grid" subtitle="Three commission types from your grid network"
         Icon={Zap} statVal="95%" statLabel="Total payout" statColor="#6366f1"
         iconBg="rgba(99,102,241,.09)" iconColor="#6366f1">
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, margin:'0 0 14px' }}>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, margin:'0 0 18px' }}>
           {[
-            { val:'40%', label:'Direct sponsor', sub:'Your referral buys a tier' },
-            { val:'6.25%', label:'× 8 levels deep', sub:'Earn from entire network' },
-            { val:'5%', label:'Completion bonus', sub:'Grid fills 64 positions' },
+            { val:'40%', label:'Direct sponsor', sub:'Your referral buys a tier', bg:'rgba(34,197,94,.06)', border:'rgba(34,197,94,.15)', color:'#16a34a' },
+            { val:'6.25%', label:'× 8 levels deep', sub:'Earn from entire network', bg:'rgba(99,102,241,.06)', border:'rgba(99,102,241,.15)', color:'#6366f1' },
+            { val:'5%', label:'Completion bonus', sub:'Grid fills 64 positions', bg:'rgba(245,158,11,.06)', border:'rgba(245,158,11,.15)', color:'#d97706' },
           ].map(function(c, i) {
-            return <div key={i} style={{ background:'rgba(99,102,241,.04)', border:'1px solid rgba(99,102,241,.1)', borderRadius:10, padding:'14px 10px', textAlign:'center' }}>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#6366f1' }}>{c.val}</div>
-              <div style={{ fontSize:11, fontWeight:700, color:'#475569', marginTop:4 }}>{c.label}</div>
-              <div style={{ fontSize:11, color:'#94a3b8', marginTop:2 }}>{c.sub}</div>
+            return <div key={i} style={{ background:c.bg, border:'1px solid '+c.border, borderRadius:12, padding:'20px 14px', textAlign:'center' }}>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:c.color }}>{c.val}</div>
+              <div style={{ fontSize:13, fontWeight:700, color:'#0f172a', marginTop:6 }}>{c.label}</div>
+              <div style={{ fontSize:12, color:'#64748b', marginTop:3 }}>{c.sub}</div>
             </div>;
           })}
         </div>
-        <div style={{ display:'flex', gap:5, overflowX:'auto', paddingBottom:4, marginBottom:10 }}>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(8,1fr)', gap:6, marginBottom:14 }}>
           {[1,2,3,4,5,6,7,8].map(function(t) {
-            return <div key={t} style={{ minWidth:74, background:TIER_GRADS[t], borderRadius:8, padding:'7px 8px', textAlign:'center', flexShrink:0 }}>
-              <div style={{ fontSize:10, color:'rgba(255,255,255,.65)' }}>T{t}</div>
-              <div style={{ fontSize:13, fontWeight:700, color:'#fff' }}>${TIER_PRICES[t]}</div>
+            return <div key={t} style={{ background:TIER_GRADS[t], borderRadius:10, padding:'12px 8px', textAlign:'center' }}>
+              <div style={{ fontSize:12, fontWeight:600, color:'rgba(255,255,255,.7)' }}>T{t}</div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#fff' }}>${TIER_PRICES[t]}</div>
             </div>;
           })}
         </div>
-        <div style={{ fontSize:13, color:'#475569', lineHeight:1.7 }}>Activate a campaign tier to unlock grid commissions. Your referrals and their referrals fill your 8×8 grid. Earnings go to your campaign wallet (requires active tier + daily watch quota).</div>
+        <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Activate a campaign tier to unlock grid commissions. Your referrals and their referrals fill your 8×8 grid. Earnings go to your campaign wallet (requires active tier + daily watch quota).</div>
       </StreamCard>
 
       {/* Stream 3: SuperScene */}
@@ -113,32 +113,32 @@ export default function CompensationPlan() {
           { title:'$0.025 per credit', sub:'Auto micro-payment', highlight:true },
           { title:'Affiliate wallet', sub:'Passive recurring income' },
         ]}/>
-        <div style={{ fontSize:13, color:'#475569', lineHeight:1.7 }}>Every time your referrals use SuperScene AI tools, you earn. With active users generating content regularly, this becomes a steady passive income stream.</div>
+        <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Every time your referrals use SuperScene AI tools, you earn. With active users generating content regularly, this becomes a steady passive income stream.</div>
       </StreamCard>
 
       {/* Stream 4: Courses */}
       <StreamCard num="4" title="Course marketplace" subtitle="100% commission on first sale, pass-up cascade to upline"
         Icon={GraduationCap} statVal="" statLabel="" statColor="#f59e0b"
         iconBg="rgba(245,158,11,.09)" iconColor="#f59e0b" badge="Coming soon">
-        <div style={{ fontSize:13, color:'#475569', lineHeight:1.7 }}>Create and sell courses on the marketplace. Keep 100% of your first sale. Subsequent sales pass up to your sponsor in a cascade — the deeper your network, the more pass-ups flow to you.</div>
+        <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Create and sell courses on the marketplace. Keep 100% of your first sale. Subsequent sales pass up to your sponsor in a cascade — the deeper your network, the more pass-ups flow to you.</div>
       </StreamCard>
 
       {/* Stream 5: Pay It Forward */}
       <StreamCard num="5" title="Pay It Forward" subtitle="Gift memberships, become the sponsor, earn commissions"
         Icon={Heart} statVal="$20" statLabel="Per gift" statColor="#ec4899"
         iconBg="rgba(236,72,153,.09)" iconColor="#ec4899">
-        <div style={{ fontSize:13, color:'#475569', lineHeight:1.7 }}>Pay $20 to gift someone a Basic membership. You become their sponsor and earn referral commissions on everything they do. When they earn $20+, they're prompted to pay it forward — creating an organic growth chain.</div>
+        <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Pay $20 to gift someone a Basic membership. You become their sponsor and earn referral commissions on everything they do. When they earn $20+, they're prompted to pay it forward — creating an organic growth chain.</div>
       </StreamCard>
 
       {/* Earnings Calculator */}
-      <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:'24px', marginBottom:18 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:18 }}>
-          <div style={{ width:40, height:40, borderRadius:10, background:'rgba(99,102,241,.08)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <DollarSign size={20} color="#6366f1"/>
+      <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:16, padding:'28px', marginBottom:18 }}>
+        <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:20 }}>
+          <div style={{ width:52, height:52, borderRadius:12, background:'rgba(99,102,241,.08)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <DollarSign size={26} color="#6366f1"/>
           </div>
           <div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800 }}>Earnings calculator</div>
-            <div style={{ fontSize:12, color:'#64748b' }}>Adjust the sliders to see your projected earnings</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800 }}>Earnings calculator</div>
+            <div style={{ fontSize:14, color:'#64748b' }}>Adjust the sliders to see your projected earnings</div>
           </div>
         </div>
 
@@ -150,9 +150,9 @@ export default function CompensationPlan() {
             <SliderRow label="% referrals on Pro ($35)" value={proPct} min={0} max={100} step={5} display={proPct + '%'} onChange={function(v) { setProPct(v); }}/>
           </div>
           <div style={{ background:'#f8fafc', borderRadius:12, padding:'20px', display:'flex', flexDirection:'column', justifyContent:'center' }}>
-            <div style={{ fontSize:11, fontWeight:700, letterSpacing:1, textTransform:'uppercase', color:'#94a3b8', marginBottom:6 }}>Projected monthly earnings</div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:800, color:'#0f172a', marginBottom:16 }}>${Math.round(total).toLocaleString()}</div>
-            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+            <div style={{ fontSize:12, fontWeight:700, letterSpacing:1, textTransform:'uppercase', color:'#94a3b8', marginBottom:8 }}>Projected monthly earnings</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:42, fontWeight:800, color:'#0f172a', marginBottom:18 }}>${Math.round(total).toLocaleString()}</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
               <CalcRow label="Membership referrals" value={memMonthly} total={total} color="#16a34a"/>
               <CalcRow label="Grid commissions" value={gridTotal} total={total} color="#6366f1"/>
               <CalcRow label="SuperScene sponsor" value={ssEarnings} total={total} color="#ec4899"/>
@@ -168,21 +168,21 @@ export default function CompensationPlan() {
 function StreamCard(props) {
   var Icon = props.Icon;
   return (
-    <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:'20px 24px', marginBottom:14 }}>
-      <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:14 }}>
-        <div style={{ width:40, height:40, borderRadius:10, background:props.iconBg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-          <Icon size={20} color={props.iconColor}/>
+    <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:16, padding:'24px 28px', marginBottom:16 }}>
+      <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:16 }}>
+        <div style={{ width:52, height:52, borderRadius:12, background:props.iconBg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+          <Icon size={26} color={props.iconColor}/>
         </div>
         <div style={{ flex:1 }}>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:15, fontWeight:800, color:'#0f172a' }}>{props.title}</div>
-          <div style={{ fontSize:12, color:'#64748b' }}>{props.subtitle}</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0f172a' }}>{props.title}</div>
+          <div style={{ fontSize:14, color:'#64748b' }}>{props.subtitle}</div>
         </div>
         {props.badge ? (
-          <div style={{ padding:'4px 12px', borderRadius:20, background:'rgba(245,158,11,.08)', fontSize:12, fontWeight:700, color:'#d97706' }}>{props.badge}</div>
+          <div style={{ padding:'6px 16px', borderRadius:20, background:'rgba(245,158,11,.08)', fontSize:14, fontWeight:700, color:'#d97706' }}>{props.badge}</div>
         ) : props.statVal ? (
           <div style={{ textAlign:'right' }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:props.statColor }}>{props.statVal}</div>
-            {props.statLabel && <div style={{ fontSize:11, color:'#64748b' }}>{props.statLabel}</div>}
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:800, color:props.statColor }}>{props.statVal}</div>
+            {props.statLabel && <div style={{ fontSize:13, color:'#64748b' }}>{props.statLabel}</div>}
           </div>
         ) : null}
       </div>
@@ -193,13 +193,13 @@ function StreamCard(props) {
 
 function FlowArrow(props) {
   return (
-    <div style={{ display:'flex', alignItems:'center', gap:0, margin:'0 0 14px' }}>
+    <div style={{ display:'flex', alignItems:'center', gap:0, margin:'0 0 16px' }}>
       {props.steps.map(function(s, i) {
         return <div key={i} style={{ display:'contents' }}>
-          {i > 0 && <div style={{ width:28, textAlign:'center', fontSize:16, color:'#cbd5e1' }}>→</div>}
-          <div style={{ flex:1, background:s.highlight ? 'rgba(34,197,94,.06)' : '#f8fafc', border:s.highlight ? '1px solid rgba(34,197,94,.15)' : '1px solid #f1f5f9', borderRadius:10, padding:'10px 12px', textAlign:'center' }}>
-            <div style={{ fontSize:12, fontWeight:700, color:'#0f172a' }}>{s.title}</div>
-            <div style={{ fontSize:11, color: s.highlight ? '#16a34a' : '#64748b', marginTop:2, fontWeight: s.highlight ? 700 : 400 }}>{s.sub}</div>
+          {i > 0 && <div style={{ width:32, textAlign:'center', fontSize:20, color:'#cbd5e1' }}>→</div>}
+          <div style={{ flex:1, background:s.highlight ? 'rgba(34,197,94,.06)' : '#f8fafc', border:s.highlight ? '1px solid rgba(34,197,94,.15)' : '1px solid #f1f5f9', borderRadius:12, padding:'14px 14px', textAlign:'center' }}>
+            <div style={{ fontSize:14, fontWeight:700, color:'#0f172a' }}>{s.title}</div>
+            <div style={{ fontSize:13, color: s.highlight ? '#16a34a' : '#64748b', marginTop:3, fontWeight: s.highlight ? 700 : 400 }}>{s.sub}</div>
           </div>
         </div>;
       })}
@@ -209,13 +209,13 @@ function FlowArrow(props) {
 
 function SliderRow(props) {
   return (
-    <div style={{ marginBottom:14 }}>
-      <div style={{ fontSize:12, fontWeight:600, color:'#475569', marginBottom:6 }}>{props.label}</div>
-      <div style={{ display:'flex', alignItems:'center', gap:8 }}>
+    <div style={{ marginBottom:16 }}>
+      <div style={{ fontSize:14, fontWeight:600, color:'#475569', marginBottom:8 }}>{props.label}</div>
+      <div style={{ display:'flex', alignItems:'center', gap:10 }}>
         <input type="range" min={props.min} max={props.max} step={props.step || 1} value={props.value}
           onChange={function(e) { props.onChange(parseInt(e.target.value)); }}
           style={{ flex:1, accentColor:'#6366f1' }}/>
-        <span style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:700, minWidth:32, textAlign:'right', color:'#0f172a' }}>{props.display}</span>
+        <span style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:700, minWidth:36, textAlign:'right', color:'#0f172a' }}>{props.display}</span>
       </div>
     </div>
   );
@@ -225,12 +225,12 @@ function CalcRow(props) {
   var pct = props.total > 0 ? (props.value / props.total * 100) : 0;
   return (
     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center' }}>
-      <span style={{ fontSize:13, color:'#64748b' }}>{props.label}</span>
-      <div style={{ display:'flex', alignItems:'center', gap:8 }}>
-        <div style={{ width:60, height:4, background:'#e2e8f0', borderRadius:2, overflow:'hidden' }}>
-          <div style={{ width:Math.min(100, pct) + '%', height:4, background:props.color, borderRadius:2 }}/>
+      <span style={{ fontSize:14, color:'#64748b' }}>{props.label}</span>
+      <div style={{ display:'flex', alignItems:'center', gap:10 }}>
+        <div style={{ width:70, height:5, background:'#e2e8f0', borderRadius:3, overflow:'hidden' }}>
+          <div style={{ width:Math.min(100, pct) + '%', height:5, background:props.color, borderRadius:3 }}/>
         </div>
-        <span style={{ fontFamily:'Sora,sans-serif', fontSize:13, fontWeight:700, minWidth:48, textAlign:'right', color:'#0f172a' }}>${Math.round(props.value).toLocaleString()}</span>
+        <span style={{ fontFamily:'Sora,sans-serif', fontSize:15, fontWeight:700, minWidth:52, textAlign:'right', color:'#0f172a' }}>${Math.round(props.value).toLocaleString()}</span>
       </div>
     </div>
   );
