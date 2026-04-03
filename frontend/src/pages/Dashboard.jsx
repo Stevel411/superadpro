@@ -309,7 +309,7 @@ export default function Dashboard() {
             name: 'Watch to Earn', desc: 'Watch daily videos to unlock your commissions', link: '/watch',
             color: '#7c3aed', bg: 'linear-gradient(135deg,#faf5ff,#ede9fe)',
             icon: (
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
                 <rect x="2" y="5" width="20" height="14" rx="3" fill="#ede9fe" stroke="#7c3aed" strokeWidth="1.5"/>
                 <polygon points="10,9 10,15 16,12" fill="#7c3aed"/>
                 <circle cx="19" cy="7" r="3" fill="#f59e0b"/>
@@ -321,7 +321,7 @@ export default function Dashboard() {
             name: 'Campaign Tiers', desc: 'Activate a tier to unlock the earning engine', link: '/campaign-tiers',
             color: '#16a34a', bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)',
             icon: (
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
                 <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="#16a34a"/>
                 <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="url(#qaZap)"/>
                 <defs>
@@ -337,7 +337,7 @@ export default function Dashboard() {
             name: 'SuperScene', desc: 'AI Creative Studio — video, music, images & more', link: '/superscene',
             color: '#22d3ee', bg: 'linear-gradient(135deg,#ecfeff,#cffafe)',
             icon: (
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
                 <rect x="2" y="4" width="20" height="14" rx="3" fill="#cffafe" stroke="#22d3ee" strokeWidth="1.5"/>
                 <polygon points="10,8 10,15 16,11.5" fill="#0891b2"/>
                 <rect x="6" y="20" width="12" height="2" rx="1" fill="#22d3ee"/>
@@ -348,7 +348,7 @@ export default function Dashboard() {
             name: 'Ad Hub', desc: 'Place & manage your video, banner & text ads', link: '/ad-hub',
             color: '#ef4444', bg: 'linear-gradient(135deg,#fef2f2,#fecaca)',
             icon: (
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
                 <path d="M3 12l4-8h10l4 8-4 8H7l-4-8z" fill="#fecaca" stroke="#ef4444" strokeWidth="1.5"/>
                 <circle cx="12" cy="12" r="3" fill="#ef4444"/>
                 <path d="M12 6v2M12 16v2M6.5 9l1.5 1M16 14l1.5 1M6.5 15l1.5-1M16 10l1.5-1" stroke="#f87171" strokeWidth="1.5" strokeLinecap="round"/>
@@ -359,7 +359,7 @@ export default function Dashboard() {
             name: 'Analytics', desc: 'Review your stats, earnings & campaign performance', link: '/analytics',
             color: '#8b5cf6', bg: 'linear-gradient(135deg,#faf5ff,#ede9fe)',
             icon: (
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
                 <rect x="3" y="14" width="4" height="7" rx="1" fill="#c4b5fd"/>
                 <rect x="10" y="9" width="4" height="12" rx="1" fill="#a78bfa"/>
                 <rect x="17" y="4" width="4" height="17" rx="1" fill="#8b5cf6"/>
@@ -370,7 +370,7 @@ export default function Dashboard() {
             name: 'Pay It Forward', desc: 'Gift a free membership and change someone\'s life', link: '/pay-it-forward',
             color: '#ec4899', bg: 'linear-gradient(135deg,#fdf2f8,#fce7f3)',
             icon: (
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
                 <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" fill="#ec4899"/>
                 <path d="M12 21.23l8.84-8.84a5.5 5.5 0 0 0-7.78-7.78L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23z" fill="url(#pifHeart)"/>
                 <rect x="9" y="10" width="6" height="5" rx="1" fill="#fff" opacity="0.9"/>
@@ -381,16 +381,16 @@ export default function Dashboard() {
           },
         ].map((a, i) => (
           <Link key={i} to={a.link} className="action-card" style={{
-            background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 20,
+            background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 24,
             boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
             textDecoration: 'none', transition: 'all 0.15s', display: 'flex', flexDirection: 'column',
-            alignItems: 'center', textAlign: 'center', gap: 8,
+            alignItems: 'center', textAlign: 'center', gap: 10,
           }}>
-            <div style={{ width: 56, height: 56, borderRadius: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', background: a.bg }}>
+            <div style={{ width: 68, height: 68, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', background: a.bg }}>
               {a.icon}
             </div>
-            <div style={{ fontSize: 14, fontWeight: 800, color: '#0f172a' }}>{a.name}</div>
-            <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>{a.desc}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a' }}>{a.name}</div>
+            <div style={{ fontSize: 14, color: '#64748b', lineHeight: 1.5 }}>{a.desc}</div>
           </Link>
         ))}
       </div>
