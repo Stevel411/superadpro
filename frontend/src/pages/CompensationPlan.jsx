@@ -12,6 +12,7 @@ var TIER_GRADS = [
   'linear-gradient(135deg,#134e4a,#2dd4bf)', 'linear-gradient(135deg,#374151,#d1d5db)',
   'linear-gradient(135deg,#78350f,#fbbf24)', 'linear-gradient(135deg,#450a0a,#ef4444)',
 ];
+var TIER_BONUSES = [0, 64, 160, 320, 640, 1280, 1920, 2560, 3200];
 
 export default function CompensationPlan() {
   var [showHelp, setShowHelp] = useState(false);
@@ -130,34 +131,80 @@ export default function CompensationPlan() {
         <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Pay $20 to gift someone a Basic membership. You become their sponsor and earn referral commissions on everything they do. When they earn $20+, they're prompted to pay it forward — creating an organic growth chain.</div>
       </StreamCard>
 
-      {/* Earnings Calculator */}
-      <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:16, padding:'28px', marginBottom:18 }}>
-        <div style={{ display:'flex', alignItems:'center', gap:14, marginBottom:20 }}>
-          <div style={{ width:52, height:52, borderRadius:12, background:'rgba(99,102,241,.08)', display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <DollarSign size={26} color="#6366f1"/>
-          </div>
-          <div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800 }}>Earnings calculator</div>
-            <div style={{ fontSize:14, color:'#64748b' }}>Adjust the sliders to see your projected earnings</div>
-          </div>
-        </div>
+      {/* ── TWO CALCULATORS ── */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:18 }}>
 
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:20 }}>
-          <div>
-            <SliderRow label="Personal referrals" value={refs} min={0} max={20} display={String(refs)} onChange={function(v) { setRefs(v); }}/>
-            <SliderRow label="Campaign tier" value={tier} min={0} max={8} display={tier === 0 ? 'None' : 'T' + tier} onChange={function(v) { setTier(v); }}/>
-            <SliderRow label="Team members buying tiers" value={team} min={0} max={60} display={String(team)} onChange={function(v) { setTeam(v); }}/>
-            <SliderRow label="% referrals on Pro ($35)" value={proPct} min={0} max={100} step={5} display={proPct + '%'} onChange={function(v) { setProPct(v); }}/>
-          </div>
-          <div style={{ background:'#f8fafc', borderRadius:12, padding:'20px', display:'flex', flexDirection:'column', justifyContent:'center' }}>
-            <div style={{ fontSize:12, fontWeight:700, letterSpacing:1, textTransform:'uppercase', color:'#94a3b8', marginBottom:8 }}>Projected monthly earnings</div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:42, fontWeight:800, color:'#0f172a', marginBottom:18 }}>${Math.round(total).toLocaleString()}</div>
-            <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-              <CalcRow label="Membership referrals" value={memMonthly} total={total} color="#16a34a"/>
-              <CalcRow label="Grid commissions" value={gridTotal} total={total} color="#6366f1"/>
-              <CalcRow label="SuperScene sponsor" value={ssEarnings} total={total} color="#ec4899"/>
+        {/* Membership Earnings Calculator */}
+        <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:16, padding:'24px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:18 }}>
+            <div style={{ width:48, height:48, borderRadius:12, background:'rgba(34,197,94,.08)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <Users size={24} color="#16a34a"/>
+            </div>
+            <div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:17, fontWeight:800 }}>Membership calculator</div>
+              <div style={{ fontSize:13, color:'#64748b' }}>Monthly recurring income from referrals</div>
             </div>
           </div>
+
+          <SliderRow label="Personal referrals" value={refs} min={0} max={50} display={String(refs)} onChange={function(v) { setRefs(v); }}/>
+          <SliderRow label="% on Pro ($35/mo)" value={proPct} min={0} max={100} step={5} display={proPct + '%'} onChange={function(v) { setProPct(v); }}/>
+
+          <div style={{ background:'#f0fdf4', borderRadius:12, padding:'18px', marginTop:8 }}>
+            <div style={{ fontSize:12, fontWeight:700, letterSpacing:1, textTransform:'uppercase', color:'#059669', marginBottom:6 }}>Monthly recurring</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:800, color:'#059669', marginBottom:14 }}>${Math.round(memMonthly).toLocaleString()}/mo</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', fontSize:14 }}>
+                <span style={{ color:'#475569' }}>Basic referrals ({basicRefs})</span>
+                <span style={{ fontWeight:700, color:'#0f172a' }}>${Math.round(basicRefs * 10).toLocaleString()}</span>
+              </div>
+              <div style={{ display:'flex', justifyContent:'space-between', fontSize:14 }}>
+                <span style={{ color:'#475569' }}>Pro referrals ({proRefs})</span>
+                <span style={{ fontWeight:700, color:'#0f172a' }}>${Math.round(proRefs * 17.50).toLocaleString()}</span>
+              </div>
+              <div style={{ display:'flex', justifyContent:'space-between', fontSize:14, borderTop:'1px solid #bbf7d0', paddingTop:8 }}>
+                <span style={{ color:'#475569' }}>Annual projection</span>
+                <span style={{ fontFamily:'Sora,sans-serif', fontWeight:800, color:'#059669' }}>${Math.round(memMonthly * 12).toLocaleString()}/yr</span>
+              </div>
+            </div>
+          </div>
+          <div style={{ fontSize:12, color:'#94a3b8', marginTop:10, textAlign:'center' }}>Paid to Affiliate Wallet — withdraw anytime</div>
+        </div>
+
+        {/* Campaign Tier Earnings Calculator */}
+        <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:16, padding:'24px' }}>
+          <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:18 }}>
+            <div style={{ width:48, height:48, borderRadius:12, background:'rgba(99,102,241,.08)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+              <Zap size={24} color="#6366f1"/>
+            </div>
+            <div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:17, fontWeight:800 }}>Campaign tier calculator</div>
+              <div style={{ fontSize:13, color:'#64748b' }}>Grid commissions from tier activations</div>
+            </div>
+          </div>
+
+          <SliderRow label="Campaign tier" value={tier} min={1} max={8} display={'T' + tier + ' ($' + TIER_PRICES[tier] + ')'} onChange={function(v) { setTier(v); }}/>
+          <SliderRow label="Your personal referrals buying this tier" value={refs} min={0} max={20} display={String(refs)} onChange={function(v) { setRefs(v); }}/>
+          <SliderRow label="Network members buying this tier" value={team} min={0} max={60} display={String(team)} onChange={function(v) { setTeam(v); }}/>
+
+          <div style={{ background:'#eef2ff', borderRadius:12, padding:'18px', marginTop:8 }}>
+            <div style={{ fontSize:12, fontWeight:700, letterSpacing:1, textTransform:'uppercase', color:'#4338ca', marginBottom:6 }}>Grid earnings</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:800, color:'#4338ca', marginBottom:14 }}>${Math.round(gridTotal).toLocaleString()}</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:8 }}>
+              <div style={{ display:'flex', justifyContent:'space-between', fontSize:14 }}>
+                <span style={{ color:'#475569' }}>Direct sponsor (40%)</span>
+                <span style={{ fontWeight:700, color:'#0f172a' }}>${Math.round(directComm).toLocaleString()}</span>
+              </div>
+              <div style={{ display:'flex', justifyContent:'space-between', fontSize:14 }}>
+                <span style={{ color:'#475569' }}>Uni-level (6.25% × {team})</span>
+                <span style={{ fontWeight:700, color:'#0f172a' }}>${Math.round(uniLevel).toLocaleString()}</span>
+              </div>
+              <div style={{ display:'flex', justifyContent:'space-between', fontSize:14, borderTop:'1px solid #c7d2fe', paddingTop:8 }}>
+                <span style={{ color:'#475569' }}>Completion bonus</span>
+                <span style={{ fontFamily:'Sora,sans-serif', fontWeight:800, color:'#4338ca' }}>${TIER_BONUSES[tier].toLocaleString()}</span>
+              </div>
+            </div>
+          </div>
+          <div style={{ fontSize:12, color:'#94a3b8', marginTop:10, textAlign:'center' }}>Paid to Campaign Wallet — requires active tier + daily watch quota</div>
         </div>
       </div>
 
