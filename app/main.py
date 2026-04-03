@@ -5646,6 +5646,127 @@ def admin_api_finances(
         } for t, s, c in comms_by_type],
     }
 
+
+@app.get("/admin/api/email-analytics")
+def admin_api_email_analytics(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Email usage analytics for admin — track costs and volume."""
+    _require_admin(user)
+    from sqlalchemy import func, cast, Date
+    from .database import EmailSendLog, MemberLead, EmailSequence
+    from datetime import datetime, timedelta
+
+    now = datetime.utcnow()
+    today = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    week_ago = today - timedelta(days=7)
+    month_ago = today - timedelta(days=30)
+
+    # Total emails ever sent
+    total_sent = db.query(func.count(EmailSendLog.id)).scalar() or 0
+
+    # Sent today
+    sent_today = db.query(func.count(EmailSendLog.id)).filter(
+        EmailSendLog.sent_at >= today
+    ).scalar() or 0
+
+    # Sent this week
+    sent_week = db.query(func.count(EmailSendLog.id)).filter(
+        EmailSendLog.sent_at >= week_ago
+    ).scalar() or 0
+
+    # Sent this month
+    sent_month = db.query(func.count(EmailSendLog.id)).filter(
+        EmailSendLog.sent_at >= month_ago
+    ).scalar() or 0
+
+    # Daily breakdown for last 30 days
+    daily_sends = db.query(
+        cast(EmailSendLog.sent_at, Date).label('day'),
+        func.count(EmailSendLog.id).label('count')
+    ).filter(
+        EmailSendLog.sent_at >= month_ago
+    ).group_by('day').order_by('day').all()
+
+    # Brevo cost estimates (based on Brevo Starter tier pricing)
+    # Free tier: 300/day = 9,000/month = $0
+    # Starter: 5K=$9, 10K=$16, 20K=$25, 40K=$39, 60K=$49, 100K=$69
+    def estimate_monthly_cost(volume):
+        if volume <= 9000: return 0
+        if volume <= 5000: return 9
+        if volume <= 10000: return 16
+        if volume <= 20000: return 25
+        if volume <= 40000: return 39
+        if volume <= 60000: return 49
+        if volume <= 100000: return 69
+        return 69 + ((volume - 100000) / 1000) * 0.65  # rough overage estimate
+
+    estimated_cost = estimate_monthly_cost(sent_month)
+    cost_per_email = round(estimated_cost / max(sent_month, 1), 4)
+
+    # Top senders (which Pro members send the most)
+    top_senders = db.query(
+        MemberLead.user_id,
+        func.count(EmailSendLog.id).label('sent_count')
+    ).join(
+        EmailSendLog, EmailSendLog.lead_id == MemberLead.id
+    ).filter(
+        EmailSendLog.sent_at >= month_ago
+    ).group_by(MemberLead.user_id).order_by(func.count(EmailSendLog.id).desc()).limit(10).all()
+
+    sender_details = []
+    for user_id, count in top_senders:
+        u = db.query(User).filter(User.id == user_id).first()
+        if u:
+            sender_details.append({
+                "user_id": u.id, "username": u.username,
+                "name": u.first_name or u.username,
+                "emails_sent": count,
+                "boost_credits": u.email_credits or 0,
+            })
+
+    # Boost pack revenue (from wallet deductions for email packs)
+    total_boost_credits_outstanding = db.query(func.sum(User.email_credits)).scalar() or 0
+
+    # Active sequences count
+    active_sequences = db.query(func.count(EmailSequence.id)).filter(
+        EmailSequence.is_active == True
+    ).scalar() or 0
+
+    # Total leads across all users
+    total_leads = db.query(func.count(MemberLead.id)).scalar() or 0
+    leads_nurturing = db.query(func.count(MemberLead.id)).filter(
+        MemberLead.status == "nurturing"
+    ).scalar() or 0
+
+    return {
+        "totals": {
+            "all_time": total_sent,
+            "today": sent_today,
+            "this_week": sent_week,
+            "this_month": sent_month,
+        },
+        "costs": {
+            "estimated_monthly_brevo": round(estimated_cost, 2),
+            "cost_per_email": cost_per_email,
+            "brevo_tier": "Free" if sent_month <= 9000 else "Starter",
+            "free_daily_cap": 300,
+            "monthly_free_cap": 9000,
+        },
+        "daily_breakdown": [{
+            "date": str(d), "count": c
+        } for d, c in daily_sends],
+        "top_senders": sender_details,
+        "platform_stats": {
+            "active_sequences": active_sequences,
+            "total_leads": total_leads,
+            "leads_nurturing": leads_nurturing,
+            "total_boost_credits": int(total_boost_credits_outstanding),
+        },
+    }
+
+
 @app.get("/admin/api/commissions")
 def admin_api_commissions(
     user: User = Depends(get_current_user),

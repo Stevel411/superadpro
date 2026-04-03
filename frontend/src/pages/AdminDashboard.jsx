@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost, apiDelete } from '../utils/api';
-import { Shield, Users, DollarSign, TrendingUp, AlertTriangle, CheckCircle, XCircle, Search, ChevronRight, Eye, Ban, CreditCard, Activity, FileText, UserCheck, Clock, RefreshCw, ArrowUpDown } from 'lucide-react';
+import { Shield, Users, DollarSign, TrendingUp, AlertTriangle, CheckCircle, XCircle, Search, ChevronRight, Eye, Ban, CreditCard, Activity, FileText, UserCheck, Clock, RefreshCw, ArrowUpDown, Mail } from 'lucide-react';
 import { formatMoney } from '../utils/money';
 
 var TABS = [
@@ -13,6 +13,7 @@ var TABS = [
   {key:'kyc',label:'KYC Queue',icon:UserCheck},
   {key:'commissions',label:'Commissions',icon:TrendingUp},
   {key:'supermarket',label:'SuperMarket',icon:Shield},
+  {key:'email',label:'Email Analytics',icon:Mail},
   {key:'health',label:'System Health',icon:Shield},
 ];
 
@@ -43,6 +44,7 @@ export default function AdminDashboard() {
       {tab === 'kyc' && <KYCTab/>}
       {tab === 'commissions' && <CommissionsTab/>}
       {tab === 'supermarket' && <SuperMarketTab/>}
+      {tab === 'email' && <EmailAnalyticsTab/>}
       {tab === 'health' && <HealthTab/>}
     </AppLayout>
   );
@@ -822,6 +824,124 @@ function HealthTab() {
               </div>
             );
           })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EmailAnalyticsTab() {
+  var [data, setData] = useState(null);
+  useEffect(function() { apiGet('/admin/api/email-analytics').then(setData).catch(function(){}); }, []);
+  if (!data) return <Spin/>;
+
+  var t = data.totals || {};
+  var c = data.costs || {};
+  var ps = data.platform_stats || {};
+
+  return (
+    <div>
+      <h3 style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,margin:'0 0 16px'}}>Email Delivery Analytics</h3>
+
+      {/* Volume stats */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:20}}>
+        {[
+          {v:t.today||0, l:'Sent today', c:'#6366f1'},
+          {v:t.this_week||0, l:'This week', c:'#0ea5e9'},
+          {v:(t.this_month||0).toLocaleString(), l:'This month', c:'#16a34a'},
+          {v:(t.all_time||0).toLocaleString(), l:'All time', c:'#8b5cf6'},
+        ].map(function(s,i){return <div key={i} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:16,textAlign:'center'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:s.c}}>{s.v}</div><div style={{fontSize:12,color:'#475569',fontWeight:600,marginTop:4}}>{s.l}</div></div>;})}
+      </div>
+
+      {/* Cost analysis */}
+      <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,padding:'20px 24px',marginBottom:20}}>
+        <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:14}}>Brevo Cost Analysis</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Current tier</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:c.brevo_tier==='Free'?'#16a34a':'#f59e0b'}}>{c.brevo_tier}</div>
+          </div>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Est. monthly cost</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0f172a'}}>${c.estimated_monthly_brevo}</div>
+          </div>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Cost per email</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0f172a'}}>${c.cost_per_email}</div>
+          </div>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Free cap</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#64748b'}}>{c.free_daily_cap}/day</div>
+          </div>
+        </div>
+        {c.brevo_tier === 'Free' && <div style={{marginTop:12,padding:'10px 14px',background:'#f0fdf4',borderRadius:8,fontSize:12,color:'#059669',fontWeight:600}}>You are within the free tier. No Brevo charges this month.</div>}
+        {c.brevo_tier !== 'Free' && <div style={{marginTop:12,padding:'10px 14px',background:'#fef3c7',borderRadius:8,fontSize:12,color:'#d97706',fontWeight:600}}>Volume exceeds free tier. Consider upgrading Brevo plan to avoid sending pauses.</div>}
+      </div>
+
+      {/* Platform stats */}
+      <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,padding:'20px 24px',marginBottom:20}}>
+        <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:14}}>Platform Email Stats</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Total leads</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#6366f1'}}>{ps.total_leads||0}</div>
+          </div>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Nurturing</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0ea5e9'}}>{ps.leads_nurturing||0}</div>
+          </div>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Active sequences</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#16a34a'}}>{ps.active_sequences||0}</div>
+          </div>
+          <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Boost credits out</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#f59e0b'}}>{(ps.total_boost_credits||0).toLocaleString()}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Top senders */}
+      {data.top_senders && data.top_senders.length > 0 && (
+        <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden',marginBottom:20}}>
+          <div style={{padding:'16px 20px',borderBottom:'1px solid #f1f5f9',fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800}}>Top Email Senders (30 days)</div>
+          <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
+            <thead><tr style={{background:'#f8fafc'}}>
+              <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>User</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Emails sent</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Boost credits</th>
+            </tr></thead>
+            <tbody>
+              {data.top_senders.map(function(s,i){return <tr key={i} style={{borderTop:'1px solid #f1f5f9'}}>
+                <td style={{padding:'10px 16px',fontWeight:600,color:'#0f172a'}}>{s.name} <span style={{color:'#94a3b8',fontWeight:400}}>@{s.username}</span></td>
+                <td style={{padding:'10px 16px',textAlign:'right',fontWeight:700,color:'#6366f1'}}>{s.emails_sent}</td>
+                <td style={{padding:'10px 16px',textAlign:'right',color:'#64748b'}}>{(s.boost_credits||0).toLocaleString()}</td>
+              </tr>;})}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* Daily chart — simple bar representation */}
+      {data.daily_breakdown && data.daily_breakdown.length > 0 && (
+        <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,padding:'20px 24px'}}>
+          <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:14}}>Daily Send Volume (30 days)</div>
+          <div style={{display:'flex',alignItems:'flex-end',gap:2,height:120}}>
+            {(function(){
+              var maxVal = Math.max.apply(null, data.daily_breakdown.map(function(d){return d.count;})) || 1;
+              return data.daily_breakdown.map(function(d,i){
+                var h = Math.max(4, (d.count / maxVal) * 100);
+                return <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:2}} title={d.date+': '+d.count+' emails'}>
+                  <div style={{fontSize:9,color:'#94a3b8',fontWeight:600}}>{d.count>0?d.count:''}</div>
+                  <div style={{width:'100%',height:h,background:'linear-gradient(180deg,#6366f1,#818cf8)',borderRadius:'3px 3px 0 0',minHeight:4}}/>
+                </div>;
+              });
+            })()}
+          </div>
+          <div style={{display:'flex',justifyContent:'space-between',marginTop:6}}>
+            <span style={{fontSize:9,color:'#94a3b8'}}>{data.daily_breakdown[0]?.date}</span>
+            <span style={{fontSize:9,color:'#94a3b8'}}>{data.daily_breakdown[data.daily_breakdown.length-1]?.date}</span>
+          </div>
         </div>
       )}
     </div>
