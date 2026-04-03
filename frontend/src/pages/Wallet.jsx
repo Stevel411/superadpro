@@ -5,6 +5,7 @@ import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
 import { formatMoney } from '../utils/money';
+import WalletHelp from './WalletHelp';
 
 export default function Wallet() {
   var { t } = useTranslation();
@@ -14,6 +15,7 @@ export default function Wallet() {
   const [memberIdCopied, setMemberIdCopied] = useState(false);
   const [p2pResult, setP2pResult] = useState(null);
   const [p2pSending, setP2pSending] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
     apiGet('/api/wallet').then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
@@ -50,6 +52,7 @@ export default function Wallet() {
 
   if (loading) return <AppLayout title="◎ Wallet"><LoadingSpinner /></AppLayout>;
   if (!data) return <AppLayout title="◎ Wallet"><div style={{ textAlign: 'center', padding: 80, color: '#94a3b8' }}>Unable to load wallet</div></AppLayout>;
+  if (showHelp) return <AppLayout title="◎ Wallet"><WalletHelp onBack={function() { setShowHelp(false); }}/></AppLayout>;
 
   const d = data;
   const memberId = user?.is_admin ? 'SAP-00001' : `SAP-${String(user?.id || 0).padStart(5, '0')}`;
@@ -67,6 +70,7 @@ export default function Wallet() {
             <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'rgba(148,163,184,.5)' }}>Campaign</div>
             <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: '#818cf8' }}>${formatMoney(d.campaign_balance || 0)}</div>
           </div>
+          <button onClick={function() { setShowHelp(true); }} style={{ padding:'7px 14px', borderRadius:10, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:12, fontWeight:600, color:'#64748b', display:'flex', alignItems:'center', gap:4 }}>? Help</button>
         </div>
       </>}
     >
