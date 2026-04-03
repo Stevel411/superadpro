@@ -113,9 +113,9 @@ function LeadsTab({leads,lists,sequences,refresh,flash}) {
   return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
     <div style={{padding:'14px 18px',borderBottom:'1px solid #e2e8f0',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
       <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
-        <div style={{position:'relative'}}><Search size={14} color="#94a3b8" style={{position:'absolute',left:10,top:10}}/><input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder="Search leads..." style={{padding:'8px 8px 8px 30px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',width:180,outline:'none',transition:'border-color .15s'}}/></div>
         <CustomSelect value={fS} onChange={setFS} style={{width:160}} options={[{value:'all',label:'All statuses'},{value:'new',label:'New'},{value:'nurturing',label:'Nurturing'},{value:'hot',label:'Hot'},{value:'converted',label:'Converted'}]}/>
         <CustomSelect value={fL} onChange={setFL} style={{width:150}} options={[{value:'',label:'All lists'}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))} />
+        <div style={{position:'relative'}}><Search size={14} color="#94a3b8" style={{position:'absolute',left:10,top:10}}/><input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder="Search leads..." style={{padding:'8px 8px 8px 30px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',width:180,outline:'none',transition:'border-color .15s'}}/></div>
       </div>
       <div style={{fontSize:12,color:'#64748b',fontWeight:600}}>{filtered.length} leads</div>
     </div>
