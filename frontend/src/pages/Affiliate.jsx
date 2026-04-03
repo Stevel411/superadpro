@@ -93,15 +93,21 @@ export default function Affiliate() {
               var on = platform === p.key;
               return (
                 <div key={p.key} onClick={function() { setPlatform(p.key); setPost(''); }}
-                  style={{ padding: '10px 6px', borderRadius: 8, textAlign: 'center', cursor: 'pointer', transition: 'all .15s',
-                    border: on ? '1.5px solid ' + p.color : '1px solid #e2e8f0',
-                    background: on ? p.color + '12' : '#f8fafc' }}>
-                  <svg width="18" height="18" viewBox={p.vb || '0 0 24 24'}
-                    fill={p.isStroke ? 'none' : (on ? p.color : '#94a3b8')}
-                    stroke={p.isStroke ? (on ? p.color : '#94a3b8') : 'none'} strokeWidth={p.isStroke ? '2' : '0'}
-                    style={{ display: 'block', margin: '0 auto 4px' }}
-                    dangerouslySetInnerHTML={{ __html: p.svg }} />
-                  <span style={{ fontSize: 11, fontWeight: on ? 600 : 500, color: on ? p.color : '#64748b' }}>{p.label}</span>
+                  style={{ padding: '14px 8px', borderRadius: 12, textAlign: 'center', cursor: 'pointer', transition: 'all .15s',
+                    border: on ? '2px solid ' + p.color : '1.5px solid #e2e8f0',
+                    background: on ? p.color + (p.dark ? '20' : '') : '#fff',
+                    boxShadow: on ? '0 4px 12px ' + p.color + '30' : 'none',
+                    transform: on ? 'scale(1.04)' : 'scale(1)' }}>
+                  <div style={{ width: 40, height: 40, borderRadius: 10, margin: '0 auto 6px',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    background: on ? 'rgba(255,255,255,.2)' : p.color + '12' }}>
+                    <svg width="22" height="22" viewBox={p.vb || '0 0 24 24'}
+                      fill={p.isStroke ? 'none' : (on ? '#fff' : p.color)}
+                      stroke={p.isStroke ? (on ? '#fff' : p.color) : 'none'} strokeWidth={p.isStroke ? '2' : '0'}
+                      style={{ display: 'block' }}
+                      dangerouslySetInnerHTML={{ __html: p.svg }} />
+                  </div>
+                  <span style={{ fontSize: 12, fontWeight: on ? 700 : 500, color: on ? (p.dark ? '#0f172a' : '#fff') : '#475569' }}>{p.label}</span>
                 </div>
               );
             })}
