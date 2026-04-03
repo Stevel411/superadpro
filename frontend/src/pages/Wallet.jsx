@@ -92,8 +92,8 @@ export default function Wallet() {
         </div>
       )}
 
-      {/* Row 1: 3 columns */}
-      <div className="grid-3-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 18, marginBottom: 18, alignItems: 'stretch' }}>
+      {/* Row 1: Wallet cards + Transaction History */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 18, marginBottom: 18, alignItems: 'start' }}>
         {/* Col 1: Withdraw */}
         <div style={{ display:'flex', flexDirection:'column', gap:18 }}>
           {/* Affiliate Wallet Withdraw */}
@@ -173,7 +173,7 @@ export default function Wallet() {
         </div>
 
         {/* Col 2: Transaction History (commissions + withdrawals combined) */}
-        <div style={{ gridColumn:'span 2' }}>
+        <div>
         <Card title="Transaction History" dotColor="#0284c7">
           {((d.commissions || []).length > 0 || (d.withdrawals || []).length > 0) ? (
             <div style={{ margin: '-18px -20px', overflow: 'auto', maxHeight:400 }}>
@@ -308,39 +308,6 @@ export default function Wallet() {
           )}
         </Card>
       </div>
-
-      {/* Recent Commissions full-width */}
-      <Card title="Recent Commissions" dotColor="#f59e0b" headerRight={<Link to="/wallet" style={{ fontSize: 12, fontWeight: 600, color: '#0ea5e9', textDecoration: 'none' }}>Full History →</Link>}>
-        {(d.commissions || []).length > 0 ? (
-          <div style={{ margin: '0 -20px' }}>
-            {d.commissions.slice(0, 5).map((c, i) => {
-              const iconBg = c.commission_type === 'direct_sponsor' ? 'rgba(22,163,74,.09)' : c.commission_type === 'uni_level' ? 'rgba(99,102,241,.09)' : 'rgba(14,165,233,.09)';
-              const iconBorder = c.commission_type === 'direct_sponsor' ? 'rgba(22,163,74,.15)' : c.commission_type === 'uni_level' ? 'rgba(99,102,241,.15)' : 'rgba(14,165,233,.15)';
-              const icon = c.commission_type === 'direct_sponsor' ? '💚' : c.commission_type === 'uni_level' ? '⚡' : c.commission_type === 'membership' ? '🔑' : '◎';
-              const title = c.commission_type === 'direct_sponsor' ? 'Direct Sponsor Commission' : c.commission_type === 'uni_level' ? 'Uni-Level Commission' : c.commission_type === 'membership' ? 'Membership Residual' : (c.commission_type || '').replace(/_/g, ' ');
-              return (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 20px', borderBottom: '1px solid rgba(15,25,60,.06)' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 9, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, flexShrink: 0, background: iconBg, border: `1px solid ${iconBorder}` }}>{icon}</div>
-                    <div>
-                      <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{title}</div>
-                      <div style={{ fontSize: 13, color: '#7b91a8', marginTop: 2 }}>${c.package_tier} Campaign Tier · {c.created_at ? new Date(c.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }) : ''}</div>
-                    </div>
-                  </div>
-                  <div style={{ fontSize: 14, fontWeight: 800, color: c.status === 'paid' ? '#16a34a' : '#f59e0b' }}>+${formatMoney(c.amount_usdt)}</div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div style={{ textAlign: 'center', padding: 28 }}>
-            <div style={{ fontSize: 30, marginBottom: 8 }}>📊</div>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#3d5068', marginBottom: 4 }}>No Commissions Yet</div>
-            <div style={{ fontSize: 13, color: '#7b91a8', marginBottom: 14 }}>Activate a tier to start earning</div>
-            <Link to="/campaign-tiers" style={{ ...btnPrimary, fontSize: 13, padding: '8px 18px' }}>Activate Grid</Link>
-          </div>
-        )}
-      </Card>
 
       {/* P2P Transfer History */}
       {(d.p2p_history || []).length > 0 && (
