@@ -172,92 +172,73 @@ export default function Wallet() {
           </Card>
         </div>
 
-        {/* Col 2: Commission History */}
-        <Card title="Commission History" dotColor="#0284c7">
-          {(d.commissions || []).length > 0 ? (
-            <div style={{ margin: '-18px -20px', overflow: 'auto' }}>
+        {/* Col 2: Transaction History (commissions + withdrawals combined) */}
+        <div style={{ gridColumn:'span 2' }}>
+        <Card title="Transaction History" dotColor="#0284c7">
+          {((d.commissions || []).length > 0 || (d.withdrawals || []).length > 0) ? (
+            <div style={{ margin: '-18px -20px', overflow: 'auto', maxHeight:400 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead><tr>
-                  {['Type', 'Tier', 'Amount', 'Status', 'Date'].map(h => (
+                  {['Type', 'Details', 'Amount', 'Status', 'Date'].map(h => (
                     <th key={h} style={thStyle}>{h}</th>
                   ))}
                 </tr></thead>
                 <tbody>
-                  {d.commissions.slice(0, 8).map((c, i) => (
-                    <tr key={i} style={{ ':hover': { background: 'rgba(15,25,60,.02)' } }}>
-                      <td style={{ ...tdStyle, fontSize: 13 }}>
-                        {c.commission_type === 'direct_sponsor' ? '💚 Direct' :
-                         c.commission_type === 'uni_level' ? '⚡ Uni-Level' :
-                         c.commission_type === 'upline' ? '🔗 Upline' :
-                         c.commission_type === 'membership_sponsor' ? '👥 Membership' :
-                         c.commission_type === 'superscene_usage' ? '🎬 SuperScene' :
-                         (c.commission_type || '').replace(/_/g, ' ')}
-                      </td>
-                      <td style={tdStyle}><span style={badgeCyan}>T{c.package_tier}</span></td>
-                      <td style={{ ...tdStyle, fontWeight: 800, color: '#16a34a' }}>+${formatMoney(c.amount_usdt)}</td>
-                      <td style={tdStyle}>
-                        <span style={c.status === 'paid' ? badgeGreen : badgeAmber}>{(c.status || '').charAt(0).toUpperCase() + (c.status || '').slice(1)}</span>
-                      </td>
-                      <td style={{ ...tdStyle, fontSize: 12, color: '#6b7d94' }}>{c.created_at ? new Date(c.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '—'}</td>
-                    </tr>
-                  ))}
+                  {[].concat(
+                    (d.commissions || []).map(function(c) { return {
+                      sort: c.created_at || '', kind: 'commission',
+                      type: c.commission_type === 'direct_sponsor' ? '💚 Direct Sponsor' :
+                            c.commission_type === 'uni_level' ? '⚡ Uni-Level' :
+                            c.commission_type === 'grid_completion_bonus' ? '🏆 Grid Bonus' :
+                            c.commission_type === 'membership_sponsor' ? '👥 Membership' :
+                            c.commission_type === 'membership_renewal' ? '🔄 Renewal' :
+                            c.commission_type === 'superscene_usage' ? '🎬 SuperScene' :
+                            '💰 ' + (c.commission_type || '').replace(/_/g, ' '),
+                      detail: c.package_tier ? 'Tier ' + c.package_tier : '',
+                      amount: '+$' + formatMoney(c.amount_usdt),
+                      amountColor: '#16a34a',
+                      status: c.status || 'paid',
+                      date: c.created_at,
+                      wallet: ['direct_sponsor','uni_level','grid_completion_bonus'].indexOf(c.commission_type) >= 0 ? 'campaign' : 'affiliate',
+                    };}),
+                    (d.withdrawals || []).map(function(w) { return {
+                      sort: w.requested_at || '', kind: 'withdrawal',
+                      type: '🏧 Withdrawal',
+                      detail: w.tx_hash ? 'Polygon TX' : '',
+                      amount: '-$' + formatMoney(w.amount),
+                      amountColor: '#dc2626',
+                      status: w.status || 'pending',
+                      date: w.requested_at,
+                      wallet: '',
+                    };})
+                  ).sort(function(a,b) { return (b.sort || '').localeCompare(a.sort || ''); }).slice(0,15).map(function(tx, i) {
+                    return (
+                      <tr key={i}>
+                        <td style={{ ...tdStyle, fontSize: 13 }}>
+                          {tx.type}
+                          {tx.wallet && <span style={{ marginLeft:6, padding:'2px 6px', borderRadius:4, fontSize:9, fontWeight:700, background: tx.wallet === 'campaign' ? '#eef2ff' : '#f0fdf4', color: tx.wallet === 'campaign' ? '#6366f1' : '#16a34a' }}>{tx.wallet === 'campaign' ? 'Campaign' : 'Affiliate'}</span>}
+                        </td>
+                        <td style={{ ...tdStyle, fontSize: 12, color: '#64748b' }}>{tx.detail}</td>
+                        <td style={{ ...tdStyle, fontWeight: 800, color: tx.amountColor }}>{tx.amount}</td>
+                        <td style={tdStyle}>
+                          <span style={tx.status === 'paid' ? badgeGreen : tx.status === 'processing' ? badgeCyan : badgeAmber}>{(tx.status || '').charAt(0).toUpperCase() + (tx.status || '').slice(1)}</span>
+                        </td>
+                        <td style={{ ...tdStyle, fontSize: 12, color: '#6b7d94' }}>{tx.date ? new Date(tx.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '—'}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', padding: 28, textAlign: 'center' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 28, textAlign: 'center' }}>
               <div style={{ fontSize: 32, marginBottom: 10 }}>📊</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#3d5068', marginBottom: 6 }}>No commissions yet</div>
-              <div style={{ fontSize: 13, color: '#7b91a8', marginBottom: 16 }}>Activate your Income Grid to start earning.</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#3d5068', marginBottom: 6 }}>No transactions yet</div>
+              <div style={{ fontSize: 13, color: '#7b91a8', marginBottom: 16 }}>Refer members and activate your grid to start earning.</div>
               <Link to="/campaign-tiers" style={{ ...btnPrimary, fontSize: 13, padding: '8px 18px' }}>Activate Grid</Link>
             </div>
           )}
         </Card>
-
-        {/* Col 3: Member ID + Withdrawal History stacked */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 18, height: '100%' }}>
-          <Card title="Your Member ID" dotColor="#0ea5e9">
-            <p style={{ fontSize: 13, color: '#3d5068', marginBottom: 12 }}>Share this ID so other members can send you funds via P2P transfer.</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-              <div onClick={copyMemberId} style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8,
-                background: memberIdCopied ? '#dcfce7' : '#f6f8fc', border: '1px solid rgba(14,165,233,.25)',
-                borderRadius: 10, padding: '10px 16px', fontSize: 15, fontWeight: 700, color: '#0284c7', cursor: 'pointer', transition: 'all 0.15s',
-              }}>
-                <span>🪪</span>
-                <span>{memberId}</span>
-                <span style={{ fontSize: 13, color: '#38bdf8' }}>{memberIdCopied ? '✓ Copied!' : 'Copy'}</span>
-              </div>
-            </div>
-          </Card>
-
-          <Card title="Withdrawal History" dotColor="#f59e0b" flex>
-            {(d.withdrawals || []).length > 0 ? (
-              <div style={{ margin: '-18px -20px', overflow: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                  <thead><tr>
-                    {['Amount', 'Net', 'Status', 'Date'].map(h => <th key={h} style={thStyle}>{h}</th>)}
-                  </tr></thead>
-                  <tbody>
-                    {d.withdrawals.map((w, i) => (
-                      <tr key={i}>
-                        <td style={{ ...tdStyle, fontWeight: 700 }}>${formatMoney(w.amount)}</td>
-                        <td style={{ ...tdStyle, fontWeight: 700, color: '#16a34a' }}>${formatMoney(w.amount - 1)}</td>
-                        <td style={tdStyle}>
-                          <span style={w.status === 'paid' ? badgeGreen : w.status === 'processing' ? badgeCyan : badgeAmber}>
-                            {(w.status || '').charAt(0).toUpperCase() + (w.status || '').slice(1)}
-                          </span>
-                        </td>
-                        <td style={{ ...tdStyle, fontSize: 12, color: '#6b7d94' }}>{w.requested_at ? new Date(w.requested_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '—'}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            ) : (
-              <div style={{ padding: 20, textAlign: 'center', fontSize: 13, color: '#7b91a8' }}>No withdrawals yet.</div>
-            )}
-          </Card>
         </div>
       </div>
 
