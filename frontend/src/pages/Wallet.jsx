@@ -92,10 +92,8 @@ export default function Wallet() {
         </div>
       )}
 
-      {/* Row 1: Wallet cards + Transaction History */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 18, marginBottom: 18, alignItems: 'start' }}>
-        {/* Col 1: Withdraw */}
-        <div style={{ display:'flex', flexDirection:'column', gap:18 }}>
+      {/* Row 1: Two wallet cards side by side */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18 }}>
           {/* Affiliate Wallet Withdraw */}
           <Card title="Affiliate Wallet" dotColor="#16a34a">
             <div style={{ padding:'10px 14px', background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:10, marginBottom:14 }}>
@@ -170,10 +168,10 @@ export default function Wallet() {
               </div>
             )}
           </Card>
-        </div>
+      </div>
 
-        {/* Col 2: Transaction History (commissions + withdrawals combined) */}
-        <div>
+      {/* Row 2: Transaction History full-width */}
+      <div style={{ marginBottom: 18 }}>
         <Card title="Transaction History" dotColor="#0284c7">
           {((d.commissions || []).length > 0 || (d.withdrawals || []).length > 0) ? (
             <div style={{ margin: '-18px -20px', overflow: 'auto', maxHeight:400 }}>
@@ -239,7 +237,6 @@ export default function Wallet() {
             </div>
           )}
         </Card>
-        </div>
       </div>
 
       {/* Row 2: Membership Renewal | Send Funds */}
