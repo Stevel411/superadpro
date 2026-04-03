@@ -268,7 +268,7 @@ def _pay_direct_sponsor(db: Session, buyer: User, price: float, package_tier: in
 
     # Check if sponsor is qualified at this tier or above
     if sponsor and _user_is_qualified(db, sponsor.id, package_tier):
-        sponsor.balance       = Decimal(str(sponsor.balance or 0)) + Decimal(str(amount))
+        sponsor.campaign_balance = Decimal(str(sponsor.campaign_balance or 0)) + Decimal(str(amount))
         sponsor.total_earned  = Decimal(str(sponsor.total_earned or 0)) + Decimal(str(amount))
         sponsor.grid_earnings = Decimal(str(sponsor.grid_earnings or 0)) + Decimal(str(amount))
         _record_commission(db, buyer.id, sponsor.id, amount, "direct_sponsor",
@@ -301,7 +301,7 @@ def _pay_unilevel_chain(db: Session, buyer: User, price: float, package_tier: in
 
         if upline and _user_is_qualified(db, upline_id, package_tier):
             # Qualified — pay the commission
-            upline.balance        = Decimal(str(upline.balance or 0)) + Decimal(str(per_level))
+            upline.campaign_balance = Decimal(str(upline.campaign_balance or 0)) + Decimal(str(per_level))
             upline.total_earned   = Decimal(str(upline.total_earned or 0)) + Decimal(str(per_level))
             upline.level_earnings = Decimal(str(upline.level_earnings or 0)) + Decimal(str(per_level))
             _record_commission(db, buyer.id, upline_id, per_level, "uni_level",
@@ -344,7 +344,7 @@ def _complete_grid(db: Session, grid: Grid):
 
     if has_active_campaign and owner and bonus_amount > 0:
         # Pay the completion bonus
-        owner.balance        = Decimal(str(owner.balance or 0)) + Decimal(str(bonus_amount))
+        owner.campaign_balance = Decimal(str(owner.campaign_balance or 0)) + Decimal(str(bonus_amount))
         owner.total_earned   = Decimal(str(owner.total_earned or 0)) + Decimal(str(bonus_amount))
         owner.bonus_earnings = Decimal(str(owner.bonus_earnings or 0)) + Decimal(str(bonus_amount))
         grid.bonus_paid      = True

@@ -427,8 +427,10 @@ def _find_overspill_placement(
 
 # ── Withdrawal request ────────────────────────────────────────
 
-def request_withdrawal(db: Session, user_id: int, amount: float) -> dict:
-    """User requests withdrawal — validates security, then auto-sends USDT on Polygon."""
+def request_withdrawal(db: Session, user_id: int, amount: float, wallet_type: str = "affiliate") -> dict:
+    """User requests withdrawal — validates security, then auto-sends USDT on Polygon.
+    wallet_type: 'affiliate' (default, always withdrawable) or 'campaign' (requires active tier + watch quota)
+    """
     from decimal import Decimal as D
     user = db.query(User).filter(User.id == user_id).first()
     if not user:
@@ -436,22 +438,34 @@ def request_withdrawal(db: Session, user_id: int, amount: float) -> dict:
 
     amount_d = D(str(amount))
 
-    # Run full security validation
-    from .withdrawals import validate_withdrawal, WITHDRAWAL_FEE
+    # Run base security validation (KYC, 2FA, cooldown, daily cap, wallet address)
+    from .withdrawals import validate_withdrawal, validate_campaign_withdrawal, WITHDRAWAL_FEE
     validation = validate_withdrawal(db, user, amount_d)
     if not validation["valid"]:
         return {"success": False, "error": validation["error"]}
 
+    # For campaign withdrawals, run additional tier + watch quota checks
+    if wallet_type == "campaign":
+        campaign_validation = validate_campaign_withdrawal(db, user, amount_d)
+        if not campaign_validation["valid"]:
+            return {"success": False, "error": campaign_validation["error"]}
+
     net_amount = amount_d - WITHDRAWAL_FEE
+
+    # Determine which balance column to deduct from
+    if wallet_type == "campaign":
+        balance_col = "campaign_balance"
+    else:
+        balance_col = "balance"
 
     # Atomic balance deduction — prevents race condition double-spend
     from sqlalchemy import text
     result = db.execute(
-        text("UPDATE users SET balance = balance - :amt, total_withdrawn = COALESCE(total_withdrawn, 0) + :amt WHERE id = :uid AND balance >= :amt"),
+        text(f"UPDATE users SET {balance_col} = {balance_col} - :amt, total_withdrawn = COALESCE(total_withdrawn, 0) + :amt WHERE id = :uid AND {balance_col} >= :amt"),
         {"amt": float(amount_d), "uid": user_id}
     )
     if result.rowcount == 0:
-        return {"success": False, "error": "Insufficient balance (concurrent request detected)"}
+        return {"success": False, "error": f"Insufficient {wallet_type} balance (concurrent request detected)"}
 
     withdrawal = Withdrawal(
         user_id        = user_id,
@@ -469,28 +483,32 @@ def request_withdrawal(db: Session, user_id: int, amount: float) -> dict:
         proc_result = process_withdrawal(db, withdrawal.id)
         if proc_result["success"]:
             db.refresh(user)
+            remaining = float(user.campaign_balance or 0) if wallet_type == "campaign" else float(user.balance or 0)
             return {
                 "success":    True,
                 "message":    f"${net_amount:.2f} USDT sent to your wallet on Polygon (${WITHDRAWAL_FEE} fee deducted)",
                 "tx_hash":    proc_result["tx_hash"],
                 "net_amount": float(net_amount),
                 "fee":        float(WITHDRAWAL_FEE),
-                "remaining":  float(user.balance),
+                "remaining":  remaining,
+                "wallet_type": wallet_type,
             }
         else:
             db.refresh(user)
+            remaining = float(user.campaign_balance or 0) if wallet_type == "campaign" else float(user.balance or 0)
             return {
                 "success": True,
                 "message": f"Withdrawal of ${amount_d:.2f} queued — will retry automatically",
-                "remaining": float(user.balance),
+                "remaining": remaining,
             }
     except Exception as e:
         logger.warning(f"Auto-withdrawal failed for user {user_id}: {e}")
         db.refresh(user)
+        remaining = float(user.campaign_balance or 0) if wallet_type == "campaign" else float(user.balance or 0)
         return {
             "success": True,
             "message": f"Withdrawal of ${amount_d:.2f} queued for processing",
-            "remaining": float(user.balance),
+            "remaining": remaining,
         }
 
 

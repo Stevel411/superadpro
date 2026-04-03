@@ -167,6 +167,38 @@ def validate_withdrawal(db, user, amount):
     return {"valid": True}
 
 
+def validate_campaign_withdrawal(db, user, amount):
+    """
+    Additional checks for campaign wallet withdrawals.
+    Requires: active campaign tier + Watch-to-Earn quota compliance.
+    Returns {"valid": True} or {"valid": False, "error": "reason"}
+    """
+    from .database import Grid, WatchQuota
+
+    amount = Decimal(str(amount))
+
+    # Check campaign_balance specifically
+    if Decimal(str(user.campaign_balance or 0)) < amount:
+        return {"valid": False, "error": f"Insufficient campaign balance. Available: ${float(user.campaign_balance or 0):.2f}"}
+
+    # Must have at least one active (non-complete) grid
+    active_grid = db.query(Grid).filter(
+        Grid.owner_id == user.id,
+        Grid.is_complete == False
+    ).first()
+
+    if not active_grid and not user.is_admin:
+        return {"valid": False, "error": "You must have an active Campaign Tier to withdraw campaign earnings. Activate a tier in Campaign Tiers."}
+
+    # Check Watch-to-Earn quota compliance
+    quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
+
+    if quota and quota.commissions_paused and not user.is_admin:
+        return {"valid": False, "error": "Your campaign withdrawals are paused. Complete your daily Watch-to-Earn video quota to reactivate."}
+
+    return {"valid": True}
+
+
 def send_usdt(to_address, amount_usdt):
     """
     Send USDT on Polygon from treasury to a recipient address.

@@ -129,8 +129,9 @@ class User(Base):
     is_admin            = Column(Boolean, default=False)
     is_active           = Column(Boolean, default=False)
     membership_tier     = Column(String, default="basic")    # basic ($20/mo) or pro ($30/mo)
-    balance             = Column(Money, default=0.0)      # available USDT balance
-    total_earned        = Column(Money, default=0.0)      # lifetime earnings
+    balance             = Column(Money, default=0.0)      # affiliate wallet — always withdrawable
+    campaign_balance    = Column(Money, default=0.0)      # campaign wallet — requires active tier + watch quota
+    total_earned        = Column(Money, default=0.0)      # lifetime earnings (both wallets combined)
     total_withdrawn     = Column(Money, default=0.0)      # lifetime withdrawals
     grid_earnings       = Column(Money, default=0.0)      # earnings from grid completions
     level_earnings      = Column(Money, default=0.0)      # earnings from level pool
@@ -1548,6 +1549,7 @@ try:
         conn.execute(text("ALTER TABLE grids ADD COLUMN IF NOT EXISTS bonus_paid BOOLEAN DEFAULT FALSE"))
         conn.execute(text("ALTER TABLE grids ADD COLUMN IF NOT EXISTS bonus_rolled_over BOOLEAN DEFAULT FALSE"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS bonus_earnings NUMERIC(18,6) DEFAULT 0.0"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS campaign_balance NUMERIC(18,6) DEFAULT 0.0"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS campaign_tier INTEGER DEFAULT 1"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS is_completed BOOLEAN DEFAULT FALSE"))
         conn.execute(text("ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS completed_at TIMESTAMP"))

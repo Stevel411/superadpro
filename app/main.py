@@ -367,6 +367,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "user":              user,
         "display_name":      user.first_name or user.username,
         "balance":           float(user.balance or 0),
+        "campaign_balance":  float(user.campaign_balance or 0),
         "total_earned":      float(user.total_earned or 0),
         "grid_earnings":     float(user.grid_earnings or 0),
         "level_earnings":    float(user.level_earnings or 0),
@@ -431,7 +432,7 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "is_admin": user.is_admin,
         "is_active": user.is_active,
         "membership_tier": user.membership_tier or "basic",
-        "balance": float(user.balance or 0),
+        "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
         "total_earned": float(user.total_earned or 0),
         "total_withdrawn": float(user.total_withdrawn or 0),
         "grid_earnings": float(user.grid_earnings or 0),
@@ -1562,7 +1563,7 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
         "monthly_streams": monthly_streams,
         "recent_commissions": recent[:15],
         "totals": {
-            "balance": float(user.balance or 0),
+            "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
             "total_earned": float(user.total_earned or 0),
             "grid_earnings": round(grid_total, 2),
             "course_earnings": round(course_total, 2),
@@ -1907,7 +1908,7 @@ def api_wallet_data(request: Request, user: User = Depends(get_current_user),
     ).scalar()
 
     return {
-        "balance": float(user.balance or 0),
+        "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
         "total_earned": float(user.total_earned or 0),
         "total_withdrawn": float(user.total_withdrawn or 0),
         "grid_earnings": float(user.grid_earnings or 0),
@@ -2715,7 +2716,7 @@ def _build_copilot_context(user, db) -> dict:
         "name": user.first_name or user.username,
         "tier": user.membership_tier or "pro",
         "total_earned": float(user.total_earned or 0),
-        "balance": float(user.balance or 0),
+        "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
         "total_team": user.total_team or 0,
         "personal_referrals": user.personal_referrals or 0,
         "grid_earnings": float(user.grid_earnings or 0),
@@ -4290,11 +4291,12 @@ async def nowpayments_order_status(order_id: int, request: Request,
 
 @app.post("/withdraw")
 def withdraw(
-    request: Request,
+    request:     Request,
     amount: float = Form(),
     totp_code: str = Form(default=""),
-    db: Session = Depends(get_db),
-    user: User = Depends(get_current_user)
+    wallet_type: str = Form(default="affiliate"),
+    db:          Session = Depends(get_db),
+    user:        User = Depends(get_current_user)
 ):
     if not user: return RedirectResponse(url="/?login=1", status_code=302)
     # ── KYC Gate ──
@@ -4309,8 +4311,11 @@ def withdraw(
     totp = pyotp.TOTP(user.totp_secret)
     if not totp.verify(totp_code.strip(), valid_window=1):
         return RedirectResponse(url="/wallet?error=Invalid_2FA_code._Please_try_again.", status_code=303)
+    # ── Validate wallet_type ──
+    if wallet_type not in ("affiliate", "campaign"):
+        wallet_type = "affiliate"
     # ── 2FA verified — process withdrawal ──
-    result = request_withdrawal(db, user.id, amount)
+    result = request_withdrawal(db, user.id, amount, wallet_type=wallet_type)
     if result["success"]:
         tx = result.get("tx_hash", "")
         msg = result.get("message", "Withdrawal processed")
@@ -17151,7 +17156,7 @@ def api_analytics_data(request: Request, user: User = Depends(get_current_user),
             "total_clicks": total_clicks,
             "conversions": user.personal_referrals or 0,
             "revenue": float(user.total_earned or 0),
-            "balance": float(user.balance or 0),
+            "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
             "membership_tier": user.membership_tier or "basic",
             "grid_earnings": float(user.grid_earnings or 0),
             "course_earnings": float(user.course_earnings or 0),
