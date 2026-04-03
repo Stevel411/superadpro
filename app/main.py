@@ -17243,12 +17243,27 @@ def api_delete_sequence(seq_id: int, user: User = Depends(get_current_user), db:
 
 @app.post("/api/leads/upload-csv")
 async def api_upload_leads_csv(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Upload leads from CSV. Enforces lead limits per tier."""
+    """Upload leads from CSV. Commercial-grade import with validation, dedup, and auto-assignment."""
     if not user: return JSONResponse({"error": "Not authenticated"}, status_code=401)
     body = await request.json()
-    leads_data = body.get("leads") or []  # [{email, name}]
+    leads_data = body.get("leads") or []  # [{email, name, status}]
     list_id = body.get("list_id")  # optional — assign to specific list
+    sequence_id = body.get("sequence_id")  # optional — auto-assign sequence
+    import_status = body.get("status") or "new"  # new/hot/nurturing
+    source_label = body.get("source") or "CSV Import"
     if not leads_data: return JSONResponse({"error": "No leads provided"}, status_code=400)
+
+    import re
+    # RFC 5322 simplified email regex
+    email_regex = re.compile(r'^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$')
+
+    # Common disposable/throwaway email domains
+    disposable_domains = {
+        'mailinator.com','guerrillamail.com','tempmail.com','throwaway.email',
+        'yopmail.com','sharklasers.com','guerrillamailblock.com','grr.la',
+        'dispostable.com','trashmail.com','fakeinbox.com','mailnesia.com',
+        'maildrop.cc','discard.email','temp-mail.org','tmpmail.net',
+    }
 
     # Check lead limit
     from .database import MemberLead
@@ -17257,31 +17272,82 @@ async def api_upload_leads_csv(request: Request, user: User = Depends(get_curren
     remaining = max(0, limit - current_count)
 
     if remaining == 0:
-        return JSONResponse({"error": f"Lead limit reached ({limit}). Upgrade to Pro for 500 leads or purchase additional lead packs.", "limit": limit, "current": current_count}, status_code=400)
+        return JSONResponse({"error": f"Lead limit reached ({limit}). You need to delete existing leads or upgrade your plan.", "limit": limit, "current": current_count}, status_code=400)
 
-    # Import up to remaining limit
+    # Process leads
     to_import = leads_data[:remaining]
     imported = 0
     duplicates = 0
+    invalid_emails = 0
+    disposable_blocked = 0
+
     for ld in to_import:
         email = (ld.get("email") or "").strip().lower()
-        if not email or "@" not in email: continue
+
+        # Validate email format
+        if not email or not email_regex.match(email):
+            invalid_emails += 1
+            continue
+
+        # Block disposable emails
+        domain = email.split('@')[-1]
+        if domain in disposable_domains:
+            disposable_blocked += 1
+            continue
+
         # Check duplicate
         existing = db.query(MemberLead).filter(MemberLead.user_id == user.id, MemberLead.email == email).first()
         if existing:
             duplicates += 1
             continue
+
+        lead_name = (ld.get("name") or "").strip()
+        lead_status = import_status
+        if import_status == "hot":
+            is_hot = True
+        else:
+            is_hot = False
+
         lead = MemberLead(
-            user_id=user.id, email=email, name=(ld.get("name") or "").strip(),
-            source_url="CSV Upload", status="new", list_id=list_id,
+            user_id=user.id, email=email, name=lead_name,
+            source_url=source_label, status=lead_status,
+            list_id=list_id, is_hot=is_hot,
+            email_sequence_id=sequence_id if sequence_id else None,
         )
+        # If sequence assigned, set status to nurturing
+        if sequence_id:
+            lead.status = "nurturing"
+
         db.add(lead)
         imported += 1
 
     db.commit()
+
+    # Sync to Brevo in background (non-blocking)
+    if imported > 0:
+        try:
+            from .brevo_service import create_brevo_contact
+            import asyncio
+            new_leads = db.query(MemberLead).filter(
+                MemberLead.user_id == user.id,
+                MemberLead.brevo_contact_id == None,
+                MemberLead.source_url == source_label,
+            ).limit(imported).all()
+            for nl in new_leads:
+                try:
+                    contact_id = await create_brevo_contact(nl.email, nl.name or "")
+                    if contact_id:
+                        nl.brevo_contact_id = str(contact_id)
+                except Exception:
+                    pass
+            db.commit()
+        except Exception as e:
+            logger.warning(f"Brevo sync skipped: {e}")
+
     skipped = len(leads_data) - len(to_import)
     return {
         "ok": True, "imported": imported, "duplicates": duplicates,
+        "invalid_emails": invalid_emails, "disposable_blocked": disposable_blocked,
         "skipped_over_limit": skipped,
         "total_leads": current_count + imported, "limit": limit,
     }

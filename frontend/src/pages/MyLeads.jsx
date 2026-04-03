@@ -98,7 +98,7 @@ export default function MyLeads() {
       {tab==='leads' && <LeadsTab leads={leads} lists={lists} sequences={sequences} refresh={refresh} flash={flash}/>}
       {tab==='sequences' && <SeqTab sequences={sequences} refresh={refresh} flash={flash}/>}
       {tab==='broadcast' && <BcastTab leads={leads} lists={lists} flash={flash}/>}
-      {tab==='import' && <ImpTab stats={stats} lists={lists} refresh={refresh} flash={flash}/>}
+      {tab==='import' && <ImpTab stats={stats} lists={lists} sequences={sequences} refresh={refresh} flash={flash}/>}
       {tab==='boost' && <BoostTab emailStats={emailStats} refresh={refresh} flash={flash}/>}
     </AppLayout>
   );
@@ -214,28 +214,114 @@ function BcastTab({leads,lists,flash}) {
     </div></div>;
 }
 
-function ImpTab({stats,lists,refresh,flash}) {
-  var [csv,setCsv]=useState('');var [p,setP]=useState([]);var [lid,setLid]=useState('');var [u,setU]=useState(false);var [res,setRes]=useState(null);
-  function parse(){var lines=csv.trim().split('\n');var out=[];for(var i=0;i<lines.length;i++){var pts=lines[i].trim().split(',');var e=(pts[0]||'').trim().toLowerCase();if(e&&e.includes('@'))out.push({email:e,name:(pts[1]||'').trim()});}setP(out);}
-  function upload(){if(!p.length)return;setU(true);apiPost('/api/leads/upload-csv',{leads:p,list_id:lid?parseInt(lid):null}).then(function(r){setU(false);setRes(r);flash('+'+r.imported+' imported');refresh();}).catch(function(e){setU(false);flash(e.message,'err');});}
+function ImpTab({stats,lists,sequences,refresh,flash}) {
+  var [csv,setCsv]=useState('');var [parsed,setParsed]=useState([]);var [uploading,setUploading]=useState(false);var [result,setResult]=useState(null);
+  var [listId,setListId]=useState('');var [seqId,setSeqId]=useState('');var [impStatus,setImpStatus]=useState('new');var [source,setSource]=useState('');
+
+  function parse() {
+    var lines = csv.trim().split('\n');
+    var out = [];
+    var emailRegex = /^[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}$/;
+    for (var i = 0; i < lines.length; i++) {
+      var line = lines[i].trim();
+      if (!line) continue;
+      // Handle comma, semicolon, or tab delimited
+      var parts = line.split(/[,;\t]/);
+      var email = (parts[0] || '').trim().toLowerCase();
+      if (email && emailRegex.test(email)) {
+        out.push({ email: email, name: (parts[1] || '').trim() });
+      }
+    }
+    setParsed(out);
+  }
+
+  function upload() {
+    if (!parsed.length) return;
+    setUploading(true);
+    apiPost('/api/leads/upload-csv', {
+      leads: parsed,
+      list_id: listId ? parseInt(listId) : null,
+      sequence_id: seqId ? parseInt(seqId) : null,
+      status: impStatus,
+      source: source.trim() || 'CSV Import',
+    }).then(function(r) {
+      setUploading(false); setResult(r);
+      flash('+' + r.imported + ' imported' + (r.duplicates ? ', ' + r.duplicates + ' duplicates skipped' : ''));
+      refresh();
+    }).catch(function(e) { setUploading(false); flash(e.message, 'err'); });
+  }
 
   return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
-    <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:4}}>Import Leads</div><div style={{fontSize:12,color:'#64748b'}}>Upload a CSV file with email addresses</div></div>
+    <div style={{padding:'20px 24px',borderBottom:'1px solid #f1f5f9'}}>
+      <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,marginBottom:4}}>Import Leads</div>
+      <div style={{fontSize:13,color:'#475569'}}>Upload leads from CSV, another autoresponder, or paste manually. Supports comma, semicolon, and tab delimited formats.</div>
+    </div>
     <div style={{padding:'20px 24px'}}>
-      <div style={{display:'flex',gap:12,marginBottom:16}}>
-        <div style={{flex:1,background:'rgba(99,102,241,.04)',border:'1px solid rgba(99,102,241,.12)',borderRadius:10,padding:12}}><div style={{fontSize:10,fontWeight:700,color:'#6366f1'}}>Leads</div><div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#6366f1'}}>{stats.total||0}<span style={{fontSize:12,color:'#64748b'}}>/{stats.limit||5000}</span></div></div>
-        <div style={{flex:2}}><label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>Import into list</label><CustomSelect value={lid} onChange={setLid} options={[{value:'',label:'Unsorted'}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))}/></div>
+      {/* Lead count + capacity */}
+      <div style={{display:'flex',gap:12,marginBottom:20}}>
+        <div style={{flex:1,background:'rgba(99,102,241,.04)',border:'1px solid rgba(99,102,241,.12)',borderRadius:10,padding:'14px 16px'}}>
+          <div style={{fontSize:11,fontWeight:700,color:'#6366f1'}}>Current leads</div>
+          <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#6366f1'}}>{stats.total||0}<span style={{fontSize:13,color:'#475569',fontWeight:500}}> / {stats.limit||5000}</span></div>
+          <div style={{width:'100%',height:4,background:'#e2e8f0',borderRadius:2,marginTop:8}}><div style={{height:4,background:'#6366f1',borderRadius:2,width:Math.min(100,((stats.total||0)/(stats.limit||5000))*100)+'%'}}/></div>
+        </div>
       </div>
-      <label style={{display:'flex',flexDirection:'column',alignItems:'center',gap:6,padding:28,borderRadius:12,border:'2px dashed #d1d5db',cursor:'pointer',marginBottom:12,transition:'border-color .15s'}} onMouseEnter={function(e){e.currentTarget.style.borderColor='#6366f1';}} onMouseLeave={function(e){e.currentTarget.style.borderColor='#d1d5db';}}>
-        <Upload size={24} color="#6366f1"/><span style={{fontSize:13,fontWeight:600,color:'#475569'}}>Upload CSV</span><input type="file" accept=".csv,.txt" onChange={function(e){var f=e.target.files[0];if(f){var rd=new FileReader();rd.onload=function(ev){setCsv(ev.target.result);};rd.readAsText(f);}}} style={{display:'none'}}/>
+
+      {/* Import settings */}
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:20}}>
+        <div><label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Assign to list</label><CustomSelect value={listId} onChange={setListId} options={[{value:'',label:'No list (unsorted)'}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))}/></div>
+        <div><label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Auto-assign sequence</label><CustomSelect value={seqId} onChange={setSeqId} options={[{value:'',label:'No sequence'}].concat(sequences.map(function(s){return {value:String(s.id),label:s.title};}))}/></div>
+        <div><label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Import as status</label><CustomSelect value={impStatus} onChange={setImpStatus} options={[{value:'new',label:'New'},{value:'hot',label:'Hot'},{value:'nurturing',label:'Nurturing'}]}/></div>
+        <div><label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Source label</label><input value={source} onChange={function(e){setSource(e.target.value);}} placeholder="e.g. Mailchimp export, Facebook ads" style={{width:'100%',padding:'10px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
+      </div>
+
+      {/* Upload area */}
+      <label style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8,padding:32,borderRadius:12,border:'2px dashed #d1d5db',cursor:'pointer',marginBottom:12,transition:'border-color .15s,background .15s',background:'#fafbfc'}} onMouseEnter={function(e){e.currentTarget.style.borderColor='#6366f1';e.currentTarget.style.background='#f5f3ff';}} onMouseLeave={function(e){e.currentTarget.style.borderColor='#d1d5db';e.currentTarget.style.background='#fafbfc';}}>
+        <Upload size={28} color="#6366f1"/>
+        <span style={{fontSize:14,fontWeight:700,color:'#0f172a'}}>Upload CSV file</span>
+        <span style={{fontSize:12,color:'#64748b'}}>or paste email addresses below</span>
+        <input type="file" accept=".csv,.txt,.tsv" onChange={function(e){var f=e.target.files[0];if(f){var rd=new FileReader();rd.onload=function(ev){setCsv(ev.target.result);setParsed([]);setResult(null);};rd.readAsText(f);}}} style={{display:'none'}}/>
       </label>
-      <textarea value={csv} onChange={function(e){setCsv(e.target.value);setP([]);setRes(null);}} rows={4} placeholder="email,name (one per line)" style={{width:'100%',padding:10,border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:12,fontFamily:'monospace',outline:'none',boxSizing:'border-box',resize:'vertical',marginBottom:10}}/>
-      <div style={{display:'flex',gap:8,marginBottom:14}}>
-        <button onClick={parse} style={{padding:'7px 14px',borderRadius:8,border:'1px solid #e2e8f0',background:'#fff',color:'#6366f1',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Preview</button>
-        {p.length>0&&<span style={{fontSize:11,fontWeight:700,color:'#16a34a',display:'flex',alignItems:'center',gap:4}}>{p.length} valid leads</span>}
+
+      <textarea value={csv} onChange={function(e){setCsv(e.target.value);setParsed([]);setResult(null);}} rows={5} placeholder={"email,name\njohn@example.com,John Smith\nsarah@example.com,Sarah Jones"} style={{width:'100%',padding:'12px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:12,fontFamily:'monospace',outline:'none',boxSizing:'border-box',resize:'vertical',marginBottom:12}}/>
+
+      {/* Preview + Import buttons */}
+      <div style={{display:'flex',gap:8,marginBottom:16,alignItems:'center'}}>
+        <button onClick={parse} style={{padding:'10px 20px',borderRadius:8,border:'1.5px solid #e2e8f0',background:'#fff',color:'#6366f1',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Preview & Validate</button>
+        {parsed.length>0 && <span style={{fontSize:12,fontWeight:700,color:'#16a34a'}}>{parsed.length} valid emails found</span>}
       </div>
-      {res&&<div style={{padding:10,background:'#dcfce7',borderRadius:8,marginBottom:14,fontSize:11,color:'#16a34a',fontWeight:700}}>{res.imported} imported</div>}
-      <button onClick={upload} disabled={u||!p.length} style={{display:'flex',alignItems:'center',gap:5,padding:'12px 24px',borderRadius:10,border:'none',background:(u||!p.length)?'#cbd5e1':'linear-gradient(135deg,#6366f1,#818cf8)',color:'#fff',fontSize:13,fontWeight:800,cursor:(u||!p.length)?'default':'pointer',fontFamily:'Sora,sans-serif'}}><Upload size={14}/>{u?'Importing...':'Import '+p.length+' leads'}</button>
+
+      {/* Preview table */}
+      {parsed.length>0 && <div style={{background:'#f8fafc',borderRadius:10,border:'1px solid #e2e8f0',marginBottom:16,maxHeight:200,overflowY:'auto'}}>
+        <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
+          <thead><tr><th style={{textAlign:'left',padding:'8px 14px',fontWeight:700,color:'#475569',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>Email</th><th style={{textAlign:'left',padding:'8px 14px',fontWeight:700,color:'#475569',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>Name</th></tr></thead>
+          <tbody>{parsed.slice(0,20).map(function(l,i){return <tr key={i} style={{borderTop:i>0?'1px solid #f1f5f9':'none'}}><td style={{padding:'6px 14px',color:'#0f172a'}}>{l.email}</td><td style={{padding:'6px 14px',color:'#475569'}}>{l.name||'—'}</td></tr>;})}</tbody>
+        </table>
+        {parsed.length>20 && <div style={{padding:'8px 14px',fontSize:11,color:'#64748b',borderTop:'1px solid #e2e8f0'}}>...and {parsed.length-20} more</div>}
+      </div>}
+
+      {/* Results */}
+      {result && <div style={{padding:'14px 18px',background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:10,marginBottom:16}}>
+        <div style={{fontSize:13,fontWeight:700,color:'#059669',marginBottom:6}}>{result.imported} leads imported successfully</div>
+        <div style={{fontSize:12,color:'#475569',lineHeight:1.8}}>
+          {result.duplicates>0 && <div>{result.duplicates} duplicates skipped</div>}
+          {result.invalid_emails>0 && <div>{result.invalid_emails} invalid emails rejected</div>}
+          {result.disposable_blocked>0 && <div>{result.disposable_blocked} disposable emails blocked</div>}
+          {result.skipped_over_limit>0 && <div>{result.skipped_over_limit} skipped (over lead limit)</div>}
+        </div>
+      </div>}
+
+      <button onClick={upload} disabled={uploading||!parsed.length}
+        style={{display:'flex',alignItems:'center',gap:6,padding:'14px 28px',borderRadius:10,border:'none',background:(uploading||!parsed.length)?'#cbd5e1':'linear-gradient(135deg,#6366f1,#818cf8)',color:'#fff',fontSize:14,fontWeight:800,cursor:(uploading||!parsed.length)?'default':'pointer',fontFamily:'Sora,sans-serif'}}>
+        <Upload size={16}/>{uploading?'Importing...':'Import '+parsed.length+' leads'}
+      </button>
+
+      {/* Format help */}
+      <div style={{marginTop:20,padding:'14px 18px',background:'#f8fafc',borderRadius:10,border:'1px solid #f1f5f9'}}>
+        <div style={{fontSize:12,fontWeight:700,color:'#475569',marginBottom:6}}>Accepted formats</div>
+        <div style={{fontSize:12,color:'#64748b',lineHeight:1.8}}>
+          CSV from Mailchimp, AWeber, ConvertKit, ActiveCampaign, or any email platform. Format: <code style={{background:'#e2e8f0',padding:'2px 6px',borderRadius:4,fontSize:11}}>email,name</code> (one per line). Comma, semicolon, and tab delimiters supported. Disposable email addresses are automatically filtered.
+        </div>
+      </div>
     </div></div>;
 }
 
