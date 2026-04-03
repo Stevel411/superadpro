@@ -85,12 +85,12 @@ export default function PayItForward() {
         <div style={{ position:'absolute', top:-40, right:-40, width:150, height:150, borderRadius:'50%', background:'rgba(255,255,255,.06)', pointerEvents:'none' }}/>
         <div style={{ position:'absolute', bottom:-30, left:-30, width:120, height:120, borderRadius:'50%', background:'rgba(255,255,255,.04)', pointerEvents:'none' }}/>
         <div style={{ position:'relative' }}>
-          <div style={{ width:56, height:56, borderRadius:16, background:'rgba(255,255,255,.15)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px' }}>
-            <Heart size={28} color="#fff"/>
+          <div style={{ width:68, height:68, borderRadius:18, background:'rgba(255,255,255,.15)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px' }}>
+            <Heart size={34} color="#fff"/>
           </div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:800, color:'#fff', marginBottom:4 }}>Pay It Forward</div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:800, color:'#fbbf24', marginBottom:12 }}>Change Someone's Life Today</div>
-          <div style={{ fontSize:14, color:'rgba(255,255,255,.85)', lineHeight:1.7, maxWidth:500, margin:'0 auto' }}>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, color:'#fff', marginBottom:6 }}>Pay It Forward</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, color:'#fbbf24', marginBottom:14 }}>Change Someone's Life Today</div>
+          <div style={{ fontSize:16, color:'rgba(255,255,255,.85)', lineHeight:1.7, maxWidth:500, margin:'0 auto' }}>
             Gift a free membership to someone who needs it. When they succeed, they'll do the same for someone else. One act of generosity creates a chain of success.
           </div>
         </div>
@@ -99,16 +99,16 @@ export default function PayItForward() {
       {/* Stats */}
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:24 }}>
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', textAlign:'center' }}>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#ec4899' }}>{stats.total_gifted || 0}</div>
-          <div style={{ fontSize:12, color:'#94a3b8', marginTop:4 }}>Gifts given</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:34, fontWeight:800, color:'#ec4899' }}>{stats.total_gifted || 0}</div>
+          <div style={{ fontSize:14, color:'#94a3b8', marginTop:6 }}>Gifts given</div>
         </div>
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', textAlign:'center' }}>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#10b981' }}>{stats.total_claimed || 0}</div>
-          <div style={{ fontSize:12, color:'#94a3b8', marginTop:4 }}>Lives changed</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:34, fontWeight:800, color:'#10b981' }}>{stats.total_claimed || 0}</div>
+          <div style={{ fontSize:14, color:'#94a3b8', marginTop:6 }}>Lives changed</div>
         </div>
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', textAlign:'center' }}>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#8b5cf6' }}>{stats.max_chain_depth || 0}</div>
-          <div style={{ fontSize:12, color:'#94a3b8', marginTop:4 }}>Chain depth</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:34, fontWeight:800, color:'#8b5cf6' }}>{stats.max_chain_depth || 0}</div>
+          <div style={{ fontSize:14, color:'#94a3b8', marginTop:6 }}>Chain depth</div>
         </div>
       </div>
 
@@ -146,7 +146,7 @@ export default function PayItForward() {
         <button onClick={function() { setShowForm(true); setError(''); setSuccess(''); setNewLink(''); }}
           style={{
             width:'100%', padding:16, borderRadius:12, border:'none', cursor:'pointer', fontFamily:'inherit',
-            fontSize:16, fontWeight:800, color:'#fff',
+            fontSize:18, fontWeight:800, color:'#fff',
             background:'linear-gradient(135deg,#ec4899,#db2777)',
             boxShadow:'0 4px 16px rgba(236,72,153,.3)',
             marginBottom:24, display:'flex', alignItems:'center', justifyContent:'center', gap:8,
@@ -198,7 +198,7 @@ export default function PayItForward() {
       {vouchers.length > 0 && (
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, overflow:'hidden', marginBottom:24 }}>
           <div style={{ padding:'16px 20px', borderBottom:'1px solid #e2e8f0' }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'#0f172a' }}>Your Gift Vouchers</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a' }}>Your Gift Vouchers</div>
           </div>
           {vouchers.map(function(v) {
             var isClaimed = v.status === 'claimed';
@@ -213,11 +213,11 @@ export default function PayItForward() {
                     {isClaimed ? <Check size={16} color="#10b981"/> : <Gift size={16} color="#a855f7"/>}
                   </div>
                   <div>
-                    <div style={{ fontSize:13, fontWeight:700, color:'#0f172a' }}>
+                    <div style={{ fontSize:15, fontWeight:700, color:'#0f172a' }}>
                       {v.recipient_name || 'Open gift'}
                       {isClaimed && v.claimed_by && <span style={{ fontWeight:400, color:'#64748b' }}> — claimed by {v.claimed_by.first_name || v.claimed_by.username}</span>}
                     </div>
-                    <div style={{ fontSize:11, color:'#94a3b8' }}>
+                    <div style={{ fontSize:13, color:'#94a3b8' }}>
                       {v.code} · {isClaimed ? 'Claimed' : 'Available'} · Chain depth {v.chain_depth}
                     </div>
                   </div>
@@ -236,7 +236,7 @@ export default function PayItForward() {
 
       {/* How it works */}
       <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:'20px 24px' }}>
-        <div style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'#0f172a', marginBottom:14 }}>How Pay It Forward works</div>
+        <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0f172a', marginBottom:16 }}>How Pay It Forward works</div>
         <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
           {[
             { n:'1', color:'#ec4899', bg:'#fce7f3', title:'You gift a membership', desc:'Pay $20 from your wallet to create a gift voucher with a unique shareable link.' },
@@ -245,10 +245,10 @@ export default function PayItForward() {
           ].map(function(s) {
             return (
               <div key={s.n} style={{ display:'flex', gap:14, alignItems:'flex-start' }}>
-                <div style={{ width:28, height:28, borderRadius:8, background:s.bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:13, fontWeight:800, color:s.color, flexShrink:0 }}>{s.n}</div>
+                <div style={{ width:36, height:36, borderRadius:10, background:s.bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, fontWeight:800, color:s.color, flexShrink:0 }}>{s.n}</div>
                 <div>
-                  <div style={{ fontSize:13, fontWeight:700, color:'#0f172a' }}>{s.title}</div>
-                  <div style={{ fontSize:12, color:'#64748b', lineHeight:1.6 }}>{s.desc}</div>
+                  <div style={{ fontSize:16, fontWeight:700, color:'#0f172a' }}>{s.title}</div>
+                  <div style={{ fontSize:14, color:'#64748b', lineHeight:1.7 }}>{s.desc}</div>
                 </div>
               </div>
             );
