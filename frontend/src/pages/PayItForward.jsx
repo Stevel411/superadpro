@@ -90,7 +90,7 @@ export default function PayItForward() {
           </div>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:800, color:'#fff', marginBottom:4 }}>Pay It Forward</div>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:800, color:'#fbbf24', marginBottom:12 }}>Change Someone's Life Today</div>
-          <div style={{ fontSize:14, color:'rgba(255,255,255,.65)', lineHeight:1.7, maxWidth:500, margin:'0 auto' }}>
+          <div style={{ fontSize:14, color:'rgba(255,255,255,.85)', lineHeight:1.7, maxWidth:500, margin:'0 auto' }}>
             Gift a free membership to someone who needs it. When they succeed, they'll do the same for someone else. One act of generosity creates a chain of success.
           </div>
         </div>
