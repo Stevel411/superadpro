@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost, apiPut, apiDelete } from '../utils/api';
-import { Monitor, Sparkles, LayoutGrid, FolderOpen, Edit3, Trash2, Eye, Download, Copy, Check, ExternalLink, ChevronLeft, ChevronRight, HelpCircle } from 'lucide-react';
+import { Monitor, Sparkles, LayoutGrid, FolderOpen, Edit3, Trash2, Eye, Download, Copy, Check, ExternalLink, ChevronLeft, ChevronRight, HelpCircle, Plus, Save, Palette, Type } from 'lucide-react';
 
 var STYLES = ['Professional','Bold','Minimal','Vibrant'];
 var NICHES = ['General','Fitness','Crypto','Travel','Beauty','Health','Finance','Tech','Real Estate','Education'];
@@ -41,6 +41,81 @@ export default function SuperDeckPage() {
   var [currentSlide, setCurrentSlide] = useState(0);
   var [copied, setCopied] = useState(false);
   var [showHelp, setShowHelp] = useState(false);
+  var [saving, setSaving] = useState(false);
+  var [editingTitle, setEditingTitle] = useState(false);
+
+  function updateSlideField(slideIdx, field, value) {
+    if (!currentDeck) return;
+    var newSlides = currentDeck.slides.map(function(s, i) {
+      if (i !== slideIdx) return s;
+      var copy = Object.assign({}, s);
+      copy[field] = value;
+      return copy;
+    });
+    setCurrentDeck(Object.assign({}, currentDeck, { slides: newSlides }));
+  }
+
+  function updateBullet(slideIdx, bulletIdx, value) {
+    if (!currentDeck) return;
+    var newSlides = currentDeck.slides.map(function(s, i) {
+      if (i !== slideIdx) return s;
+      var copy = Object.assign({}, s);
+      copy.bullets = (copy.bullets || []).map(function(b, bi) { return bi === bulletIdx ? value : b; });
+      return copy;
+    });
+    setCurrentDeck(Object.assign({}, currentDeck, { slides: newSlides }));
+  }
+
+  function addBullet(slideIdx) {
+    if (!currentDeck) return;
+    var newSlides = currentDeck.slides.map(function(s, i) {
+      if (i !== slideIdx) return s;
+      var copy = Object.assign({}, s);
+      copy.bullets = (copy.bullets || []).concat(['New point']);
+      return copy;
+    });
+    setCurrentDeck(Object.assign({}, currentDeck, { slides: newSlides }));
+  }
+
+  function removeBullet(slideIdx, bulletIdx) {
+    if (!currentDeck) return;
+    var newSlides = currentDeck.slides.map(function(s, i) {
+      if (i !== slideIdx) return s;
+      var copy = Object.assign({}, s);
+      copy.bullets = (copy.bullets || []).filter(function(_, bi) { return bi !== bulletIdx; });
+      return copy;
+    });
+    setCurrentDeck(Object.assign({}, currentDeck, { slides: newSlides }));
+  }
+
+  function addSlide() {
+    if (!currentDeck) return;
+    var newSlide = { title: 'New Slide', bullets: ['Point 1', 'Point 2', 'Point 3'], notes: '', layout: 'content' };
+    var newSlides = currentDeck.slides.concat([newSlide]);
+    setCurrentDeck(Object.assign({}, currentDeck, { slides: newSlides, slide_count: newSlides.length }));
+    setCurrentSlide(newSlides.length - 1);
+  }
+
+  function removeSlide(idx) {
+    if (!currentDeck || currentDeck.slides.length <= 1) return;
+    var newSlides = currentDeck.slides.filter(function(_, i) { return i !== idx; });
+    setCurrentDeck(Object.assign({}, currentDeck, { slides: newSlides, slide_count: newSlides.length }));
+    if (currentSlide >= newSlides.length) setCurrentSlide(newSlides.length - 1);
+  }
+
+  function changeLayout(slideIdx, layout) {
+    updateSlideField(slideIdx, 'layout', layout);
+  }
+
+  function saveDeck() {
+    if (!currentDeck || !currentDeck.id) return;
+    setSaving(true);
+    apiPut('/api/superdeck/' + currentDeck.id, {
+      title: currentDeck.title,
+      slides: currentDeck.slides,
+    }).then(function() { setSaving(false); loadDecks(); })
+      .catch(function() { setSaving(false); });
+  }
 
   function loadDecks() {
     setLoadingDecks(true);
@@ -294,7 +369,19 @@ export default function SuperDeckPage() {
             <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:16, padding:18 }}>
               {/* Toolbar */}
               <div style={{ display:'flex', gap:8, marginBottom:14, flexWrap:'wrap', alignItems:'center' }}>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', flex:1 }}>{currentDeck.title}</div>
+                {editingTitle ? (
+                  <input value={currentDeck.title} autoFocus
+                    onChange={function(e) { setCurrentDeck(Object.assign({}, currentDeck, { title: e.target.value })); }}
+                    onBlur={function() { setEditingTitle(false); }}
+                    onKeyDown={function(e) { if (e.key === 'Enter') setEditingTitle(false); }}
+                    style={{ flex:1, fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', border:'1.5px solid #6366f1', borderRadius:8, padding:'6px 12px', outline:'none' }}/>
+                ) : (
+                  <div onClick={function() { setEditingTitle(true); }} style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', flex:1, cursor:'pointer', padding:'6px 0', borderBottom:'1px dashed #cbd5e1' }} title="Click to edit title">{currentDeck.title}</div>
+                )}
+                <button onClick={saveDeck} disabled={saving || !currentDeck.id}
+                  style={{ padding:'7px 14px', borderRadius:8, border:'1px solid #10b981', background: saving ? '#d1fae5' : '#f0fdf4', cursor:'pointer', fontSize:12, fontWeight:600, color:'#059669', fontFamily:'inherit', display:'flex', alignItems:'center', gap:4 }}>
+                  <Save size={14}/> {saving ? 'Saving...' : 'Save'}
+                </button>
                 <button onClick={downloadPptx} style={{ padding:'7px 14px', borderRadius:8, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontSize:12, fontWeight:600, color:'#475569', fontFamily:'inherit', display:'flex', alignItems:'center', gap:4 }}>
                   <Download size={14}/> Export PPTX
                 </button>
@@ -304,57 +391,79 @@ export default function SuperDeckPage() {
               </div>
 
               {/* Editor Layout */}
-              <div style={{ display:'grid', gridTemplateColumns:'180px 1fr', gap:14 }}>
+              <div style={{ display:'grid', gridTemplateColumns:'180px 1fr 240px', gap:14 }}>
                 {/* Slide Thumbnails */}
-                <div style={{ display:'flex', flexDirection:'column', gap:6, maxHeight:400, overflowY:'auto' }}>
+                <div style={{ display:'flex', flexDirection:'column', gap:6, maxHeight:500, overflowY:'auto' }}>
                   {currentDeck.slides.map(function(s, i) {
                     var slc = LAYOUT_COLORS[s.layout] || LAYOUT_COLORS.content;
                     var on = currentSlide === i;
-                    return <div key={i} onClick={function() { setCurrentSlide(i); }}
-                      style={{ aspectRatio:'16/9', borderRadius:8, background:slc.bg, border: on ? '2.5px solid #3b82f6' : '2px solid transparent', cursor:'pointer', position:'relative', overflow:'hidden', padding:8, display:'flex', alignItems:'center', justifyContent:'center' }}>
-                      <div style={{ fontSize:8, fontWeight:700, color:slc.text, textAlign:'center', opacity:.8, overflow:'hidden', maxHeight:'100%' }}>{s.title}</div>
-                      <div style={{ position:'absolute', bottom:3, left:6, fontSize:9, fontWeight:700, color: slc.text, opacity:.5 }}>{i + 1}</div>
+                    return <div key={i} style={{ position:'relative' }}>
+                      <div onClick={function() { setCurrentSlide(i); }}
+                        style={{ aspectRatio:'16/9', borderRadius:8, background:slc.bg, border: on ? '2.5px solid #3b82f6' : '2px solid transparent', cursor:'pointer', position:'relative', overflow:'hidden', padding:8, display:'flex', alignItems:'center', justifyContent:'center' }}>
+                        <div style={{ fontSize:8, fontWeight:700, color:slc.text, textAlign:'center', opacity:.8, overflow:'hidden', maxHeight:'100%' }}>{s.title}</div>
+                        <div style={{ position:'absolute', bottom:3, left:6, fontSize:9, fontWeight:700, color:slc.text, opacity:.5 }}>{i + 1}</div>
+                      </div>
+                      {currentDeck.slides.length > 1 && on && (
+                        <button onClick={function(e) { e.stopPropagation(); removeSlide(i); }}
+                          style={{ position:'absolute', top:-4, right:-4, width:18, height:18, borderRadius:'50%', border:'none', background:'#ef4444', color:'#fff', fontSize:10, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', lineHeight:1 }}>×</button>
+                      )}
                     </div>;
                   })}
+                  <button onClick={addSlide}
+                    style={{ aspectRatio:'16/9', borderRadius:8, border:'2px dashed #cbd5e1', background:'#f8fafc', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', fontSize:20, color:'#94a3b8' }}>
+                    <Plus size={18}/>
+                  </button>
                 </div>
 
-                {/* Main Canvas */}
+                {/* Main Canvas — editable */}
                 <div>
                   <div style={{ aspectRatio:'16/9', borderRadius:12, background:lc.bg, border:'1px solid #e2e8f0', position:'relative', overflow:'hidden', padding:'24px 32px', display:'flex', flexDirection:'column' }}>
                     {slide && slide.layout === 'title' ? (
                       <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
-                        <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:lc.text, textAlign:'center', marginBottom:8 }}>{slide.title}</div>
-                        {slide.bullets && slide.bullets[0] && <div style={{ fontSize:15, color:lc.accent, textAlign:'center' }}>{slide.bullets[0]}</div>}
+                        <input value={slide.title} onChange={function(e) { updateSlideField(currentSlide, 'title', e.target.value); }}
+                          style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:lc.text, textAlign:'center', background:'transparent', border:'none', outline:'none', width:'100%', marginBottom:8 }}/>
+                        <input value={(slide.bullets && slide.bullets[0]) || ''} onChange={function(e) { updateBullet(currentSlide, 0, e.target.value); }}
+                          placeholder="Subtitle..."
+                          style={{ fontSize:15, color:lc.accent, textAlign:'center', background:'transparent', border:'none', outline:'none', width:'100%' }}/>
                       </div>
                     ) : slide && slide.layout === 'closing' ? (
                       <div style={{ flex:1, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
-                        <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:lc.text, textAlign:'center', marginBottom:12 }}>{slide.title}</div>
-                        {slide.bullets && slide.bullets.map(function(b, i) {
-                          return <div key={i} style={{ fontSize:14, color:'rgba(255,255,255,.6)', textAlign:'center', marginBottom:4 }}>{b}</div>;
+                        <input value={slide.title} onChange={function(e) { updateSlideField(currentSlide, 'title', e.target.value); }}
+                          style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:lc.text, textAlign:'center', background:'transparent', border:'none', outline:'none', width:'100%', marginBottom:12 }}/>
+                        {slide.bullets && slide.bullets.map(function(b, bi) {
+                          return <input key={bi} value={b} onChange={function(e) { updateBullet(currentSlide, bi, e.target.value); }}
+                            style={{ fontSize:14, color:'rgba(255,255,255,.6)', textAlign:'center', background:'transparent', border:'none', outline:'none', width:'100%', marginBottom:4 }}/>;
                         })}
-                        <div style={{ fontSize:16, fontWeight:700, color:lc.accent, marginTop:16 }}>www.superadpro.com/ref/YourName</div>
                       </div>
                     ) : slide && slide.layout === 'stats' ? (
                       <>
-                        <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:lc.text, marginBottom:16 }}>{slide.title}</div>
+                        <input value={slide.title} onChange={function(e) { updateSlideField(currentSlide, 'title', e.target.value); }}
+                          style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:lc.text, background:'transparent', border:'none', outline:'none', width:'100%', marginBottom:16 }}/>
                         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, flex:1 }}>
-                          {slide.bullets && slide.bullets.map(function(b, i) {
-                            return <div key={i} style={{ background:'rgba(255,255,255,.06)', borderRadius:10, padding:'14px 16px', display:'flex', alignItems:'center', justifyContent:'center' }}>
-                              <div style={{ fontSize:14, fontWeight:600, color:lc.accent, textAlign:'center' }}>{b}</div>
+                          {slide.bullets && slide.bullets.map(function(b, bi) {
+                            return <div key={bi} style={{ background:'rgba(255,255,255,.06)', borderRadius:10, padding:'14px 16px', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                              <input value={b} onChange={function(e) { updateBullet(currentSlide, bi, e.target.value); }}
+                                style={{ fontSize:14, fontWeight:600, color:lc.accent, textAlign:'center', background:'transparent', border:'none', outline:'none', width:'100%' }}/>
                             </div>;
                           })}
                         </div>
                       </>
                     ) : slide ? (
                       <>
-                        <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:lc.accent, marginBottom:14 }}>{slide.title}</div>
-                        <div style={{ flex:1, display:'flex', flexDirection:'column', gap:8 }}>
-                          {slide.bullets && slide.bullets.map(function(b, i) {
-                            return <div key={i} style={{ display:'flex', gap:8, alignItems:'flex-start' }}>
-                              <div style={{ width:6, height:6, borderRadius:'50%', background:lc.accent, marginTop:7, flexShrink:0 }}/>
-                              <div style={{ fontSize:14, color:lc.text, lineHeight:1.6 }}>{b}</div>
+                        <input value={slide.title} onChange={function(e) { updateSlideField(currentSlide, 'title', e.target.value); }}
+                          style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:lc.accent, background:'transparent', border:'none', outline:'none', width:'100%', marginBottom:14 }}/>
+                        <div style={{ flex:1, display:'flex', flexDirection:'column', gap:6 }}>
+                          {slide.bullets && slide.bullets.map(function(b, bi) {
+                            return <div key={bi} style={{ display:'flex', gap:8, alignItems:'center' }}>
+                              <div style={{ width:6, height:6, borderRadius:'50%', background:lc.accent, flexShrink:0 }}/>
+                              <input value={b} onChange={function(e) { updateBullet(currentSlide, bi, e.target.value); }}
+                                style={{ fontSize:14, color:lc.text, background:'transparent', border:'none', outline:'none', flex:1 }}/>
+                              <button onClick={function() { removeBullet(currentSlide, bi); }}
+                                style={{ width:18, height:18, borderRadius:'50%', border:'none', background:'rgba(239,68,68,.15)', color:'#ef4444', fontSize:11, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>×</button>
                             </div>;
                           })}
+                          <button onClick={function() { addBullet(currentSlide); }}
+                            style={{ fontSize:12, color:lc.accent, background:'transparent', border:'1px dashed '+(lc.bg === '#fff' ? '#cbd5e1' : 'rgba(255,255,255,.2)'), borderRadius:6, padding:'6px 12px', cursor:'pointer', fontFamily:'inherit', marginTop:4 }}>+ Add point</button>
                         </div>
                       </>
                     ) : null}
@@ -375,14 +484,38 @@ export default function SuperDeckPage() {
                       Next <ChevronRight size={16}/>
                     </button>
                   </div>
+                </div>
+
+                {/* Right Panel — Slide Properties */}
+                <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+                  {/* Layout Selector */}
+                  <div style={{ background:'#f8fafc', borderRadius:10, padding:'14px 16px' }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:'#475569', marginBottom:8, display:'flex', alignItems:'center', gap:4 }}><Palette size={13}/> Slide layout</div>
+                    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:4 }}>
+                      {['title','content','stats','two-column','quote','closing'].map(function(l) {
+                        var on2 = slide && slide.layout === l;
+                        var llc = LAYOUT_COLORS[l] || LAYOUT_COLORS.content;
+                        return <button key={l} onClick={function() { changeLayout(currentSlide, l); }}
+                          style={{ padding:'6px 8px', borderRadius:6, border: on2 ? '2px solid #3b82f6' : '1px solid #e2e8f0', background: on2 ? '#eff6ff' : '#fff', cursor:'pointer', fontFamily:'inherit', fontSize:11, fontWeight: on2 ? 700 : 500, color: on2 ? '#1d4ed8' : '#64748b', textTransform:'capitalize' }}>{l}</button>;
+                      })}
+                    </div>
+                  </div>
 
                   {/* Speaker Notes */}
-                  {slide && slide.notes && (
-                    <div style={{ marginTop:12, padding:'12px 16px', background:'#f8fafc', borderRadius:10, border:'1px solid #e2e8f0' }}>
-                      <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:1, marginBottom:4 }}>Speaker notes</div>
-                      <div style={{ fontSize:13, color:'#475569', lineHeight:1.6 }}>{slide.notes}</div>
+                  <div style={{ background:'#f8fafc', borderRadius:10, padding:'14px 16px', flex:1 }}>
+                    <div style={{ fontSize:12, fontWeight:700, color:'#475569', marginBottom:8, display:'flex', alignItems:'center', gap:4 }}><Type size={13}/> Speaker notes</div>
+                    <textarea value={(slide && slide.notes) || ''} onChange={function(e) { updateSlideField(currentSlide, 'notes', e.target.value); }}
+                      placeholder="Add speaker notes..."
+                      style={{ width:'100%', height:120, border:'1px solid #e2e8f0', borderRadius:8, padding:'10px 12px', fontSize:12, fontFamily:'inherit', resize:'vertical', boxSizing:'border-box', outline:'none', lineHeight:1.6, background:'#fff' }}/>
+                  </div>
+
+                  {/* Quick Tips */}
+                  <div style={{ background:'#eff6ff', borderRadius:10, padding:'12px 14px' }}>
+                    <div style={{ fontSize:11, fontWeight:700, color:'#1e40af', marginBottom:4 }}>Tips</div>
+                    <div style={{ fontSize:11, color:'#3b82f6', lineHeight:1.6 }}>
+                      Click any text on the slide to edit it directly. Use the layout selector to change how content is arranged. Save your changes before exporting.
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             </div>
