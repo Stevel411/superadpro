@@ -1162,6 +1162,36 @@ class SuperSellerCampaign(Base):
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
+class GiftVoucher(Base):
+    """Pay It Forward gift vouchers — members gift memberships/tiers to others."""
+    __tablename__ = "gift_vouchers"
+    id                = Column(Integer, primary_key=True, autoincrement=True)
+    gifter_user_id    = Column(Integer, ForeignKey("users.id"), nullable=False, index=True)
+    voucher_code      = Column(String(12), unique=True, nullable=False, index=True)
+    # What's being gifted
+    gift_type         = Column(String(20), nullable=False, default="membership")  # membership or tier
+    gift_value        = Column(Numeric(10, 2), nullable=False, default=20)  # dollar value
+    tier_num          = Column(Integer, nullable=True)  # null for membership, 1-8 for tier
+    # Recipient info (optional — can be open voucher)
+    recipient_name    = Column(String(100), nullable=True)
+    recipient_email   = Column(String(200), nullable=True)
+    personal_message  = Column(Text, nullable=True)
+    # Payment
+    is_free_voucher   = Column(Boolean, default=False)  # True if auto-granted on tier upgrade
+    payment_method    = Column(String(20), nullable=True)  # crypto, wallet, free
+    payment_ref       = Column(String(200), nullable=True)
+    # Claim tracking
+    status            = Column(String(20), default="available")  # available, claimed, expired
+    claimed_by_user_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    claimed_at        = Column(DateTime, nullable=True)
+    # Chain tracking
+    pif_chain_depth   = Column(Integer, default=1)  # how many generations deep
+    parent_voucher_id = Column(Integer, ForeignKey("gift_vouchers.id"), nullable=True)
+    # Timestamps
+    created_at        = Column(DateTime, default=datetime.utcnow)
+    expires_at        = Column(DateTime, nullable=True)  # null = never expires
+
+
 class CryptoPaymentOrder(Base):
     """Pending crypto payment orders — matched to incoming USDT transfers."""
     __tablename__ = "crypto_payment_orders"
@@ -1987,6 +2017,40 @@ try:
         print("✅ SuperScene: SAP-00001 credit floor confirmed (500)")
 except Exception as e:
     print(f"⚠️ SuperScene seed note: {e}")
+
+# ── Gift Vouchers (Pay It Forward) ──
+try:
+    with engine.connect() as conn:
+        conn.execute(text("""
+            CREATE TABLE IF NOT EXISTS gift_vouchers (
+                id SERIAL PRIMARY KEY,
+                gifter_user_id INTEGER NOT NULL REFERENCES users(id),
+                voucher_code VARCHAR(12) UNIQUE NOT NULL,
+                gift_type VARCHAR(20) NOT NULL DEFAULT 'membership',
+                gift_value NUMERIC(10,2) NOT NULL DEFAULT 20,
+                tier_num INTEGER,
+                recipient_name VARCHAR(100),
+                recipient_email VARCHAR(200),
+                personal_message TEXT,
+                is_free_voucher BOOLEAN DEFAULT FALSE,
+                payment_method VARCHAR(20),
+                payment_ref VARCHAR(200),
+                status VARCHAR(20) DEFAULT 'available',
+                claimed_by_user_id INTEGER REFERENCES users(id),
+                claimed_at TIMESTAMP,
+                pif_chain_depth INTEGER DEFAULT 1,
+                parent_voucher_id INTEGER REFERENCES gift_vouchers(id),
+                created_at TIMESTAMP DEFAULT NOW(),
+                expires_at TIMESTAMP
+            )
+        """))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_gift_vouchers_code ON gift_vouchers(voucher_code)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_gift_vouchers_gifter ON gift_vouchers(gifter_user_id)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_gift_vouchers_status ON gift_vouchers(status)"))
+        conn.commit()
+        print("✅ Gift vouchers table created")
+except Exception as e:
+    print(f"⚠️ Gift vouchers note: {e}")
 
 
 # ─────────────────────────────────────────────

@@ -44,6 +44,8 @@ import CourseEditor from './pages/CourseEditor';
 import LinkHubPage from './pages/LinkHub';
 import SuperMarketCreate from './pages/SuperMarketCreate';
 import ActivateTier from './pages/ActivateTier';
+import PayItForward from './pages/PayItForward';
+import GiftLanding from './pages/GiftLanding';
 import TrainingCentre from './pages/TrainingCentre';
 import TeamMessenger from './pages/TeamMessenger';
 import Challenges from './pages/Challenges';
@@ -136,6 +138,8 @@ function AppRoutes() {
       <Route path="/affiliate" element={<ProtectedRoute><Affiliate /></ProtectedRoute>} />
       <Route path="/campaign-tiers" element={<ProtectedRoute><CampaignTiers /></ProtectedRoute>} />
       <Route path="/activate/:tierId" element={<ProtectedRoute><ActivateTier /></ProtectedRoute>} />
+      <Route path="/pay-it-forward" element={<ProtectedRoute><PayItForward /></ProtectedRoute>} />
+      <Route path="/gift/:code" element={<GiftLanding />} />
       <Route path="/marketplace" element={<Marketplace />} />
       <Route path="/supermarket/create" element={<ProtectedRoute><SuperMarketCreate /></ProtectedRoute>} />
       <Route path="/courses/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />

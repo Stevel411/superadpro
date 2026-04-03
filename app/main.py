@@ -15662,6 +15662,253 @@ async def _call_ai_with_system(system: str, messages: list, model: str = "claude
         return "I'm here to help! What would you like to know about SuperAdPro?"
 
 
+
+# ═══════════════════════════════════════════════════════════════
+#  PAY IT FORWARD — Gift Voucher System
+# ═══════════════════════════════════════════════════════════════
+
+import secrets as _secrets
+
+def _generate_voucher_code():
+    """Generate a unique 8-character voucher code."""
+    return _secrets.token_urlsafe(6).replace('-', '').replace('_', '')[:8].upper()
+
+
+@app.get("/api/pay-it-forward/dashboard")
+async def api_pif_dashboard(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Get Pay It Forward dashboard data for the current user."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    from .database import GiftVoucher
+
+    # My vouchers (given)
+    my_vouchers = db.query(GiftVoucher).filter(GiftVoucher.gifter_user_id == user.id).order_by(GiftVoucher.created_at.desc()).all()
+
+    # Voucher I received (if any)
+    received = db.query(GiftVoucher).filter(GiftVoucher.claimed_by_user_id == user.id).first()
+
+    # Stats
+    total_gifted = len(my_vouchers)
+    total_claimed = sum(1 for v in my_vouchers if v.status == "claimed")
+    available = sum(1 for v in my_vouchers if v.status == "available")
+
+    # Chain depth — how far has my gifting chain gone?
+    max_depth = 0
+    for v in my_vouchers:
+        if v.status == "claimed":
+            # Check if the recipient has also gifted
+            child = db.query(GiftVoucher).filter(GiftVoucher.parent_voucher_id == v.id).first()
+            depth = v.pif_chain_depth
+            if child:
+                depth = child.pif_chain_depth
+            if depth > max_depth:
+                max_depth = depth
+
+    # Can pay from wallet?
+    can_pay_from_wallet = float(user.balance or 0) >= 20
+
+    vouchers_list = []
+    for v in my_vouchers:
+        claimed_user = None
+        if v.claimed_by_user_id:
+            cu = db.query(User).filter(User.id == v.claimed_by_user_id).first()
+            if cu:
+                claimed_user = {"username": cu.username, "first_name": cu.first_name}
+        vouchers_list.append({
+            "id": v.id,
+            "code": v.voucher_code,
+            "gift_type": v.gift_type,
+            "gift_value": float(v.gift_value),
+            "recipient_name": v.recipient_name,
+            "personal_message": v.personal_message,
+            "is_free_voucher": v.is_free_voucher,
+            "status": v.status,
+            "claimed_by": claimed_user,
+            "claimed_at": v.claimed_at.isoformat() if v.claimed_at else None,
+            "created_at": v.created_at.isoformat() if v.created_at else None,
+            "chain_depth": v.pif_chain_depth,
+            "link": f"https://www.superadpro.com/gift/{v.voucher_code}",
+        })
+
+    return {
+        "vouchers": vouchers_list,
+        "stats": {
+            "total_gifted": total_gifted,
+            "total_claimed": total_claimed,
+            "available": available,
+            "max_chain_depth": max_depth,
+        },
+        "received_gift": {
+            "gifter_name": None,
+            "message": None,
+        } if not received else {
+            "gifter_name": db.query(User).filter(User.id == received.gifter_user_id).first().first_name if received else None,
+            "message": received.personal_message,
+        },
+        "can_pay_from_wallet": can_pay_from_wallet,
+        "wallet_balance": float(user.balance or 0),
+    }
+
+
+@app.post("/api/pay-it-forward/create")
+async def api_pif_create(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Create a new gift voucher. Payment via wallet balance or crypto."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not user.is_active and not user.is_admin:
+        return JSONResponse({"error": "You must be an active member to gift a membership"}, status_code=403)
+
+    from .database import GiftVoucher
+
+    body = await request.json()
+    recipient_name = (body.get("recipient_name") or "").strip()[:100]
+    personal_message = (body.get("personal_message") or "").strip()[:500]
+    pay_method = body.get("pay_method", "wallet")  # wallet or crypto
+
+    # Rate limit — max 10 active vouchers
+    active_count = db.query(GiftVoucher).filter(
+        GiftVoucher.gifter_user_id == user.id,
+        GiftVoucher.status == "available"
+    ).count()
+    if active_count >= 10:
+        return JSONResponse({"error": "Maximum 10 unclaimed vouchers at a time. Wait for some to be claimed."}, status_code=429)
+
+    if pay_method == "wallet":
+        if float(user.balance or 0) < 20:
+            return JSONResponse({"error": "Insufficient wallet balance. You need at least $20."}, status_code=400)
+        # Deduct from wallet
+        user.balance = float(user.balance or 0) - 20
+        db.commit()
+        payment_ref = f"wallet_deduction_{user.id}_{int(datetime.utcnow().timestamp())}"
+    else:
+        # For crypto payment, we'll create the voucher in "pending" and handle via checkout
+        return JSONResponse({"error": "Crypto payment for gifts coming soon. Please use wallet balance."}, status_code=400)
+
+    # Check if this is a "pay it forward" from a received gift
+    received = db.query(GiftVoucher).filter(GiftVoucher.claimed_by_user_id == user.id).first()
+    parent_id = received.id if received else None
+    chain_depth = (received.pif_chain_depth + 1) if received else 1
+
+    # Generate unique code
+    for _ in range(10):
+        code = _generate_voucher_code()
+        existing = db.query(GiftVoucher).filter(GiftVoucher.voucher_code == code).first()
+        if not existing:
+            break
+    else:
+        return JSONResponse({"error": "Could not generate unique code. Try again."}, status_code=500)
+
+    voucher = GiftVoucher(
+        gifter_user_id=user.id,
+        voucher_code=code,
+        gift_type="membership",
+        gift_value=20,
+        recipient_name=recipient_name or None,
+        personal_message=personal_message or None,
+        is_free_voucher=False,
+        payment_method="wallet",
+        payment_ref=payment_ref,
+        status="available",
+        pif_chain_depth=chain_depth,
+        parent_voucher_id=parent_id,
+    )
+    db.add(voucher)
+    db.commit()
+    db.refresh(voucher)
+
+    logger.info(f"Pay It Forward: {user.username} created voucher {code} (chain depth {chain_depth})")
+
+    return {
+        "success": True,
+        "voucher_code": code,
+        "link": f"https://www.superadpro.com/gift/{code}",
+        "chain_depth": chain_depth,
+    }
+
+
+@app.get("/api/gift/{code}")
+async def api_gift_info(code: str, db: Session = Depends(get_db)):
+    """Public endpoint — get gift voucher info for the landing page."""
+    from .database import GiftVoucher
+    voucher = db.query(GiftVoucher).filter(GiftVoucher.voucher_code == code.upper()).first()
+    if not voucher:
+        return JSONResponse({"error": "Gift voucher not found"}, status_code=404)
+    if voucher.status != "available":
+        return JSONResponse({"error": "This gift has already been claimed", "status": voucher.status}, status_code=410)
+
+    gifter = db.query(User).filter(User.id == voucher.gifter_user_id).first()
+
+    return {
+        "valid": True,
+        "code": voucher.voucher_code,
+        "gift_type": voucher.gift_type,
+        "gift_value": float(voucher.gift_value),
+        "gifter_name": gifter.first_name or gifter.username if gifter else "A SuperAdPro Member",
+        "gifter_username": gifter.username if gifter else None,
+        "recipient_name": voucher.recipient_name,
+        "personal_message": voucher.personal_message,
+        "chain_depth": voucher.pif_chain_depth,
+    }
+
+
+@app.post("/api/gift/{code}/claim")
+async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_db)):
+    """Claim a gift voucher — activates membership for the logged-in user."""
+    from .database import GiftVoucher
+
+    voucher = db.query(GiftVoucher).filter(GiftVoucher.voucher_code == code.upper()).first()
+    if not voucher:
+        return JSONResponse({"error": "Gift voucher not found"}, status_code=404)
+    if voucher.status != "available":
+        return JSONResponse({"error": "This gift has already been claimed"}, status_code=410)
+
+    # Get current user
+    user = None
+    session_token = request.cookies.get("session")
+    if session_token:
+        from .database import SessionToken
+        st = db.query(SessionToken).filter(SessionToken.token == session_token).first()
+        if st:
+            user = db.query(User).filter(User.id == st.user_id).first()
+
+    if not user:
+        return JSONResponse({"error": "Please create an account or log in first, then claim your gift"}, status_code=401)
+
+    if user.is_active:
+        return JSONResponse({"error": "Your membership is already active. This gift is for new or inactive members."}, status_code=400)
+
+    # Activate the membership
+    user.is_active = True
+    user.membership_tier = "basic"
+
+    # Set the gifter as sponsor if user has no sponsor
+    if not user.sponsor_id:
+        user.sponsor_id = voucher.gifter_user_id
+
+    # Mark voucher as claimed
+    voucher.status = "claimed"
+    voucher.claimed_by_user_id = user.id
+    voucher.claimed_at = datetime.utcnow()
+
+    db.commit()
+
+    logger.info(f"Pay It Forward: {user.username} claimed voucher {code} gifted by user {voucher.gifter_user_id} (chain depth {voucher.pif_chain_depth})")
+
+    return {
+        "success": True,
+        "message": "Your membership has been activated! Welcome to SuperAdPro.",
+        "gifter_name": db.query(User).filter(User.id == voucher.gifter_user_id).first().first_name or "A member",
+    }
+
+
+@app.get("/gift/{code}")
+async def serve_gift_page(code: str):
+    """Serve the React SPA for gift voucher landing pages."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h2>Loading...</h2>")
+
+
 # ═══════════════════════════════════════════════════════════════
 #  REACT SPA — Serve the built React frontend
 # ═══════════════════════════════════════════════════════════════

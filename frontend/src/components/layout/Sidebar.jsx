@@ -9,7 +9,7 @@ import {
   Target, Mail, Trophy, Bot, Film,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
   BookOpen, PlusCircle, Scissors, Clock, UserCircle, Tv,
-  Wrench, Share2, Megaphone
+  Wrench, Share2, Megaphone, Heart
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
@@ -48,6 +48,7 @@ function buildNav(t, isAdmin) {
       { label: t('nav.socialShare'), icon: Users, path: '/affiliate' },
       { label: t('nav.leaderboard'), icon: Trophy, path: '/leaderboard' },
       { label: 'Affiliate Guide', icon: BookOpen, path: '/training' },
+      { label: 'Pay It Forward', icon: Heart, path: '/pay-it-forward' },
     ]},
   ];
 
