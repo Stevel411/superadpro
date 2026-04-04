@@ -19753,32 +19753,40 @@ async def sc_image_generate(request: Request, db: Session = Depends(get_db)):
                 }
             }
 
-            async with httpx.AsyncClient(timeout=60.0) as client:
+            async with httpx.AsyncClient(timeout=120.0) as client:
                 resp = await client.post(url, json=payload)
-                data = resp.json()
 
+            # Check for non-JSON error responses (403 HTML pages etc)
+            content_type = resp.headers.get("content-type", "")
+            if "application/json" not in content_type:
+                logger.error(f"Gemini image: non-JSON response ({resp.status_code}): {resp.text[:300]}")
+                raise HTTPException(status_code=502, detail=f"Gemini API returned error {resp.status_code}. The image model may not be available on the free tier. Try another model.")
+
+            data = resp.json()
             logger.info(f"Gemini image response ({resp.status_code}): {str(data)[:500]}")
 
-            if resp.status_code == 200:
-                candidates = data.get("candidates", [])
-                if candidates:
-                    parts = candidates[0].get("content", {}).get("parts", [])
-                    images = []
-                    for part in parts:
-                        if "inlineData" in part:
-                            mime = part["inlineData"].get("mimeType", "image/png")
-                            b64 = part["inlineData"].get("data", "")
-                            if b64:
-                                # Save to R2 or return as data URI
-                                images.append(f"data:{mime};base64,{b64}")
+            if resp.status_code != 200:
+                error_msg = data.get("error", {}).get("message", str(data)[:200])
+                logger.error(f"Gemini image error: {error_msg}")
+                raise HTTPException(status_code=502, detail=f"Gemini: {error_msg}")
 
-                    if images:
-                        return {
-                            "success": True,
-                            "images": images,
-                            "credits_used": 0,
-                            "free": True,
-                        }
+            candidates = data.get("candidates", [])
+            if candidates:
+                parts = candidates[0].get("content", {}).get("parts", [])
+                images = []
+                for part in parts:
+                    if "inlineData" in part:
+                        mime = part["inlineData"].get("mimeType", "image/png")
+                        b64 = part["inlineData"].get("data", "")
+                        if b64:
+                            images.append(f"data:{mime};base64,{b64}")
+
+                if images:
+                    return {
+                        "success": True,
+                        "images": images,
+                        "credits_used": 0,
+                    }
 
             raise HTTPException(status_code=502, detail="Gemini image generation returned no images. Try a different prompt.")
 
