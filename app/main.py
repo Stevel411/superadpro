@@ -20789,3 +20789,11 @@ pres.writeFile({{ fileName: "{tempfile.gettempdir()}/superdeck_{deck.id}.pptx" }
             return JSONResponse({"error": "PPTX generation failed: " + result.stderr[:200]}, status_code=500)
     except Exception as e:
         return JSONResponse({"error": str(e)[:200]}, status_code=500)
+
+
+@app.get("/crypto-guide")
+def crypto_guide_page(request: Request, user: User = Depends(get_current_user)):
+    """Serve React SPA for crypto wallet guide."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/dashboard", status_code=302)

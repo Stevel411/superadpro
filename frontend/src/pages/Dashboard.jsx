@@ -7,7 +7,6 @@ import { formatMoney } from '../utils/money';
 import AppLayout from '../components/layout/AppLayout';
 import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye, TrendingUp } from 'lucide-react';
 import CoPilot from './CoPilot';
-import WalletGuideCard from '../components/WalletGuideCard';
 
 // ── Dashboard data cache — survives navigation, clears on full page reload ──
 var _dashCache = { data: null, ts: 0 };
@@ -62,15 +61,10 @@ export default function Dashboard() {
     setTimeout(() => setRefCopied(false), 2000);
   };
 
-  const dismissOnboard = () => {
-    const el = document.getElementById('onboardWizard');
-    if (el) {
-      el.style.transition = 'opacity .3s, transform .3s';
-      el.style.opacity = '0';
-      el.style.transform = 'translateY(-10px)';
-      setTimeout(() => el.remove(), 300);
-    }
-    apiPost('/api/launch-wizard/complete', {}).catch(() => {});
+  const copyRefLink = (link) => {
+    navigator.clipboard.writeText(link);
+    setRefCopied(true);
+    setTimeout(() => setRefCopied(false), 2000);
   };
 
   return (
@@ -115,68 +109,10 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Wallet setup guide for free/new members */}
-      {!d.is_active && <WalletGuideCard />}
-
-      {/* Onboarding Wizard */}
-      {user && !user.onboarding_completed && (
-        <div id="onboardWizard" style={{
-          background: 'linear-gradient(135deg,#0f172a,#1e293b)', borderRadius: 8,
-          padding: '28px 32px', marginBottom: 20, border: '1px solid rgba(14,165,233,0.15)',
-          position: 'relative', overflow: 'hidden',
-        }}>
-          <div style={{ position: 'absolute', top: '-40%', right: '-10%', width: '50%', height: '80%', background: 'radial-gradient(circle,rgba(14,165,233,0.08) 0%,transparent 70%)', pointerEvents: 'none' }} />
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 22 }}>
-            <div>
-              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, color: '#fff' }}>🚀 Let's get you set up</div>
-              <div style={{ fontSize: 13, color: '#64748b', marginTop: 2 }}>Complete these steps to start earning</div>
-            </div>
-          </div>
-          <div style={{ display: 'flex', gap: 10 }}>
-            {[
-              { done: false, num: '1', name: 'Set up your profile', desc: 'Add a photo and your name', link: '/account' },
-              { done: false, num: '2', name: 'Choose your niche', desc: 'Find the right market for you', link: '/niche-finder' },
-              { done: !!d.has_linkhub, num: '3', name: 'Create your LinkHub', desc: 'Your personal link-in-bio page', link: '/linkhub' },
-              { done: (d.total_team || 0) > 0, num: '4', name: 'Share your referral link', desc: 'Start building your team', link: '/affiliate' },
-              { done: (d.watch_count || 0) > 0, num: '5', name: 'Watch your first campaign', desc: 'Earn from video views', link: '/watch' },
-            ].map((s, i) => (
-              <div key={i} style={{
-                flex: 1, background: s.done ? 'rgba(16,185,129,0.06)' : 'rgba(255,255,255,0.04)',
-                border: `1px solid ${s.done ? 'rgba(16,185,129,0.3)' : 'rgba(255,255,255,0.06)'}`,
-                borderRadius: 8, padding: 16, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', gap: 8,
-              }}>
-                <div style={{
-                  width: 32, height: 32, borderRadius: 10,
-                  background: s.done ? 'rgba(16,185,129,0.15)' : 'rgba(14,165,233,0.12)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 800,
-                  color: s.done ? '#10b981' : '#0ea5e9',
-                }}>{s.done ? '✓' : s.num}</div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#fff' }}>{s.name}</div>
-                <div style={{ fontSize: 12, color: '#475569', lineHeight: 1.5 }}>{s.desc}</div>
-                <Link to={s.link} style={{
-                  fontSize: 11, fontWeight: 700, color: s.done ? '#10b981' : '#0ea5e9',
-                  textDecoration: 'none', padding: '5px 14px', borderRadius: 8,
-                  background: s.done ? 'rgba(16,185,129,0.1)' : 'rgba(14,165,233,0.1)',
-                  marginTop: 'auto',
-                }}>Go →</Link>
-              </div>
-            ))}
-          </div>
-          <div style={{ textAlign: 'right', marginTop: 16 }}>
-            <button onClick={dismissOnboard} style={{
-              background: 'none', border: 'none', color: '#475569', fontSize: 12, fontWeight: 600,
-              cursor: 'pointer', padding: '6px 12px', borderRadius: 6,
-            }}>I'll do this later</button>
-          </div>
-        </div>
-      )}
-
-      {/* Welcome Banner — Cosmic Purple */}
+      {/* Welcome Banner — Cosmic Purple with referral link */}
       <div style={{
         background: 'linear-gradient(135deg,#1e1b4b,#2d2a7a,#4338ca)',
         borderRadius: 18, padding: '30px 34px', marginBottom: 20,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
         position: 'relative', overflow: 'hidden',
         boxShadow: '0 8px 32px rgba(67,56,202,0.35)',
       }}>
@@ -201,39 +137,23 @@ export default function Dashboard() {
         <div style={{ position:'relative', zIndex:2 }}>
           <div style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,0.65)', marginBottom:8 }}>Welcome back</div>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#fff', marginBottom:8 }}>{d.display_name || user?.username}</div>
-          <div style={{ fontSize:14, color:'rgba(255,255,255,0.6)', lineHeight:1.6, maxWidth:420 }}>
+          <div style={{ fontSize:14, color:'rgba(255,255,255,0.6)', lineHeight:1.6, maxWidth:420, marginBottom:16 }}>
             You have {d.total_team || 0} members in your network{(d.total_earned || 0) > 0 && ` and earned $${formatMoney(d.total_earned)} across all income streams`}.
           </div>
-          </div>
 
-        <div style={{ display:'flex', gap:8, position:'relative', zIndex:2, marginRight:140 }}>
-          <Link to="/affiliate" style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:8, fontSize:12, fontWeight:700, textDecoration:'none', background:'#7c3aed', color:'#fff' }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
-            Share & Earn
-          </Link>
-          <Link to="/wallet" style={{ display:'flex', alignItems:'center', gap:6, padding:'8px 16px', borderRadius:8, fontSize:12, fontWeight:700, textDecoration:'none', background:'rgba(255,255,255,0.1)', color:'rgba(255,255,255,0.8)', border:'1px solid rgba(255,255,255,0.2)' }}>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-            Withdraw
-          </Link>
+          {/* Referral link bar */}
+          <div style={{ display:'flex', alignItems:'center', gap:10, background:'rgba(0,0,0,0.25)', borderRadius:10, padding:'10px 16px', maxWidth:520 }}>
+            <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.4)', flexShrink:0 }}>Your link</div>
+            <div style={{ fontSize:13, fontWeight:600, color:'#38bdf8', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', fontFamily:'monospace' }}>
+              www.superadpro.com/ref/{user?.username}
+            </div>
+            <button onClick={function() { copyRefLink('https://www.superadpro.com/ref/' + (user?.username || '')); }}
+              style={{ padding:'6px 14px', borderRadius:8, border:'none', background:'#0ea5e9', color:'#fff', fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit', flexShrink:0 }}>
+              {refCopied ? 'Copied!' : 'Copy'}
+            </button>
+          </div>
         </div>
       </div>
-
-      {/* Upgrade Banner — only for Basic members */}
-      {user?.is_active && user?.membership_tier !== 'pro' && !user?.is_admin && (
-        <Link to="/upgrade" style={{ display: 'block', textDecoration: 'none', marginBottom: 20 }}>
-          <div style={{ background: 'linear-gradient(135deg,#1e1b4b,#312e81,#3730a3)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: 14, padding: '18px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', overflow: 'hidden', position: 'relative' }}>
-            <div style={{ position: 'absolute', top: -30, right: -30, width: 120, height: 120, borderRadius: '50%', background: 'radial-gradient(circle,rgba(139,92,246,0.2),transparent 70%)', pointerEvents: 'none' }}/>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16, position: 'relative', zIndex: 2 }}>
-              <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0 }}>{"\u26A1"}</div>
-              <div>
-                <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 3 }}>Unlock Pro — just $15 upgrade</div>
-                <div style={{ fontSize: 13, color: 'rgba(196,181,253,0.7)' }}>Get SuperPages, SuperSeller, AutoResponder & more Pro tools. Pay only the difference.</div>
-              </div>
-            </div>
-            <div style={{ background: 'linear-gradient(135deg,#8b5cf6,#a855f7)', color: '#fff', fontSize: 13, fontWeight: 800, padding: '10px 20px', borderRadius: 10, flexShrink: 0, position: 'relative', zIndex: 2, boxShadow: '0 2px 8px rgba(139,92,246,0.3)' }}>Upgrade →</div>
-          </div>
-        </Link>
-      )}
 
       {/* 3 Income Streams */}
       <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 20 }}>

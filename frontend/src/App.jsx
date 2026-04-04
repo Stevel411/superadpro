@@ -47,6 +47,7 @@ import ActivateTier from './pages/ActivateTier';
 import PayItForward from './pages/PayItForward';
 import GiftLanding from './pages/GiftLanding';
 import TrainingCentre from './pages/TrainingCentre';
+import CryptoGuide from './pages/CryptoGuide';
 import TeamMessenger from './pages/TeamMessenger';
 import Challenges from './pages/Challenges';
 import QRGenerator from './pages/QRGenerator';
@@ -181,6 +182,7 @@ function AppRoutes() {
       <Route path="/proseller" element={<ProtectedRoute><ProSeller /></ProtectedRoute>} />
       <Route path="/superseller" element={<ProtectedRoute><SuperSeller /></ProtectedRoute>} />
       <Route path="/training" element={<ProtectedRoute><TrainingCentre /></ProtectedRoute>} />
+      <Route path="/crypto-guide" element={<ProtectedRoute><CryptoGuide /></ProtectedRoute>} />
       <Route path="/team-messenger" element={<ProtectedRoute><TeamMessenger /></ProtectedRoute>} />
       <Route path="/challenges" element={<ProtectedRoute><Challenges /></ProtectedRoute>} />
       <Route path="/qr-generator" element={<ProtectedRoute><QRGenerator /></ProtectedRoute>} />

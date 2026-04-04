@@ -19,6 +19,7 @@ function buildNav(t, isAdmin) {
     { type: 'group', label: t('nav.account'), key: 'account', icon: UserCircle, items: [
       { label: t('nav.myProfile'), icon: User, path: '/account' },
       { label: t('nav.wallet'), icon: Wallet, path: '/wallet' },
+      { label: 'Crypto Guide', icon: Shield, path: '/crypto-guide' },
       { label: t('nav.support'), icon: Headphones, path: '/support' },
     ]},
     { type: 'divider' },
