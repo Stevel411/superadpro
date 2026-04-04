@@ -47,13 +47,6 @@ export default function Dashboard() {
   }
 
   const d = data;
-  const greeting = (() => {
-    const h = new Date().getHours();
-    if (h >= 5 && h < 12) return 'morning';
-    if (h >= 12 && h < 18) return 'afternoon';
-    return 'evening';
-  })();
-
   const copyRef = () => {
     const link = `https://www.superadpro.com/ref/${user?.username}`;
     navigator.clipboard.writeText(link);
@@ -70,7 +63,6 @@ export default function Dashboard() {
   return (
     <AppLayout
       title={t("dashboard.title")}
-      subtitle={`Good ${greeting}, ${d.display_name || user?.first_name || user?.username} 👋`}
       topbarActions={<>
         <div style={{ background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: 10, padding: '7px 16px' }}>
           <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)' }}>Balance</div>

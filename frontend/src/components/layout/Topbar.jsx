@@ -69,7 +69,7 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
           <Menu className="w-5 h-5 text-white/70" />
         </button>
         <div className="min-w-0">
-          <h1 className="font-display text-[18px] font-extrabold text-white truncate">{title}</h1>
+          <h1 className="font-display text-[22px] font-extrabold text-white truncate">{title}</h1>
           {subtitle && <p className="text-xs mt-0.5 truncate font-medium" style={{color:'rgba(255,255,255,0.5)'}}>{subtitle}</p>}
         </div>
       </div>
