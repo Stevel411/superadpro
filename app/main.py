@@ -20491,3 +20491,11 @@ def crypto_guide_page(request: Request, user: User = Depends(get_current_user)):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse(url="/dashboard", status_code=302)
+
+
+@app.get("/tour")
+def tour_page(request: Request, user: User = Depends(get_current_user)):
+    """Serve React SPA for platform tour."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/dashboard", status_code=302)

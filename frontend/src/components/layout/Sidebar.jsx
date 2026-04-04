@@ -9,12 +9,13 @@ import {
   Target, Mail, Trophy, Bot, Film,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
   BookOpen, PlusCircle, Scissors, Clock, UserCircle, Tv,
-  Wrench, Share2, Megaphone, Heart, Monitor
+  Wrench, Share2, Megaphone, Heart, Monitor, Map
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
   var items = [
     { type: 'standalone', label: t('nav.dashboard'), icon: Home, path: '/dashboard' },
+    { type: 'standalone', label: 'Platform Tour', icon: Map, path: '/tour' },
     { type: 'divider' },
     { type: 'group', label: t('nav.account'), key: 'account', icon: UserCircle, items: [
       { label: t('nav.myProfile'), icon: User, path: '/account' },
