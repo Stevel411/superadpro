@@ -373,13 +373,13 @@ export default function Dashboard() {
           },
         ] : [
           {
-            name: 'Share Your Link', desc: 'Copy your referral link and share it to start earning 50% commissions', link: '/affiliate',
-            color: '#0ea5e9', bg: 'linear-gradient(135deg,#ecfeff,#cffafe)',
+            name: 'Platform Tour', desc: 'Take a guided walkthrough of every feature and tool available to you', link: '/tour',
+            color: '#7c3aed', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
             icon: (
               <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="9" fill="#cffafe" stroke="#0ea5e9" strokeWidth="1.5"/>
-                <path d="M8 12h8M12 8v8" stroke="#0891b2" strokeWidth="2" strokeLinecap="round"/>
-                <circle cx="18" cy="6" r="3" fill="#0ea5e9"/><text x="18" y="8" textAnchor="middle" fontSize="4" fontWeight="bold" fill="#fff">$</text>
+                <circle cx="12" cy="12" r="9" fill="#ede9fe" stroke="#7c3aed" strokeWidth="1.5"/>
+                <path d="M12 8v4l3 3" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round"/>
+                <path d="M9 3l3-1 3 1" stroke="#a78bfa" strokeWidth="1.5" strokeLinecap="round"/>
               </svg>
             )
           },
@@ -395,13 +395,13 @@ export default function Dashboard() {
             )
           },
           {
-            name: 'Platform Tour', desc: 'Take a guided walkthrough of every feature and tool available to you', link: '/tour',
-            color: '#7c3aed', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
+            name: 'Share Your Link', desc: 'Copy your referral link and share it to start earning 50% commissions', link: '/affiliate',
+            color: '#0ea5e9', bg: 'linear-gradient(135deg,#ecfeff,#cffafe)',
             icon: (
               <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="9" fill="#ede9fe" stroke="#7c3aed" strokeWidth="1.5"/>
-                <path d="M12 8v4l3 3" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M9 3l3-1 3 1" stroke="#a78bfa" strokeWidth="1.5" strokeLinecap="round"/>
+                <circle cx="12" cy="12" r="9" fill="#cffafe" stroke="#0ea5e9" strokeWidth="1.5"/>
+                <path d="M8 12h8M12 8v8" stroke="#0891b2" strokeWidth="2" strokeLinecap="round"/>
+                <circle cx="18" cy="6" r="3" fill="#0ea5e9"/><text x="18" y="8" textAnchor="middle" fontSize="4" fontWeight="bold" fill="#fff">$</text>
               </svg>
             )
           },
@@ -416,18 +416,6 @@ export default function Dashboard() {
             )
           },
           {
-            name: 'Pay It Forward', desc: 'Gift a free membership — you become their sponsor and earn commissions', link: '/pay-it-forward',
-            color: '#ec4899', bg: 'linear-gradient(135deg,#fdf2f8,#fce7f3)',
-            icon: (
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" fill="url(#pifH3)"/>
-                <rect x="9" y="10" width="6" height="5" rx="1" fill="#fff" opacity="0.9"/>
-                <path d="M10.5 12.5h3M12 11v3" stroke="#ec4899" strokeWidth="1.2" strokeLinecap="round"/>
-                <defs><linearGradient id="pifH3" x1="3" y1="4" x2="21" y2="21" gradientUnits="userSpaceOnUse"><stop stopColor="#f9a8d4"/><stop offset="1" stopColor="#ec4899"/></linearGradient></defs>
-              </svg>
-            )
-          },
-          {
             name: 'Set Up LinkHub', desc: 'Build your personal branded page that converts visitors into referrals', link: '/linkhub',
             color: '#16a34a', bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)',
             icon: (
@@ -436,6 +424,18 @@ export default function Dashboard() {
                 <circle cx="12" cy="9" r="3" fill="#16a34a"/>
                 <rect x="7" y="14" width="10" height="2" rx="1" fill="#4ade80"/>
                 <rect x="8" y="17.5" width="8" height="1.5" rx="0.75" fill="#bbf7d0"/>
+              </svg>
+            )
+          },
+          {
+            name: 'Pay It Forward', desc: 'Gift a free membership — you become their sponsor and earn commissions', link: '/pay-it-forward',
+            color: '#ec4899', bg: 'linear-gradient(135deg,#fdf2f8,#fce7f3)',
+            icon: (
+              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
+                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" fill="url(#pifH3)"/>
+                <rect x="9" y="10" width="6" height="5" rx="1" fill="#fff" opacity="0.9"/>
+                <path d="M10.5 12.5h3M12 11v3" stroke="#ec4899" strokeWidth="1.2" strokeLinecap="round"/>
+                <defs><linearGradient id="pifH3" x1="3" y1="4" x2="21" y2="21" gradientUnits="userSpaceOnUse"><stop stopColor="#f9a8d4"/><stop offset="1" stopColor="#ec4899"/></linearGradient></defs>
               </svg>
             )
           },
