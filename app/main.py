@@ -16084,9 +16084,82 @@ async def api_pif_create(request: Request, user: User = Depends(get_current_user
         user.balance = float(user.balance or 0) - 20
         db.commit()
         payment_ref = f"wallet_deduction_{user.id}_{int(datetime.utcnow().timestamp())}"
+    elif pay_method == "crypto":
+        # Create voucher in pending state, then create NOWPayments invoice
+        received = db.query(GiftVoucher).filter(GiftVoucher.claimed_by_user_id == user.id).first()
+        parent_id = received.id if received else None
+        chain_depth = (received.pif_chain_depth + 1) if received else 1
+
+        for _ in range(10):
+            code = _generate_voucher_code()
+            existing = db.query(GiftVoucher).filter(GiftVoucher.voucher_code == code).first()
+            if not existing:
+                break
+        else:
+            return JSONResponse({"error": "Could not generate unique code. Try again."}, status_code=500)
+
+        voucher = GiftVoucher(
+            gifter_user_id=user.id,
+            voucher_code=code,
+            gift_type="membership",
+            gift_value=20,
+            recipient_name=recipient_name or None,
+            personal_message=personal_message or None,
+            is_free_voucher=False,
+            payment_method="crypto",
+            payment_ref=f"pending_crypto_{code}",
+            status="pending",
+            pif_chain_depth=chain_depth,
+            parent_voucher_id=parent_id,
+        )
+        db.add(voucher)
+        db.commit()
+        db.refresh(voucher)
+
+        # Create NOWPayments invoice
+        try:
+            import httpx as _httpx
+            np_key = os.getenv("NOWPAYMENTS_API_KEY", "")
+            if not np_key:
+                return JSONResponse({"error": "Crypto payments not configured"}, status_code=503)
+
+            async with _httpx.AsyncClient(timeout=30) as np_client:
+                inv_resp = await np_client.post("https://api.nowpayments.io/v1/invoice", headers={
+                    "x-api-key": np_key, "Content-Type": "application/json",
+                }, json={
+                    "price_amount": 20,
+                    "price_currency": "usd",
+                    "order_id": f"pif_{voucher.id}_{code}",
+                    "order_description": f"Pay It Forward Gift Voucher - {code}",
+                    "ipn_callback_url": f"{os.getenv('BASE_URL', 'https://www.superadpro.com')}/api/nowpayments/ipn",
+                    "success_url": f"{os.getenv('BASE_URL', 'https://www.superadpro.com')}/pay-it-forward?paid=1&code={code}",
+                    "cancel_url": f"{os.getenv('BASE_URL', 'https://www.superadpro.com')}/pay-it-forward",
+                })
+                inv_data = inv_resp.json()
+
+            if inv_data.get("invoice_url"):
+                voucher.payment_ref = f"nowpay_invoice_{inv_data.get('id', '')}"
+                db.commit()
+                logger.info(f"Pay It Forward crypto: {user.username} created pending voucher {code}, invoice {inv_data.get('id')}")
+                return {
+                    "success": True,
+                    "checkout_url": inv_data["invoice_url"],
+                    "voucher_code": code,
+                    "status": "pending_payment",
+                }
+            else:
+                # Invoice creation failed — clean up
+                db.delete(voucher)
+                db.commit()
+                return JSONResponse({"error": "Could not create payment. Please try again."}, status_code=500)
+
+        except Exception as e:
+            logger.error(f"PIF crypto checkout failed: {e}")
+            db.delete(voucher)
+            db.commit()
+            return JSONResponse({"error": "Crypto checkout failed. Please try again."}, status_code=500)
     else:
-        # For crypto payment, we'll create the voucher in "pending" and handle via checkout
-        return JSONResponse({"error": "Crypto payment for gifts coming soon. Please use wallet balance."}, status_code=400)
+        return JSONResponse({"error": "Invalid payment method"}, status_code=400)
 
     # Check if this is a "pay it forward" from a received gift
     received = db.query(GiftVoucher).filter(GiftVoucher.claimed_by_user_id == user.id).first()

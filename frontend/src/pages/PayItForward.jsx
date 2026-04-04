@@ -24,7 +24,7 @@ export default function PayItForward() {
 
   useEffect(function() { loadData(); }, []);
 
-  function createVoucher() {
+  function createVoucher(method) {
     if (creating) return;
     setCreating(true);
     setError('');
@@ -32,8 +32,13 @@ export default function PayItForward() {
     apiPost('/api/pay-it-forward/create', {
       recipient_name: recipientName,
       personal_message: message,
-      pay_method: 'wallet',
+      pay_method: method || 'wallet',
     }).then(function(r) {
+      if (r.checkout_url) {
+        // Crypto — redirect to payment page
+        window.location.href = r.checkout_url;
+        return;
+      }
       if (r.success) {
         setNewLink(r.link);
         setSuccess('Gift voucher created! Share the link below.');
@@ -151,7 +156,7 @@ export default function PayItForward() {
             boxShadow:'0 4px 16px rgba(236,72,153,.3)',
             marginBottom:24, display:'flex', alignItems:'center', justifyContent:'center', gap:8,
           }}>
-          <Gift size={20}/> Gift a Membership — $20 from your wallet
+          <Gift size={20}/> Gift a Membership — $20
         </button>
       ) : (
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:24, marginBottom:24 }}>
@@ -172,22 +177,34 @@ export default function PayItForward() {
               style={{ width:'100%', padding:'10px 14px', border:'1px solid #e2e8f0', borderRadius:8, fontSize:14, fontFamily:'inherit', boxSizing:'border-box', resize:'vertical' }}/>
           </div>
 
-          <div style={{ padding:'12px 16px', background:'#f8fafc', borderRadius:8, border:'1px solid #f1f5f9', marginBottom:16, fontSize:13, color:'#64748b' }}>
-            <strong style={{ color:'#0f172a' }}>$20.00</strong> will be deducted from your wallet balance.
-            {data && <span> Current balance: <strong style={{ color:'#10b981' }}>${data.wallet_balance.toFixed(2)}</strong></span>}
+          <div style={{ padding:'12px 16px', background:'#f8fafc', borderRadius:8, border:'1px solid #f1f5f9', marginBottom:16, fontSize:14, color:'#64748b' }}>
+            Choose how to pay — <strong style={{ color:'#0f172a' }}>$20.00</strong> per gift voucher
+            {data && <span> · Wallet balance: <strong style={{ color:'#10b981' }}>${data.wallet_balance.toFixed(2)}</strong></span>}
           </div>
 
-          <div style={{ display:'flex', gap:10 }}>
-            <button onClick={createVoucher} disabled={creating || !canPayFromWallet}
+          <div style={{ display:'flex', flexDirection:'column', gap:10, marginBottom:12 }}>
+            <button onClick={function() { createVoucher('wallet'); }} disabled={creating || !canPayFromWallet}
               style={{
-                flex:1, padding:14, borderRadius:10, border:'none', cursor: creating || !canPayFromWallet ? 'not-allowed' : 'pointer',
-                fontFamily:'inherit', fontSize:14, fontWeight:800, color:'#fff',
+                width:'100%', padding:14, borderRadius:10, border:'none', cursor: creating || !canPayFromWallet ? 'not-allowed' : 'pointer',
+                fontFamily:'inherit', fontSize:15, fontWeight:800, color:'#fff',
                 background: canPayFromWallet ? 'linear-gradient(135deg,#ec4899,#db2777)' : '#cbd5e1',
+                display:'flex', alignItems:'center', justifyContent:'center', gap:8,
               }}>
-              {creating ? 'Creating...' : canPayFromWallet ? 'Create Gift Voucher' : 'Insufficient balance'}
+              {creating ? 'Creating...' : canPayFromWallet ? 'Pay from Wallet — $20' : 'Insufficient wallet balance'}
             </button>
+            <button onClick={function() { createVoucher('crypto'); }} disabled={creating}
+              style={{
+                width:'100%', padding:14, borderRadius:10, border:'1.5px solid #e2e8f0', cursor: creating ? 'not-allowed' : 'pointer',
+                fontFamily:'inherit', fontSize:15, fontWeight:700, color:'#475569', background:'#fff',
+                display:'flex', alignItems:'center', justifyContent:'center', gap:8,
+              }}>
+              {creating ? 'Creating...' : 'Pay with Crypto — $20'}
+            </button>
+          </div>
+
+          <div style={{ display:'flex', justifyContent:'center' }}>
             <button onClick={function() { setShowForm(false); }}
-              style={{ padding:'14px 20px', borderRadius:10, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:600, color:'#64748b' }}>
+              style={{ padding:'10px 20px', borderRadius:10, border:'none', background:'transparent', cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:600, color:'#94a3b8' }}>
               Cancel
             </button>
           </div>
@@ -239,7 +256,7 @@ export default function PayItForward() {
         <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0f172a', marginBottom:16 }}>How Pay It Forward works</div>
         <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
           {[
-            { n:'1', color:'#ec4899', bg:'#fce7f3', title:'You gift a membership', desc:'Pay $20 from your wallet to create a gift voucher with a unique shareable link.' },
+            { n:'1', color:'#ec4899', bg:'#fce7f3', title:'You gift a membership', desc:'Pay $20 from your wallet or with crypto to create a gift voucher with a unique shareable link.' },
             { n:'2', color:'#8b5cf6', bg:'#ede9fe', title:'Someone joins for free', desc:'Your recipient clicks the link, creates an account, and their membership activates instantly — no cost to them.' },
             { n:'3', color:'#10b981', bg:'#f0fdf4', title:'They pay it forward', desc:"When they earn $20+ in commissions, they're prompted to gift a membership to someone else. The chain continues." },
           ].map(function(s) {
