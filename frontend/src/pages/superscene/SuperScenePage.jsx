@@ -270,7 +270,7 @@ export default function SuperScenePage() {
   const voImageInputRef = useRef(null);
 
   // Image Generator
-  const [imgModel, setImgModel] = useState("nano-banana-2");
+  const [imgModel, setImgModel] = useState("gemini-free");
   const [imgPrompt, setImgPrompt] = useState("");
   const [imgNegPrompt, setImgNegPrompt] = useState("");
   const [imgQuality, setImgQuality] = useState("1K");
@@ -706,6 +706,7 @@ export default function SuperScenePage() {
 
   // ── Image Generator Functions ───────────────────────────
   const IMG_MODELS = [
+    { key: "gemini-free",          name: "Gemini AI",      desc: "Free — 500 images/day, 1K quality", badge: "FREE", free: true },
     { key: "nano-banana-2",       name: "Nano Banana 2",  desc: "Best quality, text rendering", badge: "BEST" },
     { key: "nano-banana-pro",     name: "Nano Banana Pro", desc: "Photo-realistic, professional" },
     { key: "nano-banana-2-beta",  name: "NB2 Beta",       desc: "Web search grounding", badge: "NEW" },
@@ -722,8 +723,9 @@ export default function SuperScenePage() {
 
   const generateImage = async () => {
     if (!imgPrompt.trim() || imgGenerating) return;
-    const cost = (IMG_CREDIT_MAP[imgQuality] || 2) * imgBatch;
-    if (credits < cost) { alert(`Need ${cost} credits, have ${credits}`); return; }
+    const isFreeModel = IMG_MODELS.find(m => m.key === imgModel)?.free;
+    const cost = isFreeModel ? 0 : (IMG_CREDIT_MAP[imgQuality] || 2) * imgBatch;
+    if (!isFreeModel && credits < cost) { alert(`Need ${cost} credits, have ${credits}`); return; }
 
     setImgGenerating(true);
     setImgResults([]);
@@ -744,7 +746,7 @@ export default function SuperScenePage() {
       });
       const data = await res.json();
       if (!res.ok) { alert(data.detail || "Image generation failed"); setImgGenerating(false); clearInterval(imgProgRef.current); return; }
-      setCredits(data.credits_remaining);
+      if (data.credits_remaining !== undefined) setCredits(data.credits_remaining);
 
       // Check if sync (images returned) or async (task_id for polling)
       if (data.images && data.images.length > 0) {

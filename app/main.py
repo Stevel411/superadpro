@@ -19736,6 +19736,63 @@ async def sc_image_generate(request: Request, db: Session = Depends(get_db)):
     if not prompt:
         raise HTTPException(status_code=400, detail="Prompt is required")
 
+    # ── Gemini Free route — no credits needed ──
+    if model_id == "gemini-free":
+        gemini_key = os.getenv("GEMINI_API_KEY", "")
+        if not gemini_key:
+            raise HTTPException(status_code=503, detail="Gemini API key not configured")
+
+        try:
+            gemini_model = "gemini-2.5-flash"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{gemini_model}:generateContent?key={gemini_key}"
+
+            # Map size to Gemini aspect ratio
+            size_map = {"1:1": "1:1", "16:9": "16:9", "9:16": "9:16", "4:3": "4:3", "3:4": "3:4", "3:2": "3:2", "2:3": "2:3"}
+            aspect = size_map.get(size, "1:1")
+
+            payload = {
+                "contents": [{"role": "user", "parts": [{"text": f"Generate an image: {prompt}"}]}],
+                "generationConfig": {
+                    "responseModalities": ["TEXT", "IMAGE"],
+                    "temperature": 0.8,
+                }
+            }
+
+            async with httpx.AsyncClient(timeout=60.0) as client:
+                resp = await client.post(url, json=payload)
+                data = resp.json()
+
+            logger.info(f"Gemini image response ({resp.status_code}): {str(data)[:500]}")
+
+            if resp.status_code == 200:
+                candidates = data.get("candidates", [])
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    images = []
+                    for part in parts:
+                        if "inlineData" in part:
+                            mime = part["inlineData"].get("mimeType", "image/png")
+                            b64 = part["inlineData"].get("data", "")
+                            if b64:
+                                # Save to R2 or return as data URI
+                                images.append(f"data:{mime};base64,{b64}")
+
+                    if images:
+                        return {
+                            "success": True,
+                            "images": images,
+                            "credits_used": 0,
+                            "free": True,
+                        }
+
+            raise HTTPException(status_code=502, detail="Gemini image generation returned no images. Try a different prompt.")
+
+        except HTTPException:
+            raise
+        except Exception as e:
+            logger.error(f"Gemini image generation failed: {e}")
+            raise HTTPException(status_code=502, detail=f"Gemini image generation failed: {str(e)[:200]}")
+
     # Credit cost based on quality
     credit_map = {"1K": 1, "2K": 2, "4K": 4}
     credits_needed = credit_map.get(quality, 2) * n
