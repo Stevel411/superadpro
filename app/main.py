@@ -19743,7 +19743,7 @@ async def sc_image_generate(request: Request, db: Session = Depends(get_db)):
             raise HTTPException(status_code=503, detail="Gemini API key not configured")
 
         try:
-            gemini_model = "gemini-2.5-flash-preview-image"
+            gemini_model = "gemini-2.5-flash-image"
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{gemini_model}:generateContent?key={gemini_key}"
 
             payload = {
