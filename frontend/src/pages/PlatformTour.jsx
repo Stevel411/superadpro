@@ -201,23 +201,27 @@ export default function PlatformTour() {
         </div>
       </div>
 
-      {/* Quick jump nav */}
-      <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 4, marginBottom: 24 }}>
-        {SECTIONS.map(function(s) {
-          return <button key={s.id} onClick={function() { setExpanded(expanded === s.id ? null : s.id); var el = document.getElementById('tour-' + s.id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 600, color: '#475569', whiteSpace: 'nowrap', flexShrink: 0 }}>
-            <div style={{ width: 22, height: 22, borderRadius: 6, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <s.Icon size={12} color={s.color}/>
-            </div>
-            {s.title.split(' — ')[0]}
-          </button>;
-        })}
+      {/* Sticky jump nav */}
+      <div style={{ position: 'sticky', top: 0, zIndex: 10, background: '#f1f5f9', margin: '0 -24px', padding: '12px 24px', borderBottom: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2 }}>
+          {SECTIONS.map(function(s) {
+            var isActive = expanded === s.id;
+            return <button key={s.id} onClick={function() { setExpanded(s.id); setTimeout(function() { var el = document.getElementById('tour-' + s.id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50); }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, border: isActive ? '1.5px solid ' + s.color : '1px solid #e2e8f0', background: isActive ? s.bg : '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: isActive ? 700 : 600, color: isActive ? s.color : '#475569', whiteSpace: 'nowrap', flexShrink: 0, transition: 'all .15s' }}>
+              <div style={{ width: 22, height: 22, borderRadius: 6, background: isActive ? s.color : s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <s.Icon size={12} color={isActive ? '#fff' : s.color}/>
+              </div>
+              {s.title.split(' — ')[0]}
+            </button>;
+          })}
+        </div>
       </div>
 
       {/* Tour sections */}
+      <div style={{ marginTop: 20 }}>
       {SECTIONS.map(function(s, i) {
         var isOpen = expanded === s.id || expanded === null;
-        return <div key={s.id} id={'tour-' + s.id} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, marginBottom: 16, overflow: 'hidden' }}>
+        return <div key={s.id} id={'tour-' + s.id} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, marginBottom: 16, overflow: 'hidden', scrollMarginTop: 80 }}>
           {/* Section header */}
           <div onClick={function() { setExpanded(expanded === s.id ? null : s.id); }}
             style={{ padding: '22px 28px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -277,6 +281,7 @@ export default function PlatformTour() {
           )}
         </div>;
       })}
+      </div>
 
       {/* Footer */}
       <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, padding: '24px 28px', textAlign: 'center' }}>
