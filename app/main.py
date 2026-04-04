@@ -20763,3 +20763,37 @@ async def voice_guide_ask(request: Request, user: User = Depends(get_current_use
     except Exception as e:
         logger.error(f"Voice guide failed: {e}")
         return JSONResponse({"error": "Could not generate answer. Please try again."}, status_code=500)
+
+
+@app.post("/api/voice-guide/speak")
+async def voice_guide_speak(request: Request, user: User = Depends(get_current_user)):
+    """Convert text to natural speech using Edge TTS for the voice guide."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    import edge_tts
+    import base64
+
+    body = await request.json()
+    text = (body.get("text") or "").strip()
+    if not text:
+        return JSONResponse({"error": "No text provided"}, status_code=400)
+
+    try:
+        # Use Jenny — natural-sounding American female voice
+        comm = edge_tts.Communicate(text, "en-GB-SoniaNeural", rate="+5%", pitch="+0Hz")
+        audio_bytes = b""
+        async for chunk in comm.stream():
+            if chunk["type"] == "audio":
+                audio_bytes += chunk["data"]
+
+        if not audio_bytes:
+            return JSONResponse({"error": "No audio generated"}, status_code=502)
+
+        # Return as base64 for direct playback in browser
+        b64 = base64.b64encode(audio_bytes).decode("utf-8")
+        return {"success": True, "audio": b64}
+
+    except Exception as e:
+        logger.error(f"Voice guide TTS failed: {e}")
+        return JSONResponse({"error": "Speech generation failed"}, status_code=500)

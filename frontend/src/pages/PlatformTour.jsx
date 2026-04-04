@@ -317,24 +317,26 @@ function VoiceGuide() {
   }
 
   function speakAnswer(text) {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      var utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1.0;
-      utterance.pitch = 1.0;
-      var voices = window.speechSynthesis.getVoices();
-      var preferred = voices.find(function(v) { return v.name.includes('Google') && v.lang.startsWith('en'); })
-        || voices.find(function(v) { return v.lang.startsWith('en') && !v.name.includes('espeak'); })
-        || voices[0];
-      if (preferred) utterance.voice = preferred;
-      utterance.onstart = function() { setSpeaking(true); };
-      utterance.onend = function() { setSpeaking(false); };
-      window.speechSynthesis.speak(utterance);
-    }
+    setSpeaking(true);
+    fetch('/api/voice-guide/speak', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text }),
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      if (data.success && data.audio) {
+        var audio = new Audio('data:audio/mp3;base64,' + data.audio);
+        audioRef.current = audio;
+        audio.onended = function() { setSpeaking(false); audioRef.current = null; };
+        audio.onerror = function() { setSpeaking(false); audioRef.current = null; };
+        audio.play().catch(function() { setSpeaking(false); });
+      } else {
+        setSpeaking(false);
+      }
+    }).catch(function() { setSpeaking(false); });
   }
 
   function stopSpeaking() {
-    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    if (audioRef.current) { audioRef.current.pause(); audioRef.current = null; }
     setSpeaking(false);
   }
 
