@@ -83,7 +83,7 @@ export default function Upgrade() {
             <button onClick={function(){setBilling('monthly')}} style={{ padding: '10px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, background: billing === 'monthly' ? '#0ea5e9' : 'transparent', color: billing === 'monthly' ? '#fff' : '#64748b', transition: 'all .2s' }}>Monthly</button>
             <button onClick={function(){setBilling('annual')}} style={{ padding: '10px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, background: billing === 'annual' ? '#0ea5e9' : 'transparent', color: billing === 'annual' ? '#fff' : '#64748b', transition: 'all .2s', position: 'relative' }}>
               Annual
-              <span style={{ position: 'absolute', top: -8, right: -12, padding: '2px 8px', borderRadius: 10, background: '#10b981', color: '#fff', fontSize: 9, fontWeight: 800, letterSpacing: .5 }}>SAVE 17%</span>
+              <span style={{ position: 'absolute', top: -10, right: -18, padding: '3px 10px', borderRadius: 10, background: '#10b981', color: '#fff', fontSize: 10, fontWeight: 800, letterSpacing: .5, whiteSpace: 'nowrap' }}>2 MONTHS FREE</span>
             </button>
           </div>
         </div>
@@ -99,8 +99,8 @@ export default function Upgrade() {
               @keyframes slideBar{0%{width:0}100%{width:60%}}
             `}</style>
             {/* Header with animation */}
-            <div style={{ background: 'linear-gradient(135deg,#0f172a,#1e293b)', padding: '28px 28px 24px', position: 'relative', overflow: 'hidden', minHeight: 130 }}>
-              <div style={{ position: 'absolute', top: -30, right: -30, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,.03)' }}/>
+            <div style={{ background: 'linear-gradient(135deg,#374151,#6b7280,#9ca3af)', padding: '28px 28px 24px', position: 'relative', overflow: 'hidden', minHeight: 130 }}>
+              <div style={{ position: 'absolute', top: -30, right: -30, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,.08)' }}/>
               {/* Animated elements */}
               <svg viewBox="0 0 200 80" style={{ position: 'absolute', top: 10, right: 10, width: 140, height: 70, opacity: 0.5 }}>
                 <rect x="10" y="5" width="55" height="35" rx="4" fill="none" stroke="#38bdf8" strokeWidth="1" opacity="0.4"/>
@@ -114,12 +114,18 @@ export default function Upgrade() {
                 <rect x="10" y="58" width="30" height="4" rx="2" fill="#38bdf8" opacity="0.3" style={{ animation: 'slideBar 4s ease-in-out infinite alternate' }}/>
               </svg>
               <div style={{ position: 'relative', zIndex: 2 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'rgba(255,255,255,.45)', marginBottom: 12 }}>Basic</div>
+                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'rgba(255,255,255,.65)', marginBottom: 12 }}>Basic</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
                   <span style={{ fontFamily: 'Sora,sans-serif', fontSize: 48, fontWeight: 900, color: '#fff', lineHeight: 1 }}>{isAnnual ? '$200' : '$20'}</span>
-                  <span style={{ fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,.4)' }}>{isAnnual ? '/year' : '/mo'}</span>
+                  <span style={{ fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,.5)' }}>{isAnnual ? '/year' : '/mo'}</span>
                 </div>
-                <div style={{ fontSize: 14, color: 'rgba(255,255,255,.4)', marginTop: 6 }}>{isAnnual ? 'Save $40 vs monthly — pay once' : 'Everything you need to start earning'}</div>
+                {isAnnual ? (
+                  <div style={{ marginTop: 8 }}>
+                    <span style={{ display: 'inline-block', padding: '4px 12px', borderRadius: 8, background: 'rgba(16,185,129,.2)', border: '1px solid rgba(16,185,129,.3)', fontSize: 14, fontWeight: 700, color: '#4ade80' }}>2 months FREE — save $40/year</span>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 14, color: 'rgba(255,255,255,.45)', marginTop: 6 }}>Everything you need to start earning</div>
+                )}
               </div>
             </div>
 
@@ -180,11 +186,11 @@ export default function Upgrade() {
           </div>
 
           {/* ── PRO CARD ── */}
-          <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', border: '2px solid #0ea5e9', boxShadow: '0 0 0 4px rgba(14,165,233,.08),0 12px 40px rgba(14,165,233,.15)', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ background: '#fff', borderRadius: 20, overflow: 'hidden', border: '2px solid #f59e0b', boxShadow: '0 0 0 4px rgba(245,158,11,.08),0 12px 40px rgba(245,158,11,.15)', display: 'flex', flexDirection: 'column' }}>
             {/* Header with animation */}
-            <div style={{ background: 'linear-gradient(135deg,#0c4a6e,#0369a1,#0284c7)', padding: '28px 28px 24px', position: 'relative', overflow: 'hidden', minHeight: 130 }}>
-              <div style={{ position: 'absolute', top: -40, right: -40, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,.06)' }}/>
-              <div style={{ position: 'absolute', bottom: -20, left: -20, width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,.03)' }}/>
+            <div style={{ background: 'linear-gradient(135deg,#78350f,#b45309,#f59e0b)', padding: '28px 28px 24px', position: 'relative', overflow: 'hidden', minHeight: 130 }}>
+              <div style={{ position: 'absolute', top: -40, right: -40, width: 120, height: 120, borderRadius: '50%', background: 'rgba(255,255,255,.08)' }}/>
+              <div style={{ position: 'absolute', bottom: -20, left: -20, width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,.05)' }}/>
               {/* Animated AI elements */}
               <svg viewBox="0 0 200 80" style={{ position: 'absolute', top: 8, right: 8, width: 150, height: 75, opacity: 0.6 }}>
                 {/* Central hex */}
@@ -211,12 +217,20 @@ export default function Upgrade() {
               {/* Badge */}
               <div style={{ position: 'absolute', top: 16, right: 16, background: 'linear-gradient(135deg,#fbbf24,#f59e0b)', color: '#78350f', fontSize: 9, fontWeight: 800, letterSpacing: 0.8, padding: '5px 12px', borderRadius: 20, zIndex: 3 }}>{"\u2B50"} RECOMMENDED</div>
               <div style={{ position: 'relative', zIndex: 2 }}>
-                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'rgba(255,255,255,.5)', marginBottom: 12 }}>Pro</div>
+                <div style={{ fontSize: 12, fontWeight: 700, letterSpacing: 2.5, textTransform: 'uppercase', color: 'rgba(255,255,255,.65)', marginBottom: 12 }}>Pro</div>
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: 2 }}>
                   <span style={{ fontFamily: 'Sora,sans-serif', fontSize: 48, fontWeight: 900, color: '#fff', lineHeight: 1 }}>{isBasicActive ? '$15' : isAnnual ? '$350' : '$35'}</span>
-                  <span style={{ fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,.5)' }}>/{isBasicActive ? 'upgrade' : isAnnual ? 'year' : 'mo'}</span>
+                  <span style={{ fontSize: 16, fontWeight: 500, color: 'rgba(255,255,255,.6)' }}>/{isBasicActive ? 'upgrade' : isAnnual ? 'year' : 'mo'}</span>
                 </div>
-                <div style={{ fontSize: 14, color: 'rgba(255,255,255,.45)', marginTop: 6 }}>{isBasicActive ? 'then $35/mo from next month' : isAnnual ? 'Save $70 vs monthly — pay once' : 'Full AI-powered marketing suite'}</div>
+                {isBasicActive ? (
+                  <div style={{ fontSize: 14, color: 'rgba(255,255,255,.5)', marginTop: 6 }}>then $35/mo from next month</div>
+                ) : isAnnual ? (
+                  <div style={{ marginTop: 8 }}>
+                    <span style={{ display: 'inline-block', padding: '4px 12px', borderRadius: 8, background: 'rgba(16,185,129,.2)', border: '1px solid rgba(16,185,129,.3)', fontSize: 14, fontWeight: 700, color: '#4ade80' }}>2 months FREE — save $70/year</span>
+                  </div>
+                ) : (
+                  <div style={{ fontSize: 14, color: 'rgba(255,255,255,.5)', marginTop: 6 }}>Full AI-powered marketing suite</div>
+                )}
               </div>
             </div>
 
