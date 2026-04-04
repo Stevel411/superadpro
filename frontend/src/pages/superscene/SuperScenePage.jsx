@@ -706,7 +706,7 @@ export default function SuperScenePage() {
 
   // ── Image Generator Functions ───────────────────────────
   const IMG_MODELS = [
-    { key: "gemini-free",          name: "Gemini AI",      desc: "Free — 500 images/day, 1K quality", badge: "FREE", free: true },
+    { key: "gemini-free",          name: "Gemini AI",      desc: "Fast AI image generation, 1K quality", badge: "NEW" },
     { key: "nano-banana-2",       name: "Nano Banana 2",  desc: "Best quality, text rendering", badge: "BEST" },
     { key: "nano-banana-pro",     name: "Nano Banana Pro", desc: "Photo-realistic, professional" },
     { key: "nano-banana-2-beta",  name: "NB2 Beta",       desc: "Web search grounding", badge: "NEW" },
@@ -723,7 +723,7 @@ export default function SuperScenePage() {
 
   const generateImage = async () => {
     if (!imgPrompt.trim() || imgGenerating) return;
-    const isFreeModel = IMG_MODELS.find(m => m.key === imgModel)?.free;
+    const isFreeModel = imgModel === "gemini-free";
     const cost = isFreeModel ? 0 : (IMG_CREDIT_MAP[imgQuality] || 2) * imgBatch;
     if (!isFreeModel && credits < cost) { alert(`Need ${cost} credits, have ${credits}`); return; }
 
