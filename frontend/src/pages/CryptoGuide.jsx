@@ -67,7 +67,7 @@ export default function CryptoGuide() {
             <div style={{ fontSize: 14, color: 'rgba(255,255,255,.5)' }}>Even if you have never used crypto before</div>
           </div>
         </div>
-        <div style={{ fontSize: 15, color: 'rgba(255,255,255,.6)', lineHeight: 1.7, maxWidth: 600, position: 'relative' }}>
+        <div style={{ fontSize: 16, color: 'rgba(255,255,255,.6)', lineHeight: 1.7, maxWidth: 600, position: 'relative' }}>
           SuperAdPro uses cryptocurrency for payments and commissions. This guide walks you through setting up a free wallet in about 5 minutes. No technical knowledge required.
         </div>
       </div>
@@ -77,7 +77,7 @@ export default function CryptoGuide() {
         {STEPS.map(function(s) {
           return <div key={s.num} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, background: '#fff', borderRadius: 12, padding: '12px 14px', border: '1px solid #e2e8f0' }}>
             <div style={{ width: 32, height: 32, borderRadius: '50%', background: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: '#fff', flexShrink: 0 }}>{s.num}</div>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{s.title}</div>
+            <div style={{ fontSize: 15, fontWeight: 600, color: '#0f172a' }}>{s.title}</div>
           </div>;
         })}
       </div>
@@ -93,8 +93,8 @@ export default function CryptoGuide() {
                 <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, color: s.color }}>{s.num}</div>
               </div>
               <div>
-                <div style={{ fontSize: 17, fontWeight: 700, color: '#0f172a' }}>{s.title}</div>
-                <div style={{ fontSize: 13, color: '#64748b' }}>Step {s.num} of 5</div>
+                <div style={{ fontSize: 20, fontWeight: 700, color: '#0f172a' }}>{s.title}</div>
+                <div style={{ fontSize: 14, color: '#64748b' }}>Step {s.num} of 5</div>
               </div>
             </div>
             {isOpen ? <ChevronUp size={20} color="#94a3b8"/> : <ChevronDown size={20} color="#94a3b8"/>}
@@ -103,39 +103,39 @@ export default function CryptoGuide() {
           {isOpen && (
             <div style={{ padding: '0 24px 24px' }}>
               {s.content.map(function(p, pi) {
-                return <p key={pi} style={{ fontSize: 15, color: '#475569', lineHeight: 1.8, margin: '0 0 12px' }}>{p}</p>;
+                return <p key={pi} style={{ fontSize: 16, color: '#475569', lineHeight: 1.8, margin: '0 0 12px' }}>{p}</p>;
               })}
 
               {s.warning && (
                 <div style={{ display: 'flex', gap: 12, padding: '14px 18px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 12, marginBottom: 12 }}>
                   <AlertTriangle size={20} color="#dc2626" style={{ flexShrink: 0, marginTop: 2 }}/>
-                  <div style={{ fontSize: 14, color: '#991b1b', lineHeight: 1.7, fontWeight: 600 }}>{s.warning}</div>
+                  <div style={{ fontSize: 15, color: '#991b1b', lineHeight: 1.7, fontWeight: 600 }}>{s.warning}</div>
                 </div>
               )}
 
               {s.tip && (
                 <div style={{ display: 'flex', gap: 12, padding: '14px 18px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 12, marginBottom: 12 }}>
                   <CheckCircle size={20} color="#16a34a" style={{ flexShrink: 0, marginTop: 2 }}/>
-                  <div style={{ fontSize: 14, color: '#166534', lineHeight: 1.7 }}>{s.tip}</div>
+                  <div style={{ fontSize: 15, color: '#166534', lineHeight: 1.7 }}>{s.tip}</div>
                 </div>
               )}
 
               {s.comparison && (
                 <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
                   <div style={{ flex: 1, background: '#fef2f2', borderRadius: 10, padding: '14px 16px', textAlign: 'center' }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#991b1b' }}>{s.comparison.bad.label}</div>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: '#dc2626', marginTop: 4 }}>{s.comparison.bad.cost}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#991b1b' }}>{s.comparison.bad.label}</div>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: '#dc2626', marginTop: 4 }}>{s.comparison.bad.cost}</div>
                   </div>
                   <div style={{ flex: 1, background: '#f0fdf4', borderRadius: 10, padding: '14px 16px', textAlign: 'center' }}>
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#166534' }}>{s.comparison.good.label}</div>
-                    <div style={{ fontSize: 20, fontWeight: 800, color: '#16a34a', marginTop: 4 }}>{s.comparison.good.cost}</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#166534' }}>{s.comparison.good.label}</div>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: '#16a34a', marginTop: 4 }}>{s.comparison.good.cost}</div>
                   </div>
                 </div>
               )}
 
               {s.link && (
                 <a href={s.link.url} target="_blank" rel="noopener noreferrer"
-                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 14, fontWeight: 600, color: s.color, textDecoration: 'none', padding: '8px 16px', border: '1px solid ' + s.color, borderRadius: 10 }}>
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 15, fontWeight: 600, color: s.color, textDecoration: 'none', padding: '8px 16px', border: '1px solid ' + s.color, borderRadius: 10 }}>
                   {s.link.label} <ExternalLink size={14}/>
                 </a>
               )}
@@ -148,8 +148,8 @@ export default function CryptoGuide() {
       <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 14 }}>
         <Shield size={24} color="#0ea5e9"/>
         <div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 3 }}>Your money, your control</div>
-          <div style={{ fontSize: 14, color: '#64748b', lineHeight: 1.6 }}>No payment processor can freeze your funds. Commissions pay out directly to your wallet. No banks, no middlemen, no delays.</div>
+          <div style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>Your money, your control</div>
+          <div style={{ fontSize: 15, color: '#64748b', lineHeight: 1.7 }}>No payment processor can freeze your funds. Commissions pay out directly to your wallet. No banks, no middlemen, no delays.</div>
         </div>
       </div>
 
