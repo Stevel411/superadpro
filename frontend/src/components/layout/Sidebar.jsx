@@ -110,7 +110,7 @@ export default function Sidebar({ open, onClose }) {
         position: 'fixed',
         top: 0, left: 0, bottom: 0,
         width: 224,
-        background: 'linear-gradient(180deg, #0f1d42 0%, #172554 40%, #1e3a8a 100%)',
+        background: 'linear-gradient(180deg, #172554 0%, #172554 72px, #1e3a8a 100%)',
         zIndex: 50,
         display: 'flex',
         flexDirection: 'column',

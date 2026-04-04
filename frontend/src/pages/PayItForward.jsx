@@ -150,13 +150,18 @@ export default function PayItForward() {
       {!showForm ? (
         <button onClick={function() { setShowForm(true); setError(''); setSuccess(''); setNewLink(''); }}
           style={{
-            width:'100%', padding:16, borderRadius:12, border:'none', cursor:'pointer', fontFamily:'inherit',
-            fontSize:18, fontWeight:800, color:'#fff',
+            padding:'14px 28px', borderRadius:12, border:'none', cursor:'pointer', fontFamily:'inherit',
+            fontSize:16, fontWeight:800, color:'#fff',
             background:'linear-gradient(135deg,#ec4899,#db2777)',
-            boxShadow:'0 4px 16px rgba(236,72,153,.3)',
+            boxShadow:'0 4px 0 #9d174d, 0 6px 16px rgba(236,72,153,.3)',
             marginBottom:24, display:'flex', alignItems:'center', justifyContent:'center', gap:8,
-          }}>
-          <Gift size={20}/> Gift a Membership — $20
+            margin:'0 auto 24px', transition:'all .1s',
+          }}
+          onMouseDown={function(e) { e.currentTarget.style.boxShadow='0 1px 0 #9d174d, 0 2px 8px rgba(236,72,153,.2)'; e.currentTarget.style.transform='translateY(3px)'; }}
+          onMouseUp={function(e) { e.currentTarget.style.boxShadow='0 4px 0 #9d174d, 0 6px 16px rgba(236,72,153,.3)'; e.currentTarget.style.transform='translateY(0)'; }}
+          onMouseLeave={function(e) { e.currentTarget.style.boxShadow='0 4px 0 #9d174d, 0 6px 16px rgba(236,72,153,.3)'; e.currentTarget.style.transform='translateY(0)'; }}
+        >
+          <Gift size={18}/> Gift a Membership — $20
         </button>
       ) : (
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:24, marginBottom:24 }}>
