@@ -744,8 +744,15 @@ export default function SuperScenePage() {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
-      const data = await res.json();
-      if (!res.ok) { alert(data.detail || "Image generation failed"); setImgGenerating(false); clearInterval(imgProgRef.current); return; }
+      var data;
+      var ct = res.headers.get("content-type") || "";
+      if (ct.includes("application/json")) {
+        data = await res.json();
+      } else {
+        var txt = await res.text();
+        data = { detail: txt.slice(0, 200) || "Server returned non-JSON response" };
+      }
+      if (!res.ok) { alert(data.detail || data.error || "Image generation failed"); setImgGenerating(false); clearInterval(imgProgRef.current); return; }
       if (data.credits_remaining !== undefined) setCredits(data.credits_remaining);
 
       // Check if sync (images returned) or async (task_id for polling)
@@ -776,7 +783,7 @@ export default function SuperScenePage() {
           } catch {}
         }, 2000);
       }
-    } catch { alert("Network error"); setImgGenerating(false); clearInterval(imgProgRef.current); }
+    } catch (err) { alert(err.message || "Network error"); setImgGenerating(false); clearInterval(imgProgRef.current); }
   };
 
   // ── Voiceover Functions ─────────────────────────────────
