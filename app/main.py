@@ -20735,7 +20735,8 @@ RULES YOU MUST FOLLOW:
 - If asked about something outside the platform, politely redirect: "I am here to help you understand how SuperAdPro works. What would you like to know about the platform?"
 - Keep answers concise — 2-3 sentences for simple questions, up to 5-6 for complex topics
 - Be encouraging but honest — do not make unrealistic income promises
-- Speak naturally as if having a conversation, not reading a manual"""
+- Speak naturally as if having a conversation, not reading a manual
+- NEVER use markdown formatting — no asterisks, no hashes, no bullet points, no bold. Write in plain spoken English only. Your responses will be read aloud by a voice system."""
 
 
 @app.post("/api/voice-guide/ask")
@@ -20778,6 +20779,17 @@ async def voice_guide_speak(request: Request, user: User = Depends(get_current_u
     text = (body.get("text") or "").strip()
     if not text:
         return JSONResponse({"error": "No text provided"}, status_code=400)
+
+    # Strip markdown formatting so TTS doesn't read asterisks, hashes, etc.
+    import re
+    text = re.sub(r'\*\*(.+?)\*\*', r'\1', text)  # **bold** → bold
+    text = re.sub(r'\*(.+?)\*', r'\1', text)       # *italic* → italic
+    text = re.sub(r'#{1,6}\s*', '', text)           # ### heading → heading
+    text = re.sub(r'`(.+?)`', r'\1', text)          # `code` → code
+    text = re.sub(r'^\s*[-*+]\s+', '', text, flags=re.MULTILINE)  # bullet points
+    text = re.sub(r'^\s*\d+\.\s+', '', text, flags=re.MULTILINE)  # numbered lists
+    text = re.sub(r'\[(.+?)\]\(.+?\)', r'\1', text) # [link](url) → link
+    text = text.strip()
 
     try:
         # Use Jenny — natural-sounding American female voice
