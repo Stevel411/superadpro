@@ -19743,18 +19743,13 @@ async def sc_image_generate(request: Request, db: Session = Depends(get_db)):
             raise HTTPException(status_code=503, detail="Gemini API key not configured")
 
         try:
-            gemini_model = "gemini-2.5-flash"
+            gemini_model = "gemini-2.5-flash-preview-image"
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{gemini_model}:generateContent?key={gemini_key}"
 
-            # Map size to Gemini aspect ratio
-            size_map = {"1:1": "1:1", "16:9": "16:9", "9:16": "9:16", "4:3": "4:3", "3:4": "3:4", "3:2": "3:2", "2:3": "2:3"}
-            aspect = size_map.get(size, "1:1")
-
             payload = {
-                "contents": [{"role": "user", "parts": [{"text": f"Generate an image: {prompt}"}]}],
+                "contents": [{"role": "user", "parts": [{"text": prompt}]}],
                 "generationConfig": {
-                    "responseModalities": ["TEXT", "IMAGE"],
-                    "temperature": 0.8,
+                    "responseModalities": ["IMAGE", "TEXT"],
                 }
             }
 
