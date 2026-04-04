@@ -201,13 +201,13 @@ export default function PlatformTour() {
         </div>
       </div>
 
-      {/* Sticky jump nav */}
-      <div style={{ position: 'sticky', top: 0, zIndex: 10, background: '#f1f5f9', margin: '0 -24px', padding: '12px 24px', borderBottom: '1px solid #e2e8f0' }}>
+      {/* Sticky jump nav — fixed below topbar */}
+      <div style={{ position: 'sticky', top: -1, zIndex: 10, background: '#fff', margin: '0 -24px', padding: '10px 24px', borderBottom: '1px solid #e2e8f0', boxShadow: '0 2px 8px rgba(0,0,0,.06)' }}>
         <div style={{ display: 'flex', gap: 6, overflowX: 'auto', paddingBottom: 2 }}>
           {SECTIONS.map(function(s) {
             var isActive = expanded === s.id;
-            return <button key={s.id} onClick={function() { setExpanded(s.id); setTimeout(function() { var el = document.getElementById('tour-' + s.id); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 50); }}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, border: isActive ? '1.5px solid ' + s.color : '1px solid #e2e8f0', background: isActive ? s.bg : '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: isActive ? 700 : 600, color: isActive ? s.color : '#475569', whiteSpace: 'nowrap', flexShrink: 0, transition: 'all .15s' }}>
+            return <button key={s.id} onClick={function() { setExpanded(s.id); setTimeout(function() { var el = document.getElementById('tour-' + s.id); if (el) { var offset = el.getBoundingClientRect().top + window.scrollY - 120; window.scrollTo({ top: offset, behavior: 'smooth' }); } }, 50); }}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 14px', borderRadius: 10, border: isActive ? '1.5px solid ' + s.color : '1px solid #e2e8f0', background: isActive ? s.bg : '#f8fafc', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: isActive ? 700 : 600, color: isActive ? s.color : '#475569', whiteSpace: 'nowrap', flexShrink: 0, transition: 'all .15s' }}>
               <div style={{ width: 22, height: 22, borderRadius: 6, background: isActive ? s.color : s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <s.Icon size={12} color={isActive ? '#fff' : s.color}/>
               </div>
