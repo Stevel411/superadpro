@@ -238,6 +238,7 @@ function VoiceGuide() {
   var [transcript, setTranscript] = useState('');
   var [answer, setAnswer] = useState('');
   var [error, setError] = useState('');
+  var [textInput, setTextInput] = useState('');
   var recognitionRef = useRef(null);
   var audioRef = useRef(null);
 
@@ -377,10 +378,10 @@ function VoiceGuide() {
       </div>
 
       {/* Body */}
-      <div style={{ padding: '16px 20px', minHeight: 120 }}>
+      <div style={{ padding: '16px 20px', minHeight: 100, maxHeight: 280, overflowY: 'auto' }}>
         {!transcript && !answer && !thinking && !listening && !error && (
-          <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: 14, lineHeight: 1.6, padding: '10px 0' }}>
-            Tap the microphone and ask me anything about SuperAdPro. I can explain features, the compensation plan, and how to get started.
+          <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: 14, lineHeight: 1.6, padding: '6px 0' }}>
+            Ask me anything about SuperAdPro — features, compensation plan, how to get started.
           </div>
         )}
 
@@ -399,7 +400,7 @@ function VoiceGuide() {
         )}
 
         {answer && (
-          <div style={{ marginTop: transcript ? 0 : 0 }}>
+          <div>
             <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Answer</div>
             <div style={{ fontSize: 14, color: '#334155', lineHeight: 1.7 }}>{answer}</div>
           </div>
@@ -410,24 +411,31 @@ function VoiceGuide() {
         )}
       </div>
 
-      {/* Mic button */}
-      <div style={{ padding: '0 20px 16px', display: 'flex', justifyContent: 'center', gap: 10 }}>
-        {speaking ? (
-          <button onClick={stopSpeaking}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '12px 24px', borderRadius: 12, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, background: '#fef2f2', color: '#dc2626' }}>
-            <MicOff size={16}/> Stop Speaking
-          </button>
-        ) : listening ? (
-          <button onClick={stopListening}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '12px 24px', borderRadius: 12, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, background: '#dc2626', color: '#fff', animation: 'pulse 1.5s infinite' }}>
-            <Mic size={16}/> Listening...
-          </button>
-        ) : (
-          <button onClick={startListening} disabled={thinking}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '12px 24px', borderRadius: 12, border: 'none', cursor: thinking ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, background: thinking ? '#e2e8f0' : 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff', boxShadow: thinking ? 'none' : '0 3px 0 #5b21b6' }}>
-            <Mic size={16}/> {thinking ? 'Processing...' : 'Ask a Question'}
-          </button>
+      {/* Input area */}
+      <div style={{ padding: '0 16px 14px' }}>
+        {speaking && (
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
+            <button onClick={stopSpeaking}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, background: '#fef2f2', color: '#dc2626' }}>
+              <MicOff size={14}/> Stop Speaking
+            </button>
+          </div>
         )}
+        <div style={{ display: 'flex', gap: 8 }}>
+          <input
+            value={textInput}
+            onChange={function(e) { setTextInput(e.target.value); }}
+            onKeyDown={function(e) { if (e.key === 'Enter' && textInput.trim() && !thinking) { setTranscript(textInput.trim()); askGuide(textInput.trim()); setTextInput(''); } }}
+            placeholder="Type your question..."
+            disabled={thinking || listening}
+            style={{ flex: 1, padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' }}
+          />
+          <button onClick={function() { if (textInput.trim() && !thinking) { setTranscript(textInput.trim()); askGuide(textInput.trim()); setTextInput(''); } }}
+            disabled={!textInput.trim() || thinking}
+            style={{ padding: '10px 16px', borderRadius: 10, border: 'none', cursor: !textInput.trim() || thinking ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, background: !textInput.trim() || thinking ? '#e2e8f0' : 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff' }}>
+            Ask
+          </button>
+        </div>
       </div>
 
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}} @keyframes spin{to{transform:rotate(360deg)}}`}</style>
