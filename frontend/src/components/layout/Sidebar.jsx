@@ -33,7 +33,6 @@ function buildNav(t, isAdmin) {
       { label: t('nav.linkHub'), icon: Link2, path: '/linkhub' },
       { label: t('nav.linkTools'), icon: LayoutGrid, path: '/link-tools' },
       { label: 'Content Creator', icon: Bot, path: '/content-creator' },
-      { label: 'SuperDeck', icon: Monitor, path: '/superdeck', pro: true },
       { label: t('nav.superPages'), icon: Globe, path: '/pro/funnels', pro: true },
       { label: t('nav.superSeller'), icon: Zap, path: '/superseller', pro: true },
       { label: 'AutoResponder', icon: Mail, path: '/pro/leads', pro: true },

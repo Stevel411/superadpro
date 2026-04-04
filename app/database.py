@@ -2003,31 +2003,6 @@ try:
         conn.commit()
         print("✅ SuperScene tables created + 500 credits seeded for SAP-00001")
 
-        # ── SuperDeck tables ──
-        conn.execute(text("""
-            CREATE TABLE IF NOT EXISTS superdecks (
-                id SERIAL PRIMARY KEY,
-                user_id INTEGER NOT NULL REFERENCES users(id),
-                title VARCHAR(300) NOT NULL,
-                description TEXT,
-                template_key VARCHAR(50) DEFAULT 'blank',
-                style VARCHAR(30) DEFAULT 'professional',
-                niche VARCHAR(50),
-                slide_count INTEGER DEFAULT 10,
-                slides_json TEXT,
-                share_token VARCHAR(32) UNIQUE,
-                status VARCHAR(20) DEFAULT 'draft',
-                credits_used INTEGER DEFAULT 0,
-                views INTEGER DEFAULT 0,
-                created_at TIMESTAMP DEFAULT NOW(),
-                updated_at TIMESTAMP DEFAULT NOW()
-            )
-        """))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_superdecks_user ON superdecks(user_id)"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_superdecks_share ON superdecks(share_token)"))
-        conn.commit()
-        print("✅ SuperDeck tables created")
-
 except Exception as e:
     print(f"⚠️ Force migration note: {e}")
 
@@ -2172,25 +2147,3 @@ class SuperScenePipelineScene(Base):
     created_at       = Column(DateTime, default=datetime.utcnow)
 
     pipeline = relationship("SuperScenePipeline", back_populates="scenes")
-
-
-class SuperDeck(Base):
-    """AI-generated presentation decks for members."""
-    __tablename__ = "superdecks"
-    id              = Column(Integer, primary_key=True, index=True)
-    user_id         = Column(Integer, ForeignKey("users.id"), nullable=False)
-    title           = Column(String(300), nullable=False)
-    description     = Column(Text)
-    template_key    = Column(String(50), default="blank")
-    style           = Column(String(30), default="professional")
-    niche           = Column(String(50))
-    slide_count     = Column(Integer, default=10)
-    slides_json     = Column(Text)           # JSON array of slide objects
-    share_token     = Column(String(32), unique=True, index=True)
-    status          = Column(String(20), default="draft")  # draft/generating/ready
-    credits_used    = Column(Integer, default=0)
-    views           = Column(Integer, default=0)
-    created_at      = Column(DateTime, default=datetime.utcnow)
-    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    user = relationship("User", foreign_keys=[user_id])
