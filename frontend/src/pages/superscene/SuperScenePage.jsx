@@ -723,9 +723,8 @@ export default function SuperScenePage() {
 
   const generateImage = async () => {
     if (!imgPrompt.trim() || imgGenerating) return;
-    const isFreeModel = imgModel === "gemini-free";
-    const cost = isFreeModel ? 0 : (IMG_CREDIT_MAP[imgQuality] || 2) * imgBatch;
-    if (!isFreeModel && credits < cost) { alert(`Need ${cost} credits, have ${credits}`); return; }
+    const cost = (IMG_CREDIT_MAP[imgQuality] || 2) * imgBatch;
+    if (credits < cost) { alert(`Need ${cost} credits, have ${credits}`); return; }
 
     setImgGenerating(true);
     setImgResults([]);

@@ -19736,10 +19736,24 @@ async def sc_image_generate(request: Request, db: Session = Depends(get_db)):
     if not prompt:
         raise HTTPException(status_code=400, detail="Prompt is required")
 
-    # ── Gemini Free route — no credits needed ──
+    # Credit cost based on quality — applies to ALL models including Gemini
+    credit_map = {"1K": 1, "2K": 2, "4K": 4}
+    credits_needed = credit_map.get(quality, 2) * n
+
+    credit_row = _get_or_create_sc_credits(user.id, db)
+    if credit_row.balance < credits_needed:
+        raise HTTPException(status_code=402, detail=f"Insufficient credits. Need {credits_needed}, have {credit_row.balance}.")
+
+    credit_row.balance -= credits_needed
+    db.commit()
+
+    # ── Gemini route — cheapest provider ──
     if model_id == "gemini-free":
         gemini_key = os.getenv("GEMINI_API_KEY", "")
         if not gemini_key:
+            # Refund credits
+            credit_row.balance += credits_needed
+            db.commit()
             raise HTTPException(status_code=503, detail="Gemini API key not configured")
 
         try:
@@ -19760,7 +19774,9 @@ async def sc_image_generate(request: Request, db: Session = Depends(get_db)):
             content_type = resp.headers.get("content-type", "")
             if "application/json" not in content_type:
                 logger.error(f"Gemini image: non-JSON response ({resp.status_code}): {resp.text[:300]}")
-                raise HTTPException(status_code=502, detail=f"Gemini API returned error {resp.status_code}. The image model may not be available on the free tier. Try another model.")
+                credit_row.balance += credits_needed
+                db.commit()
+                raise HTTPException(status_code=502, detail=f"Gemini API returned error {resp.status_code}. Try another model.")
 
             data = resp.json()
             logger.info(f"Gemini image response ({resp.status_code}): {str(data)[:500]}")
@@ -19768,6 +19784,8 @@ async def sc_image_generate(request: Request, db: Session = Depends(get_db)):
             if resp.status_code != 200:
                 error_msg = data.get("error", {}).get("message", str(data)[:200])
                 logger.error(f"Gemini image error: {error_msg}")
+                credit_row.balance += credits_needed
+                db.commit()
                 raise HTTPException(status_code=502, detail=f"Gemini: {error_msg}")
 
             candidates = data.get("candidates", [])
@@ -19785,27 +19803,22 @@ async def sc_image_generate(request: Request, db: Session = Depends(get_db)):
                     return {
                         "success": True,
                         "images": images,
-                        "credits_used": 0,
+                        "credits_used": credits_needed,
+                        "credits_remaining": credit_row.balance,
                     }
 
+            # No images returned — refund
+            credit_row.balance += credits_needed
+            db.commit()
             raise HTTPException(status_code=502, detail="Gemini image generation returned no images. Try a different prompt.")
 
         except HTTPException:
             raise
         except Exception as e:
             logger.error(f"Gemini image generation failed: {e}")
+            credit_row.balance += credits_needed
+            db.commit()
             raise HTTPException(status_code=502, detail=f"Gemini image generation failed: {str(e)[:200]}")
-
-    # Credit cost based on quality
-    credit_map = {"1K": 1, "2K": 2, "4K": 4}
-    credits_needed = credit_map.get(quality, 2) * n
-
-    credit_row = _get_or_create_sc_credits(user.id, db)
-    if credit_row.balance < credits_needed:
-        raise HTTPException(status_code=402, detail=f"Insufficient credits. Need {credits_needed}, have {credit_row.balance}.")
-
-    credit_row.balance -= credits_needed
-    db.commit()
 
     # Route to Grok Imagine direct for grok-image model (no EvoLink markup)
     if model_id == "grok-image":
