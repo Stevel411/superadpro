@@ -2616,7 +2616,7 @@ export default function SuperScenePage() {
                     <span className="sc-cl-value">{(IMG_CREDIT_MAP[imgQuality] || 2) * imgBatch} credits</span>
                   </div>
                   <button className="sc-gen-btn" onClick={generateImage} disabled={!imgPrompt.trim() || imgGenerating}>
-                    {imgGenerating ? "Generating…" : !imgPrompt.trim() ? "Enter a prompt" : `🖼 Generate ${imgBatch > 1 ? imgBatch + " Images" : "Image"} — ${(IMG_CREDIT_MAP[imgQuality] || 2) * imgBatch} credits`}
+                    {imgGenerating ? "Generating…" : !imgPrompt.trim() ? "Enter a prompt" : `✦ Generate ${imgBatch > 1 ? imgBatch + " Images" : "Image"} — ${(IMG_CREDIT_MAP[imgQuality] || 2) * imgBatch} credits`}
                   </button>
                 </div>
               </div>
