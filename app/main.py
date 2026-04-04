@@ -9752,13 +9752,9 @@ IMPORTANT:
         return JSONResponse({"niches": demo_niches, "demo": True})
 
     try:
-        client = anthropic.Anthropic(api_key=api_key)
-        message = client.messages.create(
-            model=AI_MODEL_HAIKU,  # Cost-optimised,
-            max_tokens=2000,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        raw = message.content[0].text.strip()
+        from .gemini_service import ai_generate
+        raw = await ai_generate(prompt, max_tokens=2000)
+        raw = raw.strip()
         # Strip markdown code fences if present
         import re
         raw = re.sub(r'^```json\s*', '', raw)
@@ -9858,13 +9854,8 @@ RULES:
 Return ONLY the posts, no preamble or explanation."""
 
     try:
-        client = anthropic.Anthropic()
-        message = client.messages.create(
-            model=AI_MODEL_HAIKU,  # Cost-optimised,
-            max_tokens=2000,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        content = message.content[0].text
+        from .gemini_service import ai_generate
+        content = await ai_generate(prompt, max_tokens=2000)
         return {"success": True, "posts": content, "remaining": rl["limit"] - rl["used"] - 1}
     except Exception as e:
         logger.error(f"Social post generation failed: {e}")
@@ -9982,13 +9973,8 @@ RULES:
 - Make every second count — no filler"""
 
     try:
-        client = anthropic.Anthropic()
-        message = client.messages.create(
-            model=AI_MODEL_HAIKU,  # Cost-optimised,
-            max_tokens=2500,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        content = message.content[0].text
+        from .gemini_service import ai_generate
+        content = await ai_generate(prompt, max_tokens=2500)
         return {"success": True, "script": content, "remaining": rl["limit"] - rl["used"] - 1}
     except Exception as e:
         logger.error(f"Video script generation failed: {e}")
@@ -10071,14 +10057,10 @@ Requirements:
         return {"swipes": demo, "demo": True, "used": rl["used"], "limit": rl["limit"]}
 
     try:
-        import anthropic, json
-        client = anthropic.Anthropic(api_key=api_key)
-        message = client.messages.create(
-            model=AI_MODEL_HAIKU,  # Cost-optimised
-            max_tokens=1500,
-            messages=[{"role": "user", "content": prompt}]
-        )
-        raw = message.content[0].text.strip()
+        import json
+        from .gemini_service import ai_generate
+        raw = await ai_generate(prompt, max_tokens=1500)
+        raw = raw.strip()
         # Strip markdown fences if present
         if raw.startswith("```"):
             raw = raw.split("\n", 1)[1] if "\n" in raw else raw[3:]
@@ -15300,11 +15282,36 @@ def api_superseller_delete(campaign_id: int, request: Request,
 
 
 async def _call_ai(prompt: str, model: str = "claude-sonnet-4-20250514", retries: int = 2) -> str:
-    """Call Claude API for SuperSeller generation with retry logic."""
+    """Call AI for SuperSeller generation — Gemini first, Claude fallback."""
     import httpx
+
+    # Try Gemini first
+    gemini_key = os.getenv("GEMINI_API_KEY", "")
+    if gemini_key:
+        try:
+            gemini_model = "gemini-2.5-flash"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{gemini_model}:generateContent?key={gemini_key}"
+            async with httpx.AsyncClient(timeout=180) as client:
+                resp = await client.post(url, json={
+                    "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+                    "generationConfig": {"maxOutputTokens": 8000, "temperature": 0.7}
+                })
+                if resp.status_code == 200:
+                    data = resp.json()
+                    candidates = data.get("candidates", [])
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        if parts and parts[0].get("text"):
+                            logger.info("_call_ai: Gemini succeeded")
+                            return parts[0]["text"]
+            logger.warning("_call_ai: Gemini returned empty, falling back to Claude")
+        except Exception as e:
+            logger.warning(f"_call_ai: Gemini failed ({e}), falling back to Claude")
+
+    # Fallback to Claude
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
     if not api_key:
-        raise Exception("ANTHROPIC_API_KEY not set")
+        raise Exception("No AI provider available (GEMINI_API_KEY and ANTHROPIC_API_KEY both missing)")
     last_error = None
     for attempt in range(retries):
         try:
@@ -15317,6 +15324,7 @@ async def _call_ai(prompt: str, model: str = "claude-sonnet-4-20250514", retries
                 })
                 data = resp.json()
                 if "content" in data and len(data["content"]) > 0:
+                    logger.info("_call_ai: Claude fallback succeeded")
                     return data["content"][0].get("text", "")
                 last_error = f"AI response error: {data}"
                 logger.warning(f"_call_ai attempt {attempt+1} failed: {last_error}")
@@ -15914,8 +15922,34 @@ YOUR ROLE:
 
 
 async def _call_ai_with_system(system: str, messages: list, model: str = "claude-haiku-4-5-20251001") -> str:
-    """Call Claude API with system prompt and conversation history."""
+    """Call AI with system prompt — Gemini first, Claude fallback."""
     import httpx
+
+    # Try Gemini first
+    gemini_key = os.getenv("GEMINI_API_KEY", "")
+    if gemini_key:
+        try:
+            # Combine system + messages into a single Gemini prompt
+            combined = system + "\n\n"
+            for m in messages:
+                combined += f"{m['role'].upper()}: {m['content']}\n"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={gemini_key}"
+            async with httpx.AsyncClient(timeout=30) as client:
+                resp = await client.post(url, json={
+                    "contents": [{"role": "user", "parts": [{"text": combined}]}],
+                    "generationConfig": {"maxOutputTokens": 500, "temperature": 0.7}
+                })
+                if resp.status_code == 200:
+                    data = resp.json()
+                    candidates = data.get("candidates", [])
+                    if candidates:
+                        parts = candidates[0].get("content", {}).get("parts", [])
+                        if parts and parts[0].get("text"):
+                            return parts[0]["text"]
+        except Exception:
+            pass
+
+    # Fallback to Claude
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
     if not api_key:
         return "Our AI assistant is being set up. Please check back shortly!"
