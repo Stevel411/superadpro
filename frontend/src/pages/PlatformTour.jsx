@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
-import { Map, Share2, DollarSign, Link2, Users, Zap, Eye, Sparkles, Wallet, Heart, Play, ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Map, Share2, DollarSign, Link2, Users, Zap, Eye, Sparkles, Wallet, Heart, Play, ArrowRight, ChevronLeft, ChevronRight, Mic, MicOff, Volume2, X } from 'lucide-react';
 
 var SECTIONS = [
   {
@@ -223,6 +223,214 @@ export default function PlatformTour() {
         </div>
       </div>
 
+      {/* Voice Guide Widget */}
+      <VoiceGuide />
+
     </AppLayout>
+  );
+}
+
+function VoiceGuide() {
+  var [open, setOpen] = useState(false);
+  var [listening, setListening] = useState(false);
+  var [thinking, setThinking] = useState(false);
+  var [speaking, setSpeaking] = useState(false);
+  var [transcript, setTranscript] = useState('');
+  var [answer, setAnswer] = useState('');
+  var [error, setError] = useState('');
+  var recognitionRef = useRef(null);
+  var audioRef = useRef(null);
+
+  function startListening() {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      setError('Voice input is not supported in your browser. Please use Chrome.');
+      return;
+    }
+    setError('');
+    setAnswer('');
+    setTranscript('');
+    var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var recognition = new SR();
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = function(e) {
+      var text = '';
+      for (var i = 0; i < e.results.length; i++) {
+        text += e.results[i][0].transcript;
+      }
+      setTranscript(text);
+    };
+
+    recognition.onend = function() {
+      setListening(false);
+      if (transcript || recognitionRef.current?._lastTranscript) {
+        askGuide(recognitionRef.current?._lastTranscript || transcript);
+      }
+    };
+
+    recognition.onerror = function(e) {
+      setListening(false);
+      if (e.error !== 'no-speech') setError('Could not hear you. Please try again.');
+    };
+
+    recognitionRef.current = recognition;
+    recognition.start();
+    setListening(true);
+  }
+
+  // Track transcript changes for onend
+  useEffect(function() {
+    if (recognitionRef.current) recognitionRef.current._lastTranscript = transcript;
+  }, [transcript]);
+
+  function stopListening() {
+    if (recognitionRef.current) recognitionRef.current.stop();
+    setListening(false);
+  }
+
+  async function askGuide(question) {
+    if (!question || !question.trim()) return;
+    setThinking(true);
+    setAnswer('');
+    try {
+      var res = await fetch('/api/voice-guide/ask', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question: question }),
+      });
+      var data = await res.json();
+      if (data.success && data.answer) {
+        setAnswer(data.answer);
+        setThinking(false);
+        speakAnswer(data.answer);
+      } else {
+        setError(data.error || 'Could not get an answer.');
+        setThinking(false);
+      }
+    } catch (e) {
+      setError('Network error. Please try again.');
+      setThinking(false);
+    }
+  }
+
+  function speakAnswer(text) {
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
+      var utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      var voices = window.speechSynthesis.getVoices();
+      var preferred = voices.find(function(v) { return v.name.includes('Google') && v.lang.startsWith('en'); })
+        || voices.find(function(v) { return v.lang.startsWith('en') && !v.name.includes('espeak'); })
+        || voices[0];
+      if (preferred) utterance.voice = preferred;
+      utterance.onstart = function() { setSpeaking(true); };
+      utterance.onend = function() { setSpeaking(false); };
+      window.speechSynthesis.speak(utterance);
+    }
+  }
+
+  function stopSpeaking() {
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel();
+    setSpeaking(false);
+  }
+
+  if (!open) {
+    return (
+      <button onClick={function() { setOpen(true); }}
+        style={{
+          position: 'fixed', bottom: 24, right: 24, zIndex: 50,
+          width: 56, height: 56, borderRadius: '50%', border: 'none', cursor: 'pointer',
+          background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+          boxShadow: '0 4px 0 #5b21b6, 0 6px 20px rgba(124,58,237,.35)',
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          transition: 'transform .1s',
+        }}
+        onMouseDown={function(e) { e.currentTarget.style.transform = 'translateY(2px)'; }}
+        onMouseUp={function(e) { e.currentTarget.style.transform = 'translateY(0)'; }}
+        onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; }}
+      >
+        <Mic size={24} color="#fff"/>
+      </button>
+    );
+  }
+
+  return (
+    <div style={{
+      position: 'fixed', bottom: 24, right: 24, zIndex: 50,
+      width: 340, background: '#fff', borderRadius: 18,
+      boxShadow: '0 8px 32px rgba(0,0,0,.15), 0 2px 8px rgba(0,0,0,.08)',
+      border: '1px solid #e2e8f0', overflow: 'hidden',
+    }}>
+      {/* Header */}
+      <div style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <Volume2 size={18} color="#fff"/>
+          <span style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>Platform Guide</span>
+        </div>
+        <button onClick={function() { setOpen(false); stopSpeaking(); stopListening(); }}
+          style={{ background: 'rgba(255,255,255,.15)', border: 'none', borderRadius: 8, padding: 4, cursor: 'pointer', display: 'flex' }}>
+          <X size={16} color="#fff"/>
+        </button>
+      </div>
+
+      {/* Body */}
+      <div style={{ padding: '16px 20px', minHeight: 120 }}>
+        {!transcript && !answer && !thinking && !listening && !error && (
+          <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: 14, lineHeight: 1.6, padding: '10px 0' }}>
+            Tap the microphone and ask me anything about SuperAdPro. I can explain features, the compensation plan, and how to get started.
+          </div>
+        )}
+
+        {transcript && (
+          <div style={{ marginBottom: 12 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>You asked</div>
+            <div style={{ fontSize: 14, color: '#0f172a', lineHeight: 1.5 }}>{transcript}</div>
+          </div>
+        )}
+
+        {thinking && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#7c3aed', fontSize: 14, fontWeight: 600 }}>
+            <div style={{ width: 16, height: 16, border: '2px solid #7c3aed', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin .8s linear infinite' }}/>
+            Thinking...
+          </div>
+        )}
+
+        {answer && (
+          <div style={{ marginTop: transcript ? 0 : 0 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Answer</div>
+            <div style={{ fontSize: 14, color: '#334155', lineHeight: 1.7 }}>{answer}</div>
+          </div>
+        )}
+
+        {error && (
+          <div style={{ fontSize: 14, color: '#dc2626', textAlign: 'center', padding: '8px 0' }}>{error}</div>
+        )}
+      </div>
+
+      {/* Mic button */}
+      <div style={{ padding: '0 20px 16px', display: 'flex', justifyContent: 'center', gap: 10 }}>
+        {speaking ? (
+          <button onClick={stopSpeaking}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '12px 24px', borderRadius: 12, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, background: '#fef2f2', color: '#dc2626' }}>
+            <MicOff size={16}/> Stop Speaking
+          </button>
+        ) : listening ? (
+          <button onClick={stopListening}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '12px 24px', borderRadius: 12, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, background: '#dc2626', color: '#fff', animation: 'pulse 1.5s infinite' }}>
+            <Mic size={16}/> Listening...
+          </button>
+        ) : (
+          <button onClick={startListening} disabled={thinking}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '12px 24px', borderRadius: 12, border: 'none', cursor: thinking ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, background: thinking ? '#e2e8f0' : 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff', boxShadow: thinking ? 'none' : '0 3px 0 #5b21b6' }}>
+            <Mic size={16}/> {thinking ? 'Processing...' : 'Ask a Question'}
+          </button>
+        )}
+      </div>
+
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}} @keyframes spin{to{transform:rotate(360deg)}}`}</style>
+    </div>
   );
 }
