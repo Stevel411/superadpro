@@ -2551,7 +2551,15 @@ def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
 
     username = target.username
     try:
-        # ── LAYER 0: Null out sponsor references to prevent orphaned downline ──
+        # ── LAYER 0: Decrement sponsor counters ──
+        if target.sponsor_id:
+            sponsor = db.query(User).filter(User.id == target.sponsor_id).first()
+            if sponsor:
+                sponsor.personal_referrals = max(0, (sponsor.personal_referrals or 0) - 1)
+                sponsor.total_team = max(0, (sponsor.total_team or 0) - 1)
+                db.flush()
+
+        # Null out sponsor references to prevent orphaned downline
         # Members who had this user as their sponsor keep their account but lose the upline link
         db.query(User).filter(User.sponsor_id == user_id).update(
             {"sponsor_id": None}, synchronize_session=False
@@ -20809,3 +20817,23 @@ async def voice_guide_speak(request: Request, user: User = Depends(get_current_u
     except Exception as e:
         logger.error(f"Voice guide TTS failed: {e}")
         return JSONResponse({"error": "Speech generation failed"}, status_code=500)
+
+
+@app.post("/admin/recalculate-stats")
+def admin_recalculate_stats(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Recalculate personal_referrals and total_team for all users based on actual data."""
+    if not user or not user.is_admin:
+        return JSONResponse({"error": "Admin only"}, status_code=403)
+
+    users = db.query(User).all()
+    updated = 0
+    for u in users:
+        actual_referrals = db.query(User).filter(User.sponsor_id == u.id, User.is_active == True).count()
+        actual_team = db.query(User).filter(User.sponsor_id == u.id).count()
+        if u.personal_referrals != actual_referrals or u.total_team != actual_team:
+            u.personal_referrals = actual_referrals
+            u.total_team = actual_team
+            updated += 1
+
+    db.commit()
+    return {"success": True, "users_updated": updated}
