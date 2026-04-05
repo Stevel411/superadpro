@@ -33,6 +33,7 @@ from .database import DigitalProduct, DigitalProductPurchase, DigitalProductRevi
 from .database import CoPilotBriefing
 from .database import MemberLead
 from .database import MemberCourse, MemberCourseChapter, MemberCourseLesson, MemberCoursePurchase
+from .database import Presentation
 from .crud import create_user, verify_password
 from .grid import (
     get_grid_stats, get_user_grids, get_grid_positions,
@@ -21084,7 +21085,6 @@ async def api_early_bird(request: Request):
 # ═══════════════════════════════════════════════════════════
 #  SUPERDECK — AI Presentation Studio
 # ═══════════════════════════════════════════════════════════
-from .database import Presentation
 
 @app.get("/superdeck")
 def superdeck_page(request: Request):
