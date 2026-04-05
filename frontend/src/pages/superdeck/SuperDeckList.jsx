@@ -52,21 +52,16 @@ export default function SuperDeckList() {
 
       {/* Choose theme */}
       {decks.length === 0 && !creating && (
-        <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '32px 28px', marginBottom: 20, textAlign: 'center' }}>
-          <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>Start with a theme</div>
-          <div style={{ fontSize: 14, color: '#64748b', marginBottom: 24 }}>Choose a colour theme for your first presentation</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, maxWidth: 600, margin: '0 auto' }}>
-            {Object.entries(THEMES).map(function(entry) {
-              var k = entry[0]; var th = entry[1];
-              return <button key={k} onClick={function() { create(k); }}
-                style={{ padding: 16, borderRadius: 12, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', textAlign: 'center' }}>
-                <div style={{ width: '100%', aspectRatio: '16/9', borderRadius: 8, background: th.primary, marginBottom: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: th.text, opacity: 0.6 }}>Aa</div>
-                </div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{th.name}</div>
-              </button>;
-            })}
+        <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '48px 28px', marginBottom: 20, textAlign: 'center' }}>
+          <div style={{ width: 56, height: 56, borderRadius: 14, background: '#f3f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
+            <Monitor size={28} color="#8b5cf6"/>
           </div>
+          <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 6 }}>Create your first presentation</div>
+          <div style={{ fontSize: 14, color: '#64748b', marginBottom: 24, maxWidth: 400, margin: '0 auto 24px' }}>Build beautiful slide decks with drag-and-drop editing, AI content generation, and download as PowerPoint.</div>
+          <button onClick={function() { create('midnight'); }} disabled={creating}
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '12px 28px', borderRadius: 10, border: 'none', background: '#8b5cf6', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <Plus size={18}/> {creating ? 'Creating...' : 'Create presentation'}
+          </button>
         </div>
       )}
 
