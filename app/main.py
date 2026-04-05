@@ -20994,5 +20994,49 @@ async def api_early_bird(request: Request):
         except Exception as e:
             logger.error(f"Early bird Brevo add failed: {e}")
 
+        # Send welcome email
+        try:
+            from_email = os.getenv("FROM_EMAIL", "noreply@superadpro.com")
+            email_payload = json.dumps({
+                "sender": {"name": "SuperAdPro", "email": from_email},
+                "to": [{"email": email}],
+                "subject": "You're on the list — SuperAdPro is coming soon",
+                "htmlContent": """<div style="font-family:'DM Sans',Arial,sans-serif;max-width:560px;margin:0 auto;padding:40px 24px;color:#1a1a2e">
+<div style="text-align:center;margin-bottom:32px">
+<div style="display:inline-flex;align-items:center;gap:10px">
+<div style="width:36px;height:36px;border-radius:10px;background:#0ea5e9;display:flex;align-items:center;justify-content:center">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><polygon points="5,3 19,12 5,21"/></svg>
+</div>
+<span style="font-family:'Sora',sans-serif;font-size:22px;font-weight:800;color:#0f172a">SuperAd<span style="color:#0ea5e9">Pro</span></span>
+</div>
+</div>
+<h1 style="font-family:'Sora',sans-serif;font-size:28px;font-weight:800;text-align:center;margin-bottom:16px;color:#0f172a">You're on the early bird list!</h1>
+<p style="font-size:16px;line-height:1.7;color:#475569;margin-bottom:20px">Thanks for signing up. We're building something special — a complete AI-powered marketing toolkit that puts professional content creation, advertising, and brand building in your hands.</p>
+<p style="font-size:16px;line-height:1.7;color:#475569;margin-bottom:20px">SuperAdPro gives you everything you need to market any business online, all in one place:</p>
+<ul style="font-size:15px;line-height:2;color:#475569;padding-left:20px;margin-bottom:20px">
+<li>AI Image and Video Generator</li>
+<li>Social Media Content Creator</li>
+<li>Landing Page Builder</li>
+<li>Email Marketing Autoresponder</li>
+<li>Ad Platform</li>
+<li>Link-in-Bio Page Builder</li>
+</ul>
+<p style="font-size:16px;line-height:1.7;color:#475569;margin-bottom:28px">All for one simple membership. We'll let you know as soon as we're ready to launch — you'll be first in line.</p>
+<div style="text-align:center;margin-bottom:32px">
+<span style="display:inline-block;padding:12px 32px;border-radius:10px;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:15px;font-weight:700;text-decoration:none">Your Creativity Pays</span>
+</div>
+<p style="font-size:13px;color:#94a3b8;text-align:center">SuperAdPro — AI-Powered Marketing Tools for Everyone</p>
+</div>""",
+            }).encode("utf-8")
+            req2 = urllib.request.Request(
+                "https://api.brevo.com/v3/smtp/email",
+                data=email_payload,
+                headers={"accept": "application/json", "api-key": brevo_key, "content-type": "application/json"},
+                method="POST",
+            )
+            urllib.request.urlopen(req2, timeout=10)
+        except Exception as e:
+            logger.error(f"Early bird welcome email failed: {e}")
+
     logger.info(f"Early bird signup: {email}")
     return {"success": True}
