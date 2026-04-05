@@ -298,12 +298,12 @@ export default function SuperDeckEditor() {
             placeholder="Presentation title" />
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button onClick={save} style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 14px', borderRadius: 6, border: 'none', background: dirty ? '#8b5cf6' : '#312e81', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-            <Save size={12} /> {saving ? 'Saving...' : 'Save'}
+          <button onClick={save} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 20px', borderRadius: 8, border: 'none', background: '#22c55e', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <Save size={14} /> {saving ? 'Saving...' : 'Save'}
           </button>
           <button onClick={function () { window.open('/api/superdeck/' + deckId + '/export', '_blank'); }}
-            style={{ display: 'flex', alignItems: 'center', gap: 4, padding: '5px 14px', borderRadius: 6, border: '1px solid #e2e8f0', background: 'transparent', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
-            <Download size={12} /> Download .pptx
+            style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '8px 20px', borderRadius: 8, border: '2px solid rgba(255,255,255,.5)', background: 'rgba(255,255,255,.1)', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+            <Download size={14} /> Download .pptx
           </button>
         </div>
       </div>
@@ -429,6 +429,16 @@ export default function SuperDeckEditor() {
               </button>
               <div style={S.groupLabel}>AI assistant</div>
             </div>
+
+            {selId && <>
+              <div style={S.divider} />
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <button onClick={delEl} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '10px 20px', borderRadius: 10, border: '1px solid #fecaca', background: '#fef2f2', color: '#dc2626', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  <Trash2 size={14} /> Delete
+                </button>
+                <div style={S.groupLabel}>Selected</div>
+              </div>
+            </>}
           </>}
 
           {ribbonTab === 'insert' && <>
