@@ -6640,6 +6640,20 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
     if "font_family" in body: page.font_family = body["font_family"]
     if "meta_description" in body: page.meta_description = body["meta_description"]
 
+    # Custom slug — allow user to rename their page URL
+    custom_slug = body.get("custom_slug", "").strip().lower()
+    if custom_slug:
+        import re
+        custom_slug = re.sub(r'[^a-z0-9-]', '-', custom_slug).strip('-')
+        custom_slug = re.sub(r'-+', '-', custom_slug)[:80]
+        if custom_slug:
+            new_slug = f"{user.username}/{custom_slug}"
+            if new_slug != page.slug:
+                existing = db.query(FunnelPage).filter(FunnelPage.slug == new_slug, FunnelPage.id != page.id).first()
+                if existing:
+                    return JSONResponse({"error": f"The URL '{custom_slug}' is already taken. Choose a different name."}, status_code=409)
+                page.slug = new_slug
+
     # Section-based content
     import json
     sections = body.get("sections")

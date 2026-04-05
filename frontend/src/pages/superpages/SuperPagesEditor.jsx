@@ -74,6 +74,7 @@ export default function SuperPagesEditor() {
         headline: pageSettings.title || 'Untitled',
         meta_description: pageSettings.metaDescription || '',
         image_url: pageSettings.ogImage || '',
+        custom_slug: pageSettings.customSlug || '',
         gjs_html: html,
         gjs_css: JSON.stringify({ els, canvasBg, canvasBgImage }),
         status: pageStatus,
@@ -278,6 +279,15 @@ export default function SuperPagesEditor() {
             <input value={pageSettings.ogImage} onChange={e => setPageSettings(p => ({ ...p, ogImage: e.target.value }))}
               placeholder="https://..."
               style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 13, outline: 'none', marginBottom: 14, boxSizing: 'border-box' }} />
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Page URL Slug</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 4 }}>
+              <span style={{ padding: '10px 12px', background: '#f1f5f9', border: '2px solid #e2e8f0', borderRight: 'none', borderRadius: '10px 0 0 10px', fontSize: 12, color: '#94a3b8', whiteSpace: 'nowrap' }}>/p/{pageSettings.slug ? pageSettings.slug.split('/')[0] : 'username'}/</span>
+              <input value={pageSettings.customSlug || (pageSettings.slug ? pageSettings.slug.split('/').pop() : '')}
+                onChange={e => setPageSettings(p => ({ ...p, customSlug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/--+/g, '-') }))}
+                placeholder="my-landing-page"
+                style={{ flex: 1, padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: '0 10px 10px 0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
+            </div>
+            <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 14 }}>Letters, numbers, and hyphens only. This is your public page URL.</div>
             {pageSettings.slug && (
               <div style={{ padding: '10px 14px', background: '#f0fdf4', border: '1px solid rgba(22,163,74,.2)', borderRadius: 8, fontSize: 12, color: '#16a34a', marginBottom: 14, wordBreak: 'break-all' }}>
                 Live URL: {window.location.origin}/p/{pageSettings.slug}
