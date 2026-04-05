@@ -264,8 +264,8 @@ export default function SuperDeckEditor() {
 
   /* ── Styles (shared) ──────────────────────────────── */
   var S = {
-    rBtn: { padding: '8px 14px', borderRadius: 6, border: '1px solid #e2e8f0', background: 'transparent', color: '#94a3b8', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center' },
-    rBtnActive: { borderColor: '#8b5cf6', background: 'rgba(139,92,246,.1)', color: '#8b5cf6' },
+    rBtn: { padding: '8px 14px', borderRadius: 6, border: '2px solid #cbd5e1', background: '#fff', color: '#475569', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+    rBtnActive: { borderColor: '#8b5cf6', background: '#f3f0ff', color: '#8b5cf6' },
     groupLabel: { fontSize: 12, color: '#334155', textAlign: 'center', marginTop: 4, letterSpacing: 0.5, textTransform: 'uppercase' },
     panelLabel: { fontSize: 14, fontWeight: 700, color: '#334155', letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 6 },
     panelInput: { width: '100%', padding: '9px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, color: '#0f172a', fontSize: 16, boxSizing: 'border-box', fontFamily: 'inherit' },
