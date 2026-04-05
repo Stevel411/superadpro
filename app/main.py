@@ -21122,8 +21122,21 @@ async def api_superdeck_create(request: Request, user: User = Depends(get_curren
     theme = (body.get("theme") or "midnight").strip()[:50]
 
     import json as _j
-    # Default first slide
-    default_slides = [{"id": "s1", "elements": [], "background": "#1e1b4b", "notes": ""}]
+    # Theme colours for default slide background
+    theme_bgs = {
+        'midnight': '#1e1b4b', 'ocean': '#0c4a6e', 'forest': '#14532d',
+        'coral': '#7f1d1d', 'minimal': '#ffffff', 'charcoal': '#1c1917',
+    }
+    theme_text = {
+        'midnight': '#ffffff', 'ocean': '#ffffff', 'forest': '#ffffff',
+        'coral': '#ffffff', 'minimal': '#0f172a', 'charcoal': '#fafaf9',
+    }
+    bg = theme_bgs.get(theme, '#1e1b4b')
+    tc = theme_text.get(theme, '#ffffff')
+    default_slides = [{"id": "s1", "elements": [
+        {"id": "h1", "type": "heading", "x": 200, "y": 180, "w": 600, "h": 80, "text": "Your Presentation Title", "fontSize": 42, "color": tc, "bold": True, "align": "center", "fontFamily": "Sora, sans-serif"},
+        {"id": "t1", "type": "text", "x": 250, "y": 280, "w": 500, "h": 50, "text": "Click any element to edit. Add text, images, and shapes from the toolbar.", "fontSize": 18, "color": tc + "88", "align": "center", "fontFamily": "DM Sans, sans-serif"},
+    ], "background": bg, "notes": ""}]
 
     try:
         deck = Presentation(
