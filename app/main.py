@@ -212,7 +212,7 @@ class PreLaunchMiddleware(BaseHTTPMiddleware):
         allowed = [
             "/api/", "/static/", "/health", "/login", "/api/login",
             "/admin/", "/gift/", "/api/early-bird", "/l/",
-            "/ref/", "/join/",
+            "/ref/", "/join/", "/p/", "/f/",
         ]
         if any(path.startswith(p) for p in allowed):
             return await call_next(request)
