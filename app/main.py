@@ -117,6 +117,8 @@ COMING_SOON_HTML = """<!DOCTYPE html>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:#050d1a;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.earth-bg{position:absolute;bottom:-30%;left:50%;transform:translateX(-50%);width:900px;height:900px;border-radius:50%;background:url('https://images.unsplash.com/photo-1614730321146-b6fa6a46bcb4?w=1200&q=80') center center/cover;opacity:.35;pointer-events:none}
+.earth-glow{position:absolute;bottom:-32%;left:50%;transform:translateX(-50%);width:920px;height:920px;border-radius:50%;background:radial-gradient(circle,rgba(14,165,233,.15) 0%,transparent 70%);pointer-events:none}
 .bg-glow{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none}
 .bg1{width:500px;height:500px;background:rgba(14,165,233,.08);top:-150px;right:-100px}
 .bg2{width:400px;height:400px;background:rgba(139,92,246,.06);bottom:-100px;left:-80px}
@@ -144,10 +146,12 @@ h1{font-family:'Sora',sans-serif;font-size:48px;font-weight:800;line-height:1.15
 .feature span{font-size:14px;color:rgba(255,255,255,.6);font-weight:500}
 .footer{font-size:12px;color:rgba(255,255,255,.2)}
 .success{display:none;padding:14px 24px;border-radius:12px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);color:#10b981;font-size:15px;font-weight:600;margin-bottom:16px;max-width:420px;margin-left:auto;margin-right:auto}
-@media(max-width:600px){h1{font-size:32px}.tagline{font-size:18px}.form-row{flex-direction:column}.form-row button{width:100%}.features{flex-direction:column;align-items:center}}
+@media(max-width:600px){h1{font-size:32px}.tagline{font-size:18px}.form-row{flex-direction:column}.form-row button{width:100%}.features{flex-direction:column;align-items:center}.earth-bg,.earth-glow{width:600px;height:600px;bottom:-20%}}
 </style>
 </head>
 <body>
+<div class="earth-bg"></div>
+<div class="earth-glow"></div>
 <div class="bg-glow bg1"></div>
 <div class="bg-glow bg2"></div>
 <div class="bg-glow bg3"></div>
