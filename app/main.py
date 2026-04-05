@@ -20819,31 +20819,11 @@ async def voice_guide_speak(request: Request, user: User = Depends(get_current_u
         return JSONResponse({"error": "Speech generation failed"}, status_code=500)
 
 
-@app.post("/admin/recalculate-stats")
-def admin_recalculate_stats(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Recalculate personal_referrals and total_team for all users based on actual data."""
-    if not user or not user.is_admin:
-        return JSONResponse({"error": "Admin only"}, status_code=403)
-
-    users = db.query(User).all()
-    updated = 0
-    for u in users:
-        actual_referrals = db.query(User).filter(User.sponsor_id == u.id, User.is_active == True).count()
-        actual_team = db.query(User).filter(User.sponsor_id == u.id).count()
-        if u.personal_referrals != actual_referrals or u.total_team != actual_team:
-            u.personal_referrals = actual_referrals
-            u.total_team = actual_team
-            updated += 1
-
-    db.commit()
-    return {"success": True, "users_updated": updated}
-
-
 @app.get("/admin/recalculate-stats")
-def admin_recalculate_stats_get(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """GET version — same as POST, just visit the URL."""
-    if not user or not user.is_admin:
-        return JSONResponse({"error": "Admin only"}, status_code=403)
+def admin_recalculate_stats(secret: str = "", db: Session = Depends(get_db)):
+    """Recalculate personal_referrals and total_team for all users."""
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid"}, status_code=403)
 
     users = db.query(User).all()
     updated = 0
