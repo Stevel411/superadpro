@@ -16,6 +16,7 @@ def get_templates():
         webinar_template(),
         bio_link_template(),
         affiliate_recruit_template(),
+        thank_you_template(),
     ]
 
 def lead_capture_template():
@@ -219,5 +220,36 @@ def affiliate_recruit_template():
         'category': 'recruit',
         'icon': '🚀',
         'bg_color': '#050d1a',
+        'elements': els,
+    }
+
+def thank_you_template():
+    els = []
+    y = 80
+    els.append({'id': _uid(), 'type': 'text', 'x': 430, 'y': y, 'w': 240, 'h': 100,
+        'txt': '<div style="width:80px;height:80px;border-radius:50%;background:rgba(16,185,129,0.15);border:3px solid #10b981;display:flex;align-items:center;justify-content:center;margin:0 auto"><span style="font-size:40px;color:#10b981">&#10003;</span></div>',
+        's': {'textAlign': 'center'}})
+    y += 120
+    els.append({'id': _uid(), 'type': 'heading', 'x': 100, 'y': y, 'w': 900, 'h': 60,
+        'txt': 'Thank You!',
+        's': {'fontFamily': 'Sora,sans-serif', 'fontWeight': '900', 'fontSize': '48px', 'color': '#ffffff', 'textAlign': 'center'}})
+    y += 75
+    els.append({'id': _uid(), 'type': 'text', 'x': 150, 'y': y, 'w': 800, 'h': 50,
+        'txt': '<p style="font-size:22px;color:#38bdf8;font-weight:600;text-align:center;font-family:Sora,sans-serif">You are now on the list!</p>',
+        's': {'textAlign': 'center'}})
+    y += 65
+    els.append({'id': _uid(), 'type': 'text', 'x': 200, 'y': y, 'w': 700, 'h': 70,
+        'txt': '<p style="font-size:16px;color:rgba(255,255,255,0.55);line-height:1.8;text-align:center">Check your inbox for a confirmation email with everything you need to get started.</p>',
+        's': {'textAlign': 'center'}})
+    y += 100
+    els.append({'id': _uid(), 'type': 'cta', 'x': 350, 'y': y, 'w': 400, 'h': 55,
+        'txt': '<div style="background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-family:Sora,sans-serif;font-weight:800;font-size:17px;border-radius:12px;padding:16px 32px;text-align:center;cursor:pointer">Continue</div>',
+        's': {}, '_link': '/'})
+    return {
+        'name': 'Thank You Page',
+        'description': 'Post-signup confirmation page with next steps and CTA',
+        'category': 'thank-you',
+        'icon': '&#10003;',
+        'bg_color': '#0a0a1a',
         'elements': els,
     }

@@ -92,8 +92,9 @@ document.querySelectorAll('#gjsContent form').forEach(form => {
       });
       const result = await res.json();
       if (result.success) {
-        if (result.redirect) {
-          window.location.href = result.redirect;
+        const redirectTo = result.redirect || form.getAttribute('data-redirect');
+        if (redirectTo) {
+          window.location.href = redirectTo;
         } else {
           if (btn) btn.textContent = '✓ Success!';
           form.reset();

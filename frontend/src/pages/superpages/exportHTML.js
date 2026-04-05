@@ -80,7 +80,8 @@ export default function exportHTML(els, canvasBg, canvasBgImage) {
         /placeholder="([^"]*?phone[^"]*?)"/gi,
         'placeholder="$1" name="phone" type="tel"'
       );
-      h += `<form class="${elClass}" style="${st}" onsubmit="return true">${formHtml}</form>`;
+      const redir = el._formRedirect ? ` data-redirect="${(el._formRedirect || '').replace(/"/g, '&quot;')}"` : '';
+      h += `<form class="${elClass}" style="${st}" onsubmit="return true"${redir}>${formHtml}</form>`;
     } else {
       h += `<div class="${elClass}" style="${st}">${el.txt || ''}</div>`;
     }

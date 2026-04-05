@@ -386,6 +386,57 @@ def _affiliate_funnel(username):
 
 
 # ═══════════════════════════════════════════════════════════
+# Thank You Page
+# ═══════════════════════════════════════════════════════════
+def _thank_you(username):
+    els = []
+    y = 80
+
+    # Checkmark circle
+    els.append({'id': _uid(), 'type': 'text', 'x': _centre(240), 'y': y, 'w': 240, 'h': 100,
+        'txt': '<div style="width:80px;height:80px;border-radius:50%;background:rgba(16,185,129,0.15);border:3px solid #10b981;display:flex;align-items:center;justify-content:center;margin:0 auto"><span style="font-size:40px;color:#10b981">&#10003;</span></div>',
+        's': {'textAlign': 'center'}})
+    y += 120
+
+    # Headline
+    els.append({'id': _uid(), 'type': 'heading', 'x': _centre(900), 'y': y, 'w': 900, 'h': 60,
+        'txt': 'Thank You!',
+        's': {'fontFamily': 'Sora,sans-serif', 'fontWeight': '900', 'fontSize': '48px', 'color': '#ffffff', 'textAlign': 'center'}})
+    y += 75
+
+    # Subtitle
+    els.append({'id': _uid(), 'type': 'text', 'x': _centre(800), 'y': y, 'w': 800, 'h': 50,
+        'txt': '<p style="font-size:22px;color:#38bdf8;font-weight:600;text-align:center;font-family:Sora,sans-serif">You are now on the list!</p>',
+        's': {'textAlign': 'center'}})
+    y += 65
+
+    # Description
+    els.append({'id': _uid(), 'type': 'text', 'x': _centre(700), 'y': y, 'w': 700, 'h': 70,
+        'txt': '<p style="font-size:16px;color:rgba(255,255,255,0.55);line-height:1.8;text-align:center">Check your inbox for a confirmation email. We have sent you everything you need to get started. If you do not see it, check your spam folder.</p>',
+        's': {'textAlign': 'center'}})
+    y += 100
+
+    # What happens next box
+    els.append({'id': _uid(), 'type': 'text', 'x': _centre(600), 'y': y, 'w': 600, 'h': 200,
+        'txt': '<div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:28px 32px"><p style="font-family:Sora,sans-serif;font-weight:800;font-size:18px;color:#fff;margin-bottom:16px;text-align:center">What happens next?</p><p style="font-size:15px;color:rgba(255,255,255,0.5);line-height:1.8;text-align:center">Step 1 - Check your email for your welcome message<br>Step 2 - Follow the instructions inside<br>Step 3 - Start seeing results</p></div>',
+        's': {}})
+    y += 230
+
+    # CTA button
+    els.append({'id': _uid(), 'type': 'cta', 'x': _centre(400), 'y': y, 'w': 400, 'h': 55,
+        'txt': '<div style="background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-family:Sora,sans-serif;font-weight:800;font-size:17px;border-radius:12px;padding:16px 32px;text-align:center;cursor:pointer">Continue to Your Dashboard</div>',
+        's': {}, '_link': '/'})
+    y += 80
+
+    # Footer text
+    els.append({'id': _uid(), 'type': 'text', 'x': _centre(500), 'y': y, 'w': 500, 'h': 40,
+        'txt': '<p style="font-size:14px;color:rgba(255,255,255,0.3);text-align:center">Share this page with someone who could benefit from it</p>',
+        's': {'textAlign': 'center'}})
+
+    return {'els': els, 'canvasBg': '#0a0a1a'}
+
+
+# ═══════════════════════════════════════════════════════════
 # Registry
 # ═══════════════════════════════════════════════════════════
 BUILDERS = {
@@ -397,4 +448,5 @@ BUILDERS = {
     'coaching-program': _coaching_program,
     'digital-product': _digital_product,
     'affiliate-income': _affiliate_funnel,
+    'thank-you': _thank_you,
 }

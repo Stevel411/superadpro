@@ -6914,6 +6914,7 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
             'coaching-program': 'Coaching Program',
             'digital-product': 'Digital Product Page',
             'affiliate-income': 'Affiliate Funnel',
+            'thank-you': 'Thank You Page',
         }
         title = TEMPLATE_TITLES.get(niche, 'New Page')
         # Add short hash to prevent duplicate title errors

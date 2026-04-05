@@ -14,6 +14,7 @@ const TEMPLATES = [
   { key: 'coaching-program', title: 'Coaching Program', desc: 'Personal brand page with bio, testimonials and booking CTA', icon: Award, color: '#6366f1', bg: '#0f172a', accent: '#6366f1' },
   { key: 'digital-product', title: 'Digital Product', desc: 'Ebook, course or download page with feature stack and pricing', icon: BookOpen, color: '#14b8a6', bg: '#0c1222', accent: '#14b8a6' },
   { key: 'affiliate-income', title: 'Affiliate Funnel', desc: 'Commission income page with earnings calculator and signup', icon: DollarSign, color: '#ef4444', bg: '#1a1a2e', accent: '#ef4444' },
+  { key: 'thank-you', title: 'Thank You Page', desc: 'Post-signup confirmation with next steps and CTA button', icon: Award, color: '#10b981', bg: '#0a0a1a', accent: '#10b981' },
 ];
 
 function TemplatePreview({ bg, accent, Icon }) {
