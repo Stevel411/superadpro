@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import AppLayout from '../../components/layout/AppLayout';
 import { apiGet, apiPost, apiDelete } from '../../utils/api';
 import { THEMES } from './themes';
-import { Plus, Trash2, Pencil, Presentation, Sparkles } from 'lucide-react';
+import { Plus, Trash2, Pencil, Monitor, Sparkles } from 'lucide-react';
 
 export default function SuperDeckList() {
   var [decks, setDecks] = useState([]);
