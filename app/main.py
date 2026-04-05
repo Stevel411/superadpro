@@ -159,7 +159,7 @@ h1{font-family:'Sora',sans-serif;font-size:48px;font-weight:800;line-height:1.15
   <div class="badge">Coming Soon</div>
   <h1>Your Creativity Pays</h1>
   <div class="tagline">AI-Powered Marketing Tools for Everyone</div>
-  <p class="subtitle">A complete suite of AI tools to create content, build your brand, and grow your business — all for one simple membership.</p>
+  <p class="subtitle">A complete suite of AI tools to create content, build your brand, advertise your business, and grow your income — all for one simple membership.</p>
   <div class="success" id="successMsg">You are on the list! We will notify you when we launch.</div>
   <div class="form-row" id="formRow">
     <input type="email" id="emailInput" placeholder="Enter your email for early access" required>
@@ -170,8 +170,9 @@ h1{font-family:'Sora',sans-serif;font-size:48px;font-weight:800;line-height:1.15
     <div class="feature"><div class="feature-dot" style="background:#0ea5e9"></div><span>AI Image Generator</span></div>
     <div class="feature"><div class="feature-dot" style="background:#8b5cf6"></div><span>Video Creator</span></div>
     <div class="feature"><div class="feature-dot" style="background:#10b981"></div><span>Social Content AI</span></div>
-    <div class="feature"><div class="feature-dot" style="background:#f59e0b"></div><span>Landing Pages</span></div>
-    <div class="feature"><div class="feature-dot" style="background:#ec4899"></div><span>Email Marketing</span></div>
+    <div class="feature"><div class="feature-dot" style="background:#f59e0b"></div><span>Ad Platform</span></div>
+    <div class="feature"><div class="feature-dot" style="background:#ec4899"></div><span>Landing Pages</span></div>
+    <div class="feature"><div class="feature-dot" style="background:#06b6d4"></div><span>Email Marketing</span></div>
   </div>
   <div class="footer">&copy; 2026 SuperAdPro. All rights reserved.</div>
 </div>
