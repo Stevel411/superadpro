@@ -68,31 +68,24 @@ export default function MyLeads() {
         .sl-select option{background:#fff;color:#0f172a;padding:8px}
       `}</style>
 
-      <div style={{background:'linear-gradient(135deg,#0c1222,#1c223d,#2d3561)',borderRadius:16,padding:'32px 36px',marginBottom:20,position:'relative',overflow:'hidden'}}>
-        <div style={{position:'absolute',top:-40,right:-40,width:140,height:140,borderRadius:'50%',background:'rgba(255,255,255,.04)',pointerEvents:'none'}}/>
-        <div style={{position:'relative',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-          <div style={{display:'flex',alignItems:'center',gap:16}}>
-            <div style={{width:52,height:52,borderRadius:14,background:'linear-gradient(135deg,#6366f1,#818cf8)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" stroke="#fff" strokeWidth="1.5"/><polyline points="22,6 12,13 2,6" stroke="#fff" strokeWidth="1.5"/><circle cx="18" cy="15" r="4" fill="#fbbf24"/><path d="M17 15h2M18 14v2" stroke="#1c223d" strokeWidth="1.5" strokeLinecap="round"/></svg>
-            </div>
-            <div>
-              <div style={{fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.45)',marginBottom:4}}>SuperLeads CRM</div>
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:800,color:'#fff',marginBottom:4}}>Email Autoresponder</div>
-              <div style={{fontSize:14,color:'rgba(255,255,255,.55)'}}>Capture leads, nurture with sequences, broadcast to your audience.</div>
-            </div>
+      <div style={{background:'#fff',borderRadius:14,padding:'24px 28px',marginBottom:20,border:'1px solid #e2e8f0'}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+          <div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:800,color:'#0f172a',marginBottom:4}}>Contacts</div>
+            <div style={{fontSize:14,color:'#64748b'}}>Manage your leads, email sequences, and broadcasts</div>
           </div>
-          <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:5,padding:'8px 16px',borderRadius:8,border:'1px solid rgba(255,255,255,.12)',background:'rgba(255,255,255,.05)',color:'rgba(255,255,255,.6)',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit',flexShrink:0}}><HelpCircle size={14}/> Help</button>
+          <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:5,padding:'8px 16px',borderRadius:8,border:'1px solid #e2e8f0',background:'#fff',color:'#475569',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',flexShrink:0}}><HelpCircle size={14}/> Help</button>
         </div>
       </div>
 
-      <div className="sl-stats" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:20}}>
-        {[{v:stats.total||0,l:'Total leads',c:'#6366f1'},{v:sequences.length,l:'Sequences',c:'#0ea5e9'},{v:emailStats.sent_today||0,l:'Sent today',c:'#16a34a'},{v:stats.hot||0,l:'Hot leads',c:'#f59e0b'}].map(function(s,i){return <div key={i} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:16,textAlign:'center'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:s.c}}>{s.v}</div><div style={{fontSize:13,color:'#475569',fontWeight:600,marginTop:4}}>{s.l}</div></div>;})}
+      <div className="sl-stats" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}}>
+        {[{v:stats.total||0,l:'Total leads',c:'#6366f1'},{v:sequences.length,l:'Sequences',c:'#0ea5e9'},{v:emailStats.sent_today||0,l:'Sent today',c:'#16a34a'},{v:stats.hot||0,l:'Hot leads',c:'#f59e0b'}].map(function(s,i){return <div key={i} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:'20px 16px'}}><div style={{fontSize:12,fontWeight:600,color:'#64748b',marginBottom:8}}>{s.l}</div><div style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:s.c}}>{s.v}</div></div>;})}
       </div>
 
       {msg && <div style={{padding:'10px 16px',borderRadius:10,marginBottom:16,fontSize:13,fontWeight:700,background:msgType==='ok'?'#f0fdf4':'#fef2f2',border:'1px solid '+(msgType==='ok'?'#bbf7d0':'#fecaca'),color:msgType==='ok'?'#059669':'#dc2626'}}>{msg}</div>}
 
-      <div style={{display:'flex',gap:4,marginBottom:20,background:'#fff',border:'1px solid #e2e8f0',borderRadius:10,padding:4}}>
-        {TABS.map(function(t){var a=tab===t.key;var I=t.icon;return <div key={t.key} className={a?'':'sl-tab'} onClick={function(){setTab(t.key);}} style={{flex:1,textAlign:'center',padding:'12px 8px',borderRadius:8,background:a?'#6366f1':'transparent',color:a?'#fff':'#475569',fontSize:14,fontWeight:a?800:600,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',gap:6}}><I size={16}/> {t.label}</div>;})}
+      <div style={{display:'flex',gap:0,marginBottom:20,borderBottom:'2px solid #e2e8f0'}}>
+        {TABS.map(function(t){var a=tab===t.key;var I=t.icon;return <div key={t.key} className={a?'':'sl-tab'} onClick={function(){setTab(t.key);}} style={{padding:'12px 20px',color:a?'#6366f1':'#64748b',fontSize:14,fontWeight:a?700:500,cursor:'pointer',display:'flex',alignItems:'center',gap:6,borderBottom:a?'2px solid #6366f1':'2px solid transparent',marginBottom:'-2px'}}><I size={16}/> {t.label}</div>;})}
       </div>
 
       {tab==='leads' && <LeadsTab leads={leads} lists={lists} sequences={sequences} refresh={refresh} flash={flash}/>}
@@ -124,22 +117,22 @@ function LeadsTab({leads,lists,sequences,refresh,flash}) {
       </div>
       <div style={{fontSize:12,color:'#64748b',fontWeight:600}}>{filtered.length} leads</div>
     </div>
-    {filtered.length>0?<div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:12,minWidth:600}}><thead><tr style={{background:'#f8fafc'}}>
-      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Name</th>
-      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Email</th>
-      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Status</th>
-      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>List</th>
-      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Emails</th>
-      <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'#475569',fontSize:11}}>Sequence</th>
-      <th style={{textAlign:'right',padding:'10px 16px'}}></th>
-    </tr></thead><tbody>{filtered.map(function(l){var st=STATUS_STYLES[l.is_hot?'hot':l.status]||STATUS_STYLES.new;var li=lm[l.list_id];return <tr key={l.id} className="sl-row" style={{borderTop:'1px solid #f1f5f9'}}>
-      <td style={{padding:'10px 16px',fontWeight:600,color:'#0f172a'}}>{l.name||'—'}</td>
-      <td style={{padding:'10px 16px',color:'#475569'}}>{l.email}</td>
-      <td style={{padding:'10px 16px'}}><span style={{padding:'3px 8px',borderRadius:4,background:st.bg,color:st.color,fontSize:10,fontWeight:700}}>{st.label}</span></td>
-      <td style={{padding:'10px 16px'}}>{li?<span style={{padding:'3px 8px',borderRadius:4,background:li.color+'18',color:li.color,fontSize:10,fontWeight:600}}>{li.name}</span>:<span style={{color:'#94a3b8',fontSize:10}}>—</span>}</td>
-      <td style={{padding:'10px 16px',color:'#475569'}}>{l.emails_sent||0} sent</td>
-      <td style={{padding:'10px 16px'}}><CustomSelect value={String(l.sequence_id||'')} onChange={function(v){assignSeq(l.id,v);}} small={true} style={{maxWidth:140}} options={[{value:'',label:'None'}].concat(sequences.map(function(s){return {value:String(s.id),label:s.title};}))}/></td>
-      <td style={{padding:'10px 16px',textAlign:'right'}}><button onClick={function(){del(l.id);}} style={{padding:'4px 8px',borderRadius:4,border:'1px solid #fecaca',background:'#fff',color:'#dc2626',fontSize:10,cursor:'pointer',fontFamily:'inherit'}}><Trash2 size={10}/></button></td>
+    {filtered.length>0?<div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:13,minWidth:600}}><thead><tr>
+      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'#0f172a',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>CONTACT</th>
+      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'#0f172a',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>EMAIL</th>
+      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'#0f172a',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>STATUS</th>
+      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'#0f172a',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>LIST</th>
+      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'#0f172a',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>EMAILS</th>
+      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'#0f172a',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>SEQUENCE</th>
+      <th style={{textAlign:'right',padding:'14px 18px',borderBottom:'1px solid #e2e8f0'}}></th>
+    </tr></thead><tbody>{filtered.map(function(l){var st=STATUS_STYLES[l.is_hot?'hot':l.status]||STATUS_STYLES.new;var li=lm[l.list_id];return <tr key={l.id} className="sl-row" style={{borderBottom:'1px solid #f1f5f9'}}>
+      <td style={{padding:'14px 18px',fontWeight:600,color:'#0f172a',fontSize:14}}>{l.name||'—'}</td>
+      <td style={{padding:'14px 18px',color:'#475569',fontSize:14}}>{l.email}</td>
+      <td style={{padding:'14px 18px'}}><span style={{padding:'4px 10px',borderRadius:6,background:st.bg,color:st.color,fontSize:12,fontWeight:600}}>{st.label}</span></td>
+      <td style={{padding:'14px 18px'}}>{li?<span style={{padding:'4px 10px',borderRadius:6,background:li.color+'18',color:li.color,fontSize:12,fontWeight:600}}>{li.name}</span>:<span style={{color:'#94a3b8',fontSize:12}}>—</span>}</td>
+      <td style={{padding:'14px 18px',color:'#475569',fontSize:14}}>{l.emails_sent||0} sent</td>
+      <td style={{padding:'14px 18px'}}><CustomSelect value={String(l.sequence_id||'')} onChange={function(v){assignSeq(l.id,v);}} small={true} style={{maxWidth:140}} options={[{value:'',label:'None'}].concat(sequences.map(function(s){return {value:String(s.id),label:s.title};}))}/></td>
+      <td style={{padding:'14px 18px',textAlign:'right'}}><button onClick={function(){del(l.id);}} style={{padding:'5px 10px',borderRadius:6,border:'1px solid #fecaca',background:'#fff',color:'#dc2626',fontSize:11,cursor:'pointer',fontFamily:'inherit'}}><Trash2 size={12}/></button></td>
     </tr>;})}</tbody></table></div>
     :<div style={{textAlign:'center',padding:'60px 20px'}}><UserPlus size={32} color="#cbd5e1" style={{marginBottom:8}}/><div style={{fontSize:14,fontWeight:700,color:'#64748b'}}>No leads yet</div><div style={{fontSize:12,color:'#94a3b8',marginTop:4}}>Leads are captured from your SuperPages funnel forms</div></div>}
   </div>;
