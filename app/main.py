@@ -21195,6 +21195,40 @@ def api_superdeck_delete(deck_id: int, user: User = Depends(get_current_user), d
     return {"success": True}
 
 
+@app.post("/api/superdeck/upload-image")
+async def api_superdeck_upload_image(file: UploadFile = File(...), user: User = Depends(get_current_user)):
+    """Upload an image for use in SuperDeck slides."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    allowed_types = {"image/jpeg", "image/png", "image/gif", "image/webp"}
+    if file.content_type not in allowed_types:
+        return JSONResponse({"error": "Only JPEG, PNG, GIF and WebP images are allowed."}, status_code=400)
+
+    contents = await file.read()
+    if len(contents) > 10 * 1024 * 1024:
+        return JSONResponse({"error": "Image too large. Maximum size is 10MB."}, status_code=400)
+
+    import uuid, os
+    ext = os.path.splitext(file.filename or "image.jpg")[1].lower().lstrip(".")
+    if ext not in {"jpg", "jpeg", "png", "gif", "webp"}:
+        ext = "jpg"
+
+    from app.r2_storage import r2_available, upload_image
+    if r2_available():
+        url = upload_image(contents, "superdeck", ext, file.content_type)
+    else:
+        upload_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static", "uploads")
+        os.makedirs(upload_dir, exist_ok=True)
+        filename = f"{user.id}_sd_{uuid.uuid4().hex[:12]}.{ext}"
+        filepath = os.path.join(upload_dir, filename)
+        with open(filepath, "wb") as f:
+            f.write(contents)
+        url = f"/static/uploads/{filename}"
+
+    return JSONResponse({"success": True, "url": url})
+
+
 @app.post("/api/superdeck/{deck_id}/export")
 async def api_superdeck_export(deck_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Export presentation as .pptx file."""

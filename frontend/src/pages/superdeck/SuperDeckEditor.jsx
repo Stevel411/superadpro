@@ -159,7 +159,7 @@ export default function SuperDeckEditor() {
     var formData = new FormData();
     formData.append('file', file);
     formData.append('folder', 'superdeck');
-    fetch('/api/upload-media', { method: 'POST', body: formData, credentials: 'include' })
+    fetch('/api/superdeck/upload-image', { method: 'POST', body: formData, credentials: 'include' })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (data.url) {
@@ -453,23 +453,21 @@ export default function SuperDeckEditor() {
           </>}
 
           {ribbonTab === 'design' && <>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 11, color: '#64748b' }}>Background</span>
-              <input type="color" value={cs.background || t.primary} onChange={function (e) { updBg(e.target.value); }}
-                style={{ width: 26, height: 26, border: 'none', borderRadius: 4, cursor: 'pointer' }} />
-              {[t.primary, t.secondary, t.surface, '#ffffff', '#0f172a', '#1e1b4b'].map(function (c) {
-                return <div key={c} onClick={function () { updBg(c); }}
-                  style={{ width: 30, height: 30, borderRadius: 6, background: c, cursor: 'pointer', border: cs.background === c ? '2px solid #8b5cf6' : '1px solid #312e81' }} />;
-              })}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 14, color: '#334155', fontWeight: 700 }}>Background</span>
+              <input type="color" value={cs.background || '#ffffff'} onChange={function (e) { updBg(e.target.value); }}
+                style={{ width: 40, height: 40, border: '2px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', padding: 2 }} />
+              <span style={{ fontSize: 14, color: '#334155', fontFamily: 'monospace' }}>{cs.background || '#ffffff'}</span>
             </div>
             <div style={S.divider} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <span style={{ fontSize: 11, color: '#64748b' }}>Theme</span>
-              {THEME_KEYS.map(function (k) {
-                var th = THEMES[k];
-                return <div key={k} onClick={function () { setTheme(k); mark(); }} title={th.name}
-                  style={{ width: 22, height: 22, borderRadius: 4, background: th.primary, cursor: 'pointer', border: theme === k ? '2px solid #8b5cf6' : '1px solid #312e81' }} />;
-              })}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <span style={{ fontSize: 14, color: '#334155', fontWeight: 700 }}>Theme</span>
+              <select value={theme} onChange={function (e) { setTheme(e.target.value); mark(); }}
+                style={{ padding: '7px 14px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 15, color: '#0f172a', background: '#f8fafc', fontFamily: 'inherit', cursor: 'pointer' }}>
+                {THEME_KEYS.map(function (k) {
+                  return <option key={k} value={k}>{THEMES[k].name}</option>;
+                })}
+              </select>
             </div>
           </>}
         </div>
@@ -545,7 +543,7 @@ export default function SuperDeckEditor() {
                           var fd = new FormData();
                           fd.append('file', inp.files[0]);
                           fd.append('folder', 'superdeck');
-                          fetch('/api/upload-media', { method: 'POST', body: fd, credentials: 'include' })
+                          fetch('/api/superdeck/upload-image', { method: 'POST', body: fd, credentials: 'include' })
                             .then(function (r) { return r.json(); })
                             .then(function (d) { if (d.url) upd(el.id, { src: d.url }); });
                         }
@@ -692,25 +690,23 @@ export default function SuperDeckEditor() {
             {/* SLIDE DESIGN */}
             <div style={{ borderTop: selEl ? '1px solid #1e1b4b' : 'none', paddingTop: selEl ? 12 : 0, marginBottom: 12 }}>
               <div style={S.panelLabel}>Slide design</div>
-              <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>Background</div>
-              <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap', marginBottom: 10 }}>
-                {[t.primary, t.secondary, t.surface, '#ffffff', '#0f172a', '#7f1d1d'].map(function (c) {
-                  return <div key={c} onClick={function () { updBg(c); }}
-                    style={{ width: 30, height: 30, borderRadius: 6, background: c, cursor: 'pointer', border: cs.background === c ? '2px solid #8b5cf6' : '1px solid #312e81' }} />;
+              <div style={{ fontSize: 14, color: '#0f172a', fontWeight: 600, marginBottom: 6 }}>Background colour</div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14 }}>
+                <input type="color" value={cs.background || '#ffffff'} onChange={function (e) { updBg(e.target.value); }}
+                  style={{ width: 44, height: 44, border: '2px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', padding: 2 }} />
+                <span style={{ fontSize: 14, color: '#334155', fontFamily: 'monospace' }}>{cs.background || '#ffffff'}</span>
+              </div>
+
+              <div style={{ fontSize: 14, color: '#0f172a', fontWeight: 600, marginBottom: 6 }}>Theme</div>
+              <select value={theme} onChange={function (e) { setTheme(e.target.value); mark(); }}
+                style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 15, color: '#0f172a', background: '#f8fafc', fontFamily: 'inherit', cursor: 'pointer', marginBottom: 14 }}>
+                {THEME_KEYS.map(function (k) {
+                  return <option key={k} value={k}>{THEMES[k].name}</option>;
                 })}
-                <input type="color" value={cs.background || t.primary} onChange={function (e) { updBg(e.target.value); }}
-                  style={{ width: 30, height: 30, border: 'none', borderRadius: 6, cursor: 'pointer' }} />
-              </div>
+              </select>
 
-              <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>Theme</div>
-              <div style={{ padding: '6px 8px', border: '1px solid #e2e8f0', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10, cursor: 'pointer' }}>
-                <div style={{ width: 24, height: 24, borderRadius: 5, background: t.primary }} />
-                <span style={{ fontSize: 12, color: '#6366f1', flex: 1 }}>{t.name}</span>
-                <span style={{ fontSize: 12, color: '#334155' }}>v</span>
-              </div>
-
-              <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>Transition</div>
-              <div style={{ padding: '6px 8px', border: '1px solid #e2e8f0', borderRadius: 6, fontSize: 12, color: '#6366f1', marginBottom: 10 }}>
+              <div style={{ fontSize: 14, color: '#0f172a', fontWeight: 600, marginBottom: 6 }}>Transition</div>
+              <div style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 15, color: '#0f172a', marginBottom: 10 }}>
                 Fade
               </div>
             </div>
