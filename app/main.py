@@ -117,8 +117,8 @@ COMING_SOON_HTML = """<!DOCTYPE html>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:#050d1a;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;position:relative}
-.earth-bg{position:absolute;bottom:0;left:0;right:0;height:40%;background:url('/static/img/earth-v2.jpg') center top/cover no-repeat;opacity:.3;pointer-events:none;mask-image:linear-gradient(to top,rgba(0,0,0,.8) 0%,transparent 100%);-webkit-mask-image:linear-gradient(to top,rgba(0,0,0,.8) 0%,transparent 100%)}
-.earth-glow{position:absolute;bottom:0;left:0;right:0;height:45%;background:linear-gradient(to top,rgba(14,165,233,.06) 0%,transparent 50%);pointer-events:none}
+.earth-bg{position:absolute;bottom:0;left:0;right:0;height:70%;background:url('/static/img/earth-v2.jpg') center center/cover no-repeat;opacity:.45;pointer-events:none;mask-image:linear-gradient(to top,rgba(0,0,0,1) 20%,transparent 100%);-webkit-mask-image:linear-gradient(to top,rgba(0,0,0,1) 20%,transparent 100%)}
+.earth-glow{position:absolute;bottom:0;left:0;right:0;height:50%;background:linear-gradient(to top,rgba(14,165,233,.06) 0%,transparent 50%);pointer-events:none}
 .bg-glow{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none}
 .bg1{width:500px;height:500px;background:rgba(14,165,233,.08);top:-150px;right:-100px}
 .bg2{width:400px;height:400px;background:rgba(139,92,246,.06);bottom:-100px;left:-80px}
