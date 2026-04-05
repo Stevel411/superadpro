@@ -107,15 +107,17 @@ function LeadsTab({leads,lists,sequences,refresh,flash}) {
   });
   function del(id){if(!window.confirm('Delete this lead?'))return;apiDelete('/api/leads/'+id).then(function(){flash('Lead deleted');refresh();}).catch(function(e){flash(e.message,'err');});}
   function assignSeq(lid,sid){apiPost('/api/leads/'+lid+'/assign-sequence',{sequence_id:sid?parseInt(sid):null}).then(function(){flash('Sequence assigned');refresh();}).catch(function(e){flash(e.message,'err');});}
+  function createList(){var name=window.prompt('Enter a name for your new list:');if(!name||!name.trim())return;apiPost('/api/leads/lists',{name:name.trim()}).then(function(){flash('List created');refresh();}).catch(function(e){flash(e.message,'err');});}
 
   return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
     <div style={{padding:'14px 18px',borderBottom:'1px solid #e2e8f0',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
-      <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+      <div style={{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
         <CustomSelect value={fS} onChange={setFS} style={{width:160}} options={[{value:'all',label:'All statuses'},{value:'new',label:'New'},{value:'nurturing',label:'Nurturing'},{value:'hot',label:'Hot'},{value:'converted',label:'Converted'}]}/>
         <CustomSelect value={fL} onChange={setFL} style={{width:150}} options={[{value:'',label:'All lists'}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))} />
+        <button onClick={createList} style={{padding:'8px 14px',borderRadius:10,border:'1px solid #e2e8f0',background:'#fff',color:'#6366f1',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:4}}><Plus size={14}/> New list</button>
         <div style={{position:'relative'}}><Search size={14} color="#94a3b8" style={{position:'absolute',left:10,top:10}}/><input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder="Search leads..." style={{padding:'8px 8px 8px 30px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',width:180,outline:'none',transition:'border-color .15s'}}/></div>
       </div>
-      <div style={{fontSize:12,color:'#64748b',fontWeight:600}}>{filtered.length} leads</div>
+      <div style={{fontSize:13,color:'#64748b',fontWeight:600}}>{filtered.length} contacts</div>
     </div>
     {filtered.length>0?<div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:13,minWidth:600}}><thead><tr>
       <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'#0f172a',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>CONTACT</th>
