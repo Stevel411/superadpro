@@ -294,4 +294,4 @@ Pro-locked items (🔒): SuperPages, ProSeller AI, My Leads, Create Course — s
 - MaxMind GeoLite2-Country.mmdb — update monthly from maxmind.com
 - GitHub token "Claude Access" expires mid-Sep 2026
 - GitHub token "SuperAdPro Claude" expires ~Apr 30 2026 — renew before then
-- Run E2E tests quarterly
+- Run E2E tests quarterly# deploy 1775403298
