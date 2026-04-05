@@ -22,9 +22,6 @@ var isLightBg = function (hex) {
   return (r * 299 + g * 587 + b * 114) / 1000 > 128;
 };
 
-/* ── Colour swatches for the ribbon font group ──────── */
-var FONT_COLOURS = ['#ffffff','#0f172a','#8b5cf6','#0ea5e9','#22c55e','#f59e0b','#ef4444','#ec4899','#64748b'];
-
 /* ── Component ────────────────────────────────────────── */
 export default function SuperDeckEditor() {
   var params = useParams();
@@ -349,35 +346,41 @@ export default function SuperDeckEditor() {
 
             {/* Font group */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ display: 'flex', gap: 4, alignItems: 'center', flexWrap: 'wrap' }}>
-                <div style={{ padding: '3px 8px', borderRadius: 4, border: '1px solid #e2e8f0', fontSize: 12, color: '#6366f1', minWidth: 70, background: '#f8fafc' }}>
-                  {selEl && selEl.fontFamily ? selEl.fontFamily.split(',')[0] : 'Sora'}
-                </div>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <select value={selEl && selEl.fontFamily ? selEl.fontFamily.split(',')[0].trim() : 'Sora'}
+                  onChange={function (e) { if (selEl) upd(selId, { fontFamily: e.target.value + ', sans-serif' }); }}
+                  style={{ padding: '8px 12px', borderRadius: 8, border: '2px solid #cbd5e1', fontSize: 14, fontWeight: 600, color: '#0f172a', background: '#fff', fontFamily: 'inherit', cursor: 'pointer', minWidth: 120 }}>
+                  {['Sora', 'DM Sans', 'Arial', 'Georgia', 'Trebuchet MS', 'Verdana', 'Palatino', 'Courier New', 'Impact', 'Calibri'].map(function (f) {
+                    return <option key={f} value={f}>{f}</option>;
+                  })}
+                </select>
                 <input type="number" value={selEl ? (selEl.fontSize || 18) : 36}
                   onChange={function (e) { if (selEl) upd(selId, { fontSize: parseInt(e.target.value) || 18 }); }}
-                  style={{ width: 56, padding: '6px 8px', borderRadius: 4, border: '1px solid #e2e8f0', fontSize: 12, color: '#fff', textAlign: 'center', background: '#f8fafc' }} />
+                  style={{ width: 58, padding: '8px 8px', borderRadius: 8, border: '2px solid #cbd5e1', fontSize: 14, fontWeight: 600, color: '#0f172a', textAlign: 'center', background: '#fff' }} />
                 <button onClick={function () { if (selEl) upd(selId, { bold: !selEl.bold }); }} style={rbtn(selEl && selEl.bold)}>
-                  <Bold size={13} />
+                  <Bold size={16} />
                 </button>
                 <button onClick={function () { if (selEl) upd(selId, { italic: !selEl.italic }); }} style={rbtn(selEl && selEl.italic)}>
-                  <Italic size={13} />
+                  <Italic size={16} />
                 </button>
                 <button onClick={function () { if (selEl) upd(selId, { underline: !selEl.underline }); }} style={rbtn(selEl && selEl.underline)}>
-                  <Underline size={13} />
+                  <Underline size={16} />
                 </button>
+                <div style={{ width: 1, height: 32, background: '#cbd5e1' }} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 13, color: '#0f172a', fontWeight: 700 }}>Text</span>
+                  <input type="color" value={selEl ? (selEl.color || '#0f172a') : '#0f172a'}
+                    onChange={function (e) { if (selEl) upd(selId, { color: e.target.value }); }}
+                    style={{ width: 34, height: 34, border: '2px solid #cbd5e1', borderRadius: 8, cursor: 'pointer', padding: 2 }} />
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 13, color: '#0f172a', fontWeight: 700 }}>Fill</span>
+                  <input type="color" value={selEl ? (selEl.fill || selEl.color || '#8b5cf6') : '#8b5cf6'}
+                    onChange={function (e) { if (selEl) upd(selId, { fill: e.target.value }); }}
+                    style={{ width: 34, height: 34, border: '2px solid #cbd5e1', borderRadius: 8, cursor: 'pointer', padding: 2 }} />
+                </div>
               </div>
-              <div style={{ display: 'flex', gap: 3, marginTop: 4 }}>
-                {FONT_COLOURS.map(function (c) {
-                  return (
-                    <div key={c} onClick={function () { if (selEl) upd(selId, { color: c }); }}
-                      style={{ width: 26, height: 26, borderRadius: 5, background: c, cursor: 'pointer', border: selEl && selEl.color === c ? '2px solid #8b5cf6' : '1px solid #312e81' }} />
-                  );
-                })}
-                <input type="color" value={selEl ? (selEl.color || '#ffffff') : '#ffffff'}
-                  onChange={function (e) { if (selEl) upd(selId, { color: e.target.value }); }}
-                  style={{ width: 26, height: 26, border: 'none', borderRadius: 5, cursor: 'pointer' }} />
-              </div>
-              <div style={S.groupLabel}>Font</div>
+              <div style={S.groupLabel}>Font & colour</div>
             </div>
 
             <div style={S.divider} />
@@ -398,6 +401,25 @@ export default function SuperDeckEditor() {
             </div>
 
             <div style={S.divider} />
+
+            {/* Shape fill — only shows when shape selected */}
+            {selEl && selEl.type === 'shape' && <>
+              <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <span style={{ fontSize: 13, color: '#334155', fontWeight: 600 }}>Fill</span>
+                  <input type="color" value={selEl.fill || '#8b5cf6'} onChange={function (e) { upd(selId, { fill: e.target.value }); }}
+                    style={{ width: 32, height: 32, border: '2px solid #e2e8f0', borderRadius: 6, cursor: 'pointer', padding: 2 }} />
+                  <div style={{ display: 'flex', gap: 3 }}>
+                    <button onClick={function () { upd(selId, { shapeType: 'rect' }); }}
+                      style={Object.assign({}, S.rBtn, selEl.shapeType !== 'circle' ? S.rBtnActive : {}, { fontSize: 12, padding: '6px 12px' })}>Rect</button>
+                    <button onClick={function () { upd(selId, { shapeType: 'circle' }); }}
+                      style={Object.assign({}, S.rBtn, selEl.shapeType === 'circle' ? S.rBtnActive : {}, { fontSize: 12, padding: '6px 12px' })}>Circle</button>
+                  </div>
+                </div>
+                <div style={S.groupLabel}>Shape</div>
+              </div>
+              <div style={S.divider} />
+            </>}
 
             {/* Insert mini-group */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
