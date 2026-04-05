@@ -10514,6 +10514,7 @@ def admin_force_migrate(secret: str = "", db: Session = Depends(get_db)):
         "CREATE INDEX IF NOT EXISTS idx_team_msg_to ON team_messages(to_user_id)",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_billing VARCHAR DEFAULT 'monthly'",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS campaign_balance NUMERIC(18,6) DEFAULT 0.0",
+        "CREATE TABLE IF NOT EXISTS presentations (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, title VARCHAR(300) DEFAULT 'Untitled Presentation', slides_json TEXT DEFAULT '[]', theme VARCHAR(50) DEFAULT 'midnight', slide_count INTEGER DEFAULT 0, thumbnail_url TEXT, status VARCHAR(20) DEFAULT 'draft', created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
     ]
     for sql in migrations:
         try:
@@ -21124,14 +21125,19 @@ async def api_superdeck_create(request: Request, user: User = Depends(get_curren
     # Default first slide
     default_slides = [{"id": "s1", "elements": [], "background": "#1e1b4b", "notes": ""}]
 
-    deck = Presentation(
-        user_id=user.id, title=title, theme=theme,
-        slides_json=_j.dumps(default_slides), slide_count=1,
-    )
-    db.add(deck)
-    db.commit()
-    db.refresh(deck)
-    return {"success": True, "id": deck.id}
+    try:
+        deck = Presentation(
+            user_id=user.id, title=title, theme=theme,
+            slides_json=_j.dumps(default_slides), slide_count=1,
+        )
+        db.add(deck)
+        db.commit()
+        db.refresh(deck)
+        return {"success": True, "id": deck.id}
+    except Exception as e:
+        db.rollback()
+        logger.error(f"SuperDeck create failed: {e}")
+        return JSONResponse({"error": f"Failed to create: {str(e)[:200]}"}, status_code=500)
 
 
 @app.get("/api/superdeck/{deck_id}")

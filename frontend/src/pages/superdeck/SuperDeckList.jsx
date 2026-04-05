@@ -19,8 +19,8 @@ export default function SuperDeckList() {
   function create(themeName) {
     setCreating(true);
     apiPost('/api/superdeck/create', { title: 'Untitled Presentation', theme: themeName || 'midnight' })
-      .then(function(r) { if (r.id) navigate('/superdeck/edit/' + r.id); setCreating(false); })
-      .catch(function() { setCreating(false); });
+      .then(function(r) { if (r.id) navigate('/superdeck/edit/' + r.id); else alert(r.error || 'Failed to create'); setCreating(false); })
+      .catch(function(e) { alert('Error: ' + (e.message || 'Failed')); setCreating(false); });
   }
 
   function del(id) {
