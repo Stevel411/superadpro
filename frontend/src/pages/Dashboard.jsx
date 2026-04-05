@@ -251,7 +251,7 @@ export default function Dashboard() {
             )
           },
           {
-            name: 'AI Tools', desc: 'SuperScene, SuperSeller, SuperDeck — let AI do the heavy lifting', link: '/superscene',
+            name: 'AI Tools', desc: 'SuperScene, SuperPages, LinkHub — let AI do the heavy lifting', link: '/superscene',
             color: '#22d3ee', bg: 'linear-gradient(135deg,#ecfeff,#cffafe)',
             icon: (
               <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
@@ -318,7 +318,7 @@ export default function Dashboard() {
             )
           },
           {
-            name: 'Upgrade to Pro', desc: 'Unlock SuperSeller AI, SuperDeck, Campaign Tiers, AutoResponder & more', link: '/upgrade',
+            name: 'Upgrade to Pro', desc: 'Unlock SuperPages, Campaign Tiers, AutoResponder & more', link: '/upgrade',
             color: '#8b5cf6', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)', highlight: true,
             icon: (
               <svg width="34" height="34" viewBox="0 0 24 24" fill="none">

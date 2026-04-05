@@ -35,7 +35,7 @@ function buildNav(t, isAdmin) {
       { label: t('nav.linkTools'), icon: LayoutGrid, path: '/link-tools' },
       { label: 'Content Creator', icon: Bot, path: '/content-creator' },
       { label: t('nav.superPages'), icon: Globe, path: '/pro/funnels', pro: true },
-      { label: t('nav.superSeller'), icon: Zap, path: '/superseller', pro: true },
+      // SuperSeller removed
       { label: 'AutoResponder', icon: Mail, path: '/pro/leads', pro: true },
     ]},
     { type: 'divider' },

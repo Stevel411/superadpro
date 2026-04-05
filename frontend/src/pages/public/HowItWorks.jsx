@@ -187,7 +187,7 @@ export default function HowItWorks() {
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 <ToolMiniCard name="SuperPages" desc="Drag-and-drop landing pages" color="#a78bfa" />
-                <ToolMiniCard name="SuperSeller" desc="AI sales autopilot + chatbot" color="#a78bfa" />
+                <ToolMiniCard name="AI Content" desc="AI-powered social posts and copy" color="#a78bfa" />
                 <ToolMiniCard name="LinkHub" desc="Your bio link page" color="#a78bfa" />
                 <ToolMiniCard name="Email Autoresponder" desc="Automated follow-up sequences" color="#a78bfa" />
                 <ToolMiniCard name="SuperLeads CRM" desc="Lead management + email blasts" color="#a78bfa" />
@@ -259,7 +259,7 @@ export default function HowItWorks() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>✓ Everything in Basic</div>
-                {['SuperSeller AI autopilot', 'ProSeller AI content', 'SuperPages builder', 'SuperLeads CRM', 'Email autoresponder'].map(f => (
+                {['AI Content Creator', 'SuperPages builder', 'SuperLeads CRM', 'Email autoresponder'].map(f => (
                   <div key={f} style={{ fontSize: 13, color: '#38bdf8', fontWeight: 600 }}>+ {f}</div>
                 ))}
               </div>

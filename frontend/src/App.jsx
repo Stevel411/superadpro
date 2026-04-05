@@ -36,7 +36,7 @@ import AdHub from './pages/AdHub';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PassupVisualiser from './pages/PassupVisualiser';
 import ProSeller from './pages/ProSeller';
-import SuperSeller from './pages/SuperSeller';
+// SuperSeller removed — replaced by individual AI tools
 import AdminDashboard from './pages/AdminDashboard';
 import Funnels from './pages/Funnels';
 import CourseCreate from './pages/CourseCreate';
@@ -180,7 +180,7 @@ function AppRoutes() {
       <Route path="/courses/edit/:id" element={<ProtectedRoute><CourseEditor /></ProtectedRoute>} />
       <Route path="/linkhub" element={<ProtectedRoute><LinkHubPage /></ProtectedRoute>} />
       <Route path="/proseller" element={<ProtectedRoute><ProSeller /></ProtectedRoute>} />
-      <Route path="/superseller" element={<ProtectedRoute><SuperSeller /></ProtectedRoute>} />
+      {/* SuperSeller removed */}
       <Route path="/training" element={<ProtectedRoute><TrainingCentre /></ProtectedRoute>} />
       <Route path="/crypto-guide" element={<ProtectedRoute><CryptoGuide /></ProtectedRoute>} />
       <Route path="/tour" element={<ProtectedRoute><PlatformTour /></ProtectedRoute>} />
