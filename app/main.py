@@ -103,6 +103,130 @@ class WwwRedirectMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 app.add_middleware(WwwRedirectMiddleware)
 
+# Pre-launch mode — show Coming Soon page to all unauthenticated visitors
+PRE_LAUNCH_MODE = os.getenv("PRE_LAUNCH", "false").lower() == "true"
+
+COMING_SOON_HTML = """<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SuperAdPro — Your Creativity Pays</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:#050d1a;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;position:relative}
+.bg-glow{position:absolute;border-radius:50%;filter:blur(120px);pointer-events:none}
+.bg1{width:500px;height:500px;background:rgba(14,165,233,.08);top:-150px;right:-100px}
+.bg2{width:400px;height:400px;background:rgba(139,92,246,.06);bottom:-100px;left:-80px}
+.bg3{width:300px;height:300px;background:rgba(59,130,246,.05);top:40%;left:50%;transform:translate(-50%,-50%)}
+.container{position:relative;z-index:2;text-align:center;padding:40px 24px;max-width:560px;width:100%}
+.logo-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:48px}
+.logo-icon{width:44px;height:44px;border-radius:14px;background:#0ea5e9;display:flex;align-items:center;justify-content:center}
+.logo-icon svg{width:20px;height:20px;fill:#fff}
+.logo-text{font-family:'Sora',sans-serif;font-size:26px;font-weight:800;color:#fff;letter-spacing:-0.5px}
+.logo-text span{color:#38bdf8}
+.badge{display:inline-block;padding:6px 18px;border-radius:20px;background:rgba(14,165,233,.12);border:1px solid rgba(14,165,233,.2);font-size:13px;font-weight:600;color:#38bdf8;letter-spacing:0.5px;margin-bottom:28px}
+h1{font-family:'Sora',sans-serif;font-size:48px;font-weight:800;line-height:1.15;margin-bottom:12px;background:linear-gradient(135deg,#fff 0%,#94a3b8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.tagline{font-size:22px;font-weight:600;color:#38bdf8;margin-bottom:20px;font-family:'Sora',sans-serif}
+.subtitle{font-size:17px;color:rgba(255,255,255,.5);line-height:1.7;margin-bottom:40px;max-width:440px;margin-left:auto;margin-right:auto}
+.form-row{display:flex;gap:10px;max-width:420px;margin:0 auto 16px}
+.form-row input{flex:1;padding:14px 18px;border-radius:12px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.06);color:#fff;font-size:15px;font-family:inherit;outline:none;transition:border .2s}
+.form-row input::placeholder{color:rgba(255,255,255,.3)}
+.form-row input:focus{border-color:#0ea5e9}
+.form-row button{padding:14px 28px;border-radius:12px;border:none;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;font-size:15px;font-weight:700;font-family:inherit;cursor:pointer;white-space:nowrap;transition:transform .1s}
+.form-row button:active{transform:scale(.97)}
+.privacy{font-size:12px;color:rgba(255,255,255,.25);margin-bottom:48px}
+.features{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:40px}
+.feature{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06)}
+.feature-dot{width:8px;height:8px;border-radius:50%}
+.feature span{font-size:14px;color:rgba(255,255,255,.6);font-weight:500}
+.footer{font-size:12px;color:rgba(255,255,255,.2)}
+.success{display:none;padding:14px 24px;border-radius:12px;background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.2);color:#10b981;font-size:15px;font-weight:600;margin-bottom:16px;max-width:420px;margin-left:auto;margin-right:auto}
+@media(max-width:600px){h1{font-size:32px}.tagline{font-size:18px}.form-row{flex-direction:column}.form-row button{width:100%}.features{flex-direction:column;align-items:center}}
+</style>
+</head>
+<body>
+<div class="bg-glow bg1"></div>
+<div class="bg-glow bg2"></div>
+<div class="bg-glow bg3"></div>
+<div class="container">
+  <div class="logo-row">
+    <div class="logo-icon"><svg viewBox="0 0 24 24"><polygon points="5,3 19,12 5,21"/></svg></div>
+    <div class="logo-text">SuperAd<span>Pro</span></div>
+  </div>
+  <div class="badge">Coming Soon</div>
+  <h1>Your Creativity Pays</h1>
+  <div class="tagline">AI-Powered Marketing Tools for Everyone</div>
+  <p class="subtitle">A complete suite of AI tools to create content, build your brand, and grow your business — all for one simple membership.</p>
+  <div class="success" id="successMsg">You are on the list! We will notify you when we launch.</div>
+  <div class="form-row" id="formRow">
+    <input type="email" id="emailInput" placeholder="Enter your email for early access" required>
+    <button onclick="submitEmail()" id="submitBtn">Notify Me</button>
+  </div>
+  <p class="privacy">We respect your privacy. No spam, unsubscribe anytime.</p>
+  <div class="features">
+    <div class="feature"><div class="feature-dot" style="background:#0ea5e9"></div><span>AI Image Generator</span></div>
+    <div class="feature"><div class="feature-dot" style="background:#8b5cf6"></div><span>Video Creator</span></div>
+    <div class="feature"><div class="feature-dot" style="background:#10b981"></div><span>Social Content AI</span></div>
+    <div class="feature"><div class="feature-dot" style="background:#f59e0b"></div><span>Landing Pages</span></div>
+    <div class="feature"><div class="feature-dot" style="background:#ec4899"></div><span>Email Marketing</span></div>
+  </div>
+  <div class="footer">&copy; 2026 SuperAdPro. All rights reserved.</div>
+</div>
+<script>
+async function submitEmail(){
+  var email=document.getElementById('emailInput').value.trim();
+  if(!email||!email.includes('@')){alert('Please enter a valid email');return}
+  var btn=document.getElementById('submitBtn');
+  btn.textContent='Joining...';btn.disabled=true;
+  try{
+    var r=await fetch('/api/early-bird',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email:email})});
+    var d=await r.json();
+    if(d.success){
+      document.getElementById('formRow').style.display='none';
+      document.getElementById('successMsg').style.display='block';
+    }else{
+      alert(d.error||'Something went wrong');btn.textContent='Notify Me';btn.disabled=false;
+    }
+  }catch(e){alert('Network error');btn.textContent='Notify Me';btn.disabled=false}
+}
+</script>
+</body>
+</html>"""
+
+class PreLaunchMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request, call_next):
+        if not PRE_LAUNCH_MODE:
+            return await call_next(request)
+
+        path = request.url.path
+
+        # Always allow these through
+        allowed = [
+            "/api/", "/static/", "/health", "/login", "/api/login",
+            "/admin/", "/gift/", "/api/early-bird", "/l/",
+            "/ref/", "/join/",
+        ]
+        if any(path.startswith(p) for p in allowed):
+            return await call_next(request)
+
+        # Allow authenticated users (admins) through
+        from starlette.responses import Response as StarletteResponse
+        try:
+            db = next(get_db())
+            user = get_current_user(request, db)
+            if user and user.is_admin:
+                return await call_next(request)
+        except Exception:
+            pass
+
+        # Everyone else sees Coming Soon
+        return HTMLResponse(COMING_SOON_HTML)
+
+app.add_middleware(PreLaunchMiddleware)
+
 # Decimal-safe JSON — Numeric(18,6) columns return Decimal objects
 # which the default JSON encoder can't handle. This converts them to float.
 import decimal
@@ -20837,3 +20961,37 @@ def admin_recalculate_stats(secret: str = "", db: Session = Depends(get_db)):
 
     db.commit()
     return {"success": True, "users_updated": updated}
+
+
+@app.post("/api/early-bird")
+async def api_early_bird(request: Request):
+    """Capture early bird email for pre-launch list."""
+    body = await request.json()
+    email = (body.get("email") or "").strip().lower()
+
+    if not email or "@" not in email:
+        return JSONResponse({"error": "Valid email required"}, status_code=400)
+
+    # Add to Brevo early bird list
+    brevo_key = os.getenv("BREVO_API_KEY", "")
+    if brevo_key:
+        try:
+            contact_payload = json.dumps({
+                "email": email,
+                "attributes": {"EARLY_BIRD": True},
+                "listIds": [2],
+                "updateEnabled": True,
+            }).encode("utf-8")
+            import urllib.request
+            req = urllib.request.Request(
+                "https://api.brevo.com/v3/contacts",
+                data=contact_payload,
+                headers={"accept": "application/json", "api-key": brevo_key, "content-type": "application/json"},
+                method="POST",
+            )
+            urllib.request.urlopen(req, timeout=10)
+        except Exception as e:
+            logger.error(f"Early bird Brevo add failed: {e}")
+
+    logger.info(f"Early bird signup: {email}")
+    return {"success": True}
