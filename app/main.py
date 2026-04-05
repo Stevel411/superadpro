@@ -21078,3 +21078,197 @@ async def api_early_bird(request: Request):
 
     logger.info(f"Early bird signup: {email}")
     return {"success": True}
+
+
+# ═══════════════════════════════════════════════════════════
+#  SUPERDECK — AI Presentation Studio
+# ═══════════════════════════════════════════════════════════
+from .database import Presentation
+
+@app.get("/superdeck")
+def superdeck_page(request: Request):
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/superdeck/{path:path}")
+def superdeck_catchall(path: str, request: Request):
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.get("/api/superdeck/presentations")
+def api_superdeck_list(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    decks = db.query(Presentation).filter(Presentation.user_id == user.id).order_by(Presentation.updated_at.desc()).all()
+    return {"presentations": [{
+        "id": d.id, "title": d.title, "theme": d.theme,
+        "slide_count": d.slide_count, "status": d.status,
+        "thumbnail_url": d.thumbnail_url,
+        "created_at": d.created_at.isoformat() if d.created_at else None,
+        "updated_at": d.updated_at.isoformat() if d.updated_at else None,
+    } for d in decks]}
+
+
+@app.post("/api/superdeck/create")
+async def api_superdeck_create(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    title = (body.get("title") or "Untitled Presentation").strip()[:300]
+    theme = (body.get("theme") or "midnight").strip()[:50]
+
+    import json as _j
+    # Default first slide
+    default_slides = [{"id": "s1", "elements": [], "background": "#1e1b4b", "notes": ""}]
+
+    deck = Presentation(
+        user_id=user.id, title=title, theme=theme,
+        slides_json=_j.dumps(default_slides), slide_count=1,
+    )
+    db.add(deck)
+    db.commit()
+    db.refresh(deck)
+    return {"success": True, "id": deck.id}
+
+
+@app.get("/api/superdeck/{deck_id}")
+def api_superdeck_get(deck_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    deck = db.query(Presentation).filter(Presentation.id == deck_id, Presentation.user_id == user.id).first()
+    if not deck:
+        return JSONResponse({"error": "Presentation not found"}, status_code=404)
+    import json as _j
+    return {
+        "id": deck.id, "title": deck.title, "theme": deck.theme,
+        "slides": _j.loads(deck.slides_json or "[]"),
+        "slide_count": deck.slide_count, "status": deck.status,
+        "updated_at": deck.updated_at.isoformat() if deck.updated_at else None,
+    }
+
+
+@app.post("/api/superdeck/{deck_id}/save")
+async def api_superdeck_save(deck_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    deck = db.query(Presentation).filter(Presentation.id == deck_id, Presentation.user_id == user.id).first()
+    if not deck:
+        return JSONResponse({"error": "Presentation not found"}, status_code=404)
+    body = await request.json()
+    import json as _j
+
+    if "title" in body:
+        deck.title = (body["title"] or "Untitled").strip()[:300]
+    if "theme" in body:
+        deck.theme = (body["theme"] or "midnight").strip()[:50]
+    if "slides" in body:
+        deck.slides_json = _j.dumps(body["slides"])
+        deck.slide_count = len(body["slides"])
+
+    db.commit()
+    return {"success": True, "updated_at": deck.updated_at.isoformat() if deck.updated_at else None}
+
+
+@app.delete("/api/superdeck/{deck_id}")
+def api_superdeck_delete(deck_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    deck = db.query(Presentation).filter(Presentation.id == deck_id, Presentation.user_id == user.id).first()
+    if not deck:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+    db.delete(deck)
+    db.commit()
+    return {"success": True}
+
+
+@app.post("/api/superdeck/{deck_id}/export")
+async def api_superdeck_export(deck_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Export presentation as .pptx file."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    deck = db.query(Presentation).filter(Presentation.id == deck_id, Presentation.user_id == user.id).first()
+    if not deck:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+
+    import json as _j
+    from pptx import Presentation as PptxPres
+    from pptx.util import Inches, Pt, Emu
+    from pptx.enum.text import PP_ALIGN
+    from pptx.dml.color import RGBColor
+    import io
+
+    slides_data = _j.loads(deck.slides_json or "[]")
+    prs = PptxPres()
+    prs.slide_width = Inches(13.333)
+    prs.slide_height = Inches(7.5)
+    blank_layout = prs.slide_layouts[6]
+
+    for sd in slides_data:
+        slide = prs.slides.add_slide(blank_layout)
+
+        # Background colour
+        bg_color = sd.get("background", "#1e1b4b").lstrip("#")
+        if len(bg_color) == 6:
+            try:
+                fill = slide.background.fill
+                fill.solid()
+                fill.fore_color.rgb = RGBColor(int(bg_color[:2], 16), int(bg_color[2:4], 16), int(bg_color[4:6], 16))
+            except Exception:
+                pass
+
+        # Elements
+        for el in sd.get("elements", []):
+            el_type = el.get("type", "text")
+            x = Emu(int(el.get("x", 0) * 9144))
+            y = Emu(int(el.get("y", 0) * 9144))
+            w = Emu(int(el.get("w", 200) * 9144))
+            h = Emu(int(el.get("h", 50) * 9144))
+
+            if el_type in ("text", "heading"):
+                txBox = slide.shapes.add_textbox(x, y, w, h)
+                tf = txBox.text_frame
+                tf.word_wrap = True
+                p = tf.paragraphs[0]
+                p.text = el.get("text", "")
+                run = p.runs[0] if p.runs else p.add_run()
+                run.text = el.get("text", "")
+                font_size = int(el.get("fontSize", 16 if el_type == "text" else 36))
+                run.font.size = Pt(font_size)
+                color = el.get("color", "#ffffff").lstrip("#")
+                if len(color) == 6:
+                    run.font.color.rgb = RGBColor(int(color[:2], 16), int(color[2:4], 16), int(color[4:6], 16))
+                if el.get("bold"):
+                    run.font.bold = True
+                align = el.get("align", "left")
+                if align == "center":
+                    p.alignment = PP_ALIGN.CENTER
+                elif align == "right":
+                    p.alignment = PP_ALIGN.RIGHT
+
+            elif el_type == "image" and el.get("src"):
+                try:
+                    import httpx
+                    img_resp = httpx.get(el["src"], timeout=15)
+                    if img_resp.status_code == 200:
+                        img_stream = io.BytesIO(img_resp.content)
+                        slide.shapes.add_picture(img_stream, x, y, w, h)
+                except Exception:
+                    pass
+
+        # Speaker notes
+        if sd.get("notes"):
+            slide.notes_slide.notes_text_frame.text = sd["notes"]
+
+    buf = io.BytesIO()
+    prs.save(buf)
+    buf.seek(0)
+
+    from starlette.responses import StreamingResponse
+    return StreamingResponse(
+        buf,
+        media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
+        headers={"Content-Disposition": f'attachment; filename="{deck.title}.pptx"'}
+    )

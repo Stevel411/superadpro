@@ -2147,3 +2147,23 @@ class SuperScenePipelineScene(Base):
     created_at       = Column(DateTime, default=datetime.utcnow)
 
     pipeline = relationship("SuperScenePipeline", back_populates="scenes")
+
+
+# ═══════════════════════════════════════════════════════════
+# SuperDeck — AI Presentation Studio
+# ═══════════════════════════════════════════════════════════
+class Presentation(Base):
+    """A member's presentation/slide deck."""
+    __tablename__ = "presentations"
+    id           = Column(Integer, primary_key=True, index=True)
+    user_id      = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    title        = Column(String(300), default="Untitled Presentation")
+    slides_json  = Column(Text, default="[]")
+    theme        = Column(String(50), default="midnight")
+    slide_count  = Column(Integer, default=0)
+    thumbnail_url = Column(Text)
+    status       = Column(String(20), default="draft")
+    created_at   = Column(DateTime, default=datetime.utcnow)
+    updated_at   = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    owner = relationship("User", backref="presentations")

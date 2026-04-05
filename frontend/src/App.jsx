@@ -57,6 +57,8 @@ import SuperLinkPage from './pages/SuperLink';
 // ── Lazy imports (heavy/rare pages only) ──
 const BannerMaker = React.lazy(() => import('./pages/BannerMaker'));
 const SuperPagesEditor = React.lazy(() => import('./pages/superpages/SuperPagesEditor'));
+const SuperDeckList = React.lazy(() => import('./pages/superdeck/SuperDeckList'));
+const SuperDeckEditor = React.lazy(() => import('./pages/superdeck/SuperDeckEditor'));
 const SuperScenePage = React.lazy(() => import('./pages/superscene/SuperScenePage'));
 const ContentCreatorPage = React.lazy(() => import('./pages/content-creator/ContentCreatorPage'));
 const IncomeGrid3DPage = React.lazy(() => import('./pages/IncomeGrid3DPage'));
@@ -191,6 +193,8 @@ function AppRoutes() {
       <Route path="/pro/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
       <Route path="/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
       <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><SuperPagesEditor /></ProtectedRoute>} />
+      <Route path="/superdeck" element={<ProtectedRoute><SuperDeckList /></ProtectedRoute>} />
+      <Route path="/superdeck/edit/:deckId" element={<ProtectedRoute><SuperDeckEditor /></ProtectedRoute>} />
       <Route path="/superscene" element={<React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#080c0e',color:'#22d3ee',fontFamily:'DM Sans,sans-serif'}}>Loading SuperScene…</div>}><SuperScenePage /></React.Suspense>} />
       <Route path="/content-creator" element={<ProtectedRoute><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>Loading Content Creator…</div>}><ContentCreatorPage /></React.Suspense></ProtectedRoute>} />
       <Route path="/pro/leads" element={<ProtectedRoute><MyLeads /></ProtectedRoute>} />
