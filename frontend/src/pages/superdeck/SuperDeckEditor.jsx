@@ -7,6 +7,7 @@ import {
   AlignLeft, AlignCenter, AlignRight, Bold, Italic, Underline,
   Sparkles, Monitor, ChevronRight, ChevronLeft, Scissors, Clipboard,
   PanelRightClose, PanelRightOpen, Layers, Eye, EyeOff,
+  ArrowUp, ArrowDown, Upload, XCircle,
 } from 'lucide-react';
 
 /* ── Helpers ──────────────────────────────────────────── */
@@ -116,6 +117,53 @@ export default function SuperDeckEditor() {
     var s = Object.assign({}, ns[active]);
     s.elements = s.elements.filter(function (e) { return e.id !== selId; });
     ns[active] = s; setSlides(ns); setSelId(null); mark();
+  }
+
+  function delAllEls() {
+    if (!window.confirm('Delete all elements on this slide?')) return;
+    var ns = slides.slice();
+    ns[active] = Object.assign({}, ns[active], { elements: [] });
+    setSlides(ns); setSelId(null); mark();
+  }
+
+  function moveElForward() {
+    if (!selId) return;
+    var ns = slides.slice();
+    var s = Object.assign({}, ns[active]);
+    var els = s.elements.slice();
+    var idx = els.findIndex(function (e) { return e.id === selId; });
+    if (idx < 0 || idx >= els.length - 1) return;
+    var tmp = els[idx]; els[idx] = els[idx + 1]; els[idx + 1] = tmp;
+    s.elements = els; ns[active] = s; setSlides(ns); mark();
+  }
+
+  function moveElBackward() {
+    if (!selId) return;
+    var ns = slides.slice();
+    var s = Object.assign({}, ns[active]);
+    var els = s.elements.slice();
+    var idx = els.findIndex(function (e) { return e.id === selId; });
+    if (idx <= 0) return;
+    var tmp = els[idx]; els[idx] = els[idx - 1]; els[idx - 1] = tmp;
+    s.elements = els; ns[active] = s; setSlides(ns); mark();
+  }
+
+  function uploadImage(file) {
+    if (!file) return;
+    var formData = new FormData();
+    formData.append('file', file);
+    formData.append('folder', 'superdeck');
+    fetch('/api/upload-media', { method: 'POST', body: formData, credentials: 'include' })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (data.url) {
+          var el = { id: UID(), type: 'image', src: data.url, x: 200, y: 150, w: 400, h: 250 };
+          var ns = slides.slice();
+          ns[active] = Object.assign({}, ns[active], { elements: ns[active].elements.concat([el]) });
+          setSlides(ns); setSelId(el.id); mark();
+        }
+      })
+      .catch(function (err) { console.error('Upload failed:', err); });
   }
 
   function updBg(c) {
@@ -348,6 +396,10 @@ export default function SuperDeckEditor() {
             {/* Insert mini-group */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div style={{ display: 'flex', gap: 4 }}>
+                <button onClick={function () { document.getElementById('sd-img-upload').click(); }}
+                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: 'transparent', color: '#64748b', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  <Upload size={16} /> Upload
+                </button>
                 {[{ k: 'image', l: 'Image', I: Image }, { k: 'shape', l: 'Shape', I: Square }, { k: 'text', l: 'Text box', I: Type }].map(function (b) {
                   return (
                     <button key={b.k} onClick={function () { addEl(b.k === 'text' ? 'heading' : b.k); }}
@@ -358,6 +410,8 @@ export default function SuperDeckEditor() {
                 })}
               </div>
               <div style={S.groupLabel}>Insert</div>
+              <input id="sd-img-upload" type="file" accept="image/*" style={{ display: 'none' }}
+                onChange={function (e) { if (e.target.files && e.target.files[0]) uploadImage(e.target.files[0]); e.target.value = ''; }} />
             </div>
 
             <div style={S.divider} />
@@ -373,7 +427,11 @@ export default function SuperDeckEditor() {
 
           {ribbonTab === 'insert' && <>
             <div style={{ display: 'flex', gap: 6 }}>
-              {[{ k: 'heading', l: 'Heading', I: Type }, { k: 'text', l: 'Body text', I: AlignLeft }, { k: 'image', l: 'Image', I: Image }, { k: 'shape', l: 'Shape', I: Square }].map(function (b) {
+              <button onClick={function () { document.getElementById('sd-img-upload').click(); }}
+                style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 18px', borderRadius: 8, border: '1px solid #e2e8f0', background: 'transparent', color: '#475569', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
+                <Upload size={20} /> Upload image
+              </button>
+              {[{ k: 'heading', l: 'Heading', I: Type }, { k: 'text', l: 'Body text', I: AlignLeft }, { k: 'image', l: 'Image URL', I: Image }, { k: 'shape', l: 'Shape', I: Square }].map(function (b) {
                 return (
                   <button key={b.k} onClick={function () { addEl(b.k); }}
                     style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, padding: '8px 18px', borderRadius: 8, border: '1px solid #e2e8f0', background: 'transparent', color: '#475569', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -474,8 +532,19 @@ export default function SuperDeckEditor() {
                     e.stopPropagation();
                     if (el.type === 'heading' || el.type === 'text') startEdit(el.id);
                     else if (el.type === 'image') {
-                      var src = window.prompt('Image URL:', el.src || '');
-                      if (src !== null) upd(el.id, { src: src });
+                      var inp = document.createElement('input');
+                      inp.type = 'file'; inp.accept = 'image/*';
+                      inp.onchange = function () {
+                        if (inp.files && inp.files[0]) {
+                          var fd = new FormData();
+                          fd.append('file', inp.files[0]);
+                          fd.append('folder', 'superdeck');
+                          fetch('/api/upload-media', { method: 'POST', body: fd, credentials: 'include' })
+                            .then(function (r) { return r.json(); })
+                            .then(function (d) { if (d.url) upd(el.id, { src: d.url }); });
+                        }
+                      };
+                      inp.click();
                     }
                   }}
                   onClick={function (e) { e.stopPropagation(); if (!isEdit) setSelId(el.id); }}
@@ -642,29 +711,52 @@ export default function SuperDeckEditor() {
 
             {/* LAYERS */}
             <div style={{ borderTop: '1px solid #e2e8f0', paddingTop: 12 }}>
-              <div style={S.panelLabel}>Layers</div>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                <div style={S.panelLabel}>Layers</div>
+                <div style={{ display: 'flex', gap: 3 }}>
+                  <button onClick={moveElForward} title="Bring forward"
+                    style={{ padding: '3px 6px', borderRadius: 4, border: '1px solid #e2e8f0', background: 'transparent', color: selId ? '#475569' : '#cbd5e1', cursor: selId ? 'pointer' : 'default', display: 'flex' }}>
+                    <ArrowUp size={12} />
+                  </button>
+                  <button onClick={moveElBackward} title="Send backward"
+                    style={{ padding: '3px 6px', borderRadius: 4, border: '1px solid #e2e8f0', background: 'transparent', color: selId ? '#475569' : '#cbd5e1', cursor: selId ? 'pointer' : 'default', display: 'flex' }}>
+                    <ArrowDown size={12} />
+                  </button>
+                </div>
+              </div>
               {cs.elements.map(function (el) {
                 var isSel = el.id === selId;
                 var label = '';
                 if (el.type === 'heading') label = 'Heading: "' + (el.text || '').slice(0, 18) + '..."';
                 else if (el.type === 'text') label = 'Text: "' + (el.text || '').slice(0, 18) + '..."';
-                else if (el.type === 'image') label = 'Image';
+                else if (el.type === 'image') label = el.src ? 'Image' : 'Image (empty)';
                 else if (el.type === 'shape') label = 'Shape (' + (el.shapeType || 'rect') + ')';
                 return (
                   <div key={el.id}
                     onClick={function (e) { e.stopPropagation(); setSelId(el.id); }}
                     style={{
                       padding: '7px 12px', borderRadius: 6, marginBottom: 4, cursor: 'pointer',
-                      fontSize: 11, color: isSel ? '#8b5cf6' : '#94a3b8',
+                      fontSize: 12, color: isSel ? '#8b5cf6' : '#64748b',
                       background: isSel ? 'rgba(139,92,246,.08)' : 'transparent',
                       border: isSel ? '1px solid rgba(139,92,246,.2)' : '1px solid transparent',
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
                     }}>
-                    {label}
+                    <span>{label}</span>
+                    {isSel && <button onClick={function (e) { e.stopPropagation(); delEl(); }}
+                      style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', padding: 2, display: 'flex' }}>
+                      <Trash2 size={11} />
+                    </button>}
                   </div>
                 );
               })}
               {cs.elements.length === 0 && (
-                <div style={{ fontSize: 11, color: '#475569', fontStyle: 'italic' }}>No elements yet</div>
+                <div style={{ fontSize: 12, color: '#94a3b8', fontStyle: 'italic' }}>No elements yet</div>
+              )}
+              {cs.elements.length > 1 && (
+                <button onClick={delAllEls}
+                  style={{ width: '100%', marginTop: 8, padding: '7px', borderRadius: 6, border: '1px solid #fecaca', background: '#fff', color: '#dc2626', fontSize: 12, fontWeight: 500, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                  <XCircle size={13} /> Clear all elements
+                </button>
               )}
             </div>
           </div>
