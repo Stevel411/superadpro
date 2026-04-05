@@ -296,3 +296,4 @@ Pro-locked items (🔒): SuperPages, ProSeller AI, My Leads, Create Course — s
 - GitHub token "SuperAdPro Claude" expires ~Apr 30 2026 — renew before then
 - Run E2E tests quarterly# deploy 1775403298
 # redeploy 1775405531
+# redeploy 1775424225
