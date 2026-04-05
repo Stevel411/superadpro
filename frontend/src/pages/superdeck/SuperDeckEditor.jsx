@@ -15,6 +15,12 @@ var UID = function () { return 'e' + Date.now().toString(36) + Math.random().toS
 var CANVAS_W = 1000;
 var CANVAS_H = 562.5;
 var clamp = function (v, lo, hi) { return Math.max(lo, Math.min(hi, v)); };
+var isLightBg = function (hex) {
+  var c = hex.replace('#', '');
+  if (c.length === 3) c = c[0]+c[0]+c[1]+c[1]+c[2]+c[2];
+  var r = parseInt(c.substr(0,2),16), g = parseInt(c.substr(2,2),16), b = parseInt(c.substr(4,2),16);
+  return (r * 299 + g * 587 + b * 114) / 1000 > 128;
+};
 
 /* ── Colour swatches for the ribbon font group ──────── */
 var FONT_COLOURS = ['#ffffff','#0f172a','#8b5cf6','#0ea5e9','#22c55e','#f59e0b','#ef4444','#ec4899','#64748b'];
@@ -95,8 +101,8 @@ export default function SuperDeckEditor() {
   /* ── Element operations ───────────────────────────── */
   function addEl(type) {
     var el = { id: UID(), type: type, x: 150, y: 150, w: 400, h: 60 };
-    if (type === 'heading') Object.assign(el, { text: 'Click to edit heading', fontSize: 36, color: '#0f172a', bold: true, align: 'center', fontFamily: t.headingFont, w: 600, h: 80, x: 200, y: 200 });
-    else if (type === 'text') Object.assign(el, { text: 'Click to edit text', fontSize: 18, color: '#64748b', align: 'left', fontFamily: t.bodyFont, w: 500, h: 50, x: 250, y: 300 });
+    if (type === 'heading') Object.assign(el, { text: 'Click to edit heading', fontSize: 36, color: isLightBg(cs.background || '#ffffff') ? '#0f172a' : '#ffffff', bold: true, align: 'center', fontFamily: t.headingFont, w: 600, h: 80, x: 200, y: 200 });
+    else if (type === 'text') Object.assign(el, { text: 'Click to edit text', fontSize: 18, color: isLightBg(cs.background || '#ffffff') ? '#64748b' : '#94a3b8', align: 'left', fontFamily: t.bodyFont, w: 500, h: 50, x: 250, y: 300 });
     else if (type === 'image') Object.assign(el, { src: '', w: 300, h: 200, x: 350, y: 180 });
     else if (type === 'shape') Object.assign(el, { shapeType: 'rect', fill: t.accent, w: 200, h: 120, x: 400, y: 220 });
     var ns = slides.slice();
@@ -261,11 +267,11 @@ export default function SuperDeckEditor() {
 
   /* ── Styles (shared) ──────────────────────────────── */
   var S = {
-    rBtn: { padding: '7px 12px', borderRadius: 6, border: '1px solid #e2e8f0', background: 'transparent', color: '#94a3b8', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center' },
+    rBtn: { padding: '8px 14px', borderRadius: 6, border: '1px solid #e2e8f0', background: 'transparent', color: '#94a3b8', fontSize: 13, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center' },
     rBtnActive: { borderColor: '#8b5cf6', background: 'rgba(139,92,246,.1)', color: '#8b5cf6' },
-    groupLabel: { fontSize: 11, color: '#475569', textAlign: 'center', marginTop: 4, letterSpacing: 0.5, textTransform: 'uppercase' },
-    panelLabel: { fontSize: 12, fontWeight: 600, color: '#64748b', letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 6 },
-    panelInput: { width: '100%', padding: '8px 10px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, color: '#0f172a', fontSize: 14, boxSizing: 'border-box', fontFamily: 'inherit' },
+    groupLabel: { fontSize: 12, color: '#475569', textAlign: 'center', marginTop: 4, letterSpacing: 0.5, textTransform: 'uppercase' },
+    panelLabel: { fontSize: 13, fontWeight: 600, color: '#64748b', letterSpacing: 0.5, textTransform: 'uppercase', marginBottom: 6 },
+    panelInput: { width: '100%', padding: '9px 12px', background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 6, color: '#0f172a', fontSize: 15, boxSizing: 'border-box', fontFamily: 'inherit' },
     divider: { width: 1, height: 48, background: '#f8fafc', flexShrink: 0 },
   };
 
@@ -278,7 +284,7 @@ export default function SuperDeckEditor() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', fontFamily: 'DM Sans, sans-serif', background: '#faf9f5', color: '#fff', overflow: 'hidden' }}>
 
       {/* ── TITLE BAR ──────────────────────────────────── */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 14px', height: 54, background: '#ffffff', borderBottom: '1px solid #e2e8f0', flexShrink: 0 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 14px', height: 58, background: '#ffffff', borderBottom: '1px solid #e2e8f0', flexShrink: 0 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <button onClick={function () { if (dirty) save(); nav('/superdeck'); }} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3, fontFamily: 'inherit', fontSize: 14 }}>
             <ArrowLeft size={16} /> Back
@@ -288,7 +294,7 @@ export default function SuperDeckEditor() {
             <Monitor size={13} color="#fff" />
           </div>
           <input value={title} onChange={function (e) { setTitle(e.target.value); mark(); }}
-            style={{ background: 'none', border: 'none', color: '#0f172a', fontSize: 18, fontWeight: 600, fontFamily: 'inherit', outline: 'none', width: 340 }}
+            style={{ background: 'none', border: 'none', color: '#0f172a', fontSize: 20, fontWeight: 600, fontFamily: 'inherit', outline: 'none', width: 340 }}
             placeholder="Presentation title" />
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
@@ -303,7 +309,7 @@ export default function SuperDeckEditor() {
       </div>
 
       {/* ── RIBBON TAB BAR ─────────────────────────────── */}
-      <div style={{ display: 'flex', gap: 0, padding: '0 14px', height: 38, background: '#ffffff', borderBottom: '1px solid #e2e8f0', alignItems: 'flex-end', flexShrink: 0 }}>
+      <div style={{ display: 'flex', gap: 0, padding: '0 14px', height: 42, background: '#ffffff', borderBottom: '1px solid #e2e8f0', alignItems: 'flex-end', flexShrink: 0 }}>
         {['home', 'insert', 'design'].map(function (tab) {
           var isActive = ribbonTab === tab;
           return (
@@ -311,14 +317,14 @@ export default function SuperDeckEditor() {
               if (ribbonTab === tab) { setRibbonOpen(!ribbonOpen); }
               else { setRibbonTab(tab); setRibbonOpen(true); }
             }}
-              style={{ padding: '7px 22px', fontSize: 14, fontWeight: isActive ? 600 : 400, color: isActive ? '#c4b5fd' : '#64748b', background: isActive && ribbonOpen ? '#f1f5f9' : 'transparent', border: 'none', borderBottom: isActive && ribbonOpen ? '2px solid #8b5cf6' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', marginBottom: -1, textTransform: 'capitalize' }}>
+              style={{ padding: '8px 24px', fontSize: 15, fontWeight: isActive ? 600 : 400, color: isActive ? '#c4b5fd' : '#64748b', background: isActive && ribbonOpen ? '#f1f5f9' : 'transparent', border: 'none', borderBottom: isActive && ribbonOpen ? '2px solid #8b5cf6' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', marginBottom: -1, textTransform: 'capitalize' }}>
               {tab}
             </button>
           );
         })}
         <div style={{ flex: 1 }} />
         <button onClick={function () { setPanelOpen(!panelOpen); }}
-          style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center', fontSize: 13, gap: 4, fontFamily: 'inherit' }}>
+          style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', padding: '4px 6px', display: 'flex', alignItems: 'center', fontSize: 14, gap: 5, fontFamily: 'inherit' }}>
           {panelOpen ? <PanelRightClose size={14} /> : <PanelRightOpen size={14} />}
           {panelOpen ? 'Hide panel' : 'Show panel'}
         </button>
@@ -326,7 +332,7 @@ export default function SuperDeckEditor() {
 
       {/* ── RIBBON CONTENT (collapsible) ───────────────── */}
       {ribbonOpen && (
-        <div style={{ padding: '12px 18px', background: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', gap: 12, alignItems: 'flex-start', flexShrink: 0, minHeight: 80 }}>
+        <div style={{ padding: '12px 18px', background: '#ffffff', borderBottom: '1px solid #e2e8f0', display: 'flex', gap: 12, alignItems: 'flex-start', flexShrink: 0, minHeight: 88 }}>
 
           {ribbonTab === 'home' && <>
             {/* Clipboard group */}
@@ -349,7 +355,7 @@ export default function SuperDeckEditor() {
                 </div>
                 <input type="number" value={selEl ? (selEl.fontSize || 18) : 36}
                   onChange={function (e) { if (selEl) upd(selId, { fontSize: parseInt(e.target.value) || 18 }); }}
-                  style={{ width: 52, padding: '5px 8px', borderRadius: 4, border: '1px solid #e2e8f0', fontSize: 12, color: '#fff', textAlign: 'center', background: '#f8fafc' }} />
+                  style={{ width: 56, padding: '6px 8px', borderRadius: 4, border: '1px solid #e2e8f0', fontSize: 12, color: '#fff', textAlign: 'center', background: '#f8fafc' }} />
                 <button onClick={function () { if (selEl) upd(selId, { bold: !selEl.bold }); }} style={rbtn(selEl && selEl.bold)}>
                   <Bold size={13} />
                 </button>
@@ -364,12 +370,12 @@ export default function SuperDeckEditor() {
                 {FONT_COLOURS.map(function (c) {
                   return (
                     <div key={c} onClick={function () { if (selEl) upd(selId, { color: c }); }}
-                      style={{ width: 24, height: 24, borderRadius: 5, background: c, cursor: 'pointer', border: selEl && selEl.color === c ? '2px solid #8b5cf6' : '1px solid #312e81' }} />
+                      style={{ width: 26, height: 26, borderRadius: 5, background: c, cursor: 'pointer', border: selEl && selEl.color === c ? '2px solid #8b5cf6' : '1px solid #312e81' }} />
                   );
                 })}
                 <input type="color" value={selEl ? (selEl.color || '#ffffff') : '#ffffff'}
                   onChange={function (e) { if (selEl) upd(selId, { color: e.target.value }); }}
-                  style={{ width: 24, height: 24, border: 'none', borderRadius: 5, cursor: 'pointer' }} />
+                  style={{ width: 26, height: 26, border: 'none', borderRadius: 5, cursor: 'pointer' }} />
               </div>
               <div style={S.groupLabel}>Font</div>
             </div>
@@ -397,13 +403,13 @@ export default function SuperDeckEditor() {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <div style={{ display: 'flex', gap: 4 }}>
                 <button onClick={function () { document.getElementById('sd-img-upload').click(); }}
-                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: 'transparent', color: '#64748b', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}>
+                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '10px 18px', borderRadius: 8, border: '1px solid #e2e8f0', background: 'transparent', color: '#64748b', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>
                   <Upload size={16} /> Upload
                 </button>
                 {[{ k: 'image', l: 'Image', I: Image }, { k: 'shape', l: 'Shape', I: Square }, { k: 'text', l: 'Text box', I: Type }].map(function (b) {
                   return (
                     <button key={b.k} onClick={function () { addEl(b.k === 'text' ? 'heading' : b.k); }}
-                      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '8px 16px', borderRadius: 8, border: '1px solid #e2e8f0', background: 'transparent', color: '#64748b', fontSize: 11, cursor: 'pointer', fontFamily: 'inherit' }}>
+                      style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, padding: '10px 18px', borderRadius: 8, border: '1px solid #e2e8f0', background: 'transparent', color: '#64748b', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>
                       <b.I size={16} /> {b.l}
                     </button>
                   );
@@ -473,13 +479,13 @@ export default function SuperDeckEditor() {
       <div style={{ display: 'flex', flex: 1, minHeight: 0 }}>
 
         {/* ── LEFT: Slide thumbnails ────────────────────── */}
-        <div style={{ width: 170, borderRight: '1px solid #e2e8f0', background: '#ffffff', padding: '8px 6px', overflowY: 'auto', flexShrink: 0 }}>
+        <div style={{ width: 180, borderRight: '1px solid #e2e8f0', background: '#ffffff', padding: '8px 6px', overflowY: 'auto', flexShrink: 0 }}>
           {slides.map(function (s, i) {
             var isA = i === active;
             return (
               <div key={s.id || i} style={{ marginBottom: 6 }}>
                 <div style={{ display: 'flex', gap: 4, alignItems: 'flex-start' }}>
-                  <span style={{ fontSize: 11, color: '#475569', width: 14, textAlign: 'right', paddingTop: 4, flexShrink: 0 }}>{i + 1}</span>
+                  <span style={{ fontSize: 12, color: '#475569', width: 14, textAlign: 'right', paddingTop: 4, flexShrink: 0 }}>{i + 1}</span>
                   <div style={{ flex: 1 }}>
                     <div onClick={function () { setActive(i); setSelId(null); setEditingId(null); }}
                       style={{ borderRadius: 4, border: isA ? '2px solid #8b5cf6' : '1px solid #1e1b4b', overflow: 'hidden', cursor: 'pointer' }}>
@@ -633,45 +639,45 @@ export default function SuperDeckEditor() {
           {/* Speaker notes + counter */}
           <div style={{ width: '100%', maxWidth: 820, marginTop: 10, display: 'flex', gap: 12, alignItems: 'flex-start' }}>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 11, color: '#475569', marginBottom: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>Speaker notes</div>
+              <div style={{ fontSize: 12, color: '#475569', marginBottom: 3, textTransform: 'uppercase', letterSpacing: 0.5 }}>Speaker notes</div>
               <textarea value={cs.notes || ''} onChange={function (e) { updNotes(e.target.value); }}
                 placeholder="Add notes for this slide..."
                 rows={2}
                 style={{ width: '100%', padding: '6px 8px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: 4, color: '#94a3b8', fontSize: 12, fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box' }} />
             </div>
-            <div style={{ fontSize: 13, color: '#64748b', paddingTop: 18 }}>Slide {active + 1} of {slides.length}</div>
+            <div style={{ fontSize: 14, color: '#64748b', paddingTop: 18 }}>Slide {active + 1} of {slides.length}</div>
           </div>
         </div>
 
         {/* ── RIGHT: Properties panel (collapsible) ────── */}
         {panelOpen && (
-          <div style={{ width: 260, borderLeft: '1px solid #e2e8f0', background: '#ffffff', padding: '16px 18px', overflowY: 'auto', flexShrink: 0 }}>
+          <div style={{ width: 280, borderLeft: '1px solid #e2e8f0', background: '#ffffff', padding: '18px 20px', overflowY: 'auto', flexShrink: 0 }}>
 
             {/* FORMAT SHAPE */}
             {selEl && <>
               <div style={S.panelLabel}>Format shape</div>
               <div style={{ marginBottom: 12 }}>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 5 }}>Position</div>
+                <div style={{ fontSize: 13, color: '#64748b', marginBottom: 6 }}>Position</div>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 11, color: '#475569', marginBottom: 2 }}>X</div>
+                    <div style={{ fontSize: 12, color: '#475569', marginBottom: 2 }}>X</div>
                     <input type="number" value={selEl.x} onChange={function (e) { upd(selId, { x: parseInt(e.target.value) || 0 }); }} style={S.panelInput} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 11, color: '#475569', marginBottom: 2 }}>Y</div>
+                    <div style={{ fontSize: 12, color: '#475569', marginBottom: 2 }}>Y</div>
                     <input type="number" value={selEl.y} onChange={function (e) { upd(selId, { y: parseInt(e.target.value) || 0 }); }} style={S.panelInput} />
                   </div>
                 </div>
               </div>
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 12, color: '#64748b', marginBottom: 5 }}>Size</div>
+                <div style={{ fontSize: 13, color: '#64748b', marginBottom: 6 }}>Size</div>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 11, color: '#475569', marginBottom: 2 }}>W</div>
+                    <div style={{ fontSize: 12, color: '#475569', marginBottom: 2 }}>W</div>
                     <input type="number" value={selEl.w} onChange={function (e) { upd(selId, { w: Math.max(20, parseInt(e.target.value) || 40) }); }} style={S.panelInput} />
                   </div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 11, color: '#475569', marginBottom: 2 }}>H</div>
+                    <div style={{ fontSize: 12, color: '#475569', marginBottom: 2 }}>H</div>
                     <input type="number" value={selEl.h} onChange={function (e) { upd(selId, { h: Math.max(10, parseInt(e.target.value) || 20) }); }} style={S.panelInput} />
                   </div>
                 </div>
@@ -698,9 +704,9 @@ export default function SuperDeckEditor() {
 
               <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>Theme</div>
               <div style={{ padding: '6px 8px', border: '1px solid #e2e8f0', borderRadius: 6, display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10, cursor: 'pointer' }}>
-                <div style={{ width: 22, height: 22, borderRadius: 5, background: t.primary }} />
+                <div style={{ width: 24, height: 24, borderRadius: 5, background: t.primary }} />
                 <span style={{ fontSize: 12, color: '#6366f1', flex: 1 }}>{t.name}</span>
-                <span style={{ fontSize: 11, color: '#475569' }}>v</span>
+                <span style={{ fontSize: 12, color: '#475569' }}>v</span>
               </div>
 
               <div style={{ fontSize: 10, color: '#64748b', marginBottom: 4 }}>Transition</div>
@@ -735,8 +741,8 @@ export default function SuperDeckEditor() {
                   <div key={el.id}
                     onClick={function (e) { e.stopPropagation(); setSelId(el.id); }}
                     style={{
-                      padding: '7px 12px', borderRadius: 6, marginBottom: 4, cursor: 'pointer',
-                      fontSize: 12, color: isSel ? '#8b5cf6' : '#64748b',
+                      padding: '8px 14px', borderRadius: 6, marginBottom: 4, cursor: 'pointer',
+                      fontSize: 13, color: isSel ? '#8b5cf6' : '#64748b',
                       background: isSel ? 'rgba(139,92,246,.08)' : 'transparent',
                       border: isSel ? '1px solid rgba(139,92,246,.2)' : '1px solid transparent',
                       display: 'flex', justifyContent: 'space-between', alignItems: 'center',
