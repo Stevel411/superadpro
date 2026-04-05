@@ -15111,10 +15111,11 @@ async def api_superseller_step1(campaign_id: int,
     base_ctx = _build_superseller_context(c.niche, c.audience, c.tone, c.goal, c.funnel_url)
     errors = []
 
-    # 1a: Landing page
-    try:
-        tracked_url = f"{os.getenv('BASE_URL','https://www.superadpro.com')}/superseller/go/{campaign_id}"
-        lp_resp = await _call_ai(f"""{base_ctx}
+    # Run both AI calls in PARALLEL to avoid Cloudflare timeout
+    import asyncio as _aio
+    tracked_url = f"{os.getenv('BASE_URL','https://www.superadpro.com')}/superseller/go/{campaign_id}"
+
+    lp_prompt = f"""{base_ctx}
 
 Generate a complete beautiful mobile-responsive HTML landing page for SuperAdPro.
 - Compelling hero with niche-tailored headline
@@ -15125,31 +15126,49 @@ Generate a complete beautiful mobile-responsive HTML landing page for SuperAdPro
 - Social proof and FAQ sections
 - Self-contained HTML with embedded CSS/JS
 - Add before </body>: <script src="/static/js/superseller-chat.js" data-campaign="{campaign_id}"></script>
-Return ONLY complete HTML starting with <!DOCTYPE html>. No markdown.""", model="claude-sonnet-4-20250514")
-        lp = lp_resp.strip()
-        if lp.startswith("```"): lp = lp.split("\n", 1)[1] if "\n" in lp else lp[3:]
-        if lp.endswith("```"): lp = lp[:-3].strip()
-        c.landing_page_html = lp
-        db.commit()
-        logger.info(f"SuperSeller {campaign_id} step1: landing page OK")
-    except Exception as e:
-        errors.append(f"Landing page: {e}")
-        logger.error(f"SuperSeller {campaign_id} step1: landing page FAILED: {e}")
+Return ONLY complete HTML starting with <!DOCTYPE html>. No markdown."""
 
-    # 1b: Social posts
-    try:
-        s_resp = await _call_ai(f"""{base_ctx}
+    sp_prompt = f"""{base_ctx}
 
 Generate 30 social media posts (one per day for 30 days). Return ONLY valid JSON array.
 Mix: 70% value/educational, 20% soft CTA, 10% direct CTA.
-Each post: {{"day": 1, "platform": "facebook|instagram|x|linkedin|tiktok", "content": "post text with emojis", "hashtags": "#tag1 #tag2", "type": "value|soft_cta|direct_cta"}}
-Rotate platforms. Keep posts natural and engaging, not salesy.""", model="claude-sonnet-4-20250514")
-        c.social_posts_json = _extract_json(s_resp)
-        db.commit()
-        logger.info(f"SuperSeller {campaign_id} step1: social posts OK")
-    except Exception as e:
-        errors.append(f"Social posts: {e}")
-        logger.error(f"SuperSeller {campaign_id} step1: social posts FAILED: {e}")
+Each post: {{\"day\": 1, \"platform\": \"facebook|instagram|x|linkedin|tiktok\", \"content\": \"post text with emojis\", \"hashtags\": \"#tag1 #tag2\", \"type\": \"value|soft_cta|direct_cta\"}}
+Rotate platforms. Keep posts natural and engaging, not salesy."""
+
+    async def _gen_lp():
+        try:
+            resp = await _call_ai(lp_prompt)
+            lp = resp.strip()
+            if lp.startswith("```"): lp = lp.split("\n", 1)[1] if "\n" in lp else lp[3:]
+            if lp.endswith("```"): lp = lp[:-3].strip()
+            return ("lp", lp)
+        except Exception as e:
+            return ("lp_err", str(e))
+
+    async def _gen_sp():
+        try:
+            resp = await _call_ai(sp_prompt)
+            return ("sp", _extract_json(resp))
+        except Exception as e:
+            return ("sp_err", str(e))
+
+    results = await _aio.gather(_gen_lp(), _gen_sp())
+
+    for tag, val in results:
+        if tag == "lp":
+            c.landing_page_html = val
+            logger.info(f"SuperSeller {campaign_id} step1: landing page OK")
+        elif tag == "lp_err":
+            errors.append(f"Landing page: {val}")
+            logger.error(f"SuperSeller {campaign_id} step1: landing page FAILED: {val}")
+        elif tag == "sp":
+            c.social_posts_json = val
+            logger.info(f"SuperSeller {campaign_id} step1: social posts OK")
+        elif tag == "sp_err":
+            errors.append(f"Social posts: {val}")
+            logger.error(f"SuperSeller {campaign_id} step1: social posts FAILED: {val}")
+
+    db.commit()
 
     if len(errors) <= 1:
         c.status = "step1_done"
