@@ -72,6 +72,7 @@ const HELP_SECTIONS = [
     color: '#16a34a',
     items: [
       { title: 'Page Title', desc: 'The name of your page — appears in the browser tab, search engine results, and your SuperPages listing. Choose something descriptive and compelling for SEO.' },
+      { title: 'Page URL Slug', desc: 'Customise the web address of your published page. Open Settings, find the Page URL Slug field, and type your preferred name using lowercase letters, numbers, and hyphens only. For example, type "free-marketing-tools" to get a URL like superadpro.com/p/yourname/free-marketing-tools. Click Save Settings to apply the change. Each slug must be unique — you cannot use one that is already taken by another page.' },
       { title: 'Meta Description', desc: 'The description that appears below your page title in Google search results. Write 150-160 characters that tell visitors what your page offers. Important for click-through rates from search.' },
       { title: 'Social Share Image (OG Image)', desc: 'When someone shares your published page on Facebook, Twitter, LinkedIn, or WhatsApp, this image appears as the preview thumbnail. Upload or enter the URL of a 1200×630px image for best results.' },
       { title: 'Page Status', desc: 'Draft pages are only visible to you. Published pages are live on the web at your Live URL. Toggle between Draft and Published at any time. Unpublishing a page makes it immediately inaccessible to visitors.' },
