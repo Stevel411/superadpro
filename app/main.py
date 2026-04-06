@@ -21104,6 +21104,12 @@ def video_creator_page(request: Request):
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
 
+@app.get("/credit-matrix")
+def credit_matrix_page(request: Request):
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
 
 @app.get("/api/superdeck/presentations")
 def api_superdeck_list(user: User = Depends(get_current_user), db: Session = Depends(get_db)):

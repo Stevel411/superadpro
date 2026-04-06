@@ -9,7 +9,7 @@ import {
   Target, Mail, Trophy, Bot, Film,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
   BookOpen, PlusCircle, Scissors, Clock, UserCircle, Tv,
-  Wrench, Share2, Megaphone, Heart, Monitor, Map
+  Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
@@ -47,6 +47,7 @@ function buildNav(t, isAdmin) {
     { type: 'divider' },
     { type: 'group', label: 'Share & Earn', key: 'affiliate', icon: Share2, items: [
       { label: t('nav.myNetwork'), icon: Network, path: '/network' },
+      { label: 'Credit Matrix', icon: Layers, path: '/credit-matrix' },
       { label: t('nav.compPlan'), icon: FileText, path: '/compensation-plan' },
       { label: t('nav.socialShare'), icon: Users, path: '/affiliate' },
       { label: t('nav.leaderboard'), icon: Trophy, path: '/leaderboard' },
