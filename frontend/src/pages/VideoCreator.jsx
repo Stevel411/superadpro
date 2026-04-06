@@ -59,7 +59,9 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       <div onClick={function() { setOpen(!open); }}
-        style={{ background: '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: open ? '1px solid #8b5cf6' : '1px solid transparent' }}>
+        onMouseEnter={function(e) { if (!open) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; } }}
+        onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}
+        style={{ background: '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: open ? '1px solid #8b5cf6' : '1px solid transparent', transition: 'all 0.15s ease' }}>
         <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>{label}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 28, height: 28, borderRadius: 6, background: selected.color || iconColor || '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -208,9 +210,12 @@ export default function VideoCreator() {
           <div style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
             {/* Motion Video */}
             <div onClick={function() { setVideoMode('motion'); }}
+              onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.12)'; }}
+              onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none'; }}
               style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, background: '#fff', cursor: 'pointer', position: 'relative',
-                border: videoMode === 'motion' ? '2px solid #8b5cf6' : '1px solid #e2e8f0',
-                boxShadow: videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none' }}>
+                border: videoMode === 'motion' ? '2px solid #8b5cf6' : '1px solid rgba(255,255,255,0.15)',
+                boxShadow: videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none',
+                transition: 'all 0.2s ease' }}>
               <span style={{ position: 'absolute', top: 10, right: 10, fontSize: 9, fontWeight: 700, padding: '3px 10px', borderRadius: 8, background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#fff', letterSpacing: '0.04em' }}>PRO</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
                 <div style={{ width: 48, height: 48, borderRadius: 12, background: videoMode === 'motion' ? '#f3f0ff' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -228,9 +233,12 @@ export default function VideoCreator() {
             </div>
             {/* Standard */}
             <div onClick={function() { setVideoMode('images'); }}
+              onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.12)'; }}
+              onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none'; }}
               style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, background: '#fff', cursor: 'pointer',
-                border: videoMode === 'images' ? '2px solid #8b5cf6' : '1px solid #e2e8f0',
-                boxShadow: videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none' }}>
+                border: videoMode === 'images' ? '2px solid #8b5cf6' : '1px solid rgba(255,255,255,0.15)',
+                boxShadow: videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none',
+                transition: 'all 0.2s ease' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
                 <div style={{ width: 48, height: 48, borderRadius: 12, background: videoMode === 'images' ? '#f0fdf4' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={videoMode === 'images' ? '#22c55e' : '#94a3b8'} strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill={videoMode === 'images' ? '#22c55e' : '#cbd5e1'} stroke="none"/><path d="M21 15l-5-5L5 21"/></svg>
@@ -261,7 +269,9 @@ export default function VideoCreator() {
           <div style={{ marginTop: 12 }}>
             <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} style={{ display: 'none' }} />
             <div onClick={function() { if (!uploading) fileInputRef.current.click(); }}
-              style={{ background: '#fff', border: '1px dashed #cbd5e1', borderRadius: 10, padding: '14px 16px', textAlign: 'center', cursor: uploading ? 'default' : 'pointer' }}>
+              onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; e.currentTarget.style.borderColor = '#8b5cf6'; }}
+              onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+              style={{ background: '#fff', border: '1px dashed #cbd5e1', borderRadius: 10, padding: '14px 16px', textAlign: 'center', cursor: uploading ? 'default' : 'pointer', transition: 'all 0.15s ease' }}>
               {uploading ? (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                   <Loader2 size={16} color="#8b5cf6" style={{ animation: 'spin 1s linear infinite' }} />
