@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { formatMoney } from '../utils/money';
-import { Users, Zap, GraduationCap, Heart, DollarSign, HelpCircle } from 'lucide-react';
+import { Users, Zap, GraduationCap, Layers, DollarSign, HelpCircle } from 'lucide-react';
 
 var TIER_PRICES = [0, 20, 50, 100, 200, 400, 600, 800, 1000];
 var TIER_NAMES = ['', 'Starter', 'Builder', 'Pro', 'Advanced', 'Elite', 'Premium', 'Executive', 'Ultimate'];
@@ -124,11 +124,40 @@ export default function CompensationPlan() {
         <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Create and sell courses on the marketplace. Keep 100% of your first sale. Subsequent sales pass up to your sponsor in a cascade — the deeper your network, the more pass-ups flow to you.</div>
       </StreamCard>
 
-      {/* Stream 5: Pay It Forward */}
-      <StreamCard num="5" title="Pay It Forward" subtitle="Gift memberships, become the sponsor, earn commissions"
-        Icon={Heart} statVal="$20" statLabel="Per gift" statColor="#ec4899"
-        iconBg="rgba(236,72,153,.09)" iconColor="#ec4899">
-        <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Pay $20 to gift someone a Basic membership. You become their sponsor and earn referral commissions on everything they do. When they earn $20+, they're prompted to pay it forward — creating an organic growth chain.</div>
+      {/* Stream 5: Credit Matrix */}
+      <StreamCard num="5" title="3×3 Credit Matrix" subtitle="Earn commissions every time your team buys credit packs"
+        Icon={Layers} statVal="18%" statLabel="Total payout" statColor="#8b5cf6"
+        iconBg="rgba(139,92,246,.09)" iconColor="#8b5cf6">
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, margin:'0 0 18px' }}>
+          {[
+            { val:'10%', label:'Level 1', sub:'3 direct positions', bg:'rgba(139,92,246,.06)', border:'rgba(139,92,246,.15)', color:'#8b5cf6' },
+            { val:'5%', label:'Level 2', sub:'9 spillover positions', bg:'rgba(14,165,233,.06)', border:'rgba(14,165,233,.15)', color:'#0ea5e9' },
+            { val:'3%', label:'Level 3', sub:'27 spillover positions', bg:'rgba(245,158,11,.06)', border:'rgba(245,158,11,.15)', color:'#d97706' },
+          ].map(function(c, i) {
+            return <div key={i} style={{ background:c.bg, border:'1px solid '+c.border, borderRadius:12, padding:'20px 14px', textAlign:'center' }}>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:c.color }}>{c.val}</div>
+              <div style={{ fontSize:13, fontWeight:700, color:'#0f172a', marginTop:6 }}>{c.label}</div>
+              <div style={{ fontSize:12, color:'#64748b', marginTop:3 }}>{c.sub}</div>
+            </div>;
+          })}
+        </div>
+        <div style={{ display:'grid', gridTemplateColumns:'repeat(5,1fr)', gap:8, marginBottom:14 }}>
+          {[
+            { name:'Starter', price:'$25', credits:'150' },
+            { name:'Builder', price:'$50', credits:'350' },
+            { name:'Pro', price:'$100', credits:'800' },
+            { name:'Elite', price:'$250', credits:'2,200' },
+            { name:'Ultimate', price:'$500', credits:'5,000' },
+          ].map(function(p, i) {
+            return <div key={i} style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:10, padding:'12px 8px', textAlign:'center' }}>
+              <div style={{ fontSize:11, fontWeight:600, color:'rgba(255,255,255,.6)' }}>{p.name}</div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#fff' }}>{p.price}</div>
+              <div style={{ fontSize:10, color:'rgba(255,255,255,.45)' }}>{p.credits} credits</div>
+            </div>;
+          })}
+        </div>
+        <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Buy credit packs for AI videos, images, and music. Your purchase enters your sponsor's 3×3 matrix. Just refer 3 people — spillover from your upline fills the rest. When all 39 positions fill, earn a completion bonus and the matrix resets automatically. Full matrix with all 5 packs = $1,693.</div>
+        <Link to="/credit-matrix" style={{ display:'inline-flex', alignItems:'center', gap:6, marginTop:12, fontSize:14, fontWeight:700, color:'#8b5cf6', textDecoration:'none' }}>View your Credit Matrix →</Link>
       </StreamCard>
 
       {/* ── TWO CALCULATORS ── */}
