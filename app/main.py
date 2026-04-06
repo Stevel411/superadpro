@@ -21455,7 +21455,7 @@ DO NOT include any markdown or explanation. Return ONLY the JSON object."""
                 img_url = None
                 if fal_key:
                     try:
-                        resp = await client.post("https://queue.fal.run/fal-ai/flux/schnell",
+                        resp = await client.post("https://fal.run/fal-ai/flux/schnell",
                             headers={"Authorization": f"Key {fal_key}", "Content-Type": "application/json"},
                             json={"prompt": visual + ", cinematic, high quality, 8k, professional photography", "image_size": "landscape_16_9" if aspect == "landscape" else "portrait_9_16", "num_images": 1})
                         if resp.status_code == 200:
@@ -21463,6 +21463,8 @@ DO NOT include any markdown or explanation. Return ONLY the JSON object."""
                             images = data.get("images", [])
                             if images:
                                 img_url = images[0].get("url")
+                        else:
+                            logger.warning(f"Video Creator: fal.ai image {i} status {resp.status_code}: {resp.text[:200]}")
                     except Exception as e:
                         logger.warning(f"Video Creator: fal.ai image {i} failed: {e}")
 
