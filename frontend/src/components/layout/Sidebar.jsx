@@ -50,7 +50,6 @@ function buildNav(t, isAdmin) {
       { label: 'Membership Referrals', icon: Users, path: '/affiliate' },
       { label: 'Campaign Grid', icon: Zap, path: '/watch' },
       { label: 'Credit Matrix', icon: Layers, path: '/credit-matrix' },
-      { label: 'SuperScene Earnings', icon: Sparkles, path: '/superscene' },
       { label: 'Course Marketplace', icon: GraduationCap, path: '/courses', comingSoon: true },
     ]},
     { type: 'divider' },

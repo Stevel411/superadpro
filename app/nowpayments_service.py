@@ -57,12 +57,7 @@ PRODUCT_CATALOG = {
     "email_boost_5000":     {"price": Decimal("19.00"), "type": "email_boost", "desc": "Email Boost — 5,000 Credits"},
     "email_boost_10000":    {"price": Decimal("29.00"), "type": "email_boost", "desc": "Email Boost — 10,000 Credits"},
     "email_boost_50000":    {"price": Decimal("99.00"), "type": "email_boost", "desc": "Email Boost — 50,000 Credits"},
-    # SuperScene Credit Packs
-    "superscene_starter":   {"price": Decimal("11.00"),  "type": "superscene", "desc": "SuperScene Starter — 50 Credits"},
-    "superscene_creator":   {"price": Decimal("33.00"),  "type": "superscene", "desc": "SuperScene Creator — 150 Credits"},
-    "superscene_studio":    {"price": Decimal("110.00"), "type": "superscene", "desc": "SuperScene Studio — 500 Credits"},
-    "superscene_pro":       {"price": Decimal("264.00"), "type": "superscene", "desc": "SuperScene Pro — 1,200 Credits"},
-    # Credit Matrix Packs
+    # Credit Matrix Packs (replaces old SuperScene packs)
     "credit_matrix_starter":  {"price": Decimal("25.00"),  "type": "credit_matrix", "desc": "Credit Matrix Starter — 150 Credits"},
     "credit_matrix_builder":  {"price": Decimal("50.00"),  "type": "credit_matrix", "desc": "Credit Matrix Builder — 350 Credits"},
     "credit_matrix_pro":      {"price": Decimal("100.00"), "type": "credit_matrix", "desc": "Credit Matrix Pro — 800 Credits"},

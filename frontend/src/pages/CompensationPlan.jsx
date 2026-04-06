@@ -35,7 +35,7 @@ export default function CompensationPlan() {
   var total = memMonthly + gridTotal + ssEarnings;
 
   return (
-    <AppLayout title="Compensation Plan" subtitle="5 income streams — 95% paid to members"
+    <AppLayout title="Compensation Plan" subtitle="4 income streams — 95% paid to members"
       topbarActions={
         <button onClick={function() { setShowHelp(true); }} style={{ padding:'7px 14px', borderRadius:10, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:12, fontWeight:600, color:'#64748b', display:'flex', alignItems:'center', gap:4 }}><HelpCircle size={14}/> Help</button>
       }>
@@ -49,7 +49,7 @@ export default function CompensationPlan() {
         <div style={{ position:'absolute', top:-30, right:-30, width:140, height:140, borderRadius:'50%', background:'rgba(139,92,246,.12)' }}/>
         <div style={{ position:'absolute', bottom:-20, left:-20, width:100, height:100, borderRadius:'50%', background:'rgba(59,130,246,.1)' }}/>
         <div style={{ fontSize:13, letterSpacing:3, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:10 }}>Compensation plan</div>
-        <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:800, color:'#fff', marginBottom:8 }}>5 income streams</div>
+        <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:800, color:'#fff', marginBottom:8 }}>4 income streams</div>
         <div style={{ fontSize:16, color:'rgba(255,255,255,.55)', marginBottom:24 }}>95% of all revenue paid to members — only 5% retained by the platform</div>
         <div style={{ display:'flex', justifyContent:'center', gap:16, flexWrap:'wrap' }}>
           {[
@@ -105,27 +105,8 @@ export default function CompensationPlan() {
         <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Activate a campaign tier to unlock grid commissions. Your referrals and their referrals fill your 8×8 grid. Earnings go to your campaign wallet (requires active tier + daily watch quota).</div>
       </StreamCard>
 
-      {/* Stream 3: SuperScene */}
-      <StreamCard num="3" title="SuperScene sponsor earnings" subtitle="Earn when your referrals create AI videos, images, and music"
-        Icon={Zap} statVal="$0.025" statLabel="Per credit" statColor="#ec4899"
-        iconBg="rgba(236,72,153,.09)" iconColor="#ec4899">
-        <FlowArrow steps={[
-          { title:'Referral uses credits', sub:'Video, image, music', bg:'rgba(99,102,241,.06)', border:'rgba(99,102,241,.15)', color:'#6366f1' },
-          { title:'$0.025 per credit', sub:'Auto micro-payment', bg:'rgba(236,72,153,.06)', border:'rgba(236,72,153,.15)', color:'#ec4899' },
-          { title:'Affiliate wallet', sub:'Passive recurring income', bg:'rgba(14,165,233,.06)', border:'rgba(14,165,233,.15)', color:'#0ea5e9' },
-        ]}/>
-        <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Every time your referrals use SuperScene AI tools, you earn. With active users generating content regularly, this becomes a steady passive income stream.</div>
-      </StreamCard>
-
-      {/* Stream 4: Courses */}
-      <StreamCard num="4" title="Course marketplace" subtitle="100% commission on first sale, pass-up cascade to upline"
-        Icon={GraduationCap} statVal="" statLabel="" statColor="#f59e0b"
-        iconBg="rgba(245,158,11,.09)" iconColor="#f59e0b" badge="Coming soon">
-        <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Create and sell courses on the marketplace. Keep 100% of your first sale. Subsequent sales pass up to your sponsor in a cascade — the deeper your network, the more pass-ups flow to you.</div>
-      </StreamCard>
-
-      {/* Stream 5: Credit Matrix */}
-      <StreamCard num="5" title="3×3 Credit Matrix" subtitle="Earn commissions every time your team buys credit packs"
+      {/* Stream 3: Credit Matrix */}
+      <StreamCard num="3" title="3×3 Credit Matrix" subtitle="Earn commissions every time your team buys credit packs"
         Icon={Layers} statVal="18%" statLabel="Total payout" statColor="#8b5cf6"
         iconBg="rgba(139,92,246,.09)" iconColor="#8b5cf6">
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, margin:'0 0 18px' }}>
@@ -158,6 +139,13 @@ export default function CompensationPlan() {
         </div>
         <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Buy credit packs for AI videos, images, and music. Your purchase enters your sponsor's 3×3 matrix. Just refer 3 people — spillover from your upline fills the rest. When all 39 positions fill, earn a completion bonus and the matrix resets automatically. Full matrix with all 5 packs = $1,693.</div>
         <Link to="/credit-matrix" style={{ display:'inline-flex', alignItems:'center', gap:6, marginTop:12, fontSize:14, fontWeight:700, color:'#8b5cf6', textDecoration:'none' }}>View your Credit Matrix →</Link>
+      </StreamCard>
+
+      {/* Stream 4: Courses */}
+      <StreamCard num="4" title="Course marketplace" subtitle="100% commission on first sale, pass-up cascade to upline"
+        Icon={GraduationCap} statVal="" statLabel="" statColor="#f59e0b"
+        iconBg="rgba(245,158,11,.09)" iconColor="#f59e0b" badge="Coming soon">
+        <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Create and sell courses on the marketplace. Keep 100% of your first sale. Subsequent sales pass up to your sponsor in a cascade — the deeper your network, the more pass-ups flow to you.</div>
       </StreamCard>
 
       {/* ── TWO CALCULATORS ── */}
