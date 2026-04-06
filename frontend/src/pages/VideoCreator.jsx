@@ -213,55 +213,67 @@ export default function VideoCreator() {
             <DropdownSelector label="Duration" icon="timer" items={DURATIONS} value={duration} onChange={setDuration} />
           </div>
 
-          <DropdownSelector label="Voiceover" icon="mic" items={VOICES} value={voice} onChange={setVoice} initialCount={6} />
+          {/* Video mode */}
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>Video mode</label>
+            <div style={{ display: 'flex', gap: 10 }}>
+              <div onClick={function(){setVideoMode('motion');}}
+                style={{ flex: 1, padding: '14px 16px', borderRadius: 12, cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: 12, position: 'relative',
+                  background: '#fff', border: videoMode === 'motion' ? '2px solid #8b5cf6' : '1px solid #e2e8f0',
+                  boxShadow: videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.1)' : 'none', transition: 'all 0.15s' }}>
+                <span style={{ position: 'absolute', top: 10, right: 10, fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 8, background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#fff', letterSpacing: '0.04em' }}>PRO</span>
+                <div style={{ width: 40, height: 40, borderRadius: 8, background: videoMode === 'motion' ? '#f3f0ff' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={videoMode === 'motion' ? '#8b5cf6' : '#94a3b8'} strokeWidth="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 9l5 3-5 3V9z" fill={videoMode === 'motion' ? '#8b5cf6' : '#cbd5e1'} stroke="none"/><path d="M2 8h2M20 8h2M2 16h2M20 16h2" strokeWidth="1.5"/></svg>
+                </div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Motion Video</div>
+                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>AI-generated video clips with real cinematic movement</div>
+                  <div style={{ fontSize: 11, color: '#8b5cf6', fontWeight: 600, marginTop: 4 }}>~{Math.ceil(duration / 8) * 3} credits</div>
+                </div>
+              </div>
+              <div onClick={function(){setVideoMode('images');}}
+                style={{ flex: 1, padding: '14px 16px', borderRadius: 12, cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: 12,
+                  background: '#fff', border: videoMode === 'images' ? '2px solid #8b5cf6' : '1px solid #e2e8f0',
+                  boxShadow: videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.1)' : 'none', transition: 'all 0.15s' }}>
+                <div style={{ width: 40, height: 40, borderRadius: 8, background: videoMode === 'images' ? '#f3f0ff' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={videoMode === 'images' ? '#8b5cf6' : '#94a3b8'} strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill={videoMode === 'images' ? '#8b5cf6' : '#cbd5e1'} stroke="none"/><path d="M21 15l-5-5L5 21"/></svg>
+                </div>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Standard</div>
+                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>AI images with smooth Ken Burns motion effects</div>
+                  <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 600, marginTop: 4 }}>~{Math.ceil(duration / 8)} credits</div>
+                </div>
+              </div>
+            </div>
+          </div>
 
+          {/* Aspect ratio */}
           <div style={{ marginBottom: 14 }}>
             <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>Aspect ratio</label>
             <div style={{ display: 'flex', gap: 10 }}>
-              {[['landscape','16:9 YouTube','Widescreen for YouTube, websites'],['portrait','9:16 TikTok / Reels','Vertical for TikTok, Reels, Shorts']].map(function(a) {
+              {[['landscape','16:9 YouTube','YouTube, websites'],['portrait','9:16 TikTok / Reels','TikTok, Reels, Shorts']].map(function(a) {
                 var active = aspect === a[0];
                 return <div key={a[0]} onClick={function(){setAspect(a[0]);}}
-                  style={{ flex:1, padding:'14px 16px', borderRadius:12, cursor:'pointer',
-                    background: active ? 'linear-gradient(135deg, #1e3a5f, #2563eb, #60a5fa)' : 'linear-gradient(135deg, #1e3a5f55, #2563eb44, #60a5fa33)',
-                    border: active ? '2px solid #60a5fa' : '2px solid transparent',
-                    boxShadow: active ? '0 4px 12px rgba(37,99,235,0.3)' : 'none',
-                    transition: 'all 0.2s' }}>
-                  <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>{a[1]}</div>
-                  <div style={{ fontSize:11, color:'rgba(255,255,255,0.6)', marginTop:2 }}>{a[2]}</div>
+                  style={{ flex:1, padding:'14px 16px', borderRadius:12, cursor:'pointer', display:'flex', alignItems:'center', gap:12,
+                    background: '#fff', border: active ? '2px solid #8b5cf6' : '1px solid #e2e8f0',
+                    boxShadow: active ? '0 0 0 3px rgba(139,92,246,0.1)' : 'none', transition: 'all 0.15s' }}>
+                  <div style={{ width:40, height:40, borderRadius:8, background: active ? '#f3f0ff' : '#f8fafc', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                    {a[0] === 'landscape' ? (
+                      <svg width="22" height="14" viewBox="0 0 22 14" fill="none"><rect x="1" y="1" width="20" height="12" rx="2" stroke={active ? '#8b5cf6' : '#94a3b8'} strokeWidth="1.5"/><circle cx="11" cy="7" r="2" fill={active ? '#8b5cf6' : '#cbd5e1'}/></svg>
+                    ) : (
+                      <svg width="14" height="22" viewBox="0 0 14 22" fill="none"><rect x="1" y="1" width="12" height="20" rx="2" stroke={active ? '#8b5cf6' : '#94a3b8'} strokeWidth="1.5"/><circle cx="7" cy="11" r="2" fill={active ? '#8b5cf6' : '#cbd5e1'}/></svg>
+                    )}
+                  </div>
+                  <div>
+                    <div style={{ fontSize:14, fontWeight:600, color:'#0f172a' }}>{a[1]}</div>
+                    <div style={{ fontSize:11, color:'#94a3b8' }}>{a[2]}</div>
+                  </div>
                 </div>;
               })}
             </div>
           </div>
 
-          {/* Video mode */}
-          <div style={{ marginBottom: 14 }}>
-            <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>Video mode</label>
-            <div style={{ display: 'flex', gap: 10 }}>
-              {/* Motion Video - LEFT */}
-              <div onClick={function(){setVideoMode('motion');}}
-                style={{ flex: 1, padding: '16px 16px 14px', borderRadius: 12, cursor: 'pointer', position: 'relative', overflow: 'hidden',
-                  background: videoMode === 'motion' ? 'linear-gradient(135deg, #1e3a5f, #2563eb, #60a5fa)' : 'linear-gradient(135deg, #1e3a5f55, #2563eb44, #60a5fa33)',
-                  border: videoMode === 'motion' ? '2px solid #60a5fa' : '2px solid transparent',
-                  boxShadow: videoMode === 'motion' ? '0 4px 15px rgba(37,99,235,0.3)' : 'none',
-                  transition: 'all 0.2s' }}>
-                <span style={{ position: 'absolute', top: 10, right: 10, fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 8, background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#fff', letterSpacing: '0.04em' }}>PRO</span>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>Motion Video</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 3 }}>AI-generated video clips with real cinematic movement</div>
-                <div style={{ fontSize: 12, color: '#fbbf24', fontWeight: 700, marginTop: 8 }}>~{Math.ceil(duration / 8) * 3} credits</div>
-              </div>
-              {/* Standard - RIGHT */}
-              <div onClick={function(){setVideoMode('images');}}
-                style={{ flex: 1, padding: '16px 16px 14px', borderRadius: 12, cursor: 'pointer',
-                  background: videoMode === 'images' ? 'linear-gradient(135deg, #1e3a5f, #2563eb, #60a5fa)' : 'linear-gradient(135deg, #1e3a5f55, #2563eb44, #60a5fa33)',
-                  border: videoMode === 'images' ? '2px solid #60a5fa' : '2px solid transparent',
-                  boxShadow: videoMode === 'images' ? '0 4px 15px rgba(37,99,235,0.3)' : 'none',
-                  transition: 'all 0.2s' }}>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>Standard</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 3 }}>AI images with smooth Ken Burns motion effects</div>
-                <div style={{ fontSize: 12, color: '#fbbf24', fontWeight: 700, marginTop: 8 }}>~{Math.ceil(duration / 8)} credits</div>
-              </div>
-            </div>
-          </div>
+          <DropdownSelector label="Voiceover" icon="mic" items={VOICES} value={voice} onChange={setVoice} initialCount={6} />
 
           <div style={{ marginBottom: 14 }}>
             <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
