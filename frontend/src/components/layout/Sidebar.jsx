@@ -9,7 +9,7 @@ import {
   Target, Mail, Trophy, Bot, Film,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
   BookOpen, PlusCircle, Scissors, Clock, UserCircle, Tv,
-  Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers
+  Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers, DollarSign
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
@@ -45,11 +45,17 @@ function buildNav(t, isAdmin) {
       { label: t('nav.createCourse'), icon: PenLine, path: '/courses/create', pro: true, comingSoon: true },
     ]},
     { type: 'divider' },
+    { type: 'group', label: 'Income Streams', key: 'income', icon: DollarSign, items: [
+      { label: t('nav.compPlan'), icon: FileText, path: '/compensation-plan' },
+      { label: 'Membership Referrals', icon: Users, path: '/affiliate' },
+      { label: 'Campaign Grid', icon: Zap, path: '/watch' },
+      { label: 'Credit Matrix', icon: Layers, path: '/credit-matrix' },
+      { label: 'SuperScene Earnings', icon: Sparkles, path: '/superscene' },
+      { label: 'Course Marketplace', icon: GraduationCap, path: '/courses', comingSoon: true },
+    ]},
+    { type: 'divider' },
     { type: 'group', label: 'Share & Earn', key: 'affiliate', icon: Share2, items: [
       { label: t('nav.myNetwork'), icon: Network, path: '/network' },
-      { label: 'Credit Matrix', icon: Layers, path: '/credit-matrix' },
-      { label: t('nav.compPlan'), icon: FileText, path: '/compensation-plan' },
-      { label: t('nav.socialShare'), icon: Users, path: '/affiliate' },
       { label: t('nav.leaderboard'), icon: Trophy, path: '/leaderboard' },
       { label: 'Affiliate Guide', icon: BookOpen, path: '/training' },
       { label: 'Pay It Forward', icon: Heart, path: '/pay-it-forward' },
