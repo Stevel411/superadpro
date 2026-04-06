@@ -21501,22 +21501,20 @@ DO NOT include any markdown or explanation. Return ONLY the JSON object."""
             if not img:
                 img = f"https://placehold.co/1920x1080/1e1b4b/ffffff?text=Scene+{i+1}"
 
-            duration_frames = int((scene.get("duration_secs", 8)) * FPS)
             remotion_scenes.append({
-                "image": img,
-                "text": scene.get("text_overlay", ""),
-                "duration": duration_frames,
+                "imageUrl": img,
+                "heading": scene.get("text_overlay", ""),
+                "body": "",
+                "duration": scene.get("duration_secs", 8),  # seconds, not frames
             })
 
+        aspect_ratio = "16:9" if aspect == "landscape" else "9:16"
         render_payload = {
-            "compositionId": "MarketingVideo" if aspect == "landscape" else "MarketingVideoVertical",
             "scenes": remotion_scenes,
-            "voiceover": voiceover_url,
-            "music": None,  # TODO: integrate Suno
-            "musicVolume": 0.12,
+            "voiceoverUrl": voiceover_url or "",
+            "musicUrl": "",  # TODO: integrate Suno
             "style": {"transition": "fade"},
-            "fps": FPS,
-            "secret": RENDER_SECRET,
+            "aspectRatio": aspect_ratio,
         }
 
         # ── STEP 5: Send to Remotion Renderer ─────────────
@@ -21562,7 +21560,7 @@ async def api_video_creator_status(job_id: str, user: User = Depends(get_current
 
     try:
         async with httpx.AsyncClient(timeout=15) as client:
-            resp = await client.get(f"{REMOTION_URL}/status/{job_id}")
+            resp = await client.get(f"{REMOTION_URL}/render/{job_id}")
             if resp.status_code == 200:
                 return resp.json()
             return {"status": "unknown", "error": resp.text[:200]}
