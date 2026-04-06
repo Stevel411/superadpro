@@ -2240,7 +2240,7 @@ CREDIT_PACKS = {
 
 MATRIX_WIDTH = 3
 MATRIX_DEPTH = 3
-MATRIX_COMMISSION_RATES = {1: Decimal("0.10"), 2: Decimal("0.05"), 3: Decimal("0.03")}
+MATRIX_COMMISSION_RATES = {1: Decimal("0.25"), 2: Decimal("0.15"), 3: Decimal("0.10")}
 
 
 class CreditPackPurchase(Base):

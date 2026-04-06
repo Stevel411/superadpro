@@ -100,7 +100,7 @@ export default function CreditMatrix() {
           </div>
           <div>
             <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#fff' }}>Earn commissions every time your team creates content</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Buy credit packs for AI videos, images, and music — earn 10%, 5%, and 3% across 3 levels when your team does the same</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Buy credit packs for AI videos, images, and music — earn 25%, 15%, and 10% across 3 levels when your team does the same</div>
           </div>
         </div>
 
@@ -220,7 +220,7 @@ export default function CreditMatrix() {
                     );
                   })}
                 </div>
-                <div style={{ fontSize: 11, color: '#8b5cf6', fontWeight: 600, marginBottom: 4 }}>Level 1 — 10% — {matrixStats.l1_filled}/{matrixStats.l1_max} filled — ${matrixStats.earnings_l1.toFixed(2)} earned</div>
+                <div style={{ fontSize: 11, color: '#8b5cf6', fontWeight: 600, marginBottom: 4 }}>Level 1 — 25% — {matrixStats.l1_filled}/{matrixStats.l1_max} filled — ${matrixStats.earnings_l1.toFixed(2)} earned</div>
 
                 {/* Level 2 */}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 4, flexWrap: 'wrap' }}>
@@ -236,7 +236,7 @@ export default function CreditMatrix() {
                     );
                   })}
                 </div>
-                <div style={{ fontSize: 11, color: '#0ea5e9', fontWeight: 600, marginBottom: 4 }}>Level 2 — 5% — {matrixStats.l2_filled}/{matrixStats.l2_max} filled — ${matrixStats.earnings_l2.toFixed(2)} earned</div>
+                <div style={{ fontSize: 11, color: '#0ea5e9', fontWeight: 600, marginBottom: 4 }}>Level 2 — 15% — {matrixStats.l2_filled}/{matrixStats.l2_max} filled — ${matrixStats.earnings_l2.toFixed(2)} earned</div>
 
                 {/* Level 3 */}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 4, marginBottom: 4, flexWrap: 'wrap' }}>
@@ -253,7 +253,7 @@ export default function CreditMatrix() {
                     );
                   })}
                 </div>
-                <div style={{ fontSize: 11, color: '#f59e0b', fontWeight: 600 }}>Level 3 — 3% — {matrixStats.l3_filled}/{matrixStats.l3_max} filled — ${matrixStats.earnings_l3.toFixed(2)} earned</div>
+                <div style={{ fontSize: 11, color: '#f59e0b', fontWeight: 600 }}>Level 3 — 10% — {matrixStats.l3_filled}/{matrixStats.l3_max} filled — ${matrixStats.earnings_l3.toFixed(2)} earned</div>
               </div>
             )}
 
@@ -310,7 +310,7 @@ export default function CreditMatrix() {
             {[
               { step: '1', text: 'Buy a credit pack to create AI videos, images, and music' },
               { step: '2', text: 'Your purchase enters your sponsor\'s 3×3 matrix' },
-              { step: '3', text: 'Earn 10% on Level 1, 5% on Level 2, 3% on Level 3' },
+              { step: '3', text: 'Earn 25% on Level 1, 15% on Level 2, 10% on Level 3' },
               { step: '4', text: 'When all 39 positions fill, earn a completion bonus' },
               { step: '5', text: 'Matrix resets — earnings continue automatically' },
             ].map(function(item, i) {
@@ -329,9 +329,9 @@ export default function CreditMatrix() {
             <div style={{ fontSize: 15, fontWeight: 700, color: '#4c1d95', marginBottom: 10 }}>Earnings potential</div>
             <div style={{ fontSize: 13, color: '#6d28d9', marginBottom: 12 }}>Full matrix (39 members) buying all 5 packs:</div>
             {[
-              { label: 'L1 (3 members × 10%)', amount: '$277.50' },
-              { label: 'L2 (9 members × 5%)', amount: '$416.25' },
-              { label: 'L3 (27 members × 3%)', amount: '$749.25' },
+              { label: 'L1 (3 members × 25%)', amount: '$693.75' },
+              { label: 'L2 (9 members × 15%)', amount: '$1,248.75' },
+              { label: 'L3 (27 members × 10%)', amount: '$2,497.50' },
               { label: 'Completion bonus', amount: '$250.00' },
             ].map(function(row, i) {
               return (
@@ -343,7 +343,7 @@ export default function CreditMatrix() {
             })}
             <div style={{ borderTop: '1px solid #c4b5fd', marginTop: 8, paddingTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 15, fontWeight: 800 }}>
               <span style={{ color: '#4c1d95' }}>Total per matrix</span>
-              <span style={{ color: '#4c1d95' }}>$1,693.00</span>
+              <span style={{ color: '#4c1d95' }}>$4,690.00</span>
             </div>
           </div>
 

@@ -107,13 +107,13 @@ export default function CompensationPlan() {
 
       {/* Stream 3: Credit Matrix */}
       <StreamCard num="3" title="3×3 Credit Matrix" subtitle="Earn commissions every time your team buys credit packs"
-        Icon={Layers} statVal="18%" statLabel="Total payout" statColor="#8b5cf6"
+        Icon={Layers} statVal="50%" statLabel="Total payout" statColor="#8b5cf6"
         iconBg="rgba(139,92,246,.09)" iconColor="#8b5cf6">
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, margin:'0 0 18px' }}>
           {[
-            { val:'10%', label:'Level 1', sub:'3 direct positions', bg:'rgba(139,92,246,.06)', border:'rgba(139,92,246,.15)', color:'#8b5cf6' },
-            { val:'5%', label:'Level 2', sub:'9 spillover positions', bg:'rgba(14,165,233,.06)', border:'rgba(14,165,233,.15)', color:'#0ea5e9' },
-            { val:'3%', label:'Level 3', sub:'27 spillover positions', bg:'rgba(245,158,11,.06)', border:'rgba(245,158,11,.15)', color:'#d97706' },
+            { val:'25%', label:'Level 1', sub:'3 direct positions', bg:'rgba(139,92,246,.06)', border:'rgba(139,92,246,.15)', color:'#8b5cf6' },
+            { val:'15%', label:'Level 2', sub:'9 spillover positions', bg:'rgba(14,165,233,.06)', border:'rgba(14,165,233,.15)', color:'#0ea5e9' },
+            { val:'10%', label:'Level 3', sub:'27 spillover positions', bg:'rgba(245,158,11,.06)', border:'rgba(245,158,11,.15)', color:'#d97706' },
           ].map(function(c, i) {
             return <div key={i} style={{ background:c.bg, border:'1px solid '+c.border, borderRadius:12, padding:'20px 14px', textAlign:'center' }}>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:c.color }}>{c.val}</div>
@@ -137,7 +137,7 @@ export default function CompensationPlan() {
             </div>;
           })}
         </div>
-        <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Buy credit packs for AI videos, images, and music. Your purchase enters your sponsor's 3×3 matrix. Just refer 3 people — spillover from your upline fills the rest. When all 39 positions fill, earn a completion bonus and the matrix resets automatically. Full matrix with all 5 packs = $1,693.</div>
+        <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>Buy credit packs for AI videos, images, and music. Your purchase enters your sponsor's 3×3 matrix. Just refer 3 people — spillover from your upline fills the rest. When all 39 positions fill, earn a completion bonus and the matrix resets automatically. Full matrix with all 5 packs = $4,690.</div>
         <Link to="/credit-matrix" style={{ display:'inline-flex', alignItems:'center', gap:6, marginTop:12, fontSize:14, fontWeight:700, color:'#8b5cf6', textDecoration:'none' }}>View your Credit Matrix →</Link>
       </StreamCard>
 
