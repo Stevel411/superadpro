@@ -21818,7 +21818,7 @@ async def api_credit_matrix_purchase(request: Request, user: User = Depends(get_
             db.commit()
             return JSONResponse({"error": result.get("error", "Payment creation failed")}, status_code=500)
 
-        order.np_invoice_id = result.get("invoice_id")
+        order.np_invoice_id = result.get("np_id")
         db.commit()
 
         return {
