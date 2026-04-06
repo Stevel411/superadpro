@@ -62,6 +62,12 @@ PRODUCT_CATALOG = {
     "superscene_creator":   {"price": Decimal("33.00"),  "type": "superscene", "desc": "SuperScene Creator — 150 Credits"},
     "superscene_studio":    {"price": Decimal("110.00"), "type": "superscene", "desc": "SuperScene Studio — 500 Credits"},
     "superscene_pro":       {"price": Decimal("264.00"), "type": "superscene", "desc": "SuperScene Pro — 1,200 Credits"},
+    # Credit Matrix Packs
+    "credit_matrix_starter":  {"price": Decimal("25.00"),  "type": "credit_matrix", "desc": "Credit Matrix Starter — 150 Credits"},
+    "credit_matrix_builder":  {"price": Decimal("50.00"),  "type": "credit_matrix", "desc": "Credit Matrix Builder — 350 Credits"},
+    "credit_matrix_pro":      {"price": Decimal("100.00"), "type": "credit_matrix", "desc": "Credit Matrix Pro — 800 Credits"},
+    "credit_matrix_elite":    {"price": Decimal("250.00"), "type": "credit_matrix", "desc": "Credit Matrix Elite — 2,200 Credits"},
+    "credit_matrix_ultimate": {"price": Decimal("500.00"), "type": "credit_matrix", "desc": "Credit Matrix Ultimate — 5,000 Credits"},
 }
 
 

@@ -4396,6 +4396,23 @@ def _nowpayments_activate_product(db, user, order, meta):
             except Exception as e:
                 logger.error(f"SuperScene order record failed: {e}")
 
+    # ── Credit Matrix Packs ──
+    elif order.product_type == "credit_matrix":
+        pack_key = product_key.replace("credit_matrix_", "")  # starter/builder/pro/elite/ultimate
+        try:
+            from .credit_matrix import purchase_credit_pack
+            result = purchase_credit_pack(
+                db, user, pack_key,
+                payment_ref=f"np_{order.id}",
+                payment_method="crypto",
+            )
+            if not result["success"]:
+                logger.error(f"Credit Matrix purchase failed for user {user.id}: {result.get('error')}")
+            else:
+                logger.info(f"Credit Matrix: {user.username} bought {pack_key} pack via NOWPayments, {result.get('credits_awarded')} credits awarded")
+        except Exception as e:
+            logger.error(f"Credit Matrix fulfilment error: {e}")
+
 
 @app.get("/api/nowpayments/order/{order_id}")
 async def nowpayments_order_status(order_id: int, request: Request,
@@ -21756,15 +21773,62 @@ async def api_credit_matrix_purchase(request: Request, user: User = Depends(get_
         return result
 
     elif payment_method == "crypto":
-        # For crypto, we create a NOWPayments order and process on IPN callback
-        # Return the pack info so frontend can initiate crypto payment
+        # Create a NOWPayments invoice via the existing endpoint logic
+        from . import nowpayments_service as nps
+        from .database import NowPaymentsOrder
+        import json as _json
+
+        if not nps.is_configured():
+            return JSONResponse({"error": "Crypto payments not configured"}, status_code=503)
+
+        product_key_np = f"credit_matrix_{pack_key}"
+
+        # Cancel existing pending orders for same product
+        db.query(NowPaymentsOrder).filter(
+            NowPaymentsOrder.user_id == user.id,
+            NowPaymentsOrder.product_key == product_key_np,
+            NowPaymentsOrder.status == "pending",
+        ).update({"status": "cancelled"})
+        db.flush()
+
+        # Create local order record
+        order = NowPaymentsOrder(
+            user_id=user.id,
+            product_type="credit_matrix",
+            product_key=product_key_np,
+            product_meta=_json.dumps({"pack_key": pack_key, "credits": pack["credits"]}),
+            price_usd=price,
+            status="pending",
+        )
+        db.add(order)
+        db.flush()
+
+        internal_order_id = f"SAP-{user.id}-{order.id}"
+        order.internal_order_id = internal_order_id
+
+        # Create NOWPayments invoice
+        result = nps.create_invoice(
+            product_key=product_key_np,
+            user_id=user.id,
+            order_id=order.id,
+        )
+
+        if not result["success"]:
+            order.status = "failed"
+            db.commit()
+            return JSONResponse({"error": result.get("error", "Payment creation failed")}, status_code=500)
+
+        order.np_invoice_id = result.get("invoice_id")
+        db.commit()
+
         return {
             "success": True,
             "action": "crypto_checkout",
+            "invoice_url": result.get("invoice_url"),
+            "order_id": order.id,
             "pack_key": pack_key,
             "price": price,
             "credits": pack["credits"],
-            "message": "Redirect to crypto payment",
         }
     else:
         return JSONResponse({"error": "Invalid payment method"}, status_code=400)

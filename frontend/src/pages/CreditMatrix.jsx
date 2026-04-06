@@ -44,10 +44,18 @@ export default function CreditMatrix() {
   function buyPack(packKey) {
     setPurchasing(packKey);
     setMessage(null);
-    apiPost('/api/credit-matrix/purchase', { pack_key: packKey, payment_method: 'wallet' })
+    apiPost('/api/credit-matrix/purchase', { pack_key: packKey, payment_method: 'crypto' })
       .then(function(r) {
         setPurchasing(null);
-        if (r.success) {
+        if (r.success && r.action === 'crypto_checkout' && r.invoice_url) {
+          // Open NOWPayments checkout in new tab
+          window.open(r.invoice_url, '_blank');
+          setMessage({
+            type: 'success',
+            text: 'Payment window opened — complete your USDT payment to receive ' + r.credits + ' credits. Your matrix will update automatically once payment is confirmed.',
+          });
+        } else if (r.success && !r.action) {
+          // Wallet payment succeeded directly
           var earned = (r.matrix_placement && r.matrix_placement.commissions_paid) || [];
           var totalEarned = earned.reduce(function(s, c) { return s + c.amount; }, 0);
           setMessage({
@@ -156,7 +164,7 @@ export default function CreditMatrix() {
                       style={{ width: '100%', padding: '8px 0', borderRadius: 8, border: 'none', fontFamily: 'inherit',
                         background: isbuying ? '#94a3b8' : icon.gradient, color: '#fff', fontSize: 13, fontWeight: 700,
                         cursor: isbuying ? 'default' : 'pointer' }}>
-                      {isbuying ? 'Buying...' : 'Buy Pack'}
+                      {isbuying ? 'Processing...' : 'Pay with Crypto'}
                     </button>
                   </div>
                 );
