@@ -21351,20 +21351,43 @@ async def api_upload_image(file: UploadFile = File(...), user: User = Depends(ge
 #  AI VIDEO CREATOR — One-click video production pipeline
 # ═══════════════════════════════════════════════════════════
 
-# In-memory job store for video creator pipeline
-_video_jobs = {}
+@app.post("/api/video-creator/generate")
+async def api_video_creator_generate(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """
+    Full AI video production pipeline:
+    1. AI writes script + scene plan from prompt
+    2. Generate images for each scene (fal.ai FLUX)
+    3. Generate voiceover (Edge TTS)
+    4. Generate background music (optional)
+    5. Send to Remotion renderer
+    6. Upload final MP4 to R2
+    7. Return download URL
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-async def _run_video_pipeline(job_id, prompt, aspect, duration_secs, voice, style, uploaded_images, video_mode):
-    """Background task: runs the full video production pipeline."""
-    import httpx, json, uuid, os, asyncio
+    body = await request.json()
+    prompt = (body.get("prompt") or "").strip()
+    aspect = body.get("aspect", "landscape")  # landscape (16:9) or portrait (9:16)
+    duration_secs = min(int(body.get("duration", 60)), 180)  # max 3 minutes
+    voice = body.get("voice", "en-GB-SoniaNeural")
+    include_music = body.get("music", True)
+    style = body.get("style", "professional")
+    uploaded_images = body.get("uploaded_images", [])  # user's own images
+
+    if not prompt:
+        return JSONResponse({"error": "Prompt is required"}, status_code=400)
+
+    import httpx, json, uuid, os, asyncio, tempfile
+
     REMOTION_URL = os.getenv("REMOTION_RENDER_URL", "http://localhost:4010")
     RENDER_SECRET = os.getenv("REMOTION_RENDER_SECRET", "superdeck-render-2026")
     FPS = 30
-    job = _video_jobs[job_id]
+
+    results = {"status": "processing", "steps": []}
 
     try:
         # ── STEP 1: AI Script Generation ──────────────────
-        job["status"] = "generating_script"
         num_scenes = max(4, duration_secs // 8)
         script_prompt = f"""You are a professional video scriptwriter creating compelling marketing videos. Create a video script for:
 
@@ -21396,11 +21419,13 @@ IMPORTANT RULES:
 - End with a clear call to action
 DO NOT include any markdown or explanation. Return ONLY the JSON object."""
 
+        # Try Grok first, then Gemini, then Claude
         script_json = None
         xai_key = os.getenv("XAI_API_KEY", "")
         gemini_key = os.getenv("GEMINI_API_KEY", "")
 
         async with httpx.AsyncClient(timeout=120) as client:
+            # Try Grok (xAI)
             if xai_key and not script_json:
                 try:
                     resp = await client.post("https://api.x.ai/v1/chat/completions",
@@ -21413,10 +21438,12 @@ DO NOT include any markdown or explanation. Return ONLY the JSON object."""
                         if text.startswith("```"): text = text.split("\n", 1)[1] if "\n" in text else text[3:]
                         if text.endswith("```"): text = text[:-3].strip()
                         script_json = json.loads(text)
-                        job["steps"].append({"step": "script", "status": "ok"})
+                        results["steps"].append({"step": "script", "provider": "grok", "status": "ok"})
+                        logger.info("Video Creator: script generated via Grok")
                 except Exception as e:
                     logger.warning(f"Video Creator: Grok script failed: {e}")
 
+            # Try Gemini fallback
             if gemini_key and not script_json:
                 try:
                     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={gemini_key}"
@@ -21431,37 +21458,35 @@ DO NOT include any markdown or explanation. Return ONLY the JSON object."""
                         if text.startswith("```"): text = text.split("\n", 1)[1] if "\n" in text else text[3:]
                         if text.endswith("```"): text = text[:-3].strip()
                         script_json = json.loads(text)
-                        job["steps"].append({"step": "script", "status": "ok"})
+                        results["steps"].append({"step": "script", "provider": "gemini", "status": "ok"})
+                        logger.info("Video Creator: script generated via Gemini")
                 except Exception as e:
                     logger.warning(f"Video Creator: Gemini script failed: {e}")
 
         if not script_json:
-            job["status"] = "failed"
-            job["error"] = "Failed to generate script"
-            return
+            return JSONResponse({"error": "Failed to generate script. Please try again."}, status_code=500)
 
         scenes = script_json.get("scenes", [])
         if not scenes:
-            job["status"] = "failed"
-            job["error"] = "Script contained no scenes"
-            return
-
-        job["script"] = script_json
+            return JSONResponse({"error": "Script generated but contained no scenes."}, status_code=500)
 
         # ── STEP 2: Generate Images ───────────────────────
-        job["status"] = "generating_images"
         fal_key = os.getenv("FAL_KEY", "")
         image_urls = []
 
         async with httpx.AsyncClient(timeout=120) as client:
             for i, scene in enumerate(scenes):
+                # Use uploaded image if available for this scene
                 if i < len(uploaded_images) and uploaded_images[i]:
                     image_urls.append(uploaded_images[i])
+                    logger.info(f"Video Creator: image {i+1}/{len(scenes)} using uploaded image")
                     continue
+
                 visual = scene.get("visual_prompt", "")
                 if not visual:
                     image_urls.append(None)
                     continue
+
                 img_url = None
                 if fal_key:
                     try:
@@ -21474,57 +21499,17 @@ DO NOT include any markdown or explanation. Return ONLY the JSON object."""
                             images = data.get("images", [])
                             if images:
                                 img_url = images[0].get("url")
+                        else:
+                            logger.warning(f"Video Creator: fal.ai image {i} status {resp.status_code}: {resp.text[:200]}")
                     except Exception as e:
                         logger.warning(f"Video Creator: fal.ai image {i} failed: {e}")
+
                 image_urls.append(img_url)
+                logger.info(f"Video Creator: image {i+1}/{len(scenes)} {'ok' if img_url else 'failed'}")
 
-        job["steps"].append({"step": "images", "generated": sum(1 for u in image_urls if u), "total": len(scenes), "status": "ok"})
-
-        # ── STEP 2b: Generate Motion Video Clips ──────────
-        video_clip_urls = []
-        if video_mode == "motion":
-            job["status"] = "generating_motion"
-            async with httpx.AsyncClient(timeout=300) as client:
-                for i, scene in enumerate(scenes):
-                    img = image_urls[i] if i < len(image_urls) else None
-                    if not img:
-                        video_clip_urls.append(None)
-                        continue
-                    clip_url = None
-                    if fal_key:
-                        try:
-                            motion_prompt = scene.get("visual_prompt", "") + ", smooth cinematic camera movement, professional video"
-                            resp = await client.post("https://queue.fal.run/fal-ai/kling-video/v2/master/image-to-video",
-                                headers={"Authorization": f"Key {fal_key}", "Content-Type": "application/json"},
-                                json={"prompt": motion_prompt, "image_url": img, "duration": "5", "aspect_ratio": "16:9" if aspect == "landscape" else "9:16"})
-                            if resp.status_code == 200:
-                                queue_data = resp.json()
-                                request_id = queue_data.get("request_id")
-                                if request_id:
-                                    for attempt in range(60):
-                                        await asyncio.sleep(5)
-                                        status_resp = await client.get(f"https://queue.fal.run/fal-ai/kling-video/v2/master/image-to-video/requests/{request_id}/status",
-                                            headers={"Authorization": f"Key {fal_key}"})
-                                        if status_resp.status_code == 200:
-                                            sdata = status_resp.json()
-                                            if sdata.get("status") == "COMPLETED":
-                                                result_resp = await client.get(f"https://queue.fal.run/fal-ai/kling-video/v2/master/image-to-video/requests/{request_id}",
-                                                    headers={"Authorization": f"Key {fal_key}"})
-                                                if result_resp.status_code == 200:
-                                                    rdata = result_resp.json()
-                                                    video = rdata.get("video", {})
-                                                    clip_url = video.get("url")
-                                                break
-                                            elif sdata.get("status") == "FAILED":
-                                                break
-                        except Exception as e:
-                            logger.warning(f"Video Creator: motion clip {i} failed: {e}")
-                    video_clip_urls.append(clip_url)
-                    job["progress"] = int((i + 1) / len(scenes) * 40)  # 0-40% for motion clips
-            job["steps"].append({"step": "video_clips", "generated": sum(1 for u in video_clip_urls if u), "total": len(scenes), "status": "ok"})
+        results["steps"].append({"step": "images", "generated": sum(1 for u in image_urls if u), "total": len(scenes)})
 
         # ── STEP 3: Generate Voiceover ────────────────────
-        job["status"] = "generating_voiceover"
         narration_text = " ".join([s.get("narration", "") for s in scenes])
         voiceover_url = None
 
@@ -21533,44 +21518,45 @@ DO NOT include any markdown or explanation. Return ONLY the JSON object."""
             tts = edge_tts.Communicate(narration_text, voice)
             tts_path = f"/tmp/video_vo_{uuid.uuid4().hex[:8]}.mp3"
             await tts.save(tts_path)
+
+            # Upload to R2
             with open(tts_path, "rb") as f:
                 vo_bytes = f.read()
             from app.r2_storage import r2_available, upload_image
             if r2_available():
                 voiceover_url = upload_image(vo_bytes, "video-creator", "mp3", "audio/mpeg")
             os.unlink(tts_path)
-            job["steps"].append({"step": "voiceover", "status": "ok"})
+            results["steps"].append({"step": "voiceover", "status": "ok"})
+            logger.info("Video Creator: voiceover generated")
         except Exception as e:
             logger.warning(f"Video Creator: voiceover failed: {e}")
-            job["steps"].append({"step": "voiceover", "status": "failed"})
+            results["steps"].append({"step": "voiceover", "status": "failed", "error": str(e)})
 
         # ── STEP 4: Build Remotion Payload ────────────────
-        job["status"] = "rendering"
         remotion_scenes = []
         for i, scene in enumerate(scenes):
             img = image_urls[i] if i < len(image_urls) else None
             if not img:
                 img = f"https://placehold.co/1920x1080/1e1b4b/ffffff?text=Scene+{i+1}"
-            scene_data = {
+
+            remotion_scenes.append({
                 "imageUrl": img,
                 "heading": scene.get("text_overlay", ""),
                 "body": "",
-                "duration": scene.get("duration_secs", 8),
-            }
-            if video_mode == "motion" and i < len(video_clip_urls) and video_clip_urls[i]:
-                scene_data["videoUrl"] = video_clip_urls[i]
-            remotion_scenes.append(scene_data)
+                "duration": scene.get("duration_secs", 8),  # seconds, not frames
+            })
 
         aspect_ratio = "16:9" if aspect == "landscape" else "9:16"
         render_payload = {
             "scenes": remotion_scenes,
             "voiceoverUrl": voiceover_url or "",
-            "musicUrl": "",
+            "musicUrl": "",  # TODO: integrate Suno
             "style": {"transition": "fade"},
             "aspectRatio": aspect_ratio,
         }
 
         # ── STEP 5: Send to Remotion Renderer ─────────────
+        render_job_id = None
         async with httpx.AsyncClient(timeout=30) as client:
             try:
                 resp = await client.post(f"{REMOTION_URL}/render",
@@ -21578,86 +21564,38 @@ DO NOT include any markdown or explanation. Return ONLY the JSON object."""
                     json=render_payload)
                 if resp.status_code == 200:
                     data = resp.json()
-                    job["render_job_id"] = data.get("jobId")
-                    job["steps"].append({"step": "render", "status": "queued"})
+                    render_job_id = data.get("jobId")
+                    results["steps"].append({"step": "render", "status": "queued", "jobId": render_job_id})
+                    logger.info(f"Video Creator: render queued — {render_job_id}")
                 else:
-                    job["steps"].append({"step": "render", "status": "failed", "error": resp.text[:200]})
+                    results["steps"].append({"step": "render", "status": "failed", "error": resp.text[:200]})
             except Exception as e:
-                job["steps"].append({"step": "render", "status": "failed", "error": str(e)})
+                results["steps"].append({"step": "render", "status": "failed", "error": str(e)})
+                logger.error(f"Video Creator: render request failed: {e}")
+
+        return {
+            "success": True,
+            "script": script_json,
+            "render_job_id": render_job_id,
+            "remotion_url": REMOTION_URL,
+            "steps": results["steps"],
+            "message": "Video is rendering. Poll /api/video-creator/status/{job_id} for progress.",
+        }
 
     except Exception as e:
         logger.error(f"Video Creator pipeline failed: {e}")
-        job["status"] = "failed"
-        job["error"] = f"Pipeline failed: {str(e)[:200]}"
-
-
-@app.post("/api/video-creator/generate")
-async def api_video_creator_generate(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-
-    body = await request.json()
-    prompt = (body.get("prompt") or "").strip()
-    aspect = body.get("aspect", "landscape")
-    duration_secs = min(int(body.get("duration", 60)), 180)
-    voice = body.get("voice", "en-GB-SoniaNeural")
-    style = body.get("style", "professional")
-    uploaded_images = body.get("uploaded_images", [])
-    video_mode = body.get("video_mode", "images")
-
-    if not prompt:
-        return JSONResponse({"error": "Prompt is required"}, status_code=400)
-
-    import uuid, asyncio
-    job_id = f"vc-{uuid.uuid4().hex[:12]}"
-    _video_jobs[job_id] = {
-        "id": job_id,
-        "status": "starting",
-        "progress": 0,
-        "steps": [],
-        "script": None,
-        "render_job_id": None,
-        "error": None,
-    }
-
-    # Launch pipeline as background task
-    asyncio.create_task(_run_video_pipeline(job_id, prompt, aspect, duration_secs, voice, style, uploaded_images, video_mode))
-
-    return {"success": True, "render_job_id": job_id, "steps": [], "script": None, "message": "Video pipeline started."}
+        return JSONResponse({"error": f"Pipeline failed: {str(e)[:200]}"}, status_code=500)
 
 
 @app.get("/api/video-creator/status/{job_id}")
 async def api_video_creator_status(job_id: str, user: User = Depends(get_current_user)):
-    """Poll video creator pipeline and render status."""
+    """Poll render status from the Remotion renderer."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
     import httpx, os
     REMOTION_URL = os.getenv("REMOTION_RENDER_URL", "http://localhost:4010")
 
-    # Check local pipeline job first
-    if job_id in _video_jobs:
-        job = _video_jobs[job_id]
-        if job["status"] == "failed":
-            return {"status": "failed", "error": job.get("error", "Unknown error"), "progress": 0, "steps": job.get("steps", [])}
-        if job["status"] == "rendering" and job.get("render_job_id"):
-            # Pipeline done, check Remotion render status
-            try:
-                async with httpx.AsyncClient(timeout=15) as client:
-                    resp = await client.get(f"{REMOTION_URL}/render/{job['render_job_id']}")
-                    if resp.status_code == 200:
-                        rdata = resp.json()
-                        rdata["steps"] = job.get("steps", [])
-                        rdata["script"] = job.get("script")
-                        return rdata
-            except Exception:
-                pass
-            return {"status": "rendering", "progress": job.get("progress", 50), "steps": job.get("steps", [])}
-        # Still in pipeline stages
-        status_map = {"starting": 5, "generating_script": 10, "generating_images": 25, "generating_motion": 40, "generating_voiceover": 60, "rendering": 70}
-        return {"status": "rendering", "progress": status_map.get(job["status"], 10), "steps": job.get("steps", []), "script": job.get("script")}
-
-    # Fallback: try Remotion directly
     try:
         async with httpx.AsyncClient(timeout=15) as client:
             resp = await client.get(f"{REMOTION_URL}/render/{job_id}")
@@ -21678,14 +21616,9 @@ async def api_video_creator_download(job_id: str, user: User = Depends(get_curre
     REMOTION_URL = os.getenv("REMOTION_RENDER_URL", "http://localhost:4010")
     RENDER_SECRET = os.getenv("REMOTION_RENDER_SECRET", "superdeck-render-2026")
 
-    # Resolve local job to Remotion render ID
-    render_id = job_id
-    if job_id in _video_jobs and _video_jobs[job_id].get("render_job_id"):
-        render_id = _video_jobs[job_id]["render_job_id"]
-
     try:
         async with httpx.AsyncClient(timeout=120) as client:
-            resp = await client.get(f"{REMOTION_URL}/download/{render_id}",
+            resp = await client.get(f"{REMOTION_URL}/download/{job_id}",
                 headers={"x-render-secret": RENDER_SECRET})
             if resp.status_code == 200:
                 video_bytes = resp.content
