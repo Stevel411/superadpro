@@ -11,10 +11,15 @@ print(f"CWD: {os.getcwd()}", flush=True)
 print(f"PORT: {os.environ.get('PORT', 'NOT SET')}", flush=True)
 print("=" * 60, flush=True)
 
+# Force garbage collection before heavy import
+import gc
+gc.collect()
+
 try:
     print("Importing app.main...", flush=True)
     from app.main import app
     print("SUCCESS: app.main imported", flush=True)
+    gc.collect()
 except Exception as e:
     print(f"FATAL: Failed to import app.main: {e}", flush=True)
     traceback.print_exc()
