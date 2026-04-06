@@ -21326,6 +21326,28 @@ async def api_superdeck_export(deck_id: int, request: Request, user: User = Depe
 
 
 # ═══════════════════════════════════════════════════════════
+#  General image upload (used by Video Creator, etc.)
+# ═══════════════════════════════════════════════════════════
+
+@app.post("/api/upload-image")
+async def api_upload_image(file: UploadFile = File(...), user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    contents = await file.read()
+    if len(contents) > 10 * 1024 * 1024:
+        return JSONResponse({"error": "File too large (max 10MB)"}, status_code=400)
+    ext = (file.filename or "image.png").rsplit(".", 1)[-1].lower()
+    if ext not in ("jpg", "jpeg", "png", "gif", "webp"):
+        return JSONResponse({"error": "Invalid image type"}, status_code=400)
+    content_type = file.content_type or f"image/{ext}"
+    from app.r2_storage import r2_available, upload_image
+    if r2_available():
+        url = upload_image(contents, "user-uploads", ext, content_type)
+        return {"url": url}
+    return JSONResponse({"error": "Storage not available"}, status_code=500)
+
+
+# ═══════════════════════════════════════════════════════════
 #  AI VIDEO CREATOR — One-click video production pipeline
 # ═══════════════════════════════════════════════════════════
 
@@ -21351,6 +21373,7 @@ async def api_video_creator_generate(request: Request, user: User = Depends(get_
     voice = body.get("voice", "en-GB-SoniaNeural")
     include_music = body.get("music", True)
     style = body.get("style", "professional")
+    uploaded_images = body.get("uploaded_images", [])  # user's own images
 
     if not prompt:
         return JSONResponse({"error": "Prompt is required"}, status_code=400)
@@ -21366,7 +21389,7 @@ async def api_video_creator_generate(request: Request, user: User = Depends(get_
     try:
         # ── STEP 1: AI Script Generation ──────────────────
         num_scenes = max(4, duration_secs // 8)
-        script_prompt = f"""You are a professional video scriptwriter. Create a video script for the following topic:
+        script_prompt = f"""You are a professional video scriptwriter creating compelling marketing videos. Create a video script for:
 
 TOPIC: {prompt}
 STYLE: {style}
@@ -21379,15 +21402,21 @@ Return ONLY valid JSON with this exact structure:
   "scenes": [
     {{
       "scene_num": 1,
-      "narration": "The voiceover text for this scene (2-3 sentences)",
-      "visual_prompt": "Detailed image generation prompt for this scene - be specific about composition, lighting, colours, style",
-      "text_overlay": "Short text to display on screen (5-8 words max)",
+      "narration": "The voiceover text for this scene (2-3 engaging sentences, written as if speaking directly to the viewer)",
+      "visual_prompt": "Detailed image generation prompt describing the visual scene - focus on people, objects, environments, lighting, mood, and composition. NEVER include any text, words, letters, numbers, logos, watermarks, or typography in the visual description. The image should be purely visual with no written elements.",
+      "text_overlay": "Short punchy headline for on-screen text (5-8 words max)",
       "duration_secs": 8
     }}
   ]
 }}
 
-Make the narration engaging and conversational. Visual prompts should describe photorealistic, high-quality images.
+IMPORTANT RULES:
+- Narration should be warm, confident, and conversational — like a trusted friend giving advice, not a corporate robot
+- Visual prompts must NEVER mention text, words, letters, logos, typography, or signage. Describe only visual scenes, people, and environments
+- Visual prompts should specify: camera angle, lighting style, colour palette, and mood
+- Each scene's duration should be 6-10 seconds
+- Open with a hook that grabs attention in the first 3 seconds
+- End with a clear call to action
 DO NOT include any markdown or explanation. Return ONLY the JSON object."""
 
         # Try Grok first, then Gemini, then Claude
@@ -21447,6 +21476,12 @@ DO NOT include any markdown or explanation. Return ONLY the JSON object."""
 
         async with httpx.AsyncClient(timeout=120) as client:
             for i, scene in enumerate(scenes):
+                # Use uploaded image if available for this scene
+                if i < len(uploaded_images) and uploaded_images[i]:
+                    image_urls.append(uploaded_images[i])
+                    logger.info(f"Video Creator: image {i+1}/{len(scenes)} using uploaded image")
+                    continue
+
                 visual = scene.get("visual_prompt", "")
                 if not visual:
                     image_urls.append(None)
@@ -21455,9 +21490,10 @@ DO NOT include any markdown or explanation. Return ONLY the JSON object."""
                 img_url = None
                 if fal_key:
                     try:
+                        enhanced_prompt = visual + ", cinematic, high quality, 8k, professional photography, no text, no words, no letters, no typography, no watermarks"
                         resp = await client.post("https://fal.run/fal-ai/flux/schnell",
                             headers={"Authorization": f"Key {fal_key}", "Content-Type": "application/json"},
-                            json={"prompt": visual + ", cinematic, high quality, 8k, professional photography", "image_size": "landscape_16_9" if aspect == "landscape" else "portrait_9_16", "num_images": 1})
+                            json={"prompt": enhanced_prompt, "image_size": "landscape_16_9" if aspect == "landscape" else "portrait_9_16", "num_images": 1})
                         if resp.status_code == 200:
                             data = resp.json()
                             images = data.get("images", [])
