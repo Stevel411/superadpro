@@ -21374,6 +21374,7 @@ async def api_video_creator_generate(request: Request, user: User = Depends(get_
     include_music = body.get("music", True)
     style = body.get("style", "professional")
     uploaded_images = body.get("uploaded_images", [])  # user's own images
+    video_mode = body.get("video_mode", "images")  # "images" or "motion"
 
     if not prompt:
         return JSONResponse({"error": "Prompt is required"}, status_code=400)
@@ -21509,6 +21510,52 @@ DO NOT include any markdown or explanation. Return ONLY the JSON object."""
 
         results["steps"].append({"step": "images", "generated": sum(1 for u in image_urls if u), "total": len(scenes)})
 
+        # ── STEP 2b: Generate Motion Video Clips (if motion mode) ──
+        video_clip_urls = []
+        if video_mode == "motion":
+            async with httpx.AsyncClient(timeout=300) as client:
+                for i, scene in enumerate(scenes):
+                    img = image_urls[i] if i < len(image_urls) else None
+                    if not img:
+                        video_clip_urls.append(None)
+                        continue
+                    clip_url = None
+                    if fal_key:
+                        try:
+                            motion_prompt = scene.get("visual_prompt", "") + ", smooth cinematic camera movement, professional video"
+                            resp = await client.post("https://queue.fal.run/fal-ai/kling-video/v2/master/image-to-video",
+                                headers={"Authorization": f"Key {fal_key}", "Content-Type": "application/json"},
+                                json={"prompt": motion_prompt, "image_url": img, "duration": "5", "aspect_ratio": "16:9" if aspect == "landscape" else "9:16"})
+                            if resp.status_code == 200:
+                                queue_data = resp.json()
+                                request_id = queue_data.get("request_id")
+                                if request_id:
+                                    # Poll for completion
+                                    for attempt in range(60):
+                                        await asyncio.sleep(5)
+                                        status_resp = await client.get(f"https://queue.fal.run/fal-ai/kling-video/v2/master/image-to-video/requests/{request_id}/status",
+                                            headers={"Authorization": f"Key {fal_key}"})
+                                        if status_resp.status_code == 200:
+                                            sdata = status_resp.json()
+                                            if sdata.get("status") == "COMPLETED":
+                                                result_resp = await client.get(f"https://queue.fal.run/fal-ai/kling-video/v2/master/image-to-video/requests/{request_id}",
+                                                    headers={"Authorization": f"Key {fal_key}"})
+                                                if result_resp.status_code == 200:
+                                                    rdata = result_resp.json()
+                                                    video = rdata.get("video", {})
+                                                    clip_url = video.get("url")
+                                                break
+                                            elif sdata.get("status") == "FAILED":
+                                                logger.warning(f"Video Creator: motion clip {i} failed: {sdata}")
+                                                break
+                            else:
+                                logger.warning(f"Video Creator: motion clip {i} queue failed: {resp.status_code} {resp.text[:200]}")
+                        except Exception as e:
+                            logger.warning(f"Video Creator: motion clip {i} failed: {e}")
+                    video_clip_urls.append(clip_url)
+                    logger.info(f"Video Creator: motion clip {i+1}/{len(scenes)} {'ok' if clip_url else 'failed'}")
+            results["steps"].append({"step": "video_clips", "generated": sum(1 for u in video_clip_urls if u), "total": len(scenes)})
+
         # ── STEP 3: Generate Voiceover ────────────────────
         narration_text = " ".join([s.get("narration", "") for s in scenes])
         voiceover_url = None
@@ -21539,12 +21586,18 @@ DO NOT include any markdown or explanation. Return ONLY the JSON object."""
             if not img:
                 img = f"https://placehold.co/1920x1080/1e1b4b/ffffff?text=Scene+{i+1}"
 
-            remotion_scenes.append({
+            scene_data = {
                 "imageUrl": img,
                 "heading": scene.get("text_overlay", ""),
                 "body": "",
-                "duration": scene.get("duration_secs", 8),  # seconds, not frames
-            })
+                "duration": scene.get("duration_secs", 8),
+            }
+
+            # If motion mode and we have a video clip, add it
+            if video_mode == "motion" and i < len(video_clip_urls) and video_clip_urls[i]:
+                scene_data["videoUrl"] = video_clip_urls[i]
+
+            remotion_scenes.append(scene_data)
 
         aspect_ratio = "16:9" if aspect == "landscape" else "9:16"
         render_payload = {

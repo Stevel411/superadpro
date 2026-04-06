@@ -111,6 +111,7 @@ export default function VideoCreator() {
   var [duration, setDuration] = useState(60);
   var [aspect, setAspect] = useState('landscape');
   var [voice, setVoice] = useState('en-GB-SoniaNeural');
+  var [videoMode, setVideoMode] = useState('images');
   var [generating, setGenerating] = useState(false);
   var [jobId, setJobId] = useState(null);
   var [progress, setProgress] = useState(0);
@@ -153,6 +154,7 @@ export default function VideoCreator() {
     setStatus('Generating script and assets...'); setSteps([]); setScript(null);
     apiPost('/api/video-creator/generate', {
       prompt: prompt.trim(), aspect: aspect, duration: duration, style: style, voice: voice, music: true,
+      video_mode: videoMode,
       uploaded_images: uploadedImages.map(function(img) { return img.url; }),
     }).then(function(r) {
       if (r.success && r.render_job_id) {
@@ -223,6 +225,24 @@ export default function VideoCreator() {
             </div>
           </div>
 
+          {/* Video mode */}
+          <div style={{ marginBottom: 14 }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>Video mode</label>
+            <div style={{ display: 'flex', gap: 8 }}>
+              <div onClick={function(){setVideoMode('images');}} style={{ flex: 1, padding: '12px 14px', borderRadius: 10, border: videoMode === 'images' ? '2px solid #8b5cf6' : '1px solid #e2e8f0', background: videoMode === 'images' ? 'rgba(139,92,246,0.04)' : '#fff', cursor: 'pointer' }}>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Standard</div>
+                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>AI images with Ken Burns motion</div>
+                <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 600, marginTop: 4 }}>~{Math.ceil(duration / 8)} credits</div>
+              </div>
+              <div onClick={function(){setVideoMode('motion');}} style={{ flex: 1, padding: '12px 14px', borderRadius: 10, border: videoMode === 'motion' ? '2px solid #8b5cf6' : '1px solid #e2e8f0', background: videoMode === 'motion' ? 'rgba(139,92,246,0.04)' : '#fff', cursor: 'pointer', position: 'relative' }}>
+                <span style={{ position: 'absolute', top: -8, right: 10, fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 8, background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#fff', letterSpacing: '0.04em' }}>PRO</span>
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Motion Video</div>
+                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>AI-generated video clips with real movement</div>
+                <div style={{ fontSize: 11, color: '#f97316', fontWeight: 600, marginTop: 4 }}>~{Math.ceil(duration / 8) * 3} credits</div>
+              </div>
+            </div>
+          </div>
+
           <div style={{ marginBottom: 14 }}>
             <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
               <ImagePlus size={13} /> Your images <span style={{ fontWeight: 400, color: '#94a3b8' }}>(optional)</span>
@@ -258,7 +278,7 @@ export default function VideoCreator() {
           </button>
           <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
           <div style={{ marginTop: 10, fontSize: 13, color: '#94a3b8', textAlign: 'center' }}>
-            Estimated cost: ~{Math.ceil(duration / 8)} credits ({Math.ceil(duration / 8) * 0.19 < 1 ? '< $1' : '~$' + (Math.ceil(duration / 8) * 0.19).toFixed(2)})
+            Estimated cost: ~{videoMode === 'motion' ? Math.ceil(duration / 8) * 3 : Math.ceil(duration / 8)} credits ({(videoMode === 'motion' ? Math.ceil(duration / 8) * 3 : Math.ceil(duration / 8)) * 0.19 < 1 ? '< $1' : '~$' + ((videoMode === 'motion' ? Math.ceil(duration / 8) * 3 : Math.ceil(duration / 8)) * 0.19).toFixed(2)})
           </div>
         </div>
 
@@ -273,7 +293,12 @@ export default function VideoCreator() {
               <div style={{ fontSize: 13, color: '#64748b', marginBottom: 8 }}>{progress}% complete</div>
               {steps.map(function(s, i) {
                 var ic = s.status === 'ok' || s.status === 'queued' ? <CheckCircle size={14} color="#22c55e" /> : <Clock size={14} color="#94a3b8" />;
-                return <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#64748b', marginBottom: 4 }}>{ic} {s.step}: {s.status} {s.provider ? '(' + s.provider + ')' : ''}</div>;
+                var stepLabels = { script: 'Writing script', images: 'Generating visuals', voiceover: 'Recording voiceover', render: 'Composing video', video_clips: 'Creating motion clips' };
+                var statusLabels = { ok: 'Done', queued: 'In progress', failed: 'Failed' };
+                var stepLabel = stepLabels[s.step] || s.step;
+                var statusLabel = statusLabels[s.status] || s.status;
+                if (s.step === 'images' && s.generated !== undefined) statusLabel = s.generated + '/' + s.total + ' done';
+                return <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#64748b', marginBottom: 4 }}>{ic} {stepLabel}: {statusLabel}</div>;
               })}
             </div>
           )}
