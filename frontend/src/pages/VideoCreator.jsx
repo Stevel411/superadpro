@@ -218,13 +218,13 @@ export default function VideoCreator() {
           <div style={{ marginBottom: 14 }}>
             <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>Aspect ratio</label>
             <div style={{ display: 'flex', gap: 10 }}>
-              {[['landscape','16:9 YouTube','Widescreen for YouTube, websites','#1e3a5f','#2563eb','#60a5fa'],['portrait','9:16 TikTok / Reels','Vertical for TikTok, Reels, Shorts','#5b1a3a','#be185d','#f472b6']].map(function(a) {
+              {[['landscape','16:9 YouTube','Widescreen for YouTube, websites'],['portrait','9:16 TikTok / Reels','Vertical for TikTok, Reels, Shorts']].map(function(a) {
                 var active = aspect === a[0];
                 return <div key={a[0]} onClick={function(){setAspect(a[0]);}}
                   style={{ flex:1, padding:'14px 16px', borderRadius:12, cursor:'pointer',
-                    background: active ? 'linear-gradient(135deg, '+a[3]+', '+a[4]+', '+a[5]+')' : 'linear-gradient(135deg, '+a[3]+'77, '+a[4]+'55, '+a[5]+'44)',
-                    border: active ? '2px solid '+a[5] : '2px solid transparent',
-                    boxShadow: active ? '0 4px 12px '+a[4]+'44' : 'none',
+                    background: active ? 'linear-gradient(135deg, #1e3a5f, #2563eb, #60a5fa)' : 'linear-gradient(135deg, #1e3a5f55, #2563eb44, #60a5fa33)',
+                    border: active ? '2px solid #60a5fa' : '2px solid transparent',
+                    boxShadow: active ? '0 4px 12px rgba(37,99,235,0.3)' : 'none',
                     transition: 'all 0.2s' }}>
                   <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>{a[1]}</div>
                   <div style={{ fontSize:11, color:'rgba(255,255,255,0.6)', marginTop:2 }}>{a[2]}</div>
@@ -240,9 +240,9 @@ export default function VideoCreator() {
               {/* Motion Video - LEFT */}
               <div onClick={function(){setVideoMode('motion');}}
                 style={{ flex: 1, padding: '16px 16px 14px', borderRadius: 12, cursor: 'pointer', position: 'relative', overflow: 'hidden',
-                  background: videoMode === 'motion' ? 'linear-gradient(135deg, #1e1b4b, #4c1d95, #7c3aed)' : 'linear-gradient(135deg, #1e1b4b99, #4c1d9588, #7c3aed77)',
-                  border: videoMode === 'motion' ? '2px solid #a78bfa' : '2px solid transparent',
-                  boxShadow: videoMode === 'motion' ? '0 4px 15px rgba(124,58,237,0.3)' : 'none',
+                  background: videoMode === 'motion' ? 'linear-gradient(135deg, #1e3a5f, #2563eb, #60a5fa)' : 'linear-gradient(135deg, #1e3a5f55, #2563eb44, #60a5fa33)',
+                  border: videoMode === 'motion' ? '2px solid #60a5fa' : '2px solid transparent',
+                  boxShadow: videoMode === 'motion' ? '0 4px 15px rgba(37,99,235,0.3)' : 'none',
                   transition: 'all 0.2s' }}>
                 <span style={{ position: 'absolute', top: 10, right: 10, fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 8, background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#fff', letterSpacing: '0.04em' }}>PRO</span>
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>Motion Video</div>
@@ -252,9 +252,9 @@ export default function VideoCreator() {
               {/* Standard - RIGHT */}
               <div onClick={function(){setVideoMode('images');}}
                 style={{ flex: 1, padding: '16px 16px 14px', borderRadius: 12, cursor: 'pointer',
-                  background: videoMode === 'images' ? 'linear-gradient(135deg, #064e3b, #059669, #34d399)' : 'linear-gradient(135deg, #064e3b88, #05966977, #34d39966)',
-                  border: videoMode === 'images' ? '2px solid #6ee7b7' : '2px solid transparent',
-                  boxShadow: videoMode === 'images' ? '0 4px 15px rgba(5,150,105,0.3)' : 'none',
+                  background: videoMode === 'images' ? 'linear-gradient(135deg, #1e3a5f, #2563eb, #60a5fa)' : 'linear-gradient(135deg, #1e3a5f55, #2563eb44, #60a5fa33)',
+                  border: videoMode === 'images' ? '2px solid #60a5fa' : '2px solid transparent',
+                  boxShadow: videoMode === 'images' ? '0 4px 15px rgba(37,99,235,0.3)' : 'none',
                   transition: 'all 0.2s' }}>
                 <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>Standard</div>
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 3 }}>AI images with smooth Ken Burns motion effects</div>
