@@ -195,8 +195,8 @@ export default function VideoCreator() {
             <Film size={24} color="#a78bfa" />
           </div>
           <div>
-            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 26, fontWeight: 800, color: '#fff' }}>AI Video Creator</div>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>Describe your video and AI produces it — script, visuals, voiceover, music, and final MP4</div>
+            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 26, fontWeight: 800, color: '#fff' }}>Turn any idea into a marketing video</div>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>Just describe what you want — AI handles the script, visuals, voiceover, and final MP4 in minutes</div>
           </div>
         </div>
       </div>
