@@ -1,4 +1,5 @@
 import os
+from decimal import Decimal
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, Column, Integer, BigInteger, String, ForeignKey, Float, Boolean, DateTime, Text, text, Numeric
 
@@ -1384,6 +1385,61 @@ def run_migrations():
         # Ensure admin/owner account is always Pro, active, and top of network
         "UPDATE users SET membership_tier = 'pro', is_active = true WHERE is_admin = true",
         "UPDATE users SET membership_tier = 'pro', is_active = true, is_admin = true WHERE username = 'SuperAdPro'",
+        # ── Credit Matrix tables ──
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS matrix_earnings NUMERIC(18,6) DEFAULT 0",
+        """CREATE TABLE IF NOT EXISTS credit_pack_purchases (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+            pack_key VARCHAR(20) NOT NULL,
+            pack_price NUMERIC(18,6) NOT NULL,
+            credits_awarded INTEGER NOT NULL,
+            payment_method VARCHAR(20) DEFAULT 'crypto',
+            payment_ref VARCHAR(200),
+            status VARCHAR(20) DEFAULT 'completed',
+            matrix_entry_id INTEGER,
+            created_at TIMESTAMP DEFAULT NOW()
+        )""",
+        """CREATE TABLE IF NOT EXISTS credit_matrices (
+            id SERIAL PRIMARY KEY,
+            owner_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+            cycle_number INTEGER DEFAULT 1,
+            status VARCHAR(20) DEFAULT 'active',
+            positions_filled INTEGER DEFAULT 0,
+            total_earned NUMERIC(18,6) DEFAULT 0,
+            completion_bonus_paid NUMERIC(18,6) DEFAULT 0,
+            completed_at TIMESTAMP,
+            created_at TIMESTAMP DEFAULT NOW()
+        )""",
+        """CREATE TABLE IF NOT EXISTS credit_matrix_positions (
+            id SERIAL PRIMARY KEY,
+            matrix_id INTEGER REFERENCES credit_matrices(id) ON DELETE CASCADE NOT NULL,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+            parent_position_id INTEGER REFERENCES credit_matrix_positions(id),
+            level INTEGER NOT NULL,
+            position_index INTEGER DEFAULT 0,
+            pack_key VARCHAR(20),
+            pack_price NUMERIC(18,6) DEFAULT 0,
+            created_at TIMESTAMP DEFAULT NOW()
+        )""",
+        """CREATE TABLE IF NOT EXISTS credit_matrix_commissions (
+            id SERIAL PRIMARY KEY,
+            matrix_id INTEGER REFERENCES credit_matrices(id) ON DELETE CASCADE NOT NULL,
+            earner_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+            from_user_id INTEGER REFERENCES users(id) ON DELETE CASCADE NOT NULL,
+            from_position_id INTEGER REFERENCES credit_matrix_positions(id) NOT NULL,
+            level INTEGER NOT NULL,
+            rate NUMERIC(8,4) NOT NULL,
+            pack_price NUMERIC(18,6) NOT NULL,
+            amount NUMERIC(18,6) NOT NULL,
+            commission_type VARCHAR(30) DEFAULT 'matrix_level',
+            status VARCHAR(20) DEFAULT 'paid',
+            created_at TIMESTAMP DEFAULT NOW()
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_credit_matrices_owner ON credit_matrices(owner_id)",
+        "CREATE INDEX IF NOT EXISTS idx_credit_matrix_positions_matrix ON credit_matrix_positions(matrix_id)",
+        "CREATE INDEX IF NOT EXISTS idx_credit_matrix_positions_user ON credit_matrix_positions(user_id)",
+        "CREATE INDEX IF NOT EXISTS idx_credit_matrix_commissions_earner ON credit_matrix_commissions(earner_id)",
+        "CREATE INDEX IF NOT EXISTS idx_credit_pack_purchases_user ON credit_pack_purchases(user_id)",
     ]
     results = []
     with engine.connect() as conn:
@@ -2167,3 +2223,92 @@ class Presentation(Base):
     updated_at   = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     owner = relationship("User", backref="presentations")
+
+
+# ═══════════════════════════════════════════════════════════
+#  CREDIT MATRIX — 3×3 Forced Matrix Compensation Plan
+# ═══════════════════════════════════════════════════════════
+
+# Credit pack definitions (not a DB model — constants)
+CREDIT_PACKS = {
+    "starter":  {"price": 25,  "credits": 150,   "label": "Starter",  "completion_bonus": 10},
+    "builder":  {"price": 50,  "credits": 350,   "label": "Builder",  "completion_bonus": 25},
+    "pro":      {"price": 100, "credits": 800,   "label": "Pro",      "completion_bonus": 50},
+    "elite":    {"price": 250, "credits": 2200,  "label": "Elite",    "completion_bonus": 100},
+    "ultimate": {"price": 500, "credits": 5000,  "label": "Ultimate", "completion_bonus": 250},
+}
+
+MATRIX_WIDTH = 3
+MATRIX_DEPTH = 3
+MATRIX_COMMISSION_RATES = {1: Decimal("0.10"), 2: Decimal("0.05"), 3: Decimal("0.03")}
+
+
+class CreditPackPurchase(Base):
+    """Record of a credit pack purchase that enters the matrix."""
+    __tablename__ = "credit_pack_purchases"
+    id            = Column(Integer, primary_key=True, index=True)
+    user_id       = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    pack_key      = Column(String(20), nullable=False)   # starter/builder/pro/elite/ultimate
+    pack_price    = Column(Numeric(18, 6), nullable=False)
+    credits_awarded = Column(Integer, nullable=False)
+    payment_method = Column(String(20), default="crypto")  # crypto / stripe / wallet
+    payment_ref   = Column(String(200))                    # NOW Payments order ID or Stripe session
+    status        = Column(String(20), default="completed")  # pending / completed / refunded
+    matrix_entry_id = Column(Integer, ForeignKey("credit_matrix_positions.id"), nullable=True)
+    created_at    = Column(DateTime, default=datetime.utcnow)
+
+    buyer = relationship("User", backref="credit_pack_purchases")
+
+
+class CreditMatrix(Base):
+    """A 3×3 matrix instance belonging to a user. Cycles on completion."""
+    __tablename__ = "credit_matrices"
+    id            = Column(Integer, primary_key=True, index=True)
+    owner_id      = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    cycle_number  = Column(Integer, default=1)              # increments each time matrix completes
+    status        = Column(String(20), default="active")     # active / completed
+    positions_filled = Column(Integer, default=0)            # 0-39 (1 owner + 3+9+27 downline)
+    total_earned  = Column(Numeric(18, 6), default=0)        # total commissions earned from this matrix
+    completion_bonus_paid = Column(Numeric(18, 6), default=0)
+    completed_at  = Column(DateTime, nullable=True)
+    created_at    = Column(DateTime, default=datetime.utcnow)
+
+    owner = relationship("User", backref="credit_matrices")
+
+
+class CreditMatrixPosition(Base):
+    """A single position in someone's 3×3 matrix tree."""
+    __tablename__ = "credit_matrix_positions"
+    id            = Column(Integer, primary_key=True, index=True)
+    matrix_id     = Column(Integer, ForeignKey("credit_matrices.id", ondelete="CASCADE"), nullable=False, index=True)
+    user_id       = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    parent_position_id = Column(Integer, ForeignKey("credit_matrix_positions.id"), nullable=True)
+    level         = Column(Integer, nullable=False)          # 0=owner, 1-3=downline levels
+    position_index = Column(Integer, default=0)              # 0-2 within parent (left/mid/right)
+    pack_key      = Column(String(20))                       # which pack triggered this entry
+    pack_price    = Column(Numeric(18, 6), default=0)
+    created_at    = Column(DateTime, default=datetime.utcnow)
+
+    matrix = relationship("CreditMatrix", backref="positions")
+    user = relationship("User", backref="credit_matrix_positions")
+    parent = relationship("CreditMatrixPosition", remote_side=[id], backref="children")
+
+
+class CreditMatrixCommission(Base):
+    """Commission earned from a matrix position being filled."""
+    __tablename__ = "credit_matrix_commissions"
+    id            = Column(Integer, primary_key=True, index=True)
+    matrix_id     = Column(Integer, ForeignKey("credit_matrices.id", ondelete="CASCADE"), nullable=False, index=True)
+    earner_id     = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    from_user_id  = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    from_position_id = Column(Integer, ForeignKey("credit_matrix_positions.id"), nullable=False)
+    level         = Column(Integer, nullable=False)          # 1, 2, or 3
+    rate          = Column(Numeric(8, 4), nullable=False)    # 0.10, 0.05, or 0.03
+    pack_price    = Column(Numeric(18, 6), nullable=False)   # original pack price
+    amount        = Column(Numeric(18, 6), nullable=False)   # actual commission amount
+    commission_type = Column(String(30), default="matrix_level")  # matrix_level / matrix_completion
+    status        = Column(String(20), default="paid")       # paid / pending / held
+    created_at    = Column(DateTime, default=datetime.utcnow)
+
+    earner = relationship("User", foreign_keys=[earner_id], backref="credit_matrix_commissions_earned")
+    from_user = relationship("User", foreign_keys=[from_user_id], backref="credit_matrix_commissions_generated")
