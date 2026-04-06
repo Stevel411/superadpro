@@ -189,14 +189,14 @@ export default function VideoCreator() {
 
   return (
     <AppLayout title="AI Video Creator" subtitle="One-click marketing videos">
-      <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '28px 32px', marginBottom: 20 }}>
+      <div style={{ background: 'linear-gradient(135deg, #0c1222, #1c223d, #2d3561)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '28px 32px', marginBottom: 20 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 12, background: '#f3f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Film size={24} color="#8b5cf6" />
+          <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(139,92,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Film size={24} color="#a78bfa" />
           </div>
           <div>
-            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 26, fontWeight: 800, color: '#0f172a' }}>AI Video Creator</div>
-            <div style={{ fontSize: 14, color: '#64748b' }}>Describe your video and AI produces it — script, visuals, voiceover, music, and final MP4</div>
+            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 26, fontWeight: 800, color: '#fff' }}>AI Video Creator</div>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>Describe your video and AI produces it — script, visuals, voiceover, music, and final MP4</div>
           </div>
         </div>
       </div>
@@ -217,10 +217,18 @@ export default function VideoCreator() {
 
           <div style={{ marginBottom: 14 }}>
             <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>Aspect ratio</label>
-            <div style={{ display: 'flex', gap: 8 }}>
-              {[['landscape','16:9 YouTube'],['portrait','9:16 TikTok / Reels']].map(function(a) {
+            <div style={{ display: 'flex', gap: 10 }}>
+              {[['landscape','16:9 YouTube','Widescreen for YouTube, websites','#1e3a5f','#2563eb','#60a5fa'],['portrait','9:16 TikTok / Reels','Vertical for TikTok, Reels, Shorts','#5b1a3a','#be185d','#f472b6']].map(function(a) {
                 var active = aspect === a[0];
-                return <button key={a[0]} onClick={function(){setAspect(a[0]);}} style={{ flex:1, padding:'12px', borderRadius:10, border: active?'2px solid #8b5cf6':'1px solid #e2e8f0', background: active?'rgba(139,92,246,0.04)':'#fff', color:'#0f172a', fontSize:14, fontWeight:600, cursor:'pointer', fontFamily:'inherit' }}>{a[1]}</button>;
+                return <div key={a[0]} onClick={function(){setAspect(a[0]);}}
+                  style={{ flex:1, padding:'14px 16px', borderRadius:12, cursor:'pointer',
+                    background: active ? 'linear-gradient(135deg, '+a[3]+', '+a[4]+', '+a[5]+')' : 'linear-gradient(135deg, '+a[3]+'77, '+a[4]+'55, '+a[5]+'44)',
+                    border: active ? '2px solid '+a[5] : '2px solid transparent',
+                    boxShadow: active ? '0 4px 12px '+a[4]+'44' : 'none',
+                    transition: 'all 0.2s' }}>
+                  <div style={{ fontSize:14, fontWeight:700, color:'#fff' }}>{a[1]}</div>
+                  <div style={{ fontSize:11, color:'rgba(255,255,255,0.6)', marginTop:2 }}>{a[2]}</div>
+                </div>;
               })}
             </div>
           </div>
@@ -228,17 +236,29 @@ export default function VideoCreator() {
           {/* Video mode */}
           <div style={{ marginBottom: 14 }}>
             <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>Video mode</label>
-            <div style={{ display: 'flex', gap: 8 }}>
-              <div onClick={function(){setVideoMode('images');}} style={{ flex: 1, padding: '12px 14px', borderRadius: 10, border: videoMode === 'images' ? '2px solid #8b5cf6' : '1px solid #e2e8f0', background: videoMode === 'images' ? 'rgba(139,92,246,0.04)' : '#fff', cursor: 'pointer' }}>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Standard</div>
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>AI images with Ken Burns motion</div>
-                <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 600, marginTop: 4 }}>~{Math.ceil(duration / 8)} credits</div>
+            <div style={{ display: 'flex', gap: 10 }}>
+              {/* Motion Video - LEFT */}
+              <div onClick={function(){setVideoMode('motion');}}
+                style={{ flex: 1, padding: '16px 16px 14px', borderRadius: 12, cursor: 'pointer', position: 'relative', overflow: 'hidden',
+                  background: videoMode === 'motion' ? 'linear-gradient(135deg, #1e1b4b, #4c1d95, #7c3aed)' : 'linear-gradient(135deg, #1e1b4b99, #4c1d9588, #7c3aed77)',
+                  border: videoMode === 'motion' ? '2px solid #a78bfa' : '2px solid transparent',
+                  boxShadow: videoMode === 'motion' ? '0 4px 15px rgba(124,58,237,0.3)' : 'none',
+                  transition: 'all 0.2s' }}>
+                <span style={{ position: 'absolute', top: 10, right: 10, fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 8, background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#fff', letterSpacing: '0.04em' }}>PRO</span>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>Motion Video</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 3 }}>AI-generated video clips with real cinematic movement</div>
+                <div style={{ fontSize: 12, color: '#fbbf24', fontWeight: 700, marginTop: 8 }}>~{Math.ceil(duration / 8) * 3} credits</div>
               </div>
-              <div onClick={function(){setVideoMode('motion');}} style={{ flex: 1, padding: '12px 14px', borderRadius: 10, border: videoMode === 'motion' ? '2px solid #8b5cf6' : '1px solid #e2e8f0', background: videoMode === 'motion' ? 'rgba(139,92,246,0.04)' : '#fff', cursor: 'pointer', position: 'relative' }}>
-                <span style={{ position: 'absolute', top: -8, right: 10, fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 8, background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#fff', letterSpacing: '0.04em' }}>PRO</span>
-                <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Motion Video</div>
-                <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>AI-generated video clips with real movement</div>
-                <div style={{ fontSize: 11, color: '#f97316', fontWeight: 600, marginTop: 4 }}>~{Math.ceil(duration / 8) * 3} credits</div>
+              {/* Standard - RIGHT */}
+              <div onClick={function(){setVideoMode('images');}}
+                style={{ flex: 1, padding: '16px 16px 14px', borderRadius: 12, cursor: 'pointer',
+                  background: videoMode === 'images' ? 'linear-gradient(135deg, #064e3b, #059669, #34d399)' : 'linear-gradient(135deg, #064e3b88, #05966977, #34d39966)',
+                  border: videoMode === 'images' ? '2px solid #6ee7b7' : '2px solid transparent',
+                  boxShadow: videoMode === 'images' ? '0 4px 15px rgba(5,150,105,0.3)' : 'none',
+                  transition: 'all 0.2s' }}>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>Standard</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)', marginTop: 3 }}>AI images with smooth Ken Burns motion effects</div>
+                <div style={{ fontSize: 12, color: '#fbbf24', fontWeight: 700, marginTop: 8 }}>~{Math.ceil(duration / 8)} credits</div>
               </div>
             </div>
           </div>
