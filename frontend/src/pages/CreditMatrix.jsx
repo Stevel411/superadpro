@@ -111,7 +111,7 @@ export default function CreditMatrix() {
               { label: 'Matrix Earned', value: '$' + (stats.total_earned || 0).toFixed(2), icon: DollarSign, color: '#22c55e' },
               { label: 'Credit Balance', value: (stats.credit_balance || 0).toLocaleString(), icon: Zap, color: '#f59e0b' },
               { label: 'Matrix Fill', value: (stats.active_matrix ? stats.active_matrix.fill_pct : 0) + '%', icon: Users, color: '#0ea5e9' },
-              { label: 'Cycles Complete', value: stats.completed_cycles || 0, icon: Award, color: '#8b5cf6' },
+              { label: 'Matrices Complete', value: stats.completed_cycles || 0, icon: Award, color: '#8b5cf6' },
             ].map(function(card, i) {
               return (
                 <div key={i} style={{ background: '#fff', borderRadius: 10, padding: '14px 16px' }}>
@@ -175,7 +175,7 @@ export default function CreditMatrix() {
           {/* Matrix Tree Visualisation */}
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px 24px', marginBottom: 20 }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 16 }}>Your 3×3 Matrix
-              {matrixData && <span style={{ fontSize: 13, fontWeight: 400, color: '#94a3b8', marginLeft: 8 }}>Cycle #{matrixData.cycle_number} — {matrixData.positions_filled}/{matrixData.max_positions} filled</span>}
+              {matrixData && <span style={{ fontSize: 13, fontWeight: 400, color: '#94a3b8', marginLeft: 8 }}>Matrix #{matrixData.cycle_number} — {matrixData.positions_filled}/{matrixData.max_positions} filled</span>}
             </div>
 
             {/* Progress bar */}
@@ -289,7 +289,7 @@ export default function CreditMatrix() {
                           {c.type === 'matrix_completion' ? '🎉 Matrix Complete Bonus' : 'L' + c.level + ' from ' + c.from_user}
                         </div>
                         <div style={{ fontSize: 11, color: '#94a3b8' }}>
-                          {c.type === 'matrix_level' ? (c.rate * 100).toFixed(0) + '% of $' + c.pack_price.toFixed(0) + ' pack' : 'Cycle completion reward'}
+                          {c.type === 'matrix_level' ? (c.rate * 100).toFixed(0) + '% of $' + c.pack_price.toFixed(0) + ' pack' : 'Matrix completion reward'}
                           {' · '}{new Date(c.created_at).toLocaleDateString()}
                         </div>
                       </div>
@@ -312,7 +312,7 @@ export default function CreditMatrix() {
               { step: '2', text: 'Your purchase enters your sponsor\'s 3×3 matrix' },
               { step: '3', text: 'Earn 10% on Level 1, 5% on Level 2, 3% on Level 3' },
               { step: '4', text: 'When all 39 positions fill, earn a completion bonus' },
-              { step: '5', text: 'Matrix resets — a new cycle begins automatically' },
+              { step: '5', text: 'Matrix resets — earnings continue automatically' },
             ].map(function(item, i) {
               return (
                 <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
@@ -342,7 +342,7 @@ export default function CreditMatrix() {
               );
             })}
             <div style={{ borderTop: '1px solid #c4b5fd', marginTop: 8, paddingTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 15, fontWeight: 800 }}>
-              <span style={{ color: '#4c1d95' }}>Total per cycle</span>
+              <span style={{ color: '#4c1d95' }}>Total per matrix</span>
               <span style={{ color: '#4c1d95' }}>$1,693.00</span>
             </div>
           </div>
