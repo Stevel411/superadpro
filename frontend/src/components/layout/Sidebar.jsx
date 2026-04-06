@@ -36,6 +36,7 @@ function buildNav(t, isAdmin) {
       { label: 'Content Creator', icon: Bot, path: '/content-creator' },
       { label: t('nav.superPages'), icon: Globe, path: '/pro/funnels', pro: true },
       { label: 'SuperDeck', icon: Monitor, path: '/superdeck', pro: true },
+      { label: 'Video Creator', icon: Film, path: '/video-creator', pro: true },
       { label: 'AutoResponder', icon: Mail, path: '/pro/leads', pro: true },
     ]},
     { type: 'divider' },
