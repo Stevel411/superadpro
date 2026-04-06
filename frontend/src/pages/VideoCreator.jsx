@@ -68,7 +68,11 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
             {icon === 'layers' && <Layers size={14} color="#fff" />}
             {icon === 'timer' && <Timer size={14} color="#fff" />}
             {icon === 'mic' && <Mic size={14} color="#fff" />}
-            {icon === 'aspect' && <svg width="14" height="10" viewBox="0 0 22 14" fill="none"><rect x="1" y="1" width="20" height="12" rx="2" stroke="#fff" strokeWidth="1.5"/></svg>}
+            {icon === 'aspect' && (
+              selected.value === 'portrait'
+                ? <svg width="10" height="14" viewBox="0 0 14 22" fill="none"><rect x="1" y="1" width="12" height="20" rx="2" stroke="#fff" strokeWidth="1.5"/></svg>
+                : <svg width="14" height="10" viewBox="0 0 22 14" fill="none"><rect x="1" y="1" width="20" height="12" rx="2" stroke="#fff" strokeWidth="1.5"/></svg>
+            )}
           </div>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{selected.label}</div>
           <ChevronDown size={14} color="#94a3b8" style={{ marginLeft: 'auto', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
@@ -88,7 +92,11 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
                       {icon === 'layers' && <Layers size={14} color="#fff" />}
                       {icon === 'timer' && <Timer size={14} color="#fff" />}
                       {icon === 'mic' && <Mic size={14} color="#fff" />}
-                      {icon === 'aspect' && <svg width="12" height="8" viewBox="0 0 22 14" fill="none"><rect x="1" y="1" width="20" height="12" rx="2" stroke="#fff" strokeWidth="1.5"/></svg>}
+                      {icon === 'aspect' && (
+                        item.value === 'portrait'
+                          ? <svg width="8" height="12" viewBox="0 0 14 22" fill="none"><rect x="1" y="1" width="12" height="20" rx="2" stroke="#fff" strokeWidth="1.5"/></svg>
+                          : <svg width="12" height="8" viewBox="0 0 22 14" fill="none"><rect x="1" y="1" width="20" height="12" rx="2" stroke="#fff" strokeWidth="1.5"/></svg>
+                      )}
                     </div>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{item.label}</div>
@@ -198,7 +206,10 @@ export default function VideoCreator() {
           </div>
 
           {/* Prompt — white card */}
-          <div style={{ background: '#fff', borderRadius: 12, padding: '16px 18px', marginBottom: 14 }}>
+          <div
+            onMouseEnter={function(e) { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
+            onMouseLeave={function(e) { e.currentTarget.style.boxShadow = 'none'; }}
+            style={{ background: '#fff', borderRadius: 12, padding: '16px 18px', marginBottom: 14, transition: 'all 0.15s ease' }}>
             <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>What's your video about?</label>
             <textarea value={prompt} onChange={function(e) { setPrompt(e.target.value); }}
               placeholder="e.g. Create a 60-second video promoting my online fitness coaching business..."
@@ -295,10 +306,12 @@ export default function VideoCreator() {
 
           {/* Generate button */}
           <button onClick={generate} disabled={generating || !prompt.trim()}
+            onMouseEnter={function(e) { if (!generating && prompt.trim()) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(139,92,246,0.45)'; } }}
+            onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = generating ? 'none' : '0 2px 12px rgba(139,92,246,0.35)'; }}
             style={{ width: '100%', marginTop: 16, padding: '14px', borderRadius: 10, border: 'none',
               background: generating ? '#94a3b8' : 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff', fontSize: 15, fontWeight: 700,
               cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              boxShadow: generating ? 'none' : '0 2px 12px rgba(139,92,246,0.35)' }}>
+              boxShadow: generating ? 'none' : '0 2px 12px rgba(139,92,246,0.35)', transition: 'all 0.2s ease' }}>
             {generating ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> Generating...</> : <><Sparkles size={18} /> Generate video</>}
           </button>
           <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
