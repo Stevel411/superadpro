@@ -99,8 +99,8 @@ export default function CreditMatrix() {
             <Layers size={24} color="#a78bfa" />
           </div>
           <div>
-            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#fff' }}>Credit Matrix</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Buy credit packs, earn commissions from your 3×3 matrix — L1: 10%, L2: 5%, L3: 3%</div>
+            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#fff' }}>Earn commissions every time your team creates content</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Buy credit packs for AI videos, images, and music — earn 10%, 5%, and 3% across 3 levels when your team does the same</div>
           </div>
         </div>
 
