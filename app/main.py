@@ -21687,3 +21687,249 @@ async def api_video_creator_download(job_id: str, user: User = Depends(get_curre
                 return JSONResponse({"error": f"Download failed: {resp.text[:200]}"}, status_code=resp.status_code)
     except Exception as e:
         return JSONResponse({"error": f"Download failed: {str(e)}"}, status_code=500)
+
+
+# ═══════════════════════════════════════════════════════════
+#  CREDIT MATRIX — 3×3 Forced Matrix API Endpoints
+# ═══════════════════════════════════════════════════════════
+
+from app.credit_matrix import (
+    purchase_credit_pack, get_matrix_tree, get_matrix_history,
+    get_or_create_active_matrix, CREDIT_PACKS, MATRIX_MAX_DOWNLINE,
+)
+
+@app.get("/api/credit-matrix/packs")
+async def api_credit_matrix_packs(user: User = Depends(get_current_user)):
+    """Return available credit packs with pricing."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    packs = []
+    for key, pack in CREDIT_PACKS.items():
+        packs.append({
+            "key": key,
+            "label": pack["label"],
+            "price": pack["price"],
+            "credits": pack["credits"],
+            "cost_per_credit": round(pack["price"] / pack["credits"], 3),
+            "completion_bonus": pack["completion_bonus"],
+        })
+    return {"success": True, "packs": packs}
+
+
+@app.post("/api/credit-matrix/purchase")
+async def api_credit_matrix_purchase(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """
+    Purchase a credit pack with wallet balance.
+    Awards credits + places buyer in sponsor's 3x3 matrix + pays commissions.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    body = await request.json()
+    pack_key = body.get("pack_key", "").strip().lower()
+    payment_method = body.get("payment_method", "wallet")  # wallet / crypto
+
+    pack = CREDIT_PACKS.get(pack_key)
+    if not pack:
+        return JSONResponse({"error": f"Invalid pack: {pack_key}"}, status_code=400)
+
+    price = pack["price"]
+
+    if payment_method == "wallet":
+        from decimal import Decimal
+        balance = Decimal(str(user.balance or 0))
+        pack_price = Decimal(str(price))
+        if balance < pack_price:
+            return JSONResponse({"error": f"Insufficient balance. Need ${price}, have ${float(balance):.2f}"}, status_code=400)
+
+        # Deduct from wallet
+        user.balance = balance - pack_price
+        db.flush()
+
+        result = purchase_credit_pack(db, user, pack_key, payment_ref=f"wallet_{user.id}_{pack_key}", payment_method="wallet")
+        return result
+
+    elif payment_method == "crypto":
+        # For crypto, we create a NOWPayments order and process on IPN callback
+        # Return the pack info so frontend can initiate crypto payment
+        return {
+            "success": True,
+            "action": "crypto_checkout",
+            "pack_key": pack_key,
+            "price": price,
+            "credits": pack["credits"],
+            "message": "Redirect to crypto payment",
+        }
+    else:
+        return JSONResponse({"error": "Invalid payment method"}, status_code=400)
+
+
+@app.get("/api/credit-matrix/my-matrix")
+async def api_credit_matrix_my_matrix(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Get the current user's active matrix tree + stats."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    data = get_matrix_tree(db, user.id)
+    return {"success": True, **data}
+
+
+@app.get("/api/credit-matrix/history")
+async def api_credit_matrix_history(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Get all completed matrix cycles for the current user."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    cycles = get_matrix_history(db, user.id)
+    return {"success": True, "cycles": cycles}
+
+
+@app.get("/api/credit-matrix/commissions")
+async def api_credit_matrix_commissions(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Get all matrix commissions earned by the current user."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from app.database import CreditMatrixCommission
+    commissions = db.query(CreditMatrixCommission).filter(
+        CreditMatrixCommission.earner_id == user.id
+    ).order_by(CreditMatrixCommission.created_at.desc()).limit(100).all()
+
+    items = []
+    for c in commissions:
+        from_user = db.query(User).filter(User.id == c.from_user_id).first()
+        items.append({
+            "id": c.id,
+            "from_user": from_user.username if from_user else "Unknown",
+            "level": c.level,
+            "rate": float(c.rate),
+            "pack_price": float(c.pack_price),
+            "amount": float(c.amount),
+            "type": c.commission_type,
+            "status": c.status,
+            "created_at": c.created_at.isoformat() if c.created_at else None,
+        })
+
+    # Summary stats
+    from decimal import Decimal
+    total_earned = sum(Decimal(str(c.amount)) for c in commissions)
+    l1_earned = sum(Decimal(str(c.amount)) for c in commissions if c.level == 1)
+    l2_earned = sum(Decimal(str(c.amount)) for c in commissions if c.level == 2)
+    l3_earned = sum(Decimal(str(c.amount)) for c in commissions if c.level == 3)
+    bonuses = sum(Decimal(str(c.amount)) for c in commissions if c.commission_type == "matrix_completion")
+
+    return {
+        "success": True,
+        "commissions": items,
+        "summary": {
+            "total_earned": float(total_earned),
+            "l1_earned": float(l1_earned),
+            "l2_earned": float(l2_earned),
+            "l3_earned": float(l3_earned),
+            "completion_bonuses": float(bonuses),
+            "total_transactions": len(items),
+        },
+    }
+
+
+@app.get("/api/credit-matrix/stats")
+async def api_credit_matrix_stats(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Dashboard stats for credit matrix earnings."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from app.database import CreditMatrix, CreditMatrixCommission, CreditPackPurchase
+    from decimal import Decimal
+
+    # Active matrix
+    active = db.query(CreditMatrix).filter(
+        CreditMatrix.owner_id == user.id, CreditMatrix.status == "active"
+    ).first()
+
+    # Completed cycles
+    completed_count = db.query(CreditMatrix).filter(
+        CreditMatrix.owner_id == user.id, CreditMatrix.status == "completed"
+    ).count()
+
+    # Total earned from all matrices
+    all_commissions = db.query(CreditMatrixCommission).filter(
+        CreditMatrixCommission.earner_id == user.id
+    ).all()
+    total_earned = sum(Decimal(str(c.amount)) for c in all_commissions)
+
+    # Own purchases
+    own_purchases = db.query(CreditPackPurchase).filter(
+        CreditPackPurchase.user_id == user.id, CreditPackPurchase.status == "completed"
+    ).all()
+    total_spent = sum(Decimal(str(p.pack_price)) for p in own_purchases)
+    total_credits_bought = sum(p.credits_awarded for p in own_purchases)
+
+    # Credit balance
+    from app.database import SuperSceneCredit
+    credit_record = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == user.id).first()
+    credit_balance = credit_record.balance if credit_record else 0
+
+    return {
+        "success": True,
+        "stats": {
+            "active_matrix": {
+                "id": active.id if active else None,
+                "cycle": active.cycle_number if active else 0,
+                "positions_filled": active.positions_filled if active else 0,
+                "max_positions": MATRIX_MAX_DOWNLINE,
+                "fill_pct": round((active.positions_filled / MATRIX_MAX_DOWNLINE) * 100, 1) if active else 0,
+            },
+            "completed_cycles": completed_count,
+            "total_earned": float(total_earned),
+            "total_spent": float(total_spent),
+            "total_credits_bought": total_credits_bought,
+            "credit_balance": credit_balance,
+            "roi": float((total_earned / total_spent * 100) if total_spent > 0 else 0),
+        },
+    }
+
+
+@app.get("/api/credit-matrix/team-activity")
+async def api_credit_matrix_team_activity(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Recent credit pack purchases from team members (for activity feed)."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from app.database import CreditMatrixPosition, CreditPackPurchase, CreditMatrix
+
+    # Get the user's active matrix
+    matrix = db.query(CreditMatrix).filter(
+        CreditMatrix.owner_id == user.id, CreditMatrix.status == "active"
+    ).first()
+
+    if not matrix:
+        return {"success": True, "activity": []}
+
+    # Get all users in this matrix
+    positions = db.query(CreditMatrixPosition).filter(
+        CreditMatrixPosition.matrix_id == matrix.id, CreditMatrixPosition.level > 0
+    ).all()
+    team_user_ids = [p.user_id for p in positions]
+
+    if not team_user_ids:
+        return {"success": True, "activity": []}
+
+    # Get recent purchases from team
+    purchases = db.query(CreditPackPurchase).filter(
+        CreditPackPurchase.user_id.in_(team_user_ids),
+        CreditPackPurchase.status == "completed",
+    ).order_by(CreditPackPurchase.created_at.desc()).limit(20).all()
+
+    activity = []
+    for p in purchases:
+        buyer = db.query(User).filter(User.id == p.user_id).first()
+        pack_info = CREDIT_PACKS.get(p.pack_key, {})
+        activity.append({
+            "username": buyer.username if buyer else "Unknown",
+            "pack": pack_info.get("label", p.pack_key),
+            "price": float(p.pack_price),
+            "credits": p.credits_awarded,
+            "created_at": p.created_at.isoformat() if p.created_at else None,
+        })
+
+    return {"success": True, "activity": activity}
