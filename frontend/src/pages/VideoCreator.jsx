@@ -18,6 +18,11 @@ var DURATIONS = [
   { value: 120, label: '2 minutes', desc: '~15 scenes, ~15 credits', color: '#0ea5e9' },
 ];
 
+var ASPECTS = [
+  { value: 'landscape', label: '16:9', desc: 'YouTube, websites', color: '#64748b' },
+  { value: 'portrait', label: '9:16', desc: 'TikTok, Reels, Shorts', color: '#64748b' },
+];
+
 var VOICES = [
   { value: 'en-GB-SoniaNeural', label: 'Sonia', desc: 'British female — warm, professional', color: '#7c3aed', tag: 'DEFAULT', tagColor: '#7c3aed' },
   { value: 'en-GB-RyanNeural', label: 'Ryan', desc: 'British male — confident, authoritative', color: '#2563eb', tag: 'POPULAR', tagColor: '#0ea5e9' },
@@ -36,59 +41,59 @@ var VOICES = [
   { value: 'en-CA-ClaraNeural', label: 'Clara', desc: 'Canadian female — neutral, crisp', color: '#0d9488' },
 ];
 
-function DropdownSelector({ label, icon, items, value, onChange, initialCount }) {
+/* ── Compact dropdown (white card style, for use on dark bg) ── */
+function CompactDropdown({ label, icon, iconColor, items, value, onChange, initialCount }) {
   var [open, setOpen] = useState(false);
   var [showAll, setShowAll] = useState(false);
   var ref = useRef(null);
-  var selected = items.find(function(item) { return item.value === value; }) || items[0];
-  var visibleItems = initialCount && !showAll ? items.slice(0, initialCount) : items;
+  var selected = items.find(function(it) { return it.value === value; }) || items[0];
+  var visible = initialCount && !showAll ? items.slice(0, initialCount) : items;
   var hasMore = initialCount && items.length > initialCount && !showAll;
 
   useEffect(function() {
-    function handleClick(e) { if (ref.current && !ref.current.contains(e.target)) { setOpen(false); setShowAll(false); } }
-    document.addEventListener('mousedown', handleClick);
-    return function() { document.removeEventListener('mousedown', handleClick); };
+    function h(e) { if (ref.current && !ref.current.contains(e.target)) { setOpen(false); setShowAll(false); } }
+    document.addEventListener('mousedown', h);
+    return function() { document.removeEventListener('mousedown', h); };
   }, []);
 
   return (
-    <div ref={ref} style={{ position: 'relative', marginBottom: 14 }}>
-      {label && <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>{label}</label>}
+    <div ref={ref} style={{ position: 'relative' }}>
       <div onClick={function() { setOpen(!open); }}
-        style={{ background: '#fff', border: '1px solid ' + (open ? '#8b5cf6' : '#e2e8f0'), borderRadius: 10, padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', transition: 'border-color 0.15s' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div style={{ width: 36, height: 36, borderRadius: 8, background: 'linear-gradient(135deg, ' + (selected.color || '#6366f1') + ', ' + (selected.color || '#6366f1') + 'cc)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            {icon === 'mic' && <Mic size={15} color="#fff" />}
-            {icon === 'layers' && <Layers size={15} color="#fff" />}
-            {icon === 'timer' && <Timer size={15} color="#fff" />}
+        style={{ background: '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: open ? '1px solid #8b5cf6' : '1px solid transparent' }}>
+        <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>{label}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ width: 28, height: 28, borderRadius: 6, background: selected.color || iconColor || '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            {icon === 'layers' && <Layers size={14} color="#fff" />}
+            {icon === 'timer' && <Timer size={14} color="#fff" />}
+            {icon === 'mic' && <Mic size={14} color="#fff" />}
+            {icon === 'aspect' && <svg width="14" height="10" viewBox="0 0 22 14" fill="none"><rect x="1" y="1" width="20" height="12" rx="2" stroke="#fff" strokeWidth="1.5"/></svg>}
           </div>
-          <div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{selected.label}</div>
-            <div style={{ fontSize: 12, color: '#94a3b8' }}>{selected.desc}</div>
-          </div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{selected.label}</div>
+          <ChevronDown size={14} color="#94a3b8" style={{ marginLeft: 'auto', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
         </div>
-        <ChevronDown size={16} color="#94a3b8" style={{ transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
       </div>
       {open && (
-        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, marginTop: 4, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.1)' }}>
+        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, marginTop: 4, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}>
           <div style={{ maxHeight: 340, overflowY: 'auto' }}>
-            {visibleItems.map(function(item) {
-              var isSelected = item.value === value;
+            {visible.map(function(item) {
+              var isSel = item.value === value;
               return (
-                <div key={item.value}
-                  onClick={function() { onChange(item.value); setOpen(false); setShowAll(false); }}
-                  style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer', background: isSelected ? 'rgba(139,92,246,0.04)' : 'transparent', borderLeft: isSelected ? '3px solid #8b5cf6' : '3px solid transparent', borderBottom: '1px solid #f1f5f9' }}>
+                <div key={item.value} onClick={function() { onChange(item.value); setOpen(false); setShowAll(false); }}
+                  style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer',
+                    background: isSel ? 'rgba(139,92,246,0.04)' : 'transparent', borderLeft: isSel ? '3px solid #8b5cf6' : '3px solid transparent', borderBottom: '1px solid #f1f5f9' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 36, height: 36, borderRadius: 8, background: 'linear-gradient(135deg, ' + (item.color || '#6366f1') + ', ' + (item.color || '#6366f1') + 'cc)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      {icon === 'mic' && <Mic size={14} color="#fff" />}
+                    <div style={{ width: 32, height: 32, borderRadius: 7, background: 'linear-gradient(135deg, ' + (item.color || '#6366f1') + ', ' + (item.color || '#6366f1') + 'cc)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       {icon === 'layers' && <Layers size={14} color="#fff" />}
                       {icon === 'timer' && <Timer size={14} color="#fff" />}
+                      {icon === 'mic' && <Mic size={14} color="#fff" />}
+                      {icon === 'aspect' && <svg width="12" height="8" viewBox="0 0 22 14" fill="none"><rect x="1" y="1" width="20" height="12" rx="2" stroke="#fff" strokeWidth="1.5"/></svg>}
                     </div>
                     <div>
-                      <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{item.label}</div>
-                      <div style={{ fontSize: 12, color: '#94a3b8' }}>{item.desc}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{item.label}</div>
+                      {item.desc && <div style={{ fontSize: 11, color: '#94a3b8' }}>{item.desc}</div>}
                     </div>
                   </div>
-                  {item.tag && <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 10, background: (item.tagColor || item.color) + '18', color: item.tagColor || item.color, letterSpacing: '0.02em', whiteSpace: 'nowrap' }}>{item.tag}</span>}
+                  {item.tag && <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 10, background: (item.tagColor || item.color) + '18', color: item.tagColor || item.color, whiteSpace: 'nowrap' }}>{item.tag}</span>}
                 </div>
               );
             })}
@@ -96,7 +101,7 @@ function DropdownSelector({ label, icon, items, value, onChange, initialCount })
           {hasMore && (
             <div onClick={function(e) { e.stopPropagation(); setShowAll(true); }}
               style={{ padding: '10px 14px', borderTop: '1px solid #f1f5f9', textAlign: 'center', cursor: 'pointer', background: '#fafafa' }}>
-              <span style={{ fontSize: 12, color: '#8b5cf6', fontWeight: 600 }}>Show {items.length - initialCount} more voices</span>
+              <span style={{ fontSize: 12, color: '#8b5cf6', fontWeight: 600 }}>Show {items.length - initialCount} more</span>
             </div>
           )}
         </div>
@@ -130,40 +135,25 @@ export default function VideoCreator() {
     if (files.length === 0) return;
     setUploading(true);
     var promises = files.map(function(file) {
-      var formData = new FormData();
-      formData.append('file', file);
-      return fetch('/api/upload-image', { method: 'POST', credentials: 'include', body: formData })
-        .then(function(r) { return r.json(); })
-        .then(function(data) { if (data.url) return { url: data.url, name: file.name }; return null; })
-        .catch(function() { return null; });
+      var fd = new FormData(); fd.append('file', file);
+      return fetch('/api/upload-image', { method: 'POST', credentials: 'include', body: fd })
+        .then(function(r) { return r.json(); }).then(function(d) { return d.url ? { url: d.url, name: file.name } : null; }).catch(function() { return null; });
     });
-    Promise.all(promises).then(function(results) {
-      var valid = results.filter(function(r) { return r !== null; });
-      setUploadedImages(function(prev) { return prev.concat(valid); });
-      setUploading(false);
-    });
+    Promise.all(promises).then(function(r) { setUploadedImages(function(p) { return p.concat(r.filter(Boolean)); }); setUploading(false); });
   }
-
-  function removeImage(index) {
-    setUploadedImages(function(prev) { return prev.filter(function(_, i) { return i !== index; }); });
-  }
+  function removeImage(i) { setUploadedImages(function(p) { return p.filter(function(_, idx) { return idx !== i; }); }); }
 
   function generate() {
     if (!prompt.trim()) return;
     setGenerating(true); setError(null); setVideoUrl(null); setProgress(0);
     setStatus('Generating script and assets...'); setSteps([]); setScript(null);
     apiPost('/api/video-creator/generate', {
-      prompt: prompt.trim(), aspect: aspect, duration: duration, style: style, voice: voice, music: true,
-      video_mode: videoMode,
+      prompt: prompt.trim(), aspect: aspect, duration: duration, style: style, voice: voice, music: true, video_mode: videoMode,
       uploaded_images: uploadedImages.map(function(img) { return img.url; }),
     }).then(function(r) {
-      if (r.success && r.render_job_id) {
-        setJobId(r.render_job_id); setSteps(r.steps || []); setScript(r.script || null);
-        setStatus('Rendering video...'); startPolling(r.render_job_id);
-      } else if (r.success && !r.render_job_id) {
-        setSteps(r.steps || []); setScript(r.script || null);
-        setError('Pipeline completed but render failed to start. Steps: ' + JSON.stringify(r.steps || [])); setGenerating(false);
-      } else { setError(r.error || r.detail || JSON.stringify(r)); setGenerating(false); }
+      if (r.success && r.render_job_id) { setJobId(r.render_job_id); setSteps(r.steps || []); setScript(r.script || null); setStatus('Rendering video...'); startPolling(r.render_job_id); }
+      else if (r.success && !r.render_job_id) { setSteps(r.steps || []); setScript(r.script || null); setError('Pipeline completed but render failed to start. Steps: ' + JSON.stringify(r.steps || [])); setGenerating(false); }
+      else { setError(r.error || r.detail || JSON.stringify(r)); setGenerating(false); }
     }).catch(function(e) { setError(e.message || 'Failed to generate video'); setGenerating(false); });
   }
 
@@ -189,113 +179,102 @@ export default function VideoCreator() {
 
   return (
     <AppLayout title="AI Video Creator" subtitle="One-click marketing videos">
-      <div style={{ background: 'linear-gradient(135deg, #0c1222, #1c223d, #2d3561)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 14, padding: '28px 32px', marginBottom: 20 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(139,92,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Film size={24} color="#a78bfa" />
-          </div>
-          <div>
-            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 26, fontWeight: 800, color: '#fff' }}>Turn any idea into a marketing video</div>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)' }}>Just describe what you want — AI handles the script, visuals, voiceover, and final MP4 in minutes</div>
-          </div>
-        </div>
-      </div>
 
+      {/* Cobalt blue container — header + form seamless */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 20 }}>
-        <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '24px 28px' }}>
-          <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>What's your video about?</label>
-          <textarea value={prompt} onChange={function(e) { setPrompt(e.target.value); }}
-            placeholder="e.g. Create a 60-second video promoting my online fitness coaching business..."
-            rows={4} style={{ width: '100%', padding: '14px 16px', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 15, fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box', color: '#0f172a' }} />
+        <div style={{ background: 'linear-gradient(180deg, #172554, #1e3a8a)', borderRadius: 14, padding: '24px' }}>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14, marginTop: 16 }}>
-            <DropdownSelector label="Style" icon="layers" items={STYLES} value={style} onChange={setStyle} />
-            <DropdownSelector label="Duration" icon="timer" items={DURATIONS} value={duration} onChange={setDuration} />
+          {/* Header */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(139,92,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Film size={24} color="#a78bfa" />
+            </div>
+            <div>
+              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#fff' }}>Turn any idea into a marketing video</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Just describe what you want — AI handles everything in minutes</div>
+            </div>
           </div>
 
-          {/* Video mode */}
-          <div style={{ marginBottom: 14 }}>
-            <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>Video mode</label>
-            <div style={{ display: 'flex', gap: 10 }}>
-              <div onClick={function(){setVideoMode('motion');}}
-                style={{ flex: 1, padding: '14px 16px', borderRadius: 12, cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: 12, position: 'relative',
-                  background: '#fff', border: videoMode === 'motion' ? '2px solid #8b5cf6' : '1px solid #e2e8f0',
-                  boxShadow: videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.1)' : 'none', transition: 'all 0.15s' }}>
-                <span style={{ position: 'absolute', top: 10, right: 10, fontSize: 9, fontWeight: 700, padding: '2px 8px', borderRadius: 8, background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#fff', letterSpacing: '0.04em' }}>PRO</span>
-                <div style={{ width: 40, height: 40, borderRadius: 8, background: videoMode === 'motion' ? '#f3f0ff' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={videoMode === 'motion' ? '#8b5cf6' : '#94a3b8'} strokeWidth="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 9l5 3-5 3V9z" fill={videoMode === 'motion' ? '#8b5cf6' : '#cbd5e1'} stroke="none"/><path d="M2 8h2M20 8h2M2 16h2M20 16h2" strokeWidth="1.5"/></svg>
+          {/* Prompt — white card */}
+          <div style={{ background: '#fff', borderRadius: 12, padding: '16px 18px', marginBottom: 14 }}>
+            <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>What's your video about?</label>
+            <textarea value={prompt} onChange={function(e) { setPrompt(e.target.value); }}
+              placeholder="e.g. Create a 60-second video promoting my online fitness coaching business..."
+              rows={3} style={{ width: '100%', padding: '12px 14px', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box', color: '#0f172a', background: '#f8fafc' }} />
+          </div>
+
+          {/* Video mode — hero cards */}
+          <div style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>Choose your video style</div>
+          <div style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
+            {/* Motion Video */}
+            <div onClick={function() { setVideoMode('motion'); }}
+              style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, background: '#fff', cursor: 'pointer', position: 'relative',
+                border: videoMode === 'motion' ? '2px solid #8b5cf6' : '1px solid #e2e8f0',
+                boxShadow: videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none' }}>
+              <span style={{ position: 'absolute', top: 10, right: 10, fontSize: 9, fontWeight: 700, padding: '3px 10px', borderRadius: 8, background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#fff', letterSpacing: '0.04em' }}>PRO</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 12, background: videoMode === 'motion' ? '#f3f0ff' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={videoMode === 'motion' ? '#8b5cf6' : '#94a3b8'} strokeWidth="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 9l5 3-5 3V9z" fill={videoMode === 'motion' ? '#8b5cf6' : '#cbd5e1'} stroke="none"/><path d="M2 8h2M20 8h2M2 16h2M20 16h2" strokeWidth="1.5"/></svg>
                 </div>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Motion Video</div>
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>AI-generated video clips with real cinematic movement</div>
-                  <div style={{ fontSize: 11, color: '#8b5cf6', fontWeight: 600, marginTop: 4 }}>~{Math.ceil(duration / 8) * 3} credits</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>Motion video</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>Real AI-generated cinematic clips</div>
                 </div>
               </div>
-              <div onClick={function(){setVideoMode('images');}}
-                style={{ flex: 1, padding: '14px 16px', borderRadius: 12, cursor: 'pointer', display: 'flex', alignItems: 'flex-start', gap: 12,
-                  background: '#fff', border: videoMode === 'images' ? '2px solid #8b5cf6' : '1px solid #e2e8f0',
-                  boxShadow: videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.1)' : 'none', transition: 'all 0.15s' }}>
-                <div style={{ width: 40, height: 40, borderRadius: 8, background: videoMode === 'images' ? '#f3f0ff' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={videoMode === 'images' ? '#8b5cf6' : '#94a3b8'} strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill={videoMode === 'images' ? '#8b5cf6' : '#cbd5e1'} stroke="none"/><path d="M21 15l-5-5L5 21"/></svg>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: '1px solid #f1f5f9' }}>
+                <div style={{ fontSize: 11, color: '#94a3b8' }}>5-sec clips per scene via Kling AI</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#8b5cf6' }}>~{Math.ceil(duration / 8) * 3} credits</div>
+              </div>
+            </div>
+            {/* Standard */}
+            <div onClick={function() { setVideoMode('images'); }}
+              style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, background: '#fff', cursor: 'pointer',
+                border: videoMode === 'images' ? '2px solid #8b5cf6' : '1px solid #e2e8f0',
+                boxShadow: videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
+                <div style={{ width: 48, height: 48, borderRadius: 12, background: videoMode === 'images' ? '#f0fdf4' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={videoMode === 'images' ? '#22c55e' : '#94a3b8'} strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill={videoMode === 'images' ? '#22c55e' : '#cbd5e1'} stroke="none"/><path d="M21 15l-5-5L5 21"/></svg>
                 </div>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>Standard</div>
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>AI images with smooth Ken Burns motion effects</div>
-                  <div style={{ fontSize: 11, color: '#22c55e', fontWeight: 600, marginTop: 4 }}>~{Math.ceil(duration / 8)} credits</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>Standard</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8' }}>AI images with Ken Burns motion</div>
                 </div>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: '1px solid #f1f5f9' }}>
+                <div style={{ fontSize: 11, color: '#94a3b8' }}>Smooth zoom and pan effects</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#22c55e' }}>~{Math.ceil(duration / 8)} credits</div>
               </div>
             </div>
           </div>
 
-          {/* Aspect ratio */}
-          <div style={{ marginBottom: 14 }}>
-            <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>Aspect ratio</label>
-            <div style={{ display: 'flex', gap: 10 }}>
-              {[['landscape','16:9 YouTube','YouTube, websites'],['portrait','9:16 TikTok / Reels','TikTok, Reels, Shorts']].map(function(a) {
-                var active = aspect === a[0];
-                return <div key={a[0]} onClick={function(){setAspect(a[0]);}}
-                  style={{ flex:1, padding:'14px 16px', borderRadius:12, cursor:'pointer', display:'flex', alignItems:'center', gap:12,
-                    background: '#fff', border: active ? '2px solid #8b5cf6' : '1px solid #e2e8f0',
-                    boxShadow: active ? '0 0 0 3px rgba(139,92,246,0.1)' : 'none', transition: 'all 0.15s' }}>
-                  <div style={{ width:40, height:40, borderRadius:8, background: active ? '#f3f0ff' : '#f8fafc', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                    {a[0] === 'landscape' ? (
-                      <svg width="22" height="14" viewBox="0 0 22 14" fill="none"><rect x="1" y="1" width="20" height="12" rx="2" stroke={active ? '#8b5cf6' : '#94a3b8'} strokeWidth="1.5"/><circle cx="11" cy="7" r="2" fill={active ? '#8b5cf6' : '#cbd5e1'}/></svg>
-                    ) : (
-                      <svg width="14" height="22" viewBox="0 0 14 22" fill="none"><rect x="1" y="1" width="12" height="20" rx="2" stroke={active ? '#8b5cf6' : '#94a3b8'} strokeWidth="1.5"/><circle cx="7" cy="11" r="2" fill={active ? '#8b5cf6' : '#cbd5e1'}/></svg>
-                    )}
-                  </div>
-                  <div>
-                    <div style={{ fontSize:14, fontWeight:600, color:'#0f172a' }}>{a[1]}</div>
-                    <div style={{ fontSize:11, color:'#94a3b8' }}>{a[2]}</div>
-                  </div>
-                </div>;
-              })}
-            </div>
+          {/* Settings row — 3 col */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 12 }}>
+            <CompactDropdown label="Style" icon="layers" items={STYLES} value={style} onChange={setStyle} />
+            <CompactDropdown label="Duration" icon="timer" items={DURATIONS} value={duration} onChange={setDuration} />
+            <CompactDropdown label="Aspect ratio" icon="aspect" items={ASPECTS} value={aspect} onChange={setAspect} />
           </div>
 
-          <DropdownSelector label="Voiceover" icon="mic" items={VOICES} value={voice} onChange={setVoice} initialCount={6} />
+          {/* Voiceover */}
+          <CompactDropdown label="Voiceover" icon="mic" items={VOICES} value={voice} onChange={setVoice} initialCount={6} />
 
-          <div style={{ marginBottom: 14 }}>
-            <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'flex', alignItems: 'center', gap: 5, marginBottom: 4 }}>
-              <ImagePlus size={13} /> Your images <span style={{ fontWeight: 400, color: '#94a3b8' }}>(optional)</span>
-            </label>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8 }}>Upload your own images instead of AI-generated ones</div>
+          {/* Image upload */}
+          <div style={{ marginTop: 12 }}>
             <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} style={{ display: 'none' }} />
             <div onClick={function() { if (!uploading) fileInputRef.current.click(); }}
-              style={{ border: '1.5px dashed #cbd5e1', borderRadius: 10, padding: '18px 20px', textAlign: 'center', cursor: uploading ? 'default' : 'pointer', background: '#fafbfc' }}>
+              style={{ background: '#fff', border: '1px dashed #cbd5e1', borderRadius: 10, padding: '14px 16px', textAlign: 'center', cursor: uploading ? 'default' : 'pointer' }}>
               {uploading ? (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
                   <Loader2 size={16} color="#8b5cf6" style={{ animation: 'spin 1s linear infinite' }} />
                   <span style={{ fontSize: 13, fontWeight: 600, color: '#64748b' }}>Uploading...</span>
                 </div>
               ) : (
-                <div><Upload size={22} color="#94a3b8" style={{ marginBottom: 4 }} /><div style={{ fontSize: 13, fontWeight: 600, color: '#64748b' }}>Click to upload images</div><div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>JPG, PNG, WebP — max 10MB each</div></div>
+                <div><Upload size={20} color="#94a3b8" style={{ marginBottom: 2 }} /><div style={{ fontSize: 13, fontWeight: 600, color: '#64748b' }}>Upload your own images (optional)</div><div style={{ fontSize: 11, color: '#94a3b8', marginTop: 1 }}>JPG, PNG, WebP</div></div>
               )}
             </div>
             {uploadedImages.length > 0 && (
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
                 {uploadedImages.map(function(img, i) {
-                  return <div key={i} style={{ position: 'relative', width: 64, height: 64, borderRadius: 8, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                  return <div key={i} style={{ position: 'relative', width: 56, height: 56, borderRadius: 8, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.2)' }}>
                     <img src={img.url} alt={img.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                     <button onClick={function() { removeImage(i); }} style={{ position: 'absolute', top: 2, right: 2, width: 18, height: 18, borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}><X size={10} /></button>
                   </div>;
@@ -304,32 +283,39 @@ export default function VideoCreator() {
             )}
           </div>
 
+          {/* Generate button */}
           <button onClick={generate} disabled={generating || !prompt.trim()}
-            style={{ width: '100%', marginTop: 6, padding: '14px', borderRadius: 10, border: 'none', background: generating ? '#94a3b8' : 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff', fontSize: 16, fontWeight: 700, cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, boxShadow: generating ? 'none' : '0 2px 8px rgba(139,92,246,0.3)' }}>
+            style={{ width: '100%', marginTop: 16, padding: '14px', borderRadius: 10, border: 'none',
+              background: generating ? '#94a3b8' : 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff', fontSize: 15, fontWeight: 700,
+              cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+              boxShadow: generating ? 'none' : '0 2px 12px rgba(139,92,246,0.35)' }}>
             {generating ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> Generating...</> : <><Sparkles size={18} /> Generate video</>}
           </button>
           <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
-          <div style={{ marginTop: 10, fontSize: 13, color: '#94a3b8', textAlign: 'center' }}>
-            Estimated cost: ~{videoMode === 'motion' ? Math.ceil(duration / 8) * 3 : Math.ceil(duration / 8)} credits ({(videoMode === 'motion' ? Math.ceil(duration / 8) * 3 : Math.ceil(duration / 8)) * 0.19 < 1 ? '< $1' : '~$' + ((videoMode === 'motion' ? Math.ceil(duration / 8) * 3 : Math.ceil(duration / 8)) * 0.19).toFixed(2)})
+          <div style={{ marginTop: 8, fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>
+            Estimated: ~{videoMode === 'motion' ? Math.ceil(duration / 8) * 3 : Math.ceil(duration / 8)} credits
           </div>
         </div>
 
-        <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '24px 28px' }}>
+        {/* Right panel — progress / result */}
+        <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '24px 24px', alignSelf: 'start' }}>
           {!generating && !videoUrl && !error && (
-            <div style={{ textAlign: 'center', padding: '40px 0' }}><Film size={48} color="#e2e8f0" /><div style={{ fontSize: 15, color: '#94a3b8', marginTop: 12 }}>Your video will appear here</div></div>
+            <div style={{ textAlign: 'center', padding: '60px 0' }}><Film size={48} color="#e2e8f0" /><div style={{ fontSize: 15, color: '#94a3b8', marginTop: 12 }}>Your video will appear here</div></div>
           )}
           {generating && (
             <div>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>{status}</div>
-              <div style={{ width: '100%', height: 8, background: '#e2e8f0', borderRadius: 4, marginBottom: 16 }}><div style={{ width: progress + '%', height: '100%', background: 'linear-gradient(90deg, #8b5cf6, #a78bfa)', borderRadius: 4, transition: 'width 0.5s' }} /></div>
+              <div style={{ width: '100%', height: 8, background: '#e2e8f0', borderRadius: 4, marginBottom: 16 }}>
+                <div style={{ width: progress + '%', height: '100%', background: 'linear-gradient(90deg, #8b5cf6, #a78bfa)', borderRadius: 4, transition: 'width 0.5s' }} />
+              </div>
               <div style={{ fontSize: 13, color: '#64748b', marginBottom: 8 }}>{progress}% complete</div>
               {steps.map(function(s, i) {
-                var ic = s.status === 'ok' || s.status === 'queued' ? <CheckCircle size={14} color="#22c55e" /> : <Clock size={14} color="#94a3b8" />;
                 var stepLabels = { script: 'Writing script', images: 'Generating visuals', voiceover: 'Recording voiceover', render: 'Composing video', video_clips: 'Creating motion clips' };
                 var statusLabels = { ok: 'Done', queued: 'In progress', failed: 'Failed' };
                 var stepLabel = stepLabels[s.step] || s.step;
                 var statusLabel = statusLabels[s.status] || s.status;
                 if (s.step === 'images' && s.generated !== undefined) statusLabel = s.generated + '/' + s.total + ' done';
+                var ic = s.status === 'ok' || s.status === 'queued' ? <CheckCircle size={14} color="#22c55e" /> : <Clock size={14} color="#94a3b8" />;
                 return <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#64748b', marginBottom: 4 }}>{ic} {stepLabel}: {statusLabel}</div>;
               })}
             </div>
