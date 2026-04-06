@@ -56,8 +56,13 @@ export default function VideoCreator() {
         setScript(r.script || null);
         setStatus('Rendering video...');
         startPolling(r.render_job_id);
+      } else if (r.success && !r.render_job_id) {
+        setSteps(r.steps || []);
+        setScript(r.script || null);
+        setError('Pipeline completed but render failed to start. Steps: ' + JSON.stringify(r.steps || []));
+        setGenerating(false);
       } else {
-        setError(r.error || 'Failed to start video generation');
+        setError(r.error || r.detail || JSON.stringify(r));
         setGenerating(false);
       }
     }).catch(function(e) {

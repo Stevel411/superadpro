@@ -21401,7 +21401,7 @@ DO NOT include any markdown or explanation. Return ONLY the JSON object."""
                 try:
                     resp = await client.post("https://api.x.ai/v1/chat/completions",
                         headers={"Authorization": f"Bearer {xai_key}", "Content-Type": "application/json"},
-                        json={"model": "grok-4.1-fast", "messages": [{"role": "user", "content": script_prompt}], "max_tokens": 4000, "temperature": 0.7})
+                        json={"model": "grok-4-1-fast-non-reasoning", "messages": [{"role": "user", "content": script_prompt}], "max_tokens": 4000, "temperature": 0.7})
                     if resp.status_code == 200:
                         data = resp.json()
                         text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
