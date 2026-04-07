@@ -67,7 +67,7 @@ export default function SuperDeckList() {
 
       {/* Existing decks */}
       {decks.length > 0 && (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260, 1fr))', gap: 16 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))', gap: 16 }}>
           {decks.map(function(d) {
             var th = THEMES[d.theme] || THEMES.midnight;
             return <div key={d.id} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, overflow: 'hidden' }}>
