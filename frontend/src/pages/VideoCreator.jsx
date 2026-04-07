@@ -140,6 +140,8 @@ export default function VideoCreator() {
   var [script, setScript] = useState(null);
   var [uploadedImages, setUploadedImages] = useState([]);
   var [uploading, setUploading] = useState(false);
+  var [motionHover, setMotionHover] = useState(false);
+  var [standardHover, setStandardHover] = useState(false);
   var pollRef = useRef(null);
   var fileInputRef = useRef(null);
 
@@ -224,47 +226,51 @@ export default function VideoCreator() {
           <div style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
             {/* Motion Video */}
             <div onClick={function() { setVideoMode('motion'); }}
-              onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.15)'; e.currentTarget.style.background = '#ede9fe'; e.currentTarget.style.borderColor = '#8b5cf6'; }}
-              onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none'; e.currentTarget.style.borderColor = videoMode === 'motion' ? '#8b5cf6' : 'rgba(255,255,255,0.1)'; }}
-              style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, background: '#fff', cursor: 'pointer', position: 'relative',
+              onMouseEnter={function() { setMotionHover(true); }}
+              onMouseLeave={function() { setMotionHover(false); }}
+              style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, cursor: 'pointer', position: 'relative',
+                background: motionHover ? '#7c3aed' : '#fff',
                 border: videoMode === 'motion' ? '2px solid #8b5cf6' : '2px solid rgba(255,255,255,0.1)',
-                boxShadow: videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none',
-                transition: 'all 0.2s ease' }}>
+                boxShadow: motionHover ? '0 8px 24px rgba(0,0,0,0.2)' : videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none',
+                transform: motionHover ? 'translateY(-2px)' : 'none',
+                transition: 'all 0.15s ease' }}>
               <span style={{ position: 'absolute', top: 10, right: 10, fontSize: 9, fontWeight: 700, padding: '3px 10px', borderRadius: 8, background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#fff', letterSpacing: '0.04em' }}>PRO</span>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
                 <div style={{ width: 48, height: 48, borderRadius: 12, background: videoMode === 'motion' ? '#f3f0ff' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={videoMode === 'motion' ? '#8b5cf6' : '#94a3b8'} strokeWidth="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 9l5 3-5 3V9z" fill={videoMode === 'motion' ? '#8b5cf6' : '#cbd5e1'} stroke="none"/><path d="M2 8h2M20 8h2M2 16h2M20 16h2" strokeWidth="1.5"/></svg>
                 </div>
                 <div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>Motion video</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8' }}>Real AI-generated cinematic clips</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: motionHover ? '#fff' : '#0f172a' }}>Motion video</div>
+                  <div style={{ fontSize: 12, color: motionHover ? 'rgba(255,255,255,0.7)' : '#94a3b8' }}>Real AI-generated cinematic clips</div>
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: '1px solid #f1f5f9' }}>
-                <div style={{ fontSize: 11, color: '#94a3b8' }}>5-sec clips per scene via Kling AI</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#8b5cf6' }}>~{Math.ceil(duration / 8) * 3} credits</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: motionHover ? '1px solid rgba(255,255,255,0.2)' : '1px solid #f1f5f9' }}>
+                <div style={{ fontSize: 11, color: motionHover ? 'rgba(255,255,255,0.7)' : '#94a3b8' }}>5-sec clips per scene via Kling AI</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: motionHover ? '#fff' : '#8b5cf6' }}>~{Math.ceil(duration / 8) * 3} credits</div>
               </div>
             </div>
             {/* Standard */}
             <div onClick={function() { setVideoMode('images'); }}
-              onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.15)'; e.currentTarget.style.background = '#ede9fe'; e.currentTarget.style.borderColor = '#8b5cf6'; }}
-              onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none'; e.currentTarget.style.borderColor = videoMode === 'images' ? '#8b5cf6' : 'rgba(255,255,255,0.1)'; }}
-              style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, background: '#fff', cursor: 'pointer',
+              onMouseEnter={function() { setStandardHover(true); }}
+              onMouseLeave={function() { setStandardHover(false); }}
+              style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, cursor: 'pointer',
+                background: standardHover ? '#7c3aed' : '#fff',
                 border: videoMode === 'images' ? '2px solid #8b5cf6' : '2px solid rgba(255,255,255,0.1)',
-                boxShadow: videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none',
-                transition: 'all 0.2s ease' }}>
+                boxShadow: standardHover ? '0 8px 24px rgba(0,0,0,0.2)' : videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none',
+                transform: standardHover ? 'translateY(-2px)' : 'none',
+                transition: 'all 0.15s ease' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
                 <div style={{ width: 48, height: 48, borderRadius: 12, background: videoMode === 'images' ? '#f0fdf4' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={videoMode === 'images' ? '#22c55e' : '#94a3b8'} strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill={videoMode === 'images' ? '#22c55e' : '#cbd5e1'} stroke="none"/><path d="M21 15l-5-5L5 21"/></svg>
                 </div>
                 <div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>Standard</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8' }}>AI images with Ken Burns motion</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: standardHover ? '#fff' : '#0f172a' }}>Standard</div>
+                  <div style={{ fontSize: 12, color: standardHover ? 'rgba(255,255,255,0.7)' : '#94a3b8' }}>AI images with Ken Burns motion</div>
                 </div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: '1px solid #f1f5f9' }}>
-                <div style={{ fontSize: 11, color: '#94a3b8' }}>Smooth zoom and pan effects</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#22c55e' }}>~{Math.ceil(duration / 8)} credits</div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: standardHover ? '1px solid rgba(255,255,255,0.2)' : '1px solid #f1f5f9' }}>
+                <div style={{ fontSize: 11, color: standardHover ? 'rgba(255,255,255,0.7)' : '#94a3b8' }}>Smooth zoom and pan effects</div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: standardHover ? '#fff' : '#22c55e' }}>~{Math.ceil(duration / 8)} credits</div>
               </div>
             </div>
           </div>
