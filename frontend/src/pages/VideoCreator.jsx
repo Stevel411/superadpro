@@ -59,9 +59,9 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       <div onClick={function() { setOpen(!open); }}
-        onMouseEnter={function(e) { if (!open) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)'; e.currentTarget.style.background = '#ede9fe'; } }}
-        onMouseLeave={function(e) { if (!open) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = open ? '#ede9fe' : '#fff'; } }}
-        style={{ background: open ? '#ede9fe' : '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: open ? '2px solid #8b5cf6' : '2px solid transparent', transition: 'all 0.15s ease' }}>
+        onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)'; e.currentTarget.style.background = '#ede9fe'; e.currentTarget.style.borderColor = '#8b5cf6'; }}
+        onMouseLeave={function(e) { if (!open) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = 'transparent'; } }}
+        style={{ background: open ? '#ede9fe' : '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: '2px solid ' + (open ? '#8b5cf6' : 'transparent'), transition: 'all 0.15s ease' }}>
         <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>{label}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 28, height: 28, borderRadius: 6, background: selected.color || iconColor || '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -221,8 +221,8 @@ export default function VideoCreator() {
           <div style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
             {/* Motion Video */}
             <div onClick={function() { setVideoMode('motion'); }}
-              onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.12)'; }}
-              onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none'; }}
+              onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.15)'; e.currentTarget.style.background = '#ede9fe'; e.currentTarget.style.borderColor = '#8b5cf6'; }}
+              onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none'; e.currentTarget.style.borderColor = videoMode === 'motion' ? '#8b5cf6' : 'rgba(255,255,255,0.15)'; }}
               style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, background: '#fff', cursor: 'pointer', position: 'relative',
                 border: videoMode === 'motion' ? '2px solid #8b5cf6' : '1px solid rgba(255,255,255,0.15)',
                 boxShadow: videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none',
@@ -244,8 +244,8 @@ export default function VideoCreator() {
             </div>
             {/* Standard */}
             <div onClick={function() { setVideoMode('images'); }}
-              onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.12)'; }}
-              onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none'; }}
+              onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.15)'; e.currentTarget.style.background = '#ede9fe'; e.currentTarget.style.borderColor = '#8b5cf6'; }}
+              onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none'; e.currentTarget.style.borderColor = videoMode === 'images' ? '#8b5cf6' : 'rgba(255,255,255,0.15)'; }}
               style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, background: '#fff', cursor: 'pointer',
                 border: videoMode === 'images' ? '2px solid #8b5cf6' : '1px solid rgba(255,255,255,0.15)',
                 boxShadow: videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none',
@@ -280,8 +280,8 @@ export default function VideoCreator() {
           <div style={{ marginTop: 12 }}>
             <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} style={{ display: 'none' }} />
             <div onClick={function() { if (!uploading) fileInputRef.current.click(); }}
-              onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; e.currentTarget.style.borderColor = '#8b5cf6'; }}
-              onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+              onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; e.currentTarget.style.background = '#ede9fe'; e.currentTarget.style.borderColor = '#8b5cf6'; }}
+              onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
               style={{ background: '#fff', border: '1px dashed #cbd5e1', borderRadius: 10, padding: '14px 16px', textAlign: 'center', cursor: uploading ? 'default' : 'pointer', transition: 'all 0.15s ease' }}>
               {uploading ? (
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
