@@ -37,6 +37,58 @@ var isLightBg = function (hex) {
 
 var FONT_SIZES = [12, 14, 16, 18, 20, 24, 28, 32, 36, 42, 48, 56, 64, 72, 80, 96];
 
+var SHAPE_TYPES = [
+  { id: 'rect', name: 'Rectangle' },
+  { id: 'rounded', name: 'Rounded' },
+  { id: 'circle', name: 'Circle' },
+  { id: 'triangle', name: 'Triangle' },
+  { id: 'diamond', name: 'Diamond' },
+  { id: 'arrow', name: 'Arrow' },
+  { id: 'star', name: 'Star' },
+  { id: 'hexagon', name: 'Hexagon' },
+  { id: 'line', name: 'Line' },
+  { id: 'bubble', name: 'Bubble' },
+];
+
+function ShapeRender(props) {
+  var fill = props.fill || '#8b5cf6';
+  var type = props.shapeType || 'rect';
+  var w = '100%', h = '100%';
+  if (type === 'rect') return <div style={{width:w,height:h,background:fill,borderRadius:4}}/>;
+  if (type === 'rounded') return <div style={{width:w,height:h,background:fill,borderRadius:16}}/>;
+  if (type === 'circle') return <div style={{width:w,height:h,background:fill,borderRadius:'50%'}}/>;
+  if (type === 'line') return <div style={{width:w,height:'100%',display:'flex',alignItems:'center'}}><div style={{width:'100%',height:4,background:fill,borderRadius:2}}/></div>;
+  // SVG shapes
+  var svgMap = {
+    triangle: <polygon points="50,5 95,95 5,95"/>,
+    diamond: <polygon points="50,2 98,50 50,98 2,50"/>,
+    arrow: <polygon points="0,30 65,30 65,10 100,50 65,90 65,70 0,70"/>,
+    star: <polygon points="50,5 61,35 95,35 68,57 79,90 50,70 21,90 32,57 5,35 39,35"/>,
+    hexagon: <polygon points="25,5 75,5 98,50 75,95 25,95 2,50"/>,
+    bubble: <><rect x="2" y="2" width="96" height="72" rx="12"/><polygon points="20,74 35,74 25,96"/></>,
+  };
+  if (svgMap[type]) return <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{width:w,height:h,display:'block'}}><g fill={fill}>{svgMap[type]}</g></svg>;
+  return <div style={{width:w,height:h,background:fill,borderRadius:4}}/>;
+}
+
+/* Mini shape icon for selector */
+function ShapeIcon(props) {
+  var type = props.type;
+  var c = props.color || '#64748b';
+  var s = 20;
+  if (type === 'rect') return <svg width={s} height={s} viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="12" rx="1" fill={c}/></svg>;
+  if (type === 'rounded') return <svg width={s} height={s} viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="12" rx="4" fill={c}/></svg>;
+  if (type === 'circle') return <svg width={s} height={s} viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill={c}/></svg>;
+  if (type === 'triangle') return <svg width={s} height={s} viewBox="0 0 20 20"><polygon points="10,2 18,17 2,17" fill={c}/></svg>;
+  if (type === 'diamond') return <svg width={s} height={s} viewBox="0 0 20 20"><polygon points="10,1 19,10 10,19 1,10" fill={c}/></svg>;
+  if (type === 'arrow') return <svg width={s} height={s} viewBox="0 0 20 20"><polygon points="1,7 12,7 12,3 19,10 12,17 12,13 1,13" fill={c}/></svg>;
+  if (type === 'star') return <svg width={s} height={s} viewBox="0 0 20 20"><polygon points="10,1 12.2,7 18.5,7 13.5,11.2 15.5,17.5 10,13.8 4.5,17.5 6.5,11.2 1.5,7 7.8,7" fill={c}/></svg>;
+  if (type === 'hexagon') return <svg width={s} height={s} viewBox="0 0 20 20"><polygon points="5,2 15,2 19,10 15,18 5,18 1,10" fill={c}/></svg>;
+  if (type === 'line') return <svg width={s} height={s} viewBox="0 0 20 20"><rect x="1" y="9" width="18" height="2" rx="1" fill={c}/></svg>;
+  if (type === 'bubble') return <svg width={s} height={s} viewBox="0 0 20 20"><rect x="1" y="1" width="18" height="13" rx="3" fill={c}/><polygon points="5,14 9,14 6,19" fill={c}/></svg>;
+  return <svg width={s} height={s} viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="12" fill={c}/></svg>;
+}
+
 export default function SuperDeckEditor() {
   var params = useParams(), deckId = params.deckId, nav = useNavigate();
 
@@ -254,7 +306,7 @@ export default function SuperDeckEditor() {
             return <div key={el.id} style={{position:'absolute',left:pctX+'%',top:pctY+'%',width:pctW+'%',height:pctH+'%'}}>
               {(el.type==='heading'||el.type==='text')&&<div style={{fontSize:el.fontSize*1.5+'px',fontWeight:el.bold?700:400,fontStyle:el.italic?'italic':'normal',textDecoration:el.underline?'underline':'none',color:el.color||'#fff',background:el.elBg||'transparent',textAlign:el.align||'left',fontFamily:el.fontFamily||t.bodyFont,width:'100%',height:'100%',lineHeight:1.3,display:'flex',alignItems:el.type==='heading'?'center':'flex-start',justifyContent:el.align==='center'?'center':el.align==='right'?'flex-end':'flex-start',whiteSpace:'pre-wrap'}}>{el.text||''}</div>}
               {el.type==='image'&&(el.src?<img src={el.src} style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:4}} alt=""/>:<div/>)}
-              {el.type==='shape'&&<div style={{width:'100%',height:'100%',background:el.fill||t.accent,borderRadius:el.shapeType==='circle'?'50%':4}}/>}
+              {el.type==='shape'&&<ShapeRender shapeType={el.shapeType} fill={el.fill||t.accent}/>}
             </div>;
           })}
         </div>
@@ -358,7 +410,7 @@ export default function SuperDeckEditor() {
                 )}
                 {el.type==='image'&&(el.src?<img src={el.src} style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:4,pointerEvents:'none'}} alt=""/>
                   :<div style={{width:'100%',height:'100%',background:'rgba(255,255,255,.05)',borderRadius:4,display:'flex',alignItems:'center',justifyContent:'center',border:'1px dashed rgba(255,255,255,.2)'}}><Image size={24} color="#475569"/></div>)}
-                {el.type==='shape'&&<div style={{width:'100%',height:'100%',background:el.fill||t.accent,borderRadius:el.shapeType==='circle'?'50%':4}}/>}
+                {el.type==='shape'&&<ShapeRender shapeType={el.shapeType} fill={el.fill||t.accent}/>}
                 {isSel&&!isEdit&&<>
                   {['tl','t','tr','r','br','b','bl','l'].map(function(c){
                     var hs={position:'absolute',width:10,height:10,background:'#3b82f6',borderRadius:2,zIndex:20};
@@ -497,9 +549,16 @@ export default function SuperDeckEditor() {
               <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Fill colour</div>
               <input type="color" value={selEl.fill||t.accent} onChange={function(e){upd(selId,{fill:e.target.value});}} style={{width:'100%',height:40,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1,marginBottom:10}}/>
               <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Shape</div>
-              <div style={{display:'flex',gap:4,marginBottom:10}}>
-                <button onClick={function(){upd(selId,{shapeType:'rect'});}} style={tbtn(selEl.shapeType!=='circle')}>Rectangle</button>
-                <button onClick={function(){upd(selId,{shapeType:'circle'});}} style={tbtn(selEl.shapeType==='circle')}>Circle</button>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr 1fr',gap:3,marginBottom:10}}>
+                {SHAPE_TYPES.map(function(sh){var isActive=(selEl.shapeType||'rect')===sh.id;
+                  return <button key={sh.id} onClick={function(){upd(selId,{shapeType:sh.id});}} title={sh.name}
+                    onMouseEnter={function(e){if(!isActive)e.currentTarget.style.background='#f8fafc';e.currentTarget.style.borderColor='#8b5cf6';}}
+                    onMouseLeave={function(e){if(!isActive)e.currentTarget.style.background='#fff';e.currentTarget.style.borderColor=isActive?'#8b5cf6':'#e2e8f0';}}
+                    style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,padding:'6px 2px',borderRadius:6,border:'1.5px solid '+(isActive?'#8b5cf6':'#e2e8f0'),background:isActive?'#f5f3ff':'#fff',cursor:'pointer',fontFamily:'inherit',transition:'all 0.15s'}}>
+                    <ShapeIcon type={sh.id} color={isActive?'#8b5cf6':'#94a3b8'}/>
+                    <span style={{fontSize:8,fontWeight:600,color:isActive?'#8b5cf6':'#94a3b8',lineHeight:1}}>{sh.name}</span>
+                  </button>;
+                })}
               </div>
             </>}
 
