@@ -267,7 +267,7 @@ export default function SuperDeckEditor() {
     <div style={{display:'flex',flexDirection:'column',height:'100vh',background:'#f8fafc',fontFamily:"'DM Sans',sans-serif"}}>
 
       {/* ── TOOLBAR ──────────────────────────────────── */}
-      <div style={{display:'flex',alignItems:'center',gap:8,padding:'8px 16px',background:'#1e293b',borderBottom:'1px solid #334155',flexShrink:0}}>
+      <div style={{display:'flex',alignItems:'center',gap:8,padding:'12px 20px',background:'linear-gradient(180deg,#172554,#1e3a8a)',borderBottom:'1px solid rgba(255,255,255,0.1)',flexShrink:0}}>
         <button onClick={function(){if(dirty)save();nav('/superdeck');}} style={{...btnS,background:'none',color:'#94a3b8'}}
           onMouseEnter={function(e){e.currentTarget.style.background='#334155';}} onMouseLeave={function(e){e.currentTarget.style.background='none';}}>
           <ArrowLeft size={14}/> Back</button>
@@ -300,7 +300,7 @@ export default function SuperDeckEditor() {
       <div style={{display:'flex',flex:1,minHeight:0}}>
 
         {/* LEFT: Thumbnails */}
-        <div style={{width:180,borderRight:'1px solid #e2e8f0',background:'#fff',padding:'10px 6px',overflowY:'auto',flexShrink:0}}>
+        <div style={{width:210,borderRight:'1px solid #e2e8f0',background:'#fff',padding:'10px 6px',overflowY:'auto',flexShrink:0}}>
           {slides.map(function(s,i){var isA=i===active;return <div key={s.id||i} style={{marginBottom:6}}>
             <div style={{display:'flex',gap:4,alignItems:'flex-start'}}>
               <span style={{fontSize:11,color:'#94a3b8',width:16,textAlign:'right',paddingTop:4,flexShrink:0}}>{i+1}</span>
@@ -318,10 +318,10 @@ export default function SuperDeckEditor() {
                 <div style={{display:'flex',justifyContent:'flex-end',gap:4,padding:'3px 0'}}>
                   <button onClick={function(){dupSlide(i);}} title="Duplicate"
                     onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';}} onMouseLeave={function(e){e.currentTarget.style.background='transparent';}}
-                    style={{background:'transparent',border:'none',color:'#94a3b8',cursor:'pointer',padding:3,borderRadius:4,display:'flex'}}><Copy size={13}/></button>
+                    style={{background:'transparent',border:'none',color:'#94a3b8',cursor:'pointer',padding:4,borderRadius:4,display:'flex'}}><Copy size={16}/></button>
                   <button onClick={function(){delSlide(i);}} title="Delete"
                     onMouseEnter={function(e){e.currentTarget.style.background='#fee2e2';e.currentTarget.style.color='#dc2626';}} onMouseLeave={function(e){e.currentTarget.style.background='transparent';e.currentTarget.style.color='#94a3b8';}}
-                    style={{background:'transparent',border:'none',color:'#94a3b8',cursor:'pointer',padding:3,borderRadius:4,display:'flex'}}><Trash2 size={13}/></button>
+                    style={{background:'transparent',border:'none',color:'#94a3b8',cursor:'pointer',padding:4,borderRadius:4,display:'flex'}}><Trash2 size={16}/></button>
                 </div>
               </div>
             </div>
@@ -336,7 +336,7 @@ export default function SuperDeckEditor() {
         {/* CENTRE: Canvas */}
         <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'#e2e8f0',padding:16,minWidth:0}}
           onClick={function(){if(editingId)finishEdit();setSelId(null);}}>
-          <div ref={canvasRef} style={{width:'100%',maxWidth:960,aspectRatio:'16/9',background:cs.background||t.primary,borderRadius:4,position:'relative',overflow:'hidden',boxShadow:'0 6px 30px rgba(0,0,0,.3)'}}>
+          <div ref={canvasRef} style={{width:'100%',maxWidth:1040,aspectRatio:'16/9',background:cs.background||t.primary,borderRadius:4,position:'relative',overflow:'hidden',boxShadow:'0 6px 30px rgba(0,0,0,.3)'}}>
             {cs.elements.map(function(el){
               var isSel=el.id===selId,isEdit=el.id===editingId;
               var pctX=(el.x/CANVAS_W)*100,pctY=(el.y/CANVAS_H)*100,pctW=(el.w/CANVAS_W)*100,pctH=(el.h/CANVAS_H)*100;
@@ -378,7 +378,7 @@ export default function SuperDeckEditor() {
             <span style={{fontSize:13,color:'#64748b',fontWeight:600}}>Slide {active+1} of {slides.length}</span>
             <button onClick={function(){setActive(Math.min(slides.length-1,active+1));}} disabled={active>=slides.length-1} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:6,padding:'6px 10px',cursor:active<slides.length-1?'pointer':'default',color:active<slides.length-1?'#334155':'#cbd5e1',display:'flex'}}><ChevronRight size={16}/></button>
           </div>
-          <div style={{width:'100%',maxWidth:960,marginTop:8}}>
+          <div style={{width:'100%',maxWidth:1040,marginTop:8}}>
             <textarea value={cs.notes||''} onChange={function(e){var ns=slides.slice();ns[active]=Object.assign({},ns[active],{notes:e.target.value});setSlides(ns);mark();}} placeholder="Speaker notes..." rows={2}
               style={{width:'100%',padding:'8px 12px',background:'#fff',border:'1px solid #e2e8f0',borderRadius:6,color:'#475569',fontSize:12,fontFamily:'inherit',resize:'vertical',boxSizing:'border-box',outline:'none'}}/>
           </div>
