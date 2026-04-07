@@ -213,149 +213,45 @@ export default function Dashboard() {
         ))}
       </div>
 
-      {/* Quick Actions — dynamic based on membership tier */}
+      {/* Quick Actions — 6 cards, same for all members */}
       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 14 }}>Quick Actions</div>
       <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 20 }}>
-        {(user?.membership_tier === 'pro' || user?.is_admin ? [
-          {
-            name: 'Share Your Link', desc: 'Copy your referral link and share it across social media to earn', link: '/affiliate',
-            color: '#0ea5e9', bg: 'linear-gradient(135deg,#ecfeff,#cffafe)',
-            icon: (
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="9" fill="#cffafe" stroke="#0ea5e9" strokeWidth="1.5"/>
-                <path d="M8 12h8M12 8v8" stroke="#0891b2" strokeWidth="2" strokeLinecap="round"/>
-                <circle cx="18" cy="6" r="3" fill="#0ea5e9"/><text x="18" y="8" textAnchor="middle" fontSize="4" fontWeight="bold" fill="#fff">$</text>
-              </svg>
-            )
-          },
-          {
-            name: 'Campaign Tiers', desc: 'Activate a tier to unlock grid commissions and the full earning engine', link: '/campaign-tiers',
-            color: '#16a34a', bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)',
-            icon: (
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="url(#qaZapPro)"/>
-                <defs><linearGradient id="qaZapPro" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse"><stop stopColor="#4ade80"/><stop offset="1" stopColor="#16a34a"/></linearGradient></defs>
-              </svg>
-            )
-          },
-          {
-            name: 'Pay It Forward', desc: 'Gift a membership — become their sponsor and earn from their activity', link: '/pay-it-forward',
-            color: '#ec4899', bg: 'linear-gradient(135deg,#fdf2f8,#fce7f3)',
-            icon: (
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" fill="url(#pifH2)"/>
-                <rect x="9" y="10" width="6" height="5" rx="1" fill="#fff" opacity="0.9"/>
-                <path d="M10.5 12.5h3M12 11v3" stroke="#ec4899" strokeWidth="1.2" strokeLinecap="round"/>
-                <defs><linearGradient id="pifH2" x1="3" y1="4" x2="21" y2="21" gradientUnits="userSpaceOnUse"><stop stopColor="#f9a8d4"/><stop offset="1" stopColor="#ec4899"/></linearGradient></defs>
-              </svg>
-            )
-          },
-          {
-            name: 'AI Tools', desc: 'SuperScene, SuperPages, LinkHub — let AI do the heavy lifting', link: '/superscene',
-            color: '#22d3ee', bg: 'linear-gradient(135deg,#ecfeff,#cffafe)',
-            icon: (
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                <rect x="2" y="4" width="20" height="14" rx="3" fill="#cffafe" stroke="#22d3ee" strokeWidth="1.5"/>
-                <polygon points="10,8 10,15 16,11.5" fill="#0891b2"/>
-                <rect x="6" y="20" width="12" height="2" rx="1" fill="#22d3ee"/>
-              </svg>
-            )
-          },
-          {
-            name: 'Analytics', desc: 'Track your earnings, referrals, and campaign performance in real time', link: '/analytics',
-            color: '#8b5cf6', bg: 'linear-gradient(135deg,#faf5ff,#ede9fe)',
-            icon: (
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="14" width="4" height="7" rx="1" fill="#c4b5fd"/>
-                <rect x="10" y="9" width="4" height="12" rx="1" fill="#a78bfa"/>
-                <rect x="17" y="4" width="4" height="17" rx="1" fill="#8b5cf6"/>
-              </svg>
-            )
-          },
-          {
-            name: 'Ad Hub', desc: 'Place and manage your video, banner and text ads', link: '/ad-hub',
-            color: '#ef4444', bg: 'linear-gradient(135deg,#fef2f2,#fecaca)',
-            icon: (
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                <path d="M3 12l4-8h10l4 8-4 8H7l-4-8z" fill="#fecaca" stroke="#ef4444" strokeWidth="1.5"/>
-                <circle cx="12" cy="12" r="3" fill="#ef4444"/>
-                <path d="M12 6v2M12 16v2M6.5 9l1.5 1M16 14l1.5 1M6.5 15l1.5-1M16 10l1.5-1" stroke="#f87171" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-            )
-          },
-        ] : [
+        {[
           {
             name: 'Platform Tour', desc: 'Take a guided walkthrough of every feature and tool available to you', link: '/tour',
             color: '#7c3aed', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
-            icon: (
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="9" fill="#ede9fe" stroke="#7c3aed" strokeWidth="1.5"/>
-                <path d="M12 8v4l3 3" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round"/>
-                <path d="M9 3l3-1 3 1" stroke="#a78bfa" strokeWidth="1.5" strokeLinecap="round"/>
-              </svg>
-            )
-          },
-          {
-            name: 'Compensation Plan', desc: 'Understand how you earn — 5 income streams, 95% paid to members', link: '/compensation-plan',
-            color: '#6366f1', bg: 'linear-gradient(135deg,#eef2ff,#e0e7ff)',
-            icon: (
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="3" width="18" height="18" rx="3" fill="#e0e7ff" stroke="#6366f1" strokeWidth="1.5"/>
-                <path d="M8 8h8M8 12h6M8 16h4" stroke="#6366f1" strokeWidth="1.5" strokeLinecap="round"/>
-                <circle cx="18" cy="6" r="4" fill="#6366f1"/><text x="18" y="8" textAnchor="middle" fontSize="5" fontWeight="bold" fill="#fff">5</text>
-              </svg>
-            )
+            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#ede9fe" stroke="#7c3aed" strokeWidth="1.5"/><path d="M12 8v4l3 3" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round"/><path d="M9 3l3-1 3 1" stroke="#a78bfa" strokeWidth="1.5" strokeLinecap="round"/></svg>)
           },
           {
             name: 'Share Your Link', desc: 'Copy your referral link and share it to start earning 50% commissions', link: '/affiliate',
             color: '#0ea5e9', bg: 'linear-gradient(135deg,#ecfeff,#cffafe)',
-            icon: (
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="9" fill="#cffafe" stroke="#0ea5e9" strokeWidth="1.5"/>
-                <path d="M8 12h8M12 8v8" stroke="#0891b2" strokeWidth="2" strokeLinecap="round"/>
-                <circle cx="18" cy="6" r="3" fill="#0ea5e9"/><text x="18" y="8" textAnchor="middle" fontSize="4" fontWeight="bold" fill="#fff">$</text>
-              </svg>
-            )
+            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#cffafe" stroke="#0ea5e9" strokeWidth="1.5"/><path d="M8 12h8M12 8v8" stroke="#0891b2" strokeWidth="2" strokeLinecap="round"/><circle cx="18" cy="6" r="3" fill="#0ea5e9"/><text x="18" y="8" textAnchor="middle" fontSize="4" fontWeight="bold" fill="#fff">$</text></svg>)
           },
           {
-            name: 'Upgrade to Pro', desc: 'Unlock SuperPages, Campaign Tiers, AutoResponder & more', link: '/upgrade',
-            color: '#8b5cf6', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)', highlight: true,
-            icon: (
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                <polygon points="12,2 15,9 22,9 16.5,14 18.5,21 12,17 5.5,21 7.5,14 2,9 9,9" fill="url(#qaStarUp)"/>
-                <defs><linearGradient id="qaStarUp" x1="2" y1="2" x2="22" y2="21" gradientUnits="userSpaceOnUse"><stop stopColor="#a78bfa"/><stop offset="1" stopColor="#7c3aed"/></linearGradient></defs>
-              </svg>
-            )
-          },
-          {
-            name: 'Set Up LinkHub', desc: 'Build your personal branded page that converts visitors into referrals', link: '/linkhub',
+            name: 'Campaign Tiers', desc: 'Activate a tier to unlock grid commissions and the full earning engine', link: '/campaign-tiers',
             color: '#16a34a', bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)',
-            icon: (
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                <rect x="4" y="3" width="16" height="18" rx="3" fill="#dcfce7" stroke="#16a34a" strokeWidth="1.5"/>
-                <circle cx="12" cy="9" r="3" fill="#16a34a"/>
-                <rect x="7" y="14" width="10" height="2" rx="1" fill="#4ade80"/>
-                <rect x="8" y="17.5" width="8" height="1.5" rx="0.75" fill="#bbf7d0"/>
-              </svg>
-            )
+            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="url(#qaZap)"/><defs><linearGradient id="qaZap" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse"><stop stopColor="#4ade80"/><stop offset="1" stopColor="#16a34a"/></linearGradient></defs></svg>)
           },
           {
-            name: 'Pay It Forward', desc: 'Gift a free membership — you become their sponsor and earn commissions', link: '/pay-it-forward',
-            color: '#ec4899', bg: 'linear-gradient(135deg,#fdf2f8,#fce7f3)',
-            icon: (
-              <svg width="34" height="34" viewBox="0 0 24 24" fill="none">
-                <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" fill="url(#pifH3)"/>
-                <rect x="9" y="10" width="6" height="5" rx="1" fill="#fff" opacity="0.9"/>
-                <path d="M10.5 12.5h3M12 11v3" stroke="#ec4899" strokeWidth="1.2" strokeLinecap="round"/>
-                <defs><linearGradient id="pifH3" x1="3" y1="4" x2="21" y2="21" gradientUnits="userSpaceOnUse"><stop stopColor="#f9a8d4"/><stop offset="1" stopColor="#ec4899"/></linearGradient></defs>
-              </svg>
-            )
+            name: 'Comp Plan', desc: 'Understand how you earn \u2014 5 income streams, 95% paid to members', link: '/compensation-plan',
+            color: '#6366f1', bg: 'linear-gradient(135deg,#eef2ff,#e0e7ff)',
+            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" fill="#e0e7ff" stroke="#6366f1" strokeWidth="1.5"/><path d="M8 8h8M8 12h6M8 16h4" stroke="#6366f1" strokeWidth="1.5" strokeLinecap="round"/><circle cx="18" cy="6" r="4" fill="#6366f1"/><text x="18" y="8" textAnchor="middle" fontSize="5" fontWeight="bold" fill="#fff">5</text></svg>)
           },
-        ]).map((a, i) => (
+          {
+            name: 'Analytics', desc: 'Track your earnings, referrals, and campaign performance in real time', link: '/analytics',
+            color: '#8b5cf6', bg: 'linear-gradient(135deg,#faf5ff,#ede9fe)',
+            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="3" y="14" width="4" height="7" rx="1" fill="#c4b5fd"/><rect x="10" y="9" width="4" height="12" rx="1" fill="#a78bfa"/><rect x="17" y="4" width="4" height="17" rx="1" fill="#8b5cf6"/></svg>)
+          },
+          {
+            name: 'My Network', desc: 'See your team growing \u2014 track referrals, levels, and network activity', link: '/network',
+            color: '#ec4899', bg: 'linear-gradient(135deg,#fdf2f8,#fce7f3)',
+            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.5"/><circle cx="5" cy="18" r="3" fill="#f9a8d4"/><circle cx="19" cy="18" r="3" fill="#f9a8d4"/><path d="M12 12v3M8 15l-3 3M16 15l3 3" stroke="#ec4899" strokeWidth="1.5" strokeLinecap="round"/></svg>)
+          },
+        ].map((a, i) => (
           <Link key={i} to={a.link} className="action-card" style={{
-            background: a.highlight ? 'linear-gradient(135deg,#f5f3ff,#ede9fe)' : '#fff',
-            border: a.highlight ? '2px solid #8b5cf6' : '1px solid #e2e8f0', borderRadius: 14, padding: 24,
-            boxShadow: a.highlight ? '0 4px 16px rgba(139,92,246,.15), 0 1px 4px rgba(0,0,0,.06)' : '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
+            background: '#fff',
+            border: '1px solid #e2e8f0', borderRadius: 14, padding: 24,
+            boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
             textDecoration: 'none', transition: 'all 0.15s', display: 'flex', flexDirection: 'column',
             alignItems: 'center', textAlign: 'center', gap: 10,
           }}>

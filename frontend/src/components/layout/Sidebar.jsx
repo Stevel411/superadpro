@@ -26,39 +26,44 @@ function buildNav(t, isAdmin) {
     { type: 'divider' },
     { type: 'group', label: 'Watch To Earn', key: 'earn', icon: Tv, items: [
       { label: 'Watch', icon: Eye, path: '/watch' },
+      { label: 'Campaign Tiers', icon: Layers, path: '/campaign-tiers' },
       { label: 'Create Campaign', icon: PlusCircle, path: '/create-campaign' },
       { label: 'My Campaigns', icon: Film, path: '/video-library' },
       { label: 'Campaign Analytics', icon: BarChart3, path: '/campaign-analytics' },
     ]},
     { type: 'divider' },
-    { type: 'group', label: t('nav.creatorTools'), key: 'creator', icon: Wrench, items: [
+    { type: 'group', label: 'Basic Tools', key: 'basic-tools', icon: Wrench, items: [
       { label: t('nav.linkHub'), icon: Link2, path: '/linkhub' },
       { label: t('nav.linkTools'), icon: LayoutGrid, path: '/link-tools' },
       { label: 'Content Creator', icon: Bot, path: '/content-creator' },
-      { label: t('nav.superPages'), icon: Globe, path: '/pro/funnels', pro: true },
-      { label: 'SuperDeck', icon: Monitor, path: '/superdeck', pro: true },
-      { label: 'Video Creator', icon: Film, path: '/video-creator', pro: true },
-      { label: 'AutoResponder', icon: Mail, path: '/pro/leads', pro: true },
+      { label: 'SuperScene', icon: Sparkles, path: '/superscene' },
+      { label: 'Video Creator', icon: Film, path: '/video-creator' },
     ]},
     { type: 'divider' },
-    { type: 'group', label: t('nav.courses') + ' (Coming Soon)', key: 'courses', icon: GraduationCap, items: [
-      { label: t('nav.courseLibrary'), icon: GraduationCap, path: '/courses', comingSoon: true },
-      { label: t('nav.createCourse'), icon: PenLine, path: '/courses/create', pro: true, comingSoon: true },
+    { type: 'group', label: 'Pro Tools', key: 'pro-tools', icon: Zap, items: [
+      { label: t('nav.superPages'), icon: Globe, path: '/pro/funnels', pro: true },
+      { label: 'SuperDeck', icon: Monitor, path: '/superdeck', pro: true },
+      { label: 'AutoResponder', icon: Mail, path: '/pro/leads', pro: true },
     ]},
     { type: 'divider' },
     { type: 'group', label: 'Income Streams', key: 'income', icon: DollarSign, items: [
       { label: t('nav.compPlan'), icon: FileText, path: '/compensation-plan' },
       { label: 'Membership Referrals', icon: Users, path: '/affiliate' },
-      { label: 'Campaign Grid', icon: Zap, path: '/watch' },
+      { label: 'Campaign Grid', icon: Zap, path: '/income/campaign-grid' },
       { label: 'Credit Matrix', icon: Layers, path: '/credit-matrix' },
       { label: 'Course Marketplace', icon: GraduationCap, path: '/courses', comingSoon: true },
     ]},
     { type: 'divider' },
-    { type: 'group', label: 'Share & Earn', key: 'affiliate', icon: Share2, items: [
+    { type: 'group', label: 'Affiliate Hub', key: 'affiliate', icon: Share2, items: [
       { label: t('nav.myNetwork'), icon: Network, path: '/network' },
       { label: t('nav.leaderboard'), icon: Trophy, path: '/leaderboard' },
       { label: 'Affiliate Guide', icon: BookOpen, path: '/training' },
       { label: 'Pay It Forward', icon: Heart, path: '/pay-it-forward' },
+    ]},
+    { type: 'divider' },
+    { type: 'group', label: t('nav.courses') + ' (Coming Soon)', key: 'courses', icon: GraduationCap, items: [
+      { label: t('nav.courseLibrary'), icon: GraduationCap, path: '/courses', comingSoon: true },
+      { label: t('nav.createCourse'), icon: PenLine, path: '/courses/create', pro: true, comingSoon: true },
     ]},
   ];
 
