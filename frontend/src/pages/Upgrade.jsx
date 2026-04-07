@@ -256,6 +256,8 @@ export default function Upgrade() {
                 })}
               </div>
 
+              <div style={{ flex: 1 }}/>
+
               {/* Buttons */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {isPro ? (
