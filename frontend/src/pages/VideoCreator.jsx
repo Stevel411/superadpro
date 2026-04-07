@@ -42,7 +42,7 @@ var VOICES = [
 ];
 
 /* ── Compact dropdown (white card style, for use on dark bg) ── */
-function CompactDropdown({ label, icon, iconColor, items, value, onChange, initialCount }) {
+function CompactDropdown({ label, icon, iconColor, items, value, onChange, initialCount, openUp }) {
   var [open, setOpen] = useState(false);
   var [showAll, setShowAll] = useState(false);
   var ref = useRef(null);
@@ -79,8 +79,8 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
         </div>
       </div>
       {open && (
-        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, marginTop: 4, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.12)' }}>
-          <div style={{ maxHeight: 340, overflowY: 'auto' }}>
+        <div style={{ position: 'absolute', ...(openUp ? { bottom: '100%', marginBottom: 4 } : { top: '100%', marginTop: 4 }), left: 0, right: 0, zIndex: 50, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.15)' }}>
+          <div style={{ maxHeight: 280, overflowY: 'auto' }}>
             {visible.map(function(item) {
               var isSel = item.value === value;
               return (
@@ -274,7 +274,7 @@ export default function VideoCreator() {
           </div>
 
           {/* Voiceover */}
-          <CompactDropdown label="Voiceover" icon="mic" items={VOICES} value={voice} onChange={setVoice} initialCount={6} />
+          <CompactDropdown label="Voiceover" icon="mic" items={VOICES} value={voice} onChange={setVoice} initialCount={6} openUp={true} />
 
           {/* Image upload */}
           <div style={{ marginTop: 12 }}>
