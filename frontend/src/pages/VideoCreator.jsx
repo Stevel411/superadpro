@@ -64,7 +64,7 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
       <div onClick={function() { setOpen(!open); }}
         onMouseEnter={function() { setHovered(true); }}
         onMouseLeave={function() { setHovered(false); }}
-        style={{ background: isActive ? '#ede9fe' : '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: '2px solid ' + (isActive ? '#8b5cf6' : 'transparent'), transition: 'all 0.15s ease', transform: hovered && !open ? 'translateY(-2px)' : 'none', boxShadow: hovered && !open ? '0 8px 24px rgba(0,0,0,0.2)' : 'none' }}>
+        style={{ background: isActive ? '#7c3aed' : '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: '2px solid ' + (isActive ? '#6d28d9' : 'transparent'), transition: 'all 0.15s ease', transform: hovered && !open ? 'translateY(-2px)' : 'none', boxShadow: hovered && !open ? '0 8px 24px rgba(0,0,0,0.2)' : 'none' }}>
         <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>{label}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 28, height: 28, borderRadius: 6, background: selected.color || iconColor || '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
