@@ -59,6 +59,10 @@ export default function SuperDeckEditor() {
   var editRef = useRef(null);
   var thRef = useRef(null);
   var insRef = useRef(null);
+  var [fontDropOpen, setFontDropOpen] = useState(false);
+  var [sizeDropOpen, setSizeDropOpen] = useState(false);
+  var fontDropRef = useRef(null);
+  var sizeDropRef = useRef(null);
 
   useEffect(function () {
     apiGet('/api/superdeck/' + deckId).then(function (d) {
@@ -87,6 +91,8 @@ export default function SuperDeckEditor() {
     function h(e) {
       if (thRef.current && !thRef.current.contains(e.target)) setShowThemes(false);
       if (insRef.current && !insRef.current.contains(e.target)) setShowInsert(false);
+      if (fontDropRef.current && !fontDropRef.current.contains(e.target)) setFontDropOpen(false);
+      if (sizeDropRef.current && !sizeDropRef.current.contains(e.target)) setSizeDropOpen(false);
     }
     document.addEventListener('mousedown', h); return function () { document.removeEventListener('mousedown', h); };
   }, []);
@@ -337,14 +343,14 @@ export default function SuperDeckEditor() {
         <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'#e2e8f0',padding:16,minWidth:0}}
           onClick={function(){if(editingId)finishEdit();setSelId(null);}}>
           <div ref={canvasRef} style={{width:'100%',maxWidth:1040,aspectRatio:'16/9',background:cs.background||t.primary,borderRadius:4,position:'relative',overflow:'hidden',boxShadow:'0 6px 30px rgba(0,0,0,.3)'}}>
-            {cs.elements.map(function(el){
+            {cs.elements.map(function(el,elIdx){
               var isSel=el.id===selId,isEdit=el.id===editingId;
               var pctX=(el.x/CANVAS_W)*100,pctY=(el.y/CANVAS_H)*100,pctW=(el.w/CANVAS_W)*100,pctH=(el.h/CANVAS_H)*100;
               return <div key={el.id}
                 onMouseDown={function(e){if(!isEdit)onElMouseDown(e,el.id);}}
                 onDoubleClick={function(e){e.stopPropagation();if(el.type==='heading'||el.type==='text')startEdit(el.id);else if(el.type==='image')uploadImage();}}
                 onClick={function(e){e.stopPropagation();if(!isEdit)setSelId(el.id);}}
-                style={{position:'absolute',left:pctX+'%',top:pctY+'%',width:pctW+'%',height:pctH+'%',cursor:isEdit?'text':'move',outline:isSel&&!isEdit?'2px solid #3b82f6':'none',borderRadius:2,boxSizing:'border-box',zIndex:isSel?10:1}}>
+                style={{position:'absolute',left:pctX+'%',top:pctY+'%',width:pctW+'%',height:pctH+'%',cursor:isEdit?'text':'move',outline:isSel&&!isEdit?'2px solid #3b82f6':'none',borderRadius:2,boxSizing:'border-box',zIndex:isSel?100+elIdx:elIdx+1}}>
                 {(el.type==='heading'||el.type==='text')&&(isEdit?
                   <div ref={editRef} contentEditable suppressContentEditableWarning onBlur={finishEdit} onKeyDown={function(e){if(e.key==='Escape')finishEdit();}}
                     style={{fontSize:Math.max(10,el.fontSize*0.65)+'px',fontWeight:el.bold?700:400,fontStyle:el.italic?'italic':'normal',textDecoration:el.underline?'underline':'none',color:el.color||'#fff',textAlign:el.align||'left',fontFamily:el.fontFamily||t.bodyFont,width:'100%',height:'100%',outline:'2px solid #8b5cf6',padding:'4px 6px',lineHeight:1.3,overflow:'hidden',background:'rgba(0,0,0,.15)',borderRadius:2,whiteSpace:'pre-wrap'}}>{el.text||''}</div>
@@ -411,18 +417,48 @@ export default function SuperDeckEditor() {
 
             {(selEl.type==='heading'||selEl.type==='text')&&<>
               <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Font</div>
-              <select value={(selEl.fontFamily||'').split(',')[0].replace(/'/g,'').trim()||'Sora'} onChange={function(e){upd(selId,{fontFamily:"'"+e.target.value+"',sans-serif"});}}
-                onMouseEnter={function(e){e.currentTarget.style.borderColor='#8b5cf6';e.currentTarget.style.background='#ede9fe';}}
-                onMouseLeave={function(e){e.currentTarget.style.borderColor='#e2e8f0';e.currentTarget.style.background='#fff';}}
-                style={{width:'100%',padding:'10px 12px',borderRadius:8,border:'1.5px solid #e2e8f0',fontSize:14,fontWeight:600,color:'#0f172a',background:'#fff',fontFamily:'inherit',cursor:'pointer',marginBottom:10,transition:'all 0.15s',appearance:'none',backgroundImage:'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")',backgroundRepeat:'no-repeat',backgroundPosition:'right 12px center',paddingRight:30}}>
-                {['Sora','DM Sans','Inter','Poppins','Montserrat','Playfair Display','Roboto','Open Sans','Lato','Oswald','Raleway','Merriweather','Georgia','Arial','Trebuchet MS','Verdana','Courier New','Impact'].map(function(f){return <option key={f} value={f} style={{fontFamily:f}}>{f}</option>;})}</select>
+              <div ref={fontDropRef} style={{position:'relative',marginBottom:10}}>
+                <div onClick={function(e){e.stopPropagation();setFontDropOpen(!fontDropOpen);setSizeDropOpen(false);}}
+                  style={{display:'flex',alignItems:'center',gap:8,padding:'10px 12px',background:fontDropOpen?'#f5f3ff':'#fff',border:'1.5px solid '+(fontDropOpen?'#8b5cf6':'#e2e8f0'),borderRadius:8,cursor:'pointer',transition:'all 0.15s'}}>
+                  <span style={{width:28,height:28,borderRadius:6,background:'#f1f5f9',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'#8b5cf6',fontFamily:(selEl.fontFamily||"'Sora',sans-serif"),flexShrink:0}}>Aa</span>
+                  <span style={{fontSize:13,fontWeight:600,color:'#0f172a',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontFamily:(selEl.fontFamily||"'Sora',sans-serif")}}>{(selEl.fontFamily||'').split(',')[0].replace(/'/g,'').trim()||'Sora'}</span>
+                  <svg style={{flexShrink:0,opacity:0.4,transform:fontDropOpen?'rotate(180deg)':'none',transition:'transform 0.2s'}} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
+                </div>
+                {fontDropOpen&&<div style={{position:'absolute',top:'100%',left:0,right:0,zIndex:50,marginTop:4,background:'#fff',border:'1.5px solid #e2e8f0',borderRadius:10,overflow:'hidden',boxShadow:'0 12px 40px rgba(0,0,0,.12)',maxHeight:260,overflowY:'auto'}}>
+                  {['Sora','DM Sans','Inter','Poppins','Montserrat','Playfair Display','Roboto','Open Sans','Lato','Oswald','Raleway','Merriweather','Georgia','Arial','Trebuchet MS','Verdana','Courier New','Impact'].map(function(f){
+                    var isActive=(selEl.fontFamily||'').indexOf(f)>=0;
+                    return <div key={f} onClick={function(e){e.stopPropagation();upd(selId,{fontFamily:"'"+f+"',sans-serif"});setFontDropOpen(false);}}
+                      onMouseEnter={function(e){if(!isActive)e.currentTarget.style.background='#f8fafc';}}
+                      onMouseLeave={function(e){if(!isActive)e.currentTarget.style.background='transparent';}}
+                      style={{display:'flex',alignItems:'center',gap:10,padding:'9px 12px',cursor:'pointer',background:isActive?'#f5f3ff':'transparent',borderLeft:isActive?'3px solid #8b5cf6':'3px solid transparent',transition:'background 0.15s'}}>
+                      <span style={{width:26,height:26,borderRadius:5,background:isActive?'#ede9fe':'#f1f5f9',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:isActive?'#8b5cf6':'#64748b',fontFamily:"'"+f+"',sans-serif",flexShrink:0}}>Aa</span>
+                      <span style={{fontSize:13,fontWeight:isActive?700:500,color:isActive?'#8b5cf6':'#0f172a',fontFamily:"'"+f+"',sans-serif"}}>{f}</span>
+                    </div>;
+                  })}
+                </div>}
+              </div>
 
               <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Size</div>
-              <select value={selEl.fontSize||18} onChange={function(e){upd(selId,{fontSize:parseInt(e.target.value)});}}
-                onMouseEnter={function(e){e.currentTarget.style.borderColor='#8b5cf6';e.currentTarget.style.background='#ede9fe';}}
-                onMouseLeave={function(e){e.currentTarget.style.borderColor='#e2e8f0';e.currentTarget.style.background='#fff';}}
-                style={{width:'100%',padding:'10px 12px',borderRadius:8,border:'1.5px solid #e2e8f0',fontSize:14,fontWeight:600,color:'#0f172a',background:'#fff',fontFamily:'inherit',cursor:'pointer',marginBottom:10,transition:'all 0.15s',appearance:'none',backgroundImage:'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")',backgroundRepeat:'no-repeat',backgroundPosition:'right 12px center',paddingRight:30}}>
-                {FONT_SIZES.map(function(s){return <option key={s} value={s}>{s}px</option>;})}</select>
+              <div ref={sizeDropRef} style={{position:'relative',marginBottom:10}}>
+                <div onClick={function(e){e.stopPropagation();setSizeDropOpen(!sizeDropOpen);setFontDropOpen(false);}}
+                  style={{display:'flex',alignItems:'center',gap:8,padding:'10px 12px',background:sizeDropOpen?'#f5f3ff':'#fff',border:'1.5px solid '+(sizeDropOpen?'#8b5cf6':'#e2e8f0'),borderRadius:8,cursor:'pointer',transition:'all 0.15s'}}>
+                  <span style={{width:28,height:28,borderRadius:6,background:'#f1f5f9',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'#8b5cf6',flexShrink:0}}>{selEl.fontSize||18}</span>
+                  <span style={{fontSize:13,fontWeight:600,color:'#0f172a',flex:1}}>{(selEl.fontSize||18)+'px'}</span>
+                  <svg style={{flexShrink:0,opacity:0.4,transform:sizeDropOpen?'rotate(180deg)':'none',transition:'transform 0.2s'}} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
+                </div>
+                {sizeDropOpen&&<div style={{position:'absolute',top:'100%',left:0,right:0,zIndex:50,marginTop:4,background:'#fff',border:'1.5px solid #e2e8f0',borderRadius:10,overflow:'hidden',boxShadow:'0 12px 40px rgba(0,0,0,.12)',maxHeight:260,overflowY:'auto'}}>
+                  {FONT_SIZES.map(function(s){
+                    var isActive=(selEl.fontSize||18)===s;
+                    return <div key={s} onClick={function(e){e.stopPropagation();upd(selId,{fontSize:s});setSizeDropOpen(false);}}
+                      onMouseEnter={function(e){if(!isActive)e.currentTarget.style.background='#f8fafc';}}
+                      onMouseLeave={function(e){if(!isActive)e.currentTarget.style.background='transparent';}}
+                      style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',cursor:'pointer',background:isActive?'#f5f3ff':'transparent',borderLeft:isActive?'3px solid #8b5cf6':'3px solid transparent',transition:'background 0.15s'}}>
+                      <span style={{fontSize:13,fontWeight:isActive?700:500,color:isActive?'#8b5cf6':'#0f172a'}}>{s}px</span>
+                      <span style={{fontSize:11,color:'#94a3b8',marginLeft:'auto'}}>{s<=16?'Small':s<=24?'Body':s<=36?'Subtitle':s<=56?'Title':'Display'}</span>
+                    </div>;
+                  })}
+                </div>}
+              </div>
 
               <div style={{display:'flex',gap:3,marginBottom:10}}>
                 <button onClick={function(){upd(selId,{bold:!selEl.bold});}} style={tbtn(selEl.bold)}><Bold size={14}/></button>
