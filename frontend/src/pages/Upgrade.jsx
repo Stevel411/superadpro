@@ -131,7 +131,7 @@ export default function Upgrade() {
 
             {/* Features */}
             <div style={{ padding: '24px 28px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ marginBottom: 24 }}>
+              <div style={{ marginBottom: 16 }}>
                 {[
                   ['💰', 'Affiliate commissions'],
                   ['📊', 'Income Grid access'],
@@ -142,16 +142,13 @@ export default function Upgrade() {
                   ['💬', 'Basic support'],
                 ].map(function([icon, label]) {
                   return (
-                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: '1px solid rgba(0,0,0,.04)' }}>
-                      <div style={{ width: 34, height: 34, borderRadius: 10, background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 17 }}>{icon}</div>
-                      <span style={{ fontSize: 15, color: "#334155" }}>{label}</span>
+                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 0', borderBottom: '1px solid rgba(0,0,0,.04)' }}>
+                      <div style={{ width: 30, height: 30, borderRadius: 8, background: '#f0fdf4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 15 }}>{icon}</div>
+                      <span style={{ fontSize: 14, color: "#334155" }}>{label}</span>
                     </div>
                   );
                 })}
               </div>
-
-              {/* Spacer pushes buttons to same level as Pro */}
-              <div style={{ flex: 1 }}/>
 
               {/* Buttons */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -236,7 +233,7 @@ export default function Upgrade() {
 
             {/* Features */}
             <div style={{ padding: '24px 28px', flex: 1, display: 'flex', flexDirection: 'column' }}>
-              <div style={{ marginBottom: 24 }}>
+              <div style={{ marginBottom: 16, maxHeight: 280, overflowY: 'auto', paddingRight: 4 }}>
                 {[
                   ['✨', 'Everything in Basic', true],
                   ['🤖', 'ProSeller AI assistant', false],
@@ -251,9 +248,9 @@ export default function Upgrade() {
                   ['⭐', 'Priority support', false],
                 ].map(function([icon, label, bold]) {
                   return (
-                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '12px 0', borderBottom: '1px solid rgba(0,0,0,.04)' }}>
-                      <div style={{ width: 34, height: 34, borderRadius: 10, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 17 }}>{icon}</div>
-                      <span style={{ fontSize: 15, color: bold ? '#0f172a' : '#334155', fontWeight: bold ? 700 : 400 }}>{label}</span>
+                    <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '9px 0', borderBottom: '1px solid rgba(0,0,0,.04)' }}>
+                      <div style={{ width: 30, height: 30, borderRadius: 8, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 15 }}>{icon}</div>
+                      <span style={{ fontSize: 14, color: bold ? '#0f172a' : '#334155', fontWeight: bold ? 700 : 400 }}>{label}</span>
                     </div>
                   );
                 })}
