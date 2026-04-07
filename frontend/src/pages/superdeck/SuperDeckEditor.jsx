@@ -366,17 +366,25 @@ export default function SuperDeckEditor() {
 
             {/* Font group */}
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
                 <select value={selEl && selEl.fontFamily ? selEl.fontFamily.split(',')[0].trim() : 'Sora'}
                   onChange={function (e) { if (selEl) upd(selId, { fontFamily: e.target.value + ', sans-serif' }); }}
-                  style={{ padding: '8px 12px', borderRadius: 8, border: '2px solid #cbd5e1', fontSize: 14, fontWeight: 600, color: '#0f172a', background: '#fff', fontFamily: 'inherit', cursor: 'pointer', minWidth: 120 }}>
+                  onMouseEnter={function(e) { e.currentTarget.style.borderColor = '#8b5cf6'; e.currentTarget.style.background = '#ede9fe'; }}
+                  onMouseLeave={function(e) { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#fff'; }}
+                  style={{ padding: '8px 12px', borderRadius: 8, border: '2px solid #cbd5e1', fontSize: 14, fontWeight: 600, color: '#0f172a', background: '#fff', fontFamily: 'inherit', cursor: 'pointer', minWidth: 120, transition: 'all 0.15s', appearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', paddingRight: 28 }}>
                   {['Sora', 'DM Sans', 'Arial', 'Georgia', 'Trebuchet MS', 'Verdana', 'Palatino', 'Courier New', 'Impact', 'Calibri'].map(function (f) {
                     return <option key={f} value={f}>{f}</option>;
                   })}
                 </select>
-                <input type="number" value={selEl ? (selEl.fontSize || 18) : 36}
+                <select value={selEl ? (selEl.fontSize || 18) : 36}
                   onChange={function (e) { if (selEl) upd(selId, { fontSize: parseInt(e.target.value) || 18 }); }}
-                  style={{ width: 58, padding: '8px 8px', borderRadius: 8, border: '2px solid #cbd5e1', fontSize: 14, fontWeight: 600, color: '#0f172a', textAlign: 'center', background: '#fff' }} />
+                  onMouseEnter={function(e) { e.currentTarget.style.borderColor = '#8b5cf6'; e.currentTarget.style.background = '#ede9fe'; }}
+                  onMouseLeave={function(e) { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#fff'; }}
+                  style={{ padding: '8px 8px', borderRadius: 8, border: '2px solid #cbd5e1', fontSize: 14, fontWeight: 600, color: '#0f172a', background: '#fff', fontFamily: 'inherit', cursor: 'pointer', minWidth: 65, transition: 'all 0.15s', appearance: 'none', backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 6px center', paddingRight: 22, textAlign: 'center' }}>
+                  {[8, 10, 12, 14, 16, 18, 20, 24, 28, 32, 36, 42, 48, 56, 64, 72, 80, 96].map(function (s) {
+                    return <option key={s} value={s}>{s}</option>;
+                  })}
+                </select>
                 <button onClick={function () { if (selEl) upd(selId, { bold: !selEl.bold }); }} style={rbtn(selEl && selEl.bold)}>
                   <Bold size={16} />
                 </button>
@@ -395,8 +403,8 @@ export default function SuperDeckEditor() {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                   <span style={{ fontSize: 13, color: '#0f172a', fontWeight: 700 }}>Fill</span>
-                  <input type="color" value={selEl ? (selEl.fill || selEl.color || '#8b5cf6') : '#8b5cf6'}
-                    onChange={function (e) { if (selEl) upd(selId, { fill: e.target.value }); }}
+                  <input type="color" value={selEl ? (selEl.type === 'shape' ? (selEl.fill || '#8b5cf6') : (selEl.background || '#ffffff')) : '#8b5cf6'}
+                    onChange={function (e) { if (selEl) { if (selEl.type === 'shape') upd(selId, { fill: e.target.value }); else upd(selId, { background: e.target.value }); } }}
                     style={{ width: 34, height: 34, border: '2px solid #cbd5e1', borderRadius: 8, cursor: 'pointer', padding: 2 }} />
                 </div>
               </div>
@@ -506,53 +514,10 @@ export default function SuperDeckEditor() {
 
           {ribbonTab === 'design' && <>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 14, color: '#334155', fontWeight: 700 }}>Background</span>
+              <span style={{ fontSize: 14, color: '#334155', fontWeight: 700 }}>Background colour</span>
               <input type="color" value={cs.background || '#ffffff'} onChange={function (e) { updBg(e.target.value); }}
-                style={{ width: 40, height: 40, border: '2px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', padding: 2 }} />
+                style={{ width: 44, height: 44, border: '2px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', padding: 2 }} />
               <span style={{ fontSize: 14, color: '#334155', fontFamily: 'monospace' }}>{cs.background || '#ffffff'}</span>
-            </div>
-            <div style={S.divider} />
-            <div ref={themeDropRef} style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
-              <span style={{ fontSize: 14, color: '#334155', fontWeight: 700 }}>Theme</span>
-              <div onClick={function() { setThemeDropOpen(!themeDropOpen); }}
-                onMouseEnter={function(e) { e.currentTarget.style.borderColor = '#8b5cf6'; }}
-                onMouseLeave={function(e) { e.currentTarget.style.borderColor = themeDropOpen ? '#8b5cf6' : '#e2e8f0'; }}
-                style={{ padding: '8px 14px', border: '1.5px solid ' + (themeDropOpen ? '#8b5cf6' : '#e2e8f0'), borderRadius: 10, fontSize: 14, color: '#0f172a', background: '#fff', fontFamily: 'inherit', cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', gap: 10, minWidth: 200, transition: 'border-color 0.15s' }}>
-                <div style={{ width: 24, height: 24, borderRadius: 6, background: (THEMES[theme] || THEMES.midnight).primary, border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0 }} />
-                <span style={{ fontWeight: 600 }}>{(THEMES[theme] || THEMES.midnight).name}</span>
-                <ChevronDown size={14} color="#94a3b8" style={{ marginLeft: 'auto', transform: themeDropOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
-              </div>
-              {themeDropOpen && (
-                <div style={{ position: 'absolute', top: '100%', left: 48, marginTop: 4, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.12)', zIndex: 100, minWidth: 220 }}>
-                  {THEME_KEYS.map(function(k) {
-                    var th = THEMES[k];
-                    var isSel = k === theme;
-                    return (
-                      <div key={k} onClick={function() { setTheme(k); mark(); setThemeDropOpen(false); }}
-                        onMouseEnter={function(e) { e.currentTarget.style.background = '#f8fafc'; }}
-                        onMouseLeave={function(e) { e.currentTarget.style.background = isSel ? 'rgba(139,92,246,0.04)' : '#fff'; }}
-                        style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
-                          background: isSel ? 'rgba(139,92,246,0.04)' : '#fff',
-                          borderLeft: isSel ? '3px solid #8b5cf6' : '3px solid transparent',
-                          borderBottom: '1px solid #f1f5f9' }}>
-                        <div style={{ width: 28, height: 28, borderRadius: 6, background: th.primary, border: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                          <div style={{ width: 8, height: 8, borderRadius: '50%', background: th.accent }} />
-                        </div>
-                        <div>
-                          <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{th.name}</div>
-                          <div style={{ display: 'flex', gap: 3, marginTop: 3 }}>
-                            {[th.primary, th.secondary, th.accent, th.muted].map(function(c, ci) {
-                              return <div key={ci} style={{ width: 12, height: 12, borderRadius: 3, background: c, border: '1px solid rgba(0,0,0,0.08)' }} />;
-                            })}
-                          </div>
-                        </div>
-                        {isSel && <span style={{ marginLeft: 'auto', color: '#8b5cf6', fontSize: 16 }}>✓</span>}
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
             </div>
           </>}
         </div>
@@ -582,9 +547,15 @@ export default function SuperDeckEditor() {
                         })}
                       </div>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 3, padding: '2px 0' }}>
-                      <button onClick={function () { dupSlide(i); }} style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', padding: 1 }}><Copy size={9} /></button>
-                      <button onClick={function () { delSlide(i); }} style={{ background: 'none', border: 'none', color: '#475569', cursor: 'pointer', padding: 1 }}><Trash2 size={9} /></button>
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 6, padding: '4px 0' }}>
+                      <button onClick={function () { dupSlide(i); }} title="Duplicate slide"
+                        onMouseEnter={function(e) { e.currentTarget.style.background = '#ede9fe'; }}
+                        onMouseLeave={function(e) { e.currentTarget.style.background = 'transparent'; }}
+                        style={{ background: 'transparent', border: 'none', color: '#475569', cursor: 'pointer', padding: 4, borderRadius: 4, display: 'flex', transition: 'background 0.15s' }}><Copy size={14} /></button>
+                      <button onClick={function () { delSlide(i); }} title="Delete slide"
+                        onMouseEnter={function(e) { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#dc2626'; }}
+                        onMouseLeave={function(e) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = '#475569'; }}
+                        style={{ background: 'transparent', border: 'none', color: '#475569', cursor: 'pointer', padding: 4, borderRadius: 4, display: 'flex', transition: 'all 0.15s' }}><Trash2 size={14} /></button>
                     </div>
                   </div>
                 </div>
@@ -675,6 +646,7 @@ export default function SuperDeckEditor() {
                         fontStyle: el.italic ? 'italic' : 'normal',
                         textDecoration: el.underline ? 'underline' : 'none',
                         color: el.color || '#fff',
+                        background: el.background || 'transparent',
                         textAlign: el.align || 'left',
                         fontFamily: el.fontFamily || t.bodyFont,
                         width: '100%', height: '100%',
@@ -683,6 +655,7 @@ export default function SuperDeckEditor() {
                         alignItems: el.type === 'heading' ? 'center' : 'flex-start',
                         justifyContent: el.align === 'center' ? 'center' : el.align === 'right' ? 'flex-end' : 'flex-start',
                         lineHeight: 1.3, userSelect: 'none',
+                        borderRadius: 2,
                       }}>{el.text || ''}</div>
                     )
                   )}
@@ -701,19 +674,44 @@ export default function SuperDeckEditor() {
                     <div style={{ width: '100%', height: '100%', background: el.fill || t.accent, borderRadius: el.shapeType === 'circle' ? '50%' : 4 }} />
                   )}
 
-                  {/* 8-point resize handles */}
-                  {isSel && !isEdit && ['tl', 't', 'tr', 'r', 'br', 'b', 'bl', 'l'].map(function (c) {
-                    var hs = { position: 'absolute', width: 10, height: 10, background: '#3b82f6', borderRadius: 2, zIndex: 20 };
-                    var cursors = { tl: 'nwse-resize', t: 'ns-resize', tr: 'nesw-resize', r: 'ew-resize', br: 'nwse-resize', b: 'ns-resize', bl: 'nesw-resize', l: 'ew-resize' };
-                    hs.cursor = cursors[c];
-                    if (c.includes('t')) hs.top = -5;
-                    if (c.includes('b')) hs.bottom = -5;
-                    if (c.includes('l')) hs.left = -5;
-                    if (c.includes('r')) hs.right = -5;
-                    if (c === 't' || c === 'b') { hs.left = '50%'; hs.transform = 'translateX(-50%)'; }
-                    if (c === 'l' || c === 'r') { hs.top = '50%'; hs.transform = 'translateY(-50%)'; }
-                    return <div key={c} onMouseDown={function (e) { onResizeDown(e, el.id, c); }} style={hs} />;
-                  })}
+                  {/* 8-point resize handles + floating toolbar */}
+                  {isSel && !isEdit && <>
+                    {['tl', 't', 'tr', 'r', 'br', 'b', 'bl', 'l'].map(function (c) {
+                      var hs = { position: 'absolute', width: 10, height: 10, background: '#3b82f6', borderRadius: 2, zIndex: 20 };
+                      var cursors = { tl: 'nwse-resize', t: 'ns-resize', tr: 'nesw-resize', r: 'ew-resize', br: 'nwse-resize', b: 'ns-resize', bl: 'nesw-resize', l: 'ew-resize' };
+                      hs.cursor = cursors[c];
+                      if (c.includes('t')) hs.top = -5;
+                      if (c.includes('b')) hs.bottom = -5;
+                      if (c.includes('l')) hs.left = -5;
+                      if (c.includes('r')) hs.right = -5;
+                      if (c === 't' || c === 'b') { hs.left = '50%'; hs.transform = 'translateX(-50%)'; }
+                      if (c === 'l' || c === 'r') { hs.top = '50%'; hs.transform = 'translateY(-50%)'; }
+                      return <div key={c} onMouseDown={function (e) { onResizeDown(e, el.id, c); }} style={hs} />;
+                    })}
+                    {/* Floating toolbar above selected element */}
+                    <div style={{ position: 'absolute', top: -36, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 2, background: '#1e293b', borderRadius: 6, padding: '3px 4px', boxShadow: '0 4px 12px rgba(0,0,0,0.3)', zIndex: 30 }}
+                      onClick={function(e) { e.stopPropagation(); }}>
+                      <button onClick={function(e) { e.stopPropagation(); moveElBackward(); }} title="Send backward"
+                        style={{ background: 'transparent', border: 'none', color: '#cbd5e1', cursor: 'pointer', padding: '4px 6px', borderRadius: 4, display: 'flex' }}
+                        onMouseEnter={function(e) { e.currentTarget.style.background = '#334155'; }}
+                        onMouseLeave={function(e) { e.currentTarget.style.background = 'transparent'; }}>
+                        <ArrowDown size={14} />
+                      </button>
+                      <button onClick={function(e) { e.stopPropagation(); moveElForward(); }} title="Bring forward"
+                        style={{ background: 'transparent', border: 'none', color: '#cbd5e1', cursor: 'pointer', padding: '4px 6px', borderRadius: 4, display: 'flex' }}
+                        onMouseEnter={function(e) { e.currentTarget.style.background = '#334155'; }}
+                        onMouseLeave={function(e) { e.currentTarget.style.background = 'transparent'; }}>
+                        <ArrowUp size={14} />
+                      </button>
+                      <div style={{ width: 1, height: 20, background: '#475569', margin: '0 2px' }} />
+                      <button onClick={function(e) { e.stopPropagation(); delEl(); }} title="Delete"
+                        style={{ background: 'transparent', border: 'none', color: '#f87171', cursor: 'pointer', padding: '4px 6px', borderRadius: 4, display: 'flex' }}
+                        onMouseEnter={function(e) { e.currentTarget.style.background = '#7f1d1d'; }}
+                        onMouseLeave={function(e) { e.currentTarget.style.background = 'transparent'; }}>
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </>}
                 </div>
               );
             })}
@@ -780,25 +778,6 @@ export default function SuperDeckEditor() {
                 <input type="color" value={cs.background || '#ffffff'} onChange={function (e) { updBg(e.target.value); }}
                   style={{ width: 44, height: 44, border: '2px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', padding: 2 }} />
                 <span style={{ fontSize: 14, color: '#334155', fontFamily: 'monospace' }}>{cs.background || '#ffffff'}</span>
-              </div>
-
-              <div style={{ fontSize: 14, color: '#0f172a', fontWeight: 600, marginBottom: 6 }}>Theme</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 14 }}>
-                {THEME_KEYS.map(function(k) {
-                  var th = THEMES[k];
-                  var isSel = k === theme;
-                  return (
-                    <div key={k} onClick={function() { setTheme(k); mark(); }}
-                      onMouseEnter={function(e) { if (!isSel) e.currentTarget.style.background = '#f8fafc'; }}
-                      onMouseLeave={function(e) { if (!isSel) e.currentTarget.style.background = '#fff'; }}
-                      style={{ padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
-                        borderRadius: 8, border: isSel ? '1.5px solid #8b5cf6' : '1px solid #e2e8f0',
-                        background: isSel ? '#f3f0ff' : '#fff', transition: 'all 0.15s' }}>
-                      <div style={{ width: 20, height: 20, borderRadius: 4, background: th.primary, border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0 }} />
-                      <span style={{ fontSize: 12, fontWeight: isSel ? 700 : 500, color: isSel ? '#8b5cf6' : '#334155' }}>{th.name}</span>
-                    </div>
-                  );
-                })}
               </div>
 
               <div style={{ fontSize: 14, color: '#0f172a', fontWeight: 600, marginBottom: 6 }}>Transition</div>
