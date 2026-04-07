@@ -350,7 +350,7 @@ export default function SuperDeckEditor() {
                 onMouseDown={function(e){if(!isEdit)onElMouseDown(e,el.id);}}
                 onDoubleClick={function(e){e.stopPropagation();if(el.type==='heading'||el.type==='text')startEdit(el.id);else if(el.type==='image')uploadImage();}}
                 onClick={function(e){e.stopPropagation();if(!isEdit)setSelId(el.id);}}
-                style={{position:'absolute',left:pctX+'%',top:pctY+'%',width:pctW+'%',height:pctH+'%',cursor:isEdit?'text':'move',outline:isSel&&!isEdit?'2px solid #3b82f6':'none',borderRadius:2,boxSizing:'border-box',zIndex:isSel?100+elIdx:elIdx+1}}>
+                style={{position:'absolute',left:pctX+'%',top:pctY+'%',width:pctW+'%',height:pctH+'%',cursor:isEdit?'text':'move',outline:isSel&&!isEdit?'2px solid #3b82f6':'none',borderRadius:2,boxSizing:'border-box',zIndex:elIdx+1}}>
                 {(el.type==='heading'||el.type==='text')&&(isEdit?
                   <div ref={editRef} contentEditable suppressContentEditableWarning onBlur={finishEdit} onKeyDown={function(e){if(e.key==='Escape')finishEdit();}}
                     style={{fontSize:Math.max(10,el.fontSize*0.65)+'px',fontWeight:el.bold?700:400,fontStyle:el.italic?'italic':'normal',textDecoration:el.underline?'underline':'none',color:el.color||'#fff',textAlign:el.align||'left',fontFamily:el.fontFamily||t.bodyFont,width:'100%',height:'100%',outline:'2px solid #8b5cf6',padding:'4px 6px',lineHeight:1.3,overflow:'hidden',background:'rgba(0,0,0,.15)',borderRadius:2,whiteSpace:'pre-wrap'}}>{el.text||''}</div>
@@ -390,10 +390,26 @@ export default function SuperDeckEditor() {
           </div>
         </div>
 
-        {/* RIGHT: Properties */}
+        {/* RIGHT: Properties + Layers (always visible) */}
         <div style={{width:270,borderLeft:'1px solid #e2e8f0',background:'#fff',padding:14,overflowY:'auto',flexShrink:0}}>
-          {selEl?<>
-            <div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:10}}>Element Properties</div>
+
+          {/* ── Add Elements (always visible) ── */}
+          <div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:8}}>Add Elements</div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:4,marginBottom:14}}>
+            {[{t:'heading',n:'Heading',i:Type,c:'#8b5cf6'},{t:'text',n:'Text',i:Type,c:'#0ea5e9'},{t:'image',n:'Image',i:Image,c:'#22c55e'},{t:'shape',n:'Shape',i:Square,c:'#f59e0b'}].map(function(it){
+              return <button key={it.t} onClick={function(){addEl(it.t);}}
+                onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';e.currentTarget.style.borderColor='#8b5cf6';}}
+                onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';e.currentTarget.style.borderColor='#e2e8f0';}}
+                style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,padding:'8px 4px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',cursor:'pointer',fontFamily:'inherit',transition:'all 0.15s'}}>
+                <it.i size={16} color={it.c}/>
+                <span style={{fontSize:10,fontWeight:600,color:'#334155'}}>{it.n}</span>
+              </button>;
+            })}
+          </div>
+
+          {/* ── Element Properties (only when selected) ── */}
+          {selEl&&<>
+            <div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:8}}>Element Properties</div>
 
             {/* Layer ordering — send to back / bring to front */}
             <div style={{display:'flex',gap:4,marginBottom:10}}>
@@ -503,52 +519,46 @@ export default function SuperDeckEditor() {
 
             <button onClick={delEl}
               onMouseEnter={function(e){e.currentTarget.style.background='#fee2e2';}} onMouseLeave={function(e){e.currentTarget.style.background='#fef2f2';}}
-              style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'10px 12px',borderRadius:8,border:'1px solid #fecaca',background:'#fef2f2',color:'#dc2626',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',marginTop:8}}>
+              style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'10px 12px',borderRadius:8,border:'1px solid #fecaca',background:'#fef2f2',color:'#dc2626',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',marginTop:4}}>
               <Trash2 size={14}/> Delete element</button>
-          </>:<>
-            {/* No element selected — show insert elements + slide design */}
-            <div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:10}}>Add Elements</div>
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,marginBottom:16}}>
-              {[{t:'heading',n:'Heading',i:Type,c:'#8b5cf6'},{t:'text',n:'Text Box',i:Type,c:'#0ea5e9'},{t:'image',n:'Image',i:Image,c:'#22c55e'},{t:'shape',n:'Shape',i:Square,c:'#f59e0b'}].map(function(it){
-                return <button key={it.t} onClick={function(){addEl(it.t);}}
-                  onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';e.currentTarget.style.borderColor='#8b5cf6';}}
-                  onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';e.currentTarget.style.borderColor='#e2e8f0';}}
-                  style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4,padding:'12px 8px',borderRadius:8,border:'1.5px solid #e2e8f0',background:'#f8fafc',cursor:'pointer',fontFamily:'inherit',transition:'all 0.15s'}}>
-                  <it.i size={20} color={it.c}/>
-                  <span style={{fontSize:11,fontWeight:600,color:'#334155'}}>{it.n}</span>
-                </button>;
-              })}
-            </div>
 
-            <div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:6}}>Slide Design</div>
-            <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Background</div>
-            <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
-              <input type="color" value={cs.background||t.primary} onChange={function(e){updBg(e.target.value);}} style={{width:36,height:36,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1}}/>
-              <span style={{fontSize:12,color:'#64748b',fontFamily:'monospace'}}>{cs.background||t.primary}</span>
-            </div>
-
-            <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Layers</div>
-            {cs.elements.map(function(el){var isSel=el.id===selId;var label=el.type==='heading'?'H: '+(el.text||'').slice(0,16):el.type==='text'?'T: '+(el.text||'').slice(0,16):el.type==='image'?'Image':el.type==='shape'?'Shape':'?';
-              return <div key={el.id} onClick={function(e){e.stopPropagation();setSelId(el.id);}}
-                onMouseEnter={function(e){e.currentTarget.style.background='#f8fafc';}} onMouseLeave={function(e){e.currentTarget.style.background=isSel?'#ede9fe':'transparent';}}
-                style={{padding:'6px 8px',borderRadius:4,marginBottom:2,cursor:'pointer',fontSize:12,color:isSel?'#8b5cf6':'#334155',background:isSel?'#ede9fe':'transparent',border:isSel?'1px solid #c4b5fd':'1px solid transparent',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                <span>{label}</span>
-              </div>;
-            })}
-            {cs.elements.length===0&&<div style={{fontSize:11,color:'#94a3b8',fontStyle:'italic',marginBottom:8}}>Click an element above to add it to the slide</div>}
-            <div style={{borderTop:'1px solid #e2e8f0',paddingTop:8,marginTop:8}}>
-              <div style={{display:'flex',flexDirection:'column',gap:4}}>
-                <button onClick={function(){dupSlide(active);}}
-                  onMouseEnter={function(e){e.currentTarget.style.background='#f3f0ff';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
-                  style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'7px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
-                  <Copy size={12} color="#8b5cf6"/> Duplicate slide</button>
-                <button onClick={function(){delSlide(active);}}
-                  onMouseEnter={function(e){e.currentTarget.style.background='#fee2e2';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
-                  style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'7px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
-                  <Trash2 size={12} color="#dc2626"/> Delete slide</button>
-              </div>
-            </div>
+            <div style={{borderTop:'1px solid #e2e8f0',margin:'12px 0'}}/>
           </>}
+
+          {/* ── Slide Design (always visible) ── */}
+          <div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:6}}>Slide Design</div>
+          <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Background</div>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
+            <input type="color" value={cs.background||t.primary} onChange={function(e){updBg(e.target.value);}} style={{width:36,height:36,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1}}/>
+            <span style={{fontSize:12,color:'#64748b',fontFamily:'monospace'}}>{cs.background||t.primary}</span>
+          </div>
+
+          {/* ── Layers (always visible) ── */}
+          <div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:6}}>Layers</div>
+          {cs.elements.slice().reverse().map(function(el){var isSel=el.id===selId;var label=el.type==='heading'?'H: '+(el.text||'').slice(0,16):el.type==='text'?'T: '+(el.text||'').slice(0,16):el.type==='image'?'Image':el.type==='shape'?'Shape':'?';
+            return <div key={el.id} onClick={function(e){e.stopPropagation();setSelId(el.id);}}
+              onMouseEnter={function(e){if(!isSel)e.currentTarget.style.background='#f8fafc';}} onMouseLeave={function(e){if(!isSel)e.currentTarget.style.background=isSel?'#ede9fe':'transparent';}}
+              style={{padding:'6px 8px',borderRadius:4,marginBottom:2,cursor:'pointer',fontSize:12,color:isSel?'#8b5cf6':'#334155',background:isSel?'#ede9fe':'transparent',border:isSel?'1px solid #c4b5fd':'1px solid transparent',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              <span style={{display:'flex',alignItems:'center',gap:6}}>
+                <Layers size={11} color={isSel?'#8b5cf6':'#94a3b8'}/>
+                {label}
+              </span>
+            </div>;
+          })}
+          {cs.elements.length===0&&<div style={{fontSize:11,color:'#94a3b8',fontStyle:'italic',marginBottom:8}}>No elements on this slide</div>}
+
+          <div style={{borderTop:'1px solid #e2e8f0',paddingTop:8,marginTop:8}}>
+            <div style={{display:'flex',flexDirection:'column',gap:4}}>
+              <button onClick={function(){dupSlide(active);}}
+                onMouseEnter={function(e){e.currentTarget.style.background='#f3f0ff';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
+                style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'7px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+                <Copy size={12} color="#8b5cf6"/> Duplicate slide</button>
+              <button onClick={function(){delSlide(active);}}
+                onMouseEnter={function(e){e.currentTarget.style.background='#fee2e2';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
+                style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'7px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+                <Trash2 size={12} color="#dc2626"/> Delete slide</button>
+            </div>
+          </div>
         </div>
       </div>
       <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
