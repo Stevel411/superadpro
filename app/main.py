@@ -21127,6 +21127,12 @@ def credit_matrix_page(request: Request):
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
 
+@app.get("/campaign-analytics")
+def campaign_analytics_page(request: Request):
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
 
 @app.get("/api/superdeck/presentations")
 def api_superdeck_list(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -22003,3 +22009,185 @@ async def api_credit_matrix_team_activity(user: User = Depends(get_current_user)
         })
 
     return {"success": True, "activity": activity}
+
+
+# ═══════════════════════════════════════════════════════════
+#  CAMPAIGN ANALYTICS — Real view data for campaign owners
+# ═══════════════════════════════════════════════════════════
+
+@app.get("/api/campaign-analytics/overview")
+async def api_campaign_analytics_overview(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Campaign analytics overview — all campaigns with view stats."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from datetime import date, timedelta
+    from sqlalchemy import func
+
+    campaigns = db.query(VideoCampaign).filter(
+        VideoCampaign.user_id == user.id,
+        VideoCampaign.status != "deleted",
+    ).order_by(VideoCampaign.created_at.desc()).all()
+
+    if not campaigns:
+        return {"success": True, "campaigns": [], "totals": {"total_views": 0, "views_today": 0, "views_this_week": 0, "views_this_month": 0, "active_campaigns": 0, "avg_watch_duration": 0}}
+
+    campaign_ids = [c.id for c in campaigns]
+    today_str = str(date.today())
+    week_ago = str(date.today() - timedelta(days=7))
+    month_ago = str(date.today() - timedelta(days=30))
+
+    # Total views
+    total_views = sum(c.views_delivered or 0 for c in campaigns)
+
+    # Views today
+    views_today = db.query(func.count(VideoWatch.id)).filter(
+        VideoWatch.campaign_id.in_(campaign_ids),
+        VideoWatch.watch_date == today_str,
+    ).scalar() or 0
+
+    # Views this week
+    views_week = db.query(func.count(VideoWatch.id)).filter(
+        VideoWatch.campaign_id.in_(campaign_ids),
+        VideoWatch.watch_date >= week_ago,
+    ).scalar() or 0
+
+    # Views this month
+    views_month = db.query(func.count(VideoWatch.id)).filter(
+        VideoWatch.campaign_id.in_(campaign_ids),
+        VideoWatch.watch_date >= month_ago,
+    ).scalar() or 0
+
+    # Average watch duration
+    avg_duration = db.query(func.avg(VideoWatch.duration_secs)).filter(
+        VideoWatch.campaign_id.in_(campaign_ids),
+    ).scalar() or 30
+
+    # Unique viewers
+    unique_viewers = db.query(func.count(func.distinct(VideoWatch.user_id))).filter(
+        VideoWatch.campaign_id.in_(campaign_ids),
+    ).scalar() or 0
+
+    # Per-campaign stats
+    campaign_data = []
+    for c in campaigns:
+        c_views_today = db.query(func.count(VideoWatch.id)).filter(
+            VideoWatch.campaign_id == c.id,
+            VideoWatch.watch_date == today_str,
+        ).scalar() or 0
+
+        c_views_week = db.query(func.count(VideoWatch.id)).filter(
+            VideoWatch.campaign_id == c.id,
+            VideoWatch.watch_date >= week_ago,
+        ).scalar() or 0
+
+        c_unique = db.query(func.count(func.distinct(VideoWatch.user_id))).filter(
+            VideoWatch.campaign_id == c.id,
+        ).scalar() or 0
+
+        completion_pct = round(((c.views_delivered or 0) / max(c.views_target or 1, 1)) * 100, 1)
+
+        campaign_data.append({
+            "id": c.id,
+            "title": c.title,
+            "platform": c.platform,
+            "category": c.category or "General",
+            "status": c.status,
+            "tier": c.campaign_tier or 1,
+            "views_delivered": c.views_delivered or 0,
+            "views_target": c.views_target or 0,
+            "completion_pct": min(completion_pct, 100),
+            "views_today": c_views_today,
+            "views_this_week": c_views_week,
+            "unique_viewers": c_unique,
+            "created_at": c.created_at.isoformat() if c.created_at else None,
+        })
+
+    return {
+        "success": True,
+        "campaigns": campaign_data,
+        "totals": {
+            "total_views": total_views,
+            "views_today": views_today,
+            "views_this_week": views_week,
+            "views_this_month": views_month,
+            "active_campaigns": sum(1 for c in campaigns if c.status == "active"),
+            "unique_viewers": unique_viewers,
+            "avg_watch_duration": round(float(avg_duration), 1),
+        },
+    }
+
+
+@app.get("/api/campaign-analytics/{campaign_id}/daily")
+async def api_campaign_analytics_daily(campaign_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Daily view breakdown for a specific campaign — last 30 days."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from datetime import date, timedelta
+    from sqlalchemy import func
+
+    campaign = db.query(VideoCampaign).filter(
+        VideoCampaign.id == campaign_id,
+        VideoCampaign.user_id == user.id,
+    ).first()
+
+    if not campaign:
+        return JSONResponse({"error": "Campaign not found"}, status_code=404)
+
+    # Last 30 days of daily views
+    thirty_days_ago = str(date.today() - timedelta(days=30))
+
+    daily_views = db.query(
+        VideoWatch.watch_date,
+        func.count(VideoWatch.id).label("views"),
+        func.count(func.distinct(VideoWatch.user_id)).label("unique_viewers"),
+        func.avg(VideoWatch.duration_secs).label("avg_duration"),
+    ).filter(
+        VideoWatch.campaign_id == campaign_id,
+        VideoWatch.watch_date >= thirty_days_ago,
+    ).group_by(VideoWatch.watch_date).order_by(VideoWatch.watch_date).all()
+
+    # Fill in missing days with zero
+    days = []
+    current = date.today() - timedelta(days=29)
+    daily_map = {row[0]: {"views": row[1], "unique": row[2], "avg_duration": round(float(row[3] or 30), 1)} for row in daily_views}
+
+    for i in range(30):
+        d = str(current + timedelta(days=i))
+        data = daily_map.get(d, {"views": 0, "unique": 0, "avg_duration": 0})
+        days.append({
+            "date": d,
+            "views": data["views"],
+            "unique_viewers": data["unique"],
+            "avg_duration": data["avg_duration"],
+        })
+
+    # Recent individual watches (last 20)
+    recent_watches = db.query(VideoWatch).filter(
+        VideoWatch.campaign_id == campaign_id,
+    ).order_by(VideoWatch.watched_at.desc()).limit(20).all()
+
+    watch_log = []
+    for w in recent_watches:
+        viewer = db.query(User).filter(User.id == w.user_id).first()
+        watch_log.append({
+            "viewer": viewer.username if viewer else "Member",
+            "duration": w.duration_secs or 30,
+            "watched_at": w.watched_at.isoformat() if w.watched_at else None,
+            "date": w.watch_date,
+        })
+
+    return {
+        "success": True,
+        "campaign": {
+            "id": campaign.id,
+            "title": campaign.title,
+            "views_delivered": campaign.views_delivered or 0,
+            "views_target": campaign.views_target or 0,
+            "status": campaign.status,
+            "tier": campaign.campaign_tier or 1,
+        },
+        "daily": days,
+        "recent_watches": watch_log,
+    }

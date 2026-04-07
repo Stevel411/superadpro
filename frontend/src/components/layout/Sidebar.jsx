@@ -9,7 +9,7 @@ import {
   Target, Mail, Trophy, Bot, Film,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
   BookOpen, PlusCircle, Scissors, Clock, UserCircle, Tv,
-  Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers, DollarSign
+  Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers, DollarSign, BarChart3
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
@@ -28,6 +28,7 @@ function buildNav(t, isAdmin) {
       { label: 'Watch', icon: Eye, path: '/watch' },
       { label: 'Create Campaign', icon: PlusCircle, path: '/create-campaign' },
       { label: 'My Campaigns', icon: Film, path: '/video-library' },
+      { label: 'Campaign Analytics', icon: BarChart3, path: '/campaign-analytics' },
     ]},
     { type: 'divider' },
     { type: 'group', label: t('nav.creatorTools'), key: 'creator', icon: Wrench, items: [
