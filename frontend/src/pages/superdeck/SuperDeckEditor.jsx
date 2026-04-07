@@ -4,7 +4,9 @@ import { apiGet, apiPost } from '../../utils/api';
 import {
   Plus, Trash2, Copy, Download, Save, ArrowLeft, Sparkles, Monitor,
   ChevronDown, Play, X, Type, Image, BarChart3, Quote, List, Columns,
-  MousePointerClick, Loader2, ChevronLeft, ChevronRight, FileText, Wand2
+  MousePointerClick, Loader2, ChevronLeft, ChevronRight, FileText, Wand2,
+  Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight, Palette,
+  Upload, Minus, PlusCircle
 } from 'lucide-react';
 
 var THEMES = {
@@ -54,10 +56,18 @@ function SlideRenderer({slide,theme,scale,editable,onUpdate}) {
       style:{cursor:'text',outline:'none',borderRadius:4}
     };
   }
-  var box={width:'100%',height:'100%',background:slide.background||t.bg,display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center',padding:(40*fs)+'px',boxSizing:'border-box',fontFamily:t.bf,overflow:'hidden',position:'relative'};
-  var h1={fontFamily:t.hf,fontSize:(42*fs)+'px',fontWeight:800,color:t.text,textAlign:'center',lineHeight:1.2,marginBottom:(12*fs)+'px',width:'100%'};
-  var sub={fontSize:(20*fs)+'px',color:t.muted,textAlign:'center',lineHeight:1.5,width:'100%'};
-  var bod={fontSize:(18*fs)+'px',color:t.muted,lineHeight:1.7,width:'100%'};
+  var box={width:'100%',height:'100%',background:slide.background||t.bg,display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center',padding:(40*fs)+'px',boxSizing:'border-box',fontFamily:slide.fontFamily||t.bf,overflow:'hidden',position:'relative'};
+  var tc=slide.textColor||t.text;
+  var mc=slide.textColor?slide.textColor+'99':t.muted;
+  var ac=slide.accentColor||t.accent;
+  var hs=slide.headingSize||42;
+  var fw=slide.bold?800:800;
+  var fst=slide.italic?'italic':'normal';
+  var td=slide.underline?'underline':'none';
+  var ta=slide.textAlign||'center';
+  var h1={fontFamily:slide.fontFamily||t.hf,fontSize:(hs*fs)+'px',fontWeight:fw,fontStyle:fst,textDecoration:td,color:tc,textAlign:ta,lineHeight:1.2,marginBottom:(12*fs)+'px',width:'100%'};
+  var sub={fontSize:(20*fs)+'px',color:mc,textAlign:ta,lineHeight:1.5,width:'100%'};
+  var bod={fontSize:(18*fs)+'px',color:mc,lineHeight:1.7,width:'100%',textAlign:slide.textAlign==='center'?'center':slide.textAlign==='right'?'right':'left'};
 
   if (slide.layout==='title') return (
     <div style={box}>
@@ -86,7 +96,7 @@ function SlideRenderer({slide,theme,scale,editable,onUpdate}) {
       <div style={{width:'100%'}}>
         {(slide.bullets||[]).map(function(b,i){
           return <div key={i} style={{display:'flex',alignItems:'flex-start',gap:(14*fs)+'px',marginBottom:(16*fs)+'px'}}>
-            <div style={{width:(10*fs)+'px',height:(10*fs)+'px',borderRadius:'50%',background:t.accent,marginTop:(8*fs)+'px',flexShrink:0}}/>
+            <div style={{width:(10*fs)+'px',height:(10*fs)+'px',borderRadius:'50%',background:ac,marginTop:(8*fs)+'px',flexShrink:0}}/>
             <div contentEditable={editable} suppressContentEditableWarning
               onBlur={function(e){var nb=(slide.bullets||[]).slice();nb[i]=e.currentTarget.innerText;onUpdate({bullets:nb});}}
               onFocus={function(e){e.currentTarget.style.background='rgba(139,92,246,0.12)';e.currentTarget.style.outline='2px solid #8b5cf6';}}
@@ -102,10 +112,10 @@ function SlideRenderer({slide,theme,scale,editable,onUpdate}) {
       <div {...ep('heading')} style={{...h1,fontSize:(36*fs)+'px',marginBottom:(40*fs)+'px'}}>{slide.heading||''}</div>
       <div style={{display:'flex',gap:(24*fs)+'px',width:'100%',justifyContent:'center'}}>
         {(slide.stats||[]).map(function(st,i){
-          return <div key={i} style={{flex:1,background:t.card,borderRadius:(16*fs)+'px',padding:(28*fs)+'px',textAlign:'center',border:'1px solid '+t.accent+'22'}}>
+          return <div key={i} style={{flex:1,background:t.card,borderRadius:(16*fs)+'px',padding:(28*fs)+'px',textAlign:'center',border:'1px solid '+ac+'22'}}>
             <div contentEditable={editable} suppressContentEditableWarning
               onBlur={function(e){var ns=(slide.stats||[]).slice();ns[i]={...ns[i],value:e.currentTarget.innerText};onUpdate({stats:ns});}}
-              style={{fontSize:(48*fs)+'px',fontWeight:800,color:t.accent,fontFamily:t.hf,outline:'none',cursor:editable?'text':'default'}}>{st.value}</div>
+              style={{fontSize:(48*fs)+'px',fontWeight:800,color:ac,fontFamily:t.hf,outline:'none',cursor:editable?'text':'default'}}>{st.value}</div>
             <div contentEditable={editable} suppressContentEditableWarning
               onBlur={function(e){var ns=(slide.stats||[]).slice();ns[i]={...ns[i],label:e.currentTarget.innerText};onUpdate({stats:ns});}}
               style={{fontSize:(16*fs)+'px',color:t.muted,marginTop:(8*fs)+'px',textTransform:'uppercase',letterSpacing:'0.05em',outline:'none',cursor:editable?'text':'default'}}>{st.label}</div>
@@ -116,7 +126,7 @@ function SlideRenderer({slide,theme,scale,editable,onUpdate}) {
   );
   if (slide.layout==='quote') return (
     <div style={box}>
-      <div style={{fontSize:(80*fs)+'px',color:t.accent,lineHeight:1,marginBottom:(10*fs)+'px',fontFamily:'Georgia,serif'}}>\u201C</div>
+      <div style={{fontSize:(80*fs)+'px',color:ac,lineHeight:1,marginBottom:(10*fs)+'px',fontFamily:'Georgia,serif'}}>\u201C</div>
       <div {...ep('quote_text')} style={{fontSize:(28*fs)+'px',color:t.text,textAlign:'center',lineHeight:1.6,fontStyle:'italic',maxWidth:'80%',fontFamily:'Georgia,serif'}}>{slide.quote_text||''}</div>
       <div {...ep('attribution')} style={{fontSize:(18*fs)+'px',color:t.muted,marginTop:(24*fs)+'px',textAlign:'center'}}>{slide.attribution||''}</div>
     </div>
@@ -141,7 +151,7 @@ function SlideRenderer({slide,theme,scale,editable,onUpdate}) {
       <div style={box}>
         <div {...ep('heading')} style={{...h1,fontSize:(48*fs)+'px',marginBottom:(16*fs)+'px'}}>{slide.heading||''}</div>
         <div {...ep('subtitle')} style={{...sub,fontSize:(22*fs)+'px',marginBottom:(36*fs)+'px',maxWidth:'70%'}}>{slide.subtitle||''}</div>
-        <div {...ep('cta_text')} style={{display:'inline-block',padding:(14*fs)+'px '+(40*fs)+'px',background:t.accent,color:isLight?'#fff':'#0f172a',borderRadius:(12*fs)+'px',fontSize:(20*fs)+'px',fontWeight:700,fontFamily:t.hf,cursor:editable?'text':'default',outline:'none'}}>{slide.cta_text||'Get Started'}</div>
+        <div {...ep('cta_text')} style={{display:'inline-block',padding:(14*fs)+'px '+(40*fs)+'px',background:ac,color:isLight?'#fff':'#0f172a',borderRadius:(12*fs)+'px',fontSize:(20*fs)+'px',fontWeight:700,fontFamily:t.hf,cursor:editable?'text':'default',outline:'none'}}>{slide.cta_text||'Get Started'}</div>
       </div>
     );
   }
@@ -260,7 +270,7 @@ export default function SuperDeckEditor() {
         <div ref={thRef} style={{position:'relative'}}>
           <button onClick={function(){setShowThemes(!showThemes);}} style={btnS}
             onMouseEnter={function(e){e.currentTarget.style.background='#475569';}} onMouseLeave={function(e){e.currentTarget.style.background='#334155';}}>
-            <div style={{width:14,height:14,borderRadius:4,background:t.accent,border:'1px solid rgba(255,255,255,0.2)'}}/> {t.name} <ChevronDown size={12}/></button>
+            <div style={{width:14,height:14,borderRadius:4,background:ac,border:'1px solid rgba(255,255,255,0.2)'}}/> {t.name} <ChevronDown size={12}/></button>
           {showThemes&&<div style={{position:'absolute',top:'100%',right:0,marginTop:6,background:'#1e293b',border:'1px solid #334155',borderRadius:12,boxShadow:'0 12px 40px rgba(0,0,0,0.4)',zIndex:50,width:200,padding:6}}>
             {THEME_KEYS.map(function(k){var th=THEMES[k];var sel=k===theme;return <div key={k} onClick={function(){setTheme(k);mark();setShowThemes(false);}}
               onMouseEnter={function(e){e.currentTarget.style.background='#334155';}} onMouseLeave={function(e){e.currentTarget.style.background=sel?'#334155':'transparent';}}
@@ -343,8 +353,103 @@ export default function SuperDeckEditor() {
         </div>
 
         {/* RIGHT PANEL */}
-        <div style={{width:260,borderLeft:'1px solid #e2e8f0',background:'#fff',padding:16,overflowY:'auto',flexShrink:0}}>
+        <div style={{width:280,borderLeft:'1px solid #e2e8f0',background:'#fff',padding:16,overflowY:'auto',flexShrink:0}}>
           <div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:12}}>Slide Properties</div>
+
+          {/* Text Formatting */}
+          <div style={{fontSize:13,fontWeight:600,color:'#334155',marginBottom:6}}>Text Formatting</div>
+          <div style={{background:'#f8fafc',borderRadius:8,border:'1px solid #e2e8f0',padding:'10px',marginBottom:16}}>
+            {/* Font family */}
+            <select value={cs.fontFamily||"'Sora',sans-serif"} onChange={function(e){updateSlide({fontFamily:e.target.value});}}
+              style={{width:'100%',padding:'6px 8px',borderRadius:6,border:'1px solid #e2e8f0',fontSize:12,color:'#0f172a',background:'#fff',fontFamily:'inherit',cursor:'pointer',marginBottom:8,appearance:'none',backgroundImage:'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")',backgroundRepeat:'no-repeat',backgroundPosition:'right 8px center',paddingRight:24}}>
+              {["'Sora',sans-serif","'DM Sans',sans-serif","'Arial',sans-serif","'Georgia',serif","'Trebuchet MS',sans-serif","'Verdana',sans-serif","'Courier New',monospace"].map(function(f){
+                return <option key={f} value={f}>{f.split("'")[1]||f.split(",")[0]}</option>;
+              })}
+            </select>
+
+            {/* Font size + Bold/Italic/Underline */}
+            <div style={{display:'flex',gap:4,marginBottom:8,alignItems:'center'}}>
+              <div style={{display:'flex',alignItems:'center',border:'1px solid #e2e8f0',borderRadius:6,overflow:'hidden',background:'#fff'}}>
+                <button onClick={function(){updateSlide({headingSize:Math.max(16,(cs.headingSize||42)-2)});}}
+                  style={{background:'none',border:'none',color:'#64748b',cursor:'pointer',padding:'4px 6px',display:'flex'}}><Minus size={12}/></button>
+                <span style={{fontSize:12,fontWeight:600,color:'#334155',padding:'0 4px',minWidth:24,textAlign:'center'}}>{cs.headingSize||42}</span>
+                <button onClick={function(){updateSlide({headingSize:Math.min(80,(cs.headingSize||42)+2)});}}
+                  style={{background:'none',border:'none',color:'#64748b',cursor:'pointer',padding:'4px 6px',display:'flex'}}><PlusCircle size={12}/></button>
+              </div>
+              <div style={{display:'flex',gap:2,marginLeft:4}}>
+                <button onClick={function(){updateSlide({bold:!cs.bold});}}
+                  onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';}} onMouseLeave={function(e){e.currentTarget.style.background=cs.bold?'#ede9fe':'#fff';}}
+                  style={{background:cs.bold?'#ede9fe':'#fff',border:'1px solid #e2e8f0',borderRadius:4,padding:'4px 6px',cursor:'pointer',display:'flex',color:cs.bold?'#8b5cf6':'#64748b'}}><Bold size={14}/></button>
+                <button onClick={function(){updateSlide({italic:!cs.italic});}}
+                  onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';}} onMouseLeave={function(e){e.currentTarget.style.background=cs.italic?'#ede9fe':'#fff';}}
+                  style={{background:cs.italic?'#ede9fe':'#fff',border:'1px solid #e2e8f0',borderRadius:4,padding:'4px 6px',cursor:'pointer',display:'flex',color:cs.italic?'#8b5cf6':'#64748b'}}><Italic size={14}/></button>
+                <button onClick={function(){updateSlide({underline:!cs.underline});}}
+                  onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';}} onMouseLeave={function(e){e.currentTarget.style.background=cs.underline?'#ede9fe':'#fff';}}
+                  style={{background:cs.underline?'#ede9fe':'#fff',border:'1px solid #e2e8f0',borderRadius:4,padding:'4px 6px',cursor:'pointer',display:'flex',color:cs.underline?'#8b5cf6':'#64748b'}}><Underline size={14}/></button>
+              </div>
+            </div>
+
+            {/* Text alignment */}
+            <div style={{display:'flex',gap:2,marginBottom:8}}>
+              {[{v:'left',I:AlignLeft},{v:'center',I:AlignCenter},{v:'right',I:AlignRight}].map(function(a){
+                var sel=(cs.textAlign||'center')===a.v;
+                return <button key={a.v} onClick={function(){updateSlide({textAlign:a.v});}}
+                  onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';}} onMouseLeave={function(e){e.currentTarget.style.background=sel?'#ede9fe':'#fff';}}
+                  style={{background:sel?'#ede9fe':'#fff',border:'1px solid #e2e8f0',borderRadius:4,padding:'4px 8px',cursor:'pointer',display:'flex',flex:1,justifyContent:'center',color:sel?'#8b5cf6':'#64748b'}}>
+                  <a.I size={14}/></button>;
+              })}
+            </div>
+
+            {/* Colours */}
+            <div style={{display:'flex',gap:8,alignItems:'center'}}>
+              <div style={{display:'flex',alignItems:'center',gap:4}}>
+                <span style={{fontSize:11,color:'#64748b',fontWeight:600}}>Text</span>
+                <input type="color" value={cs.textColor||t.text} onChange={function(e){updateSlide({textColor:e.target.value});}}
+                  style={{width:26,height:26,border:'2px solid #e2e8f0',borderRadius:5,cursor:'pointer',padding:1}}/>
+              </div>
+              <div style={{display:'flex',alignItems:'center',gap:4}}>
+                <span style={{fontSize:11,color:'#64748b',fontWeight:600}}>Accent</span>
+                <input type="color" value={cs.accentColor||t.accent} onChange={function(e){updateSlide({accentColor:e.target.value});}}
+                  style={{width:26,height:26,border:'2px solid #e2e8f0',borderRadius:5,cursor:'pointer',padding:1}}/>
+              </div>
+            </div>
+          </div>
+
+          {/* Image upload for image_text layout */}
+          {cs.layout==='image_text'&&<div style={{marginBottom:16}}>
+            <div style={{fontSize:13,fontWeight:600,color:'#334155',marginBottom:6}}>Slide Image</div>
+            <button onClick={function(){
+              var inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+              inp.onchange=function(){if(inp.files&&inp.files[0]){
+                var fd=new FormData();fd.append('file',inp.files[0]);fd.append('folder','superdeck');
+                fetch('/api/superdeck/upload-image',{method:'POST',body:fd,credentials:'include'})
+                  .then(function(r){return r.json();}).then(function(d){if(d.url)updateSlide({image_url:d.url});});
+              }};inp.click();
+            }}
+              onMouseEnter={function(e){e.currentTarget.style.background='#f3f0ff';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
+              style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'8px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+              <Upload size={13} color="#8b5cf6"/> Upload image</button>
+          </div>}
+
+          {/* Add bullet point for bullets layout */}
+          {cs.layout==='bullets'&&<div style={{marginBottom:16}}>
+            <div style={{fontSize:13,fontWeight:600,color:'#334155',marginBottom:6}}>Bullet Points</div>
+            <button onClick={function(){var nb=(cs.bullets||[]).slice();nb.push('New point');updateSlide({bullets:nb});}}
+              onMouseEnter={function(e){e.currentTarget.style.background='#f3f0ff';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
+              style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'8px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+              <Plus size={13} color="#8b5cf6"/> Add bullet point</button>
+          </div>}
+
+          {/* Add stat for stats layout */}
+          {cs.layout==='stats'&&<div style={{marginBottom:16}}>
+            <div style={{fontSize:13,fontWeight:600,color:'#334155',marginBottom:6}}>Statistics</div>
+            <button onClick={function(){var ns=(cs.stats||[]).slice();ns.push({value:'0',label:'Label'});updateSlide({stats:ns});}}
+              onMouseEnter={function(e){e.currentTarget.style.background='#f3f0ff';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
+              style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'8px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+              <Plus size={13} color="#8b5cf6"/> Add stat</button>
+          </div>}
+
+          {/* Layout selector */}
           <div style={{fontSize:13,fontWeight:600,color:'#334155',marginBottom:6}}>Layout</div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:4,marginBottom:16}}>
             {LAYOUTS.map(function(l){var sel=cs.layout===l.key;return <div key={l.key} onClick={function(){updateSlide({layout:l.key});}}
