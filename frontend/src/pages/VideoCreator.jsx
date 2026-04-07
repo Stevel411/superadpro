@@ -45,6 +45,7 @@ var VOICES = [
 function CompactDropdown({ label, icon, iconColor, items, value, onChange, initialCount, openUp }) {
   var [open, setOpen] = useState(false);
   var [showAll, setShowAll] = useState(false);
+  var [hovered, setHovered] = useState(false);
   var ref = useRef(null);
   var selected = items.find(function(it) { return it.value === value; }) || items[0];
   var visible = initialCount && !showAll ? items.slice(0, initialCount) : items;
@@ -56,12 +57,14 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
     return function() { document.removeEventListener('mousedown', h); };
   }, []);
 
+  var isActive = open || hovered;
+
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       <div onClick={function() { setOpen(!open); }}
-        onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.2)'; e.currentTarget.style.background = '#ede9fe'; e.currentTarget.style.borderColor = '#8b5cf6'; }}
-        onMouseLeave={function(e) { if (!open) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = 'transparent'; } }}
-        style={{ background: open ? '#ede9fe' : '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: '2px solid ' + (open ? '#8b5cf6' : 'transparent'), transition: 'all 0.15s ease' }}>
+        onMouseEnter={function() { setHovered(true); }}
+        onMouseLeave={function() { setHovered(false); }}
+        style={{ background: isActive ? '#ede9fe' : '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: '2px solid ' + (isActive ? '#8b5cf6' : 'transparent'), transition: 'all 0.15s ease', transform: hovered && !open ? 'translateY(-2px)' : 'none', boxShadow: hovered && !open ? '0 8px 24px rgba(0,0,0,0.2)' : 'none' }}>
         <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>{label}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 28, height: 28, borderRadius: 6, background: selected.color || iconColor || '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
