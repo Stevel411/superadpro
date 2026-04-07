@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiPost, apiGet } from '../utils/api';
-import { Film, Sparkles, Download, Clock, CheckCircle, AlertCircle, Loader2, RefreshCw, Upload, X, Mic, ImagePlus, ChevronDown, Layers, Timer } from 'lucide-react';
+import { Film, Sparkles, Download, Clock, CheckCircle, AlertCircle, Loader2, RefreshCw, Upload, X, Mic, ImagePlus, ChevronDown, Layers, Timer, HelpCircle, Monitor } from 'lucide-react';
 
 var STYLES = [
   { value: 'professional', label: 'Professional', desc: 'Clean, polished, business-ready', color: '#6366f1' },
@@ -191,7 +191,7 @@ export default function VideoCreator() {
     <AppLayout title="AI Video Creator" subtitle="One-click marketing videos">
 
       {/* Cobalt blue container — header + form seamless */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 440px', gap: 20 }}>
         <div style={{ background: 'linear-gradient(180deg, #172554, #1e3a8a)', borderRadius: 14, padding: '24px' }}>
 
           {/* Header */}
@@ -320,51 +320,98 @@ export default function VideoCreator() {
           </div>
         </div>
 
-        {/* Right panel — progress / result */}
-        <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '24px 24px', alignSelf: 'start' }}>
-          {!generating && !videoUrl && !error && (
-            <div style={{ textAlign: 'center', padding: '60px 0' }}><Film size={48} color="#e2e8f0" /><div style={{ fontSize: 15, color: '#94a3b8', marginTop: 12 }}>Your video will appear here</div></div>
-          )}
-          {generating && (
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>{status}</div>
-              <div style={{ width: '100%', height: 8, background: '#e2e8f0', borderRadius: 4, marginBottom: 16 }}>
-                <div style={{ width: progress + '%', height: '100%', background: 'linear-gradient(90deg, #8b5cf6, #a78bfa)', borderRadius: 4, transition: 'width 0.5s' }} />
+        {/* Right panel — video preview + help */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignSelf: 'start' }}>
+
+          {/* Video preview card */}
+          <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '20px', minHeight: 280 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Monitor size={14} color="#8b5cf6" /> Video Preview
+            </div>
+
+            {!generating && !videoUrl && !error && (
+              <div style={{ textAlign: 'center', padding: '50px 0' }}>
+                <div style={{ width: 72, height: 72, borderRadius: 16, background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                  <Film size={32} color="#e2e8f0" />
+                </div>
+                <div style={{ fontSize: 14, color: '#94a3b8' }}>Your video will appear here</div>
+                <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 4 }}>Enter a prompt and click Generate</div>
               </div>
-              <div style={{ fontSize: 13, color: '#64748b', marginBottom: 8 }}>{progress}% complete</div>
-              {steps.map(function(s, i) {
-                var stepLabels = { script: 'Writing script', images: 'Generating visuals', voiceover: 'Recording voiceover', render: 'Composing video', video_clips: 'Creating motion clips' };
-                var statusLabels = { ok: 'Done', queued: 'In progress', failed: 'Failed' };
-                var stepLabel = stepLabels[s.step] || s.step;
-                var statusLabel = statusLabels[s.status] || s.status;
-                if (s.step === 'images' && s.generated !== undefined) statusLabel = s.generated + '/' + s.total + ' done';
-                var ic = s.status === 'ok' || s.status === 'queued' ? <CheckCircle size={14} color="#22c55e" /> : <Clock size={14} color="#94a3b8" />;
-                return <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#64748b', marginBottom: 4 }}>{ic} {stepLabel}: {statusLabel}</div>;
-              })}
+            )}
+            {generating && (
+              <div>
+                <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>{status}</div>
+                <div style={{ width: '100%', height: 8, background: '#e2e8f0', borderRadius: 4, marginBottom: 16 }}>
+                  <div style={{ width: progress + '%', height: '100%', background: 'linear-gradient(90deg, #8b5cf6, #a78bfa)', borderRadius: 4, transition: 'width 0.5s' }} />
+                </div>
+                <div style={{ fontSize: 13, color: '#64748b', marginBottom: 8 }}>{progress}% complete</div>
+                {steps.map(function(s, i) {
+                  var stepLabels = { script: 'Writing script', images: 'Generating visuals', voiceover: 'Recording voiceover', render: 'Composing video', video_clips: 'Creating motion clips' };
+                  var statusLabels = { ok: 'Done', queued: 'In progress', failed: 'Failed' };
+                  var stepLabel = stepLabels[s.step] || s.step;
+                  var statusLabel = statusLabels[s.status] || s.status;
+                  if (s.step === 'images' && s.generated !== undefined) statusLabel = s.generated + '/' + s.total + ' done';
+                  var ic = s.status === 'ok' || s.status === 'queued' ? <CheckCircle size={14} color="#22c55e" /> : <Clock size={14} color="#94a3b8" />;
+                  return <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#64748b', marginBottom: 4 }}>{ic} {stepLabel}: {statusLabel}</div>;
+                })}
+              </div>
+            )}
+            {error && (
+              <div style={{ padding: '16px', background: '#fef2f2', borderRadius: 10, border: '1px solid #fecaca' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#dc2626', fontSize: 14, fontWeight: 600, marginBottom: 4 }}><AlertCircle size={16} /> Error</div>
+                <div style={{ fontSize: 13, color: '#7f1d1d', wordBreak: 'break-word' }}>{error}</div>
+                <button onClick={function() { setError(null); setGenerating(false); }} style={{ marginTop: 10, padding: '6px 14px', borderRadius: 6, border: '1px solid #fecaca', background: '#fff', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4 }}><RefreshCw size={12} /> Try again</button>
+              </div>
+            )}
+            {videoUrl && (
+              <div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}><CheckCircle size={16} color="#22c55e" /> Video ready!</div>
+                <div style={{ borderRadius: 10, overflow: 'hidden', background: '#000', marginBottom: 12 }}><video src={videoUrl} controls style={{ width: '100%', display: 'block' }} /></div>
+                <a href={videoUrl} download target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', padding: '12px', borderRadius: 8, border: 'none', background: '#22c55e', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'none' }}><Download size={16} /> Download MP4</a>
+                <button onClick={function() { setVideoUrl(null); setPrompt(''); setError(null); setJobId(null); setSteps([]); setScript(null); setUploadedImages([]); }} style={{ width: '100%', marginTop: 8, padding: '10px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Create another video</button>
+              </div>
+            )}
+            {script && (
+              <div style={{ marginTop: 14, borderTop: '1px solid #f1f5f9', paddingTop: 14 }}>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6 }}>Script: {script.title}</div>
+                {(script.scenes || []).slice(0, 4).map(function(s, i) { return <div key={i} style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}><strong>Scene {s.scene_num}:</strong> {(s.narration || '').slice(0, 80)}...</div>; })}
+                {(script.scenes || []).length > 4 && <div style={{ fontSize: 12, color: '#94a3b8' }}>+ {script.scenes.length - 4} more scenes</div>}
+              </div>
+            )}
+          </div>
+
+          {/* How it works */}
+          <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '18px 20px' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <HelpCircle size={14} color="#0ea5e9" /> How it works
             </div>
-          )}
-          {error && (
-            <div style={{ padding: '16px', background: '#fef2f2', borderRadius: 10, border: '1px solid #fecaca' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#dc2626', fontSize: 14, fontWeight: 600, marginBottom: 4 }}><AlertCircle size={16} /> Error</div>
-              <div style={{ fontSize: 13, color: '#7f1d1d', wordBreak: 'break-word' }}>{error}</div>
-              <button onClick={function() { setError(null); setGenerating(false); }} style={{ marginTop: 10, padding: '6px 14px', borderRadius: 6, border: '1px solid #fecaca', background: '#fff', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4 }}><RefreshCw size={12} /> Try again</button>
+            {[
+              { num: '1', title: 'Describe your video', desc: 'Tell us what you want — your business, product, or message. Be as specific as you like.' },
+              { num: '2', title: 'Choose your style', desc: 'Pick Motion for cinematic AI clips or Standard for smooth Ken Burns image transitions.' },
+              { num: '3', title: 'AI creates everything', desc: 'Script, visuals, voiceover, and editing — all generated automatically in minutes.' },
+              { num: '4', title: 'Download & share', desc: 'Get your finished MP4 video ready to post on social media, your website, or ads.' },
+            ].map(function(step) {
+              return (
+                <div key={step.num} style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
+                  <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#f3f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 12, fontWeight: 700, color: '#8b5cf6' }}>{step.num}</div>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{step.title}</div>
+                    <div style={{ fontSize: 12, color: '#94a3b8', lineHeight: 1.4 }}>{step.desc}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Tips */}
+          <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 14, padding: '14px 18px' }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#92400e', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <Sparkles size={14} color="#f59e0b" /> Pro tips
             </div>
-          )}
-          {videoUrl && (
-            <div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}><CheckCircle size={18} color="#22c55e" /> Video ready!</div>
-              <div style={{ borderRadius: 10, overflow: 'hidden', background: '#000', marginBottom: 16 }}><video src={videoUrl} controls style={{ width: '100%', display: 'block' }} /></div>
-              <a href={videoUrl} download target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', padding: '12px', borderRadius: 8, border: 'none', background: '#22c55e', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'none' }}><Download size={16} /> Download MP4</a>
-              <button onClick={function() { setVideoUrl(null); setPrompt(''); setError(null); setJobId(null); setSteps([]); setScript(null); setUploadedImages([]); }} style={{ width: '100%', marginTop: 8, padding: '10px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Create another video</button>
+            <div style={{ fontSize: 12, color: '#78350f', lineHeight: 1.6 }}>
+              Be specific about your audience and goal. "60-second video for my fitness coaching business targeting women aged 25-40 who want to lose weight" works much better than "make a fitness video". Include your unique selling point for best results.
             </div>
-          )}
-          {script && (
-            <div style={{ marginTop: 16, borderTop: '1px solid #e2e8f0', paddingTop: 16 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 8 }}>Script: {script.title}</div>
-              {(script.scenes || []).slice(0, 4).map(function(s, i) { return <div key={i} style={{ fontSize: 12, color: '#64748b', marginBottom: 6 }}><strong>Scene {s.scene_num}:</strong> {(s.narration || '').slice(0, 80)}...</div>; })}
-              {(script.scenes || []).length > 4 && <div style={{ fontSize: 12, color: '#94a3b8' }}>+ {script.scenes.length - 4} more scenes</div>}
-            </div>
-          )}
+          </div>
         </div>
       </div>
     </AppLayout>
