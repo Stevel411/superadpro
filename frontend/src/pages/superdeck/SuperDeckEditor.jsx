@@ -364,11 +364,14 @@ export default function SuperDeckEditor() {
               <div style={{flex:1}}>
                 <div onClick={function(){setActive(i);setSelId(null);setEditingId(null);}}
                   style={{borderRadius:4,border:isA?'2px solid #8b5cf6':'1px solid #e2e8f0',overflow:'hidden',cursor:'pointer'}}>
-                  <div style={{aspectRatio:'16/9',background:s.background||t.primary,padding:4,display:'flex',flexDirection:'column',justifyContent:'center',alignItems:'center'}}>
-                    {s.elements.slice(0,2).map(function(el,ei){
-                      if(el.type==='heading')return <div key={ei} style={{fontSize:6,fontWeight:700,color:el.color||'#fff',textAlign:'center',overflow:'hidden',maxHeight:14}}>{(el.text||'').slice(0,25)}</div>;
-                      if(el.type==='text')return <div key={ei} style={{fontSize:4,color:el.color||'#999',textAlign:'center',overflow:'hidden',maxHeight:8,marginTop:1}}>{(el.text||'').slice(0,35)}</div>;
-                      return null;
+                  <div style={{aspectRatio:'16/9',background:s.background||t.primary,position:'relative',overflow:'hidden'}}>
+                    {s.elements.map(function(el,ei){
+                      var pX=(el.x/CANVAS_W)*100,pY=(el.y/CANVAS_H)*100,pW=(el.w/CANVAS_W)*100,pH=(el.h/CANVAS_H)*100;
+                      return <div key={ei} style={{position:'absolute',left:pX+'%',top:pY+'%',width:pW+'%',height:pH+'%',zIndex:ei+1}}>
+                        {(el.type==='heading'||el.type==='text')&&<div style={{fontSize:el.type==='heading'?'5px':'3.5px',fontWeight:el.bold?700:400,color:el.color||'#fff',textAlign:el.align||'left',fontFamily:el.fontFamily||t.bodyFont,overflow:'hidden',lineHeight:1.2,width:'100%',height:'100%',display:'flex',alignItems:el.type==='heading'?'center':'flex-start',justifyContent:el.align==='center'?'center':el.align==='right'?'flex-end':'flex-start',background:el.elBg||'transparent'}}>{(el.text||'').slice(0,40)}</div>}
+                        {el.type==='image'&&(el.src?<img src={el.src} style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:1}} alt=""/>:<div style={{width:'100%',height:'100%',background:'rgba(255,255,255,.08)',borderRadius:1}}/>)}
+                        {el.type==='shape'&&<ShapeRender shapeType={el.shapeType} fill={el.fill||t.accent}/>}
+                      </div>;
                     })}
                   </div>
                 </div>
