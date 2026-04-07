@@ -547,11 +547,11 @@ export default function SuperDeckEditor() {
         </div>
 
         {/* ── CENTRE: Canvas ────────────────────────────── */}
-        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#faf9f5', padding: 20, minWidth: 0 }}
+        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#faf9f5', padding: 12, minWidth: 0 }}
           onClick={function () { if (editingId) finishEdit(); setSelId(null); }}>
 
           <div ref={canvasRef}
-            style={{ width: '100%', maxWidth: 820, aspectRatio: '16/9', background: cs.background || t.primary, borderRadius: 3, position: 'relative', overflow: 'hidden', boxShadow: '0 6px 30px rgba(0,0,0,.4)' }}>
+            style={{ width: '100%', maxWidth: 1000, aspectRatio: '16/9', background: cs.background || t.primary, borderRadius: 3, position: 'relative', overflow: 'hidden', boxShadow: '0 6px 30px rgba(0,0,0,.4)' }}>
 
             {cs.elements.map(function (el) {
               var isSel = el.id === selId;
