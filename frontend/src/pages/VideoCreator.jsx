@@ -59,9 +59,9 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       <div onClick={function() { setOpen(!open); }}
-        onMouseEnter={function(e) { if (!open) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 16px rgba(139,92,246,0.15)'; e.currentTarget.style.borderColor = '#8b5cf6'; } }}
-        onMouseLeave={function(e) { if (!open) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = '#e2e8f0'; } }}
-        style={{ background: open ? '#faf8ff' : '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: open ? '2px solid #8b5cf6' : '1.5px solid #e2e8f0', transition: 'all 0.15s ease', boxShadow: open ? '0 0 0 3px rgba(139,92,246,0.1)' : 'none' }}>
+        onMouseEnter={function(e) { if (!open) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.25)'; e.currentTarget.style.background = '#f0fdf4'; e.currentTarget.style.borderColor = '#22c55e'; } }}
+        onMouseLeave={function(e) { if (!open) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = open ? '#22c55e' : 'transparent'; } }}
+        style={{ background: open ? '#f0fdf4' : '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: open ? '2px solid #22c55e' : '2px solid transparent', transition: 'all 0.15s ease' }}>
         <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>{label}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 28, height: 28, borderRadius: 6, background: selected.color || iconColor || '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
