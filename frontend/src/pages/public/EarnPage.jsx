@@ -595,7 +595,7 @@ export default function EarnPage() {
       <section style={{padding:'60px 40px',maxWidth:900,margin:'0 auto',textAlign:'center'}}>
         <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'#a5b4fc',marginBottom:12}}>Simple Pricing</div>
         <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,38px)',fontWeight:900,color:'#fff',marginBottom:12}}>One Membership. Four Income Streams.</h2>
-        <p style={{fontSize:15,color:'rgba(200,220,255,.45)',maxWidth:520,margin:'0 auto 40px'}}>Refer just 2 people and your membership pays for itself every month. Forever.</p>
+        <p style={{fontSize:15,color:'rgba(200,220,255,.45)',maxWidth:520,margin:'0 auto 40px'}}>Refer just 2 Basic members and your membership pays for itself every month.</p>
 
         <div className="earn-two" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,maxWidth:700,margin:'0 auto 32px'}}>
           {[
