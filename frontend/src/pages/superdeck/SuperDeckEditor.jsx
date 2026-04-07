@@ -364,8 +364,8 @@ export default function SuperDeckEditor() {
                     return <div key={c} onMouseDown={function(e){onResizeDown(e,el.id,c);}} style={hs}/>;
                   })}
                   <div style={{position:'absolute',top:-34,left:'50%',transform:'translateX(-50%)',display:'flex',gap:2,background:'#1e293b',borderRadius:6,padding:'3px 4px',boxShadow:'0 4px 12px rgba(0,0,0,0.3)',zIndex:30}} onClick={function(e){e.stopPropagation();}}>
-                    <button onClick={function(e){e.stopPropagation();moveElBackward();}} title="Send back" style={{background:'transparent',border:'none',color:'#cbd5e1',cursor:'pointer',padding:'4px 6px',borderRadius:4,display:'flex'}}><ArrowDown size={14}/></button>
-                    <button onClick={function(e){e.stopPropagation();moveElForward();}} title="Bring forward" style={{background:'transparent',border:'none',color:'#cbd5e1',cursor:'pointer',padding:'4px 6px',borderRadius:4,display:'flex'}}><ArrowUp size={14}/></button>
+                    <button onClick={function(e){e.stopPropagation();if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();var idx=els.findIndex(function(x){return x.id===selId;});if(idx>0){var el=els.splice(idx,1)[0];els.unshift(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}}} title="Send to back" style={{background:'transparent',border:'none',color:'#cbd5e1',cursor:'pointer',padding:'4px 6px',borderRadius:4,display:'flex'}}><ArrowDown size={14}/></button>
+                    <button onClick={function(e){e.stopPropagation();if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();var idx=els.findIndex(function(x){return x.id===selId;});if(idx>=0&&idx<els.length-1){var el=els.splice(idx,1)[0];els.push(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}}} title="Bring to front" style={{background:'transparent',border:'none',color:'#cbd5e1',cursor:'pointer',padding:'4px 6px',borderRadius:4,display:'flex'}}><ArrowUp size={14}/></button>
                     <div style={{width:1,height:20,background:'#475569',margin:'0 2px'}}/>
                     <button onClick={function(e){e.stopPropagation();delEl();}} title="Delete" style={{background:'transparent',border:'none',color:'#f87171',cursor:'pointer',padding:'4px 6px',borderRadius:4,display:'flex'}}><Trash2 size={14}/></button>
                   </div>
@@ -391,14 +391,22 @@ export default function SuperDeckEditor() {
 
             {/* Layer ordering — send to back / bring to front */}
             <div style={{display:'flex',gap:4,marginBottom:10}}>
-              <button onClick={function(){if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();var idx=els.findIndex(function(e){return e.id===selId;});if(idx>0){var el=els.splice(idx,1)[0];els.unshift(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}}}
+              <button onClick={function(e){e.stopPropagation();
+                if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();
+                var idx=els.findIndex(function(x){return x.id===selId;});
+                if(idx>0){var el=els.splice(idx,1)[0];els.unshift(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}
+              }}
                 onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
-                style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
-                <ArrowDown size={12}/> Send to back</button>
-              <button onClick={function(){if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();var idx=els.findIndex(function(e){return e.id===selId;});if(idx>=0&&idx<els.length-1){var el=els.splice(idx,1)[0];els.push(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}}}
+                style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'8px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+                <ArrowDown size={13}/> Send to back</button>
+              <button onClick={function(e){e.stopPropagation();
+                if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();
+                var idx=els.findIndex(function(x){return x.id===selId;});
+                if(idx>=0&&idx<els.length-1){var el=els.splice(idx,1)[0];els.push(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}
+              }}
                 onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
-                style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
-                <ArrowUp size={12}/> Bring to front</button>
+                style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'8px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+                <ArrowUp size={13}/> Bring to front</button>
             </div>
 
             {(selEl.type==='heading'||selEl.type==='text')&&<>
