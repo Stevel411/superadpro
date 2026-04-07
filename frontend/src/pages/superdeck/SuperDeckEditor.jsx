@@ -56,8 +56,7 @@ function ShapeRender(props) {
   var w = '100%', h = '100%';
   if (type === 'rect') return <div style={{width:w,height:h,background:fill,borderRadius:4}}/>;
   if (type === 'rounded') return <div style={{width:w,height:h,background:fill,borderRadius:16}}/>;
-  if (type === 'circle') return <div style={{width:w,height:h,background:fill,borderRadius:'50%'}}/>;
-  if (type === 'line') return <div style={{width:w,height:'100%',display:'flex',alignItems:'center'}}><div style={{width:'100%',height:4,background:fill,borderRadius:2}}/></div>;
+  if (type === 'circle') return <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" style={{width:w,height:h,display:'block'}}><circle cx="50" cy="50" r="48" fill={fill}/></svg>;  if (type === 'line') return <div style={{width:w,height:'100%',display:'flex',alignItems:'center'}}><div style={{width:'100%',height:4,background:fill,borderRadius:2}}/></div>;
   // SVG shapes
   var svgMap = {
     triangle: <polygon points="50,5 95,95 5,95"/>,
