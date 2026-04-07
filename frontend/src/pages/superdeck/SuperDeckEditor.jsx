@@ -246,7 +246,7 @@ export default function SuperDeckEditor() {
           {cs.elements.map(function(el){
             var pctX=(el.x/CANVAS_W)*100,pctY=(el.y/CANVAS_H)*100,pctW=(el.w/CANVAS_W)*100,pctH=(el.h/CANVAS_H)*100;
             return <div key={el.id} style={{position:'absolute',left:pctX+'%',top:pctY+'%',width:pctW+'%',height:pctH+'%'}}>
-              {(el.type==='heading'||el.type==='text')&&<div style={{fontSize:el.fontSize*1.5+'px',fontWeight:el.bold?700:400,fontStyle:el.italic?'italic':'normal',textDecoration:el.underline?'underline':'none',color:el.color||'#fff',textAlign:el.align||'left',fontFamily:el.fontFamily||t.bodyFont,width:'100%',height:'100%',lineHeight:1.3,display:'flex',alignItems:el.type==='heading'?'center':'flex-start',justifyContent:el.align==='center'?'center':el.align==='right'?'flex-end':'flex-start',whiteSpace:'pre-wrap'}}>{el.text||''}</div>}
+              {(el.type==='heading'||el.type==='text')&&<div style={{fontSize:el.fontSize*1.5+'px',fontWeight:el.bold?700:400,fontStyle:el.italic?'italic':'normal',textDecoration:el.underline?'underline':'none',color:el.color||'#fff',background:el.elBg||'transparent',textAlign:el.align||'left',fontFamily:el.fontFamily||t.bodyFont,width:'100%',height:'100%',lineHeight:1.3,display:'flex',alignItems:el.type==='heading'?'center':'flex-start',justifyContent:el.align==='center'?'center':el.align==='right'?'flex-end':'flex-start',whiteSpace:'pre-wrap'}}>{el.text||''}</div>}
               {el.type==='image'&&(el.src?<img src={el.src} style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:4}} alt=""/>:<div/>)}
               {el.type==='shape'&&<div style={{width:'100%',height:'100%',background:el.fill||t.accent,borderRadius:el.shapeType==='circle'?'50%':4}}/>}
             </div>;
@@ -348,7 +348,7 @@ export default function SuperDeckEditor() {
                 {(el.type==='heading'||el.type==='text')&&(isEdit?
                   <div ref={editRef} contentEditable suppressContentEditableWarning onBlur={finishEdit} onKeyDown={function(e){if(e.key==='Escape')finishEdit();}}
                     style={{fontSize:Math.max(10,el.fontSize*0.65)+'px',fontWeight:el.bold?700:400,fontStyle:el.italic?'italic':'normal',textDecoration:el.underline?'underline':'none',color:el.color||'#fff',textAlign:el.align||'left',fontFamily:el.fontFamily||t.bodyFont,width:'100%',height:'100%',outline:'2px solid #8b5cf6',padding:'4px 6px',lineHeight:1.3,overflow:'hidden',background:'rgba(0,0,0,.15)',borderRadius:2,whiteSpace:'pre-wrap'}}>{el.text||''}</div>
-                  :<div style={{fontSize:Math.max(10,el.fontSize*0.65)+'px',fontWeight:el.bold?700:400,fontStyle:el.italic?'italic':'normal',textDecoration:el.underline?'underline':'none',color:el.color||'#fff',textAlign:el.align||'left',fontFamily:el.fontFamily||t.bodyFont,width:'100%',height:'100%',overflow:'hidden',padding:'4px 6px',display:'flex',alignItems:el.type==='heading'?'center':'flex-start',justifyContent:el.align==='center'?'center':el.align==='right'?'flex-end':'flex-start',lineHeight:1.3,userSelect:'none',whiteSpace:'pre-wrap'}}>{el.text||''}</div>
+                  :<div style={{fontSize:Math.max(10,el.fontSize*0.65)+'px',fontWeight:el.bold?700:400,fontStyle:el.italic?'italic':'normal',textDecoration:el.underline?'underline':'none',color:el.color||'#fff',background:el.elBg||'transparent',textAlign:el.align||'left',fontFamily:el.fontFamily||t.bodyFont,width:'100%',height:'100%',overflow:'hidden',padding:'4px 6px',display:'flex',alignItems:el.type==='heading'?'center':'flex-start',justifyContent:el.align==='center'?'center':el.align==='right'?'flex-end':'flex-start',lineHeight:1.3,userSelect:'none',whiteSpace:'pre-wrap'}}>{el.text||''}</div>
                 )}
                 {el.type==='image'&&(el.src?<img src={el.src} style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:4,pointerEvents:'none'}} alt=""/>
                   :<div style={{width:'100%',height:'100%',background:'rgba(255,255,255,.05)',borderRadius:4,display:'flex',alignItems:'center',justifyContent:'center',border:'1px dashed rgba(255,255,255,.2)'}}><Image size={24} color="#475569"/></div>)}
@@ -389,22 +389,34 @@ export default function SuperDeckEditor() {
           {selEl?<>
             <div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:10}}>Element Properties</div>
 
+            {/* Layer ordering — send to back / bring to front */}
+            <div style={{display:'flex',gap:4,marginBottom:10}}>
+              <button onClick={function(){if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();var idx=els.findIndex(function(e){return e.id===selId;});if(idx>0){var el=els.splice(idx,1)[0];els.unshift(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}}}
+                onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
+                style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+                <ArrowDown size={12}/> Send to back</button>
+              <button onClick={function(){if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();var idx=els.findIndex(function(e){return e.id===selId;});if(idx>=0&&idx<els.length-1){var el=els.splice(idx,1)[0];els.push(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}}}
+                onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
+                style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+                <ArrowUp size={12}/> Bring to front</button>
+            </div>
+
             {(selEl.type==='heading'||selEl.type==='text')&&<>
               <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Font</div>
               <select value={(selEl.fontFamily||'').split(',')[0].replace(/'/g,'').trim()||'Sora'} onChange={function(e){upd(selId,{fontFamily:"'"+e.target.value+"',sans-serif"});}}
                 onMouseEnter={function(e){e.currentTarget.style.borderColor='#8b5cf6';e.currentTarget.style.background='#ede9fe';}}
                 onMouseLeave={function(e){e.currentTarget.style.borderColor='#e2e8f0';e.currentTarget.style.background='#fff';}}
-                style={{width:'100%',padding:'8px 10px',borderRadius:8,border:'1.5px solid #e2e8f0',fontSize:13,fontWeight:600,color:'#0f172a',background:'#fff',fontFamily:'inherit',cursor:'pointer',marginBottom:8,transition:'all 0.15s',appearance:'none',backgroundImage:'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")',backgroundRepeat:'no-repeat',backgroundPosition:'right 10px center',paddingRight:28}}>
+                style={{width:'100%',padding:'10px 12px',borderRadius:8,border:'1.5px solid #e2e8f0',fontSize:14,fontWeight:600,color:'#0f172a',background:'#fff',fontFamily:'inherit',cursor:'pointer',marginBottom:10,transition:'all 0.15s',appearance:'none',backgroundImage:'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")',backgroundRepeat:'no-repeat',backgroundPosition:'right 12px center',paddingRight:30}}>
                 {['Sora','DM Sans','Inter','Poppins','Montserrat','Playfair Display','Roboto','Open Sans','Lato','Oswald','Raleway','Merriweather','Georgia','Arial','Trebuchet MS','Verdana','Courier New','Impact'].map(function(f){return <option key={f} value={f} style={{fontFamily:f}}>{f}</option>;})}</select>
 
               <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Size</div>
               <select value={selEl.fontSize||18} onChange={function(e){upd(selId,{fontSize:parseInt(e.target.value)});}}
                 onMouseEnter={function(e){e.currentTarget.style.borderColor='#8b5cf6';e.currentTarget.style.background='#ede9fe';}}
                 onMouseLeave={function(e){e.currentTarget.style.borderColor='#e2e8f0';e.currentTarget.style.background='#fff';}}
-                style={{width:'100%',padding:'8px 10px',borderRadius:8,border:'1.5px solid #e2e8f0',fontSize:13,fontWeight:600,color:'#0f172a',background:'#fff',fontFamily:'inherit',cursor:'pointer',marginBottom:8,transition:'all 0.15s',appearance:'none',backgroundImage:'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")',backgroundRepeat:'no-repeat',backgroundPosition:'right 10px center',paddingRight:28}}>
+                style={{width:'100%',padding:'10px 12px',borderRadius:8,border:'1.5px solid #e2e8f0',fontSize:14,fontWeight:600,color:'#0f172a',background:'#fff',fontFamily:'inherit',cursor:'pointer',marginBottom:10,transition:'all 0.15s',appearance:'none',backgroundImage:'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")',backgroundRepeat:'no-repeat',backgroundPosition:'right 12px center',paddingRight:30}}>
                 {FONT_SIZES.map(function(s){return <option key={s} value={s}>{s}px</option>;})}</select>
 
-              <div style={{display:'flex',gap:3,marginBottom:8}}>
+              <div style={{display:'flex',gap:3,marginBottom:10}}>
                 <button onClick={function(){upd(selId,{bold:!selEl.bold});}} style={tbtn(selEl.bold)}><Bold size={14}/></button>
                 <button onClick={function(){upd(selId,{italic:!selEl.italic});}} style={tbtn(selEl.italic)}><Italic size={14}/></button>
                 <button onClick={function(){upd(selId,{underline:!selEl.underline});}} style={tbtn(selEl.underline)}><Underline size={14}/></button>
@@ -413,20 +425,20 @@ export default function SuperDeckEditor() {
                   {a==='left'?<AlignLeft size={14}/>:a==='center'?<AlignCenter size={14}/>:<AlignRight size={14}/>}</button>;})}
               </div>
 
-              <div style={{display:'flex',gap:8,marginBottom:10}}>
-                <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Text colour</div>
-                  <input type="color" value={selEl.color||'#ffffff'} onChange={function(e){upd(selId,{color:e.target.value});}} style={{width:36,height:30,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1}}/></div>
-                <div><div style={{fontSize:11,color:'#64748b',marginBottom:2}}>Background</div>
-                  <input type="color" value={selEl.background||'#00000000'} onChange={function(e){upd(selId,{background:e.target.value});}} style={{width:36,height:30,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1}}/></div>
+              <div style={{display:'flex',gap:10,marginBottom:12}}>
+                <div><div style={{fontSize:11,color:'#64748b',marginBottom:3}}>Text colour</div>
+                  <input type="color" value={selEl.color||'#ffffff'} onChange={function(e){upd(selId,{color:e.target.value});}} style={{width:44,height:34,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1}}/></div>
+                <div><div style={{fontSize:11,color:'#64748b',marginBottom:3}}>Fill</div>
+                  <input type="color" value={selEl.elBg||'#transparent'} onChange={function(e){upd(selId,{elBg:e.target.value});}} style={{width:44,height:34,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1}}/></div>
               </div>
             </>}
 
             {selEl.type==='shape'&&<>
               <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Fill colour</div>
-              <input type="color" value={selEl.fill||t.accent} onChange={function(e){upd(selId,{fill:e.target.value});}} style={{width:'100%',height:36,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1,marginBottom:8}}/>
+              <input type="color" value={selEl.fill||t.accent} onChange={function(e){upd(selId,{fill:e.target.value});}} style={{width:'100%',height:40,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1,marginBottom:10}}/>
               <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Shape</div>
-              <div style={{display:'flex',gap:4,marginBottom:8}}>
-                <button onClick={function(){upd(selId,{shapeType:'rect'});}} style={tbtn(selEl.shapeType!=='circle')}>Rect</button>
+              <div style={{display:'flex',gap:4,marginBottom:10}}>
+                <button onClick={function(){upd(selId,{shapeType:'rect'});}} style={tbtn(selEl.shapeType!=='circle')}>Rectangle</button>
                 <button onClick={function(){upd(selId,{shapeType:'circle'});}} style={tbtn(selEl.shapeType==='circle')}>Circle</button>
               </div>
             </>}
@@ -441,21 +453,14 @@ export default function SuperDeckEditor() {
                 }};inp.click();
               }}
                 onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
-                style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'8px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit',marginBottom:8}}>
-                <Upload size={13} color="#8b5cf6"/> Upload / Replace image</button>
+                style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'10px 12px',borderRadius:8,border:'1.5px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',marginBottom:10}}>
+                <Upload size={14} color="#8b5cf6"/> Upload / Replace image</button>
             </>}
 
-            <div style={{borderTop:'1px solid #e2e8f0',paddingTop:8,marginTop:4}}>
-              <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Position & Size</div>
-              <div style={{display:'flex',gap:4,marginBottom:8}}>
-                <div style={{flex:1}}><div style={{fontSize:10,color:'#94a3b8'}}>X</div><input type="number" value={selEl.x} onChange={function(e){upd(selId,{x:parseInt(e.target.value)||0});}} style={{width:'100%',padding:'4px 6px',border:'1px solid #e2e8f0',borderRadius:4,fontSize:12,boxSizing:'border-box'}}/></div>
-                <div style={{flex:1}}><div style={{fontSize:10,color:'#94a3b8'}}>Y</div><input type="number" value={selEl.y} onChange={function(e){upd(selId,{y:parseInt(e.target.value)||0});}} style={{width:'100%',padding:'4px 6px',border:'1px solid #e2e8f0',borderRadius:4,fontSize:12,boxSizing:'border-box'}}/></div>
-                <div style={{flex:1}}><div style={{fontSize:10,color:'#94a3b8'}}>W</div><input type="number" value={selEl.w} onChange={function(e){upd(selId,{w:Math.max(20,parseInt(e.target.value)||40)});}} style={{width:'100%',padding:'4px 6px',border:'1px solid #e2e8f0',borderRadius:4,fontSize:12,boxSizing:'border-box'}}/></div>
-                <div style={{flex:1}}><div style={{fontSize:10,color:'#94a3b8'}}>H</div><input type="number" value={selEl.h} onChange={function(e){upd(selId,{h:Math.max(10,parseInt(e.target.value)||20)});}} style={{width:'100%',padding:'4px 6px',border:'1px solid #e2e8f0',borderRadius:4,fontSize:12,boxSizing:'border-box'}}/></div>
-              </div>
-              <button onClick={delEl} style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'8px 10px',borderRadius:6,border:'1px solid #fecaca',background:'#fef2f2',color:'#dc2626',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
-                <Trash2 size={13}/> Delete element</button>
-            </div>
+            <button onClick={delEl}
+              onMouseEnter={function(e){e.currentTarget.style.background='#fee2e2';}} onMouseLeave={function(e){e.currentTarget.style.background='#fef2f2';}}
+              style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'10px 12px',borderRadius:8,border:'1px solid #fecaca',background:'#fef2f2',color:'#dc2626',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',marginTop:8}}>
+              <Trash2 size={14}/> Delete element</button>
           </>:<>
             {/* No element selected — show insert elements + slide design */}
             <div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:10}}>Add Elements</div>
