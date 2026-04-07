@@ -22191,3 +22191,93 @@ async def api_campaign_analytics_daily(campaign_id: int, user: User = Depends(ge
         "daily": days,
         "recent_watches": watch_log,
     }
+
+
+# ═══════════════════════════════════════════════════════════
+#  SUPERDECK AI — Generate presentation from prompt via Grok
+# ═══════════════════════════════════════════════════════════
+
+@app.post("/api/superdeck/ai-generate")
+async def api_superdeck_ai_generate(request: Request, user: User = Depends(get_current_user)):
+    """Generate slide content from a text prompt using Grok."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    body = await request.json()
+    prompt = (body.get("prompt") or "").strip()
+    slide_count = min(max(int(body.get("slide_count", 8)), 3), 20)
+    if not prompt:
+        return JSONResponse({"error": "Prompt required"}, status_code=400)
+
+    import httpx, json as _j
+
+    xai_key = os.getenv("XAI_API_KEY")
+    if not xai_key:
+        # Fallback to Anthropic
+        anthropic_key = os.getenv("ANTHROPIC_API_KEY")
+        if not anthropic_key:
+            return JSONResponse({"error": "No AI API key configured"}, status_code=500)
+
+        system = f"""You are a presentation designer. Generate a {slide_count}-slide presentation based on the user's prompt.
+Return ONLY valid JSON — no markdown, no backticks, no explanation.
+Format: {{"slides": [{{"layout": "title", "heading": "...", "subtitle": "...", "notes": "..."}}, ...]}}
+
+Available layouts and their required fields:
+- "title": heading, subtitle, notes
+- "content": heading, body, notes
+- "two_column": heading, col1_text, col2_text, notes
+- "stats": heading, stats (array of {{"value": "85%", "label": "Growth"}}), notes
+- "quote": quote_text, attribution, notes
+- "bullets": heading, bullets (array of strings), notes
+- "image_text": heading, body, image_prompt (describe the image to generate), notes
+- "cta": heading, subtitle, cta_text, notes
+
+Use a variety of layouts. Make content specific and compelling. Speaker notes should be 1-2 sentences."""
+
+        async with httpx.AsyncClient(timeout=60) as client:
+            resp = await client.post("https://api.anthropic.com/v1/messages",
+                headers={"x-api-key": anthropic_key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
+                json={"model": "claude-haiku-4-5-20251001", "max_tokens": 4000, "system": system,
+                      "messages": [{"role": "user", "content": prompt}]})
+            data = resp.json()
+            text = data.get("content", [{}])[0].get("text", "")
+    else:
+        system = f"""You are a presentation designer. Generate a {slide_count}-slide presentation based on the user's prompt.
+Return ONLY valid JSON — no markdown, no backticks, no explanation.
+Format: {{"slides": [{{"layout": "title", "heading": "...", "subtitle": "...", "notes": "..."}}, ...]}}
+
+Available layouts and their required fields:
+- "title": heading, subtitle, notes
+- "content": heading, body, notes
+- "two_column": heading, col1_text, col2_text, notes
+- "stats": heading, stats (array of {{"value": "85%", "label": "Growth"}}), notes
+- "quote": quote_text, attribution, notes
+- "bullets": heading, bullets (array of strings), notes
+- "image_text": heading, body, image_prompt (describe the image to generate), notes
+- "cta": heading, subtitle, cta_text, notes
+
+Use a variety of layouts. Make content specific and compelling. Speaker notes should be 1-2 sentences."""
+
+        async with httpx.AsyncClient(timeout=60) as client:
+            resp = await client.post("https://api.x.ai/v1/chat/completions",
+                headers={"Authorization": f"Bearer {xai_key}", "content-type": "application/json"},
+                json={"model": "grok-3-mini-fast", "messages": [
+                    {"role": "system", "content": system},
+                    {"role": "user", "content": prompt}
+                ], "max_tokens": 4000, "temperature": 0.7})
+            data = resp.json()
+            text = data.get("choices", [{}])[0].get("message", {}).get("content", "")
+
+    # Parse the JSON response
+    try:
+        text = text.strip()
+        if text.startswith("```"):
+            text = text.split("\n", 1)[1] if "\n" in text else text[3:]
+            if text.endswith("```"):
+                text = text[:-3]
+            text = text.strip()
+        slides_data = _j.loads(text)
+        if isinstance(slides_data, dict) and "slides" in slides_data:
+            slides_data = slides_data["slides"]
+        return {"success": True, "slides": slides_data}
+    except Exception as e:
+        return JSONResponse({"error": f"Failed to parse AI response: {str(e)}", "raw": text[:500]}, status_code=500)
