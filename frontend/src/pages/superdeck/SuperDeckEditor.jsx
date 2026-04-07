@@ -270,7 +270,7 @@ export default function SuperDeckEditor() {
         <div ref={thRef} style={{position:'relative'}}>
           <button onClick={function(){setShowThemes(!showThemes);}} style={btnS}
             onMouseEnter={function(e){e.currentTarget.style.background='#475569';}} onMouseLeave={function(e){e.currentTarget.style.background='#334155';}}>
-            <div style={{width:14,height:14,borderRadius:4,background:ac,border:'1px solid rgba(255,255,255,0.2)'}}/> {t.name} <ChevronDown size={12}/></button>
+            <div style={{width:14,height:14,borderRadius:4,background:t.accent,border:'1px solid rgba(255,255,255,0.2)'}}/> {t.name} <ChevronDown size={12}/></button>
           {showThemes&&<div style={{position:'absolute',top:'100%',right:0,marginTop:6,background:'#1e293b',border:'1px solid #334155',borderRadius:12,boxShadow:'0 12px 40px rgba(0,0,0,0.4)',zIndex:50,width:200,padding:6}}>
             {THEME_KEYS.map(function(k){var th=THEMES[k];var sel=k===theme;return <div key={k} onClick={function(){setTheme(k);mark();setShowThemes(false);}}
               onMouseEnter={function(e){e.currentTarget.style.background='#334155';}} onMouseLeave={function(e){e.currentTarget.style.background=sel?'#334155':'transparent';}}
