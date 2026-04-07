@@ -24,7 +24,7 @@ var ASPECTS = [
 ];
 
 var VOICES = [
-  { value: 'en-GB-SoniaNeural', label: 'Sonia', desc: 'British female — warm, professional', color: '#7c3aed', tag: 'DEFAULT', tagColor: '#7c3aed' },
+  { value: 'en-GB-SoniaNeural', label: 'Sonia', desc: 'British female — warm, professional', color: '#a78bfa', tag: 'DEFAULT', tagColor: '#a78bfa' },
   { value: 'en-GB-RyanNeural', label: 'Ryan', desc: 'British male — confident, authoritative', color: '#2563eb', tag: 'POPULAR', tagColor: '#0ea5e9' },
   { value: 'en-US-JennyNeural', label: 'Jenny', desc: 'American female — friendly, conversational', color: '#ec4899' },
   { value: 'en-US-GuyNeural', label: 'Guy', desc: 'American male — smooth, versatile', color: '#059669' },
@@ -64,7 +64,7 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
       <div onClick={function() { setOpen(!open); }}
         onMouseEnter={function() { setHovered(true); }}
         onMouseLeave={function() { setHovered(false); }}
-        style={{ background: isActive ? '#7c3aed' : '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: '2px solid ' + (isActive ? '#6d28d9' : 'transparent'), transition: 'all 0.15s ease', transform: hovered && !open ? 'translateY(-2px)' : 'none', boxShadow: hovered && !open ? '0 8px 24px rgba(0,0,0,0.2)' : 'none' }}>
+        style={{ background: isActive ? '#a78bfa' : '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: '2px solid ' + (isActive ? '#8b5cf6' : 'transparent'), transition: 'all 0.15s ease', transform: hovered && !open ? 'translateY(-2px)' : 'none', boxShadow: hovered && !open ? '0 8px 24px rgba(0,0,0,0.2)' : 'none' }}>
         <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>{label}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 28, height: 28, borderRadius: 6, background: selected.color || iconColor || '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -229,7 +229,7 @@ export default function VideoCreator() {
               onMouseEnter={function() { setMotionHover(true); }}
               onMouseLeave={function() { setMotionHover(false); }}
               style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, cursor: 'pointer', position: 'relative',
-                background: motionHover ? '#7c3aed' : '#fff',
+                background: motionHover ? '#a78bfa' : '#fff',
                 border: videoMode === 'motion' ? '2px solid #8b5cf6' : '2px solid rgba(255,255,255,0.1)',
                 boxShadow: motionHover ? '0 8px 24px rgba(0,0,0,0.2)' : videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none',
                 transform: motionHover ? 'translateY(-2px)' : 'none',
@@ -254,7 +254,7 @@ export default function VideoCreator() {
               onMouseEnter={function() { setStandardHover(true); }}
               onMouseLeave={function() { setStandardHover(false); }}
               style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, cursor: 'pointer',
-                background: standardHover ? '#7c3aed' : '#fff',
+                background: standardHover ? '#a78bfa' : '#fff',
                 border: videoMode === 'images' ? '2px solid #8b5cf6' : '2px solid rgba(255,255,255,0.1)',
                 boxShadow: standardHover ? '0 8px 24px rgba(0,0,0,0.2)' : videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none',
                 transform: standardHover ? 'translateY(-2px)' : 'none',
@@ -318,7 +318,7 @@ export default function VideoCreator() {
             onMouseEnter={function(e) { if (!generating && prompt.trim()) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(139,92,246,0.45)'; } }}
             onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = generating ? 'none' : '0 2px 12px rgba(139,92,246,0.35)'; }}
             style={{ width: '100%', marginTop: 16, padding: '14px', borderRadius: 10, border: 'none',
-              background: generating ? '#94a3b8' : 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff', fontSize: 15, fontWeight: 700,
+              background: generating ? '#94a3b8' : 'linear-gradient(135deg, #8b5cf6, #a78bfa)', color: '#fff', fontSize: 15, fontWeight: 700,
               cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
               boxShadow: generating ? 'none' : '0 2px 12px rgba(139,92,246,0.35)', transition: 'all 0.2s ease' }}>
             {generating ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> Generating...</> : <><Sparkles size={18} /> Generate video</>}
