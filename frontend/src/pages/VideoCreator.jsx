@@ -64,8 +64,8 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
       <div onClick={function() { setOpen(!open); }}
         onMouseEnter={function() { setHovered(true); }}
         onMouseLeave={function() { setHovered(false); }}
-        style={{ background: isActive ? '#a78bfa' : '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: '2px solid ' + (isActive ? '#8b5cf6' : 'transparent'), transition: 'all 0.15s ease', transform: hovered && !open ? 'translateY(-2px)' : 'none', boxShadow: hovered && !open ? '0 8px 24px rgba(0,0,0,0.2)' : 'none' }}>
-        <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 4 }}>{label}</div>
+        style={{ background: isActive ? '#1e3a8a' : '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: '2px solid ' + (isActive ? '#1e3a8a' : 'transparent'), transition: 'all 0.15s ease', transform: hovered && !open ? 'translateY(-2px)' : 'none', boxShadow: hovered && !open ? '0 8px 24px rgba(0,0,0,0.2)' : 'none' }}>
+        <div style={{ fontSize: 11, color: isActive ? 'rgba(255,255,255,0.6)' : '#94a3b8', marginBottom: 4 }}>{label}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 28, height: 28, borderRadius: 6, background: selected.color || iconColor || '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             {icon === 'layers' && <Layers size={14} color="#fff" />}
@@ -77,8 +77,8 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
                 : <svg width="14" height="10" viewBox="0 0 22 14" fill="none"><rect x="1" y="1" width="20" height="12" rx="2" stroke="#fff" strokeWidth="1.5"/></svg>
             )}
           </div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{selected.label}</div>
-          <ChevronDown size={14} color="#94a3b8" style={{ marginLeft: 'auto', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+          <div style={{ fontSize: 13, fontWeight: 600, color: isActive ? '#fff' : '#0f172a' }}>{selected.label}</div>
+          <ChevronDown size={14} color={isActive ? 'rgba(255,255,255,0.6)' : '#94a3b8'} style={{ marginLeft: 'auto', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
         </div>
       </div>
       {open && (
@@ -229,7 +229,7 @@ export default function VideoCreator() {
               onMouseEnter={function() { setMotionHover(true); }}
               onMouseLeave={function() { setMotionHover(false); }}
               style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, cursor: 'pointer', position: 'relative',
-                background: motionHover ? '#a78bfa' : '#fff',
+                background: motionHover ? '#1e3a8a' : '#fff',
                 border: videoMode === 'motion' ? '2px solid #8b5cf6' : '2px solid rgba(255,255,255,0.1)',
                 boxShadow: motionHover ? '0 8px 24px rgba(0,0,0,0.2)' : videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none',
                 transform: motionHover ? 'translateY(-2px)' : 'none',
@@ -254,7 +254,7 @@ export default function VideoCreator() {
               onMouseEnter={function() { setStandardHover(true); }}
               onMouseLeave={function() { setStandardHover(false); }}
               style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, cursor: 'pointer',
-                background: standardHover ? '#a78bfa' : '#fff',
+                background: standardHover ? '#1e3a8a' : '#fff',
                 border: videoMode === 'images' ? '2px solid #8b5cf6' : '2px solid rgba(255,255,255,0.1)',
                 boxShadow: standardHover ? '0 8px 24px rgba(0,0,0,0.2)' : videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none',
                 transform: standardHover ? 'translateY(-2px)' : 'none',
