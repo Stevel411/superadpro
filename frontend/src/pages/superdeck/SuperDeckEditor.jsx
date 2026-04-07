@@ -7,7 +7,7 @@ import {
   AlignLeft, AlignCenter, AlignRight, Bold, Italic, Underline,
   Sparkles, Monitor, ChevronRight, ChevronLeft, Scissors, Clipboard,
   PanelRightClose, PanelRightOpen, Layers, Eye, EyeOff,
-  ArrowUp, ArrowDown, Upload, XCircle,
+  ArrowUp, ArrowDown, Upload, XCircle, ChevronDown,
 } from 'lucide-react';
 
 /* ── Helpers ──────────────────────────────────────────── */
@@ -40,6 +40,8 @@ export default function SuperDeckEditor() {
   var [ribbonTab, setRibbonTab] = useState('home');
   var [ribbonOpen, setRibbonOpen] = useState(true);
   var [panelOpen, setPanelOpen] = useState(true);
+  var [themeDropOpen, setThemeDropOpen] = useState(false);
+  var themeDropRef = useRef(null);
   var [editingId, setEditingId] = useState(null);
   var canvasRef = useRef(null);
   var editRef = useRef(null);
@@ -70,6 +72,15 @@ export default function SuperDeckEditor() {
     var iv = setInterval(function () { if (dirty) save(); }, 30000);
     return function () { clearInterval(iv); };
   }, [dirty, save]);
+
+  // Close theme dropdown on click outside
+  useEffect(function () {
+    function handleClick(e) {
+      if (themeDropRef.current && !themeDropRef.current.contains(e.target)) setThemeDropOpen(false);
+    }
+    document.addEventListener('mousedown', handleClick);
+    return function () { document.removeEventListener('mousedown', handleClick); };
+  }, []);
 
   function mark() { setDirty(true); }
 
@@ -306,16 +317,25 @@ export default function SuperDeckEditor() {
       </div>
 
       {/* ── RIBBON TAB BAR ─────────────────────────────── */}
-      <div style={{ display: 'flex', gap: 0, padding: '0 14px', height: 42, background: '#ffffff', borderBottom: '1px solid #e2e8f0', alignItems: 'flex-end', flexShrink: 0 }}>
+      <div style={{ display: 'flex', gap: 4, padding: '0 14px', height: 46, background: '#ffffff', borderBottom: '1px solid #e2e8f0', alignItems: 'flex-end', flexShrink: 0 }}>
         {['home', 'insert', 'design'].map(function (tab) {
           var isActive = ribbonTab === tab;
+          var icons = { home: '🏠', insert: '➕', design: '🎨' };
           return (
             <button key={tab} onClick={function () {
               if (ribbonTab === tab) { setRibbonOpen(!ribbonOpen); }
               else { setRibbonTab(tab); setRibbonOpen(true); }
             }}
-              style={{ padding: '8px 24px', fontSize: 16, fontWeight: isActive ? 600 : 400, color: isActive ? '#c4b5fd' : '#64748b', background: isActive && ribbonOpen ? '#f1f5f9' : 'transparent', border: 'none', borderBottom: isActive && ribbonOpen ? '2px solid #8b5cf6' : '2px solid transparent', cursor: 'pointer', fontFamily: 'inherit', marginBottom: -1, textTransform: 'capitalize' }}>
-              {tab}
+              onMouseEnter={function(e) { if (!isActive) e.currentTarget.style.background = '#f8fafc'; }}
+              onMouseLeave={function(e) { if (!isActive) e.currentTarget.style.background = 'transparent'; }}
+              style={{ padding: '8px 20px', fontSize: 14, fontWeight: 700, color: isActive ? '#8b5cf6' : '#475569',
+                background: isActive && ribbonOpen ? '#f3f0ff' : 'transparent',
+                border: 'none', borderBottom: isActive ? '3px solid #8b5cf6' : '3px solid transparent',
+                borderRadius: '8px 8px 0 0',
+                cursor: 'pointer', fontFamily: 'inherit', marginBottom: -1, textTransform: 'capitalize',
+                display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.15s ease',
+                letterSpacing: '0.02em' }}>
+              <span style={{ fontSize: 13 }}>{icons[tab]}</span> {tab}
             </button>
           );
         })}
@@ -492,14 +512,47 @@ export default function SuperDeckEditor() {
               <span style={{ fontSize: 14, color: '#334155', fontFamily: 'monospace' }}>{cs.background || '#ffffff'}</span>
             </div>
             <div style={S.divider} />
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div ref={themeDropRef} style={{ display: 'flex', alignItems: 'center', gap: 10, position: 'relative' }}>
               <span style={{ fontSize: 14, color: '#334155', fontWeight: 700 }}>Theme</span>
-              <select value={theme} onChange={function (e) { setTheme(e.target.value); mark(); }}
-                style={{ padding: '7px 14px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 15, color: '#0f172a', background: '#f8fafc', fontFamily: 'inherit', cursor: 'pointer' }}>
-                {THEME_KEYS.map(function (k) {
-                  return <option key={k} value={k}>{THEMES[k].name}</option>;
-                })}
-              </select>
+              <div onClick={function() { setThemeDropOpen(!themeDropOpen); }}
+                onMouseEnter={function(e) { e.currentTarget.style.borderColor = '#8b5cf6'; }}
+                onMouseLeave={function(e) { e.currentTarget.style.borderColor = themeDropOpen ? '#8b5cf6' : '#e2e8f0'; }}
+                style={{ padding: '8px 14px', border: '1.5px solid ' + (themeDropOpen ? '#8b5cf6' : '#e2e8f0'), borderRadius: 10, fontSize: 14, color: '#0f172a', background: '#fff', fontFamily: 'inherit', cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', gap: 10, minWidth: 200, transition: 'border-color 0.15s' }}>
+                <div style={{ width: 24, height: 24, borderRadius: 6, background: (THEMES[theme] || THEMES.midnight).primary, border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0 }} />
+                <span style={{ fontWeight: 600 }}>{(THEMES[theme] || THEMES.midnight).name}</span>
+                <ChevronDown size={14} color="#94a3b8" style={{ marginLeft: 'auto', transform: themeDropOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+              </div>
+              {themeDropOpen && (
+                <div style={{ position: 'absolute', top: '100%', left: 48, marginTop: 4, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, overflow: 'hidden', boxShadow: '0 8px 30px rgba(0,0,0,0.12)', zIndex: 100, minWidth: 220 }}>
+                  {THEME_KEYS.map(function(k) {
+                    var th = THEMES[k];
+                    var isSel = k === theme;
+                    return (
+                      <div key={k} onClick={function() { setTheme(k); mark(); setThemeDropOpen(false); }}
+                        onMouseEnter={function(e) { e.currentTarget.style.background = '#f8fafc'; }}
+                        onMouseLeave={function(e) { e.currentTarget.style.background = isSel ? 'rgba(139,92,246,0.04)' : '#fff'; }}
+                        style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer',
+                          background: isSel ? 'rgba(139,92,246,0.04)' : '#fff',
+                          borderLeft: isSel ? '3px solid #8b5cf6' : '3px solid transparent',
+                          borderBottom: '1px solid #f1f5f9' }}>
+                        <div style={{ width: 28, height: 28, borderRadius: 6, background: th.primary, border: '1px solid rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <div style={{ width: 8, height: 8, borderRadius: '50%', background: th.accent }} />
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{th.name}</div>
+                          <div style={{ display: 'flex', gap: 3, marginTop: 3 }}>
+                            {[th.primary, th.secondary, th.accent, th.muted].map(function(c, ci) {
+                              return <div key={ci} style={{ width: 12, height: 12, borderRadius: 3, background: c, border: '1px solid rgba(0,0,0,0.08)' }} />;
+                            })}
+                          </div>
+                        </div>
+                        {isSel && <span style={{ marginLeft: 'auto', color: '#8b5cf6', fontSize: 16 }}>✓</span>}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </>}
         </div>
@@ -730,12 +783,23 @@ export default function SuperDeckEditor() {
               </div>
 
               <div style={{ fontSize: 14, color: '#0f172a', fontWeight: 600, marginBottom: 6 }}>Theme</div>
-              <select value={theme} onChange={function (e) { setTheme(e.target.value); mark(); }}
-                style={{ width: '100%', padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 15, color: '#0f172a', background: '#f8fafc', fontFamily: 'inherit', cursor: 'pointer', marginBottom: 14 }}>
-                {THEME_KEYS.map(function (k) {
-                  return <option key={k} value={k}>{THEMES[k].name}</option>;
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginBottom: 14 }}>
+                {THEME_KEYS.map(function(k) {
+                  var th = THEMES[k];
+                  var isSel = k === theme;
+                  return (
+                    <div key={k} onClick={function() { setTheme(k); mark(); }}
+                      onMouseEnter={function(e) { if (!isSel) e.currentTarget.style.background = '#f8fafc'; }}
+                      onMouseLeave={function(e) { if (!isSel) e.currentTarget.style.background = '#fff'; }}
+                      style={{ padding: '6px 10px', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer',
+                        borderRadius: 8, border: isSel ? '1.5px solid #8b5cf6' : '1px solid #e2e8f0',
+                        background: isSel ? '#f3f0ff' : '#fff', transition: 'all 0.15s' }}>
+                      <div style={{ width: 20, height: 20, borderRadius: 4, background: th.primary, border: '1px solid rgba(0,0,0,0.1)', flexShrink: 0 }} />
+                      <span style={{ fontSize: 12, fontWeight: isSel ? 700 : 500, color: isSel ? '#8b5cf6' : '#334155' }}>{th.name}</span>
+                    </div>
+                  );
                 })}
-              </select>
+              </div>
 
               <div style={{ fontSize: 14, color: '#0f172a', fontWeight: 600, marginBottom: 6 }}>Transition</div>
               <div style={{ padding: '8px 12px', border: '1px solid #e2e8f0', borderRadius: 8, fontSize: 15, color: '#0f172a', marginBottom: 10 }}>
