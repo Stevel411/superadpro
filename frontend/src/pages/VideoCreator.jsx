@@ -230,8 +230,8 @@ export default function VideoCreator() {
               onMouseLeave={function() { setMotionHover(false); }}
               style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, cursor: 'pointer', position: 'relative',
                 background: motionHover ? '#1e3a8a' : '#fff',
-                border: videoMode === 'motion' ? '2px solid #8b5cf6' : '2px solid rgba(255,255,255,0.1)',
-                boxShadow: motionHover ? '0 8px 24px rgba(0,0,0,0.2)' : videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none',
+                border: videoMode === 'motion' ? '2px solid #1e3a8a' : '2px solid rgba(255,255,255,0.1)',
+                boxShadow: motionHover ? '0 8px 24px rgba(0,0,0,0.2)' : videoMode === 'motion' ? 'none' : 'none',
                 transform: motionHover ? 'translateY(-2px)' : 'none',
                 transition: 'all 0.15s ease' }}>
               <span style={{ position: 'absolute', top: 10, right: 10, fontSize: 9, fontWeight: 700, padding: '3px 10px', borderRadius: 8, background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#fff', letterSpacing: '0.04em' }}>PRO</span>
@@ -255,8 +255,8 @@ export default function VideoCreator() {
               onMouseLeave={function() { setStandardHover(false); }}
               style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, cursor: 'pointer',
                 background: standardHover ? '#1e3a8a' : '#fff',
-                border: videoMode === 'images' ? '2px solid #8b5cf6' : '2px solid rgba(255,255,255,0.1)',
-                boxShadow: standardHover ? '0 8px 24px rgba(0,0,0,0.2)' : videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none',
+                border: videoMode === 'images' ? '2px solid #1e3a8a' : '2px solid rgba(255,255,255,0.1)',
+                boxShadow: standardHover ? '0 8px 24px rgba(0,0,0,0.2)' : videoMode === 'images' ? 'none' : 'none',
                 transform: standardHover ? 'translateY(-2px)' : 'none',
                 transition: 'all 0.15s ease' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
