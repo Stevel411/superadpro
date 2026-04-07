@@ -275,41 +275,7 @@ export default function SuperDeckEditor() {
         <input value={title} onChange={function(e){setTitle(e.target.value);mark();}} style={{background:'transparent',border:'none',color:'#f8fafc',fontSize:16,fontWeight:700,fontFamily:"'Sora',sans-serif",outline:'none',padding:'4px 8px',flex:1,maxWidth:280}} placeholder="Untitled"/>
         <div style={{flex:1}}/>
 
-        {/* Insert dropdown */}
-        <div ref={insRef} style={{position:'relative'}}>
-          <button onClick={function(){setShowInsert(!showInsert);}} style={btnS}
-            onMouseEnter={function(e){e.currentTarget.style.background='#475569';}} onMouseLeave={function(e){e.currentTarget.style.background='#334155';}}>
-            <Plus size={14}/> Insert <ChevronDown size={12}/></button>
-          {showInsert&&<div style={{position:'absolute',top:'100%',right:0,marginTop:6,background:'#1e293b',border:'1px solid #334155',borderRadius:12,boxShadow:'0 12px 40px rgba(0,0,0,0.4)',zIndex:50,width:200,padding:6}}>
-            {[{t:'heading',n:'Heading',i:Type},{t:'text',n:'Text Box',i:Type},{t:'image',n:'Image',i:Image},{t:'shape',n:'Shape',i:Square}].map(function(it){
-              return <div key={it.t} onClick={function(){addEl(it.t);}}
-                onMouseEnter={function(e){e.currentTarget.style.background='#334155';}} onMouseLeave={function(e){e.currentTarget.style.background='transparent';}}
-                style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,cursor:'pointer'}}>
-                <it.i size={16} color="#8b5cf6"/><span style={{fontSize:13,fontWeight:600,color:'#e2e8f0'}}>{it.n}</span>
-              </div>;
-            })}
-          </div>}
-        </div>
-
-        {/* Upload */}
-        <button onClick={uploadImage} style={btnS}
-          onMouseEnter={function(e){e.currentTarget.style.background='#475569';}} onMouseLeave={function(e){e.currentTarget.style.background='#334155';}}>
-          <Upload size={14}/> Image</button>
-
-        {/* Theme */}
-        <div ref={thRef} style={{position:'relative'}}>
-          <button onClick={function(){setShowThemes(!showThemes);}} style={btnS}
-            onMouseEnter={function(e){e.currentTarget.style.background='#475569';}} onMouseLeave={function(e){e.currentTarget.style.background='#334155';}}>
-            <div style={{width:14,height:14,borderRadius:4,background:t.accent,border:'1px solid rgba(255,255,255,0.2)'}}/> {t.name} <ChevronDown size={12}/></button>
-          {showThemes&&<div style={{position:'absolute',top:'100%',right:0,marginTop:6,background:'#1e293b',border:'1px solid #334155',borderRadius:12,boxShadow:'0 12px 40px rgba(0,0,0,0.4)',zIndex:50,width:200,padding:6}}>
-            {THEME_KEYS.map(function(k){var th=THEMES[k];var sel=k===theme;return <div key={k} onClick={function(){setTheme(k);mark();setShowThemes(false);}}
-              onMouseEnter={function(e){e.currentTarget.style.background='#334155';}} onMouseLeave={function(e){e.currentTarget.style.background=sel?'#334155':'transparent';}}
-              style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',borderRadius:8,cursor:'pointer',background:sel?'#334155':'transparent'}}>
-              <div style={{width:22,height:22,borderRadius:6,background:th.primary,border:'1px solid rgba(255,255,255,0.15)',display:'flex',alignItems:'center',justifyContent:'center'}}><div style={{width:7,height:7,borderRadius:'50%',background:th.accent}}/></div>
-              <span style={{fontSize:13,fontWeight:sel?700:500,color:sel?'#8b5cf6':'#cbd5e1'}}>{th.name}</span>
-            </div>;})}
-          </div>}
-        </div>
+        {/* Insert dropdown and Theme removed — elements are now in right sidebar */}
 
         <button onClick={function(){setShowAi(!showAi);}} style={{...btnS,background:'linear-gradient(135deg,#8b5cf6,#7c3aed)',color:'#fff',fontWeight:700}}>
           <Sparkles size={14}/> AI Generate</button>
@@ -426,12 +392,16 @@ export default function SuperDeckEditor() {
             {(selEl.type==='heading'||selEl.type==='text')&&<>
               <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Font</div>
               <select value={(selEl.fontFamily||'').split(',')[0].replace(/'/g,'').trim()||'Sora'} onChange={function(e){upd(selId,{fontFamily:"'"+e.target.value+"',sans-serif"});}}
-                style={{width:'100%',padding:'6px 8px',borderRadius:6,border:'1px solid #e2e8f0',fontSize:12,color:'#0f172a',background:'#fff',fontFamily:'inherit',cursor:'pointer',marginBottom:8}}>
-                {['Sora','DM Sans','Arial','Georgia','Trebuchet MS','Verdana','Courier New'].map(function(f){return <option key={f} value={f}>{f}</option>;})}</select>
+                onMouseEnter={function(e){e.currentTarget.style.borderColor='#8b5cf6';e.currentTarget.style.background='#ede9fe';}}
+                onMouseLeave={function(e){e.currentTarget.style.borderColor='#e2e8f0';e.currentTarget.style.background='#fff';}}
+                style={{width:'100%',padding:'8px 10px',borderRadius:8,border:'1.5px solid #e2e8f0',fontSize:13,fontWeight:600,color:'#0f172a',background:'#fff',fontFamily:'inherit',cursor:'pointer',marginBottom:8,transition:'all 0.15s',appearance:'none',backgroundImage:'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")',backgroundRepeat:'no-repeat',backgroundPosition:'right 10px center',paddingRight:28}}>
+                {['Sora','DM Sans','Inter','Poppins','Montserrat','Playfair Display','Roboto','Open Sans','Lato','Oswald','Raleway','Merriweather','Georgia','Arial','Trebuchet MS','Verdana','Courier New','Impact'].map(function(f){return <option key={f} value={f} style={{fontFamily:f}}>{f}</option>;})}</select>
 
               <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Size</div>
               <select value={selEl.fontSize||18} onChange={function(e){upd(selId,{fontSize:parseInt(e.target.value)});}}
-                style={{width:'100%',padding:'6px 8px',borderRadius:6,border:'1px solid #e2e8f0',fontSize:12,color:'#0f172a',background:'#fff',fontFamily:'inherit',cursor:'pointer',marginBottom:8}}>
+                onMouseEnter={function(e){e.currentTarget.style.borderColor='#8b5cf6';e.currentTarget.style.background='#ede9fe';}}
+                onMouseLeave={function(e){e.currentTarget.style.borderColor='#e2e8f0';e.currentTarget.style.background='#fff';}}
+                style={{width:'100%',padding:'8px 10px',borderRadius:8,border:'1.5px solid #e2e8f0',fontSize:13,fontWeight:600,color:'#0f172a',background:'#fff',fontFamily:'inherit',cursor:'pointer',marginBottom:8,transition:'all 0.15s',appearance:'none',backgroundImage:'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'12\' height=\'12\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%2394a3b8\' stroke-width=\'2\'%3E%3Cpath d=\'M6 9l6 6 6-6\'/%3E%3C/svg%3E")',backgroundRepeat:'no-repeat',backgroundPosition:'right 10px center',paddingRight:28}}>
                 {FONT_SIZES.map(function(s){return <option key={s} value={s}>{s}px</option>;})}</select>
 
               <div style={{display:'flex',gap:3,marginBottom:8}}>
@@ -462,12 +432,21 @@ export default function SuperDeckEditor() {
             </>}
 
             {selEl.type==='image'&&<>
-              <button onClick={uploadImage} style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'8px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit',marginBottom:8}}>
-                <Upload size={13} color="#8b5cf6"/> Upload / Replace</button>
+              <button onClick={function(){
+                var inp=document.createElement('input');inp.type='file';inp.accept='image/*';
+                inp.onchange=function(){if(inp.files&&inp.files[0]){
+                  var fd=new FormData();fd.append('file',inp.files[0]);fd.append('folder','superdeck');
+                  fetch('/api/superdeck/upload-image',{method:'POST',body:fd,credentials:'include'})
+                    .then(function(r){return r.json();}).then(function(d){if(d.url)upd(selId,{src:d.url});});
+                }};inp.click();
+              }}
+                onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
+                style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'8px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit',marginBottom:8}}>
+                <Upload size={13} color="#8b5cf6"/> Upload / Replace image</button>
             </>}
 
             <div style={{borderTop:'1px solid #e2e8f0',paddingTop:8,marginTop:4}}>
-              <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Position</div>
+              <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Position & Size</div>
               <div style={{display:'flex',gap:4,marginBottom:8}}>
                 <div style={{flex:1}}><div style={{fontSize:10,color:'#94a3b8'}}>X</div><input type="number" value={selEl.x} onChange={function(e){upd(selId,{x:parseInt(e.target.value)||0});}} style={{width:'100%',padding:'4px 6px',border:'1px solid #e2e8f0',borderRadius:4,fontSize:12,boxSizing:'border-box'}}/></div>
                 <div style={{flex:1}}><div style={{fontSize:10,color:'#94a3b8'}}>Y</div><input type="number" value={selEl.y} onChange={function(e){upd(selId,{y:parseInt(e.target.value)||0});}} style={{width:'100%',padding:'4px 6px',border:'1px solid #e2e8f0',borderRadius:4,fontSize:12,boxSizing:'border-box'}}/></div>
@@ -478,12 +457,27 @@ export default function SuperDeckEditor() {
                 <Trash2 size={13}/> Delete element</button>
             </div>
           </>:<>
-            <div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:10}}>Slide Design</div>
+            {/* No element selected — show insert elements + slide design */}
+            <div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:10}}>Add Elements</div>
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6,marginBottom:16}}>
+              {[{t:'heading',n:'Heading',i:Type,c:'#8b5cf6'},{t:'text',n:'Text Box',i:Type,c:'#0ea5e9'},{t:'image',n:'Image',i:Image,c:'#22c55e'},{t:'shape',n:'Shape',i:Square,c:'#f59e0b'}].map(function(it){
+                return <button key={it.t} onClick={function(){addEl(it.t);}}
+                  onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';e.currentTarget.style.borderColor='#8b5cf6';}}
+                  onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';e.currentTarget.style.borderColor='#e2e8f0';}}
+                  style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4,padding:'12px 8px',borderRadius:8,border:'1.5px solid #e2e8f0',background:'#f8fafc',cursor:'pointer',fontFamily:'inherit',transition:'all 0.15s'}}>
+                  <it.i size={20} color={it.c}/>
+                  <span style={{fontSize:11,fontWeight:600,color:'#334155'}}>{it.n}</span>
+                </button>;
+              })}
+            </div>
+
+            <div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:6}}>Slide Design</div>
             <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Background</div>
             <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
               <input type="color" value={cs.background||t.primary} onChange={function(e){updBg(e.target.value);}} style={{width:36,height:36,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1}}/>
               <span style={{fontSize:12,color:'#64748b',fontFamily:'monospace'}}>{cs.background||t.primary}</span>
             </div>
+
             <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Layers</div>
             {cs.elements.map(function(el){var isSel=el.id===selId;var label=el.type==='heading'?'H: '+(el.text||'').slice(0,16):el.type==='text'?'T: '+(el.text||'').slice(0,16):el.type==='image'?'Image':el.type==='shape'?'Shape':'?';
               return <div key={el.id} onClick={function(e){e.stopPropagation();setSelId(el.id);}}
@@ -492,9 +486,8 @@ export default function SuperDeckEditor() {
                 <span>{label}</span>
               </div>;
             })}
-            {cs.elements.length===0&&<div style={{fontSize:11,color:'#94a3b8',fontStyle:'italic'}}>No elements. Use Insert to add.</div>}
+            {cs.elements.length===0&&<div style={{fontSize:11,color:'#94a3b8',fontStyle:'italic',marginBottom:8}}>Click an element above to add it to the slide</div>}
             <div style={{borderTop:'1px solid #e2e8f0',paddingTop:8,marginTop:8}}>
-              <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Actions</div>
               <div style={{display:'flex',flexDirection:'column',gap:4}}>
                 <button onClick={function(){dupSlide(active);}}
                   onMouseEnter={function(e){e.currentTarget.style.background='#f3f0ff';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
