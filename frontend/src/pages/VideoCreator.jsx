@@ -222,9 +222,9 @@ export default function VideoCreator() {
             {/* Motion Video */}
             <div onClick={function() { setVideoMode('motion'); }}
               onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.15)'; e.currentTarget.style.background = '#ede9fe'; e.currentTarget.style.borderColor = '#8b5cf6'; }}
-              onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none'; e.currentTarget.style.borderColor = videoMode === 'motion' ? '#8b5cf6' : 'rgba(255,255,255,0.15)'; }}
+              onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none'; e.currentTarget.style.borderColor = videoMode === 'motion' ? '#8b5cf6' : 'rgba(255,255,255,0.1)'; }}
               style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, background: '#fff', cursor: 'pointer', position: 'relative',
-                border: videoMode === 'motion' ? '2px solid #8b5cf6' : '1px solid rgba(255,255,255,0.15)',
+                border: videoMode === 'motion' ? '2px solid #8b5cf6' : '2px solid rgba(255,255,255,0.1)',
                 boxShadow: videoMode === 'motion' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none',
                 transition: 'all 0.2s ease' }}>
               <span style={{ position: 'absolute', top: 10, right: 10, fontSize: 9, fontWeight: 700, padding: '3px 10px', borderRadius: 8, background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#fff', letterSpacing: '0.04em' }}>PRO</span>
@@ -245,9 +245,9 @@ export default function VideoCreator() {
             {/* Standard */}
             <div onClick={function() { setVideoMode('images'); }}
               onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(0,0,0,0.15)'; e.currentTarget.style.background = '#ede9fe'; e.currentTarget.style.borderColor = '#8b5cf6'; }}
-              onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none'; e.currentTarget.style.borderColor = videoMode === 'images' ? '#8b5cf6' : 'rgba(255,255,255,0.15)'; }}
+              onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.boxShadow = videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none'; e.currentTarget.style.borderColor = videoMode === 'images' ? '#8b5cf6' : 'rgba(255,255,255,0.1)'; }}
               style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, background: '#fff', cursor: 'pointer',
-                border: videoMode === 'images' ? '2px solid #8b5cf6' : '1px solid rgba(255,255,255,0.15)',
+                border: videoMode === 'images' ? '2px solid #8b5cf6' : '2px solid rgba(255,255,255,0.1)',
                 boxShadow: videoMode === 'images' ? '0 0 0 3px rgba(139,92,246,0.15)' : 'none',
                 transition: 'all 0.2s ease' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
