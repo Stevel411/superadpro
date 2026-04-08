@@ -175,16 +175,22 @@ async def generate_image(
     n: int = 1,
     size: str = "1024x1024",
     response_format: str = "url",
+    model_id: str = "grok-imagine-image",
 ) -> dict:
     """
     Generate image(s) using Grok Imagine.
+    model_id: 'grok-imagine-image' ($0.02) or 'grok-imagine-image-pro' ($0.07)
     Returns: {success, images: [{url}]} or {success, error}
     """
     if not XAI_API_KEY:
         return {"success": False, "error": "XAI_API_KEY not configured"}
 
+    # Validate model name
+    valid_models = ("grok-imagine-image", "grok-imagine-image-pro")
+    api_model = model_id if model_id in valid_models else "grok-imagine-image"
+
     payload = {
-        "model": "grok-2-image",
+        "model": api_model,
         "prompt": prompt,
         "n": min(n, 4),
     }

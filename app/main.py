@@ -20082,10 +20082,11 @@ async def sc_image_generate(request: Request, db: Session = Depends(get_db)):
             db.commit()
             raise HTTPException(status_code=502, detail=f"Gemini image generation failed: {str(e)[:200]}")
 
-    # Route to Grok Imagine direct for grok-image model (no EvoLink markup)
-    if model_id == "grok-image":
+    # Route to Grok Imagine direct for grok-image models (no EvoLink markup)
+    if model_id in ("grok-image", "grok-image-pro"):
         from .grok_imagine import generate_image as grok_img
-        grok_result = await grok_img(prompt, n=n)
+        api_model = "grok-imagine-image-pro" if model_id == "grok-image-pro" else "grok-imagine-image"
+        grok_result = await grok_img(prompt, n=n, model_id=api_model)
         if grok_result["success"]:
             return {
                 "success": True,
