@@ -94,6 +94,11 @@ export default function CreditMatrix() {
 
       {/* Cobalt blue header */}
       <div style={{ background: 'linear-gradient(180deg, #172554, #1e3a8a)', borderRadius: 14, padding: '24px', marginBottom: 20 }}>
+        <a href="/creative-studio" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: 14, transition: 'color .15s' }}
+          onMouseEnter={function(e) { e.target.style.color = '#fff'; }} onMouseLeave={function(e) { e.target.style.color = 'rgba(255,255,255,0.5)'; }}>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          Back to Creative Studio
+        </a>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
           <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(139,92,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <Layers size={24} color="#a78bfa" />
