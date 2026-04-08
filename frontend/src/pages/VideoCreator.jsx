@@ -124,6 +124,14 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
 }
 
 export default function VideoCreator() {
+  return (
+    <AppLayout title="AI Video Creator" subtitle="One-click marketing videos">
+      <VideoCreatorContent />
+    </AppLayout>
+  );
+}
+
+export function VideoCreatorContent() {
   var [prompt, setPrompt] = useState('');
   var [style, setStyle] = useState('professional');
   var [duration, setDuration] = useState(60);
@@ -193,7 +201,7 @@ export default function VideoCreator() {
   useEffect(function() { return function() { if (pollRef.current) clearInterval(pollRef.current); }; }, []);
 
   return (
-    <AppLayout title="AI Video Creator" subtitle="One-click marketing videos">
+    <>
 
       {/* Cobalt blue container — header + form seamless */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 440px', gap: 20 }}>
@@ -423,6 +431,6 @@ export default function VideoCreator() {
           </div>
         </div>
       </div>
-    </AppLayout>
+    </>
   );
 }

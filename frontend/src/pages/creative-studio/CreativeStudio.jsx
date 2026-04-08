@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import AppLayout from '../../components/layout/AppLayout';
 import { CreditMatrixContent } from '../CreditMatrix';
+import { VideoCreatorContent } from '../VideoCreator';
 import './creative-studio.css';
 
 // ── Video Models ──────────────────────────────────────
@@ -506,11 +507,8 @@ export default function CreativeStudio() {
           </>}
 
           {/* ═══ PLACEHOLDER TABS ═══ */}
-          {tab === 'full-video' && <div style={{ textAlign: 'center', padding: 80, color: '#64748b' }}>
-            <div style={{ fontSize: 48, marginBottom: 16, opacity: .3 }}>🎬</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>Full Video Creator</div>
-            <div style={{ fontSize: 14 }}>End-to-end AI video production — coming next</div>
-          </div>}
+          {/* ═══ FULL VIDEO TAB — embedded Video Creator ═══ */}
+          {tab === 'full-video' && <VideoCreatorContent />}
 
           {tab === 'images' && <div style={{ textAlign: 'center', padding: 80, color: '#64748b' }}>
             <div style={{ fontSize: 48, marginBottom: 16, opacity: .3 }}>🖼️</div>
