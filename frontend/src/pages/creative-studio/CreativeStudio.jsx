@@ -130,6 +130,10 @@ export default function CreativeStudio() {
   useEffect(function() {
     fetch('/api/superscene/credits').then(function(r) { return r.json(); }).then(function(d) { setCredits(d.balance || 0); });
     fetch('/api/superscene/videos').then(function(r) { return r.json(); }).then(function(d) { setVideos(d.videos || []); });
+    // Preload Credit Matrix chunk + API data in background so Credits tab navigates instantly
+    import('../CreditMatrix.jsx').catch(function() {});
+    fetch('/api/credit-matrix/stats').catch(function() {});
+    fetch('/api/credit-matrix/packs').catch(function() {});
   }, []);
 
   // ── Polling ──

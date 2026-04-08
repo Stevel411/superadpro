@@ -1,4 +1,4 @@
-import{r as Le,ag as q_,j as ze}from"./index-CV2NRw6k.js";/**
+import{r as Le,ah as q_,j as ze}from"./index-CVC8Dds2.js";/**
  * @license
  * Copyright 2010-2026 Three.js Authors
  * SPDX-License-Identifier: MIT
