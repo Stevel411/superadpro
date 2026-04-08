@@ -57,12 +57,12 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
 
   const GRAD_PRESETS = [
     ['#0ea5e9','#6366f1'], ['#8b5cf6','#ec4899'], ['#10b981','#059669'],
-    ['#f59e0b','#ef4444'], ['#0f172a','#1e3a5f'], ['#1a1a2e','#16213e'],
+    ['#f59e0b','#ef4444'], ['#0f172a','#1e3a5f'], ['#132044','#16213e'],
     ['#667eea','#764ba2'], ['#f093fb','#f5576c'], ['#4facfe','#00f2fe'],
   ];
 
   return (
-    <div style={{width:280,height:'calc(100vh - 60px)',background:'#1c223d',borderLeft:'1px solid rgba(255,255,255,0.06)',display:'flex',flexDirection:'column',overflow:'hidden',flexShrink:0}}>
+    <div style={{width:280,height:'calc(100vh - 60px)',background:'#172554',borderLeft:'1px solid rgba(255,255,255,0.06)',display:'flex',flexDirection:'column',overflow:'hidden',flexShrink:0}}>
 
       {/* Header */}
       <div style={{padding:'14px 16px',borderBottom:'1px solid rgba(255,255,255,0.06)',flexShrink:0}}>
@@ -110,7 +110,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                   <div style={{fontSize:11,fontFamily:'monospace',color:'rgba(255,255,255,.75)'}}>{canvasBg?.startsWith('#')?canvasBg:'#ffffff'}</div>
                 </div>
                 <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
-                  {['#050d1a','#0f172a','#1e293b','#ffffff','#f8fafc','#fef3c7','#1a1a2e','#0c1222','#2d1b69','#7f1d1d','#14532d','#1e3a5f'].map(c => (
+                  {['#0a1628','#0f172a','#1e293b','#ffffff','#f8fafc','#fef3c7','#132044','#0c1222','#2d1b69','#7f1d1d','#14532d','#1e3a5f'].map(c => (
                     <div key={c} onClick={() => applyBg(c)} style={{
                       width:22,height:22,borderRadius:5,background:c,cursor:'pointer',
                       border:canvasBg===c?'2px solid #0ea5e9':'1px solid rgba(255,255,255,.12)',
@@ -212,7 +212,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                     onDragStart={e => e.dataTransfer.setData('text/plain', item.type)}
                     className="pal-item"
                     style={{
-                      background:'linear-gradient(160deg,#2e3862 0%,#232952 50%,#1d2345 100%)',
+                      background:'linear-gradient(160deg,#1e3a6a 0%,#172a54 50%,#132044 100%)',
                       border:'1px solid rgba(255,255,255,0.12)',borderRadius:12,
                       padding:'16px 6px 11px',textAlign:'center',cursor:'pointer',
                       display:'flex',flexDirection:'column',alignItems:'center',gap:6,
@@ -234,7 +234,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
       </div>
 
       {/* AI Chat */}
-      <div style={{borderTop:'1px solid rgba(255,255,255,0.06)',flexShrink:0,background:'#1c223d',display:'flex',flexDirection:'column'}}>
+      <div style={{borderTop:'1px solid rgba(255,255,255,0.06)',flexShrink:0,background:'#172554',display:'flex',flexDirection:'column'}}>
         <div onClick={() => setChatOpen(!chatOpen)} style={{padding:'8px 14px',cursor:'pointer',userSelect:'none',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <span style={{fontSize:9,fontWeight:800,letterSpacing:0.7,textTransform:'uppercase',color:'#0ea5e9'}}>✨ AI Assistant</span>
           <span style={{fontSize:12,color:'rgba(255,255,255,0.7)',transition:'transform 0.2s',transform:chatOpen?'rotate(0)':'rotate(180deg)'}}>▼</span>
@@ -267,7 +267,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
 
       <style>{`
         .pal-item::before{content:'';position:absolute;top:-50%;left:-50%;width:200%;height:60%;background:linear-gradient(180deg,rgba(255,255,255,0.08) 0%,transparent 100%);border-radius:50%;pointer-events:none}
-        .pal-item:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(14,165,233,.35),0 0 0 1px rgba(14,165,233,0.5),inset 0 1px 0 rgba(255,255,255,0.2)!important;border-color:rgba(14,165,233,0.5)!important;background:linear-gradient(160deg,#364070 0%,#2a3360 50%,#232952 100%)!important}
+        .pal-item:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(14,165,233,.35),0 0 0 1px rgba(14,165,233,0.5),inset 0 1px 0 rgba(255,255,255,0.2)!important;border-color:rgba(14,165,233,0.5)!important;background:linear-gradient(160deg,#1e4080 0%,#1a3060 50%,#172a54 100%)!important}
         .pal-item:active{transform:scale(0.94)!important}
       `}</style>
     </div>

@@ -4,7 +4,7 @@ export default function EditorTopbar({ title, slug, saving, dirty, status, onSav
   const isPublished = status === 'published';
   return (
     <div style={{
-      height: 60, background: '#1c223d', borderBottom: '1px solid #1f2440',
+      height: 60, background: '#172554', borderBottom: '1px solid #1e3a8a',
       display: 'flex', alignItems: 'center', padding: '0 16px', gap: 10, flexShrink: 0, zIndex: 50,
     }}>
       {/* SuperPages Logo — Concept B */}
@@ -22,19 +22,19 @@ export default function EditorTopbar({ title, slug, saving, dirty, status, onSav
 
       <div style={{width:1,height:28,background:'rgba(255,255,255,0.06)'}}/>
 
-      <div style={{fontSize:12,color:'#5a6080',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+      <div style={{fontSize:12,color:'rgba(255,255,255,.4)',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
         {title || 'Untitled Page'}
         {dirty && <span style={{color:'#f59e0b',marginLeft:6}}>●</span>}
       </div>
 
       {/* Device view toggles */}
-      <button onClick={() => onSetDevice('desktop')} style={{...gh,background:deviceView==='desktop'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='desktop'?'#38bdf8':'#6a7090'}} title="Desktop (1100px)">
+      <button onClick={() => onSetDevice('desktop')} style={{...gh,background:deviceView==='desktop'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='desktop'?'#38bdf8':'rgba(255,255,255,.45)'}} title="Desktop (1100px)">
         <Monitor size={14}/>
       </button>
-      <button onClick={() => onSetDevice('tablet')} style={{...gh,background:deviceView==='tablet'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='tablet'?'#38bdf8':'#6a7090'}} title="Tablet (768px)">
+      <button onClick={() => onSetDevice('tablet')} style={{...gh,background:deviceView==='tablet'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='tablet'?'#38bdf8':'rgba(255,255,255,.45)'}} title="Tablet (768px)">
         <Tablet size={14}/>
       </button>
-      <button onClick={() => onSetDevice('mobile')} style={{...gh,background:deviceView==='mobile'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='mobile'?'#38bdf8':'#6a7090'}} title="Mobile (390px)">
+      <button onClick={() => onSetDevice('mobile')} style={{...gh,background:deviceView==='mobile'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='mobile'?'#38bdf8':'rgba(255,255,255,.45)'}} title="Mobile (390px)">
         <Smartphone size={14}/>
       </button>
 
@@ -82,5 +82,5 @@ const btn = {
   cursor:'pointer',display:'inline-flex',alignItems:'center',gap:4,fontFamily:'DM Sans,sans-serif',
 };
 const gh = {
-  ...btn,background:'rgba(255,255,255,0.05)',color:'#6a7090',border:'1px solid #1f2440',
+  ...btn,background:'rgba(255,255,255,0.05)',color:'rgba(255,255,255,.45)',border:'1px solid #1e3a8a',
 };

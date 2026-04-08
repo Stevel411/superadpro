@@ -388,7 +388,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 600 }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>✦</div>
             <h3 style={{ fontFamily: 'Sora,sans-serif', fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 6 }}>Start building</h3>
-            <p style={{ fontSize: 12, color: '#5a6080', maxWidth: 280, textAlign: 'center', lineHeight: 1.6 }}>Click any block from the right panel to add it, or drag it onto the canvas.</p>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,.4)', maxWidth: 280, textAlign: 'center', lineHeight: 1.6 }}>Click any block from the right panel to add it, or drag it onto the canvas.</p>
           </div>
         )}
 

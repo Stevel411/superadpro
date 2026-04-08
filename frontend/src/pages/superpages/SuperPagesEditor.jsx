@@ -184,14 +184,14 @@ export default function SuperPagesEditor() {
 
   if (loading) {
     return (
-      <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0c0f1a', color: '#5a6080' }}>
+      <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f1d3a', color: 'rgba(255,255,255,.4)' }}>
         Loading editor...
       </div>
     );
   }
 
   return (
-    <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#0c0f1a', fontFamily: 'DM Sans,sans-serif' }}>
+    <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#0f1d3a', fontFamily: 'DM Sans,sans-serif' }}>
       <EditorTopbar
         title={pageSettings.title}
         slug={pageSettings.slug}
@@ -214,7 +214,7 @@ export default function SuperPagesEditor() {
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {(previewMode || deviceView !== 'desktop') ? (
           /* Preview mode — shows rendered HTML with responsive CSS */
-          <div style={{flex:1,background:'#1a1a2e',overflow:'auto',display:'flex',flexDirection:'column',alignItems:'center',padding:20}}>
+          <div style={{flex:1,background:'#132044',overflow:'auto',display:'flex',flexDirection:'column',alignItems:'center',padding:20}}>
             {previewMode && (
               <div style={{marginBottom:12,padding:'10px 24px',background:'rgba(99,102,241,.12)',border:'1px solid rgba(99,102,241,.25)',borderRadius:10,fontSize:13,color:'#a5b4fc',fontWeight:700,display:'flex',alignItems:'center',gap:12}}>
                 <span>👁 Preview Mode</span>
@@ -226,7 +226,7 @@ export default function SuperPagesEditor() {
                 📱 Responsive Preview — switch to Desktop to edit elements
               </div>
             )}
-            <div style={{width:deviceView==='mobile'?390:deviceView==='tablet'?768:1100,transition:'width .3s',background:canvasBg||'#050d1a',borderRadius:8,overflow:'hidden',boxShadow:'0 0 60px rgba(0,0,0,.3)',minHeight:600}}>
+            <div style={{width:deviceView==='mobile'?390:deviceView==='tablet'?768:1100,transition:'width .3s',background:canvasBg||'#0a1628',borderRadius:8,overflow:'hidden',boxShadow:'0 0 60px rgba(0,0,0,.3)',minHeight:600}}>
               <iframe
                 srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Outfit,sans-serif}img{max-width:100%;height:auto}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage)}</body></html>`}
                 style={{width:'100%',height:'100%',border:'none',minHeight:800}}
@@ -267,7 +267,7 @@ export default function SuperPagesEditor() {
           onClick={() => setShowSettings(false)}>
           <div onClick={e => e.stopPropagation()}
             style={{ background: '#fff', borderRadius: 16, padding: 24, width: 500, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
-            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: '#1a1a2e' }}>Page Settings</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: '#132044' }}>Page Settings</h3>
             <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Page Title</label>
             <input value={pageSettings.title} onChange={e => setPageSettings(p => ({ ...p, title: e.target.value }))}
               style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 14, outline: 'none', marginBottom: 14, boxSizing: 'border-box' }} />
@@ -656,9 +656,9 @@ function FormEditor({ elId, el, updateElement, markDirty, onClose }) {
 
   const buildHTML = () => {
     let fields = '';
-    if (showName) fields += `<input placeholder="Your first name" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#1a1a2e;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
-    fields += `<input placeholder="Your email" type="email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#1a1a2e;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
-    if (showPhone) fields += `<input placeholder="Your phone number" type="tel" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#1a1a2e;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+    if (showName) fields += `<input placeholder="Your first name" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+    fields += `<input placeholder="Your email" type="email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+    if (showPhone) fields += `<input placeholder="Your phone number" type="tel" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
     return `<div style="text-align:center;padding:4px"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">${heading}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">${subtitle}</div>${fields}<div style="width:100%;padding:12px;border-radius:10px;background:${btnColor};color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box;cursor:pointer">${btnText}</div></div>`;
   };
 
