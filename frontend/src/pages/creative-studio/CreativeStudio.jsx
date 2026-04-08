@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import AppLayout from '../../components/layout/AppLayout';
 import './creative-studio.css';
 
@@ -82,7 +82,10 @@ export default function CreativeStudio() {
   var initialTab = searchParams.get('tab') || 'video-clips';
   var [tab, setTab] = useState(initialTab);
 
+  var navigate = useNavigate();
+
   function switchTab(t) {
+    if (t === 'credits') { navigate('/credit-matrix'); return; }
     setTab(t);
     setSearchParams(t === 'video-clips' ? {} : { tab: t }, { replace: true });
   }
@@ -276,7 +279,7 @@ export default function CreativeStudio() {
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, paddingLeft: 16 }}>
             <span style={{ fontFamily: 'Sora, sans-serif', fontSize: 16, fontWeight: 800, color: '#4ade80' }}>{credits}</span>
             <span style={{ fontSize: 11, color: '#94a3b8' }}>credits</span>
-            <button className="cs-credits-buy" onClick={function() { switchTab('credits'); }}>+ Buy</button>
+            <button className="cs-credits-buy" onClick={function() { navigate('/credit-matrix'); }}>+ Buy</button>
           </div>
         </div>
 
@@ -534,11 +537,7 @@ export default function CreativeStudio() {
             <div style={{ fontSize: 14 }}>All your generated content in one place — coming next</div>
           </div>}
 
-          {tab === 'credits' && <div style={{ textAlign: 'center', padding: 80, color: '#64748b' }}>
-            <div style={{ fontSize: 48, marginBottom: 16, opacity: .3 }}>💳</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>Buy Credits</div>
-            <div style={{ fontSize: 14 }}>Credit packs for all Creative Studio tools — coming next</div>
-          </div>}
+          {/* Credits tab navigates to /credit-matrix */}
 
         </div>
       </div>
