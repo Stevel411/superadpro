@@ -254,7 +254,7 @@ export default function CreativeStudio() {
     }
   }
 
-  // ── Stage is always fixed 16:9 container — video adapts inside ──
+  // ── Stage: fixed height container, inner canvas adapts to selected ratio ──
 
   // ══════════════════════════════════════════════════
   //  RENDER
@@ -286,10 +286,11 @@ export default function CreativeStudio() {
           {/* ═══ VIDEO CLIPS TAB ═══ */}
           {tab === 'video-clips' && <>
 
-            {/* Video Stage */}
+            {/* Video Stage — fixed height, inner canvas adapts to ratio */}
             <div className="cs-stage">
+              <div className={'cs-stage-inner r-' + ratio.replace(':', 'x')}>
               {videoUrl ? (
-                <video src={videoUrl} controls autoPlay loop style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 14 }}/>
+                <video src={videoUrl} controls autoPlay loop/>
               ) : generating ? (
                 <div className="cs-stage-empty">
                   <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
@@ -298,7 +299,7 @@ export default function CreativeStudio() {
                 </div>
               ) : mode === 'image' && imagePreview ? (
                 <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                  <img src={imagePreview} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 14 }}/>
+                  <img src={imagePreview} alt="Preview"/>
                   <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '48px 24px 24px', background: 'linear-gradient(transparent, rgba(0,0,0,.85))' }}>
                     <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>Your image</div>
                     <div style={{ fontSize: 13, color: 'rgba(255,255,255,.6)' }}>
@@ -313,6 +314,7 @@ export default function CreativeStudio() {
                   <small>Write a prompt, choose a model, and hit Create</small>
                 </div>
               )}
+              </div>
             </div>
 
             {/* Progress bar (when generating) */}

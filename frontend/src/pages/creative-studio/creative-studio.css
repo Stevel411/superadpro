@@ -28,9 +28,15 @@
 /* ── Main Content Area ── */
 .cs-main { background: #f1f5f9; padding: 28px; min-height: 500px; }
 
-/* ── Video Stage (hero) ── */
-.cs-stage { width: 100%; max-width: 900px; margin: 0 auto 20px; aspect-ratio: 16/9; background: #0a0f1e; border-radius: 14px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,.15); }
-.cs-stage video { max-width: 100%; max-height: 100%; object-fit: contain; display: block; border-radius: 14px; }
+/* ── Video Stage (hero) — fixed height, inner canvas adapts to ratio ── */
+.cs-stage { width: 100%; max-width: 900px; margin: 0 auto 20px; height: 500px; background: #0a0f1e; border-radius: 14px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; box-shadow: 0 12px 40px rgba(0,0,0,.15); }
+.cs-stage-inner { display: flex; align-items: center; justify-content: center; height: 100%; }
+.cs-stage-inner.r-16x9 { aspect-ratio: 16/9; height: 100%; }
+.cs-stage-inner.r-9x16 { aspect-ratio: 9/16; height: 100%; }
+.cs-stage-inner.r-1x1  { aspect-ratio: 1/1;  height: 100%; }
+.cs-stage-inner.r-4x3  { aspect-ratio: 4/3;  height: 100%; }
+.cs-stage-inner video { width: 100%; height: 100%; object-fit: contain; display: block; border-radius: 8px; }
+.cs-stage-inner img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 8px; }
 .cs-stage-empty { text-align: center; }
 .cs-stage-empty svg { width: 56px; height: 56px; opacity: .12; margin-bottom: 12px; }
 .cs-stage-empty p { font-size: 15px; color: rgba(255,255,255,.25); font-weight: 600; }
