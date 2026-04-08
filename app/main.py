@@ -19843,7 +19843,7 @@ async def sc_voiceover_preview(voice_id: str):
         return FileResponse(str(cache_file), media_type="audio/mpeg")
 
     # Generate preview
-    sample_text = "Welcome to SuperScene, the AI creative studio. This is a preview of how this voice sounds for your video narration."
+    sample_text = "Welcome to the Creative Studio by SuperAdPro. This is a preview of how this voice sounds for your video narration."
     try:
         communicate = edge_tts.Communicate(sample_text, voice_id)
         await communicate.save(str(cache_file))
