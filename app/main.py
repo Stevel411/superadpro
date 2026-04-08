@@ -19005,6 +19005,15 @@ def _get_or_create_sc_credits(user_id: int, db) -> "SuperSceneCredit":
     return row
 
 
+@app.get("/creative-studio")
+async def creative_studio_page(request: Request):
+    """Serve the Creative Studio page — handled by React router client-side."""
+    _idx = pathlib.Path("static/app/index.html")
+    if _idx.exists():
+        return HTMLResponse(_idx.read_text())
+    return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
+
+
 @app.get("/superscene")
 async def superscene_page(request: Request):
     """Serve the SuperScene page — handled by React router client-side."""
