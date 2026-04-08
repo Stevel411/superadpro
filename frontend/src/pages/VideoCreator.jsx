@@ -148,8 +148,6 @@ export function VideoCreatorContent() {
   var [script, setScript] = useState(null);
   var [uploadedImages, setUploadedImages] = useState([]);
   var [uploading, setUploading] = useState(false);
-  var [motionHover, setMotionHover] = useState(false);
-  var [standardHover, setStandardHover] = useState(false);
   var pollRef = useRef(null);
   var fileInputRef = useRef(null);
 
@@ -175,7 +173,7 @@ export function VideoCreatorContent() {
       uploaded_images: uploadedImages.map(function(img) { return img.url; }),
     }).then(function(r) {
       if (r.success && r.render_job_id) { setJobId(r.render_job_id); setSteps(r.steps || []); setScript(r.script || null); setStatus('Rendering video...'); startPolling(r.render_job_id); }
-      else if (r.success && !r.render_job_id) { setSteps(r.steps || []); setScript(r.script || null); setError('Pipeline completed but render failed to start. Steps: ' + JSON.stringify(r.steps || [])); setGenerating(false); }
+      else if (r.success && !r.render_job_id) { setSteps(r.steps || []); setScript(r.script || null); setError('Pipeline completed but render failed to start.'); setGenerating(false); }
       else { setError(r.error || r.detail || JSON.stringify(r)); setGenerating(false); }
     }).catch(function(e) { setError(e.message || 'Failed to generate video'); setGenerating(false); });
   }
@@ -185,252 +183,165 @@ export function VideoCreatorContent() {
     pollRef.current = setInterval(function() {
       apiGet('/api/video-creator/status/' + jid).then(function(r) {
         if (r.progress !== undefined) setProgress(r.progress);
-        if (r.status === 'completed') { clearInterval(pollRef.current); setStatus('Downloading video...'); downloadVideo(jid); }
+        if (r.status === 'completed') { clearInterval(pollRef.current); setStatus('Downloading video...'); fetchVideo(jid); }
         else if (r.status === 'failed') { clearInterval(pollRef.current); setError('Render failed: ' + (r.error || 'Unknown error')); setGenerating(false); }
       }).catch(function() {});
     }, 3000);
   }
 
-  function downloadVideo(jid) {
+  function fetchVideo(jid) {
     apiGet('/api/video-creator/download/' + jid).then(function(r) {
       if (r.success && r.url) { setVideoUrl(r.url); setStatus('Complete!'); setProgress(100); setGenerating(false); }
       else { setError(r.error || 'Failed to download video'); setGenerating(false); }
     }).catch(function(e) { setError(e.message || 'Failed to download'); setGenerating(false); });
   }
 
+  function dlVideo(url, filename) {
+    fetch(url).then(function(r) { return r.blob(); }).then(function(blob) {
+      var blobUrl = URL.createObjectURL(blob); var a = document.createElement('a'); a.href = blobUrl; a.download = filename || 'full-video-' + Date.now() + '.mp4';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(blobUrl);
+    }).catch(function() { window.open(url, '_blank'); });
+  }
+
   useEffect(function() { return function() { if (pollRef.current) clearInterval(pollRef.current); }; }, []);
+
+  var estCredits = videoMode === 'motion' ? Math.ceil(duration / 8) * 3 : Math.ceil(duration / 8);
 
   return (
     <>
+      {/* Hero Video Stage */}
+      <div className="cs-stage" style={{ background: '#0a0f1e', maxWidth: 900, margin: '0 auto 20px' }}>
+        {videoUrl ? (
+          <div className="cs-stage-inner r-16x9"><video src={videoUrl} controls autoPlay loop/></div>
+        ) : generating ? (
+          <div className="cs-stage-empty">
+            <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
+            <p style={{ color: 'rgba(255,255,255,.5)' }}>{status || 'Generating...'}</p>
+            <small style={{ color: 'rgba(255,255,255,.25)' }}>{progress}% complete</small>
+          </div>
+        ) : error ? (
+          <div style={{ textAlign: 'center', padding: 40 }}>
+            <div style={{ fontSize: 36, marginBottom: 12 }}>&#9888;&#65039;</div>
+            <p style={{ fontSize: 14, color: '#f87171', fontWeight: 600, marginBottom: 8 }}>Error</p>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,.5)', maxWidth: 400, margin: '0 auto', wordBreak: 'break-word' }}>{error}</p>
+            <button onClick={function() { setError(null); setGenerating(false); }} style={{ marginTop: 16, padding: '8px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,.2)', background: 'transparent', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Try again</button>
+          </div>
+        ) : (
+          <div className="cs-stage-empty">
+            <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 2v20M17 2v20M2 12h20"/></svg>
+            <p>Your full video will appear here</p>
+            <small>Describe what you want \u2014 AI handles script, visuals, voiceover, and editing</small>
+          </div>
+        )}
+      </div>
 
-      {/* Cobalt blue container — header + form seamless */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 440px', gap: 20 }}>
-        <div style={{ background: 'linear-gradient(180deg, #172554, #1e3a8a)', borderRadius: 14, padding: '24px' }}>
+      {generating && <div className="cs-progress-wrap" style={{ maxWidth: 900, margin: '-10px auto 20px' }}>
+        <div className="cs-progress"><div className="cs-progress-bar" style={{ width: progress + '%' }}/></div>
+        <div className="cs-progress-status">{status || 'Generating...'} \u2014 {progress}%</div>
+        {steps.length > 0 && <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 8, flexWrap: 'wrap' }}>
+          {steps.map(function(s, i) { var labels = { script: 'Script', images: 'Visuals', voiceover: 'Voiceover', render: 'Composing', video_clips: 'Motion clips' }; var done = s.status === 'ok'; return <span key={i} style={{ fontSize: 11, color: done ? '#22c55e' : '#94a3b8', fontWeight: 600 }}>{done ? '\u2713' : '\u25CB'} {labels[s.step] || s.step}</span>; })}
+        </div>}
+      </div>}
 
-          {/* Header */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(139,92,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Film size={24} color="#a78bfa" />
-            </div>
-            <div>
-              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#fff' }}>Turn any idea into a marketing video</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Just describe what you want — AI handles everything in minutes</div>
+      {videoUrl && <div className="cs-stage-actions" style={{ justifyContent: 'center', marginBottom: 24 }}>
+        <button className="cs-sa-btn" onClick={function() { dlVideo(videoUrl); }}>\u2B07 Download MP4</button>
+        <button className="cs-sa-btn" onClick={function() { setVideoUrl(null); setPrompt(''); setError(null); setSteps([]); setScript(null); setUploadedImages([]); }}>\u2715 Create another</button>
+      </div>}
+
+      <div className="cs-controls" style={{ maxWidth: 900, margin: '0 auto' }}>
+        <div className="cs-row">
+          <div className="cs-card">
+            <div className="cs-lbl">What's your video about?</div>
+            <textarea className="cs-ta" rows={4} value={prompt} onChange={function(e) { setPrompt(e.target.value); }}
+              placeholder="e.g. Create a 60-second video promoting my online fitness coaching business targeting women aged 25-40..."/>
+            <div className="cs-ta-foot">
+              <span className="cs-ta-ai">\u2726 Be specific for best results</span>
+              <span className="cs-ta-ct">{prompt.length}</span>
             </div>
           </div>
-
-          {/* Prompt — white card */}
-          <div
-            onMouseEnter={function(e) { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
-            onMouseLeave={function(e) { e.currentTarget.style.boxShadow = 'none'; }}
-            style={{ background: '#fff', borderRadius: 12, padding: '16px 18px', marginBottom: 14, transition: 'all 0.15s ease' }}>
-            <label style={{ fontSize: 13, fontWeight: 600, color: '#334155', display: 'block', marginBottom: 6 }}>What's your video about?</label>
-            <textarea value={prompt} onChange={function(e) { setPrompt(e.target.value); }}
-              placeholder="e.g. Create a 60-second video promoting my online fitness coaching business..."
-              rows={3} style={{ width: '100%', padding: '12px 14px', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box', color: '#0f172a', background: '#f8fafc' }} />
-          </div>
-
-          {/* Video mode — hero cards */}
-          <div style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.5)', marginBottom: 8 }}>Choose your video style</div>
-          <div style={{ display: 'flex', gap: 12, marginBottom: 14 }}>
-            {/* Motion Video */}
-            <div onClick={function() { setVideoMode('motion'); }}
-              onMouseEnter={function() { setMotionHover(true); }}
-              onMouseLeave={function() { setMotionHover(false); }}
-              style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, cursor: 'pointer', position: 'relative',
-                background: motionHover ? '#1e3a8a' : '#fff',
-                border: videoMode === 'motion' ? '2px solid #1e3a8a' : '2px solid rgba(255,255,255,0.1)',
-                boxShadow: motionHover ? '0 8px 24px rgba(0,0,0,0.2)' : videoMode === 'motion' ? 'none' : 'none',
-                transform: motionHover ? 'translateY(-2px)' : 'none',
-                transition: 'all 0.15s ease' }}>
-              <span style={{ position: 'absolute', top: 10, right: 10, fontSize: 9, fontWeight: 700, padding: '3px 10px', borderRadius: 8, background: 'linear-gradient(135deg, #f97316, #ea580c)', color: '#fff', letterSpacing: '0.04em' }}>PRO</span>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                <div style={{ width: 48, height: 48, borderRadius: 12, background: videoMode === 'motion' ? '#f3f0ff' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={videoMode === 'motion' ? '#8b5cf6' : '#94a3b8'} strokeWidth="1.5"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M10 9l5 3-5 3V9z" fill={videoMode === 'motion' ? '#8b5cf6' : '#cbd5e1'} stroke="none"/><path d="M2 8h2M20 8h2M2 16h2M20 16h2" strokeWidth="1.5"/></svg>
-                </div>
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: motionHover ? '#fff' : '#0f172a' }}>Motion video</div>
-                  <div style={{ fontSize: 12, color: motionHover ? 'rgba(255,255,255,0.7)' : '#94a3b8' }}>Real AI-generated cinematic clips</div>
-                </div>
+          <div className="cs-card">
+            <div className="cs-lbl">Video Type</div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <div className={'cs-model' + (videoMode === 'motion' ? ' sel' : '')} onClick={function() { setVideoMode('motion'); }}>
+                <div className="cs-model-dot" style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}>\u25B6</div>
+                <div style={{ flex: 1 }}><div className="cs-model-name">Motion Video</div><div className="cs-model-desc">Real AI cinematic clips per scene</div></div>
+                <div style={{ textAlign: 'right' }}><span className="cs-model-badge" style={{ background: '#fef3c7', color: '#92400e' }}>PRO</span><div className="cs-model-price">~{Math.ceil(duration / 8) * 3} credits</div></div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: motionHover ? '1px solid rgba(255,255,255,0.2)' : '1px solid #f1f5f9' }}>
-                <div style={{ fontSize: 11, color: motionHover ? 'rgba(255,255,255,0.7)' : '#94a3b8' }}>5-sec clips per scene via Kling AI</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: motionHover ? '#fff' : '#8b5cf6' }}>~{Math.ceil(duration / 8) * 3} credits</div>
+              <div className={'cs-model' + (videoMode === 'images' ? ' sel' : '')} onClick={function() { setVideoMode('images'); }}>
+                <div className="cs-model-dot" style={{ background: 'linear-gradient(135deg,#22c55e,#16a34a)' }}>\u25CE</div>
+                <div style={{ flex: 1 }}><div className="cs-model-name">Standard</div><div className="cs-model-desc">AI images with Ken Burns motion</div></div>
+                <div className="cs-model-price">~{Math.ceil(duration / 8)} credits</div>
               </div>
             </div>
-            {/* Standard */}
-            <div onClick={function() { setVideoMode('images'); }}
-              onMouseEnter={function() { setStandardHover(true); }}
-              onMouseLeave={function() { setStandardHover(false); }}
-              style={{ flex: 1, padding: '18px 18px 14px', borderRadius: 12, cursor: 'pointer',
-                background: standardHover ? '#1e3a8a' : '#fff',
-                border: videoMode === 'images' ? '2px solid #1e3a8a' : '2px solid rgba(255,255,255,0.1)',
-                boxShadow: standardHover ? '0 8px 24px rgba(0,0,0,0.2)' : videoMode === 'images' ? 'none' : 'none',
-                transform: standardHover ? 'translateY(-2px)' : 'none',
-                transition: 'all 0.15s ease' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-                <div style={{ width: 48, height: 48, borderRadius: 12, background: videoMode === 'images' ? '#f0fdf4' : '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke={videoMode === 'images' ? '#22c55e' : '#94a3b8'} strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5" fill={videoMode === 'images' ? '#22c55e' : '#cbd5e1'} stroke="none"/><path d="M21 15l-5-5L5 21"/></svg>
-                </div>
-                <div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: standardHover ? '#fff' : '#0f172a' }}>Standard</div>
-                  <div style={{ fontSize: 12, color: standardHover ? 'rgba(255,255,255,0.7)' : '#94a3b8' }}>AI images with Ken Burns motion</div>
-                </div>
+            <div style={{ marginTop: 12 }}>
+              <div className="cs-lbl">Your Images <span className="cs-lbl-badge">Optional</span></div>
+              <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} style={{ display: 'none' }}/>
+              <div className="cs-upload" style={{ padding: 14 }} onClick={function() { if (!uploading && fileInputRef.current) fileInputRef.current.click(); }}>
+                <div className="cs-upload-text">{uploading ? 'Uploading...' : uploadedImages.length > 0 ? uploadedImages.length + ' images uploaded \u2014 click to add more' : '+ Upload your own images (optional)'}</div>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: standardHover ? '1px solid rgba(255,255,255,0.2)' : '1px solid #f1f5f9' }}>
-                <div style={{ fontSize: 11, color: standardHover ? 'rgba(255,255,255,0.7)' : '#94a3b8' }}>Smooth zoom and pan effects</div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: standardHover ? '#fff' : '#22c55e' }}>~{Math.ceil(duration / 8)} credits</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Settings row — 3 col */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 12 }}>
-            <CompactDropdown label="Style" icon="layers" items={STYLES} value={style} onChange={setStyle} />
-            <CompactDropdown label="Duration" icon="timer" items={DURATIONS} value={duration} onChange={setDuration} />
-            <CompactDropdown label="Aspect ratio" icon="aspect" items={ASPECTS} value={aspect} onChange={setAspect} />
-          </div>
-
-          {/* Voiceover */}
-          <CompactDropdown label="Voiceover" icon="mic" items={VOICES} value={voice} onChange={setVoice} initialCount={6} openUp={true} />
-
-          {/* Image upload */}
-          <div style={{ marginTop: 12 }}>
-            <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} style={{ display: 'none' }} />
-            <div onClick={function() { if (!uploading) fileInputRef.current.click(); }}
-              onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; e.currentTarget.style.background = '#ede9fe'; e.currentTarget.style.borderColor = '#8b5cf6'; }}
-              onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.background = '#fff'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
-              style={{ background: '#fff', border: '1px dashed #cbd5e1', borderRadius: 10, padding: '14px 16px', textAlign: 'center', cursor: uploading ? 'default' : 'pointer', transition: 'all 0.15s ease' }}>
-              {uploading ? (
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                  <Loader2 size={16} color="#8b5cf6" style={{ animation: 'spin 1s linear infinite' }} />
-                  <span style={{ fontSize: 13, fontWeight: 600, color: '#64748b' }}>Uploading...</span>
-                </div>
-              ) : (
-                <div><Upload size={20} color="#94a3b8" style={{ marginBottom: 2 }} /><div style={{ fontSize: 13, fontWeight: 600, color: '#64748b' }}>Upload your own images (optional)</div><div style={{ fontSize: 11, color: '#94a3b8', marginTop: 1 }}>JPG, PNG, WebP</div></div>
-              )}
-            </div>
-            {uploadedImages.length > 0 && (
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8, marginTop: 10 }}>
+              {uploadedImages.length > 0 && <div style={{ display: 'flex', gap: 6, marginTop: 8, flexWrap: 'wrap' }}>
                 {uploadedImages.map(function(img, i) {
-                  return <div key={i} style={{ position: 'relative', width: 56, height: 56, borderRadius: 8, overflow: 'hidden', border: '2px solid rgba(255,255,255,0.2)' }}>
-                    <img src={img.url} alt={img.name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    <button onClick={function() { removeImage(i); }} style={{ position: 'absolute', top: 2, right: 2, width: 18, height: 18, borderRadius: '50%', border: 'none', background: 'rgba(0,0,0,0.6)', color: '#fff', fontSize: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 0 }}><X size={10} /></button>
+                  return <div key={i} style={{ position: 'relative', width: 48, height: 48, borderRadius: 6, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+                    <img src={img.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
+                    <div onClick={function() { removeImage(i); }} style={{ position: 'absolute', top: 2, right: 2, width: 16, height: 16, borderRadius: '50%', background: 'rgba(0,0,0,.6)', color: '#fff', fontSize: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>\u2715</div>
                   </div>;
                 })}
-              </div>
-            )}
-          </div>
-
-          {/* Generate button */}
-          <button onClick={generate} disabled={generating || !prompt.trim()}
-            onMouseEnter={function(e) { if (!generating && prompt.trim()) { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(139,92,246,0.45)'; } }}
-            onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = generating ? 'none' : '0 2px 12px rgba(139,92,246,0.35)'; }}
-            style={{ width: '100%', marginTop: 16, padding: '14px', borderRadius: 10, border: 'none',
-              background: generating ? '#94a3b8' : 'linear-gradient(135deg, #8b5cf6, #a78bfa)', color: '#fff', fontSize: 15, fontWeight: 700,
-              cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-              boxShadow: generating ? 'none' : '0 2px 12px rgba(139,92,246,0.35)', transition: 'all 0.2s ease' }}>
-            {generating ? <><Loader2 size={18} style={{ animation: 'spin 1s linear infinite' }} /> Generating...</> : <><Sparkles size={18} /> Generate video</>}
-          </button>
-          <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
-          <div style={{ marginTop: 8, fontSize: 12, color: 'rgba(255,255,255,0.4)', textAlign: 'center' }}>
-            Estimated: ~{videoMode === 'motion' ? Math.ceil(duration / 8) * 3 : Math.ceil(duration / 8)} credits
+              </div>}
+            </div>
           </div>
         </div>
 
-        {/* Right panel — video preview + help */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, alignSelf: 'start' }}>
-
-          {/* Video preview card */}
-          <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '20px', minHeight: 280 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 12, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Monitor size={14} color="#8b5cf6" /> Video Preview
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12, marginBottom: 16 }}>
+          <div className="cs-card">
+            <div className="cs-lbl">Style</div>
+            <div className="cs-pills" style={{ flexDirection: 'column' }}>
+              {STYLES.map(function(s) { return <button key={s.value} className={'cs-pill' + (style === s.value ? ' on' : '')} onClick={function() { setStyle(s.value); }} style={{ textAlign: 'left', padding: '8px 12px' }}>{s.label}</button>; })}
             </div>
-
-            {!generating && !videoUrl && !error && (
-              <div style={{ textAlign: 'center', padding: '50px 0' }}>
-                <div style={{ width: 72, height: 72, borderRadius: 16, background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
-                  <Film size={32} color="#e2e8f0" />
-                </div>
-                <div style={{ fontSize: 14, color: '#94a3b8' }}>Your video will appear here</div>
-                <div style={{ fontSize: 12, color: '#cbd5e1', marginTop: 4 }}>Enter a prompt and click Generate</div>
-              </div>
-            )}
-            {generating && (
-              <div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>{status}</div>
-                <div style={{ width: '100%', height: 8, background: '#e2e8f0', borderRadius: 4, marginBottom: 16 }}>
-                  <div style={{ width: progress + '%', height: '100%', background: 'linear-gradient(90deg, #8b5cf6, #a78bfa)', borderRadius: 4, transition: 'width 0.5s' }} />
-                </div>
-                <div style={{ fontSize: 13, color: '#64748b', marginBottom: 8 }}>{progress}% complete</div>
-                {steps.map(function(s, i) {
-                  var stepLabels = { script: 'Writing script', images: 'Generating visuals', voiceover: 'Recording voiceover', render: 'Composing video', video_clips: 'Creating motion clips' };
-                  var statusLabels = { ok: 'Done', queued: 'In progress', failed: 'Failed' };
-                  var stepLabel = stepLabels[s.step] || s.step;
-                  var statusLabel = statusLabels[s.status] || s.status;
-                  if (s.step === 'images' && s.generated !== undefined) statusLabel = s.generated + '/' + s.total + ' done';
-                  var ic = s.status === 'ok' || s.status === 'queued' ? <CheckCircle size={14} color="#22c55e" /> : <Clock size={14} color="#94a3b8" />;
-                  return <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, color: '#64748b', marginBottom: 4 }}>{ic} {stepLabel}: {statusLabel}</div>;
-                })}
-              </div>
-            )}
-            {error && (
-              <div style={{ padding: '16px', background: '#fef2f2', borderRadius: 10, border: '1px solid #fecaca' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#dc2626', fontSize: 14, fontWeight: 600, marginBottom: 4 }}><AlertCircle size={16} /> Error</div>
-                <div style={{ fontSize: 13, color: '#7f1d1d', wordBreak: 'break-word' }}>{error}</div>
-                <button onClick={function() { setError(null); setGenerating(false); }} style={{ marginTop: 10, padding: '6px 14px', borderRadius: 6, border: '1px solid #fecaca', background: '#fff', color: '#dc2626', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 4 }}><RefreshCw size={12} /> Try again</button>
-              </div>
-            )}
-            {videoUrl && (
-              <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}><CheckCircle size={16} color="#22c55e" /> Video ready!</div>
-                <div style={{ borderRadius: 10, overflow: 'hidden', background: '#000', marginBottom: 12 }}><video src={videoUrl} controls style={{ width: '100%', display: 'block' }} /></div>
-                <a href={videoUrl} download target="_blank" rel="noopener noreferrer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%', padding: '12px', borderRadius: 8, border: 'none', background: '#22c55e', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'none' }}><Download size={16} /> Download MP4</a>
-                <button onClick={function() { setVideoUrl(null); setPrompt(''); setError(null); setJobId(null); setSteps([]); setScript(null); setUploadedImages([]); }} style={{ width: '100%', marginTop: 8, padding: '10px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Create another video</button>
-              </div>
-            )}
-            {script && (
-              <div style={{ marginTop: 14, borderTop: '1px solid #f1f5f9', paddingTop: 14 }}>
-                <div style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6 }}>Script: {script.title}</div>
-                {(script.scenes || []).slice(0, 4).map(function(s, i) { return <div key={i} style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}><strong>Scene {s.scene_num}:</strong> {(s.narration || '').slice(0, 80)}...</div>; })}
-                {(script.scenes || []).length > 4 && <div style={{ fontSize: 12, color: '#94a3b8' }}>+ {script.scenes.length - 4} more scenes</div>}
-              </div>
-            )}
           </div>
-
-          {/* How it works */}
-          <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '18px 20px' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <HelpCircle size={14} color="#0ea5e9" /> How it works
+          <div className="cs-card">
+            <div className="cs-lbl">Duration</div>
+            <div className="cs-pills" style={{ flexDirection: 'column' }}>
+              {DURATIONS.map(function(d) { return <button key={d.value} className={'cs-pill' + (duration === d.value ? ' on' : '')} onClick={function() { setDuration(d.value); }} style={{ textAlign: 'left', padding: '8px 12px' }}>{d.label}</button>; })}
             </div>
-            {[
-              { num: '1', title: 'Describe your video', desc: 'Tell us what you want — your business, product, or message. Be as specific as you like.' },
-              { num: '2', title: 'Choose your style', desc: 'Pick Motion for cinematic AI clips or Standard for smooth Ken Burns image transitions.' },
-              { num: '3', title: 'AI creates everything', desc: 'Script, visuals, voiceover, and editing — all generated automatically in minutes.' },
-              { num: '4', title: 'Download & share', desc: 'Get your finished MP4 video ready to post on social media, your website, or ads.' },
-            ].map(function(step) {
-              return (
-                <div key={step.num} style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
-                  <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#f3f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 12, fontWeight: 700, color: '#8b5cf6' }}>{step.num}</div>
-                  <div>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{step.title}</div>
-                    <div style={{ fontSize: 12, color: '#94a3b8', lineHeight: 1.4 }}>{step.desc}</div>
-                  </div>
-                </div>
-              );
-            })}
           </div>
-
-          {/* Tips */}
-          <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: 14, padding: '14px 18px' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#92400e', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
-              <Sparkles size={14} color="#f59e0b" /> Pro tips
+          <div className="cs-card">
+            <div className="cs-lbl">Aspect Ratio</div>
+            <div className="cs-pills" style={{ flexDirection: 'column' }}>
+              {ASPECTS.map(function(a) { return <button key={a.value} className={'cs-pill' + (aspect === a.value ? ' on' : '')} onClick={function() { setAspect(a.value); }} style={{ textAlign: 'left', padding: '8px 12px' }}>{a.label} \u2014 {a.desc}</button>; })}
             </div>
-            <div style={{ fontSize: 12, color: '#78350f', lineHeight: 1.6 }}>
-              Be specific about your audience and goal. "60-second video for my fitness coaching business targeting women aged 25-40 who want to lose weight" works much better than "make a fitness video". Include your unique selling point for best results.
+          </div>
+          <div className="cs-card">
+            <div className="cs-lbl">Voiceover</div>
+            <div className="cs-model-list" style={{ maxHeight: 220 }}>
+              {VOICES.map(function(v) {
+                return <div key={v.value} className={'cs-model' + (voice === v.value ? ' sel' : '')} onClick={function() { setVoice(v.value); }} style={{ padding: '6px 10px' }}>
+                  <div className="cs-model-dot" style={{ background: v.color, width: 20, height: 20, fontSize: 9 }}>\uD83C\uDFA4</div>
+                  <div style={{ flex: 1 }}><div className="cs-model-name" style={{ fontSize: 12 }}>{v.label}</div></div>
+                  {v.tag && <span className="cs-model-badge" style={{ background: (v.tagColor || v.color) + '22', color: v.tagColor || v.color, fontSize: 7 }}>{v.tag}</span>}
+                </div>;
+              })}
             </div>
           </div>
         </div>
       </div>
+
+      <div className="cs-gen-row" style={{ maxWidth: 900, margin: '8px auto 0' }}>
+        <button className="cs-gen-btn" onClick={generate} disabled={!prompt.trim() || generating}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/></svg>
+          {generating ? 'Generating...' : !prompt.trim() ? 'Enter a prompt' : '\uD83C\uDFAC Generate Full Video'}
+        </button>
+        <div className="cs-gen-info"><b>~{estCredits} credits</b>{videoMode === 'motion' ? 'Motion mode' : 'Standard mode'}</div>
+      </div>
+
+      {script && <div style={{ maxWidth: 900, margin: '16px auto 0' }}>
+        <div className="cs-card">
+          <div className="cs-lbl">Generated Script: {script.title}</div>
+          {(script.scenes || []).slice(0, 4).map(function(s, i) { return <div key={i} style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}><strong>Scene {s.scene_num}:</strong> {(s.narration || '').slice(0, 100)}...</div>; })}
+          {(script.scenes || []).length > 4 && <div style={{ fontSize: 12, color: '#94a3b8' }}>+ {script.scenes.length - 4} more scenes</div>}
+        </div>
+      </div>}
+
+      <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
     </>
   );
 }
