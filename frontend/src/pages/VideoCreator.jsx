@@ -302,7 +302,7 @@ export function VideoCreatorContent() {
             <textarea className="cs-ta" rows={4} value={prompt} onChange={function(e) { setPrompt(e.target.value); }}
               placeholder="e.g. Create a 60-second video promoting my online fitness coaching business targeting women aged 25-40..."/>
             <div className="cs-ta-foot">
-              <span className="cs-ta-ai">\u2726 Be specific for best results</span>
+              <span className="cs-ta-ai">✦ Be specific for best results</span>
               <span className="cs-ta-ct">{prompt.length}</span>
             </div>
           </div>
@@ -351,7 +351,7 @@ export function VideoCreatorContent() {
       <div className="cs-gen-row" style={{ maxWidth: 900, margin: '8px auto 0' }}>
         <button className="cs-gen-btn" onClick={generate} disabled={!prompt.trim() || generating}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/></svg>
-          {generating ? 'Generating...' : !prompt.trim() ? 'Enter a prompt' : '\uD83C\uDFAC Generate Full Video'}
+          {generating ? 'Generating...' : !prompt.trim() ? 'Enter a prompt' : '🎬 Generate Full Video'}
         </button>
         <div className="cs-gen-info"><b>~{estCredits} credits</b>{videoMode === 'motion' ? 'Motion mode' : 'Standard mode'}</div>
       </div>
@@ -363,6 +363,9 @@ export function VideoCreatorContent() {
           {(script.scenes || []).length > 4 && <div style={{ fontSize: 12, color: '#94a3b8' }}>+ {script.scenes.length - 4} more scenes</div>}
         </div>
       </div>}
+
+      {/* Bottom spacer — gives dropdowns room to open without clipping */}
+      <div style={{ height: 200 }}/>
 
       <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
     </>
