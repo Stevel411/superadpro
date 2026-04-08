@@ -123,6 +123,67 @@ export default function CreativeStudio() {
   var [credits, setCredits] = useState(0);
   var [videos, setVideos] = useState([]);
 
+  // ── Images tab state ──
+  var [imgModel, setImgModel] = useState('gemini-free');
+  var [imgPrompt, setImgPrompt] = useState('');
+  var [imgNegPrompt, setImgNegPrompt] = useState('');
+  var [imgQuality, setImgQuality] = useState('1K');
+  var [imgSize, setImgSize] = useState('1:1');
+  var [imgBatch, setImgBatch] = useState(1);
+  var [imgGenerating, setImgGenerating] = useState(false);
+  var [imgResults, setImgResults] = useState([]);
+  var [imgProgress, setImgProgress] = useState(0);
+  var imgProgRef = useRef(null);
+  var imgPollRef = useRef(null);
+
+  var IMG_MODELS = [
+    { key: 'gemini-free',          name: 'Gemini AI',       desc: 'Fast AI image generation, 1K quality',  badge: 'NEW',  color: '#0ea5e9' },
+    { key: 'nano-banana-2',       name: 'Nano Banana 2',   desc: 'Best quality, text rendering',          badge: 'BEST', color: '#8b5cf6' },
+    { key: 'nano-banana-pro',     name: 'Nano Banana Pro',  desc: 'Photo-realistic, professional',        badge: '',     color: '#a78bfa' },
+    { key: 'nano-banana-2-beta',  name: 'NB2 Beta',        desc: 'Web search grounding',                  badge: 'NEW',  color: '#6366f1' },
+    { key: 'doubao-seedream-5.0-lite', name: 'Seedream 5.0', desc: 'ByteDance, flexible sizes',           badge: '',     color: '#f59e0b' },
+    { key: 'doubao-seedream-4.5', name: 'Seedream 4.5',    desc: 'Multi-image editing, 4K',               badge: 'NEW',  color: '#fb923c' },
+    { key: 'gpt-image-1',        name: 'GPT Image',       desc: 'OpenAI image generation',               badge: '',     color: '#22c55e' },
+    { key: 'gpt-image-1.5',      name: 'GPT Image 1.5',   desc: 'True-color precision',                  badge: 'NEW',  color: '#10b981' },
+    { key: 'grok-image',         name: 'Grok Imagine',    desc: 'Fast AI image generation',              badge: 'NEW',  color: '#ef4444' },
+    { key: 'grok-image-pro',     name: 'Grok Imagine Pro', desc: 'Premium quality images',               badge: 'PRO',  color: '#dc2626' },
+    { key: 'z-image-turbo',      name: 'Z Turbo',         desc: 'Ultra-fast ~3 seconds',                 badge: 'FAST', color: '#38bdf8' },
+  ];
+  var IMG_QUALITIES = ['1K', '2K', '4K'];
+  var IMG_CREDIT_MAP = { '1K': 1, '2K': 2, '4K': 4 };
+  var imgCost = (IMG_CREDIT_MAP[imgQuality] || 2) * imgBatch;
+  var selectedImgModel = IMG_MODELS.find(function(m) { return m.key === imgModel; }) || IMG_MODELS[0];
+
+  function generateImage() {
+    if (!imgPrompt.trim() || imgGenerating) return;
+    if (credits < imgCost) { alert('Need ' + imgCost + ' credits, have ' + credits); return; }
+    setImgGenerating(true); setImgResults([]); setImgProgress(0);
+    imgProgRef.current = setInterval(function() { setImgProgress(function(p) { return Math.min(p + Math.random() * 4 + 2, 90); }); }, 300);
+    var payload = { model: imgModel, prompt: imgPrompt, quality: imgQuality, size: imgSize, n: imgBatch };
+    if (imgNegPrompt.trim()) payload.negative_prompt = imgNegPrompt.trim();
+    if (seedLocked && seedValue !== null) payload.seed = seedValue;
+    fetch('/api/superscene/image/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(function(r) { return r.json(); }).then(function(data) {
+        if (data.credits_remaining !== undefined) setCredits(data.credits_remaining);
+        if (data.images && data.images.length > 0) {
+          setImgResults(data.images); setImgGenerating(false); setImgProgress(100); clearInterval(imgProgRef.current);
+        } else if (data.task_id) {
+          if (imgPollRef.current) clearInterval(imgPollRef.current);
+          imgPollRef.current = setInterval(function() {
+            fetch('/api/superscene/image/status/' + data.task_id).then(function(r) { return r.json(); }).then(function(pd) {
+              if (pd.status === 'completed' && pd.images && pd.images.length > 0) {
+                setImgResults(pd.images); setImgGenerating(false); setImgProgress(100); clearInterval(imgPollRef.current); clearInterval(imgProgRef.current);
+              } else if (pd.status === 'failed') {
+                setImgGenerating(false); clearInterval(imgPollRef.current); clearInterval(imgProgRef.current); alert('Image generation failed');
+              }
+            }).catch(function() {});
+          }, 2000);
+        } else {
+          alert(data.detail || data.error || 'Image generation failed'); setImgGenerating(false); clearInterval(imgProgRef.current);
+        }
+      }).catch(function(e) { alert(e.message || 'Network error'); setImgGenerating(false); clearInterval(imgProgRef.current); });
+  }
+
   var selectedModel = MODELS.find(function(m) { return m.key === model; }) || MODELS[2];
   var cost = calcCost(model, duration, genAudio);
 
@@ -163,7 +224,7 @@ export default function CreativeStudio() {
     }, 3000);
   }, []);
 
-  useEffect(function() { return function() { if (pollRef.current) clearInterval(pollRef.current); if (fakeProgRef.current) clearInterval(fakeProgRef.current); }; }, []);
+  useEffect(function() { return function() { if (pollRef.current) clearInterval(pollRef.current); if (fakeProgRef.current) clearInterval(fakeProgRef.current); if (imgProgRef.current) clearInterval(imgProgRef.current); if (imgPollRef.current) clearInterval(imgPollRef.current); }; }, []);
 
   // ── Image upload ──
   function handleImageSelect(e) {
@@ -510,11 +571,143 @@ export default function CreativeStudio() {
           {/* ═══ FULL VIDEO TAB — embedded Video Creator ═══ */}
           {tab === 'full-video' && <VideoCreatorContent />}
 
-          {tab === 'images' && <div style={{ textAlign: 'center', padding: 80, color: '#64748b' }}>
-            <div style={{ fontSize: 48, marginBottom: 16, opacity: .3 }}>🖼️</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>AI Image Generator</div>
-            <div style={{ fontSize: 14 }}>Generate stunning images with AI — coming next</div>
-          </div>}
+          {/* ═══ IMAGES TAB ═══ */}
+          {tab === 'images' && <>
+
+            {/* Image Preview Stage */}
+            <div className="cs-stage" style={{ background: imgResults.length > 0 ? 'transparent' : '#0a0f1e' }}>
+              {imgGenerating ? (
+                <div className="cs-stage-empty">
+                  <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
+                  <p style={{ color: 'rgba(255,255,255,.5)' }}>Generating {imgBatch > 1 ? imgBatch + ' images' : 'image'}...</p>
+                  <small style={{ color: 'rgba(255,255,255,.25)' }}>{selectedImgModel.name} · {imgQuality} · {imgSize}</small>
+                </div>
+              ) : imgResults.length > 0 ? (
+                <div style={{ display: 'flex', gap: 8, padding: 12, width: '100%', height: '100%', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' }}>
+                  {imgResults.map(function(url, i) {
+                    return <div key={i} style={{ flex: imgResults.length === 1 ? '1' : '0 0 48%', maxHeight: '100%', position: 'relative', borderRadius: 10, overflow: 'hidden' }}>
+                      <img src={url} alt={'Generated ' + (i+1)} style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', borderRadius: 10 }}/>
+                    </div>;
+                  })}
+                </div>
+              ) : (
+                <div className="cs-stage-empty">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
+                  <p>Your image will appear here</p>
+                  <small>Choose a model, describe what you want, and generate</small>
+                </div>
+              )}
+            </div>
+
+            {/* Progress bar */}
+            {imgGenerating && <div className="cs-progress-wrap">
+              <div className="cs-progress"><div className="cs-progress-bar" style={{ width: imgProgress + '%' }}/></div>
+              <div className="cs-progress-status">Generating... {Math.round(imgProgress)}%</div>
+            </div>}
+
+            {/* Image actions */}
+            {imgResults.length > 0 && !imgGenerating && <div className="cs-stage-actions">
+              {imgResults.map(function(url, i) {
+                return <button key={i} className="cs-sa-btn" onClick={function() { downloadVideo(url, 'creative-studio-image-' + Date.now() + '.png'); }}>⬇ {imgResults.length > 1 ? 'Image ' + (i+1) : 'Download'}</button>;
+              })}
+              <button className="cs-sa-btn" onClick={function() { setImgResults([]); }}>✕ Clear</button>
+            </div>}
+
+            {/* Controls */}
+            <div className="cs-controls">
+              <div className="cs-row">
+                {/* Prompt */}
+                <div className="cs-card">
+                  <div className="cs-lbl">Prompt</div>
+                  <textarea className="cs-ta" rows={4} value={imgPrompt} onChange={function(e) { setImgPrompt(e.target.value.slice(0, 2000)); }}
+                    placeholder="A professional product photo of wireless earbuds on a marble surface, soft studio lighting, shallow depth of field, 8K, photorealistic"/>
+                  <div className="cs-ta-foot">
+                    <span className="cs-ta-ai">✦ AI Builder</span>
+                    <span className="cs-ta-ct">{imgPrompt.length}/2000</span>
+                  </div>
+                </div>
+
+                {/* Model */}
+                <div className="cs-card">
+                  <div className="cs-lbl">AI Model</div>
+                  <div className="cs-model-list">
+                    {IMG_MODELS.map(function(m) {
+                      var isSel = imgModel === m.key;
+                      return <div key={m.key} className={'cs-model' + (isSel ? ' sel' : '')} onClick={function() { setImgModel(m.key); }}>
+                        <div className="cs-model-dot" style={{ background: 'linear-gradient(135deg,' + m.color + ',' + m.color + '88)' }}>✦</div>
+                        <div style={{ flex: 1 }}>
+                          <div className="cs-model-name">{m.name}</div>
+                          <div className="cs-model-desc">{m.desc}</div>
+                        </div>
+                        {m.badge && <span className="cs-model-badge" style={{ background: m.color + '22', color: m.color }}>{m.badge}</span>}
+                      </div>;
+                    })}
+                  </div>
+                </div>
+              </div>
+
+              <div className="cs-row-3">
+                {/* Aspect Ratio */}
+                <div className="cs-card">
+                  <div className="cs-lbl">Aspect Ratio</div>
+                  <div className="cs-pills">
+                    {['1:1', '16:9', '9:16', '4:3'].map(function(r) {
+                      return <button key={r} className={'cs-pill' + (imgSize === r ? ' on' : '')} onClick={function() { setImgSize(r); }}>{r}</button>;
+                    })}
+                  </div>
+                </div>
+
+                {/* Quality + Batch */}
+                <div className="cs-card">
+                  <div className="cs-lbl">Quality</div>
+                  <div className="cs-pills" style={{ marginBottom: 10 }}>
+                    {IMG_QUALITIES.map(function(q) {
+                      return <button key={q} className={'cs-pill' + (imgQuality === q ? ' on' : '')} onClick={function() { setImgQuality(q); }}>
+                        {q} <span style={{ fontSize: 10, opacity: .6, marginLeft: 4 }}>{IMG_CREDIT_MAP[q]}cr</span>
+                      </button>;
+                    })}
+                  </div>
+                  <div className="cs-lbl">Number of Images</div>
+                  <div className="cs-pills">
+                    {[1, 2, 4].map(function(n) {
+                      return <button key={n} className={'cs-pill' + (imgBatch === n ? ' on' : '')} onClick={function() { setImgBatch(n); }}>
+                        {n} {n === 1 ? 'image' : 'images'}
+                      </button>;
+                    })}
+                  </div>
+                </div>
+
+                {/* Negative Prompt + Seed */}
+                <div className="cs-card">
+                  <div className="cs-lbl">Negative Prompt <span className="cs-lbl-badge">Optional</span></div>
+                  <textarea className="cs-neg-ta" rows={2} value={imgNegPrompt} onChange={function(e) { setImgNegPrompt(e.target.value.slice(0, 500)); }}
+                    placeholder="blurry, low quality, watermark, text, distorted…"/>
+                  <div className="cs-lbl" style={{ marginTop: 10 }}>Seed</div>
+                  <div className="cs-seed">
+                    <div className={'cs-seed-lock' + (seedLocked ? ' on' : '')} onClick={toggleSeedLock}>{seedLocked ? '🔒' : '🔓'}</div>
+                    <div>
+                      <div className="cs-seed-lbl">Seed</div>
+                      <div className="cs-seed-val">{seedLocked ? seedValue : 'Random'}</div>
+                    </div>
+                    {seedLocked && <button className="cs-seed-refresh" onClick={function() { setSeedValue(Math.floor(Math.random() * 999999)); }}>↻</button>}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Generate */}
+            <div className="cs-gen-row">
+              <button className="cs-gen-btn" onClick={generateImage}
+                disabled={!imgPrompt.trim() || imgGenerating || credits < imgCost}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/></svg>
+                {imgGenerating ? 'Generating...' : !imgPrompt.trim() ? 'Enter a prompt' : credits < imgCost ? 'Not enough credits' : 'Generate ' + (imgBatch > 1 ? imgBatch + ' Images' : 'Image')}
+              </button>
+              <div className="cs-gen-info">
+                <b>{imgCost} credits</b>
+                {credits} remaining
+              </div>
+            </div>
+          </>}
 
           {tab === 'music' && <div style={{ textAlign: 'center', padding: 80, color: '#64748b' }}>
             <div style={{ fontSize: 48, marginBottom: 16, opacity: .3 }}>🎵</div>
