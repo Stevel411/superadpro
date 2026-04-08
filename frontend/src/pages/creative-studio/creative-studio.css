@@ -4,7 +4,7 @@
    ══════════════════════════════════════════════════════ */
 
 /* ── Variables ── */
-.cs-page { --cobalt: #172554; --cobalt2: #1e3a8a; --cobalt3: #0f1d3a; --cyan: #38bdf8; --purple: #8b5cf6; }
+.cs-page { --cobalt: #172554; --cobalt2: #1e3a8a; --cobalt3: #0f1d3a; --cyan: #38bdf8; --purple: #8b5cf6; overflow: visible; }
 
 /* ── Header ── */
 .cs-header { background: linear-gradient(135deg, var(--cobalt3), var(--cobalt), var(--cobalt2)); padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; }
@@ -26,7 +26,7 @@
 .cs-tab svg { width: 15px; height: 15px; }
 
 /* ── Main Content Area ── */
-.cs-main { background: #f1f5f9; padding: 28px; min-height: 500px; }
+.cs-main { background: #f1f5f9; padding: 28px; min-height: 500px; overflow: visible; }
 
 /* ── Video Stage (hero) — fixed height, inner canvas adapts to ratio ── */
 .cs-stage { width: 100%; max-width: 900px; margin: 0 auto 20px; height: 500px; background: transparent; border-radius: 14px; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
@@ -168,6 +168,10 @@
 .cs-matrix-banner-desc { font-size: 12px; color: #6b7280; line-height: 1.5; }
 .cs-matrix-banner-link { font-size: 13px; font-weight: 700; color: #8b5cf6; text-decoration: none; white-space: nowrap; padding: 8px 16px; border-radius: 8px; border: 1px solid #e9e5ff; background: #fff; transition: all .15s; flex-shrink: 0; }
 .cs-matrix-banner-link:hover { background: #8b5cf6; color: #fff; border-color: #8b5cf6; }
+
+/* ── Override AppLayout overflow restriction ── */
+.cs-page { overflow: visible !important; }
+.cs-page > * { overflow: visible !important; }
 
 /* ── Responsive ── */
 @media (max-width: 768px) {
