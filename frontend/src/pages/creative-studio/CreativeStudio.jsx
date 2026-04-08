@@ -263,26 +263,9 @@ export default function CreativeStudio() {
   return (
     <AppLayout title="Creative Studio" subtitle="Create videos, images, music and voiceovers with AI">
 
-      {/* ── Header ── */}
       <div className="cs-page">
-        <div className="cs-header">
-          <div>
-            <div className="cs-title">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="3" fill="#38bdf8" opacity=".3"/><polygon points="10,7 10,14 16,10.5" fill="#fff"/><rect x="6" y="19" width="12" height="2" rx="1" fill="#38bdf8" opacity=".5"/></svg>
-              Creative Studio
-            </div>
-            <div className="cs-subtitle">Create videos, images, music and voiceovers with AI</div>
-          </div>
-          <div className="cs-credits">
-            <div>
-              <div className="cs-credits-val">{credits}</div>
-              <div className="cs-credits-lbl">credits</div>
-            </div>
-            <button className="cs-credits-buy" onClick={function() { switchTab('credits'); }}>+ Buy</button>
-          </div>
-        </div>
 
-        {/* ── Tab Bar ── */}
+        {/* ── Tab Bar + Credits (Platform Tour style — directly under AppLayout) ── */}
         <div className="cs-tab-bar">
           <div className="cs-tabs">
             {TABS.map(function(t) {
@@ -290,6 +273,11 @@ export default function CreativeStudio() {
                 <TabIcon type={t.icon}/> {t.label}
               </button>;
             })}
+          </div>
+          <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, paddingLeft: 16 }}>
+            <span style={{ fontFamily: 'Sora, sans-serif', fontSize: 16, fontWeight: 800, color: '#4ade80' }}>{credits}</span>
+            <span style={{ fontSize: 11, color: '#94a3b8' }}>credits</span>
+            <button className="cs-credits-buy" onClick={function() { switchTab('credits'); }}>+ Buy</button>
           </div>
         </div>
 
