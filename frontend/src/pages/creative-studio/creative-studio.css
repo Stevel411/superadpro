@@ -35,7 +35,7 @@
 .cs-stage-inner.r-9x16 { aspect-ratio: 9/16; height: 100%; }
 .cs-stage-inner.r-1x1  { aspect-ratio: 1/1;  height: 100%; }
 .cs-stage-inner.r-4x3  { aspect-ratio: 4/3;  height: 100%; }
-.cs-stage-inner video { width: 100%; height: 100%; object-fit: contain; display: block; border-radius: 8px; }
+.cs-stage-inner video { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 8px; }
 .cs-stage-inner img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 8px; }
 .cs-stage-empty { text-align: center; }
 .cs-stage-empty svg { width: 56px; height: 56px; opacity: .12; margin-bottom: 12px; }
