@@ -403,6 +403,7 @@ def sanitize(v):          return bleach.clean(v.strip()) if v else ""
 
 # ── Dashboard context ─────────────────────────────────────────
 def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
+    from sqlalchemy import func
     stats = get_grid_stats(db, user.id)
 
     # Recent commissions (general)
