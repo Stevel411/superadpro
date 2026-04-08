@@ -478,6 +478,23 @@ export default function CreativeStudio() {
               </div>
             </div>}
 
+            {/* Credit Matrix Earnings Banner */}
+            <div className="cs-matrix-banner">
+              <div className="cs-matrix-banner-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                  <rect x="3" y="3" width="7" height="7" rx="1.5" fill="#8b5cf6"/>
+                  <rect x="14" y="3" width="7" height="7" rx="1.5" fill="#a78bfa"/>
+                  <rect x="3" y="14" width="7" height="7" rx="1.5" fill="#a78bfa"/>
+                  <rect x="14" y="14" width="7" height="7" rx="1.5" fill="#8b5cf6"/>
+                </svg>
+              </div>
+              <div className="cs-matrix-banner-text">
+                <div className="cs-matrix-banner-title">Earn commissions from every credit pack sale</div>
+                <div className="cs-matrix-banner-desc">When your referrals buy credits, they enter your 3×3 Credit Matrix — earning you level commissions and completion bonuses automatically.</div>
+              </div>
+              <a href="/credit-matrix" className="cs-matrix-banner-link">View Credit Matrix →</a>
+            </div>
+
           </>}
 
           {/* ═══ PLACEHOLDER TABS ═══ */}
