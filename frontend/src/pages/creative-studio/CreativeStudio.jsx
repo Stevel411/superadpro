@@ -254,8 +254,7 @@ export default function CreativeStudio() {
     }
   }
 
-  // ── Stage class based on ratio ──
-  var stageClass = 'cs-stage cs-stage-' + ratio.replace(':', 'x');
+  // ── Stage is always fixed 16:9 container — video adapts inside ──
 
   // ══════════════════════════════════════════════════
   //  RENDER
@@ -288,7 +287,7 @@ export default function CreativeStudio() {
           {tab === 'video-clips' && <>
 
             {/* Video Stage */}
-            <div className={stageClass}>
+            <div className="cs-stage">
               {videoUrl ? (
                 <video src={videoUrl} controls autoPlay loop style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 14 }}/>
               ) : generating ? (
