@@ -1,126 +1,84 @@
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
-import { Map, Share2, DollarSign, Link2, Users, Zap, Eye, Sparkles, Wallet, Heart, Play, ArrowRight, ChevronLeft, ChevronRight, Mic, MicOff, Volume2, X } from 'lucide-react';
+import { Map, Share2, DollarSign, Link2, Users, Zap, Eye, Sparkles, Wallet, Heart, Play, ArrowRight, ChevronLeft, ChevronRight, Mic, MicOff, Volume2, X, Wrench, Lock } from 'lucide-react';
 
 var SECTIONS = [
   {
     id: 'dashboard', num: '1', title: 'Your Dashboard', shortTitle: 'Dashboard',
-    desc: 'This is your home base. Every time you log in, you land here. You can see your earnings, your network size, and your referral link. The 6 Quick Action cards guide you to the most important areas of the platform.',
+    desc: 'This is your home base. Every time you log in, you land here. You can see your earnings across all income streams, your network size, and your referral link. The Quick Action cards guide you to the most important areas of the platform.',
     tips: [
-      'Your referral link is always visible at the top — copy and share it anytime',
-      'The 3 income cards show your earnings across Membership, Grid, and Campaigns',
-      'Quick Action cards change based on your membership level',
+      'Your referral link is always visible at the top — copy and share it anywhere',
+      'The 3 income cards show Membership, Creative Studio, and Campaign earnings',
+      'Quick Action cards give you fast access to the most important tools',
+      'Your balance is shown at the top right — click it to go to your Wallet',
     ],
     link: '/dashboard', linkLabel: 'Go to Dashboard',
     Icon: Map, color: '#6366f1', bg: '#eef2ff',
   },
   {
-    id: 'referral', num: '2', title: 'Your Referral Link', shortTitle: 'Referral Link',
-    desc: 'Your referral link is how you earn. When someone signs up through your link, you earn 50% of their membership fee every month. Share it on social media, in messages, on your LinkHub page — everywhere.',
+    id: 'howyouearn', num: '2', title: 'How You Earn', shortTitle: 'How You Earn',
+    desc: 'SuperAdPro has multiple income streams designed to reward you for building a team and using the platform. Everything flows through a simple principle: refer members, build your network, and earn commissions on their activity. The more active your team, the more you earn.',
     tips: [
-      'Your link looks like: www.superadpro.com/ref/YourUsername',
-      'You earn $10 per Basic referral and $17.50 per Pro referral — every month',
-      'Use the Social Share tool to generate AI-written posts with your link embedded',
-    ],
-    link: '/affiliate', linkLabel: 'Go to Social Share',
-    Icon: Share2, color: '#0ea5e9', bg: '#e0f2fe',
-  },
-  {
-    id: 'compplan', num: '3', title: 'Compensation Plan', shortTitle: 'Comp Plan',
-    desc: 'SuperAdPro has 5 income streams and pays out 95% of all revenue to members. The Compensation Plan page breaks down exactly how each stream works, with interactive calculators so you can project your earnings.',
-    tips: [
-      'Membership referrals — 50% recurring commission',
-      '8x8 Campaign Grid — 40% direct + 6.25% across 8 levels + completion bonus',
-      'SuperScene sponsor earnings — $0.025 per credit your referrals use',
-      'Course marketplace and Pay It Forward complete the 5 streams',
+      'Membership Referrals — earn 50% recurring ($10 per Basic, $17.50 per Pro) every month your referrals stay active',
+      'Campaign Tiers — activate a tier ($20\u2013$1,000) to unlock the 8\xd78 Income Grid with 40% direct + uni-level commissions across 8 levels',
+      'Credit Matrix — your referrals buy Creative Studio credit packs, they enter your 3\xd73 matrix. Earn level commissions + completion bonuses on every cycle',
+      'Course Marketplace (coming soon) — sell digital courses with 100% commission and a pass-up system that creates infinite-depth earning',
+      'Visit the Comp Plan page for interactive calculators and the AI assistant that can answer any earnings question',
     ],
     link: '/compensation-plan', linkLabel: 'View Comp Plan',
     Icon: DollarSign, color: '#16a34a', bg: '#dcfce7',
   },
   {
-    id: 'linkhub', num: '4', title: 'LinkHub — Your Branded Page', shortTitle: 'LinkHub',
-    desc: 'LinkHub is your personal link-in-bio page, similar to Linktree or Stan Store. Add your photo, bio, social links, and custom buttons. Share one link that sends people to everything you offer. It works as a mini website for your personal brand.',
+    id: 'watchearn', num: '3', title: 'Watch To Earn', shortTitle: 'Watch To Earn',
+    desc: 'Watch To Earn is the engine that powers the entire campaign system. Members with active Campaign Tiers watch short video campaigns daily. This delivers real views to campaign holders while keeping your commission qualification active. Think of it as your daily check-in — a few minutes of watching keeps your earning machine running.',
     tips: [
-      'Add your photo and a compelling bio',
-      'Add links to your social profiles, products, or any URL',
-      'Drag and drop to reorder your links',
-      'Choose from multiple themes to match your brand',
-    ],
-    link: '/linkhub', linkLabel: 'Build Your LinkHub',
-    Icon: Link2, color: '#8b5cf6', bg: '#ede9fe',
-  },
-  {
-    id: 'socialshare', num: '5', title: 'Social Share', shortTitle: 'Social Share',
-    desc: 'The AI Social Share tool generates platform-specific posts for Facebook, X, Instagram, LinkedIn, TikTok, YouTube, WhatsApp, Telegram, and more. Choose a platform, pick a tone, and the AI writes a ready-to-post message with your referral link embedded.',
-    tips: [
-      'Choose from 12 social platforms',
-      '5 tone options: Professional, Casual, Hype, Story, Educational',
-      'Add your niche for more targeted content',
-      'One-click copy or share directly to the platform',
-    ],
-    link: '/affiliate', linkLabel: 'Generate Posts',
-    Icon: Users, color: '#ec4899', bg: '#fce7f3',
-  },
-  {
-    id: 'tiers', num: '6', title: 'Campaign Tiers', shortTitle: 'Tiers',
-    desc: 'Campaign Tiers are how you unlock the 8x8 Income Grid — the biggest earning potential on the platform. Choose a tier from T1 ($20) to T8 ($1,000). Each tier activates a grid that fills with members from your network. Higher tiers mean bigger commissions and completion bonuses.',
-    tips: [
-      '8 tiers from $20 to $1,000',
-      'Each tier creates an 8x8 grid (64 positions)',
-      'You earn 40% direct, 6.25% from 8 levels, plus a completion bonus',
-      'Grid commissions go to your Campaign Wallet',
-    ],
-    link: '/campaign-tiers', linkLabel: 'View Campaign Tiers',
-    Icon: Zap, color: '#f59e0b', bg: '#fef3c7', pro: true,
-  },
-  {
-    id: 'watch', num: '7', title: 'Watch to Earn', shortTitle: 'Watch',
-    desc: 'Watch to Earn is the engine that keeps the platform running. Members watch short campaign videos daily to maintain their commission qualification. This delivers real views to advertisers while keeping your earning status active. Think of it as your daily check-in.',
-    tips: [
-      'Watch your daily quota of videos to stay qualified',
-      'Missing your quota pauses Campaign Wallet withdrawals',
-      'Videos are short — usually 30-60 seconds each',
-      'Your watch progress is tracked on the dashboard',
+      'Activate a Campaign Tier first ($20\u2013$1,000) to enter the 8\xd78 Income Grid',
+      'Watch your daily video quota to stay qualified for Campaign Wallet withdrawals',
+      'Higher tiers unlock more daily views and bigger grid completion bonuses',
+      'Your grid fills with members from your network — when all 64 positions fill, you earn a bonus and a new grid starts',
+      'Missing your daily quota pauses Campaign Wallet withdrawals (not your Affiliate Wallet)',
     ],
     link: '/watch', linkLabel: 'Start Watching',
-    Icon: Eye, color: '#7c3aed', bg: '#f5f3ff', pro: true,
+    Icon: Eye, color: '#f59e0b', bg: '#fef3c7',
   },
   {
-    id: 'superscene', num: '8', title: 'SuperScene — AI Studio', shortTitle: 'SuperScene',
-    desc: 'SuperScene is your all-in-one AI content creation studio. Generate professional videos, images, music, voiceovers, and captions — all powered by the latest AI models. Use it to create marketing content, social media posts, pitch videos, and more. No design skills needed.',
+    id: 'basictools', num: '4', title: 'Your Basic Tools', shortTitle: 'Basic Tools',
+    desc: 'Every member gets access to a powerful suite of tools included with their membership. These tools work for any business or niche — not just SuperAdPro promotion. Use them to grow your personal brand, create content, track your marketing, and generate AI-powered creative assets.',
     tips: [
-      '10 tabs: Create, Studio, Images, Captions, Music, Voiceover, Editor, Gallery, Packs, AI Builder',
-      'Video models include Kling 3.0, Sora 2 Pro, Veo 3.1, and more',
-      'Credits never expire — buy packs from $8 to $99',
-      'Your sponsor earns $0.025 per credit you use — passive income for them',
+      'LinkHub — your personal link-in-bio page (like Linktree). Add your photo, bio, social links, and custom buttons. Share one link everywhere',
+      'Link Tools — track clicks on any URL, create link rotators, generate QR codes, and view detailed analytics on all your links',
+      'Content Creator — AI-powered writing tool that generates social media posts, captions, hashtags, and marketing copy for any platform',
+      'Creative Studio — the full AI creative suite: Video Clips (9 AI models), Full Video production, Images (11 models), Music (Suno AI), Voiceover (32 voices), Lip Sync, Gallery, and Credit Packs',
     ],
-    link: '/superscene', linkLabel: 'Open SuperScene',
-    Icon: Sparkles, color: '#0891b2', bg: '#ecfeff',
+    link: '/creative-studio', linkLabel: 'Open Creative Studio',
+    Icon: Wrench, color: '#0ea5e9', bg: '#e0f2fe',
   },
   {
-    id: 'wallet', num: '9', title: 'Your Wallet', shortTitle: 'Wallet',
-    desc: 'You have two wallets. Your Affiliate Wallet holds membership referral commissions and SuperScene sponsor earnings — you can withdraw these anytime. Your Campaign Wallet holds grid commissions — these require an active tier and daily watch quota to withdraw.',
+    id: 'protools', num: '5', title: 'Pro Tools', shortTitle: 'Pro Tools',
+    desc: 'Upgrade to Pro ($35/month) to unlock the advanced tools designed for serious marketers. These give you a complete business-in-a-box: build landing pages, create presentations, automate email follow-ups, and let AI build your entire sales pipeline. Pro members also earn higher referral commissions ($17.50 vs $10 per referral).',
     tips: [
-      'Affiliate Wallet — always withdrawable, no conditions',
-      'Campaign Wallet — requires active tier + daily watch quota',
-      'View your complete transaction history in one place',
-      'Set up your crypto wallet in the Crypto Guide (under Account)',
+      'SuperPages — drag-and-drop landing page builder with 24 block types, gradient builder, responsive preview, and 8 pre-built niche templates',
+      'SuperDeck — AI presentation builder. Create professional slide decks with shapes, text, images, and custom styling',
+      'AutoResponder (MyLeads) — CRM with up to 5,000 leads, automated email sequences via Brevo, visual timeline, and Pay It Forward integration',
+      'SuperSeller — AI Sales Autopilot that generates your entire marketing campaign: landing page, 30 social posts, 5-email autoresponder, 3 video scripts, ad copy, and strategy doc',
+    ],
+    link: '/upgrade', linkLabel: 'Upgrade to Pro',
+    Icon: Lock, color: '#8b5cf6', bg: '#ede9fe',
+    pro: true,
+  },
+  {
+    id: 'wallet', num: '6', title: 'Your Wallet & Pay It Forward', shortTitle: 'Wallet',
+    desc: 'You have two wallets. Your Affiliate Wallet holds membership referral commissions and Creative Studio Credit Matrix earnings — withdraw these anytime with no conditions. Your Campaign Wallet holds grid and watch commissions — these require an active Campaign Tier and daily watch quota. Pay It Forward lets you gift memberships to grow your team organically.',
+    tips: [
+      'Affiliate Wallet — always withdrawable, no conditions attached',
+      'Campaign Wallet — requires active Campaign Tier + daily watch quota to withdraw',
+      'Minimum withdrawal is $10 with a $1 fee — paid in USDT cryptocurrency',
+      'Set up MetaMask or Coinbase Wallet using the Crypto Guide (under Account)',
+      'Pay It Forward — gift a $20 Basic membership to anyone. You become their sponsor and earn commissions on everything they do. When they earn $20+, they are prompted to gift someone else — creating a viral growth chain',
     ],
     link: '/wallet', linkLabel: 'View Your Wallet',
     Icon: Wallet, color: '#059669', bg: '#d1fae5',
-  },
-  {
-    id: 'pif', num: '10', title: 'Pay It Forward', shortTitle: 'Pay It Forward',
-    desc: 'Pay It Forward lets you gift a Basic membership to someone for $20 from your wallet or with crypto. You become their sponsor and earn commissions on everything they do. When they earn $20 or more, they are prompted to pay it forward to someone else — creating an organic growth chain.',
-    tips: [
-      'Gift costs $20 — pay from wallet or with crypto',
-      'You become the sponsor of the gifted member',
-      'You earn referral commissions on their activity',
-      'Creates a viral growth loop — they gift someone, who gifts someone...',
-    ],
-    link: '/pay-it-forward', linkLabel: 'Gift a Membership',
-    Icon: Heart, color: '#db2777', bg: '#fce7f3',
   },
 ];
 
@@ -165,7 +123,7 @@ export default function PlatformTour() {
               <span style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 800, color: '#0f172a' }}>{s.title}</span>
               {s.pro && <span style={{ padding: '3px 10px', borderRadius: 6, background: 'rgba(139,92,246,.1)', fontSize: 12, fontWeight: 700, color: '#7c3aed' }}>Pro</span>}
             </div>
-            <div style={{ fontSize: 14, color: '#94a3b8', marginTop: 2 }}>Step {s.num} of 10</div>
+            <div style={{ fontSize: 14, color: '#94a3b8', marginTop: 2 }}>Step {s.num} of 6</div>
           </div>
         </div>
 
