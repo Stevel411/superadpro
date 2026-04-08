@@ -238,19 +238,47 @@ export default function CreativeStudio() {
 
   // ── Voiceover + Lip Sync tab state ──
   var VO_VOICES = [
-    { id: 'en-US-GuyNeural', name: 'Guy', gender: 'M', accent: 'US', desc: 'Warm, conversational narrator' },
-    { id: 'en-US-JennyNeural', name: 'Jenny', gender: 'F', accent: 'US', desc: 'Friendly, clear corporate voice' },
-    { id: 'en-US-AriaNeural', name: 'Aria', gender: 'F', accent: 'US', desc: 'Professional, smooth delivery' },
-    { id: 'en-US-DavisNeural', name: 'Davis', gender: 'M', accent: 'US', desc: 'Deep, authoritative tone' },
-    { id: 'en-US-JaneNeural', name: 'Jane', gender: 'F', accent: 'US', desc: 'Calm, documentary style' },
-    { id: 'en-US-JasonNeural', name: 'Jason', gender: 'M', accent: 'US', desc: 'Energetic, upbeat presenter' },
-    { id: 'en-GB-RyanNeural', name: 'Ryan', gender: 'M', accent: 'UK', desc: 'Polished, BBC-style narrator' },
-    { id: 'en-GB-SoniaNeural', name: 'Sonia', gender: 'F', accent: 'UK', desc: 'Elegant, refined' },
-    { id: 'en-GB-ThomasNeural', name: 'Thomas', gender: 'M', accent: 'UK', desc: 'Articulate, distinguished' },
-    { id: 'en-GB-LibbyNeural', name: 'Libby', gender: 'F', accent: 'UK', desc: 'Young, bright' },
-    { id: 'en-AU-WilliamNeural', name: 'William', gender: 'M', accent: 'AU', desc: 'Relaxed, natural storyteller' },
-    { id: 'en-AU-NatashaNeural', name: 'Natasha', gender: 'F', accent: 'AU', desc: 'Bright, engaging presenter' },
+    // American
+    { id: 'en-US-GuyNeural', name: 'Guy', gender: 'M', accent: 'US', cat: 'American', desc: 'Warm, conversational narrator' },
+    { id: 'en-US-JennyNeural', name: 'Jenny', gender: 'F', accent: 'US', cat: 'American', desc: 'Friendly, clear corporate voice' },
+    { id: 'en-US-AriaNeural', name: 'Aria', gender: 'F', accent: 'US', cat: 'American', desc: 'Professional, smooth delivery' },
+    { id: 'en-US-DavisNeural', name: 'Davis', gender: 'M', accent: 'US', cat: 'American', desc: 'Deep, authoritative tone' },
+    { id: 'en-US-JaneNeural', name: 'Jane', gender: 'F', accent: 'US', cat: 'American', desc: 'Calm, documentary style' },
+    { id: 'en-US-JasonNeural', name: 'Jason', gender: 'M', accent: 'US', cat: 'American', desc: 'Energetic, upbeat presenter' },
+    { id: 'en-US-TonyNeural', name: 'Tony', gender: 'M', accent: 'US', cat: 'American', desc: 'Casual, friendly guy-next-door' },
+    { id: 'en-US-NancyNeural', name: 'Nancy', gender: 'F', accent: 'US', cat: 'American', desc: 'Warm, mature professional' },
+    { id: 'en-US-SaraNeural', name: 'Sara', gender: 'F', accent: 'US', cat: 'American', desc: 'Young, cheerful — lifestyle' },
+    { id: 'en-US-AndrewNeural', name: 'Andrew', gender: 'M', accent: 'US', cat: 'American', desc: 'Confident, polished — corporate' },
+    { id: 'en-US-EmmaNeural', name: 'Emma', gender: 'F', accent: 'US', cat: 'American', desc: 'Natural, versatile — any content' },
+    { id: 'en-US-BrianNeural', name: 'Brian', gender: 'M', accent: 'US', cat: 'American', desc: 'Strong, cinematic narrator' },
+    { id: 'en-US-MichelleNeural', name: 'Michelle', gender: 'F', accent: 'US', cat: 'American', desc: 'Engaging, warm storyteller' },
+    { id: 'en-US-RogerNeural', name: 'Roger', gender: 'M', accent: 'US', cat: 'American', desc: 'Mature, commanding — leadership' },
+    { id: 'en-US-SteffanNeural', name: 'Steffan', gender: 'M', accent: 'US', cat: 'American', desc: 'Modern, approachable — podcasts' },
+    { id: 'en-US-ChristopherNeural', name: 'Christopher', gender: 'M', accent: 'US', cat: 'American', desc: 'Reliable, steady news anchor' },
+    { id: 'en-US-EricNeural', name: 'Eric', gender: 'M', accent: 'US', cat: 'American', desc: 'Clear, precise — tutorials' },
+    // British
+    { id: 'en-GB-RyanNeural', name: 'Ryan', gender: 'M', accent: 'UK', cat: 'British', desc: 'Polished, BBC-style narrator' },
+    { id: 'en-GB-SoniaNeural', name: 'Sonia', gender: 'F', accent: 'UK', cat: 'British', desc: 'Elegant, refined — luxury' },
+    { id: 'en-GB-ThomasNeural', name: 'Thomas', gender: 'M', accent: 'UK', cat: 'British', desc: 'Articulate, distinguished' },
+    { id: 'en-GB-LibbyNeural', name: 'Libby', gender: 'F', accent: 'UK', cat: 'British', desc: 'Young, bright — modern British' },
+    { id: 'en-GB-MaisieNeural', name: 'Maisie', gender: 'F', accent: 'UK', cat: 'British', desc: 'Soft, gentle — audiobooks' },
+    // Australian
+    { id: 'en-AU-WilliamNeural', name: 'William', gender: 'M', accent: 'AU', cat: 'Australian', desc: 'Relaxed, natural storyteller' },
+    { id: 'en-AU-NatashaNeural', name: 'Natasha', gender: 'F', accent: 'AU', cat: 'Australian', desc: 'Bright, engaging presenter' },
+    // Indian
+    { id: 'en-IN-NeerjaNeural', name: 'Neerja', gender: 'F', accent: 'IN', cat: 'Indian', desc: 'Clear, professional — tech' },
+    { id: 'en-IN-PrabhatNeural', name: 'Prabhat', gender: 'M', accent: 'IN', cat: 'Indian', desc: 'Articulate, formal — corporate' },
+    // Irish
+    { id: 'en-IE-ConnorNeural', name: 'Connor', gender: 'M', accent: 'IE', cat: 'Irish', desc: 'Warm Irish charm — storytelling' },
+    { id: 'en-IE-EmilyNeural', name: 'Emily', gender: 'F', accent: 'IE', cat: 'Irish', desc: 'Friendly, approachable Irish' },
+    // South African
+    { id: 'en-ZA-LeahNeural', name: 'Leah', gender: 'F', accent: 'ZA', cat: 'S. African', desc: 'Distinctive, clear SA tone' },
+    { id: 'en-ZA-LukeNeural', name: 'Luke', gender: 'M', accent: 'ZA', cat: 'S. African', desc: 'Strong, confident SA voice' },
+    // Canadian
+    { id: 'en-CA-ClaraNeural', name: 'Clara', gender: 'F', accent: 'CA', cat: 'Canadian', desc: 'Neutral, crisp — clean read' },
+    { id: 'en-CA-LiamNeural', name: 'Liam', gender: 'M', accent: 'CA', cat: 'Canadian', desc: 'Friendly, approachable' },
   ];
+  var VO_CATEGORIES = ['American', 'British', 'Australian', 'Indian', 'Irish', 'S. African', 'Canadian'];
   var [voText, setVoText] = useState('');
   var [voVoice, setVoVoice] = useState('en-US-GuyNeural');
   var [voGenerating, setVoGenerating] = useState(false);
@@ -259,10 +287,22 @@ export default function CreativeStudio() {
   var [voLipSyncing, setVoLipSyncing] = useState(false);
   var [voLipSyncUrl, setVoLipSyncUrl] = useState(null);
   var [voLipSyncProgress, setVoLipSyncProgress] = useState(0);
+  var [voPreviewPlaying, setVoPreviewPlaying] = useState(null);
+  var voPreviewRef = useRef(null);
   var voImageInputRef = useRef(null);
   var voLipPollRef = useRef(null);
   var voLipProgRef = useRef(null);
   var selectedVoice = VO_VOICES.find(function(v) { return v.id === voVoice; }) || VO_VOICES[0];
+
+  function previewVoice(voiceId) {
+    if (voPreviewPlaying === voiceId && voPreviewRef.current) {
+      voPreviewRef.current.pause(); voPreviewRef.current = null; setVoPreviewPlaying(null); return;
+    }
+    if (voPreviewRef.current) voPreviewRef.current.pause();
+    var a = new Audio('/api/superscene/voiceover/preview/' + voiceId);
+    a.onended = function() { setVoPreviewPlaying(null); };
+    a.play(); voPreviewRef.current = a; setVoPreviewPlaying(voiceId);
+  }
 
   function generateVoiceover() {
     if (!voText.trim() || voGenerating) return;
@@ -423,10 +463,20 @@ export default function CreativeStudio() {
 
   // ── Download helper ──
   function downloadVideo(url, filename) {
-    var a = document.createElement('a');
-    a.href = url;
-    a.download = filename || 'creative-studio-' + Date.now() + '.mp4';
-    a.click();
+    var fname = filename || 'creative-studio-' + Date.now() + '.mp4';
+    fetch(url).then(function(r) { return r.blob(); }).then(function(blob) {
+      var blobUrl = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = fname;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(blobUrl);
+    }).catch(function() {
+      // Fallback — open in new tab
+      window.open(url, '_blank');
+    });
   }
 
   // ── Model change handler ──
@@ -937,16 +987,27 @@ export default function CreativeStudio() {
                   <div className="cs-ta-foot"><span/><span className="cs-ta-ct">{voText.length}/5000</span></div>
                 </div>
                 <div className="cs-card">
-                  <div className="cs-lbl">② Voice</div>
-                  <div className="cs-model-list">
-                    {VO_VOICES.map(function(v) {
-                      var isSel = voVoice === v.id;
-                      return <div key={v.id} className={'cs-model' + (isSel ? ' sel' : '')} onClick={function() { setVoVoice(v.id); }}>
-                        <div className="cs-model-dot" style={{ background: v.gender === 'M' ? 'linear-gradient(135deg,#3b82f6,#1d4ed8)' : 'linear-gradient(135deg,#f472b6,#ec4899)' }}>{v.gender === 'M' ? '♂' : '♀'}</div>
-                        <div style={{ flex: 1 }}>
-                          <div className="cs-model-name">{v.name}</div>
-                          <div className="cs-model-desc">{v.accent} · {v.desc}</div>
-                        </div>
+                  <div className="cs-lbl">② Voice <span className="cs-lbl-badge">{VO_VOICES.length} voices</span></div>
+                  <div className="cs-model-list" style={{ maxHeight: 340 }}>
+                    {VO_CATEGORIES.map(function(cat) {
+                      var catVoices = VO_VOICES.filter(function(v) { return v.cat === cat; });
+                      if (!catVoices.length) return null;
+                      return <div key={cat}>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.8px', padding: '8px 0 4px', borderTop: cat !== 'American' ? '1px solid #f1f5f9' : 'none', marginTop: cat !== 'American' ? 4 : 0 }}>{cat}</div>
+                        {catVoices.map(function(v) {
+                          var isSel = voVoice === v.id;
+                          var isPlaying = voPreviewPlaying === v.id;
+                          return <div key={v.id} className={'cs-model' + (isSel ? ' sel' : '')} onClick={function() { setVoVoice(v.id); }}>
+                            <div className="cs-model-dot" style={{ background: v.gender === 'M' ? 'linear-gradient(135deg,#3b82f6,#1d4ed8)' : 'linear-gradient(135deg,#f472b6,#ec4899)' }}>{v.gender === 'M' ? '♂' : '♀'}</div>
+                            <div style={{ flex: 1 }}>
+                              <div className="cs-model-name">{v.name}</div>
+                              <div className="cs-model-desc">{v.desc}</div>
+                            </div>
+                            <div onClick={function(e) { e.stopPropagation(); previewVoice(v.id); }}
+                              style={{ width: 28, height: 28, borderRadius: 7, background: isPlaying ? '#ede9fe' : '#f8fafc', border: '1px solid ' + (isPlaying ? '#8b5cf6' : '#e2e8f0'), display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 11, color: isPlaying ? '#8b5cf6' : '#94a3b8', flexShrink: 0 }}
+                              title={isPlaying ? 'Stop preview' : 'Preview voice'}>{isPlaying ? '■' : '▶'}</div>
+                          </div>;
+                        })}
                       </div>;
                     })}
                   </div>
