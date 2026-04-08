@@ -36,8 +36,7 @@ function buildNav(t, isAdmin) {
       { label: t('nav.linkHub'), icon: Link2, path: '/linkhub' },
       { label: t('nav.linkTools'), icon: LayoutGrid, path: '/link-tools' },
       { label: 'Content Creator', icon: Bot, path: '/content-creator' },
-      { label: 'SuperScene', icon: Sparkles, path: '/superscene' },
-      { label: 'Video Creator', icon: Film, path: '/video-creator' },
+      { label: 'Creative Studio', icon: Sparkles, path: '/creative-studio' },
     ]},
     { type: 'divider' },
     { type: 'group', label: 'Pro Tools', key: 'pro-tools', icon: Zap, items: [
