@@ -291,35 +291,31 @@ export function VideoCreatorContent() {
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12, marginBottom: 16 }}>
-          <div className="cs-card">
-            <div className="cs-lbl">Style</div>
-            <div className="cs-pills" style={{ flexDirection: 'column' }}>
-              {STYLES.map(function(s) { return <button key={s.value} className={'cs-pill' + (style === s.value ? ' on' : '')} onClick={function() { setStyle(s.value); }} style={{ textAlign: 'left', padding: '8px 12px' }}>{s.label}</button>; })}
+        <div className="cs-card" style={{ marginBottom: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12 }}>
+            <div>
+              <div className="cs-lbl">Style</div>
+              <select className="cs-sel" value={style} onChange={function(e) { setStyle(e.target.value); }}>
+                {STYLES.map(function(s) { return <option key={s.value} value={s.value}>{s.label}</option>; })}
+              </select>
             </div>
-          </div>
-          <div className="cs-card">
-            <div className="cs-lbl">Duration</div>
-            <div className="cs-pills" style={{ flexDirection: 'column' }}>
-              {DURATIONS.map(function(d) { return <button key={d.value} className={'cs-pill' + (duration === d.value ? ' on' : '')} onClick={function() { setDuration(d.value); }} style={{ textAlign: 'left', padding: '8px 12px' }}>{d.label}</button>; })}
+            <div>
+              <div className="cs-lbl">Duration</div>
+              <select className="cs-sel" value={duration} onChange={function(e) { setDuration(Number(e.target.value)); }}>
+                {DURATIONS.map(function(d) { return <option key={d.value} value={d.value}>{d.label}</option>; })}
+              </select>
             </div>
-          </div>
-          <div className="cs-card">
-            <div className="cs-lbl">Aspect Ratio</div>
-            <div className="cs-pills" style={{ flexDirection: 'column' }}>
-              {ASPECTS.map(function(a) { return <button key={a.value} className={'cs-pill' + (aspect === a.value ? ' on' : '')} onClick={function() { setAspect(a.value); }} style={{ textAlign: 'left', padding: '8px 12px' }}>{a.label} \u2014 {a.desc}</button>; })}
+            <div>
+              <div className="cs-lbl">Aspect Ratio</div>
+              <select className="cs-sel" value={aspect} onChange={function(e) { setAspect(e.target.value); }}>
+                {ASPECTS.map(function(a) { return <option key={a.value} value={a.value}>{a.label} — {a.desc}</option>; })}
+              </select>
             </div>
-          </div>
-          <div className="cs-card">
-            <div className="cs-lbl">Voiceover</div>
-            <div className="cs-model-list" style={{ maxHeight: 220 }}>
-              {VOICES.map(function(v) {
-                return <div key={v.value} className={'cs-model' + (voice === v.value ? ' sel' : '')} onClick={function() { setVoice(v.value); }} style={{ padding: '6px 10px' }}>
-                  <div className="cs-model-dot" style={{ background: v.color, width: 20, height: 20, fontSize: 9 }}>\uD83C\uDFA4</div>
-                  <div style={{ flex: 1 }}><div className="cs-model-name" style={{ fontSize: 12 }}>{v.label}</div></div>
-                  {v.tag && <span className="cs-model-badge" style={{ background: (v.tagColor || v.color) + '22', color: v.tagColor || v.color, fontSize: 7 }}>{v.tag}</span>}
-                </div>;
-              })}
+            <div>
+              <div className="cs-lbl">Voiceover</div>
+              <select className="cs-sel" value={voice} onChange={function(e) { setVoice(e.target.value); }}>
+                {VOICES.map(function(v) { return <option key={v.value} value={v.value}>{v.label} — {v.desc.split(' — ')[0]}</option>; })}
+              </select>
             </div>
           </div>
         </div>
