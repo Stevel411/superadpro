@@ -164,22 +164,21 @@ export default function Dashboard() {
             )
           },
           {
-            color: '#0ea5e9', bg: '#e0f2fe', badge: '40% + uni-level',
-            val: d.grid_earnings, name: 'Income Grid',
-            detail: `${d.grid_stats?.completed_advances || 0} advances completed`,
+            color: '#8b5cf6', bg: '#ede9fe', badge: 'per credit used',
+            val: d.creative_studio_earned || 0, name: 'Creative Studio',
+            detail: 'Earned from referral credit usage',
             icon: (
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="3" width="7" height="7" rx="1.5" fill="#0ea5e9"/>
-                <rect x="14" y="3" width="7" height="7" rx="1.5" fill="#38bdf8"/>
-                <rect x="3" y="14" width="7" height="7" rx="1.5" fill="#38bdf8"/>
-                <rect x="14" y="14" width="7" height="7" rx="1.5" fill="#0ea5e9"/>
+                <rect x="2" y="3" width="20" height="14" rx="3" fill="#8b5cf6" opacity=".8"/>
+                <polygon points="10,7 10,14 16,10.5" fill="#fff"/>
+                <rect x="6" y="19" width="12" height="2" rx="1" fill="#a78bfa"/>
               </svg>
             )
           },
           {
-            color: '#d97706', bg: '#fef3c7', badge: 'tier bonus',
+            color: '#d97706', bg: '#fef3c7', badge: 'watch & grid',
             val: d.boost_earned, name: 'Campaigns',
-            detail: 'Video campaign earnings',
+            detail: 'Watch to Earn + grid commissions',
             icon: (
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="#f59e0b"/>
@@ -300,7 +299,7 @@ export default function Dashboard() {
               { val: d.personal_referrals || 0, lbl: 'Direct Referrals' },
               { val: d.total_team || 0, lbl: 'Total Network' },
               { val: `$${formatMoney(d.total_earned)}`, lbl: 'Lifetime Earned' },
-              { val: d.grid_stats?.completed_advances || 0, lbl: 'Grid Advances' },
+              { val: `$${formatMoney(d.creative_studio_earned || 0)}`, lbl: 'Studio Earned' },
             ].map((s, i) => (
               <div key={i} style={{ background: '#f1f5f9', borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
                 <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 24, fontWeight: 800, color: '#16a34a' }}>{s.val}</div>

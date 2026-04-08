@@ -505,6 +505,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "course_earnings":   float(user.course_earnings or 0),
         "membership_earned": membership_earned,
         "boost_earned":      boost_earned,
+        "creative_studio_earned": float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(Commission.to_user_id == user.id, Commission.commission_type == "superscene_usage", Commission.amount_usdt > 0).scalar() or 0),
         "personal_referrals":user.personal_referrals or 0,
         "total_team":        user.total_team or 0,
         "grid_stats":        stats,
