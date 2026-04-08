@@ -184,6 +184,122 @@ export default function CreativeStudio() {
       }).catch(function(e) { alert(e.message || 'Network error'); setImgGenerating(false); clearInterval(imgProgRef.current); });
   }
 
+  // ── Music tab state ──
+  var MUSIC_MODELS = [
+    { key: 'suno-v4',   name: 'Suno V4',   cost: 1, color: '#f59e0b' },
+    { key: 'suno-v4.5', name: 'Suno V4.5', cost: 2, color: '#fb923c' },
+    { key: 'suno-v5',   name: 'Suno V5',   cost: 3, color: '#ef4444', badge: 'BEST' },
+  ];
+  var [musicModel, setMusicModel] = useState('suno-v4');
+  var [musicPrompt, setMusicPrompt] = useState('');
+  var [musicCustom, setMusicCustom] = useState(false);
+  var [musicStyle, setMusicStyle] = useState('');
+  var [musicTitle, setMusicTitle] = useState('');
+  var [musicInstrumental, setMusicInstrumental] = useState(false);
+  var [musicGender, setMusicGender] = useState('');
+  var [musicGenerating, setMusicGenerating] = useState(false);
+  var [musicUrl, setMusicUrl] = useState(null);
+  var [musicProgress, setMusicProgress] = useState(0);
+  var [lyricsGenerating, setLyricsGenerating] = useState(false);
+  var musicPollRef = useRef(null);
+  var musicProgRef = useRef(null);
+  var musicCost = (MUSIC_MODELS.find(function(m) { return m.key === musicModel; }) || {}).cost || 2;
+
+  function generateLyrics() {
+    if (lyricsGenerating) return;
+    var desc = musicPrompt.trim() || musicTitle.trim() || musicStyle.trim();
+    if (!desc) { alert('Enter a description, title, or style first'); return; }
+    setLyricsGenerating(true);
+    fetch('/api/superscene/music/generate-lyrics', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ description: desc, style: musicStyle }) })
+      .then(function(r) { return r.json(); }).then(function(data) { if (data.success && data.lyrics) setMusicPrompt(data.lyrics); else alert(data.error || 'Lyrics failed'); setLyricsGenerating(false); })
+      .catch(function() { alert('Network error'); setLyricsGenerating(false); });
+  }
+
+  function generateMusic() {
+    if (!musicPrompt.trim() || musicGenerating) return;
+    if (credits < musicCost) { alert('Need ' + musicCost + ' credits'); return; }
+    setMusicGenerating(true); setMusicUrl(null); setMusicProgress(0);
+    musicProgRef.current = setInterval(function() { setMusicProgress(function(p) { if (p >= 85) { clearInterval(musicProgRef.current); return p; } return p + Math.random() * 3 + 1; }); }, 500);
+    var payload = { model: musicModel, prompt: musicPrompt, custom_mode: musicCustom, instrumental: musicInstrumental };
+    if (musicCustom) { payload.style = musicStyle; payload.title = musicTitle; payload.vocal_gender = musicGender; }
+    fetch('/api/superscene/music/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) })
+      .then(function(r) { return r.json(); }).then(function(data) {
+        if (data.error || data.detail) { alert(data.detail || data.error); setMusicGenerating(false); clearInterval(musicProgRef.current); return; }
+        setCredits(data.credits_remaining);
+        if (musicPollRef.current) clearInterval(musicPollRef.current);
+        musicPollRef.current = setInterval(function() {
+          fetch('/api/superscene/music/status/' + data.task_id).then(function(r) { return r.json(); }).then(function(pd) {
+            if (pd.status === 'completed' && pd.audio_url) { setMusicUrl(pd.audio_url); setMusicGenerating(false); setMusicProgress(100); clearInterval(musicPollRef.current); clearInterval(musicProgRef.current); fetch('/api/superscene/credits').then(function(r) { return r.json(); }).then(function(d) { setCredits(d.balance || 0); }); }
+            else if (pd.status === 'failed') { setMusicGenerating(false); clearInterval(musicPollRef.current); clearInterval(musicProgRef.current); alert('Music generation failed'); }
+          }).catch(function() {});
+        }, 3000);
+      }).catch(function() { alert('Network error'); setMusicGenerating(false); clearInterval(musicProgRef.current); });
+  }
+
+  // ── Voiceover + Lip Sync tab state ──
+  var VO_VOICES = [
+    { id: 'en-US-GuyNeural', name: 'Guy', gender: 'M', accent: 'US', desc: 'Warm, conversational narrator' },
+    { id: 'en-US-JennyNeural', name: 'Jenny', gender: 'F', accent: 'US', desc: 'Friendly, clear corporate voice' },
+    { id: 'en-US-AriaNeural', name: 'Aria', gender: 'F', accent: 'US', desc: 'Professional, smooth delivery' },
+    { id: 'en-US-DavisNeural', name: 'Davis', gender: 'M', accent: 'US', desc: 'Deep, authoritative tone' },
+    { id: 'en-US-JaneNeural', name: 'Jane', gender: 'F', accent: 'US', desc: 'Calm, documentary style' },
+    { id: 'en-US-JasonNeural', name: 'Jason', gender: 'M', accent: 'US', desc: 'Energetic, upbeat presenter' },
+    { id: 'en-GB-RyanNeural', name: 'Ryan', gender: 'M', accent: 'UK', desc: 'Polished, BBC-style narrator' },
+    { id: 'en-GB-SoniaNeural', name: 'Sonia', gender: 'F', accent: 'UK', desc: 'Elegant, refined' },
+    { id: 'en-GB-ThomasNeural', name: 'Thomas', gender: 'M', accent: 'UK', desc: 'Articulate, distinguished' },
+    { id: 'en-GB-LibbyNeural', name: 'Libby', gender: 'F', accent: 'UK', desc: 'Young, bright' },
+    { id: 'en-AU-WilliamNeural', name: 'William', gender: 'M', accent: 'AU', desc: 'Relaxed, natural storyteller' },
+    { id: 'en-AU-NatashaNeural', name: 'Natasha', gender: 'F', accent: 'AU', desc: 'Bright, engaging presenter' },
+  ];
+  var [voText, setVoText] = useState('');
+  var [voVoice, setVoVoice] = useState('en-US-GuyNeural');
+  var [voGenerating, setVoGenerating] = useState(false);
+  var [voAudioUrl, setVoAudioUrl] = useState(null);
+  var [voImageUrl, setVoImageUrl] = useState(null);
+  var [voLipSyncing, setVoLipSyncing] = useState(false);
+  var [voLipSyncUrl, setVoLipSyncUrl] = useState(null);
+  var [voLipSyncProgress, setVoLipSyncProgress] = useState(0);
+  var voImageInputRef = useRef(null);
+  var voLipPollRef = useRef(null);
+  var voLipProgRef = useRef(null);
+  var selectedVoice = VO_VOICES.find(function(v) { return v.id === voVoice; }) || VO_VOICES[0];
+
+  function generateVoiceover() {
+    if (!voText.trim() || voGenerating) return;
+    setVoGenerating(true); setVoAudioUrl(null);
+    fetch('/api/superscene/voiceover/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text: voText, voice: voVoice }) })
+      .then(function(r) { return r.json(); }).then(function(data) {
+        if (data.success && data.audio_url) setVoAudioUrl(data.audio_url); else alert(data.detail || data.error || 'Voiceover failed');
+        setVoGenerating(false);
+      }).catch(function() { alert('Network error'); setVoGenerating(false); });
+  }
+
+  function handleVoImageUpload(e) {
+    var file = e.target.files && e.target.files[0]; if (!file) return;
+    var fd = new FormData(); fd.append('file', file);
+    fetch('/api/superscene/upload-image', { method: 'POST', body: fd })
+      .then(function(r) { return r.json(); }).then(function(data) { if (data.success && data.file_url) setVoImageUrl(data.file_url); else alert('Upload failed'); })
+      .catch(function() { alert('Upload error'); });
+  }
+
+  function generateLipSync() {
+    if (!voAudioUrl || !voImageUrl || voLipSyncing) return;
+    setVoLipSyncing(true); setVoLipSyncUrl(null); setVoLipSyncProgress(0);
+    voLipProgRef.current = setInterval(function() { setVoLipSyncProgress(function(p) { return Math.min(p + Math.random() * 2 + 0.5, 85); }); }, 500);
+    fetch('/api/superscene/lipsync/generate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ image_url: voImageUrl, audio_url: voAudioUrl }) })
+      .then(function(r) { return r.json(); }).then(function(data) {
+        if (data.error || data.detail) { alert(data.detail || data.error); setVoLipSyncing(false); clearInterval(voLipProgRef.current); return; }
+        if (data.credits_remaining !== undefined) setCredits(data.credits_remaining);
+        if (voLipPollRef.current) clearInterval(voLipPollRef.current);
+        voLipPollRef.current = setInterval(function() {
+          fetch('/api/superscene/status/' + data.task_id).then(function(r) { return r.json(); }).then(function(pd) {
+            if (pd.status === 'completed' && pd.video_url) { setVoLipSyncUrl(pd.video_url); setVoLipSyncing(false); setVoLipSyncProgress(100); clearInterval(voLipPollRef.current); clearInterval(voLipProgRef.current); fetch('/api/superscene/credits').then(function(r) { return r.json(); }).then(function(d) { setCredits(d.balance || 0); }); }
+            else if (pd.status === 'failed') { setVoLipSyncing(false); clearInterval(voLipPollRef.current); clearInterval(voLipProgRef.current); alert('Lip sync failed'); }
+          }).catch(function() {});
+        }, 3000);
+      }).catch(function() { alert('Network error'); setVoLipSyncing(false); clearInterval(voLipProgRef.current); });
+  }
+
   var selectedModel = MODELS.find(function(m) { return m.key === model; }) || MODELS[2];
   var cost = calcCost(model, duration, genAudio);
 
@@ -224,7 +340,7 @@ export default function CreativeStudio() {
     }, 3000);
   }, []);
 
-  useEffect(function() { return function() { if (pollRef.current) clearInterval(pollRef.current); if (fakeProgRef.current) clearInterval(fakeProgRef.current); if (imgProgRef.current) clearInterval(imgProgRef.current); if (imgPollRef.current) clearInterval(imgPollRef.current); }; }, []);
+  useEffect(function() { return function() { [pollRef, fakeProgRef, imgProgRef, imgPollRef, musicPollRef, musicProgRef, voLipPollRef, voLipProgRef].forEach(function(r) { if (r.current) clearInterval(r.current); }); }; }, []);
 
   // ── Image upload ──
   function handleImageSelect(e) {
@@ -709,29 +825,243 @@ export default function CreativeStudio() {
             </div>
           </>}
 
-          {tab === 'music' && <div style={{ textAlign: 'center', padding: 80, color: '#64748b' }}>
-            <div style={{ fontSize: 48, marginBottom: 16, opacity: .3 }}>🎵</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>AI Music Generator</div>
-            <div style={{ fontSize: 14 }}>Create original music tracks with Suno — coming next</div>
-          </div>}
+          {/* ═══ MUSIC TAB ═══ */}
+          {tab === 'music' && <>
+            <div className="cs-stage" style={{ background: '#0a0f1e' }}>
+              {musicGenerating ? (
+                <div className="cs-stage-empty">
+                  <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: '#f59e0b', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
+                  <p style={{ color: 'rgba(255,255,255,.5)' }}>Generating your track...</p>
+                  <small style={{ color: 'rgba(255,255,255,.25)' }}>{(MUSIC_MODELS.find(function(m) { return m.key === musicModel; }) || {}).name} · {musicInstrumental ? 'Instrumental' : 'Vocal'}</small>
+                </div>
+              ) : musicUrl ? (
+                <div style={{ textAlign: 'center', padding: 40 }}>
+                  <div style={{ fontSize: 48, marginBottom: 12 }}>♪</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 16 }}>Your track is ready</div>
+                  <audio src={musicUrl} controls style={{ width: '100%', maxWidth: 500 }}/>
+                </div>
+              ) : (
+                <div className="cs-stage-empty">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+                  <p>Your music will appear here</p>
+                  <small>Describe your track and hit Generate</small>
+                </div>
+              )}
+            </div>
+            {musicGenerating && <div className="cs-progress-wrap"><div className="cs-progress"><div className="cs-progress-bar" style={{ width: musicProgress + '%' }}/></div><div className="cs-progress-status">Generating... {Math.round(musicProgress)}%</div></div>}
+            {musicUrl && !musicGenerating && <div className="cs-stage-actions">
+              <button className="cs-sa-btn" onClick={function() { downloadVideo(musicUrl, 'creative-studio-music-' + Date.now() + '.mp3'); }}>⬇ Download MP3</button>
+              <button className="cs-sa-btn" onClick={function() { setMusicUrl(null); }}>✕ Clear</button>
+            </div>}
+            <div className="cs-controls">
+              <div className="cs-mode" style={{ maxWidth: 280 }}>
+                <button className={musicCustom ? '' : 'on'} onClick={function() { setMusicCustom(false); }}>Simple Mode</button>
+                <button className={musicCustom ? 'on' : ''} onClick={function() { setMusicCustom(true); }}>Custom Mode</button>
+              </div>
+              <div className="cs-row">
+                <div className="cs-card">
+                  <div className="cs-lbl">{musicCustom ? 'Lyrics' : 'Describe your music'}</div>
+                  <textarea className="cs-ta" rows={musicCustom ? 8 : 4} value={musicPrompt} onChange={function(e) { setMusicPrompt(e.target.value); }}
+                    placeholder={musicCustom ? '[Verse]\nWalking down the road...\n\n[Chorus]\nHere we go again...' : 'Upbeat pop song for Instagram Reels, energetic and fun'}/>
+                  {musicCustom && <div className="cs-ta-foot">
+                    <button style={{ fontSize: 12, fontWeight: 700, color: '#8b5cf6', background: '#f5f3ff', border: '1px solid #e9e5ff', borderRadius: 6, padding: '4px 12px', cursor: 'pointer', fontFamily: 'inherit' }} onClick={generateLyrics} disabled={lyricsGenerating}>{lyricsGenerating ? 'Writing...' : '✦ AI Lyrics Writer'}</button>
+                    <span className="cs-ta-ct">{musicPrompt.length}/3000</span>
+                  </div>}
+                </div>
+                <div className="cs-card">
+                  <div className="cs-lbl">Model</div>
+                  <div className="cs-pills" style={{ marginBottom: 12 }}>
+                    {MUSIC_MODELS.map(function(m) { return <button key={m.key} className={'cs-pill' + (musicModel === m.key ? ' on' : '')} onClick={function() { setMusicModel(m.key); }}>{m.name} {m.badge ? '· ' + m.badge : ''} <span style={{ fontSize: 10, opacity: .6, marginLeft: 4 }}>{m.cost}cr</span></button>; })}
+                  </div>
+                  {musicCustom && <>
+                    <div className="cs-lbl">Style</div>
+                    <input style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', marginBottom: 10, boxSizing: 'border-box' }} placeholder="pop, rock, electronic, jazz..." value={musicStyle} onChange={function(e) { setMusicStyle(e.target.value); }}/>
+                    <div className="cs-lbl">Title</div>
+                    <input style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', marginBottom: 10, boxSizing: 'border-box' }} placeholder="Song title" value={musicTitle} onChange={function(e) { setMusicTitle(e.target.value); }}/>
+                    <div className="cs-lbl">Vocal Gender</div>
+                    <div className="cs-pills">
+                      {[['', 'Auto'], ['m', 'Male'], ['f', 'Female']].map(function(g) { return <button key={g[0]} className={'cs-pill' + (musicGender === g[0] ? ' on' : '')} onClick={function() { setMusicGender(g[0]); }}>{g[1]}</button>; })}
+                    </div>
+                  </>}
+                  <div style={{ marginTop: 12 }}>
+                    <div className="cs-lbl">Instrumental</div>
+                    <div className="cs-audio-toggle" onClick={function() { setMusicInstrumental(!musicInstrumental); }}>
+                      <div className={'cs-toggle-track' + (musicInstrumental ? ' on' : '')}><div className="cs-toggle-thumb"/></div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>No vocals — background music only</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="cs-gen-row">
+              <button className="cs-gen-btn" onClick={generateMusic} disabled={!musicPrompt.trim() || musicGenerating || credits < musicCost}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/></svg>
+                {musicGenerating ? 'Generating...' : !musicPrompt.trim() ? 'Enter a description' : credits < musicCost ? 'Not enough credits' : '♪ Generate Music'}
+              </button>
+              <div className="cs-gen-info"><b>{musicCost} credits</b>{credits} remaining</div>
+            </div>
+          </>}
 
-          {tab === 'voiceover' && <div style={{ textAlign: 'center', padding: 80, color: '#64748b' }}>
-            <div style={{ fontSize: 48, marginBottom: 16, opacity: .3 }}>🎙️</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>AI Voiceover</div>
-            <div style={{ fontSize: 14 }}>Professional voiceovers in 30+ voices — coming next</div>
-          </div>}
+          {/* ═══ VOICEOVER TAB ═══ */}
+          {tab === 'voiceover' && <>
+            <div className="cs-stage" style={{ background: '#0a0f1e' }}>
+              {voGenerating ? (
+                <div className="cs-stage-empty">
+                  <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: '#ec4899', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
+                  <p style={{ color: 'rgba(255,255,255,.5)' }}>Generating voiceover...</p>
+                </div>
+              ) : voAudioUrl ? (
+                <div style={{ textAlign: 'center', padding: 40 }}>
+                  <div style={{ fontSize: 48, marginBottom: 12 }}>🎙</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 16 }}>Voiceover Ready</div>
+                  <audio src={voAudioUrl} controls style={{ width: '100%', maxWidth: 500 }}/>
+                </div>
+              ) : (
+                <div className="cs-stage-empty">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+                  <p>Your voiceover will appear here</p>
+                  <small>Write a script, pick a voice, and generate</small>
+                </div>
+              )}
+            </div>
+            {voAudioUrl && !voGenerating && <div className="cs-stage-actions">
+              <button className="cs-sa-btn" onClick={function() { downloadVideo(voAudioUrl, 'creative-studio-voiceover-' + Date.now() + '.mp3'); }}>⬇ Download MP3</button>
+              <button className="cs-sa-btn" onClick={function() { setVoAudioUrl(null); setVoLipSyncUrl(null); }}>✕ Clear</button>
+            </div>}
+            <div className="cs-controls">
+              <div className="cs-row">
+                <div className="cs-card">
+                  <div className="cs-lbl">① Script</div>
+                  <textarea className="cs-ta" rows={6} value={voText} onChange={function(e) { setVoText(e.target.value); }}
+                    placeholder="Type your voiceover script here... e.g. Welcome to SuperAdPro, the platform where your creativity pays."/>
+                  <div className="cs-ta-foot"><span/><span className="cs-ta-ct">{voText.length}/5000</span></div>
+                </div>
+                <div className="cs-card">
+                  <div className="cs-lbl">② Voice</div>
+                  <div className="cs-model-list">
+                    {VO_VOICES.map(function(v) {
+                      var isSel = voVoice === v.id;
+                      return <div key={v.id} className={'cs-model' + (isSel ? ' sel' : '')} onClick={function() { setVoVoice(v.id); }}>
+                        <div className="cs-model-dot" style={{ background: v.gender === 'M' ? 'linear-gradient(135deg,#3b82f6,#1d4ed8)' : 'linear-gradient(135deg,#f472b6,#ec4899)' }}>{v.gender === 'M' ? '♂' : '♀'}</div>
+                        <div style={{ flex: 1 }}>
+                          <div className="cs-model-name">{v.name}</div>
+                          <div className="cs-model-desc">{v.accent} · {v.desc}</div>
+                        </div>
+                      </div>;
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="cs-gen-row">
+              <button className="cs-gen-btn" onClick={generateVoiceover} disabled={!voText.trim() || voGenerating}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/></svg>
+                {voGenerating ? 'Generating...' : !voText.trim() ? 'Enter a script' : '🎙 Generate Voiceover'}
+              </button>
+              <div className="cs-gen-info"><b>Free</b>No credits required</div>
+            </div>
+          </>}
 
-          {tab === 'lip-sync' && <div style={{ textAlign: 'center', padding: 80, color: '#64748b' }}>
-            <div style={{ fontSize: 48, marginBottom: 16, opacity: .3 }}>👄</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>AI Lip Sync</div>
-            <div style={{ fontSize: 14 }}>Sync any voice to any video — coming next</div>
-          </div>}
+          {/* ═══ LIP SYNC TAB ═══ */}
+          {tab === 'lip-sync' && <>
+            <div className="cs-stage" style={{ background: '#0a0f1e' }}>
+              {voLipSyncing ? (
+                <div className="cs-stage-empty">
+                  <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
+                  <p style={{ color: 'rgba(255,255,255,.5)' }}>Creating talking avatar...</p>
+                  <small style={{ color: 'rgba(255,255,255,.25)' }}>{Math.round(voLipSyncProgress)}%</small>
+                </div>
+              ) : voLipSyncUrl ? (
+                <div className="cs-stage-inner r-16x9"><video src={voLipSyncUrl} controls autoPlay loop/></div>
+              ) : (
+                <div className="cs-stage-empty">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+                  <p>Your talking avatar will appear here</p>
+                  <small>Upload a photo, provide audio, and generate</small>
+                </div>
+              )}
+            </div>
+            {voLipSyncing && <div className="cs-progress-wrap"><div className="cs-progress"><div className="cs-progress-bar" style={{ width: voLipSyncProgress + '%' }}/></div><div className="cs-progress-status">Generating... {Math.round(voLipSyncProgress)}%</div></div>}
+            {voLipSyncUrl && !voLipSyncing && <div className="cs-stage-actions">
+              <button className="cs-sa-btn" onClick={function() { downloadVideo(voLipSyncUrl, 'creative-studio-avatar-' + Date.now() + '.mp4'); }}>⬇ Download Video</button>
+              <button className="cs-sa-btn" onClick={function() { setVoLipSyncUrl(null); }}>✕ Clear</button>
+            </div>}
+            <div className="cs-controls">
+              <div className="cs-row-3">
+                <div className="cs-card">
+                  <div className="cs-lbl">① Person Photo</div>
+                  <input ref={voImageInputRef} type="file" accept="image/jpeg,image/png,image/webp" style={{ display: 'none' }} onChange={handleVoImageUpload}/>
+                  {voImageUrl ? (
+                    <div className="cs-img-preview">
+                      <img src={voImageUrl} alt="Avatar" className="cs-img-thumb"/>
+                      <div className="cs-img-overlay">
+                        <span className="cs-img-status cs-img-ok">✓ Ready</span>
+                        <button className="cs-img-remove" onClick={function() { setVoImageUrl(null); }}>✕ Change</button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="cs-upload" onClick={function() { if (voImageInputRef.current) voImageInputRef.current.click(); }}>
+                      <div className="cs-upload-plus">📷</div>
+                      <div className="cs-upload-text">Upload a photo of a person</div>
+                    </div>
+                  )}
+                </div>
+                <div className="cs-card">
+                  <div className="cs-lbl">② Audio Source</div>
+                  {voAudioUrl ? (
+                    <div>
+                      <div style={{ fontSize: 12, color: '#22c55e', fontWeight: 600, marginBottom: 8 }}>✓ Voiceover ready</div>
+                      <audio src={voAudioUrl} controls style={{ width: '100%' }}/>
+                      <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>Generated from the Voiceover tab</div>
+                    </div>
+                  ) : (
+                    <div style={{ textAlign: 'center', padding: 20, color: '#94a3b8', fontSize: 13 }}>
+                      <div style={{ marginBottom: 8 }}>No audio yet</div>
+                      <button style={{ fontSize: 12, fontWeight: 700, color: '#8b5cf6', background: '#f5f3ff', border: '1px solid #e9e5ff', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontFamily: 'inherit' }} onClick={function() { switchTab('voiceover'); }}>Go to Voiceover tab →</button>
+                    </div>
+                  )}
+                </div>
+                <div className="cs-card">
+                  <div className="cs-lbl">③ Generate</div>
+                  <div style={{ fontSize: 13, color: '#64748b', marginBottom: 12, lineHeight: 1.5 }}>Upload a person photo and create a voiceover first. Then generate a talking avatar video synced to the audio.</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8 }}>Cost: <b style={{ color: '#0f172a' }}>8 credits</b></div>
+                </div>
+              </div>
+            </div>
+            <div className="cs-gen-row">
+              <button className="cs-gen-btn" onClick={generateLipSync} disabled={!voAudioUrl || !voImageUrl || voLipSyncing}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/></svg>
+                {voLipSyncing ? 'Generating...' : !voImageUrl ? 'Upload a photo first' : !voAudioUrl ? 'Create a voiceover first' : '🎬 Generate Talking Avatar'}
+              </button>
+              <div className="cs-gen-info"><b>8 credits</b>{credits} remaining</div>
+            </div>
+          </>}
 
-          {tab === 'gallery' && <div style={{ textAlign: 'center', padding: 80, color: '#64748b' }}>
-            <div style={{ fontSize: 48, marginBottom: 16, opacity: .3 }}>📁</div>
-            <div style={{ fontSize: 18, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>Your Gallery</div>
-            <div style={{ fontSize: 14 }}>All your generated content in one place — coming next</div>
-          </div>}
+          {/* ═══ GALLERY TAB ═══ */}
+          {tab === 'gallery' && <>
+            <div className="cs-controls">
+              <div className="cs-lbl" style={{ marginBottom: 16 }}>Recent Video Clips</div>
+              {videos.filter(function(v) { return v.status === 'completed' && v.video_url; }).length > 0 ? (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+                  {videos.filter(function(v) { return v.status === 'completed' && v.video_url; }).map(function(v) {
+                    return <div key={v.id} style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#fff' }}>
+                      <video src={v.video_url} muted preload="metadata" style={{ width: '100%', height: 120, objectFit: 'cover', display: 'block', cursor: 'pointer' }} onClick={function() { switchTab('video-clips'); setVideoUrl(v.video_url); setGenStatus('done'); }}/>
+                      <div style={{ padding: '8px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <span style={{ fontSize: 11, color: '#94a3b8' }}>{v.model || 'Video'}</span>
+                        <button className="cs-sa-btn" style={{ padding: '4px 8px', fontSize: 10 }} onClick={function() { downloadVideo(v.video_url); }}>⬇</button>
+                      </div>
+                    </div>;
+                  })}
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8' }}>
+                  <div style={{ fontSize: 36, marginBottom: 12, opacity: .3 }}>📁</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#64748b' }}>No content yet</div>
+                  <div style={{ fontSize: 13, marginTop: 4 }}>Start creating videos, images, and music to see them here</div>
+                </div>
+              )}
+            </div>
+          </>}
 
           {/* ═══ CREDITS TAB — embedded Credit Matrix ═══ */}
           {tab === 'credits' && <CreditMatrixContent />}
