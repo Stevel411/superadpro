@@ -123,6 +123,53 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
   );
 }
 
+/* ── Styled Select (custom dropdown for Platform Tour layout) ── */
+function StyledSelect({ label, items, value, onChange, renderLabel, renderDesc, colorKey }) {
+  var [open, setOpen] = useState(false);
+  var ref = useRef(null);
+  var selected = items.find(function(it) { return it.value === value; }) || items[0];
+
+  useEffect(function() {
+    function h(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener('mousedown', h);
+    return function() { document.removeEventListener('mousedown', h); };
+  }, []);
+
+  return (
+    <div ref={ref} style={{ position: 'relative' }}>
+      <div className="cs-lbl">{label}</div>
+      <div onClick={function() { setOpen(!open); }}
+        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid ' + (open ? '#8b5cf6' : '#e2e8f0'), background: open ? '#faf5ff' : '#fff', cursor: 'pointer', transition: 'all .15s' }}>
+        {colorKey && selected[colorKey] && <div style={{ width: 8, height: 8, borderRadius: '50%', background: selected[colorKey], flexShrink: 0 }}/>}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{renderLabel(selected)}</div>
+        </div>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5" style={{ flexShrink: 0, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }}><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+      {open && (
+        <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,.12)', zIndex: 50, maxHeight: 260, overflowY: 'auto', padding: 4 }}>
+          {items.map(function(item) {
+            var isSel = item.value === value;
+            return (
+              <div key={item.value} onClick={function() { onChange(item.value); setOpen(false); }}
+                style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 6, cursor: 'pointer', background: isSel ? '#f5f3ff' : 'transparent', transition: 'background .1s' }}
+                onMouseEnter={function(e) { if (!isSel) e.currentTarget.style.background = '#f8fafc'; }}
+                onMouseLeave={function(e) { if (!isSel) e.currentTarget.style.background = 'transparent'; }}>
+                {colorKey && item[colorKey] && <div style={{ width: 8, height: 8, borderRadius: '50%', background: item[colorKey], flexShrink: 0 }}/>}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: 12, fontWeight: 600, color: isSel ? '#8b5cf6' : '#0f172a' }}>{renderLabel(item)}</div>
+                  {renderDesc && <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 1 }}>{renderDesc(item)}</div>}
+                </div>
+                {isSel && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function VideoCreator() {
   return (
     <AppLayout title="AI Video Creator" subtitle="One-click marketing videos">
@@ -293,30 +340,10 @@ export function VideoCreatorContent() {
 
         <div className="cs-card" style={{ marginBottom: 16 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12 }}>
-            <div>
-              <div className="cs-lbl">Style</div>
-              <select className="cs-sel" value={style} onChange={function(e) { setStyle(e.target.value); }}>
-                {STYLES.map(function(s) { return <option key={s.value} value={s.value}>{s.label}</option>; })}
-              </select>
-            </div>
-            <div>
-              <div className="cs-lbl">Duration</div>
-              <select className="cs-sel" value={duration} onChange={function(e) { setDuration(Number(e.target.value)); }}>
-                {DURATIONS.map(function(d) { return <option key={d.value} value={d.value}>{d.label}</option>; })}
-              </select>
-            </div>
-            <div>
-              <div className="cs-lbl">Aspect Ratio</div>
-              <select className="cs-sel" value={aspect} onChange={function(e) { setAspect(e.target.value); }}>
-                {ASPECTS.map(function(a) { return <option key={a.value} value={a.value}>{a.label} — {a.desc}</option>; })}
-              </select>
-            </div>
-            <div>
-              <div className="cs-lbl">Voiceover</div>
-              <select className="cs-sel" value={voice} onChange={function(e) { setVoice(e.target.value); }}>
-                {VOICES.map(function(v) { return <option key={v.value} value={v.value}>{v.label} — {v.desc.split(' — ')[0]}</option>; })}
-              </select>
-            </div>
+            <StyledSelect label="Style" items={STYLES} value={style} onChange={setStyle} renderLabel={function(s) { return s.label; }} renderDesc={function(s) { return s.desc; }} colorKey="color"/>
+            <StyledSelect label="Duration" items={DURATIONS} value={duration} onChange={setDuration} renderLabel={function(d) { return d.label; }} renderDesc={function(d) { return d.desc; }}/>
+            <StyledSelect label="Aspect Ratio" items={ASPECTS} value={aspect} onChange={setAspect} renderLabel={function(a) { return a.label; }} renderDesc={function(a) { return a.desc; }}/>
+            <StyledSelect label="Voiceover" items={VOICES} value={voice} onChange={setVoice} renderLabel={function(v) { return v.label; }} renderDesc={function(v) { return v.desc.split(' — ')[0]; }} colorKey="color"/>
           </div>
         </div>
       </div>
