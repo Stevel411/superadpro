@@ -129,6 +129,12 @@ export default function CreativeStudio() {
   useEffect(function() {
     fetch('/api/superscene/credits').then(function(r) { return r.json(); }).then(function(d) { setCredits(d.balance || 0); });
     fetch('/api/superscene/videos').then(function(r) { return r.json(); }).then(function(d) { setVideos(d.videos || []); });
+    // Prefetch Credit Matrix data so Credits tab loads instantly
+    fetch('/api/credit-matrix/packs').catch(function() {});
+    fetch('/api/credit-matrix/my-matrix').catch(function() {});
+    fetch('/api/credit-matrix/stats').catch(function() {});
+    fetch('/api/credit-matrix/commissions').catch(function() {});
+    fetch('/api/credit-matrix/team-activity').catch(function() {});
   }, []);
 
   // ── Polling ──
