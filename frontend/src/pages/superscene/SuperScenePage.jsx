@@ -12,7 +12,7 @@ const MODELS = [
   { key: "wan26",      name: "WAN 2.6",          desc: "Budget-friendly, good quality",        badge: "CHEAPEST", cost: 1,  color: "#10b981", i2v: true,  audio: false, negPrompt: false, durations: [3,5,8],           resolutions: ["480p","720p"],          durationLabel: "3-8s",   pricePer10s: "$0.50",  tier: "budget" },
   { key: "seedance",   name: "Seedance 1.5 Pro", desc: "Great quality + native audio",         badge: "VALUE",    cost: 2,  color: "#fb923c", i2v: true,  audio: true,  negPrompt: false, durations: [4,5,8,10,12],     resolutions: ["480p","720p","1080p"],  durationLabel: "4-12s",  pricePer10s: "$1.00",  tier: "standard" },
   { key: "kling3",     name: "Kling 3.0",        desc: "Cinematic realism, smooth motion",     badge: "POPULAR",  cost: 3,  color: "#22d3ee", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15],     resolutions: ["720p","1080p"],         durationLabel: "3-15s",  pricePer10s: "$1.20",  tier: "standard" },
-  { key: "grok-video", name: "Grok Imagine",     desc: "Creative with built-in audio",         badge: "AUDIO",    cost: 2,  color: "#ef4444", i2v: true,  audio: false, negPrompt: false, durations: [6,10],            resolutions: ["480p","720p"],          durationLabel: "6/10s",  pricePer10s: "$0.50",  tier: "standard" },
+  { key: "grok-video", name: "Grok Imagine",     desc: "Creative with built-in audio",         badge: "AUDIO",    cost: 4,  color: "#ef4444", i2v: true,  audio: false, negPrompt: false, durations: [6,10],            resolutions: ["480p","720p"],          durationLabel: "6/10s",  pricePer10s: "$1.40",  tier: "standard" },
   { key: "veo31",      name: "VEO 3.1 Fast",     desc: "Google, fast + fine detail",           badge: "NEW",      cost: 4,  color: "#38bdf8", i2v: true,  audio: false, negPrompt: false, durations: [4,6,8],           resolutions: ["720p","1080p","4K"],    durationLabel: "4/6/8s", pricePer10s: "$1.60",  tier: "standard" },
   { key: "kling-o3",   name: "Kling O3",         desc: "Next-gen, exceptional detail",         badge: "BEST",     cost: 5,  color: "#8b5cf6", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15],     resolutions: ["720p","1080p"],         durationLabel: "3-15s",  pricePer10s: "$2.00",  tier: "premium" },
   { key: "sora2",      name: "Sora 2 Pro",       desc: "OpenAI flagship, photorealistic",      badge: "PREMIUM",  cost: 8,  color: "#a78bfa", i2v: true,  audio: false, negPrompt: false, durations: [4,8,12],          resolutions: ["720p","1080p"],         durationLabel: "4/8/12s",pricePer10s: "$3.00",  tier: "premium" },
@@ -714,8 +714,8 @@ export default function SuperScenePage() {
     { key: "doubao-seedream-4.5", name: "Seedream 4.5",   desc: "Multi-image editing, 4K", badge: "NEW" },
     { key: "gpt-image-1",        name: "GPT Image",      desc: "OpenAI image generation" },
     { key: "gpt-image-1.5",      name: "GPT Image 1.5",  desc: "True-color precision", badge: "NEW" },
-    { key: "grok-image",         name: "Grok Imagine",   desc: "$0.02/image — fast & cheap", badge: "CHEAP" },
-    { key: "grok-image-pro",     name: "Grok Imagine Pro", desc: "$0.07/image — higher quality", badge: "PRO" },
+    { key: "grok-image",         name: "Grok Imagine",   desc: "Fast AI image generation", badge: "NEW" },
+    { key: "grok-image-pro",     name: "Grok Imagine Pro", desc: "Premium quality images", badge: "PRO" },
     { key: "z-image-turbo",      name: "Z Turbo",        desc: "Ultra-fast ~3 seconds", badge: "FAST" },
   ];
   const IMG_SIZES = ["1:1","16:9","9:16","4:3","3:4","3:2","2:3","4:5","5:4"];
