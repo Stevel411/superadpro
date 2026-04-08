@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { formatMoney } from '../utils/money';
-import { Users, Zap, GraduationCap, Layers, DollarSign, HelpCircle } from 'lucide-react';
+import { Users, Zap, GraduationCap, Layers, DollarSign, HelpCircle, MessageCircle, Send, X } from 'lucide-react';
 
 var TIER_PRICES = [0, 20, 50, 100, 200, 400, 600, 800, 1000];
 var TIER_NAMES = ['', 'Starter', 'Builder', 'Pro', 'Advanced', 'Elite', 'Premium', 'Executive', 'Ultimate'];
@@ -225,6 +225,7 @@ export default function CompensationPlan() {
         </div>
       </div>
 
+      <CompPlanChat/>
     </AppLayout>
   );
 }
@@ -305,8 +306,8 @@ function CompPlanHelp(props) {
   var sections = [
     { title:'How do I earn from memberships?', desc:'When someone joins SuperAdPro through your referral link, you earn 50% of their membership fee. Basic ($20/mo) pays you $10, Pro ($35/mo) pays you $17.50. This is recurring — you earn every month they stay active. No campaign tier required.' },
     { title:'How does the 8×8 grid work?', desc:'When you activate a Campaign Tier, you get an 8×8 grid (64 positions). Your personal referrals and their referrals (spillover) fill the grid. You earn 40% direct sponsor commission, 6.25% uni-level from 8 levels deep, and a 5% completion bonus when the grid fills all 64 positions.' },
-    { title:'What is the difference between wallets?', desc:'Your Affiliate Wallet holds membership and SuperScene commissions — always withdrawable. Your Campaign Wallet holds grid commissions — requires an active tier and daily Watch-to-Earn quota to withdraw.' },
-    { title:'How do SuperScene earnings work?', desc:'Every time someone you referred uses SuperScene AI tools (video, images, music), you earn $0.025 per credit they consume. This accumulates automatically as passive income in your Affiliate Wallet.' },
+    { title:'What is the difference between wallets?', desc:'Your Affiliate Wallet holds membership and Creative Studio commissions — always withdrawable. Your Campaign Wallet holds grid commissions — requires an active tier and daily Watch-to-Earn quota to withdraw.' },
+    { title:'How does the Credit Matrix work?', desc:'When anyone in your network buys a Creative Studio credit pack, they enter your 3×3 Credit Matrix. The matrix has 3 levels (1 + 3 + 9 positions). You earn level commissions on each purchase and a completion bonus when all 9 positions fill. Then a new cycle starts automatically.' },
     { title:'What are Campaign Tiers?', desc:'Campaign Tiers (T1-T8, $20-$1,000) activate your participation in the 8×8 Income Grid. Higher tiers unlock more daily campaign video views and larger grid completion bonuses. You must also watch your daily video quota to keep campaign earnings active.' },
     { title:'How does Pay It Forward work?', desc:'Pay $20 from your wallet to gift someone a Basic membership. You become their sponsor and earn referral commissions on everything they do. When they earn $20+, they are prompted to pay it forward too — creating a chain of organic growth.' },
     { title:'What is the course marketplace?', desc:'Coming soon. Create and sell courses on the marketplace. Keep 100% of your first sale. Subsequent sales pass up to your sponsor in a cascade. The deeper your network, the more pass-ups flow to you.' },
@@ -332,5 +333,129 @@ function CompPlanHelp(props) {
         </div>;
       })}
     </div>
+  );
+}
+
+function CompPlanChat() {
+  var [open, setOpen] = useState(false);
+  var [messages, setMessages] = useState([]);
+  var [input, setInput] = useState('');
+  var [loading, setLoading] = useState(false);
+  var scrollRef = useRef(null);
+  var inputRef = useRef(null);
+
+  useEffect(function() {
+    if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+  }, [messages]);
+
+  useEffect(function() {
+    if (open && inputRef.current) inputRef.current.focus();
+  }, [open]);
+
+  function sendMessage() {
+    if (!input.trim() || loading) return;
+    var userMsg = input.trim();
+    setInput('');
+    var newMsgs = messages.concat([{ role: 'user', content: userMsg }]);
+    setMessages(newMsgs);
+    setLoading(true);
+    fetch('/api/chat/comp-plan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: newMsgs }),
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      setMessages(function(prev) { return prev.concat([{ role: 'assistant', content: data.reply || 'Sorry, I could not process that.' }]); });
+      setLoading(false);
+    }).catch(function() {
+      setMessages(function(prev) { return prev.concat([{ role: 'assistant', content: 'Network error — please try again.' }]); });
+      setLoading(false);
+    });
+  }
+
+  var suggestions = ['How much can I earn?', 'Explain the Credit Matrix', 'What are Campaign Tiers?', 'Calculate 20 referrals'];
+
+  return (
+    <>
+      {/* Floating button */}
+      {!open && <button onClick={function() { setOpen(true); }}
+        style={{ position: 'fixed', bottom: 24, right: 24, width: 56, height: 56, borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', border: 'none', cursor: 'pointer', boxShadow: '0 4px 20px rgba(124,58,237,.4)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, transition: 'transform .15s' }}
+        onMouseEnter={function(e) { e.currentTarget.style.transform = 'scale(1.1)'; }}
+        onMouseLeave={function(e) { e.currentTarget.style.transform = 'scale(1)'; }}>
+        <MessageCircle size={24} color="#fff"/>
+        <div style={{ position: 'absolute', top: -4, right: -4, width: 18, height: 18, borderRadius: '50%', background: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, color: '#fff', border: '2px solid #fff' }}>AI</div>
+      </button>}
+
+      {/* Chat window */}
+      {open && <div style={{ position: 'fixed', bottom: 24, right: 24, width: 380, height: 520, borderRadius: 16, background: '#fff', boxShadow: '0 12px 48px rgba(0,0,0,.2)', zIndex: 1000, display: 'flex', flexDirection: 'column', overflow: 'hidden', border: '1px solid #e2e8f0' }}>
+        {/* Header */}
+        <div style={{ background: 'linear-gradient(135deg, #172554, #1e3a8a)', padding: '14px 18px', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+          <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'rgba(139,92,246,.3)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <MessageCircle size={18} color="#a78bfa"/>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>Comp Plan AI</div>
+            <div style={{ fontSize: 11, color: 'rgba(255,255,255,.5)', display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#4ade80' }}/> Ask me anything about earning
+            </div>
+          </div>
+          <button onClick={function() { setOpen(false); }} style={{ background: 'rgba(255,255,255,.1)', border: 'none', borderRadius: 8, padding: 6, cursor: 'pointer', display: 'flex' }}>
+            <X size={16} color="rgba(255,255,255,.6)"/>
+          </button>
+        </div>
+
+        {/* Messages */}
+        <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: 16, display: 'flex', flexDirection: 'column', gap: 12 }}>
+          {messages.length === 0 && <>
+            <div style={{ textAlign: 'center', padding: '20px 0' }}>
+              <div style={{ width: 48, height: 48, borderRadius: 12, background: '#f5f3ff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 12px' }}>
+                <DollarSign size={24} color="#8b5cf6"/>
+              </div>
+              <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>Ask me about earning with SuperAdPro</div>
+              <div style={{ fontSize: 12, color: '#94a3b8' }}>I can explain commissions, calculate scenarios, and help you understand every income stream.</div>
+            </div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+              {suggestions.map(function(s) {
+                return <button key={s} onClick={function() {
+                    var newMsgs = [{ role: 'user', content: s }];
+                    setMessages(newMsgs);
+                    setLoading(true);
+                    fetch('/api/chat/comp-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: newMsgs }) })
+                      .then(function(r) { return r.json(); }).then(function(data) { setMessages(function(prev) { return prev.concat([{ role: 'assistant', content: data.reply || 'Sorry, I could not process that.' }]); }); setLoading(false); })
+                      .catch(function() { setMessages(function(prev) { return prev.concat([{ role: 'assistant', content: 'Network error — please try again.' }]); }); setLoading(false); });
+                  }}
+                  style={{ padding: '6px 12px', borderRadius: 8, border: '1px solid #e9e5ff', background: '#faf5ff', color: '#7c3aed', fontSize: 11, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', transition: 'all .12s' }}
+                  onMouseEnter={function(e) { e.currentTarget.style.background = '#8b5cf6'; e.currentTarget.style.color = '#fff'; }}
+                  onMouseLeave={function(e) { e.currentTarget.style.background = '#faf5ff'; e.currentTarget.style.color = '#7c3aed'; }}>{s}</button>;
+              })}
+            </div>
+          </>}
+          {messages.map(function(m, i) {
+            var isUser = m.role === 'user';
+            return <div key={i} style={{ display: 'flex', justifyContent: isUser ? 'flex-end' : 'flex-start' }}>
+              <div style={{ maxWidth: '85%', padding: '10px 14px', borderRadius: 12, background: isUser ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)' : '#f1f5f9', color: isUser ? '#fff' : '#0f172a', fontSize: 13, lineHeight: 1.6, borderBottomRightRadius: isUser ? 4 : 12, borderBottomLeftRadius: isUser ? 12 : 4 }}>{m.content}</div>
+            </div>;
+          })}
+          {loading && <div style={{ display: 'flex', gap: 4, padding: '8px 14px' }}>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#cbd5e1', animation: 'bounce 1s infinite' }}/>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#cbd5e1', animation: 'bounce 1s infinite .15s' }}/>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#cbd5e1', animation: 'bounce 1s infinite .3s' }}/>
+          </div>}
+        </div>
+
+        {/* Input */}
+        <div style={{ padding: '12px 16px', borderTop: '1px solid #e2e8f0', display: 'flex', gap: 8, flexShrink: 0 }}>
+          <input ref={inputRef} value={input} onChange={function(e) { setInput(e.target.value); }}
+            onKeyDown={function(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
+            placeholder="Ask about commissions, tiers, earnings..."
+            style={{ flex: 1, padding: '10px 14px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', color: '#0f172a', outline: 'none' }}/>
+          <button onClick={sendMessage} disabled={!input.trim() || loading}
+            style={{ width: 40, height: 40, borderRadius: 10, border: 'none', background: input.trim() ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)' : '#e2e8f0', cursor: input.trim() ? 'pointer' : 'default', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'background .15s' }}>
+            <Send size={16} color={input.trim() ? '#fff' : '#94a3b8'}/>
+          </button>
+        </div>
+      </div>}
+
+      <style>{'@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}'}</style>
+    </>
   );
 }
