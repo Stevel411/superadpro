@@ -505,7 +505,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "course_earnings":   float(user.course_earnings or 0),
         "membership_earned": membership_earned,
         "boost_earned":      boost_earned,
-        "creative_studio_earned": float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(Commission.to_user_id == user.id, Commission.commission_type == "superscene_usage", Commission.amount_usdt > 0).scalar() or 0),
+        "creative_studio_earned": float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(Commission.to_user_id == user.id, Commission.commission_type.in_(["matrix_level", "matrix_completion"]), Commission.amount_usdt > 0).scalar() or 0),
         "personal_referrals":user.personal_referrals or 0,
         "total_team":        user.total_team or 0,
         "grid_stats":        stats,
@@ -2029,11 +2029,11 @@ def api_wallet_data(request: Request, user: User = Depends(get_current_user),
         "requested_at": w.requested_at.isoformat() if w.requested_at else None,
         "processed_at": w.processed_at.isoformat() if w.processed_at else None,
     } for w in withdrawals_raw]
-    # Calculate SuperScene usage earnings
+    # Calculate Credit Matrix earnings (matrix_level + matrix_completion)
     from sqlalchemy import func as _func
-    sc_earnings = db.query(_func.coalesce(_func.sum(Commission.amount_usdt), 0)).filter(
+    matrix_earnings = db.query(_func.coalesce(_func.sum(Commission.amount_usdt), 0)).filter(
         Commission.to_user_id == user.id,
-        Commission.commission_type == "superscene_usage",
+        Commission.commission_type.in_(["matrix_level", "matrix_completion"]),
         Commission.amount_usdt > 0,
     ).scalar()
 
@@ -2044,7 +2044,7 @@ def api_wallet_data(request: Request, user: User = Depends(get_current_user),
         "grid_earnings": float(user.grid_earnings or 0),
         "course_earnings": float(user.course_earnings or 0),
         "marketplace_earnings": float(user.marketplace_earnings or 0),
-        "superscene_earnings": float(sc_earnings or 0),
+        "creative_studio_earnings": float(matrix_earnings or 0),
         "membership_tier": user.membership_tier or "basic",
         "wallet_address": user.wallet_address or "",
         "kyc_status": getattr(user, 'kyc_status', 'none'),
@@ -19242,31 +19242,10 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
     )
     db.add(video)
 
-    # ── SuperScene Usage Commission ──
-    # Sponsor earns $0.025 per credit their referral uses
-    # This is 50% of our ~$0.05 margin per credit
-    SPONSOR_RATE_PER_CREDIT = decimal.Decimal("0.025")
-    if user.sponsor_id and credits_needed > 0:
-        try:
-            sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
-            if sponsor:
-                commission_amount = SPONSOR_RATE_PER_CREDIT * credits_needed
-                sponsor.balance = (sponsor.balance or decimal.Decimal('0')) + commission_amount
-                sponsor.total_earned = (sponsor.total_earned or decimal.Decimal('0')) + commission_amount
-
-                db.add(Commission(
-                    from_user_id=user.id,
-                    to_user_id=sponsor.id,
-                    amount_usdt=commission_amount,
-                    commission_type="superscene_usage",
-                    package_tier=0,
-                    status="paid",
-                    paid_at=datetime.utcnow(),
-                    notes=f"SuperScene usage: {credits_needed} credits × ${SPONSOR_RATE_PER_CREDIT}/cr = ${commission_amount:.4f} ({model_names.get(model_key, model_key)}, {duration}s)",
-                ))
-                logger.info(f"SuperScene sponsor commission: ${commission_amount:.4f} to user {sponsor.id} from user {user.id} ({credits_needed} credits)")
-        except Exception as e:
-            logger.error(f"SuperScene sponsor commission failed: {e}")
+    # ── Credit commissions are handled by the Credit Matrix ──
+    # When members BUY credit packs, they enter the 3x3 matrix
+    # Matrix pays level commissions + completion bonuses
+    # No per-usage commission here — that would duplicate the matrix
 
     db.commit()
     db.refresh(video)
@@ -19418,28 +19397,7 @@ async def sc_poll_status(task_id: str, request: Request, db: Session = Depends(g
                 credit_row.balance += video.credits_used
                 logger.info(f"SuperScene: Refunded {video.credits_used} credits to user {user.id} for failed video {task_id}")
 
-                # Reverse sponsor commission
-                SPONSOR_RATE_PER_CREDIT = decimal.Decimal("0.025")
-                if user.sponsor_id:
-                    try:
-                        sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
-                        if sponsor:
-                            reversal = SPONSOR_RATE_PER_CREDIT * video.credits_used
-                            sponsor.balance = max(decimal.Decimal('0'), (sponsor.balance or decimal.Decimal('0')) - reversal)
-                            sponsor.total_earned = max(decimal.Decimal('0'), (sponsor.total_earned or decimal.Decimal('0')) - reversal)
-                            db.add(Commission(
-                                from_user_id=user.id,
-                                to_user_id=sponsor.id,
-                                amount_usdt=-reversal,
-                                commission_type="superscene_usage",
-                                package_tier=0,
-                                status="paid",
-                                paid_at=datetime.utcnow(),
-                                notes=f"SuperScene refund reversal: {video.credits_used} credits (failed video {task_id})",
-                            ))
-                            logger.info(f"SuperScene sponsor commission reversed: ${reversal:.4f} from user {sponsor.id}")
-                    except Exception as e:
-                        logger.error(f"SuperScene sponsor commission reversal failed: {e}")
+                # No per-usage commission to reverse — Credit Matrix handles all credit commissions
 
                 video.credits_used = 0  # Mark as refunded so we don't double-refund
         db.commit()

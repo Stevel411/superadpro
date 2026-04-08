@@ -164,9 +164,9 @@ export default function Dashboard() {
             )
           },
           {
-            color: '#8b5cf6', bg: '#ede9fe', badge: 'per credit used',
+            color: '#8b5cf6', bg: '#ede9fe', badge: 'credit matrix',
             val: d.creative_studio_earned || 0, name: 'Creative Studio',
-            detail: 'Earned from referral credit usage',
+            detail: 'Matrix + credit usage commissions',
             icon: (
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <rect x="2" y="3" width="20" height="14" rx="3" fill="#8b5cf6" opacity=".8"/>
