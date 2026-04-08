@@ -12,6 +12,14 @@ var PACK_ICONS = {
 };
 
 export default function CreditMatrix() {
+  return (
+    <AppLayout title="Credit Matrix" subtitle="3×3 Forced Matrix">
+      <CreditMatrixContent />
+    </AppLayout>
+  );
+}
+
+export function CreditMatrixContent() {
   var [packs, setPacks] = useState([]);
   var [matrix, setMatrix] = useState(null);
   var [stats, setStats] = useState(null);
@@ -75,13 +83,11 @@ export default function CreditMatrix() {
 
   if (loading) {
     return (
-      <AppLayout title="Credit Matrix" subtitle="3×3 Forced Matrix">
-        <div style={{ textAlign: 'center', padding: '80px 0' }}>
-          <Loader2 size={32} color="#8b5cf6" style={{ animation: 'spin 1s linear infinite' }} />
-          <div style={{ marginTop: 12, color: '#64748b' }}>Loading Credit Matrix...</div>
-          <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
-        </div>
-      </AppLayout>
+      <div style={{ textAlign: 'center', padding: '80px 0' }}>
+        <Loader2 size={32} color="#8b5cf6" style={{ animation: 'spin 1s linear infinite' }} />
+        <div style={{ marginTop: 12, color: '#64748b' }}>Loading Credit Matrix...</div>
+        <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
+      </div>
     );
   }
 
@@ -90,7 +96,7 @@ export default function CreditMatrix() {
   var matrixStats = matrix && matrix.stats;
 
   return (
-    <AppLayout title="Credit Matrix" subtitle="3×3 Forced Matrix">
+    <>
 
       {/* Cobalt blue header */}
       <div style={{ background: 'linear-gradient(180deg, #172554, #1e3a8a)', borderRadius: 14, padding: '24px', marginBottom: 20 }}>
@@ -377,6 +383,6 @@ export default function CreditMatrix() {
       </div>
 
       <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
-    </AppLayout>
+    </>
   );
 }

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSearchParams } from 'react-router-dom';
 import AppLayout from '../../components/layout/AppLayout';
+import { CreditMatrixContent } from '../CreditMatrix';
 import './creative-studio.css';
 
 // ── Video Models ──────────────────────────────────────
@@ -82,10 +83,8 @@ export default function CreativeStudio() {
   var initialTab = searchParams.get('tab') || 'video-clips';
   var [tab, setTab] = useState(initialTab);
 
-  var navigate = useNavigate();
 
   function switchTab(t) {
-    if (t === 'credits') { navigate('/credit-matrix'); return; }
     setTab(t);
     setSearchParams(t === 'video-clips' ? {} : { tab: t }, { replace: true });
   }
@@ -130,10 +129,6 @@ export default function CreativeStudio() {
   useEffect(function() {
     fetch('/api/superscene/credits').then(function(r) { return r.json(); }).then(function(d) { setCredits(d.balance || 0); });
     fetch('/api/superscene/videos').then(function(r) { return r.json(); }).then(function(d) { setVideos(d.videos || []); });
-    // Preload Credit Matrix chunk + API data in background so Credits tab navigates instantly
-    import('../CreditMatrix.jsx').catch(function() {});
-    fetch('/api/credit-matrix/stats').catch(function() {});
-    fetch('/api/credit-matrix/packs').catch(function() {});
   }, []);
 
   // ── Polling ──
@@ -283,7 +278,7 @@ export default function CreativeStudio() {
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, paddingLeft: 16 }}>
             <span style={{ fontFamily: 'Sora, sans-serif', fontSize: 16, fontWeight: 800, color: '#4ade80' }}>{credits}</span>
             <span style={{ fontSize: 11, color: '#94a3b8' }}>credits</span>
-            <button className="cs-credits-buy" onClick={function() { navigate('/credit-matrix'); }}>+ Buy</button>
+            <button className="cs-credits-buy" onClick={function() { switchTab('credits'); }}>+ Buy</button>
           </div>
         </div>
 
@@ -541,7 +536,8 @@ export default function CreativeStudio() {
             <div style={{ fontSize: 14 }}>All your generated content in one place — coming next</div>
           </div>}
 
-          {/* Credits tab navigates to /credit-matrix */}
+          {/* ═══ CREDITS TAB — embedded Credit Matrix ═══ */}
+          {tab === 'credits' && <CreditMatrixContent />}
 
         </div>
       </div>
