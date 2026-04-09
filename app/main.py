@@ -16859,19 +16859,99 @@ def api_affiliate_data(request: Request, user: User = Depends(get_current_user),
 
 @app.get("/api/leaderboard")
 def api_leaderboard(db: Session = Depends(get_db)):
-    """JSON leaderboard data."""
-    top_earners = db.query(User).filter(User.is_active == True).order_by(
-        User.total_earned.desc()).limit(20).all()
-    top_recruiters = db.query(User).filter(User.is_active == True).order_by(
-        User.personal_referrals.desc()).limit(20).all()
-    top_teams = db.query(User).filter(User.is_active == True).order_by(
-        User.total_team.desc()).limit(20).all()
-    def user_entry(u, val):
-        return {"username": u.username, "name": u.first_name or u.username, "value": val}
+    """JSON leaderboard data with full user info + recent activity feed."""
+
+    def user_data(u):
+        # Get user's highest active grid tier
+        active_grid = db.query(Grid).filter(
+            Grid.owner_id == u.id, Grid.is_complete == False
+        ).order_by(Grid.package_tier.desc()).first()
+        grid_tier = active_grid.package_tier if active_grid else 0
+        grid_count = active_grid.positions_filled if active_grid else 0
+
+        return {
+            "id": u.id,
+            "username": u.username,
+            "first_name": u.first_name or u.username,
+            "last_name": u.last_name or "",
+            "personal_referrals": u.personal_referrals or 0,
+            "total_team": u.total_team or 0,
+            "total_earned": float(u.total_earned or 0),
+            "course_sale_count": u.course_sale_count or 0,
+            "grid_tier": grid_tier,
+            "_grid_count": grid_count,
+            "_course_count": u.course_sale_count or 0,
+            "membership_tier": u.membership_tier or "basic",
+        }
+
+    # Top referrers
+    ref_leaders = db.query(User).filter(
+        User.is_active == True, User.personal_referrals > 0
+    ).order_by(User.personal_referrals.desc()).limit(20).all()
+
+    # Top grid builders (by total team size)
+    grid_users = db.query(User).filter(
+        User.is_active == True, User.total_team > 0
+    ).order_by(User.total_team.desc()).limit(20).all()
+
+    # Top course sellers
+    course_users = db.query(User).filter(
+        User.is_active == True, User.course_sale_count > 0
+    ).order_by(User.course_sale_count.desc()).limit(20).all()
+
+    # ── Recent activity feed (last 20 events) ──
+    from datetime import timedelta
+    week_ago = datetime.utcnow() - timedelta(days=7)
+
+    # Recent signups
+    recent_joins = db.query(User).filter(
+        User.created_at >= week_ago, User.is_active == True
+    ).order_by(User.created_at.desc()).limit(10).all()
+
+    # Recent commissions
+    recent_comms = db.query(Commission).filter(
+        Commission.created_at >= week_ago,
+        Commission.status == "paid",
+        Commission.commission_type.in_(["membership_sponsor", "membership_renewal"])
+    ).order_by(Commission.created_at.desc()).limit(10).all()
+
+    activity = []
+    for u in recent_joins:
+        activity.append({
+            "type": "join",
+            "icon": "👋",
+            "text": f"{u.first_name or u.username} joined SuperAdPro",
+            "time": u.created_at.isoformat() if u.created_at else None,
+        })
+    for c in recent_comms:
+        earner = db.query(User).filter(User.id == c.to_user_id).first()
+        if earner:
+            activity.append({
+                "type": "earning",
+                "icon": "💰",
+                "text": f"{earner.first_name or earner.username} earned a commission",
+                "time": c.created_at.isoformat() if c.created_at else None,
+            })
+
+    # Sort by time, newest first
+    activity.sort(key=lambda x: x.get("time") or "", reverse=True)
+    activity = activity[:20]
+
+    # Platform stats
+    total_members = db.query(User).filter(User.is_active == True).count()
+    total_earned = float(db.query(func.sum(Commission.amount_usdt)).filter(
+        Commission.status == "paid"
+    ).scalar() or 0)
+
     return {
-        "top_earners": [user_entry(u, float(u.total_earned or 0)) for u in top_earners],
-        "top_recruiters": [user_entry(u, u.personal_referrals or 0) for u in top_recruiters],
-        "top_teams": [user_entry(u, u.total_team or 0) for u in top_teams],
+        "ref_leaders": [user_data(u) for u in ref_leaders],
+        "grid_users": [user_data(u) for u in grid_users],
+        "course_users": [user_data(u) for u in course_users],
+        "activity": activity,
+        "stats": {
+            "total_members": total_members,
+            "total_earned": total_earned,
+        }
     }
 
 

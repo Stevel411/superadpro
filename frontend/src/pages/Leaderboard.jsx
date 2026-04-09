@@ -222,6 +222,61 @@ export default function Leaderboard() {
           </div>
         </>
       )}
+
+      {/* ── Community Activity Feed + Platform Stats ── */}
+      <div style={{ display:'grid', gridTemplateColumns:'1fr 320px', gap:16, marginTop:20 }}>
+        {/* Activity Feed */}
+        <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e8ecf2', overflow:'hidden' }}>
+          <div style={{ padding:'16px 20px', borderBottom:'1px solid #f1f5f9', display:'flex', alignItems:'center', gap:8 }}>
+            <div style={{ width:8, height:8, borderRadius:'50%', background:'#22c55e', animation:'pulse 2s infinite' }}/>
+            <span style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'#0f172a' }}>Live Activity</span>
+          </div>
+          <div style={{ maxHeight:340, overflowY:'auto' }}>
+            {(d.activity||[]).length === 0 ? (
+              <div style={{ padding:'40px 20px', textAlign:'center', color:'#94a3b8', fontSize:13 }}>No recent activity yet — be the first!</div>
+            ) : (d.activity||[]).map(function(a, i) {
+              var timeAgo = '';
+              if (a.time) {
+                var diff = (Date.now() - new Date(a.time).getTime()) / 1000;
+                if (diff < 60) timeAgo = 'Just now';
+                else if (diff < 3600) timeAgo = Math.floor(diff / 60) + 'm ago';
+                else if (diff < 86400) timeAgo = Math.floor(diff / 3600) + 'h ago';
+                else timeAgo = Math.floor(diff / 86400) + 'd ago';
+              }
+              return (
+                <div key={i} style={{ padding:'12px 20px', borderBottom:'1px solid #f8f9fb', display:'flex', alignItems:'center', gap:12 }}>
+                  <div style={{ fontSize:18, flexShrink:0 }}>{a.icon}</div>
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:13, color:'#0f172a', fontWeight:500 }}>{a.text}</div>
+                  </div>
+                  <div style={{ fontSize:10, color:'#cbd5e1', flexShrink:0 }}>{timeAgo}</div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Platform Stats */}
+        <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
+          <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:16, padding:'24px 20px', textAlign:'center' }}>
+            <div style={{ fontSize:10, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>Active Members</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:900, color:'#fff' }}>{(d.stats||{}).total_members||0}</div>
+            <div style={{ fontSize:11, color:'rgba(255,255,255,.3)', marginTop:4 }}>and growing</div>
+          </div>
+          <div style={{ background:'linear-gradient(135deg,#065f46,#059669)', borderRadius:16, padding:'24px 20px', textAlign:'center' }}>
+            <div style={{ fontSize:10, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>Total Earned by Members</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:900, color:'#fff' }}>${Math.round((d.stats||{}).total_earned||0).toLocaleString()}</div>
+            <div style={{ fontSize:11, color:'rgba(255,255,255,.3)', marginTop:4 }}>paid out in commissions</div>
+          </div>
+          <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e8ecf2', padding:'20px', textAlign:'center' }}>
+            <div style={{ fontSize:13, fontWeight:700, color:'#0f172a', marginBottom:8 }}>Want to be on this board?</div>
+            <div style={{ fontSize:12, color:'#94a3b8', lineHeight:1.6, marginBottom:12 }}>Share your referral link, build your team, and climb the rankings.</div>
+            <a href="/affiliate" style={{ display:'inline-block', padding:'10px 24px', background:'linear-gradient(135deg,#8b5cf6,#7c3aed)', color:'#fff', borderRadius:10, fontSize:13, fontWeight:800, textDecoration:'none' }}>Share your link</a>
+          </div>
+        </div>
+      </div>
+
+      <style>{'@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}'}</style>
     </AppLayout>
   );
 }
