@@ -4815,9 +4815,10 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
     ).all()
     watched_ids = [w[0] for w in watched_today]
 
-    # Get all eligible campaigns (active, not watched today, not own)
+    # Get all eligible campaigns (active, not watched today, not own, not completed)
     query = db.query(VideoCampaign).filter(
         VideoCampaign.status == "active",
+        VideoCampaign.is_completed == False,
         VideoCampaign.user_id != user_id,  # never show own campaigns
     )
     if watched_ids:
@@ -4825,11 +4826,33 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
 
     candidates = query.all()
 
+    # ── FIX #5: Filter out campaigns from owners with expired memberships ──
+    valid_candidates = []
+    for c in candidates:
+        owner = db.query(User).filter(User.id == c.user_id).first()
+        if not owner:
+            continue
+        # Allow seed campaigns (owned by admin) regardless of membership
+        if owner.is_admin:
+            valid_candidates.append(c)
+            continue
+        # Check owner has active membership
+        if not owner.is_active:
+            continue
+        # Check grace period hasn't expired for completed campaigns
+        if c.grace_expires_at and c.grace_expires_at < datetime.utcnow():
+            c.status = "expired"
+            db.commit()
+            continue
+        valid_candidates.append(c)
+    candidates = valid_candidates
+
     # If no unwatched campaigns from others, allow re-watches (excluding own, but
     # still prefer ones not watched today so we rotate through the pool)
     if not candidates:
         q2 = db.query(VideoCampaign).filter(
             VideoCampaign.status == "active",
+            VideoCampaign.is_completed == False,
             VideoCampaign.user_id != user_id,
         )
         # Prefer unwatched-today in re-watch pool too
@@ -4858,7 +4881,22 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
         # ── View deficit score (campaigns furthest from target get priority) ──
         target = c.views_target or 1
         delivered = c.views_delivered or 0
-        # Skip campaigns that have hit their monthly view target
+
+        # ── FIX #3: Monthly view cap enforcement ──
+        from .database import CAMPAIGN_TIER_FEATURES
+        tier_features = CAMPAIGN_TIER_FEATURES.get(c.owner_tier or 1, CAMPAIGN_TIER_FEATURES[1])
+        monthly_cap = tier_features.get("monthly_views", 500)
+        # Count views delivered this calendar month
+        from datetime import datetime
+        month_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        monthly_views = db.query(func.count(VideoWatch.id)).filter(
+            VideoWatch.campaign_id == c.id,
+            VideoWatch.watched_at >= month_start
+        ).scalar() or 0
+        if monthly_views >= monthly_cap:
+            continue  # skip — monthly cap reached, don't show this campaign
+
+        # Skip campaigns that have hit their total view target
         if target > 0 and delivered >= target:
             score -= 500  # heavily deprioritise completed campaigns
         else:
@@ -4866,8 +4904,6 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
             score += pct_remaining * 50
 
         # ── Reach level (category/extended/full) ──
-        from .database import CAMPAIGN_TIER_FEATURES
-        tier_features = CAMPAIGN_TIER_FEATURES.get(c.owner_tier or 1, CAMPAIGN_TIER_FEATURES[1])
         reach = tier_features.get("reach", "category")
         if reach == "category" and c.category and watcher_interests:
             # Category-only reach: penalty if no interest match
@@ -17820,6 +17856,15 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
 
         # Increment campaign views delivered
         campaign.views_delivered = (campaign.views_delivered or 0) + 1
+
+        # ── FIX #4: Campaign completion check ──
+        # When views_delivered reaches views_target, mark campaign as completed
+        if campaign.views_target and campaign.views_delivered >= campaign.views_target and not campaign.is_completed:
+            campaign.is_completed = True
+            campaign.completed_at = datetime.utcnow()
+            campaign.grace_expires_at = datetime.utcnow() + timedelta(days=14)
+            campaign.status = "completed"
+            logger.info(f"Campaign {campaign.id} completed: {campaign.views_delivered}/{campaign.views_target} views")
 
         db.commit()
 
