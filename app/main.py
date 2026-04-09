@@ -620,14 +620,23 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
             "cta": "View wallet", "cta_link": "/wallet",
         })
 
-    # ── Goal: Daily watch quota ──
+    # ── Goal: Daily watch quota (always shown — changes state when complete) ──
     from datetime import date
     quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
     if quota:
         today_str = str(date.today())
         watched = quota.today_watched if quota.today_date == today_str else 0
         required = quota.daily_required or 1
-        if watched < required:
+        if watched >= required:
+            goals.append({
+                "type": "watch", "color": "#22c55e", "bg": "#f0fdf4",
+                "icon": "check", "title": "Today's watch completed!",
+                "desc": f"You've watched all {required} video{'s' if required > 1 else ''} today. You're qualified for campaign wallet withdrawals. Resets at midnight.",
+                "progress": 100, "progress_label": f"{watched} of {required} watched today",
+                "completed": True,
+                "cta": "Watch more", "cta_link": "/watch",
+            })
+        else:
             pct = min(100, int(watched / required * 100)) if required > 0 else 0
             goals.append({
                 "type": "watch", "color": "#f59e0b", "bg": "#fefce8",
@@ -636,6 +645,15 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
                 "progress": pct, "progress_label": f"{watched} of {required} watched today",
                 "cta": "Watch now", "cta_link": "/watch",
             })
+    else:
+        # No quota record yet — prompt them to start
+        goals.append({
+            "type": "watch", "color": "#f59e0b", "bg": "#fefce8",
+            "icon": "zap", "title": "Start your daily watch",
+            "desc": "Watch a short video each day to stay qualified for campaign wallet withdrawals.",
+            "progress": 0, "progress_label": "0 of 1 watched today",
+            "cta": "Watch now", "cta_link": "/watch",
+        })
 
     # ── Opportunities (features not yet used) ──
 
