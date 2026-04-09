@@ -5679,6 +5679,44 @@ async def admin_api_change_tier(
     return {"success": True, "username": target.username, "old_tier": old_tier, "new_tier": new_tier}
 
 
+@app.post("/admin/api/user/{user_id}/gift-membership")
+async def admin_api_gift_membership(
+    user_id: int, request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Gift a free membership to a user with a custom duration."""
+    _require_admin(user)
+    body = await request.json()
+    tier = body.get("tier", "basic")
+    months = body.get("months", 1)
+
+    if tier not in ("basic", "pro"):
+        raise HTTPException(status_code=400, detail="Invalid tier — must be 'basic' or 'pro'")
+    if months not in (1, 3, 6, 12):
+        raise HTTPException(status_code=400, detail="Invalid duration — must be 1, 3, 6, or 12 months")
+
+    target = db.query(User).filter(User.id == user_id).first()
+    if not target:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    target.membership_tier = tier
+    target.is_active = True
+    target.membership_expires_at = datetime.utcnow() + timedelta(days=months * 31)
+
+    db.commit()
+    expiry = target.membership_expires_at.strftime('%d %b %Y')
+    logger.info(f"Admin gifted membership: {target.username} → {tier.upper()} for {months} months (expires {expiry})")
+    return {
+        "success": True,
+        "username": target.username,
+        "tier": tier,
+        "months": months,
+        "expires": expiry,
+        "message": f"{target.username} now has {tier.upper()} membership until {expiry}"
+    }
+
+
 # ── Content Moderation Queue ──
 @app.get("/admin/api/moderation-queue")
 def admin_api_moderation_queue(

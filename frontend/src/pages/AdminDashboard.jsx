@@ -290,6 +290,9 @@ function UsersTab() {
                 </button>
               )}
 
+              {/* Gift Membership */}
+              {!detail.is_admin && <GiftMembership userId={selected} username={detail.username} onDone={function(m) { setMsg(m); openUser(selected); loadUsers(); }}/>}
+
               {/* Adjust balance */}
               <div style={{fontSize:11,fontWeight:700,color:'#64748b',marginBottom:6}}>Adjust Balance</div>
               <div style={{display:'flex',gap:6,marginBottom:6}}>
@@ -1138,3 +1141,61 @@ function SuperSceneAnalyticsTab() {
 }
 
 function Spin() { return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#dc2626',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div>; }
+
+function GiftMembership(props) {
+  var [tier, setTier] = useState('pro');
+  var [months, setMonths] = useState(12);
+  var [gifting, setGifting] = useState(false);
+
+  function gift() {
+    if (gifting) return;
+    if (!window.confirm('Gift ' + tier.toUpperCase() + ' membership for ' + months + ' months to @' + props.username + '?')) return;
+    setGifting(true);
+    apiPost('/admin/api/user/' + props.userId + '/gift-membership', { tier: tier, months: months })
+      .then(function(r) {
+        if (r.success) props.onDone(r.message || 'Membership gifted!');
+        else props.onDone(r.error || 'Failed');
+        setGifting(false);
+      })
+      .catch(function(e) { props.onDone(e.message || 'Failed'); setGifting(false); });
+  }
+
+  return (
+    <div style={{borderTop:'1px solid #e2e8f0',paddingTop:12,marginTop:4}}>
+      <div style={{fontSize:11,fontWeight:700,color:'#64748b',marginBottom:8}}>🎁 Gift Free Membership</div>
+      <div style={{display:'flex',gap:6,marginBottom:8}}>
+        <div style={{flex:1}}>
+          <div style={{fontSize:10,color:'#94a3b8',marginBottom:3}}>Tier</div>
+          <div style={{display:'flex',gap:4}}>
+            {['basic','pro'].map(function(t) {
+              return <button key={t} onClick={function() { setTier(t); }}
+                style={{flex:1,padding:'7px 0',borderRadius:6,border:'1px solid ' + (tier===t?'#8b5cf6':'#e2e8f0'),
+                  background:tier===t?(t==='pro'?'#8b5cf6':'#0ea5e9'):'#fff',
+                  color:tier===t?'#fff':'#64748b',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit',textTransform:'uppercase'}}>
+                {t}
+              </button>;
+            })}
+          </div>
+        </div>
+        <div style={{flex:1}}>
+          <div style={{fontSize:10,color:'#94a3b8',marginBottom:3}}>Duration</div>
+          <div style={{display:'flex',gap:4}}>
+            {[1,3,6,12].map(function(m) {
+              return <button key={m} onClick={function() { setMonths(m); }}
+                style={{flex:1,padding:'7px 0',borderRadius:6,border:'1px solid ' + (months===m?'#8b5cf6':'#e2e8f0'),
+                  background:months===m?'#8b5cf6':'#fff',color:months===m?'#fff':'#64748b',
+                  fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+                {m === 12 ? '1yr' : m + 'mo'}
+              </button>;
+            })}
+          </div>
+        </div>
+      </div>
+      <button onClick={gift} disabled={gifting}
+        style={{width:'100%',padding:'10px',borderRadius:8,border:'none',cursor:gifting?'default':'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,
+          background:'linear-gradient(135deg,#8b5cf6,#7c3aed)',color:'#fff',opacity:gifting?.6:1}}>
+        {gifting ? 'Gifting...' : '🎁 Gift ' + tier.toUpperCase() + ' for ' + (months === 12 ? '1 year' : months + ' months') + ' to @' + props.username}
+      </button>
+    </div>
+  );
+}
