@@ -694,6 +694,293 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
 
 
 # ═══════════════════════════════════════════════════════════════
+# ═══════════════════════════════════════════════════════════════
+#  30-DAY LAUNCH CHALLENGE
+# ═══════════════════════════════════════════════════════════════
+
+CHALLENGE_TASKS = {
+    1:  [{"id":"watch","title":"Watch your first video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"tour","title":"Complete the Platform Tour","xp":15,"auto":"tour","link":"/tour"},
+         {"id":"profile","title":"Set up your profile photo and bio","xp":10,"auto":None,"link":"/account"}],
+    2:  [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"reflink","title":"Copy your referral link","xp":10,"auto":None,"link":"/affiliate"},
+         {"id":"compplan","title":"Read the Compensation Plan","xp":15,"auto":None,"link":"/compensation-plan"}],
+    3:  [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"linkhub","title":"Set up your LinkHub page","xp":20,"auto":"linkhub","link":"/linkhub"},
+         {"id":"explore","title":"Explore the Creative Studio","xp":10,"auto":None,"link":"/creative-studio"}],
+    4:  [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"social1","title":"Share your referral link on social media","xp":25,"auto":None,"link":"/affiliate"}],
+    5:  [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"message","title":"Send a message to your sponsor","xp":15,"auto":None,"link":"/team-messenger"}],
+    6:  [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"create1","title":"Create your first AI image or video","xp":25,"auto":"creative","link":"/creative-studio"}],
+    7:  [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"review","title":"Check your analytics page","xp":10,"auto":None,"link":"/analytics"}],
+    8:  [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"social2","title":"Share a post about SuperAdPro on social media","xp":25,"auto":None,"link":"/affiliate"},
+         {"id":"welcome","title":"Send a welcome message to your newest referral","xp":20,"auto":None,"link":"/team-messenger"}],
+    9:  [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"contacts","title":"Send your referral link to 3 contacts","xp":25,"auto":None,"link":"/affiliate"}],
+    10: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"linktools","title":"Create a short link with Link Tools","xp":15,"auto":None,"link":"/link-tools"}],
+    11: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"social3","title":"Post about a SuperAdPro feature you like","xp":25,"auto":None,"link":"/affiliate"}],
+    12: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"network","title":"Check your network page and team growth","xp":10,"auto":None,"link":"/network"}],
+    13: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"create2","title":"Create a social media graphic in Creative Studio","xp":20,"auto":"creative","link":"/creative-studio"}],
+    14: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"milestone","title":"Review your Week 2 progress","xp":15,"auto":None,"link":"/challenge"}],
+    15: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"social4","title":"Share a testimonial or result on social media","xp":30,"auto":None,"link":"/affiliate"}],
+    16: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"leaderboard","title":"Check the community leaderboard","xp":10,"auto":None,"link":"/leaderboard"}],
+    17: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"tiers","title":"Explore Campaign Tiers","xp":15,"auto":None,"link":"/campaign-tiers"}],
+    18: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"social5","title":"Share your earnings or progress screenshot","xp":25,"auto":None,"link":"/affiliate"}],
+    19: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"help","title":"Help a team member with a question","xp":20,"auto":None,"link":"/team-messenger"}],
+    20: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"create3","title":"Create an AI voiceover or music track","xp":20,"auto":"creative","link":"/creative-studio"}],
+    21: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"wallet","title":"Review your wallet and earnings breakdown","xp":10,"auto":None,"link":"/wallet"}],
+    22: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"social6","title":"Create and share a video using Creative Studio","xp":30,"auto":None,"link":"/creative-studio"}],
+    23: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"engage","title":"Reply to a message in Team Messenger","xp":15,"auto":None,"link":"/team-messenger"}],
+    24: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"strategy","title":"Write down 3 people to invite this week","xp":15,"auto":None,"link":"/affiliate"}],
+    25: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"social7","title":"Share your referral link with a call-to-action","xp":25,"auto":None,"link":"/affiliate"}],
+    26: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"create4","title":"Create content for a social media post","xp":20,"auto":"creative","link":"/creative-studio"}],
+    27: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"support","title":"Reach out to an inactive team member","xp":20,"auto":None,"link":"/team-messenger"}],
+    28: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"review28","title":"Review your 4-week earnings growth","xp":15,"auto":None,"link":"/analytics"}],
+    29: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"plan","title":"Set your goals for the next 30 days","xp":20,"auto":None,"link":"/dashboard"}],
+    30: [{"id":"watch","title":"Watch your daily video","xp":10,"auto":"watch","link":"/watch"},
+         {"id":"celebrate","title":"Share your 30-day challenge completion!","xp":50,"auto":None,"link":"/affiliate"},
+         {"id":"graduate","title":"Claim your Challenge Champion badge","xp":100,"auto":None,"link":"/challenge"}],
+}
+
+CHALLENGE_MILESTONES = [
+    {"day": 7,  "badge": "week1",    "title": "Week 1 Complete",     "xp": 50,  "desc": "Completed your first week — you're building the habit!"},
+    {"day": 14, "badge": "week2",    "title": "Week 2 Complete",     "xp": 75,  "desc": "Two weeks in — you're ahead of 80% of new members."},
+    {"day": 21, "badge": "week3",    "title": "Week 3 Complete",     "xp": 100, "desc": "Three weeks of consistency — your network is noticing."},
+    {"day": 30, "badge": "champion", "title": "Challenge Champion",  "xp": 200, "desc": "You completed the 30-Day Challenge! You're a SuperAdPro pro."},
+]
+
+CHALLENGE_WEEKS = [
+    {"week": 1, "title": "Getting started",   "desc": "Set up your account, explore the platform, watch your first videos"},
+    {"week": 2, "title": "First referral",     "desc": "Start sharing your link, create content, connect with your sponsor"},
+    {"week": 3, "title": "Build momentum",     "desc": "Create AI content, engage your team, explore campaign tiers"},
+    {"week": 4, "title": "Level up",           "desc": "Scale your activity, support your team, plan your next 30 days"},
+]
+
+
+@app.get("/api/challenge")
+def api_challenge(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Get the user's 30-day challenge progress and today's tasks."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from .database import ChallengeProgress
+    prog = db.query(ChallengeProgress).filter(ChallengeProgress.user_id == user.id).first()
+
+    # Auto-start challenge for active members
+    if not prog and user.is_active:
+        prog = ChallengeProgress(user_id=user.id)
+        db.add(prog)
+        db.commit()
+        db.refresh(prog)
+
+    if not prog:
+        return {"started": False}
+
+    # Calculate current day based on time since start
+    from datetime import date
+    days_since = (datetime.utcnow() - prog.started_at).days + 1
+    current_day = min(days_since, 30)
+    prog.current_day = current_day
+
+    completed_set = set(prog.completed_tasks.split(",")) if prog.completed_tasks else set()
+    badge_set = set(prog.badges.split(",")) if prog.badges else set()
+
+    # Auto-detect completed tasks
+    today_tasks = CHALLENGE_TASKS.get(current_day, [])
+    auto_detected = []
+    for t in today_tasks:
+        task_key = f"{current_day}:{t['id']}"
+        if task_key in completed_set:
+            continue
+        if t.get("auto") == "watch":
+            quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
+            today_str = str(date.today())
+            if quota and quota.today_date == today_str and quota.today_watched >= (quota.daily_required or 1):
+                auto_detected.append(task_key)
+        elif t.get("auto") == "linkhub":
+            has_lh = db.query(db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).exists()).scalar()
+            if has_lh:
+                auto_detected.append(task_key)
+        elif t.get("auto") == "creative":
+            from .database import SuperSceneVideo
+            has_vid = db.query(SuperSceneVideo).filter(SuperSceneVideo.user_id == user.id).first()
+            if has_vid:
+                auto_detected.append(task_key)
+        elif t.get("auto") == "tour":
+            if getattr(user, 'onboarding_completed', False):
+                auto_detected.append(task_key)
+
+    # Apply auto-detections
+    if auto_detected:
+        for key in auto_detected:
+            completed_set.add(key)
+            task_id = key.split(":")[1]
+            task_def = next((t for t in today_tasks if t["id"] == task_id), None)
+            if task_def:
+                prog.xp = (prog.xp or 0) + task_def["xp"]
+        prog.completed_tasks = ",".join(sorted(completed_set))
+        db.commit()
+
+    # Build today's task list with completion status
+    tasks_out = []
+    for t in today_tasks:
+        task_key = f"{current_day}:{t['id']}"
+        tasks_out.append({
+            "id": t["id"], "title": t["title"], "xp": t["xp"],
+            "link": t.get("link", "/dashboard"),
+            "completed": task_key in completed_set,
+        })
+
+    # Count completed days (a day counts as complete if ALL its tasks are done)
+    days_completed = 0
+    for d in range(1, current_day + 1):
+        day_tasks = CHALLENGE_TASKS.get(d, [])
+        all_done = all(f"{d}:{t['id']}" in completed_set for t in day_tasks)
+        if all_done and day_tasks:
+            days_completed += 1
+
+    # Build day dots (status for each day 1-30)
+    day_dots = []
+    for d in range(1, 31):
+        day_tasks = CHALLENGE_TASKS.get(d, [])
+        if d > current_day:
+            day_dots.append("future")
+        elif d == current_day:
+            all_done = all(f"{d}:{t['id']}" in completed_set for t in day_tasks)
+            day_dots.append("today_done" if all_done else "today")
+        else:
+            all_done = all(f"{d}:{t['id']}" in completed_set for t in day_tasks)
+            day_dots.append("done" if all_done else "missed")
+
+    # Streak calculation
+    streak = 0
+    for d in range(current_day, 0, -1):
+        day_tasks = CHALLENGE_TASKS.get(d, [])
+        all_done = all(f"{d}:{t['id']}" in completed_set for t in day_tasks)
+        if all_done and day_tasks:
+            streak += 1
+        else:
+            break
+
+    prog.streak = streak
+    db.commit()
+
+    # Upcoming milestone
+    next_milestone = None
+    for m in CHALLENGE_MILESTONES:
+        if m["day"] >= current_day and m["badge"] not in badge_set:
+            days_left = m["day"] - current_day
+            next_milestone = {"title": m["title"], "desc": m["desc"], "badge": m["badge"], "xp": m["xp"], "days_left": days_left, "target_day": m["day"]}
+            break
+
+    pct = min(100, int(current_day / 30 * 100))
+
+    return {
+        "started": True,
+        "current_day": current_day,
+        "pct": pct,
+        "xp": prog.xp or 0,
+        "streak": streak,
+        "badges": list(badge_set - {""}),
+        "days_completed": days_completed,
+        "day_dots": day_dots,
+        "tasks": tasks_out,
+        "next_milestone": next_milestone,
+        "weeks": CHALLENGE_WEEKS,
+        "is_complete": current_day >= 30 and prog.is_complete,
+    }
+
+
+@app.post("/api/challenge/complete-task")
+async def api_challenge_complete_task(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Mark a manual task as completed."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from .database import ChallengeProgress
+    body = await request.json()
+    task_id = body.get("task_id", "")
+
+    prog = db.query(ChallengeProgress).filter(ChallengeProgress.user_id == user.id).first()
+    if not prog:
+        return JSONResponse({"error": "Challenge not started"}, status_code=400)
+
+    days_since = (datetime.utcnow() - prog.started_at).days + 1
+    current_day = min(days_since, 30)
+    task_key = f"{current_day}:{task_id}"
+
+    completed_set = set(prog.completed_tasks.split(",")) if prog.completed_tasks else set()
+    if task_key in completed_set:
+        return {"ok": True, "already": True}
+
+    # Find XP for this task
+    day_tasks = CHALLENGE_TASKS.get(current_day, [])
+    task_def = next((t for t in day_tasks if t["id"] == task_id), None)
+    if not task_def:
+        return JSONResponse({"error": "Task not found for today"}, status_code=400)
+
+    completed_set.add(task_key)
+    prog.completed_tasks = ",".join(sorted(completed_set))
+    prog.xp = (prog.xp or 0) + task_def["xp"]
+    prog.last_active_day = current_day
+
+    # Check if this completes a milestone
+    badge_set = set(prog.badges.split(",")) if prog.badges else set()
+    for m in CHALLENGE_MILESTONES:
+        if m["badge"] not in badge_set:
+            # Check if all days up to milestone day are complete
+            all_milestone_days = True
+            for d in range(1, min(m["day"], current_day) + 1):
+                dt = CHALLENGE_TASKS.get(d, [])
+                if not all(f"{d}:{t['id']}" in completed_set for t in dt):
+                    all_milestone_days = False
+                    break
+            if all_milestone_days and current_day >= m["day"]:
+                badge_set.add(m["badge"])
+                prog.xp = (prog.xp or 0) + m["xp"]
+
+    prog.badges = ",".join(sorted(badge_set - {""}))
+
+    # Check 30-day completion
+    if current_day >= 30:
+        all_done = True
+        for d in range(1, 31):
+            dt = CHALLENGE_TASKS.get(d, [])
+            if not all(f"{d}:{t['id']}" in completed_set for t in dt):
+                all_done = False
+                break
+        if all_done:
+            prog.is_complete = True
+            prog.completed_at = datetime.utcnow()
+
+    db.commit()
+    return {"ok": True, "xp": prog.xp, "badges": list(badge_set - {""})}
+
+
 #  PUBLIC ROUTES
 # ═══════════════════════════════════════════════════════════════
 

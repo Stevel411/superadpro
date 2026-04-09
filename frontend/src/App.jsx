@@ -15,6 +15,7 @@ import Wallet from './pages/Wallet';
 import Account from './pages/Account';
 import Courses from './pages/Courses';
 import Leaderboard from './pages/Leaderboard';
+import Challenge from './pages/Challenge';
 import Affiliate from './pages/Affiliate';
 import CampaignTiers from './pages/CampaignTiers';
 import Marketplace from './pages/Marketplace';
@@ -145,6 +146,7 @@ function AppRoutes() {
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
       <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
       <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
+      <Route path="/challenge" element={<ProtectedRoute><Challenge /></ProtectedRoute>} />
       <Route path="/affiliate" element={<ProtectedRoute><Affiliate /></ProtectedRoute>} />
       <Route path="/campaign-tiers" element={<ProtectedRoute><CampaignTiers /></ProtectedRoute>} />
       <Route path="/activate/:tierId" element={<ProtectedRoute><ActivateTier /></ProtectedRoute>} />

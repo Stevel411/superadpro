@@ -6,7 +6,7 @@ import LanguageSelector from './LanguageSelector';
 import {
   Home, User, Wallet, Headphones, Eye, Zap, LayoutGrid, Link2,
   Globe, GraduationCap, PenLine, Network, FileText, Users,
-  Target, Mail, Trophy, Bot, Film,
+  Target, Mail, Trophy, Bot, Film, Flame,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
   BookOpen, PlusCircle, Scissors, Clock, UserCircle, Tv,
   Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers, DollarSign, BarChart3
@@ -56,6 +56,7 @@ function buildNav(t, isAdmin) {
     { type: 'group', label: 'Affiliate Hub', key: 'affiliate', icon: Share2, items: [
       { label: t('nav.myNetwork'), icon: Network, path: '/network' },
       { label: t('nav.leaderboard'), icon: Trophy, path: '/leaderboard' },
+      { label: '30-Day Challenge', icon: Flame, path: '/challenge' },
       { label: 'Affiliate Guide', icon: BookOpen, path: '/training' },
       { label: 'Pay It Forward', icon: Heart, path: '/pay-it-forward' },
     ]},

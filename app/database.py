@@ -2110,6 +2110,29 @@ try:
 except Exception as e:
     print(f"⚠️ Gift vouchers note: {e}")
 
+# ── 30-Day Challenge table ──
+try:
+    with engine.connect() as conn:
+        conn.execute(text("""CREATE TABLE IF NOT EXISTS challenge_progress (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+            started_at TIMESTAMP DEFAULT NOW(),
+            current_day INTEGER DEFAULT 1,
+            xp INTEGER DEFAULT 0,
+            streak INTEGER DEFAULT 0,
+            last_active_day INTEGER DEFAULT 0,
+            completed_tasks TEXT DEFAULT '',
+            badges TEXT DEFAULT '',
+            is_complete BOOLEAN DEFAULT FALSE,
+            completed_at TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT NOW()
+        )"""))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_challenge_user ON challenge_progress(user_id)"))
+        conn.commit()
+        print("✅ Challenge progress table created")
+except Exception as e:
+    print(f"⚠️ Challenge note: {e}")
+
 
 # ─────────────────────────────────────────────
 # SuperScene Models
@@ -2312,3 +2335,22 @@ class CreditMatrixCommission(Base):
 
     earner = relationship("User", foreign_keys=[earner_id], backref="credit_matrix_commissions_earned")
     from_user = relationship("User", foreign_keys=[from_user_id], backref="credit_matrix_commissions_generated")
+
+
+class ChallengeProgress(Base):
+    """Tracks a member's 30-day challenge progress."""
+    __tablename__ = "challenge_progress"
+    id              = Column(Integer, primary_key=True, index=True)
+    user_id         = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, index=True)
+    started_at      = Column(DateTime, default=datetime.utcnow)
+    current_day     = Column(Integer, default=1)          # 1-30
+    xp              = Column(Integer, default=0)
+    streak          = Column(Integer, default=0)          # consecutive days with at least 1 task done
+    last_active_day = Column(Integer, default=0)          # last day they completed a task
+    completed_tasks = Column(Text, default="")            # comma-separated "day:task_id" e.g. "1:watch,1:tour,2:watch"
+    badges          = Column(Text, default="")            # comma-separated badge IDs
+    is_complete     = Column(Boolean, default=False)      # True when all 30 days done
+    completed_at    = Column(DateTime, nullable=True)
+    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    user = relationship("User", backref="challenge_progress")
