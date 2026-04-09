@@ -46,16 +46,16 @@ export default function Support() {
       {/* Quick action cards */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:24}}>
         {[
-          { icon: BookOpen, title: 'Training Centre', desc: 'Step-by-step guides for every feature', link: '/training', grad: 'linear-gradient(135deg,#065f46,#34d399)' },
-          { icon: FileText, title: 'Compensation Plan', desc: 'Understand how you earn', link: '/compensation-plan', grad: 'linear-gradient(135deg,#4338ca,#818cf8)' },
-          { icon: MessageCircle, title: 'Team Messenger', desc: 'Message your sponsor or team', link: '/team-messenger', grad: 'linear-gradient(135deg,#92400e,#f59e0b)' },
+          { icon: BookOpen, title: 'Training Centre', desc: 'Step-by-step guides for every feature', link: '/training', color: '#16a34a' },
+          { icon: FileText, title: 'Compensation Plan', desc: 'Understand how you earn', link: '/compensation-plan', color: '#6366f1' },
+          { icon: MessageCircle, title: 'Team Messenger', desc: 'Message your sponsor or team', link: '/team-messenger', color: '#f59e0b' },
         ].map(function(q) {
           var Icon = q.icon;
           return (
             <Link key={q.title} to={q.link} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'22px 20px',textDecoration:'none',
               boxShadow:'0 2px 8px rgba(0,0,0,.04)',transition:'all .2s',position:'relative',overflow:'hidden'}}>
-              <div style={{position:'absolute',top:0,left:0,right:0,height:4,background:q.grad}}/>
-              <div style={{width:42,height:42,borderRadius:12,background:q.grad,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:14}}>
+              <div style={{position:'absolute',top:0,left:0,right:0,height:4,background:q.color}}/>
+              <div style={{width:42,height:42,borderRadius:12,background:'linear-gradient(90deg,#172554,#1e3a8a)',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:14}}>
                 <Icon size={20} color="#fff"/>
               </div>
               <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>{q.title}</div>
@@ -69,7 +69,7 @@ export default function Support() {
 
         {/* FAQ Section */}
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
-          <div style={{background:'linear-gradient(135deg,#172554,#334155)',padding:'18px 22px',display:'flex',alignItems:'center',gap:10}}>
+          <div style={{background:'linear-gradient(135deg,#172554,#1e3a8a)',padding:'18px 22px',display:'flex',alignItems:'center',gap:10}}>
             <HelpCircle size={18} color="#38bdf8"/>
             <span style={{fontSize:15,fontWeight:800,color:'#fff'}}>Frequently Asked Questions</span>
           </div>
@@ -101,7 +101,7 @@ export default function Support() {
 
         {/* Contact Form */}
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
-          <div style={{background:'linear-gradient(135deg,#172554,#334155)',padding:'18px 22px',display:'flex',alignItems:'center',gap:10}}>
+          <div style={{background:'linear-gradient(135deg,#172554,#1e3a8a)',padding:'18px 22px',display:'flex',alignItems:'center',gap:10}}>
             <Mail size={18} color="#38bdf8"/>
             <span style={{fontSize:15,fontWeight:800,color:'#fff'}}>Submit a Ticket</span>
           </div>
