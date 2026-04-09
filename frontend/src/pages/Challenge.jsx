@@ -231,6 +231,8 @@ export default function Challenge() {
           <div style={{ fontSize:14, color:'#16a34a', marginTop:8, lineHeight:1.6 }}>You've completed the 30-Day Launch Challenge. You earned {d.xp} XP and {(d.badges || []).length} badges. You're officially a SuperAdPro pro!</div>
         </div>
       )}
+
+      <div style={{ height:80 }}/>
     </AppLayout>
   );
 }
