@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
 import { formatMoney } from '../utils/money';
@@ -14,6 +14,10 @@ var _dashCache = { data: null, ts: 0 };
 export default function Dashboard() {
   var { t } = useTranslation();
   const { user } = useAuth();
+
+  // Redirect to onboarding wizard if not completed
+  if (user && user.onboarding_completed === false) return <Navigate to="/onboarding" replace />;
+
   // Start with cached data if fresh enough (< 30 seconds old)
   var hasFreshCache = _dashCache.data && (Date.now() - _dashCache.ts < 30000);
   const [data, setData] = useState(hasFreshCache ? _dashCache.data : null);

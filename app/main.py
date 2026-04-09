@@ -681,6 +681,13 @@ def _old_compensation_plan_DISABLED(request: Request, user: User = Depends(get_c
         return templates.TemplateResponse("compensation-plan-internal.html", ctx)
     return templates.TemplateResponse("compensation-plan.html", ctx)
 
+@app.get("/onboarding")
+def onboarding_page(request: Request):
+    """Serve React SPA for onboarding wizard."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/dashboard", status_code=302)
+
 @app.get("/leaderboard")
 def leaderboard_page(request: Request):
     """Serve React SPA."""

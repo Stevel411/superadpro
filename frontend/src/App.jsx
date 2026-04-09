@@ -8,6 +8,7 @@ import { Component, Suspense } from 'react';
 
 // ── Direct imports (core pages — instant navigation, no spinner) ──
 import Dashboard from './pages/Dashboard';
+import OnboardingWizard from './pages/OnboardingWizard';
 import AnalyticsPage from './pages/Analytics';
 import CreateCampaign from './pages/CreateCampaign';
 import Wallet from './pages/Wallet';
@@ -138,6 +139,7 @@ function AppRoutes() {
   return (
     <Routes>
       {/* Fully migrated pages */}
+      <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
