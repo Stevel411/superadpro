@@ -340,6 +340,12 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       }
       return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,41,0.3)', borderRadius: 12, border: '1px dashed #334155', color: '#475569', fontSize: 13, gap: 8 }}>⟨/⟩ Click ✎ CODE to add HTML</div>;
     }
+    // Badge/label: render as centred pill
+    if (el.type === 'badge' || el.type === 'label') {
+      return <div className="cel-editable" style={{ ...Object.fromEntries(
+        ['fontFamily','fontSize','fontWeight','color','textAlign','lineHeight','letterSpacing','textTransform','fontStyle'].filter(k => el.s?.[k]).map(k => [k, el.s[k]])
+      ), width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'text', outline: 'none', wordWrap: 'break-word' }} dangerouslySetInnerHTML={{__html: el.txt || '★ BADGE'}} />;
+    }
     // Default: contenteditable text
     return <div className="cel-editable" dangerouslySetInnerHTML={{ __html: el.txt || '' }} style={Object.fromEntries(
       innerStyle.split(';').filter(Boolean).map(s => { const [k, ...v] = s.split(':'); return [k.trim().replace(/-([a-z])/g, (_, c) => c.toUpperCase()), v.join(':').trim()]; })
