@@ -26,6 +26,7 @@ export default function Dashboard() {
 
   const [error, setError] = useState(null);
   const [toasts, setToasts] = useState([]);
+  const [goals, setGoals] = useState(null);
   var pollRef = useRef(null);
   var lastCheckRef = useRef(new Date().toISOString());
   var chachingRef = useRef(null);
@@ -78,6 +79,7 @@ export default function Dashboard() {
     apiGet('/api/dashboard')
       .then(d => { clearTimeout(timeout); _dashCache.data = d; _dashCache.ts = Date.now(); setData(d); setLoading(false); })
       .catch(e => { clearTimeout(timeout); if (!data) { setError(e?.message || 'Failed to load dashboard'); setLoading(false); } });
+    apiGet('/api/dashboard/goals').then(g => setGoals(g)).catch(() => {});
     return function() { clearTimeout(timeout); };
   }, []);
 
@@ -261,6 +263,90 @@ export default function Dashboard() {
         ))}
       </div>
 
+      {/* ── Smart Goals ── */}
+      {goals && ((goals.goals && goals.goals.length > 0) || (goals.opportunities && goals.opportunities.length > 0)) && (
+        <>
+          {goals.goals && goals.goals.length > 0 && (
+            <>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 12 }}>Your goals this week</div>
+              <div className="goals-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 12, marginBottom: 20 }}>
+                {goals.goals.map(function(g, i) {
+                  var ICONS = {
+                    users: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" fill={g.color}/><path d="M2 21v-1a7 7 0 0114 0v1" stroke={g.color} strokeWidth="2" strokeLinecap="round"/><path d="M16 3.13a4 4 0 010 7.75" stroke={g.color} strokeWidth="2" strokeLinecap="round" opacity=".6"/></svg>,
+                    grid: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="2" fill={g.color}/><rect x="14" y="3" width="7" height="7" rx="2" fill={g.color} opacity=".7"/><rect x="3" y="14" width="7" height="7" rx="2" fill={g.color} opacity=".7"/><rect x="14" y="14" width="7" height="7" rx="2" fill={g.color} opacity=".4"/></svg>,
+                    wallet: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="14" rx="3" fill={g.color} opacity=".8"/><circle cx="16" cy="13" r="2" fill="#fff"/><path d="M3 10h18" stroke="#fff" strokeWidth="1" opacity=".3"/></svg>,
+                    zap: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill={g.color}/></svg>,
+                  };
+                  var R = 22, C = 2 * Math.PI * R;
+                  var ringOffset = C - (C * (g.progress || 0) / 100);
+                  return (
+                    <div key={i} style={{ background:'#fff', borderRadius:14, border:'1px solid #e8ecf2', padding:'18px 20px', position:'relative', overflow:'hidden' }}>
+                      <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:`linear-gradient(90deg,${g.color},${g.color}80)` }}/>
+                      <div style={{ display:'flex', alignItems:'flex-start', gap:14 }}>
+                        <div style={{ flex:1 }}>
+                          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
+                            <div style={{ width:38, height:38, borderRadius:10, background:g.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                              {ICONS[g.icon] || ICONS.zap}
+                            </div>
+                            <div style={{ fontSize:14, fontWeight:800, color:'#0f172a', lineHeight:1.3 }}>{g.title}</div>
+                          </div>
+                          <div style={{ fontSize:12, color:'#64748b', lineHeight:1.5, marginBottom:14 }}>{g.desc}</div>
+                          {g.progress !== undefined && !g.ring && (
+                            <>
+                              <div style={{ height:6, borderRadius:99, background:`${g.color}18`, overflow:'hidden', marginBottom:6 }}>
+                                <div style={{ height:'100%', borderRadius:99, background:`linear-gradient(90deg,${g.color},${g.color}cc)`, width:`${g.progress}%`, transition:'width .8s ease-out' }}/>
+                              </div>
+                              <div style={{ display:'flex', justifyContent:'space-between', fontSize:11, color:'#94a3b8' }}>
+                                <span>{g.progress_label}</span>
+                                <span style={{ color:g.color, fontWeight:700 }}>{g.progress}%</span>
+                              </div>
+                            </>
+                          )}
+                          <Link to={g.cta_link} style={{ display:'inline-block', fontSize:12, fontWeight:700, padding:'8px 18px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none', marginTop:10 }}>{g.cta}</Link>
+                        </div>
+                        {g.ring && (
+                          <svg width="56" height="56" viewBox="0 0 52 52" style={{ flexShrink:0, marginTop:4 }}>
+                            <circle cx="26" cy="26" r={R} fill="none" stroke="#f1f5f9" strokeWidth="5"/>
+                            <circle cx="26" cy="26" r={R} fill="none" stroke={g.color} strokeWidth="5" strokeLinecap="round" strokeDasharray={C} strokeDashoffset={ringOffset} style={{ transform:'rotate(-90deg)', transformOrigin:'center' }}/>
+                            <text x="26" y="26" textAnchor="middle" dominantBaseline="central" fill={g.color} style={{ fontSize:13, fontWeight:800 }}>{g.progress}%</text>
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+          {goals.opportunities && goals.opportunities.length > 0 && (
+            <>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 12 }}>More opportunities</div>
+              <div className="goals-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 12, marginBottom: 20 }}>
+                {goals.opportunities.map(function(g, i) {
+                  var ICONS = {
+                    video: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="3" fill={g.color} opacity=".8"/><polygon points="10,7 10,14 16,10.5" fill="#fff"/><rect x="6" y="19" width="12" height="2" rx="1" fill={g.color} opacity=".4"/></svg>,
+                    link: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill={g.bg} stroke={g.color} strokeWidth="1.5"/><path d="M10 14l4-4" stroke={g.color} strokeWidth="2" strokeLinecap="round"/><path d="M14 10a2 2 0 012 2" stroke={g.color} strokeWidth="2" strokeLinecap="round"/><path d="M10 14a2 2 0 01-2-2" stroke={g.color} strokeWidth="2" strokeLinecap="round"/></svg>,
+                    target: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke={g.color} strokeWidth="1.5"/><circle cx="12" cy="12" r="5" stroke={g.color} strokeWidth="1.5"/><circle cx="12" cy="12" r="1.5" fill={g.color}/></svg>,
+                  };
+                  return (
+                    <div key={i} style={{ background:'#fff', borderRadius:'0 14px 14px 0', border:'1px solid #e8ecf2', borderLeft:`3px solid ${g.color}`, padding:'18px 20px' }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
+                        <div style={{ width:38, height:38, borderRadius:10, background:g.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                          {ICONS[g.icon] || ICONS.target}
+                        </div>
+                        <div style={{ fontSize:14, fontWeight:800, color:'#0f172a', lineHeight:1.3 }}>{g.title}</div>
+                      </div>
+                      <div style={{ fontSize:12, color:'#64748b', lineHeight:1.5, marginBottom:14 }}>{g.desc}</div>
+                      <Link to={g.cta_link} style={{ display:'inline-block', fontSize:12, fontWeight:700, padding:'8px 18px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none' }}>{g.cta}</Link>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </>
+      )}
+
       {/* Quick Actions — 6 cards, same for all members */}
       <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 14 }}>Quick Actions</div>
       <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 20 }}>
@@ -379,6 +465,7 @@ export default function Dashboard() {
         @media(max-width:767px){
           .income-grid{grid-template-columns:repeat(2,1fr)!important}
           .actions-grid{grid-template-columns:repeat(2,1fr)!important}
+          .goals-grid{grid-template-columns:1fr!important}
           .bottom-grid{grid-template-columns:1fr!important}
         }
         .action-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16)!important;transform:translateY(-3px)}

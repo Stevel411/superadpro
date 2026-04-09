@@ -533,6 +533,150 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "watch_count":       getattr(user, 'videos_watched', 0) or 0,
     }
 
+
+# ═══════════════════════════════════════════════════════════════
+#  SMART DASHBOARD GOALS
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/api/dashboard/goals")
+def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Return personalised goal cards based on member's current situation."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    goals = []
+    opportunities = []
+
+    refs = user.personal_referrals or 0
+    balance = float(user.balance or 0)
+    campaign_balance = float(user.campaign_balance or 0)
+    tier = (user.membership_tier or "basic").lower()
+    membership_cost = 20 if tier == "basic" else 35
+
+    # Commission per referral depends on what tier the REFERRAL picks
+    # Use $10 as baseline (Basic referral commission)
+    base_commission = 10
+
+    # ── Goal: Self-funding referrals ──
+    refs_needed = max(0, -(-membership_cost // base_commission))  # ceil division
+    if refs < refs_needed:
+        remaining = refs_needed - refs
+        pct = min(100, int(refs / refs_needed * 100)) if refs_needed > 0 else 0
+        if refs == 0:
+            title = "Share your referral link to earn your first commission"
+            desc = f"Every Basic referral earns you ${base_commission}/month. Just {refs_needed} referrals and your ${membership_cost} membership pays for itself."
+        elif remaining == 1:
+            title = "1 more referral and your membership pays for itself"
+            desc = f"You have {refs} referral{'s' if refs > 1 else ''} earning you ${refs * base_commission}/month. One more and your ${membership_cost} membership is fully covered."
+        else:
+            title = f"{remaining} more referrals until your membership is free"
+            desc = f"You have {refs} referral{'s' if refs > 1 else ''} earning you ${refs * base_commission}/month. {remaining} more and your membership costs you nothing."
+        goals.append({
+            "type": "referral", "color": "#0ea5e9", "bg": "#ecfeff",
+            "icon": "users", "title": title, "desc": desc,
+            "progress": pct, "progress_label": f"{refs} of {refs_needed} referrals",
+            "cta": "Share your link", "cta_link": "/affiliate",
+        })
+    elif refs >= refs_needed and refs < 10:
+        # Already self-funding — push toward next milestone
+        next_target = 10
+        pct = min(100, int(refs / next_target * 100))
+        monthly = refs * base_commission
+        goals.append({
+            "type": "referral", "color": "#0ea5e9", "bg": "#ecfeff",
+            "icon": "users", "title": f"You're earning ${monthly}/month — next goal: 10 referrals",
+            "desc": f"Your membership pays for itself and you're profiting ${monthly - membership_cost}/month. Hit 10 referrals for ${next_target * base_commission}/month.",
+            "progress": pct, "progress_label": f"{refs} of {next_target} referrals",
+            "cta": "Keep growing", "cta_link": "/affiliate",
+        })
+
+    # ── Goal: Grid completion ──
+    active_grid = db.query(Grid).filter(
+        Grid.owner_id == user.id, Grid.is_complete == False
+    ).order_by(Grid.package_tier.desc()).first()
+    if active_grid:
+        filled = active_grid.positions_filled or 0
+        total = 64
+        remaining = total - filled
+        pct = min(100, int(filled / total * 100))
+        from .database import GRID_COMPLETION_BONUS, GRID_TIER_NAMES
+        bonus = GRID_COMPLETION_BONUS.get(active_grid.package_tier, 0)
+        tier_name = GRID_TIER_NAMES.get(active_grid.package_tier, f"Tier {active_grid.package_tier}")
+        goals.append({
+            "type": "grid", "color": "#8b5cf6", "bg": "#f5f3ff",
+            "icon": "grid", "title": f"Grid {pct}% complete — ${bonus} bonus waiting",
+            "desc": f"Your {tier_name} grid has {filled} of {total} positions filled. {remaining} more and you unlock the completion bonus.",
+            "progress": pct, "progress_label": f"{filled} of {total} positions",
+            "ring": True,
+            "cta": "View grid", "cta_link": "/income-grid",
+        })
+
+    # ── Goal: Withdrawal threshold ──
+    if balance > 0 and balance < 10:
+        remaining = 10 - balance
+        pct = min(100, int(balance / 10 * 100))
+        goals.append({
+            "type": "withdrawal", "color": "#22c55e", "bg": "#f0fdf4",
+            "icon": "wallet", "title": f"${remaining:.2f} more until you can withdraw",
+            "desc": f"Your affiliate wallet has ${balance:.2f}. The minimum withdrawal is $10. {'One more referral commission and you\'re there.' if remaining <= base_commission else 'Keep building your referrals to reach the threshold.'}",
+            "progress": pct, "progress_label": f"${balance:.2f} of $10.00",
+            "cta": "View wallet", "cta_link": "/wallet",
+        })
+
+    # ── Goal: Daily watch quota ──
+    from datetime import date
+    quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
+    if quota:
+        today_str = str(date.today())
+        watched = quota.today_watched if quota.today_date == today_str else 0
+        required = quota.daily_required or 1
+        if watched < required:
+            pct = min(100, int(watched / required * 100)) if required > 0 else 0
+            goals.append({
+                "type": "watch", "color": "#f59e0b", "bg": "#fefce8",
+                "icon": "zap", "title": "You haven't watched today's videos yet" if watched == 0 else f"{required - watched} more video{'s' if required - watched > 1 else ''} to complete today's watch",
+                "desc": f"Complete your daily watch to stay qualified for campaign wallet withdrawals. You need {required} video{'s' if required > 1 else ''} today.",
+                "progress": pct, "progress_label": f"{watched} of {required} watched today",
+                "cta": "Watch now", "cta_link": "/watch",
+            })
+
+    # ── Opportunities (features not yet used) ──
+
+    # Creative Studio usage check
+    studio_count = db.query(SuperSceneVideo).filter(SuperSceneVideo.user_id == user.id).count()
+    if studio_count == 0:
+        opportunities.append({
+            "type": "creative_studio", "color": "#ec4899", "bg": "#fdf2f8",
+            "icon": "video", "title": "Try the Creative Studio",
+            "desc": "You haven't created any AI content yet. Generate a video, image, or music track — it's included with your membership.",
+            "cta": "Open Creative Studio", "cta_link": "/creative-studio",
+        })
+
+    # LinkHub check
+    has_linkhub = db.query(db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).exists()).scalar()
+    if not has_linkhub:
+        opportunities.append({
+            "type": "linkhub", "color": "#6366f1", "bg": "#eef2ff",
+            "icon": "link", "title": "Build your LinkHub page",
+            "desc": "Your LinkHub is empty. Set up your personal page with your links, offers, and referral — takes 2 minutes.",
+            "cta": "Set up LinkHub", "cta_link": "/linkhub",
+        })
+
+    # Campaign tier check — if no active campaign tiers
+    has_campaign = db.query(VideoCampaign).filter(
+        VideoCampaign.user_id == user.id, VideoCampaign.status == "active"
+    ).first()
+    if not has_campaign and user.is_active:
+        opportunities.append({
+            "type": "campaign", "color": "#0d9488", "bg": "#f0fdfa",
+            "icon": "target", "title": "Activate a campaign tier",
+            "desc": "You don't have an active campaign tier yet. Campaign tiers unlock the full grid earning engine and get your video in front of members.",
+            "cta": "View campaign tiers", "cta_link": "/campaign-tiers",
+        })
+
+    return {"goals": goals, "opportunities": opportunities}
+
+
 # ═══════════════════════════════════════════════════════════════
 #  PUBLIC ROUTES
 # ═══════════════════════════════════════════════════════════════
