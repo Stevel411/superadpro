@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
@@ -21,6 +21,51 @@ export default function Dashboard() {
   const [refCopied, setRefCopied] = useState(false);
 
   const [error, setError] = useState(null);
+  const [toasts, setToasts] = useState([]);
+  var pollRef = useRef(null);
+  var lastCheckRef = useRef(new Date().toISOString());
+  var chachingRef = useRef(null);
+
+  // Cha-ching sound (short, synthesised)
+  function playChaChing() {
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      function playTone(freq, start, dur) {
+        var osc = ctx.createOscillator(); var gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine'; osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + start);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + start + dur);
+        osc.start(ctx.currentTime + start); osc.stop(ctx.currentTime + start + dur);
+      }
+      playTone(1200, 0, 0.1); playTone(1600, 0.08, 0.1); playTone(2000, 0.16, 0.15);
+      playTone(2400, 0.28, 0.2);
+    } catch(e) {}
+  }
+
+  // Poll for new team members every 30 seconds
+  useEffect(function() {
+    pollRef.current = setInterval(function() {
+      apiGet('/api/dashboard/new-members?since=' + encodeURIComponent(lastCheckRef.current))
+        .then(function(r) {
+          if (r.members && r.members.length > 0) {
+            r.members.forEach(function(m) {
+              setToasts(function(prev) {
+                if (prev.find(function(t) { return t.id === m.id; })) return prev;
+                return prev.concat([{ ...m, key: Date.now() + '-' + m.id }]);
+              });
+              playChaChing();
+            });
+          }
+          if (r.checked_at) lastCheckRef.current = r.checked_at;
+        }).catch(function() {});
+    }, 30000);
+    return function() { if (pollRef.current) clearInterval(pollRef.current); };
+  }, []);
+
+  function dismissToast(key) {
+    setToasts(function(prev) { return prev.filter(function(t) { return t.key !== key; }); });
+  }
 
   useEffect(() => {
     var timeout = setTimeout(function() {
@@ -333,7 +378,39 @@ export default function Dashboard() {
           .bottom-grid{grid-template-columns:1fr!important}
         }
         .action-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16)!important;transform:translateY(-3px)}
+        @keyframes toastSlideIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
       `}</style>
+
+      {/* New member toast notifications */}
+      {toasts.length > 0 && <div style={{ position: 'fixed', top: 80, right: 24, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 420 }}>
+        {toasts.map(function(toast) {
+          var commission = toast.tier === 'pro' ? '$17.50' : '$10.00';
+          return <div key={toast.key} style={{
+            background: 'linear-gradient(135deg, #172554, #1e3a8a)', borderRadius: 14,
+            padding: '18px 20px', boxShadow: '0 12px 40px rgba(0,0,0,.4), 0 0 0 1px rgba(139,92,246,.3)',
+            animation: 'toastSlideIn .4s ease-out', display: 'flex', alignItems: 'flex-start', gap: 14, minWidth: 340
+          }}>
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, #22c55e, #16a34a)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <span style={{ fontSize: 22 }}>🎉</span>
+            </div>
+            <div style={{ flex: 1 }}>
+              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 800, color: '#fff', marginBottom: 4 }}>New Team Member!</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,.8)', lineHeight: 1.5 }}>
+                <strong style={{ color: '#4ade80' }}>{toast.first_name} {toast.last_name}</strong> just joined your team
+              </div>
+              <div style={{ fontSize: 12, color: 'rgba(255,255,255,.5)', marginTop: 2 }}>
+                You'll earn <strong style={{ color: '#fbbf24' }}>{commission}/month</strong> from this referral
+              </div>
+              <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ padding: '3px 10px', borderRadius: 6, background: toast.tier === 'pro' ? 'rgba(139,92,246,.2)' : 'rgba(14,165,233,.2)', color: toast.tier === 'pro' ? '#a78bfa' : '#38bdf8', fontSize: 10, fontWeight: 800, textTransform: 'uppercase' }}>{toast.tier} member</span>
+                <span style={{ fontSize: 10, color: 'rgba(255,255,255,.3)' }}>@{toast.username}</span>
+              </div>
+            </div>
+            <button onClick={function() { dismissToast(toast.key); }}
+              style={{ background: 'rgba(255,255,255,.1)', border: 'none', borderRadius: 8, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,255,255,.4)', fontSize: 14, flexShrink: 0 }}>✕</button>
+          </div>;
+        })}
+      </div>}
     </AppLayout>
   );
 }

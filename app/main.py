@@ -1513,6 +1513,46 @@ def analytics_page(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 
 
+@app.get("/api/dashboard/new-members")
+def api_new_members(request: Request, since: str = None,
+                    user: User = Depends(get_current_user),
+                    db: Session = Depends(get_db)):
+    """Return new direct referrals since a given timestamp (ISO format).
+    Used by dashboard polling for real-time join notifications."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from datetime import datetime, timedelta
+    if since:
+        try:
+            since_dt = datetime.fromisoformat(since.replace('Z', '+00:00')).replace(tzinfo=None)
+        except Exception:
+            since_dt = datetime.utcnow() - timedelta(minutes=5)
+    else:
+        since_dt = datetime.utcnow() - timedelta(minutes=5)
+
+    new_members = db.query(User).filter(
+        User.sponsor_id == user.id,
+        User.created_at > since_dt
+    ).order_by(User.created_at.desc()).limit(10).all()
+
+    members = []
+    for m in new_members:
+        tier = (m.membership_tier or 'basic').lower()
+        commission = 17.50 if tier == 'pro' else 10.00
+        members.append({
+            "id": m.id,
+            "username": m.username,
+            "first_name": m.first_name or m.username,
+            "last_name": m.last_name or '',
+            "tier": tier,
+            "commission": commission,
+            "joined_at": m.created_at.isoformat() if m.created_at else None,
+        })
+
+    return {"members": members, "checked_at": datetime.utcnow().isoformat()}
+
+
 @app.get("/api/analytics")
 def api_analytics(request: Request, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
