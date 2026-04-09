@@ -4018,7 +4018,7 @@ def _crypto_activate_product(db, user, order, meta):
                     sc_order.completed_at = datetime.utcnow()
             except Exception:
                 pass
-        return {"message": f"{credits} SuperScene credits added!"}
+        return {"message": f"{credits} Creative Studio credits added!"}
 
     return {"message": "Payment confirmed!"}
 

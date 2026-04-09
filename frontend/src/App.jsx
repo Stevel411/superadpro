@@ -204,7 +204,7 @@ function AppRoutes() {
       <Route path="/video-creator" element={<ProtectedRoute><VideoCreator /></ProtectedRoute>} />
       <Route path="/credit-matrix" element={<ProtectedRoute><CreditMatrix /></ProtectedRoute>} />
       <Route path="/campaign-analytics" element={<ProtectedRoute><CampaignAnalytics /></ProtectedRoute>} />
-      <Route path="/superscene" element={<React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#080c0e',color:'#22d3ee',fontFamily:'DM Sans,sans-serif'}}>Loading SuperScene…</div>}><SuperScenePage /></React.Suspense>} />
+      <Route path="/superscene" element={<React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#080c0e',color:'#22d3ee',fontFamily:'DM Sans,sans-serif'}}>Loading Creative Studio…</div>}><SuperScenePage /></React.Suspense>} />
       <Route path="/creative-studio" element={<ProtectedRoute><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>Loading Creative Studio…</div>}><CreativeStudio /></React.Suspense></ProtectedRoute>} />
       <Route path="/content-creator" element={<ProtectedRoute><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>Loading Content Creator…</div>}><ContentCreatorPage /></React.Suspense></ProtectedRoute>} />
       <Route path="/pro/leads" element={<ProtectedRoute><MyLeads /></ProtectedRoute>} />

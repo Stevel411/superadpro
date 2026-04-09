@@ -7,7 +7,7 @@ var HELP_SECTIONS = [
     color: '#16a34a',
     items: [
       { title: 'Why are there two wallets?', desc: 'SuperAdPro separates your earnings into two wallets to keep things transparent and fair. Your Affiliate Wallet holds earnings from referrals and sponsoring — these are always yours to withdraw. Your Campaign Wallet holds earnings from the 8×8 Income Grid — these require you to have an active Campaign Tier and be watching your daily videos.' },
-      { title: 'What goes into my Affiliate Wallet?', desc: 'Membership referral commissions ($10 per Basic, $17.50 per Pro referral), SuperScene sponsor micro-commissions ($0.025 per credit your referrals use), course sales commissions, and Pay It Forward gift commissions. This balance is always available to withdraw.' },
+      { title: 'What goes into my Affiliate Wallet?', desc: 'Membership referral commissions ($10 per Basic, $17.50 per Pro referral), Creative Studio sponsor micro-commissions ($0.025 per credit your referrals use), course sales commissions, and Pay It Forward gift commissions. This balance is always available to withdraw.' },
       { title: 'What goes into my Campaign Wallet?', desc: 'Campaign Tier grid commissions: 40% direct sponsor commission when your referral activates a tier, 6.25% uni-level commission from 8 levels deep in your network, and grid completion bonuses when your 8×8 grid fills all 64 positions.' },
       { title: 'Can I move money between wallets?', desc: 'No — earnings are automatically credited to the correct wallet based on where they came from. This protects the integrity of the campaign system and ensures everyone is contributing to the network.' },
     ],

@@ -87,7 +87,7 @@ export default function Wallet() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
           <EarningsCard icon="👥" label="Membership" value={d.total_earned - (d.grid_earnings || 0) - (d.course_earnings || 0) - (d.marketplace_earnings || 0) - (d.superscene_earnings || 0)} color="#22c55e" />
           <EarningsCard icon="⚡" label="Income Grid" value={d.grid_earnings || 0} color="#0ea5e9" />
-          <EarningsCard icon="🎬" label="SuperScene" value={d.superscene_earnings || 0} color="#ec4899" desc="Earned from referral video usage" />
+          <EarningsCard icon="🎬" label="Creative Studio" value={d.superscene_earnings || 0} color="#ec4899" desc="Earned from referral credit usage" />
           <EarningsCard icon="📚" label="Courses & Market" value={(d.course_earnings || 0) + (d.marketplace_earnings || 0)} color="#f59e0b" />
         </div>
       )}
@@ -98,7 +98,7 @@ export default function Wallet() {
           <Card title="Affiliate Wallet" dotColor="#16a34a">
             <div style={{ padding:'10px 14px', background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:10, marginBottom:14 }}>
               <div style={{ fontSize:13, fontWeight:700, color:'#059669', marginBottom:2 }}>Always withdrawable</div>
-              <div style={{ fontSize:11, color:'#475569', lineHeight:1.6 }}>Membership referrals, SuperScene sponsor commissions, course sales, Pay It Forward.</div>
+              <div style={{ fontSize:11, color:'#475569', lineHeight:1.6 }}>Membership referrals, Creative Studio sponsor commissions, course sales, Pay It Forward.</div>
             </div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#16a34a', textAlign:'center', marginBottom:14 }}>${formatMoney(d.balance)}</div>
             {d.wallet_address ? (
@@ -190,7 +190,7 @@ export default function Wallet() {
                             c.commission_type === 'grid_completion_bonus' ? '🏆 Grid Bonus' :
                             c.commission_type === 'membership_sponsor' ? '👥 Membership' :
                             c.commission_type === 'membership_renewal' ? '🔄 Renewal' :
-                            c.commission_type === 'superscene_usage' ? '🎬 SuperScene' :
+                            c.commission_type === 'superscene_usage' ? '🎬 Creative Studio' :
                             '💰 ' + (c.commission_type || '').replace(/_/g, ' '),
                       detail: c.package_tier ? 'Tier ' + c.package_tier : '',
                       amount: '+$' + formatMoney(c.amount_usdt),

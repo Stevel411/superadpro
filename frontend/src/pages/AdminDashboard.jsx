@@ -14,7 +14,7 @@ var TABS = [
   {key:'commissions',label:'Commissions',icon:TrendingUp},
   {key:'supermarket',label:'SuperMarket',icon:Shield},
   {key:'email',label:'Email Analytics',icon:Mail},
-  {key:'superscene',label:'SuperScene',icon:Sparkles},
+  {key:'superscene',label:'Creative Studio',icon:Sparkles},
   {key:'health',label:'System Health',icon:Shield},
 ];
 
@@ -964,7 +964,7 @@ function SuperSceneAnalyticsTab() {
 
   return (
     <div>
-      <h3 style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,margin:'0 0 16px'}}>SuperScene Credit Analytics</h3>
+      <h3 style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,margin:'0 0 16px'}}>Creative Studio Credit Analytics</h3>
 
       {/* Generation volume */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:20}}>

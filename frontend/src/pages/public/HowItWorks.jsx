@@ -152,7 +152,7 @@ export default function HowItWorks() {
         <Section bg="linear-gradient(180deg,transparent,rgba(14,165,233,0.03),transparent)">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center' }}>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#22d3ee', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>SuperScene</div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#22d3ee', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Creative Studio</div>
               <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 32, fontWeight: 900, marginBottom: 16 }}>AI Creative Studio</h2>
               <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginBottom: 24 }}>
                 Create professional videos, images, music, voiceovers, and more — all powered by the latest AI models from Kling, Sora, Seedance, and others.
@@ -171,7 +171,7 @@ export default function HowItWorks() {
                 ))}
               </div>
             </div>
-            <VideoPlaceholder label="SuperScene demo" borderColor="rgba(34,211,238,0.15)" />
+            <VideoPlaceholder label="Creative Studio demo" borderColor="rgba(34,211,238,0.15)" />
           </div>
         </Section>
 
@@ -238,7 +238,7 @@ export default function HowItWorks() {
                 <span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 6 }}>SAVE $40</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
-                {['Full affiliate commissions', '8×8 income grid access', 'Campaign video advertising', 'LinkHub bio page', 'Marketing suite tools', 'SuperScene credit packs'].map(f => (
+                {['Full affiliate commissions', '8×8 income grid access', 'Campaign video advertising', 'LinkHub bio page', 'Marketing suite tools', 'Creative Studio credit packs'].map(f => (
                   <div key={f} style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>✓ {f}</div>
                 ))}
               </div>
