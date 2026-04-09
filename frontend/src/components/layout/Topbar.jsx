@@ -1,7 +1,7 @@
 import { useAuth } from '../../hooks/useAuth';
 import { Bell, X, Menu } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import { apiGet, apiPost, apiDelete } from '../../utils/api';
+import { apiGet, apiPost } from '../../utils/api';
 import LanguageSelector from './LanguageSelector';
 
 export default function Topbar({ title, subtitle, children, onMenuClick }) {
@@ -40,21 +40,23 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
 
   const toggleNotifs = async () => {
     if (!showNotifs && unreadCount > 0) {
-      await apiPost('/api/notifications/mark-read', {}).catch(() => {});
+      await apiPost('/api/notifications/read', {}).catch(() => {});
       setUnreadCount(0);
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
     }
     setShowNotifs(!showNotifs);
   };
 
   const clearAll = async () => {
-    await apiPost('/api/notifications/clear-all', {}).catch(() => {});
+    await apiPost('/api/notifications/read', {}).catch(() => {});
     setNotifications([]);
     setUnreadCount(0);
   };
 
   const dismissOne = async (id) => {
-    await apiDelete('/api/notifications/' + id).catch(() => {});
+    await apiPost('/api/notifications/read', { ids: [id] }).catch(() => {});
     setNotifications(prev => prev.filter(n => n.id !== id));
+    setUnreadCount(prev => Math.max(0, prev - 1));
   };
 
   return (
@@ -114,28 +116,45 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
                 {notifications.length === 0 ? (
                   <div className="px-4 py-12 text-center">
                     <div className="text-2xl opacity-20 mb-2">🔔</div>
-                    <div className="text-sm text-slate-400">No notifications</div>
+                    <div className="text-sm text-slate-400">No notifications yet</div>
+                    <div className="text-xs text-slate-300 mt-1">You'll see earnings, team updates, and milestones here</div>
                   </div>
-                ) : notifications.map((n) => (
-                  <div key={n.id} className={'group px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-all relative ' + (!n.is_read ? 'bg-blue-50/50' : '')}>
+                ) : notifications.map((n) => {
+                  var catColors = { team: '#3b82f6', earnings: '#22c55e', commission: '#22c55e', milestone: '#f59e0b', system: '#94a3b8', referral: '#3b82f6' };
+                  var catBg = { team: '#eff6ff', earnings: '#f0fdf4', commission: '#f0fdf4', milestone: '#fffbeb', system: '#f8fafc', referral: '#eff6ff' };
+                  var accent = catColors[n.type] || '#94a3b8';
+                  var bg = catBg[n.type] || '#f8fafc';
+                  var timeAgo = '';
+                  if (n.created_at) {
+                    var diff = (Date.now() - new Date(n.created_at).getTime()) / 1000;
+                    if (diff < 60) timeAgo = 'Just now';
+                    else if (diff < 3600) timeAgo = Math.floor(diff / 60) + 'm ago';
+                    else if (diff < 86400) timeAgo = Math.floor(diff / 3600) + 'h ago';
+                    else if (diff < 604800) timeAgo = Math.floor(diff / 86400) + 'd ago';
+                    else timeAgo = new Date(n.created_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
+                  }
+                  return (
+                  <div key={n.id} onClick={() => { if (n.link) window.location.href = n.link; }}
+                    className={'group px-4 py-3 border-b border-slate-50 hover:bg-slate-50 transition-all relative ' + (!n.is_read ? '' : '')}
+                    style={{ cursor: n.link ? 'pointer' : 'default', borderLeft: !n.is_read ? '3px solid ' + accent : '3px solid transparent' }}>
                     <div className="flex items-start gap-2.5 pr-6">
-                      <span className="text-base shrink-0 mt-0.5">{n.icon || '🔔'}</span>
-                      <div className="min-w-0">
-                        <div className="text-[13px] font-bold text-slate-900">{n.title}</div>
-                        <div className="text-[12px] text-slate-600 mt-0.5 leading-relaxed">{n.message}</div>
-                        {n.created_at && (
-                          <div className="text-[9px] text-slate-300 mt-1">{new Date(n.created_at).toLocaleDateString()}</div>
-                        )}
+                      <div style={{ width: 32, height: 32, borderRadius: 8, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 15 }}>{n.icon || '🔔'}</div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="text-[13px] font-bold text-slate-900 truncate">{n.title}</div>
+                          <div className="text-[9px] text-slate-300 whitespace-nowrap flex-shrink-0">{timeAgo}</div>
+                        </div>
+                        <div className="text-[12px] text-slate-500 mt-0.5 leading-relaxed">{n.message}</div>
                       </div>
                     </div>
-                    {/* Dismiss X — appears on hover */}
                     <button onClick={(e) => { e.stopPropagation(); dismissOne(n.id); }}
                       className="absolute top-3 right-3 w-5 h-5 rounded-md hover:bg-red-50 flex items-center justify-center cursor-pointer border-none opacity-0 group-hover:opacity-100 transition-all"
                       style={{background:'transparent'}}>
-                      <X className="w-3 h-3 text-slate-300" style={{}} />
+                      <X className="w-3 h-3 text-slate-300" />
                     </button>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

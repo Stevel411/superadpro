@@ -2312,3 +2312,19 @@ class CreditMatrixCommission(Base):
 
     earner = relationship("User", foreign_keys=[earner_id], backref="credit_matrix_commissions_earned")
     from_user = relationship("User", foreign_keys=[from_user_id], backref="credit_matrix_commissions_generated")
+
+
+class Notification(Base):
+    """In-app notifications for members."""
+    __tablename__ = "notifications"
+    id            = Column(Integer, primary_key=True, index=True)
+    user_id       = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    type          = Column(String(30), nullable=False)           # team, earnings, milestone, system
+    icon          = Column(String(10), default="🔔")
+    title         = Column(String(200), nullable=False)
+    message       = Column(String(500), nullable=False)
+    link          = Column(String(200), nullable=True)           # optional deep link
+    is_read       = Column(Boolean, default=False, index=True)
+    created_at    = Column(DateTime, default=datetime.utcnow, index=True)
+
+    user = relationship("User", backref="notifications")

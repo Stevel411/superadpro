@@ -1177,6 +1177,18 @@ def register_process(
         except Exception:
             pass
 
+    # 3. In-app notification for sponsor
+    if sponsor_id:
+        try:
+            tier = (user.membership_tier or 'basic').lower()
+            commission = '$17.50' if tier == 'pro' else '$10.00'
+            create_notification(db, sponsor_id, 'team',
+                f'{first_name} joined your team!',
+                f'{first_name} ({username}) just signed up through your referral link. You\'ll earn {commission}/month from this referral.',
+                icon='🎉', link='/network')
+        except Exception:
+            pass
+
     response = RedirectResponse(url="/dashboard", status_code=303)
     set_secure_cookie(response, user.id)
     response.delete_cookie("ref")
@@ -1558,6 +1570,24 @@ def api_new_members(request: Request, since: str = None,
         })
 
     return {"members": members, "checked_at": datetime.utcnow().isoformat()}
+
+
+# ═══════════════════════════════════════════════════════════════
+#  NOTIFICATION HELPER (used by registration, commissions, etc.)
+# ═══════════════════════════════════════════════════════════════
+
+def create_notification(db, user_id, ntype, title, message, icon="🔔", link=None):
+    """Create an in-app notification for a user. Alias for send_notification."""
+    from .database import Notification
+    notif = Notification(
+        user_id=user_id, type=ntype, title=title,
+        message=message, icon=icon, link=link
+    )
+    db.add(notif)
+    try:
+        db.commit()
+    except Exception:
+        db.rollback()
 
 
 @app.get("/api/analytics")
