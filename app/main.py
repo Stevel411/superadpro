@@ -18913,7 +18913,7 @@ def api_get_challenges(request: Request, user: User = Depends(get_current_user),
 
 @app.get("/cron/weekly-digest")
 def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
-    """Send weekly earnings digest email to all active members. Run Sundays via cron."""
+    """Send weekly earnings digest email to all active members. Run Mondays via cron."""
     cron_secret = os.getenv("CRON_SECRET", "")
     if not cron_secret or secret != cron_secret:
         return JSONResponse({"error": "Invalid secret"}, status_code=401)
@@ -18929,80 +18929,114 @@ def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
 
     for u in active_users:
         try:
-            # Calculate weekly stats
-            weekly_earned = db.query(func.sum(Commission.amount_usdt)).filter(
-                Commission.to_user_id == u.id,
-                Commission.created_at >= week_ago,
-                Commission.status == "paid"
-            ).scalar() or 0
+            weekly_earned = float(db.query(func.sum(Commission.amount_usdt)).filter(
+                Commission.to_user_id == u.id, Commission.created_at >= week_ago, Commission.status == "paid"
+            ).scalar() or 0)
 
-            new_refs = db.query(User).filter(
-                User.sponsor_id == u.id,
-                User.created_at >= week_ago
-            ).count()
+            new_refs = db.query(User).filter(User.sponsor_id == u.id, User.created_at >= week_ago).count()
+            total_refs = u.personal_referrals or 0
 
-            # Grid progress
             grids = db.query(Grid).filter(Grid.owner_id == u.id, Grid.is_active == True).all()
-            grid_total = sum(g.positions_filled or 0 for g in grids)
+            grid_filled = sum(g.positions_filled or 0 for g in grids)
+            grid_total = sum(64 for _ in grids) if grids else 0
 
             total_balance = float(u.balance or 0)
-            weekly_earned = float(weekly_earned)
+            campaign_balance = float(u.campaign_balance or 0)
             name = u.first_name or u.username
+            tier = (u.membership_tier or 'basic').title()
 
-            # Skip if nothing happened this week and balance is 0
-            if weekly_earned == 0 and new_refs == 0 and total_balance == 0:
-                continue
+            # ── Personalised action tip based on their situation ──
+            if total_refs == 0:
+                tip_icon = "&#128161;"
+                tip_text = f"You haven't referred anyone yet. Share your referral link on social media today — just one Basic referral earns you $10 every month."
+                tip_cta = f'<a href="https://www.superadpro.com/affiliate" style="color:#0ea5e9;font-weight:700;text-decoration:none">Share your referral link &rarr;</a>'
+            elif total_refs < 5:
+                remaining = 5 - total_refs
+                tip_icon = "&#128200;"
+                tip_text = f"You have {total_refs} referral{'s' if total_refs != 1 else ''}. {remaining} more and you'll be earning ${total_refs * 10 + remaining * 10}/month in commissions alone."
+                tip_cta = f'<a href="https://www.superadpro.com/affiliate" style="color:#0ea5e9;font-weight:700;text-decoration:none">Generate a social post &rarr;</a>'
+            elif weekly_earned > 0:
+                tip_icon = "&#128293;"
+                tip_text = f"Great week! You earned ${weekly_earned:.2f}. Keep the momentum going — your network is growing and every new member compounds your earnings."
+                tip_cta = f'<a href="https://www.superadpro.com/creative-studio" style="color:#0ea5e9;font-weight:700;text-decoration:none">Create content in Creative Studio &rarr;</a>'
+            else:
+                tip_icon = "&#9997;&#65039;"
+                tip_text = f"No earnings this week, but you have {total_refs} referral{'s' if total_refs != 1 else ''} in your network. Reach out to them and help them get active — when they earn, you earn."
+                tip_cta = f'<a href="https://www.superadpro.com/network" style="color:#0ea5e9;font-weight:700;text-decoration:none">View your network &rarr;</a>'
 
-            subject = f"Your SuperAdPro Week: ${weekly_earned} earned"
-            if weekly_earned == 0:
-                subject = f"Your SuperAdPro Weekly Update"
+            # ── Subject line ──
+            if weekly_earned > 0:
+                subject = f"Your SuperAdPro Week: ${weekly_earned:.2f} earned"
+            elif new_refs > 0:
+                subject = f"{new_refs} new referral{'s' if new_refs != 1 else ''} joined your team this week"
+            else:
+                subject = f"Your SuperAdPro Weekly Update, {name}"
+
+            # ── Grid progress section ──
+            grid_section = ""
+            if grid_total > 0:
+                grid_pct = min(100, int(grid_filled / grid_total * 100)) if grid_total > 0 else 0
+                grid_section = f'''
+    <div style="margin-bottom:24px">
+      <div style="font-size:13px;font-weight:700;color:#475569;margin-bottom:8px">Grid Progress</div>
+      <div style="background:#f1f5f9;border-radius:8px;height:8px;overflow:hidden;margin-bottom:4px">
+        <div style="background:linear-gradient(90deg,#8b5cf6,#a78bfa);height:100%;width:{grid_pct}%;border-radius:8px"></div>
+      </div>
+      <div style="font-size:12px;color:#94a3b8">{grid_filled}/{grid_total} positions filled ({grid_pct}%)</div>
+    </div>'''
 
             html = f"""<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
-<body style="margin:0;padding:0;background:#f0f3f9;font-family:'DM Sans',Arial,sans-serif">
+<body style="margin:0;padding:0;background:#e8edf5;font-family:Arial,Helvetica,sans-serif">
 <div style="max-width:560px;margin:0 auto;padding:24px">
-  <div style="background:linear-gradient(135deg,#0f1d3a,#172554);border-radius:16px;padding:32px 28px;text-align:center;margin-bottom:20px">
-    <div style="font-size:22px;font-weight:800;color:#fff;margin-bottom:4px">
-      Super<span style="color:#0ea5e9">Ad</span><span style="color:#a78bfa">Pro</span>
+  <div style="background:linear-gradient(135deg,#0f1d3a,#172554);border-radius:16px;padding:28px;text-align:center;margin-bottom:20px">
+    <div style="margin-bottom:6px">
+      <span style="font-size:22px;font-weight:900;color:#fff">Super</span><span style="font-size:22px;font-weight:900;color:#0ea5e9">Ad</span><span style="font-size:22px;font-weight:900;color:#a78bfa">Pro</span>
     </div>
-    <div style="font-size:12px;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase">Weekly Earnings Digest</div>
+    <div style="font-size:11px;color:rgba(255,255,255,.35);letter-spacing:1.5px;text-transform:uppercase">Weekly Digest</div>
   </div>
 
   <div style="background:#fff;border-radius:14px;padding:28px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,.06)">
-    <div style="font-size:18px;font-weight:700;color:#0f172a;margin-bottom:20px">Hey {name} 👋</div>
-    <div style="font-size:14px;color:#64748b;line-height:1.7;margin-bottom:24px">
-      Here's your weekly snapshot from SuperAdPro. Keep building — consistency is what separates the top earners.
-    </div>
+    <div style="font-size:18px;font-weight:700;color:#0f172a;margin-bottom:6px">Hey {name}</div>
+    <div style="font-size:13px;color:#94a3b8;margin-bottom:24px">{tier} Member &middot; Week of {week_ago.strftime('%d %b')} — {now.strftime('%d %b %Y')}</div>
 
-    <div style="display:flex;gap:12px;margin-bottom:24px">
+    <div style="display:flex;gap:12px;margin-bottom:16px">
       <div style="flex:1;background:linear-gradient(135deg,#065f46,#34d399);border-radius:12px;padding:18px 14px;text-align:center">
-        <div style="font-size:28px;font-weight:900;color:#fff">${weekly_earned}</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:1px;margin-top:2px">Earned This Week</div>
+        <div style="font-size:26px;font-weight:900;color:#fff">${weekly_earned:.2f}</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:1px;margin-top:4px">Earned this week</div>
       </div>
-      <div style="flex:1;background:linear-gradient(135deg,#1e40af,#60a5fa);border-radius:12px;padding:18px 14px;text-align:center">
-        <div style="font-size:28px;font-weight:900;color:#fff">{new_refs}</div>
-        <div style="font-size:10px;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:1px;margin-top:2px">New Referrals</div>
+      <div style="flex:1;background:linear-gradient(135deg,#172554,#3b82f6);border-radius:12px;padding:18px 14px;text-align:center">
+        <div style="font-size:26px;font-weight:900;color:#fff">{new_refs}</div>
+        <div style="font-size:9px;color:rgba(255,255,255,.7);text-transform:uppercase;letter-spacing:1px;margin-top:4px">New referrals</div>
       </div>
     </div>
 
     <div style="display:flex;gap:12px;margin-bottom:24px">
-      <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px 14px;text-align:center">
-        <div style="font-size:22px;font-weight:800;color:#0f172a">${total_balance}</div>
-        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-top:2px">Wallet Balance</div>
+      <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;text-align:center">
+        <div style="font-size:20px;font-weight:800;color:#0f172a">${total_balance:.2f}</div>
+        <div style="font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-top:4px">Affiliate wallet</div>
       </div>
-      <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:16px 14px;text-align:center">
-        <div style="font-size:22px;font-weight:800;color:#0f172a">{grid_total}</div>
-        <div style="font-size:10px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-top:2px">Grid Members</div>
+      <div style="flex:1;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px;text-align:center">
+        <div style="font-size:20px;font-weight:800;color:#0f172a">${campaign_balance:.2f}</div>
+        <div style="font-size:9px;color:#94a3b8;text-transform:uppercase;letter-spacing:1px;margin-top:4px">Campaign wallet</div>
       </div>
+    </div>
+
+    {grid_section}
+
+    <div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:12px;padding:16px 18px;margin-bottom:24px">
+      <div style="font-size:14px;color:#0f172a;line-height:1.7;margin-bottom:6px">{tip_icon} {tip_text}</div>
+      <div style="font-size:13px">{tip_cta}</div>
     </div>
 
     <a href="https://www.superadpro.com/dashboard" style="display:block;background:linear-gradient(135deg,#0ea5e9,#38bdf8);color:#fff;text-decoration:none;text-align:center;padding:14px;border-radius:10px;font-weight:800;font-size:14px">
-      View Your Dashboard →
+      View your dashboard &rarr;
     </a>
   </div>
 
-  <div style="text-align:center;font-size:11px;color:#94a3b8;padding:12px 0">
-    SuperAdPro — AI Marketing & Advertising Platform<br>
-    <a href="https://www.superadpro.com" style="color:#0ea5e9;text-decoration:none">www.superadpro.com</a>
+  <div style="text-align:center;font-size:11px;color:#94a3b8;padding:12px 0;line-height:1.8">
+    SuperAdPro &mdash; AI Marketing &amp; Advertising Platform<br>
+    <a href="https://www.superadpro.com" style="color:#0ea5e9;text-decoration:none">www.superadpro.com</a><br>
+    <a href="https://www.superadpro.com/unsubscribe" style="color:#cbd5e1;text-decoration:none">Unsubscribe from weekly emails</a>
   </div>
 </div>
 </body></html>"""
