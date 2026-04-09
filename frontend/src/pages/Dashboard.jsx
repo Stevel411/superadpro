@@ -384,30 +384,44 @@ export default function Dashboard() {
       {/* New member toast notifications */}
       {toasts.length > 0 && <div style={{ position: 'fixed', top: 80, right: 24, zIndex: 9999, display: 'flex', flexDirection: 'column', gap: 12, maxWidth: 420 }}>
         {toasts.map(function(toast) {
-          var commission = toast.tier === 'pro' ? '$17.50' : '$10.00';
+          var isPro = toast.tier === 'pro';
+          var commission = isPro ? '$17.50' : '$10.00';
+          var bg = isPro
+            ? 'linear-gradient(135deg, #b8860b, #daa520 30%, #ffd700 50%, #daa520 70%, #b8860b)'
+            : 'linear-gradient(135deg, #8e9aaf, #b8c4d4 30%, #d4dce8 50%, #b8c4d4 70%, #8e9aaf)';
+          var borderColor = isPro ? 'rgba(255,235,150,.3)' : 'rgba(220,230,240,.4)';
+          var glowColor = isPro ? 'rgba(255,215,0,.2)' : 'rgba(180,195,215,.15)';
+          var iconBg = isPro ? 'rgba(23,37,84,.3)' : 'rgba(23,37,84,.15)';
+          var iconBorder = isPro ? 'rgba(23,37,84,.2)' : 'rgba(23,37,84,.1)';
+          var subColor = isPro ? 'rgba(15,29,58,.65)' : 'rgba(15,29,58,.6)';
+          var badgeBg = isPro ? 'rgba(15,29,58,.15)' : 'rgba(15,29,58,.1)';
+          var badgeBorder = isPro ? 'rgba(15,29,58,.12)' : 'rgba(15,29,58,.08)';
+          var closeBg = isPro ? 'rgba(15,29,58,.1)' : 'rgba(15,29,58,.06)';
+
           return <div key={toast.key} style={{
-            background: 'linear-gradient(135deg, #172554, #1e3a8a)', borderRadius: 14,
-            padding: '18px 20px', boxShadow: '0 12px 40px rgba(0,0,0,.4), 0 0 0 1px rgba(139,92,246,.3)',
-            animation: 'toastSlideIn .4s ease-out', display: 'flex', alignItems: 'flex-start', gap: 14, minWidth: 340
+            background: bg, borderRadius: 14, padding: '18px 20px',
+            boxShadow: '0 12px 40px rgba(0,0,0,.5), 0 2px 16px ' + glowColor,
+            border: '1px solid ' + borderColor,
+            animation: 'toastSlideIn .4s ease-out', display: 'flex', alignItems: 'flex-start', gap: 14, minWidth: 380
           }}>
-            <div style={{ width: 44, height: 44, borderRadius: 12, background: 'linear-gradient(135deg, #22c55e, #16a34a)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <span style={{ fontSize: 22 }}>🎉</span>
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: iconBg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, border: '1px solid ' + iconBorder }}>
+              <span style={{ fontSize: 24 }}>🎉</span>
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 800, color: '#fff', marginBottom: 4 }}>New Team Member!</div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,.8)', lineHeight: 1.5 }}>
-                <strong style={{ color: '#4ade80' }}>{toast.first_name} {toast.last_name}</strong> just joined your team
+              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: '#0f1d3a', marginBottom: 4, letterSpacing: '.3px' }}>{isPro ? 'New Pro Member!' : 'New Team Member!'}</div>
+              <div style={{ fontSize: 13, color: '#172554', lineHeight: 1.5 }}>
+                <strong style={{ color: '#0f1d3a' }}>{toast.first_name} {toast.last_name}</strong> just joined your team
               </div>
-              <div style={{ fontSize: 12, color: 'rgba(255,255,255,.5)', marginTop: 2 }}>
-                You'll earn <strong style={{ color: '#fbbf24' }}>{commission}/month</strong> from this referral
+              <div style={{ fontSize: 12, color: subColor, marginTop: 3 }}>
+                You'll earn <strong style={{ color: '#0f1d3a' }}>{commission}/month</strong> from this referral
               </div>
-              <div style={{ marginTop: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ padding: '3px 10px', borderRadius: 6, background: toast.tier === 'pro' ? 'rgba(139,92,246,.2)' : 'rgba(14,165,233,.2)', color: toast.tier === 'pro' ? '#a78bfa' : '#38bdf8', fontSize: 10, fontWeight: 800, textTransform: 'uppercase' }}>{toast.tier} member</span>
-                <span style={{ fontSize: 10, color: 'rgba(255,255,255,.3)' }}>@{toast.username}</span>
+              <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ padding: '3px 12px', borderRadius: 6, background: badgeBg, border: '1px solid ' + badgeBorder, color: '#0f1d3a', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.5px' }}>{isPro ? '★ Pro member' : 'Basic member'}</span>
+                <span style={{ fontSize: 10, color: 'rgba(15,29,58,.4)' }}>@{toast.username}</span>
               </div>
             </div>
             <button onClick={function() { dismissToast(toast.key); }}
-              style={{ background: 'rgba(255,255,255,.1)', border: 'none', borderRadius: 8, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(255,255,255,.4)', fontSize: 14, flexShrink: 0 }}>✕</button>
+              style={{ background: closeBg, border: '1px solid ' + badgeBorder, borderRadius: 8, width: 28, height: 28, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: 'rgba(15,29,58,.5)', fontSize: 13, flexShrink: 0 }}>✕</button>
           </div>;
         })}
       </div>}
