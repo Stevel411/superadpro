@@ -154,7 +154,7 @@ export default function Dashboard() {
 
       {/* Welcome Banner — Cosmic Purple with referral link */}
       <div style={{
-        background: 'linear-gradient(135deg,#1e1b4b,#2d2a7a,#4338ca)',
+        background: 'linear-gradient(135deg,#172554,#1e3a8a,#4338ca)',
         borderRadius: 18, padding: '30px 34px', marginBottom: 20,
         position: 'relative', overflow: 'hidden',
         boxShadow: '0 8px 32px rgba(67,56,202,0.35)',

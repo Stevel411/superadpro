@@ -17,7 +17,7 @@ var THEMES = {
   coral:    { name:'Coral', primary:'#7f1d1d', secondary:'#991b1b', accent:'#fb923c', text:'#fff7ed', muted:'#fdba74', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
   charcoal: { name:'Charcoal', primary:'#18181b', secondary:'#27272a', accent:'#fbbf24', text:'#fafafa', muted:'#a1a1aa', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
   clean:    { name:'Clean White', primary:'#ffffff', secondary:'#f8fafc', accent:'#3b82f6', text:'#0f172a', muted:'#64748b', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
-  lavender: { name:'Lavender', primary:'#1e1b4b', secondary:'#312e81', accent:'#c4b5fd', text:'#ede9fe', muted:'#a78bfa', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
+  lavender: { name:'Lavender', primary:'#172554', secondary:'#312e81', accent:'#c4b5fd', text:'#ede9fe', muted:'#a78bfa', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
   sunset:   { name:'Sunset', primary:'#431407', secondary:'#7c2d12', accent:'#f97316', text:'#fff7ed', muted:'#fb923c', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
 };
 var THEME_KEYS = Object.keys(THEMES);
@@ -344,7 +344,7 @@ export default function SuperDeckEditor() {
       </div>
 
       {/* AI panel */}
-      {showAi&&<div style={{padding:'16px 20px',background:'#1e1b4b',borderBottom:'1px solid #312e81',display:'flex',alignItems:'center',gap:12,flexShrink:0}}>
+      {showAi&&<div style={{padding:'16px 20px',background:'#172554',borderBottom:'1px solid #312e81',display:'flex',alignItems:'center',gap:12,flexShrink:0}}>
         <Wand2 size={20} color="#a78bfa"/>
         <input value={aiPrompt} onChange={function(e){setAiPrompt(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')generateAI();}}
           placeholder="Describe your presentation..." style={{flex:1,padding:'10px 16px',borderRadius:8,border:'1px solid #4c1d95',background:'#312e81',color:'#e2e8f0',fontSize:14,fontFamily:'inherit',outline:'none'}}/>

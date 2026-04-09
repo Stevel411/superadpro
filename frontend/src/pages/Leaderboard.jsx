@@ -77,7 +77,7 @@ export default function Leaderboard() {
       `}</style>
 
       {/* ── Hero ── */}
-      <div style={{ background:'linear-gradient(135deg,#0c1a3a 0%,#1a1050 50%,#0c1a3a 100%)', borderRadius:20, padding:'32px 36px', marginBottom:24, position:'relative', overflow:'hidden' }}>
+      <div style={{ background:'linear-gradient(135deg,#0f1d3a 0%,#172554 50%,#0f1d3a 100%)', borderRadius:20, padding:'32px 36px', marginBottom:24, position:'relative', overflow:'hidden' }}>
         {[...Array(8)].map(function(_,i){
           return <div key={i} style={{ position:'absolute', borderRadius:'50%', width:[6,8,5,10,6,4,8,5][i], height:[6,8,5,10,6,4,8,5][i], background:activeTab.color, opacity:0.12+(i%3)*0.08, left:`${[8,18,35,55,70,82,90,45][i]}%`, top:`${[20,70,40,15,60,30,75,85][i]}%`, animation:`float ${2.5+i*0.4}s ease-in-out infinite`, animationDelay:`${i*0.3}s` }}/>;
         })}

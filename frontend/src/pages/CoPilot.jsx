@@ -54,7 +54,7 @@ export default function CoPilot() {
 
   return (
     <div style={{
-      background: 'linear-gradient(135deg, #0c1a3a 0%, #1a1050 60%, #0c1a3a 100%)',
+      background: 'linear-gradient(135deg, #0f1d3a 0%, #172554 60%, #0f1d3a 100%)',
       border: '1px solid rgba(99,102,241,0.25)',
       borderRadius: 16, marginBottom: 20, overflow: 'hidden',
       boxShadow: '0 4px 24px rgba(99,102,241,0.12), 0 0 0 1px rgba(99,102,241,0.08)',

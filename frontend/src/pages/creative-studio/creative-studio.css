@@ -164,7 +164,7 @@
 .cs-matrix-banner { max-width: 900px; margin: 24px auto 0; display: flex; align-items: center; gap: 16px; padding: 18px 24px; background: linear-gradient(135deg, #f5f3ff, #ede9fe); border: 1px solid #e9e5ff; border-radius: 12px; }
 .cs-matrix-banner-icon { width: 48px; height: 48px; border-radius: 10px; background: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; border: 1px solid #e9e5ff; }
 .cs-matrix-banner-text { flex: 1; }
-.cs-matrix-banner-title { font-size: 14px; font-weight: 700; color: #1e1b4b; margin-bottom: 2px; }
+.cs-matrix-banner-title { font-size: 14px; font-weight: 700; color: #172554; margin-bottom: 2px; }
 .cs-matrix-banner-desc { font-size: 12px; color: #6b7280; line-height: 1.5; }
 .cs-matrix-banner-link { font-size: 13px; font-weight: 700; color: #8b5cf6; text-decoration: none; white-space: nowrap; padding: 8px 16px; border-radius: 8px; border: 1px solid #e9e5ff; background: #fff; transition: all .15s; flex-shrink: 0; }
 .cs-matrix-banner-link:hover { background: #8b5cf6; color: #fff; border-color: #8b5cf6; }

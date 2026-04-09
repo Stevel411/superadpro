@@ -8,7 +8,7 @@ import CryptoCheckout from '../components/CryptoCheckout';
 const TIERS = {
   1: { name:'Starter',     price:20,   views:'5,000',     monthly:'500',    bonus:64,   grad:'linear-gradient(135deg,#064e3b,#047857,#10b981)' },
   2: { name:'Builder',     price:50,   views:'15,000',    monthly:'1,500',  bonus:160,  grad:'linear-gradient(135deg,#1e3a5f,#2563eb,#3b82f6)' },
-  3: { name:'Pro',         price:100,  views:'35,000',    monthly:'5,000',  bonus:320,  grad:'linear-gradient(135deg,#1e1b4b,#4c1d95,#8b5cf6)' },
+  3: { name:'Pro',         price:100,  views:'35,000',    monthly:'5,000',  bonus:320,  grad:'linear-gradient(135deg,#172554,#4c1d95,#8b5cf6)' },
   4: { name:'Advanced',    price:200,  views:'80,000',    monthly:'10,000', bonus:640,  grad:'linear-gradient(135deg,#831843,#be185d,#ec4899)' },
   5: { name:'Elite',       price:400,  views:'150,000',   monthly:'20,000', bonus:1280, grad:'linear-gradient(135deg,#134e4a,#0d9488,#2dd4bf)' },
   6: { name:'Premium',     price:600,  views:'250,000',   monthly:'30,000', bonus:1920, grad:'linear-gradient(135deg,#6b7280,#9ca3af,#d1d5db)' },

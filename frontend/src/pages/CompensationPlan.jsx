@@ -8,7 +8,7 @@ var TIER_PRICES = [0, 20, 50, 100, 200, 400, 600, 800, 1000];
 var TIER_NAMES = ['', 'Starter', 'Builder', 'Pro', 'Advanced', 'Elite', 'Premium', 'Executive', 'Ultimate'];
 var TIER_GRADS = [
   '', 'linear-gradient(135deg,#064e3b,#10b981)', 'linear-gradient(135deg,#1e3a5f,#3b82f6)',
-  'linear-gradient(135deg,#1e1b4b,#8b5cf6)', 'linear-gradient(135deg,#831843,#ec4899)',
+  'linear-gradient(135deg,#172554,#8b5cf6)', 'linear-gradient(135deg,#831843,#ec4899)',
   'linear-gradient(135deg,#134e4a,#2dd4bf)', 'linear-gradient(135deg,#374151,#d1d5db)',
   'linear-gradient(135deg,#78350f,#fbbf24)', 'linear-gradient(135deg,#450a0a,#ef4444)',
 ];
@@ -42,7 +42,7 @@ export default function CompensationPlan() {
 
       {/* Hero Banner */}
       <div style={{
-        background:'linear-gradient(135deg,#1a103d,#2d1b69,#4338ca)', borderRadius:18,
+        background:'linear-gradient(135deg,#0f1d3a,#172554,#4338ca)', borderRadius:18,
         padding:'32px 34px 26px', marginBottom:20, textAlign:'center',
         position:'relative', overflow:'hidden',
       }}>

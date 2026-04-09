@@ -2,7 +2,7 @@
 .cc-root { font-family: 'DM Sans', 'Rethink Sans', sans-serif; }
 
 /* Header */
-.cc-header { background: linear-gradient(135deg, #1a103d, #2d1b69); padding: 20px 24px 16px; }
+.cc-header { background: linear-gradient(135deg, #0f1d3a, #172554); padding: 20px 24px 16px; }
 .cc-header-inner { display: flex; align-items: center; justify-content: space-between; }
 .cc-title { font-size: 22px; font-weight: 700; color: #fff; font-family: 'Sora', 'Rethink Sans', sans-serif; }
 .cc-subtitle { font-size: 12px; color: rgba(255,255,255,.5); margin-top: 3px; }
@@ -10,7 +10,7 @@
 .cc-back:hover { color: rgba(255,255,255,.7); }
 
 /* Tool cards */
-.cc-tools { background: linear-gradient(180deg, #2d1b69, #1a103d); padding: 4px 24px 20px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.cc-tools { background: linear-gradient(180deg, #172554, #0f1d3a); padding: 4px 24px 20px; display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
 .cc-tool-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 10px; padding: 16px 6px; text-align: center; cursor: pointer; transition: all .2s; }
 .cc-tool-card:hover { background: rgba(255,255,255,.1); border-color: rgba(255,255,255,.2); }
 .cc-tool-card.active { background: rgba(34,211,238,.12); border-color: rgba(34,211,238,.35); }

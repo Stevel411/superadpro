@@ -123,7 +123,7 @@ export default function Funnels() {
           <div style={{position:'absolute',top:-20,right:-20,width:100,height:100,background:'radial-gradient(circle,rgba(99,102,241,.1),transparent 70%)',borderRadius:'50%'}}/>
           <div style={{position:'absolute',bottom:10,right:10,width:70,height:70,border:'1px dashed rgba(99,102,241,.15)',borderRadius:12,opacity:.5}}/>
           <LayoutGrid size={24} color="#6366f1" style={{marginBottom:10}}/>
-          <h3 style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#1e1b4b',margin:'0 0 6px'}}>Blank Canvas</h3>
+          <h3 style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#172554',margin:'0 0 6px'}}>Blank Canvas</h3>
           <p style={{fontSize:12,color:'#6366f1',lineHeight:1.6,marginBottom:16,opacity:.7}}>Start from scratch with drag-and-drop — full creative freedom</p>
           <button onClick={()=>createFromTemplate('blank')} disabled={creating} style={{padding:'10px 22px',borderRadius:10,border:'none',cursor:'pointer',background:'#6366f1',color:'#fff',fontFamily:'Sora,sans-serif',fontSize:12,fontWeight:700,boxShadow:'0 4px 14px rgba(99,102,241,.3)'}}>Open SuperPages →</button>
         </div>

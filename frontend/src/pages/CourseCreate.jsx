@@ -240,7 +240,7 @@ export default function CourseCreate() {
         <div style={{position:'sticky',top:24}}>
           <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Live Preview</div>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.06)'}}>
-            <div style={{aspectRatio:'16/9',background:'linear-gradient(135deg,#1a103d,#2d1b69)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
+            <div style={{aspectRatio:'16/9',background:'linear-gradient(135deg,#0f1d3a,#172554)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
               {bannerUrl?<img src={bannerUrl} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>:<div style={{fontSize:36,opacity:.15}}>{catObj?catObj.icon:'🎓'}</div>}
               <div style={{position:'absolute',top:8,right:8,background:'rgba(0,0,0,.7)',backdropFilter:'blur(8px)',borderRadius:8,padding:'4px 10px'}}>
                 <span style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#fff'}}>${parseFloat(price||0).toFixed(0)||'0'}</span>

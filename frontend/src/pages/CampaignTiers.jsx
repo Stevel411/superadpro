@@ -12,7 +12,7 @@ import { formatMoney } from '../utils/money';
 var TIER_ACCENTS = {
   1: { color:'#10b981', dark:'#059669', bg:'#f0fdf4', border:'#bbf7d0', grad:'linear-gradient(135deg,#059669,#10b981)', cardGrad:'linear-gradient(135deg,#064e3b,#047857,#10b981)' },
   2: { color:'#3b82f6', dark:'#2563eb', bg:'#eff6ff', border:'#bfdbfe', grad:'linear-gradient(135deg,#2563eb,#3b82f6)', cardGrad:'linear-gradient(135deg,#1e3a5f,#2563eb,#3b82f6)' },
-  3: { color:'#8b5cf6', dark:'#7c3aed', bg:'#ede9fe', border:'#c4b5fd', grad:'linear-gradient(135deg,#7c3aed,#8b5cf6)', cardGrad:'linear-gradient(135deg,#1e1b4b,#4c1d95,#8b5cf6)' },
+  3: { color:'#8b5cf6', dark:'#7c3aed', bg:'#ede9fe', border:'#c4b5fd', grad:'linear-gradient(135deg,#7c3aed,#8b5cf6)', cardGrad:'linear-gradient(135deg,#172554,#4c1d95,#8b5cf6)' },
   4: { color:'#ec4899', dark:'#db2777', bg:'#fce7f3', border:'#f9a8d4', grad:'linear-gradient(135deg,#db2777,#ec4899)', cardGrad:'linear-gradient(135deg,#831843,#be185d,#ec4899)' },
   5: { color:'#14b8a6', dark:'#0d9488', bg:'#ccfbf1', border:'#99f6e4', grad:'linear-gradient(135deg,#0d9488,#14b8a6)', cardGrad:'linear-gradient(135deg,#134e4a,#0d9488,#2dd4bf)' },
   6: { color:'#9ca3af', dark:'#6b7280', bg:'#f3f4f6', border:'#d1d5db', grad:'linear-gradient(135deg,#6b7280,#9ca3af)', cardGrad:'linear-gradient(135deg,#6b7280,#9ca3af,#d1d5db)', darkText:true },

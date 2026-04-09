@@ -43,7 +43,7 @@ export default function ProSeller() {
           {!hasMessages&&(
             <div>
               {/* Dark hero */}
-              <div style={{background:'linear-gradient(135deg,#0f0a2e,#1a103d,#1e1145)',padding:'48px 40px 40px',textAlign:'center',position:'relative',overflow:'hidden'}}>
+              <div style={{background:'linear-gradient(135deg,#0f1d3a,#0f1d3a,#172554)',padding:'48px 40px 40px',textAlign:'center',position:'relative',overflow:'hidden'}}>
                 {/* Floating particles */}
                 {[{l:'15%',t:'20%',s:4,o:.15,d:6},{l:'75%',t:'15%',s:6,o:.1,d:8},{l:'85%',t:'60%',s:3,o:.2,d:5},{l:'25%',t:'70%',s:5,o:.12,d:7},{l:'50%',t:'40%',s:4,o:.08,d:9},{l:'65%',t:'80%',s:3,o:.15,d:6.5}].map(function(p,i){
                   return <div key={i} style={{position:'absolute',left:p.l,top:p.t,width:p.s,height:p.s,borderRadius:'50%',background:'#8b5cf6',opacity:p.o,animation:'pulse '+p.d+'s ease-in-out infinite',pointerEvents:'none'}}/>;

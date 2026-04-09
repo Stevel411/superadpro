@@ -67,12 +67,12 @@ export default function Affiliate() {
     <AppLayout title="Social Share">
     <div style={{ fontFamily: "'DM Sans','Rethink Sans',sans-serif" }}>
       {/* Header */}
-      <div style={{ background: 'linear-gradient(135deg, #1a103d, #2d1b69)', padding: '20px 24px 16px' }}>
+      <div style={{ background: 'linear-gradient(135deg, #0f1d3a, #172554)', padding: '20px 24px 16px' }}>
         <div style={{ fontSize: 22, fontWeight: 700, color: '#fff', fontFamily: "'Sora','Rethink Sans',sans-serif" }}>Social Share</div>
         <div style={{ fontSize: 12, color: 'rgba(255,255,255,.5)', marginTop: 3 }}>Generate AI posts and share your referral link across social media</div>
       </div>
       {/* Referral link bar */}
-      <div style={{ background: 'linear-gradient(180deg, #2d1b69, #1a103d)', padding: '0 24px 14px' }}>
+      <div style={{ background: 'linear-gradient(180deg, #172554, #0f1d3a)', padding: '0 24px 14px' }}>
         <div style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.12)', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
           <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,.5)', whiteSpace: 'nowrap' }}>Your link</span>
           <span style={{ flex: 1, fontSize: 12, color: '#22d3ee', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{refLink}</span>
