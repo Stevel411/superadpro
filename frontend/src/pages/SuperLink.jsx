@@ -5,7 +5,7 @@ var IncomeGrid3D = lazy(function() { return import('../components/IncomeGrid3D')
 // ═══ THEME PALETTES ═══
 var THEMES = {
   space: {
-    name: 'Deep Space', bg: '#030712', bg2: '#0a1628', bg3: '#030712',
+    name: 'Deep Space', bg: '#0f1d3a', bg2: '#172554', bg3: '#0f1d3a',
     text: '#e2e8f0', textMuted: '#94a3b8', textDim: '#64748b', textFaint: '#475569',
     heading: '#fff', strong: '#fff',
     card: 'rgba(255,255,255,0.015)', cardBorder: 'rgba(255,255,255,0.06)', cardHover: 'rgba(255,255,255,0.12)',
@@ -21,9 +21,9 @@ var THEMES = {
     footerBorder: 'rgba(255,255,255,0.03)', footerText: '#1e293b', footerLink: '#334155',
     particles: ['99,102,241','14,165,233','139,92,246','16,185,129','251,191,36'],
     pLine: '99,102,241', pAlpha: 0.25, pLineAlpha: 0.06,
-    gridBg: '#050d1a', gridText: '#fff', gridAccent: '#38bdf8',
-    grad1: 'linear-gradient(180deg,#030712 0%,#0a1628 50%,#030712 100%)',
-    grad2: 'linear-gradient(180deg,#030712 0%,#0c1025 50%,#030712 100%)',
+    gridBg: '#0f1d3a', gridText: '#fff', gridAccent: '#38bdf8',
+    grad1: 'linear-gradient(180deg,#0f1d3a 0%,#172554 50%,#0f1d3a 100%)',
+    grad2: 'linear-gradient(180deg,#0f1d3a 0%,#172554 50%,#0f1d3a 100%)',
     calloutBg: 'rgba(139,92,246,0.04)', calloutBorder: 'rgba(139,92,246,0.12)', calloutStrong: '#a78bfa',
     glow: 'radial-gradient(circle,rgba(251,191,36,0.06),transparent 60%)',
     basicBg: 'rgba(14,165,233,0.1)', basicC: '#38bdf8', basicBd: 'rgba(14,165,233,0.2)',

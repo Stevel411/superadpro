@@ -47,14 +47,14 @@ export default function GiftLanding() {
   }
 
   if (loading) return (
-    <div style={{ minHeight:'100vh', background:'#050d1a', display:'flex', alignItems:'center', justifyContent:'center' }}>
+    <div style={{ minHeight:'100vh', background:'#0f1d3a', display:'flex', alignItems:'center', justifyContent:'center' }}>
       <div style={{ width:40, height:40, border:'3px solid rgba(255,255,255,.1)', borderTopColor:'#ec4899', borderRadius:'50%', animation:'spin .8s linear infinite' }}/>
       <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
     </div>
   );
 
   if (giftError) return (
-    <div style={{ minHeight:'100vh', background:'#050d1a', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+    <div style={{ minHeight:'100vh', background:'#0f1d3a', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div style={{ textAlign:'center', maxWidth:400 }}>
         <div style={{ width:64, height:64, borderRadius:16, background:'rgba(239,68,68,.15)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px' }}>
           <Gift size={28} color="#ef4444"/>
@@ -66,7 +66,7 @@ export default function GiftLanding() {
   );
 
   if (claimed) return (
-    <div style={{ minHeight:'100vh', background:'#050d1a', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+    <div style={{ minHeight:'100vh', background:'#0f1d3a', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div style={{ textAlign:'center', maxWidth:440 }}>
         <div style={{ width:72, height:72, borderRadius:18, background:'linear-gradient(135deg,#10b981,#059669)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 24px' }}>
           <Check size={36} color="#fff"/>
@@ -88,7 +88,7 @@ export default function GiftLanding() {
   );
 
   return (
-    <div style={{ minHeight:'100vh', background:'#050d1a', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+    <div style={{ minHeight:'100vh', background:'#0f1d3a', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div style={{ maxWidth:480, width:'100%' }}>
 
         {/* Gift card */}

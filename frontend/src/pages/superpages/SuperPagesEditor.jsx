@@ -226,7 +226,7 @@ export default function SuperPagesEditor() {
                 📱 Responsive Preview — switch to Desktop to edit elements
               </div>
             )}
-            <div style={{width:deviceView==='mobile'?390:deviceView==='tablet'?768:1100,transition:'width .3s',background:canvasBg||'#0a1628',borderRadius:8,overflow:'hidden',boxShadow:'0 0 60px rgba(0,0,0,.3)',minHeight:600}}>
+            <div style={{width:deviceView==='mobile'?390:deviceView==='tablet'?768:1100,transition:'width .3s',background:canvasBg||'#172554',borderRadius:8,overflow:'hidden',boxShadow:'0 0 60px rgba(0,0,0,.3)',minHeight:600}}>
               <iframe
                 srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Outfit,sans-serif}img{max-width:100%;height:auto}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage)}</body></html>`}
                 style={{width:'100%',height:'100%',border:'none',minHeight:800}}

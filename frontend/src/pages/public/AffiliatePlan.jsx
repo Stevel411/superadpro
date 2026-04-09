@@ -25,7 +25,7 @@ export default function AffiliatePlan() {
   var accent = '#0ea5e9';
 
   return (
-    <div style={{ background: '#030712', color: '#fff', fontFamily: "'DM Sans',sans-serif", minHeight: '100vh' }}>
+    <div style={{ background: '#0f1d3a', color: '#fff', fontFamily: "'DM Sans',sans-serif", minHeight: '100vh' }}>
       <style>{`
         .hiw-card:hover{transform:translateY(-4px)!important;border-color:rgba(14,165,233,0.2)!important}
         .hiw-step:hover{border-color:rgba(14,165,233,0.25)!important;background:rgba(14,165,233,0.04)!important}
@@ -88,7 +88,7 @@ export default function AffiliatePlan() {
       </section>
 
       {/* ═══ VIDEO SECTION ═══ */}
-      <section id="video" style={{ padding:'80px 24px', background:'linear-gradient(180deg,#030712,#0a1628,#030712)' }}>
+      <section id="video" style={{ padding:'80px 24px', background:'linear-gradient(180deg,#0f1d3a,#172554,#0f1d3a)' }}>
         <div style={{ maxWidth:800, margin:'0 auto' }}>
           <Reveal>
             <div style={{ textAlign:'center', marginBottom:32 }}>
@@ -141,7 +141,7 @@ export default function AffiliatePlan() {
       </section>
 
       {/* ═══ FOUR INCOME STREAMS ═══ */}
-      <section style={{ padding:'80px 24px', background:'linear-gradient(180deg,#030712,#0c1025,#030712)' }}>
+      <section style={{ padding:'80px 24px', background:'linear-gradient(180deg,#0f1d3a,#172554,#0f1d3a)' }}>
         <div style={{ maxWidth:960, margin:'0 auto' }}>
           <Reveal><h2 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(28px,4vw,42px)', fontWeight:900, textAlign:'center', marginBottom:8 }}>Four Income Streams. One Platform.</h2></Reveal>
           <Reveal delay={0.1}><p style={{ fontSize:17, color:'rgba(255,255,255,0.4)', textAlign:'center', maxWidth:500, margin:'0 auto 48px' }}>Each one works independently. Together they compound.</p></Reveal>
