@@ -692,6 +692,21 @@ async def health_check():
     return {"status": "ok"}
 
 
+@app.get("/api/public/stats")
+def api_public_stats(db: Session = Depends(get_db)):
+    """Public stats for homepage — member count, total earned. No auth required."""
+    total_members = db.query(User).filter(User.is_active == True).count()
+    total_registered = db.query(User).count()
+    total_earned = float(db.query(func.sum(Commission.amount_usdt)).filter(
+        Commission.status == "paid"
+    ).scalar() or 0)
+    return {
+        "members": total_members,
+        "registered": total_registered,
+        "total_earned": total_earned,
+    }
+
+
 @app.get("/api/me")
 def api_me(request: Request, db: Session = Depends(get_db)):
     """Return current user data for the React frontend."""

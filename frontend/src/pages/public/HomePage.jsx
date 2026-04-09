@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
 function Particles() {
@@ -27,6 +27,11 @@ function Particles() {
 }
 
 export default function HomePage() {
+  var [stats, setStats] = useState(null);
+  useEffect(function() {
+    fetch('/api/public/stats').then(function(r){ return r.json(); }).then(function(d){ setStats(d); }).catch(function(){});
+  }, []);
+
   return (
     <div style={{ background:'#030712', color:'#fff', fontFamily:"'DM Sans',sans-serif", minHeight:'100vh' }}>
       <style>{`
@@ -117,7 +122,15 @@ export default function HomePage() {
             })}
           </div>
 
-          <div className="hp-f6 hp-stats" style={{ display:'flex', gap:'clamp(20px,3vw,40px)', marginTop:48, flexWrap:'wrap' }}>
+          <div className="hp-f6 hp-stats" style={{ display:'flex', gap:'clamp(20px,3vw,40px)', marginTop:48, flexWrap:'wrap', alignItems:'center' }}>
+            {/* Live member counter */}
+            {stats && stats.members > 0 && (
+              <div style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 20px', borderRadius:14, background:'rgba(0,0,0,0.35)', border:'1px solid rgba(255,255,255,0.08)', backdropFilter:'blur(8px)' }}>
+                <span style={{ width:8, height:8, borderRadius:'50%', background:'#22c55e', animation:'hp-pulse 2s ease-in-out infinite', flexShrink:0 }}/>
+                <span style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:900, color:'#22c55e' }}>{stats.members.toLocaleString()}</span>
+                <span style={{ fontSize:13, color:'rgba(255,255,255,0.5)', fontWeight:600 }}>active members</span>
+              </div>
+            )}
             {[
               { val: '50%', color: '#34d399', label: 'Recurring' },
               { val: '$22,824', color: '#818cf8', label: 'Grid Potential' },
