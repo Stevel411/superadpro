@@ -132,15 +132,14 @@ export default function HomePage() {
               </div>
             )}
             {[
-              { val: '50%', color: '#34d399', label: 'Recurring' },
-              { val: '$22,824', color: '#818cf8', label: 'Grid Potential' },
-              { val: '100%', color: '#fbbf24', label: 'Course Commissions' },
-              { val: '4', color: '#38bdf8', label: 'Income Streams' },
+              { val: 'AI Creative Studio', color: '#38bdf8', label: 'Video, Images, Music & Voiceover' },
+              { val: 'Video Advertising', color: '#34d399', label: 'Campaign Tiers & Targeted Views' },
+              { val: 'Affiliate System', color: '#fbbf24', label: 'Earn From Every Referral' },
             ].map(function(s, i) {
               return (
                 <div key={i} className="hp-stat" style={{ textAlign:'left' }}>
-                  <div style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(24px,3vw,34px)', fontWeight:900, lineHeight:1, color:s.color }}>{s.val}</div>
-                  <div style={{ fontSize:10, fontWeight:700, color:'rgba(255,255,255,0.35)', textTransform:'uppercase', letterSpacing:1.5, marginTop:4 }}>{s.label}</div>
+                  <div style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(16px,2vw,20px)', fontWeight:900, lineHeight:1.2, color:s.color }}>{s.val}</div>
+                  <div style={{ fontSize:11, fontWeight:600, color:'rgba(255,255,255,0.4)', marginTop:5, lineHeight:1.4 }}>{s.label}</div>
                 </div>
               );
             })}
