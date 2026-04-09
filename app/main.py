@@ -643,6 +643,7 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
     # ── Opportunities (features not yet used) ──
 
     # Creative Studio usage check
+    from .database import SuperSceneVideo
     studio_count = db.query(SuperSceneVideo).filter(SuperSceneVideo.user_id == user.id).count()
     if studio_count == 0:
         opportunities.append({
