@@ -1135,27 +1135,30 @@ def register_process(
                     to_email=sponsor_obj.email,
                     subject=f"🎉 {first_name} just joined your SuperAdPro team!",
                     html_body=f"""
-                    <div style="font-family:DM Sans,Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;">
-                        <div style="text-align:center;margin-bottom:24px;">
-                            <span style="font-family:Sora,sans-serif;font-size:22px;font-weight:800;">SuperAd<span style="color:#38bdf8;">Pro</span></span>
+                    <div style="font-family:Helvetica Neue,Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;">
+                        <div style="background:linear-gradient(135deg,#0f1d3a,#172554);border-radius:16px;padding:24px;margin-bottom:20px;">
+                            <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;">
+                                <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#0ea5e9,#6366f1);text-align:center;line-height:36px;font-size:16px;color:#fff;font-weight:900;padding-left:2px;">&#9654;</div>
+                                <span style="font-size:18px;font-weight:900;color:#fff;">Super</span><span style="font-size:18px;font-weight:900;color:#0ea5e9;">Ad</span><span style="font-size:18px;font-weight:900;color:#a78bfa;">Pro</span>
+                            </div>
+                            <div style="text-align:center;padding:16px 0;">
+                                <div style="font-size:42px;margin-bottom:12px;">🎉</div>
+                                <h1 style="color:#fff;font-size:22px;font-weight:800;margin:0 0 8px;">New Team Member!</h1>
+                                <p style="color:rgba(255,255,255,.6);font-size:15px;margin:0;line-height:1.6;">
+                                    <strong style="color:#38bdf8;">{first_name}</strong> ({username}) just joined through your referral link.
+                                </p>
+                            </div>
                         </div>
-                        <div style="background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:16px;padding:28px 24px;text-align:center;margin-bottom:20px;">
-                            <div style="font-size:42px;margin-bottom:12px;">🎉</div>
-                            <h1 style="color:#fff;font-family:Sora,sans-serif;font-size:22px;font-weight:800;margin:0 0 8px;">New Team Member!</h1>
-                            <p style="color:rgba(200,220,255,.6);font-size:15px;margin:0;line-height:1.6;">
-                                <strong style="color:#38bdf8;">{first_name}</strong> ({username}) just joined SuperAdPro through your referral link.
-                            </p>
-                        </div>
-                        <div style="background:#f8f9fb;border-radius:12px;padding:20px 24px;margin-bottom:20px;">
+                        <div style="background:#f8fafc;border-radius:12px;padding:20px 24px;margin-bottom:20px;">
                             <p style="font-size:14px;color:#334155;line-height:1.7;margin:0 0 12px;">
                                 Welcome them with a message in <strong>Team Messenger</strong> — members who connect with their sponsor in the first 24 hours are 5x more likely to stay active.
                             </p>
                             <a href="https://www.superadpro.com/team-messenger" style="display:inline-block;padding:10px 24px;background:#0ea5e9;color:#fff;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;">Send a Welcome Message →</a>
                         </div>
-                        <p style="font-size:12px;color:#94a3b8;text-align:center;">Your network is growing. Keep sharing your referral link to build your team.</p>
+                        <p style="font-size:12px;color:#94a3b8;text-align:center;">SuperAdPro — AI Marketing & Advertising Platform</p>
                     </div>
                     """,
-                    text_body=f"{first_name} ({username}) just joined your SuperAdPro team! Send them a welcome message in Team Messenger."
+                    text_body=f"{first_name} ({username}) just joined your SuperAdPro team! Send them a welcome message."
                 )
         except Exception:
             pass
@@ -18912,9 +18915,9 @@ def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
             html = f"""<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
 <body style="margin:0;padding:0;background:#f0f3f9;font-family:'DM Sans',Arial,sans-serif">
 <div style="max-width:560px;margin:0 auto;padding:24px">
-  <div style="background:#050d1a;border-radius:16px;padding:32px 28px;text-align:center;margin-bottom:20px">
+  <div style="background:linear-gradient(135deg,#0f1d3a,#172554);border-radius:16px;padding:32px 28px;text-align:center;margin-bottom:20px">
     <div style="font-size:22px;font-weight:800;color:#fff;margin-bottom:4px">
-      Super<span style="color:#38bdf8">Ad</span><span style="color:#38bdf8">Pro</span>
+      Super<span style="color:#0ea5e9">Ad</span><span style="color:#a78bfa">Pro</span>
     </div>
     <div style="font-size:12px;color:rgba(255,255,255,.4);letter-spacing:1px;text-transform:uppercase">Weekly Earnings Digest</div>
   </div>
@@ -18953,7 +18956,7 @@ def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
   </div>
 
   <div style="text-align:center;font-size:11px;color:#94a3b8;padding:12px 0">
-    SuperAdPro — Video Advertising & AI Marketing Platform<br>
+    SuperAdPro — AI Marketing & Advertising Platform<br>
     <a href="https://www.superadpro.com" style="color:#0ea5e9;text-decoration:none">www.superadpro.com</a>
   </div>
 </div>
