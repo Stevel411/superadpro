@@ -501,15 +501,15 @@ export default function Dashboard() {
               <span style={{ fontSize: 24 }}>🎉</span>
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: '#0f1d3a', marginBottom: 4, letterSpacing: '.3px' }}>{isPro ? 'New Pro Member!' : 'New Team Member!'}</div>
+              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: '#172554', marginBottom: 4, letterSpacing: '.3px' }}>{isPro ? 'New Pro Member!' : 'New Team Member!'}</div>
               <div style={{ fontSize: 13, color: '#172554', lineHeight: 1.5 }}>
-                <strong style={{ color: '#0f1d3a' }}>{toast.first_name} {toast.last_name}</strong> just joined your team
+                <strong style={{ color: '#172554' }}>{toast.first_name} {toast.last_name}</strong> just joined your team
               </div>
               <div style={{ fontSize: 12, color: subColor, marginTop: 3 }}>
-                You'll earn <strong style={{ color: '#0f1d3a' }}>{commission}/month</strong> from this referral
+                You'll earn <strong style={{ color: '#172554' }}>{commission}/month</strong> from this referral
               </div>
               <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ padding: '3px 12px', borderRadius: 6, background: badgeBg, border: '1px solid ' + badgeBorder, color: '#0f1d3a', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.5px' }}>{isPro ? '★ Pro member' : 'Basic member'}</span>
+                <span style={{ padding: '3px 12px', borderRadius: 6, background: badgeBg, border: '1px solid ' + badgeBorder, color: '#172554', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.5px' }}>{isPro ? '★ Pro member' : 'Basic member'}</span>
                 <span style={{ fontSize: 10, color: 'rgba(15,29,58,.4)' }}>@{toast.username}</span>
               </div>
             </div>

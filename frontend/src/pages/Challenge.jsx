@@ -65,7 +65,7 @@ export default function Challenge() {
       `}</style>
 
       {/* Hero */}
-      <div style={{ background:'linear-gradient(135deg,#0f1d3a 0%,#172554 50%,#172554 100%)', borderRadius:20, padding:'28px 32px', marginBottom:20, position:'relative', overflow:'hidden' }}>
+      <div style={{ background:'linear-gradient(135deg,#172554 0%,#172554 50%,#172554 100%)', borderRadius:20, padding:'28px 32px', marginBottom:20, position:'relative', overflow:'hidden' }}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:20 }}>
           <div>
             <div style={{ fontSize:11, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', color:'rgba(255,255,255,.4)' }}>30-day launch challenge</div>

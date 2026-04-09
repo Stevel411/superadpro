@@ -72,7 +72,7 @@ export default function OnboardingWizard() {
 
   // ── Outer shell ──
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #0f1d3a 0%, #172554 50%, #1e3a8a 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 20, fontFamily: 'DM Sans, sans-serif' }}>
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #172554 0%, #172554 50%, #1e3a8a 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 20, fontFamily: 'DM Sans, sans-serif' }}>
 
       {/* Logo */}
       <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 10 }}>

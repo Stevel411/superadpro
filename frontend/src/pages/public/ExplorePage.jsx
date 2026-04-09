@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 
 export default function ExplorePage() {
   return (
-    <div style={{ background:'#0f1d3a', color:'#fff', fontFamily:"'DM Sans',sans-serif", minHeight:'100vh' }}>
+    <div style={{ background:'#172554', color:'#fff', fontFamily:"'DM Sans',sans-serif", minHeight:'100vh' }}>
       <style>{`
         .exp-path{transition:all 0.3s!important}
         .exp-path:hover{transform:translateY(-6px)!important;box-shadow:0 20px 60px rgba(0,0,0,0.5)!important}

@@ -159,7 +159,7 @@ export default function PassiveIncome({ d }) {
 
     // Hero
     hero: {
-      background: 'linear-gradient(135deg, #0f1d3a 0%, #172554 50%, #0f1d3a 100%)',
+      background: 'linear-gradient(135deg, #172554 0%, #172554 50%, #172554 100%)',
       borderRadius: 20, padding: '40px 36px 32px', marginBottom: 20,
       position: 'relative', overflow: 'hidden',
       boxShadow: '0 20px 60px rgba(0,0,0,0.4)',
@@ -205,13 +205,13 @@ export default function PassiveIncome({ d }) {
     // Bottom grid
     bottomGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 20 },
     darkCard: {
-      background: 'linear-gradient(135deg,#0f1729,#0f1d3a)',
+      background: 'linear-gradient(135deg,#0f1729,#172554)',
       border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: '32px',
     },
 
     // Activity
     activityCard: {
-      background: 'linear-gradient(135deg,#0f1729,#0f1d3a)',
+      background: 'linear-gradient(135deg,#0f1729,#172554)',
       border: '1px solid rgba(255,255,255,0.06)', borderRadius: 20, padding: '32px',
     },
 

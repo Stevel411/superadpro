@@ -33,7 +33,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div style={{ background:'#0f1d3a', color:'#fff', fontFamily:"'DM Sans',sans-serif", minHeight:'100vh' }}>
+    <div style={{ background:'#172554', color:'#fff', fontFamily:"'DM Sans',sans-serif", minHeight:'100vh' }}>
       <style>{`
         @keyframes hp-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.4)}}
         @keyframes hp-fadeUp{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:translateY(0)}}

@@ -3,7 +3,7 @@ import IncomeGrid3D from '../components/IncomeGrid3D';
 export default function IncomeGrid3DPage() {
   var h = typeof window !== 'undefined' ? Math.max(500, window.innerHeight - 260) : 500;
   return (
-    <div style={{ background: '#0f1d3a', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: '#172554', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 40px', borderBottom: '1px solid rgba(255,255,255,.06)' }}>
         <a href="/" style={{ fontFamily: "'Sora',sans-serif", fontSize: 20, fontWeight: 900, color: '#fff', textDecoration: 'none' }}>SuperAd<span style={{ color: '#38bdf8' }}>Pro</span></a>
         <div style={{ display: 'flex', gap: 20, alignItems: 'center' }}>

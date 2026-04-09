@@ -42,7 +42,7 @@ export default function CompensationPlan() {
 
       {/* Hero Banner */}
       <div style={{
-        background:'linear-gradient(135deg,#0f1d3a,#172554,#4338ca)', borderRadius:18,
+        background:'linear-gradient(135deg,#172554,#172554,#4338ca)', borderRadius:18,
         padding:'32px 34px 26px', marginBottom:20, textAlign:'center',
         position:'relative', overflow:'hidden',
       }}>

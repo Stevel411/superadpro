@@ -153,7 +153,7 @@ export default function Register() {
 }
 
 const styles = {
-  page: { minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#0f1d3a', padding: '40px 20px', position: 'relative', overflow: 'hidden', fontFamily: "'DM Sans', sans-serif" },
+  page: { minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#172554', padding: '40px 20px', position: 'relative', overflow: 'hidden', fontFamily: "'DM Sans', sans-serif" },
   bg: { position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(14,165,233,.15) 0%, transparent 70%)', pointerEvents: 'none' },
   bgGlow1: { position: 'absolute', top: '30%', right: '5%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(56,189,248,.05) 0%, transparent 70%)', pointerEvents: 'none' },
   card: { position: 'relative', zIndex: 1, width: '100%', maxWidth: 480, background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 20, padding: '40px 36px', backdropFilter: 'blur(20px)' },

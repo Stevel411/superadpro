@@ -192,7 +192,7 @@ export default function CourseEditor() {
         <div style={{position:'sticky',top:24,display:'flex',flexDirection:'column',gap:14}}>
           {/* Submit card */}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
-            <div style={{background:'linear-gradient(135deg,#0f1d3a,#172554)',padding:'16px 20px'}}>
+            <div style={{background:'linear-gradient(135deg,#172554,#172554)',padding:'16px 20px'}}>
               <div style={{fontSize:15,fontWeight:800,color:'#fff',fontFamily:'Sora,sans-serif'}}>Publish Course</div>
               <div style={{fontSize:11,color:'rgba(255,255,255,.4)',marginTop:2}}>Complete all requirements, then submit</div>
             </div>

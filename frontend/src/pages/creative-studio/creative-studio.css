@@ -4,7 +4,7 @@
    ══════════════════════════════════════════════════════ */
 
 /* ── Variables ── */
-.cs-page { --cobalt: #172554; --cobalt2: #1e3a8a; --cobalt3: #0f1d3a; --cyan: #38bdf8; --purple: #8b5cf6; overflow: visible; }
+.cs-page { --cobalt: #172554; --cobalt2: #1e3a8a; --cobalt3: #172554; --cyan: #38bdf8; --purple: #8b5cf6; overflow: visible; }
 
 /* ── Header ── */
 .cs-header { background: linear-gradient(135deg, var(--cobalt3), var(--cobalt), var(--cobalt2)); padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; }

@@ -184,14 +184,14 @@ export default function SuperPagesEditor() {
 
   if (loading) {
     return (
-      <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f1d3a', color: 'rgba(255,255,255,.4)' }}>
+      <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#172554', color: 'rgba(255,255,255,.4)' }}>
         Loading editor...
       </div>
     );
   }
 
   return (
-    <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#0f1d3a', fontFamily: 'DM Sans,sans-serif' }}>
+    <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#172554', fontFamily: 'DM Sans,sans-serif' }}>
       <EditorTopbar
         title={pageSettings.title}
         slug={pageSettings.slug}

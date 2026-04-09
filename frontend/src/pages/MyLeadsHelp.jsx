@@ -125,7 +125,7 @@ export default function MyLeadsHelp({ visible, onClose }) {
         animation: 'mlHelpSlide 0.25s ease-out',
       }}>
         {/* Header */}
-        <div style={{ padding: '18px 20px', borderBottom: '1px solid #e8ecf2', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, background: 'linear-gradient(135deg,#0f1d3a,#172554)' }}>
+        <div style={{ padding: '18px 20px', borderBottom: '1px solid #e8ecf2', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, background: 'linear-gradient(135deg,#172554,#172554)' }}>
           <div>
             <h2 style={{ margin: 0, fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, color: '#fff' }}>
               Super<span style={{ color: '#818cf8' }}>Leads</span> Help

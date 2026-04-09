@@ -13,7 +13,7 @@ function Grid3DSection() {
 }
 
 var cyan = '#38bdf8';
-var dark = '#0f1d3a';
+var dark = '#172554';
 
 var CSS = `
 @keyframes fadeUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
@@ -30,7 +30,7 @@ var CSS = `
 .earn-fade5{opacity:0;animation:fadeUp .7s ease forwards .5s}
 .earn-card{transition:transform .25s,box-shadow .25s}
 .earn-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.4)!important}
-.earn-btn-p{font-weight:800;font-size:16px;color:#0f1d3a;background:linear-gradient(135deg,#38bdf8,#0ea5e9);padding:14px 36px;border-radius:10px;text-decoration:none;box-shadow:0 0 32px rgba(0,212,255,.35);transition:all .3s;cursor:pointer;border:none;font-family:inherit;display:inline-block}
+.earn-btn-p{font-weight:800;font-size:16px;color:#172554;background:linear-gradient(135deg,#38bdf8,#0ea5e9);padding:14px 36px;border-radius:10px;text-decoration:none;box-shadow:0 0 32px rgba(0,212,255,.35);transition:all .3s;cursor:pointer;border:none;font-family:inherit;display:inline-block}
 .earn-btn-p:hover{box-shadow:0 0 50px rgba(0,212,255,.55);transform:translateY(-2px)}
 .earn-btn-o{font-weight:600;font-size:15px;color:#fff;background:rgba(255,255,255,.06);padding:13px 32px;border-radius:10px;border:1px solid rgba(255,255,255,.15);text-decoration:none;transition:all .3s;display:inline-block}
 .earn-btn-o:hover{border-color:#38bdf8;color:#38bdf8}
@@ -335,7 +335,7 @@ export default function EarnPage() {
         </Link>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
           <Link to="/login" style={{fontSize:14,fontWeight:600,color:'rgba(200,220,255,.6)',textDecoration:'none',padding:'7px 16px',border:'1px solid rgba(255,255,255,.1)',borderRadius:8}}>Sign In</Link>
-          <button onClick={openReg} style={{fontWeight:700,fontSize:14,color:'#0f1d3a',background:'#38bdf8',padding:'9px 22px',borderRadius:10,border:'none',cursor:'pointer',fontFamily:'inherit'}}>Join Free →</button>
+          <button onClick={openReg} style={{fontWeight:700,fontSize:14,color:'#172554',background:'#38bdf8',padding:'9px 22px',borderRadius:10,border:'none',cursor:'pointer',fontFamily:'inherit'}}>Join Free →</button>
         </div>
       </nav>
 

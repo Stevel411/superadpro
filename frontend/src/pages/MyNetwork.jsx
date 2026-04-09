@@ -44,7 +44,7 @@ export default function MyNetwork() {
     <AppLayout title={t('network.title')} subtitle={t('network.subtitle')}>
 
       {/* ── Referral Link Banner ── */}
-      <div style={{background:'linear-gradient(135deg,#172554,#0f172a)',borderRadius:14,padding:'20px 24px',marginBottom:20,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+      <div style={{background:'linear-gradient(135deg,#172554,#1e3a8a)',borderRadius:14,padding:'20px 24px',marginBottom:20,display:'flex',alignItems:'center',justifyContent:'space-between'}}>
         <div>
           <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('network.yourReferralLink')}</div>
           <div style={{fontSize:14,fontWeight:600,color:'rgba(255,255,255,.6)',fontFamily:'monospace'}}>
@@ -82,7 +82,7 @@ export default function MyNetwork() {
 
       {/* ── Earnings by Stream ── */}
       <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:20,boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
-        <div style={{background:'#172554',padding:'16px 24px'}}>
+        <div style={{background:'linear-gradient(90deg,#172554,#1e3a8a)',padding:'16px 24px'}}>
           <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('network.earningsByStream')}</div>
         </div>
         <div style={{padding:'20px 24px',display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14}}>
@@ -107,7 +107,7 @@ export default function MyNetwork() {
 
         {/* Direct Referrals */}
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
-          <div style={{background:'#172554',padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{background:'linear-gradient(90deg,#172554,#1e3a8a)',padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
               <div style={{width:6,height:6,borderRadius:3,background:'#16a34a'}}/>
               <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('network.directReferrals')}</div>
@@ -171,7 +171,7 @@ export default function MyNetwork() {
 
         {/* Commission History */}
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
-          <div style={{background:'#172554',padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{background:'linear-gradient(90deg,#172554,#1e3a8a)',padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
               <div style={{width:6,height:6,borderRadius:3,background:'#0ea5e9'}}/>
               <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('network.commissionHistory')}</div>
