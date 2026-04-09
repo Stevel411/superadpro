@@ -998,6 +998,7 @@ async def health_check():
 @app.get("/api/public/stats")
 def api_public_stats(db: Session = Depends(get_db)):
     """Public stats for homepage — member count, total earned. No auth required."""
+    from sqlalchemy import func
     total_members = db.query(User).filter(User.is_active == True).count()
     total_registered = db.query(User).count()
     total_earned = float(db.query(func.sum(Commission.amount_usdt)).filter(
