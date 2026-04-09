@@ -2,7 +2,7 @@
 .cc-root { font-family: 'DM Sans', 'Rethink Sans', sans-serif; }
 
 /* Header */
-.cc-header { background: linear-gradient(135deg, #0f1d3a, #172554); padding: 20px 24px 16px; }
+.cc-header { background: linear-gradient(135deg, #0f1d3a, #172554); padding: 20px 24px 16px; border-radius: 14px 14px 0 0; }
 .cc-header-inner { display: flex; align-items: center; justify-content: space-between; }
 .cc-title { font-size: 22px; font-weight: 700; color: #fff; font-family: 'Sora', 'Rethink Sans', sans-serif; }
 .cc-subtitle { font-size: 12px; color: rgba(255,255,255,.5); margin-top: 3px; }

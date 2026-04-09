@@ -87,7 +87,7 @@ export default function ContentCreatorPage() {
     <div className="cc-root">
       <div className="cc-header">
         <div className="cc-header-inner">
-          <div><div className="cc-title">Content Creator</div><div className="cc-subtitle">AI-powered marketing content — choose a tool below</div></div>
+          <div><div className="cc-subtitle">AI-powered marketing content — choose a tool below</div></div>
         </div>
       </div>
       <div className="cc-tools">
