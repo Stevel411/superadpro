@@ -86,7 +86,7 @@ export default function Dashboard() {
           display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
         }}>
           <div style={{ flex: 1, minWidth: 240 }}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#1a1a2e', marginBottom: 6 }}>🎯 Refer just 2 Basic members and your membership pays for itself</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#132044', marginBottom: 6 }}>🎯 Refer just 2 Basic members and your membership pays for itself</div>
             <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.7, margin: 0 }}>
               As a free member you earn <strong>$10 for every Basic member you refer</strong>. Two referrals = $20 → your membership <strong style={{ color: '#0891b2' }}>paid for</strong>.
             </p>

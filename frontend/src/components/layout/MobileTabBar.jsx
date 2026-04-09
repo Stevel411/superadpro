@@ -50,7 +50,7 @@ export default function MobileTabBar() {
   return (
     <nav style={{
       position: 'fixed', bottom: 0, left: 0, right: 0, zIndex: 50,
-      background: '#1c223d',
+      background: '#172554',
       borderTop: '1px solid rgba(0,212,255,0.08)',
       display: 'flex', alignItems: 'stretch',
       paddingBottom: 'env(safe-area-inset-bottom, 0px)',

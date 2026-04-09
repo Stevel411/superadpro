@@ -346,7 +346,7 @@ function Card({ title, dotColor, badge, headerRight, flex, children }) {
       overflow: 'hidden', transition: 'box-shadow .2s, border-color .2s',
       display: 'flex', flexDirection: 'column', ...(flex ? { flex: 1 } : {}),
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', background: '#1c223d' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', background: '#172554' }}>
         <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: dotColor || '#0ea5e9', flexShrink: 0 }} />
           {title}

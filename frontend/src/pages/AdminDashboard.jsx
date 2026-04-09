@@ -94,7 +94,7 @@ function OverviewTab() {
       {/* System health quick view */}
       {health && (
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
-          <div style={{background:'#1c223d',padding:'14px 20px'}}>
+          <div style={{background:'#172554',padding:'14px 20px'}}>
             <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>System Health</div>
           </div>
           <div style={{padding:'16px 20px'}}>
@@ -176,7 +176,7 @@ function UsersTab() {
     <div style={{display:'grid',gridTemplateColumns:selected?'1fr 1fr':'1fr',gap:16}}>
       {/* User list */}
       <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
-        <div style={{background:'#1c223d',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div style={{background:'#172554',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Members ({users.length})</div>
         </div>
         <div style={{padding:'12px 16px',borderBottom:'1px solid #e8ecf2'}}>
@@ -224,7 +224,7 @@ function UsersTab() {
           {msg && <div style={{padding:'8px 12px',borderRadius:8,fontSize:12,fontWeight:700,background:msg.includes('adjust')||msg.includes('toggle')?'#dcfce7':'#fef2f2',color:msg.includes('adjust')||msg.includes('toggle')?'#16a34a':'#dc2626'}}>{msg}</div>}
 
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
-            <div style={{background:'#1c223d',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+            <div style={{background:'#172554',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
               <div>
                 <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{detail.first_name || detail.username} {detail.last_name || ''}</div>
                 <div style={{fontSize:11,color:'rgba(255,255,255,.4)'}}>@{detail.username} · SAP-{String(detail.id).padStart(5,'0')}</div>
@@ -249,7 +249,7 @@ function UsersTab() {
 
           {/* Actions */}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
-            <div style={{background:'#1c223d',padding:'14px 20px'}}>
+            <div style={{background:'#172554',padding:'14px 20px'}}>
               <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Actions</div>
             </div>
             <div style={{padding:'16px 20px'}}>
@@ -437,7 +437,7 @@ function FinancesTab() {
 
       {data.recent_payments && data.recent_payments.length > 0 && (
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
-          <div style={{background:'#1c223d',padding:'14px 20px'}}>
+          <div style={{background:'#172554',padding:'14px 20px'}}>
             <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Recent Payments</div>
           </div>
           <div style={{maxHeight:400,overflowY:'auto'}}>
@@ -505,7 +505,7 @@ function WithdrawalsTab() {
 
       {completed.length > 0 && (
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
-          <div style={{background:'#1c223d',padding:'14px 20px'}}>
+          <div style={{background:'#172554',padding:'14px 20px'}}>
             <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Processed Withdrawals</div>
           </div>
           <div style={{maxHeight:300,overflowY:'auto'}}>
@@ -630,7 +630,7 @@ function CommissionsTab() {
 
       {data.recent && data.recent.length > 0 && (
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
-          <div style={{background:'#1c223d',padding:'14px 20px'}}>
+          <div style={{background:'#172554',padding:'14px 20px'}}>
             <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Recent Commissions</div>
           </div>
           <div style={{maxHeight:400,overflowY:'auto'}}>
@@ -789,7 +789,7 @@ function HealthTab() {
       {fixMsg && <div style={{padding:'10px 14px',borderRadius:8,background:'#dcfce7',border:'1px solid #bbf7d0',marginBottom:14,fontSize:12,fontWeight:700,color:'#16a34a'}}>{fixMsg}</div>}
 
       <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:16}}>
-        <div style={{background:'#1c223d',padding:'14px 20px'}}>
+        <div style={{background:'#172554',padding:'14px 20px'}}>
           <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>Health Checks</div>
         </div>
         {(data.checks || []).map(function(c,i) {

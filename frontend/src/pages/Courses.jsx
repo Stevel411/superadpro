@@ -40,7 +40,7 @@ export default function Courses() {
               </div>
               {/* Body */}
               <div style={{padding:20,flex:1,display:'flex',flexDirection:'column'}}>
-                <div style={{fontSize:17,fontWeight:800,color:'#1a1a2e',marginBottom:6,letterSpacing:-0.2}}>{c.title}</div>
+                <div style={{fontSize:17,fontWeight:800,color:'#132044',marginBottom:6,letterSpacing:-0.2}}>{c.title}</div>
                 <div style={{fontSize:13,color:'#475569',lineHeight:1.6,marginBottom:16,flex:1}}>{c.description || 'Master the skills you need to succeed in digital marketing and online business.'}</div>
                 <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:16,fontSize:12,color:'#94a3b8'}}>
                   <span style={{display:'flex',alignItems:'center',gap:4}}>📖 {c.chapter_count || 0} chapters</span>
@@ -59,7 +59,7 @@ export default function Courses() {
                   <a href={`/courses/learn/${c.id}`} style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontSize:14,fontWeight:700,textAlign:'center',textDecoration:'none',background:'#0ea5e9',color:'#fff',boxShadow:'0 2px 8px rgba(14,165,233,0.25)',boxSizing:'border-box'}}>Continue Learning →</a>
                 ) : (
                   <form method="POST" action={`/courses/purchase/${c.id}`} onSubmit={e => { if(!confirm(`Purchase ${c.title} for $${Math.round(c.price)} from your wallet balance?`)) e.preventDefault(); }}>
-                    <button type="submit" style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontFamily:'inherit',fontSize:14,fontWeight:700,cursor:'pointer',textAlign:'center',background:'#1a1a2e',color:'#fff',boxShadow:'0 1px 3px rgba(0,0,0,0.1)',boxSizing:'border-box'}}>Buy Course — ${Math.round(c.price)}</button>
+                    <button type="submit" style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontFamily:'inherit',fontSize:14,fontWeight:700,cursor:'pointer',textAlign:'center',background:'#132044',color:'#fff',boxShadow:'0 1px 3px rgba(0,0,0,0.1)',boxSizing:'border-box'}}>Buy Course — ${Math.round(c.price)}</button>
                   </form>
                 )}
               </div>
@@ -69,7 +69,7 @@ export default function Courses() {
       ) : (
         <div style={{textAlign:'center',padding:'80px 20px'}}>
           <div style={{fontSize:48,marginBottom:16,opacity:0.5}}>📚</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#1a1a2e',marginBottom:6}}>No courses available yet</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#132044',marginBottom:6}}>No courses available yet</div>
           <div style={{fontSize:14,color:'#94a3b8'}}>Check back soon — new courses are being added.</div>
         </div>
       )}

@@ -239,7 +239,7 @@ function ProductDetail({ product, onBack, currentUserId }) {
         <div style={{display:'flex',flexDirection:'column',gap:14}}>
           {/* Buy card */}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
-            <div style={{background:'linear-gradient(135deg,#0c1e4a,#1c223d)',padding:'20px'}}>
+            <div style={{background:'linear-gradient(135deg,#0c1e4a,#172554)',padding:'20px'}}>
               <div style={{fontSize:18,fontWeight:800,color:'#fff',marginBottom:6}}>{p.title}</div>
               <div style={{fontSize:12,color:'rgba(255,255,255,.5)'}}>by {p.creator_name||'Seller'} · {p.file_name||'Digital Download'}</div>
             </div>
@@ -264,7 +264,7 @@ function ProductDetail({ product, onBack, currentUserId }) {
           </div>
           {/* Promote card */}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
-            <div style={{background:'linear-gradient(135deg,#0c1e4a,#1c223d)',padding:'16px 20px'}}>
+            <div style={{background:'linear-gradient(135deg,#0c1e4a,#172554)',padding:'16px 20px'}}>
               <div style={{display:'flex',alignItems:'center',gap:6}}><DollarSign size={14} color="#38bdf8"/><span style={{fontSize:14,fontWeight:800,color:'#fff'}}>Promote & Earn 25%</span></div>
             </div>
             <div style={{padding:'20px'}}>

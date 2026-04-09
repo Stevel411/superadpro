@@ -7,13 +7,13 @@ import { Plus, Eye, Pencil, Trash2, Copy, ExternalLink, FileText, Sparkles, Layo
 
 const TEMPLATES = [
   { key: 'lead-capture', title: 'Lead Capture', desc: 'Email capture with headline, video, form and feature list', icon: Target, color: '#0ea5e9', bg: '#0c1222', accent: '#0ea5e9' },
-  { key: 'video-sales', title: 'Video Sales Letter', desc: 'Video-led page with attention headline, VSL and social proof', icon: Video, color: '#8b5cf6', bg: '#1a1a2e', accent: '#8b5cf6' },
+  { key: 'video-sales', title: 'Video Sales Letter', desc: 'Video-led page with attention headline, VSL and social proof', icon: Video, color: '#8b5cf6', bg: '#132044', accent: '#8b5cf6' },
   { key: 'product-offer', title: 'Product Offer', desc: 'Sales page with pricing, features, guarantee and CTA', icon: ShoppingBag, color: '#10b981', bg: '#0f172a', accent: '#10b981' },
-  { key: 'network-opportunity', title: 'Business Opportunity', desc: 'Network marketing recruitment page with income potential', icon: Users, color: '#f59e0b', bg: '#1a1a2e', accent: '#f59e0b' },
-  { key: 'webinar-registration', title: 'Webinar Registration', desc: 'Event signup with countdown timer, speaker bio and urgency', icon: Megaphone, color: '#ec4899', bg: '#1a1a2e', accent: '#ec4899' },
+  { key: 'network-opportunity', title: 'Business Opportunity', desc: 'Network marketing recruitment page with income potential', icon: Users, color: '#f59e0b', bg: '#132044', accent: '#f59e0b' },
+  { key: 'webinar-registration', title: 'Webinar Registration', desc: 'Event signup with countdown timer, speaker bio and urgency', icon: Megaphone, color: '#ec4899', bg: '#132044', accent: '#ec4899' },
   { key: 'coaching-program', title: 'Coaching Program', desc: 'Personal brand page with bio, testimonials and booking CTA', icon: Award, color: '#6366f1', bg: '#0f172a', accent: '#6366f1' },
   { key: 'digital-product', title: 'Digital Product', desc: 'Ebook, course or download page with feature stack and pricing', icon: BookOpen, color: '#14b8a6', bg: '#0c1222', accent: '#14b8a6' },
-  { key: 'affiliate-income', title: 'Affiliate Funnel', desc: 'Commission income page with earnings calculator and signup', icon: DollarSign, color: '#ef4444', bg: '#1a1a2e', accent: '#ef4444' },
+  { key: 'affiliate-income', title: 'Affiliate Funnel', desc: 'Commission income page with earnings calculator and signup', icon: DollarSign, color: '#ef4444', bg: '#132044', accent: '#ef4444' },
   { key: 'thank-you', title: 'Thank You Page', desc: 'Post-signup confirmation with next steps and CTA button', icon: Award, color: '#10b981', bg: '#0a0a1a', accent: '#10b981' },
 ];
 

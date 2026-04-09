@@ -39,7 +39,7 @@ export default function AiTool({ title, subtitle, apiEndpoint, fields, resultLab
 
         {/* LEFT — Input Form */}
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)',display:'flex',flexDirection:'column'}}>
-          <div style={{background:'#1c223d',padding:'16px 20px',display:'flex',alignItems:'center',gap:8}}>
+          <div style={{background:'#172554',padding:'16px 20px',display:'flex',alignItems:'center',gap:8}}>
             <Bot size={16} color="#38bdf8"/>
             <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{title}</div>
           </div>
@@ -86,7 +86,7 @@ export default function AiTool({ title, subtitle, apiEndpoint, fields, resultLab
 
         {/* RIGHT — Result */}
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)',display:'flex',flexDirection:'column'}}>
-          <div style={{background:'#1c223d',padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{background:'#172554',padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
               <Sparkles size={16} color="#a78bfa"/>
               <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{resultLabel || 'Result'}</div>

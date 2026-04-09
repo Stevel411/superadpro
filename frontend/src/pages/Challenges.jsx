@@ -32,7 +32,7 @@ export default function Challenges() {
           return (
             <div key={ch.id} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:16,overflow:'hidden',boxShadow:'0 2px 12px rgba(0,0,0,.05)'}}>
               {/* Header */}
-              <div style={{background:gradMap[ch.type]||'linear-gradient(135deg,#1c223d,#334155)',padding:'22px 24px',position:'relative',overflow:'hidden'}}>
+              <div style={{background:gradMap[ch.type]||'linear-gradient(135deg,#172554,#334155)',padding:'22px 24px',position:'relative',overflow:'hidden'}}>
                 <div style={{position:'absolute',right:16,top:12,opacity:.15}}><Icon size={60}/></div>
                 <div style={{fontSize:18,fontWeight:900,color:'#fff',position:'relative',zIndex:1}}>{ch.title}</div>
                 <div style={{fontSize:12,color:'rgba(255,255,255,.7)',marginTop:4,position:'relative',zIndex:1,maxWidth:400}}>{ch.description}</div>

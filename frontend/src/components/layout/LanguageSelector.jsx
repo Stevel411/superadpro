@@ -34,7 +34,7 @@ export default function LanguageSelector({ compact }) {
 
       {open && (
         <div style={{position:'absolute',top:'100%',right:0,marginTop:6,width:200,maxHeight:360,overflowY:'auto',
-          background:'#1c223d',border:'1px solid rgba(255,255,255,.1)',borderRadius:10,
+          background:'#172554',border:'1px solid rgba(255,255,255,.1)',borderRadius:10,
           boxShadow:'0 12px 40px rgba(0,0,0,.4)',zIndex:999,padding:4}}>
           {LANGUAGES.map(function(lang) {
             var isActive = lang.code === i18n.language;

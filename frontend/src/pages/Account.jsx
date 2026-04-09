@@ -196,7 +196,7 @@ export default function Account() {
 function Card({title, chip, children}) {
   return (
     <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,overflow:'hidden',display:'flex',flexDirection:'column',boxShadow:'0 2px 8px rgba(0,0,0,.03)'}}>
-      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',background:'#1c223d'}}>
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'12px 16px',background:'#172554'}}>
         <div style={{fontSize:13,fontWeight:800,color:'#fff'}}>{title}</div>
         {chip&&<span style={{fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:4,background:chip.c+'20',color:chip.c}}>{chip.t}</span>}
       </div>

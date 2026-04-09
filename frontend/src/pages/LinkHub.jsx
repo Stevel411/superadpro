@@ -101,7 +101,7 @@ export default function LinkHub() {
   var [links, setLinks] = useState([]);
   var [profile, setProfile] = useState({display_name:'',bio:'',avatar_url:''});
   var [style, setStyle] = useState({
-    bg_color:'#0f172a',btn_color:'#1a1a2e',text_color:'#ffffff',accent_color:'#8b5cf6',
+    bg_color:'#0f172a',btn_color:'#132044',text_color:'#ffffff',accent_color:'#8b5cf6',
     bio_color:'#cccccc',btn_text_color:'#ffffff',
     font_family:'DM Sans',btn_style_type:'rounded',btn_radius:'50px',
     btn_font_size:14,btn_align:'center',arrow_style:'arrow',
@@ -122,7 +122,7 @@ export default function LinkHub() {
       if (d.profile) {
         setProfile({display_name:d.profile.display_name||'',bio:d.profile.bio||'',avatar_url:d.profile.avatar_url||''});
         setStyle({
-          bg_color:d.profile.bg_color||'#0f172a',btn_color:d.profile.btn_color||'#1a1a2e',
+          bg_color:d.profile.bg_color||'#0f172a',btn_color:d.profile.btn_color||'#132044',
           text_color:d.profile.text_color||'#ffffff',accent_color:d.profile.accent_color||'#8b5cf6',
           bio_color:d.profile.bio_color||'#cccccc',btn_text_color:d.profile.btn_text_color||'#ffffff',
           font_family:d.profile.font_family||'DM Sans',

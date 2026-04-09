@@ -69,7 +69,7 @@ export default function Support() {
 
         {/* FAQ Section */}
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
-          <div style={{background:'linear-gradient(135deg,#1c223d,#334155)',padding:'18px 22px',display:'flex',alignItems:'center',gap:10}}>
+          <div style={{background:'linear-gradient(135deg,#172554,#334155)',padding:'18px 22px',display:'flex',alignItems:'center',gap:10}}>
             <HelpCircle size={18} color="#38bdf8"/>
             <span style={{fontSize:15,fontWeight:800,color:'#fff'}}>Frequently Asked Questions</span>
           </div>
@@ -101,7 +101,7 @@ export default function Support() {
 
         {/* Contact Form */}
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
-          <div style={{background:'linear-gradient(135deg,#1c223d,#334155)',padding:'18px 22px',display:'flex',alignItems:'center',gap:10}}>
+          <div style={{background:'linear-gradient(135deg,#172554,#334155)',padding:'18px 22px',display:'flex',alignItems:'center',gap:10}}>
             <Mail size={18} color="#38bdf8"/>
             <span style={{fontSize:15,fontWeight:800,color:'#fff'}}>Submit a Ticket</span>
           </div>
