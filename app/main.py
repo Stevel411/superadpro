@@ -550,15 +550,12 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
     refs = user.personal_referrals or 0
     balance = float(user.balance or 0)
     campaign_balance = float(user.campaign_balance or 0)
-    tier = (user.membership_tier or "basic").lower()
-    membership_cost = 20 if tier == "basic" else 35
 
-    # Commission per referral depends on what tier the REFERRAL picks
-    # Use $10 as baseline (Basic referral commission)
+    # Self-funding is always measured against Basic membership ($20)
+    # because that's the entry point we promote to new members
+    membership_cost = 20
     base_commission = 10
-
-    # ── Goal: Self-funding referrals ──
-    refs_needed = max(0, -(-membership_cost // base_commission))  # ceil division
+    refs_needed = 2  # $20 / $10 = 2 referrals to break even
     if refs < refs_needed:
         remaining = refs_needed - refs
         pct = min(100, int(refs / refs_needed * 100)) if refs_needed > 0 else 0
