@@ -258,6 +258,10 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     const textStyles = ['fontFamily', 'fontSize', 'fontWeight', 'color', 'textAlign', 'lineHeight', 'letterSpacing', 'textTransform', 'fontStyle'];
     let innerStyle = 'width:100%;height:100%;overflow:hidden;outline:none;word-wrap:break-word;';
     textStyles.forEach(k => { if (el.s?.[k]) innerStyle += k.replace(/([A-Z])/g, '-$1').toLowerCase() + ':' + el.s[k] + ';'; });
+    // Badge/label blocks need flex centering
+    if ((el.type === 'badge' || el.type === 'label') || (el.s?.display === 'flex')) {
+      innerStyle += 'display:flex;align-items:center;justify-content:center;';
+    }
 
     if (el.type === 'video' && el.txt) {
       // Auto-convert YouTube/Vimeo watch URLs to embed URLs at render time
