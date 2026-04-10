@@ -1130,6 +1130,13 @@ def compensation_plan(request: Request, user: User = Depends(get_current_user)):
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse(url="/", status_code=302)
 
+@app.get("/income-disclaimer")
+def income_disclaimer(request: Request):
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/", status_code=302)
+
 def _old_compensation_plan_DISABLED(request: Request, user: User = Depends(get_current_user)):
     ctx = {
         "request": request,

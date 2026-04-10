@@ -11,14 +11,15 @@ COMMISSION MODEL:
   Commission rate is based on RELATIONSHIP, not matrix level:
     DIRECT REFERRAL (you personally recruited them) = 15%
     SPILLOVER (someone else in your tree recruited them) = 10%
+    COMPLETION BONUS = 10% of total matrix value (39 × pack price)
   
-  The matrix is a forced matrix for POSITIONING only (BFS fill order).
-  Commission rate follows the person, not the position.
+  Total commission split = 35% of pack price:
+    15% direct + 10% spillover + 10% completion bonus = 35%
 
 PACK PRICE SPLIT:
   50% → AI cost budget (covers Creative Studio token usage)
   15% → Company revenue
-  35% → Matrix commissions
+  35% → Matrix commissions (15% + 10% + 10%)
 
 TERMINOLOGY: "Advance" not "Cycle" — when a matrix completes,
 the member advances to a new matrix for that pack.
@@ -241,8 +242,9 @@ def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal
 # ═══════════════════════════════════════════════════════════════
 
 # Commission rates based on RELATIONSHIP, not matrix level
-DIRECT_RATE = Decimal("0.15")    # You personally recruited them
-SPILLOVER_RATE = Decimal("0.10") # Someone else recruited them
+DIRECT_RATE = Decimal("0.15")           # You personally recruited them
+SPILLOVER_RATE = Decimal("0.10")        # Someone else recruited them
+COMPLETION_BONUS_RATE = Decimal("0.10") # 10% of total matrix value on completion
 
 
 def pay_matrix_commissions(
@@ -322,14 +324,15 @@ def pay_matrix_commissions(
 # ═══════════════════════════════════════════════════════════════
 
 def complete_matrix(db: Session, matrix: CreditMatrix):
-    """Handle matrix completion — pay bonus, mark complete, create next advance."""
+    """Handle matrix completion — pay 10% bonus, mark complete, create next advance."""
     owner = db.query(User).filter(User.id == matrix.owner_id).first()
     if not owner:
         return
 
-    # Completion bonus (currently $0 — Steve to decide amounts)
+    # Completion bonus = 10% of total matrix value (39 positions × pack price)
     pack = CREDIT_PACKS.get(matrix.pack_key, {})
-    bonus_amount = Decimal(str(pack.get("completion_bonus", 0)))
+    pack_price = Decimal(str(pack.get("price", 0)))
+    bonus_amount = MATRIX_MAX_DOWNLINE * pack_price * COMPLETION_BONUS_RATE  # 39 × price × 10%
 
     if bonus_amount > 0:
         bonus_commission = CreditMatrixCommission(
@@ -338,8 +341,8 @@ def complete_matrix(db: Session, matrix: CreditMatrix):
             from_user_id=owner.id,
             from_position_id=0,
             level=0,
-            rate=Decimal("0"),
-            pack_price=Decimal("0"),
+            rate=COMPLETION_BONUS_RATE,
+            pack_price=pack_price,
             amount=bonus_amount,
             commission_type="matrix_completion",
             status="paid",

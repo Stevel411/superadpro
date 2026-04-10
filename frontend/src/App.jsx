@@ -27,6 +27,7 @@ import Achievements from './pages/Achievements';
 import VideoLibrary from './pages/VideoLibrary';
 import Upgrade from './pages/Upgrade';
 import CompensationPlan from './pages/CompensationPlan';
+import IncomeDisclaimer from './pages/IncomeDisclaimer';
 import AiTool from './pages/AiTool';
 import MyNetwork from './pages/MyNetwork';
 import HowCommissionsWork from './pages/HowCommissionsWork';
@@ -185,6 +186,7 @@ function AppRoutes() {
 
       {/* Info Pages */}
       <Route path="/compensation-plan" element={<ProtectedRoute><CompensationPlan /></ProtectedRoute>} />
+      <Route path="/income-disclaimer" element={<ProtectedRoute><IncomeDisclaimer /></ProtectedRoute>} />
       <Route path="/income-grid-3d" element={<React.Suspense fallback={<div style={{background:'#050d1a',minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#38bdf8',fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:700}}>Loading 3D Grid...</div>}><IncomeGrid3DPage /></React.Suspense>} />
       <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
 

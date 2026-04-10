@@ -180,6 +180,7 @@ function MembershipContent() {
       'No campaign tier required — earn from day one',
       'Commissions go to your Affiliate Wallet — withdraw anytime',
     ]} color="#16a34a"/>
+    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#94a3b8', textDecoration:'none' }}>Income Disclaimer →</Link></div>
   </>;
 }
 
@@ -225,6 +226,7 @@ function GridContent() {
       'Grid earnings go to your Campaign Wallet — requires active tier + daily watch quota',
       '5% of each tier purchase goes to the company — 95% is paid to members',
     ]} color="#6366f1"/>
+    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#94a3b8', textDecoration:'none' }}>Income Disclaimer →</Link></div>
   </>;
 }
 
@@ -237,14 +239,22 @@ function MatrixContent(props) {
   var mPrice = TIER_PRICES[packIdx];
   var mDirectEarn = props.matrixDirect * mPrice * 0.15;
   var mSpillEarn = props.matrixSpill * mPrice * 0.10;
-  var mTotal = mDirectEarn + mSpillEarn;
   var mFilled = props.matrixDirect + props.matrixSpill;
   var mPct = Math.round(mFilled / 39 * 100);
+  var mComplete = mFilled >= 39;
+  var mCompletionBonus = mComplete ? 39 * mPrice * 0.10 : 0;
+  var mTotal = mDirectEarn + mSpillEarn + mCompletionBonus;
 
   return <>
-    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:20 }}>
+    <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:20 }}>
       <CommBox val="15%" label="Direct Referral" sub="You personally recruited them" color="#d97706" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
       <CommBox val="10%" label="Spillover" sub="Recruited by someone in your tree" color="#16a34a" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
+      <CommBox val="10%" label="Completion Bonus" sub="Matrix fills all 39 positions" color="#8b5cf6" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
+    </div>
+
+    {/* Cost breakdown */}
+    <div style={{ background:'#f8fafc', borderRadius:12, padding:'16px 20px', marginBottom:20, fontSize:13, color:'#64748b', lineHeight:1.7 }}>
+      <strong style={{ color:'#0f172a' }}>Where does the money go?</strong> 50% covers AI service costs (video, image, music, voice generation), 15% covers platform management, and 35% is paid out as member commissions (15% direct + 10% spillover + 10% completion bonus). <Link to="/income-disclaimer" style={{ color:'#2563eb', textDecoration:'none', fontWeight:700 }}>View full disclaimer →</Link>
     </div>
 
     {/* Mini tree */}
@@ -308,16 +318,21 @@ function MatrixContent(props) {
           <div style={{ fontSize:12, color:'rgba(255,255,255,.4)' }}>{mFilled}/39 filled ({mPct}%)</div>
         </div>
         <div style={{ fontFamily:'Sora,sans-serif', fontSize:42, fontWeight:900, color:'#4ade80', textAlign:'center', marginBottom:16 }}>${mTotal.toFixed(2)}</div>
-        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
           <div style={{ background:'rgba(255,255,255,.08)', borderRadius:10, padding:14, textAlign:'center' }}>
-            <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>Direct Referrals (15%)</div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'#fbbf24', marginTop:4 }}>${mDirectEarn.toFixed(2)}</div>
+            <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>Direct (15%)</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#fbbf24', marginTop:4 }}>${mDirectEarn.toFixed(2)}</div>
             <div style={{ fontSize:10, color:'rgba(255,255,255,.4)', marginTop:2 }}>{props.matrixDirect} × ${mPrice} × 15%</div>
           </div>
           <div style={{ background:'rgba(255,255,255,.08)', borderRadius:10, padding:14, textAlign:'center' }}>
             <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>Spillover (10%)</div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'#4ade80', marginTop:4 }}>${mSpillEarn.toFixed(2)}</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#4ade80', marginTop:4 }}>${mSpillEarn.toFixed(2)}</div>
             <div style={{ fontSize:10, color:'rgba(255,255,255,.4)', marginTop:2 }}>{props.matrixSpill} × ${mPrice} × 10%</div>
+          </div>
+          <div style={{ background: mComplete ? 'rgba(139,92,246,.2)' : 'rgba(255,255,255,.05)', borderRadius:10, padding:14, textAlign:'center', border: mComplete ? '1px solid rgba(139,92,246,.3)' : '1px solid transparent' }}>
+            <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>Bonus (10%)</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color: mComplete ? '#c084fc' : 'rgba(255,255,255,.2)', marginTop:4 }}>{mComplete ? '$'+mCompletionBonus.toFixed(2) : '🔒'}</div>
+            <div style={{ fontSize:10, color:'rgba(255,255,255,.4)', marginTop:2 }}>{mComplete ? '39 × $'+mPrice+' × 10%' : 'Unlocks at 39/39'}</div>
           </div>
         </div>
         <div style={{ textAlign:'center', marginTop:14, fontSize:12, color:'rgba(255,255,255,.35)' }}>This is for one matrix. Buy all 8 packs to have 8 matrices earning simultaneously.</div>
@@ -329,9 +344,11 @@ function MatrixContent(props) {
       'Buy a pack → get AI credits + enter your sponsor\'s matrix',
       'Your downline\'s purchases fill your matrix via BFS spillover',
       'Commission = 15% if you recruited them, 10% if spillover',
-      'When all 39 positions fill, you advance and a new matrix starts',
+      'When all 39 positions fill, you earn a 10% completion bonus and a new matrix starts',
+      '65% of credit pack cost covers AI services and platform management',
       'Commissions go to your Affiliate Wallet — always withdrawable',
     ]} color="#8b5cf6"/>
+    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#94a3b8', textDecoration:'none' }}>Income Disclaimer →</Link></div>
   </>;
 }
 
