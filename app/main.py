@@ -1207,6 +1207,13 @@ def grid_visualiser(request: Request):
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
 
+@app.get("/matrix-visualiser")
+def matrix_visualiser(request: Request):
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
 @app.get("/api/grid-visualiser")
 def api_grid_visualiser(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db), tier: int = 1):
     """Return spillover grid data for the current user at a given tier."""
