@@ -134,12 +134,12 @@ export default function CompensationPlan() {
         </div>
       </div>
 
-      {/* Repurchase Cycle */}
+      {/* Repurchase Engine */}
       <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', overflow:'hidden', marginTop:20 }}>
         <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', padding:'24px 28px', display:'flex', alignItems:'center', gap:16 }}>
           <div style={{ fontSize:32 }}>🔄</div>
           <div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#fff' }}>The Repurchase Cycle</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#fff' }}>The Repurchase Engine</div>
             <div style={{ fontSize:14, color:'rgba(255,255,255,.55)', marginTop:2 }}>Why you don't need thousands of recruits</div>
           </div>
         </div>
