@@ -60,7 +60,7 @@ export default function GridVisualiser() {
       <div style={{ maxWidth:1000, margin:'0 auto' }}>
 
         {/* Hero */}
-        <div style={{ background:'linear-gradient(135deg,#0c1222,#172554,#2d3561)', borderRadius:18, padding:'32px 36px', marginBottom:24, position:'relative', overflow:'hidden' }}>
+        <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:18, padding:'32px 36px', marginBottom:24, position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:-50, right:-50, width:180, height:180, borderRadius:'50%', background:'rgba(255,255,255,.05)', pointerEvents:'none' }}/>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:900, color:'#fff', marginBottom:6 }}>Income Grid</div>
           <div style={{ fontSize:14, color:'rgba(255,255,255,.65)' }}>Your 8×8 grid fills as your team grows. Earn commissions on every position.</div>
@@ -101,39 +101,38 @@ export default function GridVisualiser() {
         </div>
 
         {/* Grid */}
-        <div style={{ background:'#fff', borderRadius:18, border:'1px solid #e2e8f0', padding:28, marginBottom:20 }}>
-          <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0f172a' }}>
+        <div style={{ background:'#fff', borderRadius:18, border:'1px solid #e2e8f0', overflow:'hidden', marginBottom:20 }}>
+          {/* Cobalt gradient header */}
+          <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', padding:'24px 28px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#fff' }}>
               T{t.t} {t.name} — ${t.price}
             </div>
-            <div style={{ fontSize:13, color:'#64748b', fontWeight:600 }}>
+            <div style={{ fontSize:13, color:'rgba(255,255,255,.7)', fontWeight:600 }}>
               {filled} of {total} filled ({pct}%)
             </div>
           </div>
 
-          {/* Progress bar */}
-          <div style={{ height:8, background:'#f1f5f9', borderRadius:4, marginBottom:16, overflow:'hidden' }}>
-            <div style={{ height:'100%', borderRadius:4, width:pct+'%', background:'linear-gradient(90deg,'+t.dark+','+t.color+')', transition:'width .5s' }}/>
-          </div>
+          <div style={{ padding:28 }}>
+            {/* Progress bar */}
+            <div style={{ height:8, background:'#f1f5f9', borderRadius:4, marginBottom:16, overflow:'hidden' }}>
+              <div style={{ height:'100%', borderRadius:4, width:pct+'%', background:'linear-gradient(90deg,'+t.dark+','+t.color+')', transition:'width .5s' }}/>
+            </div>
 
-          {/* Legend */}
-          <div style={{ display:'flex', gap:20, justifyContent:'center', marginBottom:16, flexWrap:'wrap' }}>
-            <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#64748b', fontWeight:600 }}>
-              <div style={{ width:14, height:14, borderRadius:'50%', background:GOLD_GRAD, display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, fontWeight:800, color:'#78350f' }}>★</div> Direct Referral
+            {/* Legend */}
+            <div style={{ display:'flex', gap:20, justifyContent:'center', marginBottom:16, flexWrap:'wrap' }}>
+              <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#64748b', fontWeight:600 }}>
+                <div style={{ width:14, height:14, borderRadius:'50%', background:GOLD_GRAD, display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, fontWeight:800, color:'#78350f' }}>★</div> Direct Referral
+              </div>
+              <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#64748b', fontWeight:600 }}>
+                <div style={{ width:14, height:14, borderRadius:'50%', background:GREEN_GRAD, display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, fontWeight:800, color:'#fff' }}>↓</div> Spillover
+              </div>
+              <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#64748b', fontWeight:600 }}>
+                <div style={{ width:14, height:14, borderRadius:'50%', background:'#f1f5f9', border:'1px dashed #cbd5e1', display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, color:'#cbd5e1' }}>?</div> Empty
+              </div>
             </div>
-            <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#64748b', fontWeight:600 }}>
-              <div style={{ width:14, height:14, borderRadius:'50%', background:GREEN_GRAD, display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, fontWeight:800, color:'#fff' }}>↓</div> Spillover
-            </div>
-            <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#64748b', fontWeight:600 }}>
-              <div style={{ width:14, height:14, borderRadius:'50%', background:'#f1f5f9', border:'1px dashed #cbd5e1', display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, color:'#cbd5e1' }}>?</div> Empty
-            </div>
-          </div>
 
-          {/* Seats grid */}
-          {loading ? (
-            <div style={{ textAlign:'center', padding:40, color:'#94a3b8' }}>Loading grid...</div>
-          ) : (
-            <div style={{ display:'grid', gridTemplateColumns:'repeat(8,1fr)', gap:8 }}>
+            {/* Seats grid — always rendered, opacity dims during load */}
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(8,1fr)', gap:8, opacity: loading ? 0.4 : 1, transition:'opacity .3s' }}>
               {Array.from({length:64}, function(_,i) {
                 var seat = seats.find(function(s){ return s.position === i+1; });
                 if (seat) {
@@ -158,7 +157,7 @@ export default function GridVisualiser() {
                 );
               })}
             </div>
-          )}
+          </div>
         </div>
 
         {/* Bonus Pool */}

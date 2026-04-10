@@ -140,7 +140,7 @@ export default function CreditMatrixVisualiser() {
       <div style={{ maxWidth:1000, margin:'0 auto' }}>
 
         {/* Hero */}
-        <div style={{ background:'linear-gradient(135deg,#450a0a,#991b1b,#7f1d1d)', borderRadius:18, padding:'32px 36px', marginBottom:24, position:'relative', overflow:'hidden' }}>
+        <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:18, padding:'32px 36px', marginBottom:24, position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:-50, right:-50, width:180, height:180, borderRadius:'50%', background:'rgba(255,255,255,.05)', pointerEvents:'none' }}/>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:900, color:'#fff', marginBottom:6 }}>Credit Matrix</div>
           <div style={{ fontSize:14, color:'rgba(255,255,255,.65)' }}>Each credit pack has its own 3×3 matrix. Earn 15% / 10% / 10% across 3 levels.</div>
@@ -188,16 +188,18 @@ export default function CreditMatrixVisualiser() {
 
         {/* Matrix tree */}
         {activePack && (
-          <div style={{ background:'#fff', borderRadius:18, border:'1px solid #e2e8f0', padding:28, marginBottom:24 }}>
-            <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0f172a' }}>
-                {matrix.pack_label} Matrix — ${matrix.pack_price} Pack
+          <div style={{ background:'#fff', borderRadius:18, border:'1px solid #e2e8f0', overflow:'hidden', marginBottom:24 }}>
+            {/* Cobalt gradient header */}
+            <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', padding:'24px 28px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#fff' }}>
+                {matrix.pack_label || activePack} Matrix — ${matrix.pack_price || 0} Pack
               </div>
-              <div style={{ fontSize:13, color:'#64748b', fontWeight:600 }}>
+              <div style={{ fontSize:13, color:'rgba(255,255,255,.7)', fontWeight:600 }}>
                 {filled} of 39 filled ({pct}%)
               </div>
             </div>
 
+            <div style={{ padding:28 }}>
             {/* Progress bar */}
             <div style={{ height:8, background:'#f1f5f9', borderRadius:4, marginBottom:16, overflow:'hidden' }}>
               <div style={{ height:'100%', borderRadius:4, width:pct+'%', background:'linear-gradient(90deg,'+tc.dark+','+tc.color+')', transition:'width .5s' }}/>
@@ -216,9 +218,8 @@ export default function CreditMatrixVisualiser() {
               </div>
             </div>
 
-            {treeLoading ? (
-              <div style={{ textAlign:'center', padding:40, color:'#94a3b8' }}>Loading matrix...</div>
-            ) : (
+            {/* Tree — always rendered, opacity dims during load */}
+            <div style={{ opacity: treeLoading ? 0.4 : 1, transition:'opacity .3s' }}>
               <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:16, padding:'20px 0' }}>
                 {/* You */}
                 <div style={{ textAlign:'center' }}>{renderNode(ownerNode)}</div>
@@ -253,7 +254,7 @@ export default function CreditMatrixVisualiser() {
                   {padLevel(l3Nodes, 27).map(function(n, i){ return <div key={'l3-'+i}>{renderNode(n)}</div>; })}
                 </div>
               </div>
-            )}
+            </div>
 
             {/* Level earnings */}
             <div style={{ display:'flex', gap:12, marginTop:20 }}>
@@ -277,6 +278,7 @@ export default function CreditMatrixVisualiser() {
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#fff', marginTop:4 }}>${eTotal.toFixed(2)}</div>
                 <div style={{ fontSize:10, color:'rgba(255,255,255,.6)', marginTop:2 }}>of ${eMax.toFixed(2)} max</div>
               </div>
+            </div>
             </div>
           </div>
         )}
