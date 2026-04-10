@@ -134,6 +134,54 @@ export default function CompensationPlan() {
         </div>
       </div>
 
+      {/* Repurchase Cycle */}
+      <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', overflow:'hidden', marginTop:20 }}>
+        <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', padding:'24px 28px', display:'flex', alignItems:'center', gap:16 }}>
+          <div style={{ fontSize:32 }}>🔄</div>
+          <div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#fff' }}>The Repurchase Cycle</div>
+            <div style={{ fontSize:14, color:'rgba(255,255,255,.55)', marginTop:2 }}>Why you don't need thousands of recruits</div>
+          </div>
+        </div>
+        <div style={{ padding:'24px 28px' }}>
+          <div style={{ fontSize:15, color:'#475569', lineHeight:1.8, marginBottom:20 }}>
+            Traditional network marketing requires you to constantly recruit new people. SuperAdPro is different — your income is driven by <strong style={{ color:'#0f172a' }}>repeat purchases</strong> from the same team members.
+          </div>
+
+          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:20 }}>
+            <div style={{ background:'rgba(99,102,241,.06)', border:'1px solid rgba(99,102,241,.15)', borderRadius:14, padding:'20px' }}>
+              <div style={{ fontSize:20, marginBottom:8 }}>⚡</div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:6 }}>Campaign Tiers</div>
+              <div style={{ fontSize:14, color:'#475569', lineHeight:1.7 }}>Members buy a campaign tier to get video views delivered. When their views are used up, they repurchase to get more. Every repurchase fills new positions in your grid and pays you commissions again.</div>
+            </div>
+            <div style={{ background:'rgba(139,92,246,.06)', border:'1px solid rgba(139,92,246,.15)', borderRadius:14, padding:'20px' }}>
+              <div style={{ fontSize:20, marginBottom:8 }}>🧮</div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:6 }}>Credit Packs</div>
+              <div style={{ fontSize:14, color:'#475569', lineHeight:1.7 }}>Members buy credits to create AI videos, images, and music. When credits run out, they buy more. Every repurchase fills new positions in your matrix and pays you commissions again.</div>
+            </div>
+          </div>
+
+          <div style={{ background:'#f8fafc', borderRadius:12, padding:'18px 22px' }}>
+            <div style={{ fontSize:15, fontWeight:700, color:'#0f172a', marginBottom:10 }}>How it works in practice</div>
+            <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
+              {[
+                'You recruit 3 people — that\'s all you need',
+                'They use AI credits and campaign views as part of their marketing',
+                'When they run out, they repurchase — your matrix and grid fill again',
+                'When your matrix hits 39/39, it advances and a new one starts',
+                'The same 39 people repurchasing fills your next matrix automatically',
+                'Small team + repeat business = sustainable recurring income',
+              ].map(function(item, i) {
+                return <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
+                  <div style={{ width:6, height:6, borderRadius:'50%', background:'#2563eb', marginTop:8, flexShrink:0 }}/>
+                  <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>{item}</div>
+                </div>;
+              })}
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Two Wallets section */}
       <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', padding:'24px 28px', marginTop:20 }}>
         <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0f172a', marginBottom:16 }}>Two Wallets — How Earnings Are Paid</div>
