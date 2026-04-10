@@ -517,6 +517,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "wallet_address":    user.wallet_address or "",
         "total_withdrawn":    float(user.total_withdrawn or 0),
         "is_active":         user.is_active,
+        "is_admin":          user.is_admin,
         "member_id":         format_member_id(user.id, user.is_admin),
         "course_sale_count": course_sale_count,
         "marketplace_earnings": marketplace_earnings,
