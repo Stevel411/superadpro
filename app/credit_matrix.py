@@ -1,8 +1,11 @@
 """
 Credit Matrix Engine — 3×3 Forced Matrix with Commission Payouts
 ================================================================
-Handles: matrix creation, position placement (BFS spillover),
-commission calculation (L1=15%, L2=10%, L3=10%), matrix cycling,
+Each of the 8 credit packs has its OWN independent 3×3 matrix.
+A member who buys all 8 packs has 8 separate matrices filling.
+
+Handles: matrix creation (per pack), position placement (BFS spillover),
+commission calculation (L1=15%, L2=10%, L3=10%), matrix advancing,
 and completion bonuses.
 
 PACK PRICE SPLIT:
@@ -13,6 +16,9 @@ PACK PRICE SPLIT:
     Level 2 (9 positions):  10% of pack price per position
     Level 3 (27 positions): 10% of pack price per position
   Total 39 positions to fill per matrix.
+
+TERMINOLOGY: "Advance" not "Cycle" — when a matrix completes,
+the member advances to a new matrix for that pack.
 """
 
 from decimal import Decimal
@@ -29,19 +35,41 @@ from .database import (
 import logging
 logger = logging.getLogger(__name__)
 
-# Total positions in a 3×3 matrix: 1 (owner) + 3 + 9 + 27 = 40
-# But owner is position 0 at level 0, so 39 downline positions to fill
-MATRIX_MAX_DOWNLINE = sum(MATRIX_WIDTH ** i for i in range(1, MATRIX_DEPTH + 1))  # 3+9+27 = 39
+# Total downline positions in a 3×3 matrix: 3 + 9 + 27 = 39
+MATRIX_MAX_DOWNLINE = sum(MATRIX_WIDTH ** i for i in range(1, MATRIX_DEPTH + 1))
 
 
-def get_or_create_active_matrix(db: Session, user_id: int) -> CreditMatrix:
-    """Get the user's active matrix, or create one if none exists."""
+# ═══════════════════════════════════════════════════════════════
+#  MATRIX CREATION & LOOKUP (per pack)
+# ═══════════════════════════════════════════════════════════════
+
+def get_or_create_active_matrix(db: Session, user_id: int, pack_key: str) -> CreditMatrix:
+    """Get the user's active matrix for a specific pack, or create one."""
     matrix = db.query(CreditMatrix).filter(
-        and_(CreditMatrix.owner_id == user_id, CreditMatrix.status == "active")
+        and_(
+            CreditMatrix.owner_id == user_id,
+            CreditMatrix.pack_key == pack_key,
+            CreditMatrix.status == "active",
+        )
     ).first()
 
     if not matrix:
-        matrix = CreditMatrix(owner_id=user_id, cycle_number=1, status="active", positions_filled=0)
+        # Count completed advances for this pack to set advance number
+        completed = db.query(CreditMatrix).filter(
+            and_(
+                CreditMatrix.owner_id == user_id,
+                CreditMatrix.pack_key == pack_key,
+                CreditMatrix.status == "completed",
+            )
+        ).count()
+
+        matrix = CreditMatrix(
+            owner_id=user_id,
+            pack_key=pack_key,
+            advance_number=completed + 1,
+            status="active",
+            positions_filled=0,
+        )
         db.add(matrix)
         db.flush()
 
@@ -52,7 +80,7 @@ def get_or_create_active_matrix(db: Session, user_id: int) -> CreditMatrix:
             parent_position_id=None,
             level=0,
             position_index=0,
-            pack_key=None,
+            pack_key=pack_key,
             pack_price=Decimal("0"),
         )
         db.add(root)
@@ -61,18 +89,21 @@ def get_or_create_active_matrix(db: Session, user_id: int) -> CreditMatrix:
     return matrix
 
 
+# ═══════════════════════════════════════════════════════════════
+#  BFS SPILLOVER PLACEMENT
+# ═══════════════════════════════════════════════════════════════
+
 def find_next_available_position(db: Session, matrix: CreditMatrix) -> CreditMatrixPosition:
     """
     BFS traversal to find the next open slot in the matrix.
     Fills left-to-right, top-to-bottom (breadth-first spillover).
     Returns the parent position where the new member should be placed.
     """
-    # Get all positions in this matrix ordered by level then index
     positions = db.query(CreditMatrixPosition).filter(
         CreditMatrixPosition.matrix_id == matrix.id
     ).order_by(CreditMatrixPosition.level, CreditMatrixPosition.id).all()
 
-    # Build a quick lookup: position_id -> list of children
+    # Build children lookup
     children_map = {}
     for pos in positions:
         children_map.setdefault(pos.id, [])
@@ -80,38 +111,58 @@ def find_next_available_position(db: Session, matrix: CreditMatrix) -> CreditMat
             children_map.setdefault(pos.parent_position_id, [])
             children_map[pos.parent_position_id].append(pos)
 
-    # BFS: find first position with fewer than MATRIX_WIDTH children and level < MATRIX_DEPTH
+    # BFS from root
     from collections import deque
-    queue = deque()
-
-    # Start from the root (level 0)
     root = next((p for p in positions if p.level == 0), None)
     if not root:
         return None
 
-    queue.append(root)
-
+    queue = deque([root])
     while queue:
         current = queue.popleft()
-
-        # Can't place below MATRIX_DEPTH
         if current.level >= MATRIX_DEPTH:
             continue
-
         current_children = children_map.get(current.id, [])
         if len(current_children) < MATRIX_WIDTH:
-            return current  # Found an open slot under this position
-
-        # Add children to queue for next level search
+            return current
         for child in sorted(current_children, key=lambda c: c.position_index):
             queue.append(child)
 
     return None  # Matrix is full
 
 
+# ═══════════════════════════════════════════════════════════════
+#  MATRIX PLACEMENT (pack-specific)
+# ═══════════════════════════════════════════════════════════════
+
+def find_matrix_for_placement(db: Session, sponsor_id: int, buyer_id: int, pack_key: str) -> CreditMatrix:
+    """
+    Find the best matrix to place a new member into FOR THIS SPECIFIC PACK.
+    Priority: sponsor's active matrix for this pack. If full, walk up sponsor chain.
+    """
+    current_id = sponsor_id
+    visited = set()
+
+    while current_id and current_id not in visited:
+        visited.add(current_id)
+        matrix = get_or_create_active_matrix(db, current_id, pack_key)
+
+        if matrix.positions_filled < MATRIX_MAX_DOWNLINE:
+            return matrix
+
+        # Walk up to sponsor's sponsor
+        user = db.query(User).filter(User.id == current_id).first()
+        if user and user.sponsor_id and user.sponsor_id != current_id:
+            current_id = user.sponsor_id
+        else:
+            break
+
+    return get_or_create_active_matrix(db, sponsor_id, pack_key)
+
+
 def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal, sponsor: User) -> dict:
     """
-    Place a buyer into their sponsor's (or upline's) matrix.
+    Place a buyer into their sponsor's matrix FOR THIS SPECIFIC PACK.
     Returns dict with placement details and commissions paid.
     """
     result = {
@@ -124,31 +175,26 @@ def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal
         "error": None,
     }
 
-    # Find the sponsor's active matrix (or upline chain)
-    target_matrix = find_matrix_for_placement(db, sponsor.id, buyer.id)
-
+    target_matrix = find_matrix_for_placement(db, sponsor.id, buyer.id, pack_key)
     if not target_matrix:
         result["error"] = "No active matrix found for placement"
         return result
 
-    # Find next open position
     parent_pos = find_next_available_position(db, target_matrix)
-
     if not parent_pos:
-        result["error"] = "Matrix is full — should have cycled"
+        result["error"] = "Matrix is full — should have advanced"
         return result
 
     # Determine position index (0, 1, or 2)
     existing_children = db.query(CreditMatrixPosition).filter(
         and_(
             CreditMatrixPosition.matrix_id == target_matrix.id,
-            CreditMatrixPosition.parent_position_id == parent_pos.id
+            CreditMatrixPosition.parent_position_id == parent_pos.id,
         )
     ).count()
 
     new_level = parent_pos.level + 1
 
-    # Create the position
     position = CreditMatrixPosition(
         matrix_id=target_matrix.id,
         user_id=buyer.id,
@@ -161,7 +207,6 @@ def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal
     db.add(position)
     db.flush()
 
-    # Update matrix fill count
     target_matrix.positions_filled += 1
     db.flush()
 
@@ -170,11 +215,11 @@ def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal
     result["position_id"] = position.id
     result["level"] = new_level
 
-    # Pay commissions up the tree
+    # Pay commissions
     commissions = pay_matrix_commissions(db, target_matrix, position, buyer, pack_price)
     result["commissions_paid"] = commissions
 
-    # Check if matrix is complete (39 downline positions filled)
+    # Check for completion (39 downline positions filled)
     if target_matrix.positions_filled >= MATRIX_MAX_DOWNLINE:
         complete_matrix(db, target_matrix)
         result["matrix_completed"] = True
@@ -182,34 +227,9 @@ def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal
     return result
 
 
-def find_matrix_for_placement(db: Session, sponsor_id: int, buyer_id: int) -> CreditMatrix:
-    """
-    Find the best matrix to place a new member into.
-    Priority: sponsor's active matrix first. If full, walk up the sponsor chain.
-    """
-    # Start with the direct sponsor
-    current_id = sponsor_id
-    visited = set()
-
-    while current_id and current_id not in visited:
-        visited.add(current_id)
-
-        matrix = get_or_create_active_matrix(db, current_id)
-
-        # Check if this matrix has room
-        if matrix.positions_filled < MATRIX_MAX_DOWNLINE:
-            return matrix
-
-        # Matrix is full — walk up to sponsor's sponsor
-        user = db.query(User).filter(User.id == current_id).first()
-        if user and user.sponsor_id and user.sponsor_id != current_id:
-            current_id = user.sponsor_id
-        else:
-            break
-
-    # Fallback: create a new matrix for the direct sponsor (shouldn't normally reach here)
-    return get_or_create_active_matrix(db, sponsor_id)
-
+# ═══════════════════════════════════════════════════════════════
+#  COMMISSION PAYMENTS
+# ═══════════════════════════════════════════════════════════════
 
 def pay_matrix_commissions(
     db: Session,
@@ -223,7 +243,7 @@ def pay_matrix_commissions(
     L1 = 15%, L2 = 10%, L3 = 10%.
     """
     commissions_paid = []
-    level = position.level  # 1, 2, or 3
+    level = position.level
 
     if level not in MATRIX_COMMISSION_RATES:
         return commissions_paid
@@ -231,16 +251,15 @@ def pay_matrix_commissions(
     rate = MATRIX_COMMISSION_RATES[level]
     amount = Decimal(str(pack_price)) * rate
 
-    # The earner is always the matrix owner
     owner = db.query(User).filter(User.id == matrix.owner_id).first()
     if not owner:
         return commissions_paid
 
     # Don't pay commission to yourself
     if owner.id == buyer.id:
+        logger.info(f"Matrix commission skipped: owner {owner.username} bought own pack")
         return commissions_paid
 
-    # Create the commission record
     commission = CreditMatrixCommission(
         matrix_id=matrix.id,
         earner_id=owner.id,
@@ -255,113 +274,105 @@ def pay_matrix_commissions(
     )
     db.add(commission)
 
-    # Credit the owner's balance using safe Decimal arithmetic
+    # Credit the owner
     owner.balance = Decimal(str(owner.balance or 0)) + amount
     owner.total_earned = Decimal(str(owner.total_earned or 0)) + amount
     owner.matrix_earnings = Decimal(str(getattr(owner, 'matrix_earnings', 0) or 0)) + amount
 
-    # Update matrix total earned
+    # Update matrix total
     matrix.total_earned = Decimal(str(matrix.total_earned or 0)) + amount
 
     db.flush()
 
     commissions_paid.append({
-        "earner_id": owner.id,
-        "earner_username": owner.username,
-        "from_user_id": buyer.id,
+        "earner": owner.username,
         "level": level,
         "rate": float(rate),
         "amount": float(amount),
     })
 
     logger.info(
-        f"Credit Matrix commission: {owner.username} earned ${float(amount):.2f} "
+        f"Matrix commission: {owner.username} earned ${float(amount):.2f} "
         f"(L{level} {float(rate)*100:.0f}%) from {buyer.username} "
-        f"pack ${float(pack_price):.0f} in matrix #{matrix.id}"
+        f"pack={matrix.pack_key}"
     )
 
     return commissions_paid
 
 
+# ═══════════════════════════════════════════════════════════════
+#  MATRIX COMPLETION & ADVANCING
+# ═══════════════════════════════════════════════════════════════
+
 def complete_matrix(db: Session, matrix: CreditMatrix):
-    """
-    Matrix is full (39 positions). Pay completion bonus and cycle.
-    """
+    """Handle matrix completion — pay bonus, mark complete, create next advance."""
     owner = db.query(User).filter(User.id == matrix.owner_id).first()
     if not owner:
         return
 
-    # Determine completion bonus based on the most common pack in this matrix
-    pack_counts = {}
-    positions = db.query(CreditMatrixPosition).filter(
-        and_(CreditMatrixPosition.matrix_id == matrix.id, CreditMatrixPosition.level > 0)
-    ).all()
+    # Completion bonus (currently $0 — Steve to decide amounts)
+    pack = CREDIT_PACKS.get(matrix.pack_key, {})
+    bonus_amount = Decimal(str(pack.get("completion_bonus", 0)))
 
-    for pos in positions:
-        if pos.pack_key:
-            pack_counts[pos.pack_key] = pack_counts.get(pos.pack_key, 0) + 1
+    if bonus_amount > 0:
+        bonus_commission = CreditMatrixCommission(
+            matrix_id=matrix.id,
+            earner_id=owner.id,
+            from_user_id=owner.id,
+            from_position_id=0,
+            level=0,
+            rate=Decimal("0"),
+            pack_price=Decimal("0"),
+            amount=bonus_amount,
+            commission_type="matrix_completion",
+            status="paid",
+        )
+        db.add(bonus_commission)
 
-    # Use the highest-value pack that appears, or default to starter
-    dominant_pack = "starter"
-    if pack_counts:
-        dominant_pack = max(pack_counts.keys(), key=lambda k: CREDIT_PACKS.get(k, {}).get("price", 0))
+        owner.balance = Decimal(str(owner.balance or 0)) + bonus_amount
+        owner.total_earned = Decimal(str(owner.total_earned or 0)) + bonus_amount
+        owner.matrix_earnings = Decimal(str(getattr(owner, 'matrix_earnings', 0) or 0)) + bonus_amount
 
-    bonus_amount = Decimal(str(CREDIT_PACKS.get(dominant_pack, {}).get("completion_bonus", 10)))
-
-    # Pay completion bonus
-    bonus_commission = CreditMatrixCommission(
-        matrix_id=matrix.id,
-        earner_id=owner.id,
-        from_user_id=owner.id,
-        from_position_id=positions[0].id if positions else 0,
-        level=0,
-        rate=Decimal("0"),
-        pack_price=Decimal("0"),
-        amount=bonus_amount,
-        commission_type="matrix_completion",
-        status="paid",
-    )
-    db.add(bonus_commission)
-
-    owner.balance = Decimal(str(owner.balance or 0)) + bonus_amount
-    owner.total_earned = Decimal(str(owner.total_earned or 0)) + bonus_amount
-    owner.matrix_earnings = Decimal(str(getattr(owner, 'matrix_earnings', 0) or 0)) + bonus_amount
-
-    # Mark matrix as completed
+    # Mark complete
     matrix.status = "completed"
     matrix.completed_at = datetime.utcnow()
     matrix.completion_bonus_paid = bonus_amount
-
     db.flush()
 
     logger.info(
-        f"Credit Matrix COMPLETED: {owner.username} matrix #{matrix.id} "
-        f"cycle {matrix.cycle_number}, bonus ${float(bonus_amount):.2f}"
+        f"Credit Matrix COMPLETED: {owner.username} pack={matrix.pack_key} "
+        f"advance #{matrix.advance_number}, bonus=${float(bonus_amount):.2f}"
     )
 
-    # Create a new matrix for the next cycle
+    # Create next advance for the same pack
     new_matrix = CreditMatrix(
         owner_id=owner.id,
-        cycle_number=matrix.cycle_number + 1,
+        pack_key=matrix.pack_key,
+        advance_number=matrix.advance_number + 1,
         status="active",
         positions_filled=0,
     )
     db.add(new_matrix)
     db.flush()
 
-    # Create root position for new matrix
     root = CreditMatrixPosition(
         matrix_id=new_matrix.id,
         user_id=owner.id,
         parent_position_id=None,
         level=0,
         position_index=0,
+        pack_key=matrix.pack_key,
+        pack_price=Decimal("0"),
     )
     db.add(root)
     db.flush()
 
-    logger.info(f"Credit Matrix: new cycle #{new_matrix.cycle_number} started for {owner.username}")
+    logger.info(f"Credit Matrix: advance #{new_matrix.advance_number} started for {owner.username} pack={matrix.pack_key}")
 
+
+# ═══════════════════════════════════════════════════════════════
+#  PURCHASE ENTRY POINT
+# ═══════════════════════════════════════════════════════════════
 
 def purchase_credit_pack(db: Session, buyer: User, pack_key: str, payment_ref: str = None, payment_method: str = "crypto") -> dict:
     """
@@ -369,7 +380,7 @@ def purchase_credit_pack(db: Session, buyer: User, pack_key: str, payment_ref: s
     1. Validate pack
     2. Record the purchase
     3. Award credits (SuperScene credits)
-    4. Place in sponsor's matrix
+    4. Place in sponsor's matrix FOR THIS PACK
     5. Pay commissions
     Returns result dict.
     """
@@ -393,7 +404,7 @@ def purchase_credit_pack(db: Session, buyer: User, pack_key: str, payment_ref: s
     db.add(purchase)
     db.flush()
 
-    # Award SuperScene credits (uses existing credit system)
+    # Award SuperScene credits
     existing_credits = db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == buyer.id).first()
     if existing_credits:
         existing_credits.balance = (existing_credits.balance or 0) + credits
@@ -409,7 +420,7 @@ def purchase_credit_pack(db: Session, buyer: User, pack_key: str, payment_ref: s
 
     if not sponsor:
         # No sponsor — create the buyer's own matrix but skip commission
-        matrix = get_or_create_active_matrix(db, buyer.id)
+        matrix = get_or_create_active_matrix(db, buyer.id, pack_key)
         db.commit()
         return {
             "success": True,
@@ -421,7 +432,7 @@ def purchase_credit_pack(db: Session, buyer: User, pack_key: str, payment_ref: s
             "message": "Credits awarded. No sponsor — matrix placement skipped.",
         }
 
-    # Place in sponsor's matrix and pay commissions
+    # Place in sponsor's matrix FOR THIS SPECIFIC PACK
     placement = place_in_matrix(db, buyer, pack_key, price, sponsor)
 
     if placement["success"]:
@@ -445,13 +456,21 @@ def purchase_credit_pack(db: Session, buyer: User, pack_key: str, payment_ref: s
     }
 
 
-def get_matrix_tree(db: Session, user_id: int) -> dict:
+# ═══════════════════════════════════════════════════════════════
+#  TREE & HISTORY QUERIES (per pack)
+# ═══════════════════════════════════════════════════════════════
+
+def get_matrix_tree(db: Session, user_id: int, pack_key: str = None) -> dict:
     """
-    Get a user's active matrix as a tree structure for the frontend.
+    Get a user's active matrix tree for a specific pack (or first active if no pack specified).
     """
-    matrix = db.query(CreditMatrix).filter(
+    query = db.query(CreditMatrix).filter(
         and_(CreditMatrix.owner_id == user_id, CreditMatrix.status == "active")
-    ).first()
+    )
+    if pack_key:
+        query = query.filter(CreditMatrix.pack_key == pack_key)
+
+    matrix = query.first()
 
     if not matrix:
         return {"matrix": None, "tree": None, "stats": None}
@@ -468,15 +487,17 @@ def get_matrix_tree(db: Session, user_id: int) -> dict:
             "id": pos.id,
             "user_id": pos.user_id,
             "username": user.username if user else "Unknown",
+            "member_id": "SAP-" + str(pos.user_id).zfill(5),
             "level": pos.level,
             "position_index": pos.position_index,
             "parent_id": pos.parent_position_id,
             "pack_key": pos.pack_key,
             "pack_price": float(pos.pack_price or 0),
+            "is_direct": (user.sponsor_id == user_id) if user else False,
             "created_at": pos.created_at.isoformat() if pos.created_at else None,
         })
 
-    # Get commission stats
+    # Commission stats
     total_earned = db.query(CreditMatrixCommission).filter(
         and_(CreditMatrixCommission.matrix_id == matrix.id, CreditMatrixCommission.earner_id == user_id)
     ).all()
@@ -488,15 +509,20 @@ def get_matrix_tree(db: Session, user_id: int) -> dict:
             earnings_by_level[c.level] += float(c.amount)
         total += c.amount
 
-    # Calculate capacity
     l1_filled = len([n for n in nodes if n["level"] == 1])
     l2_filled = len([n for n in nodes if n["level"] == 2])
     l3_filled = len([n for n in nodes if n["level"] == 3])
 
+    pack = CREDIT_PACKS.get(matrix.pack_key or "", {})
+
     return {
         "matrix": {
             "id": matrix.id,
-            "cycle_number": matrix.cycle_number,
+            "pack_key": matrix.pack_key,
+            "pack_label": pack.get("label", matrix.pack_key),
+            "pack_price": pack.get("price", 0),
+            "pack_credits": pack.get("credits", 0),
+            "advance_number": matrix.advance_number,
             "status": matrix.status,
             "positions_filled": matrix.positions_filled,
             "max_positions": MATRIX_MAX_DOWNLINE,
@@ -520,15 +546,73 @@ def get_matrix_tree(db: Session, user_id: int) -> dict:
     }
 
 
-def get_matrix_history(db: Session, user_id: int) -> list:
-    """Get all completed matrix cycles for a user."""
-    matrices = db.query(CreditMatrix).filter(
-        CreditMatrix.owner_id == user_id
-    ).order_by(CreditMatrix.cycle_number.desc()).all()
+def get_all_matrices(db: Session, user_id: int) -> dict:
+    """
+    Get all 8 matrices for a user — one per pack.
+    Returns which packs have active matrices (purchased) and which don't.
+    """
+    result = {"purchased": [], "locked": [], "total_earned": 0, "total_filled": 0}
+
+    for pack_key, pack in CREDIT_PACKS.items():
+        # Check if user has ever purchased this pack
+        has_purchased = db.query(CreditPackPurchase).filter(
+            and_(
+                CreditPackPurchase.user_id == user_id,
+                CreditPackPurchase.pack_key == pack_key,
+                CreditPackPurchase.status == "completed",
+            )
+        ).first() is not None
+
+        # Check if user has a matrix for this pack (as owner)
+        matrix = db.query(CreditMatrix).filter(
+            and_(CreditMatrix.owner_id == user_id, CreditMatrix.pack_key == pack_key)
+        ).order_by(CreditMatrix.advance_number.desc()).first()
+
+        # Count completed advances
+        completed_advances = db.query(CreditMatrix).filter(
+            and_(
+                CreditMatrix.owner_id == user_id,
+                CreditMatrix.pack_key == pack_key,
+                CreditMatrix.status == "completed",
+            )
+        ).count()
+
+        pack_info = {
+            "pack_key": pack_key,
+            "label": pack["label"],
+            "price": pack["price"],
+            "credits": pack["credits"],
+            "has_matrix": matrix is not None,
+            "positions_filled": matrix.positions_filled if matrix else 0,
+            "max_positions": MATRIX_MAX_DOWNLINE,
+            "total_earned": float(matrix.total_earned or 0) if matrix else 0,
+            "advance_number": matrix.advance_number if matrix else 0,
+            "completed_advances": completed_advances,
+            "status": matrix.status if matrix else "none",
+        }
+
+        if has_purchased or (matrix is not None):
+            result["purchased"].append(pack_info)
+            result["total_earned"] += pack_info["total_earned"]
+            result["total_filled"] += pack_info["positions_filled"]
+        else:
+            result["locked"].append(pack_info)
+
+    return result
+
+
+def get_matrix_history(db: Session, user_id: int, pack_key: str = None) -> list:
+    """Get all completed matrix advances for a user, optionally filtered by pack."""
+    query = db.query(CreditMatrix).filter(CreditMatrix.owner_id == user_id)
+    if pack_key:
+        query = query.filter(CreditMatrix.pack_key == pack_key)
+
+    matrices = query.order_by(CreditMatrix.pack_key, CreditMatrix.advance_number.desc()).all()
 
     return [{
         "id": m.id,
-        "cycle_number": m.cycle_number,
+        "pack_key": m.pack_key,
+        "advance_number": m.advance_number,
         "status": m.status,
         "positions_filled": m.positions_filled,
         "total_earned": float(m.total_earned or 0),

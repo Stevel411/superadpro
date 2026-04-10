@@ -2288,14 +2288,15 @@ class CreditPackPurchase(Base):
 
 
 class CreditMatrix(Base):
-    """A 3×3 matrix instance belonging to a user. Cycles on completion."""
+    """A 3×3 matrix instance belonging to a user, scoped to a specific credit pack."""
     __tablename__ = "credit_matrices"
     id            = Column(Integer, primary_key=True, index=True)
     owner_id      = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    cycle_number  = Column(Integer, default=1)              # increments each time matrix completes
-    status        = Column(String(20), default="active")     # active / completed
-    positions_filled = Column(Integer, default=0)            # 0-39 (1 owner + 3+9+27 downline)
-    total_earned  = Column(Numeric(18, 6), default=0)        # total commissions earned from this matrix
+    pack_key      = Column(String(20), nullable=True, index=True)  # which pack this matrix is for
+    advance_number = Column(Integer, default=1)                    # increments each time matrix completes
+    status        = Column(String(20), default="active")           # active / completed
+    positions_filled = Column(Integer, default=0)                  # 0-39 (1 owner + 3+9+27 downline)
+    total_earned  = Column(Numeric(18, 6), default=0)              # total commissions earned from this matrix
     completion_bonus_paid = Column(Numeric(18, 6), default=0)
     completed_at  = Column(DateTime, nullable=True)
     created_at    = Column(DateTime, default=datetime.utcnow)

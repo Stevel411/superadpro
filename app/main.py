@@ -1253,6 +1253,8 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
             "username": member["username"],
             "depth": member["depth"],
             "id": member["id"],
+            "member_id": "SAP-" + str(member["id"]).zfill(5),
+            "is_direct": member["sponsor_id"] == user.id,
         })
 
     # Get actual grid record
@@ -1269,6 +1271,10 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
         Grid.is_complete == True
     ).count()
 
+    # Bonus pool
+    bonus_accrued = float(grid_record.bonus_pool_accrued or 0) if grid_record else 0
+    bonus_max = float(GRID_COMPLETION_BONUS.get(tier, 0))
+
     return JSONResponse({
         "seats": grid_seats,
         "filled": len(grid_seats),
@@ -1278,6 +1284,8 @@ def api_grid_visualiser(request: Request, user: User = Depends(get_current_user)
         "advance": grid_record.advance_number if grid_record else completed + 1,
         "completed_advances": completed,
         "total_downline": len(downline),
+        "bonus_accrued": bonus_accrued,
+        "bonus_max": bonus_max,
     })
 
 @app.get("/passup-visualiser")
@@ -11151,6 +11159,9 @@ def admin_force_migrate(secret: str = "", db: Session = Depends(get_db)):
         "CREATE INDEX IF NOT EXISTS idx_team_msg_to ON team_messages(to_user_id)",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS membership_billing VARCHAR DEFAULT 'monthly'",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS campaign_balance NUMERIC(18,6) DEFAULT 0.0",
+        "ALTER TABLE credit_matrices ADD COLUMN IF NOT EXISTS pack_key VARCHAR(20)",
+        "ALTER TABLE credit_matrices ADD COLUMN IF NOT EXISTS advance_number INTEGER DEFAULT 1",
+        "CREATE INDEX IF NOT EXISTS idx_credit_matrices_pack ON credit_matrices(owner_id, pack_key, status)",
         "CREATE TABLE IF NOT EXISTS presentations (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) ON DELETE CASCADE, title VARCHAR(300) DEFAULT 'Untitled Presentation', slides_json TEXT DEFAULT '[]', theme VARCHAR(50) DEFAULT 'midnight', slide_count INTEGER DEFAULT 0, thumbnail_url TEXT, status VARCHAR(20) DEFAULT 'draft', created_at TIMESTAMP DEFAULT NOW(), updated_at TIMESTAMP DEFAULT NOW())",
     ]
     for sql in migrations:
@@ -11848,7 +11859,7 @@ You explain the SuperAdPro compensation plan clearly and enthusiastically. You h
 - The matrix has 3 levels with 9 total positions (1 + 3 + 9 = 13 including you)
 - Level 1 (3 positions): you earn a commission on each credit pack purchase
 - Level 2 (9 positions): you earn a smaller commission on each
-- When a matrix completes (all 9 positions filled), you earn a completion bonus and a new matrix cycle starts
+- When a matrix completes (all 9 positions filled), you earn a completion bonus and a new matrix advance starts
 - Members keep buying credits to create videos, images, music — so your matrix keeps cycling and paying
 - This is a genuine recurring income stream tied to real product usage
 
@@ -22543,7 +22554,7 @@ async def api_video_creator_download(job_id: str, user: User = Depends(get_curre
 
 from app.credit_matrix import (
     purchase_credit_pack, get_matrix_tree, get_matrix_history,
-    get_or_create_active_matrix, CREDIT_PACKS, MATRIX_MAX_DOWNLINE,
+    get_or_create_active_matrix, get_all_matrices, CREDIT_PACKS, MATRIX_MAX_DOWNLINE,
 )
 
 @app.get("/api/credit-matrix/packs")
@@ -22660,23 +22671,33 @@ async def api_credit_matrix_purchase(request: Request, user: User = Depends(get_
 
 
 @app.get("/api/credit-matrix/my-matrix")
-async def api_credit_matrix_my_matrix(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Get the current user's active matrix tree + stats."""
+async def api_credit_matrix_my_matrix(user: User = Depends(get_current_user), db: Session = Depends(get_db), pack_key: str = None):
+    """Get the current user's active matrix tree for a specific pack."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    data = get_matrix_tree(db, user.id)
+    data = get_matrix_tree(db, user.id, pack_key=pack_key)
+    return {"success": True, **data}
+
+
+@app.get("/api/credit-matrix/all-matrices")
+async def api_credit_matrix_all(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Get overview of all 8 matrices for the current user — purchased and locked."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    data = get_all_matrices(db, user.id)
     return {"success": True, **data}
 
 
 @app.get("/api/credit-matrix/history")
-async def api_credit_matrix_history(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Get all completed matrix cycles for the current user."""
+async def api_credit_matrix_history(user: User = Depends(get_current_user), db: Session = Depends(get_db), pack_key: str = None):
+    """Get all completed matrix advances for the current user, optionally by pack."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
-    cycles = get_matrix_history(db, user.id)
-    return {"success": True, "cycles": cycles}
+    advances = get_matrix_history(db, user.id, pack_key=pack_key)
+    return {"success": True, "advances": advances}
 
 
 @app.get("/api/credit-matrix/commissions")
