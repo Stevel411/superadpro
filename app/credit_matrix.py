@@ -136,51 +136,49 @@ def find_next_available_position(db: Session, matrix: CreditMatrix) -> CreditMat
 
 
 # ═══════════════════════════════════════════════════════════════
-#  MATRIX PLACEMENT (walks entire upline tree — like the Grid)
+#  MATRIX PLACEMENT (3 levels deep — matches 3×3 matrix shape)
 # ═══════════════════════════════════════════════════════════════
 
 def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal, sponsor: User) -> dict:
     """
-    Place a buyer into their UPLINE TREE's matrices FOR THIS SPECIFIC PACK.
+    Place a buyer into upline matrices — MAX 3 LEVELS UP in the sponsor tree.
     
-    Works exactly like the Grid — same mechanic, different shape:
-    - Grid = 8 levels wide, 64 positions
-    - Matrix = 3 levels wide (3+9+27), 39 positions
+    The 3×3 matrix shape defines the commission depth:
+      Level 1 (3 slots):  buyer → sponsor
+      Level 2 (9 slots):  buyer → sponsor → sponsor's sponsor
+      Level 3 (27 slots): buyer → sponsor → sponsor's sponsor → one more up
     
-    Walk up the sponsor chain. For each upline member who has a matrix 
-    for this pack with room, place the buyer in it via BFS.
-    One person, one seat per matrix advance.
+    Beyond 3 levels, the buyer does NOT fill any more matrices.
+    This caps total payout at 35% per purchase (15% + 10% + 10%).
     
-    Your entire downline tree fills your matrix — not just your 
-    direct referrals. When the matrix hits 39/39, it advances.
-    
-    Commission: 15% if buyer is direct referral, 10% if spillover.
-    Completion bonus: 10% of total matrix value at 39/39.
+    Commission rate per position:
+      15% if the matrix owner personally recruited the buyer
+      10% if the buyer is spillover (recruited by someone else)
+    Completion bonus: 10% of total matrix value when 39/39 fills.
     """
     result = {
         "success": False,
-        "matrices_filled": [],
+        "matrix_id": None,
+        "position_id": None,
+        "level": None,
         "commissions_paid": [],
+        "matrices_filled": [],
         "error": None,
     }
 
-    # Also create the buyer's own matrix for this pack (so they can receive spillover)
+    # Create the buyer's own matrix (so their downline fills it)
     get_or_create_active_matrix(db, buyer.id, pack_key)
 
-    # Walk up the sponsor chain — place buyer in each upline's matrix
+    # Walk up the sponsor chain — MAX 3 LEVELS (matches matrix depth)
     current_id = buyer.id
-    visited = set()
     first_placement = True
 
-    while True:
+    for depth in range(1, MATRIX_DEPTH + 1):  # 1, 2, 3 only
         current_user = db.query(User).filter(User.id == current_id).first()
         if not current_user or not current_user.sponsor_id:
             break
 
         upline_id = current_user.sponsor_id
-        if upline_id in visited:
-            break  # prevent infinite loops
-        visited.add(upline_id)
 
         # Don't place buyer in their own matrix
         if upline_id == buyer.id:
@@ -190,13 +188,12 @@ def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal
         # Get or create the upline's active matrix for this pack
         matrix = get_or_create_active_matrix(db, upline_id, pack_key)
 
-        # Check if matrix has room
+        # Skip if full
         if matrix.positions_filled >= MATRIX_MAX_DOWNLINE:
-            # Matrix is full — still walk up but skip this one
             current_id = upline_id
             continue
 
-        # Check buyer isn't already in this matrix (one person, one seat per advance)
+        # One person, one seat per advance
         already_seated = db.query(CreditMatrixPosition).filter(
             and_(
                 CreditMatrixPosition.matrix_id == matrix.id,
@@ -214,7 +211,7 @@ def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal
             current_id = upline_id
             continue
 
-        # Determine position index (0, 1, or 2)
+        # Determine position index
         existing_children = db.query(CreditMatrixPosition).filter(
             and_(
                 CreditMatrixPosition.matrix_id == matrix.id,
@@ -224,7 +221,6 @@ def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal
 
         new_level = parent_pos.level + 1
 
-        # Create the position
         position = CreditMatrixPosition(
             matrix_id=matrix.id,
             user_id=buyer.id,
@@ -240,7 +236,7 @@ def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal
         matrix.positions_filled += 1
         db.flush()
 
-        # Pay commission to this upline member
+        # Pay commission — 15% direct or 10% spillover
         commissions = pay_matrix_commissions(db, matrix, position, buyer, pack_price)
         result["commissions_paid"].extend(commissions)
 
@@ -260,7 +256,6 @@ def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal
 
         result["matrices_filled"].append(entry)
 
-        # Track first placement for backward compatibility
         if first_placement:
             result["matrix_id"] = matrix.id
             result["position_id"] = position.id
