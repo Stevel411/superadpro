@@ -23,8 +23,13 @@ var css = `
 
 export default function Upgrade() {
   var { user, refreshUser } = useAuth();
-  var isPro = user?.membership_tier === 'pro';
-  var isActive = user?.is_active;
+
+  // Admin preview mode: add ?preview=1 to URL to see page as a new user
+  var urlParams = new URLSearchParams(window.location.search);
+  var previewMode = user?.is_admin && urlParams.get('preview') === '1';
+
+  var isPro = previewMode ? false : user?.membership_tier === 'pro';
+  var isActive = previewMode ? false : user?.is_active;
   var [loading, setLoading] = useState('');
   var [error, setError] = useState('');
   var [cryptoCheckout, setCryptoCheckout] = useState(null);
