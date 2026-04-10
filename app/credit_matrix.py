@@ -136,104 +136,132 @@ def find_next_available_position(db: Session, matrix: CreditMatrix) -> CreditMat
 
 
 # ═══════════════════════════════════════════════════════════════
-#  MATRIX PLACEMENT (pack-specific)
+#  MATRIX PLACEMENT (walks entire upline tree — like the Grid)
 # ═══════════════════════════════════════════════════════════════
-
-def find_matrix_for_placement(db: Session, sponsor_id: int, buyer_id: int, pack_key: str) -> CreditMatrix:
-    """
-    Find the best matrix to place a new member into FOR THIS SPECIFIC PACK.
-    Priority: sponsor's active matrix for this pack. If full, walk up sponsor chain.
-    """
-    current_id = sponsor_id
-    visited = set()
-
-    while current_id and current_id not in visited:
-        visited.add(current_id)
-        matrix = get_or_create_active_matrix(db, current_id, pack_key)
-
-        if matrix.positions_filled < MATRIX_MAX_DOWNLINE:
-            return matrix
-
-        # Walk up to sponsor's sponsor
-        user = db.query(User).filter(User.id == current_id).first()
-        if user and user.sponsor_id and user.sponsor_id != current_id:
-            current_id = user.sponsor_id
-        else:
-            break
-
-    return get_or_create_active_matrix(db, sponsor_id, pack_key)
-
 
 def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal, sponsor: User) -> dict:
     """
     Place a buyer into their UPLINE TREE's matrices FOR THIS SPECIFIC PACK.
-    Works like the Grid: the buyer fills positions in every upline member's
-    matrix that has room, walking up the sponsor chain.
+    Works exactly like the Grid: walk up the sponsor chain and place the
+    buyer in EVERY upline member's matrix that has room.
     
-    The direct sponsor gets the placement first, then their sponsor, etc.
-    Commission rate = 15% if direct referral, 10% if spillover.
+    Each upline earns a commission:
+      - 15% if the buyer is their DIRECT referral
+      - 10% if the buyer is SPILLOVER
     """
     result = {
         "success": False,
-        "matrix_id": None,
-        "position_id": None,
-        "level": None,
+        "matrices_filled": [],
         "commissions_paid": [],
-        "matrix_completed": False,
         "error": None,
     }
 
-    # Walk up the sponsor chain and place in each upline's matrix
-    # For now, place into the nearest upline matrix with room
-    target_matrix = find_matrix_for_placement(db, sponsor.id, buyer.id, pack_key)
-    if not target_matrix:
-        result["error"] = "No active matrix found for placement"
-        return result
+    # Also create the buyer's own matrix for this pack (so they can receive spillover)
+    get_or_create_active_matrix(db, buyer.id, pack_key)
 
-    parent_pos = find_next_available_position(db, target_matrix)
-    if not parent_pos:
-        result["error"] = "Matrix is full — should have advanced"
-        return result
+    # Walk up the sponsor chain — place buyer in each upline's matrix
+    current_id = buyer.id
+    visited = set()
+    first_placement = True
 
-    # Determine position index (0, 1, or 2)
-    existing_children = db.query(CreditMatrixPosition).filter(
-        and_(
-            CreditMatrixPosition.matrix_id == target_matrix.id,
-            CreditMatrixPosition.parent_position_id == parent_pos.id,
+    while True:
+        current_user = db.query(User).filter(User.id == current_id).first()
+        if not current_user or not current_user.sponsor_id:
+            break
+
+        upline_id = current_user.sponsor_id
+        if upline_id in visited:
+            break  # prevent infinite loops
+        visited.add(upline_id)
+
+        # Don't place buyer in their own matrix
+        if upline_id == buyer.id:
+            current_id = upline_id
+            continue
+
+        # Get or create the upline's active matrix for this pack
+        matrix = get_or_create_active_matrix(db, upline_id, pack_key)
+
+        # Check if matrix has room
+        if matrix.positions_filled >= MATRIX_MAX_DOWNLINE:
+            # Matrix is full — still walk up but skip this one
+            current_id = upline_id
+            continue
+
+        # Check buyer isn't already in this matrix (one person, one seat per advance)
+        already_seated = db.query(CreditMatrixPosition).filter(
+            and_(
+                CreditMatrixPosition.matrix_id == matrix.id,
+                CreditMatrixPosition.user_id == buyer.id,
+            )
+        ).first()
+
+        if already_seated:
+            current_id = upline_id
+            continue
+
+        # Find next open BFS position
+        parent_pos = find_next_available_position(db, matrix)
+        if not parent_pos:
+            current_id = upline_id
+            continue
+
+        # Determine position index (0, 1, or 2)
+        existing_children = db.query(CreditMatrixPosition).filter(
+            and_(
+                CreditMatrixPosition.matrix_id == matrix.id,
+                CreditMatrixPosition.parent_position_id == parent_pos.id,
+            )
+        ).count()
+
+        new_level = parent_pos.level + 1
+
+        # Create the position
+        position = CreditMatrixPosition(
+            matrix_id=matrix.id,
+            user_id=buyer.id,
+            parent_position_id=parent_pos.id,
+            level=new_level,
+            position_index=existing_children,
+            pack_key=pack_key,
+            pack_price=pack_price,
         )
-    ).count()
+        db.add(position)
+        db.flush()
 
-    new_level = parent_pos.level + 1
+        matrix.positions_filled += 1
+        db.flush()
 
-    position = CreditMatrixPosition(
-        matrix_id=target_matrix.id,
-        user_id=buyer.id,
-        parent_position_id=parent_pos.id,
-        level=new_level,
-        position_index=existing_children,
-        pack_key=pack_key,
-        pack_price=pack_price,
-    )
-    db.add(position)
-    db.flush()
+        # Pay commission to this upline member
+        commissions = pay_matrix_commissions(db, matrix, position, buyer, pack_price)
+        result["commissions_paid"].extend(commissions)
 
-    target_matrix.positions_filled += 1
-    db.flush()
+        entry = {
+            "matrix_id": matrix.id,
+            "owner_id": upline_id,
+            "position_id": position.id,
+            "level": new_level,
+            "filled": matrix.positions_filled,
+            "complete": False,
+        }
+
+        # Check for completion
+        if matrix.positions_filled >= MATRIX_MAX_DOWNLINE:
+            complete_matrix(db, matrix)
+            entry["complete"] = True
+
+        result["matrices_filled"].append(entry)
+
+        # Track first placement for backward compatibility
+        if first_placement:
+            result["matrix_id"] = matrix.id
+            result["position_id"] = position.id
+            result["level"] = new_level
+            first_placement = False
+
+        current_id = upline_id
 
     result["success"] = True
-    result["matrix_id"] = target_matrix.id
-    result["position_id"] = position.id
-    result["level"] = new_level
-
-    # Pay commissions — rate based on direct vs spillover relationship
-    commissions = pay_matrix_commissions(db, target_matrix, position, buyer, pack_price)
-    result["commissions_paid"] = commissions
-
-    # Check for completion (39 downline positions filled)
-    if target_matrix.positions_filled >= MATRIX_MAX_DOWNLINE:
-        complete_matrix(db, target_matrix)
-        result["matrix_completed"] = True
-
     return result
 
 
@@ -452,10 +480,10 @@ def purchase_credit_pack(db: Session, buyer: User, pack_key: str, payment_ref: s
             "message": "Credits awarded. No sponsor — matrix placement skipped.",
         }
 
-    # Place in sponsor's matrix FOR THIS SPECIFIC PACK
+    # Place in EVERY upline's matrix for this pack (walks the full sponsor chain)
     placement = place_in_matrix(db, buyer, pack_key, price, sponsor)
 
-    if placement["success"]:
+    if placement["success"] and placement.get("position_id"):
         purchase.matrix_entry_id = placement["position_id"]
 
     db.commit()
@@ -470,8 +498,8 @@ def purchase_credit_pack(db: Session, buyer: User, pack_key: str, payment_ref: s
             "matrix_id": placement.get("matrix_id"),
             "position_id": placement.get("position_id"),
             "level": placement.get("level"),
+            "matrices_filled": placement.get("matrices_filled", []),
             "commissions_paid": placement.get("commissions_paid", []),
-            "matrix_completed": placement.get("matrix_completed", False),
         },
     }
 
