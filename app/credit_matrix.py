@@ -2,8 +2,17 @@
 Credit Matrix Engine — 3×3 Forced Matrix with Commission Payouts
 ================================================================
 Handles: matrix creation, position placement (BFS spillover),
-commission calculation (L1=10%, L2=5%, L3=3%), matrix cycling,
+commission calculation (L1=15%, L2=10%, L3=10%), matrix cycling,
 and completion bonuses.
+
+PACK PRICE SPLIT:
+  50% → AI cost budget (covers Creative Studio token usage)
+  15% → Company revenue
+  35% → Matrix commissions:
+    Level 1 (3 positions):  15% of pack price per position
+    Level 2 (9 positions):  10% of pack price per position
+    Level 3 (27 positions): 10% of pack price per position
+  Total 39 positions to fill per matrix.
 """
 
 from decimal import Decimal
@@ -211,7 +220,7 @@ def pay_matrix_commissions(
 ) -> list:
     """
     Pay commissions to the matrix owner based on which level the new position is at.
-    L1 = 10%, L2 = 5%, L3 = 3%.
+    L1 = 15%, L2 = 10%, L3 = 10%.
     """
     commissions_paid = []
     level = position.level  # 1, 2, or 3

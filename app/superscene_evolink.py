@@ -92,23 +92,24 @@ TIER_ROUTES_I2V = {
 
 # Credits per 5 seconds by model (ensures profitability)
 CREDITS_PER_5S = {
+    # 1 credit = $0.10 internal value. Credits = ceil(AI cost / $0.10)
     # Quick tier
-    "wan26":           1,
+    "wan26":           1,    # $0.08 cost → 1 credit ($0.10) = profit
     # Standard tier
-    "kling3":          3,
-    "seedance":        2,
+    "kling3":          4,    # $0.32 cost → 4 credits ($0.40) = profit
+    "seedance":        2,    # $0.14 cost → 2 credits ($0.20) = profit
     # Premium tier
-    "kling-o3":        5,
-    "sora2":           8,
-    "grok-video":      4,
-    "sora2-max":       10,
+    "kling-o3":        9,    # $0.84 cost → 9 credits ($0.90) = profit
+    "sora2":          15,    # $1.50 cost → 15 credits ($1.50) = breakeven
+    "grok-video":      6,    # $0.60 cost → 6 credits ($0.60) = breakeven
+    "sora2-max":      20,    # estimated $2.00 → 20 credits
     # Ultra tier
-    "veo31":           4,
-    "veo31-pro":       16,
+    "veo31":           4,    # $0.40 cost → 4 credits ($0.40) = breakeven
+    "veo31-pro":       8,    # $0.80 cost → 8 credits ($0.80) = breakeven
     # Special features
-    "kling-motion":    8,
-    "kling-edit":      8,
-    "veo31-extend":    4,
+    "kling-motion":    9,    # ~$0.84 cost → 9 credits
+    "kling-edit":      9,    # ~$0.84 cost → 9 credits
+    "veo31-extend":    4,    # $0.40 cost → 4 credits
     # Legacy (kept for existing videos, not offered to new users)
     "hailuo23":        1,
     "hailuo23-fast":   1,

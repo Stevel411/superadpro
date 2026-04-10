@@ -2254,16 +2254,20 @@ class Presentation(Base):
 
 # Credit pack definitions (not a DB model — constants)
 CREDIT_PACKS = {
-    "starter":  {"price": 25,  "credits": 150,   "label": "Starter",  "completion_bonus": 10},
-    "builder":  {"price": 50,  "credits": 350,   "label": "Builder",  "completion_bonus": 25},
-    "pro":      {"price": 100, "credits": 800,   "label": "Pro",      "completion_bonus": 50},
-    "elite":    {"price": 250, "credits": 2200,  "label": "Elite",    "completion_bonus": 100},
-    "ultimate": {"price": 500, "credits": 5000,  "label": "Ultimate", "completion_bonus": 250},
+    "starter":   {"price": 20,   "credits": 100,   "label": "Starter",   "completion_bonus": 0},
+    "builder":   {"price": 50,   "credits": 250,   "label": "Builder",   "completion_bonus": 0},
+    "pro":       {"price": 100,  "credits": 500,   "label": "Pro",       "completion_bonus": 0},
+    "advanced":  {"price": 200,  "credits": 1000,  "label": "Advanced",  "completion_bonus": 0},
+    "elite":     {"price": 400,  "credits": 2000,  "label": "Elite",     "completion_bonus": 0},
+    "premium":   {"price": 600,  "credits": 3000,  "label": "Premium",   "completion_bonus": 0},
+    "executive": {"price": 800,  "credits": 4000,  "label": "Executive", "completion_bonus": 0},
+    "ultimate":  {"price": 1000, "credits": 5000,  "label": "Ultimate",  "completion_bonus": 0},
 }
 
 MATRIX_WIDTH = 3
 MATRIX_DEPTH = 3
-MATRIX_COMMISSION_RATES = {1: Decimal("0.25"), 2: Decimal("0.15"), 3: Decimal("0.10")}
+# 50% AI costs / 15% company / 35% commissions (15% L1, 10% L2, 10% L3)
+MATRIX_COMMISSION_RATES = {1: Decimal("0.15"), 2: Decimal("0.10"), 3: Decimal("0.10")}
 
 
 class CreditPackPurchase(Base):
