@@ -9861,6 +9861,69 @@ async def api_register(
         except Exception as e:
             logger.warning(f"Welcome email failed for {email}: {e}")
 
+        # Notify sponsor: "New member joined your team!"
+        if sponsor_id:
+            try:
+                sponsor_obj = db.query(User).filter(User.id == sponsor_id).first()
+                if sponsor_obj and sponsor_obj.email:
+                    from .email_utils import send_email
+                    send_email(
+                        to_email=sponsor_obj.email,
+                        subject=f"\U0001f389 {first_name} just joined your SuperAdPro team!",
+                        html_body=f"""
+                        <div style="font-family:Helvetica Neue,Arial,sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;">
+                            <div style="background:linear-gradient(135deg,#172554,#1e3a8a);border-radius:16px;padding:24px;margin-bottom:20px;">
+                                <div style="text-align:center;padding:16px 0;">
+                                    <div style="font-size:42px;margin-bottom:12px;">\U0001f389</div>
+                                    <h1 style="color:#fff;font-size:22px;font-weight:800;margin:0 0 8px;">New Team Member!</h1>
+                                    <p style="color:rgba(255,255,255,.6);font-size:15px;margin:0;line-height:1.6;">
+                                        <strong style="color:#38bdf8;">{first_name}</strong> ({username}) just joined through your referral link.
+                                    </p>
+                                </div>
+                            </div>
+                            <div style="background:#f8fafc;border-radius:12px;padding:20px 24px;margin-bottom:20px;">
+                                <p style="font-size:14px;color:#334155;line-height:1.7;margin:0 0 12px;">
+                                    Welcome them with a message in <strong>Team Messenger</strong> — members who connect with their sponsor in the first 24 hours are 5x more likely to stay active.
+                                </p>
+                                <a href="https://www.superadpro.com/team-messenger" style="display:inline-block;padding:10px 24px;background:#0ea5e9;color:#fff;border-radius:8px;font-weight:700;font-size:14px;text-decoration:none;">Send a Welcome Message \u2192</a>
+                            </div>
+                            <p style="font-size:12px;color:#94a3b8;text-align:center;">SuperAdPro \u2014 AI Marketing & Advertising Platform</p>
+                        </div>
+                        """,
+                        text_body=f"{first_name} ({username}) just joined your SuperAdPro team! Send them a welcome message."
+                    )
+            except Exception:
+                pass
+
+            # Auto welcome message from sponsor via Team Messenger
+            try:
+                sponsor_obj = db.query(User).filter(User.id == sponsor_id).first()
+                if sponsor_obj:
+                    from sqlalchemy import text as _text
+                    db.execute(_text(
+                        "INSERT INTO team_messages (from_user_id, to_user_id, message, is_read) VALUES (:from_id, :to_id, :msg, false)"
+                    ), {
+                        "from_id": sponsor_id,
+                        "to_id": user.id,
+                        "msg": f"Hey {first_name}! \U0001f44b Welcome to SuperAdPro! I'm {sponsor_obj.first_name or sponsor_obj.username}, your sponsor. If you need any help getting started, just message me here. First steps: set up your profile, check out the Training Centre, and share your referral link to start building your team. Let's go! \U0001f680",
+                    })
+                    db.commit()
+            except Exception:
+                pass
+
+        # Create in-app notification for the new user
+        try:
+            notif = Notification(
+                user_id=user.id,
+                title="Welcome to SuperAdPro!",
+                message=f"Hey {first_name}, welcome aboard! Start by setting up your profile and exploring the dashboard.",
+                notification_type="system",
+            )
+            db.add(notif)
+            db.commit()
+        except Exception:
+            pass
+
         # Enrol in nurture sequence — first email fires 24hrs after registration
         try:
             from .database import NurtureSequence
