@@ -3350,6 +3350,48 @@ def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
         db.query(Prospect).filter((Prospect.user_id == user_id) | (Prospect.converted_user_id == user_id)).delete()
         db.query(SuperSellerCampaign).filter(SuperSellerCampaign.user_id == user_id).delete()
 
+        # ── LAYER 2b: Credit Matrix & SuperScene tables ──
+        from .database import (
+            SuperSceneCredit, CreditMatrix, CreditMatrixPosition,
+            CreditMatrixCommission, CreditPackPurchase, NowPaymentsOrder,
+            ChallengeProgress,
+        )
+        # Credit matrix positions where this user appears (in anyone's matrix)
+        db.query(CreditMatrixCommission).filter(
+            (CreditMatrixCommission.earner_id == user_id) | (CreditMatrixCommission.from_user_id == user_id)
+        ).delete(synchronize_session=False)
+        # Positions in any matrix
+        db.query(CreditMatrixPosition).filter(CreditMatrixPosition.user_id == user_id).delete(synchronize_session=False)
+        # Matrices owned by this user — first delete their positions, then the matrix
+        owned_matrix_ids = [m.id for m in db.query(CreditMatrix).filter(CreditMatrix.owner_id == user_id).all()]
+        if owned_matrix_ids:
+            db.query(CreditMatrixCommission).filter(CreditMatrixCommission.matrix_id.in_(owned_matrix_ids)).delete(synchronize_session=False)
+            db.query(CreditMatrixPosition).filter(CreditMatrixPosition.matrix_id.in_(owned_matrix_ids)).delete(synchronize_session=False)
+            db.query(CreditMatrix).filter(CreditMatrix.id.in_(owned_matrix_ids)).delete(synchronize_session=False)
+        db.query(CreditPackPurchase).filter(CreditPackPurchase.user_id == user_id).delete(synchronize_session=False)
+        db.query(SuperSceneCredit).filter(SuperSceneCredit.user_id == user_id).delete(synchronize_session=False)
+        # NOWPayments orders
+        try:
+            db.query(NowPaymentsOrder).filter(NowPaymentsOrder.user_id == user_id).delete(synchronize_session=False)
+        except Exception:
+            pass
+        # Challenge progress
+        try:
+            db.query(ChallengeProgress).filter(ChallengeProgress.user_id == user_id).delete(synchronize_session=False)
+        except Exception:
+            pass
+        # Team messages
+        from sqlalchemy import text as _text
+        try:
+            db.execute(_text("DELETE FROM team_messages WHERE from_user_id = :uid OR to_user_id = :uid"), {"uid": user_id})
+        except Exception:
+            pass
+        # Presentations
+        try:
+            db.execute(_text("DELETE FROM presentations WHERE user_id = :uid"), {"uid": user_id})
+        except Exception:
+            pass
+
         # ── LAYER 3: Finally delete the user ──
         db.delete(target)
         db.commit()
