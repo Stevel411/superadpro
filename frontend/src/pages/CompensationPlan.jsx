@@ -268,7 +268,8 @@ function GridContent() {
 
     <InfoBox items={[
       'Activate a Campaign Tier to enter the 8×8 Income Grid (64 positions)',
-      'Your referrals and their spillover fill your grid positions',
+      'Your referrals and their referrals fill your grid positions',
+      'Positions fill in order — Level 1 first, then Level 2, and so on through all 8 levels. This is what creates the spillover effect as your team grows',
       'When all 64 positions fill, you earn the completion bonus and a new grid starts (advance)',
       'Higher tiers unlock more daily campaign views and bigger bonuses',
       'Grid earnings go to your Campaign Wallet — requires active tier + daily watch quota',
@@ -390,7 +391,7 @@ function MatrixContent(props) {
     <InfoBox items={[
       'Each credit pack has its own independent 3×3 matrix (39 positions)',
       'Buy a pack → get AI credits + enter your sponsor\'s matrix',
-      'Your downline\'s purchases fill your matrix via BFS spillover',
+      'Positions fill left to right, top to bottom — Level 1 fills first (3 slots), then Level 2 (9 slots), then Level 3 (27 slots). This is what creates the spillover effect',
       'Commission = 15% if you recruited them, 10% if spillover',
       'When all 39 positions fill, you earn a 10% completion bonus and a new matrix starts',
       '65% of credit pack cost covers AI services and platform management',
