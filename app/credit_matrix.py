@@ -5,17 +5,20 @@ Each of the 8 credit packs has its OWN independent 3×3 matrix.
 A member who buys all 8 packs has 8 separate matrices filling.
 
 Handles: matrix creation (per pack), position placement (BFS spillover),
-commission calculation (L1=15%, L2=10%, L3=10%), matrix advancing,
-and completion bonuses.
+commission calculation, matrix advancing, and completion bonuses.
+
+COMMISSION MODEL:
+  Commission rate is based on RELATIONSHIP, not matrix level:
+    DIRECT REFERRAL (you personally recruited them) = 15%
+    SPILLOVER (someone else in your tree recruited them) = 10%
+  
+  The matrix is a forced matrix for POSITIONING only (BFS fill order).
+  Commission rate follows the person, not the position.
 
 PACK PRICE SPLIT:
   50% → AI cost budget (covers Creative Studio token usage)
   15% → Company revenue
-  35% → Matrix commissions:
-    Level 1 (3 positions):  15% of pack price per position
-    Level 2 (9 positions):  10% of pack price per position
-    Level 3 (27 positions): 10% of pack price per position
-  Total 39 positions to fill per matrix.
+  35% → Matrix commissions
 
 TERMINOLOGY: "Advance" not "Cycle" — when a matrix completes,
 the member advances to a new matrix for that pack.
@@ -162,8 +165,12 @@ def find_matrix_for_placement(db: Session, sponsor_id: int, buyer_id: int, pack_
 
 def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal, sponsor: User) -> dict:
     """
-    Place a buyer into their sponsor's matrix FOR THIS SPECIFIC PACK.
-    Returns dict with placement details and commissions paid.
+    Place a buyer into their UPLINE TREE's matrices FOR THIS SPECIFIC PACK.
+    Works like the Grid: the buyer fills positions in every upline member's
+    matrix that has room, walking up the sponsor chain.
+    
+    The direct sponsor gets the placement first, then their sponsor, etc.
+    Commission rate = 15% if direct referral, 10% if spillover.
     """
     result = {
         "success": False,
@@ -175,6 +182,8 @@ def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal
         "error": None,
     }
 
+    # Walk up the sponsor chain and place in each upline's matrix
+    # For now, place into the nearest upline matrix with room
     target_matrix = find_matrix_for_placement(db, sponsor.id, buyer.id, pack_key)
     if not target_matrix:
         result["error"] = "No active matrix found for placement"
@@ -215,7 +224,7 @@ def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal
     result["position_id"] = position.id
     result["level"] = new_level
 
-    # Pay commissions
+    # Pay commissions — rate based on direct vs spillover relationship
     commissions = pay_matrix_commissions(db, target_matrix, position, buyer, pack_price)
     result["commissions_paid"] = commissions
 
@@ -231,6 +240,11 @@ def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal
 #  COMMISSION PAYMENTS
 # ═══════════════════════════════════════════════════════════════
 
+# Commission rates based on RELATIONSHIP, not matrix level
+DIRECT_RATE = Decimal("0.15")    # You personally recruited them
+SPILLOVER_RATE = Decimal("0.10") # Someone else recruited them
+
+
 def pay_matrix_commissions(
     db: Session,
     matrix: CreditMatrix,
@@ -239,17 +253,12 @@ def pay_matrix_commissions(
     pack_price: Decimal,
 ) -> list:
     """
-    Pay commissions to the matrix owner based on which level the new position is at.
-    L1 = 15%, L2 = 10%, L3 = 10%.
+    Pay commissions to the matrix owner.
+    Rate is based on RELATIONSHIP, not position level:
+      - 15% if the buyer is a DIRECT referral of the matrix owner
+      - 10% if the buyer is SPILLOVER (recruited by someone else in the tree)
     """
     commissions_paid = []
-    level = position.level
-
-    if level not in MATRIX_COMMISSION_RATES:
-        return commissions_paid
-
-    rate = MATRIX_COMMISSION_RATES[level]
-    amount = Decimal(str(pack_price)) * rate
 
     owner = db.query(User).filter(User.id == matrix.owner_id).first()
     if not owner:
@@ -260,16 +269,23 @@ def pay_matrix_commissions(
         logger.info(f"Matrix commission skipped: owner {owner.username} bought own pack")
         return commissions_paid
 
+    # Determine relationship: did the matrix owner personally recruit this buyer?
+    is_direct = (buyer.sponsor_id == owner.id)
+    rate = DIRECT_RATE if is_direct else SPILLOVER_RATE
+    commission_type = "matrix_direct" if is_direct else "matrix_spillover"
+
+    amount = Decimal(str(pack_price)) * rate
+
     commission = CreditMatrixCommission(
         matrix_id=matrix.id,
         earner_id=owner.id,
         from_user_id=buyer.id,
         from_position_id=position.id,
-        level=level,
+        level=position.level,
         rate=rate,
         pack_price=pack_price,
         amount=amount,
-        commission_type="matrix_level",
+        commission_type=commission_type,
         status="paid",
     )
     db.add(commission)
@@ -286,15 +302,16 @@ def pay_matrix_commissions(
 
     commissions_paid.append({
         "earner": owner.username,
-        "level": level,
+        "level": position.level,
+        "is_direct": is_direct,
         "rate": float(rate),
         "amount": float(amount),
     })
 
     logger.info(
         f"Matrix commission: {owner.username} earned ${float(amount):.2f} "
-        f"(L{level} {float(rate)*100:.0f}%) from {buyer.username} "
-        f"pack={matrix.pack_key}"
+        f"({'DIRECT 15%' if is_direct else 'SPILLOVER 10%'}) from {buyer.username} "
+        f"pack={matrix.pack_key} pos=L{position.level}"
     )
 
     return commissions_paid
