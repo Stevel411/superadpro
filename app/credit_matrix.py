@@ -142,12 +142,20 @@ def find_next_available_position(db: Session, matrix: CreditMatrix) -> CreditMat
 def place_in_matrix(db: Session, buyer: User, pack_key: str, pack_price: Decimal, sponsor: User) -> dict:
     """
     Place a buyer into their UPLINE TREE's matrices FOR THIS SPECIFIC PACK.
-    Works exactly like the Grid: walk up the sponsor chain and place the
-    buyer in EVERY upline member's matrix that has room.
     
-    Each upline earns a commission:
-      - 15% if the buyer is their DIRECT referral
-      - 10% if the buyer is SPILLOVER
+    Works exactly like the Grid — same mechanic, different shape:
+    - Grid = 8 levels wide, 64 positions
+    - Matrix = 3 levels wide (3+9+27), 39 positions
+    
+    Walk up the sponsor chain. For each upline member who has a matrix 
+    for this pack with room, place the buyer in it via BFS.
+    One person, one seat per matrix advance.
+    
+    Your entire downline tree fills your matrix — not just your 
+    direct referrals. When the matrix hits 39/39, it advances.
+    
+    Commission: 15% if buyer is direct referral, 10% if spillover.
+    Completion bonus: 10% of total matrix value at 39/39.
     """
     result = {
         "success": False,
