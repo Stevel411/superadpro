@@ -308,7 +308,7 @@ function MatrixContent(props) {
 
     {/* Mini tree */}
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:8, padding:'16px 0', marginBottom:20 }}>
-      <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Your 3×3 Matrix (39 positions)</div>
+      <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Your 3×3 Pipeline (39 positions)</div>
       <div style={{ display:'flex', gap:8 }}><TreeNode type="you" label="You"/></div>
       <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Gold = Direct Referrals (15%)</div>
       <div style={{ display:'flex', gap:8 }}><TreeNode type="direct"/><TreeNode type="direct"/><TreeNode type="direct"/></div>
@@ -389,7 +389,7 @@ function MatrixContent(props) {
     </div>
 
     <InfoBox items={[
-      'Each credit pack has its own independent 3×3 matrix (39 positions)',
+      'Each credit pack has its own independent 3×3 pipeline (39 positions)',
       'Buy a pack → get AI credits + enter your sponsor\'s matrix',
       'Positions fill left to right, top to bottom — Level 1 fills first (3 slots), then Level 2 (9 slots), then Level 3 (27 slots). This is what creates the auto-place effect',
       'Commission = 15% if you recruited them, 10% if auto-placed',
