@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
@@ -34,6 +35,7 @@ var FEATURES_BY_TIER = {
 var BONUSES = { 1:64, 2:160, 3:320, 4:640, 5:1280, 6:1920, 7:2560, 8:3200 };
 
 export default function CampaignTiers() {
+  var { t } = useTranslation();
   var [tiers, setTiers] = useState([]);
   var [loading, setLoading] = useState(true);
   var [selected, setSelected] = useState(null);
@@ -56,7 +58,7 @@ export default function CampaignTiers() {
   }, [selected]);
 
   if (loading) return (
-    <AppLayout title="Campaign Tiers">
+    <AppLayout title={t("campaignTiers.title")}>
       <div style={{ display:'flex', justifyContent:'center', padding:80 }}>
         <div style={{ width:40, height:40, border:'3px solid #e5e7eb', borderTopColor:'#0ea5e9', borderRadius:'50%', animation:'spin .8s linear infinite' }}/>
         <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
@@ -80,7 +82,7 @@ export default function CampaignTiers() {
   var modalTotal = modalTier ? calcTotal(modalTier.tier, modalTier.price) : 0;
 
   return (
-    <AppLayout title="Campaign Tiers" subtitle="Activate tiers to advertise your videos and earn grid commissions">
+    <AppLayout title={t("campaignTiers.title")} subtitle={t("campaignTiers.subtitle")}>
 
       <style>{[
         '@keyframes spin{to{transform:rotate(360deg)}}',
@@ -114,15 +116,15 @@ export default function CampaignTiers() {
         <div style={{ position:'absolute', top:-50, right:-50, width:180, height:180, borderRadius:'50%', background:'rgba(255,255,255,.05)', pointerEvents:'none' }}/>
         <div style={{ position:'absolute', bottom:-40, left:-40, width:140, height:140, borderRadius:'50%', background:'rgba(255,255,255,.04)', pointerEvents:'none' }}/>
         <div style={{ position:'relative' }}>
-          <div style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,.45)', marginBottom:8 }}>Campaign Grid System</div>
+          <div style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,.45)', marginBottom:8 }}>{t('campaignTiers.gridSystem')}</div>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#fff', marginBottom:4 }}>
-            Activate Tiers. Earn Commissions.
+            {t('campaignTiers.activateTiers')}
           </div>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#fbbf24', marginBottom:12 }}>
-            Grow Your Grid.
+            {t('campaignTiers.growYourGrid')}
           </div>
           <div style={{ fontSize:14, color:'rgba(255,255,255,.6)', lineHeight:1.7, maxWidth:520, margin:'0 auto' }}>
-            Each tier delivers real video views through Watch & Earn. You earn commissions as your grid fills with 64 members.
+            {t('campaignTiers.heroDesc')}
           </div>
         </div>
       </div>
@@ -152,8 +154,8 @@ export default function CampaignTiers() {
                   {/* Decorative circle */}
                   <div style={{ position:'absolute', top:-30, right:-30, width:100, height:100, borderRadius:'50%', background:'rgba(255,255,255,.06)', pointerEvents:'none' }}/>
 
-                  {isPopular && <span style={{ position:'absolute', top:10, right:10, fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>Popular</span>}
-                  {isMax && <span style={{ position:'absolute', top:10, right:10, fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>Max</span>}
+                  {isPopular && <span style={{ position:'absolute', top:10, right:10, fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>{t('campaignTiers.popular')}</span>}
+                  {isMax && <span style={{ position:'absolute', top:10, right:10, fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>{t('campaignTiers.max')}</span>}
 
                   <div style={{ fontSize:15, fontWeight:800, color: a.darkText ? '#1f2937' : '#fff', position:'relative' }}>{t.name}</div>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color: a.darkText ? '#1f2937' : '#fff', position:'relative' }}>${t.price.toLocaleString()}</div>
@@ -162,7 +164,7 @@ export default function CampaignTiers() {
                   {active ? (
                     <div style={{ padding:9, borderRadius:8, background: a.darkText ? 'rgba(0,0,0,.06)' : 'rgba(255,255,255,.12)', border:'1px solid ' + (a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)'), marginTop:'auto', position:'relative' }}>
                       <span style={{ display:'inline-flex', alignItems:'center', gap:4, color: a.darkText ? '#1f2937' : '#fff', fontSize:12, fontWeight:700 }}>
-                        <Check size={12}/> Active
+                        <Check size={12}/> {t('campaignTiers.active')}
                       </span>
                     </div>
                   ) : (
@@ -179,7 +181,7 @@ export default function CampaignTiers() {
 
       {/* How it works + Renewal info */}
       <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:'20px 24px', marginTop:4, marginBottom:16 }}>
-        <div style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'#0f172a', marginBottom:10 }}>How it works</div>
+        <div style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'#0f172a', marginBottom:10 }}>{t('campaignTiers.howItWorks')}</div>
         <div style={{ fontSize:13, color:'#64748b', lineHeight:1.8 }}>
           Each tier gives your videos real views through the Watch & Earn network. When you activate a tier, you are placed into an 8×8 grid with 64 member positions. You earn <span style={{ fontWeight:700, color:'#0f172a' }}>40% direct commission</span> on every referral who activates the same tier, plus <span style={{ fontWeight:700, color:'#0f172a' }}>6.25% per grid member</span> as positions fill, plus a <span style={{ fontWeight:700, color:'#0f172a' }}>completion bonus</span> when the grid is full.
         </div>
@@ -218,17 +220,17 @@ export default function CampaignTiers() {
                   <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
                     <span style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'#0f172a' }}>{modalTier.name}</span>
                     <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>Tier {modalTier.tier}</span>
-                    {modalTier.tier === 3 && <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>Popular</span>}
-                    {modalTier.tier === 8 && <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>Max earnings</span>}
+                    {modalTier.tier === 3 && <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>{t('campaignTiers.popular')}</span>}
+                    {modalTier.tier === 8 && <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>{t('campaignTiers.maxEarnings')}</span>}
                   </div>
                   <div style={{ fontSize:13, color:'#64748b' }}>
-                    {modalTier.views_target.toLocaleString()} video views across your campaigns
+                    {t('campaignTiers.videoViewsAcross', {count: modalTier.views_target.toLocaleString()})}
                   </div>
                 </div>
                 <div style={{ display:'flex', alignItems:'flex-start', gap:16 }}>
                   <div className="ct-modal-price" style={{ textAlign:'right' }}>
                     <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, color:'#0f172a' }}>${modalTier.price.toLocaleString()}</div>
-                    <div style={{ fontSize:11, color:'#64748b' }}>one-time USDT</div>
+                    <div style={{ fontSize:11, color:'#64748b' }}>{t('campaignTiers.oneTimeUSDT')}</div>
                   </div>
                   <div onClick={function() { setSelected(null); }}
                     style={{ width:32, height:32, borderRadius:8, border:'1px solid #e2e8f0', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0 }}>
@@ -241,24 +243,24 @@ export default function CampaignTiers() {
               <div className="ct-detail-stats" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20 }}>
                 <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'#f8fafc', border:'1px solid #f1f5f9' }}>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${formatMoney(modalTier.direct_commission)}</div>
-                  <div style={{ fontSize:11, color:'#64748b', marginTop:3 }}>Direct earn (40%)</div>
+                  <div style={{ fontSize:11, color:'#64748b', marginTop:3 }}>{t('campaignTiers.directEarn')}</div>
                 </div>
                 <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'#f8fafc', border:'1px solid #f1f5f9' }}>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${formatMoney(modalTier.uni_level_per_member)}</div>
-                  <div style={{ fontSize:11, color:'#64748b', marginTop:3 }}>Per member (6.25%)</div>
+                  <div style={{ fontSize:11, color:'#64748b', marginTop:3 }}>{t('campaignTiers.perMember')}</div>
                 </div>
                 <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'#f8fafc', border:'1px solid #f1f5f9' }}>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${modalTier.completion_bonus.toLocaleString()}</div>
-                  <div style={{ fontSize:11, color:'#64748b', marginTop:3 }}>Grid bonus</div>
+                  <div style={{ fontSize:11, color:'#64748b', marginTop:3 }}>{t('campaignTiers.gridBonus')}</div>
                 </div>
                 <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:modalAccent.bg, border:'1px solid ' + modalAccent.border }}>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${modalTotal.toLocaleString()}</div>
-                  <div style={{ fontSize:11, color:modalAccent.dark, marginTop:3, fontWeight:600 }}>Est. earnings</div>
+                  <div style={{ fontSize:11, color:modalAccent.dark, marginTop:3, fontWeight:600 }}>{t('campaignTiers.estEarnings')}</div>
                 </div>
               </div>
 
               <div style={{ fontSize:11, color:'#64748b', fontStyle:'italic', marginBottom:20 }}>
-                Earnings based on 5 personal referrals. Income may vary depending on the number of personals referred into your grid.
+                {t('campaignTiers.earningsDisclaimer')}
               </div>
 
               {/* Feature tags */}
@@ -274,7 +276,7 @@ export default function CampaignTiers() {
               {modalTier.is_active && modalTier.grid && (
                 <div style={{ marginBottom:20 }}>
                   <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
-                    <span style={{ fontSize:12, fontWeight:700, color:'#0f172a' }}>Grid progress</span>
+                    <span style={{ fontSize:12, fontWeight:700, color:'#0f172a' }}>{t('campaignTiers.gridProgress')}</span>
                     <span style={{ fontSize:12, color:'#64748b' }}>{modalTier.grid.filled}/64 members · Grid #{modalTier.grid.advance}</span>
                   </div>
                   <div style={{ height:6, background:'#f1f5f9', borderRadius:4 }}>
@@ -290,7 +292,7 @@ export default function CampaignTiers() {
                   background:modalAccent.bg, border:'1px solid ' + modalAccent.border,
                 }}>
                   <span style={{ display:'inline-flex', alignItems:'center', gap:5, color:modalAccent.dark, fontSize:14, fontWeight:700 }}>
-                    <Check size={14}/> This tier is active
+                    <Check size={14}/> {t('campaignTiers.tierIsActive')}
                   </span>
                 </div>
               ) : (
@@ -298,7 +300,7 @@ export default function CampaignTiers() {
                   display:'block', textAlign:'center', padding:14, borderRadius:10,
                   background:modalAccent.grad, textDecoration:'none',
                 }}>
-                  <span style={{ color:'#fff', fontWeight:700, fontSize:15 }}>Activate {modalTier.name} — ${modalTier.price.toLocaleString()} USDT</span>
+                  <span style={{ color:'#fff', fontWeight:700, fontSize:15 }}>{t('campaignTiers.activate', {name: modalTier.name, price: modalTier.price.toLocaleString()})}</span>
                 </Link>
               )}
 
