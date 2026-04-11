@@ -561,17 +561,21 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
         remaining = refs_needed - refs
         pct = min(100, int(refs / refs_needed * 100)) if refs_needed > 0 else 0
         if refs == 0:
+            goal_key = "shareLink"
             title = "Share your referral link to earn your first commission"
             desc = f"Every Basic referral earns you ${base_commission}/month. Just {refs_needed} referrals and your ${membership_cost} membership pays for itself."
         elif remaining == 1:
+            goal_key = "1more"
             title = "1 more referral and your membership pays for itself"
             desc = f"You have {refs} referral{'s' if refs > 1 else ''} earning you ${refs * base_commission}/month. One more and your ${membership_cost} membership is fully covered."
         else:
+            goal_key = "nmore"
             title = f"{remaining} more referrals until your membership is free"
             desc = f"You have {refs} referral{'s' if refs > 1 else ''} earning you ${refs * base_commission}/month. {remaining} more and your membership costs you nothing."
         goals.append({
             "type": "referral", "color": "#0ea5e9", "bg": "#ecfeff",
             "icon": "users", "title": title, "desc": desc,
+            "goal_key": goal_key, "params": {"refs": refs, "needed": refs_needed, "remaining": remaining, "commission": base_commission, "cost": membership_cost, "earning": refs * base_commission},
             "progress": pct, "progress_label": f"{refs} of {refs_needed} referrals",
             "cta": "Share your link", "cta_link": "/affiliate",
         })
@@ -584,6 +588,7 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
             "type": "referral", "color": "#0ea5e9", "bg": "#ecfeff",
             "icon": "users", "title": f"You're earning ${monthly}/month — next goal: 10 referrals",
             "desc": f"Your membership pays for itself and you're profiting ${monthly - membership_cost}/month. Hit 10 referrals for ${next_target * base_commission}/month.",
+            "goal_key": "earning", "params": {"refs": refs, "needed": next_target, "monthly": monthly, "profit": monthly - membership_cost, "target": next_target * base_commission},
             "progress": pct, "progress_label": f"{refs} of {next_target} referrals",
             "cta": "Keep growing", "cta_link": "/affiliate",
         })
@@ -604,6 +609,7 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
             "type": "grid", "color": "#8b5cf6", "bg": "#f5f3ff",
             "icon": "grid", "title": f"Grid {pct}% complete — ${bonus} bonus waiting",
             "desc": f"Your {tier_name} grid has {filled} of {total} positions filled. {remaining} more and you unlock the completion bonus.",
+            "goal_key": "grid", "params": {"pct": pct, "bonus": bonus, "tierName": tier_name, "filled": filled, "total": total, "remaining": remaining},
             "progress": pct, "progress_label": f"{filled} of {total} positions",
             "ring": True,
             "cta": "View grid", "cta_link": "/income-grid",
@@ -616,6 +622,7 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
         goals.append({
             "type": "withdrawal", "color": "#22c55e", "bg": "#f0fdf4",
             "icon": "wallet", "title": f"${remaining:.2f} more until you can withdraw",
+            "goal_key": "withdraw", "params": {"remaining": f"{remaining:.2f}", "balance": f"{balance:.2f}"},
             "desc": f"Your affiliate wallet has ${balance:.2f}. The minimum withdrawal is $10. {'One more referral commission and you\'re there.' if remaining <= base_commission else 'Keep building your referrals to reach the threshold.'}",
             "progress": pct, "progress_label": f"${balance:.2f} of $10.00",
             "cta": "View wallet", "cta_link": "/wallet",
@@ -632,6 +639,7 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
             goals.append({
                 "type": "watch", "color": "#22c55e", "bg": "#f0fdf4",
                 "icon": "check", "title": "Today's watch completed!",
+                "goal_key": "watchDone", "params": {"required": required, "watched": watched},
                 "desc": f"You've watched all {required} video{'s' if required > 1 else ''} today. You're qualified for campaign wallet withdrawals. Resets at midnight.",
                 "progress": 100, "progress_label": f"{watched} of {required} watched today",
                 "completed": True,
@@ -642,6 +650,7 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
             goals.append({
                 "type": "watch", "color": "#f59e0b", "bg": "#fefce8",
                 "icon": "zap", "title": "You haven't watched today's videos yet" if watched == 0 else f"{required - watched} more video{'s' if required - watched > 1 else ''} to complete today's watch",
+                "goal_key": "watchStart" if watched == 0 else "watchNeed", "params": {"required": required, "watched": watched, "remaining": required - watched},
                 "desc": f"Complete your daily watch to stay qualified for campaign wallet withdrawals. You need {required} video{'s' if required > 1 else ''} today.",
                 "progress": pct, "progress_label": f"{watched} of {required} watched today",
                 "cta": "Watch now", "cta_link": "/watch",
@@ -651,6 +660,7 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
         goals.append({
             "type": "watch", "color": "#f59e0b", "bg": "#fefce8",
             "icon": "zap", "title": "Start your daily watch",
+            "goal_key": "watchStart", "params": {"required": 1, "watched": 0},
             "desc": "Watch a short video each day to stay qualified for campaign wallet withdrawals.",
             "progress": 0, "progress_label": "0 of 1 watched today",
             "cta": "Watch now", "cta_link": "/watch",

@@ -111,6 +111,25 @@ export default function Dashboard() {
     setTimeout(() => setRefCopied(false), 2000);
   };
 
+  // Goal text translation helper
+  var goalText = function(g, field) {
+    if (!g.goal_key) return g[field];
+    var keyMap = {
+      shareLink: { title: 'goalShareLink', desc: 'goalShareLinkDesc', cta: 'goalShareLink2', progress_label: 'goalOfReferrals' },
+      '1more': { title: 'goal1MoreReferral', desc: 'goal1MoreDesc', cta: 'goalShareLink2', progress_label: 'goalOfReferrals' },
+      nmore: { title: 'goalNMoreReferrals', desc: 'goalNMoreDesc', cta: 'goalShareLink2', progress_label: 'goalOfReferrals' },
+      earning: { title: 'goalEarningMonth', desc: 'goalEarningMonthDesc', cta: 'goalKeepGrowing', progress_label: 'goalOfReferrals' },
+      grid: { title: 'goalGridComplete', desc: 'goalGridDesc', cta: 'goalViewGrid', progress_label: 'goalOfPositions' },
+      withdraw: { title: 'goalWithdrawMore', desc: 'goalWithdrawDesc', cta: 'goalViewWallet', progress_label: 'goalOfBalance' },
+      watchDone: { title: 'goalWatchComplete', desc: 'goalWatchCompleteDesc', cta: 'goalWatchMore', progress_label: 'goalWatchOfToday' },
+      watchNeed: { title: 'goalWatchNMore', desc: 'goalWatchNowDesc', cta: 'goalWatchNow', progress_label: 'goalWatchOfToday' },
+      watchStart: { title: 'goalStartWatching', desc: 'goalStartWatchingDesc', cta: 'goalWatchNow', progress_label: 'goalWatchOfToday' },
+    };
+    var keys = keyMap[g.goal_key];
+    if (!keys || !keys[field]) return g[field];
+    return t('dashboard.' + keys[field], g.params || {});
+  };
+
   return (
     <AppLayout
       title={t("dashboard.title")}
@@ -290,21 +309,21 @@ export default function Dashboard() {
                             <div style={{ width:38, height:38, borderRadius:10, background:g.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                               {ICONS[g.icon] || ICONS.zap}
                             </div>
-                            <div style={{ fontSize:14, fontWeight:800, color:'#0f172a', lineHeight:1.3 }}>{g.title}</div>
+                            <div style={{ fontSize:14, fontWeight:800, color:'#0f172a', lineHeight:1.3 }}>{goalText(g, 'title')}</div>
                           </div>
-                          <div style={{ fontSize:12, color:'#64748b', lineHeight:1.5, marginBottom:14 }}>{g.desc}</div>
+                          <div style={{ fontSize:12, color:'#64748b', lineHeight:1.5, marginBottom:14 }}>{goalText(g, 'desc')}</div>
                           {g.progress !== undefined && !g.ring && (
                             <>
                               <div style={{ height:6, borderRadius:99, background:`${g.color}18`, overflow:'hidden', marginBottom:6 }}>
                                 <div style={{ height:'100%', borderRadius:99, background:`linear-gradient(90deg,${g.color},${g.color}cc)`, width:`${g.progress}%`, transition:'width .8s ease-out' }}/>
                               </div>
                               <div style={{ display:'flex', justifyContent:'space-between', fontSize:11, color:'#64748b' }}>
-                                <span>{g.progress_label}</span>
+                                <span>{goalText(g, 'progress_label')}</span>
                                 <span style={{ color:g.color, fontWeight:700 }}>{g.progress}%</span>
                               </div>
                             </>
                           )}
-                          <Link to={g.cta_link} style={{ display:'inline-block', fontSize:12, fontWeight:700, padding:'8px 18px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none', marginTop:10 }}>{g.cta}</Link>
+                          <Link to={g.cta_link} style={{ display:'inline-block', fontSize:12, fontWeight:700, padding:'8px 18px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none', marginTop:10 }}>{goalText(g, 'cta')}</Link>
                         </div>
                         {g.ring && (
                           <svg width="56" height="56" viewBox="0 0 52 52" style={{ flexShrink:0, marginTop:4 }}>
@@ -336,10 +355,10 @@ export default function Dashboard() {
                         <div style={{ width:38, height:38, borderRadius:10, background:g.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                           {ICONS[g.icon] || ICONS.target}
                         </div>
-                        <div style={{ fontSize:14, fontWeight:800, color:'#0f172a', lineHeight:1.3 }}>{g.title}</div>
+                        <div style={{ fontSize:14, fontWeight:800, color:'#0f172a', lineHeight:1.3 }}>{goalText(g, 'title')}</div>
                       </div>
-                      <div style={{ fontSize:12, color:'#64748b', lineHeight:1.5, marginBottom:14 }}>{g.desc}</div>
-                      <Link to={g.cta_link} style={{ display:'inline-block', fontSize:12, fontWeight:700, padding:'8px 18px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none' }}>{g.cta}</Link>
+                      <div style={{ fontSize:12, color:'#64748b', lineHeight:1.5, marginBottom:14 }}>{goalText(g, 'desc')}</div>
+                      <Link to={g.cta_link} style={{ display:'inline-block', fontSize:12, fontWeight:700, padding:'8px 18px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none' }}>{goalText(g, 'cta')}</Link>
                     </div>
                   );
                 })}
