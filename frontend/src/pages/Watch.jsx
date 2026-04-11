@@ -202,7 +202,7 @@ export default function Watch() {
 
   if (!data) return (
     <AppLayout title={t('watch.title')}>
-      <div style={{textAlign:'center',padding:80,color:'#64748b'}}>Unable to load</div>
+      <div style={{textAlign:'center',padding:80,color:'#64748b'}}>{t('watch.unableToLoad')}</div>
     </AppLayout>
   );
 
@@ -221,7 +221,7 @@ export default function Watch() {
   const allWatched = videos.length > 0 && videos.every(v => v.is_watched);
   const quotaComplete = d.quota_reached || watched >= limit;
   const btnReady = timerDone && !isCurrentWatched && !submitted;
-  const statusText = isCurrentWatched ? '✓ Watched' : timerDone ? '✓ Ready — tap to mark as watched' : paused ? '⏸ Paused — return to this tab' : '⏱ Watching — keep this tab open';
+  const statusText = isCurrentWatched ? t('watch.statusWatched') : timerDone ? t('watch.statusReady') : paused ? t('watch.statusPaused') : t('watch.statusWatching');
   const statusColor = isCurrentWatched || timerDone ? '#16a34a' : paused ? '#d97706' : '#0ea5e9';
 
   // Shared sub-components
@@ -258,10 +258,10 @@ export default function Watch() {
   const StatsGrid = ({ dark = false }) => (
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
       {[
-        {v:d.streak_days||0, l:'Day Streak 🔥', c:'#f59e0b'},
-        {v:d.total_watched||0, l:'Total Watched', c:'#0ea5e9'},
-        {v:`Tier ${d.tier||1}`, l:'Your Level', c:'#a78bfa'},
-        {v:d.commissions_paused?'Paused':'Active', l:'Commissions', c:d.commissions_paused?'#ef4444':'#16a34a'},
+        {v:d.streak_days||0, l:t('watch.dayStreakLabel'), c:'#f59e0b'},
+        {v:d.total_watched||0, l:t('watch.totalWatched'), c:'#0ea5e9'},
+        {v:t('watch.tier', {n:d.tier||1}), l:t('watch.yourLevel'), c:'#a78bfa'},
+        {v:d.commissions_paused?t('watch.paused'):t('watch.active'), l:t('watch.commissions'), c:d.commissions_paused?'#ef4444':'#16a34a'},
       ].map((s,i) => (
         <div key={i} style={{background:dark?'rgba(255,255,255,.04)':'#f1f5f9',border:`1px solid ${dark?'rgba(255,255,255,.08)':'#e2e8f0'}`,borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
           <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:s.c}}>{s.v}</div>
@@ -274,13 +274,13 @@ export default function Watch() {
   // ── ALL AVAILABLE VIDEOS WATCHED BUT QUOTA NOT MET ──
   if (allWatched && !quotaComplete) {
     return (
-      <AppLayout title={t('watch.title')} subtitle={`${watched} of ${limit} videos watched`}>
+      <AppLayout title={t('watch.title')} subtitle={t('watch.videosWatched', {watched, limit})}>
         <style>{CSS}</style>
         <div style={{maxWidth:700,margin:'0 auto'}}>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:'56px 32px',textAlign:'center',boxShadow:'0 1px 4px rgba(0,0,0,.06)'}}>
             <div style={{fontSize:48,marginBottom:16,opacity:.5}}>⏳</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0f172a',marginBottom:8}}>No More Videos Right Now</div>
-            <div style={{fontSize:14,color:'#64748b',lineHeight:1.7,marginBottom:12}}>You've watched all {watched} available video{watched !== 1 ? 's' : ''} but your daily quota is {limit}. Check back later as new campaigns are added.</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0f172a',marginBottom:8}}>{t('watch.noMoreVideos')}</div>
+            <div style={{fontSize:14,color:'#64748b',lineHeight:1.7,marginBottom:12}}>{t('watch.watchedAllAvailable', {watched, limit})}</div>
             <div style={{display:'flex',gap:10,justifyContent:'center',marginBottom:24}}>
               {Array.from({length:limit}).map((_,i)=>(
                 <div key={i} style={{width:28,height:28,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,
@@ -290,7 +290,7 @@ export default function Watch() {
                 </div>
               ))}
             </div>
-            <a href="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>← Back to Dashboard</a>
+            <a href="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>{t('watch.backToDashboard')}</a>
           </div>
         </div>
       </AppLayout>
@@ -302,7 +302,7 @@ export default function Watch() {
     const done = limit;  // On completion, show the full quota as done
     const actualWatched = Math.max(watched, videos.filter(v => v.is_watched).length);
     return (
-      <AppLayout title={t('watch.title')} subtitle="Daily quota complete"
+      <AppLayout title={t('watch.title')} subtitle={t('watch.quotaComplete')}
         bgStyle={{padding:0,margin:0,display:'flex',flexDirection:'column',minHeight:'calc(100vh - 72px)'}}>
         <style>{CSS}</style>
         <style>{`
@@ -348,21 +348,21 @@ export default function Watch() {
               </div>
 
               {/* Badge */}
-              <div style={{display:'inline-block',fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#fff',background:'linear-gradient(135deg,#06b6d4,#0891b2)',padding:'6px 20px',borderRadius:20,marginBottom:16,boxShadow:'0 2px 10px rgba(6,182,212,.3)',animation:'badgeSlide .6s ease-out'}}>Fully qualified</div>
+              <div style={{display:'inline-block',fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#fff',background:'linear-gradient(135deg,#06b6d4,#0891b2)',padding:'6px 20px',borderRadius:20,marginBottom:16,boxShadow:'0 2px 10px rgba(6,182,212,.3)',animation:'badgeSlide .6s ease-out'}}>{t('watch.fullyQualified')}</div>
 
               {/* Title */}
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:900,color:'#0c4a6e',marginBottom:8,animation:'fadeUp .8s ease-out'}}>Today's Quota Complete!</div>
+              <div style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:900,color:'#0c4a6e',marginBottom:8,animation:'fadeUp .8s ease-out'}}>{t('watch.todaysQuotaComplete')}</div>
               <div style={{fontSize:14,color:'#0e7490',lineHeight:1.7,maxWidth:420,margin:'0 auto 28px',opacity:.7,animation:'fadeUp 1s ease-out'}}>
-                You've watched all {done} required videos today. Your commissions are fully qualified. Come back tomorrow!
+                {t('watch.watchedAllRequired', {count: done})}
               </div>
 
               {/* Stats */}
               <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:24,animation:'fadeUp 1.2s ease-out'}}>
                 {[
-                  {v:done,l:'Watched',c:'#06b6d4'},
-                  {v:`${Math.floor(done*30/60)}m ${done*30%60>0?(done*30%60)+'s':''}`.trim(),l:'Watch Time',c:'#38bdf8'},
-                  {v:d.streak_days||0,l:'Streak',c:'#f59e0b'},
-                  {v:`Tier ${d.tier||1}`,l:'Level',c:'#8b5cf6'},
+                  {v:done,l:t('watch.watched'),c:'#06b6d4'},
+                  {v:`${Math.floor(done*30/60)}m ${done*30%60>0?(done*30%60)+'s':''}`.trim(),l:t('watch.watchTime'),c:'#38bdf8'},
+                  {v:d.streak_days||0,l:t('watch.streak'),c:'#f59e0b'},
+                  {v:t('watch.tier', {n:d.tier||1}),l:t('watch.level'),c:'#8b5cf6'},
                 ].map((s,i)=>(
                   <div key={i} style={{background:'#fff',border:'1px solid rgba(6,182,212,.12)',borderRadius:12,padding:'14px 8px',textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
                     <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:s.c}}>{s.v}</div>
@@ -383,14 +383,14 @@ export default function Watch() {
                 <div style={{background:'#fff',borderRadius:12,padding:'14px 20px',border:'1px solid rgba(6,182,212,.1)',marginBottom:24,display:'inline-flex',alignItems:'center',gap:10,boxShadow:'0 2px 8px rgba(0,0,0,.03)',animation:'fadeUp 1.6s ease-out'}}>
                   <div style={{width:36,height:36,borderRadius:'50%',background:'linear-gradient(135deg,#fef3c7,#fde68a)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:16,fontWeight:800,color:'#b45309',flexShrink:0}}>{d.streak_days}</div>
                   <div style={{textAlign:'left'}}>
-                    <div style={{fontSize:13,fontWeight:700,color:'#0c4a6e'}}>{d.streak_days} day streak! Keep it going!</div>
-                    <div style={{fontSize:11,color:'#22d3ee',marginTop:1}}>Top earners never miss a day.</div>
+                    <div style={{fontSize:13,fontWeight:700,color:'#0c4a6e'}}>{d.streak_days} {t('watch.dayStreak')}</div>
+                    <div style={{fontSize:11,color:'#22d3ee',marginTop:1}}>{t('watch.topEarners')}</div>
                   </div>
                 </div>
               )}
 
               <div style={{animation:'fadeUp 1.8s ease-out'}}>
-                <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:8,fontSize:15,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#06b6d4,#0891b2)',borderRadius:12,padding:'14px 36px',textDecoration:'none',boxShadow:'0 4px 16px rgba(6,182,212,.3)'}}>← Back to Dashboard</Link>
+                <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:8,fontSize:15,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#06b6d4,#0891b2)',borderRadius:12,padding:'14px 36px',textDecoration:'none',boxShadow:'0 4px 16px rgba(6,182,212,.3)'}}>{t('watch.backToDashboard')}</Link>
               </div>
             </div>
         </div>
@@ -401,14 +401,14 @@ export default function Watch() {
   // ── NO VIDEOS ──
   if (videos.length === 0 && !quotaComplete) {
     return (
-      <AppLayout title={t('watch.title')} subtitle="No active campaigns">
+      <AppLayout title={t('watch.title')} subtitle={t('watch.noActiveCampaigns')}>
         <style>{CSS}</style>
         <div style={{maxWidth:700,margin:'0 auto'}}>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:'56px 32px',textAlign:'center',boxShadow:'0 1px 4px rgba(0,0,0,.06)'}}>
             <div style={{fontSize:48,marginBottom:16,opacity:.5}}>📭</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0f172a',marginBottom:8}}>No Active Campaigns</div>
-            <div style={{fontSize:14,color:'#64748b',lineHeight:1.7,marginBottom:24}}>Check back soon — campaigns are added as advertisers activate their tiers.</div>
-            <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>← Dashboard</Link>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0f172a',marginBottom:8}}>{t('watch.noActiveCampaigns')}</div>
+            <div style={{fontSize:14,color:'#64748b',lineHeight:1.7,marginBottom:24}}>{t('watch.checkBackSoon')}</div>
+            <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>{t('watch.dashboard')}</Link>
           </div>
         </div>
       </AppLayout>
@@ -420,10 +420,10 @@ export default function Watch() {
     const doneRingR = 38;
     const doneRingC = 2 * Math.PI * doneRingR;
     return (
-      <AppLayout title={t('watch.title')} subtitle="Daily quota complete!"
+      <AppLayout title={t('watch.title')} subtitle={t('watch.quotaComplete') + '!'}
         topbarActions={<>
           <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:700,padding:'6px 14px',borderRadius:8,background:'rgba(22,163,74,.1)',border:'1px solid rgba(22,163,74,.2)',color:'#22c55e'}}>
-            <span style={{width:7,height:7,borderRadius:'50%',background:'#22c55e'}}/>Qualified
+            <span style={{width:7,height:7,borderRadius:'50%',background:'#22c55e'}}/>{t('watch.qualified')}
           </div>
         </>}>
         <style>{CSS}</style>
@@ -439,18 +439,18 @@ export default function Watch() {
               </svg>
               <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',fontSize:40}}>✓</div>
             </div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'#16a34a',marginBottom:8}}>Today's Watch Complete!</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'#16a34a',marginBottom:8}}>{t('watch.todaysWatchComplete')}</div>
             <div style={{fontSize:15,color:'#64748b',lineHeight:1.7,marginBottom:8}}>
-              You watched {watched} of {limit} video{limit!==1?'s':''} today. Your campaign wallet withdrawals are qualified.
+              {t('watch.watchedOfToday', {watched, limit})}
             </div>
-            <div style={{fontSize:13,color:'#64748b',marginBottom:24}}>Resets at midnight UTC</div>
+            <div style={{fontSize:13,color:'#64748b',marginBottom:24}}>{t('watch.resetsAtMidnight')}</div>
 
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,maxWidth:320,margin:'0 auto 24px'}}>
               {[
-                {v:d.streak_days||0, l:'Day Streak 🔥', c:'#f59e0b'},
-                {v:d.total_watched||0, l:'Total Watched', c:'#0ea5e9'},
-                {v:`Tier ${d.tier||1}`, l:'Your Level', c:'#a78bfa'},
-                {v:'Active', l:'Commissions', c:'#16a34a'},
+                {v:d.streak_days||0, l:t('watch.dayStreakLabel'), c:'#f59e0b'},
+                {v:d.total_watched||0, l:t('watch.totalWatched'), c:'#0ea5e9'},
+                {v:t('watch.tier', {n:d.tier||1}), l:t('watch.yourLevel'), c:'#a78bfa'},
+                {v:t('watch.active'), l:t('watch.commissions'), c:'#16a34a'},
               ].map((s,i) => (
                 <div key={i} style={{background:'#f8fafc',border:'1px solid #e2e8f0',borderRadius:12,padding:'14px 12px',textAlign:'center'}}>
                   <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:s.c}}>{s.v}</div>
@@ -459,7 +459,7 @@ export default function Watch() {
               ))}
             </div>
 
-            <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#16a34a,#22c55e)',borderRadius:10,padding:'12px 28px',textDecoration:'none',boxShadow:'0 4px 14px rgba(22,163,74,.3)'}}>← Back to Dashboard</Link>
+            <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#16a34a,#22c55e)',borderRadius:10,padding:'12px 28px',textDecoration:'none',boxShadow:'0 4px 14px rgba(22,163,74,.3)'}}>{t('watch.backToDashboard')}</Link>
           </div>
         </div>
       </AppLayout>
@@ -468,17 +468,17 @@ export default function Watch() {
 
   // ── MAIN WATCH SESSION ──
   return (
-    <AppLayout title={t('watch.title')} subtitle="Complete your daily quota to stay commission-eligible"
+    <AppLayout title={t('watch.title')} subtitle={t('watch.videosWatched', {watched, limit})}
       bgStyle={window.innerWidth < 768 ? {padding: 0, paddingBottom: 80} : {}}
       topbarActions={<>
         <div style={{background:'rgba(14,165,233,.12)',border:'1px solid rgba(14,165,233,.2)',borderRadius:8,padding:'6px 14px',textAlign:'center'}}>
-          <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'#38bdf8'}}>Tier {d.tier}</div>
-          <div style={{fontSize:9,color:'rgba(186,230,253,.4)',marginTop:1}}>{limit} video{limit!==1?'s':''}/day</div>
+          <div style={{fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'#38bdf8'}}>{t('watch.tier', {n:d.tier})}</div>
+          <div style={{fontSize:9,color:'rgba(186,230,253,.4)',marginTop:1}}>{t('watch.videosPerDay', {count:limit})}</div>
         </div>
         <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:700,padding:'6px 14px',borderRadius:8,
           ...(watched>=limit?{background:'rgba(22,163,74,.1)',border:'1px solid rgba(22,163,74,.2)',color:'#22c55e'}:{background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.2)',color:'#38bdf8'})}}>
           <span style={{width:7,height:7,borderRadius:'50%',background:watched>=limit?'#22c55e':'#38bdf8',animation:'pulse 1.5s infinite'}}/>
-          {watched>=limit?'Qualified':'Watching'}
+          {watched>=limit?t('watch.qualified'):t('watch.watching')}
         </div>
       </>}>
 
@@ -492,7 +492,7 @@ export default function Watch() {
           {/* Commission warning — mobile only */}
           {d.consecutive_missed > 0 && (
             <div className="watch-mobile-warning" style={{display:'none',background:'#fffbeb',borderLeft:'4px solid #f59e0b',padding:'12px 20px',alignItems:'center',gap:10,fontSize:13,fontWeight:600,color:'#92400e'}}>
-              ⚠️ You've missed {d.consecutive_missed} day{d.consecutive_missed!==1?'s':''}. Complete today's quota to protect your commissions.
+              ⚠️ {t('watch.missedDays', {count: d.consecutive_missed})}
             </div>
           )}
 
@@ -505,7 +505,7 @@ export default function Watch() {
                 <div style={{fontSize:14,fontWeight:700,color:'#0f172a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{current?.title||'Loading...'}</div>
                 <div style={{fontSize:11,color:'#64748b',whiteSpace:'nowrap',flexShrink:0}}>{current?.platform||'video'} · {current?.category||'General'}</div>
               </div>
-              <div style={{fontSize:8,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'#0ea5e9',background:'rgba(14,165,233,.06)',border:'1px solid rgba(14,165,233,.12)',padding:'4px 10px',borderRadius:6,whiteSpace:'nowrap'}}>▶ Now Playing</div>
+              <div style={{fontSize:8,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'#0ea5e9',background:'rgba(14,165,233,.06)',border:'1px solid rgba(14,165,233,.12)',padding:'4px 10px',borderRadius:6,whiteSpace:'nowrap'}}>▶ {t('watch.watching')}</div>
             </div>
 
             {/* Video */}
@@ -515,21 +515,21 @@ export default function Watch() {
                   style={{position:'absolute',inset:0,width:'100%',height:'100%',border:'none'}}
                   allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowFullScreen/>
               ) : (
-                <div style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%',height:'100%',color:'#64748b'}}>No video available</div>
+                <div style={{display:'flex',alignItems:'center',justifyContent:'center',width:'100%',height:'100%',color:'#64748b'}}>{t('watch.unableToLoad')}</div>
               )}
               {/* Unmute */}
               {muted && current?.embed_url && !paused && (
                 <div onClick={toggleMute} style={{position:'absolute',top:12,right:12,zIndex:20,background:'rgba(5,13,26,.75)',border:'1px solid rgba(255,255,255,.15)',borderRadius:8,padding:'7px 12px',display:'flex',alignItems:'center',gap:6,cursor:'pointer',backdropFilter:'blur(6px)'}}>
                   <span style={{fontSize:13}}>🔇</span>
-                  <span style={{fontSize:11,fontWeight:700,color:'#fff'}}>Tap to unmute</span>
+                  <span style={{fontSize:11,fontWeight:700,color:'#fff'}}>{t('common.tapToUnmute')}</span>
                 </div>
               )}
               {/* Pause overlay */}
               {paused && !isCurrentWatched && (
                 <div style={{position:'absolute',inset:0,background:'rgba(0,0,0,.88)',zIndex:30,display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:10,backdropFilter:'blur(8px)'}}>
                   <div style={{fontSize:40}}>⏸</div>
-                  <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#fff'}}>Paused</div>
-                  <div style={{fontSize:13,color:'rgba(255,255,255,.6)'}}>Return to this tab to continue</div>
+                  <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#fff'}}>{t('watch.pausedOverlay')}</div>
+                  <div style={{fontSize:13,color:'rgba(255,255,255,.6)'}}>{t('watch.returnToTab')}</div>
                 </div>
               )}
             </div>
@@ -540,12 +540,12 @@ export default function Watch() {
                 <TimerRing size={56}/>
                 <div>
                   <div style={{fontSize:13,fontWeight:700,color:statusColor}}>{statusText}</div>
-                  <div style={{fontSize:10,color:'#b8c4d0',marginTop:2}}>Must watch 30s to qualify</div>
+                  <div style={{fontSize:10,color:'#b8c4d0',marginTop:2}}>{t('watch.mustWatch30s')}</div>
                 </div>
               </div>
               <button onClick={markAsWatched} disabled={!btnReady}
                 className={'mark-btn ' + (btnReady ? 'ready' : 'disabled')}>
-                {submitted ? 'Submitting...' : '✓ Mark as Watched →'}
+                {submitted ? t('watch.submitting') : t('watch.markAsWatched')}
               </button>
             </div>
           </div>
@@ -555,19 +555,19 @@ export default function Watch() {
             <TimerRing size={56}/>
             <div style={{flex:1}}>
               <div style={{fontSize:13,fontWeight:700,color:statusColor,marginBottom:2}}>{statusText}</div>
-              <div style={{fontSize:11,color:'#64748b',fontWeight:500}}>{watched} of {limit} video{limit!==1?'s':''} watched today</div>
+              <div style={{fontSize:11,color:'#64748b',fontWeight:500}}>{t('watch.ofVideos', {watched, limit})}</div>
             </div>
             <button onClick={markAsWatched} disabled={!btnReady}
               className={'mark-btn ' + (btnReady ? 'ready' : 'disabled')}
               style={{padding:'13px 20px',fontSize:13}}>
-              {submitted ? '...' : btnReady ? '✓ Mark' : `${secondsLeft}s`}
+              {submitted ? '...' : btnReady ? t('watch.mark') : `${secondsLeft}s`}
             </button>
           </div>
 
           {/* ── MOBILE: Progress dots ── */}
           <div className="watch-mobile-progress" style={{display:'none',padding:'16px 20px',background:'#fff',borderBottom:'1px solid #e8ecf2'}}>
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
-              <div style={{fontSize:11,fontWeight:800,letterSpacing:1,textTransform:'uppercase',color:'#64748b'}}>Today's Progress</div>
+              <div style={{fontSize:11,fontWeight:800,letterSpacing:1,textTransform:'uppercase',color:'#64748b'}}>{t('watch.todaysProgress')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:900,color:'#0f172a'}}>
                 {watched} <span style={{fontSize:13,color:'#64748b',fontWeight:500}}>/ {limit}</span>
               </div>
@@ -578,10 +578,10 @@ export default function Watch() {
           {/* ── MOBILE: Stats grid ── */}
           <div className="watch-mobile-stats" style={{display:'none',gridTemplateColumns:'1fr 1fr',gap:10,padding:'16px 20px',background:'#f0f3f9'}}>
             {[
-              {v:d.streak_days||0, l:'Day Streak 🔥', c:'#f59e0b'},
-              {v:d.total_watched||0, l:'Total Watched', c:'#0ea5e9'},
-              {v:`Tier ${d.tier||1}`, l:'Your Level', c:'#a78bfa'},
-              {v:d.commissions_paused?'Paused':'Active', l:'Commissions', c:d.commissions_paused?'#ef4444':'#16a34a'},
+              {v:d.streak_days||0, l:t('watch.dayStreakLabel'), c:'#f59e0b'},
+              {v:d.total_watched||0, l:t('watch.totalWatched'), c:'#0ea5e9'},
+              {v:t('watch.tier', {n:d.tier||1}), l:t('watch.yourLevel'), c:'#a78bfa'},
+              {v:d.commissions_paused?t('watch.paused'):t('watch.active'), l:t('watch.commissions'), c:d.commissions_paused?'#ef4444':'#16a34a'},
             ].map((s,i) => (
               <div key={i} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:'14px 12px',textAlign:'center',boxShadow:'0 1px 4px rgba(0,0,0,.04)'}}>
                 <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:s.c}}>{s.v}</div>
@@ -592,7 +592,7 @@ export default function Watch() {
 
           {/* Desktop hint text */}
           <div className="watch-hint" style={{fontSize:11,color:'#b8c4d0',textAlign:'center',lineHeight:1.6}}>
-            Videos must be watched for 30 seconds with this tab active to qualify. Complete {limit} per day to maintain commission eligibility.
+            {t('watch.watchInstructions', {limit})}
           </div>
         </div>
 
@@ -604,15 +604,15 @@ export default function Watch() {
             <div style={{background:'#fffbeb',border:'1px solid #fde68a',borderRadius:10,padding:'12px 16px',display:'flex',alignItems:'flex-start',gap:10}}>
               <span style={{fontSize:18,flexShrink:0}}>⚠️</span>
               <div>
-                <div style={{fontSize:13,fontWeight:700,color:'#92400e',marginBottom:2}}>Commissions at risk</div>
-                <div style={{fontSize:12,color:'#a16207',lineHeight:1.5}}>You've missed {d.consecutive_missed} day{d.consecutive_missed!==1?'s':''}. Complete today's quota to protect your earnings.</div>
+                <div style={{fontSize:13,fontWeight:700,color:'#92400e',marginBottom:2}}>{t('watch.commissionsAtRisk')}</div>
+                <div style={{fontSize:12,color:'#a16207',lineHeight:1.5}}>{t('watch.missedDays', {count: d.consecutive_missed})}</div>
               </div>
             </div>
           )}
 
           {/* Today's progress */}
           <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:12,padding:22,boxShadow:'0 1px 4px rgba(0,0,0,.06)'}}>
-            <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#7b91a8',marginBottom:14}}>Today's Progress</div>
+            <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#7b91a8',marginBottom:14}}>{t('watch.todaysProgress')}</div>
             <div style={{display:'flex',alignItems:'center',gap:18,marginBottom:16}}>
               <div style={{width:90,height:90,position:'relative',flexShrink:0}}>
                 <svg width="90" height="90" style={{transform:'rotate(-90deg)'}}>
@@ -628,9 +628,9 @@ export default function Watch() {
                 <div style={{fontFamily:'Sora,sans-serif',fontSize:34,fontWeight:800,color:'#0f172a',lineHeight:1}}>
                   {watched}<span style={{fontSize:16,color:'#64748b',fontWeight:500}}> / {limit}</span>
                 </div>
-                <div style={{fontSize:13,color:'#7b91a8',marginTop:3}}>videos watched</div>
+                <div style={{fontSize:13,color:'#7b91a8',marginTop:3}}>{t('watch.videosWatchedLabel')}</div>
                 <div style={{fontSize:12,fontWeight:600,color:watched>=limit?'#16a34a':'#3d5068',marginTop:4}}>
-                  {watched>=limit ? '✓ Quota complete!' : `${limit-watched} remaining`}
+                  {watched>=limit ? t('watch.quotaCompleteLabel') : t('watch.remaining', {count: limit-watched})}
                 </div>
               </div>
             </div>
@@ -639,7 +639,7 @@ export default function Watch() {
 
           {/* Session stats */}
           <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:12,padding:22,boxShadow:'0 1px 4px rgba(0,0,0,.06)'}}>
-            <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#7b91a8',marginBottom:14}}>Session Stats</div>
+            <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#7b91a8',marginBottom:14}}>{t('watch.sessionStats')}</div>
             <StatsGrid/>
           </div>
 
@@ -647,7 +647,7 @@ export default function Watch() {
           {videos.length > 1 && (
             <div style={{background:'#fff',border:'1px solid rgba(15,25,60,.08)',borderRadius:12,padding:22,boxShadow:'0 1px 4px rgba(0,0,0,.06)'}}>
               <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#7b91a8',marginBottom:14}}>
-                Up Next ({videos.length} videos)
+                {t('watch.upNext', {count: videos.length})}
               </div>
               <div style={{display:'flex',flexDirection:'column',gap:8}}>
                 {videos.map((v,i) => (
