@@ -5255,12 +5255,16 @@ def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
         # Check if yesterday's quota was missed
         if quota.today_date and quota.today_watched < quota.daily_required:
             quota.consecutive_missed = (quota.consecutive_missed or 0) + 1
+            quota.streak_days = 0  # Reset streak on missed day
             if quota.consecutive_missed >= GRACE_DAYS:
                 quota.commissions_paused = True
         else:
             quota.consecutive_missed = 0
             quota.commissions_paused = False
             quota.last_quota_met = quota.today_date
+            # Increment streak if yesterday's quota was met
+            if quota.today_date and quota.today_watched >= quota.daily_required:
+                quota.streak_days = (quota.streak_days or 0) + 1
 
         quota.today_watched = 0
         quota.today_date    = today_str
@@ -5584,6 +5588,7 @@ def record_watch(
 
     # Update quota counter
     quota.today_watched += 1
+    quota.total_watched = (quota.total_watched or 0) + 1
     if quota.today_watched >= quota.daily_required:
         quota.last_quota_met     = today_str
         quota.consecutive_missed = 0
@@ -5651,6 +5656,7 @@ def record_ad_watch(
 
     # Update quota counter
     quota.today_watched += 1
+    quota.total_watched = (quota.total_watched or 0) + 1
     if quota.today_watched >= quota.daily_required:
         quota.last_quota_met     = today_str
         quota.consecutive_missed = 0
@@ -18536,6 +18542,7 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
 
         # Update quota counter
         quota.today_watched += 1
+        quota.total_watched = (quota.total_watched or 0) + 1
         if quota.today_watched >= quota.daily_required:
             quota.last_quota_met = today_str
             quota.consecutive_missed = 0

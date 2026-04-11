@@ -394,6 +394,8 @@ class WatchQuota(Base):
     consecutive_missed  = Column(Integer, default=0)      # days in a row below quota
     last_quota_met      = Column(String, nullable=True)   # YYYY-MM-DD last day quota met
     commissions_paused  = Column(Boolean, default=False)  # True after 5 missed days
+    streak_days         = Column(Integer, default=0)      # consecutive days quota met
+    total_watched       = Column(Integer, default=0)      # lifetime videos watched
     updated_at          = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
@@ -1300,6 +1302,8 @@ def run_migrations():
         # Video watch system
         "CREATE TABLE IF NOT EXISTS video_watches (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), campaign_id INTEGER REFERENCES video_campaigns(id), watched_at TIMESTAMP DEFAULT NOW(), watch_date VARCHAR, duration_secs INTEGER DEFAULT 30)",
         "CREATE TABLE IF NOT EXISTS watch_quotas (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id) UNIQUE, package_tier INTEGER DEFAULT 1, daily_required INTEGER DEFAULT 1, today_watched INTEGER DEFAULT 0, today_date VARCHAR, consecutive_missed INTEGER DEFAULT 0, last_quota_met VARCHAR, commissions_paused BOOLEAN DEFAULT FALSE, updated_at TIMESTAMP DEFAULT NOW())",
+        "ALTER TABLE watch_quotas ADD COLUMN IF NOT EXISTS streak_days INTEGER DEFAULT 0",
+        "ALTER TABLE watch_quotas ADD COLUMN IF NOT EXISTS total_watched INTEGER DEFAULT 0",
         "CREATE INDEX IF NOT EXISTS idx_video_watches_user_date ON video_watches(user_id, watch_date)",
         "CREATE INDEX IF NOT EXISTS idx_video_watches_campaign ON video_watches(campaign_id)",
         # Rename cycle_number → advance_number if old column exists
