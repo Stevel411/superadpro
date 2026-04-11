@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 
 export default function CreateCampaign() {
+  var { t } = useTranslation();
   var [title, setTitle] = useState('');
   var [videoUrl, setVideoUrl] = useState('');
   var [category, setCategory] = useState('business');
@@ -14,16 +16,16 @@ export default function CreateCampaign() {
   var [preview, setPreview] = useState(null);
 
   var categories = [
-    { value: 'business', label: 'Business & Finance' },
-    { value: 'marketing', label: 'Marketing & Ads' },
-    { value: 'crypto', label: 'Crypto & Web3' },
-    { value: 'health', label: 'Health & Fitness' },
-    { value: 'education', label: 'Education & Training' },
-    { value: 'tech', label: 'Technology' },
-    { value: 'lifestyle', label: 'Lifestyle' },
-    { value: 'ecommerce', label: 'E-Commerce' },
-    { value: 'forex', label: 'Forex & Trading' },
-    { value: 'general', label: 'General' },
+    { value: 'business', label: t('createCampaign.catBusiness') },
+    { value: 'marketing', label: t('createCampaign.catMarketing') },
+    { value: 'crypto', label: t('createCampaign.catCrypto') },
+    { value: 'health', label: t('createCampaign.catHealth') },
+    { value: 'education', label: t('createCampaign.catEducation') },
+    { value: 'tech', label: t('createCampaign.catTech') },
+    { value: 'lifestyle', label: t('createCampaign.catLifestyle') },
+    { value: 'ecommerce', label: t('createCampaign.catEcommerce') },
+    { value: 'forex', label: t('createCampaign.catForex') },
+    { value: 'general', label: t('createCampaign.catGeneral') },
   ];
 
   function parseVideoUrl(url) {
@@ -42,9 +44,9 @@ export default function CreateCampaign() {
   }
 
   function handleSubmit() {
-    if (!title.trim()) { setError('Please enter a campaign title'); return; }
-    if (!videoUrl.trim()) { setError('Please paste a video URL'); return; }
-    if (!preview) { setError('Invalid video URL. Please use a YouTube or Vimeo link.'); return; }
+    if (!title.trim()) { setError(t('createCampaign.errTitle')); return; }
+    if (!videoUrl.trim()) { setError(t('createCampaign.errUrl')); return; }
+    if (!preview) { setError(t('createCampaign.errInvalidUrl')); return; }
 
     setSubmitting(true);
     setError(null);
@@ -89,20 +91,20 @@ export default function CreateCampaign() {
   };
 
   return (
-    <AppLayout title="Create Video Campaign" subtitle="Upload a video and start getting views from the SuperAdPro network">
+    <AppLayout title={t("createCampaign.title")} subtitle={t("createCampaign.subtitle")}>
       <div style={{ maxWidth: 720, margin: '0 auto' }}>
 
       <div style={S.wrap}>
         <div style={S.card}>
-          <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Campaign Details</div>
-          <div style={{ fontSize: 14, color: '#64748b', marginBottom: 8 }}>Paste a YouTube or Vimeo link. Members will watch your video and you'll see real engagement analytics.</div>
+          <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>{t('createCampaign.campaignDetails')}</div>
+          <div style={{ fontSize: 14, color: '#64748b', marginBottom: 8 }}>{t('createCampaign.campaignDetailsDesc')}</div>
 
-          <label style={S.label}>Campaign Title *</label>
-          <input style={S.input} value={title} onChange={function(e) { setTitle(e.target.value); }} placeholder="e.g. How to Start Affiliate Marketing in 2026" maxLength={120} />
+          <label style={S.label}>{t('createCampaign.campaignTitle')}</label>
+          <input style={S.input} value={title} onChange={function(e) { setTitle(e.target.value); }} placeholder={t("createCampaign.campaignTitlePlaceholder")} maxLength={120} />
 
-          <label style={S.label}>Video URL *</label>
-          <input style={S.input} value={videoUrl} onChange={function(e) { handleUrlChange(e.target.value); }} placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..." />
-          {videoUrl && !preview && <div style={{ fontSize: 12, color: '#ef4444', marginTop: 6 }}>⚠ Unsupported URL. Use YouTube or Vimeo links.</div>}
+          <label style={S.label}>{t('createCampaign.videoUrl')}</label>
+          <input style={S.input} value={videoUrl} onChange={function(e) { handleUrlChange(e.target.value); }} placeholder={t("createCampaign.videoUrlPlaceholder")} />
+          {videoUrl && !preview && <div style={{ fontSize: 12, color: '#ef4444', marginTop: 6 }}>{t('createCampaign.unsupportedUrl')}</div>}
 
           {/* Video preview */}
           {preview && (
@@ -115,33 +117,33 @@ export default function CreateCampaign() {
             </div>
           )}
 
-          <label style={S.label}>Category</label>
+          <label style={S.label}>{t('createCampaign.category')}</label>
           <select style={S.select} value={category} onChange={function(e) { setCategory(e.target.value); }}>
             {categories.map(function(c) { return <option key={c.value} value={c.value}>{c.label}</option>; })}
           </select>
 
-          <label style={S.label}>Description</label>
-          <textarea style={S.textarea} value={description} onChange={function(e) { setDescription(e.target.value); }} placeholder="Brief description of your video content..." maxLength={500} />
+          <label style={S.label}>{t('createCampaign.description')}</label>
+          <textarea style={S.textarea} value={description} onChange={function(e) { setDescription(e.target.value); }} placeholder={t("createCampaign.descPlaceholder")} maxLength={500} />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
             <div>
-              <label style={S.label}>Target Country (optional)</label>
-              <input style={S.input} value={targetCountry} onChange={function(e) { setTargetCountry(e.target.value); }} placeholder="e.g. US, UK, Worldwide" maxLength={200} />
+              <label style={S.label}>{t('createCampaign.targetCountry')}</label>
+              <input style={S.input} value={targetCountry} onChange={function(e) { setTargetCountry(e.target.value); }} placeholder={t("createCampaign.targetCountryPlaceholder")} maxLength={200} />
             </div>
             <div>
-              <label style={S.label}>Target Interests (optional)</label>
-              <input style={S.input} value={targetInterests} onChange={function(e) { setTargetInterests(e.target.value); }} placeholder="e.g. crypto, marketing" maxLength={200} />
+              <label style={S.label}>{t('createCampaign.targetInterests')}</label>
+              <input style={S.input} value={targetInterests} onChange={function(e) { setTargetInterests(e.target.value); }} placeholder={t("createCampaign.targetInterestsPlaceholder")} maxLength={200} />
             </div>
           </div>
 
           {error && <div style={S.error}>{error}</div>}
-          {result && <div style={S.success}>✓ Campaign created successfully! {result.status === 'pending' ? 'Under review — will be live shortly.' : 'Your campaign is now live.'} <a href="/video-library" style={{ color: '#10b981', fontWeight: 800 }}>View My Campaigns →</a></div>}
+          {result && <div style={S.success}>{t('createCampaign.successCreated')} {result.status === 'pending' ? t('createCampaign.pendingReview') : t('createCampaign.nowLive')} <a href="/video-library" style={{ color: '#10b981', fontWeight: 800 }}>{t('createCampaign.viewMyCampaigns')}</a></div>}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 24 }}>
             <button style={{ ...S.btn, ...(submitting ? S.btnDisabled : {}) }} onClick={handleSubmit} disabled={submitting}>
-              {submitting ? 'Creating...' : '🚀 Launch Campaign'}
+              {submitting ? t('createCampaign.creating') : t('createCampaign.launchCampaign')}
             </button>
-            <div style={{ fontSize: 13, color: '#94a3b8' }}>Your campaign tier determines view targets and limits</div>
+            <div style={{ fontSize: 13, color: '#94a3b8' }}>{t('createCampaign.tierNote')}</div>
           </div>
         </div>
 
@@ -149,18 +151,18 @@ export default function CreateCampaign() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 20 }}>
           <div style={{ background: '#fff', border: '1px solid #e8ecf2', borderRadius: 14, padding: 20 }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>🎬</div>
-            <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Paste & Go</div>
-            <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>Just paste a YouTube or Vimeo link. We handle the rest — embedding, delivery, and analytics.</div>
+            <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>{t('createCampaign.pasteAndGo')}</div>
+            <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>{t('createCampaign.pasteAndGoDesc')}</div>
           </div>
           <div style={{ background: '#fff', border: '1px solid #e8ecf2', borderRadius: 14, padding: 20 }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>👁️</div>
-            <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Real Views</div>
-            <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>Members watch your full video. No bots, no fake engagement. Real people, real attention.</div>
+            <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>{t('createCampaign.realViews')}</div>
+            <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>{t('createCampaign.realViewsDesc')}</div>
           </div>
           <div style={{ background: '#fff', border: '1px solid #e8ecf2', borderRadius: 14, padding: 20 }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>📊</div>
-            <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Live Analytics</div>
-            <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>Track views delivered, completion rate, and campaign progress in real-time on your dashboard.</div>
+            <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>{t('createCampaign.liveAnalytics')}</div>
+            <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>{t('createCampaign.liveAnalyticsDesc')}</div>
           </div>
         </div>
       </div>

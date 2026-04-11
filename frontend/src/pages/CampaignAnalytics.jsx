@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 import { BarChart3, Eye, Users, Clock, TrendingUp, ChevronDown, ChevronUp, Loader2, Play, Calendar, Target } from 'lucide-react';
 
 export default function CampaignAnalytics() {
+  var { t } = useTranslation();
   var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);
   var [selectedCampaign, setSelectedCampaign] = useState(null);
@@ -33,10 +35,10 @@ export default function CampaignAnalytics() {
 
   if (loading) {
     return (
-      <AppLayout title="Campaign Analytics" subtitle="Real-time view data">
+      <AppLayout title={t("campaignAnalytics.title")} subtitle={t("campaignAnalytics.subtitle")}>
         <div style={{ textAlign: 'center', padding: '80px 0' }}>
           <Loader2 size={32} color="#8b5cf6" style={{ animation: 'spin 1s linear infinite' }} />
-          <div style={{ marginTop: 12, color: '#64748b' }}>Loading analytics...</div>
+          <div style={{ marginTop: 12, color: '#64748b' }}>{t('campaignAnalytics.loading')}</div>
           <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
         </div>
       </AppLayout>
@@ -53,7 +55,7 @@ export default function CampaignAnalytics() {
   }
 
   return (
-    <AppLayout title="Campaign Analytics" subtitle="Real-time view data">
+    <AppLayout title={t("campaignAnalytics.title")} subtitle={t("campaignAnalytics.subtitle")}>
 
       {/* Cobalt blue header */}
       <div style={{ background: 'linear-gradient(180deg, #172554, #1e3a8a)', borderRadius: 14, padding: '24px', marginBottom: 20 }}>
@@ -62,8 +64,8 @@ export default function CampaignAnalytics() {
             <BarChart3 size={24} color="#38bdf8" />
           </div>
           <div>
-            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#fff' }}>Real views from real people</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Every view is a verified 30-second watch from an active SuperAdPro member</div>
+            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#fff' }}>{t('campaignAnalytics.heroTitle')}</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{t('campaignAnalytics.heroDesc')}</div>
           </div>
         </div>
 
@@ -93,8 +95,8 @@ export default function CampaignAnalytics() {
       {campaigns.length === 0 && (
         <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '60px 24px', textAlign: 'center' }}>
           <Play size={48} color="#e2e8f0" />
-          <div style={{ fontSize: 16, fontWeight: 600, color: '#64748b', marginTop: 12 }}>No campaigns yet</div>
-          <div style={{ fontSize: 14, color: '#94a3b8', marginTop: 4 }}>Activate a Campaign Tier to start getting real views on your videos</div>
+          <div style={{ fontSize: 16, fontWeight: 600, color: '#64748b', marginTop: 12 }}>{t('campaignAnalytics.noCampaigns')}</div>
+          <div style={{ fontSize: 14, color: '#94a3b8', marginTop: 4 }}>{t('campaignAnalytics.noCampaignsDesc')}</div>
         </div>
       )}
 
@@ -168,7 +170,7 @@ export default function CampaignAnalytics() {
                 {!loadingDaily && dailyData && (
                   <div>
                     {/* Daily views chart - last 30 days */}
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>Daily views — last 30 days</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>{t('campaignAnalytics.dailyViews')}</div>
                     <div style={{ display: 'flex', alignItems: 'flex-end', gap: 2, height: 120, marginBottom: 16, padding: '0 2px' }}>
                       {dailyData.daily.map(function(day, i) {
                         var barHeight = maxDaily > 0 ? Math.max(2, (day.views / maxDaily) * 100) : 2;
@@ -193,11 +195,11 @@ export default function CampaignAnalytics() {
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: '#94a3b8', marginBottom: 20 }}>
                       <span>{dailyData.daily[0] ? dailyData.daily[0].date : ''}</span>
-                      <span style={{ color: '#22c55e', fontWeight: 600 }}>Today</span>
+                      <span style={{ color: '#22c55e', fontWeight: 600 }}>{t('campaignAnalytics.today')}</span>
                     </div>
 
                     {/* Recent watch log */}
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 10 }}>Recent verified watches</div>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 10 }}>{t('campaignAnalytics.recentWatches')}</div>
                     <div style={{ maxHeight: 240, overflowY: 'auto' }}>
                       {dailyData.recent_watches && dailyData.recent_watches.length > 0 ? (
                         dailyData.recent_watches.map(function(w, i) {
@@ -221,7 +223,7 @@ export default function CampaignAnalytics() {
                           );
                         })
                       ) : (
-                        <div style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', padding: '20px 0' }}>No watches recorded yet</div>
+                        <div style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', padding: '20px 0' }}>{t('campaignAnalytics.noWatches')}</div>
                       )}
                     </div>
                   </div>
@@ -237,8 +239,8 @@ export default function CampaignAnalytics() {
         <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 12, padding: '16px 20px', marginTop: 8, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
           <Target size={18} color="#16a34a" style={{ flexShrink: 0, marginTop: 2 }} />
           <div>
-            <div style={{ fontSize: 14, fontWeight: 700, color: '#166534', marginBottom: 4 }}>Verified views — guaranteed real engagement</div>
-            <div style={{ fontSize: 13, color: '#15803d', lineHeight: 1.6 }}>Every view on SuperAdPro is verified. Members must watch your video for a minimum of 30 seconds to complete their daily Watch to Earn quota. Views are logged with timestamps, duration, and unique viewer tracking. No bots, no fake views — only real people watching your content.</div>
+            <div style={{ fontSize: 14, fontWeight: 700, color: '#166534', marginBottom: 4 }}>{t('campaignAnalytics.verifiedTitle')}</div>
+            <div style={{ fontSize: 13, color: '#15803d', lineHeight: 1.6 }}>{t('campaignAnalytics.verifiedDesc')}</div>
           </div>
         </div>
       )}

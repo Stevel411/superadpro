@@ -17,7 +17,7 @@ export default function VideoLibrary() {
   useEffect(function() { load(); }, []);
 
   async function deleteCampaign(id, title) {
-    if (!confirm('Delete campaign "' + title + '"? This cannot be undone.')) return;
+    if (!confirm(t('videos.deleteConfirm', {title: title}))) return;
     setDeleting(id);
     try {
       var res = await fetch('/api/campaigns/' + id, { method: 'DELETE', credentials: 'include' });
@@ -82,7 +82,7 @@ export default function VideoLibrary() {
           <div style={{display:'flex',alignItems:'center',gap:12}}>
             <span style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.4)'}}>{campaigns.length} campaign{campaigns.length !== 1 ? 's' : ''}</span>
             <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,color:'#fff',background:'#0ea5e9',padding:'6px 14px',borderRadius:8,textDecoration:'none'}}>
-              <Plus size={12}/> New Campaign
+              <Plus size={12}/> {t('videos.newCampaign')}
             </Link>
           </div>
         </div>
@@ -132,7 +132,7 @@ export default function VideoLibrary() {
                         <div style={{height:'100%',borderRadius:3,background:pct>=100?'#16a34a':'#0ea5e9',width:pct+'%',transition:'width .3s'}}/>
                       </div>
                       <span style={{fontSize:12,fontWeight:700,color:'#0ea5e9'}}>{(c.views_delivered||0).toLocaleString()}</span>
-                      <span style={{fontSize:10,color:'#64748b'}}>/ {(c.views_target||0).toLocaleString()} views</span>
+                      <span style={{fontSize:10,color:'#64748b'}}>/ {(c.views_target||0).toLocaleString()} {t('videos.views')}</span>
                       <span style={{fontSize:11,fontWeight:700,color:pct>=100?'#16a34a':'#64748b'}}>{pct}%</span>
                     </div>
                   </div>
@@ -142,12 +142,12 @@ export default function VideoLibrary() {
                     {c.video_url && (
                       <a href={c.video_url} target="_blank" rel="noreferrer"
                         style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,color:'#0ea5e9',padding:'6px 12px',borderRadius:8,border:'1px solid rgba(14,165,233,.2)',background:'rgba(14,165,233,.04)',textDecoration:'none',cursor:'pointer'}}>
-                        <Eye size={12}/> View
+                        <Eye size={12}/> {t('videos.view')}
                       </a>
                     )}
                     <button onClick={function(){deleteCampaign(c.id, c.title);}} disabled={deleting === c.id}
                       style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,color:'#dc2626',padding:'6px 12px',borderRadius:8,border:'1px solid rgba(220,38,38,.15)',background:'rgba(220,38,38,.04)',cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>
-                      <Trash2 size={12}/> {deleting === c.id ? '...' : 'Delete'}
+                      <Trash2 size={12}/> {deleting === c.id ? '...' : t('videos.delete')}
                     </button>
                   </div>
                 </div>
@@ -160,7 +160,7 @@ export default function VideoLibrary() {
             <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:4}}>{t('videos.noCampaignsYet')}</div>
             <div style={{fontSize:13,color:'#64748b',marginBottom:20}}>{t('videos.activateATier')}</div>
             <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#6366f1)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>
-              <Plus size={16}/> Create Your First Campaign
+              <Plus size={16}/> {t('videos.createFirst')}
             </Link>
           </div>
         )}
