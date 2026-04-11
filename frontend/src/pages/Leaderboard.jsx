@@ -1,14 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet } from '../utils/api';
 import { Trophy, Users, Zap, GraduationCap, Crown, TrendingUp } from 'lucide-react';
 
-var TABS = [
-  { key: 'referrals', label: 'Members Referred', icon: Users,        color: '#0ea5e9', grad: 'linear-gradient(135deg,#0284c7,#38bdf8)', metric: function(u){ return u.personal_referrals || 0; }, metricLabel: 'Referrals' },
-  { key: 'grid',      label: 'Grid Members',     icon: Zap,           color: '#10b981', grad: 'linear-gradient(135deg,#059669,#34d399)', metric: function(u){ return u._grid_count || u.grid_count || 0; }, metricLabel: 'Grid' },
-  { key: 'courses',   label: 'Course Sales',     icon: GraduationCap, color: '#8b5cf6', grad: 'linear-gradient(135deg,#7c3aed,#a78bfa)', metric: function(u){ return u.course_sale_count || u._course_count || 0; }, metricLabel: 'Sales' },
-];
+// TABS moved inside component
 
 var RANK_STYLES = [
   { bg: 'linear-gradient(135deg,#fef3c7,#fde68a)', color: '#92400e', border: '#fcd34d', glow: 'rgba(251,191,36,0.4)' },
@@ -51,7 +48,13 @@ function Spin() {
 }
 
 export default function Leaderboard() {
+  var { t } = useTranslation();
   var { user } = useAuth();
+  var TABS = [
+    { key: 'referrals', label: t('leaderboard.membersReferred'), icon: Users, color: '#0ea5e9', grad: 'linear-gradient(135deg,#0284c7,#38bdf8)', metric: function(u){ return u.personal_referrals || 0; }, metricLabel: t('leaderboard.referrals') },
+    { key: 'grid', label: t('leaderboard.gridMembers'), icon: Zap, color: '#10b981', grad: 'linear-gradient(135deg,#059669,#34d399)', metric: function(u){ return u._grid_count || u.grid_count || 0; }, metricLabel: t('leaderboard.grid') },
+    { key: 'courses', label: t('leaderboard.courseSales'), icon: GraduationCap, color: '#8b5cf6', grad: 'linear-gradient(135deg,#7c3aed,#a78bfa)', metric: function(u){ return u.course_sale_count || u._course_count || 0; }, metricLabel: t('leaderboard.sales') },
+  ];
   var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);
   var [tab, setTab] = useState('referrals');
@@ -60,7 +63,7 @@ export default function Leaderboard() {
     apiGet('/api/leaderboard').then(function(d){ setData(d); setLoading(false); }).catch(function(){ setLoading(false); });
   }, []);
 
-  if (loading) return <AppLayout title="Leaderboard"><Spin/></AppLayout>;
+  if (loading) return <AppLayout title={t("leaderboard.title")}><Spin/></AppLayout>;
 
   var d = data || {};
   var allData = { referrals: d.ref_leaders||[], grid: d.grid_users||[], courses: d.course_users||[] };
@@ -70,7 +73,7 @@ export default function Leaderboard() {
   var myRank = leaders.findIndex(function(u){ return u.id===user?.id; });
 
   return (
-    <AppLayout title="Leaderboard" subtitle="Top performers across the SuperAdPro network">
+    <AppLayout title={t("leaderboard.title")} subtitle={t("leaderboard.subtitle")}>
       <style>{`
         @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
         @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
@@ -87,15 +90,15 @@ export default function Leaderboard() {
               <Trophy size={28} color="#fff"/>
             </div>
             <div>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:900, color:'#fff' }}>Affiliate <span style={{ color:'#fbbf24' }}>Leaderboard</span></div>
-              <div style={{ fontSize:13, color:'rgba(255,255,255,0.5)', marginTop:2 }}>Top performers across the SuperAdPro network</div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:900, color:'#fff' }}>{t('leaderboard.affiliateLeaderboard')} <span style={{ color:'#fbbf24' }}>{t('leaderboard.leaderboardHighlight')}</span></div>
+              <div style={{ fontSize:13, color:'rgba(255,255,255,0.5)', marginTop:2 }}>{t('leaderboard.topPerformers')}</div>
             </div>
           </div>
           {myRank>=0 && (
             <div style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:14, padding:'12px 20px', textAlign:'center' }}>
-              <div style={{ fontSize:10, fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:1, textTransform:'uppercase', marginBottom:4 }}>Your Rank</div>
+              <div style={{ fontSize:10, fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:1, textTransform:'uppercase', marginBottom:4 }}>{t('leaderboard.yourRank')}</div>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#fbbf24' }}>#{myRank+1}</div>
-              <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:2 }}>of {leaders.length}</div>
+              <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:2 }}>{t('leaderboard.of', {count: leaders.length})}</div>
             </div>
           )}
         </div>
@@ -115,7 +118,7 @@ export default function Leaderboard() {
                   <span style={{ fontSize:11, fontWeight:700, color:isActive?'#fff':'rgba(255,255,255,0.4)' }}>{t.label}</span>
                 </div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:900, color:isActive?t.color:'rgba(255,255,255,0.2)' }}>{count}</div>
-                <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:2 }}>on the board</div>
+                <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:2 }}>{t('leaderboard.onTheBoard')}</div>
               </div>
             );
           })}
@@ -125,8 +128,8 @@ export default function Leaderboard() {
       {leaders.length===0 ? (
         <div style={{ textAlign:'center', padding:'64px 32px', background:'#fff', borderRadius:16, border:'1px solid #e8ecf2' }}>
           <div style={{ fontSize:56, marginBottom:12, opacity:0.25 }}>🏆</div>
-          <div style={{ fontSize:18, fontWeight:800, color:'#0f172a', marginBottom:6 }}>No activity yet</div>
-          <div style={{ fontSize:13, color:'#64748b' }}>Be the first to appear on this leaderboard!</div>
+          <div style={{ fontSize:18, fontWeight:800, color:'#0f172a', marginBottom:6 }}>{t('leaderboard.noActivityYet')}</div>
+          <div style={{ fontSize:13, color:'#64748b' }}>{t('leaderboard.beFirst')}</div>
         </div>
       ) : (
         <>
@@ -134,7 +137,7 @@ export default function Leaderboard() {
           {leaders.length>=3 && (
             <div style={{ background:'#fff', borderRadius:20, border:'1px solid #e8ecf2', padding:'28px 24px 0', marginBottom:20, overflow:'hidden', boxShadow:'0 4px 24px rgba(0,0,0,0.06)' }}>
               <div style={{ textAlign:'center', marginBottom:20 }}>
-                <span style={{ fontSize:11, fontWeight:800, letterSpacing:2, textTransform:'uppercase', color:'#64748b' }}>Top Performers</span>
+                <span style={{ fontSize:11, fontWeight:800, letterSpacing:2, textTransform:'uppercase', color:'#64748b' }}>{t('leaderboard.topPerformersLabel')}</span>
               </div>
               <div style={{ display:'flex', justifyContent:'center', alignItems:'flex-end', gap:8 }}>
                 <PodiumCard user={leaders[1]} place={2} tab={activeTab}/>
@@ -148,13 +151,13 @@ export default function Leaderboard() {
           <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e8ecf2', overflow:'hidden', boxShadow:'0 4px 24px rgba(0,0,0,0.06)', animation:'fadeUp .3s ease-out' }}>
             <div style={{ padding:'16px 20px', borderBottom:'1px solid #f1f5f9', display:'flex', alignItems:'center', gap:8 }}>
               <TrendingUp size={16} color={activeTab.color}/>
-              <span style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'#0f172a' }}>Full Rankings</span>
+              <span style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'#0f172a' }}>{t('leaderboard.fullRankings')}</span>
               <span style={{ fontSize:11, color:'#64748b', marginLeft:4 }}>— {activeTab.label}</span>
             </div>
             <table style={{ width:'100%', borderCollapse:'collapse' }}>
               <thead>
                 <tr style={{ background:'#f8f9fb' }}>
-                  {['Rank','Member','Tier',activeTab.metricLabel,'Progress'].map(function(h,i){
+                  {[t('leaderboard.rank'),t('leaderboard.member'),t('leaderboard.tierLabel'),activeTab.metricLabel,t('leaderboard.progress')].map(function(h,i){
                     return <th key={h} style={{ fontSize:10, fontWeight:800, color:'#64748b', textTransform:'uppercase', letterSpacing:1, padding:'10px 16px', borderBottom:'1px solid #e8ecf2', textAlign:i>=3?'right':'left' }}>{h}</th>;
                   })}
                 </tr>
@@ -187,7 +190,7 @@ export default function Leaderboard() {
                           <div>
                             <div style={{ fontSize:13, fontWeight:700, color:'#0f172a', display:'flex', alignItems:'center', gap:6 }}>
                               {u.first_name||u.username}
-                              {isMe && <span style={{ fontSize:10, fontWeight:700, padding:'2px 7px', borderRadius:5, background:`${activeTab.color}15`, color:activeTab.color }}>You</span>}
+                              {isMe && <span style={{ fontSize:10, fontWeight:700, padding:'2px 7px', borderRadius:5, background:`${activeTab.color}15`, color:activeTab.color }}>{t('leaderboard.you')}</span>}
                               {i===0 && <Crown size={12} color="#f59e0b"/>}
                             </div>
                             <div style={{ fontSize:11, color:'#64748b' }}>@{u.username}</div>
@@ -195,7 +198,7 @@ export default function Leaderboard() {
                         </div>
                       </td>
                       <td style={{ padding:'12px 16px', borderBottom:'1px solid #f5f6f8' }}>
-                        <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:`${activeTab.color}10`, color:activeTab.color, border:`1px solid ${activeTab.color}20` }}>Tier {u.grid_tier||0}</span>
+                        <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:`${activeTab.color}10`, color:activeTab.color, border:`1px solid ${activeTab.color}20` }}>{t('leaderboard.tierLabel')} {u.grid_tier||0}</span>
                       </td>
                       <td style={{ padding:'12px 16px', borderBottom:'1px solid #f5f6f8', textAlign:'right' }}>
                         <span style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:900, color:i<3?activeTab.color:'#0f172a' }}>{val}</span>
@@ -216,7 +219,7 @@ export default function Leaderboard() {
             </table>
             {leaders.length>20 && (
               <div style={{ padding:'12px 20px', textAlign:'center', fontSize:12, color:'#64748b', borderTop:'1px solid #f1f5f9' }}>
-                Showing top 20 of {leaders.length} members
+                {t('leaderboard.showingTop', {count: leaders.length})}
               </div>
             )}
           </div>
@@ -229,19 +232,19 @@ export default function Leaderboard() {
         <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e8ecf2', overflow:'hidden' }}>
           <div style={{ padding:'16px 20px', borderBottom:'1px solid #f1f5f9', display:'flex', alignItems:'center', gap:8 }}>
             <div style={{ width:8, height:8, borderRadius:'50%', background:'#22c55e', animation:'pulse 2s infinite' }}/>
-            <span style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'#0f172a' }}>Live Activity</span>
+            <span style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'#0f172a' }}>{t('leaderboard.liveActivity')}</span>
           </div>
           <div style={{ maxHeight:340, overflowY:'auto' }}>
             {(d.activity||[]).length === 0 ? (
-              <div style={{ padding:'40px 20px', textAlign:'center', color:'#64748b', fontSize:13 }}>No recent activity yet — be the first!</div>
+              <div style={{ padding:'40px 20px', textAlign:'center', color:'#64748b', fontSize:13 }}>{t('leaderboard.noRecentActivity')}</div>
             ) : (d.activity||[]).map(function(a, i) {
               var timeAgo = '';
               if (a.time) {
                 var diff = (Date.now() - new Date(a.time).getTime()) / 1000;
-                if (diff < 60) timeAgo = 'Just now';
-                else if (diff < 3600) timeAgo = Math.floor(diff / 60) + 'm ago';
-                else if (diff < 86400) timeAgo = Math.floor(diff / 3600) + 'h ago';
-                else timeAgo = Math.floor(diff / 86400) + 'd ago';
+                if (diff < 60) timeAgo = t('leaderboard.justNow');
+                else if (diff < 3600) timeAgo = t('leaderboard.mAgo', {m: Math.floor(diff / 60)});
+                else if (diff < 86400) timeAgo = t('leaderboard.hAgo', {h: Math.floor(diff / 3600)});
+                else timeAgo = t('leaderboard.dAgo', {d: Math.floor(diff / 86400)});
               }
               return (
                 <div key={i} style={{ padding:'12px 20px', borderBottom:'1px solid #f8f9fb', display:'flex', alignItems:'center', gap:12 }}>
@@ -259,19 +262,19 @@ export default function Leaderboard() {
         {/* Platform Stats */}
         <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
           <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:16, padding:'24px 20px', textAlign:'center' }}>
-            <div style={{ fontSize:10, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>Active Members</div>
+            <div style={{ fontSize:10, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>{t('leaderboard.activeMembers')}</div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:900, color:'#fff' }}>{(d.stats||{}).total_members||0}</div>
-            <div style={{ fontSize:11, color:'rgba(255,255,255,.3)', marginTop:4 }}>and growing</div>
+            <div style={{ fontSize:11, color:'rgba(255,255,255,.3)', marginTop:4 }}>{t('leaderboard.andGrowing')}</div>
           </div>
           <div style={{ background:'linear-gradient(135deg,#065f46,#059669)', borderRadius:16, padding:'24px 20px', textAlign:'center' }}>
-            <div style={{ fontSize:10, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>Total Earned by Members</div>
+            <div style={{ fontSize:10, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>{t('leaderboard.totalEarnedByMembers')}</div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:900, color:'#fff' }}>${Math.round((d.stats||{}).total_earned||0).toLocaleString()}</div>
-            <div style={{ fontSize:11, color:'rgba(255,255,255,.3)', marginTop:4 }}>paid out in commissions</div>
+            <div style={{ fontSize:11, color:'rgba(255,255,255,.3)', marginTop:4 }}>{t('leaderboard.paidOut')}</div>
           </div>
           <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e8ecf2', padding:'20px', textAlign:'center' }}>
-            <div style={{ fontSize:13, fontWeight:700, color:'#0f172a', marginBottom:8 }}>Want to be on this board?</div>
-            <div style={{ fontSize:12, color:'#64748b', lineHeight:1.6, marginBottom:12 }}>Share your referral link, build your team, and climb the rankings.</div>
-            <a href="/affiliate" style={{ display:'inline-block', padding:'10px 24px', background:'linear-gradient(135deg,#8b5cf6,#7c3aed)', color:'#fff', borderRadius:10, fontSize:13, fontWeight:800, textDecoration:'none' }}>Share your link</a>
+            <div style={{ fontSize:13, fontWeight:700, color:'#0f172a', marginBottom:8 }}>{t('leaderboard.wantToBeOnBoard')}</div>
+            <div style={{ fontSize:12, color:'#64748b', lineHeight:1.6, marginBottom:12 }}>{t('leaderboard.shareAndClimb')}</div>
+            <a href="/affiliate" style={{ display:'inline-block', padding:'10px 24px', background:'linear-gradient(135deg,#8b5cf6,#7c3aed)', color:'#fff', borderRadius:10, fontSize:13, fontWeight:800, textDecoration:'none' }}>{t('leaderboard.shareYourLink')}</a>
           </div>
         </div>
       </div>

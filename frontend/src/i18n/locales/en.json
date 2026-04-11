@@ -694,7 +694,42 @@
   },
   "leaderboard": {
     "title": "Leaderboard",
-    "subtitle": "Top performers in the network"
+    "subtitle": "Top performers across the SuperAdPro network",
+    "affiliateLeaderboard": "Affiliate",
+    "leaderboardHighlight": "Leaderboard",
+    "topPerformers": "Top performers across the SuperAdPro network",
+    "yourRank": "Your Rank",
+    "of": "of {{count}}",
+    "membersReferred": "Members Referred",
+    "gridMembers": "Grid Members",
+    "courseSales": "Course Sales",
+    "referrals": "Referrals",
+    "grid": "Grid",
+    "sales": "Sales",
+    "onTheBoard": "on the board",
+    "noActivityYet": "No activity yet",
+    "beFirst": "Be the first to appear on this leaderboard!",
+    "topPerformersLabel": "Top Performers",
+    "fullRankings": "Full Rankings",
+    "rank": "Rank",
+    "member": "Member",
+    "tierLabel": "Tier",
+    "progress": "Progress",
+    "you": "You",
+    "showingTop": "Showing top 20 of {{count}} members",
+    "liveActivity": "Live Activity",
+    "noRecentActivity": "No recent activity yet — be the first!",
+    "justNow": "Just now",
+    "mAgo": "{{m}}m ago",
+    "hAgo": "{{h}}h ago",
+    "dAgo": "{{d}}d ago",
+    "activeMembers": "Active Members",
+    "andGrowing": "and growing",
+    "totalEarnedByMembers": "Total Earned by Members",
+    "paidOut": "paid out in commissions",
+    "wantToBeOnBoard": "Want to be on this board?",
+    "shareAndClimb": "Share your referral link, build your team, and climb the rankings.",
+    "shareYourLink": "Share your link"
   },
   "achievements": {
     "title": "Achievements",
@@ -894,5 +929,39 @@
     "featFeaturedPlacement": "Featured placement",
     "featSpotlight": "Spotlight",
     "featAllFeatures": "All features"
+  },
+  "comingSoon": {
+    "title": "Coming Soon",
+    "desc": "We're putting the finishing touches on something special — AI-powered marketing tools, a creative studio, and an affiliate system that pays.",
+    "whatYouGet": "What you'll get",
+    "feat1": "AI Creative Studio — Video, Images, Music & Voiceover",
+    "feat2": "8-Tier Campaign Grid — Advertise & Earn",
+    "feat3": "Profit Nexus — Your Earnings Accelerator",
+    "feat4": "SuperPages — AI Landing Pages & Funnels",
+    "feat5": "50% Referral Commissions — On Every Signup",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign in"
+  },
+  "incomeGrid3D": {
+    "interactive3D": "Interactive 3D Visualisation",
+    "watchYour": "Watch Your",
+    "incomeGrid": "Income Grid",
+    "build": "Build",
+    "selectTier": "Select a campaign tier and watch 64 positions fill in real-time.",
+    "howItWorks": "How It Works",
+    "explore": "Explore",
+    "earn": "Earn",
+    "getStarted": "Get Started",
+    "joinFree": "Join Free & Build Your Grid →"
+  },
+  "incomeDisclaimer": {
+    "title": "Income Disclaimer",
+    "subtitle": "Important information about earnings on SuperAdPro"
+  },
+  "walletHelp": {
+    "title": "Wallet Help"
+  },
+  "cryptoGuide": {
+    "title": "Crypto Guide"
   }
 }
