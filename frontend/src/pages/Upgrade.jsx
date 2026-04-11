@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiPost } from '../utils/api';
@@ -22,6 +23,7 @@ var css = `
 `;
 
 export default function Upgrade() {
+  var { t } = useTranslation();
   var { user, refreshUser } = useAuth();
 
   // Admin preview mode: add ?preview=1 to URL to see page as a new user
@@ -46,9 +48,9 @@ export default function Upgrade() {
       .then(function(d) {
         setLoading('');
         if (d.invoice_url) { window.location.href = d.invoice_url; }
-        else { setError(d.error || 'Could not start checkout. Please try again.'); }
+        else { setError(d.error || t('upgrade.couldNotStart')); }
       })
-      .catch(function(e) { setLoading(''); setError(e.message || 'Checkout failed.'); });
+      .catch(function(e) { setLoading(''); setError(e.message || t('upgrade.checkoutFailed')); });
   }
 
   function openCryptoCheckout(tier) {
@@ -66,9 +68,9 @@ export default function Upgrade() {
       .then(function(d) {
         setLoading('');
         if (d.message) { if (refreshUser) refreshUser(); }
-        else { setError(d.error || 'Upgrade failed.'); }
+        else { setError(d.error || t('upgrade.upgradeFailed')); }
       })
-      .catch(function(e) { setLoading(''); setError(e.message || 'Upgrade failed.'); });
+      .catch(function(e) { setLoading(''); setError(e.message || t('upgrade.upgradeFailed')); });
   }
 
   function FeatureRow({ icon, text, bold, color }) {
@@ -100,7 +102,7 @@ export default function Upgrade() {
     if (isCurrent) {
       return (
         <div style={{ padding:14, borderRadius:14, fontSize:14, fontWeight:700, textAlign:'center', background:'linear-gradient(135deg,#dcfce7,#bbf7d0)', color:'#059669', border:'1px solid #86efac' }}>
-          {"\u2713"} Current Plan
+          {t("upgrade.currentPlan")}
         </div>
       );
     }
@@ -110,9 +112,9 @@ export default function Upgrade() {
         <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
           <button onClick={handleUpgradeToPro} disabled={loading === 'upgrade'}
             style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', padding:16, borderRadius:14, fontSize:15, fontWeight:700, border:'none', cursor: loading === 'upgrade' ? 'default' : 'pointer', fontFamily:'inherit', background: loading === 'upgrade' ? '#64748b' : btnGrad, color:'#fff', boxShadow: loading === 'upgrade' ? 'none' : btnShadow }}>
-            {loading === 'upgrade' ? 'Upgrading...' : '\u26A1 Upgrade to Pro \u2014 $15'}
+            {loading === 'upgrade' ? t('upgrade.upgrading') : t('upgrade.upgradeToPro')}
           </button>
-          <div style={{ fontSize:11, color:'#64748b', textAlign:'center' }}>Pay the $15 difference now. $35/mo from next renewal.</div>
+          <div style={{ fontSize:11, color:'#64748b', textAlign:'center' }}>{t('upgrade.upgradeProDiff')}</div>
         </div>
       );
     }
@@ -121,22 +123,22 @@ export default function Upgrade() {
       <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
         <button onClick={function(){ openCryptoCheckout(tier); }}
           style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', padding:16, borderRadius:14, fontSize:15, fontWeight:700, border:'none', cursor:'pointer', fontFamily:'inherit', background:btnGrad, color:'#fff', boxShadow:btnShadow, transition:'all .2s' }}>
-          <Coins size={17} /> Pay with Crypto (USDT / USDC)
+          <Coins size={17} /> {t('upgrade.payWithCrypto')}
         </button>
         <button onClick={function(){ nowPaymentsCheckout(tier); }} disabled={loading === tier + '_np'}
           style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', padding:14, borderRadius:14, fontSize:14, fontWeight:700, border:'1.5px solid #e2e8f0', cursor: loading === tier + '_np' ? 'default' : 'pointer', fontFamily:'inherit', background:'#fff', color:'#64748b', transition:'all .2s' }}
           onMouseOver={function(e){e.currentTarget.style.borderColor='#0ea5e9';e.currentTarget.style.color='#0ea5e9'}}
           onMouseOut={function(e){e.currentTarget.style.borderColor='#e2e8f0';e.currentTarget.style.color='#64748b'}}>
           <Globe size={16} />
-          {loading === tier + '_np' ? 'Loading...' : 'Pay with 350+ Cryptos \u2014 ' + price}
+          {loading === tier + '_np' ? t('upgrade.loadingCheckout') : t('upgrade.payWith350', {price})}
         </button>
-        <div style={{ textAlign:'center', fontSize:10, color:'#64748b' }}>{"\uD83D\uDD12"} Secure payment \u00B7 Instant activation</div>
+        <div style={{ textAlign:'center', fontSize:10, color:'#64748b' }}>{t('upgrade.securePayment')}</div>
       </div>
     );
   }
 
   return (
-    <AppLayout title={"\u26A1 Upgrade"} subtitle="Choose your plan">
+    <AppLayout title={t("upgrade.title")} subtitle={t("upgrade.subtitle")}>
       <style>{css}</style>
       <div style={{ maxWidth:900, margin:'0 auto' }}>
 
@@ -149,12 +151,12 @@ export default function Upgrade() {
         {/* Toggle */}
         <div style={{ display:'flex', justifyContent:'center', marginBottom:36 }}>
           <div style={{ display:'inline-flex', alignItems:'center', gap:14, background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:50, padding:'8px 24px' }}>
-            <span onClick={function(){setBilling('monthly')}} style={{ fontSize:14, fontWeight:600, color: !isAnnual ? '#0f172a' : '#64748b', cursor:'pointer', userSelect:'none', transition:'color .2s' }}>Monthly</span>
+            <span onClick={function(){setBilling('monthly')}} style={{ fontSize:14, fontWeight:600, color: !isAnnual ? '#0f172a' : '#64748b', cursor:'pointer', userSelect:'none', transition:'color .2s' }}>{t('upgrade.monthly')}</span>
             <div className={'up-toggle-track' + (isAnnual ? ' on' : '')} onClick={function(){setBilling(isAnnual ? 'monthly' : 'annual')}}>
               <div className="up-toggle-thumb"/>
             </div>
-            <span onClick={function(){setBilling('annual')}} style={{ fontSize:14, fontWeight:600, color: isAnnual ? '#0f172a' : '#64748b', cursor:'pointer', userSelect:'none', transition:'color .2s' }}>Annual</span>
-            <span style={{ fontSize:11, fontWeight:700, color:'#16a34a', background:'#f0fdf4', border:'1px solid #dcfce7', padding:'3px 10px', borderRadius:20 }}>Save 17%</span>
+            <span onClick={function(){setBilling('annual')}} style={{ fontSize:14, fontWeight:600, color: isAnnual ? '#0f172a' : '#64748b', cursor:'pointer', userSelect:'none', transition:'color .2s' }}>{t('upgrade.annual')}</span>
+            <span style={{ fontSize:11, fontWeight:700, color:'#16a34a', background:'#f0fdf4', border:'1px solid #dcfce7', padding:'3px 10px', borderRadius:20 }}>{t('upgrade.save17')}</span>
           </div>
         </div>
 
@@ -167,32 +169,32 @@ export default function Upgrade() {
               <div style={{ position:'absolute', top:-40, right:-40, width:140, height:140, borderRadius:'50%', background:'rgba(255,255,255,.06)', pointerEvents:'none' }}/>
               <div style={{ position:'absolute', bottom:-30, left:-30, width:100, height:100, borderRadius:'50%', background:'rgba(255,255,255,.04)', pointerEvents:'none' }}/>
               <div style={{ position:'relative', zIndex:1 }}>
-                <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,.8)', textTransform:'uppercase', letterSpacing:1.5, marginBottom:12 }}>Basic</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,.8)', textTransform:'uppercase', letterSpacing:1.5, marginBottom:12 }}>{t('upgrade.basic')}</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:64, fontWeight:900, color:'#fff', lineHeight:1 }}>
                   {isAnnual ? '$200' : '$20'}<span style={{ fontSize:20, fontWeight:600, color:'rgba(255,255,255,.7)' }}>{isAnnual ? '/yr' : '/mo'}</span>
                 </div>
                 <div style={{ fontSize:14, fontWeight:500, color:'rgba(255,255,255,.7)', marginTop:8 }}>
-                  {isAnnual ? '$16.67/month effective' : 'Billed monthly'}
+                  {isAnnual ? t('upgrade.basicEffective') : t('upgrade.billedMonthly')}
                 </div>
                 {isAnnual && (
                   <div style={{ fontSize:18, fontWeight:800, color:'#4ade80', marginTop:12, textShadow:'0 1px 3px rgba(0,0,0,.15)' }}>
-                    Save $40/year — 2 months free
+                    {t('upgrade.saveBasicAnnual')}
                   </div>
                 )}
                 <div style={{ fontSize:14, fontWeight:500, color:'rgba(255,255,255,.7)', marginTop:16, lineHeight:1.6 }}>
-                  Everything you need to start marketing and earning with AI tools.
+                  {t('upgrade.basicDesc')}
                 </div>
               </div>
             </div>
             <div style={{ padding:'24px 32px 32px', flex:1, display:'flex', flexDirection:'column' }}>
               <div style={{ marginBottom:20 }}>
-                <FeatureRow text="Creative Studio — AI video, images, music & voiceover" bold color="blue" />
-                <FeatureRow text="LinkHub — your personal bio link page" color="blue" />
-                <FeatureRow text="Link Tools — short links, rotators, tracking" color="blue" />
-                <FeatureRow text="Content Creator — social posts, ad copy, video scripts" color="blue" />
-                <FeatureRow text="Campaign Grid — 8-tier video advertising" color="blue" />
-                <FeatureRow text="50% referral commissions — on every signup" color="blue" />
-                <FeatureRow text="Profit Nexus — earn from credit pack referrals" color="blue" />
+                <FeatureRow text={t("upgrade.featCreativeStudio")} bold color="blue" />
+                <FeatureRow text={t("upgrade.featLinkHub")} color="blue" />
+                <FeatureRow text={t("upgrade.featLinkTools")} color="blue" />
+                <FeatureRow text={t("upgrade.featContentCreator")} color="blue" />
+                <FeatureRow text={t("upgrade.featCampaignGrid")} color="blue" />
+                <FeatureRow text={t("upgrade.featReferralComm")} color="blue" />
+                <FeatureRow text={t("upgrade.featProfitNexus")} color="blue" />
               </div>
               <div style={{ flex:1 }}/>
               <PayButtons tier="basic" />
@@ -201,37 +203,37 @@ export default function Upgrade() {
 
           {/* PRO */}
           <div className="up-card up-card-pro" style={{ display:'flex', flexDirection:'column' }}>
-            <div style={{ position:'absolute', top:16, right:16, fontSize:10, fontWeight:700, color:'#fff', background:'rgba(255,255,255,.15)', backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)', padding:'5px 14px', borderRadius:6, zIndex:3, textTransform:'uppercase', letterSpacing:.5 }}>Most Popular</div>
+            <div style={{ position:'absolute', top:16, right:16, fontSize:10, fontWeight:700, color:'#fff', background:'rgba(255,255,255,.15)', backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)', padding:'5px 14px', borderRadius:6, zIndex:3, textTransform:'uppercase', letterSpacing:.5 }}>{t('upgrade.mostPopular')}</div>
             <div style={{ padding:'44px 32px 40px', background:'linear-gradient(135deg,#450a0a,#991b1b,#ef4444)', textAlign:'center', position:'relative', overflow:'hidden' }}>
               <div style={{ position:'absolute', top:-40, right:-40, width:140, height:140, borderRadius:'50%', background:'rgba(255,255,255,.06)', pointerEvents:'none' }}/>
               <div style={{ position:'absolute', bottom:-30, left:-30, width:100, height:100, borderRadius:'50%', background:'rgba(255,255,255,.04)', pointerEvents:'none' }}/>
               <div style={{ position:'relative', zIndex:1 }}>
-                <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,.8)', textTransform:'uppercase', letterSpacing:1.5, marginBottom:12 }}>Pro</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,.8)', textTransform:'uppercase', letterSpacing:1.5, marginBottom:12 }}>{t('upgrade.pro')}</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:64, fontWeight:900, color:'#fff', lineHeight:1 }}>
                   {isBasicActive ? '$15' : isAnnual ? '$350' : '$35'}<span style={{ fontSize:20, fontWeight:600, color:'rgba(255,255,255,.7)' }}>/{isBasicActive ? 'upgrade' : isAnnual ? 'yr' : 'mo'}</span>
                 </div>
                 <div style={{ fontSize:14, fontWeight:500, color:'rgba(255,255,255,.7)', marginTop:8 }}>
-                  {isBasicActive ? 'then $35/mo from next month' : isAnnual ? '$29.17/month effective' : 'Billed monthly'}
+                  {isBasicActive ? t('upgrade.proUpgradeNext') : isAnnual ? t('upgrade.proEffective') : t('upgrade.billedMonthly')}
                 </div>
                 {isAnnual && !isBasicActive && (
                   <div style={{ fontSize:18, fontWeight:800, color:'#4ade80', marginTop:12, textShadow:'0 1px 3px rgba(0,0,0,.15)' }}>
-                    Save $70/year — 2 months free
+                    {t('upgrade.saveProAnnual')}
                   </div>
                 )}
                 <div style={{ fontSize:14, fontWeight:500, color:'rgba(255,255,255,.7)', marginTop:16, lineHeight:1.6 }}>
-                  Full suite of AI marketing tools plus advanced automation and leads.
+                  {t('upgrade.proDesc')}
                 </div>
               </div>
             </div>
             <div style={{ padding:'24px 32px 32px', flex:1, display:'flex', flexDirection:'column' }}>
               <div style={{ marginBottom:20 }}>
-                <FeatureRow text="Everything in Basic plus:" bold color="red" />
-                <FeatureRow text="SuperPages — AI-powered landing pages and funnels" color="red" icon={<Zap size={14} color="#dc2626" />} />
-                <FeatureRow text="SuperSeller AI — automated sales campaigns" color="red" icon={<Wrench size={14} color="#dc2626" />} />
-                <FeatureRow text="My Leads CRM — capture, track and nurture leads" color="red" icon={<Users size={14} color="#dc2626" />} />
-                <FeatureRow text="Email Autoresponder — automated sequences" color="red" icon={<Mail size={14} color="#dc2626" />} />
-                <FeatureRow text="Course Creator — build and sell courses (coming soon)" color="red" icon={<BookOpen size={14} color="#dc2626" />} />
-                <FeatureRow text="Priority support — faster response times" color="red" icon={<Headphones size={14} color="#dc2626" />} />
+                <FeatureRow text={t("upgrade.featEverythingPlus")} bold color="red" />
+                <FeatureRow text={t("upgrade.featSuperPages")} color="red" icon={<Zap size={14} color="#dc2626" />} />
+                <FeatureRow text={t("upgrade.featSuperSeller")} color="red" icon={<Wrench size={14} color="#dc2626" />} />
+                <FeatureRow text={t("upgrade.featLeadsCRM")} color="red" icon={<Users size={14} color="#dc2626" />} />
+                <FeatureRow text={t("upgrade.featAutoresponder")} color="red" icon={<Mail size={14} color="#dc2626" />} />
+                <FeatureRow text={t("upgrade.featCourseCreator")} color="red" icon={<BookOpen size={14} color="#dc2626" />} />
+                <FeatureRow text={t("upgrade.featPrioritySupport")} color="red" icon={<Headphones size={14} color="#dc2626" />} />
               </div>
               <div style={{ flex:1 }}/>
               <PayButtons tier="pro" />
@@ -242,10 +244,10 @@ export default function Upgrade() {
 
         {/* Sponsor section */}
         <div style={{ background:'#f8fafc', borderRadius:20, border:'1px solid #e2e8f0', padding:'28px 32px', textAlign:'center', marginBottom:20, boxShadow:'0 2px 8px rgba(0,0,0,.03)' }}>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0f172a', marginBottom:8 }}>Earn while you grow</div>
-          <div style={{ fontSize:14, color:'#64748b', lineHeight:1.7 }}>Refer a member and earn 50% commission — every month they stay active, or one big payout on annual billing.</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0f172a', marginBottom:8 }}>{t('upgrade.earnWhileGrow')}</div>
+          <div style={{ fontSize:14, color:'#64748b', lineHeight:1.7 }}>{t('upgrade.earnWhileGrowDesc')}</div>
           <div style={{ display:'inline-flex', alignItems:'center', gap:8, marginTop:14, padding:'10px 20px', background:'#f0fdf4', border:'1px solid #dcfce7', borderRadius:12, fontSize:14, fontWeight:700, color:'#16a34a' }}>
-            Annual Pro referral = $175 instant commission
+            {t('upgrade.annualProReferral')}
           </div>
         </div>
 
@@ -254,7 +256,7 @@ export default function Upgrade() {
         </div>
 
         <p style={{ textAlign:'center', fontSize:12, color:'#64748b', marginTop:16 }}>
-          Secure payment via USDT/USDC on Polygon or 350+ cryptos via NOWPayments · All sales are final
+          {t('upgrade.securePaymentFooter')}
         </p>
       </div>
 
