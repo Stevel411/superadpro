@@ -41,44 +41,44 @@ export default function Account() {
     reader.onload = function(ev) {
       setAvatarUrl(ev.target.result);
       apiPost('/api/account/update', {avatar_url: ev.target.result}).then(function() {
-        refreshUser(); showToast('Profile photo updated', 'ok');
-      }).catch(function(err) { showToast(err.message || 'Upload failed', 'err'); });
+        refreshUser(); showToast(t('account.photoUpdated'), 'ok');
+      }).catch(function(err) { showToast(err.message || t('account.uploadFailed'), 'err'); });
     };
     reader.readAsDataURL(file);
   }
 
   function removeAvatar() {
     apiPost('/api/account/update', {avatar_url: ''}).then(function() {
-      setAvatarUrl(''); refreshUser(); showToast('Profile photo removed', 'ok');
+      setAvatarUrl(''); refreshUser(); showToast(t('account.photoRemoved'), 'ok');
     }).catch(function(err) { showToast(err.message || 'Failed', 'err'); });
   }
 
   function saveProfile() {
     setSavingProfile(true);
     apiPost('/api/account/update', {first_name: firstName, last_name: lastName, country: country, interests: interests, gender: gender, age_range: ageRange}).then(function() {
-      refreshUser(); showToast('Profile saved', 'ok'); setSavingProfile(false);
-    }).catch(function(e) { showToast(e.message || 'Failed', 'err'); setSavingProfile(false); });
+      refreshUser(); showToast(t('account.profileSaved'), 'ok'); setSavingProfile(false);
+    }).catch(function(e) { showToast(e.message || t('account.failed'), 'err'); setSavingProfile(false); });
   }
 
   function changePassword() {
-    if (newPw !== confirmPw) { showToast('Passwords do not match', 'err'); return; }
-    if (newPw.length < 8) { showToast('Minimum 8 characters', 'err'); return; }
+    if (newPw !== confirmPw) { showToast(t('account.passwordsNoMatch'), 'err'); return; }
+    if (newPw.length < 8) { showToast(t('account.min8Chars'), 'err'); return; }
     setSavingPw(true);
     apiPost('/api/account/change-password', {current_password: currentPw, new_password: newPw, confirm_password: confirmPw}).then(function() {
-      showToast('Password updated', 'ok'); setCurrentPw(''); setNewPw(''); setConfirmPw(''); setSavingPw(false);
-    }).catch(function(e) { showToast(e.message || 'Failed', 'err'); setSavingPw(false); });
+      showToast(t('account.passwordUpdated'), 'ok'); setCurrentPw(''); setNewPw(''); setConfirmPw(''); setSavingPw(false);
+    }).catch(function(e) { showToast(e.message || t('account.failed'), 'err'); setSavingPw(false); });
   }
 
   function saveWallet() {
     setSavingWallet(true);
     apiPost('/api/account/update', {wallet_address: walletAddr}).then(function() {
-      refreshUser(); showToast('Wallet saved', 'ok'); setSavingWallet(false);
-    }).catch(function(e) { showToast(e.message || 'Failed', 'err'); setSavingWallet(false); });
+      refreshUser(); showToast(t('account.walletSaved'), 'ok'); setSavingWallet(false);
+    }).catch(function(e) { showToast(e.message || t('account.failed'), 'err'); setSavingWallet(false); });
   }
 
   function submitKyc() {
-    if (!kycDob) { showToast('Date of birth required', 'err'); return; }
-    if (!kycFile) { showToast('ID document required', 'err'); return; }
+    if (!kycDob) { showToast(t('account.dobRequired'), 'err'); return; }
+    if (!kycFile) { showToast(t('account.idRequired'), 'err'); return; }
     setSavingKyc(true);
     var fd = new FormData();
     fd.append('kyc_dob', kycDob);
@@ -87,9 +87,9 @@ export default function Account() {
     fetch('/account/kyc-submit', {method:'POST', body:fd, credentials:'include'})
       .then(function(r) {
         setSavingKyc(false);
-        if (r.ok || r.redirected) { refreshUser(); showToast('Verification submitted — under review within 24-48hrs', 'ok'); setKycDob(''); setKycFile(null); }
-        else { showToast('Submission failed — please try again', 'err'); }
-      }).catch(function() { setSavingKyc(false); showToast('Submission failed', 'err'); });
+        if (r.ok || r.redirected) { refreshUser(); showToast(t('account.verificationSubmitted'), 'ok'); setKycDob(''); setKycFile(null); }
+        else { showToast(t('account.submissionFailed'), 'err'); }
+      }).catch(function() { setSavingKyc(false); showToast(t('account.submissionFailed'), 'err'); });
   }
 
   if (!user) return null;
@@ -102,12 +102,12 @@ export default function Account() {
   var btnS = {padding:'10px 28px',borderRadius:10,fontSize:12,fontWeight:800,border:'none',cursor:'pointer',fontFamily:'inherit',display:'block',margin:'0 auto',color:'#fff'};
 
   return (
-    <AppLayout title={t("account.title")} subtitle="Manage your account, security, and wallet">
+    <AppLayout title={t("account.title")} subtitle={t("account.subtitle")}>
       {toast && <div style={{borderRadius:10,padding:'10px 16px',marginBottom:14,fontSize:13,fontWeight:700,...(toast.type==='ok'?{background:'#dcfce7',color:'#16a34a'}:{background:'#fef2f2',color:'#dc2626'})}}>{toast.msg}</div>}
 
       <div className="grid-3-col" style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:14,alignItems:'stretch'}}>
 
-        <Card title="Profile">
+        <Card title={t("account.profile")}>
           <div style={{display:'flex',alignItems:'center',gap:14,marginBottom:14,paddingBottom:14,borderBottom:'1px solid #f1f3f7'}}>
             <div style={{position:'relative',flexShrink:0}}>
               <label style={{cursor:'pointer',position:'relative',display:'block'}}>
@@ -122,71 +122,71 @@ export default function Account() {
             <div>
               <div style={{fontSize:16,fontWeight:800,color:'#0f172a'}}>{user.first_name||''} {user.last_name||''}</div>
               <div style={{fontSize:11,color:'#64748b'}}>@{user.username}</div>
-              <span style={{display:'inline-block',fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:4,marginTop:3,...(user.is_active?{background:'#dcfce7',color:'#16a34a'}:{background:'#fef3c7',color:'#d97706'})}}>{user.is_active?'● Active':'○ Inactive'}</span>
+              <span style={{display:'inline-block',fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:4,marginTop:3,...(user.is_active?{background:'#dcfce7',color:'#16a34a'}:{background:'#fef3c7',color:'#d97706'})}}>{user.is_active?t('account.activeStatus'):t('account.inactiveStatus')}</span>
             </div>
           </div>
-          <Row k="Member ID" v={memberId} mono/><Row k="Email" v={user.email}/><Row k="Tier" v={(user.membership_tier||'basic').toUpperCase()}/><Row k="Country" v={user.country||'—'}/><Row k="Sponsor" v={user.sponsor_username?'@'+user.sponsor_username:'Direct'}/><Row k="Joined" v={user.created_at?new Date(user.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—'} last/>
+          <Row k={t("account.memberId")} v={memberId} mono/><Row k={t("account.email")} v={user.email}/><Row k={t("account.tier")} v={(user.membership_tier||'basic').toUpperCase()}/><Row k={t("account.country")} v={user.country||'—'}/><Row k={t("account.sponsor")} v={user.sponsor_username?'@'+user.sponsor_username:t('account.direct')}/><Row k={t("account.joined")} v={user.created_at?new Date(user.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—'} last/>
         </Card>
 
-        <Card title="Edit Profile">
-          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>First Name</label><input value={firstName} onChange={function(e){setFirstName(e.target.value);}} style={iS} onFocus={foc} onBlur={blu}/></div>
-          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Last Name</label><input value={lastName} onChange={function(e){setLastName(e.target.value);}} style={iS} onFocus={foc} onBlur={blu}/></div>
-          <div style={{marginBottom:14}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Country</label><select value={country} onChange={function(e){setCountry(e.target.value);}} style={iS}><option value="">Select...</option>{COUNTRIES.map(function(c){return <option key={c} value={c}>{c}</option>;})}</select></div>
+        <Card title={t("account.editProfile")}>
+          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.firstName")}</label><input value={firstName} onChange={function(e){setFirstName(e.target.value);}} style={iS} onFocus={foc} onBlur={blu}/></div>
+          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.lastName")}</label><input value={lastName} onChange={function(e){setLastName(e.target.value);}} style={iS} onFocus={foc} onBlur={blu}/></div>
+          <div style={{marginBottom:14}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.country")}</label><select value={country} onChange={function(e){setCountry(e.target.value);}} style={iS}><option value="">{t("account.selectCountry")}</option>{COUNTRIES.map(function(c){return <option key={c} value={c}>{c}</option>;})}</select></div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
-            <div><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Gender</label><select value={gender} onChange={function(e){setGender(e.target.value);}} style={iS}><option value="">Prefer not to say</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>
-            <div><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Age Range</label><select value={ageRange} onChange={function(e){setAgeRange(e.target.value);}} style={iS}><option value="">Select...</option><option value="18-24">18-24</option><option value="25-34">25-34</option><option value="35-44">35-44</option><option value="45-54">45-54</option><option value="55+">55+</option></select></div>
+            <div><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.gender")}</label><select value={gender} onChange={function(e){setGender(e.target.value);}} style={iS}><option value="">{t("account.preferNotToSay")}</option><option value="male">{t("account.male")}</option><option value="female">{t("account.female")}</option><option value="other">{t("account.other")}</option></select></div>
+            <div><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.ageRange")}</label><select value={ageRange} onChange={function(e){setAgeRange(e.target.value);}} style={iS}><option value="">{t("account.selectCountry")}</option><option value="18-24">18-24</option><option value="25-34">25-34</option><option value="35-44">35-44</option><option value="45-54">45-54</option><option value="55+">55+</option></select></div>
           </div>
           <div style={{marginBottom:14}}>
-            <label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Interests <span style={{fontWeight:400,textTransform:'none'}}>(helps match you with relevant content)</span></label>
-            <input value={interests} onChange={function(e){setInterests(e.target.value);}} placeholder="e.g. crypto, marketing, fitness, tech, forex" style={iS} onFocus={foc} onBlur={blu}/>
-            <div style={{fontSize:10,color:'#64748b',marginTop:4}}>Separate interests with commas. These help us show you the most relevant campaign videos.</div>
+            <label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.interests")} <span style={{fontWeight:400,textTransform:'none'}}>{t("account.interestsHelp")}</span></label>
+            <input value={interests} onChange={function(e){setInterests(e.target.value);}} placeholder={t("account.interestsPlaceholder")} style={iS} onFocus={foc} onBlur={blu}/>
+            <div style={{fontSize:10,color:'#64748b',marginTop:4}}>{t("account.interestsNote")}</div>
           </div>
-          <button onClick={saveProfile} disabled={savingProfile} style={Object.assign({},btnS,{background:'#0ea5e9'})}>{savingProfile?'Saving...':'Save Profile'}</button>
+          <button onClick={saveProfile} disabled={savingProfile} style={Object.assign({},btnS,{background:'#0ea5e9'})}>{savingProfile?t('account.saving'):t('account.saveProfile')}</button>
         </Card>
 
-        <Card title="Change Password">
-          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Current Password</label><input type="password" value={currentPw} onChange={function(e){setCurrentPw(e.target.value);}} placeholder="Current password" style={iS} onFocus={foc} onBlur={blu}/></div>
-          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>New Password</label><input type="password" value={newPw} onChange={function(e){setNewPw(e.target.value);}} placeholder="Min. 8 characters" style={iS} onFocus={foc} onBlur={blu}/></div>
-          <div style={{marginBottom:14}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Confirm New</label><input type="password" value={confirmPw} onChange={function(e){setConfirmPw(e.target.value);}} placeholder="Repeat password" style={iS} onFocus={foc} onBlur={blu}/></div>
-          <button onClick={changePassword} disabled={savingPw} style={Object.assign({},btnS,{background:'linear-gradient(135deg,#f59e0b,#ef4444)'})}>{savingPw?'Updating...':'Update Password'}</button>
+        <Card title={t("account.changePassword")}>
+          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.currentPassword")}</label><input type="password" value={currentPw} onChange={function(e){setCurrentPw(e.target.value);}} placeholder={t("account.currentPassword")} style={iS} onFocus={foc} onBlur={blu}/></div>
+          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.newPassword")}</label><input type="password" value={newPw} onChange={function(e){setNewPw(e.target.value);}} placeholder={t("account.minChars")} style={iS} onFocus={foc} onBlur={blu}/></div>
+          <div style={{marginBottom:14}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.confirmNew")}</label><input type="password" value={confirmPw} onChange={function(e){setConfirmPw(e.target.value);}} placeholder={t("account.repeatPassword")} style={iS} onFocus={foc} onBlur={blu}/></div>
+          <button onClick={changePassword} disabled={savingPw} style={Object.assign({},btnS,{background:'linear-gradient(135deg,#f59e0b,#ef4444)'})}>{savingPw?t('account.updating'):t('account.updatePassword')}</button>
         </Card>
 
-        <Card title="Identity Verification (KYC)" chip={kyc==='approved'?{t:'✅ Verified',c:'#16a34a'}:kyc==='pending'?{t:'⏳ Under Review',c:'#f59e0b'}:kyc==='rejected'?{t:'❌ Rejected',c:'#dc2626'}:{t:'Not Started',c:'#64748b'}}>
-          {kyc==='approved'?<div style={{textAlign:'center',padding:'20px 0'}}><div style={{fontSize:32,marginBottom:6}}>✅</div><div style={{fontSize:14,fontWeight:700,color:'#16a34a'}}>Identity Verified</div><div style={{fontSize:11,color:'#64748b'}}>Approved for withdrawals</div></div>
-          :kyc==='pending'?<div style={{textAlign:'center',padding:'20px 0'}}><div style={{fontSize:32,marginBottom:6}}>⏳</div><div style={{fontSize:14,fontWeight:700,color:'#f59e0b'}}>Under Review</div><div style={{fontSize:11,color:'#64748b'}}>Usually 24–48 hours</div></div>
+        <Card title={t("account.kyc")} chip={kyc==='approved'?{t:t('account.verified'),c:'#16a34a'}:kyc==='pending'?{t:t('account.underReview'),c:'#f59e0b'}:kyc==='rejected'?{t:t('account.rejected'),c:'#dc2626'}:{t:t('account.notStarted'),c:'#64748b'}}>
+          {kyc==='approved'?<div style={{textAlign:'center',padding:'20px 0'}}><div style={{fontSize:32,marginBottom:6}}>✅</div><div style={{fontSize:14,fontWeight:700,color:'#16a34a'}}>{t("account.identityVerified")}</div><div style={{fontSize:11,color:'#64748b'}}>{t("account.approvedWithdrawals")}</div></div>
+          :kyc==='pending'?<div style={{textAlign:'center',padding:'20px 0'}}><div style={{fontSize:32,marginBottom:6}}>⏳</div><div style={{fontSize:14,fontWeight:700,color:'#f59e0b'}}>{t("account.underReview").replace("⏳ ","")}</div><div style={{fontSize:11,color:'#64748b'}}>{t("account.underReviewTime")}</div></div>
           :<>
-            {kyc==='rejected'&&<div style={{padding:'8px 12px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:8,marginBottom:10,fontSize:11,color:'#dc2626',fontWeight:600}}>Rejected — please resubmit with clear documents</div>}
+            {kyc==='rejected'&&<div style={{padding:'8px 12px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:8,marginBottom:10,fontSize:11,color:'#dc2626',fontWeight:600}}>{t("account.rejectedResubmit")}</div>}
             <div>
-              <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Date of Birth</label><input type="date" value={kycDob} onChange={function(e){setKycDob(e.target.value);}} required style={iS} onFocus={foc} onBlur={blu}/></div>
-              <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>ID Type</label><select value={kycIdType} onChange={function(e){setKycIdType(e.target.value);}} style={iS}><option value="passport">Passport</option><option value="drivers_licence">Driver's Licence</option><option value="national_id">National ID</option></select></div>
-              <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Upload ID</label>
+              <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.dateOfBirth")}</label><input type="date" value={kycDob} onChange={function(e){setKycDob(e.target.value);}} required style={iS} onFocus={foc} onBlur={blu}/></div>
+              <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.idType")}</label><select value={kycIdType} onChange={function(e){setKycIdType(e.target.value);}} style={iS}><option value="passport">{t("account.passport")}</option><option value="drivers_licence">{t("account.driversLicence")}</option><option value="national_id">{t("account.nationalId")}</option></select></div>
+              <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.uploadId")}</label>
                 <label style={{display:'block',width:'100%',padding:10,border:kycFile?'2px solid #0ea5e9':'2px dashed #d1d5db',borderRadius:10,fontSize:11,color:kycFile?'#0ea5e9':'#64748b',background:'#fafbfc',cursor:'pointer',boxSizing:'border-box',textAlign:'center'}}>
-                  {kycFile ? '✓ '+kycFile.name : '📎 Choose file (JPG, PNG or PDF, max 10MB)'}
+                  {kycFile ? '✓ '+kycFile.name : t('account.chooseFile')}
                   <input type="file" accept=".jpg,.jpeg,.png,.pdf" onChange={function(e){setKycFile(e.target.files[0]||null);}} style={{display:'none'}}/>
                 </label>
               </div>
-              <button onClick={submitKyc} disabled={savingKyc} style={Object.assign({},btnS,{background:'#0ea5e9'})}>{savingKyc?'Submitting...':(kyc==='rejected'?'Resubmit':'Submit Verification')}</button>
+              <button onClick={submitKyc} disabled={savingKyc} style={Object.assign({},btnS,{background:'#0ea5e9'})}>{savingKyc?t('account.submitting'):(kyc==='rejected'?t('account.resubmit'):t('account.submitVerification'))}</button>
             </div>
           </>}
         </Card>
 
-        <Card title="Two-Factor Authentication" chip={user.totp_enabled?{t:'🔒 Enabled',c:'#16a34a'}:{t:'Disabled',c:'#64748b'}}>
+        <Card title={t("account.twoFA")} chip={user.totp_enabled?{t:t('account.twoFAEnabled'),c:'#16a34a'}:{t:t('account.twoFADisabled'),c:'#64748b'}}>
           {user.totp_enabled?<>
-            <div style={{textAlign:'center',padding:'16px 0'}}><div style={{fontSize:32,marginBottom:6}}>🔒</div><div style={{fontSize:14,fontWeight:700,color:'#16a34a'}}>2FA Active</div><div style={{fontSize:11,color:'#64748b'}}>Account protected</div></div>
+            <div style={{textAlign:'center',padding:'16px 0'}}><div style={{fontSize:32,marginBottom:6}}>🔒</div><div style={{fontSize:14,fontWeight:700,color:'#16a34a'}}>{t("account.twoFAActive")}</div><div style={{fontSize:11,color:'#64748b'}}>{t("account.accountProtected")}</div></div>
             <form method="POST" action="/account/2fa-disable" style={{marginTop:'auto'}}>
-              <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Enter code to disable</label><input type="text" name="totp_code" maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric" required style={Object.assign({},iS,{textAlign:'center',letterSpacing:6,fontWeight:800,fontSize:18})}/></div>
-              <button type="submit" style={Object.assign({},btnS,{background:'linear-gradient(135deg,#f59e0b,#ef4444)'})}>Disable 2FA</button>
+              <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.enterCodeDisable")}</label><input type="text" name="totp_code" maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric" required style={Object.assign({},iS,{textAlign:'center',letterSpacing:6,fontWeight:800,fontSize:18})}/></div>
+              <button type="submit" style={Object.assign({},btnS,{background:'linear-gradient(135deg,#f59e0b,#ef4444)'})}>{t("account.disable2FA")}</button>
             </form>
           </>:<>
-            <div style={{textAlign:'center',padding:'16px 0'}}><div style={{fontSize:32,marginBottom:6}}>🔓</div><div style={{fontSize:14,fontWeight:700,color:'#64748b'}}>Not Enabled</div><div style={{fontSize:11,color:'#64748b'}}>Required for withdrawals</div></div>
-            <a href="/account/2fa-setup" style={Object.assign({},btnS,{display:'block',textAlign:'center',textDecoration:'none',background:'#0ea5e9',marginTop:'auto'})}>Setup 2FA →</a>
+            <div style={{textAlign:'center',padding:'16px 0'}}><div style={{fontSize:32,marginBottom:6}}>🔓</div><div style={{fontSize:14,fontWeight:700,color:'#64748b'}}>{t("account.notEnabled")}</div><div style={{fontSize:11,color:'#64748b'}}>{t("account.requiredWithdrawals")}</div></div>
+            <a href="/account/2fa-setup" style={Object.assign({},btnS,{display:'block',textAlign:'center',textDecoration:'none',background:'#0ea5e9',marginTop:'auto'})}>{t("account.setup2FA")}</a>
           </>}
         </Card>
 
-        <Card title="Withdrawal Wallet">
-          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Wallet Address (USDT on Polygon)</label><input value={walletAddr} onChange={function(e){setWalletAddr(e.target.value);}} placeholder="0x..." style={Object.assign({},iS,{fontFamily:'monospace',fontSize:11})} onFocus={foc} onBlur={blu}/></div>
-          <div style={{padding:'10px 12px',background:'#f8f9fb',border:'1px solid #e8ecf2',borderRadius:8,marginBottom:12,fontSize:10,color:'#64748b',lineHeight:1.6}}>Coinbase · MetaMask · Trust Wallet · Rainbow — any wallet that supports USDT on Polygon.</div>
-          <button onClick={saveWallet} disabled={savingWallet} style={Object.assign({},btnS,{background:'#0ea5e9',marginTop:'auto'})}>{savingWallet?'Saving...':'Save Wallet'}</button>
+        <Card title={t("account.withdrawalWallet")}>
+          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>{t("account.walletAddressLabel")}</label><input value={walletAddr} onChange={function(e){setWalletAddr(e.target.value);}} placeholder="0x..." style={Object.assign({},iS,{fontFamily:'monospace',fontSize:11})} onFocus={foc} onBlur={blu}/></div>
+          <div style={{padding:'10px 12px',background:'#f8f9fb',border:'1px solid #e8ecf2',borderRadius:8,marginBottom:12,fontSize:10,color:'#64748b',lineHeight:1.6}}>{t("account.walletSupported")}</div>
+          <button onClick={saveWallet} disabled={savingWallet} style={Object.assign({},btnS,{background:'#0ea5e9',marginTop:'auto'})}>{savingWallet?t('account.saving'):t('account.saveWallet')}</button>
         </Card>
       </div>
     </AppLayout>
