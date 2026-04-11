@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import CustomSelect from '../components/ui/CustomSelect';
@@ -27,6 +28,7 @@ var STREAMS = [
 
 
 export default function CompensationPlan() {
+  var { t } = useTranslation();
   var [activeIdx, setActiveIdx] = useState(0);
   var [matrixPack, setMatrixPack] = useState('2');
   var [matrixDirect, setMatrixDirect] = useState(3);
@@ -38,14 +40,14 @@ export default function CompensationPlan() {
   var s = STREAMS[activeIdx];
 
   return (
-    <AppLayout title="Compensation Plan" subtitle="4 income streams from one platform">
+    <AppLayout title={t("compPlan.title")} subtitle={t("compPlan.subtitle")}>
 
       {/* Hero */}
       <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:18, padding:'36px 36px 28px', marginBottom:20, textAlign:'center', position:'relative', overflow:'hidden' }}>
         <div style={{ position:'absolute', top:-50, right:-50, width:200, height:200, borderRadius:'50%', background:'rgba(14,165,233,.08)', pointerEvents:'none' }}/>
-        <div style={{ fontSize:12, letterSpacing:3, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:10 }}>Compensation Plan</div>
-        <div style={{ fontFamily:'Sora,sans-serif', fontSize:34, fontWeight:900, color:'#fff', marginBottom:8 }}>4 Ways to Earn</div>
-        <div style={{ fontSize:15, color:'rgba(255,255,255,.5)', marginBottom:24, lineHeight:1.6 }}>Click any income stream below to explore how it works</div>
+        <div style={{ fontSize:12, letterSpacing:3, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:10 }}>{t('compPlan.heroLabel')}</div>
+        <div style={{ fontFamily:'Sora,sans-serif', fontSize:34, fontWeight:900, color:'#fff', marginBottom:8 }}>{t('compPlan.heroTitle')}</div>
+        <div style={{ fontSize:15, color:'rgba(255,255,255,.5)', marginBottom:24, lineHeight:1.6 }}>{t('compPlan.heroDesc')}</div>
 
         {/* Clickable cards */}
         <div style={{ display:'flex', justifyContent:'center', gap:12, flexWrap:'wrap' }}>
@@ -97,9 +99,9 @@ export default function CompensationPlan() {
           </div>
           <div style={{ flex:1 }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#0f172a' }}>{s.title}</div>
-            <div style={{ fontSize:14, color:'#64748b', marginTop:2 }}>Income Stream {s.num} of 4</div>
+            <div style={{ fontSize:14, color:'#64748b', marginTop:2 }}>{t('compPlan.incomeStream', {num: s.num})}</div>
           </div>
-          {s.comingSoon && <div style={{ padding:'6px 16px', borderRadius:20, background:'rgba(245,158,11,.08)', fontSize:14, fontWeight:700, color:'#d97706' }}>Coming Soon</div>}
+          {s.comingSoon && <div style={{ padding:'6px 16px', borderRadius:20, background:'rgba(245,158,11,.08)', fontSize:14, fontWeight:700, color:'#d97706' }}>{t('compPlan.comingSoon')}</div>}
         </div>
 
         {/* Stream content */}
@@ -116,7 +118,7 @@ export default function CompensationPlan() {
             {activeIdx > 0 && (
               <button onClick={function(){ setActiveIdx(activeIdx - 1); }}
                 style={{ display:'flex', alignItems:'center', gap:6, padding:'10px 16px', borderRadius:10, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:14, fontWeight:600, color:'#64748b' }}>
-                <ChevronLeft size={16}/> Previous
+                <ChevronLeft size={16}/> {t('compPlan.previous')}
               </button>
             )}
             {activeIdx < STREAMS.length - 1 && (
@@ -139,38 +141,38 @@ export default function CompensationPlan() {
         <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', padding:'24px 28px', display:'flex', alignItems:'center', gap:16 }}>
           <div style={{ fontSize:32 }}>🔄</div>
           <div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#fff' }}>The Repurchase Engine</div>
-            <div style={{ fontSize:14, color:'rgba(255,255,255,.55)', marginTop:2 }}>Why you don't need thousands of recruits</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#fff' }}>{t('compPlan.repurchaseEngine')}</div>
+            <div style={{ fontSize:14, color:'rgba(255,255,255,.55)', marginTop:2 }}>{t('compPlan.repurchaseSubtitle')}</div>
           </div>
         </div>
         <div style={{ padding:'24px 28px' }}>
           <div style={{ fontSize:15, color:'#475569', lineHeight:1.8, marginBottom:20 }}>
-            Traditional network marketing requires you to constantly recruit new people. SuperAdPro is different — your income is driven by <strong style={{ color:'#0f172a' }}>repeat purchases</strong> from the same team members.
+            {t('compPlan.repurchaseDesc')}
           </div>
 
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:20 }}>
             <div style={{ background:'rgba(99,102,241,.06)', border:'1px solid rgba(99,102,241,.15)', borderRadius:14, padding:'20px' }}>
               <div style={{ fontSize:20, marginBottom:8 }}>⚡</div>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:6 }}>Campaign Tiers</div>
-              <div style={{ fontSize:14, color:'#475569', lineHeight:1.7 }}>Members buy a campaign tier to get video views delivered. When their views are used up, they repurchase to get more. Every repurchase fills new positions in your grid and pays you commissions again.</div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:6 }}>{t('compPlan.campaignTiersLabel')}</div>
+              <div style={{ fontSize:14, color:'#475569', lineHeight:1.7 }}>{t('compPlan.campaignTiersRepDesc')}</div>
             </div>
             <div style={{ background:'rgba(139,92,246,.06)', border:'1px solid rgba(139,92,246,.15)', borderRadius:14, padding:'20px' }}>
               <div style={{ fontSize:20, marginBottom:8 }}>🧮</div>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:6 }}>Credit Packs</div>
-              <div style={{ fontSize:14, color:'#475569', lineHeight:1.7 }}>Members buy credits to create AI videos, images, and music. When credits run out, they buy more. Every repurchase fills new positions in your nexus and pays you commissions again.</div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:6 }}>{t('compPlan.creditPacksLabel')}</div>
+              <div style={{ fontSize:14, color:'#475569', lineHeight:1.7 }}>{t('compPlan.creditPacksRepDesc')}</div>
             </div>
           </div>
 
           <div style={{ background:'#f8fafc', borderRadius:12, padding:'18px 22px' }}>
-            <div style={{ fontSize:15, fontWeight:700, color:'#0f172a', marginBottom:10 }}>How it works in practice</div>
+            <div style={{ fontSize:15, fontWeight:700, color:'#0f172a', marginBottom:10 }}>{t('compPlan.howItWorksPractice')}</div>
             <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
               {[
-                'You recruit 3 people — that\'s all you need',
-                'They use AI credits and campaign views as part of their marketing',
-                'When they run out, they repurchase — your nexus and grid fill again',
-                'When your nexus hits 39/39, it advances and a new one starts',
-                'The same 39 people repurchasing fills your next nexus automatically',
-                'Small team + repeat business = sustainable recurring income',
+                t('compPlan.repStep1'),
+                t('compPlan.repStep2'),
+                t('compPlan.repStep3'),
+                t('compPlan.repStep4'),
+                t('compPlan.repStep5'),
+                t('compPlan.repStep6'),
               ].map(function(item, i) {
                 return <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
                   <div style={{ width:6, height:6, borderRadius:'50%', background:'#2563eb', marginTop:8, flexShrink:0 }}/>
@@ -184,17 +186,17 @@ export default function CompensationPlan() {
 
       {/* Two Wallets section */}
       <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', padding:'24px 28px', marginTop:20 }}>
-        <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0f172a', marginBottom:16 }}>Two Wallets — How Earnings Are Paid</div>
+        <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0f172a', marginBottom:16 }}>{t('compPlan.twoWallets')}</div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:16 }}>
           <div style={{ background:'rgba(34,197,94,.06)', border:'1px solid rgba(34,197,94,.15)', borderRadius:12, padding:'18px 14px', textAlign:'center' }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#16a34a' }}>Affiliate Wallet</div>
-            <div style={{ fontSize:13, color:'#64748b', marginTop:8 }}>Membership referrals + Profit Nexus commissions</div>
-            <div style={{ fontSize:13, fontWeight:700, color:'#16a34a', marginTop:8 }}>Always withdrawable</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#16a34a' }}>{t('compPlan.affiliateWalletTitle')}</div>
+            <div style={{ fontSize:13, color:'#64748b', marginTop:8 }}>{t('compPlan.affiliateWalletDesc')}</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'#16a34a', marginTop:8 }}>{t('compPlan.alwaysWithdrawable')}</div>
           </div>
           <div style={{ background:'rgba(99,102,241,.06)', border:'1px solid rgba(99,102,241,.15)', borderRadius:12, padding:'18px 14px', textAlign:'center' }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#6366f1' }}>Campaign Wallet</div>
-            <div style={{ fontSize:13, color:'#64748b', marginTop:8 }}>Grid commissions (direct + uni-level + bonus)</div>
-            <div style={{ fontSize:13, fontWeight:700, color:'#6366f1', marginTop:8 }}>Requires active tier + watch quota</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#6366f1' }}>{t('compPlan.campaignWalletTitle')}</div>
+            <div style={{ fontSize:13, color:'#64748b', marginTop:8 }}>{t('compPlan.campaignWalletDesc')}</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'#6366f1', marginTop:8 }}>{t('compPlan.requiresActiveTier')}</div>
           </div>
         </div>
       </div>
@@ -208,27 +210,28 @@ export default function CompensationPlan() {
    STREAM 1: MEMBERSHIP REFERRALS
    ═══════════════════════════════════════════════════ */
 function MembershipContent() {
+  var { t } = useTranslation();
   return <>
     <FlowArrow steps={[
-      { title:'Referral joins', sub:'Basic $20 or Pro $35', bg:'rgba(99,102,241,.06)', border:'rgba(99,102,241,.15)', color:'#6366f1' },
-      { title:'50% to you', sub:'$10 or $17.50/month', bg:'rgba(34,197,94,.06)', border:'rgba(34,197,94,.15)', color:'#16a34a' },
-      { title:'Affiliate wallet', sub:'Withdraw anytime', bg:'rgba(14,165,233,.06)', border:'rgba(14,165,233,.15)', color:'#0ea5e9' },
+      { title:t('compPlan.referralJoins'), sub:t('compPlan.basicOrPro'), bg:'rgba(99,102,241,.06)', border:'rgba(99,102,241,.15)', color:'#6366f1' },
+      { title:t('compPlan.fiftyToYou'), sub:t('compPlan.tenOrSeventeen'), bg:'rgba(34,197,94,.06)', border:'rgba(34,197,94,.15)', color:'#16a34a' },
+      { title:t('compPlan.affiliateWallet'), sub:t('compPlan.withdrawAnytime'), bg:'rgba(14,165,233,.06)', border:'rgba(14,165,233,.15)', color:'#0ea5e9' },
     ]}/>
 
-    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>Commission Breakdown</div>
+    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>{t('compPlan.commissionBreakdown')}</div>
     <EarnTable headers={['Plan','Monthly','Annual','Your commission (monthly)','Your commission (annual)']} rows={[
       ['Basic','$20/mo','$200/yr','$10/mo','$100 upfront'],
       ['Pro','$35/mo','$350/yr','$17.50/mo','$175 upfront'],
     ]}/>
 
     <InfoBox items={[
-      'Paid instantly on every signup — no minimum requirements',
-      'Recurring monthly as long as your referral stays active',
-      'Annual referrals pay a big one-time commission upfront',
-      'No campaign tier required — earn from day one',
-      'Commissions go to your Affiliate Wallet — withdraw anytime',
+      t('compPlan.memKey1'),
+      t('compPlan.memKey2'),
+      t('compPlan.memKey3'),
+      t('compPlan.memKey4'),
+      t('compPlan.memKey5'),
     ]} color="#16a34a"/>
-    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#64748b', textDecoration:'none' }}>Income Disclaimer →</Link></div>
+    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#64748b', textDecoration:'none' }}>{t('compPlan.incomeDisclaimer')}</Link></div>
   </>;
 }
 
@@ -237,14 +240,15 @@ function MembershipContent() {
    STREAM 2: CAMPAIGN GRID
    ═══════════════════════════════════════════════════ */
 function GridContent() {
+  var { t } = useTranslation();
   return <>
     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:20 }}>
-      <CommBox val="40%" label="Direct Sponsor" sub="Your referral buys a tier" color="#16a34a" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
-      <CommBox val="6.25%" label="× 8 Levels Deep" sub="Earn from entire network" color="#6366f1" bg="rgba(99,102,241,.06)" border="rgba(99,102,241,.15)"/>
-      <CommBox val="5%" label="Completion Bonus" sub="Grid fills 64 positions" color="#d97706" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
+      <CommBox val="40%" label={t('compPlan.directSponsor')} sub={t('compPlan.yourReferralBuysTier')} color="#16a34a" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
+      <CommBox val="6.25%" label={t('compPlan.eightLevelsDeep')} sub={t('compPlan.earnEntireNetwork')} color="#6366f1" bg="rgba(99,102,241,.06)" border="rgba(99,102,241,.15)"/>
+      <CommBox val="5%" label={t('compPlan.completionBonus')} sub={t('compPlan.gridFills64')} color="#d97706" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
     </div>
 
-    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>8 Campaign Tiers</div>
+    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>{t('compPlan.eightCampaignTiers')}</div>
     <div style={{ display:'grid', gridTemplateColumns:'repeat(8,1fr)', gap:6, marginBottom:20 }}>
       {TIER_NAMES.map(function(n, i) {
         return <div key={i} style={{ background:TIER_GRADS[i], borderRadius:10, padding:'12px 6px', textAlign:'center', color:'#fff' }}>
@@ -254,7 +258,7 @@ function GridContent() {
       })}
     </div>
 
-    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>Earnings Per Tier</div>
+    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>{t('compPlan.earningsPerTier')}</div>
     <EarnTable headers={['Tier','Direct (40%)','Uni-level (6.25% × 8)','Completion Bonus (5%)']} rows={[
       ['T1 Starter $20','$8','$10 per level','$64'],
       ['T2 Builder $50','$20','$25 per level','$160'],
@@ -267,15 +271,15 @@ function GridContent() {
     ]} boldLast/>
 
     <InfoBox items={[
-      'Activate a Campaign Tier to enter the 8×8 Income Grid (64 positions)',
-      'Your referrals and their referrals fill your grid positions',
-      'Positions fill in order — Level 1 first, then Level 2, and so on through all 8 levels. This is what creates the auto-place effect as your team grows',
-      'When all 64 positions fill, you earn the completion bonus and a new grid starts (advance)',
-      'Higher tiers unlock more daily campaign views and bigger bonuses',
-      'Grid earnings go to your Campaign Wallet — requires active tier + daily watch quota',
-      '5% of each tier purchase goes to the company — 95% is paid to members',
+      t('compPlan.gridKey1'),
+      t('compPlan.gridKey2'),
+      t('compPlan.gridKey3'),
+      t('compPlan.gridKey4'),
+      t('compPlan.gridKey5'),
+      t('compPlan.gridKey6'),
+      t('compPlan.gridKey7'),
     ]} color="#6366f1"/>
-    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#64748b', textDecoration:'none' }}>Income Disclaimer →</Link></div>
+    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#64748b', textDecoration:'none' }}>{t('compPlan.incomeDisclaimer')}</Link></div>
   </>;
 }
 
@@ -284,6 +288,7 @@ function GridContent() {
    STREAM 3: CREDIT MATRIX
    ═══════════════════════════════════════════════════ */
 function MatrixContent(props) {
+  var { t } = useTranslation();
   var packIdx = parseInt(props.matrixPack);
   var mPrice = TIER_PRICES[packIdx];
   var mDirectEarn = props.matrixDirect * mPrice * 0.15;
@@ -296,23 +301,23 @@ function MatrixContent(props) {
 
   return <>
     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:20 }}>
-      <CommBox val="15%" label="Direct Referral" sub="You personally recruited them" color="#d97706" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
-      <CommBox val="10%" label="Auto-Place" sub="Placed by your network growth" color="#16a34a" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
-      <CommBox val="10%" label="Completion Bonus" sub="Nexus fills all 39 positions" color="#8b5cf6" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
+      <CommBox val="15%" label={t('compPlan.directReferral')} sub={t('compPlan.youRecruited')} color="#d97706" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
+      <CommBox val="10%" label={t('compPlan.autoPlace')} sub={t('compPlan.placedByNetwork')} color="#16a34a" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
+      <CommBox val="10%" label={t('compPlan.completionBonus')} sub={t('compPlan.nexusFills39')} color="#8b5cf6" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
     </div>
 
     {/* Cost breakdown */}
     <div style={{ background:'#f8fafc', borderRadius:12, padding:'16px 20px', marginBottom:20, fontSize:13, color:'#64748b', lineHeight:1.7 }}>
-      <strong style={{ color:'#0f172a' }}>Where does the money go?</strong> 50% covers AI service costs (video, image, music, voice generation), 15% covers platform management, and 35% is paid out as member commissions (15% direct + 10% auto-place + 10% completion bonus). <Link to="/income-disclaimer" style={{ color:'#2563eb', textDecoration:'none', fontWeight:700 }}>View full disclaimer →</Link>
+      <strong style={{ color:'#0f172a' }}>{t('compPlan.whereMoneyGoes')}</strong> {t('compPlan.moneyBreakdown')} <Link to="/income-disclaimer" style={{ color:'#2563eb', textDecoration:'none', fontWeight:700 }}>{t('compPlan.viewDisclaimer')}</Link>
     </div>
 
     {/* Mini tree */}
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:8, padding:'16px 0', marginBottom:20 }}>
-      <div style={{ fontSize:10, color:'#64748b', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Your 3×3 Nexus (39 positions)</div>
-      <div style={{ display:'flex', gap:8 }}><TreeNode type="you" label="You"/></div>
-      <div style={{ fontSize:10, color:'#64748b', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Gold = Direct Referrals (15%)</div>
+      <div style={{ fontSize:10, color:'#64748b', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('compPlan.yourNexus39')}</div>
+      <div style={{ display:'flex', gap:8 }}><TreeNode type="you" label={t('compPlan.you')}/></div>
+      <div style={{ fontSize:10, color:'#64748b', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('compPlan.goldDirect')}</div>
       <div style={{ display:'flex', gap:8 }}><TreeNode type="direct"/><TreeNode type="direct"/><TreeNode type="direct"/></div>
-      <div style={{ fontSize:10, color:'#64748b', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Green = Auto-Place (10%)</div>
+      <div style={{ fontSize:10, color:'#64748b', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('compPlan.greenAutoPlace')}</div>
       <div style={{ display:'flex', gap:8, flexWrap:'wrap', justifyContent:'center' }}>
         {Array.from({length:9}, function(_,i){ return <TreeNode key={i} type="spill"/>; })}
       </div>
@@ -322,7 +327,7 @@ function MatrixContent(props) {
       </div>
     </div>
 
-    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>8 Credit Packs</div>
+    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>{t('compPlan.eightCreditPacks')}</div>
     <div style={{ display:'grid', gridTemplateColumns:'repeat(8,1fr)', gap:6, marginBottom:20 }}>
       {TIER_NAMES.map(function(n, i) {
         return <div key={i} style={{ background:TIER_GRADS[i], borderRadius:10, padding:'12px 6px', textAlign:'center', color:'#fff' }}>
@@ -333,71 +338,71 @@ function MatrixContent(props) {
       })}
     </div>
 
-    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>Per-Position Earnings</div>
+    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>{t('compPlan.perPositionEarnings')}</div>
     <EarnTable headers={['Pack','Price','Credits','Earn per direct (15%)','Earn per auto-place (10%)']} rows={
       TIER_NAMES.map(function(n, i) {
         return [n, '$'+TIER_PRICES[i], TIER_CREDITS[i].toLocaleString(), '$'+(TIER_PRICES[i]*0.15).toFixed(2), '$'+(TIER_PRICES[i]*0.10).toFixed(2)];
       })
     }/>
-    <div style={{ fontSize:11, color:'#64748b', textAlign:'center', marginBottom:20 }}>Per-position earnings — you earn this amount each time a slot fills</div>
+    <div style={{ fontSize:11, color:'#64748b', textAlign:'center', marginBottom:20 }}>{t('compPlan.perPositionNote')}</div>
 
     {/* Calculator */}
     <div style={{ background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:16, padding:28, marginBottom:20 }}>
       <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:20 }}>
         <div style={{ width:48, height:48, borderRadius:12, background:'rgba(139,92,246,.08)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24 }}>🧮</div>
         <div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:17, fontWeight:800, color:'#0f172a' }}>Profit Nexus Calculator</div>
-          <div style={{ fontSize:13, color:'#64748b' }}>See what you could earn based on your scenario</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:17, fontWeight:800, color:'#0f172a' }}>{t('compPlan.nexusCalculator')}</div>
+          <div style={{ fontSize:13, color:'#64748b' }}>{t('compPlan.calcDesc')}</div>
         </div>
       </div>
 
       <div style={{ marginBottom:16 }}>
-        <div style={{ fontSize:14, fontWeight:600, color:'#475569', marginBottom:8 }}>Choose a credit pack</div>
+        <div style={{ fontSize:14, fontWeight:600, color:'#475569', marginBottom:8 }}>{t('compPlan.choosePack')}</div>
         <CustomSelect value={props.matrixPack} onChange={function(v){ props.setMatrixPack(v); }} options={PACK_OPTIONS}/>
       </div>
 
-      <SliderRow label="Your direct referrals" value={props.matrixDirect} min={0} max={39} display={props.matrixDirect} color="#d97706"
+      <SliderRow label={t('compPlan.yourDirectReferrals')} value={props.matrixDirect} min={0} max={39} display={props.matrixDirect} color="#d97706"
         onChange={function(v){ props.setMatrixDirect(v); if (props.matrixSpill > 39 - v) props.setMatrixSpill(39 - v); }}/>
-      <SliderRow label="Auto-Place positions filled" value={props.matrixSpill} min={0} max={props.maxSpill} display={props.matrixSpill} color="#10b981"
+      <SliderRow label={t('compPlan.autoPlaceFilled')} value={props.matrixSpill} min={0} max={props.maxSpill} display={props.matrixSpill} color="#10b981"
         onChange={function(v){ props.setMatrixSpill(v); }}/>
 
       <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:14, padding:24, color:'#fff', marginTop:8 }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-          <div style={{ fontSize:13, color:'rgba(255,255,255,.6)' }}>Total earnings from this nexus</div>
+          <div style={{ fontSize:13, color:'rgba(255,255,255,.6)' }}>{t('compPlan.totalEarningsNexus')}</div>
           <div style={{ fontSize:12, color:'rgba(255,255,255,.4)' }}>{mFilled}/39 filled ({mPct}%)</div>
         </div>
         <div style={{ fontFamily:'Sora,sans-serif', fontSize:42, fontWeight:900, color:'#4ade80', textAlign:'center', marginBottom:16 }}>${mTotal.toFixed(2)}</div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
           <div style={{ background:'rgba(255,255,255,.08)', borderRadius:10, padding:14, textAlign:'center' }}>
-            <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>Direct (15%)</div>
+            <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>{t('compPlan.directPercent')}</div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#fbbf24', marginTop:4 }}>${mDirectEarn.toFixed(2)}</div>
             <div style={{ fontSize:10, color:'rgba(255,255,255,.4)', marginTop:2 }}>{props.matrixDirect} × ${mPrice} × 15%</div>
           </div>
           <div style={{ background:'rgba(255,255,255,.08)', borderRadius:10, padding:14, textAlign:'center' }}>
-            <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>Auto-Place (10%)</div>
+            <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>{t('compPlan.autoPlacePercent')}</div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#4ade80', marginTop:4 }}>${mSpillEarn.toFixed(2)}</div>
             <div style={{ fontSize:10, color:'rgba(255,255,255,.4)', marginTop:2 }}>{props.matrixSpill} × ${mPrice} × 10%</div>
           </div>
           <div style={{ background: mComplete ? 'rgba(139,92,246,.2)' : 'rgba(255,255,255,.05)', borderRadius:10, padding:14, textAlign:'center', border: mComplete ? '1px solid rgba(139,92,246,.3)' : '1px solid transparent' }}>
-            <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>Bonus (10%)</div>
+            <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>{t('compPlan.bonusPercent')}</div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color: mComplete ? '#c084fc' : 'rgba(255,255,255,.2)', marginTop:4 }}>{mComplete ? '$'+mCompletionBonus.toFixed(2) : '🔒'}</div>
-            <div style={{ fontSize:10, color:'rgba(255,255,255,.4)', marginTop:2 }}>{mComplete ? '39 × $'+mPrice+' × 10%' : 'Unlocks at 39/39'}</div>
+            <div style={{ fontSize:10, color:'rgba(255,255,255,.4)', marginTop:2 }}>{mComplete ? '39 × $'+mPrice+' × 10%' : t('compPlan.unlocksAt')}</div>
           </div>
         </div>
-        <div style={{ textAlign:'center', marginTop:14, fontSize:12, color:'rgba(255,255,255,.35)' }}>This is for one nexus. Buy all 8 packs to have 8 nexuses earning simultaneously.</div>
+        <div style={{ textAlign:'center', marginTop:14, fontSize:12, color:'rgba(255,255,255,.35)' }}>{t('compPlan.buyAll8')}</div>
       </div>
     </div>
 
     <InfoBox items={[
-      'Each credit pack has its own independent 3×3 nexus (39 positions)',
-      'Buy a pack → get AI credits + enter your sponsor\'s nexus',
-      'Positions fill left to right, top to bottom — Level 1 fills first (3 slots), then Level 2 (9 slots), then Level 3 (27 slots). This is what creates the auto-place effect',
-      'Commission = 15% if you recruited them, 10% if auto-placed',
-      'When all 39 positions fill, you earn a 10% completion bonus and a new nexus starts',
-      '65% of credit pack cost covers AI services and platform management',
-      'Commissions go to your Affiliate Wallet — always withdrawable',
+      t('compPlan.nexusKey1'),
+      t('compPlan.nexusKey2'),
+      t('compPlan.nexusKey3'),
+      t('compPlan.nexusKey4'),
+      t('compPlan.nexusKey5'),
+      t('compPlan.nexusKey6'),
+      t('compPlan.nexusKey7'),
     ]} color="#8b5cf6"/>
-    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#64748b', textDecoration:'none' }}>Income Disclaimer →</Link></div>
+    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#64748b', textDecoration:'none' }}>{t('compPlan.incomeDisclaimer')}</Link></div>
   </>;
 }
 
@@ -406,20 +411,21 @@ function MatrixContent(props) {
    STREAM 4: COURSES
    ═══════════════════════════════════════════════════ */
 function CoursesContent() {
+  var { t } = useTranslation();
   return <>
     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:20 }}>
-      <CommBox val="100%" label="First Sale" sub="Keep every penny" color="#16a34a" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
-      <CommBox val="Pass-up" label="Cascade System" sub="Subsequent sales flow upline" color="#f59e0b" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
+      <CommBox val="100%" label={t('compPlan.firstSale')} sub={t('compPlan.keepEveryPenny')} color="#16a34a" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
+      <CommBox val="Pass-up" label={t('compPlan.cascadeSystem')} sub={t('compPlan.subsequentSales')} color="#f59e0b" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
       <CommBox val="3 Tiers" label="$100 / $300 / $500" sub="Course price points" color="#8b5cf6" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
     </div>
 
     <InfoBox items={[
-      'Create and sell digital courses on the SuperAdPro marketplace',
-      'Keep 100% of your first sale — no platform cut',
-      'Subsequent sales pass up to your sponsor in a cascade system',
-      'The deeper your network, the more pass-ups flow to you',
-      'Three course tiers: $100, $300, and $500',
-      'This feature is coming soon — stay tuned for the launch',
+      t('compPlan.courseKey1'),
+      t('compPlan.courseKey2'),
+      t('compPlan.courseKey3'),
+      t('compPlan.courseKey4'),
+      t('compPlan.courseKey5'),
+      t('compPlan.courseKey6'),
     ]} color="#f59e0b"/>
   </>;
 }
@@ -474,7 +480,7 @@ function EarnTable(props) {
 function InfoBox(props) {
   return (
     <div style={{ background:'#f8fafc', borderRadius:12, padding:'18px 22px', marginTop:16 }}>
-      <div style={{ fontSize:15, fontWeight:700, color:'#0f172a', marginBottom:10 }}>Key things to know</div>
+      <div style={{ fontSize:15, fontWeight:700, color:'#0f172a', marginBottom:10 }}>{t('compPlan.keyThings')}</div>
       {props.items.map(function(item, i) {
         return <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start', marginBottom: i < props.items.length - 1 ? 10 : 0 }}>
           <div style={{ width:6, height:6, borderRadius:'50%', background:props.color, marginTop:8, flexShrink:0 }}/>
