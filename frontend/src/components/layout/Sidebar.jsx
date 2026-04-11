@@ -50,7 +50,7 @@ function buildNav(t, isAdmin) {
       { label: 'Membership Referrals', icon: Users, path: '/affiliate' },
       { label: 'My Grid', icon: Zap, path: '/grid-visualiser' },
       { label: 'Profit Pipeline', icon: Layers, path: '/credit-matrix' },
-      { label: 'My Matrix', icon: Network, path: '/matrix-visualiser' },
+      { label: 'My Pipeline', icon: Network, path: '/matrix-visualiser' },
       { label: 'Course Marketplace', icon: GraduationCap, path: '/courses', comingSoon: true },
     ]},
     { type: 'divider' },

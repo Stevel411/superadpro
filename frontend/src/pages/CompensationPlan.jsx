@@ -21,7 +21,7 @@ var PACK_OPTIONS = TIER_NAMES.map(function(n, i) {
 var STREAMS = [
   { id:'membership', num:'1', title:'Membership Referrals', shortTitle:'Membership', Icon:Users, color:'#16a34a', bg:'#dcfce7', link:'/affiliate', linkLabel:'View Referrals' },
   { id:'grid', num:'2', title:'8×8 Campaign Grid', shortTitle:'Campaign Grid', Icon:Zap, color:'#6366f1', bg:'#eef2ff', link:'/grid-visualiser', linkLabel:'View Your Grid' },
-  { id:'matrix', num:'3', title:'Profit Pipeline', shortTitle:'Profit Pipeline', Icon:Layers, color:'#8b5cf6', bg:'#ede9fe', link:'/matrix-visualiser', linkLabel:'View Your Matrices' },
+  { id:'matrix', num:'3', title:'Profit Pipeline', shortTitle:'Profit Pipeline', Icon:Layers, color:'#8b5cf6', bg:'#ede9fe', link:'/matrix-visualiser', linkLabel:'View Your Pipeline' },
   { id:'courses', num:'4', title:'Course Marketplace', shortTitle:'Courses', Icon:GraduationCap, color:'#f59e0b', bg:'#fef3c7', link:'/courses', linkLabel:'Coming Soon', comingSoon:true },
 ];
 
