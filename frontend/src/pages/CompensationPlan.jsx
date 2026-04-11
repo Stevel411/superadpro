@@ -229,9 +229,9 @@ function MembershipContent() {
     ]}/>
 
     <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>{t('compPlan.commissionBreakdown')}</div>
-    <EarnTable headers={['Plan','Monthly','Annual','Your commission (monthly)','Your commission (annual)']} rows={[
-      ['Basic','$20/mo','$200/yr','$10/mo','$100 upfront'],
-      ['Pro','$35/mo','$350/yr','$17.50/mo','$175 upfront'],
+    <EarnTable headers={[t('compPlan.plan'),t('compPlan.monthly'),t('compPlan.annual'),t('compPlan.yourCommMonthly'),t('compPlan.yourCommAnnual')]} rows={[
+      ['Basic','$20/mo','$200/yr','$10/mo','$100 '+t('compPlan.upfront')],
+      ['Pro','$35/mo','$350/yr','$17.50/mo','$175 '+t('compPlan.upfront')],
     ]}/>
 
     <InfoBox items={[
@@ -269,15 +269,15 @@ function GridContent() {
     </div>
 
     <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>{t('compPlan.earningsPerTier')}</div>
-    <EarnTable headers={['Tier','Direct (40%)','Uni-level (6.25% × 8)','Completion Bonus (5%)']} rows={[
-      ['T1 Starter $20','$8','$10 per level','$64'],
-      ['T2 Builder $50','$20','$25 per level','$160'],
-      ['T3 Pro $100','$40','$50 per level','$320'],
-      ['T4 Advanced $200','$80','$100 per level','$640'],
-      ['T5 Elite $400','$160','$200 per level','$1,280'],
-      ['T6 Premium $600','$240','$300 per level','$1,920'],
-      ['T7 Executive $800','$320','$400 per level','$2,560'],
-      ['T8 Ultimate $1,000','$400','$500 per level','$3,200'],
+    <EarnTable headers={[t('compPlan.tier'),t('compPlan.direct40'),t('compPlan.uniLevel625'),t('compPlan.completionBonus5')]} rows={[
+      ['T1 Starter $20','$8','$10 '+t('compPlan.perLevel'),'$64'],
+      ['T2 Builder $50','$20','$25 '+t('compPlan.perLevel'),'$160'],
+      ['T3 Pro $100','$40','$50 '+t('compPlan.perLevel'),'$320'],
+      ['T4 Advanced $200','$80','$100 '+t('compPlan.perLevel'),'$640'],
+      ['T5 Elite $400','$160','$200 '+t('compPlan.perLevel'),'$1,280'],
+      ['T6 Premium $600','$240','$300 '+t('compPlan.perLevel'),'$1,920'],
+      ['T7 Executive $800','$320','$400 '+t('compPlan.perLevel'),'$2,560'],
+      ['T8 Ultimate $1,000','$400','$500 '+t('compPlan.perLevel'),'$3,200'],
     ]} boldLast/>
 
     <InfoBox items={[
@@ -349,7 +349,7 @@ function MatrixContent(props) {
     </div>
 
     <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>{t('compPlan.perPositionEarnings')}</div>
-    <EarnTable headers={['Pack','Price','Credits','Earn per direct (15%)','Earn per auto-place (10%)']} rows={
+    <EarnTable headers={[t('compPlan.pack'),t('compPlan.price'),t('compPlan.credits'),t('compPlan.earnPerDirect'),t('compPlan.earnPerAutoPlace')]} rows={
       TIER_NAMES.map(function(n, i) {
         return [n, '$'+TIER_PRICES[i], TIER_CREDITS[i].toLocaleString(), '$'+(TIER_PRICES[i]*0.15).toFixed(2), '$'+(TIER_PRICES[i]*0.10).toFixed(2)];
       })
