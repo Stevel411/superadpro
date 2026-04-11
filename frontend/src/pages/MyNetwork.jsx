@@ -4,9 +4,11 @@ import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 import { Users, DollarSign, TrendingUp, Award, ChevronDown, ChevronUp, Copy, Check } from 'lucide-react';
 import { formatMoney } from '../utils/money';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function MyNetwork() {
   var { t } = useTranslation();
+  const { user: authUser } = useAuth();
   var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);
   var [commView, setCommView] = useState('all');
@@ -19,6 +21,7 @@ export default function MyNetwork() {
   if (loading) return <AppLayout title={t('network.title')}><Spin/></AppLayout>;
 
   var d = data || {};
+  var myUsername = d.username || (authUser && authUser.username) || 'member';
   var referrals = d.referrals || [];
   var commissions = d.commissions || [];
   var activeRefs = referrals.filter(function(r) { return r.is_active; }).length;
@@ -33,7 +36,7 @@ export default function MyNetwork() {
     });
 
   function copyLink() {
-    var link = 'https://www.superadpro.com/ref/' + (d.username || 'member');
+    var link = 'https://www.superadpro.com/ref/' + (myUsername);
     navigator.clipboard.writeText(link).then(function() {
       setCopied(true);
       setTimeout(function() { setCopied(false); }, 2000);
@@ -48,7 +51,7 @@ export default function MyNetwork() {
         <div>
           <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#38bdf8',marginBottom:4}}>{t('network.yourReferralLink')}</div>
           <div style={{fontSize:14,fontWeight:600,color:'rgba(255,255,255,.6)',fontFamily:'monospace'}}>
-            https://www.superadpro.com/ref/{d.username || 'member'}
+            https://www.superadpro.com/ref/{myUsername}
           </div>
         </div>
         <button onClick={copyLink}
