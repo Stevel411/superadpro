@@ -18603,12 +18603,14 @@ def api_network_data(request: Request, user: User = Depends(get_current_user),
     # Commission history
     commissions = get_user_commission_history(db, user.id, limit=30)
     return {
+        "username": user.username,
         "personal_referrals": user.personal_referrals or 0,
         "total_team": user.total_team or 0,
         "total_earned": float(user.total_earned or 0),
         "course_earnings": float(user.course_earnings or 0),
         "grid_earnings": float(user.grid_earnings or 0),
         "marketplace_earnings": float(user.marketplace_earnings or 0),
+        "membership_earned": float(user.membership_earned or 0),
         "referrals": [{
             "id": r.id, "username": r.username, "first_name": r.first_name,
             "is_active": r.is_active, "membership_tier": r.membership_tier or "basic",
