@@ -157,7 +157,7 @@ export default function CompensationPlan() {
             <div style={{ background:'rgba(139,92,246,.06)', border:'1px solid rgba(139,92,246,.15)', borderRadius:14, padding:'20px' }}>
               <div style={{ fontSize:20, marginBottom:8 }}>🧮</div>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:6 }}>Credit Packs</div>
-              <div style={{ fontSize:14, color:'#475569', lineHeight:1.7 }}>Members buy credits to create AI videos, images, and music. When credits run out, they buy more. Every repurchase fills new positions in your matrix and pays you commissions again.</div>
+              <div style={{ fontSize:14, color:'#475569', lineHeight:1.7 }}>Members buy credits to create AI videos, images, and music. When credits run out, they buy more. Every repurchase fills new positions in your nexus and pays you commissions again.</div>
             </div>
           </div>
 
@@ -167,9 +167,9 @@ export default function CompensationPlan() {
               {[
                 'You recruit 3 people — that\'s all you need',
                 'They use AI credits and campaign views as part of their marketing',
-                'When they run out, they repurchase — your matrix and grid fill again',
-                'When your matrix hits 39/39, it advances and a new one starts',
-                'The same 39 people repurchasing fills your next matrix automatically',
+                'When they run out, they repurchase — your nexus and grid fill again',
+                'When your nexus hits 39/39, it advances and a new one starts',
+                'The same 39 people repurchasing fills your next nexus automatically',
                 'Small team + repeat business = sustainable recurring income',
               ].map(function(item, i) {
                 return <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
@@ -298,7 +298,7 @@ function MatrixContent(props) {
     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:20 }}>
       <CommBox val="15%" label="Direct Referral" sub="You personally recruited them" color="#d97706" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
       <CommBox val="10%" label="Auto-Place" sub="Placed by your network growth" color="#16a34a" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
-      <CommBox val="10%" label="Completion Bonus" sub="Matrix fills all 39 positions" color="#8b5cf6" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
+      <CommBox val="10%" label="Completion Bonus" sub="Nexus fills all 39 positions" color="#8b5cf6" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
     </div>
 
     {/* Cost breakdown */}
@@ -384,7 +384,7 @@ function MatrixContent(props) {
             <div style={{ fontSize:10, color:'rgba(255,255,255,.4)', marginTop:2 }}>{mComplete ? '39 × $'+mPrice+' × 10%' : 'Unlocks at 39/39'}</div>
           </div>
         </div>
-        <div style={{ textAlign:'center', marginTop:14, fontSize:12, color:'rgba(255,255,255,.35)' }}>This is for one matrix. Buy all 8 packs to have 8 matrices earning simultaneously.</div>
+        <div style={{ textAlign:'center', marginTop:14, fontSize:12, color:'rgba(255,255,255,.35)' }}>This is for one nexus. Buy all 8 packs to have 8 nexuses earning simultaneously.</div>
       </div>
     </div>
 
@@ -393,7 +393,7 @@ function MatrixContent(props) {
       'Buy a pack → get AI credits + enter your sponsor\'s matrix',
       'Positions fill left to right, top to bottom — Level 1 fills first (3 slots), then Level 2 (9 slots), then Level 3 (27 slots). This is what creates the auto-place effect',
       'Commission = 15% if you recruited them, 10% if auto-placed',
-      'When all 39 positions fill, you earn a 10% completion bonus and a new matrix starts',
+      'When all 39 positions fill, you earn a 10% completion bonus and a new nexus starts',
       '65% of credit pack cost covers AI services and platform management',
       'Commissions go to your Affiliate Wallet — always withdrawable',
     ]} color="#8b5cf6"/>

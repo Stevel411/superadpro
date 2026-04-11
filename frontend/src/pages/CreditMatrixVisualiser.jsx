@@ -67,7 +67,7 @@ export default function CreditMatrixVisualiser() {
   if (loading) {
     return (
       <AppLayout title="Profit Nexus" subtitle="Your Earnings Accelerator">
-        <div style={{ textAlign:'center', padding:60, color:'#94a3b8' }}>Loading matrices...</div>
+        <div style={{ textAlign:'center', padding:60, color:'#94a3b8' }}>Loading nexus...</div>
       </AppLayout>
     );
   }
@@ -150,7 +150,7 @@ export default function CreditMatrixVisualiser() {
         <div style={{ display:'flex', gap:16, marginBottom:24 }}>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#dc2626' }}>{purchased.length}</div>
-            <div style={{ fontSize:12, color:'#94a3b8', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Active Matrices</div>
+            <div style={{ fontSize:12, color:'#94a3b8', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Active Nexuses</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#16a34a' }}>${totalEarned.toFixed(2)}</div>
@@ -287,7 +287,7 @@ export default function CreditMatrixVisualiser() {
           <div style={{ background:'#fff', borderRadius:18, border:'1px solid #e2e8f0', padding:'40px 28px', textAlign:'center' }}>
             <div style={{ fontSize:40, marginBottom:12 }}>🧮</div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0f172a', marginBottom:8 }}>No Credit Packs Yet</div>
-            <div style={{ fontSize:14, color:'#64748b', lineHeight:1.6 }}>Purchase a credit pack to activate your first matrix and start earning commissions from your team's purchases.</div>
+            <div style={{ fontSize:14, color:'#64748b', lineHeight:1.6 }}>Purchase a credit pack to activate your first nexus and start earning commissions from your team's purchases.</div>
           </div>
         )}
 

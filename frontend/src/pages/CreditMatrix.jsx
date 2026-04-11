@@ -119,10 +119,10 @@ export function CreditMatrixContent() {
         {stats && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
             {[
-              { label: 'Matrix Earned', value: '$' + (stats.total_earned || 0).toFixed(2), icon: DollarSign, color: '#22c55e' },
+              { label: 'Nexus Earned', value: '$' + (stats.total_earned || 0).toFixed(2), icon: DollarSign, color: '#22c55e' },
               { label: 'Credit Balance', value: (stats.credit_balance || 0).toLocaleString(), icon: Zap, color: '#f59e0b' },
-              { label: 'Matrix Fill', value: (stats.active_matrix ? stats.active_matrix.fill_pct : 0) + '%', icon: Users, color: '#0ea5e9' },
-              { label: 'Matrices Complete', value: stats.completed_cycles || 0, icon: Award, color: '#8b5cf6' },
+              { label: 'Nexus Fill', value: (stats.active_matrix ? stats.active_matrix.fill_pct : 0) + '%', icon: Users, color: '#0ea5e9' },
+              { label: 'Nexuses Complete', value: stats.completed_cycles || 0, icon: Award, color: '#8b5cf6' },
             ].map(function(card, i) {
               return (
                 <div key={i} style={{ background: '#fff', borderRadius: 10, padding: '14px 16px' }}>
@@ -271,7 +271,7 @@ export function CreditMatrixContent() {
             {!matrixStats && (
               <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8' }}>
                 <Users size={40} color="#e2e8f0" />
-                <div style={{ marginTop: 8, fontSize: 14 }}>Buy your first credit pack to start your matrix</div>
+                <div style={{ marginTop: 8, fontSize: 14 }}>Buy your first credit pack to start your nexus</div>
               </div>
             )}
           </div>
@@ -323,7 +323,7 @@ export function CreditMatrixContent() {
               { step: '2', text: 'Your purchase enters your sponsor\'s 3×3 matrix' },
               { step: '3', text: 'Earn 25% on Level 1, 15% on Level 2, 10% on Level 3' },
               { step: '4', text: 'When all 39 positions fill, earn a completion bonus' },
-              { step: '5', text: 'Matrix resets — earnings continue automatically' },
+              { step: '5', text: 'Nexus resets — earnings continue automatically' },
             ].map(function(item, i) {
               return (
                 <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
