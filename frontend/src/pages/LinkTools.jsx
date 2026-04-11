@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
@@ -23,6 +24,7 @@ const TAG_COLORS = [
 ];
 
 export default function LinkTools() {
+  var { t } = useTranslation();
   const [links, setLinks] = useState([]);
   const [rotators, setRotators] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -254,7 +256,7 @@ export default function LinkTools() {
   );
 
   return (
-    <AppLayout title="Link Tools" subtitle="Short links, rotators, QR codes & UTM tracking" topbarActions={
+    <AppLayout title={t("linkTools.title")} subtitle={t("linkTools.subtitle")} topbarActions={
       <button onClick={() => setShowHelp(true)} style={{display:'flex',alignItems:'center',gap:5,padding:'7px 14px',borderRadius:8,fontSize:12,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:'rgba(255,255,255,0.08)',color:'#38bdf8'}}>
         <HelpCircle size={14}/> Help
       </button>
@@ -277,8 +279,8 @@ export default function LinkTools() {
 
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:18,marginBottom:24}}>
         {[
-          {label:'Short Links',val:links.length,sub:'active links',grad:'linear-gradient(135deg,#0284c7 0%,#0ea5e9 50%,#38bdf8 100%)',shadow:'rgba(14,165,233,.45)',icon:Link2,emoji:'🔗',delay:0},
-          {label:'Rotators',val:rotators.length,sub:'traffic splitters',grad:'linear-gradient(135deg,#6d28d9 0%,#8b5cf6 50%,#a78bfa 100%)',shadow:'rgba(139,92,246,.45)',icon:Shuffle,emoji:'🔀',delay:.08},
+          {label:t('linkTools.shortLinks'),val:links.length,sub:'active links',grad:'linear-gradient(135deg,#0284c7 0%,#0ea5e9 50%,#38bdf8 100%)',shadow:'rgba(14,165,233,.45)',icon:Link2,emoji:'🔗',delay:0},
+          {label:t('linkTools.rotators'),val:rotators.length,sub:'traffic splitters',grad:'linear-gradient(135deg,#6d28d9 0%,#8b5cf6 50%,#a78bfa 100%)',shadow:'rgba(139,92,246,.45)',icon:Shuffle,emoji:'🔀',delay:.08},
           {label:'Total Clicks',val:totalClicks,sub:'all time',grad:'linear-gradient(135deg,#065f46 0%,#10b981 50%,#34d399 100%)',shadow:'rgba(16,185,129,.45)',icon:MousePointer,emoji:'👆',delay:.16},
           {label:'Protected',val:links.filter(l=>l.has_password).length,sub:'password locked',grad:'linear-gradient(135deg,#92400e 0%,#f59e0b 50%,#fbbf24 100%)',shadow:'rgba(245,158,11,.45)',icon:Shield,emoji:'🔒',delay:.24},
         ].map((s,i) => (
@@ -385,8 +387,8 @@ export default function LinkTools() {
                   </div>
                 </div>
                 <div style={{padding:'8px 16px',borderTop:'1px solid #f1f5f9',display:'flex',gap:6,flexWrap:'wrap',padding:'10px 20px'}}>
-                  <button onClick={() => copyToClip(BASE + '/go/' + l.short_code)} style={smallBtn}><Copy size={12}/> Copy</button>
-                  <button onClick={() => openAnalytics(l.id, 'short')} style={smallBtn}><BarChart3 size={12}/> Analytics</button>
+                  <button onClick={() => copyToClip(BASE + '/go/' + l.short_code)} style={smallBtn}><Copy size={12}/> {t('linkTools.copy')}</button>
+                  <button onClick={() => openAnalytics(l.id, 'short')} style={smallBtn}><BarChart3 size={12}/> {t('linkTools.analytics')}</button>
                   <button onClick={() => openEdit(l)} style={smallBtn}><Edit3 size={12}/> Edit</button>
                   <button onClick={() => setQrLink(l)} style={smallBtn}><QrCode size={12}/> QR</button>
                   <button onClick={() => openTags(l)} style={smallBtn}><Tag size={12}/> Tags</button>
@@ -434,8 +436,8 @@ export default function LinkTools() {
                 </div>
               </div>
               <div style={{padding:'8px 16px',borderTop:'1px solid #f1f3f7',display:'flex',gap:6}}>
-                <button onClick={() => copyToClip(BASE + '/go/' + r.short_code)} style={smallBtn}><Copy size={12}/> Copy</button>
-                <button onClick={() => openAnalytics(r.id, 'rotator')} style={smallBtn}><BarChart3 size={12}/> Analytics</button>
+                <button onClick={() => copyToClip(BASE + '/go/' + r.short_code)} style={smallBtn}><Copy size={12}/> {t('linkTools.copy')}</button>
+                <button onClick={() => openAnalytics(r.id, 'rotator')} style={smallBtn}><BarChart3 size={12}/> {t('linkTools.analytics')}</button>
                 <div style={{flex:1}}/>
                 {confirmDelete === 'rot-' + r.id ? (
                   <>
@@ -455,13 +457,13 @@ export default function LinkTools() {
       {/* ── CREATE SHORT LINK MODAL ── */}
       {showCreate && (
         <Modal onClose={() => { setShowCreate(false); setShowAdvanced(false); }} title="Create Short Link" icon={<Link2 size={18} color="#0ea5e9"/>}>
-          <Label>Destination URL</Label>
-          <Input value={newUrl} onChange={e => setNewUrl(e.target.value)} placeholder="https://your-long-url.com/page"/>
-          <Label>Custom Slug (optional)</Label>
-          <Input value={newSlug} onChange={e => setNewSlug(e.target.value)} placeholder="my-link"/>
+          <Label>{t('linkTools.destinationUrl')}</Label>
+          <Input value={newUrl} onChange={e => setNewUrl(e.target.value)} placeholder={t("linkTools.destinationUrlPlaceholder")}/>
+          <Label>{t('linkTools.customSlug')}</Label>
+          <Input value={newSlug} onChange={e => setNewSlug(e.target.value)} placeholder={t("linkTools.customSlugPlaceholder")}/>
           {newSlug && <div style={{fontSize:11,color:'#64748b',marginTop:-6,marginBottom:10}}>Preview: {BASE}/go/{newSlug || '...'}</div>}
-          <Label>Title (optional)</Label>
-          <Input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder="Campaign name or description"/>
+          <Label>{t('linkTools.titleOptional')}</Label>
+          <Input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder={t("linkTools.titlePlaceholder")}/>
 
           <button onClick={() => setShowAdvanced(!showAdvanced)} style={{
             display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:700,color:'#0ea5e9',
@@ -499,11 +501,11 @@ export default function LinkTools() {
       {/* ── CREATE ROTATOR MODAL ── */}
       {showRotatorCreate && (
         <Modal onClose={() => setShowRotatorCreate(false)} title="Create Link Rotator" icon={<Shuffle size={18} color="#8b5cf6"/>}>
-          <Label>Rotator Name</Label>
-          <Input value={rotName} onChange={e => setRotName(e.target.value)} placeholder="e.g. Facebook Traffic Split"/>
-          <Label>Custom Slug (optional)</Label>
+          <Label>{t('linkTools.rotatorName')}</Label>
+          <Input value={rotName} onChange={e => setRotName(e.target.value)} placeholder={t("linkTools.rotatorNamePlaceholder")}/>
+          <Label>{t('linkTools.customSlug')}</Label>
           <Input value={rotSlug} onChange={e => setRotSlug(e.target.value)} placeholder="my-rotator"/>
-          <Label>Rotation Mode</Label>
+          <Label>{t('linkTools.rotationMode')}</Label>
           <div style={{display:'flex',gap:6,marginBottom:14}}>
             {[['equal','Equal Split'],['weighted','Weighted'],['sequential','Sequential']].map(([k,l]) => (
               <button key={k} onClick={() => setRotMode(k)} style={{
@@ -513,7 +515,7 @@ export default function LinkTools() {
               }}>{l}</button>
             ))}
           </div>
-          <Label>Destination URLs</Label>
+          <Label>{t('linkTools.destinationUrls')}</Label>
           {rotDests.map((d,i) => (
             <div key={i} style={{display:'flex',gap:6,marginBottom:8}}>
               <Input value={d.url} onChange={e => { var n=[...rotDests]; n[i].url=e.target.value; setRotDests(n); }} placeholder={'URL ' + (i+1)} style={{flex:1,marginBottom:0}}/>
@@ -540,10 +542,10 @@ export default function LinkTools() {
       {editLink && (
         <Modal onClose={() => setEditLink(null)} title="Edit Link" icon={<Edit3 size={18} color="#0ea5e9"/>}>
           <div style={{fontSize:11,color:'#64748b',marginBottom:14,fontWeight:600}}>{BASE}/go/{editLink.short_code}</div>
-          <Label>Destination URL</Label>
+          <Label>{t('linkTools.destinationUrl')}</Label>
           <Input value={editDest} onChange={e => setEditDest(e.target.value)} placeholder="https://..."/>
-          <Label>Title</Label>
-          <Input value={editTitle} onChange={e => setEditTitle(e.target.value)} placeholder="Link title"/>
+          <Label>{t('linkTools.linkTitle')}</Label>
+          <Input value={editTitle} onChange={e => setEditTitle(e.target.value)} placeholder={t("linkTools.linkTitlePlaceholder")}/>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
             <div>
               <Label><Calendar size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Expiration</Label>
@@ -576,9 +578,9 @@ export default function LinkTools() {
       {/* ── EDIT ROTATOR MODAL ── */}
       {editRotator && (
         <Modal onClose={() => setEditRotator(null)} title="Edit Rotator" icon={<Shuffle size={18} color="#8b5cf6"/>}>
-          <Label>Rotator Name</Label>
-          <Input value={editRotName} onChange={e => setEditRotName(e.target.value)} placeholder="Rotator name"/>
-          <Label>Rotation Mode</Label>
+          <Label>{t('linkTools.rotatorName')}</Label>
+          <Input value={editRotName} onChange={e => setEditRotName(e.target.value)} placeholder={t("linkTools.rotatorNameEdit")}/>
+          <Label>{t('linkTools.rotationMode')}</Label>
           <div style={{display:'flex',gap:6,marginBottom:14}}>
             {[['equal','Equal Split'],['weighted','Weighted'],['sequential','Sequential']].map(([k,l]) => (
               <button key={k} onClick={() => setEditRotMode(k)} style={{
@@ -588,7 +590,7 @@ export default function LinkTools() {
               }}>{l}</button>
             ))}
           </div>
-          <Label>Destination URLs</Label>
+          <Label>{t('linkTools.destinationUrls')}</Label>
           {editRotDests.map((d,i) => (
             <div key={i} style={{display:'flex',gap:6,marginBottom:8}}>
               <Input value={d.url} onChange={e => { var n=[...editRotDests]; n[i]={...n[i],url:e.target.value}; setEditRotDests(n); }} placeholder={'URL ' + (i+1)} style={{flex:1,marginBottom:0}}/>
@@ -622,27 +624,27 @@ export default function LinkTools() {
       {showUtm && (
         <Modal onClose={() => setShowUtm(false)} title="UTM Tag Builder" icon={<Search size={18} color="#10b981"/>} wide>
           <p style={{fontSize:12,color:'#64748b',marginBottom:16}}>Build campaign-tracked URLs with UTM parameters. Paste any URL and add your campaign tags.</p>
-          <Label>Base URL</Label>
-          <Input value={utmUrl} onChange={e => setUtmUrl(e.target.value)} placeholder="https://example.com/landing-page"/>
+          <Label>{t('linkTools.baseUrl')}</Label>
+          <Input value={utmUrl} onChange={e => setUtmUrl(e.target.value)} placeholder={t("linkTools.baseUrlPlaceholder")}/>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
             <div>
               <Label>Source <span style={{color:'#dc2626'}}>*</span></Label>
-              <Input value={utmSource} onChange={e => setUtmSource(e.target.value)} placeholder="facebook, google, newsletter"/>
+              <Input value={utmSource} onChange={e => setUtmSource(e.target.value)} placeholder={t("linkTools.sourcePlaceholder")}/>
             </div>
             <div>
-              <Label>Medium</Label>
-              <Input value={utmMedium} onChange={e => setUtmMedium(e.target.value)} placeholder="cpc, email, social"/>
+              <Label>{t('linkTools.medium')}</Label>
+              <Input value={utmMedium} onChange={e => setUtmMedium(e.target.value)} placeholder={t("linkTools.mediumPlaceholder")}/>
             </div>
             <div>
-              <Label>Campaign</Label>
-              <Input value={utmCampaign} onChange={e => setUtmCampaign(e.target.value)} placeholder="spring_sale, launch"/>
+              <Label>{t('linkTools.campaign')}</Label>
+              <Input value={utmCampaign} onChange={e => setUtmCampaign(e.target.value)} placeholder={t("linkTools.campaignPlaceholder")}/>
             </div>
             <div>
-              <Label>Term (optional)</Label>
-              <Input value={utmTerm} onChange={e => setUtmTerm(e.target.value)} placeholder="keyword"/>
+              <Label>{t('linkTools.term')}</Label>
+              <Input value={utmTerm} onChange={e => setUtmTerm(e.target.value)} placeholder={t("linkTools.termPlaceholder")}/>
             </div>
           </div>
-          <Label>Content (optional)</Label>
+          <Label>{t('linkTools.content')}</Label>
           <Input value={utmContent} onChange={e => setUtmContent(e.target.value)} placeholder="banner_ad, text_link"/>
 
           {utmResult && (

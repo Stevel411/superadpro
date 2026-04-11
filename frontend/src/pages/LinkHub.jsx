@@ -179,10 +179,10 @@ export default function LinkHub() {
   var arrowObj = ARROW_STYLES.find(function(a){return a.key===style.arrow_style;}) || ARROW_STYLES[0];
   var pubUrl = window.location.origin + '/u/' + (data?.username || 'me');
 
-  if (!data) return <AppLayout title="LinkHub" subtitle="Your link-in-bio editor"><div style={{display:'flex',height:'60vh',alignItems:'center',justifyContent:'center'}}><Spin/></div></AppLayout>;
+  if (!data) return <AppLayout title={t("linkHub.title")} subtitle={t("linkHub.subtitle")}><div style={{display:'flex',height:'60vh',alignItems:'center',justifyContent:'center'}}><Spin/></div></AppLayout>;
 
   return (
-    <AppLayout title="LinkHub" subtitle="Your link-in-bio editor">
+    <AppLayout title={t("linkHub.title")} subtitle={t("linkHub.subtitle")}>
     <div style={{display:'flex',height:'calc(100vh - 72px)',fontFamily:'DM Sans,sans-serif',background:'#f0f3f9',overflow:'hidden',margin:'-24px',borderRadius:0,gap:0}}>
       {/* ═══ LEFT PANEL ═══ */}
       <div style={{width:16,flexShrink:0,background:'#f0f3f9'}}/>
@@ -191,7 +191,7 @@ export default function LinkHub() {
         <div style={{padding:'14px 20px',borderBottom:'1px solid #e5e7eb',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
           <div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:900,color:'#0f172a'}}>LinkHub</div>
-            <div style={{fontSize:12,color:'#94a3b8',fontWeight:500}}>Edit your link-in-bio page</div>
+            <div style={{fontSize:12,color:'#94a3b8',fontWeight:500}}>{t('linkHub.editPage')}</div>
           </div>
           <div style={{display:'flex',gap:6}}>
             <button onClick={copyUrl} style={{display:'flex',alignItems:'center',gap:5,padding:'8px 14px',borderRadius:8,border:copied?'1px solid #bbf7d0':'1px solid #e5e7eb',background:copied?'#f0fdf4':'#fff',cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,color:copied?'#16a34a':'#475569',transition:'all .15s'}}>
@@ -266,7 +266,7 @@ export default function LinkHub() {
         <div style={{padding:'14px 20px',borderTop:'1px solid #e5e7eb',flexShrink:0}}>
           <button onClick={save} disabled={saving}
             style={{width:'100%',padding:'15px',borderRadius:10,border:'none',background:saved?'#16a34a':'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:14,fontWeight:800,cursor:saving?'default':'pointer',fontFamily:'inherit',boxShadow:'0 4px 14px rgba(139,92,246,.3)',opacity:saving?0.6:1}}>
-            {saving?'Saving...':saved?'✓ Saved!':'Save & Publish'}
+            {saving?t('linkHub.saving'):saved?t('linkHub.saved'):t('linkHub.savePublish')}
           </button>
         </div>
       </div>
@@ -346,8 +346,8 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
   return (
     <div>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
-        <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:0}}>Your Links</h3>
-        <button onClick={addLink} style={{display:'flex',alignItems:'center',gap:4,padding:'10px 20px',borderRadius:8,border:'none',background:'#8b5cf6',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}><Plus size={14}/> Add Link</button>
+        <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:0}}>{t('linkHub.yourLinks')}</h3>
+        <button onClick={addLink} style={{display:'flex',alignItems:'center',gap:4,padding:'10px 20px',borderRadius:8,border:'none',background:'#8b5cf6',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}><Plus size={14}/> {t('linkHub.addLink')}</button>
       </div>
       <div style={{display:'flex',flexDirection:'column',gap:10}}>
         {links.map(function(link, idx) {
@@ -415,7 +415,7 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
                   })}
                 </div>
               )}
-              <input value={link.title} onChange={function(e){updateLink(link.id,'title',e.target.value);}} placeholder="Link title" style={{width:'100%',padding:'10px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',marginBottom:6,background:'#fff'}}/>
+              <input value={link.title} onChange={function(e){updateLink(link.id,'title',e.target.value);}} placeholder={t("linkHub.linkTitlePlaceholder")} style={{width:'100%',padding:'10px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',marginBottom:6,background:'#fff'}}/>
               <input value={link.url} onChange={function(e){updateLink(link.id,'url',e.target.value);}} placeholder="https://..." style={{width:'100%',padding:'10px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff',color:'#64748b'}}/>
               {/* Per-link button colour */}
               <div style={{display:'flex',alignItems:'center',gap:8,marginTop:8}}>
@@ -434,7 +434,7 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
             </div>
           );
         })}
-        {links.length === 0 && <div style={{textAlign:'center',padding:'40px 20px',color:'#94a3b8',fontSize:13}}>No links yet. Click "Add Link" to get started.</div>}
+        {links.length === 0 && <div style={{textAlign:'center',padding:'40px 20px',color:'#94a3b8',fontSize:13}}>{t("linkHub.noLinks")}</div>}
       </div>
     </div>
   );
@@ -500,7 +500,7 @@ function StylePanel({ style, setStyle }) {
               reader.readAsDataURL(file);
             }} style={{display:'none'}}/>
           </label>
-          <input value={style.bg_image_url||''} onChange={upd('bg_image_url')} placeholder="or paste URL..." style={{flex:1,padding:'8px 10px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:10,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/>
+          <input value={style.bg_image_url||''} onChange={upd('bg_image_url')} placeholder={t("linkHub.orPasteUrl")} style={{flex:1,padding:'8px 10px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:10,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/>
         </div>
       </div>
 
@@ -624,11 +624,11 @@ function ProfilePanel({ profile, setProfile, onRemoveAvatar }) {
 
       <div style={{marginBottom:14}}>
         <label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Display Name</label>
-        <input value={profile.display_name} onChange={upd('display_name')} placeholder="Your Name" style={inputStyle}/>
+        <input value={profile.display_name} onChange={upd('display_name')} placeholder={t("linkHub.yourName")} style={inputStyle}/>
       </div>
       <div style={{marginBottom:14}}>
         <label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Bio</label>
-        <textarea value={profile.bio} onChange={upd('bio')} rows={3} placeholder="Tell the world about you..." style={Object.assign({},inputStyle,{resize:'vertical'})}/>
+        <textarea value={profile.bio} onChange={upd('bio')} rows={3} placeholder={t("linkHub.bioPlaceholder")} style={Object.assign({},inputStyle,{resize:'vertical'})}/>
       </div>
       <div>
         <label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Avatar URL (or use upload above)</label>
