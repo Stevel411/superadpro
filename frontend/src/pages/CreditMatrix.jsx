@@ -60,7 +60,7 @@ export function CreditMatrixContent() {
           window.open(r.invoice_url, '_blank');
           setMessage({
             type: 'success',
-            text: 'Payment window opened — complete your USDT payment to receive ' + r.credits + ' credits. Your matrix will update automatically once payment is confirmed.',
+            text: 'Payment window opened — complete your USDT payment to receive ' + r.credits + ' credits. Your nexus will update automatically once payment is confirmed.',
           });
         } else if (r.success && !r.action) {
           // Wallet payment succeeded directly
@@ -183,10 +183,10 @@ export function CreditMatrixContent() {
             </div>
           </div>
 
-          {/* Matrix Tree Visualisation */}
+          {/* Nexus Tree Visualisation */}
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px 24px', marginBottom: 20 }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 16 }}>Your 3×3 Nexus
-              {matrixData && <span style={{ fontSize: 13, fontWeight: 400, color: '#94a3b8', marginLeft: 8 }}>Matrix #{matrixData.cycle_number} — {matrixData.positions_filled}/{matrixData.max_positions} filled</span>}
+              {matrixData && <span style={{ fontSize: 13, fontWeight: 400, color: '#94a3b8', marginLeft: 8 }}>Nexus #{matrixData.cycle_number} — {matrixData.positions_filled}/{matrixData.max_positions} filled</span>}
             </div>
 
             {/* Progress bar */}
@@ -202,7 +202,7 @@ export function CreditMatrixContent() {
               </div>
             )}
 
-            {/* Matrix tree — 3 levels */}
+            {/* Nexus tree — 3 levels */}
             {matrixStats && (
               <div style={{ textAlign: 'center' }}>
                 {/* YOU — Level 0 */}
@@ -289,7 +289,7 @@ export function CreditMatrixContent() {
             {showCommissions && commissions && commissions.commissions && (
               <div style={{ marginTop: 12 }}>
                 {commissions.commissions.length === 0 && (
-                  <div style={{ fontSize: 13, color: '#94a3b8', padding: '20px 0', textAlign: 'center' }}>No commissions yet — they'll appear here when your matrix fills</div>
+                  <div style={{ fontSize: 13, color: '#94a3b8', padding: '20px 0', textAlign: 'center' }}>No commissions yet — they'll appear here when your nexus fills</div>
                 )}
                 {commissions.commissions.map(function(c, i) {
                   return (
@@ -338,7 +338,7 @@ export function CreditMatrixContent() {
           {/* Earnings potential */}
           <div style={{ background: 'linear-gradient(135deg, #f3f0ff, #ede9fe)', borderRadius: 14, border: '1px solid #ddd6fe', padding: '20px', marginBottom: 16 }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: '#4c1d95', marginBottom: 10 }}>Earnings potential</div>
-            <div style={{ fontSize: 13, color: '#6d28d9', marginBottom: 12 }}>Full matrix (39 members) buying all 5 packs:</div>
+            <div style={{ fontSize: 13, color: '#6d28d9', marginBottom: 12 }}>Full nexus (39 members) buying all 5 packs:</div>
             {[
               { label: 'L1 (3 members × 25%)', amount: '$693.75' },
               { label: 'L2 (9 members × 15%)', amount: '$1,248.75' },
@@ -353,7 +353,7 @@ export function CreditMatrixContent() {
               );
             })}
             <div style={{ borderTop: '1px solid #c4b5fd', marginTop: 8, paddingTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 15, fontWeight: 800 }}>
-              <span style={{ color: '#4c1d95' }}>Total per matrix</span>
+              <span style={{ color: '#4c1d95' }}>Total per nexus</span>
               <span style={{ color: '#4c1d95' }}>$4,690.00</span>
             </div>
           </div>

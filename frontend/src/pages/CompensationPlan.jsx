@@ -363,7 +363,7 @@ function MatrixContent(props) {
 
       <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:14, padding:24, color:'#fff', marginTop:8 }}>
         <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:16 }}>
-          <div style={{ fontSize:13, color:'rgba(255,255,255,.6)' }}>Total earnings from this matrix</div>
+          <div style={{ fontSize:13, color:'rgba(255,255,255,.6)' }}>Total earnings from this nexus</div>
           <div style={{ fontSize:12, color:'rgba(255,255,255,.4)' }}>{mFilled}/39 filled ({mPct}%)</div>
         </div>
         <div style={{ fontFamily:'Sora,sans-serif', fontSize:42, fontWeight:900, color:'#4ade80', textAlign:'center', marginBottom:16 }}>${mTotal.toFixed(2)}</div>
@@ -390,7 +390,7 @@ function MatrixContent(props) {
 
     <InfoBox items={[
       'Each credit pack has its own independent 3×3 nexus (39 positions)',
-      'Buy a pack → get AI credits + enter your sponsor\'s matrix',
+      'Buy a pack → get AI credits + enter your sponsor\'s nexus',
       'Positions fill left to right, top to bottom — Level 1 fills first (3 slots), then Level 2 (9 slots), then Level 3 (27 slots). This is what creates the auto-place effect',
       'Commission = 15% if you recruited them, 10% if auto-placed',
       'When all 39 positions fill, you earn a 10% completion bonus and a new nexus starts',

@@ -22,7 +22,7 @@ var SECTIONS = [
     tips: [
       'Membership Referrals — earn 50% recurring ($10 per Basic, $17.50 per Pro) every month your referrals stay active',
       'Campaign Tiers — activate a tier ($20\u2013$1,000) to unlock the 8\xd78 Income Grid with 40% direct + uni-level commissions across 8 levels',
-      'Profit Nexus — your referrals buy Creative Studio credit packs, they enter your 3\xd73 matrix. Earn level commissions + completion bonuses on every cycle',
+      'Profit Nexus — your referrals buy Creative Studio credit packs, they enter your 3\xd73 nexus. Earn level commissions + completion bonuses on every cycle',
       'Course Marketplace (coming soon) — sell digital courses with 100% commission and a pass-up system that creates infinite-depth earning',
       'Visit the Comp Plan page for interactive calculators and the AI assistant that can answer any earnings question',
     ],

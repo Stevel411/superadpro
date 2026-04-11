@@ -135,7 +135,7 @@ export default function CreditMatrixVisualiser() {
   var eMax = 3 * packPrice * 0.15 + 9 * packPrice * 0.10 + 27 * packPrice * 0.10;
 
   return (
-    <AppLayout title="Profit Nexus" subtitle="Your Earnings Accelerator — 3×3 matrices fill as members buy credit packs">
+    <AppLayout title="Profit Nexus" subtitle="Your Earnings Accelerator — 3×3 nexuses fill as members buy credit packs">
       <style>{css}</style>
       <div style={{ maxWidth:1000, margin:'0 auto' }}>
 
@@ -186,7 +186,7 @@ export default function CreditMatrixVisualiser() {
           })}
         </div>
 
-        {/* Matrix tree */}
+        {/* Nexus tree */}
         {activePack && (
           <div style={{ background:'#fff', borderRadius:18, border:'1px solid #e2e8f0', overflow:'hidden', marginBottom:24 }}>
             {/* Cobalt gradient header */}
