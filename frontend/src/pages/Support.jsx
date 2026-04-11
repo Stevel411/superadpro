@@ -5,17 +5,20 @@ import AppLayout from '../components/layout/AppLayout';
 import { apiPost } from '../utils/api';
 import { BookOpen, FileText, MessageCircle, Send, HelpCircle, Mail, CheckCircle, ChevronDown, ChevronRight, Zap, Shield, CreditCard, Users, Eye, LayoutGrid } from 'lucide-react';
 
-var FAQ_ITEMS = [
-  { q: 'How do I earn commissions?', a: 'You earn 50% recurring commission on every membership your referrals pay — every month they stay active. You also earn from the 8-tier campaign grid (40% direct + 6.25% across 8 uni-level tiers) and course sales. Share your referral link to get started.', icon: Zap, color: '#16a34a' },
-  { q: 'What is Watch & Earn?', a: "Watch & Earn is the engine that powers the campaign tier grid. When you watch videos, you deliver real views to other members' campaign tiers. This keeps their campaigns active and their commission qualification alive. It is not a standalone earning feature — it is the mechanism that makes the entire affiliate commission structure work.", icon: Eye, color: '#0ea5e9' },
-  { q: 'How does the grid work?', a: "Each campaign tier has a grid of 64 positions across 8 levels. When members purchase a tier, they fill positions in their sponsor's grid. Commissions flow at each level. When a grid completes (64 members), the owner receives a completion bonus (up to $3,200) and a new grid opens automatically. You can repurchase tiers to reactivate your qualification and keep earning.", icon: LayoutGrid, color: '#8b5cf6' },
-  { q: 'How do withdrawals work?', a: 'Withdrawals are paid in USDT on the Polygon blockchain. You need to complete KYC verification (one-time) and have 2FA enabled. Minimum withdrawal is $10. Go to Wallet and request a payout.', icon: CreditCard, color: '#f59e0b' },
-  { q: "What's the difference between Basic and Pro?", a: 'Basic ($20/mo) gives you access to the core platform: referral commissions, campaign grid, Watch & Earn, LinkHub, Link Tools, and the Marketing Suite. Pro ($35/mo) adds SuperPages, AI Funnels, email autoresponder, CRM, and the leads dashboard.', icon: Shield, color: '#ec4899' },
-  { q: 'How do I refer someone?', a: 'Share your personal referral link: www.superadpro.com/join/[your-username]. You can find it on your dashboard, in Social Share, or generate a QR code for it in the QR Generator. Anyone who signs up through your link becomes your direct referral.', icon: Users, color: '#6366f1' },
-];
+// FAQ_ITEMS moved inside component
 
 export default function Support() {
   var { t } = useTranslation();
+
+  var FAQ_ITEMS = [
+    { q: t('support.faq1Q'), a: t('support.faq1A'), icon: Zap, color: '#16a34a' },
+    { q: t('support.faq2Q'), a: t('support.faq2A'), icon: Eye, color: '#0ea5e9' },
+    { q: t('support.faq3Q'), a: t('support.faq3A'), icon: LayoutGrid, color: '#8b5cf6' },
+    { q: t('support.faq4Q'), a: t('support.faq4A'), icon: CreditCard, color: '#f59e0b' },
+    { q: t('support.faq5Q'), a: t('support.faq5A'), icon: Shield, color: '#ec4899' },
+    { q: t('support.faq6Q'), a: t('support.faq6A'), icon: Users, color: '#6366f1' },
+  ];
+
   var [subject, setSubject] = useState('');
   var [message, setMessage] = useState('');
   var [category, setCategory] = useState('general');
@@ -32,23 +35,23 @@ export default function Support() {
   }
 
   var categories = [
-    { value: 'general', label: 'General Question' },
-    { value: 'billing', label: 'Billing & Payments' },
-    { value: 'technical', label: 'Technical Issue' },
-    { value: 'commissions', label: 'Commissions & Earnings' },
-    { value: 'kyc', label: 'KYC / Verification' },
-    { value: 'feature', label: 'Feature Request' },
+    { value: 'general', label: t('support.catGeneral') },
+    { value: 'billing', label: t('support.catBilling') },
+    { value: 'technical', label: t('support.catTechnical') },
+    { value: 'commissions', label: t('support.catCommissions') },
+    { value: 'kyc', label: t('support.catKyc') },
+    { value: 'feature', label: t('support.catFeature') },
   ];
 
   return (
-    <AppLayout title="Support" subtitle="Get help, find answers, or submit a ticket">
+    <AppLayout title={t("support.title")} subtitle={t("support.subtitle")}>
 
       {/* Quick action cards */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:24}}>
         {[
-          { icon: BookOpen, title: 'Training Centre', desc: 'Step-by-step guides for every feature', link: '/training', color: '#16a34a' },
-          { icon: FileText, title: 'Compensation Plan', desc: 'Understand how you earn', link: '/compensation-plan', color: '#6366f1' },
-          { icon: MessageCircle, title: 'Team Messenger', desc: 'Message your sponsor or team', link: '/team-messenger', color: '#f59e0b' },
+          { icon: BookOpen, title: t('support.trainingCentre'), desc: t('support.trainingCentreDesc'), link: '/training', color: '#16a34a' },
+          { icon: FileText, title: t('support.compensationPlan'), desc: t('support.compensationPlanDesc'), link: '/compensation-plan', color: '#6366f1' },
+          { icon: MessageCircle, title: t('support.teamMessenger'), desc: t('support.teamMessengerDesc'), link: '/team-messenger', color: '#f59e0b' },
         ].map(function(q) {
           var Icon = q.icon;
           return (
@@ -71,7 +74,7 @@ export default function Support() {
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
           <div style={{background:'linear-gradient(135deg,#172554,#1e3a8a)',padding:'18px 22px',display:'flex',alignItems:'center',gap:10}}>
             <HelpCircle size={18} color="#38bdf8"/>
-            <span style={{fontSize:15,fontWeight:800,color:'#fff'}}>Frequently Asked Questions</span>
+            <span style={{fontSize:15,fontWeight:800,color:'#fff'}}>{t('support.faq')}</span>
           </div>
           <div>
             {FAQ_ITEMS.map(function(faq, i) {
@@ -103,7 +106,7 @@ export default function Support() {
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
           <div style={{background:'linear-gradient(135deg,#172554,#1e3a8a)',padding:'18px 22px',display:'flex',alignItems:'center',gap:10}}>
             <Mail size={18} color="#38bdf8"/>
-            <span style={{fontSize:15,fontWeight:800,color:'#fff'}}>Submit a Ticket</span>
+            <span style={{fontSize:15,fontWeight:800,color:'#fff'}}>{t('support.submitTicket')}</span>
           </div>
 
           <div style={{padding:'22px'}}>
@@ -112,8 +115,8 @@ export default function Support() {
                 <div style={{width:56,height:56,borderRadius:'50%',background:'#dcfce7',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 16px'}}>
                   <CheckCircle size={28} color="#16a34a"/>
                 </div>
-                <div style={{fontSize:17,fontWeight:800,color:'#0f172a',marginBottom:6}}>Ticket Submitted</div>
-                <div style={{fontSize:13,color:'#64748b',marginBottom:20,lineHeight:1.6}}>We will get back to you within 24 hours via email.</div>
+                <div style={{fontSize:17,fontWeight:800,color:'#0f172a',marginBottom:6}}>{t('support.ticketSubmitted')}</div>
+                <div style={{fontSize:13,color:'#64748b',marginBottom:20,lineHeight:1.6}}>{t('support.wellGetBack')}</div>
                 <button onClick={function(){setSent(false);}}
                   style={{padding:'10px 24px',borderRadius:10,fontSize:13,fontWeight:700,border:'none',cursor:'pointer',
                     background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontFamily:'inherit'}}>
@@ -124,7 +127,7 @@ export default function Support() {
               <div>
                 {/* Category */}
                 <div style={{marginBottom:16}}>
-                  <label style={{fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:.8,marginBottom:6,display:'block'}}>Category</label>
+                  <label style={{fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:.8,marginBottom:6,display:'block'}}>{t('support.categoryLabel')}</label>
                   <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
                     {categories.map(function(c) {
                       var on = category === c.value;
@@ -143,9 +146,9 @@ export default function Support() {
 
                 {/* Subject */}
                 <div style={{marginBottom:16}}>
-                  <label style={{fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:.8,marginBottom:6,display:'block'}}>Subject</label>
+                  <label style={{fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:.8,marginBottom:6,display:'block'}}>{t('support.subject')}</label>
                   <input value={subject} onChange={function(e){setSubject(e.target.value);}}
-                    placeholder="What do you need help with?"
+                    placeholder={t("support.subjectPlaceholder")}
                     style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,
                       fontFamily:'inherit',background:'#f8fafc',boxSizing:'border-box',outline:'none',color:'#0f172a'}}
                     onFocus={function(e){e.target.style.borderColor='#0ea5e9';}}
@@ -154,9 +157,9 @@ export default function Support() {
 
                 {/* Message */}
                 <div style={{marginBottom:20}}>
-                  <label style={{fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:.8,marginBottom:6,display:'block'}}>Message</label>
+                  <label style={{fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:.8,marginBottom:6,display:'block'}}>{t('support.message')}</label>
                   <textarea value={message} onChange={function(e){setMessage(e.target.value);}}
-                    placeholder="Describe your issue or question in detail..."
+                    placeholder={t("support.messagePlaceholder")}
                     rows={6}
                     style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,
                       fontFamily:'inherit',background:'#f8fafc',boxSizing:'border-box',outline:'none',color:'#0f172a',resize:'vertical'}}
@@ -171,7 +174,7 @@ export default function Support() {
                     background:(subject.trim() && message.trim()) ? 'linear-gradient(135deg,#0ea5e9,#38bdf8)' : '#e2e8f0',
                     color:'#fff',boxShadow:(subject.trim() && message.trim()) ? '0 4px 16px rgba(14,165,233,.3)' : 'none',
                     transition:'all .2s',opacity:sending ? 0.6 : 1}}>
-                  <Send size={15}/> {sending ? 'Sending...' : 'Submit Ticket'}
+                  <Send size={15}/> {sending ? t('support.sending') : t('support.submitBtn')}
                 </button>
 
                 <div style={{textAlign:'center',marginTop:12,fontSize:11,color:'#cbd5e1',lineHeight:1.5}}>
@@ -188,9 +191,9 @@ export default function Support() {
         display:'flex',alignItems:'center',justifyContent:'space-between',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
           <Mail size={16} color="#64748b"/>
-          <span style={{fontSize:13,color:'#64748b'}}>Email us directly: <span style={{fontWeight:700,color:'#0ea5e9'}}>steve@superadpro.com</span></span>
+          <span style={{fontSize:13,color:'#64748b'}}>{t('support.emailDirectly')} <span style={{fontWeight:700,color:'#0ea5e9'}}>steve@superadpro.com</span></span>
         </div>
-        <div style={{fontSize:11,color:'#cbd5e1'}}>Response time: within 24 hours</div>
+        <div style={{fontSize:11,color:'#cbd5e1'}}>{t('support.responseTime')}</div>
       </div>
     </AppLayout>
   );
