@@ -19,17 +19,27 @@ var PACK_OPTIONS = TIER_NAMES.map(function(n, i) {
   return { value: String(i), label: 'T' + (i+1) + ' ' + n + ' — $' + TIER_PRICES[i] + ' (' + TIER_CREDITS[i].toLocaleString() + ' credits)' };
 });
 
-var STREAMS = [
-  { id:'membership', num:'1', title:'Membership Referrals', shortTitle:'Membership', Icon:Users, color:'#16a34a', bg:'#dcfce7', link:'/affiliate', linkLabel:'View Referrals' },
-  { id:'grid', num:'2', title:'8×8 Campaign Grid', shortTitle:'Campaign Grid', Icon:Zap, color:'#6366f1', bg:'#eef2ff', link:'/grid-visualiser', linkLabel:'View Your Grid' },
-  { id:'matrix', num:'3', title:'Profit Nexus', shortTitle:'Profit Nexus', Icon:Layers, color:'#8b5cf6', bg:'#ede9fe', link:'/matrix-visualiser', linkLabel:'View Your Nexus' },
-  { id:'courses', num:'4', title:'Course Marketplace', shortTitle:'Courses', Icon:GraduationCap, color:'#f59e0b', bg:'#fef3c7', link:'/courses', linkLabel:'Coming Soon', comingSoon:true },
+var STREAMS_BASE = [
+  { id:'membership', num:'1', Icon:Users, color:'#16a34a', bg:'#dcfce7', link:'/affiliate' },
+  { id:'grid', num:'2', Icon:Zap, color:'#6366f1', bg:'#eef2ff', link:'/grid-visualiser' },
+  { id:'matrix', num:'3', Icon:Layers, color:'#8b5cf6', bg:'#ede9fe', link:'/matrix-visualiser' },
+  { id:'courses', num:'4', Icon:GraduationCap, color:'#f59e0b', bg:'#fef3c7', link:'/courses', comingSoon:true },
 ];
 
 
 export default function CompensationPlan() {
   var { t } = useTranslation();
   var [activeIdx, setActiveIdx] = useState(0);
+
+  var STREAMS = STREAMS_BASE.map(function(s) {
+    var titles = {
+      membership: { title: t('compPlan.membershipReferrals'), shortTitle: t('compPlan.membership'), linkLabel: t('compPlan.viewReferrals') },
+      grid: { title: t('compPlan.campaignGrid'), shortTitle: t('compPlan.campaignGridShort'), linkLabel: t('compPlan.viewYourGrid') },
+      matrix: { title: t('compPlan.profitNexus'), shortTitle: t('compPlan.profitNexus'), linkLabel: t('compPlan.viewYourNexus') },
+      courses: { title: t('compPlan.courseMarketplace'), shortTitle: t('compPlan.courses'), linkLabel: t('compPlan.comingSoon') },
+    };
+    return Object.assign({}, s, titles[s.id]);
+  });
   var [matrixPack, setMatrixPack] = useState('2');
   var [matrixDirect, setMatrixDirect] = useState(3);
   var [matrixSpill, setMatrixSpill] = useState(36);
@@ -478,6 +488,7 @@ function EarnTable(props) {
 }
 
 function InfoBox(props) {
+  var { t } = useTranslation();
   return (
     <div style={{ background:'#f8fafc', borderRadius:12, padding:'18px 22px', marginTop:16 }}>
       <div style={{ fontSize:15, fontWeight:700, color:'#0f172a', marginBottom:10 }}>{t('compPlan.keyThings')}</div>
