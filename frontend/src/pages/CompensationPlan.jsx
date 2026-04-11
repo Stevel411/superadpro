@@ -21,7 +21,7 @@ var PACK_OPTIONS = TIER_NAMES.map(function(n, i) {
 var STREAMS = [
   { id:'membership', num:'1', title:'Membership Referrals', shortTitle:'Membership', Icon:Users, color:'#16a34a', bg:'#dcfce7', link:'/affiliate', linkLabel:'View Referrals' },
   { id:'grid', num:'2', title:'8×8 Campaign Grid', shortTitle:'Campaign Grid', Icon:Zap, color:'#6366f1', bg:'#eef2ff', link:'/grid-visualiser', linkLabel:'View Your Grid' },
-  { id:'matrix', num:'3', title:'Profit Pipeline', shortTitle:'Profit Pipeline', Icon:Layers, color:'#8b5cf6', bg:'#ede9fe', link:'/matrix-visualiser', linkLabel:'View Your Pipeline' },
+  { id:'matrix', num:'3', title:'Profit Nexus', shortTitle:'Profit Nexus', Icon:Layers, color:'#8b5cf6', bg:'#ede9fe', link:'/matrix-visualiser', linkLabel:'View Your Nexus' },
   { id:'courses', num:'4', title:'Course Marketplace', shortTitle:'Courses', Icon:GraduationCap, color:'#f59e0b', bg:'#fef3c7', link:'/courses', linkLabel:'Coming Soon', comingSoon:true },
 ];
 
@@ -188,7 +188,7 @@ export default function CompensationPlan() {
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:16 }}>
           <div style={{ background:'rgba(34,197,94,.06)', border:'1px solid rgba(34,197,94,.15)', borderRadius:12, padding:'18px 14px', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#16a34a' }}>Affiliate Wallet</div>
-            <div style={{ fontSize:13, color:'#64748b', marginTop:8 }}>Membership referrals + Profit Pipeline commissions</div>
+            <div style={{ fontSize:13, color:'#64748b', marginTop:8 }}>Membership referrals + Profit Nexus commissions</div>
             <div style={{ fontSize:13, fontWeight:700, color:'#16a34a', marginTop:8 }}>Always withdrawable</div>
           </div>
           <div style={{ background:'rgba(99,102,241,.06)', border:'1px solid rgba(99,102,241,.15)', borderRadius:12, padding:'18px 14px', textAlign:'center' }}>
@@ -308,7 +308,7 @@ function MatrixContent(props) {
 
     {/* Mini tree */}
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:8, padding:'16px 0', marginBottom:20 }}>
-      <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Your 3×3 Pipeline (39 positions)</div>
+      <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Your 3×3 Nexus (39 positions)</div>
       <div style={{ display:'flex', gap:8 }}><TreeNode type="you" label="You"/></div>
       <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Gold = Direct Referrals (15%)</div>
       <div style={{ display:'flex', gap:8 }}><TreeNode type="direct"/><TreeNode type="direct"/><TreeNode type="direct"/></div>
@@ -346,7 +346,7 @@ function MatrixContent(props) {
       <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:20 }}>
         <div style={{ width:48, height:48, borderRadius:12, background:'rgba(139,92,246,.08)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24 }}>🧮</div>
         <div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:17, fontWeight:800, color:'#0f172a' }}>Profit Pipeline Calculator</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:17, fontWeight:800, color:'#0f172a' }}>Profit Nexus Calculator</div>
           <div style={{ fontSize:13, color:'#64748b' }}>See what you could earn based on your scenario</div>
         </div>
       </div>
@@ -389,7 +389,7 @@ function MatrixContent(props) {
     </div>
 
     <InfoBox items={[
-      'Each credit pack has its own independent 3×3 pipeline (39 positions)',
+      'Each credit pack has its own independent 3×3 nexus (39 positions)',
       'Buy a pack → get AI credits + enter your sponsor\'s matrix',
       'Positions fill left to right, top to bottom — Level 1 fills first (3 slots), then Level 2 (9 slots), then Level 3 (27 slots). This is what creates the auto-place effect',
       'Commission = 15% if you recruited them, 10% if auto-placed',

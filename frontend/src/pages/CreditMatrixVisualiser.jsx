@@ -66,7 +66,7 @@ export default function CreditMatrixVisualiser() {
 
   if (loading) {
     return (
-      <AppLayout title="Profit Pipeline" subtitle="Your Earnings Accelerator">
+      <AppLayout title="Profit Nexus" subtitle="Your Earnings Accelerator">
         <div style={{ textAlign:'center', padding:60, color:'#94a3b8' }}>Loading matrices...</div>
       </AppLayout>
     );
@@ -135,15 +135,15 @@ export default function CreditMatrixVisualiser() {
   var eMax = 3 * packPrice * 0.15 + 9 * packPrice * 0.10 + 27 * packPrice * 0.10;
 
   return (
-    <AppLayout title="Profit Pipeline" subtitle="Your Earnings Accelerator — 3×3 matrices fill as members buy credit packs">
+    <AppLayout title="Profit Nexus" subtitle="Your Earnings Accelerator — 3×3 matrices fill as members buy credit packs">
       <style>{css}</style>
       <div style={{ maxWidth:1000, margin:'0 auto' }}>
 
         {/* Hero */}
         <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:18, padding:'32px 36px', marginBottom:24, position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:-50, right:-50, width:180, height:180, borderRadius:'50%', background:'rgba(255,255,255,.05)', pointerEvents:'none' }}/>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:900, color:'#fff', marginBottom:6 }}>Profit Pipeline</div>
-          <div style={{ fontSize:14, color:'rgba(255,255,255,.65)' }}>Each credit pack has its own 3×3 pipeline. Earn 15% / 10% / 10% across 3 levels.</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:900, color:'#fff', marginBottom:6 }}>Profit Nexus</div>
+          <div style={{ fontSize:14, color:'rgba(255,255,255,.65)' }}>Each credit pack has its own 3×3 nexus. Earn 15% / 10% / 10% across 3 levels.</div>
         </div>
 
         {/* Stats */}

@@ -54,12 +54,12 @@ export default function IncomeDisclaimer() {
           </Section>
 
           <Section title="Commission Structure">
-            <p>SuperAdPro offers four income streams: Membership Referrals (50% commission), Campaign Grid (40% direct + 6.25% uni-level + 5% completion), Profit Pipeline (15% direct + 10% auto-place + 10% completion), and Course Marketplace (coming soon). All commission rates are clearly disclosed on the Compensation Plan page.</p>
+            <p>SuperAdPro offers four income streams: Membership Referrals (50% commission), Campaign Grid (40% direct + 6.25% uni-level + 5% completion), Profit Nexus (15% direct + 10% auto-place + 10% completion), and Course Marketplace (coming soon). All commission rates are clearly disclosed on the Compensation Plan page.</p>
             <p>Commission rates may be adjusted by SuperAdPro at any time with reasonable notice to members. Any changes will be communicated via the platform and email.</p>
           </Section>
 
           <Section title="Two Wallet System">
-            <p>SuperAdPro operates a dual wallet system. Your Affiliate Wallet holds membership and Profit Pipeline commissions and can be withdrawn at any time. Your Campaign Wallet holds grid commissions and requires an active Campaign Tier and completion of daily watch quotas to access. This structure ensures the platform's advertising ecosystem remains active and sustainable.</p>
+            <p>SuperAdPro operates a dual wallet system. Your Affiliate Wallet holds membership and Profit Nexus commissions and can be withdrawn at any time. Your Campaign Wallet holds grid commissions and requires an active Campaign Tier and completion of daily watch quotas to access. This structure ensures the platform's advertising ecosystem remains active and sustainable.</p>
           </Section>
 
           <Section title="Not Employment">
