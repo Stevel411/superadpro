@@ -399,7 +399,7 @@ export default function Watch() {
   }
 
   // ── NO VIDEOS ──
-  if (videos.length === 0) {
+  if (videos.length === 0 && !quotaComplete) {
     return (
       <AppLayout title={t('watch.title')} subtitle="No active campaigns">
         <style>{CSS}</style>
@@ -409,6 +409,57 @@ export default function Watch() {
             <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0f172a',marginBottom:8}}>No Active Campaigns</div>
             <div style={{fontSize:14,color:'#64748b',lineHeight:1.7,marginBottom:24}}>Check back soon — campaigns are added as advertisers activate their tiers.</div>
             <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>← Dashboard</Link>
+          </div>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  // ── QUOTA COMPLETE — all videos watched ──
+  if (videos.length === 0 && quotaComplete) {
+    const doneRingR = 38;
+    const doneRingC = 2 * Math.PI * doneRingR;
+    return (
+      <AppLayout title={t('watch.title')} subtitle="Daily quota complete!"
+        topbarActions={<>
+          <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:700,padding:'6px 14px',borderRadius:8,background:'rgba(22,163,74,.1)',border:'1px solid rgba(22,163,74,.2)',color:'#22c55e'}}>
+            <span style={{width:7,height:7,borderRadius:'50%',background:'#22c55e'}}/>Qualified
+          </div>
+        </>}>
+        <style>{CSS}</style>
+        <div style={{maxWidth:700,margin:'0 auto'}}>
+          <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:16,padding:'48px 32px',textAlign:'center',boxShadow:'0 1px 4px rgba(0,0,0,.06)'}}>
+            <div style={{width:120,height:120,margin:'0 auto 24px',position:'relative'}}>
+              <svg width="120" height="120" style={{transform:'rotate(-90deg)'}}>
+                <defs><linearGradient id="doneGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="#22c55e"/><stop offset="100%" stopColor="#16a34a"/></linearGradient></defs>
+                <circle cx="60" cy="60" r="50" fill="none" stroke="#dcfce7" strokeWidth="8"/>
+                <circle cx="60" cy="60" r="50" fill="none" stroke="url(#doneGrad)" strokeWidth="8"
+                  strokeLinecap="round" strokeDasharray={2*Math.PI*50} strokeDashoffset={0}
+                  style={{transition:'stroke-dashoffset .6s'}}/>
+              </svg>
+              <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',fontSize:40}}>✓</div>
+            </div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'#16a34a',marginBottom:8}}>Today's Watch Complete!</div>
+            <div style={{fontSize:15,color:'#64748b',lineHeight:1.7,marginBottom:8}}>
+              You watched {watched} of {limit} video{limit!==1?'s':''} today. Your campaign wallet withdrawals are qualified.
+            </div>
+            <div style={{fontSize:13,color:'#64748b',marginBottom:24}}>Resets at midnight UTC</div>
+
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,maxWidth:320,margin:'0 auto 24px'}}>
+              {[
+                {v:d.streak_days||0, l:'Day Streak 🔥', c:'#f59e0b'},
+                {v:d.total_watched||0, l:'Total Watched', c:'#0ea5e9'},
+                {v:`Tier ${d.tier||1}`, l:'Your Level', c:'#a78bfa'},
+                {v:'Active', l:'Commissions', c:'#16a34a'},
+              ].map((s,i) => (
+                <div key={i} style={{background:'#f8fafc',border:'1px solid #e2e8f0',borderRadius:12,padding:'14px 12px',textAlign:'center'}}>
+                  <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:s.c}}>{s.v}</div>
+                  <div style={{fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:.5,color:'#64748b',marginTop:4}}>{s.l}</div>
+                </div>
+              ))}
+            </div>
+
+            <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#16a34a,#22c55e)',borderRadius:10,padding:'12px 28px',textDecoration:'none',boxShadow:'0 4px 14px rgba(22,163,74,.3)'}}>← Back to Dashboard</Link>
           </div>
         </div>
       </AppLayout>
