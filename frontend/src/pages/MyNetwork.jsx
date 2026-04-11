@@ -4,7 +4,7 @@ import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 import { Users, DollarSign, TrendingUp, Award, ChevronDown, ChevronUp, Copy, Check } from 'lucide-react';
 import { formatMoney } from '../utils/money';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 
 export default function MyNetwork() {
   var { t } = useTranslation();
