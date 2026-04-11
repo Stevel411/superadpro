@@ -1,15 +1,16 @@
 import { useState, useRef, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import AppLayout from "../../components/layout/AppLayout";
 import "./content-creator.css";
 
 const TOOLS = [
-  { key: "social",        label: "Social Posts",    icon: "📱" },
-  { key: "video_scripts", label: "Video Scripts",   icon: "🎬" },
-  { key: "email",         label: "Email Copy",      icon: "📧" },
-  { key: "ad_copy",       label: "Ad Copy",         icon: "📢" },
-  { key: "niche",         label: "Niche Finder",    icon: "💡" },
-  { key: "qr",            label: "QR Code",         icon: "📷" },
-  { key: "chat",          label: "AI Sales Chat",   icon: "💬" },
+  { key: "social",        label: "socialPosts",    icon: "📱" },
+  { key: "video_scripts", label: "videoScripts",   icon: "🎬" },
+  { key: "email",         label: "emailCopy",      icon: "📧" },
+  { key: "ad_copy",       label: "adCopy",         icon: "📢" },
+  { key: "niche",         label: "nicheFinder",    icon: "💡" },
+  { key: "qr",            label: "qrCode",         icon: "📷" },
+  { key: "chat",          label: "aiSalesChat",   icon: "💬" },
 ];
 
 const PLATFORMS = [
@@ -36,6 +37,7 @@ const TOOL_CONFIG = {
 };
 
 export default function ContentCreatorPage() {
+  const { t } = useTranslation();
   const [tool, setTool] = useState("social");
   const [prompt, setPrompt] = useState("");
   const [platform, setPlatform] = useState("Facebook");
@@ -83,18 +85,18 @@ export default function ContentCreatorPage() {
   const switchTool = (key) => { setTool(key); setOutput(""); setQrUrl(""); };
 
   return (
-    <AppLayout title="Content Creator">
+    <AppLayout title={t("contentCreator.title")}>
     <div className="cc-root">
       <div className="cc-header">
         <div className="cc-header-inner">
-          <div><div className="cc-subtitle">AI-powered marketing content — choose a tool below</div></div>
+          <div><div className="cc-subtitle">{t("contentCreator.subtitle")}</div></div>
         </div>
       </div>
       <div className="cc-tools">
-        {TOOLS.map(t => (
-          <div key={t.key} className={`cc-tool-card ${tool === t.key ? "active" : ""}`} onClick={() => switchTool(t.key)}>
-            <div className="cc-tool-icon">{t.icon}</div>
-            <div className="cc-tool-label">{t.label}</div>
+        {TOOLS.map(tl => (
+          <div key={tl.key} className={`cc-tool-card ${tool === tl.key ? "active" : ""}`} onClick={() => switchTool(tl.key)}>
+            <div className="cc-tool-icon">{tl.icon}</div>
+            <div className="cc-tool-label">{t(`contentCreator.${tl.label}`)}</div>
           </div>
         ))}
       </div>
@@ -106,10 +108,10 @@ export default function ContentCreatorPage() {
               {chatMessages.length === 0 && (
                 <div className="cc-chat-welcome">
                   <div style={{ fontSize: 36, marginBottom: 12 }}>💬</div>
-                  <div className="cc-chat-welcome-title">AI Sales Assistant</div>
-                  <div className="cc-chat-welcome-sub">Ask me anything about sales, objections, pitches, follow-ups, or closing techniques.</div>
+                  <div className="cc-chat-welcome-title">{t("contentCreator.aiAssistant")}</div>
+                  <div className="cc-chat-welcome-sub">{t("contentCreator.aiAssistantDesc")}</div>
                   <div className="cc-chat-suggestions">
-                    {["How do I handle 'I need to think about it'?", "Write a follow-up message for a cold lead", "Create an elevator pitch for SuperAdPro", "Best closing techniques for network marketing"].map((s, i) => (
+                    {[t("contentCreator.suggestion1"), t("contentCreator.suggestion2"), t("contentCreator.suggestion3"), t("contentCreator.suggestion4")].map((s, i) => (
                       <button key={i} className="cc-chat-suggestion" onClick={() => setChatInput(s)}>{s}</button>
                     ))}
                   </div>
@@ -123,34 +125,34 @@ export default function ContentCreatorPage() {
                   </div>
                 </div>
               ))}
-              {chatLoading && <div className="cc-chat-msg assistant"><div className="cc-chat-bubble assistant"><div className="cc-chat-typing">Thinking...</div></div></div>}
+              {chatLoading && <div className="cc-chat-msg assistant"><div className="cc-chat-bubble assistant"><div className="cc-chat-typing">{t("contentCreator.thinking")}</div></div></div>}
               <div ref={chatEndRef} />
             </div>
             <div className="cc-chat-input-bar">
-              <input className="cc-chat-input" placeholder="Ask your AI sales assistant..." value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendChat()} disabled={chatLoading} />
-              <button className="cc-chat-send" onClick={sendChat} disabled={!chatInput.trim() || chatLoading}>Send</button>
+              <input className="cc-chat-input" placeholder={t("contentCreator.chatPlaceholder")} value={chatInput} onChange={e => setChatInput(e.target.value)} onKeyDown={e => e.key === "Enter" && sendChat()} disabled={chatLoading} />
+              <button className="cc-chat-send" onClick={sendChat} disabled={!chatInput.trim() || chatLoading}>{t("contentCreator.send")}</button>
             </div>
           </div>
         </div>
       ) : (
         <div className="cc-workspace">
           <div className="cc-panel-left">
-            <div className="cc-tool-title">{config.title}</div>
-            <div className="cc-tool-desc">{config.desc}</div>
-            {config.showPlatform && (<div className="cc-section"><div className="cc-label">Platform</div><div className="cc-platform-grid">{PLATFORMS.map(p => (<div key={p.key} className={`cc-platform-pill ${platform === p.key ? "on" : ""}`} style={platform === p.key ? { borderColor: p.color, background: `${p.color}10` } : {}} onClick={() => setPlatform(p.key)}><svg width="16" height="16" viewBox={p.vb || "0 0 24 24"} fill={platform === p.key ? p.color : "#94a3b8"} dangerouslySetInnerHTML={{ __html: p.svg }} /><span className="cc-plat-name" style={platform === p.key ? { color: p.color } : {}}>{p.key}</span></div>))}</div></div>)}
-            <div className="cc-section"><div className="cc-label">{tool === "qr" ? "URL" : "Describe your topic"}</div><textarea className="cc-textarea" rows={tool === "niche" ? 3 : 5} placeholder={config.placeholder} value={prompt} onChange={e => setPrompt(e.target.value)} /></div>
-            {config.showTone && (<div className="cc-section"><div className="cc-label">Tone</div><div className="cc-pills">{TONES.map(t => (<button key={t} className={`cc-pill ${tone === t ? "on" : ""}`} onClick={() => setTone(t)}>{t}</button>))}</div></div>)}
-            {config.showFormat && (<div className="cc-section"><div className="cc-label">Format</div><div className="cc-pills">{VIDEO_FORMATS.map(f => (<button key={f} className={`cc-pill ${format === f ? "on" : ""}`} onClick={() => setFormat(f)}>{f}</button>))}</div></div>)}
-            {config.showCount && (<div className="cc-section"><div className="cc-label">Number to generate</div><div className="cc-pills">{COUNTS.map(c => (<button key={c} className={`cc-pill ${count === c ? "on" : ""}`} onClick={() => setCount(c)}>{c}</button>))}</div></div>)}
-            <div className="cc-section" style={{ marginTop: 24 }}><button className="cc-gen-btn" onClick={generate} disabled={!prompt.trim() || generating}>{generating ? "Generating…" : !prompt.trim() ? "Enter a topic to start" : tool === "qr" ? "📷 Generate QR Code" : "✦ Generate Content"}</button></div>
+            <div className="cc-tool-title">{t("contentCreator." + tool + "Title")}</div>
+            <div className="cc-tool-desc">{t("contentCreator." + (tool === "video_scripts" ? "video" : tool === "ad_copy" ? "ad" : tool) + "Desc")}</div>
+            {config.showPlatform && (<div className="cc-section"><div className="cc-label">{t("contentCreator.platform")}</div><div className="cc-platform-grid">{PLATFORMS.map(p => (<div key={p.key} className={`cc-platform-pill ${platform === p.key ? "on" : ""}`} style={platform === p.key ? { borderColor: p.color, background: `${p.color}10` } : {}} onClick={() => setPlatform(p.key)}><svg width="16" height="16" viewBox={p.vb || "0 0 24 24"} fill={platform === p.key ? p.color : "#94a3b8"} dangerouslySetInnerHTML={{ __html: p.svg }} /><span className="cc-plat-name" style={platform === p.key ? { color: p.color } : {}}>{p.key}</span></div>))}</div></div>)}
+            <div className="cc-section"><div className="cc-label">{tool === "qr" ? t("contentCreator.url") : t("contentCreator.describeTopic")}</div><textarea className="cc-textarea" rows={tool === "niche" ? 3 : 5} placeholder={config.placeholder} value={prompt} onChange={e => setPrompt(e.target.value)} /></div>
+            {config.showTone && (<div className="cc-section"><div className="cc-label">{t("contentCreator.tone")}</div><div className="cc-pills">{TONES.map(t => (<button key={t} className={`cc-pill ${tone === t ? "on" : ""}`} onClick={() => setTone(t)}>{t}</button>))}</div></div>)}
+            {config.showFormat && (<div className="cc-section"><div className="cc-label">{t("contentCreator.format")}</div><div className="cc-pills">{VIDEO_FORMATS.map(f => (<button key={f} className={`cc-pill ${format === f ? "on" : ""}`} onClick={() => setFormat(f)}>{f}</button>))}</div></div>)}
+            {config.showCount && (<div className="cc-section"><div className="cc-label">{t("contentCreator.numberToGenerate")}</div><div className="cc-pills">{COUNTS.map(c => (<button key={c} className={`cc-pill ${count === c ? "on" : ""}`} onClick={() => setCount(c)}>{c}</button>))}</div></div>)}
+            <div className="cc-section" style={{ marginTop: 24 }}><button className="cc-gen-btn" onClick={generate} disabled={!prompt.trim() || generating}>{generating ? t("contentCreator.generating") : !prompt.trim() ? t("contentCreator.enterTopic") : tool === "qr" ? t("contentCreator.generateQR") : t("contentCreator.generateContent")}</button></div>
           </div>
           <div className="cc-panel-right">
-            <div className="cc-output-label">Generated Content</div>
+            <div className="cc-output-label">{t("contentCreator.generatedContent")}</div>
             <div className="cc-output-box">
-              {generating ? (<div className="cc-generating"><div><div className="cc-gen-spinner" /><div className="cc-gen-text">Generating…</div></div></div>
-              ) : output ? (<><div className="cc-output-content"><pre>{output}</pre></div><div className="cc-output-actions"><button className="cc-action-btn" onClick={() => { navigator.clipboard.writeText(output); alert("Copied!"); }}>📋 Copy All</button><button className="cc-action-btn" onClick={() => setOutput("")}>🗑 Clear</button><button className="cc-action-btn primary" onClick={generate}>↻ Regenerate</button></div></>
-              ) : tool === "qr" && qrUrl ? (<div className="cc-output-empty"><div className="cc-output-empty-inner"><img src={qrUrl} alt="QR" style={{ width: 250, height: 250, borderRadius: 12 }} /><div style={{ marginTop: 16 }}><a href={qrUrl} download="superadpro-qr.png" className="cc-action-btn" style={{ textDecoration: "none", display: "inline-block" }}>⬇ Download QR</a></div></div></div>
-              ) : (<div className="cc-output-empty"><div className="cc-output-empty-inner"><div className="cc-output-icon">✦</div><div className="cc-output-title">Your content will appear here</div><div className="cc-output-sub">Choose a tool, describe your topic, and hit generate</div></div></div>)}
+              {generating ? (<div className="cc-generating"><div><div className="cc-gen-spinner" /><div className="cc-gen-text">{t("contentCreator.generating")}</div></div></div>
+              ) : output ? (<><div className="cc-output-content"><pre>{output}</pre></div><div className="cc-output-actions"><button className="cc-action-btn" onClick={() => { navigator.clipboard.writeText(output); alert(t("contentCreator.copied")); }}>{t("contentCreator.copyAll")}</button><button className="cc-action-btn" onClick={() => setOutput("")}>{t("contentCreator.clear")}</button><button className="cc-action-btn primary" onClick={generate}>{t("contentCreator.regenerate")}</button></div></>
+              ) : tool === "qr" && qrUrl ? (<div className="cc-output-empty"><div className="cc-output-empty-inner"><img src={qrUrl} alt="QR" style={{ width: 250, height: 250, borderRadius: 12 }} /><div style={{ marginTop: 16 }}><a href={qrUrl} download="superadpro-qr.png" className="cc-action-btn" style={{ textDecoration: "none", display: "inline-block" }}>{t("contentCreator.downloadQR")}</a></div></div></div>
+              ) : (<div className="cc-output-empty"><div className="cc-output-empty-inner"><div className="cc-output-icon">✦</div><div className="cc-output-title">{t("contentCreator.contentHere")}</div><div className="cc-output-sub">{t("contentCreator.contentHereDesc")}</div></div></div>)}
             </div>
           </div>
         </div>
