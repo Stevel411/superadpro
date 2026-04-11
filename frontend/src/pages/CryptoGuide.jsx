@@ -1,56 +1,24 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { Shield, ExternalLink, ChevronDown, ChevronUp, AlertTriangle, CheckCircle } from 'lucide-react';
 
-var STEPS = [
-  {
-    num: '1', title: 'Download MetaMask', color: '#0ea5e9', bg: '#e0f2fe',
-    content: [
-      'MetaMask is a free crypto wallet used by over 100 million people worldwide. It works as a browser extension on desktop and as a mobile app on iOS and Android.',
-      'Go to metamask.io and download the official app. Create a new wallet, set a strong password, and you will be given a 12-word recovery phrase.',
-    ],
-    warning: 'Write your 12-word recovery phrase on paper and store it somewhere safe. Never share these words with anyone — they are the only way to recover your wallet if you lose access.',
-    link: { url: 'https://metamask.io/download/', label: 'Download MetaMask' },
-  },
-  {
-    num: '2', title: 'Switch to Polygon network', color: '#10b981', bg: '#d1fae5',
-    content: [
-      'SuperAdPro uses the Polygon network because transactions cost less than 1 cent, compared to $5-15 on Ethereum. This means more of your money stays in your pocket.',
-      'In MetaMask, tap the network dropdown at the top of the screen and select "Polygon Mainnet". It is usually pre-loaded — just select it. If you do not see it, tap "Add Network" and search for Polygon.',
-    ],
-    comparison: { bad: { label: 'Ethereum', cost: '$8.50/transfer', color: '#dc2626' }, good: { label: 'Polygon', cost: '<$0.01/transfer', color: '#16a34a' } },
-  },
-  {
-    num: '3', title: 'Get your wallet address', color: '#8b5cf6', bg: '#ede9fe',
-    content: [
-      'Your wallet address is like your bank account number — it is safe to share. In MetaMask, tap your account name at the top to copy your address. It starts with "0x" and is 42 characters long.',
-      'You will need this address to receive commissions from SuperAdPro and to add it to your account settings.',
-    ],
-    tip: 'Go to your Account page on SuperAdPro and paste your wallet address in the Crypto Wallet section. This is where your commissions will be paid.',
-  },
-  {
-    num: '4', title: 'Buy USDT for payments', color: '#f59e0b', bg: '#fef3c7',
-    content: [
-      'USDT (Tether) is a stablecoin — its value stays at $1. You use USDT to pay for memberships and campaign tiers on SuperAdPro.',
-      'You can buy USDT on any major exchange like Binance, Kraken, or Coinbase. Once purchased, withdraw the USDT to your MetaMask wallet address.',
-    ],
-    warning: 'Always select "Polygon" as the withdrawal network when sending USDT to your MetaMask. Selecting the wrong network (like Ethereum) means your funds will arrive on a different network and may not be accessible.',
-    tip: 'You will also need approximately $0.50 worth of POL (Polygon\'s native token) for transaction fees. This small amount is enough for hundreds of transactions.',
-  },
-  {
-    num: '5', title: 'You are ready', color: '#16a34a', bg: '#dcfce7',
-    content: [
-      'Your MetaMask wallet is now set up on Polygon with USDT. You can pay for your SuperAdPro membership, activate campaign tiers, and receive commission payments — all directly to your wallet.',
-      'No payment processor can freeze your funds. No banks involved. Your money, your control. Commissions are paid directly to your wallet address.',
-    ],
-  },
-];
+// STEPS moved inside component
 
 export default function CryptoGuide() {
+  var { t } = useTranslation();
   var [expanded, setExpanded] = useState(null);
 
+  var STEPS = [
+    { num:'1', title:t('cryptoGuide.step1Title'), color:'#0ea5e9', bg:'#e0f2fe', content:[t('cryptoGuide.step1P1'),t('cryptoGuide.step1P2')], warning:t('cryptoGuide.step1Warning'), link:{url:'https://metamask.io/download/',label:t('cryptoGuide.step1Link')} },
+    { num:'2', title:t('cryptoGuide.step2Title'), color:'#10b981', bg:'#d1fae5', content:[t('cryptoGuide.step2P1'),t('cryptoGuide.step2P2')], comparison:{bad:{label:t('cryptoGuide.ethereum'),cost:t('cryptoGuide.ethereumCost'),color:'#dc2626'},good:{label:t('cryptoGuide.polygon'),cost:t('cryptoGuide.polygonCost'),color:'#16a34a'}} },
+    { num:'3', title:t('cryptoGuide.step3Title'), color:'#8b5cf6', bg:'#ede9fe', content:[t('cryptoGuide.step3P1'),t('cryptoGuide.step3P2')], tip:t('cryptoGuide.step3Tip') },
+    { num:'4', title:t('cryptoGuide.step4Title'), color:'#f59e0b', bg:'#fef3c7', content:[t('cryptoGuide.step4P1'),t('cryptoGuide.step4P2')], warning:t('cryptoGuide.step4Warning'), tip:t('cryptoGuide.step4Tip') },
+    { num:'5', title:t('cryptoGuide.step5Title'), color:'#16a34a', bg:'#dcfce7', content:[t('cryptoGuide.step5P1'),t('cryptoGuide.step5P2')] },
+  ];
+
   return (
-    <AppLayout title="Crypto Wallet Guide" subtitle="Set up your wallet in 5 minutes">
+    <AppLayout title={t("cryptoGuide.title")} subtitle={t("cryptoGuide.subtitle")}>
 
       {/* Hero */}
       <div style={{
@@ -63,12 +31,12 @@ export default function CryptoGuide() {
             <Shield size={28} color="#fff"/>
           </div>
           <div>
-            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 24, fontWeight: 800, color: '#fff' }}>Crypto Wallet Setup</div>
-            <div style={{ fontSize: 14, color: 'rgba(255,255,255,.5)' }}>Even if you have never used crypto before</div>
+            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 24, fontWeight: 800, color: '#fff' }}>{t("cryptoGuide.heroTitle")}</div>
+            <div style={{ fontSize: 14, color: 'rgba(255,255,255,.5)' }}>{t("cryptoGuide.heroSubtitle")}</div>
           </div>
         </div>
         <div style={{ fontSize: 16, color: 'rgba(255,255,255,.6)', lineHeight: 1.7, maxWidth: 600, position: 'relative' }}>
-          SuperAdPro uses cryptocurrency for payments and commissions. This guide walks you through setting up a free wallet in about 5 minutes. No technical knowledge required.
+          {t('cryptoGuide.heroDesc')}
         </div>
       </div>
 
@@ -94,7 +62,7 @@ export default function CryptoGuide() {
               </div>
               <div>
                 <div style={{ fontSize: 20, fontWeight: 700, color: '#0f172a' }}>{s.title}</div>
-                <div style={{ fontSize: 14, color: '#64748b' }}>Step {s.num} of 5</div>
+                <div style={{ fontSize: 14, color: '#64748b' }}>{t('cryptoGuide.stepOf', {num: s.num})}</div>
               </div>
             </div>
             {isOpen ? <ChevronUp size={20} color="#94a3b8"/> : <ChevronDown size={20} color="#94a3b8"/>}
@@ -148,8 +116,8 @@ export default function CryptoGuide() {
       <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, padding: '20px 24px', display: 'flex', alignItems: 'center', gap: 14 }}>
         <Shield size={24} color="#0ea5e9"/>
         <div>
-          <div style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>Your money, your control</div>
-          <div style={{ fontSize: 15, color: '#64748b', lineHeight: 1.7 }}>No payment processor can freeze your funds. Commissions pay out directly to your wallet. No banks, no middlemen, no delays.</div>
+          <div style={{ fontSize: 17, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>{t("cryptoGuide.securityTitle")}</div>
+          <div style={{ fontSize: 15, color: '#64748b', lineHeight: 1.7 }}>{t("cryptoGuide.securityDesc")}</div>
         </div>
       </div>
 
