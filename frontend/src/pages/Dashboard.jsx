@@ -74,11 +74,11 @@ export default function Dashboard() {
 
   useEffect(() => {
     var timeout = setTimeout(function() {
-      if (!data) { setError('Dashboard is taking too long to load. Please refresh the page.'); setLoading(false); }
+      if (!data) { setError(t('dashboard.loadingTimeout')); setLoading(false); }
     }, 10000);
     apiGet('/api/dashboard')
       .then(d => { clearTimeout(timeout); _dashCache.data = d; _dashCache.ts = Date.now(); setData(d); setLoading(false); })
-      .catch(e => { clearTimeout(timeout); if (!data) { setError(e?.message || 'Failed to load dashboard'); setLoading(false); } });
+      .catch(e => { clearTimeout(timeout); if (!data) { setError(e?.message || t('dashboard.loadFailed')); setLoading(false); } });
     apiGet('/api/dashboard/goals').then(g => setGoals(g)).catch(() => {});
     return function() { clearTimeout(timeout); };
   }, []);
@@ -92,8 +92,8 @@ export default function Dashboard() {
 
   if (error || !data) {
     return <AppLayout title={t("dashboard.title")}><div style={{ textAlign: 'center', padding: 80, color: '#64748b' }}>
-      <div style={{ fontSize: 16, marginBottom: 12 }}>{error || 'Unable to load dashboard data'}</div>
-      <button onClick={() => window.location.reload()} style={{ padding: '10px 24px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}>Refresh Page</button>
+      <div style={{ fontSize: 16, marginBottom: 12 }}>{error || t('dashboard.unableToLoad')}</div>
+      <button onClick={() => window.location.reload()} style={{ padding: '10px 24px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}>{t('dashboard.refreshPage')}</button>
     </div></AppLayout>;
   }
 
@@ -116,7 +116,7 @@ export default function Dashboard() {
       title={t("dashboard.title")}
       topbarActions={<>
         <div style={{ background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: 10, padding: '7px 16px' }}>
-          <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)' }}>Balance</div>
+          <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)' }}>{t('dashboard.balance')}</div>
           <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 17, fontWeight: 900, color: '#16a34a' }}>${formatMoney(d.balance)}</div>
         </div>
         <span style={{
@@ -125,7 +125,7 @@ export default function Dashboard() {
             ? { background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.2)', color: '#4ade80' }
             : { background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', color: '#fbbf24' })
         }}>
-          {d.is_active ? '● Active Member' : '○ Inactive'}
+          {d.is_active ? '● ' + t('dashboard.activeMember') : '○ ' + t('dashboard.inactive')}
         </span>
       </>}
     >
@@ -137,17 +137,17 @@ export default function Dashboard() {
           display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
         }}>
           <div style={{ flex: 1, minWidth: 240 }}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#132044', marginBottom: 6 }}>🎯 Refer just 2 Basic members and your membership pays for itself</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#132044', marginBottom: 6 }}>🎯 {t('dashboard.activationTitle')}</div>
             <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.7, margin: 0 }}>
-              As a free member you earn <strong>$10 for every Basic member you refer</strong>. Two referrals = $20 → your membership <strong style={{ color: '#0891b2' }}>paid for</strong>.
+              {t('dashboard.activationDesc1')} <strong>{t('dashboard.activationDesc2')}</strong>. {t('dashboard.activationDesc3')} <strong style={{ color: '#0891b2' }}>{t('dashboard.activationPaidFor')}</strong>.
             </p>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, alignItems: 'flex-end', flexShrink: 0 }}>
             <a href="/upgrade" style={{
               fontSize: 14, fontWeight: 700, color: '#fff', background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)',
               padding: '11px 22px', borderRadius: 9, textDecoration: 'none', boxShadow: '0 4px 14px rgba(14,165,233,0.3)',
-            }}>Activate Now — $20 →</a>
-            <Link to="/affiliate" style={{ fontSize: 13, fontWeight: 600, color: '#0891b2', textDecoration: 'none' }}>Get my referral link →</Link>
+            }}>{t('dashboard.activateNow')}</a>
+            <Link to="/affiliate" style={{ fontSize: 13, fontWeight: 600, color: '#0891b2', textDecoration: 'none' }}>{t('dashboard.getMyReferralLink')}</Link>
           </div>
         </div>
       )}
@@ -178,21 +178,21 @@ export default function Dashboard() {
         })}
 
         <div style={{ position:'relative', zIndex:2 }}>
-          <div style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,0.65)', marginBottom:8 }}>Welcome back</div>
+          <div style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,0.65)', marginBottom:8 }}>{t('dashboard.welcomeBack')}</div>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#fff', marginBottom:8 }}>{d.display_name || user?.username}</div>
           <div style={{ fontSize:14, color:'rgba(255,255,255,0.6)', lineHeight:1.6, maxWidth:420, marginBottom:16 }}>
-            You have {d.total_team || 0} members in your network{(d.total_earned || 0) > 0 && ` and earned $${formatMoney(d.total_earned)} across all income streams`}.
+            {t('dashboard.networkMembers', { count: d.total_team || 0 })}{(d.total_earned || 0) > 0 && ` ${t('dashboard.andEarned', { amount: formatMoney(d.total_earned) })}`}.
           </div>
 
           {/* Referral link bar */}
           <div style={{ display:'flex', alignItems:'center', gap:10, background:'rgba(0,0,0,0.25)', borderRadius:10, padding:'10px 16px', maxWidth:520 }}>
-            <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.4)', flexShrink:0 }}>Your link</div>
+            <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.4)', flexShrink:0 }}>{t('dashboard.yourLink')}</div>
             <div style={{ fontSize:13, fontWeight:600, color:'#38bdf8', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', fontFamily:'monospace' }}>
               www.superadpro.com/ref/{user?.username}
             </div>
             <button onClick={function() { copyRefLink('https://www.superadpro.com/ref/' + (user?.username || '')); }}
               style={{ padding:'6px 14px', borderRadius:8, border:'none', background:'#0ea5e9', color:'#fff', fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit', flexShrink:0 }}>
-              {refCopied ? 'Copied!' : 'Copy'}
+              {refCopied ? t('dashboard.copied') : t('dashboard.copy')}
             </button>
           </div>
         </div>
@@ -202,9 +202,9 @@ export default function Dashboard() {
       <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
-            color: '#16a34a', bg: '#dcfce7', badge: '$10 / referral',
-            val: d.membership_earned, name: 'Membership',
-            detail: `${d.personal_referrals || 0} personal referrals`,
+            color: '#16a34a', bg: '#dcfce7', badge: t('dashboard.perReferral'),
+            val: d.membership_earned, name: t('dashboard.membership'),
+            detail: t('dashboard.personalReferrals', { count: d.personal_referrals || 0 }),
             icon: (
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <circle cx="9" cy="7" r="4" fill="#16a34a" opacity="0.9"/>
@@ -215,9 +215,9 @@ export default function Dashboard() {
             )
           },
           {
-            color: '#8b5cf6', bg: '#ede9fe', badge: 'profit nexus',
-            val: d.creative_studio_earned || 0, name: 'Creative Studio',
-            detail: 'Nexus + credit usage commissions',
+            color: '#8b5cf6', bg: '#ede9fe', badge: t('dashboard.profitNexus'),
+            val: d.creative_studio_earned || 0, name: t('dashboard.creativeStudio'),
+            detail: t('dashboard.nexusCommissions'),
             icon: (
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <rect x="2" y="3" width="20" height="14" rx="3" fill="#8b5cf6" opacity=".8"/>
@@ -227,9 +227,9 @@ export default function Dashboard() {
             )
           },
           {
-            color: '#d97706', bg: '#fef3c7', badge: 'watch & grid',
-            val: d.boost_earned, name: 'Campaigns',
-            detail: 'Watch to Earn + grid commissions',
+            color: '#d97706', bg: '#fef3c7', badge: t('dashboard.watchAndGrid'),
+            val: d.boost_earned, name: t('dashboard.campaigns'),
+            detail: t('dashboard.watchGridCommissions'),
             icon: (
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
                 <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="#f59e0b"/>
@@ -268,7 +268,7 @@ export default function Dashboard() {
         <>
           {goals.goals && goals.goals.length > 0 && (
             <>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 12 }}>Your goals this week</div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 12 }}>{t('dashboard.goalsThisWeek')}</div>
               <div className="goals-grid" style={{ display: 'grid', gridTemplateColumns: goals.goals.length === 1 ? '1fr' : 'repeat(2,1fr)', gap: 12, marginBottom: 20 }}>
                 {goals.goals.map(function(g, i) {
                   var ICONS = {
@@ -322,7 +322,7 @@ export default function Dashboard() {
           )}
           {goals.opportunities && goals.opportunities.length > 0 && (
             <>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 12 }}>More opportunities</div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 12 }}>{t('dashboard.moreOpportunities')}</div>
               <div className="goals-grid" style={{ display: 'grid', gridTemplateColumns: goals.opportunities.length === 1 ? '1fr' : 'repeat(2,1fr)', gap: 12, marginBottom: 20 }}>
                 {goals.opportunities.map(function(g, i) {
                   var ICONS = {
@@ -350,36 +350,36 @@ export default function Dashboard() {
       )}
 
       {/* Quick Actions — 6 cards, same for all members */}
-      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 14 }}>Quick Actions</div>
+      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 14 }}>{t('dashboard.quickActions')}</div>
       <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
-            name: 'Platform Tour', desc: 'Take a guided walkthrough of every feature and tool available to you', link: '/tour',
+            name: t('dashboard.platformTour'), desc: t('dashboard.platformTourDesc'), link: '/tour',
             color: '#7c3aed', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
             icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#ede9fe" stroke="#7c3aed" strokeWidth="1.5"/><path d="M12 8v4l3 3" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round"/><path d="M9 3l3-1 3 1" stroke="#a78bfa" strokeWidth="1.5" strokeLinecap="round"/></svg>)
           },
           {
-            name: 'Share Your Link', desc: 'Copy your referral link and share it to start earning 50% commissions', link: '/affiliate',
+            name: t('dashboard.shareYourLink'), desc: t('dashboard.shareYourLinkDesc'), link: '/affiliate',
             color: '#0ea5e9', bg: 'linear-gradient(135deg,#ecfeff,#cffafe)',
             icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#cffafe" stroke="#0ea5e9" strokeWidth="1.5"/><path d="M8 12h8M12 8v8" stroke="#0891b2" strokeWidth="2" strokeLinecap="round"/><circle cx="18" cy="6" r="3" fill="#0ea5e9"/><text x="18" y="8" textAnchor="middle" fontSize="4" fontWeight="bold" fill="#fff">$</text></svg>)
           },
           {
-            name: 'Campaign Tiers', desc: 'Activate a tier to unlock grid commissions and the full earning engine', link: '/campaign-tiers',
+            name: t('dashboard.campaignTiers'), desc: t('dashboard.campaignTiersDesc'), link: '/campaign-tiers',
             color: '#16a34a', bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)',
             icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="url(#qaZap)"/><defs><linearGradient id="qaZap" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse"><stop stopColor="#4ade80"/><stop offset="1" stopColor="#16a34a"/></linearGradient></defs></svg>)
           },
           {
-            name: 'Comp Plan', desc: 'Understand how you earn \u2014 5 income streams, 95% paid to members', link: '/compensation-plan',
+            name: t('dashboard.compPlanAction'), desc: t('dashboard.compPlanDesc'), link: '/compensation-plan',
             color: '#6366f1', bg: 'linear-gradient(135deg,#eef2ff,#e0e7ff)',
             icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" fill="#e0e7ff" stroke="#6366f1" strokeWidth="1.5"/><path d="M8 8h8M8 12h6M8 16h4" stroke="#6366f1" strokeWidth="1.5" strokeLinecap="round"/><circle cx="18" cy="6" r="4" fill="#6366f1"/><text x="18" y="8" textAnchor="middle" fontSize="5" fontWeight="bold" fill="#fff">5</text></svg>)
           },
           {
-            name: 'Analytics', desc: 'Track your earnings, referrals, and campaign performance in real time', link: '/analytics',
+            name: t('dashboard.analytics'), desc: t('dashboard.analyticsDesc'), link: '/analytics',
             color: '#8b5cf6', bg: 'linear-gradient(135deg,#faf5ff,#ede9fe)',
             icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="3" y="14" width="4" height="7" rx="1" fill="#c4b5fd"/><rect x="10" y="9" width="4" height="12" rx="1" fill="#a78bfa"/><rect x="17" y="4" width="4" height="17" rx="1" fill="#8b5cf6"/></svg>)
           },
           {
-            name: 'My Network', desc: 'See your team growing \u2014 track referrals, levels, and network activity', link: '/network',
+            name: t('dashboard.myNetwork'), desc: t('dashboard.myNetworkDesc'), link: '/network',
             color: '#ec4899', bg: 'linear-gradient(135deg,#fdf2f8,#fce7f3)',
             icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.5"/><circle cx="5" cy="18" r="3" fill="#f9a8d4"/><circle cx="19" cy="18" r="3" fill="#f9a8d4"/><path d="M12 12v3M8 15l-3 3M16 15l3 3" stroke="#ec4899" strokeWidth="1.5" strokeLinecap="round"/></svg>)
           },
@@ -405,11 +405,11 @@ export default function Dashboard() {
         {/* Recent Activity */}
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 22, boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a' }}>Recent Activity</div>
-            <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: '#0ea5e9', textDecoration: 'none' }}>View all →</Link>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a' }}>{t('dashboard.recentActivity')}</div>
+            <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: '#0ea5e9', textDecoration: 'none' }}>{t('dashboard.viewAll')}</Link>
           </div>
           {(!Array.isArray(d.recent_activity) || d.recent_activity.length === 0) ? (
-            <div style={{ textAlign: 'center', padding: 24, color: '#64748b', fontSize: 13 }}>No recent activity yet. Share your link to start earning!</div>
+            <div style={{ textAlign: 'center', padding: 24, color: '#64748b', fontSize: 13 }}>{t('dashboard.noRecentActivity')}</div>
           ) : d.recent_activity.map((a, i) => {
             const colorMap = { green: '#dcfce7', cyan: '#e0f2fe', purple: '#ede9fe', amber: '#fef3c7' };
             return (
@@ -428,15 +428,15 @@ export default function Dashboard() {
         {/* Network Snapshot */}
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 22, boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a' }}>Your Network</div>
-            <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: '#0ea5e9', textDecoration: 'none' }}>Full network →</Link>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a' }}>{t('dashboard.yourNetwork')}</div>
+            <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: '#0ea5e9', textDecoration: 'none' }}>{t('dashboard.fullNetwork')}</Link>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
             {[
-              { val: d.personal_referrals || 0, lbl: 'Direct Referrals' },
-              { val: d.total_team || 0, lbl: 'Total Network' },
-              { val: `$${formatMoney(d.total_earned)}`, lbl: 'Lifetime Earned' },
-              { val: `$${formatMoney(d.creative_studio_earned || 0)}`, lbl: 'Studio Earned' },
+              { val: d.personal_referrals || 0, lbl: t('dashboard.directReferrals') },
+              { val: d.total_team || 0, lbl: t('dashboard.totalNetwork') },
+              { val: `$${formatMoney(d.total_earned)}`, lbl: t('dashboard.lifetimeEarned') },
+              { val: `$${formatMoney(d.creative_studio_earned || 0)}`, lbl: t('dashboard.studioEarned') },
             ].map((s, i) => (
               <div key={i} style={{ background: '#f1f5f9', borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
                 <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 24, fontWeight: 800, color: '#16a34a' }}>{s.val}</div>
@@ -446,13 +446,13 @@ export default function Dashboard() {
           </div>
           <div style={{ background: '#f1f5f9', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#475569' }}>Your Referral Link</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: '#475569' }}>{t('dashboard.yourReferralLink')}</div>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#0ea5e9', wordBreak: 'break-all' }}>www.superadpro.com/ref/{user?.username}</div>
             </div>
             <button onClick={copyRef} style={{
               padding: '6px 12px', borderRadius: 7, border: '1px solid #e5e7eb', background: '#fff',
               fontSize: 11, fontWeight: 700, color: '#475569', cursor: 'pointer', flexShrink: 0, fontFamily: 'inherit',
-            }}>{refCopied ? 'Copied!' : 'Copy'}</button>
+            }}>{refCopied ? t('dashboard.copied') : t('dashboard.copy')}</button>
           </div>
         </div>
       </div>
@@ -501,15 +501,15 @@ export default function Dashboard() {
               <span style={{ fontSize: 24 }}>🎉</span>
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: '#172554', marginBottom: 4, letterSpacing: '.3px' }}>{isPro ? 'New Pro Member!' : 'New Team Member!'}</div>
+              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: '#172554', marginBottom: 4, letterSpacing: '.3px' }}>{isPro ? t('dashboard.newProMember') : t('dashboard.newTeamMember')}</div>
               <div style={{ fontSize: 13, color: '#172554', lineHeight: 1.5 }}>
-                <strong style={{ color: '#172554' }}>{toast.first_name} {toast.last_name}</strong> just joined your team
+                <strong style={{ color: '#172554' }}>{toast.first_name} {toast.last_name}</strong> {t('dashboard.justJoinedYourTeam')}
               </div>
               <div style={{ fontSize: 12, color: subColor, marginTop: 3 }}>
-                You'll earn <strong style={{ color: '#172554' }}>{commission}/month</strong> from this referral
+                {t('dashboard.youllEarn')} <strong style={{ color: '#172554' }}>{commission}{t('dashboard.perMonth')}</strong>
               </div>
               <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ padding: '3px 12px', borderRadius: 6, background: badgeBg, border: '1px solid ' + badgeBorder, color: '#172554', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.5px' }}>{isPro ? '★ Pro member' : 'Basic member'}</span>
+                <span style={{ padding: '3px 12px', borderRadius: 6, background: badgeBg, border: '1px solid ' + badgeBorder, color: '#172554', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.5px' }}>{isPro ? '★ ' + t('dashboard.proMember') : t('dashboard.basicMember')}</span>
                 <span style={{ fontSize: 10, color: 'rgba(15,29,58,.4)' }}>@{toast.username}</span>
               </div>
             </div>
