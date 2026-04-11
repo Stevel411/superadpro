@@ -32,8 +32,8 @@ export default function Wallet() {
     const recipient = document.getElementById('p2pRecipient')?.value?.trim();
     const amount = parseFloat(document.getElementById('p2pAmount')?.value);
     const note = document.getElementById('p2pNote')?.value?.trim() || '';
-    if (!recipient) { setP2pResult({ type: 'error', msg: 'Please enter a member ID' }); return; }
-    if (!amount || amount < 1) { setP2pResult({ type: 'error', msg: 'Please enter a valid amount (min $1)' }); return; }
+    if (!recipient) { setP2pResult({ type: 'error', msg: t('wallet.enterMemberId') }); return; }
+    if (!amount || amount < 1) { setP2pResult({ type: 'error', msg: t('wallet.enterValidAmount') }); return; }
     setP2pSending(true);
     try {
       const res = await apiPost('/api/p2p-transfer', { to_member_id: recipient, amount, note });
@@ -44,61 +44,61 @@ export default function Wallet() {
         document.getElementById('p2pNote').value = '';
         setTimeout(() => { apiGet('/api/wallet').then(d => setData(d)); }, 2000);
       } else {
-        setP2pResult({ type: 'error', msg: res.error || 'Transfer failed' });
+        setP2pResult({ type: 'error', msg: res.error || t('wallet.transferFailed') });
       }
-    } catch (e) { setP2pResult({ type: 'error', msg: e.message || 'Network error' }); }
+    } catch (e) { setP2pResult({ type: 'error', msg: e.message || t('wallet.networkError') }); }
     setP2pSending(false);
   };
 
-  if (loading) return <AppLayout title="◎ Wallet"><LoadingSpinner /></AppLayout>;
-  if (!data) return <AppLayout title="◎ Wallet"><div style={{ textAlign: 'center', padding: 80, color: '#94a3b8' }}>Unable to load wallet</div></AppLayout>;
-  if (showHelp) return <AppLayout title="◎ Wallet"><WalletHelp onBack={function() { setShowHelp(false); }}/></AppLayout>;
+  if (loading) return <AppLayout title={t('wallet.title')}><LoadingSpinner /></AppLayout>;
+  if (!data) return <AppLayout title={t('wallet.title')}><div style={{ textAlign: 'center', padding: 80, color: '#94a3b8' }}>{t('wallet.unableToLoad')}</div></AppLayout>;
+  if (showHelp) return <AppLayout title={t('wallet.title')}><WalletHelp onBack={function() { setShowHelp(false); }}/></AppLayout>;
 
   const d = data;
   const memberId = user?.is_admin ? 'SAP-00001' : `SAP-${String(user?.id || 0).padStart(5, '0')}`;
   const renewal = d.renewal || {};
 
   return (
-    <AppLayout title="◎ Wallet" subtitle="Your balance, commissions & withdrawals"
+    <AppLayout title={t('wallet.title')} subtitle={t('wallet.subtitle')}
       topbarActions={<>
         <div style={{ display:'flex', gap:8 }}>
           <div style={{ background: 'rgba(34,197,94,.09)', border: '1px solid rgba(34,197,94,.22)', borderRadius: 10, padding: '7px 14px', textAlign: 'center' }}>
-            <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'rgba(148,163,184,.5)' }}>Affiliate</div>
+            <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'rgba(148,163,184,.5)' }}>{t('wallet.affiliate')}</div>
             <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: '#4ade80' }}>${formatMoney(d.balance)}</div>
           </div>
           <div style={{ background: 'rgba(99,102,241,.09)', border: '1px solid rgba(99,102,241,.22)', borderRadius: 10, padding: '7px 14px', textAlign: 'center' }}>
-            <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'rgba(148,163,184,.5)' }}>Campaign</div>
+            <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'rgba(148,163,184,.5)' }}>{t('wallet.campaign')}</div>
             <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: '#818cf8' }}>${formatMoney(d.campaign_balance || 0)}</div>
           </div>
-          <button onClick={function() { setShowHelp(true); }} style={{ padding:'7px 14px', borderRadius:10, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:12, fontWeight:600, color:'#64748b', display:'flex', alignItems:'center', gap:4 }}>? Help</button>
+          <button onClick={function() { setShowHelp(true); }} style={{ padding:'7px 14px', borderRadius:10, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:12, fontWeight:600, color:'#64748b', display:'flex', alignItems:'center', gap:4 }}>{t('wallet.help')}</button>
         </div>
       </>}
     >
       {/* 4 Stat Pills */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
-        <StatPill value={`$${formatMoney(d.balance)}`} label="Affiliate Wallet" gradient="linear-gradient(90deg,#16a34a,#22c55e)" />
-        <StatPill value={`$${formatMoney(d.campaign_balance || 0)}`} label="Campaign Wallet" gradient="linear-gradient(90deg,#6366f1,#818cf8)" />
-        <StatPill value={`$${formatMoney(d.total_earned)}`} label="Total Earned" gradient="linear-gradient(90deg,#0ea5e9,#38bdf8)" />
-        <StatPill value={`$${formatMoney(d.total_withdrawn)}`} label="Total Withdrawn" gradient="linear-gradient(90deg,#f59e0b,#fbbf24)" />
+        <StatPill value={`$${formatMoney(d.balance)}`} label={t("wallet.affiliateWallet")} gradient="linear-gradient(90deg,#16a34a,#22c55e)" />
+        <StatPill value={`$${formatMoney(d.campaign_balance || 0)}`} label={t("wallet.campaignWallet")} gradient="linear-gradient(90deg,#6366f1,#818cf8)" />
+        <StatPill value={`$${formatMoney(d.total_earned)}`} label={t("wallet.totalEarned")} gradient="linear-gradient(90deg,#0ea5e9,#38bdf8)" />
+        <StatPill value={`$${formatMoney(d.total_withdrawn)}`} label={t("wallet.totalWithdrawn")} gradient="linear-gradient(90deg,#f59e0b,#fbbf24)" />
       </div>
 
       {/* Earnings Breakdown */}
       {(d.superscene_earnings > 0 || d.grid_earnings > 0) && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
-          <EarningsCard icon="👥" label="Membership" value={d.total_earned - (d.grid_earnings || 0) - (d.course_earnings || 0) - (d.marketplace_earnings || 0) - (d.superscene_earnings || 0)} color="#22c55e" />
-          <EarningsCard icon="⚡" label="Income Grid" value={d.grid_earnings || 0} color="#0ea5e9" />
-          <EarningsCard icon="🎬" label="Creative Studio" value={d.superscene_earnings || 0} color="#ec4899" desc="Earned from referral credit usage" />
-          <EarningsCard icon="📚" label="Courses & Market" value={(d.course_earnings || 0) + (d.marketplace_earnings || 0)} color="#f59e0b" />
+          <EarningsCard icon="👥" label={t("wallet.membership")} value={d.total_earned - (d.grid_earnings || 0) - (d.course_earnings || 0) - (d.marketplace_earnings || 0) - (d.superscene_earnings || 0)} color="#22c55e" />
+          <EarningsCard icon="⚡" label={t("wallet.incomeGrid")} value={d.grid_earnings || 0} color="#0ea5e9" />
+          <EarningsCard icon="🎬" label={t("wallet.creativeStudio")} value={d.superscene_earnings || 0} color="#ec4899" desc={t("wallet.earnedFromReferralCredits")} />
+          <EarningsCard icon="📚" label={t("wallet.coursesMarket")} value={(d.course_earnings || 0) + (d.marketplace_earnings || 0)} color="#f59e0b" />
         </div>
       )}
 
       {/* Row 1: Two wallet cards side by side */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18, alignItems: 'stretch' }}>
           {/* Affiliate Wallet Withdraw */}
-          <Card title="Affiliate Wallet" dotColor="#16a34a">
+          <Card title={t("wallet.affiliateWallet")} dotColor="#16a34a">
             <div style={{ padding:'10px 14px', background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:10, marginBottom:14 }}>
-              <div style={{ fontSize:13, fontWeight:700, color:'#059669', marginBottom:2 }}>Always withdrawable</div>
-              <div style={{ fontSize:11, color:'#475569', lineHeight:1.6 }}>Membership referrals, Creative Studio sponsor commissions, course sales, Pay It Forward.</div>
+              <div style={{ fontSize:13, fontWeight:700, color:'#059669', marginBottom:2 }}>{t('wallet.alwaysWithdrawable')}</div>
+              <div style={{ fontSize:11, color:'#475569', lineHeight:1.6 }}>{t('wallet.affiliateWalletDesc')}</div>
             </div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#16a34a', textAlign:'center', marginBottom:14 }}>${formatMoney(d.balance)}</div>
             {d.wallet_address ? (
@@ -106,34 +106,34 @@ export default function Wallet() {
                 <form method="POST" action="/withdraw" style={{ display:'flex', flexDirection:'column', gap:10 }}>
                   <input type="hidden" name="wallet_type" value="affiliate"/>
                   <div>
-                    <label style={labelStyle}>Amount (USDT)</label>
+                    <label style={labelStyle}>{t('wallet.amountUSDT')}</label>
                     <input style={inputStyle} type="number" name="amount" min="10" max={d.balance} step="0.01" placeholder="0.00" required/>
                   </div>
                   {user?.totp_enabled && (
                     <div>
-                      <label style={labelStyle}>2FA Code</label>
+                      <label style={labelStyle}>{t('wallet.twoFACode')}</label>
                       <input style={{ ...inputStyle, textAlign:'center', letterSpacing:6, fontWeight:700, fontSize:18 }} type="text" name="totp_code" maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric" required/>
                     </div>
                   )}
-                  <button type="submit" style={btnPrimary}>Withdraw from Affiliate Wallet →</button>
-                  <div style={{ fontSize:11, color:'#64748b', textAlign:'center' }}>Min $10 · Fee $1.00 · USDT on Polygon</div>
+                  <button type="submit" style={btnPrimary}>{t('wallet.withdrawAffiliate')}</button>
+                  <div style={{ fontSize:11, color:'#64748b', textAlign:'center' }}>{t('wallet.affiliateFeeNote')}</div>
                 </form>
               ) : (
-                <div style={{ textAlign:'center', fontSize:13, color:'#64748b' }}>Minimum $10 to withdraw. Balance: ${formatMoney(d.balance)}</div>
+                <div style={{ textAlign:'center', fontSize:13, color:'#64748b' }}>{t('wallet.minToWithdraw')} ${formatMoney(d.balance)}</div>
               )
             ) : (
               <div style={{ textAlign:'center' }}>
-                <div style={{ fontSize:13, color:'#64748b', marginBottom:10 }}>No wallet address set</div>
-                <Link to="/account" style={{ fontSize:12, fontWeight:700, color:'#0ea5e9', textDecoration:'none' }}>Add wallet in Account Settings →</Link>
+                <div style={{ fontSize:13, color:'#64748b', marginBottom:10 }}>{t('wallet.noWalletAddress')}</div>
+                <Link to="/account" style={{ fontSize:12, fontWeight:700, color:'#0ea5e9', textDecoration:'none' }}>{t('wallet.addWalletSettings')}</Link>
               </div>
             )}
           </Card>
 
           {/* Campaign Wallet Withdraw */}
-          <Card title="Campaign Wallet" dotColor="#6366f1">
+          <Card title={t("wallet.campaignWallet")} dotColor="#6366f1">
             <div style={{ padding:'10px 14px', background:'#eef2ff', border:'1px solid #c7d2fe', borderRadius:10, marginBottom:14 }}>
-              <div style={{ fontSize:13, fontWeight:700, color:'#4338ca', marginBottom:2 }}>Requires active tier + daily videos</div>
-              <div style={{ fontSize:11, color:'#475569', lineHeight:1.6 }}>Grid commissions: 40% direct sponsor, 6.25% uni-level, completion bonus.</div>
+              <div style={{ fontSize:13, fontWeight:700, color:'#4338ca', marginBottom:2 }}>{t('wallet.requiresActiveTier')}</div>
+              <div style={{ fontSize:11, color:'#475569', lineHeight:1.6 }}>{t('wallet.campaignWalletDesc')}</div>
             </div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#6366f1', textAlign:'center', marginBottom:14 }}>${formatMoney(d.campaign_balance || 0)}</div>
             {d.wallet_address ? (
@@ -141,30 +141,30 @@ export default function Wallet() {
                 <form method="POST" action="/withdraw" style={{ display:'flex', flexDirection:'column', gap:10 }}>
                   <input type="hidden" name="wallet_type" value="campaign"/>
                   <div>
-                    <label style={labelStyle}>Amount (USDT)</label>
+                    <label style={labelStyle}>{t('wallet.amountUSDT')}</label>
                     <input style={inputStyle} type="number" name="amount" min="10" max={d.campaign_balance || 0} step="0.01" placeholder="0.00" required/>
                   </div>
                   {user?.totp_enabled && (
                     <div>
-                      <label style={labelStyle}>2FA Code</label>
+                      <label style={labelStyle}>{t('wallet.twoFACode')}</label>
                       <input style={{ ...inputStyle, textAlign:'center', letterSpacing:6, fontWeight:700, fontSize:18 }} type="text" name="totp_code" maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric" required/>
                     </div>
                   )}
-                  <button type="submit" style={{ ...btnPrimary, background:'linear-gradient(135deg,#6366f1,#818cf8)' }}>Withdraw from Campaign Wallet →</button>
-                  <div style={{ fontSize:11, color:'#64748b', textAlign:'center' }}>Min $10 · Fee $1.00 · Active tier + watch quota required</div>
+                  <button type="submit" style={{ ...btnPrimary, background:'linear-gradient(135deg,#6366f1,#818cf8)' }}>{t('wallet.withdrawCampaign')}</button>
+                  <div style={{ fontSize:11, color:'#64748b', textAlign:'center' }}>{t('wallet.campaignFeeNote')}</div>
                 </form>
               ) : (
                 <div style={{ textAlign:'center', fontSize:13, color:'#64748b' }}>
                   {(d.campaign_balance || 0) > 0
-                    ? `Minimum $10 to withdraw. Balance: $${formatMoney(d.campaign_balance || 0)}`
-                    : 'No campaign earnings yet. Activate a Campaign Tier to start earning grid commissions.'
+                    ? `${t('wallet.minToWithdraw')} $${formatMoney(d.campaign_balance || 0)}`
+                    : t('wallet.noCampaignEarnings')
                   }
                 </div>
               )
             ) : (
               <div style={{ textAlign:'center' }}>
-                <div style={{ fontSize:13, color:'#64748b', marginBottom:10 }}>No wallet address set</div>
-                <Link to="/account" style={{ fontSize:12, fontWeight:700, color:'#0ea5e9', textDecoration:'none' }}>Add wallet in Account Settings →</Link>
+                <div style={{ fontSize:13, color:'#64748b', marginBottom:10 }}>{t('wallet.noWalletAddress')}</div>
+                <Link to="/account" style={{ fontSize:12, fontWeight:700, color:'#0ea5e9', textDecoration:'none' }}>{t('wallet.addWalletSettings')}</Link>
               </div>
             )}
           </Card>
@@ -172,12 +172,12 @@ export default function Wallet() {
 
       {/* Row 2: Transaction History full-width */}
       <div style={{ marginBottom: 18 }}>
-        <Card title="Transaction History" dotColor="#0284c7">
+        <Card title={t("wallet.transactionHistory")} dotColor="#0284c7">
           {((d.commissions || []).length > 0 || (d.withdrawals || []).length > 0) ? (
             <div style={{ margin: '-18px -20px', overflow: 'auto', maxHeight:400 }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead><tr>
-                  {['Type', 'Details', 'Amount', 'Status', 'Date'].map(h => (
+                  {[t('wallet.type'), t('wallet.details'), t('wallet.amount'), t('wallet.status'), t('wallet.date')].map(h => (
                     <th key={h} style={thStyle}>{h}</th>
                   ))}
                 </tr></thead>
@@ -185,12 +185,12 @@ export default function Wallet() {
                   {[].concat(
                     (d.commissions || []).map(function(c) { return {
                       sort: c.created_at || '', kind: 'commission',
-                      type: c.commission_type === 'direct_sponsor' ? '💚 Direct Sponsor' :
-                            c.commission_type === 'uni_level' ? '⚡ Uni-Level' :
-                            c.commission_type === 'grid_completion_bonus' ? '🏆 Grid Bonus' :
-                            c.commission_type === 'membership_sponsor' ? '👥 Membership' :
-                            c.commission_type === 'membership_renewal' ? '🔄 Renewal' :
-                            c.commission_type === 'superscene_usage' ? '🎬 Creative Studio' :
+                      type: c.commission_type === 'direct_sponsor' ? '💚 ' + t('wallet.directSponsor') :
+                            c.commission_type === 'uni_level' ? '⚡ ' + t('wallet.uniLevel') :
+                            c.commission_type === 'grid_completion_bonus' ? '🏆 ' + t('wallet.gridBonus') :
+                            c.commission_type === 'membership_sponsor' ? '👥 ' + t('wallet.membershipComm') :
+                            c.commission_type === 'membership_renewal' ? '🔄 ' + t('wallet.renewal') :
+                            c.commission_type === 'superscene_usage' ? '🎬 ' + t('wallet.creativeStudioComm') :
                             '💰 ' + (c.commission_type || '').replace(/_/g, ' '),
                       detail: c.package_tier ? 'Tier ' + c.package_tier : '',
                       amount: '+$' + formatMoney(c.amount_usdt),
@@ -201,8 +201,8 @@ export default function Wallet() {
                     };}),
                     (d.withdrawals || []).map(function(w) { return {
                       sort: w.requested_at || '', kind: 'withdrawal',
-                      type: '🏧 Withdrawal',
-                      detail: w.tx_hash ? 'Polygon TX' : '',
+                      type: '🏧 ' + t('wallet.withdrawal'),
+                      detail: w.tx_hash ? t('wallet.polygonTX') : '',
                       amount: '-$' + formatMoney(w.amount),
                       amountColor: '#dc2626',
                       status: w.status || 'pending',
@@ -214,7 +214,7 @@ export default function Wallet() {
                       <tr key={i}>
                         <td style={{ ...tdStyle, fontSize: 13 }}>
                           {tx.type}
-                          {tx.wallet && <span style={{ marginLeft:6, padding:'2px 6px', borderRadius:4, fontSize:9, fontWeight:700, background: tx.wallet === 'campaign' ? '#eef2ff' : '#f0fdf4', color: tx.wallet === 'campaign' ? '#6366f1' : '#16a34a' }}>{tx.wallet === 'campaign' ? 'Campaign' : 'Affiliate'}</span>}
+                          {tx.wallet && <span style={{ marginLeft:6, padding:'2px 6px', borderRadius:4, fontSize:9, fontWeight:700, background: tx.wallet === 'campaign' ? '#eef2ff' : '#f0fdf4', color: tx.wallet === 'campaign' ? '#6366f1' : '#16a34a' }}>{tx.wallet === 'campaign' ? t('wallet.campaign') : t('wallet.affiliate')}</span>}
                         </td>
                         <td style={{ ...tdStyle, fontSize: 12, color: '#64748b' }}>{tx.detail}</td>
                         <td style={{ ...tdStyle, fontWeight: 800, color: tx.amountColor }}>{tx.amount}</td>
@@ -231,9 +231,9 @@ export default function Wallet() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 28, textAlign: 'center' }}>
               <div style={{ fontSize: 32, marginBottom: 10 }}>📊</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#3d5068', marginBottom: 6 }}>No transactions yet</div>
-              <div style={{ fontSize: 13, color: '#7b91a8', marginBottom: 16 }}>Refer members and activate your grid to start earning.</div>
-              <Link to="/campaign-tiers" style={{ ...btnPrimary, fontSize: 13, padding: '8px 18px' }}>Activate Grid</Link>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#3d5068', marginBottom: 6 }}>{t('wallet.noTransactions')}</div>
+              <div style={{ fontSize: 13, color: '#7b91a8', marginBottom: 16 }}>{t('wallet.referAndActivate')}</div>
+              <Link to="/campaign-tiers" style={{ ...btnPrimary, fontSize: 13, padding: '8px 18px' }}>{t('wallet.activateGrid')}</Link>
             </div>
           )}
         </Card>
@@ -242,7 +242,7 @@ export default function Wallet() {
       {/* Row 2: Membership Renewal | Send Funds */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18, alignItems: 'stretch' }}>
         {/* Membership Renewal */}
-        <Card title="Membership Renewal"
+        <Card title={t("wallet.membershipRenewal")}
           dotColor={renewal.in_grace_period ? '#dc2626' : renewal.status === 'warning' ? '#f59e0b' : '#10b981'}
           badge={renewal.has_renewal ? (
             renewal.in_grace_period ? { text: '⚠ Grace Period', bg: '#fef2f2', color: '#dc2626', border: '#fecaca' } :
@@ -251,52 +251,52 @@ export default function Wallet() {
           ) : null}>
           {renewal.has_renewal ? (<>
             {renewal.in_grace_period && (
-              <div style={{ background: '#fef2f2', border: '1px solid rgba(220,38,38,.2)', borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 13, color: '#dc2626', fontWeight: 600 }}>⚠ Balance insufficient at renewal — top up to $20 USDT.</div>
+              <div style={{ background: '#fef2f2', border: '1px solid rgba(220,38,38,.2)', borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 13, color: '#dc2626', fontWeight: 600 }}>⚠ {t('wallet.graceWarning')}</div>
             )}
             {renewal.status === 'warning' && !renewal.in_grace_period && (
-              <div style={{ background: '#fefce8', border: '1px solid rgba(234,179,8,.25)', borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 13, color: '#b45309', fontWeight: 600 }}>⏱ Renewal in {renewal.days_remaining} day{renewal.days_remaining !== 1 ? 's' : ''} — {renewal.can_afford ? "you're covered ✓" : 'top up needed'}</div>
+              <div style={{ background: '#fefce8', border: '1px solid rgba(234,179,8,.25)', borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 13, color: '#b45309', fontWeight: 600 }}>⏱ {t('wallet.renewalIn', { days: renewal.days_remaining })} {renewal.can_afford ? t('wallet.youreCovered') : t('wallet.topUpNeeded')}</div>
             )}
             <div className="grid-3-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 14 }}>
-              <MiniStat val={`${renewal.days_remaining || 0}d`} lbl="Until Renewal" />
-              <MiniStat val={`$${renewal.balance || 0}`} lbl="Wallet Balance" />
-              <MiniStat val={renewal.total_renewals || 0} lbl="Total Renewals" />
+              <MiniStat val={`${renewal.days_remaining || 0}d`} lbl={t('wallet.untilRenewal')} />
+              <MiniStat val={`$${renewal.balance || 0}`} lbl={t('wallet.walletBalance')} />
+              <MiniStat val={renewal.total_renewals || 0} lbl={t('wallet.totalRenewals')} />
             </div>
             <div style={{ height: 5, borderRadius: 999, background: '#eef1f8', overflow: 'hidden', margin: '10px 0' }}>
               <div style={{ height: '100%', borderRadius: 999, width: `${Math.max(5, 100 - ((renewal.days_remaining || 30) / 30 * 100))}%`, background: renewal.in_grace_period ? '#dc2626' : renewal.status === 'warning' ? '#f59e0b' : '#10b981', transition: 'width 0.4s' }} />
             </div>
-            <div style={{ fontSize: 12, color: '#7b91a8', textAlign: 'right', marginTop: 6 }}>Next renewal: {renewal.next_renewal_date || 'N/A'}</div>
+            <div style={{ fontSize: 12, color: '#7b91a8', textAlign: 'right', marginTop: 6 }}>{t('wallet.nextRenewal')} {renewal.next_renewal_date || 'N/A'}</div>
             <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(15,25,60,.07)', fontSize: 13, color: '#7b91a8', lineHeight: 1.6 }}>
-              💡 Your $20 renewal is deducted automatically from your wallet. As long as your wallet has funds your membership stays active — no manual action needed.
+              💡 {t('wallet.renewalAutoDeducted')}
             </div>
           </>) : (
-            <div style={{ padding: 20, textAlign: 'center', fontSize: 14, color: '#7b91a8' }}>No renewal data available.</div>
+            <div style={{ padding: 20, textAlign: 'center', fontSize: 14, color: '#7b91a8' }}>{t('wallet.noRenewalData')}</div>
           )}
         </Card>
 
         {/* Send Funds */}
-        <Card title="Send Funds to a Member" dotColor="#0ea5e9">
-          <p style={{ fontSize: 14, color: '#3d5068', marginBottom: 16 }}>Transfer USDT to any active member using their member ID (e.g. SAP-00042). Instant and fee-free.</p>
+        <Card title={t("wallet.sendFunds")} dotColor="#0ea5e9">
+          <p style={{ fontSize: 14, color: '#3d5068', marginBottom: 16 }}>{t('wallet.sendFundsDesc')}</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
-              <label style={{ ...labelStyle, fontSize: 11 }}>Recipient Member ID</label>
+              <label style={{ ...labelStyle, fontSize: 11 }}>{t('wallet.recipientMemberId')}</label>
               <input id="p2pRecipient" type="text" placeholder="e.g. SAP-00042" autoComplete="off" style={p2pInputStyle} />
             </div>
             <div>
-              <label style={{ ...labelStyle, fontSize: 11 }}>Amount (USDT)</label>
+              <label style={{ ...labelStyle, fontSize: 11 }}>{t('wallet.amountUSDT')}</label>
               <input id="p2pAmount" type="number" placeholder="e.g. 20.00" min="1" max="500" step="0.01" style={p2pInputStyle} />
             </div>
           </div>
           <div style={{ marginBottom: 16 }}>
-            <label style={{ ...labelStyle, fontSize: 11 }}>Note (optional)</label>
-            <input id="p2pNote" type="text" placeholder="e.g. Membership gift, commission split..." maxLength="200" style={p2pInputStyle} />
+            <label style={{ ...labelStyle, fontSize: 11 }}>{t('wallet.noteOptional')}</label>
+            <input id="p2pNote" type="text" placeholder={t('wallet.notePlaceholder')} maxLength="200" style={p2pInputStyle} />
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
             <button onClick={sendP2P} disabled={p2pSending} style={{
               padding: '12px 26px', background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', border: 'none', borderRadius: 9,
               fontSize: 16, fontWeight: 800, color: '#fff', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
               opacity: p2pSending ? 0.6 : 1,
-            }}>{p2pSending ? 'Sending...' : 'Send Funds →'}</button>
-            <span style={{ fontSize: 12, color: '#7b91a8' }}>Min $1 · Max $500 per transfer · Active members only</span>
+            }}>{p2pSending ? t('wallet.sending') : t('wallet.sendFundsBtn')}</button>
+            <span style={{ fontSize: 12, color: '#7b91a8' }}>{t('wallet.sendLimits')}</span>
           </div>
           {p2pResult && (
             <div style={{ marginTop: 12, padding: '11px 14px', borderRadius: 8, fontSize: 16, fontWeight: 600,
@@ -309,21 +309,21 @@ export default function Wallet() {
       {/* P2P Transfer History */}
       {(d.p2p_history || []).length > 0 && (
         <div style={{ marginTop: 18 }}>
-          <Card title="Transfer History" dotColor="#0ea5e9">
+          <Card title={t("wallet.transferHistory")} dotColor="#0ea5e9">
             <div style={{ margin: '-18px -20px', overflow: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead><tr>
-                  {['Date', 'Direction', 'Member', 'Note', 'Amount'].map(h => <th key={h} style={{ ...thStyle, ...(h === 'Amount' ? { textAlign: 'right' } : {}) }}>{h}</th>)}
+                  {[t('wallet.date'), t('wallet.direction'), t('wallet.member'), t('wallet.note'), t('wallet.amount')].map(h => <th key={h} style={{ ...thStyle, ...(h === t('wallet.amount') ? { textAlign: 'right' } : {}) }}>{h}</th>)}
                 </tr></thead>
                 <tbody>
-                  {d.p2p_history.map((t, i) => (
+                  {d.p2p_history.map((tx, i) => (
                     <tr key={i}>
-                      <td style={{ ...tdStyle, fontSize: 13, color: '#7b91a8' }}>{t.created_at}</td>
-                      <td style={tdStyle}>{t.direction === 'sent' ? <span style={{ color: '#dc2626', fontWeight: 700 }}>↑ Sent</span> : <span style={{ color: '#16a34a', fontWeight: 700 }}>↓ Received</span>}</td>
-                      <td style={{ ...tdStyle, fontSize: 16, fontWeight: 600 }}>{t.other_party || t.other_user}<br /><span style={{ fontSize: 13, color: '#7b91a8' }}>{t.other_id || ''}</span></td>
-                      <td style={{ ...tdStyle, fontSize: 13, color: '#3d5068' }}>{t.note || '—'}</td>
-                      <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: t.direction === 'sent' ? '#dc2626' : '#16a34a' }}>
-                        {t.direction === 'sent' ? '-' : '+'}${formatMoney(t.amount)}
+                      <td style={{ ...tdStyle, fontSize: 13, color: '#7b91a8' }}>{tx.created_at}</td>
+                      <td style={tdStyle}>{tx.direction === 'sent' ? <span style={{ color: '#dc2626', fontWeight: 700 }}>↑ {t('wallet.sent')}</span> : <span style={{ color: '#16a34a', fontWeight: 700 }}>↓ {t('wallet.received')}</span>}</td>
+                      <td style={{ ...tdStyle, fontSize: 16, fontWeight: 600 }}>{tx.other_party || tx.other_user}<br /><span style={{ fontSize: 13, color: '#7b91a8' }}>{tx.other_id || ''}</span></td>
+                      <td style={{ ...tdStyle, fontSize: 13, color: '#3d5068' }}>{tx.note || '—'}</td>
+                      <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: tx.direction === 'sent' ? '#dc2626' : '#16a34a' }}>
+                        {tx.direction === 'sent' ? '-' : '+'}${formatMoney(tx.amount)}
                       </td>
                     </tr>
                   ))}
