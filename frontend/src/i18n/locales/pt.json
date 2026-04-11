@@ -358,7 +358,9 @@
     "upNext": "Próximo ({count} vídeos)",
     "watchInstructions": "Os vídeos devem ser assistidos por 30 segundos com esta aba ativa. Complete {limit} por dia para manter a elegibilidade de comissões.",
     "pausedOverlay": "Pausado",
-    "returnToTab": "Volte a esta aba para continuar"
+    "returnToTab": "Volte a esta aba para continuar",
+    "general": "Geral",
+    "loading": "Carregando..."
   },
   "adBoard": {
     "title": "Ad Board",
@@ -642,6 +644,23 @@
     "gridProgress": "Progresso da grade",
     "gridMembers": "{filled}/64 membros · Grade #{advance}",
     "tierIsActive": "Este nível está ativo",
-    "activate": "Ativar {name} — ${price} USDT"
+    "activate": "Ativar {name} — ${price} USDT",
+    "feat1Campaign": "1 campanha",
+    "feat3Campaigns": "3 campanhas",
+    "feat5Campaigns": "5 campanhas",
+    "feat10Campaigns": "10 campanhas",
+    "feat20Campaigns": "20 campanhas",
+    "feat30Campaigns": "30 campanhas",
+    "feat50Campaigns": "50 campanhas",
+    "featUnlimitedCampaigns": "Campanhas ilimitadas",
+    "feat8x8Grid": "Grade 8×8 (64 membros)",
+    "feat40Direct": "40% comissão direta",
+    "feat625PerMember": "6,25% por membro",
+    "featExtendedReach": "Alcance estendido",
+    "featTargeting": "Segmentação",
+    "featPriorityQueue": "Fila prioritária",
+    "featFeaturedPlacement": "Posicionamento em destaque",
+    "featSpotlight": "Spotlight",
+    "featAllFeatures": "Todas as funcionalidades"
   }
 }

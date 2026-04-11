@@ -349,7 +349,9 @@
     "upNext": "Als Nächstes ({count} Videos)",
     "watchInstructions": "Videos müssen 30 Sekunden lang mit diesem aktiven Tab angesehen werden. Erfüllen Sie {limit} pro Tag, um die Provisionseignung aufrechtzuerhalten.",
     "pausedOverlay": "Pausiert",
-    "returnToTab": "Kehren Sie zu diesem Tab zurück"
+    "returnToTab": "Kehren Sie zu diesem Tab zurück",
+    "general": "Allgemein",
+    "loading": "Laden..."
   },
   "adBoard": {
     "title": "Ad Board",
@@ -633,6 +635,23 @@
     "gridProgress": "Rasterfortschritt",
     "gridMembers": "{filled}/64 Mitglieder · Raster #{advance}",
     "tierIsActive": "Diese Stufe ist aktiv",
-    "activate": "Aktivieren {name} — {price} $ USDT"
+    "activate": "Aktivieren {name} — {price} $ USDT",
+    "feat1Campaign": "1 Kampagne",
+    "feat3Campaigns": "3 Kampagnen",
+    "feat5Campaigns": "5 Kampagnen",
+    "feat10Campaigns": "10 Kampagnen",
+    "feat20Campaigns": "20 Kampagnen",
+    "feat30Campaigns": "30 Kampagnen",
+    "feat50Campaigns": "50 Kampagnen",
+    "featUnlimitedCampaigns": "Unbegrenzte Kampagnen",
+    "feat8x8Grid": "8×8 Raster (64 Mitglieder)",
+    "feat40Direct": "40% Direktprovision",
+    "feat625PerMember": "6,25% pro Mitglied",
+    "featExtendedReach": "Erweiterte Reichweite",
+    "featTargeting": "Targeting",
+    "featPriorityQueue": "Prioritätswarteschlange",
+    "featFeaturedPlacement": "Hervorgehobene Platzierung",
+    "featSpotlight": "Spotlight",
+    "featAllFeatures": "Alle Funktionen"
   }
 }

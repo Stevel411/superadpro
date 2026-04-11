@@ -423,7 +423,9 @@
     "upNext": "Up Next ({count} videos)",
     "watchInstructions": "Videos must be watched for 30 seconds with this tab active to qualify. Complete {limit} per day to maintain commission eligibility.",
     "pausedOverlay": "Paused",
-    "returnToTab": "Return to this tab to continue"
+    "returnToTab": "Return to this tab to continue",
+    "general": "General",
+    "loading": "Loading..."
   },
   "adBoard": {
     "title": "Ad Board",
@@ -707,6 +709,23 @@
     "gridProgress": "Grid progress",
     "gridMembers": "{filled}/64 members · Grid #{advance}",
     "tierIsActive": "This tier is active",
-    "activate": "Activate {name} — ${price} USDT"
+    "activate": "Activate {name} — ${price} USDT",
+    "feat1Campaign": "1 campaign",
+    "feat3Campaigns": "3 campaigns",
+    "feat5Campaigns": "5 campaigns",
+    "feat10Campaigns": "10 campaigns",
+    "feat20Campaigns": "20 campaigns",
+    "feat30Campaigns": "30 campaigns",
+    "feat50Campaigns": "50 campaigns",
+    "featUnlimitedCampaigns": "Unlimited campaigns",
+    "feat8x8Grid": "8×8 grid (64 members)",
+    "feat40Direct": "40% direct commission",
+    "feat625PerMember": "6.25% per grid member",
+    "featExtendedReach": "Extended reach",
+    "featTargeting": "Targeting",
+    "featPriorityQueue": "Priority queue",
+    "featFeaturedPlacement": "Featured placement",
+    "featSpotlight": "Spotlight",
+    "featAllFeatures": "All features"
   }
 }

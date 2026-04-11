@@ -37,6 +37,17 @@ var BONUSES = { 1:64, 2:160, 3:320, 4:640, 5:1280, 6:1920, 7:2560, 8:3200 };
 export default function CampaignTiers() {
   var { t } = useTranslation();
   var [tiers, setTiers] = useState([]);
+
+  var FEATURES_BY_TIER_T = {
+    1: [t('campaignTiers.feat1Campaign'), t('campaignTiers.feat8x8Grid'), t('campaignTiers.feat40Direct'), t('campaignTiers.feat625PerMember')],
+    2: [t('campaignTiers.feat3Campaigns'), t('campaignTiers.feat8x8Grid'), t('campaignTiers.feat40Direct'), t('campaignTiers.feat625PerMember')],
+    3: [t('campaignTiers.feat5Campaigns'), t('campaignTiers.featExtendedReach'), t('campaignTiers.feat8x8Grid'), t('campaignTiers.feat40Direct'), t('campaignTiers.feat625PerMember')],
+    4: [t('campaignTiers.feat10Campaigns'), t('campaignTiers.featTargeting'), t('campaignTiers.feat8x8Grid'), t('campaignTiers.feat40Direct'), t('campaignTiers.feat625PerMember')],
+    5: [t('campaignTiers.feat20Campaigns'), t('campaignTiers.featPriorityQueue'), t('campaignTiers.feat8x8Grid'), t('campaignTiers.feat40Direct'), t('campaignTiers.feat625PerMember')],
+    6: [t('campaignTiers.feat30Campaigns'), t('campaignTiers.featFeaturedPlacement'), t('campaignTiers.feat8x8Grid'), t('campaignTiers.feat40Direct'), t('campaignTiers.feat625PerMember')],
+    7: [t('campaignTiers.feat50Campaigns'), t('campaignTiers.featSpotlight'), t('campaignTiers.feat8x8Grid'), t('campaignTiers.feat40Direct'), t('campaignTiers.feat625PerMember')],
+    8: [t('campaignTiers.featUnlimitedCampaigns'), t('campaignTiers.featAllFeatures'), t('campaignTiers.feat8x8Grid'), t('campaignTiers.feat40Direct'), t('campaignTiers.feat625PerMember')],
+  };
   var [loading, setLoading] = useState(true);
   var [selected, setSelected] = useState(null);
 
@@ -78,7 +89,7 @@ export default function CampaignTiers() {
   /* Modal data */
   var modalTier = selected !== null ? tiers.find(function(x) { return x.tier === selected; }) : null;
   var modalAccent = modalTier ? (TIER_ACCENTS[modalTier.tier] || TIER_ACCENTS[1]) : null;
-  var modalFeats = modalTier ? (FEATURES_BY_TIER[modalTier.tier] || []) : [];
+  var modalFeats = modalTier ? (FEATURES_BY_TIER_T[modalTier.tier] || []) : [];
   var modalTotal = modalTier ? calcTotal(modalTier.tier, modalTier.price) : 0;
 
   return (

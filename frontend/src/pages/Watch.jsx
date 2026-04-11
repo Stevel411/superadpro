@@ -502,8 +502,8 @@ export default function Watch() {
             {/* Title bar — desktop only */}
             <div className="watch-hint" style={{padding:'10px 16px',borderBottom:'1px solid #f1f3f7',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
               <div style={{minWidth:0,display:'flex',alignItems:'center',gap:8}}>
-                <div style={{fontSize:14,fontWeight:700,color:'#0f172a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{current?.title||'Loading...'}</div>
-                <div style={{fontSize:11,color:'#64748b',whiteSpace:'nowrap',flexShrink:0}}>{current?.platform||'video'} · {current?.category||'General'}</div>
+                <div style={{fontSize:14,fontWeight:700,color:'#0f172a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{current?.title||t('watch.loading')}</div>
+                <div style={{fontSize:11,color:'#64748b',whiteSpace:'nowrap',flexShrink:0}}>{current?.platform||'video'} · {current?.category||t('watch.general')}</div>
               </div>
               <div style={{fontSize:8,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'#0ea5e9',background:'rgba(14,165,233,.06)',border:'1px solid rgba(14,165,233,.12)',padding:'4px 10px',borderRadius:6,whiteSpace:'nowrap'}}>▶ {t('watch.watching')}</div>
             </div>

@@ -423,7 +423,9 @@
     "upNext": "Siguiente ({count} videos)",
     "watchInstructions": "Los videos deben verse durante 30 segundos con esta pestaña activa para calificar. Completa {limit} por día para mantener la elegibilidad de comisiones.",
     "pausedOverlay": "Pausado",
-    "returnToTab": "Vuelve a esta pestaña para continuar"
+    "returnToTab": "Vuelve a esta pestaña para continuar",
+    "general": "General",
+    "loading": "Cargando..."
   },
   "adBoard": {
     "title": "Tablón de Anuncios",
@@ -707,6 +709,23 @@
     "gridProgress": "Progreso de cuadrícula",
     "gridMembers": "{filled}/64 miembros · Cuadrícula #{advance}",
     "tierIsActive": "Este nivel está activo",
-    "activate": "Activar {name} — ${price} USDT"
+    "activate": "Activar {name} — ${price} USDT",
+    "feat1Campaign": "1 campaña",
+    "feat3Campaigns": "3 campañas",
+    "feat5Campaigns": "5 campañas",
+    "feat10Campaigns": "10 campañas",
+    "feat20Campaigns": "20 campañas",
+    "feat30Campaigns": "30 campañas",
+    "feat50Campaigns": "50 campañas",
+    "featUnlimitedCampaigns": "Campañas ilimitadas",
+    "feat8x8Grid": "Cuadrícula 8×8 (64 miembros)",
+    "feat40Direct": "40% comisión directa",
+    "feat625PerMember": "6.25% por miembro",
+    "featExtendedReach": "Alcance extendido",
+    "featTargeting": "Segmentación",
+    "featPriorityQueue": "Cola prioritaria",
+    "featFeaturedPlacement": "Ubicación destacada",
+    "featSpotlight": "Spotlight",
+    "featAllFeatures": "Todas las funciones"
   }
 }

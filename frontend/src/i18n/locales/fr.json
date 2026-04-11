@@ -423,7 +423,9 @@
     "upNext": "Suivante ({count} vidéos)",
     "watchInstructions": "Les vidéos doivent être regardées pendant 30 secondes avec cet onglet actif. Complétez {limit} par jour pour maintenir l'éligibilité aux commissions.",
     "pausedOverlay": "En Pause",
-    "returnToTab": "Revenez à cet onglet pour continuer"
+    "returnToTab": "Revenez à cet onglet pour continuer",
+    "general": "Général",
+    "loading": "Chargement..."
   },
   "adBoard": {
     "title": "Ad Board",
@@ -707,6 +709,23 @@
     "gridProgress": "Progrès de la grille",
     "gridMembers": "{filled}/64 membres · Grille #{advance}",
     "tierIsActive": "Ce niveau est actif",
-    "activate": "Activer {name} — {price} $ USDT"
+    "activate": "Activer {name} — {price} $ USDT",
+    "feat1Campaign": "1 campagne",
+    "feat3Campaigns": "3 campagnes",
+    "feat5Campaigns": "5 campagnes",
+    "feat10Campaigns": "10 campagnes",
+    "feat20Campaigns": "20 campagnes",
+    "feat30Campaigns": "30 campagnes",
+    "feat50Campaigns": "50 campagnes",
+    "featUnlimitedCampaigns": "Campagnes illimitées",
+    "feat8x8Grid": "Grille 8×8 (64 membres)",
+    "feat40Direct": "40% commission directe",
+    "feat625PerMember": "6,25% par membre",
+    "featExtendedReach": "Portée étendue",
+    "featTargeting": "Ciblage",
+    "featPriorityQueue": "File prioritaire",
+    "featFeaturedPlacement": "Placement en vedette",
+    "featSpotlight": "Spotlight",
+    "featAllFeatures": "Toutes les fonctionnalités"
   }
 }

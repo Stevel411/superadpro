@@ -333,7 +333,9 @@
     "upNext": "التالي ({count} فيديوهات)",
     "watchInstructions": "يجب مشاهدة الفيديوهات لمدة 30 ثانية مع بقاء هذا التبويب نشطاً. أكمل {limit} يومياً للحفاظ على أهلية العمولات.",
     "pausedOverlay": "متوقف",
-    "returnToTab": "عد لهذا التبويب للمتابعة"
+    "returnToTab": "عد لهذا التبويب للمتابعة",
+    "general": "عام",
+    "loading": "جارٍ التحميل..."
   },
   "adBoard": {
     "title": "Ad Board",
@@ -617,6 +619,23 @@
     "gridProgress": "تقدم الشبكة",
     "gridMembers": "{filled}/64 عضواً · شبكة #{advance}",
     "tierIsActive": "هذا المستوى نشط",
-    "activate": "تفعيل {name} — {price}$ USDT"
+    "activate": "تفعيل {name} — {price}$ USDT",
+    "feat1Campaign": "حملة واحدة",
+    "feat3Campaigns": "3 حملات",
+    "feat5Campaigns": "5 حملات",
+    "feat10Campaigns": "10 حملات",
+    "feat20Campaigns": "20 حملة",
+    "feat30Campaigns": "30 حملة",
+    "feat50Campaigns": "50 حملة",
+    "featUnlimitedCampaigns": "حملات غير محدودة",
+    "feat8x8Grid": "شبكة 8×8 (64 عضواً)",
+    "feat40Direct": "40% عمولة مباشرة",
+    "feat625PerMember": "6.25% لكل عضو",
+    "featExtendedReach": "وصول موسع",
+    "featTargeting": "استهداف",
+    "featPriorityQueue": "أولوية في الطابور",
+    "featFeaturedPlacement": "موضع مميز",
+    "featSpotlight": "تسليط الضوء",
+    "featAllFeatures": "جميع الميزات"
   }
 }

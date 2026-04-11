@@ -332,7 +332,9 @@
     "upNext": "अगला ({count} वीडियो)",
     "watchInstructions": "वीडियो को इस टैब के सक्रिय रहते हुए 30 सेकंड तक देखना होगा। कमीशन योग्यता बनाए रखने के लिए प्रतिदिन {limit} पूरा करें।",
     "pausedOverlay": "रुका हुआ",
-    "returnToTab": "जारी रखने के लिए इस टैब पर वापस आएं"
+    "returnToTab": "जारी रखने के लिए इस टैब पर वापस आएं",
+    "general": "सामान्य",
+    "loading": "लोड हो रहा है..."
   },
   "adBoard": {
     "title": "Ad Board",
@@ -616,6 +618,23 @@
     "gridProgress": "ग्रिड प्रगति",
     "gridMembers": "{filled}/64 सदस्य · ग्रिड #{advance}",
     "tierIsActive": "यह टियर सक्रिय है",
-    "activate": "सक्रिय करें {name} — ${price} USDT"
+    "activate": "सक्रिय करें {name} — ${price} USDT",
+    "feat1Campaign": "1 कैम्पेन",
+    "feat3Campaigns": "3 कैम्पेन",
+    "feat5Campaigns": "5 कैम्पेन",
+    "feat10Campaigns": "10 कैम्पेन",
+    "feat20Campaigns": "20 कैम्पेन",
+    "feat30Campaigns": "30 कैम्पेन",
+    "feat50Campaigns": "50 कैम्पेन",
+    "featUnlimitedCampaigns": "असीमित कैम्पेन",
+    "feat8x8Grid": "8×8 ग्रिड (64 सदस्य)",
+    "feat40Direct": "40% प्रत्यक्ष कमीशन",
+    "feat625PerMember": "6.25% प्रति सदस्य",
+    "featExtendedReach": "विस्तारित पहुंच",
+    "featTargeting": "लक्ष्यीकरण",
+    "featPriorityQueue": "प्राथमिकता कतार",
+    "featFeaturedPlacement": "विशेष प्लेसमेंट",
+    "featSpotlight": "स्पॉटलाइट",
+    "featAllFeatures": "सभी सुविधाएं"
   }
 }
