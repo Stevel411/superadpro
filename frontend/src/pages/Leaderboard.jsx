@@ -67,7 +67,7 @@ export default function Leaderboard() {
 
   var d = data || {};
   var allData = { referrals: d.ref_leaders||[], grid: d.grid_users||[], courses: d.course_users||[] };
-  var activeTab = TABS.find(function(t){ return t.key===tab; })||TABS[0];
+  var activeTab = TABS.find(function(tb){ return tb.key===tab; })||TABS[0];
   var leaders = allData[tab]||[];
   var maxVal = leaders.length>0 ? Math.max(1, activeTab.metric(leaders[0])) : 1;
   var myRank = leaders.findIndex(function(u){ return u.id===user?.id; });
@@ -105,19 +105,19 @@ export default function Leaderboard() {
 
         {/* Category tabs inside hero */}
         <div style={{ display:'flex', gap:10, marginTop:24, position:'relative' }}>
-          {TABS.map(function(t){
-            var count=(allData[t.key]||[]).length;
-            var Icon=t.icon;
-            var isActive=tab===t.key;
+          {TABS.map(function(tb){
+            var count=(allData[tb.key]||[]).length;
+            var Icon=tb.icon;
+            var isActive=tab===tb.key;
             return (
-              <div key={t.key} onClick={function(){ setTab(t.key); }} style={{ flex:1, background:isActive?'rgba(255,255,255,0.1)':'rgba(255,255,255,0.04)', border:isActive?`1px solid ${t.color}60`:'1px solid rgba(255,255,255,0.06)', borderRadius:12, padding:'14px 16px', cursor:'pointer', transition:'all .2s', boxShadow:isActive?`0 0 20px ${t.color}20`:'none' }}>
+              <div key={tb.key} onClick={function(){ setTab(tb.key); }} style={{ flex:1, background:isActive?'rgba(255,255,255,0.1)':'rgba(255,255,255,0.04)', border:isActive?`1px solid ${tb.color}60`:'1px solid rgba(255,255,255,0.06)', borderRadius:12, padding:'14px 16px', cursor:'pointer', transition:'all .2s', boxShadow:isActive?`0 0 20px ${tb.color}20`:'none' }}>
                 <div style={{ display:'flex', alignItems:'center', gap:8, marginBottom:6 }}>
-                  <div style={{ width:28, height:28, borderRadius:8, background:isActive?t.grad:'rgba(255,255,255,0.06)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                  <div style={{ width:28, height:28, borderRadius:8, background:isActive?tb.grad:'rgba(255,255,255,0.06)', display:'flex', alignItems:'center', justifyContent:'center' }}>
                     <Icon size={14} color={isActive?'#fff':'rgba(255,255,255,0.3)'}/>
                   </div>
-                  <span style={{ fontSize:11, fontWeight:700, color:isActive?'#fff':'rgba(255,255,255,0.4)' }}>{t.label}</span>
+                  <span style={{ fontSize:11, fontWeight:700, color:isActive?'#fff':'rgba(255,255,255,0.4)' }}>{tb.label}</span>
                 </div>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:900, color:isActive?t.color:'rgba(255,255,255,0.2)' }}>{count}</div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:900, color:isActive?tb.color:'rgba(255,255,255,0.2)' }}>{count}</div>
                 <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:2 }}>{t('leaderboard.onTheBoard')}</div>
               </div>
             );
