@@ -963,5 +963,37 @@
   },
   "cryptoGuide": {
     "title": "Crypto Guide"
+  },
+  "challenge": {
+    "title": "30-Day Challenge",
+    "subtitle": "Your guided path to success",
+    "subtitleFull": "Your guided path to SuperAdPro success",
+    "launchChallenge": "30-day launch challenge",
+    "dayOf": "Day {{day}} of 30",
+    "dayStreak": "Day streak",
+    "xpEarned": "XP earned",
+    "badges": "Badges",
+    "daysDone": "Days done",
+    "todaysTasks": "Today's tasks — Day {{day}}",
+    "done": "Done",
+    "doIt": "Do it",
+    "upcomingMilestone": "Upcoming milestone",
+    "today": "Today!",
+    "daysLeft": "{{count}} days left",
+    "challengeStructure": "Challenge structure",
+    "hide": "Hide",
+    "show": "Show",
+    "week": "Week {{n}}",
+    "badgesEarned": "Badges earned",
+    "week1Complete": "Week 1 Complete",
+    "week2Complete": "Week 2 Complete",
+    "week3Complete": "Week 3 Complete",
+    "challengeChampion": "Challenge Champion",
+    "challengeComplete": "Challenge Complete!",
+    "challengeCompleteDesc": "You've completed the 30-Day Launch Challenge. You earned {{xp}} XP and {{badges}} badges. You're officially a SuperAdPro pro!",
+    "startsWhenActivate": "Challenge starts when you activate",
+    "activateDesc": "Activate your membership to begin the 30-Day Launch Challenge. Daily tasks, XP rewards, and badges to guide your first month.",
+    "activateNow": "Activate Now",
+    "dayLabel": "Day {{n}}"
   }
 }
