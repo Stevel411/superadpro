@@ -11987,7 +11987,7 @@ You explain the SuperAdPro compensation plan clearly and enthusiastically. You h
 - Watching delivers real views to campaign holders while qualifying you for your grid commissions
 
 ## INCOME STREAM 3: CREATIVE STUDIO CREDIT MATRIX
-- When any member in your network buys a Creative Studio credit pack, they enter your 3x3 Credit Matrix
+- When any member in your network buys a Creative Studio credit pack, they enter your Profit Pipeline
 - The matrix has 3 levels with 9 total positions (1 + 3 + 9 = 13 including you)
 - Level 1 (3 positions): you earn a commission on each credit pack purchase
 - Level 2 (9 positions): you earn a smaller commission on each
@@ -12022,7 +12022,7 @@ When a member asks "how much could I earn with X referrals", calculate it clearl
 - Each Basic referral = $10/month recurring
 - Each Pro referral = $17.50/month recurring
 - Campaign tier earnings depend on tier level and grid depth
-- Credit Matrix earnings depend on how many credit packs your network purchases
+- Profit Pipeline earnings depend on how many credit packs your network purchases
 
 ## STRICT RULES — NEVER VIOLATE THESE
 - NEVER reveal platform costs, margins, markups, or what SuperAdPro pays for services
@@ -19907,7 +19907,7 @@ def api_training_centre(request: Request, user: User = Depends(get_current_user)
                 {"id": "earn-1", "title": "Referral Commissions (50%)", "type": "guide", "duration": "4 min",
                  "content": "When someone joins through your link and pays their membership ($20 Basic or $35 Pro), you earn 50% commission — $10 or $17.50 per month, every month they stay active. This is recurring income. Focus on finding people who will use the platform, not just sign up."},
                 {"id": "earn-2", "title": "The 8-Tier Campaign Grid", "type": "guide", "duration": "8 min",
-                 "content": "The grid system has 8 tiers from Starter ($20) to Ultimate ($1,000). When you purchase a campaign tier, you submit a video ad that receives a set number of views delivered by the Watch & Earn community. You are also placed in your sponsor's grid — each grid holds 64 members across 8 levels. As the grid fills through referrals and spillover, commissions flow: 40% direct to your sponsor, 6.25% per level across 8 levels of your upline, and 5% into a completion bonus pool. When a grid reaches 64 members, it COMPLETES and the owner receives the completion bonus (up to $3,200 on the Ultimate tier). Then a new grid opens automatically and the process starts again. Once your campaign's view target has been delivered, you can repurchase the same tier — this reactivates your qualification to earn commissions at that level and submits a fresh video ad for a new round of views. This is genuine long-term recurring income: as long as you and your team keep repurchasing tiers, the commissions keep flowing. The key principle is that you must have an active campaign at a tier to earn commissions from that tier. Repurchasing keeps you qualified and keeps your income active."},
+                 "content": "The grid system has 8 tiers from Starter ($20) to Ultimate ($1,000). When you purchase a campaign tier, you submit a video ad that receives a set number of views delivered by the Watch & Earn community. You are also placed in your sponsor's grid — each grid holds 64 members across 8 levels. As the grid fills through referrals and auto-placement, commissions flow: 40% direct to your sponsor, 6.25% per level across 8 levels of your upline, and 5% into a completion bonus pool. When a grid reaches 64 members, it COMPLETES and the owner receives the completion bonus (up to $3,200 on the Ultimate tier). Then a new grid opens automatically and the process starts again. Once your campaign's view target has been delivered, you can repurchase the same tier — this reactivates your qualification to earn commissions at that level and submits a fresh video ad for a new round of views. This is genuine long-term recurring income: as long as you and your team keep repurchasing tiers, the commissions keep flowing. The key principle is that you must have an active campaign at a tier to earn commissions from that tier. Repurchasing keeps you qualified and keeps your income active."},
                 {"id": "earn-3", "title": "Course Marketplace", "type": "guide", "duration": "3 min",
                  "content": "Pro members can create and sell courses on the marketplace. You set the price, create lessons with text, video, and quizzes, and earn from every sale. All courses go through AI review before publishing to maintain quality. The marketplace is open to all members as buyers."},
                 {"id": "earn-4", "title": "Watch & Earn — The Grid Engine", "type": "guide", "duration": "4 min",

@@ -124,7 +124,7 @@ export default function GridVisualiser() {
                 <div style={{ width:14, height:14, borderRadius:'50%', background:GOLD_GRAD, display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, fontWeight:800, color:'#78350f' }}>★</div> Direct Referral
               </div>
               <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#64748b', fontWeight:600 }}>
-                <div style={{ width:14, height:14, borderRadius:'50%', background:GREEN_GRAD, display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, fontWeight:800, color:'#fff' }}>↓</div> Spillover
+                <div style={{ width:14, height:14, borderRadius:'50%', background:GREEN_GRAD, display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, fontWeight:800, color:'#fff' }}>↓</div> Auto-Place
               </div>
               <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#64748b', fontWeight:600 }}>
                 <div style={{ width:14, height:14, borderRadius:'50%', background:'#f1f5f9', border:'1px dashed #cbd5e1', display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, color:'#cbd5e1' }}>?</div> Empty

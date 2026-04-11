@@ -13,7 +13,7 @@ var PACK_ICONS = {
 
 export default function CreditMatrix() {
   return (
-    <AppLayout title="Credit Matrix" subtitle="3×3 Forced Matrix">
+    <AppLayout title="Profit Pipeline" subtitle="Your Earnings Accelerator">
       <CreditMatrixContent />
     </AppLayout>
   );
@@ -85,7 +85,7 @@ export function CreditMatrixContent() {
     return (
       <div style={{ textAlign: 'center', padding: '80px 0' }}>
         <Loader2 size={32} color="#8b5cf6" style={{ animation: 'spin 1s linear infinite' }} />
-        <div style={{ marginTop: 12, color: '#64748b' }}>Loading Credit Matrix...</div>
+        <div style={{ marginTop: 12, color: '#64748b' }}>Loading Profit Pipeline...</div>
         <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
       </div>
     );

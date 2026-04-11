@@ -58,11 +58,11 @@ PRODUCT_CATALOG = {
     "email_boost_10000":    {"price": Decimal("29.00"), "type": "email_boost", "desc": "Email Boost — 10,000 Credits"},
     "email_boost_50000":    {"price": Decimal("99.00"), "type": "email_boost", "desc": "Email Boost — 50,000 Credits"},
     # Credit Matrix Packs (replaces old SuperScene packs)
-    "credit_matrix_starter":  {"price": Decimal("25.00"),  "type": "credit_matrix", "desc": "Credit Matrix Starter — 150 Credits"},
-    "credit_matrix_builder":  {"price": Decimal("50.00"),  "type": "credit_matrix", "desc": "Credit Matrix Builder — 350 Credits"},
-    "credit_matrix_pro":      {"price": Decimal("100.00"), "type": "credit_matrix", "desc": "Credit Matrix Pro — 800 Credits"},
-    "credit_matrix_elite":    {"price": Decimal("250.00"), "type": "credit_matrix", "desc": "Credit Matrix Elite — 2,200 Credits"},
-    "credit_matrix_ultimate": {"price": Decimal("500.00"), "type": "credit_matrix", "desc": "Credit Matrix Ultimate — 5,000 Credits"},
+    "credit_matrix_starter":  {"price": Decimal("25.00"),  "type": "credit_matrix", "desc": "Profit Pipeline Starter — 150 Credits"},
+    "credit_matrix_builder":  {"price": Decimal("50.00"),  "type": "credit_matrix", "desc": "Profit Pipeline Builder — 350 Credits"},
+    "credit_matrix_pro":      {"price": Decimal("100.00"), "type": "credit_matrix", "desc": "Profit Pipeline Pro — 800 Credits"},
+    "credit_matrix_elite":    {"price": Decimal("250.00"), "type": "credit_matrix", "desc": "Profit Pipeline Elite — 2,200 Credits"},
+    "credit_matrix_ultimate": {"price": Decimal("500.00"), "type": "credit_matrix", "desc": "Profit Pipeline Ultimate — 5,000 Credits"},
 }
 
 

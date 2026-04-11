@@ -192,7 +192,7 @@ export default function Upgrade() {
                 <FeatureRow text="Content Creator — social posts, ad copy, video scripts" color="blue" />
                 <FeatureRow text="Campaign Grid — 8-tier video advertising" color="blue" />
                 <FeatureRow text="50% referral commissions — on every signup" color="blue" />
-                <FeatureRow text="Credit Matrix — earn from credit pack referrals" color="blue" />
+                <FeatureRow text="Profit Pipeline — earn from credit pack referrals" color="blue" />
               </div>
               <div style={{ flex:1 }}/>
               <PayButtons tier="basic" />

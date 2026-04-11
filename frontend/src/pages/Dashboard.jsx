@@ -215,7 +215,7 @@ export default function Dashboard() {
             )
           },
           {
-            color: '#8b5cf6', bg: '#ede9fe', badge: 'credit matrix',
+            color: '#8b5cf6', bg: '#ede9fe', badge: 'profit pipeline',
             val: d.creative_studio_earned || 0, name: 'Creative Studio',
             detail: 'Matrix + credit usage commissions',
             icon: (

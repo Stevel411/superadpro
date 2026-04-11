@@ -22,7 +22,7 @@ var SECTIONS = [
     tips: [
       'Membership Referrals — earn 50% recurring ($10 per Basic, $17.50 per Pro) every month your referrals stay active',
       'Campaign Tiers — activate a tier ($20\u2013$1,000) to unlock the 8\xd78 Income Grid with 40% direct + uni-level commissions across 8 levels',
-      'Credit Matrix — your referrals buy Creative Studio credit packs, they enter your 3\xd73 matrix. Earn level commissions + completion bonuses on every cycle',
+      'Profit Pipeline — your referrals buy Creative Studio credit packs, they enter your 3\xd73 matrix. Earn level commissions + completion bonuses on every cycle',
       'Course Marketplace (coming soon) — sell digital courses with 100% commission and a pass-up system that creates infinite-depth earning',
       'Visit the Comp Plan page for interactive calculators and the AI assistant that can answer any earnings question',
     ],
@@ -69,7 +69,7 @@ var SECTIONS = [
   },
   {
     id: 'wallet', num: '6', title: 'Your Wallet & Pay It Forward', shortTitle: 'Wallet',
-    desc: 'You have two wallets. Your Affiliate Wallet holds membership referral commissions and Creative Studio Credit Matrix earnings — withdraw these anytime with no conditions. Your Campaign Wallet holds grid and watch commissions — these require an active Campaign Tier and daily watch quota. Pay It Forward lets you gift memberships to grow your team organically.',
+    desc: 'You have two wallets. Your Affiliate Wallet holds membership referral commissions and Creative Studio Profit Pipeline earnings — withdraw these anytime with no conditions. Your Campaign Wallet holds grid and watch commissions — these require an active Campaign Tier and daily watch quota. Pay It Forward lets you gift memberships to grow your team organically.',
     tips: [
       'Affiliate Wallet — always withdrawable, no conditions attached',
       'Campaign Wallet — requires active Campaign Tier + daily watch quota to withdraw',

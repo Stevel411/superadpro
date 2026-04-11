@@ -21,7 +21,7 @@ var PACK_OPTIONS = TIER_NAMES.map(function(n, i) {
 var STREAMS = [
   { id:'membership', num:'1', title:'Membership Referrals', shortTitle:'Membership', Icon:Users, color:'#16a34a', bg:'#dcfce7', link:'/affiliate', linkLabel:'View Referrals' },
   { id:'grid', num:'2', title:'8×8 Campaign Grid', shortTitle:'Campaign Grid', Icon:Zap, color:'#6366f1', bg:'#eef2ff', link:'/grid-visualiser', linkLabel:'View Your Grid' },
-  { id:'matrix', num:'3', title:'3×3 Credit Matrix', shortTitle:'Credit Matrix', Icon:Layers, color:'#8b5cf6', bg:'#ede9fe', link:'/matrix-visualiser', linkLabel:'View Your Matrices' },
+  { id:'matrix', num:'3', title:'Profit Pipeline', shortTitle:'Profit Pipeline', Icon:Layers, color:'#8b5cf6', bg:'#ede9fe', link:'/matrix-visualiser', linkLabel:'View Your Matrices' },
   { id:'courses', num:'4', title:'Course Marketplace', shortTitle:'Courses', Icon:GraduationCap, color:'#f59e0b', bg:'#fef3c7', link:'/courses', linkLabel:'Coming Soon', comingSoon:true },
 ];
 
@@ -188,7 +188,7 @@ export default function CompensationPlan() {
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:16 }}>
           <div style={{ background:'rgba(34,197,94,.06)', border:'1px solid rgba(34,197,94,.15)', borderRadius:12, padding:'18px 14px', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#16a34a' }}>Affiliate Wallet</div>
-            <div style={{ fontSize:13, color:'#64748b', marginTop:8 }}>Membership referrals + Credit Matrix commissions</div>
+            <div style={{ fontSize:13, color:'#64748b', marginTop:8 }}>Membership referrals + Profit Pipeline commissions</div>
             <div style={{ fontSize:13, fontWeight:700, color:'#16a34a', marginTop:8 }}>Always withdrawable</div>
           </div>
           <div style={{ background:'rgba(99,102,241,.06)', border:'1px solid rgba(99,102,241,.15)', borderRadius:12, padding:'18px 14px', textAlign:'center' }}>
@@ -269,7 +269,7 @@ function GridContent() {
     <InfoBox items={[
       'Activate a Campaign Tier to enter the 8×8 Income Grid (64 positions)',
       'Your referrals and their referrals fill your grid positions',
-      'Positions fill in order — Level 1 first, then Level 2, and so on through all 8 levels. This is what creates the spillover effect as your team grows',
+      'Positions fill in order — Level 1 first, then Level 2, and so on through all 8 levels. This is what creates the auto-place effect as your team grows',
       'When all 64 positions fill, you earn the completion bonus and a new grid starts (advance)',
       'Higher tiers unlock more daily campaign views and bigger bonuses',
       'Grid earnings go to your Campaign Wallet — requires active tier + daily watch quota',
@@ -297,13 +297,13 @@ function MatrixContent(props) {
   return <>
     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:20 }}>
       <CommBox val="15%" label="Direct Referral" sub="You personally recruited them" color="#d97706" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
-      <CommBox val="10%" label="Spillover" sub="Recruited by someone in your tree" color="#16a34a" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
+      <CommBox val="10%" label="Auto-Place" sub="Placed by your network growth" color="#16a34a" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
       <CommBox val="10%" label="Completion Bonus" sub="Matrix fills all 39 positions" color="#8b5cf6" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
     </div>
 
     {/* Cost breakdown */}
     <div style={{ background:'#f8fafc', borderRadius:12, padding:'16px 20px', marginBottom:20, fontSize:13, color:'#64748b', lineHeight:1.7 }}>
-      <strong style={{ color:'#0f172a' }}>Where does the money go?</strong> 50% covers AI service costs (video, image, music, voice generation), 15% covers platform management, and 35% is paid out as member commissions (15% direct + 10% spillover + 10% completion bonus). <Link to="/income-disclaimer" style={{ color:'#2563eb', textDecoration:'none', fontWeight:700 }}>View full disclaimer →</Link>
+      <strong style={{ color:'#0f172a' }}>Where does the money go?</strong> 50% covers AI service costs (video, image, music, voice generation), 15% covers platform management, and 35% is paid out as member commissions (15% direct + 10% auto-place + 10% completion bonus). <Link to="/income-disclaimer" style={{ color:'#2563eb', textDecoration:'none', fontWeight:700 }}>View full disclaimer →</Link>
     </div>
 
     {/* Mini tree */}
@@ -312,7 +312,7 @@ function MatrixContent(props) {
       <div style={{ display:'flex', gap:8 }}><TreeNode type="you" label="You"/></div>
       <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Gold = Direct Referrals (15%)</div>
       <div style={{ display:'flex', gap:8 }}><TreeNode type="direct"/><TreeNode type="direct"/><TreeNode type="direct"/></div>
-      <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Green = Spillover (10%)</div>
+      <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Green = Auto-Place (10%)</div>
       <div style={{ display:'flex', gap:8, flexWrap:'wrap', justifyContent:'center' }}>
         {Array.from({length:9}, function(_,i){ return <TreeNode key={i} type="spill"/>; })}
       </div>
@@ -334,7 +334,7 @@ function MatrixContent(props) {
     </div>
 
     <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>Per-Position Earnings</div>
-    <EarnTable headers={['Pack','Price','Credits','Earn per direct (15%)','Earn per spillover (10%)']} rows={
+    <EarnTable headers={['Pack','Price','Credits','Earn per direct (15%)','Earn per auto-place (10%)']} rows={
       TIER_NAMES.map(function(n, i) {
         return [n, '$'+TIER_PRICES[i], TIER_CREDITS[i].toLocaleString(), '$'+(TIER_PRICES[i]*0.15).toFixed(2), '$'+(TIER_PRICES[i]*0.10).toFixed(2)];
       })
@@ -346,7 +346,7 @@ function MatrixContent(props) {
       <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:20 }}>
         <div style={{ width:48, height:48, borderRadius:12, background:'rgba(139,92,246,.08)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24 }}>🧮</div>
         <div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:17, fontWeight:800, color:'#0f172a' }}>Credit Matrix Calculator</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:17, fontWeight:800, color:'#0f172a' }}>Profit Pipeline Calculator</div>
           <div style={{ fontSize:13, color:'#64748b' }}>See what you could earn based on your scenario</div>
         </div>
       </div>
@@ -358,7 +358,7 @@ function MatrixContent(props) {
 
       <SliderRow label="Your direct referrals" value={props.matrixDirect} min={0} max={39} display={props.matrixDirect} color="#d97706"
         onChange={function(v){ props.setMatrixDirect(v); if (props.matrixSpill > 39 - v) props.setMatrixSpill(39 - v); }}/>
-      <SliderRow label="Spillover positions filled" value={props.matrixSpill} min={0} max={props.maxSpill} display={props.matrixSpill} color="#10b981"
+      <SliderRow label="Auto-Place positions filled" value={props.matrixSpill} min={0} max={props.maxSpill} display={props.matrixSpill} color="#10b981"
         onChange={function(v){ props.setMatrixSpill(v); }}/>
 
       <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:14, padding:24, color:'#fff', marginTop:8 }}>
@@ -374,7 +374,7 @@ function MatrixContent(props) {
             <div style={{ fontSize:10, color:'rgba(255,255,255,.4)', marginTop:2 }}>{props.matrixDirect} × ${mPrice} × 15%</div>
           </div>
           <div style={{ background:'rgba(255,255,255,.08)', borderRadius:10, padding:14, textAlign:'center' }}>
-            <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>Spillover (10%)</div>
+            <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>Auto-Place (10%)</div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#4ade80', marginTop:4 }}>${mSpillEarn.toFixed(2)}</div>
             <div style={{ fontSize:10, color:'rgba(255,255,255,.4)', marginTop:2 }}>{props.matrixSpill} × ${mPrice} × 10%</div>
           </div>
@@ -391,8 +391,8 @@ function MatrixContent(props) {
     <InfoBox items={[
       'Each credit pack has its own independent 3×3 matrix (39 positions)',
       'Buy a pack → get AI credits + enter your sponsor\'s matrix',
-      'Positions fill left to right, top to bottom — Level 1 fills first (3 slots), then Level 2 (9 slots), then Level 3 (27 slots). This is what creates the spillover effect',
-      'Commission = 15% if you recruited them, 10% if spillover',
+      'Positions fill left to right, top to bottom — Level 1 fills first (3 slots), then Level 2 (9 slots), then Level 3 (27 slots). This is what creates the auto-place effect',
+      'Commission = 15% if you recruited them, 10% if auto-placed',
       'When all 39 positions fill, you earn a 10% completion bonus and a new matrix starts',
       '65% of credit pack cost covers AI services and platform management',
       'Commissions go to your Affiliate Wallet — always withdrawable',

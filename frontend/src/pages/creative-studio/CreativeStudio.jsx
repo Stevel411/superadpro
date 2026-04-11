@@ -714,7 +714,7 @@ export default function CreativeStudio() {
               </div>
             </div>}
 
-            {/* Credit Matrix Earnings Banner */}
+            {/* Profit Pipeline Earnings Banner */}
             <div className="cs-matrix-banner">
               <div className="cs-matrix-banner-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
@@ -726,9 +726,9 @@ export default function CreativeStudio() {
               </div>
               <div className="cs-matrix-banner-text">
                 <div className="cs-matrix-banner-title">Earn commissions from every credit pack sale</div>
-                <div className="cs-matrix-banner-desc">When your referrals buy credits, they enter your 3×3 Credit Matrix — earning you level commissions and completion bonuses automatically.</div>
+                <div className="cs-matrix-banner-desc">When your referrals buy credits, they enter your Profit Pipeline — earning you level commissions and completion bonuses automatically.</div>
               </div>
-              <a href="/credit-matrix" className="cs-matrix-banner-link">View Credit Matrix →</a>
+              <a href="/credit-matrix" className="cs-matrix-banner-link">View Profit Pipeline →</a>
             </div>
 
           </>}
@@ -1124,7 +1124,7 @@ export default function CreativeStudio() {
             </div>
           </>}
 
-          {/* ═══ CREDITS TAB — embedded Credit Matrix ═══ */}
+          {/* ═══ CREDITS TAB — embedded Profit Pipeline ═══ */}
           {tab === 'credits' && <CreditMatrixContent />}
 
         </div>

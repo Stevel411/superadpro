@@ -196,7 +196,7 @@ export default function OnboardingWizard() {
           <div style={{ background: '#f8fafc', borderRadius: 12, padding: '20px', marginBottom: 20 }}>
             {[
               { icon: '📊', title: 'Dashboard', desc: 'Your home base — see earnings, team growth, and quick actions' },
-              { icon: '💰', title: 'How You Earn', desc: '4 income streams: referrals, campaign grid, Credit Matrix, courses' },
+              { icon: '💰', title: 'How You Earn', desc: '4 income streams: referrals, campaign grid, Profit Pipeline, courses' },
               { icon: '🎬', title: 'Creative Studio', desc: 'AI video, images, music, voiceover — 9 video models, 11 image models' },
               { icon: '🛠️', title: 'Pro Tools', desc: 'SuperPages, SuperDeck, AutoResponder, SuperSeller (upgrade to Pro)' },
               { icon: '👁️', title: 'Watch to Earn', desc: 'Watch daily videos to keep your campaign commissions active' },

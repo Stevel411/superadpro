@@ -23,7 +23,7 @@ export default function ComingSoon() {
             {[
               ['🎬', 'AI Creative Studio — Video, Images, Music & Voiceover'],
               ['📊', '8-Tier Campaign Grid — Advertise & Earn'],
-              ['🧮', 'Credit Matrix — 3×3 Forced Matrix Commissions'],
+              ['🧮', 'Profit Pipeline — Your Earnings Accelerator'],
               ['🚀', 'SuperPages — AI Landing Pages & Funnels'],
               ['💰', '50% Referral Commissions — On Every Signup'],
             ].map(function([icon, text]) {

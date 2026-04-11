@@ -49,7 +49,7 @@ function buildNav(t, isAdmin) {
       { label: t('nav.compPlan'), icon: FileText, path: '/compensation-plan' },
       { label: 'Membership Referrals', icon: Users, path: '/affiliate' },
       { label: 'My Grid', icon: Zap, path: '/grid-visualiser' },
-      { label: 'Credit Matrix', icon: Layers, path: '/credit-matrix' },
+      { label: 'Profit Pipeline', icon: Layers, path: '/credit-matrix' },
       { label: 'My Matrix', icon: Network, path: '/matrix-visualiser' },
       { label: 'Course Marketplace', icon: GraduationCap, path: '/courses', comingSoon: true },
     ]},
