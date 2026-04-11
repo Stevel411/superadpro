@@ -128,7 +128,7 @@ export function CreditMatrixContent() {
                 <div key={i} style={{ background: '#fff', borderRadius: 10, padding: '14px 16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                     <card.icon size={16} color={card.color} />
-                    <div style={{ fontSize: 11, color: '#94a3b8' }}>{card.label}</div>
+                    <div style={{ fontSize: 11, color: '#64748b' }}>{card.label}</div>
                   </div>
                   <div style={{ fontSize: 22, fontWeight: 800, color: '#0f172a' }}>{card.value}</div>
                 </div>
@@ -169,11 +169,11 @@ export function CreditMatrixContent() {
                     <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>{pack.label}</div>
                     <div style={{ fontSize: 24, fontWeight: 800, color: '#8b5cf6', margin: '6px 0' }}>${pack.price}</div>
                     <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{pack.credits.toLocaleString()} credits</div>
-                    <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 10 }}>${pack.cost_per_credit}/credit</div>
+                    <div style={{ fontSize: 11, color: '#64748b', marginBottom: 10 }}>${pack.cost_per_credit}/credit</div>
                     <button onClick={function() { if (!isbuying) buyPack(pack.key); }}
                       disabled={isbuying}
                       style={{ width: '100%', padding: '8px 0', borderRadius: 8, border: 'none', fontFamily: 'inherit',
-                        background: isbuying ? '#94a3b8' : icon.gradient, color: '#fff', fontSize: 13, fontWeight: 700,
+                        background: isbuying ? '#64748b' : icon.gradient, color: '#fff', fontSize: 13, fontWeight: 700,
                         cursor: isbuying ? 'default' : 'pointer' }}>
                       {isbuying ? 'Processing...' : 'Pay with Crypto'}
                     </button>
@@ -186,7 +186,7 @@ export function CreditMatrixContent() {
           {/* Nexus Tree Visualisation */}
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px 24px', marginBottom: 20 }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 16 }}>Your 3×3 Nexus
-              {matrixData && <span style={{ fontSize: 13, fontWeight: 400, color: '#94a3b8', marginLeft: 8 }}>Nexus #{matrixData.cycle_number} — {matrixData.positions_filled}/{matrixData.max_positions} filled</span>}
+              {matrixData && <span style={{ fontSize: 13, fontWeight: 400, color: '#64748b', marginLeft: 8 }}>Nexus #{matrixData.cycle_number} — {matrixData.positions_filled}/{matrixData.max_positions} filled</span>}
             </div>
 
             {/* Progress bar */}
@@ -223,9 +223,9 @@ export function CreditMatrixContent() {
                         <div style={{ width: 72, padding: '8px 4px', borderRadius: 8,
                           background: node ? '#f0fdf4' : '#f8fafc',
                           border: node ? '1.5px solid #86efac' : '1.5px dashed #d1d5db',
-                          fontSize: 11, fontWeight: 600, color: node ? '#166534' : '#94a3b8' }}>
+                          fontSize: 11, fontWeight: 600, color: node ? '#166534' : '#64748b' }}>
                           {node ? node.username.slice(0, 8) : 'Empty'}
-                          {node && <div style={{ fontSize: 9, color: '#94a3b8', marginTop: 2 }}>{(PACK_ICONS[node.pack_key] || {}).emoji || ''} ${node.pack_price}</div>}
+                          {node && <div style={{ fontSize: 9, color: '#64748b', marginTop: 2 }}>{(PACK_ICONS[node.pack_key] || {}).emoji || ''} ${node.pack_price}</div>}
                         </div>
                       </div>
                     );
@@ -241,7 +241,7 @@ export function CreditMatrixContent() {
                       <div key={i} style={{ width: 64, padding: '6px 3px', borderRadius: 6,
                         background: node ? '#eff6ff' : '#f8fafc',
                         border: node ? '1px solid #93c5fd' : '1px dashed #e2e8f0',
-                        fontSize: 10, fontWeight: 600, color: node ? '#1e40af' : '#cbd5e1', textAlign: 'center' }}>
+                        fontSize: 10, fontWeight: 600, color: node ? '#1e40af' : '#94a3b8', textAlign: 'center' }}>
                         {node ? node.username.slice(0, 7) : '—'}
                       </div>
                     );
@@ -258,7 +258,7 @@ export function CreditMatrixContent() {
                         background: node ? '#fef3c7' : '#f8fafc',
                         border: node ? '1px solid #fcd34d' : '1px dashed #e2e8f0',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 8, fontWeight: 600, color: node ? '#92400e' : '#cbd5e1' }}>
+                        fontSize: 8, fontWeight: 600, color: node ? '#92400e' : '#94a3b8' }}>
                         {node ? node.username.slice(0, 2).toUpperCase() : ''}
                       </div>
                     );
@@ -269,7 +269,7 @@ export function CreditMatrixContent() {
             )}
 
             {!matrixStats && (
-              <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8' }}>
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#64748b' }}>
                 <Users size={40} color="#e2e8f0" />
                 <div style={{ marginTop: 8, fontSize: 14 }}>Buy your first credit pack to start your nexus</div>
               </div>
@@ -283,13 +283,13 @@ export function CreditMatrixContent() {
               <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>Commission History
                 {commissions && commissions.summary && <span style={{ fontSize: 13, fontWeight: 400, color: '#22c55e', marginLeft: 8 }}>${commissions.summary.total_earned.toFixed(2)} total</span>}
               </div>
-              {showCommissions ? <ChevronUp size={18} color="#94a3b8" /> : <ChevronDown size={18} color="#94a3b8" />}
+              {showCommissions ? <ChevronUp size={18} color="#64748b" /> : <ChevronDown size={18} color="#64748b" />}
             </div>
 
             {showCommissions && commissions && commissions.commissions && (
               <div style={{ marginTop: 12 }}>
                 {commissions.commissions.length === 0 && (
-                  <div style={{ fontSize: 13, color: '#94a3b8', padding: '20px 0', textAlign: 'center' }}>No commissions yet — they'll appear here when your nexus fills</div>
+                  <div style={{ fontSize: 13, color: '#64748b', padding: '20px 0', textAlign: 'center' }}>No commissions yet — they'll appear here when your nexus fills</div>
                 )}
                 {commissions.commissions.map(function(c, i) {
                   return (
@@ -299,7 +299,7 @@ export function CreditMatrixContent() {
                         <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>
                           {c.type === 'matrix_completion' ? '🎉 Matrix Complete Bonus' : 'L' + c.level + ' from ' + c.from_user}
                         </div>
-                        <div style={{ fontSize: 11, color: '#94a3b8' }}>
+                        <div style={{ fontSize: 11, color: '#64748b' }}>
                           {c.type === 'matrix_level' ? (c.rate * 100).toFixed(0) + '% of $' + c.pack_price.toFixed(0) + ' pack' : 'Matrix completion reward'}
                           {' · '}{new Date(c.created_at).toLocaleDateString()}
                         </div>
@@ -362,7 +362,7 @@ export function CreditMatrixContent() {
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px' }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>Team Activity</div>
             {activity.length === 0 && (
-              <div style={{ fontSize: 13, color: '#94a3b8', textAlign: 'center', padding: '20px 0' }}>No team purchases yet</div>
+              <div style={{ fontSize: 13, color: '#64748b', textAlign: 'center', padding: '20px 0' }}>No team purchases yet</div>
             )}
             {activity.slice(0, 8).map(function(a, i) {
               return (
@@ -372,7 +372,7 @@ export function CreditMatrixContent() {
                     fontSize: 12, fontWeight: 700, color: '#8b5cf6' }}>{a.username.slice(0, 1).toUpperCase()}</div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{a.username}</div>
-                    <div style={{ fontSize: 11, color: '#94a3b8' }}>bought {a.pack} pack</div>
+                    <div style={{ fontSize: 11, color: '#64748b' }}>bought {a.pack} pack</div>
                   </div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#22c55e' }}>${a.price}</div>
                 </div>

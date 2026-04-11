@@ -91,7 +91,7 @@ export default function Dashboard() {
   }
 
   if (error || !data) {
-    return <AppLayout title={t("dashboard.title")}><div style={{ textAlign: 'center', padding: 80, color: '#94a3b8' }}>
+    return <AppLayout title={t("dashboard.title")}><div style={{ textAlign: 'center', padding: 80, color: '#64748b' }}>
       <div style={{ fontSize: 16, marginBottom: 12 }}>{error || 'Unable to load dashboard data'}</div>
       <button onClick={() => window.location.reload()} style={{ padding: '10px 24px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}>Refresh Page</button>
     </div></AppLayout>;
@@ -298,7 +298,7 @@ export default function Dashboard() {
                               <div style={{ height:6, borderRadius:99, background:`${g.color}18`, overflow:'hidden', marginBottom:6 }}>
                                 <div style={{ height:'100%', borderRadius:99, background:`linear-gradient(90deg,${g.color},${g.color}cc)`, width:`${g.progress}%`, transition:'width .8s ease-out' }}/>
                               </div>
-                              <div style={{ display:'flex', justifyContent:'space-between', fontSize:11, color:'#94a3b8' }}>
+                              <div style={{ display:'flex', justifyContent:'space-between', fontSize:11, color:'#64748b' }}>
                                 <span>{g.progress_label}</span>
                                 <span style={{ color:g.color, fontWeight:700 }}>{g.progress}%</span>
                               </div>

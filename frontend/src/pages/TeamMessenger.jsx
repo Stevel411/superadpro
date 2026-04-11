@@ -44,7 +44,7 @@ export default function TeamMessenger() {
     return (m.other_user && m.other_user.id === activeContact.id);
   }).reverse() : [];
 
-  if (loading) return <AppLayout title="Team Messenger"><div style={{padding:40,textAlign:'center',color:'#94a3b8'}}>Loading...</div></AppLayout>;
+  if (loading) return <AppLayout title="Team Messenger"><div style={{padding:40,textAlign:'center',color:'#64748b'}}>Loading...</div></AppLayout>;
 
   return (
     <AppLayout title="Team Messenger" subtitle="Message your sponsor and team members">
@@ -61,7 +61,7 @@ export default function TeamMessenger() {
           {contacts.length === 0 ? (
             <div style={{padding:'40px 20px',textAlign:'center'}}>
               <Users size={32} color="#e2e8f0" style={{marginBottom:8}}/>
-              <div style={{fontSize:13,color:'#94a3b8',lineHeight:1.6}}>No team contacts yet. Refer members to start messaging.</div>
+              <div style={{fontSize:13,color:'#64748b',lineHeight:1.6}}>No team contacts yet. Refer members to start messaging.</div>
             </div>
           ) : (
             <div style={{overflowY:'auto',maxHeight:500}}>
@@ -83,11 +83,11 @@ export default function TeamMessenger() {
                         {c.name}
                         {hasUnread && <span style={{width:7,height:7,borderRadius:'50%',background:'#ef4444',display:'inline-block',marginLeft:6}}/>}
                       </div>
-                      <div style={{fontSize:10,color:c.relationship==='sponsor'?'#0ea5e9':'#94a3b8',fontWeight:700,textTransform:'uppercase',letterSpacing:.5}}>
+                      <div style={{fontSize:10,color:c.relationship==='sponsor'?'#0ea5e9':'#64748b',fontWeight:700,textTransform:'uppercase',letterSpacing:.5}}>
                         {c.relationship === 'sponsor' ? '↑ Your Sponsor' : '↓ Your Referral'} · {c.tier}
                       </div>
                     </div>
-                    <ChevronRight size={14} color="#cbd5e1"/>
+                    <ChevronRight size={14} color="#94a3b8"/>
                   </div>
                 );
               })}
@@ -110,14 +110,14 @@ export default function TeamMessenger() {
               </div>
               <div>
                 <div style={{fontSize:14,fontWeight:800,color:'#0f172a'}}>{activeContact.name}</div>
-                <div style={{fontSize:10,color:'#94a3b8',fontWeight:600}}>{activeContact.relationship === 'sponsor' ? 'Your Sponsor' : 'Your Referral'}</div>
+                <div style={{fontSize:10,color:'#64748b',fontWeight:600}}>{activeContact.relationship === 'sponsor' ? 'Your Sponsor' : 'Your Referral'}</div>
               </div>
             </div>
 
             {/* Messages */}
             <div style={{flex:1,overflowY:'auto',padding:'16px 20px',background:'#f8fafc',display:'flex',flexDirection:'column',gap:8}}>
               {convoMsgs.length === 0 && (
-                <div style={{textAlign:'center',padding:'40px 0',color:'#94a3b8',fontSize:13}}>
+                <div style={{textAlign:'center',padding:'40px 0',color:'#64748b',fontSize:13}}>
                   <MessageCircle size={28} color="#e2e8f0" style={{marginBottom:8}}/>
                   <div>No messages yet. Say hello!</div>
                 </div>
@@ -132,7 +132,7 @@ export default function TeamMessenger() {
                       boxShadow:isMine?'0 2px 8px rgba(139,92,246,.2)':'0 1px 4px rgba(0,0,0,.06)',
                       border:isMine?'none':'1px solid #e8ecf2'}}>
                       <div>{m.message}</div>
-                      <div style={{fontSize:9,color:isMine?'rgba(255,255,255,.5)':'#cbd5e1',marginTop:4,textAlign:'right'}}>
+                      <div style={{fontSize:9,color:isMine?'rgba(255,255,255,.5)':'#94a3b8',marginTop:4,textAlign:'right'}}>
                         {new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
                       </div>
                     </div>
@@ -159,7 +159,7 @@ export default function TeamMessenger() {
           </div>
         ) : (
           !contacts.length ? null : (
-            <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:550,color:'#94a3b8',fontSize:14}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:550,color:'#64748b',fontSize:14}}>
               <div style={{textAlign:'center'}}>
                 <MessageCircle size={40} color="#e2e8f0" style={{marginBottom:12}}/>
                 <div style={{fontWeight:700}}>Select a contact to start chatting</div>

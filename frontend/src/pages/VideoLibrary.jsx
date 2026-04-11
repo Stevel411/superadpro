@@ -35,12 +35,12 @@ export default function VideoLibrary() {
   var statusIcon = function(s) {
     if (s === 'active') return <CheckCircle size={12} color="#16a34a"/>;
     if (s === 'pending') return <Clock size={12} color="#f59e0b"/>;
-    return <AlertCircle size={12} color="#94a3b8"/>;
+    return <AlertCircle size={12} color="#64748b"/>;
   };
   var statusColor = function(s) {
     if (s === 'active') return {bg:'rgba(22,163,74,.08)',color:'#16a34a',border:'rgba(22,163,74,.15)'};
     if (s === 'pending') return {bg:'rgba(245,158,11,.08)',color:'#f59e0b',border:'rgba(245,158,11,.15)'};
-    return {bg:'#f8f9fb',color:'#94a3b8',border:'#e8ecf2'};
+    return {bg:'#f8f9fb',color:'#64748b',border:'#e8ecf2'};
   };
   function getThumb(c) {
     if (c.platform === 'youtube' && c.embed_url) {
@@ -122,7 +122,7 @@ export default function VideoLibrary() {
                         {statusIcon(c.status)} {c.status}
                       </span>
                     </div>
-                    <div style={{fontSize:11,color:'#94a3b8',marginBottom:8}}>
+                    <div style={{fontSize:11,color:'#64748b',marginBottom:8}}>
                       {c.platform || '—'} · {c.category || 'General'}
                       {c.target_country ? ' · 🎯 ' + c.target_country : ''}
                       {c.target_interests ? ' · ' + c.target_interests : ''}
@@ -132,7 +132,7 @@ export default function VideoLibrary() {
                         <div style={{height:'100%',borderRadius:3,background:pct>=100?'#16a34a':'#0ea5e9',width:pct+'%',transition:'width .3s'}}/>
                       </div>
                       <span style={{fontSize:12,fontWeight:700,color:'#0ea5e9'}}>{(c.views_delivered||0).toLocaleString()}</span>
-                      <span style={{fontSize:10,color:'#94a3b8'}}>/ {(c.views_target||0).toLocaleString()} views</span>
+                      <span style={{fontSize:10,color:'#64748b'}}>/ {(c.views_target||0).toLocaleString()} views</span>
                       <span style={{fontSize:11,fontWeight:700,color:pct>=100?'#16a34a':'#64748b'}}>{pct}%</span>
                     </div>
                   </div>
@@ -158,7 +158,7 @@ export default function VideoLibrary() {
           <div style={{textAlign:'center',padding:'60px 20px'}}>
             <div style={{fontSize:40,marginBottom:12,opacity:.3}}>🎬</div>
             <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:4}}>{t('videos.noCampaignsYet')}</div>
-            <div style={{fontSize:13,color:'#94a3b8',marginBottom:20}}>{t('videos.activateATier')}</div>
+            <div style={{fontSize:13,color:'#64748b',marginBottom:20}}>{t('videos.activateATier')}</div>
             <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#6366f1)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>
               <Plus size={16}/> Create Your First Campaign
             </Link>

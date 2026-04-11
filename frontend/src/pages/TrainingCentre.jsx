@@ -32,7 +32,7 @@ export default function TrainingCentre() {
   var totalLessons = modules.reduce(function(a, m) { return a + m.lessons.length; }, 0);
   var doneLessons = Object.keys(completed).length;
 
-  if (loading) return <AppLayout title="Training Centre"><div style={{padding:40,textAlign:'center',color:'#94a3b8'}}>Loading...</div></AppLayout>;
+  if (loading) return <AppLayout title="Training Centre"><div style={{padding:40,textAlign:'center',color:'#64748b'}}>Loading...</div></AppLayout>;
 
   return (
     <AppLayout title="Training Centre" subtitle="Learn how to maximise your SuperAdPro earnings">
@@ -61,14 +61,14 @@ export default function TrainingCentre() {
                   <div style={{fontSize:24}}>{mod.emoji}</div>
                   <div>
                     <div style={{fontSize:15,fontWeight:800,color:'#0f172a'}}>{mod.title}</div>
-                    <div style={{fontSize:12,color:'#94a3b8',fontWeight:600}}>{modDone}/{mod.lessons.length} completed</div>
+                    <div style={{fontSize:12,color:'#64748b',fontWeight:600}}>{modDone}/{mod.lessons.length} completed</div>
                   </div>
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:8}}>
                   {modDone === mod.lessons.length && mod.lessons.length > 0 && (
                     <span style={{fontSize:10,fontWeight:800,padding:'3px 8px',borderRadius:4,background:'#dcfce7',color:'#16a34a'}}>COMPLETE</span>
                   )}
-                  {isOpen ? <ChevronDown size={18} color="#94a3b8"/> : <ChevronRight size={18} color="#94a3b8"/>}
+                  {isOpen ? <ChevronDown size={18} color="#64748b"/> : <ChevronRight size={18} color="#64748b"/>}
                 </div>
               </div>
 
@@ -83,14 +83,14 @@ export default function TrainingCentre() {
                           style={{padding:'14px 22px 14px 46px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'space-between',
                             borderBottom:'1px solid #f8f9fb',background:lessonOpen?'#f8fafc':'#fff',transition:'background .15s'}}>
                           <div style={{display:'flex',alignItems:'center',gap:10}}>
-                            {isDone ? <CheckCircle size={16} color="#16a34a"/> : <BookOpen size={16} color="#cbd5e1"/>}
+                            {isDone ? <CheckCircle size={16} color="#16a34a"/> : <BookOpen size={16} color="#94a3b8"/>}
                             <span style={{fontSize:13,fontWeight:700,color:isDone?'#16a34a':'#334155'}}>{lesson.title}</span>
                           </div>
                           <div style={{display:'flex',alignItems:'center',gap:8}}>
-                            <span style={{fontSize:11,color:'#94a3b8',display:'flex',alignItems:'center',gap:3}}>
+                            <span style={{fontSize:11,color:'#64748b',display:'flex',alignItems:'center',gap:3}}>
                               <Clock size={11}/> {lesson.duration}
                             </span>
-                            {lessonOpen ? <ChevronDown size={14} color="#94a3b8"/> : <ChevronRight size={14} color="#94a3b8"/>}
+                            {lessonOpen ? <ChevronDown size={14} color="#64748b"/> : <ChevronRight size={14} color="#64748b"/>}
                           </div>
                         </div>
                         {lessonOpen && (

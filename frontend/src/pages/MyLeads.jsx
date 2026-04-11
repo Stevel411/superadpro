@@ -115,7 +115,7 @@ function LeadsTab({leads,lists,sequences,refresh,flash}) {
         <CustomSelect value={fS} onChange={setFS} style={{width:160}} options={[{value:'all',label:'All statuses'},{value:'new',label:'New'},{value:'nurturing',label:'Nurturing'},{value:'hot',label:'Hot'},{value:'converted',label:'Converted'}]}/>
         <CustomSelect value={fL} onChange={setFL} style={{width:150}} options={[{value:'',label:'All lists'}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))} />
         <button onClick={createList} style={{padding:'8px 14px',borderRadius:10,border:'1px solid #e2e8f0',background:'#fff',color:'#6366f1',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:4}}><Plus size={14}/> New list</button>
-        <div style={{position:'relative'}}><Search size={14} color="#94a3b8" style={{position:'absolute',left:10,top:10}}/><input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder="Search leads..." style={{padding:'8px 8px 8px 30px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',width:180,outline:'none',transition:'border-color .15s'}}/></div>
+        <div style={{position:'relative'}}><Search size={14} color="#64748b" style={{position:'absolute',left:10,top:10}}/><input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder="Search leads..." style={{padding:'8px 8px 8px 30px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',width:180,outline:'none',transition:'border-color .15s'}}/></div>
       </div>
       <div style={{fontSize:13,color:'#64748b',fontWeight:600}}>{filtered.length} contacts</div>
     </div>
@@ -131,12 +131,12 @@ function LeadsTab({leads,lists,sequences,refresh,flash}) {
       <td style={{padding:'14px 18px',fontWeight:600,color:'#0f172a',fontSize:14}}>{l.name||'—'}</td>
       <td style={{padding:'14px 18px',color:'#475569',fontSize:14}}>{l.email}</td>
       <td style={{padding:'14px 18px'}}><span style={{padding:'4px 10px',borderRadius:6,background:st.bg,color:st.color,fontSize:12,fontWeight:600}}>{st.label}</span></td>
-      <td style={{padding:'14px 18px'}}>{li?<span style={{padding:'4px 10px',borderRadius:6,background:li.color+'18',color:li.color,fontSize:12,fontWeight:600}}>{li.name}</span>:<span style={{color:'#94a3b8',fontSize:12}}>—</span>}</td>
+      <td style={{padding:'14px 18px'}}>{li?<span style={{padding:'4px 10px',borderRadius:6,background:li.color+'18',color:li.color,fontSize:12,fontWeight:600}}>{li.name}</span>:<span style={{color:'#64748b',fontSize:12}}>—</span>}</td>
       <td style={{padding:'14px 18px',color:'#475569',fontSize:14}}>{l.emails_sent||0} sent</td>
       <td style={{padding:'14px 18px'}}><CustomSelect value={String(l.sequence_id||'')} onChange={function(v){assignSeq(l.id,v);}} small={true} style={{maxWidth:140}} options={[{value:'',label:'None'}].concat(sequences.map(function(s){return {value:String(s.id),label:s.title};}))}/></td>
       <td style={{padding:'14px 18px',textAlign:'right'}}><button onClick={function(){del(l.id);}} style={{padding:'5px 10px',borderRadius:6,border:'1px solid #fecaca',background:'#fff',color:'#dc2626',fontSize:11,cursor:'pointer',fontFamily:'inherit'}}><Trash2 size={12}/></button></td>
     </tr>;})}</tbody></table></div>
-    :<div style={{textAlign:'center',padding:'60px 20px'}}><UserPlus size={32} color="#cbd5e1" style={{marginBottom:8}}/><div style={{fontSize:14,fontWeight:700,color:'#64748b'}}>No leads yet</div><div style={{fontSize:12,color:'#94a3b8',marginTop:4}}>Leads are captured from your SuperPages funnel forms</div></div>}
+    :<div style={{textAlign:'center',padding:'60px 20px'}}><UserPlus size={32} color="#cbd5e1" style={{marginBottom:8}}/><div style={{fontSize:14,fontWeight:700,color:'#64748b'}}>No leads yet</div><div style={{fontSize:12,color:'#64748b',marginTop:4}}>Leads are captured from your SuperPages funnel forms</div></div>}
   </div>;
 }
 
@@ -171,7 +171,7 @@ function SeqTab({sequences,refresh,flash}) {
       <div style={{padding:'16px 20px',borderBottom:'1px solid #f1f5f9',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
         <div><div style={{fontSize:14,fontWeight:800,color:'#0f172a'}}>{sq.title}</div><div style={{fontSize:11,color:'#64748b',marginTop:2}}>{sq.num_emails} emails</div></div>
         <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
-          <span style={{padding:'4px 10px',borderRadius:6,background:sq.is_active?'#f0fdf4':'#f1f5f9',color:sq.is_active?'#059669':'#94a3b8',fontSize:10,fontWeight:700}}>{sq.is_active?'Active':'Paused'}</span>
+          <span style={{padding:'4px 10px',borderRadius:6,background:sq.is_active?'#f0fdf4':'#f1f5f9',color:sq.is_active?'#059669':'#64748b',fontSize:10,fontWeight:700}}>{sq.is_active?'Active':'Paused'}</span>
           <button onClick={function(){sendNext(sq.id);}} style={{padding:'4px 12px',borderRadius:6,border:'none',background:'#16a34a',color:'#fff',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Send Next</button>
           <button onClick={function(){editEx(sq);}} style={{padding:'4px 12px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'#475569',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Edit</button>
           <button onClick={function(){delSeq(sq.id);}} style={{padding:'4px 12px',borderRadius:6,border:'1px solid #fecaca',background:'#fff',color:'#dc2626',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Delete</button>
@@ -185,7 +185,7 @@ function SeqTab({sequences,refresh,flash}) {
         </div>
         {!last&&<div style={{flex:1,height:2,background:'#e2e8f0',margin:'0 4px',marginBottom:24}}/>}
       </div>;})}</div>}
-    </div>;}):<div style={{textAlign:'center',padding:'60px 20px',background:'#fff',borderRadius:14,border:'1px solid #e2e8f0'}}><Zap size={32} color="#cbd5e1" style={{marginBottom:8}}/><div style={{fontSize:14,fontWeight:700,color:'#64748b'}}>No sequences yet</div><div style={{fontSize:12,color:'#94a3b8',marginTop:4}}>Create a sequence to start nurturing your leads automatically</div></div>}
+    </div>;}):<div style={{textAlign:'center',padding:'60px 20px',background:'#fff',borderRadius:14,border:'1px solid #e2e8f0'}}><Zap size={32} color="#cbd5e1" style={{marginBottom:8}}/><div style={{fontSize:14,fontWeight:700,color:'#64748b'}}>No sequences yet</div><div style={{fontSize:12,color:'#64748b',marginTop:4}}>Create a sequence to start nurturing your leads automatically</div></div>}
   </div>;
 }
 
@@ -329,7 +329,7 @@ function BoostTab({emailStats,refresh,flash}) {
     <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,padding:'20px 24px',marginBottom:16}}>
       <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:12}}>Email Credits</div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10}}>
-        <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Free today</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#16a34a'}}>{emailStats.free_remaining||0}</div><div style={{fontSize:10,color:'#94a3b8'}}>of {emailStats.daily_limit||200}</div></div>
+        <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Free today</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#16a34a'}}>{emailStats.free_remaining||0}</div><div style={{fontSize:10,color:'#64748b'}}>of {emailStats.daily_limit||200}</div></div>
         <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Boost credits</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#8b5cf6'}}>{(emailStats.boost_credits||0).toLocaleString()}</div></div>
         <div style={{background:'#f8fafc',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:10,fontWeight:700,color:'#64748b',marginBottom:4}}>Total available</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0ea5e9'}}>{(emailStats.total_available||0).toLocaleString()}</div></div>
       </div>

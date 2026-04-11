@@ -76,7 +76,7 @@ export default function MyCourses() {
                           <CheckCircle size={14}/> Purchased
                         </div>
                       ) : (
-                        <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:700,color:'#94a3b8'}}>
+                        <div style={{display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:700,color:'#64748b'}}>
                           <Clock size={14}/> Not purchased
                         </div>
                       )}
@@ -89,7 +89,7 @@ export default function MyCourses() {
             <div style={{textAlign:'center',padding:'40px 20px'}}>
               <div style={{fontSize:40,marginBottom:12,opacity:.3}}>📚</div>
               <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:4}}>{t('courses.noCourses')}</div>
-              <div style={{fontSize:13,color:'#94a3b8'}}>{t('courses.coursesWillAppear')}</div>
+              <div style={{fontSize:13,color:'#64748b'}}>{t('courses.coursesWillAppear')}</div>
             </div>
           )}
         </div>

@@ -102,7 +102,7 @@ export default function ProSeller() {
                       <div style={{fontSize:11,fontWeight:800,color:isUser?'#0ea5e9':'#8b5cf6',marginBottom:5,textTransform:'uppercase',letterSpacing:.5}}>{isUser?'You':'ProSeller AI'}</div>
                       <div style={{fontSize:14,color:'#1e293b',lineHeight:1.9,whiteSpace:'pre-wrap',wordBreak:'break-word'}}>{m.content}</div>
                       {!isUser&&(
-                        <button onClick={function(){copyMsg(m.content,i);}} style={{display:'inline-flex',alignItems:'center',gap:4,marginTop:10,padding:'5px 12px',borderRadius:6,border:'1px solid #e8ecf2',background:'#fff',color:copied===i?'#16a34a':'#94a3b8',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit',transition:'all .15s'}}>
+                        <button onClick={function(){copyMsg(m.content,i);}} style={{display:'inline-flex',alignItems:'center',gap:4,marginTop:10,padding:'5px 12px',borderRadius:6,border:'1px solid #e8ecf2',background:'#fff',color:copied===i?'#16a34a':'#64748b',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit',transition:'all .15s'}}>
                           {copied===i?<><Check size={10}/>Copied</>:<><Copy size={10}/>Copy response</>}
                         </button>
                       )}
@@ -125,11 +125,11 @@ export default function ProSeller() {
 
         {/* Input */}
         <div style={{background:'#fff',borderRadius:'0 0 16px 16px',border:'1px solid #e8ecf2',borderTop:'none',padding:'16px 20px'}}>
-          {hasMessages&&<div style={{textAlign:'center',marginBottom:10}}><button onClick={function(){setMessages([]);}} style={{display:'inline-flex',alignItems:'center',gap:4,padding:'5px 14px',borderRadius:6,border:'1px solid #e8ecf2',background:'transparent',color:'#94a3b8',fontSize:10,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}} onMouseEnter={function(e){e.currentTarget.style.color='#ef4444';e.currentTarget.style.borderColor='#fecaca';}} onMouseLeave={function(e){e.currentTarget.style.color='#94a3b8';e.currentTarget.style.borderColor='#e8ecf2';}}><RefreshCw size={10}/>New conversation</button></div>}
+          {hasMessages&&<div style={{textAlign:'center',marginBottom:10}}><button onClick={function(){setMessages([]);}} style={{display:'inline-flex',alignItems:'center',gap:4,padding:'5px 14px',borderRadius:6,border:'1px solid #e8ecf2',background:'transparent',color:'#64748b',fontSize:10,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}} onMouseEnter={function(e){e.currentTarget.style.color='#ef4444';e.currentTarget.style.borderColor='#fecaca';}} onMouseLeave={function(e){e.currentTarget.style.color='#64748b';e.currentTarget.style.borderColor='#e8ecf2';}}><RefreshCw size={10}/>New conversation</button></div>}
           <div style={{display:'flex',gap:10,alignItems:'center'}}>
             <input value={input} onChange={function(e){setInput(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}} placeholder="Ask ProSeller AI anything..." style={{flex:1,padding:'15px 20px',border:'2px solid #e8ecf2',borderRadius:14,fontSize:15,fontFamily:'inherit',background:'#f8f9fb',outline:'none',transition:'all .2s'}} onFocus={function(e){e.target.style.borderColor='#8b5cf6';e.target.style.background='#fff';e.target.style.boxShadow='0 0 0 4px rgba(139,92,246,.08)';}} onBlur={function(e){e.target.style.borderColor='#e8ecf2';e.target.style.background='#f8f9fb';e.target.style.boxShadow='none';}}/>
             <button onClick={function(){send();}} disabled={loading||!input.trim()} style={{width:52,height:52,borderRadius:14,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:(loading||!input.trim())?'default':'pointer',background:(loading||!input.trim())?'#e8ecf2':'linear-gradient(135deg,#8b5cf6,#a78bfa)',boxShadow:(loading||!input.trim())?'none':'0 6px 20px rgba(139,92,246,.3)',transition:'all .2s'}}>
-              <Send size={20} color={(loading||!input.trim())?'#94a3b8':'#fff'}/>
+              <Send size={20} color={(loading||!input.trim())?'#64748b':'#fff'}/>
             </button>
           </div>
         </div>

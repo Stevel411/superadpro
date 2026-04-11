@@ -107,7 +107,7 @@ export default function Funnels() {
           <svg width="32" height="32" viewBox="0 0 48 48"><rect x="6" y="6" width="16" height="16" rx="4" fill="#0ea5e9" opacity=".9"/><rect x="26" y="6" width="16" height="16" rx="4" fill="#6366f1" opacity=".7"/><rect x="6" y="26" width="16" height="16" rx="4" fill="#6366f1" opacity=".5"/><rect x="26" y="26" width="16" height="16" rx="4" fill="#0ea5e9" opacity=".3"/></svg>
           <h1 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'#0f172a'}}>Super<span style={{color:'#0ea5e9'}}>Pages</span></h1>
         </div>
-        <p style={{margin:0,fontSize:13,color:'#94a3b8'}}>Build high-converting landing pages, funnels and sales pages</p>
+        <p style={{margin:0,fontSize:13,color:'#64748b'}}>Build high-converting landing pages, funnels and sales pages</p>
       </div>
 
       {/* Hero cards */}
@@ -116,7 +116,7 @@ export default function Funnels() {
           <div style={{position:'absolute',top:-30,right:-30,width:120,height:120,background:'radial-gradient(circle,rgba(14,165,233,.15),transparent 70%)',borderRadius:'50%'}}/>
           <Sparkles size={24} color="#0ea5e9" style={{marginBottom:10}}/>
           <h3 style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#fff',margin:'0 0 6px'}}>AI Funnel Generator</h3>
-          <p style={{fontSize:12,color:'#94a3b8',lineHeight:1.6,marginBottom:16}}>Answer 4 questions and AI generates a complete landing page with email capture</p>
+          <p style={{fontSize:12,color:'#64748b',lineHeight:1.6,marginBottom:16}}>Answer 4 questions and AI generates a complete landing page with email capture</p>
           <button onClick={()=>setShowAiWizard(true)} style={{padding:'10px 22px',borderRadius:10,border:'none',cursor:'pointer',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontFamily:'Sora,sans-serif',fontSize:12,fontWeight:700,boxShadow:'0 4px 14px rgba(14,165,233,.3)'}}>Create AI Funnel →</button>
         </div>
         <div style={{background:'linear-gradient(135deg,#e8e5fb,#d8d4f7)',borderRadius:16,padding:24,position:'relative',overflow:'hidden',border:'1px solid rgba(99,102,241,.15)'}}>
@@ -147,9 +147,9 @@ export default function Funnels() {
                   </div>
                   <div style={{padding:'12px 14px',flex:1,display:'flex',flexDirection:'column'}}>
                     <div style={{fontSize:13,fontWeight:800,color:'#0f172a',marginBottom:3}}>{t.title}</div>
-                    <div style={{fontSize:11,color:'#94a3b8',lineHeight:1.5,flex:1}}>{t.desc}</div>
+                    <div style={{fontSize:11,color:'#64748b',lineHeight:1.5,flex:1}}>{t.desc}</div>
                     <div style={{marginTop:10}}>
-                      <div style={{padding:'7px 14px',borderRadius:7,fontSize:10,fontWeight:700,background:isCreating?'#f1f5f9':`${t.color}10`,color:isCreating?'#94a3b8':t.color,border:`1px solid ${isCreating?'#e2e8f0':t.color+'25'}`,textAlign:'center'}}>{isCreating?'Creating...':'Use Template →'}</div>
+                      <div style={{padding:'7px 14px',borderRadius:7,fontSize:10,fontWeight:700,background:isCreating?'#f1f5f9':`${t.color}10`,color:isCreating?'#64748b':t.color,border:`1px solid ${isCreating?'#e2e8f0':t.color+'25'}`,textAlign:'center'}}>{isCreating?'Creating...':'Use Template →'}</div>
                     </div>
                   </div>
                 </div>
@@ -165,7 +165,7 @@ export default function Funnels() {
             <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:16}}>
               {[{label:'PAGES',val:published,color:'#16a34a',icon:Zap},{label:'LEADS',val:totalLeads,color:'#0ea5e9',icon:Target},{label:'VIEWS',val:totalViews,color:'#8b5cf6',icon:TrendingUp}].map((s,i)=>(
                 <div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:'12px 14px',borderLeft:`3px solid ${s.color}`}}>
-                  <div style={{fontSize:8,fontWeight:700,letterSpacing:.8,color:'#94a3b8',textTransform:'uppercase'}}>{s.label}</div>
+                  <div style={{fontSize:8,fontWeight:700,letterSpacing:.8,color:'#64748b',textTransform:'uppercase'}}>{s.label}</div>
                   <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:900,color:'#0f172a',margin:'2px 0'}}>{s.val}</div>
                 </div>
               ))}
@@ -173,7 +173,7 @@ export default function Funnels() {
 
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
               <h2 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'#0f172a'}}>Your Pages</h2>
-              <span style={{fontSize:11,color:'#94a3b8'}}>{pages.length} page{pages.length!==1?'s':''}</span>
+              <span style={{fontSize:11,color:'#64748b'}}>{pages.length} page{pages.length!==1?'s':''}</span>
             </div>
             <div style={{display:'flex',flexDirection:'column',gap:10}}>
               {pages.map(p=>(
@@ -181,13 +181,13 @@ export default function Funnels() {
                   <div style={{padding:'12px 14px',borderBottom:'1px solid #f1f3f7'}}>
                     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:3}}>
                       <div style={{fontSize:13,fontWeight:800,color:'#0f172a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1}}>{p.title||'Untitled'}</div>
-                      <span style={{fontSize:8,fontWeight:700,padding:'2px 7px',borderRadius:4,marginLeft:8,flexShrink:0,...(p.status==='published'?{background:'rgba(22,163,74,.08)',color:'#16a34a'}:{background:'#f8f9fb',color:'#94a3b8'})}}>{p.status==='published'?'● Live':'○ Draft'}</span>
+                      <span style={{fontSize:8,fontWeight:700,padding:'2px 7px',borderRadius:4,marginLeft:8,flexShrink:0,...(p.status==='published'?{background:'rgba(22,163,74,.08)',color:'#16a34a'}:{background:'#f8f9fb',color:'#64748b'})}}>{p.status==='published'?'● Live':'○ Draft'}</span>
                     </div>
-                    {p.slug&&<div style={{fontSize:10,color:'#94a3b8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>/{p.slug}</div>}
+                    {p.slug&&<div style={{fontSize:10,color:'#64748b',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>/{p.slug}</div>}
                   </div>
                   <div style={{padding:'8px 14px',display:'flex',gap:12,borderBottom:'1px solid #f1f3f7'}}>
-                    <div style={{display:'flex',alignItems:'center',gap:4}}><Eye size={12} color="#94a3b8"/><span style={{fontSize:12,fontWeight:700,color:'#0f172a'}}>{p.views||0}</span><span style={{fontSize:10,color:'#94a3b8'}}>Views</span></div>
-                    <div style={{display:'flex',alignItems:'center',gap:4}}><FileText size={12} color="#94a3b8"/><span style={{fontSize:12,fontWeight:700,color:'#0f172a'}}>{p.leads_captured||0}</span><span style={{fontSize:10,color:'#94a3b8'}}>Leads</span></div>
+                    <div style={{display:'flex',alignItems:'center',gap:4}}><Eye size={12} color="#64748b"/><span style={{fontSize:12,fontWeight:700,color:'#0f172a'}}>{p.views||0}</span><span style={{fontSize:10,color:'#64748b'}}>Views</span></div>
+                    <div style={{display:'flex',alignItems:'center',gap:4}}><FileText size={12} color="#64748b"/><span style={{fontSize:12,fontWeight:700,color:'#0f172a'}}>{p.leads_captured||0}</span><span style={{fontSize:10,color:'#64748b'}}>Leads</span></div>
                     {p.is_ai_generated&&<span style={{fontSize:8,fontWeight:700,color:'#6366f1',background:'rgba(99,102,241,.08)',padding:'2px 5px',borderRadius:4,marginLeft:'auto'}}>AI</span>}
                   </div>
                   <div style={{padding:'8px 14px',display:'flex',gap:5}}>
@@ -226,7 +226,7 @@ export default function Funnels() {
               <Sparkles size={20} color="#0ea5e9"/>
               <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0f172a'}}>AI Funnel Generator</h3>
             </div>
-            <p style={{fontSize:13,color:'#94a3b8',marginBottom:20}}>Answer 4 questions and AI will generate a complete landing page for you.</p>
+            <p style={{fontSize:13,color:'#64748b',marginBottom:20}}>Answer 4 questions and AI will generate a complete landing page for you.</p>
 
             <label style={{display:'block',fontSize:12,fontWeight:700,color:'#475569',marginBottom:4}}>1. What's your niche or industry?</label>
             <input value={aiForm.niche} onChange={e=>setAiForm(p=>({...p,niche:e.target.value}))} placeholder="e.g. Forex trading, fitness coaching, crypto..."
@@ -247,7 +247,7 @@ export default function Funnels() {
                   flex:1,padding:'8px 0',borderRadius:8,fontSize:11,fontWeight:700,cursor:'pointer',textTransform:'capitalize',
                   border:aiForm.tone===t?'2px solid #0ea5e9':'2px solid #e2e8f0',
                   background:aiForm.tone===t?'rgba(14,165,233,.06)':'#fff',
-                  color:aiForm.tone===t?'#0ea5e9':'#94a3b8',fontFamily:'inherit',
+                  color:aiForm.tone===t?'#0ea5e9':'#64748b',fontFamily:'inherit',
                 }}>{t}</button>
               ))}
             </div>
@@ -255,7 +255,7 @@ export default function Funnels() {
             <div style={{display:'flex',gap:8}}>
               <button onClick={generateAiFunnel} disabled={aiGenerating} style={{
                 flex:1,padding:'12px',borderRadius:10,border:'none',cursor:'pointer',
-                background:aiGenerating?'#94a3b8':'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',
+                background:aiGenerating?'#64748b':'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',
                 fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:700,
               }}>{aiGenerating?'✨ Generating...':'Generate My Page →'}</button>
               <button onClick={()=>setShowAiWizard(false)} disabled={aiGenerating} style={{

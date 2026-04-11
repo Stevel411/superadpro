@@ -67,7 +67,7 @@ export default function CreditMatrixVisualiser() {
   if (loading) {
     return (
       <AppLayout title="Profit Nexus" subtitle="Your Earnings Accelerator">
-        <div style={{ textAlign:'center', padding:60, color:'#94a3b8' }}>Loading nexus...</div>
+        <div style={{ textAlign:'center', padding:60, color:'#64748b' }}>Loading nexus...</div>
       </AppLayout>
     );
   }
@@ -90,8 +90,8 @@ export default function CreditMatrixVisualiser() {
     if (!node) {
       return (
         <div className="mx-node empty">
-          <div style={{ width:36, height:36, borderRadius:'50%', background:'#f1f5f9', margin:'0 auto 6px', display:'flex', alignItems:'center', justifyContent:'center', color:'#cbd5e1', fontSize:16 }}>?</div>
-          <div style={{ fontSize:10, color:'#cbd5e1', fontWeight:600 }}>Empty</div>
+          <div style={{ width:36, height:36, borderRadius:'50%', background:'#f1f5f9', margin:'0 auto 6px', display:'flex', alignItems:'center', justifyContent:'center', color:'#94a3b8', fontSize:16 }}>?</div>
+          <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600 }}>Empty</div>
         </div>
       );
     }
@@ -150,21 +150,21 @@ export default function CreditMatrixVisualiser() {
         <div style={{ display:'flex', gap:16, marginBottom:24 }}>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#dc2626' }}>{purchased.length}</div>
-            <div style={{ fontSize:12, color:'#94a3b8', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Active Nexuses</div>
+            <div style={{ fontSize:12, color:'#64748b', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Active Nexuses</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#16a34a' }}>${totalEarned.toFixed(2)}</div>
-            <div style={{ fontSize:12, color:'#94a3b8', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Total Earned</div>
+            <div style={{ fontSize:12, color:'#64748b', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Total Earned</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#f59e0b' }}>{pct}%</div>
-            <div style={{ fontSize:12, color:'#94a3b8', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Current Fill Rate</div>
+            <div style={{ fontSize:12, color:'#64748b', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Current Fill Rate</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#8b5cf6' }}>
               {purchased.reduce(function(sum, p){ return sum + p.completed_advances; }, 0)}
             </div>
-            <div style={{ fontSize:12, color:'#94a3b8', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Advances Complete</div>
+            <div style={{ fontSize:12, color:'#64748b', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Advances Complete</div>
           </div>
         </div>
 
@@ -214,7 +214,7 @@ export default function CreditMatrixVisualiser() {
                 <div style={{ width:14, height:14, borderRadius:'50%', background:'linear-gradient(135deg,#047857,#10b981)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, fontWeight:800, color:'#fff' }}>↓</div> Auto-Place
               </div>
               <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#64748b', fontWeight:600 }}>
-                <div style={{ width:14, height:14, borderRadius:'50%', background:'#f1f5f9', border:'1px dashed #cbd5e1', display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, color:'#cbd5e1' }}>?</div> Empty
+                <div style={{ width:14, height:14, borderRadius:'50%', background:'#f1f5f9', border:'1px dashed #94a3b8', display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, color:'#94a3b8' }}>?</div> Empty
               </div>
             </div>
 
@@ -226,7 +226,7 @@ export default function CreditMatrixVisualiser() {
 
                 {/* Level 1 */}
                 <div style={{ textAlign:'center', marginTop:8 }}>
-                  <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
                     Level 1 — 15% commission ({stats.l1_filled || 0}/3 filled)
                   </div>
                 </div>
@@ -236,7 +236,7 @@ export default function CreditMatrixVisualiser() {
 
                 {/* Level 2 */}
                 <div style={{ textAlign:'center', marginTop:8 }}>
-                  <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
                     Level 2 — 10% commission ({stats.l2_filled || 0}/9 filled)
                   </div>
                 </div>
@@ -246,7 +246,7 @@ export default function CreditMatrixVisualiser() {
 
                 {/* Level 3 */}
                 <div style={{ textAlign:'center', marginTop:8 }}>
-                  <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
                     Level 3 — 10% commission ({stats.l3_filled || 0}/27 filled)
                   </div>
                 </div>
@@ -261,17 +261,17 @@ export default function CreditMatrixVisualiser() {
               <div style={{ flex:1, background:'#f8fafc', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
                 <div style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase' }}>Level 1</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${e1.toFixed(2)}</div>
-                <div style={{ fontSize:10, color:'#94a3b8', marginTop:2 }}>{stats.l1_filled || 0} × ${packPrice} × 15%</div>
+                <div style={{ fontSize:10, color:'#64748b', marginTop:2 }}>{stats.l1_filled || 0} × ${packPrice} × 15%</div>
               </div>
               <div style={{ flex:1, background:'#f8fafc', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
                 <div style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase' }}>Level 2</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${e2.toFixed(2)}</div>
-                <div style={{ fontSize:10, color:'#94a3b8', marginTop:2 }}>{stats.l2_filled || 0} × ${packPrice} × 10%</div>
+                <div style={{ fontSize:10, color:'#64748b', marginTop:2 }}>{stats.l2_filled || 0} × ${packPrice} × 10%</div>
               </div>
               <div style={{ flex:1, background:'#f8fafc', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
                 <div style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase' }}>Level 3</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${e3.toFixed(2)}</div>
-                <div style={{ fontSize:10, color:'#94a3b8', marginTop:2 }}>{stats.l3_filled || 0} × ${packPrice} × 10%</div>
+                <div style={{ fontSize:10, color:'#64748b', marginTop:2 }}>{stats.l3_filled || 0} × ${packPrice} × 10%</div>
               </div>
               <div style={{ flex:1, background:tc.grad, borderRadius:10, padding:14, textAlign:'center', border:'none' }}>
                 <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,.7)', textTransform:'uppercase' }}>Total</div>

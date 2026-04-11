@@ -75,7 +75,7 @@ export default function IncomeDisclaimer() {
           </Section>
 
           <div style={{ borderTop:'1px solid #f1f5f9', paddingTop:20, marginTop:8, textAlign:'center' }}>
-            <p style={{ fontSize:13, color:'#94a3b8', lineHeight:1.7 }}>Last updated: April 2026. This disclaimer applies to all income programmes operated by SuperAdPro.</p>
+            <p style={{ fontSize:13, color:'#64748b', lineHeight:1.7 }}>Last updated: April 2026. This disclaimer applies to all income programmes operated by SuperAdPro.</p>
             <Link to="/compensation-plan" style={{ display:'inline-flex', alignItems:'center', gap:6, marginTop:12, fontSize:14, fontWeight:700, color:'#2563eb', textDecoration:'none' }}>← Back to Compensation Plan</Link>
           </div>
 
@@ -104,7 +104,7 @@ function CostBreakdown(props) {
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0f172a', minWidth:50 }}>{item.pct}</div>
               <div style={{ fontSize:14, fontWeight:700, color:'#0f172a' }}>{item.label}</div>
             </div>
-            <div style={{ fontSize:13, color:'#94a3b8', textAlign:'right' }}>{item.desc}</div>
+            <div style={{ fontSize:13, color:'#64748b', textAlign:'right' }}>{item.desc}</div>
           </div>
         );
       })}

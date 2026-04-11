@@ -342,9 +342,9 @@ export default function LinkTools() {
         <div style={{display:'flex',flexDirection:'column',gap:10}}>
           {links.length === 0 && (
             <div style={{textAlign:'center',padding:'40px 20px',background:'#fff',border:'1px solid #e8ecf2',borderRadius:10}}>
-              <Link2 size={32} color="#cbd5e1" style={{marginBottom:8}}/>
+              <Link2 size={32} color="#94a3b8" style={{marginBottom:8}}/>
               <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:4}}>No short links yet</div>
-              <div style={{fontSize:12,color:'#94a3b8'}}>Create your first short link to start tracking clicks</div>
+              <div style={{fontSize:12,color:'#64748b'}}>Create your first short link to start tracking clicks</div>
             </div>
           )}
           {links.map(l => {
@@ -364,7 +364,7 @@ export default function LinkTools() {
                       {isExpired && <span style={{fontSize:9,fontWeight:700,background:'#fee2e2',color:'#dc2626',padding:'1px 6px',borderRadius:4}}>EXPIRED</span>}
                       {l.expires_at && !isExpired && <span style={{fontSize:9,fontWeight:700,background:'#fef9c3',color:'#a16207',padding:'1px 6px',borderRadius:4}}>EXPIRES {new Date(l.expires_at).toLocaleDateString()}</span>}
                     </div>
-                    <div style={{fontSize:11,color:'#94a3b8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.title ? l.title + ' — ' : ''}{l.destination_url}</div>
+                    <div style={{fontSize:11,color:'#64748b',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.title ? l.title + ' — ' : ''}{l.destination_url}</div>
                     {tags.length > 0 && (
                       <div style={{display:'flex',gap:4,marginTop:4,flexWrap:'wrap'}}>
                         {tags.map(function(t, i) {
@@ -375,7 +375,7 @@ export default function LinkTools() {
                     )}
                   </div>
                   <div style={{textAlign:'center',padding:'8px 14px',background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)',borderRadius:10,flexShrink:0,border:'1px solid #bae6fd',minWidth:64}}>
-                    <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:900,color:'#0284c7',lineHeight:1}}>{l.click_count||0}{l.click_cap ? <span style={{fontSize:11,fontWeight:600,color:'#94a3b8'}}>/{l.click_cap}</span> : null}</div>
+                    <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:900,color:'#0284c7',lineHeight:1}}>{l.click_count||0}{l.click_cap ? <span style={{fontSize:11,fontWeight:600,color:'#64748b'}}>/{l.click_cap}</span> : null}</div>
                     <div style={{fontSize:8,color:'#0ea5e9',fontWeight:700,letterSpacing:.5,marginTop:2}}>CLICKS</div>
                     {l.click_cap && (
                       <div style={{height:3,background:'#e0f2fe',borderRadius:2,marginTop:4,overflow:'hidden'}}>
@@ -413,9 +413,9 @@ export default function LinkTools() {
         <div style={{display:'flex',flexDirection:'column',gap:10}}>
           {rotators.length === 0 && (
             <div style={{textAlign:'center',padding:'40px 20px',background:'#fff',border:'1px solid #e8ecf2',borderRadius:10}}>
-              <Shuffle size={32} color="#cbd5e1" style={{marginBottom:8}}/>
+              <Shuffle size={32} color="#94a3b8" style={{marginBottom:8}}/>
               <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:4}}>No rotators yet</div>
-              <div style={{fontSize:12,color:'#94a3b8'}}>Create a rotator to split traffic across multiple URLs</div>
+              <div style={{fontSize:12,color:'#64748b'}}>Create a rotator to split traffic across multiple URLs</div>
             </div>
           )}
           {rotators.map(r => (
@@ -509,7 +509,7 @@ export default function LinkTools() {
               <button key={k} onClick={() => setRotMode(k)} style={{
                 flex:1,padding:'8px',borderRadius:8,fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit',
                 border:rotMode===k?'2px solid #8b5cf6':'2px solid #e2e8f0',
-                background:rotMode===k?'rgba(139,92,246,.06)':'#fff',color:rotMode===k?'#8b5cf6':'#94a3b8',
+                background:rotMode===k?'rgba(139,92,246,.06)':'#fff',color:rotMode===k?'#8b5cf6':'#64748b',
               }}>{l}</button>
             ))}
           </div>
@@ -539,7 +539,7 @@ export default function LinkTools() {
       {/* ── EDIT LINK MODAL ── */}
       {editLink && (
         <Modal onClose={() => setEditLink(null)} title="Edit Link" icon={<Edit3 size={18} color="#0ea5e9"/>}>
-          <div style={{fontSize:11,color:'#94a3b8',marginBottom:14,fontWeight:600}}>{BASE}/go/{editLink.short_code}</div>
+          <div style={{fontSize:11,color:'#64748b',marginBottom:14,fontWeight:600}}>{BASE}/go/{editLink.short_code}</div>
           <Label>Destination URL</Label>
           <Input value={editDest} onChange={e => setEditDest(e.target.value)} placeholder="https://..."/>
           <Label>Title</Label>
@@ -584,7 +584,7 @@ export default function LinkTools() {
               <button key={k} onClick={() => setEditRotMode(k)} style={{
                 flex:1,padding:'8px',borderRadius:8,fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit',
                 border:editRotMode===k?'2px solid #8b5cf6':'2px solid #e2e8f0',
-                background:editRotMode===k?'rgba(139,92,246,.06)':'#fff',color:editRotMode===k?'#8b5cf6':'#94a3b8',
+                background:editRotMode===k?'rgba(139,92,246,.06)':'#fff',color:editRotMode===k?'#8b5cf6':'#64748b',
               }}>{l}</button>
             ))}
           </div>
@@ -657,7 +657,7 @@ export default function LinkTools() {
           )}
 
           <div style={{marginTop:16}}>
-            <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Quick Presets</div>
+            <div style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Quick Presets</div>
             <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
               {[
                 {label:'Facebook Ad',s:'facebook',m:'cpc',c:'fb_ad'},
@@ -682,7 +682,7 @@ export default function LinkTools() {
       {/* ── TAG EDITOR MODAL ── */}
       {tagLink && (
         <Modal onClose={() => setTagLink(null)} title="Edit Tags" icon={<Tag size={18} color="#8b5cf6"/>}>
-          <div style={{fontSize:11,color:'#94a3b8',marginBottom:14}}>{BASE}/go/{tagLink.short_code}</div>
+          <div style={{fontSize:11,color:'#64748b',marginBottom:14}}>{BASE}/go/{tagLink.short_code}</div>
           {editTags.length > 0 && (
             <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
               {editTags.map(function(t, i) {
@@ -721,7 +721,7 @@ export default function LinkTools() {
       {analyticsId !== null && (
         <Modal onClose={() => setAnalyticsId(null)} title="Click Analytics" icon={<BarChart3 size={18} color="#10b981"/>} wide>
           {!analytics ? (
-            <div style={{textAlign:'center',padding:30,color:'#94a3b8'}}>Loading analytics...</div>
+            <div style={{textAlign:'center',padding:30,color:'#64748b'}}>Loading analytics...</div>
           ) : analytics.error ? (
             <div style={{textAlign:'center',padding:30,color:'#dc2626'}}>{analytics.error}</div>
           ) : (
@@ -733,7 +733,7 @@ export default function LinkTools() {
               </div>
               {analytics.timeline && analytics.timeline.length > 0 && (
                 <div style={{marginBottom:20}}>
-                  <div style={{fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Clicks — Last 30 Days</div>
+                  <div style={{fontSize:11,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Clicks — Last 30 Days</div>
                   <div style={{display:'flex',alignItems:'flex-end',gap:2,height:80,background:'#f8f9fb',borderRadius:8,padding:'8px 4px'}}>
                     {analytics.timeline.map(function(d, i) {
                       var max = Math.max.apply(null, analytics.timeline.map(function(t){ return t.clicks; }).concat([1]));
@@ -745,7 +745,7 @@ export default function LinkTools() {
               )}
               {analytics.sources && Object.keys(analytics.sources).length > 0 && (
                 <div style={{marginBottom:16}}>
-                  <div style={{fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Traffic Sources</div>
+                  <div style={{fontSize:11,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Traffic Sources</div>
                   {Object.entries(analytics.sources).sort(function(a,b){ return b[1]-a[1]; }).map(function(pair) {
                     return (
                       <div key={pair[0]} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
@@ -758,7 +758,7 @@ export default function LinkTools() {
               )}
               {analytics.countries && Object.keys(analytics.countries).length > 0 && (
                 <div>
-                  <div style={{fontSize:11,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Top Countries</div>
+                  <div style={{fontSize:11,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Top Countries</div>
                   {Object.entries(analytics.countries).map(function(pair) {
                     return (
                       <div key={pair[0]} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
@@ -876,7 +876,7 @@ function Modal({ onClose, title, icon, wide, children }) {
 function StatBox({ label, val, color }) {
   return (
     <div style={{background:'#f8f9fb',borderRadius:8,padding:'12px',borderLeft:'3px solid ' + color}}>
-      <div style={{fontSize:9,fontWeight:700,letterSpacing:.5,color:'#94a3b8',textTransform:'uppercase'}}>{label}</div>
+      <div style={{fontSize:9,fontWeight:700,letterSpacing:.5,color:'#64748b',textTransform:'uppercase'}}>{label}</div>
       <div style={{fontSize:22,fontWeight:900,color:'#0f172a',fontFamily:'Sora,sans-serif'}}>{val}</div>
     </div>
   );

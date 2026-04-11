@@ -128,7 +128,7 @@ export default function OnboardingWizard() {
           <div style={{ textAlign: 'center', marginBottom: 20 }}>
             <div style={{ fontSize: 36, marginBottom: 8 }}>📸</div>
             <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Set up your profile</h2>
-            <p style={{ fontSize: 13, color: '#94a3b8' }}>This is how your team and prospects will see you</p>
+            <p style={{ fontSize: 13, color: '#64748b' }}>This is how your team and prospects will see you</p>
           </div>
 
           {/* Photo */}
@@ -136,7 +136,7 @@ export default function OnboardingWizard() {
             <div onClick={function() { if (fileRef.current) fileRef.current.click(); }}
               style={{ width: 96, height: 96, borderRadius: '50%', background: photoUrl ? 'none' : '#f1f5f9', border: '3px dashed ' + (photoUrl ? '#8b5cf6' : '#e2e8f0'), overflow: 'hidden', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
               {photoUrl ? <img src={photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/> :
-                <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: 11, fontWeight: 600 }}>{uploading ? 'Uploading...' : 'Click to\nupload'}</div>}
+                <div style={{ textAlign: 'center', color: '#64748b', fontSize: 11, fontWeight: 600 }}>{uploading ? 'Uploading...' : 'Click to\nupload'}</div>}
             </div>
             <input ref={fileRef} type="file" accept="image/*" onChange={uploadPhoto} style={{ display: 'none' }}/>
           </div>
@@ -167,7 +167,7 @@ export default function OnboardingWizard() {
         {step === 2 && <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 36, marginBottom: 8 }}>🔗</div>
           <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Your Referral Link</h2>
-          <p style={{ fontSize: 13, color: '#94a3b8', marginBottom: 20 }}>This is how you earn — share it everywhere</p>
+          <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>This is how you earn — share it everywhere</p>
 
           <div style={{ background: '#f8fafc', borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, border: '1px solid #e2e8f0' }}>
             <div style={{ flex: 1, fontSize: 13, color: '#0f172a', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'left' }}>{refLink}</div>
@@ -191,7 +191,7 @@ export default function OnboardingWizard() {
         {step === 3 && <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 36, marginBottom: 8 }}>🗺️</div>
           <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Quick Platform Tour</h2>
-          <p style={{ fontSize: 13, color: '#94a3b8', marginBottom: 20 }}>Learn where everything is in 2 minutes</p>
+          <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>Learn where everything is in 2 minutes</p>
 
           <div style={{ background: '#f8fafc', borderRadius: 12, padding: '20px', marginBottom: 20 }}>
             {[
@@ -206,7 +206,7 @@ export default function OnboardingWizard() {
                 <div style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</div>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{item.title}</div>
-                  <div style={{ fontSize: 11, color: '#94a3b8' }}>{item.desc}</div>
+                  <div style={{ fontSize: 11, color: '#64748b' }}>{item.desc}</div>
                 </div>
               </div>;
             })}
@@ -223,7 +223,7 @@ export default function OnboardingWizard() {
         {step === 4 && <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 36, marginBottom: 8 }}>✨</div>
           <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>You're All Set!</h2>
-          <p style={{ fontSize: 13, color: '#94a3b8', marginBottom: 24 }}>Your account is ready. Here's what to do next:</p>
+          <p style={{ fontSize: 13, color: '#64748b', marginBottom: 24 }}>Your account is ready. Here's what to do next:</p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
             {[
@@ -238,7 +238,7 @@ export default function OnboardingWizard() {
                 <div style={{ fontSize: 24, flexShrink: 0 }}>{item.icon}</div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{item.title}</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8' }}>{item.desc}</div>
+                  <div style={{ fontSize: 12, color: '#64748b' }}>{item.desc}</div>
                 </div>
                 <div style={{ fontSize: 16, color: '#cbd5e1' }}>→</div>
               </div>;

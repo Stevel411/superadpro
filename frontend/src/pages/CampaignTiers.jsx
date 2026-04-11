@@ -228,11 +228,11 @@ export default function CampaignTiers() {
                 <div style={{ display:'flex', alignItems:'flex-start', gap:16 }}>
                   <div className="ct-modal-price" style={{ textAlign:'right' }}>
                     <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, color:'#0f172a' }}>${modalTier.price.toLocaleString()}</div>
-                    <div style={{ fontSize:11, color:'#94a3b8' }}>one-time USDT</div>
+                    <div style={{ fontSize:11, color:'#64748b' }}>one-time USDT</div>
                   </div>
                   <div onClick={function() { setSelected(null); }}
                     style={{ width:32, height:32, borderRadius:8, border:'1px solid #e2e8f0', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0 }}>
-                    <X size={16} color="#94a3b8"/>
+                    <X size={16} color="#64748b"/>
                   </div>
                 </div>
               </div>
@@ -241,15 +241,15 @@ export default function CampaignTiers() {
               <div className="ct-detail-stats" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20 }}>
                 <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'#f8fafc', border:'1px solid #f1f5f9' }}>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${formatMoney(modalTier.direct_commission)}</div>
-                  <div style={{ fontSize:11, color:'#94a3b8', marginTop:3 }}>Direct earn (40%)</div>
+                  <div style={{ fontSize:11, color:'#64748b', marginTop:3 }}>Direct earn (40%)</div>
                 </div>
                 <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'#f8fafc', border:'1px solid #f1f5f9' }}>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${formatMoney(modalTier.uni_level_per_member)}</div>
-                  <div style={{ fontSize:11, color:'#94a3b8', marginTop:3 }}>Per member (6.25%)</div>
+                  <div style={{ fontSize:11, color:'#64748b', marginTop:3 }}>Per member (6.25%)</div>
                 </div>
                 <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'#f8fafc', border:'1px solid #f1f5f9' }}>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${modalTier.completion_bonus.toLocaleString()}</div>
-                  <div style={{ fontSize:11, color:'#94a3b8', marginTop:3 }}>Grid bonus</div>
+                  <div style={{ fontSize:11, color:'#64748b', marginTop:3 }}>Grid bonus</div>
                 </div>
                 <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:modalAccent.bg, border:'1px solid ' + modalAccent.border }}>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${modalTotal.toLocaleString()}</div>
@@ -257,7 +257,7 @@ export default function CampaignTiers() {
                 </div>
               </div>
 
-              <div style={{ fontSize:11, color:'#94a3b8', fontStyle:'italic', marginBottom:20 }}>
+              <div style={{ fontSize:11, color:'#64748b', fontStyle:'italic', marginBottom:20 }}>
                 Earnings based on 5 personal referrals. Income may vary depending on the number of personals referred into your grid.
               </div>
 

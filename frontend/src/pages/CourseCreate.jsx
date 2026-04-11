@@ -88,7 +88,7 @@ export default function CourseCreate() {
               return(<div key={s.key} style={{display:'flex',alignItems:'center',flex:1}}>
                 <div style={{width:32,height:32,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:800,
                   background:done?'#8b5cf6':on?'linear-gradient(135deg,#8b5cf6,#a78bfa)':'#e8ecf2',
-                  color:done||on?'#fff':'#94a3b8',boxShadow:on?'0 4px 14px rgba(139,92,246,.3)':'none',transition:'all .3s'}}>
+                  color:done||on?'#fff':'#64748b',boxShadow:on?'0 4px 14px rgba(139,92,246,.3)':'none',transition:'all .3s'}}>
                   {done?'✓':s.num}
                 </div>
                 {i<STEPS.length-1&&<div style={{flex:1,height:2,background:done?'#8b5cf6':'#e8ecf2',margin:'0 6px',transition:'all .3s'}}/>}
@@ -103,7 +103,7 @@ export default function CourseCreate() {
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
                 <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>What's your course about?</h3>
-                <p style={{fontSize:13,color:'#94a3b8',margin:0}}>The basics — you can always change these later</p>
+                <p style={{fontSize:13,color:'#64748b',margin:0}}>The basics — you can always change these later</p>
               </div>
               <div style={{padding:'28px 32px'}}>
                 <div style={{marginBottom:22}}>
@@ -137,7 +137,7 @@ export default function CourseCreate() {
                         var on=difficulty===d.k;
                         return <button key={d.k} onClick={function(){setDifficulty(d.k);}} style={{flex:1,padding:'12px 8px',borderRadius:10,cursor:'pointer',fontFamily:'inherit',textAlign:'center',border:on?'2px solid #8b5cf6':'2px solid #f1f3f7',background:on?'rgba(139,92,246,.04)':'#fafbfc'}}>
                           <div style={{fontSize:14}}>{d.icon}</div>
-                          <div style={{fontSize:10,fontWeight:on?800:600,color:on?'#8b5cf6':'#94a3b8',marginTop:2}}>{d.l}</div>
+                          <div style={{fontSize:10,fontWeight:on?800:600,color:on?'#8b5cf6':'#64748b',marginTop:2}}>{d.l}</div>
                         </button>;
                       })}
                     </div>
@@ -158,7 +158,7 @@ export default function CourseCreate() {
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
                 <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Describe Your Course</h3>
-                <p style={{fontSize:13,color:'#94a3b8',margin:0}}>Help students understand what they'll learn</p>
+                <p style={{fontSize:13,color:'#64748b',margin:0}}>Help students understand what they'll learn</p>
               </div>
               <div style={{padding:'28px 32px'}}>
                 <div style={{marginBottom:22}}>
@@ -184,13 +184,13 @@ export default function CourseCreate() {
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
                 <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Review & Create</h3>
-                <p style={{fontSize:13,color:'#94a3b8',margin:0}}>After creating, you'll add chapters and lessons in the editor</p>
+                <p style={{fontSize:13,color:'#64748b',margin:0}}>After creating, you'll add chapters and lessons in the editor</p>
               </div>
               <div style={{padding:'28px 32px'}}>
                 {/* Checklist */}
                 <div style={{marginBottom:20}}>
                   {[{ok:title.length>=10,l:'Course title (10+ chars)'},{ok:!!category,l:'Category selected'},{ok:parseFloat(price)>=20,l:'Price set ($20+)'},{ok:description.length>=100,l:'Description (100+ chars)'},{ok:!!difficulty,l:'Difficulty level'}].map(function(c,i){
-                    return <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 0'}}><div style={{width:20,height:20,borderRadius:'50%',background:c.ok?'#dcfce7':'#fef2f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:800,color:c.ok?'#10b981':'#dc2626'}}>{c.ok?'✓':'✗'}</div><span style={{fontSize:13,color:c.ok?'#334155':'#94a3b8',fontWeight:c.ok?600:400}}>{c.l}</span></div>;
+                    return <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 0'}}><div style={{width:20,height:20,borderRadius:'50%',background:c.ok?'#dcfce7':'#fef2f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:800,color:c.ok?'#10b981':'#dc2626'}}>{c.ok?'✓':'✗'}</div><span style={{fontSize:13,color:c.ok?'#334155':'#64748b',fontWeight:c.ok?600:400}}>{c.l}</span></div>;
                   })}
                 </div>
 
@@ -238,7 +238,7 @@ export default function CourseCreate() {
 
         {/* RIGHT — Live Preview */}
         <div style={{position:'sticky',top:24}}>
-          <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Live Preview</div>
+          <div style={{fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Live Preview</div>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.06)'}}>
             <div style={{aspectRatio:'16/9',background:'linear-gradient(135deg,#172554,#172554)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
               {bannerUrl?<img src={bannerUrl} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>:<div style={{fontSize:36,opacity:.15}}>{catObj?catObj.icon:'🎓'}</div>}
@@ -252,7 +252,7 @@ export default function CourseCreate() {
             </div>
             <div style={{padding:'16px'}}>
               <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:3,lineHeight:1.3}}>{title||'Your Course Title'}</div>
-              <div style={{fontSize:11,color:'#94a3b8',marginBottom:6}}>by You</div>
+              <div style={{fontSize:11,color:'#64748b',marginBottom:6}}>by You</div>
               <div style={{fontSize:12,color:'#475569',lineHeight:1.6,marginBottom:10}}>{shortDesc||'Your one-line summary appears here'}</div>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                 {catObj&&<span style={{fontSize:9,fontWeight:700,padding:'3px 8px',borderRadius:5,background:'#f1f5f9',color:'#64748b'}}>{catObj.icon} {catObj.label}</span>}

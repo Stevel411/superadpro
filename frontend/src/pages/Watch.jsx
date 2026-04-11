@@ -69,7 +69,7 @@ var CSS = `
   box-shadow: 0 4px 0 #0284c7, 0 6px 16px rgba(14,165,233,.3);
 }
 .mark-btn.ready:active { transform: translateY(2px); box-shadow: 0 2px 0 #0284c7; }
-.mark-btn.disabled { background: #e2e8f0; color: #94a3b8; cursor: default; box-shadow: none; }
+.mark-btn.disabled { background: #e2e8f0; color: #64748b; cursor: default; box-shadow: none; }
 
 .dot-item {
   flex: 1; aspect-ratio: 1; max-width: 38px; border-radius: 50%;
@@ -79,7 +79,7 @@ var CSS = `
 }
 .dot-done { background: linear-gradient(135deg,#0ea5e9,#38bdf8); color: #fff; box-shadow: 0 2px 8px rgba(14,165,233,.3); }
 .dot-current { background: rgba(56,189,248,.1); border: 2px solid #38bdf8; color: #0ea5e9; }
-.dot-empty { background: #f1f5f9; border: 2px solid #e2e8f0; color: #cbd5e1; }
+.dot-empty { background: #f1f5f9; border: 2px solid #e2e8f0; color: #94a3b8; }
 
 .stat-box { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 12px; text-align: center; }
 `;
@@ -202,7 +202,7 @@ export default function Watch() {
 
   if (!data) return (
     <AppLayout title={t('watch.title')}>
-      <div style={{textAlign:'center',padding:80,color:'#94a3b8'}}>Unable to load</div>
+      <div style={{textAlign:'center',padding:80,color:'#64748b'}}>Unable to load</div>
     </AppLayout>
   );
 
@@ -265,7 +265,7 @@ export default function Watch() {
       ].map((s,i) => (
         <div key={i} style={{background:dark?'rgba(255,255,255,.04)':'#f1f5f9',border:`1px solid ${dark?'rgba(255,255,255,.08)':'#e2e8f0'}`,borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
           <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:s.c}}>{s.v}</div>
-          <div style={{fontSize:10,fontWeight:700,letterSpacing:.5,textTransform:'uppercase',color:dark?'rgba(200,220,255,.3)':'#94a3b8',marginTop:4}}>{s.l}</div>
+          <div style={{fontSize:10,fontWeight:700,letterSpacing:.5,textTransform:'uppercase',color:dark?'rgba(200,220,255,.3)':'#64748b',marginTop:4}}>{s.l}</div>
         </div>
       ))}
     </div>
@@ -285,7 +285,7 @@ export default function Watch() {
               {Array.from({length:limit}).map((_,i)=>(
                 <div key={i} style={{width:28,height:28,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,
                   background: i < watched ? 'linear-gradient(135deg,#06b6d4,#0891b2)' : '#e2e8f0',
-                  color: i < watched ? '#fff' : '#94a3b8'}}>
+                  color: i < watched ? '#fff' : '#64748b'}}>
                   {i < watched ? '✓' : i+1}
                 </div>
               ))}
@@ -452,7 +452,7 @@ export default function Watch() {
             <div className="watch-hint" style={{padding:'10px 16px',borderBottom:'1px solid #f1f3f7',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12}}>
               <div style={{minWidth:0,display:'flex',alignItems:'center',gap:8}}>
                 <div style={{fontSize:14,fontWeight:700,color:'#0f172a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{current?.title||'Loading...'}</div>
-                <div style={{fontSize:11,color:'#94a3b8',whiteSpace:'nowrap',flexShrink:0}}>{current?.platform||'video'} · {current?.category||'General'}</div>
+                <div style={{fontSize:11,color:'#64748b',whiteSpace:'nowrap',flexShrink:0}}>{current?.platform||'video'} · {current?.category||'General'}</div>
               </div>
               <div style={{fontSize:8,fontWeight:700,letterSpacing:1,textTransform:'uppercase',color:'#0ea5e9',background:'rgba(14,165,233,.06)',border:'1px solid rgba(14,165,233,.12)',padding:'4px 10px',borderRadius:6,whiteSpace:'nowrap'}}>▶ Now Playing</div>
             </div>
@@ -504,7 +504,7 @@ export default function Watch() {
             <TimerRing size={56}/>
             <div style={{flex:1}}>
               <div style={{fontSize:13,fontWeight:700,color:statusColor,marginBottom:2}}>{statusText}</div>
-              <div style={{fontSize:11,color:'#94a3b8',fontWeight:500}}>{watched} of {limit} video{limit!==1?'s':''} watched today</div>
+              <div style={{fontSize:11,color:'#64748b',fontWeight:500}}>{watched} of {limit} video{limit!==1?'s':''} watched today</div>
             </div>
             <button onClick={markAsWatched} disabled={!btnReady}
               className={'mark-btn ' + (btnReady ? 'ready' : 'disabled')}
@@ -518,7 +518,7 @@ export default function Watch() {
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
               <div style={{fontSize:11,fontWeight:800,letterSpacing:1,textTransform:'uppercase',color:'#64748b'}}>Today's Progress</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:900,color:'#0f172a'}}>
-                {watched} <span style={{fontSize:13,color:'#94a3b8',fontWeight:500}}>/ {limit}</span>
+                {watched} <span style={{fontSize:13,color:'#64748b',fontWeight:500}}>/ {limit}</span>
               </div>
             </div>
             <ProgressDots/>
@@ -534,7 +534,7 @@ export default function Watch() {
             ].map((s,i) => (
               <div key={i} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:'14px 12px',textAlign:'center',boxShadow:'0 1px 4px rgba(0,0,0,.04)'}}>
                 <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:s.c}}>{s.v}</div>
-                <div style={{fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:.5,color:'#94a3b8',marginTop:4}}>{s.l}</div>
+                <div style={{fontSize:10,fontWeight:700,textTransform:'uppercase',letterSpacing:.5,color:'#64748b',marginTop:4}}>{s.l}</div>
               </div>
             ))}
           </div>
@@ -575,7 +575,7 @@ export default function Watch() {
               </div>
               <div>
                 <div style={{fontFamily:'Sora,sans-serif',fontSize:34,fontWeight:800,color:'#0f172a',lineHeight:1}}>
-                  {watched}<span style={{fontSize:16,color:'#94a3b8',fontWeight:500}}> / {limit}</span>
+                  {watched}<span style={{fontSize:16,color:'#64748b',fontWeight:500}}> / {limit}</span>
                 </div>
                 <div style={{fontSize:13,color:'#7b91a8',marginTop:3}}>videos watched</div>
                 <div style={{fontSize:12,fontWeight:600,color:watched>=limit?'#16a34a':'#3d5068',marginTop:4}}>
@@ -602,12 +602,12 @@ export default function Watch() {
                 {videos.map((v,i) => (
                   <button key={v.id} onClick={()=>{setCurrentIdx(-1);setTimeout(()=>setCurrentIdx(i),50);}}
                     style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,border:`1px solid ${i===currentIdx?'rgba(14,165,233,.3)':'rgba(15,25,60,.07)'}`,background:i===currentIdx?'rgba(14,165,233,.06)':'#f8f9fb',cursor:'pointer',fontFamily:'inherit',textAlign:'left',transition:'all .15s'}}>
-                    <div style={{width:28,height:28,borderRadius:'50%',background:v.is_watched?'linear-gradient(135deg,#0ea5e9,#38bdf8)':i===currentIdx?'rgba(14,165,233,.12)':'#e2e8f0',border:i===currentIdx&&!v.is_watched?'2px solid #38bdf8':'none',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:v.is_watched?'#fff':i===currentIdx?'#0ea5e9':'#94a3b8',flexShrink:0}}>
+                    <div style={{width:28,height:28,borderRadius:'50%',background:v.is_watched?'linear-gradient(135deg,#0ea5e9,#38bdf8)':i===currentIdx?'rgba(14,165,233,.12)':'#e2e8f0',border:i===currentIdx&&!v.is_watched?'2px solid #38bdf8':'none',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:700,color:v.is_watched?'#fff':i===currentIdx?'#0ea5e9':'#64748b',flexShrink:0}}>
                       {v.is_watched ? '✓' : i + 1}
                     </div>
                     <div style={{flex:1,minWidth:0}}>
                       <div style={{fontSize:12,fontWeight:600,color:i===currentIdx?'#0ea5e9':'#0f172a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{v.title}</div>
-                      <div style={{fontSize:10,color:'#94a3b8',marginTop:1}}>{v.platform} · {v.category}</div>
+                      <div style={{fontSize:10,color:'#64748b',marginTop:1}}>{v.platform} · {v.category}</div>
                     </div>
                     {i===currentIdx&&!v.is_watched && <div style={{fontSize:9,fontWeight:700,color:'#0ea5e9',background:'rgba(14,165,233,.08)',border:'1px solid rgba(14,165,233,.15)',padding:'2px 8px',borderRadius:4,flexShrink:0}}>▶ Playing</div>}
                   </button>

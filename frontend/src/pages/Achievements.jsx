@@ -35,7 +35,7 @@ export default function Achievements() {
       </>)}
 
       {/* Available */}
-      <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#94a3b8',marginBottom:12}}>🔒 Available</div>
+      <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#64748b',marginBottom:12}}>🔒 Available</div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:14}}>
         {(available.length > 0 ? available : [
           {icon:'👥',name:'First Referral',description:'Refer your first member',progress:0},

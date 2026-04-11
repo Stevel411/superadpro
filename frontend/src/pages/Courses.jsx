@@ -42,7 +42,7 @@ export default function Courses() {
               <div style={{padding:20,flex:1,display:'flex',flexDirection:'column'}}>
                 <div style={{fontSize:17,fontWeight:800,color:'#132044',marginBottom:6,letterSpacing:-0.2}}>{c.title}</div>
                 <div style={{fontSize:13,color:'#475569',lineHeight:1.6,marginBottom:16,flex:1}}>{c.description || 'Master the skills you need to succeed in digital marketing and online business.'}</div>
-                <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:16,fontSize:12,color:'#94a3b8'}}>
+                <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:16,fontSize:12,color:'#64748b'}}>
                   <span style={{display:'flex',alignItems:'center',gap:4}}>📖 {c.chapter_count || 0} chapters</span>
                   <span style={{display:'flex',alignItems:'center',gap:4}}>▶ {c.lesson_count || 0} lessons</span>
                   <span style={{display:'flex',alignItems:'center',gap:4}}>⏱ {c.total_duration || 0}m</span>
@@ -70,7 +70,7 @@ export default function Courses() {
         <div style={{textAlign:'center',padding:'80px 20px'}}>
           <div style={{fontSize:48,marginBottom:16,opacity:0.5}}>📚</div>
           <div style={{fontSize:18,fontWeight:800,color:'#132044',marginBottom:6}}>No courses available yet</div>
-          <div style={{fontSize:14,color:'#94a3b8'}}>Check back soon — new courses are being added.</div>
+          <div style={{fontSize:14,color:'#64748b'}}>Check back soon — new courses are being added.</div>
         </div>
       )}
 

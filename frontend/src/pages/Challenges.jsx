@@ -14,7 +14,7 @@ export default function Challenges() {
     }).catch(function() { setLoading(false); });
   }, []);
 
-  if (loading) return <AppLayout title="Challenges"><div style={{padding:40,textAlign:'center',color:'#94a3b8'}}>Loading...</div></AppLayout>;
+  if (loading) return <AppLayout title="Challenges"><div style={{padding:40,textAlign:'center',color:'#64748b'}}>Loading...</div></AppLayout>;
 
   return (
     <AppLayout title="Challenges" subtitle="Hit milestones, earn rewards, climb the ranks">
@@ -43,7 +43,7 @@ export default function Challenges() {
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
                   <div style={{fontSize:32,fontWeight:900,color:'#0f172a'}}>{ch.progress}</div>
                   {nextMilestone && (
-                    <div style={{fontSize:12,fontWeight:700,color:'#94a3b8'}}>
+                    <div style={{fontSize:12,fontWeight:700,color:'#64748b'}}>
                       Next: {nextMilestone.emoji} {nextMilestone.reward} ({nextMilestone.target - ch.progress} to go)
                     </div>
                   )}
@@ -72,7 +72,7 @@ export default function Challenges() {
                         <div style={{fontSize:22}}>{m.emoji}</div>
                         <div>
                           <div style={{fontSize:12,fontWeight:800,color:done?'#16a34a':'#64748b'}}>{m.target} {ch.type === 'referral' ? 'referrals' : ch.type === 'grid' ? 'members' : 'days'}</div>
-                          <div style={{fontSize:11,color:done?'#16a34a':'#94a3b8',fontWeight:600}}>{m.reward}</div>
+                          <div style={{fontSize:11,color:done?'#16a34a':'#64748b',fontWeight:600}}>{m.reward}</div>
                         </div>
                         {done && <div style={{marginLeft:'auto',fontSize:14}}>✓</div>}
                       </div>

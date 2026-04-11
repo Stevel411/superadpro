@@ -126,7 +126,7 @@ export default function Leaderboard() {
         <div style={{ textAlign:'center', padding:'64px 32px', background:'#fff', borderRadius:16, border:'1px solid #e8ecf2' }}>
           <div style={{ fontSize:56, marginBottom:12, opacity:0.25 }}>🏆</div>
           <div style={{ fontSize:18, fontWeight:800, color:'#0f172a', marginBottom:6 }}>No activity yet</div>
-          <div style={{ fontSize:13, color:'#94a3b8' }}>Be the first to appear on this leaderboard!</div>
+          <div style={{ fontSize:13, color:'#64748b' }}>Be the first to appear on this leaderboard!</div>
         </div>
       ) : (
         <>
@@ -134,7 +134,7 @@ export default function Leaderboard() {
           {leaders.length>=3 && (
             <div style={{ background:'#fff', borderRadius:20, border:'1px solid #e8ecf2', padding:'28px 24px 0', marginBottom:20, overflow:'hidden', boxShadow:'0 4px 24px rgba(0,0,0,0.06)' }}>
               <div style={{ textAlign:'center', marginBottom:20 }}>
-                <span style={{ fontSize:11, fontWeight:800, letterSpacing:2, textTransform:'uppercase', color:'#94a3b8' }}>Top Performers</span>
+                <span style={{ fontSize:11, fontWeight:800, letterSpacing:2, textTransform:'uppercase', color:'#64748b' }}>Top Performers</span>
               </div>
               <div style={{ display:'flex', justifyContent:'center', alignItems:'flex-end', gap:8 }}>
                 <PodiumCard user={leaders[1]} place={2} tab={activeTab}/>
@@ -149,13 +149,13 @@ export default function Leaderboard() {
             <div style={{ padding:'16px 20px', borderBottom:'1px solid #f1f5f9', display:'flex', alignItems:'center', gap:8 }}>
               <TrendingUp size={16} color={activeTab.color}/>
               <span style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'#0f172a' }}>Full Rankings</span>
-              <span style={{ fontSize:11, color:'#94a3b8', marginLeft:4 }}>— {activeTab.label}</span>
+              <span style={{ fontSize:11, color:'#64748b', marginLeft:4 }}>— {activeTab.label}</span>
             </div>
             <table style={{ width:'100%', borderCollapse:'collapse' }}>
               <thead>
                 <tr style={{ background:'#f8f9fb' }}>
                   {['Rank','Member','Tier',activeTab.metricLabel,'Progress'].map(function(h,i){
-                    return <th key={h} style={{ fontSize:10, fontWeight:800, color:'#94a3b8', textTransform:'uppercase', letterSpacing:1, padding:'10px 16px', borderBottom:'1px solid #e8ecf2', textAlign:i>=3?'right':'left' }}>{h}</th>;
+                    return <th key={h} style={{ fontSize:10, fontWeight:800, color:'#64748b', textTransform:'uppercase', letterSpacing:1, padding:'10px 16px', borderBottom:'1px solid #e8ecf2', textAlign:i>=3?'right':'left' }}>{h}</th>;
                   })}
                 </tr>
               </thead>
@@ -176,7 +176,7 @@ export default function Leaderboard() {
                         {i<3 ? (
                           <div style={{ width:34, height:34, borderRadius:10, background:rs.bg, border:`1px solid ${rs.border}`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, boxShadow:`0 2px 8px ${rs.glow}` }}>{medals[i]}</div>
                         ) : (
-                          <div style={{ width:34, height:34, borderRadius:10, background:'#f8f9fb', border:'1px solid #e8ecf2', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Sora,sans-serif', fontSize:13, fontWeight:800, color:'#94a3b8' }}>{i+1}</div>
+                          <div style={{ width:34, height:34, borderRadius:10, background:'#f8f9fb', border:'1px solid #e8ecf2', display:'flex', alignItems:'center', justifyContent:'center', fontFamily:'Sora,sans-serif', fontSize:13, fontWeight:800, color:'#64748b' }}>{i+1}</div>
                         )}
                       </td>
                       <td style={{ padding:'12px 16px', borderBottom:'1px solid #f5f6f8' }}>
@@ -190,7 +190,7 @@ export default function Leaderboard() {
                               {isMe && <span style={{ fontSize:10, fontWeight:700, padding:'2px 7px', borderRadius:5, background:`${activeTab.color}15`, color:activeTab.color }}>You</span>}
                               {i===0 && <Crown size={12} color="#f59e0b"/>}
                             </div>
-                            <div style={{ fontSize:11, color:'#94a3b8' }}>@{u.username}</div>
+                            <div style={{ fontSize:11, color:'#64748b' }}>@{u.username}</div>
                           </div>
                         </div>
                       </td>
@@ -199,14 +199,14 @@ export default function Leaderboard() {
                       </td>
                       <td style={{ padding:'12px 16px', borderBottom:'1px solid #f5f6f8', textAlign:'right' }}>
                         <span style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:900, color:i<3?activeTab.color:'#0f172a' }}>{val}</span>
-                        <div style={{ fontSize:9, color:'#94a3b8', fontWeight:600, marginTop:1 }}>{activeTab.metricLabel}</div>
+                        <div style={{ fontSize:9, color:'#64748b', fontWeight:600, marginTop:1 }}>{activeTab.metricLabel}</div>
                       </td>
                       <td style={{ padding:'12px 16px', borderBottom:'1px solid #f5f6f8', textAlign:'right', width:140 }}>
                         <div style={{ display:'flex', alignItems:'center', gap:8, justifyContent:'flex-end' }}>
                           <div style={{ flex:1, height:6, background:'#f1f5f9', borderRadius:99, overflow:'hidden', minWidth:80 }}>
                             <div style={{ height:'100%', borderRadius:99, background:i<3?activeTab.grad:`${activeTab.color}60`, width:`${pct}%`, transition:'width .8s ease-out' }}/>
                           </div>
-                          <span style={{ fontSize:10, fontWeight:700, color:'#94a3b8', minWidth:28, textAlign:'right' }}>{pct}%</span>
+                          <span style={{ fontSize:10, fontWeight:700, color:'#64748b', minWidth:28, textAlign:'right' }}>{pct}%</span>
                         </div>
                       </td>
                     </tr>
@@ -215,7 +215,7 @@ export default function Leaderboard() {
               </tbody>
             </table>
             {leaders.length>20 && (
-              <div style={{ padding:'12px 20px', textAlign:'center', fontSize:12, color:'#94a3b8', borderTop:'1px solid #f1f5f9' }}>
+              <div style={{ padding:'12px 20px', textAlign:'center', fontSize:12, color:'#64748b', borderTop:'1px solid #f1f5f9' }}>
                 Showing top 20 of {leaders.length} members
               </div>
             )}
@@ -233,7 +233,7 @@ export default function Leaderboard() {
           </div>
           <div style={{ maxHeight:340, overflowY:'auto' }}>
             {(d.activity||[]).length === 0 ? (
-              <div style={{ padding:'40px 20px', textAlign:'center', color:'#94a3b8', fontSize:13 }}>No recent activity yet — be the first!</div>
+              <div style={{ padding:'40px 20px', textAlign:'center', color:'#64748b', fontSize:13 }}>No recent activity yet — be the first!</div>
             ) : (d.activity||[]).map(function(a, i) {
               var timeAgo = '';
               if (a.time) {
@@ -270,7 +270,7 @@ export default function Leaderboard() {
           </div>
           <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e8ecf2', padding:'20px', textAlign:'center' }}>
             <div style={{ fontSize:13, fontWeight:700, color:'#0f172a', marginBottom:8 }}>Want to be on this board?</div>
-            <div style={{ fontSize:12, color:'#94a3b8', lineHeight:1.6, marginBottom:12 }}>Share your referral link, build your team, and climb the rankings.</div>
+            <div style={{ fontSize:12, color:'#64748b', lineHeight:1.6, marginBottom:12 }}>Share your referral link, build your team, and climb the rankings.</div>
             <a href="/affiliate" style={{ display:'inline-block', padding:'10px 24px', background:'linear-gradient(135deg,#8b5cf6,#7c3aed)', color:'#fff', borderRadius:10, fontSize:13, fontWeight:800, textDecoration:'none' }}>Share your link</a>
           </div>
         </div>

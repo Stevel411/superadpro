@@ -26,7 +26,7 @@ export default function ActivateTier() {
   const n = parseInt(tierId);
   const t = TIERS[n];
 
-  if (!t) return <AppLayout title="Campaign Tier"><div style={{textAlign:'center',padding:80,color:'#94a3b8'}}>Invalid tier</div></AppLayout>;
+  if (!t) return <AppLayout title="Campaign Tier"><div style={{textAlign:'center',padding:80,color:'#64748b'}}>Invalid tier</div></AppLayout>;
 
   const handleNowPayments = async () => {
     if (paying) return;
@@ -111,7 +111,7 @@ export default function ActivateTier() {
             {paying ? 'Creating payment...' : `\uD83C\uDF10 Pay with 350+ Cryptos — $${t.price.toLocaleString()}`}
           </button>
 
-          <div style={{textAlign:'center',fontSize:10,color:'#94a3b8'}}>{"\uD83D\uDD12"} Secure payment · Instant activation · {"\uD83D\uDCB3"} Card payments coming soon</div>
+          <div style={{textAlign:'center',fontSize:10,color:'#64748b'}}>{"\uD83D\uDD12"} Secure payment · Instant activation · {"\uD83D\uDCB3"} Card payments coming soon</div>
         </div>
 
         <div style={{padding:'10px 14px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:10,marginBottom:24,fontSize:12,color:'#991b1b',lineHeight:1.5,textAlign:'center'}}>
@@ -128,7 +128,7 @@ export default function ActivateTier() {
         )}
 
         <div style={{textAlign:'center',marginBottom:16}}>
-          <Link to="/campaign-tiers" style={{fontSize:13,color:'#94a3b8',textDecoration:'none'}}>← Back to Campaign Tiers</Link>
+          <Link to="/campaign-tiers" style={{fontSize:13,color:'#64748b',textDecoration:'none'}}>← Back to Campaign Tiers</Link>
         </div>
       </div>
     </AppLayout>

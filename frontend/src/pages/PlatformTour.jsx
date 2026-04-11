@@ -123,7 +123,7 @@ export default function PlatformTour() {
               <span style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 800, color: '#0f172a' }}>{s.title}</span>
               {s.pro && <span style={{ padding: '3px 10px', borderRadius: 6, background: 'rgba(139,92,246,.1)', fontSize: 12, fontWeight: 700, color: '#7c3aed' }}>Pro</span>}
             </div>
-            <div style={{ fontSize: 14, color: '#94a3b8', marginTop: 2 }}>Step {s.num} of 6</div>
+            <div style={{ fontSize: 14, color: '#64748b', marginTop: 2 }}>Step {s.num} of 6</div>
           </div>
         </div>
 
@@ -133,7 +133,7 @@ export default function PlatformTour() {
             <Play size={24} color={s.color}/>
           </div>
           <div style={{ fontSize: 15, fontWeight: 700, color: s.color }}>Screenshot or video coming soon</div>
-          <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 4 }}>A visual walkthrough of {s.shortTitle} will appear here</div>
+          <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>A visual walkthrough of {s.shortTitle} will appear here</div>
         </div>
 
         {/* Description */}
@@ -340,14 +340,14 @@ function VoiceGuide() {
       {/* Body */}
       <div style={{ padding: '16px 20px', minHeight: 100, maxHeight: 280, overflowY: 'auto' }}>
         {!transcript && !answer && !thinking && !listening && !error && (
-          <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: 14, lineHeight: 1.6, padding: '6px 0' }}>
+          <div style={{ textAlign: 'center', color: '#64748b', fontSize: 14, lineHeight: 1.6, padding: '6px 0' }}>
             Ask me anything about SuperAdPro — features, compensation plan, how to get started.
           </div>
         )}
 
         {transcript && (
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>You asked</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>You asked</div>
             <div style={{ fontSize: 14, color: '#0f172a', lineHeight: 1.5 }}>{transcript}</div>
           </div>
         )}

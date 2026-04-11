@@ -364,9 +364,9 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
                   {/* Icon button — always visible, shows icon or + placeholder */}
                   <button onClick={function(){setEmojiPicker(showEmoji?null:link.id);}}
                     title={parseIcon(link.icon) ? 'Change icon' : 'Add icon'}
-                    style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',background:parseIcon(link.icon)?'none':'#f1f5f9',border:parseIcon(link.icon)?'1px solid transparent':'1px dashed #cbd5e1',borderRadius:6,cursor:'pointer',padding:0,transition:'all .15s',flexShrink:0}}
+                    style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',background:parseIcon(link.icon)?'none':'#f1f5f9',border:parseIcon(link.icon)?'1px solid transparent':'1px dashed #94a3b8',borderRadius:6,cursor:'pointer',padding:0,transition:'all .15s',flexShrink:0}}
                     onMouseEnter={function(e){e.currentTarget.style.borderColor='#8b5cf6';e.currentTarget.style.background='rgba(139,92,246,.06)';}}
-                    onMouseLeave={function(e){e.currentTarget.style.borderColor=parseIcon(link.icon)?'transparent':'#cbd5e1';e.currentTarget.style.background=parseIcon(link.icon)?'none':'#f1f5f9';}}>
+                    onMouseLeave={function(e){e.currentTarget.style.borderColor=parseIcon(link.icon)?'transparent':'#94a3b8';e.currentTarget.style.background=parseIcon(link.icon)?'none':'#f1f5f9';}}>
                     {parseIcon(link.icon)
                       ? <IconDisplay icon={parseIcon(link.icon)} color='#475569' size={18}/>
                       : <span style={{fontSize:16,color:'#94a3b8',lineHeight:1}}>＋</span>}

@@ -59,7 +59,7 @@ export default function Support() {
                 <Icon size={20} color="#fff"/>
               </div>
               <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>{q.title}</div>
-              <div style={{fontSize:12,color:'#94a3b8',lineHeight:1.5}}>{q.desc}</div>
+              <div style={{fontSize:12,color:'#64748b',lineHeight:1.5}}>{q.desc}</div>
             </Link>
           );
         })}
@@ -86,7 +86,7 @@ export default function Support() {
                       <Icon size={15} color={faq.color}/>
                     </div>
                     <div style={{flex:1,fontSize:13,fontWeight:700,color:'#0f172a'}}>{faq.q}</div>
-                    {isOpen ? <ChevronDown size={16} color="#94a3b8"/> : <ChevronRight size={16} color="#cbd5e1"/>}
+                    {isOpen ? <ChevronDown size={16} color="#64748b"/> : <ChevronRight size={16} color="#cbd5e1"/>}
                   </div>
                   {isOpen && (
                     <div style={{padding:'0 20px 16px 64px'}}>
@@ -113,7 +113,7 @@ export default function Support() {
                   <CheckCircle size={28} color="#16a34a"/>
                 </div>
                 <div style={{fontSize:17,fontWeight:800,color:'#0f172a',marginBottom:6}}>Ticket Submitted</div>
-                <div style={{fontSize:13,color:'#94a3b8',marginBottom:20,lineHeight:1.6}}>We will get back to you within 24 hours via email.</div>
+                <div style={{fontSize:13,color:'#64748b',marginBottom:20,lineHeight:1.6}}>We will get back to you within 24 hours via email.</div>
                 <button onClick={function(){setSent(false);}}
                   style={{padding:'10px 24px',borderRadius:10,fontSize:13,fontWeight:700,border:'none',cursor:'pointer',
                     background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontFamily:'inherit'}}>
@@ -133,7 +133,7 @@ export default function Support() {
                           style={{padding:'7px 14px',borderRadius:8,fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit',
                             border:on ? '1.5px solid #0ea5e9' : '1px solid #e2e8f0',
                             background:on ? 'rgba(14,165,233,.06)' : '#fff',
-                            color:on ? '#0ea5e9' : '#94a3b8',transition:'all .15s'}}>
+                            color:on ? '#0ea5e9' : '#64748b',transition:'all .15s'}}>
                           {c.label}
                         </button>
                       );
@@ -187,7 +187,7 @@ export default function Support() {
       <div style={{marginTop:20,background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'18px 24px',
         display:'flex',alignItems:'center',justifyContent:'space-between',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
         <div style={{display:'flex',alignItems:'center',gap:10}}>
-          <Mail size={16} color="#94a3b8"/>
+          <Mail size={16} color="#64748b"/>
           <span style={{fontSize:13,color:'#64748b'}}>Email us directly: <span style={{fontWeight:700,color:'#0ea5e9'}}>steve@superadpro.com</span></span>
         </div>
         <div style={{fontSize:11,color:'#cbd5e1'}}>Response time: within 24 hours</div>

@@ -121,7 +121,7 @@ export default function Account() {
             </div>
             <div>
               <div style={{fontSize:16,fontWeight:800,color:'#0f172a'}}>{user.first_name||''} {user.last_name||''}</div>
-              <div style={{fontSize:11,color:'#94a3b8'}}>@{user.username}</div>
+              <div style={{fontSize:11,color:'#64748b'}}>@{user.username}</div>
               <span style={{display:'inline-block',fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:4,marginTop:3,...(user.is_active?{background:'#dcfce7',color:'#16a34a'}:{background:'#fef3c7',color:'#d97706'})}}>{user.is_active?'● Active':'○ Inactive'}</span>
             </div>
           </div>
@@ -129,15 +129,15 @@ export default function Account() {
         </Card>
 
         <Card title="Edit Profile">
-          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>First Name</label><input value={firstName} onChange={function(e){setFirstName(e.target.value);}} style={iS} onFocus={foc} onBlur={blu}/></div>
-          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Last Name</label><input value={lastName} onChange={function(e){setLastName(e.target.value);}} style={iS} onFocus={foc} onBlur={blu}/></div>
-          <div style={{marginBottom:14}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Country</label><select value={country} onChange={function(e){setCountry(e.target.value);}} style={iS}><option value="">Select...</option>{COUNTRIES.map(function(c){return <option key={c} value={c}>{c}</option>;})}</select></div>
+          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>First Name</label><input value={firstName} onChange={function(e){setFirstName(e.target.value);}} style={iS} onFocus={foc} onBlur={blu}/></div>
+          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Last Name</label><input value={lastName} onChange={function(e){setLastName(e.target.value);}} style={iS} onFocus={foc} onBlur={blu}/></div>
+          <div style={{marginBottom:14}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Country</label><select value={country} onChange={function(e){setCountry(e.target.value);}} style={iS}><option value="">Select...</option>{COUNTRIES.map(function(c){return <option key={c} value={c}>{c}</option>;})}</select></div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:14}}>
-            <div><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Gender</label><select value={gender} onChange={function(e){setGender(e.target.value);}} style={iS}><option value="">Prefer not to say</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>
-            <div><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Age Range</label><select value={ageRange} onChange={function(e){setAgeRange(e.target.value);}} style={iS}><option value="">Select...</option><option value="18-24">18-24</option><option value="25-34">25-34</option><option value="35-44">35-44</option><option value="45-54">45-54</option><option value="55+">55+</option></select></div>
+            <div><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Gender</label><select value={gender} onChange={function(e){setGender(e.target.value);}} style={iS}><option value="">Prefer not to say</option><option value="male">Male</option><option value="female">Female</option><option value="other">Other</option></select></div>
+            <div><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Age Range</label><select value={ageRange} onChange={function(e){setAgeRange(e.target.value);}} style={iS}><option value="">Select...</option><option value="18-24">18-24</option><option value="25-34">25-34</option><option value="35-44">35-44</option><option value="45-54">45-54</option><option value="55+">55+</option></select></div>
           </div>
           <div style={{marginBottom:14}}>
-            <label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Interests <span style={{fontWeight:400,textTransform:'none'}}>(helps match you with relevant content)</span></label>
+            <label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Interests <span style={{fontWeight:400,textTransform:'none'}}>(helps match you with relevant content)</span></label>
             <input value={interests} onChange={function(e){setInterests(e.target.value);}} placeholder="e.g. crypto, marketing, fitness, tech, forex" style={iS} onFocus={foc} onBlur={blu}/>
             <div style={{fontSize:10,color:'#64748b',marginTop:4}}>Separate interests with commas. These help us show you the most relevant campaign videos.</div>
           </div>
@@ -145,21 +145,21 @@ export default function Account() {
         </Card>
 
         <Card title="Change Password">
-          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Current Password</label><input type="password" value={currentPw} onChange={function(e){setCurrentPw(e.target.value);}} placeholder="Current password" style={iS} onFocus={foc} onBlur={blu}/></div>
-          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>New Password</label><input type="password" value={newPw} onChange={function(e){setNewPw(e.target.value);}} placeholder="Min. 8 characters" style={iS} onFocus={foc} onBlur={blu}/></div>
-          <div style={{marginBottom:14}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Confirm New</label><input type="password" value={confirmPw} onChange={function(e){setConfirmPw(e.target.value);}} placeholder="Repeat password" style={iS} onFocus={foc} onBlur={blu}/></div>
+          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Current Password</label><input type="password" value={currentPw} onChange={function(e){setCurrentPw(e.target.value);}} placeholder="Current password" style={iS} onFocus={foc} onBlur={blu}/></div>
+          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>New Password</label><input type="password" value={newPw} onChange={function(e){setNewPw(e.target.value);}} placeholder="Min. 8 characters" style={iS} onFocus={foc} onBlur={blu}/></div>
+          <div style={{marginBottom:14}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Confirm New</label><input type="password" value={confirmPw} onChange={function(e){setConfirmPw(e.target.value);}} placeholder="Repeat password" style={iS} onFocus={foc} onBlur={blu}/></div>
           <button onClick={changePassword} disabled={savingPw} style={Object.assign({},btnS,{background:'linear-gradient(135deg,#f59e0b,#ef4444)'})}>{savingPw?'Updating...':'Update Password'}</button>
         </Card>
 
-        <Card title="Identity Verification (KYC)" chip={kyc==='approved'?{t:'✅ Verified',c:'#16a34a'}:kyc==='pending'?{t:'⏳ Under Review',c:'#f59e0b'}:kyc==='rejected'?{t:'❌ Rejected',c:'#dc2626'}:{t:'Not Started',c:'#94a3b8'}}>
-          {kyc==='approved'?<div style={{textAlign:'center',padding:'20px 0'}}><div style={{fontSize:32,marginBottom:6}}>✅</div><div style={{fontSize:14,fontWeight:700,color:'#16a34a'}}>Identity Verified</div><div style={{fontSize:11,color:'#94a3b8'}}>Approved for withdrawals</div></div>
-          :kyc==='pending'?<div style={{textAlign:'center',padding:'20px 0'}}><div style={{fontSize:32,marginBottom:6}}>⏳</div><div style={{fontSize:14,fontWeight:700,color:'#f59e0b'}}>Under Review</div><div style={{fontSize:11,color:'#94a3b8'}}>Usually 24–48 hours</div></div>
+        <Card title="Identity Verification (KYC)" chip={kyc==='approved'?{t:'✅ Verified',c:'#16a34a'}:kyc==='pending'?{t:'⏳ Under Review',c:'#f59e0b'}:kyc==='rejected'?{t:'❌ Rejected',c:'#dc2626'}:{t:'Not Started',c:'#64748b'}}>
+          {kyc==='approved'?<div style={{textAlign:'center',padding:'20px 0'}}><div style={{fontSize:32,marginBottom:6}}>✅</div><div style={{fontSize:14,fontWeight:700,color:'#16a34a'}}>Identity Verified</div><div style={{fontSize:11,color:'#64748b'}}>Approved for withdrawals</div></div>
+          :kyc==='pending'?<div style={{textAlign:'center',padding:'20px 0'}}><div style={{fontSize:32,marginBottom:6}}>⏳</div><div style={{fontSize:14,fontWeight:700,color:'#f59e0b'}}>Under Review</div><div style={{fontSize:11,color:'#64748b'}}>Usually 24–48 hours</div></div>
           :<>
             {kyc==='rejected'&&<div style={{padding:'8px 12px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:8,marginBottom:10,fontSize:11,color:'#dc2626',fontWeight:600}}>Rejected — please resubmit with clear documents</div>}
             <div>
-              <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Date of Birth</label><input type="date" value={kycDob} onChange={function(e){setKycDob(e.target.value);}} required style={iS} onFocus={foc} onBlur={blu}/></div>
-              <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>ID Type</label><select value={kycIdType} onChange={function(e){setKycIdType(e.target.value);}} style={iS}><option value="passport">Passport</option><option value="drivers_licence">Driver's Licence</option><option value="national_id">National ID</option></select></div>
-              <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Upload ID</label>
+              <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Date of Birth</label><input type="date" value={kycDob} onChange={function(e){setKycDob(e.target.value);}} required style={iS} onFocus={foc} onBlur={blu}/></div>
+              <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>ID Type</label><select value={kycIdType} onChange={function(e){setKycIdType(e.target.value);}} style={iS}><option value="passport">Passport</option><option value="drivers_licence">Driver's Licence</option><option value="national_id">National ID</option></select></div>
+              <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Upload ID</label>
                 <label style={{display:'block',width:'100%',padding:10,border:kycFile?'2px solid #0ea5e9':'2px dashed #d1d5db',borderRadius:10,fontSize:11,color:kycFile?'#0ea5e9':'#64748b',background:'#fafbfc',cursor:'pointer',boxSizing:'border-box',textAlign:'center'}}>
                   {kycFile ? '✓ '+kycFile.name : '📎 Choose file (JPG, PNG or PDF, max 10MB)'}
                   <input type="file" accept=".jpg,.jpeg,.png,.pdf" onChange={function(e){setKycFile(e.target.files[0]||null);}} style={{display:'none'}}/>
@@ -170,21 +170,21 @@ export default function Account() {
           </>}
         </Card>
 
-        <Card title="Two-Factor Authentication" chip={user.totp_enabled?{t:'🔒 Enabled',c:'#16a34a'}:{t:'Disabled',c:'#94a3b8'}}>
+        <Card title="Two-Factor Authentication" chip={user.totp_enabled?{t:'🔒 Enabled',c:'#16a34a'}:{t:'Disabled',c:'#64748b'}}>
           {user.totp_enabled?<>
-            <div style={{textAlign:'center',padding:'16px 0'}}><div style={{fontSize:32,marginBottom:6}}>🔒</div><div style={{fontSize:14,fontWeight:700,color:'#16a34a'}}>2FA Active</div><div style={{fontSize:11,color:'#94a3b8'}}>Account protected</div></div>
+            <div style={{textAlign:'center',padding:'16px 0'}}><div style={{fontSize:32,marginBottom:6}}>🔒</div><div style={{fontSize:14,fontWeight:700,color:'#16a34a'}}>2FA Active</div><div style={{fontSize:11,color:'#64748b'}}>Account protected</div></div>
             <form method="POST" action="/account/2fa-disable" style={{marginTop:'auto'}}>
-              <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Enter code to disable</label><input type="text" name="totp_code" maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric" required style={Object.assign({},iS,{textAlign:'center',letterSpacing:6,fontWeight:800,fontSize:18})}/></div>
+              <div style={{marginBottom:10}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Enter code to disable</label><input type="text" name="totp_code" maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric" required style={Object.assign({},iS,{textAlign:'center',letterSpacing:6,fontWeight:800,fontSize:18})}/></div>
               <button type="submit" style={Object.assign({},btnS,{background:'linear-gradient(135deg,#f59e0b,#ef4444)'})}>Disable 2FA</button>
             </form>
           </>:<>
-            <div style={{textAlign:'center',padding:'16px 0'}}><div style={{fontSize:32,marginBottom:6}}>🔓</div><div style={{fontSize:14,fontWeight:700,color:'#94a3b8'}}>Not Enabled</div><div style={{fontSize:11,color:'#94a3b8'}}>Required for withdrawals</div></div>
+            <div style={{textAlign:'center',padding:'16px 0'}}><div style={{fontSize:32,marginBottom:6}}>🔓</div><div style={{fontSize:14,fontWeight:700,color:'#64748b'}}>Not Enabled</div><div style={{fontSize:11,color:'#64748b'}}>Required for withdrawals</div></div>
             <a href="/account/2fa-setup" style={Object.assign({},btnS,{display:'block',textAlign:'center',textDecoration:'none',background:'#0ea5e9',marginTop:'auto'})}>Setup 2FA →</a>
           </>}
         </Card>
 
         <Card title="Withdrawal Wallet">
-          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Wallet Address (USDT on Polygon)</label><input value={walletAddr} onChange={function(e){setWalletAddr(e.target.value);}} placeholder="0x..." style={Object.assign({},iS,{fontFamily:'monospace',fontSize:11})} onFocus={foc} onBlur={blu}/></div>
+          <div style={{marginBottom:12}}><label style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,display:'block',marginBottom:4}}>Wallet Address (USDT on Polygon)</label><input value={walletAddr} onChange={function(e){setWalletAddr(e.target.value);}} placeholder="0x..." style={Object.assign({},iS,{fontFamily:'monospace',fontSize:11})} onFocus={foc} onBlur={blu}/></div>
           <div style={{padding:'10px 12px',background:'#f8f9fb',border:'1px solid #e8ecf2',borderRadius:8,marginBottom:12,fontSize:10,color:'#64748b',lineHeight:1.6}}>Coinbase · MetaMask · Trust Wallet · Rainbow — any wallet that supports USDT on Polygon.</div>
           <button onClick={saveWallet} disabled={savingWallet} style={Object.assign({},btnS,{background:'#0ea5e9',marginTop:'auto'})}>{savingWallet?'Saving...':'Save Wallet'}</button>
         </Card>
@@ -208,7 +208,7 @@ function Card({title, chip, children}) {
 function Row({k, v, mono, last}) {
   return (
     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'6px 0',borderBottom:last?'none':'1px solid #f5f6f8'}}>
-      <span style={{fontSize:11,fontWeight:700,color:'#94a3b8'}}>{k}</span>
+      <span style={{fontSize:11,fontWeight:700,color:'#64748b'}}>{k}</span>
       <span style={{fontSize:12,fontWeight:600,color:mono?'#0ea5e9':'#0f172a',...(mono?{fontFamily:'monospace'}:{})}}>{v}</span>
     </div>
   );

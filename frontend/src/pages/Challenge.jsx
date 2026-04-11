@@ -46,7 +46,7 @@ export default function Challenge() {
         <div style={{ textAlign:'center', padding:'80px 32px', background:'#fff', borderRadius:16, border:'1px solid #e8ecf2' }}>
           <div style={{ fontSize:56, marginBottom:16, opacity:0.3 }}>&#128293;</div>
           <div style={{ fontSize:20, fontWeight:800, color:'#0f172a', marginBottom:8 }}>Challenge starts when you activate</div>
-          <div style={{ fontSize:14, color:'#94a3b8', maxWidth:400, margin:'0 auto', lineHeight:1.7 }}>Activate your membership to begin the 30-Day Launch Challenge. Daily tasks, XP rewards, and badges to guide your first month.</div>
+          <div style={{ fontSize:14, color:'#64748b', maxWidth:400, margin:'0 auto', lineHeight:1.7 }}>Activate your membership to begin the 30-Day Launch Challenge. Daily tasks, XP rewards, and badges to guide your first month.</div>
           <Link to="/upgrade" style={{ display:'inline-block', marginTop:20, padding:'12px 32px', borderRadius:10, background:'linear-gradient(135deg,#f59e0b,#fbbf24)', color:'#fff', fontSize:14, fontWeight:800, textDecoration:'none' }}>Activate Now</Link>
         </div>
       </AppLayout>
@@ -129,8 +129,8 @@ export default function Challenge() {
                 {isDone ? <Check size={14} color="#22c55e" strokeWidth={3}/> : <div style={{ width:8, height:8, borderRadius:'50%', background:'#fbbf24' }}/>}
               </div>
               <div style={{ flex:1 }}>
-                <div style={{ fontSize:14, fontWeight:600, color: isDone ? '#94a3b8' : '#0f172a', textDecoration: isDone ? 'line-through' : 'none' }}>{t.title}</div>
-                <div style={{ fontSize:12, color:'#94a3b8', marginTop:2 }}>+{t.xp} XP</div>
+                <div style={{ fontSize:14, fontWeight:600, color: isDone ? '#64748b' : '#0f172a', textDecoration: isDone ? 'line-through' : 'none' }}>{t.title}</div>
+                <div style={{ fontSize:12, color:'#64748b', marginTop:2 }}>+{t.xp} XP</div>
               </div>
               {isDone ? (
                 <span style={{ fontSize:11, fontWeight:700, color:'#22c55e', padding:'4px 12px', borderRadius:6, background:'#f0fdf4' }}>Done</span>
@@ -138,7 +138,7 @@ export default function Challenge() {
                 <button onClick={function() { completeTask(t.id); }}
                   disabled={completing === t.id}
                   style={{ fontSize:12, fontWeight:700, color:'#fff', padding:'6px 16px', borderRadius:8, border:'none', cursor:'pointer', fontFamily:'inherit',
-                    background: completing === t.id ? '#94a3b8' : '#f59e0b',
+                    background: completing === t.id ? '#64748b' : '#f59e0b',
                   }}>
                   {completing === t.id ? '...' : 'Do it'}
                 </button>
@@ -161,7 +161,7 @@ export default function Challenge() {
               <div style={{ fontSize:12, color:'#64748b', marginTop:3, lineHeight:1.5 }}>{d.next_milestone.desc}</div>
             </div>
             <div style={{ textAlign:'right', flexShrink:0 }}>
-              <div style={{ fontSize:11, color:'#94a3b8' }}>{d.next_milestone.days_left === 0 ? 'Today!' : d.next_milestone.days_left + ' days left'}</div>
+              <div style={{ fontSize:11, color:'#64748b' }}>{d.next_milestone.days_left === 0 ? 'Today!' : d.next_milestone.days_left + ' days left'}</div>
               <div style={{ fontSize:12, fontWeight:700, color:'#f59e0b', marginTop:2 }}>+{d.next_milestone.xp} XP</div>
             </div>
           </div>
@@ -172,7 +172,7 @@ export default function Challenge() {
       <div style={{ fontSize:15, fontWeight:800, color:'#0f172a', marginBottom:12, display:'flex', alignItems:'center', justifyContent:'space-between' }}>
         <span>Challenge structure</span>
         <button onClick={function() { setShowWeeks(!showWeeks); }}
-          style={{ border:'none', background:'none', cursor:'pointer', display:'flex', alignItems:'center', gap:4, fontSize:12, color:'#94a3b8', fontFamily:'inherit' }}>
+          style={{ border:'none', background:'none', cursor:'pointer', display:'flex', alignItems:'center', gap:4, fontSize:12, color:'#64748b', fontFamily:'inherit' }}>
           {showWeeks ? 'Hide' : 'Show'} {showWeeks ? <ChevronUp size={14}/> : <ChevronDown size={14}/>}
         </button>
       </div>
@@ -182,7 +182,7 @@ export default function Challenge() {
           {(d.weeks || []).map(function(w, i) {
             var isCurrentWeek = currentWeek === w.week;
             var isPast = w.week < currentWeek;
-            var clr = WEEK_COLORS[i] || '#94a3b8';
+            var clr = WEEK_COLORS[i] || '#64748b';
             return (
               <div key={w.week} style={{
                 background: isPast ? '#f0fdf4' : isCurrentWeek ? '#fefce8' : '#f8fafc',
@@ -191,7 +191,7 @@ export default function Challenge() {
               }}>
                 <div style={{ fontSize:13, fontWeight:700, color: isPast ? '#166534' : isCurrentWeek ? '#854d0e' : '#475569' }}>Week {w.week}</div>
                 <div style={{ fontSize:11, color: isPast ? '#16a34a' : isCurrentWeek ? '#a16207' : '#64748b', marginTop:3 }}>{w.title}</div>
-                <div style={{ fontSize:10, color: isPast ? '#86efac' : isCurrentWeek ? '#fbbf24' : '#94a3b8', marginTop:4 }}>{w.desc.split(',')[0]}</div>
+                <div style={{ fontSize:10, color: isPast ? '#86efac' : isCurrentWeek ? '#fbbf24' : '#64748b', marginTop:4 }}>{w.desc.split(',')[0]}</div>
                 {isPast && <div style={{ marginTop:6 }}><Check size={14} color="#22c55e"/></div>}
               </div>
             );

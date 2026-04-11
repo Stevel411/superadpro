@@ -101,7 +101,7 @@ export default function SuperMarketCreate() {
               return(<div key={s.key} style={{display:'flex',alignItems:'center',flex:1}}>
                 <div style={{width:32,height:32,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:800,
                   background:done?'#0ea5e9':on?'linear-gradient(135deg,#0ea5e9,#38bdf8)':'#e8ecf2',
-                  color:done||on?'#fff':'#94a3b8',boxShadow:on?'0 4px 14px rgba(14,165,233,.3)':'none',transition:'all .3s'}}>
+                  color:done||on?'#fff':'#64748b',boxShadow:on?'0 4px 14px rgba(14,165,233,.3)':'none',transition:'all .3s'}}>
                   {done?'✓':s.num}
                 </div>
                 {i<STEPS.length-1&&<div style={{flex:1,height:2,background:done?'#0ea5e9':'#e8ecf2',margin:'0 6px',transition:'all .3s'}}/>}
@@ -116,7 +116,7 @@ export default function SuperMarketCreate() {
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
                 <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>What are you selling?</h3>
-                <p style={{fontSize:13,color:'#94a3b8',margin:0}}>Start with the basics — you can always edit later</p>
+                <p style={{fontSize:13,color:'#64748b',margin:0}}>Start with the basics — you can always edit later</p>
               </div>
               <div style={{padding:'28px 32px'}}>
                 <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Product Name</label><input value={title} onChange={function(e){setTitle(e.target.value);}} placeholder="e.g. Social Media Template Pack Pro" style={iS} onFocus={focusStyle} onBlur={blurStyle}/></div>
@@ -156,7 +156,7 @@ export default function SuperMarketCreate() {
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
                 <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Build Your Sales Page</h3>
-                <p style={{fontSize:13,color:'#94a3b8',margin:0}}>This is what convinces people to buy — make it count</p>
+                <p style={{fontSize:13,color:'#64748b',margin:0}}>This is what convinces people to buy — make it count</p>
               </div>
               <div style={{padding:'28px 32px'}}>
                 <div style={{marginBottom:22}}>
@@ -181,7 +181,7 @@ export default function SuperMarketCreate() {
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
                 <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Upload Your Files</h3>
-                <p style={{fontSize:13,color:'#94a3b8',margin:0}}>Delivered instantly after purchase</p>
+                <p style={{fontSize:13,color:'#64748b',margin:0}}>Delivered instantly after purchase</p>
               </div>
               <div style={{padding:'28px 32px'}}>
                 <div style={{marginBottom:22}}>
@@ -189,7 +189,7 @@ export default function SuperMarketCreate() {
                   <label style={{display:'flex',flexDirection:'column',alignItems:'center',gap:10,padding:'44px 20px',borderRadius:14,border:mainFile?'2px solid #10b981':'2px dashed #d1d5db',background:mainFile?'#f0fdf4':'#fafbfc',cursor:'pointer',transition:'all .2s'}}>
                     {mainFile?<CheckCircle size={32} color="#10b981"/>:<Upload size={32} color="#0ea5e9"/>}
                     <div style={{fontSize:15,fontWeight:700,color:mainFile?'#10b981':'#475569'}}>{mainFile?mainFile.name:'Click to upload product file'}</div>
-                    <div style={{fontSize:12,color:'#94a3b8'}}>{mainFile?Math.round(mainFile.size/1024)+'KB':'PDF, ZIP, MP4, MP3 — any digital file up to 50MB'}</div>
+                    <div style={{fontSize:12,color:'#64748b'}}>{mainFile?Math.round(mainFile.size/1024)+'KB':'PDF, ZIP, MP4, MP3 — any digital file up to 50MB'}</div>
                     <input type="file" onChange={function(e){handleFile(e,'main');}} style={{display:'none'}}/>
                   </label>
                 </div>
@@ -210,13 +210,13 @@ export default function SuperMarketCreate() {
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
                 <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Review & Submit</h3>
-                <p style={{fontSize:13,color:'#94a3b8',margin:0}}>Check everything looks good, then agree to the terms</p>
+                <p style={{fontSize:13,color:'#64748b',margin:0}}>Check everything looks good, then agree to the terms</p>
               </div>
               <div style={{padding:'28px 32px'}}>
                 {/* Checklist */}
                 <div style={{marginBottom:20}}>
                   {[{ok:!!(title&&title.length>=5),l:'Product title'},{ok:!!category,l:'Category selected'},{ok:parseFloat(price)>=5,l:'Price set ($5+)'},{ok:description&&description.replace(/<[^>]+>/g,'').length>=50,l:'Sales description (50+ chars)'},{ok:!!mainFile,l:'Product file uploaded'},{ok:!!bannerUrl,l:'Banner image'}].map(function(c,i){
-                    return <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 0'}}><div style={{width:20,height:20,borderRadius:'50%',background:c.ok?'#dcfce7':'#fef2f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:800,color:c.ok?'#10b981':'#dc2626'}}>{c.ok?'✓':'✗'}</div><span style={{fontSize:13,color:c.ok?'#334155':'#94a3b8',fontWeight:c.ok?600:400}}>{c.l}</span></div>;
+                    return <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 0'}}><div style={{width:20,height:20,borderRadius:'50%',background:c.ok?'#dcfce7':'#fef2f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:800,color:c.ok?'#10b981':'#dc2626'}}>{c.ok?'✓':'✗'}</div><span style={{fontSize:13,color:c.ok?'#334155':'#64748b',fontWeight:c.ok?600:400}}>{c.l}</span></div>;
                   })}
                 </div>
                 {/* Terms */}
@@ -250,7 +250,7 @@ export default function SuperMarketCreate() {
 
         {/* RIGHT — Live Preview Card */}
         <div style={{position:'sticky',top:24}}>
-          <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Live Preview</div>
+          <div style={{fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Live Preview</div>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.06)',transition:'all .3s'}}>
             <div style={{aspectRatio:'16/9',background:'linear-gradient(135deg,#0b1729,#132240)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
               {bannerUrl?<img src={bannerUrl} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>:<div style={{fontSize:36,opacity:.15}}>{catObj?catObj.icon:'📦'}</div>}
@@ -265,7 +265,7 @@ export default function SuperMarketCreate() {
             </div>
             <div style={{padding:'16px'}}>
               <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:3,lineHeight:1.3}}>{title||'Your Product Name'}</div>
-              <div style={{fontSize:11,color:'#94a3b8',marginBottom:6}}>by You</div>
+              <div style={{fontSize:11,color:'#64748b',marginBottom:6}}>by You</div>
               <div style={{fontSize:12,color:'#475569',lineHeight:1.6,marginBottom:10}}>{shortDesc||'Your one-line summary appears here'}</div>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                 {catObj&&<span style={{fontSize:9,fontWeight:700,padding:'3px 8px',borderRadius:5,background:'#f1f5f9',color:'#64748b'}}>{catObj.icon} {catObj.label}</span>}

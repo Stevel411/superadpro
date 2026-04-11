@@ -107,7 +107,7 @@ function BrowseView({ products, allProducts, search, setSearch, category, setCat
       {/* Search + Sort */}
       <div style={{display:'flex',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{flex:1,minWidth:240,position:'relative'}}>
-          <Search size={16} style={{position:'absolute',left:14,top:12,color:'#94a3b8'}}/>
+          <Search size={16} style={{position:'absolute',left:14,top:12,color:'#64748b'}}/>
           <input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder="Search products..." style={{width:'100%',padding:'10px 14px 10px 38px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff'}}/>
         </div>
         <select value={sortBy} onChange={function(e){setSortBy(e.target.value);}} style={{padding:'10px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',background:'#fff',color:'#0f172a'}}>
@@ -136,7 +136,7 @@ function BrowseView({ products, allProducts, search, setSearch, category, setCat
         <div style={{textAlign:'center',padding:'80px 20px',background:'#fff',borderRadius:14,border:'1px solid #e8ecf2'}}>
           <div style={{fontSize:48,marginBottom:12,opacity:.3}}>📦</div>
           <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:4}}>No products found</div>
-          <div style={{fontSize:13,color:'#94a3b8',marginBottom:16}}>Be the first to list a product!</div>
+          <div style={{fontSize:13,color:'#64748b',marginBottom:16}}>Be the first to list a product!</div>
           <button onClick={onCreate} style={{padding:'10px 24px',borderRadius:8,border:'none',background:'#0ea5e9',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>+ Sell a Product</button>
         </div>
       )}
@@ -156,7 +156,7 @@ function BrowseView({ products, allProducts, search, setSearch, category, setCat
               <div key={i} style={{textAlign:'center',padding:16}}>
                 <div style={{width:40,height:40,borderRadius:10,background:s.color+'12',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 8px'}}><Icon size={20} color={s.color}/></div>
                 <div style={{fontSize:13,fontWeight:800,color:'#0f172a'}}>{s.label}</div>
-                <div style={{fontSize:10,color:'#94a3b8',marginTop:4,lineHeight:1.5}}>{s.desc}</div>
+                <div style={{fontSize:10,color:'#64748b',marginTop:4,lineHeight:1.5}}>{s.desc}</div>
               </div>
             );
           })}
@@ -187,14 +187,14 @@ function ProductCard({ product, onOpen }) {
       </div>
       <div style={{padding:'16px 18px',flex:1,display:'flex',flexDirection:'column'}}>
         <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4,lineHeight:1.3}}>{p.title}</div>
-        <div style={{fontSize:11,color:'#94a3b8',marginBottom:6}}>by {p.creator_name||'Seller'}</div>
+        <div style={{fontSize:11,color:'#64748b',marginBottom:6}}>by {p.creator_name||'Seller'}</div>
         <div style={{fontSize:12,color:'#475569',lineHeight:1.6,marginBottom:12,flex:1}}>{(p.short_description||'').slice(0,100)}</div>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{display:'flex',gap:6,alignItems:'center'}}>
             <span style={{fontSize:9,fontWeight:700,padding:'3px 8px',borderRadius:5,background:'#f1f5f9',color:'#64748b'}}>{catObj.icon} {p.category}</span>
             {p.avg_rating > 0 && <span style={{fontSize:10,color:'#f59e0b',display:'flex',alignItems:'center',gap:2}}><Star size={10}/>{p.avg_rating}</span>}
           </div>
-          {p.total_sales > 0 && <span style={{fontSize:9,fontWeight:600,color:'#94a3b8'}}>{p.total_sales} sold</span>}
+          {p.total_sales > 0 && <span style={{fontSize:9,fontWeight:600,color:'#64748b'}}>{p.total_sales} sold</span>}
         </div>
       </div>
     </div>
@@ -212,7 +212,7 @@ function ProductDetail({ product, onBack, currentUserId }) {
 
   return (
     <div>
-      <button onClick={onBack} style={{display:'flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'#94a3b8',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit',marginBottom:16}}>← Back to SuperMarket</button>
+      <button onClick={onBack} style={{display:'flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'#64748b',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit',marginBottom:16}}>← Back to SuperMarket</button>
       <div style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:20,alignItems:'start'}}>
         <div>
           <div style={{aspectRatio:'16/9',background:'linear-gradient(135deg,#0b1729,#132240)',borderRadius:14,overflow:'hidden',marginBottom:20,display:'flex',alignItems:'center',justifyContent:'center'}}>
@@ -246,20 +246,20 @@ function ProductDetail({ product, onBack, currentUserId }) {
             <div style={{padding:'20px'}}>
               <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:4}}>
                 <span style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:800,color:'#0f172a'}}>${Math.round(p.price||0)}</span>
-                {p.compare_price && <span style={{fontSize:16,color:'#94a3b8',textDecoration:'line-through'}}>${Math.round(p.compare_price)}</span>}
+                {p.compare_price && <span style={{fontSize:16,color:'#64748b',textDecoration:'line-through'}}>${Math.round(p.compare_price)}</span>}
               </div>
-              {p.avg_rating > 0 && <div style={{display:'flex',alignItems:'center',gap:4,marginBottom:12}}>{[1,2,3,4,5].map(function(s){return <Star key={s} size={14} color={s<=Math.round(p.avg_rating)?'#f59e0b':'#e2e8f0'} fill={s<=Math.round(p.avg_rating)?'#f59e0b':'none'}/>;})}<span style={{fontSize:11,color:'#94a3b8'}}>({p.review_count} reviews)</span></div>}
+              {p.avg_rating > 0 && <div style={{display:'flex',alignItems:'center',gap:4,marginBottom:12}}>{[1,2,3,4,5].map(function(s){return <Star key={s} size={14} color={s<=Math.round(p.avg_rating)?'#f59e0b':'#e2e8f0'} fill={s<=Math.round(p.avg_rating)?'#f59e0b':'none'}/>;})}<span style={{fontSize:11,color:'#64748b'}}>({p.review_count} reviews)</span></div>}
               {isOwner ? (
                 <div style={{textAlign:'center',padding:'14px',borderRadius:10,background:'linear-gradient(135deg,rgba(139,92,246,.06),rgba(139,92,246,.02))',border:'1px solid rgba(139,92,246,.15)',marginBottom:8}}>
                   <div style={{fontSize:14,fontWeight:800,color:'#8b5cf6'}}>Your Product</div>
-                  <div style={{fontSize:11,color:'#94a3b8',marginTop:2}}>This is your listing — {p.total_sales||0} sales so far</div>
+                  <div style={{fontSize:11,color:'#64748b',marginTop:2}}>This is your listing — {p.total_sales||0} sales so far</div>
                 </div>
               ) : (
                 <button style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'14px',borderRadius:10,border:'none',cursor:'pointer',background:'#16a34a',color:'#fff',fontSize:15,fontWeight:800,fontFamily:'inherit',marginBottom:8,boxShadow:'0 4px 14px rgba(22,163,74,.3)'}}>
                   <Download size={16}/> Buy & Download — ${Math.round(p.price||0)}
                 </button>
               )}
-              <div style={{fontSize:10,color:'#94a3b8',textAlign:'center'}}>{isOwner?'Manage from My Products':'Instant download after purchase'}</div>
+              <div style={{fontSize:10,color:'#64748b',textAlign:'center'}}>{isOwner?'Manage from My Products':'Instant download after purchase'}</div>
             </div>
           </div>
           {/* Promote card */}
@@ -270,7 +270,7 @@ function ProductDetail({ product, onBack, currentUserId }) {
             <div style={{padding:'20px'}}>
               <div style={{textAlign:'center',marginBottom:14}}>
                 <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'#0ea5e9'}}>${earnPerSale}</div>
-                <div style={{fontSize:10,color:'#94a3b8'}}>per sale</div>
+                <div style={{fontSize:10,color:'#64748b'}}>per sale</div>
               </div>
               <div style={{display:'flex',gap:6,marginBottom:10}}>
                 <input value={affLink} readOnly style={{flex:1,padding:'9px 12px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:9,fontFamily:'monospace',color:'#64748b',background:'#f8f9fb',outline:'none'}}/>
@@ -282,7 +282,7 @@ function ProductDetail({ product, onBack, currentUserId }) {
           </div>
           {/* Split */}
           <div style={{background:'#f8f9fb',border:'1px solid #e8ecf2',borderRadius:12,padding:16}}>
-            <div style={{fontSize:11,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,marginBottom:10}}>Commission Split</div>
+            <div style={{fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,marginBottom:10}}>Commission Split</div>
             {[
               {label:'Product Creator',pct:'50%',amount:formatMoney((p.price||0)*0.5),color:'#16a34a'},
               {label:'You (Affiliate)',pct:'25%',amount:earnPerSale,color:'#0ea5e9'},
@@ -312,14 +312,14 @@ function MyProducts({ products, onBack, onCreate, onReload }) {
 
   return (
     <div>
-      <button onClick={onBack} style={{display:'flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'#94a3b8',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit',marginBottom:16}}>← Back to SuperMarket</button>
+      <button onClick={onBack} style={{display:'flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'#64748b',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit',marginBottom:16}}>← Back to SuperMarket</button>
       <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
         <div style={{background:'#0c1e4a',padding:'16px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>My Digital Products</div>
           <button onClick={onCreate} style={{display:'flex',alignItems:'center',gap:4,padding:'7px 14px',borderRadius:8,background:'#0ea5e9',color:'#fff',fontSize:11,fontWeight:700,textDecoration:'none',fontFamily:'inherit',border:'none',cursor:'pointer'}}>+ New Product</button>
         </div>
         {products.length > 0 ? products.map(function(p,i) {
-          var sc = {published:{bg:'#dcfce7',color:'#16a34a'},draft:{bg:'#f1f5f9',color:'#94a3b8'},pending_review:{bg:'#fef3c7',color:'#f59e0b'}}[p.status]||{bg:'#f1f5f9',color:'#94a3b8'};
+          var sc = {published:{bg:'#dcfce7',color:'#16a34a'},draft:{bg:'#f1f5f9',color:'#64748b'},pending_review:{bg:'#fef3c7',color:'#f59e0b'}}[p.status]||{bg:'#f1f5f9',color:'#64748b'};
           return (
             <div key={p.id} style={{padding:'16px 24px',borderBottom:i<products.length-1?'1px solid #f5f6f8':'none',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
               <div style={{display:'flex',alignItems:'center',gap:14}}>
@@ -335,8 +335,8 @@ function MyProducts({ products, onBack, onCreate, onReload }) {
                 </div>
               </div>
               <div style={{display:'flex',alignItems:'center',gap:16}}>
-                <div style={{textAlign:'center'}}><div style={{fontSize:16,fontWeight:800,color:'#0ea5e9'}}>{p.total_sales||0}</div><div style={{fontSize:9,color:'#94a3b8'}}>Sales</div></div>
-                <div style={{textAlign:'center'}}><div style={{fontSize:16,fontWeight:800,color:'#16a34a'}}>${Math.round(p.total_revenue||0)}</div><div style={{fontSize:9,color:'#94a3b8'}}>Revenue</div></div>
+                <div style={{textAlign:'center'}}><div style={{fontSize:16,fontWeight:800,color:'#0ea5e9'}}>{p.total_sales||0}</div><div style={{fontSize:9,color:'#64748b'}}>Sales</div></div>
+                <div style={{textAlign:'center'}}><div style={{fontSize:16,fontWeight:800,color:'#16a34a'}}>${Math.round(p.total_revenue||0)}</div><div style={{fontSize:9,color:'#64748b'}}>Revenue</div></div>
                 <button onClick={function(){handleDelete(p.id,p.title,(p.total_sales||0)>0);}} disabled={deleting===p.id}
                   style={{padding:'6px 12px',borderRadius:6,border:'1px solid #fecaca',background:'#fff',color:'#dc2626',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit',opacity:deleting===p.id?0.5:1}}>
                   {deleting===p.id?'...':'Delete'}
@@ -348,7 +348,7 @@ function MyProducts({ products, onBack, onCreate, onReload }) {
           <div style={{padding:'60px 20px',textAlign:'center'}}>
             <div style={{fontSize:40,marginBottom:12,opacity:.3}}>📦</div>
             <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:4}}>No products yet</div>
-            <div style={{fontSize:12,color:'#94a3b8',marginBottom:16}}>List your first digital product and start earning</div>
+            <div style={{fontSize:12,color:'#64748b',marginBottom:16}}>List your first digital product and start earning</div>
           </div>
         )}
       </div>

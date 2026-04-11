@@ -57,14 +57,14 @@ export default function CourseEditor() {
   }
 
   if(loading)return <AppLayout title="Course Editor"><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#8b5cf6',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
-  if(!course)return <AppLayout title="Course Editor"><div style={{textAlign:'center',padding:60,color:'#94a3b8'}}>Course not found</div></AppLayout>;
+  if(!course)return <AppLayout title="Course Editor"><div style={{textAlign:'center',padding:60,color:'#64748b'}}>Course not found</div></AppLayout>;
 
   var totalLectures=0;var totalDuration=0;var hasPreview=false;
   (course.chapters||[]).forEach(function(ch){(ch.lessons||[]).forEach(function(l){totalLectures++;totalDuration+=l.duration_minutes||0;if(l.is_preview)hasPreview=true;});});
 
   return(
     <AppLayout title={course.title} subtitle={'$'+course.price+' · '+course.status}>
-      <Link to="/courses" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'#94a3b8',textDecoration:'none',marginBottom:16}}>← Back to Courses</Link>
+      <Link to="/courses" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'#64748b',textDecoration:'none',marginBottom:16}}>← Back to Courses</Link>
 
       {toast&&<div style={{padding:'10px 16px',borderRadius:10,marginBottom:14,fontSize:13,fontWeight:700,background:toast.type==='ok'?'#dcfce7':'#fef2f2',color:toast.type==='ok'?'#16a34a':'#dc2626',display:'flex',alignItems:'center',gap:6}}>{toast.type==='ok'?<CheckCircle size={14}/>:<AlertTriangle size={14}/>}{toast.msg}</div>}
 
@@ -74,14 +74,14 @@ export default function CourseEditor() {
           {/* Stats row */}
           <div style={{display:'flex',gap:10,marginBottom:20}}>
             {[
-              {label:'Status',value:course.status.replace('_',' '),color:course.status==='published'?'#16a34a':course.status==='pending_review'?'#f59e0b':'#94a3b8'},
+              {label:'Status',value:course.status.replace('_',' '),color:course.status==='published'?'#16a34a':course.status==='pending_review'?'#f59e0b':'#64748b'},
               {label:'Sections',value:(course.chapters||[]).length,color:'#8b5cf6'},
               {label:'Lectures',value:totalLectures,color:'#0ea5e9'},
               {label:'Duration',value:totalDuration+'m',color:'#f59e0b'},
             ].map(function(s,i){
               return <div key={i} style={{flex:1,background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:'12px 14px',textAlign:'center'}}>
                 <div style={{fontSize:18,fontWeight:800,color:s.color,fontFamily:'Sora,sans-serif'}}>{s.value}</div>
-                <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5}}>{s.label}</div>
+                <div style={{fontSize:9,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5}}>{s.label}</div>
               </div>;
             })}
           </div>
@@ -100,7 +100,7 @@ export default function CourseEditor() {
             <div style={{textAlign:'center',padding:'60px 20px',background:'#fff',borderRadius:14,border:'1px solid #e8ecf2'}}>
               <div style={{fontSize:48,marginBottom:10,opacity:.2}}>📚</div>
               <div style={{fontSize:16,fontWeight:800,color:'#0f172a',marginBottom:4}}>No sections yet</div>
-              <div style={{fontSize:13,color:'#94a3b8',marginBottom:16}}>Start building your course by adding a section</div>
+              <div style={{fontSize:13,color:'#64748b',marginBottom:16}}>Start building your course by adding a section</div>
               <button onClick={addSection} style={{padding:'10px 24px',borderRadius:8,border:'none',background:'#8b5cf6',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>+ Add First Section</button>
             </div>
           ):(course.chapters||[]).map(function(section,sIdx){
@@ -113,7 +113,7 @@ export default function CourseEditor() {
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 18px',cursor:'pointer',background:isOpen?'#faf8ff':'#fff',borderBottom:isOpen?'1px solid #f1f3f7':'none'}}
                   onClick={function(){setExpandedSection(isOpen?null:section.id);setExpandedLesson(null);}}>
                   <div style={{display:'flex',alignItems:'center',gap:10,flex:1}}>
-                    {isOpen?<ChevronDown size={16} color="#8b5cf6"/>:<ChevronRight size={16} color="#94a3b8"/>}
+                    {isOpen?<ChevronDown size={16} color="#8b5cf6"/>:<ChevronRight size={16} color="#64748b"/>}
                     <div style={{fontSize:11,fontWeight:800,color:'#8b5cf6',minWidth:60}}>Section {sIdx+1}</div>
                     <input value={section.title} onClick={function(e){e.stopPropagation();}}
                       onChange={function(e){var val=e.target.value;setCourse(function(prev){return Object.assign({},prev,{chapters:prev.chapters.map(function(c){return c.id===section.id?Object.assign({},c,{title:val}):c;})});});}}
@@ -121,7 +121,7 @@ export default function CourseEditor() {
                       style={{fontSize:15,fontWeight:700,color:'#0f172a',border:'none',background:'transparent',outline:'none',fontFamily:'inherit',flex:1}}/>
                   </div>
                   <div style={{display:'flex',alignItems:'center',gap:10}}>
-                    <span style={{fontSize:10,color:'#94a3b8'}}>{sectionLectures.length} lecture{sectionLectures.length!==1?'s':''} · {sectionDuration}m</span>
+                    <span style={{fontSize:10,color:'#64748b'}}>{sectionLectures.length} lecture{sectionLectures.length!==1?'s':''} · {sectionDuration}m</span>
                     <button onClick={function(e){e.stopPropagation();deleteSection(section.id);}} style={{color:'#dc2626',background:'none',border:'none',cursor:'pointer',padding:4,opacity:.5}} onMouseEnter={function(e){e.currentTarget.style.opacity=1;}} onMouseLeave={function(e){e.currentTarget.style.opacity=.5;}}><Trash2 size={14}/></button>
                   </div>
                 </div>
@@ -130,7 +130,7 @@ export default function CourseEditor() {
                 {isOpen&&(
                   <div>
                     {sectionLectures.length===0?(
-                      <div style={{padding:'28px 18px',textAlign:'center',color:'#94a3b8',fontSize:13}}>
+                      <div style={{padding:'28px 18px',textAlign:'center',color:'#64748b',fontSize:13}}>
                         No lectures yet. Add your first lecture to this section.
                       </div>
                     ):sectionLectures.map(function(lecture,lIdx){
@@ -149,8 +149,8 @@ export default function CourseEditor() {
                               <div>
                                 <div style={{fontSize:13,fontWeight:600,color:'#0f172a'}}>{lecture.title}</div>
                                 <div style={{display:'flex',gap:6,marginTop:2}}>
-                                  <span style={{fontSize:9,color:'#94a3b8',textTransform:'capitalize'}}>{lecture.content_type}</span>
-                                  {lecture.duration_minutes>0&&<span style={{fontSize:9,color:'#94a3b8'}}>· {lecture.duration_minutes}m</span>}
+                                  <span style={{fontSize:9,color:'#64748b',textTransform:'capitalize'}}>{lecture.content_type}</span>
+                                  {lecture.duration_minutes>0&&<span style={{fontSize:9,color:'#64748b'}}>· {lecture.duration_minutes}m</span>}
                                   {lecture.video_url&&<span style={{fontSize:9,color:'#0ea5e9'}}>· Video linked</span>}
                                 </div>
                               </div>
@@ -207,7 +207,7 @@ export default function CourseEditor() {
                 ].map(function(r,i){
                   return <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'4px 0'}}>
                     <div style={{width:18,height:18,borderRadius:'50%',background:r.ok?'#dcfce7':'#fef2f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:800,color:r.ok?'#16a34a':'#dc2626',flexShrink:0}}>{r.ok?'✓':'✗'}</div>
-                    <span style={{fontSize:12,color:r.ok?'#334155':'#94a3b8',fontWeight:r.ok?600:400}}>{r.l}</span>
+                    <span style={{fontSize:12,color:r.ok?'#334155':'#64748b',fontWeight:r.ok?600:400}}>{r.l}</span>
                   </div>;
                 })}
               </div>
@@ -292,21 +292,21 @@ function LectureEditor({lecture, onSave, onReload}){
       {/* Title + meta row */}
       <div style={{display:'grid',gridTemplateColumns:'2fr auto auto',gap:12,marginBottom:16,alignItems:'end'}}>
         <div>
-          <label style={{fontSize:11,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>Lecture Title</label>
+          <label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>Lecture Title</label>
           <input value={title} onChange={function(e){setTitle(e.target.value);}}
             style={{width:'100%',padding:'10px 14px',border:'2px solid #e8ecf2',borderRadius:10,fontSize:14,fontWeight:600,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff'}}
             onFocus={function(e){e.target.style.borderColor='#8b5cf6';}} onBlur={function(e){e.target.style.borderColor='#e8ecf2';}}/>
         </div>
         <div>
-          <label style={{fontSize:11,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>Duration</label>
+          <label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>Duration</label>
           <div style={{display:'flex',alignItems:'center',gap:4}}>
             <input type="number" min="0" value={duration} onChange={function(e){setDuration(e.target.value);}}
               style={{width:60,padding:'10px 8px',border:'2px solid #e8ecf2',borderRadius:10,fontSize:14,fontWeight:700,fontFamily:'Sora,sans-serif',outline:'none',textAlign:'center',background:'#fff'}}/>
-            <span style={{fontSize:11,color:'#94a3b8'}}>min</span>
+            <span style={{fontSize:11,color:'#64748b'}}>min</span>
           </div>
         </div>
         <label style={{display:'flex',alignItems:'center',gap:6,cursor:'pointer',fontSize:12,fontWeight:600,padding:'10px 14px',borderRadius:10,
-          color:isPreview?'#16a34a':'#94a3b8',border:isPreview?'2px solid #bbf7d0':'2px solid #e8ecf2',background:isPreview?'#f0fdf4':'#fff',transition:'all .15s'}}>
+          color:isPreview?'#16a34a':'#64748b',border:isPreview?'2px solid #bbf7d0':'2px solid #e8ecf2',background:isPreview?'#f0fdf4':'#fff',transition:'all .15s'}}>
           <input type="checkbox" checked={isPreview} onChange={function(){setIsPreview(!isPreview);}} style={{accentColor:'#16a34a',width:14,height:14}}/>
           {isPreview?<Eye size={13}/>:<EyeOff size={13}/>}
           {isPreview?'Free Preview':'Paid'}
@@ -319,7 +319,7 @@ function LectureEditor({lecture, onSave, onReload}){
           var on=contentType===tab.t;var Icon=tab.icon;
           return <button key={tab.t} onClick={function(){setContentType(tab.t);}}
             style={{display:'flex',alignItems:'center',gap:4,padding:'8px 16px',borderRadius:8,cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:on?800:600,
-              border:on?'2px solid '+tab.c:'2px solid #e8ecf2',background:on?tab.c+'08':'#fff',color:on?tab.c:'#94a3b8',transition:'all .15s'}}>
+              border:on?'2px solid '+tab.c:'2px solid #e8ecf2',background:on?tab.c+'08':'#fff',color:on?tab.c:'#64748b',transition:'all .15s'}}>
             <Icon size={13}/>{tab.l}
           </button>;
         })}
@@ -328,7 +328,7 @@ function LectureEditor({lecture, onSave, onReload}){
       {/* VIDEO content */}
       {contentType==='video'&&(
         <div style={{marginBottom:16}}>
-          <label style={{fontSize:11,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>Video URL (YouTube, Vimeo, Loom)</label>
+          <label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>Video URL (YouTube, Vimeo, Loom)</label>
           <input value={videoUrl} onChange={function(e){setVideoUrl(e.target.value);}} placeholder="https://youtube.com/watch?v=..."
             style={{width:'100%',padding:'10px 14px',border:'2px solid #e8ecf2',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff'}}
             onFocus={function(e){e.target.style.borderColor='#0ea5e9';}} onBlur={function(e){e.target.style.borderColor='#e8ecf2';}}/>
@@ -343,7 +343,7 @@ function LectureEditor({lecture, onSave, onReload}){
       {/* PDF content */}
       {contentType==='pdf'&&(
         <div style={{marginBottom:16}}>
-          <label style={{fontSize:11,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>PDF File</label>
+          <label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>PDF File</label>
           <div style={{display:'flex',gap:8}}>
             <label style={{display:'flex',alignItems:'center',gap:6,padding:'10px 16px',borderRadius:10,border:'2px solid #e8ecf2',background:'#fff',cursor:'pointer',fontSize:12,fontWeight:600,color:'#64748b'}}
               onMouseEnter={function(e){e.currentTarget.style.borderColor='#f59e0b';}} onMouseLeave={function(e){e.currentTarget.style.borderColor='#e8ecf2';}}>
@@ -357,7 +357,7 @@ function LectureEditor({lecture, onSave, onReload}){
 
       {/* Rich text content — shown for ALL types as supplementary notes */}
       <div style={{marginBottom:16}}>
-        <label style={{fontSize:11,fontWeight:700,color:'#94a3b8',display:'block',marginBottom:4}}>
+        <label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>
           {contentType==='video'?'Lecture Notes & Resources':contentType==='pdf'?'Description':'Lecture Content'}
         </label>
         <RichTextEditor content={textContent} onChange={function(html){setTextContent(html);}}

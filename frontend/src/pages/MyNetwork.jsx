@@ -74,7 +74,7 @@ export default function MyNetwork() {
               </div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:s.color,marginBottom:4}}>{s.value}</div>
               <div style={{fontSize:12,fontWeight:800,color:'#0f172a',marginBottom:2}}>{s.label}</div>
-              <div style={{fontSize:10,color:'#94a3b8'}}>{s.sub}</div>
+              <div style={{fontSize:10,color:'#64748b'}}>{s.sub}</div>
             </div>
           );
         })}
@@ -95,7 +95,7 @@ export default function MyNetwork() {
               <div key={i} style={{padding:18,borderRadius:12,background:'#f8f9fb',border:'1px solid #e8ecf2',textAlign:'center'}}>
                 <div style={{fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:800,color:s.color}}>{s.value}</div>
                 <div style={{fontSize:12,fontWeight:800,color:'#0f172a',marginTop:4}}>{s.label}</div>
-                <div style={{fontSize:10,color:'#94a3b8',marginTop:2}}>{s.desc}</div>
+                <div style={{fontSize:10,color:'#64748b',marginTop:2}}>{s.desc}</div>
               </div>
             );
           })}
@@ -135,7 +135,7 @@ export default function MyNetwork() {
                             </div>
                             <div>
                               <div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>{r.first_name || r.username}</div>
-                              <div style={{fontSize:10,color:'#94a3b8',fontFamily:'monospace'}}>@{r.username}</div>
+                              <div style={{fontSize:10,color:'#64748b',fontFamily:'monospace'}}>@{r.username}</div>
                             </div>
                           </div>
                         </td>
@@ -151,7 +151,7 @@ export default function MyNetwork() {
                         <td style={Object.assign({},tdStyle,{textAlign:'center'})}>
                           <span style={{fontSize:13,fontWeight:700,color:'#0ea5e9'}}>{r.personal_referrals || 0}</span>
                         </td>
-                        <td style={Object.assign({},tdStyle,{fontSize:11,color:'#94a3b8'})}>
+                        <td style={Object.assign({},tdStyle,{fontSize:11,color:'#64748b'})}>
                           {r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—'}
                         </td>
                       </tr>
@@ -163,7 +163,7 @@ export default function MyNetwork() {
               <div style={{textAlign:'center',padding:'40px 20px'}}>
                 <div style={{fontSize:32,marginBottom:8,opacity:.3}}>👥</div>
                 <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:4}}>{t('network.noReferralsYet')}</div>
-                <div style={{fontSize:12,color:'#94a3b8'}}>{t('network.shareYourLink')}</div>
+                <div style={{fontSize:12,color:'#64748b'}}>{t('network.shareYourLink')}</div>
               </div>
             )}
           </div>
@@ -193,7 +193,7 @@ export default function MyNetwork() {
                   style={{padding:'5px 12px',borderRadius:6,fontSize:11,fontWeight:700,fontFamily:'inherit',cursor:'pointer',
                     border:on?'1px solid #0ea5e9':'1px solid #e8ecf2',
                     background:on?'rgba(14,165,233,.06)':'transparent',
-                    color:on?'#0ea5e9':'#94a3b8',transition:'all .15s'}}>
+                    color:on?'#0ea5e9':'#64748b',transition:'all .15s'}}>
                   {f.label}
                 </button>
               );
@@ -237,7 +237,7 @@ export default function MyNetwork() {
                             {c.status || 'pending'}
                           </span>
                         </td>
-                        <td style={Object.assign({},tdStyle,{fontSize:11,color:'#94a3b8'})}>
+                        <td style={Object.assign({},tdStyle,{fontSize:11,color:'#64748b'})}>
                           {c.created_at ? new Date(c.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short'}) : '—'}
                         </td>
                       </tr>
@@ -249,7 +249,7 @@ export default function MyNetwork() {
               <div style={{textAlign:'center',padding:'40px 20px'}}>
                 <div style={{fontSize:32,marginBottom:8,opacity:.3}}>💰</div>
                 <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:4}}>{t('network.noCommissionsYet')}</div>
-                <div style={{fontSize:12,color:'#94a3b8'}}>{t('network.commissionsAppear')}</div>
+                <div style={{fontSize:12,color:'#64748b'}}>{t('network.commissionsAppear')}</div>
               </div>
             )}
           </div>
@@ -259,7 +259,7 @@ export default function MyNetwork() {
   );
 }
 
-var thStyle = {fontSize:10,fontWeight:800,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,padding:'11px 16px',borderBottom:'2px solid #e8ecf2',textAlign:'left',background:'#f8f9fb'};
+var thStyle = {fontSize:10,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:1,padding:'11px 16px',borderBottom:'2px solid #e8ecf2',textAlign:'left',background:'#f8f9fb'};
 var tdStyle = {padding:'12px 16px',borderBottom:'1px solid #f5f6f8',fontSize:13,color:'#0f172a'};
 
 function Spin() {

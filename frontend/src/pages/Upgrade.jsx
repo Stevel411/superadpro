@@ -13,7 +13,7 @@ var css = `
   .up-card-basic:hover{box-shadow:0 8px 16px rgba(0,0,0,.06),0 20px 40px rgba(0,0,0,.1),0 32px 64px rgba(0,0,0,.06)}
   .up-card-pro{border:2px solid rgba(239,68,68,.4);box-shadow:0 4px 6px rgba(239,68,68,.06),0 10px 24px rgba(239,68,68,.08),0 20px 48px rgba(239,68,68,.06)}
   .up-card-pro:hover{box-shadow:0 8px 16px rgba(239,68,68,.08),0 20px 40px rgba(239,68,68,.12),0 32px 64px rgba(239,68,68,.08)}
-  .up-toggle-track{width:48px;height:26px;border-radius:13px;position:relative;cursor:pointer;transition:background .3s;background:#cbd5e1}
+  .up-toggle-track{width:48px;height:26px;border-radius:13px;position:relative;cursor:pointer;transition:background .3s;background:#94a3b8}
   .up-toggle-track.on{background:linear-gradient(90deg,#172554,#1e3a8a)}
   .up-toggle-thumb{width:20px;height:20px;background:#fff;border-radius:50%;position:absolute;top:3px;left:3px;transition:transform .3s;box-shadow:0 1px 4px rgba(0,0,0,.15)}
   .up-toggle-track.on .up-toggle-thumb{transform:translateX(22px)}
@@ -109,10 +109,10 @@ export default function Upgrade() {
       return (
         <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
           <button onClick={handleUpgradeToPro} disabled={loading === 'upgrade'}
-            style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', padding:16, borderRadius:14, fontSize:15, fontWeight:700, border:'none', cursor: loading === 'upgrade' ? 'default' : 'pointer', fontFamily:'inherit', background: loading === 'upgrade' ? '#94a3b8' : btnGrad, color:'#fff', boxShadow: loading === 'upgrade' ? 'none' : btnShadow }}>
+            style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', padding:16, borderRadius:14, fontSize:15, fontWeight:700, border:'none', cursor: loading === 'upgrade' ? 'default' : 'pointer', fontFamily:'inherit', background: loading === 'upgrade' ? '#64748b' : btnGrad, color:'#fff', boxShadow: loading === 'upgrade' ? 'none' : btnShadow }}>
             {loading === 'upgrade' ? 'Upgrading...' : '\u26A1 Upgrade to Pro \u2014 $15'}
           </button>
-          <div style={{ fontSize:11, color:'#94a3b8', textAlign:'center' }}>Pay the $15 difference now. $35/mo from next renewal.</div>
+          <div style={{ fontSize:11, color:'#64748b', textAlign:'center' }}>Pay the $15 difference now. $35/mo from next renewal.</div>
         </div>
       );
     }
@@ -130,7 +130,7 @@ export default function Upgrade() {
           <Globe size={16} />
           {loading === tier + '_np' ? 'Loading...' : 'Pay with 350+ Cryptos \u2014 ' + price}
         </button>
-        <div style={{ textAlign:'center', fontSize:10, color:'#94a3b8' }}>{"\uD83D\uDD12"} Secure payment \u00B7 Instant activation</div>
+        <div style={{ textAlign:'center', fontSize:10, color:'#64748b' }}>{"\uD83D\uDD12"} Secure payment \u00B7 Instant activation</div>
       </div>
     );
   }
@@ -149,11 +149,11 @@ export default function Upgrade() {
         {/* Toggle */}
         <div style={{ display:'flex', justifyContent:'center', marginBottom:36 }}>
           <div style={{ display:'inline-flex', alignItems:'center', gap:14, background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:50, padding:'8px 24px' }}>
-            <span onClick={function(){setBilling('monthly')}} style={{ fontSize:14, fontWeight:600, color: !isAnnual ? '#0f172a' : '#94a3b8', cursor:'pointer', userSelect:'none', transition:'color .2s' }}>Monthly</span>
+            <span onClick={function(){setBilling('monthly')}} style={{ fontSize:14, fontWeight:600, color: !isAnnual ? '#0f172a' : '#64748b', cursor:'pointer', userSelect:'none', transition:'color .2s' }}>Monthly</span>
             <div className={'up-toggle-track' + (isAnnual ? ' on' : '')} onClick={function(){setBilling(isAnnual ? 'monthly' : 'annual')}}>
               <div className="up-toggle-thumb"/>
             </div>
-            <span onClick={function(){setBilling('annual')}} style={{ fontSize:14, fontWeight:600, color: isAnnual ? '#0f172a' : '#94a3b8', cursor:'pointer', userSelect:'none', transition:'color .2s' }}>Annual</span>
+            <span onClick={function(){setBilling('annual')}} style={{ fontSize:14, fontWeight:600, color: isAnnual ? '#0f172a' : '#64748b', cursor:'pointer', userSelect:'none', transition:'color .2s' }}>Annual</span>
             <span style={{ fontSize:11, fontWeight:700, color:'#16a34a', background:'#f0fdf4', border:'1px solid #dcfce7', padding:'3px 10px', borderRadius:20 }}>Save 17%</span>
           </div>
         </div>
@@ -253,7 +253,7 @@ export default function Upgrade() {
           <WalletGuideCard compact />
         </div>
 
-        <p style={{ textAlign:'center', fontSize:12, color:'#94a3b8', marginTop:16 }}>
+        <p style={{ textAlign:'center', fontSize:12, color:'#64748b', marginTop:16 }}>
           Secure payment via USDT/USDC on Polygon or 350+ cryptos via NOWPayments · All sales are final
         </p>
       </div>

@@ -105,15 +105,15 @@ export default function PayItForward() {
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:24 }}>
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', textAlign:'center' }}>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:34, fontWeight:800, color:'#ec4899' }}>{stats.total_gifted || 0}</div>
-          <div style={{ fontSize:14, color:'#94a3b8', marginTop:6 }}>Gifts given</div>
+          <div style={{ fontSize:14, color:'#64748b', marginTop:6 }}>Gifts given</div>
         </div>
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', textAlign:'center' }}>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:34, fontWeight:800, color:'#10b981' }}>{stats.total_claimed || 0}</div>
-          <div style={{ fontSize:14, color:'#94a3b8', marginTop:6 }}>Lives changed</div>
+          <div style={{ fontSize:14, color:'#64748b', marginTop:6 }}>Lives changed</div>
         </div>
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', textAlign:'center' }}>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:34, fontWeight:800, color:'#8b5cf6' }}>{stats.max_chain_depth || 0}</div>
-          <div style={{ fontSize:14, color:'#94a3b8', marginTop:6 }}>Chain depth</div>
+          <div style={{ fontSize:14, color:'#64748b', marginTop:6 }}>Chain depth</div>
         </div>
       </div>
 
@@ -209,7 +209,7 @@ export default function PayItForward() {
 
           <div style={{ display:'flex', justifyContent:'center' }}>
             <button onClick={function() { setShowForm(false); }}
-              style={{ padding:'10px 20px', borderRadius:10, border:'none', background:'transparent', cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:600, color:'#94a3b8' }}>
+              style={{ padding:'10px 20px', borderRadius:10, border:'none', background:'transparent', cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:600, color:'#64748b' }}>
               Cancel
             </button>
           </div>
@@ -239,7 +239,7 @@ export default function PayItForward() {
                       {v.recipient_name || 'Open gift'}
                       {isClaimed && v.claimed_by && <span style={{ fontWeight:400, color:'#64748b' }}> — claimed by {v.claimed_by.first_name || v.claimed_by.username}</span>}
                     </div>
-                    <div style={{ fontSize:13, color:'#94a3b8' }}>
+                    <div style={{ fontSize:13, color:'#64748b' }}>
                       {v.code} · {isClaimed ? 'Claimed' : 'Available'} · Chain depth {v.chain_depth}
                     </div>
                   </div>

@@ -20,7 +20,7 @@ export default function PassupVisualiser() {
 
   return (
     <AppLayout title={t("visualiser.title")} subtitle={t("visualiser.subtitle")}>
-      <Link to="/compensation-plan" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'#94a3b8',textDecoration:'none',marginBottom:14}} onMouseEnter={function(e){e.currentTarget.style.color='#0ea5e9';}} onMouseLeave={function(e){e.currentTarget.style.color='#94a3b8';}}>← Back to Compensation Plan</Link>
+      <Link to="/compensation-plan" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'#64748b',textDecoration:'none',marginBottom:14}} onMouseEnter={function(e){e.currentTarget.style.color='#0ea5e9';}} onMouseLeave={function(e){e.currentTarget.style.color='#64748b';}}>← Back to Compensation Plan</Link>
       <div style={{display:'flex',gap:6,marginBottom:24,borderBottom:'2px solid #e8ecf2',paddingBottom:0}}>
         {TABS.map(function(t) {
           var Icon = t.icon;
@@ -377,7 +377,7 @@ function PassUpSection() {
             <button key={t.p} onClick={function() { setTier(t.p); }}
               style={{padding:'10px 20px',borderRadius:8,border:on?'2px solid #8b5cf6':'2px solid #e8ecf2',
                 background:on?'rgba(139,92,246,.08)':'#fff',cursor:'pointer',fontFamily:'inherit',
-                fontSize:14,fontWeight:700,color:on?'#8b5cf6':'#94a3b8',transition:'all .15s'}}>
+                fontSize:14,fontWeight:700,color:on?'#8b5cf6':'#64748b',transition:'all .15s'}}>
               ${t.p} {t.name}
             </button>
           );
@@ -466,7 +466,7 @@ function PassUpSection() {
                           transform:isGlowing?'scale(1.15)':'scale(1)',
                         }}>
                           <div style={{fontSize:isRoot||isSponsor?9:7,fontWeight:800,color:textColor,lineHeight:1.1}}>{n.nm}</div>
-                          {n.sc > 0 && <div style={{fontSize:5,color:isSponsor||isRoot?'rgba(255,255,255,.6)':'#94a3b8'}}>{n.sc}</div>}
+                          {n.sc > 0 && <div style={{fontSize:5,color:isSponsor||isRoot?'rgba(255,255,255,.6)':'#64748b'}}>{n.sc}</div>}
                         </div>
                       );
                     })}
@@ -510,14 +510,14 @@ function PassUpSection() {
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0',borderBottom:'1px solid #f5f6f8'}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
                 <div style={{width:8,height:8,borderRadius:4,background:'#10b981'}}/>
-                <div><div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>{t('visualiser.directSalesKept')}</div><div style={{fontSize:10,color:'#94a3b8'}}>Your sales 1,3,5,7,9+</div></div>
+                <div><div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>{t('visualiser.directSalesKept')}</div><div style={{fontSize:10,color:'#64748b'}}>Your sales 1,3,5,7,9+</div></div>
               </div>
               <div style={{fontSize:18,fontWeight:800,color:'#10b981'}}>${st.keptAmt.toLocaleString()}</div>
             </div>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0'}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
                 <div style={{width:8,height:8,borderRadius:4,background:'#f59e0b'}}/>
-                <div><div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>{t('visualiser.passUpsReceived')}</div><div style={{fontSize:10,color:'#94a3b8'}}>Team's 2nd, 4th, 6th, 8th</div></div>
+                <div><div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>{t('visualiser.passUpsReceived')}</div><div style={{fontSize:10,color:'#64748b'}}>Team's 2nd, 4th, 6th, 8th</div></div>
               </div>
               <div style={{fontSize:18,fontWeight:800,color:'#f59e0b'}}>${st.passupAmt.toLocaleString()}</div>
             </div>
@@ -525,19 +525,19 @@ function PassUpSection() {
 
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
-              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>{t('visualiser.directSales')}</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#64748b',letterSpacing:1}}>{t('visualiser.directSales')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#10b981'}}>{st.kept}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
-              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>{t('visualiser.passUps')}</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#64748b',letterSpacing:1}}>{t('visualiser.passUps')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#f59e0b'}}>{st.passups}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
-              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>{t('visualiser.teamSales')}</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#64748b',letterSpacing:1}}>{t('visualiser.teamSales')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'#0ea5e9'}}>{st.totalSales}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
-              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:1}}>{t('visualiser.tier')}</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#64748b',letterSpacing:1}}>{t('visualiser.tier')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#8b5cf6'}}>${tier}</div>
             </div>
           </div>
@@ -565,13 +565,13 @@ function PassUpSection() {
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16,flex:1,minHeight:180}}>
             <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:10}}>{t('visualiser.activityLog')}</div>
             <div style={{display:'flex',flexDirection:'column',gap:4,maxHeight:300,overflowY:'auto'}}>
-              {log.length === 0 && <div style={{fontSize:11,color:'#94a3b8'}}>{t('visualiser.pressPlayToWatch')}</div>}
+              {log.length === 0 && <div style={{fontSize:11,color:'#64748b'}}>{t('visualiser.pressPlayToWatch')}</div>}
               {log.map(function(l, i) {
                 return (
                   <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'5px 0',borderBottom:'1px solid #f5f6f8',fontSize:12}}>
                     <div style={{display:'flex',alignItems:'center',gap:6,minWidth:0,overflow:'hidden'}}>
                       <span style={{fontWeight:700,color:'#0f172a',minWidth:36,flexShrink:0}}>{l.who}</span>
-                      <span style={{color:'#94a3b8',fontSize:10,flexShrink:0}}>#{l.sale}</span>
+                      <span style={{color:'#64748b',fontSize:10,flexShrink:0}}>#{l.sale}</span>
                       <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:3,whiteSpace:'nowrap',flexShrink:0,
                         color:l.type==='kept'?'#10b981':'#f59e0b',
                         background:l.type==='kept'?'rgba(16,185,129,.06)':'rgba(245,158,11,.06)',
@@ -736,7 +736,7 @@ function GridVisSection() {
             <button key={t.n} onClick={function() { setSelectedTier(t.n); }}
               style={{padding:'8px 16px',borderRadius:8,border:on?'2px solid '+t.color:'2px solid #e8ecf2',
                 background:on?t.color+'12':'#fff',cursor:'pointer',fontFamily:'inherit',
-                fontSize:13,fontWeight:700,color:on?t.color:'#94a3b8',transition:'all .15s'}}>
+                fontSize:13,fontWeight:700,color:on?t.color:'#64748b',transition:'all .15s'}}>
               ${t.price} {t.name}
             </button>
           );
@@ -753,13 +753,13 @@ function GridVisSection() {
               <div style={{fontSize:15,fontWeight:800,color:'#fff'}}>${PRICE} {tier.name} Grid</div>
             </div>
             <div style={{display:'flex',gap:6,alignItems:'center'}}>
-              <div style={{display:'flex',alignItems:'center',gap:4,fontSize:9,color:'#94a3b8',letterSpacing:1,background:'rgba(255,255,255,.08)',padding:'5px 10px',borderRadius:6}}>
+              <div style={{display:'flex',alignItems:'center',gap:4,fontSize:9,color:'#64748b',letterSpacing:1,background:'rgba(255,255,255,.08)',padding:'5px 10px',borderRadius:6}}>
                 <span style={{color:'#fff',fontWeight:700}}>{t('visualiser.directs')}</span>
                 <input type="number" min={1} max={30} value={numDirects}
                   onChange={function(e) { var v = parseInt(e.target.value); if (v >= 1 && v <= 30) setNumDirects(v); }}
                   style={{width:38,padding:'3px 4px',borderRadius:4,border:'1px solid rgba(255,255,255,.2)',background:'rgba(255,255,255,.1)',color:'#fff',fontSize:12,fontWeight:800,fontFamily:'inherit',textAlign:'center'}}/>
               </div>
-              <div style={{display:'flex',alignItems:'center',gap:4,fontSize:9,color:'#94a3b8',letterSpacing:1}}>
+              <div style={{display:'flex',alignItems:'center',gap:4,fontSize:9,color:'#64748b',letterSpacing:1}}>
                 <span>{t('visualiser.speed')}</span>
                 <input type="range" min={1} max={5} value={speed} onChange={function(e) { setSpeed(parseInt(e.target.value)); }}
                   style={{width:50,accentColor:'#0ea5e9',cursor:'pointer'}}/>
@@ -816,8 +816,8 @@ function GridVisSection() {
                     ) : (
                       <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:1}}>
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" opacity=".25">
-                          <circle cx="12" cy="8" r="4" stroke="#94a3b8" strokeWidth="2" strokeDasharray="3 3"/>
-                          <path d="M4 21v-1a6 6 0 0112 0v1" stroke="#94a3b8" strokeWidth="2" strokeDasharray="3 3"/>
+                          <circle cx="12" cy="8" r="4" stroke="#64748b" strokeWidth="2" strokeDasharray="3 3"/>
+                          <path d="M4 21v-1a6 6 0 0112 0v1" stroke="#64748b" strokeWidth="2" strokeDasharray="3 3"/>
                         </svg>
                         <div style={{fontSize:7,color:'#cbd5e1',fontWeight:600}}>{i+1}</div>
                       </div>
@@ -879,19 +879,19 @@ function GridVisSection() {
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#0ea5e9'}}>{st.direct}</div>
-              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>{t('visualiser.directFills')}</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#64748b',letterSpacing:.5}}>{t('visualiser.directFills')}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#22c55e'}}>{st.network}</div>
-              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>{t('visualiser.networkFills')}</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#64748b',letterSpacing:.5}}>{t('visualiser.networkFills')}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#6366f1'}}>${Math.round(st.earned)}</div>
-              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>{t('visualiser.uniLevel')}</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#64748b',letterSpacing:.5}}>{t('visualiser.uniLevel')}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#10b981'}}>${Math.round(st.bonus)}</div>
-              <div style={{fontSize:9,fontWeight:700,color:'#94a3b8',letterSpacing:.5}}>{t('visualiser.bonus')}</div>
+              <div style={{fontSize:9,fontWeight:700,color:'#64748b',letterSpacing:.5}}>{t('visualiser.bonus')}</div>
             </div>
           </div>
 
@@ -916,7 +916,7 @@ function GridVisSection() {
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16,flex:1,minHeight:180}}>
             <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#0ea5e9',marginBottom:10}}>{t('visualiser.liveCommissionFeed')}</div>
             <div style={{display:'flex',flexDirection:'column',gap:4,maxHeight:280,overflowY:'auto'}}>
-              {logs.length === 0 && <div style={{fontSize:11,color:'#94a3b8',textAlign:'center',padding:12}}>{t('visualiser.pressSimulateToStart')}</div>}
+              {logs.length === 0 && <div style={{fontSize:11,color:'#64748b',textAlign:'center',padding:12}}>{t('visualiser.pressSimulateToStart')}</div>}
               {logs.map(function(l, i) {
                 var color = DEPTH_COLORS[l.depth - 1];
                 return (
@@ -924,7 +924,7 @@ function GridVisSection() {
                     <div style={{display:'flex',alignItems:'center',gap:6}}>
                       <span style={{display:'inline-block',width:8,height:8,borderRadius:3,background:color,flexShrink:0}}/>
                       <span style={{fontWeight:700,color:'#0f172a'}}>{l.name}</span>
-                      <span style={{fontSize:10,color:'#94a3b8'}}>#{l.seat}</span>
+                      <span style={{fontSize:10,color:'#64748b'}}>#{l.seat}</span>
                       <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:3,color:color,
                         background:color+'12',border:'1px solid '+color+'25'}}>
                         {l.isDirect?'DIRECT':'L'+l.depth}
@@ -942,7 +942,7 @@ function GridVisSection() {
             <div style={{textAlign:'center',padding:16,background:'linear-gradient(135deg,rgba(74,222,128,.08),rgba(14,165,233,.08))',borderRadius:12,border:'1px solid rgba(74,222,128,.15)'}}>
               <div style={{fontSize:16,fontWeight:800,color:'#4ade80',marginBottom:6}}>{t('visualiser.gridComplete')}</div>
               <div style={{fontSize:12,color:'#64748b'}}>64 seats filled. Total earned: <strong style={{color:'#0ea5e9'}}>${Math.round(totalEarned).toLocaleString()}</strong></div>
-              <div style={{fontSize:11,color:'#94a3b8',marginTop:4}}>Grid advances to the next round. Future earnings require new network activity.</div>
+              <div style={{fontSize:11,color:'#64748b',marginTop:4}}>Grid advances to the next round. Future earnings require new network activity.</div>
             </div>
           )}
 

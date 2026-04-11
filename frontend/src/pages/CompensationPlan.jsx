@@ -97,7 +97,7 @@ export default function CompensationPlan() {
           </div>
           <div style={{ flex:1 }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#0f172a' }}>{s.title}</div>
-            <div style={{ fontSize:14, color:'#94a3b8', marginTop:2 }}>Income Stream {s.num} of 4</div>
+            <div style={{ fontSize:14, color:'#64748b', marginTop:2 }}>Income Stream {s.num} of 4</div>
           </div>
           {s.comingSoon && <div style={{ padding:'6px 16px', borderRadius:20, background:'rgba(245,158,11,.08)', fontSize:14, fontWeight:700, color:'#d97706' }}>Coming Soon</div>}
         </div>
@@ -228,7 +228,7 @@ function MembershipContent() {
       'No campaign tier required — earn from day one',
       'Commissions go to your Affiliate Wallet — withdraw anytime',
     ]} color="#16a34a"/>
-    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#94a3b8', textDecoration:'none' }}>Income Disclaimer →</Link></div>
+    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#64748b', textDecoration:'none' }}>Income Disclaimer →</Link></div>
   </>;
 }
 
@@ -275,7 +275,7 @@ function GridContent() {
       'Grid earnings go to your Campaign Wallet — requires active tier + daily watch quota',
       '5% of each tier purchase goes to the company — 95% is paid to members',
     ]} color="#6366f1"/>
-    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#94a3b8', textDecoration:'none' }}>Income Disclaimer →</Link></div>
+    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#64748b', textDecoration:'none' }}>Income Disclaimer →</Link></div>
   </>;
 }
 
@@ -308,11 +308,11 @@ function MatrixContent(props) {
 
     {/* Mini tree */}
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:8, padding:'16px 0', marginBottom:20 }}>
-      <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Your 3×3 Nexus (39 positions)</div>
+      <div style={{ fontSize:10, color:'#64748b', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Your 3×3 Nexus (39 positions)</div>
       <div style={{ display:'flex', gap:8 }}><TreeNode type="you" label="You"/></div>
-      <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Gold = Direct Referrals (15%)</div>
+      <div style={{ fontSize:10, color:'#64748b', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Gold = Direct Referrals (15%)</div>
       <div style={{ display:'flex', gap:8 }}><TreeNode type="direct"/><TreeNode type="direct"/><TreeNode type="direct"/></div>
-      <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Green = Auto-Place (10%)</div>
+      <div style={{ fontSize:10, color:'#64748b', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Green = Auto-Place (10%)</div>
       <div style={{ display:'flex', gap:8, flexWrap:'wrap', justifyContent:'center' }}>
         {Array.from({length:9}, function(_,i){ return <TreeNode key={i} type="spill"/>; })}
       </div>
@@ -339,7 +339,7 @@ function MatrixContent(props) {
         return [n, '$'+TIER_PRICES[i], TIER_CREDITS[i].toLocaleString(), '$'+(TIER_PRICES[i]*0.15).toFixed(2), '$'+(TIER_PRICES[i]*0.10).toFixed(2)];
       })
     }/>
-    <div style={{ fontSize:11, color:'#94a3b8', textAlign:'center', marginBottom:20 }}>Per-position earnings — you earn this amount each time a slot fills</div>
+    <div style={{ fontSize:11, color:'#64748b', textAlign:'center', marginBottom:20 }}>Per-position earnings — you earn this amount each time a slot fills</div>
 
     {/* Calculator */}
     <div style={{ background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:16, padding:28, marginBottom:20 }}>
@@ -397,7 +397,7 @@ function MatrixContent(props) {
       '65% of credit pack cost covers AI services and platform management',
       'Commissions go to your Affiliate Wallet — always withdrawable',
     ]} color="#8b5cf6"/>
-    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#94a3b8', textDecoration:'none' }}>Income Disclaimer →</Link></div>
+    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#64748b', textDecoration:'none' }}>Income Disclaimer →</Link></div>
   </>;
 }
 
@@ -432,7 +432,7 @@ function FlowArrow(props) {
     <div style={{ display:'grid', gridTemplateColumns:'1fr auto 1fr auto 1fr', alignItems:'center', gap:0, marginBottom:20 }}>
       {props.steps.map(function(s, i) {
         return <div key={i} style={{ display:'contents' }}>
-          {i > 0 && <div style={{ textAlign:'center', fontSize:24, color:'#cbd5e1', padding:'0 4px' }}>→</div>}
+          {i > 0 && <div style={{ textAlign:'center', fontSize:24, color:'#94a3b8', padding:'0 4px' }}>→</div>}
           <div style={{ background:s.bg, border:'1px solid '+s.border, borderRadius:12, padding:'18px 14px', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:15, fontWeight:800, color:'#0f172a' }}>{s.title}</div>
             <div style={{ fontSize:13, marginTop:4, fontWeight:600, color:s.color }}>{s.sub}</div>
@@ -458,7 +458,7 @@ function EarnTable(props) {
     <div style={{ overflowX:'auto', marginBottom:14 }}>
       <table style={{ width:'100%', borderCollapse:'separate', borderSpacing:0 }}>
         <thead><tr>{props.headers.map(function(h, i) {
-          return <th key={i} style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:.5, padding:'10px 14px', textAlign: i === props.headers.length-1 ? 'right' : 'left', borderBottom:'2px solid #f1f5f9' }}>{h}</th>;
+          return <th key={i} style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:.5, padding:'10px 14px', textAlign: i === props.headers.length-1 ? 'right' : 'left', borderBottom:'2px solid #f1f5f9' }}>{h}</th>;
         })}</tr></thead>
         <tbody>{props.rows.map(function(row, ri) {
           var isLast = ri === props.rows.length - 1;
@@ -491,7 +491,7 @@ function TreeNode(props) {
     direct: { background:'linear-gradient(135deg,#78350f,#b45309,#fbbf24)', color:'#fff' },
     spill:  { background:'linear-gradient(135deg,#064e3b,#047857,#10b981)', color:'#fff' },
     spill2: { background:'linear-gradient(135deg,#064e3b,#047857,#10b981)', color:'#fff', opacity:.7 },
-    empty:  { background:'#f1f5f9', border:'2px dashed #e2e8f0', color:'#cbd5e1' },
+    empty:  { background:'#f1f5f9', border:'2px dashed #e2e8f0', color:'#94a3b8' },
   };
   var s = styles[props.type] || styles.empty;
   var label = props.type === 'you' ? (props.label || 'You') : props.type === 'direct' ? '★' : props.type === 'empty' ? '' : '↓';

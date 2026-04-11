@@ -70,19 +70,19 @@ export default function GridVisualiser() {
         <div style={{ display:'flex', gap:16, marginBottom:24 }}>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#2563eb' }}>{filled}/{total}</div>
-            <div style={{ fontSize:12, color:'#94a3b8', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Positions Filled</div>
+            <div style={{ fontSize:12, color:'#64748b', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Positions Filled</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#16a34a' }}>${data ? data.bonus_accrued?.toFixed(2) : '0.00'}</div>
-            <div style={{ fontSize:12, color:'#94a3b8', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Bonus Accrued</div>
+            <div style={{ fontSize:12, color:'#64748b', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Bonus Accrued</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#f59e0b' }}>T{activeTier}</div>
-            <div style={{ fontSize:12, color:'#94a3b8', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Current Tier</div>
+            <div style={{ fontSize:12, color:'#64748b', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Current Tier</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#8b5cf6' }}>{data ? data.completed_advances : 0}</div>
-            <div style={{ fontSize:12, color:'#94a3b8', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Advances Complete</div>
+            <div style={{ fontSize:12, color:'#64748b', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Advances Complete</div>
           </div>
         </div>
 
@@ -127,7 +127,7 @@ export default function GridVisualiser() {
                 <div style={{ width:14, height:14, borderRadius:'50%', background:GREEN_GRAD, display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, fontWeight:800, color:'#fff' }}>↓</div> Auto-Place
               </div>
               <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#64748b', fontWeight:600 }}>
-                <div style={{ width:14, height:14, borderRadius:'50%', background:'#f1f5f9', border:'1px dashed #cbd5e1', display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, color:'#cbd5e1' }}>?</div> Empty
+                <div style={{ width:14, height:14, borderRadius:'50%', background:'#f1f5f9', border:'1px dashed #94a3b8', display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, color:'#94a3b8' }}>?</div> Empty
               </div>
             </div>
 
@@ -152,7 +152,7 @@ export default function GridVisualiser() {
                 }
                 return (
                   <div key={i} className="gv-seat empty">
-                    <div style={{ color:'#cbd5e1', fontWeight:700, fontSize:14 }}>{i+1}</div>
+                    <div style={{ color:'#94a3b8', fontWeight:700, fontSize:14 }}>{i+1}</div>
                   </div>
                 );
               })}
@@ -176,11 +176,11 @@ export default function GridVisualiser() {
               </div>
             </div>
             <div style={{ textAlign:'right', minWidth:200 }}>
-              <div style={{ fontSize:11, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:.5 }}>Accrued so far</div>
+              <div style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:.5 }}>Accrued so far</div>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:900, color: isComplete ? '#16a34a' : '#f59e0b', lineHeight:1.1, marginTop:2 }}>
                 ${bonusAccrued.toFixed(2)}
               </div>
-              <div style={{ fontSize:12, color:'#94a3b8', marginTop:2, fontWeight:600 }}>of ${bonusMax.toFixed(2)} max</div>
+              <div style={{ fontSize:12, color:'#64748b', marginTop:2, fontWeight:600 }}>of ${bonusMax.toFixed(2)} max</div>
               <div style={{ height:8, background:'#fef3c7', borderRadius:4, marginTop:10, overflow:'hidden' }}>
                 <div style={{ height:'100%', borderRadius:4, width:bonusPct+'%', background:'linear-gradient(90deg,#f59e0b,#fbbf24)', transition:'width .5s' }}/>
               </div>
