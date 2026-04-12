@@ -202,7 +202,7 @@
     "getMyReferralLink": "मेरा रेफरल लिंक प्राप्त करें →",
     "welcomeBack": "वापसी पर स्वागत है",
     "networkMembers": "आपके नेटवर्क में {{count}} सदस्य हैं",
-    "andEarned": "और सभी आय स्रोतों से ${amount} कमाया",
+    "andEarned": "और सभी आय स्रोतों से ${{amount}} कमाया",
     "yourLink": "आपका लिंक",
     "copy": "कॉपी करें",
     "copied": "कॉपी हो गया!",

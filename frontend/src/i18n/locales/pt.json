@@ -202,7 +202,7 @@
     "getMyReferralLink": "Obter meu link de indicação →",
     "welcomeBack": "Bem-vindo de volta",
     "networkMembers": "Você tem {{count}} membros na sua rede",
-    "andEarned": "e ganhou ${amount} em todas as fontes de renda",
+    "andEarned": "e ganhou ${{amount}} em todas as fontes de renda",
     "yourLink": "Seu link",
     "copy": "Copiar",
     "copied": "Copiado!",

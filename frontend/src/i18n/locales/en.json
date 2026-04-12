@@ -172,7 +172,7 @@
     "getMyReferralLink": "Get my referral link →",
     "welcomeBack": "Welcome back",
     "networkMembers": "You have {{count}} members in your network",
-    "andEarned": "and earned ${amount} across all income streams",
+    "andEarned": "and earned ${{amount}} across all income streams",
     "yourLink": "Your link",
     "copy": "Copy",
     "copied": "Copied!",
