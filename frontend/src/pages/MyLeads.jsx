@@ -73,8 +73,8 @@ export default function MyLeads() {
       <div style={{background:'#fff',borderRadius:14,padding:'24px 28px',marginBottom:20,border:'1px solid #e2e8f0'}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
           <div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:4}}>Contacts</div>
-            <div style={{fontSize:14,color:'var(--sap-text-muted)'}}>Manage your leads, email sequences, and broadcasts</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:4}}>{t('myLeads.title')}</div>
+            <div style={{fontSize:14,color:'var(--sap-text-muted)'}}>{t('myLeads.subtitle')}</div>
           </div>
           <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:5,padding:'8px 16px',borderRadius:8,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-text-secondary)',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',flexShrink:0}}><HelpCircle size={14}/> Help</button>
         </div>
@@ -122,12 +122,12 @@ function LeadsTab({leads,lists,sequences,refresh,flash}) {
       <div style={{fontSize:13,color:'var(--sap-text-muted)',fontWeight:600}}>{filtered.length} contacts</div>
     </div>
     {filtered.length>0?<div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:13,minWidth:600}}><thead><tr>
-      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>CONTACT</th>
-      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>EMAIL</th>
-      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>STATUS</th>
-      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>LIST</th>
-      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>EMAILS</th>
-      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>SEQUENCE</th>
+      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.contact')}</th>
+      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.email')}</th>
+      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.status')}</th>
+      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.list')}</th>
+      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.emails')}</th>
+      <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.sequence')}</th>
       <th style={{textAlign:'right',padding:'14px 18px',borderBottom:'1px solid #e2e8f0'}}></th>
     </tr></thead><tbody>{filtered.map(function(l){var st=STATUS_STYLES[l.is_hot?'hot':l.status]||STATUS_STYLES.new;var li=lm[l.list_id];return <tr key={l.id} className="sl-row" style={{borderBottom:'1px solid #f1f5f9'}}>
       <td style={{padding:'14px 18px',fontWeight:600,color:'var(--sap-text-primary)',fontSize:14}}>{l.name||'—'}</td>
@@ -138,7 +138,7 @@ function LeadsTab({leads,lists,sequences,refresh,flash}) {
       <td style={{padding:'14px 18px'}}><CustomSelect value={String(l.sequence_id||'')} onChange={function(v){assignSeq(l.id,v);}} small={true} style={{maxWidth:140}} options={[{value:'',label:'None'}].concat(sequences.map(function(s){return {value:String(s.id),label:s.title};}))}/></td>
       <td style={{padding:'14px 18px',textAlign:'right'}}><button onClick={function(){del(l.id);}} style={{padding:'5px 10px',borderRadius:6,border:'1px solid #fecaca',background:'#fff',color:'var(--sap-red)',fontSize:11,cursor:'pointer',fontFamily:'inherit'}}><Trash2 size={12}/></button></td>
     </tr>;})}</tbody></table></div>
-    :<div style={{textAlign:'center',padding:'60px 20px'}}><UserPlus size={32} color="var(--sap-text-ghost)" style={{marginBottom:8}}/><div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-muted)'}}>No leads yet</div><div style={{fontSize:12,color:'var(--sap-text-muted)',marginTop:4}}>Leads are captured from your SuperPages funnel forms</div></div>}
+    :<div style={{textAlign:'center',padding:'60px 20px'}}><UserPlus size={32} color="var(--sap-text-ghost)" style={{marginBottom:8}}/><div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-muted)'}}>{t('myLeads.noLeads')}</div><div style={{fontSize:12,color:'var(--sap-text-muted)',marginTop:4}}>{t('myLeads.noLeadsDesc')}</div></div>}
   </div>;
 }
 
@@ -152,16 +152,16 @@ function SeqTab({sequences,refresh,flash}) {
   function sendNext(sid){apiPost('/api/leads/send-sequence-email',{sequence_id:sid}).then(function(r){flash('Sent '+(r.sent||0)+' emails');refresh();}).catch(function(e){flash(e.message,'err');});}
 
   if(ed!==null)return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
-    <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9',display:'flex',justifyContent:'space-between',alignItems:'center'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800}}>{ed==='new'?'Create':'Edit'} Sequence</div><button onClick={function(){setEd(null);}} style={{fontSize:12,color:'var(--sap-text-muted)',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit'}}>Cancel</button></div>
+    <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9',display:'flex',justifyContent:'space-between',alignItems:'center'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800}}>{ed==='new'?'Create':'Edit'} Sequence</div><button onClick={function(){setEd(null);}} style={{fontSize:12,color:'var(--sap-text-muted)',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit'}}>{t('myLeads.cancel')}</button></div>
     <div style={{padding:'20px 24px'}}>
-      <div style={{marginBottom:16}}><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Sequence name</label><input value={t} onChange={function(e){setT(e.target.value);}} placeholder="e.g. Fitness Welcome Series" style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
+      <div style={{marginBottom:16}}><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('myLeads.sequenceName')}</label><input value={t} onChange={function(e){setT(e.target.value);}} placeholder="e.g. Fitness Welcome Series" style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
       {em.map(function(e,i){var color=TC[i%TC.length];return <div key={i} style={{background:'var(--sap-bg-input)',borderRadius:12,padding:16,marginBottom:10,border:'1px solid #e8ecf2',borderLeft:'3px solid '+color}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}><span style={{fontSize:12,fontWeight:800,color:color}}>Email {i+1}</span><div style={{display:'flex',gap:6,alignItems:'center'}}><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>after</span><input type="number" min="0" value={e.send_delay_days} onChange={function(ev){setEm(em.map(function(x,j){return j===i?Object.assign({},x,{send_delay_days:parseInt(ev.target.value)||0}):x;}));}} style={{width:45,padding:4,border:'1px solid #e2e8f0',borderRadius:5,fontSize:11,textAlign:'center'}}/><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>days</span>{em.length>1&&<button onClick={function(){setEm(em.filter(function(x,j){return j!==i;}));}} style={{color:'var(--sap-red)',background:'none',border:'none',cursor:'pointer',padding:2}}><Trash2 size={12}/></button>}</div></div>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}><span style={{fontSize:12,fontWeight:800,color:color}}>Email {i+1}</span><div style={{display:'flex',gap:6,alignItems:'center'}}><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>{t('myLeads.after')}</span><input type="number" min="0" value={e.send_delay_days} onChange={function(ev){setEm(em.map(function(x,j){return j===i?Object.assign({},x,{send_delay_days:parseInt(ev.target.value)||0}):x;}));}} style={{width:45,padding:4,border:'1px solid #e2e8f0',borderRadius:5,fontSize:11,textAlign:'center'}}/><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>{t('myLeads.days')}</span>{em.length>1&&<button onClick={function(){setEm(em.filter(function(x,j){return j!==i;}));}} style={{color:'var(--sap-red)',background:'none',border:'none',cursor:'pointer',padding:2}}><Trash2 size={12}/></button>}</div></div>
         <input value={e.subject} onChange={function(ev){setEm(em.map(function(x,j){return j===i?Object.assign({},x,{subject:ev.target.value}):x;}));}} placeholder="Subject line" style={{width:'100%',padding:'9px 12px',border:'1.5px solid #e2e8f0',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',marginBottom:8,background:'#fff'}}/>
         <RichTextEditor content={e.body_html} onChange={function(h){setEm(em.map(function(x,j){return j===i?Object.assign({},x,{body_html:h}):x;}));}} placeholder="Email body..."/>
       </div>;})}
       <button onClick={function(){setEm(em.concat([{subject:'',body_html:'',send_delay_days:(em.length>0?(em[em.length-1].send_delay_days||0)+2:0)}]));}} style={{display:'flex',alignItems:'center',gap:4,padding:'8px 14px',borderRadius:8,border:'1.5px solid #e8ecf2',background:'#fff',color:'var(--sap-indigo)',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit',marginBottom:20}}><Plus size={12}/> Add email</button>
-      <button onClick={save} style={{padding:'12px 28px',borderRadius:10,border:'none',background:'linear-gradient(135deg,#6366f1,#818cf8)',color:'#fff',fontSize:13,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif'}}>Save Sequence</button>
+      <button onClick={save} style={{padding:'12px 28px',borderRadius:10,border:'none',background:'linear-gradient(135deg,#6366f1,#818cf8)',color:'#fff',fontSize:13,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif'}}>{t('myLeads.saveSequence')}</button>
     </div></div>;
 
   return <div>
@@ -174,9 +174,9 @@ function SeqTab({sequences,refresh,flash}) {
         <div><div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)'}}>{sq.title}</div><div style={{fontSize:11,color:'var(--sap-text-muted)',marginTop:2}}>{sq.num_emails} emails</div></div>
         <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
           <span style={{padding:'4px 10px',borderRadius:6,background:sq.is_active?'var(--sap-green-bg)':'var(--sap-bg-page)',color:sq.is_active?'var(--sap-green-dark)':'var(--sap-text-muted)',fontSize:10,fontWeight:700}}>{sq.is_active?'Active':'Paused'}</span>
-          <button onClick={function(){sendNext(sq.id);}} style={{padding:'4px 12px',borderRadius:6,border:'none',background:'var(--sap-green)',color:'#fff',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Send Next</button>
-          <button onClick={function(){editEx(sq);}} style={{padding:'4px 12px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-text-secondary)',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Edit</button>
-          <button onClick={function(){delSeq(sq.id);}} style={{padding:'4px 12px',borderRadius:6,border:'1px solid #fecaca',background:'#fff',color:'var(--sap-red)',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Delete</button>
+          <button onClick={function(){sendNext(sq.id);}} style={{padding:'4px 12px',borderRadius:6,border:'none',background:'var(--sap-green)',color:'#fff',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>{t('myLeads.sendNext')}</button>
+          <button onClick={function(){editEx(sq);}} style={{padding:'4px 12px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-text-secondary)',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>{t('myLeads.edit')}</button>
+          <button onClick={function(){delSeq(sq.id);}} style={{padding:'4px 12px',borderRadius:6,border:'1px solid #fecaca',background:'#fff',color:'var(--sap-red)',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>{t('myLeads.delete')}</button>
         </div>
       </div>
       {se.length>0&&<div style={{padding:'18px 20px',display:'flex',alignItems:'center',overflowX:'auto'}}>{se.map(function(e,i){var c=TC[i%TC.length];var last=i===se.length-1;return <div key={i} style={{display:'flex',alignItems:'center',flex:last?'0 0 auto':1}}>
@@ -187,7 +187,7 @@ function SeqTab({sequences,refresh,flash}) {
         </div>
         {!last&&<div style={{flex:1,height:2,background:'var(--sap-border)',margin:'0 4px',marginBottom:24}}/>}
       </div>;})}</div>}
-    </div>;}):<div style={{textAlign:'center',padding:'60px 20px',background:'#fff',borderRadius:14,border:'1px solid #e2e8f0'}}><Zap size={32} color="var(--sap-text-ghost)" style={{marginBottom:8}}/><div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-muted)'}}>No sequences yet</div><div style={{fontSize:12,color:'var(--sap-text-muted)',marginTop:4}}>Create a sequence to start nurturing your leads automatically</div></div>}
+    </div>;}):<div style={{textAlign:'center',padding:'60px 20px',background:'#fff',borderRadius:14,border:'1px solid #e2e8f0'}}><Zap size={32} color="var(--sap-text-ghost)" style={{marginBottom:8}}/><div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-muted)'}}>{t('myLeads.noSequences')}</div><div style={{fontSize:12,color:'var(--sap-text-muted)',marginTop:4}}>{t('myLeads.noSequencesDesc')}</div></div>}
   </div>;
 }
 
@@ -197,15 +197,15 @@ function BcastTab({leads,lists,flash}) {
   function send(){if(!sub.trim()){flash('Subject required','err');return;}setS(true);apiPost('/api/leads/broadcast',{subject:sub,html_content:html,filter_status:fS,list_id:fL?parseInt(fL):null}).then(function(r){setS(false);setSent(r.sent||0);flash('Broadcast sent to '+(r.sent||0)+' leads');}).catch(function(e){setS(false);flash(e.message,'err');});}
 
   return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
-    <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:4}}>Broadcast</div><div style={{fontSize:12,color:'var(--sap-text-muted)'}}>Send a one-off email to your leads</div></div>
+    <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:4}}>{t('myLeads.broadcastTitle')}</div><div style={{fontSize:12,color:'var(--sap-text-muted)'}}>{t('myLeads.broadcastDesc')}</div></div>
     <div style={{padding:'20px 24px'}}>
       <div style={{display:'flex',gap:10,marginBottom:16}}>
-        <div style={{flex:1}}><label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>List</label><CustomSelect value={fL} onChange={setFL} options={[{value:'',label:'All lists'}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))}/></div>
-        <div style={{flex:1}}><label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>Status</label><CustomSelect value={fS} onChange={setFS} options={[{value:'all',label:'All'},{value:'new',label:'New'},{value:'nurturing',label:'Nurturing'},{value:'hot',label:'Hot'}]}/></div>
+        <div style={{flex:1}}><label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('myLeads.listLabel')}</label><CustomSelect value={fL} onChange={setFL} options={[{value:'',label:'All lists'}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))}/></div>
+        <div style={{flex:1}}><label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('myLeads.statusLabel')}</label><CustomSelect value={fS} onChange={setFS} options={[{value:'all',label:'All'},{value:'new',label:'New'},{value:'nurturing',label:'Nurturing'},{value:'hot',label:'Hot'}]}/></div>
         <div style={{display:'flex',alignItems:'flex-end',paddingBottom:2}}><span style={{fontSize:14,fontWeight:800,color:'var(--sap-indigo)'}}>{ct} recipients</span></div>
       </div>
-      <div style={{marginBottom:16}}><label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>Subject</label><input value={sub} onChange={function(e){setSub(e.target.value);}} style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
-      <div style={{marginBottom:16}}><label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>Content</label><RichTextEditor content={html} onChange={setHtml} placeholder="Write your broadcast email..."/></div>
+      <div style={{marginBottom:16}}><label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('myLeads.subjectLabel')}</label><input value={sub} onChange={function(e){setSub(e.target.value);}} style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
+      <div style={{marginBottom:16}}><label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('myLeads.contentLabel')}</label><RichTextEditor content={html} onChange={setHtml} placeholder="Write your broadcast email..."/></div>
       <button onClick={send} disabled={s} style={{display:'flex',alignItems:'center',gap:6,padding:'12px 24px',borderRadius:10,border:'none',background:s?'var(--sap-text-ghost)':'linear-gradient(135deg,#16a34a,#22c55e)',color:'#fff',fontSize:13,fontWeight:800,cursor:s?'default':'pointer',fontFamily:'Sora,sans-serif'}}><Send size={14}/>{s?'Sending...':'Send to '+ct}</button>
       {sent!==null&&<div style={{marginTop:10,fontSize:12,fontWeight:700,color:'var(--sap-green)'}}>Sent to {sent} leads</div>}
     </div></div>;
@@ -250,14 +250,14 @@ function ImpTab({stats,lists,sequences,refresh,flash}) {
 
   return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
     <div style={{padding:'20px 24px',borderBottom:'1px solid #f1f5f9'}}>
-      <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,marginBottom:4}}>Import Leads</div>
+      <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,marginBottom:4}}>{t('myLeads.importLeads')}</div>
       <div style={{fontSize:13,color:'var(--sap-text-secondary)'}}>Upload leads from CSV, another autoresponder, or paste manually. Supports comma, semicolon, and tab delimited formats.</div>
     </div>
     <div style={{padding:'20px 24px'}}>
       {/* Lead count + capacity */}
       <div style={{display:'flex',gap:12,marginBottom:20}}>
         <div style={{flex:1,background:'rgba(99,102,241,.04)',border:'1px solid rgba(99,102,241,.12)',borderRadius:10,padding:'14px 16px'}}>
-          <div style={{fontSize:11,fontWeight:700,color:'var(--sap-indigo)'}}>Current leads</div>
+          <div style={{fontSize:11,fontWeight:700,color:'var(--sap-indigo)'}}>{t('myLeads.currentLeads')}</div>
           <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'var(--sap-indigo)'}}>{stats.total||0}<span style={{fontSize:13,color:'var(--sap-text-secondary)',fontWeight:500}}> / {stats.limit||5000}</span></div>
           <div style={{width:'100%',height:4,background:'var(--sap-border)',borderRadius:2,marginTop:8}}><div style={{height:4,background:'var(--sap-indigo)',borderRadius:2,width:Math.min(100,((stats.total||0)/(stats.limit||5000))*100)+'%'}}/></div>
         </div>
@@ -265,17 +265,17 @@ function ImpTab({stats,lists,sequences,refresh,flash}) {
 
       {/* Import settings */}
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:20}}>
-        <div><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Assign to list</label><CustomSelect value={listId} onChange={setListId} options={[{value:'',label:'No list (unsorted)'}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))}/></div>
-        <div><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Auto-assign sequence</label><CustomSelect value={seqId} onChange={setSeqId} options={[{value:'',label:'No sequence'}].concat(sequences.map(function(s){return {value:String(s.id),label:s.title};}))}/></div>
-        <div><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Import as status</label><CustomSelect value={impStatus} onChange={setImpStatus} options={[{value:'new',label:'New'},{value:'hot',label:'Hot'},{value:'nurturing',label:'Nurturing'}]}/></div>
-        <div><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Source label</label><input value={source} onChange={function(e){setSource(e.target.value);}} placeholder="e.g. Mailchimp export, Facebook ads" style={{width:'100%',padding:'10px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
+        <div><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('myLeads.assignToList')}</label><CustomSelect value={listId} onChange={setListId} options={[{value:'',label:'No list (unsorted)'}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))}/></div>
+        <div><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('myLeads.autoAssignSequence')}</label><CustomSelect value={seqId} onChange={setSeqId} options={[{value:'',label:'No sequence'}].concat(sequences.map(function(s){return {value:String(s.id),label:s.title};}))}/></div>
+        <div><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('myLeads.importAsStatus')}</label><CustomSelect value={impStatus} onChange={setImpStatus} options={[{value:'new',label:'New'},{value:'hot',label:'Hot'},{value:'nurturing',label:'Nurturing'}]}/></div>
+        <div><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('myLeads.sourceLabel')}</label><input value={source} onChange={function(e){setSource(e.target.value);}} placeholder="e.g. Mailchimp export, Facebook ads" style={{width:'100%',padding:'10px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
       </div>
 
       {/* Upload area */}
       <label style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8,padding:32,borderRadius:12,border:'2px dashed #d1d5db',cursor:'pointer',marginBottom:12,transition:'border-color .15s,background .15s',background:'#fafbfc'}} onMouseEnter={function(e){e.currentTarget.style.borderColor='var(--sap-indigo)';e.currentTarget.style.background='#f5f3ff';}} onMouseLeave={function(e){e.currentTarget.style.borderColor='#d1d5db';e.currentTarget.style.background='#fafbfc';}}>
         <Upload size={28} color="var(--sap-indigo)"/>
-        <span style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)'}}>Upload CSV file</span>
-        <span style={{fontSize:12,color:'var(--sap-text-muted)'}}>or paste email addresses below</span>
+        <span style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)'}}>{t('myLeads.uploadCsv')}</span>
+        <span style={{fontSize:12,color:'var(--sap-text-muted)'}}>{t('myLeads.orPasteBelow')}</span>
         <input type="file" accept=".csv,.txt,.tsv" onChange={function(e){var f=e.target.files[0];if(f){var rd=new FileReader();rd.onload=function(ev){setCsv(ev.target.result);setParsed([]);setResult(null);};rd.readAsText(f);}}} style={{display:'none'}}/>
       </label>
 
@@ -283,14 +283,14 @@ function ImpTab({stats,lists,sequences,refresh,flash}) {
 
       {/* Preview + Import buttons */}
       <div style={{display:'flex',gap:8,marginBottom:16,alignItems:'center'}}>
-        <button onClick={parse} style={{padding:'10px 20px',borderRadius:8,border:'1.5px solid #e2e8f0',background:'#fff',color:'var(--sap-indigo)',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Preview & Validate</button>
+        <button onClick={parse} style={{padding:'10px 20px',borderRadius:8,border:'1.5px solid #e2e8f0',background:'#fff',color:'var(--sap-indigo)',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>{t('myLeads.previewValidate')}</button>
         {parsed.length>0 && <span style={{fontSize:12,fontWeight:700,color:'var(--sap-green)'}}>{parsed.length} valid emails found</span>}
       </div>
 
       {/* Preview table */}
       {parsed.length>0 && <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,border:'1px solid #e2e8f0',marginBottom:16,maxHeight:200,overflowY:'auto'}}>
         <table style={{width:'100%',borderCollapse:'collapse',fontSize:12}}>
-          <thead><tr><th style={{textAlign:'left',padding:'8px 14px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>Email</th><th style={{textAlign:'left',padding:'8px 14px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>Name</th></tr></thead>
+          <thead><tr><th style={{textAlign:'left',padding:'8px 14px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.emailCol')}</th><th style={{textAlign:'left',padding:'8px 14px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.nameCol')}</th></tr></thead>
           <tbody>{parsed.slice(0,20).map(function(l,i){return <tr key={i} style={{borderTop:i>0?'1px solid #f1f5f9':'none'}}><td style={{padding:'6px 14px',color:'var(--sap-text-primary)'}}>{l.email}</td><td style={{padding:'6px 14px',color:'var(--sap-text-secondary)'}}>{l.name||'—'}</td></tr>;})}</tbody>
         </table>
         {parsed.length>20 && <div style={{padding:'8px 14px',fontSize:11,color:'var(--sap-text-muted)',borderTop:'1px solid #e2e8f0'}}>...and {parsed.length-20} more</div>}
@@ -314,7 +314,7 @@ function ImpTab({stats,lists,sequences,refresh,flash}) {
 
       {/* Format help */}
       <div style={{marginTop:20,padding:'14px 18px',background:'var(--sap-bg-elevated)',borderRadius:10,border:'1px solid #f1f5f9'}}>
-        <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:6}}>Accepted formats</div>
+        <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:6}}>{t('myLeads.acceptedFormats')}</div>
         <div style={{fontSize:12,color:'var(--sap-text-muted)',lineHeight:1.8}}>
           CSV from Mailchimp, AWeber, ConvertKit, ActiveCampaign, or any email platform. Format: <code style={{background:'var(--sap-border)',padding:'2px 6px',borderRadius:4,fontSize:11}}>email,name</code> (one per line). Comma, semicolon, and tab delimiters supported. Disposable email addresses are automatically filtered.
         </div>
@@ -329,14 +329,14 @@ function BoostTab({emailStats,refresh,flash}) {
 
   return <div>
     <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,padding:'20px 24px',marginBottom:16}}>
-      <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:12}}>Email Credits</div>
+      <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:12}}>{t('myLeads.emailCredits')}</div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10}}>
-        <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Free today</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-green)'}}>{emailStats.free_remaining||0}</div><div style={{fontSize:10,color:'var(--sap-text-muted)'}}>of {emailStats.daily_limit||200}</div></div>
-        <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Boost credits</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-purple)'}}>{(emailStats.boost_credits||0).toLocaleString()}</div></div>
-        <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Total available</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-accent)'}}>{(emailStats.total_available||0).toLocaleString()}</div></div>
+        <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>{t('myLeads.freeToday')}</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-green)'}}>{emailStats.free_remaining||0}</div><div style={{fontSize:10,color:'var(--sap-text-muted)'}}>of {emailStats.daily_limit||200}</div></div>
+        <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>{t('myLeads.boostCredits')}</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-purple)'}}>{(emailStats.boost_credits||0).toLocaleString()}</div></div>
+        <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}><div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>{t('myLeads.totalAvailable')}</div><div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-accent)'}}>{(emailStats.total_available||0).toLocaleString()}</div></div>
       </div>
     </div>
-    <div style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,marginBottom:12}}>Buy Email Boost Packs</div>
+    <div style={{fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:800,marginBottom:12}}>{t('myLeads.buyBoostPacks')}</div>
     <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:10}}>
       {packs.map(function(pk){var ib=buying===pk.id;return <div key={pk.id} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:'18px 20px',display:'flex',flexDirection:'column'}}>
         <div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:2}}>{(pk.label||'').replace(/[^\w\s,]/g,'')}</div>
@@ -347,6 +347,6 @@ function BoostTab({emailStats,refresh,flash}) {
         </div>
       </div>;})}
     </div>
-    <div style={{fontSize:11,color:'var(--sap-text-muted)',marginTop:12,textAlign:'center'}}>Boost credits are paid from your wallet balance. Credits never expire.</div>
+    <div style={{fontSize:11,color:'var(--sap-text-muted)',marginTop:12,textAlign:'center'}}>{t('myLeads.boostCreditsDesc')}</div>
   </div>;
 }
