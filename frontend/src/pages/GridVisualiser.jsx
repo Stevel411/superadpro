@@ -64,27 +64,27 @@ export default function GridVisualiser() {
         {/* Hero */}
         <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:18, padding:'32px 36px', marginBottom:24, position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:-50, right:-50, width:180, height:180, borderRadius:'50%', background:'rgba(255,255,255,.05)', pointerEvents:'none' }}/>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:900, color:'#fff', marginBottom:6 }}>{t('visualiser.incomeGrid')}</div>
-          <div style={{ fontSize:14, color:'rgba(255,255,255,.65)' }}>{t('visualiser.gridDescFull')}</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:900, color:'#fff', marginBottom:6 }}>{tr('visualiser.incomeGrid')}</div>
+          <div style={{ fontSize:14, color:'rgba(255,255,255,.65)' }}>{tr('visualiser.gridDescFull')}</div>
         </div>
 
         {/* Stats */}
         <div style={{ display:'flex', gap:16, marginBottom:24 }}>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#2563eb' }}>{filled}/{total}</div>
-            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('visualiser.positionsFilled')}</div>
+            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{tr('visualiser.positionsFilled')}</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'var(--sap-green)' }}>${data ? data.bonus_accrued?.toFixed(2) : '0.00'}</div>
-            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('visualiser.bonusAccrued')}</div>
+            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{tr('visualiser.bonusAccrued')}</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'var(--sap-amber)' }}>T{activeTier}</div>
-            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('visualiser.currentTier')}</div>
+            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{tr('visualiser.currentTier')}</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'var(--sap-purple)' }}>{data ? data.completed_advances : 0}</div>
-            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('visualiser.advancesComplete')}</div>
+            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{tr('visualiser.advancesComplete')}</div>
           </div>
         </div>
 
@@ -169,7 +169,7 @@ export default function GridVisualiser() {
             <div style={{ display:'flex', alignItems:'center', gap:16, flex:1 }}>
               <div style={{ fontSize:40, flexShrink:0 }}>{isComplete ? '🎉' : '🏆'}</div>
               <div>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:4 }}>{t('visualiser.completionBonusPool')}</div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:4 }}>{tr('visualiser.completionBonusPool')}</div>
                 <div style={{ fontSize:13, color:'var(--sap-text-muted)', lineHeight:1.5, maxWidth:320 }}>
                   {isComplete
                     ? 'Congratulations! Your grid is complete and the full bonus has been paid out.'
@@ -178,7 +178,7 @@ export default function GridVisualiser() {
               </div>
             </div>
             <div style={{ textAlign:'right', minWidth:200 }}>
-              <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5 }}>{t('visualiser.accruedSoFar')}</div>
+              <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5 }}>{tr('visualiser.accruedSoFar')}</div>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:900, color: isComplete ? 'var(--sap-green)' : 'var(--sap-amber)', lineHeight:1.1, marginTop:2 }}>
                 ${bonusAccrued.toFixed(2)}
               </div>
