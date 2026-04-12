@@ -105,6 +105,8 @@ var HELP_SECTIONS = [
 ];
 
 export default function LinkToolsHelp({ visible, onClose }) {
+
+  var { t } = useTranslation();
   var _a = useState(''), search = _a[0], setSearch = _a[1];
   var _b = useState({}), expanded = _b[0], setExpanded = _b[1];
 

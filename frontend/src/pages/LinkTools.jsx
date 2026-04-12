@@ -790,6 +790,8 @@ export default function LinkTools() {
 
 // ── QR Code Display Component ──
 function QrCodeDisplay({ url, slug }) {
+
+  var { t } = useTranslation();
   var canvasRef = useRef(null);
   var [size, setSize] = useState(256);
   var [fgColor, setFgColor] = useState('var(--sap-text-primary)');

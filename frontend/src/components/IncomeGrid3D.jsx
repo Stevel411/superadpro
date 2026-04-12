@@ -226,6 +226,8 @@ function Scene({ tierIdx, filled }) {
 }
 
 export default function IncomeGrid3D({ showControls, height, autoPlay }) {
+
+  var { t } = useTranslation();
   var [tierIdx, setTierIdx] = useState(0);
   var [filled, setFilled] = useState(0);
   var intervalRef = useRef(null);

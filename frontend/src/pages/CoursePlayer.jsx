@@ -17,6 +17,8 @@ function getVimeoId(url) {
 }
 
 function VideoPlayer({ url }) {
+
+  var { t } = useTranslation();
   var ytId = getYouTubeId(url);
   var vmId = getVimeoId(url);
 

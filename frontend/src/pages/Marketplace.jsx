@@ -21,6 +21,8 @@ var CATEGORIES = [
 ];
 
 export default function SuperMarket() {
+
+  var { t } = useTranslation();
   var [view, setView] = useState('browse');
   var [products, setProducts] = useState([]);
   var [myProducts, setMyProducts] = useState([]);
@@ -65,6 +67,8 @@ export default function SuperMarket() {
 }
 
 function BrowseView({ products, allProducts, search, setSearch, category, setCategory, sortBy, setSortBy, onOpen, onMyProducts, onCreate }) {
+
+  var { t } = useTranslation();
   return (
     <div>
       {/* Hero — Cyan Theme */}
@@ -168,6 +172,8 @@ function BrowseView({ products, allProducts, search, setSearch, category, setCat
 }
 
 function ProductCard({ product, onOpen }) {
+
+  var { t } = useTranslation();
   var p=product;
   var catObj=CATEGORIES.find(function(x){return x.key===p.category;})||CATEGORIES[CATEGORIES.length-1];
   return (
@@ -203,6 +209,8 @@ function ProductCard({ product, onOpen }) {
 }
 
 function ProductDetail({ product, onBack, currentUserId }) {
+
+  var { t } = useTranslation();
   var [copied, setCopied] = useState(false);
   var p = product;
   var isOwner = currentUserId && p.creator_id === currentUserId;
@@ -299,6 +307,8 @@ function ProductDetail({ product, onBack, currentUserId }) {
 }
 
 function MyProducts({ products, onBack, onCreate, onReload }) {
+
+  var { t } = useTranslation();
   var [deleting, setDeleting] = useState('');
 
   function handleDelete(id, title, hasSales) {

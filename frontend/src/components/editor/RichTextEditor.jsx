@@ -14,6 +14,8 @@ import {
 } from 'lucide-react';
 
 export default function RichTextEditor({ content, onChange, placeholder }) {
+
+  var { t } = useTranslation();
   var [linkUrl, setLinkUrl] = useState('');
   var [showLinkInput, setShowLinkInput] = useState(false);
   var [showImageInput, setShowImageInput] = useState(false);

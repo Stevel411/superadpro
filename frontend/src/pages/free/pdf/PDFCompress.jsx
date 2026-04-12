@@ -3,6 +3,8 @@ import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 export default function PDFCompress() {
+
+  var { t } = useTranslation();
   const [file, setFile] = useState(null);
   const [compressing, setCompressing] = useState(false);
   const [result, setResult] = useState(null);

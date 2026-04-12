@@ -344,6 +344,8 @@ export default function SuperPagesEditor() {
 
 // ═══ Element Editor Modal ═══
 function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }) {
+
+  var { t } = useTranslation();
   const actualEl = els.find(x => x.id === elId) || el;
   const [localTxt, setLocalTxt] = useState(actualEl.txt || '');
   const [localUrl, setLocalUrl] = useState(actualEl.url || '');
@@ -478,6 +480,8 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
 
 // ── Specialised sub-editors ──
 function CountdownEditor({ elId, el, updateElement, markDirty, onClose }) {
+
+  var { t } = useTranslation();
   const [date, setDate] = useState(el._targetDate || '');
   return <>
     <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>{t('superPagesEditor.targetDateTime')}</label>
@@ -488,6 +492,8 @@ function CountdownEditor({ elId, el, updateElement, markDirty, onClose }) {
 }
 
 function ProgressEditor({ elId, el, updateElement, markDirty, onClose }) {
+
+  var { t } = useTranslation();
   const [lbl, setLbl] = useState(el._label || 'Progress');
   const [pct, setPct] = useState(el._percent || 75);
   const [clr, setClr] = useState(el._color || 'var(--sap-accent)');
@@ -511,6 +517,8 @@ function ProgressEditor({ elId, el, updateElement, markDirty, onClose }) {
 }
 
 function AudioEditor({ elId, el, updateElement, markDirty, onClose }) {
+
+  var { t } = useTranslation();
   const [url, setUrl] = useState(el._audioUrl || '');
   const [uploading, setUploading] = useState(false);
   const upload = async (e) => {
@@ -537,6 +545,8 @@ function AudioEditor({ elId, el, updateElement, markDirty, onClose }) {
 }
 
 function EmbedEditor({ elId, el, updateElement, markDirty, onClose }) {
+
+  var { t } = useTranslation();
   const [code, setCode] = useState(el._embedCode || '');
   return <>
     <label style={lblStyle}>{t('superPagesEditor.htmlEmbedCode')}</label>
@@ -547,6 +557,8 @@ function EmbedEditor({ elId, el, updateElement, markDirty, onClose }) {
 }
 
 function SocialEditor({ elId, el, updateElement, markDirty, onClose }) {
+
+  var { t } = useTranslation();
   // Clean up legacy '#' values — treat them as empty
   const cleanLinks = (raw) => {
     const clean = {};
@@ -572,6 +584,8 @@ function SocialEditor({ elId, el, updateElement, markDirty, onClose }) {
 }
 
 function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
+
+  var { t } = useTranslation();
   const [txt, setTxt] = useState(el.txt || (type === 'announcement' ? '🔥 LIMITED TIME OFFER — Join Now and Save 50%!' : 'Join Now'));
   const [url, setUrl] = useState(el.url || '');
   const [bgColor, setBgColor] = useState(el.s?.background || 'var(--sap-accent)');
@@ -648,6 +662,8 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
 }
 
 function FormEditor({ elId, el, updateElement, markDirty, onClose }) {
+
+  var { t } = useTranslation();
   const [heading, setHeading] = useState(el._formHeading || 'Get Free Access');
   const [subtitle, setSubtitle] = useState(el._formSubtitle || 'Enter your details below');
   const [showName, setShowName] = useState(el._formShowName !== false);
@@ -734,6 +750,8 @@ function FormEditor({ elId, el, updateElement, markDirty, onClose }) {
 }
 
 function BtnRow({ onApply, onClose }) {
+
+  var { t } = useTranslation();
   return (
     <div style={{ display: 'flex', gap: 8 }}>
       <button onClick={onApply}

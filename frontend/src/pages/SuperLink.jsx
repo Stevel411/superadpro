@@ -116,6 +116,8 @@ function PH({ T }) { var ref=useRef(null); useEffect(function(){ var c=ref.curre
 function R({children,delay}){var ref=useRef(null);var[v,setV]=useState(false);useEffect(function(){var o=new IntersectionObserver(function(e){if(e[0].isIntersecting)setV(true)},{threshold:0.08});if(ref.current)o.observe(ref.current);return function(){o.disconnect()}},[]);return<div ref={ref} style={{opacity:v?1:0,transform:v?'translateY(0)':'translateY(40px)',transition:'opacity 0.8s cubic-bezier(.16,1,.3,1) '+(delay||0)+'s, transform 0.8s cubic-bezier(.16,1,.3,1) '+(delay||0)+'s'}}>{children}</div>}
 
 export default function SuperLinkPage() {
+
+  var { t } = useTranslation();
   var [sponsor, setSponsor] = useState('Steve');
   var [si, setSi] = useState('S');
   var [tk, setTk] = useState('space');

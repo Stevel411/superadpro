@@ -191,6 +191,8 @@ export default function PlatformTour() {
 }
 
 function VoiceGuide() {
+
+  var { t } = useTranslation();
   var [open, setOpen] = useState(false);
   var [listening, setListening] = useState(false);
   var [thinking, setThinking] = useState(false);

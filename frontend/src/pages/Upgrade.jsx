@@ -74,7 +74,9 @@ export default function Upgrade() {
   }
 
   function FeatureRow({ icon, text, bold, color }) {
-    var bg = color === 'red' ? 'var(--sap-red-bg)' : '#eff6ff';
+
+    var { t } = useTranslation();
+  var bg = color === 'red' ? 'var(--sap-red-bg)' : '#eff6ff';
     var stroke = color === 'red' ? 'var(--sap-red)' : '#2563eb';
     return (
       <div className="up-feat">
@@ -87,7 +89,9 @@ export default function Upgrade() {
   }
 
   function PayButtons({ tier }) {
-    var isCurrent = (tier === 'basic' && isBasicActive) || (tier === 'pro' && isPro);
+
+    var { t } = useTranslation();
+  var isCurrent = (tier === 'basic' && isBasicActive) || (tier === 'pro' && isPro);
     var isUpgrade = tier === 'pro' && isBasicActive;
     var btnGrad = tier === 'pro'
       ? 'linear-gradient(135deg,#450a0a,#991b1b,#ef4444)'

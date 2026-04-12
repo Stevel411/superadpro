@@ -14,6 +14,8 @@ const TABS = [
 ];
 
 export default function PDFStudio() {
+
+  var { t } = useTranslation();
   const [tab, setTab] = useState('create');
 
   return (

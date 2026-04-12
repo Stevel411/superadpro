@@ -60,6 +60,8 @@ function ToolMiniCard({ name, desc, color }) {
 }
 
 function IncomeCard({ title, amount, sub, desc, color, comingSoon }) {
+
+  var { t } = useTranslation();
   return (
     <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderTop: `3px solid ${color}`, borderRadius: 16, padding: '28px 24px', position: 'relative' }}>
       {comingSoon && <div style={{ position: 'absolute', top: 16, right: 16, padding: '4px 12px', borderRadius: 8, background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)', fontFamily: "'Sora',sans-serif", fontSize: 9, fontWeight: 800, color: 'var(--sap-amber-bright)', letterSpacing: 1.5, textTransform: 'uppercase' }}>{t('howItWorks.comingSoon')}</div>}
@@ -72,6 +74,8 @@ function IncomeCard({ title, amount, sub, desc, color, comingSoon }) {
 }
 
 function FreeToolCard({ icon, title, desc, href }) {
+
+  var { t } = useTranslation();
   return (
     <Link to={href} style={{ textDecoration: 'none', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: '28px 24px', textAlign: 'center', display: 'block', transition: 'all 0.2s' }}
       onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(34,211,238,0.3)'; e.currentTarget.style.transform = 'translateY(-4px)'; }}

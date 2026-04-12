@@ -114,7 +114,9 @@ export default function MemeGenerator() {
 
   // ── Rich dropdown component (SuperScene style) ─────────
   function RichDropdown({ items, value, onChange, open, setOpen, renderItem }) {
-    const current = items.find(i => i.id === value) || items[0];
+
+    var { t } = useTranslation();
+  const current = items.find(i => i.id === value) || items[0];
     return (
       <div style={{ position: 'relative' }}>
         <div onClick={e => { e.stopPropagation(); setOpen(!open); }}
