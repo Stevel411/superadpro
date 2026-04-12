@@ -22,7 +22,7 @@ var PACK_OPTIONS = TIER_NAMES.map(function(n, i) {
 var STREAMS_BASE = [
   { id:'membership', num:'1', Icon:Users, color:'var(--sap-green)', bg:'var(--sap-green-bg-mid)', link:'/affiliate' },
   { id:'grid', num:'2', Icon:Zap, color:'var(--sap-indigo)', bg:'#eef2ff', link:'/grid-visualiser' },
-  { id:'matrix', num:'3', Icon:Layers, color:'var(--sap-purple)', bg:'var(--sap-purple-pale)', link:'/matrix-visualiser' },
+  { id:'matrix', num:'3', Icon:Layers, color:'var(--sap-purple)', bg:'var(--sap-purple-pale)', link:'/nexus-visualiser' },
   { id:'courses', num:'4', Icon:GraduationCap, color:'var(--sap-amber)', bg:'var(--sap-amber-bg)', link:'/courses', comingSoon:true },
 ];
 

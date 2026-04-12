@@ -209,9 +209,9 @@ function AppRoutes() {
       <Route path="/superdeck" element={<ProtectedRoute><SuperDeckList /></ProtectedRoute>} />
       <Route path="/superdeck/edit/:deckId" element={<ProtectedRoute><SuperDeckEditor /></ProtectedRoute>} />
       <Route path="/video-creator" element={<ProtectedRoute><VideoCreator /></ProtectedRoute>} />
-      <Route path="/credit-matrix" element={<ProtectedRoute><CreditMatrix /></ProtectedRoute>} />
+      <Route path="/credit-nexus" element={<ProtectedRoute><CreditMatrix /></ProtectedRoute>} />
       <Route path="/grid-visualiser" element={<ProtectedRoute><GridVisualiser /></ProtectedRoute>} />
-      <Route path="/matrix-visualiser" element={<ProtectedRoute><CreditMatrixVisualiser /></ProtectedRoute>} />
+      <Route path="/nexus-visualiser" element={<ProtectedRoute><CreditMatrixVisualiser /></ProtectedRoute>} />
       <Route path="/campaign-analytics" element={<ProtectedRoute><CampaignAnalytics /></ProtectedRoute>} />
       <Route path="/superscene" element={<React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#080c0e',color:'#22d3ee',fontFamily:'DM Sans,sans-serif'}}>{'Loading Creative Studio…'}</div>}><SuperScenePage /></React.Suspense>} />
       <Route path="/creative-studio" element={<ProtectedRoute><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>{'Loading Creative Studio…'}</div>}><CreativeStudio /></React.Suspense></ProtectedRoute>} />

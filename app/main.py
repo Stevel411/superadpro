@@ -22102,11 +22102,16 @@ def video_creator_page(request: Request):
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
 
-@app.get("/credit-matrix")
-def credit_matrix_page(request: Request):
+@app.get("/credit-nexus")
+def credit_nexus_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/credit-matrix")
+def credit_matrix_redirect(request: Request):
+    from starlette.responses import RedirectResponse
+    return RedirectResponse("/credit-nexus", status_code=301)
 
 @app.get("/campaign-analytics")
 def campaign_analytics_page(request: Request):
