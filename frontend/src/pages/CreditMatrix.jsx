@@ -106,7 +106,7 @@ export function CreditMatrixContent() {
         <a href="/creative-studio" style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: 14, transition: 'color .15s' }}
           onMouseEnter={function(e) { e.target.style.color = '#fff'; }} onMouseLeave={function(e) { e.target.style.color = 'rgba(255,255,255,0.5)'; }}>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-          Back to Creative Studio
+          {t('creditMatrix.backToCreativeStudio')}
         </a>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
           <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(139,92,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -122,10 +122,10 @@ export function CreditMatrixContent() {
         {stats && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
             {[
-              { label: 'Nexus Earned', value: '$' + (stats.total_earned || 0).toFixed(2), icon: DollarSign, color: 'var(--sap-green-bright)' },
-              { label: 'Credit Balance', value: (stats.credit_balance || 0).toLocaleString(), icon: Zap, color: 'var(--sap-amber)' },
-              { label: 'Nexus Fill', value: (stats.active_matrix ? stats.active_matrix.fill_pct : 0) + '%', icon: Users, color: 'var(--sap-accent)' },
-              { label: 'Nexuses Complete', value: stats.completed_cycles || 0, icon: Award, color: 'var(--sap-purple)' },
+              { label: t('creditMatrix.nexusEarned'), value: '$' + (stats.total_earned || 0).toFixed(2), icon: DollarSign, color: 'var(--sap-green-bright)' },
+              { label: t('creditMatrix.creditBalance'), value: (stats.credit_balance || 0).toLocaleString(), icon: Zap, color: 'var(--sap-amber)' },
+              { label: t('creditMatrix.nexusFill'), value: (stats.active_matrix ? stats.active_matrix.fill_pct : 0) + '%', icon: Users, color: 'var(--sap-accent)' },
+              { label: t('creditMatrix.nexusesComplete'), value: stats.completed_cycles || 0, icon: Award, color: 'var(--sap-purple)' },
             ].map(function(card, i) {
               return (
                 <div key={i} style={{ background: '#fff', borderRadius: 10, padding: '14px 16px' }}>
@@ -178,7 +178,7 @@ export function CreditMatrixContent() {
                       style={{ width: '100%', padding: '8px 0', borderRadius: 8, border: 'none', fontFamily: 'inherit',
                         background: isbuying ? 'var(--sap-text-muted)' : icon.gradient, color: '#fff', fontSize: 13, fontWeight: 700,
                         cursor: isbuying ? 'default' : 'pointer' }}>
-                      {isbuying ? 'Processing...' : 'Pay with Crypto'}
+                      {isbuying ? t('creditMatrix.processing') : t('creditMatrix.payWithCrypto')}
                     </button>
                   </div>
                 );
@@ -188,7 +188,7 @@ export function CreditMatrixContent() {
 
           {/* Nexus Tree Visualisation */}
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px 24px', marginBottom: 20 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 16 }}>Your 3×3 Nexus
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 16 }}>{t('creditMatrix.yourNexusTitle')}
               {matrixData && <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--sap-text-muted)', marginLeft: 8 }}>Nexus #{matrixData.cycle_number} — {matrixData.positions_filled}/{matrixData.max_positions} filled</span>}
             </div>
 
@@ -227,7 +227,7 @@ export function CreditMatrixContent() {
                           background: node ? 'var(--sap-green-bg)' : 'var(--sap-bg-elevated)',
                           border: node ? '1.5px solid #86efac' : '1.5px dashed #d1d5db',
                           fontSize: 11, fontWeight: 600, color: node ? '#166534' : 'var(--sap-text-muted)' }}>
-                          {node ? node.username.slice(0, 8) : 'Empty'}
+                          {node ? node.username.slice(0, 8) : t('creditMatrix.emptySlot')}
                           {node && <div style={{ fontSize: 9, color: 'var(--sap-text-muted)', marginTop: 2 }}>{(PACK_ICONS[node.pack_key] || {}).emoji || ''} ${node.pack_price}</div>}
                         </div>
                       </div>
@@ -283,7 +283,7 @@ export function CreditMatrixContent() {
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px 24px' }}>
             <div onClick={function() { setShowCommissions(!showCommissions); }}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)' }}>Commission History
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)' }}>{t('creditMatrix.commissionHistory')}
                 {commissions && commissions.summary && <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--sap-green-bright)', marginLeft: 8 }}>${commissions.summary.total_earned.toFixed(2)} total</span>}
               </div>
               {showCommissions ? <ChevronUp size={18} color="var(--sap-text-muted)" /> : <ChevronDown size={18} color="var(--sap-text-muted)" />}
@@ -300,10 +300,10 @@ export function CreditMatrixContent() {
                       borderBottom: i < commissions.commissions.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
                       <div>
                         <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--sap-text-primary)' }}>
-                          {c.type === 'matrix_completion' ? '🎉 Matrix Complete Bonus' : 'L' + c.level + ' from ' + c.from_user}
+                          {c.type === 'matrix_completion' ? t('creditMatrix.matrixCompleteBonusLabel') : 'L' + c.level + ' from ' + c.from_user}
                         </div>
                         <div style={{ fontSize: 11, color: 'var(--sap-text-muted)' }}>
-                          {c.type === 'matrix_level' ? (c.rate * 100).toFixed(0) + '% of $' + c.pack_price.toFixed(0) + ' pack' : 'Matrix completion reward'}
+                          {c.type === 'matrix_level' ? (c.rate * 100).toFixed(0) + '% of $' + c.pack_price.toFixed(0) + ' pack' : t('creditMatrix.matrixCompletionReward')}
                           {' · '}{new Date(c.created_at).toLocaleDateString()}
                         </div>
                       </div>
@@ -322,11 +322,11 @@ export function CreditMatrixContent() {
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px', marginBottom: 16 }}>
             <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 12 }}>{t('creditMatrix.howItWorksTitle')}</div>
             {[
-              { step: '1', text: 'Buy a credit pack to create AI videos, images, and music' },
-              { step: '2', text: 'Your purchase enters your sponsor\'s 3×3 matrix' },
-              { step: '3', text: 'Earn 25% on Level 1, 15% on Level 2, 10% on Level 3' },
-              { step: '4', text: 'When all 39 positions fill, earn a completion bonus' },
-              { step: '5', text: 'Nexus resets — earnings continue automatically' },
+              { step: '1', text: t('creditMatrix.step1Text') },
+              { step: '2', text: t('creditMatrix.step2Text') },
+              { step: '3', text: t('creditMatrix.step3Text') },
+              { step: '4', text: t('creditMatrix.step4Text') },
+              { step: '5', text: t('creditMatrix.step5Text') },
             ].map(function(item, i) {
               return (
                 <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
@@ -343,10 +343,10 @@ export function CreditMatrixContent() {
             <div style={{ fontSize: 15, fontWeight: 700, color: '#4c1d95', marginBottom: 10 }}>{t('creditMatrix.earningsPotential')}</div>
             <div style={{ fontSize: 13, color: '#6d28d9', marginBottom: 12 }}>{t("creditMatrix.fullNexusDesc")}</div>
             {[
-              { label: 'L1 (3 members × 25%)', amount: '$693.75' },
-              { label: 'L2 (9 members × 15%)', amount: '$1,248.75' },
-              { label: 'L3 (27 members × 10%)', amount: '$2,497.50' },
-              { label: 'Completion bonus', amount: '$250.00' },
+              { label: t('creditMatrix.l1Label'), amount: '$693.75' },
+              { label: t('creditMatrix.l2Label'), amount: '$1,248.75' },
+              { label: t('creditMatrix.l3Label'), amount: '$2,497.50' },
+              { label: t('creditMatrix.completionBonusLabel'), amount: '$250.00' },
             ].map(function(row, i) {
               return (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 13 }}>
