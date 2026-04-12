@@ -5,7 +5,7 @@ import { X, Search, ChevronDown, ChevronRight } from 'lucide-react';
 var HELP_SECTIONS = [
   {
     category: 'Getting Started',
-    color: '#6366f1',
+    color: 'var(--sap-indigo)',
     items: [
       { title: 'What is SuperLeads?', desc: 'SuperLeads is your built-in CRM and email autoresponder. It lets you capture leads from your SuperPages funnels, organise them into lists, send automatic email sequences, and broadcast one-off emails — all without needing a separate email marketing tool.' },
       { title: 'How do leads get into my CRM?', desc: 'Leads are added automatically when someone fills out a form on any of your SuperPages. Their name and email are captured instantly and appear in your Leads tab. You can also import leads manually using a CSV file via the Import tab.' },
@@ -15,7 +15,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'Leads Tab',
-    color: '#6366f1',
+    color: 'var(--sap-indigo)',
     items: [
       { title: 'What does the Leads tab show?', desc: 'The Leads tab is your main contact list. It shows every lead you have captured or imported, including their name, email, which list they belong to, their current status, how many emails they have received and opened, and which sequence they are assigned to.' },
       { title: 'Lead Statuses Explained', desc: 'New — just added, no interaction yet. Nurturing — in an active email sequence. Hot — automatically flagged when a lead opens 2+ emails or clicks any link. Converted — manually mark a lead as converted once they have taken the action you wanted (purchased, signed up, etc.).' },
@@ -27,7 +27,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'Lists',
-    color: '#0ea5e9',
+    color: 'var(--sap-accent)',
     items: [
       { title: 'What are Lists?', desc: 'Lists let you organise your leads into groups. For example: "Facebook Leads", "YouTube Traffic", "Webinar Signups", or "VIP Customers". Each list has its own colour so you can spot them instantly in your leads table.' },
       { title: 'Creating a List', desc: 'Click "New List", give it a name, an optional description, choose a colour, and optionally assign a default email sequence. Any lead imported into or captured for this list will automatically be enrolled in that sequence.' },
@@ -38,7 +38,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'Sequences',
-    color: '#8b5cf6',
+    color: 'var(--sap-purple)',
     items: [
       { title: 'What is an Email Sequence?', desc: 'A sequence is a series of emails sent automatically over time. You write them once, set the delay between each email, and the system sends them to your leads on autopilot. Perfect for welcome series, nurture campaigns, or onboarding flows.' },
       { title: 'Creating a Sequence', desc: 'Click "Create Sequence", give it a name, and add your emails. Each email needs a subject line, a body (written with the rich text editor), and a send delay in days. Day 0 sends immediately. Day 3 sends 3 days after the previous email.' },
@@ -50,7 +50,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'Broadcast',
-    color: '#16a34a',
+    color: 'var(--sap-green)',
     items: [
       { title: 'What is a Broadcast?', desc: 'A broadcast is a one-off email sent to all or a filtered group of your leads right now. Unlike sequences (which drip over time), a broadcast goes out immediately to everyone matching your filter. Use it for announcements, promotions, or time-sensitive news.' },
       { title: 'Filtering your broadcast recipients', desc: 'Before sending, choose a List and/or a Status filter. The recipient count updates live so you know exactly how many people will receive the email before you hit Send. For example: send only to Hot leads on your Facebook list.' },
@@ -61,7 +61,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'Import',
-    color: '#f59e0b',
+    color: 'var(--sap-amber)',
     items: [
       { title: 'Importing leads via CSV', desc: 'Go to the Import tab, upload a CSV file or paste CSV text directly. Your CSV should have columns for email and optionally name. Click Preview to check the data before importing, then click Import to add the leads to your CRM.' },
       { title: 'CSV format', desc: 'The simplest format is two columns: email and name. For example: email,name on the first row, then john@example.com,John Smith on each subsequent row. The importer is flexible — it will detect the email column automatically even if your headers are different.' },
@@ -73,7 +73,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'Email Boost',
-    color: '#ef4444',
+    color: 'var(--sap-red-bright)',
     items: [
       { title: 'What is Email Boost?', desc: 'Email Boost lets you send more emails than your daily free allowance. Every Pro member gets 200 free emails per day. If you need to send more — for a big broadcast or a large sequence — you can purchase Boost Packs that give you extra credits on top of your daily allowance.' },
       { title: 'How the daily limit works', desc: 'You get 200 free emails every day. The counter resets at midnight UTC. If you send a broadcast to 150 leads and have 3 sequences going, your free 200 emails are used up first. Once they run out, Boost credits kick in automatically.' },
@@ -141,7 +141,7 @@ export default function MyLeadsHelp({ visible, onClose }) {
         {/* Search */}
         <div style={{ padding: '12px 20px', borderBottom: '1px solid #f1f5f9', flexShrink: 0 }}>
           <div style={{ position: 'relative' }}>
-            <Search size={14} color="#94a3b8" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
+            <Search size={14} color="var(--sap-text-faint)" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
             <input
               value={search} onChange={function(e) { setSearch(e.target.value); }}
               placeholder="Search help topics..."
@@ -161,13 +161,13 @@ export default function MyLeadsHelp({ visible, onClose }) {
                 >
                   {expanded[si] || q ? <ChevronDown size={14} color={section.color} /> : <ChevronRight size={14} color={section.color} />}
                   <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', color: section.color }}>{section.category}</span>
-                  <span style={{ fontSize: 10, color: '#cbd5e1', fontWeight: 600 }}>({section.items.length})</span>
+                  <span style={{ fontSize: 10, color: 'var(--sap-text-ghost)', fontWeight: 600 }}>({section.items.length})</span>
                 </div>
                 {(expanded[si] || q) && section.items.map(function(item, ii) {
                   return (
                     <div key={ii} style={{ padding: '10px 20px 10px 40px', borderBottom: '1px solid #f8f9fb' }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>{item.title}</div>
-                      <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.7 }}>{item.desc}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 4 }}>{item.title}</div>
+                      <div style={{ fontSize: 12, color: 'var(--sap-text-muted)', lineHeight: 1.7 }}>{item.desc}</div>
                     </div>
                   );
                 })}
@@ -175,7 +175,7 @@ export default function MyLeadsHelp({ visible, onClose }) {
             );
           })}
           {filtered.length === 0 && (
-            <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--sap-text-faint)', fontSize: 13 }}>
               No results for "{search}"
             </div>
           )}

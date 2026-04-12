@@ -15,12 +15,12 @@ const BLOCK_ICONS = {
 export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, setCanvasBgImage, markDirty, onAddElement, pageId, onAiMessage }) {
   const [bgType, setBgType] = useState(canvasBg?.startsWith('linear') ? 'gradient' : canvasBgImage ? 'image' : 'solid');
   const [grad1, setGrad1] = useState(() => {
-    if (canvasBg?.startsWith('linear')) { const m = canvasBg.match(/#[a-fA-F0-9]{6}/g); return m?.[0] || '#0ea5e9'; }
-    return '#0ea5e9';
+    if (canvasBg?.startsWith('linear')) { const m = canvasBg.match(/#[a-fA-F0-9]{6}/g); return m?.[0] || 'var(--sap-accent)'; }
+    return 'var(--sap-accent)';
   });
   const [grad2, setGrad2] = useState(() => {
-    if (canvasBg?.startsWith('linear')) { const m = canvasBg.match(/#[a-fA-F0-9]{6}/g); return m?.[1] || '#6366f1'; }
-    return '#6366f1';
+    if (canvasBg?.startsWith('linear')) { const m = canvasBg.match(/#[a-fA-F0-9]{6}/g); return m?.[1] || 'var(--sap-indigo)'; }
+    return 'var(--sap-indigo)';
   });
   const [gradDir, setGradDir] = useState('135deg');
   const [bgImageUrl, setBgImageUrl] = useState(canvasBgImage || '');
@@ -56,17 +56,17 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
   };
 
   const GRAD_PRESETS = [
-    ['#0ea5e9','#6366f1'], ['#8b5cf6','#ec4899'], ['#10b981','#059669'],
-    ['#f59e0b','#ef4444'], ['#0f172a','#1e3a5f'], ['#132044','#16213e'],
+    ['var(--sap-accent)','var(--sap-indigo)'], ['var(--sap-purple)','var(--sap-pink)'], ['var(--sap-green-mid)','var(--sap-green-dark)'],
+    ['var(--sap-amber)','var(--sap-red-bright)'], ['var(--sap-text-primary)','#1e3a5f'], ['#132044','#16213e'],
     ['#667eea','#764ba2'], ['#f093fb','#f5576c'], ['#4facfe','#00f2fe'],
   ];
 
   return (
-    <div style={{width:280,height:'calc(100vh - 60px)',background:'#172554',borderLeft:'1px solid rgba(255,255,255,0.06)',display:'flex',flexDirection:'column',overflow:'hidden',flexShrink:0}}>
+    <div style={{width:280,height:'calc(100vh - 60px)',background:'var(--sap-cobalt-deep)',borderLeft:'1px solid rgba(255,255,255,0.06)',display:'flex',flexDirection:'column',overflow:'hidden',flexShrink:0}}>
 
       {/* Header */}
       <div style={{padding:'14px 16px',borderBottom:'1px solid rgba(255,255,255,0.06)',flexShrink:0}}>
-        <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'#e2e8f0'}}>✦ Blocks</h3>
+        <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'var(--sap-border)'}}>✦ Blocks</h3>
         <p style={{margin:'2px 0 0',fontSize:10,color:'rgba(255,255,255,0.7)'}}>Click or drag to add</p>
       </div>
 
@@ -93,7 +93,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                 <button key={key} onClick={() => setBgType(key)} style={{
                   flex:1,padding:'6px 0',border:'none',borderRadius:6,fontSize:9,fontWeight:700,letterSpacing:0.3,textTransform:'uppercase',cursor:'pointer',
                   background:bgType===key?'rgba(14,165,233,.2)':'rgba(255,255,255,.04)',
-                  color:bgType===key?'#38bdf8':'rgba(255,255,255,.35)',
+                  color:bgType===key?'var(--sap-accent-light)':'rgba(255,255,255,.35)',
                   transition:'all .15s',
                 }}>{label}</button>
               ))}
@@ -110,7 +110,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                   <div style={{fontSize:11,fontFamily:'monospace',color:'rgba(255,255,255,.75)'}}>{canvasBg?.startsWith('#')?canvasBg:'#ffffff'}</div>
                 </div>
                 <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
-                  {['#172554','#0f172a','#1e293b','#ffffff','#f8fafc','#fef3c7','#132044','#0c1222','#172554','#7f1d1d','#14532d','#1e3a5f'].map(c => (
+                  {['var(--sap-cobalt-deep)','var(--sap-text-primary)','var(--sap-text-primary)','#ffffff','var(--sap-bg-elevated)','var(--sap-amber-bg)','#132044','#0c1222','var(--sap-cobalt-deep)','#7f1d1d','#14532d','#1e3a5f'].map(c => (
                     <div key={c} onClick={() => applyBg(c)} style={{
                       width:22,height:22,borderRadius:5,background:c,cursor:'pointer',
                       border:canvasBg===c?'2px solid #0ea5e9':'1px solid rgba(255,255,255,.12)',
@@ -150,7 +150,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                     <button key={deg} onClick={() => { setGradDir(deg); applyGradient(grad1, grad2, deg); }} style={{
                       flex:1,padding:'4px 0',border:'none',borderRadius:4,fontSize:11,cursor:'pointer',
                       background:gradDir===deg?'rgba(14,165,233,.2)':'rgba(255,255,255,.04)',
-                      color:gradDir===deg?'#38bdf8':'rgba(255,255,255,.3)',
+                      color:gradDir===deg?'var(--sap-accent-light)':'rgba(255,255,255,.3)',
                     }}>{arrow}</button>
                   ))}
                 </div>
@@ -188,7 +188,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                     <div style={{width:40,height:28,borderRadius:4,background:`url(${canvasBgImage}) center/cover`,border:'1px solid rgba(255,255,255,.1)'}}/>
                     <div style={{flex:1,fontSize:9,color:'rgba(255,255,255,.65)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>Background set</div>
                     <button onClick={() => { setCanvasBgImage(''); setBgImageUrl(''); markDirty(); }}
-                      style={{width:22,height:22,borderRadius:4,background:'rgba(220,38,38,0.1)',border:'1px solid rgba(220,38,38,0.2)',cursor:'pointer',fontSize:9,color:'#dc2626',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+                      style={{width:22,height:22,borderRadius:4,background:'rgba(220,38,38,0.1)',border:'1px solid rgba(220,38,38,0.2)',cursor:'pointer',fontSize:9,color:'var(--sap-red)',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
                   </div>
                 )}
               </div>
@@ -234,9 +234,9 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
       </div>
 
       {/* AI Chat */}
-      <div style={{borderTop:'1px solid rgba(255,255,255,0.06)',flexShrink:0,background:'#172554',display:'flex',flexDirection:'column'}}>
+      <div style={{borderTop:'1px solid rgba(255,255,255,0.06)',flexShrink:0,background:'var(--sap-cobalt-deep)',display:'flex',flexDirection:'column'}}>
         <div onClick={() => setChatOpen(!chatOpen)} style={{padding:'8px 14px',cursor:'pointer',userSelect:'none',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-          <span style={{fontSize:9,fontWeight:800,letterSpacing:0.7,textTransform:'uppercase',color:'#0ea5e9'}}>✨ AI Assistant</span>
+          <span style={{fontSize:9,fontWeight:800,letterSpacing:0.7,textTransform:'uppercase',color:'var(--sap-accent)'}}>✨ AI Assistant</span>
           <span style={{fontSize:12,color:'rgba(255,255,255,0.7)',transition:'transform 0.2s',transform:chatOpen?'rotate(0)':'rotate(180deg)'}}>▼</span>
         </div>
         {chatOpen && (
@@ -246,8 +246,8 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                 <div key={i} style={{
                   maxWidth:'88%',padding:'6px 10px',borderRadius:10,fontSize:11,lineHeight:1.5,wordWrap:'break-word',
                   ...(m.role==='user'
-                    ? {background:'#0ea5e9',color:'#fff',alignSelf:'flex-end',borderBottomRightRadius:2}
-                    : {background:'rgba(255,255,255,0.06)',color:'#e2e8f0',alignSelf:'flex-start',border:'1px solid rgba(255,255,255,0.06)',borderBottomLeftRadius:2}),
+                    ? {background:'var(--sap-accent)',color:'#fff',alignSelf:'flex-end',borderBottomRightRadius:2}
+                    : {background:'rgba(255,255,255,0.06)',color:'var(--sap-border)',alignSelf:'flex-start',border:'1px solid rgba(255,255,255,0.06)',borderBottomLeftRadius:2}),
                 }}>{m.text}</div>
               ))}
             </div>
@@ -255,7 +255,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
               <textarea value={chatMsg} onChange={e => setChatMsg(e.target.value)}
                 onKeyDown={e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()} }}
                 rows={1} placeholder="Ask AI..."
-                style={{flex:1,padding:'7px 10px',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,fontSize:11,fontFamily:'DM Sans,sans-serif',color:'#e2e8f0',resize:'none',background:'rgba(255,255,255,0.05)',outline:'none'}}/>
+                style={{flex:1,padding:'7px 10px',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,fontSize:11,fontFamily:'DM Sans,sans-serif',color:'var(--sap-border)',resize:'none',background:'rgba(255,255,255,0.05)',outline:'none'}}/>
               <button onClick={sendChat} disabled={chatSending}
                 style={{width:32,height:32,border:'none',borderRadius:8,background:'linear-gradient(135deg,#0ea5e9,#6366f1)',color:'#fff',fontSize:13,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,opacity:chatSending?0.5:1}}>
                 <Send size={14}/>

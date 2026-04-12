@@ -73,11 +73,11 @@ export default function PassiveIncome({ d }) {
     (totalEarned > 0 ? 10 : 0)
   ));
 
-  var passiveLevel = passiveScore >= 80 ? { label: 'Diamond', color: '#38bdf8', emoji: '💎' }
-    : passiveScore >= 60 ? { label: 'Gold', color: '#fbbf24', emoji: '🥇' }
-    : passiveScore >= 40 ? { label: 'Silver', color: '#94a3b8', emoji: '🥈' }
+  var passiveLevel = passiveScore >= 80 ? { label: 'Diamond', color: 'var(--sap-accent-light)', emoji: '💎' }
+    : passiveScore >= 60 ? { label: 'Gold', color: 'var(--sap-amber-bright)', emoji: '🥇' }
+    : passiveScore >= 40 ? { label: 'Silver', color: 'var(--sap-text-faint)', emoji: '🥈' }
     : passiveScore >= 20 ? { label: 'Bronze', color: '#f97316', emoji: '🥉' }
-    : { label: 'Starter', color: '#6366f1', emoji: '🚀' };
+    : { label: 'Starter', color: 'var(--sap-indigo)', emoji: '🚀' };
 
   // ── Stream icon SVGs ──
   var StreamIcon = function({ type, color }) {
@@ -140,11 +140,11 @@ export default function PassiveIncome({ d }) {
   };
 
   var streams = [
-    { name: 'Grid Bonuses',  val: gridEarnings,     color: '#6366f1', grad: 'linear-gradient(90deg,#6366f1,#818cf8)', iconType: 'grid', tag: 'Completion bonuses' },
-    { name: 'Memberships',   val: membershipEarned,  color: '#10b981', grad: 'linear-gradient(90deg,#10b981,#34d399)', iconType: 'membership', tag: 'Renewal commissions' },
-    { name: 'Uni-Level',     val: levelEarnings,     color: '#f59e0b', grad: 'linear-gradient(90deg,#f59e0b,#fbbf24)', iconType: 'unilevel', tag: '8-level network' },
-    { name: 'Courses',       val: courseEarnings,    color: '#8b5cf6', grad: 'linear-gradient(90deg,#8b5cf6,#a78bfa)', iconType: 'courses', tag: 'Pass-up royalties' },
-    { name: 'SuperMarket',   val: marketEarnings,    color: '#0ea5e9', grad: 'linear-gradient(90deg,#0ea5e9,#38bdf8)', iconType: 'market', tag: 'Digital products' },
+    { name: 'Grid Bonuses',  val: gridEarnings,     color: 'var(--sap-indigo)', grad: 'linear-gradient(90deg,#6366f1,#818cf8)', iconType: 'grid', tag: 'Completion bonuses' },
+    { name: 'Memberships',   val: membershipEarned,  color: 'var(--sap-green-mid)', grad: 'linear-gradient(90deg,#10b981,#34d399)', iconType: 'membership', tag: 'Renewal commissions' },
+    { name: 'Uni-Level',     val: levelEarnings,     color: 'var(--sap-amber)', grad: 'linear-gradient(90deg,#f59e0b,#fbbf24)', iconType: 'unilevel', tag: '8-level network' },
+    { name: 'Courses',       val: courseEarnings,    color: 'var(--sap-purple)', grad: 'linear-gradient(90deg,#8b5cf6,#a78bfa)', iconType: 'courses', tag: 'Pass-up royalties' },
+    { name: 'SuperMarket',   val: marketEarnings,    color: 'var(--sap-accent)', grad: 'linear-gradient(90deg,#0ea5e9,#38bdf8)', iconType: 'market', tag: 'Digital products' },
   ];
 
   var maxStream = Math.max(1, ...streams.map(function(s) { return Number(s.val) || 0; }));
@@ -236,8 +236,8 @@ export default function PassiveIncome({ d }) {
           return <div key={i} style={{
             position:'absolute', borderRadius:'50%',
             width:[4,6,3,8,5,3,6,4,5,3,7,4][i], height:[4,6,3,8,5,3,6,4,5,3,7,4][i],
-            background:['#6366f1','#10b981','#fbbf24','#8b5cf6','#0ea5e9','#f59e0b',
-                        '#6366f1','#10b981','#fbbf24','#8b5cf6','#0ea5e9','#f59e0b'][i],
+            background:['var(--sap-indigo)','var(--sap-green-mid)','var(--sap-amber-bright)','var(--sap-purple)','var(--sap-accent)','var(--sap-amber)',
+                        'var(--sap-indigo)','var(--sap-green-mid)','var(--sap-amber-bright)','var(--sap-purple)','var(--sap-accent)','var(--sap-amber)'][i],
             opacity:0.12, left:`${[5,15,28,42,55,68,78,88,20,50,70,38][i]}%`,
             top:`${[15,65,35,10,55,25,70,40,85,90,10,50][i]}%`,
             animation:`sapFloat ${3+i*0.5}s ease-in-out infinite`,
@@ -261,7 +261,7 @@ export default function PassiveIncome({ d }) {
 
         <div style={{ position:'relative', zIndex:1 }}>
           <div style={S.heroBadge}>
-            <div style={{ width:6, height:6, borderRadius:'50%', background:'#6366f1', animation:'sapPulse 2s ease-in-out infinite' }}/>
+            <div style={{ width:6, height:6, borderRadius:'50%', background:'var(--sap-indigo)', animation:'sapPulse 2s ease-in-out infinite' }}/>
             Recurring Income Engine
           </div>
           <div style={S.heroTitle}>
@@ -370,10 +370,10 @@ export default function PassiveIncome({ d }) {
               </div>
               <div style={{ display:'flex', flexDirection:'column', gap:6 }}>
                 {[
-                  { name:'Grid completions', done: completions > 0, color:'#6366f1' },
-                  { name:'Renewal commissions', done: membershipEarned > 0, color:'#10b981' },
-                  { name:'Uni-level earnings', done: levelEarnings > 0, color:'#f59e0b' },
-                  { name:'Course royalties', done: courseEarnings > 0, color:'#8b5cf6' },
+                  { name:'Grid completions', done: completions > 0, color:'var(--sap-indigo)' },
+                  { name:'Renewal commissions', done: membershipEarned > 0, color:'var(--sap-green-mid)' },
+                  { name:'Uni-level earnings', done: levelEarnings > 0, color:'var(--sap-amber)' },
+                  { name:'Course royalties', done: courseEarnings > 0, color:'var(--sap-purple)' },
                 ].map(function(item,i) {
                   return (
                     <div key={i} style={{ display:'flex', alignItems:'center', gap:10 }}>
@@ -397,7 +397,7 @@ export default function PassiveIncome({ d }) {
               <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)' }}>Your actual earnings by income stream</div>
             </div>
             <div style={{ textAlign:'right' }}>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:48, fontWeight:900, color:'#10b981', lineHeight:1 }}>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:48, fontWeight:900, color:'var(--sap-green-mid)', lineHeight:1 }}>
                 $<CountUp target={totalEarned} duration={1800} isMoney/>
               </div>
               <div style={{ fontSize:13, color:'rgba(255,255,255,0.35)', marginTop:4 }}>total earned</div>
@@ -434,8 +434,8 @@ export default function PassiveIncome({ d }) {
         {activity.length > 0 ? (
           <div>
             {activity.map(function(item, i) {
-              var colors = { green:'#10b981', cyan:'#0ea5e9', purple:'#8b5cf6', amber:'#f59e0b' };
-              var c = colors[item.color] || '#6366f1';
+              var colors = { green:'var(--sap-green-mid)', cyan:'var(--sap-accent)', purple:'var(--sap-purple)', amber:'var(--sap-amber)' };
+              var c = colors[item.color] || 'var(--sap-indigo)';
               return (
                 <div key={i} className="sap-activity" style={{ display:'flex', alignItems:'center', gap:14, padding:'11px 8px', borderBottom: i < activity.length-1 ? '1px solid rgba(255,255,255,0.04)' : 'none', borderRadius:8, transition:'background .15s' }}>
                   <div style={{ width:46, height:46, borderRadius:13, background:`${c}18`, border:`1px solid ${c}25`, display:'flex', alignItems:'center', justifyContent:'center', fontSize:22, flexShrink:0 }}>

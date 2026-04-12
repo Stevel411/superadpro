@@ -25,7 +25,7 @@ function CanvasEditor({ canvasSize, onCanvasReady }) {
     if (fc.current) fc.current.dispose();
     var c = new fabric.Canvas(canvasEl.current, {
       width: canvasSize.w, height: canvasSize.h,
-      backgroundColor: '#1e293b', preserveObjectStacking: true,
+      backgroundColor: 'var(--sap-text-primary)', preserveObjectStacking: true,
     });
     fc.current = c;
     onCanvasReady(c);
@@ -41,8 +41,8 @@ export default function BannerMaker() {
   var [canvas, setCanvas] = useState(null);
   var [canvasSize, setCanvasSize] = useState(SIZES[0]);
   var [sel, setSel] = useState(null);
-  var [color, setColor] = useState('#0ea5e9');
-  var [bgColor, setBgColor] = useState('#1e293b');
+  var [color, setColor] = useState('var(--sap-accent)');
+  var [bgColor, setBgColor] = useState('var(--sap-text-primary)');
   var [fontSize, setFontSize] = useState(24);
   var [fontFamily, setFontFamily] = useState('Arial');
 
@@ -61,7 +61,7 @@ export default function BannerMaker() {
       setFontFamily(obj.fontFamily || 'Arial');
       setColor(obj.fill || '#ffffff');
     } else if (obj && (obj.type === 'rect' || obj.type === 'circle')) {
-      setColor(obj.fill || '#0ea5e9');
+      setColor(obj.fill || 'var(--sap-accent)');
     }
   }
 
@@ -142,7 +142,7 @@ export default function BannerMaker() {
   function exportHTML() { if (!canvas) return; var h = '<!DOCTYPE html><html><head><meta charset="utf-8"></head><body style="margin:0">' + canvas.toSVG() + '</body></html>'; var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([h], { type: 'text/html' })); a.download = 'banner.html'; a.click(); }
   function copySVG() { if (!canvas) return; navigator.clipboard.writeText(canvas.toSVG()).then(function() { alert('SVG code copied!'); }); }
 
-  var btnS = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', color: '#475569', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center', transition: 'all .12s' };
+  var btnS = { padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', color: 'var(--sap-text-secondary)', display: 'flex', alignItems: 'center', gap: 6, justifyContent: 'center', transition: 'all .12s' };
 
   if (!isPro) {
     return (
@@ -150,7 +150,7 @@ export default function BannerMaker() {
         <div style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center', padding: '60px 20px' }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>🎨</div>
           <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 24, fontWeight: 900, marginBottom: 8 }}>Pro Feature</h2>
-          <p style={{ fontSize: 15, color: '#64748b', lineHeight: 1.6, maxWidth: 450, margin: '0 auto 24px' }}>Full canvas editor with drag-and-drop elements, image uploads, text styling, and PNG/HTML export.</p>
+          <p style={{ fontSize: 15, color: 'var(--sap-text-muted)', lineHeight: 1.6, maxWidth: 450, margin: '0 auto 24px' }}>Full canvas editor with drag-and-drop elements, image uploads, text styling, and PNG/HTML export.</p>
           <a href="/upgrade" style={{ display: 'inline-block', padding: '14px 32px', borderRadius: 10, background: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', color: '#fff', fontWeight: 800, fontSize: 16, textDecoration: 'none', boxShadow: '0 4px 0 #6d28d9' }}>Upgrade to Pro</a>
         </div>
       </AppLayout>
@@ -164,12 +164,12 @@ export default function BannerMaker() {
         {/* ═══ TOP TOOLBAR ═══ */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 14px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10, flexWrap: 'wrap' }}>
           {/* Size */}
-          <select style={{ padding: '7px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, fontWeight: 700, fontFamily: 'inherit', background: '#f8f9fb' }}
+          <select style={{ padding: '7px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 12, fontWeight: 700, fontFamily: 'inherit', background: 'var(--sap-bg-input)' }}
             value={canvasSize.id} onChange={function(e) { setCanvasSize(SIZES.find(function(s) { return s.id === e.target.value; }) || SIZES[0]); }}>
             {SIZES.map(function(s) { return <option key={s.id} value={s.id}>{s.name} ({s.id})</option>; })}
           </select>
 
-          <div style={{ width: 1, height: 24, background: '#e2e8f0' }} />
+          <div style={{ width: 1, height: 24, background: 'var(--sap-border)' }} />
 
           {/* Add elements */}
           <button style={btnS} onClick={addHeading}>🔤 Heading</button>
@@ -183,11 +183,11 @@ export default function BannerMaker() {
             <input type="file" accept="image/*" onChange={uploadImg} style={{ display: 'none' }} />
           </label>
 
-          <div style={{ width: 1, height: 24, background: '#e2e8f0' }} />
+          <div style={{ width: 1, height: 24, background: 'var(--sap-border)' }} />
 
           {/* Colour picker */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8' }}>Colour</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-faint)' }}>Colour</span>
             <input type="color" value={color} onChange={function(e) {
               setColor(e.target.value);
               if (sel) {
@@ -199,7 +199,7 @@ export default function BannerMaker() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8' }}>BG</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-faint)' }}>BG</span>
             <input type="color" value={bgColor} onChange={function(e) { changeBg(e.target.value); }}
               style={{ width: 32, height: 32, border: '2px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', padding: 0 }} />
           </div>
@@ -212,14 +212,14 @@ export default function BannerMaker() {
               <button style={btnS} onClick={dup} title="Duplicate">⧉</button>
               <button style={btnS} onClick={fwd} title="Bring Forward">↑</button>
               <button style={btnS} onClick={bwd} title="Send Backward">↓</button>
-              <button style={Object.assign({}, btnS, { color: '#dc2626', borderColor: '#fecaca' })} onClick={del} title="Delete">🗑</button>
-              <div style={{ width: 1, height: 24, background: '#e2e8f0' }} />
+              <button style={Object.assign({}, btnS, { color: 'var(--sap-red)', borderColor: 'var(--sap-red-bg-mid)' })} onClick={del} title="Delete">🗑</button>
+              <div style={{ width: 1, height: 24, background: 'var(--sap-border)' }} />
             </>
           )}
 
           {/* Export */}
-          <button style={Object.assign({}, btnS, { background: '#0ea5e9', color: '#fff', borderColor: '#0ea5e9' })} onClick={exportPNG}>💾 PNG</button>
-          <button style={Object.assign({}, btnS, { background: '#8b5cf6', color: '#fff', borderColor: '#8b5cf6' })} onClick={exportHTML}>📄 HTML</button>
+          <button style={Object.assign({}, btnS, { background: 'var(--sap-accent)', color: '#fff', borderColor: 'var(--sap-accent)' })} onClick={exportPNG}>💾 PNG</button>
+          <button style={Object.assign({}, btnS, { background: 'var(--sap-purple)', color: '#fff', borderColor: 'var(--sap-purple)' })} onClick={exportHTML}>📄 HTML</button>
           <button style={btnS} onClick={copySVG}>📋 Code</button>
         </div>
 
@@ -233,7 +233,7 @@ export default function BannerMaker() {
               var rect = el.getBoundingClientRect();
               el.style.setProperty('--cw', rect.width - 48 + 'px');
             }
-          }} style={{ background: '#f1f5f9', border: '1px solid #e2e8f0', borderRadius: 14, padding: 24,
+          }} style={{ background: 'var(--sap-bg-page)', border: '1px solid #e2e8f0', borderRadius: 14, padding: 24,
             display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 500,
             overflow: 'hidden' }}>
             <div style={{ width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -252,33 +252,33 @@ export default function BannerMaker() {
 
             {/* Properties */}
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#0f172a', marginBottom: 12 }}>Properties</div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 12 }}>Properties</div>
 
               {sel ? (
                 <div>
-                  <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', padding: '4px 8px', background: '#f8f9fb', borderRadius: 6, marginBottom: 12 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-text-faint)', padding: '4px 8px', background: 'var(--sap-bg-input)', borderRadius: 6, marginBottom: 12 }}>
                     {sel.type === 'i-text' ? '🔤 Text' : sel.type === 'rect' ? '▬ Rectangle' : sel.type === 'circle' ? '● Circle' : sel.type === 'image' ? '📁 Image' : sel.type === 'line' ? '— Line' : '☐ Object'}
                   </div>
 
                   {sel.type === 'i-text' && (
                     <>
-                      <div style={{ fontSize: 10, fontWeight: 800, color: '#94a3b8', marginBottom: 4 }}>Font</div>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--sap-text-faint)', marginBottom: 4 }}>Font</div>
                       <select style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, fontFamily: 'inherit', marginBottom: 10 }}
                         value={fontFamily} onChange={function(e) { setFontFamily(e.target.value); upd('fontFamily', e.target.value); }}>
                         {FONTS.map(function(f) { return <option key={f} value={f}>{f}</option>; })}
                       </select>
 
-                      <div style={{ fontSize: 10, fontWeight: 800, color: '#94a3b8', marginBottom: 4 }}>Size: {fontSize}px</div>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--sap-text-faint)', marginBottom: 4 }}>Size: {fontSize}px</div>
                       <input type="range" min={8} max={80} value={fontSize}
                         onChange={function(e) { var v = parseInt(e.target.value); setFontSize(v); upd('fontSize', v); }}
-                        style={{ width: '100%', accentColor: '#0ea5e9', marginBottom: 10 }} />
+                        style={{ width: '100%', accentColor: 'var(--sap-accent)', marginBottom: 10 }} />
 
                       <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-                        <button style={Object.assign({}, btnS, { flex: 1, fontSize: 13, fontWeight: 900 }, sel.fontWeight === 'bold' ? { background: '#0ea5e9', color: '#fff', borderColor: '#0ea5e9' } : {})}
+                        <button style={Object.assign({}, btnS, { flex: 1, fontSize: 13, fontWeight: 900 }, sel.fontWeight === 'bold' ? { background: 'var(--sap-accent)', color: '#fff', borderColor: 'var(--sap-accent)' } : {})}
                           onClick={function() { var v = sel.fontWeight === 'bold' ? 'normal' : 'bold'; upd('fontWeight', v); }}>B</button>
-                        <button style={Object.assign({}, btnS, { flex: 1, fontSize: 13, fontStyle: 'italic' }, sel.fontStyle === 'italic' ? { background: '#0ea5e9', color: '#fff', borderColor: '#0ea5e9' } : {})}
+                        <button style={Object.assign({}, btnS, { flex: 1, fontSize: 13, fontStyle: 'italic' }, sel.fontStyle === 'italic' ? { background: 'var(--sap-accent)', color: '#fff', borderColor: 'var(--sap-accent)' } : {})}
                           onClick={function() { var v = sel.fontStyle === 'italic' ? 'normal' : 'italic'; upd('fontStyle', v); }}>I</button>
-                        <button style={Object.assign({}, btnS, { flex: 1, fontSize: 11, textDecoration: 'underline' }, sel.underline ? { background: '#0ea5e9', color: '#fff', borderColor: '#0ea5e9' } : {})}
+                        <button style={Object.assign({}, btnS, { flex: 1, fontSize: 11, textDecoration: 'underline' }, sel.underline ? { background: 'var(--sap-accent)', color: '#fff', borderColor: 'var(--sap-accent)' } : {})}
                           onClick={function() { upd('underline', !sel.underline); }}>U</button>
                       </div>
                     </>
@@ -286,32 +286,32 @@ export default function BannerMaker() {
 
                   {(sel.type === 'rect' || sel.type === 'circle') && (
                     <>
-                      <div style={{ fontSize: 10, fontWeight: 800, color: '#94a3b8', marginBottom: 4 }}>Fill</div>
-                      <input type="color" value={sel.fill || '#0ea5e9'} onChange={function(e) { upd('fill', e.target.value); setColor(e.target.value); }}
+                      <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--sap-text-faint)', marginBottom: 4 }}>Fill</div>
+                      <input type="color" value={sel.fill || 'var(--sap-accent)'} onChange={function(e) { upd('fill', e.target.value); setColor(e.target.value); }}
                         style={{ width: '100%', height: 32, border: 'none', borderRadius: 6, cursor: 'pointer', marginBottom: 10 }} />
                       {sel.type === 'rect' && (
                         <>
-                          <div style={{ fontSize: 10, fontWeight: 800, color: '#94a3b8', marginBottom: 4 }}>Corners: {sel.rx || 0}px</div>
+                          <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--sap-text-faint)', marginBottom: 4 }}>Corners: {sel.rx || 0}px</div>
                           <input type="range" min={0} max={50} value={sel.rx || 0}
                             onChange={function(e) { var v = parseInt(e.target.value); upd('rx', v); upd('ry', v); }}
-                            style={{ width: '100%', accentColor: '#0ea5e9', marginBottom: 10 }} />
+                            style={{ width: '100%', accentColor: 'var(--sap-accent)', marginBottom: 10 }} />
                         </>
                       )}
                     </>
                   )}
 
-                  <div style={{ fontSize: 10, fontWeight: 800, color: '#94a3b8', marginBottom: 4 }}>Opacity</div>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--sap-text-faint)', marginBottom: 4 }}>Opacity</div>
                   <input type="range" min={0} max={100} value={Math.round((sel.opacity || 1) * 100)}
                     onChange={function(e) { upd('opacity', parseInt(e.target.value) / 100); }}
-                    style={{ width: '100%', accentColor: '#0ea5e9', marginBottom: 10 }} />
+                    style={{ width: '100%', accentColor: 'var(--sap-accent)', marginBottom: 10 }} />
 
                   <div style={{ display: 'flex', gap: 6 }}>
                     <button style={Object.assign({}, btnS, { flex: 1, fontSize: 11 })} onClick={dup}>Duplicate</button>
-                    <button style={Object.assign({}, btnS, { flex: 1, fontSize: 11, color: '#dc2626', borderColor: '#fecaca' })} onClick={del}>Delete</button>
+                    <button style={Object.assign({}, btnS, { flex: 1, fontSize: 11, color: 'var(--sap-red)', borderColor: 'var(--sap-red-bg-mid)' })} onClick={del}>Delete</button>
                   </div>
                 </div>
               ) : (
-                <div style={{ textAlign: 'center', padding: 12, color: '#94a3b8' }}>
+                <div style={{ textAlign: 'center', padding: 12, color: 'var(--sap-text-faint)' }}>
                   <div style={{ fontSize: 18, marginBottom: 6, opacity: .3 }}>👆</div>
                   <div style={{ fontSize: 11, lineHeight: 1.5 }}>Click an element on the canvas to see its properties</div>
                 </div>
@@ -320,12 +320,12 @@ export default function BannerMaker() {
 
             {/* Quick Gradient BG */}
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#0f172a', marginBottom: 10 }}>Quick Backgrounds</div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 10 }}>Quick Backgrounds</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }}>
                 {[
-                  ['#667eea','#764ba2'], ['#0f172a','#334155'], ['#059669','#34d399'],
-                  ['#f97316','#ec4899'], ['#0ea5e9','#14b8a6'], ['#8b5cf6','#3b82f6'],
-                  ['#dc2626','#fbbf24'], ['#78350f','#ca8a04'], ['#09090b','#18181b'],
+                  ['#667eea','#764ba2'], ['var(--sap-text-primary)','#334155'], ['var(--sap-green-dark)','#34d399'],
+                  ['#f97316','var(--sap-pink)'], ['var(--sap-accent)','#14b8a6'], ['var(--sap-purple)','#3b82f6'],
+                  ['var(--sap-red)','var(--sap-amber-bright)'], ['#78350f','#ca8a04'], ['#09090b','#18181b'],
                 ].map(function(pair, i) {
                   return <div key={i} style={{ height: 24, borderRadius: 4, cursor: 'pointer', background: 'linear-gradient(135deg,' + pair[0] + ',' + pair[1] + ')', border: '1px solid rgba(0,0,0,.1)' }}
                     onClick={function() { setGradBg(pair[0], pair[1]); }} />;
@@ -335,7 +335,7 @@ export default function BannerMaker() {
 
             {/* Image URL */}
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#0f172a', marginBottom: 10 }}>Add Image URL</div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 10 }}>Add Image URL</div>
               <div style={{ display: 'flex', gap: 4 }}>
                 <input id="bm-url" style={{ flex: 1, padding: '7px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, fontFamily: 'inherit' }} placeholder="https://..." />
                 <button style={Object.assign({}, btnS, { fontSize: 11 })} onClick={addImgUrl}>Add</button>
@@ -343,8 +343,8 @@ export default function BannerMaker() {
             </div>
 
             {/* Canvas info */}
-            <div style={{ padding: '10px 16px', background: '#f8f9fb', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 11, color: '#94a3b8' }}>
-              <span style={{ fontWeight: 800, color: '#475569' }}>{canvasSize.w}×{canvasSize.h}</span> · {canvasSize.name}
+            <div style={{ padding: '10px 16px', background: 'var(--sap-bg-input)', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 11, color: 'var(--sap-text-faint)' }}>
+              <span style={{ fontWeight: 800, color: 'var(--sap-text-secondary)' }}>{canvasSize.w}×{canvasSize.h}</span> · {canvasSize.name}
             </div>
           </div>
         </div>

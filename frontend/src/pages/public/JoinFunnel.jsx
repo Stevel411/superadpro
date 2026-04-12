@@ -36,14 +36,14 @@ export default function JoinFunnel() {
                 </div>
               )}
               <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.5)', marginBottom: 4 }}>
-                <strong style={{ color: '#38bdf8' }}>{firstName}</strong> invited you to join
+                <strong style={{ color: 'var(--sap-accent-light)' }}>{firstName}</strong> invited you to join
               </div>
             </>
           )}
 
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'rgba(14,165,233,0.1)', border: '1px solid rgba(14,165,233,0.25)', borderRadius: 100, padding: '6px 16px', marginBottom: 24, marginTop: 8 }}>
-            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#38bdf8', display: 'inline-block' }}/>
-            <span style={{ fontSize: 13, color: '#38bdf8', fontWeight: 700 }}>
+            <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--sap-accent-light)', display: 'inline-block' }}/>
+            <span style={{ fontSize: 13, color: 'var(--sap-accent-light)', fontWeight: 700 }}>
               {totalMembers ? `${totalMembers.toLocaleString()} active members` : 'Now accepting new members'}
             </span>
           </div>

@@ -8,15 +8,15 @@ import './creative-studio.css';
 
 // ── Video Models ──────────────────────────────────────
 const MODELS = [
-  { key: "wan26",      name: "WAN 2.6",          desc: "Budget-friendly, good quality",    badge: "CHEAPEST", cost: 1,  color: "#10b981", i2v: true,  audio: false, negPrompt: false, durations: [3,5,8],       resolutions: ["480p","720p"],        durationLabel: "3-8s",   pricePer10s: "$0.50",  tier: "budget" },
+  { key: "wan26",      name: "WAN 2.6",          desc: "Budget-friendly, good quality",    badge: "CHEAPEST", cost: 1,  color: "var(--sap-green-mid)", i2v: true,  audio: false, negPrompt: false, durations: [3,5,8],       resolutions: ["480p","720p"],        durationLabel: "3-8s",   pricePer10s: "$0.50",  tier: "budget" },
   { key: "seedance",   name: "Seedance 1.5 Pro", desc: "Great quality + native audio",     badge: "VALUE",    cost: 2,  color: "#fb923c", i2v: true,  audio: true,  negPrompt: false, durations: [4,5,8,10,12], resolutions: ["480p","720p","1080p"],durationLabel: "4-12s",  pricePer10s: "$1.00",  tier: "standard" },
   { key: "kling3",     name: "Kling 3.0",        desc: "Cinematic realism, smooth motion",  badge: "POPULAR",  cost: 3,  color: "#22d3ee", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15], resolutions: ["720p","1080p"],      durationLabel: "3-15s",  pricePer10s: "$1.20",  tier: "standard" },
-  { key: "grok-video", name: "Grok Imagine",     desc: "Creative with built-in audio",      badge: "AUDIO",    cost: 4,  color: "#ef4444", i2v: true,  audio: false, negPrompt: false, durations: [6,10],        resolutions: ["480p","720p"],        durationLabel: "6/10s",  pricePer10s: "$1.40",  tier: "standard" },
-  { key: "veo31",      name: "VEO 3.1 Fast",     desc: "Google, fast + fine detail",        badge: "NEW",      cost: 4,  color: "#38bdf8", i2v: true,  audio: false, negPrompt: false, durations: [4,6,8],       resolutions: ["720p","1080p","4K"],  durationLabel: "4/6/8s", pricePer10s: "$1.60",  tier: "standard" },
-  { key: "kling-o3",   name: "Kling O3",         desc: "Next-gen, exceptional detail",      badge: "BEST",     cost: 5,  color: "#8b5cf6", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15], resolutions: ["720p","1080p"],      durationLabel: "3-15s",  pricePer10s: "$2.00",  tier: "premium" },
-  { key: "sora2",      name: "Sora 2 Pro",       desc: "OpenAI flagship, photorealistic",   badge: "PREMIUM",  cost: 8,  color: "#a78bfa", i2v: true,  audio: false, negPrompt: false, durations: [4,8,12],      resolutions: ["720p","1080p"],      durationLabel: "4/8/12s",pricePer10s: "$3.00",  tier: "premium" },
+  { key: "grok-video", name: "Grok Imagine",     desc: "Creative with built-in audio",      badge: "AUDIO",    cost: 4,  color: "var(--sap-red-bright)", i2v: true,  audio: false, negPrompt: false, durations: [6,10],        resolutions: ["480p","720p"],        durationLabel: "6/10s",  pricePer10s: "$1.40",  tier: "standard" },
+  { key: "veo31",      name: "VEO 3.1 Fast",     desc: "Google, fast + fine detail",        badge: "NEW",      cost: 4,  color: "var(--sap-accent-light)", i2v: true,  audio: false, negPrompt: false, durations: [4,6,8],       resolutions: ["720p","1080p","4K"],  durationLabel: "4/6/8s", pricePer10s: "$1.60",  tier: "standard" },
+  { key: "kling-o3",   name: "Kling O3",         desc: "Next-gen, exceptional detail",      badge: "BEST",     cost: 5,  color: "var(--sap-purple)", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15], resolutions: ["720p","1080p"],      durationLabel: "3-15s",  pricePer10s: "$2.00",  tier: "premium" },
+  { key: "sora2",      name: "Sora 2 Pro",       desc: "OpenAI flagship, photorealistic",   badge: "PREMIUM",  cost: 8,  color: "var(--sap-purple-light)", i2v: true,  audio: false, negPrompt: false, durations: [4,8,12],      resolutions: ["720p","1080p"],      durationLabel: "4/8/12s",pricePer10s: "$3.00",  tier: "premium" },
   { key: "sora2-max",  name: "Sora 2 Max",       desc: "No watermark, premium OpenAI",      badge: "PRO",      cost: 10, color: "#c084fc", i2v: false, audio: false, negPrompt: false, durations: [10,15],       resolutions: ["720p","1080p"],      durationLabel: "10/15s", pricePer10s: "$4.00",  tier: "ultra" },
-  { key: "veo31-pro",  name: "VEO 3.1 Pro 4K",   desc: "Maximum quality, 4K + audio",       badge: "4K",       cost: 16, color: "#f59e0b", i2v: true,  audio: true,  negPrompt: false, durations: [4,6,8],       resolutions: ["720p","1080p","4K"],  durationLabel: "4/6/8s", pricePer10s: "$8.50",  tier: "ultra" },
+  { key: "veo31-pro",  name: "VEO 3.1 Pro 4K",   desc: "Maximum quality, 4K + audio",       badge: "4K",       cost: 16, color: "var(--sap-amber)", i2v: true,  audio: true,  negPrompt: false, durations: [4,6,8],       resolutions: ["720p","1080p","4K"],  durationLabel: "4/6/8s", pricePer10s: "$8.50",  tier: "ultra" },
 ];
 
 const RATIOS = [
@@ -139,17 +139,17 @@ export default function CreativeStudio() {
   var imgPollRef = useRef(null);
 
   var IMG_MODELS = [
-    { key: 'gemini-free',          name: 'Gemini AI',       desc: 'Fast AI image generation, 1K quality',  badge: 'NEW',  color: '#0ea5e9' },
-    { key: 'nano-banana-2',       name: 'Nano Banana 2',   desc: 'Best quality, text rendering',          badge: 'BEST', color: '#8b5cf6' },
-    { key: 'nano-banana-pro',     name: 'Nano Banana Pro',  desc: 'Photo-realistic, professional',        badge: '',     color: '#a78bfa' },
-    { key: 'nano-banana-2-beta',  name: 'NB2 Beta',        desc: 'Web search grounding',                  badge: 'NEW',  color: '#6366f1' },
-    { key: 'doubao-seedream-5.0-lite', name: 'Seedream 5.0', desc: 'ByteDance, flexible sizes',           badge: '',     color: '#f59e0b' },
+    { key: 'gemini-free',          name: 'Gemini AI',       desc: 'Fast AI image generation, 1K quality',  badge: 'NEW',  color: 'var(--sap-accent)' },
+    { key: 'nano-banana-2',       name: 'Nano Banana 2',   desc: 'Best quality, text rendering',          badge: 'BEST', color: 'var(--sap-purple)' },
+    { key: 'nano-banana-pro',     name: 'Nano Banana Pro',  desc: 'Photo-realistic, professional',        badge: '',     color: 'var(--sap-purple-light)' },
+    { key: 'nano-banana-2-beta',  name: 'NB2 Beta',        desc: 'Web search grounding',                  badge: 'NEW',  color: 'var(--sap-indigo)' },
+    { key: 'doubao-seedream-5.0-lite', name: 'Seedream 5.0', desc: 'ByteDance, flexible sizes',           badge: '',     color: 'var(--sap-amber)' },
     { key: 'doubao-seedream-4.5', name: 'Seedream 4.5',    desc: 'Multi-image editing, 4K',               badge: 'NEW',  color: '#fb923c' },
-    { key: 'gpt-image-1',        name: 'GPT Image',       desc: 'OpenAI image generation',               badge: '',     color: '#22c55e' },
-    { key: 'gpt-image-1.5',      name: 'GPT Image 1.5',   desc: 'True-color precision',                  badge: 'NEW',  color: '#10b981' },
-    { key: 'grok-image',         name: 'Grok Imagine',    desc: 'Fast AI image generation',              badge: 'NEW',  color: '#ef4444' },
-    { key: 'grok-image-pro',     name: 'Grok Imagine Pro', desc: 'Premium quality images',               badge: 'PRO',  color: '#dc2626' },
-    { key: 'z-image-turbo',      name: 'Z Turbo',         desc: 'Ultra-fast ~3 seconds',                 badge: 'FAST', color: '#38bdf8' },
+    { key: 'gpt-image-1',        name: 'GPT Image',       desc: 'OpenAI image generation',               badge: '',     color: 'var(--sap-green-bright)' },
+    { key: 'gpt-image-1.5',      name: 'GPT Image 1.5',   desc: 'True-color precision',                  badge: 'NEW',  color: 'var(--sap-green-mid)' },
+    { key: 'grok-image',         name: 'Grok Imagine',    desc: 'Fast AI image generation',              badge: 'NEW',  color: 'var(--sap-red-bright)' },
+    { key: 'grok-image-pro',     name: 'Grok Imagine Pro', desc: 'Premium quality images',               badge: 'PRO',  color: 'var(--sap-red)' },
+    { key: 'z-image-turbo',      name: 'Z Turbo',         desc: 'Ultra-fast ~3 seconds',                 badge: 'FAST', color: 'var(--sap-accent-light)' },
   ];
   var IMG_QUALITIES = ['1K', '2K', '4K'];
   var IMG_CREDIT_MAP = { '1K': 1, '2K': 2, '4K': 4 };
@@ -188,9 +188,9 @@ export default function CreativeStudio() {
 
   // ── Music tab state ──
   var MUSIC_MODELS = [
-    { key: 'suno-v4',   name: 'Suno V4',   cost: 1, color: '#f59e0b' },
+    { key: 'suno-v4',   name: 'Suno V4',   cost: 1, color: 'var(--sap-amber)' },
     { key: 'suno-v4.5', name: 'Suno V4.5', cost: 2, color: '#fb923c' },
-    { key: 'suno-v5',   name: 'Suno V5',   cost: 3, color: '#ef4444', badge: 'BEST' },
+    { key: 'suno-v5',   name: 'Suno V5',   cost: 3, color: 'var(--sap-red-bright)', badge: 'BEST' },
   ];
   var [musicModel, setMusicModel] = useState('suno-v4');
   var [musicPrompt, setMusicPrompt] = useState('');
@@ -513,7 +513,7 @@ export default function CreativeStudio() {
           </div>
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, paddingLeft: 16 }}>
             <span style={{ fontFamily: 'Sora, sans-serif', fontSize: 16, fontWeight: 800, color: '#4ade80' }}>{credits}</span>
-            <span style={{ fontSize: 11, color: '#94a3b8' }}>credits</span>
+            <span style={{ fontSize: 11, color: 'var(--sap-text-faint)' }}>credits</span>
             <button className="cs-credits-buy" onClick={function() { switchTab('credits'); }}>+ Buy</button>
           </div>
         </div>
@@ -531,7 +531,7 @@ export default function CreativeStudio() {
                 <video src={videoUrl} controls autoPlay loop/>
               ) : generating ? (
                 <div className="cs-stage-empty">
-                  <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
+                  <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: 'var(--sap-purple)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
                   <p style={{ color: 'rgba(255,255,255,.5)' }}>Generating your video...</p>
                   <small style={{ color: 'rgba(255,255,255,.25)' }}>{Math.round(genProgress)}% — please wait</small>
                 </div>
@@ -720,10 +720,10 @@ export default function CreativeStudio() {
             <div className="cs-matrix-banner">
               <div className="cs-matrix-banner-icon">
                 <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
-                  <rect x="3" y="3" width="7" height="7" rx="1.5" fill="#8b5cf6"/>
-                  <rect x="14" y="3" width="7" height="7" rx="1.5" fill="#a78bfa"/>
-                  <rect x="3" y="14" width="7" height="7" rx="1.5" fill="#a78bfa"/>
-                  <rect x="14" y="14" width="7" height="7" rx="1.5" fill="#8b5cf6"/>
+                  <rect x="3" y="3" width="7" height="7" rx="1.5" fill="var(--sap-purple)"/>
+                  <rect x="14" y="3" width="7" height="7" rx="1.5" fill="var(--sap-purple-light)"/>
+                  <rect x="3" y="14" width="7" height="7" rx="1.5" fill="var(--sap-purple-light)"/>
+                  <rect x="14" y="14" width="7" height="7" rx="1.5" fill="var(--sap-purple)"/>
                 </svg>
               </div>
               <div className="cs-matrix-banner-text">
@@ -746,7 +746,7 @@ export default function CreativeStudio() {
             <div className="cs-stage" style={{ background: imgResults.length > 0 ? 'transparent' : '#0a0f1e' }}>
               {imgGenerating ? (
                 <div className="cs-stage-empty">
-                  <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
+                  <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: 'var(--sap-purple)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
                   <p style={{ color: 'rgba(255,255,255,.5)' }}>Generating {imgBatch > 1 ? imgBatch + ' images' : 'image'}...</p>
                   <small style={{ color: 'rgba(255,255,255,.25)' }}>{selectedImgModel.name} · {imgQuality} · {imgSize}</small>
                 </div>
@@ -882,7 +882,7 @@ export default function CreativeStudio() {
             <div className="cs-stage" style={{ background: '#0a0f1e' }}>
               {musicGenerating ? (
                 <div className="cs-stage-empty">
-                  <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: '#f59e0b', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
+                  <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: 'var(--sap-amber)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
                   <p style={{ color: 'rgba(255,255,255,.5)' }}>Generating your track...</p>
                   <small style={{ color: 'rgba(255,255,255,.25)' }}>{(MUSIC_MODELS.find(function(m) { return m.key === musicModel; }) || {}).name} · {musicInstrumental ? 'Instrumental' : 'Vocal'}</small>
                 </div>
@@ -916,7 +916,7 @@ export default function CreativeStudio() {
                   <textarea className="cs-ta" rows={musicCustom ? 8 : 4} value={musicPrompt} onChange={function(e) { setMusicPrompt(e.target.value); }}
                     placeholder={musicCustom ? '[Verse]\nWalking down the road...\n\n[Chorus]\nHere we go again...' : 'Upbeat pop song for Instagram Reels, energetic and fun'}/>
                   {musicCustom && <div className="cs-ta-foot">
-                    <button style={{ fontSize: 12, fontWeight: 700, color: '#8b5cf6', background: '#f5f3ff', border: '1px solid #e9e5ff', borderRadius: 6, padding: '4px 12px', cursor: 'pointer', fontFamily: 'inherit' }} onClick={generateLyrics} disabled={lyricsGenerating}>{lyricsGenerating ? 'Writing...' : '✦ AI Lyrics Writer'}</button>
+                    <button style={{ fontSize: 12, fontWeight: 700, color: 'var(--sap-purple)', background: '#f5f3ff', border: '1px solid #e9e5ff', borderRadius: 6, padding: '4px 12px', cursor: 'pointer', fontFamily: 'inherit' }} onClick={generateLyrics} disabled={lyricsGenerating}>{lyricsGenerating ? 'Writing...' : '✦ AI Lyrics Writer'}</button>
                     <span className="cs-ta-ct">{musicPrompt.length}/3000</span>
                   </div>}
                 </div>
@@ -959,7 +959,7 @@ export default function CreativeStudio() {
             <div className="cs-stage" style={{ background: '#0a0f1e' }}>
               {voGenerating ? (
                 <div className="cs-stage-empty">
-                  <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: '#ec4899', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
+                  <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: 'var(--sap-pink)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
                   <p style={{ color: 'rgba(255,255,255,.5)' }}>Generating voiceover...</p>
                 </div>
               ) : voAudioUrl ? (
@@ -995,7 +995,7 @@ export default function CreativeStudio() {
                       var catVoices = VO_VOICES.filter(function(v) { return v.cat === cat; });
                       if (!catVoices.length) return null;
                       return <div key={cat}>
-                        <div style={{ fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '.8px', padding: '8px 0 4px', borderTop: cat !== 'American' ? '1px solid #f1f5f9' : 'none', marginTop: cat !== 'American' ? 4 : 0 }}>{cat}</div>
+                        <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-text-faint)', textTransform: 'uppercase', letterSpacing: '.8px', padding: '8px 0 4px', borderTop: cat !== 'American' ? '1px solid #f1f5f9' : 'none', marginTop: cat !== 'American' ? 4 : 0 }}>{cat}</div>
                         {catVoices.map(function(v) {
                           var isSel = voVoice === v.id;
                           var isPlaying = voPreviewPlaying === v.id;
@@ -1006,7 +1006,7 @@ export default function CreativeStudio() {
                               <div className="cs-model-desc">{v.desc}</div>
                             </div>
                             <div onClick={function(e) { e.stopPropagation(); previewVoice(v.id); }}
-                              style={{ width: 28, height: 28, borderRadius: 7, background: isPlaying ? '#ede9fe' : '#f8fafc', border: '1px solid ' + (isPlaying ? '#8b5cf6' : '#e2e8f0'), display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 11, color: isPlaying ? '#8b5cf6' : '#94a3b8', flexShrink: 0 }}
+                              style={{ width: 28, height: 28, borderRadius: 7, background: isPlaying ? 'var(--sap-purple-pale)' : 'var(--sap-bg-elevated)', border: '1px solid ' + (isPlaying ? 'var(--sap-purple)' : 'var(--sap-border)'), display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 11, color: isPlaying ? 'var(--sap-purple)' : 'var(--sap-text-faint)', flexShrink: 0 }}
                               title={isPlaying ? 'Stop preview' : 'Preview voice'}>{isPlaying ? '■' : '▶'}</div>
                           </div>;
                         })}
@@ -1030,7 +1030,7 @@ export default function CreativeStudio() {
             <div className="cs-stage" style={{ background: '#0a0f1e' }}>
               {voLipSyncing ? (
                 <div className="cs-stage-empty">
-                  <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
+                  <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: 'var(--sap-purple)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
                   <p style={{ color: 'rgba(255,255,255,.5)' }}>Creating talking avatar...</p>
                   <small style={{ color: 'rgba(255,255,255,.25)' }}>{Math.round(voLipSyncProgress)}%</small>
                 </div>
@@ -1073,21 +1073,21 @@ export default function CreativeStudio() {
                   <div className="cs-lbl">② Audio Source</div>
                   {voAudioUrl ? (
                     <div>
-                      <div style={{ fontSize: 12, color: '#22c55e', fontWeight: 600, marginBottom: 8 }}>✓ Voiceover ready</div>
+                      <div style={{ fontSize: 12, color: 'var(--sap-green-bright)', fontWeight: 600, marginBottom: 8 }}>✓ Voiceover ready</div>
                       <audio src={voAudioUrl} controls style={{ width: '100%' }}/>
-                      <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 6 }}>Generated from the Voiceover tab</div>
+                      <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', marginTop: 6 }}>Generated from the Voiceover tab</div>
                     </div>
                   ) : (
-                    <div style={{ textAlign: 'center', padding: 20, color: '#94a3b8', fontSize: 13 }}>
+                    <div style={{ textAlign: 'center', padding: 20, color: 'var(--sap-text-faint)', fontSize: 13 }}>
                       <div style={{ marginBottom: 8 }}>No audio yet</div>
-                      <button style={{ fontSize: 12, fontWeight: 700, color: '#8b5cf6', background: '#f5f3ff', border: '1px solid #e9e5ff', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontFamily: 'inherit' }} onClick={function() { switchTab('voiceover'); }}>Go to Voiceover tab →</button>
+                      <button style={{ fontSize: 12, fontWeight: 700, color: 'var(--sap-purple)', background: '#f5f3ff', border: '1px solid #e9e5ff', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontFamily: 'inherit' }} onClick={function() { switchTab('voiceover'); }}>Go to Voiceover tab →</button>
                     </div>
                   )}
                 </div>
                 <div className="cs-card">
                   <div className="cs-lbl">③ Generate</div>
-                  <div style={{ fontSize: 13, color: '#64748b', marginBottom: 12, lineHeight: 1.5 }}>Upload a person photo and create a voiceover first. Then generate a talking avatar video synced to the audio.</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8 }}>Cost: <b style={{ color: '#0f172a' }}>8 credits</b></div>
+                  <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginBottom: 12, lineHeight: 1.5 }}>Upload a person photo and create a voiceover first. Then generate a talking avatar video synced to the audio.</div>
+                  <div style={{ fontSize: 12, color: 'var(--sap-text-faint)', marginBottom: 8 }}>Cost: <b style={{ color: 'var(--sap-text-primary)' }}>8 credits</b></div>
                 </div>
               </div>
             </div>
@@ -1110,16 +1110,16 @@ export default function CreativeStudio() {
                     return <div key={v.id} style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#fff' }}>
                       <video src={v.video_url} muted preload="metadata" style={{ width: '100%', height: 120, objectFit: 'cover', display: 'block', cursor: 'pointer' }} onClick={function() { switchTab('video-clips'); setVideoUrl(v.video_url); setGenStatus('done'); }}/>
                       <div style={{ padding: '8px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: 11, color: '#94a3b8' }}>{v.model || 'Video'}</span>
+                        <span style={{ fontSize: 11, color: 'var(--sap-text-faint)' }}>{v.model || 'Video'}</span>
                         <button className="cs-sa-btn" style={{ padding: '4px 8px', fontSize: 10 }} onClick={function() { downloadVideo(v.video_url); }}>⬇</button>
                       </div>
                     </div>;
                   })}
                 </div>
               ) : (
-                <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8' }}>
+                <div style={{ textAlign: 'center', padding: 60, color: 'var(--sap-text-faint)' }}>
                   <div style={{ fontSize: 36, marginBottom: 12, opacity: .3 }}>📁</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#64748b' }}>No content yet</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--sap-text-muted)' }}>No content yet</div>
                   <div style={{ fontSize: 13, marginTop: 4 }}>Start creating videos, images, and music to see them here</div>
                 </div>
               )}

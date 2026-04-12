@@ -35,10 +35,10 @@ export default function InlineToolbar({ visible, position, onCommand }) {
   const TB = ({children, onClick, title, active, onMouseDown}) => (
     <button onMouseDown={onMouseDown || noFocus} onClick={onClick} title={title} style={{
       width:30,height:30,border:'none',borderRadius:6,background:active?'rgba(14,165,233,.15)':'transparent',
-      color:active?'#0ea5e9':'#5a6070',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'.12s',position:'relative',
+      color:active?'var(--sap-accent)':'#5a6070',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'.12s',position:'relative',
     }}>{children}</button>
   );
-  const Sep = () => <div style={{width:1,height:20,background:'#e2e8f0',margin:'0 2px'}}/>;
+  const Sep = () => <div style={{width:1,height:20,background:'var(--sap-border)',margin:'0 2px'}}/>;
 
   // Open colour picker — save selection first, restore on change
   const openPicker = (ref) => {
@@ -62,7 +62,7 @@ export default function InlineToolbar({ visible, position, onCommand }) {
     }}>
       {/* Font family */}
       <select onMouseDown={e => e.stopPropagation()} onChange={e => cmd('fontName', e.target.value)} defaultValue=""
-        style={{height:28,border:'1px solid #e2e8f0',borderRadius:6,fontSize:10,fontWeight:600,color:'#475569',background:'#fff',padding:'0 4px',maxWidth:90,cursor:'pointer',outline:'none'}}>
+        style={{height:28,border:'1px solid #e2e8f0',borderRadius:6,fontSize:10,fontWeight:600,color:'var(--sap-text-secondary)',background:'#fff',padding:'0 4px',maxWidth:90,cursor:'pointer',outline:'none'}}>
         <option value="" disabled>Font</option>
         {FONTS.map(f => <option key={f.value} value={f.value} style={{fontFamily:f.value}}>{f.label}</option>)}
       </select>
@@ -72,7 +72,7 @@ export default function InlineToolbar({ visible, position, onCommand }) {
           document.querySelectorAll('font[size="7"]').forEach(el => { el.removeAttribute('size'); el.style.fontSize = sz; });
           if (onCommand) onCommand();
         }, 10); }} defaultValue=""
-        style={{height:28,border:'1px solid #e2e8f0',borderRadius:6,fontSize:10,fontWeight:600,color:'#475569',background:'#fff',padding:'0 4px',width:52,cursor:'pointer',outline:'none'}}>
+        style={{height:28,border:'1px solid #e2e8f0',borderRadius:6,fontSize:10,fontWeight:600,color:'var(--sap-text-secondary)',background:'#fff',padding:'0 4px',width:52,cursor:'pointer',outline:'none'}}>
         <option value="" disabled>Size</option>
         {FONT_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
       </select>
@@ -89,8 +89,8 @@ export default function InlineToolbar({ visible, position, onCommand }) {
       {/* Text colour */}
       <div style={{position:'relative'}}>
         <TB onClick={() => openPicker(colorRef)} title="Text Colour">
-          <span style={{fontSize:10,fontWeight:800,color:'#475569'}}>A</span>
-          <div style={{position:'absolute',bottom:3,left:7,right:7,height:3,background:'#ef4444',borderRadius:1}}/>
+          <span style={{fontSize:10,fontWeight:800,color:'var(--sap-text-secondary)'}}>A</span>
+          <div style={{position:'absolute',bottom:3,left:7,right:7,height:3,background:'var(--sap-red-bright)',borderRadius:1}}/>
         </TB>
         <input ref={colorRef} type="color" defaultValue="#ffffff"
           onChange={e => applyColor('foreColor', e.target.value)}
@@ -100,9 +100,9 @@ export default function InlineToolbar({ visible, position, onCommand }) {
       {/* Background highlight */}
       <div style={{position:'relative'}}>
         <TB onClick={() => openPicker(bgRef)} title="Background Highlight">
-          <span style={{fontSize:10,fontWeight:800,color:'#475569',background:'#fbbf24',padding:'1px 4px',borderRadius:3}}>A</span>
+          <span style={{fontSize:10,fontWeight:800,color:'var(--sap-text-secondary)',background:'var(--sap-amber-bright)',padding:'1px 4px',borderRadius:3}}>A</span>
         </TB>
-        <input ref={bgRef} type="color" defaultValue="#fbbf24"
+        <input ref={bgRef} type="color" defaultValue="var(--sap-amber-bright)"
           onChange={e => applyColor('hiliteColor', e.target.value)}
           style={{position:'absolute',top:0,left:0,width:0,height:0,opacity:0,overflow:'hidden',border:'none',padding:0}}/>
       </div>
@@ -116,7 +116,7 @@ export default function InlineToolbar({ visible, position, onCommand }) {
       <Sep/>
 
       <TB onClick={() => cmd('removeFormat')} title="Clear Formatting">
-        <span style={{fontSize:11,fontWeight:800,color:'#dc2626'}}>✕</span>
+        <span style={{fontSize:11,fontWeight:800,color:'var(--sap-red)'}}>✕</span>
       </TB>
     </div>
   );

@@ -15,7 +15,7 @@ var PLATFORMS = [
   { key: 'telegram',  label: 'Telegram',  color: '#26A5E4', svg: '<path d="M248 8C111 8 0 119 0 256s111 248 248 248 248-111 248-248S385 8 248 8zm121.8 169.9l-40.7 191.8c-3 13.6-11.1 16.9-22.4 10.5l-62-45.7-29.9 28.8c-3.3 3.3-6.1 6.1-12.5 6.1l4.4-63.1 114.9-103.8c5-4.4-1.1-6.9-7.7-2.5l-142 89.4-61.2-19.1c-13.3-4.2-13.6-13.3 2.8-19.7l239.1-92.2c11.1-4 20.8 2.7 17.2 19.5z"/>', vb: '0 0 496 512' },
   { key: 'reddit',    label: 'Reddit',    color: '#FF4500', svg: '<path d="M12 22c5.52 0 10-4.48 10-10S17.52 2 12 2 2 6.48 2 12s4.48 10 10 10zM8.5 14a1.5 1.5 0 100-3 1.5 1.5 0 000 3zm7-1.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM12 18c-2 0-3.5-.8-4-2h8c-.5 1.2-2 2-4 2z"/>' },
   { key: 'pinterest', label: 'Pinterest', color: '#E60023', svg: '<path d="M12 2a10 10 0 00-3.64 19.33c-.1-.85-.18-2.16.04-3.09l.59-2.52s-.44-.88-.44-2.18c0-2.04 1.18-3.57 2.66-3.57 1.25 0 1.86.94 1.86 2.07 0 1.26-.8 3.14-1.22 4.89-.35 1.47.74 2.66 2.18 2.66 2.62 0 4.63-2.76 4.63-6.74 0-3.52-2.53-5.99-6.14-5.99z"/>' },
-  { key: 'email',     label: 'Email',     color: '#6366f1', svg: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/>', isStroke: true },
+  { key: 'email',     label: 'Email',     color: 'var(--sap-indigo)', svg: '<path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M22 6l-10 7L2 6"/>', isStroke: true },
   { key: 'snapchat',  label: 'Snapchat',  color: '#FFFC00', svg: '<path d="M12 2C6.48 2 4 5 4 8c0 1.5.5 2.5 1 3-.5.3-1.5.5-1.5 1s1 1 2 1.2c-.2.8-.5 1.5-1.2 2.3.8.2 1.5.3 2.2-.2.5 1 1.5 2 3.5 2.2-.3.5-.5 1.2-.5 1.5h5c0-.3-.2-1-.5-1.5 2-.2 3-1.2 3.5-2.2.7.5 1.4.4 2.2.2-.7-.8-1-1.5-1.2-2.3 1-.2 2-.2 2-1.2s-1-.7-1.5-1c.5-.5 1-1.5 1-3 0-3-2.48-6-8-6z"/>', dark: true },
 ];
 
@@ -83,11 +83,11 @@ export default function Affiliate() {
       </div>
 
       {/* Workspace */}
-      <div style={{ display: 'flex', minHeight: 500, background: '#f1f5f9' }}>
+      <div style={{ display: 'flex', minHeight: 500, background: 'var(--sap-bg-page)' }}>
         {/* Left panel */}
         <div style={{ width: 380, flexShrink: 0, background: '#fff', borderRight: '1px solid #e2e8f0', padding: 22, overflowY: 'auto' }}>
           <div style={{ fontSize: 17, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>{t('socialShare.generatePost')}</div>
-          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 16 }}>{t('socialShare.generateDesc')}</div>
+          <div style={{ fontSize: 12, color: 'var(--sap-text-muted)', marginBottom: 16 }}>{t('socialShare.generateDesc')}</div>
 
           <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>Platform</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 18 }}>
@@ -109,7 +109,7 @@ export default function Affiliate() {
                       style={{ display: 'block' }}
                       dangerouslySetInnerHTML={{ __html: p.svg }} />
                   </div>
-                  <span style={{ fontSize: 12, fontWeight: on ? 700 : 500, color: on ? (p.dark ? '#0f172a' : '#fff') : '#475569' }}>{p.label}</span>
+                  <span style={{ fontSize: 12, fontWeight: on ? 700 : 500, color: on ? (p.dark ? 'var(--sap-text-primary)' : '#fff') : 'var(--sap-text-secondary)' }}>{p.label}</span>
                 </div>
               );
             })}
@@ -119,17 +119,17 @@ export default function Affiliate() {
           <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
             {TONES.map(function(t) {
               var on = tone === t;
-              return <button key={t} onClick={function() { setTone(t); }} style={{ padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: on ? 500 : 400, cursor: 'pointer', fontFamily: 'inherit', border: on ? '1px solid #93c5fd' : '1px solid #e2e8f0', background: on ? '#eff6ff' : '#f8fafc', color: on ? '#2563eb' : '#64748b', transition: 'all .15s' }}>{t}</button>;
+              return <button key={t} onClick={function() { setTone(t); }} style={{ padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: on ? 500 : 400, cursor: 'pointer', fontFamily: 'inherit', border: on ? '1px solid #93c5fd' : '1px solid #e2e8f0', background: on ? '#eff6ff' : 'var(--sap-bg-elevated)', color: on ? '#2563eb' : 'var(--sap-text-muted)', transition: 'all .15s' }}>{t}</button>;
             })}
           </div>
 
           <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>{t('socialShare.yourNiche')}</div>
           <input value={niche} onChange={function(e) { setNiche(e.target.value); }}
             placeholder={t("socialShare.nichePlaceholder")}
-            style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '11px 12px', fontSize: 13, fontFamily: 'inherit', background: '#f8fafc', boxSizing: 'border-box', outline: 'none', color: '#1e293b' }} />
+            style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '11px 12px', fontSize: 13, fontFamily: 'inherit', background: 'var(--sap-bg-elevated)', boxSizing: 'border-box', outline: 'none', color: '#1e293b' }} />
 
           <button onClick={generate} disabled={generating}
-            style={{ width: '100%', marginTop: 20, padding: 13, background: generating ? '#94a3b8' : 'linear-gradient(135deg, #0ea5e9, #38bdf8)', color: '#fff', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', opacity: generating ? 0.7 : 1, transition: 'all .2s' }}>
+            style={{ width: '100%', marginTop: 20, padding: 13, background: generating ? 'var(--sap-text-faint)' : 'linear-gradient(135deg, #0ea5e9, #38bdf8)', color: '#fff', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', opacity: generating ? 0.7 : 1, transition: 'all .2s' }}>
             {generating ? t('socialShare.generating') : t('socialShare.generateFor', {platform: selected.label})}
           </button>
         </div>
@@ -141,22 +141,22 @@ export default function Affiliate() {
             {generating ? (
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ textAlign: 'center' }}>
-                  <div style={{ width: 36, height: 36, border: '3px solid #e2e8f0', borderTopColor: '#0ea5e9', borderRadius: '50%', animation: 'ssspin .8s linear infinite', margin: '0 auto 12px' }} />
-                  <div style={{ fontSize: 13, color: '#64748b' }}>{t('socialShare.writingPost', {platform: selected.label})}</div>
+                  <div style={{ width: 36, height: 36, border: '3px solid #e2e8f0', borderTopColor: 'var(--sap-accent)', borderRadius: '50%', animation: 'ssspin .8s linear infinite', margin: '0 auto 12px' }} />
+                  <div style={{ fontSize: 13, color: 'var(--sap-text-muted)' }}>{t('socialShare.writingPost', {platform: selected.label})}</div>
                 </div>
               </div>
             ) : post ? (
               <>
                 <div style={{ flex: 1, padding: 20, overflowY: 'auto' }}>
-                  <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', fontFamily: "'DM Sans',sans-serif", fontSize: 13, lineHeight: 1.7, color: '#334155', margin: 0 }}>{post}</pre>
+                  <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', fontFamily: "'DM Sans',sans-serif", fontSize: 13, lineHeight: 1.7, color: 'var(--sap-text-ghost)', margin: 0 }}>{post}</pre>
                 </div>
                 <div style={{ padding: '12px 20px', borderTop: '1px solid #e2e8f0', display: 'flex', gap: 8 }}>
                   <button onClick={function() { navigator.clipboard.writeText(post); setPostCopied(true); setTimeout(function() { setPostCopied(false); }, 2000); }}
-                    style={{ padding: '10px 16px', borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: 'pointer', border: '1px solid #e2e8f0', background: postCopied ? '#dcfce7' : '#f8fafc', color: postCopied ? '#16a34a' : '#475569', fontFamily: 'inherit' }}>
+                    style={{ padding: '10px 16px', borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: 'pointer', border: '1px solid #e2e8f0', background: postCopied ? 'var(--sap-green-bg-mid)' : 'var(--sap-bg-elevated)', color: postCopied ? 'var(--sap-green)' : 'var(--sap-text-secondary)', fontFamily: 'inherit' }}>
                     {postCopied ? t('socialShare.copied') : t('socialShare.copyPost')}
                   </button>
                   <button onClick={generate} disabled={generating}
-                    style={{ padding: '10px 16px', borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: 'pointer', border: '1px solid #e2e8f0', background: '#f8fafc', color: '#475569', fontFamily: 'inherit' }}>
+                    style={{ padding: '10px 16px', borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: 'pointer', border: '1px solid #e2e8f0', background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-secondary)', fontFamily: 'inherit' }}>
                     ↻ Regenerate
                   </button>
                   <button onClick={shareNow}
@@ -168,11 +168,11 @@ export default function Affiliate() {
             ) : (
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ textAlign: 'center', padding: 40 }}>
-                  <div style={{ width: 48, height: 48, margin: '0 auto 14px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                  <div style={{ width: 48, height: 48, margin: '0 auto 14px', borderRadius: '50%', background: 'var(--sap-bg-page)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--sap-text-faint)" strokeWidth="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                   </div>
                   <div style={{ fontSize: 15, fontWeight: 500, color: '#1e293b' }}>{t('socialShare.postWillAppear')}</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 6, maxWidth: 280 }}>{t('socialShare.postWillAppearDesc')}</div>
+                  <div style={{ fontSize: 12, color: 'var(--sap-text-faint)', marginTop: 6, maxWidth: 280 }}>{t('socialShare.postWillAppearDesc')}</div>
                 </div>
               </div>
             )}

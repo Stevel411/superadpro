@@ -4,19 +4,19 @@ export default function EditorTopbar({ title, slug, saving, dirty, status, onSav
   const isPublished = status === 'published';
   return (
     <div style={{
-      height: 60, background: '#172554', borderBottom: '1px solid #1e3a8a',
+      height: 60, background: 'var(--sap-cobalt-deep)', borderBottom: '1px solid #1e3a8a',
       display: 'flex', alignItems: 'center', padding: '0 16px', gap: 10, flexShrink: 0, zIndex: 50,
     }}>
       {/* SuperPages Logo — Concept B */}
       <div onClick={onBack} style={{cursor:'pointer',display:'flex',alignItems:'center',gap:8,flexShrink:0}}>
         <svg width="28" height="28" viewBox="0 0 48 48">
-          <rect x="6" y="6" width="16" height="16" rx="4" fill="#0ea5e9" opacity=".9"/>
-          <rect x="26" y="6" width="16" height="16" rx="4" fill="#6366f1" opacity=".7"/>
-          <rect x="6" y="26" width="16" height="16" rx="4" fill="#6366f1" opacity=".5"/>
-          <rect x="26" y="26" width="16" height="16" rx="4" fill="#0ea5e9" opacity=".3"/>
+          <rect x="6" y="6" width="16" height="16" rx="4" fill="var(--sap-accent)" opacity=".9"/>
+          <rect x="26" y="6" width="16" height="16" rx="4" fill="var(--sap-indigo)" opacity=".7"/>
+          <rect x="6" y="26" width="16" height="16" rx="4" fill="var(--sap-indigo)" opacity=".5"/>
+          <rect x="26" y="26" width="16" height="16" rx="4" fill="var(--sap-accent)" opacity=".3"/>
         </svg>
         <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:15,color:'#fff',lineHeight:1}}>
-          Super<span style={{color:'#0ea5e9'}}>Pages</span>
+          Super<span style={{color:'var(--sap-accent)'}}>Pages</span>
         </div>
       </div>
 
@@ -24,17 +24,17 @@ export default function EditorTopbar({ title, slug, saving, dirty, status, onSav
 
       <div style={{fontSize:12,color:'rgba(255,255,255,.4)',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
         {title || 'Untitled Page'}
-        {dirty && <span style={{color:'#f59e0b',marginLeft:6}}>●</span>}
+        {dirty && <span style={{color:'var(--sap-amber)',marginLeft:6}}>●</span>}
       </div>
 
       {/* Device view toggles */}
-      <button onClick={() => onSetDevice('desktop')} style={{...gh,background:deviceView==='desktop'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='desktop'?'#38bdf8':'rgba(255,255,255,.45)'}} title="Desktop (1100px)">
+      <button onClick={() => onSetDevice('desktop')} style={{...gh,background:deviceView==='desktop'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='desktop'?'var(--sap-accent-light)':'rgba(255,255,255,.45)'}} title="Desktop (1100px)">
         <Monitor size={14}/>
       </button>
-      <button onClick={() => onSetDevice('tablet')} style={{...gh,background:deviceView==='tablet'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='tablet'?'#38bdf8':'rgba(255,255,255,.45)'}} title="Tablet (768px)">
+      <button onClick={() => onSetDevice('tablet')} style={{...gh,background:deviceView==='tablet'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='tablet'?'var(--sap-accent-light)':'rgba(255,255,255,.45)'}} title="Tablet (768px)">
         <Tablet size={14}/>
       </button>
-      <button onClick={() => onSetDevice('mobile')} style={{...gh,background:deviceView==='mobile'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='mobile'?'#38bdf8':'rgba(255,255,255,.45)'}} title="Mobile (390px)">
+      <button onClick={() => onSetDevice('mobile')} style={{...gh,background:deviceView==='mobile'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='mobile'?'var(--sap-accent-light)':'rgba(255,255,255,.45)'}} title="Mobile (390px)">
         <Smartphone size={14}/>
       </button>
 
@@ -46,30 +46,30 @@ export default function EditorTopbar({ title, slug, saving, dirty, status, onSav
       <div style={{width:1,height:22,background:'rgba(255,255,255,0.06)'}}/>
 
       <button onClick={onShowSettings} style={gh}><Settings size={13}/> <span style={{marginLeft:2}}>Settings</span></button>
-      <button onClick={onShowHelp} style={{...gh,color:'#38bdf8'}}><HelpCircle size={13}/> <span style={{marginLeft:2}}>Help</span></button>
-      <button onClick={onClear} style={{...gh,color:'#dc2626'}}><Trash2 size={13}/></button>
+      <button onClick={onShowHelp} style={{...gh,color:'var(--sap-accent-light)'}}><HelpCircle size={13}/> <span style={{marginLeft:2}}>Help</span></button>
+      <button onClick={onClear} style={{...gh,color:'var(--sap-red)'}}><Trash2 size={13}/></button>
 
       <div style={{width:1,height:22,background:'rgba(255,255,255,0.06)'}}/>
 
       {/* Preview */}
-      <button onClick={onTogglePreview} style={{...btn,background:previewMode?'#6366f1':'rgba(99,102,241,.15)',color:previewMode?'#fff':'#818cf8'}}>
+      <button onClick={onTogglePreview} style={{...btn,background:previewMode?'var(--sap-indigo)':'rgba(99,102,241,.15)',color:previewMode?'#fff':'#818cf8'}}>
         <Eye size={13}/> {previewMode ? 'Edit' : 'Preview'}
       </button>
 
       {/* Save */}
-      <button onClick={onSave} disabled={saving} style={{...btn,background:saving?'#64748b':'#10b981',color:'#fff'}}>
+      <button onClick={onSave} disabled={saving} style={{...btn,background:saving?'var(--sap-text-muted)':'var(--sap-green-mid)',color:'#fff'}}>
         <Save size={13}/> {saving ? 'Saving...' : 'Save'}
       </button>
 
       {/* Publish toggle */}
-      <button onClick={onTogglePublish} style={{...btn,background:isPublished?'rgba(22,163,74,.12)':'rgba(14,165,233,.12)',color:isPublished?'#16a34a':'#38bdf8',border:`1px solid ${isPublished?'rgba(22,163,74,.2)':'rgba(14,165,233,.2)'}`}}>
+      <button onClick={onTogglePublish} style={{...btn,background:isPublished?'rgba(22,163,74,.12)':'rgba(14,165,233,.12)',color:isPublished?'var(--sap-green)':'var(--sap-accent-light)',border:`1px solid ${isPublished?'rgba(22,163,74,.2)':'rgba(14,165,233,.2)'}`}}>
         {isPublished ? <><Globe size={13}/> Published</> : <><GlobeLock size={13}/> Publish</>}
       </button>
 
       {/* Live link */}
       {isPublished && slug && (
         <a href={`/p/${slug}`} target="_blank" rel="noopener noreferrer"
-          style={{...btn,background:'#0ea5e9',color:'#fff',textDecoration:'none'}}>
+          style={{...btn,background:'var(--sap-accent)',color:'#fff',textDecoration:'none'}}>
           Open ↗
         </a>
       )}

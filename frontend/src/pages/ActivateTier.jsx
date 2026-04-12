@@ -28,7 +28,7 @@ export default function ActivateTier() {
   const n = parseInt(tierId);
   const tier = TIERS[n];
 
-  if (!t) return <AppLayout title="Campaign Tier"><div style={{textAlign:'center',padding:80,color:'#64748b'}}>Invalid tier</div></AppLayout>;
+  if (!t) return <AppLayout title="Campaign Tier"><div style={{textAlign:'center',padding:80,color:'var(--sap-text-muted)'}}>Invalid tier</div></AppLayout>;
 
   const handleNowPayments = async () => {
     if (paying) return;
@@ -77,7 +77,7 @@ export default function ActivateTier() {
 
         {/* PAY BUTTONS */}
         {error && (
-          <div style={{padding:'12px 16px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:10,marginBottom:12,fontSize:13,fontWeight:600,color:'#dc2626'}}>{error}</div>
+          <div style={{padding:'12px 16px',background:'var(--sap-red-bg)',border:'1px solid #fecaca',borderRadius:10,marginBottom:12,fontSize:13,fontWeight:600,color:'var(--sap-red)'}}>{error}</div>
         )}
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 20 }}>
@@ -102,21 +102,21 @@ export default function ActivateTier() {
             width:'100%', padding:15, borderRadius:12,
             fontSize:15, fontWeight:700, cursor:paying?'wait':'pointer',
             fontFamily:'inherit',
-            background:'#fff', color:'#64748b',
+            background:'#fff', color:'var(--sap-text-muted)',
             border:'1.5px solid #e2e8f0',
             transition:'all 0.2s',
           }}
-            onMouseOver={function(e){ e.currentTarget.style.borderColor='#0ea5e9'; e.currentTarget.style.color='#0ea5e9'; }}
-            onMouseOut={function(e){ e.currentTarget.style.borderColor='#e2e8f0'; e.currentTarget.style.color='#64748b'; }}
+            onMouseOver={function(e){ e.currentTarget.style.borderColor='var(--sap-accent)'; e.currentTarget.style.color='var(--sap-accent)'; }}
+            onMouseOut={function(e){ e.currentTarget.style.borderColor='var(--sap-border)'; e.currentTarget.style.color='var(--sap-text-muted)'; }}
           >
             <Globe size={17} />
             {paying ? 'Creating payment...' : `\uD83C\uDF10 Pay with 350+ Cryptos — $${tier.price.toLocaleString()}`}
           </button>
 
-          <div style={{textAlign:'center',fontSize:10,color:'#64748b'}}>{"\uD83D\uDD12"} Secure payment · Instant activation · {"\uD83D\uDCB3"} Card payments coming soon</div>
+          <div style={{textAlign:'center',fontSize:10,color:'var(--sap-text-muted)'}}>{"\uD83D\uDD12"} Secure payment · Instant activation · {"\uD83D\uDCB3"} Card payments coming soon</div>
         </div>
 
-        <div style={{padding:'10px 14px',background:'#fef2f2',border:'1px solid #fecaca',borderRadius:10,marginBottom:24,fontSize:12,color:'#991b1b',lineHeight:1.5,textAlign:'center'}}>
+        <div style={{padding:'10px 14px',background:'var(--sap-red-bg)',border:'1px solid #fecaca',borderRadius:10,marginBottom:24,fontSize:12,color:'#991b1b',lineHeight:1.5,textAlign:'center'}}>
           <strong>All sales are final.</strong> Campaign tier purchases are non-refundable. Commissions are paid instantly upon purchase and cannot be reversed.
         </div>
 
@@ -130,7 +130,7 @@ export default function ActivateTier() {
         )}
 
         <div style={{textAlign:'center',marginBottom:16}}>
-          <Link to="/campaign-tiers" style={{fontSize:13,color:'#64748b',textDecoration:'none'}}>← Back to Campaign Tiers</Link>
+          <Link to="/campaign-tiers" style={{fontSize:13,color:'var(--sap-text-muted)',textDecoration:'none'}}>← Back to Campaign Tiers</Link>
         </div>
       </div>
     </AppLayout>

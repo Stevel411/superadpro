@@ -35,7 +35,7 @@ export default function HomePage() {
   }, []);
 
   return (
-    <div style={{ background:'#172554', color:'#fff', fontFamily:"'DM Sans',sans-serif", minHeight:'100vh' }}>
+    <div style={{ background:'var(--sap-cobalt-deep)', color:'#fff', fontFamily:"'DM Sans',sans-serif", minHeight:'100vh' }}>
       <style>{`
         @keyframes hp-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.5;transform:scale(1.4)}}
         @keyframes hp-fadeUp{from{opacity:0;transform:translateY(25px)}to{opacity:1;transform:translateY(0)}}
@@ -67,7 +67,7 @@ export default function HomePage() {
           <div style={{ width:36, height:36, borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#6366f1)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 12px rgba(14,165,233,0.3)' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><polygon points="10,4 10,20 21,12" fill="#fff"/></svg>
           </div>
-          <span style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:900, color:'#fff' }}>SuperAd<span style={{ color:'#38bdf8' }}>Pro</span></span>
+          <span style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:900, color:'#fff' }}>SuperAd<span style={{ color:'var(--sap-accent-light)' }}>Pro</span></span>
         </Link>
         <div className="hp-nav-links hp-nav" style={{ display:'flex', alignItems:'center', gap:24 }}>
           <Link to="/explore" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>{t('home.explore')}</Link>
@@ -91,7 +91,7 @@ export default function HomePage() {
         {/* Content */}
         <div className="hp-hero-content" style={{ position:'relative', zIndex:2, maxWidth:1200, margin:'0 auto', padding:'120px 48px 60px', width:'100%' }}>
           <div className="hp-f1" style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'8px 20px', borderRadius:99, background:'rgba(0,0,0,0.3)', border:'1px solid rgba(255,255,255,0.1)', fontSize:12, fontWeight:700, color:'rgba(255,255,255,0.7)', marginBottom:32, letterSpacing:1, textTransform:'uppercase', backdropFilter:'blur(8px)' }}>
-            <span style={{ width:6, height:6, borderRadius:'50%', background:'#10b981', animation:'hp-pulse 2s ease-in-out infinite' }}/>
+            <span style={{ width:6, height:6, borderRadius:'50%', background:'var(--sap-green-mid)', animation:'hp-pulse 2s ease-in-out infinite' }}/>
             {t('home.creativePlatform')}
           </div>
 
@@ -125,15 +125,15 @@ export default function HomePage() {
             {/* Live member counter */}
             {stats && stats.members > 0 && (
               <div style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 20px', borderRadius:14, background:'rgba(0,0,0,0.35)', border:'1px solid rgba(255,255,255,0.08)', backdropFilter:'blur(8px)' }}>
-                <span style={{ width:8, height:8, borderRadius:'50%', background:'#22c55e', animation:'hp-pulse 2s ease-in-out infinite', flexShrink:0 }}/>
-                <span style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:900, color:'#22c55e' }}>{stats.members.toLocaleString()}</span>
+                <span style={{ width:8, height:8, borderRadius:'50%', background:'var(--sap-green-bright)', animation:'hp-pulse 2s ease-in-out infinite', flexShrink:0 }}/>
+                <span style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:900, color:'var(--sap-green-bright)' }}>{stats.members.toLocaleString()}</span>
                 <span style={{ fontSize:13, color:'rgba(255,255,255,0.5)', fontWeight:600 }}>{t('home.activeMembers')}</span>
               </div>
             )}
             {[
-              { val: t('home.aiCreativeStudio'), color: '#38bdf8', label: t('home.aiStudioDesc') },
+              { val: t('home.aiCreativeStudio'), color: 'var(--sap-accent-light)', label: t('home.aiStudioDesc') },
               { val: t('home.videoAdvertising'), color: '#34d399', label: t('home.videoAdDesc') },
-              { val: t('home.affiliateSystem'), color: '#fbbf24', label: t('home.affiliateDesc') },
+              { val: t('home.affiliateSystem'), color: 'var(--sap-amber-bright)', label: t('home.affiliateDesc') },
             ].map(function(s, i) {
               return (
                 <div key={i} className="hp-stat" style={{ textAlign:'left' }}>

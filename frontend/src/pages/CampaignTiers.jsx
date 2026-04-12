@@ -11,14 +11,14 @@ import { formatMoney } from '../utils/money';
    ───────────────────────────────────────────── */
 
 var TIER_ACCENTS = {
-  1: { color:'#10b981', dark:'#059669', bg:'#f0fdf4', border:'#bbf7d0', grad:'linear-gradient(135deg,#059669,#10b981)', cardGrad:'linear-gradient(135deg,#064e3b,#047857,#10b981)' },
+  1: { color:'var(--sap-green-mid)', dark:'var(--sap-green-dark)', bg:'var(--sap-green-bg)', border:'#bbf7d0', grad:'linear-gradient(135deg,#059669,#10b981)', cardGrad:'linear-gradient(135deg,#064e3b,#047857,#10b981)' },
   2: { color:'#3b82f6', dark:'#2563eb', bg:'#eff6ff', border:'#bfdbfe', grad:'linear-gradient(135deg,#2563eb,#3b82f6)', cardGrad:'linear-gradient(135deg,#1e3a5f,#2563eb,#3b82f6)' },
-  3: { color:'#8b5cf6', dark:'#7c3aed', bg:'#ede9fe', border:'#c4b5fd', grad:'linear-gradient(135deg,#7c3aed,#8b5cf6)', cardGrad:'linear-gradient(135deg,#172554,#4c1d95,#8b5cf6)' },
-  4: { color:'#ec4899', dark:'#db2777', bg:'#fce7f3', border:'#f9a8d4', grad:'linear-gradient(135deg,#db2777,#ec4899)', cardGrad:'linear-gradient(135deg,#831843,#be185d,#ec4899)' },
+  3: { color:'var(--sap-purple)', dark:'var(--sap-violet)', bg:'var(--sap-purple-pale)', border:'#c4b5fd', grad:'linear-gradient(135deg,#7c3aed,#8b5cf6)', cardGrad:'linear-gradient(135deg,#172554,#4c1d95,#8b5cf6)' },
+  4: { color:'var(--sap-pink)', dark:'#db2777', bg:'#fce7f3', border:'#f9a8d4', grad:'linear-gradient(135deg,#db2777,#ec4899)', cardGrad:'linear-gradient(135deg,#831843,#be185d,#ec4899)' },
   5: { color:'#14b8a6', dark:'#0d9488', bg:'#ccfbf1', border:'#99f6e4', grad:'linear-gradient(135deg,#0d9488,#14b8a6)', cardGrad:'linear-gradient(135deg,#134e4a,#0d9488,#2dd4bf)' },
   6: { color:'#9ca3af', dark:'#6b7280', bg:'#f3f4f6', border:'#d1d5db', grad:'linear-gradient(135deg,#6b7280,#9ca3af)', cardGrad:'linear-gradient(135deg,#6b7280,#9ca3af,#d1d5db)', darkText:true },
-  7: { color:'#f59e0b', dark:'#b45309', bg:'#fef3c7', border:'#fde68a', grad:'linear-gradient(135deg,#b45309,#f59e0b)', cardGrad:'linear-gradient(135deg,#78350f,#b45309,#fbbf24)' },
-  8: { color:'#ef4444', dark:'#dc2626', bg:'#fef2f2', border:'#fecaca', grad:'linear-gradient(135deg,#dc2626,#ef4444)', cardGrad:'linear-gradient(135deg,#450a0a,#991b1b,#ef4444)' },
+  7: { color:'var(--sap-amber)', dark:'#b45309', bg:'var(--sap-amber-bg)', border:'#fde68a', grad:'linear-gradient(135deg,#b45309,#f59e0b)', cardGrad:'linear-gradient(135deg,#78350f,#b45309,#fbbf24)' },
+  8: { color:'var(--sap-red-bright)', dark:'var(--sap-red)', bg:'var(--sap-red-bg)', border:'var(--sap-red-bg-mid)', grad:'linear-gradient(135deg,#dc2626,#ef4444)', cardGrad:'linear-gradient(135deg,#450a0a,#991b1b,#ef4444)' },
 };
 
 var FEATURES_BY_TIER = {
@@ -71,7 +71,7 @@ export default function CampaignTiers() {
   if (loading) return (
     <AppLayout title={t("campaignTiers.title")}>
       <div style={{ display:'flex', justifyContent:'center', padding:80 }}>
-        <div style={{ width:40, height:40, border:'3px solid #e5e7eb', borderTopColor:'#0ea5e9', borderRadius:'50%', animation:'spin .8s linear infinite' }}/>
+        <div style={{ width:40, height:40, border:'3px solid #e5e7eb', borderTopColor:'var(--sap-accent)', borderRadius:'50%', animation:'spin .8s linear infinite' }}/>
         <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
       </div>
     </AppLayout>
@@ -131,7 +131,7 @@ export default function CampaignTiers() {
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#fff', marginBottom:4 }}>
             {t('campaignTiers.activateTiers')}
           </div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#fbbf24', marginBottom:12 }}>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'var(--sap-amber-bright)', marginBottom:12 }}>
             {t('campaignTiers.growYourGrid')}
           </div>
           <div style={{ fontSize:14, color:'rgba(255,255,255,.6)', lineHeight:1.7, maxWidth:520, margin:'0 auto' }}>
@@ -192,16 +192,16 @@ export default function CampaignTiers() {
 
       {/* How it works + Renewal info */}
       <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:'20px 24px', marginTop:4, marginBottom:16 }}>
-        <div style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'#0f172a', marginBottom:10 }}>{t('campaignTiers.howItWorks')}</div>
-        <div style={{ fontSize:13, color:'#64748b', lineHeight:1.8 }}>
-          Each tier gives your videos real views through the Watch & Earn network. When you activate a tier, you are placed into an 8×8 grid with 64 member positions. You earn <span style={{ fontWeight:700, color:'#0f172a' }}>40% direct commission</span> on every referral who activates the same tier, plus <span style={{ fontWeight:700, color:'#0f172a' }}>6.25% per grid member</span> as positions fill, plus a <span style={{ fontWeight:700, color:'#0f172a' }}>completion bonus</span> when the grid is full.
+        <div style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:10 }}>{t('campaignTiers.howItWorks')}</div>
+        <div style={{ fontSize:13, color:'var(--sap-text-muted)', lineHeight:1.8 }}>
+          Each tier gives your videos real views through the Watch & Earn network. When you activate a tier, you are placed into an 8×8 grid with 64 member positions. You earn <span style={{ fontWeight:700, color:'var(--sap-text-primary)' }}>40% direct commission</span> on every referral who activates the same tier, plus <span style={{ fontWeight:700, color:'var(--sap-text-primary)' }}>6.25% per grid member</span> as positions fill, plus a <span style={{ fontWeight:700, color:'var(--sap-text-primary)' }}>completion bonus</span> when the grid is full.
         </div>
         <div style={{ borderTop:'1px solid #f1f5f9', marginTop:14, paddingTop:14, display:'flex', alignItems:'flex-start', gap:10 }}>
-          <div style={{ width:20, height:20, borderRadius:6, background:'#fef3c7', border:'1px solid #fde68a', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:1 }}>
-            <span style={{ fontSize:11, color:'#d97706', fontWeight:800 }}>!</span>
+          <div style={{ width:20, height:20, borderRadius:6, background:'var(--sap-amber-bg)', border:'1px solid #fde68a', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:1 }}>
+            <span style={{ fontSize:11, color:'var(--sap-amber-dark)', fontWeight:800 }}>!</span>
           </div>
-          <div style={{ fontSize:13, color:'#64748b', lineHeight:1.7 }}>
-            <span style={{ fontWeight:700, color:'#0f172a' }}>Renewal:</span> Tiers expire once all allocated views have been delivered. To continue receiving views and earning grid commissions, simply re-activate the tier. All one-time USDT payments — no subscriptions or recurring charges.
+          <div style={{ fontSize:13, color:'var(--sap-text-muted)', lineHeight:1.7 }}>
+            <span style={{ fontWeight:700, color:'var(--sap-text-primary)' }}>Renewal:</span> Tiers expire once all allocated views have been delivered. To continue receiving views and earning grid commissions, simply re-activate the tier. All one-time USDT payments — no subscriptions or recurring charges.
           </div>
         </div>
       </div>
@@ -229,40 +229,40 @@ export default function CampaignTiers() {
               <div className="ct-modal-header" style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:24 }}>
                 <div>
                   <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
-                    <span style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'#0f172a' }}>{modalTier.name}</span>
+                    <span style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'var(--sap-text-primary)' }}>{modalTier.name}</span>
                     <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>Tier {modalTier.tier}</span>
                     {modalTier.tier === 3 && <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>{t('campaignTiers.popular')}</span>}
                     {modalTier.tier === 8 && <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>{t('campaignTiers.maxEarnings')}</span>}
                   </div>
-                  <div style={{ fontSize:13, color:'#64748b' }}>
+                  <div style={{ fontSize:13, color:'var(--sap-text-muted)' }}>
                     {t('campaignTiers.videoViewsAcross', {count: modalTier.views_target.toLocaleString()})}
                   </div>
                 </div>
                 <div style={{ display:'flex', alignItems:'flex-start', gap:16 }}>
                   <div className="ct-modal-price" style={{ textAlign:'right' }}>
-                    <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, color:'#0f172a' }}>${modalTier.price.toLocaleString()}</div>
-                    <div style={{ fontSize:11, color:'#64748b' }}>{t('campaignTiers.oneTimeUSDT')}</div>
+                    <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, color:'var(--sap-text-primary)' }}>${modalTier.price.toLocaleString()}</div>
+                    <div style={{ fontSize:11, color:'var(--sap-text-muted)' }}>{t('campaignTiers.oneTimeUSDT')}</div>
                   </div>
                   <div onClick={function() { setSelected(null); }}
                     style={{ width:32, height:32, borderRadius:8, border:'1px solid #e2e8f0', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0 }}>
-                    <X size={16} color="#64748b"/>
+                    <X size={16} color="var(--sap-text-muted)"/>
                   </div>
                 </div>
               </div>
 
               {/* Earnings stats */}
               <div className="ct-detail-stats" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20 }}>
-                <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'#f8fafc', border:'1px solid #f1f5f9' }}>
+                <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'var(--sap-bg-elevated)', border:'1px solid #f1f5f9' }}>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${formatMoney(modalTier.direct_commission)}</div>
-                  <div style={{ fontSize:11, color:'#64748b', marginTop:3 }}>{t('campaignTiers.directEarn')}</div>
+                  <div style={{ fontSize:11, color:'var(--sap-text-muted)', marginTop:3 }}>{t('campaignTiers.directEarn')}</div>
                 </div>
-                <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'#f8fafc', border:'1px solid #f1f5f9' }}>
+                <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'var(--sap-bg-elevated)', border:'1px solid #f1f5f9' }}>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${formatMoney(modalTier.uni_level_per_member)}</div>
-                  <div style={{ fontSize:11, color:'#64748b', marginTop:3 }}>{t('campaignTiers.perMember')}</div>
+                  <div style={{ fontSize:11, color:'var(--sap-text-muted)', marginTop:3 }}>{t('campaignTiers.perMember')}</div>
                 </div>
-                <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'#f8fafc', border:'1px solid #f1f5f9' }}>
+                <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'var(--sap-bg-elevated)', border:'1px solid #f1f5f9' }}>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${modalTier.completion_bonus.toLocaleString()}</div>
-                  <div style={{ fontSize:11, color:'#64748b', marginTop:3 }}>{t('campaignTiers.gridBonus')}</div>
+                  <div style={{ fontSize:11, color:'var(--sap-text-muted)', marginTop:3 }}>{t('campaignTiers.gridBonus')}</div>
                 </div>
                 <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:modalAccent.bg, border:'1px solid ' + modalAccent.border }}>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${modalTotal.toLocaleString()}</div>
@@ -270,7 +270,7 @@ export default function CampaignTiers() {
                 </div>
               </div>
 
-              <div style={{ fontSize:11, color:'#64748b', fontStyle:'italic', marginBottom:20 }}>
+              <div style={{ fontSize:11, color:'var(--sap-text-muted)', fontStyle:'italic', marginBottom:20 }}>
                 {t('campaignTiers.earningsDisclaimer')}
               </div>
 
@@ -278,7 +278,7 @@ export default function CampaignTiers() {
               <div style={{ display:'flex', gap:8, flexWrap:'wrap', marginBottom:20 }}>
                 {modalFeats.map(function(f) {
                   return (
-                    <span key={f} style={{ fontSize:12, fontWeight:600, padding:'5px 14px', borderRadius:8, background:'#f8fafc', border:'1px solid #e2e8f0', color:'#475569' }}>{f}</span>
+                    <span key={f} style={{ fontSize:12, fontWeight:600, padding:'5px 14px', borderRadius:8, background:'var(--sap-bg-elevated)', border:'1px solid #e2e8f0', color:'var(--sap-text-secondary)' }}>{f}</span>
                   );
                 })}
               </div>
@@ -287,10 +287,10 @@ export default function CampaignTiers() {
               {modalTier.is_active && modalTier.grid && (
                 <div style={{ marginBottom:20 }}>
                   <div style={{ display:'flex', justifyContent:'space-between', marginBottom:6 }}>
-                    <span style={{ fontSize:12, fontWeight:700, color:'#0f172a' }}>{t('campaignTiers.gridProgress')}</span>
-                    <span style={{ fontSize:12, color:'#64748b' }}>{modalTier.grid.filled}/64 members · Grid #{modalTier.grid.advance}</span>
+                    <span style={{ fontSize:12, fontWeight:700, color:'var(--sap-text-primary)' }}>{t('campaignTiers.gridProgress')}</span>
+                    <span style={{ fontSize:12, color:'var(--sap-text-muted)' }}>{modalTier.grid.filled}/64 members · Grid #{modalTier.grid.advance}</span>
                   </div>
-                  <div style={{ height:6, background:'#f1f5f9', borderRadius:4 }}>
+                  <div style={{ height:6, background:'var(--sap-bg-page)', borderRadius:4 }}>
                     <div style={{ height:'100%', width:modalTier.grid.pct+'%', background:modalAccent.grad, borderRadius:4, transition:'width .5s' }}/>
                   </div>
                 </div>

@@ -5,20 +5,20 @@ import { useAuth } from '../hooks/useAuth';
 import { apiGet } from '../utils/api';
 
 var TIER_COLORS = {
-  starter:   {grad:'linear-gradient(135deg,#064e3b,#047857,#10b981)', color:'#10b981', dark:'#059669'},
+  starter:   {grad:'linear-gradient(135deg,#064e3b,#047857,#10b981)', color:'var(--sap-green-mid)', dark:'var(--sap-green-dark)'},
   builder:   {grad:'linear-gradient(135deg,#1e3a5f,#2563eb,#3b82f6)', color:'#3b82f6', dark:'#2563eb'},
-  pro:       {grad:'linear-gradient(135deg,#172554,#4c1d95,#8b5cf6)', color:'#8b5cf6', dark:'#7c3aed'},
-  advanced:  {grad:'linear-gradient(135deg,#831843,#be185d,#ec4899)', color:'#ec4899', dark:'#db2777'},
+  pro:       {grad:'linear-gradient(135deg,#172554,#4c1d95,#8b5cf6)', color:'var(--sap-purple)', dark:'var(--sap-violet)'},
+  advanced:  {grad:'linear-gradient(135deg,#831843,#be185d,#ec4899)', color:'var(--sap-pink)', dark:'#db2777'},
   elite:     {grad:'linear-gradient(135deg,#134e4a,#0d9488,#2dd4bf)', color:'#14b8a6', dark:'#0d9488'},
   premium:   {grad:'linear-gradient(135deg,#6b7280,#9ca3af,#d1d5db)', color:'#9ca3af', dark:'#6b7280'},
-  executive: {grad:'linear-gradient(135deg,#78350f,#b45309,#fbbf24)', color:'#f59e0b', dark:'#b45309'},
-  ultimate:  {grad:'linear-gradient(135deg,#450a0a,#991b1b,#ef4444)', color:'#ef4444', dark:'#dc2626'},
+  executive: {grad:'linear-gradient(135deg,#78350f,#b45309,#fbbf24)', color:'var(--sap-amber)', dark:'#b45309'},
+  ultimate:  {grad:'linear-gradient(135deg,#450a0a,#991b1b,#ef4444)', color:'var(--sap-red-bright)', dark:'var(--sap-red)'},
 };
 
 var NODE_COLORS = {
-  you:    {grad:'linear-gradient(135deg,#172554,#1e3a8a)', border:'#1e3a8a'},
-  direct: {grad:'linear-gradient(135deg,#78350f,#b45309,#fbbf24)', border:'#f59e0b'},
-  spill:  {grad:'linear-gradient(135deg,#064e3b,#047857,#10b981)', border:'#10b981'},
+  you:    {grad:'linear-gradient(135deg,#172554,#1e3a8a)', border:'var(--sap-cobalt-mid)'},
+  direct: {grad:'linear-gradient(135deg,#78350f,#b45309,#fbbf24)', border:'var(--sap-amber)'},
+  spill:  {grad:'linear-gradient(135deg,#064e3b,#047857,#10b981)', border:'var(--sap-green-mid)'},
 };
 
 var css = `
@@ -69,7 +69,7 @@ export default function CreditMatrixVisualiser() {
   if (loading) {
     return (
       <AppLayout title={t("matrixVis.title")} subtitle={t("matrixVis.subtitle")}>
-        <div style={{ textAlign:'center', padding:60, color:'#64748b' }}>Loading nexus...</div>
+        <div style={{ textAlign:'center', padding:60, color:'var(--sap-text-muted)' }}>Loading nexus...</div>
       </AppLayout>
     );
   }
@@ -92,8 +92,8 @@ export default function CreditMatrixVisualiser() {
     if (!node) {
       return (
         <div className="mx-node empty">
-          <div style={{ width:36, height:36, borderRadius:'50%', background:'#f1f5f9', margin:'0 auto 6px', display:'flex', alignItems:'center', justifyContent:'center', color:'#94a3b8', fontSize:16 }}>?</div>
-          <div style={{ fontSize:10, color:'#94a3b8', fontWeight:600 }}>Empty</div>
+          <div style={{ width:36, height:36, borderRadius:'50%', background:'var(--sap-bg-page)', margin:'0 auto 6px', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--sap-text-faint)', fontSize:16 }}>?</div>
+          <div style={{ fontSize:10, color:'var(--sap-text-faint)', fontWeight:600 }}>Empty</div>
         </div>
       );
     }
@@ -151,22 +151,22 @@ export default function CreditMatrixVisualiser() {
         {/* Stats */}
         <div style={{ display:'flex', gap:16, marginBottom:24 }}>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#dc2626' }}>{purchased.length}</div>
-            <div style={{ fontSize:12, color:'#64748b', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Active Nexuses</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'var(--sap-red)' }}>{purchased.length}</div>
+            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Active Nexuses</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#16a34a' }}>${totalEarned.toFixed(2)}</div>
-            <div style={{ fontSize:12, color:'#64748b', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Total Earned</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'var(--sap-green)' }}>${totalEarned.toFixed(2)}</div>
+            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Total Earned</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#f59e0b' }}>{pct}%</div>
-            <div style={{ fontSize:12, color:'#64748b', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Current Fill Rate</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'var(--sap-amber)' }}>{pct}%</div>
+            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Current Fill Rate</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#8b5cf6' }}>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'var(--sap-purple)' }}>
               {purchased.reduce(function(sum, p){ return sum + p.completed_advances; }, 0)}
             </div>
-            <div style={{ fontSize:12, color:'#64748b', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Advances Complete</div>
+            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Advances Complete</div>
           </div>
         </div>
 
@@ -203,20 +203,20 @@ export default function CreditMatrixVisualiser() {
 
             <div style={{ padding:28 }}>
             {/* Progress bar */}
-            <div style={{ height:8, background:'#f1f5f9', borderRadius:4, marginBottom:16, overflow:'hidden' }}>
+            <div style={{ height:8, background:'var(--sap-bg-page)', borderRadius:4, marginBottom:16, overflow:'hidden' }}>
               <div style={{ height:'100%', borderRadius:4, width:pct+'%', background:'linear-gradient(90deg,'+tc.dark+','+tc.color+')', transition:'width .5s' }}/>
             </div>
 
             {/* Legend */}
             <div style={{ display:'flex', gap:20, justifyContent:'center', marginBottom:16, flexWrap:'wrap' }}>
-              <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#64748b', fontWeight:600 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'var(--sap-text-muted)', fontWeight:600 }}>
                 <div style={{ width:14, height:14, borderRadius:'50%', background:'linear-gradient(135deg,#b45309,#fbbf24)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, fontWeight:800, color:'#78350f' }}>★</div> Direct Referral
               </div>
-              <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#64748b', fontWeight:600 }}>
+              <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'var(--sap-text-muted)', fontWeight:600 }}>
                 <div style={{ width:14, height:14, borderRadius:'50%', background:'linear-gradient(135deg,#047857,#10b981)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, fontWeight:800, color:'#fff' }}>↓</div> Auto-Place
               </div>
-              <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'#64748b', fontWeight:600 }}>
-                <div style={{ width:14, height:14, borderRadius:'50%', background:'#f1f5f9', border:'1px dashed #94a3b8', display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, color:'#94a3b8' }}>?</div> Empty
+              <div style={{ display:'flex', alignItems:'center', gap:6, fontSize:12, color:'var(--sap-text-muted)', fontWeight:600 }}>
+                <div style={{ width:14, height:14, borderRadius:'50%', background:'var(--sap-bg-page)', border:'1px dashed #94a3b8', display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, color:'var(--sap-text-faint)' }}>?</div> Empty
               </div>
             </div>
 
@@ -228,7 +228,7 @@ export default function CreditMatrixVisualiser() {
 
                 {/* Level 1 */}
                 <div style={{ textAlign:'center', marginTop:8 }}>
-                  <div style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
                     Level 1 — 15% commission ({stats.l1_filled || 0}/3 filled)
                   </div>
                 </div>
@@ -238,7 +238,7 @@ export default function CreditMatrixVisualiser() {
 
                 {/* Level 2 */}
                 <div style={{ textAlign:'center', marginTop:8 }}>
-                  <div style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
                     Level 2 — 10% commission ({stats.l2_filled || 0}/9 filled)
                   </div>
                 </div>
@@ -248,7 +248,7 @@ export default function CreditMatrixVisualiser() {
 
                 {/* Level 3 */}
                 <div style={{ textAlign:'center', marginTop:8 }}>
-                  <div style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
                     Level 3 — 10% commission ({stats.l3_filled || 0}/27 filled)
                   </div>
                 </div>
@@ -260,20 +260,20 @@ export default function CreditMatrixVisualiser() {
 
             {/* Level earnings */}
             <div style={{ display:'flex', gap:12, marginTop:20 }}>
-              <div style={{ flex:1, background:'#f8fafc', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
-                <div style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase' }}>Level 1</div>
+              <div style={{ flex:1, background:'var(--sap-bg-elevated)', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>Level 1</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${e1.toFixed(2)}</div>
-                <div style={{ fontSize:10, color:'#64748b', marginTop:2 }}>{stats.l1_filled || 0} × ${packPrice} × 15%</div>
+                <div style={{ fontSize:10, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.l1_filled || 0} × ${packPrice} × 15%</div>
               </div>
-              <div style={{ flex:1, background:'#f8fafc', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
-                <div style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase' }}>Level 2</div>
+              <div style={{ flex:1, background:'var(--sap-bg-elevated)', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>Level 2</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${e2.toFixed(2)}</div>
-                <div style={{ fontSize:10, color:'#64748b', marginTop:2 }}>{stats.l2_filled || 0} × ${packPrice} × 10%</div>
+                <div style={{ fontSize:10, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.l2_filled || 0} × ${packPrice} × 10%</div>
               </div>
-              <div style={{ flex:1, background:'#f8fafc', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
-                <div style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase' }}>Level 3</div>
+              <div style={{ flex:1, background:'var(--sap-bg-elevated)', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
+                <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>Level 3</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${e3.toFixed(2)}</div>
-                <div style={{ fontSize:10, color:'#64748b', marginTop:2 }}>{stats.l3_filled || 0} × ${packPrice} × 10%</div>
+                <div style={{ fontSize:10, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.l3_filled || 0} × ${packPrice} × 10%</div>
               </div>
               <div style={{ flex:1, background:tc.grad, borderRadius:10, padding:14, textAlign:'center', border:'none' }}>
                 <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,.7)', textTransform:'uppercase' }}>Total</div>
@@ -288,8 +288,8 @@ export default function CreditMatrixVisualiser() {
         {!activePack && purchased.length === 0 && (
           <div style={{ background:'#fff', borderRadius:18, border:'1px solid #e2e8f0', padding:'40px 28px', textAlign:'center' }}>
             <div style={{ fontSize:40, marginBottom:12 }}>🧮</div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0f172a', marginBottom:8 }}>No Credit Packs Yet</div>
-            <div style={{ fontSize:14, color:'#64748b', lineHeight:1.6 }}>Purchase a credit pack to activate your first nexus and start earning commissions from your team's purchases.</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:8 }}>No Credit Packs Yet</div>
+            <div style={{ fontSize:14, color:'var(--sap-text-muted)', lineHeight:1.6 }}>Purchase a credit pack to activate your first nexus and start earning commissions from your team's purchases.</div>
           </div>
         )}
 

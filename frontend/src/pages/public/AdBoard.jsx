@@ -45,13 +45,13 @@ export default function AdBoard() {
 
         {/* Category filters */}
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 28 }}>
-          <button onClick={function(){setCategory('');}} style={{ padding: '7px 16px', borderRadius: 100, border: '1px solid', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: !category ? '#38bdf8' : 'rgba(255,255,255,0.05)', borderColor: !category ? '#38bdf8' : 'rgba(255,255,255,0.1)', color: !category ? '#000' : 'rgba(255,255,255,0.6)' }}>
+          <button onClick={function(){setCategory('');}} style={{ padding: '7px 16px', borderRadius: 100, border: '1px solid', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: !category ? 'var(--sap-accent-light)' : 'rgba(255,255,255,0.05)', borderColor: !category ? 'var(--sap-accent-light)' : 'rgba(255,255,255,0.1)', color: !category ? '#000' : 'rgba(255,255,255,0.6)' }}>
             All
           </button>
           {categories.map(function(c) {
             var active = category === c.id;
             return (
-              <button key={c.id} onClick={function(){setCategory(c.id);}} style={{ padding: '7px 16px', borderRadius: 100, border: '1px solid', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: active ? '#38bdf8' : 'rgba(255,255,255,0.05)', borderColor: active ? '#38bdf8' : 'rgba(255,255,255,0.1)', color: active ? '#000' : 'rgba(255,255,255,0.6)' }}>
+              <button key={c.id} onClick={function(){setCategory(c.id);}} style={{ padding: '7px 16px', borderRadius: 100, border: '1px solid', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: active ? 'var(--sap-accent-light)' : 'rgba(255,255,255,0.05)', borderColor: active ? 'var(--sap-accent-light)' : 'rgba(255,255,255,0.1)', color: active ? '#000' : 'rgba(255,255,255,0.6)' }}>
                 {c.icon} {c.name}
               </button>
             );
@@ -65,7 +65,7 @@ export default function AdBoard() {
           <div style={{ textAlign: 'center', padding: '80px' }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
             <p style={{ color: 'rgba(255,255,255,0.4)' }}>No listings in this category yet.</p>
-            <Link to="/register" style={{ color: '#38bdf8', textDecoration: 'none', fontWeight: 700 }}>Post your first ad →</Link>
+            <Link to="/register" style={{ color: 'var(--sap-accent-light)', textDecoration: 'none', fontWeight: 700 }}>Post your first ad →</Link>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 20 }}>
@@ -77,7 +77,7 @@ export default function AdBoard() {
                   {l.image_url && <img src={l.image_url} alt={l.title} style={{ width: '100%', height: 160, objectFit: 'cover' }}/>}
                   {!l.image_url && <div style={{ height: 100, background: 'linear-gradient(135deg,rgba(14,165,233,0.1),rgba(99,102,241,0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>📢</div>}
                   <div style={{ padding: '16px' }}>
-                    {l.is_featured && <div style={{ fontSize: 10, fontWeight: 800, color: '#38bdf8', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>⭐ Featured</div>}
+                    {l.is_featured && <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--sap-accent-light)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>⭐ Featured</div>}
                     <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 6, lineHeight: 1.3 }}>{l.title}</div>
                     <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 10, lineHeight: 1.5 }}>{l.description.slice(0, 80)}{l.description.length > 80 ? '...' : ''}</div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -96,7 +96,7 @@ export default function AdBoard() {
           <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 40 }}>
             {Array.from({ length: data.total_pages }, function(_, i) {
               return (
-                <button key={i} onClick={function(){setPage(i+1);}} style={{ width: 36, height: 36, borderRadius: 8, border: '1px solid', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: page === i+1 ? '#38bdf8' : 'rgba(255,255,255,0.05)', borderColor: page === i+1 ? '#38bdf8' : 'rgba(255,255,255,0.1)', color: page === i+1 ? '#000' : 'rgba(255,255,255,0.6)' }}>
+                <button key={i} onClick={function(){setPage(i+1);}} style={{ width: 36, height: 36, borderRadius: 8, border: '1px solid', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', background: page === i+1 ? 'var(--sap-accent-light)' : 'rgba(255,255,255,0.05)', borderColor: page === i+1 ? 'var(--sap-accent-light)' : 'rgba(255,255,255,0.1)', color: page === i+1 ? '#000' : 'rgba(255,255,255,0.6)' }}>
                   {i+1}
                 </button>
               );

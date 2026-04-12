@@ -15,7 +15,7 @@ export default function Courses() {
     apiGet('/api/courses').then(d => { setCourses(d.courses || []); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
-  if (loading) return <AppLayout title="Course Library"><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
+  if (loading) return <AppLayout title="Course Library"><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
 
   return (
     <AppLayout title="Course Library" subtitle="Browse courses · Learn new skills · Track your progress"
@@ -43,8 +43,8 @@ export default function Courses() {
               {/* Body */}
               <div style={{padding:20,flex:1,display:'flex',flexDirection:'column'}}>
                 <div style={{fontSize:17,fontWeight:800,color:'#132044',marginBottom:6,letterSpacing:-0.2}}>{c.title}</div>
-                <div style={{fontSize:13,color:'#475569',lineHeight:1.6,marginBottom:16,flex:1}}>{c.description || 'Master the skills you need to succeed in digital marketing and online business.'}</div>
-                <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:16,fontSize:12,color:'#64748b'}}>
+                <div style={{fontSize:13,color:'var(--sap-text-secondary)',lineHeight:1.6,marginBottom:16,flex:1}}>{c.description || 'Master the skills you need to succeed in digital marketing and online business.'}</div>
+                <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:16,fontSize:12,color:'var(--sap-text-muted)'}}>
                   <span style={{display:'flex',alignItems:'center',gap:4}}>📖 {c.chapter_count || 0} chapters</span>
                   <span style={{display:'flex',alignItems:'center',gap:4}}>▶ {c.lesson_count || 0} lessons</span>
                   <span style={{display:'flex',alignItems:'center',gap:4}}>⏱ {c.total_duration || 0}m</span>
@@ -54,11 +54,11 @@ export default function Courses() {
                     <div style={{height:5,background:'#f1f3f7',borderRadius:99,overflow:'hidden',marginBottom:4}}>
                       <div style={{height:'100%',background:'linear-gradient(90deg,#0ea5e9,#38bdf8)',borderRadius:99,width:`${c.progress_pct}%`}}/>
                     </div>
-                    <div style={{fontSize:11,fontWeight:700,color:'#0ea5e9'}}>{c.progress_done || 0}/{c.progress_total || 0} complete ({c.progress_pct}%)</div>
+                    <div style={{fontSize:11,fontWeight:700,color:'var(--sap-accent)'}}>{c.progress_done || 0}/{c.progress_total || 0} complete ({c.progress_pct}%)</div>
                   </div>
                 )}
                 {c.owned ? (
-                  <a href={`/courses/learn/${c.id}`} style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontSize:14,fontWeight:700,textAlign:'center',textDecoration:'none',background:'#0ea5e9',color:'#fff',boxShadow:'0 2px 8px rgba(14,165,233,0.25)',boxSizing:'border-box'}}>Continue Learning →</a>
+                  <a href={`/courses/learn/${c.id}`} style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontSize:14,fontWeight:700,textAlign:'center',textDecoration:'none',background:'var(--sap-accent)',color:'#fff',boxShadow:'0 2px 8px rgba(14,165,233,0.25)',boxSizing:'border-box'}}>Continue Learning →</a>
                 ) : (
                   <form method="POST" action={`/courses/purchase/${c.id}`} onSubmit={e => { if(!confirm(`Purchase ${c.title} for $${Math.round(c.price)} from your wallet balance?`)) e.preventDefault(); }}>
                     <button type="submit" style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontFamily:'inherit',fontSize:14,fontWeight:700,cursor:'pointer',textAlign:'center',background:'#132044',color:'#fff',boxShadow:'0 1px 3px rgba(0,0,0,0.1)',boxSizing:'border-box'}}>Buy Course — ${Math.round(c.price)}</button>
@@ -72,7 +72,7 @@ export default function Courses() {
         <div style={{textAlign:'center',padding:'80px 20px'}}>
           <div style={{fontSize:48,marginBottom:16,opacity:0.5}}>📚</div>
           <div style={{fontSize:18,fontWeight:800,color:'#132044',marginBottom:6}}>No courses available yet</div>
-          <div style={{fontSize:14,color:'#64748b'}}>Check back soon — new courses are being added.</div>
+          <div style={{fontSize:14,color:'var(--sap-text-muted)'}}>Check back soon — new courses are being added.</div>
         </div>
       )}
 

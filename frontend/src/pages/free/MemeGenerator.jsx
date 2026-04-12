@@ -9,13 +9,13 @@ import { Link } from 'react-router-dom';
    ═══════════════════════════════════════════════════════════ */
 
 const FONTS = [
-  { id: 'impact', name: 'Impact', desc: 'Classic meme font', color: '#0ea5e9', badge: 'POPULAR' },
+  { id: 'impact', name: 'Impact', desc: 'Classic meme font', color: 'var(--sap-accent)', badge: 'POPULAR' },
   { id: 'arial', name: 'Arial Black', desc: 'Bold and clean', color: '#22d3ee', badge: null },
-  { id: 'comic', name: 'Comic Sans MS', desc: 'Fun and playful', color: '#a78bfa', badge: null },
-  { id: 'georgia', name: 'Georgia', desc: 'Elegant serif', color: '#f59e0b', badge: null },
+  { id: 'comic', name: 'Comic Sans MS', desc: 'Fun and playful', color: 'var(--sap-purple-light)', badge: null },
+  { id: 'georgia', name: 'Georgia', desc: 'Elegant serif', color: 'var(--sap-amber)', badge: null },
   { id: 'verdana', name: 'Verdana Bold', desc: 'Wide and readable', color: '#34d399', badge: null },
   { id: 'trebuchet', name: 'Trebuchet MS', desc: 'Modern humanist', color: '#fb7185', badge: null },
-  { id: 'courier', name: 'Courier New', desc: 'Typewriter monospace', color: '#94a3b8', badge: null },
+  { id: 'courier', name: 'Courier New', desc: 'Typewriter monospace', color: 'var(--sap-text-faint)', badge: null },
   { id: 'tahoma', name: 'Tahoma', desc: 'Compact and sharp', color: '#c084fc', badge: null },
 ];
 const FONT_FAMILIES = { impact: 'Impact, Haettenschweiler, sans-serif', arial: '"Arial Black", Gadget, sans-serif', comic: '"Comic Sans MS", cursive', georgia: 'Georgia, serif', verdana: 'Verdana, Geneva, sans-serif', trebuchet: '"Trebuchet MS", sans-serif', courier: '"Courier New", monospace', tahoma: 'Tahoma, Geneva, sans-serif' };
@@ -118,12 +118,12 @@ export default function MemeGenerator() {
     return (
       <div style={{ position: 'relative' }}>
         <div onClick={e => { e.stopPropagation(); setOpen(!open); }}
-          style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 12, cursor: 'pointer', transition: 'border-color .2s', borderColor: open ? '#0ea5e9' : '#2a3040' }}>
+          style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 12, cursor: 'pointer', transition: 'border-color .2s', borderColor: open ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>
           {renderItem(current, true)}
           <svg style={{ marginLeft: 'auto', flexShrink: 0, opacity: 0.4 }} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#8e8e98" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
         </div>
         {open && (
-          <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, marginTop: 4, background: '#1b2030', border: '1px solid #2a3040', borderRadius: 12, overflow: 'hidden', boxShadow: '0 12px 40px rgba(0,0,0,.5)', maxHeight: 280, overflowY: 'auto' }}>
+          <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, zIndex: 50, marginTop: 4, background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 12, overflow: 'hidden', boxShadow: '0 12px 40px rgba(0,0,0,.5)', maxHeight: 280, overflowY: 'auto' }}>
             {items.map(item => (
               <div key={item.id} onClick={e => { e.stopPropagation(); onChange(item.id); setOpen(false); }}
                 style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', cursor: 'pointer', background: item.id === value ? 'rgba(14,165,233,.08)' : 'transparent', borderLeft: item.id === value ? '3px solid #0ea5e9' : '3px solid transparent', transition: 'background .15s' }}
@@ -139,7 +139,7 @@ export default function MemeGenerator() {
     );
   }
 
-  const inp = { width: '100%', padding: '9px 12px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 10, fontSize: 13, color: '#fff', fontFamily: '"DM Sans",sans-serif', boxSizing: 'border-box', outline: 'none', transition: 'border-color .2s' };
+  const inp = { width: '100%', padding: '9px 12px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 10, fontSize: 13, color: '#fff', fontFamily: '"DM Sans",sans-serif', boxSizing: 'border-box', outline: 'none', transition: 'border-color .2s' };
 
   return (
     <div style={{ position: 'relative', minHeight: '100vh', fontFamily: '"DM Sans","Rethink Sans",sans-serif', color: '#f0f2f8', display: 'flex', flexDirection: 'column' }}>
@@ -163,14 +163,14 @@ export default function MemeGenerator() {
       {/* ═══ NAV — taller, centred title, homepage logo ═══ */}
       <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 36px', height: 80, background: 'rgba(10,18,40,0.95)', backdropFilter: 'blur(18px)', borderBottom: '1px solid rgba(0,180,216,0.12)', flexShrink: 0 }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
-          <svg style={{ width: 28, height: 28 }} viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
-          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 20, color: '#fff' }}>SuperAd<span style={{ color: '#38bdf8' }}>Pro</span></span>
+          <svg style={{ width: 28, height: 28 }} viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="var(--sap-accent)"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
+          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 20, color: '#fff' }}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span></span>
         </Link>
         <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 22, color: '#fff' }}>Free Meme Generator</span>
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#0ea5e9', border: '1px solid rgba(14,165,233,0.4)', borderRadius: 20, padding: '4px 14px', letterSpacing: 1.5 }}>FREE</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-accent)', border: '1px solid rgba(14,165,233,0.4)', borderRadius: 20, padding: '4px 14px', letterSpacing: 1.5 }}>FREE</span>
         </div>
-        <Link to="/register" style={{ background: '#0ea5e9', color: '#fff', fontSize: 15, fontWeight: 600, padding: '10px 24px', borderRadius: 10, textDecoration: 'none', boxShadow: '0 2px 12px rgba(14,165,233,0.25)' }}>Get started free</Link>
+        <Link to="/register" style={{ background: 'var(--sap-accent)', color: '#fff', fontSize: 15, fontWeight: 600, padding: '10px 24px', borderRadius: 10, textDecoration: 'none', boxShadow: '0 2px 12px rgba(14,165,233,0.25)' }}>Get started free</Link>
       </nav>
 
       {/* ═══ WORKSPACE — 50/50 ═══ */}
@@ -186,7 +186,7 @@ export default function MemeGenerator() {
 
           {/* Buttons */}
           <div style={{ display: 'flex', gap: 10, padding: '12px 0 10px', flexShrink: 0 }}>
-            <button onClick={dlPNG} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: '#0ea5e9', color: '#fff', fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>Download PNG</button>
+            <button onClick={dlPNG} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'var(--sap-accent)', color: '#fff', fontWeight: 700, fontSize: 14, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>Download PNG</button>
             <button onClick={resetMeme} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'rgba(255,255,255,.05)', color: 'rgba(200,220,255,.6)', fontWeight: 600, fontSize: 14, border: '1px solid rgba(255,255,255,.12)', cursor: 'pointer', fontFamily: 'inherit' }}>Reset Meme</button>
           </div>
 
@@ -195,7 +195,7 @@ export default function MemeGenerator() {
             <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 4 }}>Start your online business today</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 12, color: 'rgba(200,220,255,.35)', lineHeight: 1.5, flex: 1 }}>AI creative tools, income opportunities, and everything you need to earn online — all in one platform.</span>
-              <Link to="/register" style={{ background: '#0ea5e9', color: '#fff', fontWeight: 700, fontSize: 12, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>Learn more</Link>
+              <Link to="/register" style={{ background: 'var(--sap-accent)', color: '#fff', fontWeight: 700, fontSize: 12, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>Learn more</Link>
             </div>
           </div>
         </div>
@@ -211,11 +211,11 @@ export default function MemeGenerator() {
             {/* Search + Upload — above the grid */}
             <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
               <input type="text" placeholder="Search templates..." value={search} onChange={e => setSearch(e.target.value)} style={{ ...inp, flex: 1 }}
-                onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#2a3040'} />
+                onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
               <input ref={fileRef} type="file" accept="image/*" onChange={onUpload} style={{ display: 'none' }} />
               <button onClick={() => fileRef.current?.click()}
-                style={{ padding: '9px 16px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 10, fontSize: 12, fontWeight: 600, color: '#c5cad1', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', whiteSpace: 'nowrap', transition: 'border-color .2s' }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = '#0ea5e9'} onMouseLeave={e => e.currentTarget.style.borderColor = '#2a3040'}
+                style={{ padding: '9px 16px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 10, fontSize: 12, fontWeight: 600, color: '#c5cad1', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', whiteSpace: 'nowrap', transition: 'border-color .2s' }}
+                onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--sap-accent)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--sap-navy-card)'}
               >Upload image</button>
             </div>
             <div className="mg-scroll" style={{ height: 320, overflow: 'auto', borderRadius: 10, border: '1px solid #2a3040', background: '#0d1628', padding: 8 }}>
@@ -241,7 +241,7 @@ export default function MemeGenerator() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
               {labels.map((lbl, i) => (
                 <input key={ky(i)} type="text" placeholder={lbl + '...'} value={gt(i)} onChange={e => st(i, e.target.value)} style={inp}
-                  onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#2a3040'} />
+                  onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
               ))}
             </div>
 
@@ -258,7 +258,7 @@ export default function MemeGenerator() {
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{f.name}</div>
                         {!isTrigger && <div style={{ fontSize: 10, color: '#7b8594' }}>{f.desc}</div>}
                       </div>
-                      {f.badge && <span style={{ fontSize: 9, fontWeight: 700, color: '#0ea5e9', border: '1px solid rgba(14,165,233,.3)', borderRadius: 4, padding: '1px 6px', letterSpacing: 0.5, flexShrink: 0 }}>{f.badge}</span>}
+                      {f.badge && <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--sap-accent)', border: '1px solid rgba(14,165,233,.3)', borderRadius: 4, padding: '1px 6px', letterSpacing: 0.5, flexShrink: 0 }}>{f.badge}</span>}
                     </>
                   )}
                 />
@@ -268,7 +268,7 @@ export default function MemeGenerator() {
                 <RichDropdown items={COLORS} value={colorId} onChange={setColorId} open={colorOpen} setOpen={v => { setColorOpen(v); setFontOpen(false); }}
                   renderItem={(c, isTrigger) => (
                     <>
-                      <div style={{ width: 32, height: 32, borderRadius: 8, background: '#1b2030', border: `2px solid ${c.swatch}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--sap-navy-soft)', border: `2px solid ${c.swatch}`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                         <div style={{ width: 16, height: 16, borderRadius: 4, background: c.swatch }} />
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
@@ -285,7 +285,7 @@ export default function MemeGenerator() {
             {/* Size slider */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
               <span style={{ fontSize: 10, color: '#7b8594', fontWeight: 600 }}>Size</span>
-              <input type="range" min="16" max="80" value={fontSize} onChange={e => setFontSize(+e.target.value)} style={{ flex: 1, accentColor: '#0ea5e9' }} />
+              <input type="range" min="16" max="80" value={fontSize} onChange={e => setFontSize(+e.target.value)} style={{ flex: 1, accentColor: 'var(--sap-accent)' }} />
               <span style={{ fontSize: 11, color: '#fff', fontWeight: 700, minWidth: 32, textAlign: 'right' }}>{fontSize}px</span>
             </div>
 
@@ -294,7 +294,7 @@ export default function MemeGenerator() {
           {/* Earn CTA */}
           <div style={{ padding: '8px 16px 10px', borderTop: '1px solid rgba(0,180,216,0.06)', background: 'rgba(14,165,233,0.03)', display: 'flex', alignItems: 'center', gap: 10 }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#fff', flex: 1 }}>Earn money online with SuperAdPro</span>
-            <Link to="/earn" style={{ fontSize: 10, fontWeight: 700, color: '#0ea5e9', textDecoration: 'none' }}>See how →</Link>
+            <Link to="/earn" style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>See how →</Link>
           </div>
         </div>
       </div>

@@ -31,7 +31,7 @@ export default function ForgotPassword() {
       <div style={styles.card}>
         <div style={styles.logoRow}>
           <div style={styles.logoMark}><span style={{ color: '#fff', fontWeight: 900, fontSize: 16 }}>S</span></div>
-          <span style={styles.logoText}>SuperAd<span style={{ color: '#38bdf8' }}>Pro</span></span>
+          <span style={styles.logoText}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span></span>
         </div>
 
         {sent ? (
@@ -77,7 +77,7 @@ export default function ForgotPassword() {
 }
 
 const styles = {
-  page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#172554', padding: 20, position: 'relative', overflow: 'hidden', fontFamily: "'DM Sans', sans-serif" },
+  page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--sap-cobalt-deep)', padding: 20, position: 'relative', overflow: 'hidden', fontFamily: "'DM Sans', sans-serif" },
   bg: { position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(14,165,233,.12) 0%, transparent 70%)', pointerEvents: 'none' },
   card: { position: 'relative', zIndex: 1, width: '100%', maxWidth: 420, background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 20, padding: '40px 36px', backdropFilter: 'blur(20px)', textAlign: 'center' },
   logoRow: { display: 'flex', alignItems: 'center', gap: 10, marginBottom: 28, justifyContent: 'center' },

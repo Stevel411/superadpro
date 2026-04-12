@@ -50,7 +50,7 @@ export default function PDFMerge() {
 
         <div onClick={() => fileRef.current?.click()}
           style={{ border: '2px dashed #2a3040', borderRadius: 14, padding: '40px 20px', textAlign: 'center', cursor: 'pointer', background: '#0a1220', transition: 'border-color .2s', marginBottom: 16 }}
-          onMouseEnter={e => e.currentTarget.style.borderColor = '#0ea5e9'} onMouseLeave={e => e.currentTarget.style.borderColor = '#2a3040'}
+          onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--sap-accent)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--sap-navy-card)'}
         >
           <div style={{ fontSize: 28, marginBottom: 8, opacity: 0.3 }}>+</div>
           <div style={{ fontSize: 14, fontWeight: 600, color: '#c5cad1', marginBottom: 4 }}>Click to upload PDF files</div>
@@ -61,15 +61,15 @@ export default function PDFMerge() {
         {files.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 16 }}>
             {files.map((f, i) => (
-              <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 10 }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#0ea5e9', minWidth: 20 }}>{i + 1}</span>
+              <div key={f.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 10 }}>
+                <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--sap-accent)', minWidth: 20 }}>{i + 1}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#fff', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{f.name}</div>
                   <div style={{ fontSize: 10, color: '#7b8594' }}>{formatSize(f.size)}</div>
                 </div>
                 <button onClick={() => moveUp(i)} style={{ background: 'none', border: 'none', color: '#7b8594', cursor: 'pointer', fontSize: 14, padding: '4px 6px' }}>↑</button>
                 <button onClick={() => moveDown(i)} style={{ background: 'none', border: 'none', color: '#7b8594', cursor: 'pointer', fontSize: 14, padding: '4px 6px' }}>↓</button>
-                <button onClick={() => removeFile(f.id)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', fontSize: 14, padding: '4px 6px' }}>✕</button>
+                <button onClick={() => removeFile(f.id)} style={{ background: 'none', border: 'none', color: 'var(--sap-red-bright)', cursor: 'pointer', fontSize: 14, padding: '4px 6px' }}>✕</button>
               </div>
             ))}
           </div>
@@ -79,7 +79,7 @@ export default function PDFMerge() {
           style={{
             width: '100%', padding: '14px 0', borderRadius: 12, border: 'none', cursor: files.length < 2 ? 'not-allowed' : 'pointer',
             fontFamily: '"DM Sans",sans-serif', fontSize: 15, fontWeight: 700,
-            background: files.length < 2 ? '#1b2030' : '#0ea5e9',
+            background: files.length < 2 ? 'var(--sap-navy-soft)' : 'var(--sap-accent)',
             color: files.length < 2 ? '#7b8594' : '#fff',
             boxShadow: files.length >= 2 ? '0 0 24px rgba(0,212,255,0.2)' : 'none',
           }}>{merging ? 'Merging...' : `Merge ${files.length} PDF${files.length !== 1 ? 's' : ''}`}</button>
@@ -87,7 +87,7 @@ export default function PDFMerge() {
         <div style={{ textAlign: 'center', marginTop: 16 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 18px', background: 'rgba(14,165,233,0.04)', border: '1px solid rgba(0,180,216,0.08)', borderRadius: 10 }}>
             <span style={{ fontSize: 11, color: 'rgba(200,220,255,0.3)' }}>Want AI video, music & voiceover?</span>
-            <Link to="/register" style={{ fontSize: 11, fontWeight: 700, color: '#0ea5e9', textDecoration: 'none' }}>Join SuperAdPro free</Link>
+            <Link to="/register" style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>Join SuperAdPro free</Link>
           </div>
         </div>
       </div>

@@ -184,14 +184,14 @@ export default function SuperPagesEditor() {
 
   if (loading) {
     return (
-      <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#172554', color: 'rgba(255,255,255,.4)' }}>
+      <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--sap-cobalt-deep)', color: 'rgba(255,255,255,.4)' }}>
         Loading editor...
       </div>
     );
   }
 
   return (
-    <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: '#172554', fontFamily: 'DM Sans,sans-serif' }}>
+    <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--sap-cobalt-deep)', fontFamily: 'DM Sans,sans-serif' }}>
       <EditorTopbar
         title={pageSettings.title}
         slug={pageSettings.slug}
@@ -218,15 +218,15 @@ export default function SuperPagesEditor() {
             {previewMode && (
               <div style={{marginBottom:12,padding:'10px 24px',background:'rgba(99,102,241,.12)',border:'1px solid rgba(99,102,241,.25)',borderRadius:10,fontSize:13,color:'#a5b4fc',fontWeight:700,display:'flex',alignItems:'center',gap:12}}>
                 <span>👁 Preview Mode</span>
-                <button onClick={() => setPreviewMode(false)} style={{padding:'6px 16px',borderRadius:8,border:'none',background:'#6366f1',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>← Back to Editor</button>
+                <button onClick={() => setPreviewMode(false)} style={{padding:'6px 16px',borderRadius:8,border:'none',background:'var(--sap-indigo)',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>← Back to Editor</button>
               </div>
             )}
             {deviceView !== 'desktop' && !previewMode && (
-              <div style={{marginBottom:12,padding:'8px 16px',background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.2)',borderRadius:8,fontSize:11,color:'#38bdf8',fontWeight:600}}>
+              <div style={{marginBottom:12,padding:'8px 16px',background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.2)',borderRadius:8,fontSize:11,color:'var(--sap-accent-light)',fontWeight:600}}>
                 📱 Responsive Preview — switch to Desktop to edit elements
               </div>
             )}
-            <div style={{width:deviceView==='mobile'?390:deviceView==='tablet'?768:1100,transition:'width .3s',background:canvasBg||'#172554',borderRadius:8,overflow:'hidden',boxShadow:'0 0 60px rgba(0,0,0,.3)',minHeight:600}}>
+            <div style={{width:deviceView==='mobile'?390:deviceView==='tablet'?768:1100,transition:'width .3s',background:canvasBg||'var(--sap-cobalt-deep)',borderRadius:8,overflow:'hidden',boxShadow:'0 0 60px rgba(0,0,0,.3)',minHeight:600}}>
               <iframe
                 srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Outfit,sans-serif}img{max-width:100%;height:auto}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage)}</body></html>`}
                 style={{width:'100%',height:'100%',border:'none',minHeight:800}}
@@ -268,43 +268,43 @@ export default function SuperPagesEditor() {
           <div onClick={e => e.stopPropagation()}
             style={{ background: '#fff', borderRadius: 16, padding: 24, width: 500, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: '#132044' }}>Page Settings</h3>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Page Title</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>Page Title</label>
             <input value={pageSettings.title} onChange={e => setPageSettings(p => ({ ...p, title: e.target.value }))}
               style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 14, outline: 'none', marginBottom: 14, boxSizing: 'border-box' }} />
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Meta Description</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>Meta Description</label>
             <textarea value={pageSettings.metaDescription} onChange={e => setPageSettings(p => ({ ...p, metaDescription: e.target.value }))}
               rows={3}
               style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 13, outline: 'none', marginBottom: 14, resize: 'vertical', boxSizing: 'border-box' }} />
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Social Share Image (OG Image URL)</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>Social Share Image (OG Image URL)</label>
             <input value={pageSettings.ogImage} onChange={e => setPageSettings(p => ({ ...p, ogImage: e.target.value }))}
               placeholder="https://..."
               style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 13, outline: 'none', marginBottom: 14, boxSizing: 'border-box' }} />
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Page URL Slug</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>Page URL Slug</label>
             <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 4 }}>
-              <span style={{ padding: '10px 12px', background: '#f1f5f9', border: '2px solid #e2e8f0', borderRight: 'none', borderRadius: '10px 0 0 10px', fontSize: 12, color: '#94a3b8', whiteSpace: 'nowrap' }}>/p/{pageSettings.slug ? pageSettings.slug.split('/')[0] : 'username'}/</span>
+              <span style={{ padding: '10px 12px', background: 'var(--sap-bg-page)', border: '2px solid #e2e8f0', borderRight: 'none', borderRadius: '10px 0 0 10px', fontSize: 12, color: 'var(--sap-text-faint)', whiteSpace: 'nowrap' }}>/p/{pageSettings.slug ? pageSettings.slug.split('/')[0] : 'username'}/</span>
               <input value={pageSettings.customSlug || (pageSettings.slug ? pageSettings.slug.split('/').pop() : '')}
                 onChange={e => setPageSettings(p => ({ ...p, customSlug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/--+/g, '-') }))}
                 placeholder="my-landing-page"
                 style={{ flex: 1, padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: '0 10px 10px 0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
             </div>
-            <div style={{ fontSize: 11, color: '#94a3b8', marginBottom: 14 }}>Letters, numbers, and hyphens only. This is your public page URL.</div>
+            <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 14 }}>Letters, numbers, and hyphens only. This is your public page URL.</div>
             {pageSettings.slug && (
-              <div style={{ padding: '10px 14px', background: '#f0fdf4', border: '1px solid rgba(22,163,74,.2)', borderRadius: 8, fontSize: 12, color: '#16a34a', marginBottom: 14, wordBreak: 'break-all' }}>
+              <div style={{ padding: '10px 14px', background: 'var(--sap-green-bg)', border: '1px solid rgba(22,163,74,.2)', borderRadius: 8, fontSize: 12, color: 'var(--sap-green)', marginBottom: 14, wordBreak: 'break-all' }}>
                 Live URL: {window.location.origin}/p/{pageSettings.slug}
               </div>
             )}
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Page Status</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>Page Status</label>
             <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-              <button onClick={() => setPageStatus('draft')} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: pageStatus === 'draft' ? '2px solid #0ea5e9' : '2px solid #e2e8f0', background: pageStatus === 'draft' ? 'rgba(14,165,233,.06)' : '#fff', color: pageStatus === 'draft' ? '#0ea5e9' : '#94a3b8' }}>○ Draft</button>
-              <button onClick={() => setPageStatus('published')} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: pageStatus === 'published' ? '2px solid #16a34a' : '2px solid #e2e8f0', background: pageStatus === 'published' ? 'rgba(22,163,74,.06)' : '#fff', color: pageStatus === 'published' ? '#16a34a' : '#94a3b8' }}>● Published</button>
+              <button onClick={() => setPageStatus('draft')} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: pageStatus === 'draft' ? '2px solid #0ea5e9' : '2px solid #e2e8f0', background: pageStatus === 'draft' ? 'rgba(14,165,233,.06)' : '#fff', color: pageStatus === 'draft' ? 'var(--sap-accent)' : 'var(--sap-text-faint)' }}>○ Draft</button>
+              <button onClick={() => setPageStatus('published')} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: pageStatus === 'published' ? '2px solid #16a34a' : '2px solid #e2e8f0', background: pageStatus === 'published' ? 'rgba(22,163,74,.06)' : '#fff', color: pageStatus === 'published' ? 'var(--sap-green)' : 'var(--sap-text-faint)' }}>● Published</button>
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               <button onClick={() => { markDirty(); setShowSettings(false); save(); }}
-                style={{ padding: '10px 24px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                style={{ padding: '10px 24px', background: 'var(--sap-accent)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                 Save Settings
               </button>
               <button onClick={() => setShowSettings(false)}
-                style={{ padding: '10px 24px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                style={{ padding: '10px 24px', background: 'var(--sap-bg-page)', color: 'var(--sap-text-secondary)', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                 Cancel
               </button>
             </div>
@@ -328,7 +328,7 @@ export default function SuperPagesEditor() {
       {toast && (
         <div style={{
           position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
-          background: toast.includes('✓') ? '#10b981' : toast.includes('error') || toast.includes('failed') ? '#ef4444' : '#1e293b',
+          background: toast.includes('✓') ? 'var(--sap-green-mid)' : toast.includes('error') || toast.includes('failed') ? 'var(--sap-red-bright)' : 'var(--sap-text-primary)',
           color: '#fff', padding: '10px 24px', borderRadius: 12, fontSize: 13, fontWeight: 700,
           boxShadow: '0 4px 20px rgba(0,0,0,0.3)', zIndex: 300, transition: 'opacity 0.3s',
         }}>{toast}</div>
@@ -365,7 +365,7 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
         style={{ background: '#fff', borderRadius: 16, width: 600, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
         <div style={{ padding: '12px 20px', borderBottom: '1px solid #f0f1f3', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: 12, fontWeight: 800, color: '#9ca3af', textTransform: 'uppercase', letterSpacing: '.6px' }}>
-            ✎ Edit — <span style={{ color: '#0ea5e9' }}>{type.charAt(0).toUpperCase() + type.slice(1)}</span>
+            ✎ Edit — <span style={{ color: 'var(--sap-accent)' }}>{type.charAt(0).toUpperCase() + type.slice(1)}</span>
           </span>
           <button onClick={onClose} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, color: '#9ca3af' }}>✕</button>
         </div>
@@ -421,7 +421,7 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
                   if (d.url) setLocalTxt(d.url);
                 } catch(err) { alert('Upload failed'); }
               }} style={{marginBottom:12, fontSize:12}} />
-              {localTxt && <div style={{fontSize:11,color:'#16a34a',padding:'6px 10px',background:'#f0fdf4',border:'1px solid rgba(22,163,74,.2)',borderRadius:6,marginBottom:12,wordBreak:'break-all'}}>Embed: {localTxt}</div>}
+              {localTxt && <div style={{fontSize:11,color:'var(--sap-green)',padding:'6px 10px',background:'var(--sap-green-bg)',border:'1px solid rgba(22,163,74,.2)',borderRadius:6,marginBottom:12,wordBreak:'break-all'}}>Embed: {localTxt}</div>}
             </>
           )}
 
@@ -459,11 +459,11 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
           {!['countdown', 'progress', 'audio', 'embed', 'socialicons', 'form', 'button', 'announcement'].includes(type) && (
             <div style={{ display: 'flex', gap: 8 }}>
               <button onClick={apply}
-                style={{ padding: '10px 24px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                style={{ padding: '10px 24px', background: 'var(--sap-accent)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                 Apply
               </button>
               <button onClick={onClose}
-                style={{ padding: '10px 24px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
+                style={{ padding: '10px 24px', background: 'var(--sap-bg-page)', color: 'var(--sap-text-secondary)', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>
                 Cancel
               </button>
             </div>
@@ -478,7 +478,7 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
 function CountdownEditor({ elId, el, updateElement, markDirty, onClose }) {
   const [date, setDate] = useState(el._targetDate || '');
   return <>
-    <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 }}>Target Date & Time</label>
+    <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>Target Date & Time</label>
     <input type="datetime-local" value={date} onChange={e => setDate(e.target.value)}
       style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 14, outline: 'none', marginBottom: 12, boxSizing: 'border-box' }} />
     <BtnRow onApply={() => { updateElement(elId, { _targetDate: date }); markDirty(); onClose(); }} onClose={onClose} />
@@ -488,7 +488,7 @@ function CountdownEditor({ elId, el, updateElement, markDirty, onClose }) {
 function ProgressEditor({ elId, el, updateElement, markDirty, onClose }) {
   const [lbl, setLbl] = useState(el._label || 'Progress');
   const [pct, setPct] = useState(el._percent || 75);
-  const [clr, setClr] = useState(el._color || '#0ea5e9');
+  const [clr, setClr] = useState(el._color || 'var(--sap-accent)');
   return <>
     <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
       <div style={{ flex: 1 }}>
@@ -528,8 +528,8 @@ function AudioEditor({ elId, el, updateElement, markDirty, onClose }) {
     <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://..." style={{ ...inputStyle, marginBottom: 8 }} />
     <label style={{...lblStyle, marginTop:4}}>Or upload audio file</label>
     <input type="file" accept="audio/mpeg,audio/wav,audio/ogg,audio/mp3" onChange={upload} disabled={uploading} style={{marginBottom:12, fontSize:12}} />
-    {uploading && <div style={{fontSize:11,color:'#0ea5e9',marginBottom:8}}>Uploading...</div>}
-    {url && <div style={{fontSize:11,color:'#16a34a',padding:'6px 10px',background:'#f0fdf4',border:'1px solid rgba(22,163,74,.2)',borderRadius:6,marginBottom:12,wordBreak:'break-all'}}>Audio: {url}</div>}
+    {uploading && <div style={{fontSize:11,color:'var(--sap-accent)',marginBottom:8}}>Uploading...</div>}
+    {url && <div style={{fontSize:11,color:'var(--sap-green)',padding:'6px 10px',background:'var(--sap-green-bg)',border:'1px solid rgba(22,163,74,.2)',borderRadius:6,marginBottom:12,wordBreak:'break-all'}}>Audio: {url}</div>}
     <BtnRow onApply={() => { updateElement(elId, { _audioUrl: url }); markDirty(); onClose(); }} onClose={onClose} />
   </>;
 }
@@ -572,7 +572,7 @@ function SocialEditor({ elId, el, updateElement, markDirty, onClose }) {
 function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
   const [txt, setTxt] = useState(el.txt || (type === 'announcement' ? '🔥 LIMITED TIME OFFER — Join Now and Save 50%!' : 'Join Now'));
   const [url, setUrl] = useState(el.url || '');
-  const [bgColor, setBgColor] = useState(el.s?.background || '#0ea5e9');
+  const [bgColor, setBgColor] = useState(el.s?.background || 'var(--sap-accent)');
   const [txtColor, setTxtColor] = useState(el.s?.color || '#fff');
 
   const apply = () => {
@@ -584,12 +584,12 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
   };
 
   const PRESETS = [
-    { bg: '#0ea5e9', label: 'Cyan' },
-    { bg: '#10b981', label: 'Green' },
-    { bg: '#6366f1', label: 'Indigo' },
-    { bg: '#ef4444', label: 'Red' },
-    { bg: '#f59e0b', label: 'Amber' },
-    { bg: '#ec4899', label: 'Pink' },
+    { bg: 'var(--sap-accent)', label: 'Cyan' },
+    { bg: 'var(--sap-green-mid)', label: 'Green' },
+    { bg: 'var(--sap-indigo)', label: 'Indigo' },
+    { bg: 'var(--sap-red-bright)', label: 'Red' },
+    { bg: 'var(--sap-amber)', label: 'Amber' },
+    { bg: 'var(--sap-pink)', label: 'Pink' },
     { bg: 'linear-gradient(135deg,#0ea5e9,#6366f1)', label: 'Cyan→Indigo' },
     { bg: 'linear-gradient(135deg,#8b5cf6,#ec4899)', label: 'Purple→Pink' },
     { bg: 'linear-gradient(135deg,#ef4444,#f59e0b)', label: 'Red→Amber' },
@@ -608,10 +608,10 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
     <label style={lblStyle}>Background Colour</label>
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
       <div style={{ position: 'relative', width: 36, height: 36, borderRadius: 8, border: '2px solid #e2e8f0', overflow: 'hidden', background: bgColor }}>
-        <input type="color" value={bgColor.startsWith('#') ? bgColor : '#0ea5e9'} onChange={e => setBgColor(e.target.value)}
+        <input type="color" value={bgColor.startsWith('#') ? bgColor : 'var(--sap-accent)'} onChange={e => setBgColor(e.target.value)}
           style={{ position: 'absolute', inset: -4, width: 'calc(100% + 8px)', height: 'calc(100% + 8px)', border: 'none', cursor: 'pointer', padding: 0 }} />
       </div>
-      <span style={{ fontSize: 11, fontFamily: 'monospace', color: '#94a3b8' }}>{bgColor.startsWith('#') ? bgColor : 'Gradient'}</span>
+      <span style={{ fontSize: 11, fontFamily: 'monospace', color: 'var(--sap-text-faint)' }}>{bgColor.startsWith('#') ? bgColor : 'Gradient'}</span>
     </div>
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 12 }}>
       {PRESETS.map((p, i) => (
@@ -624,7 +624,7 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
 
     <label style={lblStyle}>Text Colour</label>
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
-      {['#ffffff', '#000000', '#0f172a', '#fbbf24', '#0ea5e9'].map(c => (
+      {['#ffffff', '#000000', 'var(--sap-text-primary)', 'var(--sap-amber-bright)', 'var(--sap-accent)'].map(c => (
         <div key={c} onClick={() => setTxtColor(c)} style={{
           width: 24, height: 24, borderRadius: 5, background: c, cursor: 'pointer',
           border: txtColor === c ? '2px solid #0ea5e9' : '1px solid #e2e8f0',
@@ -637,7 +637,7 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
     </div>
 
     {/* Preview */}
-    <div style={{ padding: 16, background: '#0f172a', borderRadius: 12, marginBottom: 14, textAlign: 'center' }}>
+    <div style={{ padding: 16, background: 'var(--sap-text-primary)', borderRadius: 12, marginBottom: 14, textAlign: 'center' }}>
       <div style={{ display: 'inline-block', padding: type === 'announcement' ? '10px 24px' : '12px 32px', borderRadius: type === 'announcement' ? 8 : 12, background: bgColor, color: txtColor, fontFamily: 'Sora,sans-serif', fontWeight: 700, fontSize: type === 'announcement' ? 13 : 16 }}>{txt}</div>
     </div>
 
@@ -651,7 +651,7 @@ function FormEditor({ elId, el, updateElement, markDirty, onClose }) {
   const [showName, setShowName] = useState(el._formShowName !== false);
   const [showPhone, setShowPhone] = useState(el._formShowPhone || false);
   const [btnText, setBtnText] = useState(el._formBtnText || 'Get Access →');
-  const [btnColor, setBtnColor] = useState(el._formBtnColor || '#0ea5e9');
+  const [btnColor, setBtnColor] = useState(el._formBtnColor || 'var(--sap-accent)');
   const [redirectUrl, setRedirectUrl] = useState(el._formRedirect || '');
 
   const buildHTML = () => {
@@ -683,16 +683,16 @@ function FormEditor({ elId, el, updateElement, markDirty, onClose }) {
 
     <label style={{ ...L, marginBottom: 8 }}>Form Fields</label>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
-      <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#475569', cursor: 'pointer' }}>
-        <input type="checkbox" checked={showName} onChange={e => setShowName(e.target.checked)} style={{ width: 16, height: 16, accentColor: '#0ea5e9' }} />
+      <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--sap-text-secondary)', cursor: 'pointer' }}>
+        <input type="checkbox" checked={showName} onChange={e => setShowName(e.target.checked)} style={{ width: 16, height: 16, accentColor: 'var(--sap-accent)' }} />
         First Name field
       </label>
-      <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#94a3b8' }}>
+      <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--sap-text-faint)' }}>
         <input type="checkbox" checked disabled style={{ width: 16, height: 16 }} />
         Email field (always on)
       </label>
-      <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#475569', cursor: 'pointer' }}>
-        <input type="checkbox" checked={showPhone} onChange={e => setShowPhone(e.target.checked)} style={{ width: 16, height: 16, accentColor: '#0ea5e9' }} />
+      <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--sap-text-secondary)', cursor: 'pointer' }}>
+        <input type="checkbox" checked={showPhone} onChange={e => setShowPhone(e.target.checked)} style={{ width: 16, height: 16, accentColor: 'var(--sap-accent)' }} />
         Phone number field
       </label>
     </div>
@@ -706,9 +706,9 @@ function FormEditor({ elId, el, updateElement, markDirty, onClose }) {
         <input type="color" value={btnColor} onChange={e => setBtnColor(e.target.value)}
           style={{ position: 'absolute', inset: -4, width: 'calc(100% + 8px)', height: 'calc(100% + 8px)', border: 'none', cursor: 'pointer', padding: 0 }} />
       </div>
-      <span style={{ fontSize: 12, fontFamily: 'monospace', color: '#94a3b8' }}>{btnColor}</span>
+      <span style={{ fontSize: 12, fontFamily: 'monospace', color: 'var(--sap-text-faint)' }}>{btnColor}</span>
       <div style={{ display: 'flex', gap: 4, marginLeft: 8 }}>
-        {['#0ea5e9','#10b981','#6366f1','#ef4444','#f59e0b','#ec4899'].map(c => (
+        {['var(--sap-accent)','var(--sap-green-mid)','var(--sap-indigo)','var(--sap-red-bright)','var(--sap-amber)','var(--sap-pink)'].map(c => (
           <div key={c} onClick={() => setBtnColor(c)} style={{ width: 20, height: 20, borderRadius: 5, background: c, cursor: 'pointer', border: btnColor === c ? '2px solid #0f172a' : '1px solid #e2e8f0' }} />
         ))}
       </div>
@@ -718,12 +718,12 @@ function FormEditor({ elId, el, updateElement, markDirty, onClose }) {
     <input value={redirectUrl} onChange={e => setRedirectUrl(e.target.value)} placeholder="https://your-thank-you-page.com" style={{ ...I, marginBottom: 12 }} />
 
     {/* Preview */}
-    <div style={{ padding: 16, background: '#0f172a', borderRadius: 12, marginBottom: 14 }}>
+    <div style={{ padding: 16, background: 'var(--sap-text-primary)', borderRadius: 12, marginBottom: 14 }}>
       <div style={{ textAlign: 'center', fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 16, color: '#fff', marginBottom: 4 }}>{heading}</div>
-      <div style={{ textAlign: 'center', fontSize: 11, color: '#94a3b8', marginBottom: 12 }}>{subtitle}</div>
-      {showName && <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: '#94a3b8', marginBottom: 6 }}>Your first name</div>}
-      <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: '#94a3b8', marginBottom: 6 }}>Your email</div>
-      {showPhone && <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: '#94a3b8', marginBottom: 6 }}>Your phone number</div>}
+      <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 12 }}>{subtitle}</div>
+      {showName && <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 6 }}>Your first name</div>}
+      <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 6 }}>Your email</div>
+      {showPhone && <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 6 }}>Your phone number</div>}
       <div style={{ background: btnColor, borderRadius: 8, padding: '10px', textAlign: 'center', color: '#fff', fontWeight: 700, fontSize: 12 }}>{btnText}</div>
     </div>
 
@@ -735,14 +735,14 @@ function BtnRow({ onApply, onClose }) {
   return (
     <div style={{ display: 'flex', gap: 8 }}>
       <button onClick={onApply}
-        style={{ padding: '10px 24px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Apply</button>
+        style={{ padding: '10px 24px', background: 'var(--sap-accent)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Apply</button>
       <button onClick={onClose}
-        style={{ padding: '10px 24px', background: '#f1f5f9', color: '#475569', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+        style={{ padding: '10px 24px', background: 'var(--sap-bg-page)', color: 'var(--sap-text-secondary)', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Cancel</button>
     </div>
   );
 }
 
-const lblStyle = { display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 };
+const lblStyle = { display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 };
 const lS = lblStyle;
 const inputStyle = { width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 13, outline: 'none', boxSizing: 'border-box' };
 const iS = inputStyle;

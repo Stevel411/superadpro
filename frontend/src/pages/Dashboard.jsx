@@ -85,15 +85,15 @@ export default function Dashboard() {
 
   if (loading) {
     return <AppLayout title={t("dashboard.title")}><div style={{ display: 'flex', justifyContent: 'center', padding: 80 }}>
-      <div style={{ width: 40, height: 40, border: '3px solid #e5e7eb', borderTopColor: '#0ea5e9', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+      <div style={{ width: 40, height: 40, border: '3px solid #e5e7eb', borderTopColor: 'var(--sap-accent)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
       <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
     </div></AppLayout>;
   }
 
   if (error || !data) {
-    return <AppLayout title={t("dashboard.title")}><div style={{ textAlign: 'center', padding: 80, color: '#64748b' }}>
+    return <AppLayout title={t("dashboard.title")}><div style={{ textAlign: 'center', padding: 80, color: 'var(--sap-text-muted)' }}>
       <div style={{ fontSize: 16, marginBottom: 12 }}>{error || t('dashboard.unableToLoad')}</div>
-      <button onClick={() => window.location.reload()} style={{ padding: '10px 24px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}>{t('dashboard.refreshPage')}</button>
+      <button onClick={() => window.location.reload()} style={{ padding: '10px 24px', background: 'var(--sap-accent)', color: '#fff', border: 'none', borderRadius: 8, cursor: 'pointer', fontWeight: 700 }}>{t('dashboard.refreshPage')}</button>
     </div></AppLayout>;
   }
 
@@ -136,13 +136,13 @@ export default function Dashboard() {
       topbarActions={<>
         <div style={{ background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: 10, padding: '7px 16px' }}>
           <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)' }}>{t('dashboard.balance')}</div>
-          <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 17, fontWeight: 900, color: '#16a34a' }}>${formatMoney(d.balance)}</div>
+          <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 17, fontWeight: 900, color: 'var(--sap-green)' }}>${formatMoney(d.balance)}</div>
         </div>
         <span style={{
           fontSize: 11, fontWeight: 700, padding: '7px 14px', borderRadius: 8,
           ...(d.is_active
             ? { background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.2)', color: '#4ade80' }
-            : { background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', color: '#fbbf24' })
+            : { background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--sap-amber-bright)' })
         }}>
           {d.is_active ? '● ' + t('dashboard.activeMember') : '○ ' + t('dashboard.inactive')}
         </span>
@@ -157,7 +157,7 @@ export default function Dashboard() {
         }}>
           <div style={{ flex: 1, minWidth: 240 }}>
             <div style={{ fontSize: 15, fontWeight: 800, color: '#132044', marginBottom: 6 }}>🎯 {t('dashboard.activationTitle')}</div>
-            <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.7, margin: 0 }}>
+            <p style={{ fontSize: 14, color: 'var(--sap-text-secondary)', lineHeight: 1.7, margin: 0 }}>
               {t('dashboard.activationDesc1')} <strong>{t('dashboard.activationDesc2')}</strong>. {t('dashboard.activationDesc3')} <strong style={{ color: '#0891b2' }}>{t('dashboard.activationPaidFor')}</strong>.
             </p>
           </div>
@@ -206,11 +206,11 @@ export default function Dashboard() {
           {/* Referral link bar */}
           <div style={{ display:'flex', alignItems:'center', gap:10, background:'rgba(0,0,0,0.25)', borderRadius:10, padding:'10px 16px', maxWidth:520 }}>
             <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.4)', flexShrink:0 }}>{t('dashboard.yourLink')}</div>
-            <div style={{ fontSize:13, fontWeight:600, color:'#38bdf8', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', fontFamily:'monospace' }}>
+            <div style={{ fontSize:13, fontWeight:600, color:'var(--sap-accent-light)', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', fontFamily:'monospace' }}>
               www.superadpro.com/ref/{user?.username}
             </div>
             <button onClick={function() { copyRefLink('https://www.superadpro.com/ref/' + (user?.username || '')); }}
-              style={{ padding:'6px 14px', borderRadius:8, border:'none', background:'#0ea5e9', color:'#fff', fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit', flexShrink:0 }}>
+              style={{ padding:'6px 14px', borderRadius:8, border:'none', background:'var(--sap-accent)', color:'#fff', fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit', flexShrink:0 }}>
               {refCopied ? t('dashboard.copied') : t('dashboard.copy')}
             </button>
           </div>
@@ -221,42 +221,42 @@ export default function Dashboard() {
       <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
-            color: '#16a34a', bg: '#dcfce7', badge: t('dashboard.perReferral'),
+            color: 'var(--sap-green)', bg: 'var(--sap-green-bg-mid)', badge: t('dashboard.perReferral'),
             val: d.membership_earned, name: t('dashboard.membership'),
             detail: t('dashboard.personalReferrals', { count: d.personal_referrals || 0 }),
             icon: (
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <circle cx="9" cy="7" r="4" fill="#16a34a" opacity="0.9"/>
-                <path d="M2 21v-1a7 7 0 0 1 14 0v1" stroke="#16a34a" strokeWidth="2" strokeLinecap="round"/>
+                <circle cx="9" cy="7" r="4" fill="var(--sap-green)" opacity="0.9"/>
+                <path d="M2 21v-1a7 7 0 0 1 14 0v1" stroke="var(--sap-green)" strokeWidth="2" strokeLinecap="round"/>
                 <circle cx="19" cy="8" r="2.5" fill="#4ade80"/>
                 <path d="M22 21v-.5a4.5 4.5 0 0 0-6-4.24" stroke="#4ade80" strokeWidth="1.8" strokeLinecap="round"/>
               </svg>
             )
           },
           {
-            color: '#8b5cf6', bg: '#ede9fe', badge: t('dashboard.profitNexus'),
+            color: 'var(--sap-purple)', bg: 'var(--sap-purple-pale)', badge: t('dashboard.profitNexus'),
             val: d.creative_studio_earned || 0, name: t('dashboard.creativeStudio'),
             detail: t('dashboard.nexusCommissions'),
             icon: (
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <rect x="2" y="3" width="20" height="14" rx="3" fill="#8b5cf6" opacity=".8"/>
+                <rect x="2" y="3" width="20" height="14" rx="3" fill="var(--sap-purple)" opacity=".8"/>
                 <polygon points="10,7 10,14 16,10.5" fill="#fff"/>
-                <rect x="6" y="19" width="12" height="2" rx="1" fill="#a78bfa"/>
+                <rect x="6" y="19" width="12" height="2" rx="1" fill="var(--sap-purple-light)"/>
               </svg>
             )
           },
           {
-            color: '#d97706', bg: '#fef3c7', badge: t('dashboard.watchAndGrid'),
+            color: 'var(--sap-amber-dark)', bg: 'var(--sap-amber-bg)', badge: t('dashboard.watchAndGrid'),
             val: d.boost_earned, name: t('dashboard.campaigns'),
             detail: t('dashboard.watchGridCommissions'),
             icon: (
               <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="#f59e0b"/>
+                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="var(--sap-amber)"/>
                 <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="url(#zapGrad)"/>
                 <defs>
                   <linearGradient id="zapGrad" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="#fbbf24"/>
-                    <stop offset="1" stopColor="#d97706"/>
+                    <stop stopColor="var(--sap-amber-bright)"/>
+                    <stop offset="1" stopColor="var(--sap-amber-dark)"/>
                   </linearGradient>
                 </defs>
               </svg>
@@ -276,8 +276,8 @@ export default function Dashboard() {
               <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 9px', borderRadius: 20, letterSpacing: 0.3, background: s.bg, color: s.color }}>{s.badge}</span>
             </div>
             <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 34, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 6 }}>${formatMoney(s.val)}</div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#0f172a', marginBottom: 3 }}>{s.name}</div>
-            <div style={{ fontSize: 12, color: '#64748b' }}>{s.detail}</div>
+            <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 3 }}>{s.name}</div>
+            <div style={{ fontSize: 12, color: 'var(--sap-text-muted)' }}>{s.detail}</div>
           </div>
         ))}
       </div>
@@ -287,7 +287,7 @@ export default function Dashboard() {
         <>
           {goals.goals && goals.goals.length > 0 && (
             <>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 12 }}>{t('dashboard.goalsThisWeek')}</div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.goalsThisWeek')}</div>
               <div className="goals-grid" style={{ display: 'grid', gridTemplateColumns: goals.goals.length === 1 ? '1fr' : 'repeat(2,1fr)', gap: 12, marginBottom: 20 }}>
                 {goals.goals.map(function(g, i) {
                   var ICONS = {
@@ -301,7 +301,7 @@ export default function Dashboard() {
                   var ringOffset = C - (C * (g.progress || 0) / 100);
                   var isCompleted = g.completed;
                   return (
-                    <div key={i} style={{ background: isCompleted ? '#f0fdf4' : '#fff', borderRadius:14, border: isCompleted ? '1px solid #bbf7d0' : '1px solid #e8ecf2', padding:'18px 20px', position:'relative', overflow:'hidden' }}>
+                    <div key={i} style={{ background: isCompleted ? 'var(--sap-green-bg)' : '#fff', borderRadius:14, border: isCompleted ? '1px solid #bbf7d0' : '1px solid #e8ecf2', padding:'18px 20px', position:'relative', overflow:'hidden' }}>
                       <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:`linear-gradient(90deg,${g.color},${g.color}80)` }}/>
                       <div style={{ display:'flex', alignItems:'flex-start', gap:14 }}>
                         <div style={{ flex:1 }}>
@@ -309,15 +309,15 @@ export default function Dashboard() {
                             <div style={{ width:38, height:38, borderRadius:10, background:g.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                               {ICONS[g.icon] || ICONS.zap}
                             </div>
-                            <div style={{ fontSize:14, fontWeight:800, color:'#0f172a', lineHeight:1.3 }}>{goalText(g, 'title')}</div>
+                            <div style={{ fontSize:14, fontWeight:800, color:'var(--sap-text-primary)', lineHeight:1.3 }}>{goalText(g, 'title')}</div>
                           </div>
-                          <div style={{ fontSize:12, color:'#64748b', lineHeight:1.5, marginBottom:14 }}>{goalText(g, 'desc')}</div>
+                          <div style={{ fontSize:12, color:'var(--sap-text-muted)', lineHeight:1.5, marginBottom:14 }}>{goalText(g, 'desc')}</div>
                           {g.progress !== undefined && !g.ring && (
                             <>
                               <div style={{ height:6, borderRadius:99, background:`${g.color}18`, overflow:'hidden', marginBottom:6 }}>
                                 <div style={{ height:'100%', borderRadius:99, background:`linear-gradient(90deg,${g.color},${g.color}cc)`, width:`${g.progress}%`, transition:'width .8s ease-out' }}/>
                               </div>
-                              <div style={{ display:'flex', justifyContent:'space-between', fontSize:11, color:'#64748b' }}>
+                              <div style={{ display:'flex', justifyContent:'space-between', fontSize:11, color:'var(--sap-text-muted)' }}>
                                 <span>{goalText(g, 'progress_label')}</span>
                                 <span style={{ color:g.color, fontWeight:700 }}>{g.progress}%</span>
                               </div>
@@ -327,7 +327,7 @@ export default function Dashboard() {
                         </div>
                         {g.ring && (
                           <svg width="56" height="56" viewBox="0 0 52 52" style={{ flexShrink:0, marginTop:4 }}>
-                            <circle cx="26" cy="26" r={R} fill="none" stroke="#f1f5f9" strokeWidth="5"/>
+                            <circle cx="26" cy="26" r={R} fill="none" stroke="var(--sap-bg-page)" strokeWidth="5"/>
                             <circle cx="26" cy="26" r={R} fill="none" stroke={g.color} strokeWidth="5" strokeLinecap="round" strokeDasharray={C} strokeDashoffset={ringOffset} style={{ transform:'rotate(-90deg)', transformOrigin:'center' }}/>
                             <text x="26" y="26" textAnchor="middle" dominantBaseline="central" fill={g.color} style={{ fontSize:13, fontWeight:800 }}>{g.progress}%</text>
                           </svg>
@@ -341,7 +341,7 @@ export default function Dashboard() {
           )}
           {goals.opportunities && goals.opportunities.length > 0 && (
             <>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 12 }}>{t('dashboard.moreOpportunities')}</div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.moreOpportunities')}</div>
               <div className="goals-grid" style={{ display: 'grid', gridTemplateColumns: goals.opportunities.length === 1 ? '1fr' : 'repeat(2,1fr)', gap: 12, marginBottom: 20 }}>
                 {goals.opportunities.map(function(g, i) {
                   var ICONS = {
@@ -355,9 +355,9 @@ export default function Dashboard() {
                         <div style={{ width:38, height:38, borderRadius:10, background:g.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                           {ICONS[g.icon] || ICONS.target}
                         </div>
-                        <div style={{ fontSize:14, fontWeight:800, color:'#0f172a', lineHeight:1.3 }}>{goalText(g, 'title')}</div>
+                        <div style={{ fontSize:14, fontWeight:800, color:'var(--sap-text-primary)', lineHeight:1.3 }}>{goalText(g, 'title')}</div>
                       </div>
-                      <div style={{ fontSize:12, color:'#64748b', lineHeight:1.5, marginBottom:14 }}>{goalText(g, 'desc')}</div>
+                      <div style={{ fontSize:12, color:'var(--sap-text-muted)', lineHeight:1.5, marginBottom:14 }}>{goalText(g, 'desc')}</div>
                       <Link to={g.cta_link} style={{ display:'inline-block', fontSize:12, fontWeight:700, padding:'8px 18px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none' }}>{goalText(g, 'cta')}</Link>
                     </div>
                   );
@@ -369,38 +369,38 @@ export default function Dashboard() {
       )}
 
       {/* Quick Actions — 6 cards, same for all members */}
-      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b', marginBottom: 14 }}>{t('dashboard.quickActions')}</div>
+      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>{t('dashboard.quickActions')}</div>
       <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
             name: t('dashboard.platformTour'), desc: t('dashboard.platformTourDesc'), link: '/tour',
-            color: '#7c3aed', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
-            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#ede9fe" stroke="#7c3aed" strokeWidth="1.5"/><path d="M12 8v4l3 3" stroke="#7c3aed" strokeWidth="2" strokeLinecap="round"/><path d="M9 3l3-1 3 1" stroke="#a78bfa" strokeWidth="1.5" strokeLinecap="round"/></svg>)
+            color: 'var(--sap-violet)', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
+            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="var(--sap-purple-pale)" stroke="var(--sap-violet)" strokeWidth="1.5"/><path d="M12 8v4l3 3" stroke="var(--sap-violet)" strokeWidth="2" strokeLinecap="round"/><path d="M9 3l3-1 3 1" stroke="var(--sap-purple-light)" strokeWidth="1.5" strokeLinecap="round"/></svg>)
           },
           {
             name: t('dashboard.shareYourLink'), desc: t('dashboard.shareYourLinkDesc'), link: '/affiliate',
-            color: '#0ea5e9', bg: 'linear-gradient(135deg,#ecfeff,#cffafe)',
-            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#cffafe" stroke="#0ea5e9" strokeWidth="1.5"/><path d="M8 12h8M12 8v8" stroke="#0891b2" strokeWidth="2" strokeLinecap="round"/><circle cx="18" cy="6" r="3" fill="#0ea5e9"/><text x="18" y="8" textAnchor="middle" fontSize="4" fontWeight="bold" fill="#fff">$</text></svg>)
+            color: 'var(--sap-accent)', bg: 'linear-gradient(135deg,#ecfeff,#cffafe)',
+            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#cffafe" stroke="var(--sap-accent)" strokeWidth="1.5"/><path d="M8 12h8M12 8v8" stroke="#0891b2" strokeWidth="2" strokeLinecap="round"/><circle cx="18" cy="6" r="3" fill="var(--sap-accent)"/><text x="18" y="8" textAnchor="middle" fontSize="4" fontWeight="bold" fill="#fff">$</text></svg>)
           },
           {
             name: t('dashboard.campaignTiers'), desc: t('dashboard.campaignTiersDesc'), link: '/campaign-tiers',
-            color: '#16a34a', bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)',
-            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="url(#qaZap)"/><defs><linearGradient id="qaZap" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse"><stop stopColor="#4ade80"/><stop offset="1" stopColor="#16a34a"/></linearGradient></defs></svg>)
+            color: 'var(--sap-green)', bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)',
+            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="url(#qaZap)"/><defs><linearGradient id="qaZap" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse"><stop stopColor="#4ade80"/><stop offset="1" stopColor="var(--sap-green)"/></linearGradient></defs></svg>)
           },
           {
             name: t('dashboard.compPlanAction'), desc: t('dashboard.compPlanDesc'), link: '/compensation-plan',
-            color: '#6366f1', bg: 'linear-gradient(135deg,#eef2ff,#e0e7ff)',
-            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" fill="#e0e7ff" stroke="#6366f1" strokeWidth="1.5"/><path d="M8 8h8M8 12h6M8 16h4" stroke="#6366f1" strokeWidth="1.5" strokeLinecap="round"/><circle cx="18" cy="6" r="4" fill="#6366f1"/><text x="18" y="8" textAnchor="middle" fontSize="5" fontWeight="bold" fill="#fff">5</text></svg>)
+            color: 'var(--sap-indigo)', bg: 'linear-gradient(135deg,#eef2ff,#e0e7ff)',
+            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" fill="#e0e7ff" stroke="var(--sap-indigo)" strokeWidth="1.5"/><path d="M8 8h8M8 12h6M8 16h4" stroke="var(--sap-indigo)" strokeWidth="1.5" strokeLinecap="round"/><circle cx="18" cy="6" r="4" fill="var(--sap-indigo)"/><text x="18" y="8" textAnchor="middle" fontSize="5" fontWeight="bold" fill="#fff">5</text></svg>)
           },
           {
             name: t('dashboard.analytics'), desc: t('dashboard.analyticsDesc'), link: '/analytics',
-            color: '#8b5cf6', bg: 'linear-gradient(135deg,#faf5ff,#ede9fe)',
-            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="3" y="14" width="4" height="7" rx="1" fill="#c4b5fd"/><rect x="10" y="9" width="4" height="12" rx="1" fill="#a78bfa"/><rect x="17" y="4" width="4" height="17" rx="1" fill="#8b5cf6"/></svg>)
+            color: 'var(--sap-purple)', bg: 'linear-gradient(135deg,#faf5ff,#ede9fe)',
+            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="3" y="14" width="4" height="7" rx="1" fill="#c4b5fd"/><rect x="10" y="9" width="4" height="12" rx="1" fill="var(--sap-purple-light)"/><rect x="17" y="4" width="4" height="17" rx="1" fill="var(--sap-purple)"/></svg>)
           },
           {
             name: t('dashboard.myNetwork'), desc: t('dashboard.myNetworkDesc'), link: '/network',
-            color: '#ec4899', bg: 'linear-gradient(135deg,#fdf2f8,#fce7f3)',
-            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" fill="#fce7f3" stroke="#ec4899" strokeWidth="1.5"/><circle cx="5" cy="18" r="3" fill="#f9a8d4"/><circle cx="19" cy="18" r="3" fill="#f9a8d4"/><path d="M12 12v3M8 15l-3 3M16 15l3 3" stroke="#ec4899" strokeWidth="1.5" strokeLinecap="round"/></svg>)
+            color: 'var(--sap-pink)', bg: 'linear-gradient(135deg,#fdf2f8,#fce7f3)',
+            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" fill="#fce7f3" stroke="var(--sap-pink)" strokeWidth="1.5"/><circle cx="5" cy="18" r="3" fill="#f9a8d4"/><circle cx="19" cy="18" r="3" fill="#f9a8d4"/><path d="M12 12v3M8 15l-3 3M16 15l3 3" stroke="var(--sap-pink)" strokeWidth="1.5" strokeLinecap="round"/></svg>)
           },
         ].map((a, i) => (
           <Link key={i} to={a.link} className="action-card" style={{
@@ -413,8 +413,8 @@ export default function Dashboard() {
             <div style={{ width: 68, height: 68, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', background: a.bg }}>
               {a.icon}
             </div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a' }}>{a.name}</div>
-            <div style={{ fontSize: 14, color: '#64748b', lineHeight: 1.5 }}>{a.desc}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{a.name}</div>
+            <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', lineHeight: 1.5 }}>{a.desc}</div>
           </Link>
         ))}
       </div>
@@ -424,21 +424,21 @@ export default function Dashboard() {
         {/* Recent Activity */}
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 22, boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a' }}>{t('dashboard.recentActivity')}</div>
-            <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: '#0ea5e9', textDecoration: 'none' }}>{t('dashboard.viewAll')}</Link>
+            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{t('dashboard.recentActivity')}</div>
+            <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('dashboard.viewAll')}</Link>
           </div>
           {(!Array.isArray(d.recent_activity) || d.recent_activity.length === 0) ? (
-            <div style={{ textAlign: 'center', padding: 24, color: '#64748b', fontSize: 13 }}>{t('dashboard.noRecentActivity')}</div>
+            <div style={{ textAlign: 'center', padding: 24, color: 'var(--sap-text-muted)', fontSize: 13 }}>{t('dashboard.noRecentActivity')}</div>
           ) : d.recent_activity.map((a, i) => {
-            const colorMap = { green: '#dcfce7', cyan: '#e0f2fe', purple: '#ede9fe', amber: '#fef3c7' };
+            const colorMap = { green: 'var(--sap-green-bg-mid)', cyan: '#e0f2fe', purple: 'var(--sap-purple-pale)', amber: 'var(--sap-amber-bg)' };
             return (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < d.recent_activity.length - 1 ? '1px solid #e5e7eb' : 'none' }}>
-                <div style={{ width: 32, height: 32, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0, background: colorMap[a.color] || '#f1f5f9' }}>{a.icon}</div>
+                <div style={{ width: 32, height: 32, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0, background: colorMap[a.color] || 'var(--sap-bg-page)' }}>{a.icon}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{a.title}</div>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>{a.sub}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--sap-text-primary)' }}>{a.title}</div>
+                  <div style={{ fontSize: 12, color: 'var(--sap-text-muted)' }}>{a.sub}</div>
                 </div>
-                <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 800, color: '#16a34a' }}>+${formatMoney(a.amount)}</div>
+                <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 800, color: 'var(--sap-green)' }}>+${formatMoney(a.amount)}</div>
               </div>
             );
           })}
@@ -447,8 +447,8 @@ export default function Dashboard() {
         {/* Network Snapshot */}
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 22, boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a' }}>{t('dashboard.yourNetwork')}</div>
-            <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: '#0ea5e9', textDecoration: 'none' }}>{t('dashboard.fullNetwork')}</Link>
+            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{t('dashboard.yourNetwork')}</div>
+            <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('dashboard.fullNetwork')}</Link>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
             {[
@@ -457,20 +457,20 @@ export default function Dashboard() {
               { val: `$${formatMoney(d.total_earned)}`, lbl: t('dashboard.lifetimeEarned') },
               { val: `$${formatMoney(d.creative_studio_earned || 0)}`, lbl: t('dashboard.studioEarned') },
             ].map((s, i) => (
-              <div key={i} style={{ background: '#f1f5f9', borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
-                <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 24, fontWeight: 800, color: '#16a34a' }}>{s.val}</div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#475569', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>{s.lbl}</div>
+              <div key={i} style={{ background: 'var(--sap-bg-page)', borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
+                <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 24, fontWeight: 800, color: 'var(--sap-green)' }}>{s.val}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>{s.lbl}</div>
               </div>
             ))}
           </div>
-          <div style={{ background: '#f1f5f9', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ background: 'var(--sap-bg-page)', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
             <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: '#475569' }}>{t('dashboard.yourReferralLink')}</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: '#0ea5e9', wordBreak: 'break-all' }}>www.superadpro.com/ref/{user?.username}</div>
+              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)' }}>{t('dashboard.yourReferralLink')}</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-accent)', wordBreak: 'break-all' }}>www.superadpro.com/ref/{user?.username}</div>
             </div>
             <button onClick={copyRef} style={{
               padding: '6px 12px', borderRadius: 7, border: '1px solid #e5e7eb', background: '#fff',
-              fontSize: 11, fontWeight: 700, color: '#475569', cursor: 'pointer', flexShrink: 0, fontFamily: 'inherit',
+              fontSize: 11, fontWeight: 700, color: 'var(--sap-text-secondary)', cursor: 'pointer', flexShrink: 0, fontFamily: 'inherit',
             }}>{refCopied ? t('dashboard.copied') : t('dashboard.copy')}</button>
           </div>
         </div>
@@ -520,15 +520,15 @@ export default function Dashboard() {
               <span style={{ fontSize: 24 }}>🎉</span>
             </div>
             <div style={{ flex: 1 }}>
-              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: '#172554', marginBottom: 4, letterSpacing: '.3px' }}>{isPro ? t('dashboard.newProMember') : t('dashboard.newTeamMember')}</div>
-              <div style={{ fontSize: 13, color: '#172554', lineHeight: 1.5 }}>
-                <strong style={{ color: '#172554' }}>{toast.first_name} {toast.last_name}</strong> {t('dashboard.justJoinedYourTeam')}
+              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: 'var(--sap-cobalt-deep)', marginBottom: 4, letterSpacing: '.3px' }}>{isPro ? t('dashboard.newProMember') : t('dashboard.newTeamMember')}</div>
+              <div style={{ fontSize: 13, color: 'var(--sap-cobalt-deep)', lineHeight: 1.5 }}>
+                <strong style={{ color: 'var(--sap-cobalt-deep)' }}>{toast.first_name} {toast.last_name}</strong> {t('dashboard.justJoinedYourTeam')}
               </div>
               <div style={{ fontSize: 12, color: subColor, marginTop: 3 }}>
-                {t('dashboard.youllEarn')} <strong style={{ color: '#172554' }}>{commission}{t('dashboard.perMonth')}</strong>
+                {t('dashboard.youllEarn')} <strong style={{ color: 'var(--sap-cobalt-deep)' }}>{commission}{t('dashboard.perMonth')}</strong>
               </div>
               <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ padding: '3px 12px', borderRadius: 6, background: badgeBg, border: '1px solid ' + badgeBorder, color: '#172554', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.5px' }}>{isPro ? '★ ' + t('dashboard.proMember') : t('dashboard.basicMember')}</span>
+                <span style={{ padding: '3px 12px', borderRadius: 6, background: badgeBg, border: '1px solid ' + badgeBorder, color: 'var(--sap-cobalt-deep)', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.5px' }}>{isPro ? '★ ' + t('dashboard.proMember') : t('dashboard.basicMember')}</span>
                 <span style={{ fontSize: 10, color: 'rgba(15,29,58,.4)' }}>@{toast.username}</span>
               </div>
             </div>

@@ -25,7 +25,7 @@ const EC_LEVELS = [
   { id: 'H', name: 'Best', desc: '30% recovery' },
 ];
 
-const inp = { width: '100%', padding: '10px 14px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 10, fontSize: 13, color: '#fff', fontFamily: '"DM Sans",sans-serif', boxSizing: 'border-box', outline: 'none', transition: 'border-color .2s' };
+const inp = { width: '100%', padding: '10px 14px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 10, fontSize: 13, color: '#fff', fontFamily: '"DM Sans",sans-serif', boxSizing: 'border-box', outline: 'none', transition: 'border-color .2s' };
 
 export default function QRCodeGenerator() {
   useEffect(() => {
@@ -122,7 +122,7 @@ export default function QRCodeGenerator() {
           <div>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>URL</div>
             <input type="url" value={url} onChange={e => setUrl(e.target.value)} placeholder="https://www.example.com" style={inp}
-              onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#2a3040'} />
+              onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
           </div>
         );
       case 'text':
@@ -131,7 +131,7 @@ export default function QRCodeGenerator() {
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Text</div>
             <textarea value={text} onChange={e => setText(e.target.value)} placeholder="Enter any text..." rows={3}
               style={{ ...inp, resize: 'vertical', minHeight: 60 }}
-              onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#2a3040'} />
+              onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
           </div>
         );
       case 'wifi':
@@ -139,17 +139,17 @@ export default function QRCodeGenerator() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 }}>WiFi details</div>
             <input type="text" value={wifiName} onChange={e => setWifiName(e.target.value)} placeholder="Network name (SSID)" style={inp}
-              onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#2a3040'} />
+              onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
             <input type="text" value={wifiPass} onChange={e => setWifiPass(e.target.value)} placeholder="Password" style={inp}
-              onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#2a3040'} />
+              onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
             <div style={{ display: 'flex', gap: 6 }}>
               {['WPA', 'WEP', 'nopass'].map(t => (
                 <button key={t} onClick={() => setWifiType(t)}
                   style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif',
                     fontSize: 11, fontWeight: wifiType === t ? 700 : 600,
-                    background: wifiType === t ? '#0ea5e9' : '#1b2030',
+                    background: wifiType === t ? 'var(--sap-accent)' : 'var(--sap-navy-soft)',
                     color: wifiType === t ? '#fff' : '#7b8594',
-                    borderWidth: 1, borderStyle: 'solid', borderColor: wifiType === t ? '#0ea5e9' : '#2a3040',
+                    borderWidth: 1, borderStyle: 'solid', borderColor: wifiType === t ? 'var(--sap-accent)' : 'var(--sap-navy-card)',
                   }}>{t === 'nopass' ? 'None' : t}</button>
               ))}
             </div>
@@ -160,9 +160,9 @@ export default function QRCodeGenerator() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 }}>Email</div>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="hello@example.com" style={inp}
-              onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#2a3040'} />
+              onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
             <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder="Subject (optional)" style={inp}
-              onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#2a3040'} />
+              onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
           </div>
         );
       case 'phone':
@@ -170,7 +170,7 @@ export default function QRCodeGenerator() {
           <div>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Phone number</div>
             <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+44 7700 900000" style={inp}
-              onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#2a3040'} />
+              onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
           </div>
         );
       case 'sms':
@@ -178,10 +178,10 @@ export default function QRCodeGenerator() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 }}>SMS</div>
             <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="Phone number" style={inp}
-              onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#2a3040'} />
+              onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
             <textarea value={smsBody} onChange={e => setSmsBody(e.target.value)} placeholder="Message (optional)" rows={2}
               style={{ ...inp, resize: 'vertical', minHeight: 48 }}
-              onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#2a3040'} />
+              onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
           </div>
         );
       default: return null;
@@ -200,14 +200,14 @@ export default function QRCodeGenerator() {
       {/* ═══ NAV ═══ */}
       <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 36px', height: 80, background: 'rgba(10,18,40,0.95)', backdropFilter: 'blur(18px)', borderBottom: '1px solid rgba(0,180,216,0.12)', flexShrink: 0, position: 'relative' }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
-          <svg style={{ width: 28, height: 28 }} viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
-          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 20, color: '#fff' }}>SuperAd<span style={{ color: '#38bdf8' }}>Pro</span></span>
+          <svg style={{ width: 28, height: 28 }} viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="var(--sap-accent)"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
+          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 20, color: '#fff' }}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span></span>
         </Link>
         <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 22, color: '#fff' }}>Free QR Code Generator</span>
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#0ea5e9', border: '1px solid rgba(14,165,233,0.4)', borderRadius: 20, padding: '4px 14px', letterSpacing: 1.5 }}>FREE</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-accent)', border: '1px solid rgba(14,165,233,0.4)', borderRadius: 20, padding: '4px 14px', letterSpacing: 1.5 }}>FREE</span>
         </div>
-        <Link to="/register" style={{ background: '#0ea5e9', color: '#fff', fontSize: 15, fontWeight: 600, padding: '10px 24px', borderRadius: 10, textDecoration: 'none', boxShadow: '0 2px 12px rgba(14,165,233,0.25)' }}>Get started free</Link>
+        <Link to="/register" style={{ background: 'var(--sap-accent)', color: '#fff', fontSize: 15, fontWeight: 600, padding: '10px 24px', borderRadius: 10, textDecoration: 'none', boxShadow: '0 2px 12px rgba(14,165,233,0.25)' }}>Get started free</Link>
       </nav>
 
       {/* ═══ WORKSPACE — 50/50 ═══ */}
@@ -230,7 +230,7 @@ export default function QRCodeGenerator() {
           </div>
 
           <div style={{ display: 'flex', gap: 8, padding: '12px 0 10px', flexShrink: 0 }}>
-            <button onClick={dlPNG} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: '#0ea5e9', color: '#fff', fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>Download PNG</button>
+            <button onClick={dlPNG} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'var(--sap-accent)', color: '#fff', fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>Download PNG</button>
             <button onClick={dlSVG} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'rgba(255,255,255,.05)', color: 'rgba(200,220,255,.6)', fontWeight: 600, fontSize: 13, border: '1px solid rgba(255,255,255,.12)', cursor: 'pointer', fontFamily: 'inherit' }}>Download SVG</button>
             <button onClick={reset} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'rgba(255,255,255,.05)', color: 'rgba(200,220,255,.6)', fontWeight: 600, fontSize: 13, border: '1px solid rgba(255,255,255,.12)', cursor: 'pointer', fontFamily: 'inherit' }}>Reset</button>
           </div>
@@ -239,7 +239,7 @@ export default function QRCodeGenerator() {
             <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 4 }}>Start your online business today</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 12, color: 'rgba(200,220,255,.35)', lineHeight: 1.5, flex: 1 }}>AI creative tools, income opportunities, and everything you need to earn online — all in one platform.</span>
-              <Link to="/register" style={{ background: '#0ea5e9', color: '#fff', fontWeight: 700, fontSize: 12, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>Learn more</Link>
+              <Link to="/register" style={{ background: 'var(--sap-accent)', color: '#fff', fontWeight: 700, fontSize: 12, padding: '8px 16px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap', flexShrink: 0 }}>Learn more</Link>
             </div>
           </div>
         </div>
@@ -256,10 +256,10 @@ export default function QRCodeGenerator() {
                   padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer',
                   fontFamily: '"DM Sans",sans-serif', fontSize: 12,
                   fontWeight: mode === m.id ? 700 : 600,
-                  background: mode === m.id ? '#0ea5e9' : '#1b2030',
+                  background: mode === m.id ? 'var(--sap-accent)' : 'var(--sap-navy-soft)',
                   color: mode === m.id ? '#fff' : '#7b8594',
                   borderWidth: 1, borderStyle: 'solid',
-                  borderColor: mode === m.id ? '#0ea5e9' : '#2a3040',
+                  borderColor: mode === m.id ? 'var(--sap-accent)' : 'var(--sap-navy-card)',
                   transition: 'all .15s',
                 }}>{m.name}</button>
             ))}
@@ -276,7 +276,7 @@ export default function QRCodeGenerator() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
             <div>
               <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>Foreground</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 10 }}>
                 <input type="color" value={fgColor} onChange={e => setFgColor(e.target.value)}
                   style={{ width: 28, height: 28, border: 'none', borderRadius: 6, cursor: 'pointer', padding: 0, background: 'none' }} />
                 <span style={{ fontSize: 12, color: '#c5cad1', fontFamily: '"DM Sans",monospace' }}>{fgColor.toUpperCase()}</span>
@@ -284,7 +284,7 @@ export default function QRCodeGenerator() {
             </div>
             <div>
               <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>Background</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 10 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 10 }}>
                 <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)}
                   style={{ width: 28, height: 28, border: 'none', borderRadius: 6, cursor: 'pointer', padding: 0, background: 'none' }} />
                 <span style={{ fontSize: 12, color: '#c5cad1', fontFamily: '"DM Sans",monospace' }}>{bgColor.toUpperCase()}</span>
@@ -299,7 +299,7 @@ export default function QRCodeGenerator() {
               <span style={{ fontSize: 11, color: '#fff', fontWeight: 700 }}>{size}px</span>
             </div>
             <input type="range" min="100" max="600" step="50" value={size} onChange={e => setSize(+e.target.value)}
-              style={{ width: '100%', accentColor: '#0ea5e9' }} />
+              style={{ width: '100%', accentColor: 'var(--sap-accent)' }} />
           </div>
 
           {/* Error correction */}
@@ -312,10 +312,10 @@ export default function QRCodeGenerator() {
                     flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', cursor: 'pointer',
                     fontFamily: '"DM Sans",sans-serif', fontSize: 11,
                     fontWeight: ecLevel === ec.id ? 700 : 600,
-                    background: ecLevel === ec.id ? '#0ea5e9' : '#1b2030',
+                    background: ecLevel === ec.id ? 'var(--sap-accent)' : 'var(--sap-navy-soft)',
                     color: ecLevel === ec.id ? '#fff' : '#7b8594',
                     borderWidth: 1, borderStyle: 'solid',
-                    borderColor: ecLevel === ec.id ? '#0ea5e9' : '#2a3040',
+                    borderColor: ecLevel === ec.id ? 'var(--sap-accent)' : 'var(--sap-navy-card)',
                     transition: 'all .15s',
                   }}>{ec.name}</button>
               ))}
@@ -325,7 +325,7 @@ export default function QRCodeGenerator() {
           {/* Bottom CTA */}
           <div style={{ padding: '10px 14px', background: 'rgba(14,165,233,0.03)', borderTop: '1px solid rgba(0,180,216,0.06)', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 10, marginTop: 'auto' }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#fff', flex: 1 }}>Earn money online with SuperAdPro</span>
-            <Link to="/earn" style={{ fontSize: 10, fontWeight: 700, color: '#0ea5e9', textDecoration: 'none' }}>See how →</Link>
+            <Link to="/earn" style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>See how →</Link>
           </div>
         </div>
       </div>

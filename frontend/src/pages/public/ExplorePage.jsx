@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 export default function ExplorePage() {
   var { t } = useTranslation();
   return (
-    <div style={{ background:'#172554', color:'#fff', fontFamily:"'DM Sans',sans-serif", minHeight:'100vh' }}>
+    <div style={{ background:'var(--sap-cobalt-deep)', color:'#fff', fontFamily:"'DM Sans',sans-serif", minHeight:'100vh' }}>
       <style>{`
         .exp-path{transition:all 0.3s!important}
         .exp-path:hover{transform:translateY(-6px)!important;box-shadow:0 20px 60px rgba(0,0,0,0.5)!important}
@@ -22,10 +22,10 @@ export default function ExplorePage() {
           <div style={{ width:36, height:36, borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#6366f1)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 12px rgba(14,165,233,0.3)' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><polygon points="10,4 10,20 21,12" fill="#fff"/></svg>
           </div>
-          <span style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:900, color:'#fff' }}>SuperAd<span style={{ color:'#38bdf8' }}>Pro</span></span>
+          <span style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:900, color:'#fff' }}>SuperAd<span style={{ color:'var(--sap-accent-light)' }}>Pro</span></span>
         </Link>
         <div className="exp-nav-links exp-nav" style={{ display:'flex', alignItems:'center', gap:24 }}>
-          <Link to="/explore" style={{ fontSize:14, fontWeight:600, color:'#38bdf8', textDecoration:'none' }}>Explore</Link>
+          <Link to="/explore" style={{ fontSize:14, fontWeight:600, color:'var(--sap-accent-light)', textDecoration:'none' }}>Explore</Link>
           <Link to="/login" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>Sign In</Link>
           <Link to="/register" style={{ padding:'10px 24px', borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', fontSize:13, fontWeight:800, textDecoration:'none' }}>Join Free</Link>
         </div>
@@ -58,7 +58,7 @@ export default function ExplorePage() {
                 Discover the platform, the creative tools,<br/>
                 and how everything works together.
               </p>
-              <div style={{ fontFamily:"'Sora',sans-serif", fontSize:15, fontWeight:800, color:'#0ea5e9', display:'flex', alignItems:'center', gap:8 }}>
+              <div style={{ fontFamily:"'Sora',sans-serif", fontSize:15, fontWeight:800, color:'var(--sap-accent)', display:'flex', alignItems:'center', gap:8 }}>
                 Explore the platform <span style={{ fontSize:18 }}>→</span>
               </div>
             </Link>
@@ -70,7 +70,7 @@ export default function ExplorePage() {
                 See the full affiliate programme,<br/>
                 the income streams, and what you can make.
               </p>
-              <div style={{ fontFamily:"'Sora',sans-serif", fontSize:15, fontWeight:800, color:'#fbbf24', display:'flex', alignItems:'center', gap:8 }}>
+              <div style={{ fontFamily:"'Sora',sans-serif", fontSize:15, fontWeight:800, color:'var(--sap-amber-bright)', display:'flex', alignItems:'center', gap:8 }}>
                 See the plan <span style={{ fontSize:18 }}>→</span>
               </div>
             </Link>

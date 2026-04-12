@@ -101,7 +101,7 @@ export default function LinkHub() {
   var [links, setLinks] = useState([]);
   var [profile, setProfile] = useState({display_name:'',bio:'',avatar_url:''});
   var [style, setStyle] = useState({
-    bg_color:'#0f172a',btn_color:'#132044',text_color:'#ffffff',accent_color:'#8b5cf6',
+    bg_color:'var(--sap-text-primary)',btn_color:'#132044',text_color:'#ffffff',accent_color:'var(--sap-purple)',
     bio_color:'#cccccc',btn_text_color:'#ffffff',
     font_family:'DM Sans',btn_style_type:'rounded',btn_radius:'50px',
     btn_font_size:14,btn_align:'center',arrow_style:'arrow',
@@ -122,8 +122,8 @@ export default function LinkHub() {
       if (d.profile) {
         setProfile({display_name:d.profile.display_name||'',bio:d.profile.bio||'',avatar_url:d.profile.avatar_url||''});
         setStyle({
-          bg_color:d.profile.bg_color||'#0f172a',btn_color:d.profile.btn_color||'#132044',
-          text_color:d.profile.text_color||'#ffffff',accent_color:d.profile.accent_color||'#8b5cf6',
+          bg_color:d.profile.bg_color||'var(--sap-text-primary)',btn_color:d.profile.btn_color||'#132044',
+          text_color:d.profile.text_color||'#ffffff',accent_color:d.profile.accent_color||'var(--sap-purple)',
           bio_color:d.profile.bio_color||'#cccccc',btn_text_color:d.profile.btn_text_color||'#ffffff',
           font_family:d.profile.font_family||'DM Sans',
           btn_style_type:d.profile.btn_style_type||'rounded',btn_radius:d.profile.btn_radius||'50px',
@@ -190,14 +190,14 @@ export default function LinkHub() {
         {/* Header */}
         <div style={{padding:'14px 20px',borderBottom:'1px solid #e5e7eb',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
           <div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:900,color:'#0f172a'}}>LinkHub</div>
-            <div style={{fontSize:12,color:'#94a3b8',fontWeight:500}}>{t('linkHub.editPage')}</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:900,color:'var(--sap-text-primary)'}}>LinkHub</div>
+            <div style={{fontSize:12,color:'var(--sap-text-faint)',fontWeight:500}}>{t('linkHub.editPage')}</div>
           </div>
           <div style={{display:'flex',gap:6}}>
-            <button onClick={copyUrl} style={{display:'flex',alignItems:'center',gap:5,padding:'8px 14px',borderRadius:8,border:copied?'1px solid #bbf7d0':'1px solid #e5e7eb',background:copied?'#f0fdf4':'#fff',cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,color:copied?'#16a34a':'#475569',transition:'all .15s'}}>
+            <button onClick={copyUrl} style={{display:'flex',alignItems:'center',gap:5,padding:'8px 14px',borderRadius:8,border:copied?'1px solid #bbf7d0':'1px solid #e5e7eb',background:copied?'var(--sap-green-bg)':'#fff',cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,color:copied?'var(--sap-green)':'var(--sap-text-secondary)',transition:'all .15s'}}>
               {copied ? <><Check size={13}/> Copied!</> : <><Copy size={13}/> Copy URL</>}
             </button>
-            <a href={pubUrl} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',gap:5,padding:'8px 14px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',textDecoration:'none',fontSize:12,fontWeight:700,color:'#475569',transition:'all .15s'}}>
+            <a href={pubUrl} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',gap:5,padding:'8px 14px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',textDecoration:'none',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',transition:'all .15s'}}>
               <ExternalLink size={13}/> Preview
             </a>
           </div>
@@ -240,9 +240,9 @@ export default function LinkHub() {
         </div>
 
         {/* Tabs — pill buttons */}
-        <div style={{display:'flex',gap:6,flexShrink:0,padding:'10px 12px',background:'#f8f9fb',borderBottom:'1px solid #e5e7eb'}}>
+        <div style={{display:'flex',gap:6,flexShrink:0,padding:'10px 12px',background:'var(--sap-bg-input)',borderBottom:'1px solid #e5e7eb'}}>
           {[
-            {k:'links',l:'🔗 Links',bg:'#f5f3ff',bgOn:'linear-gradient(135deg,#7c3aed,#8b5cf6)',color:'#7c3aed',shadow:'rgba(124,58,237,.35)'},
+            {k:'links',l:'🔗 Links',bg:'#f5f3ff',bgOn:'linear-gradient(135deg,#7c3aed,#8b5cf6)',color:'var(--sap-violet)',shadow:'rgba(124,58,237,.35)'},
             {k:'style',l:'🎨 Style',bg:'#fdf2f8',bgOn:'linear-gradient(135deg,#db2777,#ec4899)',color:'#db2777',shadow:'rgba(219,39,119,.35)'},
             {k:'profile',l:'👤 Profile',bg:'#eff6ff',bgOn:'linear-gradient(135deg,#2563eb,#3b82f6)',color:'#2563eb',shadow:'rgba(37,99,235,.35)'},
           ].map(function(tb) {
@@ -265,7 +265,7 @@ export default function LinkHub() {
         {/* Save */}
         <div style={{padding:'14px 20px',borderTop:'1px solid #e5e7eb',flexShrink:0}}>
           <button onClick={save} disabled={saving}
-            style={{width:'100%',padding:'15px',borderRadius:10,border:'none',background:saved?'#16a34a':'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:14,fontWeight:800,cursor:saving?'default':'pointer',fontFamily:'inherit',boxShadow:'0 4px 14px rgba(139,92,246,.3)',opacity:saving?0.6:1}}>
+            style={{width:'100%',padding:'15px',borderRadius:10,border:'none',background:saved?'var(--sap-green)':'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:14,fontWeight:800,cursor:saving?'default':'pointer',fontFamily:'inherit',boxShadow:'0 4px 14px rgba(139,92,246,.3)',opacity:saving?0.6:1}}>
             {saving?t('linkHub.saving'):saved?t('linkHub.saved'):t('linkHub.savePublish')}
           </button>
         </div>
@@ -327,9 +327,9 @@ export default function LinkHub() {
           </div>
         </div>
         <div style={{position:'absolute',bottom:16,left:'50%',transform:'translateX(-50%)',background:'#fff',borderRadius:8,padding:'6px 14px',boxShadow:'0 2px 8px rgba(0,0,0,.1)',display:'flex',alignItems:'center',gap:6,whiteSpace:'nowrap'}}>
-          <div style={{width:6,height:6,borderRadius:'50%',background:'#16a34a'}}/>
-          <span style={{fontSize:11,fontWeight:600,color:'#64748b'}}>{window.location.host}/u/</span>
-          <span style={{fontSize:11,fontWeight:800,color:'#0f172a'}}>{data?.username||'yourname'}</span>
+          <div style={{width:6,height:6,borderRadius:'50%',background:'var(--sap-green)'}}/>
+          <span style={{fontSize:11,fontWeight:600,color:'var(--sap-text-muted)'}}>{window.location.host}/u/</span>
+          <span style={{fontSize:11,fontWeight:800,color:'var(--sap-text-primary)'}}>{data?.username||'yourname'}</span>
         </div>
         </div>
       </div>
@@ -346,39 +346,39 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
   return (
     <div>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
-        <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:0}}>{t('linkHub.yourLinks')}</h3>
-        <button onClick={addLink} style={{display:'flex',alignItems:'center',gap:4,padding:'10px 20px',borderRadius:8,border:'none',background:'#8b5cf6',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}><Plus size={14}/> {t('linkHub.addLink')}</button>
+        <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:0}}>{t('linkHub.yourLinks')}</h3>
+        <button onClick={addLink} style={{display:'flex',alignItems:'center',gap:4,padding:'10px 20px',borderRadius:8,border:'none',background:'var(--sap-purple)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}><Plus size={14}/> {t('linkHub.addLink')}</button>
       </div>
       <div style={{display:'flex',flexDirection:'column',gap:10}}>
         {links.map(function(link, idx) {
           var showEmoji = emojiPicker === link.id;
           return (
-            <div key={link.id} style={{background:'#f8f9fb',border:'1px solid #e5e7eb',borderRadius:12,padding:18}}>
+            <div key={link.id} style={{background:'var(--sap-bg-input)',border:'1px solid #e5e7eb',borderRadius:12,padding:18}}>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
                 <div style={{display:'flex',alignItems:'center',gap:6}}>
                   {/* Up/Down reorder buttons instead of drag */}
                   <div style={{display:'flex',flexDirection:'column',gap:1}}>
-                    <button onClick={function(){moveLink(idx,-1);}} disabled={idx===0} style={{border:'none',background:'none',cursor:idx===0?'default':'pointer',padding:0,opacity:idx===0?.3:1}}><ChevronUp size={14} color="#94a3b8"/></button>
-                    <button onClick={function(){moveLink(idx,1);}} disabled={idx===links.length-1} style={{border:'none',background:'none',cursor:idx===links.length-1?'default':'pointer',padding:0,opacity:idx===links.length-1?.3:1}}><ChevronDown size={14} color="#94a3b8"/></button>
+                    <button onClick={function(){moveLink(idx,-1);}} disabled={idx===0} style={{border:'none',background:'none',cursor:idx===0?'default':'pointer',padding:0,opacity:idx===0?.3:1}}><ChevronUp size={14} color="var(--sap-text-faint)"/></button>
+                    <button onClick={function(){moveLink(idx,1);}} disabled={idx===links.length-1} style={{border:'none',background:'none',cursor:idx===links.length-1?'default':'pointer',padding:0,opacity:idx===links.length-1?.3:1}}><ChevronDown size={14} color="var(--sap-text-faint)"/></button>
                   </div>
                   {/* Icon button — always visible, shows icon or + placeholder */}
                   <button onClick={function(){setEmojiPicker(showEmoji?null:link.id);}}
                     title={parseIcon(link.icon) ? 'Change icon' : 'Add icon'}
-                    style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',background:parseIcon(link.icon)?'none':'#f1f5f9',border:parseIcon(link.icon)?'1px solid transparent':'1px dashed #94a3b8',borderRadius:6,cursor:'pointer',padding:0,transition:'all .15s',flexShrink:0}}
-                    onMouseEnter={function(e){e.currentTarget.style.borderColor='#8b5cf6';e.currentTarget.style.background='rgba(139,92,246,.06)';}}
-                    onMouseLeave={function(e){e.currentTarget.style.borderColor=parseIcon(link.icon)?'transparent':'#94a3b8';e.currentTarget.style.background=parseIcon(link.icon)?'none':'#f1f5f9';}}>
+                    style={{width:32,height:32,display:'flex',alignItems:'center',justifyContent:'center',background:parseIcon(link.icon)?'none':'var(--sap-bg-page)',border:parseIcon(link.icon)?'1px solid transparent':'1px dashed #94a3b8',borderRadius:6,cursor:'pointer',padding:0,transition:'all .15s',flexShrink:0}}
+                    onMouseEnter={function(e){e.currentTarget.style.borderColor='var(--sap-purple)';e.currentTarget.style.background='rgba(139,92,246,.06)';}}
+                    onMouseLeave={function(e){e.currentTarget.style.borderColor=parseIcon(link.icon)?'transparent':'var(--sap-text-faint)';e.currentTarget.style.background=parseIcon(link.icon)?'none':'var(--sap-bg-page)';}}>
                     {parseIcon(link.icon)
-                      ? <IconDisplay icon={parseIcon(link.icon)} color='#475569' size={18}/>
-                      : <span style={{fontSize:16,color:'#94a3b8',lineHeight:1}}>＋</span>}
+                      ? <IconDisplay icon={parseIcon(link.icon)} color='var(--sap-text-secondary)' size={18}/>
+                      : <span style={{fontSize:16,color:'var(--sap-text-faint)',lineHeight:1}}>＋</span>}
                   </button>
-                  <span style={{fontSize:12,fontWeight:700,color:'#0f172a'}}>{link.title||'Untitled'}</span>
-                  {link.click_count > 0 && <span style={{fontSize:9,color:'#94a3b8',background:'#f1f5f9',padding:'1px 5px',borderRadius:3}}>{link.click_count} clicks</span>}
+                  <span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{link.title||'Untitled'}</span>
+                  {link.click_count > 0 && <span style={{fontSize:9,color:'var(--sap-text-faint)',background:'var(--sap-bg-page)',padding:'1px 5px',borderRadius:3}}>{link.click_count} clicks</span>}
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:6}}>
-                  <button onClick={function(){toggleLink(link.id);}} style={{width:36,height:20,borderRadius:10,border:'none',cursor:'pointer',position:'relative',background:link.is_active?'#8b5cf6':'#d1d5db',transition:'background .2s'}}>
+                  <button onClick={function(){toggleLink(link.id);}} style={{width:36,height:20,borderRadius:10,border:'none',cursor:'pointer',position:'relative',background:link.is_active?'var(--sap-purple)':'#d1d5db',transition:'background .2s'}}>
                     <div style={{width:16,height:16,borderRadius:'50%',background:'#fff',position:'absolute',top:2,left:link.is_active?18:2,transition:'left .2s',boxShadow:'0 1px 3px rgba(0,0,0,.2)'}}/>
                   </button>
-                  <button onClick={function(){removeLink(link.id);}} style={{color:'#dc2626',background:'none',border:'none',cursor:'pointer',padding:2}}><Trash2 size={14}/></button>
+                  <button onClick={function(){removeLink(link.id);}} style={{color:'var(--sap-red)',background:'none',border:'none',cursor:'pointer',padding:2}}><Trash2 size={14}/></button>
                 </div>
               </div>
               {/* Icon picker */}
@@ -387,25 +387,25 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
                   {/* No icon option */}
                   <div style={{padding:'8px 12px',borderBottom:'1px solid #f1f5f9',display:'flex',alignItems:'center',gap:8}}>
                     <button onClick={function(){updateLink(link.id,'icon','none');setEmojiPicker(null);}}
-                      style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:6,border:link.icon==='none'?'2px solid #8b5cf6':'2px solid #e5e7eb',background:link.icon==='none'?'rgba(139,92,246,.06)':'#f8f9fb',cursor:'pointer',fontSize:12,fontWeight:600,color:'#64748b',fontFamily:'inherit'}}>
+                      style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:6,border:link.icon==='none'?'2px solid #8b5cf6':'2px solid #e5e7eb',background:link.icon==='none'?'rgba(139,92,246,.06)':'var(--sap-bg-input)',cursor:'pointer',fontSize:12,fontWeight:600,color:'var(--sap-text-muted)',fontFamily:'inherit'}}>
                       <span style={{fontSize:16}}>✕</span> No Icon
                     </button>
-                    <span style={{fontSize:11,color:'#94a3b8'}}>Click a category to expand</span>
+                    <span style={{fontSize:11,color:'var(--sap-text-faint)'}}>Click a category to expand</span>
                   </div>
                   {/* Categories */}
                   {ICON_CATEGORIES.map(function(cat) {
                     return (
                       <div key={cat.label} style={{borderBottom:'1px solid #f1f5f9'}}>
-                        <div style={{padding:'6px 12px',fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:.5,background:'#fafbfc'}}>{cat.label}</div>
+                        <div style={{padding:'6px 12px',fontSize:10,fontWeight:700,color:'var(--sap-text-faint)',textTransform:'uppercase',letterSpacing:.5,background:'#fafbfc'}}>{cat.label}</div>
                         <div style={{display:'flex',flexWrap:'wrap',gap:4,padding:'8px 10px'}}>                          {cat.icons.map(function(ic) {
                             var isSelected = link.icon === ic.id;
                             return (
                               <button key={ic.id} title={ic.label}
                                 onClick={function(){updateLink(link.id,'icon',ic.id);setEmojiPicker(null);}}
-                                style={{width:36,height:36,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:8,border:isSelected?'2px solid #8b5cf6':'2px solid transparent',background:isSelected?'rgba(139,92,246,.08)':'#f1f5f9',cursor:'pointer',padding:0,color:'#475569',transition:'all .1s'}}
-                                onMouseEnter={function(e){if(!isSelected){e.currentTarget.style.background='#e8ecf2';}}}
-                                onMouseLeave={function(e){if(!isSelected){e.currentTarget.style.background='#f1f5f9';}}}>
-                                <IconDisplay icon={ic} color='#475569' size={18}/>
+                                style={{width:36,height:36,display:'flex',alignItems:'center',justifyContent:'center',borderRadius:8,border:isSelected?'2px solid #8b5cf6':'2px solid transparent',background:isSelected?'rgba(139,92,246,.08)':'var(--sap-bg-page)',cursor:'pointer',padding:0,color:'var(--sap-text-secondary)',transition:'all .1s'}}
+                                onMouseEnter={function(e){if(!isSelected){e.currentTarget.style.background='var(--sap-border-light)';}}}
+                                onMouseLeave={function(e){if(!isSelected){e.currentTarget.style.background='var(--sap-bg-page)';}}}>
+                                <IconDisplay icon={ic} color='var(--sap-text-secondary)' size={18}/>
                               </button>
                             );
                           })}
@@ -416,17 +416,17 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
                 </div>
               )}
               <input value={link.title} onChange={function(e){updateLink(link.id,'title',e.target.value);}} placeholder={t("linkHub.linkTitlePlaceholder")} style={{width:'100%',padding:'10px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',marginBottom:6,background:'#fff'}}/>
-              <input value={link.url} onChange={function(e){updateLink(link.id,'url',e.target.value);}} placeholder="https://..." style={{width:'100%',padding:'10px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff',color:'#64748b'}}/>
+              <input value={link.url} onChange={function(e){updateLink(link.id,'url',e.target.value);}} placeholder="https://..." style={{width:'100%',padding:'10px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff',color:'var(--sap-text-muted)'}}/>
               {/* Per-link button colour */}
               <div style={{display:'flex',alignItems:'center',gap:8,marginTop:8}}>
-                <label style={{fontSize:11,fontWeight:600,color:'#94a3b8',whiteSpace:'nowrap'}}>Button colour</label>
-                <input type="color" value={link.btn_bg_color||style.btn_color||'#8b5cf6'}
+                <label style={{fontSize:11,fontWeight:600,color:'var(--sap-text-faint)',whiteSpace:'nowrap'}}>Button colour</label>
+                <input type="color" value={link.btn_bg_color||style.btn_color||'var(--sap-purple)'}
                   onChange={function(e){updateLink(link.id,'btn_bg_color',e.target.value);}}
                   style={{width:28,height:28,padding:2,border:'1px solid #e5e7eb',borderRadius:6,cursor:'pointer',background:'none'}}/>
-                <span style={{fontSize:11,color:'#64748b',fontFamily:'monospace'}}>{link.btn_bg_color||'(global)'}</span>
+                <span style={{fontSize:11,color:'var(--sap-text-muted)',fontFamily:'monospace'}}>{link.btn_bg_color||'(global)'}</span>
                 {link.btn_bg_color && (
                   <button onClick={function(){updateLink(link.id,'btn_bg_color','');}}
-                    style={{fontSize:10,color:'#94a3b8',background:'none',border:'none',cursor:'pointer',padding:'2px 6px',borderRadius:4,fontFamily:'inherit'}}>
+                    style={{fontSize:10,color:'var(--sap-text-faint)',background:'none',border:'none',cursor:'pointer',padding:'2px 6px',borderRadius:4,fontFamily:'inherit'}}>
                     ✕ Reset
                   </button>
                 )}
@@ -434,7 +434,7 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
             </div>
           );
         })}
-        {links.length === 0 && <div style={{textAlign:'center',padding:'40px 20px',color:'#94a3b8',fontSize:13}}>{t("linkHub.noLinks")}</div>}
+        {links.length === 0 && <div style={{textAlign:'center',padding:'40px 20px',color:'var(--sap-text-faint)',fontSize:13}}>{t("linkHub.noLinks")}</div>}
       </div>
     </div>
   );
@@ -459,13 +459,13 @@ function StylePanel({ style, setStyle }) {
 
   return (
     <div>
-      <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 20px'}}>Customize Style</h3>
+      <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 20px'}}>Customize Style</h3>
 
       {/* Colours */}
       {colours.map(function(c) {
         return (
           <div key={c.key} style={{marginBottom:14}}>
-            <label style={{fontSize:13,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>{c.label}</label>
+            <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{c.label}</label>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
               <input type="color" value={style[c.key]||'#ffffff'} onChange={upd(c.key)} style={{width:36,height:36,border:'2px solid #e5e7eb',borderRadius:8,cursor:'pointer',padding:0}}/>
               <input value={style[c.key]||''} onChange={upd(c.key)} style={{flex:1,padding:'7px 10px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:11,fontFamily:'monospace',outline:'none'}}/>
@@ -478,7 +478,7 @@ function StylePanel({ style, setStyle }) {
 
       {/* Background image — upload or URL */}
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:13,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Background Image</label>
+        <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Background Image</label>
         {style.bg_image_url && (
           <div style={{width:'100%',height:60,borderRadius:8,marginBottom:6,backgroundImage:'url('+style.bg_image_url+')',backgroundSize:'cover',backgroundPosition:'center',border:'1px solid #e5e7eb',position:'relative'}}>
             <button onClick={function(){
@@ -491,7 +491,7 @@ function StylePanel({ style, setStyle }) {
           </div>
         )}
         <div style={{display:'flex',gap:6}}>
-          <label style={{display:'flex',alignItems:'center',gap:4,padding:'8px 14px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',cursor:'pointer',fontSize:11,fontWeight:600,color:'#64748b',whiteSpace:'nowrap'}}>
+          <label style={{display:'flex',alignItems:'center',gap:4,padding:'8px 14px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',cursor:'pointer',fontSize:11,fontWeight:600,color:'var(--sap-text-muted)',whiteSpace:'nowrap'}}>
             <Upload size={12}/> Upload
             <input type="file" accept="image/*" onChange={function(e){
               var file=e.target.files[0]; if(!file) return;
@@ -506,7 +506,7 @@ function StylePanel({ style, setStyle }) {
 
       {/* Font */}
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:13,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Font Family</label>
+        <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Font Family</label>
         <select value={style.font_family} onChange={upd('font_family')} style={{width:'100%',padding:'9px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:style.font_family+',sans-serif',outline:'none',background:'#fff'}}>
           {FONTS.map(function(f){return <option key={f} value={f} style={{fontFamily:f}}>{f}</option>;})}
         </select>
@@ -514,21 +514,21 @@ function StylePanel({ style, setStyle }) {
 
       {/* Button text size */}
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:13,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Button Text Size: {style.btn_font_size||14}px</label>
-        <input type="range" min="10" max="22" value={style.btn_font_size||14} onChange={updNum('btn_font_size')} style={{width:'100%',accentColor:'#8b5cf6'}}/>
+        <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Button Text Size: {style.btn_font_size||14}px</label>
+        <input type="range" min="10" max="22" value={style.btn_font_size||14} onChange={updNum('btn_font_size')} style={{width:'100%',accentColor:'var(--sap-purple)'}}/>
       </div>
 
       {/* Button shape */}
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:13,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Button Shape</label>
+        <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Button Shape</label>
         <div style={{display:'flex',gap:6}}>
           {[{k:'rounded',r:20,label:'Rounded'},{k:'soft',r:8,label:'Soft'},{k:'sharp',r:2,label:'Sharp'},{k:'outline',r:20,label:'Outline'}].map(function(bs) {
             var on = style.btn_style_type===bs.k;
             return (
               <button key={bs.k} onClick={function(){setStyle(function(s){return Object.assign({},s,{btn_style_type:bs.k,btn_radius:bs.r+'px'});});}}
                 style={{flex:1,padding:'8px 4px',borderRadius:8,border:on?'2px solid #8b5cf6':'2px solid #e5e7eb',background:on?'rgba(139,92,246,.06)':'#fff',cursor:'pointer',fontFamily:'inherit',display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
-                <div style={{width:48,height:18,borderRadius:bs.r,background:bs.k==='outline'?'transparent':(on?style.btn_color||'#8b5cf6':'#c4c4c4'),border:bs.k==='outline'?'2px solid '+(on?style.btn_color||'#8b5cf6':'#c4c4c4'):'none'}}/>
-                <span style={{fontSize:9,fontWeight:on?700:500,color:on?'#8b5cf6':'#94a3b8'}}>{bs.label}</span>
+                <div style={{width:48,height:18,borderRadius:bs.r,background:bs.k==='outline'?'transparent':(on?style.btn_color||'var(--sap-purple)':'#c4c4c4'),border:bs.k==='outline'?'2px solid '+(on?style.btn_color||'var(--sap-purple)':'#c4c4c4'):'none'}}/>
+                <span style={{fontSize:9,fontWeight:on?700:500,color:on?'var(--sap-purple)':'var(--sap-text-faint)'}}>{bs.label}</span>
               </button>
             );
           })}
@@ -537,14 +537,14 @@ function StylePanel({ style, setStyle }) {
 
       {/* Text alignment */}
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:13,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Button Text Alignment</label>
+        <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Button Text Alignment</label>
         <div style={{display:'flex',gap:6}}>
           {[{k:'left',Icon:AlignLeft},{k:'center',Icon:AlignCenter},{k:'right',Icon:AlignRight}].map(function(a) {
             var on = style.btn_align===a.k;
             return (
               <button key={a.k} onClick={function(){setStyle(function(s){return Object.assign({},s,{btn_align:a.k});});}}
                 style={{flex:1,padding:'8px',borderRadius:8,border:on?'2px solid #8b5cf6':'2px solid #e5e7eb',background:on?'rgba(139,92,246,.06)':'#fff',cursor:'pointer',display:'flex',justifyContent:'center'}}>
-                <a.Icon size={16} color={on?'#8b5cf6':'#94a3b8'}/>
+                <a.Icon size={16} color={on?'var(--sap-purple)':'var(--sap-text-faint)'}/>
               </button>
             );
           })}
@@ -553,7 +553,7 @@ function StylePanel({ style, setStyle }) {
 
       {/* Arrow style */}
       <div>
-        <label style={{fontSize:13,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Button Arrow</label>
+        <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Button Arrow</label>
         <div style={{display:'flex',gap:6}}>
           {ARROW_STYLES.map(function(a) {
             var on = style.arrow_style===a.key;
@@ -561,7 +561,7 @@ function StylePanel({ style, setStyle }) {
               <button key={a.key} onClick={function(){setStyle(function(s){return Object.assign({},s,{arrow_style:a.key});});}}
                 style={{flex:1,padding:'8px',borderRadius:8,border:on?'2px solid #8b5cf6':'2px solid #e5e7eb',background:on?'rgba(139,92,246,.06)':'#fff',cursor:'pointer',fontFamily:'inherit',display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
                 <span style={{fontSize:14}}>{a.label}</span>
-                <span style={{fontSize:8,color:on?'#8b5cf6':'#94a3b8'}}>{a.key}</span>
+                <span style={{fontSize:8,color:on?'var(--sap-purple)':'var(--sap-text-faint)'}}>{a.key}</span>
               </button>
             );
           })}
@@ -602,20 +602,20 @@ function ProfilePanel({ profile, setProfile, onRemoveAvatar }) {
 
   return (
     <div>
-      <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 20px'}}>Profile</h3>
+      <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 20px'}}>Profile</h3>
 
       {/* Avatar */}
       <div style={{marginBottom:18,textAlign:'center'}}>
-        <div style={{width:80,height:80,borderRadius:'50%',margin:'0 auto 10px',overflow:'hidden',border:'3px solid #8b5cf6',background:'#e8ecf2'}}>
-          {profile.avatar_url ? <img src={profile.avatar_url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt="" onError={function(e){e.target.style.display='none';}}/> : <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:28,color:'#94a3b8'}}>{(profile.display_name||'?')[0]}</div>}
+        <div style={{width:80,height:80,borderRadius:'50%',margin:'0 auto 10px',overflow:'hidden',border:'3px solid #8b5cf6',background:'var(--sap-border-light)'}}>
+          {profile.avatar_url ? <img src={profile.avatar_url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt="" onError={function(e){e.target.style.display='none';}}/> : <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:28,color:'var(--sap-text-faint)'}}>{(profile.display_name||'?')[0]}</div>}
         </div>
         <div style={{display:'flex',gap:8,justifyContent:'center',alignItems:'center'}}>
-          <label style={{display:'inline-flex',alignItems:'center',gap:4,padding:'6px 14px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',cursor:'pointer',fontSize:11,fontWeight:600,color:'#64748b'}}>
+          <label style={{display:'inline-flex',alignItems:'center',gap:4,padding:'6px 14px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',cursor:'pointer',fontSize:11,fontWeight:600,color:'var(--sap-text-muted)'}}>
             <Upload size={12}/> Upload Photo
             <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{display:'none'}}/>
           </label>
           {profile.avatar_url && (
-            <button onClick={onRemoveAvatar} style={{display:'inline-flex',alignItems:'center',gap:4,padding:'6px 12px',borderRadius:8,border:'1px solid #fecaca',background:'#fef2f2',cursor:'pointer',fontSize:11,fontWeight:600,color:'#dc2626',fontFamily:'inherit'}}>
+            <button onClick={onRemoveAvatar} style={{display:'inline-flex',alignItems:'center',gap:4,padding:'6px 12px',borderRadius:8,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer',fontSize:11,fontWeight:600,color:'var(--sap-red)',fontFamily:'inherit'}}>
               ✕ Remove
             </button>
           )}
@@ -623,19 +623,19 @@ function ProfilePanel({ profile, setProfile, onRemoveAvatar }) {
       </div>
 
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Display Name</label>
+        <label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Display Name</label>
         <input value={profile.display_name} onChange={upd('display_name')} placeholder={t("linkHub.yourName")} style={inputStyle}/>
       </div>
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Bio</label>
+        <label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Bio</label>
         <textarea value={profile.bio} onChange={upd('bio')} rows={3} placeholder={t("linkHub.bioPlaceholder")} style={Object.assign({},inputStyle,{resize:'vertical'})}/>
       </div>
       <div>
-        <label style={{fontSize:12,fontWeight:700,color:'#475569',display:'block',marginBottom:6}}>Avatar URL (or use upload above)</label>
-        <input value={profile.avatar_url} onChange={upd('avatar_url')} placeholder="https://..." style={Object.assign({},inputStyle,{fontSize:11,color:'#64748b'})}/>
+        <label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Avatar URL (or use upload above)</label>
+        <input value={profile.avatar_url} onChange={upd('avatar_url')} placeholder="https://..." style={Object.assign({},inputStyle,{fontSize:11,color:'var(--sap-text-muted)'})}/>
       </div>
     </div>
   );
 }
 
-function Spin(){return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#8b5cf6',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div>;}
+function Spin(){return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-purple)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div>;}

@@ -39,29 +39,29 @@ export default function AiTool({ title, subtitle, apiEndpoint, fields, resultLab
 
         {/* LEFT — Input Form */}
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)',display:'flex',flexDirection:'column'}}>
-          <div style={{background:'#172554',padding:'16px 20px',display:'flex',alignItems:'center',gap:8}}>
-            <Bot size={16} color="#38bdf8"/>
+          <div style={{background:'var(--sap-cobalt-deep)',padding:'16px 20px',display:'flex',alignItems:'center',gap:8}}>
+            <Bot size={16} color="var(--sap-accent-light)"/>
             <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{title}</div>
           </div>
           <div style={{padding:'20px',flex:1,display:'flex',flexDirection:'column'}}>
             {(fields || []).map(function(f, i) {
               return (
                 <div key={i} style={{marginBottom:16}}>
-                  <label style={{display:'block',fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>{f.label}</label>
+                  <label style={{display:'block',fontSize:11,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>{f.label}</label>
                   {f.type === 'textarea' ? (
                     <textarea value={values[f.key] || ''} onChange={function(e) { set(f.key, e.target.value); }}
                       placeholder={f.placeholder} rows={f.rows || 3}
-                      style={{width:'100%',padding:'10px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',resize:'vertical',boxSizing:'border-box',background:'#f8f9fb'}}/>
+                      style={{width:'100%',padding:'10px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',resize:'vertical',boxSizing:'border-box',background:'var(--sap-bg-input)'}}/>
                   ) : f.type === 'select' ? (
                     <select value={values[f.key] || ''} onChange={function(e) { set(f.key, e.target.value); }}
-                      style={{width:'100%',padding:'10px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#f8f9fb',color:values[f.key]?'#0f172a':'#64748b'}}>
+                      style={{width:'100%',padding:'10px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'var(--sap-bg-input)',color:values[f.key]?'var(--sap-text-primary)':'var(--sap-text-muted)'}}>
                       <option value="">Select...</option>
                       {(f.options || []).map(function(o) { return <option key={o} value={o}>{o}</option>; })}
                     </select>
                   ) : (
                     <input value={values[f.key] || ''} onChange={function(e) { set(f.key, e.target.value); }}
                       placeholder={f.placeholder}
-                      style={{width:'100%',padding:'10px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#f8f9fb'}}/>
+                      style={{width:'100%',padding:'10px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'var(--sap-bg-input)'}}/>
                   )}
                 </div>
               );
@@ -71,7 +71,7 @@ export default function AiTool({ title, subtitle, apiEndpoint, fields, resultLab
               <button onClick={generate} disabled={loading}
                 style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:8,padding:'12px 20px',borderRadius:10,border:'none',
                   cursor:loading?'default':'pointer',fontFamily:'inherit',fontSize:14,fontWeight:800,
-                  background:loading?'#64748b':'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',
+                  background:loading?'var(--sap-text-muted)':'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',
                   boxShadow:loading?'none':'0 4px 14px rgba(14,165,233,.3)',transition:'all .2s',
                   opacity:loading?0.7:1}}>
                 {loading ? (
@@ -86,9 +86,9 @@ export default function AiTool({ title, subtitle, apiEndpoint, fields, resultLab
 
         {/* RIGHT — Result */}
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)',display:'flex',flexDirection:'column'}}>
-          <div style={{background:'#172554',padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{background:'var(--sap-cobalt-deep)',padding:'16px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
-              <Sparkles size={16} color="#a78bfa"/>
+              <Sparkles size={16} color="var(--sap-purple-light)"/>
               <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{resultLabel || 'Result'}</div>
             </div>
             {result && (
@@ -102,8 +102,8 @@ export default function AiTool({ title, subtitle, apiEndpoint, fields, resultLab
           </div>
           <div style={{padding:'20px',flex:1,overflowY:'auto',maxHeight:'calc(100vh - 280px)'}}>
             {error && (
-              <div style={{padding:'12px 16px',background:'#fef2f2',borderRadius:10,border:'1px solid #fecaca',marginBottom:16}}>
-                <div style={{fontSize:12,fontWeight:700,color:'#dc2626'}}>{error}</div>
+              <div style={{padding:'12px 16px',background:'var(--sap-red-bg)',borderRadius:10,border:'1px solid #fecaca',marginBottom:16}}>
+                <div style={{fontSize:12,fontWeight:700,color:'var(--sap-red)'}}>{error}</div>
               </div>
             )}
             {result ? (
@@ -112,11 +112,11 @@ export default function AiTool({ title, subtitle, apiEndpoint, fields, resultLab
               </div>
             ) : (
               <div style={{textAlign:'center',padding:'60px 20px'}}>
-                <div style={{width:48,height:48,borderRadius:14,background:'#f8f9fb',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px'}}>
-                  <Bot size={24} color="#cbd5e1"/>
+                <div style={{width:48,height:48,borderRadius:14,background:'var(--sap-bg-input)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 12px'}}>
+                  <Bot size={24} color="var(--sap-text-ghost)"/>
                 </div>
-                <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:4}}>{t('marketing.readyToGenerate')}</div>
-                <div style={{fontSize:12,color:'#64748b'}}>{t('marketing.fillInForm')}</div>
+                <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4}}>{t('marketing.readyToGenerate')}</div>
+                <div style={{fontSize:12,color:'var(--sap-text-muted)'}}>{t('marketing.fillInForm')}</div>
               </div>
             )}
           </div>

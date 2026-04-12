@@ -12,7 +12,7 @@ var TYPE_CONFIG = {
     desc: 'Your SuperAdPro membership is now active. Welcome to the network!',
     action: '/dashboard',
     actionLabel: 'Go to Dashboard',
-    color: '#10b981',
+    color: 'var(--sap-green-mid)',
   },
   grid: {
     icon: '⚡',
@@ -20,7 +20,7 @@ var TYPE_CONFIG = {
     desc: 'You\'ve been placed in the grid. Your commissions are now active.',
     action: '/campaign-tiers',
     actionLabel: 'View Campaign Tiers',
-    color: '#6366f1',
+    color: 'var(--sap-indigo)',
   },
   course: {
     icon: '🎓',
@@ -28,7 +28,7 @@ var TYPE_CONFIG = {
     desc: 'Your course is now available. Head to My Courses to start learning.',
     action: '/courses/my-courses',
     actionLabel: 'View My Courses',
-    color: '#8b5cf6',
+    color: 'var(--sap-purple)',
   },
   supermarket: {
     icon: '🛒',
@@ -36,7 +36,7 @@ var TYPE_CONFIG = {
     desc: 'Your digital product is ready to download.',
     action: '/marketplace',
     actionLabel: 'View SuperMarket',
-    color: '#0ea5e9',
+    color: 'var(--sap-accent)',
   },
   email_boost: {
     icon: '🚀',
@@ -44,7 +44,7 @@ var TYPE_CONFIG = {
     desc: 'Your email credits have been added. Start sending!',
     action: '/pro/leads',
     actionLabel: 'Go to SuperLeads',
-    color: '#ef4444',
+    color: 'var(--sap-red-bright)',
   },
 };
 
@@ -79,8 +79,8 @@ export default function PaymentSuccess() {
             <div style={{ width: 64, height: 64, margin: '0 auto 20px', borderRadius: '50%', background: `${config.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Loader size={28} color={config.color} style={{ animation: 'spin 1s linear infinite' }} />
             </div>
-            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>Confirming your payment…</div>
-            <div style={{ fontSize: 13, color: '#94a3b8' }}>Please wait while we activate your purchase.</div>
+            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 8 }}>Confirming your payment…</div>
+            <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>Please wait while we activate your purchase.</div>
             <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
           </div>
         ) : (
@@ -99,10 +99,10 @@ export default function PaymentSuccess() {
                 <span style={{ fontSize: 11, fontWeight: 700, color: config.color }}>Payment Confirmed</span>
               </div>
 
-              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 900, color: '#0f172a', marginBottom: 10 }}>
+              <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 900, color: 'var(--sap-text-primary)', marginBottom: 10 }}>
                 {config.title}
               </div>
-              <div style={{ fontSize: 14, color: '#64748b', lineHeight: 1.7, marginBottom: 32 }}>
+              <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', lineHeight: 1.7, marginBottom: 32 }}>
                 {config.desc}
               </div>
 
@@ -116,7 +116,7 @@ export default function PaymentSuccess() {
 
               <button
                 onClick={function() { navigate('/dashboard'); }}
-                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 10, border: '1px solid #e8ecf2', background: '#fff', color: '#64748b', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', width: '100%', justifyContent: 'center' }}
+                style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 10, border: '1px solid #e8ecf2', background: '#fff', color: 'var(--sap-text-muted)', fontSize: 13, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', width: '100%', justifyContent: 'center' }}
               >
                 <Home size={14} /> Back to Dashboard
               </button>

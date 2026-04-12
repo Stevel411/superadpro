@@ -54,7 +54,7 @@ export default function PDFCompress() {
         {!file ? (
           <div onClick={() => fileRef.current?.click()}
             style={{ border: '2px dashed #2a3040', borderRadius: 14, padding: '60px 20px', textAlign: 'center', cursor: 'pointer', background: '#0a1220', transition: 'border-color .2s' }}
-            onMouseEnter={e => e.currentTarget.style.borderColor = '#0ea5e9'} onMouseLeave={e => e.currentTarget.style.borderColor = '#2a3040'}
+            onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--sap-accent)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--sap-navy-card)'}
           >
             <div style={{ fontSize: 28, marginBottom: 8, opacity: 0.3 }}>+</div>
             <div style={{ fontSize: 14, fontWeight: 600, color: '#c5cad1', marginBottom: 4 }}>Click to upload a PDF</div>
@@ -63,13 +63,13 @@ export default function PDFCompress() {
           </div>
         ) : !result ? (
           <div style={{ textAlign: 'center' }}>
-            <div style={{ padding: '20px 24px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 12, marginBottom: 16 }}>
+            <div style={{ padding: '20px 24px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 12, marginBottom: 16 }}>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 4 }}>{file.name}</div>
               <div style={{ fontSize: 12, color: '#7b8594' }}>Original size: {formatSize(file.size)}</div>
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={compress} disabled={compressing}
-                style={{ flex: 1, padding: '14px 0', borderRadius: 12, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 15, fontWeight: 700, background: '#0ea5e9', color: '#fff', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>
+                style={{ flex: 1, padding: '14px 0', borderRadius: 12, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 15, fontWeight: 700, background: 'var(--sap-accent)', color: '#fff', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>
                 {compressing ? 'Compressing...' : 'Compress PDF'}
               </button>
               <button onClick={reset} style={{ padding: '14px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.05)', color: 'rgba(200,220,255,0.6)', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 14, fontWeight: 600 }}>Reset</button>
@@ -77,17 +77,17 @@ export default function PDFCompress() {
           </div>
         ) : (
           <div style={{ textAlign: 'center' }}>
-            <div style={{ padding: '24px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 12, marginBottom: 16 }}>
-              <div style={{ fontSize: 36, fontWeight: 800, color: '#22c55e', marginBottom: 8 }}>{result.savings}%</div>
+            <div style={{ padding: '24px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 12, marginBottom: 16 }}>
+              <div style={{ fontSize: 36, fontWeight: 800, color: 'var(--sap-green-bright)', marginBottom: 8 }}>{result.savings}%</div>
               <div style={{ fontSize: 13, color: '#7b8594', marginBottom: 12 }}>File size reduced</div>
               <div style={{ display: 'flex', justifyContent: 'center', gap: 24 }}>
                 <div><div style={{ fontSize: 11, color: '#7b8594' }}>Original</div><div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{formatSize(result.originalSize)}</div></div>
                 <div style={{ fontSize: 18, color: '#7b8594', alignSelf: 'center' }}>→</div>
-                <div><div style={{ fontSize: 11, color: '#7b8594' }}>Compressed</div><div style={{ fontSize: 14, fontWeight: 700, color: '#22c55e' }}>{formatSize(result.newSize)}</div></div>
+                <div><div style={{ fontSize: 11, color: '#7b8594' }}>Compressed</div><div style={{ fontSize: 14, fontWeight: 700, color: 'var(--sap-green-bright)' }}>{formatSize(result.newSize)}</div></div>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={download} style={{ flex: 1, padding: '14px 0', borderRadius: 12, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 15, fontWeight: 700, background: '#0ea5e9', color: '#fff', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>Download Compressed PDF</button>
+              <button onClick={download} style={{ flex: 1, padding: '14px 0', borderRadius: 12, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 15, fontWeight: 700, background: 'var(--sap-accent)', color: '#fff', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>Download Compressed PDF</button>
               <button onClick={reset} style={{ padding: '14px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.05)', color: 'rgba(200,220,255,0.6)', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 14, fontWeight: 600 }}>New file</button>
             </div>
           </div>
@@ -96,7 +96,7 @@ export default function PDFCompress() {
         <div style={{ textAlign: 'center', marginTop: 20 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 18px', background: 'rgba(14,165,233,0.04)', border: '1px solid rgba(0,180,216,0.08)', borderRadius: 10 }}>
             <span style={{ fontSize: 11, color: 'rgba(200,220,255,0.3)' }}>Want AI video, music & voiceover?</span>
-            <Link to="/register" style={{ fontSize: 11, fontWeight: 700, color: '#0ea5e9', textDecoration: 'none' }}>Join SuperAdPro free</Link>
+            <Link to="/register" style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>Join SuperAdPro free</Link>
           </div>
         </div>
       </div>

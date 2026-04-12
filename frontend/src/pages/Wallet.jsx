@@ -51,7 +51,7 @@ export default function Wallet() {
   };
 
   if (loading) return <AppLayout title={t('wallet.title')}><LoadingSpinner /></AppLayout>;
-  if (!data) return <AppLayout title={t('wallet.title')}><div style={{ textAlign: 'center', padding: 80, color: '#94a3b8' }}>{t('wallet.unableToLoad')}</div></AppLayout>;
+  if (!data) return <AppLayout title={t('wallet.title')}><div style={{ textAlign: 'center', padding: 80, color: 'var(--sap-text-faint)' }}>{t('wallet.unableToLoad')}</div></AppLayout>;
   if (showHelp) return <AppLayout title={t('wallet.title')}><WalletHelp onBack={function() { setShowHelp(false); }}/></AppLayout>;
 
   const d = data;
@@ -70,7 +70,7 @@ export default function Wallet() {
             <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'rgba(148,163,184,.5)' }}>{t('wallet.campaign')}</div>
             <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: '#818cf8' }}>${formatMoney(d.campaign_balance || 0)}</div>
           </div>
-          <button onClick={function() { setShowHelp(true); }} style={{ padding:'7px 14px', borderRadius:10, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:12, fontWeight:600, color:'#64748b', display:'flex', alignItems:'center', gap:4 }}>{t('wallet.help')}</button>
+          <button onClick={function() { setShowHelp(true); }} style={{ padding:'7px 14px', borderRadius:10, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:12, fontWeight:600, color:'var(--sap-text-muted)', display:'flex', alignItems:'center', gap:4 }}>{t('wallet.help')}</button>
         </div>
       </>}
     >
@@ -85,22 +85,22 @@ export default function Wallet() {
       {/* Earnings Breakdown */}
       {(d.superscene_earnings > 0 || d.grid_earnings > 0) && (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
-          <EarningsCard icon="👥" label={t("wallet.membership")} value={d.total_earned - (d.grid_earnings || 0) - (d.course_earnings || 0) - (d.marketplace_earnings || 0) - (d.superscene_earnings || 0)} color="#22c55e" />
-          <EarningsCard icon="⚡" label={t("wallet.incomeGrid")} value={d.grid_earnings || 0} color="#0ea5e9" />
-          <EarningsCard icon="🎬" label={t("wallet.creativeStudio")} value={d.superscene_earnings || 0} color="#ec4899" desc={t("wallet.earnedFromReferralCredits")} />
-          <EarningsCard icon="📚" label={t("wallet.coursesMarket")} value={(d.course_earnings || 0) + (d.marketplace_earnings || 0)} color="#f59e0b" />
+          <EarningsCard icon="👥" label={t("wallet.membership")} value={d.total_earned - (d.grid_earnings || 0) - (d.course_earnings || 0) - (d.marketplace_earnings || 0) - (d.superscene_earnings || 0)} color="var(--sap-green-bright)" />
+          <EarningsCard icon="⚡" label={t("wallet.incomeGrid")} value={d.grid_earnings || 0} color="var(--sap-accent)" />
+          <EarningsCard icon="🎬" label={t("wallet.creativeStudio")} value={d.superscene_earnings || 0} color="var(--sap-pink)" desc={t("wallet.earnedFromReferralCredits")} />
+          <EarningsCard icon="📚" label={t("wallet.coursesMarket")} value={(d.course_earnings || 0) + (d.marketplace_earnings || 0)} color="var(--sap-amber)" />
         </div>
       )}
 
       {/* Row 1: Two wallet cards side by side */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18, alignItems: 'stretch' }}>
           {/* Affiliate Wallet Withdraw */}
-          <Card title={t("wallet.affiliateWallet")} dotColor="#16a34a">
-            <div style={{ padding:'10px 14px', background:'#f0fdf4', border:'1px solid #bbf7d0', borderRadius:10, marginBottom:14 }}>
-              <div style={{ fontSize:13, fontWeight:700, color:'#059669', marginBottom:2 }}>{t('wallet.alwaysWithdrawable')}</div>
-              <div style={{ fontSize:11, color:'#475569', lineHeight:1.6 }}>{t('wallet.affiliateWalletDesc')}</div>
+          <Card title={t("wallet.affiliateWallet")} dotColor="var(--sap-green)">
+            <div style={{ padding:'10px 14px', background:'var(--sap-green-bg)', border:'1px solid #bbf7d0', borderRadius:10, marginBottom:14 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-green-dark)', marginBottom:2 }}>{t('wallet.alwaysWithdrawable')}</div>
+              <div style={{ fontSize:11, color:'var(--sap-text-secondary)', lineHeight:1.6 }}>{t('wallet.affiliateWalletDesc')}</div>
             </div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#16a34a', textAlign:'center', marginBottom:14 }}>${formatMoney(d.balance)}</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'var(--sap-green)', textAlign:'center', marginBottom:14 }}>${formatMoney(d.balance)}</div>
             {d.wallet_address ? (
               d.balance >= 10 ? (
                 <form method="POST" action="/withdraw" style={{ display:'flex', flexDirection:'column', gap:10 }}>
@@ -116,26 +116,26 @@ export default function Wallet() {
                     </div>
                   )}
                   <button type="submit" style={btnPrimary}>{t('wallet.withdrawAffiliate')}</button>
-                  <div style={{ fontSize:11, color:'#64748b', textAlign:'center' }}>{t('wallet.affiliateFeeNote')}</div>
+                  <div style={{ fontSize:11, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('wallet.affiliateFeeNote')}</div>
                 </form>
               ) : (
-                <div style={{ textAlign:'center', fontSize:13, color:'#64748b' }}>{t('wallet.minToWithdraw')} ${formatMoney(d.balance)}</div>
+                <div style={{ textAlign:'center', fontSize:13, color:'var(--sap-text-muted)' }}>{t('wallet.minToWithdraw')} ${formatMoney(d.balance)}</div>
               )
             ) : (
               <div style={{ textAlign:'center' }}>
-                <div style={{ fontSize:13, color:'#64748b', marginBottom:10 }}>{t('wallet.noWalletAddress')}</div>
-                <Link to="/account" style={{ fontSize:12, fontWeight:700, color:'#0ea5e9', textDecoration:'none' }}>{t('wallet.addWalletSettings')}</Link>
+                <div style={{ fontSize:13, color:'var(--sap-text-muted)', marginBottom:10 }}>{t('wallet.noWalletAddress')}</div>
+                <Link to="/account" style={{ fontSize:12, fontWeight:700, color:'var(--sap-accent)', textDecoration:'none' }}>{t('wallet.addWalletSettings')}</Link>
               </div>
             )}
           </Card>
 
           {/* Campaign Wallet Withdraw */}
-          <Card title={t("wallet.campaignWallet")} dotColor="#6366f1">
+          <Card title={t("wallet.campaignWallet")} dotColor="var(--sap-indigo)">
             <div style={{ padding:'10px 14px', background:'#eef2ff', border:'1px solid #c7d2fe', borderRadius:10, marginBottom:14 }}>
               <div style={{ fontSize:13, fontWeight:700, color:'#4338ca', marginBottom:2 }}>{t('wallet.requiresActiveTier')}</div>
-              <div style={{ fontSize:11, color:'#475569', lineHeight:1.6 }}>{t('wallet.campaignWalletDesc')}</div>
+              <div style={{ fontSize:11, color:'var(--sap-text-secondary)', lineHeight:1.6 }}>{t('wallet.campaignWalletDesc')}</div>
             </div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#6366f1', textAlign:'center', marginBottom:14 }}>${formatMoney(d.campaign_balance || 0)}</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'var(--sap-indigo)', textAlign:'center', marginBottom:14 }}>${formatMoney(d.campaign_balance || 0)}</div>
             {d.wallet_address ? (
               (d.campaign_balance || 0) >= 10 ? (
                 <form method="POST" action="/withdraw" style={{ display:'flex', flexDirection:'column', gap:10 }}>
@@ -151,10 +151,10 @@ export default function Wallet() {
                     </div>
                   )}
                   <button type="submit" style={{ ...btnPrimary, background:'linear-gradient(135deg,#6366f1,#818cf8)' }}>{t('wallet.withdrawCampaign')}</button>
-                  <div style={{ fontSize:11, color:'#64748b', textAlign:'center' }}>{t('wallet.campaignFeeNote')}</div>
+                  <div style={{ fontSize:11, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('wallet.campaignFeeNote')}</div>
                 </form>
               ) : (
-                <div style={{ textAlign:'center', fontSize:13, color:'#64748b' }}>
+                <div style={{ textAlign:'center', fontSize:13, color:'var(--sap-text-muted)' }}>
                   {(d.campaign_balance || 0) > 0
                     ? `${t('wallet.minToWithdraw')} $${formatMoney(d.campaign_balance || 0)}`
                     : t('wallet.noCampaignEarnings')
@@ -163,8 +163,8 @@ export default function Wallet() {
               )
             ) : (
               <div style={{ textAlign:'center' }}>
-                <div style={{ fontSize:13, color:'#64748b', marginBottom:10 }}>{t('wallet.noWalletAddress')}</div>
-                <Link to="/account" style={{ fontSize:12, fontWeight:700, color:'#0ea5e9', textDecoration:'none' }}>{t('wallet.addWalletSettings')}</Link>
+                <div style={{ fontSize:13, color:'var(--sap-text-muted)', marginBottom:10 }}>{t('wallet.noWalletAddress')}</div>
+                <Link to="/account" style={{ fontSize:12, fontWeight:700, color:'var(--sap-accent)', textDecoration:'none' }}>{t('wallet.addWalletSettings')}</Link>
               </div>
             )}
           </Card>
@@ -194,7 +194,7 @@ export default function Wallet() {
                             '💰 ' + (c.commission_type || '').replace(/_/g, ' '),
                       detail: c.package_tier ? 'Tier ' + c.package_tier : '',
                       amount: '+$' + formatMoney(c.amount_usdt),
-                      amountColor: '#16a34a',
+                      amountColor: 'var(--sap-green)',
                       status: c.status || 'paid',
                       date: c.created_at,
                       wallet: ['direct_sponsor','uni_level','grid_completion_bonus'].indexOf(c.commission_type) >= 0 ? 'campaign' : 'affiliate',
@@ -204,7 +204,7 @@ export default function Wallet() {
                       type: '🏧 ' + t('wallet.withdrawal'),
                       detail: w.tx_hash ? t('wallet.polygonTX') : '',
                       amount: '-$' + formatMoney(w.amount),
-                      amountColor: '#dc2626',
+                      amountColor: 'var(--sap-red)',
                       status: w.status || 'pending',
                       date: w.requested_at,
                       wallet: '',
@@ -214,9 +214,9 @@ export default function Wallet() {
                       <tr key={i}>
                         <td style={{ ...tdStyle, fontSize: 13 }}>
                           {tx.type}
-                          {tx.wallet && <span style={{ marginLeft:6, padding:'2px 6px', borderRadius:4, fontSize:9, fontWeight:700, background: tx.wallet === 'campaign' ? '#eef2ff' : '#f0fdf4', color: tx.wallet === 'campaign' ? '#6366f1' : '#16a34a' }}>{tx.wallet === 'campaign' ? t('wallet.campaign') : t('wallet.affiliate')}</span>}
+                          {tx.wallet && <span style={{ marginLeft:6, padding:'2px 6px', borderRadius:4, fontSize:9, fontWeight:700, background: tx.wallet === 'campaign' ? '#eef2ff' : 'var(--sap-green-bg)', color: tx.wallet === 'campaign' ? 'var(--sap-indigo)' : 'var(--sap-green)' }}>{tx.wallet === 'campaign' ? t('wallet.campaign') : t('wallet.affiliate')}</span>}
                         </td>
-                        <td style={{ ...tdStyle, fontSize: 12, color: '#64748b' }}>{tx.detail}</td>
+                        <td style={{ ...tdStyle, fontSize: 12, color: 'var(--sap-text-muted)' }}>{tx.detail}</td>
                         <td style={{ ...tdStyle, fontWeight: 800, color: tx.amountColor }}>{tx.amount}</td>
                         <td style={tdStyle}>
                           <span style={tx.status === 'paid' ? badgeGreen : tx.status === 'processing' ? badgeCyan : badgeAmber}>{(tx.status || '').charAt(0).toUpperCase() + (tx.status || '').slice(1)}</span>
@@ -243,15 +243,15 @@ export default function Wallet() {
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 18, marginBottom: 18, alignItems: 'stretch' }}>
         {/* Membership Renewal */}
         <Card title={t("wallet.membershipRenewal")}
-          dotColor={renewal.in_grace_period ? '#dc2626' : renewal.status === 'warning' ? '#f59e0b' : '#10b981'}
+          dotColor={renewal.in_grace_period ? 'var(--sap-red)' : renewal.status === 'warning' ? 'var(--sap-amber)' : 'var(--sap-green-mid)'}
           badge={renewal.has_renewal ? (
-            renewal.in_grace_period ? { text: '⚠ Grace Period', bg: '#fef2f2', color: '#dc2626', border: '#fecaca' } :
+            renewal.in_grace_period ? { text: '⚠ Grace Period', bg: 'var(--sap-red-bg)', color: 'var(--sap-red)', border: 'var(--sap-red-bg-mid)' } :
             renewal.status === 'warning' ? { text: '⏱ Renews Soon', bg: '#fefce8', color: '#b45309', border: '#fde68a' } :
-            { text: '✓ Active', bg: '#f0fdf4', color: '#16a34a', border: '#86efac' }
+            { text: '✓ Active', bg: 'var(--sap-green-bg)', color: 'var(--sap-green)', border: '#86efac' }
           ) : null}>
           {renewal.has_renewal ? (<>
             {renewal.in_grace_period && (
-              <div style={{ background: '#fef2f2', border: '1px solid rgba(220,38,38,.2)', borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 13, color: '#dc2626', fontWeight: 600 }}>⚠ {t('wallet.graceWarning')}</div>
+              <div style={{ background: 'var(--sap-red-bg)', border: '1px solid rgba(220,38,38,.2)', borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 13, color: 'var(--sap-red)', fontWeight: 600 }}>⚠ {t('wallet.graceWarning')}</div>
             )}
             {renewal.status === 'warning' && !renewal.in_grace_period && (
               <div style={{ background: '#fefce8', border: '1px solid rgba(234,179,8,.25)', borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 13, color: '#b45309', fontWeight: 600 }}>⏱ {t('wallet.renewalIn', { days: renewal.days_remaining })} {renewal.can_afford ? t('wallet.youreCovered') : t('wallet.topUpNeeded')}</div>
@@ -262,7 +262,7 @@ export default function Wallet() {
               <MiniStat val={renewal.total_renewals || 0} lbl={t('wallet.totalRenewals')} />
             </div>
             <div style={{ height: 5, borderRadius: 999, background: '#eef1f8', overflow: 'hidden', margin: '10px 0' }}>
-              <div style={{ height: '100%', borderRadius: 999, width: `${Math.max(5, 100 - ((renewal.days_remaining || 30) / 30 * 100))}%`, background: renewal.in_grace_period ? '#dc2626' : renewal.status === 'warning' ? '#f59e0b' : '#10b981', transition: 'width 0.4s' }} />
+              <div style={{ height: '100%', borderRadius: 999, width: `${Math.max(5, 100 - ((renewal.days_remaining || 30) / 30 * 100))}%`, background: renewal.in_grace_period ? 'var(--sap-red)' : renewal.status === 'warning' ? 'var(--sap-amber)' : 'var(--sap-green-mid)', transition: 'width 0.4s' }} />
             </div>
             <div style={{ fontSize: 12, color: '#7b91a8', textAlign: 'right', marginTop: 6 }}>{t('wallet.nextRenewal')} {renewal.next_renewal_date || 'N/A'}</div>
             <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(15,25,60,.07)', fontSize: 13, color: '#7b91a8', lineHeight: 1.6 }}>
@@ -274,7 +274,7 @@ export default function Wallet() {
         </Card>
 
         {/* Send Funds */}
-        <Card title={t("wallet.sendFunds")} dotColor="#0ea5e9">
+        <Card title={t("wallet.sendFunds")} dotColor="var(--sap-accent)">
           <p style={{ fontSize: 14, color: '#3d5068', marginBottom: 16 }}>{t('wallet.sendFundsDesc')}</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
@@ -300,7 +300,7 @@ export default function Wallet() {
           </div>
           {p2pResult && (
             <div style={{ marginTop: 12, padding: '11px 14px', borderRadius: 8, fontSize: 16, fontWeight: 600,
-              ...(p2pResult.type === 'success' ? { background: '#f0fdf4', border: '1px solid #86efac', color: '#15803d' } : { background: '#fef2f2', border: '1px solid #fecaca', color: '#dc2626' })
+              ...(p2pResult.type === 'success' ? { background: 'var(--sap-green-bg)', border: '1px solid #86efac', color: '#15803d' } : { background: 'var(--sap-red-bg)', border: '1px solid #fecaca', color: 'var(--sap-red)' })
             }}>{p2pResult.msg}</div>
           )}
         </Card>
@@ -309,7 +309,7 @@ export default function Wallet() {
       {/* P2P Transfer History */}
       {(d.p2p_history || []).length > 0 && (
         <div style={{ marginTop: 18 }}>
-          <Card title={t("wallet.transferHistory")} dotColor="#0ea5e9">
+          <Card title={t("wallet.transferHistory")} dotColor="var(--sap-accent)">
             <div style={{ margin: '-18px -20px', overflow: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead><tr>
@@ -319,10 +319,10 @@ export default function Wallet() {
                   {d.p2p_history.map((tx, i) => (
                     <tr key={i}>
                       <td style={{ ...tdStyle, fontSize: 13, color: '#7b91a8' }}>{tx.created_at}</td>
-                      <td style={tdStyle}>{tx.direction === 'sent' ? <span style={{ color: '#dc2626', fontWeight: 700 }}>↑ {t('wallet.sent')}</span> : <span style={{ color: '#16a34a', fontWeight: 700 }}>↓ {t('wallet.received')}</span>}</td>
+                      <td style={tdStyle}>{tx.direction === 'sent' ? <span style={{ color: 'var(--sap-red)', fontWeight: 700 }}>↑ {t('wallet.sent')}</span> : <span style={{ color: 'var(--sap-green)', fontWeight: 700 }}>↓ {t('wallet.received')}</span>}</td>
                       <td style={{ ...tdStyle, fontSize: 16, fontWeight: 600 }}>{tx.other_party || tx.other_user}<br /><span style={{ fontSize: 13, color: '#7b91a8' }}>{tx.other_id || ''}</span></td>
                       <td style={{ ...tdStyle, fontSize: 13, color: '#3d5068' }}>{tx.note || '—'}</td>
-                      <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: tx.direction === 'sent' ? '#dc2626' : '#16a34a' }}>
+                      <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: tx.direction === 'sent' ? 'var(--sap-red)' : 'var(--sap-green)' }}>
                         {tx.direction === 'sent' ? '-' : '+'}${formatMoney(tx.amount)}
                       </td>
                     </tr>
@@ -346,9 +346,9 @@ function Card({ title, dotColor, badge, headerRight, flex, children }) {
       overflow: 'hidden', transition: 'box-shadow .2s, border-color .2s',
       display: 'flex', flexDirection: 'column', ...(flex ? { flex: 1 } : {}),
     }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', background: '#172554' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 20px', background: 'var(--sap-cobalt-deep)' }}>
         <div style={{ fontSize: 14, fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 6, height: 6, borderRadius: '50%', background: dotColor || '#0ea5e9', flexShrink: 0 }} />
+          <div style={{ width: 6, height: 6, borderRadius: '50%', background: dotColor || 'var(--sap-accent)', flexShrink: 0 }} />
           {title}
         </div>
         {badge && <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: badge.bg, color: badge.color, border: '1px solid ' + badge.border }}>{badge.text}</span>}
@@ -367,7 +367,7 @@ function StatPill({ value, label, gradient }) {
       position: 'relative', overflow: 'hidden', transition: 'box-shadow .2s, transform .15s',
     }}>
       <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: gradient }} />
-      <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 32, fontWeight: 800, letterSpacing: -0.5, lineHeight: 1, marginBottom: 6, color: '#16a34a' }}>{value}</div>
+      <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 32, fontWeight: 800, letterSpacing: -0.5, lineHeight: 1, marginBottom: 6, color: 'var(--sap-green)' }}>{value}</div>
       <div style={{ fontSize: 11, fontWeight: 800, color: '#7b91a8', textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 6 }}>{label}</div>
     </div>
   );
@@ -376,7 +376,7 @@ function StatPill({ value, label, gradient }) {
 function MiniStat({ val, lbl }) {
   return (
     <div style={{ background: '#f6f8fc', border: '1px solid rgba(15,25,60,.07)', borderRadius: 10, padding: 12, textAlign: 'center' }}>
-      <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a' }}>{val}</div>
+      <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{val}</div>
       <div style={{ fontSize: 10, color: '#7b91a8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 3 }}>{lbl}</div>
     </div>
   );
@@ -391,8 +391,8 @@ function EarningsCard({ icon, label, value, color, desc }) {
       <div style={{ width: 42, height: 42, borderRadius: 10, background: `${color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>{icon}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 11, fontWeight: 700, color: '#7b91a8', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
-        <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 20, fontWeight: 800, color: '#0f172a', marginTop: 2 }}>${formatMoney(value)}</div>
-        {desc && <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 2 }}>{desc}</div>}
+        <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 20, fontWeight: 800, color: 'var(--sap-text-primary)', marginTop: 2 }}>${formatMoney(value)}</div>
+        {desc && <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', marginTop: 2 }}>{desc}</div>}
       </div>
     </div>
   );
@@ -400,18 +400,18 @@ function EarningsCard({ icon, label, value, color, desc }) {
 
 function LoadingSpinner() {
   return <div style={{ display: 'flex', justifyContent: 'center', padding: 80 }}>
-    <div style={{ width: 40, height: 40, border: '3px solid #e5e7eb', borderTopColor: '#0ea5e9', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
+    <div style={{ width: 40, height: 40, border: '3px solid #e5e7eb', borderTopColor: 'var(--sap-accent)', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
     <style>{`@keyframes spin { to { transform: rotate(360deg) } }`}</style>
   </div>;
 }
 
 // ── Styles ──
 const labelStyle = { fontSize: 12, fontWeight: 700, color: '#7b91a8', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6, display: 'block' };
-const inputStyle = { width: '100%', padding: '11px 14px', border: '1px solid rgba(15,25,60,.12)', borderRadius: 9, fontSize: 15, color: '#0f172a', fontFamily: 'inherit', background: '#f6f8fc', boxSizing: 'border-box' };
-const p2pInputStyle = { width: '100%', padding: '11px 14px', border: '1px solid rgba(15,25,60,.12)', borderRadius: 9, fontSize: 15, fontFamily: 'inherit', color: '#0f172a', background: '#f6f8fc', boxSizing: 'border-box' };
+const inputStyle = { width: '100%', padding: '11px 14px', border: '1px solid rgba(15,25,60,.12)', borderRadius: 9, fontSize: 15, color: 'var(--sap-text-primary)', fontFamily: 'inherit', background: '#f6f8fc', boxSizing: 'border-box' };
+const p2pInputStyle = { width: '100%', padding: '11px 14px', border: '1px solid rgba(15,25,60,.12)', borderRadius: 9, fontSize: 15, fontFamily: 'inherit', color: 'var(--sap-text-primary)', background: '#f6f8fc', boxSizing: 'border-box' };
 const btnPrimary = { fontSize: 15, fontWeight: 700, color: '#fff', background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', padding: '11px 22px', borderRadius: 9, textDecoration: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'inline-block' };
 const thStyle = { fontSize: 11, fontWeight: 800, color: '#7b91a8', textTransform: 'uppercase', letterSpacing: 1, padding: '11px 14px', borderBottom: '1px solid rgba(15,25,60,.08)', textAlign: 'left', background: '#f6f8fc' };
-const tdStyle = { padding: '12px 14px', borderBottom: '1px solid rgba(15,25,60,.05)', fontSize: 15, color: '#0f172a', verticalAlign: 'middle' };
-const badgeGreen = { fontSize: 12, fontWeight: 700, padding: '4px 11px', borderRadius: 999, background: 'rgba(22,163,74,.09)', color: '#16a34a', border: '1px solid rgba(22,163,74,.2)' };
-const badgeAmber = { fontSize: 12, fontWeight: 700, padding: '4px 11px', borderRadius: 999, background: 'rgba(245,158,11,.09)', color: '#d97706', border: '1px solid rgba(245,158,11,.2)' };
+const tdStyle = { padding: '12px 14px', borderBottom: '1px solid rgba(15,25,60,.05)', fontSize: 15, color: 'var(--sap-text-primary)', verticalAlign: 'middle' };
+const badgeGreen = { fontSize: 12, fontWeight: 700, padding: '4px 11px', borderRadius: 999, background: 'rgba(22,163,74,.09)', color: 'var(--sap-green)', border: '1px solid rgba(22,163,74,.2)' };
+const badgeAmber = { fontSize: 12, fontWeight: 700, padding: '4px 11px', borderRadius: 999, background: 'rgba(245,158,11,.09)', color: 'var(--sap-amber-dark)', border: '1px solid rgba(245,158,11,.2)' };
 const badgeCyan = { fontSize: 12, fontWeight: 700, padding: '4px 11px', borderRadius: 999, background: 'rgba(14,165,233,.09)', color: '#0284c7', border: '1px solid rgba(14,165,233,.2)' };

@@ -15,7 +15,7 @@ var SECTIONS = [
       'Your balance is shown at the top right — click it to go to your Wallet',
     ],
     link: '/dashboard', linkLabel: 'Go to Dashboard',
-    Icon: Map, color: '#6366f1', bg: '#eef2ff',
+    Icon: Map, color: 'var(--sap-indigo)', bg: '#eef2ff',
   },
   {
     id: 'howyouearn', num: '2', title: 'How You Earn', shortTitle: 'How You Earn',
@@ -28,7 +28,7 @@ var SECTIONS = [
       'Visit the Comp Plan page for interactive calculators and the AI assistant that can answer any earnings question',
     ],
     link: '/compensation-plan', linkLabel: 'View Comp Plan',
-    Icon: DollarSign, color: '#16a34a', bg: '#dcfce7',
+    Icon: DollarSign, color: 'var(--sap-green)', bg: 'var(--sap-green-bg-mid)',
   },
   {
     id: 'watchearn', num: '3', title: 'Watch To Earn', shortTitle: 'Watch To Earn',
@@ -41,7 +41,7 @@ var SECTIONS = [
       'Missing your daily quota pauses Campaign Wallet withdrawals (not your Affiliate Wallet)',
     ],
     link: '/watch', linkLabel: 'Start Watching',
-    Icon: Eye, color: '#f59e0b', bg: '#fef3c7',
+    Icon: Eye, color: 'var(--sap-amber)', bg: 'var(--sap-amber-bg)',
   },
   {
     id: 'basictools', num: '4', title: 'Your Basic Tools', shortTitle: 'Basic Tools',
@@ -53,7 +53,7 @@ var SECTIONS = [
       'Creative Studio — the full AI creative suite: Video Clips (9 AI models), Full Video production, Images (11 models), Music (Suno AI), Voiceover (32 voices), Lip Sync, Gallery, and Credit Packs',
     ],
     link: '/creative-studio', linkLabel: 'Open Creative Studio',
-    Icon: Wrench, color: '#0ea5e9', bg: '#e0f2fe',
+    Icon: Wrench, color: 'var(--sap-accent)', bg: '#e0f2fe',
   },
   {
     id: 'protools', num: '5', title: 'Pro Tools', shortTitle: 'Pro Tools',
@@ -65,7 +65,7 @@ var SECTIONS = [
       'SuperSeller — AI Sales Autopilot that generates your entire marketing campaign: landing page, 30 social posts, 5-email autoresponder, 3 video scripts, ad copy, and strategy doc',
     ],
     link: '/upgrade', linkLabel: 'Upgrade to Pro',
-    Icon: Lock, color: '#8b5cf6', bg: '#ede9fe',
+    Icon: Lock, color: 'var(--sap-purple)', bg: 'var(--sap-purple-pale)',
     pro: true,
   },
   {
@@ -79,7 +79,7 @@ var SECTIONS = [
       'Pay It Forward — gift a $20 Basic membership to anyone. You become their sponsor and earn commissions on everything they do. When they earn $20+, they are prompted to gift someone else — creating a viral growth chain',
     ],
     link: '/wallet', linkLabel: 'View Your Wallet',
-    Icon: Wallet, color: '#059669', bg: '#d1fae5',
+    Icon: Wallet, color: 'var(--sap-green-dark)', bg: '#d1fae5',
   },
 ];
 
@@ -101,7 +101,7 @@ export default function PlatformTour() {
               border: isActive ? '1.5px solid ' + sec.color : '1px solid #e2e8f0',
               background: isActive ? sec.bg : '#fff',
               cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: isActive ? 700 : 500,
-              color: isActive ? sec.color : '#64748b', whiteSpace: 'nowrap', flexShrink: 0,
+              color: isActive ? sec.color : 'var(--sap-text-muted)', whiteSpace: 'nowrap', flexShrink: 0,
               transition: 'all .15s',
             }}>
             <div style={{ width: 22, height: 22, borderRadius: 6, background: isActive ? sec.color : sec.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -122,10 +122,10 @@ export default function PlatformTour() {
           </div>
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 800, color: '#0f172a' }}>{s.title}</span>
-              {s.pro && <span style={{ padding: '3px 10px', borderRadius: 6, background: 'rgba(139,92,246,.1)', fontSize: 12, fontWeight: 700, color: '#7c3aed' }}>Pro</span>}
+              <span style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{s.title}</span>
+              {s.pro && <span style={{ padding: '3px 10px', borderRadius: 6, background: 'rgba(139,92,246,.1)', fontSize: 12, fontWeight: 700, color: 'var(--sap-violet)' }}>Pro</span>}
             </div>
-            <div style={{ fontSize: 14, color: '#64748b', marginTop: 2 }}>Step {s.num} of 6</div>
+            <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', marginTop: 2 }}>Step {s.num} of 6</div>
           </div>
         </div>
 
@@ -135,22 +135,22 @@ export default function PlatformTour() {
             <Play size={24} color={s.color}/>
           </div>
           <div style={{ fontSize: 15, fontWeight: 700, color: s.color }}>Screenshot or video coming soon</div>
-          <div style={{ fontSize: 13, color: '#64748b', marginTop: 4 }}>A visual walkthrough of {s.shortTitle} will appear here</div>
+          <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginTop: 4 }}>A visual walkthrough of {s.shortTitle} will appear here</div>
         </div>
 
         {/* Description */}
         <div style={{ padding: '20px 28px 0' }}>
-          <p style={{ fontSize: 16, color: '#475569', lineHeight: 1.8, margin: 0 }}>{s.desc}</p>
+          <p style={{ fontSize: 16, color: 'var(--sap-text-secondary)', lineHeight: 1.8, margin: 0 }}>{s.desc}</p>
         </div>
 
         {/* Tips */}
         <div style={{ margin: '20px 28px 0' }}>
-          <div style={{ background: '#f8fafc', borderRadius: 12, padding: '18px 22px' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 10 }}>Key things to know</div>
+          <div style={{ background: 'var(--sap-bg-elevated)', borderRadius: 12, padding: '18px 22px' }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 10 }}>Key things to know</div>
             {s.tips.map(function(tip, ti) {
               return <div key={ti} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: ti < s.tips.length - 1 ? 10 : 0 }}>
                 <div style={{ width: 6, height: 6, borderRadius: '50%', background: s.color, marginTop: 8, flexShrink: 0 }}/>
-                <div style={{ fontSize: 15, color: '#475569', lineHeight: 1.7 }}>{tip}</div>
+                <div style={{ fontSize: 15, color: 'var(--sap-text-secondary)', lineHeight: 1.7 }}>{tip}</div>
               </div>;
             })}
           </div>
@@ -161,13 +161,13 @@ export default function PlatformTour() {
           <div style={{ display: 'flex', gap: 8 }}>
             {activeIdx > 0 && (
               <button onClick={function() { setActiveIdx(activeIdx - 1); }}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, color: '#64748b' }}>
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, color: 'var(--sap-text-muted)' }}>
                 <ChevronLeft size={16}/> Previous
               </button>
             )}
             {activeIdx < SECTIONS.length - 1 && (
               <button onClick={function() { setActiveIdx(activeIdx + 1); }}
-                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, color: '#64748b' }}>
+                style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 16px', borderRadius: 10, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 600, color: 'var(--sap-text-muted)' }}>
                 Next <ChevronRight size={16}/>
               </button>
             )}
@@ -342,20 +342,20 @@ function VoiceGuide() {
       {/* Body */}
       <div style={{ padding: '16px 20px', minHeight: 100, maxHeight: 280, overflowY: 'auto' }}>
         {!transcript && !answer && !thinking && !listening && !error && (
-          <div style={{ textAlign: 'center', color: '#64748b', fontSize: 14, lineHeight: 1.6, padding: '6px 0' }}>
+          <div style={{ textAlign: 'center', color: 'var(--sap-text-muted)', fontSize: 14, lineHeight: 1.6, padding: '6px 0' }}>
             Ask me anything about SuperAdPro — features, compensation plan, how to get started.
           </div>
         )}
 
         {transcript && (
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>You asked</div>
-            <div style={{ fontSize: 14, color: '#0f172a', lineHeight: 1.5 }}>{transcript}</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>You asked</div>
+            <div style={{ fontSize: 14, color: 'var(--sap-text-primary)', lineHeight: 1.5 }}>{transcript}</div>
           </div>
         )}
 
         {thinking && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#7c3aed', fontSize: 14, fontWeight: 600 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'var(--sap-violet)', fontSize: 14, fontWeight: 600 }}>
             <div style={{ width: 16, height: 16, border: '2px solid #7c3aed', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin .8s linear infinite' }}/>
             Thinking...
           </div>
@@ -363,13 +363,13 @@ function VoiceGuide() {
 
         {answer && (
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: '#7c3aed', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Answer</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-violet)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Answer</div>
             <div style={{ fontSize: 14, color: '#334155', lineHeight: 1.7 }}>{answer}</div>
           </div>
         )}
 
         {error && (
-          <div style={{ fontSize: 14, color: '#dc2626', textAlign: 'center', padding: '8px 0' }}>{error}</div>
+          <div style={{ fontSize: 14, color: 'var(--sap-red)', textAlign: 'center', padding: '8px 0' }}>{error}</div>
         )}
       </div>
 
@@ -378,7 +378,7 @@ function VoiceGuide() {
         {speaking && (
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 10 }}>
             <button onClick={stopSpeaking}
-              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, background: '#fef2f2', color: '#dc2626' }}>
+              style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: 10, border: 'none', cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: 700, background: 'var(--sap-red-bg)', color: 'var(--sap-red)' }}>
               <MicOff size={14}/> Stop Speaking
             </button>
           </div>
@@ -394,7 +394,7 @@ function VoiceGuide() {
           />
           <button onClick={function() { if (textInput.trim() && !thinking) { setTranscript(textInput.trim()); askGuide(textInput.trim()); setTextInput(''); } }}
             disabled={!textInput.trim() || thinking}
-            style={{ padding: '10px 16px', borderRadius: 10, border: 'none', cursor: !textInput.trim() || thinking ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, background: !textInput.trim() || thinking ? '#e2e8f0' : 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff' }}>
+            style={{ padding: '10px 16px', borderRadius: 10, border: 'none', cursor: !textInput.trim() || thinking ? 'not-allowed' : 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: 700, background: !textInput.trim() || thinking ? 'var(--sap-border)' : 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff' }}>
             Ask
           </button>
         </div>

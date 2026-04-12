@@ -20,10 +20,10 @@ var PACK_OPTIONS = TIER_NAMES.map(function(n, i) {
 });
 
 var STREAMS_BASE = [
-  { id:'membership', num:'1', Icon:Users, color:'#16a34a', bg:'#dcfce7', link:'/affiliate' },
-  { id:'grid', num:'2', Icon:Zap, color:'#6366f1', bg:'#eef2ff', link:'/grid-visualiser' },
-  { id:'matrix', num:'3', Icon:Layers, color:'#8b5cf6', bg:'#ede9fe', link:'/matrix-visualiser' },
-  { id:'courses', num:'4', Icon:GraduationCap, color:'#f59e0b', bg:'#fef3c7', link:'/courses', comingSoon:true },
+  { id:'membership', num:'1', Icon:Users, color:'var(--sap-green)', bg:'var(--sap-green-bg-mid)', link:'/affiliate' },
+  { id:'grid', num:'2', Icon:Zap, color:'var(--sap-indigo)', bg:'#eef2ff', link:'/grid-visualiser' },
+  { id:'matrix', num:'3', Icon:Layers, color:'var(--sap-purple)', bg:'var(--sap-purple-pale)', link:'/matrix-visualiser' },
+  { id:'courses', num:'4', Icon:GraduationCap, color:'var(--sap-amber)', bg:'var(--sap-amber-bg)', link:'/courses', comingSoon:true },
 ];
 
 
@@ -88,7 +88,7 @@ export default function CompensationPlan() {
               border: isActive ? '1.5px solid '+st.color : '1px solid #e2e8f0',
               background: isActive ? st.bg : '#fff',
               cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight: isActive ? 700 : 500,
-              color: isActive ? st.color : '#64748b', whiteSpace:'nowrap', flexShrink:0,
+              color: isActive ? st.color : 'var(--sap-text-muted)', whiteSpace:'nowrap', flexShrink:0,
               transition:'all .15s',
             }}>
             <div style={{ width:22, height:22, borderRadius:6, background: isActive ? st.color : st.bg, display:'flex', alignItems:'center', justifyContent:'center' }}>
@@ -108,10 +108,10 @@ export default function CompensationPlan() {
             <s.Icon size={26} color={s.color}/>
           </div>
           <div style={{ flex:1 }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#0f172a' }}>{s.title}</div>
-            <div style={{ fontSize:14, color:'#64748b', marginTop:2 }}>{t('compPlan.incomeStream', {num: s.num})}</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'var(--sap-text-primary)' }}>{s.title}</div>
+            <div style={{ fontSize:14, color:'var(--sap-text-muted)', marginTop:2 }}>{t('compPlan.incomeStream', {num: s.num})}</div>
           </div>
-          {s.comingSoon && <div style={{ padding:'6px 16px', borderRadius:20, background:'rgba(245,158,11,.08)', fontSize:14, fontWeight:700, color:'#d97706' }}>{t('compPlan.comingSoon')}</div>}
+          {s.comingSoon && <div style={{ padding:'6px 16px', borderRadius:20, background:'rgba(245,158,11,.08)', fontSize:14, fontWeight:700, color:'var(--sap-amber-dark)' }}>{t('compPlan.comingSoon')}</div>}
         </div>
 
         {/* Stream content */}
@@ -127,13 +127,13 @@ export default function CompensationPlan() {
           <div style={{ display:'flex', gap:8 }}>
             {activeIdx > 0 && (
               <button onClick={function(){ setActiveIdx(activeIdx - 1); }}
-                style={{ display:'flex', alignItems:'center', gap:6, padding:'10px 16px', borderRadius:10, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:14, fontWeight:600, color:'#64748b' }}>
+                style={{ display:'flex', alignItems:'center', gap:6, padding:'10px 16px', borderRadius:10, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:14, fontWeight:600, color:'var(--sap-text-muted)' }}>
                 <ChevronLeft size={16}/> {t('compPlan.previous')}
               </button>
             )}
             {activeIdx < STREAMS.length - 1 && (
               <button onClick={function(){ setActiveIdx(activeIdx + 1); }}
-                style={{ display:'flex', alignItems:'center', gap:6, padding:'10px 16px', borderRadius:10, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:14, fontWeight:600, color:'#64748b' }}>
+                style={{ display:'flex', alignItems:'center', gap:6, padding:'10px 16px', borderRadius:10, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:14, fontWeight:600, color:'var(--sap-text-muted)' }}>
                 Next <ChevronRight size={16}/>
               </button>
             )}
@@ -156,25 +156,25 @@ export default function CompensationPlan() {
           </div>
         </div>
         <div style={{ padding:'24px 28px' }}>
-          <div style={{ fontSize:15, color:'#475569', lineHeight:1.8, marginBottom:20 }}>
+          <div style={{ fontSize:15, color:'var(--sap-text-secondary)', lineHeight:1.8, marginBottom:20 }}>
             {t('compPlan.repurchaseDesc')}
           </div>
 
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:20 }}>
             <div style={{ background:'rgba(99,102,241,.06)', border:'1px solid rgba(99,102,241,.15)', borderRadius:14, padding:'20px' }}>
               <div style={{ fontSize:20, marginBottom:8 }}>⚡</div>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:6 }}>{t('compPlan.campaignTiersLabel')}</div>
-              <div style={{ fontSize:14, color:'#475569', lineHeight:1.7 }}>{t('compPlan.campaignTiersRepDesc')}</div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:6 }}>{t('compPlan.campaignTiersLabel')}</div>
+              <div style={{ fontSize:14, color:'var(--sap-text-secondary)', lineHeight:1.7 }}>{t('compPlan.campaignTiersRepDesc')}</div>
             </div>
             <div style={{ background:'rgba(139,92,246,.06)', border:'1px solid rgba(139,92,246,.15)', borderRadius:14, padding:'20px' }}>
               <div style={{ fontSize:20, marginBottom:8 }}>🧮</div>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:6 }}>{t('compPlan.creditPacksLabel')}</div>
-              <div style={{ fontSize:14, color:'#475569', lineHeight:1.7 }}>{t('compPlan.creditPacksRepDesc')}</div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:6 }}>{t('compPlan.creditPacksLabel')}</div>
+              <div style={{ fontSize:14, color:'var(--sap-text-secondary)', lineHeight:1.7 }}>{t('compPlan.creditPacksRepDesc')}</div>
             </div>
           </div>
 
-          <div style={{ background:'#f8fafc', borderRadius:12, padding:'18px 22px' }}>
-            <div style={{ fontSize:15, fontWeight:700, color:'#0f172a', marginBottom:10 }}>{t('compPlan.howItWorksPractice')}</div>
+          <div style={{ background:'var(--sap-bg-elevated)', borderRadius:12, padding:'18px 22px' }}>
+            <div style={{ fontSize:15, fontWeight:700, color:'var(--sap-text-primary)', marginBottom:10 }}>{t('compPlan.howItWorksPractice')}</div>
             <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
               {[
                 t('compPlan.repStep1'),
@@ -186,7 +186,7 @@ export default function CompensationPlan() {
               ].map(function(item, i) {
                 return <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start' }}>
                   <div style={{ width:6, height:6, borderRadius:'50%', background:'#2563eb', marginTop:8, flexShrink:0 }}/>
-                  <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>{item}</div>
+                  <div style={{ fontSize:15, color:'var(--sap-text-secondary)', lineHeight:1.7 }}>{item}</div>
                 </div>;
               })}
             </div>
@@ -196,17 +196,17 @@ export default function CompensationPlan() {
 
       {/* Two Wallets section */}
       <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', padding:'24px 28px', marginTop:20 }}>
-        <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0f172a', marginBottom:16 }}>{t('compPlan.twoWallets')}</div>
+        <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:16 }}>{t('compPlan.twoWallets')}</div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:16 }}>
           <div style={{ background:'rgba(34,197,94,.06)', border:'1px solid rgba(34,197,94,.15)', borderRadius:12, padding:'18px 14px', textAlign:'center' }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#16a34a' }}>{t('compPlan.affiliateWalletTitle')}</div>
-            <div style={{ fontSize:13, color:'#64748b', marginTop:8 }}>{t('compPlan.affiliateWalletDesc')}</div>
-            <div style={{ fontSize:13, fontWeight:700, color:'#16a34a', marginTop:8 }}>{t('compPlan.alwaysWithdrawable')}</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'var(--sap-green)' }}>{t('compPlan.affiliateWalletTitle')}</div>
+            <div style={{ fontSize:13, color:'var(--sap-text-muted)', marginTop:8 }}>{t('compPlan.affiliateWalletDesc')}</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-green)', marginTop:8 }}>{t('compPlan.alwaysWithdrawable')}</div>
           </div>
           <div style={{ background:'rgba(99,102,241,.06)', border:'1px solid rgba(99,102,241,.15)', borderRadius:12, padding:'18px 14px', textAlign:'center' }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#6366f1' }}>{t('compPlan.campaignWalletTitle')}</div>
-            <div style={{ fontSize:13, color:'#64748b', marginTop:8 }}>{t('compPlan.campaignWalletDesc')}</div>
-            <div style={{ fontSize:13, fontWeight:700, color:'#6366f1', marginTop:8 }}>{t('compPlan.requiresActiveTier')}</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'var(--sap-indigo)' }}>{t('compPlan.campaignWalletTitle')}</div>
+            <div style={{ fontSize:13, color:'var(--sap-text-muted)', marginTop:8 }}>{t('compPlan.campaignWalletDesc')}</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-indigo)', marginTop:8 }}>{t('compPlan.requiresActiveTier')}</div>
           </div>
         </div>
       </div>
@@ -223,12 +223,12 @@ function MembershipContent() {
   var { t } = useTranslation();
   return <>
     <FlowArrow steps={[
-      { title:t('compPlan.referralJoins'), sub:t('compPlan.basicOrPro'), bg:'rgba(99,102,241,.06)', border:'rgba(99,102,241,.15)', color:'#6366f1' },
-      { title:t('compPlan.fiftyToYou'), sub:t('compPlan.tenOrSeventeen'), bg:'rgba(34,197,94,.06)', border:'rgba(34,197,94,.15)', color:'#16a34a' },
-      { title:t('compPlan.affiliateWallet'), sub:t('compPlan.withdrawAnytime'), bg:'rgba(14,165,233,.06)', border:'rgba(14,165,233,.15)', color:'#0ea5e9' },
+      { title:t('compPlan.referralJoins'), sub:t('compPlan.basicOrPro'), bg:'rgba(99,102,241,.06)', border:'rgba(99,102,241,.15)', color:'var(--sap-indigo)' },
+      { title:t('compPlan.fiftyToYou'), sub:t('compPlan.tenOrSeventeen'), bg:'rgba(34,197,94,.06)', border:'rgba(34,197,94,.15)', color:'var(--sap-green)' },
+      { title:t('compPlan.affiliateWallet'), sub:t('compPlan.withdrawAnytime'), bg:'rgba(14,165,233,.06)', border:'rgba(14,165,233,.15)', color:'var(--sap-accent)' },
     ]}/>
 
-    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>{t('compPlan.commissionBreakdown')}</div>
+    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:12 }}>{t('compPlan.commissionBreakdown')}</div>
     <EarnTable headers={[t('compPlan.plan'),t('compPlan.monthly'),t('compPlan.annual'),t('compPlan.yourCommMonthly'),t('compPlan.yourCommAnnual')]} rows={[
       ['Basic','$20/mo','$200/yr','$10/mo','$100 '+t('compPlan.upfront')],
       ['Pro','$35/mo','$350/yr','$17.50/mo','$175 '+t('compPlan.upfront')],
@@ -240,8 +240,8 @@ function MembershipContent() {
       t('compPlan.memKey3'),
       t('compPlan.memKey4'),
       t('compPlan.memKey5'),
-    ]} color="#16a34a"/>
-    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#64748b', textDecoration:'none' }}>{t('compPlan.incomeDisclaimer')}</Link></div>
+    ]} color="var(--sap-green)"/>
+    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'var(--sap-text-muted)', textDecoration:'none' }}>{t('compPlan.incomeDisclaimer')}</Link></div>
   </>;
 }
 
@@ -253,12 +253,12 @@ function GridContent() {
   var { t } = useTranslation();
   return <>
     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:20 }}>
-      <CommBox val="40%" label={t('compPlan.directSponsor')} sub={t('compPlan.yourReferralBuysTier')} color="#16a34a" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
-      <CommBox val="6.25%" label={t('compPlan.eightLevelsDeep')} sub={t('compPlan.earnEntireNetwork')} color="#6366f1" bg="rgba(99,102,241,.06)" border="rgba(99,102,241,.15)"/>
-      <CommBox val="5%" label={t('compPlan.completionBonus')} sub={t('compPlan.gridFills64')} color="#d97706" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
+      <CommBox val="40%" label={t('compPlan.directSponsor')} sub={t('compPlan.yourReferralBuysTier')} color="var(--sap-green)" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
+      <CommBox val="6.25%" label={t('compPlan.eightLevelsDeep')} sub={t('compPlan.earnEntireNetwork')} color="var(--sap-indigo)" bg="rgba(99,102,241,.06)" border="rgba(99,102,241,.15)"/>
+      <CommBox val="5%" label={t('compPlan.completionBonus')} sub={t('compPlan.gridFills64')} color="var(--sap-amber-dark)" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
     </div>
 
-    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>{t('compPlan.eightCampaignTiers')}</div>
+    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:12 }}>{t('compPlan.eightCampaignTiers')}</div>
     <div style={{ display:'grid', gridTemplateColumns:'repeat(8,1fr)', gap:6, marginBottom:20 }}>
       {TIER_NAMES.map(function(n, i) {
         return <div key={i} style={{ background:TIER_GRADS[i], borderRadius:10, padding:'12px 6px', textAlign:'center', color:'#fff' }}>
@@ -268,7 +268,7 @@ function GridContent() {
       })}
     </div>
 
-    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>{t('compPlan.earningsPerTier')}</div>
+    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:12 }}>{t('compPlan.earningsPerTier')}</div>
     <EarnTable headers={[t('compPlan.tier'),t('compPlan.direct40'),t('compPlan.uniLevel625'),t('compPlan.completionBonus5')]} rows={[
       ['T1 Starter $20','$8','$10 '+t('compPlan.perLevel'),'$64'],
       ['T2 Builder $50','$20','$25 '+t('compPlan.perLevel'),'$160'],
@@ -288,8 +288,8 @@ function GridContent() {
       t('compPlan.gridKey5'),
       t('compPlan.gridKey6'),
       t('compPlan.gridKey7'),
-    ]} color="#6366f1"/>
-    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#64748b', textDecoration:'none' }}>{t('compPlan.incomeDisclaimer')}</Link></div>
+    ]} color="var(--sap-indigo)"/>
+    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'var(--sap-text-muted)', textDecoration:'none' }}>{t('compPlan.incomeDisclaimer')}</Link></div>
   </>;
 }
 
@@ -311,23 +311,23 @@ function MatrixContent(props) {
 
   return <>
     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:20 }}>
-      <CommBox val="15%" label={t('compPlan.directReferral')} sub={t('compPlan.youRecruited')} color="#d97706" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
-      <CommBox val="10%" label={t('compPlan.autoPlace')} sub={t('compPlan.placedByNetwork')} color="#16a34a" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
-      <CommBox val="10%" label={t('compPlan.completionBonus')} sub={t('compPlan.nexusFills39')} color="#8b5cf6" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
+      <CommBox val="15%" label={t('compPlan.directReferral')} sub={t('compPlan.youRecruited')} color="var(--sap-amber-dark)" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
+      <CommBox val="10%" label={t('compPlan.autoPlace')} sub={t('compPlan.placedByNetwork')} color="var(--sap-green)" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
+      <CommBox val="10%" label={t('compPlan.completionBonus')} sub={t('compPlan.nexusFills39')} color="var(--sap-purple)" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
     </div>
 
     {/* Cost breakdown */}
-    <div style={{ background:'#f8fafc', borderRadius:12, padding:'16px 20px', marginBottom:20, fontSize:13, color:'#64748b', lineHeight:1.7 }}>
-      <strong style={{ color:'#0f172a' }}>{t('compPlan.whereMoneyGoes')}</strong> {t('compPlan.moneyBreakdown')} <Link to="/income-disclaimer" style={{ color:'#2563eb', textDecoration:'none', fontWeight:700 }}>{t('compPlan.viewDisclaimer')}</Link>
+    <div style={{ background:'var(--sap-bg-elevated)', borderRadius:12, padding:'16px 20px', marginBottom:20, fontSize:13, color:'var(--sap-text-muted)', lineHeight:1.7 }}>
+      <strong style={{ color:'var(--sap-text-primary)' }}>{t('compPlan.whereMoneyGoes')}</strong> {t('compPlan.moneyBreakdown')} <Link to="/income-disclaimer" style={{ color:'#2563eb', textDecoration:'none', fontWeight:700 }}>{t('compPlan.viewDisclaimer')}</Link>
     </div>
 
     {/* Mini tree */}
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:8, padding:'16px 0', marginBottom:20 }}>
-      <div style={{ fontSize:10, color:'#64748b', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('compPlan.yourNexus39')}</div>
+      <div style={{ fontSize:10, color:'var(--sap-text-muted)', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('compPlan.yourNexus39')}</div>
       <div style={{ display:'flex', gap:8 }}><TreeNode type="you" label={t('compPlan.you')}/></div>
-      <div style={{ fontSize:10, color:'#64748b', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('compPlan.goldDirect')}</div>
+      <div style={{ fontSize:10, color:'var(--sap-text-muted)', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('compPlan.goldDirect')}</div>
       <div style={{ display:'flex', gap:8 }}><TreeNode type="direct"/><TreeNode type="direct"/><TreeNode type="direct"/></div>
-      <div style={{ fontSize:10, color:'#64748b', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('compPlan.greenAutoPlace')}</div>
+      <div style={{ fontSize:10, color:'var(--sap-text-muted)', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('compPlan.greenAutoPlace')}</div>
       <div style={{ display:'flex', gap:8, flexWrap:'wrap', justifyContent:'center' }}>
         {Array.from({length:9}, function(_,i){ return <TreeNode key={i} type="spill"/>; })}
       </div>
@@ -337,7 +337,7 @@ function MatrixContent(props) {
       </div>
     </div>
 
-    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>{t('compPlan.eightCreditPacks')}</div>
+    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:12 }}>{t('compPlan.eightCreditPacks')}</div>
     <div style={{ display:'grid', gridTemplateColumns:'repeat(8,1fr)', gap:6, marginBottom:20 }}>
       {TIER_NAMES.map(function(n, i) {
         return <div key={i} style={{ background:TIER_GRADS[i], borderRadius:10, padding:'12px 6px', textAlign:'center', color:'#fff' }}>
@@ -348,32 +348,32 @@ function MatrixContent(props) {
       })}
     </div>
 
-    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'#0f172a', marginBottom:12 }}>{t('compPlan.perPositionEarnings')}</div>
+    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:12 }}>{t('compPlan.perPositionEarnings')}</div>
     <EarnTable headers={[t('compPlan.pack'),t('compPlan.price'),t('compPlan.credits'),t('compPlan.earnPerDirect'),t('compPlan.earnPerAutoPlace')]} rows={
       TIER_NAMES.map(function(n, i) {
         return [n, '$'+TIER_PRICES[i], TIER_CREDITS[i].toLocaleString(), '$'+(TIER_PRICES[i]*0.15).toFixed(2), '$'+(TIER_PRICES[i]*0.10).toFixed(2)];
       })
     }/>
-    <div style={{ fontSize:11, color:'#64748b', textAlign:'center', marginBottom:20 }}>{t('compPlan.perPositionNote')}</div>
+    <div style={{ fontSize:11, color:'var(--sap-text-muted)', textAlign:'center', marginBottom:20 }}>{t('compPlan.perPositionNote')}</div>
 
     {/* Calculator */}
-    <div style={{ background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:16, padding:28, marginBottom:20 }}>
+    <div style={{ background:'var(--sap-bg-elevated)', border:'1px solid #e2e8f0', borderRadius:16, padding:28, marginBottom:20 }}>
       <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:20 }}>
         <div style={{ width:48, height:48, borderRadius:12, background:'rgba(139,92,246,.08)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:24 }}>🧮</div>
         <div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:17, fontWeight:800, color:'#0f172a' }}>{t('compPlan.nexusCalculator')}</div>
-          <div style={{ fontSize:13, color:'#64748b' }}>{t('compPlan.calcDesc')}</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:17, fontWeight:800, color:'var(--sap-text-primary)' }}>{t('compPlan.nexusCalculator')}</div>
+          <div style={{ fontSize:13, color:'var(--sap-text-muted)' }}>{t('compPlan.calcDesc')}</div>
         </div>
       </div>
 
       <div style={{ marginBottom:16 }}>
-        <div style={{ fontSize:14, fontWeight:600, color:'#475569', marginBottom:8 }}>{t('compPlan.choosePack')}</div>
+        <div style={{ fontSize:14, fontWeight:600, color:'var(--sap-text-secondary)', marginBottom:8 }}>{t('compPlan.choosePack')}</div>
         <CustomSelect value={props.matrixPack} onChange={function(v){ props.setMatrixPack(v); }} options={PACK_OPTIONS}/>
       </div>
 
-      <SliderRow label={t('compPlan.yourDirectReferrals')} value={props.matrixDirect} min={0} max={39} display={props.matrixDirect} color="#d97706"
+      <SliderRow label={t('compPlan.yourDirectReferrals')} value={props.matrixDirect} min={0} max={39} display={props.matrixDirect} color="var(--sap-amber-dark)"
         onChange={function(v){ props.setMatrixDirect(v); if (props.matrixSpill > 39 - v) props.setMatrixSpill(39 - v); }}/>
-      <SliderRow label={t('compPlan.autoPlaceFilled')} value={props.matrixSpill} min={0} max={props.maxSpill} display={props.matrixSpill} color="#10b981"
+      <SliderRow label={t('compPlan.autoPlaceFilled')} value={props.matrixSpill} min={0} max={props.maxSpill} display={props.matrixSpill} color="var(--sap-green-mid)"
         onChange={function(v){ props.setMatrixSpill(v); }}/>
 
       <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:14, padding:24, color:'#fff', marginTop:8 }}>
@@ -385,7 +385,7 @@ function MatrixContent(props) {
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
           <div style={{ background:'rgba(255,255,255,.08)', borderRadius:10, padding:14, textAlign:'center' }}>
             <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>{t('compPlan.directPercent')}</div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#fbbf24', marginTop:4 }}>${mDirectEarn.toFixed(2)}</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'var(--sap-amber-bright)', marginTop:4 }}>${mDirectEarn.toFixed(2)}</div>
             <div style={{ fontSize:10, color:'rgba(255,255,255,.4)', marginTop:2 }}>{props.matrixDirect} × ${mPrice} × 15%</div>
           </div>
           <div style={{ background:'rgba(255,255,255,.08)', borderRadius:10, padding:14, textAlign:'center' }}>
@@ -411,8 +411,8 @@ function MatrixContent(props) {
       t('compPlan.nexusKey5'),
       t('compPlan.nexusKey6'),
       t('compPlan.nexusKey7'),
-    ]} color="#8b5cf6"/>
-    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'#64748b', textDecoration:'none' }}>{t('compPlan.incomeDisclaimer')}</Link></div>
+    ]} color="var(--sap-purple)"/>
+    <div style={{ textAlign:'center', marginTop:12 }}><Link to="/income-disclaimer" style={{ fontSize:13, color:'var(--sap-text-muted)', textDecoration:'none' }}>{t('compPlan.incomeDisclaimer')}</Link></div>
   </>;
 }
 
@@ -424,9 +424,9 @@ function CoursesContent() {
   var { t } = useTranslation();
   return <>
     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:20 }}>
-      <CommBox val="100%" label={t('compPlan.firstSale')} sub={t('compPlan.keepEveryPenny')} color="#16a34a" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
-      <CommBox val="Pass-up" label={t('compPlan.cascadeSystem')} sub={t('compPlan.subsequentSales')} color="#f59e0b" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
-      <CommBox val="3 Tiers" label="$100 / $300 / $500" sub="Course price points" color="#8b5cf6" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
+      <CommBox val="100%" label={t('compPlan.firstSale')} sub={t('compPlan.keepEveryPenny')} color="var(--sap-green)" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
+      <CommBox val="Pass-up" label={t('compPlan.cascadeSystem')} sub={t('compPlan.subsequentSales')} color="var(--sap-amber)" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
+      <CommBox val="3 Tiers" label="$100 / $300 / $500" sub="Course price points" color="var(--sap-purple)" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
     </div>
 
     <InfoBox items={[
@@ -436,7 +436,7 @@ function CoursesContent() {
       t('compPlan.courseKey4'),
       t('compPlan.courseKey5'),
       t('compPlan.courseKey6'),
-    ]} color="#f59e0b"/>
+    ]} color="var(--sap-amber)"/>
   </>;
 }
 
@@ -448,9 +448,9 @@ function FlowArrow(props) {
     <div style={{ display:'grid', gridTemplateColumns:'1fr auto 1fr auto 1fr', alignItems:'center', gap:0, marginBottom:20 }}>
       {props.steps.map(function(s, i) {
         return <div key={i} style={{ display:'contents' }}>
-          {i > 0 && <div style={{ textAlign:'center', fontSize:24, color:'#94a3b8', padding:'0 4px' }}>→</div>}
+          {i > 0 && <div style={{ textAlign:'center', fontSize:24, color:'var(--sap-text-faint)', padding:'0 4px' }}>→</div>}
           <div style={{ background:s.bg, border:'1px solid '+s.border, borderRadius:12, padding:'18px 14px', textAlign:'center' }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:15, fontWeight:800, color:'#0f172a' }}>{s.title}</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:15, fontWeight:800, color:'var(--sap-text-primary)' }}>{s.title}</div>
             <div style={{ fontSize:13, marginTop:4, fontWeight:600, color:s.color }}>{s.sub}</div>
           </div>
         </div>;
@@ -463,8 +463,8 @@ function CommBox(props) {
   return (
     <div style={{ background:props.bg, border:'1px solid '+props.border, borderRadius:12, padding:'18px 14px', textAlign:'center' }}>
       <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:props.color, lineHeight:1 }}>{props.val}</div>
-      <div style={{ fontSize:13, fontWeight:700, color:'#0f172a', marginTop:6 }}>{props.label}</div>
-      <div style={{ fontSize:11, color:'#64748b', marginTop:3 }}>{props.sub}</div>
+      <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-primary)', marginTop:6 }}>{props.label}</div>
+      <div style={{ fontSize:11, color:'var(--sap-text-muted)', marginTop:3 }}>{props.sub}</div>
     </div>
   );
 }
@@ -474,12 +474,12 @@ function EarnTable(props) {
     <div style={{ overflowX:'auto', marginBottom:14 }}>
       <table style={{ width:'100%', borderCollapse:'separate', borderSpacing:0 }}>
         <thead><tr>{props.headers.map(function(h, i) {
-          return <th key={i} style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:.5, padding:'10px 14px', textAlign: i === props.headers.length-1 ? 'right' : 'left', borderBottom:'2px solid #f1f5f9' }}>{h}</th>;
+          return <th key={i} style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5, padding:'10px 14px', textAlign: i === props.headers.length-1 ? 'right' : 'left', borderBottom:'2px solid #f1f5f9' }}>{h}</th>;
         })}</tr></thead>
         <tbody>{props.rows.map(function(row, ri) {
           var isLast = ri === props.rows.length - 1;
           return <tr key={ri}>{row.map(function(cell, ci) {
-            return <td key={ci} style={{ fontSize:14, padding:'12px 14px', borderBottom: isLast ? 'none' : '1px solid #f8fafc', textAlign: ci === row.length-1 ? 'right' : 'left', fontFamily: ci === row.length-1 ? 'Sora,sans-serif' : 'inherit', fontWeight: (ci === row.length-1 || (isLast && props.boldLast)) ? 700 : 400, color:'#0f172a' }}>{cell}</td>;
+            return <td key={ci} style={{ fontSize:14, padding:'12px 14px', borderBottom: isLast ? 'none' : '1px solid #f8fafc', textAlign: ci === row.length-1 ? 'right' : 'left', fontFamily: ci === row.length-1 ? 'Sora,sans-serif' : 'inherit', fontWeight: (ci === row.length-1 || (isLast && props.boldLast)) ? 700 : 400, color:'var(--sap-text-primary)' }}>{cell}</td>;
           })}</tr>;
         })}</tbody>
       </table>
@@ -490,12 +490,12 @@ function EarnTable(props) {
 function InfoBox(props) {
   var { t } = useTranslation();
   return (
-    <div style={{ background:'#f8fafc', borderRadius:12, padding:'18px 22px', marginTop:16 }}>
-      <div style={{ fontSize:15, fontWeight:700, color:'#0f172a', marginBottom:10 }}>{t('compPlan.keyThings')}</div>
+    <div style={{ background:'var(--sap-bg-elevated)', borderRadius:12, padding:'18px 22px', marginTop:16 }}>
+      <div style={{ fontSize:15, fontWeight:700, color:'var(--sap-text-primary)', marginBottom:10 }}>{t('compPlan.keyThings')}</div>
       {props.items.map(function(item, i) {
         return <div key={i} style={{ display:'flex', gap:10, alignItems:'flex-start', marginBottom: i < props.items.length - 1 ? 10 : 0 }}>
           <div style={{ width:6, height:6, borderRadius:'50%', background:props.color, marginTop:8, flexShrink:0 }}/>
-          <div style={{ fontSize:15, color:'#475569', lineHeight:1.7 }}>{item}</div>
+          <div style={{ fontSize:15, color:'var(--sap-text-secondary)', lineHeight:1.7 }}>{item}</div>
         </div>;
       })}
     </div>
@@ -508,7 +508,7 @@ function TreeNode(props) {
     direct: { background:'linear-gradient(135deg,#78350f,#b45309,#fbbf24)', color:'#fff' },
     spill:  { background:'linear-gradient(135deg,#064e3b,#047857,#10b981)', color:'#fff' },
     spill2: { background:'linear-gradient(135deg,#064e3b,#047857,#10b981)', color:'#fff', opacity:.7 },
-    empty:  { background:'#f1f5f9', border:'2px dashed #e2e8f0', color:'#94a3b8' },
+    empty:  { background:'var(--sap-bg-page)', border:'2px dashed #e2e8f0', color:'var(--sap-text-faint)' },
   };
   var s = styles[props.type] || styles.empty;
   var label = props.type === 'you' ? (props.label || 'You') : props.type === 'direct' ? '★' : props.type === 'empty' ? '' : '↓';
@@ -519,12 +519,12 @@ function SliderRow(props) {
   return (
     <div style={{ marginBottom:16 }}>
       <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:8 }}>
-        <span style={{ fontSize:14, fontWeight:600, color:'#475569' }}>{props.label}</span>
-        <span style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:700, color:'#0f172a' }}>{props.display}</span>
+        <span style={{ fontSize:14, fontWeight:600, color:'var(--sap-text-secondary)' }}>{props.label}</span>
+        <span style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:700, color:'var(--sap-text-primary)' }}>{props.display}</span>
       </div>
       <input type="range" min={props.min} max={props.max} value={props.value}
         onChange={function(e){ props.onChange(parseInt(e.target.value)); }}
-        style={{ width:'100%', accentColor: props.color || '#6366f1' }}/>
+        style={{ width:'100%', accentColor: props.color || 'var(--sap-indigo)' }}/>
     </div>
   );
 }

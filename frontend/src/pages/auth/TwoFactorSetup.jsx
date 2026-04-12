@@ -88,7 +88,7 @@ export default function TwoFactorSetup() {
 
       <div style={styles.card}>
         <div style={styles.logoRow}>
-          <span style={styles.logoText}>SuperAd<span style={{ color: '#38bdf8' }}>Pro</span></span>
+          <span style={styles.logoText}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span></span>
         </div>
 
         <h1 style={styles.heading}>{t('auth.setup2FA')}</h1>
@@ -98,7 +98,7 @@ export default function TwoFactorSetup() {
         <div style={styles.steps}>
           {[t('auth.scanQR'), t('auth.verify')].map((s, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-              <div style={{ ...styles.stepDot, background: step >= i + 2 ? '#0ea5e9' : 'rgba(255,255,255,.1)', color: step >= i + 2 ? '#fff' : 'rgba(255,255,255,.3)' }}>{i + 1}</div>
+              <div style={{ ...styles.stepDot, background: step >= i + 2 ? 'var(--sap-accent)' : 'rgba(255,255,255,.1)', color: step >= i + 2 ? '#fff' : 'rgba(255,255,255,.3)' }}>{i + 1}</div>
               <span style={{ fontSize: 12, fontWeight: 700, color: step >= i + 2 ? '#7dd3fc' : 'rgba(255,255,255,.3)' }}>{s}</span>
               {i === 0 && <div style={{ width: 24, height: 1, background: 'rgba(255,255,255,.15)' }} />}
             </div>
@@ -171,7 +171,7 @@ export default function TwoFactorSetup() {
 }
 
 const styles = {
-  page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#172554', padding: 20, position: 'relative', overflow: 'hidden', fontFamily: "'DM Sans', sans-serif" },
+  page: { minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--sap-cobalt-deep)', padding: 20, position: 'relative', overflow: 'hidden', fontFamily: "'DM Sans', sans-serif" },
   bg: { position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 60% 50% at 50% 0%, rgba(14,165,233,.12) 0%, transparent 70%)', pointerEvents: 'none' },
   card: { position: 'relative', zIndex: 1, width: '100%', maxWidth: 440, background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 20, padding: '40px 36px', backdropFilter: 'blur(20px)', textAlign: 'center' },
   logoRow: { marginBottom: 20 },
@@ -188,7 +188,7 @@ const styles = {
   secretLabel: { fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,.4)', textTransform: 'uppercase', letterSpacing: '.05em', marginBottom: 8 },
   secretRow: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 },
   secretCode: { flex: 1, fontSize: 13, fontFamily: 'monospace', color: '#7dd3fc', wordBreak: 'break-all', letterSpacing: '.05em' },
-  copyBtn: { padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(56,189,248,.3)', background: 'rgba(56,189,248,.1)', color: '#38bdf8', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", whiteSpace: 'nowrap' },
+  copyBtn: { padding: '4px 10px', borderRadius: 6, border: '1px solid rgba(56,189,248,.3)', background: 'rgba(56,189,248,.1)', color: 'var(--sap-accent-light)', fontSize: 11, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", whiteSpace: 'nowrap' },
   secretEmail: { fontSize: 11, color: 'rgba(255,255,255,.3)' },
   btn: { display: 'block', width: '100%', padding: '14px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", textDecoration: 'none', textAlign: 'center', boxSizing: 'border-box' },
   errorBox: { background: 'rgba(239,68,68,.12)', border: '1px solid rgba(239,68,68,.3)', borderRadius: 10, padding: '12px 14px', fontSize: 13, color: '#fca5a5', marginBottom: 20 },

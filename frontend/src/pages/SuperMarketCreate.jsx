@@ -70,19 +70,19 @@ export default function SuperMarketCreate() {
 
   var catObj = CATEGORIES.find(function(c){return c.key===category;});
   var iS = {width:'100%',padding:'14px 18px',border:'2px solid #e8ecf2',borderRadius:12,fontSize:15,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff',transition:'border .2s'};
-  function focusStyle(e){e.target.style.borderColor='#0ea5e9';}
-  function blurStyle(e){e.target.style.borderColor='#e8ecf2';}
+  function focusStyle(e){e.target.style.borderColor='var(--sap-accent)';}
+  function blurStyle(e){e.target.style.borderColor='var(--sap-border-light)';}
 
   if(success) return(
     <AppLayout title="SuperMarket" subtitle="Product submitted">
       <div style={{maxWidth:600,margin:'40px auto',textAlign:'center'}}>
         <div style={{width:88,height:88,borderRadius:'50%',background:'linear-gradient(135deg,#dcfce7,#bbf7d0)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 24px',fontSize:40}}>🎉</div>
-        <h2 style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:900,color:'#0f172a',margin:'0 0 12px'}}>Product Submitted!</h2>
-        <p style={{fontSize:15,color:'#64748b',lineHeight:1.8,maxWidth:440,margin:'0 auto 28px'}}>Your product is now being reviewed. You'll receive a notification and email when it's approved and live on SuperMarket.</p>
-        <div style={{background:'#f8f9fb',borderRadius:14,padding:'20px 24px',maxWidth:400,margin:'0 auto 28px',textAlign:'left'}}>
-          <div style={{fontSize:13,fontWeight:800,color:'#0f172a',marginBottom:10}}>What happens next</div>
+        <h2 style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:900,color:'var(--sap-text-primary)',margin:'0 0 12px'}}>Product Submitted!</h2>
+        <p style={{fontSize:15,color:'var(--sap-text-muted)',lineHeight:1.8,maxWidth:440,margin:'0 auto 28px'}}>Your product is now being reviewed. You'll receive a notification and email when it's approved and live on SuperMarket.</p>
+        <div style={{background:'var(--sap-bg-input)',borderRadius:14,padding:'20px 24px',maxWidth:400,margin:'0 auto 28px',textAlign:'left'}}>
+          <div style={{fontSize:13,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:10}}>What happens next</div>
           {['AI scans content for quality & compliance','Admin reviews your product listing','You get notified when it goes live','Affiliates start promoting your product'].map(function(s,i){
-            return <div key={i} style={{display:'flex',gap:10,padding:'6px 0',fontSize:13,color:'#475569'}}><div style={{width:22,height:22,borderRadius:'50%',background:'#0ea5e9',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:800,flexShrink:0}}>{i+1}</div>{s}</div>;
+            return <div key={i} style={{display:'flex',gap:10,padding:'6px 0',fontSize:13,color:'var(--sap-text-secondary)'}}><div style={{width:22,height:22,borderRadius:'50%',background:'var(--sap-accent)',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:800,flexShrink:0}}>{i+1}</div>{s}</div>;
           })}
         </div>
         <button onClick={function(){navigate('/marketplace');}} style={{padding:'14px 36px',borderRadius:12,border:'none',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontSize:15,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',boxShadow:'0 4px 20px rgba(14,165,233,.3)'}}>Go to SuperMarket</button>
@@ -102,23 +102,23 @@ export default function SuperMarketCreate() {
               var done=i<step;var on=i===step;
               return(<div key={s.key} style={{display:'flex',alignItems:'center',flex:1}}>
                 <div style={{width:32,height:32,borderRadius:'50%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:800,
-                  background:done?'#0ea5e9':on?'linear-gradient(135deg,#0ea5e9,#38bdf8)':'#e8ecf2',
-                  color:done||on?'#fff':'#64748b',boxShadow:on?'0 4px 14px rgba(14,165,233,.3)':'none',transition:'all .3s'}}>
+                  background:done?'var(--sap-accent)':on?'linear-gradient(135deg,#0ea5e9,#38bdf8)':'var(--sap-border-light)',
+                  color:done||on?'#fff':'var(--sap-text-muted)',boxShadow:on?'0 4px 14px rgba(14,165,233,.3)':'none',transition:'all .3s'}}>
                   {done?'✓':s.num}
                 </div>
-                {i<STEPS.length-1&&<div style={{flex:1,height:2,background:done?'#0ea5e9':'#e8ecf2',margin:'0 6px',transition:'all .3s'}}/>}
+                {i<STEPS.length-1&&<div style={{flex:1,height:2,background:done?'var(--sap-accent)':'var(--sap-border-light)',margin:'0 6px',transition:'all .3s'}}/>}
               </div>);
             })}
           </div>
 
-          {error&&<div style={{display:'flex',alignItems:'center',gap:8,padding:'12px 16px',background:'linear-gradient(135deg,#fef2f2,#fff1f2)',borderRadius:12,border:'1px solid #fecaca',marginBottom:20}}><AlertTriangle size={16} color="#dc2626"/><div style={{fontSize:13,fontWeight:600,color:'#dc2626'}}>{error}</div></div>}
+          {error&&<div style={{display:'flex',alignItems:'center',gap:8,padding:'12px 16px',background:'linear-gradient(135deg,#fef2f2,#fff1f2)',borderRadius:12,border:'1px solid #fecaca',marginBottom:20}}><AlertTriangle size={16} color="var(--sap-red)"/><div style={{fontSize:13,fontWeight:600,color:'var(--sap-red)'}}>{error}</div></div>}
 
           {/* STEP 1 */}
           {step===0&&(
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
-                <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>What are you selling?</h3>
-                <p style={{fontSize:13,color:'#64748b',margin:0}}>Start with the basics — you can always edit later</p>
+                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>What are you selling?</h3>
+                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>Start with the basics — you can always edit later</p>
               </div>
               <div style={{padding:'28px 32px'}}>
                 <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Product Name</label><input value={title} onChange={function(e){setTitle(e.target.value);}} placeholder="e.g. Social Media Template Pack Pro" style={iS} onFocus={focusStyle} onBlur={blurStyle}/></div>
@@ -129,7 +129,7 @@ export default function SuperMarketCreate() {
                     {CATEGORIES.map(function(c){var on=category===c.key;return(
                       <button key={c.key} onClick={function(){setCategory(c.key);}} style={{padding:'12px',borderRadius:10,cursor:'pointer',fontFamily:'inherit',textAlign:'center',border:on?'2px solid #0ea5e9':'2px solid #f1f3f7',background:on?'rgba(14,165,233,.04)':'#fafbfc',transition:'all .15s'}}>
                         <div style={{fontSize:20,marginBottom:2}}>{c.icon}</div>
-                        <div style={{fontSize:11,fontWeight:on?800:600,color:on?'#0ea5e9':'#64748b'}}>{c.label}</div>
+                        <div style={{fontSize:11,fontWeight:on?800:600,color:on?'var(--sap-accent)':'var(--sap-text-muted)'}}>{c.label}</div>
                       </button>);
                     })}
                   </div>
@@ -138,17 +138,17 @@ export default function SuperMarketCreate() {
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:22}}>
                   <div>
                     <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Price</label>
-                    <div style={{position:'relative'}}><span style={{position:'absolute',left:16,top:14,fontSize:18,fontWeight:800,color:'#cbd5e1'}}>$</span><input type="number" min="5" value={price} onChange={function(e){setPrice(e.target.value);}} placeholder="27" style={Object.assign({},iS,{paddingLeft:34,fontSize:20,fontWeight:800,fontFamily:'Sora,sans-serif'})} onFocus={focusStyle} onBlur={blurStyle}/></div>
+                    <div style={{position:'relative'}}><span style={{position:'absolute',left:16,top:14,fontSize:18,fontWeight:800,color:'var(--sap-text-ghost)'}}>$</span><input type="number" min="5" value={price} onChange={function(e){setPrice(e.target.value);}} placeholder="27" style={Object.assign({},iS,{paddingLeft:34,fontSize:20,fontWeight:800,fontFamily:'Sora,sans-serif'})} onFocus={focusStyle} onBlur={blurStyle}/></div>
                   </div>
                   <div>
-                    <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Compare Price <span style={{color:'#cbd5e1',fontWeight:400}}>(optional)</span></label>
-                    <div style={{position:'relative'}}><span style={{position:'absolute',left:16,top:14,fontSize:18,fontWeight:800,color:'#cbd5e1'}}>$</span><input type="number" value={comparePrice} onChange={function(e){setComparePrice(e.target.value);}} placeholder="97" style={Object.assign({},iS,{paddingLeft:34,fontSize:20,fontWeight:800,fontFamily:'Sora,sans-serif'})} onFocus={focusStyle} onBlur={blurStyle}/></div>
+                    <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Compare Price <span style={{color:'var(--sap-text-ghost)',fontWeight:400}}>(optional)</span></label>
+                    <div style={{position:'relative'}}><span style={{position:'absolute',left:16,top:14,fontSize:18,fontWeight:800,color:'var(--sap-text-ghost)'}}>$</span><input type="number" value={comparePrice} onChange={function(e){setComparePrice(e.target.value);}} placeholder="97" style={Object.assign({},iS,{paddingLeft:34,fontSize:20,fontWeight:800,fontFamily:'Sora,sans-serif'})} onFocus={focusStyle} onBlur={blurStyle}/></div>
                   </div>
                 </div>
 
-                <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>One-Line Summary</label><input value={shortDesc} onChange={function(e){setShortDesc(e.target.value);}} maxLength={200} placeholder="The hook that makes people click" style={iS} onFocus={focusStyle} onBlur={blurStyle}/><div style={{textAlign:'right',fontSize:10,color:'#cbd5e1',marginTop:4}}>{shortDesc.length}/200</div></div>
+                <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>One-Line Summary</label><input value={shortDesc} onChange={function(e){setShortDesc(e.target.value);}} maxLength={200} placeholder="The hook that makes people click" style={iS} onFocus={focusStyle} onBlur={blurStyle}/><div style={{textAlign:'right',fontSize:10,color:'var(--sap-text-ghost)',marginTop:4}}>{shortDesc.length}/200</div></div>
 
-                <div><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Tags <span style={{color:'#cbd5e1',fontWeight:400}}>(comma separated)</span></label><input value={tags} onChange={function(e){setTags(e.target.value);}} placeholder="marketing, templates, social media" style={iS} onFocus={focusStyle} onBlur={blurStyle}/></div>
+                <div><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Tags <span style={{color:'var(--sap-text-ghost)',fontWeight:400}}>(comma separated)</span></label><input value={tags} onChange={function(e){setTags(e.target.value);}} placeholder="marketing, templates, social media" style={iS} onFocus={focusStyle} onBlur={blurStyle}/></div>
               </div>
             </div>
           )}
@@ -157,22 +157,22 @@ export default function SuperMarketCreate() {
           {step===1&&(
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
-                <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Build Your Sales Page</h3>
-                <p style={{fontSize:13,color:'#64748b',margin:0}}>This is what convinces people to buy — make it count</p>
+                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Build Your Sales Page</h3>
+                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>This is what convinces people to buy — make it count</p>
               </div>
               <div style={{padding:'28px 32px'}}>
                 <div style={{marginBottom:22}}>
                   <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Product Banner</label>
                   {bannerUrl?(<div style={{width:'100%',height:180,borderRadius:12,backgroundImage:'url('+bannerUrl+')',backgroundSize:'cover',backgroundPosition:'center',position:'relative',marginBottom:8}}><button onClick={function(){setBannerUrl('');}} style={{position:'absolute',top:8,right:8,width:28,height:28,borderRadius:'50%',border:'none',background:'rgba(0,0,0,.6)',color:'#fff',fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>×</button></div>):(
-                    <label style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8,padding:'36px',borderRadius:12,border:'2px dashed #d1d5db',cursor:'pointer',transition:'all .2s'}} onMouseEnter={function(e){e.currentTarget.style.borderColor='#0ea5e9';e.currentTarget.style.background='rgba(14,165,233,.02)';}} onMouseLeave={function(e){e.currentTarget.style.borderColor='#d1d5db';e.currentTarget.style.background='transparent';}}>
-                      <Image size={28} color="#0ea5e9"/><div style={{fontSize:14,fontWeight:600,color:'#475569'}}>Drop image or click to upload</div><div style={{fontSize:11,color:'#cbd5e1'}}>1280×720 recommended</div><input type="file" accept="image/*" onChange={handleBanner} style={{display:'none'}}/>
+                    <label style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8,padding:'36px',borderRadius:12,border:'2px dashed #d1d5db',cursor:'pointer',transition:'all .2s'}} onMouseEnter={function(e){e.currentTarget.style.borderColor='var(--sap-accent)';e.currentTarget.style.background='rgba(14,165,233,.02)';}} onMouseLeave={function(e){e.currentTarget.style.borderColor='#d1d5db';e.currentTarget.style.background='transparent';}}>
+                      <Image size={28} color="var(--sap-accent)"/><div style={{fontSize:14,fontWeight:600,color:'var(--sap-text-secondary)'}}>Drop image or click to upload</div><div style={{fontSize:11,color:'var(--sap-text-ghost)'}}>1280×720 recommended</div><input type="file" accept="image/*" onChange={handleBanner} style={{display:'none'}}/>
                     </label>)}
                 </div>
-                <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Sales Video <span style={{color:'#cbd5e1',fontWeight:400}}>(optional)</span></label><input value={videoUrl} onChange={function(e){setVideoUrl(e.target.value);}} placeholder="YouTube or Vimeo URL" style={iS} onFocus={focusStyle} onBlur={blurStyle}/></div>
+                <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Sales Video <span style={{color:'var(--sap-text-ghost)',fontWeight:400}}>(optional)</span></label><input value={videoUrl} onChange={function(e){setVideoUrl(e.target.value);}} placeholder="YouTube or Vimeo URL" style={iS} onFocus={focusStyle} onBlur={blurStyle}/></div>
                 <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Product Description</label><RichTextEditor content={description} onChange={setDescription} placeholder="What does your product do? Who is it for? Why should they buy it?"/></div>
                 <div>
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><label style={{fontSize:13,fontWeight:700,color:'#334155'}}>Key Features</label><button onClick={function(){setFeatures(features.concat(['']));}} style={{fontSize:11,fontWeight:700,padding:'5px 10px',borderRadius:6,border:'1px solid #e8ecf2',background:'#fff',color:'#0ea5e9',cursor:'pointer',fontFamily:'inherit'}}>+ Add</button></div>
-                  {features.map(function(f,i){return(<div key={i} style={{display:'flex',gap:6,marginBottom:5}}><CheckCircle size={18} color="#10b981" style={{marginTop:10,flexShrink:0}}/><input value={f} onChange={function(e){setFeatures(features.map(function(v,j){return j===i?e.target.value:v;}));}} placeholder="e.g. 50+ ready-to-use templates" style={Object.assign({},iS,{flex:1})} onFocus={focusStyle} onBlur={blurStyle}/>{features.length>1&&<button onClick={function(){setFeatures(features.filter(function(v,j){return j!==i;}));}} style={{color:'#dc2626',background:'none',border:'none',cursor:'pointer',marginTop:8}}><Trash2 size={14}/></button>}</div>);})}
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><label style={{fontSize:13,fontWeight:700,color:'#334155'}}>Key Features</label><button onClick={function(){setFeatures(features.concat(['']));}} style={{fontSize:11,fontWeight:700,padding:'5px 10px',borderRadius:6,border:'1px solid #e8ecf2',background:'#fff',color:'var(--sap-accent)',cursor:'pointer',fontFamily:'inherit'}}>+ Add</button></div>
+                  {features.map(function(f,i){return(<div key={i} style={{display:'flex',gap:6,marginBottom:5}}><CheckCircle size={18} color="var(--sap-green-mid)" style={{marginTop:10,flexShrink:0}}/><input value={f} onChange={function(e){setFeatures(features.map(function(v,j){return j===i?e.target.value:v;}));}} placeholder="e.g. 50+ ready-to-use templates" style={Object.assign({},iS,{flex:1})} onFocus={focusStyle} onBlur={blurStyle}/>{features.length>1&&<button onClick={function(){setFeatures(features.filter(function(v,j){return j!==i;}));}} style={{color:'var(--sap-red)',background:'none',border:'none',cursor:'pointer',marginTop:8}}><Trash2 size={14}/></button>}</div>);})}
                 </div>
               </div>
             </div>
@@ -182,24 +182,24 @@ export default function SuperMarketCreate() {
           {step===2&&(
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
-                <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Upload Your Files</h3>
-                <p style={{fontSize:13,color:'#64748b',margin:0}}>Delivered instantly after purchase</p>
+                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Upload Your Files</h3>
+                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>Delivered instantly after purchase</p>
               </div>
               <div style={{padding:'28px 32px'}}>
                 <div style={{marginBottom:22}}>
-                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Product File <span style={{color:'#dc2626'}}>*</span></label>
-                  <label style={{display:'flex',flexDirection:'column',alignItems:'center',gap:10,padding:'44px 20px',borderRadius:14,border:mainFile?'2px solid #10b981':'2px dashed #d1d5db',background:mainFile?'#f0fdf4':'#fafbfc',cursor:'pointer',transition:'all .2s'}}>
-                    {mainFile?<CheckCircle size={32} color="#10b981"/>:<Upload size={32} color="#0ea5e9"/>}
-                    <div style={{fontSize:15,fontWeight:700,color:mainFile?'#10b981':'#475569'}}>{mainFile?mainFile.name:'Click to upload product file'}</div>
-                    <div style={{fontSize:12,color:'#64748b'}}>{mainFile?Math.round(mainFile.size/1024)+'KB':'PDF, ZIP, MP4, MP3 — any digital file up to 50MB'}</div>
+                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Product File <span style={{color:'var(--sap-red)'}}>*</span></label>
+                  <label style={{display:'flex',flexDirection:'column',alignItems:'center',gap:10,padding:'44px 20px',borderRadius:14,border:mainFile?'2px solid #10b981':'2px dashed #d1d5db',background:mainFile?'var(--sap-green-bg)':'#fafbfc',cursor:'pointer',transition:'all .2s'}}>
+                    {mainFile?<CheckCircle size={32} color="var(--sap-green-mid)"/>:<Upload size={32} color="var(--sap-accent)"/>}
+                    <div style={{fontSize:15,fontWeight:700,color:mainFile?'var(--sap-green-mid)':'var(--sap-text-secondary)'}}>{mainFile?mainFile.name:'Click to upload product file'}</div>
+                    <div style={{fontSize:12,color:'var(--sap-text-muted)'}}>{mainFile?Math.round(mainFile.size/1024)+'KB':'PDF, ZIP, MP4, MP3 — any digital file up to 50MB'}</div>
                     <input type="file" onChange={function(e){handleFile(e,'main');}} style={{display:'none'}}/>
                   </label>
                 </div>
                 <div>
-                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Bonus File <span style={{color:'#cbd5e1',fontWeight:400}}>(optional — increases value)</span></label>
+                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Bonus File <span style={{color:'var(--sap-text-ghost)',fontWeight:400}}>(optional — increases value)</span></label>
                   <label style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8,padding:'28px 20px',borderRadius:14,border:bonusFile?'2px solid #8b5cf6':'2px dashed #d1d5db',background:bonusFile?'rgba(139,92,246,.03)':'#fafbfc',cursor:'pointer'}}>
-                    {bonusFile?<CheckCircle size={24} color="#8b5cf6"/>:<Sparkles size={24} color="#8b5cf6"/>}
-                    <div style={{fontSize:13,fontWeight:600,color:bonusFile?'#8b5cf6':'#475569'}}>{bonusFile?bonusFile.name:'Upload bonus file'}</div>
+                    {bonusFile?<CheckCircle size={24} color="var(--sap-purple)"/>:<Sparkles size={24} color="var(--sap-purple)"/>}
+                    <div style={{fontSize:13,fontWeight:600,color:bonusFile?'var(--sap-purple)':'var(--sap-text-secondary)'}}>{bonusFile?bonusFile.name:'Upload bonus file'}</div>
                     <input type="file" onChange={function(e){handleFile(e,'bonus');}} style={{display:'none'}}/>
                   </label>
                 </div>
@@ -211,20 +211,20 @@ export default function SuperMarketCreate() {
           {step===3&&(
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
-                <h3 style={{fontSize:20,fontWeight:800,color:'#0f172a',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Review & Submit</h3>
-                <p style={{fontSize:13,color:'#64748b',margin:0}}>Check everything looks good, then agree to the terms</p>
+                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Review & Submit</h3>
+                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>Check everything looks good, then agree to the terms</p>
               </div>
               <div style={{padding:'28px 32px'}}>
                 {/* Checklist */}
                 <div style={{marginBottom:20}}>
                   {[{ok:!!(title&&title.length>=5),l:'Product title'},{ok:!!category,l:'Category selected'},{ok:parseFloat(price)>=5,l:'Price set ($5+)'},{ok:description&&description.replace(/<[^>]+>/g,'').length>=50,l:'Sales description (50+ chars)'},{ok:!!mainFile,l:'Product file uploaded'},{ok:!!bannerUrl,l:'Banner image'}].map(function(c,i){
-                    return <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 0'}}><div style={{width:20,height:20,borderRadius:'50%',background:c.ok?'#dcfce7':'#fef2f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:800,color:c.ok?'#10b981':'#dc2626'}}>{c.ok?'✓':'✗'}</div><span style={{fontSize:13,color:c.ok?'#334155':'#64748b',fontWeight:c.ok?600:400}}>{c.l}</span></div>;
+                    return <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 0'}}><div style={{width:20,height:20,borderRadius:'50%',background:c.ok?'var(--sap-green-bg-mid)':'var(--sap-red-bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:800,color:c.ok?'var(--sap-green-mid)':'var(--sap-red)'}}>{c.ok?'✓':'✗'}</div><span style={{fontSize:13,color:c.ok?'#334155':'var(--sap-text-muted)',fontWeight:c.ok?600:400}}>{c.l}</span></div>;
                   })}
                 </div>
                 {/* Terms */}
-                <div style={{background:'#f8f9fb',borderRadius:12,padding:'18px 20px',marginBottom:20}}>
-                  <div style={{fontSize:13,fontWeight:700,color:'#0f172a',marginBottom:8}}>Seller Terms</div>
-                  <div style={{fontSize:11,color:'#64748b',lineHeight:1.9}}>
+                <div style={{background:'var(--sap-bg-input)',borderRadius:12,padding:'18px 20px',marginBottom:20}}>
+                  <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:8}}>Seller Terms</div>
+                  <div style={{fontSize:11,color:'var(--sap-text-muted)',lineHeight:1.9}}>
                     <div>1. All content must be original or properly licensed</div>
                     <div>2. No illegal, harmful, or misleading material</div>
                     <div>3. You indemnify SuperAdPro from product claims</div>
@@ -233,8 +233,8 @@ export default function SuperMarketCreate() {
                   </div>
                 </div>
                 <label style={{display:'flex',alignItems:'flex-start',gap:10,cursor:'pointer',padding:'14px 16px',borderRadius:12,border:agreedTerms?'2px solid #0ea5e9':'2px solid #e8ecf2',background:agreedTerms?'rgba(14,165,233,.02)':'transparent',transition:'all .15s'}}>
-                  <input type="checkbox" checked={agreedTerms} onChange={function(){setAgreedTerms(!agreedTerms);}} style={{marginTop:2,accentColor:'#0ea5e9',width:18,height:18}}/>
-                  <span style={{fontSize:13,fontWeight:600,color:'#0f172a',lineHeight:1.6}}>I agree to the Seller Terms and confirm my product is original</span>
+                  <input type="checkbox" checked={agreedTerms} onChange={function(){setAgreedTerms(!agreedTerms);}} style={{marginTop:2,accentColor:'var(--sap-accent)',width:18,height:18}}/>
+                  <span style={{fontSize:13,fontWeight:600,color:'var(--sap-text-primary)',lineHeight:1.6}}>I agree to the Seller Terms and confirm my product is original</span>
                 </label>
               </div>
             </div>
@@ -242,9 +242,9 @@ export default function SuperMarketCreate() {
 
           {/* Nav buttons */}
           <div style={{display:'flex',justifyContent:'space-between',marginTop:20,paddingBottom:30}}>
-            {step>0?<button onClick={function(){setError('');setStep(step-1);}} style={{display:'flex',alignItems:'center',gap:4,padding:'12px 24px',borderRadius:10,border:'2px solid #e8ecf2',background:'#fff',color:'#64748b',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}><ChevronLeft size={16}/>Back</button>:<div/>}
+            {step>0?<button onClick={function(){setError('');setStep(step-1);}} style={{display:'flex',alignItems:'center',gap:4,padding:'12px 24px',borderRadius:10,border:'2px solid #e8ecf2',background:'#fff',color:'var(--sap-text-muted)',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}><ChevronLeft size={16}/>Back</button>:<div/>}
             {step<3?<button onClick={nextStep} style={{display:'flex',alignItems:'center',gap:4,padding:'12px 28px',borderRadius:10,border:'none',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontSize:14,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',boxShadow:'0 4px 14px rgba(14,165,233,.25)'}}>Continue<ChevronRight size={16}/></button>:(
-              <button onClick={handleCreate} disabled={saving||!agreedTerms} style={{display:'flex',alignItems:'center',gap:6,padding:'14px 32px',borderRadius:10,border:'none',cursor:(saving||!agreedTerms)?'default':'pointer',fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,background:(saving||!agreedTerms)?'#cbd5e1':'linear-gradient(135deg,#10b981,#34d399)',color:'#fff',boxShadow:(saving||!agreedTerms)?'none':'0 4px 16px rgba(16,185,129,.3)'}}>
+              <button onClick={handleCreate} disabled={saving||!agreedTerms} style={{display:'flex',alignItems:'center',gap:6,padding:'14px 32px',borderRadius:10,border:'none',cursor:(saving||!agreedTerms)?'default':'pointer',fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,background:(saving||!agreedTerms)?'var(--sap-text-ghost)':'linear-gradient(135deg,#10b981,#34d399)',color:'#fff',boxShadow:(saving||!agreedTerms)?'none':'0 4px 16px rgba(16,185,129,.3)'}}>
                 {saving?'Submitting...':<><Sparkles size={16}/>List on SuperMarket</>}
               </button>)}
           </div>
@@ -252,7 +252,7 @@ export default function SuperMarketCreate() {
 
         {/* RIGHT — Live Preview Card */}
         <div style={{position:'sticky',top:24}}>
-          <div style={{fontSize:11,fontWeight:800,color:'#64748b',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Live Preview</div>
+          <div style={{fontSize:11,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Live Preview</div>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.06)',transition:'all .3s'}}>
             <div style={{aspectRatio:'16/9',background:'linear-gradient(135deg,#0b1729,#132240)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
               {bannerUrl?<img src={bannerUrl} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>:<div style={{fontSize:36,opacity:.15}}>{catObj?catObj.icon:'📦'}</div>}
@@ -266,21 +266,21 @@ export default function SuperMarketCreate() {
               </div>
             </div>
             <div style={{padding:'16px'}}>
-              <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:3,lineHeight:1.3}}>{title||'Your Product Name'}</div>
-              <div style={{fontSize:11,color:'#64748b',marginBottom:6}}>by You</div>
-              <div style={{fontSize:12,color:'#475569',lineHeight:1.6,marginBottom:10}}>{shortDesc||'Your one-line summary appears here'}</div>
+              <div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:3,lineHeight:1.3}}>{title||'Your Product Name'}</div>
+              <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:6}}>by You</div>
+              <div style={{fontSize:12,color:'var(--sap-text-secondary)',lineHeight:1.6,marginBottom:10}}>{shortDesc||'Your one-line summary appears here'}</div>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                {catObj&&<span style={{fontSize:9,fontWeight:700,padding:'3px 8px',borderRadius:5,background:'#f1f5f9',color:'#64748b'}}>{catObj.icon} {catObj.label}</span>}
-                {mainFile&&<span style={{fontSize:8,fontWeight:700,padding:'2px 6px',borderRadius:3,background:'#dcfce7',color:'#10b981'}}>✓ File ready</span>}
+                {catObj&&<span style={{fontSize:9,fontWeight:700,padding:'3px 8px',borderRadius:5,background:'var(--sap-bg-page)',color:'var(--sap-text-muted)'}}>{catObj.icon} {catObj.label}</span>}
+                {mainFile&&<span style={{fontSize:8,fontWeight:700,padding:'2px 6px',borderRadius:3,background:'var(--sap-green-bg-mid)',color:'var(--sap-green-mid)'}}>✓ File ready</span>}
               </div>
             </div>
           </div>
 
           {/* Earnings preview */}
-          <div style={{marginTop:12,background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:12,padding:'14px 16px'}}>
-            <div style={{fontSize:11,fontWeight:800,color:'#10b981',marginBottom:6}}>Your Earnings Per Sale</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:900,color:'#10b981'}}>${formatMoney((parseFloat(price)||0)*0.50)}</div>
-            <div style={{fontSize:10,color:'#64748b',marginTop:4}}>50% of ${parseFloat(price||0).toFixed(0)} · Affiliate gets ${formatMoney((parseFloat(price)||0)*0.25)}</div>
+          <div style={{marginTop:12,background:'var(--sap-green-bg)',border:'1px solid #bbf7d0',borderRadius:12,padding:'14px 16px'}}>
+            <div style={{fontSize:11,fontWeight:800,color:'var(--sap-green-mid)',marginBottom:6}}>Your Earnings Per Sale</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:900,color:'var(--sap-green-mid)'}}>${formatMoney((parseFloat(price)||0)*0.50)}</div>
+            <div style={{fontSize:10,color:'var(--sap-text-muted)',marginTop:4}}>50% of ${parseFloat(price||0).toFixed(0)} · Affiliate gets ${formatMoney((parseFloat(price)||0)*0.25)}</div>
           </div>
         </div>
       </div>

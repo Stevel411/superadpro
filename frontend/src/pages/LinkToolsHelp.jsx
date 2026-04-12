@@ -5,7 +5,7 @@ import { X, Search, ChevronDown, ChevronRight } from 'lucide-react';
 var HELP_SECTIONS = [
   {
     category: 'Getting Started',
-    color: '#0ea5e9',
+    color: 'var(--sap-accent)',
     items: [
       { title: 'What are Link Tools?', desc: 'Link Tools is your all-in-one URL management toolkit. Create short links that are easy to share, split-test traffic with rotators, track every click with detailed analytics, generate QR codes, and build UTM-tagged campaign URLs — all from one page.' },
       { title: 'Creating a Short Link', desc: 'Click the blue "New Short Link" button. Paste your destination URL, optionally set a custom slug (e.g. /go/my-offer), add a title for your reference, and hit Create. Your shortened link is ready to copy and share immediately.' },
@@ -15,7 +15,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'Short Links',
-    color: '#0ea5e9',
+    color: 'var(--sap-accent)',
     items: [
       { title: 'Custom Slugs', desc: 'When creating a link, enter a custom slug like "spring-sale" to get yoursite.com/go/spring-sale instead of a random code. Slugs must be at least 2 characters, use letters, numbers, and hyphens only. Each slug must be unique across all links and rotators.' },
       { title: 'Editing a Link', desc: 'Click the Edit button on any link card to change the destination URL, title, expiration date, click cap, or password. The short URL slug stays the same — only the destination changes. This is useful when campaigns end and you want to redirect traffic elsewhere.' },
@@ -25,7 +25,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'Link Rotators',
-    color: '#8b5cf6',
+    color: 'var(--sap-purple)',
     items: [
       { title: 'What is a Rotator?', desc: 'A rotator sends traffic to multiple destination URLs from a single short link. Use it to split-test landing pages, distribute traffic across offers, or cycle through different promotions automatically.' },
       { title: 'Rotation Modes', desc: 'Equal Split sends traffic evenly across all URLs. Weighted lets you set percentages (e.g. 70% to page A, 30% to page B). Sequential sends visitors to URLs in order — first visitor gets URL 1, second gets URL 2, and so on.' },
@@ -35,7 +35,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'QR Codes',
-    color: '#10b981',
+    color: 'var(--sap-green-mid)',
     items: [
       { title: 'Generating a QR Code', desc: 'Click the QR button on any link card to open the QR Code generator. A scannable QR code is instantly generated for that link\'s short URL. Scanning the code takes visitors to your redirect, so all clicks are still tracked.' },
       { title: 'Customising Your QR Code', desc: 'Change the size (128px to 1024px) for different uses — small for business cards, large for posters. Pick custom foreground and background colours to match your brand. The QR code updates in real-time as you change settings.' },
@@ -45,7 +45,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'UTM Builder',
-    color: '#f59e0b',
+    color: 'var(--sap-amber)',
     items: [
       { title: 'What are UTM Tags?', desc: 'UTM parameters are tags added to the end of a URL that tell analytics tools (Google Analytics, etc.) exactly where traffic came from. They track which campaigns, platforms, and content are driving your clicks and conversions.' },
       { title: 'Using the UTM Builder', desc: 'Click the "UTM Builder" button in the tab bar. Paste your base URL, fill in Source (required), Medium, Campaign, Term, and Content fields. The generated URL appears live below with all parameters appended. Copy it or click "Shorten This" to create a tracked short link.' },
@@ -56,7 +56,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'Password Protection',
-    color: '#dc2626',
+    color: 'var(--sap-red)',
     items: [
       { title: 'Adding a Password', desc: 'When creating a link, expand "Advanced Options" and enter a password. Or click Edit on an existing link and set one there. The password is securely hashed — nobody (including admins) can see the original password.' },
       { title: 'How It Works', desc: 'When someone clicks a password-protected link, instead of redirecting immediately, they see a dark-themed gate page asking for the password. After entering the correct password, they\'re redirected to the destination. Protected links show a lock icon on the card.' },
@@ -76,7 +76,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'Tags & Organisation',
-    color: '#8b5cf6',
+    color: 'var(--sap-purple)',
     items: [
       { title: 'Adding Tags', desc: 'Click the Tags button on any link card. Type a tag name and click Add (or press Enter). Choose from 8 colour presets before adding — Blue, Green, Purple, Orange, Pink, Cyan, Red, or Yellow. Tags appear as coloured chips on the link card.' },
       { title: 'Removing Tags', desc: 'In the tag editor, click the X on any tag to remove it. Click Save Tags to confirm your changes.' },
@@ -85,7 +85,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'Analytics',
-    color: '#10b981',
+    color: 'var(--sap-green-mid)',
     items: [
       { title: 'Viewing Analytics', desc: 'Click the Analytics button on any link or rotator card. A modal opens with full click data: total clicks, mobile vs desktop breakdown, 30-day click timeline chart, traffic source breakdown, and top countries.' },
       { title: 'Traffic Sources', desc: 'Shows where your clicks come from — Facebook, Google, Instagram, X/Twitter, LinkedIn, Reddit, TikTok, YouTube, WhatsApp, email, direct, and other. Sources are detected from the referrer header and UTM parameters.' },
@@ -96,7 +96,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'Stats Dashboard',
-    color: '#64748b',
+    color: 'var(--sap-text-muted)',
     items: [
       { title: 'Stat Cards', desc: 'The four cards at the top show: total Short Links created, total Rotators, combined Total Clicks across all links and rotators, and number of Password-Protected links. These update every time the page loads.' },
       { title: 'Tips for Growing Clicks', desc: 'Share your short links on social media with compelling calls to action. Use QR codes on physical materials. A/B test landing pages with rotators. Track which UTM campaigns perform best and double down on winners. Use tags to stay organised as your link count grows.' },
@@ -145,17 +145,17 @@ export default function LinkToolsHelp({ visible, onClose }) {
       }}>
         <div style={{ padding: '18px 20px', borderBottom: '1px solid #e8ecf2', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
-            <h2 style={{ margin: 0, fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, color: '#0f172a' }}>Link Tools Help</h2>
-            <p style={{ margin: '2px 0 0', fontSize: 12, color: '#94a3b8' }}>Everything you need to know about links, tracking & more</p>
+            <h2 style={{ margin: 0, fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, color: 'var(--sap-text-primary)' }}>Link Tools Help</h2>
+            <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--sap-text-faint)' }}>Everything you need to know about links, tracking & more</p>
           </div>
-          <button onClick={onClose} style={{ width: 32, height: 32, border: 'none', borderRadius: 8, background: '#f1f5f9', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <X size={16} color="#64748b" />
+          <button onClick={onClose} style={{ width: 32, height: 32, border: 'none', borderRadius: 8, background: 'var(--sap-bg-page)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <X size={16} color="var(--sap-text-muted)" />
           </button>
         </div>
 
         <div style={{ padding: '12px 20px', borderBottom: '1px solid #f1f5f9', flexShrink: 0 }}>
           <div style={{ position: 'relative' }}>
-            <Search size={14} color="#94a3b8" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
+            <Search size={14} color="var(--sap-text-faint)" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
             <input
               value={search} onChange={function(e) { setSearch(e.target.value); }}
               placeholder="Search help topics..."
@@ -174,13 +174,13 @@ export default function LinkToolsHelp({ visible, onClose }) {
                 >
                   {expanded[si] || q ? <ChevronDown size={14} color={section.color} /> : <ChevronRight size={14} color={section.color} />}
                   <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', color: section.color }}>{section.category}</span>
-                  <span style={{ fontSize: 10, color: '#cbd5e1', fontWeight: 600 }}>({section.items.length})</span>
+                  <span style={{ fontSize: 10, color: 'var(--sap-text-ghost)', fontWeight: 600 }}>({section.items.length})</span>
                 </div>
                 {(expanded[si] || q) && section.items.map(function(item, ii) {
                   return (
                     <div key={ii} style={{ padding: '10px 20px 10px 40px', borderBottom: '1px solid #f8f9fb' }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>{item.title}</div>
-                      <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.7 }}>{item.desc}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 4 }}>{item.title}</div>
+                      <div style={{ fontSize: 12, color: 'var(--sap-text-muted)', lineHeight: 1.7 }}>{item.desc}</div>
                     </div>
                   );
                 })}
@@ -188,7 +188,7 @@ export default function LinkToolsHelp({ visible, onClose }) {
             );
           })}
           {filtered.length === 0 && (
-            <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--sap-text-faint)', fontSize: 13 }}>
               No results for "{search}"
             </div>
           )}

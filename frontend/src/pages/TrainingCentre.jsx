@@ -34,17 +34,17 @@ export default function TrainingCentre() {
   var totalLessons = modules.reduce(function(a, m) { return a + m.lessons.length; }, 0);
   var doneLessons = Object.keys(completed).length;
 
-  if (loading) return <AppLayout title="Training Centre"><div style={{padding:40,textAlign:'center',color:'#64748b'}}>Loading...</div></AppLayout>;
+  if (loading) return <AppLayout title="Training Centre"><div style={{padding:40,textAlign:'center',color:'var(--sap-text-muted)'}}>Loading...</div></AppLayout>;
 
   return (
     <AppLayout title={t("training.title")} subtitle={t("training.subtitle")}>
       {/* Progress bar */}
       <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'20px 24px',marginBottom:20,boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
-          <div style={{fontSize:15,fontWeight:800,color:'#0f172a'}}>Your Progress</div>
-          <div style={{fontSize:13,fontWeight:700,color:'#0ea5e9'}}>{doneLessons}/{totalLessons} lessons</div>
+          <div style={{fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>Your Progress</div>
+          <div style={{fontSize:13,fontWeight:700,color:'var(--sap-accent)'}}>{doneLessons}/{totalLessons} lessons</div>
         </div>
-        <div style={{height:8,background:'#f1f5f9',borderRadius:4,overflow:'hidden'}}>
+        <div style={{height:8,background:'var(--sap-bg-page)',borderRadius:4,overflow:'hidden'}}>
           <div style={{height:'100%',width:(totalLessons>0?doneLessons/totalLessons*100:0)+'%',background:'linear-gradient(90deg,#0ea5e9,#38bdf8)',borderRadius:4,transition:'width .5s ease'}}/>
         </div>
       </div>
@@ -62,15 +62,15 @@ export default function TrainingCentre() {
                 <div style={{display:'flex',alignItems:'center',gap:12}}>
                   <div style={{fontSize:24}}>{mod.emoji}</div>
                   <div>
-                    <div style={{fontSize:15,fontWeight:800,color:'#0f172a'}}>{mod.title}</div>
-                    <div style={{fontSize:12,color:'#64748b',fontWeight:600}}>{modDone}/{mod.lessons.length} completed</div>
+                    <div style={{fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>{mod.title}</div>
+                    <div style={{fontSize:12,color:'var(--sap-text-muted)',fontWeight:600}}>{modDone}/{mod.lessons.length} completed</div>
                   </div>
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:8}}>
                   {modDone === mod.lessons.length && mod.lessons.length > 0 && (
-                    <span style={{fontSize:10,fontWeight:800,padding:'3px 8px',borderRadius:4,background:'#dcfce7',color:'#16a34a'}}>COMPLETE</span>
+                    <span style={{fontSize:10,fontWeight:800,padding:'3px 8px',borderRadius:4,background:'var(--sap-green-bg-mid)',color:'var(--sap-green)'}}>COMPLETE</span>
                   )}
-                  {isOpen ? <ChevronDown size={18} color="#64748b"/> : <ChevronRight size={18} color="#64748b"/>}
+                  {isOpen ? <ChevronDown size={18} color="var(--sap-text-muted)"/> : <ChevronRight size={18} color="var(--sap-text-muted)"/>}
                 </div>
               </div>
 
@@ -83,21 +83,21 @@ export default function TrainingCentre() {
                       <div key={lesson.id}>
                         <div onClick={function(){setOpenLesson(lessonOpen?null:lesson.id);}}
                           style={{padding:'14px 22px 14px 46px',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'space-between',
-                            borderBottom:'1px solid #f8f9fb',background:lessonOpen?'#f8fafc':'#fff',transition:'background .15s'}}>
+                            borderBottom:'1px solid #f8f9fb',background:lessonOpen?'var(--sap-bg-elevated)':'#fff',transition:'background .15s'}}>
                           <div style={{display:'flex',alignItems:'center',gap:10}}>
-                            {isDone ? <CheckCircle size={16} color="#16a34a"/> : <BookOpen size={16} color="#94a3b8"/>}
-                            <span style={{fontSize:13,fontWeight:700,color:isDone?'#16a34a':'#334155'}}>{lesson.title}</span>
+                            {isDone ? <CheckCircle size={16} color="var(--sap-green)"/> : <BookOpen size={16} color="var(--sap-text-faint)"/>}
+                            <span style={{fontSize:13,fontWeight:700,color:isDone?'var(--sap-green)':'#334155'}}>{lesson.title}</span>
                           </div>
                           <div style={{display:'flex',alignItems:'center',gap:8}}>
-                            <span style={{fontSize:11,color:'#64748b',display:'flex',alignItems:'center',gap:3}}>
+                            <span style={{fontSize:11,color:'var(--sap-text-muted)',display:'flex',alignItems:'center',gap:3}}>
                               <Clock size={11}/> {lesson.duration}
                             </span>
-                            {lessonOpen ? <ChevronDown size={14} color="#64748b"/> : <ChevronRight size={14} color="#64748b"/>}
+                            {lessonOpen ? <ChevronDown size={14} color="var(--sap-text-muted)"/> : <ChevronRight size={14} color="var(--sap-text-muted)"/>}
                           </div>
                         </div>
                         {lessonOpen && (
                           <div style={{padding:'20px 22px 20px 46px',background:'#fafbfd',borderBottom:'1px solid #f1f5f9'}}>
-                            <div style={{fontSize:13,color:'#475569',lineHeight:1.8,marginBottom:16,maxWidth:680}}>
+                            <div style={{fontSize:13,color:'var(--sap-text-secondary)',lineHeight:1.8,marginBottom:16,maxWidth:680}}>
                               {lesson.content}
                             </div>
                             {!isDone && (

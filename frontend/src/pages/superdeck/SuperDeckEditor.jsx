@@ -12,13 +12,13 @@ import {
 
 /* ── Themes (inline) ───────────────────────────────────── */
 var THEMES = {
-  midnight: { name:'Midnight', primary:'#0f172a', secondary:'#1e293b', accent:'#8b5cf6', text:'#f8fafc', muted:'#94a3b8', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
-  ocean:    { name:'Ocean', primary:'#0c4a6e', secondary:'#075985', accent:'#38bdf8', text:'#f0f9ff', muted:'#7dd3fc', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
-  forest:   { name:'Forest', primary:'#14532d', secondary:'#166534', accent:'#4ade80', text:'#f0fdf4', muted:'#86efac', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
+  midnight: { name:'Midnight', primary:'var(--sap-text-primary)', secondary:'var(--sap-text-primary)', accent:'var(--sap-purple)', text:'var(--sap-bg-elevated)', muted:'var(--sap-text-faint)', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
+  ocean:    { name:'Ocean', primary:'#0c4a6e', secondary:'#075985', accent:'var(--sap-accent-light)', text:'#f0f9ff', muted:'#7dd3fc', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
+  forest:   { name:'Forest', primary:'#14532d', secondary:'#166534', accent:'#4ade80', text:'var(--sap-green-bg)', muted:'#86efac', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
   coral:    { name:'Coral', primary:'#7f1d1d', secondary:'#991b1b', accent:'#fb923c', text:'#fff7ed', muted:'#fdba74', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
-  charcoal: { name:'Charcoal', primary:'#18181b', secondary:'#27272a', accent:'#fbbf24', text:'#fafafa', muted:'#a1a1aa', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
-  clean:    { name:'Clean White', primary:'#ffffff', secondary:'#f8fafc', accent:'#3b82f6', text:'#0f172a', muted:'#64748b', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
-  lavender: { name:'Lavender', primary:'#172554', secondary:'#312e81', accent:'#c4b5fd', text:'#ede9fe', muted:'#a78bfa', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
+  charcoal: { name:'Charcoal', primary:'#18181b', secondary:'#27272a', accent:'var(--sap-amber-bright)', text:'#fafafa', muted:'#a1a1aa', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
+  clean:    { name:'Clean White', primary:'#ffffff', secondary:'var(--sap-bg-elevated)', accent:'#3b82f6', text:'var(--sap-text-primary)', muted:'var(--sap-text-muted)', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
+  lavender: { name:'Lavender', primary:'var(--sap-cobalt-deep)', secondary:'#312e81', accent:'#c4b5fd', text:'var(--sap-purple-pale)', muted:'var(--sap-purple-light)', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
   sunset:   { name:'Sunset', primary:'#431407', secondary:'#7c2d12', accent:'#f97316', text:'#fff7ed', muted:'#fb923c', headingFont:"'Sora',sans-serif", bodyFont:"'DM Sans',sans-serif" },
 };
 var THEME_KEYS = Object.keys(THEMES);
@@ -52,7 +52,7 @@ var SHAPE_TYPES = [
 ];
 
 function ShapeRender(props) {
-  var fill = props.fill || '#8b5cf6';
+  var fill = props.fill || 'var(--sap-purple)';
   var type = props.shapeType || 'rect';
   var w = '100%', h = '100%';
   if (type === 'rect') return <div style={{width:w,height:h,background:fill,borderRadius:4}}/>;
@@ -74,7 +74,7 @@ function ShapeRender(props) {
 /* Mini shape icon for selector */
 function ShapeIcon(props) {
   var type = props.type;
-  var c = props.color || '#64748b';
+  var c = props.color || 'var(--sap-text-muted)';
   var s = 20;
   if (type === 'rect') return <svg width={s} height={s} viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="12" rx="1" fill={c}/></svg>;
   if (type === 'rounded') return <svg width={s} height={s} viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="12" rx="4" fill={c}/></svg>;
@@ -165,8 +165,8 @@ export default function SuperDeckEditor() {
   /* ── Element operations ────────────────────────────── */
   function addEl(type) {
     var el = { id: UID(), type: type, x: 150, y: 150, w: 400, h: 60 };
-    if (type === 'heading') Object.assign(el, { text: 'Click to edit heading', fontSize: 36, color: isLightBg(cs.background || t.primary) ? '#0f172a' : '#ffffff', bold: true, align: 'center', fontFamily: t.headingFont, w: 600, h: 80, x: 200, y: 200 });
-    else if (type === 'text') Object.assign(el, { text: 'Click to edit text', fontSize: 18, color: isLightBg(cs.background || t.primary) ? '#64748b' : '#94a3b8', align: 'left', fontFamily: t.bodyFont, w: 500, h: 50, x: 250, y: 300 });
+    if (type === 'heading') Object.assign(el, { text: 'Click to edit heading', fontSize: 36, color: isLightBg(cs.background || t.primary) ? 'var(--sap-text-primary)' : '#ffffff', bold: true, align: 'center', fontFamily: t.headingFont, w: 600, h: 80, x: 200, y: 200 });
+    else if (type === 'text') Object.assign(el, { text: 'Click to edit text', fontSize: 18, color: isLightBg(cs.background || t.primary) ? 'var(--sap-text-muted)' : 'var(--sap-text-faint)', align: 'left', fontFamily: t.bodyFont, w: 500, h: 50, x: 250, y: 300 });
     else if (type === 'image') Object.assign(el, { src: '', w: 300, h: 200, x: 350, y: 180 });
     else if (type === 'shape') Object.assign(el, { shapeType: 'rect', fill: t.accent, w: 200, h: 120, x: 400, y: 220 });
     var ns = slides.slice();
@@ -294,7 +294,7 @@ export default function SuperDeckEditor() {
     document.addEventListener('keydown', kd); return function () { document.removeEventListener('keydown', kd); };
   }, [selId, editingId, save, presenting, slides.length]);
 
-  if (!loaded) return <div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'100vh',background:'#0f172a'}}><Loader2 size={32} color="#8b5cf6" style={{animation:'spin 1s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div>;
+  if (!loaded) return <div style={{display:'flex',justifyContent:'center',alignItems:'center',height:'100vh',background:'var(--sap-text-primary)'}}><Loader2 size={32} color="var(--sap-purple)" style={{animation:'spin 1s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div>;
 
   /* ── PRESENT MODE ──────────────────────────────────── */
   if (presenting) return (
@@ -313,46 +313,46 @@ export default function SuperDeckEditor() {
         </div>
       </div>
       <div style={{position:'fixed',bottom:20,right:20,background:'rgba(0,0,0,0.7)',borderRadius:8,padding:'6px 14px',display:'flex',alignItems:'center',gap:12}} onClick={function(e){e.stopPropagation();}}>
-        <span style={{color:'#94a3b8',fontSize:13}}>{active+1}/{slides.length}</span>
+        <span style={{color:'var(--sap-text-faint)',fontSize:13}}>{active+1}/{slides.length}</span>
         <button onClick={function(){setPresenting(false);}} style={{background:'none',border:'none',color:'#f87171',cursor:'pointer',display:'flex',padding:4}}><X size={16}/></button>
       </div>
     </div>
   );
 
-  var btnS={background:'#334155',border:'none',color:'#e2e8f0',cursor:'pointer',display:'flex',alignItems:'center',gap:5,fontSize:13,fontFamily:'inherit',padding:'7px 14px',borderRadius:6,fontWeight:600};
-  var tbtn=function(active){return{background:active?'#ede9fe':'#fff',border:'1px solid '+(active?'#8b5cf6':'#e2e8f0'),borderRadius:4,padding:'5px 7px',cursor:'pointer',display:'flex',color:active?'#8b5cf6':'#64748b'};};
+  var btnS={background:'#334155',border:'none',color:'var(--sap-border)',cursor:'pointer',display:'flex',alignItems:'center',gap:5,fontSize:13,fontFamily:'inherit',padding:'7px 14px',borderRadius:6,fontWeight:600};
+  var tbtn=function(active){return{background:active?'var(--sap-purple-pale)':'#fff',border:'1px solid '+(active?'var(--sap-purple)':'var(--sap-border)'),borderRadius:4,padding:'5px 7px',cursor:'pointer',display:'flex',color:active?'var(--sap-purple)':'var(--sap-text-muted)'};};
 
   return (
-    <div style={{display:'flex',flexDirection:'column',height:'100vh',background:'#f8fafc',fontFamily:"'DM Sans',sans-serif"}}>
+    <div style={{display:'flex',flexDirection:'column',height:'100vh',background:'var(--sap-bg-elevated)',fontFamily:"'DM Sans',sans-serif"}}>
 
       {/* ── TOOLBAR ──────────────────────────────────── */}
       <div style={{display:'flex',alignItems:'center',gap:8,padding:'12px 20px',background:'linear-gradient(180deg,#172554,#1e3a8a)',borderBottom:'1px solid rgba(255,255,255,0.1)',flexShrink:0}}>
-        <button onClick={function(){if(dirty)save();nav('/superdeck');}} style={{...btnS,background:'none',color:'#94a3b8'}}
+        <button onClick={function(){if(dirty)save();nav('/superdeck');}} style={{...btnS,background:'none',color:'var(--sap-text-faint)'}}
           onMouseEnter={function(e){e.currentTarget.style.background='#334155';}} onMouseLeave={function(e){e.currentTarget.style.background='none';}}>
           <ArrowLeft size={14}/> Back</button>
         <div style={{width:1,height:24,background:'#334155'}}/>
-        <input value={title} onChange={function(e){setTitle(e.target.value);mark();}} style={{background:'transparent',border:'none',color:'#f8fafc',fontSize:16,fontWeight:700,fontFamily:"'Sora',sans-serif",outline:'none',padding:'4px 8px',flex:1,maxWidth:280}} placeholder="Untitled"/>
+        <input value={title} onChange={function(e){setTitle(e.target.value);mark();}} style={{background:'transparent',border:'none',color:'var(--sap-bg-elevated)',fontSize:16,fontWeight:700,fontFamily:"'Sora',sans-serif",outline:'none',padding:'4px 8px',flex:1,maxWidth:280}} placeholder="Untitled"/>
         <div style={{flex:1}}/>
 
         {/* Insert dropdown and Theme removed — elements are now in right sidebar */}
 
         <button onClick={function(){setShowAi(!showAi);}} style={{...btnS,background:'linear-gradient(135deg,#8b5cf6,#7c3aed)',color:'#fff',fontWeight:700}}>
           <Sparkles size={14}/> AI Generate</button>
-        <button onClick={function(){if(dirty)save();setPresenting(true);}} style={{...btnS,background:'#059669',color:'#fff',fontWeight:700}}
-          onMouseEnter={function(e){e.currentTarget.style.background='#047857';}} onMouseLeave={function(e){e.currentTarget.style.background='#059669';}}>
+        <button onClick={function(){if(dirty)save();setPresenting(true);}} style={{...btnS,background:'var(--sap-green-dark)',color:'#fff',fontWeight:700}}
+          onMouseEnter={function(e){e.currentTarget.style.background='#047857';}} onMouseLeave={function(e){e.currentTarget.style.background='var(--sap-green-dark)';}}>
           <Play size={14}/> Present</button>
-        <button onClick={save} disabled={saving} style={{background:'none',border:'none',color:dirty?'#fbbf24':'#4ade80',cursor:'pointer',display:'flex',alignItems:'center',gap:4,fontSize:12,fontFamily:'inherit',padding:'6px 8px'}}>
+        <button onClick={save} disabled={saving} style={{background:'none',border:'none',color:dirty?'var(--sap-amber-bright)':'#4ade80',cursor:'pointer',display:'flex',alignItems:'center',gap:4,fontSize:12,fontFamily:'inherit',padding:'6px 8px'}}>
           <Save size={14}/> {saving?'Saving...':dirty?'Unsaved':'Saved'}</button>
       </div>
 
       {/* AI panel */}
-      {showAi&&<div style={{padding:'16px 20px',background:'#172554',borderBottom:'1px solid #312e81',display:'flex',alignItems:'center',gap:12,flexShrink:0}}>
-        <Wand2 size={20} color="#a78bfa"/>
+      {showAi&&<div style={{padding:'16px 20px',background:'var(--sap-cobalt-deep)',borderBottom:'1px solid #312e81',display:'flex',alignItems:'center',gap:12,flexShrink:0}}>
+        <Wand2 size={20} color="var(--sap-purple-light)"/>
         <input value={aiPrompt} onChange={function(e){setAiPrompt(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')generateAI();}}
-          placeholder="Describe your presentation..." style={{flex:1,padding:'10px 16px',borderRadius:8,border:'1px solid #4c1d95',background:'#312e81',color:'#e2e8f0',fontSize:14,fontFamily:'inherit',outline:'none'}}/>
-        <button onClick={generateAI} disabled={aiLoading} style={{padding:'10px 24px',borderRadius:8,border:'none',background:aiLoading?'#64748b':'#8b5cf6',color:'#fff',fontSize:14,fontWeight:700,cursor:aiLoading?'default':'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:6}}>
+          placeholder="Describe your presentation..." style={{flex:1,padding:'10px 16px',borderRadius:8,border:'1px solid #4c1d95',background:'#312e81',color:'var(--sap-border)',fontSize:14,fontFamily:'inherit',outline:'none'}}/>
+        <button onClick={generateAI} disabled={aiLoading} style={{padding:'10px 24px',borderRadius:8,border:'none',background:aiLoading?'var(--sap-text-muted)':'var(--sap-purple)',color:'#fff',fontSize:14,fontWeight:700,cursor:aiLoading?'default':'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:6}}>
           {aiLoading?<><Loader2 size={14} style={{animation:'spin 1s linear infinite'}}/> Generating...</>:<><Sparkles size={14}/> Generate</>}</button>
-        <button onClick={function(){setShowAi(false);}} style={{background:'none',border:'none',color:'#94a3b8',cursor:'pointer',padding:4,display:'flex'}}><X size={18}/></button>
+        <button onClick={function(){setShowAi(false);}} style={{background:'none',border:'none',color:'var(--sap-text-faint)',cursor:'pointer',padding:4,display:'flex'}}><X size={18}/></button>
       </div>}
 
       {/* ── MAIN AREA ──────────────────────────────────── */}
@@ -362,7 +362,7 @@ export default function SuperDeckEditor() {
         <div style={{width:210,borderRight:'1px solid #e2e8f0',background:'#fff',padding:'10px 6px',overflowY:'auto',flexShrink:0}}>
           {slides.map(function(s,i){var isA=i===active;return <div key={s.id||i} style={{marginBottom:6}}>
             <div style={{display:'flex',gap:4,alignItems:'flex-start'}}>
-              <span style={{fontSize:11,color:'#94a3b8',width:16,textAlign:'right',paddingTop:4,flexShrink:0}}>{i+1}</span>
+              <span style={{fontSize:11,color:'var(--sap-text-faint)',width:16,textAlign:'right',paddingTop:4,flexShrink:0}}>{i+1}</span>
               <div style={{flex:1}}>
                 <div onClick={function(){setActive(i);setSelId(null);setEditingId(null);}}
                   style={{borderRadius:4,border:isA?'2px solid #8b5cf6':'1px solid #e2e8f0',overflow:'hidden',cursor:'pointer'}}>
@@ -379,24 +379,24 @@ export default function SuperDeckEditor() {
                 </div>
                 <div style={{display:'flex',justifyContent:'flex-end',gap:4,padding:'3px 0'}}>
                   <button onClick={function(){dupSlide(i);}} title="Duplicate"
-                    onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';}} onMouseLeave={function(e){e.currentTarget.style.background='transparent';}}
-                    style={{background:'transparent',border:'none',color:'#94a3b8',cursor:'pointer',padding:4,borderRadius:4,display:'flex'}}><Copy size={16}/></button>
+                    onMouseEnter={function(e){e.currentTarget.style.background='var(--sap-purple-pale)';}} onMouseLeave={function(e){e.currentTarget.style.background='transparent';}}
+                    style={{background:'transparent',border:'none',color:'var(--sap-text-faint)',cursor:'pointer',padding:4,borderRadius:4,display:'flex'}}><Copy size={16}/></button>
                   <button onClick={function(){delSlide(i);}} title="Delete"
-                    onMouseEnter={function(e){e.currentTarget.style.background='#fee2e2';e.currentTarget.style.color='#dc2626';}} onMouseLeave={function(e){e.currentTarget.style.background='transparent';e.currentTarget.style.color='#94a3b8';}}
-                    style={{background:'transparent',border:'none',color:'#94a3b8',cursor:'pointer',padding:4,borderRadius:4,display:'flex'}}><Trash2 size={16}/></button>
+                    onMouseEnter={function(e){e.currentTarget.style.background='#fee2e2';e.currentTarget.style.color='var(--sap-red)';}} onMouseLeave={function(e){e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--sap-text-faint)';}}
+                    style={{background:'transparent',border:'none',color:'var(--sap-text-faint)',cursor:'pointer',padding:4,borderRadius:4,display:'flex'}}><Trash2 size={16}/></button>
                 </div>
               </div>
             </div>
           </div>;})}
           <button onClick={addSlide}
-            onMouseEnter={function(e){e.currentTarget.style.borderColor='#8b5cf6';e.currentTarget.style.color='#8b5cf6';}}
-            onMouseLeave={function(e){e.currentTarget.style.borderColor='#cbd5e1';e.currentTarget.style.color='#94a3b8';}}
-            style={{width:'100%',padding:'8px 0',border:'2px dashed #cbd5e1',borderRadius:4,background:'none',color:'#94a3b8',fontSize:12,cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',justifyContent:'center',gap:4}}>
+            onMouseEnter={function(e){e.currentTarget.style.borderColor='var(--sap-purple)';e.currentTarget.style.color='var(--sap-purple)';}}
+            onMouseLeave={function(e){e.currentTarget.style.borderColor='var(--sap-text-ghost)';e.currentTarget.style.color='var(--sap-text-faint)';}}
+            style={{width:'100%',padding:'8px 0',border:'2px dashed #cbd5e1',borderRadius:4,background:'none',color:'var(--sap-text-faint)',fontSize:12,cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',justifyContent:'center',gap:4}}>
             <Plus size={12}/> Add slide</button>
         </div>
 
         {/* CENTRE: Canvas */}
-        <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'#e2e8f0',padding:16,minWidth:0}}
+        <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',background:'var(--sap-border)',padding:16,minWidth:0}}
           onClick={function(){if(editingId)finishEdit();setSelId(null);}}>
           <div ref={canvasRef} style={{width:'100%',maxWidth:1040,aspectRatio:'16/9',background:cs.background||t.primary,borderRadius:4,position:'relative',overflow:'hidden',boxShadow:'0 6px 30px rgba(0,0,0,.3)'}}>
             {cs.elements.map(function(el,elIdx){
@@ -413,7 +413,7 @@ export default function SuperDeckEditor() {
                   :<div style={{fontSize:Math.max(10,el.fontSize*0.65)+'px',fontWeight:el.bold?700:400,fontStyle:el.italic?'italic':'normal',textDecoration:el.underline?'underline':'none',color:el.color||'#fff',background:el.elBg||'transparent',textAlign:el.align||'left',fontFamily:el.fontFamily||t.bodyFont,width:'100%',height:'100%',overflow:'hidden',padding:'4px 6px',display:'flex',alignItems:el.type==='heading'?'center':'flex-start',justifyContent:el.align==='center'?'center':el.align==='right'?'flex-end':'flex-start',lineHeight:1.3,userSelect:'none',whiteSpace:'pre-wrap'}}>{el.text||''}</div>
                 )}
                 {el.type==='image'&&(el.src?<img src={el.src} style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:4,pointerEvents:'none'}} alt=""/>
-                  :<div style={{width:'100%',height:'100%',background:'rgba(255,255,255,.05)',borderRadius:4,display:'flex',alignItems:'center',justifyContent:'center',border:'1px dashed rgba(255,255,255,.2)'}}><Image size={24} color="#475569"/></div>)}
+                  :<div style={{width:'100%',height:'100%',background:'rgba(255,255,255,.05)',borderRadius:4,display:'flex',alignItems:'center',justifyContent:'center',border:'1px dashed rgba(255,255,255,.2)'}}><Image size={24} color="var(--sap-text-secondary)"/></div>)}
                 {el.type==='shape'&&<ShapeRender shapeType={el.shapeType} fill={el.fill||t.accent}/>}
                 {isSel&&!isEdit&&<>
                   {['tl','t','tr','r','br','b','bl','l'].map(function(c){
@@ -425,10 +425,10 @@ export default function SuperDeckEditor() {
                     if(c==='l'||c==='r'){hs.top='50%';hs.transform='translateY(-50%)';}
                     return <div key={c} onMouseDown={function(e){onResizeDown(e,el.id,c);}} style={hs}/>;
                   })}
-                  <div style={{position:'absolute',top:-34,left:'50%',transform:'translateX(-50%)',display:'flex',gap:2,background:'#1e293b',borderRadius:6,padding:'3px 4px',boxShadow:'0 4px 12px rgba(0,0,0,0.3)',zIndex:30}} onClick={function(e){e.stopPropagation();}}>
-                    <button onClick={function(e){e.stopPropagation();if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();var idx=els.findIndex(function(x){return x.id===selId;});if(idx>0){var el=els.splice(idx,1)[0];els.unshift(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}}} title="Send to back" style={{background:'transparent',border:'none',color:'#cbd5e1',cursor:'pointer',padding:'4px 6px',borderRadius:4,display:'flex'}}><ArrowDown size={14}/></button>
-                    <button onClick={function(e){e.stopPropagation();if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();var idx=els.findIndex(function(x){return x.id===selId;});if(idx>=0&&idx<els.length-1){var el=els.splice(idx,1)[0];els.push(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}}} title="Bring to front" style={{background:'transparent',border:'none',color:'#cbd5e1',cursor:'pointer',padding:'4px 6px',borderRadius:4,display:'flex'}}><ArrowUp size={14}/></button>
-                    <div style={{width:1,height:20,background:'#475569',margin:'0 2px'}}/>
+                  <div style={{position:'absolute',top:-34,left:'50%',transform:'translateX(-50%)',display:'flex',gap:2,background:'var(--sap-text-primary)',borderRadius:6,padding:'3px 4px',boxShadow:'0 4px 12px rgba(0,0,0,0.3)',zIndex:30}} onClick={function(e){e.stopPropagation();}}>
+                    <button onClick={function(e){e.stopPropagation();if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();var idx=els.findIndex(function(x){return x.id===selId;});if(idx>0){var el=els.splice(idx,1)[0];els.unshift(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}}} title="Send to back" style={{background:'transparent',border:'none',color:'var(--sap-text-ghost)',cursor:'pointer',padding:'4px 6px',borderRadius:4,display:'flex'}}><ArrowDown size={14}/></button>
+                    <button onClick={function(e){e.stopPropagation();if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();var idx=els.findIndex(function(x){return x.id===selId;});if(idx>=0&&idx<els.length-1){var el=els.splice(idx,1)[0];els.push(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}}} title="Bring to front" style={{background:'transparent',border:'none',color:'var(--sap-text-ghost)',cursor:'pointer',padding:'4px 6px',borderRadius:4,display:'flex'}}><ArrowUp size={14}/></button>
+                    <div style={{width:1,height:20,background:'var(--sap-text-secondary)',margin:'0 2px'}}/>
                     <button onClick={function(e){e.stopPropagation();delEl();}} title="Delete" style={{background:'transparent',border:'none',color:'#f87171',cursor:'pointer',padding:'4px 6px',borderRadius:4,display:'flex'}}><Trash2 size={14}/></button>
                   </div>
                 </>}
@@ -436,13 +436,13 @@ export default function SuperDeckEditor() {
             })}
           </div>
           <div style={{display:'flex',alignItems:'center',gap:16,marginTop:12}}>
-            <button onClick={function(){setActive(Math.max(0,active-1));}} disabled={active===0} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:6,padding:'6px 10px',cursor:active>0?'pointer':'default',color:active>0?'#334155':'#cbd5e1',display:'flex'}}><ChevronLeft size={16}/></button>
-            <span style={{fontSize:13,color:'#64748b',fontWeight:600}}>Slide {active+1} of {slides.length}</span>
-            <button onClick={function(){setActive(Math.min(slides.length-1,active+1));}} disabled={active>=slides.length-1} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:6,padding:'6px 10px',cursor:active<slides.length-1?'pointer':'default',color:active<slides.length-1?'#334155':'#cbd5e1',display:'flex'}}><ChevronRight size={16}/></button>
+            <button onClick={function(){setActive(Math.max(0,active-1));}} disabled={active===0} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:6,padding:'6px 10px',cursor:active>0?'pointer':'default',color:active>0?'#334155':'var(--sap-text-ghost)',display:'flex'}}><ChevronLeft size={16}/></button>
+            <span style={{fontSize:13,color:'var(--sap-text-muted)',fontWeight:600}}>Slide {active+1} of {slides.length}</span>
+            <button onClick={function(){setActive(Math.min(slides.length-1,active+1));}} disabled={active>=slides.length-1} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:6,padding:'6px 10px',cursor:active<slides.length-1?'pointer':'default',color:active<slides.length-1?'#334155':'var(--sap-text-ghost)',display:'flex'}}><ChevronRight size={16}/></button>
           </div>
           <div style={{width:'100%',maxWidth:1040,marginTop:8}}>
             <textarea value={cs.notes||''} onChange={function(e){var ns=slides.slice();ns[active]=Object.assign({},ns[active],{notes:e.target.value});setSlides(ns);mark();}} placeholder="Speaker notes..." rows={2}
-              style={{width:'100%',padding:'8px 12px',background:'#fff',border:'1px solid #e2e8f0',borderRadius:6,color:'#475569',fontSize:12,fontFamily:'inherit',resize:'vertical',boxSizing:'border-box',outline:'none'}}/>
+              style={{width:'100%',padding:'8px 12px',background:'#fff',border:'1px solid #e2e8f0',borderRadius:6,color:'var(--sap-text-secondary)',fontSize:12,fontFamily:'inherit',resize:'vertical',boxSizing:'border-box',outline:'none'}}/>
           </div>
         </div>
 
@@ -450,13 +450,13 @@ export default function SuperDeckEditor() {
         <div style={{width:270,borderLeft:'1px solid #e2e8f0',background:'#fff',padding:14,overflowY:'auto',flexShrink:0}}>
 
           {/* ── Add Elements (always visible) ── */}
-          <div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:8}}>Add Elements</div>
+          <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-faint)',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:8}}>Add Elements</div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:4,marginBottom:14}}>
-            {[{t:'heading',n:'Heading',i:Type,c:'#8b5cf6'},{t:'text',n:'Text',i:Type,c:'#0ea5e9'},{t:'image',n:'Image',i:Image,c:'#22c55e'},{t:'shape',n:'Shape',i:Square,c:'#f59e0b'}].map(function(it){
+            {[{t:'heading',n:'Heading',i:Type,c:'var(--sap-purple)'},{t:'text',n:'Text',i:Type,c:'var(--sap-accent)'},{t:'image',n:'Image',i:Image,c:'var(--sap-green-bright)'},{t:'shape',n:'Shape',i:Square,c:'var(--sap-amber)'}].map(function(it){
               return <button key={it.t} onClick={function(){addEl(it.t);}}
-                onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';e.currentTarget.style.borderColor='#8b5cf6';}}
-                onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';e.currentTarget.style.borderColor='#e2e8f0';}}
-                style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,padding:'8px 4px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',cursor:'pointer',fontFamily:'inherit',transition:'all 0.15s'}}>
+                onMouseEnter={function(e){e.currentTarget.style.background='var(--sap-purple-pale)';e.currentTarget.style.borderColor='var(--sap-purple)';}}
+                onMouseLeave={function(e){e.currentTarget.style.background='var(--sap-bg-elevated)';e.currentTarget.style.borderColor='var(--sap-border)';}}
+                style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,padding:'8px 4px',borderRadius:6,border:'1px solid #e2e8f0',background:'var(--sap-bg-elevated)',cursor:'pointer',fontFamily:'inherit',transition:'all 0.15s'}}>
                 <it.i size={16} color={it.c}/>
                 <span style={{fontSize:10,fontWeight:600,color:'#334155'}}>{it.n}</span>
               </button>;
@@ -465,7 +465,7 @@ export default function SuperDeckEditor() {
 
           {/* ── Element Properties (only when selected) ── */}
           {selEl&&<>
-            <div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:8}}>Element Properties</div>
+            <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-faint)',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:8}}>Element Properties</div>
 
             {/* Layer ordering — send to back / bring to front */}
             <div style={{display:'flex',gap:4,marginBottom:10}}>
@@ -474,16 +474,16 @@ export default function SuperDeckEditor() {
                 var idx=els.findIndex(function(x){return x.id===selId;});
                 if(idx>0){var el=els.splice(idx,1)[0];els.unshift(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}
               }}
-                onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
-                style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'8px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+                onMouseEnter={function(e){e.currentTarget.style.background='var(--sap-purple-pale)';}} onMouseLeave={function(e){e.currentTarget.style.background='var(--sap-bg-elevated)';}}
+                style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'8px',borderRadius:6,border:'1px solid #e2e8f0',background:'var(--sap-bg-elevated)',color:'#334155',fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
                 <ArrowDown size={13}/> Send to back</button>
               <button onClick={function(e){e.stopPropagation();
                 if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();
                 var idx=els.findIndex(function(x){return x.id===selId;});
                 if(idx>=0&&idx<els.length-1){var el=els.splice(idx,1)[0];els.push(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}
               }}
-                onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
-                style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'8px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+                onMouseEnter={function(e){e.currentTarget.style.background='var(--sap-purple-pale)';}} onMouseLeave={function(e){e.currentTarget.style.background='var(--sap-bg-elevated)';}}
+                style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'8px',borderRadius:6,border:'1px solid #e2e8f0',background:'var(--sap-bg-elevated)',color:'#334155',fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
                 <ArrowUp size={13}/> Bring to front</button>
             </div>
 
@@ -491,20 +491,20 @@ export default function SuperDeckEditor() {
               <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Font</div>
               <div ref={fontDropRef} style={{position:'relative',marginBottom:10}}>
                 <div onClick={function(e){e.stopPropagation();setFontDropOpen(!fontDropOpen);setSizeDropOpen(false);}}
-                  style={{display:'flex',alignItems:'center',gap:8,padding:'10px 12px',background:fontDropOpen?'#f5f3ff':'#fff',border:'1.5px solid '+(fontDropOpen?'#8b5cf6':'#e2e8f0'),borderRadius:8,cursor:'pointer',transition:'all 0.15s'}}>
-                  <span style={{width:28,height:28,borderRadius:6,background:'#f1f5f9',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'#8b5cf6',fontFamily:(selEl.fontFamily||"'Sora',sans-serif"),flexShrink:0}}>Aa</span>
-                  <span style={{fontSize:13,fontWeight:600,color:'#0f172a',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontFamily:(selEl.fontFamily||"'Sora',sans-serif")}}>{(selEl.fontFamily||'').split(',')[0].replace(/'/g,'').trim()||'Sora'}</span>
-                  <svg style={{flexShrink:0,opacity:0.4,transform:fontDropOpen?'rotate(180deg)':'none',transition:'transform 0.2s'}} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
+                  style={{display:'flex',alignItems:'center',gap:8,padding:'10px 12px',background:fontDropOpen?'#f5f3ff':'#fff',border:'1.5px solid '+(fontDropOpen?'var(--sap-purple)':'var(--sap-border)'),borderRadius:8,cursor:'pointer',transition:'all 0.15s'}}>
+                  <span style={{width:28,height:28,borderRadius:6,background:'var(--sap-bg-page)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'var(--sap-purple)',fontFamily:(selEl.fontFamily||"'Sora',sans-serif"),flexShrink:0}}>Aa</span>
+                  <span style={{fontSize:13,fontWeight:600,color:'var(--sap-text-primary)',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontFamily:(selEl.fontFamily||"'Sora',sans-serif")}}>{(selEl.fontFamily||'').split(',')[0].replace(/'/g,'').trim()||'Sora'}</span>
+                  <svg style={{flexShrink:0,opacity:0.4,transform:fontDropOpen?'rotate(180deg)':'none',transition:'transform 0.2s'}} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--sap-text-faint)" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
                 </div>
                 {fontDropOpen&&<div style={{position:'absolute',top:'100%',left:0,right:0,zIndex:50,marginTop:4,background:'#fff',border:'1.5px solid #e2e8f0',borderRadius:10,overflow:'hidden',boxShadow:'0 12px 40px rgba(0,0,0,.12)',maxHeight:260,overflowY:'auto'}}>
                   {['Sora','DM Sans','Inter','Poppins','Montserrat','Playfair Display','Roboto','Open Sans','Lato','Oswald','Raleway','Merriweather','Georgia','Arial','Trebuchet MS','Verdana','Courier New','Impact'].map(function(f){
                     var isActive=(selEl.fontFamily||'').indexOf(f)>=0;
                     return <div key={f} onClick={function(e){e.stopPropagation();upd(selId,{fontFamily:"'"+f+"',sans-serif"});setFontDropOpen(false);}}
-                      onMouseEnter={function(e){if(!isActive)e.currentTarget.style.background='#f8fafc';}}
+                      onMouseEnter={function(e){if(!isActive)e.currentTarget.style.background='var(--sap-bg-elevated)';}}
                       onMouseLeave={function(e){if(!isActive)e.currentTarget.style.background='transparent';}}
                       style={{display:'flex',alignItems:'center',gap:10,padding:'9px 12px',cursor:'pointer',background:isActive?'#f5f3ff':'transparent',borderLeft:isActive?'3px solid #8b5cf6':'3px solid transparent',transition:'background 0.15s'}}>
-                      <span style={{width:26,height:26,borderRadius:5,background:isActive?'#ede9fe':'#f1f5f9',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:isActive?'#8b5cf6':'#64748b',fontFamily:"'"+f+"',sans-serif",flexShrink:0}}>Aa</span>
-                      <span style={{fontSize:13,fontWeight:isActive?700:500,color:isActive?'#8b5cf6':'#0f172a',fontFamily:"'"+f+"',sans-serif"}}>{f}</span>
+                      <span style={{width:26,height:26,borderRadius:5,background:isActive?'var(--sap-purple-pale)':'var(--sap-bg-page)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:isActive?'var(--sap-purple)':'var(--sap-text-muted)',fontFamily:"'"+f+"',sans-serif",flexShrink:0}}>Aa</span>
+                      <span style={{fontSize:13,fontWeight:isActive?700:500,color:isActive?'var(--sap-purple)':'var(--sap-text-primary)',fontFamily:"'"+f+"',sans-serif"}}>{f}</span>
                     </div>;
                   })}
                 </div>}
@@ -513,20 +513,20 @@ export default function SuperDeckEditor() {
               <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Size</div>
               <div ref={sizeDropRef} style={{position:'relative',marginBottom:10}}>
                 <div onClick={function(e){e.stopPropagation();setSizeDropOpen(!sizeDropOpen);setFontDropOpen(false);}}
-                  style={{display:'flex',alignItems:'center',gap:8,padding:'10px 12px',background:sizeDropOpen?'#f5f3ff':'#fff',border:'1.5px solid '+(sizeDropOpen?'#8b5cf6':'#e2e8f0'),borderRadius:8,cursor:'pointer',transition:'all 0.15s'}}>
-                  <span style={{width:28,height:28,borderRadius:6,background:'#f1f5f9',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'#8b5cf6',flexShrink:0}}>{selEl.fontSize||18}</span>
-                  <span style={{fontSize:13,fontWeight:600,color:'#0f172a',flex:1}}>{(selEl.fontSize||18)+'px'}</span>
-                  <svg style={{flexShrink:0,opacity:0.4,transform:sizeDropOpen?'rotate(180deg)':'none',transition:'transform 0.2s'}} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
+                  style={{display:'flex',alignItems:'center',gap:8,padding:'10px 12px',background:sizeDropOpen?'#f5f3ff':'#fff',border:'1.5px solid '+(sizeDropOpen?'var(--sap-purple)':'var(--sap-border)'),borderRadius:8,cursor:'pointer',transition:'all 0.15s'}}>
+                  <span style={{width:28,height:28,borderRadius:6,background:'var(--sap-bg-page)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'var(--sap-purple)',flexShrink:0}}>{selEl.fontSize||18}</span>
+                  <span style={{fontSize:13,fontWeight:600,color:'var(--sap-text-primary)',flex:1}}>{(selEl.fontSize||18)+'px'}</span>
+                  <svg style={{flexShrink:0,opacity:0.4,transform:sizeDropOpen?'rotate(180deg)':'none',transition:'transform 0.2s'}} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--sap-text-faint)" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
                 </div>
                 {sizeDropOpen&&<div style={{position:'absolute',top:'100%',left:0,right:0,zIndex:50,marginTop:4,background:'#fff',border:'1.5px solid #e2e8f0',borderRadius:10,overflow:'hidden',boxShadow:'0 12px 40px rgba(0,0,0,.12)',maxHeight:260,overflowY:'auto'}}>
                   {FONT_SIZES.map(function(s){
                     var isActive=(selEl.fontSize||18)===s;
                     return <div key={s} onClick={function(e){e.stopPropagation();upd(selId,{fontSize:s});setSizeDropOpen(false);}}
-                      onMouseEnter={function(e){if(!isActive)e.currentTarget.style.background='#f8fafc';}}
+                      onMouseEnter={function(e){if(!isActive)e.currentTarget.style.background='var(--sap-bg-elevated)';}}
                       onMouseLeave={function(e){if(!isActive)e.currentTarget.style.background='transparent';}}
                       style={{display:'flex',alignItems:'center',gap:10,padding:'8px 12px',cursor:'pointer',background:isActive?'#f5f3ff':'transparent',borderLeft:isActive?'3px solid #8b5cf6':'3px solid transparent',transition:'background 0.15s'}}>
-                      <span style={{fontSize:13,fontWeight:isActive?700:500,color:isActive?'#8b5cf6':'#0f172a'}}>{s}px</span>
-                      <span style={{fontSize:11,color:'#94a3b8',marginLeft:'auto'}}>{s<=16?'Small':s<=24?'Body':s<=36?'Subtitle':s<=56?'Title':'Display'}</span>
+                      <span style={{fontSize:13,fontWeight:isActive?700:500,color:isActive?'var(--sap-purple)':'var(--sap-text-primary)'}}>{s}px</span>
+                      <span style={{fontSize:11,color:'var(--sap-text-faint)',marginLeft:'auto'}}>{s<=16?'Small':s<=24?'Body':s<=36?'Subtitle':s<=56?'Title':'Display'}</span>
                     </div>;
                   })}
                 </div>}
@@ -536,15 +536,15 @@ export default function SuperDeckEditor() {
                 <button onClick={function(){upd(selId,{bold:!selEl.bold});}} style={tbtn(selEl.bold)}><Bold size={14}/></button>
                 <button onClick={function(){upd(selId,{italic:!selEl.italic});}} style={tbtn(selEl.italic)}><Italic size={14}/></button>
                 <button onClick={function(){upd(selId,{underline:!selEl.underline});}} style={tbtn(selEl.underline)}><Underline size={14}/></button>
-                <div style={{width:1,background:'#e2e8f0',margin:'0 2px'}}/>
+                <div style={{width:1,background:'var(--sap-border)',margin:'0 2px'}}/>
                 {['left','center','right'].map(function(a){return <button key={a} onClick={function(){upd(selId,{align:a});}} style={tbtn((selEl.align||'left')===a)}>
                   {a==='left'?<AlignLeft size={14}/>:a==='center'?<AlignCenter size={14}/>:<AlignRight size={14}/>}</button>;})}
               </div>
 
               <div style={{display:'flex',gap:10,marginBottom:12}}>
-                <div><div style={{fontSize:11,color:'#64748b',marginBottom:3}}>Text colour</div>
+                <div><div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:3}}>Text colour</div>
                   <input type="color" value={selEl.color||'#ffffff'} onChange={function(e){upd(selId,{color:e.target.value});}} style={{width:44,height:34,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1}}/></div>
-                <div><div style={{fontSize:11,color:'#64748b',marginBottom:3}}>Fill</div>
+                <div><div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:3}}>Fill</div>
                   <input type="color" value={selEl.elBg||'#transparent'} onChange={function(e){upd(selId,{elBg:e.target.value});}} style={{width:44,height:34,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1}}/></div>
               </div>
             </>}
@@ -556,11 +556,11 @@ export default function SuperDeckEditor() {
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr 1fr',gap:3,marginBottom:10}}>
                 {SHAPE_TYPES.map(function(sh){var isActive=(selEl.shapeType||'rect')===sh.id;
                   return <button key={sh.id} onClick={function(){upd(selId,{shapeType:sh.id});}} title={sh.name}
-                    onMouseEnter={function(e){if(!isActive)e.currentTarget.style.background='#f8fafc';e.currentTarget.style.borderColor='#8b5cf6';}}
-                    onMouseLeave={function(e){if(!isActive)e.currentTarget.style.background='#fff';e.currentTarget.style.borderColor=isActive?'#8b5cf6':'#e2e8f0';}}
-                    style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,padding:'6px 2px',borderRadius:6,border:'1.5px solid '+(isActive?'#8b5cf6':'#e2e8f0'),background:isActive?'#f5f3ff':'#fff',cursor:'pointer',fontFamily:'inherit',transition:'all 0.15s'}}>
-                    <ShapeIcon type={sh.id} color={isActive?'#8b5cf6':'#94a3b8'}/>
-                    <span style={{fontSize:8,fontWeight:600,color:isActive?'#8b5cf6':'#94a3b8',lineHeight:1}}>{sh.name}</span>
+                    onMouseEnter={function(e){if(!isActive)e.currentTarget.style.background='var(--sap-bg-elevated)';e.currentTarget.style.borderColor='var(--sap-purple)';}}
+                    onMouseLeave={function(e){if(!isActive)e.currentTarget.style.background='#fff';e.currentTarget.style.borderColor=isActive?'var(--sap-purple)':'var(--sap-border)';}}
+                    style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2,padding:'6px 2px',borderRadius:6,border:'1.5px solid '+(isActive?'var(--sap-purple)':'var(--sap-border)'),background:isActive?'#f5f3ff':'#fff',cursor:'pointer',fontFamily:'inherit',transition:'all 0.15s'}}>
+                    <ShapeIcon type={sh.id} color={isActive?'var(--sap-purple)':'var(--sap-text-faint)'}/>
+                    <span style={{fontSize:8,fontWeight:600,color:isActive?'var(--sap-purple)':'var(--sap-text-faint)',lineHeight:1}}>{sh.name}</span>
                   </button>;
                 })}
               </div>
@@ -575,51 +575,51 @@ export default function SuperDeckEditor() {
                     .then(function(r){return r.json();}).then(function(d){if(d.url)upd(selId,{src:d.url});});
                 }};inp.click();
               }}
-                onMouseEnter={function(e){e.currentTarget.style.background='#ede9fe';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
-                style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'10px 12px',borderRadius:8,border:'1.5px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',marginBottom:10}}>
-                <Upload size={14} color="#8b5cf6"/> Upload / Replace image</button>
+                onMouseEnter={function(e){e.currentTarget.style.background='var(--sap-purple-pale)';}} onMouseLeave={function(e){e.currentTarget.style.background='var(--sap-bg-elevated)';}}
+                style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'10px 12px',borderRadius:8,border:'1.5px solid #e2e8f0',background:'var(--sap-bg-elevated)',color:'#334155',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',marginBottom:10}}>
+                <Upload size={14} color="var(--sap-purple)"/> Upload / Replace image</button>
             </>}
 
             <button onClick={delEl}
-              onMouseEnter={function(e){e.currentTarget.style.background='#fee2e2';}} onMouseLeave={function(e){e.currentTarget.style.background='#fef2f2';}}
-              style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'10px 12px',borderRadius:8,border:'1px solid #fecaca',background:'#fef2f2',color:'#dc2626',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',marginTop:4}}>
+              onMouseEnter={function(e){e.currentTarget.style.background='#fee2e2';}} onMouseLeave={function(e){e.currentTarget.style.background='var(--sap-red-bg)';}}
+              style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'10px 12px',borderRadius:8,border:'1px solid #fecaca',background:'var(--sap-red-bg)',color:'var(--sap-red)',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',marginTop:4}}>
               <Trash2 size={14}/> Delete element</button>
 
             <div style={{borderTop:'1px solid #e2e8f0',margin:'12px 0'}}/>
           </>}
 
           {/* ── Slide Design (always visible) ── */}
-          <div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:6}}>Slide Design</div>
+          <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-faint)',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:6}}>Slide Design</div>
           <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Background</div>
           <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
             <input type="color" value={cs.background||t.primary} onChange={function(e){updBg(e.target.value);}} style={{width:36,height:36,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1}}/>
-            <span style={{fontSize:12,color:'#64748b',fontFamily:'monospace'}}>{cs.background||t.primary}</span>
+            <span style={{fontSize:12,color:'var(--sap-text-muted)',fontFamily:'monospace'}}>{cs.background||t.primary}</span>
           </div>
 
           {/* ── Layers (always visible) ── */}
-          <div style={{fontSize:12,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:6}}>Layers</div>
+          <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-faint)',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:6}}>Layers</div>
           {cs.elements.slice().reverse().map(function(el){var isSel=el.id===selId;var label=el.type==='heading'?'H: '+(el.text||'').slice(0,16):el.type==='text'?'T: '+(el.text||'').slice(0,16):el.type==='image'?'Image':el.type==='shape'?'Shape':'?';
             return <div key={el.id} onClick={function(e){e.stopPropagation();setSelId(el.id);}}
-              onMouseEnter={function(e){if(!isSel)e.currentTarget.style.background='#f8fafc';}} onMouseLeave={function(e){if(!isSel)e.currentTarget.style.background=isSel?'#ede9fe':'transparent';}}
-              style={{padding:'6px 8px',borderRadius:4,marginBottom:2,cursor:'pointer',fontSize:12,color:isSel?'#8b5cf6':'#334155',background:isSel?'#ede9fe':'transparent',border:isSel?'1px solid #c4b5fd':'1px solid transparent',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+              onMouseEnter={function(e){if(!isSel)e.currentTarget.style.background='var(--sap-bg-elevated)';}} onMouseLeave={function(e){if(!isSel)e.currentTarget.style.background=isSel?'var(--sap-purple-pale)':'transparent';}}
+              style={{padding:'6px 8px',borderRadius:4,marginBottom:2,cursor:'pointer',fontSize:12,color:isSel?'var(--sap-purple)':'#334155',background:isSel?'var(--sap-purple-pale)':'transparent',border:isSel?'1px solid #c4b5fd':'1px solid transparent',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
               <span style={{display:'flex',alignItems:'center',gap:6}}>
-                <Layers size={11} color={isSel?'#8b5cf6':'#94a3b8'}/>
+                <Layers size={11} color={isSel?'var(--sap-purple)':'var(--sap-text-faint)'}/>
                 {label}
               </span>
             </div>;
           })}
-          {cs.elements.length===0&&<div style={{fontSize:11,color:'#94a3b8',fontStyle:'italic',marginBottom:8}}>No elements on this slide</div>}
+          {cs.elements.length===0&&<div style={{fontSize:11,color:'var(--sap-text-faint)',fontStyle:'italic',marginBottom:8}}>No elements on this slide</div>}
 
           <div style={{borderTop:'1px solid #e2e8f0',paddingTop:8,marginTop:8}}>
             <div style={{display:'flex',flexDirection:'column',gap:4}}>
               <button onClick={function(){dupSlide(active);}}
-                onMouseEnter={function(e){e.currentTarget.style.background='#f3f0ff';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
-                style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'7px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
-                <Copy size={12} color="#8b5cf6"/> Duplicate slide</button>
+                onMouseEnter={function(e){e.currentTarget.style.background='#f3f0ff';}} onMouseLeave={function(e){e.currentTarget.style.background='var(--sap-bg-elevated)';}}
+                style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'7px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'var(--sap-bg-elevated)',color:'#334155',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+                <Copy size={12} color="var(--sap-purple)"/> Duplicate slide</button>
               <button onClick={function(){delSlide(active);}}
-                onMouseEnter={function(e){e.currentTarget.style.background='#fee2e2';}} onMouseLeave={function(e){e.currentTarget.style.background='#f8fafc';}}
-                style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'7px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'#f8fafc',color:'#334155',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
-                <Trash2 size={12} color="#dc2626"/> Delete slide</button>
+                onMouseEnter={function(e){e.currentTarget.style.background='#fee2e2';}} onMouseLeave={function(e){e.currentTarget.style.background='var(--sap-bg-elevated)';}}
+                style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'7px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'var(--sap-bg-elevated)',color:'#334155',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+                <Trash2 size={12} color="var(--sap-red)"/> Delete slide</button>
             </div>
           </div>
         </div>

@@ -9,15 +9,15 @@ import "./superscene.css";
 const MODELS = [
   // Sorted by price: Budget → Standard → Premium → Ultra
   // All models profitable with $0.025/credit sponsor commission
-  { key: "wan26",      name: "WAN 2.6",          desc: "Budget-friendly, good quality",        badge: "CHEAPEST", cost: 1,  color: "#10b981", i2v: true,  audio: false, negPrompt: false, durations: [3,5,8],           resolutions: ["480p","720p"],          durationLabel: "3-8s",   pricePer10s: "$0.50",  tier: "budget" },
+  { key: "wan26",      name: "WAN 2.6",          desc: "Budget-friendly, good quality",        badge: "CHEAPEST", cost: 1,  color: "var(--sap-green-mid)", i2v: true,  audio: false, negPrompt: false, durations: [3,5,8],           resolutions: ["480p","720p"],          durationLabel: "3-8s",   pricePer10s: "$0.50",  tier: "budget" },
   { key: "seedance",   name: "Seedance 1.5 Pro", desc: "Great quality + native audio",         badge: "VALUE",    cost: 2,  color: "#fb923c", i2v: true,  audio: true,  negPrompt: false, durations: [4,5,8,10,12],     resolutions: ["480p","720p","1080p"],  durationLabel: "4-12s",  pricePer10s: "$1.00",  tier: "standard" },
   { key: "kling3",     name: "Kling 3.0",        desc: "Cinematic realism, smooth motion",     badge: "POPULAR",  cost: 3,  color: "#22d3ee", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15],     resolutions: ["720p","1080p"],         durationLabel: "3-15s",  pricePer10s: "$1.20",  tier: "standard" },
-  { key: "grok-video", name: "Grok Imagine",     desc: "Creative with built-in audio",         badge: "AUDIO",    cost: 4,  color: "#ef4444", i2v: true,  audio: false, negPrompt: false, durations: [6,10],            resolutions: ["480p","720p"],          durationLabel: "6/10s",  pricePer10s: "$1.40",  tier: "standard" },
-  { key: "veo31",      name: "VEO 3.1 Fast",     desc: "Google, fast + fine detail",           badge: "NEW",      cost: 4,  color: "#38bdf8", i2v: true,  audio: false, negPrompt: false, durations: [4,6,8],           resolutions: ["720p","1080p","4K"],    durationLabel: "4/6/8s", pricePer10s: "$1.60",  tier: "standard" },
-  { key: "kling-o3",   name: "Kling O3",         desc: "Next-gen, exceptional detail",         badge: "BEST",     cost: 5,  color: "#8b5cf6", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15],     resolutions: ["720p","1080p"],         durationLabel: "3-15s",  pricePer10s: "$2.00",  tier: "premium" },
-  { key: "sora2",      name: "Sora 2 Pro",       desc: "OpenAI flagship, photorealistic",      badge: "PREMIUM",  cost: 8,  color: "#a78bfa", i2v: true,  audio: false, negPrompt: false, durations: [4,8,12],          resolutions: ["720p","1080p"],         durationLabel: "4/8/12s",pricePer10s: "$3.00",  tier: "premium" },
+  { key: "grok-video", name: "Grok Imagine",     desc: "Creative with built-in audio",         badge: "AUDIO",    cost: 4,  color: "var(--sap-red-bright)", i2v: true,  audio: false, negPrompt: false, durations: [6,10],            resolutions: ["480p","720p"],          durationLabel: "6/10s",  pricePer10s: "$1.40",  tier: "standard" },
+  { key: "veo31",      name: "VEO 3.1 Fast",     desc: "Google, fast + fine detail",           badge: "NEW",      cost: 4,  color: "var(--sap-accent-light)", i2v: true,  audio: false, negPrompt: false, durations: [4,6,8],           resolutions: ["720p","1080p","4K"],    durationLabel: "4/6/8s", pricePer10s: "$1.60",  tier: "standard" },
+  { key: "kling-o3",   name: "Kling O3",         desc: "Next-gen, exceptional detail",         badge: "BEST",     cost: 5,  color: "var(--sap-purple)", i2v: true,  audio: true,  negPrompt: true,  durations: [3,5,8,10,15],     resolutions: ["720p","1080p"],         durationLabel: "3-15s",  pricePer10s: "$2.00",  tier: "premium" },
+  { key: "sora2",      name: "Sora 2 Pro",       desc: "OpenAI flagship, photorealistic",      badge: "PREMIUM",  cost: 8,  color: "var(--sap-purple-light)", i2v: true,  audio: false, negPrompt: false, durations: [4,8,12],          resolutions: ["720p","1080p"],         durationLabel: "4/8/12s",pricePer10s: "$3.00",  tier: "premium" },
   { key: "sora2-max",  name: "Sora 2 Max",       desc: "No watermark, premium OpenAI",         badge: "PRO",      cost: 10, color: "#c084fc", i2v: false, audio: false, negPrompt: false, durations: [10,15],           resolutions: ["720p","1080p"],         durationLabel: "10/15s", pricePer10s: "$4.00",  tier: "ultra" },
-  { key: "veo31-pro",  name: "VEO 3.1 Pro 4K",   desc: "Maximum quality, 4K + audio",          badge: "4K",       cost: 16, color: "#f59e0b", i2v: true,  audio: true,  negPrompt: false, durations: [4,6,8],           resolutions: ["720p","1080p","4K"],    durationLabel: "4/6/8s", pricePer10s: "$8.50",  tier: "ultra" },
+  { key: "veo31-pro",  name: "VEO 3.1 Pro 4K",   desc: "Maximum quality, 4K + audio",          badge: "4K",       cost: 16, color: "var(--sap-amber)", i2v: true,  audio: true,  negPrompt: false, durations: [4,6,8],           resolutions: ["720p","1080p","4K"],    durationLabel: "4/6/8s", pricePer10s: "$8.50",  tier: "ultra" },
 ];
 
 const PROMPT_SUGGESTIONS = [
@@ -1225,7 +1225,7 @@ export default function SuperScenePage() {
                         </div>
                         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 3 }}>
                           <span className="sc-model-badge" style={{ background: `${m.color}22`, color: m.color, fontSize: 9, padding: '1px 6px' }}>{m.badge}</span>
-                          <span style={{ fontSize: 11, fontWeight: 700, color: m.tier === 'budget' ? '#10b981' : m.tier === 'ultra' ? '#f59e0b' : 'var(--muted)' }}>~{m.pricePer10s}/10s</span>
+                          <span style={{ fontSize: 11, fontWeight: 700, color: m.tier === 'budget' ? 'var(--sap-green-mid)' : m.tier === 'ultra' ? 'var(--sap-amber)' : 'var(--muted)' }}>~{m.pricePer10s}/10s</span>
                         </div>
                       </button>
                     ))}
@@ -2489,7 +2489,7 @@ export default function SuperScenePage() {
                     </div>
                     {IMG_MODELS.find(m => m.key === imgModel)?.badge && (
                       <div className="sc-model-meta">
-                        <span className="sc-model-badge" style={{ background: 'rgba(139,92,246,0.1)', color: '#8b5cf6' }}>{IMG_MODELS.find(m => m.key === imgModel)?.badge}</span>
+                        <span className="sc-model-badge" style={{ background: 'rgba(139,92,246,0.1)', color: 'var(--sap-purple)' }}>{IMG_MODELS.find(m => m.key === imgModel)?.badge}</span>
                       </div>
                     )}
                     <span className={cls("sc-model-chev", imgModelOpen && "open")}>▼</span>
@@ -2503,7 +2503,7 @@ export default function SuperScenePage() {
                           <div className="sc-model-info"><div className="sc-model-name">{m.name}</div><div className="sc-model-desc">{m.desc}</div></div>
                           {m.badge && (
                             <div className="sc-model-meta">
-                              <span className="sc-model-badge" style={{ background: 'rgba(139,92,246,0.1)', color: '#8b5cf6' }}>{m.badge}</span>
+                              <span className="sc-model-badge" style={{ background: 'rgba(139,92,246,0.1)', color: 'var(--sap-purple)' }}>{m.badge}</span>
                             </div>
                           )}
                         </button>

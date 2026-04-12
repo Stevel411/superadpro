@@ -77,7 +77,7 @@ export default function IncomeDisclaimer() {
           </Section>
 
           <div style={{ borderTop:'1px solid #f1f5f9', paddingTop:20, marginTop:8, textAlign:'center' }}>
-            <p style={{ fontSize:13, color:'#64748b', lineHeight:1.7 }}>Last updated: April 2026. This disclaimer applies to all income programmes operated by SuperAdPro.</p>
+            <p style={{ fontSize:13, color:'var(--sap-text-muted)', lineHeight:1.7 }}>Last updated: April 2026. This disclaimer applies to all income programmes operated by SuperAdPro.</p>
             <Link to="/compensation-plan" style={{ display:'inline-flex', alignItems:'center', gap:6, marginTop:12, fontSize:14, fontWeight:700, color:'#2563eb', textDecoration:'none' }}>← Back to Compensation Plan</Link>
           </div>
 
@@ -90,23 +90,23 @@ export default function IncomeDisclaimer() {
 function Section(props) {
   return (
     <div style={{ marginBottom:28 }}>
-      <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0f172a', marginBottom:10 }}>{props.title}</div>
-      <div style={{ fontSize:15, color:'#475569', lineHeight:1.8 }}>{props.children}</div>
+      <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:10 }}>{props.title}</div>
+      <div style={{ fontSize:15, color:'var(--sap-text-secondary)', lineHeight:1.8 }}>{props.children}</div>
     </div>
   );
 }
 
 function CostBreakdown(props) {
   return (
-    <div style={{ background:'#f8fafc', borderRadius:12, padding:'18px 22px', margin:'12px 0' }}>
+    <div style={{ background:'var(--sap-bg-elevated)', borderRadius:12, padding:'18px 22px', margin:'12px 0' }}>
       {props.items.map(function(item, i) {
         return (
           <div key={i} style={{ display:'flex', justifyContent:'space-between', alignItems:'center', padding:'10px 0', borderBottom: i < props.items.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
             <div style={{ display:'flex', alignItems:'center', gap:12 }}>
-              <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#0f172a', minWidth:50 }}>{item.pct}</div>
-              <div style={{ fontSize:14, fontWeight:700, color:'#0f172a' }}>{item.label}</div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'var(--sap-text-primary)', minWidth:50 }}>{item.pct}</div>
+              <div style={{ fontSize:14, fontWeight:700, color:'var(--sap-text-primary)' }}>{item.label}</div>
             </div>
-            <div style={{ fontSize:13, color:'#64748b', textAlign:'right' }}>{item.desc}</div>
+            <div style={{ fontSize:13, color:'var(--sap-text-muted)', textAlign:'right' }}>{item.desc}</div>
           </div>
         );
       })}

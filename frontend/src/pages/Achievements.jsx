@@ -20,22 +20,22 @@ export default function Achievements() {
     <AppLayout title="🏅 Achievements" subtitle="Track your milestones and unlock badges">
       {/* Earned */}
       {earned.length > 0 && (<>
-        <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#16a34a',marginBottom:12}}>✓ Earned</div>
+        <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'var(--sap-green)',marginBottom:12}}>✓ Earned</div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:14,marginBottom:28}}>
           {earned.map((b,i) => (
             <div key={i} style={{background:'#fff',border:'1px solid #bbf7d0',borderRadius:8,padding:20,textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.12)',position:'relative',overflow:'hidden'}}>
               <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:'linear-gradient(90deg,#16a34a,#22c55e)'}}/>
               <div style={{fontSize:36,marginBottom:8}}>{b.icon || '🏆'}</div>
-              <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>{b.name}</div>
+              <div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:4}}>{b.name}</div>
               <div style={{fontSize:11,color:'#7b91a8'}}>{b.description}</div>
-              <div style={{marginTop:8,fontSize:10,fontWeight:700,color:'#16a34a'}}>✓ Unlocked</div>
+              <div style={{marginTop:8,fontSize:10,fontWeight:700,color:'var(--sap-green)'}}>✓ Unlocked</div>
             </div>
           ))}
         </div>
       </>)}
 
       {/* Available */}
-      <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#64748b',marginBottom:12}}>🔒 Available</div>
+      <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'var(--sap-text-muted)',marginBottom:12}}>🔒 Available</div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:14}}>
         {(available.length > 0 ? available : [
           {icon:'👥',name:'First Referral',description:'Refer your first member',progress:0},
@@ -47,7 +47,7 @@ export default function Achievements() {
         ]).map((b,i) => (
           <div key={i} style={{background:'#fff',border:'1px solid #e5e7eb',borderRadius:8,padding:20,textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.12)',opacity:0.7}}>
             <div style={{fontSize:36,marginBottom:8,filter:'grayscale(0.5)'}}>{b.icon || '🔒'}</div>
-            <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>{b.name}</div>
+            <div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:4}}>{b.name}</div>
             <div style={{fontSize:11,color:'#7b91a8',marginBottom:8}}>{b.description}</div>
             {b.progress !== undefined && b.progress > 0 && (
               <div style={{height:4,background:'#eef1f8',borderRadius:99,overflow:'hidden'}}>
@@ -60,4 +60,4 @@ export default function Achievements() {
     </AppLayout>
   );
 }
-function Spin() { return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>; }
+function Spin() { return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div>; }

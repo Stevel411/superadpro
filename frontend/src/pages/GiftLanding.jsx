@@ -49,26 +49,26 @@ export default function GiftLanding() {
   }
 
   if (loading) return (
-    <div style={{ minHeight:'100vh', background:'#172554', display:'flex', alignItems:'center', justifyContent:'center' }}>
-      <div style={{ width:40, height:40, border:'3px solid rgba(255,255,255,.1)', borderTopColor:'#ec4899', borderRadius:'50%', animation:'spin .8s linear infinite' }}/>
+    <div style={{ minHeight:'100vh', background:'var(--sap-cobalt-deep)', display:'flex', alignItems:'center', justifyContent:'center' }}>
+      <div style={{ width:40, height:40, border:'3px solid rgba(255,255,255,.1)', borderTopColor:'var(--sap-pink)', borderRadius:'50%', animation:'spin .8s linear infinite' }}/>
       <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
     </div>
   );
 
   if (giftError) return (
-    <div style={{ minHeight:'100vh', background:'#172554', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+    <div style={{ minHeight:'100vh', background:'var(--sap-cobalt-deep)', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div style={{ textAlign:'center', maxWidth:400 }}>
         <div style={{ width:64, height:64, borderRadius:16, background:'rgba(239,68,68,.15)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px' }}>
-          <Gift size={28} color="#ef4444"/>
+          <Gift size={28} color="var(--sap-red-bright)"/>
         </div>
         <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#fff', marginBottom:8 }}>{giftError}</div>
-        <Link to="/" style={{ fontSize:14, color:'#38bdf8', textDecoration:'none' }}>Go to SuperAdPro →</Link>
+        <Link to="/" style={{ fontSize:14, color:'var(--sap-accent-light)', textDecoration:'none' }}>Go to SuperAdPro →</Link>
       </div>
     </div>
   );
 
   if (claimed) return (
-    <div style={{ minHeight:'100vh', background:'#172554', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+    <div style={{ minHeight:'100vh', background:'var(--sap-cobalt-deep)', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div style={{ textAlign:'center', maxWidth:440 }}>
         <div style={{ width:72, height:72, borderRadius:18, background:'linear-gradient(135deg,#10b981,#059669)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 24px' }}>
           <Check size={36} color="#fff"/>
@@ -79,7 +79,7 @@ export default function GiftLanding() {
         </div>
         <div style={{ padding:'14px 20px', background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.08)', borderRadius:12, marginBottom:24 }}>
           <div style={{ fontSize:12, color:'rgba(255,255,255,.4)', marginBottom:4 }}>Remember</div>
-          <div style={{ fontSize:14, color:'#fbbf24', fontWeight:700 }}>When you earn $20+, pay it forward and gift a membership to someone else.</div>
+          <div style={{ fontSize:14, color:'var(--sap-amber-bright)', fontWeight:700 }}>When you earn $20+, pay it forward and gift a membership to someone else.</div>
         </div>
         <button onClick={function() { navigate('/dashboard'); }}
           style={{ padding:'14px 28px', borderRadius:10, border:'none', cursor:'pointer', fontFamily:'inherit', fontSize:15, fontWeight:800, color:'#fff', background:'linear-gradient(135deg,#0ea5e9,#38bdf8)', display:'inline-flex', alignItems:'center', gap:8 }}>
@@ -90,7 +90,7 @@ export default function GiftLanding() {
   );
 
   return (
-    <div style={{ minHeight:'100vh', background:'#172554', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
+    <div style={{ minHeight:'100vh', background:'var(--sap-cobalt-deep)', display:'flex', alignItems:'center', justifyContent:'center', padding:20 }}>
       <div style={{ maxWidth:480, width:'100%' }}>
 
         {/* Gift card */}
@@ -135,7 +135,7 @@ export default function GiftLanding() {
         {/* Claim section */}
         <div style={{ background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.06)', borderRadius:16, padding:'24px 28px', textAlign:'center' }}>
 
-          {error && <div style={{ padding:'10px 14px', background:'rgba(239,68,68,.1)', border:'1px solid rgba(239,68,68,.2)', borderRadius:8, marginBottom:16, fontSize:13, fontWeight:600, color:'#ef4444' }}>{error}</div>}
+          {error && <div style={{ padding:'10px 14px', background:'rgba(239,68,68,.1)', border:'1px solid rgba(239,68,68,.2)', borderRadius:8, marginBottom:16, fontSize:13, fontWeight:600, color:'var(--sap-red-bright)' }}>{error}</div>}
 
           {user ? (
             <div>

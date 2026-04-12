@@ -4,7 +4,7 @@ import { X, Search, ChevronDown, ChevronRight } from 'lucide-react';
 const HELP_SECTIONS = [
   {
     category: 'Getting Started',
-    color: '#0ea5e9',
+    color: 'var(--sap-accent)',
     items: [
       { title: 'How the Editor Works', desc: 'SuperPages is a free-form drag-and-drop page builder. Click any block from the right panel to add it to your canvas, then drag to position it anywhere. Double-click text elements to edit inline. Use the floating toolbar to format text, change fonts, colours and alignment.' },
       { title: 'Selecting & Moving', desc: 'Click any element once to select it — you\'ll see a blue outline and resize handles appear. Click and drag to reposition. Hold Shift + Arrow keys to nudge by 10px, or Arrow keys alone for 1px precision.' },
@@ -15,7 +15,7 @@ const HELP_SECTIONS = [
   },
   {
     category: 'Text Elements',
-    color: '#0ea5e9',
+    color: 'var(--sap-accent)',
     items: [
       { title: 'Heading', desc: 'Large, bold text for page titles and section headers. Default is 36px Sora font in white. Double-click to edit text. Use the floating toolbar to change font family, size, colour, bold, italic, underline, and alignment.' },
       { title: 'Text', desc: 'Body text for paragraphs and descriptions. Default is 15px Outfit font in grey with 1.8 line height for readability. Double-click to edit. Supports all inline formatting from the floating toolbar.' },
@@ -24,7 +24,7 @@ const HELP_SECTIONS = [
   },
   {
     category: 'Media Elements',
-    color: '#8b5cf6',
+    color: 'var(--sap-purple)',
     items: [
       { title: 'Image', desc: 'Add images to your page. Click the ✎ IMAGE button in the element toolbar to enter an image URL or upload a file (max 5MB). Supports JPG, PNG, GIF and WebP. Images are stored on Cloudflare R2 for fast global delivery.' },
       { title: 'Video', desc: 'Embed videos from YouTube, Vimeo, or upload your own MP4/WebM files (max 50MB). Click ✎ VIDEO to add. YouTube and Vimeo watch URLs are automatically converted to embed format. Uploaded videos are hosted on Cloudflare R2.' },
@@ -33,7 +33,7 @@ const HELP_SECTIONS = [
   },
   {
     category: 'Action Elements',
-    color: '#10b981',
+    color: 'var(--sap-green-mid)',
     items: [
       { title: 'Button', desc: 'Clickable button with gradient background. Click ✎ LINK to set the destination URL. Double-click to change the button text. Perfect for "Join Now", "Buy Now", or "Learn More" calls to action.' },
       { title: 'Opt-In Form', desc: 'Email capture form with name field, email field, and submit button. Pre-styled with a dark glass background. Click ✎ FORM to customise the HTML. Connected to your My Leads dashboard for lead collection.' },
@@ -42,7 +42,7 @@ const HELP_SECTIONS = [
   },
   {
     category: 'Content Elements',
-    color: '#f59e0b',
+    color: 'var(--sap-amber)',
     items: [
       { title: 'Review', desc: 'Customer review block with star rating, quote text, and attribution. Styled with a dark card background and cyan left border. Double-click to edit the review content, stars, and customer name.' },
       { title: 'Badge', desc: 'Small decorative badge identical to Label — useful for "BEST VALUE", "MOST POPULAR", or "FEATURED" tags. Has a gold pill style by default.' },
@@ -54,7 +54,7 @@ const HELP_SECTIONS = [
   },
   {
     category: 'Layout Elements',
-    color: '#ec4899',
+    color: 'var(--sap-pink)',
     items: [
       { title: 'Countdown', desc: 'Live countdown timer that ticks down to a target date and time. Click ✎ SET to choose the target date. Displays days, hours, minutes and seconds. Creates urgency for launches, sales deadlines, or event dates.' },
       { title: 'Socials', desc: 'Row of social media icons — YouTube, Instagram, TikTok, Facebook, X/Twitter, and LinkedIn. Click ✎ LINKS to add your profile URLs for each platform. Icons link to your social profiles on the published page.' },
@@ -69,7 +69,7 @@ const HELP_SECTIONS = [
   },
   {
     category: 'Settings & Publishing',
-    color: '#16a34a',
+    color: 'var(--sap-green)',
     items: [
       { title: 'Page Title', desc: 'The name of your page — appears in the browser tab, search engine results, and your SuperPages listing. Choose something descriptive and compelling for SEO.' },
       { title: 'Page URL Slug', desc: 'Customise the web address of your published page. Open Settings, find the Page URL Slug field, and type your preferred name using lowercase letters, numbers, and hyphens only. For example, type "free-marketing-tools" to get a URL like superadpro.com/p/yourname/free-marketing-tools. Click Save Settings to apply the change. Each slug must be unique — you cannot use one that is already taken by another page.' },
@@ -81,7 +81,7 @@ const HELP_SECTIONS = [
   },
   {
     category: 'AI Assistant',
-    color: '#6366f1',
+    color: 'var(--sap-indigo)',
     items: [
       { title: 'AI Chat', desc: 'Click "✨ AI Assistant" at the bottom of the Blocks panel to open the AI chat. Tell it what you want: "add a heading", "change background to navy", "write sales copy for a fitness product". The AI can modify your page style and generate content suggestions.' },
     ],
@@ -124,18 +124,18 @@ export default function HelpPanel({ visible, onClose }) {
         {/* Header */}
         <div style={{ padding: '18px 20px', borderBottom: '1px solid #e8ecf2', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
           <div>
-            <h2 style={{ margin: 0, fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, color: '#0f172a' }}>Knowledge Base</h2>
-            <p style={{ margin: '2px 0 0', fontSize: 12, color: '#94a3b8' }}>Learn how every element and feature works</p>
+            <h2 style={{ margin: 0, fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, color: 'var(--sap-text-primary)' }}>Knowledge Base</h2>
+            <p style={{ margin: '2px 0 0', fontSize: 12, color: 'var(--sap-text-faint)' }}>Learn how every element and feature works</p>
           </div>
-          <button onClick={onClose} style={{ width: 32, height: 32, border: 'none', borderRadius: 8, background: '#f1f5f9', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <X size={16} color="#64748b" />
+          <button onClick={onClose} style={{ width: 32, height: 32, border: 'none', borderRadius: 8, background: 'var(--sap-bg-page)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <X size={16} color="var(--sap-text-muted)" />
           </button>
         </div>
 
         {/* Search */}
         <div style={{ padding: '12px 20px', borderBottom: '1px solid #f1f5f9', flexShrink: 0 }}>
           <div style={{ position: 'relative' }}>
-            <Search size={14} color="#94a3b8" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
+            <Search size={14} color="var(--sap-text-faint)" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
             <input
               value={search} onChange={e => setSearch(e.target.value)}
               placeholder="Search elements, features..."
@@ -154,18 +154,18 @@ export default function HelpPanel({ visible, onClose }) {
               >
                 {expanded[si] || q ? <ChevronDown size={14} color={section.color} /> : <ChevronRight size={14} color={section.color} />}
                 <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', color: section.color }}>{section.category}</span>
-                <span style={{ fontSize: 10, color: '#cbd5e1', fontWeight: 600 }}>({section.items.length})</span>
+                <span style={{ fontSize: 10, color: 'var(--sap-text-ghost)', fontWeight: 600 }}>({section.items.length})</span>
               </div>
               {(expanded[si] || q) && section.items.map((item, ii) => (
                 <div key={ii} style={{ padding: '10px 20px 10px 40px', borderBottom: '1px solid #f8f9fb' }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>{item.title}</div>
-                  <div style={{ fontSize: 12, color: '#64748b', lineHeight: 1.7 }}>{item.desc}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 4 }}>{item.title}</div>
+                  <div style={{ fontSize: 12, color: 'var(--sap-text-muted)', lineHeight: 1.7 }}>{item.desc}</div>
                 </div>
               ))}
             </div>
           ))}
           {filtered.length === 0 && (
-            <div style={{ padding: 40, textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>
+            <div style={{ padding: 40, textAlign: 'center', color: 'var(--sap-text-faint)', fontSize: 13 }}>
               No results for "{search}"
             </div>
           )}

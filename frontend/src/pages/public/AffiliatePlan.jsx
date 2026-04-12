@@ -24,10 +24,10 @@ export default function AffiliatePlan() {
     else { vidRef.current.play(); setPlaying(true); }
   }
 
-  var accent = '#0ea5e9';
+  var accent = 'var(--sap-accent)';
 
   return (
-    <div style={{ background: '#172554', color: '#fff', fontFamily: "'DM Sans',sans-serif", minHeight: '100vh' }}>
+    <div style={{ background: 'var(--sap-cobalt-deep)', color: '#fff', fontFamily: "'DM Sans',sans-serif", minHeight: '100vh' }}>
       <style>{`
         .hiw-card:hover{transform:translateY(-4px)!important;border-color:rgba(14,165,233,0.2)!important}
         .hiw-step:hover{border-color:rgba(14,165,233,0.25)!important;background:rgba(14,165,233,0.04)!important}
@@ -45,7 +45,7 @@ export default function AffiliatePlan() {
           <div style={{ width:36, height:36, borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#6366f1)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 12px rgba(14,165,233,0.3)' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><polygon points="10,4 10,20 21,12" fill="#fff"/></svg>
           </div>
-          <span style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:900, color:'#fff' }}>SuperAd<span style={{ color:'#38bdf8' }}>Pro</span></span>
+          <span style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:900, color:'#fff' }}>SuperAd<span style={{ color:'var(--sap-accent-light)' }}>Pro</span></span>
         </Link>
         <div className="hiw-nav-links hiw-nav" style={{ display:'flex', alignItems:'center', gap:24 }}>
           <Link to="/explore" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>Explore</Link>
@@ -121,9 +121,9 @@ export default function AffiliatePlan() {
 
           <div className="hiw-steps-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:20 }}>
             {[
-              { num:'01', title:'Share Your Link', desc:'Every member gets a unique SuperLink. Share it on social media, in messages, via QR code — anywhere. When someone clicks it, they land on your personal sales page.', icon:'🔗', color:'#0ea5e9' },
-              { num:'02', title:'Grid Fills Up', desc:'When your referrals join and activate, they fill positions in your 8×8 grid. Each position pays you 6.25%. The grid has 64 slots — and it auto-renews when complete.', icon:'⚡', color:'#fbbf24' },
-              { num:'03', title:'Money Hits Your Wallet', desc:'Commissions are credited instantly. Withdraw to crypto or bank. Multiple income streams working simultaneously — with more launching soon.', icon:'💰', color:'#10b981' },
+              { num:'01', title:'Share Your Link', desc:'Every member gets a unique SuperLink. Share it on social media, in messages, via QR code — anywhere. When someone clicks it, they land on your personal sales page.', icon:'🔗', color:'var(--sap-accent)' },
+              { num:'02', title:'Grid Fills Up', desc:'When your referrals join and activate, they fill positions in your 8×8 grid. Each position pays you 6.25%. The grid has 64 slots — and it auto-renews when complete.', icon:'⚡', color:'var(--sap-amber-bright)' },
+              { num:'03', title:'Money Hits Your Wallet', desc:'Commissions are credited instantly. Withdraw to crypto or bank. Multiple income streams working simultaneously — with more launching soon.', icon:'💰', color:'var(--sap-green-mid)' },
             ].map(function(step, i) {
               return (
                 <Reveal key={i} delay={i * 0.15}>
@@ -150,15 +150,15 @@ export default function AffiliatePlan() {
 
           <div className="hiw-streams" style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:16 }}>
             {[
-              { name:'Membership Commissions', rate:'50%', sub:'recurring monthly', desc:'$10 per Basic member, $17.50 per Pro member — every month they stay active.', color:'#10b981' },
-              { name:'8×8 Profit Grid', rate:'$7,200+', sub:'per grid cycle at Tier 8', desc:'That\'s just the baseline. Personally refer them and earn up to $32,800 per grid. Eight tiers from $20 to $1,000 — each with its own grid that auto-renews.', color:'#6366f1' },
-              { name:'Course Marketplace', rate:'100%', sub:'commissions', desc:'Keep every sale. Sales 2,4,6,8 pass up infinitely deep.', color:'#fbbf24', comingSoon:true },
-              { name:'SuperMarket', rate:'50/25/25', sub:'creator / affiliate / platform', desc:'Sell digital products. Create once, earn forever.', color:'#0ea5e9', comingSoon:true },
+              { name:'Membership Commissions', rate:'50%', sub:'recurring monthly', desc:'$10 per Basic member, $17.50 per Pro member — every month they stay active.', color:'var(--sap-green-mid)' },
+              { name:'8×8 Profit Grid', rate:'$7,200+', sub:'per grid cycle at Tier 8', desc:'That\'s just the baseline. Personally refer them and earn up to $32,800 per grid. Eight tiers from $20 to $1,000 — each with its own grid that auto-renews.', color:'var(--sap-indigo)' },
+              { name:'Course Marketplace', rate:'100%', sub:'commissions', desc:'Keep every sale. Sales 2,4,6,8 pass up infinitely deep.', color:'var(--sap-amber-bright)', comingSoon:true },
+              { name:'SuperMarket', rate:'50/25/25', sub:'creator / affiliate / platform', desc:'Sell digital products. Create once, earn forever.', color:'var(--sap-accent)', comingSoon:true },
             ].map(function(s, i) {
               return (
                 <Reveal key={i} delay={i * 0.1}>
                   <div className="hiw-card" style={{ background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)', borderTop:'3px solid '+s.color, borderRadius:20, padding:'32px 28px', transition:'all 0.3s', height:'100%', position:'relative' }}>
-                    {s.comingSoon && <div style={{ position:'absolute', top:16, right:16, padding:'5px 14px', borderRadius:8, background:'rgba(251,191,36,0.12)', border:'1px solid rgba(251,191,36,0.25)', fontFamily:"'Sora',sans-serif", fontSize:10, fontWeight:800, color:'#fbbf24', letterSpacing:1.5, textTransform:'uppercase' }}>Coming Soon</div>}
+                    {s.comingSoon && <div style={{ position:'absolute', top:16, right:16, padding:'5px 14px', borderRadius:8, background:'rgba(251,191,36,0.12)', border:'1px solid rgba(251,191,36,0.25)', fontFamily:"'Sora',sans-serif", fontSize:10, fontWeight:800, color:'var(--sap-amber-bright)', letterSpacing:1.5, textTransform:'uppercase' }}>Coming Soon</div>}
                     <div style={{ fontFamily:"'Sora',sans-serif", fontSize:18, fontWeight:800, color:'#fff', marginBottom:6 }}>{s.name}</div>
                     <div style={{ fontFamily:"'Sora',sans-serif", fontSize:36, fontWeight:900, color:s.color, marginBottom:4 }}>{s.rate}</div>
                     <div style={{ fontSize:12, fontWeight:700, color:'rgba(255,255,255,0.3)', textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>{s.sub}</div>

@@ -16,19 +16,19 @@ export default function PDFStudio() {
   const [tab, setTab] = useState('create');
 
   return (
-    <div style={{ background: '#172554', minHeight: '100vh', fontFamily: '"DM Sans","Rethink Sans",sans-serif', color: '#f0f2f8', display: 'flex', flexDirection: 'column' }}>
+    <div style={{ background: 'var(--sap-cobalt-deep)', minHeight: '100vh', fontFamily: '"DM Sans","Rethink Sans",sans-serif', color: '#f0f2f8', display: 'flex', flexDirection: 'column' }}>
 
       {/* NAV */}
       <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 28px', height: 72, background: 'rgba(10,18,40,0.95)', backdropFilter: 'blur(18px)', borderBottom: '1px solid rgba(0,180,216,0.12)', flexShrink: 0, position: 'relative' }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
-          <svg style={{ width: 28, height: 28 }} viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
-          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 20, color: '#fff' }}>SuperAd<span style={{ color: '#38bdf8' }}>Pro</span></span>
+          <svg style={{ width: 28, height: 28 }} viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="var(--sap-accent)"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
+          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 20, color: '#fff' }}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span></span>
         </Link>
         <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 22, color: '#fff' }}>PDF Document Studio</span>
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#0ea5e9', border: '1px solid rgba(14,165,233,0.4)', borderRadius: 20, padding: '4px 14px', letterSpacing: 1.5 }}>FREE</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-accent)', border: '1px solid rgba(14,165,233,0.4)', borderRadius: 20, padding: '4px 14px', letterSpacing: 1.5 }}>FREE</span>
         </div>
-        <Link to="/register" style={{ background: '#0ea5e9', color: '#fff', fontSize: 15, fontWeight: 600, padding: '10px 24px', borderRadius: 10, textDecoration: 'none', boxShadow: '0 2px 12px rgba(14,165,233,0.25)' }}>Get started free</Link>
+        <Link to="/register" style={{ background: 'var(--sap-accent)', color: '#fff', fontSize: 15, fontWeight: 600, padding: '10px 24px', borderRadius: 10, textDecoration: 'none', boxShadow: '0 2px 12px rgba(14,165,233,0.25)' }}>Get started free</Link>
       </nav>
 
       {/* TOOL TABS */}
@@ -39,10 +39,10 @@ export default function PDFStudio() {
               padding: '8px 18px', borderRadius: 8, border: 'none', cursor: 'pointer',
               fontFamily: '"DM Sans",sans-serif', fontSize: 12,
               fontWeight: tab === t.id ? 700 : 600,
-              background: tab === t.id ? '#0ea5e9' : '#1b2030',
+              background: tab === t.id ? 'var(--sap-accent)' : 'var(--sap-navy-soft)',
               color: tab === t.id ? '#fff' : '#7b8594',
               borderWidth: 1, borderStyle: 'solid',
-              borderColor: tab === t.id ? '#0ea5e9' : '#2a3040',
+              borderColor: tab === t.id ? 'var(--sap-accent)' : 'var(--sap-navy-card)',
               transition: 'all .15s',
             }}>{t.name}</button>
         ))}

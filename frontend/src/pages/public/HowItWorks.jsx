@@ -19,7 +19,7 @@ function Section({ children, bg }) {
 function SectionHeader({ tag, tagColor, title, subtitle }) {
   return (
     <div style={{ textAlign: 'center', marginBottom: 48 }}>
-      <div style={{ fontSize: 12, fontWeight: 800, color: tagColor || '#38bdf8', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>{tag}</div>
+      <div style={{ fontSize: 12, fontWeight: 800, color: tagColor || 'var(--sap-accent-light)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>{tag}</div>
       <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 'clamp(28px,4vw,40px)', fontWeight: 900, marginBottom: 16, lineHeight: 1.1 }}>{title}</h2>
       {subtitle && <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.45)', maxWidth: 560, margin: '0 auto', lineHeight: 1.7 }}>{subtitle}</p>}
     </div>
@@ -62,7 +62,7 @@ function ToolMiniCard({ name, desc, color }) {
 function IncomeCard({ title, amount, sub, desc, color, comingSoon }) {
   return (
     <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderTop: `3px solid ${color}`, borderRadius: 16, padding: '28px 24px', position: 'relative' }}>
-      {comingSoon && <div style={{ position: 'absolute', top: 16, right: 16, padding: '4px 12px', borderRadius: 8, background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)', fontFamily: "'Sora',sans-serif", fontSize: 9, fontWeight: 800, color: '#fbbf24', letterSpacing: 1.5, textTransform: 'uppercase' }}>Coming Soon</div>}
+      {comingSoon && <div style={{ position: 'absolute', top: 16, right: 16, padding: '4px 12px', borderRadius: 8, background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)', fontFamily: "'Sora',sans-serif", fontSize: 9, fontWeight: 800, color: 'var(--sap-amber-bright)', letterSpacing: 1.5, textTransform: 'uppercase' }}>Coming Soon</div>}
       <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 800, marginBottom: 6 }}>{title}</div>
       <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 32, fontWeight: 900, color, marginBottom: 4 }}>{amount}</div>
       <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>{sub}</div>
@@ -104,7 +104,7 @@ export default function HowItWorks() {
             <div style={{ width: 32, height: 32, borderRadius: 9, background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polygon points="10,4 10,20 21,12" fill="#fff"/></svg>
             </div>
-            <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 20, fontWeight: 900 }}>SuperAd<span style={{ color: '#38bdf8' }}>Pro</span></span>
+            <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 20, fontWeight: 900 }}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span></span>
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
             <Link to="/explore" style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Explore</Link>
@@ -117,12 +117,12 @@ export default function HowItWorks() {
         {/* ═══ HERO ═══ */}
         <section style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <div style={{ maxWidth: 800, margin: '0 auto', padding: '120px 24px 80px', textAlign: 'center' }}>
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 20px', borderRadius: 99, background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.2)', fontSize: 12, fontWeight: 700, color: '#38bdf8', marginBottom: 28, letterSpacing: 1.5, textTransform: 'uppercase' }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#38bdf8' }} />
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 20px', borderRadius: 99, background: 'rgba(14,165,233,0.08)', border: '1px solid rgba(14,165,233,0.2)', fontSize: 12, fontWeight: 700, color: 'var(--sap-accent-light)', marginBottom: 28, letterSpacing: 1.5, textTransform: 'uppercase' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: 'var(--sap-accent-light)' }} />
               How It Works
             </div>
             <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 'clamp(36px,6vw,56px)', fontWeight: 900, lineHeight: 0.95, marginBottom: 24, letterSpacing: -2 }}>
-              Your Complete<br/><span style={{ color: '#38bdf8' }}>Business-in-a-Box</span>
+              Your Complete<br/><span style={{ color: 'var(--sap-accent-light)' }}>Business-in-a-Box</span>
             </h1>
             <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: 560, margin: '0 auto 40px' }}>
               SuperAdPro combines AI creative tools, advertising, income opportunities, and marketing automation — everything you need to build and grow an online business.
@@ -144,9 +144,9 @@ export default function HowItWorks() {
         <Section>
           <SectionHeader tag="The Platform" title="What is SuperAdPro?" subtitle="SuperAdPro is an all-in-one platform that gives you the tools, the training, and the income opportunity to build a real online business — even if you're starting from zero." />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20 }}>
-            <FeatureCard icon="🎬" title="AI Creative Studio" desc="Generate videos, images, music, voiceovers, and captions using 10+ AI models. Create professional content in minutes." color="#0ea5e9" />
-            <FeatureCard icon="💰" title="Multiple Income Streams" desc="Earn through affiliate commissions, the 8×8 income grid, course sales, and the SuperMarket. Four ways to make money." color="#fbbf24" />
-            <FeatureCard icon="📢" title="Advertising Platform" desc="Promote your business with video campaigns watched by real, engaged members. Guaranteed views from motivated entrepreneurs." color="#10b981" />
+            <FeatureCard icon="🎬" title="AI Creative Studio" desc="Generate videos, images, music, voiceovers, and captions using 10+ AI models. Create professional content in minutes." color="var(--sap-accent)" />
+            <FeatureCard icon="💰" title="Multiple Income Streams" desc="Earn through affiliate commissions, the 8×8 income grid, course sales, and the SuperMarket. Four ways to make money." color="var(--sap-amber-bright)" />
+            <FeatureCard icon="📢" title="Advertising Platform" desc="Promote your business with video campaigns watched by real, engaged members. Guaranteed views from motivated entrepreneurs." color="var(--sap-green-mid)" />
           </div>
         </Section>
 
@@ -182,18 +182,18 @@ export default function HowItWorks() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center' }}>
             <VideoPlaceholder label="Marketing tools preview" borderColor="rgba(139,92,246,0.15)" />
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#a78bfa', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Marketing Suite</div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-purple-light)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Marketing Suite</div>
               <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 32, fontWeight: 900, marginBottom: 16 }}>Everything You Need to Market</h2>
               <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginBottom: 24 }}>
                 From landing pages to email automation, SuperAdPro gives you professional marketing tools without the professional price tag.
               </p>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                <ToolMiniCard name="SuperPages" desc="Drag-and-drop landing pages" color="#a78bfa" />
-                <ToolMiniCard name="AI Content" desc="AI-powered social posts and copy" color="#a78bfa" />
-                <ToolMiniCard name="LinkHub" desc="Your bio link page" color="#a78bfa" />
-                <ToolMiniCard name="Email Autoresponder" desc="Automated follow-up sequences" color="#a78bfa" />
-                <ToolMiniCard name="SuperLeads CRM" desc="Lead management + email blasts" color="#a78bfa" />
-                <ToolMiniCard name="ProSeller AI" desc="AI content generation" color="#a78bfa" />
+                <ToolMiniCard name="SuperPages" desc="Drag-and-drop landing pages" color="var(--sap-purple-light)" />
+                <ToolMiniCard name="AI Content" desc="AI-powered social posts and copy" color="var(--sap-purple-light)" />
+                <ToolMiniCard name="LinkHub" desc="Your bio link page" color="var(--sap-purple-light)" />
+                <ToolMiniCard name="Email Autoresponder" desc="Automated follow-up sequences" color="var(--sap-purple-light)" />
+                <ToolMiniCard name="SuperLeads CRM" desc="Lead management + email blasts" color="var(--sap-purple-light)" />
+                <ToolMiniCard name="ProSeller AI" desc="AI content generation" color="var(--sap-purple-light)" />
               </div>
             </div>
           </div>
@@ -201,15 +201,15 @@ export default function HowItWorks() {
 
         {/* ═══ FOUR WAYS TO EARN ═══ */}
         <Section bg="linear-gradient(180deg,transparent,rgba(251,191,36,0.03),transparent)">
-          <SectionHeader tag="Income" tagColor="#fbbf24" title="Four Ways to Earn" subtitle="Each income stream works independently. Together they compound into serious earnings." />
+          <SectionHeader tag="Income" tagColor="var(--sap-amber-bright)" title="Four Ways to Earn" subtitle="Each income stream works independently. Together they compound into serious earnings." />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
-            <IncomeCard title="Membership Commissions" amount="50%" sub="Recurring monthly" desc="$10 per Basic member, $17.50 per Pro member — every single month they stay active." color="#10b981" />
-            <IncomeCard title="8×8 Income Grid" amount="$7,200+" sub="Per grid cycle" desc="Eight tiers from $20 to $1,000. Each grid has 64 positions that auto-renew when complete." color="#6366f1" />
-            <IncomeCard title="Course Marketplace" amount="100%" sub="Commissions" desc="Keep every sale. Sales 2, 4, 6, 8 pass up to your sponsor — creating an infinite depth chain." color="#fbbf24" comingSoon />
-            <IncomeCard title="SuperMarket" amount="50/25/25" sub="Creator / Affiliate / Platform" desc="Sell digital products. Create once, earn forever. Your affiliates promote for you." color="#0ea5e9" comingSoon />
+            <IncomeCard title="Membership Commissions" amount="50%" sub="Recurring monthly" desc="$10 per Basic member, $17.50 per Pro member — every single month they stay active." color="var(--sap-green-mid)" />
+            <IncomeCard title="8×8 Income Grid" amount="$7,200+" sub="Per grid cycle" desc="Eight tiers from $20 to $1,000. Each grid has 64 positions that auto-renew when complete." color="var(--sap-indigo)" />
+            <IncomeCard title="Course Marketplace" amount="100%" sub="Commissions" desc="Keep every sale. Sales 2, 4, 6, 8 pass up to your sponsor — creating an infinite depth chain." color="var(--sap-amber-bright)" comingSoon />
+            <IncomeCard title="SuperMarket" amount="50/25/25" sub="Creator / Affiliate / Platform" desc="Sell digital products. Create once, earn forever. Your affiliates promote for you." color="var(--sap-accent)" comingSoon />
           </div>
           <div style={{ textAlign: 'center', marginTop: 32 }}>
-            <Link to="/earn" style={{ fontFamily: "'Sora',sans-serif", fontSize: 15, fontWeight: 800, color: '#fbbf24', textDecoration: 'none', borderBottom: '2px solid #fbbf24', paddingBottom: 4 }}>See the full compensation plan →</Link>
+            <Link to="/earn" style={{ fontFamily: "'Sora',sans-serif", fontSize: 15, fontWeight: 800, color: 'var(--sap-amber-bright)', textDecoration: 'none', borderBottom: '2px solid #fbbf24', paddingBottom: 4 }}>See the full compensation plan →</Link>
           </div>
         </Section>
 
@@ -225,19 +225,19 @@ export default function HowItWorks() {
 
         {/* ═══ MEMBERSHIP PRICING ═══ */}
         <Section bg="linear-gradient(180deg,transparent,rgba(14,165,233,0.03),transparent)">
-          <SectionHeader tag="Membership" tagColor="#38bdf8" title="Simple, Affordable Pricing" subtitle="Two plans. No hidden fees. Cancel anytime. Save 17% with annual." />
+          <SectionHeader tag="Membership" tagColor="var(--sap-accent-light)" title="Simple, Affordable Pricing" subtitle="Two plans. No hidden fees. Cancel anytime. Save 17% with annual." />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, maxWidth: 800, margin: '0 auto' }}>
             {/* Basic */}
             <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '36px 28px' }}>
-              <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 700, color: '#38bdf8', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Basic</div>
+              <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 700, color: 'var(--sap-accent-light)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Basic</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
                 <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 40, fontWeight: 900 }}>$20</span>
                 <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)' }}>/month</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                 <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>or</span>
-                <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: '#10b981' }}>$200/year</span>
-                <span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 6 }}>SAVE $40</span>
+                <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--sap-green-mid)' }}>$200/year</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-green-mid)', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 6 }}>SAVE $40</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
                 {['Full affiliate commissions', '8×8 income grid access', 'Campaign video advertising', 'LinkHub bio page', 'Marketing suite tools', 'Creative Studio credit packs'].map(f => (
@@ -248,21 +248,21 @@ export default function HowItWorks() {
             </div>
             {/* Pro */}
             <div style={{ background: 'rgba(14,165,233,0.05)', border: '2px solid rgba(14,165,233,0.2)', borderRadius: 20, padding: '36px 28px', position: 'relative' }}>
-              <div style={{ position: 'absolute', top: -12, right: 20, padding: '4px 16px', borderRadius: 20, background: '#0ea5e9', fontFamily: "'Sora',sans-serif", fontSize: 11, fontWeight: 800, color: '#fff', letterSpacing: 1 }}>RECOMMENDED</div>
-              <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 700, color: '#38bdf8', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Pro</div>
+              <div style={{ position: 'absolute', top: -12, right: 20, padding: '4px 16px', borderRadius: 20, background: 'var(--sap-accent)', fontFamily: "'Sora',sans-serif", fontSize: 11, fontWeight: 800, color: '#fff', letterSpacing: 1 }}>RECOMMENDED</div>
+              <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 700, color: 'var(--sap-accent-light)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Pro</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
                 <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 40, fontWeight: 900 }}>$35</span>
                 <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)' }}>/month</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                 <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>or</span>
-                <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: '#10b981' }}>$350/year</span>
-                <span style={{ fontSize: 10, fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 6 }}>SAVE $70</span>
+                <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--sap-green-mid)' }}>$350/year</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-green-mid)', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 6 }}>SAVE $70</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>✓ Everything in Basic</div>
                 {['AI Content Creator', 'SuperPages builder', 'SuperLeads CRM', 'Email autoresponder'].map(f => (
-                  <div key={f} style={{ fontSize: 13, color: '#38bdf8', fontWeight: 600 }}>+ {f}</div>
+                  <div key={f} style={{ fontSize: 13, color: 'var(--sap-accent-light)', fontWeight: 600 }}>+ {f}</div>
                 ))}
               </div>
               <Link to="/register" style={{ display: 'block', textAlign: 'center', padding: 12, borderRadius: 10, background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color: '#fff', fontFamily: "'Sora',sans-serif", fontWeight: 700, fontSize: 14, textDecoration: 'none', boxShadow: '0 4px 16px rgba(14,165,233,0.25)' }}>Get Pro</Link>
@@ -274,7 +274,7 @@ export default function HowItWorks() {
         <section style={{ padding: '80px 24px', textAlign: 'center' }}>
           <div style={{ maxWidth: 600, margin: '0 auto' }}>
             <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 'clamp(30px,5vw,42px)', fontWeight: 900, marginBottom: 16, lineHeight: 1 }}>
-              Ready to start<br/><span style={{ color: '#38bdf8' }}>building?</span>
+              Ready to start<br/><span style={{ color: 'var(--sap-accent-light)' }}>building?</span>
             </h2>
             <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.4)', marginBottom: 32 }}>Free to join. No credit card. Set up in 60 seconds.</p>
             <Link to="/register" style={{ display: 'inline-block', padding: '20px 56px', borderRadius: 14, fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, textDecoration: 'none', background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff', boxShadow: '0 4px 24px rgba(14,165,233,0.25)' }}>Create Your Free Account →</Link>

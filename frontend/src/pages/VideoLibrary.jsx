@@ -33,14 +33,14 @@ export default function VideoLibrary() {
   var campaigns = d.campaigns || [];
 
   var statusIcon = function(s) {
-    if (s === 'active') return <CheckCircle size={12} color="#16a34a"/>;
-    if (s === 'pending') return <Clock size={12} color="#f59e0b"/>;
-    return <AlertCircle size={12} color="#64748b"/>;
+    if (s === 'active') return <CheckCircle size={12} color="var(--sap-green)"/>;
+    if (s === 'pending') return <Clock size={12} color="var(--sap-amber)"/>;
+    return <AlertCircle size={12} color="var(--sap-text-muted)"/>;
   };
   var statusColor = function(s) {
-    if (s === 'active') return {bg:'rgba(22,163,74,.08)',color:'#16a34a',border:'rgba(22,163,74,.15)'};
-    if (s === 'pending') return {bg:'rgba(245,158,11,.08)',color:'#f59e0b',border:'rgba(245,158,11,.15)'};
-    return {bg:'#f8f9fb',color:'#64748b',border:'#e8ecf2'};
+    if (s === 'active') return {bg:'rgba(22,163,74,.08)',color:'var(--sap-green)',border:'rgba(22,163,74,.15)'};
+    if (s === 'pending') return {bg:'rgba(245,158,11,.08)',color:'var(--sap-amber)',border:'rgba(245,158,11,.15)'};
+    return {bg:'var(--sap-bg-input)',color:'var(--sap-text-muted)',border:'var(--sap-border-light)'};
   };
   function getThumb(c) {
     if (c.platform === 'youtube' && c.embed_url) {
@@ -55,9 +55,9 @@ export default function VideoLibrary() {
       {/* Stats */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:24}}>
         {[
-          {value:d.total_campaigns||0,label:t('videos.totalCampaigns'),color:'#0ea5e9',bg:'#f0f9ff',border:'#bae6fd',icon:Film},
-          {value:d.active_campaigns||0,label:t('videos.activeCampaigns'),color:'#16a34a',bg:'#f0fdf4',border:'#dcfce7',icon:Play},
-          {value:(d.total_views||0).toLocaleString(),label:t('videos.totalViewsDelivered'),color:'#6366f1',bg:'#f5f3ff',border:'#e9d5ff',icon:Eye},
+          {value:d.total_campaigns||0,label:t('videos.totalCampaigns'),color:'var(--sap-accent)',bg:'#f0f9ff',border:'#bae6fd',icon:Film},
+          {value:d.active_campaigns||0,label:t('videos.activeCampaigns'),color:'var(--sap-green)',bg:'var(--sap-green-bg)',border:'var(--sap-green-bg-mid)',icon:Play},
+          {value:(d.total_views||0).toLocaleString(),label:t('videos.totalViewsDelivered'),color:'var(--sap-indigo)',bg:'#f5f3ff',border:'#e9d5ff',icon:Eye},
         ].map(function(s, i) {
           var Icon = s.icon;
           return (
@@ -66,7 +66,7 @@ export default function VideoLibrary() {
                 <Icon size={16} color={s.color}/>
               </div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:s.color}}>{s.value}</div>
-              <div style={{fontSize:12,fontWeight:700,color:'#0f172a',marginTop:4}}>{s.label}</div>
+              <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)',marginTop:4}}>{s.label}</div>
             </div>
           );
         })}
@@ -74,14 +74,14 @@ export default function VideoLibrary() {
 
       {/* Campaign list */}
       <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
-        <div style={{background:'#172554',padding:'16px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div style={{background:'var(--sap-cobalt-deep)',padding:'16px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
-            <Film size={16} color="#38bdf8"/>
+            <Film size={16} color="var(--sap-accent-light)"/>
             <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('videos.yourCampaigns')}</div>
           </div>
           <div style={{display:'flex',alignItems:'center',gap:12}}>
             <span style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.4)'}}>{campaigns.length} campaign{campaigns.length !== 1 ? 's' : ''}</span>
-            <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,color:'#fff',background:'#0ea5e9',padding:'6px 14px',borderRadius:8,textDecoration:'none'}}>
+            <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,color:'#fff',background:'var(--sap-accent)',padding:'6px 14px',borderRadius:8,textDecoration:'none'}}>
               <Plus size={12}/> {t('videos.newCampaign')}
             </Link>
           </div>
@@ -93,9 +93,9 @@ export default function VideoLibrary() {
               var pct = c.views_target > 0 ? Math.min(100, Math.round((c.views_delivered / c.views_target) * 100)) : 0;
               var thumb = getThumb(c);
               return (
-                <div key={c.id} style={{display:'flex',gap:16,padding:16,background:'#f8f9fb',border:'1px solid #e8ecf2',borderRadius:12,alignItems:'center'}}>
+                <div key={c.id} style={{display:'flex',gap:16,padding:16,background:'var(--sap-bg-input)',border:'1px solid #e8ecf2',borderRadius:12,alignItems:'center'}}>
                   {/* Thumbnail */}
-                  <div style={{width:160,height:90,borderRadius:8,overflow:'hidden',background:'#0f172a',flexShrink:0,position:'relative'}}>
+                  <div style={{width:160,height:90,borderRadius:8,overflow:'hidden',background:'var(--sap-text-primary)',flexShrink:0,position:'relative'}}>
                     {thumb ? (
                       <img src={thumb} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}}/>
                     ) : (
@@ -116,24 +116,24 @@ export default function VideoLibrary() {
                   {/* Info */}
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
-                      <div style={{fontSize:15,fontWeight:700,color:'#0f172a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.title || 'Untitled'}</div>
+                      <div style={{fontSize:15,fontWeight:700,color:'var(--sap-text-primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.title || 'Untitled'}</div>
                       <span style={{display:'inline-flex',alignItems:'center',gap:3,fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:6,
                         background:sc.bg,color:sc.color,border:'1px solid '+sc.border,textTransform:'capitalize',flexShrink:0}}>
                         {statusIcon(c.status)} {c.status}
                       </span>
                     </div>
-                    <div style={{fontSize:11,color:'#64748b',marginBottom:8}}>
+                    <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:8}}>
                       {c.platform || '—'} · {c.category || 'General'}
                       {c.target_country ? ' · 🎯 ' + c.target_country : ''}
                       {c.target_interests ? ' · ' + c.target_interests : ''}
                     </div>
                     <div style={{display:'flex',alignItems:'center',gap:10}}>
-                      <div style={{flex:1,height:6,background:'#e2e8f0',borderRadius:3,overflow:'hidden',maxWidth:200}}>
-                        <div style={{height:'100%',borderRadius:3,background:pct>=100?'#16a34a':'#0ea5e9',width:pct+'%',transition:'width .3s'}}/>
+                      <div style={{flex:1,height:6,background:'var(--sap-border)',borderRadius:3,overflow:'hidden',maxWidth:200}}>
+                        <div style={{height:'100%',borderRadius:3,background:pct>=100?'var(--sap-green)':'var(--sap-accent)',width:pct+'%',transition:'width .3s'}}/>
                       </div>
-                      <span style={{fontSize:12,fontWeight:700,color:'#0ea5e9'}}>{(c.views_delivered||0).toLocaleString()}</span>
-                      <span style={{fontSize:10,color:'#64748b'}}>/ {(c.views_target||0).toLocaleString()} {t('videos.views')}</span>
-                      <span style={{fontSize:11,fontWeight:700,color:pct>=100?'#16a34a':'#64748b'}}>{pct}%</span>
+                      <span style={{fontSize:12,fontWeight:700,color:'var(--sap-accent)'}}>{(c.views_delivered||0).toLocaleString()}</span>
+                      <span style={{fontSize:10,color:'var(--sap-text-muted)'}}>/ {(c.views_target||0).toLocaleString()} {t('videos.views')}</span>
+                      <span style={{fontSize:11,fontWeight:700,color:pct>=100?'var(--sap-green)':'var(--sap-text-muted)'}}>{pct}%</span>
                     </div>
                   </div>
 
@@ -141,12 +141,12 @@ export default function VideoLibrary() {
                   <div style={{display:'flex',flexDirection:'column',gap:6,flexShrink:0}}>
                     {c.video_url && (
                       <a href={c.video_url} target="_blank" rel="noreferrer"
-                        style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,color:'#0ea5e9',padding:'6px 12px',borderRadius:8,border:'1px solid rgba(14,165,233,.2)',background:'rgba(14,165,233,.04)',textDecoration:'none',cursor:'pointer'}}>
+                        style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,color:'var(--sap-accent)',padding:'6px 12px',borderRadius:8,border:'1px solid rgba(14,165,233,.2)',background:'rgba(14,165,233,.04)',textDecoration:'none',cursor:'pointer'}}>
                         <Eye size={12}/> {t('videos.view')}
                       </a>
                     )}
                     <button onClick={function(){deleteCampaign(c.id, c.title);}} disabled={deleting === c.id}
-                      style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,color:'#dc2626',padding:'6px 12px',borderRadius:8,border:'1px solid rgba(220,38,38,.15)',background:'rgba(220,38,38,.04)',cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>
+                      style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,color:'var(--sap-red)',padding:'6px 12px',borderRadius:8,border:'1px solid rgba(220,38,38,.15)',background:'rgba(220,38,38,.04)',cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>
                       <Trash2 size={12}/> {deleting === c.id ? '...' : t('videos.delete')}
                     </button>
                   </div>
@@ -157,8 +157,8 @@ export default function VideoLibrary() {
         ) : (
           <div style={{textAlign:'center',padding:'60px 20px'}}>
             <div style={{fontSize:40,marginBottom:12,opacity:.3}}>🎬</div>
-            <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:4}}>{t('videos.noCampaignsYet')}</div>
-            <div style={{fontSize:13,color:'#64748b',marginBottom:20}}>{t('videos.activateATier')}</div>
+            <div style={{fontSize:16,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4}}>{t('videos.noCampaignsYet')}</div>
+            <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:20}}>{t('videos.activateATier')}</div>
             <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#6366f1)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>
               <Plus size={16}/> {t('videos.createFirst')}
             </Link>
@@ -169,4 +169,4 @@ export default function VideoLibrary() {
   );
 }
 
-function Spin() { return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div>; }
+function Spin() { return <div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div>; }

@@ -5,36 +5,36 @@ import { apiPost, apiGet } from '../utils/api';
 import { Film, Sparkles, Download, Clock, CheckCircle, AlertCircle, Loader2, RefreshCw, Upload, X, Mic, ImagePlus, ChevronDown, Layers, Timer, HelpCircle, Monitor } from 'lucide-react';
 
 var STYLES = [
-  { value: 'professional', label: 'Professional', desc: 'Clean, polished, business-ready', color: '#6366f1' },
+  { value: 'professional', label: 'Professional', desc: 'Clean, polished, business-ready', color: 'var(--sap-indigo)' },
   { value: 'energetic', label: 'Energetic', desc: 'Fast-paced, dynamic, high-energy', color: '#f97316' },
-  { value: 'cinematic', label: 'Cinematic', desc: 'Dramatic, filmic, storytelling', color: '#0ea5e9' },
-  { value: 'minimal', label: 'Minimal', desc: 'Simple, clean, understated', color: '#64748b' },
-  { value: 'playful', label: 'Playful', desc: 'Fun, colourful, lighthearted', color: '#ec4899' },
+  { value: 'cinematic', label: 'Cinematic', desc: 'Dramatic, filmic, storytelling', color: 'var(--sap-accent)' },
+  { value: 'minimal', label: 'Minimal', desc: 'Simple, clean, understated', color: 'var(--sap-text-muted)' },
+  { value: 'playful', label: 'Playful', desc: 'Fun, colourful, lighthearted', color: 'var(--sap-pink)' },
 ];
 
 var DURATIONS = [
-  { value: 30, label: '30 seconds', desc: '~4 scenes, ~4 credits', color: '#0ea5e9' },
-  { value: 60, label: '1 minute', desc: '~8 scenes, ~8 credits', color: '#0ea5e9' },
-  { value: 90, label: '90 seconds', desc: '~11 scenes, ~11 credits', color: '#0ea5e9' },
-  { value: 120, label: '2 minutes', desc: '~15 scenes, ~15 credits', color: '#0ea5e9' },
+  { value: 30, label: '30 seconds', desc: '~4 scenes, ~4 credits', color: 'var(--sap-accent)' },
+  { value: 60, label: '1 minute', desc: '~8 scenes, ~8 credits', color: 'var(--sap-accent)' },
+  { value: 90, label: '90 seconds', desc: '~11 scenes, ~11 credits', color: 'var(--sap-accent)' },
+  { value: 120, label: '2 minutes', desc: '~15 scenes, ~15 credits', color: 'var(--sap-accent)' },
 ];
 
 var ASPECTS = [
-  { value: 'landscape', label: '16:9', desc: 'YouTube, websites', color: '#64748b' },
-  { value: 'portrait', label: '9:16', desc: 'TikTok, Reels, Shorts', color: '#64748b' },
+  { value: 'landscape', label: '16:9', desc: 'YouTube, websites', color: 'var(--sap-text-muted)' },
+  { value: 'portrait', label: '9:16', desc: 'TikTok, Reels, Shorts', color: 'var(--sap-text-muted)' },
 ];
 
 var VOICES = [
-  { value: 'en-GB-SoniaNeural', label: 'Sonia', desc: 'British female — warm, professional', color: '#a78bfa', tag: 'DEFAULT', tagColor: '#a78bfa' },
-  { value: 'en-GB-RyanNeural', label: 'Ryan', desc: 'British male — confident, authoritative', color: '#2563eb', tag: 'POPULAR', tagColor: '#0ea5e9' },
-  { value: 'en-US-JennyNeural', label: 'Jenny', desc: 'American female — friendly, conversational', color: '#ec4899' },
-  { value: 'en-US-GuyNeural', label: 'Guy', desc: 'American male — smooth, versatile', color: '#059669' },
-  { value: 'en-US-AriaNeural', label: 'Aria', desc: 'American female — expressive, narration', color: '#dc2626', tag: 'NARRATOR', tagColor: '#059669' },
+  { value: 'en-GB-SoniaNeural', label: 'Sonia', desc: 'British female — warm, professional', color: 'var(--sap-purple-light)', tag: 'DEFAULT', tagColor: 'var(--sap-purple-light)' },
+  { value: 'en-GB-RyanNeural', label: 'Ryan', desc: 'British male — confident, authoritative', color: '#2563eb', tag: 'POPULAR', tagColor: 'var(--sap-accent)' },
+  { value: 'en-US-JennyNeural', label: 'Jenny', desc: 'American female — friendly, conversational', color: 'var(--sap-pink)' },
+  { value: 'en-US-GuyNeural', label: 'Guy', desc: 'American male — smooth, versatile', color: 'var(--sap-green-dark)' },
+  { value: 'en-US-AriaNeural', label: 'Aria', desc: 'American female — expressive, narration', color: 'var(--sap-red)', tag: 'NARRATOR', tagColor: 'var(--sap-green-dark)' },
   { value: 'en-US-DavisNeural', label: 'Davis', desc: 'American male — deep, energetic', color: '#f97316', tag: 'ENERGETIC', tagColor: '#ca8a04' },
-  { value: 'en-US-JaneNeural', label: 'Jane', desc: 'American female — clear, polished', color: '#8b5cf6' },
+  { value: 'en-US-JaneNeural', label: 'Jane', desc: 'American female — clear, polished', color: 'var(--sap-purple)' },
   { value: 'en-US-JasonNeural', label: 'Jason', desc: 'American male — natural, engaging', color: '#0284c7' },
   { value: 'en-AU-NatashaNeural', label: 'Natasha', desc: 'Australian female — bright, upbeat', color: '#ea580c' },
-  { value: 'en-AU-WilliamNeural', label: 'William', desc: 'Australian male — warm, relaxed', color: '#16a34a' },
+  { value: 'en-AU-WilliamNeural', label: 'William', desc: 'Australian male — warm, relaxed', color: 'var(--sap-green)' },
   { value: 'en-IN-NeerjaNeural', label: 'Neerja', desc: 'Indian female — articulate, clear', color: '#d946ef' },
   { value: 'en-IN-PrabhatNeural', label: 'Prabhat', desc: 'Indian male — measured, professional', color: '#0891b2' },
   { value: 'en-ZA-LeahNeural', label: 'Leah', desc: 'South African female — distinctive', color: '#e11d48' },
@@ -65,10 +65,10 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
       <div onClick={function() { setOpen(!open); }}
         onMouseEnter={function() { setHovered(true); }}
         onMouseLeave={function() { setHovered(false); }}
-        style={{ background: isActive ? '#1e3a8a' : '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: '2px solid ' + (isActive ? '#1e3a8a' : 'transparent'), transition: 'all 0.15s ease', transform: hovered && !open ? 'translateY(-2px)' : 'none', boxShadow: hovered && !open ? '0 8px 24px rgba(0,0,0,0.2)' : 'none' }}>
-        <div style={{ fontSize: 11, color: isActive ? 'rgba(255,255,255,0.6)' : '#94a3b8', marginBottom: 4 }}>{label}</div>
+        style={{ background: isActive ? 'var(--sap-cobalt-mid)' : '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: '2px solid ' + (isActive ? 'var(--sap-cobalt-mid)' : 'transparent'), transition: 'all 0.15s ease', transform: hovered && !open ? 'translateY(-2px)' : 'none', boxShadow: hovered && !open ? '0 8px 24px rgba(0,0,0,0.2)' : 'none' }}>
+        <div style={{ fontSize: 11, color: isActive ? 'rgba(255,255,255,0.6)' : 'var(--sap-text-faint)', marginBottom: 4 }}>{label}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{ width: 28, height: 28, borderRadius: 6, background: selected.color || iconColor || '#6366f1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <div style={{ width: 28, height: 28, borderRadius: 6, background: selected.color || iconColor || 'var(--sap-indigo)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             {icon === 'layers' && <Layers size={14} color="#fff" />}
             {icon === 'timer' && <Timer size={14} color="#fff" />}
             {icon === 'mic' && <Mic size={14} color="#fff" />}
@@ -78,8 +78,8 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
                 : <svg width="14" height="10" viewBox="0 0 22 14" fill="none"><rect x="1" y="1" width="20" height="12" rx="2" stroke="#fff" strokeWidth="1.5"/></svg>
             )}
           </div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: isActive ? '#fff' : '#0f172a' }}>{selected.label}</div>
-          <ChevronDown size={14} color={isActive ? 'rgba(255,255,255,0.6)' : '#94a3b8'} style={{ marginLeft: 'auto', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
+          <div style={{ fontSize: 13, fontWeight: 600, color: isActive ? '#fff' : 'var(--sap-text-primary)' }}>{selected.label}</div>
+          <ChevronDown size={14} color={isActive ? 'rgba(255,255,255,0.6)' : 'var(--sap-text-faint)'} style={{ marginLeft: 'auto', transform: open ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s' }} />
         </div>
       </div>
       {open && (
@@ -92,7 +92,7 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
                   style={{ padding: '10px 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer',
                     background: isSel ? 'rgba(139,92,246,0.04)' : 'transparent', borderLeft: isSel ? '3px solid #8b5cf6' : '3px solid transparent', borderBottom: '1px solid #f1f5f9' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div style={{ width: 32, height: 32, borderRadius: 7, background: 'linear-gradient(135deg, ' + (item.color || '#6366f1') + ', ' + (item.color || '#6366f1') + 'cc)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <div style={{ width: 32, height: 32, borderRadius: 7, background: 'linear-gradient(135deg, ' + (item.color || 'var(--sap-indigo)') + ', ' + (item.color || 'var(--sap-indigo)') + 'cc)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       {icon === 'layers' && <Layers size={14} color="#fff" />}
                       {icon === 'timer' && <Timer size={14} color="#fff" />}
                       {icon === 'mic' && <Mic size={14} color="#fff" />}
@@ -103,8 +103,8 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
                       )}
                     </div>
                     <div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{item.label}</div>
-                      {item.desc && <div style={{ fontSize: 11, color: '#94a3b8' }}>{item.desc}</div>}
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--sap-text-primary)' }}>{item.label}</div>
+                      {item.desc && <div style={{ fontSize: 11, color: 'var(--sap-text-faint)' }}>{item.desc}</div>}
                     </div>
                   </div>
                   {item.tag && <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 10, background: (item.tagColor || item.color) + '18', color: item.tagColor || item.color, whiteSpace: 'nowrap' }}>{item.tag}</span>}
@@ -115,7 +115,7 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
           {hasMore && (
             <div onClick={function(e) { e.stopPropagation(); setShowAll(true); }}
               style={{ padding: '10px 14px', borderTop: '1px solid #f1f5f9', textAlign: 'center', cursor: 'pointer', background: '#fafafa' }}>
-              <span style={{ fontSize: 12, color: '#8b5cf6', fontWeight: 600 }}>Show {items.length - initialCount} more</span>
+              <span style={{ fontSize: 12, color: 'var(--sap-purple)', fontWeight: 600 }}>Show {items.length - initialCount} more</span>
             </div>
           )}
         </div>
@@ -140,12 +140,12 @@ function StyledSelect({ label, items, value, onChange, renderLabel, renderDesc, 
     <div ref={ref} style={{ position: 'relative' }}>
       <div className="cs-lbl">{label}</div>
       <div onClick={function() { setOpen(!open); }}
-        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid ' + (open ? '#8b5cf6' : '#e2e8f0'), background: open ? '#faf5ff' : '#fff', cursor: 'pointer', transition: 'all .15s' }}>
+        style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', borderRadius: 8, border: '1px solid ' + (open ? 'var(--sap-purple)' : 'var(--sap-border)'), background: open ? '#faf5ff' : '#fff', cursor: 'pointer', transition: 'all .15s' }}>
         {colorKey && selected[colorKey] && <div style={{ width: 8, height: 8, borderRadius: '50%', background: selected[colorKey], flexShrink: 0 }}/>}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{renderLabel(selected)}</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--sap-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{renderLabel(selected)}</div>
         </div>
-        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5" style={{ flexShrink: 0, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }}><path d="M6 9l6 6 6-6"/></svg>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="var(--sap-text-faint)" strokeWidth="2.5" style={{ flexShrink: 0, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }}><path d="M6 9l6 6 6-6"/></svg>
       </div>
       {open && (
         <div style={{ position: 'absolute', top: '100%', left: 0, right: 0, marginTop: 4, background: '#fff', border: '1px solid #e2e8f0', borderRadius: 10, boxShadow: '0 8px 24px rgba(0,0,0,.12)', zIndex: 50, maxHeight: 260, overflowY: 'auto', padding: 4 }}>
@@ -154,14 +154,14 @@ function StyledSelect({ label, items, value, onChange, renderLabel, renderDesc, 
             return (
               <div key={item.value} onClick={function() { onChange(item.value); setOpen(false); }}
                 style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 6, cursor: 'pointer', background: isSel ? '#f5f3ff' : 'transparent', transition: 'background .1s' }}
-                onMouseEnter={function(e) { if (!isSel) e.currentTarget.style.background = '#f8fafc'; }}
+                onMouseEnter={function(e) { if (!isSel) e.currentTarget.style.background = 'var(--sap-bg-elevated)'; }}
                 onMouseLeave={function(e) { if (!isSel) e.currentTarget.style.background = 'transparent'; }}>
                 {colorKey && item[colorKey] && <div style={{ width: 8, height: 8, borderRadius: '50%', background: item[colorKey], flexShrink: 0 }}/>}
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: isSel ? '#8b5cf6' : '#0f172a' }}>{renderLabel(item)}</div>
-                  {renderDesc && <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 1 }}>{renderDesc(item)}</div>}
+                  <div style={{ fontSize: 12, fontWeight: 600, color: isSel ? 'var(--sap-purple)' : 'var(--sap-text-primary)' }}>{renderLabel(item)}</div>
+                  {renderDesc && <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', marginTop: 1 }}>{renderDesc(item)}</div>}
                 </div>
-                {isSel && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>}
+                {isSel && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--sap-purple)" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>}
               </div>
             );
           })}
@@ -264,7 +264,7 @@ export function VideoCreatorContent() {
           <div className="cs-stage-inner r-16x9"><video src={videoUrl} controls autoPlay loop/></div>
         ) : generating ? (
           <div className="cs-stage-empty">
-            <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
+            <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: 'var(--sap-purple)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
             <p style={{ color: 'rgba(255,255,255,.5)' }}>{status || 'Generating...'}</p>
             <small style={{ color: 'rgba(255,255,255,.25)' }}>{progress}% complete</small>
           </div>
@@ -288,7 +288,7 @@ export function VideoCreatorContent() {
         <div className="cs-progress"><div className="cs-progress-bar" style={{ width: progress + '%' }}/></div>
         <div className="cs-progress-status">{status || 'Generating...'} \u2014 {progress}%</div>
         {steps.length > 0 && <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 8, flexWrap: 'wrap' }}>
-          {steps.map(function(s, i) { var labels = { script: 'Script', images: 'Visuals', voiceover: 'Voiceover', render: 'Composing', video_clips: 'Motion clips' }; var done = s.status === 'ok'; return <span key={i} style={{ fontSize: 11, color: done ? '#22c55e' : '#94a3b8', fontWeight: 600 }}>{done ? '\u2713' : '\u25CB'} {labels[s.step] || s.step}</span>; })}
+          {steps.map(function(s, i) { var labels = { script: 'Script', images: 'Visuals', voiceover: 'Voiceover', render: 'Composing', video_clips: 'Motion clips' }; var done = s.status === 'ok'; return <span key={i} style={{ fontSize: 11, color: done ? 'var(--sap-green-bright)' : 'var(--sap-text-faint)', fontWeight: 600 }}>{done ? '\u2713' : '\u25CB'} {labels[s.step] || s.step}</span>; })}
         </div>}
       </div>}
 
@@ -314,7 +314,7 @@ export function VideoCreatorContent() {
               <div className={'cs-model' + (videoMode === 'motion' ? ' sel' : '')} onClick={function() { setVideoMode('motion'); }}>
                 <div className="cs-model-dot" style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}>\u25B6</div>
                 <div style={{ flex: 1 }}><div className="cs-model-name">Motion Video</div><div className="cs-model-desc">Real AI cinematic clips per scene</div></div>
-                <div style={{ textAlign: 'right' }}><span className="cs-model-badge" style={{ background: '#fef3c7', color: '#92400e' }}>PRO</span><div className="cs-model-price">~{Math.ceil(duration / 8) * 3} credits</div></div>
+                <div style={{ textAlign: 'right' }}><span className="cs-model-badge" style={{ background: 'var(--sap-amber-bg)', color: '#92400e' }}>PRO</span><div className="cs-model-price">~{Math.ceil(duration / 8) * 3} credits</div></div>
               </div>
               <div className={'cs-model' + (videoMode === 'images' ? ' sel' : '')} onClick={function() { setVideoMode('images'); }}>
                 <div className="cs-model-dot" style={{ background: 'linear-gradient(135deg,#22c55e,#16a34a)' }}>\u25CE</div>
@@ -361,8 +361,8 @@ export function VideoCreatorContent() {
       {script && <div style={{ maxWidth: 900, margin: '16px auto 0' }}>
         <div className="cs-card">
           <div className="cs-lbl">Generated Script: {script.title}</div>
-          {(script.scenes || []).slice(0, 4).map(function(s, i) { return <div key={i} style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}><strong>Scene {s.scene_num}:</strong> {(s.narration || '').slice(0, 100)}...</div>; })}
-          {(script.scenes || []).length > 4 && <div style={{ fontSize: 12, color: '#94a3b8' }}>+ {script.scenes.length - 4} more scenes</div>}
+          {(script.scenes || []).slice(0, 4).map(function(s, i) { return <div key={i} style={{ fontSize: 12, color: 'var(--sap-text-muted)', marginBottom: 4 }}><strong>Scene {s.scene_num}:</strong> {(s.narration || '').slice(0, 100)}...</div>; })}
+          {(script.scenes || []).length > 4 && <div style={{ fontSize: 12, color: 'var(--sap-text-faint)' }}>+ {script.scenes.length - 4} more scenes</div>}
         </div>
       </div>}
 

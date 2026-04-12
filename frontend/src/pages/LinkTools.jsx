@@ -14,12 +14,12 @@ import {
 // ── Colour presets for tags ──
 const TAG_COLORS = [
   { name:'Blue', bg:'#dbeafe', text:'#1d4ed8' },
-  { name:'Green', bg:'#dcfce7', text:'#15803d' },
-  { name:'Purple', bg:'#f3e8ff', text:'#7c3aed' },
+  { name:'Green', bg:'var(--sap-green-bg-mid)', text:'#15803d' },
+  { name:'Purple', bg:'#f3e8ff', text:'var(--sap-violet)' },
   { name:'Orange', bg:'#ffedd5', text:'#c2410c' },
   { name:'Pink', bg:'#fce7f3', text:'#be185d' },
   { name:'Cyan', bg:'#cffafe', text:'#0e7490' },
-  { name:'Red', bg:'#fee2e2', text:'#dc2626' },
+  { name:'Red', bg:'#fee2e2', text:'var(--sap-red)' },
   { name:'Yellow', bg:'#fef9c3', text:'#a16207' },
 ];
 
@@ -249,7 +249,7 @@ export default function LinkTools() {
   if (loading) return (
     <AppLayout title="Link Tools">
       <div style={{display:'flex',justifyContent:'center',padding:80}}>
-        <div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#0ea5e9',borderRadius:'50%',animation:'spin .8s linear infinite'}}/>
+        <div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/>
         <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
       </div>
     </AppLayout>
@@ -257,7 +257,7 @@ export default function LinkTools() {
 
   return (
     <AppLayout title={t("linkTools.title")} subtitle={t("linkTools.subtitle")} topbarActions={
-      <button onClick={() => setShowHelp(true)} style={{display:'flex',alignItems:'center',gap:5,padding:'7px 14px',borderRadius:8,fontSize:12,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:'rgba(255,255,255,0.08)',color:'#38bdf8'}}>
+      <button onClick={() => setShowHelp(true)} style={{display:'flex',alignItems:'center',gap:5,padding:'7px 14px',borderRadius:8,fontSize:12,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:'rgba(255,255,255,0.08)',color:'var(--sap-accent-light)'}}>
         <HelpCircle size={14}/> Help
       </button>
     }>
@@ -313,12 +313,12 @@ export default function LinkTools() {
       <div style={{display:'flex',gap:8,marginBottom:20,alignItems:'center'}}>
         {/* Tabs */}
         <div style={{display:'flex',gap:0,background:'#fff',borderRadius:12,border:'1px solid #e2e8f0',padding:4,boxShadow:'0 2px 8px rgba(0,0,0,.05)'}}>
-          {[['links','Short Links',Link2,'#0ea5e9'],['rotators','Rotators',Shuffle,'#8b5cf6']].map(([key,label,Icon,color]) => (
+          {[['links','Short Links',Link2,'var(--sap-accent)'],['rotators','Rotators',Shuffle,'var(--sap-purple)']].map(([key,label,Icon,color]) => (
             <button key={key} onClick={() => setTab(key)} style={{
               display:'flex',alignItems:'center',gap:7,padding:'10px 20px',borderRadius:9,fontSize:13,fontWeight:700,
               border:'none',cursor:'pointer',fontFamily:'inherit',
               background:tab===key?`linear-gradient(135deg,${color}ee,${color}bb)`:'transparent',
-              color:tab===key?'#fff':'#64748b',
+              color:tab===key?'#fff':'var(--sap-text-muted)',
               boxShadow:tab===key?`0 4px 14px ${color}55`:'none',
               transition:'all .18s ease',
             }}><Icon size={14}/> {label}</button>
@@ -326,7 +326,7 @@ export default function LinkTools() {
         </div>
         <button onClick={() => setShowUtm(true)} style={{
           display:'flex',alignItems:'center',gap:7,padding:'10px 18px',borderRadius:10,fontSize:13,fontWeight:700,
-          border:'1px solid #e2e8f0',cursor:'pointer',fontFamily:'inherit',background:'#fff',color:'#64748b',
+          border:'1px solid #e2e8f0',cursor:'pointer',fontFamily:'inherit',background:'#fff',color:'var(--sap-text-muted)',
           boxShadow:'0 2px 6px rgba(0,0,0,.05)',transition:'all .18s ease',
         }}><Search size={14}/> UTM Builder</button>
         <div style={{flex:1}}/>
@@ -344,9 +344,9 @@ export default function LinkTools() {
         <div style={{display:'flex',flexDirection:'column',gap:10}}>
           {links.length === 0 && (
             <div style={{textAlign:'center',padding:'40px 20px',background:'#fff',border:'1px solid #e8ecf2',borderRadius:10}}>
-              <Link2 size={32} color="#94a3b8" style={{marginBottom:8}}/>
-              <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:4}}>No short links yet</div>
-              <div style={{fontSize:12,color:'#64748b'}}>Create your first short link to start tracking clicks</div>
+              <Link2 size={32} color="var(--sap-text-faint)" style={{marginBottom:8}}/>
+              <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4}}>No short links yet</div>
+              <div style={{fontSize:12,color:'var(--sap-text-muted)'}}>Create your first short link to start tracking clicks</div>
             </div>
           )}
           {links.map(l => {
@@ -357,16 +357,16 @@ export default function LinkTools() {
               <div key={l.id} className="lt-card" style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',opacity:isExpired?0.5:1,boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
                 <div style={{padding:'16px 20px',display:'flex',alignItems:'center',gap:14}}>
                   <div style={{width:42,height:42,borderRadius:10,background: l.has_password ? 'rgba(245,158,11,.08)' : 'rgba(14,165,233,.08)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,border:l.has_password?'1px solid rgba(245,158,11,.2)':'1px solid rgba(14,165,233,.2)'}}>
-                    {l.has_password ? <Lock size={18} color="#f59e0b"/> : <Link2 size={18} color="#0ea5e9"/>}
+                    {l.has_password ? <Lock size={18} color="var(--sap-amber)"/> : <Link2 size={18} color="var(--sap-accent)"/>}
                   </div>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
-                      <span style={{fontSize:13,fontWeight:700,color:'#0ea5e9',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{BASE}/go/{l.short_code}</span>
-                      {l.has_password && <Lock size={11} color="#f59e0b"/>}
-                      {isExpired && <span style={{fontSize:9,fontWeight:700,background:'#fee2e2',color:'#dc2626',padding:'1px 6px',borderRadius:4}}>EXPIRED</span>}
+                      <span style={{fontSize:13,fontWeight:700,color:'var(--sap-accent)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{BASE}/go/{l.short_code}</span>
+                      {l.has_password && <Lock size={11} color="var(--sap-amber)"/>}
+                      {isExpired && <span style={{fontSize:9,fontWeight:700,background:'#fee2e2',color:'var(--sap-red)',padding:'1px 6px',borderRadius:4}}>EXPIRED</span>}
                       {l.expires_at && !isExpired && <span style={{fontSize:9,fontWeight:700,background:'#fef9c3',color:'#a16207',padding:'1px 6px',borderRadius:4}}>EXPIRES {new Date(l.expires_at).toLocaleDateString()}</span>}
                     </div>
-                    <div style={{fontSize:11,color:'#64748b',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.title ? l.title + ' — ' : ''}{l.destination_url}</div>
+                    <div style={{fontSize:11,color:'var(--sap-text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.title ? l.title + ' — ' : ''}{l.destination_url}</div>
                     {tags.length > 0 && (
                       <div style={{display:'flex',gap:4,marginTop:4,flexWrap:'wrap'}}>
                         {tags.map(function(t, i) {
@@ -377,11 +377,11 @@ export default function LinkTools() {
                     )}
                   </div>
                   <div style={{textAlign:'center',padding:'8px 14px',background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)',borderRadius:10,flexShrink:0,border:'1px solid #bae6fd',minWidth:64}}>
-                    <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:900,color:'#0284c7',lineHeight:1}}>{l.click_count||0}{l.click_cap ? <span style={{fontSize:11,fontWeight:600,color:'#64748b'}}>/{l.click_cap}</span> : null}</div>
-                    <div style={{fontSize:8,color:'#0ea5e9',fontWeight:700,letterSpacing:.5,marginTop:2}}>CLICKS</div>
+                    <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:900,color:'#0284c7',lineHeight:1}}>{l.click_count||0}{l.click_cap ? <span style={{fontSize:11,fontWeight:600,color:'var(--sap-text-muted)'}}>/{l.click_cap}</span> : null}</div>
+                    <div style={{fontSize:8,color:'var(--sap-accent)',fontWeight:700,letterSpacing:.5,marginTop:2}}>CLICKS</div>
                     {l.click_cap && (
                       <div style={{height:3,background:'#e0f2fe',borderRadius:2,marginTop:4,overflow:'hidden'}}>
-                        <div style={{height:'100%',background:((l.click_count||0)/l.click_cap)>0.8?'#ef4444':'#0ea5e9',borderRadius:2,width:Math.min(100,Math.round(((l.click_count||0)/l.click_cap)*100))+'%'}}/>
+                        <div style={{height:'100%',background:((l.click_count||0)/l.click_cap)>0.8?'var(--sap-red-bright)':'var(--sap-accent)',borderRadius:2,width:Math.min(100,Math.round(((l.click_count||0)/l.click_cap)*100))+'%'}}/>
                       </div>
                     )}
                   </div>
@@ -396,12 +396,12 @@ export default function LinkTools() {
                   <div style={{flex:1}}/>
                   {confirmDelete === 'link-' + l.id ? (
                     <>
-                      <span style={{fontSize:11,fontWeight:600,color:'#dc2626',display:'flex',alignItems:'center'}}>Delete?</span>
-                      <button onClick={() => deleteItem(l.id,'short')} style={{...smallBtn,background:'#dc2626',color:'#fff',border:'none'}}>Yes</button>
+                      <span style={{fontSize:11,fontWeight:600,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>Delete?</span>
+                      <button onClick={() => deleteItem(l.id,'short')} style={{...smallBtn,background:'var(--sap-red)',color:'#fff',border:'none'}}>Yes</button>
                       <button onClick={() => setConfirmDelete(null)} style={smallBtn}>No</button>
                     </>
                   ) : (
-                    <button onClick={() => setConfirmDelete('link-' + l.id)} style={{...smallBtn,color:'#dc2626',borderColor:'#fecaca'}}><Trash2 size={12}/></button>
+                    <button onClick={() => setConfirmDelete('link-' + l.id)} style={{...smallBtn,color:'var(--sap-red)',borderColor:'var(--sap-red-bg-mid)'}}><Trash2 size={12}/></button>
                   )}
                 </div>
               </div>
@@ -415,24 +415,24 @@ export default function LinkTools() {
         <div style={{display:'flex',flexDirection:'column',gap:10}}>
           {rotators.length === 0 && (
             <div style={{textAlign:'center',padding:'40px 20px',background:'#fff',border:'1px solid #e8ecf2',borderRadius:10}}>
-              <Shuffle size={32} color="#94a3b8" style={{marginBottom:8}}/>
-              <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:4}}>No rotators yet</div>
-              <div style={{fontSize:12,color:'#64748b'}}>Create a rotator to split traffic across multiple URLs</div>
+              <Shuffle size={32} color="var(--sap-text-faint)" style={{marginBottom:8}}/>
+              <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4}}>No rotators yet</div>
+              <div style={{fontSize:12,color:'var(--sap-text-muted)'}}>Create a rotator to split traffic across multiple URLs</div>
             </div>
           )}
           {rotators.map(r => (
             <div key={r.id} className="lt-card" style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
               <div style={{padding:'16px 20px',display:'flex',alignItems:'center',gap:14}}>
                 <div style={{width:42,height:42,borderRadius:10,background:'rgba(139,92,246,.08)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,border:'1px solid rgba(139,92,246,.2)'}}>
-                  <Shuffle size={18} color="#8b5cf6"/>
+                  <Shuffle size={18} color="var(--sap-purple)"/>
                 </div>
                 <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontSize:14,fontWeight:800,color:'#0f172a'}}>{r.name}</div>
-                  <div style={{fontSize:12,color:'#8b5cf6',fontWeight:600}}>{BASE}/go/{r.short_code}</div>
+                  <div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)'}}>{r.name}</div>
+                  <div style={{fontSize:12,color:'var(--sap-purple)',fontWeight:600}}>{BASE}/go/{r.short_code}</div>
                 </div>
                 <div style={{textAlign:'center',padding:'8px 14px',background:'linear-gradient(135deg,#faf5ff,#ede9fe)',borderRadius:10,border:'1px solid #ddd6fe'}}>
-                  <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:900,color:'#7c3aed',lineHeight:1}}>{r.click_count||0}</div>
-                  <div style={{fontSize:8,color:'#8b5cf6',fontWeight:700,letterSpacing:.5,marginTop:2}}>CLICKS</div>
+                  <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:900,color:'var(--sap-violet)',lineHeight:1}}>{r.click_count||0}</div>
+                  <div style={{fontSize:8,color:'var(--sap-purple)',fontWeight:700,letterSpacing:.5,marginTop:2}}>CLICKS</div>
                 </div>
               </div>
               <div style={{padding:'8px 16px',borderTop:'1px solid #f1f3f7',display:'flex',gap:6}}>
@@ -441,12 +441,12 @@ export default function LinkTools() {
                 <div style={{flex:1}}/>
                 {confirmDelete === 'rot-' + r.id ? (
                   <>
-                    <span style={{fontSize:11,fontWeight:600,color:'#dc2626',display:'flex',alignItems:'center'}}>Delete?</span>
-                    <button onClick={() => deleteItem(r.id,'rotator')} style={{...smallBtn,background:'#dc2626',color:'#fff',border:'none'}}>Yes</button>
+                    <span style={{fontSize:11,fontWeight:600,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>Delete?</span>
+                    <button onClick={() => deleteItem(r.id,'rotator')} style={{...smallBtn,background:'var(--sap-red)',color:'#fff',border:'none'}}>Yes</button>
                     <button onClick={() => setConfirmDelete(null)} style={smallBtn}>No</button>
                   </>
                 ) : (
-                  <button onClick={() => setConfirmDelete('rot-' + r.id)} style={{...smallBtn,color:'#dc2626',borderColor:'#fecaca'}}><Trash2 size={12}/></button>
+                  <button onClick={() => setConfirmDelete('rot-' + r.id)} style={{...smallBtn,color:'var(--sap-red)',borderColor:'var(--sap-red-bg-mid)'}}><Trash2 size={12}/></button>
                 )}
               </div>
             </div>
@@ -456,24 +456,24 @@ export default function LinkTools() {
 
       {/* ── CREATE SHORT LINK MODAL ── */}
       {showCreate && (
-        <Modal onClose={() => { setShowCreate(false); setShowAdvanced(false); }} title="Create Short Link" icon={<Link2 size={18} color="#0ea5e9"/>}>
+        <Modal onClose={() => { setShowCreate(false); setShowAdvanced(false); }} title="Create Short Link" icon={<Link2 size={18} color="var(--sap-accent)"/>}>
           <Label>{t('linkTools.destinationUrl')}</Label>
           <Input value={newUrl} onChange={e => setNewUrl(e.target.value)} placeholder={t("linkTools.destinationUrlPlaceholder")}/>
           <Label>{t('linkTools.customSlug')}</Label>
           <Input value={newSlug} onChange={e => setNewSlug(e.target.value)} placeholder={t("linkTools.customSlugPlaceholder")}/>
-          {newSlug && <div style={{fontSize:11,color:'#64748b',marginTop:-6,marginBottom:10}}>Preview: {BASE}/go/{newSlug || '...'}</div>}
+          {newSlug && <div style={{fontSize:11,color:'var(--sap-text-muted)',marginTop:-6,marginBottom:10}}>Preview: {BASE}/go/{newSlug || '...'}</div>}
           <Label>{t('linkTools.titleOptional')}</Label>
           <Input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder={t("linkTools.titlePlaceholder")}/>
 
           <button onClick={() => setShowAdvanced(!showAdvanced)} style={{
-            display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:700,color:'#0ea5e9',
+            display:'flex',alignItems:'center',gap:6,fontSize:12,fontWeight:700,color:'var(--sap-accent)',
             background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12,fontFamily:'inherit',
           }}>
             <ChevronDown size={14} style={{transform:showAdvanced?'rotate(180deg)':'none',transition:'transform .2s'}}/> Advanced Options
           </button>
 
           {showAdvanced && (
-            <div style={{background:'#f8f9fb',borderRadius:10,padding:16,marginBottom:14,border:'1px solid #e8ecf2'}}>
+            <div style={{background:'var(--sap-bg-input)',borderRadius:10,padding:16,marginBottom:14,border:'1px solid #e8ecf2'}}>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
                 <div>
                   <Label><Lock size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Password Protection</Label>
@@ -492,7 +492,7 @@ export default function LinkTools() {
           )}
 
           <div style={{display:'flex',gap:8,marginTop:8}}>
-            <button onClick={createLink} disabled={creating} style={btnPrimary('#0ea5e9')}>{creating?'Creating...':'Create Link →'}</button>
+            <button onClick={createLink} disabled={creating} style={btnPrimary('var(--sap-accent)')}>{creating?'Creating...':'Create Link →'}</button>
             <button onClick={() => { setShowCreate(false); setShowAdvanced(false); }} style={btnSecondary}>Cancel</button>
           </div>
         </Modal>
@@ -500,7 +500,7 @@ export default function LinkTools() {
 
       {/* ── CREATE ROTATOR MODAL ── */}
       {showRotatorCreate && (
-        <Modal onClose={() => setShowRotatorCreate(false)} title="Create Link Rotator" icon={<Shuffle size={18} color="#8b5cf6"/>}>
+        <Modal onClose={() => setShowRotatorCreate(false)} title="Create Link Rotator" icon={<Shuffle size={18} color="var(--sap-purple)"/>}>
           <Label>{t('linkTools.rotatorName')}</Label>
           <Input value={rotName} onChange={e => setRotName(e.target.value)} placeholder={t("linkTools.rotatorNamePlaceholder")}/>
           <Label>{t('linkTools.customSlug')}</Label>
@@ -511,7 +511,7 @@ export default function LinkTools() {
               <button key={k} onClick={() => setRotMode(k)} style={{
                 flex:1,padding:'8px',borderRadius:8,fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit',
                 border:rotMode===k?'2px solid #8b5cf6':'2px solid #e2e8f0',
-                background:rotMode===k?'rgba(139,92,246,.06)':'#fff',color:rotMode===k?'#8b5cf6':'#64748b',
+                background:rotMode===k?'rgba(139,92,246,.06)':'#fff',color:rotMode===k?'var(--sap-purple)':'var(--sap-text-muted)',
               }}>{l}</button>
             ))}
           </div>
@@ -524,15 +524,15 @@ export default function LinkTools() {
                   style={{width:60,padding:'8px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:12,textAlign:'center'}} min={0} max={100}/>
               )}
               {rotDests.length > 2 && (
-                <button onClick={() => setRotDests(rotDests.filter(function(_, j){ return j!==i; }))} style={{width:32,height:38,border:'1px solid #fecaca',borderRadius:8,background:'#fef2f2',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                  <X size={12} color="#dc2626"/>
+                <button onClick={() => setRotDests(rotDests.filter(function(_, j){ return j!==i; }))} style={{width:32,height:38,border:'1px solid #fecaca',borderRadius:8,background:'var(--sap-red-bg)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <X size={12} color="var(--sap-red)"/>
                 </button>
               )}
             </div>
           ))}
-          <button onClick={() => setRotDests([...rotDests,{url:'',weight:50}])} style={{fontSize:11,fontWeight:600,color:'#0ea5e9',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12}}>+ Add another URL</button>
+          <button onClick={() => setRotDests([...rotDests,{url:'',weight:50}])} style={{fontSize:11,fontWeight:600,color:'var(--sap-accent)',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12}}>+ Add another URL</button>
           <div style={{display:'flex',gap:8,marginTop:8}}>
-            <button onClick={createRotator} disabled={rotCreating} style={btnPrimary('#8b5cf6')}>{rotCreating?'Creating...':'Create Rotator →'}</button>
+            <button onClick={createRotator} disabled={rotCreating} style={btnPrimary('var(--sap-purple)')}>{rotCreating?'Creating...':'Create Rotator →'}</button>
             <button onClick={() => setShowRotatorCreate(false)} style={btnSecondary}>Cancel</button>
           </div>
         </Modal>
@@ -540,8 +540,8 @@ export default function LinkTools() {
 
       {/* ── EDIT LINK MODAL ── */}
       {editLink && (
-        <Modal onClose={() => setEditLink(null)} title="Edit Link" icon={<Edit3 size={18} color="#0ea5e9"/>}>
-          <div style={{fontSize:11,color:'#64748b',marginBottom:14,fontWeight:600}}>{BASE}/go/{editLink.short_code}</div>
+        <Modal onClose={() => setEditLink(null)} title="Edit Link" icon={<Edit3 size={18} color="var(--sap-accent)"/>}>
+          <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:14,fontWeight:600}}>{BASE}/go/{editLink.short_code}</div>
           <Label>{t('linkTools.destinationUrl')}</Label>
           <Input value={editDest} onChange={e => setEditDest(e.target.value)} placeholder="https://..."/>
           <Label>{t('linkTools.linkTitle')}</Label>
@@ -557,19 +557,19 @@ export default function LinkTools() {
             </div>
           </div>
           <div style={{marginTop:12}}>
-            <Label><Lock size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Password {editLink.has_password && <span style={{fontSize:9,color:'#f59e0b'}}>(currently set)</span>}</Label>
+            <Label><Lock size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Password {editLink.has_password && <span style={{fontSize:9,color:'var(--sap-amber)'}}>(currently set)</span>}</Label>
             <Input type="password" value={editPassword} onChange={e => setEditPassword(e.target.value)} placeholder={editLink.has_password ? 'Enter new password or leave blank' : 'Leave blank for none'}/>
             {editLink.has_password && (
               <button onClick={async () => {
                 await apiPost('/api/links/edit/' + editLink.id, { password: '' });
                 showToast('✓ Password removed'); setEditLink(null); load();
-              }} style={{fontSize:11,fontWeight:600,color:'#dc2626',background:'none',border:'none',cursor:'pointer',marginTop:-6,marginBottom:8,fontFamily:'inherit'}}>
+              }} style={{fontSize:11,fontWeight:600,color:'var(--sap-red)',background:'none',border:'none',cursor:'pointer',marginTop:-6,marginBottom:8,fontFamily:'inherit'}}>
                 Remove password protection
               </button>
             )}
           </div>
           <div style={{display:'flex',gap:8,marginTop:8}}>
-            <button onClick={saveEdit} disabled={editSaving} style={btnPrimary('#0ea5e9')}>{editSaving?'Saving...':'Save Changes →'}</button>
+            <button onClick={saveEdit} disabled={editSaving} style={btnPrimary('var(--sap-accent)')}>{editSaving?'Saving...':'Save Changes →'}</button>
             <button onClick={() => setEditLink(null)} style={btnSecondary}>Cancel</button>
           </div>
         </Modal>
@@ -577,7 +577,7 @@ export default function LinkTools() {
 
       {/* ── EDIT ROTATOR MODAL ── */}
       {editRotator && (
-        <Modal onClose={() => setEditRotator(null)} title="Edit Rotator" icon={<Shuffle size={18} color="#8b5cf6"/>}>
+        <Modal onClose={() => setEditRotator(null)} title="Edit Rotator" icon={<Shuffle size={18} color="var(--sap-purple)"/>}>
           <Label>{t('linkTools.rotatorName')}</Label>
           <Input value={editRotName} onChange={e => setEditRotName(e.target.value)} placeholder={t("linkTools.rotatorNameEdit")}/>
           <Label>{t('linkTools.rotationMode')}</Label>
@@ -586,7 +586,7 @@ export default function LinkTools() {
               <button key={k} onClick={() => setEditRotMode(k)} style={{
                 flex:1,padding:'8px',borderRadius:8,fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit',
                 border:editRotMode===k?'2px solid #8b5cf6':'2px solid #e2e8f0',
-                background:editRotMode===k?'rgba(139,92,246,.06)':'#fff',color:editRotMode===k?'#8b5cf6':'#64748b',
+                background:editRotMode===k?'rgba(139,92,246,.06)':'#fff',color:editRotMode===k?'var(--sap-purple)':'var(--sap-text-muted)',
               }}>{l}</button>
             ))}
           </div>
@@ -599,15 +599,15 @@ export default function LinkTools() {
                   style={{width:60,padding:'8px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:12,textAlign:'center'}} min={0} max={100}/>
               )}
               {editRotDests.length > 2 && (
-                <button onClick={() => setEditRotDests(editRotDests.filter(function(_,j){ return j!==i; }))} style={{width:32,height:38,border:'1px solid #fecaca',borderRadius:8,background:'#fef2f2',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                  <X size={12} color="#dc2626"/>
+                <button onClick={() => setEditRotDests(editRotDests.filter(function(_,j){ return j!==i; }))} style={{width:32,height:38,border:'1px solid #fecaca',borderRadius:8,background:'var(--sap-red-bg)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <X size={12} color="var(--sap-red)"/>
                 </button>
               )}
             </div>
           ))}
-          <button onClick={() => setEditRotDests([...editRotDests,{url:'',weight:50,clicks:0}])} style={{fontSize:11,fontWeight:600,color:'#8b5cf6',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12}}>+ Add URL</button>
+          <button onClick={() => setEditRotDests([...editRotDests,{url:'',weight:50,clicks:0}])} style={{fontSize:11,fontWeight:600,color:'var(--sap-purple)',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12}}>+ Add URL</button>
           <div style={{display:'flex',gap:8,marginTop:8}}>
-            <button onClick={saveEditRotator} disabled={editRotSaving} style={btnPrimary('#8b5cf6')}>{editRotSaving?'Saving...':'Save Changes →'}</button>
+            <button onClick={saveEditRotator} disabled={editRotSaving} style={btnPrimary('var(--sap-purple)')}>{editRotSaving?'Saving...':'Save Changes →'}</button>
             <button onClick={() => setEditRotator(null)} style={btnSecondary}>Cancel</button>
           </div>
         </Modal>
@@ -615,20 +615,20 @@ export default function LinkTools() {
 
       {/* ── QR CODE MODAL ── */}
       {qrLink && (
-        <Modal onClose={() => setQrLink(null)} title="QR Code" icon={<QrCode size={18} color="#0ea5e9"/>}>
+        <Modal onClose={() => setQrLink(null)} title="QR Code" icon={<QrCode size={18} color="var(--sap-accent)"/>}>
           <QrCodeDisplay url={BASE + '/go/' + qrLink.short_code} slug={qrLink.short_code}/>
         </Modal>
       )}
 
       {/* ── UTM BUILDER MODAL ── */}
       {showUtm && (
-        <Modal onClose={() => setShowUtm(false)} title="UTM Tag Builder" icon={<Search size={18} color="#10b981"/>} wide>
-          <p style={{fontSize:12,color:'#64748b',marginBottom:16}}>Build campaign-tracked URLs with UTM parameters. Paste any URL and add your campaign tags.</p>
+        <Modal onClose={() => setShowUtm(false)} title="UTM Tag Builder" icon={<Search size={18} color="var(--sap-green-mid)"/>} wide>
+          <p style={{fontSize:12,color:'var(--sap-text-muted)',marginBottom:16}}>Build campaign-tracked URLs with UTM parameters. Paste any URL and add your campaign tags.</p>
           <Label>{t('linkTools.baseUrl')}</Label>
           <Input value={utmUrl} onChange={e => setUtmUrl(e.target.value)} placeholder={t("linkTools.baseUrlPlaceholder")}/>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
             <div>
-              <Label>Source <span style={{color:'#dc2626'}}>*</span></Label>
+              <Label>Source <span style={{color:'var(--sap-red)'}}>*</span></Label>
               <Input value={utmSource} onChange={e => setUtmSource(e.target.value)} placeholder={t("linkTools.sourcePlaceholder")}/>
             </div>
             <div>
@@ -648,18 +648,18 @@ export default function LinkTools() {
           <Input value={utmContent} onChange={e => setUtmContent(e.target.value)} placeholder="banner_ad, text_link"/>
 
           {utmResult && (
-            <div style={{background:'#f0fdf4',border:'1px solid #bbf7d0',borderRadius:10,padding:14,marginTop:8}}>
+            <div style={{background:'var(--sap-green-bg)',border:'1px solid #bbf7d0',borderRadius:10,padding:14,marginTop:8}}>
               <div style={{fontSize:10,fontWeight:700,color:'#15803d',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>Generated URL</div>
-              <div style={{fontSize:12,color:'#0f172a',wordBreak:'break-all',fontFamily:'monospace',lineHeight:1.6}}>{utmResult}</div>
+              <div style={{fontSize:12,color:'var(--sap-text-primary)',wordBreak:'break-all',fontFamily:'monospace',lineHeight:1.6}}>{utmResult}</div>
               <div style={{display:'flex',gap:8,marginTop:12}}>
-                <button onClick={() => copyToClip(utmResult)} style={{...smallBtn,background:'#10b981',color:'#fff',border:'none'}}><Copy size={12}/> Copy URL</button>
-                <button onClick={() => { setNewUrl(utmResult); setShowUtm(false); setShowCreate(true); }} style={{...smallBtn,background:'#0ea5e9',color:'#fff',border:'none'}}><Link2 size={12}/> Shorten This</button>
+                <button onClick={() => copyToClip(utmResult)} style={{...smallBtn,background:'var(--sap-green-mid)',color:'#fff',border:'none'}}><Copy size={12}/> Copy URL</button>
+                <button onClick={() => { setNewUrl(utmResult); setShowUtm(false); setShowCreate(true); }} style={{...smallBtn,background:'var(--sap-accent)',color:'#fff',border:'none'}}><Link2 size={12}/> Shorten This</button>
               </div>
             </div>
           )}
 
           <div style={{marginTop:16}}>
-            <div style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Quick Presets</div>
+            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Quick Presets</div>
             <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
               {[
                 {label:'Facebook Ad',s:'facebook',m:'cpc',c:'fb_ad'},
@@ -671,7 +671,7 @@ export default function LinkTools() {
               ].map(function(p, i) {
                 return (
                   <button key={i} onClick={() => { setUtmSource(p.s); setUtmMedium(p.m); setUtmCampaign(p.c); }}
-                    style={{fontSize:10,fontWeight:700,padding:'5px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'#475569',cursor:'pointer',fontFamily:'inherit'}}>
+                    style={{fontSize:10,fontWeight:700,padding:'5px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-text-secondary)',cursor:'pointer',fontFamily:'inherit'}}>
                     {p.label}
                   </button>
                 );
@@ -683,8 +683,8 @@ export default function LinkTools() {
 
       {/* ── TAG EDITOR MODAL ── */}
       {tagLink && (
-        <Modal onClose={() => setTagLink(null)} title="Edit Tags" icon={<Tag size={18} color="#8b5cf6"/>}>
-          <div style={{fontSize:11,color:'#64748b',marginBottom:14}}>{BASE}/go/{tagLink.short_code}</div>
+        <Modal onClose={() => setTagLink(null)} title="Edit Tags" icon={<Tag size={18} color="var(--sap-purple)"/>}>
+          <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:14}}>{BASE}/go/{tagLink.short_code}</div>
           {editTags.length > 0 && (
             <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
               {editTags.map(function(t, i) {
@@ -700,7 +700,7 @@ export default function LinkTools() {
           )}
           <div style={{display:'flex',gap:6,marginBottom:10}}>
             <Input value={tagInput} onChange={e => setTagInput(e.target.value)} placeholder="Tag name..." onKeyDown={e => { if(e.key==='Enter') addTag(); }} style={{flex:1,marginBottom:0}}/>
-            <button onClick={addTag} style={{...smallBtn,background:'#8b5cf6',color:'#fff',border:'none',padding:'8px 14px'}}>Add</button>
+            <button onClick={addTag} style={{...smallBtn,background:'var(--sap-purple)',color:'#fff',border:'none',padding:'8px 14px'}}>Add</button>
           </div>
           <div style={{display:'flex',gap:4,marginBottom:16}}>
             {TAG_COLORS.map(function(c, i) {
@@ -713,7 +713,7 @@ export default function LinkTools() {
             })}
           </div>
           <div style={{display:'flex',gap:8}}>
-            <button onClick={saveTags} style={btnPrimary('#8b5cf6')}>Save Tags →</button>
+            <button onClick={saveTags} style={btnPrimary('var(--sap-purple)')}>Save Tags →</button>
             <button onClick={() => setTagLink(null)} style={btnSecondary}>Cancel</button>
           </div>
         </Modal>
@@ -721,38 +721,38 @@ export default function LinkTools() {
 
       {/* ── ANALYTICS MODAL ── */}
       {analyticsId !== null && (
-        <Modal onClose={() => setAnalyticsId(null)} title="Click Analytics" icon={<BarChart3 size={18} color="#10b981"/>} wide>
+        <Modal onClose={() => setAnalyticsId(null)} title="Click Analytics" icon={<BarChart3 size={18} color="var(--sap-green-mid)"/>} wide>
           {!analytics ? (
-            <div style={{textAlign:'center',padding:30,color:'#64748b'}}>Loading analytics...</div>
+            <div style={{textAlign:'center',padding:30,color:'var(--sap-text-muted)'}}>Loading analytics...</div>
           ) : analytics.error ? (
-            <div style={{textAlign:'center',padding:30,color:'#dc2626'}}>{analytics.error}</div>
+            <div style={{textAlign:'center',padding:30,color:'var(--sap-red)'}}>{analytics.error}</div>
           ) : (
             <>
               <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:20}}>
-                <StatBox label="Total Clicks" val={analytics.total_clicks} color="#10b981"/>
-                <StatBox label="Mobile" val={analytics.devices?.mobile||0} color="#0ea5e9"/>
-                <StatBox label="Desktop" val={analytics.devices?.desktop||0} color="#8b5cf6"/>
+                <StatBox label="Total Clicks" val={analytics.total_clicks} color="var(--sap-green-mid)"/>
+                <StatBox label="Mobile" val={analytics.devices?.mobile||0} color="var(--sap-accent)"/>
+                <StatBox label="Desktop" val={analytics.devices?.desktop||0} color="var(--sap-purple)"/>
               </div>
               {analytics.timeline && analytics.timeline.length > 0 && (
                 <div style={{marginBottom:20}}>
-                  <div style={{fontSize:11,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Clicks — Last 30 Days</div>
-                  <div style={{display:'flex',alignItems:'flex-end',gap:2,height:80,background:'#f8f9fb',borderRadius:8,padding:'8px 4px'}}>
+                  <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Clicks — Last 30 Days</div>
+                  <div style={{display:'flex',alignItems:'flex-end',gap:2,height:80,background:'var(--sap-bg-input)',borderRadius:8,padding:'8px 4px'}}>
                     {analytics.timeline.map(function(d, i) {
                       var max = Math.max.apply(null, analytics.timeline.map(function(t){ return t.clicks; }).concat([1]));
                       var h = Math.max(2, (d.clicks/max)*60);
-                      return <div key={i} title={d.date + ': ' + d.clicks + ' clicks'} style={{flex:1,height:h,background:d.clicks>0?'#0ea5e9':'#e2e8f0',borderRadius:2,minWidth:1}}/>;
+                      return <div key={i} title={d.date + ': ' + d.clicks + ' clicks'} style={{flex:1,height:h,background:d.clicks>0?'var(--sap-accent)':'var(--sap-border)',borderRadius:2,minWidth:1}}/>;
                     })}
                   </div>
                 </div>
               )}
               {analytics.sources && Object.keys(analytics.sources).length > 0 && (
                 <div style={{marginBottom:16}}>
-                  <div style={{fontSize:11,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Traffic Sources</div>
+                  <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Traffic Sources</div>
                   {Object.entries(analytics.sources).sort(function(a,b){ return b[1]-a[1]; }).map(function(pair) {
                     return (
                       <div key={pair[0]} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
-                        <span style={{fontSize:12,color:'#0f172a',fontWeight:600}}>{pair[0]}</span>
-                        <span style={{fontSize:12,color:'#64748b',fontWeight:700}}>{pair[1]}</span>
+                        <span style={{fontSize:12,color:'var(--sap-text-primary)',fontWeight:600}}>{pair[0]}</span>
+                        <span style={{fontSize:12,color:'var(--sap-text-muted)',fontWeight:700}}>{pair[1]}</span>
                       </div>
                     );
                   })}
@@ -760,12 +760,12 @@ export default function LinkTools() {
               )}
               {analytics.countries && Object.keys(analytics.countries).length > 0 && (
                 <div>
-                  <div style={{fontSize:11,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Top Countries</div>
+                  <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Top Countries</div>
                   {Object.entries(analytics.countries).map(function(pair) {
                     return (
                       <div key={pair[0]} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
-                        <span style={{fontSize:12,color:'#0f172a',fontWeight:600}}>{pair[0]}</span>
-                        <span style={{fontSize:12,color:'#64748b',fontWeight:700}}>{pair[1]}</span>
+                        <span style={{fontSize:12,color:'var(--sap-text-primary)',fontWeight:600}}>{pair[0]}</span>
+                        <span style={{fontSize:12,color:'var(--sap-text-muted)',fontWeight:700}}>{pair[1]}</span>
                       </div>
                     );
                   })}
@@ -778,7 +778,7 @@ export default function LinkTools() {
 
       {/* ── Toast ── */}
       {toast && (
-        <div style={{position:'fixed',bottom:24,left:'50%',transform:'translateX(-50%)',background:toast.includes('✓')?'#10b981':'#ef4444',color:'#fff',padding:'10px 24px',borderRadius:12,fontSize:13,fontWeight:700,boxShadow:'0 4px 20px rgba(0,0,0,.2)',zIndex:300}}>{toast}</div>
+        <div style={{position:'fixed',bottom:24,left:'50%',transform:'translateX(-50%)',background:toast.includes('✓')?'var(--sap-green-mid)':'var(--sap-red-bright)',color:'#fff',padding:'10px 24px',borderRadius:12,fontSize:13,fontWeight:700,boxShadow:'0 4px 20px rgba(0,0,0,.2)',zIndex:300}}>{toast}</div>
       )}
 
       {/* ── Help Panel ── */}
@@ -792,7 +792,7 @@ export default function LinkTools() {
 function QrCodeDisplay({ url, slug }) {
   var canvasRef = useRef(null);
   var [size, setSize] = useState(256);
-  var [fgColor, setFgColor] = useState('#0f172a');
+  var [fgColor, setFgColor] = useState('var(--sap-text-primary)');
   var [bgColor, setBgColor] = useState('#ffffff');
 
   var generate = useCallback(function() {
@@ -816,7 +816,7 @@ function QrCodeDisplay({ url, slug }) {
   return (
     <div style={{textAlign:'center'}}>
       <canvas ref={canvasRef} style={{borderRadius:8,margin:'0 auto 16px',display:'block'}}/>
-      <div style={{fontSize:11,color:'#64748b',marginBottom:16,wordBreak:'break-all'}}>{url}</div>
+      <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:16,wordBreak:'break-all'}}>{url}</div>
 
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:16}}>
         <div>
@@ -832,20 +832,20 @@ function QrCodeDisplay({ url, slug }) {
           <Label>Foreground</Label>
           <div style={{display:'flex',alignItems:'center',gap:6}}>
             <input type="color" value={fgColor} onChange={e => setFgColor(e.target.value)} style={{width:32,height:32,border:'none',background:'none',cursor:'pointer',padding:0}}/>
-            <span style={{fontSize:11,color:'#64748b'}}>{fgColor}</span>
+            <span style={{fontSize:11,color:'var(--sap-text-muted)'}}>{fgColor}</span>
           </div>
         </div>
         <div>
           <Label>Background</Label>
           <div style={{display:'flex',alignItems:'center',gap:6}}>
             <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)} style={{width:32,height:32,border:'none',background:'none',cursor:'pointer',padding:0}}/>
-            <span style={{fontSize:11,color:'#64748b'}}>{bgColor}</span>
+            <span style={{fontSize:11,color:'var(--sap-text-muted)'}}>{bgColor}</span>
           </div>
         </div>
       </div>
 
       <div style={{display:'flex',gap:8,justifyContent:'center'}}>
-        <button onClick={download} style={{...smallBtn,background:'#0ea5e9',color:'#fff',border:'none',padding:'10px 20px',fontSize:13,fontWeight:700}}>
+        <button onClick={download} style={{...smallBtn,background:'var(--sap-accent)',color:'#fff',border:'none',padding:'10px 20px',fontSize:13,fontWeight:700}}>
           <Download size={14}/> Download PNG
         </button>
         <button onClick={function() { navigator.clipboard.writeText(url); }} style={{...smallBtn,padding:'10px 20px',fontSize:13}}>
@@ -865,9 +865,9 @@ function Modal({ onClose, title, icon, wide, children }) {
         <div style={{padding:'16px 20px',borderBottom:'1px solid #f1f3f7',display:'flex',alignItems:'center',justifyContent:'space-between',position:'sticky',top:0,background:'#fff',borderRadius:'16px 16px 0 0',zIndex:1}}>
           <div style={{display:'flex',alignItems:'center',gap:8}}>
             {icon}
-            <h3 style={{margin:0,fontSize:16,fontWeight:800,color:'#0f172a'}}>{title}</h3>
+            <h3 style={{margin:0,fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>{title}</h3>
           </div>
-          <button onClick={onClose} style={{width:30,height:30,border:'none',borderRadius:8,background:'#f1f5f9',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}><X size={14} color="#64748b"/></button>
+          <button onClick={onClose} style={{width:30,height:30,border:'none',borderRadius:8,background:'var(--sap-bg-page)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}><X size={14} color="var(--sap-text-muted)"/></button>
         </div>
         <div style={{padding:20}}>{children}</div>
       </div>
@@ -877,14 +877,14 @@ function Modal({ onClose, title, icon, wide, children }) {
 
 function StatBox({ label, val, color }) {
   return (
-    <div style={{background:'#f8f9fb',borderRadius:8,padding:'12px',borderLeft:'3px solid ' + color}}>
-      <div style={{fontSize:9,fontWeight:700,letterSpacing:.5,color:'#64748b',textTransform:'uppercase'}}>{label}</div>
-      <div style={{fontSize:22,fontWeight:900,color:'#0f172a',fontFamily:'Sora,sans-serif'}}>{val}</div>
+    <div style={{background:'var(--sap-bg-input)',borderRadius:8,padding:'12px',borderLeft:'3px solid ' + color}}>
+      <div style={{fontSize:9,fontWeight:700,letterSpacing:.5,color:'var(--sap-text-muted)',textTransform:'uppercase'}}>{label}</div>
+      <div style={{fontSize:22,fontWeight:900,color:'var(--sap-text-primary)',fontFamily:'Sora,sans-serif'}}>{val}</div>
     </div>
   );
 }
 
-function Label({ children }) { return <label style={{display:'block',fontSize:12,fontWeight:700,color:'#475569',marginBottom:4}}>{children}</label>; }
+function Label({ children }) { return <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>{children}</label>; }
 function Input(props) {
   var extraStyle = props.style || {};
   var rest = Object.assign({}, props);
@@ -895,7 +895,7 @@ function Input(props) {
 var smallBtn = {
   display:'inline-flex',alignItems:'center',gap:5,padding:'7px 12px',borderRadius:7,
   fontSize:11,fontWeight:700,border:'1px solid #e8ecf2',background:'#fff',
-  color:'#475569',cursor:'pointer',fontFamily:'inherit',
+  color:'var(--sap-text-secondary)',cursor:'pointer',fontFamily:'inherit',
   transition:'all .15s ease',
 };
 
@@ -908,5 +908,5 @@ var btnPrimary = function(bg) {
 
 var btnSecondary = {
   padding:'11px 20px',borderRadius:10,border:'1px solid #e2e8f0',background:'#fff',
-  color:'#64748b',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',
+  color:'var(--sap-text-muted)',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',
 };

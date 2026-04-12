@@ -81,7 +81,7 @@ export default function OnboardingWizard() {
         <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #0ea5e9, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><polygon points="5,3 19,12 5,21"/></svg>
         </div>
-        <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 20, fontWeight: 800, color: '#fff' }}>Super<span style={{ color: '#0ea5e9' }}>Ad</span><span style={{ color: '#a78bfa' }}>Pro</span></div>
+        <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 20, fontWeight: 800, color: '#fff' }}>Super<span style={{ color: 'var(--sap-accent)' }}>Ad</span><span style={{ color: 'var(--sap-purple-light)' }}>Pro</span></div>
       </div>
 
       {/* Progress bar */}
@@ -91,10 +91,10 @@ export default function OnboardingWizard() {
             var done = i < step;
             var active = i === step;
             return <div key={s.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4, flex: 1 }}>
-              <div style={{ width: 32, height: 32, borderRadius: '50%', background: done ? '#22c55e' : active ? '#8b5cf6' : 'rgba(255,255,255,.1)', border: active ? '2px solid #a78bfa' : '2px solid transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: done || active ? '#fff' : 'rgba(255,255,255,.3)', fontWeight: 700, transition: 'all .3s' }}>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', background: done ? 'var(--sap-green-bright)' : active ? 'var(--sap-purple)' : 'rgba(255,255,255,.1)', border: active ? '2px solid #a78bfa' : '2px solid transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: done || active ? '#fff' : 'rgba(255,255,255,.3)', fontWeight: 700, transition: 'all .3s' }}>
                 {done ? '✓' : i + 1}
               </div>
-              <div style={{ fontSize: 9, color: active ? '#a78bfa' : done ? '#22c55e' : 'rgba(255,255,255,.25)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.5px', textAlign: 'center' }}>{s.title.split(' ').slice(0, 2).join(' ')}</div>
+              <div style={{ fontSize: 9, color: active ? 'var(--sap-purple-light)' : done ? 'var(--sap-green-bright)' : 'rgba(255,255,255,.25)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.5px', textAlign: 'center' }}>{s.title.split(' ').slice(0, 2).join(' ')}</div>
             </div>;
           })}
         </div>
@@ -109,15 +109,15 @@ export default function OnboardingWizard() {
         {/* ── STEP 1: Welcome ── */}
         {step === 0 && <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>👋</div>
-          <h1 style={{ fontFamily: 'Sora, sans-serif', fontSize: 26, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>Welcome{firstName ? ', ' + firstName : ''}!</h1>
-          <p style={{ fontSize: 15, color: '#64748b', lineHeight: 1.7, marginBottom: 24, maxWidth: 420, margin: '0 auto 24px' }}>
+          <h1 style={{ fontFamily: 'Sora, sans-serif', fontSize: 26, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 8 }}>Welcome{firstName ? ', ' + firstName : ''}!</h1>
+          <p style={{ fontSize: 15, color: 'var(--sap-text-muted)', lineHeight: 1.7, marginBottom: 24, maxWidth: 420, margin: '0 auto 24px' }}>
             Let's get you set up in 5 quick steps. This will take about 3 minutes and you'll be ready to start earning and creating.
           </p>
-          <div style={{ background: '#f8fafc', borderRadius: 12, padding: '16px 20px', textAlign: 'left', marginBottom: 24 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a', marginBottom: 8 }}>Here's what we'll do:</div>
+          <div style={{ background: 'var(--sap-bg-elevated)', borderRadius: 12, padding: '16px 20px', textAlign: 'left', marginBottom: 24 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 8 }}>Here's what we'll do:</div>
             {['Set up your profile photo and name', 'Copy your personal referral link', 'Take a quick platform tour', 'Create your first piece of AI content'].map(function(t, i) {
-              return <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: '#475569', marginBottom: 6 }}>
-                <div style={{ width: 20, height: 20, borderRadius: '50%', background: '#ede9fe', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#7c3aed', flexShrink: 0 }}>{i + 1}</div>
+              return <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--sap-text-secondary)', marginBottom: 6 }}>
+                <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--sap-purple-pale)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: 'var(--sap-violet)', flexShrink: 0 }}>{i + 1}</div>
                 {t}
               </div>;
             })}
@@ -129,16 +129,16 @@ export default function OnboardingWizard() {
         {step === 1 && <div>
           <div style={{ textAlign: 'center', marginBottom: 20 }}>
             <div style={{ fontSize: 36, marginBottom: 8 }}>📸</div>
-            <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Set up your profile</h2>
-            <p style={{ fontSize: 13, color: '#64748b' }}>This is how your team and prospects will see you</p>
+            <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>Set up your profile</h2>
+            <p style={{ fontSize: 13, color: 'var(--sap-text-muted)' }}>This is how your team and prospects will see you</p>
           </div>
 
           {/* Photo */}
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 20 }}>
             <div onClick={function() { if (fileRef.current) fileRef.current.click(); }}
-              style={{ width: 96, height: 96, borderRadius: '50%', background: photoUrl ? 'none' : '#f1f5f9', border: '3px dashed ' + (photoUrl ? '#8b5cf6' : '#e2e8f0'), overflow: 'hidden', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
+              style={{ width: 96, height: 96, borderRadius: '50%', background: photoUrl ? 'none' : 'var(--sap-bg-page)', border: '3px dashed ' + (photoUrl ? 'var(--sap-purple)' : 'var(--sap-border)'), overflow: 'hidden', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
               {photoUrl ? <img src={photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/> :
-                <div style={{ textAlign: 'center', color: '#64748b', fontSize: 11, fontWeight: 600 }}>{uploading ? 'Uploading...' : 'Click to\nupload'}</div>}
+                <div style={{ textAlign: 'center', color: 'var(--sap-text-muted)', fontSize: 11, fontWeight: 600 }}>{uploading ? 'Uploading...' : 'Click to\nupload'}</div>}
             </div>
             <input ref={fileRef} type="file" accept="image/*" onChange={uploadPhoto} style={{ display: 'none' }}/>
           </div>
@@ -155,7 +155,7 @@ export default function OnboardingWizard() {
             </div>
           </div>
           <div style={{ marginBottom: 20 }}>
-            <label style={lblStyle}>Short Bio <span style={{ fontWeight: 400, color: '#cbd5e1' }}>(optional)</span></label>
+            <label style={lblStyle}>Short Bio <span style={{ fontWeight: 400, color: 'var(--sap-text-ghost)' }}>(optional)</span></label>
             <textarea value={bio} onChange={function(e) { setBio(e.target.value); }} placeholder="e.g. Digital marketer helping people build online income..." rows={2} style={{ ...inputStyle, resize: 'vertical' }}/>
           </div>
 
@@ -168,12 +168,12 @@ export default function OnboardingWizard() {
         {/* ── STEP 3: Referral Link ── */}
         {step === 2 && <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 36, marginBottom: 8 }}>🔗</div>
-          <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Your Referral Link</h2>
-          <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>This is how you earn — share it everywhere</p>
+          <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>Your Referral Link</h2>
+          <p style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginBottom: 20 }}>This is how you earn — share it everywhere</p>
 
-          <div style={{ background: '#f8fafc', borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, border: '1px solid #e2e8f0' }}>
-            <div style={{ flex: 1, fontSize: 13, color: '#0f172a', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'left' }}>{refLink}</div>
-            <button onClick={copyRefLink} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: refCopied ? '#22c55e' : '#8b5cf6', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>{refCopied ? '✓ Copied!' : 'Copy Link'}</button>
+          <div style={{ background: 'var(--sap-bg-elevated)', borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, border: '1px solid #e2e8f0' }}>
+            <div style={{ flex: 1, fontSize: 13, color: 'var(--sap-text-primary)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'left' }}>{refLink}</div>
+            <button onClick={copyRefLink} style={{ padding: '8px 16px', borderRadius: 8, border: 'none', background: refCopied ? 'var(--sap-green-bright)' : 'var(--sap-purple)', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap' }}>{refCopied ? '✓ Copied!' : 'Copy Link'}</button>
           </div>
 
           <div style={{ background: '#eff6ff', borderRadius: 10, padding: '14px 18px', textAlign: 'left', marginBottom: 24, border: '1px solid #bfdbfe' }}>
@@ -192,10 +192,10 @@ export default function OnboardingWizard() {
         {/* ── STEP 4: Platform Tour ── */}
         {step === 3 && <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 36, marginBottom: 8 }}>🗺️</div>
-          <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Quick Platform Tour</h2>
-          <p style={{ fontSize: 13, color: '#64748b', marginBottom: 20 }}>Learn where everything is in 2 minutes</p>
+          <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>Quick Platform Tour</h2>
+          <p style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginBottom: 20 }}>Learn where everything is in 2 minutes</p>
 
-          <div style={{ background: '#f8fafc', borderRadius: 12, padding: '20px', marginBottom: 20 }}>
+          <div style={{ background: 'var(--sap-bg-elevated)', borderRadius: 12, padding: '20px', marginBottom: 20 }}>
             {[
               { icon: '📊', title: 'Dashboard', desc: 'Your home base — see earnings, team growth, and quick actions' },
               { icon: '💰', title: 'How You Earn', desc: '4 income streams: referrals, campaign grid, Profit Nexus, courses' },
@@ -207,8 +207,8 @@ export default function OnboardingWizard() {
               return <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < 5 ? '1px solid #e2e8f0' : 'none', textAlign: 'left' }}>
                 <div style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</div>
                 <div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}>{item.title}</div>
-                  <div style={{ fontSize: 11, color: '#64748b' }}>{item.desc}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)' }}>{item.title}</div>
+                  <div style={{ fontSize: 11, color: 'var(--sap-text-muted)' }}>{item.desc}</div>
                 </div>
               </div>;
             })}
@@ -224,25 +224,25 @@ export default function OnboardingWizard() {
         {/* ── STEP 5: Create Content ── */}
         {step === 4 && <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 36, marginBottom: 8 }}>✨</div>
-          <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>You're All Set!</h2>
-          <p style={{ fontSize: 13, color: '#64748b', marginBottom: 24 }}>Your account is ready. Here's what to do next:</p>
+          <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>You're All Set!</h2>
+          <p style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginBottom: 24 }}>Your account is ready. Here's what to do next:</p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
             {[
-              { icon: '🎬', title: 'Create a video in Creative Studio', desc: 'Use AI to generate marketing videos, images, and music', link: '/creative-studio', color: '#8b5cf6' },
-              { icon: '🔗', title: 'Build your LinkHub page', desc: 'Create your personal link-in-bio page to share everywhere', link: '/linkhub', color: '#0ea5e9' },
-              { icon: '📢', title: 'Share your referral link', desc: 'Post on social media and start building your team', link: '/affiliate', color: '#22c55e' },
+              { icon: '🎬', title: 'Create a video in Creative Studio', desc: 'Use AI to generate marketing videos, images, and music', link: '/creative-studio', color: 'var(--sap-purple)' },
+              { icon: '🔗', title: 'Build your LinkHub page', desc: 'Create your personal link-in-bio page to share everywhere', link: '/linkhub', color: 'var(--sap-accent)' },
+              { icon: '📢', title: 'Share your referral link', desc: 'Post on social media and start building your team', link: '/affiliate', color: 'var(--sap-green-bright)' },
             ].map(function(item) {
               return <div key={item.title} onClick={function() { completeOnboarding(); setTimeout(function() { window.location.href = item.link; }, 200); }}
                 style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 18px', borderRadius: 12, border: '1px solid #e2e8f0', cursor: 'pointer', textAlign: 'left', transition: 'all .15s' }}
-                onMouseEnter={function(e) { e.currentTarget.style.borderColor = item.color; e.currentTarget.style.background = '#f8fafc'; }}
-                onMouseLeave={function(e) { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = 'transparent'; }}>
+                onMouseEnter={function(e) { e.currentTarget.style.borderColor = item.color; e.currentTarget.style.background = 'var(--sap-bg-elevated)'; }}
+                onMouseLeave={function(e) { e.currentTarget.style.borderColor = 'var(--sap-border)'; e.currentTarget.style.background = 'transparent'; }}>
                 <div style={{ fontSize: 24, flexShrink: 0 }}>{item.icon}</div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{item.title}</div>
-                  <div style={{ fontSize: 12, color: '#64748b' }}>{item.desc}</div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--sap-text-primary)' }}>{item.title}</div>
+                  <div style={{ fontSize: 12, color: 'var(--sap-text-muted)' }}>{item.desc}</div>
                 </div>
-                <div style={{ fontSize: 16, color: '#cbd5e1' }}>→</div>
+                <div style={{ fontSize: 16, color: 'var(--sap-text-ghost)' }}>→</div>
               </div>;
             })}
           </div>
@@ -262,6 +262,6 @@ export default function OnboardingWizard() {
 
 // ── Shared styles ──
 var btnPrimary = { padding: '14px 24px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: '#fff', fontSize: 15, fontWeight: 800, cursor: 'pointer', fontFamily: 'Sora, sans-serif', boxShadow: '0 4px 0 #5b21b6, 0 6px 16px rgba(124,58,237,.25)', transition: 'all .15s', width: '100%' };
-var btnSecondary = { padding: '14px 20px', borderRadius: 12, border: '1px solid #e2e8f0', background: '#fff', color: '#64748b', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' };
-var lblStyle = { display: 'block', fontSize: 12, fontWeight: 700, color: '#475569', marginBottom: 4 };
-var inputStyle = { width: '100%', padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', color: '#0f172a', outline: 'none', boxSizing: 'border-box' };
+var btnSecondary = { padding: '14px 20px', borderRadius: 12, border: '1px solid #e2e8f0', background: '#fff', color: 'var(--sap-text-muted)', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' };
+var lblStyle = { display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 };
+var inputStyle = { width: '100%', padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', color: 'var(--sap-text-primary)', outline: 'none', boxSizing: 'border-box' };

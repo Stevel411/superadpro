@@ -46,7 +46,7 @@ export default function TeamMessenger() {
     return (m.other_user && m.other_user.id === activeContact.id);
   }).reverse() : [];
 
-  if (loading) return <AppLayout title={t("teamMessenger.title")}><div style={{padding:40,textAlign:'center',color:'#64748b'}}>Loading...</div></AppLayout>;
+  if (loading) return <AppLayout title={t("teamMessenger.title")}><div style={{padding:40,textAlign:'center',color:'var(--sap-text-muted)'}}>Loading...</div></AppLayout>;
 
   return (
     <AppLayout title={t("teamMessenger.title")} subtitle="Message your sponsor and team members">
@@ -54,16 +54,16 @@ export default function TeamMessenger() {
         {/* Contacts sidebar */}
         <div style={{borderRight:activeContact?'1px solid #f1f5f9':'none',display:activeContact?undefined:'block'}}>
           <div style={{padding:'16px 18px',borderBottom:'1px solid #f1f5f9',background:'#fafbfd'}}>
-            <div style={{fontSize:14,fontWeight:800,color:'#0f172a',display:'flex',alignItems:'center',gap:8}}>
-              <Users size={16} color="#8b5cf6"/> Contacts
-              {unread > 0 && <span style={{fontSize:10,fontWeight:800,padding:'2px 7px',borderRadius:10,background:'#ef4444',color:'#fff'}}>{unread}</span>}
+            <div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)',display:'flex',alignItems:'center',gap:8}}>
+              <Users size={16} color="var(--sap-purple)"/> Contacts
+              {unread > 0 && <span style={{fontSize:10,fontWeight:800,padding:'2px 7px',borderRadius:10,background:'var(--sap-red-bright)',color:'#fff'}}>{unread}</span>}
             </div>
           </div>
 
           {contacts.length === 0 ? (
             <div style={{padding:'40px 20px',textAlign:'center'}}>
-              <Users size={32} color="#e2e8f0" style={{marginBottom:8}}/>
-              <div style={{fontSize:13,color:'#64748b',lineHeight:1.6}}>No team contacts yet. Refer members to start messaging.</div>
+              <Users size={32} color="var(--sap-border)" style={{marginBottom:8}}/>
+              <div style={{fontSize:13,color:'var(--sap-text-muted)',lineHeight:1.6}}>No team contacts yet. Refer members to start messaging.</div>
             </div>
           ) : (
             <div style={{overflowY:'auto',maxHeight:500}}>
@@ -81,15 +81,15 @@ export default function TeamMessenger() {
                         <User size={16} color="#fff"/>}
                     </div>
                     <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:13,fontWeight:700,color:'#0f172a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
+                      <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
                         {c.name}
-                        {hasUnread && <span style={{width:7,height:7,borderRadius:'50%',background:'#ef4444',display:'inline-block',marginLeft:6}}/>}
+                        {hasUnread && <span style={{width:7,height:7,borderRadius:'50%',background:'var(--sap-red-bright)',display:'inline-block',marginLeft:6}}/>}
                       </div>
-                      <div style={{fontSize:10,color:c.relationship==='sponsor'?'#0ea5e9':'#64748b',fontWeight:700,textTransform:'uppercase',letterSpacing:.5}}>
+                      <div style={{fontSize:10,color:c.relationship==='sponsor'?'var(--sap-accent)':'var(--sap-text-muted)',fontWeight:700,textTransform:'uppercase',letterSpacing:.5}}>
                         {c.relationship === 'sponsor' ? '↑ Your Sponsor' : '↓ Your Referral'} · {c.tier}
                       </div>
                     </div>
-                    <ChevronRight size={14} color="#94a3b8"/>
+                    <ChevronRight size={14} color="var(--sap-text-faint)"/>
                   </div>
                 );
               })}
@@ -103,7 +103,7 @@ export default function TeamMessenger() {
             {/* Chat header */}
             <div style={{padding:'14px 20px',borderBottom:'1px solid #f1f5f9',background:'#fafbfd',display:'flex',alignItems:'center',gap:12}}>
               <button onClick={function(){setActiveContact(null);}} style={{background:'none',border:'none',cursor:'pointer',padding:0,display:'flex'}}>
-                <ArrowLeft size={18} color="#64748b"/>
+                <ArrowLeft size={18} color="var(--sap-text-muted)"/>
               </button>
               <div style={{width:32,height:32,borderRadius:'50%',background:activeContact.avatar?undefined:'linear-gradient(135deg,#8b5cf6,#a78bfa)',
                 display:'flex',alignItems:'center',justifyContent:'center',overflow:'hidden',flexShrink:0}}>
@@ -111,16 +111,16 @@ export default function TeamMessenger() {
                   <User size={14} color="#fff"/>}
               </div>
               <div>
-                <div style={{fontSize:14,fontWeight:800,color:'#0f172a'}}>{activeContact.name}</div>
-                <div style={{fontSize:10,color:'#64748b',fontWeight:600}}>{activeContact.relationship === 'sponsor' ? 'Your Sponsor' : 'Your Referral'}</div>
+                <div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)'}}>{activeContact.name}</div>
+                <div style={{fontSize:10,color:'var(--sap-text-muted)',fontWeight:600}}>{activeContact.relationship === 'sponsor' ? 'Your Sponsor' : 'Your Referral'}</div>
               </div>
             </div>
 
             {/* Messages */}
-            <div style={{flex:1,overflowY:'auto',padding:'16px 20px',background:'#f8fafc',display:'flex',flexDirection:'column',gap:8}}>
+            <div style={{flex:1,overflowY:'auto',padding:'16px 20px',background:'var(--sap-bg-elevated)',display:'flex',flexDirection:'column',gap:8}}>
               {convoMsgs.length === 0 && (
-                <div style={{textAlign:'center',padding:'40px 0',color:'#64748b',fontSize:13}}>
-                  <MessageCircle size={28} color="#e2e8f0" style={{marginBottom:8}}/>
+                <div style={{textAlign:'center',padding:'40px 0',color:'var(--sap-text-muted)',fontSize:13}}>
+                  <MessageCircle size={28} color="var(--sap-border)" style={{marginBottom:8}}/>
                   <div>No messages yet. Say hello!</div>
                 </div>
               )}
@@ -134,7 +134,7 @@ export default function TeamMessenger() {
                       boxShadow:isMine?'0 2px 8px rgba(139,92,246,.2)':'0 1px 4px rgba(0,0,0,.06)',
                       border:isMine?'none':'1px solid #e8ecf2'}}>
                       <div>{m.message}</div>
-                      <div style={{fontSize:9,color:isMine?'rgba(255,255,255,.5)':'#94a3b8',marginTop:4,textAlign:'right'}}>
+                      <div style={{fontSize:9,color:isMine?'rgba(255,255,255,.5)':'var(--sap-text-faint)',marginTop:4,textAlign:'right'}}>
                         {new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}
                       </div>
                     </div>
@@ -149,10 +149,10 @@ export default function TeamMessenger() {
               <input value={text} onChange={function(e){setText(e.target.value);}}
                 onKeyDown={function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}}
                 placeholder="Type a message..." maxLength={2000}
-                style={{flex:1,padding:'10px 14px',borderRadius:10,border:'1.5px solid #e2e8f0',background:'#f8fafc',
-                  fontSize:13,fontFamily:'inherit',outline:'none',color:'#0f172a'}}/>
+                style={{flex:1,padding:'10px 14px',borderRadius:10,border:'1.5px solid #e2e8f0',background:'var(--sap-bg-elevated)',
+                  fontSize:13,fontFamily:'inherit',outline:'none',color:'var(--sap-text-primary)'}}/>
               <button onClick={sendMessage} disabled={sending || !text.trim()}
-                style={{padding:'10px 18px',borderRadius:10,border:'none',background:text.trim()?'linear-gradient(135deg,#8b5cf6,#a78bfa)':'#e2e8f0',
+                style={{padding:'10px 18px',borderRadius:10,border:'none',background:text.trim()?'linear-gradient(135deg,#8b5cf6,#a78bfa)':'var(--sap-border)',
                   color:'#fff',cursor:text.trim()?'pointer':'default',fontFamily:'inherit',display:'flex',alignItems:'center',gap:5,
                   fontSize:12,fontWeight:700,transition:'all .2s'}}>
                 <Send size={14}/> Send
@@ -161,9 +161,9 @@ export default function TeamMessenger() {
           </div>
         ) : (
           !contacts.length ? null : (
-            <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:550,color:'#64748b',fontSize:14}}>
+            <div style={{display:'flex',alignItems:'center',justifyContent:'center',height:550,color:'var(--sap-text-muted)',fontSize:14}}>
               <div style={{textAlign:'center'}}>
-                <MessageCircle size={40} color="#e2e8f0" style={{marginBottom:12}}/>
+                <MessageCircle size={40} color="var(--sap-border)" style={{marginBottom:12}}/>
                 <div style={{fontWeight:700}}>Select a contact to start chatting</div>
               </div>
             </div>

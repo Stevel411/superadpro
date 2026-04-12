@@ -45,8 +45,8 @@ export default function IconPicker({ value, onChange, onClose }) {
 
         {/* Header */}
         <div style={{padding:'16px 20px',borderBottom:'1px solid #f1f3f7',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
-          <h3 style={{margin:0,fontSize:16,fontWeight:800,color:'#0f172a'}}>Choose Icon</h3>
-          <button onClick={onClose} style={{width:30,height:30,border:'none',borderRadius:8,background:'#f1f5f9',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}><X size={14} color="#64748b"/></button>
+          <h3 style={{margin:0,fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>Choose Icon</h3>
+          <button onClick={onClose} style={{width:30,height:30,border:'none',borderRadius:8,background:'var(--sap-bg-page)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}><X size={14} color="var(--sap-text-muted)"/></button>
         </div>
 
         {/* Tabs: Icons | Emoji | None */}
@@ -54,7 +54,7 @@ export default function IconPicker({ value, onChange, onClose }) {
           {[['icons','SVG Icons'],['emoji','Emoji'],['none','No Icon']].map(function(t) {
             return <button key={t[0]} onClick={function() { setTab(t[0]); if (t[0] === 'none') { onChange({ type: 'none' }); } }}
               style={{padding:'8px 16px',borderRadius:8,fontSize:12,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',
-                background:tab===t[0]?'#0ea5e9':'#f1f5f9',color:tab===t[0]?'#fff':'#64748b'}}>{t[1]}</button>;
+                background:tab===t[0]?'var(--sap-accent)':'var(--sap-bg-page)',color:tab===t[0]?'#fff':'var(--sap-text-muted)'}}>{t[1]}</button>;
           })}
         </div>
 
@@ -63,21 +63,21 @@ export default function IconPicker({ value, onChange, onClose }) {
             {/* Search + style toggle */}
             <div style={{padding:'12px 20px',display:'flex',gap:8,flexShrink:0}}>
               <div style={{flex:1,position:'relative'}}>
-                <Search size={14} color="#94a3b8" style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)'}}/>
+                <Search size={14} color="var(--sap-text-faint)" style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)'}}/>
                 <input value={search} onChange={function(e) { setSearch(e.target.value); }}
                   placeholder="Search icons..." style={{width:'100%',padding:'8px 8px 8px 32px',border:'1.5px solid #e2e8f0',borderRadius:8,fontSize:12,outline:'none',fontFamily:'inherit',boxSizing:'border-box'}}/>
               </div>
               <div style={{display:'flex',border:'1.5px solid #e2e8f0',borderRadius:8,overflow:'hidden'}}>
-                <button onClick={function() { setFilled(false); }} style={{padding:'6px 12px',fontSize:11,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:!filled?'#0ea5e9':'#fff',color:!filled?'#fff':'#64748b'}}>Outline</button>
-                <button onClick={function() { setFilled(true); }} style={{padding:'6px 12px',fontSize:11,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:filled?'#0ea5e9':'#fff',color:filled?'#fff':'#64748b'}}>Solid</button>
+                <button onClick={function() { setFilled(false); }} style={{padding:'6px 12px',fontSize:11,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:!filled?'var(--sap-accent)':'#fff',color:!filled?'#fff':'var(--sap-text-muted)'}}>Outline</button>
+                <button onClick={function() { setFilled(true); }} style={{padding:'6px 12px',fontSize:11,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:filled?'var(--sap-accent)':'#fff',color:filled?'#fff':'var(--sap-text-muted)'}}>Solid</button>
               </div>
             </div>
 
             {/* Category pills */}
             <div style={{display:'flex',gap:4,padding:'0 20px 8px',flexWrap:'wrap',flexShrink:0}}>
-              <button onClick={function() { setCat('all'); }} style={{padding:'4px 10px',borderRadius:12,fontSize:10,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:cat==='all'?'#1e293b':'#f1f5f9',color:cat==='all'?'#fff':'#64748b'}}>All</button>
+              <button onClick={function() { setCat('all'); }} style={{padding:'4px 10px',borderRadius:12,fontSize:10,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:cat==='all'?'var(--sap-text-primary)':'var(--sap-bg-page)',color:cat==='all'?'#fff':'var(--sap-text-muted)'}}>All</button>
               {ICON_CATEGORIES.map(function(c) {
-                return <button key={c.key} onClick={function() { setCat(c.key); }} style={{padding:'4px 10px',borderRadius:12,fontSize:10,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:cat===c.key?c.color:'#f1f5f9',color:cat===c.key?'#fff':'#64748b'}}>{c.label}</button>;
+                return <button key={c.key} onClick={function() { setCat(c.key); }} style={{padding:'4px 10px',borderRadius:12,fontSize:10,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:cat===c.key?c.color:'var(--sap-bg-page)',color:cat===c.key?'#fff':'var(--sap-text-muted)'}}>{c.label}</button>;
               })}
             </div>
 
@@ -88,14 +88,14 @@ export default function IconPicker({ value, onChange, onClose }) {
                   var isSelected = value && value.type === 'svg' && value.key === ic.key;
                   return (
                     <button key={ic.key} title={ic.label} onClick={function() { onChange({ type: 'svg', key: ic.key, filled: filled }); }}
-                      style={{width:'100%',aspectRatio:'1',border:isSelected?'2px solid #0ea5e9':'1.5px solid transparent',borderRadius:8,background:isSelected?'#dbeafe':'#f8f9fb',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'.15s'}}>
-                      <LinkIcon iconKey={ic.key} size={20} filled={filled} color="#1e293b"/>
+                      style={{width:'100%',aspectRatio:'1',border:isSelected?'2px solid #0ea5e9':'1.5px solid transparent',borderRadius:8,background:isSelected?'#dbeafe':'var(--sap-bg-input)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',transition:'.15s'}}>
+                      <LinkIcon iconKey={ic.key} size={20} filled={filled} color="var(--sap-text-primary)"/>
                     </button>
                   );
                 })}
               </div>
               {filteredIcons.length === 0 && (
-                <div style={{padding:20,textAlign:'center',color:'#94a3b8',fontSize:12}}>No icons match "{search}"</div>
+                <div style={{padding:20,textAlign:'center',color:'var(--sap-text-faint)',fontSize:12}}>No icons match "{search}"</div>
               )}
             </div>
           </>
@@ -108,7 +108,7 @@ export default function IconPicker({ value, onChange, onClose }) {
                 var isSelected = value && value.type === 'emoji' && value.key === emoji;
                 return (
                   <button key={emoji} onClick={function() { onChange({ type: 'emoji', key: emoji }); }}
-                    style={{width:'100%',aspectRatio:'1',border:isSelected?'2px solid #0ea5e9':'1.5px solid transparent',borderRadius:8,background:isSelected?'#dbeafe':'#f8f9fb',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20}}>
+                    style={{width:'100%',aspectRatio:'1',border:isSelected?'2px solid #0ea5e9':'1.5px solid transparent',borderRadius:8,background:isSelected?'#dbeafe':'var(--sap-bg-input)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontSize:20}}>
                     {emoji}
                   </button>
                 );
@@ -118,10 +118,10 @@ export default function IconPicker({ value, onChange, onClose }) {
         )}
 
         {tab === 'none' && (
-          <div style={{padding:40,textAlign:'center',color:'#64748b'}}>
+          <div style={{padding:40,textAlign:'center',color:'var(--sap-text-muted)'}}>
             <div style={{fontSize:32,marginBottom:8,opacity:.3}}>⊘</div>
             <div style={{fontSize:13,fontWeight:600}}>No icon will be shown on this link</div>
-            <div style={{fontSize:11,color:'#94a3b8',marginTop:4}}>Click Save to apply</div>
+            <div style={{fontSize:11,color:'var(--sap-text-faint)',marginTop:4}}>Click Save to apply</div>
           </div>
         )}
       </div>
@@ -137,7 +137,7 @@ export function ArrowPicker({ value, onChange }) {
         var isSelected = value === a.key;
         return (
           <button key={a.key} onClick={function() { onChange(a.key); }}
-            style={{width:36,height:36,border:isSelected?'2px solid #0ea5e9':'1.5px solid #e2e8f0',borderRadius:8,background:isSelected?'#dbeafe':'#fff',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontSize:a.key==='none'?10:18,color:isSelected?'#0ea5e9':'#64748b',fontWeight:700,fontFamily:'inherit'}}>
+            style={{width:36,height:36,border:isSelected?'2px solid #0ea5e9':'1.5px solid #e2e8f0',borderRadius:8,background:isSelected?'#dbeafe':'#fff',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',fontSize:a.key==='none'?10:18,color:isSelected?'var(--sap-accent)':'var(--sap-text-muted)',fontWeight:700,fontFamily:'inherit'}}>
             {a.key === 'none' ? '⊘' : a.char}
           </button>
         );

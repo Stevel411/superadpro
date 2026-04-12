@@ -46,7 +46,7 @@ export default function Register() {
 
   const strength = !form.password ? 0 : form.password.length < 8 ? 1 : form.password.length < 12 ? 2 : /[^a-zA-Z0-9]/.test(form.password) ? 4 : 3;
   const strengthLabel = ['', t('auth.weak'), t('auth.fair'), t('auth.good'), t('auth.strong')];
-  const strengthColor = ['', '#ef4444', '#f59e0b', '#22c55e', '#0ea5e9'];
+  const strengthColor = ['', 'var(--sap-red-bright)', 'var(--sap-amber)', 'var(--sap-green-bright)', 'var(--sap-accent)'];
 
   return (
     <div style={styles.page}>
@@ -58,7 +58,7 @@ export default function Register() {
           <div style={styles.logoMark}>
             <span style={{ color: '#fff', fontWeight: 900, fontSize: 16 }}>S</span>
           </div>
-          <span style={styles.logoText}>SuperAd<span style={{ color: '#38bdf8' }}>Pro</span></span>
+          <span style={styles.logoText}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span></span>
         </div>
 
         <h1 style={styles.heading}>{t('auth.createYourAccount')}</h1>
@@ -120,7 +120,7 @@ export default function Register() {
               <label style={styles.label}>Your Sponsor</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <input value={form.ref} readOnly style={{ ...styles.input, opacity: 0.6, cursor: 'default', flex: 1 }} />
-                <div style={{ fontSize: 12, color: '#10b981', fontWeight: 700, whiteSpace: 'nowrap' }}>✓ Verified</div>
+                <div style={{ fontSize: 12, color: 'var(--sap-green-mid)', fontWeight: 700, whiteSpace: 'nowrap' }}>✓ Verified</div>
               </div>
             </div>
           ) : (
@@ -155,7 +155,7 @@ export default function Register() {
 }
 
 const styles = {
-  page: { minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#172554', padding: '40px 20px', position: 'relative', overflow: 'hidden', fontFamily: "'DM Sans', sans-serif" },
+  page: { minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--sap-cobalt-deep)', padding: '40px 20px', position: 'relative', overflow: 'hidden', fontFamily: "'DM Sans', sans-serif" },
   bg: { position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(14,165,233,.15) 0%, transparent 70%)', pointerEvents: 'none' },
   bgGlow1: { position: 'absolute', top: '30%', right: '5%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(56,189,248,.05) 0%, transparent 70%)', pointerEvents: 'none' },
   card: { position: 'relative', zIndex: 1, width: '100%', maxWidth: 480, background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.08)', borderRadius: 20, padding: '40px 36px', backdropFilter: 'blur(20px)' },
@@ -175,7 +175,7 @@ const styles = {
   btn: { marginTop: 6, padding: '14px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" },
   btnDisabled: { marginTop: 6, padding: '14px', borderRadius: 12, border: 'none', background: 'rgba(14,165,233,.4)', color: 'rgba(255,255,255,.5)', fontSize: 15, fontWeight: 700, cursor: 'not-allowed', fontFamily: "'DM Sans', sans-serif" },
   terms: { fontSize: 11, color: 'rgba(255,255,255,.25)', textAlign: 'center', marginTop: 16, lineHeight: 1.6 },
-  link: { color: '#38bdf8', textDecoration: 'none' },
+  link: { color: 'var(--sap-accent-light)', textDecoration: 'none' },
   divider: { display: 'flex', alignItems: 'center', gap: 10, margin: '20px 0 16px' },
   dividerLine: { flex: 1, height: 1, background: 'rgba(255,255,255,.08)' },
   dividerText: { fontSize: 12, color: 'rgba(255,255,255,.3)', whiteSpace: 'nowrap' },

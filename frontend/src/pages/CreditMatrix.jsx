@@ -86,8 +86,8 @@ export function CreditMatrixContent() {
   if (loading) {
     return (
       <div style={{ textAlign: 'center', padding: '80px 0' }}>
-        <Loader2 size={32} color="#8b5cf6" style={{ animation: 'spin 1s linear infinite' }} />
-        <div style={{ marginTop: 12, color: '#64748b' }}>Loading Profit Nexus...</div>
+        <Loader2 size={32} color="var(--sap-purple)" style={{ animation: 'spin 1s linear infinite' }} />
+        <div style={{ marginTop: 12, color: 'var(--sap-text-muted)' }}>Loading Profit Nexus...</div>
         <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
       </div>
     );
@@ -109,7 +109,7 @@ export function CreditMatrixContent() {
         </a>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
           <div style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(139,92,246,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Layers size={24} color="#a78bfa" />
+            <Layers size={24} color="var(--sap-purple-light)" />
           </div>
           <div>
             <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#fff' }}>Earn commissions every time your team creates content</div>
@@ -121,18 +121,18 @@ export function CreditMatrixContent() {
         {stats && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
             {[
-              { label: 'Nexus Earned', value: '$' + (stats.total_earned || 0).toFixed(2), icon: DollarSign, color: '#22c55e' },
-              { label: 'Credit Balance', value: (stats.credit_balance || 0).toLocaleString(), icon: Zap, color: '#f59e0b' },
-              { label: 'Nexus Fill', value: (stats.active_matrix ? stats.active_matrix.fill_pct : 0) + '%', icon: Users, color: '#0ea5e9' },
-              { label: 'Nexuses Complete', value: stats.completed_cycles || 0, icon: Award, color: '#8b5cf6' },
+              { label: 'Nexus Earned', value: '$' + (stats.total_earned || 0).toFixed(2), icon: DollarSign, color: 'var(--sap-green-bright)' },
+              { label: 'Credit Balance', value: (stats.credit_balance || 0).toLocaleString(), icon: Zap, color: 'var(--sap-amber)' },
+              { label: 'Nexus Fill', value: (stats.active_matrix ? stats.active_matrix.fill_pct : 0) + '%', icon: Users, color: 'var(--sap-accent)' },
+              { label: 'Nexuses Complete', value: stats.completed_cycles || 0, icon: Award, color: 'var(--sap-purple)' },
             ].map(function(card, i) {
               return (
                 <div key={i} style={{ background: '#fff', borderRadius: 10, padding: '14px 16px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                     <card.icon size={16} color={card.color} />
-                    <div style={{ fontSize: 11, color: '#64748b' }}>{card.label}</div>
+                    <div style={{ fontSize: 11, color: 'var(--sap-text-muted)' }}>{card.label}</div>
                   </div>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: '#0f172a' }}>{card.value}</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{card.value}</div>
                 </div>
               );
             })}
@@ -143,10 +143,10 @@ export function CreditMatrixContent() {
       {/* Message */}
       {message && (
         <div style={{ padding: '14px 18px', borderRadius: 10, marginBottom: 16,
-          background: message.type === 'success' ? '#f0fdf4' : '#fef2f2',
-          border: '1px solid ' + (message.type === 'success' ? '#bbf7d0' : '#fecaca'),
+          background: message.type === 'success' ? 'var(--sap-green-bg)' : 'var(--sap-red-bg)',
+          border: '1px solid ' + (message.type === 'success' ? '#bbf7d0' : 'var(--sap-red-bg-mid)'),
           display: 'flex', alignItems: 'center', gap: 8 }}>
-          {message.type === 'success' ? <CheckCircle size={18} color="#22c55e" /> : <AlertCircle size={18} color="#ef4444" />}
+          {message.type === 'success' ? <CheckCircle size={18} color="var(--sap-green-bright)" /> : <AlertCircle size={18} color="var(--sap-red-bright)" />}
           <span style={{ fontSize: 14, color: message.type === 'success' ? '#166534' : '#991b1b' }}>{message.text}</span>
         </div>
       )}
@@ -155,7 +155,7 @@ export function CreditMatrixContent() {
         <div>
           {/* Credit Packs */}
           <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>Buy Credit Packs</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 12 }}>Buy Credit Packs</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
               {packs.map(function(pack) {
                 var icon = PACK_ICONS[pack.key] || PACK_ICONS.starter;
@@ -168,14 +168,14 @@ export function CreditMatrixContent() {
                       boxShadow: '0 1px 3px rgba(0,0,0,0.06)', transition: 'all 0.2s ease', cursor: 'pointer' }}>
                     <div style={{ width: 48, height: 48, borderRadius: 12, background: icon.gradient, margin: '0 auto 10px',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>{icon.emoji}</div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a' }}>{pack.label}</div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: '#8b5cf6', margin: '6px 0' }}>${pack.price}</div>
-                    <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{pack.credits.toLocaleString()} credits</div>
-                    <div style={{ fontSize: 11, color: '#64748b', marginBottom: 10 }}>${pack.cost_per_credit}/credit</div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-text-primary)' }}>{pack.label}</div>
+                    <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--sap-purple)', margin: '6px 0' }}>${pack.price}</div>
+                    <div style={{ fontSize: 12, color: 'var(--sap-text-muted)', marginBottom: 4 }}>{pack.credits.toLocaleString()} credits</div>
+                    <div style={{ fontSize: 11, color: 'var(--sap-text-muted)', marginBottom: 10 }}>${pack.cost_per_credit}/credit</div>
                     <button onClick={function() { if (!isbuying) buyPack(pack.key); }}
                       disabled={isbuying}
                       style={{ width: '100%', padding: '8px 0', borderRadius: 8, border: 'none', fontFamily: 'inherit',
-                        background: isbuying ? '#64748b' : icon.gradient, color: '#fff', fontSize: 13, fontWeight: 700,
+                        background: isbuying ? 'var(--sap-text-muted)' : icon.gradient, color: '#fff', fontSize: 13, fontWeight: 700,
                         cursor: isbuying ? 'default' : 'pointer' }}>
                       {isbuying ? 'Processing...' : 'Pay with Crypto'}
                     </button>
@@ -187,18 +187,18 @@ export function CreditMatrixContent() {
 
           {/* Nexus Tree Visualisation */}
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px 24px', marginBottom: 20 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 16 }}>Your 3×3 Nexus
-              {matrixData && <span style={{ fontSize: 13, fontWeight: 400, color: '#64748b', marginLeft: 8 }}>Nexus #{matrixData.cycle_number} — {matrixData.positions_filled}/{matrixData.max_positions} filled</span>}
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 16 }}>Your 3×3 Nexus
+              {matrixData && <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--sap-text-muted)', marginLeft: 8 }}>Nexus #{matrixData.cycle_number} — {matrixData.positions_filled}/{matrixData.max_positions} filled</span>}
             </div>
 
             {/* Progress bar */}
             {matrixData && (
               <div style={{ marginBottom: 20 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#64748b', marginBottom: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: 'var(--sap-text-muted)', marginBottom: 4 }}>
                   <span>{matrixData.fill_percentage}% complete</span>
                   <span>{matrixData.positions_filled} of {matrixData.max_positions} positions</span>
                 </div>
-                <div style={{ height: 8, background: '#e2e8f0', borderRadius: 4 }}>
+                <div style={{ height: 8, background: 'var(--sap-border)', borderRadius: 4 }}>
                   <div style={{ height: '100%', width: matrixData.fill_percentage + '%', background: 'linear-gradient(90deg, #8b5cf6, #a78bfa)', borderRadius: 4, transition: 'width 0.5s' }} />
                 </div>
               </div>
@@ -223,17 +223,17 @@ export function CreditMatrixContent() {
                       <div key={i} style={{ textAlign: 'center' }}>
                         <div style={{ width: 2, height: 16, background: '#d1d5db', margin: '0 auto' }} />
                         <div style={{ width: 72, padding: '8px 4px', borderRadius: 8,
-                          background: node ? '#f0fdf4' : '#f8fafc',
+                          background: node ? 'var(--sap-green-bg)' : 'var(--sap-bg-elevated)',
                           border: node ? '1.5px solid #86efac' : '1.5px dashed #d1d5db',
-                          fontSize: 11, fontWeight: 600, color: node ? '#166534' : '#64748b' }}>
+                          fontSize: 11, fontWeight: 600, color: node ? '#166534' : 'var(--sap-text-muted)' }}>
                           {node ? node.username.slice(0, 8) : 'Empty'}
-                          {node && <div style={{ fontSize: 9, color: '#64748b', marginTop: 2 }}>{(PACK_ICONS[node.pack_key] || {}).emoji || ''} ${node.pack_price}</div>}
+                          {node && <div style={{ fontSize: 9, color: 'var(--sap-text-muted)', marginTop: 2 }}>{(PACK_ICONS[node.pack_key] || {}).emoji || ''} ${node.pack_price}</div>}
                         </div>
                       </div>
                     );
                   })}
                 </div>
-                <div style={{ fontSize: 11, color: '#8b5cf6', fontWeight: 600, marginBottom: 4 }}>Level 1 — 25% — {matrixStats.l1_filled}/{matrixStats.l1_max} filled — ${matrixStats.earnings_l1.toFixed(2)} earned</div>
+                <div style={{ fontSize: 11, color: 'var(--sap-purple)', fontWeight: 600, marginBottom: 4 }}>Level 1 — 25% — {matrixStats.l1_filled}/{matrixStats.l1_max} filled — ${matrixStats.earnings_l1.toFixed(2)} earned</div>
 
                 {/* Level 2 */}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 6, marginBottom: 4, flexWrap: 'wrap' }}>
@@ -241,15 +241,15 @@ export function CreditMatrixContent() {
                     var node = treeNodes.filter(function(n) { return n.level === 2; })[i];
                     return (
                       <div key={i} style={{ width: 64, padding: '6px 3px', borderRadius: 6,
-                        background: node ? '#eff6ff' : '#f8fafc',
+                        background: node ? '#eff6ff' : 'var(--sap-bg-elevated)',
                         border: node ? '1px solid #93c5fd' : '1px dashed #e2e8f0',
-                        fontSize: 10, fontWeight: 600, color: node ? '#1e40af' : '#94a3b8', textAlign: 'center' }}>
+                        fontSize: 10, fontWeight: 600, color: node ? '#1e40af' : 'var(--sap-text-faint)', textAlign: 'center' }}>
                         {node ? node.username.slice(0, 7) : '—'}
                       </div>
                     );
                   })}
                 </div>
-                <div style={{ fontSize: 11, color: '#0ea5e9', fontWeight: 600, marginBottom: 4 }}>Level 2 — 15% — {matrixStats.l2_filled}/{matrixStats.l2_max} filled — ${matrixStats.earnings_l2.toFixed(2)} earned</div>
+                <div style={{ fontSize: 11, color: 'var(--sap-accent)', fontWeight: 600, marginBottom: 4 }}>Level 2 — 15% — {matrixStats.l2_filled}/{matrixStats.l2_max} filled — ${matrixStats.earnings_l2.toFixed(2)} earned</div>
 
                 {/* Level 3 */}
                 <div style={{ display: 'flex', justifyContent: 'center', gap: 4, marginBottom: 4, flexWrap: 'wrap' }}>
@@ -257,22 +257,22 @@ export function CreditMatrixContent() {
                     var node = treeNodes.filter(function(n) { return n.level === 3; })[i];
                     return (
                       <div key={i} style={{ width: 28, height: 28, borderRadius: 4,
-                        background: node ? '#fef3c7' : '#f8fafc',
+                        background: node ? 'var(--sap-amber-bg)' : 'var(--sap-bg-elevated)',
                         border: node ? '1px solid #fcd34d' : '1px dashed #e2e8f0',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 8, fontWeight: 600, color: node ? '#92400e' : '#94a3b8' }}>
+                        fontSize: 8, fontWeight: 600, color: node ? '#92400e' : 'var(--sap-text-faint)' }}>
                         {node ? node.username.slice(0, 2).toUpperCase() : ''}
                       </div>
                     );
                   })}
                 </div>
-                <div style={{ fontSize: 11, color: '#f59e0b', fontWeight: 600 }}>Level 3 — 10% — {matrixStats.l3_filled}/{matrixStats.l3_max} filled — ${matrixStats.earnings_l3.toFixed(2)} earned</div>
+                <div style={{ fontSize: 11, color: 'var(--sap-amber)', fontWeight: 600 }}>Level 3 — 10% — {matrixStats.l3_filled}/{matrixStats.l3_max} filled — ${matrixStats.earnings_l3.toFixed(2)} earned</div>
               </div>
             )}
 
             {!matrixStats && (
-              <div style={{ textAlign: 'center', padding: '40px 0', color: '#64748b' }}>
-                <Users size={40} color="#e2e8f0" />
+              <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--sap-text-muted)' }}>
+                <Users size={40} color="var(--sap-border)" />
                 <div style={{ marginTop: 8, fontSize: 14 }}>Buy your first credit pack to start your nexus</div>
               </div>
             )}
@@ -282,31 +282,31 @@ export function CreditMatrixContent() {
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px 24px' }}>
             <div onClick={function() { setShowCommissions(!showCommissions); }}
               style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
-              <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a' }}>Commission History
-                {commissions && commissions.summary && <span style={{ fontSize: 13, fontWeight: 400, color: '#22c55e', marginLeft: 8 }}>${commissions.summary.total_earned.toFixed(2)} total</span>}
+              <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)' }}>Commission History
+                {commissions && commissions.summary && <span style={{ fontSize: 13, fontWeight: 400, color: 'var(--sap-green-bright)', marginLeft: 8 }}>${commissions.summary.total_earned.toFixed(2)} total</span>}
               </div>
-              {showCommissions ? <ChevronUp size={18} color="#64748b" /> : <ChevronDown size={18} color="#64748b" />}
+              {showCommissions ? <ChevronUp size={18} color="var(--sap-text-muted)" /> : <ChevronDown size={18} color="var(--sap-text-muted)" />}
             </div>
 
             {showCommissions && commissions && commissions.commissions && (
               <div style={{ marginTop: 12 }}>
                 {commissions.commissions.length === 0 && (
-                  <div style={{ fontSize: 13, color: '#64748b', padding: '20px 0', textAlign: 'center' }}>No commissions yet — they'll appear here when your nexus fills</div>
+                  <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', padding: '20px 0', textAlign: 'center' }}>No commissions yet — they'll appear here when your nexus fills</div>
                 )}
                 {commissions.commissions.map(function(c, i) {
                   return (
                     <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 0',
                       borderBottom: i < commissions.commissions.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
                       <div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--sap-text-primary)' }}>
                           {c.type === 'matrix_completion' ? '🎉 Matrix Complete Bonus' : 'L' + c.level + ' from ' + c.from_user}
                         </div>
-                        <div style={{ fontSize: 11, color: '#64748b' }}>
+                        <div style={{ fontSize: 11, color: 'var(--sap-text-muted)' }}>
                           {c.type === 'matrix_level' ? (c.rate * 100).toFixed(0) + '% of $' + c.pack_price.toFixed(0) + ' pack' : 'Matrix completion reward'}
                           {' · '}{new Date(c.created_at).toLocaleDateString()}
                         </div>
                       </div>
-                      <div style={{ fontSize: 15, fontWeight: 700, color: '#22c55e' }}>+${c.amount.toFixed(2)}</div>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-green-bright)' }}>+${c.amount.toFixed(2)}</div>
                     </div>
                   );
                 })}
@@ -319,7 +319,7 @@ export function CreditMatrixContent() {
         <div>
           {/* How it works */}
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px', marginBottom: 16 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>How it works</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 12 }}>How it works</div>
             {[
               { step: '1', text: 'Buy a credit pack to create AI videos, images, and music' },
               { step: '2', text: 'Your purchase enters your sponsor\'s 3×3 matrix' },
@@ -330,7 +330,7 @@ export function CreditMatrixContent() {
               return (
                 <div key={i} style={{ display: 'flex', gap: 10, marginBottom: 10 }}>
                   <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#f3f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 12, fontWeight: 700, color: '#8b5cf6', flexShrink: 0 }}>{item.step}</div>
+                    fontSize: 12, fontWeight: 700, color: 'var(--sap-purple)', flexShrink: 0 }}>{item.step}</div>
                   <div style={{ fontSize: 13, color: '#334155', lineHeight: 1.4 }}>{item.text}</div>
                 </div>
               );
@@ -349,7 +349,7 @@ export function CreditMatrixContent() {
             ].map(function(row, i) {
               return (
                 <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '4px 0', fontSize: 13 }}>
-                  <span style={{ color: '#7c3aed' }}>{row.label}</span>
+                  <span style={{ color: 'var(--sap-violet)' }}>{row.label}</span>
                   <span style={{ fontWeight: 700, color: '#4c1d95' }}>{row.amount}</span>
                 </div>
               );
@@ -362,21 +362,21 @@ export function CreditMatrixContent() {
 
           {/* Team activity feed */}
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#0f172a', marginBottom: 12 }}>Team Activity</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 12 }}>Team Activity</div>
             {activity.length === 0 && (
-              <div style={{ fontSize: 13, color: '#64748b', textAlign: 'center', padding: '20px 0' }}>No team purchases yet</div>
+              <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', textAlign: 'center', padding: '20px 0' }}>No team purchases yet</div>
             )}
             {activity.slice(0, 8).map(function(a, i) {
               return (
                 <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 0',
                   borderBottom: i < Math.min(activity.length, 8) - 1 ? '1px solid #f1f5f9' : 'none' }}>
                   <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#f3f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 12, fontWeight: 700, color: '#8b5cf6' }}>{a.username.slice(0, 1).toUpperCase()}</div>
+                    fontSize: 12, fontWeight: 700, color: 'var(--sap-purple)' }}>{a.username.slice(0, 1).toUpperCase()}</div>
                   <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{a.username}</div>
-                    <div style={{ fontSize: 11, color: '#64748b' }}>bought {a.pack} pack</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--sap-text-primary)' }}>{a.username}</div>
+                    <div style={{ fontSize: 11, color: 'var(--sap-text-muted)' }}>bought {a.pack} pack</div>
                   </div>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#22c55e' }}>${a.price}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-green-bright)' }}>${a.price}</div>
                 </div>
               );
             })}

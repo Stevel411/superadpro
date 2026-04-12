@@ -51,7 +51,7 @@ export default function Login() {
             <span style={{ color: '#fff', fontWeight: 900, fontSize: 16 }}>S</span>
           </div>
           <span style={styles.logoText}>
-            SuperAd<span style={{ color: '#38bdf8' }}>Pro</span>
+            SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span>
           </span>
         </div>
 
@@ -115,7 +115,7 @@ export default function Login() {
 }
 
 const styles = {
-  page: { minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: '#172554', padding: 20, position: 'relative', overflow: 'hidden', fontFamily: "'DM Sans', sans-serif" },
+  page: { minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', background: 'var(--sap-cobalt-deep)', padding: 20, position: 'relative', overflow: 'hidden', fontFamily: "'DM Sans', sans-serif" },
   bg: { position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(14,165,233,.15) 0%, transparent 70%)', pointerEvents: 'none' },
   bgGlow1: { position: 'absolute', top: '20%', left: '10%', width: 400, height: 400, borderRadius: '50%', background: 'radial-gradient(circle, rgba(56,189,248,.06) 0%, transparent 70%)', pointerEvents: 'none' },
   bgGlow2: { position: 'absolute', bottom: '10%', right: '5%', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(139,92,246,.06) 0%, transparent 70%)', pointerEvents: 'none' },
@@ -131,7 +131,7 @@ const styles = {
   label: { fontSize: 12, fontWeight: 700, color: 'rgba(255,255,255,.6)', textTransform: 'uppercase', letterSpacing: '.05em' },
   input: { padding: '12px 14px', borderRadius: 10, border: '1px solid rgba(255,255,255,.1)', background: 'rgba(255,255,255,.06)', color: '#fff', fontSize: 14, fontFamily: "'DM Sans', sans-serif", outline: 'none', transition: 'border-color .15s' },
   eyeBtn: { position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, padding: 0, lineHeight: 1 },
-  forgotLink: { fontSize: 12, color: '#38bdf8', textDecoration: 'none', fontWeight: 600 },
+  forgotLink: { fontSize: 12, color: 'var(--sap-accent-light)', textDecoration: 'none', fontWeight: 600 },
   btn: { marginTop: 6, padding: '14px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", transition: 'opacity .15s' },
   btnDisabled: { marginTop: 6, padding: '14px', borderRadius: 12, border: 'none', background: 'rgba(14,165,233,.4)', color: 'rgba(255,255,255,.5)', fontSize: 15, fontWeight: 700, cursor: 'not-allowed', fontFamily: "'DM Sans', sans-serif" },
   divider: { display: 'flex', alignItems: 'center', gap: 10, margin: '24px 0 20px' },

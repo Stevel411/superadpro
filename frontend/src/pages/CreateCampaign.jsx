@@ -77,17 +77,17 @@ export default function CreateCampaign() {
   var S = {
     page: { background: '#f0f3f9', minHeight: '100vh', fontFamily: "'DM Sans',sans-serif" },
     header: { background: '#fff', borderBottom: '1px solid #e8ecf2', padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-    h1: { fontFamily: "'Sora',sans-serif", fontSize: 22, fontWeight: 800, color: '#0f172a', margin: 0 },
+    h1: { fontFamily: "'Sora',sans-serif", fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', margin: 0 },
     wrap: { maxWidth: 800, margin: '24px auto', padding: '0 24px' },
     card: { background: '#fff', border: '1px solid #e8ecf2', borderRadius: 14, padding: 32 },
     label: { display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, marginTop: 20 },
-    input: { width: '100%', padding: '12px 16px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 14, fontFamily: "'DM Sans',sans-serif", outline: 'none', transition: 'border 0.2s', background: '#f8fafc' },
-    select: { width: '100%', padding: '12px 16px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 14, fontFamily: "'DM Sans',sans-serif", outline: 'none', background: '#f8fafc', cursor: 'pointer' },
-    textarea: { width: '100%', padding: '12px 16px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 14, fontFamily: "'DM Sans',sans-serif", outline: 'none', background: '#f8fafc', minHeight: 80, resize: 'vertical' },
+    input: { width: '100%', padding: '12px 16px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 14, fontFamily: "'DM Sans',sans-serif", outline: 'none', transition: 'border 0.2s', background: 'var(--sap-bg-elevated)' },
+    select: { width: '100%', padding: '12px 16px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 14, fontFamily: "'DM Sans',sans-serif", outline: 'none', background: 'var(--sap-bg-elevated)', cursor: 'pointer' },
+    textarea: { width: '100%', padding: '12px 16px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 14, fontFamily: "'DM Sans',sans-serif", outline: 'none', background: 'var(--sap-bg-elevated)', minHeight: 80, resize: 'vertical' },
     btn: { display: 'inline-block', padding: '14px 40px', borderRadius: 12, fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 800, border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff', boxShadow: '0 4px 20px rgba(14,165,233,0.2)', transition: 'all 0.3s', marginTop: 24 },
     btnDisabled: { opacity: 0.6, cursor: 'not-allowed' },
-    error: { marginTop: 16, padding: '12px 16px', borderRadius: 10, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', color: '#ef4444', fontSize: 14, fontWeight: 600 },
-    success: { marginTop: 16, padding: '16px 20px', borderRadius: 10, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)', color: '#10b981', fontSize: 14, fontWeight: 600 },
+    error: { marginTop: 16, padding: '12px 16px', borderRadius: 10, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', color: 'var(--sap-red-bright)', fontSize: 14, fontWeight: 600 },
+    success: { marginTop: 16, padding: '16px 20px', borderRadius: 10, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)', color: 'var(--sap-green-mid)', fontSize: 14, fontWeight: 600 },
   };
 
   return (
@@ -96,23 +96,23 @@ export default function CreateCampaign() {
 
       <div style={S.wrap}>
         <div style={S.card}>
-          <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>{t('createCampaign.campaignDetails')}</div>
-          <div style={{ fontSize: 14, color: '#64748b', marginBottom: 8 }}>{t('createCampaign.campaignDetailsDesc')}</div>
+          <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>{t('createCampaign.campaignDetails')}</div>
+          <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', marginBottom: 8 }}>{t('createCampaign.campaignDetailsDesc')}</div>
 
           <label style={S.label}>{t('createCampaign.campaignTitle')}</label>
           <input style={S.input} value={title} onChange={function(e) { setTitle(e.target.value); }} placeholder={t("createCampaign.campaignTitlePlaceholder")} maxLength={120} />
 
           <label style={S.label}>{t('createCampaign.videoUrl')}</label>
           <input style={S.input} value={videoUrl} onChange={function(e) { handleUrlChange(e.target.value); }} placeholder={t("createCampaign.videoUrlPlaceholder")} />
-          {videoUrl && !preview && <div style={{ fontSize: 12, color: '#ef4444', marginTop: 6 }}>{t('createCampaign.unsupportedUrl')}</div>}
+          {videoUrl && !preview && <div style={{ fontSize: 12, color: 'var(--sap-red-bright)', marginTop: 6 }}>{t('createCampaign.unsupportedUrl')}</div>}
 
           {/* Video preview */}
           {preview && (
             <div style={{ marginTop: 16, borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#000' }}>
               <iframe src={preview.embed} style={{ width: '100%', height: 340, border: 'none' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title="preview" />
-              <div style={{ padding: '10px 16px', background: '#f8fafc', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 6, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', background: preview.platform === 'youtube' ? 'rgba(239,68,68,0.08)' : 'rgba(14,165,233,0.08)', color: preview.platform === 'youtube' ? '#ef4444' : '#0ea5e9' }}>{preview.platform}</span>
-                <span style={{ fontSize: 12, color: '#64748b' }}>ID: {preview.id}</span>
+              <div style={{ padding: '10px 16px', background: 'var(--sap-bg-elevated)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 6, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', background: preview.platform === 'youtube' ? 'rgba(239,68,68,0.08)' : 'rgba(14,165,233,0.08)', color: preview.platform === 'youtube' ? 'var(--sap-red-bright)' : 'var(--sap-accent)' }}>{preview.platform}</span>
+                <span style={{ fontSize: 12, color: 'var(--sap-text-muted)' }}>ID: {preview.id}</span>
               </div>
             </div>
           )}
@@ -137,13 +137,13 @@ export default function CreateCampaign() {
           </div>
 
           {error && <div style={S.error}>{error}</div>}
-          {result && <div style={S.success}>{t('createCampaign.successCreated')} {result.status === 'pending' ? t('createCampaign.pendingReview') : t('createCampaign.nowLive')} <a href="/video-library" style={{ color: '#10b981', fontWeight: 800 }}>{t('createCampaign.viewMyCampaigns')}</a></div>}
+          {result && <div style={S.success}>{t('createCampaign.successCreated')} {result.status === 'pending' ? t('createCampaign.pendingReview') : t('createCampaign.nowLive')} <a href="/video-library" style={{ color: 'var(--sap-green-mid)', fontWeight: 800 }}>{t('createCampaign.viewMyCampaigns')}</a></div>}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 24 }}>
             <button style={{ ...S.btn, ...(submitting ? S.btnDisabled : {}) }} onClick={handleSubmit} disabled={submitting}>
               {submitting ? t('createCampaign.creating') : t('createCampaign.launchCampaign')}
             </button>
-            <div style={{ fontSize: 13, color: '#94a3b8' }}>{t('createCampaign.tierNote')}</div>
+            <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>{t('createCampaign.tierNote')}</div>
           </div>
         </div>
 
@@ -151,18 +151,18 @@ export default function CreateCampaign() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 20 }}>
           <div style={{ background: '#fff', border: '1px solid #e8ecf2', borderRadius: 14, padding: 20 }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>🎬</div>
-            <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>{t('createCampaign.pasteAndGo')}</div>
-            <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>{t('createCampaign.pasteAndGoDesc')}</div>
+            <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>{t('createCampaign.pasteAndGo')}</div>
+            <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', lineHeight: 1.5 }}>{t('createCampaign.pasteAndGoDesc')}</div>
           </div>
           <div style={{ background: '#fff', border: '1px solid #e8ecf2', borderRadius: 14, padding: 20 }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>👁️</div>
-            <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>{t('createCampaign.realViews')}</div>
-            <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>{t('createCampaign.realViewsDesc')}</div>
+            <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>{t('createCampaign.realViews')}</div>
+            <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', lineHeight: 1.5 }}>{t('createCampaign.realViewsDesc')}</div>
           </div>
           <div style={{ background: '#fff', border: '1px solid #e8ecf2', borderRadius: 14, padding: 20 }}>
             <div style={{ fontSize: 24, marginBottom: 8 }}>📊</div>
-            <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>{t('createCampaign.liveAnalytics')}</div>
-            <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.5 }}>{t('createCampaign.liveAnalyticsDesc')}</div>
+            <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>{t('createCampaign.liveAnalytics')}</div>
+            <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', lineHeight: 1.5 }}>{t('createCampaign.liveAnalyticsDesc')}</div>
           </div>
         </div>
       </div>

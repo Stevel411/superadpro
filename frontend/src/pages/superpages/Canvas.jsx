@@ -284,13 +284,13 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       </div>;
     }
     if (el.type === 'video' && !el.txt) {
-      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,41,0.3)', borderRadius: 12, border: '1px dashed #334155', color: '#475569', fontSize: 13 }}>Click ✎ VIDEO to add</div>;
+      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,41,0.3)', borderRadius: 12, border: '1px dashed #334155', color: 'var(--sap-text-secondary)', fontSize: 13 }}>Click ✎ VIDEO to add</div>;
     }
     if (el.type === 'image' && el.txt) {
       return <img src={el.txt} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: el.s?.borderRadius || '8px' }} alt="" />;
     }
     if (el.type === 'image' && !el.txt) {
-      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,41,0.3)', borderRadius: 12, border: '1px dashed #334155', color: '#475569', fontSize: 13 }}>Click ✎ IMAGE to upload</div>;
+      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,41,0.3)', borderRadius: 12, border: '1px dashed #334155', color: 'var(--sap-text-secondary)', fontSize: 13 }}>Click ✎ IMAGE to upload</div>;
     }
     if (['spacer', 'divider', 'box'].includes(el.type) && !el.txt) return null;
     if (el.type === 'button' || el.type === 'announcement') {
@@ -301,16 +301,16 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         {['Days', 'Hrs', 'Min', 'Sec'].map(l => (
           <div key={l} style={{ textAlign: 'center' }}>
             <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 900, color: '#fff', background: 'rgba(255,255,255,0.06)', borderRadius: 10, padding: '8px 14px', minWidth: 50, border: '1px solid rgba(255,255,255,0.08)' }}>00</div>
-            <div style={{ fontSize: 10, color: '#64748b', marginTop: 4, textTransform: 'uppercase', letterSpacing: '.5px' }}>{l}</div>
+            <div style={{ fontSize: 10, color: 'var(--sap-text-muted)', marginTop: 4, textTransform: 'uppercase', letterSpacing: '.5px' }}>{l}</div>
           </div>
         ))}
       </div>;
     }
     if (el.type === 'progress') {
-      const pct = el._percent || 75, lbl = el._label || 'Progress', clr = el._color || '#0ea5e9';
+      const pct = el._percent || 75, lbl = el._label || 'Progress', clr = el._color || 'var(--sap-accent)';
       return <div style={{ width: '100%', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-          <span style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>{lbl}</span>
+          <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--sap-border)' }}>{lbl}</span>
           <span style={{ fontSize: 13, fontWeight: 700, color: clr }}>{pct}%</span>
         </div>
         <div style={{ width: '100%', height: 10, background: 'rgba(255,255,255,0.08)', borderRadius: 5, overflow: 'hidden' }}>
@@ -321,7 +321,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     if (el.type === 'socialicons') {
       return <div style={{ display: 'flex', gap: 14, justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }}>
         {Object.keys(SOCIAL_SVGS).map(k => (
-          <svg key={k} viewBox="0 0 24 24" width={22} height={22} fill="#94a3b8" style={{ opacity: 0.7 }}><path d={SOCIAL_SVGS[k]} /></svg>
+          <svg key={k} viewBox="0 0 24 24" width={22} height={22} fill="var(--sap-text-faint)" style={{ opacity: 0.7 }}><path d={SOCIAL_SVGS[k]} /></svg>
         ))}
       </div>;
     }
@@ -332,13 +332,13 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
           <div style={{ position: 'absolute', inset: 0, zIndex: 2, cursor: 'grab' }} />
         </div>;
       }
-      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,41,0.3)', borderRadius: 12, border: '1px dashed #334155', color: '#475569', fontSize: 13, gap: 8 }}>🎵 Click ✎ AUDIO to add</div>;
+      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,41,0.3)', borderRadius: 12, border: '1px dashed #334155', color: 'var(--sap-text-secondary)', fontSize: 13, gap: 8 }}>🎵 Click ✎ AUDIO to add</div>;
     }
     if (el.type === 'embed') {
       if (el._embedCode) {
         return <div style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: 8, pointerEvents: 'none' }} dangerouslySetInnerHTML={{ __html: el._embedCode }} />;
       }
-      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,41,0.3)', borderRadius: 12, border: '1px dashed #334155', color: '#475569', fontSize: 13, gap: 8 }}>⟨/⟩ Click ✎ CODE to add HTML</div>;
+      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,41,0.3)', borderRadius: 12, border: '1px dashed #334155', color: 'var(--sap-text-secondary)', fontSize: 13, gap: 8 }}>⟨/⟩ Click ✎ CODE to add HTML</div>;
     }
     // Badge/label: render as centred pill
     if (el.type === 'badge' || el.type === 'label') {
@@ -426,17 +426,17 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
               {!['spacer', 'divider', 'box'].includes(el.type) && (
                 <>
                   <button onClick={e => { e.stopPropagation(); if (EDITABLE_TYPES.includes(el.type)) { startInlineEdit(el.id); } else { onEditElement(el.id); } }}
-                    style={{ padding: '2px 8px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 800, color: EDITABLE_TYPES.includes(el.type) ? '#6366f1' : '#0ea5e9' }}>
+                    style={{ padding: '2px 8px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 800, color: EDITABLE_TYPES.includes(el.type) ? 'var(--sap-indigo)' : 'var(--sap-accent)' }}>
                     {EDITABLE_TYPES.includes(el.type) ? '✎ EDIT' : editLabel(el.type)}
                   </button>
-                  <div style={{ width: 1, height: 14, background: '#e5e7eb' }} />
+                  <div style={{ width: 1, height: 14, background: 'var(--sap-border-strong)' }} />
                 </>
               )}
               <button onClick={e => { e.stopPropagation(); if (window._spDuplicateElement) window._spDuplicateElement(el.id); }}
                 style={{ padding: '2px 6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13 }} title="Duplicate">⧉</button>
-              <div style={{ width: 1, height: 14, background: '#e5e7eb' }} />
+              <div style={{ width: 1, height: 14, background: 'var(--sap-border-strong)' }} />
               <button onClick={e => { e.stopPropagation(); if (window._spDeleteElement) window._spDeleteElement(el.id); }}
-                style={{ padding: '2px 6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#dc2626' }} title="Delete">✕</button>
+                style={{ padding: '2px 6px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: 'var(--sap-red)' }} title="Delete">✕</button>
             </div>
 
             {/* Resize handles — all 8 directions */}
@@ -452,7 +452,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
             ].map(({ pos, style }) => (
               <div key={pos} className="cel-resize"
                 onMouseDown={e => startResize(e, el.id, pos)}
-                style={{ position: 'absolute', background: '#0ea5e9', zIndex: 15, ...style }} />
+                style={{ position: 'absolute', background: 'var(--sap-accent)', zIndex: 15, ...style }} />
             ))}
           </div>
         ))}

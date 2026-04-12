@@ -11,10 +11,10 @@ const TEMPLATES = [
   {
     id: 'lead-magnet', name: 'Lead Magnet', desc: 'eBook / Guide',
     elements: [
-      { type: 'text', x: 50, y: 40, w: 495, h: 30, text: 'FREE GUIDE', fontSize: 14, fontWeight: 700, color: '#8b5cf6', align: 'center', letterSpacing: 4 },
+      { type: 'text', x: 50, y: 40, w: 495, h: 30, text: 'FREE GUIDE', fontSize: 14, fontWeight: 700, color: 'var(--sap-purple)', align: 'center', letterSpacing: 4 },
       { type: 'text', x: 50, y: 80, w: 495, h: 70, text: '10 Steps to Building\nYour Online Business', fontSize: 32, fontWeight: 900, color: '#1a1a2e', align: 'center', lineHeight: 1.2 },
       { type: 'text', x: 80, y: 170, w: 435, h: 40, text: 'Everything you need to know to start earning from home in 2026', fontSize: 14, color: '#6b7280', align: 'center', lineHeight: 1.6 },
-      { type: 'divider', x: 50, y: 230, w: 495, h: 2, color: '#e5e7eb' },
+      { type: 'divider', x: 50, y: 230, w: 495, h: 2, color: 'var(--sap-border-strong)' },
       { type: 'text', x: 50, y: 260, w: 495, h: 30, text: 'Step 1: Find Your Niche', fontSize: 20, fontWeight: 800, color: '#1a1a2e' },
       { type: 'text', x: 50, y: 300, w: 495, h: 70, text: 'The most important decision you\'ll make is choosing a niche that aligns with your passion and has market demand.', fontSize: 13, color: '#4b5563', lineHeight: 1.7 },
       { type: 'text', x: 50, y: 390, w: 495, h: 30, text: 'Step 2: Build Your Platform', fontSize: 20, fontWeight: 800, color: '#1a1a2e' },
@@ -26,21 +26,21 @@ const TEMPLATES = [
   {
     id: 'report', name: 'Business Report', desc: 'Data + charts',
     elements: [
-      { type: 'rect', x: 0, y: 0, w: 595, h: 120, color: '#0f172a' },
+      { type: 'rect', x: 0, y: 0, w: 595, h: 120, color: 'var(--sap-text-primary)' },
       { type: 'text', x: 50, y: 35, w: 495, h: 40, text: 'Q4 Business Report', fontSize: 28, fontWeight: 900, color: '#ffffff' },
       { type: 'text', x: 50, y: 80, w: 495, h: 20, text: 'Prepared by Your Company  |  March 2026', fontSize: 12, color: 'rgba(255,255,255,0.6)' },
       { type: 'text', x: 50, y: 150, w: 495, h: 30, text: 'Executive Summary', fontSize: 20, fontWeight: 800, color: '#1a1a2e' },
       { type: 'text', x: 50, y: 190, w: 495, h: 80, text: 'This report outlines key performance indicators, revenue growth, and strategic initiatives for Q4.', fontSize: 13, color: '#4b5563', lineHeight: 1.7 },
-      { type: 'divider', x: 50, y: 290, w: 495, h: 2, color: '#e5e7eb' },
+      { type: 'divider', x: 50, y: 290, w: 495, h: 2, color: 'var(--sap-border-strong)' },
       { type: 'text', x: 50, y: 320, w: 495, h: 30, text: 'Key Metrics', fontSize: 20, fontWeight: 800, color: '#1a1a2e' },
       { type: 'rect', x: 50, y: 360, w: 150, h: 80, color: '#f0f9ff', radius: 10 },
-      { type: 'text', x: 60, y: 370, w: 130, h: 20, text: 'Revenue', fontSize: 12, color: '#64748b' },
-      { type: 'text', x: 60, y: 395, w: 130, h: 30, text: '$142,500', fontSize: 24, fontWeight: 800, color: '#0ea5e9' },
-      { type: 'rect', x: 220, y: 360, w: 150, h: 80, color: '#f0fdf4', radius: 10 },
-      { type: 'text', x: 230, y: 370, w: 130, h: 20, text: 'Growth', fontSize: 12, color: '#64748b' },
-      { type: 'text', x: 230, y: 395, w: 130, h: 30, text: '+23%', fontSize: 24, fontWeight: 800, color: '#16a34a' },
+      { type: 'text', x: 60, y: 370, w: 130, h: 20, text: 'Revenue', fontSize: 12, color: 'var(--sap-text-muted)' },
+      { type: 'text', x: 60, y: 395, w: 130, h: 30, text: '$142,500', fontSize: 24, fontWeight: 800, color: 'var(--sap-accent)' },
+      { type: 'rect', x: 220, y: 360, w: 150, h: 80, color: 'var(--sap-green-bg)', radius: 10 },
+      { type: 'text', x: 230, y: 370, w: 130, h: 20, text: 'Growth', fontSize: 12, color: 'var(--sap-text-muted)' },
+      { type: 'text', x: 230, y: 395, w: 130, h: 30, text: '+23%', fontSize: 24, fontWeight: 800, color: 'var(--sap-green)' },
       { type: 'rect', x: 390, y: 360, w: 155, h: 80, color: '#fefce8', radius: 10 },
-      { type: 'text', x: 400, y: 370, w: 135, h: 20, text: 'Customers', fontSize: 12, color: '#64748b' },
+      { type: 'text', x: 400, y: 370, w: 135, h: 20, text: 'Customers', fontSize: 12, color: 'var(--sap-text-muted)' },
       { type: 'text', x: 400, y: 395, w: 135, h: 30, text: '1,847', fontSize: 24, fontWeight: 800, color: '#ca8a04' },
     ],
   },
@@ -55,26 +55,26 @@ const TEMPLATES = [
       { type: 'text', x: 50, y: 152, w: 250, h: 60, text: 'Client Name\n123 Business Street\nLondon, EC1A 1BB', fontSize: 12, color: '#6b7280', lineHeight: 1.6 },
       { type: 'text', x: 350, y: 130, w: 195, h: 20, text: 'From:', fontSize: 13, fontWeight: 700, color: '#1a1a2e' },
       { type: 'text', x: 350, y: 152, w: 195, h: 60, text: 'Your Company Name\n456 Your Address\nYour City, Postcode', fontSize: 12, color: '#6b7280', lineHeight: 1.6 },
-      { type: 'rect', x: 50, y: 250, w: 495, h: 30, color: '#f1f5f9' },
-      { type: 'text', x: 60, y: 256, w: 250, h: 18, text: 'Description', fontSize: 11, fontWeight: 700, color: '#475569' },
-      { type: 'text', x: 430, y: 256, w: 115, h: 18, text: 'Amount', fontSize: 11, fontWeight: 700, color: '#475569', align: 'right' },
+      { type: 'rect', x: 50, y: 250, w: 495, h: 30, color: 'var(--sap-bg-page)' },
+      { type: 'text', x: 60, y: 256, w: 250, h: 18, text: 'Description', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-secondary)' },
+      { type: 'text', x: 430, y: 256, w: 115, h: 18, text: 'Amount', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-secondary)', align: 'right' },
       { type: 'text', x: 60, y: 290, w: 250, h: 18, text: 'Web Design Services', fontSize: 12, color: '#374151' },
       { type: 'text', x: 430, y: 290, w: 115, h: 18, text: '$2,500.00', fontSize: 12, color: '#374151', align: 'right' },
-      { type: 'divider', x: 350, y: 320, w: 195, h: 1, color: '#e5e7eb' },
+      { type: 'divider', x: 350, y: 320, w: 195, h: 1, color: 'var(--sap-border-strong)' },
       { type: 'text', x: 350, y: 335, w: 80, h: 20, text: 'Total:', fontSize: 16, fontWeight: 800, color: '#1a1a2e' },
-      { type: 'text', x: 430, y: 335, w: 115, h: 20, text: '$2,500.00', fontSize: 16, fontWeight: 800, color: '#22c55e', align: 'right' },
+      { type: 'text', x: 430, y: 335, w: 115, h: 20, text: '$2,500.00', fontSize: 16, fontWeight: 800, color: 'var(--sap-green-bright)', align: 'right' },
     ],
   },
   {
     id: 'resume', name: 'Resume / CV', desc: 'Clean professional',
     elements: [
-      { type: 'rect', x: 0, y: 0, w: 595, h: 100, color: '#1e293b' },
+      { type: 'rect', x: 0, y: 0, w: 595, h: 100, color: 'var(--sap-text-primary)' },
       { type: 'text', x: 50, y: 25, w: 300, h: 35, text: 'Your Full Name', fontSize: 28, fontWeight: 900, color: '#ffffff' },
       { type: 'text', x: 50, y: 65, w: 400, h: 20, text: 'Professional Title  |  your@email.com  |  +44 7700 900000', fontSize: 12, color: 'rgba(255,255,255,0.6)' },
-      { type: 'text', x: 50, y: 130, w: 495, h: 20, text: 'PROFESSIONAL SUMMARY', fontSize: 13, fontWeight: 700, color: '#ef4444', letterSpacing: 2 },
+      { type: 'text', x: 50, y: 130, w: 495, h: 20, text: 'PROFESSIONAL SUMMARY', fontSize: 13, fontWeight: 700, color: 'var(--sap-red-bright)', letterSpacing: 2 },
       { type: 'text', x: 50, y: 158, w: 495, h: 60, text: 'Results-driven professional with over 10 years of experience in digital marketing and business development.', fontSize: 12, color: '#4b5563', lineHeight: 1.7 },
-      { type: 'divider', x: 50, y: 235, w: 495, h: 1, color: '#e5e7eb' },
-      { type: 'text', x: 50, y: 255, w: 495, h: 20, text: 'EXPERIENCE', fontSize: 13, fontWeight: 700, color: '#ef4444', letterSpacing: 2 },
+      { type: 'divider', x: 50, y: 235, w: 495, h: 1, color: 'var(--sap-border-strong)' },
+      { type: 'text', x: 50, y: 255, w: 495, h: 20, text: 'EXPERIENCE', fontSize: 13, fontWeight: 700, color: 'var(--sap-red-bright)', letterSpacing: 2 },
       { type: 'text', x: 50, y: 283, w: 300, h: 22, text: 'Senior Marketing Manager', fontSize: 16, fontWeight: 700, color: '#1a1a2e' },
       { type: 'text', x: 400, y: 285, w: 145, h: 18, text: '2022 — Present', fontSize: 12, color: '#6b7280', align: 'right' },
     ],
@@ -82,7 +82,7 @@ const TEMPLATES = [
   {
     id: 'one-pager', name: 'One-Pager', desc: 'Pitch / overview',
     elements: [
-      { type: 'rect', x: 0, y: 0, w: 595, h: 160, color: '#0f172a' },
+      { type: 'rect', x: 0, y: 0, w: 595, h: 160, color: 'var(--sap-text-primary)' },
       { type: 'text', x: 50, y: 40, w: 495, h: 40, text: 'Your Product Name', fontSize: 34, fontWeight: 900, color: '#ffffff' },
       { type: 'text', x: 50, y: 95, w: 400, h: 40, text: 'A short tagline that explains what you do.', fontSize: 14, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 },
       { type: 'text', x: 50, y: 190, w: 495, h: 25, text: 'The Problem', fontSize: 18, fontWeight: 800, color: '#1a1a2e' },
@@ -133,11 +133,11 @@ export default function PDFCreator() {
     setElements(p => [...p, el]); setSelectedId(el.id);
   };
   const addRect = () => {
-    const el = { id: uid(), type: 'rect', x: 50, y: 50, w: 200, h: 100, color: '#f1f5f9', radius: 8 };
+    const el = { id: uid(), type: 'rect', x: 50, y: 50, w: 200, h: 100, color: 'var(--sap-bg-page)', radius: 8 };
     setElements(p => [...p, el]); setSelectedId(el.id);
   };
   const addDivider = () => {
-    const el = { id: uid(), type: 'divider', x: 50, y: 50, w: 495, h: 2, color: '#e5e7eb' };
+    const el = { id: uid(), type: 'divider', x: 50, y: 50, w: 495, h: 2, color: 'var(--sap-border-strong)' };
     setElements(p => [...p, el]); setSelectedId(el.id);
   };
   const addImage = () => {
@@ -274,16 +274,16 @@ export default function PDFCreator() {
         >{el.text}</div>
       );
     } else if (el.type === 'rect') {
-      content = <div style={{ width: '100%', height: '100%', background: el.color || '#f1f5f9', borderRadius: el.radius || 0 }} />;
+      content = <div style={{ width: '100%', height: '100%', background: el.color || 'var(--sap-bg-page)', borderRadius: el.radius || 0 }} />;
     } else if (el.type === 'divider') {
-      content = <div style={{ width: '100%', height: el.h || 2, background: el.color || '#e5e7eb' }} />;
+      content = <div style={{ width: '100%', height: el.h || 2, background: el.color || 'var(--sap-border-strong)' }} />;
     } else if (el.type === 'image') {
       content = <img src={el.src} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 4, display: 'block', pointerEvents: 'none' }} draggable={false} />;
     }
 
     const handles = isSel && !isEdit ? ['nw','ne','sw','se','n','s','e','w'].map(h => {
       const sz = 8;
-      const s = { position: 'absolute', width: sz, height: sz, background: '#0ea5e9', borderRadius: 2, zIndex: 20, boxShadow: '0 0 3px rgba(0,0,0,.3)' };
+      const s = { position: 'absolute', width: sz, height: sz, background: 'var(--sap-accent)', borderRadius: 2, zIndex: 20, boxShadow: '0 0 3px rgba(0,0,0,.3)' };
       if (h.includes('n')) s.top = -sz/2;
       if (h.includes('s')) s.bottom = -sz/2;
       if (h.includes('w')) s.left = -sz/2;
@@ -304,7 +304,7 @@ export default function PDFCreator() {
   };
 
   const selectedEl = elements.find(e => e.id === selectedId);
-  const tb = { padding: '5px 12px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 8, fontSize: 11, fontWeight: 600, color: '#c5cad1', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif' };
+  const tb = { padding: '5px 12px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 8, fontSize: 11, fontWeight: 600, color: '#c5cad1', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif' };
 
   return (
     <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
@@ -317,7 +317,7 @@ export default function PDFCreator() {
             Templates <span style={{ fontSize: 8, marginLeft: 2 }}>▼</span>
           </button>
           {showTemplates && (
-            <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, width: 240, background: '#1b2030', border: '1px solid #2a3040', borderRadius: 10, boxShadow: '0 12px 40px rgba(0,0,0,.5)', zIndex: 100, overflow: 'hidden' }}
+            <div style={{ position: 'absolute', top: '100%', left: 0, marginTop: 4, width: 240, background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 10, boxShadow: '0 12px 40px rgba(0,0,0,.5)', zIndex: 100, overflow: 'hidden' }}
               onClick={e => e.stopPropagation()}>
               {TEMPLATES.map(t => (
                 <div key={t.id} onClick={() => loadTemplate(t)}
@@ -333,7 +333,7 @@ export default function PDFCreator() {
           )}
         </div>
 
-        <div style={{ width: 1, height: 20, background: '#2a3040', margin: '0 6px' }} />
+        <div style={{ width: 1, height: 20, background: 'var(--sap-navy-card)', margin: '0 6px' }} />
 
         <button onClick={addText} style={tb}>+ Text</button>
         <button onClick={addImage} style={tb}>+ Image</button>
@@ -342,20 +342,20 @@ export default function PDFCreator() {
 
         {selectedEl && (
           <>
-            <div style={{ width: 1, height: 20, background: '#2a3040', margin: '0 6px' }} />
-            <button onClick={() => deleteEl(selectedId)} style={{ ...tb, background: 'rgba(239,68,68,0.1)', borderColor: 'rgba(239,68,68,0.2)', color: '#ef4444' }}>Delete</button>
+            <div style={{ width: 1, height: 20, background: 'var(--sap-navy-card)', margin: '0 6px' }} />
+            <button onClick={() => deleteEl(selectedId)} style={{ ...tb, background: 'rgba(239,68,68,0.1)', borderColor: 'rgba(239,68,68,0.2)', color: 'var(--sap-red-bright)' }}>Delete</button>
           </>
         )}
 
         {elements.length > 0 && (
           <>
-            <div style={{ width: 1, height: 20, background: '#2a3040', margin: '0 6px' }} />
+            <div style={{ width: 1, height: 20, background: 'var(--sap-navy-card)', margin: '0 6px' }} />
             <button onClick={clearAll} style={{ ...tb, color: '#7b8594' }}>Clear all</button>
           </>
         )}
 
         <div style={{ flex: 1 }} />
-        <button onClick={exportPDF} style={{ padding: '8px 20px', background: '#0ea5e9', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', boxShadow: '0 0 20px rgba(0,212,255,0.15)' }}>Download PDF</button>
+        <button onClick={exportPDF} style={{ padding: '8px 20px', background: 'var(--sap-accent)', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', boxShadow: '0 0 20px rgba(0,212,255,0.15)' }}>Download PDF</button>
       </div>
 
       {/* CANVAS + PROPERTIES */}
@@ -363,7 +363,7 @@ export default function PDFCreator() {
 
         {/* CANVAS — light neutral background */}
         <div ref={canvasAreaRef}
-          style={{ overflow: 'auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: 30, background: '#e8ecf2' }}
+          style={{ overflow: 'auto', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', padding: 30, background: 'var(--sap-border-light)' }}
           onClick={() => { setSelectedId(null); if (editingId) finishEdit(editingId); setShowTemplates(false); }}
         >
           <div ref={pageRef} style={{
@@ -392,7 +392,7 @@ export default function PDFCreator() {
             <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>Page size</div>
             <div style={{ display: 'flex', gap: 4 }}>
               {Object.keys(PAGE_SIZES).map(s => (
-                <button key={s} onClick={() => setPageSize(s)} style={{ flex: 1, padding: '6px 0', borderRadius: 7, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, fontWeight: pageSize === s ? 700 : 600, background: pageSize === s ? '#0ea5e9' : '#1b2030', color: pageSize === s ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: pageSize === s ? '#0ea5e9' : '#2a3040' }}>{s}</button>
+                <button key={s} onClick={() => setPageSize(s)} style={{ flex: 1, padding: '6px 0', borderRadius: 7, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, fontWeight: pageSize === s ? 700 : 600, background: pageSize === s ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: pageSize === s ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: pageSize === s ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{s}</button>
               ))}
             </div>
           </div>
@@ -400,39 +400,39 @@ export default function PDFCreator() {
             <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>Orientation</div>
             <div style={{ display: 'flex', gap: 4 }}>
               {['portrait', 'landscape'].map(o => (
-                <button key={o} onClick={() => setOrientation(o)} style={{ flex: 1, padding: '6px 0', borderRadius: 7, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, textTransform: 'capitalize', fontWeight: orientation === o ? 700 : 600, background: orientation === o ? '#0ea5e9' : '#1b2030', color: orientation === o ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: orientation === o ? '#0ea5e9' : '#2a3040' }}>{o}</button>
+                <button key={o} onClick={() => setOrientation(o)} style={{ flex: 1, padding: '6px 0', borderRadius: 7, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, textTransform: 'capitalize', fontWeight: orientation === o ? 700 : 600, background: orientation === o ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: orientation === o ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: orientation === o ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{o}</button>
               ))}
             </div>
           </div>
           <div style={{ marginBottom: 14 }}>
             <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>Background</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 8 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 8 }}>
               <input type="color" value={pageBg} onChange={e => setPageBg(e.target.value)} style={{ width: 22, height: 22, border: 'none', borderRadius: 5, cursor: 'pointer', padding: 0, background: 'none' }} />
               <span style={{ fontSize: 11, color: '#c5cad1' }}>{pageBg}</span>
             </div>
           </div>
 
-          <div style={{ width: '100%', height: 1, background: '#2a3040', margin: '8px 0 14px' }} />
+          <div style={{ width: '100%', height: 1, background: 'var(--sap-navy-card)', margin: '8px 0 14px' }} />
 
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 }}>
             {selectedEl ? `${selectedEl.type} properties` : 'Element properties'}
           </div>
 
           {!selectedEl ? (
-            <div style={{ padding: 14, background: '#1b2030', border: '1px solid #2a3040', borderRadius: 10, textAlign: 'center', fontSize: 12, color: '#7b8594' }}>Click an element to edit</div>
+            <div style={{ padding: 14, background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 10, textAlign: 'center', fontSize: 12, color: '#7b8594' }}>Click an element to edit</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {selectedEl.type === 'text' && (
                 <>
                   <div>
                     <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Font size</div>
-                    <input type="number" value={selectedEl.fontSize || 16} onChange={e => updateEl(selectedId, { fontSize: +e.target.value })} style={{ width: '100%', padding: '6px 8px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 7, color: '#fff', fontSize: 12, outline: 'none', boxSizing: 'border-box', fontFamily: '"DM Sans",sans-serif' }} />
+                    <input type="number" value={selectedEl.fontSize || 16} onChange={e => updateEl(selectedId, { fontSize: +e.target.value })} style={{ width: '100%', padding: '6px 8px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 7, color: '#fff', fontSize: 12, outline: 'none', boxSizing: 'border-box', fontFamily: '"DM Sans",sans-serif' }} />
                   </div>
                   <div>
                     <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Weight</div>
                     <div style={{ display: 'flex', gap: 3 }}>
                       {[{v:400,l:'Reg'},{v:600,l:'Semi'},{v:700,l:'Bold'},{v:900,l:'Black'}].map(fw => (
-                        <button key={fw.v} onClick={() => updateEl(selectedId, { fontWeight: fw.v })} style={{ flex: 1, padding: '5px 0', borderRadius: 6, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 10, fontWeight: (selectedEl.fontWeight || 400) === fw.v ? 700 : 600, background: (selectedEl.fontWeight || 400) === fw.v ? '#0ea5e9' : '#1b2030', color: (selectedEl.fontWeight || 400) === fw.v ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: (selectedEl.fontWeight || 400) === fw.v ? '#0ea5e9' : '#2a3040' }}>{fw.l}</button>
+                        <button key={fw.v} onClick={() => updateEl(selectedId, { fontWeight: fw.v })} style={{ flex: 1, padding: '5px 0', borderRadius: 6, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 10, fontWeight: (selectedEl.fontWeight || 400) === fw.v ? 700 : 600, background: (selectedEl.fontWeight || 400) === fw.v ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: (selectedEl.fontWeight || 400) === fw.v ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: (selectedEl.fontWeight || 400) === fw.v ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{fw.l}</button>
                       ))}
                     </div>
                   </div>
@@ -440,13 +440,13 @@ export default function PDFCreator() {
                     <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Align</div>
                     <div style={{ display: 'flex', gap: 3 }}>
                       {['left','center','right'].map(a => (
-                        <button key={a} onClick={() => updateEl(selectedId, { align: a })} style={{ flex: 1, padding: '5px 0', borderRadius: 6, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 10, textTransform: 'capitalize', fontWeight: (selectedEl.align || 'left') === a ? 700 : 600, background: (selectedEl.align || 'left') === a ? '#0ea5e9' : '#1b2030', color: (selectedEl.align || 'left') === a ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: (selectedEl.align || 'left') === a ? '#0ea5e9' : '#2a3040' }}>{a}</button>
+                        <button key={a} onClick={() => updateEl(selectedId, { align: a })} style={{ flex: 1, padding: '5px 0', borderRadius: 6, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 10, textTransform: 'capitalize', fontWeight: (selectedEl.align || 'left') === a ? 700 : 600, background: (selectedEl.align || 'left') === a ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: (selectedEl.align || 'left') === a ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: (selectedEl.align || 'left') === a ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{a}</button>
                       ))}
                     </div>
                   </div>
                   <div>
                     <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Colour</div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 7 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 7 }}>
                       <input type="color" value={selectedEl.color || '#1a1a2e'} onChange={e => updateEl(selectedId, { color: e.target.value })} style={{ width: 18, height: 18, border: 'none', borderRadius: 4, cursor: 'pointer', padding: 0, background: 'none' }} />
                       <span style={{ fontSize: 10, color: '#c5cad1' }}>{(selectedEl.color || '#1a1a2e').toUpperCase()}</span>
                     </div>
@@ -456,9 +456,9 @@ export default function PDFCreator() {
               {(selectedEl.type === 'rect' || selectedEl.type === 'divider') && (
                 <div>
                   <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Colour</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 7 }}>
-                    <input type="color" value={selectedEl.color || '#f1f5f9'} onChange={e => updateEl(selectedId, { color: e.target.value })} style={{ width: 18, height: 18, border: 'none', borderRadius: 4, cursor: 'pointer', padding: 0, background: 'none' }} />
-                    <span style={{ fontSize: 10, color: '#c5cad1' }}>{(selectedEl.color || '#f1f5f9').toUpperCase()}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 7 }}>
+                    <input type="color" value={selectedEl.color || 'var(--sap-bg-page)'} onChange={e => updateEl(selectedId, { color: e.target.value })} style={{ width: 18, height: 18, border: 'none', borderRadius: 4, cursor: 'pointer', padding: 0, background: 'none' }} />
+                    <span style={{ fontSize: 10, color: '#c5cad1' }}>{(selectedEl.color || 'var(--sap-bg-page)').toUpperCase()}</span>
                   </div>
                 </div>
               )}
@@ -466,7 +466,7 @@ export default function PDFCreator() {
                 {[['X','x'],['Y','y'],['W','w'],['H','h']].map(([label, key]) => (
                   <div key={key}>
                     <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>{label}</div>
-                    <input type="number" value={Math.round(selectedEl[key])} onChange={e => updateEl(selectedId, { [key]: +e.target.value })} style={{ width: '100%', padding: '5px 7px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 6, color: '#fff', fontSize: 11, outline: 'none', boxSizing: 'border-box', fontFamily: '"DM Sans",sans-serif' }} />
+                    <input type="number" value={Math.round(selectedEl[key])} onChange={e => updateEl(selectedId, { [key]: +e.target.value })} style={{ width: '100%', padding: '5px 7px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 6, color: '#fff', fontSize: 11, outline: 'none', boxSizing: 'border-box', fontFamily: '"DM Sans",sans-serif' }} />
                   </div>
                 ))}
               </div>
@@ -476,7 +476,7 @@ export default function PDFCreator() {
           <div style={{ marginTop: 'auto', paddingTop: 16 }}>
             <div style={{ padding: '8px 12px', background: 'rgba(14,165,233,0.03)', border: '1px solid rgba(0,180,216,0.06)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 10, fontWeight: 700, color: '#fff', flex: 1 }}>Earn money with SuperAdPro</span>
-              <Link to="/earn" style={{ fontSize: 9, fontWeight: 700, color: '#0ea5e9', textDecoration: 'none' }}>See how →</Link>
+              <Link to="/earn" style={{ fontSize: 9, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>See how →</Link>
             </div>
           </div>
         </div>

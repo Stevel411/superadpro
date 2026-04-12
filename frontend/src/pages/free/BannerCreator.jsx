@@ -29,16 +29,16 @@ const PLATFORMS = [
 ];
 
 const GRADIENTS = [
-  { id: 'g1', from: '#1a0533', to: '#0f172a', name: 'Midnight' },
-  { id: 'g2', from: '#0ea5e9', to: '#6366f1', name: 'Ocean' },
-  { id: 'g3', from: '#f59e0b', to: '#ef4444', name: 'Sunset' },
-  { id: 'g4', from: '#10b981', to: '#0ea5e9', name: 'Teal' },
-  { id: 'g5', from: '#ec4899', to: '#8b5cf6', name: 'Pink' },
-  { id: 'g6', from: '#1e293b', to: '#334155', name: 'Slate' },
-  { id: 'g7', from: '#0f172a', to: '#1e3a5f', name: 'Navy' },
-  { id: 'g8', from: '#7c3aed', to: '#2563eb', name: 'Indigo' },
-  { id: 'g9', from: '#dc2626', to: '#f97316', name: 'Fire' },
-  { id: 'g10', from: '#ffffff', to: '#f1f5f9', name: 'White' },
+  { id: 'g1', from: '#1a0533', to: 'var(--sap-text-primary)', name: 'Midnight' },
+  { id: 'g2', from: 'var(--sap-accent)', to: 'var(--sap-indigo)', name: 'Ocean' },
+  { id: 'g3', from: 'var(--sap-amber)', to: 'var(--sap-red-bright)', name: 'Sunset' },
+  { id: 'g4', from: 'var(--sap-green-mid)', to: 'var(--sap-accent)', name: 'Teal' },
+  { id: 'g5', from: 'var(--sap-pink)', to: 'var(--sap-purple)', name: 'Pink' },
+  { id: 'g6', from: 'var(--sap-text-primary)', to: '#334155', name: 'Slate' },
+  { id: 'g7', from: 'var(--sap-text-primary)', to: '#1e3a5f', name: 'Navy' },
+  { id: 'g8', from: 'var(--sap-violet)', to: '#2563eb', name: 'Indigo' },
+  { id: 'g9', from: 'var(--sap-red)', to: '#f97316', name: 'Fire' },
+  { id: 'g10', from: '#ffffff', to: 'var(--sap-bg-page)', name: 'White' },
 ];
 
 const FONTS = [
@@ -104,7 +104,7 @@ const PlatformIcon = ({ icon, size = 20 }) => {
   }
 };
 
-const inp = { width: '100%', padding: '10px 14px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 10, fontSize: 14, color: '#fff', fontFamily: '"DM Sans",sans-serif', boxSizing: 'border-box', outline: 'none', transition: 'border-color .2s' };
+const inp = { width: '100%', padding: '10px 14px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 10, fontSize: 14, color: '#fff', fontFamily: '"DM Sans",sans-serif', boxSizing: 'border-box', outline: 'none', transition: 'border-color .2s' };
 
 export default function BannerCreator() {
   var { t } = useTranslation();
@@ -121,7 +121,7 @@ export default function BannerCreator() {
   const [catFilter, setCatFilter] = useState('banner');
   const [bgMode, setBgMode] = useState('gradient');
   const [gradient, setGradient] = useState(GRADIENTS[0]);
-  const [solidColor, setSolidColor] = useState('#0f172a');
+  const [solidColor, setSolidColor] = useState('var(--sap-text-primary)');
   const [bgImage, setBgImage] = useState(null);
   const [mainText, setMainText] = useState('YOUR HEADLINE HERE');
   const [mainSize, setMainSize] = useState(48);
@@ -229,14 +229,14 @@ export default function BannerCreator() {
       {/* NAV */}
       <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 36px', height: 80, background: 'rgba(10,18,40,0.95)', backdropFilter: 'blur(18px)', borderBottom: '1px solid rgba(0,180,216,0.12)', flexShrink: 0, position: 'relative' }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
-          <svg style={{ width: 28, height: 28 }} viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
-          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 20, color: '#fff' }}>SuperAd<span style={{ color: '#38bdf8' }}>Pro</span></span>
+          <svg style={{ width: 28, height: 28 }} viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="var(--sap-accent)"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
+          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 20, color: '#fff' }}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span></span>
         </Link>
         <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 20, color: '#fff' }}>Social Media Creator</span>
-          <span style={{ fontSize: 11, fontWeight: 700, color: '#0ea5e9', border: '1px solid rgba(14,165,233,0.4)', borderRadius: 20, padding: '4px 14px', letterSpacing: 1.5 }}>FREE</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-accent)', border: '1px solid rgba(14,165,233,0.4)', borderRadius: 20, padding: '4px 14px', letterSpacing: 1.5 }}>FREE</span>
         </div>
-        <Link to="/register" style={{ background: '#0ea5e9', color: '#fff', fontSize: 15, fontWeight: 600, padding: '10px 24px', borderRadius: 10, textDecoration: 'none', boxShadow: '0 2px 12px rgba(14,165,233,0.25)' }}>Get started free</Link>
+        <Link to="/register" style={{ background: 'var(--sap-accent)', color: '#fff', fontSize: 15, fontWeight: 600, padding: '10px 24px', borderRadius: 10, textDecoration: 'none', boxShadow: '0 2px 12px rgba(14,165,233,0.25)' }}>Get started free</Link>
       </nav>
 
       {/* WORKSPACE 50/50 */}
@@ -253,7 +253,7 @@ export default function BannerCreator() {
           </div>
 
           <div style={{ display: 'flex', gap: 8, padding: '10px 0', flexShrink: 0 }}>
-            <button onClick={dlPNG} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: '#0ea5e9', color: '#fff', fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>Download PNG</button>
+            <button onClick={dlPNG} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'var(--sap-accent)', color: '#fff', fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>Download PNG</button>
             <button onClick={reset} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'rgba(255,255,255,.05)', color: 'rgba(200,220,255,.6)', fontWeight: 600, fontSize: 13, border: '1px solid rgba(255,255,255,.12)', cursor: 'pointer', fontFamily: 'inherit' }}>Reset</button>
           </div>
 
@@ -261,7 +261,7 @@ export default function BannerCreator() {
             <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 3 }}>Create stunning content for free</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
               <span style={{ fontSize: 11, color: 'rgba(200,220,255,.35)', flex: 1 }}>AI video, music & voiceover — all in one platform.</span>
-              <Link to="/register" style={{ background: '#0ea5e9', color: '#fff', fontWeight: 700, fontSize: 11, padding: '7px 14px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap' }}>Learn more</Link>
+              <Link to="/register" style={{ background: 'var(--sap-accent)', color: '#fff', fontWeight: 700, fontSize: 11, padding: '7px 14px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap' }}>Learn more</Link>
             </div>
           </div>
         </div>
@@ -272,8 +272,8 @@ export default function BannerCreator() {
           {/* Platform picker */}
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Choose platform</div>
           <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-            <button onClick={() => setCatFilter('banner')} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, fontWeight: catFilter === 'banner' ? 700 : 600, background: catFilter === 'banner' ? '#0ea5e9' : '#1b2030', color: catFilter === 'banner' ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: catFilter === 'banner' ? '#0ea5e9' : '#2a3040' }}>Banners & Posts</button>
-            <button onClick={() => setCatFilter('profile')} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, fontWeight: catFilter === 'profile' ? 700 : 600, background: catFilter === 'profile' ? '#0ea5e9' : '#1b2030', color: catFilter === 'profile' ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: catFilter === 'profile' ? '#0ea5e9' : '#2a3040' }}>Profile Pictures</button>
+            <button onClick={() => setCatFilter('banner')} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, fontWeight: catFilter === 'banner' ? 700 : 600, background: catFilter === 'banner' ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: catFilter === 'banner' ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: catFilter === 'banner' ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>Banners & Posts</button>
+            <button onClick={() => setCatFilter('profile')} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, fontWeight: catFilter === 'profile' ? 700 : 600, background: catFilter === 'profile' ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: catFilter === 'profile' ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: catFilter === 'profile' ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>Profile Pictures</button>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 14, maxHeight: 200, overflow: 'auto' }}>
@@ -281,8 +281,8 @@ export default function BannerCreator() {
               <div key={p.id} onClick={() => setPlatform(p)}
                 style={{
                   padding: '8px 10px', borderRadius: 10, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, transition: 'all .15s',
-                  background: platform.id === p.id ? `${p.color}18` : '#1b2030',
-                  border: `1.5px solid ${platform.id === p.id ? p.color : '#2a3040'}`,
+                  background: platform.id === p.id ? `${p.color}18` : 'var(--sap-navy-soft)',
+                  border: `1.5px solid ${platform.id === p.id ? p.color : 'var(--sap-navy-card)'}`,
                 }}>
                 <PlatformIcon icon={p.icon} size={24} />
                 <div style={{ flex: 1, minWidth: 0 }}>
@@ -297,7 +297,7 @@ export default function BannerCreator() {
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Background</div>
           <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
             {['gradient', 'solid', 'image'].map(m => (
-              <button key={m} onClick={() => setBgMode(m)} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, textTransform: 'capitalize', fontWeight: bgMode === m ? 700 : 600, background: bgMode === m ? '#0ea5e9' : '#1b2030', color: bgMode === m ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: bgMode === m ? '#0ea5e9' : '#2a3040' }}>{m}</button>
+              <button key={m} onClick={() => setBgMode(m)} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, textTransform: 'capitalize', fontWeight: bgMode === m ? 700 : 600, background: bgMode === m ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: bgMode === m ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: bgMode === m ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{m}</button>
             ))}
           </div>
 
@@ -311,7 +311,7 @@ export default function BannerCreator() {
             </div>
           )}
           {bgMode === 'solid' && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 10, marginBottom: 14 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 10, marginBottom: 14 }}>
               <input type="color" value={solidColor} onChange={e => setSolidColor(e.target.value)} style={{ width: 28, height: 28, border: 'none', borderRadius: 6, cursor: 'pointer', padding: 0, background: 'none' }} />
               <span style={{ fontSize: 12, color: '#c5cad1' }}>{solidColor.toUpperCase()}</span>
             </div>
@@ -319,7 +319,7 @@ export default function BannerCreator() {
           {bgMode === 'image' && (
             <div style={{ marginBottom: 14 }}>
               <input ref={fileRef} type="file" accept="image/*" onChange={onBgUpload} style={{ display: 'none' }} />
-              <button onClick={() => fileRef.current?.click()} style={{ width: '100%', padding: '10px 0', borderRadius: 10, background: '#1b2030', border: '1px solid #2a3040', color: '#c5cad1', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: '"DM Sans",sans-serif' }}>
+              <button onClick={() => fileRef.current?.click()} style={{ width: '100%', padding: '10px 0', borderRadius: 10, background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', color: '#c5cad1', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: '"DM Sans",sans-serif' }}>
                 {bgImage ? 'Change image' : 'Upload background image'}
               </button>
             </div>
@@ -328,16 +328,16 @@ export default function BannerCreator() {
           {/* Main text */}
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>Main text</div>
           <input type="text" value={mainText} onChange={e => setMainText(e.target.value)} placeholder="Your headline..." style={{ ...inp, marginBottom: 8 }}
-            onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#2a3040'} />
+            onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
             <div>
               <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Size <span style={{ color: '#fff', fontWeight: 700 }}>{mainSize}</span></div>
-              <input type="range" min="16" max="80" value={mainSize} onChange={e => setMainSize(+e.target.value)} style={{ width: '100%', accentColor: '#0ea5e9' }} />
+              <input type="range" min="16" max="80" value={mainSize} onChange={e => setMainSize(+e.target.value)} style={{ width: '100%', accentColor: 'var(--sap-accent)' }} />
             </div>
             <div>
               <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Colour</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 8 }}>
                 <input type="color" value={mainColor} onChange={e => setMainColor(e.target.value)} style={{ width: 20, height: 20, border: 'none', borderRadius: 4, cursor: 'pointer', padding: 0, background: 'none' }} />
                 <span style={{ fontSize: 10, color: '#c5cad1' }}>{mainColor}</span>
               </div>
@@ -348,7 +348,7 @@ export default function BannerCreator() {
           <div style={{ marginBottom: 12 }}>
             <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Font</div>
             <select value={mainFont.id} onChange={e => setMainFont(FONTS.find(f => f.id === e.target.value))}
-              style={{ width: '100%', padding: '9px 30px 9px 12px', borderRadius: 10, border: '1px solid #2a3040', background: '#1b2030', color: '#fff', fontSize: 12, fontFamily: '"DM Sans",sans-serif', cursor: 'pointer', appearance: 'none', WebkitAppearance: 'none', backgroundImage: chevron, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', outline: 'none' }}>
+              style={{ width: '100%', padding: '9px 30px 9px 12px', borderRadius: 10, border: '1px solid #2a3040', background: 'var(--sap-navy-soft)', color: '#fff', fontSize: 12, fontFamily: '"DM Sans",sans-serif', cursor: 'pointer', appearance: 'none', WebkitAppearance: 'none', backgroundImage: chevron, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', outline: 'none' }}>
               {FONTS.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
             </select>
           </div>
@@ -356,16 +356,16 @@ export default function BannerCreator() {
           {/* Subtitle */}
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>Subtitle</div>
           <input type="text" value={subText} onChange={e => setSubText(e.target.value)} placeholder="Subtitle..." style={{ ...inp, marginBottom: 8 }}
-            onFocus={e => e.target.style.borderColor = '#0ea5e9'} onBlur={e => e.target.style.borderColor = '#2a3040'} />
+            onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
             <div>
               <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Size <span style={{ color: '#fff', fontWeight: 700 }}>{subSize}</span></div>
-              <input type="range" min="8" max="48" value={subSize} onChange={e => setSubSize(+e.target.value)} style={{ width: '100%', accentColor: '#0ea5e9' }} />
+              <input type="range" min="8" max="48" value={subSize} onChange={e => setSubSize(+e.target.value)} style={{ width: '100%', accentColor: 'var(--sap-accent)' }} />
             </div>
             <div>
               <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Colour</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', background: '#1b2030', border: '1px solid #2a3040', borderRadius: 8 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 8 }}>
                 <input type="color" value={subColor} onChange={e => setSubColor(e.target.value)} style={{ width: 20, height: 20, border: 'none', borderRadius: 4, cursor: 'pointer', padding: 0, background: 'none' }} />
                 <span style={{ fontSize: 10, color: '#c5cad1' }}>{subColor}</span>
               </div>
@@ -375,7 +375,7 @@ export default function BannerCreator() {
           {/* Bottom CTA */}
           <div style={{ padding: '8px 14px', background: 'rgba(14,165,233,0.03)', borderTop: '1px solid rgba(0,180,216,0.06)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8, marginTop: 'auto' }}>
             <span style={{ fontSize: 11, fontWeight: 700, color: '#fff', flex: 1 }}>Earn money online with SuperAdPro</span>
-            <Link to="/earn" style={{ fontSize: 10, fontWeight: 700, color: '#0ea5e9', textDecoration: 'none' }}>See how →</Link>
+            <Link to="/earn" style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>See how →</Link>
           </div>
         </div>
       </div>

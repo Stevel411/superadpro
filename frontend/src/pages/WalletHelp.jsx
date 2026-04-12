@@ -5,7 +5,7 @@ import { X, Search, ChevronDown, ChevronRight } from 'lucide-react';
 var HELP_SECTIONS = [
   {
     category: 'Understanding Your Wallets',
-    color: '#16a34a',
+    color: 'var(--sap-green)',
     items: [
       { title: 'Why are there two wallets?', desc: 'SuperAdPro separates your earnings into two wallets to keep things transparent and fair. Your Affiliate Wallet holds earnings from referrals and sponsoring — these are always yours to withdraw. Your Campaign Wallet holds earnings from the 8×8 Income Grid — these require you to have an active Campaign Tier and be watching your daily videos.' },
       { title: 'What goes into my Affiliate Wallet?', desc: 'Membership referral commissions ($10 per Basic, $17.50 per Pro referral), Creative Studio sponsor micro-commissions ($0.025 per credit your referrals use), course sales commissions, and Pay It Forward gift commissions. This balance is always available to withdraw.' },
@@ -15,7 +15,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'Withdrawals',
-    color: '#0ea5e9',
+    color: 'var(--sap-accent)',
     items: [
       { title: 'How do I withdraw from my Affiliate Wallet?', desc: 'Go to your Wallet page, find the green Affiliate Wallet card, enter the amount you want to withdraw (minimum $10), enter your 2FA code, and click Withdraw. The USDT is sent automatically to your Polygon wallet address.' },
       { title: 'How do I withdraw from my Campaign Wallet?', desc: 'Same process, but using the purple Campaign Wallet card. You must have an active Campaign Tier and be meeting your daily Watch-to-Earn video quota. If either requirement is not met, you will see a clear error message explaining what to do.' },
@@ -27,7 +27,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'Campaign Tier Requirements',
-    color: '#6366f1',
+    color: 'var(--sap-indigo)',
     items: [
       { title: 'Why do I need a Campaign Tier to withdraw grid earnings?', desc: 'Campaign Tiers fund the video advertising engine. When you activate a tier, your video campaigns run across the network. Other members watch your videos as part of Watch-to-Earn. This creates real value — views for your content and commissions for watchers. Requiring an active tier ensures everyone is contributing.' },
       { title: 'What is Watch-to-Earn?', desc: 'Every member with an active Campaign Tier must watch a set number of videos daily (1-8 depending on your tier level). This delivers views to other members campaigns and keeps the ecosystem active. Missing your quota for 5 consecutive days pauses your campaign wallet withdrawals.' },
@@ -37,7 +37,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'Fees & Limits',
-    color: '#f59e0b',
+    color: 'var(--sap-amber)',
     items: [
       { title: 'What fees are there?', desc: 'A flat $1 fee is deducted from every withdrawal to cover Polygon network gas costs. There are no percentage-based fees. What you see in your wallet is what you earn — the $1 is only taken at withdrawal.' },
       { title: 'What is the minimum withdrawal?', desc: '$10 minimum per withdrawal (before the $1 fee, so you receive $9 minimum). This applies to both wallets.' },
@@ -47,7 +47,7 @@ var HELP_SECTIONS = [
   },
   {
     category: 'Security',
-    color: '#ef4444',
+    color: 'var(--sap-red-bright)',
     items: [
       { title: 'What is KYC?', desc: 'Know Your Customer — identity verification required before withdrawals. Upload a government-issued photo ID in your Account settings. This is reviewed within 24-48 hours and is a one-time process.' },
       { title: 'What is 2FA?', desc: 'Two-Factor Authentication adds an extra security layer. You need an authenticator app (Google Authenticator, Authy) that generates a 6-digit code. Enable it in Account settings. Every withdrawal requires this code.' },
@@ -73,16 +73,16 @@ export default function WalletHelp({ onBack }) {
     <div style={{ maxWidth: 700, margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <h2 style={{ fontFamily: 'Sora,sans-serif', fontSize: 20, fontWeight: 800, margin: 0, color: '#0f172a' }}>Wallet Guide</h2>
-          <p style={{ margin: '2px 0 0', fontSize: 13, color: '#64748b' }}>Understanding your affiliate and campaign wallets</p>
+          <h2 style={{ fontFamily: 'Sora,sans-serif', fontSize: 20, fontWeight: 800, margin: 0, color: 'var(--sap-text-primary)' }}>Wallet Guide</h2>
+          <p style={{ margin: '2px 0 0', fontSize: 13, color: 'var(--sap-text-muted)' }}>Understanding your affiliate and campaign wallets</p>
         </div>
         <button onClick={onBack} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <X size={16} color="#94a3b8"/>
+          <X size={16} color="var(--sap-text-faint)"/>
         </button>
       </div>
 
       <div style={{ position: 'relative', marginBottom: 20 }}>
-        <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: 14, top: 12 }}/>
+        <Search size={16} color="var(--sap-text-faint)" style={{ position: 'absolute', left: 14, top: 12 }}/>
         <input value={search} onChange={function(e) { setSearch(e.target.value); }}
           placeholder="Search wallet help..."
           style={{ width: '100%', padding: '10px 10px 10px 40px', border: '1.5px solid #e2e8f0', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}/>
@@ -95,8 +95,8 @@ export default function WalletHelp({ onBack }) {
             <div onClick={function() { setOpenSection(isOpen && !search ? -1 : si); }}
               style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: isOpen ? '12px 12px 0 0' : 12, cursor: 'pointer' }}>
               <div style={{ width: 8, height: 8, borderRadius: 4, background: section.color, flexShrink: 0 }}/>
-              <div style={{ flex: 1, fontSize: 14, fontWeight: 800, color: '#0f172a' }}>{section.category}</div>
-              <div style={{ color: '#94a3b8', transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform .2s' }}><ChevronRight size={16}/></div>
+              <div style={{ flex: 1, fontSize: 14, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{section.category}</div>
+              <div style={{ color: 'var(--sap-text-faint)', transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform .2s' }}><ChevronRight size={16}/></div>
             </div>
             {isOpen && (
               <div style={{ border: '1px solid #e2e8f0', borderTop: 'none', borderRadius: '0 0 12px 12px', overflow: 'hidden' }}>
@@ -106,12 +106,12 @@ export default function WalletHelp({ onBack }) {
                   return (
                     <div key={ii}>
                       <div onClick={function() { setOpenItem(itemOpen ? null : itemKey); }}
-                        style={{ padding: '12px 18px', background: itemOpen ? '#f8fafc' : '#fff', cursor: 'pointer', borderTop: ii > 0 ? '1px solid #f1f5f9' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontSize: 13, fontWeight: 600, color: '#0f172a' }}>{item.title}</span>
-                        <ChevronDown size={14} color="#94a3b8" style={{ transform: itemOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s', flexShrink: 0 }}/>
+                        style={{ padding: '12px 18px', background: itemOpen ? 'var(--sap-bg-elevated)' : '#fff', cursor: 'pointer', borderTop: ii > 0 ? '1px solid #f1f5f9' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--sap-text-primary)' }}>{item.title}</span>
+                        <ChevronDown size={14} color="var(--sap-text-faint)" style={{ transform: itemOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s', flexShrink: 0 }}/>
                       </div>
                       {itemOpen && (
-                        <div style={{ padding: '0 18px 14px', background: '#f8fafc', fontSize: 13, color: '#475569', lineHeight: 1.8 }}>{item.desc}</div>
+                        <div style={{ padding: '0 18px 14px', background: 'var(--sap-bg-elevated)', fontSize: 13, color: 'var(--sap-text-secondary)', lineHeight: 1.8 }}>{item.desc}</div>
                       )}
                     </div>
                   );

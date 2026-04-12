@@ -52,7 +52,7 @@ export default function CoPilot() {
       .catch(function() { setAsking(false); });
   }
 
-  var priorityColor = { high: '#ef4444', medium: '#f59e0b', low: '#10b981' };
+  var priorityColor = { high: 'var(--sap-red-bright)', medium: 'var(--sap-amber)', low: 'var(--sap-green-mid)' };
 
   return (
     <div style={{
@@ -147,7 +147,7 @@ export default function CoPilot() {
               <div style={{ display: 'flex', gap: 5 }}>
                 {[0,1,2].map(function(i) {
                   return <div key={i} style={{
-                    width: 6, height: 6, borderRadius: '50%', background: '#6366f1',
+                    width: 6, height: 6, borderRadius: '50%', background: 'var(--sap-indigo)',
                     animation: 'cpPulse 1.2s ease-in-out infinite',
                     animationDelay: `${i * 0.2}s`,
                   }}/>;
@@ -197,8 +197,8 @@ export default function CoPilot() {
                           className="cp-action"
                           style={{
                             display: 'block', textDecoration: 'none',
-                            background: `${action.color || '#6366f1'}12`,
-                            border: `1px solid ${action.color || '#6366f1'}25`,
+                            background: `${action.color || 'var(--sap-indigo)'}12`,
+                            border: `1px solid ${action.color || 'var(--sap-indigo)'}25`,
                             borderRadius: 12, padding: '14px 14px',
                             transition: 'all .2s', cursor: 'pointer',
                           }}
@@ -208,7 +208,7 @@ export default function CoPilot() {
                             {action.priority && (
                               <div style={{
                                 width: 6, height: 6, borderRadius: '50%',
-                                background: priorityColor[action.priority] || '#6366f1',
+                                background: priorityColor[action.priority] || 'var(--sap-indigo)',
                                 animation: action.priority === 'high' ? 'cpPulse 2s ease-in-out infinite' : 'none',
                               }}/>
                             )}

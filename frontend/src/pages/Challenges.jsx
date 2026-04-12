@@ -16,7 +16,7 @@ export default function Challenges() {
     }).catch(function() { setLoading(false); });
   }, []);
 
-  if (loading) return <AppLayout title="Challenges"><div style={{padding:40,textAlign:'center',color:'#64748b'}}>Loading...</div></AppLayout>;
+  if (loading) return <AppLayout title="Challenges"><div style={{padding:40,textAlign:'center',color:'var(--sap-text-muted)'}}>Loading...</div></AppLayout>;
 
   return (
     <AppLayout title="Challenges" subtitle="Hit milestones, earn rewards, climb the ranks">
@@ -43,22 +43,22 @@ export default function Challenges() {
               {/* Progress */}
               <div style={{padding:'20px 24px'}}>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
-                  <div style={{fontSize:32,fontWeight:900,color:'#0f172a'}}>{ch.progress}</div>
+                  <div style={{fontSize:32,fontWeight:900,color:'var(--sap-text-primary)'}}>{ch.progress}</div>
                   {nextMilestone && (
-                    <div style={{fontSize:12,fontWeight:700,color:'#64748b'}}>
+                    <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-muted)'}}>
                       Next: {nextMilestone.emoji} {nextMilestone.reward} ({nextMilestone.target - ch.progress} to go)
                     </div>
                   )}
                 </div>
 
                 {/* Progress bar */}
-                <div style={{height:10,background:'#f1f5f9',borderRadius:5,overflow:'hidden',marginBottom:20,position:'relative'}}>
+                <div style={{height:10,background:'var(--sap-bg-page)',borderRadius:5,overflow:'hidden',marginBottom:20,position:'relative'}}>
                   <div style={{height:'100%',width:pct+'%',background:gradMap[ch.type],borderRadius:5,transition:'width .8s ease'}}/>
                   {/* Milestone markers */}
                   {ch.milestones.map(function(m) {
                     var markerPct = (m.target / maxTarget) * 100;
                     return (
-                      <div key={m.target} style={{position:'absolute',left:markerPct+'%',top:-4,width:2,height:18,background:ch.progress>=m.target?'#fff':'#cbd5e1',zIndex:1}}/>
+                      <div key={m.target} style={{position:'absolute',left:markerPct+'%',top:-4,width:2,height:18,background:ch.progress>=m.target?'#fff':'var(--sap-text-ghost)',zIndex:1}}/>
                     );
                   })}
                 </div>
@@ -69,12 +69,12 @@ export default function Challenges() {
                     var done = ch.progress >= m.target;
                     return (
                       <div key={m.target} style={{padding:'14px 16px',borderRadius:10,
-                        background:done?'#f0fdf4':'#f8fafc',border:done?'1.5px solid #86efac':'1px solid #e8ecf2',
+                        background:done?'var(--sap-green-bg)':'var(--sap-bg-elevated)',border:done?'1.5px solid #86efac':'1px solid #e8ecf2',
                         display:'flex',alignItems:'center',gap:10,transition:'all .2s'}}>
                         <div style={{fontSize:22}}>{m.emoji}</div>
                         <div>
-                          <div style={{fontSize:12,fontWeight:800,color:done?'#16a34a':'#64748b'}}>{m.target} {ch.type === 'referral' ? 'referrals' : ch.type === 'grid' ? 'members' : 'days'}</div>
-                          <div style={{fontSize:11,color:done?'#16a34a':'#64748b',fontWeight:600}}>{m.reward}</div>
+                          <div style={{fontSize:12,fontWeight:800,color:done?'var(--sap-green)':'var(--sap-text-muted)'}}>{m.target} {ch.type === 'referral' ? 'referrals' : ch.type === 'grid' ? 'members' : 'days'}</div>
+                          <div style={{fontSize:11,color:done?'var(--sap-green)':'var(--sap-text-muted)',fontWeight:600}}>{m.reward}</div>
                         </div>
                         {done && <div style={{marginLeft:'auto',fontSize:14}}>✓</div>}
                       </div>

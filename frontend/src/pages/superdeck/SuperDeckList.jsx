@@ -31,7 +31,7 @@ export default function SuperDeckList() {
   }
 
   if (loading) return <AppLayout title="SuperDeck"><div style={{ display: 'flex', justifyContent: 'center', padding: 80 }}>
-    <div style={{ width: 40, height: 40, border: '3px solid #e5e7eb', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin .8s linear infinite' }}/>
+    <div style={{ width: 40, height: 40, border: '3px solid #e5e7eb', borderTopColor: 'var(--sap-purple)', borderRadius: '50%', animation: 'spin .8s linear infinite' }}/>
     <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
   </div></AppLayout>;
 
@@ -42,11 +42,11 @@ export default function SuperDeckList() {
       <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '24px 28px', marginBottom: 20 }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
-            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 26, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Presentations</div>
-            <div style={{ fontSize: 14, color: '#64748b' }}>Create beautiful slide decks and download as PowerPoint</div>
+            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 26, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>Presentations</div>
+            <div style={{ fontSize: 14, color: 'var(--sap-text-muted)' }}>Create beautiful slide decks and download as PowerPoint</div>
           </div>
           <button onClick={function() { create('midnight'); }} disabled={creating}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 10, border: 'none', background: '#8b5cf6', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '10px 20px', borderRadius: 10, border: 'none', background: 'var(--sap-purple)', color: '#fff', fontSize: 14, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
             <Plus size={16}/> {creating ? 'Creating...' : 'New presentation'}
           </button>
         </div>
@@ -56,12 +56,12 @@ export default function SuperDeckList() {
       {decks.length === 0 && !creating && (
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: '48px 28px', marginBottom: 20, textAlign: 'center' }}>
           <div style={{ width: 56, height: 56, borderRadius: 14, background: '#f3f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-            <Monitor size={28} color="#8b5cf6"/>
+            <Monitor size={28} color="var(--sap-purple)"/>
           </div>
-          <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 6 }}>Create your first presentation</div>
-          <div style={{ fontSize: 14, color: '#64748b', marginBottom: 24, maxWidth: 400, margin: '0 auto 24px' }}>Build beautiful slide decks with drag-and-drop editing, AI content generation, and download as PowerPoint.</div>
+          <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 20, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 6 }}>Create your first presentation</div>
+          <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', marginBottom: 24, maxWidth: 400, margin: '0 auto 24px' }}>Build beautiful slide decks with drag-and-drop editing, AI content generation, and download as PowerPoint.</div>
           <button onClick={function() { create('midnight'); }} disabled={creating}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '12px 28px', borderRadius: 10, border: 'none', background: '#8b5cf6', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
+            style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '12px 28px', borderRadius: 10, border: 'none', background: 'var(--sap-purple)', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
             <Plus size={18}/> {creating ? 'Creating...' : 'Create presentation'}
           </button>
         </div>
@@ -78,15 +78,15 @@ export default function SuperDeckList() {
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke={th.muted} strokeWidth="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
               </div>
               <div style={{ padding: '12px 16px' }}>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 2 }}>{d.title}</div>
-                <div style={{ fontSize: 12, color: '#94a3b8', marginBottom: 8 }}>{d.slide_count} slide{d.slide_count !== 1 ? 's' : ''}</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 2 }}>{d.title}</div>
+                <div style={{ fontSize: 12, color: 'var(--sap-text-faint)', marginBottom: 8 }}>{d.slide_count} slide{d.slide_count !== 1 ? 's' : ''}</div>
                 <div style={{ display: 'flex', gap: 6 }}>
                   <button onClick={function() { navigate('/superdeck/edit/' + d.id); }}
-                    style={{ flex: 1, padding: '7px 12px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: '#475569', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
+                    style={{ flex: 1, padding: '7px 12px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', color: 'var(--sap-text-secondary)', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 4 }}>
                     <Pencil size={12}/> Edit
                   </button>
                   <button onClick={function() { del(d.id); }}
-                    style={{ padding: '7px 10px', borderRadius: 8, border: '1px solid #fecaca', background: '#fff', color: '#dc2626', fontSize: 12, cursor: 'pointer' }}>
+                    style={{ padding: '7px 10px', borderRadius: 8, border: '1px solid #fecaca', background: '#fff', color: 'var(--sap-red)', fontSize: 12, cursor: 'pointer' }}>
                     <Trash2 size={12}/>
                   </button>
                 </div>

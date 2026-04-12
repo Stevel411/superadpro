@@ -66,19 +66,19 @@ export default function BannerManager() {
   var selectedSize = SIZES.find(function(s) { return s.id === form.size; }) || SIZES[0];
   var isPro = (user?.membership_tier || 'basic') === 'pro';
 
-  var lS = { fontSize: 11, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', color: '#94a3b8', marginBottom: 6, display: 'block' };
-  var iS = { width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, fontFamily: 'inherit', color: '#0f172a', background: '#fff', outline: 'none' };
+  var lS = { fontSize: 11, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 6, display: 'block' };
+  var iS = { width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, fontFamily: 'inherit', color: 'var(--sap-text-primary)', background: '#fff', outline: 'none' };
 
   return (
     <AppLayout title="Banner Ads" subtitle="Create and manage your display banners">
       <div style={{ maxWidth: 900, margin: '0 auto' }}>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: '#f1f5f9', borderRadius: 10, padding: 4 }}>
+        <div style={{ display: 'flex', gap: 4, marginBottom: 24, background: 'var(--sap-bg-page)', borderRadius: 10, padding: 4 }}>
           {[['create', 'Create Banner'], ['manage', 'My Banners (' + banners.length + ')']].map(function([k, l]) {
             return (
               <button key={k} onClick={function() { setTab(k); }}
-                style={{ flex: 1, padding: '10px 16px', borderRadius: 8, fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit', background: tab === k ? '#fff' : 'transparent', color: tab === k ? '#0f172a' : '#94a3b8', boxShadow: tab === k ? '0 1px 4px rgba(0,0,0,0.08)' : 'none' }}>
+                style={{ flex: 1, padding: '10px 16px', borderRadius: 8, fontSize: 13, fontWeight: 700, border: 'none', cursor: 'pointer', fontFamily: 'inherit', background: tab === k ? '#fff' : 'transparent', color: tab === k ? 'var(--sap-text-primary)' : 'var(--sap-text-faint)', boxShadow: tab === k ? '0 1px 4px rgba(0,0,0,0.08)' : 'none' }}>
                 {l}
               </button>
             );
@@ -86,8 +86,8 @@ export default function BannerManager() {
         </div>
 
         {/* Messages */}
-        {msg && <div style={{ padding: '12px 16px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, marginBottom: 16, fontSize: 13, fontWeight: 700, color: '#16a34a' }}>{msg}</div>}
-        {error && <div style={{ padding: '12px 16px', background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 10, marginBottom: 16, fontSize: 13, fontWeight: 700, color: '#dc2626' }}>{error}</div>}
+        {msg && <div style={{ padding: '12px 16px', background: 'var(--sap-green-bg)', border: '1px solid #bbf7d0', borderRadius: 10, marginBottom: 16, fontSize: 13, fontWeight: 700, color: 'var(--sap-green)' }}>{msg}</div>}
+        {error && <div style={{ padding: '12px 16px', background: 'var(--sap-red-bg)', border: '1px solid #fecaca', borderRadius: 10, marginBottom: 16, fontSize: 13, fontWeight: 700, color: 'var(--sap-red)' }}>{error}</div>}
 
         {/* CREATE TAB */}
         {tab === 'create' && (
@@ -95,7 +95,7 @@ export default function BannerManager() {
 
             {/* Form */}
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 24 }}>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', marginBottom: 20 }}>Create a Banner Ad</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 20 }}>Create a Banner Ad</div>
               <form onSubmit={submit}>
                 <div style={{ marginBottom: 14 }}>
                   <label style={lS}>Banner Title</label>
@@ -110,13 +110,13 @@ export default function BannerManager() {
                 <div style={{ marginBottom: 14 }}>
                   <label style={lS}>Banner Image URL</label>
                   <input style={iS} value={form.image_url} onChange={set('image_url')} placeholder="https://example.com/banner.jpg" required />
-                  <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 4 }}>Upload your banner image to a host (e.g. Imgur, Cloudflare) and paste the URL here</div>
+                  <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', marginTop: 4 }}>Upload your banner image to a host (e.g. Imgur, Cloudflare) and paste the URL here</div>
                 </div>
 
                 <div style={{ marginBottom: 14 }}>
                   <label style={lS}>Click-Through URL</label>
                   <input style={iS} value={form.link_url} onChange={set('link_url')} placeholder="https://yoursite.com" required />
-                  <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 4 }}>Where people go when they click your banner</div>
+                  <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', marginTop: 4 }}>Where people go when they click your banner</div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
@@ -137,7 +137,7 @@ export default function BannerManager() {
                 <div style={{ marginBottom: 14 }}>
                   <label style={lS}>SEO Keywords</label>
                   <input style={iS} value={form.keywords} onChange={set('keywords')} placeholder="marketing, digital ads, brand awareness" maxLength={200} />
-                  <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 4 }}>Comma-separated words people would search for</div>
+                  <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', marginTop: 4 }}>Comma-separated words people would search for</div>
                 </div>
 
                 <div style={{ marginBottom: 20 }}>
@@ -146,11 +146,11 @@ export default function BannerManager() {
                 </div>
 
                 <button type="submit" disabled={loading}
-                  style={{ width: '100%', padding: 14, borderRadius: 10, border: 'none', fontSize: 15, fontWeight: 800, cursor: loading ? 'default' : 'pointer', fontFamily: 'inherit', background: loading ? '#94a3b8' : 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff', boxShadow: loading ? 'none' : '0 4px 0 #b45309,0 6px 16px rgba(245,158,11,.3)' }}>
+                  style={{ width: '100%', padding: 14, borderRadius: 10, border: 'none', fontSize: 15, fontWeight: 800, cursor: loading ? 'default' : 'pointer', fontFamily: 'inherit', background: loading ? 'var(--sap-text-faint)' : 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff', boxShadow: loading ? 'none' : '0 4px 0 #b45309,0 6px 16px rgba(245,158,11,.3)' }}>
                   {loading ? 'Submitting...' : 'Create Banner Ad'}
                 </button>
 
-                <div style={{ fontSize: 11, color: '#94a3b8', textAlign: 'center', marginTop: 10 }}>
+                <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', textAlign: 'center', marginTop: 10 }}>
                   Weekly limit: {isPro ? '6' : '3'} banners{!isPro && ' (upgrade to Pro for 6)'}
                 </div>
               </form>
@@ -158,28 +158,28 @@ export default function BannerManager() {
 
             {/* Preview */}
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 24 }}>
-              <div style={{ fontSize: 16, fontWeight: 800, color: '#0f172a', marginBottom: 20 }}>Preview</div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', marginBottom: 8 }}>{selectedSize.name} ({selectedSize.id})</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 20 }}>Preview</div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-faint)', marginBottom: 8 }}>{selectedSize.name} ({selectedSize.id})</div>
               <div style={{
                 width: '100%', maxWidth: selectedSize.w, aspectRatio: selectedSize.w + '/' + selectedSize.h,
-                background: '#f1f5f9', border: '2px dashed #e2e8f0', borderRadius: 8,
+                background: 'var(--sap-bg-page)', border: '2px dashed #e2e8f0', borderRadius: 8,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 overflow: 'hidden', margin: '0 auto'
               }}>
                 {form.image_url ? (
                   <img src={form.image_url} alt="Banner preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={function(e) { e.target.style.display = 'none'; }} />
                 ) : (
-                  <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: 13 }}>
+                  <div style={{ textAlign: 'center', color: 'var(--sap-text-faint)', fontSize: 13 }}>
                     <div style={{ fontSize: 32, marginBottom: 8, opacity: 0.3 }}>🖼️</div>
                     Paste image URL to preview
                   </div>
                 )}
               </div>
               {form.title && (
-                <div style={{ marginTop: 16, padding: 14, background: '#f8f9fb', borderRadius: 8 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 4 }}>{form.title}</div>
-                  {form.description && <div style={{ fontSize: 12, color: '#64748b', marginBottom: 4 }}>{form.description}</div>}
-                  <div style={{ fontSize: 11, color: '#0ea5e9' }}>{form.link_url || 'Click-through URL'}</div>
+                <div style={{ marginTop: 16, padding: 14, background: 'var(--sap-bg-input)', borderRadius: 8 }}>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 4 }}>{form.title}</div>
+                  {form.description && <div style={{ fontSize: 12, color: 'var(--sap-text-muted)', marginBottom: 4 }}>{form.description}</div>}
+                  <div style={{ fontSize: 11, color: 'var(--sap-accent)' }}>{form.link_url || 'Click-through URL'}</div>
                 </div>
               )}
             </div>
@@ -190,7 +190,7 @@ export default function BannerManager() {
         {tab === 'manage' && (
           <div>
             {banners.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: 60, color: '#94a3b8' }}>
+              <div style={{ textAlign: 'center', padding: 60, color: 'var(--sap-text-faint)' }}>
                 <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.3 }}>🖼️</div>
                 <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>No banners yet</div>
                 <div style={{ fontSize: 13 }}>Create your first banner ad to get started</div>
@@ -200,25 +200,25 @@ export default function BannerManager() {
                 {banners.map(function(b) {
                   return (
                     <div key={b.id} style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 16, display: 'flex', gap: 16, alignItems: 'center' }}>
-                      <img src={b.image_url} alt={b.title} style={{ width: 120, height: 60, objectFit: 'cover', borderRadius: 6, background: '#f1f5f9', flexShrink: 0 }} />
+                      <img src={b.image_url} alt={b.title} style={{ width: 120, height: 60, objectFit: 'cover', borderRadius: 6, background: 'var(--sap-bg-page)', flexShrink: 0 }} />
                       <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 2 }}>{b.title}</div>
-                        <div style={{ fontSize: 11, color: '#64748b', marginBottom: 4 }}>{b.size} · {b.category}</div>
-                        <div style={{ display: 'flex', gap: 12, fontSize: 11, color: '#94a3b8' }}>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 2 }}>{b.title}</div>
+                        <div style={{ fontSize: 11, color: 'var(--sap-text-muted)', marginBottom: 4 }}>{b.size} · {b.category}</div>
+                        <div style={{ display: 'flex', gap: 12, fontSize: 11, color: 'var(--sap-text-faint)' }}>
                           <span>{b.impressions} impressions</span>
                           <span>{b.clicks} clicks</span>
-                          <span style={{ color: b.status === 'approved' ? '#16a34a' : b.status === 'pending' ? '#f59e0b' : '#dc2626', fontWeight: 700 }}>
+                          <span style={{ color: b.status === 'approved' ? 'var(--sap-green)' : b.status === 'pending' ? 'var(--sap-amber)' : 'var(--sap-red)', fontWeight: 700 }}>
                             {b.status === 'approved' ? '✓ Live' : b.status === 'pending' ? '⏳ Under Review' : '✗ Rejected'}
                           </span>
                         </div>
                       </div>
                       <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
                         <button onClick={function() { toggleBanner(b.id); }}
-                          style={{ padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, border: '1px solid #e2e8f0', background: '#fff', color: b.is_active ? '#dc2626' : '#16a34a', cursor: 'pointer', fontFamily: 'inherit' }}>
+                          style={{ padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, border: '1px solid #e2e8f0', background: '#fff', color: b.is_active ? 'var(--sap-red)' : 'var(--sap-green)', cursor: 'pointer', fontFamily: 'inherit' }}>
                           {b.is_active ? 'Pause' : 'Activate'}
                         </button>
                         <button onClick={function() { deleteBanner(b.id); }}
-                          style={{ padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, border: '1px solid #fecaca', background: '#fff', color: '#dc2626', cursor: 'pointer', fontFamily: 'inherit' }}>
+                          style={{ padding: '6px 12px', borderRadius: 6, fontSize: 11, fontWeight: 700, border: '1px solid #fecaca', background: '#fff', color: 'var(--sap-red)', cursor: 'pointer', fontFamily: 'inherit' }}>
                           Delete
                         </button>
                       </div>

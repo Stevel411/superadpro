@@ -58,17 +58,17 @@ export default function CourseEditor() {
     });
   }
 
-  if(loading)return <AppLayout title="Course Editor"><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'#8b5cf6',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
-  if(!course)return <AppLayout title="Course Editor"><div style={{textAlign:'center',padding:60,color:'#64748b'}}>Course not found</div></AppLayout>;
+  if(loading)return <AppLayout title="Course Editor"><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-purple)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
+  if(!course)return <AppLayout title="Course Editor"><div style={{textAlign:'center',padding:60,color:'var(--sap-text-muted)'}}>Course not found</div></AppLayout>;
 
   var totalLectures=0;var totalDuration=0;var hasPreview=false;
   (course.chapters||[]).forEach(function(ch){(ch.lessons||[]).forEach(function(l){totalLectures++;totalDuration+=l.duration_minutes||0;if(l.is_preview)hasPreview=true;});});
 
   return(
     <AppLayout title={course.title} subtitle={'$'+course.price+' · '+course.status}>
-      <Link to="/courses" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'#64748b',textDecoration:'none',marginBottom:16}}>← Back to Courses</Link>
+      <Link to="/courses" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'var(--sap-text-muted)',textDecoration:'none',marginBottom:16}}>← Back to Courses</Link>
 
-      {toast&&<div style={{padding:'10px 16px',borderRadius:10,marginBottom:14,fontSize:13,fontWeight:700,background:toast.type==='ok'?'#dcfce7':'#fef2f2',color:toast.type==='ok'?'#16a34a':'#dc2626',display:'flex',alignItems:'center',gap:6}}>{toast.type==='ok'?<CheckCircle size={14}/>:<AlertTriangle size={14}/>}{toast.msg}</div>}
+      {toast&&<div style={{padding:'10px 16px',borderRadius:10,marginBottom:14,fontSize:13,fontWeight:700,background:toast.type==='ok'?'var(--sap-green-bg-mid)':'var(--sap-red-bg)',color:toast.type==='ok'?'var(--sap-green)':'var(--sap-red)',display:'flex',alignItems:'center',gap:6}}>{toast.type==='ok'?<CheckCircle size={14}/>:<AlertTriangle size={14}/>}{toast.msg}</div>}
 
       <div style={{display:'grid',gridTemplateColumns:'1fr 320px',gap:20,alignItems:'start'}}>
         {/* LEFT — Curriculum builder */}
@@ -76,21 +76,21 @@ export default function CourseEditor() {
           {/* Stats row */}
           <div style={{display:'flex',gap:10,marginBottom:20}}>
             {[
-              {label:'Status',value:course.status.replace('_',' '),color:course.status==='published'?'#16a34a':course.status==='pending_review'?'#f59e0b':'#64748b'},
-              {label:'Sections',value:(course.chapters||[]).length,color:'#8b5cf6'},
-              {label:'Lectures',value:totalLectures,color:'#0ea5e9'},
-              {label:'Duration',value:totalDuration+'m',color:'#f59e0b'},
+              {label:'Status',value:course.status.replace('_',' '),color:course.status==='published'?'var(--sap-green)':course.status==='pending_review'?'var(--sap-amber)':'var(--sap-text-muted)'},
+              {label:'Sections',value:(course.chapters||[]).length,color:'var(--sap-purple)'},
+              {label:'Lectures',value:totalLectures,color:'var(--sap-accent)'},
+              {label:'Duration',value:totalDuration+'m',color:'var(--sap-amber)'},
             ].map(function(s,i){
               return <div key={i} style={{flex:1,background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:'12px 14px',textAlign:'center'}}>
                 <div style={{fontSize:18,fontWeight:800,color:s.color,fontFamily:'Sora,sans-serif'}}>{s.value}</div>
-                <div style={{fontSize:9,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:.5}}>{s.label}</div>
+                <div style={{fontSize:9,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5}}>{s.label}</div>
               </div>;
             })}
           </div>
 
           {/* Section header */}
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
-            <h3 style={{fontSize:18,fontWeight:800,color:'#0f172a',margin:0,fontFamily:'Sora,sans-serif'}}>Curriculum</h3>
+            <h3 style={{fontSize:18,fontWeight:800,color:'var(--sap-text-primary)',margin:0,fontFamily:'Sora,sans-serif'}}>Curriculum</h3>
             <button onClick={addSection} disabled={saving==='section'}
               style={{display:'flex',alignItems:'center',gap:4,padding:'9px 18px',borderRadius:8,border:'none',background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 10px rgba(139,92,246,.2)'}}>
               <Plus size={14}/> Add Section
@@ -101,9 +101,9 @@ export default function CourseEditor() {
           {(course.chapters||[]).length===0?(
             <div style={{textAlign:'center',padding:'60px 20px',background:'#fff',borderRadius:14,border:'1px solid #e8ecf2'}}>
               <div style={{fontSize:48,marginBottom:10,opacity:.2}}>📚</div>
-              <div style={{fontSize:16,fontWeight:800,color:'#0f172a',marginBottom:4}}>No sections yet</div>
-              <div style={{fontSize:13,color:'#64748b',marginBottom:16}}>Start building your course by adding a section</div>
-              <button onClick={addSection} style={{padding:'10px 24px',borderRadius:8,border:'none',background:'#8b5cf6',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>+ Add First Section</button>
+              <div style={{fontSize:16,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:4}}>No sections yet</div>
+              <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:16}}>Start building your course by adding a section</div>
+              <button onClick={addSection} style={{padding:'10px 24px',borderRadius:8,border:'none',background:'var(--sap-purple)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>+ Add First Section</button>
             </div>
           ):(course.chapters||[]).map(function(section,sIdx){
             var isOpen=expandedSection===section.id;
@@ -115,16 +115,16 @@ export default function CourseEditor() {
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'14px 18px',cursor:'pointer',background:isOpen?'#faf8ff':'#fff',borderBottom:isOpen?'1px solid #f1f3f7':'none'}}
                   onClick={function(){setExpandedSection(isOpen?null:section.id);setExpandedLesson(null);}}>
                   <div style={{display:'flex',alignItems:'center',gap:10,flex:1}}>
-                    {isOpen?<ChevronDown size={16} color="#8b5cf6"/>:<ChevronRight size={16} color="#64748b"/>}
-                    <div style={{fontSize:11,fontWeight:800,color:'#8b5cf6',minWidth:60}}>Section {sIdx+1}</div>
+                    {isOpen?<ChevronDown size={16} color="var(--sap-purple)"/>:<ChevronRight size={16} color="var(--sap-text-muted)"/>}
+                    <div style={{fontSize:11,fontWeight:800,color:'var(--sap-purple)',minWidth:60}}>Section {sIdx+1}</div>
                     <input value={section.title} onClick={function(e){e.stopPropagation();}}
                       onChange={function(e){var val=e.target.value;setCourse(function(prev){return Object.assign({},prev,{chapters:prev.chapters.map(function(c){return c.id===section.id?Object.assign({},c,{title:val}):c;})});});}}
                       onBlur={function(e){updateSection(section.id,e.target.value);}}
-                      style={{fontSize:15,fontWeight:700,color:'#0f172a',border:'none',background:'transparent',outline:'none',fontFamily:'inherit',flex:1}}/>
+                      style={{fontSize:15,fontWeight:700,color:'var(--sap-text-primary)',border:'none',background:'transparent',outline:'none',fontFamily:'inherit',flex:1}}/>
                   </div>
                   <div style={{display:'flex',alignItems:'center',gap:10}}>
-                    <span style={{fontSize:10,color:'#64748b'}}>{sectionLectures.length} lecture{sectionLectures.length!==1?'s':''} · {sectionDuration}m</span>
-                    <button onClick={function(e){e.stopPropagation();deleteSection(section.id);}} style={{color:'#dc2626',background:'none',border:'none',cursor:'pointer',padding:4,opacity:.5}} onMouseEnter={function(e){e.currentTarget.style.opacity=1;}} onMouseLeave={function(e){e.currentTarget.style.opacity=.5;}}><Trash2 size={14}/></button>
+                    <span style={{fontSize:10,color:'var(--sap-text-muted)'}}>{sectionLectures.length} lecture{sectionLectures.length!==1?'s':''} · {sectionDuration}m</span>
+                    <button onClick={function(e){e.stopPropagation();deleteSection(section.id);}} style={{color:'var(--sap-red)',background:'none',border:'none',cursor:'pointer',padding:4,opacity:.5}} onMouseEnter={function(e){e.currentTarget.style.opacity=1;}} onMouseLeave={function(e){e.currentTarget.style.opacity=.5;}}><Trash2 size={14}/></button>
                   </div>
                 </div>
 
@@ -132,12 +132,12 @@ export default function CourseEditor() {
                 {isOpen&&(
                   <div>
                     {sectionLectures.length===0?(
-                      <div style={{padding:'28px 18px',textAlign:'center',color:'#64748b',fontSize:13}}>
+                      <div style={{padding:'28px 18px',textAlign:'center',color:'var(--sap-text-muted)',fontSize:13}}>
                         No lectures yet. Add your first lecture to this section.
                       </div>
                     ):sectionLectures.map(function(lecture,lIdx){
                       var isExpanded=expandedLesson===lecture.id;
-                      var typeIcon=lecture.content_type==='video'?<Play size={14} color="#0ea5e9"/>:lecture.content_type==='pdf'?<File size={14} color="#f59e0b"/>:<FileText size={14} color="#8b5cf6"/>;
+                      var typeIcon=lecture.content_type==='video'?<Play size={14} color="var(--sap-accent)"/>:lecture.content_type==='pdf'?<File size={14} color="var(--sap-amber)"/>:<FileText size={14} color="var(--sap-purple)"/>;
                       return(
                         <div key={lecture.id}>
                           {/* Lecture row */}
@@ -149,17 +149,17 @@ export default function CourseEditor() {
                             <div style={{display:'flex',alignItems:'center',gap:10}}>
                               <div style={{width:28,height:28,borderRadius:6,background:lecture.content_type==='video'?'rgba(14,165,233,.08)':lecture.content_type==='pdf'?'rgba(245,158,11,.08)':'rgba(139,92,246,.08)',display:'flex',alignItems:'center',justifyContent:'center'}}>{typeIcon}</div>
                               <div>
-                                <div style={{fontSize:13,fontWeight:600,color:'#0f172a'}}>{lecture.title}</div>
+                                <div style={{fontSize:13,fontWeight:600,color:'var(--sap-text-primary)'}}>{lecture.title}</div>
                                 <div style={{display:'flex',gap:6,marginTop:2}}>
-                                  <span style={{fontSize:9,color:'#64748b',textTransform:'capitalize'}}>{lecture.content_type}</span>
-                                  {lecture.duration_minutes>0&&<span style={{fontSize:9,color:'#64748b'}}>· {lecture.duration_minutes}m</span>}
-                                  {lecture.video_url&&<span style={{fontSize:9,color:'#0ea5e9'}}>· Video linked</span>}
+                                  <span style={{fontSize:9,color:'var(--sap-text-muted)',textTransform:'capitalize'}}>{lecture.content_type}</span>
+                                  {lecture.duration_minutes>0&&<span style={{fontSize:9,color:'var(--sap-text-muted)'}}>· {lecture.duration_minutes}m</span>}
+                                  {lecture.video_url&&<span style={{fontSize:9,color:'var(--sap-accent)'}}>· Video linked</span>}
                                 </div>
                               </div>
                             </div>
                             <div style={{display:'flex',alignItems:'center',gap:6}}>
-                              {lecture.is_preview&&<span style={{fontSize:8,fontWeight:800,padding:'2px 6px',borderRadius:4,background:'#dcfce7',color:'#16a34a'}}>FREE PREVIEW</span>}
-                              <button onClick={function(e){e.stopPropagation();deleteLecture(lecture.id);}} style={{color:'#dc2626',background:'none',border:'none',cursor:'pointer',padding:2,opacity:.4}} onMouseEnter={function(e){e.currentTarget.style.opacity=1;}} onMouseLeave={function(e){e.currentTarget.style.opacity=.4;}}><Trash2 size={12}/></button>
+                              {lecture.is_preview&&<span style={{fontSize:8,fontWeight:800,padding:'2px 6px',borderRadius:4,background:'var(--sap-green-bg-mid)',color:'var(--sap-green)'}}>FREE PREVIEW</span>}
+                              <button onClick={function(e){e.stopPropagation();deleteLecture(lecture.id);}} style={{color:'var(--sap-red)',background:'none',border:'none',cursor:'pointer',padding:2,opacity:.4}} onMouseEnter={function(e){e.currentTarget.style.opacity=1;}} onMouseLeave={function(e){e.currentTarget.style.opacity=.4;}}><Trash2 size={12}/></button>
                             </div>
                           </div>
 
@@ -171,14 +171,14 @@ export default function CourseEditor() {
 
                     {/* Add lecture buttons */}
                     <div style={{padding:'12px 18px 14px 48px',display:'flex',gap:6,borderTop:sectionLectures.length>0?'1px solid #f1f3f7':'none'}}>
-                      {[{type:'video',label:'Video Lecture',icon:Play,color:'#0ea5e9'},{type:'text',label:'Article',icon:FileText,color:'#8b5cf6'},{type:'pdf',label:'PDF Resource',icon:File,color:'#f59e0b'}].map(function(t){
+                      {[{type:'video',label:'Video Lecture',icon:Play,color:'var(--sap-accent)'},{type:'text',label:'Article',icon:FileText,color:'var(--sap-purple)'},{type:'pdf',label:'PDF Resource',icon:File,color:'var(--sap-amber)'}].map(function(t){
                         var Icon=t.icon;
                         return <button key={t.type} onClick={function(){
                           setSaving('lecture');
                           apiPost('/api/marketplace/chapters/'+section.id+'/lessons',{title:'New '+t.label,content_type:t.type}).then(function(){loadCourse();setSaving('');}).catch(function(){setSaving('');});
                         }} style={{display:'flex',alignItems:'center',gap:4,padding:'7px 12px',borderRadius:8,border:'1.5px solid #e8ecf2',background:'#fff',color:t.color,fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit',transition:'all .15s'}}
                           onMouseEnter={function(e){e.currentTarget.style.borderColor=t.color;e.currentTarget.style.background=t.color+'08';}}
-                          onMouseLeave={function(e){e.currentTarget.style.borderColor='#e8ecf2';e.currentTarget.style.background='#fff';}}>
+                          onMouseLeave={function(e){e.currentTarget.style.borderColor='var(--sap-border-light)';e.currentTarget.style.background='#fff';}}>
                           <Icon size={12}/> + {t.label}
                         </button>;
                       })}
@@ -208,28 +208,28 @@ export default function CourseEditor() {
                   {ok:(course.description||'').length>=100,l:'Description (100+ chars)'},
                 ].map(function(r,i){
                   return <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'4px 0'}}>
-                    <div style={{width:18,height:18,borderRadius:'50%',background:r.ok?'#dcfce7':'#fef2f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:800,color:r.ok?'#16a34a':'#dc2626',flexShrink:0}}>{r.ok?'✓':'✗'}</div>
-                    <span style={{fontSize:12,color:r.ok?'#334155':'#64748b',fontWeight:r.ok?600:400}}>{r.l}</span>
+                    <div style={{width:18,height:18,borderRadius:'50%',background:r.ok?'var(--sap-green-bg-mid)':'var(--sap-red-bg)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:9,fontWeight:800,color:r.ok?'var(--sap-green)':'var(--sap-red)',flexShrink:0}}>{r.ok?'✓':'✗'}</div>
+                    <span style={{fontSize:12,color:r.ok?'#334155':'var(--sap-text-muted)',fontWeight:r.ok?600:400}}>{r.l}</span>
                   </div>;
                 })}
               </div>
 
               {submitResult&&(
-                <div style={{padding:'10px 12px',borderRadius:8,background:'#fef2f2',border:'1px solid #fecaca',marginBottom:12}}>
-                  <div style={{fontSize:11,fontWeight:700,color:'#dc2626',marginBottom:4}}>{submitResult.error}</div>
-                  {submitResult.issues.map(function(iss,i){return <div key={i} style={{fontSize:10,color:'#dc2626'}}>• {iss}</div>;})}
+                <div style={{padding:'10px 12px',borderRadius:8,background:'var(--sap-red-bg)',border:'1px solid #fecaca',marginBottom:12}}>
+                  <div style={{fontSize:11,fontWeight:700,color:'var(--sap-red)',marginBottom:4}}>{submitResult.error}</div>
+                  {submitResult.issues.map(function(iss,i){return <div key={i} style={{fontSize:10,color:'var(--sap-red)'}}>• {iss}</div>;})}
                 </div>
               )}
 
               {course.status==='published'?(
-                <div style={{textAlign:'center',padding:'12px',borderRadius:10,background:'#dcfce7'}}><span style={{fontSize:14,fontWeight:800,color:'#16a34a'}}>✅ Published & Live</span></div>
+                <div style={{textAlign:'center',padding:'12px',borderRadius:10,background:'var(--sap-green-bg-mid)'}}><span style={{fontSize:14,fontWeight:800,color:'var(--sap-green)'}}>✅ Published & Live</span></div>
               ):course.status==='pending_review'?(
-                <div style={{textAlign:'center',padding:'12px',borderRadius:10,background:'#fef3c7'}}><span style={{fontSize:14,fontWeight:800,color:'#f59e0b'}}>⏳ Under Review</span></div>
+                <div style={{textAlign:'center',padding:'12px',borderRadius:10,background:'var(--sap-amber-bg)'}}><span style={{fontSize:14,fontWeight:800,color:'var(--sap-amber)'}}>⏳ Under Review</span></div>
               ):(
                 <button onClick={submitForReview} disabled={submitting}
                   style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:'13px',borderRadius:10,border:'none',
                     cursor:submitting?'default':'pointer',fontSize:14,fontWeight:800,fontFamily:'Sora,sans-serif',
-                    background:submitting?'#cbd5e1':'linear-gradient(135deg,#16a34a,#22c55e)',color:'#fff',
+                    background:submitting?'var(--sap-text-ghost)':'linear-gradient(135deg,#16a34a,#22c55e)',color:'#fff',
                     boxShadow:submitting?'none':'0 4px 14px rgba(22,163,74,.25)'}}>
                   <Send size={14}/> {submitting?'Scanning...':'Submit for Review'}
                 </button>
@@ -239,16 +239,16 @@ export default function CourseEditor() {
 
           {/* Earnings */}
           <div style={{background:'linear-gradient(135deg,#f5f3ff,#ede9fe)',border:'1px solid #ddd6fe',borderRadius:12,padding:'14px 16px'}}>
-            <div style={{fontSize:11,fontWeight:800,color:'#8b5cf6',marginBottom:4}}>💰 100% Commissions</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:900,color:'#8b5cf6'}}>${parseFloat(course.price||0).toFixed(0)}</div>
-            <div style={{fontSize:10,color:'#64748b',marginTop:2}}>per kept sale · No platform fees</div>
+            <div style={{fontSize:11,fontWeight:800,color:'var(--sap-purple)',marginBottom:4}}>💰 100% Commissions</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:900,color:'var(--sap-purple)'}}>${parseFloat(course.price||0).toFixed(0)}</div>
+            <div style={{fontSize:10,color:'var(--sap-text-muted)',marginTop:2}}>per kept sale · No platform fees</div>
           </div>
 
           {/* Tips */}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:'14px 16px'}}>
             <div style={{fontSize:11,fontWeight:800,color:'#334155',marginBottom:8}}>Tips for a Great Course</div>
             {['Start with a compelling intro video','Mix video, text, and resources','Keep lectures under 15 minutes each','Mark your best lecture as Free Preview','Add at least 5 lectures for depth'].map(function(t,i){
-              return <div key={i} style={{display:'flex',gap:6,padding:'3px 0',fontSize:11,color:'#64748b'}}><span style={{color:'#8b5cf6'}}>•</span>{t}</div>;
+              return <div key={i} style={{display:'flex',gap:6,padding:'3px 0',fontSize:11,color:'var(--sap-text-muted)'}}><span style={{color:'var(--sap-purple)'}}>•</span>{t}</div>;
             })}
           </div>
         </div>
@@ -294,22 +294,22 @@ function LectureEditor({lecture, onSave, onReload}){
       {/* Title + meta row */}
       <div style={{display:'grid',gridTemplateColumns:'2fr auto auto',gap:12,marginBottom:16,alignItems:'end'}}>
         <div>
-          <label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>Lecture Title</label>
+          <label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>Lecture Title</label>
           <input value={title} onChange={function(e){setTitle(e.target.value);}}
             style={{width:'100%',padding:'10px 14px',border:'2px solid #e8ecf2',borderRadius:10,fontSize:14,fontWeight:600,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff'}}
-            onFocus={function(e){e.target.style.borderColor='#8b5cf6';}} onBlur={function(e){e.target.style.borderColor='#e8ecf2';}}/>
+            onFocus={function(e){e.target.style.borderColor='var(--sap-purple)';}} onBlur={function(e){e.target.style.borderColor='var(--sap-border-light)';}}/>
         </div>
         <div>
-          <label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>Duration</label>
+          <label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>Duration</label>
           <div style={{display:'flex',alignItems:'center',gap:4}}>
             <input type="number" min="0" value={duration} onChange={function(e){setDuration(e.target.value);}}
               style={{width:60,padding:'10px 8px',border:'2px solid #e8ecf2',borderRadius:10,fontSize:14,fontWeight:700,fontFamily:'Sora,sans-serif',outline:'none',textAlign:'center',background:'#fff'}}/>
-            <span style={{fontSize:11,color:'#64748b'}}>min</span>
+            <span style={{fontSize:11,color:'var(--sap-text-muted)'}}>min</span>
           </div>
         </div>
         <label style={{display:'flex',alignItems:'center',gap:6,cursor:'pointer',fontSize:12,fontWeight:600,padding:'10px 14px',borderRadius:10,
-          color:isPreview?'#16a34a':'#64748b',border:isPreview?'2px solid #bbf7d0':'2px solid #e8ecf2',background:isPreview?'#f0fdf4':'#fff',transition:'all .15s'}}>
-          <input type="checkbox" checked={isPreview} onChange={function(){setIsPreview(!isPreview);}} style={{accentColor:'#16a34a',width:14,height:14}}/>
+          color:isPreview?'var(--sap-green)':'var(--sap-text-muted)',border:isPreview?'2px solid #bbf7d0':'2px solid #e8ecf2',background:isPreview?'var(--sap-green-bg)':'#fff',transition:'all .15s'}}>
+          <input type="checkbox" checked={isPreview} onChange={function(){setIsPreview(!isPreview);}} style={{accentColor:'var(--sap-green)',width:14,height:14}}/>
           {isPreview?<Eye size={13}/>:<EyeOff size={13}/>}
           {isPreview?'Free Preview':'Paid'}
         </label>
@@ -317,11 +317,11 @@ function LectureEditor({lecture, onSave, onReload}){
 
       {/* Content type tabs */}
       <div style={{display:'flex',gap:4,marginBottom:16}}>
-        {[{t:'video',l:'Video',icon:Play,c:'#0ea5e9'},{t:'text',l:'Article',icon:FileText,c:'#8b5cf6'},{t:'pdf',l:'PDF',icon:File,c:'#f59e0b'}].map(function(tab){
+        {[{t:'video',l:'Video',icon:Play,c:'var(--sap-accent)'},{t:'text',l:'Article',icon:FileText,c:'var(--sap-purple)'},{t:'pdf',l:'PDF',icon:File,c:'var(--sap-amber)'}].map(function(tab){
           var on=contentType===tab.t;var Icon=tab.icon;
           return <button key={tab.t} onClick={function(){setContentType(tab.t);}}
             style={{display:'flex',alignItems:'center',gap:4,padding:'8px 16px',borderRadius:8,cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:on?800:600,
-              border:on?'2px solid '+tab.c:'2px solid #e8ecf2',background:on?tab.c+'08':'#fff',color:on?tab.c:'#64748b',transition:'all .15s'}}>
+              border:on?'2px solid '+tab.c:'2px solid #e8ecf2',background:on?tab.c+'08':'#fff',color:on?tab.c:'var(--sap-text-muted)',transition:'all .15s'}}>
             <Icon size={13}/>{tab.l}
           </button>;
         })}
@@ -330,10 +330,10 @@ function LectureEditor({lecture, onSave, onReload}){
       {/* VIDEO content */}
       {contentType==='video'&&(
         <div style={{marginBottom:16}}>
-          <label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>Video URL (YouTube, Vimeo, Loom)</label>
+          <label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>Video URL (YouTube, Vimeo, Loom)</label>
           <input value={videoUrl} onChange={function(e){setVideoUrl(e.target.value);}} placeholder="https://youtube.com/watch?v=..."
             style={{width:'100%',padding:'10px 14px',border:'2px solid #e8ecf2',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff'}}
-            onFocus={function(e){e.target.style.borderColor='#0ea5e9';}} onBlur={function(e){e.target.style.borderColor='#e8ecf2';}}/>
+            onFocus={function(e){e.target.style.borderColor='var(--sap-accent)';}} onBlur={function(e){e.target.style.borderColor='var(--sap-border-light)';}}/>
           {embedUrl&&(
             <div style={{marginTop:10,borderRadius:10,overflow:'hidden',aspectRatio:'16/9',maxWidth:480,border:'1px solid #e8ecf2'}}>
               <iframe src={embedUrl} style={{width:'100%',height:'100%',border:'none'}} allowFullScreen allow="autoplay; encrypted-media"/>
@@ -345,21 +345,21 @@ function LectureEditor({lecture, onSave, onReload}){
       {/* PDF content */}
       {contentType==='pdf'&&(
         <div style={{marginBottom:16}}>
-          <label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>PDF File</label>
+          <label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>PDF File</label>
           <div style={{display:'flex',gap:8}}>
-            <label style={{display:'flex',alignItems:'center',gap:6,padding:'10px 16px',borderRadius:10,border:'2px solid #e8ecf2',background:'#fff',cursor:'pointer',fontSize:12,fontWeight:600,color:'#64748b'}}
-              onMouseEnter={function(e){e.currentTarget.style.borderColor='#f59e0b';}} onMouseLeave={function(e){e.currentTarget.style.borderColor='#e8ecf2';}}>
+            <label style={{display:'flex',alignItems:'center',gap:6,padding:'10px 16px',borderRadius:10,border:'2px solid #e8ecf2',background:'#fff',cursor:'pointer',fontSize:12,fontWeight:600,color:'var(--sap-text-muted)'}}
+              onMouseEnter={function(e){e.currentTarget.style.borderColor='var(--sap-amber)';}} onMouseLeave={function(e){e.currentTarget.style.borderColor='var(--sap-border-light)';}}>
               <Upload size={14}/> Upload PDF
               <input type="file" accept=".pdf" onChange={function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){setPdfUrl(ev.target.result);};r.readAsDataURL(f);}} style={{display:'none'}}/>
             </label>
-            {pdfUrl&&<span style={{fontSize:11,color:'#f59e0b',fontWeight:700,display:'flex',alignItems:'center',gap:4}}><CheckCircle size={12}/>PDF attached</span>}
+            {pdfUrl&&<span style={{fontSize:11,color:'var(--sap-amber)',fontWeight:700,display:'flex',alignItems:'center',gap:4}}><CheckCircle size={12}/>PDF attached</span>}
           </div>
         </div>
       )}
 
       {/* Rich text content — shown for ALL types as supplementary notes */}
       <div style={{marginBottom:16}}>
-        <label style={{fontSize:11,fontWeight:700,color:'#64748b',display:'block',marginBottom:4}}>
+        <label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>
           {contentType==='video'?'Lecture Notes & Resources':contentType==='pdf'?'Description':'Lecture Content'}
         </label>
         <RichTextEditor content={textContent} onChange={function(html){setTextContent(html);}}
@@ -370,7 +370,7 @@ function LectureEditor({lecture, onSave, onReload}){
       <div style={{display:'flex',justifyContent:'flex-end'}}>
         <button onClick={save} disabled={saving}
           style={{display:'flex',alignItems:'center',gap:6,padding:'10px 28px',borderRadius:10,border:'none',
-            background:saved?'#16a34a':saving?'#cbd5e1':'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',
+            background:saved?'var(--sap-green)':saving?'var(--sap-text-ghost)':'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',
             fontSize:13,fontWeight:800,cursor:saving?'default':'pointer',fontFamily:'Sora,sans-serif',
             boxShadow:saved||saving?'none':'0 2px 12px rgba(139,92,246,.2)',transition:'all .2s'}}>
           <Save size={14}/> {saved?'✓ Saved!':saving?'Saving...':'Save Lecture'}
