@@ -4,88 +4,56 @@ import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { Map, Share2, DollarSign, Link2, Users, Zap, Eye, Sparkles, Wallet, Heart, Play, ArrowRight, ChevronLeft, ChevronRight, Mic, MicOff, Volume2, X, Wrench, Lock } from 'lucide-react';
 
-var SECTIONS = [
+function getSections(t) { return [
   {
-    id: 'dashboard', num: '1', title: 'Your Dashboard', shortTitle: 'Dashboard',
-    desc: 'This is your home base. Every time you log in, you land here. You can see your earnings across all income streams, your network size, and your referral link. The Quick Action cards guide you to the most important areas of the platform.',
-    tips: [
-      'Your referral link is always visible at the top — copy and share it anywhere',
-      'The 3 income cards show Membership, Creative Studio, and Campaign earnings',
-      'Quick Action cards give you fast access to the most important tools',
-      'Your balance is shown at the top right — click it to go to your Wallet',
-    ],
-    link: '/dashboard', linkLabel: 'Go to Dashboard',
+    id: 'dashboard', num: '1', title: t('platformTour.s1_title'), shortTitle: t('platformTour.s1_short'),
+    desc: t('platformTour.s1_desc'),
+    tips: [t('platformTour.s1_tip1'), t('platformTour.s1_tip2'), t('platformTour.s1_tip3'), t('platformTour.s1_tip4')],
+    link: '/dashboard', linkLabel: t('platformTour.s1_link'),
     Icon: Map, color: 'var(--sap-indigo)', bg: '#eef2ff',
   },
   {
-    id: 'howyouearn', num: '2', title: 'How You Earn', shortTitle: 'How You Earn',
-    desc: 'SuperAdPro has multiple income streams designed to reward you for building a team and using the platform. Everything flows through a simple principle: refer members, build your network, and earn commissions on their activity. The more active your team, the more you earn.',
-    tips: [
-      'Membership Referrals — earn 50% recurring ($10 per Basic, $17.50 per Pro) every month your referrals stay active',
-      'Campaign Tiers — activate a tier ($20\u2013$1,000) to unlock the 8\xd78 Income Grid with 40% direct + uni-level commissions across 8 levels',
-      'Profit Nexus — your referrals buy Creative Studio credit packs, they enter your 3\xd73 nexus. Earn level commissions + completion bonuses on every cycle',
-      'Course Marketplace (coming soon) — sell digital courses with 100% commission and a pass-up system that creates infinite-depth earning',
-      'Visit the Comp Plan page for interactive calculators and the AI assistant that can answer any earnings question',
-    ],
-    link: '/compensation-plan', linkLabel: 'View Comp Plan',
+    id: 'howyouearn', num: '2', title: t('platformTour.s2_title'), shortTitle: t('platformTour.s2_short'),
+    desc: t('platformTour.s2_desc'),
+    tips: [t('platformTour.s2_tip1'), t('platformTour.s2_tip2'), t('platformTour.s2_tip3'), t('platformTour.s2_tip4'), t('platformTour.s2_tip5')],
+    link: '/compensation-plan', linkLabel: t('platformTour.s2_link'),
     Icon: DollarSign, color: 'var(--sap-green)', bg: 'var(--sap-green-bg-mid)',
   },
   {
-    id: 'watchearn', num: '3', title: 'Watch To Earn', shortTitle: 'Watch To Earn',
-    desc: 'Watch To Earn is the engine that powers the entire campaign system. Members with active Campaign Tiers watch short video campaigns daily. This delivers real views to campaign holders while keeping your commission qualification active. Think of it as your daily check-in — a few minutes of watching keeps your earning machine running.',
-    tips: [
-      'Activate a Campaign Tier first ($20\u2013$1,000) to enter the 8\xd78 Income Grid',
-      'Watch your daily video quota to stay qualified for Campaign Wallet withdrawals',
-      'Higher tiers unlock more daily views and bigger grid completion bonuses',
-      'Your grid fills with members from your network — when all 64 positions fill, you earn a bonus and a new grid starts',
-      'Missing your daily quota pauses Campaign Wallet withdrawals (not your Affiliate Wallet)',
-    ],
-    link: '/watch', linkLabel: 'Start Watching',
+    id: 'watchearn', num: '3', title: t('platformTour.s3_title'), shortTitle: t('platformTour.s3_short'),
+    desc: t('platformTour.s3_desc'),
+    tips: [t('platformTour.s3_tip1'), t('platformTour.s3_tip2'), t('platformTour.s3_tip3'), t('platformTour.s3_tip4'), t('platformTour.s3_tip5')],
+    link: '/watch', linkLabel: t('platformTour.s3_link'),
     Icon: Eye, color: 'var(--sap-amber)', bg: 'var(--sap-amber-bg)',
   },
   {
-    id: 'basictools', num: '4', title: 'Your Basic Tools', shortTitle: 'Basic Tools',
-    desc: 'Every member gets access to a powerful suite of tools included with their membership. These tools work for any business or niche — not just SuperAdPro promotion. Use them to grow your personal brand, create content, track your marketing, and generate AI-powered creative assets.',
-    tips: [
-      'LinkHub — your personal link-in-bio page (like Linktree). Add your photo, bio, social links, and custom buttons. Share one link everywhere',
-      'Link Tools — track clicks on any URL, create link rotators, generate QR codes, and view detailed analytics on all your links',
-      'Content Creator — AI-powered writing tool that generates social media posts, captions, hashtags, and marketing copy for any platform',
-      'Creative Studio — the full AI creative suite: Video Clips (9 AI models), Full Video production, Images (11 models), Music (Suno AI), Voiceover (32 voices), Lip Sync, Gallery, and Credit Packs',
-    ],
-    link: '/creative-studio', linkLabel: 'Open Creative Studio',
+    id: 'basictools', num: '4', title: t('platformTour.s4_title'), shortTitle: t('platformTour.s4_short'),
+    desc: t('platformTour.s4_desc'),
+    tips: [t('platformTour.s4_tip1'), t('platformTour.s4_tip2'), t('platformTour.s4_tip3'), t('platformTour.s4_tip4')],
+    link: '/creative-studio', linkLabel: t('platformTour.s4_link'),
     Icon: Wrench, color: 'var(--sap-accent)', bg: '#e0f2fe',
   },
   {
-    id: 'protools', num: '5', title: 'Pro Tools', shortTitle: 'Pro Tools',
-    desc: 'Upgrade to Pro ($35/month) to unlock the advanced tools designed for serious marketers. These give you a complete business-in-a-box: build landing pages, create presentations, automate email follow-ups, and let AI build your entire sales pipeline. Pro members also earn higher referral commissions ($17.50 vs $10 per referral).',
-    tips: [
-      'SuperPages — drag-and-drop landing page builder with 24 block types, gradient builder, responsive preview, and 8 pre-built niche templates',
-      'SuperDeck — AI presentation builder. Create professional slide decks with shapes, text, images, and custom styling',
-      'AutoResponder (MyLeads) — CRM with up to 5,000 leads, automated email sequences via Brevo, visual timeline, and Pay It Forward integration',
-      'SuperSeller — AI Sales Autopilot that generates your entire marketing campaign: landing page, 30 social posts, 5-email autoresponder, 3 video scripts, ad copy, and strategy doc',
-    ],
-    link: '/upgrade', linkLabel: 'Upgrade to Pro',
+    id: 'protools', num: '5', title: t('platformTour.s5_title'), shortTitle: t('platformTour.s5_short'),
+    desc: t('platformTour.s5_desc'),
+    tips: [t('platformTour.s5_tip1'), t('platformTour.s5_tip2'), t('platformTour.s5_tip3'), t('platformTour.s5_tip4')],
+    link: '/upgrade', linkLabel: t('platformTour.s5_link'),
     Icon: Lock, color: 'var(--sap-purple)', bg: 'var(--sap-purple-pale)',
     pro: true,
   },
   {
-    id: 'wallet', num: '6', title: 'Your Wallet & Pay It Forward', shortTitle: 'Wallet',
-    desc: 'You have two wallets. Your Affiliate Wallet holds membership referral commissions and Creative Studio Profit Nexus earnings — withdraw these anytime with no conditions. Your Campaign Wallet holds grid and watch commissions — these require an active Campaign Tier and daily watch quota. Pay It Forward lets you gift memberships to grow your team organically.',
-    tips: [
-      'Affiliate Wallet — always withdrawable, no conditions attached',
-      'Campaign Wallet — requires active Campaign Tier + daily watch quota to withdraw',
-      'Minimum withdrawal is $10 with a $1 fee — paid in USDT cryptocurrency',
-      'Set up MetaMask or Coinbase Wallet using the Crypto Guide (under Account)',
-      'Pay It Forward — gift a $20 Basic membership to anyone. You become their sponsor and earn commissions on everything they do. When they earn $20+, they are prompted to gift someone else — creating a viral growth chain',
-    ],
-    link: '/wallet', linkLabel: 'View Your Wallet',
+    id: 'wallet', num: '6', title: t('platformTour.s6_title'), shortTitle: t('platformTour.s6_short'),
+    desc: t('platformTour.s6_desc'),
+    tips: [t('platformTour.s6_tip1'), t('platformTour.s6_tip2'), t('platformTour.s6_tip3'), t('platformTour.s6_tip4'), t('platformTour.s6_tip5')],
+    link: '/wallet', linkLabel: t('platformTour.s6_link'),
     Icon: Wallet, color: 'var(--sap-green-dark)', bg: '#d1fae5',
   },
-];
+];}
 
 export default function PlatformTour() {
   var { t } = useTranslation();
   var [activeIdx, setActiveIdx] = useState(0);
+  var SECTIONS = getSections(t);
   var s = SECTIONS[activeIdx];
 
   return (
