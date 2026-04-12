@@ -62,7 +62,7 @@ function ToolMiniCard({ name, desc, color }) {
 function IncomeCard({ title, amount, sub, desc, color, comingSoon }) {
   return (
     <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderTop: `3px solid ${color}`, borderRadius: 16, padding: '28px 24px', position: 'relative' }}>
-      {comingSoon && <div style={{ position: 'absolute', top: 16, right: 16, padding: '4px 12px', borderRadius: 8, background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)', fontFamily: "'Sora',sans-serif", fontSize: 9, fontWeight: 800, color: 'var(--sap-amber-bright)', letterSpacing: 1.5, textTransform: 'uppercase' }}>Coming Soon</div>}
+      {comingSoon && <div style={{ position: 'absolute', top: 16, right: 16, padding: '4px 12px', borderRadius: 8, background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)', fontFamily: "'Sora',sans-serif", fontSize: 9, fontWeight: 800, color: 'var(--sap-amber-bright)', letterSpacing: 1.5, textTransform: 'uppercase' }}>{t('howItWorks.comingSoon')}</div>}
       <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 800, marginBottom: 6 }}>{title}</div>
       <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 32, fontWeight: 900, color, marginBottom: 4 }}>{amount}</div>
       <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>{sub}</div>
@@ -80,7 +80,7 @@ function FreeToolCard({ icon, title, desc, href }) {
       <div style={{ fontSize: 36, marginBottom: 12 }}>{icon}</div>
       <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 6 }}>{title}</div>
       <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.5, marginBottom: 14 }}>{desc}</div>
-      <div style={{ fontSize: 13, fontWeight: 700, color: '#22d3ee' }}>Try it free →</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: '#22d3ee' }}>{t('howItWorks.tryItFree')}</div>
     </Link>
   );
 }
@@ -107,10 +107,10 @@ export default function HowItWorks() {
             <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 20, fontWeight: 900 }}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span></span>
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-            <Link to="/explore" style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Explore</Link>
-            <Link to="/earn" style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Earn</Link>
-            <Link to="/login" style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>Sign In</Link>
-            <Link to="/register" style={{ padding: '10px 24px', borderRadius: 10, background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff', fontSize: 13, fontWeight: 800, textDecoration: 'none' }}>Join Free</Link>
+            <Link to="/explore" style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>{t('howItWorks.explore')}</Link>
+            <Link to="/earn" style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>{t('howItWorks.earn')}</Link>
+            <Link to="/login" style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>{t('howItWorks.signIn')}</Link>
+            <Link to="/register" style={{ padding: '10px 24px', borderRadius: 10, background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff', fontSize: 13, fontWeight: 800, textDecoration: 'none' }}>{t('howItWorks.joinFree')}</Link>
           </div>
         </nav>
 
@@ -122,7 +122,7 @@ export default function HowItWorks() {
               How It Works
             </div>
             <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 'clamp(36px,6vw,56px)', fontWeight: 900, lineHeight: 0.95, marginBottom: 24, letterSpacing: -2 }}>
-              Your Complete<br/><span style={{ color: 'var(--sap-accent-light)' }}>Business-in-a-Box</span>
+              Your Complete<br/><span style={{ color: 'var(--sap-accent-light)' }}>{t('howItWorks.businessInABox')}</span>
             </h1>
             <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)', lineHeight: 1.7, maxWidth: 560, margin: '0 auto 40px' }}>
               SuperAdPro combines AI creative tools, advertising, income opportunities, and marketing automation — everything you need to build and grow an online business.
@@ -134,19 +134,19 @@ export default function HowItWorks() {
             </div>
 
             <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
-              <Link to="/register" style={{ padding: '16px 44px', borderRadius: 14, fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 800, textDecoration: 'none', background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff', boxShadow: '0 4px 24px rgba(14,165,233,0.25)' }}>Get Started Free →</Link>
-              <Link to="/earn" style={{ padding: '16px 44px', borderRadius: 14, fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 800, textDecoration: 'none', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.2)', color: '#fff', backdropFilter: 'blur(4px)' }}>See the Earnings Plan</Link>
+              <Link to="/register" style={{ padding: '16px 44px', borderRadius: 14, fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 800, textDecoration: 'none', background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff', boxShadow: '0 4px 24px rgba(14,165,233,0.25)' }}>{t('howItWorks.getStartedFree')}</Link>
+              <Link to="/earn" style={{ padding: '16px 44px', borderRadius: 14, fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 800, textDecoration: 'none', border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(0,0,0,0.2)', color: '#fff', backdropFilter: 'blur(4px)' }}>{t('howItWorks.seeEarningsPlan')}</Link>
             </div>
           </div>
         </section>
 
         {/* ═══ WHAT IS SUPERADPRO ═══ */}
         <Section>
-          <SectionHeader tag="The Platform" title="What is SuperAdPro?" subtitle="SuperAdPro is an all-in-one platform that gives you the tools, the training, and the income opportunity to build a real online business — even if you're starting from zero." />
+          <SectionHeader tag="The Platform" title={t("howItWorks.pageTitle")} subtitle={t("howItWorks.pageSubtitle")} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20 }}>
-            <FeatureCard icon="🎬" title="AI Creative Studio" desc="Generate videos, images, music, voiceovers, and captions using 10+ AI models. Create professional content in minutes." color="var(--sap-accent)" />
-            <FeatureCard icon="💰" title="Multiple Income Streams" desc="Earn through affiliate commissions, the 8×8 income grid, course sales, and the SuperMarket. Four ways to make money." color="var(--sap-amber-bright)" />
-            <FeatureCard icon="📢" title="Advertising Platform" desc="Promote your business with video campaigns watched by real, engaged members. Guaranteed views from motivated entrepreneurs." color="var(--sap-green-mid)" />
+            <FeatureCard icon="🎬" title={t("howItWorks.aiCreativeStudioTitle")} desc="Generate videos, images, music, voiceovers, and captions using 10+ AI models. Create professional content in minutes." color="var(--sap-accent)" />
+            <FeatureCard icon="💰" title={t("howItWorks.fourWaysTitle")} desc="Earn through affiliate commissions, the 8×8 income grid, course sales, and the SuperMarket. Four ways to make money." color="var(--sap-amber-bright)" />
+            <FeatureCard icon="📢" title={t("howItWorks.advertisingPlatform")} desc="Promote your business with video campaigns watched by real, engaged members. Guaranteed views from motivated entrepreneurs." color="var(--sap-green-mid)" />
           </div>
         </Section>
 
@@ -155,7 +155,7 @@ export default function HowItWorks() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center' }}>
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, color: '#22d3ee', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Creative Studio</div>
-              <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 32, fontWeight: 900, marginBottom: 16 }}>AI Creative Studio</h2>
+              <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 32, fontWeight: 900, marginBottom: 16 }}>{t('howItWorks.aiCreativeStudioTitle')}</h2>
               <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginBottom: 24 }}>
                 Create professional videos, images, music, voiceovers, and more — all powered by the latest AI models from Kling, Sora, Seedance, and others.
               </p>
@@ -182,8 +182,8 @@ export default function HowItWorks() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center' }}>
             <VideoPlaceholder label="Marketing tools preview" borderColor="rgba(139,92,246,0.15)" />
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-purple-light)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Marketing Suite</div>
-              <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 32, fontWeight: 900, marginBottom: 16 }}>Everything You Need to Market</h2>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-purple-light)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>{t('howItWorks.marketingSuiteTitle')}</div>
+              <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 32, fontWeight: 900, marginBottom: 16 }}>{t('howItWorks.marketingSuiteSubtitle')}</h2>
               <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginBottom: 24 }}>
                 From landing pages to email automation, SuperAdPro gives you professional marketing tools without the professional price tag.
               </p>
@@ -201,35 +201,35 @@ export default function HowItWorks() {
 
         {/* ═══ FOUR WAYS TO EARN ═══ */}
         <Section bg="linear-gradient(180deg,transparent,rgba(251,191,36,0.03),transparent)">
-          <SectionHeader tag="Income" tagColor="var(--sap-amber-bright)" title="Four Ways to Earn" subtitle="Each income stream works independently. Together they compound into serious earnings." />
+          <SectionHeader tag="Income" tagColor="var(--sap-amber-bright)" title={t("howItWorks.fourWaysTitle")} subtitle={t("howItWorks.fourWaysSubtitle")} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
-            <IncomeCard title="Membership Commissions" amount="50%" sub="Recurring monthly" desc="$10 per Basic member, $17.50 per Pro member — every single month they stay active." color="var(--sap-green-mid)" />
+            <IncomeCard title={t("howItWorks.membershipCommissions")} amount="50%" sub="Recurring monthly" desc="$10 per Basic member, $17.50 per Pro member — every single month they stay active." color="var(--sap-green-mid)" />
             <IncomeCard title="8×8 Income Grid" amount="$7,200+" sub="Per grid cycle" desc="Eight tiers from $20 to $1,000. Each grid has 64 positions that auto-renew when complete." color="var(--sap-indigo)" />
-            <IncomeCard title="Course Marketplace" amount="100%" sub="Commissions" desc="Keep every sale. Sales 2, 4, 6, 8 pass up to your sponsor — creating an infinite depth chain." color="var(--sap-amber-bright)" comingSoon />
-            <IncomeCard title="SuperMarket" amount="50/25/25" sub="Creator / Affiliate / Platform" desc="Sell digital products. Create once, earn forever. Your affiliates promote for you." color="var(--sap-accent)" comingSoon />
+            <IncomeCard title={t("howItWorks.courseMarketplace")} amount="100%" sub="Commissions" desc="Keep every sale. Sales 2, 4, 6, 8 pass up to your sponsor — creating an infinite depth chain." color="var(--sap-amber-bright)" comingSoon />
+            <IncomeCard title={t("howItWorks.superMarket")} amount="50/25/25" sub="Creator / Affiliate / Platform" desc="Sell digital products. Create once, earn forever. Your affiliates promote for you." color="var(--sap-accent)" comingSoon />
           </div>
           <div style={{ textAlign: 'center', marginTop: 32 }}>
-            <Link to="/earn" style={{ fontFamily: "'Sora',sans-serif", fontSize: 15, fontWeight: 800, color: 'var(--sap-amber-bright)', textDecoration: 'none', borderBottom: '2px solid #fbbf24', paddingBottom: 4 }}>See the full compensation plan →</Link>
+            <Link to="/earn" style={{ fontFamily: "'Sora',sans-serif", fontSize: 15, fontWeight: 800, color: 'var(--sap-amber-bright)', textDecoration: 'none', borderBottom: '2px solid #fbbf24', paddingBottom: 4 }}>{t("howItWorks.seeFullCompPlan")}</Link>
           </div>
         </Section>
 
         {/* ═══ FREE TOOLS ═══ */}
         <Section>
-          <SectionHeader tag="Free Tools" tagColor="#22d3ee" title="Try Before You Join" subtitle="Use our free tools right now — no signup, no credit card, no catch." />
+          <SectionHeader tag="Free Tools" tagColor="#22d3ee" title={t("howItWorks.tryBeforeJoin")} subtitle={t("howItWorks.tryBeforeJoinDesc")} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20 }}>
-            <FreeToolCard icon="😂" title="Meme Generator" desc="100+ templates, custom fonts and colours, instant download." href="/free/meme-generator" />
-            <FreeToolCard icon="📱" title="QR Code Generator" desc="URLs, WiFi, email, phone, SMS. Custom colours, PNG & SVG export." href="/free/qr-code-generator" />
-            <FreeToolCard icon="🎨" title="Banner & Profile Creator" desc="YouTube, Instagram, Facebook, TikTok, LinkedIn, Pinterest — exact dimensions." href="/free/banner-creator" />
+            <FreeToolCard icon="😂" title={t("howItWorks.memeGenerator")} desc="100+ templates, custom fonts and colours, instant download." href="/free/meme-generator" />
+            <FreeToolCard icon="📱" title={t("howItWorks.qrCodeGenerator")} desc="URLs, WiFi, email, phone, SMS. Custom colours, PNG & SVG export." href="/free/qr-code-generator" />
+            <FreeToolCard icon="🎨" title={t("howItWorks.bannerProfileCreator")} desc="YouTube, Instagram, Facebook, TikTok, LinkedIn, Pinterest — exact dimensions." href="/free/banner-creator" />
           </div>
         </Section>
 
         {/* ═══ MEMBERSHIP PRICING ═══ */}
         <Section bg="linear-gradient(180deg,transparent,rgba(14,165,233,0.03),transparent)">
-          <SectionHeader tag="Membership" tagColor="var(--sap-accent-light)" title="Simple, Affordable Pricing" subtitle="Two plans. No hidden fees. Cancel anytime. Save 17% with annual." />
+          <SectionHeader tag="Membership" tagColor="var(--sap-accent-light)" title={t("howItWorks.pricingTitle")} subtitle={t("howItWorks.pricingSubtitle")} />
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, maxWidth: 800, margin: '0 auto' }}>
             {/* Basic */}
             <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 20, padding: '36px 28px' }}>
-              <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 700, color: 'var(--sap-accent-light)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Basic</div>
+              <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 700, color: 'var(--sap-accent-light)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>{t('howItWorks.basic')}</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
                 <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 40, fontWeight: 900 }}>$20</span>
                 <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)' }}>/month</span>
@@ -237,18 +237,18 @@ export default function HowItWorks() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                 <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>or</span>
                 <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--sap-green-mid)' }}>$200/year</span>
-                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-green-mid)', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 6 }}>SAVE $40</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-green-mid)', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 6 }}>{t('howItWorks.saveBasic')}</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
                 {['Full affiliate commissions', '8×8 income grid access', 'Campaign video advertising', 'LinkHub bio page', 'Marketing suite tools', 'Creative Studio credit packs'].map(f => (
                   <div key={f} style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>✓ {f}</div>
                 ))}
               </div>
-              <Link to="/register" style={{ display: 'block', textAlign: 'center', padding: 12, borderRadius: 10, border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontFamily: "'Sora',sans-serif", fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>Get Started</Link>
+              <Link to="/register" style={{ display: 'block', textAlign: 'center', padding: 12, borderRadius: 10, border: '1px solid rgba(255,255,255,0.15)', color: '#fff', fontFamily: "'Sora',sans-serif", fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>{t('howItWorks.getStarted')}</Link>
             </div>
             {/* Pro */}
             <div style={{ background: 'rgba(14,165,233,0.05)', border: '2px solid rgba(14,165,233,0.2)', borderRadius: 20, padding: '36px 28px', position: 'relative' }}>
-              <div style={{ position: 'absolute', top: -12, right: 20, padding: '4px 16px', borderRadius: 20, background: 'var(--sap-accent)', fontFamily: "'Sora',sans-serif", fontSize: 11, fontWeight: 800, color: '#fff', letterSpacing: 1 }}>RECOMMENDED</div>
+              <div style={{ position: 'absolute', top: -12, right: 20, padding: '4px 16px', borderRadius: 20, background: 'var(--sap-accent)', fontFamily: "'Sora',sans-serif", fontSize: 11, fontWeight: 800, color: '#fff', letterSpacing: 1 }}>{t('howItWorks.recommended')}</div>
               <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 700, color: 'var(--sap-accent-light)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Pro</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
                 <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 40, fontWeight: 900 }}>$35</span>
@@ -257,7 +257,7 @@ export default function HowItWorks() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                 <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>or</span>
                 <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--sap-green-mid)' }}>$350/year</span>
-                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-green-mid)', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 6 }}>SAVE $70</span>
+                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-green-mid)', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 6 }}>{t('howItWorks.savePro')}</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>✓ Everything in Basic</div>
@@ -265,7 +265,7 @@ export default function HowItWorks() {
                   <div key={f} style={{ fontSize: 13, color: 'var(--sap-accent-light)', fontWeight: 600 }}>+ {f}</div>
                 ))}
               </div>
-              <Link to="/register" style={{ display: 'block', textAlign: 'center', padding: 12, borderRadius: 10, background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color: '#fff', fontFamily: "'Sora',sans-serif", fontWeight: 700, fontSize: 14, textDecoration: 'none', boxShadow: '0 4px 16px rgba(14,165,233,0.25)' }}>Get Pro</Link>
+              <Link to="/register" style={{ display: 'block', textAlign: 'center', padding: 12, borderRadius: 10, background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color: '#fff', fontFamily: "'Sora',sans-serif", fontWeight: 700, fontSize: 14, textDecoration: 'none', boxShadow: '0 4px 16px rgba(14,165,233,0.25)' }}>{t('howItWorks.getPro')}</Link>
             </div>
           </div>
         </Section>
@@ -274,22 +274,22 @@ export default function HowItWorks() {
         <section style={{ padding: '80px 24px', textAlign: 'center' }}>
           <div style={{ maxWidth: 600, margin: '0 auto' }}>
             <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 'clamp(30px,5vw,42px)', fontWeight: 900, marginBottom: 16, lineHeight: 1 }}>
-              Ready to start<br/><span style={{ color: 'var(--sap-accent-light)' }}>building?</span>
+              Ready to start<br/><span style={{ color: 'var(--sap-accent-light)' }}>{t('howItWorks.ctaTitle')}</span>
             </h2>
-            <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.4)', marginBottom: 32 }}>Free to join. No credit card. Set up in 60 seconds.</p>
-            <Link to="/register" style={{ display: 'inline-block', padding: '20px 56px', borderRadius: 14, fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, textDecoration: 'none', background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff', boxShadow: '0 4px 24px rgba(14,165,233,0.25)' }}>Create Your Free Account →</Link>
+            <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.4)', marginBottom: 32 }}>{t('howItWorks.ctaDesc')}</p>
+            <Link to="/register" style={{ display: 'inline-block', padding: '20px 56px', borderRadius: 14, fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, textDecoration: 'none', background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff', boxShadow: '0 4px 24px rgba(14,165,233,0.25)' }}>{t('howItWorks.createFreeAccount')}</Link>
           </div>
         </section>
 
         {/* ═══ FOOTER ═══ */}
         <footer style={{ textAlign: 'center', padding: '40px 24px', borderTop: '1px solid rgba(255,255,255,0.04)' }}>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 20, marginBottom: 14, flexWrap: 'wrap' }}>
-            <Link to="/free/meme-generator" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>Free Meme Generator</Link>
-            <Link to="/free/qr-code-generator" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>Free QR Code Generator</Link>
-            <Link to="/free/banner-creator" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>Free Banner Creator</Link>
+            <Link to="/free/meme-generator" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>{t('howItWorks.freeMemeGenerator')}</Link>
+            <Link to="/free/qr-code-generator" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>{t('howItWorks.freeQRCodeGenerator')}</Link>
+            <Link to="/free/banner-creator" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>{t('howItWorks.freeBannerCreator')}</Link>
           </div>
           <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.15)', lineHeight: 1.7 }}>
-            SuperAdPro · <Link to="/legal" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none' }}>Terms</Link> · <Link to="/legal" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none' }}>Privacy</Link> · <Link to="/support" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none' }}>Support</Link>
+            SuperAdPro · <Link to="/legal" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none' }}>{t('howItWorks.terms')}</Link> · <Link to="/legal" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none' }}>{t('howItWorks.privacy')}</Link> · <Link to="/support" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none' }}>{t('howItWorks.support')}</Link>
           </p>
           <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.1)', marginTop: 6 }}>Income figures represent the compensation plan structure. Results depend on individual effort.</p>
         </footer>

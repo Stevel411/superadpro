@@ -154,8 +154,8 @@ function EarningsCalculator({ onJoin }) {
       {/* ── MEMBERSHIP CALCULATOR ── */}
       <div style={{background:'rgba(255,255,255,.03)',border:'1px solid rgba(16,185,129,.15)',borderRadius:18,overflow:'hidden',marginBottom:24}}>
         <div style={{background:'linear-gradient(135deg,rgba(16,185,129,.12),rgba(16,185,129,.04))',padding:'16px 24px',borderBottom:'1px solid rgba(16,185,129,.1)'}}>
-          <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#34d399',marginBottom:4}}>Monthly Recurring</div>
-          <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>Membership Commissions</div>
+          <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#34d399',marginBottom:4}}>{t('earnPage.monthlyRecurring')}</div>
+          <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>{t('earnPage.membershipCommissions')}</div>
           <div style={{fontSize:11,color:'rgba(200,220,255,.4)',marginTop:2}}>50% of every membership fee, every month, for as long as they stay active.</div>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',minHeight:220}}>
@@ -163,7 +163,7 @@ function EarningsCalculator({ onJoin }) {
           <div style={{padding:'24px',borderRight:'1px solid rgba(255,255,255,.04)'}}>
             <div style={{marginBottom:20}}>
               <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
-                <span style={{fontSize:12,fontWeight:700,color:'rgba(200,220,255,.6)'}}>Your Direct Referrals</span>
+                <span style={{fontSize:12,fontWeight:700,color:'rgba(200,220,255,.6)'}}>{t('earnPage.yourDirectReferrals')}</span>
                 <span style={{fontSize:16,fontWeight:900,color:'#34d399'}}>{memRefs}</span>
               </div>
               <input type="range" min={1} max={100} value={memRefs} onChange={function(e){setMemRefs(parseInt(e.target.value));}}
@@ -174,7 +174,7 @@ function EarningsCalculator({ onJoin }) {
             </div>
             <div>
               <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
-                <span style={{fontSize:12,fontWeight:700,color:'rgba(200,220,255,.6)'}}>Pro Members (%)</span>
+                <span style={{fontSize:12,fontWeight:700,color:'rgba(200,220,255,.6)'}}>{t('earnPage.proMembersPercent')}</span>
                 <span style={{fontSize:16,fontWeight:900,color:'#34d399'}}>{memProRatio}%</span>
               </div>
               <input type="range" min={0} max={100} value={memProRatio} onChange={function(e){setMemProRatio(parseInt(e.target.value));}}
@@ -201,7 +201,7 @@ function EarningsCalculator({ onJoin }) {
               <div style={{fontSize:20,fontWeight:900,color:'var(--sap-purple-light)'}}>${memProEarn.toFixed(0)}</div>
             </div>
             <div style={{padding:'14px 16px',borderRadius:12,background:'linear-gradient(135deg,rgba(16,185,129,.15),rgba(16,185,129,.05))',border:'1px solid rgba(16,185,129,.2)',textAlign:'center'}}>
-              <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#34d399'}}>Monthly Recurring Income</div>
+              <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#34d399'}}>{t('earnPage.monthlyRecurringIncome')}</div>
               <div style={{fontFamily:"'Sora',sans-serif",fontSize:40,fontWeight:900,color:'#fff'}}>${memTotal.toFixed(0)}</div>
               <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>per month · recurring · passive</div>
             </div>
@@ -212,16 +212,16 @@ function EarningsCalculator({ onJoin }) {
       {/* ── GRID CALCULATOR ── */}
       <div style={{background:'rgba(255,255,255,.03)',border:'1px solid rgba(56,189,248,.12)',borderRadius:18,overflow:'hidden',marginBottom:24}}>
         <div style={{background:'linear-gradient(135deg,rgba(56,189,248,.12),rgba(56,189,248,.04))',padding:'16px 24px',borderBottom:'1px solid rgba(56,189,248,.1)'}}>
-          <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:4}}>Per Purchase</div>
+          <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:4}}>{t('earnPage.perPurchase')}</div>
           <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>Campaign Grid Commissions</div>
-          <div style={{fontSize:11,color:'rgba(200,220,255,.4)',marginTop:2}}>Earned each time a member purchases or repurchases a campaign tier. Not monthly — per transaction.</div>
+          <div style={{fontSize:11,color:'rgba(200,220,255,.4)',marginTop:2}}>{t("earnPage.perPurchaseDesc")}</div>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',minHeight:320}}>
           {/* Controls */}
           <div style={{padding:'24px',borderRight:'1px solid rgba(255,255,255,.04)'}}>
             {/* Tier selector */}
             <div style={{marginBottom:20}}>
-              <div style={{fontSize:12,fontWeight:700,color:'rgba(200,220,255,.6)',marginBottom:8}}>Campaign Tier</div>
+              <div style={{fontSize:12,fontWeight:700,color:'rgba(200,220,255,.6)',marginBottom:8}}>{t('earnPage.campaignTier')}</div>
               <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:6}}>
                 {[1,2,3,4,5,6,7,8].map(function(t) {
                   var on = gridTier === t;
@@ -239,7 +239,7 @@ function EarningsCalculator({ onJoin }) {
             {/* Direct refs slider */}
             <div style={{marginBottom:20}}>
               <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
-                <span style={{fontSize:12,fontWeight:700,color:'rgba(200,220,255,.6)'}}>Your Direct Referrals</span>
+                <span style={{fontSize:12,fontWeight:700,color:'rgba(200,220,255,.6)'}}>{t('earnPage.yourDirectReferrals')}</span>
                 <span style={{fontSize:16,fontWeight:900,color:'var(--sap-accent-light)'}}>{gridDirectRefs}</span>
               </div>
               <input type="range" min={1} max={50} value={gridDirectRefs} onChange={function(e){setGridDirectRefs(parseInt(e.target.value));}}
@@ -251,7 +251,7 @@ function EarningsCalculator({ onJoin }) {
             {/* Each refers slider */}
             <div>
               <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
-                <span style={{fontSize:12,fontWeight:700,color:'rgba(200,220,255,.6)'}}>Each Person Refers</span>
+                <span style={{fontSize:12,fontWeight:700,color:'rgba(200,220,255,.6)'}}>{t('earnPage.eachPersonRefers')}</span>
                 <span style={{fontSize:16,fontWeight:900,color:'var(--sap-accent-light)'}}>{gridL2Refs}</span>
               </div>
               <input type="range" min={0} max={20} value={gridL2Refs} onChange={function(e){setGridL2Refs(parseInt(e.target.value));}}
@@ -265,14 +265,14 @@ function EarningsCalculator({ onJoin }) {
           <div style={{padding:'24px',display:'flex',flexDirection:'column',justifyContent:'center'}}>
             <div style={{display:'flex',justifyContent:'space-between',padding:'10px 14px',borderRadius:10,background:'rgba(56,189,248,.06)',border:'1px solid rgba(56,189,248,.1)',marginBottom:8}}>
               <div>
-                <div style={{fontSize:12,fontWeight:700,color:'var(--sap-accent-light)'}}>Direct Sponsor (40%)</div>
+                <div style={{fontSize:12,fontWeight:700,color:'var(--sap-accent-light)'}}>{t('earnPage.directSponsor')}</div>
                 <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>{gridDirectRefs} refs × ${gDirect.toFixed(0)} each</div>
               </div>
               <div style={{fontSize:20,fontWeight:900,color:'var(--sap-accent-light)'}}>${gDirectTotal.toFixed(0)}</div>
             </div>
             <div style={{display:'flex',justifyContent:'space-between',padding:'10px 14px',borderRadius:10,background:'rgba(139,92,246,.06)',border:'1px solid rgba(139,92,246,.1)',marginBottom:8}}>
               <div>
-                <div style={{fontSize:12,fontWeight:700,color:'var(--sap-purple-light)'}}>Uni-Level (6.25%/level)</div>
+                <div style={{fontSize:12,fontWeight:700,color:'var(--sap-purple-light)'}}>{t('earnPage.uniLevel')}</div>
                 <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>{gL2Total} level-2 members × ${formatMoney(gUniLevel)}</div>
               </div>
               <div style={{fontSize:20,fontWeight:900,color:'var(--sap-purple-light)'}}>${gUniTotal.toFixed(0)}</div>
@@ -287,7 +287,7 @@ function EarningsCalculator({ onJoin }) {
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:12}}>
               <div style={{padding:'10px 12px',borderRadius:10,background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.06)',textAlign:'center'}}>
                 <div style={{fontSize:18,fontWeight:900,color:'#fff'}}>{gridDirectRefs + gL2Total}</div>
-                <div style={{fontSize:9,color:'rgba(200,220,255,.3)',fontWeight:700,textTransform:'uppercase'}}>Network Size</div>
+                <div style={{fontSize:9,color:'rgba(200,220,255,.3)',fontWeight:700,textTransform:'uppercase'}}>{t('earnPage.networkSize')}</div>
               </div>
               <div style={{padding:'10px 12px',borderRadius:10,background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.06)',textAlign:'center'}}>
                 <div style={{fontSize:18,fontWeight:900,color:'#fff'}}>${gPerGrid.toLocaleString()}</div>
@@ -333,11 +333,11 @@ export default function EarnPage() {
       <nav style={{position:'sticky',top:0,zIndex:100,background:'rgba(5,13,26,.95)',backdropFilter:'blur(18px)',borderBottom:'1px solid rgba(56,189,248,.1)',padding:'0 40px',height:68,display:'flex',alignItems:'center',justifyContent:'space-between'}} className="earn-nav">
         <Link to="/" style={{textDecoration:'none',display:'flex',alignItems:'center',gap:8}}>
           <svg style={{width:26,height:26}} viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="var(--sap-accent)"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
-          <span style={{fontFamily:"'Sora',sans-serif",fontWeight:800,fontSize:18,color:'#fff'}}>SuperAd<span style={{color:cyan}}>Pro</span></span>
+          <span style={{fontFamily:"'Sora',sans-serif",fontWeight:800,fontSize:18,color:'#fff'}}>SuperAd<span style={{color:cyan}}>{t('earnPage.pro')}</span></span>
         </Link>
         <div style={{display:'flex',alignItems:'center',gap:12}}>
-          <Link to="/login" style={{fontSize:14,fontWeight:600,color:'rgba(200,220,255,.6)',textDecoration:'none',padding:'7px 16px',border:'1px solid rgba(255,255,255,.1)',borderRadius:8}}>Sign In</Link>
-          <button onClick={openReg} style={{fontWeight:700,fontSize:14,color:'var(--sap-cobalt-deep)',background:'var(--sap-accent-light)',padding:'9px 22px',borderRadius:10,border:'none',cursor:'pointer',fontFamily:'inherit'}}>Join Free →</button>
+          <Link to="/login" style={{fontSize:14,fontWeight:600,color:'rgba(200,220,255,.6)',textDecoration:'none',padding:'7px 16px',border:'1px solid rgba(255,255,255,.1)',borderRadius:8}}>{t('earnPage.signIn')}</Link>
+          <button onClick={openReg} style={{fontWeight:700,fontSize:14,color:'var(--sap-cobalt-deep)',background:'var(--sap-accent-light)',padding:'9px 22px',borderRadius:10,border:'none',cursor:'pointer',fontFamily:'inherit'}}>{t('earnPage.joinFree')}</button>
         </div>
       </nav>
 
@@ -355,7 +355,7 @@ export default function EarnPage() {
 
         <h1 className="earn-fade2" style={{fontFamily:"'DM Sans','Rethink Sans',sans-serif",fontSize:'clamp(32px,5vw,62px)',fontWeight:800,color:'#fff',lineHeight:1.05,marginBottom:20,letterSpacing:-1,position:'relative'}}>
           Get Paid Every Time<br/>
-          <span style={{background:'linear-gradient(135deg,#38bdf8,#7dd3fc,#0ea5e9)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>Someone Joins Your Network</span>
+          <span style={{background:'linear-gradient(135deg,#38bdf8,#7dd3fc,#0ea5e9)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>{t('earnPage.someoneJoins')}</span>
         </h1>
 
         <p className="earn-fade3" style={{fontSize:'clamp(15px,1.8vw,18px)',color:'rgba(200,220,255,.6)',lineHeight:1.7,maxWidth:600,margin:'0 auto 36px',fontWeight:500,position:'relative'}}>
@@ -363,8 +363,8 @@ export default function EarnPage() {
         </p>
 
         <div className="earn-fade4 earn-hero-btns" style={{display:'flex',gap:14,justifyContent:'center',flexWrap:'wrap',marginBottom:48,position:'relative'}}>
-          <button onClick={openReg} className="earn-btn-p">Start Earning Free →</button>
-          <Link to="/how-it-works" className="earn-btn-o">See How It Works</Link>
+          <button onClick={openReg} className="earn-btn-p">{t('earnPage.startEarningFree')}</button>
+          <Link to="/how-it-works" className="earn-btn-o">{t('earnPage.seeHowItWorks')}</Link>
         </div>
 
         {/* Live stats strip */}
@@ -390,9 +390,9 @@ export default function EarnPage() {
       {/* INCOME STREAMS */}
       <section style={{padding:'60px 40px',maxWidth:1100,margin:'0 auto'}}>
         <div style={{textAlign:'center',marginBottom:48}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:12}}>Four Ways to Earn</div>
-          <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,40px)',fontWeight:900,color:'#fff',marginBottom:12}}>Multiple Income Streams. One Platform.</h2>
-          <p style={{fontSize:15,color:'rgba(200,220,255,.45)',maxWidth:560,margin:'0 auto'}}>Most platforms pay you once. SuperAdPro pays you every single month — across four different income streams simultaneously.</p>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:12}}>{t('earnPage.heroTitle')}</div>
+          <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,40px)',fontWeight:900,color:'#fff',marginBottom:12}}>{t("earnPage.heroSubtitle")}</h2>
+          <p style={{fontSize:15,color:'rgba(200,220,255,.45)',maxWidth:560,margin:'0 auto'}}>{t("earnPage.heroDesc")}</p>
         </div>
 
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
@@ -447,8 +447,8 @@ export default function EarnPage() {
       <div style={{maxWidth:1100,margin:'0 auto',padding:'0 40px'}}><div style={{height:1,background:'linear-gradient(90deg,transparent,rgba(56,189,248,.15),transparent)'}}/></div>
       <section style={{padding:'60px 40px',maxWidth:1100,margin:'0 auto'}}>
         <div style={{textAlign:'center',marginBottom:32}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-pink)',marginBottom:12}}>Interactive 3D Visualisation</div>
-          <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,40px)',fontWeight:900,color:'#fff',marginBottom:12}}>Watch Your Network Build in Real-Time</h2>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-pink)',marginBottom:12}}>{t('earnPage.interactive3D')}</div>
+          <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,40px)',fontWeight:900,color:'#fff',marginBottom:12}}>{t('earnPage.watch3DDesc')}</h2>
           <p style={{fontSize:15,color:'rgba(200,220,255,.4)',maxWidth:550,margin:'0 auto',lineHeight:1.6}}>Select a campaign tier and see how 64 members filling your grid generates commissions at every level.</p>
         </div>
         <Grid3DSection />
@@ -459,8 +459,8 @@ export default function EarnPage() {
 
       <section style={{padding:'60px 40px',maxWidth:1100,margin:'0 auto'}}>
         <div style={{textAlign:'center',marginBottom:48}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-green-mid)',marginBottom:12}}>Simple to Start</div>
-          <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,40px)',fontWeight:900,color:'#fff',marginBottom:12}}>Up and Earning in 3 Steps</h2>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-green-mid)',marginBottom:12}}>{t('earnPage.simpleToStart')}</div>
+          <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,40px)',fontWeight:900,color:'#fff',marginBottom:12}}>{t('earnPage.upAndEarning')}</h2>
         </div>
 
         <div className="earn-three" style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:20}}>
@@ -495,15 +495,15 @@ export default function EarnPage() {
               {/* Logo */}
               <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:16,position:'relative'}}>
                 <svg style={{width:22,height:22}} viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="var(--sap-accent)"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
-                <span style={{fontFamily:"'Sora',sans-serif",fontWeight:900,fontSize:15,color:'#fff'}}>SuperAd<span style={{color:'var(--sap-accent-light)'}}>Pro</span></span>
-                <span style={{marginLeft:'auto',fontSize:9,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-accent-light)',border:'1px solid rgba(56,189,248,.25)',borderRadius:20,padding:'2px 8px'}}>Now Open</span>
+                <span style={{fontFamily:"'Sora',sans-serif",fontWeight:900,fontSize:15,color:'#fff'}}>SuperAd<span style={{color:'var(--sap-accent-light)'}}>{t('earnPage.pro')}</span></span>
+                <span style={{marginLeft:'auto',fontSize:9,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-accent-light)',border:'1px solid rgba(56,189,248,.25)',borderRadius:20,padding:'2px 8px'}}>{t('earnPage.nowOpen')}</span>
               </div>
 
               {/* Headline */}
               <div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:900,color:'#fff',lineHeight:1.15,marginBottom:6,position:'relative'}}>
-                Turn Your Network Into<br/><span style={{background:'linear-gradient(135deg,#38bdf8,#7dd3fc)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>Recurring Income</span>
+                Turn Your Network Into<br/><span style={{background:'linear-gradient(135deg,#38bdf8,#7dd3fc)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>{t('earnPage.recurringIncome')}</span>
               </div>
-              <div style={{fontSize:11,color:'rgba(200,220,255,.5)',marginBottom:18,position:'relative'}}>Video advertising meets affiliate marketing.</div>
+              <div style={{fontSize:11,color:'rgba(200,220,255,.5)',marginBottom:18,position:'relative'}}>{t("earnPage.recurringIncomeDesc")}</div>
 
               {/* Mini bullets */}
               {[
@@ -550,10 +550,10 @@ export default function EarnPage() {
 
           {/* Right side text */}
           <div>
-            <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:14}}>Share & Recruit</div>
+            <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:14}}>{t('earnPage.shareRecruit')}</div>
             <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(22px,3vw,34px)',fontWeight:900,color:'#fff',lineHeight:1.2,marginBottom:16}}>
               When You Join, You Get<br/>
-              <span style={{background:'linear-gradient(135deg,#38bdf8,#10b981)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>Your Own Marketing Kit</span>
+              <span style={{background:'linear-gradient(135deg,#38bdf8,#10b981)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>{t('earnPage.yourOwnMarketingKit')}</span>
             </h2>
             <p style={{fontSize:15,color:'rgba(200,220,255,.55)',lineHeight:1.75,marginBottom:24}}>
               Every member gets personalised promotional graphics, a unique referral link, and AI-generated social posts — ready to share on Facebook, Instagram, WhatsApp, or anywhere your audience lives.
@@ -573,7 +573,7 @@ export default function EarnPage() {
               );
             })}
             <div style={{marginTop:28}}>
-              <button onClick={openReg} className="earn-btn-p" style={{fontSize:14}}>Get My Referral Link →</button>
+              <button onClick={openReg} className="earn-btn-p" style={{fontSize:14}}>{t('earnPage.getMyReferralLink')}</button>
             </div>
           </div>
         </div>
@@ -584,8 +584,8 @@ export default function EarnPage() {
 
       <section style={{padding:'60px 40px',maxWidth:900,margin:'0 auto'}}>
         <div style={{textAlign:'center',marginBottom:36}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:12}}>Earnings Simulator</div>
-          <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,38px)',fontWeight:900,color:'#fff',marginBottom:12}}>See What You Could Earn</h2>
+          <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:12}}>{t('earnPage.earningsSimulator')}</div>
+          <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,38px)',fontWeight:900,color:'#fff',marginBottom:12}}>{t('earnPage.seeWhatYouCouldEarn')}</h2>
           <p style={{fontSize:15,color:'rgba(200,220,255,.45)',maxWidth:520,margin:'0 auto'}}>Two income streams, two calculators. See your potential from membership commissions and campaign grid earnings.</p>
         </div>
         <EarningsCalculator onJoin={openReg}/>
@@ -595,9 +595,9 @@ export default function EarnPage() {
       <div style={{maxWidth:1100,margin:'0 auto',padding:'0 40px'}}><div style={{height:1,background:'linear-gradient(90deg,transparent,rgba(56,189,248,.15),transparent)'}}/></div>
 
       <section style={{padding:'60px 40px',maxWidth:900,margin:'0 auto',textAlign:'center'}}>
-        <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'#a5b4fc',marginBottom:12}}>Simple Pricing</div>
-        <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,38px)',fontWeight:900,color:'#fff',marginBottom:12}}>One Membership. Four Income Streams.</h2>
-        <p style={{fontSize:15,color:'rgba(200,220,255,.45)',maxWidth:520,margin:'0 auto 40px'}}>Refer just 2 Basic members and your membership pays for itself every month.</p>
+        <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'#a5b4fc',marginBottom:12}}>{t('earnPage.simplePricing')}</div>
+        <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,38px)',fontWeight:900,color:'#fff',marginBottom:12}}>{t("earnPage.oneMembership")}</h2>
+        <p style={{fontSize:15,color:'rgba(200,220,255,.45)',maxWidth:520,margin:'0 auto 40px'}}>{t("earnPage.pricingDesc")}</p>
 
         <div className="earn-two" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,maxWidth:700,margin:'0 auto 32px'}}>
           {[
@@ -609,7 +609,7 @@ export default function EarnPage() {
                 {p.highlight && <div style={{position:'absolute',top:14,right:14,fontSize:9,fontWeight:800,letterSpacing:1,textTransform:'uppercase',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',padding:'3px 10px',borderRadius:20}}>★ Recommended</div>}
                 <div style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:p.highlight?'var(--sap-accent-light)':'rgba(200,220,255,.4)',marginBottom:8}}>{p.name}</div>
                 <div style={{fontFamily:"'Sora',sans-serif",fontSize:36,fontWeight:900,color:'#fff',lineHeight:1,marginBottom:4}}>{p.price}<span style={{fontSize:14,fontWeight:500,color:'rgba(200,220,255,.4)'}}>{p.period}</span></div>
-                <div style={{fontSize:12,color:'rgba(200,220,255,.35)',marginBottom:20}}>per member per month</div>
+                <div style={{fontSize:12,color:'rgba(200,220,255,.35)',marginBottom:20}}>{t("earnPage.perMemberPerMonth")}</div>
                 <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:24}}>
                   {p.features.map(function(f){
                     return <div key={f} style={{display:'flex',alignItems:'center',gap:8,fontSize:13,color:'rgba(200,220,255,.65)'}}>
@@ -635,12 +635,12 @@ export default function EarnPage() {
         <div style={{position:'absolute',inset:0,background:'radial-gradient(ellipse 60% 80% at 50% 100%,rgba(14,165,233,.08),transparent 60%)',pointerEvents:'none'}}/>
         <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(26px,4vw,48px)',fontWeight:900,color:'#fff',marginBottom:12,position:'relative'}}>
           Ready to Start<br/>
-          <span style={{background:'linear-gradient(135deg,#38bdf8,#10b981)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>Earning With Us?</span>
+          <span style={{background:'linear-gradient(135deg,#38bdf8,#10b981)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>{t("earnPage.earningWithUs")}</span>
         </h2>
-        <p style={{fontSize:16,color:'rgba(200,220,255,.55)',marginBottom:32,position:'relative'}}>Join free today. No credit card. No commitment. Just your referral link and four ways to earn.</p>
+        <p style={{fontSize:16,color:'rgba(200,220,255,.55)',marginBottom:32,position:'relative'}}>{t("earnPage.ctaDesc")}</p>
         <div className="earn-hero-btns" style={{display:'flex',gap:14,justifyContent:'center',flexWrap:'wrap',marginBottom:24,position:'relative'}}>
-          <button onClick={openReg} className="earn-btn-p" style={{fontSize:16,padding:'15px 44px'}}>Create Free Account →</button>
-          <Link to="/" className="earn-btn-o">Back to Homepage</Link>
+          <button onClick={openReg} className="earn-btn-p" style={{fontSize:16,padding:'15px 44px'}}>{t('earnPage.createFreeAccount')}</button>
+          <Link to="/" className="earn-btn-o">{t('earnPage.backToHomepage')}</Link>
         </div>
         <div style={{display:'flex',justifyContent:'center',gap:24,flexWrap:'wrap',position:'relative'}}>
           {['✓ Free to join','✓ Instant referral link','✓ Cancel anytime','✓ Pay out to your wallet'].map(function(t){
@@ -653,7 +653,7 @@ export default function EarnPage() {
       <footer style={{borderTop:'1px solid rgba(56,189,248,.1)',padding:'20px 40px',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:12}}>
         <Link to="/" style={{textDecoration:'none',display:'flex',alignItems:'center',gap:8}}>
           <svg style={{width:20,height:20}} viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="var(--sap-accent)"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
-          <span style={{fontFamily:"'Sora',sans-serif",fontWeight:800,fontSize:15,color:'#fff'}}>SuperAd<span style={{color:cyan}}>Pro</span></span>
+          <span style={{fontFamily:"'Sora',sans-serif",fontWeight:800,fontSize:15,color:'#fff'}}>SuperAd<span style={{color:cyan}}>{t('earnPage.pro')}</span></span>
         </Link>
         <div style={{display:'flex',gap:20}}>
           {[['How It Works','/how-it-works'],['FAQ','/faq'],['Legal','/legal'],['Support','/support']].map(function([l,h]){
@@ -670,30 +670,30 @@ export default function EarnPage() {
         <div onClick={function(e){if(e.target===e.currentTarget)setRegOpen(false);}} style={{position:'fixed',inset:0,background:'rgba(2,6,18,.9)',backdropFilter:'blur(8px)',zIndex:9999,display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
           <div style={{background:'#111827',border:'1px solid rgba(56,189,248,.2)',borderRadius:16,padding:'36px 40px',width:'100%',maxWidth:460,position:'relative',boxShadow:'0 32px 80px rgba(0,0,0,.8)'}}>
             <button onClick={function(){setRegOpen(false);}} style={{position:'absolute',top:14,right:16,background:'none',border:'none',color:'rgba(148,163,184,.6)',fontSize:20,cursor:'pointer',lineHeight:1}}>✕</button>
-            <div style={{fontSize:22,fontWeight:800,color:'#fff',marginBottom:4}}>Create Your Free Account</div>
+            <div style={{fontSize:22,fontWeight:800,color:'#fff',marginBottom:4}}>{t('earnPage.createYourFreeAccount')}</div>
             <div style={{fontSize:14,color:'rgba(148,163,184,.7)',marginBottom:20}}>Takes 60 seconds · No credit card required</div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
               <div>
-                <label style={{display:'block',fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>First Name</label>
+                <label style={{display:'block',fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>{t('earnPage.firstName')}</label>
                 <input style={{width:'100%',padding:'10px 13px',border:'1.5px solid rgba(56,189,248,.15)',borderRadius:8,background:'rgba(56,189,248,.04)',color:'var(--sap-bg-page)',fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} placeholder="John"/>
               </div>
               <div>
-                <label style={{display:'block',fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>Username</label>
+                <label style={{display:'block',fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>{t('earnPage.username')}</label>
                 <input style={{width:'100%',padding:'10px 13px',border:'1.5px solid rgba(56,189,248,.15)',borderRadius:8,background:'rgba(56,189,248,.04)',color:'var(--sap-bg-page)',fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} placeholder="johnsmith"/>
               </div>
             </div>
             <div style={{marginBottom:12}}>
-              <label style={{display:'block',fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>Email Address</label>
+              <label style={{display:'block',fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>{t('earnPage.emailAddress')}</label>
               <input type="email" style={{width:'100%',padding:'10px 13px',border:'1.5px solid rgba(56,189,248,.15)',borderRadius:8,background:'rgba(56,189,248,.04)',color:'var(--sap-bg-page)',fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} placeholder="john@example.com"/>
             </div>
             <div style={{marginBottom:20}}>
-              <label style={{display:'block',fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>Password</label>
+              <label style={{display:'block',fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>{t('earnPage.password')}</label>
               <input type="password" style={{width:'100%',padding:'10px 13px',border:'1.5px solid rgba(56,189,248,.15)',borderRadius:8,background:'rgba(56,189,248,.04)',color:'var(--sap-bg-page)',fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} placeholder="Min. 8 characters"/>
             </div>
             <Link to="/register" onClick={function(){setRegOpen(false);}} style={{display:'block',width:'100%',padding:'13px',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',border:'none',borderRadius:10,color:'#fff',fontSize:15,fontWeight:800,fontFamily:'inherit',cursor:'pointer',textAlign:'center',textDecoration:'none',boxSizing:'border-box'}}>
               Create Account →
             </Link>
-            <div style={{textAlign:'center',marginTop:12,fontSize:13,color:'rgba(148,163,184,.5)'}}>Already have an account? <Link to="/login" onClick={function(){setRegOpen(false);}} style={{color:'rgba(56,189,248,.8)',textDecoration:'none',fontWeight:600}}>Sign in →</Link></div>
+            <div style={{textAlign:'center',marginTop:12,fontSize:13,color:'rgba(148,163,184,.5)'}}>Already have an account? <Link to="/login" onClick={function(){setRegOpen(false);}} style={{color:'rgba(56,189,248,.8)',textDecoration:'none',fontWeight:600}}>{t('earnPage.signInLink')}</Link></div>
           </div>
         </div>
       )}

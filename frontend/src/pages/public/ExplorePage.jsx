@@ -22,12 +22,12 @@ export default function ExplorePage() {
           <div style={{ width:36, height:36, borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#6366f1)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 12px rgba(14,165,233,0.3)' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><polygon points="10,4 10,20 21,12" fill="#fff"/></svg>
           </div>
-          <span style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:900, color:'#fff' }}>SuperAd<span style={{ color:'var(--sap-accent-light)' }}>Pro</span></span>
+          <span style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:900, color:'#fff' }}>SuperAd<span style={{ color:'var(--sap-accent-light)' }}>{t('explorePage.pro')}</span></span>
         </Link>
         <div className="exp-nav-links exp-nav" style={{ display:'flex', alignItems:'center', gap:24 }}>
-          <Link to="/explore" style={{ fontSize:14, fontWeight:600, color:'var(--sap-accent-light)', textDecoration:'none' }}>Explore</Link>
-          <Link to="/login" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>Sign In</Link>
-          <Link to="/register" style={{ padding:'10px 24px', borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', fontSize:13, fontWeight:800, textDecoration:'none' }}>Join Free</Link>
+          <Link to="/explore" style={{ fontSize:14, fontWeight:600, color:'var(--sap-accent-light)', textDecoration:'none' }}>{t('explorePage.title')}</Link>
+          <Link to="/login" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>{t('explorePage.signIn')}</Link>
+          <Link to="/register" style={{ padding:'10px 24px', borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', fontSize:13, fontWeight:800, textDecoration:'none' }}>{t('explorePage.joinFree')}</Link>
         </div>
       </nav>
 
@@ -46,14 +46,14 @@ export default function ExplorePage() {
             <div style={{ width:80, height:80, borderRadius:'50%', background:'linear-gradient(135deg,#0ea5e9,#6366f1)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 8px 32px rgba(14,165,233,0.4)', marginBottom:16 }}>
               <svg width="32" height="32" viewBox="0 0 24 24" fill="none"><polygon points="9,5 9,19 20,12" fill="#fff"/></svg>
             </div>
-            <div style={{ fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:700, color:'rgba(255,255,255,0.7)' }}>Welcome Video Coming Soon</div>
+            <div style={{ fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:700, color:'rgba(255,255,255,0.7)' }}>{t('explorePage.welcomeVideoComingSoon')}</div>
           </div>
 
           {/* Two Path Cards + Free Tools */}
           <div className="exp-paths" style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:24 }}>
             <Link to="/how-it-works" className="exp-path" style={{ textDecoration:'none', background:'rgba(14,165,233,0.06)', border:'1px solid rgba(14,165,233,0.15)', borderRadius:24, padding:'44px 32px', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', backdropFilter:'blur(8px)' }}>
               <div style={{ width:72, height:72, borderRadius:20, background:'rgba(14,165,233,0.1)', border:'1px solid rgba(14,165,233,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:32, marginBottom:24 }}>🚀</div>
-              <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:900, color:'#fff', marginBottom:10 }}>What is SuperAdPro?</div>
+              <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:900, color:'#fff', marginBottom:10 }}>{t('explorePage.whatIsSuperAdPro')}</div>
               <p style={{ fontSize:15, color:'rgba(255,255,255,0.45)', lineHeight:1.7, marginBottom:24, flex:1 }}>
                 Discover the platform, the creative tools,<br/>
                 and how everything works together.
@@ -65,7 +65,7 @@ export default function ExplorePage() {
 
             <Link to="/earn" className="exp-path" style={{ textDecoration:'none', background:'rgba(251,191,36,0.06)', border:'1px solid rgba(251,191,36,0.15)', borderRadius:24, padding:'44px 32px', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', backdropFilter:'blur(8px)' }}>
               <div style={{ width:72, height:72, borderRadius:20, background:'rgba(251,191,36,0.1)', border:'1px solid rgba(251,191,36,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:32, marginBottom:24 }}>💰</div>
-              <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:900, color:'#fff', marginBottom:10 }}>How Do I Earn?</div>
+              <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:900, color:'#fff', marginBottom:10 }}>{t('explorePage.howDoIEarn')}</div>
               <p style={{ fontSize:15, color:'rgba(255,255,255,0.45)', lineHeight:1.7, marginBottom:24, flex:1 }}>
                 See the full affiliate programme,<br/>
                 the income streams, and what you can make.
@@ -77,22 +77,22 @@ export default function ExplorePage() {
 
             <div className="exp-path" style={{ textDecoration:'none', background:'rgba(34,211,238,0.06)', border:'1px solid rgba(34,211,238,0.15)', borderRadius:24, padding:'44px 32px', textAlign:'center', display:'flex', flexDirection:'column', alignItems:'center', backdropFilter:'blur(8px)' }}>
               <div style={{ width:72, height:72, borderRadius:20, background:'rgba(34,211,238,0.1)', border:'1px solid rgba(34,211,238,0.2)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:32, marginBottom:24 }}>🎨</div>
-              <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:900, color:'#fff', marginBottom:10 }}>Free Tools</div>
+              <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:900, color:'#fff', marginBottom:10 }}>{t('explorePage.freeTools')}</div>
               <p style={{ fontSize:15, color:'rgba(255,255,255,0.45)', lineHeight:1.7, marginBottom:24, flex:1 }}>
                 Meme generator, QR codes, social media banners & profile pictures.<br/>
                 100% free, no signup required.
               </p>
               <div style={{ display:'flex', flexDirection:'column', gap:8, width:'100%' }}>
-                <Link to="/free/meme-generator" style={{ display:'block', padding:'10px 16px', borderRadius:10, background:'rgba(34,211,238,0.08)', border:'1px solid rgba(34,211,238,0.15)', color:'#22d3ee', fontFamily:"'Sora',sans-serif", fontSize:13, fontWeight:700, textDecoration:'none', transition:'all 0.2s' }}>Meme Generator →</Link>
-                <Link to="/free/qr-code-generator" style={{ display:'block', padding:'10px 16px', borderRadius:10, background:'rgba(34,211,238,0.08)', border:'1px solid rgba(34,211,238,0.15)', color:'#22d3ee', fontFamily:"'Sora',sans-serif", fontSize:13, fontWeight:700, textDecoration:'none', transition:'all 0.2s' }}>QR Code Generator →</Link>
-                <Link to="/free/banner-creator" style={{ display:'block', padding:'10px 16px', borderRadius:10, background:'rgba(34,211,238,0.08)', border:'1px solid rgba(34,211,238,0.15)', color:'#22d3ee', fontFamily:"'Sora',sans-serif", fontSize:13, fontWeight:700, textDecoration:'none', transition:'all 0.2s' }}>Banner & Profile Creator →</Link>
+                <Link to="/free/meme-generator" style={{ display:'block', padding:'10px 16px', borderRadius:10, background:'rgba(34,211,238,0.08)', border:'1px solid rgba(34,211,238,0.15)', color:'#22d3ee', fontFamily:"'Sora',sans-serif", fontSize:13, fontWeight:700, textDecoration:'none', transition:'all 0.2s' }}>{t('explorePage.memeGenerator')}</Link>
+                <Link to="/free/qr-code-generator" style={{ display:'block', padding:'10px 16px', borderRadius:10, background:'rgba(34,211,238,0.08)', border:'1px solid rgba(34,211,238,0.15)', color:'#22d3ee', fontFamily:"'Sora',sans-serif", fontSize:13, fontWeight:700, textDecoration:'none', transition:'all 0.2s' }}>{t('explorePage.qrCodeGenerator')}</Link>
+                <Link to="/free/banner-creator" style={{ display:'block', padding:'10px 16px', borderRadius:10, background:'rgba(34,211,238,0.08)', border:'1px solid rgba(34,211,238,0.15)', color:'#22d3ee', fontFamily:"'Sora',sans-serif", fontSize:13, fontWeight:700, textDecoration:'none', transition:'all 0.2s' }}>{t('explorePage.bannerCreator')}</Link>
               </div>
             </div>
           </div>
 
           {/* Quick CTA */}
           <div style={{ marginTop:48 }}>
-            <Link to="/register" style={{ display:'inline-block', padding:'18px 52px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:17, fontWeight:800, textDecoration:'none', background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', boxShadow:'0 4px 24px rgba(14,165,233,0.25)', transition:'all 0.3s' }}>Create Your Free Account →</Link>
+            <Link to="/register" style={{ display:'inline-block', padding:'18px 52px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:17, fontWeight:800, textDecoration:'none', background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', boxShadow:'0 4px 24px rgba(14,165,233,0.25)', transition:'all 0.3s' }}>{t('explorePage.createFreeAccount')}</Link>
             <div style={{ fontSize:13, color:'rgba(255,255,255,0.3)', marginTop:14 }}>Free to join · No credit card · 60 seconds</div>
           </div>
         </div>
@@ -101,7 +101,7 @@ export default function ExplorePage() {
       {/* Footer */}
       <footer style={{ position:'relative', zIndex:1, textAlign:'center', padding:'40px 24px', borderTop:'1px solid rgba(255,255,255,0.04)' }}>
         <p style={{ fontSize:11, color:'rgba(255,255,255,0.15)', lineHeight:1.7 }}>
-          SuperAdPro · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>Terms</Link> · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>Privacy</Link> · <Link to="/support" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>Support</Link>
+          SuperAdPro · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>{t('explorePage.terms')}</Link> · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>{t('explorePage.privacy')}</Link> · <Link to="/support" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>{t('explorePage.support')}</Link>
         </p>
       </footer>
     </div>

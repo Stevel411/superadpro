@@ -45,13 +45,13 @@ export default function AffiliatePlan() {
           <div style={{ width:36, height:36, borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#6366f1)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 2px 12px rgba(14,165,233,0.3)' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><polygon points="10,4 10,20 21,12" fill="#fff"/></svg>
           </div>
-          <span style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:900, color:'#fff' }}>SuperAd<span style={{ color:'var(--sap-accent-light)' }}>Pro</span></span>
+          <span style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:900, color:'#fff' }}>SuperAd<span style={{ color:'var(--sap-accent-light)' }}>{t('affiliatePlan.pro')}</span></span>
         </Link>
         <div className="hiw-nav-links hiw-nav" style={{ display:'flex', alignItems:'center', gap:24 }}>
-          <Link to="/explore" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>Explore</Link>
-          <Link to="/earn" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>Earn</Link>
-          <Link to="/login" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>Sign In</Link>
-          <Link to="/register" style={{ padding:'10px 24px', borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', fontSize:13, fontWeight:800, textDecoration:'none' }}>Join Free</Link>
+          <Link to="/explore" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>{t('affiliatePlan.explore')}</Link>
+          <Link to="/earn" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>{t('affiliatePlan.earn')}</Link>
+          <Link to="/login" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>{t('affiliatePlan.signIn')}</Link>
+          <Link to="/register" style={{ padding:'10px 24px', borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', fontSize:13, fontWeight:800, textDecoration:'none' }}>{t('affiliatePlan.joinFree')}</Link>
         </div>
       </nav>
 
@@ -71,7 +71,7 @@ export default function AffiliatePlan() {
           </Reveal>
           <Reveal delay={0.1}>
             <h1 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(40px,6vw,72px)', fontWeight:900, lineHeight:0.92, marginBottom:20, letterSpacing:-2, maxWidth:550 }}>
-              Three Steps to<br/><span style={{ color:accent }}>Earning Money.</span>
+              Three Steps to<br/><span style={{ color:accent }}>{t('affiliatePlan.earningMoney')}</span>
             </h1>
           </Reveal>
           <Reveal delay={0.2}>
@@ -82,7 +82,7 @@ export default function AffiliatePlan() {
           </Reveal>
           <Reveal delay={0.3}>
             <div style={{ display:'flex', gap:14, flexWrap:'wrap' }}>
-              <Link to="/register" style={{ padding:'18px 44px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:800, textDecoration:'none', background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', boxShadow:'0 4px 24px rgba(14,165,233,0.25)', transition:'all 0.3s' }}>Get Started Free →</Link>
+              <Link to="/register" style={{ padding:'18px 44px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:800, textDecoration:'none', background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', boxShadow:'0 4px 24px rgba(14,165,233,0.25)', transition:'all 0.3s' }}>{t('affiliatePlan.getStartedFree')}</Link>
               <a href="#video" style={{ padding:'18px 44px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:800, textDecoration:'none', border:'1px solid rgba(255,255,255,0.12)', background:'rgba(0,0,0,0.2)', color:'#fff', transition:'all 0.3s', backdropFilter:'blur(4px)' }}>▶ Watch Video</a>
             </div>
           </Reveal>
@@ -94,8 +94,8 @@ export default function AffiliatePlan() {
         <div style={{ maxWidth:800, margin:'0 auto' }}>
           <Reveal>
             <div style={{ textAlign:'center', marginBottom:32 }}>
-              <h2 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(24px,4vw,36px)', fontWeight:900, marginBottom:8 }}>See It in Action</h2>
-              <p style={{ fontSize:16, color:'rgba(255,255,255,0.45)' }}>Watch how SuperAdPro works in under 2 minutes</p>
+              <h2 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(24px,4vw,36px)', fontWeight:900, marginBottom:8 }}>{t('affiliatePlan.seeItInAction')}</h2>
+              <p style={{ fontSize:16, color:'rgba(255,255,255,0.45)' }}>{t("affiliatePlan.watchHowItWorks")}</p>
             </div>
           </Reveal>
           <Reveal delay={0.1}>
@@ -116,8 +116,8 @@ export default function AffiliatePlan() {
       {/* ═══ 3 STEPS ═══ */}
       <section style={{ padding:'80px 24px' }}>
         <div style={{ maxWidth:960, margin:'0 auto' }}>
-          <Reveal><h2 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(28px,4vw,42px)', fontWeight:900, textAlign:'center', marginBottom:8 }}>Simple as 1, 2, 3.</h2></Reveal>
-          <Reveal delay={0.1}><p style={{ fontSize:17, color:'rgba(255,255,255,0.4)', textAlign:'center', maxWidth:480, margin:'0 auto 48px' }}>No complicated funnels. No tech headaches. Just three steps.</p></Reveal>
+          <Reveal><h2 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(28px,4vw,42px)', fontWeight:900, textAlign:'center', marginBottom:8 }}>{t('affiliatePlan.simpleAs123')}</h2></Reveal>
+          <Reveal delay={0.1}><p style={{ fontSize:17, color:'rgba(255,255,255,0.4)', textAlign:'center', maxWidth:480, margin:'0 auto 48px' }}>{t("affiliatePlan.simpleAs123Desc")}</p></Reveal>
 
           <div className="hiw-steps-grid" style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:20 }}>
             {[
@@ -145,8 +145,8 @@ export default function AffiliatePlan() {
       {/* ═══ FOUR INCOME STREAMS ═══ */}
       <section style={{ padding:'80px 24px', background:'linear-gradient(180deg,#172554,#172554,#172554)' }}>
         <div style={{ maxWidth:960, margin:'0 auto' }}>
-          <Reveal><h2 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(28px,4vw,42px)', fontWeight:900, textAlign:'center', marginBottom:8 }}>Four Income Streams. One Platform.</h2></Reveal>
-          <Reveal delay={0.1}><p style={{ fontSize:17, color:'rgba(255,255,255,0.4)', textAlign:'center', maxWidth:500, margin:'0 auto 48px' }}>Each one works independently. Together they compound.</p></Reveal>
+          <Reveal><h2 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(28px,4vw,42px)', fontWeight:900, textAlign:'center', marginBottom:8 }}>{t('affiliatePlan.fourIncomeStreams')}</h2></Reveal>
+          <Reveal delay={0.1}><p style={{ fontSize:17, color:'rgba(255,255,255,0.4)', textAlign:'center', maxWidth:500, margin:'0 auto 48px' }}>{t("affiliatePlan.fourIncomeStreamsDesc")}</p></Reveal>
 
           <div className="hiw-streams" style={{ display:'grid', gridTemplateColumns:'repeat(2,1fr)', gap:16 }}>
             {[
@@ -158,7 +158,7 @@ export default function AffiliatePlan() {
               return (
                 <Reveal key={i} delay={i * 0.1}>
                   <div className="hiw-card" style={{ background:'rgba(255,255,255,0.02)', border:'1px solid rgba(255,255,255,0.06)', borderTop:'3px solid '+s.color, borderRadius:20, padding:'32px 28px', transition:'all 0.3s', height:'100%', position:'relative' }}>
-                    {s.comingSoon && <div style={{ position:'absolute', top:16, right:16, padding:'5px 14px', borderRadius:8, background:'rgba(251,191,36,0.12)', border:'1px solid rgba(251,191,36,0.25)', fontFamily:"'Sora',sans-serif", fontSize:10, fontWeight:800, color:'var(--sap-amber-bright)', letterSpacing:1.5, textTransform:'uppercase' }}>Coming Soon</div>}
+                    {s.comingSoon && <div style={{ position:'absolute', top:16, right:16, padding:'5px 14px', borderRadius:8, background:'rgba(251,191,36,0.12)', border:'1px solid rgba(251,191,36,0.25)', fontFamily:"'Sora',sans-serif", fontSize:10, fontWeight:800, color:'var(--sap-amber-bright)', letterSpacing:1.5, textTransform:'uppercase' }}>{t('affiliatePlan.comingSoon')}</div>}
                     <div style={{ fontFamily:"'Sora',sans-serif", fontSize:18, fontWeight:800, color:'#fff', marginBottom:6 }}>{s.name}</div>
                     <div style={{ fontFamily:"'Sora',sans-serif", fontSize:36, fontWeight:900, color:s.color, marginBottom:4 }}>{s.rate}</div>
                     <div style={{ fontSize:12, fontWeight:700, color:'rgba(255,255,255,0.3)', textTransform:'uppercase', letterSpacing:1, marginBottom:12 }}>{s.sub}</div>
@@ -171,7 +171,7 @@ export default function AffiliatePlan() {
 
           <Reveal delay={0.3}>
             <div style={{ textAlign:'center', marginTop:40 }}>
-              <Link to="/earn" style={{ fontFamily:"'Sora',sans-serif", fontSize:15, fontWeight:800, color:accent, textDecoration:'none', borderBottom:'2px solid '+accent, paddingBottom:4, transition:'all 0.2s' }}>See the full compensation plan →</Link>
+              <Link to="/earn" style={{ fontFamily:"'Sora',sans-serif", fontSize:15, fontWeight:800, color:accent, textDecoration:'none', borderBottom:'2px solid '+accent, paddingBottom:4, transition:'all 0.2s' }}>{t('affiliatePlan.seeFullCompPlan')}</Link>
             </div>
           </Reveal>
         </div>
@@ -180,8 +180,8 @@ export default function AffiliatePlan() {
       {/* ═══ WHAT YOU GET ═══ */}
       <section style={{ padding:'80px 24px' }}>
         <div style={{ maxWidth:960, margin:'0 auto' }}>
-          <Reveal><h2 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(28px,4vw,42px)', fontWeight:900, textAlign:'center', marginBottom:8 }}>What's Included.</h2></Reveal>
-          <Reveal delay={0.1}><p style={{ fontSize:17, color:'rgba(255,255,255,0.4)', textAlign:'center', maxWidth:480, margin:'0 auto 48px' }}>Every member gets access to tools that power any online business.</p></Reveal>
+          <Reveal><h2 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(28px,4vw,42px)', fontWeight:900, textAlign:'center', marginBottom:8 }}>{t('affiliatePlan.whatsIncluded')}</h2></Reveal>
+          <Reveal delay={0.1}><p style={{ fontSize:17, color:'rgba(255,255,255,0.4)', textAlign:'center', maxWidth:480, margin:'0 auto 48px' }}>{t("affiliatePlan.whatsIncludedDesc")}</p></Reveal>
 
           <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:14 }}>
             {[
@@ -211,14 +211,14 @@ export default function AffiliatePlan() {
         <div style={{ maxWidth:600, margin:'0 auto' }}>
           <Reveal>
             <h2 style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(30px,5vw,48px)', fontWeight:900, marginBottom:16 }}>
-              Ready to start<br/><span style={{ color:accent }}>earning?</span>
+              Ready to start<br/><span style={{ color:accent }}>{t("affiliatePlan.readyToStartEarning")}</span>
             </h2>
           </Reveal>
           <Reveal delay={0.1}>
-            <p style={{ fontSize:17, color:'rgba(255,255,255,0.4)', marginBottom:32 }}>Free to join. No credit card. Set up in 60 seconds.</p>
+            <p style={{ fontSize:17, color:'rgba(255,255,255,0.4)', marginBottom:32 }}>{t("affiliatePlan.ctaDesc")}</p>
           </Reveal>
           <Reveal delay={0.2}>
-            <Link to="/register" style={{ display:'inline-block', padding:'20px 56px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:18, fontWeight:800, textDecoration:'none', background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', boxShadow:'0 4px 24px rgba(14,165,233,0.25)', transition:'all 0.3s' }}>Create Your Free Account →</Link>
+            <Link to="/register" style={{ display:'inline-block', padding:'20px 56px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:18, fontWeight:800, textDecoration:'none', background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', boxShadow:'0 4px 24px rgba(14,165,233,0.25)', transition:'all 0.3s' }}>{t('affiliatePlan.createFreeAccount')}</Link>
           </Reveal>
         </div>
       </section>
@@ -226,7 +226,7 @@ export default function AffiliatePlan() {
       {/* Footer */}
       <footer style={{ textAlign:'center', padding:'40px 24px', borderTop:'1px solid rgba(255,255,255,0.04)' }}>
         <p style={{ fontSize:11, color:'rgba(255,255,255,0.15)', lineHeight:1.7 }}>
-          SuperAdPro · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>Terms</Link> · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>Privacy</Link> · <Link to="/support" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>Support</Link>
+          SuperAdPro · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>{t('affiliatePlan.terms')}</Link> · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>{t('affiliatePlan.privacy')}</Link> · <Link to="/support" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>{t('affiliatePlan.support')}</Link>
         </p>
         <p style={{ fontSize:11, color:'rgba(255,255,255,0.1)', marginTop:6 }}>Income figures represent the compensation plan structure. Results depend on individual effort.</p>
       </footer>
