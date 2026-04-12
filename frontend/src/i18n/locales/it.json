@@ -2200,7 +2200,22 @@
     "l2Label": "L2 (9 members × 15%)",
     "l3Label": "L3 (27 members × 10%)",
     "completionBonusLabel": "Bonus completamento",
-    "emptySlot": "Vuoto"
+    "emptySlot": "Vuoto",
+    "yourNexusTitle": "Your 3×3 Nexus",
+    "nexusNumber": "Nexus #{{number}} — {{filled}}/{{max}} filled",
+    "percentComplete": "{{pct}}% complete",
+    "positionsOf": "{{filled}} of {{max}} positions",
+    "levelStats": "Level {{level}} — {{rate}}% — {{filled}}/{{max}} filled — ${{earned}} earned",
+    "totalLabel": "{{amount}} total",
+    "matrixCompleteBonusLabel": "Nexus Complete Bonus",
+    "levelFromUser": "L{{level}} from {{user}}",
+    "rateOfPack": "{{rate}}% of ${{price}} pack",
+    "matrixCompletionReward": "Nexus completion reward",
+    "boughtPack": "bought {{pack}} pack",
+    "paymentWindowOpened": "Payment window opened — complete your USDT payment to receive {{credits}} credits. Your nexus will update automatically once payment is confirmed.",
+    "creditsAwarded": "{{credits}} credits awarded!",
+    "commissionsEarned": "${{amount}} in commissions paid to your upline.",
+    "purchaseFailed": "Purchase failed"
   },
   "matrixVis": {
     "title": "Nexus Profitti",
