@@ -21,8 +21,7 @@ var CATEGORIES = [
 ];
 
 export default function SuperMarket() {
-
-  var { t } = useTranslation();  var [view, setView] = useState('browse');
+  var [view, setView] = useState('browse');
   var [products, setProducts] = useState([]);
   var [myProducts, setMyProducts] = useState([]);
   var [loading, setLoading] = useState(true);
@@ -66,8 +65,7 @@ export default function SuperMarket() {
 }
 
 function BrowseView({ products, allProducts, search, setSearch, category, setCategory, sortBy, setSortBy, onOpen, onMyProducts, onCreate }) {
-
-  var { t } = useTranslation();  return (
+  return (
     <div>
       {/* Hero — Cyan Theme */}
       <div style={{background:'linear-gradient(135deg,#042a36,#0a1e2a,#0d2530)',borderRadius:16,padding:'40px 44px',marginBottom:24,position:'relative',overflow:'hidden',border:'1px solid rgba(14,165,233,.15)'}}>
@@ -170,8 +168,7 @@ function BrowseView({ products, allProducts, search, setSearch, category, setCat
 }
 
 function ProductCard({ product, onOpen }) {
-
-  var { t } = useTranslation();  var p=product;
+  var p=product;
   var catObj=CATEGORIES.find(function(x){return x.key===p.category;})||CATEGORIES[CATEGORIES.length-1];
   return (
     <div onClick={onOpen} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',cursor:'pointer',transition:'all .2s',display:'flex',flexDirection:'column',boxShadow:'0 2px 12px rgba(0,0,0,.04)'}}
@@ -206,8 +203,7 @@ function ProductCard({ product, onOpen }) {
 }
 
 function ProductDetail({ product, onBack, currentUserId }) {
-
-  var { t } = useTranslation();  var [copied, setCopied] = useState(false);
+  var [copied, setCopied] = useState(false);
   var p = product;
   var isOwner = currentUserId && p.creator_id === currentUserId;
   var earnPerSale = formatMoney((p.price||0)*0.25);
@@ -303,8 +299,7 @@ function ProductDetail({ product, onBack, currentUserId }) {
 }
 
 function MyProducts({ products, onBack, onCreate, onReload }) {
-
-  var { t } = useTranslation();  var [deleting, setDeleting] = useState('');
+  var [deleting, setDeleting] = useState('');
 
   function handleDelete(id, title, hasSales) {
     if (hasSales) {

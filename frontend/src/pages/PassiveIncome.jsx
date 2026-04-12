@@ -52,8 +52,7 @@ function Bar({ pct, gradient, height = 8 }) {
 
 // ── Main component ────────────────────────────────────────
 export default function PassiveIncome({ d }) {
-
-  var { t } = useTranslation();  var gridStats = (d?.grid_stats && typeof d.grid_stats === 'object' && !Array.isArray(d.grid_stats)) ? d.grid_stats : {};
+  var gridStats = (d?.grid_stats && typeof d.grid_stats === 'object' && !Array.isArray(d.grid_stats)) ? d.grid_stats : {};
   var activeGrids = Array.isArray(gridStats.active_grids_detail) ? gridStats.active_grids_detail : [];
   var totalBonus = d?.bonus_earnings || 0;
   var gridEarnings = d?.grid_earnings || 0;

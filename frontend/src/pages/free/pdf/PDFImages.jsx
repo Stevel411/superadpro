@@ -3,8 +3,7 @@ import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 export default function PDFImages() {
-
-  var { t } = useTranslation();  const [images, setImages] = useState([]);
+  const [images, setImages] = useState([]);
   const [pageSize, setPageSize] = useState('A4');
   const [orientation, setOrientation] = useState('portrait');
   const [fitting, setFitting] = useState('fit');

@@ -181,8 +181,7 @@ export default function VideoCreator() {
 }
 
 export function VideoCreatorContent() {
-
-  var { t } = useTranslation();  var [prompt, setPrompt] = useState('');
+  var [prompt, setPrompt] = useState('');
   var [style, setStyle] = useState('professional');
   var [duration, setDuration] = useState(60);
   var [aspect, setAspect] = useState('landscape');

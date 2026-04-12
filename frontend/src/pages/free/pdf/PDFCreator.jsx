@@ -100,8 +100,7 @@ let nextId = 100;
 const uid = () => 'el_' + (nextId++);
 
 export default function PDFCreator() {
-
-  var { t } = useTranslation();  const [elements, setElements] = useState([]);
+  const [elements, setElements] = useState([]);
   const [selectedId, setSelectedId] = useState(null);
   const [pageSize, setPageSize] = useState('A4');
   const [orientation, setOrientation] = useState('portrait');

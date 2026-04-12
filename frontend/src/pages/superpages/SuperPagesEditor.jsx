@@ -344,8 +344,7 @@ export default function SuperPagesEditor() {
 
 // ═══ Element Editor Modal ═══
 function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }) {
-
-  var { t } = useTranslation();  const actualEl = els.find(x => x.id === elId) || el;
+  const actualEl = els.find(x => x.id === elId) || el;
   const [localTxt, setLocalTxt] = useState(actualEl.txt || '');
   const [localUrl, setLocalUrl] = useState(actualEl.url || '');
 

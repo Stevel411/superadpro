@@ -263,8 +263,7 @@ export default function CourseEditor() {
 // ═══════════════════════════════════════════════════════════════
 
 function LectureEditor({lecture, onSave, onReload}){
-
-  var { t } = useTranslation();  var [title, setTitle] = useState(lecture.title);
+  var [title, setTitle] = useState(lecture.title);
   var [contentType, setContentType] = useState(lecture.content_type||'video');
   var [videoUrl, setVideoUrl] = useState(lecture.video_url||'');
   var [textContent, setTextContent] = useState(lecture.text_content||'');

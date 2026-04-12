@@ -3,8 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function PublicLayout({ children }) {
-
-  var { t } = useTranslation();  var [menuOpen, setMenuOpen] = useState(false);
+  var [menuOpen, setMenuOpen] = useState(false);
   var navigate = useNavigate();
 
   return (

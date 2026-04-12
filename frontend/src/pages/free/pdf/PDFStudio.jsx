@@ -14,8 +14,7 @@ const TABS = [
 ];
 
 export default function PDFStudio() {
-
-  var { t } = useTranslation();  const [tab, setTab] = useState('create');
+  const [tab, setTab] = useState('create');
 
   return (
     <div style={{ background: 'var(--sap-cobalt-deep)', minHeight: '100vh', fontFamily: '"DM Sans","Rethink Sans",sans-serif', color: '#f0f2f8', display: 'flex', flexDirection: 'column' }}>

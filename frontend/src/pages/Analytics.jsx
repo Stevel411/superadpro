@@ -32,8 +32,7 @@ var TC = { direct_sponsor:'var(--sap-green-mid)', uni_level:'var(--sap-accent)',
 var TIER_COLORS = ['var(--sap-green-mid)','var(--sap-accent)','var(--sap-indigo)','var(--sap-purple)','var(--sap-amber)','#f97316','var(--sap-red-bright)','var(--sap-amber-bright)'];
 
 export default function AnalyticsPage() {
-
-  var { t } = useTranslation();  var [data, setData] = useState(null), [loading, setLoading] = useState(true), [error, setError] = useState(null);
+  var [data, setData] = useState(null), [loading, setLoading] = useState(true), [error, setError] = useState(null);
   useEffect(function() { fetch('/api/analytics',{credentials:'include'}).then(function(r){return r.json()}).then(function(d){if(d.error){setError(d.error)}else{setData(d)}setLoading(false)}).catch(function(e){setError(e.message);setLoading(false)}); }, []);
 
   var earningsRef = useChart(data ? { type:'line', data:{ labels:data.daily_earnings.map(function(d){var p=d.date.split('-');return p[1]+'/'+p[2]}), datasets:[{label:'Earnings',data:data.daily_earnings.map(function(d){return d.amount}),borderColor:'var(--sap-accent)',backgroundColor:'rgba(14,165,233,0.08)',borderWidth:2.5,fill:true,tension:0.4,pointRadius:0,pointHoverRadius:6,pointHoverBackgroundColor:'var(--sap-accent)',pointHoverBorderColor:'#fff',pointHoverBorderWidth:3}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'var(--sap-text-primary)',padding:12,cornerRadius:10,displayColors:false,callbacks:{label:function(c){return '$'+c.parsed.y.toFixed(2)}}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:8}},y:{grid:{color:'var(--sap-bg-page)'},ticks:{callback:function(v){return '$'+v}}}}} } : null);
