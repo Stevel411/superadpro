@@ -1728,7 +1728,8 @@
     "earningsByStreamDesc": "По месяцам — последние 6 месяцев",
     "recentCommissions": "Последние комиссии",
     "noCommissions": "Комиссий пока нет. Поделитесь вашим SuperLink!",
-    "unique": "уникальных"
+    "unique": "уникальных",
+    "analyticsTitle": "Аналитика"
   },
   "contentCreator": {
     "title": "Создатель Контента",

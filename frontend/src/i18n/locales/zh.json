@@ -1728,7 +1728,8 @@
     "earningsByStreamDesc": "每月 — 过去6个月",
     "recentCommissions": "最近的佣金",
     "noCommissions": "还没有佣金。分享您的SuperLink！",
-    "unique": "独立"
+    "unique": "独立",
+    "analyticsTitle": "分析"
   },
   "contentCreator": {
     "title": "内容创作器",

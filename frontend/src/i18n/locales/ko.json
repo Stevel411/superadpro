@@ -1728,7 +1728,8 @@
     "earningsByStreamDesc": "월별 — 최근 6개월",
     "recentCommissions": "최근 커미션",
     "noCommissions": "아직 커미션이 없습니다. SuperLink를 공유하세요!",
-    "unique": "고유"
+    "unique": "고유",
+    "analyticsTitle": "분석"
   },
   "contentCreator": {
     "title": "콘텐츠 크리에이터",

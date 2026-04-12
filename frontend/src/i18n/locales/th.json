@@ -1728,7 +1728,8 @@
     "earningsByStreamDesc": "รายเดือน — 6 เดือนที่ผ่านมา",
     "recentCommissions": "ค่าคอมมิชชันล่าสุด",
     "noCommissions": "ยังไม่มีค่าคอมมิชชัน แชร์ SuperLink ของคุณ!",
-    "unique": "เฉพาะ"
+    "unique": "เฉพาะ",
+    "analyticsTitle": "การวิเคราะห์"
   },
   "contentCreator": {
     "title": "ผู้สร้างเนื้อหา",

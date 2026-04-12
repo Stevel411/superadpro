@@ -1728,7 +1728,8 @@
     "earningsByStreamDesc": "Aylık — son 6 ay",
     "recentCommissions": "Son komisyonlar",
     "noCommissions": "Henüz komisyon yok. SuperLink'inizi paylaşın!",
-    "unique": "benzersiz"
+    "unique": "benzersiz",
+    "analyticsTitle": "Analizler"
   },
   "contentCreator": {
     "title": "İçerik Oluşturucu",

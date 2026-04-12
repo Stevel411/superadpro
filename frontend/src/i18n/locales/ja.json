@@ -1728,7 +1728,8 @@
     "earningsByStreamDesc": "月別 — 過去6ヶ月",
     "recentCommissions": "最近のコミッション",
     "noCommissions": "まだコミッションがありません。SuperLinkを共有しましょう！",
-    "unique": "ユニーク"
+    "unique": "ユニーク",
+    "analyticsTitle": "アナリティクス"
   },
   "contentCreator": {
     "title": "コンテンツクリエイター",

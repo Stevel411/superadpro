@@ -1728,7 +1728,8 @@
     "earningsByStreamDesc": "मासिक — पिछले 6 महीने",
     "recentCommissions": "हाल की कमीशन",
     "noCommissions": "अभी तक कोई कमीशन नहीं। अपना SuperLink शेयर करें!",
-    "unique": "अद्वितीय"
+    "unique": "अद्वितीय",
+    "analyticsTitle": "एनालिटिक्स"
   },
   "contentCreator": {
     "title": "कंटेंट क्रिएटर",

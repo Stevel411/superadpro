@@ -1728,7 +1728,8 @@
     "earningsByStreamDesc": "شهرياً — آخر 6 أشهر",
     "recentCommissions": "العمولات الأخيرة",
     "noCommissions": "لا توجد عمولات بعد. شارك رابط SuperLink الخاص بك!",
-    "unique": "فريد"
+    "unique": "فريد",
+    "analyticsTitle": "التحليلات"
   },
   "contentCreator": {
     "title": "صانع المحتوى",

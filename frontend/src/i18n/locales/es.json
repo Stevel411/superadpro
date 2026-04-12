@@ -1532,7 +1532,8 @@
     "earningsByStreamDesc": "Mensual — últimos 6 meses",
     "recentCommissions": "Comisiones recientes",
     "noCommissions": "Aún no hay comisiones. ¡Comparte tu SuperLink!",
-    "unique": "únicos"
+    "unique": "únicos",
+    "analyticsTitle": "Analíticas"
   },
   "contentCreator": {
     "title": "Creador de Contenido",

@@ -1728,7 +1728,8 @@
     "earningsByStreamDesc": "Monatlich — letzte 6 Monate",
     "recentCommissions": "Letzte Provisionen",
     "noCommissions": "Noch keine Provisionen. Teilen Sie Ihren SuperLink!",
-    "unique": "einzigartig"
+    "unique": "einzigartig",
+    "analyticsTitle": "Analysen"
   },
   "contentCreator": {
     "title": "Inhaltserstellung",

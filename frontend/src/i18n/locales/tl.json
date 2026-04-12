@@ -1728,7 +1728,8 @@
     "earningsByStreamDesc": "Buwanan — huling 6 na buwan",
     "recentCommissions": "Mga kamakailang komisyon",
     "noCommissions": "Wala pang komisyon. I-share ang iyong SuperLink!",
-    "unique": "natatangi"
+    "unique": "natatangi",
+    "analyticsTitle": "Analytics"
   },
   "contentCreator": {
     "title": "Tagapaglikha ng Nilalaman",

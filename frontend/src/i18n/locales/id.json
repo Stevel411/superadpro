@@ -1728,7 +1728,8 @@
     "earningsByStreamDesc": "Bulanan — 6 bulan terakhir",
     "recentCommissions": "Komisi terbaru",
     "noCommissions": "Belum ada komisi. Bagikan SuperLink Anda!",
-    "unique": "unik"
+    "unique": "unik",
+    "analyticsTitle": "Analitik"
   },
   "contentCreator": {
     "title": "Pembuat Konten",

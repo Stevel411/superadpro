@@ -1728,7 +1728,8 @@
     "earningsByStreamDesc": "Maandelijks — laatste 6 maanden",
     "recentCommissions": "Recente commissies",
     "noCommissions": "Nog geen commissies. Deel uw SuperLink!",
-    "unique": "uniek"
+    "unique": "uniek",
+    "analyticsTitle": "Analytics"
   },
   "contentCreator": {
     "title": "Content Creator",

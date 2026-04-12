@@ -1612,7 +1612,8 @@
     "earningsByStreamDesc": "Monthly — last 6 months",
     "recentCommissions": "Recent Commissions",
     "noCommissions": "No commissions yet. Start sharing your SuperLink!",
-    "unique": "unique"
+    "unique": "unique",
+    "analyticsTitle": "Analytics"
   },
   "contentCreator": {
     "title": "Content Creator",

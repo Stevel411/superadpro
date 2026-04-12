@@ -1728,7 +1728,8 @@
     "earningsByStreamDesc": "Hàng tháng — 6 tháng qua",
     "recentCommissions": "Hoa hồng gần đây",
     "noCommissions": "Chưa có hoa hồng. Chia sẻ SuperLink của bạn!",
-    "unique": "duy nhất"
+    "unique": "duy nhất",
+    "analyticsTitle": "Phân tích"
   },
   "contentCreator": {
     "title": "Tạo Nội dung",
