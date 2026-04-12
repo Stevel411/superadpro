@@ -1503,5 +1503,36 @@
     "title": "Affiliate Plan",
     "heroTitle": "The SuperAdPro Affiliate Plan",
     "heroDesc": "Understand exactly how you earn — four income streams from one platform."
+  },
+  "comingSoon": {
+    "title": "Coming Soon",
+    "desc": "We're putting the finishing touches on something special — AI-powered marketing tools, a creative studio, and an affiliate system that pays.",
+    "whatYouGet": "What you'll get",
+    "feat1": "AI Creative Studio — Video, Images, Music & Voiceover",
+    "feat2": "8-Tier Campaign Grid — Advertise & Earn",
+    "feat3": "Profit Nexus — Your Earnings Accelerator",
+    "feat4": "SuperPages — AI Landing Pages & Funnels",
+    "feat5": "50% Referral Commissions — On Every Signup",
+    "haveAccount": "Already have an account?",
+    "signIn": "Sign in"
+  },
+  "incomeDisclaimer": {
+    "title": "Income Disclaimer",
+    "subtitle": "Important information about earnings on SuperAdPro"
+  },
+  "incomeGrid3D": {
+    "interactive3D": "Interactive 3D Visualisation",
+    "watchYour": "Watch Your",
+    "incomeGrid": "Income Grid",
+    "build": "Build",
+    "selectTier": "Select a campaign tier and watch 64 positions fill in real-time.",
+    "howItWorks": "How It Works",
+    "explore": "Explore",
+    "earn": "Earn",
+    "getStarted": "Get Started",
+    "joinFree": "Join Free & Build Your Grid →"
+  },
+  "walletHelp": {
+    "title": "Wallet Help"
   }
 }
