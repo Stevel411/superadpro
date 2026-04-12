@@ -253,7 +253,7 @@ export default function MemeGenerator() {
                 <RichDropdown items={FONTS} value={fontId} onChange={setFontId} open={fontOpen} setOpen={v => { setFontOpen(v); setColorOpen(false); }}
                   renderItem={(f, isTrigger) => (
                     <>
-                      <div style={{ width: 32, height: 32, borderRadius: 8, background: `${f.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: f.color, flexShrink: 0, fontFamily: FONT_FAMILIES[f.id] }}>Aa</div>
+                      <div style={{ width: 32, height: 32, borderRadius: 8, background: `${f.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: f.color, flexShrink: 0, fontFamily: FONT_FAMILIES[f.id] }}>{t('freeMeme.fontPreviewAa')}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{f.name}</div>
                         {!isTrigger && <div style={{ fontSize: 10, color: '#7b8594' }}>{f.desc}</div>}

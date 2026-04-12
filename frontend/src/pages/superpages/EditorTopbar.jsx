@@ -65,7 +65,7 @@ export default function EditorTopbar({ title, slug, saving, dirty, status, onSav
 
       {/* Publish toggle */}
       <button onClick={onTogglePublish} style={{...btn,background:isPublished?'rgba(22,163,74,.12)':'rgba(14,165,233,.12)',color:isPublished?'var(--sap-green)':'var(--sap-accent-light)',border:`1px solid ${isPublished?'rgba(22,163,74,.2)':'rgba(14,165,233,.2)'}`}}>
-        {isPublished ? <><Globe size={13}/> Published</> : <><GlobeLock size={13}/> Publish</>}
+        {isPublished ? <><Globe size={13}/> {t('superPagesEditor.publishedLabel')}</> : <><GlobeLock size={13}/> {t('superPagesEditor.publishBtn')}</>}
       </button>
 
       {/* Live link */}

@@ -942,7 +942,7 @@ function GridVisSection() {
             <div style={{textAlign:'center',padding:16,background:'linear-gradient(135deg,rgba(74,222,128,.08),rgba(14,165,233,.08))',borderRadius:12,border:'1px solid rgba(74,222,128,.15)'}}>
               <div style={{fontSize:16,fontWeight:800,color:'#4ade80',marginBottom:6}}>{t('visualiser.gridComplete')}</div>
               <div style={{fontSize:12,color:'var(--sap-text-muted)'}}>64 seats filled. Total earned: <strong style={{color:'var(--sap-accent)'}}>${Math.round(totalEarned).toLocaleString()}</strong></div>
-              <div style={{fontSize:11,color:'var(--sap-text-muted)',marginTop:4}}>Grid advances to the next round. Future earnings require new network activity.</div>
+              <div style={{fontSize:11,color:'var(--sap-text-muted)',marginTop:4}}>{t('visualiser.gridAdvancesBody')}</div>
             </div>
           )}
 

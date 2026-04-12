@@ -108,8 +108,8 @@ export default function TwoFactorSetup() {
         {step === 2 && (
           <>
             <div style={styles.instructions}>
-              <p style={styles.instrText}><strong style={{ color: '#fff' }}>{t('auth.step1Label')}</strong> Download Google Authenticator from the App Store or Google Play.</p>
-              <p style={styles.instrText}><strong style={{ color: '#fff' }}>{t('auth.step2Label')}</strong> Tap "+" in the app, then scan this QR code.</p>
+              <p style={styles.instrText}><strong style={{ color: '#fff' }}>{t('auth.step1Label')}</strong> {t('auth.downloadAuthFull')}</p>
+              <p style={styles.instrText}><strong style={{ color: '#fff' }}>{t('auth.step2Label')}</strong> {t('auth.scanQrFull')}</p>
             </div>
 
             {qr && (

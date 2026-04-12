@@ -317,7 +317,7 @@ function MyProducts({ products, onBack, onCreate, onReload }) {
       <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
         <div style={{background:'#0c1e4a',padding:'16px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('marketplace.myDigitalProducts')}</div>
-          <button onClick={onCreate} style={{display:'flex',alignItems:'center',gap:4,padding:'7px 14px',borderRadius:8,background:'var(--sap-accent)',color:'#fff',fontSize:11,fontWeight:700,textDecoration:'none',fontFamily:'inherit',border:'none',cursor:'pointer'}}>+ New Product</button>
+          <button onClick={onCreate} style={{display:'flex',alignItems:'center',gap:4,padding:'7px 14px',borderRadius:8,background:'var(--sap-accent)',color:'#fff',fontSize:11,fontWeight:700,textDecoration:'none',fontFamily:'inherit',border:'none',cursor:'pointer'}}>{t('marketplace.newProduct')}</button>
         </div>
         {products.length > 0 ? products.map(function(p,i) {
           var sc = {published:{bg:'var(--sap-green-bg-mid)',color:'var(--sap-green)'},draft:{bg:'var(--sap-bg-page)',color:'var(--sap-text-muted)'},pending_review:{bg:'var(--sap-amber-bg)',color:'var(--sap-amber)'}}[p.status]||{bg:'var(--sap-bg-page)',color:'var(--sap-text-muted)'};
@@ -349,7 +349,7 @@ function MyProducts({ products, onBack, onCreate, onReload }) {
           <div style={{padding:'60px 20px',textAlign:'center'}}>
             <div style={{fontSize:40,marginBottom:12,opacity:.3}}>📦</div>
             <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4}}>{t('marketplace.noProductsYet')}</div>
-            <div style={{fontSize:12,color:'var(--sap-text-muted)',marginBottom:16}}>List your first digital product and start earning</div>
+            <div style={{fontSize:12,color:'var(--sap-text-muted)',marginBottom:16}}>{t('marketplace.listFirstFull')}</div>
           </div>
         )}
       </div>

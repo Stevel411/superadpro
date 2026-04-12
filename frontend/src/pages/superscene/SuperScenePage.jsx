@@ -1433,7 +1433,7 @@ export default function SuperScenePage() {
                         <span className="sc-prompt-count">{musicPrompt.length}/3000</span>
                       </div>
                     )}
-                    {musicCustom && <div className="sc-sub sc-mu-tip">Tip: Enter a song title or style first, then click SuperAdPro Lyrics Writer. You can edit the result before generating music.</div>}
+                    {musicCustom && <div className="sc-sub sc-mu-tip">{t('superScene.lyricsTipBody')}</div>}
                   </div>
                 </div>
 
@@ -1479,7 +1479,7 @@ export default function SuperScenePage() {
                   <div className="sc-credit-line">
                     <div className="sc-cl-icon">◈</div>
                     <span className="sc-cl-label">{t('superScene.cost')}</span>
-                    <span className="sc-cl-value">{MUSIC_MODELS.find(m => m.key === musicModel)?.cost || 2} credits</span>
+                    <span className="sc-cl-value">{MUSIC_MODELS.find(m => m.key === musicModel)?.cost || 2} {t('superScene.credits')}</span>
                   </div>
                   <button className="sc-gen-btn" onClick={generateMusic} disabled={!musicPrompt.trim() || musicGenerating}>
                     {musicGenerating ? "Generating…" : !musicPrompt.trim() ? "Enter a description" : `♪ Generate Music`}
@@ -1675,7 +1675,7 @@ export default function SuperScenePage() {
                       <div className="sc-music-title">{t('superScene.voiceoverReady')}</div>
                       <audio src={voAudioUrl} controls className="sc-music-player"/>
                       <button className="sc-sa-btn sc-vo-download-btn" onClick={() => downloadVideo(voAudioUrl, `superscene-voiceover-${Date.now()}.mp3`)}>{t('superScene.downloadMp3')}</button>
-                      <div className="sc-sub sc-vo-hint">Want a talking avatar? Upload a photo in Step ③ on the left.</div>
+                      <div className="sc-sub sc-vo-hint">{t('superScene.wantAvatarBody')}</div>
                     </div>
                   ) : (
                     <div className="s-empty">
@@ -1892,7 +1892,7 @@ export default function SuperScenePage() {
                       </div>
                       <div className="sc-model-meta">
                         <span className="sc-model-badge" style={{ background: `${MODELS.find(m => m.key === pipeModel)?.color || '#22d3ee'}22`, color: MODELS.find(m => m.key === pipeModel)?.color || '#22d3ee' }}>{MODELS.find(m => m.key === pipeModel)?.badge || ""}</span>
-                        <span className="sc-model-cost">{MODELS.find(m => m.key === pipeModel)?.cost || 3} cr/5s</span>
+                        <span className="sc-model-cost">{MODELS.find(m => m.key === pipeModel)?.cost || 3} {t('superScene.crPerFiveSec')}</span>
                       </div>
                       <span className={cls("sc-model-chev", pipeModelOpen && "open")}>▼</span>
                     </div>
@@ -1905,7 +1905,7 @@ export default function SuperScenePage() {
                             <div className="sc-model-info"><div className="sc-model-name">{m.name}</div><div className="sc-model-desc">{m.desc}</div></div>
                             <div className="sc-model-meta">
                               <span className="sc-model-badge" style={{ background: `${m.color}22`, color: m.color }}>{m.badge}</span>
-                              <span className="sc-model-cost">{m.cost} cr/5s</span>
+                              <span className="sc-model-cost">{m.cost} {t('superScene.crPerFiveSec')}</span>
                             </div>
                           </button>
                         ))}
@@ -2369,7 +2369,7 @@ export default function SuperScenePage() {
 
             </div>
 
-            <div className="sc-pfooter">🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire</div>
+            <div className="sc-pfooter">{t('superScene.packFooterBody')}</div>
             {cryptoOrder && (
               <CryptoCheckout
                 productKey={cryptoOrder.productKey}
@@ -2616,7 +2616,7 @@ export default function SuperScenePage() {
                   <div className="sc-credit-line">
                     <div className="sc-cl-icon">◈</div>
                     <span className="sc-cl-label">{t('superScene.cost')}</span>
-                    <span className="sc-cl-value">{(IMG_CREDIT_MAP[imgQuality] || 2) * imgBatch} credits</span>
+                    <span className="sc-cl-value">{(IMG_CREDIT_MAP[imgQuality] || 2) * imgBatch} {t('superScene.credits')}</span>
                   </div>
                   <button className="sc-gen-btn" onClick={generateImage} disabled={!imgPrompt.trim() || imgGenerating}>
                     {imgGenerating ? "Generating…" : !imgPrompt.trim() ? "Enter a prompt" : `✦ Generate ${imgBatch > 1 ? imgBatch + " Images" : "Image"} — ${(IMG_CREDIT_MAP[imgQuality] || 2) * imgBatch} credits`}
@@ -2672,7 +2672,7 @@ export default function SuperScenePage() {
               {/* Left — Caption Editor */}
               <div className="sc-cap-editor">
                 <div className="sc-label">{t('superScene.addCaptions')}</div>
-                <div className="sc-sub sc-ed-desc">Add styled subtitles to your generated video. Type captions manually or use auto-transcribe.</div>
+                <div className="sc-sub sc-ed-desc">{t('superScene.captionsDescBody')}</div>
 
                 {/* Caption Style Selector */}
                 <div className="sc-cap-styles">

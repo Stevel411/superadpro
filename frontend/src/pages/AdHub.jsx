@@ -122,7 +122,7 @@ export default function AdHub() {
                   <div style={{ fontSize: 12, color: 'rgba(255,255,255,.75)', position: 'relative' }}>{t('adHub.classifiedAds')}</div>
                 </div>
                 <div className="adhub-card-body">
-                  <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', lineHeight: 1.6, marginBottom: 16 }}>Post a classified ad with images, links, and SEO keywords. Displayed on the public Ad Board.</div>
+                  <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', lineHeight: 1.6, marginBottom: 16 }}>{t('adHub.classifiedDescBody')}</div>
                   <div style={{ display: 'inline-block', padding: '10px 24px', borderRadius: 10, background: 'linear-gradient(135deg,#10b981,#059669)', color: '#fff', fontWeight: 800, fontSize: 14, boxShadow: '0 4px 0 #047857' }}>{t('adHub.newListing')}</div>
                 </div>
               </div>

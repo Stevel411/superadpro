@@ -279,7 +279,7 @@ export function VideoCreatorContent() {
           <div className="cs-stage-empty">
             <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 2v20M17 2v20M2 12h20"/></svg>
             <p>{t('videoCreator.videoWillAppear')}</p>
-            <small>Describe what you want \u2014 AI handles script, visuals, voiceover, and editing</small>
+            <small>{t('videoCreator.describeBody')}</small>
           </div>
         )}
       </div>
@@ -293,8 +293,8 @@ export function VideoCreatorContent() {
       </div>}
 
       {videoUrl && <div className="cs-stage-actions" style={{ justifyContent: 'center', marginBottom: 24 }}>
-        <button className="cs-sa-btn" onClick={function() { dlVideo(videoUrl); }}>\u2B07 Download MP4</button>
-        <button className="cs-sa-btn" onClick={function() { setVideoUrl(null); setPrompt(''); setError(null); setSteps([]); setScript(null); setUploadedImages([]); }}>\u2715 Create another</button>
+        <button className="cs-sa-btn" onClick={function() { dlVideo(videoUrl); }}>{t('videoCreator.downloadMp4Btn')}</button>
+        <button className="cs-sa-btn" onClick={function() { setVideoUrl(null); setPrompt(''); setError(null); setSteps([]); setScript(null); setUploadedImages([]); }}>{t('videoCreator.createAnotherBtn')}</button>
       </div>}
 
       <div className="cs-controls" style={{ maxWidth: 900, margin: '0 auto' }}>
@@ -304,7 +304,7 @@ export function VideoCreatorContent() {
             <textarea className="cs-ta" rows={4} value={prompt} onChange={function(e) { setPrompt(e.target.value); }}
               placeholder={t('videoCreator.promptPlaceholderFull')}/>
             <div className="cs-ta-foot">
-              <span className="cs-ta-ai">✦ Be specific for best results</span>
+              <span className="cs-ta-ai">{t('videoCreator.beSpecificLabel')}</span>
               <span className="cs-ta-ct">{prompt.length}</span>
             </div>
           </div>

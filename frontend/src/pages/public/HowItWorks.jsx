@@ -291,7 +291,7 @@ export default function HowItWorks() {
           <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.15)', lineHeight: 1.7 }}>
             SuperAdPro · <Link to="/legal" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none' }}>{t('howItWorks.terms')}</Link> · <Link to="/legal" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none' }}>{t('howItWorks.privacy')}</Link> · <Link to="/support" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none' }}>{t('howItWorks.support')}</Link>
           </p>
-          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.1)', marginTop: 6 }}>Income figures represent the compensation plan structure. Results depend on individual effort.</p>
+          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.1)', marginTop: 6 }}>{t('howItWorks.incomeDisclaimerBody')}vidual effort.</p>
         </footer>
       </div>
     </div>

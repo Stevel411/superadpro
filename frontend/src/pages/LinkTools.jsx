@@ -328,7 +328,7 @@ export default function LinkTools() {
           display:'flex',alignItems:'center',gap:7,padding:'10px 18px',borderRadius:10,fontSize:13,fontWeight:700,
           border:'1px solid #e2e8f0',cursor:'pointer',fontFamily:'inherit',background:'#fff',color:'var(--sap-text-muted)',
           boxShadow:'0 2px 6px rgba(0,0,0,.05)',transition:'all .18s ease',
-        }}><Search size={14}/> UTM Builder</button>
+        }}><Search size={14}/> {t('linkTools.utmBuilder')}</button>
         <div style={{flex:1}}/>
         <button onClick={() => tab==='links'?setShowCreate(true):setShowRotatorCreate(true)} className="lt-create-btn" style={{
           display:'flex',alignItems:'center',gap:8,padding:'12px 28px',borderRadius:12,fontSize:14,fontWeight:800,
@@ -389,10 +389,10 @@ export default function LinkTools() {
                 <div style={{padding:'8px 16px',borderTop:'1px solid #f1f5f9',display:'flex',gap:6,flexWrap:'wrap',padding:'10px 20px'}}>
                   <button onClick={() => copyToClip(BASE + '/go/' + l.short_code)} style={smallBtn}><Copy size={12}/> {t('linkTools.copy')}</button>
                   <button onClick={() => openAnalytics(l.id, 'short')} style={smallBtn}><BarChart3 size={12}/> {t('linkTools.analytics')}</button>
-                  <button onClick={() => openEdit(l)} style={smallBtn}><Edit3 size={12}/> Edit</button>
-                  <button onClick={() => setQrLink(l)} style={smallBtn}><QrCode size={12}/> QR</button>
-                  <button onClick={() => openTags(l)} style={smallBtn}><Tag size={12}/> Tags</button>
-                  <a href={'/go/' + l.short_code} target="_blank" rel="noopener noreferrer" style={{...smallBtn,textDecoration:'none'}}><ExternalLink size={12}/> Open</a>
+                  <button onClick={() => openEdit(l)} style={smallBtn}><Edit3 size={12}/> {t('linkTools.editBtn')}</button>
+                  <button onClick={() => setQrLink(l)} style={smallBtn}><QrCode size={12}/> {t('linkTools.qrBtn')}</button>
+                  <button onClick={() => openTags(l)} style={smallBtn}><Tag size={12}/> {t('linkTools.tagsBtn')}</button>
+                  <a href={'/go/' + l.short_code} target="_blank" rel="noopener noreferrer" style={{...smallBtn,textDecoration:'none'}}><ExternalLink size={12}/> {t('linkTools.openBtn')}</a>
                   <div style={{flex:1}}/>
                   {confirmDelete === 'link-' + l.id ? (
                     <>
@@ -652,8 +652,8 @@ export default function LinkTools() {
               <div style={{fontSize:10,fontWeight:700,color:'#15803d',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>{t('linkTools.generatedUrl')}</div>
               <div style={{fontSize:12,color:'var(--sap-text-primary)',wordBreak:'break-all',fontFamily:'monospace',lineHeight:1.6}}>{utmResult}</div>
               <div style={{display:'flex',gap:8,marginTop:12}}>
-                <button onClick={() => copyToClip(utmResult)} style={{...smallBtn,background:'var(--sap-green-mid)',color:'#fff',border:'none'}}><Copy size={12}/> Copy URL</button>
-                <button onClick={() => { setNewUrl(utmResult); setShowUtm(false); setShowCreate(true); }} style={{...smallBtn,background:'var(--sap-accent)',color:'#fff',border:'none'}}><Link2 size={12}/> Shorten This</button>
+                <button onClick={() => copyToClip(utmResult)} style={{...smallBtn,background:'var(--sap-green-mid)',color:'#fff',border:'none'}}><Copy size={12}/> {t('linkTools.copyUrl')}</button>
+                <button onClick={() => { setNewUrl(utmResult); setShowUtm(false); setShowCreate(true); }} style={{...smallBtn,background:'var(--sap-accent)',color:'#fff',border:'none'}}><Link2 size={12}/> {t('linkTools.shortenThis')}</button>
               </div>
             </div>
           )}

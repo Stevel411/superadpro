@@ -59,7 +59,7 @@ export default function SuperDeckList() {
             <Monitor size={28} color="var(--sap-purple)"/>
           </div>
           <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 20, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 6 }}>{t('superDeck.createFirst')}</div>
-          <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', marginBottom: 24, maxWidth: 400, margin: '0 auto 24px' }}>Build beautiful slide decks with drag-and-drop editing, AI content generation, and download as PowerPoint.</div>
+          <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', marginBottom: 24, maxWidth: 400, margin: '0 auto 24px' }}>{t('superDeck.createFirstDescFull')}nd download as PowerPoint.</div>
           <button onClick={function() { create('midnight'); }} disabled={creating}
             style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '12px 28px', borderRadius: 10, border: 'none', background: 'var(--sap-purple)', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
             <Plus size={18}/> {creating ? 'Creating...' : 'Create presentation'}

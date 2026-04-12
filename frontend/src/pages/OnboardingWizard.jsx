@@ -225,7 +225,7 @@ export default function OnboardingWizard() {
         {step === 4 && <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 36, marginBottom: 8 }}>✨</div>
           <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>{t('onboarding.allSet')}</h2>
-          <p style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginBottom: 24 }}>Your account is ready. Here's what to do next:</p>
+          <p style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginBottom: 24 }}>{t('onboarding.accountReadyBody')}</p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
             {[

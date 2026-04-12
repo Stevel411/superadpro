@@ -270,7 +270,7 @@ export default function PassiveIncome({ d }) {
               While You Sleep ✨
             </span>
           </div>
-          <div style={S.heroSub}>Every commission, every grid completion, every renewal — tracked in real time.</div>
+          <div style={S.heroSub}>{t('passiveIncome.everyCommFull')}</div>
 
           <div style={S.totalRow}>
             <div>

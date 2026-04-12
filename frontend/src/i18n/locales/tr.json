@@ -946,7 +946,12 @@
     "useRichTextFull": "2. Use the rich text editor, videos, and PDFs",
     "aiScanFull": "4. AI scans for quality & copyright, then admin approves",
     "agreeTermsFull": "I agree to the Creator Terms and confirm my content is original",
-    "passUpDescFull": "per kept sale (1st, 3rd, 5th...). Even sales pass up to your sponsor."
+    "passUpDescFull": "per kept sale (1st, 3rd, 5th...). Even sales pass up to your sponsor.",
+    "step1Suffix": "to add chapters & lessons",
+    "step2Full": "2. Use the rich text editor, videos, and PDFs",
+    "step4Full": "4. AI scans for quality & copyright, then admin approves",
+    "agreeBody": "I agree to the Creator Terms and confirm my content is original",
+    "passUpBody": "per kept sale (1st, 3rd, 5th...). Even sales pass up to your sponsor. No platform fees."
   },
   "videos": {
     "title": "Video Kütüphanesi",
@@ -1396,7 +1401,8 @@
     "gridDescription": "Your 8×8 grid fills as your team grows. Earn commissions on every position filled.",
     "teamSalesFull": "Team's 2nd, 4th, 6th, 8th",
     "entireNetworkFull": "your entire network",
-    "gridAdvancesBody": "Grid advances to the next round. Future earnings require new network activity."
+    "gridAdvancesBody": "Grid advances to the next round. Future earnings require new network activity.",
+    "gridDescFull": "Your 8×8 grid fills as your team grows. Earn commissions on every position."
   },
   "features": {
     "title": "Özellikler",
@@ -1914,7 +1920,8 @@
     "imagePromptPlaceholderFull": "A professional product photo of wireless earbuds on a marble surface, soft studio lighting",
     "stylePlaceholderFull": "pop, rock, electronic, jazz...",
     "voiceoverPlaceholderFull": "Type your voiceover script here... e.g. Welcome to SuperAdPro, the platform that pays you to watch ads.",
-    "uploadPhotoFirstFull": "Upload a person photo and create a voiceover first. Then generate a talking avatar video."
+    "uploadPhotoFirstFull": "Upload a person photo and create a voiceover first. Then generate a talking avatar video.",
+    "uploadPhotoBody": "Upload a person photo and create a voiceover first. Then generate a talking avatar video."
   },
   "socialShare": {
     "title": "Sosyal Paylaşım",
@@ -2110,7 +2117,10 @@
     "scanQr": "Tap \"+\" in the app, then scan this QR code.",
     "qrAlt": "2FA QR Code",
     "backToQr": "← Back to QR code",
-    "enter2faCode": "Open Google Authenticator or your 2FA app and enter the current 6-digit code."
+    "enter2faCode": "Open Google Authenticator or your 2FA app and enter the current 6-digit code.",
+    "downloadAuthFull": "Download Google Authenticator from the App Store or Google Play.",
+    "scanQrFull": "Tap \"+\" in the app, then scan this QR code.",
+    "enter2faFull": "Open Google Authenticator or your 2FA app and enter the current 6-digit code for your account."
   },
   "home": {
     "creativePlatform": "Yaratıcı Gelir Platformu",
@@ -2196,7 +2206,8 @@
     "level2": "Level 2",
     "level3": "Level 3",
     "noCreditPacks": "No Credit Packs Yet",
-    "purchasePack": "Purchase a credit pack to activate your first nexus and start earning commissions."
+    "purchasePack": "Purchase a credit pack to activate your first nexus and start earning commissions.",
+    "purchasePackFull": "Purchase a credit pack to activate your first nexus and start earning commissions."
   },
   "onboarding": {
     "title": "SuperAdPro'ya Hoş Geldiniz",
@@ -2319,7 +2330,8 @@
     "proAnnual": "$350/year",
     "everythingInBasic": "✓ Everything in Basic",
     "incomeFiguresDisclaimer": "Income figures represent the compensation plan structure. Results depend on individual effort and team activity.",
-    "incomeDisclaimerFull": "Income figures represent the compensation plan structure. Results depend on individual effort and team activity."
+    "incomeDisclaimerFull": "Income figures represent the compensation plan structure. Results depend on individual effort and team activity.",
+    "incomeDisclaimerBody": "Income figures represent the compensation plan structure. Results depend on individual effort and team activity."
   },
   "earnPage": {
     "title": "Kazan",
@@ -2393,7 +2405,11 @@
     "firstNamePlaceholder": "John",
     "usernamePlaceholder": "johnsmith",
     "emailPlaceholder": "john@example.com",
-    "passwordPlaceholder": "Min. 8 characters"
+    "passwordPlaceholder": "Min. 8 characters",
+    "membershipDescBody": "50% of every membership fee, every month, for as long as they stay active.",
+    "selectTierDesc": "Select a campaign tier and see how 64 members filling your grid generates commissions.",
+    "twoCalcDescFull": "Two income streams, two calculators. See your potential from membership commissions and campaign grid earnings.",
+    "referTipFull": "💡 Refer 2 members = your Basic membership is free. Refer 3 = you're in profit."
   },
   "explorePage": {
     "title": "Keşfet",
@@ -2525,7 +2541,14 @@
     "notEmploymentDescBody": "Participation in SuperAdPro's compensation plan does not create an employer-employee relationship. You are an independent affiliate and are responsible for your own tax obligations.",
     "riskDescBody": "As with any business opportunity, there is risk involved. You should not invest money you cannot afford to lose and should treat participation as a business endeavour, not a guaranteed income.",
     "complianceDescBody": "SuperAdPro is committed to ethical business practices. Members must not make misleading income claims, guarantee earnings, or misrepresent the platform's compensation plan.",
-    "lastUpdatedBody": "Last updated: April 2026. This disclaimer applies to all income programs offered by SuperAdPro."
+    "lastUpdatedBody": "Last updated: April 2026. This disclaimer applies to all income programs offered by SuperAdPro.",
+    "body_L47": "Campaign Tiers activate your participation in the 8×8 Income Grid and unlock daily video campaign views. Your tier purchase delivers real advertising views to campaign holders on the platform.",
+    "body_L59": "SuperAdPro offers four income streams: Membership Referrals (50% commission), Campaign Grid (40% direct + 6.25% uni-level + 5% completion), Profit Nexus (15% direct + 10% auto-place + 10% completion), and Course Marketplace (coming soon). All commission rates are clearly disclosed on the Compensation Plan page.",
+    "body_L64": "SuperAdPro operates a dual wallet system. Your Affiliate Wallet holds membership and Profit Nexus commissions and can be withdrawn at any time. Your Campaign Wallet holds grid commissions and requires an active Campaign Tier and completion of daily watch quotas to access. This structure ensures the platform's advertising ecosystem remains active and sustainable.",
+    "body_L68": "Participation in SuperAdPro's compensation plan does not create an employer-employee relationship. Members are independent participants and are solely responsible for their own tax obligations, business expenses, and compliance with local laws and regulations.",
+    "body_L72": "As with any business opportunity, there is risk involved. You should not invest more than you can afford to lose. Do not rely on income from SuperAdPro as your sole source of income. We encourage all members to treat this as a supplementary income opportunity and to make informed decisions based on their own financial circumstances.",
+    "body_L76": "SuperAdPro is committed to ethical business practices. Members must not make misleading income claims when promoting the platform. Any income projections shared must be accompanied by a clear disclaimer that results are not typical and individual results will vary.",
+    "body_L80": "Last updated: April 2026. This disclaimer applies to all income programmes operated by SuperAdPro."
   },
   "incomeGrid3D": {
     "title": "3D Gelir Izgarası",
@@ -2755,7 +2778,12 @@
     "lastChanceEmail": "This is your last chance to join us.",
     "helpDesc": "Complete guide to your CRM & autoresponder",
     "importPlaceholder": "e.g. Mailchimp export, Facebook ads",
-    "csvFormat": "email,name"
+    "csvFormat": "email,name",
+    "createSequenceBtn": "Create sequence",
+    "welcomeDefault": "Welcome! We are glad you are here.",
+    "tipDefault": "Here is a valuable tip for your journey.",
+    "achieveDefault": "See what our community members have achieved.",
+    "lastChanceDefault": "This is your last chance to join us."
   },
   "adHub": {
     "title": "Ad Hub",
@@ -2875,7 +2903,9 @@
     "creatorSplit": "50% Creator",
     "youSplit": "25% You",
     "backToMarket": "← Back to SuperMarket",
-    "copiedLabel": "Copied"
+    "copiedLabel": "Copied",
+    "newProduct": "+ New Product",
+    "listFirstFull": "List your first digital product and start earning"
   },
   "bannerMaker": {
     "title": "Banner Maker",
@@ -2971,7 +3001,11 @@
     "downloadMp4Full": "⬇ Download MP4",
     "createAnotherFull": "✕ Create another",
     "promptPlaceholderFull": "e.g. Create a 60-second video promoting my online fitness coaching business with professional visuals and voiceover",
-    "beSpecificFull": "✦ Be specific for best results"
+    "beSpecificFull": "✦ Be specific for best results",
+    "describeBody": "Describe what you want — AI handles script, visuals, voiceover, and editing",
+    "downloadMp4Btn": "⬇ Download MP4",
+    "createAnotherBtn": "✕ Create another",
+    "beSpecificLabel": "✦ Be specific for best results"
   },
   "courseEditor": {
     "title": "Edit Course",
@@ -3009,7 +3043,8 @@
     "underReview": "⏳ Under Review",
     "fullCommissions": "💰 100% Commissions",
     "perKeptSale": "per kept sale · No platform fees",
-    "minLabel": "min"
+    "minLabel": "min",
+    "videoUrlLabel": "Video URL (YouTube, Vimeo, Loom)"
   },
   "superDeck": {
     "title": "SuperDeck",
@@ -3067,7 +3102,9 @@
     "deleteElement": "Delete element",
     "noElements": "No elements on this slide",
     "duplicateSlideLabel": "Duplicate slide",
-    "deleteSlideLabel": "Delete slide"
+    "deleteSlideLabel": "Delete slide",
+    "createFirstDescFull": "Build beautiful slide decks with drag-and-drop editing, AI content generation, and PowerPoint export.",
+    "noElementsSlide": "No elements on this slide"
   },
   "passiveIncome": {
     "title": "Passive Income",
@@ -3094,7 +3131,8 @@
     "buildTeam": "Build your team and activate a campaign tier to start earning on autopilot",
     "everyCommission": "Every commission, every grid completion, every renewal — tracked automatically.",
     "needed64": "64 needed",
-    "earningsAway": "💸 Earnings While You Were Away"
+    "earningsAway": "💸 Earnings While You Were Away",
+    "everyCommFull": "Every commission, every grid completion, every renewal — tracked in real time."
   },
   "freeQR": {
     "title": "Free QR Code Generator",
@@ -3207,7 +3245,8 @@
     "sizeLabel": "Size",
     "fontPreview": "Aa",
     "earnCtaFull": "Earn money online with SuperAdPro",
-    "seeHowFull": "See how →"
+    "seeHowFull": "See how →",
+    "fontPreviewAa": "Aa"
   },
   "freeBanner": {
     "title": "Free Banner Creator",
@@ -3352,7 +3391,8 @@
     "earningsPerSale": "Your Earnings Per Sale",
     "descPlaceholderFull": "What does your product do? Who is it for? Why should they buy it?",
     "featurePlaceholderFull": "e.g. 50+ ready-to-use templates",
-    "agreeTermsFull": "I agree to the Seller Terms and confirm my product is original"
+    "agreeTermsFull": "I agree to the Seller Terms and confirm my product is original",
+    "agreeTermsBody": "I agree to the Seller Terms and confirm my product is original"
   },
   "adPages": {
     "title": "Ad Pages",
@@ -3401,7 +3441,10 @@
     "titleRequired": "Title *",
     "categoryRequired": "Category *",
     "descRequired": "Description *",
-    "linkRequired": "Link URL *"
+    "linkRequired": "Link URL *",
+    "keywordsHelpFull": "Keywords help people find your listing through search engines. Separate with commas.",
+    "noListingsFull": "No listings yet. Post your first ad to reach the community.",
+    "videoUrlLabel": "Video URL (YouTube, Vimeo, Loom)"
   },
   "bannerManager": {
     "title": "Banner Manager",
@@ -3492,7 +3535,10 @@
     "popularLabel": "POPULAR",
     "fullAiAutomation": "Full AI automation",
     "freeNoCreditCard": "Free · No credit card · Cancel anytime",
-    "incomeDisclaimerFull": "Income figures represent the compensation plan structure. Actual results depend on individual effort and team activity."
+    "incomeDisclaimerFull": "Income figures represent the compensation plan structure. Actual results depend on individual effort and team activity.",
+    "incomeDisclaimerBody": "Income figures represent the compensation plan structure. Actual results depend on individual effort and team activity.",
+    "watchGridBuild": "Build",
+    "buildReal": "Build Real"
   },
   "pdfTools": {
     "title": "PDF Studio",
@@ -3793,7 +3839,9 @@
     "remember": "Remember",
     "goToSuperAdPro": "Go to SuperAdPro →",
     "payForwardMsg": "When you earn $20+, pay it forward and gift a membership to someone you know.",
-    "giftedByFull": "You've been gifted a free membership by"
+    "giftedByFull": "You've been gifted a free membership by",
+    "payForwardFull": "When you earn $20+, pay it forward and gift a membership to someone else.",
+    "giftedByBody": "You've been gifted a free membership by"
   },
   "paymentSuccess": {
     "title": "Payment Successful!",
@@ -4057,7 +4105,8 @@
     "wantAvatarBody": "Want a talking avatar? Upload a photo in Step ③ on the left.",
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
-    "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription."
+    "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
+    "crPerFiveSec": "cr/5s"
   },
   "superPagesEditor": {
     "title": "Page Editor",
@@ -4210,7 +4259,8 @@
     "clickCodeToAdd": "⟨/⟩ Click ✎ CODE to add HTML",
     "blocks": "✦ Blocks",
     "uploadBgImage": "📷 Upload Background Image",
-    "aiAssistant": "✨ AI Assistant"
+    "aiAssistant": "✨ AI Assistant",
+    "clickCodeFull": "⟨/⟩ Click ✎ CODE to add HTML"
   },
   "coursePlayer": {}
 }

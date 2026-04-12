@@ -187,7 +187,7 @@ export function AdBoardManage() {
                   <input value={form.keywords} onChange={set('keywords')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }} placeholder={t('adPages.keywordsPlaceholder')} maxLength={200}/>
                 </div>
               </div>
-              <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', marginBottom: 16 }}>Keywords help people find your listing through search engines. Separate with commas.</div>
+              <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', marginBottom: 16 }}>{t('adPages.keywordsHelpFull')}</div>
               <button type="submit" disabled={saving} style={{ padding: '10px 24px', borderRadius: 10, border: 'none', background: saving ? 'var(--sap-text-faint)' : 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 700, fontSize: 14, cursor: saving ? 'default' : 'pointer', fontFamily: 'inherit' }}>
                 {saving ? 'Saving...' : 'Post Listing'}
               </button>
@@ -201,7 +201,7 @@ export function AdBoardManage() {
         ) : listings.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 60, background: '#fff', border: '1px solid #e8ecf2', borderRadius: 14 }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>📋</div>
-            <p style={{ color: 'var(--sap-text-faint)', marginBottom: 16 }}>No listings yet. Post your first ad to reach the community.</p>
+            <p style={{ color: 'var(--sap-text-faint)', marginBottom: 16 }}>{t('adPages.noListingsFull')}</p>
             <button onClick={function(){setShowForm(true);}} style={{ padding: '10px 24px', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit' }}>
               Post First Listing
             </button>

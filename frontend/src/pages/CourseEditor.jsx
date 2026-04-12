@@ -330,7 +330,7 @@ function LectureEditor({lecture, onSave, onReload}){
       {/* VIDEO content */}
       {contentType==='video'&&(
         <div style={{marginBottom:16}}>
-          <label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>Video URL (YouTube, Vimeo, Loom)</label>
+          <label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('courseEditor.videoUrlLabel')}</label>
           <input value={videoUrl} onChange={function(e){setVideoUrl(e.target.value);}} placeholder={t("courseEditor.videoUrlPlaceholder")}
             style={{width:'100%',padding:'10px 14px',border:'2px solid #e8ecf2',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff'}}
             onFocus={function(e){e.target.style.borderColor='var(--sap-accent)';}} onBlur={function(e){e.target.style.borderColor='var(--sap-border-light)';}}/>

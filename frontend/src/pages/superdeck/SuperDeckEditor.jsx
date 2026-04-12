@@ -329,7 +329,7 @@ export default function SuperDeckEditor() {
       <div style={{display:'flex',alignItems:'center',gap:8,padding:'12px 20px',background:'linear-gradient(180deg,#172554,#1e3a8a)',borderBottom:'1px solid rgba(255,255,255,0.1)',flexShrink:0}}>
         <button onClick={function(){if(dirty)save();nav('/superdeck');}} style={{...btnS,background:'none',color:'var(--sap-text-faint)'}}
           onMouseEnter={function(e){e.currentTarget.style.background='#334155';}} onMouseLeave={function(e){e.currentTarget.style.background='none';}}>
-          <ArrowLeft size={14}/> Back</button>
+          <ArrowLeft size={14}/> {t('superDeck.back')}</button>
         <div style={{width:1,height:24,background:'#334155'}}/>
         <input value={title} onChange={function(e){setTitle(e.target.value);mark();}} style={{background:'transparent',border:'none',color:'var(--sap-bg-elevated)',fontSize:16,fontWeight:700,fontFamily:"'Sora',sans-serif",outline:'none',padding:'4px 8px',flex:1,maxWidth:280}} placeholder={t("superDeck.untitledPlaceholder")}/>
         <div style={{flex:1}}/>
@@ -337,10 +337,10 @@ export default function SuperDeckEditor() {
         {/* Insert dropdown and Theme removed — elements are now in right sidebar */}
 
         <button onClick={function(){setShowAi(!showAi);}} style={{...btnS,background:'linear-gradient(135deg,#8b5cf6,#7c3aed)',color:'#fff',fontWeight:700}}>
-          <Sparkles size={14}/> AI Generate</button>
+          <Sparkles size={14}/> {t('superDeck.aiGenerate')}</button>
         <button onClick={function(){if(dirty)save();setPresenting(true);}} style={{...btnS,background:'var(--sap-green-dark)',color:'#fff',fontWeight:700}}
           onMouseEnter={function(e){e.currentTarget.style.background='#047857';}} onMouseLeave={function(e){e.currentTarget.style.background='var(--sap-green-dark)';}}>
-          <Play size={14}/> Present</button>
+          <Play size={14}/> {t('superDeck.present')}</button>
         <button onClick={save} disabled={saving} style={{background:'none',border:'none',color:dirty?'var(--sap-amber-bright)':'#4ade80',cursor:'pointer',display:'flex',alignItems:'center',gap:4,fontSize:12,fontFamily:'inherit',padding:'6px 8px'}}>
           <Save size={14}/> {saving?'Saving...':dirty?'Unsaved':'Saved'}</button>
       </div>
@@ -484,7 +484,7 @@ export default function SuperDeckEditor() {
               }}
                 onMouseEnter={function(e){e.currentTarget.style.background='var(--sap-purple-pale)';}} onMouseLeave={function(e){e.currentTarget.style.background='var(--sap-bg-elevated)';}}
                 style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'8px',borderRadius:6,border:'1px solid #e2e8f0',background:'var(--sap-bg-elevated)',color:'#334155',fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
-                <ArrowUp size={13}/> Bring to front</button>
+                <ArrowUp size={13}/> {t('superDeck.bringToFrontLabel')}</button>
             </div>
 
             {(selEl.type==='heading'||selEl.type==='text')&&<>
@@ -577,13 +577,13 @@ export default function SuperDeckEditor() {
               }}
                 onMouseEnter={function(e){e.currentTarget.style.background='var(--sap-purple-pale)';}} onMouseLeave={function(e){e.currentTarget.style.background='var(--sap-bg-elevated)';}}
                 style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'10px 12px',borderRadius:8,border:'1.5px solid #e2e8f0',background:'var(--sap-bg-elevated)',color:'#334155',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',marginBottom:10}}>
-                <Upload size={14} color="var(--sap-purple)"/> Upload / Replace image</button>
+                <Upload size={14} color="var(--sap-purple)"/> {t('superDeck.uploadReplace')}</button>
             </>}
 
             <button onClick={delEl}
               onMouseEnter={function(e){e.currentTarget.style.background='#fee2e2';}} onMouseLeave={function(e){e.currentTarget.style.background='var(--sap-red-bg)';}}
               style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'10px 12px',borderRadius:8,border:'1px solid #fecaca',background:'var(--sap-red-bg)',color:'var(--sap-red)',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',marginTop:4}}>
-              <Trash2 size={14}/> Delete element</button>
+              <Trash2 size={14}/> {t('superDeck.deleteElement')}</button>
 
             <div style={{borderTop:'1px solid #e2e8f0',margin:'12px 0'}}/>
           </>}
@@ -615,11 +615,11 @@ export default function SuperDeckEditor() {
               <button onClick={function(){dupSlide(active);}}
                 onMouseEnter={function(e){e.currentTarget.style.background='#f3f0ff';}} onMouseLeave={function(e){e.currentTarget.style.background='var(--sap-bg-elevated)';}}
                 style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'7px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'var(--sap-bg-elevated)',color:'#334155',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
-                <Copy size={12} color="var(--sap-purple)"/> Duplicate slide</button>
+                <Copy size={12} color="var(--sap-purple)"/> {t('superDeck.duplicateSlideLabel')}</button>
               <button onClick={function(){delSlide(active);}}
                 onMouseEnter={function(e){e.currentTarget.style.background='#fee2e2';}} onMouseLeave={function(e){e.currentTarget.style.background='var(--sap-bg-elevated)';}}
                 style={{display:'flex',alignItems:'center',gap:6,width:'100%',padding:'7px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'var(--sap-bg-elevated)',color:'#334155',fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
-                <Trash2 size={12} color="var(--sap-red)"/> Delete slide</button>
+                <Trash2 size={12} color="var(--sap-red)"/> {t('superDeck.deleteSlideLabel')}</button>
             </div>
           </div>
         </div>

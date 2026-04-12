@@ -156,7 +156,7 @@ function EarningsCalculator({ onJoin }) {
         <div style={{background:'linear-gradient(135deg,rgba(16,185,129,.12),rgba(16,185,129,.04))',padding:'16px 24px',borderBottom:'1px solid rgba(16,185,129,.1)'}}>
           <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#34d399',marginBottom:4}}>{t('earnPage.monthlyRecurring')}</div>
           <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>{t('earnPage.membershipCommissions')}</div>
-          <div style={{fontSize:11,color:'rgba(200,220,255,.4)',marginTop:2}}>50% of every membership fee, every month, for as long as they stay active.</div>
+          <div style={{fontSize:11,color:'rgba(200,220,255,.4)',marginTop:2}}>{t('earnPage.membershipDescBody')}</div>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',minHeight:220}}>
           {/* Controls */}
@@ -449,7 +449,7 @@ export default function EarnPage() {
         <div style={{textAlign:'center',marginBottom:32}}>
           <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-pink)',marginBottom:12}}>{t('earnPage.interactive3D')}</div>
           <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,40px)',fontWeight:900,color:'#fff',marginBottom:12}}>{t('earnPage.watch3DDesc')}</h2>
-          <p style={{fontSize:15,color:'rgba(200,220,255,.4)',maxWidth:550,margin:'0 auto',lineHeight:1.6}}>Select a campaign tier and see how 64 members filling your grid generates commissions at every level.</p>
+          <p style={{fontSize:15,color:'rgba(200,220,255,.4)',maxWidth:550,margin:'0 auto',lineHeight:1.6}}>{t('earnPage.selectTierDesc')}</p>
         </div>
         <Grid3DSection />
       </section>
@@ -586,7 +586,7 @@ export default function EarnPage() {
         <div style={{textAlign:'center',marginBottom:36}}>
           <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:12}}>{t('earnPage.earningsSimulator')}</div>
           <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,38px)',fontWeight:900,color:'#fff',marginBottom:12}}>{t('earnPage.seeWhatYouCouldEarn')}</h2>
-          <p style={{fontSize:15,color:'rgba(200,220,255,.45)',maxWidth:520,margin:'0 auto'}}>Two income streams, two calculators. See your potential from membership commissions and campaign grid earnings.</p>
+          <p style={{fontSize:15,color:'rgba(200,220,255,.45)',maxWidth:520,margin:'0 auto'}}>{t('earnPage.twoCalcDescFull')}</p>
         </div>
         <EarningsCalculator onJoin={openReg}/>
       </section>
@@ -625,7 +625,7 @@ export default function EarnPage() {
           })}
         </div>
 
-        <div style={{fontSize:13,color:'rgba(200,220,255,.3)'}}>💡 Refer 2 members = your Basic membership is free. Refer 3 = you're in profit.</div>
+        <div style={{fontSize:13,color:'rgba(200,220,255,.3)'}}>{t('earnPage.referTipFull')}</div>
       </section>
 
       {/* FINAL CTA */}

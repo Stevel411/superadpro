@@ -340,7 +340,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       if (el._embedCode) {
         return <div style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: 8, pointerEvents: 'none' }} dangerouslySetInnerHTML={{ __html: el._embedCode }} />;
       }
-      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,41,0.3)', borderRadius: 12, border: '1px dashed #334155', color: 'var(--sap-text-secondary)', fontSize: 13, gap: 8 }}>⟨/⟩ Click ✎ CODE to add HTML</div>;
+      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,41,0.3)', borderRadius: 12, border: '1px dashed #334155', color: 'var(--sap-text-secondary)', fontSize: 13, gap: 8 }}>{t('superPagesEditor.clickCodeFull')}</div>;
     }
     // Badge/label: render as centred pill
     if (el.type === 'badge' || el.type === 'label') {

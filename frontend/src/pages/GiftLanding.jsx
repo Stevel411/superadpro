@@ -79,7 +79,7 @@ export default function GiftLanding() {
         </div>
         <div style={{ padding:'14px 20px', background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.08)', borderRadius:12, marginBottom:24 }}>
           <div style={{ fontSize:12, color:'rgba(255,255,255,.4)', marginBottom:4 }}>{t('giftLanding.remember')}</div>
-          <div style={{ fontSize:14, color:'var(--sap-amber-bright)', fontWeight:700 }}>When you earn $20+, pay it forward and gift a membership to someone else.</div>
+          <div style={{ fontSize:14, color:'var(--sap-amber-bright)', fontWeight:700 }}>{t('giftLanding.payForwardFull')}</div>
         </div>
         <button onClick={function() { navigate('/dashboard'); }}
           style={{ padding:'14px 28px', borderRadius:10, border:'none', cursor:'pointer', fontFamily:'inherit', fontSize:15, fontWeight:800, color:'#fff', background:'linear-gradient(135deg,#0ea5e9,#38bdf8)', display:'inline-flex', alignItems:'center', gap:8 }}>
@@ -106,7 +106,7 @@ export default function GiftLanding() {
             <div style={{ width:64, height:64, borderRadius:16, background:'rgba(255,255,255,.15)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 20px' }}>
               <Gift size={32} color="#fff"/>
             </div>
-            <div style={{ fontSize:14, color:'rgba(255,255,255,.6)', fontWeight:600, marginBottom:8 }}>You've been gifted a free membership by</div>
+            <div style={{ fontSize:14, color:'rgba(255,255,255,.6)', fontWeight:600, marginBottom:8 }}>{t('giftLanding.giftedByBody')}</div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#fff', marginBottom:16 }}>{gift.gifter_name}</div>
 
             {gift.personal_message && (

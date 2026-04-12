@@ -8,7 +8,7 @@ export default function ComingSoon() {
           <div style={{ width:52, height:52, borderRadius:'50%', background:'linear-gradient(135deg,#0ea5e9,#38bdf8)', display:'flex', alignItems:'center', justifyContent:'center', boxShadow:'0 4px 24px rgba(14,165,233,0.35)' }}>
             <svg viewBox="0 0 24 24" fill="none" width="26" height="26"><polygon points="5,3 19,12 5,21" fill="#fff"/></svg>
           </div>
-          <span style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:900, color:'#fff', letterSpacing:-1 }}>Super<span style={{ color:'var(--sap-accent-light)' }}>Ad</span>{t('common.pro')}</span>
+          <span style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:900, color:'#fff', letterSpacing:-1 }}>Super<span style={{ color:'var(--sap-accent-light)' }}>{t('onboarding.adLabel')}</span>{t('common.pro')}</span>
         </div>
 
         <div style={{ fontFamily:'Sora,sans-serif', fontSize:42, fontWeight:900, color:'#fff', lineHeight:1.2, marginBottom:16 }}>

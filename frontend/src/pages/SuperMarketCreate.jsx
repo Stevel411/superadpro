@@ -234,7 +234,7 @@ export default function SuperMarketCreate() {
                 </div>
                 <label style={{display:'flex',alignItems:'flex-start',gap:10,cursor:'pointer',padding:'14px 16px',borderRadius:12,border:agreedTerms?'2px solid #0ea5e9':'2px solid #e8ecf2',background:agreedTerms?'rgba(14,165,233,.02)':'transparent',transition:'all .15s'}}>
                   <input type="checkbox" checked={agreedTerms} onChange={function(){setAgreedTerms(!agreedTerms);}} style={{marginTop:2,accentColor:'var(--sap-accent)',width:18,height:18}}/>
-                  <span style={{fontSize:13,fontWeight:600,color:'var(--sap-text-primary)',lineHeight:1.6}}>I agree to the Seller Terms and confirm my product is original</span>
+                  <span style={{fontSize:13,fontWeight:600,color:'var(--sap-text-primary)',lineHeight:1.6}}>{t('superMarketCreate.agreeTermsBody')}</span>
                 </label>
               </div>
             </div>

@@ -200,10 +200,10 @@ export default function CourseCreate() {
                 <div style={{background:'rgba(139,92,246,.03)',border:'1px solid rgba(139,92,246,.1)',borderRadius:12,padding:'16px 20px',marginBottom:20}}>
                   <div style={{fontSize:13,fontWeight:700,color:'var(--sap-purple)',marginBottom:8}}>{t('courseCreate.whatHappens')}</div>
                   <div style={{fontSize:12,color:'var(--sap-text-secondary)',lineHeight:1.9}}>
-                    <div>1. You'll land in the <strong>{t('courseCreate.courseEditor')}</strong> to add chapters & lessons</div>
-                    <div>2. Use the rich text editor, videos, and PDFs</div>
+                    <div>1. You'll land in the <strong>{t('courseCreate.courseEditor')}</strong> {t('courseCreate.step1Suffix')}</div>
+                    <div>{t('courseCreate.step2Full')}</div>
                     <div>3. When ready, click <strong>{t('courseCreate.submitReview')}</strong></div>
-                    <div>4. AI scans for quality & copyright, then admin approves</div>
+                    <div>{t('courseCreate.step4Full')}</div>
                   </div>
                 </div>
 
@@ -222,7 +222,7 @@ export default function CourseCreate() {
 
                 <label style={{display:'flex',alignItems:'flex-start',gap:10,cursor:'pointer',padding:'14px 16px',borderRadius:12,border:agreedTerms?'2px solid #8b5cf6':'2px solid #e8ecf2',background:agreedTerms?'rgba(139,92,246,.02)':'transparent',transition:'all .15s'}}>
                   <input type="checkbox" checked={agreedTerms} onChange={function(){setAgreedTerms(!agreedTerms);}} style={{marginTop:2,accentColor:'var(--sap-purple)',width:18,height:18}}/>
-                  <span style={{fontSize:13,fontWeight:600,color:'var(--sap-text-primary)',lineHeight:1.6}}>I agree to the Creator Terms and confirm my content is original</span>
+                  <span style={{fontSize:13,fontWeight:600,color:'var(--sap-text-primary)',lineHeight:1.6}}>{t('courseCreate.agreeBody')}</span>
                 </label>
               </div>
             </div>
@@ -266,7 +266,7 @@ export default function CourseCreate() {
           <div style={{marginTop:12,background:'linear-gradient(135deg,#f5f3ff,#ede9fe)',border:'1px solid #ddd6fe',borderRadius:12,padding:'14px 16px'}}>
             <div style={{fontSize:11,fontWeight:800,color:'var(--sap-purple)',marginBottom:6}}>{t('courseCreate.passUpSystem')}</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:900,color:'var(--sap-purple)'}}>${parseFloat(price||0).toFixed(0)}</div>
-            <div style={{fontSize:10,color:'var(--sap-text-muted)',marginTop:4,lineHeight:1.6}}>per kept sale (1st, 3rd, 5th...). Even sales pass up to your sponsor. No platform fees.</div>
+            <div style={{fontSize:10,color:'var(--sap-text-muted)',marginTop:4,lineHeight:1.6}}>{t('courseCreate.passUpBody')}</div>
           </div>
 
           {/* What's next */}

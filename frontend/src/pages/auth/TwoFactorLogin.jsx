@@ -106,7 +106,7 @@ export default function TwoFactorLogin() {
         </form>
 
         <div style={styles.help}>
-          <p style={styles.helpText}>Open Google Authenticator or your 2FA app and enter the current 6-digit code for SuperAdPro.</p>
+          <p style={styles.helpText}>{t('auth.enter2faFull')} SuperAdPro.</p>
         </div>
 
         <div style={{ textAlign: 'center', marginTop: 20 }}>
