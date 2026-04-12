@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import AppLayout from '../../components/layout/AppLayout';
@@ -80,6 +81,7 @@ function TabIcon({ type }) {
 //  MAIN COMPONENT
 // ══════════════════════════════════════════════════════
 export default function CreativeStudio() {
+  var { t } = useTranslation();
   var [searchParams, setSearchParams] = useSearchParams();
   var initialTab = searchParams.get('tab') || 'video-clips';
   var [tab, setTab] = useState(initialTab);
@@ -496,7 +498,7 @@ export default function CreativeStudio() {
   //  RENDER
   // ══════════════════════════════════════════════════
   return (
-    <AppLayout title="Creative Studio" subtitle="Create videos, images, music and voiceovers with AI">
+    <AppLayout title={t("creativeStudio.title")} subtitle={t("creativeStudio.subtitle")}>
 
       <div className="cs-page">
 
@@ -546,7 +548,7 @@ export default function CreativeStudio() {
               ) : (
                 <div className="cs-stage-empty">
                   <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1"><rect x="2" y="4" width="20" height="14" rx="3"/><polygon points="10,8 10,15 16,11.5"/></svg>
-                  <p>Your video will appear here</p>
+                  <p>{t('creativeStudio.videoWillAppear')}</p>
                   <small>Write a prompt, choose a model, and hit Create</small>
                 </div>
               )}
@@ -570,14 +572,14 @@ export default function CreativeStudio() {
 
               {/* Mode toggle */}
               <div className="cs-mode">
-                <button className={mode === 'text' ? 'on' : ''} onClick={function() { setMode('text'); }}>Text to Video</button>
-                <button className={mode === 'image' ? 'on' : ''} onClick={function() { setMode('image'); }}>Image to Video</button>
+                <button className={mode === 'text' ? 'on' : ''} onClick={function() { setMode('text'); }}>{t('creativeStudio.textToVideo')}</button>
+                <button className={mode === 'image' ? 'on' : ''} onClick={function() { setMode('image'); }}>{t('creativeStudio.imageToVideo')}</button>
               </div>
 
               {/* Row 1: Prompt + Model */}
               <div className="cs-row">
                 <div className="cs-card">
-                  <div className="cs-lbl">Prompt</div>
+                  <div className="cs-lbl">{t("creativeStudio.prompt")}</div>
                   <textarea className="cs-ta" rows={3} value={prompt} onChange={function(e) { setPrompt(e.target.value.slice(0, 2000)); }}
                     placeholder={mode === 'image' ? 'Describe how this image should move — e.g. slow zoom in, camera orbits...' : 'A cinematic drone shot over a misty mountain valley at golden hour...'}/>
                   <div className="cs-ta-foot">
@@ -609,7 +611,7 @@ export default function CreativeStudio() {
 
               {/* Camera Motion (Image mode only) */}
               {mode === 'image' && <div className="cs-card" style={{ marginBottom: 16 }}>
-                <div className="cs-lbl">Camera Motion</div>
+                <div className="cs-lbl">{t("creativeStudio.cameraMotion")}</div>
                 <div className="cs-motion-grid">
                   {CAMERA_MOTIONS.map(function(m) {
                     var isOn = motionPresets.includes(m.key);
@@ -624,7 +626,7 @@ export default function CreativeStudio() {
               {/* Row 2: Ratio + Duration/Resolution + Image Upload */}
               <div className="cs-row-3">
                 <div className="cs-card">
-                  <div className="cs-lbl">Aspect Ratio</div>
+                  <div className="cs-lbl">{t("creativeStudio.aspectRatio")}</div>
                   <div className="cs-pills">
                     {RATIOS.map(function(r) {
                       return <button key={r.key} className={'cs-pill' + (ratio === r.key ? ' on' : '')} onClick={function() { setRatio(r.key); }}>{r.key}</button>;
@@ -632,7 +634,7 @@ export default function CreativeStudio() {
                   </div>
                 </div>
                 <div className="cs-card">
-                  <div className="cs-lbl">Duration & Resolution</div>
+                  <div className="cs-lbl">{t("creativeStudio.durationResolution")}</div>
                   <div style={{ display: 'flex', gap: 8 }}>
                     <select className="cs-sel" style={{ flex: 1 }} value={duration} onChange={function(e) { setDuration(Number(e.target.value)); }}>
                       {selectedModel.durations.map(function(d) { return <option key={d} value={d}>{d} seconds</option>; })}
@@ -648,7 +650,7 @@ export default function CreativeStudio() {
                   </div>}
                 </div>
                 <div className="cs-card">
-                  <div className="cs-lbl">Reference Image <span className="cs-lbl-badge">Optional</span></div>
+                  <div className="cs-lbl">{t("creativeStudio.referenceImage")} <span className="cs-lbl-badge">{t('creativeStudio.optional')}</span></div>
                   <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" style={{ display: 'none' }} onChange={handleImageSelect}/>
                   {imagePreview ? (
                     <div className="cs-img-preview">
@@ -661,7 +663,7 @@ export default function CreativeStudio() {
                   ) : (
                     <div className="cs-upload" onClick={function() { if (fileRef.current) fileRef.current.click(); }}>
                       <div className="cs-upload-plus">+</div>
-                      <div className="cs-upload-text">Drop image or click to upload</div>
+                      <div className="cs-upload-text">{t('creativeStudio.dropImage')}</div>
                     </div>
                   )}
                 </div>
@@ -670,16 +672,16 @@ export default function CreativeStudio() {
               {/* Row 3: Negative prompt + Seed */}
               <div className="cs-row">
                 {selectedModel.negPrompt && <div className="cs-card">
-                  <div className="cs-lbl">Negative Prompt <span className="cs-lbl-badge">Optional</span></div>
+                  <div className="cs-lbl">{t("creativeStudio.negativePrompt")} <span className="cs-lbl-badge">{t('creativeStudio.optional')}</span></div>
                   <textarea className="cs-neg-ta" rows={2} value={negPrompt} onChange={function(e) { setNegPrompt(e.target.value.slice(0, 500)); }}
-                    placeholder="blurry, low quality, text, watermark, distorted…"/>
+                    placeholder={t("creativeStudio.negativePromptPlaceholder")}/>
                 </div>}
                 <div className="cs-card">
-                  <div className="cs-lbl">Seed</div>
+                  <div className="cs-lbl">{t("creativeStudio.seed")}</div>
                   <div className="cs-seed">
                     <div className={'cs-seed-lock' + (seedLocked ? ' on' : '')} onClick={toggleSeedLock}>{seedLocked ? '🔒' : '🔓'}</div>
                     <div>
-                      <div className="cs-seed-lbl">Seed</div>
+                      <div className="cs-seed-lbl">{t("creativeStudio.seed")}</div>
                       <div className="cs-seed-val">{seedLocked ? seedValue : 'Random'}</div>
                     </div>
                     {seedLocked && <button className="cs-seed-refresh" onClick={function() { setSeedValue(Math.floor(Math.random() * 999999)); }}>↻</button>}
@@ -704,7 +706,7 @@ export default function CreativeStudio() {
 
             {/* Recent Gallery */}
             {videos.filter(function(v) { return v.status === 'completed' && v.video_url; }).length > 0 && <div className="cs-recent">
-              <div className="cs-recent-label">Recent</div>
+              <div className="cs-recent-label">{t('creativeStudio.recent')}</div>
               <div className="cs-recent-grid">
                 {videos.filter(function(v) { return v.status === 'completed' && v.video_url; }).slice(0, 10).map(function(v) {
                   return <div key={v.id} className="cs-recent-thumb" onClick={function() { setVideoUrl(v.video_url); setGenStatus('done'); }}>
@@ -725,10 +727,10 @@ export default function CreativeStudio() {
                 </svg>
               </div>
               <div className="cs-matrix-banner-text">
-                <div className="cs-matrix-banner-title">Earn commissions from every credit pack sale</div>
-                <div className="cs-matrix-banner-desc">When your referrals buy credits, they enter your Profit Nexus — earning you level commissions and completion bonuses automatically.</div>
+                <div className="cs-matrix-banner-title">{t('creativeStudio.nexusBannerTitle')}</div>
+                <div className="cs-matrix-banner-desc">{t('creativeStudio.nexusBannerDesc')}</div>
               </div>
-              <a href="/credit-matrix" className="cs-matrix-banner-link">View Profit Nexus →</a>
+              <a href="/credit-matrix" className="cs-matrix-banner-link">{t('creativeStudio.viewNexus')}</a>
             </div>
 
           </>}
@@ -759,7 +761,7 @@ export default function CreativeStudio() {
               ) : (
                 <div className="cs-stage-empty">
                   <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                  <p>Your image will appear here</p>
+                  <p>{t('creativeStudio.imageWillAppear')}</p>
                   <small>Choose a model, describe what you want, and generate</small>
                 </div>
               )}
@@ -784,7 +786,7 @@ export default function CreativeStudio() {
               <div className="cs-row">
                 {/* Prompt */}
                 <div className="cs-card">
-                  <div className="cs-lbl">Prompt</div>
+                  <div className="cs-lbl">{t("creativeStudio.prompt")}</div>
                   <textarea className="cs-ta" rows={4} value={imgPrompt} onChange={function(e) { setImgPrompt(e.target.value.slice(0, 2000)); }}
                     placeholder="A professional product photo of wireless earbuds on a marble surface, soft studio lighting, shallow depth of field, 8K, photorealistic"/>
                   <div className="cs-ta-foot">
@@ -815,7 +817,7 @@ export default function CreativeStudio() {
               <div className="cs-row-3">
                 {/* Aspect Ratio */}
                 <div className="cs-card">
-                  <div className="cs-lbl">Aspect Ratio</div>
+                  <div className="cs-lbl">{t("creativeStudio.aspectRatio")}</div>
                   <div className="cs-pills">
                     {['1:1', '16:9', '9:16', '4:3'].map(function(r) {
                       return <button key={r} className={'cs-pill' + (imgSize === r ? ' on' : '')} onClick={function() { setImgSize(r); }}>{r}</button>;
@@ -825,7 +827,7 @@ export default function CreativeStudio() {
 
                 {/* Quality + Batch */}
                 <div className="cs-card">
-                  <div className="cs-lbl">Quality</div>
+                  <div className="cs-lbl">{t("creativeStudio.quality")}</div>
                   <div className="cs-pills" style={{ marginBottom: 10 }}>
                     {IMG_QUALITIES.map(function(q) {
                       return <button key={q} className={'cs-pill' + (imgQuality === q ? ' on' : '')} onClick={function() { setImgQuality(q); }}>
@@ -833,7 +835,7 @@ export default function CreativeStudio() {
                       </button>;
                     })}
                   </div>
-                  <div className="cs-lbl">Number of Images</div>
+                  <div className="cs-lbl">{t("creativeStudio.numberOfImages")}</div>
                   <div className="cs-pills">
                     {[1, 2, 4].map(function(n) {
                       return <button key={n} className={'cs-pill' + (imgBatch === n ? ' on' : '')} onClick={function() { setImgBatch(n); }}>
@@ -845,14 +847,14 @@ export default function CreativeStudio() {
 
                 {/* Negative Prompt + Seed */}
                 <div className="cs-card">
-                  <div className="cs-lbl">Negative Prompt <span className="cs-lbl-badge">Optional</span></div>
+                  <div className="cs-lbl">{t("creativeStudio.negativePrompt")} <span className="cs-lbl-badge">{t('creativeStudio.optional')}</span></div>
                   <textarea className="cs-neg-ta" rows={2} value={imgNegPrompt} onChange={function(e) { setImgNegPrompt(e.target.value.slice(0, 500)); }}
-                    placeholder="blurry, low quality, watermark, text, distorted…"/>
-                  <div className="cs-lbl" style={{ marginTop: 10 }}>Seed</div>
+                    placeholder={t("creativeStudio.negativePromptPlaceholder")}/>
+                  <div className="cs-lbl" style={{ marginTop: 10 }}>{t("creativeStudio.seed")}</div>
                   <div className="cs-seed">
                     <div className={'cs-seed-lock' + (seedLocked ? ' on' : '')} onClick={toggleSeedLock}>{seedLocked ? '🔒' : '🔓'}</div>
                     <div>
-                      <div className="cs-seed-lbl">Seed</div>
+                      <div className="cs-seed-lbl">{t("creativeStudio.seed")}</div>
                       <div className="cs-seed-val">{seedLocked ? seedValue : 'Random'}</div>
                     </div>
                     {seedLocked && <button className="cs-seed-refresh" onClick={function() { setSeedValue(Math.floor(Math.random() * 999999)); }}>↻</button>}
@@ -893,8 +895,8 @@ export default function CreativeStudio() {
               ) : (
                 <div className="cs-stage-empty">
                   <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
-                  <p>Your music will appear here</p>
-                  <small>Describe your track and hit Generate</small>
+                  <p>{t('creativeStudio.musicWillAppear')}</p>
+                  <small>{t('creativeStudio.musicDesc')}</small>
                 </div>
               )}
             </div>
@@ -905,8 +907,8 @@ export default function CreativeStudio() {
             </div>}
             <div className="cs-controls">
               <div className="cs-mode" style={{ maxWidth: 280 }}>
-                <button className={musicCustom ? '' : 'on'} onClick={function() { setMusicCustom(false); }}>Simple Mode</button>
-                <button className={musicCustom ? 'on' : ''} onClick={function() { setMusicCustom(true); }}>Custom Mode</button>
+                <button className={musicCustom ? '' : 'on'} onClick={function() { setMusicCustom(false); }}>{t('creativeStudio.simpleMode')}</button>
+                <button className={musicCustom ? 'on' : ''} onClick={function() { setMusicCustom(true); }}>{t('creativeStudio.customMode')}</button>
               </div>
               <div className="cs-row">
                 <div className="cs-card">
