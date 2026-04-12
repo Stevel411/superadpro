@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { useRef } from 'react';
 import { Bold, Italic, Underline, Strikethrough, AlignLeft, AlignCenter, AlignRight, Palette, Type } from 'lucide-react';
 import { FONTS, FONT_SIZES } from './elementDefaults';
 
 export default function InlineToolbar({ visible, position, onCommand }) {
+  var { t } = useTranslation();
   const colorRef = useRef(null);
   const bgRef = useRef(null);
   const savedRange = useRef(null);

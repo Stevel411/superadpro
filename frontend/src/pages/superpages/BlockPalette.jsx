@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useRef } from 'react';
 import { PALETTE, BG_PRESETS } from './elementDefaults';
 import { Type, AlignLeft, Tag, ImageIcon, Play, Music, RectangleHorizontal, FormInput, Bell,
@@ -13,6 +14,7 @@ const BLOCK_ICONS = {
 };
 
 export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, setCanvasBgImage, markDirty, onAddElement, pageId, onAiMessage }) {
+  var { t } = useTranslation();
   const [bgType, setBgType] = useState(canvasBg?.startsWith('linear') ? 'gradient' : canvasBgImage ? 'image' : 'solid');
   const [grad1, setGrad1] = useState(() => {
     if (canvasBg?.startsWith('linear')) { const m = canvasBg.match(/#[a-fA-F0-9]{6}/g); return m?.[0] || 'var(--sap-accent)'; }

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { X, Search, ChevronDown, ChevronRight } from 'lucide-react';
 
@@ -89,6 +90,7 @@ const HELP_SECTIONS = [
 ];
 
 export default function HelpPanel({ visible, onClose }) {
+  var { t } = useTranslation();
   const [search, setSearch] = useState('');
   const [expanded, setExpanded] = useState({});
 

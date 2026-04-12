@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { useRef, useCallback, useEffect, useState } from 'react';
 import { CANVAS_WIDTH, SNAP_THRESHOLD, SOCIAL_SVGS } from './elementDefaults';
 import InlineToolbar from './InlineToolbar';
 
 export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, markDirty, onEditElement, deviceView }) {
+  var { t } = useTranslation();
   const canvasRef = useRef(null);
   const dragRef = useRef(null);
   const resizeRef = useRef(null);

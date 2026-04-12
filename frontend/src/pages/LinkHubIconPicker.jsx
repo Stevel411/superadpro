@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { Search, X } from 'lucide-react';
 import { ICON_CATEGORIES, ICONS, ARROW_STYLES } from './LinkHubIcons';
@@ -24,6 +25,7 @@ export function LinkIcon({ iconKey, style, size, color, filled }) {
 
 // Full icon picker modal/dropdown
 export default function IconPicker({ value, onChange, onClose }) {
+  var { t } = useTranslation();
   var [search, setSearch] = useState('');
   var [cat, setCat] = useState('all');
   var [filled, setFilled] = useState(false);

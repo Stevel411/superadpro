@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost, apiDelete } from '../utils/api';
@@ -19,6 +20,7 @@ var TABS = [
 ];
 
 export default function AdminDashboard() {
+  var { t } = useTranslation();
   var [tab, setTab] = useState('overview');
   return (
     <AppLayout title="Admin Dashboard" subtitle="Platform Management — Owner Access">

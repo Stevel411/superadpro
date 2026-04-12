@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useEditorState from './useEditorState';
@@ -9,6 +10,7 @@ import exportHTML from './exportHTML';
 import { apiGet, apiPost } from '../../utils/api';
 
 export default function SuperPagesEditor() {
+  var { t } = useTranslation();
   const { pageId } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);

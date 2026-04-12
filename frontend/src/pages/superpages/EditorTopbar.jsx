@@ -1,6 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import { Eye, Save, Undo2, Redo2, Settings, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, Tablet, HelpCircle } from 'lucide-react';
 
 export default function EditorTopbar({ title, slug, saving, dirty, status, onSave, onClear, onShowSettings, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, deviceView, onSetDevice, onShowHelp }) {
+  var { t } = useTranslation();
   const isPublished = status === 'published';
   return (
     <div style={{
