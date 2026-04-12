@@ -63,8 +63,8 @@ export default function PDFImages() {
     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
       <div style={{ maxWidth: 600, width: '100%' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <div style={{ fontWeight: 800, fontSize: 24, color: '#fff', marginBottom: 6 }}>Images to PDF</div>
-          <div style={{ fontSize: 13, color: 'rgba(200,220,255,0.35)' }}>Convert images into a PDF document. One image per page.</div>
+          <div style={{ fontWeight: 800, fontSize: 24, color: '#fff', marginBottom: 6 }}>{t('pdfTools.imagesToPdf')}</div>
+          <div style={{ fontSize: 13, color: 'rgba(200,220,255,0.35)' }}>{t("pdfTools.imagesToPdfDesc")}</div>
         </div>
 
         <div onClick={() => fileRef.current?.click()}
@@ -72,8 +72,8 @@ export default function PDFImages() {
           onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--sap-accent)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--sap-navy-card)'}
         >
           <div style={{ fontSize: 28, marginBottom: 8, opacity: 0.3 }}>+</div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#c5cad1', marginBottom: 4 }}>Click to upload images</div>
-          <div style={{ fontSize: 12, color: '#7b8594' }}>JPG, PNG, WebP supported</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#c5cad1', marginBottom: 4 }}>{t('pdfTools.clickToUploadImages')}</div>
+          <div style={{ fontSize: 12, color: '#7b8594' }}>{t('pdfTools.supportedFormats')}</div>
           <input ref={fileRef} type="file" accept="image/*" multiple onChange={addImages} style={{ display: 'none' }} />
         </div>
 
@@ -95,7 +95,7 @@ export default function PDFImages() {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 16 }}>
           <div>
-            <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>Page size</div>
+            <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>{t('pdfTools.pageSizeLabel')}</div>
             <div style={{ display: 'flex', gap: 4 }}>
               {['A4', 'Letter'].map(s => (
                 <button key={s} onClick={() => setPageSize(s)} style={{ flex: 1, padding: '7px 0', borderRadius: 7, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, fontWeight: pageSize === s ? 700 : 600, background: pageSize === s ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: pageSize === s ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: pageSize === s ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{s}</button>
@@ -103,7 +103,7 @@ export default function PDFImages() {
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>Orientation</div>
+            <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>{t('pdfTools.orientationLabel')}</div>
             <div style={{ display: 'flex', gap: 4 }}>
               {['portrait', 'landscape'].map(o => (
                 <button key={o} onClick={() => setOrientation(o)} style={{ flex: 1, padding: '7px 0', borderRadius: 7, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 10, fontWeight: orientation === o ? 700 : 600, background: orientation === o ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: orientation === o ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: orientation === o ? 'var(--sap-accent)' : 'var(--sap-navy-card)', textTransform: 'capitalize' }}>{o}</button>
@@ -111,7 +111,7 @@ export default function PDFImages() {
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>Image fit</div>
+            <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>{t('pdfTools.imageFit')}</div>
             <div style={{ display: 'flex', gap: 4 }}>
               {['fit', 'fill'].map(f => (
                 <button key={f} onClick={() => setFitting(f)} style={{ flex: 1, padding: '7px 0', borderRadius: 7, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, fontWeight: fitting === f ? 700 : 600, background: fitting === f ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: fitting === f ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: fitting === f ? 'var(--sap-accent)' : 'var(--sap-navy-card)', textTransform: 'capitalize' }}>{f}</button>
@@ -130,8 +130,8 @@ export default function PDFImages() {
 
         <div style={{ textAlign: 'center', marginTop: 16 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 18px', background: 'rgba(14,165,233,0.04)', border: '1px solid rgba(0,180,216,0.08)', borderRadius: 10 }}>
-            <span style={{ fontSize: 11, color: 'rgba(200,220,255,0.3)' }}>Want AI video, music & voiceover?</span>
-            <Link to="/register" style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>Join SuperAdPro free</Link>
+            <span style={{ fontSize: 11, color: 'rgba(200,220,255,0.3)' }}>{t('pdfTools.wantAiVideo')}</span>
+            <Link to="/register" style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('pdfTools.joinFree')}</Link>
           </div>
         </div>
       </div>

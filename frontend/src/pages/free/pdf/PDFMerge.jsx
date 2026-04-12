@@ -45,8 +45,8 @@ export default function PDFMerge() {
     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
       <div style={{ maxWidth: 600, width: '100%' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <div style={{ fontWeight: 800, fontSize: 24, color: '#fff', marginBottom: 6 }}>Merge PDFs</div>
-          <div style={{ fontSize: 13, color: 'rgba(200,220,255,0.35)' }}>Combine multiple PDF files into a single document. Drag to reorder.</div>
+          <div style={{ fontWeight: 800, fontSize: 24, color: '#fff', marginBottom: 6 }}>{t('pdfTools.mergePdfs')}</div>
+          <div style={{ fontSize: 13, color: 'rgba(200,220,255,0.35)' }}>{t("pdfTools.mergePdfsDesc")}</div>
         </div>
 
         <div onClick={() => fileRef.current?.click()}
@@ -54,8 +54,8 @@ export default function PDFMerge() {
           onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--sap-accent)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--sap-navy-card)'}
         >
           <div style={{ fontSize: 28, marginBottom: 8, opacity: 0.3 }}>+</div>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#c5cad1', marginBottom: 4 }}>Click to upload PDF files</div>
-          <div style={{ fontSize: 12, color: '#7b8594' }}>or drag and drop</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#c5cad1', marginBottom: 4 }}>{t('pdfTools.clickToUploadPdfs')}</div>
+          <div style={{ fontSize: 12, color: '#7b8594' }}>{t('pdfTools.orDragDrop')}</div>
           <input ref={fileRef} type="file" accept="application/pdf" multiple onChange={addFiles} style={{ display: 'none' }} />
         </div>
 
@@ -87,8 +87,8 @@ export default function PDFMerge() {
 
         <div style={{ textAlign: 'center', marginTop: 16 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 18px', background: 'rgba(14,165,233,0.04)', border: '1px solid rgba(0,180,216,0.08)', borderRadius: 10 }}>
-            <span style={{ fontSize: 11, color: 'rgba(200,220,255,0.3)' }}>Want AI video, music & voiceover?</span>
-            <Link to="/register" style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>Join SuperAdPro free</Link>
+            <span style={{ fontSize: 11, color: 'rgba(200,220,255,0.3)' }}>{t('pdfTools.wantAiVideo')}</span>
+            <Link to="/register" style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('pdfTools.joinFree')}</Link>
           </div>
         </div>
       </div>

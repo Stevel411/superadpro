@@ -230,13 +230,13 @@ export default function BannerCreator() {
       <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 36px', height: 80, background: 'rgba(10,18,40,0.95)', backdropFilter: 'blur(18px)', borderBottom: '1px solid rgba(0,180,216,0.12)', flexShrink: 0, position: 'relative' }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: 9, textDecoration: 'none' }}>
           <svg style={{ width: 28, height: 28 }} viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="var(--sap-accent)"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
-          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 20, color: '#fff' }}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span></span>
+          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 20, color: '#fff' }}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>{t('freeBanner.pro')}</span></span>
         </Link>
         <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 20, color: '#fff' }}>Social Media Creator</span>
-          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-accent)', border: '1px solid rgba(14,165,233,0.4)', borderRadius: 20, padding: '4px 14px', letterSpacing: 1.5 }}>FREE</span>
+          <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 20, color: '#fff' }}>{t('freeBanner.socialMediaCreator')}</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-accent)', border: '1px solid rgba(14,165,233,0.4)', borderRadius: 20, padding: '4px 14px', letterSpacing: 1.5 }}>{t('freeBanner.free')}</span>
         </div>
-        <Link to="/register" style={{ background: 'var(--sap-accent)', color: '#fff', fontSize: 15, fontWeight: 600, padding: '10px 24px', borderRadius: 10, textDecoration: 'none', boxShadow: '0 2px 12px rgba(14,165,233,0.25)' }}>Get started free</Link>
+        <Link to="/register" style={{ background: 'var(--sap-accent)', color: '#fff', fontSize: 15, fontWeight: 600, padding: '10px 24px', borderRadius: 10, textDecoration: 'none', boxShadow: '0 2px 12px rgba(14,165,233,0.25)' }}>{t('freeBanner.getStartedFree')}</Link>
       </nav>
 
       {/* WORKSPACE 50/50 */}
@@ -258,10 +258,10 @@ export default function BannerCreator() {
           </div>
 
           <div style={{ background: 'rgba(14,165,233,0.04)', border: '1px solid rgba(0,180,216,0.1)', borderRadius: 12, padding: '12px 16px', flexShrink: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 3 }}>Create stunning content for free</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 3 }}>{t('freeBanner.createStunningContent')}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 11, color: 'rgba(200,220,255,.35)', flex: 1 }}>AI video, music & voiceover — all in one platform.</span>
-              <Link to="/register" style={{ background: 'var(--sap-accent)', color: '#fff', fontWeight: 700, fontSize: 11, padding: '7px 14px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap' }}>Learn more</Link>
+              <span style={{ fontSize: 11, color: 'rgba(200,220,255,.35)', flex: 1 }}>{t("freeBanner.aiVideoMusicDesc")}</span>
+              <Link to="/register" style={{ background: 'var(--sap-accent)', color: '#fff', fontWeight: 700, fontSize: 11, padding: '7px 14px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap' }}>{t('freeBanner.learnMore')}</Link>
             </div>
           </div>
         </div>
@@ -270,10 +270,10 @@ export default function BannerCreator() {
         <div style={{ display: 'flex', flexDirection: 'column', background: '#0a1220', overflow: 'auto', padding: '16px 18px 14px' }}>
 
           {/* Platform picker */}
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Choose platform</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>{t('freeBanner.choosePlatform')}</div>
           <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-            <button onClick={() => setCatFilter('banner')} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, fontWeight: catFilter === 'banner' ? 700 : 600, background: catFilter === 'banner' ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: catFilter === 'banner' ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: catFilter === 'banner' ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>Banners & Posts</button>
-            <button onClick={() => setCatFilter('profile')} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, fontWeight: catFilter === 'profile' ? 700 : 600, background: catFilter === 'profile' ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: catFilter === 'profile' ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: catFilter === 'profile' ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>Profile Pictures</button>
+            <button onClick={() => setCatFilter('banner')} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, fontWeight: catFilter === 'banner' ? 700 : 600, background: catFilter === 'banner' ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: catFilter === 'banner' ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: catFilter === 'banner' ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{t('freeBanner.bannersAndPosts')}</button>
+            <button onClick={() => setCatFilter('profile')} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, fontWeight: catFilter === 'profile' ? 700 : 600, background: catFilter === 'profile' ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: catFilter === 'profile' ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: catFilter === 'profile' ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{t('freeBanner.profilePictures')}</button>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 14, maxHeight: 200, overflow: 'auto' }}>
@@ -327,7 +327,7 @@ export default function BannerCreator() {
 
           {/* Main text */}
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>Main text</div>
-          <input type="text" value={mainText} onChange={e => setMainText(e.target.value)} placeholder="Your headline..." style={{ ...inp, marginBottom: 8 }}
+          <input type="text" value={mainText} onChange={e => setMainText(e.target.value)} placeholder={t("freeBanner.headlinePlaceholder")} style={{ ...inp, marginBottom: 8 }}
             onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
@@ -355,7 +355,7 @@ export default function BannerCreator() {
 
           {/* Subtitle */}
           <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>Subtitle</div>
-          <input type="text" value={subText} onChange={e => setSubText(e.target.value)} placeholder="Subtitle..." style={{ ...inp, marginBottom: 8 }}
+          <input type="text" value={subText} onChange={e => setSubText(e.target.value)} placeholder={t("freeBanner.subtitlePlaceholder")} style={{ ...inp, marginBottom: 8 }}
             onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>

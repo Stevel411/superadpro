@@ -48,8 +48,8 @@ export default function PDFCompress() {
     <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 40 }}>
       <div style={{ maxWidth: 500, width: '100%' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <div style={{ fontWeight: 800, fontSize: 24, color: '#fff', marginBottom: 6 }}>Compress PDF</div>
-          <div style={{ fontSize: 13, color: 'rgba(200,220,255,0.35)' }}>Reduce PDF file size while maintaining quality.</div>
+          <div style={{ fontWeight: 800, fontSize: 24, color: '#fff', marginBottom: 6 }}>{t('pdfTools.compressPdf')}</div>
+          <div style={{ fontSize: 13, color: 'rgba(200,220,255,0.35)' }}>{t("pdfTools.compressPdfDesc")}</div>
         </div>
 
         {!file ? (
@@ -58,8 +58,8 @@ export default function PDFCompress() {
             onMouseEnter={e => e.currentTarget.style.borderColor = 'var(--sap-accent)'} onMouseLeave={e => e.currentTarget.style.borderColor = 'var(--sap-navy-card)'}
           >
             <div style={{ fontSize: 28, marginBottom: 8, opacity: 0.3 }}>+</div>
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#c5cad1', marginBottom: 4 }}>Click to upload a PDF</div>
-            <div style={{ fontSize: 12, color: '#7b8594' }}>Max 50MB recommended</div>
+            <div style={{ fontSize: 14, fontWeight: 600, color: '#c5cad1', marginBottom: 4 }}>{t('pdfTools.clickToUpload')}</div>
+            <div style={{ fontSize: 12, color: '#7b8594' }}>{t('pdfTools.maxSize')}</div>
             <input ref={fileRef} type="file" accept="application/pdf" onChange={onFile} style={{ display: 'none' }} />
           </div>
         ) : !result ? (
@@ -80,24 +80,24 @@ export default function PDFCompress() {
           <div style={{ textAlign: 'center' }}>
             <div style={{ padding: '24px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 12, marginBottom: 16 }}>
               <div style={{ fontSize: 36, fontWeight: 800, color: 'var(--sap-green-bright)', marginBottom: 8 }}>{result.savings}%</div>
-              <div style={{ fontSize: 13, color: '#7b8594', marginBottom: 12 }}>File size reduced</div>
+              <div style={{ fontSize: 13, color: '#7b8594', marginBottom: 12 }}>{t('pdfTools.fileSizeReduced')}</div>
               <div style={{ display: 'flex', justifyContent: 'center', gap: 24 }}>
-                <div><div style={{ fontSize: 11, color: '#7b8594' }}>Original</div><div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{formatSize(result.originalSize)}</div></div>
+                <div><div style={{ fontSize: 11, color: '#7b8594' }}>{t('pdfTools.originalLabel')}</div><div style={{ fontSize: 14, fontWeight: 700, color: '#fff' }}>{formatSize(result.originalSize)}</div></div>
                 <div style={{ fontSize: 18, color: '#7b8594', alignSelf: 'center' }}>→</div>
-                <div><div style={{ fontSize: 11, color: '#7b8594' }}>Compressed</div><div style={{ fontSize: 14, fontWeight: 700, color: 'var(--sap-green-bright)' }}>{formatSize(result.newSize)}</div></div>
+                <div><div style={{ fontSize: 11, color: '#7b8594' }}>{t('pdfTools.compressedLabel')}</div><div style={{ fontSize: 14, fontWeight: 700, color: 'var(--sap-green-bright)' }}>{formatSize(result.newSize)}</div></div>
               </div>
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
-              <button onClick={download} style={{ flex: 1, padding: '14px 0', borderRadius: 12, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 15, fontWeight: 700, background: 'var(--sap-accent)', color: '#fff', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>Download Compressed PDF</button>
-              <button onClick={reset} style={{ padding: '14px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.05)', color: 'rgba(200,220,255,0.6)', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 14, fontWeight: 600 }}>New file</button>
+              <button onClick={download} style={{ flex: 1, padding: '14px 0', borderRadius: 12, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 15, fontWeight: 700, background: 'var(--sap-accent)', color: '#fff', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>{t('pdfTools.downloadCompressed')}</button>
+              <button onClick={reset} style={{ padding: '14px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.05)', color: 'rgba(200,220,255,0.6)', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 14, fontWeight: 600 }}>{t('pdfTools.newFile')}</button>
             </div>
           </div>
         )}
 
         <div style={{ textAlign: 'center', marginTop: 20 }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '8px 18px', background: 'rgba(14,165,233,0.04)', border: '1px solid rgba(0,180,216,0.08)', borderRadius: 10 }}>
-            <span style={{ fontSize: 11, color: 'rgba(200,220,255,0.3)' }}>Want AI video, music & voiceover?</span>
-            <Link to="/register" style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>Join SuperAdPro free</Link>
+            <span style={{ fontSize: 11, color: 'rgba(200,220,255,0.3)' }}>{t('pdfTools.wantAiVideo')}</span>
+            <Link to="/register" style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('pdfTools.joinFree')}</Link>
           </div>
         </div>
       </div>

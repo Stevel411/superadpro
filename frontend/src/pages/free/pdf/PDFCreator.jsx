@@ -344,19 +344,19 @@ export default function PDFCreator() {
         {selectedEl && (
           <>
             <div style={{ width: 1, height: 20, background: 'var(--sap-navy-card)', margin: '0 6px' }} />
-            <button onClick={() => deleteEl(selectedId)} style={{ ...tb, background: 'rgba(239,68,68,0.1)', borderColor: 'rgba(239,68,68,0.2)', color: 'var(--sap-red-bright)' }}>Delete</button>
+            <button onClick={() => deleteEl(selectedId)} style={{ ...tb, background: 'rgba(239,68,68,0.1)', borderColor: 'rgba(239,68,68,0.2)', color: 'var(--sap-red-bright)' }}>{t('pdfTools.deleteBlock')}</button>
           </>
         )}
 
         {elements.length > 0 && (
           <>
             <div style={{ width: 1, height: 20, background: 'var(--sap-navy-card)', margin: '0 6px' }} />
-            <button onClick={clearAll} style={{ ...tb, color: '#7b8594' }}>Clear all</button>
+            <button onClick={clearAll} style={{ ...tb, color: '#7b8594' }}>{t('pdfTools.clearAll')}</button>
           </>
         )}
 
         <div style={{ flex: 1 }} />
-        <button onClick={exportPDF} style={{ padding: '8px 20px', background: 'var(--sap-accent)', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', boxShadow: '0 0 20px rgba(0,212,255,0.15)' }}>Download PDF</button>
+        <button onClick={exportPDF} style={{ padding: '8px 20px', background: 'var(--sap-accent)', color: '#fff', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', boxShadow: '0 0 20px rgba(0,212,255,0.15)' }}>{t('pdfTools.downloadPdf')}</button>
       </div>
 
       {/* CANVAS + PROPERTIES */}
@@ -374,23 +374,23 @@ export default function PDFCreator() {
             {elements.length === 0 && (
               <div style={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#b0b8c8', pointerEvents: 'none' }}>
                 <div style={{ fontSize: 48, marginBottom: 12, opacity: 0.3 }}>+</div>
-                <div style={{ fontSize: 16, fontWeight: 600 }}>Blank page</div>
-                <div style={{ fontSize: 13, color: '#9ca3af', marginTop: 4 }}>Add elements above or load a template</div>
+                <div style={{ fontSize: 16, fontWeight: 600 }}>{t('pdfTools.blankPage')}</div>
+                <div style={{ fontSize: 13, color: '#9ca3af', marginTop: 4 }}>{t("pdfTools.addElementsDesc")}</div>
               </div>
             )}
             {elements.map(el => renderElement(el))}
             {elements.length > 0 && (
-              <div style={{ position: 'absolute', bottom: 12, right: 20, fontSize: 9, color: 'rgba(0,0,0,0.1)', fontWeight: 600, pointerEvents: 'none' }}>Created with SuperAdPro.com</div>
+              <div style={{ position: 'absolute', bottom: 12, right: 20, fontSize: 9, color: 'rgba(0,0,0,0.1)', fontWeight: 600, pointerEvents: 'none' }}>{t("pdfTools.createdWith")}</div>
             )}
           </div>
         </div>
 
         {/* PROPERTIES PANEL */}
         <div style={{ background: '#0d1628', borderLeft: '1px solid rgba(0,180,216,0.06)', padding: 16, overflow: 'auto', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 }}>Page settings</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,0.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 12 }}>{t('pdfTools.pageSettings')}</div>
 
           <div style={{ marginBottom: 10 }}>
-            <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>Page size</div>
+            <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>{t('pdfTools.pageSizeLabel')}</div>
             <div style={{ display: 'flex', gap: 4 }}>
               {Object.keys(PAGE_SIZES).map(s => (
                 <button key={s} onClick={() => setPageSize(s)} style={{ flex: 1, padding: '6px 0', borderRadius: 7, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, fontWeight: pageSize === s ? 700 : 600, background: pageSize === s ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: pageSize === s ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: pageSize === s ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{s}</button>
@@ -398,7 +398,7 @@ export default function PDFCreator() {
             </div>
           </div>
           <div style={{ marginBottom: 10 }}>
-            <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>Orientation</div>
+            <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>{t('pdfTools.orientationLabel')}</div>
             <div style={{ display: 'flex', gap: 4 }}>
               {['portrait', 'landscape'].map(o => (
                 <button key={o} onClick={() => setOrientation(o)} style={{ flex: 1, padding: '6px 0', borderRadius: 7, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, textTransform: 'capitalize', fontWeight: orientation === o ? 700 : 600, background: orientation === o ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: orientation === o ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: orientation === o ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{o}</button>
@@ -406,7 +406,7 @@ export default function PDFCreator() {
             </div>
           </div>
           <div style={{ marginBottom: 14 }}>
-            <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>Background</div>
+            <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>{t('pdfTools.backgroundLabel')}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '7px 10px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 8 }}>
               <input type="color" value={pageBg} onChange={e => setPageBg(e.target.value)} style={{ width: 22, height: 22, border: 'none', borderRadius: 5, cursor: 'pointer', padding: 0, background: 'none' }} />
               <span style={{ fontSize: 11, color: '#c5cad1' }}>{pageBg}</span>
