@@ -100,7 +100,8 @@ export default function MyLeads() {
 }
 
 function LeadsTab({leads,lists,sequences,refresh,flash}) {
-  var [search,setSearch]=useState('');var [fS,setFS]=useState('all');var [fL,setFL]=useState('');
+
+  var { t } = useTranslation();  var [search,setSearch]=useState('');var [fS,setFS]=useState('all');var [fL,setFL]=useState('');
   var lm={}; lists.forEach(function(l){lm[l.id]=l;});
   var filtered=leads.filter(function(l){
     if(search&&!l.email.toLowerCase().includes(search.toLowerCase())&&!(l.name||'').toLowerCase().includes(search.toLowerCase()))return false;
@@ -143,7 +144,8 @@ function LeadsTab({leads,lists,sequences,refresh,flash}) {
 }
 
 function SeqTab({sequences,refresh,flash}) {
-  var [ed,setEd]=useState(null);var [t,setT]=useState('');var [em,setEm]=useState([]);var [gen,setGen]=useState(false);
+
+  var { t } = useTranslation();  var [ed,setEd]=useState(null);var [t,setT]=useState('');var [em,setEm]=useState([]);var [gen,setGen]=useState(false);
   function startNew(){setEd('new');setT('');setEm([{subject:'Welcome!',body_html:'',send_delay_days:0},{subject:'Follow up — quick tip',body_html:'',send_delay_days:2},{subject:'Last chance to take action',body_html:'',send_delay_days:5}]);}
   function editEx(s){setEd(s.id);setT(s.title);setEm(s.emails||[]);}
   function save(){if(!t.trim()){flash('Title required','err');return;}var c=em.filter(function(e){return e.subject&&e.subject.trim();});if(!c.length){flash('At least one email required','err');return;}(ed==='new'?apiPost('/api/leads/sequences',{title:t,emails:c}):apiPut('/api/leads/sequences/'+ed,{title:t,emails:c})).then(function(){flash('Sequence saved');setEd(null);refresh();}).catch(function(e){flash(e.message,'err');});}
@@ -192,7 +194,8 @@ function SeqTab({sequences,refresh,flash}) {
 }
 
 function BcastTab({leads,lists,flash}) {
-  var [sub,setSub]=useState('');var [html,setHtml]=useState('');var [fS,setFS]=useState('all');var [fL,setFL]=useState('');var [s,setS]=useState(false);var [sent,setSent]=useState(null);
+
+  var { t } = useTranslation();  var [sub,setSub]=useState('');var [html,setHtml]=useState('');var [fS,setFS]=useState('all');var [fL,setFL]=useState('');var [s,setS]=useState(false);var [sent,setSent]=useState(null);
   var ct=leads.filter(function(l){if(l.status==='unsubscribed')return false;if(fL&&l.list_id!==parseInt(fL))return false;if(fS!=='all'){if(fS==='hot')return l.is_hot;return l.status===fS;}return true;}).length;
   function send(){if(!sub.trim()){flash('Subject required','err');return;}setS(true);apiPost('/api/leads/broadcast',{subject:sub,html_content:html,filter_status:fS,list_id:fL?parseInt(fL):null}).then(function(r){setS(false);setSent(r.sent||0);flash('Broadcast sent to '+(r.sent||0)+' leads');}).catch(function(e){setS(false);flash(e.message,'err');});}
 
@@ -212,7 +215,8 @@ function BcastTab({leads,lists,flash}) {
 }
 
 function ImpTab({stats,lists,sequences,refresh,flash}) {
-  var [csv,setCsv]=useState('');var [parsed,setParsed]=useState([]);var [uploading,setUploading]=useState(false);var [result,setResult]=useState(null);
+
+  var { t } = useTranslation();  var [csv,setCsv]=useState('');var [parsed,setParsed]=useState([]);var [uploading,setUploading]=useState(false);var [result,setResult]=useState(null);
   var [listId,setListId]=useState('');var [seqId,setSeqId]=useState('');var [impStatus,setImpStatus]=useState('new');var [source,setSource]=useState('');
 
   function parse() {
@@ -323,7 +327,8 @@ function ImpTab({stats,lists,sequences,refresh,flash}) {
 }
 
 function BoostTab({emailStats,refresh,flash}) {
-  var [buying,setBuying]=useState('');
+
+  var { t } = useTranslation();  var [buying,setBuying]=useState('');
   var packs=emailStats.boost_packs||[{id:'boost_1k',credits:1000,price:5,label:'1,000 Emails',desc:'Perfect for a targeted campaign'},{id:'boost_5k',credits:5000,price:19,label:'5,000 Emails',desc:'Run multiple sequences'},{id:'boost_10k',credits:10000,price:29,label:'10,000 Emails',desc:'Scale your outreach'},{id:'boost_50k',credits:50000,price:99,label:'50,000 Emails',desc:'Enterprise-level volume'}];
   function buy(pid){setBuying(pid);apiPost('/api/leads/buy-boost',{pack_id:pid}).then(function(r){setBuying('');flash('+'+(r.credits_added||0)+' email credits added');refresh();}).catch(function(e){setBuying('');flash(e.message,'err');});}
 

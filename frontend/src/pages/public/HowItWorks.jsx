@@ -60,7 +60,8 @@ function ToolMiniCard({ name, desc, color }) {
 }
 
 function IncomeCard({ title, amount, sub, desc, color, comingSoon }) {
-  return (
+
+  var { t } = useTranslation();  return (
     <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderTop: `3px solid ${color}`, borderRadius: 16, padding: '28px 24px', position: 'relative' }}>
       {comingSoon && <div style={{ position: 'absolute', top: 16, right: 16, padding: '4px 12px', borderRadius: 8, background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)', fontFamily: "'Sora',sans-serif", fontSize: 9, fontWeight: 800, color: 'var(--sap-amber-bright)', letterSpacing: 1.5, textTransform: 'uppercase' }}>{t('howItWorks.comingSoon')}</div>}
       <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 800, marginBottom: 6 }}>{title}</div>

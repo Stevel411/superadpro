@@ -2036,7 +2036,7 @@
     "subtitle": "Watch your grid fill as your team grows"
   },
   "creditMatrix": {
-    "title": "Credit Matrix",
+    "title": "Credit Nexus",
     "subtitle": "Your Earnings Accelerator",
     "nexusTitle": "Profit Nexus",
     "howItWorks": "How It Works",
@@ -2055,7 +2055,7 @@
     "packPrice": "Price",
     "credits": "Credits",
     "commission": "Commission",
-    "loadingNexus": "Loading Profit Nexus...",
+    "loadingNexus": "Loading Credit Nexus...",
     "earnCommissions": "Earn commissions every time your team creates content",
     "buyPacksDesc": "Buy credit packs for AI videos, images, and music — earn commissions across 3 levels.",
     "noCommissionsYet": "No commissions yet — they'll appear here when your nexus fills",

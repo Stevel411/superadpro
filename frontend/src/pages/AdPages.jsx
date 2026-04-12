@@ -7,7 +7,8 @@ import { apiGet, apiPost } from '../utils/api';
 
 // ── Ad Detail (public) ──────────────────────────────────────────
 export function AdDetail() {
-  var { slug } = useParams();
+
+  var { t } = useTranslation();  var { slug } = useParams();
   var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);
 
@@ -83,7 +84,8 @@ export function AdDetail() {
 
 // ── Ad Board Manage (member) ────────────────────────────────────
 export function AdBoardManage() {
-  var [data, setData] = useState(null);
+
+  var { t } = useTranslation();  var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);
   var [showForm, setShowForm] = useState(false);
   var [form, setForm] = useState({ title: '', description: '', category: '', link_url: '', image_url: '', keywords: '', location: '', price: '' });

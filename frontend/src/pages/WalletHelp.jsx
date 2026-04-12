@@ -57,7 +57,8 @@ var HELP_SECTIONS = [
 ];
 
 export default function WalletHelp({ onBack }) {
-  var [search, setSearch] = useState('');
+
+  var { t } = useTranslation();  var [search, setSearch] = useState('');
   var [openSection, setOpenSection] = useState(0);
   var [openItem, setOpenItem] = useState(null);
 

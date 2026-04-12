@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 import { PDFDocument } from 'pdf-lib';
 
 export default function PDFMerge() {
-  const [files, setFiles] = useState([]);
+
+  var { t } = useTranslation();  const [files, setFiles] = useState([]);
   const [merging, setMerging] = useState(false);
   const fileRef = useRef(null);
 

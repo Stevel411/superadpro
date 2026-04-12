@@ -343,7 +343,8 @@ export default function LinkHub() {
 // ═══════════════════════════════════════════════════
 
 function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink, moveLink, emojiPicker, setEmojiPicker }) {
-  return (
+
+  var { t } = useTranslation();  return (
     <div>
       <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
         <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:0}}>{t('linkHub.yourLinks')}</h3>
@@ -445,7 +446,8 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
 // ═══════════════════════════════════════════════════
 
 function StylePanel({ style, setStyle }) {
-  function upd(f) { return function(e) { setStyle(function(s){return Object.assign({},s,{[f]:e.target.value});}); }; }
+
+  var { t } = useTranslation();  function upd(f) { return function(e) { setStyle(function(s){return Object.assign({},s,{[f]:e.target.value});}); }; }
   function updNum(f) { return function(e) { setStyle(function(s){return Object.assign({},s,{[f]:parseInt(e.target.value)||14});}); }; }
 
   var colours = [
@@ -576,7 +578,8 @@ function StylePanel({ style, setStyle }) {
 // ═══════════════════════════════════════════════════
 
 function ProfilePanel({ profile, setProfile, onRemoveAvatar }) {
-  function upd(f) { return function(e){setProfile(function(p){return Object.assign({},p,{[f]:e.target.value});});}; }
+
+  var { t } = useTranslation();  function upd(f) { return function(e){setProfile(function(p){return Object.assign({},p,{[f]:e.target.value});});}; }
   var inputStyle = {width:'100%',padding:'12px 14px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'};
 
   function handleAvatarUpload(e) {

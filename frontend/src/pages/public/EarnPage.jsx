@@ -6,7 +6,8 @@ import { formatMoney } from '../../utils/money';
 var IncomeGrid3D = lazy(function() { return import('../../components/IncomeGrid3D'); });
 
 function Grid3DSection() {
-  return (
+
+  var { t } = useTranslation();  return (
     <Suspense fallback={<div style={{height:500,borderRadius:16,background:'var(--sap-cobalt-deep)',display:'flex',alignItems:'center',justifyContent:'center',color:'var(--sap-accent-light)',fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:700}}>{t('earnPage.loading3D')}</div>}>
       <IncomeGrid3D height={520} showControls autoPlay />
     </Suspense>
