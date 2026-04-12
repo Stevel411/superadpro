@@ -195,7 +195,7 @@ export default function LinkHub() {
           </div>
           <div style={{display:'flex',gap:6}}>
             <button onClick={copyUrl} style={{display:'flex',alignItems:'center',gap:5,padding:'8px 14px',borderRadius:8,border:copied?'1px solid #bbf7d0':'1px solid #e5e7eb',background:copied?'var(--sap-green-bg)':'#fff',cursor:'pointer',fontFamily:'inherit',fontSize:12,fontWeight:700,color:copied?'var(--sap-green)':'var(--sap-text-secondary)',transition:'all .15s'}}>
-              {copied ? <><Check size={13}/> Copied!</> : <><Copy size={13}/> Copy URL</>}
+              {copied ? <><Check size={13}/> {t('linkHub.copiedLabel')}</> : <><Copy size={13}/> {t('linkHub.copyUrlBtn')}</>}
             </button>
             <a href={pubUrl} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',gap:5,padding:'8px 14px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',textDecoration:'none',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',transition:'all .15s'}}>
               <ExternalLink size={13}/> Preview
@@ -416,7 +416,7 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
                 </div>
               )}
               <input value={link.title} onChange={function(e){updateLink(link.id,'title',e.target.value);}} placeholder={t("linkHub.linkTitlePlaceholder")} style={{width:'100%',padding:'10px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',marginBottom:6,background:'#fff'}}/>
-              <input value={link.url} onChange={function(e){updateLink(link.id,'url',e.target.value);}} placeholder="https://..." style={{width:'100%',padding:'10px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff',color:'var(--sap-text-muted)'}}/>
+              <input value={link.url} onChange={function(e){updateLink(link.id,'url',e.target.value);}} placeholder={t('common.urlPlaceholder')} style={{width:'100%',padding:'10px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff',color:'var(--sap-text-muted)'}}/>
               {/* Per-link button colour */}
               <div style={{display:'flex',alignItems:'center',gap:8,marginTop:8}}>
                 <label style={{fontSize:11,fontWeight:600,color:'var(--sap-text-faint)',whiteSpace:'nowrap'}}>{t('linkHub.buttonColour')}</label>
@@ -459,7 +459,7 @@ function StylePanel({ style, setStyle }) {
 
   return (
     <div>
-      <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 20px'}}>Customize Style</h3>
+      <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 20px'}}>{t('linkHub.customizeStyle')}</h3>
 
       {/* Colours */}
       {colours.map(function(c) {
@@ -623,16 +623,16 @@ function ProfilePanel({ profile, setProfile, onRemoveAvatar }) {
       </div>
 
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Display Name</label>
+        <label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('linkHub.displayName')}</label>
         <input value={profile.display_name} onChange={upd('display_name')} placeholder={t("linkHub.yourName")} style={inputStyle}/>
       </div>
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Bio</label>
+        <label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('linkHub.bioLabel')}</label>
         <textarea value={profile.bio} onChange={upd('bio')} rows={3} placeholder={t("linkHub.bioPlaceholder")} style={Object.assign({},inputStyle,{resize:'vertical'})}/>
       </div>
       <div>
-        <label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Avatar URL (or use upload above)</label>
-        <input value={profile.avatar_url} onChange={upd('avatar_url')} placeholder="https://..." style={Object.assign({},inputStyle,{fontSize:11,color:'var(--sap-text-muted)'})}/>
+        <label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('linkHub.avatarUrl')}</label>
+        <input value={profile.avatar_url} onChange={upd('avatar_url')} placeholder={t('common.urlPlaceholder')} style={Object.assign({},inputStyle,{fontSize:11,color:'var(--sap-text-muted)'})}/>
       </div>
     </div>
   );

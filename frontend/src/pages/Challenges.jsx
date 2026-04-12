@@ -16,10 +16,10 @@ export default function Challenges() {
     }).catch(function() { setLoading(false); });
   }, []);
 
-  if (loading) return <AppLayout title="Challenges"><div style={{padding:40,textAlign:'center',color:'var(--sap-text-muted)'}}>Loading...</div></AppLayout>;
+  if (loading) return <AppLayout title={t('challenge.title')}><div style={{padding:40,textAlign:'center',color:'var(--sap-text-muted)'}}>{t('challenge.loadingChallenges')}</div></AppLayout>;
 
   return (
-    <AppLayout title="Challenges" subtitle="Hit milestones, earn rewards, climb the ranks">
+    <AppLayout title={t('challenge.title')} subtitle={t('challenge.challengesSubtitle')}>
       <div style={{display:'flex',flexDirection:'column',gap:16}}>
         {challenges.map(function(ch) {
           var maxTarget = ch.milestones[ch.milestones.length - 1].target;

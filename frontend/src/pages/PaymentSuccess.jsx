@@ -71,7 +71,7 @@ export default function PaymentSuccess() {
   }, []);
 
   return (
-    <AppLayout title="Payment Complete">
+    <AppLayout title={t('paymentSuccess.paymentComplete')}>
       <div style={{ maxWidth: 520, margin: '60px auto', textAlign: 'center' }}>
 
         {status === 'loading' ? (
@@ -79,8 +79,8 @@ export default function PaymentSuccess() {
             <div style={{ width: 64, height: 64, margin: '0 auto 20px', borderRadius: '50%', background: `${config.color}15`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Loader size={28} color={config.color} style={{ animation: 'spin 1s linear infinite' }} />
             </div>
-            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 8 }}>Confirming your payment…</div>
-            <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>Please wait while we activate your purchase.</div>
+            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 8 }}>{t('paymentSuccess.confirming')}</div>
+            <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>{t('paymentSuccess.pleaseWaitFull')}</div>
             <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
           </div>
         ) : (
@@ -96,7 +96,7 @@ export default function PaymentSuccess() {
               {/* Check badge */}
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: `${config.color}12`, border: `1px solid ${config.color}30`, borderRadius: 99, padding: '4px 14px', marginBottom: 20 }}>
                 <CheckCircle size={14} color={config.color} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: config.color }}>Payment Confirmed</span>
+                <span style={{ fontSize: 11, fontWeight: 700, color: config.color }}>{t('paymentSuccess.paymentConfirmed')}</span>
               </div>
 
               <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 900, color: 'var(--sap-text-primary)', marginBottom: 10 }}>

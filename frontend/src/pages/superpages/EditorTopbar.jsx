@@ -18,7 +18,7 @@ export default function EditorTopbar({ title, slug, saving, dirty, status, onSav
           <rect x="26" y="26" width="16" height="16" rx="4" fill="var(--sap-accent)" opacity=".3"/>
         </svg>
         <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:15,color:'#fff',lineHeight:1}}>
-          Super<span style={{color:'var(--sap-accent)'}}>Pages</span>
+          Super<span style={{color:'var(--sap-accent)'}}>{t('superPagesEditor.pages')}</span>
         </div>
       </div>
 
@@ -30,25 +30,25 @@ export default function EditorTopbar({ title, slug, saving, dirty, status, onSav
       </div>
 
       {/* Device view toggles */}
-      <button onClick={() => onSetDevice('desktop')} style={{...gh,background:deviceView==='desktop'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='desktop'?'var(--sap-accent-light)':'rgba(255,255,255,.45)'}} title="Desktop (1100px)">
+      <button onClick={() => onSetDevice('desktop')} style={{...gh,background:deviceView==='desktop'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='desktop'?'var(--sap-accent-light)':'rgba(255,255,255,.45)'}} title={t('superPagesEditor.desktopPreview')}>
         <Monitor size={14}/>
       </button>
-      <button onClick={() => onSetDevice('tablet')} style={{...gh,background:deviceView==='tablet'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='tablet'?'var(--sap-accent-light)':'rgba(255,255,255,.45)'}} title="Tablet (768px)">
+      <button onClick={() => onSetDevice('tablet')} style={{...gh,background:deviceView==='tablet'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='tablet'?'var(--sap-accent-light)':'rgba(255,255,255,.45)'}} title={t('superPagesEditor.tabletPreview')}>
         <Tablet size={14}/>
       </button>
-      <button onClick={() => onSetDevice('mobile')} style={{...gh,background:deviceView==='mobile'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='mobile'?'var(--sap-accent-light)':'rgba(255,255,255,.45)'}} title="Mobile (390px)">
+      <button onClick={() => onSetDevice('mobile')} style={{...gh,background:deviceView==='mobile'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='mobile'?'var(--sap-accent-light)':'rgba(255,255,255,.45)'}} title={t('superPagesEditor.mobilePreview')}>
         <Smartphone size={14}/>
       </button>
 
       <div style={{width:1,height:22,background:'rgba(255,255,255,0.06)'}}/>
 
-      <button onClick={onUndo} style={gh} title="Undo (Ctrl+Z)"><Undo2 size={14}/></button>
-      <button onClick={onRedo} style={gh} title="Redo (Ctrl+Y)"><Redo2 size={14}/></button>
+      <button onClick={onUndo} style={gh} title={t('superPagesEditor.undoLabel')}><Undo2 size={14}/></button>
+      <button onClick={onRedo} style={gh} title={t('superPagesEditor.redoLabel')}><Redo2 size={14}/></button>
 
       <div style={{width:1,height:22,background:'rgba(255,255,255,0.06)'}}/>
 
-      <button onClick={onShowSettings} style={gh}><Settings size={13}/> <span style={{marginLeft:2}}>Settings</span></button>
-      <button onClick={onShowHelp} style={{...gh,color:'var(--sap-accent-light)'}}><HelpCircle size={13}/> <span style={{marginLeft:2}}>Help</span></button>
+      <button onClick={onShowSettings} style={gh}><Settings size={13}/> <span style={{marginLeft:2}}>{t('superPagesEditor.settings')}</span></button>
+      <button onClick={onShowHelp} style={{...gh,color:'var(--sap-accent-light)'}}><HelpCircle size={13}/> <span style={{marginLeft:2}}>{t('superPagesEditor.help')}</span></button>
       <button onClick={onClear} style={{...gh,color:'var(--sap-red)'}}><Trash2 size={13}/></button>
 
       <div style={{width:1,height:22,background:'rgba(255,255,255,0.06)'}}/>

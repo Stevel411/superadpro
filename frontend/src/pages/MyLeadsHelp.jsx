@@ -129,9 +129,9 @@ export default function MyLeadsHelp({ visible, onClose }) {
         <div style={{ padding: '18px 20px', borderBottom: '1px solid #e8ecf2', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0, background: 'linear-gradient(135deg,#172554,#172554)' }}>
           <div>
             <h2 style={{ margin: 0, fontFamily: 'Sora,sans-serif', fontSize: 18, fontWeight: 800, color: '#fff' }}>
-              Super<span style={{ color: '#818cf8' }}>Leads</span> Help
+              Super<span style={{ color: '#818cf8' }}>{t('myLeads.helpTitle')}</span> Help
             </h2>
-            <p style={{ margin: '2px 0 0', fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>Complete guide to your CRM & autoresponder</p>
+            <p style={{ margin: '2px 0 0', fontSize: 12, color: 'rgba(255,255,255,0.5)' }}>{t('myLeads.helpDesc')}</p>
           </div>
           <button onClick={onClose} style={{ width: 32, height: 32, border: 'none', borderRadius: 8, background: 'rgba(255,255,255,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <X size={16} color="#fff" />
@@ -144,7 +144,7 @@ export default function MyLeadsHelp({ visible, onClose }) {
             <Search size={14} color="var(--sap-text-faint)" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
             <input
               value={search} onChange={function(e) { setSearch(e.target.value); }}
-              placeholder="Search help topics..."
+              placeholder={t('myLeads.searchHelp')}
               style={{ width: '100%', padding: '10px 12px 10px 34px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 13, outline: 'none', fontFamily: 'DM Sans,sans-serif', boxSizing: 'border-box' }}
             />
           </div>

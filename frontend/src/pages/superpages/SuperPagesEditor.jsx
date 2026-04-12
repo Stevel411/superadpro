@@ -219,8 +219,8 @@ export default function SuperPagesEditor() {
           <div style={{flex:1,background:'#132044',overflow:'auto',display:'flex',flexDirection:'column',alignItems:'center',padding:20}}>
             {previewMode && (
               <div style={{marginBottom:12,padding:'10px 24px',background:'rgba(99,102,241,.12)',border:'1px solid rgba(99,102,241,.25)',borderRadius:10,fontSize:13,color:'#a5b4fc',fontWeight:700,display:'flex',alignItems:'center',gap:12}}>
-                <span>👁 Preview Mode</span>
-                <button onClick={() => setPreviewMode(false)} style={{padding:'6px 16px',borderRadius:8,border:'none',background:'var(--sap-indigo)',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>← Back to Editor</button>
+                <span>{t('superPagesEditor.previewMode')}</span>
+                <button onClick={() => setPreviewMode(false)} style={{padding:'6px 16px',borderRadius:8,border:'none',background:'var(--sap-indigo)',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>{t('superPagesEditor.backToEditor')}</button>
               </div>
             )}
             {deviceView !== 'desktop' && !previewMode && (
@@ -232,7 +232,7 @@ export default function SuperPagesEditor() {
               <iframe
                 srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Outfit,sans-serif}img{max-width:100%;height:auto}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage)}</body></html>`}
                 style={{width:'100%',height:'100%',border:'none',minHeight:800}}
-                title="Preview"
+                title={t('superPagesEditor.preview')}
               />
             </div>
           </div>
@@ -279,7 +279,7 @@ export default function SuperPagesEditor() {
               style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 13, outline: 'none', marginBottom: 14, resize: 'vertical', boxSizing: 'border-box' }} />
             <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>{t('superPagesEditor.ogImage')}</label>
             <input value={pageSettings.ogImage} onChange={e => setPageSettings(p => ({ ...p, ogImage: e.target.value }))}
-              placeholder="https://..."
+              placeholder={t('superPagesEditor.urlPlaceholder')}
               style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 13, outline: 'none', marginBottom: 14, boxSizing: 'border-box' }} />
             <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>{t('superPagesEditor.pageUrlSlug')}</label>
             <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 4 }}>
@@ -297,8 +297,8 @@ export default function SuperPagesEditor() {
             )}
             <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>{t('superPagesEditor.pageStatus')}</label>
             <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
-              <button onClick={() => setPageStatus('draft')} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: pageStatus === 'draft' ? '2px solid #0ea5e9' : '2px solid #e2e8f0', background: pageStatus === 'draft' ? 'rgba(14,165,233,.06)' : '#fff', color: pageStatus === 'draft' ? 'var(--sap-accent)' : 'var(--sap-text-faint)' }}>○ Draft</button>
-              <button onClick={() => setPageStatus('published')} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: pageStatus === 'published' ? '2px solid #16a34a' : '2px solid #e2e8f0', background: pageStatus === 'published' ? 'rgba(22,163,74,.06)' : '#fff', color: pageStatus === 'published' ? 'var(--sap-green)' : 'var(--sap-text-faint)' }}>● Published</button>
+              <button onClick={() => setPageStatus('draft')} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: pageStatus === 'draft' ? '2px solid #0ea5e9' : '2px solid #e2e8f0', background: pageStatus === 'draft' ? 'rgba(14,165,233,.06)' : '#fff', color: pageStatus === 'draft' ? 'var(--sap-accent)' : 'var(--sap-text-faint)' }}>{t('superPagesEditor.draft')}</button>
+              <button onClick={() => setPageStatus('published')} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: pageStatus === 'published' ? '2px solid #16a34a' : '2px solid #e2e8f0', background: pageStatus === 'published' ? 'rgba(22,163,74,.06)' : '#fff', color: pageStatus === 'published' ? 'var(--sap-green)' : 'var(--sap-text-faint)' }}>{t('superPagesEditor.published')}</button>
             </div>
             <div style={{ display: 'flex', gap: 8 }}>
               <button onClick={() => { markDirty(); setShowSettings(false); save(); }}
@@ -382,7 +382,7 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
           {type === 'image' && (
             <>
               <label style={lS}>{t('superPagesEditor.imageUrl')}</label>
-              <input value={localTxt} onChange={e => setLocalTxt(e.target.value)} placeholder="https://..."
+              <input value={localTxt} onChange={e => setLocalTxt(e.target.value)} placeholder={t('superPagesEditor.urlPlaceholder')}
                 style={{...iS, marginBottom: 8}} />
               <label style={{...lS, marginTop:4}}>{t('superPagesEditor.orUploadImage')}</label>
               <input type="file" accept="image/*" onChange={async e => {
@@ -401,7 +401,7 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
           {/* Video — YouTube/Vimeo URL with auto-convert, or upload MP4 */}
           {type === 'video' && (
             <>
-              <label style={lS}>YouTube or Vimeo URL</label>
+              <label style={lS}>{t('superPagesEditor.youtubeVimeoUrl')}</label>
               <input value={localTxt} onChange={e => {
                 let v = e.target.value;
                 // Auto-convert YouTube watch URLs to embed
@@ -411,9 +411,9 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
                 const vmMatch = v.match(/vimeo\.com\/(\d+)/);
                 if (vmMatch) v = `https://player.vimeo.com/video/${vmMatch[1]}`;
                 setLocalTxt(v);
-              }} placeholder="https://www.youtube.com/watch?v=... or https://vimeo.com/..."
+              }} placeholder={t('superPagesEditor.youtubeVimeoPlaceholderFull')}
                 style={{...iS, marginBottom: 8}} />
-              <label style={{...lS, marginTop:4}}>Or upload MP4/WebM</label>
+              <label style={{...lS, marginTop:4}}>{t('superPagesEditor.uploadMp4')}</label>
               <input type="file" accept="video/mp4,video/webm,video/ogg" onChange={async e => {
                 const f = e.target.files?.[0]; if (!f) return;
                 const fd = new FormData(); fd.append('file', f);
@@ -480,7 +480,7 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
 function CountdownEditor({ elId, el, updateElement, markDirty, onClose }) {
   const [date, setDate] = useState(el._targetDate || '');
   return <>
-    <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>Target Date & Time</label>
+    <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>{t('superPagesEditor.targetDateTime')}</label>
     <input type="datetime-local" value={date} onChange={e => setDate(e.target.value)}
       style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 14, outline: 'none', marginBottom: 12, boxSizing: 'border-box' }} />
     <BtnRow onApply={() => { updateElement(elId, { _targetDate: date }); markDirty(); onClose(); }} onClose={onClose} />
@@ -494,7 +494,7 @@ function ProgressEditor({ elId, el, updateElement, markDirty, onClose }) {
   return <>
     <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
       <div style={{ flex: 1 }}>
-        <label style={lblStyle}>Label</label>
+        <label style={lblStyle}>{t('superPagesEditor.label')}</label>
         <input value={lbl} onChange={e => setLbl(e.target.value)} style={inputStyle} />
       </div>
       <div style={{ width: 80 }}>
@@ -502,7 +502,7 @@ function ProgressEditor({ elId, el, updateElement, markDirty, onClose }) {
         <input type="number" min={0} max={100} value={pct} onChange={e => setPct(parseInt(e.target.value) || 0)} style={inputStyle} />
       </div>
       <div style={{ width: 50 }}>
-        <label style={lblStyle}>Colour</label>
+        <label style={lblStyle}>{t('superPagesEditor.colour')}</label>
         <input type="color" value={clr} onChange={e => setClr(e.target.value)} style={{ width: 44, height: 36, border: '1px solid #e2e8f0', borderRadius: 6, cursor: 'pointer', padding: 0 }} />
       </div>
     </div>
@@ -526,11 +526,11 @@ function AudioEditor({ elId, el, updateElement, markDirty, onClose }) {
     setUploading(false);
   };
   return <>
-    <label style={lblStyle}>Audio URL (MP3, WAV, OGG)</label>
-    <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://..." style={{ ...inputStyle, marginBottom: 8 }} />
-    <label style={{...lblStyle, marginTop:4}}>Or upload audio file</label>
+    <label style={lblStyle}>{t('superPagesEditor.audioUrl')}</label>
+    <input value={url} onChange={e => setUrl(e.target.value)} placeholder={t('superPagesEditor.urlPlaceholder')} style={{ ...inputStyle, marginBottom: 8 }} />
+    <label style={{...lblStyle, marginTop:4}}>{t('superPagesEditor.uploadAudio')}</label>
     <input type="file" accept="audio/mpeg,audio/wav,audio/ogg,audio/mp3" onChange={upload} disabled={uploading} style={{marginBottom:12, fontSize:12}} />
-    {uploading && <div style={{fontSize:11,color:'var(--sap-accent)',marginBottom:8}}>Uploading...</div>}
+    {uploading && <div style={{fontSize:11,color:'var(--sap-accent)',marginBottom:8}}>{t('superPagesEditor.uploading')}</div>}
     {url && <div style={{fontSize:11,color:'var(--sap-green)',padding:'6px 10px',background:'var(--sap-green-bg)',border:'1px solid rgba(22,163,74,.2)',borderRadius:6,marginBottom:12,wordBreak:'break-all'}}>Audio: {url}</div>}
     <BtnRow onApply={() => { updateElement(elId, { _audioUrl: url }); markDirty(); onClose(); }} onClose={onClose} />
   </>;
@@ -539,7 +539,7 @@ function AudioEditor({ elId, el, updateElement, markDirty, onClose }) {
 function EmbedEditor({ elId, el, updateElement, markDirty, onClose }) {
   const [code, setCode] = useState(el._embedCode || '');
   return <>
-    <label style={lblStyle}>HTML / Embed Code</label>
+    <label style={lblStyle}>{t('superPagesEditor.htmlEmbedCode')}</label>
     <textarea value={code} onChange={e => setCode(e.target.value)} rows={6} placeholder='<iframe src="..."></iframe>'
       style={{ width: '100%', padding: 12, border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 12, fontFamily: 'monospace', outline: 'none', resize: 'vertical', boxSizing: 'border-box', marginBottom: 12 }} />
     <BtnRow onApply={() => { updateElement(elId, { _embedCode: code }); markDirty(); onClose(); }} onClose={onClose} />
@@ -563,7 +563,7 @@ function SocialEditor({ elId, el, updateElement, markDirty, onClose }) {
     {platforms.map(([key, label, color]) => (
       <div key={key} style={{ marginBottom: 8 }}>
         <label style={{ ...lblStyle, color }}>{label}</label>
-        <input value={links[key] || ''} onChange={e => setLinks(p => ({ ...p, [key]: e.target.value }))} placeholder="Add your URL"
+        <input value={links[key] || ''} onChange={e => setLinks(p => ({ ...p, [key]: e.target.value }))} placeholder={t('superPagesEditor.addYourUrlPlaceholder')}
           style={inputStyle} />
       </div>
     ))}
@@ -603,11 +603,11 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
     <input value={txt} onChange={e => setTxt(e.target.value)} style={{ ...inputStyle, marginBottom: 10 }} />
 
     {type === 'button' && <>
-      <label style={lblStyle}>Link URL</label>
-      <input value={url} onChange={e => setUrl(e.target.value)} placeholder="https://..." style={{ ...inputStyle, marginBottom: 10 }} />
+      <label style={lblStyle}>{t('superPagesEditor.linkUrl')}</label>
+      <input value={url} onChange={e => setUrl(e.target.value)} placeholder={t('superPagesEditor.urlPlaceholder')} style={{ ...inputStyle, marginBottom: 10 }} />
     </>}
 
-    <label style={lblStyle}>Background Colour</label>
+    <label style={lblStyle}>{t('superPagesEditor.backgroundColour')}</label>
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
       <div style={{ position: 'relative', width: 36, height: 36, borderRadius: 8, border: '2px solid #e2e8f0', overflow: 'hidden', background: bgColor }}>
         <input type="color" value={bgColor.startsWith('#') ? bgColor : 'var(--sap-accent)'} onChange={e => setBgColor(e.target.value)}
@@ -624,7 +624,7 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
       ))}
     </div>
 
-    <label style={lblStyle}>Text Colour</label>
+    <label style={lblStyle}>{t('superPagesEditor.textColour')}</label>
     <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 12 }}>
       {['#ffffff', '#000000', 'var(--sap-text-primary)', 'var(--sap-amber-bright)', 'var(--sap-accent)'].map(c => (
         <div key={c} onClick={() => setTxtColor(c)} style={{
@@ -658,9 +658,9 @@ function FormEditor({ elId, el, updateElement, markDirty, onClose }) {
 
   const buildHTML = () => {
     let fields = '';
-    if (showName) fields += `<input placeholder="Your first name" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
-    fields += `<input placeholder="Your email" type="email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
-    if (showPhone) fields += `<input placeholder="Your phone number" type="tel" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+    if (showName) fields += `<input placeholder={t('superPagesEditor.firstNamePlaceholder')} style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+    fields += `<input placeholder={t('superPagesEditor.emailPlaceholder')} type="email" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
+    if (showPhone) fields += `<input placeholder={t('superPagesEditor.phonePlaceholder')} type="tel" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #e2e8f0;background:#ffffff;color:#132044;font-size:13px;margin-bottom:8px;box-sizing:border-box">`;
     return `<div style="text-align:center;padding:4px"><div style="font-family:Sora,sans-serif;font-weight:800;font-size:20px;color:#fff;margin-bottom:6px">${heading}</div><div style="font-size:13px;color:#94a3b8;margin-bottom:16px">${subtitle}</div>${fields}<div style="width:100%;padding:12px;border-radius:10px;background:${btnColor};color:#fff;font-weight:700;font-size:14px;text-align:center;box-sizing:border-box;cursor:pointer">${btnText}</div></div>`;
   };
 
@@ -677,10 +677,10 @@ function FormEditor({ elId, el, updateElement, markDirty, onClose }) {
   const I = inputStyle;
 
   return <>
-    <label style={L}>Form Heading</label>
+    <label style={L}>{t('superPagesEditor.formHeading')}</label>
     <input value={heading} onChange={e => setHeading(e.target.value)} style={{ ...I, marginBottom: 10 }} />
 
-    <label style={L}>Subtitle</label>
+    <label style={L}>{t('superPagesEditor.subtitle')}</label>
     <input value={subtitle} onChange={e => setSubtitle(e.target.value)} style={{ ...I, marginBottom: 10 }} />
 
     <label style={{ ...L, marginBottom: 8 }}>{t('superPagesEditor.formFields')}</label>
@@ -699,10 +699,10 @@ function FormEditor({ elId, el, updateElement, markDirty, onClose }) {
       </label>
     </div>
 
-    <label style={L}>Button Text</label>
+    <label style={L}>{t('superPagesEditor.buttonText')}</label>
     <input value={btnText} onChange={e => setBtnText(e.target.value)} style={{ ...I, marginBottom: 10 }} />
 
-    <label style={L}>Button Colour</label>
+    <label style={L}>{t('superPagesEditor.buttonColour')}</label>
     <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
       <div style={{ position: 'relative', width: 36, height: 36, borderRadius: 8, border: '2px solid #e2e8f0', overflow: 'hidden', background: btnColor }}>
         <input type="color" value={btnColor} onChange={e => setBtnColor(e.target.value)}
@@ -716,16 +716,16 @@ function FormEditor({ elId, el, updateElement, markDirty, onClose }) {
       </div>
     </div>
 
-    <label style={L}>After Submit — Redirect URL (optional)</label>
-    <input value={redirectUrl} onChange={e => setRedirectUrl(e.target.value)} placeholder="https://your-thank-you-page.com" style={{ ...I, marginBottom: 12 }} />
+    <label style={L}>{t('superPagesEditor.redirectUrl')}</label>
+    <input value={redirectUrl} onChange={e => setRedirectUrl(e.target.value)} placeholder={t('superPagesEditor.redirectPlaceholder')} style={{ ...I, marginBottom: 12 }} />
 
     {/* Preview */}
     <div style={{ padding: 16, background: 'var(--sap-text-primary)', borderRadius: 12, marginBottom: 14 }}>
       <div style={{ textAlign: 'center', fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 16, color: '#fff', marginBottom: 4 }}>{heading}</div>
       <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 12 }}>{subtitle}</div>
-      {showName && <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 6 }}>Your first name</div>}
-      <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 6 }}>Your email</div>
-      {showPhone && <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 6 }}>Your phone number</div>}
+      {showName && <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 6 }}>{t('superPagesEditor.firstNamePlaceholder')}</div>}
+      <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 6 }}>{t('superPagesEditor.emailPlaceholder')}</div>
+      {showPhone && <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 6 }}>{t('superPagesEditor.phonePlaceholder')}</div>}
       <div style={{ background: btnColor, borderRadius: 8, padding: '10px', textAlign: 'center', color: '#fff', fontWeight: 700, fontSize: 12 }}>{btnText}</div>
     </div>
 
@@ -737,9 +737,9 @@ function BtnRow({ onApply, onClose }) {
   return (
     <div style={{ display: 'flex', gap: 8 }}>
       <button onClick={onApply}
-        style={{ padding: '10px 24px', background: 'var(--sap-accent)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Apply</button>
+        style={{ padding: '10px 24px', background: 'var(--sap-accent)', color: '#fff', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>{t('superPagesEditor.apply')}</button>
       <button onClick={onClose}
-        style={{ padding: '10px 24px', background: 'var(--sap-bg-page)', color: 'var(--sap-text-secondary)', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>Cancel</button>
+        style={{ padding: '10px 24px', background: 'var(--sap-bg-page)', color: 'var(--sap-text-secondary)', border: 'none', borderRadius: 8, fontWeight: 700, fontSize: 13, cursor: 'pointer' }}>{t('common.cancel')}</button>
     </div>
   );
 }

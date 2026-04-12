@@ -1050,11 +1050,11 @@ export default function SuperScenePage() {
     if (generating) return (
       <div className="gst">
         <div className="spin"><div className="r1"/><div className="r2"/></div>
-        <div className="gst-title">Generating your video…</div>
+        <div className="gst-title">{t('superScene.generatingVideo')}</div>
         <div className="gst-sub">{selectedModel?.name} · {duration}s · {ratio}{genAudio ? " · Audio" : ""}</div>
         <div className="pt"><div className="pf" style={{ width: `${Math.min(genProgress, 100)}%` }}/></div>
         <div className="gst-pct">{Math.round(genProgress)}%</div>
-        <button className="sc-cancel-btn" onClick={cancelGeneration}>✕ Cancel</button>
+        <button className="sc-cancel-btn" onClick={cancelGeneration}>{t('superScene.cancelGen')}</button>
       </div>
     );
     if (videoUrl) return <div className="video-ready"><video src={videoUrl} controls autoPlay className="sc-video"/></div>;
@@ -1081,10 +1081,10 @@ export default function SuperScenePage() {
       {/* ── TOPBAR ─────────────────────────────────────── */}
       <div className="sc-topbar">
         <div className="sc-logo">
-          <a href="/dashboard" className="sc-back-btn">← Dashboard</a>
+          <a href="/dashboard" className="sc-back-btn">{t('superScene.backToDashboard')}</a>
           <div className="sc-topbar-divider"/>
           <div className="sc-logo-mark">✂</div>
-          <div className="sc-logo-text"><span className="lw">Super</span><span className="lc">Scene</span></div>
+          <div className="sc-logo-text"><span className="lw">{t('superScene.super')}</span><span className="lc">{t('superScene.scene')}</span></div>
           <div className="sc-logo-badge">{t('superScene.beta')}</div>
         </div>
         <div className="sc-tabs">
@@ -1127,10 +1127,10 @@ export default function SuperScenePage() {
                   <div className="sc-section">
                     {imagePreview ? (
                       <div className="sc-img-preview">
-                        <img src={imagePreview} alt="Preview" className="sc-img-thumb"/>
+                        <img src={imagePreview} alt={t('superScene.preview')} className="sc-img-thumb"/>
                         <div className="sc-img-overlay">
-                          {uploading ? <span className="sc-img-status">Uploading…</span> : <span className="sc-img-status sc-img-ok">✓ Ready</span>}
-                          <button className="sc-img-remove" onClick={clearImage}>✕ Remove</button>
+                          {uploading ? <span className="sc-img-status">{t('superScene.uploadingStatus')}</span> : <span className="sc-img-status sc-img-ok">{t('superScene.readyStatus')}</span>}
+                          <button className="sc-img-remove" onClick={clearImage}>{t('superScene.removeFile')}</button>
                         </div>
                       </div>
                     ) : (
@@ -1141,7 +1141,7 @@ export default function SuperScenePage() {
                           <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
                         </div>
                         <div className="sc-img-dz-text">{t('superScene.clickOrDrop')}</div>
-                        <div className="sc-img-dz-sub">JPEG, PNG, WebP · Max 10MB</div>
+                        <div className="sc-img-dz-sub">{t('superScene.imageFormats')}</div>
                       </div>
                     )}
                     <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" style={{ display: "none" }} onChange={handleImageSelect}/>
@@ -1158,7 +1158,7 @@ export default function SuperScenePage() {
                         : "A cinematic drone shot over a misty mountain valley at golden hour, warm light, slow push-in…"}
                       value={prompt} onChange={e => setPrompt(e.target.value.slice(0, 2000))}/>
                     <div className="sc-prompt-footer">
-                      <span className="sc-prompt-ai" onClick={() => setTab("builder")}>✦ AI Builder</span>
+                      <span className="sc-prompt-ai" onClick={() => setTab("builder")}>{t('superScene.aiBuilder')}</span>
                       <div className="sc-prompt-actions">
                         <span className="sc-prompt-count">{prompt.length}/2000</span>
                         <button className={cls("sc-prompt-action", promptExpanded && "sc-prompt-action-active")} onClick={() => setPromptExpanded(x => !x)}>
@@ -1240,7 +1240,7 @@ export default function SuperScenePage() {
                     <div className="sc-label" style={{ fontSize: 12 }}>Negative Prompt <span className="sc-label-badge">{t('superScene.optional')}</span></div>
                     <div className="sc-prompt-box" style={{ minHeight: 'auto', padding: 10 }}>
                       <textarea className="sc-prompt-ta" rows={2} style={{ minHeight: 36, fontSize: 12 }}
-                        placeholder="blurry, low quality, text, watermark, distorted…"
+                        placeholder={t('superScene.negativePromptPlaceholderFull')}
                         value={negPrompt} onChange={e => setNegPrompt(e.target.value.slice(0, 500))}/>
                     </div>
                   </div>
@@ -1333,7 +1333,7 @@ export default function SuperScenePage() {
                   <StageContent />
                 ) : mode === "image" && imagePreview ? (
                   <div className="sc-stage-hero">
-                    <img src={imagePreview} alt="Uploaded" className="sc-preview-img"/>
+                    <img src={imagePreview} alt={t('superScene.preview')} className="sc-preview-img"/>
                     <div className="sc-stage-hero-overlay">
                       <div className="sc-stage-hero-title">{t('superScene.yourImage')}</div>
                       <div className="sc-stage-hero-sub">
@@ -1357,10 +1357,10 @@ export default function SuperScenePage() {
               </div>
               {videoUrl && (
                 <div className="sc-stage-actions">
-                  <button className="sc-sa-btn" onClick={() => openFramePicker(videoUrl)}>⟼ Extend</button>
-                  <button className="sc-sa-btn" onClick={() => setTab("editor")}>✂ Edit</button>
-                  <button className="sc-sa-btn" onClick={() => downloadVideo(videoUrl, `superscene-${Date.now()}.mp4`)}>⬇ Download</button>
-                  <button className="sc-sa-btn" onClick={() => { setVideoUrl(null); setGenStatus(null); setGenProgress(0); }}>✕ Clear</button>
+                  <button className="sc-sa-btn" onClick={() => openFramePicker(videoUrl)}>{t('superScene.extendBtn')}</button>
+                  <button className="sc-sa-btn" onClick={() => setTab("editor")}>{t('superScene.editBtn')}</button>
+                  <button className="sc-sa-btn" onClick={() => downloadVideo(videoUrl, `superscene-${Date.now()}.mp4`)}>{t('superScene.downloadBtn')}</button>
+                  <button className="sc-sa-btn" onClick={() => { setVideoUrl(null); setGenStatus(null); setGenProgress(0); }}>{t('superScene.clearBtn')}</button>
                 </div>
               )}
 
@@ -1441,7 +1441,7 @@ export default function SuperScenePage() {
                 {musicCustom && (
                   <>
                     <div className="sc-section">
-                      <div className="sc-label">Style</div>
+                      <div className="sc-label">{t('superScene.styleLabel')}</div>
                       <input className="sc-music-input" placeholder={t("superScene.genrePlaceholder")} value={musicStyle} onChange={e => setMusicStyle(e.target.value)}/>
                     </div>
                     <div className="sc-section">
@@ -1494,7 +1494,7 @@ export default function SuperScenePage() {
                   {musicGenerating ? (
                     <div className="gst">
                       <div className="spin"><div className="r1"/><div className="r2"/></div>
-                      <div className="gst-title">Generating your track…</div>
+                      <div className="gst-title">{t('superScene.generatingTrack')}</div>
                       <div className="gst-sub">{MUSIC_MODELS.find(m => m.key === musicModel)?.name} · {musicInstrumental ? "Instrumental" : "Vocal"}</div>
                       <div className="pt"><div className="pf" style={{ width: `${Math.min(musicProgress, 100)}%` }}/></div>
                       <div className="gst-pct">{Math.round(musicProgress)}%</div>
@@ -1504,7 +1504,7 @@ export default function SuperScenePage() {
                       <div className="sc-music-icon">♪</div>
                       <div className="sc-music-title">{t('superScene.trackReady')}</div>
                       <audio src={musicUrl} controls className="sc-music-player"/>
-                      <button className="sc-sa-btn sc-mu-download" onClick={() => downloadVideo(musicUrl, `superscene-music-${Date.now()}.mp3`)}>⬇ Download MP3</button>
+                      <button className="sc-sa-btn sc-mu-download" onClick={() => downloadVideo(musicUrl, `superscene-music-${Date.now()}.mp3`)}>{t('superScene.downloadMp3')}</button>
                     </div>
                   ) : (
                     <div className="s-empty">
@@ -1541,10 +1541,10 @@ export default function SuperScenePage() {
 
                 {/* Step 1: Script */}
                 <div className="sc-section">
-                  <div className="sc-label">① Script</div>
+                  <div className="sc-label">{t('superScene.scriptStep')}</div>
                   <div className="sc-prompt-box">
                     <textarea className="sc-prompt-ta" rows={6}
-                      placeholder="Type your voiceover script here... e.g. Welcome to SuperAdPro, the platform where your creativity pays."
+                      placeholder={t('superScene.voiceoverPlaceholderFull')}
                       value={voText} onChange={e => setVoText(e.target.value)}/>
                     <div className="sc-prompt-footer">
                       <span/>
@@ -1555,7 +1555,7 @@ export default function SuperScenePage() {
 
                 {/* Voice Selection — Custom Dropdown */}
                 <div className="sc-section">
-                  <div className="sc-label">② Voice</div>
+                  <div className="sc-label">{t('superScene.voiceStep')}</div>
                   <div className="sc-model-sel" onClick={() => setVoDropOpen(!voDropOpen)}>
                     <div className="sc-model-icon" style={{ background: 'linear-gradient(135deg, #f472b6, #ec489988)' }}>🎙</div>
                     <div className="sc-model-info">
@@ -1614,7 +1614,7 @@ export default function SuperScenePage() {
                 {voAudioUrl && (
                   <>
                     <div className="sc-vo-divider"/>
-                    <div className="sc-label">③ Lip Sync Avatar (Optional)</div>
+                    <div className="sc-label">{t('superScene.lipSyncStep')}</div>
                     <div className="sc-sub sc-vo-lipsync-desc">{t("superScene.talkingAvatarDesc")}</div>
 
                     <div className="sc-section">
@@ -1626,7 +1626,7 @@ export default function SuperScenePage() {
 
                     {voImageUrl && (
                       <div className="sc-section">
-                        <img src={voImageUrl} alt="Avatar" className="sc-vo-avatar-preview"/>
+                        <img src={voImageUrl} alt={t('superScene.preview')} className="sc-vo-avatar-preview"/>
                       </div>
                     )}
 
@@ -1635,7 +1635,7 @@ export default function SuperScenePage() {
                         <div className="sc-credit-line">
                           <div className="sc-cl-icon">◈</div>
                           <span className="sc-cl-label">{t('superScene.cost')}</span>
-                          <span className="sc-cl-value">8 credits</span>
+                          <span className="sc-cl-value">{t('superScene.lipSyncCredits')}</span>
                         </div>
                         <button className="sc-gen-btn" onClick={generateLipSync} disabled={voLipSyncing}>
                           {voLipSyncing ? "Generating avatar…" : "🎬 Generate Talking Avatar"}
@@ -1653,8 +1653,8 @@ export default function SuperScenePage() {
                   {voLipSyncing ? (
                     <div className="gst">
                       <div className="spin"><div className="r1"/><div className="r2"/></div>
-                      <div className="gst-title">Creating talking avatar…</div>
-                      <div className="gst-sub">OmniHuman 1.5 · Lip Sync</div>
+                      <div className="gst-title">{t('superScene.creatingAvatar')}</div>
+                      <div className="gst-sub">{t('superScene.omniHuman')}</div>
                       <div className="pt"><div className="pf" style={{ width: `${Math.min(voLipSyncProgress, 100)}%` }}/></div>
                       <div className="gst-pct">{Math.round(voLipSyncProgress)}%</div>
                     </div>
@@ -1662,19 +1662,19 @@ export default function SuperScenePage() {
                     <div className="sc-music-result">
                       <div className="sc-music-title">{t('superScene.talkingAvatarReady')}</div>
                       <video src={voLipSyncUrl} controls className="sc-vo-result-video"/>
-                      <button className="sc-sa-btn sc-vo-download-btn" onClick={() => downloadVideo(voLipSyncUrl, `superscene-avatar-${Date.now()}.mp4`)}>⬇ Download Video</button>
+                      <button className="sc-sa-btn sc-vo-download-btn" onClick={() => downloadVideo(voLipSyncUrl, `superscene-avatar-${Date.now()}.mp4`)}>{t('superScene.downloadVideo')}</button>
                     </div>
                   ) : voGenerating ? (
                     <div className="gst">
                       <div className="spin"><div className="r1"/><div className="r2"/></div>
-                      <div className="gst-title">Generating voiceover…</div>
+                      <div className="gst-title">{t('superScene.generatingVoiceover')}</div>
                     </div>
                   ) : voAudioUrl ? (
                     <div className="sc-music-result">
                       <div className="sc-music-icon">🎙</div>
                       <div className="sc-music-title">{t('superScene.voiceoverReady')}</div>
                       <audio src={voAudioUrl} controls className="sc-music-player"/>
-                      <button className="sc-sa-btn sc-vo-download-btn" onClick={() => downloadVideo(voAudioUrl, `superscene-voiceover-${Date.now()}.mp3`)}>⬇ Download MP3</button>
+                      <button className="sc-sa-btn sc-vo-download-btn" onClick={() => downloadVideo(voAudioUrl, `superscene-voiceover-${Date.now()}.mp3`)}>{t('superScene.downloadMp3')}</button>
                       <div className="sc-sub sc-vo-hint">Want a talking avatar? Upload a photo in Step ③ on the left.</div>
                     </div>
                   ) : (
@@ -1799,8 +1799,8 @@ export default function SuperScenePage() {
                     </div>
                   </div>
                   <div className="sc-stage-actions">
-                    <button className="sc-sa-btn" onClick={() => openFramePicker(videoUrl)}>⟼ Extend</button>
-                    <button className="sc-sa-btn" onClick={() => downloadVideo(videoUrl, `superscene-${Date.now()}.mp4`)}>⬇ Download</button>
+                    <button className="sc-sa-btn" onClick={() => openFramePicker(videoUrl)}>{t('superScene.extendBtn')}</button>
+                    <button className="sc-sa-btn" onClick={() => downloadVideo(videoUrl, `superscene-${Date.now()}.mp4`)}>{t('superScene.downloadBtn')}</button>
                   </div>
                 </div>
               </div>
@@ -1810,7 +1810,7 @@ export default function SuperScenePage() {
                   <div className="sc-eicon">✂</div>
                   <div className="sc-etitle">{t('superScene.videoEditor')}</div>
                   <div className="sc-esub">{t("superScene.videoEditorDesc")}</div>
-                  <button className="sc-ecta" onClick={() => setTab("create")}>← Go to Creator</button>
+                  <button className="sc-ecta" onClick={() => setTab("create")}>{t('superScene.goToCreator')}</button>
                 </div>
               </div>
             )}
@@ -1848,13 +1848,13 @@ export default function SuperScenePage() {
                       <div className="sc-prompt-footer">
                         <span className="sc-prompt-ai" onClick={() => setTab("builder")}>✦ Generate<br/><span className="sc-prompt-ai-sub">{t('superScene.withAI')}</span></span>
                         <div className="sc-prompt-actions">
-                          <button className="sc-prompt-action" title="Copy" onClick={() => { if (pipeScript) navigator.clipboard.writeText(pipeScript); }}>
+                          <button className="sc-prompt-action" title={t('superScene.copyBtn')} onClick={() => { if (pipeScript) navigator.clipboard.writeText(pipeScript); }}>
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
                           </button>
-                          <button className="sc-prompt-action" title="Clear" onClick={() => setPipeScript("")}>
+                          <button className="sc-prompt-action" title={t('superScene.clearPrompt')} onClick={() => setPipeScript("")}>
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
                           </button>
-                          <button className="sc-prompt-action" title="Paste" onClick={async () => { try { const t = await navigator.clipboard.readText(); if (t) setPipeScript(p => (p + t).slice(0, 20000)); } catch {} }}>
+                          <button className="sc-prompt-action" title={t('superScene.pasteBtn')} onClick={async () => { try { const t = await navigator.clipboard.readText(); if (t) setPipeScript(p => (p + t).slice(0, 20000)); } catch {} }}>
                             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
                           </button>
                           <button className={cls("sc-prompt-action", scriptExpanded && "sc-prompt-action-active")} title={scriptExpanded ? "Collapse" : "Expand"} onClick={() => setScriptExpanded(x => !x)}>
@@ -1874,7 +1874,7 @@ export default function SuperScenePage() {
                   </div>
 
                   <div className="sc-section">
-                    <div className="sc-label">Visual Style</div>
+                    <div className="sc-label">{t('superScene.visualStyle')}</div>
                     <div className="sc-pills">
                       {["cinematic", "corporate", "documentary", "social media", "anime", "abstract"].map(s => (
                         <button key={s} className={cls("sc-pill", pipeStyle === s && "on")} onClick={() => setPipeStyle(s)}>{s}</button>
@@ -1921,7 +1921,7 @@ export default function SuperScenePage() {
                         <div className="sc-model-name">{VOICES.find(v => v.id === pipeVoice)?.name || "Guy"} · {VOICES.find(v => v.id === pipeVoice)?.gender} · {VOICES.find(v => v.id === pipeVoice)?.cat}</div>
                         <div className="sc-model-desc">{VOICES.find(v => v.id === pipeVoice)?.desc || ""}</div>
                       </div>
-                      {pipeVoicePlaying === pipeVoice && <span className="sc-voice-playing">Playing…</span>}
+                      {pipeVoicePlaying === pipeVoice && <span className="sc-voice-playing">{t('superScene.playing')}</span>}
                       <span className={cls("sc-model-chev", pipeVoiceOpen && "open")}>▼</span>
                     </div>
                     {pipeVoiceOpen && (
@@ -2011,7 +2011,7 @@ export default function SuperScenePage() {
                       </svg>
                       <div className="s-title">{t('superScene.videoWillAppear')}</div>
                       <div className="s-sub">{t("superScene.pasteScript")}</div>
-                      <button className="sc-ecta" onClick={() => setStudioGuideOpen(true)}>📖 How it works</button>
+                      <button className="sc-ecta" onClick={() => setStudioGuideOpen(true)}>{t('superScene.howItWorks')}</button>
                     </div>
                   </div>
                 </div>
@@ -2064,7 +2064,7 @@ export default function SuperScenePage() {
                     <div className="sc-sub">{pipeScenes.length} scenes · Review and edit before generating</div>
                   </div>
                   <div className="sc-studio-header-actions">
-                    <button className="sc-ecta" onClick={() => { setPipeStatus(null); setPipeScenes([]); setPipeId(null); }}>← Back to Script</button>
+                    <button className="sc-ecta" onClick={() => { setPipeStatus(null); setPipeScenes([]); setPipeId(null); }}>{t('superScene.backToScript')}</button>
                     <button className="sc-gen-btn" onClick={async () => {
                       setPipeError(null);
                       try {
@@ -2141,7 +2141,7 @@ export default function SuperScenePage() {
                     </button>
                   )}
                   {pipeStatus === "failed" && (
-                    <button className="sc-ecta" onClick={() => { setPipeStatus("draft"); setPipeError(null); }}>← Back to Scenes</button>
+                    <button className="sc-ecta" onClick={() => { setPipeStatus("draft"); setPipeError(null); }}>{t('superScene.backToScenes')}</button>
                   )}
                 </div>
 
@@ -2162,7 +2162,7 @@ export default function SuperScenePage() {
                       <video src={pipeFinalUrl} controls autoPlay className="sc-studio-final-vid"/>
                     </div>
                     <div className="sc-stage-actions">
-                      <button className="sc-sa-btn" onClick={() => downloadVideo(pipeFinalUrl, `superscene-studio-${Date.now()}.mp4`)}>⬇ Download Video</button>
+                      <button className="sc-sa-btn" onClick={() => downloadVideo(pipeFinalUrl, `superscene-studio-${Date.now()}.mp4`)}>{t('superScene.downloadVideo')}</button>
                     </div>
                   </div>
                 )}
@@ -2240,7 +2240,7 @@ export default function SuperScenePage() {
                 </svg>
                 <div className="s-title">{t('superScene.noVideosYet')}</div>
                 <div className="s-sub">{t("superScene.generateFirst")}</div>
-                <button className="sc-ecta" onClick={() => setTab("create")}>← Go to Creator</button>
+                <button className="sc-ecta" onClick={() => setTab("create")}>{t('superScene.goToCreator')}</button>
               </div>
             ) : (
               <div className="sc-gg">
@@ -2265,7 +2265,7 @@ export default function SuperScenePage() {
                       <div className="sc-gcmod">{v.model_name} · {v.ratio} · {v.credits_used} cr</div>
                       <div className="sc-gcdate">{formatDate(v.created_at)}</div>
                       <div className="sc-gcas">
-                        {v.video_url && <button className="sc-gca sc-gca-extend" onClick={() => openFramePicker(v.video_url)}>⟼ Extend</button>}
+                        {v.video_url && <button className="sc-gca sc-gca-extend" onClick={() => openFramePicker(v.video_url)}>{t('superScene.extendBtn')}</button>}
                         {v.video_url && <button className="sc-gca" onClick={() => { setVideoUrl(v.video_url); setTab("editor"); }}>{t('superScene.edit')}</button>}
                         {v.video_url && <button className="sc-gca" onClick={() => downloadVideo(v.video_url, `superscene-${v.model_name}-${v.id}.mp4`)}>{t('superScene.download')}</button>}
                         <button className="sc-gca sc-gca-del" onClick={async () => {
@@ -2293,7 +2293,7 @@ export default function SuperScenePage() {
         {tab === "packs" && (
           <div className="sc-packs-view">
             <div className="sc-ph"><h2>{t('superScene.buyCredits')}</h2><p>{t("superScene.chooseAmountDesc")}</p>
-              <div className="sc-payment-badges"><span className="sc-pay-badge">🌐 350+ Cryptos</span><span className="sc-pay-badge">🔷 USDT Direct</span></div>
+              <div className="sc-payment-badges"><span className="sc-pay-badge">{t('superScene.cryptoPayment')}</span><span className="sc-pay-badge">{t('superScene.usdtDirect')}</span></div>
             </div>
 
             <div style={{ display: 'flex', gap: 20, maxWidth: 1000, margin: '0 auto', alignItems: 'flex-start' }}>
@@ -2301,7 +2301,7 @@ export default function SuperScenePage() {
               {/* ── LEFT: Custom Credit Selector ── */}
               <div style={{ flex: 1, background: '#12161c', border: '1px solid rgba(255,255,255,.08)', borderRadius: 16, padding: '28px 24px' }}>
                 <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 4 }}>{t('superScene.chooseAmount')}</div>
-                <div style={{ fontSize: 12, color: 'rgba(255,255,255,.35)', marginBottom: 20 }}>10 to 5,000 credits</div>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,.35)', marginBottom: 20 }}>{t('superScene.creditRange')}</div>
 
                 <input type="range" min={10} max={2000} step={10} value={Math.min(customCredits, 2000)}
                   onChange={e => setCustomCredits(Number(e.target.value))}
@@ -2327,7 +2327,7 @@ export default function SuperScenePage() {
                         style={{ width: 80, background: 'transparent', border: 'none', color: '#fff', fontFamily: 'Sora,sans-serif', fontSize: 24, fontWeight: 800, outline: 'none', textAlign: 'left' }} />
                       <span style={{ fontSize: 12, color: 'rgba(255,255,255,.3)', fontWeight: 600 }}>{t('superScene.credits')}</span>
                     </div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,.25)', marginTop: 2 }}>$0.22 per credit</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,.25)', marginTop: 2 }}>{t('superScene.pricePerCredit')}</div>
                   </div>
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 800, color: '#22d3ee' }}>${(customCredits * 0.22).toFixed(2)}</div>
@@ -2385,11 +2385,11 @@ export default function SuperScenePage() {
         {tab === "builder" && (
           <div className="sc-builder-view">
             <div className="sc-builder-inner">
-              <div className="sc-builder-head"><span className="sc-builder-title">✦ AI Prompt Builder</span><span className="sc-aip-badge">AI</span></div>
+              <div className="sc-builder-head"><span className="sc-builder-title">{t('superScene.aiPromptBuilder')}</span><span className="sc-aip-badge">{t('superScene.aiLabel')}</span></div>
               <div className="sc-builder-body">
                 <div className="sc-af"><div className="sc-afl">{t('superScene.subjectScene')}</div>
-                  <input className="sc-ainp" placeholder="e.g. mountain valley, city at night, ocean at sunset…" value={aiSubject} onChange={e => setAiSubject(e.target.value)}/></div>
-                <div className="sc-af"><div className="sc-afl">Style</div>
+                  <input className="sc-ainp" placeholder={t('superScene.scenePromptPlaceholderFull')} value={aiSubject} onChange={e => setAiSubject(e.target.value)}/></div>
+                <div className="sc-af"><div className="sc-afl">{t('superScene.styleLabel')}</div>
                   <div className="sc-section">
                     <div className="sc-model-sel" onClick={() => setAiStyleOpen(!aiStyleOpen)}>
                       <div className="sc-model-icon" style={{ background: 'linear-gradient(135deg, #a78bfa, #8b5cf688)' }}>◆</div>
@@ -2447,13 +2447,13 @@ export default function SuperScenePage() {
                     {["Epic","Serene","Tense","Mysterious","Joyful","Melancholic"].map(m => (
                       <button key={m} className="sc-achip">{m}</button>
                     ))}</div></div>
-                <button className="sc-abtn" onClick={buildPrompt}>✦ Build My Prompt</button>
+                <button className="sc-abtn" onClick={buildPrompt}>{t('superScene.buildPrompt')}</button>
                 {aiResult && (
                   <div className="sc-ares">
                     <div className="sc-ares-text">{aiResult}</div>
                     <div className="sc-ares-acts">
-                      <button className="sc-ara sc-ara-use" onClick={useAiPrompt}>↑ Use this prompt</button>
-                      <button className="sc-ara sc-ara-reg" onClick={buildPrompt}>↺ Regenerate</button>
+                      <button className="sc-ara sc-ara-use" onClick={useAiPrompt}>{t('superScene.usePrompt')}</button>
+                      <button className="sc-ara sc-ara-reg" onClick={buildPrompt}>{t('superScene.regenerate')}</button>
                     </div>
                   </div>
                 )}
@@ -2519,18 +2519,18 @@ export default function SuperScenePage() {
                   <div className="sc-label">{t('superScene.promptLabel')}</div>
                   <div className={cls("sc-prompt-box", imgPromptExpanded && "sc-prompt-expanded")}>
                     <textarea className="sc-prompt-ta" rows={imgPromptExpanded ? 12 : 5}
-                      placeholder="A professional product photo of wireless earbuds on a marble surface, soft studio lighting, shallow depth of field, 8K, photorealistic"
+                      placeholder={t('superScene.imagePromptPlaceholderFull')}
                       value={imgPrompt} onChange={e => setImgPrompt(e.target.value.slice(0, 2000))}/>
                     <div className="sc-prompt-footer">
                       <span className="sc-prompt-ai" onClick={() => setTab("builder")}>✦ Generate<br/><span className="sc-prompt-ai-sub">{t('superScene.withAI')}</span></span>
                       <div className="sc-prompt-actions">
-                        <button className="sc-prompt-action" title="Copy" onClick={() => { if (imgPrompt) navigator.clipboard.writeText(imgPrompt); }}>
+                        <button className="sc-prompt-action" title={t('superScene.copyBtn')} onClick={() => { if (imgPrompt) navigator.clipboard.writeText(imgPrompt); }}>
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
                         </button>
-                        <button className="sc-prompt-action" title="Clear" onClick={() => setImgPrompt("")}>
+                        <button className="sc-prompt-action" title={t('superScene.clearPrompt')} onClick={() => setImgPrompt("")}>
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
                         </button>
-                        <button className="sc-prompt-action" title="Paste" onClick={async () => { try { const t = await navigator.clipboard.readText(); if (t) setImgPrompt(p => (p + t).slice(0, 2000)); } catch {} }}>
+                        <button className="sc-prompt-action" title={t('superScene.pasteBtn')} onClick={async () => { try { const t = await navigator.clipboard.readText(); if (t) setImgPrompt(p => (p + t).slice(0, 2000)); } catch {} }}>
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 012 2v14a2 2 0 01-2 2H6a2 2 0 01-2-2V6a2 2 0 012-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
                         </button>
                         <button className={cls("sc-prompt-action", imgPromptExpanded && "sc-prompt-action-active")} title={imgPromptExpanded ? "Collapse" : "Expand"} onClick={() => setImgPromptExpanded(x => !x)}>
@@ -2547,7 +2547,7 @@ export default function SuperScenePage() {
                   <div className="sc-label">Negative Prompt <span className="sc-label-badge">{t('superScene.optional')}</span></div>
                   <div className="sc-prompt-box">
                     <textarea className="sc-prompt-ta sc-scene-textarea" rows={2}
-                      placeholder="Things to exclude: blurry, low quality, watermark, text, distorted, cropped…"
+                      placeholder={t('superScene.negativeExcludeFull')}
                       value={imgNegPrompt} onChange={e => setImgNegPrompt(e.target.value.slice(0, 500))}/>
                   </div>
                 </div>
@@ -2606,7 +2606,7 @@ export default function SuperScenePage() {
                       <span className="sc-seed-value">{seedLocked ? seedValue : "Random"}</span>
                     </div>
                     {seedLocked && (
-                      <button className="sc-seed-refresh" onClick={refreshSeed} title="New seed">↻</button>
+                      <button className="sc-seed-refresh" onClick={refreshSeed} title={t('superScene.newSeed')}>↻</button>
                     )}
                   </div>
                 </div>
@@ -2642,8 +2642,8 @@ export default function SuperScenePage() {
                         <div key={i} className="sc-img-result-item">
                           <img src={url} alt={`Generated ${i+1}`} className="sc-img-result-img"/>
                           <div className="sc-img-result-actions">
-                            <button className="sc-sa-btn" onClick={() => downloadVideo(url, `superscene-image-${Date.now()}.png`)}>⬇ Download</button>
-                            <button className="sc-sa-btn" onClick={() => { navigator.clipboard.writeText(url); }}>📋 Copy URL</button>
+                            <button className="sc-sa-btn" onClick={() => downloadVideo(url, `superscene-image-${Date.now()}.png`)}>{t('superScene.downloadBtn')}</button>
+                            <button className="sc-sa-btn" onClick={() => { navigator.clipboard.writeText(url); }}>{t('superScene.copyUrlBtn')}</button>
                           </div>
                         </div>
                       ))}
@@ -2687,7 +2687,7 @@ export default function SuperScenePage() {
                 <div className="sc-cap-add-row">
                   <input className="sc-cap-input" placeholder={t("superScene.captionTextPlaceholder")} value={captionText} onChange={e => setCaptionText(e.target.value)}
                     onKeyDown={e => { if (e.key === "Enter") addCaption(); }}/>
-                  <button className="sc-cap-add-btn" onClick={addCaption} disabled={!captionText.trim()}>+ Add</button>
+                  <button className="sc-cap-add-btn" onClick={addCaption} disabled={!captionText.trim()}>{t('superScene.addCaption')}</button>
                 </div>
 
                 {/* Caption List */}
@@ -2736,7 +2736,7 @@ export default function SuperScenePage() {
                       <div className="s-icon">T</div>
                       <div className="s-title">{t('superScene.noVideoToCaption')}</div>
                       <div className="s-sub">{t("superScene.generateVideoFirst")}</div>
-                      <button className="sc-ecta" onClick={() => setTab("create")}>← Go to Creator</button>
+                      <button className="sc-ecta" onClick={() => setTab("create")}>{t('superScene.goToCreator')}</button>
                     </div>
                   )}
                 </div>
@@ -2880,7 +2880,7 @@ export default function SuperScenePage() {
               {framePickerPreview && (
                 <div className="sc-fp-preview-section">
                   <div className="sc-scene-label">{t('superScene.selectedFrame')}</div>
-                  <img src={framePickerPreview} alt="Selected frame" className="sc-fp-preview-img"/>
+                  <img src={framePickerPreview} alt={t('superScene.selectedFrame')} className="sc-fp-preview-img"/>
                 </div>
               )}
               <canvas ref={framePickerCanvasRef} style={{ display: 'none' }}/>

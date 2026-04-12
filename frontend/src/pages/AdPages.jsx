@@ -28,7 +28,7 @@ export function AdDetail() {
       <div style={{ maxWidth: 600, margin: '80px auto', textAlign: 'center', padding: '0 24px' }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
         <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 24, fontWeight: 900, marginBottom: 12 }}>{t('adPages.adNotFound')}</h2>
-        <Link to="/ads" style={{ color: 'var(--sap-accent-light)', textDecoration: 'none' }}>← Back to Ad Board</Link>
+        <Link to="/ads" style={{ color: 'var(--sap-accent-light)', textDecoration: 'none' }}>{t('adPages.backToAdBoard')}</Link>
       </div>
     </PublicLayout>
   );
@@ -148,11 +148,11 @@ export function AdBoardManage() {
             <form onSubmit={submit}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Title *</label>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('adPages.titleRequired')}</label>
                   <input value={form.title} onChange={set('title')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }} placeholder={t("adPages.listingTitlePlaceholder")}/>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Category *</label>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('adPages.categoryRequired')}</label>
                   <select value={form.category} onChange={set('category')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }}>
                     <option value="">{t('adPages.selectCategory')}</option>
                     {categories.map(function(c) { return <option key={c.id} value={c.id}>{c.icon} {c.name}</option>; })}
@@ -160,17 +160,17 @@ export function AdBoardManage() {
                 </div>
               </div>
               <div style={{ marginBottom: 12 }}>
-                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Description *</label>
+                <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('adPages.descRequired')}</label>
                 <textarea value={form.description} onChange={set('description')} rows={3} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0', resize: 'vertical' }} placeholder={t("adPages.listingDescPlaceholder")}/>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Link URL *</label>
-                  <input value={form.link_url} onChange={set('link_url')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }} placeholder="https://..."/>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('adPages.linkRequired')}</label>
+                  <input value={form.link_url} onChange={set('link_url')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }} placeholder={t('common.urlPlaceholder')}/>
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('adPages.imageUrlOptional')}</label>
-                  <input value={form.image_url} onChange={set('image_url')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }} placeholder="https://..."/>
+                  <input value={form.image_url} onChange={set('image_url')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }} placeholder={t('common.urlPlaceholder')}/>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
@@ -183,8 +183,8 @@ export function AdBoardManage() {
                   <input value={form.location} onChange={set('location')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }} placeholder={t("adPages.locationPlaceholder")} maxLength={100}/>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>SEO Keywords</label>
-                  <input value={form.keywords} onChange={set('keywords')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }} placeholder="marketing, digital" maxLength={200}/>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('adPages.seoKeywords')}</label>
+                  <input value={form.keywords} onChange={set('keywords')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }} placeholder={t('adPages.keywordsPlaceholder')} maxLength={200}/>
                 </div>
               </div>
               <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', marginBottom: 16 }}>Keywords help people find your listing through search engines. Separate with commas.</div>

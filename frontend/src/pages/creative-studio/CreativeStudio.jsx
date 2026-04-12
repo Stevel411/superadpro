@@ -514,7 +514,7 @@ export default function CreativeStudio() {
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, paddingLeft: 16 }}>
             <span style={{ fontFamily: 'Sora, sans-serif', fontSize: 16, fontWeight: 800, color: '#4ade80' }}>{credits}</span>
             <span style={{ fontSize: 11, color: 'var(--sap-text-faint)' }}>{t('creativeStudio.creditsLabel')}</span>
-            <button className="cs-credits-buy" onClick={function() { switchTab('credits'); }}>+ Buy</button>
+            <button className="cs-credits-buy" onClick={function() { switchTab('credits'); }}>{t('creativeStudio.buyCredits')}</button>
           </div>
         </div>
 
@@ -537,7 +537,7 @@ export default function CreativeStudio() {
                 </div>
               ) : mode === 'image' && imagePreview ? (
                 <div style={{ position: 'relative', width: '100%', height: '100%' }}>
-                  <img src={imagePreview} alt="Preview"/>
+                  <img src={imagePreview} alt={t('creativeStudio.preview')}/>
                   <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '48px 24px 24px', background: 'linear-gradient(transparent, rgba(0,0,0,.85))' }}>
                     <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{t('creativeStudio.yourImage')}</div>
                     <div style={{ fontSize: 13, color: 'rgba(255,255,255,.6)' }}>
@@ -563,8 +563,8 @@ export default function CreativeStudio() {
 
             {/* Stage actions (when video ready) */}
             {videoUrl && <div className="cs-stage-actions">
-              <button className="cs-sa-btn" onClick={function() { downloadVideo(videoUrl); }}>⬇ Download</button>
-              <button className="cs-sa-btn" onClick={function() { setVideoUrl(null); setGenStatus(null); setGenProgress(0); }}>✕ Clear</button>
+              <button className="cs-sa-btn" onClick={function() { downloadVideo(videoUrl); }}>{t('creativeStudio.downloadFile')}</button>
+              <button className="cs-sa-btn" onClick={function() { setVideoUrl(null); setGenStatus(null); setGenProgress(0); }}>{t('creativeStudio.clearResult')}</button>
             </div>}
 
             {/* ── Controls ── */}
@@ -583,7 +583,7 @@ export default function CreativeStudio() {
                   <textarea className="cs-ta" rows={3} value={prompt} onChange={function(e) { setPrompt(e.target.value.slice(0, 2000)); }}
                     placeholder={mode === 'image' ? 'Describe how this image should move — e.g. slow zoom in, camera orbits...' : 'A cinematic drone shot over a misty mountain valley at golden hour...'}/>
                   <div className="cs-ta-foot">
-                    <span className="cs-ta-ai">✦ AI Builder</span>
+                    <span className="cs-ta-ai">{t('creativeStudio.aiBuilderBtn')}</span>
                     <span className="cs-ta-ct">{prompt.length}/2000</span>
                   </div>
                 </div>
@@ -654,10 +654,10 @@ export default function CreativeStudio() {
                   <input ref={fileRef} type="file" accept="image/jpeg,image/png,image/webp" style={{ display: 'none' }} onChange={handleImageSelect}/>
                   {imagePreview ? (
                     <div className="cs-img-preview">
-                      <img src={imagePreview} alt="Preview" className="cs-img-thumb"/>
+                      <img src={imagePreview} alt={t('creativeStudio.preview')} className="cs-img-thumb"/>
                       <div className="cs-img-overlay">
-                        {uploading ? <span className="cs-img-status">Uploading…</span> : <span className="cs-img-status cs-img-ok">✓ Ready</span>}
-                        <button className="cs-img-remove" onClick={clearImage}>✕ Remove</button>
+                        {uploading ? <span className="cs-img-status">{t('creativeStudio.uploadingFile')}</span> : <span className="cs-img-status cs-img-ok">{t('creativeStudio.fileReady')}</span>}
+                        <button className="cs-img-remove" onClick={clearImage}>{t('creativeStudio.removeUpload')}</button>
                       </div>
                     </div>
                   ) : (
@@ -778,7 +778,7 @@ export default function CreativeStudio() {
               {imgResults.map(function(url, i) {
                 return <button key={i} className="cs-sa-btn" onClick={function() { downloadVideo(url, 'creative-studio-image-' + Date.now() + '.png'); }}>⬇ {imgResults.length > 1 ? 'Image ' + (i+1) : 'Download'}</button>;
               })}
-              <button className="cs-sa-btn" onClick={function() { setImgResults([]); }}>✕ Clear</button>
+              <button className="cs-sa-btn" onClick={function() { setImgResults([]); }}>{t('creativeStudio.clearResult')}</button>
             </div>}
 
             {/* Controls */}
@@ -788,9 +788,9 @@ export default function CreativeStudio() {
                 <div className="cs-card">
                   <div className="cs-lbl">{t("creativeStudio.prompt")}</div>
                   <textarea className="cs-ta" rows={4} value={imgPrompt} onChange={function(e) { setImgPrompt(e.target.value.slice(0, 2000)); }}
-                    placeholder="A professional product photo of wireless earbuds on a marble surface, soft studio lighting, shallow depth of field, 8K, photorealistic"/>
+                    placeholder={t('creativeStudio.imagePromptPlaceholderFull')}/>
                   <div className="cs-ta-foot">
-                    <span className="cs-ta-ai">✦ AI Builder</span>
+                    <span className="cs-ta-ai">{t('creativeStudio.aiBuilderBtn')}</span>
                     <span className="cs-ta-ct">{imgPrompt.length}/2000</span>
                   </div>
                 </div>
@@ -902,8 +902,8 @@ export default function CreativeStudio() {
             </div>
             {musicGenerating && <div className="cs-progress-wrap"><div className="cs-progress"><div className="cs-progress-bar" style={{ width: musicProgress + '%' }}/></div><div className="cs-progress-status">Generating... {Math.round(musicProgress)}%</div></div>}
             {musicUrl && !musicGenerating && <div className="cs-stage-actions">
-              <button className="cs-sa-btn" onClick={function() { downloadVideo(musicUrl, 'creative-studio-music-' + Date.now() + '.mp3'); }}>⬇ Download MP3</button>
-              <button className="cs-sa-btn" onClick={function() { setMusicUrl(null); }}>✕ Clear</button>
+              <button className="cs-sa-btn" onClick={function() { downloadVideo(musicUrl, 'creative-studio-music-' + Date.now() + '.mp3'); }}>{t('creativeStudio.downloadMp3')}</button>
+              <button className="cs-sa-btn" onClick={function() { setMusicUrl(null); }}>{t('creativeStudio.clearResult')}</button>
             </div>}
             <div className="cs-controls">
               <div className="cs-mode" style={{ maxWidth: 280 }}>
@@ -926,8 +926,8 @@ export default function CreativeStudio() {
                     {MUSIC_MODELS.map(function(m) { return <button key={m.key} className={'cs-pill' + (musicModel === m.key ? ' on' : '')} onClick={function() { setMusicModel(m.key); }}>{m.name} {m.badge ? '· ' + m.badge : ''} <span style={{ fontSize: 10, opacity: .6, marginLeft: 4 }}>{m.cost}cr</span></button>; })}
                   </div>
                   {musicCustom && <>
-                    <div className="cs-lbl">Style</div>
-                    <input style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', marginBottom: 10, boxSizing: 'border-box' }} placeholder="pop, rock, electronic, jazz..." value={musicStyle} onChange={function(e) { setMusicStyle(e.target.value); }}/>
+                    <div className="cs-lbl">{t('creativeStudio.styleLabel')}</div>
+                    <input style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', marginBottom: 10, boxSizing: 'border-box' }} placeholder={t('creativeStudio.stylePlaceholderFull')} value={musicStyle} onChange={function(e) { setMusicStyle(e.target.value); }}/>
                     <div className="cs-lbl">{t('creativeStudio.titleLabel')}</div>
                     <input style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', marginBottom: 10, boxSizing: 'border-box' }} placeholder={t("creativeStudio.songTitlePlaceholder")} value={musicTitle} onChange={function(e) { setMusicTitle(e.target.value); }}/>
                     <div className="cs-lbl">{t('creativeStudio.vocalGender')}</div>
@@ -977,15 +977,15 @@ export default function CreativeStudio() {
               )}
             </div>
             {voAudioUrl && !voGenerating && <div className="cs-stage-actions">
-              <button className="cs-sa-btn" onClick={function() { downloadVideo(voAudioUrl, 'creative-studio-voiceover-' + Date.now() + '.mp3'); }}>⬇ Download MP3</button>
-              <button className="cs-sa-btn" onClick={function() { setVoAudioUrl(null); setVoLipSyncUrl(null); }}>✕ Clear</button>
+              <button className="cs-sa-btn" onClick={function() { downloadVideo(voAudioUrl, 'creative-studio-voiceover-' + Date.now() + '.mp3'); }}>{t('creativeStudio.downloadMp3')}</button>
+              <button className="cs-sa-btn" onClick={function() { setVoAudioUrl(null); setVoLipSyncUrl(null); }}>{t('creativeStudio.clearResult')}</button>
             </div>}
             <div className="cs-controls">
               <div className="cs-row">
                 <div className="cs-card">
-                  <div className="cs-lbl">① Script</div>
+                  <div className="cs-lbl">{t('creativeStudio.scriptStep')}</div>
                   <textarea className="cs-ta" rows={6} value={voText} onChange={function(e) { setVoText(e.target.value); }}
-                    placeholder="Type your voiceover script here... e.g. Welcome to SuperAdPro, the platform where your creativity pays."/>
+                    placeholder={t('creativeStudio.voiceoverPlaceholderFull')}/>
                   <div className="cs-ta-foot"><span/><span className="cs-ta-ct">{voText.length}/5000</span></div>
                 </div>
                 <div className="cs-card">
@@ -1046,20 +1046,20 @@ export default function CreativeStudio() {
             </div>
             {voLipSyncing && <div className="cs-progress-wrap"><div className="cs-progress"><div className="cs-progress-bar" style={{ width: voLipSyncProgress + '%' }}/></div><div className="cs-progress-status">Generating... {Math.round(voLipSyncProgress)}%</div></div>}
             {voLipSyncUrl && !voLipSyncing && <div className="cs-stage-actions">
-              <button className="cs-sa-btn" onClick={function() { downloadVideo(voLipSyncUrl, 'creative-studio-avatar-' + Date.now() + '.mp4'); }}>⬇ Download Video</button>
-              <button className="cs-sa-btn" onClick={function() { setVoLipSyncUrl(null); }}>✕ Clear</button>
+              <button className="cs-sa-btn" onClick={function() { downloadVideo(voLipSyncUrl, 'creative-studio-avatar-' + Date.now() + '.mp4'); }}>{t('creativeStudio.downloadVoiceVideo')}</button>
+              <button className="cs-sa-btn" onClick={function() { setVoLipSyncUrl(null); }}>{t('creativeStudio.clearResult')}</button>
             </div>}
             <div className="cs-controls">
               <div className="cs-row-3">
                 <div className="cs-card">
-                  <div className="cs-lbl">① Person Photo</div>
+                  <div className="cs-lbl">{t('creativeStudio.personPhoto')}</div>
                   <input ref={voImageInputRef} type="file" accept="image/jpeg,image/png,image/webp" style={{ display: 'none' }} onChange={handleVoImageUpload}/>
                   {voImageUrl ? (
                     <div className="cs-img-preview">
-                      <img src={voImageUrl} alt="Avatar" className="cs-img-thumb"/>
+                      <img src={voImageUrl} alt={t('creativeStudio.preview')} className="cs-img-thumb"/>
                       <div className="cs-img-overlay">
-                        <span className="cs-img-status cs-img-ok">✓ Ready</span>
-                        <button className="cs-img-remove" onClick={function() { setVoImageUrl(null); }}>✕ Change</button>
+                        <span className="cs-img-status cs-img-ok">{t('creativeStudio.fileReady')}</span>
+                        <button className="cs-img-remove" onClick={function() { setVoImageUrl(null); }}>{t('creativeStudio.changePhoto')}</button>
                       </div>
                     </div>
                   ) : (
@@ -1070,24 +1070,24 @@ export default function CreativeStudio() {
                   )}
                 </div>
                 <div className="cs-card">
-                  <div className="cs-lbl">② Audio Source</div>
+                  <div className="cs-lbl">{t('creativeStudio.audioSource')}</div>
                   {voAudioUrl ? (
                     <div>
-                      <div style={{ fontSize: 12, color: 'var(--sap-green-bright)', fontWeight: 600, marginBottom: 8 }}>✓ Voiceover ready</div>
+                      <div style={{ fontSize: 12, color: 'var(--sap-green-bright)', fontWeight: 600, marginBottom: 8 }}>{t('creativeStudio.voiceoverReady')}</div>
                       <audio src={voAudioUrl} controls style={{ width: '100%' }}/>
                       <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', marginTop: 6 }}>{t('creativeStudio.generatedFromVoiceover')}</div>
                     </div>
                   ) : (
                     <div style={{ textAlign: 'center', padding: 20, color: 'var(--sap-text-faint)', fontSize: 13 }}>
-                      <div style={{ marginBottom: 8 }}>No audio yet</div>
-                      <button style={{ fontSize: 12, fontWeight: 700, color: 'var(--sap-purple)', background: '#f5f3ff', border: '1px solid #e9e5ff', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontFamily: 'inherit' }} onClick={function() { switchTab('voiceover'); }}>Go to Voiceover tab →</button>
+                      <div style={{ marginBottom: 8 }}>{t('creativeStudio.noAudioYet')}</div>
+                      <button style={{ fontSize: 12, fontWeight: 700, color: 'var(--sap-purple)', background: '#f5f3ff', border: '1px solid #e9e5ff', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontFamily: 'inherit' }} onClick={function() { switchTab('voiceover'); }}>{t('creativeStudio.goToVoiceover')}</button>
                     </div>
                   )}
                 </div>
                 <div className="cs-card">
-                  <div className="cs-lbl">③ Generate</div>
+                  <div className="cs-lbl">{t('creativeStudio.generateStep')}</div>
                   <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginBottom: 12, lineHeight: 1.5 }}>Upload a person photo and create a voiceover first. Then generate a talking avatar video synced to the audio.</div>
-                  <div style={{ fontSize: 12, color: 'var(--sap-text-faint)', marginBottom: 8 }}>Cost: <b style={{ color: 'var(--sap-text-primary)' }}>8 credits</b></div>
+                  <div style={{ fontSize: 12, color: 'var(--sap-text-faint)', marginBottom: 8 }}>Cost: <b style={{ color: 'var(--sap-text-primary)' }}>{t('creativeStudio.lipSyncCredits')}</b></div>
                 </div>
               </div>
             </div>
@@ -1096,14 +1096,14 @@ export default function CreativeStudio() {
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/></svg>
                 {voLipSyncing ? 'Generating...' : !voImageUrl ? 'Upload a photo first' : !voAudioUrl ? 'Create a voiceover first' : '🎬 Generate Talking Avatar'}
               </button>
-              <div className="cs-gen-info"><b>8 credits</b>{credits} remaining</div>
+              <div className="cs-gen-info"><b>{t('creativeStudio.lipSyncCredits')}</b>{credits} remaining</div>
             </div>
           </>}
 
           {/* ═══ GALLERY TAB ═══ */}
           {tab === 'gallery' && <>
             <div className="cs-controls">
-              <div className="cs-lbl" style={{ marginBottom: 16 }}>Recent Video Clips</div>
+              <div className="cs-lbl" style={{ marginBottom: 16 }}>{t('creativeStudio.recentClips')}</div>
               {videos.filter(function(v) { return v.status === 'completed' && v.video_url; }).length > 0 ? (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
                   {videos.filter(function(v) { return v.status === 'completed' && v.video_url; }).map(function(v) {
@@ -1119,8 +1119,8 @@ export default function CreativeStudio() {
               ) : (
                 <div style={{ textAlign: 'center', padding: 60, color: 'var(--sap-text-faint)' }}>
                   <div style={{ fontSize: 36, marginBottom: 12, opacity: .3 }}>📁</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--sap-text-muted)' }}>No content yet</div>
-                  <div style={{ fontSize: 13, marginTop: 4 }}>Start creating videos, images, and music to see them here</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--sap-text-muted)' }}>{t('creativeStudio.noContentYet')}</div>
+                  <div style={{ fontSize: 13, marginTop: 4 }}>{t('creativeStudio.startCreating')}</div>
                 </div>
               )}
             </div>

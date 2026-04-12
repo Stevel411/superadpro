@@ -336,10 +336,10 @@ export default function PDFCreator() {
 
         <div style={{ width: 1, height: 20, background: 'var(--sap-navy-card)', margin: '0 6px' }} />
 
-        <button onClick={addText} style={tb}>+ Text</button>
-        <button onClick={addImage} style={tb}>+ Image</button>
-        <button onClick={addRect} style={tb}>+ Shape</button>
-        <button onClick={addDivider} style={tb}>+ Divider</button>
+        <button onClick={addText} style={tb}>{t('pdfTools.addText')}</button>
+        <button onClick={addImage} style={tb}>{t('pdfTools.addImage')}</button>
+        <button onClick={addRect} style={tb}>{t('pdfTools.addShape')}</button>
+        <button onClick={addDivider} style={tb}>{t('pdfTools.addDivider')}</button>
 
         {selectedEl && (
           <>
@@ -420,17 +420,17 @@ export default function PDFCreator() {
           </div>
 
           {!selectedEl ? (
-            <div style={{ padding: 14, background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 10, textAlign: 'center', fontSize: 12, color: '#7b8594' }}>Click an element to edit</div>
+            <div style={{ padding: 14, background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 10, textAlign: 'center', fontSize: 12, color: '#7b8594' }}>{t('pdfTools.clickToEdit')}</div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               {selectedEl.type === 'text' && (
                 <>
                   <div>
-                    <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Font size</div>
+                    <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>{t('pdfTools.fontSize')}</div>
                     <input type="number" value={selectedEl.fontSize || 16} onChange={e => updateEl(selectedId, { fontSize: +e.target.value })} style={{ width: '100%', padding: '6px 8px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 7, color: '#fff', fontSize: 12, outline: 'none', boxSizing: 'border-box', fontFamily: '"DM Sans",sans-serif' }} />
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Weight</div>
+                    <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>{t('pdfTools.weight')}</div>
                     <div style={{ display: 'flex', gap: 3 }}>
                       {[{v:400,l:'Reg'},{v:600,l:'Semi'},{v:700,l:'Bold'},{v:900,l:'Black'}].map(fw => (
                         <button key={fw.v} onClick={() => updateEl(selectedId, { fontWeight: fw.v })} style={{ flex: 1, padding: '5px 0', borderRadius: 6, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 10, fontWeight: (selectedEl.fontWeight || 400) === fw.v ? 700 : 600, background: (selectedEl.fontWeight || 400) === fw.v ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: (selectedEl.fontWeight || 400) === fw.v ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: (selectedEl.fontWeight || 400) === fw.v ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{fw.l}</button>
@@ -438,7 +438,7 @@ export default function PDFCreator() {
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Align</div>
+                    <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>{t('pdfTools.align')}</div>
                     <div style={{ display: 'flex', gap: 3 }}>
                       {['left','center','right'].map(a => (
                         <button key={a} onClick={() => updateEl(selectedId, { align: a })} style={{ flex: 1, padding: '5px 0', borderRadius: 6, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 10, textTransform: 'capitalize', fontWeight: (selectedEl.align || 'left') === a ? 700 : 600, background: (selectedEl.align || 'left') === a ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: (selectedEl.align || 'left') === a ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: (selectedEl.align || 'left') === a ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{a}</button>
@@ -446,7 +446,7 @@ export default function PDFCreator() {
                     </div>
                   </div>
                   <div>
-                    <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Colour</div>
+                    <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>{t('pdfTools.colourLabel')}</div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 7 }}>
                       <input type="color" value={selectedEl.color || '#1a1a2e'} onChange={e => updateEl(selectedId, { color: e.target.value })} style={{ width: 18, height: 18, border: 'none', borderRadius: 4, cursor: 'pointer', padding: 0, background: 'none' }} />
                       <span style={{ fontSize: 10, color: '#c5cad1' }}>{(selectedEl.color || '#1a1a2e').toUpperCase()}</span>
@@ -456,7 +456,7 @@ export default function PDFCreator() {
               )}
               {(selectedEl.type === 'rect' || selectedEl.type === 'divider') && (
                 <div>
-                  <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Colour</div>
+                  <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>{t('pdfTools.colourLabel')}</div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 7 }}>
                     <input type="color" value={selectedEl.color || 'var(--sap-bg-page)'} onChange={e => updateEl(selectedId, { color: e.target.value })} style={{ width: 18, height: 18, border: 'none', borderRadius: 4, cursor: 'pointer', padding: 0, background: 'none' }} />
                     <span style={{ fontSize: 10, color: '#c5cad1' }}>{(selectedEl.color || 'var(--sap-bg-page)').toUpperCase()}</span>
@@ -476,8 +476,8 @@ export default function PDFCreator() {
 
           <div style={{ marginTop: 'auto', paddingTop: 16 }}>
             <div style={{ padding: '8px 12px', background: 'rgba(14,165,233,0.03)', border: '1px solid rgba(0,180,216,0.06)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 10, fontWeight: 700, color: '#fff', flex: 1 }}>Earn money with SuperAdPro</span>
-              <Link to="/earn" style={{ fontSize: 9, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>See how →</Link>
+              <span style={{ fontSize: 10, fontWeight: 700, color: '#fff', flex: 1 }}>{t('pdfTools.earnCta')}</span>
+              <Link to="/earn" style={{ fontSize: 9, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('pdfTools.seeHow')}</Link>
             </div>
           </div>
         </div>

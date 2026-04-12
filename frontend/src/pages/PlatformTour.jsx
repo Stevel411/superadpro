@@ -123,7 +123,7 @@ export default function PlatformTour() {
           <div style={{ flex: 1 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{s.title}</span>
-              {s.pro && <span style={{ padding: '3px 10px', borderRadius: 6, background: 'rgba(139,92,246,.1)', fontSize: 12, fontWeight: 700, color: 'var(--sap-violet)' }}>Pro</span>}
+              {s.pro && <span style={{ padding: '3px 10px', borderRadius: 6, background: 'rgba(139,92,246,.1)', fontSize: 12, fontWeight: 700, color: 'var(--sap-violet)' }}>{t('platformTour.proLabel')}</span>}
             </div>
             <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', marginTop: 2 }}>Step {s.num} of 6</div>
           </div>

@@ -109,7 +109,7 @@ export default function CreateCampaign() {
           {/* Video preview */}
           {preview && (
             <div style={{ marginTop: 16, borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#000' }}>
-              <iframe src={preview.embed} style={{ width: '100%', height: 340, border: 'none' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title="preview" />
+              <iframe src={preview.embed} style={{ width: '100%', height: 340, border: 'none' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title={t('createCampaign.previewLabel')} />
               <div style={{ padding: '10px 16px', background: 'var(--sap-bg-elevated)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 6, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', background: preview.platform === 'youtube' ? 'rgba(239,68,68,0.08)' : 'rgba(14,165,233,0.08)', color: preview.platform === 'youtube' ? 'var(--sap-red-bright)' : 'var(--sap-accent)' }}>{preview.platform}</span>
                 <span style={{ fontSize: 12, color: 'var(--sap-text-muted)' }}>ID: {preview.id}</span>

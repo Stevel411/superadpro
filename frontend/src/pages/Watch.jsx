@@ -660,7 +660,7 @@ export default function Watch() {
                       <div style={{fontSize:12,fontWeight:600,color:i===currentIdx?'var(--sap-accent)':'var(--sap-text-primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{v.title}</div>
                       <div style={{fontSize:10,color:'var(--sap-text-muted)',marginTop:1}}>{v.platform} · {v.category}</div>
                     </div>
-                    {i===currentIdx&&!v.is_watched && <div style={{fontSize:9,fontWeight:700,color:'var(--sap-accent)',background:'rgba(14,165,233,.08)',border:'1px solid rgba(14,165,233,.15)',padding:'2px 8px',borderRadius:4,flexShrink:0}}>▶ Playing</div>}
+                    {i===currentIdx&&!v.is_watched && <div style={{fontSize:9,fontWeight:700,color:'var(--sap-accent)',background:'rgba(14,165,233,.08)',border:'1px solid rgba(14,165,233,.15)',padding:'2px 8px',borderRadius:4,flexShrink:0}}>{t('watch.playing')}</div>}
                   </button>
                 ))}
               </div>

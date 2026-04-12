@@ -28,7 +28,7 @@ export default function ActivateTier() {
   const n = parseInt(tierId);
   const tier = TIERS[n];
 
-  if (!t) return <AppLayout title="Campaign Tier"><div style={{textAlign:'center',padding:80,color:'var(--sap-text-muted)'}}>Invalid tier</div></AppLayout>;
+  if (!t) return <AppLayout title={t('campaignTiers.campaignTierTitle')}><div style={{textAlign:'center',padding:80,color:'var(--sap-text-muted)'}}>{t('campaignTiers.invalidTier')}</div></AppLayout>;
 
   const handleNowPayments = async () => {
     if (paying) return;
@@ -55,7 +55,7 @@ export default function ActivateTier() {
   };
 
   return (
-    <AppLayout title={`Activate ${tier.name}`} subtitle="Review your campaign tier before purchase">
+    <AppLayout title={`Activate ${tier.name}`} subtitle={t('campaignTiers.reviewTier')}>
       <div style={{maxWidth:700,margin:'0 auto'}}>
 
         {/* Tier hero — dark theme with animations */}
@@ -68,7 +68,7 @@ export default function ActivateTier() {
           <div style={{position:'absolute',top:-30,right:-30,width:120,height:120,borderRadius:'50%',background:'rgba(255,255,255,.08)',pointerEvents:'none'}}/>
 
           <div style={{position:'relative',zIndex:1,textAlign:'center'}}>
-            <div style={{fontSize:12,fontWeight:700,color:n===6?'rgba(0,0,0,0.4)':'rgba(255,255,255,0.6)',textTransform:'uppercase',letterSpacing:1.5,marginBottom:8}}>Campaign Tier</div>
+            <div style={{fontSize:12,fontWeight:700,color:n===6?'rgba(0,0,0,0.4)':'rgba(255,255,255,0.6)',textTransform:'uppercase',letterSpacing:1.5,marginBottom:8}}>{t('campaignTiers.campaignTierLabel')}</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:900,color:n===6?'#1f2937':'#fff',marginBottom:4}}>{tier.name}</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:48,fontWeight:900,color:n===6?'#1f2937':'#fff',lineHeight:1,marginBottom:8}}>${tier.price.toLocaleString()}</div>
             <div style={{fontSize:13,color:n===6?'rgba(0,0,0,0.4)':'rgba(255,255,255,0.5)'}}>One-time activation · Up to {t.views} views</div>
@@ -117,7 +117,7 @@ export default function ActivateTier() {
         </div>
 
         <div style={{padding:'10px 14px',background:'var(--sap-red-bg)',border:'1px solid #fecaca',borderRadius:10,marginBottom:24,fontSize:12,color:'#991b1b',lineHeight:1.5,textAlign:'center'}}>
-          <strong>All sales are final.</strong> Campaign tier purchases are non-refundable. Commissions are paid instantly upon purchase and cannot be reversed.
+          <strong>{t('common.allSalesFinal')}</strong> Campaign tier purchases are non-refundable. Commissions are paid instantly upon purchase and cannot be reversed.
         </div>
 
         {cryptoCheckout && (
@@ -130,7 +130,7 @@ export default function ActivateTier() {
         )}
 
         <div style={{textAlign:'center',marginBottom:16}}>
-          <Link to="/campaign-tiers" style={{fontSize:13,color:'var(--sap-text-muted)',textDecoration:'none'}}>← Back to Campaign Tiers</Link>
+          <Link to="/campaign-tiers" style={{fontSize:13,color:'var(--sap-text-muted)',textDecoration:'none'}}>{t('campaignTiers.backToTiers')}</Link>
         </div>
       </div>
     </AppLayout>

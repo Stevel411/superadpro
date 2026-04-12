@@ -7,7 +7,7 @@ var IncomeGrid3D = lazy(function() { return import('../../components/IncomeGrid3
 
 function Grid3DSection() {
   return (
-    <Suspense fallback={<div style={{height:500,borderRadius:16,background:'var(--sap-cobalt-deep)',display:'flex',alignItems:'center',justifyContent:'center',color:'var(--sap-accent-light)',fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:700}}>Loading 3D Grid...</div>}>
+    <Suspense fallback={<div style={{height:500,borderRadius:16,background:'var(--sap-cobalt-deep)',display:'flex',alignItems:'center',justifyContent:'center',color:'var(--sap-accent-light)',fontFamily:'Sora,sans-serif',fontSize:14,fontWeight:700}}>{t('earnPage.loading3D')}</div>}>
       <IncomeGrid3D height={520} showControls autoPlay />
     </Suspense>
   );
@@ -102,7 +102,7 @@ function Toast() {
       <div style={{fontSize:24}}>{joiner.flag}</div>
       <div>
         <div style={{fontSize:13,fontWeight:700,color:'#fff',marginBottom:1}}>{joiner.name} from {joiner.country}</div>
-        <div style={{fontSize:11,color:'rgba(200,220,255,.55)'}}>✅ Just joined SuperAdPro</div>
+        <div style={{fontSize:11,color:'rgba(200,220,255,.55)'}}>{t('earnPage.justJoined')}</div>
       </div>
       <div style={{width:7,height:7,borderRadius:'50%',background:'var(--sap-green-bright)',boxShadow:'0 0 8px #22c55e',marginLeft:'auto',flexShrink:0}}/>
     </div>
@@ -189,21 +189,21 @@ function EarningsCalculator({ onJoin }) {
             <div style={{display:'flex',justifyContent:'space-between',padding:'10px 14px',borderRadius:10,background:'rgba(16,185,129,.06)',border:'1px solid rgba(16,185,129,.1)',marginBottom:8}}>
               <div>
                 <div style={{fontSize:12,fontWeight:700,color:'#34d399'}}>Basic referrals ({memBasicCount})</div>
-                <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>× $10/mo each</div>
+                <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>{t('earnPage.basicCalc')}</div>
               </div>
               <div style={{fontSize:20,fontWeight:900,color:'#34d399'}}>${memBasicEarn}</div>
             </div>
             <div style={{display:'flex',justifyContent:'space-between',padding:'10px 14px',borderRadius:10,background:'rgba(139,92,246,.06)',border:'1px solid rgba(139,92,246,.1)',marginBottom:12}}>
               <div>
                 <div style={{fontSize:12,fontWeight:700,color:'var(--sap-purple-light)'}}>Pro referrals ({memProCount})</div>
-                <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>× $17.50/mo each</div>
+                <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>{t('earnPage.proCalc')}</div>
               </div>
               <div style={{fontSize:20,fontWeight:900,color:'var(--sap-purple-light)'}}>${memProEarn.toFixed(0)}</div>
             </div>
             <div style={{padding:'14px 16px',borderRadius:12,background:'linear-gradient(135deg,rgba(16,185,129,.15),rgba(16,185,129,.05))',border:'1px solid rgba(16,185,129,.2)',textAlign:'center'}}>
               <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#34d399'}}>{t('earnPage.monthlyRecurringIncome')}</div>
               <div style={{fontFamily:"'Sora',sans-serif",fontSize:40,fontWeight:900,color:'#fff'}}>${memTotal.toFixed(0)}</div>
-              <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>per month · recurring · passive</div>
+              <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>{t('earnPage.perMonthRecurring')}</div>
             </div>
           </div>
         </div>
@@ -213,7 +213,7 @@ function EarningsCalculator({ onJoin }) {
       <div style={{background:'rgba(255,255,255,.03)',border:'1px solid rgba(56,189,248,.12)',borderRadius:18,overflow:'hidden',marginBottom:24}}>
         <div style={{background:'linear-gradient(135deg,rgba(56,189,248,.12),rgba(56,189,248,.04))',padding:'16px 24px',borderBottom:'1px solid rgba(56,189,248,.1)'}}>
           <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:4}}>{t('earnPage.perPurchase')}</div>
-          <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>Campaign Grid Commissions</div>
+          <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>{t('earnPage.gridCommissions')}</div>
           <div style={{fontSize:11,color:'rgba(200,220,255,.4)',marginTop:2}}>{t("earnPage.perPurchaseDesc")}</div>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',minHeight:320}}>
@@ -279,7 +279,7 @@ function EarningsCalculator({ onJoin }) {
             </div>
             <div style={{display:'flex',justifyContent:'space-between',padding:'10px 14px',borderRadius:10,background:'rgba(245,158,11,.06)',border:'1px solid rgba(245,158,11,.1)',marginBottom:12}}>
               <div>
-                <div style={{fontSize:12,fontWeight:700,color:'var(--sap-amber-bright)'}}>Grid Completion Bonus</div>
+                <div style={{fontSize:12,fontWeight:700,color:'var(--sap-amber-bright)'}}>{t('earnPage.gridCompletionBonus')}</div>
                 <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>5% × 64 members on {gridNames[gridTier]} tier</div>
               </div>
               <div style={{fontSize:20,fontWeight:900,color:'var(--sap-amber-bright)'}}>${gBonus.toFixed(0)}</div>
@@ -291,13 +291,13 @@ function EarningsCalculator({ onJoin }) {
               </div>
               <div style={{padding:'10px 12px',borderRadius:10,background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.06)',textAlign:'center'}}>
                 <div style={{fontSize:18,fontWeight:900,color:'#fff'}}>${gPerGrid.toLocaleString()}</div>
-                <div style={{fontSize:9,color:'rgba(200,220,255,.3)',fontWeight:700,textTransform:'uppercase'}}>Per Grid Complete</div>
+                <div style={{fontSize:9,color:'rgba(200,220,255,.3)',fontWeight:700,textTransform:'uppercase'}}>{t('earnPage.perGridComplete')}</div>
               </div>
             </div>
             <div style={{padding:'14px 16px',borderRadius:12,background:'linear-gradient(135deg,rgba(56,189,248,.15),rgba(56,189,248,.05))',border:'1px solid rgba(56,189,248,.2)',textAlign:'center'}}>
-              <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'var(--sap-accent-light)'}}>Total Grid Earnings (Per Purchase Round)</div>
+              <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'var(--sap-accent-light)'}}>{t('earnPage.totalGridEarnings')}</div>
               <div style={{fontFamily:"'Sora',sans-serif",fontSize:40,fontWeight:900,color:'#fff'}}>${(gDirectTotal + gUniTotal).toFixed(0)}</div>
-              <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>per purchase · repeats on repurchase</div>
+              <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>{t('earnPage.perPurchase')}</div>
             </div>
           </div>
         </div>
@@ -606,7 +606,7 @@ export default function EarnPage() {
           ].map(function(p) {
             return (
               <div key={p.name} className="earn-card" style={{background:p.highlight?'rgba(14,165,233,.06)':'rgba(255,255,255,.03)',border:p.highlight?'1.5px solid rgba(56,189,248,.25)':'1px solid rgba(255,255,255,.08)',borderRadius:16,padding:'28px 24px',position:'relative',textAlign:'left'}}>
-                {p.highlight && <div style={{position:'absolute',top:14,right:14,fontSize:9,fontWeight:800,letterSpacing:1,textTransform:'uppercase',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',padding:'3px 10px',borderRadius:20}}>★ Recommended</div>}
+                {p.highlight && <div style={{position:'absolute',top:14,right:14,fontSize:9,fontWeight:800,letterSpacing:1,textTransform:'uppercase',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',padding:'3px 10px',borderRadius:20}}>{t('earnPage.recommended')}</div>}
                 <div style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:p.highlight?'var(--sap-accent-light)':'rgba(200,220,255,.4)',marginBottom:8}}>{p.name}</div>
                 <div style={{fontFamily:"'Sora',sans-serif",fontSize:36,fontWeight:900,color:'#fff',lineHeight:1,marginBottom:4}}>{p.price}<span style={{fontSize:14,fontWeight:500,color:'rgba(200,220,255,.4)'}}>{p.period}</span></div>
                 <div style={{fontSize:12,color:'rgba(200,220,255,.35)',marginBottom:20}}>{t("earnPage.perMemberPerMonth")}</div>
@@ -660,7 +660,7 @@ export default function EarnPage() {
             return <Link key={h} to={h} style={{fontSize:12,color:'rgba(200,220,255,.25)',textDecoration:'none'}}>{l}</Link>;
           })}
         </div>
-        <div style={{fontSize:12,color:'rgba(200,220,255,.2)'}}>© 2026 SuperAdPro</div>
+        <div style={{fontSize:12,color:'rgba(200,220,255,.2)'}}>{t('earnPage.copyright')}</div>
       </footer>
 
       <Toast/>
@@ -671,24 +671,24 @@ export default function EarnPage() {
           <div style={{background:'#111827',border:'1px solid rgba(56,189,248,.2)',borderRadius:16,padding:'36px 40px',width:'100%',maxWidth:460,position:'relative',boxShadow:'0 32px 80px rgba(0,0,0,.8)'}}>
             <button onClick={function(){setRegOpen(false);}} style={{position:'absolute',top:14,right:16,background:'none',border:'none',color:'rgba(148,163,184,.6)',fontSize:20,cursor:'pointer',lineHeight:1}}>✕</button>
             <div style={{fontSize:22,fontWeight:800,color:'#fff',marginBottom:4}}>{t('earnPage.createYourFreeAccount')}</div>
-            <div style={{fontSize:14,color:'rgba(148,163,184,.7)',marginBottom:20}}>Takes 60 seconds · No credit card required</div>
+            <div style={{fontSize:14,color:'rgba(148,163,184,.7)',marginBottom:20}}>{t('earnPage.takes60sec')}</div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
               <div>
                 <label style={{display:'block',fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>{t('earnPage.firstName')}</label>
-                <input style={{width:'100%',padding:'10px 13px',border:'1.5px solid rgba(56,189,248,.15)',borderRadius:8,background:'rgba(56,189,248,.04)',color:'var(--sap-bg-page)',fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} placeholder="John"/>
+                <input style={{width:'100%',padding:'10px 13px',border:'1.5px solid rgba(56,189,248,.15)',borderRadius:8,background:'rgba(56,189,248,.04)',color:'var(--sap-bg-page)',fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} placeholder={t('earnPage.firstNamePlaceholder')}/>
               </div>
               <div>
                 <label style={{display:'block',fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>{t('earnPage.username')}</label>
-                <input style={{width:'100%',padding:'10px 13px',border:'1.5px solid rgba(56,189,248,.15)',borderRadius:8,background:'rgba(56,189,248,.04)',color:'var(--sap-bg-page)',fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} placeholder="johnsmith"/>
+                <input style={{width:'100%',padding:'10px 13px',border:'1.5px solid rgba(56,189,248,.15)',borderRadius:8,background:'rgba(56,189,248,.04)',color:'var(--sap-bg-page)',fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} placeholder={t('earnPage.usernamePlaceholder')}/>
               </div>
             </div>
             <div style={{marginBottom:12}}>
               <label style={{display:'block',fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>{t('earnPage.emailAddress')}</label>
-              <input type="email" style={{width:'100%',padding:'10px 13px',border:'1.5px solid rgba(56,189,248,.15)',borderRadius:8,background:'rgba(56,189,248,.04)',color:'var(--sap-bg-page)',fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} placeholder="john@example.com"/>
+              <input type="email" style={{width:'100%',padding:'10px 13px',border:'1.5px solid rgba(56,189,248,.15)',borderRadius:8,background:'rgba(56,189,248,.04)',color:'var(--sap-bg-page)',fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} placeholder={t('earnPage.emailPlaceholder')}/>
             </div>
             <div style={{marginBottom:20}}>
               <label style={{display:'block',fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>{t('earnPage.password')}</label>
-              <input type="password" style={{width:'100%',padding:'10px 13px',border:'1.5px solid rgba(56,189,248,.15)',borderRadius:8,background:'rgba(56,189,248,.04)',color:'var(--sap-bg-page)',fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} placeholder="Min. 8 characters"/>
+              <input type="password" style={{width:'100%',padding:'10px 13px',border:'1.5px solid rgba(56,189,248,.15)',borderRadius:8,background:'rgba(56,189,248,.04)',color:'var(--sap-bg-page)',fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} placeholder={t('earnPage.passwordPlaceholder')}/>
             </div>
             <Link to="/register" onClick={function(){setRegOpen(false);}} style={{display:'block',width:'100%',padding:'13px',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',border:'none',borderRadius:10,color:'#fff',fontSize:15,fontWeight:800,fontFamily:'inherit',cursor:'pointer',textAlign:'center',textDecoration:'none',boxSizing:'border-box'}}>
               Create Account →

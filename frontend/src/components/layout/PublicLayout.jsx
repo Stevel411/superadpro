@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 
 export default function PublicLayout({ children }) {
@@ -22,7 +23,7 @@ export default function PublicLayout({ children }) {
               <span style={{ color: '#fff', fontWeight: 900, fontSize: 15 }}>S</span>
             </div>
             <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 20, fontWeight: 900 }}>
-              SuperAd<span style={{ color: '#38bdf8' }}>Pro</span>
+              SuperAd<span style={{ color: '#38bdf8' }}>{t('common.pro')}</span>
             </span>
           </Link>
 
@@ -41,7 +42,7 @@ export default function PublicLayout({ children }) {
                 </Link>
               );
             })}
-            <a href="/explore" style={{ padding: '8px 14px', borderRadius: 8, fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', transition: 'color .15s' }}>Explore</a>
+            <a href="/explore" style={{ padding: '8px 14px', borderRadius: 8, fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.65)', textDecoration: 'none', transition: 'color .15s' }}>{t('nav.explore')}</a>
           </div>
 
           {/* CTA buttons */}
@@ -69,7 +70,7 @@ export default function PublicLayout({ children }) {
             {/* Brand */}
             <div>
               <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 900, marginBottom: 12 }}>
-                SuperAd<span style={{ color: '#38bdf8' }}>Pro</span>
+                SuperAd<span style={{ color: '#38bdf8' }}>{t('common.pro')}</span>
               </div>
               <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, maxWidth: 200 }}>
                 Earn while you advertise. Build recurring income through our affiliate network.
@@ -78,17 +79,17 @@ export default function PublicLayout({ children }) {
 
             {/* Platform */}
             <div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>Platform</div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>{t('nav.platformFooter')}</div>
               {[['How It Works', '/how-it-works'], ['For Advertisers', '/for-advertisers'], ['Compensation Plan', '/compensation-plan'], ['Campaign Tiers', '/campaign-tiers']].map(function([l,h]){
                 return <Link key={h} to={h} style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: 8 }}
                   onMouseEnter={function(e){e.target.style.color='#fff';}} onMouseLeave={function(e){e.target.style.color='rgba(255,255,255,0.5)';}}>{l}</Link>;
               })}
-              <a href="/explore" style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: 8 }}>Explore</a>
+              <a href="/explore" style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: 8 }}>{t('nav.explore')}</a>
             </div>
 
             {/* Account */}
             <div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>Account</div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>{t('nav.accountNav')}</div>
               {[['Sign In', '/login'], ['Create Account', '/register'], ['FAQ', '/faq'], ['Support', '/support']].map(function([l,h]){
                 return <Link key={h} to={h} style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: 8 }}
                   onMouseEnter={function(e){e.target.style.color='#fff';}} onMouseLeave={function(e){e.target.style.color='rgba(255,255,255,0.5)';}}>{l}</Link>;
@@ -97,7 +98,7 @@ export default function PublicLayout({ children }) {
 
             {/* Legal */}
             <div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>Legal</div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>{t('nav.legalNav')}</div>
               {[['Terms of Service', '/legal'], ['Privacy Policy', '/legal'], ['Earnings Disclaimer', '/legal']].map(function([l,h]){
                 return <Link key={h} to={h} style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: 8 }}
                   onMouseEnter={function(e){e.target.style.color='#fff';}} onMouseLeave={function(e){e.target.style.color='rgba(255,255,255,0.5)';}}>{l}</Link>;
@@ -106,7 +107,7 @@ export default function PublicLayout({ children }) {
 
             {/* Free Tools */}
             <div>
-              <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>Free Tools</div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 14 }}>{t('nav.freeTools')}</div>
               {[['Meme Generator', '/free/meme-generator'], ['QR Code Generator', '/free/qr-code-generator'], ['Banner & Profile Creator', '/free/banner-creator']].map(function([l,h]){
                 return <Link key={h} to={h} style={{ display: 'block', fontSize: 13, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: 8 }}
                   onMouseEnter={function(e){e.target.style.color='#fff';}} onMouseLeave={function(e){e.target.style.color='rgba(255,255,255,0.5)';}}>{l}</Link>;

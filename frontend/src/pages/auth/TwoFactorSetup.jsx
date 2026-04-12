@@ -88,7 +88,7 @@ export default function TwoFactorSetup() {
 
       <div style={styles.card}>
         <div style={styles.logoRow}>
-          <span style={styles.logoText}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span></span>
+          <span style={styles.logoText}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>{t('common.pro')}</span></span>
         </div>
 
         <h1 style={styles.heading}>{t('auth.setup2FA')}</h1>
@@ -114,7 +114,7 @@ export default function TwoFactorSetup() {
 
             {qr && (
               <div style={styles.qrWrap}>
-                <img src={`data:image/png;base64,${qr}`} alt="2FA QR Code" style={styles.qrImg} />
+                <img src={`data:image/png;base64,${qr}`} alt={t('auth.qrAlt')} style={styles.qrImg} />
               </div>
             )}
 
@@ -158,7 +158,7 @@ export default function TwoFactorSetup() {
               </button>
             </form>
 
-            <button onClick={() => setStep(2)} style={styles.backBtn}>← Back to QR code</button>
+            <button onClick={() => setStep(2)} style={styles.backBtn}>{t('auth.backToQr')}</button>
           </>
         )}
 

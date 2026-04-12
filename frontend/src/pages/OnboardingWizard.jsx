@@ -81,7 +81,7 @@ export default function OnboardingWizard() {
         <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #0ea5e9, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><polygon points="5,3 19,12 5,21"/></svg>
         </div>
-        <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 20, fontWeight: 800, color: '#fff' }}>Super<span style={{ color: 'var(--sap-accent)' }}>Ad</span><span style={{ color: 'var(--sap-purple-light)' }}>{t('onboarding.pro')}</span></div>
+        <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 20, fontWeight: 800, color: '#fff' }}>Super<span style={{ color: 'var(--sap-accent)' }}>{t('onboarding.adLabel')}</span><span style={{ color: 'var(--sap-purple-light)' }}>{t('onboarding.pro')}</span></div>
       </div>
 
       {/* Progress bar */}
@@ -147,20 +147,20 @@ export default function OnboardingWizard() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
               <label style={lblStyle}>{t('onboarding.firstName')}</label>
-              <input value={firstName} onChange={function(e) { setFirstName(e.target.value); }} placeholder="Your first name" style={inputStyle}/>
+              <input value={firstName} onChange={function(e) { setFirstName(e.target.value); }} placeholder={t('onboarding.firstNamePlaceholder')} style={inputStyle}/>
             </div>
             <div>
               <label style={lblStyle}>{t('onboarding.lastName')}</label>
-              <input value={lastName} onChange={function(e) { setLastName(e.target.value); }} placeholder="Your last name" style={inputStyle}/>
+              <input value={lastName} onChange={function(e) { setLastName(e.target.value); }} placeholder={t('onboarding.lastNamePlaceholder')} style={inputStyle}/>
             </div>
           </div>
           <div style={{ marginBottom: 20 }}>
-            <label style={lblStyle}>Short Bio <span style={{ fontWeight: 400, color: 'var(--sap-text-ghost)' }}>(optional)</span></label>
-            <textarea value={bio} onChange={function(e) { setBio(e.target.value); }} placeholder="e.g. Digital marketer helping people build online income..." rows={2} style={{ ...inputStyle, resize: 'vertical' }}/>
+            <label style={lblStyle}>Short Bio <span style={{ fontWeight: 400, color: 'var(--sap-text-ghost)' }}>{t('onboarding.optionalLabel')}</span></label>
+            <textarea value={bio} onChange={function(e) { setBio(e.target.value); }} placeholder={t('onboarding.bioPlaceholderFull')} rows={2} style={{ ...inputStyle, resize: 'vertical' }}/>
           </div>
 
           <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={prev} style={btnSecondary}>← Back</button>
+            <button onClick={prev} style={btnSecondary}>{t('onboarding.backLabel')}</button>
             <button onClick={saveProfile} disabled={saving} style={{ ...btnPrimary, flex: 1 }}>{saving ? 'Saving...' : 'Save & Continue →'}</button>
           </div>
         </div>}
@@ -184,7 +184,7 @@ export default function OnboardingWizard() {
           </div>
 
           <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={prev} style={btnSecondary}>← Back</button>
+            <button onClick={prev} style={btnSecondary}>{t('onboarding.backLabel')}</button>
             <button onClick={next} style={{ ...btnPrimary, flex: 1 }}>{t('onboarding.continue')}</button>
           </div>
         </div>}
@@ -215,8 +215,8 @@ export default function OnboardingWizard() {
           </div>
 
           <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={prev} style={btnSecondary}>← Back</button>
-            <button onClick={function() { window.open('/platform-tour', '_blank'); }} style={{ ...btnSecondary, flex: 1 }}>Open Full Tour ↗</button>
+            <button onClick={prev} style={btnSecondary}>{t('onboarding.backLabel')}</button>
+            <button onClick={function() { window.open('/platform-tour', '_blank'); }} style={{ ...btnSecondary, flex: 1 }}>{t('onboarding.openFullTour')}</button>
             <button onClick={next} style={{ ...btnPrimary, flex: 1 }}>{t('onboarding.continue')}</button>
           </div>
         </div>}
@@ -248,14 +248,14 @@ export default function OnboardingWizard() {
           </div>
 
           <div style={{ display: 'flex', gap: 10 }}>
-            <button onClick={prev} style={btnSecondary}>← Back</button>
+            <button onClick={prev} style={btnSecondary}>{t('onboarding.backLabel')}</button>
             <button onClick={completeOnboarding} style={{ ...btnPrimary, flex: 1, background: 'linear-gradient(135deg, #22c55e, #16a34a)' }}>{t('onboarding.goToDashboard')}</button>
           </div>
         </div>}
       </div>
 
       {/* Skip link */}
-      <button onClick={completeOnboarding} style={{ marginTop: 16, background: 'none', border: 'none', color: 'rgba(255,255,255,.3)', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>Skip setup — I'll explore on my own</button>
+      <button onClick={completeOnboarding} style={{ marginTop: 16, background: 'none', border: 'none', color: 'rgba(255,255,255,.3)', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>{t('onboarding.skipSetup')}</button>
     </div>
   );
 }

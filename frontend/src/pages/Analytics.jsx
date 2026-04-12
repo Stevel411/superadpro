@@ -47,14 +47,14 @@ export default function AnalyticsPage() {
 
   var streamRef = useChart(data && data.monthly_streams.length>0 ? {type:'bar',data:{labels:data.monthly_streams.map(function(m){return m.month}),datasets:[{label:'Membership',data:data.monthly_streams.map(function(m){return m.membership}),backgroundColor:'var(--sap-green-mid)',borderRadius:4},{label:'Grid',data:data.monthly_streams.map(function(m){return m.grid}),backgroundColor:'var(--sap-indigo)',borderRadius:4},{label:'Courses',data:data.monthly_streams.map(function(m){return m.courses}),backgroundColor:'var(--sap-amber)',borderRadius:4},{label:'SuperMarket',data:data.monthly_streams.map(function(m){return m.supermarket}),backgroundColor:'var(--sap-accent)',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true,pointStyle:'circle',font:{size:11,weight:600}}},tooltip:{backgroundColor:'var(--sap-text-primary)',padding:12,cornerRadius:10,callbacks:{label:function(c){return c.dataset.label+': $'+c.parsed.y.toFixed(2)}}}},scales:{x:{stacked:true,grid:{display:false}},y:{stacked:true,grid:{color:'var(--sap-bg-page)'},ticks:{callback:function(v){return '$'+v}}}}}} : null);
 
-  if (loading) return <AppLayout title="Analytics"><div style={{display:'flex',alignItems:'center',justifyContent:'center',padding:80}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:16,fontWeight:700,color:'var(--sap-text-muted)'}}>Loading analytics...</div></div></AppLayout>;
-  if (error) return <AppLayout title="Analytics"><div style={{display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:12,padding:80}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:16,fontWeight:700,color:'var(--sap-red-bright)'}}>Error loading analytics</div><div style={{fontSize:14,color:'var(--sap-text-muted)'}}>{error}</div><a href="/login" style={{marginTop:8,padding:'10px 24px',borderRadius:10,background:'var(--sap-accent)',color:'#fff',textDecoration:'none',fontWeight:700,fontSize:14}}>Sign In</a></div></AppLayout>;
+  if (loading) return <AppLayout title={t('campaignAnalytics.title')}><div style={{display:'flex',alignItems:'center',justifyContent:'center',padding:80}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:16,fontWeight:700,color:'var(--sap-text-muted)'}}>{t('campaignAnalytics.loadingAnalytics')}</div></div></AppLayout>;
+  if (error) return <AppLayout title={t('campaignAnalytics.title')}><div style={{display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:12,padding:80}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:16,fontWeight:700,color:'var(--sap-red-bright)'}}>{t('campaignAnalytics.errorLoading')}</div><div style={{fontSize:14,color:'var(--sap-text-muted)'}}>{error}</div><a href="/login" style={{marginTop:8,padding:'10px 24px',borderRadius:10,background:'var(--sap-accent)',color:'#fff',textDecoration:'none',fontWeight:700,fontSize:14}}>{t('campaignAnalytics.signIn')}</a></div></AppLayout>;
 
   var t = data.totals;
   var empty = function(msg) { return <div style={{height:280,display:'flex',alignItems:'center',justifyContent:'center',color:'var(--sap-text-muted)',fontSize:14}}>{msg}</div>; };
 
   return (
-    <AppLayout title="Analytics">
+    <AppLayout title={t('campaignAnalytics.title')}>
     <div style={{background:'#f0f3f9'}}>
       <div style={{maxWidth:1100,margin:'0 auto',padding:'24px 24px'}}>
         {/* Stats */}
@@ -63,22 +63,22 @@ export default function AnalyticsPage() {
         </div>
         {/* Row 1 */}
         <div style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:16,marginBottom:24}}>
-          <CB title="Earnings Trend" subtitle="Last 30 days"><div style={{height:280}}><canvas ref={earningsRef}/></div></CB>
-          <CB title="Income Breakdown" subtitle="Where your earnings come from"><div style={{height:280}}><canvas ref={breakdownRef}/></div></CB>
+          <CB title={t('campaignAnalytics.earningsTrend')} subtitle={t('campaignAnalytics.last30days')}><div style={{height:280}}><canvas ref={earningsRef}/></div></CB>
+          <CB title={t('campaignAnalytics.incomeBreakdown')} subtitle={t('campaignAnalytics.incomeBreakdownDesc')}><div style={{height:280}}><canvas ref={breakdownRef}/></div></CB>
         </div>
         {/* Row 2 */}
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:24}}>
-          <CB title="Grid Progress" subtitle="Positions filled per active tier">{data.grid_progress.length>0?<div style={{height:280}}><canvas ref={gridRef}/></div>:empty('No active grids yet')}</CB>
-          <CB title="Campaign Performance" subtitle="Views delivered vs target">{data.campaigns.length>0?<div style={{height:280}}><canvas ref={campaignRef}/></div>:empty('No active campaigns')}</CB>
+          <CB title={t('campaignAnalytics.gridProgress')} subtitle={t('campaignAnalytics.gridProgressDesc')}>{data.grid_progress.length>0?<div style={{height:280}}><canvas ref={gridRef}/></div>:empty('No active grids yet')}</CB>
+          <CB title={t('campaignAnalytics.campaignPerf')} subtitle={t('campaignAnalytics.campaignPerfDesc')}>{data.campaigns.length>0?<div style={{height:280}}><canvas ref={campaignRef}/></div>:empty('No active campaigns')}</CB>
         </div>
         {/* Row 3 */}
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:24}}>
-          <CB title="Team Growth" subtitle="New referrals per week — last 12 weeks"><div style={{height:280}}><canvas ref={teamRef}/></div></CB>
-          <CB title="Earnings by Stream" subtitle="Monthly — last 6 months"><div style={{height:280}}><canvas ref={streamRef}/></div></CB>
+          <CB title={t('campaignAnalytics.teamGrowth')} subtitle={t('campaignAnalytics.teamGrowthDesc')}><div style={{height:280}}><canvas ref={teamRef}/></div></CB>
+          <CB title={t('campaignAnalytics.earningsByStream')} subtitle={t('campaignAnalytics.earningsByStreamDesc')}><div style={{height:280}}><canvas ref={streamRef}/></div></CB>
         </div>
         {/* Commission table */}
-        <CB title="Recent Commissions" style={{marginBottom:24}}>
-          {data.recent_commissions.length>0 ? <table style={{width:'100%',borderCollapse:'collapse',fontSize:13,marginTop:16}}><thead><tr>{['Date','Type','From','Tier','Amount'].map(function(h,i){return<th key={i} style={{textAlign:i===4?'right':'left',padding:'10px 12px',fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:1,borderBottom:'2px solid #f1f5f9'}}>{h}</th>})}</tr></thead><tbody>{data.recent_commissions.map(function(c,i){var tl=TL[c.type]||c.type,tc=TC[c.type]||'var(--sap-text-muted)';return<tr key={i}><td style={{padding:'10px 12px',borderBottom:'1px solid #f1f5f9',color:'#334155'}}>{c.date}</td><td style={{padding:'10px 12px',borderBottom:'1px solid #f1f5f9'}}><span style={{display:'inline-block',padding:'3px 10px',borderRadius:6,fontSize:10,fontWeight:800,textTransform:'uppercase',background:tc+'15',color:tc}}>{tl}</span></td><td style={{padding:'10px 12px',borderBottom:'1px solid #f1f5f9',color:'#334155'}}>{c.from}</td><td style={{padding:'10px 12px',borderBottom:'1px solid #f1f5f9',color:'#334155'}}>{c.tier?'Tier '+c.tier:'—'}</td><td style={{padding:'10px 12px',borderBottom:'1px solid #f1f5f9',textAlign:'right',fontFamily:"'Sora',sans-serif",fontWeight:800,color:'var(--sap-text-primary)'}}>${c.amount.toFixed(2)}</td></tr>})}</tbody></table> : <div style={{padding:'40px 0',textAlign:'center',color:'var(--sap-text-muted)',fontSize:14}}>No commissions yet. Start sharing your SuperLink!</div>}
+        <CB title={t('campaignAnalytics.recentCommissions')} style={{marginBottom:24}}>
+          {data.recent_commissions.length>0 ? <table style={{width:'100%',borderCollapse:'collapse',fontSize:13,marginTop:16}}><thead><tr>{['Date','Type','From','Tier','Amount'].map(function(h,i){return<th key={i} style={{textAlign:i===4?'right':'left',padding:'10px 12px',fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:1,borderBottom:'2px solid #f1f5f9'}}>{h}</th>})}</tr></thead><tbody>{data.recent_commissions.map(function(c,i){var tl=TL[c.type]||c.type,tc=TC[c.type]||'var(--sap-text-muted)';return<tr key={i}><td style={{padding:'10px 12px',borderBottom:'1px solid #f1f5f9',color:'#334155'}}>{c.date}</td><td style={{padding:'10px 12px',borderBottom:'1px solid #f1f5f9'}}><span style={{display:'inline-block',padding:'3px 10px',borderRadius:6,fontSize:10,fontWeight:800,textTransform:'uppercase',background:tc+'15',color:tc}}>{tl}</span></td><td style={{padding:'10px 12px',borderBottom:'1px solid #f1f5f9',color:'#334155'}}>{c.from}</td><td style={{padding:'10px 12px',borderBottom:'1px solid #f1f5f9',color:'#334155'}}>{c.tier?'Tier '+c.tier:'—'}</td><td style={{padding:'10px 12px',borderBottom:'1px solid #f1f5f9',textAlign:'right',fontFamily:"'Sora',sans-serif",fontWeight:800,color:'var(--sap-text-primary)'}}>${c.amount.toFixed(2)}</td></tr>})}</tbody></table> : <div style={{padding:'40px 0',textAlign:'center',color:'var(--sap-text-muted)',fontSize:14}}>{t('campaignAnalytics.noCommissions')}</div>}
         </CB>
       </div>
     </div>

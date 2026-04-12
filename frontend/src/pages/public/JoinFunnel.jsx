@@ -67,7 +67,7 @@ export default function JoinFunnel() {
           }}>
             Create Free Account →
           </Link>
-          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', marginTop: 12 }}>No credit card required · Free to join</div>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', marginTop: 12 }}>{t('joinFunnel.noCreditCard')}</div>
         </div>
 
         {/* 3 income streams */}
@@ -103,7 +103,7 @@ export default function JoinFunnel() {
 
         {/* FAQ mini */}
         <div style={{ maxWidth: 640, margin: '0 auto' }}>
-          <h3 style={{ fontFamily: "'Sora',sans-serif", fontSize: 20, fontWeight: 900, marginBottom: 20, textAlign: 'center' }}>Quick answers</h3>
+          <h3 style={{ fontFamily: "'Sora',sans-serif", fontSize: 20, fontWeight: 900, marginBottom: 20, textAlign: 'center' }}>{t('joinFunnel.quickAnswers')}</h3>
           {[
             ['Is it free to join?', 'Yes — creating an account is completely free. You activate membership ($20/mo Basic or $35/mo Pro) to start earning commissions.'],
             ['When do I get paid?', 'Commissions are credited instantly to your platform wallet. Withdraw anytime to your crypto wallet.'],

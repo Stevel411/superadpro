@@ -48,7 +48,7 @@ export default function ResetPassword() {
       <div style={styles.card}>
         <div style={styles.logoRow}>
           <div style={styles.logoMark}><span style={{ color: '#fff', fontWeight: 900, fontSize: 16 }}>S</span></div>
-          <span style={styles.logoText}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span></span>
+          <span style={styles.logoText}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>{t('common.pro')}</span></span>
         </div>
 
         {invalidToken ? (
@@ -68,7 +68,7 @@ export default function ResetPassword() {
         ) : (
           <>
             <h1 style={styles.heading}>{t('auth.createNewPassword')}</h1>
-            <p style={styles.sub}>Enter a strong new password for your account.</p>
+            <p style={styles.sub}>{t('auth.enterNewPassword')}</p>
 
             {error && <div style={styles.errorBox}>{error}</div>}
 
@@ -115,7 +115,7 @@ export default function ResetPassword() {
             </form>
 
             <div style={{ textAlign: 'center', marginTop: 20 }}>
-              <a href="/login" style={styles.backLink}>← Back to login</a>
+              <a href="/login" style={styles.backLink}>{t('common.backToLogin')}</a>
             </div>
           </>
         )}

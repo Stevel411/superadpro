@@ -1,7 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Copy, Check, Loader2, Wallet, ArrowRight, AlertTriangle } from 'lucide-react';
 
 export default function CryptoCheckout({ productKey, productLabel, meta, onSuccess, onCancel }) {
+  const { t } = useTranslation();
   const [step, setStep] = useState(1);
   const [fromAddress, setFromAddress] = useState('');
   const [savedWallet, setSavedWallet] = useState('');
@@ -110,8 +112,8 @@ export default function CryptoCheckout({ productKey, productLabel, meta, onSucce
             <div style={{ width: 64, height: 64, borderRadius: '50%', background: '#ecfdf5', border: '2px solid #22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
               <Check size={28} color="#22c55e" />
             </div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 6 }}>Payment Confirmed!</div>
-            <div style={{ fontSize: 13, color: '#64748b' }}>Your product is being activated...</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 6 }}>{t('common.paymentConfirmed')}</div>
+            <div style={{ fontSize: 13, color: '#64748b' }}>{t('common.productActivating')}</div>
           </div>
         </div>
       </div>
@@ -124,7 +126,7 @@ export default function CryptoCheckout({ productKey, productLabel, meta, onSucce
         {/* Header */}
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #e8ecf2', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div>
-            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b' }}>Pay with crypto</div>
+            <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#64748b' }}>{t('common.payWithCrypto')}</div>
             <div style={{ fontSize: 16, fontWeight: 700, color: '#0f172a', marginTop: 2 }}>{productLabel || productKey}</div>
           </div>
           <div onClick={onCancel} style={{ cursor: 'pointer', padding: 4 }}><X size={18} color="#94a3b8" /></div>
@@ -145,7 +147,7 @@ export default function CryptoCheckout({ productKey, productLabel, meta, onSucce
             <>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
                 <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#06b6d4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#fff' }}>1</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>Enter your sending wallet address</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{t('common.enterWalletAddress')}</div>
               </div>
 
               <div style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6, marginBottom: 14 }}>
@@ -153,7 +155,7 @@ export default function CryptoCheckout({ productKey, productLabel, meta, onSucce
               </div>
 
               <div style={{ marginBottom: 10 }}>
-                <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 5 }}>Your sending wallet address</div>
+                <div style={{ fontSize: 12, fontWeight: 600, color: '#475569', marginBottom: 5 }}>{t('common.yourWalletAddress')}</div>
                 <input
                   ref={inputRef}
                   type="text"
@@ -185,7 +187,7 @@ export default function CryptoCheckout({ productKey, productLabel, meta, onSucce
 
               <button onClick={handleContinue} disabled={status === 'creating'}
                 style={{ width: '100%', padding: 12, fontSize: 14, fontWeight: 700, color: '#fff', background: status === 'creating' ? '#94a3b8' : '#06b6d4', border: 'none', borderRadius: 10, cursor: status === 'creating' ? 'wait' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, fontFamily: 'inherit' }}>
-                {status === 'creating' ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> Creating order...</> : <>Continue <ArrowRight size={16} /></>}
+                {status === 'creating' ? <><Loader2 size={16} style={{ animation: 'spin 1s linear infinite' }} /> ${t('common.creatingOrder')}</> : <>Continue <ArrowRight size={16} /></>}
               </button>
             </>
           )}
@@ -195,34 +197,34 @@ export default function CryptoCheckout({ productKey, productLabel, meta, onSucce
             <>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#06b6d4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: '#fff' }}>2</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>Send payment</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{t('common.sendPayment')}</div>
               </div>
 
               {/* Sending from badge */}
               <div style={{ background: '#f8fafc', borderRadius: 8, padding: '6px 12px', marginBottom: 16, display: 'flex', alignItems: 'center', gap: 6, fontSize: 11 }}>
                 <Wallet size={12} color="#06b6d4" />
-                <span style={{ color: '#64748b' }}>Sending from:</span>
+                <span style={{ color: '#64748b' }}>{t('common.sendingFrom')}</span>
                 <span style={{ fontFamily: 'monospace', color: '#0f172a', fontWeight: 600 }}>{fromAddress.slice(0, 8)}...{fromAddress.slice(-6)}</span>
-                <span style={{ color: '#06b6d4', cursor: 'pointer', marginLeft: 'auto' }} onClick={() => { setStep(1); setStatus('idle'); }}>change</span>
+                <span style={{ color: '#06b6d4', cursor: 'pointer', marginLeft: 'auto' }} onClick={() => { setStep(1); setStatus('idle'); }}>{t('common.change')}</span>
               </div>
 
               {/* Amount */}
               <div style={{ textAlign: 'center', padding: '12px 0 16px', background: '#f0fdfa', borderRadius: 10, border: '1px solid #ccfbf1', marginBottom: 16 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0e7490', marginBottom: 6 }}>Send exactly</div>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, textTransform: 'uppercase', color: '#0e7490', marginBottom: 6 }}>{t('common.sendExactly')}</div>
                 <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 32, fontWeight: 800, color: '#0c4a6e' }}>
-                  {order.amount_usdt} <span style={{ fontSize: 16, color: '#06b6d4', fontWeight: 700 }}>USDT / USDC</span>
+                  {order.amount_usdt} <span style={{ fontSize: 16, color: '#06b6d4', fontWeight: 700 }}>{t('common.usdtUsdc')}</span>
                 </div>
                 <div style={{ marginTop: 8 }}>
                   <button onClick={() => copyText(order.amount_usdt, 'amount')}
                     style={{ fontSize: 11, fontWeight: 600, color: copied === 'amount' ? '#22c55e' : '#06b6d4', background: 'none', border: '1px solid ' + (copied === 'amount' ? '#22c55e' : '#06b6d4'), borderRadius: 6, padding: '4px 14px', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4, fontFamily: 'inherit' }}>
-                    {copied === 'amount' ? <><Check size={12} /> Copied</> : <><Copy size={12} /> Copy Amount</>}
+                    {copied === 'amount' ? <><Check size={12} /> {t('common.copied')}</> : <><Copy size={12} /> {t('common.copyAmount')}</>}
                   </button>
                 </div>
               </div>
 
               {/* Wallet address */}
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: '#64748b', marginBottom: 6 }}>To this wallet address</div>
+                <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, textTransform: 'uppercase', color: '#64748b', marginBottom: 6 }}>{t('common.toThisWallet')}</div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#f8fafc', border: '1px solid #e8ecf2', borderRadius: 8, padding: '10px 12px' }}>
                   <span style={{ fontSize: 11, fontFamily: 'monospace', color: '#0f172a', wordBreak: 'break-all', flex: 1 }}>{order.wallet_address}</span>
                   <button onClick={() => copyText(order.wallet_address, 'wallet')}
@@ -235,18 +237,18 @@ export default function CryptoCheckout({ productKey, productLabel, meta, onSucce
               {/* Warnings */}
               <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
                 <div style={{ flex: 1, background: '#fefce8', border: '1px solid #fde68a', borderRadius: 8, padding: '8px 10px', fontSize: 11, color: '#92400e', lineHeight: 1.5 }}>
-                  <strong style={{ display: 'block', marginBottom: 2 }}>Important</strong>
+                  <strong style={{ display: 'block', marginBottom: 2 }}>{t('common.important')}</strong>
                   Send from the wallet address you entered above.
                 </div>
                 <div style={{ flex: 1, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 8, padding: '8px 10px', fontSize: 11, color: '#166534', lineHeight: 1.5 }}>
-                  <strong style={{ display: 'block', marginBottom: 2 }}>Network</strong>
-                  Send USDT or USDC on <strong>Polygon</strong> only. Other networks = lost funds.
+                  <strong style={{ display: 'block', marginBottom: 2 }}>{t('common.networkLabel')}</strong>
+                  Send USDT or USDC on <strong>{t('common.polygon')}</strong> only. Other networks = lost funds.
                 </div>
               </div>
 
               {/* No refunds */}
               <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '8px 12px', marginBottom: 16, fontSize: 11, color: '#991b1b', lineHeight: 1.5, textAlign: 'center' }}>
-                <strong>All sales are final.</strong> Crypto transactions are irreversible. No refunds.
+                <strong>{t('common.allSalesFinal')}</strong> Crypto transactions are irreversible. No refunds.
               </div>
 
               {/* Waiting spinner */}
@@ -254,9 +256,9 @@ export default function CryptoCheckout({ productKey, productLabel, meta, onSucce
                 <div style={{ textAlign: 'center', padding: '12px 0 4px' }}>
                   <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 10, padding: '10px 20px' }}>
                     <Loader2 size={16} color="#0ea5e9" style={{ animation: 'spin 1.5s linear infinite' }} />
-                    <span style={{ fontSize: 13, fontWeight: 600, color: '#0369a1' }}>Waiting for your payment...</span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#0369a1' }}>{t('common.waitingForPayment')}</span>
                   </div>
-                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 8 }}>We'll detect it automatically once you send from the wallet above.</div>
+                  <div style={{ fontSize: 11, color: '#94a3b8', marginTop: 8 }}>{t('common.autoDetectPayment')}</div>
                   <div style={{ marginTop: 10 }}>
                     <span onClick={handleVerifyManually} style={{ fontSize: 11, color: '#94a3b8', textDecoration: 'underline', cursor: 'pointer' }}>
                       Payment not detected? Verify manually
@@ -275,7 +277,7 @@ export default function CryptoCheckout({ productKey, productLabel, meta, onSucce
 
               {status === 'expired' && (
                 <div style={{ textAlign: 'center', padding: '12px 0' }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', marginBottom: 8 }}>Order expired</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', marginBottom: 8 }}>{t('common.orderExpired')}</div>
                   <button onClick={() => { setStep(1); setStatus('idle'); setOrder(null); }}
                     style={{ fontSize: 13, fontWeight: 600, color: '#06b6d4', background: 'none', border: '1px solid #06b6d4', borderRadius: 8, padding: '8px 20px', cursor: 'pointer', fontFamily: 'inherit' }}>
                     Try again

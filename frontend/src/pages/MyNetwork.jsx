@@ -149,7 +149,7 @@ export default function MyNetwork() {
                             border:'1px solid '+(r.is_active?'rgba(22,163,74,.15)':'rgba(245,158,11,.15)')}}>
                             {r.is_active ? 'Active' : 'Inactive'}
                           </span>
-                          {r.membership_tier === 'pro' && <span style={{fontSize:8,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(139,92,246,.08)',color:'var(--sap-purple)',marginLeft:4,border:'1px solid rgba(139,92,246,.15)'}}>PRO</span>}
+                          {r.membership_tier === 'pro' && <span style={{fontSize:8,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(139,92,246,.08)',color:'var(--sap-purple)',marginLeft:4,border:'1px solid rgba(139,92,246,.15)'}}>{t('network.proLabel')}</span>}
                         </td>
                         <td style={Object.assign({},tdStyle,{textAlign:'center'})}>
                           <span style={{fontSize:13,fontWeight:700,color:'var(--sap-accent)'}}>{r.personal_referrals || 0}</span>

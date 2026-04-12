@@ -247,7 +247,7 @@ export default function LinkTools() {
   const totalClicks = links.reduce((a, l) => a + (l.click_count || 0), 0) + rotators.reduce((a, r) => a + (r.click_count || 0), 0);
 
   if (loading) return (
-    <AppLayout title="Link Tools">
+    <AppLayout title={t('linkTools.title')}>
       <div style={{display:'flex',justifyContent:'center',padding:80}}>
         <div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/>
         <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
@@ -398,7 +398,7 @@ export default function LinkTools() {
                     <>
                       <span style={{fontSize:11,fontWeight:600,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>{t('linkTools.deleteConfirm')}</span>
                       <button onClick={() => deleteItem(l.id,'short')} style={{...smallBtn,background:'var(--sap-red)',color:'#fff',border:'none'}}>{t('linkTools.yes')}</button>
-                      <button onClick={() => setConfirmDelete(null)} style={smallBtn}>No</button>
+                      <button onClick={() => setConfirmDelete(null)} style={smallBtn}>{t('common.no')}</button>
                     </>
                   ) : (
                     <button onClick={() => setConfirmDelete('link-' + l.id)} style={{...smallBtn,color:'var(--sap-red)',borderColor:'var(--sap-red-bg-mid)'}}><Trash2 size={12}/></button>
@@ -443,7 +443,7 @@ export default function LinkTools() {
                   <>
                     <span style={{fontSize:11,fontWeight:600,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>{t('linkTools.deleteConfirm')}</span>
                     <button onClick={() => deleteItem(r.id,'rotator')} style={{...smallBtn,background:'var(--sap-red)',color:'#fff',border:'none'}}>{t('linkTools.yes')}</button>
-                    <button onClick={() => setConfirmDelete(null)} style={smallBtn}>No</button>
+                    <button onClick={() => setConfirmDelete(null)} style={smallBtn}>{t('common.no')}</button>
                   </>
                 ) : (
                   <button onClick={() => setConfirmDelete('rot-' + r.id)} style={{...smallBtn,color:'var(--sap-red)',borderColor:'var(--sap-red-bg-mid)'}}><Trash2 size={12}/></button>
@@ -456,7 +456,7 @@ export default function LinkTools() {
 
       {/* ── CREATE SHORT LINK MODAL ── */}
       {showCreate && (
-        <Modal onClose={() => { setShowCreate(false); setShowAdvanced(false); }} title="Create Short Link" icon={<Link2 size={18} color="var(--sap-accent)"/>}>
+        <Modal onClose={() => { setShowCreate(false); setShowAdvanced(false); }} title={t('linkTools.createShortLink')} icon={<Link2 size={18} color="var(--sap-accent)"/>}>
           <Label>{t('linkTools.destinationUrl')}</Label>
           <Input value={newUrl} onChange={e => setNewUrl(e.target.value)} placeholder={t("linkTools.destinationUrlPlaceholder")}/>
           <Label>{t('linkTools.customSlug')}</Label>
@@ -500,7 +500,7 @@ export default function LinkTools() {
 
       {/* ── CREATE ROTATOR MODAL ── */}
       {showRotatorCreate && (
-        <Modal onClose={() => setShowRotatorCreate(false)} title="Create Link Rotator" icon={<Shuffle size={18} color="var(--sap-purple)"/>}>
+        <Modal onClose={() => setShowRotatorCreate(false)} title={t('linkTools.createRotator')} icon={<Shuffle size={18} color="var(--sap-purple)"/>}>
           <Label>{t('linkTools.rotatorName')}</Label>
           <Input value={rotName} onChange={e => setRotName(e.target.value)} placeholder={t("linkTools.rotatorNamePlaceholder")}/>
           <Label>{t('linkTools.customSlug')}</Label>
@@ -530,7 +530,7 @@ export default function LinkTools() {
               )}
             </div>
           ))}
-          <button onClick={() => setRotDests([...rotDests,{url:'',weight:50}])} style={{fontSize:11,fontWeight:600,color:'var(--sap-accent)',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12}}>+ Add another URL</button>
+          <button onClick={() => setRotDests([...rotDests,{url:'',weight:50}])} style={{fontSize:11,fontWeight:600,color:'var(--sap-accent)',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12}}>{t('linkTools.addAnotherUrl')}</button>
           <div style={{display:'flex',gap:8,marginTop:8}}>
             <button onClick={createRotator} disabled={rotCreating} style={btnPrimary('var(--sap-purple)')}>{rotCreating?'Creating...':'Create Rotator →'}</button>
             <button onClick={() => setShowRotatorCreate(false)} style={btnSecondary}>{t('linkTools.cancel')}</button>
@@ -540,10 +540,10 @@ export default function LinkTools() {
 
       {/* ── EDIT LINK MODAL ── */}
       {editLink && (
-        <Modal onClose={() => setEditLink(null)} title="Edit Link" icon={<Edit3 size={18} color="var(--sap-accent)"/>}>
+        <Modal onClose={() => setEditLink(null)} title={t('linkTools.editLink')} icon={<Edit3 size={18} color="var(--sap-accent)"/>}>
           <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:14,fontWeight:600}}>{BASE}/go/{editLink.short_code}</div>
           <Label>{t('linkTools.destinationUrl')}</Label>
-          <Input value={editDest} onChange={e => setEditDest(e.target.value)} placeholder="https://..."/>
+          <Input value={editDest} onChange={e => setEditDest(e.target.value)} placeholder={t('superPagesEditor.urlPlaceholder')}/>
           <Label>{t('linkTools.linkTitle')}</Label>
           <Input value={editTitle} onChange={e => setEditTitle(e.target.value)} placeholder={t("linkTools.linkTitlePlaceholder")}/>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
@@ -557,7 +557,7 @@ export default function LinkTools() {
             </div>
           </div>
           <div style={{marginTop:12}}>
-            <Label><Lock size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Password {editLink.has_password && <span style={{fontSize:9,color:'var(--sap-amber)'}}>(currently set)</span>}</Label>
+            <Label><Lock size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Password {editLink.has_password && <span style={{fontSize:9,color:'var(--sap-amber)'}}>{t('linkTools.currentlySet')}</span>}</Label>
             <Input type="password" value={editPassword} onChange={e => setEditPassword(e.target.value)} placeholder={editLink.has_password ? 'Enter new password or leave blank' : 'Leave blank for none'}/>
             {editLink.has_password && (
               <button onClick={async () => {
@@ -577,7 +577,7 @@ export default function LinkTools() {
 
       {/* ── EDIT ROTATOR MODAL ── */}
       {editRotator && (
-        <Modal onClose={() => setEditRotator(null)} title="Edit Rotator" icon={<Shuffle size={18} color="var(--sap-purple)"/>}>
+        <Modal onClose={() => setEditRotator(null)} title={t('linkTools.editRotator')} icon={<Shuffle size={18} color="var(--sap-purple)"/>}>
           <Label>{t('linkTools.rotatorName')}</Label>
           <Input value={editRotName} onChange={e => setEditRotName(e.target.value)} placeholder={t("linkTools.rotatorNameEdit")}/>
           <Label>{t('linkTools.rotationMode')}</Label>
@@ -605,7 +605,7 @@ export default function LinkTools() {
               )}
             </div>
           ))}
-          <button onClick={() => setEditRotDests([...editRotDests,{url:'',weight:50,clicks:0}])} style={{fontSize:11,fontWeight:600,color:'var(--sap-purple)',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12}}>+ Add URL</button>
+          <button onClick={() => setEditRotDests([...editRotDests,{url:'',weight:50,clicks:0}])} style={{fontSize:11,fontWeight:600,color:'var(--sap-purple)',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12}}>{t('linkTools.addUrl')}</button>
           <div style={{display:'flex',gap:8,marginTop:8}}>
             <button onClick={saveEditRotator} disabled={editRotSaving} style={btnPrimary('var(--sap-purple)')}>{editRotSaving?'Saving...':'Save Changes →'}</button>
             <button onClick={() => setEditRotator(null)} style={btnSecondary}>{t('linkTools.cancel')}</button>
@@ -615,14 +615,14 @@ export default function LinkTools() {
 
       {/* ── QR CODE MODAL ── */}
       {qrLink && (
-        <Modal onClose={() => setQrLink(null)} title="QR Code" icon={<QrCode size={18} color="var(--sap-accent)"/>}>
+        <Modal onClose={() => setQrLink(null)} title={t('linkTools.qrCode')} icon={<QrCode size={18} color="var(--sap-accent)"/>}>
           <QrCodeDisplay url={BASE + '/go/' + qrLink.short_code} slug={qrLink.short_code}/>
         </Modal>
       )}
 
       {/* ── UTM BUILDER MODAL ── */}
       {showUtm && (
-        <Modal onClose={() => setShowUtm(false)} title="UTM Tag Builder" icon={<Search size={18} color="var(--sap-green-mid)"/>} wide>
+        <Modal onClose={() => setShowUtm(false)} title={t('linkTools.utmTagBuilder')} icon={<Search size={18} color="var(--sap-green-mid)"/>} wide>
           <p style={{fontSize:12,color:'var(--sap-text-muted)',marginBottom:16}}>{t("linkTools.utmBuilder")}</p>
           <Label>{t('linkTools.baseUrl')}</Label>
           <Input value={utmUrl} onChange={e => setUtmUrl(e.target.value)} placeholder={t("linkTools.baseUrlPlaceholder")}/>
@@ -645,7 +645,7 @@ export default function LinkTools() {
             </div>
           </div>
           <Label>{t('linkTools.content')}</Label>
-          <Input value={utmContent} onChange={e => setUtmContent(e.target.value)} placeholder="banner_ad, text_link"/>
+          <Input value={utmContent} onChange={e => setUtmContent(e.target.value)} placeholder={t('linkTools.utmContentPlaceholder')}/>
 
           {utmResult && (
             <div style={{background:'var(--sap-green-bg)',border:'1px solid #bbf7d0',borderRadius:10,padding:14,marginTop:8}}>
@@ -683,7 +683,7 @@ export default function LinkTools() {
 
       {/* ── TAG EDITOR MODAL ── */}
       {tagLink && (
-        <Modal onClose={() => setTagLink(null)} title="Edit Tags" icon={<Tag size={18} color="var(--sap-purple)"/>}>
+        <Modal onClose={() => setTagLink(null)} title={t('linkTools.editTags')} icon={<Tag size={18} color="var(--sap-purple)"/>}>
           <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:14}}>{BASE}/go/{tagLink.short_code}</div>
           {editTags.length > 0 && (
             <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
@@ -699,7 +699,7 @@ export default function LinkTools() {
             </div>
           )}
           <div style={{display:'flex',gap:6,marginBottom:10}}>
-            <Input value={tagInput} onChange={e => setTagInput(e.target.value)} placeholder="Tag name..." onKeyDown={e => { if(e.key==='Enter') addTag(); }} style={{flex:1,marginBottom:0}}/>
+            <Input value={tagInput} onChange={e => setTagInput(e.target.value)} placeholder={t('linkTools.tagPlaceholder')} onKeyDown={e => { if(e.key==='Enter') addTag(); }} style={{flex:1,marginBottom:0}}/>
             <button onClick={addTag} style={{...smallBtn,background:'var(--sap-purple)',color:'#fff',border:'none',padding:'8px 14px'}}>{t('linkTools.add')}</button>
           </div>
           <div style={{display:'flex',gap:4,marginBottom:16}}>
@@ -721,7 +721,7 @@ export default function LinkTools() {
 
       {/* ── ANALYTICS MODAL ── */}
       {analyticsId !== null && (
-        <Modal onClose={() => setAnalyticsId(null)} title="Click Analytics" icon={<BarChart3 size={18} color="var(--sap-green-mid)"/>} wide>
+        <Modal onClose={() => setAnalyticsId(null)} title={t('linkTools.clickAnalytics')} icon={<BarChart3 size={18} color="var(--sap-green-mid)"/>} wide>
           {!analytics ? (
             <div style={{textAlign:'center',padding:30,color:'var(--sap-text-muted)'}}>{t('linkTools.loadingAnalytics')}</div>
           ) : analytics.error ? (
@@ -729,9 +729,9 @@ export default function LinkTools() {
           ) : (
             <>
               <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:20}}>
-                <StatBox label="Total Clicks" val={analytics.total_clicks} color="var(--sap-green-mid)"/>
-                <StatBox label="Mobile" val={analytics.devices?.mobile||0} color="var(--sap-accent)"/>
-                <StatBox label="Desktop" val={analytics.devices?.desktop||0} color="var(--sap-purple)"/>
+                <StatBox label={t('linkTools.totalClicks')} val={analytics.total_clicks} color="var(--sap-green-mid)"/>
+                <StatBox label={t('linkTools.mobile')} val={analytics.devices?.mobile||0} color="var(--sap-accent)"/>
+                <StatBox label={t('linkTools.desktop')} val={analytics.devices?.desktop||0} color="var(--sap-purple)"/>
               </div>
               {analytics.timeline && analytics.timeline.length > 0 && (
                 <div style={{marginBottom:20}}>
@@ -760,7 +760,7 @@ export default function LinkTools() {
               )}
               {analytics.countries && Object.keys(analytics.countries).length > 0 && (
                 <div>
-                  <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Top Countries</div>
+                  <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>{t('linkTools.topCountries')}</div>
                   {Object.entries(analytics.countries).map(function(pair) {
                     return (
                       <div key={pair[0]} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
@@ -820,23 +820,23 @@ function QrCodeDisplay({ url, slug }) {
 
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:16}}>
         <div>
-          <Label>Size</Label>
+          <Label>{t('linkTools.qrSize')}</Label>
           <select value={size} onChange={e => setSize(parseInt(e.target.value))} style={{width:'100%',padding:'8px',border:'2px solid #e2e8f0',borderRadius:8,fontSize:12,fontFamily:'inherit'}}>
-            <option value={128}>128px</option>
-            <option value={256}>256px</option>
-            <option value={512}>512px</option>
-            <option value={1024}>1024px</option>
+            <option value={128}>{t('linkTools.px128')}</option>
+            <option value={256}>{t('linkTools.px256')}</option>
+            <option value={512}>{t('linkTools.px512')}</option>
+            <option value={1024}>{t('linkTools.px1024')}</option>
           </select>
         </div>
         <div>
-          <Label>Foreground</Label>
+          <Label>{t('linkTools.foreground')}</Label>
           <div style={{display:'flex',alignItems:'center',gap:6}}>
             <input type="color" value={fgColor} onChange={e => setFgColor(e.target.value)} style={{width:32,height:32,border:'none',background:'none',cursor:'pointer',padding:0}}/>
             <span style={{fontSize:11,color:'var(--sap-text-muted)'}}>{fgColor}</span>
           </div>
         </div>
         <div>
-          <Label>Background</Label>
+          <Label>{t('linkTools.background')}</Label>
           <div style={{display:'flex',alignItems:'center',gap:6}}>
             <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)} style={{width:32,height:32,border:'none',background:'none',cursor:'pointer',padding:0}}/>
             <span style={{fontSize:11,color:'var(--sap-text-muted)'}}>{bgColor}</span>

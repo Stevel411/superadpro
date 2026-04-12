@@ -10,17 +10,17 @@ export default function Achievements() {
 
   useEffect(() => { apiGet('/api/achievements').then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false)); }, []);
 
-  if (loading) return <AppLayout title="🏅 Achievements"><Spin/></AppLayout>;
+  if (loading) return <AppLayout title={t('achievements.title')}><Spin/></AppLayout>;
 
   const d = data || {};
   const earned = d.earned || [];
   const available = d.available || [];
 
   return (
-    <AppLayout title="🏅 Achievements" subtitle="Track your milestones and unlock badges">
+    <AppLayout title={t('achievements.title')} subtitle={t('achievements.trackMilestones')}>
       {/* Earned */}
       {earned.length > 0 && (<>
-        <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'var(--sap-green)',marginBottom:12}}>✓ Earned</div>
+        <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'var(--sap-green)',marginBottom:12}}>{t('achievements.earned')}</div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:14,marginBottom:28}}>
           {earned.map((b,i) => (
             <div key={i} style={{background:'#fff',border:'1px solid #bbf7d0',borderRadius:8,padding:20,textAlign:'center',boxShadow:'0 2px 8px rgba(0,0,0,.12)',position:'relative',overflow:'hidden'}}>
@@ -28,14 +28,14 @@ export default function Achievements() {
               <div style={{fontSize:36,marginBottom:8}}>{b.icon || '🏆'}</div>
               <div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:4}}>{b.name}</div>
               <div style={{fontSize:11,color:'#7b91a8'}}>{b.description}</div>
-              <div style={{marginTop:8,fontSize:10,fontWeight:700,color:'var(--sap-green)'}}>✓ Unlocked</div>
+              <div style={{marginTop:8,fontSize:10,fontWeight:700,color:'var(--sap-green)'}}>{t('achievements.unlocked')}</div>
             </div>
           ))}
         </div>
       </>)}
 
       {/* Available */}
-      <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'var(--sap-text-muted)',marginBottom:12}}>🔒 Available</div>
+      <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'var(--sap-text-muted)',marginBottom:12}}>{t('achievements.available')}</div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(200px,1fr))',gap:14}}>
         {(available.length > 0 ? available : [
           {icon:'👥',name:'First Referral',description:'Refer your first member',progress:0},

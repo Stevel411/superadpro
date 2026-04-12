@@ -51,7 +51,7 @@ export default function Login() {
             <span style={{ color: '#fff', fontWeight: 900, fontSize: 16 }}>S</span>
           </div>
           <span style={styles.logoText}>
-            SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span>
+            SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>{t('common.pro')}</span>
           </span>
         </div>
 
@@ -66,7 +66,7 @@ export default function Login() {
             <input
               value={form.username}
               onChange={set('username')}
-              placeholder="your_username"
+              placeholder={t('auth.usernamePlaceholder')}
               autoComplete="username"
               autoFocus
               style={styles.input}

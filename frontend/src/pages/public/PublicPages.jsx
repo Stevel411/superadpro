@@ -16,20 +16,20 @@ function FAQItem({ q, a }) {
   );
 }
 
-var faqs = [
-  { q: 'Is SuperAdPro free to join?', a: 'Yes — registering is completely free. You pay for membership ($20/mo Basic or $35/mo Pro) to activate your earning ability and access the platform features.' },
-  { q: 'When do I get paid?', a: 'Commissions are credited to your platform wallet instantly when they\'re earned. You can withdraw to your crypto wallet at any time, subject to a minimum withdrawal threshold.' },
-  { q: 'What\'s the difference between Basic and Pro?', a: 'Basic ($20/mo) gives you full affiliate earnings, campaign grid access, and your affiliate link. Pro ($35/mo) adds SuperPages builder, SuperLeads CRM, email autoresponder, lead analytics, and AI content tools.' },
-  { q: 'Do I have to recruit people to earn?', a: 'Not exclusively. While referring others accelerates income through membership commissions, you also earn grid completion bonuses driven by your whole team\'s activity — not just people you personally recruited.' },
-  { q: 'How does the campaign grid work?', a: 'Each campaign tier has an 8×8 grid with 64 positions. As members across your network join that tier, positions fill. When all 64 fill, a completion bonus is triggered and paid to the grid owner. A single campaign can complete multiple times.' },
-  { q: 'What are uni-level commissions?', a: 'When anyone in your network (up to 8 levels deep) makes a grid purchase, you earn 6.25% of that purchase automatically. This means a large team generates passive income for you without any additional effort.' },
-  { q: 'What currency are earnings paid in?', a: 'All earnings are in USDT (a dollar-pegged stablecoin) paid on the Base blockchain. You need a compatible crypto wallet to receive withdrawals.' },
-  { q: 'How do course commissions work?', a: 'When you sell a course, you earn a direct commission. Every 3rd sale passes up to your sponsor — who earns a larger commission. This creates a powerful incentive chain.' },
-  { q: 'Is there a lock-in period for membership?', a: 'No. Membership is billed monthly with no contract. You can cancel at any time, though your earnings will stop when membership lapses.' },
-  { q: 'How do I get support?', a: 'Members can access support through the platform\'s help system. You can also reach us through the contact page.' },
-];
-
 export function FAQ() {
+  var { t } = useTranslation();
+  var faqs = [
+    { q: t('publicPages.faqQ1'), a: t('publicPages.faqA1') },
+    { q: t('publicPages.faqQ2'), a: t('publicPages.faqA2') },
+    { q: t('publicPages.faqQ3'), a: t('publicPages.faqA3') },
+    { q: t('publicPages.faqQ4'), a: t('publicPages.faqA4') },
+    { q: t('publicPages.faqQ5'), a: t('publicPages.faqA5') },
+    { q: t('publicPages.faqQ6'), a: t('publicPages.faqA6') },
+    { q: t('publicPages.faqQ7'), a: t('publicPages.faqA7') },
+    { q: t('publicPages.faqQ8'), a: t('publicPages.faqA8') },
+    { q: t('publicPages.faqQ9'), a: t('publicPages.faqA9') },
+    { q: t('publicPages.faqQ10'), a: t('publicPages.faqA10') },
+  ];
   return (
     <PublicLayout>
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '60px 24px' }}>
@@ -67,6 +67,7 @@ function LegalSection({ title, children }) {
 }
 
 export function Legal() {
+  var { t } = useTranslation();
   var p = { marginBottom: 14 };
   var bold = { marginBottom: 14, fontWeight: 700, color: 'rgba(255,255,255,0.8)' };
   return (
@@ -75,73 +76,73 @@ export function Legal() {
         <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 40, fontWeight: 900, marginBottom: 8 }}>{t('publicPages.legalTitle')}</h1>
         <p style={{ color: 'rgba(255,255,255,0.4)', marginBottom: 48 }}>{t('publicPages.lastUpdated')}</p>
 
-        <LegalSection title="Terms of Service">
-          <p style={p}>By using SuperAdPro, you agree to these terms. SuperAdPro is a video advertising and affiliate marketing platform. Members earn commissions by referring others and participating in campaign grids.</p>
+        <LegalSection title={t('publicPages.termsTitle')}>
+          <p style={p}>{t('publicPages.termsContent1')}</p>
           <p style={p}>{t("publicPages.refundPolicy")}</p>
         </LegalSection>
 
-        <LegalSection title="Earnings Disclaimer">
+        <LegalSection title={t('publicPages.earningsDisclaimerTitle')}>
           <p style={p}>{t("publicPages.incomeDisclaimer")}</p>
-          <p style={p}>Participation in the platform involves financial risk and should be treated as a business venture. Past performance of other members is not indicative of your own results.</p>
+          <p style={p}>{t('publicPages.earningsDisclaimerContent')}</p>
         </LegalSection>
 
-        <LegalSection title="Commission Structure">
-          <p style={bold}>Membership commissions</p>
-          <p style={p}>Members earn 50% commission when a referred member activates a membership. However, commissions are capped at the referring member's own tier level. A Basic member ($20/mo) earns a maximum of $10 per referral, regardless of the product purchased. A Pro member ($35/mo) earns up to $17.50 per referral. This applies to both initial signups and monthly renewals.</p>
-          <p style={bold}>Upgrade policy</p>
-          <p style={p}>Members upgrading from Basic to Pro pay only the $15 difference between tiers. The upgrade fee goes 100% to the platform and does not generate a commission for the referring sponsor. From the next billing cycle onwards, the member renews at the Pro rate ($35/mo) and the sponsor earns their tier-capped commission on each renewal.</p>
-          <p style={bold}>Campaign tier commissions</p>
-          <p style={p}>Campaign tier purchases are split as follows: 40% to the direct sponsor, 50% distributed across 8 uni-level tiers (6.25% each), 5% to the grid completion bonus pool, and 5% to the platform. Commission qualification requires an active membership and completion of daily Watch to Earn requirements.</p>
-          <p style={bold}>Campaign view targets and repurchase</p>
-          <p style={p}>Each campaign tier includes a set number of video views delivered by the Watch & Earn community. Once the view target has been achieved, the campaign completes. Members may repurchase the same tier to reactivate their commission qualification and submit a new video ad. Grids reactivate automatically upon completion — when a grid reaches 64 members, the completion bonus is paid and a new grid opens. This creates a long-term recurring income opportunity through ongoing repurchase and grid reactivation.</p>
-          <p style={bold}>Course commissions</p>
-          <p style={p}>Course sales follow a 100% pass-up system. Sales 1, 3, 5, and 7 are kept by the seller. Sales 2, 4, 6, and 8 pass up to the sponsor in the commission chain.</p>
+        <LegalSection title={t('publicPages.commissionStructureTitle')}>
+          <p style={bold}>{t('publicPages.membershipCommissions')}</p>
+          <p style={p}>{t('publicPages.membershipCommContent')}</p>
+          <p style={bold}>{t('publicPages.upgradePolicy')}</p>
+          <p style={p}>{t('publicPages.upgradePolicyContent')}</p>
+          <p style={bold}>{t('publicPages.campaignTierComm')}</p>
+          <p style={p}>{t('publicPages.campaignTierCommContent')}</p>
+          <p style={bold}>{t('publicPages.campaignViewTargets')}</p>
+          <p style={p}>{t('publicPages.campaignViewContent')}</p>
+          <p style={bold}>{t('publicPages.courseComm')}</p>
+          <p style={p}>{t('publicPages.courseCommContent')}</p>
         </LegalSection>
 
-        <LegalSection title="Platform Rights &amp; Modifications">
-          <p style={p}>SuperAdPro reserves the right to modify, adjust, or update the following at any time, with or without prior notice, in order to maintain the integrity, fairness, and sustainability of the platform:</p>
-          <p style={p}>Campaign view targets — the number of views required per campaign tier may be increased or decreased at the sole discretion of SuperAdPro to reflect changes in platform growth, community size, or operational requirements.</p>
-          <p style={p}>Commission rates and structures — including but not limited to referral commission percentages, uni-level distribution rates, grid completion bonus amounts, and course pass-up structures.</p>
-          <p style={p}>Membership pricing and tier features — including the addition, removal, or modification of features available at each membership level.</p>
-          <p style={p}>Platform policies and operational rules — including but not limited to Watch & Earn daily allocations, content moderation standards, and withdrawal thresholds.</p>
-          <p style={p}>Any significant changes to commission structures or campaign view targets will be communicated to members via email and platform notifications. Continued use of the platform after such changes constitutes acceptance of the updated terms.</p>
+        <LegalSection title={t('publicPages.platformRightsTitle')}>
+          <p style={p}>{t('publicPages.platformRightsContent')}</p>
+          <p style={p}>{t('publicPages.rightsViewTargets')}</p>
+          <p style={p}>{t('publicPages.rightsCommRates')}</p>
+          <p style={p}>{t('publicPages.rightsMembership')}</p>
+          <p style={p}>{t('publicPages.rightsPolicies')}</p>
+          <p style={p}>{t('publicPages.rightsNotice')}</p>
         </LegalSection>
 
-        <LegalSection title="Privacy Policy">
-          <p style={p}>We collect the minimum data necessary to operate the platform - your name, email, username, transaction history, and identity documents where required for withdrawal verification.</p>
-          <p style={p}>We do not sell your data to third parties. We use industry-standard encryption to protect your information. You may request access to, correction of, or deletion of your data at any time by contacting support.</p>
+        <LegalSection title={t('publicPages.privacyTitle')}>
+          <p style={p}>{t('publicPages.privacyContent1')}</p>
+          <p style={p}>{t('publicPages.privacyContent2')}</p>
         </LegalSection>
 
-        <LegalSection title="Acceptable Use">
-          <p style={p}>Members may not use SuperAdPro to promote illegal products or services, spam other members, create fake accounts, or manipulate the referral system. Violations may result in immediate account termination and forfeiture of earnings.</p>
+        <LegalSection title={t('publicPages.acceptableUseTitle')}>
+          <p style={p}>{t('publicPages.acceptableUseContent')}</p>
         </LegalSection>
 
-        <LegalSection title="Cryptocurrency & Payments">
-          <p style={p}>All earnings are paid in USDT on the Polygon blockchain. Cryptocurrency transactions are irreversible. SuperAdPro is not responsible for losses due to incorrect wallet addresses provided by members. Exchange rates and network fees are the responsibility of the member.</p>
+        <LegalSection title={t('publicPages.cryptoPaymentsTitle')}>
+          <p style={p}>{t('publicPages.cryptoPaymentsContent')}</p>
         </LegalSection>
 
-        <LegalSection title="Identity Verification (KYC) Policy">
-          <p style={p}>SuperAdPro is required to verify the identity of members before processing withdrawals, in compliance with anti-money laundering (AML) regulations. Identity verification (Know Your Customer, or KYC) is completed once, before your first withdrawal.</p>
-          <p style={bold}>What we collect</p>
-          <p style={p}>Full legal name, date of birth, and a government-issued photo ID - passport, driver's licence, or national ID card.</p>
-          <p style={bold}>How we use it</p>
-          <p style={p}>Your documents are used solely to verify your identity and comply with our legal obligations. We do not share your documents with third parties except where required by law.</p>
-          <p style={bold}>How we store it</p>
-          <p style={p}>Documents are encrypted and stored securely in Cloudflare R2 object storage. Access is restricted to authorised staff only. Documents are retained for a minimum of 5 years as required by UK AML regulations.</p>
-          <p style={bold}>Your rights</p>
-          <p style={p}>You have the right to request access to your personal data, request correction of inaccuracies, or request deletion (subject to legal retention requirements). Contact our support team to exercise these rights.</p>
-          <p style={bold}>Processing time</p>
-          <p style={p}>KYC applications are typically reviewed within 24-48 hours. You will be notified once a decision has been made.</p>
+        <LegalSection title={t('publicPages.kycTitle')}>
+          <p style={p}>{t('publicPages.kycIntro')}</p>
+          <p style={bold}>{t('publicPages.kycWhatWeCollect')}</p>
+          <p style={p}>{t('publicPages.kycDocuments')}</p>
+          <p style={bold}>{t('publicPages.kycHowWeUse')}</p>
+          <p style={p}>{t('publicPages.kycUseContent')}</p>
+          <p style={bold}>{t('publicPages.kycHowWeStore')}</p>
+          <p style={p}>{t('publicPages.kycStoreContent')}</p>
+          <p style={bold}>{t('publicPages.kycYourRights')}</p>
+          <p style={p}>{t('publicPages.kycRightsContent')}</p>
+          <p style={bold}>{t('publicPages.kycProcessing')}</p>
+          <p style={p}>{t('publicPages.kycProcessingContent')}</p>
         </LegalSection>
 
-        <LegalSection title="Anti-Money Laundering (AML) Policy">
-          <p style={p}>SuperAdPro is committed to preventing money laundering and the financing of illegal activities. We operate in compliance with applicable UK AML legislation including the Proceeds of Crime Act 2002 and the Money Laundering, Terrorist Financing and Transfer of Funds Regulations 2017.</p>
-          <p style={p}>We monitor transactions for suspicious activity and reserve the right to suspend or terminate accounts, withhold funds, and report activity to relevant authorities where required by law.</p>
-          <p style={p}>Members are prohibited from using SuperAdPro to launder funds, obscure the origins of payments, or facilitate any illegal financial activity. Violation of this policy will result in immediate account termination and may be reported to law enforcement.</p>
+        <LegalSection title={t('publicPages.amlTitle')}>
+          <p style={p}>{t('publicPages.amlContent1')}</p>
+          <p style={p}>{t('publicPages.amlContent2')}</p>
+          <p style={p}>{t('publicPages.amlContent3')}</p>
         </LegalSection>
 
         <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: 32, fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>
-          Questions about our legal terms? <Link to="/support" style={{ color: 'var(--sap-accent-light)', textDecoration: 'none' }}>Contact us</Link>
+          {t('publicPages.contactQuestion')} <Link to="/support" style={{ color: 'var(--sap-accent-light)', textDecoration: 'none' }}>{t('publicPages.contactUsTitle')}</Link>
         </div>
       </div>
     </PublicLayout>
@@ -150,33 +151,34 @@ export function Legal() {
 
 
 export function ForAdvertisers() {
+  var { t } = useTranslation();
   return (
     <PublicLayout>
       <div style={{ maxWidth: 1000, margin: '0 auto', padding: '60px 24px' }}>
 
         {/* Hero */}
         <div style={{ textAlign: 'center', marginBottom: 64 }}>
-          <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-accent-light)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Advertisers</div>
+          <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-accent-light)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>{t('publicPages.advertisers')}</div>
           <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 'clamp(32px,5vw,56px)', fontWeight: 900, margin: '0 0 20px' }}>
-            Reach an engaged<br/>video audience
+            {t('publicPages.reachAudience')}
           </h1>
           <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)', maxWidth: 560, margin: '0 auto 36px', lineHeight: 1.7 }}>
-            SuperAdPro members watch videos as part of earning campaigns. Your ads get genuine attention from motivated viewers.
+            {t('publicPages.advertiserDesc')}
           </p>
           <Link to="/register" style={{ display: 'inline-block', padding: '14px 36px', borderRadius: 12, background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, textDecoration: 'none', fontFamily: "'Sora',sans-serif" }}>
-            Get Started →
+            {t('publicPages.getStarted')}
           </Link>
         </div>
 
         {/* Benefits */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 20, marginBottom: 64 }}>
           {[
-            { icon: '👁️', title: 'Genuine views', desc: 'Members are incentivised to watch fully — no bots, no skipping, no fake engagement.' },
-            { icon: '🎯', title: 'Motivated audience', desc: 'Our members are entrepreneurs and business-minded individuals — a high-quality demographic.' },
-            { icon: '📊', title: 'Transparent reporting', desc: 'Track your views, engagement, and campaign performance in real time.' },
-            { icon: '💰', title: 'Cost effective', desc: 'Competitive CPM rates with guaranteed view delivery across our member network.' },
-            { icon: '🔄', title: 'Recurring exposure', desc: 'Members return daily to watch campaigns — your brand gets repeated exposure.' },
-            { icon: '⚡', title: 'Fast setup', desc: 'Submit your video, set your budget, and go live within 24 hours.' },
+            { icon: '👁️', title: t('publicPages.genuineViews'), desc: t('publicPages.genuineViewsDesc') },
+            { icon: '🎯', title: t('publicPages.motivatedAudience'), desc: t('publicPages.motivatedAudienceDesc') },
+            { icon: '📊', title: t('publicPages.transparentReporting'), desc: t('publicPages.transparentReportingDesc') },
+            { icon: '💰', title: t('publicPages.costEffective'), desc: t('publicPages.costEffectiveDesc') },
+            { icon: '🔄', title: t('publicPages.recurringExposure'), desc: t('publicPages.recurringExposureDesc') },
+            { icon: '⚡', title: t('publicPages.fastSetup'), desc: t('publicPages.fastSetupDesc') },
           ].map(function(b) {
             return (
               <div key={b.title} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 24 }}>
@@ -190,10 +192,10 @@ export function ForAdvertisers() {
 
         {/* CTA */}
         <div style={{ background: 'linear-gradient(135deg,rgba(14,165,233,0.1),rgba(99,102,241,0.08))', border: '1px solid rgba(14,165,233,0.2)', borderRadius: 20, padding: '48px', textAlign: 'center' }}>
-          <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 28, fontWeight: 900, margin: '0 0 12px' }}>Ready to advertise?</h2>
-          <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: 28 }}>Create a free account and launch your first campaign today.</p>
+          <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 28, fontWeight: 900, margin: '0 0 12px' }}>{t('publicPages.readyToAdvertise')}</h2>
+          <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: 28 }}>{t('publicPages.readyToAdvertiseDesc')}</p>
           <Link to="/register" style={{ display: 'inline-block', padding: '14px 36px', borderRadius: 12, background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, textDecoration: 'none', fontFamily: "'Sora',sans-serif" }}>
-            Create Advertiser Account →
+            {t('publicPages.createAdvertiserAccount')}
           </Link>
         </div>
       </div>

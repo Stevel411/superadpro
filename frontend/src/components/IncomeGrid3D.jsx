@@ -1,4 +1,5 @@
 import { useRef, useMemo, useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
@@ -259,12 +260,12 @@ export default function IncomeGrid3D({ showControls, height, autoPlay }) {
           <div style={{fontFamily:"'Sora',sans-serif",fontSize:18,fontWeight:900,color:'#fff'}}>8×8 Income Grid <span style={{color:tier.color}}>— ${tier.price} {tier.name}</span></div>
           <div style={{fontSize:11,color:'rgba(255,255,255,.35)'}}>{filled}/{TOTAL} members joined · Drag to rotate</div>
         </div>
-        <button onClick={start} style={{padding:'6px 14px',borderRadius:6,background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.1)',color:'#38bdf8',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit',pointerEvents:'auto'}}>▶ Replay</button>
+        <button onClick={start} style={{padding:'6px 14px',borderRadius:6,background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.1)',color:'#38bdf8',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit',pointerEvents:'auto'}}>{t('common.replay')}</button>
       </div>
 
       <div style={{position:'absolute',top:'50%',right:20,transform:'translateY(-50%)',textAlign:'right',pointerEvents:'none'}}>
         <div style={{fontFamily:"'Sora',sans-serif",fontSize:36,fontWeight:900,color:'#4ade80',lineHeight:1}}>${total.toLocaleString()}</div>
-        <div style={{fontSize:10,color:'rgba(255,255,255,.3)',marginTop:4}}>Total Commissions</div>
+        <div style={{fontSize:10,color:'rgba(255,255,255,.3)',marginTop:4}}>{t('common.totalCommissions')}</div>
         <div style={{marginTop:10,fontSize:12}}>
           <div style={{color:'#0ea5e9',marginBottom:2}}>Direct: ${direct.toLocaleString()}</div>
           <div style={{color:'#8b5cf6',marginBottom:2}}>Uni-level: ${uni.toLocaleString()}</div>

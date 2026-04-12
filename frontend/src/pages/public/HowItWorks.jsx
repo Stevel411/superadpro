@@ -104,7 +104,7 @@ export default function HowItWorks() {
             <div style={{ width: 32, height: 32, borderRadius: 9, background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><polygon points="10,4 10,20 21,12" fill="#fff"/></svg>
             </div>
-            <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 20, fontWeight: 900 }}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span></span>
+            <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 20, fontWeight: 900 }}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>{t('common.pro')}</span></span>
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
             <Link to="/explore" style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,0.6)', textDecoration: 'none' }}>{t('howItWorks.explore')}</Link>
@@ -130,7 +130,7 @@ export default function HowItWorks() {
 
             {/* Hero video placeholder */}
             <div style={{ maxWidth: 640, margin: '0 auto 40px' }}>
-              <VideoPlaceholder label="Watch the overview video" aspect="16/9" />
+              <VideoPlaceholder label={t('howItWorks.watchOverviewVideo')} aspect="16/9" />
             </div>
 
             <div style={{ display: 'flex', gap: 14, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -154,7 +154,7 @@ export default function HowItWorks() {
         <Section bg="linear-gradient(180deg,transparent,rgba(14,165,233,0.03),transparent)">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center' }}>
             <div>
-              <div style={{ fontSize: 12, fontWeight: 800, color: '#22d3ee', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>Creative Studio</div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: '#22d3ee', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>{t('howItWorks.creativeStudioLabel')}</div>
               <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 32, fontWeight: 900, marginBottom: 16 }}>{t('howItWorks.aiCreativeStudioTitle')}</h2>
               <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.45)', lineHeight: 1.7, marginBottom: 24 }}>
                 Create professional videos, images, music, voiceovers, and more — all powered by the latest AI models from Kling, Sora, Seedance, and others.
@@ -173,14 +173,14 @@ export default function HowItWorks() {
                 ))}
               </div>
             </div>
-            <VideoPlaceholder label="Creative Studio demo" borderColor="rgba(34,211,238,0.15)" />
+            <VideoPlaceholder label={t('howItWorks.creativeStudioDemo')} borderColor="rgba(34,211,238,0.15)" />
           </div>
         </Section>
 
         {/* ═══ MARKETING TOOLS ═══ */}
         <Section>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 48, alignItems: 'center' }}>
-            <VideoPlaceholder label="Marketing tools preview" borderColor="rgba(139,92,246,0.15)" />
+            <VideoPlaceholder label={t('howItWorks.marketingPreview')} borderColor="rgba(139,92,246,0.15)" />
             <div>
               <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-purple-light)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>{t('howItWorks.marketingSuiteTitle')}</div>
               <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 32, fontWeight: 900, marginBottom: 16 }}>{t('howItWorks.marketingSuiteSubtitle')}</h2>
@@ -204,7 +204,7 @@ export default function HowItWorks() {
           <SectionHeader tag="Income" tagColor="var(--sap-amber-bright)" title={t("howItWorks.fourWaysTitle")} subtitle={t("howItWorks.fourWaysSubtitle")} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
             <IncomeCard title={t("howItWorks.membershipCommissions")} amount="50%" sub="Recurring monthly" desc="$10 per Basic member, $17.50 per Pro member — every single month they stay active." color="var(--sap-green-mid)" />
-            <IncomeCard title="8×8 Income Grid" amount="$7,200+" sub="Per grid cycle" desc="Eight tiers from $20 to $1,000. Each grid has 64 positions that auto-renew when complete." color="var(--sap-indigo)" />
+            <IncomeCard title={t('howItWorks.incomeGridTitle')} amount="$7,200+" sub="Per grid cycle" desc="Eight tiers from $20 to $1,000. Each grid has 64 positions that auto-renew when complete." color="var(--sap-indigo)" />
             <IncomeCard title={t("howItWorks.courseMarketplace")} amount="100%" sub="Commissions" desc="Keep every sale. Sales 2, 4, 6, 8 pass up to your sponsor — creating an infinite depth chain." color="var(--sap-amber-bright)" comingSoon />
             <IncomeCard title={t("howItWorks.superMarket")} amount="50/25/25" sub="Creator / Affiliate / Platform" desc="Sell digital products. Create once, earn forever. Your affiliates promote for you." color="var(--sap-accent)" comingSoon />
           </div>
@@ -232,11 +232,11 @@ export default function HowItWorks() {
               <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 700, color: 'var(--sap-accent-light)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>{t('howItWorks.basic')}</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
                 <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 40, fontWeight: 900 }}>$20</span>
-                <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)' }}>/month</span>
+                <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)' }}>{t('howItWorks.perMonth')}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>or</span>
-                <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--sap-green-mid)' }}>$200/year</span>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>{t('howItWorks.or')}</span>
+                <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--sap-green-mid)' }}>{t('howItWorks.basicAnnual')}</span>
                 <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-green-mid)', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 6 }}>{t('howItWorks.saveBasic')}</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
@@ -249,18 +249,18 @@ export default function HowItWorks() {
             {/* Pro */}
             <div style={{ background: 'rgba(14,165,233,0.05)', border: '2px solid rgba(14,165,233,0.2)', borderRadius: 20, padding: '36px 28px', position: 'relative' }}>
               <div style={{ position: 'absolute', top: -12, right: 20, padding: '4px 16px', borderRadius: 20, background: 'var(--sap-accent)', fontFamily: "'Sora',sans-serif", fontSize: 11, fontWeight: 800, color: '#fff', letterSpacing: 1 }}>{t('howItWorks.recommended')}</div>
-              <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 700, color: 'var(--sap-accent-light)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>Pro</div>
+              <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 700, color: 'var(--sap-accent-light)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>{t('common.pro')}</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
                 <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 40, fontWeight: 900 }}>$35</span>
-                <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)' }}>/month</span>
+                <span style={{ fontSize: 14, color: 'rgba(255,255,255,0.35)' }}>{t('howItWorks.perMonth')}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
-                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>or</span>
-                <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--sap-green-mid)' }}>$350/year</span>
+                <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>{t('howItWorks.or')}</span>
+                <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--sap-green-mid)' }}>{t('howItWorks.proAnnual')}</span>
                 <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-green-mid)', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 6 }}>{t('howItWorks.savePro')}</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>✓ Everything in Basic</div>
+                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{t('howItWorks.everythingInBasic')}</div>
                 {['AI Content Creator', 'SuperPages builder', 'SuperLeads CRM', 'Email autoresponder'].map(f => (
                   <div key={f} style={{ fontSize: 13, color: 'var(--sap-accent-light)', fontWeight: 600 }}>+ {f}</div>
                 ))}

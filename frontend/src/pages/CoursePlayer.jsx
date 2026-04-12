@@ -41,7 +41,7 @@ function VideoPlayer({ url }) {
   return (
     <div style={{ background: '#111', borderRadius: 12, padding: 40, textAlign: 'center', color: 'rgba(255,255,255,0.4)' }}>
       <div style={{ fontSize: 40, marginBottom: 12 }}>🎬</div>
-      <p>Video URL not supported. <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--sap-accent-light)' }}>Open directly →</a></p>
+      <p>Video URL not supported. <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--sap-accent-light)' }}>{t('courses.openDirectly')}</a></p>
     </div>
   );
 }
@@ -96,7 +96,7 @@ export default function CoursePlayer() {
   if (loading) return (
     <AppLayout>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh' }}>
-        <div style={{ color: 'var(--sap-text-faint)' }}>Loading course...</div>
+        <div style={{ color: 'var(--sap-text-faint)' }}>{t('courses.loadingCourse')}</div>
       </div>
     </AppLayout>
   );
@@ -116,7 +116,7 @@ export default function CoursePlayer() {
         <div style={{ padding: 24, borderRight: '1px solid #e8ecf2' }}>
           {/* Breadcrumb */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 20, fontSize: 13, color: 'var(--sap-text-faint)' }}>
-            <Link to="/courses" style={{ color: 'var(--sap-accent)', textDecoration: 'none' }}>Courses</Link>
+            <Link to="/courses" style={{ color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('courses.coursesNav')}</Link>
             <span>›</span>
             <span style={{ color: 'var(--sap-text-primary)', fontWeight: 600 }}>{data.course.title}</span>
           </div>
@@ -138,7 +138,7 @@ export default function CoursePlayer() {
                 <div style={{ marginTop: 20 }}>
                   {activeLesson.completed ? (
                     <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, background: 'var(--sap-green-bg-mid)', borderRadius: 10, padding: '10px 18px' }}>
-                      <span style={{ color: 'var(--sap-green)', fontWeight: 700, fontSize: 14 }}>✓ Completed</span>
+                      <span style={{ color: 'var(--sap-green)', fontWeight: 700, fontSize: 14 }}>{t('courses.completed')}</span>
                     </div>
                   ) : (
                     <button onClick={function(){markComplete(activeLesson);}} disabled={completing} style={{ padding: '10px 24px', borderRadius: 10, border: 'none', background: completing ? 'var(--sap-text-faint)' : 'linear-gradient(135deg,#10b981,#34d399)', color: '#fff', fontWeight: 700, fontSize: 14, cursor: completing ? 'default' : 'pointer', fontFamily: 'inherit' }}>
@@ -151,7 +151,7 @@ export default function CoursePlayer() {
           ) : (
             <div style={{ textAlign: 'center', padding: 80, color: 'var(--sap-text-faint)' }}>
               <div style={{ fontSize: 40, marginBottom: 12 }}>🎓</div>
-              <p>Select a lesson from the sidebar to begin.</p>
+              <p>{t('courses.selectLesson')}</p>
             </div>
           )}
         </div>
@@ -161,7 +161,7 @@ export default function CoursePlayer() {
           {/* Progress */}
           <div style={{ padding: '16px 20px', borderBottom: '1px solid #e8ecf2', background: '#fff' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6 }}>
-              <span>Course Progress</span>
+              <span>{t('courses.courseProgress')}</span>
               <span style={{ color: 'var(--sap-green-mid)' }}>{progress}%</span>
             </div>
             <div style={{ height: 6, background: 'var(--sap-border)', borderRadius: 3, overflow: 'hidden' }}>

@@ -89,7 +89,7 @@ export default function Affiliate() {
           <div style={{ fontSize: 17, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>{t('socialShare.generatePost')}</div>
           <div style={{ fontSize: 12, color: 'var(--sap-text-muted)', marginBottom: 16 }}>{t('socialShare.generateDesc')}</div>
 
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>Platform</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>{t('socialShare.platformLabel')}</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 18 }}>
             {PLATFORMS.map(function(p) {
               var on = platform === p.key;

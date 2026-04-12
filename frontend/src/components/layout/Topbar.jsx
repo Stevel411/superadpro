@@ -1,10 +1,12 @@
 import { useAuth } from '../../hooks/useAuth';
+import { useTranslation } from 'react-i18next';
 import { Bell, X, Menu } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { apiGet, apiPost } from '../../utils/api';
 import LanguageSelector from './LanguageSelector';
 
 export default function Topbar({ title, subtitle, children, onMenuClick }) {
+  var { t } = useTranslation();
   const { user } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [showNotifs, setShowNotifs] = useState(false);
@@ -66,7 +68,7 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
         <button
           onClick={onMenuClick}
           className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 transition-all border-none cursor-pointer flex-shrink-0"
-          aria-label="Open menu"
+          aria-label={t('nav.openMenu')}
         >
           <Menu className="w-5 h-5 text-white/70" />
         </button>
@@ -96,7 +98,7 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
               style={{boxShadow:'0 20px 60px rgba(0,0,0,.2)'}}>
               {/* Header */}
               <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
-                <span className="font-bold text-sm text-slate-700">Notifications</span>
+                <span className="font-bold text-sm text-slate-700">{t('nav.notifications')}</span>
                 <div className="flex items-center gap-2">
                   {notifications.length > 0 && (
                     <button onClick={clearAll}
@@ -116,8 +118,8 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
                 {notifications.length === 0 ? (
                   <div className="px-4 py-12 text-center">
                     <div className="text-2xl opacity-20 mb-2">🔔</div>
-                    <div className="text-sm text-slate-400">No notifications yet</div>
-                    <div className="text-xs text-slate-300 mt-1">You'll see earnings, team updates, and milestones here</div>
+                    <div className="text-sm text-slate-400">{t('nav.noNotifications')}</div>
+                    <div className="text-xs text-slate-300 mt-1">{t('nav.notificationsDesc')}</div>
                   </div>
                 ) : notifications.map((n) => {
                   var catColors = { team: '#3b82f6', earnings: '#22c55e', commission: '#22c55e', milestone: '#f59e0b', system: '#94a3b8', referral: '#3b82f6' };

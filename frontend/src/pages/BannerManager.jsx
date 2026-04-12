@@ -70,7 +70,7 @@ export default function BannerManager() {
   var iS = { width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, fontFamily: 'inherit', color: 'var(--sap-text-primary)', background: '#fff', outline: 'none' };
 
   return (
-    <AppLayout title="Banner Ads" subtitle="Create and manage your display banners">
+    <AppLayout title={t('bannerManager.title')} subtitle={t('bannerManager.createManageBanners')}>
       <div style={{ maxWidth: 900, margin: '0 auto' }}>
 
         {/* Tabs */}
@@ -137,12 +137,12 @@ export default function BannerManager() {
                 <div style={{ marginBottom: 14 }}>
                   <label style={lS}>{t('bannerManager.seoKeywords')}</label>
                   <input style={iS} value={form.keywords} onChange={set('keywords')} placeholder={t("bannerManager.bannerKeywordsPlaceholder")} maxLength={200} />
-                  <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', marginTop: 4 }}>Comma-separated words people would search for</div>
+                  <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', marginTop: 4 }}>{t('bannerManager.keywordsHelpFull')}</div>
                 </div>
 
                 <div style={{ marginBottom: 20 }}>
                   <label style={lS}>{t('bannerManager.locationOptional')}</label>
-                  <input style={iS} value={form.location} onChange={set('location')} placeholder="London, UK" maxLength={100} />
+                  <input style={iS} value={form.location} onChange={set('location')} placeholder={t('bannerManager.locationPlaceholder')} maxLength={100} />
                 </div>
 
                 <button type="submit" disabled={loading}
@@ -158,7 +158,7 @@ export default function BannerManager() {
 
             {/* Preview */}
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 24 }}>
-              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 20 }}>Preview</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 20 }}>{t('bannerManager.previewLabel')}</div>
               <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-faint)', marginBottom: 8 }}>{selectedSize.name} ({selectedSize.id})</div>
               <div style={{
                 width: '100%', maxWidth: selectedSize.w, aspectRatio: selectedSize.w + '/' + selectedSize.h,
@@ -167,7 +167,7 @@ export default function BannerManager() {
                 overflow: 'hidden', margin: '0 auto'
               }}>
                 {form.image_url ? (
-                  <img src={form.image_url} alt="Banner preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={function(e) { e.target.style.display = 'none'; }} />
+                  <img src={form.image_url} alt={t('bannerManager.bannerAlt')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={function(e) { e.target.style.display = 'none'; }} />
                 ) : (
                   <div style={{ textAlign: 'center', color: 'var(--sap-text-faint)', fontSize: 13 }}>
                     <div style={{ fontSize: 32, marginBottom: 8, opacity: 0.3 }}>🖼️</div>
@@ -193,7 +193,7 @@ export default function BannerManager() {
               <div style={{ textAlign: 'center', padding: 60, color: 'var(--sap-text-faint)' }}>
                 <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.3 }}>🖼️</div>
                 <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{t('bannerManager.noBanners')}</div>
-                <div style={{ fontSize: 13 }}>Create your first banner ad to get started</div>
+                <div style={{ fontSize: 13 }}>{t('bannerManager.createFirstBanner')}</div>
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>

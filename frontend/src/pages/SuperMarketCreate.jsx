@@ -74,7 +74,7 @@ export default function SuperMarketCreate() {
   function blurStyle(e){e.target.style.borderColor='var(--sap-border-light)';}
 
   if(success) return(
-    <AppLayout title="SuperMarket" subtitle="Product submitted">
+    <AppLayout title={t('superMarketCreate.title')} subtitle={t('superMarketCreate.productSubmitted')}>
       <div style={{maxWidth:600,margin:'40px auto',textAlign:'center'}}>
         <div style={{width:88,height:88,borderRadius:'50%',background:'linear-gradient(135deg,#dcfce7,#bbf7d0)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 24px',fontSize:40}}>🎉</div>
         <h2 style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:900,color:'var(--sap-text-primary)',margin:'0 0 12px'}}>{t('superMarketCreate.productSubmitted')}</h2>
@@ -91,7 +91,7 @@ export default function SuperMarketCreate() {
   );
 
   return(
-    <AppLayout title="Sell a Product" subtitle="List on SuperMarket">
+    <AppLayout title={t('superMarketCreate.sellProduct')} subtitle={t('superMarketCreate.listOnSuperMarket')}>
       <div style={{display:'grid',gridTemplateColumns:'1fr 340px',gap:24,maxWidth:1100,margin:'0 auto',alignItems:'start'}}>
 
         {/* LEFT — Form wizard */}
@@ -141,14 +141,14 @@ export default function SuperMarketCreate() {
                     <div style={{position:'relative'}}><span style={{position:'absolute',left:16,top:14,fontSize:18,fontWeight:800,color:'var(--sap-text-ghost)'}}>$</span><input type="number" min="5" value={price} onChange={function(e){setPrice(e.target.value);}} placeholder="27" style={Object.assign({},iS,{paddingLeft:34,fontSize:20,fontWeight:800,fontFamily:'Sora,sans-serif'})} onFocus={focusStyle} onBlur={blurStyle}/></div>
                   </div>
                   <div>
-                    <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Compare Price <span style={{color:'var(--sap-text-ghost)',fontWeight:400}}>(optional)</span></label>
+                    <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Compare Price <span style={{color:'var(--sap-text-ghost)',fontWeight:400}}>{t('superMarketCreate.optional')}</span></label>
                     <div style={{position:'relative'}}><span style={{position:'absolute',left:16,top:14,fontSize:18,fontWeight:800,color:'var(--sap-text-ghost)'}}>$</span><input type="number" value={comparePrice} onChange={function(e){setComparePrice(e.target.value);}} placeholder="97" style={Object.assign({},iS,{paddingLeft:34,fontSize:20,fontWeight:800,fontFamily:'Sora,sans-serif'})} onFocus={focusStyle} onBlur={blurStyle}/></div>
                   </div>
                 </div>
 
                 <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>{t('superMarketCreate.oneLineSummary')}</label><input value={shortDesc} onChange={function(e){setShortDesc(e.target.value);}} maxLength={200} placeholder={t("superMarketCreate.hookPlaceholder")} style={iS} onFocus={focusStyle} onBlur={blurStyle}/><div style={{textAlign:'right',fontSize:10,color:'var(--sap-text-ghost)',marginTop:4}}>{shortDesc.length}/200</div></div>
 
-                <div><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Tags <span style={{color:'var(--sap-text-ghost)',fontWeight:400}}>(comma separated)</span></label><input value={tags} onChange={function(e){setTags(e.target.value);}} placeholder="marketing, templates, social media" style={iS} onFocus={focusStyle} onBlur={blurStyle}/></div>
+                <div><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Tags <span style={{color:'var(--sap-text-ghost)',fontWeight:400}}>{t('superMarketCreate.commaSeparated')}</span></label><input value={tags} onChange={function(e){setTags(e.target.value);}} placeholder={t('superMarketCreate.tagsPlaceholder')} style={iS} onFocus={focusStyle} onBlur={blurStyle}/></div>
               </div>
             </div>
           )}
@@ -162,17 +162,17 @@ export default function SuperMarketCreate() {
               </div>
               <div style={{padding:'28px 32px'}}>
                 <div style={{marginBottom:22}}>
-                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Product Banner</label>
+                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>{t('superMarketCreate.productBanner')}</label>
                   {bannerUrl?(<div style={{width:'100%',height:180,borderRadius:12,backgroundImage:'url('+bannerUrl+')',backgroundSize:'cover',backgroundPosition:'center',position:'relative',marginBottom:8}}><button onClick={function(){setBannerUrl('');}} style={{position:'absolute',top:8,right:8,width:28,height:28,borderRadius:'50%',border:'none',background:'rgba(0,0,0,.6)',color:'#fff',fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>×</button></div>):(
                     <label style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8,padding:'36px',borderRadius:12,border:'2px dashed #d1d5db',cursor:'pointer',transition:'all .2s'}} onMouseEnter={function(e){e.currentTarget.style.borderColor='var(--sap-accent)';e.currentTarget.style.background='rgba(14,165,233,.02)';}} onMouseLeave={function(e){e.currentTarget.style.borderColor='#d1d5db';e.currentTarget.style.background='transparent';}}>
-                      <Image size={28} color="var(--sap-accent)"/><div style={{fontSize:14,fontWeight:600,color:'var(--sap-text-secondary)'}}>Drop image or click to upload</div><div style={{fontSize:11,color:'var(--sap-text-ghost)'}}>1280×720 recommended</div><input type="file" accept="image/*" onChange={handleBanner} style={{display:'none'}}/>
+                      <Image size={28} color="var(--sap-accent)"/><div style={{fontSize:14,fontWeight:600,color:'var(--sap-text-secondary)'}}>{t('superMarketCreate.dropImageUpload')}</div><div style={{fontSize:11,color:'var(--sap-text-ghost)'}}>{t('superMarketCreate.recommendedSize')}</div><input type="file" accept="image/*" onChange={handleBanner} style={{display:'none'}}/>
                     </label>)}
                 </div>
-                <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Sales Video <span style={{color:'var(--sap-text-ghost)',fontWeight:400}}>(optional)</span></label><input value={videoUrl} onChange={function(e){setVideoUrl(e.target.value);}} placeholder="YouTube or Vimeo URL" style={iS} onFocus={focusStyle} onBlur={blurStyle}/></div>
-                <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Product Description</label><RichTextEditor content={description} onChange={setDescription} placeholder="What does your product do? Who is it for? Why should they buy it?"/></div>
+                <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Sales Video <span style={{color:'var(--sap-text-ghost)',fontWeight:400}}>{t('superMarketCreate.optional')}</span></label><input value={videoUrl} onChange={function(e){setVideoUrl(e.target.value);}} placeholder={t('superMarketCreate.videoUrlPlaceholder')} style={iS} onFocus={focusStyle} onBlur={blurStyle}/></div>
+                <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>{t('superMarketCreate.productDescription')}</label><RichTextEditor content={description} onChange={setDescription} placeholder={t('superMarketCreate.descPlaceholderFull')}/></div>
                 <div>
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><label style={{fontSize:13,fontWeight:700,color:'#334155'}}>{t('superMarketCreate.features')}</label><button onClick={function(){setFeatures(features.concat(['']));}} style={{fontSize:11,fontWeight:700,padding:'5px 10px',borderRadius:6,border:'1px solid #e8ecf2',background:'#fff',color:'var(--sap-accent)',cursor:'pointer',fontFamily:'inherit'}}>+ Add</button></div>
-                  {features.map(function(f,i){return(<div key={i} style={{display:'flex',gap:6,marginBottom:5}}><CheckCircle size={18} color="var(--sap-green-mid)" style={{marginTop:10,flexShrink:0}}/><input value={f} onChange={function(e){setFeatures(features.map(function(v,j){return j===i?e.target.value:v;}));}} placeholder="e.g. 50+ ready-to-use templates" style={Object.assign({},iS,{flex:1})} onFocus={focusStyle} onBlur={blurStyle}/>{features.length>1&&<button onClick={function(){setFeatures(features.filter(function(v,j){return j!==i;}));}} style={{color:'var(--sap-red)',background:'none',border:'none',cursor:'pointer',marginTop:8}}><Trash2 size={14}/></button>}</div>);})}
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><label style={{fontSize:13,fontWeight:700,color:'#334155'}}>{t('superMarketCreate.features')}</label><button onClick={function(){setFeatures(features.concat(['']));}} style={{fontSize:11,fontWeight:700,padding:'5px 10px',borderRadius:6,border:'1px solid #e8ecf2',background:'#fff',color:'var(--sap-accent)',cursor:'pointer',fontFamily:'inherit'}}>{t('superMarketCreate.addFeature')}</button></div>
+                  {features.map(function(f,i){return(<div key={i} style={{display:'flex',gap:6,marginBottom:5}}><CheckCircle size={18} color="var(--sap-green-mid)" style={{marginTop:10,flexShrink:0}}/><input value={f} onChange={function(e){setFeatures(features.map(function(v,j){return j===i?e.target.value:v;}));}} placeholder={t('superMarketCreate.featurePlaceholderFull')} style={Object.assign({},iS,{flex:1})} onFocus={focusStyle} onBlur={blurStyle}/>{features.length>1&&<button onClick={function(){setFeatures(features.filter(function(v,j){return j!==i;}));}} style={{color:'var(--sap-red)',background:'none',border:'none',cursor:'pointer',marginTop:8}}><Trash2 size={14}/></button>}</div>);})}
                 </div>
               </div>
             </div>
@@ -182,8 +182,8 @@ export default function SuperMarketCreate() {
           {step===2&&(
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
-                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Upload Your Files</h3>
-                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>Delivered instantly after purchase</p>
+                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>{t('superMarketCreate.uploadFiles')}</h3>
+                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>{t('superMarketCreate.deliveredInstantly')}</p>
               </div>
               <div style={{padding:'28px 32px'}}>
                 <div style={{marginBottom:22}}>
@@ -196,7 +196,7 @@ export default function SuperMarketCreate() {
                   </label>
                 </div>
                 <div>
-                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Bonus File <span style={{color:'var(--sap-text-ghost)',fontWeight:400}}>(optional — increases value)</span></label>
+                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Bonus File <span style={{color:'var(--sap-text-ghost)',fontWeight:400}}>{t('superMarketCreate.optionalBonus')}</span></label>
                   <label style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8,padding:'28px 20px',borderRadius:14,border:bonusFile?'2px solid #8b5cf6':'2px dashed #d1d5db',background:bonusFile?'rgba(139,92,246,.03)':'#fafbfc',cursor:'pointer'}}>
                     {bonusFile?<CheckCircle size={24} color="var(--sap-purple)"/>:<Sparkles size={24} color="var(--sap-purple)"/>}
                     <div style={{fontSize:13,fontWeight:600,color:bonusFile?'var(--sap-purple)':'var(--sap-text-secondary)'}}>{bonusFile?bonusFile.name:'Upload bonus file'}</div>
@@ -211,8 +211,8 @@ export default function SuperMarketCreate() {
           {step===3&&(
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
-                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Review & Submit</h3>
-                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>Check everything looks good, then agree to the terms</p>
+                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>{t('superMarketCreate.reviewSubmit')}</h3>
+                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>{t('superMarketCreate.checkEverything')}</p>
               </div>
               <div style={{padding:'28px 32px'}}>
                 {/* Checklist */}
@@ -223,13 +223,13 @@ export default function SuperMarketCreate() {
                 </div>
                 {/* Terms */}
                 <div style={{background:'var(--sap-bg-input)',borderRadius:12,padding:'18px 20px',marginBottom:20}}>
-                  <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:8}}>Seller Terms</div>
+                  <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:8}}>{t('superMarketCreate.sellerTerms')}</div>
                   <div style={{fontSize:11,color:'var(--sap-text-muted)',lineHeight:1.9}}>
-                    <div>1. All content must be original or properly licensed</div>
-                    <div>2. No illegal, harmful, or misleading material</div>
-                    <div>3. You indemnify SuperAdPro from product claims</div>
-                    <div>4. Products reviewed by AI + admin before publishing</div>
-                    <div>5. All sales are final — no refunds</div>
+                    <div>{t('superMarketCreate.sellerTerm1')}</div>
+                    <div>{t('superMarketCreate.sellerTerm2')}</div>
+                    <div>{t('superMarketCreate.sellerTerm3')}</div>
+                    <div>{t('superMarketCreate.sellerTerm4')}</div>
+                    <div>{t('superMarketCreate.sellerTerm5')}</div>
                   </div>
                 </div>
                 <label style={{display:'flex',alignItems:'flex-start',gap:10,cursor:'pointer',padding:'14px 16px',borderRadius:12,border:agreedTerms?'2px solid #0ea5e9':'2px solid #e8ecf2',background:agreedTerms?'rgba(14,165,233,.02)':'transparent',transition:'all .15s'}}>
@@ -242,17 +242,17 @@ export default function SuperMarketCreate() {
 
           {/* Nav buttons */}
           <div style={{display:'flex',justifyContent:'space-between',marginTop:20,paddingBottom:30}}>
-            {step>0?<button onClick={function(){setError('');setStep(step-1);}} style={{display:'flex',alignItems:'center',gap:4,padding:'12px 24px',borderRadius:10,border:'2px solid #e8ecf2',background:'#fff',color:'var(--sap-text-muted)',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}><ChevronLeft size={16}/>Back</button>:<div/>}
+            {step>0?<button onClick={function(){setError('');setStep(step-1);}} style={{display:'flex',alignItems:'center',gap:4,padding:'12px 24px',borderRadius:10,border:'2px solid #e8ecf2',background:'#fff',color:'var(--sap-text-muted)',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}><ChevronLeft size={16}/>{t('superMarketCreate.back')}</button>:<div/>}
             {step<3?<button onClick={nextStep} style={{display:'flex',alignItems:'center',gap:4,padding:'12px 28px',borderRadius:10,border:'none',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontSize:14,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',boxShadow:'0 4px 14px rgba(14,165,233,.25)'}}>Continue<ChevronRight size={16}/></button>:(
               <button onClick={handleCreate} disabled={saving||!agreedTerms} style={{display:'flex',alignItems:'center',gap:6,padding:'14px 32px',borderRadius:10,border:'none',cursor:(saving||!agreedTerms)?'default':'pointer',fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,background:(saving||!agreedTerms)?'var(--sap-text-ghost)':'linear-gradient(135deg,#10b981,#34d399)',color:'#fff',boxShadow:(saving||!agreedTerms)?'none':'0 4px 16px rgba(16,185,129,.3)'}}>
-                {saving?'Submitting...':<><Sparkles size={16}/>List on SuperMarket</>}
+                {saving?'Submitting...':<><Sparkles size={16}/>{t('superMarketCreate.listOnSuperMarket')}</>}
               </button>)}
           </div>
         </div>
 
         {/* RIGHT — Live Preview Card */}
         <div style={{position:'sticky',top:24}}>
-          <div style={{fontSize:11,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Live Preview</div>
+          <div style={{fontSize:11,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>{t('superMarketCreate.livePreview')}</div>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.06)',transition:'all .3s'}}>
             <div style={{aspectRatio:'16/9',background:'linear-gradient(135deg,#0b1729,#132240)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
               {bannerUrl?<img src={bannerUrl} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>:<div style={{fontSize:36,opacity:.15}}>{catObj?catObj.icon:'📦'}</div>}
@@ -261,24 +261,24 @@ export default function SuperMarketCreate() {
                 {comparePrice&&<span style={{fontSize:10,color:'rgba(255,255,255,.4)',textDecoration:'line-through',marginLeft:4}}>${parseFloat(comparePrice).toFixed(0)}</span>}
               </div>
               <div style={{position:'absolute',bottom:8,left:8,display:'flex',gap:3}}>
-                <span style={{fontSize:7,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(22,163,74,.85)',color:'#fff'}}>50% Creator</span>
-                <span style={{fontSize:7,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(14,165,233,.85)',color:'#fff'}}>25% Affiliate</span>
+                <span style={{fontSize:7,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(22,163,74,.85)',color:'#fff'}}>{t('superMarketCreate.creatorSplit')}</span>
+                <span style={{fontSize:7,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(14,165,233,.85)',color:'#fff'}}>{t('superMarketCreate.affiliateSplit')}</span>
               </div>
             </div>
             <div style={{padding:'16px'}}>
               <div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:3,lineHeight:1.3}}>{title||'Your Product Name'}</div>
-              <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:6}}>by You</div>
+              <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:6}}>{t('superMarketCreate.byYou')}</div>
               <div style={{fontSize:12,color:'var(--sap-text-secondary)',lineHeight:1.6,marginBottom:10}}>{shortDesc||'Your one-line summary appears here'}</div>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                 {catObj&&<span style={{fontSize:9,fontWeight:700,padding:'3px 8px',borderRadius:5,background:'var(--sap-bg-page)',color:'var(--sap-text-muted)'}}>{catObj.icon} {catObj.label}</span>}
-                {mainFile&&<span style={{fontSize:8,fontWeight:700,padding:'2px 6px',borderRadius:3,background:'var(--sap-green-bg-mid)',color:'var(--sap-green-mid)'}}>✓ File ready</span>}
+                {mainFile&&<span style={{fontSize:8,fontWeight:700,padding:'2px 6px',borderRadius:3,background:'var(--sap-green-bg-mid)',color:'var(--sap-green-mid)'}}>{t('superMarketCreate.fileReady')}</span>}
               </div>
             </div>
           </div>
 
           {/* Earnings preview */}
           <div style={{marginTop:12,background:'var(--sap-green-bg)',border:'1px solid #bbf7d0',borderRadius:12,padding:'14px 16px'}}>
-            <div style={{fontSize:11,fontWeight:800,color:'var(--sap-green-mid)',marginBottom:6}}>Your Earnings Per Sale</div>
+            <div style={{fontSize:11,fontWeight:800,color:'var(--sap-green-mid)',marginBottom:6}}>{t('superMarketCreate.earningsPerSale')}</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:900,color:'var(--sap-green-mid)'}}>${formatMoney((parseFloat(price)||0)*0.50)}</div>
             <div style={{fontSize:10,color:'var(--sap-text-muted)',marginTop:4}}>50% of ${parseFloat(price||0).toFixed(0)} · Affiliate gets ${formatMoney((parseFloat(price)||0)*0.25)}</div>
           </div>

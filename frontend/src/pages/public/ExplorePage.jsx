@@ -93,7 +93,7 @@ export default function ExplorePage() {
           {/* Quick CTA */}
           <div style={{ marginTop:48 }}>
             <Link to="/register" style={{ display:'inline-block', padding:'18px 52px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:17, fontWeight:800, textDecoration:'none', background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', boxShadow:'0 4px 24px rgba(14,165,233,0.25)', transition:'all 0.3s' }}>{t('explorePage.createFreeAccount')}</Link>
-            <div style={{ fontSize:13, color:'rgba(255,255,255,0.3)', marginTop:14 }}>Free to join · No credit card · 60 seconds</div>
+            <div style={{ fontSize:13, color:'rgba(255,255,255,0.3)', marginTop:14 }}>{t('explorePage.freeToJoin')}</div>
           </div>
         </div>
       </section>

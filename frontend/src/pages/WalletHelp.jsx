@@ -73,8 +73,8 @@ export default function WalletHelp({ onBack }) {
     <div style={{ maxWidth: 700, margin: '0 auto' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
-          <h2 style={{ fontFamily: 'Sora,sans-serif', fontSize: 20, fontWeight: 800, margin: 0, color: 'var(--sap-text-primary)' }}>Wallet Guide</h2>
-          <p style={{ margin: '2px 0 0', fontSize: 13, color: 'var(--sap-text-muted)' }}>Understanding your affiliate and campaign wallets</p>
+          <h2 style={{ fontFamily: 'Sora,sans-serif', fontSize: 20, fontWeight: 800, margin: 0, color: 'var(--sap-text-primary)' }}>{t('walletHelp.walletGuide')}</h2>
+          <p style={{ margin: '2px 0 0', fontSize: 13, color: 'var(--sap-text-muted)' }}>{t('walletHelp.walletGuideDesc')}</p>
         </div>
         <button onClick={onBack} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <X size={16} color="var(--sap-text-faint)"/>
@@ -84,7 +84,7 @@ export default function WalletHelp({ onBack }) {
       <div style={{ position: 'relative', marginBottom: 20 }}>
         <Search size={16} color="var(--sap-text-faint)" style={{ position: 'absolute', left: 14, top: 12 }}/>
         <input value={search} onChange={function(e) { setSearch(e.target.value); }}
-          placeholder="Search wallet help..."
+          placeholder={t('walletHelp.searchWalletHelp')}
           style={{ width: '100%', padding: '10px 10px 10px 40px', border: '1.5px solid #e2e8f0', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}/>
       </div>
 

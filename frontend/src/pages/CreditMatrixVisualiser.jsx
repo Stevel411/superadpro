@@ -288,7 +288,7 @@ export default function CreditMatrixVisualiser() {
         {!activePack && purchased.length === 0 && (
           <div style={{ background:'#fff', borderRadius:18, border:'1px solid #e2e8f0', padding:'40px 28px', textAlign:'center' }}>
             <div style={{ fontSize:40, marginBottom:12 }}>🧮</div>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:8 }}>No Credit Packs Yet</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:8 }}>{t('matrixVis.noCreditPacks')}</div>
             <div style={{ fontSize:14, color:'var(--sap-text-muted)', lineHeight:1.6 }}>Purchase a credit pack to activate your first nexus and start earning commissions from your team's purchases.</div>
           </div>
         )}

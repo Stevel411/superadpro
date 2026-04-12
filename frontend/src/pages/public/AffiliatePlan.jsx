@@ -83,7 +83,7 @@ export default function AffiliatePlan() {
           <Reveal delay={0.3}>
             <div style={{ display:'flex', gap:14, flexWrap:'wrap' }}>
               <Link to="/register" style={{ padding:'18px 44px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:800, textDecoration:'none', background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', boxShadow:'0 4px 24px rgba(14,165,233,0.25)', transition:'all 0.3s' }}>{t('affiliatePlan.getStartedFree')}</Link>
-              <a href="#video" style={{ padding:'18px 44px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:800, textDecoration:'none', border:'1px solid rgba(255,255,255,0.12)', background:'rgba(0,0,0,0.2)', color:'#fff', transition:'all 0.3s', backdropFilter:'blur(4px)' }}>▶ Watch Video</a>
+              <a href="#video" style={{ padding:'18px 44px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:800, textDecoration:'none', border:'1px solid rgba(255,255,255,0.12)', background:'rgba(0,0,0,0.2)', color:'#fff', transition:'all 0.3s', backdropFilter:'blur(4px)' }}>{t('affiliatePlan.watchVideo')}</a>
             </div>
           </Reveal>
         </div>
@@ -228,7 +228,7 @@ export default function AffiliatePlan() {
         <p style={{ fontSize:11, color:'rgba(255,255,255,0.15)', lineHeight:1.7 }}>
           SuperAdPro · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>{t('affiliatePlan.terms')}</Link> · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>{t('affiliatePlan.privacy')}</Link> · <Link to="/support" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>{t('affiliatePlan.support')}</Link>
         </p>
-        <p style={{ fontSize:11, color:'rgba(255,255,255,0.1)', marginTop:6 }}>Income figures represent the compensation plan structure. Results depend on individual effort.</p>
+        <p style={{ fontSize:11, color:'rgba(255,255,255,0.1)', marginTop:6 }}>{t('affiliatePlan.incomeDisclaimer')}vidual effort.</p>
       </footer>
     </div>
   );

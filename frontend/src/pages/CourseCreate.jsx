@@ -78,7 +78,7 @@ export default function CourseCreate() {
   var catObj=CATEGORIES.find(function(c){return c.key===category;});
 
   return(
-    <AppLayout title="Create a Course" subtitle="Build and sell your own course — 100% commissions">
+    <AppLayout title={t('courseCreate.createCourseTitle')} subtitle={t('courseCreate.createCourseSubtitle')}>
       <div style={{display:'grid',gridTemplateColumns:'1fr 340px',gap:24,maxWidth:1100,margin:'0 auto',alignItems:'start'}}>
 
         {/* LEFT — Wizard */}
@@ -164,16 +164,16 @@ export default function CourseCreate() {
               </div>
               <div style={{padding:'28px 32px'}}>
                 <div style={{marginBottom:22}}>
-                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Course Banner</label>
+                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>{t('courseCreate.courseBanner')}</label>
                   {bannerUrl?(<div style={{width:'100%',height:180,borderRadius:12,backgroundImage:'url('+bannerUrl+')',backgroundSize:'cover',backgroundPosition:'center',position:'relative',marginBottom:8}}><button onClick={function(){setBannerUrl('');}} style={{position:'absolute',top:8,right:8,width:28,height:28,borderRadius:'50%',border:'none',background:'rgba(0,0,0,.6)',color:'#fff',fontSize:14,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>×</button></div>):(
                     <label style={{display:'flex',flexDirection:'column',alignItems:'center',gap:8,padding:'36px',borderRadius:12,border:'2px dashed #d1d5db',cursor:'pointer',transition:'all .2s'}} onMouseEnter={function(e){e.currentTarget.style.borderColor='var(--sap-purple)';e.currentTarget.style.background='rgba(139,92,246,.02)';}} onMouseLeave={function(e){e.currentTarget.style.borderColor='#d1d5db';e.currentTarget.style.background='transparent';}}>
-                      <Image size={28} color="var(--sap-purple)"/><div style={{fontSize:14,fontWeight:600,color:'var(--sap-text-secondary)'}}>Drop image or click to upload</div><div style={{fontSize:11,color:'var(--sap-text-ghost)'}}>1280×720 recommended</div><input type="file" accept="image/*" onChange={handleBanner} style={{display:'none'}}/>
+                      <Image size={28} color="var(--sap-purple)"/><div style={{fontSize:14,fontWeight:600,color:'var(--sap-text-secondary)'}}>{t('courseCreate.dropImage')}</div><div style={{fontSize:11,color:'var(--sap-text-ghost)'}}>{t('courseCreate.recommendedSize')}</div><input type="file" accept="image/*" onChange={handleBanner} style={{display:'none'}}/>
                     </label>)}
                 </div>
 
                 <div>
-                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Full Description</label>
-                  <textarea value={description} onChange={function(e){setDescription(e.target.value);}} rows={8} placeholder="What will students learn? What makes this course unique? Who is it for? What's included?"
+                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>{t('courseCreate.fullDescription')}</label>
+                  <textarea value={description} onChange={function(e){setDescription(e.target.value);}} rows={8} placeholder={t('courseCreate.descPlaceholderFull')}
                     style={Object.assign({},iS,{resize:'vertical',lineHeight:1.7})} onFocus={foc} onBlur={blu}/>
                   <div style={{fontSize:10,color:description.length>=100?'var(--sap-green-mid)':'var(--sap-text-ghost)',marginTop:4}}>{description.length}/100 minimum</div>
                 </div>
@@ -185,8 +185,8 @@ export default function CourseCreate() {
           {step===2&&(
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
-                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Review & Create</h3>
-                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>After creating, you'll add chapters and lessons in the editor</p>
+                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>{t('courseCreate.reviewCreate')}</h3>
+                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>{t('courseCreate.afterCreating')}</p>
               </div>
               <div style={{padding:'28px 32px'}}>
                 {/* Checklist */}
@@ -198,25 +198,25 @@ export default function CourseCreate() {
 
                 {/* What happens next */}
                 <div style={{background:'rgba(139,92,246,.03)',border:'1px solid rgba(139,92,246,.1)',borderRadius:12,padding:'16px 20px',marginBottom:20}}>
-                  <div style={{fontSize:13,fontWeight:700,color:'var(--sap-purple)',marginBottom:8}}>What happens after you create:</div>
+                  <div style={{fontSize:13,fontWeight:700,color:'var(--sap-purple)',marginBottom:8}}>{t('courseCreate.whatHappens')}</div>
                   <div style={{fontSize:12,color:'var(--sap-text-secondary)',lineHeight:1.9}}>
-                    <div>1. You'll land in the <strong>Course Editor</strong> to add chapters & lessons</div>
+                    <div>1. You'll land in the <strong>{t('courseCreate.courseEditor')}</strong> to add chapters & lessons</div>
                     <div>2. Use the rich text editor, videos, and PDFs</div>
-                    <div>3. When ready, click <strong>Submit for Review</strong></div>
+                    <div>3. When ready, click <strong>{t('courseCreate.submitReview')}</strong></div>
                     <div>4. AI scans for quality & copyright, then admin approves</div>
                   </div>
                 </div>
 
                 {/* Terms */}
                 <div style={{background:'var(--sap-bg-input)',borderRadius:12,padding:'18px 20px',marginBottom:20}}>
-                  <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:8}}>Creator Terms</div>
+                  <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:8}}>{t('courseCreate.creatorTerms')}</div>
                   <div style={{fontSize:11,color:'var(--sap-text-muted)',lineHeight:1.9}}>
-                    <div>1. All content must be your own original work</div>
-                    <div>2. No hate speech, illegal, or misleading content</div>
-                    <div>3. Income/business courses require appropriate disclaimers</div>
-                    <div>4. You indemnify SuperAdPro from content claims</div>
-                    <div>5. Courses undergo AI scan + admin review before publishing</div>
-                    <div>6. All sales are final — no refunds</div>
+                    <div>{t('courseCreate.creatorTerm1')}</div>
+                    <div>{t('courseCreate.creatorTerm2')}</div>
+                    <div>{t('courseCreate.creatorTerm3')}</div>
+                    <div>{t('courseCreate.creatorTerm4')}</div>
+                    <div>{t('courseCreate.creatorTerm5')}</div>
+                    <div>{t('courseCreate.creatorTerm6')}</div>
                   </div>
                 </div>
 
@@ -230,17 +230,17 @@ export default function CourseCreate() {
 
           {/* Nav */}
           <div style={{display:'flex',justifyContent:'space-between',marginTop:20,paddingBottom:30}}>
-            {step>0?<button onClick={function(){setError('');setStep(step-1);}} style={{display:'flex',alignItems:'center',gap:4,padding:'12px 24px',borderRadius:10,border:'2px solid #e8ecf2',background:'#fff',color:'var(--sap-text-muted)',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}><ChevronLeft size={16}/>Back</button>:<div/>}
+            {step>0?<button onClick={function(){setError('');setStep(step-1);}} style={{display:'flex',alignItems:'center',gap:4,padding:'12px 24px',borderRadius:10,border:'2px solid #e8ecf2',background:'#fff',color:'var(--sap-text-muted)',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}><ChevronLeft size={16}/>{t('courseCreate.back')}</button>:<div/>}
             {step<2?<button onClick={nextStep} style={{display:'flex',alignItems:'center',gap:4,padding:'12px 28px',borderRadius:10,border:'none',background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:14,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',boxShadow:'0 4px 14px rgba(139,92,246,.25)'}}>Continue<ChevronRight size={16}/></button>:(
               <button onClick={handleCreate} disabled={saving||!agreedTerms} style={{display:'flex',alignItems:'center',gap:6,padding:'14px 32px',borderRadius:10,border:'none',cursor:(saving||!agreedTerms)?'default':'pointer',fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,background:(saving||!agreedTerms)?'var(--sap-text-ghost)':'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',boxShadow:(saving||!agreedTerms)?'none':'0 4px 16px rgba(139,92,246,.3)'}}>
-                {saving?'Creating...':<><Sparkles size={16}/>Create Course</>}
+                {saving?'Creating...':<><Sparkles size={16}/>{t('courseCreate.createCourse')}</>}
               </button>)}
           </div>
         </div>
 
         {/* RIGHT — Live Preview */}
         <div style={{position:'sticky',top:24}}>
-          <div style={{fontSize:11,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>Live Preview</div>
+          <div style={{fontSize:11,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:1,marginBottom:8}}>{t('courseCreate.livePreview')}</div>
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.06)'}}>
             <div style={{aspectRatio:'16/9',background:'linear-gradient(135deg,#172554,#172554)',display:'flex',alignItems:'center',justifyContent:'center',position:'relative',overflow:'hidden'}}>
               {bannerUrl?<img src={bannerUrl} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/>:<div style={{fontSize:36,opacity:.15}}>{catObj?catObj.icon:'🎓'}</div>}
@@ -248,13 +248,13 @@ export default function CourseCreate() {
                 <span style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#fff'}}>${parseFloat(price||0).toFixed(0)||'0'}</span>
               </div>
               <div style={{position:'absolute',bottom:8,left:8,display:'flex',gap:3}}>
-                <span style={{fontSize:7,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(139,92,246,.85)',color:'#fff'}}>100% Commission</span>
+                <span style={{fontSize:7,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(139,92,246,.85)',color:'#fff'}}>{t('courseCreate.fullCommission')}</span>
                 {difficulty&&<span style={{fontSize:7,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(255,255,255,.2)',color:'#fff',textTransform:'capitalize'}}>{difficulty}</span>}
               </div>
             </div>
             <div style={{padding:'16px'}}>
               <div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:3,lineHeight:1.3}}>{title||'Your Course Title'}</div>
-              <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:6}}>by You</div>
+              <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:6}}>{t('courseCreate.byYou')}</div>
               <div style={{fontSize:12,color:'var(--sap-text-secondary)',lineHeight:1.6,marginBottom:10}}>{shortDesc||'Your one-line summary appears here'}</div>
               <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                 {catObj&&<span style={{fontSize:9,fontWeight:700,padding:'3px 8px',borderRadius:5,background:'var(--sap-bg-page)',color:'var(--sap-text-muted)'}}>{catObj.icon} {catObj.label}</span>}
@@ -264,14 +264,14 @@ export default function CourseCreate() {
 
           {/* Earnings */}
           <div style={{marginTop:12,background:'linear-gradient(135deg,#f5f3ff,#ede9fe)',border:'1px solid #ddd6fe',borderRadius:12,padding:'14px 16px'}}>
-            <div style={{fontSize:11,fontWeight:800,color:'var(--sap-purple)',marginBottom:6}}>💰 100% Pass-Up System</div>
+            <div style={{fontSize:11,fontWeight:800,color:'var(--sap-purple)',marginBottom:6}}>{t('courseCreate.passUpSystem')}</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:900,color:'var(--sap-purple)'}}>${parseFloat(price||0).toFixed(0)}</div>
             <div style={{fontSize:10,color:'var(--sap-text-muted)',marginTop:4,lineHeight:1.6}}>per kept sale (1st, 3rd, 5th...). Even sales pass up to your sponsor. No platform fees.</div>
           </div>
 
           {/* What's next */}
           <div style={{marginTop:12,background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:'14px 16px'}}>
-            <div style={{fontSize:11,fontWeight:800,color:'#334155',marginBottom:8}}>After Creating:</div>
+            <div style={{fontSize:11,fontWeight:800,color:'#334155',marginBottom:8}}>{t('courseCreate.afterCreatingLabel')}</div>
             {['Add chapters & lessons','Rich text + video content','Submit for AI review','Admin approves → live'].map(function(s,i){
               return <div key={i} style={{display:'flex',gap:6,padding:'3px 0',fontSize:11,color:'var(--sap-text-muted)'}}><span style={{color:'var(--sap-purple)',fontWeight:800}}>{i+1}.</span>{s}</div>;
             })}

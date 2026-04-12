@@ -77,7 +77,7 @@ export default function AdBoard() {
                   {l.image_url && <img src={l.image_url} alt={l.title} style={{ width: '100%', height: 160, objectFit: 'cover' }}/>}
                   {!l.image_url && <div style={{ height: 100, background: 'linear-gradient(135deg,rgba(14,165,233,0.1),rgba(99,102,241,0.1))', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 32 }}>📢</div>}
                   <div style={{ padding: '16px' }}>
-                    {l.is_featured && <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--sap-accent-light)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>⭐ Featured</div>}
+                    {l.is_featured && <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--sap-accent-light)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 6 }}>{t('publicPages.featured')}</div>}
                     <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 6, lineHeight: 1.3 }}>{l.title}</div>
                     <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.4)', marginBottom: 10, lineHeight: 1.5 }}>{l.description.slice(0, 80)}{l.description.length > 80 ? '...' : ''}</div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

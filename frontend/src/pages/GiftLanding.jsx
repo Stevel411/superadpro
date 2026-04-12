@@ -62,7 +62,7 @@ export default function GiftLanding() {
           <Gift size={28} color="var(--sap-red-bright)"/>
         </div>
         <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#fff', marginBottom:8 }}>{giftError}</div>
-        <Link to="/" style={{ fontSize:14, color:'var(--sap-accent-light)', textDecoration:'none' }}>Go to SuperAdPro →</Link>
+        <Link to="/" style={{ fontSize:14, color:'var(--sap-accent-light)', textDecoration:'none' }}>{t('giftLanding.goToSuperAdPro')}</Link>
       </div>
     </div>
   );
@@ -73,12 +73,12 @@ export default function GiftLanding() {
         <div style={{ width:72, height:72, borderRadius:18, background:'linear-gradient(135deg,#10b981,#059669)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 24px' }}>
           <Check size={36} color="#fff"/>
         </div>
-        <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:800, color:'#fff', marginBottom:8 }}>Welcome to SuperAdPro!</div>
+        <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:800, color:'#fff', marginBottom:8 }}>{t('giftLanding.welcomeTitle')}</div>
         <div style={{ fontSize:15, color:'rgba(255,255,255,.6)', lineHeight:1.7, marginBottom:24 }}>
           Your membership has been activated. {gift.gifter_name} believed in you — now go build something amazing.
         </div>
         <div style={{ padding:'14px 20px', background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.08)', borderRadius:12, marginBottom:24 }}>
-          <div style={{ fontSize:12, color:'rgba(255,255,255,.4)', marginBottom:4 }}>Remember</div>
+          <div style={{ fontSize:12, color:'rgba(255,255,255,.4)', marginBottom:4 }}>{t('giftLanding.remember')}</div>
           <div style={{ fontSize:14, color:'var(--sap-amber-bright)', fontWeight:700 }}>When you earn $20+, pay it forward and gift a membership to someone else.</div>
         </div>
         <button onClick={function() { navigate('/dashboard'); }}

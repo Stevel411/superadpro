@@ -279,7 +279,7 @@ export default function Wallet() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
               <label style={{ ...labelStyle, fontSize: 11 }}>{t('wallet.recipientMemberId')}</label>
-              <input id="p2pRecipient" type="text" placeholder="e.g. SAP-00042" autoComplete="off" style={p2pInputStyle} />
+              <input id="p2pRecipient" type="text" placeholder={t('wallet.userIdPlaceholder')} autoComplete="off" style={p2pInputStyle} />
             </div>
             <div>
               <label style={{ ...labelStyle, fontSize: 11 }}>{t('wallet.amountUSDT')}</label>

@@ -55,7 +55,7 @@ export default function AiTool({ title, subtitle, apiEndpoint, fields, resultLab
                   ) : f.type === 'select' ? (
                     <select value={values[f.key] || ''} onChange={function(e) { set(f.key, e.target.value); }}
                       style={{width:'100%',padding:'10px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'var(--sap-bg-input)',color:values[f.key]?'var(--sap-text-primary)':'var(--sap-text-muted)'}}>
-                      <option value="">Select...</option>
+                      <option value="">{t('marketing.selectPrompt')}</option>
                       {(f.options || []).map(function(o) { return <option key={o} value={o}>{o}</option>; })}
                     </select>
                   ) : (

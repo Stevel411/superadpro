@@ -15,13 +15,13 @@ export default function Courses() {
     apiGet('/api/courses').then(d => { setCourses(d.courses || []); setLoading(false); }).catch(() => setLoading(false));
   }, []);
 
-  if (loading) return <AppLayout title="Course Library"><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
+  if (loading) return <AppLayout title={t('courses.title')}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
 
   return (
-    <AppLayout title="Course Library" subtitle="Browse courses · Learn new skills · Track your progress"
+    <AppLayout title={t('courses.title')} subtitle={t('courses.browseCourses')}
       topbarActions={<>
-        <Link to="/courses/how-it-works" style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:10,fontSize:12,fontWeight:600,color:'rgba(200,220,255,0.55)',textDecoration:'none',border:'1px solid rgba(255,255,255,0.08)'}}>How Commissions Work</Link>
-        <Link to="/courses/commissions" style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:10,fontSize:12,fontWeight:600,color:'rgba(200,220,255,0.55)',textDecoration:'none',border:'1px solid rgba(255,255,255,0.08)'}}>My Commissions</Link>
+        <Link to="/courses/how-it-works" style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:10,fontSize:12,fontWeight:600,color:'rgba(200,220,255,0.55)',textDecoration:'none',border:'1px solid rgba(255,255,255,0.08)'}}>{t('courses.howCommissionsWork')}</Link>
+        <Link to="/courses/commissions" style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:10,fontSize:12,fontWeight:600,color:'rgba(200,220,255,0.55)',textDecoration:'none',border:'1px solid rgba(255,255,255,0.08)'}}>{t('courses.myCommissions')}</Link>
       </>}
     >
       {courses.length > 0 ? (
@@ -38,7 +38,7 @@ export default function Courses() {
                   </div>
                 )}
                 <div style={{position:'absolute',top:14,right:14,background:'rgba(0,0,0,0.6)',backdropFilter:'blur(8px)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'5px 12px',fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#fff'}}>${Math.round(c.price)}</div>
-                {c.owned && <div style={{position:'absolute',top:14,left:14,background:'rgba(22,163,74,0.9)',borderRadius:8,padding:'4px 12px',fontSize:11,fontWeight:700,color:'#fff',letterSpacing:0.5}}>✓ OWNED</div>}
+                {c.owned && <div style={{position:'absolute',top:14,left:14,background:'rgba(22,163,74,0.9)',borderRadius:8,padding:'4px 12px',fontSize:11,fontWeight:700,color:'#fff',letterSpacing:0.5}}>{t('courses.owned')}</div>}
               </div>
               {/* Body */}
               <div style={{padding:20,flex:1,display:'flex',flexDirection:'column'}}>
@@ -58,7 +58,7 @@ export default function Courses() {
                   </div>
                 )}
                 {c.owned ? (
-                  <a href={`/courses/learn/${c.id}`} style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontSize:14,fontWeight:700,textAlign:'center',textDecoration:'none',background:'var(--sap-accent)',color:'#fff',boxShadow:'0 2px 8px rgba(14,165,233,0.25)',boxSizing:'border-box'}}>Continue Learning →</a>
+                  <a href={`/courses/learn/${c.id}`} style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontSize:14,fontWeight:700,textAlign:'center',textDecoration:'none',background:'var(--sap-accent)',color:'#fff',boxShadow:'0 2px 8px rgba(14,165,233,0.25)',boxSizing:'border-box'}}>{t('courses.continueLearning')}</a>
                 ) : (
                   <form method="POST" action={`/courses/purchase/${c.id}`} onSubmit={e => { if(!confirm(`Purchase ${c.title} for $${Math.round(c.price)} from your wallet balance?`)) e.preventDefault(); }}>
                     <button type="submit" style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontFamily:'inherit',fontSize:14,fontWeight:700,cursor:'pointer',textAlign:'center',background:'#132044',color:'#fff',boxShadow:'0 1px 3px rgba(0,0,0,0.1)',boxSizing:'border-box'}}>Buy Course — ${Math.round(c.price)}</button>
@@ -71,8 +71,8 @@ export default function Courses() {
       ) : (
         <div style={{textAlign:'center',padding:'80px 20px'}}>
           <div style={{fontSize:48,marginBottom:16,opacity:0.5}}>📚</div>
-          <div style={{fontSize:18,fontWeight:800,color:'#132044',marginBottom:6}}>No courses available yet</div>
-          <div style={{fontSize:14,color:'var(--sap-text-muted)'}}>Check back soon — new courses are being added.</div>
+          <div style={{fontSize:18,fontWeight:800,color:'#132044',marginBottom:6}}>{t('courses.noCourses')}</div>
+          <div style={{fontSize:14,color:'var(--sap-text-muted)'}}>{t('courses.checkBackSoon')}</div>
         </div>
       )}
 

@@ -194,14 +194,14 @@ export default function CampaignTiers() {
       <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:'20px 24px', marginTop:4, marginBottom:16 }}>
         <div style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:10 }}>{t('campaignTiers.howItWorks')}</div>
         <div style={{ fontSize:13, color:'var(--sap-text-muted)', lineHeight:1.8 }}>
-          Each tier gives your videos real views through the Watch & Earn network. When you activate a tier, you are placed into an 8×8 grid with 64 member positions. You earn <span style={{ fontWeight:700, color:'var(--sap-text-primary)' }}>40% direct commission</span> on every referral who activates the same tier, plus <span style={{ fontWeight:700, color:'var(--sap-text-primary)' }}>6.25% per grid member</span> as positions fill, plus a <span style={{ fontWeight:700, color:'var(--sap-text-primary)' }}>completion bonus</span> when the grid is full.
+          Each tier gives your videos real views through the Watch & Earn network. When you activate a tier, you are placed into an 8×8 grid with 64 member positions. You earn <span style={{ fontWeight:700, color:'var(--sap-text-primary)' }}>{t('campaignTiers.directCommission')}</span> on every referral who activates the same tier, plus <span style={{ fontWeight:700, color:'var(--sap-text-primary)' }}>{t('campaignTiers.gridMemberComm')}</span> as positions fill, plus a <span style={{ fontWeight:700, color:'var(--sap-text-primary)' }}>{t('campaignTiers.completionBonus')}</span> when the grid is full.
         </div>
         <div style={{ borderTop:'1px solid #f1f5f9', marginTop:14, paddingTop:14, display:'flex', alignItems:'flex-start', gap:10 }}>
           <div style={{ width:20, height:20, borderRadius:6, background:'var(--sap-amber-bg)', border:'1px solid #fde68a', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:1 }}>
             <span style={{ fontSize:11, color:'var(--sap-amber-dark)', fontWeight:800 }}>!</span>
           </div>
           <div style={{ fontSize:13, color:'var(--sap-text-muted)', lineHeight:1.7 }}>
-            <span style={{ fontWeight:700, color:'var(--sap-text-primary)' }}>Renewal:</span> Tiers expire once all allocated views have been delivered. To continue receiving views and earning grid commissions, simply re-activate the tier. All one-time USDT payments — no subscriptions or recurring charges.
+            <span style={{ fontWeight:700, color:'var(--sap-text-primary)' }}>{t('campaignTiers.renewalLabel')}</span> Tiers expire once all allocated views have been delivered. To continue receiving views and earning grid commissions, simply re-activate the tier. All one-time USDT payments — no subscriptions or recurring charges.
           </div>
         </div>
       </div>

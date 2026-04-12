@@ -5,7 +5,7 @@ import AppLayout from '../components/layout/AppLayout';
 export default function IncomeDisclaimer() {
   var { t } = useTranslation();
   return (
-    <AppLayout title="Income Disclaimer" subtitle="Important information about earning with SuperAdPro">
+    <AppLayout title={t('incomeDisclaimer.pageTitle')} subtitle={t('incomeDisclaimer.pageSubtitle')}>
       <div style={{ maxWidth:780, margin:'0 auto' }}>
 
         {/* Header */}
@@ -18,15 +18,15 @@ export default function IncomeDisclaimer() {
 
         <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', padding:'32px 36px' }}>
 
-          <Section title="No Guaranteed Income">
+          <Section title={t('incomeDisclaimer.noGuaranteedIncome')}>
             <p>{t("incomeDisclaimer.noGuaranteeText")}</p>
           </Section>
 
-          <Section title="Individual Results Vary">
+          <Section title={t('incomeDisclaimer.resultsVary')}>
             <p>{t("incomeDisclaimer.effortDependent")}</p>
           </Section>
 
-          <Section title="Credit Pack Pricing Transparency">
+          <Section title={t('incomeDisclaimer.creditPricing')}>
             <p>{t("incomeDisclaimer.creditPackAlloc")}</p>
             <CostBreakdown items={[
               { pct:'50%', label:'AI Service Costs', desc:'Covers API usage for video, image, music, and voice generation' },
@@ -36,7 +36,7 @@ export default function IncomeDisclaimer() {
             <p>{t("incomeDisclaimer.creditPackNote")}</p>
           </Section>
 
-          <Section title="Campaign Tier Pricing Transparency">
+          <Section title={t('incomeDisclaimer.campaignTierPricing')}>
             <p>{t("incomeDisclaimer.campaignTierAlloc")}</p>
             <CostBreakdown items={[
               { pct:'40%', label:'Direct Sponsor Commission', desc:'Paid to the member who referred you' },
@@ -47,7 +47,7 @@ export default function IncomeDisclaimer() {
             <p>Campaign Tiers activate your participation in the 8×8 Income Grid and unlock daily video campaign views. Your tier purchase delivers real advertising views to campaign holders on the platform.</p>
           </Section>
 
-          <Section title="Membership Pricing Transparency">
+          <Section title={t('incomeDisclaimer.membershipPricing')}>
             <p>{t("incomeDisclaimer.membershipAlloc")}</p>
             <CostBreakdown items={[
               { pct:'50%', label:'Sponsor Commission', desc:'Paid to the referring member' },
@@ -55,30 +55,30 @@ export default function IncomeDisclaimer() {
             ]}/>
           </Section>
 
-          <Section title="Commission Structure">
+          <Section title={t('incomeDisclaimer.commStructure')}>
             <p>SuperAdPro offers four income streams: Membership Referrals (50% commission), Campaign Grid (40% direct + 6.25% uni-level + 5% completion), Profit Nexus (15% direct + 10% auto-place + 10% completion), and Course Marketplace (coming soon). All commission rates are clearly disclosed on the Compensation Plan page.</p>
             <p>{t("incomeDisclaimer.commissionNotice")}</p>
           </Section>
 
-          <Section title="Two Wallet System">
+          <Section title={t('incomeDisclaimer.twoWalletTitle')}>
             <p>SuperAdPro operates a dual wallet system. Your Affiliate Wallet holds membership and Profit Nexus commissions and can be withdrawn at any time. Your Campaign Wallet holds grid commissions and requires an active Campaign Tier and completion of daily watch quotas to access. This structure ensures the platform's advertising ecosystem remains active and sustainable.</p>
           </Section>
 
-          <Section title="Not Employment">
+          <Section title={t('incomeDisclaimer.notEmployment')}>
             <p>Participation in SuperAdPro's compensation plan does not create an employer-employee relationship. Members are independent participants and are solely responsible for their own tax obligations, business expenses, and compliance with local laws and regulations.</p>
           </Section>
 
-          <Section title="Risk Acknowledgement">
+          <Section title={t('incomeDisclaimer.riskTitle')}>
             <p>As with any business opportunity, there is risk involved. You should not invest more than you can afford to lose. Do not rely on income from SuperAdPro as your sole source of income. We encourage all members to treat this as a supplementary income opportunity and to make informed decisions based on their own financial circumstances.</p>
           </Section>
 
-          <Section title="Compliance">
+          <Section title={t('incomeDisclaimer.complianceTitle')}>
             <p>SuperAdPro is committed to ethical business practices. Members must not make misleading income claims when promoting the platform. Any income projections shared must be accompanied by a clear disclaimer that results are not typical and individual results will vary.</p>
           </Section>
 
           <div style={{ borderTop:'1px solid #f1f5f9', paddingTop:20, marginTop:8, textAlign:'center' }}>
             <p style={{ fontSize:13, color:'var(--sap-text-muted)', lineHeight:1.7 }}>Last updated: April 2026. This disclaimer applies to all income programmes operated by SuperAdPro.</p>
-            <Link to="/compensation-plan" style={{ display:'inline-flex', alignItems:'center', gap:6, marginTop:12, fontSize:14, fontWeight:700, color:'#2563eb', textDecoration:'none' }}>← Back to Compensation Plan</Link>
+            <Link to="/compensation-plan" style={{ display:'inline-flex', alignItems:'center', gap:6, marginTop:12, fontSize:14, fontWeight:700, color:'#2563eb', textDecoration:'none' }}>{t('incomeDisclaimer.backToCompPlan')}</Link>
           </div>
 
         </div>

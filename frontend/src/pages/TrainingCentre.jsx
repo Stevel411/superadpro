@@ -34,14 +34,14 @@ export default function TrainingCentre() {
   var totalLessons = modules.reduce(function(a, m) { return a + m.lessons.length; }, 0);
   var doneLessons = Object.keys(completed).length;
 
-  if (loading) return <AppLayout title="Training Centre"><div style={{padding:40,textAlign:'center',color:'var(--sap-text-muted)'}}>Loading...</div></AppLayout>;
+  if (loading) return <AppLayout title={t('training.title')}><div style={{padding:40,textAlign:'center',color:'var(--sap-text-muted)'}}>{t('training.loadingTraining')}</div></AppLayout>;
 
   return (
     <AppLayout title={t("training.title")} subtitle={t("training.subtitle")}>
       {/* Progress bar */}
       <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'20px 24px',marginBottom:20,boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
-          <div style={{fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>Your Progress</div>
+          <div style={{fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('training.yourProgress')}</div>
           <div style={{fontSize:13,fontWeight:700,color:'var(--sap-accent)'}}>{doneLessons}/{totalLessons} lessons</div>
         </div>
         <div style={{height:8,background:'var(--sap-bg-page)',borderRadius:4,overflow:'hidden'}}>
@@ -68,7 +68,7 @@ export default function TrainingCentre() {
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:8}}>
                   {modDone === mod.lessons.length && mod.lessons.length > 0 && (
-                    <span style={{fontSize:10,fontWeight:800,padding:'3px 8px',borderRadius:4,background:'var(--sap-green-bg-mid)',color:'var(--sap-green)'}}>COMPLETE</span>
+                    <span style={{fontSize:10,fontWeight:800,padding:'3px 8px',borderRadius:4,background:'var(--sap-green-bg-mid)',color:'var(--sap-green)'}}>{t('training.complete')}</span>
                   )}
                   {isOpen ? <ChevronDown size={18} color="var(--sap-text-muted)"/> : <ChevronRight size={18} color="var(--sap-text-muted)"/>}
                 </div>

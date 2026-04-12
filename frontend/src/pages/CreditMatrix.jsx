@@ -362,9 +362,9 @@ export function CreditMatrixContent() {
 
           {/* Team activity feed */}
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 12 }}>Team Activity</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 12 }}>{t('creditMatrix.teamActivity')}</div>
             {activity.length === 0 && (
-              <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', textAlign: 'center', padding: '20px 0' }}>No team purchases yet</div>
+              <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', textAlign: 'center', padding: '20px 0' }}>{t('creditMatrix.noTeamPurchases')}</div>
             )}
             {activity.slice(0, 8).map(function(a, i) {
               return (

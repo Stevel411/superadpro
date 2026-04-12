@@ -31,7 +31,7 @@ export default function ForgotPassword() {
       <div style={styles.card}>
         <div style={styles.logoRow}>
           <div style={styles.logoMark}><span style={{ color: '#fff', fontWeight: 900, fontSize: 16 }}>S</span></div>
-          <span style={styles.logoText}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span></span>
+          <span style={styles.logoText}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>{t('common.pro')}</span></span>
         </div>
 
         {sent ? (
@@ -55,7 +55,7 @@ export default function ForgotPassword() {
                   value={email}
                   onChange={e => { setEmail(e.target.value); setError(''); }}
                   type="email"
-                  placeholder="john@example.com"
+                  placeholder={t('auth.emailPlaceholder')}
                   autoFocus
                   autoComplete="email"
                   style={styles.input}
@@ -67,7 +67,7 @@ export default function ForgotPassword() {
             </form>
 
             <div style={{ textAlign: 'center', marginTop: 24 }}>
-              <a href="/login" style={styles.backLink}>← Back to login</a>
+              <a href="/login" style={styles.backLink}>{t('common.backToLogin')}</a>
             </div>
           </>
         )}

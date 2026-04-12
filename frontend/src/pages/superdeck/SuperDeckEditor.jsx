@@ -351,7 +351,7 @@ export default function SuperDeckEditor() {
         <input value={aiPrompt} onChange={function(e){setAiPrompt(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')generateAI();}}
           placeholder={t("superDeck.descPlaceholder")} style={{flex:1,padding:'10px 16px',borderRadius:8,border:'1px solid #4c1d95',background:'#312e81',color:'var(--sap-border)',fontSize:14,fontFamily:'inherit',outline:'none'}}/>
         <button onClick={generateAI} disabled={aiLoading} style={{padding:'10px 24px',borderRadius:8,border:'none',background:aiLoading?'var(--sap-text-muted)':'var(--sap-purple)',color:'#fff',fontSize:14,fontWeight:700,cursor:aiLoading?'default':'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:6}}>
-          {aiLoading?<><Loader2 size={14} style={{animation:'spin 1s linear infinite'}}/> Generating...</>:<><Sparkles size={14}/> Generate</>}</button>
+          {aiLoading?<><Loader2 size={14} style={{animation:'spin 1s linear infinite'}}/> {t('superDeck.generatingDots')}</>:<><Sparkles size={14}/> {t('superDeck.generate')}</>}</button>
         <button onClick={function(){setShowAi(false);}} style={{background:'none',border:'none',color:'var(--sap-text-faint)',cursor:'pointer',padding:4,display:'flex'}}><X size={18}/></button>
       </div>}
 
@@ -378,10 +378,10 @@ export default function SuperDeckEditor() {
                   </div>
                 </div>
                 <div style={{display:'flex',justifyContent:'flex-end',gap:4,padding:'3px 0'}}>
-                  <button onClick={function(){dupSlide(i);}} title="Duplicate"
+                  <button onClick={function(){dupSlide(i);}} title={t('superDeck.duplicateSlide')}
                     onMouseEnter={function(e){e.currentTarget.style.background='var(--sap-purple-pale)';}} onMouseLeave={function(e){e.currentTarget.style.background='transparent';}}
                     style={{background:'transparent',border:'none',color:'var(--sap-text-faint)',cursor:'pointer',padding:4,borderRadius:4,display:'flex'}}><Copy size={16}/></button>
-                  <button onClick={function(){delSlide(i);}} title="Delete"
+                  <button onClick={function(){delSlide(i);}} title={t('superDeck.deleteSlide')}
                     onMouseEnter={function(e){e.currentTarget.style.background='#fee2e2';e.currentTarget.style.color='var(--sap-red)';}} onMouseLeave={function(e){e.currentTarget.style.background='transparent';e.currentTarget.style.color='var(--sap-text-faint)';}}
                     style={{background:'transparent',border:'none',color:'var(--sap-text-faint)',cursor:'pointer',padding:4,borderRadius:4,display:'flex'}}><Trash2 size={16}/></button>
                 </div>
@@ -392,7 +392,7 @@ export default function SuperDeckEditor() {
             onMouseEnter={function(e){e.currentTarget.style.borderColor='var(--sap-purple)';e.currentTarget.style.color='var(--sap-purple)';}}
             onMouseLeave={function(e){e.currentTarget.style.borderColor='var(--sap-text-ghost)';e.currentTarget.style.color='var(--sap-text-faint)';}}
             style={{width:'100%',padding:'8px 0',border:'2px dashed #cbd5e1',borderRadius:4,background:'none',color:'var(--sap-text-faint)',fontSize:12,cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',justifyContent:'center',gap:4}}>
-            <Plus size={12}/> Add slide</button>
+            <Plus size={12}/> {t('superDeck.addSlide')}</button>
         </div>
 
         {/* CENTRE: Canvas */}
@@ -426,10 +426,10 @@ export default function SuperDeckEditor() {
                     return <div key={c} onMouseDown={function(e){onResizeDown(e,el.id,c);}} style={hs}/>;
                   })}
                   <div style={{position:'absolute',top:-34,left:'50%',transform:'translateX(-50%)',display:'flex',gap:2,background:'var(--sap-text-primary)',borderRadius:6,padding:'3px 4px',boxShadow:'0 4px 12px rgba(0,0,0,0.3)',zIndex:30}} onClick={function(e){e.stopPropagation();}}>
-                    <button onClick={function(e){e.stopPropagation();if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();var idx=els.findIndex(function(x){return x.id===selId;});if(idx>0){var el=els.splice(idx,1)[0];els.unshift(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}}} title="Send to back" style={{background:'transparent',border:'none',color:'var(--sap-text-ghost)',cursor:'pointer',padding:'4px 6px',borderRadius:4,display:'flex'}}><ArrowDown size={14}/></button>
-                    <button onClick={function(e){e.stopPropagation();if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();var idx=els.findIndex(function(x){return x.id===selId;});if(idx>=0&&idx<els.length-1){var el=els.splice(idx,1)[0];els.push(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}}} title="Bring to front" style={{background:'transparent',border:'none',color:'var(--sap-text-ghost)',cursor:'pointer',padding:'4px 6px',borderRadius:4,display:'flex'}}><ArrowUp size={14}/></button>
+                    <button onClick={function(e){e.stopPropagation();if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();var idx=els.findIndex(function(x){return x.id===selId;});if(idx>0){var el=els.splice(idx,1)[0];els.unshift(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}}} title={t('superDeck.sendToBack')} style={{background:'transparent',border:'none',color:'var(--sap-text-ghost)',cursor:'pointer',padding:'4px 6px',borderRadius:4,display:'flex'}}><ArrowDown size={14}/></button>
+                    <button onClick={function(e){e.stopPropagation();if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();var idx=els.findIndex(function(x){return x.id===selId;});if(idx>=0&&idx<els.length-1){var el=els.splice(idx,1)[0];els.push(el);s.elements=els;ns[active]=s;setSlides(ns);mark();}}} title={t('superDeck.bringToFront')} style={{background:'transparent',border:'none',color:'var(--sap-text-ghost)',cursor:'pointer',padding:'4px 6px',borderRadius:4,display:'flex'}}><ArrowUp size={14}/></button>
                     <div style={{width:1,height:20,background:'var(--sap-text-secondary)',margin:'0 2px'}}/>
-                    <button onClick={function(e){e.stopPropagation();delEl();}} title="Delete" style={{background:'transparent',border:'none',color:'#f87171',cursor:'pointer',padding:'4px 6px',borderRadius:4,display:'flex'}}><Trash2 size={14}/></button>
+                    <button onClick={function(e){e.stopPropagation();delEl();}} title={t('superDeck.deleteSlide')} style={{background:'transparent',border:'none',color:'#f87171',cursor:'pointer',padding:'4px 6px',borderRadius:4,display:'flex'}}><Trash2 size={14}/></button>
                   </div>
                 </>}
               </div>;
@@ -476,7 +476,7 @@ export default function SuperDeckEditor() {
               }}
                 onMouseEnter={function(e){e.currentTarget.style.background='var(--sap-purple-pale)';}} onMouseLeave={function(e){e.currentTarget.style.background='var(--sap-bg-elevated)';}}
                 style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'8px',borderRadius:6,border:'1px solid #e2e8f0',background:'var(--sap-bg-elevated)',color:'#334155',fontSize:11,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
-                <ArrowDown size={13}/> Send to back</button>
+                <ArrowDown size={13}/> {t('superDeck.sendToBack')}</button>
               <button onClick={function(e){e.stopPropagation();
                 if(!selId)return;var ns=slides.slice();var s=Object.assign({},ns[active]);var els=s.elements.slice();
                 var idx=els.findIndex(function(x){return x.id===selId;});
@@ -492,7 +492,7 @@ export default function SuperDeckEditor() {
               <div ref={fontDropRef} style={{position:'relative',marginBottom:10}}>
                 <div onClick={function(e){e.stopPropagation();setFontDropOpen(!fontDropOpen);setSizeDropOpen(false);}}
                   style={{display:'flex',alignItems:'center',gap:8,padding:'10px 12px',background:fontDropOpen?'#f5f3ff':'#fff',border:'1.5px solid '+(fontDropOpen?'var(--sap-purple)':'var(--sap-border)'),borderRadius:8,cursor:'pointer',transition:'all 0.15s'}}>
-                  <span style={{width:28,height:28,borderRadius:6,background:'var(--sap-bg-page)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'var(--sap-purple)',fontFamily:(selEl.fontFamily||"'Sora',sans-serif"),flexShrink:0}}>Aa</span>
+                  <span style={{width:28,height:28,borderRadius:6,background:'var(--sap-bg-page)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:700,color:'var(--sap-purple)',fontFamily:(selEl.fontFamily||"'Sora',sans-serif"),flexShrink:0}}>{t('superDeck.fontPreview')}</span>
                   <span style={{fontSize:13,fontWeight:600,color:'var(--sap-text-primary)',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',fontFamily:(selEl.fontFamily||"'Sora',sans-serif")}}>{(selEl.fontFamily||'').split(',')[0].replace(/'/g,'').trim()||'Sora'}</span>
                   <svg style={{flexShrink:0,opacity:0.4,transform:fontDropOpen?'rotate(180deg)':'none',transition:'transform 0.2s'}} width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--sap-text-faint)" strokeWidth="2"><path d="M6 9l6 6 6-6"/></svg>
                 </div>
@@ -503,7 +503,7 @@ export default function SuperDeckEditor() {
                       onMouseEnter={function(e){if(!isActive)e.currentTarget.style.background='var(--sap-bg-elevated)';}}
                       onMouseLeave={function(e){if(!isActive)e.currentTarget.style.background='transparent';}}
                       style={{display:'flex',alignItems:'center',gap:10,padding:'9px 12px',cursor:'pointer',background:isActive?'#f5f3ff':'transparent',borderLeft:isActive?'3px solid #8b5cf6':'3px solid transparent',transition:'background 0.15s'}}>
-                      <span style={{width:26,height:26,borderRadius:5,background:isActive?'var(--sap-purple-pale)':'var(--sap-bg-page)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:isActive?'var(--sap-purple)':'var(--sap-text-muted)',fontFamily:"'"+f+"',sans-serif",flexShrink:0}}>Aa</span>
+                      <span style={{width:26,height:26,borderRadius:5,background:isActive?'var(--sap-purple-pale)':'var(--sap-bg-page)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:12,fontWeight:700,color:isActive?'var(--sap-purple)':'var(--sap-text-muted)',fontFamily:"'"+f+"',sans-serif",flexShrink:0}}>{t('superDeck.fontPreview')}</span>
                       <span style={{fontSize:13,fontWeight:isActive?700:500,color:isActive?'var(--sap-purple)':'var(--sap-text-primary)',fontFamily:"'"+f+"',sans-serif"}}>{f}</span>
                     </div>;
                   })}
@@ -597,7 +597,7 @@ export default function SuperDeckEditor() {
           </div>
 
           {/* ── Layers (always visible) ── */}
-          <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-faint)',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:6}}>Layers</div>
+          <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-faint)',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:6}}>{t('superDeck.layers')}</div>
           {cs.elements.slice().reverse().map(function(el){var isSel=el.id===selId;var label=el.type==='heading'?'H: '+(el.text||'').slice(0,16):el.type==='text'?'T: '+(el.text||'').slice(0,16):el.type==='image'?'Image':el.type==='shape'?'Shape':'?';
             return <div key={el.id} onClick={function(e){e.stopPropagation();setSelId(el.id);}}
               onMouseEnter={function(e){if(!isSel)e.currentTarget.style.background='var(--sap-bg-elevated)';}} onMouseLeave={function(e){if(!isSel)e.currentTarget.style.background=isSel?'var(--sap-purple-pale)':'transparent';}}
@@ -608,7 +608,7 @@ export default function SuperDeckEditor() {
               </span>
             </div>;
           })}
-          {cs.elements.length===0&&<div style={{fontSize:11,color:'var(--sap-text-faint)',fontStyle:'italic',marginBottom:8}}>No elements on this slide</div>}
+          {cs.elements.length===0&&<div style={{fontSize:11,color:'var(--sap-text-faint)',fontStyle:'italic',marginBottom:8}}>{t('superDeck.noElements')}</div>}
 
           <div style={{borderTop:'1px solid #e2e8f0',paddingTop:8,marginTop:8}}>
             <div style={{display:'flex',flexDirection:'column',gap:4}}>

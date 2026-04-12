@@ -53,10 +53,10 @@ export default function SuperMarket() {
   else if (sortBy === 'price-high') filtered.sort(function(a,b) { return (b.price||0)-(a.price||0); });
   else if (sortBy === 'rating') filtered.sort(function(a,b) { return (b.avg_rating||0)-(a.avg_rating||0); });
 
-  if (loading) return <AppLayout title="SuperMarket"><Spin/></AppLayout>;
+  if (loading) return <AppLayout title={t('marketplace.title')}><Spin/></AppLayout>;
 
   return (
-    <AppLayout title="SuperMarket" subtitle="Digital Product Marketplace — Sell & Promote Downloads">
+    <AppLayout title={t('marketplace.title')} subtitle={t('marketplace.subtitle')}>
       {view === 'browse' && <BrowseView products={filtered} allProducts={products} search={search} setSearch={setSearch} category={category} setCategory={setCategory} sortBy={sortBy} setSortBy={setSortBy} onOpen={openDetail} onMyProducts={loadMyProducts} onCreate={function(){navigate('/supermarket/create');}}/>}
       {view === 'detail' && selectedProduct && <ProductDetail product={selectedProduct} onBack={function(){setView('browse');}} currentUserId={currentUserId}/>}
       {view === 'my-products' && <MyProducts products={myProducts} onBack={function(){setView('browse');}} onCreate={function(){navigate('/supermarket/create');}} onReload={loadMyProducts}/>}
@@ -84,7 +84,7 @@ function BrowseView({ products, allProducts, search, setSearch, category, setCat
           <div>
             <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
               <div style={{width:32,height:32,borderRadius:8,background:'rgba(14,165,233,.15)',display:'flex',alignItems:'center',justifyContent:'center'}}><Store size={18} color="var(--sap-accent-light)"/></div>
-              <span style={{fontSize:12,fontWeight:800,letterSpacing:2.5,textTransform:'uppercase'}}><span style={{color:'#fff'}}>Super</span><span style={{color:'var(--sap-accent-light)'}}>{t('marketplace.title')}</span></span>
+              <span style={{fontSize:12,fontWeight:800,letterSpacing:2.5,textTransform:'uppercase'}}><span style={{color:'#fff'}}>{t('marketplace.superLabel')}</span><span style={{color:'var(--sap-accent-light)'}}>{t('marketplace.title')}</span></span>
             </div>
             <h2 style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:900,color:'#fff',margin:'0 0 10px'}}>{t('marketplace.subtitle')}</h2>
             <p style={{fontSize:15,color:'rgba(255,255,255,.6)',margin:'0 0 14px',fontWeight:500,maxWidth:480,lineHeight:1.7}}>{t('marketplace.desc')}</p>
@@ -95,11 +95,11 @@ function BrowseView({ products, allProducts, search, setSearch, category, setCat
             </div>
           </div>
           <div style={{display:'flex',gap:10,alignItems:'center'}}>
-            <StatBox value={allProducts.length} label="Products" color="var(--sap-accent-light)"/>
-            <StatBox value="25%" label="Commission" color="var(--sap-accent)"/>
+            <StatBox value={allProducts.length} label={t('marketplace.productsTab')} color="var(--sap-accent-light)"/>
+            <StatBox value="25%" label={t('marketplace.commissionTab')} color="var(--sap-accent)"/>
             <div style={{display:'flex',flexDirection:'column',gap:6}}>
               <button onClick={onMyProducts} style={{padding:'10px 18px',borderRadius:8,border:'1px solid rgba(14,165,233,.3)',background:'rgba(14,165,233,.08)',color:'var(--sap-accent-light)',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:'inherit'}}>{t('marketplace.myProducts')}</button>
-              <button onClick={onCreate} style={{padding:'10px 18px',borderRadius:8,border:'none',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 10px rgba(14,165,233,.3)'}}>+ Sell Product</button>
+              <button onClick={onCreate} style={{padding:'10px 18px',borderRadius:8,border:'none',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 10px rgba(14,165,233,.3)'}}>{t('marketplace.sellProduct')}</button>
             </div>
           </div>
         </div>
@@ -138,7 +138,7 @@ function BrowseView({ products, allProducts, search, setSearch, category, setCat
           <div style={{fontSize:48,marginBottom:12,opacity:.3}}>📦</div>
           <div style={{fontSize:16,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4}}>{t('marketplace.noProducts')}</div>
           <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:16}}>{t('marketplace.beFirst')}</div>
-          <button onClick={onCreate} style={{padding:'10px 24px',borderRadius:8,border:'none',background:'var(--sap-accent)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>+ Sell a Product</button>
+          <button onClick={onCreate} style={{padding:'10px 24px',borderRadius:8,border:'none',background:'var(--sap-accent)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>{t('marketplace.sellAProduct')}</button>
         </div>
       )}
 
@@ -181,8 +181,8 @@ function ProductCard({ product, onOpen }) {
           {p.compare_price && <span style={{fontSize:10,color:'rgba(255,255,255,.4)',textDecoration:'line-through',marginLeft:4}}>${Math.round(p.compare_price)}</span>}
         </div>
         <div style={{position:'absolute',bottom:10,left:10,display:'flex',gap:3}}>
-          <span style={{fontSize:8,fontWeight:800,padding:'2px 6px',borderRadius:4,background:'rgba(22,163,74,.85)',color:'#fff'}}>50% Creator</span>
-          <span style={{fontSize:8,fontWeight:800,padding:'2px 6px',borderRadius:4,background:'rgba(14,165,233,.85)',color:'#fff'}}>25% You</span>
+          <span style={{fontSize:8,fontWeight:800,padding:'2px 6px',borderRadius:4,background:'rgba(22,163,74,.85)',color:'#fff'}}>{t('marketplace.creatorSplit')}</span>
+          <span style={{fontSize:8,fontWeight:800,padding:'2px 6px',borderRadius:4,background:'rgba(14,165,233,.85)',color:'#fff'}}>{t('marketplace.youSplit')}</span>
         </div>
         {(p.total_sales||0)>5 && <div style={{position:'absolute',top:10,left:10,display:'flex',alignItems:'center',gap:3,background:'rgba(245,158,11,.9)',borderRadius:4,padding:'2px 6px'}}><TrendingUp size={10} color="#fff"/><span style={{fontSize:8,fontWeight:800,color:'#fff'}}>{t('marketplace.hot')}</span></div>}
       </div>
@@ -213,7 +213,7 @@ function ProductDetail({ product, onBack, currentUserId }) {
 
   return (
     <div>
-      <button onClick={onBack} style={{display:'flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'var(--sap-text-muted)',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit',marginBottom:16}}>← Back to SuperMarket</button>
+      <button onClick={onBack} style={{display:'flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'var(--sap-text-muted)',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit',marginBottom:16}}>{t('marketplace.backToMarket')}</button>
       <div style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:20,alignItems:'start'}}>
         <div>
           <div style={{aspectRatio:'16/9',background:'linear-gradient(135deg,#0b1729,#132240)',borderRadius:14,overflow:'hidden',marginBottom:20,display:'flex',alignItems:'center',justifyContent:'center'}}>
@@ -276,7 +276,7 @@ function ProductDetail({ product, onBack, currentUserId }) {
               <div style={{display:'flex',gap:6,marginBottom:10}}>
                 <input value={affLink} readOnly style={{flex:1,padding:'9px 12px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:9,fontFamily:'monospace',color:'var(--sap-text-muted)',background:'var(--sap-bg-input)',outline:'none'}}/>
                 <button onClick={copyLink} style={{display:'flex',alignItems:'center',gap:3,padding:'8px 14px',borderRadius:8,border:'none',cursor:'pointer',background:copied?'var(--sap-green)':'var(--sap-accent)',color:'#fff',fontSize:11,fontWeight:700,fontFamily:'inherit'}}>
-                  {copied ? <><Check size={12}/> Copied</> : <><Copy size={12}/> Copy</>}
+                  {copied ? <><Check size={12}/> {t('marketplace.copiedLabel')}</> : <><Copy size={12}/> {t('common.copyLabel')}</>}
                 </button>
               </div>
             </div>
@@ -313,7 +313,7 @@ function MyProducts({ products, onBack, onCreate, onReload }) {
 
   return (
     <div>
-      <button onClick={onBack} style={{display:'flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'var(--sap-text-muted)',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit',marginBottom:16}}>← Back to SuperMarket</button>
+      <button onClick={onBack} style={{display:'flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'var(--sap-text-muted)',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit',marginBottom:16}}>{t('marketplace.backToMarket')}</button>
       <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
         <div style={{background:'#0c1e4a',padding:'16px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('marketplace.myDigitalProducts')}</div>

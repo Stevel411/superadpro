@@ -226,7 +226,7 @@ export default function MemeGenerator() {
                   <div className="mg-tname">{t.name}</div>
                 </div>
               ))}
-              {vis.length === 0 && <div style={{ gridColumn: '1/-1', padding: 24, textAlign: 'center', fontSize: 13, color: '#7b8594' }}>No templates found</div>}
+              {vis.length === 0 && <div style={{ gridColumn: '1/-1', padding: 24, textAlign: 'center', fontSize: 13, color: '#7b8594' }}>{t('freeMeme.noTemplates')}</div>}
               </div>
             </div>
           </div>
@@ -246,10 +246,10 @@ export default function MemeGenerator() {
             </div>
 
             {/* Style — rich dropdowns */}
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Style</div>
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>{t('freeMeme.styleLabel')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
               <div>
-                <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>Font</div>
+                <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>{t('freeMeme.fontLabel')}</div>
                 <RichDropdown items={FONTS} value={fontId} onChange={setFontId} open={fontOpen} setOpen={v => { setFontOpen(v); setColorOpen(false); }}
                   renderItem={(f, isTrigger) => (
                     <>
@@ -264,7 +264,7 @@ export default function MemeGenerator() {
                 />
               </div>
               <div>
-                <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>Text colour</div>
+                <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>{t('freeMeme.textColour')}</div>
                 <RichDropdown items={COLORS} value={colorId} onChange={setColorId} open={colorOpen} setOpen={v => { setColorOpen(v); setFontOpen(false); }}
                   renderItem={(c, isTrigger) => (
                     <>
@@ -284,7 +284,7 @@ export default function MemeGenerator() {
 
             {/* Size slider */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-              <span style={{ fontSize: 10, color: '#7b8594', fontWeight: 600 }}>Size</span>
+              <span style={{ fontSize: 10, color: '#7b8594', fontWeight: 600 }}>{t('freeMeme.sizeLabel')}</span>
               <input type="range" min="16" max="80" value={fontSize} onChange={e => setFontSize(+e.target.value)} style={{ flex: 1, accentColor: 'var(--sap-accent)' }} />
               <span style={{ fontSize: 11, color: '#fff', fontWeight: 700, minWidth: 32, textAlign: 'right' }}>{fontSize}px</span>
             </div>
@@ -293,8 +293,8 @@ export default function MemeGenerator() {
 
           {/* Earn CTA */}
           <div style={{ padding: '8px 16px 10px', borderTop: '1px solid rgba(0,180,216,0.06)', background: 'rgba(14,165,233,0.03)', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#fff', flex: 1 }}>Earn money online with SuperAdPro</span>
-            <Link to="/earn" style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>See how →</Link>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#fff', flex: 1 }}>{t('freeMeme.earnCtaFull')}</span>
+            <Link to="/earn" style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('freeMeme.seeHowFull')}</Link>
           </div>
         </div>
       </div>

@@ -326,7 +326,7 @@ export default function BannerCreator() {
           )}
 
           {/* Main text */}
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>Main text</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>{t('freeBanner.mainText')}</div>
           <input type="text" value={mainText} onChange={e => setMainText(e.target.value)} placeholder={t("freeBanner.headlinePlaceholder")} style={{ ...inp, marginBottom: 8 }}
             onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
 
@@ -336,7 +336,7 @@ export default function BannerCreator() {
               <input type="range" min="16" max="80" value={mainSize} onChange={e => setMainSize(+e.target.value)} style={{ width: '100%', accentColor: 'var(--sap-accent)' }} />
             </div>
             <div>
-              <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Colour</div>
+              <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>{t('freeBanner.colour')}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 8 }}>
                 <input type="color" value={mainColor} onChange={e => setMainColor(e.target.value)} style={{ width: 20, height: 20, border: 'none', borderRadius: 4, cursor: 'pointer', padding: 0, background: 'none' }} />
                 <span style={{ fontSize: 10, color: '#c5cad1' }}>{mainColor}</span>
@@ -346,7 +346,7 @@ export default function BannerCreator() {
 
           {/* Font */}
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Font</div>
+            <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>{t('freeBanner.fontLabel')}</div>
             <select value={mainFont.id} onChange={e => setMainFont(FONTS.find(f => f.id === e.target.value))}
               style={{ width: '100%', padding: '9px 30px 9px 12px', borderRadius: 10, border: '1px solid #2a3040', background: 'var(--sap-navy-soft)', color: '#fff', fontSize: 12, fontFamily: '"DM Sans",sans-serif', cursor: 'pointer', appearance: 'none', WebkitAppearance: 'none', backgroundImage: chevron, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', outline: 'none' }}>
               {FONTS.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
@@ -354,7 +354,7 @@ export default function BannerCreator() {
           </div>
 
           {/* Subtitle */}
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>Subtitle</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>{t('freeBanner.subtitleLabel')}</div>
           <input type="text" value={subText} onChange={e => setSubText(e.target.value)} placeholder={t("freeBanner.subtitlePlaceholder")} style={{ ...inp, marginBottom: 8 }}
             onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
 
@@ -364,7 +364,7 @@ export default function BannerCreator() {
               <input type="range" min="8" max="48" value={subSize} onChange={e => setSubSize(+e.target.value)} style={{ width: '100%', accentColor: 'var(--sap-accent)' }} />
             </div>
             <div>
-              <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Colour</div>
+              <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>{t('freeBanner.colour')}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 8 }}>
                 <input type="color" value={subColor} onChange={e => setSubColor(e.target.value)} style={{ width: 20, height: 20, border: 'none', borderRadius: 4, cursor: 'pointer', padding: 0, background: 'none' }} />
                 <span style={{ fontSize: 10, color: '#c5cad1' }}>{subColor}</span>
@@ -374,8 +374,8 @@ export default function BannerCreator() {
 
           {/* Bottom CTA */}
           <div style={{ padding: '8px 14px', background: 'rgba(14,165,233,0.03)', borderTop: '1px solid rgba(0,180,216,0.06)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8, marginTop: 'auto' }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#fff', flex: 1 }}>Earn money online with SuperAdPro</span>
-            <Link to="/earn" style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>See how →</Link>
+            <span style={{ fontSize: 11, fontWeight: 700, color: '#fff', flex: 1 }}>{t('freeBanner.earnCta')}</span>
+            <Link to="/earn" style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('freeBanner.seeHow')}</Link>
           </div>
         </div>
       </div>

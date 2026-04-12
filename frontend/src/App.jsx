@@ -88,9 +88,9 @@ class ErrorBoundary extends Component {
     if (this.state.hasError) {
       return (
         <div style={{padding:40,textAlign:'center',fontFamily:'DM Sans,sans-serif'}}>
-          <h2 style={{color:'#dc2626'}}>Something went wrong</h2>
+          <h2 style={{color:'#dc2626'}}>{t('common.somethingWrong')}</h2>
           <p style={{color:'#64748b',marginBottom:16}}>{this.state.error?.message || 'Unknown error'}</p>
-          <button onClick={function(){window.location.reload();}} style={{padding:'10px 20px',borderRadius:8,border:'none',background:'#0ea5e9',color:'#fff',fontSize:14,fontWeight:700,cursor:'pointer'}}>Reload Page</button>
+          <button onClick={function(){window.location.reload();}} style={{padding:'10px 20px',borderRadius:8,border:'none',background:'#0ea5e9',color:'#fff',fontSize:14,fontWeight:700,cursor:'pointer'}}>{t('common.reloadPage')}</button>
         </div>
       );
     }
@@ -168,26 +168,26 @@ function AppRoutes() {
       <Route path="/create-campaign" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />
 
       {/* AI Marketing Tools */}
-      <Route path="/campaign-studio" element={<ProtectedRoute><AiTool title="Campaign Studio" subtitle="AI-powered campaign generator" apiEndpoint="/api/campaign-studio/generate"
+      <Route path="/campaign-studio" element={<ProtectedRoute><AiTool title={t('nav.campaignStudio')} subtitle={t('nav.aiCampaignGen')} apiEndpoint="/api/campaign-studio/generate"
         fields={[{key:'niche',label:'Your Niche',placeholder:'e.g. crypto trading, fitness, real estate'},{key:'audience',label:'Target Audience',placeholder:'e.g. beginners, professionals, women 25-45'},{key:'tone',label:'Tone',type:'select',options:['Professional','Casual','Urgent','Inspirational','Educational']},{key:'goal',label:'Campaign Goal',type:'select',options:['Lead Generation','Sales','Brand Awareness','Recruitment']}]}
         resultLabel="Your Campaign" /></ProtectedRoute>} />
-      <Route path="/niche-finder" element={<ProtectedRoute><AiTool title="Niche Finder" subtitle="Discover profitable niches" apiEndpoint="/api/niche-finder/generate"
+      <Route path="/niche-finder" element={<ProtectedRoute><AiTool title={t('nav.nicheFinder')} subtitle={t('nav.nicheFinderDesc')} apiEndpoint="/api/niche-finder/generate"
         fields={[{key:'interests',label:'Your Interests',placeholder:'e.g. health, technology, finance'},{key:'budget',label:'Budget Range',type:'select',options:['Under $500','$500-$2000','$2000-$5000','$5000+']},{key:'experience',label:'Experience Level',type:'select',options:['Beginner','Intermediate','Advanced']}]}
         resultLabel="Niche Recommendations" /></ProtectedRoute>} />
-      <Route path="/social-post-generator" element={<ProtectedRoute><AiTool title="Social Post Generator" subtitle="AI social media content" apiEndpoint="/api/social-posts/generate"
+      <Route path="/social-post-generator" element={<ProtectedRoute><AiTool title={t('nav.socialPostGen')} subtitle={t('nav.socialPostGenDesc')} apiEndpoint="/api/social-posts/generate"
         fields={[{key:'topic',label:'Topic',placeholder:'What do you want to post about?'},{key:'platform',label:'Platform',type:'select',options:['Facebook','Instagram','X / Twitter','LinkedIn','TikTok']},{key:'tone',label:'Tone',type:'select',options:['Professional','Casual','Funny','Inspirational','Educational']}]}
         resultLabel="Your Social Post" /></ProtectedRoute>} />
-      <Route path="/video-script-generator" element={<ProtectedRoute><AiTool title="Video Script Generator" subtitle="AI video scripts" apiEndpoint="/api/video-scripts/generate"
+      <Route path="/video-script-generator" element={<ProtectedRoute><AiTool title={t('nav.videoScriptGen')} subtitle={t('nav.videoScriptGenDesc')} apiEndpoint="/api/video-scripts/generate"
         fields={[{key:'topic',label:'Video Topic',placeholder:'What is the video about?'},{key:'duration',label:'Target Duration',type:'select',options:['30 seconds','1 minute','2 minutes','5 minutes','10 minutes']},{key:'style',label:'Style',type:'select',options:['Tutorial','Testimonial','Sales Pitch','Educational','Story']}]}
         resultLabel="Your Video Script" /></ProtectedRoute>} />
-      <Route path="/email-swipes" element={<ProtectedRoute><AiTool title="Email Swipes" subtitle="AI email copy generator" apiEndpoint="/api/swipe-file/generate"
+      <Route path="/email-swipes" element={<ProtectedRoute><AiTool title={t('nav.emailSwipes')} subtitle={t('nav.emailSwipesDesc')} apiEndpoint="/api/swipe-file/generate"
         fields={[{key:'product',label:'Product/Service',placeholder:'What are you promoting?'},{key:'audience',label:'Target Audience',placeholder:'Who are you emailing?'},{key:'goal',label:'Email Goal',type:'select',options:['Welcome Sequence','Sales Email','Follow-Up','Re-engagement','Announcement']}]}
         resultLabel="Your Email" /></ProtectedRoute>} />
 
       {/* Info Pages */}
       <Route path="/compensation-plan" element={<ProtectedRoute><CompensationPlan /></ProtectedRoute>} />
       <Route path="/income-disclaimer" element={<ProtectedRoute><IncomeDisclaimer /></ProtectedRoute>} />
-      <Route path="/income-grid-3d" element={<React.Suspense fallback={<div style={{background:'#050d1a',minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#38bdf8',fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:700}}>Loading 3D Grid...</div>}><IncomeGrid3DPage /></React.Suspense>} />
+      <Route path="/income-grid-3d" element={<React.Suspense fallback={<div style={{background:'#050d1a',minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#38bdf8',fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:700}}>{t('common.loading3D')}</div>}><IncomeGrid3DPage /></React.Suspense>} />
       <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
 
       {/* Complex tools — full React pages */}
@@ -213,9 +213,9 @@ function AppRoutes() {
       <Route path="/grid-visualiser" element={<ProtectedRoute><GridVisualiser /></ProtectedRoute>} />
       <Route path="/matrix-visualiser" element={<ProtectedRoute><CreditMatrixVisualiser /></ProtectedRoute>} />
       <Route path="/campaign-analytics" element={<ProtectedRoute><CampaignAnalytics /></ProtectedRoute>} />
-      <Route path="/superscene" element={<React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#080c0e',color:'#22d3ee',fontFamily:'DM Sans,sans-serif'}}>Loading Creative Studio…</div>}><SuperScenePage /></React.Suspense>} />
-      <Route path="/creative-studio" element={<ProtectedRoute><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>Loading Creative Studio…</div>}><CreativeStudio /></React.Suspense></ProtectedRoute>} />
-      <Route path="/content-creator" element={<ProtectedRoute><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>Loading Content Creator…</div>}><ContentCreatorPage /></React.Suspense></ProtectedRoute>} />
+      <Route path="/superscene" element={<React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#080c0e',color:'#22d3ee',fontFamily:'DM Sans,sans-serif'}}>{t('common.loadingCreativeStudio')}</div>}><SuperScenePage /></React.Suspense>} />
+      <Route path="/creative-studio" element={<ProtectedRoute><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>{t('common.loadingCreativeStudio')}</div>}><CreativeStudio /></React.Suspense></ProtectedRoute>} />
+      <Route path="/content-creator" element={<ProtectedRoute><React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#f1f5f9',color:'#8b5cf6',fontFamily:'DM Sans,sans-serif'}}>{t('common.loadingContentCreator')}</div>}><ContentCreatorPage /></React.Suspense></ProtectedRoute>} />
       <Route path="/pro/leads" element={<ProtectedRoute><MyLeads /></ProtectedRoute>} />
       <Route path="/link-tools" element={<ProtectedRoute><LinkTools /></ProtectedRoute>} />
       <Route path="/passup-visualiser" element={<ProtectedRoute><PassupVisualiser /></ProtectedRoute>} />
@@ -270,11 +270,11 @@ function AppRoutes() {
 
 function PlaceholderPage({ title }) {
   return (
-    <AppLayout title={title} subtitle="Migrating to React — coming shortly">
+    <AppLayout title={title} subtitle={t('common.migratingTitle')}>
       <div className="flex flex-col items-center justify-center py-20">
         <div className="text-5xl mb-4">🚧</div>
         <h2 className="font-display text-xl font-extrabold text-slate-800 mb-2">{title}</h2>
-        <p className="text-sm text-slate-500">This page is being migrated to the new interface.</p>
+        <p className="text-sm text-slate-500">{t('common.migratingDesc')}</p>
       </div>
     </AppLayout>
   );

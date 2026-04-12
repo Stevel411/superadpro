@@ -1,4 +1,5 @@
 import { useEditor, EditorContent } from '@tiptap/react';
+import { useTranslation } from 'react-i18next';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import ImageExt from '@tiptap/extension-image';
@@ -133,11 +134,11 @@ export default function RichTextEditor({ content, onChange, placeholder }) {
       {/* Link input popover */}
       {showLinkInput && (
         <div style={{display:'flex',gap:6,padding:'8px 12px',borderBottom:'1px solid #e8ecf2',background:'#fefce8'}}>
-          <input value={linkUrl} onChange={function(e){setLinkUrl(e.target.value);}} placeholder="https://..." autoFocus
+          <input value={linkUrl} onChange={function(e){setLinkUrl(e.target.value);}} placeholder={t('common.urlPlaceholder')} autoFocus
             onKeyDown={function(e){if(e.key==='Enter')addLink();}}
             style={{flex:1,padding:'6px 10px',border:'1px solid #e2e8f0',borderRadius:6,fontSize:12,fontFamily:'inherit',outline:'none'}}/>
-          <button onClick={addLink} style={{padding:'6px 12px',borderRadius:6,border:'none',background:'#8b5cf6',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Add Link</button>
-          <button onClick={function(){setShowLinkInput(false);setLinkUrl('');}} style={{padding:'6px 8px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontSize:11,cursor:'pointer',fontFamily:'inherit'}}>Cancel</button>
+          <button onClick={addLink} style={{padding:'6px 12px',borderRadius:6,border:'none',background:'#8b5cf6',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>{t('common.addLink')}</button>
+          <button onClick={function(){setShowLinkInput(false);setLinkUrl('');}} style={{padding:'6px 8px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontSize:11,cursor:'pointer',fontFamily:'inherit'}}>{t('common.cancel')}</button>
         </div>
       )}
 
@@ -149,12 +150,12 @@ export default function RichTextEditor({ content, onChange, placeholder }) {
             <input type="file" accept="image/*" onChange={handleImageUpload} style={{display:'none'}}/>
           </label>
           <div style={{display:'flex',gap:4,flex:1}}>
-            <input value={imageUrl} onChange={function(e){setImageUrl(e.target.value);}} placeholder="or paste image URL..."
+            <input value={imageUrl} onChange={function(e){setImageUrl(e.target.value);}} placeholder={t('common.imagePlaceholder')}
               onKeyDown={function(e){if(e.key==='Enter')addImage();}}
               style={{flex:1,padding:'6px 10px',border:'1px solid #e2e8f0',borderRadius:6,fontSize:12,fontFamily:'inherit',outline:'none'}}/>
-            <button onClick={addImage} style={{padding:'6px 12px',borderRadius:6,border:'none',background:'#0ea5e9',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>Add</button>
+            <button onClick={addImage} style={{padding:'6px 12px',borderRadius:6,border:'none',background:'#0ea5e9',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>{t('common.addBtn')}</button>
           </div>
-          <button onClick={function(){setShowImageInput(false);setImageUrl('');}} style={{padding:'6px 8px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontSize:11,cursor:'pointer',fontFamily:'inherit'}}>Cancel</button>
+          <button onClick={function(){setShowImageInput(false);setImageUrl('');}} style={{padding:'6px 8px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'#64748b',fontSize:11,cursor:'pointer',fontFamily:'inherit'}}>{t('common.cancel')}</button>
         </div>
       )}
 

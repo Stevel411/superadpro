@@ -76,7 +76,7 @@ export default function TwoFactorLogin() {
         </div>
 
         <div style={styles.logoRow}>
-          <span style={styles.logoText}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span></span>
+          <span style={styles.logoText}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>{t('common.pro')}</span></span>
         </div>
 
         <h1 style={styles.heading}>{t('auth.twoFA')}</h1>

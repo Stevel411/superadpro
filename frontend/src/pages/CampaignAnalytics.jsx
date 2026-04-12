@@ -146,13 +146,13 @@ export default function CampaignAnalytics() {
               {/* Today's views */}
               <div style={{ textAlign: 'center', flexShrink: 0, minWidth: 60 }}>
                 <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-green-bright)' }}>+{c.views_today}</div>
-                <div style={{ fontSize: 10, color: 'var(--sap-text-faint)' }}>today</div>
+                <div style={{ fontSize: 10, color: 'var(--sap-text-faint)' }}>{t('campaignAnalytics.today')}</div>
               </div>
 
               {/* Unique viewers */}
               <div style={{ textAlign: 'center', flexShrink: 0, minWidth: 60 }}>
                 <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-accent)' }}>{c.unique_viewers}</div>
-                <div style={{ fontSize: 10, color: 'var(--sap-text-faint)' }}>unique</div>
+                <div style={{ fontSize: 10, color: 'var(--sap-text-faint)' }}>{t('campaignAnalytics.unique')}</div>
               </div>
 
               {isOpen ? <ChevronUp size={18} color="var(--sap-text-faint)" /> : <ChevronDown size={18} color="var(--sap-text-faint)" />}

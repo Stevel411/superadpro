@@ -58,15 +58,15 @@ export default function CourseEditor() {
     });
   }
 
-  if(loading)return <AppLayout title="Course Editor"><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-purple)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
-  if(!course)return <AppLayout title="Course Editor"><div style={{textAlign:'center',padding:60,color:'var(--sap-text-muted)'}}>{t('courseEditor.courseNotFound')}</div></AppLayout>;
+  if(loading)return <AppLayout title={t('courseEditor.title')}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-purple)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
+  if(!course)return <AppLayout title={t('courseEditor.title')}><div style={{textAlign:'center',padding:60,color:'var(--sap-text-muted)'}}>{t('courseEditor.courseNotFound')}</div></AppLayout>;
 
   var totalLectures=0;var totalDuration=0;var hasPreview=false;
   (course.chapters||[]).forEach(function(ch){(ch.lessons||[]).forEach(function(l){totalLectures++;totalDuration+=l.duration_minutes||0;if(l.is_preview)hasPreview=true;});});
 
   return(
     <AppLayout title={course.title} subtitle={'$'+course.price+' · '+course.status}>
-      <Link to="/courses" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'var(--sap-text-muted)',textDecoration:'none',marginBottom:16}}>← Back to Courses</Link>
+      <Link to="/courses" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'var(--sap-text-muted)',textDecoration:'none',marginBottom:16}}>{t('courseEditor.backToCourses')}</Link>
 
       {toast&&<div style={{padding:'10px 16px',borderRadius:10,marginBottom:14,fontSize:13,fontWeight:700,background:toast.type==='ok'?'var(--sap-green-bg-mid)':'var(--sap-red-bg)',color:toast.type==='ok'?'var(--sap-green)':'var(--sap-red)',display:'flex',alignItems:'center',gap:6}}>{toast.type==='ok'?<CheckCircle size={14}/>:<AlertTriangle size={14}/>}{toast.msg}</div>}
 
@@ -103,7 +103,7 @@ export default function CourseEditor() {
               <div style={{fontSize:48,marginBottom:10,opacity:.2}}>📚</div>
               <div style={{fontSize:16,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:4}}>{t('courseEditor.noSections')}</div>
               <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:16}}>{t('courseEditor.startBuilding')}</div>
-              <button onClick={addSection} style={{padding:'10px 24px',borderRadius:8,border:'none',background:'var(--sap-purple)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>+ Add First Section</button>
+              <button onClick={addSection} style={{padding:'10px 24px',borderRadius:8,border:'none',background:'var(--sap-purple)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>{t('courseEditor.addFirstSection')}</button>
             </div>
           ):(course.chapters||[]).map(function(section,sIdx){
             var isOpen=expandedSection===section.id;
@@ -153,7 +153,7 @@ export default function CourseEditor() {
                                 <div style={{display:'flex',gap:6,marginTop:2}}>
                                   <span style={{fontSize:9,color:'var(--sap-text-muted)',textTransform:'capitalize'}}>{lecture.content_type}</span>
                                   {lecture.duration_minutes>0&&<span style={{fontSize:9,color:'var(--sap-text-muted)'}}>· {lecture.duration_minutes}m</span>}
-                                  {lecture.video_url&&<span style={{fontSize:9,color:'var(--sap-accent)'}}>· Video linked</span>}
+                                  {lecture.video_url&&<span style={{fontSize:9,color:'var(--sap-accent)'}}>{t('courseEditor.videoLinked')}</span>}
                                 </div>
                               </div>
                             </div>
@@ -222,9 +222,9 @@ export default function CourseEditor() {
               )}
 
               {course.status==='published'?(
-                <div style={{textAlign:'center',padding:'12px',borderRadius:10,background:'var(--sap-green-bg-mid)'}}><span style={{fontSize:14,fontWeight:800,color:'var(--sap-green)'}}>✅ Published & Live</span></div>
+                <div style={{textAlign:'center',padding:'12px',borderRadius:10,background:'var(--sap-green-bg-mid)'}}><span style={{fontSize:14,fontWeight:800,color:'var(--sap-green)'}}>{t('courseEditor.publishedLive')}</span></div>
               ):course.status==='pending_review'?(
-                <div style={{textAlign:'center',padding:'12px',borderRadius:10,background:'var(--sap-amber-bg)'}}><span style={{fontSize:14,fontWeight:800,color:'var(--sap-amber)'}}>⏳ Under Review</span></div>
+                <div style={{textAlign:'center',padding:'12px',borderRadius:10,background:'var(--sap-amber-bg)'}}><span style={{fontSize:14,fontWeight:800,color:'var(--sap-amber)'}}>{t('courseEditor.underReview')}</span></div>
               ):(
                 <button onClick={submitForReview} disabled={submitting}
                   style={{width:'100%',display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:'13px',borderRadius:10,border:'none',
@@ -239,9 +239,9 @@ export default function CourseEditor() {
 
           {/* Earnings */}
           <div style={{background:'linear-gradient(135deg,#f5f3ff,#ede9fe)',border:'1px solid #ddd6fe',borderRadius:12,padding:'14px 16px'}}>
-            <div style={{fontSize:11,fontWeight:800,color:'var(--sap-purple)',marginBottom:4}}>💰 100% Commissions</div>
+            <div style={{fontSize:11,fontWeight:800,color:'var(--sap-purple)',marginBottom:4}}>{t('courseEditor.fullCommissions')}</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:900,color:'var(--sap-purple)'}}>${parseFloat(course.price||0).toFixed(0)}</div>
-            <div style={{fontSize:10,color:'var(--sap-text-muted)',marginTop:2}}>per kept sale · No platform fees</div>
+            <div style={{fontSize:10,color:'var(--sap-text-muted)',marginTop:2}}>{t('courseEditor.perKeptSale')}</div>
           </div>
 
           {/* Tips */}
@@ -304,7 +304,7 @@ function LectureEditor({lecture, onSave, onReload}){
           <div style={{display:'flex',alignItems:'center',gap:4}}>
             <input type="number" min="0" value={duration} onChange={function(e){setDuration(e.target.value);}}
               style={{width:60,padding:'10px 8px',border:'2px solid #e8ecf2',borderRadius:10,fontSize:14,fontWeight:700,fontFamily:'Sora,sans-serif',outline:'none',textAlign:'center',background:'#fff'}}/>
-            <span style={{fontSize:11,color:'var(--sap-text-muted)'}}>min</span>
+            <span style={{fontSize:11,color:'var(--sap-text-muted)'}}>{t('courseEditor.minLabel')}</span>
           </div>
         </div>
         <label style={{display:'flex',alignItems:'center',gap:6,cursor:'pointer',fontSize:12,fontWeight:600,padding:'10px 14px',borderRadius:10,
@@ -345,14 +345,14 @@ function LectureEditor({lecture, onSave, onReload}){
       {/* PDF content */}
       {contentType==='pdf'&&(
         <div style={{marginBottom:16}}>
-          <label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>PDF File</label>
+          <label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('courseEditor.pdfFile')}</label>
           <div style={{display:'flex',gap:8}}>
             <label style={{display:'flex',alignItems:'center',gap:6,padding:'10px 16px',borderRadius:10,border:'2px solid #e8ecf2',background:'#fff',cursor:'pointer',fontSize:12,fontWeight:600,color:'var(--sap-text-muted)'}}
               onMouseEnter={function(e){e.currentTarget.style.borderColor='var(--sap-amber)';}} onMouseLeave={function(e){e.currentTarget.style.borderColor='var(--sap-border-light)';}}>
               <Upload size={14}/> Upload PDF
               <input type="file" accept=".pdf" onChange={function(e){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(ev){setPdfUrl(ev.target.result);};r.readAsDataURL(f);}} style={{display:'none'}}/>
             </label>
-            {pdfUrl&&<span style={{fontSize:11,color:'var(--sap-amber)',fontWeight:700,display:'flex',alignItems:'center',gap:4}}><CheckCircle size={12}/>PDF attached</span>}
+            {pdfUrl&&<span style={{fontSize:11,color:'var(--sap-amber)',fontWeight:700,display:'flex',alignItems:'center',gap:4}}><CheckCircle size={12}/>{t('courseEditor.pdfAttached')}</span>}
           </div>
         </div>
       )}

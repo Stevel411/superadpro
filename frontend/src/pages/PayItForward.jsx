@@ -65,7 +65,7 @@ export default function PayItForward() {
   }
 
   if (loading) return (
-    <AppLayout title="Pay It Forward">
+    <AppLayout title={t('payItForward.title')}>
       <div style={{ display:'flex', justifyContent:'center', padding:80 }}>
         <div style={{ width:40, height:40, border:'3px solid #e5e7eb', borderTopColor:'var(--sap-pink)', borderRadius:'50%', animation:'spin .8s linear infinite' }}/>
         <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
@@ -141,7 +141,7 @@ export default function PayItForward() {
               <input value={newLink} readOnly style={{ flex:1, padding:'10px 14px', border:'1px solid #e2e8f0', borderRadius:8, fontSize:13, fontFamily:'inherit', background:'#fff' }}/>
               <button onClick={function() { copyLink(newLink); }}
                 style={{ padding:'10px 16px', borderRadius:8, border:'none', background: copied === newLink ? 'var(--sap-green-mid)' : 'var(--sap-purple)', color:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:700, display:'flex', alignItems:'center', gap:4 }}>
-                {copied === newLink ? <><Check size={14}/> Copied</> : <><Copy size={14}/> Copy</>}
+                {copied === newLink ? <><Check size={14}/> {t('payItForward.copiedLabel')}</> : <><Copy size={14}/> {t('payItForward.copyBtn')}</>}
               </button>
             </div>
           )}
@@ -249,7 +249,7 @@ export default function PayItForward() {
                 {!isClaimed && (
                   <button onClick={function() { copyLink(v.link); }}
                     style={{ padding:'6px 12px', borderRadius:6, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', display:'flex', alignItems:'center', gap:4 }}>
-                    {copied === v.link ? <><Check size={12}/> Copied</> : <><Copy size={12}/> Copy link</>}
+                    {copied === v.link ? <><Check size={12}/> {t('payItForward.copiedLabel')}</> : <><Copy size={12}/> {t('payItForward.copyLinkBtn')}</>}
                   </button>
                 )}
               </div>
@@ -260,7 +260,7 @@ export default function PayItForward() {
 
       {/* How it works */}
       <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:'20px 24px' }}>
-        <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:16 }}>How Pay It Forward works</div>
+        <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:16 }}>{t('payItForward.howItWorksTitle')}</div>
         <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
           {[
             { n:'1', color:'var(--sap-pink)', bg:'#fce7f3', title:'You gift a membership', desc:'Pay $20 from your wallet or with crypto to create a gift voucher with a unique shareable link.' },

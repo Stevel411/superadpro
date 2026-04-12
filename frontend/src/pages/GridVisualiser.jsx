@@ -64,7 +64,7 @@ export default function GridVisualiser() {
         {/* Hero */}
         <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:18, padding:'32px 36px', marginBottom:24, position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:-50, right:-50, width:180, height:180, borderRadius:'50%', background:'rgba(255,255,255,.05)', pointerEvents:'none' }}/>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:900, color:'#fff', marginBottom:6 }}>Income Grid</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:900, color:'#fff', marginBottom:6 }}>{t('visualiser.incomeGrid')}</div>
           <div style={{ fontSize:14, color:'rgba(255,255,255,.65)' }}>Your 8×8 grid fills as your team grows. Earn commissions on every position.</div>
         </div>
 

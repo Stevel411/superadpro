@@ -117,7 +117,7 @@ export default function Account() {
               <div style={{position:'absolute',bottom:-2,right:-2,width:20,height:20,borderRadius:'50%',background:'var(--sap-accent)',border:'2px solid #fff',display:'flex',alignItems:'center',justifyContent:'center'}}><span style={{fontSize:11,color:'#fff',fontWeight:800}}>+</span></div>
               <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{display:'none'}}/>
               </label>
-              {avatarUrl && <button onClick={removeAvatar} title="Remove photo" style={{position:'absolute',top:-4,right:-4,width:18,height:18,borderRadius:'50%',background:'var(--sap-red-bright)',border:'2px solid #fff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:10,color:'#fff',fontWeight:800,lineHeight:1,padding:0,zIndex:2}}>✕</button>}
+              {avatarUrl && <button onClick={removeAvatar} title={t('account.removePhoto')} style={{position:'absolute',top:-4,right:-4,width:18,height:18,borderRadius:'50%',background:'var(--sap-red-bright)',border:'2px solid #fff',display:'flex',alignItems:'center',justifyContent:'center',cursor:'pointer',fontSize:10,color:'#fff',fontWeight:800,lineHeight:1,padding:0,zIndex:2}}>✕</button>}
             </div>
             <div>
               <div style={{fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>{user.first_name||''} {user.last_name||''}</div>

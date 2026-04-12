@@ -65,7 +65,7 @@ export default function InlineToolbar({ visible, position, onCommand }) {
       {/* Font family */}
       <select onMouseDown={e => e.stopPropagation()} onChange={e => cmd('fontName', e.target.value)} defaultValue=""
         style={{height:28,border:'1px solid #e2e8f0',borderRadius:6,fontSize:10,fontWeight:600,color:'var(--sap-text-secondary)',background:'#fff',padding:'0 4px',maxWidth:90,cursor:'pointer',outline:'none'}}>
-        <option value="" disabled>Font</option>
+        <option value="" disabled>{t('superPagesEditor.font')}</option>
         {FONTS.map(f => <option key={f.value} value={f.value} style={{fontFamily:f.value}}>{f.label}</option>)}
       </select>
 
@@ -75,22 +75,22 @@ export default function InlineToolbar({ visible, position, onCommand }) {
           if (onCommand) onCommand();
         }, 10); }} defaultValue=""
         style={{height:28,border:'1px solid #e2e8f0',borderRadius:6,fontSize:10,fontWeight:600,color:'var(--sap-text-secondary)',background:'#fff',padding:'0 4px',width:52,cursor:'pointer',outline:'none'}}>
-        <option value="" disabled>Size</option>
+        <option value="" disabled>{t('superPagesEditor.size')}</option>
         {FONT_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
       </select>
 
       <Sep/>
 
-      <TB onClick={() => cmd('bold')} title="Bold"><Bold size={14}/></TB>
-      <TB onClick={() => cmd('italic')} title="Italic"><Italic size={14}/></TB>
-      <TB onClick={() => cmd('underline')} title="Underline"><Underline size={14}/></TB>
-      <TB onClick={() => cmd('strikethrough')} title="Strikethrough"><Strikethrough size={14}/></TB>
+      <TB onClick={() => cmd('bold')} title={t('superPagesEditor.bold')}><Bold size={14}/></TB>
+      <TB onClick={() => cmd('italic')} title={t('superPagesEditor.italic')}><Italic size={14}/></TB>
+      <TB onClick={() => cmd('underline')} title={t('superPagesEditor.underline')}><Underline size={14}/></TB>
+      <TB onClick={() => cmd('strikethrough')} title={t('superPagesEditor.strikethrough')}><Strikethrough size={14}/></TB>
 
       <Sep/>
 
       {/* Text colour */}
       <div style={{position:'relative'}}>
-        <TB onClick={() => openPicker(colorRef)} title="Text Colour">
+        <TB onClick={() => openPicker(colorRef)} title={t('superPagesEditor.textColourTitle')}>
           <span style={{fontSize:10,fontWeight:800,color:'var(--sap-text-secondary)'}}>A</span>
           <div style={{position:'absolute',bottom:3,left:7,right:7,height:3,background:'var(--sap-red-bright)',borderRadius:1}}/>
         </TB>
@@ -101,7 +101,7 @@ export default function InlineToolbar({ visible, position, onCommand }) {
 
       {/* Background highlight */}
       <div style={{position:'relative'}}>
-        <TB onClick={() => openPicker(bgRef)} title="Background Highlight">
+        <TB onClick={() => openPicker(bgRef)} title={t('superPagesEditor.backgroundHighlight')}>
           <span style={{fontSize:10,fontWeight:800,color:'var(--sap-text-secondary)',background:'var(--sap-amber-bright)',padding:'1px 4px',borderRadius:3}}>A</span>
         </TB>
         <input ref={bgRef} type="color" defaultValue="var(--sap-amber-bright)"
@@ -111,13 +111,13 @@ export default function InlineToolbar({ visible, position, onCommand }) {
 
       <Sep/>
 
-      <TB onClick={() => cmd('justifyLeft')} title="Align Left"><AlignLeft size={14}/></TB>
-      <TB onClick={() => cmd('justifyCenter')} title="Align Centre"><AlignCenter size={14}/></TB>
-      <TB onClick={() => cmd('justifyRight')} title="Align Right"><AlignRight size={14}/></TB>
+      <TB onClick={() => cmd('justifyLeft')} title={t('superPagesEditor.alignLeft')}><AlignLeft size={14}/></TB>
+      <TB onClick={() => cmd('justifyCenter')} title={t('superPagesEditor.alignCentre')}><AlignCenter size={14}/></TB>
+      <TB onClick={() => cmd('justifyRight')} title={t('superPagesEditor.alignRight')}><AlignRight size={14}/></TB>
 
       <Sep/>
 
-      <TB onClick={() => cmd('removeFormat')} title="Clear Formatting">
+      <TB onClick={() => cmd('removeFormat')} title={t('superPagesEditor.clearFormatting')}>
         <span style={{fontSize:11,fontWeight:800,color:'var(--sap-red)'}}>✕</span>
       </TB>
     </div>

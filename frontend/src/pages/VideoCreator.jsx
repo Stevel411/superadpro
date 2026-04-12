@@ -174,7 +174,7 @@ function StyledSelect({ label, items, value, onChange, renderLabel, renderDesc, 
 export default function VideoCreator() {
   var { t } = useTranslation();
   return (
-    <AppLayout title="AI Video Creator" subtitle="One-click marketing videos">
+    <AppLayout title={t('videoCreator.aiVideoCreator')} subtitle={t('videoCreator.oneClick')}>
       <VideoCreatorContent />
     </AppLayout>
   );
@@ -302,7 +302,7 @@ export function VideoCreatorContent() {
           <div className="cs-card">
             <div className="cs-lbl">{t('videoCreator.whatsYourVideo')}</div>
             <textarea className="cs-ta" rows={4} value={prompt} onChange={function(e) { setPrompt(e.target.value); }}
-              placeholder="e.g. Create a 60-second video promoting my online fitness coaching business targeting women aged 25-40..."/>
+              placeholder={t('videoCreator.promptPlaceholderFull')}/>
             <div className="cs-ta-foot">
               <span className="cs-ta-ai">✦ Be specific for best results</span>
               <span className="cs-ta-ct">{prompt.length}</span>
@@ -323,7 +323,7 @@ export function VideoCreatorContent() {
               </div>
             </div>
             <div style={{ marginTop: 12 }}>
-              <div className="cs-lbl">Your Images <span className="cs-lbl-badge">Optional</span></div>
+              <div className="cs-lbl">Your Images <span className="cs-lbl-badge">{t('videoCreator.optionalLabel')}</span></div>
               <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} style={{ display: 'none' }}/>
               <div className="cs-upload" style={{ padding: 14 }} onClick={function() { if (!uploading && fileInputRef.current) fileInputRef.current.click(); }}>
                 <div className="cs-upload-text">{uploading ? 'Uploading...' : uploadedImages.length > 0 ? uploadedImages.length + ' images uploaded \u2014 click to add more' : '+ Upload your own images (optional)'}</div>
@@ -342,10 +342,10 @@ export function VideoCreatorContent() {
 
         <div className="cs-card" style={{ marginBottom: 16 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 12 }}>
-            <StyledSelect label="Style" items={STYLES} value={style} onChange={setStyle} renderLabel={function(s) { return s.label; }} renderDesc={function(s) { return s.desc; }} colorKey="color"/>
-            <StyledSelect label="Duration" items={DURATIONS} value={duration} onChange={setDuration} renderLabel={function(d) { return d.label; }} renderDesc={function(d) { return d.desc; }}/>
-            <StyledSelect label="Aspect Ratio" items={ASPECTS} value={aspect} onChange={setAspect} renderLabel={function(a) { return a.label; }} renderDesc={function(a) { return a.desc; }}/>
-            <StyledSelect label="Voiceover" items={VOICES} value={voice} onChange={setVoice} renderLabel={function(v) { return v.label; }} renderDesc={function(v) { return v.desc.split(' — ')[0]; }} colorKey="color"/>
+            <StyledSelect label={t('videoCreator.styleOption')} items={STYLES} value={style} onChange={setStyle} renderLabel={function(s) { return s.label; }} renderDesc={function(s) { return s.desc; }} colorKey="color"/>
+            <StyledSelect label={t('videoCreator.durationOption')} items={DURATIONS} value={duration} onChange={setDuration} renderLabel={function(d) { return d.label; }} renderDesc={function(d) { return d.desc; }}/>
+            <StyledSelect label={t('videoCreator.aspectRatio')} items={ASPECTS} value={aspect} onChange={setAspect} renderLabel={function(a) { return a.label; }} renderDesc={function(a) { return a.desc; }}/>
+            <StyledSelect label={t('videoCreator.voiceoverOption')} items={VOICES} value={voice} onChange={setVoice} renderLabel={function(v) { return v.label; }} renderDesc={function(v) { return v.desc.split(' — ')[0]; }} colorKey="color"/>
           </div>
         </div>
       </div>

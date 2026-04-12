@@ -146,7 +146,7 @@ export default function BannerMaker() {
 
   if (!isPro) {
     return (
-      <AppLayout title="Banner Maker" subtitle="Design professional banners">
+      <AppLayout title={t('bannerMaker.title')} subtitle={t('bannerMaker.designBanners')}>
         <div style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center', padding: '60px 20px' }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>🎨</div>
           <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 24, fontWeight: 900, marginBottom: 8 }}>{t('bannerMaker.proFeature')}</h2>
@@ -158,7 +158,7 @@ export default function BannerMaker() {
   }
 
   return (
-    <AppLayout title="Banner Maker" subtitle="Drag elements onto the canvas to design your banner">
+    <AppLayout title={t('bannerMaker.title')} subtitle={t('bannerMaker.dragElements')}>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
         {/* ═══ TOP TOOLBAR ═══ */}
@@ -172,12 +172,12 @@ export default function BannerMaker() {
           <div style={{ width: 1, height: 24, background: 'var(--sap-border)' }} />
 
           {/* Add elements */}
-          <button style={btnS} onClick={addHeading}>🔤 Heading</button>
-          <button style={btnS} onClick={addBody}>📝 Text</button>
-          <button style={btnS} onClick={addButton}>☐ Button</button>
-          <button style={btnS} onClick={addRect}>▬ Rect</button>
-          <button style={btnS} onClick={addCircle}>● Circle</button>
-          <button style={btnS} onClick={addLine}>— Line</button>
+          <button style={btnS} onClick={addHeading}>{t('bannerMaker.heading')}</button>
+          <button style={btnS} onClick={addBody}>{t('bannerMaker.text')}</button>
+          <button style={btnS} onClick={addButton}>{t('bannerMaker.button')}</button>
+          <button style={btnS} onClick={addRect}>{t('bannerMaker.rect')}</button>
+          <button style={btnS} onClick={addCircle}>{t('bannerMaker.circle')}</button>
+          <button style={btnS} onClick={addLine}>{t('bannerMaker.line')}</button>
           <label style={Object.assign({}, btnS, { cursor: 'pointer' })}>
             📁 Image
             <input type="file" accept="image/*" onChange={uploadImg} style={{ display: 'none' }} />
@@ -199,7 +199,7 @@ export default function BannerMaker() {
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-faint)' }}>BG</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-faint)' }}>{t('bannerMaker.bg')}</span>
             <input type="color" value={bgColor} onChange={function(e) { changeBg(e.target.value); }}
               style={{ width: 32, height: 32, border: '2px solid #e2e8f0', borderRadius: 8, cursor: 'pointer', padding: 0 }} />
           </div>
@@ -209,18 +209,18 @@ export default function BannerMaker() {
           {/* Layer controls (only when selected) */}
           {sel && (
             <>
-              <button style={btnS} onClick={dup} title="Duplicate">⧉</button>
-              <button style={btnS} onClick={fwd} title="Bring Forward">↑</button>
-              <button style={btnS} onClick={bwd} title="Send Backward">↓</button>
-              <button style={Object.assign({}, btnS, { color: 'var(--sap-red)', borderColor: 'var(--sap-red-bg-mid)' })} onClick={del} title="Delete">🗑</button>
+              <button style={btnS} onClick={dup} title={t('bannerMaker.duplicateEl')}>⧉</button>
+              <button style={btnS} onClick={fwd} title={t('bannerMaker.bringForward')}>↑</button>
+              <button style={btnS} onClick={bwd} title={t('bannerMaker.sendBackward')}>↓</button>
+              <button style={Object.assign({}, btnS, { color: 'var(--sap-red)', borderColor: 'var(--sap-red-bg-mid)' })} onClick={del} title={t('bannerMaker.deleteEl')}>🗑</button>
               <div style={{ width: 1, height: 24, background: 'var(--sap-border)' }} />
             </>
           )}
 
           {/* Export */}
-          <button style={Object.assign({}, btnS, { background: 'var(--sap-accent)', color: '#fff', borderColor: 'var(--sap-accent)' })} onClick={exportPNG}>💾 PNG</button>
-          <button style={Object.assign({}, btnS, { background: 'var(--sap-purple)', color: '#fff', borderColor: 'var(--sap-purple)' })} onClick={exportHTML}>📄 HTML</button>
-          <button style={btnS} onClick={copySVG}>📋 Code</button>
+          <button style={Object.assign({}, btnS, { background: 'var(--sap-accent)', color: '#fff', borderColor: 'var(--sap-accent)' })} onClick={exportPNG}>{t('bannerMaker.savePng')}</button>
+          <button style={Object.assign({}, btnS, { background: 'var(--sap-purple)', color: '#fff', borderColor: 'var(--sap-purple)' })} onClick={exportHTML}>{t('bannerMaker.saveHtml')}</button>
+          <button style={btnS} onClick={copySVG}>{t('bannerMaker.copyCode')}</button>
         </div>
 
         {/* ═══ MAIN AREA ═══ */}
@@ -313,14 +313,14 @@ export default function BannerMaker() {
               ) : (
                 <div style={{ textAlign: 'center', padding: 12, color: 'var(--sap-text-faint)' }}>
                   <div style={{ fontSize: 18, marginBottom: 6, opacity: .3 }}>👆</div>
-                  <div style={{ fontSize: 11, lineHeight: 1.5 }}>Click an element on the canvas to see its properties</div>
+                  <div style={{ fontSize: 11, lineHeight: 1.5 }}>{t('bannerMaker.clickElement')}</div>
                 </div>
               )}
             </div>
 
             {/* Quick Gradient BG */}
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 10 }}>Quick Backgrounds</div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 10 }}>{t('bannerMaker.quickBackgrounds')}</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }}>
                 {[
                   ['#667eea','#764ba2'], ['var(--sap-text-primary)','#334155'], ['var(--sap-green-dark)','#34d399'],
@@ -335,10 +335,10 @@ export default function BannerMaker() {
 
             {/* Image URL */}
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 10 }}>Add Image URL</div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 10 }}>{t('bannerMaker.addImageUrl')}</div>
               <div style={{ display: 'flex', gap: 4 }}>
-                <input id="bm-url" style={{ flex: 1, padding: '7px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, fontFamily: 'inherit' }} placeholder="https://..." />
-                <button style={Object.assign({}, btnS, { fontSize: 11 })} onClick={addImgUrl}>Add</button>
+                <input id="bm-url" style={{ flex: 1, padding: '7px 10px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, fontFamily: 'inherit' }} placeholder={t('common.urlPlaceholder')} />
+                <button style={Object.assign({}, btnS, { fontSize: 11 })} onClick={addImgUrl}>{t('bannerMaker.add')}</button>
               </div>
             </div>
 

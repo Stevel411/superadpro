@@ -333,7 +333,7 @@ export default function PassiveIncome({ d }) {
             <Bar pct={closestGrid.pct} gradient="linear-gradient(90deg,#10b981,#34d399,#6ee7b7)" height={10}/>
             <div style={{ display:'flex', justifyContent:'space-between', fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:5 }}>
               <span style={{ color:'#34d399', fontWeight:700 }}>{closestGrid.filled} filled</span>
-              <span>64 needed</span>
+              <span>{t('passiveIncome.needed64')}</span>
             </div>
           </div>
           <div style={{ textAlign:'right', flexShrink:0 }}>
@@ -427,7 +427,7 @@ export default function PassiveIncome({ d }) {
       {/* ── Activity Feed ── */}
       <div style={S.activityCard}>
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4 }}>
-          <div style={S.sectionTitle}>💸 Earnings While You Were Away</div>
+          <div style={S.sectionTitle}>{t('passiveIncome.earningsAway')}</div>
         </div>
         <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)', marginBottom:16 }}>{t("passiveIncome.networkGenerated")}</div>
 
@@ -459,7 +459,7 @@ export default function PassiveIncome({ d }) {
           <div style={{ textAlign:'center', padding:'32px 0', color:'rgba(255,255,255,0.2)' }}>
             <div style={{ fontSize:36, marginBottom:8 }}>💤</div>
             <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.4)', marginBottom:4 }}>{t('passiveIncome.noRecurring')}</div>
-            <div style={{ fontSize:12, color:'rgba(255,255,255,0.25)' }}>Build your team and activate a campaign tier to start earning on autopilot</div>
+            <div style={{ fontSize:12, color:'rgba(255,255,255,0.25)' }}>{t('passiveIncome.buildTeam')}</div>
           </div>
         )}
       </div>

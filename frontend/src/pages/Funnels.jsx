@@ -188,21 +188,21 @@ export default function Funnels() {
                   <div style={{padding:'8px 14px',display:'flex',gap:12,borderBottom:'1px solid #f1f3f7'}}>
                     <div style={{display:'flex',alignItems:'center',gap:4}}><Eye size={12} color="var(--sap-text-muted)"/><span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.views||0}</span><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>{t('superPages.viewsLabel')}</span></div>
                     <div style={{display:'flex',alignItems:'center',gap:4}}><FileText size={12} color="var(--sap-text-muted)"/><span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.leads_captured||0}</span><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>{t('superPages.leadsLabel')}</span></div>
-                    {p.is_ai_generated&&<span style={{fontSize:8,fontWeight:700,color:'var(--sap-indigo)',background:'rgba(99,102,241,.08)',padding:'2px 5px',borderRadius:4,marginLeft:'auto'}}>AI</span>}
+                    {p.is_ai_generated&&<span style={{fontSize:8,fontWeight:700,color:'var(--sap-indigo)',background:'rgba(99,102,241,.08)',padding:'2px 5px',borderRadius:4,marginLeft:'auto'}}>{t('superPages.aiLabel')}</span>}
                   </div>
                   <div style={{padding:'8px 14px',display:'flex',gap:5}}>
                     {confirmDelete===p.id ? (
                       <>
                         <div style={{flex:1,fontSize:11,fontWeight:700,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>{t('superPages.deletePageConfirm')}</div>
                         <button onClick={()=>deletePage(p.id)} style={{padding:'7px 14px',borderRadius:6,border:'none',background:'var(--sap-red)',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer'}}>{t('superPages.yesDelete')}</button>
-                        <button onClick={()=>setConfirmDelete(null)} style={{padding:'7px 14px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-text-muted)',fontSize:11,fontWeight:700,cursor:'pointer'}}>No</button>
+                        <button onClick={()=>setConfirmDelete(null)} style={{padding:'7px 14px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-text-muted)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{t('superPages.noLabel')}</button>
                       </>
                     ) : (
                       <>
-                        <a href={`/pro/funnel/${p.id}/edit`} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:11,fontWeight:700,textDecoration:'none',background:'var(--sap-accent)',color:'#fff'}}><Pencil size={11}/> Edit</a>
-                        {p.status==='published'&&p.slug&&(<a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:11,fontWeight:700,textDecoration:'none',background:'var(--sap-bg-input)',color:'var(--sap-text-primary)',border:'1px solid #e8ecf2'}}><ExternalLink size={11}/> View</a>)}
-                        <button onClick={()=>duplicatePage(p.id)} title="Duplicate" style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #e8ecf2',background:'var(--sap-bg-input)',cursor:'pointer'}}><Copy size={12} color="var(--sap-text-muted)"/></button>
-                        <button onClick={()=>setConfirmDelete(p.id)} title="Delete" style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer'}}><Trash2 size={12} color="var(--sap-red)"/></button>
+                        <a href={`/pro/funnel/${p.id}/edit`} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:11,fontWeight:700,textDecoration:'none',background:'var(--sap-accent)',color:'#fff'}}><Pencil size={11}/> {t('superPages.editBtn')}</a>
+                        {p.status==='published'&&p.slug&&(<a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:11,fontWeight:700,textDecoration:'none',background:'var(--sap-bg-input)',color:'var(--sap-text-primary)',border:'1px solid #e8ecf2'}}><ExternalLink size={11}/> {t('superPages.viewBtn')}</a>)}
+                        <button onClick={()=>duplicatePage(p.id)} title={t('superPages.duplicatePage')} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #e8ecf2',background:'var(--sap-bg-input)',cursor:'pointer'}}><Copy size={12} color="var(--sap-text-muted)"/></button>
+                        <button onClick={()=>setConfirmDelete(p.id)} title={t('superPages.deletePage')} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer'}}><Trash2 size={12} color="var(--sap-red)"/></button>
                       </>
                     )}
                   </div>
@@ -228,19 +228,19 @@ export default function Funnels() {
             </div>
             <p style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:20}}>{t("superPages.aiWizardIntro")}</p>
 
-            <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>1. What's your niche or industry?</label>
-            <input value={aiForm.niche} onChange={e=>setAiForm(p=>({...p,niche:e.target.value}))} placeholder="e.g. Forex trading, fitness coaching, crypto..."
+            <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>{t('superPages.nicheQuestionFull')}</label>
+            <input value={aiForm.niche} onChange={e=>setAiForm(p=>({...p,niche:e.target.value}))} placeholder={t('superPages.nichePlaceholderFull')}
               style={{width:'100%',padding:'10px 14px',border:'2px solid #e2e8f0',borderRadius:10,fontSize:13,outline:'none',marginBottom:14,boxSizing:'border-box'}}/>
 
-            <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>2. Who's your target audience?</label>
-            <input value={aiForm.audience} onChange={e=>setAiForm(p=>({...p,audience:e.target.value}))} placeholder="e.g. Beginners, working professionals, stay-at-home parents..."
+            <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>{t('superPages.audienceQuestionFull')}</label>
+            <input value={aiForm.audience} onChange={e=>setAiForm(p=>({...p,audience:e.target.value}))} placeholder={t('superPages.audiencePlaceholderFull')}
               style={{width:'100%',padding:'10px 14px',border:'2px solid #e2e8f0',borderRadius:10,fontSize:13,outline:'none',marginBottom:14,boxSizing:'border-box'}}/>
 
-            <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>3. Your story or unique angle (optional)</label>
-            <textarea value={aiForm.story} onChange={e=>setAiForm(p=>({...p,story:e.target.value}))} placeholder="e.g. I went from broke to earning $5K/month in 6 months..."
+            <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>{t('superPages.storyQuestion')}</label>
+            <textarea value={aiForm.story} onChange={e=>setAiForm(p=>({...p,story:e.target.value}))} placeholder={t('superPages.storyPlaceholder')}
               rows={3} style={{width:'100%',padding:'10px 14px',border:'2px solid #e2e8f0',borderRadius:10,fontSize:13,outline:'none',marginBottom:14,boxSizing:'border-box',resize:'vertical',fontFamily:'inherit'}}/>
 
-            <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>4. Tone of voice</label>
+            <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>{t('superPages.toneQuestion')}</label>
             <div style={{display:'flex',gap:8,marginBottom:20}}>
               {['professional','casual','urgent','inspirational'].map(t=>(
                 <button key={t} onClick={()=>setAiForm(p=>({...p,tone:t}))} style={{

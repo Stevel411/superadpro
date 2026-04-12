@@ -20,7 +20,7 @@ export default function PassupVisualiser() {
 
   return (
     <AppLayout title={t("visualiser.title")} subtitle={t("visualiser.subtitle")}>
-      <Link to="/compensation-plan" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'var(--sap-text-muted)',textDecoration:'none',marginBottom:14}} onMouseEnter={function(e){e.currentTarget.style.color='var(--sap-accent)';}} onMouseLeave={function(e){e.currentTarget.style.color='var(--sap-text-muted)';}}>← Back to Compensation Plan</Link>
+      <Link to="/compensation-plan" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'var(--sap-text-muted)',textDecoration:'none',marginBottom:14}} onMouseEnter={function(e){e.currentTarget.style.color='var(--sap-accent)';}} onMouseLeave={function(e){e.currentTarget.style.color='var(--sap-text-muted)';}}>{t('visualiser.backToCompPlan')}</Link>
       <div style={{display:'flex',gap:6,marginBottom:24,borderBottom:'2px solid #e8ecf2',paddingBottom:0}}>
         {TABS.map(function(t) {
           var Icon = t.icon;
@@ -510,14 +510,14 @@ function PassUpSection() {
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0',borderBottom:'1px solid #f5f6f8'}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
                 <div style={{width:8,height:8,borderRadius:4,background:'var(--sap-green-mid)'}}/>
-                <div><div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)'}}>{t('visualiser.directSalesKept')}</div><div style={{fontSize:10,color:'var(--sap-text-muted)'}}>Your sales 1,3,5,7,9+</div></div>
+                <div><div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)'}}>{t('visualiser.directSalesKept')}</div><div style={{fontSize:10,color:'var(--sap-text-muted)'}}>{t('visualiser.yourSales')}</div></div>
               </div>
               <div style={{fontSize:18,fontWeight:800,color:'var(--sap-green-mid)'}}>${st.keptAmt.toLocaleString()}</div>
             </div>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0'}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
                 <div style={{width:8,height:8,borderRadius:4,background:'var(--sap-amber)'}}/>
-                <div><div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)'}}>{t('visualiser.passUpsReceived')}</div><div style={{fontSize:10,color:'var(--sap-text-muted)'}}>Team's 2nd, 4th, 6th, 8th</div></div>
+                <div><div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)'}}>{t('visualiser.passUpsReceived')}</div><div style={{fontSize:10,color:'var(--sap-text-muted)'}}>{t('visualiser.teamSalesFull')}</div></div>
               </div>
               <div style={{fontSize:18,fontWeight:800,color:'var(--sap-amber)'}}>${st.passupAmt.toLocaleString()}</div>
             </div>
@@ -585,7 +585,7 @@ function PassUpSection() {
           </div>
 
           <div style={{padding:'10px 12px',background:'#fffbeb',borderRadius:8,border:'1px solid #fef3c7',fontSize:10,color:'#92400e',lineHeight:1.5}}>
-            <strong>Disclaimer:</strong> Simulation for educational purposes only. Actual earnings depend on personal activity and network performance. Income is not guaranteed.
+            <strong>{t('visualiser.disclaimer')}</strong> Simulation for educational purposes only. Actual earnings depend on personal activity and network performance. Income is not guaranteed.
           </div>
         </div>
       </div>
@@ -720,7 +720,7 @@ function GridVisSection() {
         <div style={{position:'absolute',top:-30,right:-30,width:160,height:160,borderRadius:'50%',background:'rgba(14,165,233,.05)'}}/>
         <div style={{position:'relative',zIndex:1}}>
           <h2 style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'#fff',margin:'0 0 8px'}}>
-            Your grid fills from <span style={{color:'var(--sap-accent-light)'}}>your entire network</span>
+            Your grid fills from <span style={{color:'var(--sap-accent-light)'}}>{t('visualiser.entireNetworkFull')}</span>
           </h2>
           <p style={{fontSize:13,color:'rgba(255,255,255,.5)',maxWidth:560,lineHeight:1.7,margin:0}}>
             Every person who joins anywhere in your downline fills a seat in your grid. Your direct referrals AND their referrals AND deeper — all the way down. One person, one seat, per advance.
@@ -868,8 +868,8 @@ function GridVisSection() {
               <div style={{flex:5,background:'var(--sap-green-mid)',borderRadius:3}}/>
             </div>
             <div style={{display:'flex',justifyContent:'space-between',fontSize:11}}>
-              <span style={{color:'var(--sap-accent)',fontWeight:700}}>40% Sponsor</span>
-              <span style={{color:'var(--sap-indigo)',fontWeight:700}}>50% Uni-Level</span>
+              <span style={{color:'var(--sap-accent)',fontWeight:700}}>{t('visualiser.sponsorSplit')}</span>
+              <span style={{color:'var(--sap-indigo)',fontWeight:700}}>{t('visualiser.uniLevelSplit')}</span>
               <span style={{color:'var(--sap-amber)',fontWeight:600}}>5%</span>
               <span style={{color:'var(--sap-green-mid)',fontWeight:600}}>5%</span>
             </div>
@@ -897,7 +897,7 @@ function GridVisSection() {
 
           {/* Earnings breakdown */}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16}}>
-            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-accent)',marginBottom:10}}>Earnings Breakdown</div>
+            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-accent)',marginBottom:10}}>{t('visualiser.earningsBreakdown')}</div>
             {[
               {label:'Direct Sponsor (40%)',val:'$'+Math.round(st.directAmt),color:'var(--sap-accent)'},
               {label:'Uni-Level (6.25% × '+filled+')',val:'$'+Math.round(st.earned),color:'var(--sap-indigo)'},
@@ -947,7 +947,7 @@ function GridVisSection() {
           )}
 
           <div style={{padding:'10px 12px',background:'#fffbeb',borderRadius:8,border:'1px solid #fef3c7',fontSize:10,color:'#92400e',lineHeight:1.5}}>
-            <strong>Note:</strong> Adjust the DIRECTS control to set how many of the 64 seats are your personal referrals. Direct referrals earn you 40% sponsor commission on top of the 6.25% uni-level. Income is not guaranteed.
+            <strong>{t('visualiser.note')}</strong> Adjust the DIRECTS control to set how many of the 64 seats are your personal referrals. Direct referrals earn you 40% sponsor commission on top of the 6.25% uni-level. Income is not guaranteed.
           </div>
         </div>
       </div>

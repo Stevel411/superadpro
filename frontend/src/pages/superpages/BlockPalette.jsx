@@ -68,7 +68,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
 
       {/* Header */}
       <div style={{padding:'14px 16px',borderBottom:'1px solid rgba(255,255,255,0.06)',flexShrink:0}}>
-        <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'var(--sap-border)'}}>✦ Blocks</h3>
+        <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'var(--sap-border)'}}>{t('superPagesEditor.blocks')}</h3>
         <p style={{margin:'2px 0 0',fontSize:10,color:'rgba(255,255,255,0.7)'}}>{t('superPagesEditor.clickOrDragToAdd')}</p>
       </div>
 
@@ -174,7 +174,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
             {bgType === 'image' && (
               <div>
                 <label style={{display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:'12px',borderRadius:8,border:'1px dashed rgba(255,255,255,.15)',cursor:'pointer',background:'rgba(255,255,255,.03)',marginBottom:8}}>
-                  <span style={{fontSize:11,color:'rgba(255,255,255,.75)',fontWeight:600}}>📷 Upload Background Image</span>
+                  <span style={{fontSize:11,color:'rgba(255,255,255,.75)',fontWeight:600}}>{t('superPagesEditor.uploadBgImage')}</span>
                   <input type="file" accept="image/*" style={{display:'none'}} onChange={async e => {
                     const f = e.target.files?.[0]; if (!f) return;
                     const fd = new FormData(); fd.append('file', f);
@@ -238,7 +238,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
       {/* AI Chat */}
       <div style={{borderTop:'1px solid rgba(255,255,255,0.06)',flexShrink:0,background:'var(--sap-cobalt-deep)',display:'flex',flexDirection:'column'}}>
         <div onClick={() => setChatOpen(!chatOpen)} style={{padding:'8px 14px',cursor:'pointer',userSelect:'none',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-          <span style={{fontSize:9,fontWeight:800,letterSpacing:0.7,textTransform:'uppercase',color:'var(--sap-accent)'}}>✨ AI Assistant</span>
+          <span style={{fontSize:9,fontWeight:800,letterSpacing:0.7,textTransform:'uppercase',color:'var(--sap-accent)'}}>{t('superPagesEditor.aiAssistant')}</span>
           <span style={{fontSize:12,color:'rgba(255,255,255,0.7)',transition:'transform 0.2s',transform:chatOpen?'rotate(0)':'rotate(180deg)'}}>▼</span>
         </div>
         {chatOpen && (

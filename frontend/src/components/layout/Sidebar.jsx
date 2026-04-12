@@ -143,7 +143,7 @@ export default function Sidebar({ open, onClose }) {
               <Play style={{width:12,height:12,color:'#fff',fill:'#fff',marginLeft:2}}/>
             </div>
             <span style={{fontFamily:"'Sora',sans-serif",fontSize:17,fontWeight:800,color:'#fff',lineHeight:1}}>
-              SuperAd<span style={{color:'#38bdf8'}}>Pro</span>
+              SuperAd<span style={{color:'#38bdf8'}}>{t('common.pro')}</span>
             </span>
           </Link>
           {/* Close button — mobile only */}

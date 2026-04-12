@@ -58,7 +58,7 @@ export default function Register() {
           <div style={styles.logoMark}>
             <span style={{ color: '#fff', fontWeight: 900, fontSize: 16 }}>S</span>
           </div>
-          <span style={styles.logoText}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>Pro</span></span>
+          <span style={styles.logoText}>SuperAd<span style={{ color: 'var(--sap-accent-light)' }}>{t('common.pro')}</span></span>
         </div>
 
         <h1 style={styles.heading}>{t('auth.createYourAccount')}</h1>
@@ -112,7 +112,7 @@ export default function Register() {
 
           <div style={styles.field}>
             <label style={styles.label}>{t('auth.confirmPassword')}</label>
-            <input value={form.confirm_password} onChange={set('confirm_password')} type="password" placeholder="Re-enter password" autoComplete="new-password" style={{ ...styles.input, borderColor: form.confirm_password && form.confirm_password !== form.password ? 'rgba(239,68,68,.5)' : 'rgba(255,255,255,.1)' }} />
+            <input value={form.confirm_password} onChange={set('confirm_password')} type="password" placeholder={t('auth.reEnterPassword')} autoComplete="new-password" style={{ ...styles.input, borderColor: form.confirm_password && form.confirm_password !== form.password ? 'rgba(239,68,68,.5)' : 'rgba(255,255,255,.1)' }} />
           </div>
 
           {refCode ? (
@@ -120,13 +120,13 @@ export default function Register() {
               <label style={styles.label}>{t('auth.yourSponsor')}</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <input value={form.ref} readOnly style={{ ...styles.input, opacity: 0.6, cursor: 'default', flex: 1 }} />
-                <div style={{ fontSize: 12, color: 'var(--sap-green-mid)', fontWeight: 700, whiteSpace: 'nowrap' }}>✓ Verified</div>
+                <div style={{ fontSize: 12, color: 'var(--sap-green-mid)', fontWeight: 700, whiteSpace: 'nowrap' }}>{t('auth.verified')}</div>
               </div>
             </div>
           ) : (
             <div style={styles.field}>
-              <label style={styles.label}>Sponsor Username <span style={{ color: 'rgba(255,255,255,.3)', fontWeight: 400 }}>(who referred you?)</span></label>
-              <input value={form.ref} onChange={set('ref')} placeholder="SuperAdPro" style={styles.input} />
+              <label style={styles.label}>Sponsor Username <span style={{ color: 'rgba(255,255,255,.3)', fontWeight: 400 }}>{t('auth.whoReferred')}</span></label>
+              <input value={form.ref} onChange={set('ref')} placeholder={t('auth.defaultSponsor')} style={styles.input} />
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,.3)', marginTop: 4, lineHeight: 1.4 }}>{t("auth.sponsorDesc")}</div>
             </div>
           )}
@@ -149,7 +149,7 @@ export default function Register() {
         <a href="/login" style={styles.loginBtn}>{t('auth.signInInstead')}</a>
       </div>
 
-      <p style={styles.footer}>© 2026 SuperAdPro · <a href="/legal" style={styles.footerLink}>Terms</a></p>
+      <p style={styles.footer}>© 2026 SuperAdPro · <a href="/legal" style={styles.footerLink}>{t('auth.termsLabel')}</a></p>
     </div>
   );
 }

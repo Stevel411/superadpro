@@ -97,7 +97,7 @@ export default function CoPilot() {
             <span style={{
               fontSize: 9, fontWeight: 800, padding: '2px 7px', borderRadius: 99,
               background: 'linear-gradient(135deg,#6366f1,#818cf8)', color: '#fff', letterSpacing: 0.5,
-            }}>PRO</span>
+            }}>{t('coPilot.proLabel')}</span>
             {briefing && !briefing.cached && (
               <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>
                 • Fresh today
@@ -153,7 +153,7 @@ export default function CoPilot() {
                   }}/>;
                 })}
               </div>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>Analysing your account...</span>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)' }}>{t('coPilot.analysingAccount')}</span>
             </div>
           )}
 
@@ -330,12 +330,12 @@ export default function CoPilot() {
           {!loading && !briefing && (
             <div style={{ textAlign: 'center', padding: '20px 0', color: 'rgba(255,255,255,0.3)' }}>
               <div style={{ fontSize: 24, marginBottom: 8 }}>🤖</div>
-              <div style={{ fontSize: 13, marginBottom: 12 }}>Couldn't load your briefing</div>
+              <div style={{ fontSize: 13, marginBottom: 12 }}>{t('coPilot.couldntLoad')}</div>
               <button onClick={refresh} style={{
                 fontSize: 12, fontWeight: 700, padding: '8px 16px', borderRadius: 8,
                 border: '1px solid rgba(99,102,241,0.3)', background: 'rgba(99,102,241,0.1)',
                 color: '#818cf8', cursor: 'pointer', fontFamily: 'inherit',
-              }}>Try again</button>
+              }}>{t('coPilot.tryAgain')}</button>
             </div>
           )}
         </div>

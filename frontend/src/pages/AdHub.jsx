@@ -85,7 +85,7 @@ export default function AdHub() {
   var selectedSize = BANNER_SIZES.find(function(s) { return s.id === bannerForm.size; }) || BANNER_SIZES[0];
 
   return (
-    <AppLayout title="Ad Hub" subtitle="Create and manage all your advertisements">
+    <AppLayout title={t('adHub.title')} subtitle={t('adHub.subtitle')}>
       <div style={{ maxWidth: 960, margin: '0 auto' }}>
 
         {/* Messages */}
@@ -119,11 +119,11 @@ export default function AdHub() {
                   <div style={{ position: 'absolute', bottom: -30, left: -10, width: 80, height: 80, borderRadius: '50%', background: 'rgba(255,255,255,.06)' }} />
                   <div className="adhub-icon" style={{ background: 'rgba(255,255,255,.2)', border: '1px solid rgba(255,255,255,.3)' }}>📋</div>
                   <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 20, fontWeight: 900, color: '#fff', marginBottom: 4, position: 'relative' }}>{t('adHub.createListing')}</div>
-                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,.75)', position: 'relative' }}>Classified Ads</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,.75)', position: 'relative' }}>{t('adHub.classifiedAds')}</div>
                 </div>
                 <div className="adhub-card-body">
                   <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', lineHeight: 1.6, marginBottom: 16 }}>Post a classified ad with images, links, and SEO keywords. Displayed on the public Ad Board.</div>
-                  <div style={{ display: 'inline-block', padding: '10px 24px', borderRadius: 10, background: 'linear-gradient(135deg,#10b981,#059669)', color: '#fff', fontWeight: 800, fontSize: 14, boxShadow: '0 4px 0 #047857' }}>+ New Listing</div>
+                  <div style={{ display: 'inline-block', padding: '10px 24px', borderRadius: 10, background: 'linear-gradient(135deg,#10b981,#059669)', color: '#fff', fontWeight: 800, fontSize: 14, boxShadow: '0 4px 0 #047857' }}>{t('adHub.newListing')}</div>
                 </div>
               </div>
 
@@ -141,7 +141,7 @@ export default function AdHub() {
                 </div>
                 <div className="adhub-card-body">
                   <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', lineHeight: 1.6, marginBottom: 16 }}>{t('adHub.displayAdDesc')}</div>
-                  <div style={{ display: 'inline-block', padding: '10px 24px', borderRadius: 10, background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff', fontWeight: 800, fontSize: 14, boxShadow: '0 4px 0 #b45309' }}>+ New Banner</div>
+                  <div style={{ display: 'inline-block', padding: '10px 24px', borderRadius: 10, background: 'linear-gradient(135deg,#f59e0b,#d97706)', color: '#fff', fontWeight: 800, fontSize: 14, boxShadow: '0 4px 0 #b45309' }}>{t('adHub.newBanner')}</div>
                 </div>
               </div>
 
@@ -278,24 +278,24 @@ export default function AdHub() {
         {/* ═══ CREATE LISTING FORM ═══ */}
         {view === 'create-ad' && (
           <div>
-            <button onClick={function() { setView('home'); setError(''); }} style={{ marginBottom: 16, padding: '6px 14px', borderRadius: 6, fontSize: 12, fontWeight: 700, border: '1px solid #e2e8f0', background: '#fff', color: 'var(--sap-text-muted)', cursor: 'pointer', fontFamily: 'inherit' }}>← Back to Ad Hub</button>
+            <button onClick={function() { setView('home'); setError(''); }} style={{ marginBottom: 16, padding: '6px 14px', borderRadius: 6, fontSize: 12, fontWeight: 700, border: '1px solid #e2e8f0', background: '#fff', color: 'var(--sap-text-muted)', cursor: 'pointer', fontFamily: 'inherit' }}>{t('adHub.backToAdHub')}</button>
             <div style={{ background: '#fff', border: '2px solid #dcfce7', borderRadius: 16, padding: 28 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
                 <div style={{ width: 42, height: 42, borderRadius: 10, background: 'linear-gradient(135deg,#f0fdf4,#dcfce7)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>📋</div>
                 <div>
-                  <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--sap-text-primary)' }}>Create Classified Listing</div>
+                  <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{t('adHub.createListing')}</div>
                   <div style={{ fontSize: 12, color: 'var(--sap-text-muted)' }}>{t("adHub.listingNote")}</div>
                 </div>
               </div>
               <form onSubmit={submitAd}>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
-                  <div><label style={lS}>Title *</label><input style={iS} value={adForm.title} onChange={setAd('title')} placeholder={t("adHub.listingTitlePlaceholder")} required maxLength={120} /></div>
+                  <div><label style={lS}>{t('adHub.titleRequired')}</label><input style={iS} value={adForm.title} onChange={setAd('title')} placeholder={t("adHub.listingTitlePlaceholder")} required maxLength={120} /></div>
                   <div><label style={lS}>{t('adHub.listingCategory')}</label>
                     <select style={iS} value={adForm.category} onChange={setAd('category')}>{AD_CATEGORIES.map(function(c) { return <option key={c} value={c}>{c}</option>; })}</select></div>
                 </div>
-                <div style={{ marginBottom: 14 }}><label style={lS}>Description *</label><textarea style={Object.assign({}, iS, { height: 80, resize: 'vertical' })} value={adForm.description} onChange={setAd('description')} placeholder={t("adHub.listingDescPlaceholder")} required maxLength={500} /></div>
+                <div style={{ marginBottom: 14 }}><label style={lS}>{t('adHub.descRequired')}</label><textarea style={Object.assign({}, iS, { height: 80, resize: 'vertical' })} value={adForm.description} onChange={setAd('description')} placeholder={t("adHub.listingDescPlaceholder")} required maxLength={500} /></div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
-                  <div><label style={lS}>Link URL *</label><input style={iS} value={adForm.link_url} onChange={setAd('link_url')} placeholder={t("adHub.listingUrlPlaceholder")} required /></div>
+                  <div><label style={lS}>{t('adHub.linkRequired')}</label><input style={iS} value={adForm.link_url} onChange={setAd('link_url')} placeholder={t("adHub.listingUrlPlaceholder")} required /></div>
                   <div><label style={lS}>{t('adHub.listingImageUrl')}</label><input style={iS} value={adForm.image_url} onChange={setAd('image_url')} placeholder={t("adHub.listingImagePlaceholder")} /></div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 14 }}>
@@ -315,7 +315,7 @@ export default function AdHub() {
         {/* ═══ CREATE BANNER FORM ═══ */}
         {view === 'create-banner' && (
           <div>
-            <button onClick={function() { setView('home'); setError(''); }} style={{ marginBottom: 16, padding: '6px 14px', borderRadius: 6, fontSize: 12, fontWeight: 700, border: '1px solid #e2e8f0', background: '#fff', color: 'var(--sap-text-muted)', cursor: 'pointer', fontFamily: 'inherit' }}>← Back to Ad Hub</button>
+            <button onClick={function() { setView('home'); setError(''); }} style={{ marginBottom: 16, padding: '6px 14px', borderRadius: 6, fontSize: 12, fontWeight: 700, border: '1px solid #e2e8f0', background: '#fff', color: 'var(--sap-text-muted)', cursor: 'pointer', fontFamily: 'inherit' }}>{t('adHub.backToAdHub')}</button>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, alignItems: 'start' }}>
               <div style={{ background: '#fff', border: '2px solid #fef3c7', borderRadius: 16, padding: 28 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
@@ -326,11 +326,11 @@ export default function AdHub() {
                   </div>
                 </div>
                 <form onSubmit={submitBanner}>
-                  <div style={{ marginBottom: 14 }}><label style={lS}>Banner Title *</label><input style={iS} value={bannerForm.title} onChange={setBanner('title')} placeholder={t("adHub.bannerNamePlaceholder")} required maxLength={120} /></div>
+                  <div style={{ marginBottom: 14 }}><label style={lS}>{t('adHub.bannerTitle')}</label><input style={iS} value={bannerForm.title} onChange={setBanner('title')} placeholder={t("adHub.bannerNamePlaceholder")} required maxLength={120} /></div>
                   <div style={{ marginBottom: 14 }}><label style={lS}>{t('adHub.bannerDesc')}</label><textarea style={Object.assign({}, iS, { height: 60, resize: 'vertical' })} value={bannerForm.description} onChange={setBanner('description')} placeholder={t("adHub.bannerDescPlaceholder")} maxLength={300} /></div>
-                  <div style={{ marginBottom: 14 }}><label style={lS}>Banner Image URL *</label><input style={iS} value={bannerForm.image_url} onChange={setBanner('image_url')} placeholder={t("adHub.bannerImagePlaceholder")} required />
+                  <div style={{ marginBottom: 14 }}><label style={lS}>{t('adHub.bannerImageUrl')}</label><input style={iS} value={bannerForm.image_url} onChange={setBanner('image_url')} placeholder={t("adHub.bannerImagePlaceholder")} required />
                     <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', marginTop: 4 }}>{t("adHub.bannerImageNote")}</div></div>
-                  <div style={{ marginBottom: 14 }}><label style={lS}>Click-Through URL *</label><input style={iS} value={bannerForm.link_url} onChange={setBanner('link_url')} placeholder={t("adHub.listingUrlPlaceholder")} required />
+                  <div style={{ marginBottom: 14 }}><label style={lS}>{t('adHub.clickThroughUrl')}</label><input style={iS} value={bannerForm.link_url} onChange={setBanner('link_url')} placeholder={t("adHub.listingUrlPlaceholder")} required />
                     <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', marginTop: 4 }}>{t("adHub.bannerTargetNote")}</div></div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
                     <div><label style={lS}>{t('adHub.bannerSize')}</label>
@@ -354,7 +354,7 @@ export default function AdHub() {
                 <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-faint)', marginBottom: 8 }}>{selectedSize.name} ({selectedSize.id})</div>
                 <div style={{ width: '100%', maxWidth: selectedSize.w, aspectRatio: selectedSize.w + '/' + selectedSize.h, background: 'var(--sap-bg-page)', border: '2px dashed #e2e8f0', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden', margin: '0 auto' }}>
                   {bannerForm.image_url ? (
-                    <img src={bannerForm.image_url} alt="Preview" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={function(e) { e.target.style.display = 'none'; }} />
+                    <img src={bannerForm.image_url} alt={t('adHub.previewAlt')} style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={function(e) { e.target.style.display = 'none'; }} />
                   ) : (
                     <div style={{ textAlign: 'center', color: 'var(--sap-text-faint)', fontSize: 13 }}>
                       <div style={{ fontSize: 32, marginBottom: 8, opacity: 0.3 }}>🖼️</div>
