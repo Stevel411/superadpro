@@ -6,15 +6,15 @@ import { apiGet, apiPost } from '../utils/api';
 import { Plus, Eye, Pencil, Trash2, Copy, ExternalLink, FileText, Sparkles, LayoutGrid, Zap, TrendingUp, Users, Target, DollarSign, BookOpen, Video, ShoppingBag, Megaphone, Award } from 'lucide-react';
 
 const TEMPLATES = [
-  { key: 'lead-capture', title: 'Lead Capture', desc: 'Email capture with headline, video, form and feature list', icon: Target, color: 'var(--sap-accent)', bg: '#0c1222', accent: 'var(--sap-accent)' },
-  { key: 'video-sales', title: 'Video Sales Letter', desc: 'Video-led page with attention headline, VSL and social proof', icon: Video, color: 'var(--sap-purple)', bg: '#132044', accent: 'var(--sap-purple)' },
-  { key: 'product-offer', title: 'Product Offer', desc: 'Sales page with pricing, features, guarantee and CTA', icon: ShoppingBag, color: 'var(--sap-green-mid)', bg: 'var(--sap-text-primary)', accent: 'var(--sap-green-mid)' },
-  { key: 'network-opportunity', title: 'Business Opportunity', desc: 'Network marketing recruitment page with income potential', icon: Users, color: 'var(--sap-amber)', bg: '#132044', accent: 'var(--sap-amber)' },
-  { key: 'webinar-registration', title: 'Webinar Registration', desc: 'Event signup with countdown timer, speaker bio and urgency', icon: Megaphone, color: 'var(--sap-pink)', bg: '#132044', accent: 'var(--sap-pink)' },
-  { key: 'coaching-program', title: 'Coaching Program', desc: 'Personal brand page with bio, testimonials and booking CTA', icon: Award, color: 'var(--sap-indigo)', bg: 'var(--sap-text-primary)', accent: 'var(--sap-indigo)' },
-  { key: 'digital-product', title: 'Digital Product', desc: 'Ebook, course or download page with feature stack and pricing', icon: BookOpen, color: '#14b8a6', bg: '#0c1222', accent: '#14b8a6' },
-  { key: 'affiliate-income', title: 'Affiliate Funnel', desc: 'Commission income page with earnings calculator and signup', icon: DollarSign, color: 'var(--sap-red-bright)', bg: '#132044', accent: 'var(--sap-red-bright)' },
-  { key: 'thank-you', title: 'Thank You Page', desc: 'Post-signup confirmation with next steps and CTA button', icon: Award, color: 'var(--sap-green-mid)', bg: '#0a0a1a', accent: 'var(--sap-green-mid)' },
+  { key: 'lead-capture', title: 'Lead Capture', titleKey: 'superPages.tplLeadCapture', desc: 'Email capture with headline, video, form and feature list', descKey: 'superPages.tplLeadCaptureDesc', icon: Target, color: 'var(--sap-accent)', bg: '#0c1222', accent: 'var(--sap-accent)' },
+  { key: 'video-sales', title: 'Video Sales Letter', titleKey: 'superPages.tplVideoSales', desc: 'Video-led page with attention headline, VSL and social proof', descKey: 'superPages.tplVideoSalesDesc', icon: Video, color: 'var(--sap-purple)', bg: '#132044', accent: 'var(--sap-purple)' },
+  { key: 'product-offer', title: 'Product Offer', titleKey: 'superPages.tplProductOffer', desc: 'Sales page with pricing, features, guarantee and CTA', descKey: 'superPages.tplProductOfferDesc', icon: ShoppingBag, color: 'var(--sap-green-mid)', bg: 'var(--sap-text-primary)', accent: 'var(--sap-green-mid)' },
+  { key: 'network-opportunity', title: 'Business Opportunity', titleKey: 'superPages.tplBusinessOpp', desc: 'Network marketing recruitment page with income potential', descKey: 'superPages.tplBusinessOppDesc', icon: Users, color: 'var(--sap-amber)', bg: '#132044', accent: 'var(--sap-amber)' },
+  { key: 'webinar-registration', title: 'Webinar Registration', titleKey: 'superPages.tplWebinar', desc: 'Event signup with countdown timer, speaker bio and urgency', descKey: 'superPages.tplWebinarDesc', icon: Megaphone, color: 'var(--sap-pink)', bg: '#132044', accent: 'var(--sap-pink)' },
+  { key: 'coaching-program', title: 'Coaching Program', titleKey: 'superPages.tplCoaching', desc: 'Personal brand page with bio, testimonials and booking CTA', descKey: 'superPages.tplCoachingDesc', icon: Award, color: 'var(--sap-indigo)', bg: 'var(--sap-text-primary)', accent: 'var(--sap-indigo)' },
+  { key: 'digital-product', title: 'Digital Product', titleKey: 'superPages.tplDigitalProduct', desc: 'Ebook, course or download page with feature stack and pricing', descKey: 'superPages.tplDigitalProductDesc', icon: BookOpen, color: '#14b8a6', bg: '#0c1222', accent: '#14b8a6' },
+  { key: 'affiliate-income', title: 'Affiliate Funnel', titleKey: 'superPages.tplAffiliate', desc: 'Commission income page with earnings calculator and signup', descKey: 'superPages.tplAffiliateDesc', icon: DollarSign, color: 'var(--sap-red-bright)', bg: '#132044', accent: 'var(--sap-red-bright)' },
+  { key: 'thank-you', title: 'Thank You Page', titleKey: 'superPages.tplThankYou', desc: 'Post-signup confirmation with next steps and CTA button', descKey: 'superPages.tplThankYouDesc', icon: Award, color: 'var(--sap-green-mid)', bg: '#0a0a1a', accent: 'var(--sap-green-mid)' },
 ];
 
 function TemplatePreview({ bg, accent, Icon }) {
@@ -84,8 +84,8 @@ export default function Funnels() {
       const pageId = res.id || res.funnel_id;
       if(pageId) { window.location.href=`/pro/funnel/${pageId}/edit`; }
       else if(res.error) alert(res.error);
-      else alert('Generation failed — please try again');
-    }catch(e){alert('Error: ' + e.message)}
+      else alert(t('superPages.generationFailed'));
+    }catch(e){alert(t('superPages.errorPrefix') + e.message)}
     setAiGenerating(false);
   };
 
@@ -97,7 +97,7 @@ export default function Funnels() {
   const totalLeads=pages.reduce((a,p)=>a+(p.leads_captured||0),0);
   const published=pages.filter(p=>p.status==='published').length;
 
-  if(loading) return <AppLayout title="SuperPages"><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
+  if(loading) return <AppLayout title={t("superPages.title")}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
 
   return (
     <AppLayout>
@@ -107,7 +107,7 @@ export default function Funnels() {
           <svg width="32" height="32" viewBox="0 0 48 48"><rect x="6" y="6" width="16" height="16" rx="4" fill="var(--sap-accent)" opacity=".9"/><rect x="26" y="6" width="16" height="16" rx="4" fill="var(--sap-indigo)" opacity=".7"/><rect x="6" y="26" width="16" height="16" rx="4" fill="var(--sap-indigo)" opacity=".5"/><rect x="26" y="26" width="16" height="16" rx="4" fill="var(--sap-accent)" opacity=".3"/></svg>
           <h1 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'var(--sap-text-primary)'}}>Super<span style={{color:'var(--sap-accent)'}}>Pages</span></h1>
         </div>
-        <p style={{margin:0,fontSize:13,color:'var(--sap-text-muted)'}}>Build high-converting landing pages, funnels and sales pages</p>
+        <p style={{margin:0,fontSize:13,color:'var(--sap-text-muted)'}}>{t('superPages.subtitle')}</p>
       </div>
 
       {/* Hero cards */}
@@ -115,17 +115,17 @@ export default function Funnels() {
         <div style={{background:'linear-gradient(135deg,#0c1222,#1e3a5f)',borderRadius:16,padding:24,position:'relative',overflow:'hidden',border:'1px solid rgba(14,165,233,.15)'}}>
           <div style={{position:'absolute',top:-30,right:-30,width:120,height:120,background:'radial-gradient(circle,rgba(14,165,233,.15),transparent 70%)',borderRadius:'50%'}}/>
           <Sparkles size={24} color="var(--sap-accent)" style={{marginBottom:10}}/>
-          <h3 style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#fff',margin:'0 0 6px'}}>AI Funnel Generator</h3>
-          <p style={{fontSize:12,color:'var(--sap-text-muted)',lineHeight:1.6,marginBottom:16}}>Answer 4 questions and AI generates a complete landing page with email capture</p>
-          <button onClick={()=>setShowAiWizard(true)} style={{padding:'10px 22px',borderRadius:10,border:'none',cursor:'pointer',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontFamily:'Sora,sans-serif',fontSize:12,fontWeight:700,boxShadow:'0 4px 14px rgba(14,165,233,.3)'}}>Create AI Funnel →</button>
+          <h3 style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#fff',margin:'0 0 6px'}}>{t('superPages.aiFunnelGenerator')}</h3>
+          <p style={{fontSize:12,color:'var(--sap-text-muted)',lineHeight:1.6,marginBottom:16}}>{t('superPages.aiFunnelDesc')}</p>
+          <button onClick={()=>setShowAiWizard(true)} style={{padding:'10px 22px',borderRadius:10,border:'none',cursor:'pointer',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontFamily:'Sora,sans-serif',fontSize:12,fontWeight:700,boxShadow:'0 4px 14px rgba(14,165,233,.3)'}}>{t('superPages.createAiFunnel')}</button>
         </div>
         <div style={{background:'linear-gradient(135deg,#e8e5fb,#d8d4f7)',borderRadius:16,padding:24,position:'relative',overflow:'hidden',border:'1px solid rgba(99,102,241,.15)'}}>
           <div style={{position:'absolute',top:-20,right:-20,width:100,height:100,background:'radial-gradient(circle,rgba(99,102,241,.1),transparent 70%)',borderRadius:'50%'}}/>
           <div style={{position:'absolute',bottom:10,right:10,width:70,height:70,border:'1px dashed rgba(99,102,241,.15)',borderRadius:12,opacity:.5}}/>
           <LayoutGrid size={24} color="var(--sap-indigo)" style={{marginBottom:10}}/>
-          <h3 style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'var(--sap-cobalt-deep)',margin:'0 0 6px'}}>Blank Canvas</h3>
-          <p style={{fontSize:12,color:'var(--sap-indigo)',lineHeight:1.6,marginBottom:16,opacity:.7}}>Start from scratch with drag-and-drop — full creative freedom</p>
-          <button onClick={()=>createFromTemplate('blank')} disabled={creating} style={{padding:'10px 22px',borderRadius:10,border:'none',cursor:'pointer',background:'var(--sap-indigo)',color:'#fff',fontFamily:'Sora,sans-serif',fontSize:12,fontWeight:700,boxShadow:'0 4px 14px rgba(99,102,241,.3)'}}>Open SuperPages →</button>
+          <h3 style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'var(--sap-cobalt-deep)',margin:'0 0 6px'}}>{t('superPages.blankCanvas')}</h3>
+          <p style={{fontSize:12,color:'var(--sap-indigo)',lineHeight:1.6,marginBottom:16,opacity:.7}}>{t('superPages.blankCanvasDesc')}</p>
+          <button onClick={()=>createFromTemplate('blank')} disabled={creating} style={{padding:'10px 22px',borderRadius:10,border:'none',cursor:'pointer',background:'var(--sap-indigo)',color:'#fff',fontFamily:'Sora,sans-serif',fontSize:12,fontWeight:700,boxShadow:'0 4px 14px rgba(99,102,241,.3)'}}>{t('superPages.openSuperPages')}</button>
         </div>
       </div>
 
@@ -135,21 +135,21 @@ export default function Funnels() {
         {/* LEFT — Templates */}
         <div>
           <div style={{marginBottom:12,display:'flex',alignItems:'center',gap:8}}>
-            <h2 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>Start from a Template</h2>
+            <h2 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('superPages.startFromTemplate')}</h2>
           </div>
           <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))',gap:14}}>
-            {TEMPLATES.map(t=>{
-              const Icon=t.icon;const isCreating=creating&&creatingKey===t.key;
+            {TEMPLATES.map(tpl=>{
+              const Icon=tpl.icon;const isCreating=creating&&creatingKey===tpl.key;
               return (
-                <div key={t.key} className="tpl-card" onClick={()=>!creating&&createFromTemplate(t.key)} style={{background:'#fff',borderRadius:12,overflow:'hidden',border:'1px solid #e8ecf2',cursor:'pointer',boxShadow:'0 2px 8px rgba(0,0,0,.03)',transition:'all .2s',display:'flex',flexDirection:'column'}}>
+                <div key={tpl.key} className="tpl-card" onClick={()=>!creating&&createFromTemplate(tpl.key)} style={{background:'#fff',borderRadius:12,overflow:'hidden',border:'1px solid #e8ecf2',cursor:'pointer',boxShadow:'0 2px 8px rgba(0,0,0,.03)',transition:'all .2s',display:'flex',flexDirection:'column'}}>
                   <div style={{height:180,position:'relative'}}>
-                    <TemplatePreview bg={t.bg} accent={t.accent} Icon={t.icon}/>
+                    <TemplatePreview bg={tpl.bg} accent={tpl.accent} Icon={tpl.icon}/>
                   </div>
                   <div style={{padding:'12px 14px',flex:1,display:'flex',flexDirection:'column'}}>
-                    <div style={{fontSize:13,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:3}}>{t.title}</div>
-                    <div style={{fontSize:11,color:'var(--sap-text-muted)',lineHeight:1.5,flex:1}}>{t.desc}</div>
+                    <div style={{fontSize:13,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:3}}>{t(tpl.titleKey)}</div>
+                    <div style={{fontSize:11,color:'var(--sap-text-muted)',lineHeight:1.5,flex:1}}>{t(tpl.descKey)}</div>
                     <div style={{marginTop:10}}>
-                      <div style={{padding:'7px 14px',borderRadius:7,fontSize:10,fontWeight:700,background:isCreating?'var(--sap-bg-page)':`${t.color}10`,color:isCreating?'var(--sap-text-muted)':t.color,border:`1px solid ${isCreating?'var(--sap-border)':t.color+'25'}`,textAlign:'center'}}>{isCreating?'Creating...':'Use Template →'}</div>
+                      <div style={{padding:'7px 14px',borderRadius:7,fontSize:10,fontWeight:700,background:isCreating?'var(--sap-bg-page)':`${tpl.color}10`,color:isCreating?'var(--sap-text-muted)':tpl.color,border:`1px solid ${isCreating?'var(--sap-border)':tpl.color+'25'}`,textAlign:'center'}}>{isCreating?t('superPages.creating'):t('superPages.useTemplate')}</div>
                     </div>
                   </div>
                 </div>
@@ -163,7 +163,7 @@ export default function Funnels() {
           <div>
             {/* Stats */}
             <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:16}}>
-              {[{label:'PAGES',val:published,color:'var(--sap-green)',icon:Zap},{label:'LEADS',val:totalLeads,color:'var(--sap-accent)',icon:Target},{label:'VIEWS',val:totalViews,color:'var(--sap-purple)',icon:TrendingUp}].map((s,i)=>(
+              {[{label:t('superPages.pages'),val:published,color:'var(--sap-green)',icon:Zap},{label:t('superPages.leads'),val:totalLeads,color:'var(--sap-accent)',icon:Target},{label:t('superPages.views'),val:totalViews,color:'var(--sap-purple)',icon:TrendingUp}].map((s,i)=>(
                 <div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:'12px 14px',borderLeft:`3px solid ${s.color}`}}>
                   <div style={{fontSize:8,fontWeight:700,letterSpacing:.8,color:'var(--sap-text-muted)',textTransform:'uppercase'}}>{s.label}</div>
                   <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:900,color:'var(--sap-text-primary)',margin:'2px 0'}}>{s.val}</div>
@@ -172,7 +172,7 @@ export default function Funnels() {
             </div>
 
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
-              <h2 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>Your Pages</h2>
+              <h2 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('superPages.yourPages')}</h2>
               <span style={{fontSize:11,color:'var(--sap-text-muted)'}}>{pages.length} page{pages.length!==1?'s':''}</span>
             </div>
             <div style={{display:'flex',flexDirection:'column',gap:10}}>
@@ -224,7 +224,7 @@ export default function Funnels() {
           <div onClick={e=>e.stopPropagation()} style={{background:'#fff',borderRadius:16,padding:28,width:500,maxHeight:'85vh',overflowY:'auto',boxShadow:'0 20px 60px rgba(0,0,0,.3)'}}>
             <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
               <Sparkles size={20} color="var(--sap-accent)"/>
-              <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-text-primary)'}}>AI Funnel Generator</h3>
+              <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('superPages.aiFunnelGenerator')}</h3>
             </div>
             <p style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:20}}>Answer 4 questions and AI will generate a complete landing page for you.</p>
 
@@ -257,11 +257,11 @@ export default function Funnels() {
                 flex:1,padding:'12px',borderRadius:10,border:'none',cursor:'pointer',
                 background:aiGenerating?'var(--sap-text-muted)':'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',
                 fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:700,
-              }}>{aiGenerating?'✨ Generating...':'Generate My Page →'}</button>
+              }}>{aiGenerating?t('superPages.generating'):t('superPages.generateMyPage')}</button>
               <button onClick={()=>setShowAiWizard(false)} disabled={aiGenerating} style={{
                 padding:'12px 20px',borderRadius:10,border:'1px solid #e2e8f0',cursor:'pointer',
                 background:'#fff',color:'var(--sap-text-muted)',fontSize:13,fontWeight:600,fontFamily:'inherit',
-              }}>Cancel</button>
+              }}>{t('superPages.cancel')}</button>
             </div>
           </div>
         </div>
