@@ -513,7 +513,7 @@ export default function CreativeStudio() {
           </div>
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, paddingLeft: 16 }}>
             <span style={{ fontFamily: 'Sora, sans-serif', fontSize: 16, fontWeight: 800, color: '#4ade80' }}>{credits}</span>
-            <span style={{ fontSize: 11, color: 'var(--sap-text-faint)' }}>credits</span>
+            <span style={{ fontSize: 11, color: 'var(--sap-text-faint)' }}>{t('creativeStudio.creditsLabel')}</span>
             <button className="cs-credits-buy" onClick={function() { switchTab('credits'); }}>+ Buy</button>
           </div>
         </div>
@@ -532,14 +532,14 @@ export default function CreativeStudio() {
               ) : generating ? (
                 <div className="cs-stage-empty">
                   <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: 'var(--sap-purple)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
-                  <p style={{ color: 'rgba(255,255,255,.5)' }}>Generating your video...</p>
+                  <p style={{ color: 'rgba(255,255,255,.5)' }}>{t('creativeStudio.generatingVideo')}</p>
                   <small style={{ color: 'rgba(255,255,255,.25)' }}>{Math.round(genProgress)}% — please wait</small>
                 </div>
               ) : mode === 'image' && imagePreview ? (
                 <div style={{ position: 'relative', width: '100%', height: '100%' }}>
                   <img src={imagePreview} alt="Preview"/>
                   <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '48px 24px 24px', background: 'linear-gradient(transparent, rgba(0,0,0,.85))' }}>
-                    <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>Your image</div>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{t('creativeStudio.yourImage')}</div>
                     <div style={{ fontSize: 13, color: 'rgba(255,255,255,.6)' }}>
                       {motionPresets.length > 0 ? 'Motion: ' + motionPresets.map(function(k) { var m = CAMERA_MOTIONS.find(function(cm) { return cm.key === k; }); return m ? m.label : ''; }).join(', ') : 'Write a prompt and hit Create'}
                     </div>
@@ -549,7 +549,7 @@ export default function CreativeStudio() {
                 <div className="cs-stage-empty">
                   <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1"><rect x="2" y="4" width="20" height="14" rx="3"/><polygon points="10,8 10,15 16,11.5"/></svg>
                   <p>{t('creativeStudio.videoWillAppear')}</p>
-                  <small>Write a prompt, choose a model, and hit Create</small>
+                  <small>{t('creativeStudio.writePrompt')}</small>
                 </div>
               )}
               </div>
@@ -589,7 +589,7 @@ export default function CreativeStudio() {
                 </div>
 
                 <div className="cs-card">
-                  <div className="cs-lbl">AI Model</div>
+                  <div className="cs-lbl">{t('creativeStudio.aiModel')}</div>
                   <div className="cs-model-list">
                     {MODELS.map(function(m) {
                       var isSel = model === m.key;
@@ -762,7 +762,7 @@ export default function CreativeStudio() {
                 <div className="cs-stage-empty">
                   <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
                   <p>{t('creativeStudio.imageWillAppear')}</p>
-                  <small>Choose a model, describe what you want, and generate</small>
+                  <small>{t('creativeStudio.chooseModel')}</small>
                 </div>
               )}
             </div>
@@ -797,7 +797,7 @@ export default function CreativeStudio() {
 
                 {/* Model */}
                 <div className="cs-card">
-                  <div className="cs-lbl">AI Model</div>
+                  <div className="cs-lbl">{t('creativeStudio.aiModel')}</div>
                   <div className="cs-model-list">
                     {IMG_MODELS.map(function(m) {
                       var isSel = imgModel === m.key;
@@ -883,13 +883,13 @@ export default function CreativeStudio() {
               {musicGenerating ? (
                 <div className="cs-stage-empty">
                   <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: 'var(--sap-amber)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
-                  <p style={{ color: 'rgba(255,255,255,.5)' }}>Generating your track...</p>
+                  <p style={{ color: 'rgba(255,255,255,.5)' }}>{t('creativeStudio.generatingTrack')}</p>
                   <small style={{ color: 'rgba(255,255,255,.25)' }}>{(MUSIC_MODELS.find(function(m) { return m.key === musicModel; }) || {}).name} · {musicInstrumental ? 'Instrumental' : 'Vocal'}</small>
                 </div>
               ) : musicUrl ? (
                 <div style={{ textAlign: 'center', padding: 40 }}>
                   <div style={{ fontSize: 48, marginBottom: 12 }}>♪</div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 16 }}>Your track is ready</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 16 }}>{t('creativeStudio.trackReady')}</div>
                   <audio src={musicUrl} controls style={{ width: '100%', maxWidth: 500 }}/>
                 </div>
               ) : (
@@ -921,25 +921,25 @@ export default function CreativeStudio() {
                   </div>}
                 </div>
                 <div className="cs-card">
-                  <div className="cs-lbl">Model</div>
+                  <div className="cs-lbl">{t('creativeStudio.model')}</div>
                   <div className="cs-pills" style={{ marginBottom: 12 }}>
                     {MUSIC_MODELS.map(function(m) { return <button key={m.key} className={'cs-pill' + (musicModel === m.key ? ' on' : '')} onClick={function() { setMusicModel(m.key); }}>{m.name} {m.badge ? '· ' + m.badge : ''} <span style={{ fontSize: 10, opacity: .6, marginLeft: 4 }}>{m.cost}cr</span></button>; })}
                   </div>
                   {musicCustom && <>
                     <div className="cs-lbl">Style</div>
                     <input style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', marginBottom: 10, boxSizing: 'border-box' }} placeholder="pop, rock, electronic, jazz..." value={musicStyle} onChange={function(e) { setMusicStyle(e.target.value); }}/>
-                    <div className="cs-lbl">Title</div>
+                    <div className="cs-lbl">{t('creativeStudio.titleLabel')}</div>
                     <input style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', marginBottom: 10, boxSizing: 'border-box' }} placeholder="Song title" value={musicTitle} onChange={function(e) { setMusicTitle(e.target.value); }}/>
-                    <div className="cs-lbl">Vocal Gender</div>
+                    <div className="cs-lbl">{t('creativeStudio.vocalGender')}</div>
                     <div className="cs-pills">
                       {[['', 'Auto'], ['m', 'Male'], ['f', 'Female']].map(function(g) { return <button key={g[0]} className={'cs-pill' + (musicGender === g[0] ? ' on' : '')} onClick={function() { setMusicGender(g[0]); }}>{g[1]}</button>; })}
                     </div>
                   </>}
                   <div style={{ marginTop: 12 }}>
-                    <div className="cs-lbl">Instrumental</div>
+                    <div className="cs-lbl">{t('creativeStudio.instrumentalLabel')}</div>
                     <div className="cs-audio-toggle" onClick={function() { setMusicInstrumental(!musicInstrumental); }}>
                       <div className={'cs-toggle-track' + (musicInstrumental ? ' on' : '')}><div className="cs-toggle-thumb"/></div>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>No vocals — background music only</div>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>{t('creativeStudio.noVocals')}</div>
                     </div>
                   </div>
                 </div>
@@ -960,7 +960,7 @@ export default function CreativeStudio() {
               {voGenerating ? (
                 <div className="cs-stage-empty">
                   <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: 'var(--sap-pink)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
-                  <p style={{ color: 'rgba(255,255,255,.5)' }}>Generating voiceover...</p>
+                  <p style={{ color: 'rgba(255,255,255,.5)' }}>{t('creativeStudio.generatingVoiceover')}</p>
                 </div>
               ) : voAudioUrl ? (
                 <div style={{ textAlign: 'center', padding: 40 }}>

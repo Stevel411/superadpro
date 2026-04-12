@@ -81,7 +81,7 @@ export default function OnboardingWizard() {
         <div style={{ width: 36, height: 36, borderRadius: '50%', background: 'linear-gradient(135deg, #0ea5e9, #6366f1)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5"><polygon points="5,3 19,12 5,21"/></svg>
         </div>
-        <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 20, fontWeight: 800, color: '#fff' }}>Super<span style={{ color: 'var(--sap-accent)' }}>Ad</span><span style={{ color: 'var(--sap-purple-light)' }}>Pro</span></div>
+        <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 20, fontWeight: 800, color: '#fff' }}>Super<span style={{ color: 'var(--sap-accent)' }}>Ad</span><span style={{ color: 'var(--sap-purple-light)' }}>{t('onboarding.pro')}</span></div>
       </div>
 
       {/* Progress bar */}
@@ -114,7 +114,7 @@ export default function OnboardingWizard() {
             Let's get you set up in 5 quick steps. This will take about 3 minutes and you'll be ready to start earning and creating.
           </p>
           <div style={{ background: 'var(--sap-bg-elevated)', borderRadius: 12, padding: '16px 20px', textAlign: 'left', marginBottom: 24 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 8 }}>Here's what we'll do:</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 8 }}>{t('onboarding.heresWhatWeDo')}</div>
             {['Set up your profile photo and name', 'Copy your personal referral link', 'Take a quick platform tour', 'Create your first piece of AI content'].map(function(t, i) {
               return <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--sap-text-secondary)', marginBottom: 6 }}>
                 <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--sap-purple-pale)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: 'var(--sap-violet)', flexShrink: 0 }}>{i + 1}</div>
@@ -122,15 +122,15 @@ export default function OnboardingWizard() {
               </div>;
             })}
           </div>
-          <button onClick={next} style={btnPrimary}>Let's Go →</button>
+          <button onClick={next} style={btnPrimary}>{t('onboarding.letsGo')}</button>
         </div>}
 
         {/* ── STEP 2: Profile ── */}
         {step === 1 && <div>
           <div style={{ textAlign: 'center', marginBottom: 20 }}>
             <div style={{ fontSize: 36, marginBottom: 8 }}>📸</div>
-            <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>Set up your profile</h2>
-            <p style={{ fontSize: 13, color: 'var(--sap-text-muted)' }}>This is how your team and prospects will see you</p>
+            <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>{t('onboarding.setupProfile')}</h2>
+            <p style={{ fontSize: 13, color: 'var(--sap-text-muted)' }}>{t('onboarding.profileDesc')}</p>
           </div>
 
           {/* Photo */}
@@ -146,11 +146,11 @@ export default function OnboardingWizard() {
           {/* Name fields */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
-              <label style={lblStyle}>First Name</label>
+              <label style={lblStyle}>{t('onboarding.firstName')}</label>
               <input value={firstName} onChange={function(e) { setFirstName(e.target.value); }} placeholder="Your first name" style={inputStyle}/>
             </div>
             <div>
-              <label style={lblStyle}>Last Name</label>
+              <label style={lblStyle}>{t('onboarding.lastName')}</label>
               <input value={lastName} onChange={function(e) { setLastName(e.target.value); }} placeholder="Your last name" style={inputStyle}/>
             </div>
           </div>
@@ -168,8 +168,8 @@ export default function OnboardingWizard() {
         {/* ── STEP 3: Referral Link ── */}
         {step === 2 && <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 36, marginBottom: 8 }}>🔗</div>
-          <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>Your Referral Link</h2>
-          <p style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginBottom: 20 }}>This is how you earn — share it everywhere</p>
+          <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>{t('onboarding.yourReferralLink')}</h2>
+          <p style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginBottom: 20 }}>{t('onboarding.referralLinkDesc')}</p>
 
           <div style={{ background: 'var(--sap-bg-elevated)', borderRadius: 10, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, border: '1px solid #e2e8f0' }}>
             <div style={{ flex: 1, fontSize: 13, color: 'var(--sap-text-primary)', fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textAlign: 'left' }}>{refLink}</div>
@@ -177,7 +177,7 @@ export default function OnboardingWizard() {
           </div>
 
           <div style={{ background: '#eff6ff', borderRadius: 10, padding: '14px 18px', textAlign: 'left', marginBottom: 24, border: '1px solid #bfdbfe' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>How you earn:</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#1e40af', marginBottom: 6 }}>{t('onboarding.howYouEarn')}</div>
             <div style={{ fontSize: 12, color: '#3b82f6', lineHeight: 1.7 }}>
               Every person who signs up through your link becomes your referral. You earn $10/month for Basic members and $17.50/month for Pro members — recurring, every month they stay active.
             </div>
@@ -185,15 +185,15 @@ export default function OnboardingWizard() {
 
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={prev} style={btnSecondary}>← Back</button>
-            <button onClick={next} style={{ ...btnPrimary, flex: 1 }}>Continue →</button>
+            <button onClick={next} style={{ ...btnPrimary, flex: 1 }}>{t('onboarding.continue')}</button>
           </div>
         </div>}
 
         {/* ── STEP 4: Platform Tour ── */}
         {step === 3 && <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 36, marginBottom: 8 }}>🗺️</div>
-          <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>Quick Platform Tour</h2>
-          <p style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginBottom: 20 }}>Learn where everything is in 2 minutes</p>
+          <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>{t('onboarding.quickTour')}</h2>
+          <p style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginBottom: 20 }}>{t('onboarding.quickTourDesc')}</p>
 
           <div style={{ background: 'var(--sap-bg-elevated)', borderRadius: 12, padding: '20px', marginBottom: 20 }}>
             {[
@@ -217,14 +217,14 @@ export default function OnboardingWizard() {
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={prev} style={btnSecondary}>← Back</button>
             <button onClick={function() { window.open('/platform-tour', '_blank'); }} style={{ ...btnSecondary, flex: 1 }}>Open Full Tour ↗</button>
-            <button onClick={next} style={{ ...btnPrimary, flex: 1 }}>Continue →</button>
+            <button onClick={next} style={{ ...btnPrimary, flex: 1 }}>{t('onboarding.continue')}</button>
           </div>
         </div>}
 
         {/* ── STEP 5: Create Content ── */}
         {step === 4 && <div style={{ textAlign: 'center' }}>
           <div style={{ fontSize: 36, marginBottom: 8 }}>✨</div>
-          <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>You're All Set!</h2>
+          <h2 style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>{t('onboarding.allSet')}</h2>
           <p style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginBottom: 24 }}>Your account is ready. Here's what to do next:</p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 24 }}>
@@ -249,7 +249,7 @@ export default function OnboardingWizard() {
 
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={prev} style={btnSecondary}>← Back</button>
-            <button onClick={completeOnboarding} style={{ ...btnPrimary, flex: 1, background: 'linear-gradient(135deg, #22c55e, #16a34a)' }}>Go to Dashboard →</button>
+            <button onClick={completeOnboarding} style={{ ...btnPrimary, flex: 1, background: 'linear-gradient(135deg, #22c55e, #16a34a)' }}>{t('onboarding.goToDashboard')}</button>
           </div>
         </div>}
       </div>

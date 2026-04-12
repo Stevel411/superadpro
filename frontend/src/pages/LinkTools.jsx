@@ -345,8 +345,8 @@ export default function LinkTools() {
           {links.length === 0 && (
             <div style={{textAlign:'center',padding:'40px 20px',background:'#fff',border:'1px solid #e8ecf2',borderRadius:10}}>
               <Link2 size={32} color="var(--sap-text-faint)" style={{marginBottom:8}}/>
-              <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4}}>No short links yet</div>
-              <div style={{fontSize:12,color:'var(--sap-text-muted)'}}>Create your first short link to start tracking clicks</div>
+              <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4}}>{t('linkTools.noShortLinksYet')}</div>
+              <div style={{fontSize:12,color:'var(--sap-text-muted)'}}>{t('linkTools.createFirstShortLink')}</div>
             </div>
           )}
           {links.map(l => {
@@ -363,7 +363,7 @@ export default function LinkTools() {
                     <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
                       <span style={{fontSize:13,fontWeight:700,color:'var(--sap-accent)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{BASE}/go/{l.short_code}</span>
                       {l.has_password && <Lock size={11} color="var(--sap-amber)"/>}
-                      {isExpired && <span style={{fontSize:9,fontWeight:700,background:'#fee2e2',color:'var(--sap-red)',padding:'1px 6px',borderRadius:4}}>EXPIRED</span>}
+                      {isExpired && <span style={{fontSize:9,fontWeight:700,background:'#fee2e2',color:'var(--sap-red)',padding:'1px 6px',borderRadius:4}}>{t('linkTools.expired')}</span>}
                       {l.expires_at && !isExpired && <span style={{fontSize:9,fontWeight:700,background:'#fef9c3',color:'#a16207',padding:'1px 6px',borderRadius:4}}>EXPIRES {new Date(l.expires_at).toLocaleDateString()}</span>}
                     </div>
                     <div style={{fontSize:11,color:'var(--sap-text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.title ? l.title + ' — ' : ''}{l.destination_url}</div>
@@ -378,7 +378,7 @@ export default function LinkTools() {
                   </div>
                   <div style={{textAlign:'center',padding:'8px 14px',background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)',borderRadius:10,flexShrink:0,border:'1px solid #bae6fd',minWidth:64}}>
                     <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:900,color:'#0284c7',lineHeight:1}}>{l.click_count||0}{l.click_cap ? <span style={{fontSize:11,fontWeight:600,color:'var(--sap-text-muted)'}}>/{l.click_cap}</span> : null}</div>
-                    <div style={{fontSize:8,color:'var(--sap-accent)',fontWeight:700,letterSpacing:.5,marginTop:2}}>CLICKS</div>
+                    <div style={{fontSize:8,color:'var(--sap-accent)',fontWeight:700,letterSpacing:.5,marginTop:2}}>{t('linkTools.clicksLabel')}</div>
                     {l.click_cap && (
                       <div style={{height:3,background:'#e0f2fe',borderRadius:2,marginTop:4,overflow:'hidden'}}>
                         <div style={{height:'100%',background:((l.click_count||0)/l.click_cap)>0.8?'var(--sap-red-bright)':'var(--sap-accent)',borderRadius:2,width:Math.min(100,Math.round(((l.click_count||0)/l.click_cap)*100))+'%'}}/>
@@ -396,8 +396,8 @@ export default function LinkTools() {
                   <div style={{flex:1}}/>
                   {confirmDelete === 'link-' + l.id ? (
                     <>
-                      <span style={{fontSize:11,fontWeight:600,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>Delete?</span>
-                      <button onClick={() => deleteItem(l.id,'short')} style={{...smallBtn,background:'var(--sap-red)',color:'#fff',border:'none'}}>Yes</button>
+                      <span style={{fontSize:11,fontWeight:600,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>{t('linkTools.deleteConfirm')}</span>
+                      <button onClick={() => deleteItem(l.id,'short')} style={{...smallBtn,background:'var(--sap-red)',color:'#fff',border:'none'}}>{t('linkTools.yes')}</button>
                       <button onClick={() => setConfirmDelete(null)} style={smallBtn}>No</button>
                     </>
                   ) : (
@@ -416,8 +416,8 @@ export default function LinkTools() {
           {rotators.length === 0 && (
             <div style={{textAlign:'center',padding:'40px 20px',background:'#fff',border:'1px solid #e8ecf2',borderRadius:10}}>
               <Shuffle size={32} color="var(--sap-text-faint)" style={{marginBottom:8}}/>
-              <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4}}>No rotators yet</div>
-              <div style={{fontSize:12,color:'var(--sap-text-muted)'}}>Create a rotator to split traffic across multiple URLs</div>
+              <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4}}>{t('linkTools.noRotatorsYet')}</div>
+              <div style={{fontSize:12,color:'var(--sap-text-muted)'}}>{t('linkTools.createRotatorDesc')}</div>
             </div>
           )}
           {rotators.map(r => (
@@ -432,7 +432,7 @@ export default function LinkTools() {
                 </div>
                 <div style={{textAlign:'center',padding:'8px 14px',background:'linear-gradient(135deg,#faf5ff,#ede9fe)',borderRadius:10,border:'1px solid #ddd6fe'}}>
                   <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:900,color:'var(--sap-violet)',lineHeight:1}}>{r.click_count||0}</div>
-                  <div style={{fontSize:8,color:'var(--sap-purple)',fontWeight:700,letterSpacing:.5,marginTop:2}}>CLICKS</div>
+                  <div style={{fontSize:8,color:'var(--sap-purple)',fontWeight:700,letterSpacing:.5,marginTop:2}}>{t('linkTools.clicksLabel')}</div>
                 </div>
               </div>
               <div style={{padding:'8px 16px',borderTop:'1px solid #f1f3f7',display:'flex',gap:6}}>
@@ -441,8 +441,8 @@ export default function LinkTools() {
                 <div style={{flex:1}}/>
                 {confirmDelete === 'rot-' + r.id ? (
                   <>
-                    <span style={{fontSize:11,fontWeight:600,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>Delete?</span>
-                    <button onClick={() => deleteItem(r.id,'rotator')} style={{...smallBtn,background:'var(--sap-red)',color:'#fff',border:'none'}}>Yes</button>
+                    <span style={{fontSize:11,fontWeight:600,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>{t('linkTools.deleteConfirm')}</span>
+                    <button onClick={() => deleteItem(r.id,'rotator')} style={{...smallBtn,background:'var(--sap-red)',color:'#fff',border:'none'}}>{t('linkTools.yes')}</button>
                     <button onClick={() => setConfirmDelete(null)} style={smallBtn}>No</button>
                   </>
                 ) : (
@@ -476,16 +476,16 @@ export default function LinkTools() {
             <div style={{background:'var(--sap-bg-input)',borderRadius:10,padding:16,marginBottom:14,border:'1px solid #e8ecf2'}}>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
                 <div>
-                  <Label><Lock size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Password Protection</Label>
+                  <Label><Lock size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>{t('linkTools.passwordProtection')}</Label>
                   <Input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Leave blank for none" style={{marginBottom:0}}/>
                 </div>
                 <div>
-                  <Label><Calendar size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Expiration Date</Label>
+                  <Label><Calendar size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>{t('linkTools.expirationDate')}</Label>
                   <Input type="datetime-local" value={newExpiry} onChange={e => setNewExpiry(e.target.value)} style={{marginBottom:0}}/>
                 </div>
               </div>
               <div style={{marginTop:12}}>
-                <Label><MousePointer size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Click Cap (optional)</Label>
+                <Label><MousePointer size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>{t('linkTools.clickCap')}</Label>
                 <Input type="number" value={newClickCap} onChange={e => setNewClickCap(e.target.value)} placeholder="Deactivate after N clicks" style={{marginBottom:0}}/>
               </div>
             </div>
@@ -493,7 +493,7 @@ export default function LinkTools() {
 
           <div style={{display:'flex',gap:8,marginTop:8}}>
             <button onClick={createLink} disabled={creating} style={btnPrimary('var(--sap-accent)')}>{creating?'Creating...':'Create Link →'}</button>
-            <button onClick={() => { setShowCreate(false); setShowAdvanced(false); }} style={btnSecondary}>Cancel</button>
+            <button onClick={() => { setShowCreate(false); setShowAdvanced(false); }} style={btnSecondary}>{t('linkTools.cancel')}</button>
           </div>
         </Modal>
       )}
@@ -533,7 +533,7 @@ export default function LinkTools() {
           <button onClick={() => setRotDests([...rotDests,{url:'',weight:50}])} style={{fontSize:11,fontWeight:600,color:'var(--sap-accent)',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12}}>+ Add another URL</button>
           <div style={{display:'flex',gap:8,marginTop:8}}>
             <button onClick={createRotator} disabled={rotCreating} style={btnPrimary('var(--sap-purple)')}>{rotCreating?'Creating...':'Create Rotator →'}</button>
-            <button onClick={() => setShowRotatorCreate(false)} style={btnSecondary}>Cancel</button>
+            <button onClick={() => setShowRotatorCreate(false)} style={btnSecondary}>{t('linkTools.cancel')}</button>
           </div>
         </Modal>
       )}
@@ -570,7 +570,7 @@ export default function LinkTools() {
           </div>
           <div style={{display:'flex',gap:8,marginTop:8}}>
             <button onClick={saveEdit} disabled={editSaving} style={btnPrimary('var(--sap-accent)')}>{editSaving?'Saving...':'Save Changes →'}</button>
-            <button onClick={() => setEditLink(null)} style={btnSecondary}>Cancel</button>
+            <button onClick={() => setEditLink(null)} style={btnSecondary}>{t('linkTools.cancel')}</button>
           </div>
         </Modal>
       )}
@@ -608,7 +608,7 @@ export default function LinkTools() {
           <button onClick={() => setEditRotDests([...editRotDests,{url:'',weight:50,clicks:0}])} style={{fontSize:11,fontWeight:600,color:'var(--sap-purple)',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12}}>+ Add URL</button>
           <div style={{display:'flex',gap:8,marginTop:8}}>
             <button onClick={saveEditRotator} disabled={editRotSaving} style={btnPrimary('var(--sap-purple)')}>{editRotSaving?'Saving...':'Save Changes →'}</button>
-            <button onClick={() => setEditRotator(null)} style={btnSecondary}>Cancel</button>
+            <button onClick={() => setEditRotator(null)} style={btnSecondary}>{t('linkTools.cancel')}</button>
           </div>
         </Modal>
       )}
@@ -714,7 +714,7 @@ export default function LinkTools() {
           </div>
           <div style={{display:'flex',gap:8}}>
             <button onClick={saveTags} style={btnPrimary('var(--sap-purple)')}>Save Tags →</button>
-            <button onClick={() => setTagLink(null)} style={btnSecondary}>Cancel</button>
+            <button onClick={() => setTagLink(null)} style={btnSecondary}>{t('linkTools.cancel')}</button>
           </div>
         </Modal>
       )}

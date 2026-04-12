@@ -84,10 +84,10 @@ function BrowseView({ products, allProducts, search, setSearch, category, setCat
           <div>
             <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:14}}>
               <div style={{width:32,height:32,borderRadius:8,background:'rgba(14,165,233,.15)',display:'flex',alignItems:'center',justifyContent:'center'}}><Store size={18} color="var(--sap-accent-light)"/></div>
-              <span style={{fontSize:12,fontWeight:800,letterSpacing:2.5,textTransform:'uppercase'}}><span style={{color:'#fff'}}>Super</span><span style={{color:'var(--sap-accent-light)'}}>Market</span></span>
+              <span style={{fontSize:12,fontWeight:800,letterSpacing:2.5,textTransform:'uppercase'}}><span style={{color:'#fff'}}>Super</span><span style={{color:'var(--sap-accent-light)'}}>{t('marketplace.title')}</span></span>
             </div>
-            <h2 style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:900,color:'#fff',margin:'0 0 10px'}}>Digital Product Marketplace</h2>
-            <p style={{fontSize:15,color:'rgba(255,255,255,.6)',margin:'0 0 14px',fontWeight:500,maxWidth:480,lineHeight:1.7}}>Sell downloadable digital products — eBooks, templates, software, graphics, audio. Affiliates earn 25% promoting your products.</p>
+            <h2 style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:900,color:'#fff',margin:'0 0 10px'}}>{t('marketplace.subtitle')}</h2>
+            <p style={{fontSize:15,color:'rgba(255,255,255,.6)',margin:'0 0 14px',fontWeight:500,maxWidth:480,lineHeight:1.7}}>{t('marketplace.desc')}</p>
             <div style={{display:'flex',flexWrap:'wrap',gap:8}}>
               {['Instant Download','50% Creator','25% Affiliate','25% Platform','Buyer Reviews'].map(function(item) {
                 return <span key={item} style={{padding:'5px 12px',borderRadius:6,background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.2)',fontSize:11,fontWeight:700,color:'var(--sap-accent-light)'}}>{item}</span>;
@@ -98,7 +98,7 @@ function BrowseView({ products, allProducts, search, setSearch, category, setCat
             <StatBox value={allProducts.length} label="Products" color="var(--sap-accent-light)"/>
             <StatBox value="25%" label="Commission" color="var(--sap-accent)"/>
             <div style={{display:'flex',flexDirection:'column',gap:6}}>
-              <button onClick={onMyProducts} style={{padding:'10px 18px',borderRadius:8,border:'1px solid rgba(14,165,233,.3)',background:'rgba(14,165,233,.08)',color:'var(--sap-accent-light)',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:'inherit'}}>My Products</button>
+              <button onClick={onMyProducts} style={{padding:'10px 18px',borderRadius:8,border:'1px solid rgba(14,165,233,.3)',background:'rgba(14,165,233,.08)',color:'var(--sap-accent-light)',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:'inherit'}}>{t('marketplace.myProducts')}</button>
               <button onClick={onCreate} style={{padding:'10px 18px',borderRadius:8,border:'none',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontSize:11,fontWeight:800,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 10px rgba(14,165,233,.3)'}}>+ Sell Product</button>
             </div>
           </div>
@@ -112,11 +112,11 @@ function BrowseView({ products, allProducts, search, setSearch, category, setCat
           <input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder="Search products..." style={{width:'100%',padding:'10px 14px 10px 38px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff'}}/>
         </div>
         <select value={sortBy} onChange={function(e){setSortBy(e.target.value);}} style={{padding:'10px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',background:'#fff',color:'var(--sap-text-primary)'}}>
-          <option value="newest">Newest</option>
-          <option value="popular">Best Sellers</option>
-          <option value="rating">Highest Rated</option>
-          <option value="price-low">Price: Low → High</option>
-          <option value="price-high">Price: High → Low</option>
+          <option value="newest">{t('marketplace.newest')}</option>
+          <option value="popular">{t('marketplace.bestSellers')}</option>
+          <option value="rating">{t('marketplace.highestRated')}</option>
+          <option value="price-low">{t('marketplace.priceLowHigh')}</option>
+          <option value="price-high">{t('marketplace.priceHighLow')}</option>
         </select>
       </div>
 
@@ -136,15 +136,15 @@ function BrowseView({ products, allProducts, search, setSearch, category, setCat
       ) : (
         <div style={{textAlign:'center',padding:'80px 20px',background:'#fff',borderRadius:14,border:'1px solid #e8ecf2'}}>
           <div style={{fontSize:48,marginBottom:12,opacity:.3}}>📦</div>
-          <div style={{fontSize:16,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4}}>No products found</div>
-          <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:16}}>Be the first to list a product!</div>
+          <div style={{fontSize:16,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4}}>{t('marketplace.noProducts')}</div>
+          <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:16}}>{t('marketplace.beFirst')}</div>
           <button onClick={onCreate} style={{padding:'10px 24px',borderRadius:8,border:'none',background:'var(--sap-accent)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>+ Sell a Product</button>
         </div>
       )}
 
       {/* Commission explainer */}
       <div style={{marginTop:32,background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
-        <div style={{background:'#0c1e4a',padding:'16px 24px'}}><div style={{fontSize:14,fontWeight:800,color:'#fff'}}>How SuperMarket Works</div></div>
+        <div style={{background:'#0c1e4a',padding:'16px 24px'}}><div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('marketplace.howItWorks')}</div></div>
         <div style={{padding:'24px',display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16}}>
           {[
             {icon:Package,label:'Upload',desc:'Upload your digital product file',color:'var(--sap-purple)'},
@@ -184,7 +184,7 @@ function ProductCard({ product, onOpen }) {
           <span style={{fontSize:8,fontWeight:800,padding:'2px 6px',borderRadius:4,background:'rgba(22,163,74,.85)',color:'#fff'}}>50% Creator</span>
           <span style={{fontSize:8,fontWeight:800,padding:'2px 6px',borderRadius:4,background:'rgba(14,165,233,.85)',color:'#fff'}}>25% You</span>
         </div>
-        {(p.total_sales||0)>5 && <div style={{position:'absolute',top:10,left:10,display:'flex',alignItems:'center',gap:3,background:'rgba(245,158,11,.9)',borderRadius:4,padding:'2px 6px'}}><TrendingUp size={10} color="#fff"/><span style={{fontSize:8,fontWeight:800,color:'#fff'}}>HOT</span></div>}
+        {(p.total_sales||0)>5 && <div style={{position:'absolute',top:10,left:10,display:'flex',alignItems:'center',gap:3,background:'rgba(245,158,11,.9)',borderRadius:4,padding:'2px 6px'}}><TrendingUp size={10} color="#fff"/><span style={{fontSize:8,fontWeight:800,color:'#fff'}}>{t('marketplace.hot')}</span></div>}
       </div>
       <div style={{padding:'16px 18px',flex:1,display:'flex',flexDirection:'column'}}>
         <div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:4,lineHeight:1.3}}>{p.title}</div>
@@ -225,7 +225,7 @@ function ProductDetail({ product, onBack, currentUserId }) {
             </div>
           )}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
-            <div style={{background:'#0c1e4a',padding:'14px 20px'}}><div style={{fontSize:14,fontWeight:800,color:'#fff'}}>About This Product</div></div>
+            <div style={{background:'#0c1e4a',padding:'14px 20px'}}><div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('marketplace.aboutProduct')}</div></div>
             <div style={{padding:'20px',fontSize:13,color:'#334155',lineHeight:1.8,whiteSpace:'pre-wrap'}}>{(p.description||'No description provided.').replace(/<[^>]*>/g, '')}</div>
           </div>
           {Array.isArray(p.features) && p.features.length > 0 && (
