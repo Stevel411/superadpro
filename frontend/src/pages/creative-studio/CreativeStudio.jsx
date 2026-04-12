@@ -929,7 +929,7 @@ export default function CreativeStudio() {
                     <div className="cs-lbl">Style</div>
                     <input style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', marginBottom: 10, boxSizing: 'border-box' }} placeholder="pop, rock, electronic, jazz..." value={musicStyle} onChange={function(e) { setMusicStyle(e.target.value); }}/>
                     <div className="cs-lbl">{t('creativeStudio.titleLabel')}</div>
-                    <input style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', marginBottom: 10, boxSizing: 'border-box' }} placeholder="Song title" value={musicTitle} onChange={function(e) { setMusicTitle(e.target.value); }}/>
+                    <input style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', marginBottom: 10, boxSizing: 'border-box' }} placeholder={t("creativeStudio.songTitlePlaceholder")} value={musicTitle} onChange={function(e) { setMusicTitle(e.target.value); }}/>
                     <div className="cs-lbl">{t('creativeStudio.vocalGender')}</div>
                     <div className="cs-pills">
                       {[['', 'Auto'], ['m', 'Male'], ['f', 'Female']].map(function(g) { return <button key={g[0]} className={'cs-pill' + (musicGender === g[0] ? ' on' : '')} onClick={function() { setMusicGender(g[0]); }}>{g[1]}</button>; })}
@@ -965,14 +965,14 @@ export default function CreativeStudio() {
               ) : voAudioUrl ? (
                 <div style={{ textAlign: 'center', padding: 40 }}>
                   <div style={{ fontSize: 48, marginBottom: 12 }}>🎙</div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 16 }}>Voiceover Ready</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 16 }}>{t('creativeStudio.voiceoverReadyLabel')}</div>
                   <audio src={voAudioUrl} controls style={{ width: '100%', maxWidth: 500 }}/>
                 </div>
               ) : (
                 <div className="cs-stage-empty">
                   <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
-                  <p>Your voiceover will appear here</p>
-                  <small>Write a script, pick a voice, and generate</small>
+                  <p>{t('creativeStudio.voiceoverWillAppear')}</p>
+                  <small>{t('creativeStudio.writeScriptAndGenerate')}</small>
                 </div>
               )}
             </div>
@@ -1021,7 +1021,7 @@ export default function CreativeStudio() {
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10"/></svg>
                 {voGenerating ? 'Generating...' : !voText.trim() ? 'Enter a script' : '🎙 Generate Voiceover'}
               </button>
-              <div className="cs-gen-info"><b>Free</b>No credits required</div>
+              <div className="cs-gen-info"><b>{t('creativeStudio.freeLabel')}</b>{t('creativeStudio.noCreditsRequired')}</div>
             </div>
           </>}
 
@@ -1031,7 +1031,7 @@ export default function CreativeStudio() {
               {voLipSyncing ? (
                 <div className="cs-stage-empty">
                   <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: 'var(--sap-purple)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
-                  <p style={{ color: 'rgba(255,255,255,.5)' }}>Creating talking avatar...</p>
+                  <p style={{ color: 'rgba(255,255,255,.5)' }}>{t('creativeStudio.creatingAvatar')}</p>
                   <small style={{ color: 'rgba(255,255,255,.25)' }}>{Math.round(voLipSyncProgress)}%</small>
                 </div>
               ) : voLipSyncUrl ? (
@@ -1039,8 +1039,8 @@ export default function CreativeStudio() {
               ) : (
                 <div className="cs-stage-empty">
                   <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
-                  <p>Your talking avatar will appear here</p>
-                  <small>Upload a photo, provide audio, and generate</small>
+                  <p>{t('creativeStudio.avatarWillAppear')}</p>
+                  <small>{t('creativeStudio.uploadPhotoAndGenerate')}</small>
                 </div>
               )}
             </div>
@@ -1065,7 +1065,7 @@ export default function CreativeStudio() {
                   ) : (
                     <div className="cs-upload" onClick={function() { if (voImageInputRef.current) voImageInputRef.current.click(); }}>
                       <div className="cs-upload-plus">📷</div>
-                      <div className="cs-upload-text">Upload a photo of a person</div>
+                      <div className="cs-upload-text">{t('creativeStudio.uploadPhotoOfPerson')}</div>
                     </div>
                   )}
                 </div>
@@ -1075,7 +1075,7 @@ export default function CreativeStudio() {
                     <div>
                       <div style={{ fontSize: 12, color: 'var(--sap-green-bright)', fontWeight: 600, marginBottom: 8 }}>✓ Voiceover ready</div>
                       <audio src={voAudioUrl} controls style={{ width: '100%' }}/>
-                      <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', marginTop: 6 }}>Generated from the Voiceover tab</div>
+                      <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', marginTop: 6 }}>{t('creativeStudio.generatedFromVoiceover')}</div>
                     </div>
                   ) : (
                     <div style={{ textAlign: 'center', padding: 20, color: 'var(--sap-text-faint)', fontSize: 13 }}>

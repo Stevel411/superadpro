@@ -190,7 +190,7 @@ export default function LinkHub() {
         {/* Header */}
         <div style={{padding:'14px 20px',borderBottom:'1px solid #e5e7eb',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
           <div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:900,color:'var(--sap-text-primary)'}}>LinkHub</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:900,color:'var(--sap-text-primary)'}}>{t('linkHub.title')}</div>
             <div style={{fontSize:12,color:'var(--sap-text-faint)',fontWeight:500}}>{t('linkHub.editPage')}</div>
           </div>
           <div style={{display:'flex',gap:6}}>
@@ -322,7 +322,7 @@ export default function LinkHub() {
                   );
                 })}
               </div>
-              <div style={{marginTop:32,fontSize:10,color:style.text_color,opacity:.2}}>Powered by SuperAdPro LinkHub</div>
+              <div style={{marginTop:32,fontSize:10,color:style.text_color,opacity:.2}}>{t('linkHub.poweredBy')}</div>
             </div>
           </div>
         </div>
@@ -390,7 +390,7 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
                       style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:6,border:link.icon==='none'?'2px solid #8b5cf6':'2px solid #e5e7eb',background:link.icon==='none'?'rgba(139,92,246,.06)':'var(--sap-bg-input)',cursor:'pointer',fontSize:12,fontWeight:600,color:'var(--sap-text-muted)',fontFamily:'inherit'}}>
                       <span style={{fontSize:16}}>✕</span> No Icon
                     </button>
-                    <span style={{fontSize:11,color:'var(--sap-text-faint)'}}>Click a category to expand</span>
+                    <span style={{fontSize:11,color:'var(--sap-text-faint)'}}>{t('linkHub.clickCategory')}</span>
                   </div>
                   {/* Categories */}
                   {ICON_CATEGORIES.map(function(cat) {
@@ -419,7 +419,7 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
               <input value={link.url} onChange={function(e){updateLink(link.id,'url',e.target.value);}} placeholder="https://..." style={{width:'100%',padding:'10px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff',color:'var(--sap-text-muted)'}}/>
               {/* Per-link button colour */}
               <div style={{display:'flex',alignItems:'center',gap:8,marginTop:8}}>
-                <label style={{fontSize:11,fontWeight:600,color:'var(--sap-text-faint)',whiteSpace:'nowrap'}}>Button colour</label>
+                <label style={{fontSize:11,fontWeight:600,color:'var(--sap-text-faint)',whiteSpace:'nowrap'}}>{t('linkHub.buttonColour')}</label>
                 <input type="color" value={link.btn_bg_color||style.btn_color||'var(--sap-purple)'}
                   onChange={function(e){updateLink(link.id,'btn_bg_color',e.target.value);}}
                   style={{width:28,height:28,padding:2,border:'1px solid #e5e7eb',borderRadius:6,cursor:'pointer',background:'none'}}/>
@@ -478,7 +478,7 @@ function StylePanel({ style, setStyle }) {
 
       {/* Background image — upload or URL */}
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Background Image</label>
+        <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('linkHub.backgroundImage')}</label>
         {style.bg_image_url && (
           <div style={{width:'100%',height:60,borderRadius:8,marginBottom:6,backgroundImage:'url('+style.bg_image_url+')',backgroundSize:'cover',backgroundPosition:'center',border:'1px solid #e5e7eb',position:'relative'}}>
             <button onClick={function(){
@@ -506,7 +506,7 @@ function StylePanel({ style, setStyle }) {
 
       {/* Font */}
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Font Family</label>
+        <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('linkHub.fontFamily')}</label>
         <select value={style.font_family} onChange={upd('font_family')} style={{width:'100%',padding:'9px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:style.font_family+',sans-serif',outline:'none',background:'#fff'}}>
           {FONTS.map(function(f){return <option key={f} value={f} style={{fontFamily:f}}>{f}</option>;})}
         </select>
@@ -520,7 +520,7 @@ function StylePanel({ style, setStyle }) {
 
       {/* Button shape */}
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Button Shape</label>
+        <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('linkHub.buttonShape')}</label>
         <div style={{display:'flex',gap:6}}>
           {[{k:'rounded',r:20,label:'Rounded'},{k:'soft',r:8,label:'Soft'},{k:'sharp',r:2,label:'Sharp'},{k:'outline',r:20,label:'Outline'}].map(function(bs) {
             var on = style.btn_style_type===bs.k;
@@ -537,7 +537,7 @@ function StylePanel({ style, setStyle }) {
 
       {/* Text alignment */}
       <div style={{marginBottom:14}}>
-        <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Button Text Alignment</label>
+        <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('linkHub.buttonTextAlignment')}</label>
         <div style={{display:'flex',gap:6}}>
           {[{k:'left',Icon:AlignLeft},{k:'center',Icon:AlignCenter},{k:'right',Icon:AlignRight}].map(function(a) {
             var on = style.btn_align===a.k;
@@ -553,7 +553,7 @@ function StylePanel({ style, setStyle }) {
 
       {/* Arrow style */}
       <div>
-        <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>Button Arrow</label>
+        <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('linkHub.buttonArrow')}</label>
         <div style={{display:'flex',gap:6}}>
           {ARROW_STYLES.map(function(a) {
             var on = style.arrow_style===a.key;
@@ -602,7 +602,7 @@ function ProfilePanel({ profile, setProfile, onRemoveAvatar }) {
 
   return (
     <div>
-      <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 20px'}}>Profile</h3>
+      <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 20px'}}>{t('linkHub.profileSection')}</h3>
 
       {/* Avatar */}
       <div style={{marginBottom:18,textAlign:'center'}}>

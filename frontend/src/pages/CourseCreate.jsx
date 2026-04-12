@@ -104,18 +104,18 @@ export default function CourseCreate() {
           {step===0&&(
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
-                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>What's your course about?</h3>
-                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>The basics — you can always change these later</p>
+                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>{t('courseCreate.whatsYourCourse')}</h3>
+                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>{t('courseCreate.theBasics')}</p>
               </div>
               <div style={{padding:'28px 32px'}}>
                 <div style={{marginBottom:22}}>
-                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Course Title</label>
-                  <input value={title} onChange={function(e){setTitle(e.target.value);}} placeholder="e.g. Digital Marketing Mastery for Beginners" style={iS} onFocus={foc} onBlur={blu}/>
-                  <div style={{fontSize:10,color:'var(--sap-text-ghost)',marginTop:4}}>Minimum 10 characters</div>
+                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>{t('courseCreate.courseTitle')}</label>
+                  <input value={title} onChange={function(e){setTitle(e.target.value);}} placeholder={t("courseCreate.courseTitlePlaceholder")} style={iS} onFocus={foc} onBlur={blu}/>
+                  <div style={{fontSize:10,color:'var(--sap-text-ghost)',marginTop:4}}>{t('courseCreate.minChars')}</div>
                 </div>
 
                 <div style={{marginBottom:22}}>
-                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Category</label>
+                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>{t('courseCreate.category')}</label>
                   <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6}}>
                     {CATEGORIES.map(function(c){var on=category===c.key;return(
                       <button key={c.key} onClick={function(){setCategory(c.key);}} style={{padding:'12px',borderRadius:10,cursor:'pointer',fontFamily:'inherit',textAlign:'center',border:on?'2px solid #8b5cf6':'2px solid #f1f3f7',background:on?'rgba(139,92,246,.04)':'#fafbfc',transition:'all .15s'}}>
@@ -128,12 +128,12 @@ export default function CourseCreate() {
 
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:22}}>
                   <div>
-                    <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Price</label>
+                    <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>{t('courseCreate.price')}</label>
                     <div style={{position:'relative'}}><span style={{position:'absolute',left:16,top:14,fontSize:18,fontWeight:800,color:'var(--sap-text-ghost)'}}>$</span><input type="number" min="20" value={price} onChange={function(e){setPrice(e.target.value);}} placeholder="49" style={Object.assign({},iS,{paddingLeft:34,fontSize:20,fontWeight:800,fontFamily:'Sora,sans-serif'})} onFocus={foc} onBlur={blu}/></div>
                     <div style={{fontSize:11,color:'var(--sap-green)',fontWeight:700,marginTop:6}}>You keep 100% = ${parseFloat(price||0).toFixed(0)} per kept sale</div>
                   </div>
                   <div>
-                    <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Difficulty</label>
+                    <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>{t('courseCreate.difficulty')}</label>
                     <div style={{display:'flex',gap:4,marginTop:4}}>
                       {[{k:'beginner',l:'Beginner',icon:'🟢'},{k:'intermediate',l:'Intermediate',icon:'🟡'},{k:'advanced',l:'Advanced',icon:'🔴'}].map(function(d){
                         var on=difficulty===d.k;
@@ -147,8 +147,8 @@ export default function CourseCreate() {
                 </div>
 
                 <div>
-                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Short Summary</label>
-                  <input value={shortDesc} onChange={function(e){setShortDesc(e.target.value);}} maxLength={160} placeholder="One line that sells your course" style={iS} onFocus={foc} onBlur={blu}/>
+                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>{t('courseCreate.shortSummary')}</label>
+                  <input value={shortDesc} onChange={function(e){setShortDesc(e.target.value);}} maxLength={160} placeholder={t("courseCreate.summaryPlaceholder")} style={iS} onFocus={foc} onBlur={blu}/>
                   <div style={{textAlign:'right',fontSize:10,color:'var(--sap-text-ghost)',marginTop:4}}>{shortDesc.length}/160</div>
                 </div>
               </div>
@@ -159,8 +159,8 @@ export default function CourseCreate() {
           {step===1&&(
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
-                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Describe Your Course</h3>
-                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>Help students understand what they'll learn</p>
+                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>{t('courseCreate.describeYourCourse')}</h3>
+                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>{t('courseCreate.helpStudents')}</p>
               </div>
               <div style={{padding:'28px 32px'}}>
                 <div style={{marginBottom:22}}>

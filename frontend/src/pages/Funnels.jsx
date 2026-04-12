@@ -105,7 +105,7 @@ export default function Funnels() {
       <div style={{marginBottom:24}}>
         <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
           <svg width="32" height="32" viewBox="0 0 48 48"><rect x="6" y="6" width="16" height="16" rx="4" fill="var(--sap-accent)" opacity=".9"/><rect x="26" y="6" width="16" height="16" rx="4" fill="var(--sap-indigo)" opacity=".7"/><rect x="6" y="26" width="16" height="16" rx="4" fill="var(--sap-indigo)" opacity=".5"/><rect x="26" y="26" width="16" height="16" rx="4" fill="var(--sap-accent)" opacity=".3"/></svg>
-          <h1 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'var(--sap-text-primary)'}}>Super<span style={{color:'var(--sap-accent)'}}>Pages</span></h1>
+          <h1 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'var(--sap-text-primary)'}}>Super<span style={{color:'var(--sap-accent)'}}>{t('superPages.pagesLabel')}</span></h1>
         </div>
         <p style={{margin:0,fontSize:13,color:'var(--sap-text-muted)'}}>{t('superPages.subtitle')}</p>
       </div>
@@ -186,15 +186,15 @@ export default function Funnels() {
                     {p.slug&&<div style={{fontSize:10,color:'var(--sap-text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>/{p.slug}</div>}
                   </div>
                   <div style={{padding:'8px 14px',display:'flex',gap:12,borderBottom:'1px solid #f1f3f7'}}>
-                    <div style={{display:'flex',alignItems:'center',gap:4}}><Eye size={12} color="var(--sap-text-muted)"/><span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.views||0}</span><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>Views</span></div>
-                    <div style={{display:'flex',alignItems:'center',gap:4}}><FileText size={12} color="var(--sap-text-muted)"/><span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.leads_captured||0}</span><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>Leads</span></div>
+                    <div style={{display:'flex',alignItems:'center',gap:4}}><Eye size={12} color="var(--sap-text-muted)"/><span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.views||0}</span><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>{t('superPages.viewsLabel')}</span></div>
+                    <div style={{display:'flex',alignItems:'center',gap:4}}><FileText size={12} color="var(--sap-text-muted)"/><span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.leads_captured||0}</span><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>{t('superPages.leadsLabel')}</span></div>
                     {p.is_ai_generated&&<span style={{fontSize:8,fontWeight:700,color:'var(--sap-indigo)',background:'rgba(99,102,241,.08)',padding:'2px 5px',borderRadius:4,marginLeft:'auto'}}>AI</span>}
                   </div>
                   <div style={{padding:'8px 14px',display:'flex',gap:5}}>
                     {confirmDelete===p.id ? (
                       <>
-                        <div style={{flex:1,fontSize:11,fontWeight:700,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>Delete this page?</div>
-                        <button onClick={()=>deletePage(p.id)} style={{padding:'7px 14px',borderRadius:6,border:'none',background:'var(--sap-red)',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer'}}>Yes</button>
+                        <div style={{flex:1,fontSize:11,fontWeight:700,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>{t('superPages.deletePageConfirm')}</div>
+                        <button onClick={()=>deletePage(p.id)} style={{padding:'7px 14px',borderRadius:6,border:'none',background:'var(--sap-red)',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer'}}>{t('superPages.yesDelete')}</button>
                         <button onClick={()=>setConfirmDelete(null)} style={{padding:'7px 14px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-text-muted)',fontSize:11,fontWeight:700,cursor:'pointer'}}>No</button>
                       </>
                     ) : (
@@ -226,7 +226,7 @@ export default function Funnels() {
               <Sparkles size={20} color="var(--sap-accent)"/>
               <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('superPages.aiFunnelGenerator')}</h3>
             </div>
-            <p style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:20}}>Answer 4 questions and AI will generate a complete landing page for you.</p>
+            <p style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:20}}>{t("superPages.aiWizardIntro")}</p>
 
             <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>1. What's your niche or industry?</label>
             <input value={aiForm.niche} onChange={e=>setAiForm(p=>({...p,niche:e.target.value}))} placeholder="e.g. Forex trading, fitness coaching, crypto..."

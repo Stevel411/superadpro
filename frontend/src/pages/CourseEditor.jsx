@@ -59,7 +59,7 @@ export default function CourseEditor() {
   }
 
   if(loading)return <AppLayout title="Course Editor"><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-purple)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
-  if(!course)return <AppLayout title="Course Editor"><div style={{textAlign:'center',padding:60,color:'var(--sap-text-muted)'}}>Course not found</div></AppLayout>;
+  if(!course)return <AppLayout title="Course Editor"><div style={{textAlign:'center',padding:60,color:'var(--sap-text-muted)'}}>{t('courseEditor.courseNotFound')}</div></AppLayout>;
 
   var totalLectures=0;var totalDuration=0;var hasPreview=false;
   (course.chapters||[]).forEach(function(ch){(ch.lessons||[]).forEach(function(l){totalLectures++;totalDuration+=l.duration_minutes||0;if(l.is_preview)hasPreview=true;});});
@@ -90,7 +90,7 @@ export default function CourseEditor() {
 
           {/* Section header */}
           <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:14}}>
-            <h3 style={{fontSize:18,fontWeight:800,color:'var(--sap-text-primary)',margin:0,fontFamily:'Sora,sans-serif'}}>Curriculum</h3>
+            <h3 style={{fontSize:18,fontWeight:800,color:'var(--sap-text-primary)',margin:0,fontFamily:'Sora,sans-serif'}}>{t('courseEditor.curriculum')}</h3>
             <button onClick={addSection} disabled={saving==='section'}
               style={{display:'flex',alignItems:'center',gap:4,padding:'9px 18px',borderRadius:8,border:'none',background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit',boxShadow:'0 2px 10px rgba(139,92,246,.2)'}}>
               <Plus size={14}/> Add Section
@@ -101,8 +101,8 @@ export default function CourseEditor() {
           {(course.chapters||[]).length===0?(
             <div style={{textAlign:'center',padding:'60px 20px',background:'#fff',borderRadius:14,border:'1px solid #e8ecf2'}}>
               <div style={{fontSize:48,marginBottom:10,opacity:.2}}>📚</div>
-              <div style={{fontSize:16,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:4}}>No sections yet</div>
-              <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:16}}>Start building your course by adding a section</div>
+              <div style={{fontSize:16,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:4}}>{t('courseEditor.noSections')}</div>
+              <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:16}}>{t('courseEditor.startBuilding')}</div>
               <button onClick={addSection} style={{padding:'10px 24px',borderRadius:8,border:'none',background:'var(--sap-purple)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>+ Add First Section</button>
             </div>
           ):(course.chapters||[]).map(function(section,sIdx){
@@ -158,7 +158,7 @@ export default function CourseEditor() {
                               </div>
                             </div>
                             <div style={{display:'flex',alignItems:'center',gap:6}}>
-                              {lecture.is_preview&&<span style={{fontSize:8,fontWeight:800,padding:'2px 6px',borderRadius:4,background:'var(--sap-green-bg-mid)',color:'var(--sap-green)'}}>FREE PREVIEW</span>}
+                              {lecture.is_preview&&<span style={{fontSize:8,fontWeight:800,padding:'2px 6px',borderRadius:4,background:'var(--sap-green-bg-mid)',color:'var(--sap-green)'}}>{t('courseEditor.freePreview')}</span>}
                               <button onClick={function(e){e.stopPropagation();deleteLecture(lecture.id);}} style={{color:'var(--sap-red)',background:'none',border:'none',cursor:'pointer',padding:2,opacity:.4}} onMouseEnter={function(e){e.currentTarget.style.opacity=1;}} onMouseLeave={function(e){e.currentTarget.style.opacity=.4;}}><Trash2 size={12}/></button>
                             </div>
                           </div>
@@ -195,8 +195,8 @@ export default function CourseEditor() {
           {/* Submit card */}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
             <div style={{background:'linear-gradient(135deg,#172554,#172554)',padding:'16px 20px'}}>
-              <div style={{fontSize:15,fontWeight:800,color:'#fff',fontFamily:'Sora,sans-serif'}}>Publish Course</div>
-              <div style={{fontSize:11,color:'rgba(255,255,255,.4)',marginTop:2}}>Complete all requirements, then submit</div>
+              <div style={{fontSize:15,fontWeight:800,color:'#fff',fontFamily:'Sora,sans-serif'}}>{t('courseEditor.publishCourse')}</div>
+              <div style={{fontSize:11,color:'rgba(255,255,255,.4)',marginTop:2}}>{t('courseEditor.completeRequirements')}</div>
             </div>
             <div style={{padding:'18px 20px'}}>
               <div style={{marginBottom:14}}>
@@ -246,7 +246,7 @@ export default function CourseEditor() {
 
           {/* Tips */}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,padding:'14px 16px'}}>
-            <div style={{fontSize:11,fontWeight:800,color:'#334155',marginBottom:8}}>Tips for a Great Course</div>
+            <div style={{fontSize:11,fontWeight:800,color:'#334155',marginBottom:8}}>{t('courseEditor.tipsTitle')}</div>
             {['Start with a compelling intro video','Mix video, text, and resources','Keep lectures under 15 minutes each','Mark your best lecture as Free Preview','Add at least 5 lectures for depth'].map(function(t,i){
               return <div key={i} style={{display:'flex',gap:6,padding:'3px 0',fontSize:11,color:'var(--sap-text-muted)'}}><span style={{color:'var(--sap-purple)'}}>•</span>{t}</div>;
             })}
@@ -294,13 +294,13 @@ function LectureEditor({lecture, onSave, onReload}){
       {/* Title + meta row */}
       <div style={{display:'grid',gridTemplateColumns:'2fr auto auto',gap:12,marginBottom:16,alignItems:'end'}}>
         <div>
-          <label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>Lecture Title</label>
+          <label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('courseEditor.lectureTitle')}</label>
           <input value={title} onChange={function(e){setTitle(e.target.value);}}
             style={{width:'100%',padding:'10px 14px',border:'2px solid #e8ecf2',borderRadius:10,fontSize:14,fontWeight:600,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff'}}
             onFocus={function(e){e.target.style.borderColor='var(--sap-purple)';}} onBlur={function(e){e.target.style.borderColor='var(--sap-border-light)';}}/>
         </div>
         <div>
-          <label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>Duration</label>
+          <label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('courseEditor.duration')}</label>
           <div style={{display:'flex',alignItems:'center',gap:4}}>
             <input type="number" min="0" value={duration} onChange={function(e){setDuration(e.target.value);}}
               style={{width:60,padding:'10px 8px',border:'2px solid #e8ecf2',borderRadius:10,fontSize:14,fontWeight:700,fontFamily:'Sora,sans-serif',outline:'none',textAlign:'center',background:'#fff'}}/>
@@ -331,7 +331,7 @@ function LectureEditor({lecture, onSave, onReload}){
       {contentType==='video'&&(
         <div style={{marginBottom:16}}>
           <label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>Video URL (YouTube, Vimeo, Loom)</label>
-          <input value={videoUrl} onChange={function(e){setVideoUrl(e.target.value);}} placeholder="https://youtube.com/watch?v=..."
+          <input value={videoUrl} onChange={function(e){setVideoUrl(e.target.value);}} placeholder={t("courseEditor.videoUrlPlaceholder")}
             style={{width:'100%',padding:'10px 14px',border:'2px solid #e8ecf2',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff'}}
             onFocus={function(e){e.target.style.borderColor='var(--sap-accent)';}} onBlur={function(e){e.target.style.borderColor='var(--sap-border-light)';}}/>
           {embedUrl&&(

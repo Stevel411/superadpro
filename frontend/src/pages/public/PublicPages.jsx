@@ -34,9 +34,9 @@ export function FAQ() {
     <PublicLayout>
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '60px 24px' }}>
         <div style={{ textAlign: 'center', marginBottom: 56 }}>
-          <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-accent-light)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>FAQ</div>
-          <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 'clamp(28px,4vw,48px)', fontWeight: 900, margin: '0 0 16px' }}>Frequently Asked Questions</h1>
-          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.45)', margin: 0 }}>Everything you need to know before joining.</p>
+          <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-accent-light)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>{t('publicPages.faq')}</div>
+          <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 'clamp(28px,4vw,48px)', fontWeight: 900, margin: '0 0 16px' }}>{t('publicPages.faqTitle')}</h1>
+          <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.45)', margin: 0 }}>{t('publicPages.faqSubtitle')}</p>
         </div>
 
         <div style={{ marginBottom: 56 }}>
@@ -44,10 +44,10 @@ export function FAQ() {
         </div>
 
         <div style={{ background: 'rgba(14,165,233,0.07)', border: '1px solid rgba(14,165,233,0.15)', borderRadius: 16, padding: '32px', textAlign: 'center' }}>
-          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.5)', marginBottom: 20 }}>Still have questions?</p>
+          <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.5)', marginBottom: 20 }}>{t('publicPages.stillHaveQuestions')}</p>
           <div style={{ display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/support" style={{ padding: '10px 24px', borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontWeight: 700, textDecoration: 'none', fontSize: 14 }}>Contact Support</Link>
-            <Link to="/register" style={{ padding: '10px 24px', borderRadius: 10, background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 700, textDecoration: 'none', fontSize: 14 }}>Join Free</Link>
+            <Link to="/support" style={{ padding: '10px 24px', borderRadius: 10, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', fontWeight: 700, textDecoration: 'none', fontSize: 14 }}>{t('publicPages.contactSupport')}</Link>
+            <Link to="/register" style={{ padding: '10px 24px', borderRadius: 10, background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 700, textDecoration: 'none', fontSize: 14 }}>{t('publicPages.joinFreeBtn')}</Link>
           </div>
         </div>
       </div>
@@ -72,16 +72,16 @@ export function Legal() {
   return (
     <PublicLayout>
       <div style={{ maxWidth: 800, margin: '0 auto', padding: '60px 24px' }}>
-        <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 40, fontWeight: 900, marginBottom: 8 }}>Legal</h1>
-        <p style={{ color: 'rgba(255,255,255,0.4)', marginBottom: 48 }}>Last updated: March 2026</p>
+        <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 40, fontWeight: 900, marginBottom: 8 }}>{t('publicPages.legalTitle')}</h1>
+        <p style={{ color: 'rgba(255,255,255,0.4)', marginBottom: 48 }}>{t('publicPages.lastUpdated')}</p>
 
         <LegalSection title="Terms of Service">
           <p style={p}>By using SuperAdPro, you agree to these terms. SuperAdPro is a video advertising and affiliate marketing platform. Members earn commissions by referring others and participating in campaign grids.</p>
-          <p style={p}>All purchases are final and non-refundable. This includes membership fees, campaign tiers, courses, and digital products. Commissions are paid instantly upon purchase and cannot be reversed. We reserve the right to terminate accounts that violate our policies. Continued use of the platform constitutes acceptance of these terms.</p>
+          <p style={p}>{t("publicPages.refundPolicy")}</p>
         </LegalSection>
 
         <LegalSection title="Earnings Disclaimer">
-          <p style={p}>Income examples shown on this platform are illustrative only. Individual results will vary based on effort, network size, market conditions, and other factors. SuperAdPro does not guarantee any specific level of income.</p>
+          <p style={p}>{t("publicPages.incomeDisclaimer")}</p>
           <p style={p}>Participation in the platform involves financial risk and should be treated as a business venture. Past performance of other members is not indicative of your own results.</p>
         </LegalSection>
 

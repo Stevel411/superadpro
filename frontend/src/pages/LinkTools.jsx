@@ -477,7 +477,7 @@ export default function LinkTools() {
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
                 <div>
                   <Label><Lock size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>{t('linkTools.passwordProtection')}</Label>
-                  <Input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Leave blank for none" style={{marginBottom:0}}/>
+                  <Input type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder={t("linkTools.expirationPlaceholder")} style={{marginBottom:0}}/>
                 </div>
                 <div>
                   <Label><Calendar size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>{t('linkTools.expirationDate')}</Label>
@@ -486,7 +486,7 @@ export default function LinkTools() {
               </div>
               <div style={{marginTop:12}}>
                 <Label><MousePointer size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>{t('linkTools.clickCap')}</Label>
-                <Input type="number" value={newClickCap} onChange={e => setNewClickCap(e.target.value)} placeholder="Deactivate after N clicks" style={{marginBottom:0}}/>
+                <Input type="number" value={newClickCap} onChange={e => setNewClickCap(e.target.value)} placeholder={t("linkTools.clickCapPlaceholder")} style={{marginBottom:0}}/>
               </div>
             </div>
           )}
@@ -504,7 +504,7 @@ export default function LinkTools() {
           <Label>{t('linkTools.rotatorName')}</Label>
           <Input value={rotName} onChange={e => setRotName(e.target.value)} placeholder={t("linkTools.rotatorNamePlaceholder")}/>
           <Label>{t('linkTools.customSlug')}</Label>
-          <Input value={rotSlug} onChange={e => setRotSlug(e.target.value)} placeholder="my-rotator"/>
+          <Input value={rotSlug} onChange={e => setRotSlug(e.target.value)} placeholder={t("linkTools.rotatorSlugPlaceholder")}/>
           <Label>{t('linkTools.rotationMode')}</Label>
           <div style={{display:'flex',gap:6,marginBottom:14}}>
             {[['equal','Equal Split'],['weighted','Weighted'],['sequential','Sequential']].map(([k,l]) => (
@@ -548,12 +548,12 @@ export default function LinkTools() {
           <Input value={editTitle} onChange={e => setEditTitle(e.target.value)} placeholder={t("linkTools.linkTitlePlaceholder")}/>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
             <div>
-              <Label><Calendar size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Expiration</Label>
+              <Label><Calendar size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>{t('linkTools.expiration')}</Label>
               <Input type="datetime-local" value={editExpiry} onChange={e => setEditExpiry(e.target.value)} style={{marginBottom:0}}/>
             </div>
             <div>
-              <Label><MousePointer size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Click Cap</Label>
-              <Input type="number" value={editClickCap} onChange={e => setEditClickCap(e.target.value)} placeholder="No limit" style={{marginBottom:0}}/>
+              <Label><MousePointer size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>{t('linkTools.clickCapLabel')}</Label>
+              <Input type="number" value={editClickCap} onChange={e => setEditClickCap(e.target.value)} placeholder={t("linkTools.noLimitPlaceholder")} style={{marginBottom:0}}/>
             </div>
           </div>
           <div style={{marginTop:12}}>
@@ -623,7 +623,7 @@ export default function LinkTools() {
       {/* ── UTM BUILDER MODAL ── */}
       {showUtm && (
         <Modal onClose={() => setShowUtm(false)} title="UTM Tag Builder" icon={<Search size={18} color="var(--sap-green-mid)"/>} wide>
-          <p style={{fontSize:12,color:'var(--sap-text-muted)',marginBottom:16}}>Build campaign-tracked URLs with UTM parameters. Paste any URL and add your campaign tags.</p>
+          <p style={{fontSize:12,color:'var(--sap-text-muted)',marginBottom:16}}>{t("linkTools.utmBuilder")}</p>
           <Label>{t('linkTools.baseUrl')}</Label>
           <Input value={utmUrl} onChange={e => setUtmUrl(e.target.value)} placeholder={t("linkTools.baseUrlPlaceholder")}/>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
@@ -649,7 +649,7 @@ export default function LinkTools() {
 
           {utmResult && (
             <div style={{background:'var(--sap-green-bg)',border:'1px solid #bbf7d0',borderRadius:10,padding:14,marginTop:8}}>
-              <div style={{fontSize:10,fontWeight:700,color:'#15803d',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>Generated URL</div>
+              <div style={{fontSize:10,fontWeight:700,color:'#15803d',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>{t('linkTools.generatedUrl')}</div>
               <div style={{fontSize:12,color:'var(--sap-text-primary)',wordBreak:'break-all',fontFamily:'monospace',lineHeight:1.6}}>{utmResult}</div>
               <div style={{display:'flex',gap:8,marginTop:12}}>
                 <button onClick={() => copyToClip(utmResult)} style={{...smallBtn,background:'var(--sap-green-mid)',color:'#fff',border:'none'}}><Copy size={12}/> Copy URL</button>
@@ -659,7 +659,7 @@ export default function LinkTools() {
           )}
 
           <div style={{marginTop:16}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Quick Presets</div>
+            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>{t('linkTools.quickPresets')}</div>
             <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
               {[
                 {label:'Facebook Ad',s:'facebook',m:'cpc',c:'fb_ad'},
@@ -700,7 +700,7 @@ export default function LinkTools() {
           )}
           <div style={{display:'flex',gap:6,marginBottom:10}}>
             <Input value={tagInput} onChange={e => setTagInput(e.target.value)} placeholder="Tag name..." onKeyDown={e => { if(e.key==='Enter') addTag(); }} style={{flex:1,marginBottom:0}}/>
-            <button onClick={addTag} style={{...smallBtn,background:'var(--sap-purple)',color:'#fff',border:'none',padding:'8px 14px'}}>Add</button>
+            <button onClick={addTag} style={{...smallBtn,background:'var(--sap-purple)',color:'#fff',border:'none',padding:'8px 14px'}}>{t('linkTools.add')}</button>
           </div>
           <div style={{display:'flex',gap:4,marginBottom:16}}>
             {TAG_COLORS.map(function(c, i) {
@@ -713,7 +713,7 @@ export default function LinkTools() {
             })}
           </div>
           <div style={{display:'flex',gap:8}}>
-            <button onClick={saveTags} style={btnPrimary('var(--sap-purple)')}>Save Tags →</button>
+            <button onClick={saveTags} style={btnPrimary('var(--sap-purple)')}>{t('linkTools.saveTags')}</button>
             <button onClick={() => setTagLink(null)} style={btnSecondary}>{t('linkTools.cancel')}</button>
           </div>
         </Modal>
@@ -723,7 +723,7 @@ export default function LinkTools() {
       {analyticsId !== null && (
         <Modal onClose={() => setAnalyticsId(null)} title="Click Analytics" icon={<BarChart3 size={18} color="var(--sap-green-mid)"/>} wide>
           {!analytics ? (
-            <div style={{textAlign:'center',padding:30,color:'var(--sap-text-muted)'}}>Loading analytics...</div>
+            <div style={{textAlign:'center',padding:30,color:'var(--sap-text-muted)'}}>{t('linkTools.loadingAnalytics')}</div>
           ) : analytics.error ? (
             <div style={{textAlign:'center',padding:30,color:'var(--sap-red)'}}>{analytics.error}</div>
           ) : (
@@ -735,7 +735,7 @@ export default function LinkTools() {
               </div>
               {analytics.timeline && analytics.timeline.length > 0 && (
                 <div style={{marginBottom:20}}>
-                  <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Clicks — Last 30 Days</div>
+                  <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>{t('linkTools.clicksLast30')}</div>
                   <div style={{display:'flex',alignItems:'flex-end',gap:2,height:80,background:'var(--sap-bg-input)',borderRadius:8,padding:'8px 4px'}}>
                     {analytics.timeline.map(function(d, i) {
                       var max = Math.max.apply(null, analytics.timeline.map(function(t){ return t.clicks; }).concat([1]));
@@ -747,7 +747,7 @@ export default function LinkTools() {
               )}
               {analytics.sources && Object.keys(analytics.sources).length > 0 && (
                 <div style={{marginBottom:16}}>
-                  <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>Traffic Sources</div>
+                  <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>{t('linkTools.trafficSources')}</div>
                   {Object.entries(analytics.sources).sort(function(a,b){ return b[1]-a[1]; }).map(function(pair) {
                     return (
                       <div key={pair[0]} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>

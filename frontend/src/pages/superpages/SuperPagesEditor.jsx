@@ -270,32 +270,32 @@ export default function SuperPagesEditor() {
           <div onClick={e => e.stopPropagation()}
             style={{ background: '#fff', borderRadius: 16, padding: 24, width: 500, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
             <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: '#132044' }}>{t('superPagesEditor.pageSettings')}</h3>
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>Page Title</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>{t('superPagesEditor.pageTitle')}</label>
             <input value={pageSettings.title} onChange={e => setPageSettings(p => ({ ...p, title: e.target.value }))}
               style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 14, outline: 'none', marginBottom: 14, boxSizing: 'border-box' }} />
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>Meta Description</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>{t('superPagesEditor.metaDescription')}</label>
             <textarea value={pageSettings.metaDescription} onChange={e => setPageSettings(p => ({ ...p, metaDescription: e.target.value }))}
               rows={3}
               style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 13, outline: 'none', marginBottom: 14, resize: 'vertical', boxSizing: 'border-box' }} />
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>Social Share Image (OG Image URL)</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>{t('superPagesEditor.ogImage')}</label>
             <input value={pageSettings.ogImage} onChange={e => setPageSettings(p => ({ ...p, ogImage: e.target.value }))}
               placeholder="https://..."
               style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 13, outline: 'none', marginBottom: 14, boxSizing: 'border-box' }} />
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>Page URL Slug</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>{t('superPagesEditor.pageUrlSlug')}</label>
             <div style={{ display: 'flex', alignItems: 'center', gap: 0, marginBottom: 4 }}>
               <span style={{ padding: '10px 12px', background: 'var(--sap-bg-page)', border: '2px solid #e2e8f0', borderRight: 'none', borderRadius: '10px 0 0 10px', fontSize: 12, color: 'var(--sap-text-faint)', whiteSpace: 'nowrap' }}>/p/{pageSettings.slug ? pageSettings.slug.split('/')[0] : 'username'}/</span>
               <input value={pageSettings.customSlug || (pageSettings.slug ? pageSettings.slug.split('/').pop() : '')}
                 onChange={e => setPageSettings(p => ({ ...p, customSlug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/--+/g, '-') }))}
-                placeholder="my-landing-page"
+                placeholder={t("superPagesEditor.slugPlaceholder")}
                 style={{ flex: 1, padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: '0 10px 10px 0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
             </div>
-            <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 14 }}>Letters, numbers, and hyphens only. This is your public page URL.</div>
+            <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 14 }}>{t("superPagesEditor.slugNote")}</div>
             {pageSettings.slug && (
               <div style={{ padding: '10px 14px', background: 'var(--sap-green-bg)', border: '1px solid rgba(22,163,74,.2)', borderRadius: 8, fontSize: 12, color: 'var(--sap-green)', marginBottom: 14, wordBreak: 'break-all' }}>
                 Live URL: {window.location.origin}/p/{pageSettings.slug}
               </div>
             )}
-            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>Page Status</label>
+            <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>{t('superPagesEditor.pageStatus')}</label>
             <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
               <button onClick={() => setPageStatus('draft')} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: pageStatus === 'draft' ? '2px solid #0ea5e9' : '2px solid #e2e8f0', background: pageStatus === 'draft' ? 'rgba(14,165,233,.06)' : '#fff', color: pageStatus === 'draft' ? 'var(--sap-accent)' : 'var(--sap-text-faint)' }}>○ Draft</button>
               <button onClick={() => setPageStatus('published')} style={{ flex: 1, padding: '10px', borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: 'pointer', border: pageStatus === 'published' ? '2px solid #16a34a' : '2px solid #e2e8f0', background: pageStatus === 'published' ? 'rgba(22,163,74,.06)' : '#fff', color: pageStatus === 'published' ? 'var(--sap-green)' : 'var(--sap-text-faint)' }}>● Published</button>
@@ -381,10 +381,10 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
           {/* Image — URL or upload */}
           {type === 'image' && (
             <>
-              <label style={lS}>Image URL</label>
+              <label style={lS}>{t('superPagesEditor.imageUrl')}</label>
               <input value={localTxt} onChange={e => setLocalTxt(e.target.value)} placeholder="https://..."
                 style={{...iS, marginBottom: 8}} />
-              <label style={{...lS, marginTop:4}}>Or upload an image</label>
+              <label style={{...lS, marginTop:4}}>{t('superPagesEditor.orUploadImage')}</label>
               <input type="file" accept="image/*" onChange={async e => {
                 const f = e.target.files?.[0]; if (!f) return;
                 const fd = new FormData(); fd.append('file', f);
@@ -683,7 +683,7 @@ function FormEditor({ elId, el, updateElement, markDirty, onClose }) {
     <label style={L}>Subtitle</label>
     <input value={subtitle} onChange={e => setSubtitle(e.target.value)} style={{ ...I, marginBottom: 10 }} />
 
-    <label style={{ ...L, marginBottom: 8 }}>Form Fields</label>
+    <label style={{ ...L, marginBottom: 8 }}>{t('superPagesEditor.formFields')}</label>
     <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
       <label style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--sap-text-secondary)', cursor: 'pointer' }}>
         <input type="checkbox" checked={showName} onChange={e => setShowName(e.target.checked)} style={{ width: 16, height: 16, accentColor: 'var(--sap-accent)' }} />

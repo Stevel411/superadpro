@@ -331,7 +331,7 @@ export default function SuperDeckEditor() {
           onMouseEnter={function(e){e.currentTarget.style.background='#334155';}} onMouseLeave={function(e){e.currentTarget.style.background='none';}}>
           <ArrowLeft size={14}/> Back</button>
         <div style={{width:1,height:24,background:'#334155'}}/>
-        <input value={title} onChange={function(e){setTitle(e.target.value);mark();}} style={{background:'transparent',border:'none',color:'var(--sap-bg-elevated)',fontSize:16,fontWeight:700,fontFamily:"'Sora',sans-serif",outline:'none',padding:'4px 8px',flex:1,maxWidth:280}} placeholder="Untitled"/>
+        <input value={title} onChange={function(e){setTitle(e.target.value);mark();}} style={{background:'transparent',border:'none',color:'var(--sap-bg-elevated)',fontSize:16,fontWeight:700,fontFamily:"'Sora',sans-serif",outline:'none',padding:'4px 8px',flex:1,maxWidth:280}} placeholder={t("superDeck.untitledPlaceholder")}/>
         <div style={{flex:1}}/>
 
         {/* Insert dropdown and Theme removed — elements are now in right sidebar */}
@@ -349,7 +349,7 @@ export default function SuperDeckEditor() {
       {showAi&&<div style={{padding:'16px 20px',background:'var(--sap-cobalt-deep)',borderBottom:'1px solid #312e81',display:'flex',alignItems:'center',gap:12,flexShrink:0}}>
         <Wand2 size={20} color="var(--sap-purple-light)"/>
         <input value={aiPrompt} onChange={function(e){setAiPrompt(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter')generateAI();}}
-          placeholder="Describe your presentation..." style={{flex:1,padding:'10px 16px',borderRadius:8,border:'1px solid #4c1d95',background:'#312e81',color:'var(--sap-border)',fontSize:14,fontFamily:'inherit',outline:'none'}}/>
+          placeholder={t("superDeck.descPlaceholder")} style={{flex:1,padding:'10px 16px',borderRadius:8,border:'1px solid #4c1d95',background:'#312e81',color:'var(--sap-border)',fontSize:14,fontFamily:'inherit',outline:'none'}}/>
         <button onClick={generateAI} disabled={aiLoading} style={{padding:'10px 24px',borderRadius:8,border:'none',background:aiLoading?'var(--sap-text-muted)':'var(--sap-purple)',color:'#fff',fontSize:14,fontWeight:700,cursor:aiLoading?'default':'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:6}}>
           {aiLoading?<><Loader2 size={14} style={{animation:'spin 1s linear infinite'}}/> Generating...</>:<><Sparkles size={14}/> Generate</>}</button>
         <button onClick={function(){setShowAi(false);}} style={{background:'none',border:'none',color:'var(--sap-text-faint)',cursor:'pointer',padding:4,display:'flex'}}><X size={18}/></button>
@@ -441,7 +441,7 @@ export default function SuperDeckEditor() {
             <button onClick={function(){setActive(Math.min(slides.length-1,active+1));}} disabled={active>=slides.length-1} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:6,padding:'6px 10px',cursor:active<slides.length-1?'pointer':'default',color:active<slides.length-1?'#334155':'var(--sap-text-ghost)',display:'flex'}}><ChevronRight size={16}/></button>
           </div>
           <div style={{width:'100%',maxWidth:1040,marginTop:8}}>
-            <textarea value={cs.notes||''} onChange={function(e){var ns=slides.slice();ns[active]=Object.assign({},ns[active],{notes:e.target.value});setSlides(ns);mark();}} placeholder="Speaker notes..." rows={2}
+            <textarea value={cs.notes||''} onChange={function(e){var ns=slides.slice();ns[active]=Object.assign({},ns[active],{notes:e.target.value});setSlides(ns);mark();}} placeholder={t("superDeck.speakerNotesPlaceholder")} rows={2}
               style={{width:'100%',padding:'8px 12px',background:'#fff',border:'1px solid #e2e8f0',borderRadius:6,color:'var(--sap-text-secondary)',fontSize:12,fontFamily:'inherit',resize:'vertical',boxSizing:'border-box',outline:'none'}}/>
           </div>
         </div>
@@ -450,7 +450,7 @@ export default function SuperDeckEditor() {
         <div style={{width:270,borderLeft:'1px solid #e2e8f0',background:'#fff',padding:14,overflowY:'auto',flexShrink:0}}>
 
           {/* ── Add Elements (always visible) ── */}
-          <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-faint)',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:8}}>Add Elements</div>
+          <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-faint)',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:8}}>{t('superDeck.addElements')}</div>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr',gap:4,marginBottom:14}}>
             {[{t:'heading',n:'Heading',i:Type,c:'var(--sap-purple)'},{t:'text',n:'Text',i:Type,c:'var(--sap-accent)'},{t:'image',n:'Image',i:Image,c:'var(--sap-green-bright)'},{t:'shape',n:'Shape',i:Square,c:'var(--sap-amber)'}].map(function(it){
               return <button key={it.t} onClick={function(){addEl(it.t);}}
@@ -465,7 +465,7 @@ export default function SuperDeckEditor() {
 
           {/* ── Element Properties (only when selected) ── */}
           {selEl&&<>
-            <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-faint)',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:8}}>Element Properties</div>
+            <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-faint)',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:8}}>{t('superDeck.elementProperties')}</div>
 
             {/* Layer ordering — send to back / bring to front */}
             <div style={{display:'flex',gap:4,marginBottom:10}}>
@@ -488,7 +488,7 @@ export default function SuperDeckEditor() {
             </div>
 
             {(selEl.type==='heading'||selEl.type==='text')&&<>
-              <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Font</div>
+              <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>{t('superDeck.fontLabel')}</div>
               <div ref={fontDropRef} style={{position:'relative',marginBottom:10}}>
                 <div onClick={function(e){e.stopPropagation();setFontDropOpen(!fontDropOpen);setSizeDropOpen(false);}}
                   style={{display:'flex',alignItems:'center',gap:8,padding:'10px 12px',background:fontDropOpen?'#f5f3ff':'#fff',border:'1.5px solid '+(fontDropOpen?'var(--sap-purple)':'var(--sap-border)'),borderRadius:8,cursor:'pointer',transition:'all 0.15s'}}>
@@ -510,7 +510,7 @@ export default function SuperDeckEditor() {
                 </div>}
               </div>
 
-              <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Size</div>
+              <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>{t('superDeck.sizeLabel')}</div>
               <div ref={sizeDropRef} style={{position:'relative',marginBottom:10}}>
                 <div onClick={function(e){e.stopPropagation();setSizeDropOpen(!sizeDropOpen);setFontDropOpen(false);}}
                   style={{display:'flex',alignItems:'center',gap:8,padding:'10px 12px',background:sizeDropOpen?'#f5f3ff':'#fff',border:'1.5px solid '+(sizeDropOpen?'var(--sap-purple)':'var(--sap-border)'),borderRadius:8,cursor:'pointer',transition:'all 0.15s'}}>
@@ -542,17 +542,17 @@ export default function SuperDeckEditor() {
               </div>
 
               <div style={{display:'flex',gap:10,marginBottom:12}}>
-                <div><div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:3}}>Text colour</div>
+                <div><div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:3}}>{t('superDeck.textColour')}</div>
                   <input type="color" value={selEl.color||'#ffffff'} onChange={function(e){upd(selId,{color:e.target.value});}} style={{width:44,height:34,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1}}/></div>
-                <div><div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:3}}>Fill</div>
+                <div><div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:3}}>{t('superDeck.fillLabel')}</div>
                   <input type="color" value={selEl.elBg||'#transparent'} onChange={function(e){upd(selId,{elBg:e.target.value});}} style={{width:44,height:34,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1}}/></div>
               </div>
             </>}
 
             {selEl.type==='shape'&&<>
-              <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Fill colour</div>
+              <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>{t('superDeck.fillColour')}</div>
               <input type="color" value={selEl.fill||t.accent} onChange={function(e){upd(selId,{fill:e.target.value});}} style={{width:'100%',height:40,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1,marginBottom:10}}/>
-              <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Shape</div>
+              <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>{t('superDeck.shapeLabel')}</div>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr 1fr',gap:3,marginBottom:10}}>
                 {SHAPE_TYPES.map(function(sh){var isActive=(selEl.shapeType||'rect')===sh.id;
                   return <button key={sh.id} onClick={function(){upd(selId,{shapeType:sh.id});}} title={sh.name}
@@ -589,8 +589,8 @@ export default function SuperDeckEditor() {
           </>}
 
           {/* ── Slide Design (always visible) ── */}
-          <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-faint)',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:6}}>Slide Design</div>
-          <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>Background</div>
+          <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-faint)',textTransform:'uppercase',letterSpacing:'0.05em',marginBottom:6}}>{t('superDeck.slideDesign')}</div>
+          <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>{t('superDeck.backgroundLabel')}</div>
           <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
             <input type="color" value={cs.background||t.primary} onChange={function(e){updBg(e.target.value);}} style={{width:36,height:36,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1}}/>
             <span style={{fontSize:12,color:'var(--sap-text-muted)',fontFamily:'monospace'}}>{cs.background||t.primary}</span>
