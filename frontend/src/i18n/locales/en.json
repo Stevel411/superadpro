@@ -72,7 +72,8 @@
     "loadingCreativeStudio": "Loading Creative Studio…",
     "loadingContentCreator": "Loading Content Creator…",
     "migratingTitle": "Migrating to React — coming shortly",
-    "migratingDesc": "This page is being migrated to the new interface."
+    "migratingDesc": "This page is being migrated to the new interface.",
+    "signOut": "Sign Out"
   },
   "nav": {
     "dashboard": "Dashboard",
