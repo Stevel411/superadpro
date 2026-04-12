@@ -267,7 +267,7 @@ export default function SuperPagesEditor() {
           onClick={() => setShowSettings(false)}>
           <div onClick={e => e.stopPropagation()}
             style={{ background: '#fff', borderRadius: 16, padding: 24, width: 500, maxHeight: '80vh', overflowY: 'auto', boxShadow: '0 20px 60px rgba(0,0,0,0.3)' }}>
-            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: '#132044' }}>Page Settings</h3>
+            <h3 style={{ fontSize: 16, fontWeight: 700, marginBottom: 16, color: '#132044' }}>{t('superPagesEditor.pageSettings')}</h3>
             <label style={{ display: 'block', fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)', marginBottom: 4 }}>Page Title</label>
             <input value={pageSettings.title} onChange={e => setPageSettings(p => ({ ...p, title: e.target.value }))}
               style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: 10, fontSize: 14, outline: 'none', marginBottom: 14, boxSizing: 'border-box' }} />

@@ -121,10 +121,10 @@ export default function SuperMarketCreate() {
                 <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>Start with the basics — you can always edit later</p>
               </div>
               <div style={{padding:'28px 32px'}}>
-                <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Product Name</label><input value={title} onChange={function(e){setTitle(e.target.value);}} placeholder="e.g. Social Media Template Pack Pro" style={iS} onFocus={focusStyle} onBlur={blurStyle}/></div>
+                <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>{t('superMarketCreate.productName')}</label><input value={title} onChange={function(e){setTitle(e.target.value);}} placeholder="e.g. Social Media Template Pack Pro" style={iS} onFocus={focusStyle} onBlur={blurStyle}/></div>
 
                 <div style={{marginBottom:22}}>
-                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Category</label>
+                  <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>{t('superMarketCreate.category')}</label>
                   <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6}}>
                     {CATEGORIES.map(function(c){var on=category===c.key;return(
                       <button key={c.key} onClick={function(){setCategory(c.key);}} style={{padding:'12px',borderRadius:10,cursor:'pointer',fontFamily:'inherit',textAlign:'center',border:on?'2px solid #0ea5e9':'2px solid #f1f3f7',background:on?'rgba(14,165,233,.04)':'#fafbfc',transition:'all .15s'}}>
@@ -171,7 +171,7 @@ export default function SuperMarketCreate() {
                 <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Sales Video <span style={{color:'var(--sap-text-ghost)',fontWeight:400}}>(optional)</span></label><input value={videoUrl} onChange={function(e){setVideoUrl(e.target.value);}} placeholder="YouTube or Vimeo URL" style={iS} onFocus={focusStyle} onBlur={blurStyle}/></div>
                 <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Product Description</label><RichTextEditor content={description} onChange={setDescription} placeholder="What does your product do? Who is it for? Why should they buy it?"/></div>
                 <div>
-                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><label style={{fontSize:13,fontWeight:700,color:'#334155'}}>Key Features</label><button onClick={function(){setFeatures(features.concat(['']));}} style={{fontSize:11,fontWeight:700,padding:'5px 10px',borderRadius:6,border:'1px solid #e8ecf2',background:'#fff',color:'var(--sap-accent)',cursor:'pointer',fontFamily:'inherit'}}>+ Add</button></div>
+                  <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:8}}><label style={{fontSize:13,fontWeight:700,color:'#334155'}}>{t('superMarketCreate.features')}</label><button onClick={function(){setFeatures(features.concat(['']));}} style={{fontSize:11,fontWeight:700,padding:'5px 10px',borderRadius:6,border:'1px solid #e8ecf2',background:'#fff',color:'var(--sap-accent)',cursor:'pointer',fontFamily:'inherit'}}>+ Add</button></div>
                   {features.map(function(f,i){return(<div key={i} style={{display:'flex',gap:6,marginBottom:5}}><CheckCircle size={18} color="var(--sap-green-mid)" style={{marginTop:10,flexShrink:0}}/><input value={f} onChange={function(e){setFeatures(features.map(function(v,j){return j===i?e.target.value:v;}));}} placeholder="e.g. 50+ ready-to-use templates" style={Object.assign({},iS,{flex:1})} onFocus={focusStyle} onBlur={blurStyle}/>{features.length>1&&<button onClick={function(){setFeatures(features.filter(function(v,j){return j!==i;}));}} style={{color:'var(--sap-red)',background:'none',border:'none',cursor:'pointer',marginTop:8}}><Trash2 size={14}/></button>}</div>);})}
                 </div>
               </div>
