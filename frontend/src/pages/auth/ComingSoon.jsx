@@ -1,4 +1,6 @@
+import { useTranslation } from 'react-i18next';
 export default function ComingSoon() {
+  var { t } = useTranslation();
   return (
     <div style={{ minHeight:'100vh', display:'flex', alignItems:'center', justifyContent:'center', background:'linear-gradient(135deg,#172554,#1e3a8a)', fontFamily:'DM Sans,sans-serif', padding:24 }}>
       <div style={{ maxWidth:520, textAlign:'center' }}>

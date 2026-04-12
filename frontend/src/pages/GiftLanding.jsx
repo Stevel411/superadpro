@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { apiGet, apiPost } from '../utils/api';
@@ -5,6 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { Gift, Heart, Check, ArrowRight } from 'lucide-react';
 
 export default function GiftLanding() {
+  var { t } = useTranslation();
   var { code } = useParams();
   var { user } = useAuth();
   var navigate = useNavigate();

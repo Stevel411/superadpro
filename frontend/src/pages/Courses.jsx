@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
@@ -5,6 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { apiGet } from '../utils/api';
 
 export default function Courses() {
+  var { t } = useTranslation();
   const { user } = useAuth();
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);

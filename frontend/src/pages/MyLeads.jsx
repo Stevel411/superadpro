@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import RichTextEditor from '../components/editor/RichTextEditor';
@@ -21,6 +22,7 @@ var STATUS_STYLES = {
 var TC = ['#6366f1','#0ea5e9','#16a34a','#f59e0b','#ef4444','#ec4899','#8b5cf6','#06b6d4'];
 
 export default function MyLeads() {
+  var { t } = useTranslation();
   var [tab, setTab] = useState('leads');
   var [leads, setLeads] = useState([]);
   var [sequences, setSequences] = useState([]);

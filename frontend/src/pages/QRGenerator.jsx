@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 import { QrCode, Download, Copy, Check, Link, ExternalLink } from 'lucide-react';
 
 export default function QRGenerator() {
+  var { t } = useTranslation();
   var [url, setUrl] = useState('');
   var [qrData, setQrData] = useState(null);
   var [loading, setLoading] = useState(false);

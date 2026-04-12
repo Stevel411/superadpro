@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
@@ -48,6 +49,7 @@ var TYPE_CONFIG = {
 };
 
 export default function PaymentSuccess() {
+  var { t } = useTranslation();
   var [params] = useSearchParams();
   var navigate = useNavigate();
   var { refreshUser } = useAuth();

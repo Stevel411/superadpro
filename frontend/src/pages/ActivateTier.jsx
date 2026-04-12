@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
@@ -17,6 +18,7 @@ const TIERS = {
 };
 
 export default function ActivateTier() {
+  var { t } = useTranslation();
   const { tierId } = useParams();
   const { user } = useAuth();
   const [paying, setPaying] = useState(false);
@@ -24,7 +26,7 @@ export default function ActivateTier() {
   const [cryptoCheckout, setCryptoCheckout] = useState(false);
 
   const n = parseInt(tierId);
-  const t = TIERS[n];
+  const tier = TIERS[n];
 
   if (!t) return <AppLayout title="Campaign Tier"><div style={{textAlign:'center',padding:80,color:'#64748b'}}>Invalid tier</div></AppLayout>;
 
@@ -53,12 +55,12 @@ export default function ActivateTier() {
   };
 
   return (
-    <AppLayout title={`Activate ${t.name}`} subtitle="Review your campaign tier before purchase">
+    <AppLayout title={`Activate ${tier.name}`} subtitle="Review your campaign tier before purchase">
       <div style={{maxWidth:700,margin:'0 auto'}}>
 
         {/* Tier hero — dark theme with animations */}
         <div style={{
-          background:t.grad,
+          background:tier.grad,
           borderRadius:8, padding:'32px 36px', marginBottom:20,
           position:'relative', overflow:'hidden',
           boxShadow:'0 2px 8px rgba(0,0,0,0.2), 0 8px 24px rgba(0,0,0,0.15)',
@@ -67,8 +69,8 @@ export default function ActivateTier() {
 
           <div style={{position:'relative',zIndex:1,textAlign:'center'}}>
             <div style={{fontSize:12,fontWeight:700,color:n===6?'rgba(0,0,0,0.4)':'rgba(255,255,255,0.6)',textTransform:'uppercase',letterSpacing:1.5,marginBottom:8}}>Campaign Tier</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:900,color:n===6?'#1f2937':'#fff',marginBottom:4}}>{t.name}</div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:48,fontWeight:900,color:n===6?'#1f2937':'#fff',lineHeight:1,marginBottom:8}}>${t.price.toLocaleString()}</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:900,color:n===6?'#1f2937':'#fff',marginBottom:4}}>{tier.name}</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:48,fontWeight:900,color:n===6?'#1f2937':'#fff',lineHeight:1,marginBottom:8}}>${tier.price.toLocaleString()}</div>
             <div style={{fontSize:13,color:n===6?'rgba(0,0,0,0.4)':'rgba(255,255,255,0.5)'}}>One-time activation · Up to {t.views} views</div>
           </div>
         </div>
@@ -108,7 +110,7 @@ export default function ActivateTier() {
             onMouseOut={function(e){ e.currentTarget.style.borderColor='#e2e8f0'; e.currentTarget.style.color='#64748b'; }}
           >
             <Globe size={17} />
-            {paying ? 'Creating payment...' : `\uD83C\uDF10 Pay with 350+ Cryptos — $${t.price.toLocaleString()}`}
+            {paying ? 'Creating payment...' : `\uD83C\uDF10 Pay with 350+ Cryptos — $${tier.price.toLocaleString()}`}
           </button>
 
           <div style={{textAlign:'center',fontSize:10,color:'#64748b'}}>{"\uD83D\uDD12"} Secure payment · Instant activation · {"\uD83D\uDCB3"} Card payments coming soon</div>
@@ -121,7 +123,7 @@ export default function ActivateTier() {
         {cryptoCheckout && (
           <CryptoCheckout
             productKey={'grid_' + n}
-            productLabel={t.name + ' Campaign — $' + t.price.toLocaleString()}
+            productLabel={tier.name + ' Campaign — $' + tier.price.toLocaleString()}
             onSuccess={function(){ setCryptoCheckout(false); window.location.href='/app/campaign-tiers'; }}
             onCancel={function(){ setCryptoCheckout(false); }}
           />

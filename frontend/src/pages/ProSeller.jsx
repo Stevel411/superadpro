@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useRef, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiPost } from '../utils/api';
@@ -11,6 +12,7 @@ var PROMPT_CATEGORIES = [
 ];
 
 export default function ProSeller() {
+  var { t } = useTranslation();
   var [messages, setMessages] = useState([]);
   var [input, setInput] = useState('');
   var [loading, setLoading] = useState(false);

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -31,6 +32,7 @@ const COLORS = [
 ];
 
 export default function MemeGenerator() {
+  var { t } = useTranslation();
   useEffect(() => {
     document.title = 'Free Meme Generator — Create Memes Online | SuperAdPro';
     const meta = document.querySelector('meta[name="description"]') || document.createElement('meta');

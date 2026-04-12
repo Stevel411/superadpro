@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
@@ -16,6 +17,7 @@ var lS = { display: 'block', fontSize: 11, fontWeight: 800, letterSpacing: 1, te
 var iS = { width: '100%', padding: '10px 14px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, fontFamily: 'inherit', color: '#0f172a', background: '#fff', outline: 'none', boxSizing: 'border-box' };
 
 export default function AdHub() {
+  var { t } = useTranslation();
   var { user } = useAuth();
   var isPro = (user?.membership_tier || 'basic') === 'pro';
   var weeklyLimit = isPro ? 6 : 3;

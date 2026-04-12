@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiPost, apiGet } from '../utils/api';
@@ -171,6 +172,7 @@ function StyledSelect({ label, items, value, onChange, renderLabel, renderDesc, 
 }
 
 export default function VideoCreator() {
+  var { t } = useTranslation();
   return (
     <AppLayout title="AI Video Creator" subtitle="One-click marketing videos">
       <VideoCreatorContent />

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { apiGet, apiPost } from '../../utils/api';
@@ -89,6 +90,7 @@ function ShapeIcon(props) {
 }
 
 export default function SuperDeckEditor() {
+  var { t } = useTranslation();
   var params = useParams(), deckId = params.deckId, nav = useNavigate();
 
   var [slides, setSlides] = useState([]);

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../../components/layout/AppLayout';
@@ -6,6 +7,7 @@ import { THEMES } from './themes';
 import { Plus, Trash2, Pencil, Monitor, Sparkles } from 'lucide-react';
 
 export default function SuperDeckList() {
+  var { t } = useTranslation();
   var [decks, setDecks] = useState([]);
   var [loading, setLoading] = useState(true);
   var [creating, setCreating] = useState(false);

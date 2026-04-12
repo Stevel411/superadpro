@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
@@ -34,6 +35,7 @@ function CanvasEditor({ canvasSize, onCanvasReady }) {
 }
 
 export default function BannerMaker() {
+  var { t } = useTranslation();
   var { user } = useAuth();
   var isPro = (user?.membership_tier || 'basic') === 'pro';
   var [canvas, setCanvas] = useState(null);
