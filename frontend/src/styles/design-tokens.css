@@ -1,0 +1,135 @@
+/* ═══════════════════════════════════════════════════════════════
+   SUPERADPRO DESIGN TOKENS
+   Single source of truth for the entire platform visual identity.
+   All values match the existing live design — zero visual change.
+   ═══════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── Cobalt Theme (Primary Brand) ─────────────────────────── */
+  --sap-cobalt-deep:    #172554;   /* sidebar bg, hero bg, dark sections */
+  --sap-cobalt-mid:     #1e3a8a;   /* sidebar hover, gradient end */
+  --sap-navy:           #0f172a;   /* card headings, darkest text */
+  --sap-navy-soft:      #1b2030;   /* elevated dark surfaces */
+  --sap-navy-card:      #2a3040;   /* dark card backgrounds */
+
+  /* ── Accent Blues (CTA / Interactive) ──────────────────────── */
+  --sap-accent:         #0ea5e9;   /* primary buttons, links, active states */
+  --sap-accent-light:   #38bdf8;   /* gradient end, hover glow */
+  --sap-accent-pale:    #7dd3fc;   /* subtle highlights */
+
+  /* ── Indigo / Purple (Secondary Accent) ───────────────────── */
+  --sap-indigo:         #6366f1;   /* badges, secondary actions */
+  --sap-purple:         #8b5cf6;   /* Pro tier, premium features */
+  --sap-purple-light:   #a78bfa;   /* purple hover/light variant */
+  --sap-purple-pale:    #ede9fe;   /* purple tinted backgrounds */
+  --sap-violet:         #7c3aed;   /* deeper purple accent */
+
+  /* ── Success / Green ──────────────────────────────────────── */
+  --sap-green:          #16a34a;   /* success states, positive values */
+  --sap-green-bright:   #22c55e;   /* live indicators, active badges */
+  --sap-green-mid:      #10b981;   /* teal-green, tier colours */
+  --sap-green-dark:     #059669;   /* darker green variant */
+  --sap-green-bg:       #f0fdf4;   /* success background tint */
+  --sap-green-bg-mid:   #dcfce7;   /* success background medium */
+
+  /* ── Warning / Amber ──────────────────────────────────────── */
+  --sap-amber:          #f59e0b;   /* warnings, attention states */
+  --sap-amber-bright:   #fbbf24;   /* gold highlights, completion */
+  --sap-amber-dark:     #d97706;   /* darker amber */
+  --sap-amber-bg:       #fef3c7;   /* warning background tint */
+
+  /* ── Error / Red ──────────────────────────────────────────── */
+  --sap-red:            #dc2626;   /* errors, destructive actions */
+  --sap-red-bright:     #ef4444;   /* brighter red alerts */
+  --sap-pink:           #ec4899;   /* pink tier accent */
+  --sap-red-bg:         #fef2f2;   /* error background tint */
+  --sap-red-bg-mid:     #fecaca;   /* error background medium */
+
+  /* ── Neutral Text ─────────────────────────────────────────── */
+  --sap-text-primary:   #0f172a;   /* headings, primary text */
+  --sap-text-secondary: #475569;   /* body text, descriptions */
+  --sap-text-muted:     #64748b;   /* labels, subtle text */
+  --sap-text-faint:     #94a3b8;   /* placeholders, disabled */
+  --sap-text-ghost:     #cbd5e1;   /* timestamps, very subtle */
+
+  /* ── Neutral Surfaces ─────────────────────────────────────── */
+  --sap-bg-page:        #f1f5f9;   /* page background */
+  --sap-bg-card:        #ffffff;   /* card backgrounds */
+  --sap-bg-elevated:    #f8fafc;   /* slightly elevated surfaces */
+  --sap-bg-input:       #f8f9fb;   /* input field backgrounds */
+  --sap-bg-hover:       #f1f5f9;   /* hover state backgrounds */
+
+  /* ── Borders ──────────────────────────────────────────────── */
+  --sap-border:         #e2e8f0;   /* standard borders */
+  --sap-border-light:   #e8ecf2;   /* lighter card borders */
+  --sap-border-strong:  #e5e7eb;   /* form field borders */
+  --sap-border-focus:   #0ea5e9;   /* focus ring colour */
+
+  /* ── Dark Mode Borders (for cobalt sections) ──────────────── */
+  --sap-dark-border:    rgba(255,255,255,0.08);
+  --sap-dark-border-mid: rgba(255,255,255,0.12);
+  --sap-dark-surface:   rgba(255,255,255,0.04);
+  --sap-dark-surface-hover: rgba(255,255,255,0.08);
+  --sap-dark-text:      rgba(255,255,255,0.6);
+  --sap-dark-text-muted: rgba(255,255,255,0.4);
+
+  /* ── Spacing ──────────────────────────────────────────────── */
+  --sap-radius-sm:      8px;
+  --sap-radius-md:      12px;
+  --sap-radius-lg:      14px;
+  --sap-radius-xl:      16px;
+  --sap-radius-2xl:     20px;
+  --sap-radius-full:    9999px;
+
+  /* ── Shadows ──────────────────────────────────────────────── */
+  --sap-shadow-sm:      0 2px 8px rgba(0,0,0,0.04);
+  --sap-shadow-md:      0 4px 16px rgba(0,0,0,0.08);
+  --sap-shadow-lg:      0 8px 32px rgba(0,0,0,0.12);
+  --sap-shadow-accent:  0 4px 16px rgba(14,165,233,0.25);
+
+  /* ── Transitions ──────────────────────────────────────────── */
+  --sap-transition-fast: 150ms ease;
+  --sap-transition:      200ms ease;
+  --sap-transition-slow: 300ms ease;
+
+  /* ── Typography ───────────────────────────────────────────── */
+  --sap-font-body:      'DM Sans', 'Rethink Sans', system-ui, sans-serif;
+  --sap-font-heading:   'Sora', 'Rethink Sans', system-ui, sans-serif;
+  --sap-font-mono:      'JetBrains Mono', 'Fira Code', monospace;
+
+  /* ── Gradients ────────────────────────────────────────────── */
+  --sap-gradient-cobalt: linear-gradient(135deg, #172554, #1e3a8a);
+  --sap-gradient-accent: linear-gradient(135deg, #0ea5e9, #38bdf8);
+  --sap-gradient-cta:    linear-gradient(135deg, #0ea5e9, #6366f1);
+  --sap-gradient-purple: linear-gradient(135deg, #172554, #4c1d95, #8b5cf6);
+}
+
+/* ── Global Focus States (Accessibility) ────────────────────── */
+*:focus-visible {
+  outline: 2px solid var(--sap-accent);
+  outline-offset: 2px;
+}
+
+/* Remove default outline, keep focus-visible */
+*:focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* ── Global Interactive States ──────────────────────────────── */
+button, [role="button"], a, [onclick], .clickable {
+  cursor: pointer;
+}
+
+button:disabled, [disabled] {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ── Reduced Motion ─────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
