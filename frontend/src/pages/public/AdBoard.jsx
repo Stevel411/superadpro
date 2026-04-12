@@ -39,8 +39,8 @@ export default function AdBoard() {
 
         {/* Header */}
         <div style={{ marginBottom: 32 }}>
-          <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 32, fontWeight: 900, margin: '0 0 8px' }}>Ad Board</h1>
-          <p style={{ color: 'rgba(255,255,255,0.45)', margin: 0 }}>Community marketplace — browse listings from members</p>
+          <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 32, fontWeight: 900, margin: '0 0 8px' }}>{t('publicPages.adBoardPage')}</h1>
+          <p style={{ color: 'rgba(255,255,255,0.45)', margin: 0 }}>{t("publicPages.adBoardPageDesc")}</p>
         </div>
 
         {/* Category filters */}
@@ -60,12 +60,12 @@ export default function AdBoard() {
 
         {/* Listings grid */}
         {loading ? (
-          <div style={{ textAlign: 'center', padding: '80px', color: 'rgba(255,255,255,0.3)' }}>Loading...</div>
+          <div style={{ textAlign: 'center', padding: '80px', color: 'rgba(255,255,255,0.3)' }}>{t('publicPages.loadingDots')}</div>
         ) : listings.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '80px' }}>
             <div style={{ fontSize: 48, marginBottom: 16 }}>📋</div>
-            <p style={{ color: 'rgba(255,255,255,0.4)' }}>No listings in this category yet.</p>
-            <Link to="/register" style={{ color: 'var(--sap-accent-light)', textDecoration: 'none', fontWeight: 700 }}>Post your first ad →</Link>
+            <p style={{ color: 'rgba(255,255,255,0.4)' }}>{t("publicPages.noListingsInCategory")}</p>
+            <Link to="/register" style={{ color: 'var(--sap-accent-light)', textDecoration: 'none', fontWeight: 700 }}>{t('publicPages.postFirstAd')}</Link>
           </div>
         ) : (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(280px,1fr))', gap: 20 }}>
@@ -107,8 +107,8 @@ export default function AdBoard() {
         {/* Post an ad CTA */}
         <div style={{ marginTop: 48, background: 'rgba(14,165,233,0.06)', border: '1px solid rgba(14,165,233,0.15)', borderRadius: 14, padding: '24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 16 }}>
           <div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 4 }}>Want to post an ad?</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>Members can post listings and reach the whole community.</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: '#fff', marginBottom: 4 }}>{t('publicPages.wantToPostAd')}</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)' }}>{t("publicPages.membersCanPost")}</div>
           </div>
           <Link to="/register" style={{ padding: '10px 24px', borderRadius: 10, background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 700, fontSize: 14, textDecoration: 'none' }}>
             Join Free to Post

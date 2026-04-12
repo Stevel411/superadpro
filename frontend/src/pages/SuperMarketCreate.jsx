@@ -77,15 +77,15 @@ export default function SuperMarketCreate() {
     <AppLayout title="SuperMarket" subtitle="Product submitted">
       <div style={{maxWidth:600,margin:'40px auto',textAlign:'center'}}>
         <div style={{width:88,height:88,borderRadius:'50%',background:'linear-gradient(135deg,#dcfce7,#bbf7d0)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 24px',fontSize:40}}>🎉</div>
-        <h2 style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:900,color:'var(--sap-text-primary)',margin:'0 0 12px'}}>Product Submitted!</h2>
-        <p style={{fontSize:15,color:'var(--sap-text-muted)',lineHeight:1.8,maxWidth:440,margin:'0 auto 28px'}}>Your product is now being reviewed. You'll receive a notification and email when it's approved and live on SuperMarket.</p>
+        <h2 style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:900,color:'var(--sap-text-primary)',margin:'0 0 12px'}}>{t('superMarketCreate.productSubmitted')}</h2>
+        <p style={{fontSize:15,color:'var(--sap-text-muted)',lineHeight:1.8,maxWidth:440,margin:'0 auto 28px'}}>{t("superMarketCreate.productReviewDesc")}</p>
         <div style={{background:'var(--sap-bg-input)',borderRadius:14,padding:'20px 24px',maxWidth:400,margin:'0 auto 28px',textAlign:'left'}}>
-          <div style={{fontSize:13,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:10}}>What happens next</div>
+          <div style={{fontSize:13,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:10}}>{t('superMarketCreate.whatHappensNext')}</div>
           {['AI scans content for quality & compliance','Admin reviews your product listing','You get notified when it goes live','Affiliates start promoting your product'].map(function(s,i){
             return <div key={i} style={{display:'flex',gap:10,padding:'6px 0',fontSize:13,color:'var(--sap-text-secondary)'}}><div style={{width:22,height:22,borderRadius:'50%',background:'var(--sap-accent)',color:'#fff',display:'flex',alignItems:'center',justifyContent:'center',fontSize:10,fontWeight:800,flexShrink:0}}>{i+1}</div>{s}</div>;
           })}
         </div>
-        <button onClick={function(){navigate('/marketplace');}} style={{padding:'14px 36px',borderRadius:12,border:'none',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontSize:15,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',boxShadow:'0 4px 20px rgba(14,165,233,.3)'}}>Go to SuperMarket</button>
+        <button onClick={function(){navigate('/marketplace');}} style={{padding:'14px 36px',borderRadius:12,border:'none',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontSize:15,fontWeight:800,cursor:'pointer',fontFamily:'Sora,sans-serif',boxShadow:'0 4px 20px rgba(14,165,233,.3)'}}>{t('superMarketCreate.goToSuperMarket')}</button>
       </div>
     </AppLayout>
   );
@@ -117,11 +117,11 @@ export default function SuperMarketCreate() {
           {step===0&&(
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
-                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>What are you selling?</h3>
-                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>Start with the basics — you can always edit later</p>
+                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>{t('superMarketCreate.whatAreYouSelling')}</h3>
+                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>{t("superMarketCreate.startWithBasics")}</p>
               </div>
               <div style={{padding:'28px 32px'}}>
-                <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>{t('superMarketCreate.productName')}</label><input value={title} onChange={function(e){setTitle(e.target.value);}} placeholder="e.g. Social Media Template Pack Pro" style={iS} onFocus={focusStyle} onBlur={blurStyle}/></div>
+                <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>{t('superMarketCreate.productName')}</label><input value={title} onChange={function(e){setTitle(e.target.value);}} placeholder={t("superMarketCreate.productNamePlaceholder")} style={iS} onFocus={focusStyle} onBlur={blurStyle}/></div>
 
                 <div style={{marginBottom:22}}>
                   <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>{t('superMarketCreate.category')}</label>
@@ -137,7 +137,7 @@ export default function SuperMarketCreate() {
 
                 <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:22}}>
                   <div>
-                    <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Price</label>
+                    <label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>{t('superMarketCreate.priceLabel')}</label>
                     <div style={{position:'relative'}}><span style={{position:'absolute',left:16,top:14,fontSize:18,fontWeight:800,color:'var(--sap-text-ghost)'}}>$</span><input type="number" min="5" value={price} onChange={function(e){setPrice(e.target.value);}} placeholder="27" style={Object.assign({},iS,{paddingLeft:34,fontSize:20,fontWeight:800,fontFamily:'Sora,sans-serif'})} onFocus={focusStyle} onBlur={blurStyle}/></div>
                   </div>
                   <div>
@@ -146,7 +146,7 @@ export default function SuperMarketCreate() {
                   </div>
                 </div>
 
-                <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>One-Line Summary</label><input value={shortDesc} onChange={function(e){setShortDesc(e.target.value);}} maxLength={200} placeholder="The hook that makes people click" style={iS} onFocus={focusStyle} onBlur={blurStyle}/><div style={{textAlign:'right',fontSize:10,color:'var(--sap-text-ghost)',marginTop:4}}>{shortDesc.length}/200</div></div>
+                <div style={{marginBottom:22}}><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>{t('superMarketCreate.oneLineSummary')}</label><input value={shortDesc} onChange={function(e){setShortDesc(e.target.value);}} maxLength={200} placeholder={t("superMarketCreate.hookPlaceholder")} style={iS} onFocus={focusStyle} onBlur={blurStyle}/><div style={{textAlign:'right',fontSize:10,color:'var(--sap-text-ghost)',marginTop:4}}>{shortDesc.length}/200</div></div>
 
                 <div><label style={{fontSize:13,fontWeight:700,color:'#334155',display:'block',marginBottom:8}}>Tags <span style={{color:'var(--sap-text-ghost)',fontWeight:400}}>(comma separated)</span></label><input value={tags} onChange={function(e){setTags(e.target.value);}} placeholder="marketing, templates, social media" style={iS} onFocus={focusStyle} onBlur={blurStyle}/></div>
               </div>
@@ -157,8 +157,8 @@ export default function SuperMarketCreate() {
           {step===1&&(
             <div style={{background:'#fff',borderRadius:16,border:'1px solid #e8ecf2',overflow:'hidden',boxShadow:'0 8px 30px rgba(0,0,0,.04)'}}>
               <div style={{padding:'28px 32px',borderBottom:'1px solid #f1f3f7'}}>
-                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>Build Your Sales Page</h3>
-                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>This is what convinces people to buy — make it count</p>
+                <h3 style={{fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',margin:'0 0 4px',fontFamily:'Sora,sans-serif'}}>{t('superMarketCreate.buildSalesPage')}</h3>
+                <p style={{fontSize:13,color:'var(--sap-text-muted)',margin:0}}>{t("superMarketCreate.convinceDesc")}</p>
               </div>
               <div style={{padding:'28px 32px'}}>
                 <div style={{marginBottom:22}}>

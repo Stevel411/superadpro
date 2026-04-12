@@ -47,7 +47,7 @@ export default function IconPicker({ value, onChange, onClose }) {
 
         {/* Header */}
         <div style={{padding:'16px 20px',borderBottom:'1px solid #f1f3f7',display:'flex',alignItems:'center',justifyContent:'space-between',flexShrink:0}}>
-          <h3 style={{margin:0,fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>Choose Icon</h3>
+          <h3 style={{margin:0,fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('linkHub.chooseIcon')}</h3>
           <button onClick={onClose} style={{width:30,height:30,border:'none',borderRadius:8,background:'var(--sap-bg-page)',cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}><X size={14} color="var(--sap-text-muted)"/></button>
         </div>
 
@@ -67,17 +67,17 @@ export default function IconPicker({ value, onChange, onClose }) {
               <div style={{flex:1,position:'relative'}}>
                 <Search size={14} color="var(--sap-text-faint)" style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)'}}/>
                 <input value={search} onChange={function(e) { setSearch(e.target.value); }}
-                  placeholder="Search icons..." style={{width:'100%',padding:'8px 8px 8px 32px',border:'1.5px solid #e2e8f0',borderRadius:8,fontSize:12,outline:'none',fontFamily:'inherit',boxSizing:'border-box'}}/>
+                  placeholder={t("linkHub.searchIcons")} style={{width:'100%',padding:'8px 8px 8px 32px',border:'1.5px solid #e2e8f0',borderRadius:8,fontSize:12,outline:'none',fontFamily:'inherit',boxSizing:'border-box'}}/>
               </div>
               <div style={{display:'flex',border:'1.5px solid #e2e8f0',borderRadius:8,overflow:'hidden'}}>
-                <button onClick={function() { setFilled(false); }} style={{padding:'6px 12px',fontSize:11,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:!filled?'var(--sap-accent)':'#fff',color:!filled?'#fff':'var(--sap-text-muted)'}}>Outline</button>
-                <button onClick={function() { setFilled(true); }} style={{padding:'6px 12px',fontSize:11,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:filled?'var(--sap-accent)':'#fff',color:filled?'#fff':'var(--sap-text-muted)'}}>Solid</button>
+                <button onClick={function() { setFilled(false); }} style={{padding:'6px 12px',fontSize:11,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:!filled?'var(--sap-accent)':'#fff',color:!filled?'#fff':'var(--sap-text-muted)'}}>{t('linkHub.outlineIcons')}</button>
+                <button onClick={function() { setFilled(true); }} style={{padding:'6px 12px',fontSize:11,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:filled?'var(--sap-accent)':'#fff',color:filled?'#fff':'var(--sap-text-muted)'}}>{t('linkHub.solidIcons')}</button>
               </div>
             </div>
 
             {/* Category pills */}
             <div style={{display:'flex',gap:4,padding:'0 20px 8px',flexWrap:'wrap',flexShrink:0}}>
-              <button onClick={function() { setCat('all'); }} style={{padding:'4px 10px',borderRadius:12,fontSize:10,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:cat==='all'?'var(--sap-text-primary)':'var(--sap-bg-page)',color:cat==='all'?'#fff':'var(--sap-text-muted)'}}>All</button>
+              <button onClick={function() { setCat('all'); }} style={{padding:'4px 10px',borderRadius:12,fontSize:10,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:cat==='all'?'var(--sap-text-primary)':'var(--sap-bg-page)',color:cat==='all'?'#fff':'var(--sap-text-muted)'}}>{t('linkHub.allIcons')}</button>
               {ICON_CATEGORIES.map(function(c) {
                 return <button key={c.key} onClick={function() { setCat(c.key); }} style={{padding:'4px 10px',borderRadius:12,fontSize:10,fontWeight:700,border:'none',cursor:'pointer',fontFamily:'inherit',background:cat===c.key?c.color:'var(--sap-bg-page)',color:cat===c.key?'#fff':'var(--sap-text-muted)'}}>{c.label}</button>;
               })}
@@ -122,8 +122,8 @@ export default function IconPicker({ value, onChange, onClose }) {
         {tab === 'none' && (
           <div style={{padding:40,textAlign:'center',color:'var(--sap-text-muted)'}}>
             <div style={{fontSize:32,marginBottom:8,opacity:.3}}>⊘</div>
-            <div style={{fontSize:13,fontWeight:600}}>No icon will be shown on this link</div>
-            <div style={{fontSize:11,color:'var(--sap-text-faint)',marginTop:4}}>Click Save to apply</div>
+            <div style={{fontSize:13,fontWeight:600}}>{t('linkHub.noIconNote')}</div>
+            <div style={{fontSize:11,color:'var(--sap-text-faint)',marginTop:4}}>{t('linkHub.clickSave')}</div>
           </div>
         )}
       </div>

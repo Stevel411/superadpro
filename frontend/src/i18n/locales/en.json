@@ -549,7 +549,14 @@
     "profileSection": "Profile",
     "bgUrlPlaceholder": "https://...",
     "theme": "Theme",
-    "customTheme": "Custom Theme"
+    "customTheme": "Custom Theme",
+    "chooseIcon": "Choose Icon",
+    "outlineIcons": "Outline",
+    "solidIcons": "Solid",
+    "allIcons": "All",
+    "noIconNote": "No icon will be shown on this link",
+    "clickSave": "Click Save to apply",
+    "searchIcons": "Search icons..."
   },
   "linkTools": {
     "title": "Link Tools",
@@ -1180,7 +1187,13 @@
     "explore": "Explore",
     "earn": "Earn",
     "getStarted": "Get Started",
-    "joinFree": "Join Free & Build Your Grid →"
+    "joinFree": "Join Free & Build Your Grid →",
+    "pro": "Pro",
+    "howItWorksBtn": "How It Works",
+    "exploreBtn": "Explore",
+    "earnBtn": "Earn",
+    "getStartedBtn": "Get Started",
+    "select3DDesc": "Select a campaign tier and watch 64 positions fill in real-time."
   },
   "incomeDisclaimer": {
     "title": "Income Disclaimer",
@@ -1200,13 +1213,16 @@
     "legal": "Legal",
     "pageTitle": "Income Disclaimer",
     "pleaseRead": "Please read this disclaimer carefully before participating in any SuperAdPro income programme.",
-    "noGuaranteeText": "SuperAdPro does not guarantee any level of income or earnings. The income examples shown are illustrative only.",
+    "noGuaranteeText": "SuperAdPro does not guarantee any level of income or earnings.",
     "effortDependent": "Your earnings depend entirely on your own efforts, skills, dedication, market conditions, and external factors.",
     "creditPackAlloc": "When you purchase a Credit Pack, the funds are allocated as follows:",
-    "creditPackNote": "Credit packs provide genuine AI credits that can be used in the Creative Studio for video, image, and music generation.",
+    "creditPackNote": "Credit packs provide genuine AI credits used in the Creative Studio.",
     "campaignTierAlloc": "When you purchase a Campaign Tier, the funds are allocated as follows:",
     "membershipAlloc": "When a member pays their monthly or annual membership fee:",
-    "commissionNotice": "Commission rates may be adjusted by SuperAdPro at any time with reasonable notice."
+    "commissionNotice": "Commission rates may be adjusted by SuperAdPro at any time with reasonable notice.",
+    "walletDesc": "All earnings are credited to your SuperAdPro wallet.",
+    "taxDesc": "You are responsible for reporting and paying taxes on your earnings.",
+    "ethicalDesc": "SuperAdPro prohibits misleading income claims."
   },
   "walletHelp": {
     "title": "Wallet Help"
@@ -1659,7 +1675,29 @@
     "usernamePlaceholder": "your_username",
     "emailPlaceholder": "you@example.com",
     "passwordPlaceholder": "••••••••",
-    "refCodePlaceholder": "Referral code (optional)"
+    "refCodePlaceholder": "Referral code (optional)",
+    "pro": "Pro",
+    "emailAddressLabel": "Email Address",
+    "yourSponsor": "Your Sponsor",
+    "sponsorDesc": "Enter your sponsor's username. If no one referred you, leave as default.",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "signInInstead": "Sign in instead",
+    "termsLabel": "Terms",
+    "firstNamePlaceholder": "John",
+    "lastNamePlaceholder": "Smith",
+    "usernamePlaceholder2": "john_smith",
+    "emailPlaceholder2": "john@example.com",
+    "passwordPlaceholder2": "Min. 8 characters",
+    "createNewPassword": "Create new password",
+    "enterStrongPassword": "Enter a strong new password for your account.",
+    "confirmNewPassword": "Confirm New Password",
+    "reenterPassword": "Re-enter new password",
+    "step1Label": "Step 1:",
+    "step2Label": "Step 2:",
+    "cantScan": "Can't scan? Enter this code manually:",
+    "enter6DigitConfirm": "Enter the 6-digit code shown in Google Authenticator to confirm setup.",
+    "cancelReturn": "Cancel — return to account"
   },
   "home": {
     "creativePlatform": "The Creative Income Platform",
@@ -2465,7 +2503,7 @@
     "title": "List a Product",
     "subtitle": "Sell your digital product on SuperMarket",
     "productName": "Product Name",
-    "productNamePlaceholder": "My Digital Product",
+    "productNamePlaceholder": "e.g. Social Media Template Pack Pro",
     "description": "Description",
     "descriptionPlaceholder": "Describe your product in detail...",
     "shortDescription": "Short Description",
@@ -2504,7 +2542,29 @@
     "emailDelivery": "Email Delivery",
     "requirementPlaceholder": "Enter a requirement...",
     "next": "Next →",
-    "back": "← Back"
+    "back": "← Back",
+    "productSubmitted": "Product Submitted!",
+    "productReviewDesc": "Your product is now being reviewed. You'll receive a notification and email when it's approved.",
+    "whatHappensNext": "What happens next",
+    "goToSuperMarket": "Go to SuperMarket",
+    "whatAreYouSelling": "What are you selling?",
+    "startWithBasics": "Start with the basics — you can always edit later",
+    "priceLabel": "Price",
+    "oneLineSummary": "One-Line Summary",
+    "buildSalesPage": "Build Your Sales Page",
+    "convinceDesc": "This is what convinces people to buy — make it count",
+    "hookPlaceholder": "The hook that makes people click",
+    "tagPlaceholder": "marketing, templates, social media",
+    "videoUrlPlaceholder": "YouTube or Vimeo URL",
+    "fullDescPlaceholder": "What does your product do? Who is it for? Why should they buy it?",
+    "uploadImages": "Upload Images",
+    "previewVideo": "Preview Video",
+    "digitalDownload": "Digital Download",
+    "externalLink": "External Link",
+    "fileSize": "File Size",
+    "version": "Version",
+    "noRefunds": "No Refunds",
+    "thirtyDayRefund": "30-Day Refund"
   },
   "adPages": {
     "title": "Ad Pages",
@@ -2755,7 +2815,14 @@
     "legalTitle": "Legal",
     "lastUpdated": "Last updated: March 2026",
     "refundPolicy": "All purchases are final and non-refundable.",
-    "incomeDisclaimer": "Income examples shown on this platform are illustrative only. Individual results vary."
+    "incomeDisclaimer": "Income examples shown on this platform are illustrative only. Individual results vary.",
+    "adBoardPage": "Ad Board",
+    "adBoardPageDesc": "Community marketplace — browse listings from members",
+    "loadingDots": "Loading...",
+    "noListingsInCategory": "No listings in this category yet.",
+    "postFirstAd": "Post your first ad →",
+    "wantToPostAd": "Want to post an ad?",
+    "membersCanPost": "Members can post listings and reach the whole community."
   },
   "proSeller": {
     "title": "ProSeller",
@@ -3068,6 +3135,13 @@
     "submitButtonText": "Submit Button Text",
     "thankYouMessage": "Thank You Message",
     "collectName": "Collect Name",
-    "collectPhone": "Collect Phone"
+    "collectPhone": "Collect Phone",
+    "clickOrDragToAdd": "Click or drag to add",
+    "pageBackground": "Page Background",
+    "gradientStart": "Start",
+    "gradientEnd": "End",
+    "presets": "Presets",
+    "backgroundSet": "Background set",
+    "askAiPlaceholder": "Ask AI..."
   }
 }

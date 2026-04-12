@@ -108,8 +108,8 @@ export default function TwoFactorSetup() {
         {step === 2 && (
           <>
             <div style={styles.instructions}>
-              <p style={styles.instrText}><strong style={{ color: '#fff' }}>Step 1:</strong> Download Google Authenticator from the App Store or Google Play.</p>
-              <p style={styles.instrText}><strong style={{ color: '#fff' }}>Step 2:</strong> Tap "+" in the app, then scan this QR code.</p>
+              <p style={styles.instrText}><strong style={{ color: '#fff' }}>{t('auth.step1Label')}</strong> Download Google Authenticator from the App Store or Google Play.</p>
+              <p style={styles.instrText}><strong style={{ color: '#fff' }}>{t('auth.step2Label')}</strong> Tap "+" in the app, then scan this QR code.</p>
             </div>
 
             {qr && (
@@ -119,7 +119,7 @@ export default function TwoFactorSetup() {
             )}
 
             <div style={styles.secretBox}>
-              <div style={styles.secretLabel}>Can't scan? Enter this code manually:</div>
+              <div style={styles.secretLabel}>{t("auth.cantScan")}</div>
               <div style={styles.secretRow}>
                 <code style={styles.secretCode}>{secret}</code>
                 <button onClick={copySecret} style={styles.copyBtn}>{copied ? '✓ Copied' : 'Copy'}</button>
@@ -136,7 +136,7 @@ export default function TwoFactorSetup() {
         {step === 3 && (
           <>
             <div style={styles.instructions}>
-              <p style={styles.instrText}>Enter the 6-digit code shown in Google Authenticator to confirm setup.</p>
+              <p style={styles.instrText}>{t("auth.enter6DigitConfirm")}</p>
             </div>
 
             {error && <div style={styles.errorBox}>{error}</div>}
@@ -163,7 +163,7 @@ export default function TwoFactorSetup() {
         )}
 
         <div style={{ textAlign: 'center', marginTop: 20 }}>
-          <a href="/account" style={styles.cancelLink}>Cancel — return to account</a>
+          <a href="/account" style={styles.cancelLink}>{t('auth.cancelReturn')}</a>
         </div>
       </div>
     </div>

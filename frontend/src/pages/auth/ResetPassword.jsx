@@ -67,7 +67,7 @@ export default function ResetPassword() {
           </>
         ) : (
           <>
-            <h1 style={styles.heading}>Create new password</h1>
+            <h1 style={styles.heading}>{t('auth.createNewPassword')}</h1>
             <p style={styles.sub}>Enter a strong new password for your account.</p>
 
             {error && <div style={styles.errorBox}>{error}</div>}
@@ -80,7 +80,7 @@ export default function ResetPassword() {
                     value={form.password}
                     onChange={set('password')}
                     type={showPass ? 'text' : 'password'}
-                    placeholder="Min. 8 characters"
+                    placeholder={t("auth.passwordPlaceholder2")}
                     autoComplete="new-password"
                     autoFocus
                     style={{ ...styles.input, paddingRight: 44 }}
@@ -98,12 +98,12 @@ export default function ResetPassword() {
               </div>
 
               <div style={styles.field}>
-                <label style={styles.label}>Confirm New Password</label>
+                <label style={styles.label}>{t('auth.confirmNewPassword')}</label>
                 <input
                   value={form.confirm_password}
                   onChange={set('confirm_password')}
                   type="password"
-                  placeholder="Re-enter new password"
+                  placeholder={t("auth.reenterPassword")}
                   autoComplete="new-password"
                   style={{ ...styles.input, borderColor: form.confirm_password && form.confirm_password !== form.password ? 'rgba(239,68,68,.5)' : 'rgba(255,255,255,.1)' }}
                 />

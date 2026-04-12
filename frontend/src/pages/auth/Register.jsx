@@ -76,28 +76,28 @@ export default function Register() {
           <div style={styles.row}>
             <div style={styles.field}>
               <label style={styles.label}>{t('auth.firstName')}</label>
-              <input value={form.first_name} onChange={set('first_name')} placeholder="John" autoFocus style={styles.input} />
+              <input value={form.first_name} onChange={set('first_name')} placeholder={t("auth.firstNamePlaceholder")} autoFocus style={styles.input} />
             </div>
             <div style={styles.field}>
               <label style={styles.label}>{t('auth.lastName')}</label>
-              <input value={form.last_name} onChange={set('last_name')} placeholder="Smith" style={styles.input} />
+              <input value={form.last_name} onChange={set('last_name')} placeholder={t("auth.lastNamePlaceholder")} style={styles.input} />
             </div>
           </div>
 
           <div style={styles.field}>
             <label style={styles.label}>{t('auth.username')}</label>
-            <input value={form.username} onChange={set('username')} placeholder="john_smith" autoComplete="username" style={styles.input} />
+            <input value={form.username} onChange={set('username')} placeholder={t("auth.usernamePlaceholder2")} autoComplete="username" style={styles.input} />
           </div>
 
           <div style={styles.field}>
-            <label style={styles.label}>Email Address</label>
-            <input value={form.email} onChange={set('email')} type="email" placeholder="john@example.com" autoComplete="email" style={styles.input} />
+            <label style={styles.label}>{t('auth.emailAddressLabel')}</label>
+            <input value={form.email} onChange={set('email')} type="email" placeholder={t("auth.emailPlaceholder2")} autoComplete="email" style={styles.input} />
           </div>
 
           <div style={styles.field}>
             <label style={styles.label}>{t('auth.password')}</label>
             <div style={{ position: 'relative' }}>
-              <input value={form.password} onChange={set('password')} type={showPass ? 'text' : 'password'} placeholder="Min. 8 characters" autoComplete="new-password" style={{ ...styles.input, paddingRight: 44 }} />
+              <input value={form.password} onChange={set('password')} type={showPass ? 'text' : 'password'} placeholder={t("auth.passwordPlaceholder2")} autoComplete="new-password" style={{ ...styles.input, paddingRight: 44 }} />
               <button type="button" onClick={() => setShowPass(s => !s)} style={styles.eyeBtn}>{showPass ? '🙈' : '👁️'}</button>
             </div>
             {form.password.length > 0 && (
@@ -117,7 +117,7 @@ export default function Register() {
 
           {refCode ? (
             <div style={styles.field}>
-              <label style={styles.label}>Your Sponsor</label>
+              <label style={styles.label}>{t('auth.yourSponsor')}</label>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <input value={form.ref} readOnly style={{ ...styles.input, opacity: 0.6, cursor: 'default', flex: 1 }} />
                 <div style={{ fontSize: 12, color: 'var(--sap-green-mid)', fontWeight: 700, whiteSpace: 'nowrap' }}>✓ Verified</div>
@@ -127,7 +127,7 @@ export default function Register() {
             <div style={styles.field}>
               <label style={styles.label}>Sponsor Username <span style={{ color: 'rgba(255,255,255,.3)', fontWeight: 400 }}>(who referred you?)</span></label>
               <input value={form.ref} onChange={set('ref')} placeholder="SuperAdPro" style={styles.input} />
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,.3)', marginTop: 4, lineHeight: 1.4 }}>Enter your sponsor's username. If no one referred you, leave as default and you'll be placed under the SuperAdPro team.</div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,.3)', marginTop: 4, lineHeight: 1.4 }}>{t("auth.sponsorDesc")}</div>
             </div>
           )}
 
@@ -137,7 +137,7 @@ export default function Register() {
         </form>
 
         <p style={styles.terms}>
-          By creating an account you agree to our <a href="/legal" style={styles.link}>Terms of Service</a> and <a href="/legal" style={styles.link}>Privacy Policy</a>.
+          By creating an account you agree to our <a href="/legal" style={styles.link}>{t('auth.termsOfService')}</a> and <a href="/legal" style={styles.link}>{t('auth.privacyPolicy')}</a>.
         </p>
 
         <div style={styles.divider}>
@@ -146,7 +146,7 @@ export default function Register() {
           <span style={styles.dividerLine} />
         </div>
 
-        <a href="/login" style={styles.loginBtn}>Sign in instead</a>
+        <a href="/login" style={styles.loginBtn}>{t('auth.signInInstead')}</a>
       </div>
 
       <p style={styles.footer}>© 2026 SuperAdPro · <a href="/legal" style={styles.footerLink}>Terms</a></p>

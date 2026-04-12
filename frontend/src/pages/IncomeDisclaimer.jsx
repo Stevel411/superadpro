@@ -11,33 +11,33 @@ export default function IncomeDisclaimer() {
         {/* Header */}
         <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:18, padding:'36px 36px 28px', marginBottom:24, position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:-50, right:-50, width:200, height:200, borderRadius:'50%', background:'rgba(14,165,233,.08)', pointerEvents:'none' }}/>
-          <div style={{ fontSize:12, letterSpacing:3, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:10 }}>Legal</div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:30, fontWeight:900, color:'#fff', marginBottom:8 }}>Income Disclaimer</div>
-          <div style={{ fontSize:15, color:'rgba(255,255,255,.5)', lineHeight:1.6 }}>Please read this disclaimer carefully before participating in any SuperAdPro income programme.</div>
+          <div style={{ fontSize:12, letterSpacing:3, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:10 }}>{t('incomeDisclaimer.legal')}</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:30, fontWeight:900, color:'#fff', marginBottom:8 }}>{t('incomeDisclaimer.pageTitle')}</div>
+          <div style={{ fontSize:15, color:'rgba(255,255,255,.5)', lineHeight:1.6 }}>{t("incomeDisclaimer.pleaseRead")}</div>
         </div>
 
         <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', padding:'32px 36px' }}>
 
           <Section title="No Guaranteed Income">
-            <p>SuperAdPro does not guarantee any level of income or earnings. The income examples, calculations, and projections shown on this platform, including on the Compensation Plan page and any calculators, are for illustrative purposes only. They represent potential earnings based on hypothetical scenarios and should not be interpreted as a promise or guarantee of actual results.</p>
+            <p>{t("incomeDisclaimer.noGuaranteeText")}</p>
           </Section>
 
           <Section title="Individual Results Vary">
-            <p>Your earnings depend entirely on your own efforts, skills, dedication, market conditions, and the activity of your network. There is no assurance that any prior successes or past results regarding income will apply to you. Many participants in affiliate and network marketing programmes earn little to no income.</p>
+            <p>{t("incomeDisclaimer.effortDependent")}</p>
           </Section>
 
           <Section title="Credit Pack Pricing Transparency">
-            <p>When you purchase a Credit Pack, the funds are allocated as follows:</p>
+            <p>{t("incomeDisclaimer.creditPackAlloc")}</p>
             <CostBreakdown items={[
               { pct:'50%', label:'AI Service Costs', desc:'Covers API usage for video, image, music, and voice generation' },
               { pct:'15%', label:'Platform Management', desc:'Infrastructure, support, and operational costs' },
               { pct:'35%', label:'Member Commissions', desc:'15% direct referral + 10% auto-place + 10% completion bonus' },
             ]}/>
-            <p>Credit packs provide genuine AI credits that can be used in the Creative Studio to generate videos, images, music, voiceovers, and other AI-powered content. The credits have real utility value independent of the commission structure.</p>
+            <p>{t("incomeDisclaimer.creditPackNote")}</p>
           </Section>
 
           <Section title="Campaign Tier Pricing Transparency">
-            <p>When you purchase a Campaign Tier, the funds are allocated as follows:</p>
+            <p>{t("incomeDisclaimer.campaignTierAlloc")}</p>
             <CostBreakdown items={[
               { pct:'40%', label:'Direct Sponsor Commission', desc:'Paid to the member who referred you' },
               { pct:'50%', label:'Uni-level Commissions', desc:'6.25% × 8 levels deep in the network' },
@@ -48,7 +48,7 @@ export default function IncomeDisclaimer() {
           </Section>
 
           <Section title="Membership Pricing Transparency">
-            <p>When a member pays their monthly or annual membership fee:</p>
+            <p>{t("incomeDisclaimer.membershipAlloc")}</p>
             <CostBreakdown items={[
               { pct:'50%', label:'Sponsor Commission', desc:'Paid to the referring member' },
               { pct:'50%', label:'Platform Revenue', desc:'Covers tools, AI services, hosting, support' },
@@ -57,7 +57,7 @@ export default function IncomeDisclaimer() {
 
           <Section title="Commission Structure">
             <p>SuperAdPro offers four income streams: Membership Referrals (50% commission), Campaign Grid (40% direct + 6.25% uni-level + 5% completion), Profit Nexus (15% direct + 10% auto-place + 10% completion), and Course Marketplace (coming soon). All commission rates are clearly disclosed on the Compensation Plan page.</p>
-            <p>Commission rates may be adjusted by SuperAdPro at any time with reasonable notice to members. Any changes will be communicated via the platform and email.</p>
+            <p>{t("incomeDisclaimer.commissionNotice")}</p>
           </Section>
 
           <Section title="Two Wallet System">
