@@ -32,6 +32,7 @@ var TC = { direct_sponsor:'var(--sap-green-mid)', uni_level:'var(--sap-accent)',
 var TIER_COLORS = ['var(--sap-green-mid)','var(--sap-accent)','var(--sap-indigo)','var(--sap-purple)','var(--sap-amber)','#f97316','var(--sap-red-bright)','var(--sap-amber-bright)'];
 
 export default function AnalyticsPage() {
+  var { t } = useTranslation();
   var [data, setData] = useState(null), [loading, setLoading] = useState(true), [error, setError] = useState(null);
   useEffect(function() { fetch('/api/analytics',{credentials:'include'}).then(function(r){return r.json()}).then(function(d){if(d.error){setError(d.error)}else{setData(d)}setLoading(false)}).catch(function(e){setError(e.message);setLoading(false)}); }, []);
 
