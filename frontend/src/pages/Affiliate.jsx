@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiPost } from '../utils/api';
@@ -32,6 +33,7 @@ var SHARE_URLS = {
 };
 
 export default function Affiliate() {
+  var { t } = useTranslation();
   var { user } = useAuth();
   var [platform, setPlatform] = useState('facebook');
   var [tone, setTone] = useState('Professional');
@@ -64,19 +66,19 @@ export default function Affiliate() {
   }
 
   return (
-    <AppLayout title="Social Share">
+    <AppLayout title={t('socialShare.title')}>
     <div style={{ fontFamily: "'DM Sans','Rethink Sans',sans-serif" }}>
       {/* Header */}
       <div style={{ background: 'linear-gradient(135deg, #172554, #172554)', padding: '20px 24px 16px' }}>
-        <div style={{ fontSize: 22, fontWeight: 700, color: '#fff', fontFamily: "'Sora','Rethink Sans',sans-serif" }}>Social Share</div>
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,.5)', marginTop: 3 }}>Generate AI posts and share your referral link across social media</div>
+        <div style={{ fontSize: 22, fontWeight: 700, color: '#fff', fontFamily: "'Sora','Rethink Sans',sans-serif" }}>{t('socialShare.title')}</div>
+        <div style={{ fontSize: 12, color: 'rgba(255,255,255,.5)', marginTop: 3 }}>{t('socialShare.subtitle')}</div>
       </div>
       {/* Referral link bar */}
       <div style={{ background: 'linear-gradient(180deg, #172554, #172554)', padding: '0 24px 14px' }}>
         <div style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.12)', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,.5)', whiteSpace: 'nowrap' }}>Your link</span>
+          <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,.5)', whiteSpace: 'nowrap' }}>{t('socialShare.yourLink')}</span>
           <span style={{ flex: 1, fontSize: 12, color: '#22d3ee', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{refLink}</span>
-          <button onClick={copyRef} style={{ background: 'rgba(34,211,238,.15)', color: '#22d3ee', padding: '5px 14px', borderRadius: 6, fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>{copied ? 'Copied!' : 'Copy'}</button>
+          <button onClick={copyRef} style={{ background: 'rgba(34,211,238,.15)', color: '#22d3ee', padding: '5px 14px', borderRadius: 6, fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>{copied ? t('socialShare.copied') : t('socialShare.copy')}</button>
         </div>
       </div>
 
@@ -84,8 +86,8 @@ export default function Affiliate() {
       <div style={{ display: 'flex', minHeight: 500, background: '#f1f5f9' }}>
         {/* Left panel */}
         <div style={{ width: 380, flexShrink: 0, background: '#fff', borderRight: '1px solid #e2e8f0', padding: 22, overflowY: 'auto' }}>
-          <div style={{ fontSize: 17, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>Generate a post</div>
-          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 16 }}>AI creates platform-optimised posts with your referral link.</div>
+          <div style={{ fontSize: 17, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>{t('socialShare.generatePost')}</div>
+          <div style={{ fontSize: 12, color: '#64748b', marginBottom: 16 }}>{t('socialShare.generateDesc')}</div>
 
           <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>Platform</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 18 }}>
@@ -113,7 +115,7 @@ export default function Affiliate() {
             })}
           </div>
 
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>Tone</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>{t('socialShare.tone')}</div>
           <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
             {TONES.map(function(t) {
               var on = tone === t;
@@ -121,26 +123,26 @@ export default function Affiliate() {
             })}
           </div>
 
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>Your niche (optional)</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>{t('socialShare.yourNiche')}</div>
           <input value={niche} onChange={function(e) { setNiche(e.target.value); }}
-            placeholder="e.g. fitness, crypto, travel..."
+            placeholder={t("socialShare.nichePlaceholder")}
             style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '11px 12px', fontSize: 13, fontFamily: 'inherit', background: '#f8fafc', boxSizing: 'border-box', outline: 'none', color: '#1e293b' }} />
 
           <button onClick={generate} disabled={generating}
             style={{ width: '100%', marginTop: 20, padding: 13, background: generating ? '#94a3b8' : 'linear-gradient(135deg, #0ea5e9, #38bdf8)', color: '#fff', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', opacity: generating ? 0.7 : 1, transition: 'all .2s' }}>
-            {generating ? 'Generating...' : 'Generate for ' + selected.label}
+            {generating ? t('socialShare.generating') : t('socialShare.generateFor', {platform: selected.label})}
           </button>
         </div>
 
         {/* Right panel */}
         <div style={{ flex: 1, padding: 22, display: 'flex', flexDirection: 'column' }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', marginBottom: 14 }}>Generated post</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', marginBottom: 14 }}>{t('socialShare.generatedPost')}</div>
           <div style={{ flex: 1, background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             {generating ? (
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ width: 36, height: 36, border: '3px solid #e2e8f0', borderTopColor: '#0ea5e9', borderRadius: '50%', animation: 'ssspin .8s linear infinite', margin: '0 auto 12px' }} />
-                  <div style={{ fontSize: 13, color: '#64748b' }}>Writing your {selected.label} post...</div>
+                  <div style={{ fontSize: 13, color: '#64748b' }}>{t('socialShare.writingPost', {platform: selected.label})}</div>
                 </div>
               </div>
             ) : post ? (
@@ -151,7 +153,7 @@ export default function Affiliate() {
                 <div style={{ padding: '12px 20px', borderTop: '1px solid #e2e8f0', display: 'flex', gap: 8 }}>
                   <button onClick={function() { navigator.clipboard.writeText(post); setPostCopied(true); setTimeout(function() { setPostCopied(false); }, 2000); }}
                     style={{ padding: '10px 16px', borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: 'pointer', border: '1px solid #e2e8f0', background: postCopied ? '#dcfce7' : '#f8fafc', color: postCopied ? '#16a34a' : '#475569', fontFamily: 'inherit' }}>
-                    {postCopied ? 'Copied!' : '📋 Copy Post'}
+                    {postCopied ? t('socialShare.copied') : t('socialShare.copyPost')}
                   </button>
                   <button onClick={generate} disabled={generating}
                     style={{ padding: '10px 16px', borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: 'pointer', border: '1px solid #e2e8f0', background: '#f8fafc', color: '#475569', fontFamily: 'inherit' }}>
@@ -169,8 +171,8 @@ export default function Affiliate() {
                   <div style={{ width: 48, height: 48, margin: '0 auto 14px', borderRadius: '50%', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                   </div>
-                  <div style={{ fontSize: 15, fontWeight: 500, color: '#1e293b' }}>Your post will appear here</div>
-                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 6, maxWidth: 280 }}>Pick a platform, choose a tone, and generate. Then copy or share directly.</div>
+                  <div style={{ fontSize: 15, fontWeight: 500, color: '#1e293b' }}>{t('socialShare.postWillAppear')}</div>
+                  <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 6, maxWidth: 280 }}>{t('socialShare.postWillAppearDesc')}</div>
                 </div>
               </div>
             )}

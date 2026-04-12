@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 import { BookOpen, ChevronDown, ChevronRight, Clock, CheckCircle } from 'lucide-react';
 
 export default function TrainingCentre() {
+  var { t } = useTranslation();
   var [modules, setModules] = useState([]);
   var [loading, setLoading] = useState(true);
   var [openModule, setOpenModule] = useState(null);
@@ -35,7 +37,7 @@ export default function TrainingCentre() {
   if (loading) return <AppLayout title="Training Centre"><div style={{padding:40,textAlign:'center',color:'#64748b'}}>Loading...</div></AppLayout>;
 
   return (
-    <AppLayout title="Training Centre" subtitle="Learn how to maximise your SuperAdPro earnings">
+    <AppLayout title={t("training.title")} subtitle={t("training.subtitle")}>
       {/* Progress bar */}
       <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'20px 24px',marginBottom:20,boxShadow:'0 2px 8px rgba(0,0,0,.04)'}}>
         <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>

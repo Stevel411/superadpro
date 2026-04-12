@@ -1308,5 +1308,54 @@
     "queued": "En Cola",
     "failed": "Generación fallida",
     "tryAgain": "Intentar de Nuevo"
+  },
+  "socialShare": {
+    "title": "Compartir Social",
+    "subtitle": "Genera posts con IA y comparte tu enlace de referido",
+    "yourLink": "Tu enlace",
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "generatePost": "Generar un post",
+    "generateDesc": "La IA crea posts optimizados con tu enlace de referido.",
+    "platform": "Plataforma",
+    "tone": "Tono",
+    "professional": "Profesional",
+    "casual": "Casual",
+    "hype": "Entusiasta",
+    "story": "Historia",
+    "educational": "Educativo",
+    "yourNiche": "Tu nicho (opcional)",
+    "nichePlaceholder": "ej. fitness, crypto, viajes...",
+    "generating": "Generando...",
+    "generateFor": "Generar para {{platform}}",
+    "generatedPost": "Post generado",
+    "writingPost": "Escribiendo tu post de {{platform}}...",
+    "copyPost": "📋 Copiar Post",
+    "regenerate": "↻ Regenerar",
+    "shareTo": "Compartir en {{platform}}",
+    "postWillAppear": "Tu post aparecerá aquí",
+    "postWillAppearDesc": "Elige una plataforma, un tono y genera. Luego copia o comparte."
+  },
+  "training": {
+    "title": "Centro de Formación",
+    "subtitle": "Aprende a maximizar tus ganancias en SuperAdPro"
+  },
+  "payItForward": {
+    "title": "Pagar Adelante",
+    "subtitle": "Regala una membresía y cambia la vida de alguien",
+    "giftCreated": "¡Voucher de regalo creado! Comparte el enlace.",
+    "createFailed": "Error al crear voucher",
+    "creating": "Creando...",
+    "payWallet": "Pagar desde Cartera — $20",
+    "insufficientBalance": "Saldo insuficiente",
+    "payCrypto": "Pagar con Crypto — $20",
+    "openGift": "Regalo abierto",
+    "claimed": "Reclamado",
+    "available": "Disponible",
+    "chainDepth": "Profundidad de cadena"
+  },
+  "teamMessenger": {
+    "title": "Mensajero de Equipo",
+    "subtitle": "Envía mensajes a tu patrocinador y miembros del equipo"
   }
 }

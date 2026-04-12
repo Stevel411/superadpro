@@ -1307,5 +1307,54 @@
     "queued": "Queued",
     "failed": "Generation failed",
     "tryAgain": "Try Again"
+  },
+  "socialShare": {
+    "title": "Social Share",
+    "subtitle": "Generate AI posts and share your referral link across social media",
+    "yourLink": "Your link",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "generatePost": "Generate a post",
+    "generateDesc": "AI creates platform-optimised posts with your referral link.",
+    "platform": "Platform",
+    "tone": "Tone",
+    "professional": "Professional",
+    "casual": "Casual",
+    "hype": "Hype",
+    "story": "Story",
+    "educational": "Educational",
+    "yourNiche": "Your niche (optional)",
+    "nichePlaceholder": "e.g. fitness, crypto, travel...",
+    "generating": "Generating...",
+    "generateFor": "Generate for {{platform}}",
+    "generatedPost": "Generated post",
+    "writingPost": "Writing your {{platform}} post...",
+    "copyPost": "📋 Copy Post",
+    "regenerate": "↻ Regenerate",
+    "shareTo": "Share to {{platform}}",
+    "postWillAppear": "Your post will appear here",
+    "postWillAppearDesc": "Pick a platform, choose a tone, and generate. Then copy or share directly."
+  },
+  "training": {
+    "title": "Training Centre",
+    "subtitle": "Learn how to maximise your SuperAdPro earnings"
+  },
+  "payItForward": {
+    "title": "Pay It Forward",
+    "subtitle": "Gift a membership and change someone's life",
+    "giftCreated": "Gift voucher created! Share the link below.",
+    "createFailed": "Failed to create voucher",
+    "creating": "Creating...",
+    "payWallet": "Pay from Wallet — $20",
+    "insufficientBalance": "Insufficient wallet balance",
+    "payCrypto": "Pay with Crypto — $20",
+    "openGift": "Open gift",
+    "claimed": "Claimed",
+    "available": "Available",
+    "chainDepth": "Chain depth"
+  },
+  "teamMessenger": {
+    "title": "Team Messenger",
+    "subtitle": "Message your sponsor and team members"
   }
 }

@@ -1308,5 +1308,54 @@
     "queued": "En File",
     "failed": "Échec de génération",
     "tryAgain": "Réessayer"
+  },
+  "socialShare": {
+    "title": "Partage Social",
+    "subtitle": "Générez des posts IA et partagez votre lien de parrainage",
+    "yourLink": "Votre lien",
+    "copy": "Copier",
+    "copied": "Copié !",
+    "generatePost": "Générer un post",
+    "generateDesc": "L'IA crée des posts optimisés avec votre lien.",
+    "platform": "Plateforme",
+    "tone": "Ton",
+    "professional": "Professionnel",
+    "casual": "Décontracté",
+    "hype": "Enthousiaste",
+    "story": "Histoire",
+    "educational": "Éducatif",
+    "yourNiche": "Votre niche (optionnel)",
+    "nichePlaceholder": "ex. fitness, crypto, voyage...",
+    "generating": "Génération...",
+    "generateFor": "Générer pour {{platform}}",
+    "generatedPost": "Post généré",
+    "writingPost": "Rédaction de votre post {{platform}}...",
+    "copyPost": "📋 Copier le Post",
+    "regenerate": "↻ Régénérer",
+    "shareTo": "Partager sur {{platform}}",
+    "postWillAppear": "Votre post apparaîtra ici",
+    "postWillAppearDesc": "Choisissez une plateforme, un ton et générez. Puis copiez ou partagez."
+  },
+  "training": {
+    "title": "Centre de Formation",
+    "subtitle": "Apprenez à maximiser vos revenus SuperAdPro"
+  },
+  "payItForward": {
+    "title": "Payer au Suivant",
+    "subtitle": "Offrez un abonnement et changez une vie",
+    "giftCreated": "Bon cadeau créé ! Partagez le lien.",
+    "createFailed": "Échec de création du bon",
+    "creating": "Création...",
+    "payWallet": "Payer depuis le Portefeuille — 20$",
+    "insufficientBalance": "Solde insuffisant",
+    "payCrypto": "Payer en Crypto — 20$",
+    "openGift": "Cadeau ouvert",
+    "claimed": "Réclamé",
+    "available": "Disponible",
+    "chainDepth": "Profondeur de chaîne"
+  },
+  "teamMessenger": {
+    "title": "Messagerie d'Équipe",
+    "subtitle": "Envoyez des messages à votre parrain et votre équipe"
   }
 }

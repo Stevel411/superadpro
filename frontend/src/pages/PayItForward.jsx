@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { apiGet, apiPost } from '../utils/api';
 import AppLayout from '../components/layout/AppLayout';
 import { Gift, Copy, Check, Heart, ExternalLink, ChevronRight } from 'lucide-react';
 
 export default function PayItForward() {
+  var { t } = useTranslation();
   var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);
   var [creating, setCreating] = useState(false);
@@ -41,17 +43,17 @@ export default function PayItForward() {
       }
       if (r.success) {
         setNewLink(r.link);
-        setSuccess('Gift voucher created! Share the link below.');
+        setSuccess(t('payItForward.giftCreated'));
         setShowForm(false);
         setRecipientName('');
         setMessage('');
         loadData();
       } else {
-        setError(r.error || 'Failed to create voucher');
+        setError(r.error || t('payItForward.createFailed'));
       }
       setCreating(false);
     }).catch(function(e) {
-      setError(e.message || 'Failed to create voucher');
+      setError(e.message || t('payItForward.createFailed'));
       setCreating(false);
     });
   }
@@ -76,7 +78,7 @@ export default function PayItForward() {
   var canPayFromWallet = data ? data.can_pay_from_wallet : false;
 
   return (
-    <AppLayout title="Pay It Forward" subtitle="Gift a membership and change someone's life">
+    <AppLayout title={t("payItForward.title")} subtitle={t("payItForward.subtitle")}>
 
       <style>{'@keyframes spin{to{transform:rotate(360deg)}} .pif-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08)!important}'}</style>
 
@@ -195,7 +197,7 @@ export default function PayItForward() {
                 background: canPayFromWallet ? 'linear-gradient(135deg,#ec4899,#db2777)' : '#cbd5e1',
                 display:'flex', alignItems:'center', justifyContent:'center', gap:8,
               }}>
-              {creating ? 'Creating...' : canPayFromWallet ? 'Pay from Wallet — $20' : 'Insufficient wallet balance'}
+              {creating ? t('payItForward.creating') : canPayFromWallet ? t('payItForward.payWallet') : t('payItForward.insufficientBalance')}
             </button>
             <button onClick={function() { createVoucher('crypto'); }} disabled={creating}
               style={{
@@ -203,7 +205,7 @@ export default function PayItForward() {
                 fontFamily:'inherit', fontSize:15, fontWeight:700, color:'#475569', background:'#fff',
                 display:'flex', alignItems:'center', justifyContent:'center', gap:8,
               }}>
-              {creating ? 'Creating...' : 'Pay with Crypto — $20'}
+              {creating ? t('payItForward.creating') : t('payItForward.payCrypto')}
             </button>
           </div>
 

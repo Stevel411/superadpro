@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
 import { Send, MessageCircle, User, Users, ChevronRight, ArrowLeft } from 'lucide-react';
 
 export default function TeamMessenger() {
+  var { t } = useTranslation();
   var [contacts, setContacts] = useState([]);
   var [messages, setMessages] = useState([]);
   var [loading, setLoading] = useState(true);
@@ -44,10 +46,10 @@ export default function TeamMessenger() {
     return (m.other_user && m.other_user.id === activeContact.id);
   }).reverse() : [];
 
-  if (loading) return <AppLayout title="Team Messenger"><div style={{padding:40,textAlign:'center',color:'#64748b'}}>Loading...</div></AppLayout>;
+  if (loading) return <AppLayout title={t("teamMessenger.title")}><div style={{padding:40,textAlign:'center',color:'#64748b'}}>Loading...</div></AppLayout>;
 
   return (
-    <AppLayout title="Team Messenger" subtitle="Message your sponsor and team members">
+    <AppLayout title={t("teamMessenger.title")} subtitle="Message your sponsor and team members">
       <div style={{display:'grid',gridTemplateColumns:activeContact?'280px 1fr':'1fr',gap:0,background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',minHeight:550,boxShadow:'0 2px 12px rgba(0,0,0,.06)'}}>
         {/* Contacts sidebar */}
         <div style={{borderRight:activeContact?'1px solid #f1f5f9':'none',display:activeContact?undefined:'block'}}>
