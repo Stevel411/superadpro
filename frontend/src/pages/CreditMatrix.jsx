@@ -87,7 +87,7 @@ export function CreditMatrixContent() {
     return (
       <div style={{ textAlign: 'center', padding: '80px 0' }}>
         <Loader2 size={32} color="var(--sap-purple)" style={{ animation: 'spin 1s linear infinite' }} />
-        <div style={{ marginTop: 12, color: 'var(--sap-text-muted)' }}>Loading Profit Nexus...</div>
+        <div style={{ marginTop: 12, color: 'var(--sap-text-muted)' }}>{t('creditMatrix.loadingNexus')}</div>
         <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
       </div>
     );
@@ -112,8 +112,8 @@ export function CreditMatrixContent() {
             <Layers size={24} color="var(--sap-purple-light)" />
           </div>
           <div>
-            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#fff' }}>Earn commissions every time your team creates content</div>
-            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>Buy credit packs for AI videos, images, and music — earn 25%, 15%, and 10% across 3 levels when your team does the same</div>
+            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, color: '#fff' }}>{t("creditMatrix.earnCommissions")}</div>
+            <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{t("creditMatrix.buyPacksDesc")}</div>
           </div>
         </div>
 
@@ -155,7 +155,7 @@ export function CreditMatrixContent() {
         <div>
           {/* Credit Packs */}
           <div style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 12 }}>Buy Credit Packs</div>
+            <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 12 }}>{t('creditMatrix.buyPacks')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
               {packs.map(function(pack) {
                 var icon = PACK_ICONS[pack.key] || PACK_ICONS.starter;
@@ -273,7 +273,7 @@ export function CreditMatrixContent() {
             {!matrixStats && (
               <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--sap-text-muted)' }}>
                 <Users size={40} color="var(--sap-border)" />
-                <div style={{ marginTop: 8, fontSize: 14 }}>Buy your first credit pack to start your nexus</div>
+                <div style={{ marginTop: 8, fontSize: 14 }}>{t("creditMatrix.buyFirstPack")}</div>
               </div>
             )}
           </div>
@@ -291,7 +291,7 @@ export function CreditMatrixContent() {
             {showCommissions && commissions && commissions.commissions && (
               <div style={{ marginTop: 12 }}>
                 {commissions.commissions.length === 0 && (
-                  <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', padding: '20px 0', textAlign: 'center' }}>No commissions yet — they'll appear here when your nexus fills</div>
+                  <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', padding: '20px 0', textAlign: 'center' }}>{t("creditMatrix.noCommissionsYet")}</div>
                 )}
                 {commissions.commissions.map(function(c, i) {
                   return (
@@ -319,7 +319,7 @@ export function CreditMatrixContent() {
         <div>
           {/* How it works */}
           <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px', marginBottom: 16 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 12 }}>How it works</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 12 }}>{t('creditMatrix.howItWorksTitle')}</div>
             {[
               { step: '1', text: 'Buy a credit pack to create AI videos, images, and music' },
               { step: '2', text: 'Your purchase enters your sponsor\'s 3×3 matrix' },
@@ -339,8 +339,8 @@ export function CreditMatrixContent() {
 
           {/* Earnings potential */}
           <div style={{ background: 'linear-gradient(135deg, #f3f0ff, #ede9fe)', borderRadius: 14, border: '1px solid #ddd6fe', padding: '20px', marginBottom: 16 }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: '#4c1d95', marginBottom: 10 }}>Earnings potential</div>
-            <div style={{ fontSize: 13, color: '#6d28d9', marginBottom: 12 }}>Full nexus (39 members) buying all 5 packs:</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: '#4c1d95', marginBottom: 10 }}>{t('creditMatrix.earningsPotential')}</div>
+            <div style={{ fontSize: 13, color: '#6d28d9', marginBottom: 12 }}>{t("creditMatrix.fullNexusDesc")}</div>
             {[
               { label: 'L1 (3 members × 25%)', amount: '$693.75' },
               { label: 'L2 (9 members × 15%)', amount: '$1,248.75' },
@@ -355,7 +355,7 @@ export function CreditMatrixContent() {
               );
             })}
             <div style={{ borderTop: '1px solid #c4b5fd', marginTop: 8, paddingTop: 8, display: 'flex', justifyContent: 'space-between', fontSize: 15, fontWeight: 800 }}>
-              <span style={{ color: '#4c1d95' }}>Total per nexus</span>
+              <span style={{ color: '#4c1d95' }}>{t('creditMatrix.totalPerNexus')}</span>
               <span style={{ color: '#4c1d95' }}>$4,690.00</span>
             </div>
           </div>

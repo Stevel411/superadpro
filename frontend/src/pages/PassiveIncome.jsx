@@ -274,7 +274,7 @@ export default function PassiveIncome({ d }) {
 
           <div style={S.totalRow}>
             <div>
-              <div style={{ fontSize:10, fontWeight:800, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,0.3)', marginBottom:4 }}>Total Earned — All Time</div>
+              <div style={{ fontSize:10, fontWeight:800, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,0.3)', marginBottom:4 }}>{t('passiveIncome.totalEarnedAllTime')}</div>
               <div style={S.totalAmount}>
                 $<CountUp target={totalEarned} duration={2000} isMoney/>
               </div>
@@ -340,7 +340,7 @@ export default function PassiveIncome({ d }) {
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:900, color:'#34d399' }}>
               ${(TIER_BONUSES[closestGrid.tier] || 0).toLocaleString()}
             </div>
-            <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)' }}>Completion bonus</div>
+            <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)' }}>{t('passiveIncome.completionBonus')}</div>
           </div>
         </div>
       ) : null}
@@ -350,14 +350,14 @@ export default function PassiveIncome({ d }) {
 
         {/* Passive Score */}
         <div style={S.darkCard}>
-          <div style={S.sectionTitle}>Recurring Income Score</div>
-          <div style={S.sectionSub}>How automated your earnings are</div>
+          <div style={S.sectionTitle}>{t('passiveIncome.recurringIncomeScore')}</div>
+          <div style={S.sectionSub}>{t('passiveIncome.howAutomated')}</div>
           <div style={{ display:'flex', alignItems:'center', gap:20 }}>
             <div style={{ position:'relative', flexShrink:0 }}>
               <Ring pct={passiveScore} color={passiveLevel.color} size={150}/>
               <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:38, fontWeight:900, color:'#fff', lineHeight:1 }}>{passiveScore}</div>
-                <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:1, marginTop:4 }}>Score</div>
+                <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:1, marginTop:4 }}>{t('passiveIncome.score')}</div>
               </div>
             </div>
             <div style={{ flex:1 }}>
@@ -393,14 +393,14 @@ export default function PassiveIncome({ d }) {
         <div style={S.darkCard}>
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:18 }}>
             <div>
-              <div style={S.sectionTitle}>Earnings Breakdown</div>
-              <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)' }}>Your actual earnings by income stream</div>
+              <div style={S.sectionTitle}>{t('passiveIncome.earningsBreakdown')}</div>
+              <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)' }}>{t('passiveIncome.earningsBreakdownDesc')}</div>
             </div>
             <div style={{ textAlign:'right' }}>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:48, fontWeight:900, color:'var(--sap-green-mid)', lineHeight:1 }}>
                 $<CountUp target={totalEarned} duration={1800} isMoney/>
               </div>
-              <div style={{ fontSize:13, color:'rgba(255,255,255,0.35)', marginTop:4 }}>total earned</div>
+              <div style={{ fontSize:13, color:'rgba(255,255,255,0.35)', marginTop:4 }}>{t('passiveIncome.totalEarned')}</div>
             </div>
           </div>
           <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
@@ -429,7 +429,7 @@ export default function PassiveIncome({ d }) {
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4 }}>
           <div style={S.sectionTitle}>💸 Earnings While You Were Away</div>
         </div>
-        <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)', marginBottom:16 }}>Commissions your network generated without you lifting a finger</div>
+        <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)', marginBottom:16 }}>{t("passiveIncome.networkGenerated")}</div>
 
         {activity.length > 0 ? (
           <div>
@@ -458,7 +458,7 @@ export default function PassiveIncome({ d }) {
         ) : (
           <div style={{ textAlign:'center', padding:'32px 0', color:'rgba(255,255,255,0.2)' }}>
             <div style={{ fontSize:36, marginBottom:8 }}>💤</div>
-            <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.4)', marginBottom:4 }}>No recurring earnings yet</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.4)', marginBottom:4 }}>{t('passiveIncome.noRecurring')}</div>
             <div style={{ fontSize:12, color:'rgba(255,255,255,0.25)' }}>Build your team and activate a campaign tier to start earning on autopilot</div>
           </div>
         )}

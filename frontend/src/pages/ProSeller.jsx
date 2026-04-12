@@ -55,8 +55,8 @@ export default function ProSeller() {
                 <div style={{width:72,height:72,borderRadius:18,background:'linear-gradient(135deg,#8b5cf6,#a78bfa)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 18px',boxShadow:'0 12px 40px rgba(139,92,246,.4)',position:'relative',zIndex:1}}>
                   <Bot size={36} color="#fff"/>
                 </div>
-                <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:900,color:'#fff',margin:'0 0 10px',position:'relative',zIndex:1}}>ProSeller AI</h2>
-                <p style={{fontSize:15,color:'rgba(255,255,255,.45)',margin:'0 auto',maxWidth:460,lineHeight:1.8,position:'relative',zIndex:1}}>Your personal AI sales coach. Get marketing strategies, handle objections, write content, and grow your SuperAdPro business faster.</p>
+                <h2 style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:900,color:'#fff',margin:'0 0 10px',position:'relative',zIndex:1}}>{t('proSeller.proSellerAI')}</h2>
+                <p style={{fontSize:15,color:'rgba(255,255,255,.45)',margin:'0 auto',maxWidth:460,lineHeight:1.8,position:'relative',zIndex:1}}>{t("proSeller.proSellerDesc")}</p>
 
                 {/* Quick stat pills */}
                 <div style={{display:'flex',justifyContent:'center',gap:8,marginTop:20,position:'relative',zIndex:1}}>
@@ -105,7 +105,7 @@ export default function ProSeller() {
                       <div style={{fontSize:14,color:'var(--sap-text-primary)',lineHeight:1.9,whiteSpace:'pre-wrap',wordBreak:'break-word'}}>{m.content}</div>
                       {!isUser&&(
                         <button onClick={function(){copyMsg(m.content,i);}} style={{display:'inline-flex',alignItems:'center',gap:4,marginTop:10,padding:'5px 12px',borderRadius:6,border:'1px solid #e8ecf2',background:'#fff',color:copied===i?'var(--sap-green)':'var(--sap-text-muted)',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit',transition:'all .15s'}}>
-                          {copied===i?<><Check size={10}/>Copied</>:<><Copy size={10}/>Copy response</>}
+                          {copied===i?<><Check size={10}/>{t('proSeller.copiedResponse')}</>:<><Copy size={10}/>{t('proSeller.copyResponse')}</>}
                         </button>
                       )}
                     </div>
@@ -127,9 +127,9 @@ export default function ProSeller() {
 
         {/* Input */}
         <div style={{background:'#fff',borderRadius:'0 0 16px 16px',border:'1px solid #e8ecf2',borderTop:'none',padding:'16px 20px'}}>
-          {hasMessages&&<div style={{textAlign:'center',marginBottom:10}}><button onClick={function(){setMessages([]);}} style={{display:'inline-flex',alignItems:'center',gap:4,padding:'5px 14px',borderRadius:6,border:'1px solid #e8ecf2',background:'transparent',color:'var(--sap-text-muted)',fontSize:10,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}} onMouseEnter={function(e){e.currentTarget.style.color='var(--sap-red-bright)';e.currentTarget.style.borderColor='var(--sap-red-bg-mid)';}} onMouseLeave={function(e){e.currentTarget.style.color='var(--sap-text-muted)';e.currentTarget.style.borderColor='var(--sap-border-light)';}}><RefreshCw size={10}/>New conversation</button></div>}
+          {hasMessages&&<div style={{textAlign:'center',marginBottom:10}}><button onClick={function(){setMessages([]);}} style={{display:'inline-flex',alignItems:'center',gap:4,padding:'5px 14px',borderRadius:6,border:'1px solid #e8ecf2',background:'transparent',color:'var(--sap-text-muted)',fontSize:10,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}} onMouseEnter={function(e){e.currentTarget.style.color='var(--sap-red-bright)';e.currentTarget.style.borderColor='var(--sap-red-bg-mid)';}} onMouseLeave={function(e){e.currentTarget.style.color='var(--sap-text-muted)';e.currentTarget.style.borderColor='var(--sap-border-light)';}}><RefreshCw size={10}/>{t('proSeller.newConversation')}</button></div>}
           <div style={{display:'flex',gap:10,alignItems:'center'}}>
-            <input value={input} onChange={function(e){setInput(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}} placeholder="Ask ProSeller AI anything..." style={{flex:1,padding:'15px 20px',border:'2px solid #e8ecf2',borderRadius:14,fontSize:15,fontFamily:'inherit',background:'var(--sap-bg-input)',outline:'none',transition:'all .2s'}} onFocus={function(e){e.target.style.borderColor='var(--sap-purple)';e.target.style.background='#fff';e.target.style.boxShadow='0 0 0 4px rgba(139,92,246,.08)';}} onBlur={function(e){e.target.style.borderColor='var(--sap-border-light)';e.target.style.background='var(--sap-bg-input)';e.target.style.boxShadow='none';}}/>
+            <input value={input} onChange={function(e){setInput(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}} placeholder={t("proSeller.askPlaceholder")} style={{flex:1,padding:'15px 20px',border:'2px solid #e8ecf2',borderRadius:14,fontSize:15,fontFamily:'inherit',background:'var(--sap-bg-input)',outline:'none',transition:'all .2s'}} onFocus={function(e){e.target.style.borderColor='var(--sap-purple)';e.target.style.background='#fff';e.target.style.boxShadow='0 0 0 4px rgba(139,92,246,.08)';}} onBlur={function(e){e.target.style.borderColor='var(--sap-border-light)';e.target.style.background='var(--sap-bg-input)';e.target.style.boxShadow='none';}}/>
             <button onClick={function(){send();}} disabled={loading||!input.trim()} style={{width:52,height:52,borderRadius:14,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:(loading||!input.trim())?'default':'pointer',background:(loading||!input.trim())?'var(--sap-border-light)':'linear-gradient(135deg,#8b5cf6,#a78bfa)',boxShadow:(loading||!input.trim())?'none':'0 6px 20px rgba(139,92,246,.3)',transition:'all .2s'}}>
               <Send size={20} color={(loading||!input.trim())?'var(--sap-text-muted)':'#fff'}/>
             </button>

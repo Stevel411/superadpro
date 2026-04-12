@@ -19,7 +19,7 @@ export function AdDetail() {
 
   if (loading) return (
     <PublicLayout>
-      <div style={{ textAlign: 'center', padding: 80, color: 'rgba(255,255,255,0.3)' }}>Loading...</div>
+      <div style={{ textAlign: 'center', padding: 80, color: 'rgba(255,255,255,0.3)' }}>{t('adPages.loading')}</div>
     </PublicLayout>
   );
 
@@ -27,7 +27,7 @@ export function AdDetail() {
     <PublicLayout>
       <div style={{ maxWidth: 600, margin: '80px auto', textAlign: 'center', padding: '0 24px' }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>🔍</div>
-        <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 24, fontWeight: 900, marginBottom: 12 }}>Ad not found</h2>
+        <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 24, fontWeight: 900, marginBottom: 12 }}>{t('adPages.adNotFound')}</h2>
         <Link to="/ads" style={{ color: 'var(--sap-accent-light)', textDecoration: 'none' }}>← Back to Ad Board</Link>
       </div>
     </PublicLayout>
@@ -62,7 +62,7 @@ export function AdDetail() {
           {/* Related ads */}
           {data.related && data.related.length > 0 && (
             <div style={{ minWidth: 200, maxWidth: 220 }}>
-              <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>Related</div>
+              <div style={{ fontSize: 11, fontWeight: 800, color: 'rgba(255,255,255,0.3)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 12 }}>{t('adPages.related')}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {data.related.map(function(r) {
                   return (
@@ -132,8 +132,8 @@ export function AdBoardManage() {
       <div style={{ padding: 24, maxWidth: 900 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 28 }}>
           <div>
-            <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 24, fontWeight: 900, margin: '0 0 4px' }}>My Ad Listings</h1>
-            <p style={{ fontSize: 13, color: 'rgba(0,0,0,0.45)', margin: 0 }}>Post listings to the community Ad Board</p>
+            <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 24, fontWeight: 900, margin: '0 0 4px' }}>{t('adPages.myAdListings')}</h1>
+            <p style={{ fontSize: 13, color: 'rgba(0,0,0,0.45)', margin: 0 }}>{t('adPages.postListingsDesc')}</p>
           </div>
           <button onClick={function(){setShowForm(!showForm);}} style={{ padding: '10px 20px', borderRadius: 10, border: 'none', background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 700, fontSize: 14, cursor: 'pointer', fontFamily: 'inherit' }}>
             {showForm ? 'Cancel' : '+ New Listing'}
@@ -143,25 +143,25 @@ export function AdBoardManage() {
         {/* Create form */}
         {showForm && (
           <div style={{ background: '#fff', border: '1px solid #e8ecf2', borderRadius: 14, padding: 24, marginBottom: 24 }}>
-            <h3 style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 800, margin: '0 0 20px' }}>New Listing</h3>
+            <h3 style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 800, margin: '0 0 20px' }}>{t('adPages.newListing')}</h3>
             {msg && <div style={{ background: 'var(--sap-red-bg)', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', fontSize: 13, color: 'var(--sap-red)', marginBottom: 16 }}>{msg}</div>}
             <form onSubmit={submit}>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
                 <div>
                   <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Title *</label>
-                  <input value={form.title} onChange={set('title')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }} placeholder="Your listing title"/>
+                  <input value={form.title} onChange={set('title')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }} placeholder={t("adPages.listingTitlePlaceholder")}/>
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Category *</label>
                   <select value={form.category} onChange={set('category')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }}>
-                    <option value="">Select category</option>
+                    <option value="">{t('adPages.selectCategory')}</option>
                     {categories.map(function(c) { return <option key={c.id} value={c.id}>{c.icon} {c.name}</option>; })}
                   </select>
                 </div>
               </div>
               <div style={{ marginBottom: 12 }}>
                 <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Description *</label>
-                <textarea value={form.description} onChange={set('description')} rows={3} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0', resize: 'vertical' }} placeholder="Describe your listing..."/>
+                <textarea value={form.description} onChange={set('description')} rows={3} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0', resize: 'vertical' }} placeholder={t("adPages.listingDescPlaceholder")}/>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
                 <div>
@@ -169,18 +169,18 @@ export function AdBoardManage() {
                   <input value={form.link_url} onChange={set('link_url')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }} placeholder="https://..."/>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Image URL (optional)</label>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('adPages.imageUrlOptional')}</label>
                   <input value={form.image_url} onChange={set('image_url')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }} placeholder="https://..."/>
                 </div>
               </div>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12, marginBottom: 12 }}>
                 <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Price (optional)</label>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('adPages.priceOptional')}</label>
                   <input value={form.price} onChange={set('price')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }} placeholder="$99" maxLength={50}/>
                 </div>
                 <div>
-                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>Location (optional)</label>
-                  <input value={form.location} onChange={set('location')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }} placeholder="London, UK" maxLength={100}/>
+                  <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>{t('adPages.locationOptional')}</label>
+                  <input value={form.location} onChange={set('location')} style={{ ...iS, background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-primary)', border: '1px solid #e2e8f0' }} placeholder={t("adPages.locationPlaceholder")} maxLength={100}/>
                 </div>
                 <div>
                   <label style={{ display: 'block', fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: 0.5 }}>SEO Keywords</label>
@@ -197,7 +197,7 @@ export function AdBoardManage() {
 
         {/* Listings */}
         {loading ? (
-          <div style={{ textAlign: 'center', padding: 60, color: 'var(--sap-text-faint)' }}>Loading...</div>
+          <div style={{ textAlign: 'center', padding: 60, color: 'var(--sap-text-faint)' }}>{t('adPages.loading')}</div>
         ) : listings.length === 0 ? (
           <div style={{ textAlign: 'center', padding: 60, background: '#fff', border: '1px solid #e8ecf2', borderRadius: 14 }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>📋</div>

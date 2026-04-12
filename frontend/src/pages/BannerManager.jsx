@@ -95,39 +95,39 @@ export default function BannerManager() {
 
             {/* Form */}
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 24 }}>
-              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 20 }}>Create a Banner Ad</div>
+              <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 20 }}>{t('bannerManager.createBannerAd')}</div>
               <form onSubmit={submit}>
                 <div style={{ marginBottom: 14 }}>
-                  <label style={lS}>Banner Title</label>
-                  <input style={iS} value={form.title} onChange={set('title')} placeholder="My Awesome Product" required maxLength={120} />
+                  <label style={lS}>{t('bannerManager.bannerTitle')}</label>
+                  <input style={iS} value={form.title} onChange={set('title')} placeholder={t("bannerManager.bannerTitlePlaceholder")} required maxLength={120} />
                 </div>
 
                 <div style={{ marginBottom: 14 }}>
-                  <label style={lS}>Description (optional)</label>
-                  <textarea style={Object.assign({}, iS, { height: 70, resize: 'vertical' })} value={form.description} onChange={set('description')} placeholder="Brief description of your banner ad" maxLength={300} />
+                  <label style={lS}>{t('bannerManager.descriptionOptional')}</label>
+                  <textarea style={Object.assign({}, iS, { height: 70, resize: 'vertical' })} value={form.description} onChange={set('description')} placeholder={t("bannerManager.bannerDescPlaceholder")} maxLength={300} />
                 </div>
 
                 <div style={{ marginBottom: 14 }}>
-                  <label style={lS}>Banner Image URL</label>
-                  <input style={iS} value={form.image_url} onChange={set('image_url')} placeholder="https://example.com/banner.jpg" required />
-                  <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', marginTop: 4 }}>Upload your banner image to a host (e.g. Imgur, Cloudflare) and paste the URL here</div>
+                  <label style={lS}>{t('bannerManager.bannerImageUrl')}</label>
+                  <input style={iS} value={form.image_url} onChange={set('image_url')} placeholder={t("bannerManager.bannerImagePlaceholder")} required />
+                  <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', marginTop: 4 }}>{t("bannerManager.uploadBannerNote")}</div>
                 </div>
 
                 <div style={{ marginBottom: 14 }}>
-                  <label style={lS}>Click-Through URL</label>
-                  <input style={iS} value={form.link_url} onChange={set('link_url')} placeholder="https://yoursite.com" required />
-                  <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', marginTop: 4 }}>Where people go when they click your banner</div>
+                  <label style={lS}>{t('bannerManager.clickThroughUrl')}</label>
+                  <input style={iS} value={form.link_url} onChange={set('link_url')} placeholder={t("bannerManager.bannerTargetPlaceholder")} required />
+                  <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', marginTop: 4 }}>{t('bannerManager.clickThroughNote')}</div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
                   <div>
-                    <label style={lS}>Banner Size</label>
+                    <label style={lS}>{t('bannerManager.bannerSize')}</label>
                     <select style={iS} value={form.size} onChange={set('size')}>
                       {SIZES.map(function(s) { return <option key={s.id} value={s.id}>{s.name} ({s.id})</option>; })}
                     </select>
                   </div>
                   <div>
-                    <label style={lS}>Category</label>
+                    <label style={lS}>{t('bannerManager.category')}</label>
                     <select style={iS} value={form.category} onChange={set('category')}>
                       {CATEGORIES.map(function(c) { return <option key={c} value={c}>{c}</option>; })}
                     </select>
@@ -135,13 +135,13 @@ export default function BannerManager() {
                 </div>
 
                 <div style={{ marginBottom: 14 }}>
-                  <label style={lS}>SEO Keywords</label>
-                  <input style={iS} value={form.keywords} onChange={set('keywords')} placeholder="marketing, digital ads, brand awareness" maxLength={200} />
+                  <label style={lS}>{t('bannerManager.seoKeywords')}</label>
+                  <input style={iS} value={form.keywords} onChange={set('keywords')} placeholder={t("bannerManager.bannerKeywordsPlaceholder")} maxLength={200} />
                   <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', marginTop: 4 }}>Comma-separated words people would search for</div>
                 </div>
 
                 <div style={{ marginBottom: 20 }}>
-                  <label style={lS}>Location (optional)</label>
+                  <label style={lS}>{t('bannerManager.locationOptional')}</label>
                   <input style={iS} value={form.location} onChange={set('location')} placeholder="London, UK" maxLength={100} />
                 </div>
 

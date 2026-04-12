@@ -134,7 +134,7 @@ export default function PlatformTour() {
           <div style={{ width: 56, height: 56, borderRadius: 16, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, boxShadow: '0 2px 8px rgba(0,0,0,.08)' }}>
             <Play size={24} color={s.color}/>
           </div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: s.color }}>Screenshot or video coming soon</div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: s.color }}>{t('platformTour.screenshotComingSoon')}</div>
           <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginTop: 4 }}>A visual walkthrough of {s.shortTitle} will appear here</div>
         </div>
 
@@ -146,7 +146,7 @@ export default function PlatformTour() {
         {/* Tips */}
         <div style={{ margin: '20px 28px 0' }}>
           <div style={{ background: 'var(--sap-bg-elevated)', borderRadius: 12, padding: '18px 22px' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 10 }}>Key things to know</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 10 }}>{t('platformTour.keyThings')}</div>
             {s.tips.map(function(tip, ti) {
               return <div key={ti} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: ti < s.tips.length - 1 ? 10 : 0 }}>
                 <div style={{ width: 6, height: 6, borderRadius: '50%', background: s.color, marginTop: 8, flexShrink: 0 }}/>
@@ -331,7 +331,7 @@ function VoiceGuide() {
       <div style={{ background: 'linear-gradient(135deg, #7c3aed, #6d28d9)', padding: '16px 20px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
           <Volume2 size={18} color="#fff"/>
-          <span style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>Platform Guide</span>
+          <span style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>{t('platformTour.platformGuide')}</span>
         </div>
         <button onClick={function() { setOpen(false); stopSpeaking(); stopListening(); }}
           style={{ background: 'rgba(255,255,255,.15)', border: 'none', borderRadius: 8, padding: 4, cursor: 'pointer', display: 'flex' }}>
@@ -349,7 +349,7 @@ function VoiceGuide() {
 
         {transcript && (
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>You asked</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-muted)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>{t('platformTour.youAsked')}</div>
             <div style={{ fontSize: 14, color: 'var(--sap-text-primary)', lineHeight: 1.5 }}>{transcript}</div>
           </div>
         )}
@@ -363,7 +363,7 @@ function VoiceGuide() {
 
         {answer && (
           <div>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-violet)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Answer</div>
+            <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-violet)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>{t('platformTour.answer')}</div>
             <div style={{ fontSize: 14, color: '#334155', lineHeight: 1.7 }}>{answer}</div>
           </div>
         )}
@@ -388,7 +388,7 @@ function VoiceGuide() {
             value={textInput}
             onChange={function(e) { setTextInput(e.target.value); }}
             onKeyDown={function(e) { if (e.key === 'Enter' && textInput.trim() && !thinking) { setTranscript(textInput.trim()); askGuide(textInput.trim()); setTextInput(''); } }}
-            placeholder="Type your question..."
+            placeholder={t("platformTour.questionPlaceholder")}
             disabled={thinking || listening}
             style={{ flex: 1, padding: '10px 14px', border: '1px solid #e2e8f0', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', boxSizing: 'border-box', outline: 'none' }}
           />

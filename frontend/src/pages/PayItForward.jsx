@@ -95,8 +95,8 @@ export default function PayItForward() {
           <div style={{ width:68, height:68, borderRadius:18, background:'rgba(255,255,255,.15)', display:'flex', alignItems:'center', justifyContent:'center', margin:'0 auto 16px' }}>
             <Heart size={34} color="#fff"/>
           </div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, color:'#fff', marginBottom:6 }}>Pay It Forward</div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, color:'var(--sap-amber-bright)', marginBottom:14 }}>Change Someone's Life Today</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, color:'#fff', marginBottom:6 }}>{t('payItForward.heroTitle')}</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, color:'var(--sap-amber-bright)', marginBottom:14 }}>{t('payItForward.changeLife')}</div>
           <div style={{ fontSize:16, color:'rgba(255,255,255,.85)', lineHeight:1.7, maxWidth:500, margin:'0 auto' }}>
             Gift a free membership to someone who needs it. When they succeed, they'll do the same for someone else. One act of generosity creates a chain of success.
           </div>
@@ -107,15 +107,15 @@ export default function PayItForward() {
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:24 }}>
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', textAlign:'center' }}>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:34, fontWeight:800, color:'var(--sap-pink)' }}>{stats.total_gifted || 0}</div>
-          <div style={{ fontSize:14, color:'var(--sap-text-muted)', marginTop:6 }}>Gifts given</div>
+          <div style={{ fontSize:14, color:'var(--sap-text-muted)', marginTop:6 }}>{t('payItForward.giftsGiven')}</div>
         </div>
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', textAlign:'center' }}>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:34, fontWeight:800, color:'var(--sap-green-mid)' }}>{stats.total_claimed || 0}</div>
-          <div style={{ fontSize:14, color:'var(--sap-text-muted)', marginTop:6 }}>Lives changed</div>
+          <div style={{ fontSize:14, color:'var(--sap-text-muted)', marginTop:6 }}>{t('payItForward.livesChanged')}</div>
         </div>
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', textAlign:'center' }}>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:34, fontWeight:800, color:'var(--sap-purple)' }}>{stats.max_chain_depth || 0}</div>
-          <div style={{ fontSize:14, color:'var(--sap-text-muted)', marginTop:6 }}>Chain depth</div>
+          <div style={{ fontSize:14, color:'var(--sap-text-muted)', marginTop:6 }}>{t('payItForward.chainDepthLabel')}</div>
         </div>
       </div>
 
@@ -126,7 +126,7 @@ export default function PayItForward() {
           <div>
             <div style={{ fontSize:14, fontWeight:700, color:'var(--sap-text-primary)' }}>Your membership was gifted by {data.received_gift.gifter_name}</div>
             {data.received_gift.message && <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:2, fontStyle:'italic' }}>"{data.received_gift.message}"</div>}
-            <div style={{ fontSize:12, color:'#a855f7', marginTop:4, fontWeight:600 }}>Pay it forward when you're ready — gift a membership to someone who needs it.</div>
+            <div style={{ fontSize:12, color:'#a855f7', marginTop:4, fontWeight:600 }}>{t("payItForward.payItForwardDesc")}</div>
           </div>
         </div>
       )}
@@ -167,19 +167,19 @@ export default function PayItForward() {
         </button>
       ) : (
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:24, marginBottom:24 }}>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:16 }}>Gift a Membership</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:16 }}>{t('payItForward.giftMembership')}</div>
 
           <div style={{ marginBottom:12 }}>
-            <label style={{ fontSize:12, fontWeight:700, color:'var(--sap-text-muted)', display:'block', marginBottom:4 }}>Recipient's name (optional)</label>
+            <label style={{ fontSize:12, fontWeight:700, color:'var(--sap-text-muted)', display:'block', marginBottom:4 }}>{t('payItForward.recipientName')}</label>
             <input value={recipientName} onChange={function(e) { setRecipientName(e.target.value); }}
-              placeholder="Who is this gift for?"
+              placeholder={t("payItForward.recipientNamePlaceholder")}
               style={{ width:'100%', padding:'10px 14px', border:'1px solid #e2e8f0', borderRadius:8, fontSize:14, fontFamily:'inherit', boxSizing:'border-box' }}/>
           </div>
 
           <div style={{ marginBottom:16 }}>
-            <label style={{ fontSize:12, fontWeight:700, color:'var(--sap-text-muted)', display:'block', marginBottom:4 }}>Personal message (optional)</label>
+            <label style={{ fontSize:12, fontWeight:700, color:'var(--sap-text-muted)', display:'block', marginBottom:4 }}>{t('payItForward.personalMessage')}</label>
             <textarea value={message} onChange={function(e) { setMessage(e.target.value); }}
-              placeholder="I believe in you..."
+              placeholder={t("payItForward.personalMessagePlaceholder")}
               rows={3}
               style={{ width:'100%', padding:'10px 14px', border:'1px solid #e2e8f0', borderRadius:8, fontSize:14, fontFamily:'inherit', boxSizing:'border-box', resize:'vertical' }}/>
           </div>
@@ -222,7 +222,7 @@ export default function PayItForward() {
       {vouchers.length > 0 && (
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, overflow:'hidden', marginBottom:24 }}>
           <div style={{ padding:'16px 20px', borderBottom:'1px solid #e2e8f0' }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)' }}>Your Gift Vouchers</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)' }}>{t('payItForward.yourGiftVouchers')}</div>
           </div>
           {vouchers.map(function(v) {
             var isClaimed = v.status === 'claimed';

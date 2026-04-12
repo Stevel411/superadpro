@@ -69,7 +69,7 @@ export default function CreditMatrixVisualiser() {
   if (loading) {
     return (
       <AppLayout title={t("matrixVis.title")} subtitle={t("matrixVis.subtitle")}>
-        <div style={{ textAlign:'center', padding:60, color:'var(--sap-text-muted)' }}>Loading nexus...</div>
+        <div style={{ textAlign:'center', padding:60, color:'var(--sap-text-muted)' }}>{t('matrixVis.loadingNexus')}</div>
       </AppLayout>
     );
   }
@@ -144,29 +144,29 @@ export default function CreditMatrixVisualiser() {
         {/* Hero */}
         <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:18, padding:'32px 36px', marginBottom:24, position:'relative', overflow:'hidden' }}>
           <div style={{ position:'absolute', top:-50, right:-50, width:180, height:180, borderRadius:'50%', background:'rgba(255,255,255,.05)', pointerEvents:'none' }}/>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:900, color:'#fff', marginBottom:6 }}>Profit Nexus</div>
-          <div style={{ fontSize:14, color:'rgba(255,255,255,.65)' }}>Each credit pack has its own 3×3 nexus. Earn 15% / 10% / 10% across 3 levels.</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:900, color:'#fff', marginBottom:6 }}>{t('matrixVis.profitNexus')}</div>
+          <div style={{ fontSize:14, color:'rgba(255,255,255,.65)' }}>{t("matrixVis.nexusDesc")}</div>
         </div>
 
         {/* Stats */}
         <div style={{ display:'flex', gap:16, marginBottom:24 }}>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'var(--sap-red)' }}>{purchased.length}</div>
-            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Active Nexuses</div>
+            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('matrixVis.activeNexuses')}</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'var(--sap-green)' }}>${totalEarned.toFixed(2)}</div>
-            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Total Earned</div>
+            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('matrixVis.totalEarned')}</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'var(--sap-amber)' }}>{pct}%</div>
-            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Current Fill Rate</div>
+            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('matrixVis.currentFillRate')}</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'var(--sap-purple)' }}>
               {purchased.reduce(function(sum, p){ return sum + p.completed_advances; }, 0)}
             </div>
-            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Advances Complete</div>
+            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('matrixVis.advancesComplete')}</div>
           </div>
         </div>
 
@@ -261,17 +261,17 @@ export default function CreditMatrixVisualiser() {
             {/* Level earnings */}
             <div style={{ display:'flex', gap:12, marginTop:20 }}>
               <div style={{ flex:1, background:'var(--sap-bg-elevated)', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
-                <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>Level 1</div>
+                <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>{t('matrixVis.level1')}</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${e1.toFixed(2)}</div>
                 <div style={{ fontSize:10, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.l1_filled || 0} × ${packPrice} × 15%</div>
               </div>
               <div style={{ flex:1, background:'var(--sap-bg-elevated)', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
-                <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>Level 2</div>
+                <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>{t('matrixVis.level2')}</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${e2.toFixed(2)}</div>
                 <div style={{ fontSize:10, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.l2_filled || 0} × ${packPrice} × 10%</div>
               </div>
               <div style={{ flex:1, background:'var(--sap-bg-elevated)', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
-                <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>Level 3</div>
+                <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>{t('matrixVis.level3')}</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${e3.toFixed(2)}</div>
                 <div style={{ fontSize:10, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.l3_filled || 0} × ${packPrice} × 10%</div>
               </div>

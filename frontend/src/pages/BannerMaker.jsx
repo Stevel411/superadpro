@@ -149,9 +149,9 @@ export default function BannerMaker() {
       <AppLayout title="Banner Maker" subtitle="Design professional banners">
         <div style={{ maxWidth: 600, margin: '0 auto', textAlign: 'center', padding: '60px 20px' }}>
           <div style={{ fontSize: 48, marginBottom: 16 }}>🎨</div>
-          <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 24, fontWeight: 900, marginBottom: 8 }}>Pro Feature</h2>
-          <p style={{ fontSize: 15, color: 'var(--sap-text-muted)', lineHeight: 1.6, maxWidth: 450, margin: '0 auto 24px' }}>Full canvas editor with drag-and-drop elements, image uploads, text styling, and PNG/HTML export.</p>
-          <a href="/upgrade" style={{ display: 'inline-block', padding: '14px 32px', borderRadius: 10, background: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', color: '#fff', fontWeight: 800, fontSize: 16, textDecoration: 'none', boxShadow: '0 4px 0 #6d28d9' }}>Upgrade to Pro</a>
+          <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 24, fontWeight: 900, marginBottom: 8 }}>{t('bannerMaker.proFeature')}</h2>
+          <p style={{ fontSize: 15, color: 'var(--sap-text-muted)', lineHeight: 1.6, maxWidth: 450, margin: '0 auto 24px' }}>{t("bannerMaker.proFeatureDesc")}</p>
+          <a href="/upgrade" style={{ display: 'inline-block', padding: '14px 32px', borderRadius: 10, background: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', color: '#fff', fontWeight: 800, fontSize: 16, textDecoration: 'none', boxShadow: '0 4px 0 #6d28d9' }}>{t('bannerMaker.upgradeToPro')}</a>
         </div>
       </AppLayout>
     );
@@ -187,7 +187,7 @@ export default function BannerMaker() {
 
           {/* Colour picker */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-faint)' }}>Colour</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-faint)' }}>{t('bannerMaker.colour')}</span>
             <input type="color" value={color} onChange={function(e) {
               setColor(e.target.value);
               if (sel) {
@@ -252,7 +252,7 @@ export default function BannerMaker() {
 
             {/* Properties */}
             <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 16 }}>
-              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 12 }}>Properties</div>
+              <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 12 }}>{t('bannerMaker.properties')}</div>
 
               {sel ? (
                 <div>
@@ -262,7 +262,7 @@ export default function BannerMaker() {
 
                   {sel.type === 'i-text' && (
                     <>
-                      <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--sap-text-faint)', marginBottom: 4 }}>Font</div>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--sap-text-faint)', marginBottom: 4 }}>{t('bannerMaker.font')}</div>
                       <select style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid #e2e8f0', fontSize: 12, fontFamily: 'inherit', marginBottom: 10 }}
                         value={fontFamily} onChange={function(e) { setFontFamily(e.target.value); upd('fontFamily', e.target.value); }}>
                         {FONTS.map(function(f) { return <option key={f} value={f}>{f}</option>; })}
@@ -286,7 +286,7 @@ export default function BannerMaker() {
 
                   {(sel.type === 'rect' || sel.type === 'circle') && (
                     <>
-                      <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--sap-text-faint)', marginBottom: 4 }}>Fill</div>
+                      <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--sap-text-faint)', marginBottom: 4 }}>{t('bannerMaker.fill')}</div>
                       <input type="color" value={sel.fill || 'var(--sap-accent)'} onChange={function(e) { upd('fill', e.target.value); setColor(e.target.value); }}
                         style={{ width: '100%', height: 32, border: 'none', borderRadius: 6, cursor: 'pointer', marginBottom: 10 }} />
                       {sel.type === 'rect' && (
@@ -300,14 +300,14 @@ export default function BannerMaker() {
                     </>
                   )}
 
-                  <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--sap-text-faint)', marginBottom: 4 }}>Opacity</div>
+                  <div style={{ fontSize: 10, fontWeight: 800, color: 'var(--sap-text-faint)', marginBottom: 4 }}>{t('bannerMaker.opacity')}</div>
                   <input type="range" min={0} max={100} value={Math.round((sel.opacity || 1) * 100)}
                     onChange={function(e) { upd('opacity', parseInt(e.target.value) / 100); }}
                     style={{ width: '100%', accentColor: 'var(--sap-accent)', marginBottom: 10 }} />
 
                   <div style={{ display: 'flex', gap: 6 }}>
-                    <button style={Object.assign({}, btnS, { flex: 1, fontSize: 11 })} onClick={dup}>Duplicate</button>
-                    <button style={Object.assign({}, btnS, { flex: 1, fontSize: 11, color: 'var(--sap-red)', borderColor: 'var(--sap-red-bg-mid)' })} onClick={del}>Delete</button>
+                    <button style={Object.assign({}, btnS, { flex: 1, fontSize: 11 })} onClick={dup}>{t('bannerMaker.duplicate')}</button>
+                    <button style={Object.assign({}, btnS, { flex: 1, fontSize: 11, color: 'var(--sap-red)', borderColor: 'var(--sap-red-bg-mid)' })} onClick={del}>{t('bannerMaker.delete')}</button>
                   </div>
                 </div>
               ) : (

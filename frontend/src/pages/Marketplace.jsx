@@ -109,7 +109,7 @@ function BrowseView({ products, allProducts, search, setSearch, category, setCat
       <div style={{display:'flex',gap:10,marginBottom:20,flexWrap:'wrap'}}>
         <div style={{flex:1,minWidth:240,position:'relative'}}>
           <Search size={16} style={{position:'absolute',left:14,top:12,color:'var(--sap-text-muted)'}}/>
-          <input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder="Search products..." style={{width:'100%',padding:'10px 14px 10px 38px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff'}}/>
+          <input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder={t("marketplace.searchPlaceholder")} style={{width:'100%',padding:'10px 14px 10px 38px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff'}}/>
         </div>
         <select value={sortBy} onChange={function(e){setSortBy(e.target.value);}} style={{padding:'10px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',background:'#fff',color:'var(--sap-text-primary)'}}>
           <option value="newest">{t('marketplace.newest')}</option>
@@ -230,7 +230,7 @@ function ProductDetail({ product, onBack, currentUserId }) {
           </div>
           {Array.isArray(p.features) && p.features.length > 0 && (
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginTop:14}}>
-              <div style={{background:'#0c1e4a',padding:'14px 20px'}}><div style={{fontSize:14,fontWeight:800,color:'#fff'}}>What You Get</div></div>
+              <div style={{background:'#0c1e4a',padding:'14px 20px'}}><div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('marketplace.whatYouGet')}</div></div>
               <div style={{padding:'16px 20px'}}>
                 {p.features.map(function(f,i){return <div key={i} style={{display:'flex',gap:8,padding:'6px 0',fontSize:13,color:'#334155'}}><span style={{color:'var(--sap-green)'}}>✓</span>{f}</div>;})}
               </div>
@@ -252,7 +252,7 @@ function ProductDetail({ product, onBack, currentUserId }) {
               {p.avg_rating > 0 && <div style={{display:'flex',alignItems:'center',gap:4,marginBottom:12}}>{[1,2,3,4,5].map(function(s){return <Star key={s} size={14} color={s<=Math.round(p.avg_rating)?'var(--sap-amber)':'var(--sap-border)'} fill={s<=Math.round(p.avg_rating)?'var(--sap-amber)':'none'}/>;})}<span style={{fontSize:11,color:'var(--sap-text-muted)'}}>({p.review_count} reviews)</span></div>}
               {isOwner ? (
                 <div style={{textAlign:'center',padding:'14px',borderRadius:10,background:'linear-gradient(135deg,rgba(139,92,246,.06),rgba(139,92,246,.02))',border:'1px solid rgba(139,92,246,.15)',marginBottom:8}}>
-                  <div style={{fontSize:14,fontWeight:800,color:'var(--sap-purple)'}}>Your Product</div>
+                  <div style={{fontSize:14,fontWeight:800,color:'var(--sap-purple)'}}>{t('marketplace.yourProduct')}</div>
                   <div style={{fontSize:11,color:'var(--sap-text-muted)',marginTop:2}}>This is your listing — {p.total_sales||0} sales so far</div>
                 </div>
               ) : (
@@ -266,12 +266,12 @@ function ProductDetail({ product, onBack, currentUserId }) {
           {/* Promote card */}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
             <div style={{background:'linear-gradient(135deg,#0c1e4a,#172554)',padding:'16px 20px'}}>
-              <div style={{display:'flex',alignItems:'center',gap:6}}><DollarSign size={14} color="var(--sap-accent-light)"/><span style={{fontSize:14,fontWeight:800,color:'#fff'}}>Promote & Earn 25%</span></div>
+              <div style={{display:'flex',alignItems:'center',gap:6}}><DollarSign size={14} color="var(--sap-accent-light)"/><span style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('marketplace.promoteEarn')}</span></div>
             </div>
             <div style={{padding:'20px'}}>
               <div style={{textAlign:'center',marginBottom:14}}>
                 <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'var(--sap-accent)'}}>${earnPerSale}</div>
-                <div style={{fontSize:10,color:'var(--sap-text-muted)'}}>per sale</div>
+                <div style={{fontSize:10,color:'var(--sap-text-muted)'}}>{t('marketplace.perSale')}</div>
               </div>
               <div style={{display:'flex',gap:6,marginBottom:10}}>
                 <input value={affLink} readOnly style={{flex:1,padding:'9px 12px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:9,fontFamily:'monospace',color:'var(--sap-text-muted)',background:'var(--sap-bg-input)',outline:'none'}}/>
@@ -283,7 +283,7 @@ function ProductDetail({ product, onBack, currentUserId }) {
           </div>
           {/* Split */}
           <div style={{background:'var(--sap-bg-input)',border:'1px solid #e8ecf2',borderRadius:12,padding:16}}>
-            <div style={{fontSize:11,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:10}}>Commission Split</div>
+            <div style={{fontSize:11,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:10}}>{t('marketplace.commissionSplit')}</div>
             {[
               {label:'Product Creator',pct:'50%',amount:formatMoney((p.price||0)*0.5),color:'var(--sap-green)'},
               {label:'You (Affiliate)',pct:'25%',amount:earnPerSale,color:'var(--sap-accent)'},
@@ -316,7 +316,7 @@ function MyProducts({ products, onBack, onCreate, onReload }) {
       <button onClick={onBack} style={{display:'flex',alignItems:'center',gap:4,fontSize:12,fontWeight:600,color:'var(--sap-text-muted)',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit',marginBottom:16}}>← Back to SuperMarket</button>
       <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden'}}>
         <div style={{background:'#0c1e4a',padding:'16px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-          <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>My Digital Products</div>
+          <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('marketplace.myDigitalProducts')}</div>
           <button onClick={onCreate} style={{display:'flex',alignItems:'center',gap:4,padding:'7px 14px',borderRadius:8,background:'var(--sap-accent)',color:'#fff',fontSize:11,fontWeight:700,textDecoration:'none',fontFamily:'inherit',border:'none',cursor:'pointer'}}>+ New Product</button>
         </div>
         {products.length > 0 ? products.map(function(p,i) {
@@ -336,8 +336,8 @@ function MyProducts({ products, onBack, onCreate, onReload }) {
                 </div>
               </div>
               <div style={{display:'flex',alignItems:'center',gap:16}}>
-                <div style={{textAlign:'center'}}><div style={{fontSize:16,fontWeight:800,color:'var(--sap-accent)'}}>{p.total_sales||0}</div><div style={{fontSize:9,color:'var(--sap-text-muted)'}}>Sales</div></div>
-                <div style={{textAlign:'center'}}><div style={{fontSize:16,fontWeight:800,color:'var(--sap-green)'}}>${Math.round(p.total_revenue||0)}</div><div style={{fontSize:9,color:'var(--sap-text-muted)'}}>Revenue</div></div>
+                <div style={{textAlign:'center'}}><div style={{fontSize:16,fontWeight:800,color:'var(--sap-accent)'}}>{p.total_sales||0}</div><div style={{fontSize:9,color:'var(--sap-text-muted)'}}>{t('marketplace.sales')}</div></div>
+                <div style={{textAlign:'center'}}><div style={{fontSize:16,fontWeight:800,color:'var(--sap-green)'}}>${Math.round(p.total_revenue||0)}</div><div style={{fontSize:9,color:'var(--sap-text-muted)'}}>{t('marketplace.revenue')}</div></div>
                 <button onClick={function(){handleDelete(p.id,p.title,(p.total_sales||0)>0);}} disabled={deleting===p.id}
                   style={{padding:'6px 12px',borderRadius:6,border:'1px solid #fecaca',background:'#fff',color:'var(--sap-red)',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit',opacity:deleting===p.id?0.5:1}}>
                   {deleting===p.id?'...':'Delete'}
@@ -348,7 +348,7 @@ function MyProducts({ products, onBack, onCreate, onReload }) {
         }) : (
           <div style={{padding:'60px 20px',textAlign:'center'}}>
             <div style={{fontSize:40,marginBottom:12,opacity:.3}}>📦</div>
-            <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4}}>No products yet</div>
+            <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4}}>{t('marketplace.noProductsYet')}</div>
             <div style={{fontSize:12,color:'var(--sap-text-muted)',marginBottom:16}}>List your first digital product and start earning</div>
           </div>
         )}

@@ -271,14 +271,14 @@ export function VideoCreatorContent() {
         ) : error ? (
           <div style={{ textAlign: 'center', padding: 40 }}>
             <div style={{ fontSize: 36, marginBottom: 12 }}>&#9888;&#65039;</div>
-            <p style={{ fontSize: 14, color: '#f87171', fontWeight: 600, marginBottom: 8 }}>Error</p>
+            <p style={{ fontSize: 14, color: '#f87171', fontWeight: 600, marginBottom: 8 }}>{t('videoCreator.error')}</p>
             <p style={{ fontSize: 12, color: 'rgba(255,255,255,.5)', maxWidth: 400, margin: '0 auto', wordBreak: 'break-word' }}>{error}</p>
-            <button onClick={function() { setError(null); setGenerating(false); }} style={{ marginTop: 16, padding: '8px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,.2)', background: 'transparent', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>Try again</button>
+            <button onClick={function() { setError(null); setGenerating(false); }} style={{ marginTop: 16, padding: '8px 16px', borderRadius: 8, border: '1px solid rgba(255,255,255,.2)', background: 'transparent', color: '#fff', fontSize: 12, fontWeight: 600, cursor: 'pointer', fontFamily: 'inherit' }}>{t('videoCreator.tryAgainBtn')}</button>
           </div>
         ) : (
           <div className="cs-stage-empty">
             <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1"><rect x="2" y="2" width="20" height="20" rx="3"/><path d="M7 2v20M17 2v20M2 12h20"/></svg>
-            <p>Your full video will appear here</p>
+            <p>{t('videoCreator.videoWillAppear')}</p>
             <small>Describe what you want \u2014 AI handles script, visuals, voiceover, and editing</small>
           </div>
         )}
@@ -300,7 +300,7 @@ export function VideoCreatorContent() {
       <div className="cs-controls" style={{ maxWidth: 900, margin: '0 auto' }}>
         <div className="cs-row">
           <div className="cs-card">
-            <div className="cs-lbl">What's your video about?</div>
+            <div className="cs-lbl">{t('videoCreator.whatsYourVideo')}</div>
             <textarea className="cs-ta" rows={4} value={prompt} onChange={function(e) { setPrompt(e.target.value); }}
               placeholder="e.g. Create a 60-second video promoting my online fitness coaching business targeting women aged 25-40..."/>
             <div className="cs-ta-foot">
@@ -309,16 +309,16 @@ export function VideoCreatorContent() {
             </div>
           </div>
           <div className="cs-card">
-            <div className="cs-lbl">Video Type</div>
+            <div className="cs-lbl">{t('videoCreator.videoType')}</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
               <div className={'cs-model' + (videoMode === 'motion' ? ' sel' : '')} onClick={function() { setVideoMode('motion'); }}>
                 <div className="cs-model-dot" style={{ background: 'linear-gradient(135deg,#8b5cf6,#6d28d9)' }}>\u25B6</div>
-                <div style={{ flex: 1 }}><div className="cs-model-name">Motion Video</div><div className="cs-model-desc">Real AI cinematic clips per scene</div></div>
-                <div style={{ textAlign: 'right' }}><span className="cs-model-badge" style={{ background: 'var(--sap-amber-bg)', color: '#92400e' }}>PRO</span><div className="cs-model-price">~{Math.ceil(duration / 8) * 3} credits</div></div>
+                <div style={{ flex: 1 }}><div className="cs-model-name">{t('videoCreator.motionVideo')}</div><div className="cs-model-desc">{t('videoCreator.motionVideoDesc')}</div></div>
+                <div style={{ textAlign: 'right' }}><span className="cs-model-badge" style={{ background: 'var(--sap-amber-bg)', color: '#92400e' }}>{t('videoCreator.proBadge')}</span><div className="cs-model-price">~{Math.ceil(duration / 8) * 3} credits</div></div>
               </div>
               <div className={'cs-model' + (videoMode === 'images' ? ' sel' : '')} onClick={function() { setVideoMode('images'); }}>
                 <div className="cs-model-dot" style={{ background: 'linear-gradient(135deg,#22c55e,#16a34a)' }}>\u25CE</div>
-                <div style={{ flex: 1 }}><div className="cs-model-name">Standard</div><div className="cs-model-desc">AI images with Ken Burns motion</div></div>
+                <div style={{ flex: 1 }}><div className="cs-model-name">{t('videoCreator.standard')}</div><div className="cs-model-desc">{t('videoCreator.standardDesc')}</div></div>
                 <div className="cs-model-price">~{Math.ceil(duration / 8)} credits</div>
               </div>
             </div>

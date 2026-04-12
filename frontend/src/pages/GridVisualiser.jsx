@@ -72,19 +72,19 @@ export default function GridVisualiser() {
         <div style={{ display:'flex', gap:16, marginBottom:24 }}>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#2563eb' }}>{filled}/{total}</div>
-            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Positions Filled</div>
+            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('visualiser.positionsFilled')}</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'var(--sap-green)' }}>${data ? data.bonus_accrued?.toFixed(2) : '0.00'}</div>
-            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Bonus Accrued</div>
+            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('visualiser.bonusAccrued')}</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'var(--sap-amber)' }}>T{activeTier}</div>
-            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Current Tier</div>
+            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('visualiser.currentTier')}</div>
           </div>
           <div style={{ flex:1, background:'#fff', borderRadius:14, padding:20, border:'1px solid #e2e8f0', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'var(--sap-purple)' }}>{data ? data.completed_advances : 0}</div>
-            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>Advances Complete</div>
+            <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:4, fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('visualiser.advancesComplete')}</div>
           </div>
         </div>
 
@@ -169,7 +169,7 @@ export default function GridVisualiser() {
             <div style={{ display:'flex', alignItems:'center', gap:16, flex:1 }}>
               <div style={{ fontSize:40, flexShrink:0 }}>{isComplete ? '🎉' : '🏆'}</div>
               <div>
-                <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:4 }}>Completion Bonus Pool</div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:4 }}>{t('visualiser.completionBonusPool')}</div>
                 <div style={{ fontSize:13, color:'var(--sap-text-muted)', lineHeight:1.5, maxWidth:320 }}>
                   {isComplete
                     ? 'Congratulations! Your grid is complete and the full bonus has been paid out.'
@@ -178,7 +178,7 @@ export default function GridVisualiser() {
               </div>
             </div>
             <div style={{ textAlign:'right', minWidth:200 }}>
-              <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5 }}>Accrued so far</div>
+              <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5 }}>{t('visualiser.accruedSoFar')}</div>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:900, color: isComplete ? 'var(--sap-green)' : 'var(--sap-amber)', lineHeight:1.1, marginTop:2 }}>
                 ${bonusAccrued.toFixed(2)}
               </div>
