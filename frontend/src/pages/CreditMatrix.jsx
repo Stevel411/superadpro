@@ -22,6 +22,7 @@ export default function CreditMatrix() {
 }
 
 export function CreditMatrixContent() {
+  var { t } = useTranslation();
   var [packs, setPacks] = useState([]);
   var [matrix, setMatrix] = useState(null);
   var [stats, setStats] = useState(null);
