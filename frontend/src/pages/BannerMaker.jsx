@@ -70,13 +70,13 @@ export default function BannerMaker() {
   /* ── Add Elements ── */
   function addHeading() {
     if (!canvas) return;
-    var t = new fabric.IText('Heading', { left: 30, top: canvas.height * 0.2, fontSize: 32, fontFamily: 'Arial', fill: '#ffffff', fontWeight: 'bold', editable: true });
-    canvas.add(t); canvas.setActiveObject(t); canvas.renderAll();
+    var el = new fabric.IText('Heading', { left: 30, top: canvas.height * 0.2, fontSize: 32, fontFamily: 'Arial', fill: '#ffffff', fontWeight: 'bold', editable: true });
+    canvas.add(el); canvas.setActiveObject(el); canvas.renderAll();
   }
   function addBody() {
     if (!canvas) return;
-    var t = new fabric.IText('Body text here', { left: 30, top: canvas.height * 0.5, fontSize: 16, fontFamily: 'Arial', fill: '#ffffff', editable: true });
-    canvas.add(t); canvas.setActiveObject(t); canvas.renderAll();
+    var el = new fabric.IText('Body text here', { left: 30, top: canvas.height * 0.5, fontSize: 16, fontFamily: 'Arial', fill: '#ffffff', editable: true });
+    canvas.add(el); canvas.setActiveObject(el); canvas.renderAll();
   }
   function addButton() {
     if (!canvas) return;

@@ -125,7 +125,7 @@ export default function SuperDeckEditor() {
     }).catch(function () { nav('/superdeck'); });
   }, [deckId]);
 
-  var t = THEMES[theme] || THEMES.midnight;
+  var thm = THEMES[theme] || THEMES.midnight;
   var cs = slides[active] || { elements: [], background: '', notes: '' };
   var selEl = selId ? cs.elements.find(function (e) { return e.id === selId; }) : null;
 
@@ -154,8 +154,8 @@ export default function SuperDeckEditor() {
   function addSlide() {
     var ns = slides.slice();
     ns.splice(active + 1, 0, { id: 'sl_' + UID(), background: '', elements: [
-      { id: UID(), type: 'heading', text: 'Slide title', fontSize: 36, color: t.text, bold: true, align: 'center', fontFamily: t.headingFont, x: 200, y: 200, w: 600, h: 80 },
-      { id: UID(), type: 'text', text: 'Click to edit', fontSize: 18, color: t.muted, align: 'left', fontFamily: t.bodyFont, x: 250, y: 300, w: 500, h: 50 },
+      { id: UID(), type: 'heading', text: 'Slide title', fontSize: 36, color: thm.text, bold: true, align: 'center', fontFamily: thm.headingFont, x: 200, y: 200, w: 600, h: 80 },
+      { id: UID(), type: 'text', text: 'Click to edit', fontSize: 18, color: thm.muted, align: 'left', fontFamily: t.bodyFont, x: 250, y: 300, w: 500, h: 50 },
     ], notes: '' });
     setSlides(ns); setActive(active + 1); mark();
   }
@@ -165,10 +165,10 @@ export default function SuperDeckEditor() {
   /* ── Element operations ────────────────────────────── */
   function addEl(type) {
     var el = { id: UID(), type: type, x: 150, y: 150, w: 400, h: 60 };
-    if (type === 'heading') Object.assign(el, { text: 'Click to edit heading', fontSize: 36, color: isLightBg(cs.background || t.primary) ? 'var(--sap-text-primary)' : '#ffffff', bold: true, align: 'center', fontFamily: t.headingFont, w: 600, h: 80, x: 200, y: 200 });
+    if (type === 'heading') Object.assign(el, { text: 'Click to edit heading', fontSize: 36, color: isLightBg(cs.background || t.primary) ? 'var(--sap-text-primary)' : '#ffffff', bold: true, align: 'center', fontFamily: thm.headingFont, w: 600, h: 80, x: 200, y: 200 });
     else if (type === 'text') Object.assign(el, { text: 'Click to edit text', fontSize: 18, color: isLightBg(cs.background || t.primary) ? 'var(--sap-text-muted)' : 'var(--sap-text-faint)', align: 'left', fontFamily: t.bodyFont, w: 500, h: 50, x: 250, y: 300 });
     else if (type === 'image') Object.assign(el, { src: '', w: 300, h: 200, x: 350, y: 180 });
-    else if (type === 'shape') Object.assign(el, { shapeType: 'rect', fill: t.accent, w: 200, h: 120, x: 400, y: 220 });
+    else if (type === 'shape') Object.assign(el, { shapeType: 'rect', fill: thm.accent, w: 200, h: 120, x: 400, y: 220 });
     var ns = slides.slice();
     ns[active] = Object.assign({}, ns[active], { elements: ns[active].elements.concat([el]) });
     setSlides(ns); setSelId(el.id); setShowInsert(false); mark();
@@ -265,12 +265,12 @@ export default function SuperDeckEditor() {
           var bg = ''; var els = [];
           var h = s.heading || s.title || 'Slide';
           var body = s.body || s.subtitle || s.content || '';
-          els.push({ id: UID(), type: 'heading', text: h, fontSize: 36, color: t.text, bold: true, align: 'center', fontFamily: t.headingFont, x: 100, y: 80, w: 800, h: 80 });
-          if (body) els.push({ id: UID(), type: 'text', text: body, fontSize: 18, color: t.muted, align: 'left', fontFamily: t.bodyFont, x: 100, y: 200, w: 800, h: 200 });
-          if (s.bullets) { var btext = s.bullets.map(function(b,i){return '\u2022 '+b;}).join('\n'); els.push({ id: UID(), type: 'text', text: btext, fontSize: 18, color: t.muted, align: 'left', fontFamily: t.bodyFont, x: 100, y: 200, w: 800, h: 250 }); }
-          if (s.stats) { s.stats.forEach(function(st, i) { els.push({ id: UID(), type: 'heading', text: st.value, fontSize: 48, color: t.accent, bold: true, align: 'center', fontFamily: t.headingFont, x: 100 + i * 300, y: 200, w: 250, h: 70 }); els.push({ id: UID(), type: 'text', text: st.label, fontSize: 14, color: t.muted, align: 'center', fontFamily: t.bodyFont, x: 100 + i * 300, y: 280, w: 250, h: 30 }); }); }
-          if (s.quote_text) { els = [{ id: UID(), type: 'heading', text: '\u201C' + s.quote_text + '\u201D', fontSize: 28, color: t.text, bold: false, italic: true, align: 'center', fontFamily: 'Georgia, serif', x: 100, y: 150, w: 800, h: 180 }]; if (s.attribution) els.push({ id: UID(), type: 'text', text: s.attribution, fontSize: 16, color: t.muted, align: 'center', fontFamily: t.bodyFont, x: 300, y: 380, w: 400, h: 30 }); }
-          if (s.cta_text) els.push({ id: UID(), type: 'shape', shapeType: 'rect', fill: t.accent, x: 350, y: 400, w: 300, h: 60 });
+          els.push({ id: UID(), type: 'heading', text: h, fontSize: 36, color: thm.text, bold: true, align: 'center', fontFamily: thm.headingFont, x: 100, y: 80, w: 800, h: 80 });
+          if (body) els.push({ id: UID(), type: 'text', text: body, fontSize: 18, color: thm.muted, align: 'left', fontFamily: t.bodyFont, x: 100, y: 200, w: 800, h: 200 });
+          if (s.bullets) { var btext = s.bullets.map(function(b,i){return '\u2022 '+b;}).join('\n'); els.push({ id: UID(), type: 'text', text: btext, fontSize: 18, color: thm.muted, align: 'left', fontFamily: t.bodyFont, x: 100, y: 200, w: 800, h: 250 }); }
+          if (s.stats) { s.stats.forEach(function(st, i) { els.push({ id: UID(), type: 'heading', text: st.value, fontSize: 48, color: thm.accent, bold: true, align: 'center', fontFamily: thm.headingFont, x: 100 + i * 300, y: 200, w: 250, h: 70 }); els.push({ id: UID(), type: 'text', text: st.label, fontSize: 14, color: thm.muted, align: 'center', fontFamily: t.bodyFont, x: 100 + i * 300, y: 280, w: 250, h: 30 }); }); }
+          if (s.quote_text) { els = [{ id: UID(), type: 'heading', text: '\u201C' + s.quote_text + '\u201D', fontSize: 28, color: thm.text, bold: false, italic: true, align: 'center', fontFamily: 'Georgia, serif', x: 100, y: 150, w: 800, h: 180 }]; if (s.attribution) els.push({ id: UID(), type: 'text', text: s.attribution, fontSize: 16, color: thm.muted, align: 'center', fontFamily: t.bodyFont, x: 300, y: 380, w: 400, h: 30 }); }
+          if (s.cta_text) els.push({ id: UID(), type: 'shape', shapeType: 'rect', fill: thm.accent, x: 350, y: 400, w: 300, h: 60 });
           return { id: 'sl_' + UID(), background: bg, elements: els, notes: s.notes || '' };
         });
         setSlides(newSlides); setActive(0); setShowAi(false); setAiPrompt(''); mark();
@@ -307,7 +307,7 @@ export default function SuperDeckEditor() {
             return <div key={el.id} style={{position:'absolute',left:pctX+'%',top:pctY+'%',width:pctW+'%',height:pctH+'%'}}>
               {(el.type==='heading'||el.type==='text')&&<div style={{fontSize:el.fontSize*1.5+'px',fontWeight:el.bold?700:400,fontStyle:el.italic?'italic':'normal',textDecoration:el.underline?'underline':'none',color:el.color||'#fff',background:el.elBg||'transparent',textAlign:el.align||'left',fontFamily:el.fontFamily||t.bodyFont,width:'100%',height:'100%',lineHeight:1.3,display:'flex',alignItems:el.type==='heading'?'center':'flex-start',justifyContent:el.align==='center'?'center':el.align==='right'?'flex-end':'flex-start',whiteSpace:'pre-wrap'}}>{el.text||''}</div>}
               {el.type==='image'&&(el.src?<img src={el.src} style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:4}} alt=""/>:<div/>)}
-              {el.type==='shape'&&<ShapeRender shapeType={el.shapeType} fill={el.fill||t.accent}/>}
+              {el.type==='shape'&&<ShapeRender shapeType={el.shapeType} fill={el.fill||thm.accent}/>}
             </div>;
           })}
         </div>
@@ -372,7 +372,7 @@ export default function SuperDeckEditor() {
                       return <div key={ei} style={{position:'absolute',left:pX+'%',top:pY+'%',width:pW+'%',height:pH+'%',zIndex:ei+1}}>
                         {(el.type==='heading'||el.type==='text')&&<div style={{fontSize:el.type==='heading'?'5px':'3.5px',fontWeight:el.bold?700:400,color:el.color||'#fff',textAlign:el.align||'left',fontFamily:el.fontFamily||t.bodyFont,overflow:'hidden',lineHeight:1.2,width:'100%',height:'100%',display:'flex',alignItems:el.type==='heading'?'center':'flex-start',justifyContent:el.align==='center'?'center':el.align==='right'?'flex-end':'flex-start',background:el.elBg||'transparent'}}>{(el.text||'').slice(0,40)}</div>}
                         {el.type==='image'&&(el.src?<img src={el.src} style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:1}} alt=""/>:<div style={{width:'100%',height:'100%',background:'rgba(255,255,255,.08)',borderRadius:1}}/>)}
-                        {el.type==='shape'&&<ShapeRender shapeType={el.shapeType} fill={el.fill||t.accent}/>}
+                        {el.type==='shape'&&<ShapeRender shapeType={el.shapeType} fill={el.fill||thm.accent}/>}
                       </div>;
                     })}
                   </div>
@@ -414,7 +414,7 @@ export default function SuperDeckEditor() {
                 )}
                 {el.type==='image'&&(el.src?<img src={el.src} style={{width:'100%',height:'100%',objectFit:'cover',borderRadius:4,pointerEvents:'none'}} alt=""/>
                   :<div style={{width:'100%',height:'100%',background:'rgba(255,255,255,.05)',borderRadius:4,display:'flex',alignItems:'center',justifyContent:'center',border:'1px dashed rgba(255,255,255,.2)'}}><Image size={24} color="var(--sap-text-secondary)"/></div>)}
-                {el.type==='shape'&&<ShapeRender shapeType={el.shapeType} fill={el.fill||t.accent}/>}
+                {el.type==='shape'&&<ShapeRender shapeType={el.shapeType} fill={el.fill||thm.accent}/>}
                 {isSel&&!isEdit&&<>
                   {['tl','t','tr','r','br','b','bl','l'].map(function(c){
                     var hs={position:'absolute',width:10,height:10,background:'#3b82f6',borderRadius:2,zIndex:20};
@@ -551,7 +551,7 @@ export default function SuperDeckEditor() {
 
             {selEl.type==='shape'&&<>
               <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>{t('superDeck.fillColour')}</div>
-              <input type="color" value={selEl.fill||t.accent} onChange={function(e){upd(selId,{fill:e.target.value});}} style={{width:'100%',height:40,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1,marginBottom:10}}/>
+              <input type="color" value={selEl.fill||thm.accent} onChange={function(e){upd(selId,{fill:e.target.value});}} style={{width:'100%',height:40,border:'2px solid #e2e8f0',borderRadius:6,cursor:'pointer',padding:1,marginBottom:10}}/>
               <div style={{fontSize:12,fontWeight:600,color:'#334155',marginBottom:4}}>{t('superDeck.shapeLabel')}</div>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr 1fr 1fr',gap:3,marginBottom:10}}>
                 {SHAPE_TYPES.map(function(sh){var isActive=(selEl.shapeType||'rect')===sh.id;

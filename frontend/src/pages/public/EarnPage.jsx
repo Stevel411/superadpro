@@ -96,7 +96,7 @@ function Toast() {
       setVisible(true);
       setTimeout(function(){setVisible(false);}, 4500);
     }
-    var t = setTimeout(show, 6000);
+    var tmr = setTimeout(show, 6000);
     var iv = setInterval(show, 22000);
     return function(){clearTimeout(t);clearInterval(iv);};
   }, []);

@@ -316,7 +316,7 @@ function PassUpSection() {
         setTimeout(function() { setGlowId(null); }, 600);
         return;
       }
-      var t = step / steps;
+      var progress = step / steps;
       var cx = sx + (ex - sx) * t;
       var cy = sy + (ey - sy) * t;
       setFlowDots(function(d) {

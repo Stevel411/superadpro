@@ -46,7 +46,7 @@ export default function GridVisualiser() {
       .catch(function() { setLoading(false); });
   }, [activeTier]);
 
-  var t = TIERS[activeTier - 1];
+  var tier = TIERS[activeTier - 1];
   var filled = data ? data.filled : 0;
   var total = 64;
   var pct = Math.round(filled / total * 100);
@@ -107,7 +107,7 @@ export default function GridVisualiser() {
           {/* Cobalt gradient header */}
           <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', padding:'24px 28px', display:'flex', justifyContent:'space-between', alignItems:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'#fff' }}>
-              T{t.t} {t.name} — ${t.price}
+              T{tier.t} {tier.name} — ${tier.price}
             </div>
             <div style={{ fontSize:13, color:'rgba(255,255,255,.7)', fontWeight:600 }}>
               {filled} of {total} filled ({pct}%)
@@ -117,7 +117,7 @@ export default function GridVisualiser() {
           <div style={{ padding:28 }}>
             {/* Progress bar */}
             <div style={{ height:8, background:'var(--sap-bg-page)', borderRadius:4, marginBottom:16, overflow:'hidden' }}>
-              <div style={{ height:'100%', borderRadius:4, width:pct+'%', background:'linear-gradient(90deg,'+t.dark+','+t.color+')', transition:'width .5s' }}/>
+              <div style={{ height:'100%', borderRadius:4, width:pct+'%', background:'linear-gradient(90deg,'+tier.dark+','+tier.color+')', transition:'width .5s' }}/>
             </div>
 
             {/* Legend */}

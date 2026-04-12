@@ -842,7 +842,7 @@ function EmailAnalyticsTab() {
   useEffect(function() { apiGet('/admin/api/email-analytics').then(setData).catch(function(){}); }, []);
   if (!data) return <Spin/>;
 
-  var t = data.totals || {};
+  var totals = data.totals || {};
   var c = data.costs || {};
   var ps = data.platform_stats || {};
 
@@ -853,10 +853,10 @@ function EmailAnalyticsTab() {
       {/* Volume stats */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10,marginBottom:20}}>
         {[
-          {v:t.today||0, l:'Sent today', c:'var(--sap-indigo)'},
-          {v:t.this_week||0, l:'This week', c:'var(--sap-accent)'},
-          {v:(t.this_month||0).toLocaleString(), l:'This month', c:'var(--sap-green)'},
-          {v:(t.all_time||0).toLocaleString(), l:'All time', c:'var(--sap-purple)'},
+          {v:totals.today||0, l:'Sent today', c:'var(--sap-indigo)'},
+          {v:totals.this_week||0, l:'This week', c:'var(--sap-accent)'},
+          {v:(totals.this_month||0).toLocaleString(), l:'This month', c:'var(--sap-green)'},
+          {v:(totals.all_time||0).toLocaleString(), l:'All time', c:'var(--sap-purple)'},
         ].map(function(s,i){return <div key={i} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:16,textAlign:'center'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:s.c}}>{s.v}</div><div style={{fontSize:12,color:'var(--sap-text-secondary)',fontWeight:600,marginTop:4}}>{s.l}</div></div>;})}
       </div>
 

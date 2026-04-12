@@ -128,7 +128,7 @@ export default function SuperLinkPage() {
     if (!ref) { var m = document.cookie.match(/ref=([^;]+)/); if (m) ref = m[1]; }
     if (!ref) { var m2 = window.location.pathname.match(/\/join\/([^/]+)/); if (m2) ref = m2[1]; }
     if (ref) { setSponsor(ref); setSi(ref.charAt(0).toUpperCase()); }
-    var t = p.get('theme'); if (t && THEMES[t]) setTk(t);
+    var themeParam = p.get('theme'); if (themeParam && THEMES[themeParam]) setTk(themeParam);
   }, []);
 
   var T = THEMES[tk];

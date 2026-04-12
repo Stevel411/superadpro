@@ -242,7 +242,7 @@ export default function IncomeGrid3D({ showControls, height, autoPlay }) {
     }, 200);
   }, []);
 
-  useEffect(function() { if (autoPlay) { var t = setTimeout(start, 600); return function(){clearTimeout(t);}; } }, []);
+  useEffect(function() { if (autoPlay) { var tmr = setTimeout(start, 600); return function(){clearTimeout(tmr);}; } }, []);
   useEffect(function() { return function(){if(intervalRef.current)clearInterval(intervalRef.current);}; }, []);
 
   var tier = TIERS[tierIdx] || TIERS[0];
