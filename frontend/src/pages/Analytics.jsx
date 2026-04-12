@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import * as Chart from 'chart.js';

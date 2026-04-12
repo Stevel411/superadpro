@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 
 export default function IncomeDisclaimer() {
+  var { t } = useTranslation();
   return (
     <AppLayout title="Income Disclaimer" subtitle="Important information about earning with SuperAdPro">
       <div style={{ maxWidth:780, margin:'0 auto' }}>

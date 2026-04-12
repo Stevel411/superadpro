@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { X, Search, ChevronDown, ChevronRight } from 'lucide-react';
 

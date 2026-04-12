@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import PublicLayout from '../../components/layout/PublicLayout';
 import { apiGet, apiPost } from '../../utils/api';
 
 export default function AdBoard() {
+  var { t } = useTranslation();
   var [params, setParams] = useSearchParams();
   var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);

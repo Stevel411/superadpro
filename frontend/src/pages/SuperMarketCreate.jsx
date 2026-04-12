@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
@@ -21,6 +22,7 @@ var CATEGORIES = [
 var STEPS = [{key:'basics',label:'Product',num:1},{key:'content',label:'Sales Page',num:2},{key:'files',label:'Files',num:3},{key:'review',label:'Submit',num:4}];
 
 export default function SuperMarketCreate() {
+  var { t } = useTranslation();
   var [step, setStep] = useState(0);
   var [title, setTitle] = useState('');
   var [shortDesc, setShortDesc] = useState('');

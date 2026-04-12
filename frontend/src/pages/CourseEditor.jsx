@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
@@ -6,6 +7,7 @@ import { apiGet, apiPost, apiPut, apiDelete } from '../utils/api';
 import { Plus, Trash2, ChevronDown, ChevronRight, Save, Send, Video, FileText, Eye, EyeOff, Clock, GripVertical, BookOpen, Upload, File, CheckCircle, AlertTriangle, ArrowUp, ArrowDown, Play, Download } from 'lucide-react';
 
 export default function CourseEditor() {
+  var { t } = useTranslation();
   var params = useParams();
   var courseId = params.id;
   var [course, setCourse] = useState(null);

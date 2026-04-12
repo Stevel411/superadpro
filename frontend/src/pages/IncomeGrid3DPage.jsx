@@ -1,6 +1,8 @@
+import { useTranslation } from 'react-i18next';
 import IncomeGrid3D from '../components/IncomeGrid3D';
 
 export default function IncomeGrid3DPage() {
+  var { t } = useTranslation();
   var h = typeof window !== 'undefined' ? Math.max(500, window.innerHeight - 260) : 500;
   return (
     <div style={{ background: '#172554', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>

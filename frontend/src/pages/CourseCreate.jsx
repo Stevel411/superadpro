@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
@@ -19,6 +20,7 @@ var CATEGORIES = [
 var STEPS = [{key:'basics',label:'Course Info',num:1},{key:'details',label:'Description & Banner',num:2},{key:'review',label:'Terms & Create',num:3}];
 
 export default function CourseCreate() {
+  var { t } = useTranslation();
   var [step, setStep] = useState(0);
   var [title, setTitle] = useState('');
   var [shortDesc, setShortDesc] = useState('');

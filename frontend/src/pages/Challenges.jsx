@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 import { Trophy, Target, Flame, Zap } from 'lucide-react';
 
 export default function Challenges() {
+  var { t } = useTranslation();
   var [challenges, setChallenges] = useState([]);
   var [loading, setLoading] = useState(true);
 

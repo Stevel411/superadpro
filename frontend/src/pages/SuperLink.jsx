@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef, Suspense, lazy } from 'react';
 
 var IncomeGrid3D = lazy(function() { return import('../components/IncomeGrid3D'); });

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
@@ -46,6 +47,7 @@ function VideoPlayer({ url }) {
 }
 
 export default function CoursePlayer() {
+  var { t } = useTranslation();
   var { courseId } = useParams();
   var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);

@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { apiGet, apiPost } from '../utils/api';
 import { Bot, RefreshCw, Send, ChevronDown, ChevronUp, Sparkles, Zap } from 'lucide-react';
 
 export default function CoPilot() {
+  var { t } = useTranslation();
   var [briefing, setBriefing] = useState(null);
   var [loading, setLoading] = useState(true);
   var [refreshing, setRefreshing] = useState(false);

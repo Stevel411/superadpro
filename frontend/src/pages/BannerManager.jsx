@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
@@ -14,6 +15,7 @@ var SIZES = [
 var CATEGORIES = ['General', 'Business', 'Technology', 'Health', 'Finance', 'Education', 'Crypto', 'Lifestyle', 'Travel', 'Food'];
 
 export default function BannerManager() {
+  var { t } = useTranslation();
   var { user } = useAuth();
   var [tab, setTab] = useState('create');
   var [banners, setBanners] = useState([]);
