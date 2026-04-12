@@ -192,7 +192,7 @@ export default function BannerManager() {
             {banners.length === 0 ? (
               <div style={{ textAlign: 'center', padding: 60, color: 'var(--sap-text-faint)' }}>
                 <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.3 }}>🖼️</div>
-                <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>No banners yet</div>
+                <div style={{ fontSize: 16, fontWeight: 700, marginBottom: 4 }}>{t('bannerManager.noBanners')}</div>
                 <div style={{ fontSize: 13 }}>Create your first banner ad to get started</div>
               </div>
             ) : (

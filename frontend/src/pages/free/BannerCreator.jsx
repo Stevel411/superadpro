@@ -253,8 +253,8 @@ export default function BannerCreator() {
           </div>
 
           <div style={{ display: 'flex', gap: 8, padding: '10px 0', flexShrink: 0 }}>
-            <button onClick={dlPNG} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'var(--sap-accent)', color: '#fff', fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>Download PNG</button>
-            <button onClick={reset} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'rgba(255,255,255,.05)', color: 'rgba(200,220,255,.6)', fontWeight: 600, fontSize: 13, border: '1px solid rgba(255,255,255,.12)', cursor: 'pointer', fontFamily: 'inherit' }}>Reset</button>
+            <button onClick={dlPNG} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'var(--sap-accent)', color: '#fff', fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>{t('freeBanner.downloadPng')}</button>
+            <button onClick={reset} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'rgba(255,255,255,.05)', color: 'rgba(200,220,255,.6)', fontWeight: 600, fontSize: 13, border: '1px solid rgba(255,255,255,.12)', cursor: 'pointer', fontFamily: 'inherit' }}>{t('freeBanner.reset')}</button>
           </div>
 
           <div style={{ background: 'rgba(14,165,233,0.04)', border: '1px solid rgba(0,180,216,0.1)', borderRadius: 12, padding: '12px 16px', flexShrink: 0 }}>
@@ -294,7 +294,7 @@ export default function BannerCreator() {
           </div>
 
           {/* Background */}
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>Background</div>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>{t('freeBanner.background')}</div>
           <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
             {['gradient', 'solid', 'image'].map(m => (
               <button key={m} onClick={() => setBgMode(m)} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, textTransform: 'capitalize', fontWeight: bgMode === m ? 700 : 600, background: bgMode === m ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: bgMode === m ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: bgMode === m ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{m}</button>

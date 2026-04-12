@@ -230,8 +230,8 @@ export default function QRCodeGenerator() {
           </div>
 
           <div style={{ display: 'flex', gap: 8, padding: '12px 0 10px', flexShrink: 0 }}>
-            <button onClick={dlPNG} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'var(--sap-accent)', color: '#fff', fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>Download PNG</button>
-            <button onClick={dlSVG} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'rgba(255,255,255,.05)', color: 'rgba(200,220,255,.6)', fontWeight: 600, fontSize: 13, border: '1px solid rgba(255,255,255,.12)', cursor: 'pointer', fontFamily: 'inherit' }}>Download SVG</button>
+            <button onClick={dlPNG} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'var(--sap-accent)', color: '#fff', fontWeight: 700, fontSize: 13, border: 'none', cursor: 'pointer', fontFamily: 'inherit', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>{t('freeQR.download')}</button>
+            <button onClick={dlSVG} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'rgba(255,255,255,.05)', color: 'rgba(200,220,255,.6)', fontWeight: 600, fontSize: 13, border: '1px solid rgba(255,255,255,.12)', cursor: 'pointer', fontFamily: 'inherit' }}>{t('freeQR.downloadSvg')}</button>
             <button onClick={reset} style={{ flex: 1, padding: '11px 0', borderRadius: 10, background: 'rgba(255,255,255,.05)', color: 'rgba(200,220,255,.6)', fontWeight: 600, fontSize: 13, border: '1px solid rgba(255,255,255,.12)', cursor: 'pointer', fontFamily: 'inherit' }}>Reset</button>
           </div>
 
@@ -295,7 +295,7 @@ export default function QRCodeGenerator() {
           {/* Size slider */}
           <div style={{ marginBottom: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-              <span style={{ fontSize: 10, color: '#7b8594', fontWeight: 600 }}>Size</span>
+              <span style={{ fontSize: 10, color: '#7b8594', fontWeight: 600 }}>{t('freeQR.size')}</span>
               <span style={{ fontSize: 11, color: '#fff', fontWeight: 700 }}>{size}px</span>
             </div>
             <input type="range" min="100" max="600" step="50" value={size} onChange={e => setSize(+e.target.value)}
