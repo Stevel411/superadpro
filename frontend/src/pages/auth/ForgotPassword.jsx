@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { apiPost } from '../../utils/api';
 
 export default function ForgotPassword() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [sent, setSent] = useState(false);
@@ -9,14 +11,14 @@ export default function ForgotPassword() {
 
   async function submit(e) {
     e.preventDefault();
-    if (!email.trim()) return setError('Please enter your email address.');
+    if (!email.trim()) return setError(t('auth.errEnterEmail'));
     setLoading(true);
     setError('');
     try {
       await apiPost('/api/forgot-password', { email: email.trim().toLowerCase() });
       setSent(true);
     } catch (err) {
-      setError(err.message || 'Something went wrong. Please try again.');
+      setError(err.message || t('auth.forgotFailed'));
     } finally {
       setLoading(false);
     }
@@ -35,20 +37,20 @@ export default function ForgotPassword() {
         {sent ? (
           <>
             <div style={styles.sentIcon}>📧</div>
-            <h1 style={styles.heading}>Check your email</h1>
-            <p style={styles.sub}>If an account exists for <strong style={{ color: '#7dd3fc' }}>{email}</strong>, we've sent a password reset link. Check your inbox and spam folder.</p>
-            <a href="/login" style={styles.btn}>Back to Login</a>
+            <h1 style={styles.heading}>{t('auth.checkEmail')}</h1>
+            <p style={styles.sub}>{t('auth.checkEmailDesc1')}<strong style={{ color: '#7dd3fc' }}>{email}</strong>{t('auth.checkEmailDesc2')}</p>
+            <a href="/login" style={styles.btn}>{t('auth.backToLogin')}</a>
           </>
         ) : (
           <>
-            <h1 style={styles.heading}>Reset your password</h1>
-            <p style={styles.sub}>Enter your email address and we'll send you a reset link.</p>
+            <h1 style={styles.heading}>{t('auth.resetYourPassword')}</h1>
+            <p style={styles.sub}>{t('auth.resetDesc')}</p>
 
             {error && <div style={styles.errorBox}>{error}</div>}
 
             <form onSubmit={submit} style={styles.form}>
               <div style={styles.field}>
-                <label style={styles.label}>Email Address</label>
+                <label style={styles.label}>{t('auth.emailAddress')}</label>
                 <input
                   value={email}
                   onChange={e => { setEmail(e.target.value); setError(''); }}

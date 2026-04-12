@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useRef, useEffect } from 'react';
 import { apiPost } from '../../utils/api';
 import { useAuth } from '../../hooks/useAuth';
 
 export default function TwoFactorLogin() {
+  const { t } = useTranslation();
   const { refreshUser } = useAuth();
   const [code, setCode] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
@@ -60,7 +62,7 @@ export default function TwoFactorLogin() {
   async function submit(e) {
     e.preventDefault();
     const c = code.join('');
-    if (c.length !== 6) return setError('Please enter all 6 digits.');
+    if (c.length !== 6) return setError(t('auth.enterAll6'));
     submitCode(c);
   }
 
@@ -77,8 +79,8 @@ export default function TwoFactorLogin() {
           <span style={styles.logoText}>SuperAd<span style={{ color: '#38bdf8' }}>Pro</span></span>
         </div>
 
-        <h1 style={styles.heading}>Two-Factor Authentication</h1>
-        <p style={styles.sub}>Enter the 6-digit code from your authenticator app</p>
+        <h1 style={styles.heading}>{t('auth.twoFA')}</h1>
+        <p style={styles.sub}>{t('auth.enter6Digit')}</p>
 
         {error && <div style={styles.errorBox}>{error}</div>}
 
@@ -108,7 +110,7 @@ export default function TwoFactorLogin() {
         </div>
 
         <div style={{ textAlign: 'center', marginTop: 20 }}>
-          <a href="/login" style={styles.backLink}>← Back to login</a>
+          <a href="/login" style={styles.backLink}>{t('auth.backToLoginLink')}</a>
         </div>
       </div>
     </div>

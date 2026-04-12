@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import { apiGet, apiPost } from '../../utils/api';
 
 export default function TwoFactorSetup() {
+  const { t } = useTranslation();
   const [step, setStep] = useState(1); // 1=loading, 2=scan, 3=verify, 4=done
   const [qr, setQr] = useState('');
   const [secret, setSecret] = useState('');
@@ -45,7 +47,7 @@ export default function TwoFactorSetup() {
   async function verify(e) {
     e.preventDefault();
     const c = code.join('');
-    if (c.length !== 6) return setError('Enter all 6 digits.');
+    if (c.length !== 6) return setError(t('auth.enterAll6Setup'));
     setLoading(true);
     setError('');
     try {
@@ -65,7 +67,7 @@ export default function TwoFactorSetup() {
   }
 
   if (step === 1) return (
-    <div style={styles.page}><div style={styles.bg} /><div style={{ color: 'rgba(255,255,255,.4)', fontFamily: "'DM Sans', sans-serif" }}>Setting up 2FA…</div></div>
+    <div style={styles.page}><div style={styles.bg} /><div style={{ color: 'rgba(255,255,255,.4)', fontFamily: "'DM Sans', sans-serif" }}>{t('auth.settingUp')}</div></div>
   );
 
   if (step === 4) return (
@@ -73,9 +75,9 @@ export default function TwoFactorSetup() {
       <div style={styles.bg} />
       <div style={styles.card}>
         <div style={styles.successIcon}>✅</div>
-        <h1 style={styles.heading}>2FA Enabled!</h1>
-        <p style={styles.sub}>Your account is now protected with two-factor authentication. You'll be asked for your authenticator code each time you log in.</p>
-        <a href="/account" style={styles.btn}>Back to Account</a>
+        <h1 style={styles.heading}>{t('auth.twoFAEnabled')}</h1>
+        <p style={styles.sub}>{t('auth.twoFAEnabledDesc')}</p>
+        <a href="/account" style={styles.btn}>{t('auth.backToAccount')}</a>
       </div>
     </div>
   );
@@ -89,12 +91,12 @@ export default function TwoFactorSetup() {
           <span style={styles.logoText}>SuperAd<span style={{ color: '#38bdf8' }}>Pro</span></span>
         </div>
 
-        <h1 style={styles.heading}>Set Up 2FA</h1>
-        <p style={styles.sub}>Secure your account with Google Authenticator</p>
+        <h1 style={styles.heading}>{t('auth.setup2FA')}</h1>
+        <p style={styles.sub}>{t('auth.setup2FADesc')}</p>
 
         {/* Steps indicator */}
         <div style={styles.steps}>
-          {['Scan QR', 'Verify'].map((s, i) => (
+          {[t('auth.scanQR'), t('auth.verify')].map((s, i) => (
             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
               <div style={{ ...styles.stepDot, background: step >= i + 2 ? '#0ea5e9' : 'rgba(255,255,255,.1)', color: step >= i + 2 ? '#fff' : 'rgba(255,255,255,.3)' }}>{i + 1}</div>
               <span style={{ fontSize: 12, fontWeight: 700, color: step >= i + 2 ? '#7dd3fc' : 'rgba(255,255,255,.3)' }}>{s}</span>

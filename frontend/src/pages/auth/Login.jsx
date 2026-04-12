@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { apiPost } from '../../utils/api';
 import { useAuth } from '../../hooks/useAuth';
 
 export default function Login() {
+  const { t } = useTranslation();
   const { refreshUser } = useAuth();
   const [form, setForm] = useState({ username: '', password: '' });
   const [error, setError] = useState('');
@@ -17,7 +19,7 @@ export default function Login() {
 
   async function submit(e) {
     e.preventDefault();
-    if (!form.username.trim() || !form.password) return setError('Please enter your username and password.');
+    if (!form.username.trim() || !form.password) return setError(t('auth.loginRequired'));
     setLoading(true);
     setError('');
     try {
@@ -29,7 +31,7 @@ export default function Login() {
         window.location.href = next;
       }
     } catch (err) {
-      setError(err.message || 'Login failed. Please try again.');
+      setError(err.message || t('auth.loginFailed'));
     } finally {
       setLoading(false);
     }
@@ -53,14 +55,14 @@ export default function Login() {
           </span>
         </div>
 
-        <h1 style={styles.heading}>Welcome back</h1>
-        <p style={styles.sub}>Sign in to your account</p>
+        <h1 style={styles.heading}>{t('auth.welcomeBack')}</h1>
+        <p style={styles.sub}>{t('auth.signInToAccount')}</p>
 
         {error && <div style={styles.errorBox}>{error}</div>}
 
         <form onSubmit={submit} style={styles.form}>
           <div style={styles.field}>
-            <label style={styles.label}>Username or Email</label>
+            <label style={styles.label}>{t('auth.usernameOrEmail')}</label>
             <input
               value={form.username}
               onChange={set('username')}
@@ -73,8 +75,8 @@ export default function Login() {
 
           <div style={styles.field}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <label style={styles.label}>Password</label>
-              <a href="/forgot-password" style={styles.forgotLink}>Forgot password?</a>
+              <label style={styles.label}>{t('auth.password')}</label>
+              <a href="/forgot-password" style={styles.forgotLink}>{t('auth.forgotPassword')}</a>
             </div>
             <div style={{ position: 'relative' }}>
               <input
@@ -92,21 +94,21 @@ export default function Login() {
           </div>
 
           <button type="submit" disabled={loading} style={loading ? styles.btnDisabled : styles.btn}>
-            {loading ? 'Signing in…' : 'Sign In'}
+            {loading ? t('auth.signingIn') : t('auth.signIn')}
           </button>
         </form>
 
         <div style={styles.divider}>
           <span style={styles.dividerLine} />
-          <span style={styles.dividerText}>Don't have an account?</span>
+          <span style={styles.dividerText}>{t('auth.noAccount')}</span>
           <span style={styles.dividerLine} />
         </div>
 
-        <a href="/register" style={styles.registerBtn}>Create an account</a>
+        <a href="/register" style={styles.registerBtn}>{t('auth.createAccount')}</a>
       </div>
 
       <p style={styles.footer}>
-        © 2026 SuperAdPro · <a href="/legal" style={styles.footerLink}>Terms</a>
+        © 2026 SuperAdPro · <a href="/legal" style={styles.footerLink}>{t('auth.terms')}</a>
       </p>
     </div>
   );

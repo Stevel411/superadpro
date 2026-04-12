@@ -1,8 +1,10 @@
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { apiPost } from '../../utils/api';
 import { useAuth } from '../../hooks/useAuth';
 
 export default function Register() {
+  const { t } = useTranslation();
   const { refreshUser } = useAuth();
   const params = new URLSearchParams(window.location.search);
   const refCode = params.get('ref') || params.get('r') || '';
@@ -16,11 +18,11 @@ export default function Register() {
 
   async function submit(e) {
     e.preventDefault();
-    if (!form.first_name.trim()) return setError('Please enter your first name.');
-    if (!form.username.trim()) return setError('Please enter a username.');
-    if (!form.email.trim()) return setError('Please enter your email address.');
-    if (form.password.length < 8) return setError('Password must be at least 8 characters.');
-    if (form.password !== form.confirm_password) return setError('Passwords do not match.');
+    if (!form.first_name.trim()) return setError(t('auth.errFirstName'));
+    if (!form.username.trim()) return setError(t('auth.errUsername'));
+    if (!form.email.trim()) return setError(t('auth.errEmail'));
+    if (form.password.length < 8) return setError(t('auth.errPassword8'));
+    if (form.password !== form.confirm_password) return setError(t('auth.errPasswordMatch'));
     setLoading(true);
     setError('');
     try {
@@ -36,14 +38,14 @@ export default function Register() {
       await refreshUser();
       window.location.href = '/dashboard';
     } catch (err) {
-      setError(err.message || 'Registration failed. Please try again.');
+      setError(err.message || t('auth.registerFailed'));
     } finally {
       setLoading(false);
     }
   }
 
   const strength = !form.password ? 0 : form.password.length < 8 ? 1 : form.password.length < 12 ? 2 : /[^a-zA-Z0-9]/.test(form.password) ? 4 : 3;
-  const strengthLabel = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+  const strengthLabel = ['', t('auth.weak'), t('auth.fair'), t('auth.good'), t('auth.strong')];
   const strengthColor = ['', '#ef4444', '#f59e0b', '#22c55e', '#0ea5e9'];
 
   return (
@@ -59,8 +61,8 @@ export default function Register() {
           <span style={styles.logoText}>SuperAd<span style={{ color: '#38bdf8' }}>Pro</span></span>
         </div>
 
-        <h1 style={styles.heading}>Create your account</h1>
-        <p style={styles.sub}>Join thousands of members earning online</p>
+        <h1 style={styles.heading}>{t('auth.createYourAccount')}</h1>
+        <p style={styles.sub}>{t('auth.joinThousands')}</p>
 
         {refCode && (
           <div style={styles.refBadge}>
@@ -73,17 +75,17 @@ export default function Register() {
         <form onSubmit={submit} style={styles.form}>
           <div style={styles.row}>
             <div style={styles.field}>
-              <label style={styles.label}>First Name</label>
+              <label style={styles.label}>{t('auth.firstName')}</label>
               <input value={form.first_name} onChange={set('first_name')} placeholder="John" autoFocus style={styles.input} />
             </div>
             <div style={styles.field}>
-              <label style={styles.label}>Last Name</label>
+              <label style={styles.label}>{t('auth.lastName')}</label>
               <input value={form.last_name} onChange={set('last_name')} placeholder="Smith" style={styles.input} />
             </div>
           </div>
 
           <div style={styles.field}>
-            <label style={styles.label}>Username</label>
+            <label style={styles.label}>{t('auth.username')}</label>
             <input value={form.username} onChange={set('username')} placeholder="john_smith" autoComplete="username" style={styles.input} />
           </div>
 
@@ -93,7 +95,7 @@ export default function Register() {
           </div>
 
           <div style={styles.field}>
-            <label style={styles.label}>Password</label>
+            <label style={styles.label}>{t('auth.password')}</label>
             <div style={{ position: 'relative' }}>
               <input value={form.password} onChange={set('password')} type={showPass ? 'text' : 'password'} placeholder="Min. 8 characters" autoComplete="new-password" style={{ ...styles.input, paddingRight: 44 }} />
               <button type="button" onClick={() => setShowPass(s => !s)} style={styles.eyeBtn}>{showPass ? '🙈' : '👁️'}</button>
@@ -109,7 +111,7 @@ export default function Register() {
           </div>
 
           <div style={styles.field}>
-            <label style={styles.label}>Confirm Password</label>
+            <label style={styles.label}>{t('auth.confirmPassword')}</label>
             <input value={form.confirm_password} onChange={set('confirm_password')} type="password" placeholder="Re-enter password" autoComplete="new-password" style={{ ...styles.input, borderColor: form.confirm_password && form.confirm_password !== form.password ? 'rgba(239,68,68,.5)' : 'rgba(255,255,255,.1)' }} />
           </div>
 
@@ -130,7 +132,7 @@ export default function Register() {
           )}
 
           <button type="submit" disabled={loading} style={loading ? styles.btnDisabled : styles.btn}>
-            {loading ? 'Creating account…' : 'Create Account'}
+            {loading ? t('auth.creatingAccount') : t('auth.createAccount')}
           </button>
         </form>
 
@@ -140,7 +142,7 @@ export default function Register() {
 
         <div style={styles.divider}>
           <span style={styles.dividerLine} />
-          <span style={styles.dividerText}>Already have an account?</span>
+          <span style={styles.dividerText}>{t('auth.haveAccount')}</span>
           <span style={styles.dividerLine} />
         </div>
 

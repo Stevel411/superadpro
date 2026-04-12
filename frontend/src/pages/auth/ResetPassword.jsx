@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { apiPost } from '../../utils/api';
 
 export default function ResetPassword() {
+  const { t } = useTranslation();
   const [token, setToken] = useState('');
   const [form, setForm] = useState({ password: '', confirm_password: '' });
   const [error, setError] = useState('');
@@ -21,22 +23,22 @@ export default function ResetPassword() {
 
   async function submit(e) {
     e.preventDefault();
-    if (form.password.length < 8) return setError('Password must be at least 8 characters.');
-    if (form.password !== form.confirm_password) return setError('Passwords do not match.');
+    if (form.password.length < 8) return setError(t('auth.errPassword8'));
+    if (form.password !== form.confirm_password) return setError(t('auth.errPasswordMatch'));
     setLoading(true);
     setError('');
     try {
       await apiPost('/api/reset-password', { token, new_password: form.password, confirm_password: form.confirm_password });
       setDone(true);
     } catch (err) {
-      setError(err.message || 'Reset failed. The link may have expired.');
+      setError(err.message || t('auth.resetFailed'));
     } finally {
       setLoading(false);
     }
   }
 
   const strength = !form.password ? 0 : form.password.length < 8 ? 1 : form.password.length < 12 ? 2 : /[^a-zA-Z0-9]/.test(form.password) ? 4 : 3;
-  const strengthLabel = ['', 'Weak', 'Fair', 'Good', 'Strong'];
+  const strengthLabel = ['', t('auth.weak'), t('auth.fair'), t('auth.good'), t('auth.strong')];
   const strengthColor = ['', '#ef4444', '#f59e0b', '#22c55e', '#0ea5e9'];
 
   return (
@@ -52,16 +54,16 @@ export default function ResetPassword() {
         {invalidToken ? (
           <>
             <div style={styles.sentIcon}>⚠️</div>
-            <h1 style={styles.heading}>Invalid Link</h1>
-            <p style={styles.sub}>This password reset link is invalid or has expired. Please request a new one.</p>
-            <a href="/forgot-password" style={styles.btn}>Request New Link</a>
+            <h1 style={styles.heading}>{t('auth.invalidLink')}</h1>
+            <p style={styles.sub}>{t('auth.invalidLinkDesc')}</p>
+            <a href="/forgot-password" style={styles.btn}>{t('auth.requestNewLink')}</a>
           </>
         ) : done ? (
           <>
             <div style={styles.sentIcon}>🔑</div>
-            <h1 style={styles.heading}>Password Reset!</h1>
-            <p style={styles.sub}>Your password has been updated successfully. You can now sign in with your new password.</p>
-            <a href="/login" style={styles.btn}>Sign In</a>
+            <h1 style={styles.heading}>{t('auth.passwordReset')}</h1>
+            <p style={styles.sub}>{t('auth.passwordResetDesc')}</p>
+            <a href="/login" style={styles.btn}>{t('auth.signIn')}</a>
           </>
         ) : (
           <>
@@ -72,7 +74,7 @@ export default function ResetPassword() {
 
             <form onSubmit={submit} style={styles.form}>
               <div style={styles.field}>
-                <label style={styles.label}>New Password</label>
+                <label style={styles.label}>{t('auth.newPassword')}</label>
                 <div style={{ position: 'relative' }}>
                   <input
                     value={form.password}
@@ -108,7 +110,7 @@ export default function ResetPassword() {
               </div>
 
               <button type="submit" disabled={loading} style={loading ? styles.btnDisabled : styles.btn}>
-                {loading ? 'Resetting…' : 'Reset Password'}
+                {loading ? t('auth.resetting') : t('auth.resetPassword')}
               </button>
             </form>
 
