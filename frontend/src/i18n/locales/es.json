@@ -1452,5 +1452,53 @@
     "terms": "Términos",
     "privacy": "Privacidad",
     "support": "Soporte"
+  },
+  "gridVis": {
+    "title": "Cuadrícula de Ingresos",
+    "subtitle": "Observa cómo se llena tu cuadrícula mientras crece tu equipo"
+  },
+  "creditMatrix": {
+    "title": "Matriz de Créditos",
+    "subtitle": "Compra packs de créditos y gana de tu red"
+  },
+  "matrixVis": {
+    "title": "Nexo de Ganancias",
+    "subtitle": "Observa cómo se llena tu nexo cuando los miembros compran packs"
+  },
+  "onboarding": {
+    "title": "Bienvenido a SuperAdPro",
+    "subtitle": "Vamos a configurarte en unos pasos rápidos"
+  },
+  "platformTour": {
+    "title": "Tour de la Plataforma",
+    "subtitle": "Descubre todo lo que SuperAdPro tiene para ofrecer"
+  },
+  "howItWorks": {
+    "title": "¿Qué es SuperAdPro?",
+    "heroTitle": "Cómo Funciona SuperAdPro",
+    "heroDesc": "Una plataforma completa para creadores y marketers para ganar, crecer y triunfar.",
+    "getStarted": "Comienza Gratis",
+    "learnMore": "Saber Más"
+  },
+  "earnPage": {
+    "title": "Ganar",
+    "heroTitle": "4 Formas de Ganar",
+    "heroDesc": "SuperAdPro te paga desde múltiples fuentes de ingreso — todo desde una plataforma.",
+    "getStarted": "Empieza a Ganar Hoy"
+  },
+  "explorePage": {
+    "title": "Explorar",
+    "heroTitle": "Explora SuperAdPro",
+    "heroDesc": "Descubre las herramientas, funciones y oportunidades de ingreso."
+  },
+  "joinFunnel": {
+    "title": "Únete a SuperAdPro",
+    "heroTitle": "Comienza Tu Camino",
+    "heroDesc": "Crea tu cuenta gratis y empieza a construir tu ingreso."
+  },
+  "affiliatePlan": {
+    "title": "Plan de Afiliados",
+    "heroTitle": "El Plan de Afiliados SuperAdPro",
+    "heroDesc": "Entiende exactamente cómo ganas — cuatro fuentes de ingreso desde una plataforma."
   }
 }

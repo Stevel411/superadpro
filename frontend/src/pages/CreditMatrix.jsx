@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
@@ -12,8 +13,9 @@ var PACK_ICONS = {
 };
 
 export default function CreditMatrix() {
+  var { t } = useTranslation();
   return (
-    <AppLayout title="Profit Nexus" subtitle="Your Earnings Accelerator">
+    <AppLayout title={t("creditMatrix.title")} subtitle={t("creditMatrix.subtitle")}>
       <CreditMatrixContent />
     </AppLayout>
   );

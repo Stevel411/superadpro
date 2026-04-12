@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -13,6 +14,7 @@ function Reveal({ children, delay }) {
 }
 
 export default function AffiliatePlan() {
+  var { t } = useTranslation();
   var [playing, setPlaying] = useState(false);
   var vidRef = useRef(null);
 

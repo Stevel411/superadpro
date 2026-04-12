@@ -1452,5 +1452,53 @@
     "terms": "Conditions",
     "privacy": "Confidentialité",
     "support": "Support"
+  },
+  "gridVis": {
+    "title": "Grille de Revenus",
+    "subtitle": "Observez votre grille se remplir au fil de la croissance de votre équipe"
+  },
+  "creditMatrix": {
+    "title": "Matrice de Crédits",
+    "subtitle": "Achetez des packs et gagnez de votre réseau"
+  },
+  "matrixVis": {
+    "title": "Nexus de Profit",
+    "subtitle": "Observez votre nexus se remplir quand les membres achètent des packs"
+  },
+  "onboarding": {
+    "title": "Bienvenue sur SuperAdPro",
+    "subtitle": "Configurons-vous en quelques étapes rapides"
+  },
+  "platformTour": {
+    "title": "Tour de la Plateforme",
+    "subtitle": "Découvrez tout ce que SuperAdPro a à offrir"
+  },
+  "howItWorks": {
+    "title": "Qu'est-ce que SuperAdPro ?",
+    "heroTitle": "Comment Fonctionne SuperAdPro",
+    "heroDesc": "Une plateforme complète pour les créateurs et marketeurs pour gagner, grandir et réussir.",
+    "getStarted": "Commencer Gratuitement",
+    "learnMore": "En Savoir Plus"
+  },
+  "earnPage": {
+    "title": "Gagner",
+    "heroTitle": "4 Façons de Gagner",
+    "heroDesc": "SuperAdPro vous paie depuis plusieurs sources de revenus — tout depuis une plateforme.",
+    "getStarted": "Commencez à Gagner"
+  },
+  "explorePage": {
+    "title": "Explorer",
+    "heroTitle": "Explorez SuperAdPro",
+    "heroDesc": "Découvrez les outils, fonctionnalités et opportunités de revenus."
+  },
+  "joinFunnel": {
+    "title": "Rejoindre SuperAdPro",
+    "heroTitle": "Commencez Votre Parcours",
+    "heroDesc": "Créez votre compte gratuit et commencez à construire vos revenus."
+  },
+  "affiliatePlan": {
+    "title": "Plan d'Affiliation",
+    "heroTitle": "Le Plan d'Affiliation SuperAdPro",
+    "heroDesc": "Comprenez exactement comment vous gagnez — quatre sources de revenus depuis une plateforme."
   }
 }

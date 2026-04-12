@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
@@ -83,11 +84,12 @@ var SECTIONS = [
 ];
 
 export default function PlatformTour() {
+  var { t } = useTranslation();
   var [activeIdx, setActiveIdx] = useState(0);
   var s = SECTIONS[activeIdx];
 
   return (
-    <AppLayout title="Platform Tour" subtitle="Your complete guide to SuperAdPro">
+    <AppLayout title={t("platformTour.title")} subtitle={t("platformTour.subtitle")}>
 
       {/* Tab bar */}
       <div style={{ display: 'flex', gap: 4, overflowX: 'auto', marginBottom: 20, paddingBottom: 4 }}>

@@ -1486,5 +1486,53 @@
     "terms": "Terms",
     "privacy": "Privacy",
     "support": "Support"
+  },
+  "gridVis": {
+    "title": "Income Grid",
+    "subtitle": "Watch your grid fill as your team grows"
+  },
+  "creditMatrix": {
+    "title": "Credit Matrix",
+    "subtitle": "Buy credit packs and earn from your network"
+  },
+  "matrixVis": {
+    "title": "Profit Nexus",
+    "subtitle": "Watch your nexus fill as members buy credit packs"
+  },
+  "onboarding": {
+    "title": "Welcome to SuperAdPro",
+    "subtitle": "Let's get you set up in a few quick steps"
+  },
+  "platformTour": {
+    "title": "Platform Tour",
+    "subtitle": "Discover everything SuperAdPro has to offer"
+  },
+  "howItWorks": {
+    "title": "What is SuperAdPro?",
+    "heroTitle": "How SuperAdPro Works",
+    "heroDesc": "A complete platform for creators and marketers to earn, grow, and succeed.",
+    "getStarted": "Get Started Free",
+    "learnMore": "Learn More"
+  },
+  "earnPage": {
+    "title": "Earn",
+    "heroTitle": "4 Ways to Earn",
+    "heroDesc": "SuperAdPro pays you from multiple income streams — all from one platform.",
+    "getStarted": "Start Earning Today"
+  },
+  "explorePage": {
+    "title": "Explore",
+    "heroTitle": "Explore SuperAdPro",
+    "heroDesc": "Discover the tools, features, and income opportunities."
+  },
+  "joinFunnel": {
+    "title": "Join SuperAdPro",
+    "heroTitle": "Start Your Journey",
+    "heroDesc": "Create your free account and start building your income."
+  },
+  "affiliatePlan": {
+    "title": "Affiliate Plan",
+    "heroTitle": "The SuperAdPro Affiliate Plan",
+    "heroDesc": "Understand exactly how you earn — four income streams from one platform."
   }
 }

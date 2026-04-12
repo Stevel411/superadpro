@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -85,6 +86,7 @@ function FreeToolCard({ icon, title, desc, href }) {
 }
 
 export default function HowItWorks() {
+  var { t } = useTranslation();
   return (
     <div style={{ position: 'relative', minHeight: '100vh', fontFamily: "'DM Sans',sans-serif", color: '#fff' }}>
 

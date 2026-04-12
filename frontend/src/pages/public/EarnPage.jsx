@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { formatMoney } from '../../utils/money';
@@ -318,6 +319,7 @@ function EarningsCalculator({ onJoin }) {
 
 
 export default function EarnPage() {
+  var { t } = useTranslation();
   var [regOpen, setRegOpen] = useState(false);
 
   // Simple inline register modal

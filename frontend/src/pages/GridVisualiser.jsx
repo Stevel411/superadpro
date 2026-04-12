@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
@@ -32,6 +33,7 @@ var css = `
 `;
 
 export default function GridVisualiser() {
+  var { t: tr } = useTranslation();
   var { user } = useAuth();
   var [activeTier, setActiveTier] = useState(1);
   var [data, setData] = useState(null);
@@ -55,7 +57,7 @@ export default function GridVisualiser() {
   var isComplete = filled >= 64;
 
   return (
-    <AppLayout title="Income Grid" subtitle="Watch your grid fill as your team grows">
+    <AppLayout title={tr("gridVis.title")} subtitle={tr("gridVis.subtitle")}>
       <style>{css}</style>
       <div style={{ maxWidth:1000, margin:'0 auto' }}>
 

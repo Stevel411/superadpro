@@ -1,9 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import PublicLayout from '../../components/layout/PublicLayout';
 import { apiGet } from '../../utils/api';
 
 export default function JoinFunnel() {
+  var { t } = useTranslation();
   var { username } = useParams();
   var [sponsor, setSponsor] = useState(null);
   var [loading, setLoading] = useState(true);

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
@@ -34,6 +35,7 @@ var css = `
 `;
 
 export default function CreditMatrixVisualiser() {
+  var { t } = useTranslation();
   var { user } = useAuth();
   var [overview, setOverview] = useState(null);
   var [activePack, setActivePack] = useState(null);
@@ -66,7 +68,7 @@ export default function CreditMatrixVisualiser() {
 
   if (loading) {
     return (
-      <AppLayout title="Profit Nexus" subtitle="Your Earnings Accelerator">
+      <AppLayout title={t("matrixVis.title")} subtitle={t("matrixVis.subtitle")}>
         <div style={{ textAlign:'center', padding:60, color:'#64748b' }}>Loading nexus...</div>
       </AppLayout>
     );
@@ -135,7 +137,7 @@ export default function CreditMatrixVisualiser() {
   var eMax = 3 * packPrice * 0.15 + 9 * packPrice * 0.10 + 27 * packPrice * 0.10;
 
   return (
-    <AppLayout title="Profit Nexus" subtitle="Your Earnings Accelerator — 3×3 nexuses fill as members buy credit packs">
+    <AppLayout title={t("matrixVis.title")} subtitle={t("matrixVis.subtitle")}>
       <style>{css}</style>
       <div style={{ maxWidth:1000, margin:'0 auto' }}>
 

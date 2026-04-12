@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -12,6 +13,7 @@ var STEPS = [
 ];
 
 export default function OnboardingWizard() {
+  var { t } = useTranslation();
   var { user, refreshUser } = useAuth();
   var navigate = useNavigate();
   var [step, setStep] = useState(0);

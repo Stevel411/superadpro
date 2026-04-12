@@ -1,7 +1,9 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
 export default function ExplorePage() {
+  var { t } = useTranslation();
   return (
     <div style={{ background:'#172554', color:'#fff', fontFamily:"'DM Sans',sans-serif", minHeight:'100vh' }}>
       <style>{`
