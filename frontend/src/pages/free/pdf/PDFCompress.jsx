@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -72,7 +73,7 @@ export default function PDFCompress() {
                 style={{ flex: 1, padding: '14px 0', borderRadius: 12, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 15, fontWeight: 700, background: 'var(--sap-accent)', color: '#fff', boxShadow: '0 0 24px rgba(0,212,255,0.2)' }}>
                 {compressing ? 'Compressing...' : 'Compress PDF'}
               </button>
-              <button onClick={reset} style={{ padding: '14px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.05)', color: 'rgba(200,220,255,0.6)', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 14, fontWeight: 600 }}>Reset</button>
+              <button onClick={reset} style={{ padding: '14px 20px', borderRadius: 12, border: '1px solid rgba(255,255,255,0.12)', background: 'rgba(255,255,255,0.05)', color: 'rgba(200,220,255,0.6)', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 14, fontWeight: 600 }}>{t('pdfTools.reset')}</button>
             </div>
           </div>
         ) : (

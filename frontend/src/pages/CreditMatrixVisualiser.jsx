@@ -93,7 +93,7 @@ export default function CreditMatrixVisualiser() {
       return (
         <div className="mx-node empty">
           <div style={{ width:36, height:36, borderRadius:'50%', background:'var(--sap-bg-page)', margin:'0 auto 6px', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--sap-text-faint)', fontSize:16 }}>?</div>
-          <div style={{ fontSize:10, color:'var(--sap-text-faint)', fontWeight:600 }}>Empty</div>
+          <div style={{ fontSize:10, color:'var(--sap-text-faint)', fontWeight:600 }}>{t('matrixVis.empty')}</div>
         </div>
       );
     }
@@ -276,7 +276,7 @@ export default function CreditMatrixVisualiser() {
                 <div style={{ fontSize:10, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.l3_filled || 0} × ${packPrice} × 10%</div>
               </div>
               <div style={{ flex:1, background:tc.grad, borderRadius:10, padding:14, textAlign:'center', border:'none' }}>
-                <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,.7)', textTransform:'uppercase' }}>Total</div>
+                <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,.7)', textTransform:'uppercase' }}>{t('matrixVis.total')}</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#fff', marginTop:4 }}>${eTotal.toFixed(2)}</div>
                 <div style={{ fontSize:10, color:'rgba(255,255,255,.6)', marginTop:2 }}>of ${eMax.toFixed(2)} max</div>
               </div>
