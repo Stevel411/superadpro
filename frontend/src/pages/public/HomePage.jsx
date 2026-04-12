@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -27,6 +28,7 @@ function Particles() {
 }
 
 export default function HomePage() {
+  var { t } = useTranslation();
   var [stats, setStats] = useState(null);
   useEffect(function() {
     fetch('/api/public/stats').then(function(r){ return r.json(); }).then(function(d){ setStats(d); }).catch(function(){});
@@ -68,9 +70,9 @@ export default function HomePage() {
           <span style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:900, color:'#fff' }}>SuperAd<span style={{ color:'#38bdf8' }}>Pro</span></span>
         </Link>
         <div className="hp-nav-links hp-nav" style={{ display:'flex', alignItems:'center', gap:24 }}>
-          <Link to="/explore" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>Explore</Link>
-          <Link to="/login" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>Sign In</Link>
-          <Link to="/register" style={{ padding:'10px 24px', borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', fontSize:13, fontWeight:800, textDecoration:'none', transition:'all 0.2s' }}>Join Free</Link>
+          <Link to="/explore" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>{t('home.explore')}</Link>
+          <Link to="/login" style={{ fontSize:14, fontWeight:600, color:'rgba(255,255,255,0.6)', textDecoration:'none', transition:'color 0.2s' }}>{t('home.signIn')}</Link>
+          <Link to="/register" style={{ padding:'10px 24px', borderRadius:10, background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', fontSize:13, fontWeight:800, textDecoration:'none', transition:'all 0.2s' }}>{t('home.joinFree').replace(' →','')}</Link>
         </div>
       </nav>
 
@@ -90,24 +92,21 @@ export default function HomePage() {
         <div className="hp-hero-content" style={{ position:'relative', zIndex:2, maxWidth:1200, margin:'0 auto', padding:'120px 48px 60px', width:'100%' }}>
           <div className="hp-f1" style={{ display:'inline-flex', alignItems:'center', gap:8, padding:'8px 20px', borderRadius:99, background:'rgba(0,0,0,0.3)', border:'1px solid rgba(255,255,255,0.1)', fontSize:12, fontWeight:700, color:'rgba(255,255,255,0.7)', marginBottom:32, letterSpacing:1, textTransform:'uppercase', backdropFilter:'blur(8px)' }}>
             <span style={{ width:6, height:6, borderRadius:'50%', background:'#10b981', animation:'hp-pulse 2s ease-in-out infinite' }}/>
-            The Creative Income Platform
+            {t('home.creativePlatform')}
           </div>
 
           <h1 className="hp-f2 hp-headline" style={{ fontFamily:"'Sora',sans-serif", fontSize:'clamp(42px,6.5vw,80px)', fontWeight:900, lineHeight:0.92, marginBottom:24, letterSpacing:-2, color:'#fff', maxWidth:600 }}>
-            Your Creativity<br/>
-            <span style={{ background:'linear-gradient(135deg,#0ea5e9,#38bdf8,#7dd3fc)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>Pays Here.</span>
+            {t('home.yourCreativity')}<br/>
+            <span style={{ background:'linear-gradient(135deg,#0ea5e9,#38bdf8,#7dd3fc)', WebkitBackgroundClip:'text', WebkitTextFillColor:'transparent' }}>{t('home.paysHere')}</span>
           </h1>
 
           <p className="hp-f3" style={{ fontSize:'clamp(15px,1.8vw,18px)', color:'rgba(255,255,255,0.6)', maxWidth:460, lineHeight:1.7, fontWeight:500, marginBottom:36 }}>
-            Create content. Share your link.<br/>
-            Earn from four income streams. AI-powered tools,<br/>
-            a generous affiliate programme, and a community<br/>
-            that grows together.
+            {t('home.heroDesc')}
           </p>
 
           <div className="hp-f4 hp-cta-row" style={{ display:'flex', gap:14, flexWrap:'wrap' }}>
-            <Link to="/register" className="hp-cta-p" style={{ padding:'18px 44px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:800, textDecoration:'none', border:'none', background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', boxShadow:'0 4px 24px rgba(14,165,233,0.25)', transition:'all 0.3s' }}>Join Free →</Link>
-            <Link to="/explore" className="hp-cta-s" style={{ padding:'18px 44px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:800, textDecoration:'none', border:'1px solid rgba(255,255,255,0.15)', background:'rgba(0,0,0,0.2)', color:'#fff', transition:'all 0.3s', backdropFilter:'blur(4px)' }}>Explore SuperAdPro</Link>
+            <Link to="/register" className="hp-cta-p" style={{ padding:'18px 44px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:800, textDecoration:'none', border:'none', background:'linear-gradient(135deg,#0ea5e9,#6366f1)', color:'#fff', boxShadow:'0 4px 24px rgba(14,165,233,0.25)', transition:'all 0.3s' }}>{t('home.joinFree')}</Link>
+            <Link to="/explore" className="hp-cta-s" style={{ padding:'18px 44px', borderRadius:14, fontFamily:"'Sora',sans-serif", fontSize:16, fontWeight:800, textDecoration:'none', border:'1px solid rgba(255,255,255,0.15)', background:'rgba(0,0,0,0.2)', color:'#fff', transition:'all 0.3s', backdropFilter:'blur(4px)' }}>{t('home.exploreSuperAdPro')}</Link>
           </div>
 
           <div className="hp-f5 hp-social" style={{ display:'flex', gap:10, marginTop:32 }}>
@@ -128,13 +127,13 @@ export default function HomePage() {
               <div style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 20px', borderRadius:14, background:'rgba(0,0,0,0.35)', border:'1px solid rgba(255,255,255,0.08)', backdropFilter:'blur(8px)' }}>
                 <span style={{ width:8, height:8, borderRadius:'50%', background:'#22c55e', animation:'hp-pulse 2s ease-in-out infinite', flexShrink:0 }}/>
                 <span style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:900, color:'#22c55e' }}>{stats.members.toLocaleString()}</span>
-                <span style={{ fontSize:13, color:'rgba(255,255,255,0.5)', fontWeight:600 }}>active members</span>
+                <span style={{ fontSize:13, color:'rgba(255,255,255,0.5)', fontWeight:600 }}>{t('home.activeMembers')}</span>
               </div>
             )}
             {[
-              { val: 'AI Creative Studio', color: '#38bdf8', label: 'Video, Images, Music & Voiceover' },
-              { val: 'Video Advertising', color: '#34d399', label: 'Campaign Tiers & Targeted Views' },
-              { val: 'Affiliate System', color: '#fbbf24', label: 'Earn From Every Referral' },
+              { val: t('home.aiCreativeStudio'), color: '#38bdf8', label: t('home.aiStudioDesc') },
+              { val: t('home.videoAdvertising'), color: '#34d399', label: t('home.videoAdDesc') },
+              { val: t('home.affiliateSystem'), color: '#fbbf24', label: t('home.affiliateDesc') },
             ].map(function(s, i) {
               return (
                 <div key={i} className="hp-stat" style={{ textAlign:'left' }}>
@@ -150,12 +149,12 @@ export default function HomePage() {
       {/* ═══ FOOTER ═══ */}
       <footer style={{ position:'relative', zIndex:1, padding:'40px 24px', borderTop:'1px solid rgba(255,255,255,0.04)' }}>
         <div style={{ display:'flex', justifyContent:'center', gap:20, marginBottom:14, flexWrap:'wrap' }}>
-          <Link to="/free/meme-generator" style={{ fontSize:12, color:'rgba(255,255,255,0.35)', textDecoration:'none' }}>Free Meme Generator</Link>
-          <Link to="/free/qr-code-generator" style={{ fontSize:12, color:'rgba(255,255,255,0.35)', textDecoration:'none' }}>Free QR Code Generator</Link>
-          <Link to="/free/banner-creator" style={{ fontSize:12, color:'rgba(255,255,255,0.35)', textDecoration:'none' }}>Free Banner Creator</Link>
+          <Link to="/free/meme-generator" style={{ fontSize:12, color:'rgba(255,255,255,0.35)', textDecoration:'none' }}>{t('home.freeMemeGen')}</Link>
+          <Link to="/free/qr-code-generator" style={{ fontSize:12, color:'rgba(255,255,255,0.35)', textDecoration:'none' }}>{t('home.freeQRGen')}</Link>
+          <Link to="/free/banner-creator" style={{ fontSize:12, color:'rgba(255,255,255,0.35)', textDecoration:'none' }}>{t('home.freeBannerCreator')}</Link>
         </div>
         <p style={{ fontSize:11, color:'rgba(255,255,255,0.15)', lineHeight:1.7, textAlign:'center' }}>
-          SuperAdPro · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>Terms</Link> · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>Privacy</Link> · <Link to="/support" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>Support</Link>
+          SuperAdPro · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>{t('home.terms')}</Link> · <Link to="/legal" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>{t('home.privacy')}</Link> · <Link to="/support" style={{ color:'rgba(255,255,255,0.2)', textDecoration:'none' }}>{t('home.support')}</Link>
         </p>
       </footer>
     </div>

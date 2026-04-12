@@ -1429,5 +1429,28 @@
     "twoFAEnabledDesc": "Votre compte est protégé par l'authentification à deux facteurs. Votre code d'authentification sera demandé à chaque connexion.",
     "backToAccount": "Retour au Compte",
     "enterAll6Setup": "Entrez les 6 chiffres."
+  },
+  "home": {
+    "creativePlatform": "La Plateforme Créative de Revenus",
+    "yourCreativity": "Votre Créativité",
+    "paysHere": "Paie Ici.",
+    "heroDesc": "Créez du contenu. Partagez votre lien. Gagnez depuis quatre sources de revenus. Outils IA, un programme d'affiliation généreux et une communauté qui grandit ensemble.",
+    "joinFree": "Rejoindre Gratuitement →",
+    "exploreSuperAdPro": "Explorer SuperAdPro",
+    "explore": "Explorer",
+    "signIn": "Se Connecter",
+    "activeMembers": "membres actifs",
+    "aiCreativeStudio": "Studio Créatif IA",
+    "aiStudioDesc": "Vidéo, Images, Musique et Voix",
+    "videoAdvertising": "Publicité Vidéo",
+    "videoAdDesc": "Niveaux de Campagne et Vues Ciblées",
+    "affiliateSystem": "Système d'Affiliation",
+    "affiliateDesc": "Gagnez sur Chaque Parrainage",
+    "freeMemeGen": "Générateur de Mèmes Gratuit",
+    "freeQRGen": "Générateur de Code QR Gratuit",
+    "freeBannerCreator": "Créateur de Bannières Gratuit",
+    "terms": "Conditions",
+    "privacy": "Confidentialité",
+    "support": "Support"
   }
 }

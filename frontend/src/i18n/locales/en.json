@@ -1463,5 +1463,28 @@
     "twoFAEnabledDesc": "Your account is now protected with two-factor authentication. You'll be asked for your authenticator code each time you log in.",
     "backToAccount": "Back to Account",
     "enterAll6Setup": "Enter all 6 digits."
+  },
+  "home": {
+    "creativePlatform": "The Creative Income Platform",
+    "yourCreativity": "Your Creativity",
+    "paysHere": "Pays Here.",
+    "heroDesc": "Create content. Share your link. Earn from four income streams. AI-powered tools, a generous affiliate programme, and a community that grows together.",
+    "joinFree": "Join Free →",
+    "exploreSuperAdPro": "Explore SuperAdPro",
+    "explore": "Explore",
+    "signIn": "Sign In",
+    "activeMembers": "active members",
+    "aiCreativeStudio": "AI Creative Studio",
+    "aiStudioDesc": "Video, Images, Music & Voiceover",
+    "videoAdvertising": "Video Advertising",
+    "videoAdDesc": "Campaign Tiers & Targeted Views",
+    "affiliateSystem": "Affiliate System",
+    "affiliateDesc": "Earn From Every Referral",
+    "freeMemeGen": "Free Meme Generator",
+    "freeQRGen": "Free QR Code Generator",
+    "freeBannerCreator": "Free Banner Creator",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "support": "Support"
   }
 }

@@ -1429,5 +1429,28 @@
     "twoFAEnabledDesc": "Tu cuenta está protegida con autenticación de dos factores. Se te pedirá el código de tu app cada vez que inicies sesión.",
     "backToAccount": "Volver a la Cuenta",
     "enterAll6Setup": "Ingresa los 6 dígitos."
+  },
+  "home": {
+    "creativePlatform": "La Plataforma Creativa de Ingresos",
+    "yourCreativity": "Tu Creatividad",
+    "paysHere": "Paga Aquí.",
+    "heroDesc": "Crea contenido. Comparte tu enlace. Gana desde cuatro fuentes de ingreso. Herramientas impulsadas por IA, un generoso programa de afiliados y una comunidad que crece junta.",
+    "joinFree": "Únete Gratis →",
+    "exploreSuperAdPro": "Explorar SuperAdPro",
+    "explore": "Explorar",
+    "signIn": "Iniciar Sesión",
+    "activeMembers": "miembros activos",
+    "aiCreativeStudio": "Estudio Creativo IA",
+    "aiStudioDesc": "Video, Imágenes, Música y Voz",
+    "videoAdvertising": "Publicidad en Video",
+    "videoAdDesc": "Niveles de Campaña y Vistas Dirigidas",
+    "affiliateSystem": "Sistema de Afiliados",
+    "affiliateDesc": "Gana por Cada Referido",
+    "freeMemeGen": "Generador de Memes Gratis",
+    "freeQRGen": "Generador de Código QR Gratis",
+    "freeBannerCreator": "Creador de Banners Gratis",
+    "terms": "Términos",
+    "privacy": "Privacidad",
+    "support": "Soporte"
   }
 }
