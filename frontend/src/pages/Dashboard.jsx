@@ -217,8 +217,9 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* 3 Income Streams */}
-      <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 20 }}>
+      {/* 4 Income Streams */}
+      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.yourIncomeStreams', { defaultValue: 'Your 4 Income Streams' })}</div>
+      <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
             color: 'var(--sap-green)', bg: 'var(--sap-green-bg-mid)', badge: t('dashboard.perReferral'),
@@ -230,18 +231,6 @@ export default function Dashboard() {
                 <path d="M2 21v-1a7 7 0 0 1 14 0v1" stroke="var(--sap-green)" strokeWidth="2" strokeLinecap="round"/>
                 <circle cx="19" cy="8" r="2.5" fill="#4ade80"/>
                 <path d="M22 21v-.5a4.5 4.5 0 0 0-6-4.24" stroke="#4ade80" strokeWidth="1.8" strokeLinecap="round"/>
-              </svg>
-            )
-          },
-          {
-            color: 'var(--sap-purple)', bg: 'var(--sap-purple-pale)', badge: t('dashboard.profitNexus'),
-            val: d.creative_studio_earned || 0, name: t('dashboard.creativeStudio'),
-            detail: t('dashboard.nexusCommissions'),
-            icon: (
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <rect x="2" y="3" width="20" height="14" rx="3" fill="var(--sap-purple)" opacity=".8"/>
-                <polygon points="10,7 10,14 16,10.5" fill="#fff"/>
-                <rect x="6" y="19" width="12" height="2" rx="1" fill="var(--sap-purple-light)"/>
               </svg>
             )
           },
@@ -262,21 +251,45 @@ export default function Dashboard() {
               </svg>
             )
           },
+          {
+            color: 'var(--sap-purple)', bg: 'var(--sap-purple-pale)', badge: t('dashboard.profitNexus'),
+            val: d.creative_studio_earned || 0, name: t('dashboard.creditNexus', { defaultValue: 'Credit Nexus' }),
+            detail: t('dashboard.nexusCommissions'),
+            icon: (
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <rect x="2" y="3" width="20" height="14" rx="3" fill="var(--sap-purple)" opacity=".8"/>
+                <polygon points="10,7 10,14 16,10.5" fill="#fff"/>
+                <rect x="6" y="19" width="12" height="2" rx="1" fill="var(--sap-purple-light)"/>
+              </svg>
+            )
+          },
+          {
+            color: 'var(--sap-accent)', bg: '#ecfeff', badge: t('dashboard.courseSales', { defaultValue: 'Pass-Up' }),
+            val: d.course_earnings || 0, name: t('dashboard.courseIncome', { defaultValue: 'Courses' }),
+            detail: t('dashboard.courseCommissions', { defaultValue: 'Course sales + pass-ups' }),
+            icon: (
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
+                <rect x="3" y="2" width="18" height="18" rx="3" fill="var(--sap-accent)" opacity=".8"/>
+                <path d="M8 7h8M8 11h6M8 15h4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"/>
+                <rect x="6" y="20" width="12" height="2" rx="1" fill="#7dd3fc"/>
+              </svg>
+            )
+          },
         ].map((s, i) => (
           <div key={i} className="stream-card" style={{
             background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 20,
             boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
             position: 'relative', overflow: 'hidden', transition: 'all 0.2s',
           }}>
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${s.color}, ${s.bg})`, borderRadius: '14px 14px 0 0' }} />
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: \`linear-gradient(90deg, \${s.color}, \${s.bg})\`, borderRadius: '14px 14px 0 0' }} />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
               <div style={{ width: 46, height: 46, borderRadius: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', background: s.bg }}>
                 {s.icon}
               </div>
               <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 9px', borderRadius: 20, letterSpacing: 0.3, background: s.bg, color: s.color }}>{s.badge}</span>
             </div>
-            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 34, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 6 }}>${formatMoney(s.val)}</div>
-            <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 3 }}>{s.name}</div>
+            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 6 }}>\${formatMoney(s.val)}</div>
+            <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 3 }}>{s.name}</div>
             <div style={{ fontSize: 12, color: 'var(--sap-text-muted)' }}>{s.detail}</div>
           </div>
         ))}
@@ -455,7 +468,7 @@ export default function Dashboard() {
               { val: d.personal_referrals || 0, lbl: t('dashboard.directReferrals') },
               { val: d.total_team || 0, lbl: t('dashboard.totalNetwork') },
               { val: `$${formatMoney(d.total_earned)}`, lbl: t('dashboard.lifetimeEarned') },
-              { val: `$${formatMoney(d.creative_studio_earned || 0)}`, lbl: t('dashboard.studioEarned') },
+              { val: `$${formatMoney(d.creative_studio_earned || 0)}`, lbl: t('dashboard.nexusEarned', { defaultValue: 'Nexus Earned' }) },
             ].map((s, i) => (
               <div key={i} style={{ background: 'var(--sap-bg-page)', borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
                 <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 24, fontWeight: 800, color: 'var(--sap-green)' }}>{s.val}</div>
