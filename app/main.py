@@ -2319,10 +2319,115 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
         ).scalar() or 0
         daily_watches.append({"date": str(d), "count": count})
 
+    # ── Network map — member countries ──
+    from sqlalchemy import distinct as _distinct
+    all_team_ids = [user.id]
+    # Get direct referrals
+    direct_refs = db.query(User.id).filter(User.sponsor_id == user.id).all()
+    all_team_ids.extend([r[0] for r in direct_refs])
+    # Get country distribution for the user's team
+    country_data = db.query(
+        User.country, func.count(User.id)
+    ).filter(
+        User.sponsor_id == user.id,
+        User.country != None,
+        User.country != ""
+    ).group_by(User.country).all()
+    network_countries = [{"code": c[0] or "??", "count": c[1]} for c in country_data]
+    # Add the user's own country
+    if user.country:
+        found = False
+        for nc in network_countries:
+            if nc["code"] == user.country:
+                nc["count"] += 1
+                found = True
+                break
+        if not found:
+            network_countries.append({"code": user.country, "count": 1})
+
+    # ── Link clicks summary ──
+    from datetime import date as _date_type
+    total_clicks = db.query(func.count(LinkClick.id)).filter(
+        LinkClick.link_type == "short_link",
+    ).join(ShortLink, ShortLink.id == LinkClick.link_id).filter(
+        ShortLink.user_id == user.id
+    ).scalar() or 0
+
+    # Clicks by device
+    device_clicks = db.query(
+        LinkClick.device, func.count(LinkClick.id)
+    ).join(ShortLink, ShortLink.id == LinkClick.link_id).filter(
+        ShortLink.user_id == user.id,
+        LinkClick.link_type == "short_link"
+    ).group_by(LinkClick.device).all()
+    device_breakdown = {(d[0] or "unknown").lower(): d[1] for d in device_clicks}
+
+    # Top countries by clicks
+    country_clicks = db.query(
+        LinkClick.country_name, func.count(LinkClick.id)
+    ).join(ShortLink, ShortLink.id == LinkClick.link_id).filter(
+        ShortLink.user_id == user.id,
+        LinkClick.link_type == "short_link",
+        LinkClick.country_name != None
+    ).group_by(LinkClick.country_name).order_by(func.count(LinkClick.id).desc()).limit(5).all()
+    top_click_countries = [{"country": c[0], "clicks": c[1]} for c in country_clicks]
+
+    # Clicks last 7 days
+    seven_days_ago = now - timedelta(days=7)
+    clicks_7d = db.query(func.count(LinkClick.id)).join(
+        ShortLink, ShortLink.id == LinkClick.link_id
+    ).filter(
+        ShortLink.user_id == user.id,
+        LinkClick.link_type == "short_link",
+        LinkClick.clicked_at >= seven_days_ago
+    ).scalar() or 0
+
+    link_stats = {
+        "total_clicks": total_clicks,
+        "clicks_7d": clicks_7d,
+        "devices": device_breakdown,
+        "top_countries": top_click_countries,
+    }
+
+    # ── Withdrawal summary ──
+    total_withdrawn = float(user.total_withdrawn or 0)
+    last_withdrawal = db.query(Withdrawal).filter(
+        Withdrawal.user_id == user.id,
+        Withdrawal.status == "completed"
+    ).order_by(Withdrawal.processed_at.desc()).first()
+    pending_withdrawals = db.query(func.coalesce(func.sum(Withdrawal.amount_usdt), 0)).filter(
+        Withdrawal.user_id == user.id,
+        Withdrawal.status == "pending"
+    ).scalar() or 0
+
+    withdrawal_stats = {
+        "total_withdrawn": round(total_withdrawn, 2),
+        "pending": round(float(pending_withdrawals), 2),
+        "last_date": last_withdrawal.processed_at.strftime("%b %d, %Y") if last_withdrawal and last_withdrawal.processed_at else None,
+        "last_amount": round(float(last_withdrawal.amount_usdt or 0), 2) if last_withdrawal else 0,
+    }
+
+    # ── AI tools usage ──
+    ai_quota = db.query(AIUsageQuota).filter(AIUsageQuota.user_id == user.id).first()
+    ai_usage = {
+        "campaign_studio": getattr(ai_quota, "campaign_studio_total", 0) or 0,
+        "social_posts": getattr(ai_quota, "social_posts_total", 0) or 0,
+        "video_scripts": getattr(ai_quota, "video_scripts_total", 0) or 0,
+        "niche_finder": getattr(ai_quota, "niche_finder_total", 0) or 0,
+        "total": (getattr(ai_quota, "campaign_studio_total", 0) or 0) +
+                 (getattr(ai_quota, "social_posts_total", 0) or 0) +
+                 (getattr(ai_quota, "video_scripts_total", 0) or 0) +
+                 (getattr(ai_quota, "niche_finder_total", 0) or 0),
+    }
+
     return {
         "daily_earnings": daily_earnings,
         "watch_stats": watch_stats,
         "daily_watches": daily_watches,
+        "network_countries": network_countries,
+        "link_stats": link_stats,
+        "withdrawal_stats": withdrawal_stats,
+        "ai_usage": ai_usage,
         "income_breakdown": {
             "grid": round(grid_total, 2),
             "membership": round(membership_total, 2),
