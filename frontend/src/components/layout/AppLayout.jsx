@@ -75,6 +75,10 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
           /* ── Generic grid overrides ── */
           *[class*="grid"] { max-width: 100% !important; }
 
+          /* ── Hide scrollbars globally (still scrollable) ── */
+          main::-webkit-scrollbar { display: none; }
+          main { scrollbar-width: none; -ms-overflow-style: none; }
+
           /* ── Table horizontal scroll ── */
           table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
           
