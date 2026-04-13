@@ -29,16 +29,16 @@ const PLATFORMS = [
 ];
 
 const GRADIENTS = [
-  { id: 'g1', from: '#1a0533', to: 'var(--sap-text-primary)', name: 'Midnight' },
-  { id: 'g2', from: 'var(--sap-accent)', to: 'var(--sap-indigo)', name: 'Ocean' },
-  { id: 'g3', from: 'var(--sap-amber)', to: 'var(--sap-red-bright)', name: 'Sunset' },
-  { id: 'g4', from: 'var(--sap-green-mid)', to: 'var(--sap-accent)', name: 'Teal' },
-  { id: 'g5', from: 'var(--sap-pink)', to: 'var(--sap-purple)', name: 'Pink' },
-  { id: 'g6', from: 'var(--sap-text-primary)', to: '#334155', name: 'Slate' },
-  { id: 'g7', from: 'var(--sap-text-primary)', to: '#1e3a5f', name: 'Navy' },
-  { id: 'g8', from: 'var(--sap-violet)', to: '#2563eb', name: 'Indigo' },
-  { id: 'g9', from: 'var(--sap-red)', to: '#f97316', name: 'Fire' },
-  { id: 'g10', from: '#ffffff', to: 'var(--sap-bg-page)', name: 'White' },
+  { id: 'g1', from: '#1a0533', to: '#0f172a', name: 'Midnight' },
+  { id: 'g2', from: '#0ea5e9', to: '#6366f1', name: 'Ocean' },
+  { id: 'g3', from: '#f59e0b', to: '#ef4444', name: 'Sunset' },
+  { id: 'g4', from: '#22c55e', to: '#0ea5e9', name: 'Teal' },
+  { id: 'g5', from: '#ec4899', to: '#8b5cf6', name: 'Pink' },
+  { id: 'g6', from: '#0f172a', to: '#334155', name: 'Slate' },
+  { id: 'g7', from: '#0f172a', to: '#1e3a5f', name: 'Navy' },
+  { id: 'g8', from: '#7c3aed', to: '#2563eb', name: 'Indigo' },
+  { id: 'g9', from: '#dc2626', to: '#f97316', name: 'Fire' },
+  { id: 'g10', from: '#ffffff', to: '#f0f3f9', name: 'White' },
 ];
 
 const FONTS = [
@@ -121,7 +121,7 @@ export default function BannerCreator() {
   const [catFilter, setCatFilter] = useState('banner');
   const [bgMode, setBgMode] = useState('gradient');
   const [gradient, setGradient] = useState(GRADIENTS[0]);
-  const [solidColor, setSolidColor] = useState('var(--sap-text-primary)');
+  const [solidColor, setSolidColor] = useState('#0f172a');
   const [bgImage, setBgImage] = useState(null);
   const [mainText, setMainText] = useState('YOUR HEADLINE HERE');
   const [mainSize, setMainSize] = useState(48);
