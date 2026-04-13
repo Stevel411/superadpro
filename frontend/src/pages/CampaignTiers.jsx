@@ -146,14 +146,14 @@ export default function CampaignTiers() {
         if (row.length === 0) return null;
         return (
           <div key={start} className="ct-grid" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:12 }}>
-            {row.map(function(t) {
-              var a = TIER_ACCENTS[t.tier] || TIER_ACCENTS[1];
-              var active = t.is_active;
-              var isPopular = t.tier === 3;
-              var isMax = t.tier === 8;
+            {row.map(function(tier) {
+              var a = TIER_ACCENTS[tier.tier] || TIER_ACCENTS[1];
+              var active = tier.is_active;
+              var isPopular = tier.tier === 3;
+              var isMax = tier.tier === 8;
 
               return (
-                <div key={t.tier} className="ct-card" onClick={function() { setSelected(t.tier); }}
+                <div key={tier.tier} className="ct-card" onClick={function() { setSelected(tier.tier); }}
                   style={{
                     background:a.cardGrad,
                     borderRadius:14, padding:20,
@@ -168,9 +168,9 @@ export default function CampaignTiers() {
                   {isPopular && <span style={{ position:'absolute', top:10, right:10, fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>{t('campaignTiers.popular')}</span>}
                   {isMax && <span style={{ position:'absolute', top:10, right:10, fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>{t('campaignTiers.max')}</span>}
 
-                  <div style={{ fontSize:15, fontWeight:800, color: a.darkText ? '#1f2937' : '#fff', position:'relative' }}>{t.name}</div>
-                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color: a.darkText ? '#1f2937' : '#fff', position:'relative' }}>${t.price.toLocaleString()}</div>
-                  <div style={{ fontSize:11, color: a.darkText ? 'rgba(0,0,0,.4)' : 'rgba(255,255,255,.6)', position:'relative' }}>{t.views_target.toLocaleString()} views</div>
+                  <div style={{ fontSize:15, fontWeight:800, color: a.darkText ? '#1f2937' : '#fff', position:'relative' }}>{tier.name}</div>
+                  <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color: a.darkText ? '#1f2937' : '#fff', position:'relative' }}>${tier.price.toLocaleString()}</div>
+                  <div style={{ fontSize:11, color: a.darkText ? 'rgba(0,0,0,.4)' : 'rgba(255,255,255,.6)', position:'relative' }}>{tier.views_target.toLocaleString()} views</div>
 
                   {active ? (
                     <div style={{ padding:9, borderRadius:8, background: a.darkText ? 'rgba(0,0,0,.06)' : 'rgba(255,255,255,.12)', border:'1px solid ' + (a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)'), marginTop:'auto', position:'relative' }}>
