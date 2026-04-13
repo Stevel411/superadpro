@@ -110,16 +110,19 @@ export default function AnalyticsPage(){
       {/* ═══ ROW 3: Network Map + Breakdown + Team Growth ═══ */}
       <div style={{display:'grid',gridTemplateColumns:'3fr 2fr',gap:12,marginBottom:12}}>
         <WC title="Network by Country" subtitle="Where your team members are based">
-          <div style={{borderRadius:10,overflow:'hidden'}}>
+          <div style={{borderRadius:10,overflow:'hidden',background:'#eef2ff',border:'1px solid #e2e8f0',padding:4}}>
             <WorldMap
               color="#2563eb"
               valueSuffix="members"
               size="responsive"
-              data={nc.map(function(c){return{country:c.code.toLowerCase(),value:c.count}})}
-              backgroundColor="#f8fafc"
-              strokeOpacity={0.3}
-              borderColor="#e2e8f0"
+              data={nc.length>0?nc.map(function(c){return{country:(c.code||'').toLowerCase(),value:c.count}}):[{country:"xx",value:0}]}
+              backgroundColor="transparent"
+              strokeOpacity={0.6}
+              borderColor="#94a3b8"
+              richInteraction
               tooltipTextFunction={function(ctx){return ctx.countryName+': '+ctx.countryValue+' member'+(ctx.countryValue!==1?'s':'')}}
+              frame
+              frameColor="#e2e8f0"
             />
           </div>
           {nc.length>0&&<div style={{display:'flex',gap:12,marginTop:12,flexWrap:'wrap'}}>
