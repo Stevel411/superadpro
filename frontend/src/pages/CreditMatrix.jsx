@@ -157,7 +157,7 @@ export function CreditMatrixContent() {
           {/* Credit Packs */}
           <div style={{ marginBottom: 20 }}>
             <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 12 }}>{t('creditMatrix.buyPacks')}</div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 10 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12 }}>
               {packs.map(function(pack) {
                 var icon = PACK_ICONS[pack.key] || PACK_ICONS.starter;
                 var isbuying = purchasing === pack.key;
