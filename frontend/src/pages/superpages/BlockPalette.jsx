@@ -203,7 +203,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
       <div style={{flex:1,overflowY:'auto',padding:12,minHeight:0}}>
         {PALETTE.map((cat, ci) => (
           <div key={ci}>
-            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'rgba(255,255,255,0.85)',padding:'6px 0 4px',...(ci===0?{paddingTop:0}:{})}}>{cat.label}</div>
+            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'rgba(255,255,255,0.85)',padding:'6px 0 4px',...(ci===0?{paddingTop:0}:{})}}>{t('superPagesEditor.cat'+cat.label)||cat.label}</div>
             <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:6,marginBottom:4}}>
               {cat.items.map((item, ii) => {
                 const Icon = BLOCK_ICONS[item.type] || Square;
@@ -226,7 +226,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                     <div style={{width:30,height:30,display:'flex',alignItems:'center',justifyContent:'center'}}>
                       <Icon size={22} color={item.color} strokeWidth={1.8} style={{filter:'drop-shadow(0 1px 3px rgba(0,0,0,0.3))'}}/>
                     </div>
-                    <span style={{fontSize:9,fontWeight:700,letterSpacing:0.4,textTransform:'uppercase',color:'rgba(255,255,255,0.85)'}}>{item.name}</span>
+                    <span style={{fontSize:9,fontWeight:700,letterSpacing:0.4,textTransform:'uppercase',color:'rgba(255,255,255,0.85)'}}>{t('superPagesEditor.blk'+(item.type==='form'?'OptIn':item.type==='announcement'?'Banner':item.type==='socialicons'?'Socials':item.type==='icontext'?'IconText':item.type==='faq'?'FAQ':item.type.charAt(0).toUpperCase()+item.type.slice(1)))||item.name}</span>
                   </div>
                 );
               })}
