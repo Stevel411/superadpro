@@ -2814,12 +2814,17 @@ def api_wallet_data(request: Request, user: User = Depends(get_current_user),
     }
 
 
-@app.get("/affiliate")
-def affiliate(request: Request):
-    """Serve React SPA."""
+@app.get("/social-share")
+def social_share(request: Request):
+    """Serve React SPA — Social Share page."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/affiliate")
+def affiliate(request: Request):
+    """Redirect old URL to new Social Share page."""
+    return RedirectResponse(url="/social-share", status_code=301)
 
 def _old_affiliate_DISABLED(request: Request, user: User = Depends(get_current_user),
               db: Session = Depends(get_db)):

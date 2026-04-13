@@ -48,7 +48,7 @@ function buildNav(t, isAdmin) {
     { type: 'divider' },
     { type: 'group', label: t('nav.incomeStreams'), key: 'income', icon: DollarSign, items: [
       { label: t('nav.compPlan'), icon: FileText, path: '/compensation-plan' },
-      { label: t('nav.membershipReferrals'), icon: Users, path: '/affiliate' },
+      { label: t('nav.socialShare'), icon: Users, path: '/social-share' },
       { label: t('nav.myGrid'), icon: Zap, path: '/grid-visualiser' },
       { label: t('nav.profitNexus'), icon: Layers, path: '/credit-nexus' },
       { label: t('nav.myNexus'), icon: Network, path: '/nexus-visualiser' },

@@ -151,7 +151,8 @@ function AppRoutes() {
       <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
       <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
       <Route path="/challenge" element={<ProtectedRoute><Challenge /></ProtectedRoute>} />
-      <Route path="/affiliate" element={<ProtectedRoute><Affiliate /></ProtectedRoute>} />
+      <Route path="/social-share" element={<ProtectedRoute><Affiliate /></ProtectedRoute>} />
+      <Route path="/affiliate" element={<Navigate to="/social-share" replace />} />
       <Route path="/campaign-tiers" element={<ProtectedRoute><CampaignTiers /></ProtectedRoute>} />
       <Route path="/activate/:tierId" element={<ProtectedRoute><ActivateTier /></ProtectedRoute>} />
       <Route path="/pay-it-forward" element={<ProtectedRoute><PayItForward /></ProtectedRoute>} />
