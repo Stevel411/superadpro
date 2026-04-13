@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "Kumpletuhin ang araw-araw na panonood para manatiling qualified. Kailangan ng {{required}} video ngayon.",
     "goalWatchNow": "Manood ngayon",
     "goalStartWatching": "Magsimulang manood para manatiling qualified",
-    "goalStartWatchingDesc": "Panoorin ang araw-araw na mga video para mapanatili ang karapatang mag-withdraw."
+    "goalStartWatchingDesc": "Panoorin ang araw-araw na mga video para mapanatili ang karapatang mag-withdraw.",
+    "yourIncomeStreams": "Iyong 4 na income streams",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "Mga Kurso",
+    "courseCommissions": "Course sales + pass-ups",
+    "nexusEarned": "Nexus na kinita"
   },
   "network": {
     "title": "Ang Network Ko",

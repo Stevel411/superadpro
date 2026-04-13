@@ -248,7 +248,13 @@
     "goalWatchNowDesc": "Complete your daily watch to stay qualified for campaign wallet withdrawals. You need {{required}} video(s) today.",
     "goalWatchNow": "Watch now",
     "goalStartWatching": "Start watching to stay qualified",
-    "goalStartWatchingDesc": "Watch your daily videos to maintain eligibility for campaign wallet withdrawals."
+    "goalStartWatchingDesc": "Watch your daily videos to maintain eligibility for campaign wallet withdrawals.",
+    "yourIncomeStreams": "Your 4 Income Streams",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "Courses",
+    "courseCommissions": "Course sales + pass-ups",
+    "nexusEarned": "Nexus Earned"
   },
   "network": {
     "title": "My Network & Earnings",

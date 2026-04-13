@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "Kamilisha kutazama kwa siku ili kudumisha sifa. Unahitaji video {{required}} leo.",
     "goalWatchNow": "Tazama sasa",
     "goalStartWatching": "Anza kutazama kudumisha sifa",
-    "goalStartWatchingDesc": "Tazama video za kila siku kudumisha haki ya kutoa pesa."
+    "goalStartWatchingDesc": "Tazama video za kila siku kudumisha haki ya kutoa pesa.",
+    "yourIncomeStreams": "Vyanzo vyako 4 vya mapato",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "Kozi",
+    "courseCommissions": "Mauzo ya kozi + kupitisha",
+    "nexusEarned": "Nexus iliyopatikana"
   },
   "network": {
     "title": "Mtandao Wangu",

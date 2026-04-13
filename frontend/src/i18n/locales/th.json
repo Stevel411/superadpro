@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "ดูรายวันให้ครบเพื่อรักษาสิทธิ์ วันนี้ต้องการ {{required}} วิดีโอ",
     "goalWatchNow": "ดูตอนนี้",
     "goalStartWatching": "เริ่มดูเพื่อรักษาสิทธิ์",
-    "goalStartWatchingDesc": "ดูวิดีโอรายวันเพื่อรักษาสิทธิ์การถอนเงินกระเป๋าแคมเปญ"
+    "goalStartWatchingDesc": "ดูวิดีโอรายวันเพื่อรักษาสิทธิ์การถอนเงินกระเป๋าแคมเปญ",
+    "yourIncomeStreams": "4 ช่องทางรายได้",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "คอร์ส",
+    "courseCommissions": "ขายคอร์ส + pass-up",
+    "nexusEarned": "Nexus ที่ได้รับ"
   },
   "network": {
     "title": "เครือข่ายของฉัน",

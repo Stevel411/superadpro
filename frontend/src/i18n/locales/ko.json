@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "출금 자격을 유지하려면 매일 시청을 완료하세요. 오늘 {{required}}개 필요합니다.",
     "goalWatchNow": "지금 보기",
     "goalStartWatching": "자격 유지를 위해 시청 시작",
-    "goalStartWatchingDesc": "캠페인 지갑 출금 자격 유지를 위해 매일 영상을 시청하세요."
+    "goalStartWatchingDesc": "캠페인 지갑 출금 자격 유지를 위해 매일 영상을 시청하세요.",
+    "yourIncomeStreams": "4가지 수익원",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "코스",
+    "courseCommissions": "코스 판매 + 패스업",
+    "nexusEarned": "Nexus 수익"
   },
   "network": {
     "title": "내 네트워크",

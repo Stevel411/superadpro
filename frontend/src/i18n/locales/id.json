@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "Selesaikan tontonan harian untuk tetap memenuhi syarat. Butuh {{required}} video hari ini.",
     "goalWatchNow": "Tonton sekarang",
     "goalStartWatching": "Mulai menonton untuk tetap memenuhi syarat",
-    "goalStartWatchingDesc": "Tonton video harian Anda untuk mempertahankan kelayakan penarikan dompet kampanye."
+    "goalStartWatchingDesc": "Tonton video harian Anda untuk mempertahankan kelayakan penarikan dompet kampanye.",
+    "yourIncomeStreams": "4 sumber pendapatan Anda",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "Kursus",
+    "courseCommissions": "Penjualan kursus + pass-up",
+    "nexusEarned": "Nexus diperoleh"
   },
   "network": {
     "title": "Jaringan Saya",

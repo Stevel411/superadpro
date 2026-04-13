@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "Ukończ codzienne oglądanie, aby zachować kwalifikację. Dziś potrzebujesz {{required}} filmów.",
     "goalWatchNow": "Oglądaj teraz",
     "goalStartWatching": "Zacznij oglądać, aby zachować kwalifikację",
-    "goalStartWatchingDesc": "Oglądaj codzienne filmy, aby zachować prawo do wypłat."
+    "goalStartWatchingDesc": "Oglądaj codzienne filmy, aby zachować prawo do wypłat.",
+    "yourIncomeStreams": "Twoje 4 źródła dochodu",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "Kursy",
+    "courseCommissions": "Sprzedaż kursów + pass-up",
+    "nexusEarned": "Nexus zarobione"
   },
   "network": {
     "title": "Moja Sieć",

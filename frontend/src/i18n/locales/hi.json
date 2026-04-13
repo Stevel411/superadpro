@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "निकासी योग्यता बनाए रखने के लिए दैनिक देखना पूरा करें। आपको आज {{required}} वीडियो चाहिए।",
     "goalWatchNow": "अभी देखें",
     "goalStartWatching": "योग्य बने रहने के लिए देखना शुरू करें",
-    "goalStartWatchingDesc": "कैंपेन वॉलेट निकासी योग्यता बनाए रखने के लिए अपने दैनिक वीडियो देखें।"
+    "goalStartWatchingDesc": "कैंपेन वॉलेट निकासी योग्यता बनाए रखने के लिए अपने दैनिक वीडियो देखें।",
+    "yourIncomeStreams": "आपके 4 आय स्रोत",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "कोर्स",
+    "courseCommissions": "कोर्स बिक्री + पास-अप",
+    "nexusEarned": "Nexus अर्जित"
   },
   "network": {
     "title": "मेरा नेटवर्क",

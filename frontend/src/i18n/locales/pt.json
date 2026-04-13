@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "Complete sua visualização diária para manter elegibilidade. Você precisa de {{required}} vídeo(s) hoje.",
     "goalWatchNow": "Assistir agora",
     "goalStartWatching": "Comece a assistir para se manter qualificado",
-    "goalStartWatchingDesc": "Assista seus vídeos diários para manter a elegibilidade de saques."
+    "goalStartWatchingDesc": "Assista seus vídeos diários para manter a elegibilidade de saques.",
+    "yourIncomeStreams": "Suas 4 fontes de renda",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "Cursos",
+    "courseCommissions": "Vendas de cursos + pass-ups",
+    "nexusEarned": "Nexus ganho"
   },
   "network": {
     "title": "Minha Rede",

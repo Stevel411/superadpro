@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "Vervollständigen Sie Ihr tägliches Ansehen. Sie benötigen {{required}} Video(s) heute.",
     "goalWatchNow": "Jetzt ansehen",
     "goalStartWatching": "Beginnen Sie mit dem Ansehen",
-    "goalStartWatchingDesc": "Sehen Sie Ihre täglichen Videos, um die Auszahlungsberechtigung aufrechtzuerhalten."
+    "goalStartWatchingDesc": "Sehen Sie Ihre täglichen Videos, um die Auszahlungsberechtigung aufrechtzuerhalten.",
+    "yourIncomeStreams": "Ihre 4 Einkommensquellen",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "Kurse",
+    "courseCommissions": "Kursverkäufe + Pass-Ups",
+    "nexusEarned": "Nexus verdient"
   },
   "network": {
     "title": "Mein Netzwerk",

@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "Niteliğinizi korumak için günlük izlemeyi tamamlayın. Bugün {{required}} video gerekli.",
     "goalWatchNow": "Şimdi izle",
     "goalStartWatching": "Nitelikli kalmak için izlemeye başlayın",
-    "goalStartWatchingDesc": "Çekim niteliğinizi korumak için günlük videolarınızı izleyin."
+    "goalStartWatchingDesc": "Çekim niteliğinizi korumak için günlük videolarınızı izleyin.",
+    "yourIncomeStreams": "4 gelir kaynağınız",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "Kurslar",
+    "courseCommissions": "Kurs satışları + pass-up",
+    "nexusEarned": "Nexus kazanılan"
   },
   "network": {
     "title": "Ağım",

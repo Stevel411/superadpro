@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "Hoàn thành xem hàng ngày để duy trì đủ điều kiện. Cần {{required}} video hôm nay.",
     "goalWatchNow": "Xem ngay",
     "goalStartWatching": "Bắt đầu xem để duy trì đủ điều kiện",
-    "goalStartWatchingDesc": "Xem video hàng ngày để duy trì quyền rút tiền ví chiến dịch."
+    "goalStartWatchingDesc": "Xem video hàng ngày để duy trì quyền rút tiền ví chiến dịch.",
+    "yourIncomeStreams": "4 nguồn thu nhập",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "Khóa học",
+    "courseCommissions": "Bán khóa học + pass-up",
+    "nexusEarned": "Nexus kiếm được"
   },
   "network": {
     "title": "Mạng lưới",

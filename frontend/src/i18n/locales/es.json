@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "Completa tu visualización diaria para mantener la elegibilidad de retiros. Necesitas {{required}} video(s) hoy.",
     "goalWatchNow": "Ver ahora",
     "goalStartWatching": "Comienza a ver para mantenerte calificado",
-    "goalStartWatchingDesc": "Ve tus videos diarios para mantener la elegibilidad de retiros de la cartera de campaña."
+    "goalStartWatchingDesc": "Ve tus videos diarios para mantener la elegibilidad de retiros de la cartera de campaña.",
+    "yourIncomeStreams": "Tus 4 fuentes de ingreso",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "Cursos",
+    "courseCommissions": "Ventas de cursos + pass-ups",
+    "nexusEarned": "Nexus ganado"
   },
   "network": {
     "title": "Mi Red y Ganancias",

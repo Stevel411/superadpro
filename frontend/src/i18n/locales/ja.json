@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "出金資格を維持するため毎日の視聴を完了してください。今日は{{required}}本必要です。",
     "goalWatchNow": "今すぐ見る",
     "goalStartWatching": "資格を維持するため視聴を開始",
-    "goalStartWatchingDesc": "キャンペーンウォレット出金資格を維持するため毎日のビデオを視聴してください。"
+    "goalStartWatchingDesc": "キャンペーンウォレット出金資格を維持するため毎日のビデオを視聴してください。",
+    "yourIncomeStreams": "4つの収入源",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "コース",
+    "courseCommissions": "コース販売 + パスアップ",
+    "nexusEarned": "Nexus収益"
   },
   "network": {
     "title": "マイネットワーク",

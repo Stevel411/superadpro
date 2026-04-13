@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "Completa la visione giornaliera per mantenere l'idoneità. Servono {{required}} video oggi.",
     "goalWatchNow": "Guarda ora",
     "goalStartWatching": "Inizia a guardare per restare qualificato",
-    "goalStartWatchingDesc": "Guarda i video giornalieri per mantenere l'idoneità ai prelievi."
+    "goalStartWatchingDesc": "Guarda i video giornalieri per mantenere l'idoneità ai prelievi.",
+    "yourIncomeStreams": "Le tue 4 fonti di reddito",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "Corsi",
+    "courseCommissions": "Vendite corsi + pass-up",
+    "nexusEarned": "Nexus guadagnato"
   },
   "network": {
     "title": "La Mia Rete",

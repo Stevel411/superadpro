@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "Voltooi je dagelijkse kijksessie om gekwalificeerd te blijven. Je hebt vandaag {{required}} video's nodig.",
     "goalWatchNow": "Nu bekijken",
     "goalStartWatching": "Begin met kijken om gekwalificeerd te blijven",
-    "goalStartWatchingDesc": "Bekijk je dagelijkse video's om opnamekwalificatie te behouden."
+    "goalStartWatchingDesc": "Bekijk je dagelijkse video's om opnamekwalificatie te behouden.",
+    "yourIncomeStreams": "Uw 4 inkomstenbronnen",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "Cursussen",
+    "courseCommissions": "Cursusverkopen + pass-ups",
+    "nexusEarned": "Nexus verdiend"
   },
   "network": {
     "title": "Mijn Netwerk",

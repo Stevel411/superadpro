@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "Завершите ежедневный просмотр для сохранения квалификации. Сегодня нужно {{required}} видео.",
     "goalWatchNow": "Смотреть сейчас",
     "goalStartWatching": "Начните просмотр для сохранения квалификации",
-    "goalStartWatchingDesc": "Смотрите ежедневные видео для сохранения права на вывод средств."
+    "goalStartWatchingDesc": "Смотрите ежедневные видео для сохранения права на вывод средств.",
+    "yourIncomeStreams": "Ваши 4 потока дохода",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "Курсы",
+    "courseCommissions": "Продажи курсов + pass-up",
+    "nexusEarned": "Nexus заработано"
   },
   "network": {
     "title": "Моя Сеть",

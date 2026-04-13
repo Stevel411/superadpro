@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "أكمل مشاهدتك اليومية للبقاء مؤهلاً. تحتاج {{required}} فيديو اليوم.",
     "goalWatchNow": "شاهد الآن",
     "goalStartWatching": "ابدأ المشاهدة للبقاء مؤهلاً",
-    "goalStartWatchingDesc": "شاهد فيديوهاتك اليومية للحفاظ على أهلية سحب محفظة الحملة."
+    "goalStartWatchingDesc": "شاهد فيديوهاتك اليومية للحفاظ على أهلية سحب محفظة الحملة.",
+    "yourIncomeStreams": "مصادر دخلك الأربعة",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "الدورات",
+    "courseCommissions": "مبيعات الدورات + تمريرات",
+    "nexusEarned": "أرباح Nexus"
   },
   "network": {
     "title": "شبكتي",

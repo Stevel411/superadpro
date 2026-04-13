@@ -277,7 +277,13 @@
     "goalWatchNowDesc": "完成每日观看以保持提现资格。今日需要{{required}}个视频。",
     "goalWatchNow": "立即观看",
     "goalStartWatching": "开始观看以保持资格",
-    "goalStartWatchingDesc": "观看每日视频以保持活动钱包提现资格。"
+    "goalStartWatchingDesc": "观看每日视频以保持活动钱包提现资格。",
+    "yourIncomeStreams": "您的4种收入来源",
+    "creditNexus": "Credit Nexus",
+    "courseSales": "Pass-Up",
+    "courseIncome": "课程",
+    "courseCommissions": "课程销售 + 传递",
+    "nexusEarned": "Nexus 收入"
   },
   "network": {
     "title": "我的网络",
