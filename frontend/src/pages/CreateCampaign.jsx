@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
+import { Video, Globe, BarChart3, Zap, ChevronRight } from 'lucide-react';
 
 export default function CreateCampaign() {
   var { t } = useTranslation();
@@ -14,6 +16,8 @@ export default function CreateCampaign() {
   var [result, setResult] = useState(null);
   var [error, setError] = useState(null);
   var [preview, setPreview] = useState(null);
+
+  useEffect(function() { window.scrollTo(0, 0); }, []);
 
   var categories = [
     { value: 'business', label: t('createCampaign.catBusiness') },
@@ -37,20 +41,13 @@ export default function CreateCampaign() {
     return null;
   }
 
-  function handleUrlChange(url) {
-    setVideoUrl(url);
-    var parsed = parseVideoUrl(url);
-    setPreview(parsed);
-  }
+  function handleUrlChange(url) { setVideoUrl(url); setPreview(parseVideoUrl(url)); }
 
   function handleSubmit() {
     if (!title.trim()) { setError(t('createCampaign.errTitle')); return; }
     if (!videoUrl.trim()) { setError(t('createCampaign.errUrl')); return; }
     if (!preview) { setError(t('createCampaign.errInvalidUrl')); return; }
-
-    setSubmitting(true);
-    setError(null);
-
+    setSubmitting(true); setError(null);
     var formData = new URLSearchParams();
     formData.append('title', title.trim());
     formData.append('video_url', videoUrl.trim());
@@ -58,115 +55,113 @@ export default function CreateCampaign() {
     formData.append('description', description.trim());
     formData.append('target_country', targetCountry.trim());
     formData.append('target_interests', targetInterests.trim());
-
-    fetch('/upload', {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: formData.toString(),
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(d) {
-      setSubmitting(false);
-      if (d.error) { setError(d.error); }
-      else { setResult(d); setTitle(''); setVideoUrl(''); setDescription(''); setPreview(null); }
-    })
-    .catch(function(e) { setSubmitting(false); setError(e.message); });
+    fetch('/upload', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: formData.toString() })
+      .then(function(r) { return r.json(); })
+      .then(function(d) { setSubmitting(false); if (d.error) { setError(d.error); } else { setResult(d); setTitle(''); setVideoUrl(''); setDescription(''); setPreview(null); } })
+      .catch(function(e) { setSubmitting(false); setError(e.message); });
   }
 
-  var S = {
-    page: { background: '#f0f3f9', minHeight: '100vh', fontFamily: "'DM Sans',sans-serif" },
-    header: { background: '#fff', borderBottom: '1px solid #e8ecf2', padding: '20px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' },
-    h1: { fontFamily: "'Sora',sans-serif", fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)', margin: 0 },
-    wrap: { maxWidth: 800, margin: '24px auto', padding: '0 24px' },
-    card: { background: '#fff', border: '1px solid #e8ecf2', borderRadius: 14, padding: 32 },
-    label: { display: 'block', fontSize: 13, fontWeight: 700, color: '#334155', marginBottom: 6, marginTop: 20 },
-    input: { width: '100%', padding: '12px 16px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 14, fontFamily: "'DM Sans',sans-serif", outline: 'none', transition: 'border 0.2s', background: 'var(--sap-bg-elevated)' },
-    select: { width: '100%', padding: '12px 16px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 14, fontFamily: "'DM Sans',sans-serif", outline: 'none', background: 'var(--sap-bg-elevated)', cursor: 'pointer' },
-    textarea: { width: '100%', padding: '12px 16px', borderRadius: 10, border: '1px solid #e2e8f0', fontSize: 14, fontFamily: "'DM Sans',sans-serif", outline: 'none', background: 'var(--sap-bg-elevated)', minHeight: 80, resize: 'vertical' },
-    btn: { display: 'inline-block', padding: '14px 40px', borderRadius: 12, fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 800, border: 'none', cursor: 'pointer', background: 'linear-gradient(135deg,#0ea5e9,#6366f1)', color: '#fff', boxShadow: '0 4px 20px rgba(14,165,233,0.2)', transition: 'all 0.3s', marginTop: 24 },
-    btnDisabled: { opacity: 0.6, cursor: 'not-allowed' },
-    error: { marginTop: 16, padding: '12px 16px', borderRadius: 10, background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)', color: 'var(--sap-red-bright)', fontSize: 14, fontWeight: 600 },
-    success: { marginTop: 16, padding: '16px 20px', borderRadius: 10, background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.15)', color: 'var(--sap-green-mid)', fontSize: 14, fontWeight: 600 },
-  };
+  var inputStyle = { width:'100%', padding:'12px 16px', borderRadius:12, border:'1.5px solid #e2e8f0', fontSize:14, fontFamily:'inherit', outline:'none', background:'#f8fafc', boxSizing:'border-box', transition:'border-color 0.2s', color:'#0f172a' };
+  var labelStyle = { display:'block', fontSize:12, fontWeight:700, color:'#475569', marginBottom:6, marginTop:18, textTransform:'uppercase', letterSpacing:0.5 };
 
   return (
     <AppLayout title={t("createCampaign.title")} subtitle={t("createCampaign.subtitle")}>
-      <div style={{ maxWidth: 720, margin: '0 auto' }}>
 
-      <div style={S.wrap}>
-        <div style={S.card}>
-          <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>{t('createCampaign.campaignDetails')}</div>
-          <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', marginBottom: 8 }}>{t('createCampaign.campaignDetailsDesc')}</div>
-
-          <label style={S.label}>{t('createCampaign.campaignTitle')}</label>
-          <input style={S.input} value={title} onChange={function(e) { setTitle(e.target.value); }} placeholder={t("createCampaign.campaignTitlePlaceholder")} maxLength={120} />
-
-          <label style={S.label}>{t('createCampaign.videoUrl')}</label>
-          <input style={S.input} value={videoUrl} onChange={function(e) { handleUrlChange(e.target.value); }} placeholder={t("createCampaign.videoUrlPlaceholder")} />
-          {videoUrl && !preview && <div style={{ fontSize: 12, color: 'var(--sap-red-bright)', marginTop: 6 }}>{t('createCampaign.unsupportedUrl')}</div>}
-
-          {/* Video preview */}
-          {preview && (
-            <div style={{ marginTop: 16, borderRadius: 12, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#000' }}>
-              <iframe src={preview.embed} style={{ width: '100%', height: 340, border: 'none' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title={t('createCampaign.previewLabel')} />
-              <div style={{ padding: '10px 16px', background: 'var(--sap-bg-elevated)', display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ display: 'inline-block', padding: '3px 10px', borderRadius: 6, fontSize: 10, fontWeight: 800, textTransform: 'uppercase', background: preview.platform === 'youtube' ? 'rgba(239,68,68,0.08)' : 'rgba(14,165,233,0.08)', color: preview.platform === 'youtube' ? 'var(--sap-red-bright)' : 'var(--sap-accent)' }}>{preview.platform}</span>
-                <span style={{ fontSize: 12, color: 'var(--sap-text-muted)' }}>ID: {preview.id}</span>
-              </div>
-            </div>
-          )}
-
-          <label style={S.label}>{t('createCampaign.category')}</label>
-          <select style={S.select} value={category} onChange={function(e) { setCategory(e.target.value); }}>
-            {categories.map(function(c) { return <option key={c.value} value={c.value}>{c.label}</option>; })}
-          </select>
-
-          <label style={S.label}>{t('createCampaign.description')}</label>
-          <textarea style={S.textarea} value={description} onChange={function(e) { setDescription(e.target.value); }} placeholder={t("createCampaign.descPlaceholder")} maxLength={500} />
-
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-            <div>
-              <label style={S.label}>{t('createCampaign.targetCountry')}</label>
-              <input style={S.input} value={targetCountry} onChange={function(e) { setTargetCountry(e.target.value); }} placeholder={t("createCampaign.targetCountryPlaceholder")} maxLength={200} />
-            </div>
-            <div>
-              <label style={S.label}>{t('createCampaign.targetInterests')}</label>
-              <input style={S.input} value={targetInterests} onChange={function(e) { setTargetInterests(e.target.value); }} placeholder={t("createCampaign.targetInterestsPlaceholder")} maxLength={200} />
-            </div>
+      {/* Hero */}
+      <div style={{ background:'linear-gradient(135deg,#0f172a,#1e3a8a,#4338ca)', borderRadius:18, padding:'32px 36px', marginBottom:20, position:'relative', overflow:'hidden' }}>
+        <div style={{position:'absolute',top:-50,right:-50,width:180,height:180,borderRadius:'50%',background:'rgba(99,102,241,0.1)',pointerEvents:'none'}}/>
+        <div style={{position:'absolute',bottom:-30,left:-30,width:120,height:120,borderRadius:'50%',background:'rgba(14,165,233,0.08)',pointerEvents:'none'}}/>
+        <div style={{ display:'flex', alignItems:'center', gap:16 }}>
+          <div style={{ width:56, height:56, borderRadius:16, background:'rgba(255,255,255,0.1)', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+            <Video size={28} color="#38bdf8"/>
           </div>
-
-          {error && <div style={S.error}>{error}</div>}
-          {result && <div style={S.success}>{t('createCampaign.successCreated')} {result.status === 'pending' ? t('createCampaign.pendingReview') : t('createCampaign.nowLive')} <a href="/video-library" style={{ color: 'var(--sap-green-mid)', fontWeight: 800 }}>{t('createCampaign.viewMyCampaigns')}</a></div>}
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginTop: 24 }}>
-            <button style={{ ...S.btn, ...(submitting ? S.btnDisabled : {}) }} onClick={handleSubmit} disabled={submitting}>
-              {submitting ? t('createCampaign.creating') : t('createCampaign.launchCampaign')}
-            </button>
-            <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>{t('createCampaign.tierNote')}</div>
-          </div>
-        </div>
-
-        {/* Info cards */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginTop: 20 }}>
-          <div style={{ background: '#fff', border: '1px solid #e8ecf2', borderRadius: 14, padding: 20 }}>
-            <div style={{ fontSize: 24, marginBottom: 8 }}>🎬</div>
-            <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>{t('createCampaign.pasteAndGo')}</div>
-            <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', lineHeight: 1.5 }}>{t('createCampaign.pasteAndGoDesc')}</div>
-          </div>
-          <div style={{ background: '#fff', border: '1px solid #e8ecf2', borderRadius: 14, padding: 20 }}>
-            <div style={{ fontSize: 24, marginBottom: 8 }}>👁️</div>
-            <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>{t('createCampaign.realViews')}</div>
-            <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', lineHeight: 1.5 }}>{t('createCampaign.realViewsDesc')}</div>
-          </div>
-          <div style={{ background: '#fff', border: '1px solid #e8ecf2', borderRadius: 14, padding: 20 }}>
-            <div style={{ fontSize: 24, marginBottom: 8 }}>📊</div>
-            <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 4 }}>{t('createCampaign.liveAnalytics')}</div>
-            <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', lineHeight: 1.5 }}>{t('createCampaign.liveAnalyticsDesc')}</div>
+          <div>
+            <div style={{ fontFamily:"'Sora',sans-serif", fontSize:22, fontWeight:800, color:'#fff' }}>{t('createCampaign.campaignDetails')}</div>
+            <div style={{ fontSize:14, color:'rgba(255,255,255,0.5)', marginTop:4 }}>{t('createCampaign.campaignDetailsDesc')}</div>
           </div>
         </div>
       </div>
+
+      {/* 3 info cards */}
+      <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:20 }}>
+        {[
+          { Icon:Video, title:t('createCampaign.pasteAndGo'), desc:t('createCampaign.pasteAndGoDesc'), gradient:'linear-gradient(135deg,#0f766e,#14b8a6)' },
+          { Icon:Globe, title:t('createCampaign.realViews'), desc:t('createCampaign.realViewsDesc'), gradient:'linear-gradient(135deg,#1e40af,#3b82f6)' },
+          { Icon:BarChart3, title:t('createCampaign.liveAnalytics'), desc:t('createCampaign.liveAnalyticsDesc'), gradient:'linear-gradient(135deg,#6d28d9,#a78bfa)' },
+        ].map(function(card, i) {
+          return <div key={i} style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:'20px', position:'relative', overflow:'hidden' }}>
+            <div style={{ width:40, height:40, borderRadius:12, background:card.gradient, display:'flex', alignItems:'center', justifyContent:'center', marginBottom:12 }}>
+              <card.Icon size={20} color="#fff"/>
+            </div>
+            <div style={{ fontFamily:"'Sora',sans-serif", fontSize:14, fontWeight:800, color:'#0f172a', marginBottom:4 }}>{card.title}</div>
+            <div style={{ fontSize:13, color:'#64748b', lineHeight:1.6 }}>{card.desc}</div>
+          </div>;
+        })}
       </div>
+
+      {/* Form */}
+      <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:16, padding:'28px 32px', marginBottom:20 }}>
+
+        <label style={labelStyle}>{t('createCampaign.campaignTitle')}</label>
+        <input style={inputStyle} value={title} onChange={function(e){setTitle(e.target.value);}} placeholder={t("createCampaign.campaignTitlePlaceholder")} maxLength={120}
+          onFocus={function(e){e.target.style.borderColor='#0ea5e9';}} onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+
+        <label style={labelStyle}>{t('createCampaign.videoUrl')}</label>
+        <input style={inputStyle} value={videoUrl} onChange={function(e){handleUrlChange(e.target.value);}} placeholder={t("createCampaign.videoUrlPlaceholder")}
+          onFocus={function(e){e.target.style.borderColor='#0ea5e9';}} onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+        {videoUrl && !preview && <div style={{ fontSize:12, color:'#ef4444', marginTop:6, fontWeight:600 }}>{t('createCampaign.unsupportedUrl')}</div>}
+
+        {/* Video preview */}
+        {preview && (
+          <div style={{ marginTop:16, borderRadius:14, overflow:'hidden', border:'1px solid #e2e8f0' }}>
+            <iframe src={preview.embed} style={{ width:'100%', height:360, border:'none', background:'#000' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title={t('createCampaign.previewLabel')}/>
+            <div style={{ padding:'10px 16px', background:'#f8fafc', display:'flex', alignItems:'center', gap:8, borderTop:'1px solid #e2e8f0' }}>
+              <span style={{ padding:'3px 10px', borderRadius:6, fontSize:10, fontWeight:800, textTransform:'uppercase',
+                background:preview.platform==='youtube'?'rgba(239,68,68,0.08)':'rgba(14,165,233,0.08)',
+                color:preview.platform==='youtube'?'#ef4444':'#0ea5e9' }}>{preview.platform}</span>
+              <span style={{ fontSize:12, color:'#94a3b8' }}>ID: {preview.id}</span>
+            </div>
+          </div>
+        )}
+
+        <label style={labelStyle}>{t('createCampaign.category')}</label>
+        <select style={{...inputStyle, cursor:'pointer'}} value={category} onChange={function(e){setCategory(e.target.value);}}>
+          {categories.map(function(c) { return <option key={c.value} value={c.value}>{c.label}</option>; })}
+        </select>
+
+        <label style={labelStyle}>{t('createCampaign.description')}</label>
+        <textarea style={{...inputStyle, minHeight:90, resize:'vertical'}} value={description} onChange={function(e){setDescription(e.target.value);}} placeholder={t("createCampaign.descPlaceholder")} maxLength={500}
+          onFocus={function(e){e.target.style.borderColor='#0ea5e9';}} onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+
+        <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16 }}>
+          <div>
+            <label style={labelStyle}>{t('createCampaign.targetCountry')}</label>
+            <input style={inputStyle} value={targetCountry} onChange={function(e){setTargetCountry(e.target.value);}} placeholder={t("createCampaign.targetCountryPlaceholder")} maxLength={200}
+              onFocus={function(e){e.target.style.borderColor='#0ea5e9';}} onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+          </div>
+          <div>
+            <label style={labelStyle}>{t('createCampaign.targetInterests')}</label>
+            <input style={inputStyle} value={targetInterests} onChange={function(e){setTargetInterests(e.target.value);}} placeholder={t("createCampaign.targetInterestsPlaceholder")} maxLength={200}
+              onFocus={function(e){e.target.style.borderColor='#0ea5e9';}} onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+          </div>
+        </div>
+
+        {error && <div style={{ marginTop:16, padding:'12px 16px', borderRadius:10, background:'rgba(239,68,68,0.06)', border:'1px solid rgba(239,68,68,0.15)', color:'#ef4444', fontSize:14, fontWeight:600 }}>{error}</div>}
+        {result && <div style={{ marginTop:16, padding:'16px 20px', borderRadius:10, background:'rgba(34,197,94,0.06)', border:'1px solid rgba(34,197,94,0.15)', color:'#15803d', fontSize:14, fontWeight:600 }}>
+          {t('createCampaign.successCreated')} {result.status === 'pending' ? t('createCampaign.pendingReview') : t('createCampaign.nowLive')}
+          <Link to="/video-library" style={{ color:'#15803d', fontWeight:800, marginLeft:8 }}>{t('createCampaign.viewMyCampaigns')} <ChevronRight size={14} style={{verticalAlign:'middle'}}/></Link>
+        </div>}
+
+        <div style={{ display:'flex', alignItems:'center', gap:16, marginTop:24 }}>
+          <button onClick={handleSubmit} disabled={submitting}
+            style={{ padding:'14px 36px', borderRadius:12, fontFamily:"'Sora',sans-serif", fontSize:15, fontWeight:800, border:'none', cursor:submitting?'not-allowed':'pointer',
+              background:submitting?'#94a3b8':'linear-gradient(135deg,#0ea5e9,#3b82f6)', color:'#fff', opacity:submitting?0.6:1, transition:'all 0.2s' }}>
+            {submitting ? t('createCampaign.creating') : t('createCampaign.launchCampaign')}
+          </button>
+          <div style={{ fontSize:13, color:'#94a3b8' }}>{t('createCampaign.tierNote')}</div>
+        </div>
+      </div>
+
     </AppLayout>
   );
 }
