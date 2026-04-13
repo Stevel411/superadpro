@@ -150,27 +150,35 @@ export default function AnalyticsPage() {
           <Card title={t('campaignAnalytics.earningsByStream')} subtitle={t('campaignAnalytics.earningsByStreamDesc')}><div style={{height:280}}><canvas ref={streamRef}/></div></Card>
         </div>
 
-        {/* Row 4: Watch to Earn */}
-        {data.watch_stats && <div style={{display:'grid',gridTemplateColumns:'1fr 2fr',gap:16,marginBottom:16}}>
-          <Card title="Watch to Earn" subtitle="Your daily watch activity">
-            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginTop:4}}>
-              {[
-                {label:'Total Watched',value:String(data.watch_stats.total_watched),color:'#8b5cf6',icon:'🎬'},
-                {label:'Watch Streak',value:data.watch_stats.streak_days+' days',color:'#f59e0b',icon:'🔥'},
-                {label:'Today',value:data.watch_stats.today_watched+'/'+data.watch_stats.daily_required,color:data.watch_stats.today_watched>=data.watch_stats.daily_required?'#10b981':'#94a3b8',icon:'📺'},
-                {label:'Status',value:data.watch_stats.commissions_paused?'Paused':'Active',color:data.watch_stats.commissions_paused?'#ef4444':'#10b981',icon:data.watch_stats.commissions_paused?'⏸️':'✅'},
-              ].map(function(s,i){return <div key={i} style={{background:'#f8fafc',borderRadius:12,padding:'14px 16px',border:'1px solid #f1f5f9'}}>
-                <div style={{fontSize:20,marginBottom:6}}>{s.icon}</div>
-                <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1.2,marginBottom:4}}>{s.label}</div>
-                <div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:900,color:s.color}}>{s.value}</div>
-              </div>})}
-            </div>
-            {data.watch_stats.consecutive_missed>0 && <div style={{marginTop:14,padding:'10px 14px',borderRadius:10,background:'#fef2f2',border:'1px solid #fecaca',fontSize:12,fontWeight:600,color:'#dc2626'}}>⚠️ {data.watch_stats.consecutive_missed} day{data.watch_stats.consecutive_missed>1?'s':''} missed — {data.watch_stats.commissions_paused?'campaign withdrawals paused':'watch today to keep your streak'}</div>}
-          </Card>
-          <Card title="Daily Watch History" subtitle="Videos watched per day — last 30 days">
-            <div style={{height:240}}><canvas ref={watchRef}/></div>
-          </Card>
-        </div>}
+        {/* Campaign Qualification — Watch Accountability (NOT an income stream) */}
+        {data.watch_stats && <>
+          <div style={{marginTop:8,marginBottom:16}}>
+            <div style={{fontFamily:"'Sora','Rethink Sans',sans-serif",fontSize:18,fontWeight:800,color:'#0f172a'}}>Campaign Qualification</div>
+            <div style={{fontSize:13,color:'#94a3b8',marginTop:2}}>Your daily watch requirement to qualify for Campaign Wallet withdrawals. This is not an income stream — it is your accountability check-in.</div>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'1fr 2fr',gap:16,marginBottom:16}}>
+            <Card title="Watch Status" subtitle="Daily video quota compliance">
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginTop:4}}>
+                {[
+                  {label:'Lifetime Views',value:String(data.watch_stats.total_watched),color:'#8b5cf6',icon:'🎬'},
+                  {label:'Streak',value:data.watch_stats.streak_days+' days',color:'#f59e0b',icon:'🔥'},
+                  {label:"Today's Quota",value:data.watch_stats.today_watched+' / '+data.watch_stats.daily_required,color:data.watch_stats.today_watched>=data.watch_stats.daily_required?'#10b981':'#94a3b8',icon:'📺'},
+                  {label:'Withdrawal Status',value:data.watch_stats.commissions_paused?'Paused':'Qualified',color:data.watch_stats.commissions_paused?'#ef4444':'#10b981',icon:data.watch_stats.commissions_paused?'⏸️':'✅'},
+                ].map(function(s,i){return <div key={i} style={{background:'#f8fafc',borderRadius:12,padding:'14px 16px',border:'1px solid #f1f5f9'}}>
+                  <div style={{fontSize:20,marginBottom:6}}>{s.icon}</div>
+                  <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1.2,marginBottom:4}}>{s.label}</div>
+                  <div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:900,color:s.color}}>{s.value}</div>
+                </div>})}
+              </div>
+              {data.watch_stats.commissions_paused && <div style={{marginTop:14,padding:'12px 14px',borderRadius:10,background:'#fef2f2',border:'1px solid #fecaca',fontSize:12,fontWeight:600,color:'#dc2626'}}>⚠️ Campaign Wallet withdrawals paused — resume daily watching to requalify</div>}
+              {!data.watch_stats.commissions_paused && data.watch_stats.consecutive_missed>0 && <div style={{marginTop:14,padding:'12px 14px',borderRadius:10,background:'#fffbeb',border:'1px solid #fde68a',fontSize:12,fontWeight:600,color:'#b45309'}}>⚠️ {data.watch_stats.consecutive_missed} day{data.watch_stats.consecutive_missed>1?'s':''} missed — watch today to maintain qualification</div>}
+              {!data.watch_stats.commissions_paused && data.watch_stats.consecutive_missed===0 && data.watch_stats.today_watched>=data.watch_stats.daily_required && <div style={{marginTop:14,padding:'12px 14px',borderRadius:10,background:'#f0fdf4',border:'1px solid #bbf7d0',fontSize:12,fontWeight:600,color:'#15803d'}}>✅ Quota met today — Campaign Wallet withdrawals qualified</div>}
+            </Card>
+            <Card title="Daily Watch Log" subtitle="Videos watched per day — last 30 days">
+              <div style={{height:240}}><canvas ref={watchRef}/></div>
+            </Card>
+          </div>
+        </>}
 
         {/* Commission table */}
         <Card title={t('campaignAnalytics.recentCommissions')}>
