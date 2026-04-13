@@ -115,14 +115,21 @@ export default function AnalyticsPage(){
               color="#2563eb"
               valueSuffix="members"
               size="responsive"
-              data={nc.length>0?nc.map(function(c){return{country:(c.code||'').toLowerCase(),value:c.count}}):[{country:"xx",value:0}]}
+              data={nc.length>0?nc.map(function(c){return{country:(c.code||'').toLowerCase(),value:c.count}}):[]}
               backgroundColor="transparent"
-              strokeOpacity={0.6}
-              borderColor="#94a3b8"
               richInteraction
               tooltipTextFunction={function(ctx){return ctx.countryName+': '+ctx.countryValue+' member'+(ctx.countryValue!==1?'s':'')}}
-              frame
-              frameColor="#e2e8f0"
+              styleFunction={function(ctx){
+                var hasValue=ctx.countryValue!==undefined&&ctx.countryValue>0;
+                return{
+                  fill:hasValue?'#2563eb':'#cbd5e1',
+                  fillOpacity:hasValue?0.85:0.35,
+                  stroke:'#94a3b8',
+                  strokeWidth:hasValue?1.5:0.5,
+                  strokeOpacity:hasValue?0.8:0.4,
+                  cursor:hasValue?'pointer':'default',
+                };
+              }}
             />
           </div>
           {nc.length>0&&<div style={{display:'flex',gap:12,marginTop:12,flexWrap:'wrap'}}>
