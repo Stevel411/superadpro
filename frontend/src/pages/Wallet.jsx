@@ -17,6 +17,8 @@ export default function Wallet() {
   const [p2pSending, setP2pSending] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
 
+  useEffect(() => { window.scrollTo(0, 0); }, []);
+
   useEffect(() => {
     apiGet('/api/wallet').then(d => { setData(d); setLoading(false); }).catch(() => setLoading(false));
   }, []);
@@ -87,7 +89,7 @@ export default function Wallet() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
           <EarningsCard icon="👥" label={t("wallet.membership")} value={d.total_earned - (d.grid_earnings || 0) - (d.course_earnings || 0) - (d.marketplace_earnings || 0) - (d.superscene_earnings || 0)} color="var(--sap-green-bright)" />
           <EarningsCard icon="⚡" label={t("wallet.incomeGrid")} value={d.grid_earnings || 0} color="var(--sap-accent)" />
-          <EarningsCard icon="🎬" label={t("wallet.creativeStudio")} value={d.superscene_earnings || 0} color="var(--sap-pink)" desc={t("wallet.earnedFromReferralCredits")} />
+          <EarningsCard icon="🎬" label={t("wallet.creditNexus", { defaultValue: 'Credit Nexus' })} value={d.superscene_earnings || 0} color="var(--sap-pink)" desc={t("wallet.earnedFromReferralCredits")} />
           <EarningsCard icon="📚" label={t("wallet.coursesMarket")} value={(d.course_earnings || 0) + (d.marketplace_earnings || 0)} color="var(--sap-amber)" />
         </div>
       )}
@@ -362,13 +364,13 @@ function Card({ title, dotColor, badge, headerRight, flex, children }) {
 function StatPill({ value, label, gradient }) {
   return (
     <div style={{
-      background: '#fff', border: '1px solid rgba(15,25,60,.08)', borderRadius: 8, padding: 20, textAlign: 'center',
-      boxShadow: '0 2px 8px rgba(0,0,0,0.16), 0 8px 24px rgba(0,0,0,0.12)',
-      position: 'relative', overflow: 'hidden', transition: 'box-shadow .2s, transform .15s',
+      background: gradient, borderRadius: 14, padding: '18px 20px', textAlign: 'center',
+      position: 'relative', overflow: 'hidden',
     }}>
-      <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: gradient }} />
-      <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 32, fontWeight: 800, letterSpacing: -0.5, lineHeight: 1, marginBottom: 6, color: 'var(--sap-green)' }}>{value}</div>
-      <div style={{ fontSize: 11, fontWeight: 800, color: '#7b91a8', textTransform: 'uppercase', letterSpacing: 1.5, marginTop: 6 }}>{label}</div>
+      <div style={{position:'absolute',top:-20,right:-20,width:60,height:60,borderRadius:'50%',background:'rgba(255,255,255,0.1)',pointerEvents:'none'}}/>
+      <div style={{position:'absolute',bottom:-15,left:-15,width:45,height:45,borderRadius:'50%',background:'rgba(255,255,255,0.06)',pointerEvents:'none'}}/>
+      <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>{label}</div>
+      <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 900, letterSpacing: -0.5, lineHeight: 1, color: '#fff' }}>{value}</div>
     </div>
   );
 }

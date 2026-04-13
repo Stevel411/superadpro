@@ -181,7 +181,8 @@
     "socialPostGenDesc": "ИИ-контент для соцсетей",
     "videoScriptGen": "Генератор видеосценариев",
     "videoScriptGenDesc": "ИИ-видеосценарии",
-    "emailSwipesDesc": "ИИ-генератор email-текстов"
+    "emailSwipesDesc": "ИИ-генератор email-текстов",
+    "teamMessenger": "Командный мессенджер"
   },
   "dashboard": {
     "title": "Панель управления",

@@ -181,7 +181,8 @@
     "socialPostGenDesc": "Konten media sosial AI",
     "videoScriptGen": "Generator Skrip Video",
     "videoScriptGenDesc": "Skrip video AI",
-    "emailSwipesDesc": "Generator salinan email AI"
+    "emailSwipesDesc": "Generator salinan email AI",
+    "teamMessenger": "Pesan Tim"
   },
   "dashboard": {
     "title": "Dasbor",

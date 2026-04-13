@@ -181,7 +181,8 @@
     "socialPostGenDesc": "Nội dung mạng xã hội AI",
     "videoScriptGen": "Trình tạo kịch bản video",
     "videoScriptGenDesc": "Kịch bản video AI",
-    "emailSwipesDesc": "Trình tạo nội dung email AI"
+    "emailSwipesDesc": "Trình tạo nội dung email AI",
+    "teamMessenger": "Nhắn tin nhóm"
   },
   "dashboard": {
     "title": "Bảng điều khiển",

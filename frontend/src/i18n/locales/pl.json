@@ -181,7 +181,8 @@
     "socialPostGenDesc": "Treści AI do mediów społecznościowych",
     "videoScriptGen": "Generator scenariuszy wideo",
     "videoScriptGenDesc": "Scenariusze wideo AI",
-    "emailSwipesDesc": "Generator tekstów e-mail AI"
+    "emailSwipesDesc": "Generator tekstów e-mail AI",
+    "teamMessenger": "Komunikator zespołu"
   },
   "dashboard": {
     "title": "Panel",

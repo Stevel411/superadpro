@@ -181,7 +181,8 @@
     "socialPostGenDesc": "AI 소셜 미디어 콘텐츠",
     "videoScriptGen": "비디오 스크립트 생성기",
     "videoScriptGenDesc": "AI 비디오 스크립트",
-    "emailSwipesDesc": "AI 이메일 카피 생성기"
+    "emailSwipesDesc": "AI 이메일 카피 생성기",
+    "teamMessenger": "팀 메신저"
   },
   "dashboard": {
     "title": "대시보드",

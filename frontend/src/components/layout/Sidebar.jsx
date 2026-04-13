@@ -9,13 +9,14 @@ import {
   Target, Mail, Trophy, Bot, Film, Flame,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
   BookOpen, PlusCircle, Scissors, Clock, UserCircle, Tv,
-  Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers, DollarSign, BarChart3
+  Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers, DollarSign, BarChart3, MessageCircle
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
   var items = [
     { type: 'standalone', label: t('nav.dashboard'), icon: Home, path: '/dashboard' },
     { type: 'standalone', label: t('nav.platformTour'), icon: Map, path: '/tour' },
+    { type: 'standalone', label: t('nav.teamMessenger', { defaultValue: 'Team Messenger' }), icon: MessageCircle, path: '/team-messenger' },
     { type: 'divider' },
     { type: 'group', label: t('nav.account'), key: 'account', icon: UserCircle, items: [
       { label: t('nav.myProfile'), icon: User, path: '/account' },

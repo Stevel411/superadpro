@@ -181,7 +181,8 @@
     "socialPostGenDesc": "AI sosyal medya içeriği",
     "videoScriptGen": "Video Senaryo Oluşturucu",
     "videoScriptGenDesc": "AI video senaryoları",
-    "emailSwipesDesc": "AI e-posta metin oluşturucu"
+    "emailSwipesDesc": "AI e-posta metin oluşturucu",
+    "teamMessenger": "Takım Mesajcısı"
   },
   "dashboard": {
     "title": "Gösterge Paneli",

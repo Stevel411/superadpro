@@ -152,7 +152,8 @@
     "socialPostGenDesc": "AI social media content",
     "videoScriptGen": "Video Script Generator",
     "videoScriptGenDesc": "AI video scripts",
-    "emailSwipesDesc": "AI email copy generator"
+    "emailSwipesDesc": "AI email copy generator",
+    "teamMessenger": "Team Messenger"
   },
   "dashboard": {
     "title": "Dashboard",

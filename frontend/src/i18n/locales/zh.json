@@ -181,7 +181,8 @@
     "socialPostGenDesc": "AI社交媒体内容",
     "videoScriptGen": "视频脚本生成器",
     "videoScriptGenDesc": "AI视频脚本",
-    "emailSwipesDesc": "AI邮件文案生成器"
+    "emailSwipesDesc": "AI邮件文案生成器",
+    "teamMessenger": "团队信使"
   },
   "dashboard": {
     "title": "仪表板",

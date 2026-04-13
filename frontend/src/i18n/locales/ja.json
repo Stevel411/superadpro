@@ -181,7 +181,8 @@
     "socialPostGenDesc": "AIソーシャルメディアコンテンツ",
     "videoScriptGen": "動画スクリプトジェネレーター",
     "videoScriptGenDesc": "AI動画スクリプト",
-    "emailSwipesDesc": "AIメールコピージェネレーター"
+    "emailSwipesDesc": "AIメールコピージェネレーター",
+    "teamMessenger": "チームメッセンジャー"
   },
   "dashboard": {
     "title": "ダッシュボード",

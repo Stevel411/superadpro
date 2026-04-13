@@ -181,7 +181,8 @@
     "socialPostGenDesc": "KI-Social-Media-Inhalte",
     "videoScriptGen": "Video-Skript-Generator",
     "videoScriptGenDesc": "KI-Videoskripte",
-    "emailSwipesDesc": "KI-E-Mail-Textgenerator"
+    "emailSwipesDesc": "KI-E-Mail-Textgenerator",
+    "teamMessenger": "Team-Messenger"
   },
   "dashboard": {
     "title": "Dashboard",

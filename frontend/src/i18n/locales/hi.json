@@ -181,7 +181,8 @@
     "socialPostGenDesc": "AI सोशल मीडिया कंटेंट",
     "videoScriptGen": "वीडियो स्क्रिप्ट जनरेटर",
     "videoScriptGenDesc": "AI वीडियो स्क्रिप्ट",
-    "emailSwipesDesc": "AI ईमेल कॉपी जनरेटर"
+    "emailSwipesDesc": "AI ईमेल कॉपी जनरेटर",
+    "teamMessenger": "टीम मैसेंजर"
   },
   "dashboard": {
     "title": "डैशबोर्ड",

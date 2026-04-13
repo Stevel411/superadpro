@@ -181,7 +181,8 @@
     "socialPostGenDesc": "AI social media content",
     "videoScriptGen": "Videoscriptgenerator",
     "videoScriptGenDesc": "AI-videoscripts",
-    "emailSwipesDesc": "AI e-mailtekstgenerator"
+    "emailSwipesDesc": "AI e-mailtekstgenerator",
+    "teamMessenger": "Team Messenger"
   },
   "dashboard": {
     "title": "Dashboard",

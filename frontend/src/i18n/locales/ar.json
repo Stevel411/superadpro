@@ -181,7 +181,8 @@
     "socialPostGenDesc": "محتوى وسائل التواصل بالذكاء الاصطناعي",
     "videoScriptGen": "منشئ نصوص الفيديو",
     "videoScriptGenDesc": "نصوص فيديو بالذكاء الاصطناعي",
-    "emailSwipesDesc": "منشئ نصوص البريد بالذكاء الاصطناعي"
+    "emailSwipesDesc": "منشئ نصوص البريد بالذكاء الاصطناعي",
+    "teamMessenger": "مراسل الفريق"
   },
   "dashboard": {
     "title": "لوحة التحكم",

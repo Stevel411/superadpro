@@ -181,7 +181,8 @@
     "socialPostGenDesc": "Contenido para redes sociales con IA",
     "videoScriptGen": "Generador de Guiones de Video",
     "videoScriptGenDesc": "Guiones de video con IA",
-    "emailSwipesDesc": "Generador de textos de email con IA"
+    "emailSwipesDesc": "Generador de textos de email con IA",
+    "teamMessenger": "Mensajero del Equipo"
   },
   "dashboard": {
     "title": "Panel",

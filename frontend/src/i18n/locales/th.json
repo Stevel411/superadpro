@@ -181,7 +181,8 @@
     "socialPostGenDesc": "เนื้อหาโซเชียลมีเดีย AI",
     "videoScriptGen": "ตัวสร้างสคริปต์วิดีโอ",
     "videoScriptGenDesc": "สคริปต์วิดีโอ AI",
-    "emailSwipesDesc": "ตัวสร้างเนื้อหาอีเมล AI"
+    "emailSwipesDesc": "ตัวสร้างเนื้อหาอีเมล AI",
+    "teamMessenger": "แชททีม"
   },
   "dashboard": {
     "title": "แดชบอร์ด",
