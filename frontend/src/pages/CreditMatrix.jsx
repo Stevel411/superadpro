@@ -5,11 +5,14 @@ import { apiGet, apiPost } from '../utils/api';
 import { Sparkles, TrendingUp, Users, DollarSign, Gift, ChevronDown, ChevronUp, Loader2, CheckCircle, AlertCircle, Zap, Award, Layers } from 'lucide-react';
 
 var PACK_ICONS = {
-  starter: { emoji: '🚀', gradient: 'linear-gradient(135deg, #6366f1, #818cf8)' },
-  builder: { emoji: '🔨', gradient: 'linear-gradient(135deg, #0ea5e9, #38bdf8)' },
-  pro: { emoji: '⚡', gradient: 'linear-gradient(135deg, #8b5cf6, #a78bfa)' },
-  elite: { emoji: '💎', gradient: 'linear-gradient(135deg, #f59e0b, #fbbf24)' },
-  ultimate: { emoji: '👑', gradient: 'linear-gradient(135deg, #ef4444, #f97316)' },
+  starter:   { emoji: '🚀', gradient: 'linear-gradient(135deg, #6366f1, #818cf8)', cardGrad: 'linear-gradient(135deg, #312e81, #4338ca, #6366f1)' },
+  builder:   { emoji: '🔨', gradient: 'linear-gradient(135deg, #0ea5e9, #38bdf8)', cardGrad: 'linear-gradient(135deg, #0c4a6e, #0369a1, #0ea5e9)' },
+  pro:       { emoji: '⚡', gradient: 'linear-gradient(135deg, #8b5cf6, #a78bfa)', cardGrad: 'linear-gradient(135deg, #4c1d95, #6d28d9, #8b5cf6)' },
+  advanced:  { emoji: '🚀', gradient: 'linear-gradient(135deg, #ec4899, #f472b6)', cardGrad: 'linear-gradient(135deg, #831843, #be185d, #ec4899)' },
+  elite:     { emoji: '💎', gradient: 'linear-gradient(135deg, #f59e0b, #fbbf24)', cardGrad: 'linear-gradient(135deg, #78350f, #b45309, #f59e0b)' },
+  premium:   { emoji: '🚀', gradient: 'linear-gradient(135deg, #14b8a6, #2dd4bf)', cardGrad: 'linear-gradient(135deg, #134e4a, #0d9488, #14b8a6)' },
+  executive: { emoji: '🚀', gradient: 'linear-gradient(135deg, #3b82f6, #60a5fa)', cardGrad: 'linear-gradient(135deg, #1e3a5f, #1d4ed8, #3b82f6)' },
+  ultimate:  { emoji: '👑', gradient: 'linear-gradient(135deg, #ef4444, #f97316)', cardGrad: 'linear-gradient(135deg, #7f1d1d, #dc2626, #f97316)' },
 };
 
 export default function CreditMatrix() {
@@ -165,19 +168,21 @@ export function CreditMatrixContent() {
                   <div key={pack.key}
                     onMouseEnter={function(e) { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'; }}
                     onMouseLeave={function(e) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.06)'; }}
-                    style={{ background: '#fff', borderRadius: 12, padding: '16px 14px', border: '1px solid #e2e8f0', textAlign: 'center',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.06)', transition: 'all 0.2s ease', cursor: 'pointer' }}>
-                    <div style={{ width: 48, height: 48, borderRadius: 12, background: icon.gradient, margin: '0 auto 10px',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22 }}>{icon.emoji}</div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-text-primary)' }}>{pack.label}</div>
-                    <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--sap-purple)', margin: '6px 0' }}>${pack.price}</div>
-                    <div style={{ fontSize: 12, color: 'var(--sap-text-muted)', marginBottom: 4 }}>{pack.credits.toLocaleString()} credits</div>
-                    <div style={{ fontSize: 11, color: 'var(--sap-text-muted)', marginBottom: 10 }}>${pack.cost_per_credit}/credit</div>
+                    style={{ background: icon.cardGrad || icon.gradient, borderRadius: 14, padding: '20px 16px', textAlign: 'center',
+                      boxShadow: '0 4px 16px rgba(0,0,0,0.15)', transition: 'all 0.2s ease', cursor: 'pointer', position: 'relative', overflow: 'hidden' }}>
+                    <div style={{ position: 'absolute', top: -30, right: -30, width: 100, height: 100, borderRadius: '50%', background: 'rgba(255,255,255,0.06)', pointerEvents: 'none' }}/>
+                    <div style={{ position: 'absolute', bottom: -20, left: -20, width: 70, height: 70, borderRadius: '50%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }}/>
+                    <div style={{ width: 52, height: 52, borderRadius: 14, background: 'rgba(255,255,255,0.15)', margin: '0 auto 10px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, position: 'relative' }}>{icon.emoji}</div>
+                    <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', position: 'relative' }}>{pack.label}</div>
+                    <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 26, fontWeight: 800, color: '#fff', margin: '6px 0', position: 'relative' }}>${pack.price}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', marginBottom: 4, position: 'relative' }}>{pack.credits.toLocaleString()} {t('creditMatrix.credits')}</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.5)', marginBottom: 12, position: 'relative' }}>${pack.cost_per_credit}/{t('creditMatrix.perCredit')}</div>
                     <button onClick={function() { if (!isbuying) buyPack(pack.key); }}
                       disabled={isbuying}
-                      style={{ width: '100%', padding: '8px 0', borderRadius: 8, border: 'none', fontFamily: 'inherit',
-                        background: isbuying ? 'var(--sap-text-muted)' : icon.gradient, color: '#fff', fontSize: 13, fontWeight: 700,
-                        cursor: isbuying ? 'default' : 'pointer' }}>
+                      style={{ width: '100%', padding: '10px 0', borderRadius: 10, border: '1px solid rgba(255,255,255,0.25)', fontFamily: 'inherit',
+                        background: isbuying ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.15)', color: '#fff', fontSize: 13, fontWeight: 700,
+                        cursor: isbuying ? 'default' : 'pointer', backdropFilter: 'blur(4px)', transition: 'background 0.2s' }}>
                       {isbuying ? t('creditMatrix.processing') : t('creditMatrix.payWithCrypto')}
                     </button>
                   </div>
