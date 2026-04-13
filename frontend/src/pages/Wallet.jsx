@@ -16,6 +16,8 @@ export default function Wallet() {
   const [p2pResult, setP2pResult] = useState(null);
   const [p2pSending, setP2pSending] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
+  const [withdrawing, setWithdrawing] = useState(false);
+  const [withdrawResult, setWithdrawResult] = useState(null);
 
   useEffect(() => { window.scrollTo(0, 0); }, []);
 
@@ -50,6 +52,61 @@ export default function Wallet() {
       }
     } catch (e) { setP2pResult({ type: 'error', msg: e.message || t('wallet.networkError') }); }
     setP2pSending(false);
+  };
+
+  const handleWithdraw = async (walletType) => {
+    const amountEl = document.getElementById('withdraw_amount_' + walletType);
+    const totpEl = document.getElementById('withdraw_totp_' + walletType);
+    const amount = parseFloat(amountEl?.value);
+    const totp_code = totpEl?.value?.trim() || '';
+
+    if (!amount || amount < 10) { setWithdrawResult({ type: 'error', msg: 'Minimum withdrawal is $10' }); return; }
+
+    setWithdrawing(true);
+    setWithdrawResult(null);
+    try {
+      const formData = new URLSearchParams();
+      formData.append('amount', amount);
+      formData.append('totp_code', totp_code);
+      formData.append('wallet_type', walletType);
+
+      const res = await fetch('/withdraw', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData.toString(),
+        credentials: 'include',
+        redirect: 'follow',
+      });
+
+      // The endpoint redirects to /wallet?withdrawn=true or /wallet?error=...
+      // We need to parse the redirect URL
+      const finalUrl = res.url || '';
+      const params = new URLSearchParams(finalUrl.split('?')[1] || '');
+
+      if (params.get('withdrawn') === 'true') {
+        const msg = (params.get('msg') || 'Withdrawal processed').replace(/_/g, ' ');
+        const tx = params.get('tx') || '';
+        setWithdrawResult({ type: 'success', msg: msg + (tx ? ' TX: ' + tx.substring(0, 12) + '...' : '') });
+        if (amountEl) amountEl.value = '';
+        if (totpEl) totpEl.value = '';
+        // Refresh wallet data after 2 seconds
+        setTimeout(() => { apiGet('/api/wallet').then(d => setData(d)); }, 2000);
+      } else if (params.get('error')) {
+        setWithdrawResult({ type: 'error', msg: params.get('error').replace(/_/g, ' ') });
+      } else {
+        // Try to parse response body
+        const text = await res.text();
+        if (text.includes('error') || text.includes('Error')) {
+          setWithdrawResult({ type: 'error', msg: 'Withdrawal failed. Please try again.' });
+        } else {
+          setWithdrawResult({ type: 'success', msg: 'Withdrawal submitted successfully!' });
+          setTimeout(() => { apiGet('/api/wallet').then(d => setData(d)); }, 2000);
+        }
+      }
+    } catch (e) {
+      setWithdrawResult({ type: 'error', msg: e.message || 'Network error. Please try again.' });
+    }
+    setWithdrawing(false);
   };
 
   if (loading) return <AppLayout title={t('wallet.title')}><LoadingSpinner /></AppLayout>;
@@ -105,21 +162,21 @@ export default function Wallet() {
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'var(--sap-green)', textAlign:'center', marginBottom:14 }}>${formatMoney(d.balance)}</div>
             {d.wallet_address ? (
               d.balance >= 10 ? (
-                <form method="POST" action="/withdraw" style={{ display:'flex', flexDirection:'column', gap:10 }}>
-                  <input type="hidden" name="wallet_type" value="affiliate"/>
+                <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
                   <div>
                     <label style={labelStyle}>{t('wallet.amountUSDT')}</label>
-                    <input style={inputStyle} type="number" name="amount" min="10" max={d.balance} step="0.01" placeholder="0.00" required/>
+                    <input id="withdraw_amount_affiliate" style={inputStyle} type="number" min="10" max={d.balance} step="0.01" placeholder="0.00"/>
                   </div>
                   {user?.totp_enabled && (
                     <div>
                       <label style={labelStyle}>{t('wallet.twoFACode')}</label>
-                      <input style={{ ...inputStyle, textAlign:'center', letterSpacing:6, fontWeight:700, fontSize:18 }} type="text" name="totp_code" maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric" required/>
+                      <input id="withdraw_totp_affiliate" style={{ ...inputStyle, textAlign:'center', letterSpacing:6, fontWeight:700, fontSize:18 }} type="text" maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric"/>
                     </div>
                   )}
-                  <button type="submit" style={btnPrimary}>{t('wallet.withdrawAffiliate')}</button>
+                  <button onClick={() => handleWithdraw('affiliate')} disabled={withdrawing} style={{...btnPrimary, opacity: withdrawing ? 0.6 : 1}}>{withdrawing ? 'Processing...' : t('wallet.withdrawAffiliate')}</button>
                   <div style={{ fontSize:11, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('wallet.affiliateFeeNote')}</div>
-                </form>
+                  {withdrawResult && <div style={{ padding:'11px 14px', borderRadius:8, fontSize:14, fontWeight:600, ...(withdrawResult.type==='success'?{background:'var(--sap-green-bg)',border:'1px solid #86efac',color:'#15803d'}:{background:'var(--sap-red-bg)',border:'1px solid #fecaca',color:'var(--sap-red)'}) }}>{withdrawResult.msg}</div>}
+                </div>
               ) : (
                 <div style={{ textAlign:'center', fontSize:13, color:'var(--sap-text-muted)' }}>{t('wallet.minToWithdraw')} ${formatMoney(d.balance)}</div>
               )
@@ -140,21 +197,21 @@ export default function Wallet() {
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'var(--sap-indigo)', textAlign:'center', marginBottom:14 }}>${formatMoney(d.campaign_balance || 0)}</div>
             {d.wallet_address ? (
               (d.campaign_balance || 0) >= 10 ? (
-                <form method="POST" action="/withdraw" style={{ display:'flex', flexDirection:'column', gap:10 }}>
-                  <input type="hidden" name="wallet_type" value="campaign"/>
+                <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
                   <div>
                     <label style={labelStyle}>{t('wallet.amountUSDT')}</label>
-                    <input style={inputStyle} type="number" name="amount" min="10" max={d.campaign_balance || 0} step="0.01" placeholder="0.00" required/>
+                    <input id="withdraw_amount_campaign" style={inputStyle} type="number" min="10" max={d.campaign_balance || 0} step="0.01" placeholder="0.00"/>
                   </div>
                   {user?.totp_enabled && (
                     <div>
                       <label style={labelStyle}>{t('wallet.twoFACode')}</label>
-                      <input style={{ ...inputStyle, textAlign:'center', letterSpacing:6, fontWeight:700, fontSize:18 }} type="text" name="totp_code" maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric" required/>
+                      <input id="withdraw_totp_campaign" style={{ ...inputStyle, textAlign:'center', letterSpacing:6, fontWeight:700, fontSize:18 }} type="text" maxLength="6" pattern="[0-9]{6}" placeholder="000000" inputMode="numeric"/>
                     </div>
                   )}
-                  <button type="submit" style={{ ...btnPrimary, background:'linear-gradient(135deg,#6366f1,#818cf8)' }}>{t('wallet.withdrawCampaign')}</button>
+                  <button onClick={() => handleWithdraw('campaign')} disabled={withdrawing} style={{...btnPrimary, background:'linear-gradient(135deg,#6366f1,#818cf8)', opacity: withdrawing ? 0.6 : 1}}>{withdrawing ? 'Processing...' : t('wallet.withdrawCampaign')}</button>
                   <div style={{ fontSize:11, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('wallet.campaignFeeNote')}</div>
-                </form>
+                  {withdrawResult && <div style={{ padding:'11px 14px', borderRadius:8, fontSize:14, fontWeight:600, ...(withdrawResult.type==='success'?{background:'var(--sap-green-bg)',border:'1px solid #86efac',color:'#15803d'}:{background:'var(--sap-red-bg)',border:'1px solid #fecaca',color:'var(--sap-red)'}) }}>{withdrawResult.msg}</div>}
+                </div>
               ) : (
                 <div style={{ textAlign:'center', fontSize:13, color:'var(--sap-text-muted)' }}>
                   {(d.campaign_balance || 0) > 0
