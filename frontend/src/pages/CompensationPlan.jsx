@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import CustomSelect from '../components/ui/CustomSelect';
-import { Users, Zap, Layers, GraduationCap, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { Users, Zap, Layers, GraduationCap, ChevronLeft, ChevronRight, ArrowRight, ChevronDown, Check } from 'lucide-react';
 
 var TIER_PRICES = [20, 50, 100, 200, 400, 600, 800, 1000];
 var TIER_NAMES = ['Starter','Builder','Pro','Advanced','Elite','Premium','Executive','Ultimate'];
@@ -15,8 +15,15 @@ var TIER_GRADS = [
   'linear-gradient(135deg,#78350f,#fbbf24)', 'linear-gradient(135deg,#450a0a,#ef4444)',
 ];
 
+var PACK_EMOJIS = ['🚀','🔨','⚡','🚀','💎','🚀','🚀','👑'];
+var PACK_GRADIENTS = [
+  'linear-gradient(135deg,#312e81,#6366f1)','linear-gradient(135deg,#0c4a6e,#0ea5e9)',
+  'linear-gradient(135deg,#4c1d95,#8b5cf6)','linear-gradient(135deg,#831843,#ec4899)',
+  'linear-gradient(135deg,#78350f,#f59e0b)','linear-gradient(135deg,#134e4a,#14b8a6)',
+  'linear-gradient(135deg,#1e3a5f,#3b82f6)','linear-gradient(135deg,#7f1d1d,#ef4444)',
+];
 var PACK_OPTIONS = TIER_NAMES.map(function(n, i) {
-  return { value: String(i), label: 'T' + (i+1) + ' ' + n + ' — $' + TIER_PRICES[i] + ' (' + TIER_CREDITS[i].toLocaleString() + ' credits)' };
+  return { value: String(i), label: n, price: TIER_PRICES[i], credits: TIER_CREDITS[i], emoji: PACK_EMOJIS[i], gradient: PACK_GRADIENTS[i] };
 });
 
 var STREAMS_BASE = [
@@ -341,7 +348,7 @@ function MatrixContent(props) {
 
       <div style={{ marginBottom:16 }}>
         <div style={{ fontSize:14, fontWeight:600, color:'var(--sap-text-secondary)', marginBottom:8 }}>{t('compPlan.choosePack')}</div>
-        <CustomSelect value={props.matrixPack} onChange={function(v){ props.setMatrixPack(v); }} options={PACK_OPTIONS}/>
+        <PackSelector value={props.matrixPack} onChange={function(v){ props.setMatrixPack(v); }} options={PACK_OPTIONS}/>
       </div>
 
       <SliderRow label={t('compPlan.yourDirectReferrals')} value={props.matrixDirect} min={0} max={39} display={props.matrixDirect} color="var(--sap-amber-dark)"
@@ -474,6 +481,56 @@ function GridTierCards() {
 
 
 /* ── Nexus Clickable Pack Cards ── */
+function PackSelector({ value, onChange, options }) {
+  var [open, setOpen] = useState(false);
+  var ref = useRef(null);
+  useEffect(function() {
+    function h(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener('mousedown', h);
+    return function() { document.removeEventListener('mousedown', h); };
+  }, []);
+  var sel = options.find(function(o) { return o.value === value; });
+  return (
+    <div ref={ref} style={{ position:'relative', width:'100%' }}>
+      <div onClick={function(){ setOpen(!open); }}
+        style={{ padding:'12px 16px', borderRadius:12, border: open?'2px solid #6366f1':'2px solid #e2e8f0',
+          background:'#fff', cursor:'pointer', display:'flex', alignItems:'center', gap:12,
+          boxShadow: open?'0 0 0 3px rgba(99,102,241,.1)':'none', transition:'all .15s' }}>
+        {sel && <div style={{ width:36, height:36, borderRadius:10, background:sel.gradient, display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, flexShrink:0 }}>{sel.emoji}</div>}
+        <div style={{ flex:1 }}>
+          <div style={{ fontSize:14, fontWeight:700, color:'#0f172a' }}>{sel ? sel.label : 'Select a pack...'}</div>
+          {sel && <div style={{ fontSize:12, color:'#64748b' }}>${sel.price} · {sel.credits.toLocaleString()} credits</div>}
+        </div>
+        <ChevronDown size={16} color="#64748b" style={{ flexShrink:0, transition:'transform .2s', transform: open?'rotate(180deg)':'none' }}/>
+      </div>
+      {open && (
+        <div style={{ position:'absolute', top:'100%', left:0, right:0, marginTop:4, background:'#fff', border:'1.5px solid #e2e8f0',
+          borderRadius:12, boxShadow:'0 12px 32px rgba(0,0,0,.12)', zIndex:999, maxHeight:360, overflowY:'auto',
+          animation:'slDropIn .15s ease-out' }}>
+          <style>{'@keyframes slDropIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}'}</style>
+          {options.map(function(o) {
+            var isSel = o.value === value;
+            return (
+              <div key={o.value} onClick={function(){ onChange(o.value); setOpen(false); }}
+                onMouseEnter={function(e){ if(!isSel) e.currentTarget.style.background='#f8fafc'; }}
+                onMouseLeave={function(e){ if(!isSel) e.currentTarget.style.background=isSel?'#eef2ff':'transparent'; }}
+                style={{ padding:'10px 14px', cursor:'pointer', display:'flex', alignItems:'center', gap:12,
+                  background: isSel?'#eef2ff':'transparent', borderBottom:'1px solid #f1f5f9', transition:'background .1s' }}>
+                <div style={{ width:34, height:34, borderRadius:9, background:o.gradient, display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0 }}>{o.emoji}</div>
+                <div style={{ flex:1 }}>
+                  <div style={{ fontSize:13, fontWeight:isSel?700:500, color:isSel?'#4f46e5':'#0f172a' }}>{o.label}</div>
+                  <div style={{ fontSize:11, color:'#94a3b8' }}>${o.price} · {o.credits.toLocaleString()} credits</div>
+                </div>
+                {isSel && <Check size={16} color="#6366f1"/>}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function NexusPackCards() {
   var { t } = useTranslation();
   var [selected, setSelected] = useState(null);
