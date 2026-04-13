@@ -81,7 +81,7 @@ export default function AnalyticsPage(){
   return(
     <AppLayout title={t('campaignAnalytics.analyticsTitle')}>
     <div style={{background:'#f0f3f9',minHeight:'100vh'}}>
-    <div style={{maxWidth:1140,margin:'0 auto',padding:'28px 24px 60px'}}>
+    <div style={{padding:'28px 24px 60px'}}>
 
       {/* ═══ ROW 1: Summary cards ═══ */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:12}}>
