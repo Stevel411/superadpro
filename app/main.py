@@ -2334,16 +2334,26 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
         User.country != ""
     ).group_by(User.country).all()
     network_countries = [{"code": c[0] or "??", "count": c[1]} for c in country_data]
-    # Add the user's own country
-    if user.country:
+    # Add the user's own country (with IP fallback)
+    my_country = user.country
+    if not my_country:
+        try:
+            from app.database import _geoip_reader
+            client_ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip() or request.client.host
+            if _geoip_reader and client_ip not in ("127.0.0.1", "::1", "localhost"):
+                geo = _geoip_reader.country(client_ip)
+                my_country = geo.country.iso_code
+        except Exception:
+            pass
+    if my_country:
         found = False
         for nc in network_countries:
-            if nc["code"] == user.country:
+            if nc["code"] == my_country:
                 nc["count"] += 1
                 found = True
                 break
         if not found:
-            network_countries.append({"code": user.country, "count": 1})
+            network_countries.append({"code": my_country, "count": 1})
 
     # ── Link clicks summary ──
     from datetime import date as _date_type
