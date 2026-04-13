@@ -2171,7 +2171,7 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
 
     membership_total = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
         Commission.to_user_id == user.id,
-        Commission.commission_type.in_(['membership', 'membership_renewal'])
+        Commission.commission_type.in_(['membership', 'membership_renewal', 'membership_sponsor', 'Membership Sponsor'])
     ).scalar() or 0)
 
     course_total = float(db.query(func.coalesce(func.sum(CourseCommission.amount), 0)).filter(
@@ -2243,7 +2243,7 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
 
         m_memb = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
             Commission.to_user_id == user.id,
-            Commission.commission_type.in_(['membership', 'membership_renewal']),
+            Commission.commission_type.in_(['membership', 'membership_renewal', 'membership_sponsor', 'Membership Sponsor']),
             Commission.paid_at >= month_start, Commission.paid_at < month_end
         ).scalar() or 0)
 
@@ -2297,8 +2297,32 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
         })
     recent.sort(key=lambda x: x['date'], reverse=True)
 
+    # ── Watch to Earn stats ──
+    from datetime import date as _date
+    quota = db.query(WatchQuota).filter(WatchQuota.user_id == user.id).first()
+    watch_stats = {
+        "total_watched": getattr(quota, 'total_watched', 0) or 0,
+        "streak_days": getattr(quota, 'streak_days', 0) or 0,
+        "today_watched": getattr(quota, 'today_watched', 0) or 0,
+        "daily_required": getattr(quota, 'daily_required', 1) or 1,
+        "consecutive_missed": getattr(quota, 'consecutive_missed', 0) or 0,
+        "commissions_paused": getattr(quota, 'commissions_paused', False),
+    }
+
+    # Daily watch history (last 30 days)
+    daily_watches = []
+    for day_offset in range(30):
+        d = (now - timedelta(days=29-day_offset)).date()
+        count = db.query(func.count(VideoWatch.id)).filter(
+            VideoWatch.user_id == user.id,
+            VideoWatch.watch_date == str(d)
+        ).scalar() or 0
+        daily_watches.append({"date": str(d), "count": count})
+
     return {
         "daily_earnings": daily_earnings,
+        "watch_stats": watch_stats,
+        "daily_watches": daily_watches,
         "income_breakdown": {
             "grid": round(grid_total, 2),
             "membership": round(membership_total, 2),

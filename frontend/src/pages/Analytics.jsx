@@ -98,6 +98,12 @@ export default function AnalyticsPage() {
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true,pointStyle:'circle',color:'#64748b',font:{size:11,weight:600}}},tooltip:{...cTip,callbacks:{label:function(c){return c.dataset.label+': $'+c.parsed.y.toFixed(2)}}}},scales:{x:{stacked:true,grid:{display:false},ticks:cTick},y:{stacked:true,grid:cGrid,ticks:{...cTick,callback:function(v){return '$'+v}}}}}
   } : null);
 
+  var watchRef = useChart(data && data.daily_watches ? {
+    type:'bar',data:{labels:data.daily_watches.map(function(d){var p=d.date.split('-');return p[1]+'/'+p[2]}),
+    datasets:[{label:'Videos Watched',data:data.daily_watches.map(function(d){return d.count}),backgroundColor:'#8b5cf6',borderRadius:6,barThickness:10}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{...cTip,callbacks:{label:function(c){return c.parsed.y+' videos'}}}},scales:{x:{grid:{display:false},ticks:{...cTick,maxTicksLimit:10}},y:{grid:cGrid,beginAtZero:true,ticks:{...cTick,stepSize:1}}}}
+  } : null);
+
   if(loading) return <AppLayout title={t('campaignAnalytics.analyticsTitle')}><div style={{display:'flex',alignItems:'center',justifyContent:'center',padding:80,minHeight:'60vh'}}><div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:16}}><div style={{width:44,height:44,borderRadius:'50%',border:'3px solid #e2e8f0',borderTopColor:'#0ea5e9',animation:'spin 0.8s linear infinite'}}/><div style={{fontFamily:"'Sora',sans-serif",fontSize:14,fontWeight:700,color:'#94a3b8'}}>{t('campaignAnalytics.loadingAnalytics')}</div></div><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
 
   if(error) return <AppLayout title={t('campaignAnalytics.analyticsTitle')}><div style={{display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:12,padding:80,minHeight:'60vh'}}><div style={{width:52,height:52,borderRadius:14,background:'#fef2f2',display:'flex',alignItems:'center',justifyContent:'center',fontSize:22}}>⚠️</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:16,fontWeight:700,color:'#ef4444'}}>{t('campaignAnalytics.errorLoading')}</div><div style={{fontSize:13,color:'#94a3b8',maxWidth:300,textAlign:'center'}}>{error}</div><a href="/login" style={{marginTop:8,padding:'11px 26px',borderRadius:11,background:'linear-gradient(135deg,#0ea5e9,#06b6d4)',color:'#fff',textDecoration:'none',fontWeight:700,fontSize:14}}>{t('campaignAnalytics.signIn')}</a></div></AppLayout>;
@@ -143,6 +149,28 @@ export default function AnalyticsPage() {
           <Card title={t('campaignAnalytics.teamGrowth')} subtitle={t('campaignAnalytics.teamGrowthDesc')}><div style={{height:280}}><canvas ref={teamRef}/></div></Card>
           <Card title={t('campaignAnalytics.earningsByStream')} subtitle={t('campaignAnalytics.earningsByStreamDesc')}><div style={{height:280}}><canvas ref={streamRef}/></div></Card>
         </div>
+
+        {/* Row 4: Watch to Earn */}
+        {data.watch_stats && <div style={{display:'grid',gridTemplateColumns:'1fr 2fr',gap:16,marginBottom:16}}>
+          <Card title="Watch to Earn" subtitle="Your daily watch activity">
+            <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginTop:4}}>
+              {[
+                {label:'Total Watched',value:String(data.watch_stats.total_watched),color:'#8b5cf6',icon:'🎬'},
+                {label:'Watch Streak',value:data.watch_stats.streak_days+' days',color:'#f59e0b',icon:'🔥'},
+                {label:'Today',value:data.watch_stats.today_watched+'/'+data.watch_stats.daily_required,color:data.watch_stats.today_watched>=data.watch_stats.daily_required?'#10b981':'#94a3b8',icon:'📺'},
+                {label:'Status',value:data.watch_stats.commissions_paused?'Paused':'Active',color:data.watch_stats.commissions_paused?'#ef4444':'#10b981',icon:data.watch_stats.commissions_paused?'⏸️':'✅'},
+              ].map(function(s,i){return <div key={i} style={{background:'#f8fafc',borderRadius:12,padding:'14px 16px',border:'1px solid #f1f5f9'}}>
+                <div style={{fontSize:20,marginBottom:6}}>{s.icon}</div>
+                <div style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1.2,marginBottom:4}}>{s.label}</div>
+                <div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:900,color:s.color}}>{s.value}</div>
+              </div>})}
+            </div>
+            {data.watch_stats.consecutive_missed>0 && <div style={{marginTop:14,padding:'10px 14px',borderRadius:10,background:'#fef2f2',border:'1px solid #fecaca',fontSize:12,fontWeight:600,color:'#dc2626'}}>⚠️ {data.watch_stats.consecutive_missed} day{data.watch_stats.consecutive_missed>1?'s':''} missed — {data.watch_stats.commissions_paused?'campaign withdrawals paused':'watch today to keep your streak'}</div>}
+          </Card>
+          <Card title="Daily Watch History" subtitle="Videos watched per day — last 30 days">
+            <div style={{height:240}}><canvas ref={watchRef}/></div>
+          </Card>
+        </div>}
 
         {/* Commission table */}
         <Card title={t('campaignAnalytics.recentCommissions')}>
