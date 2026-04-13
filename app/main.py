@@ -2181,6 +2181,12 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
     # SuperMarket placeholder
     supermarket_total = 0
 
+    # Credit Nexus earnings
+    nexus_total = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+        Commission.to_user_id == user.id,
+        Commission.commission_type.in_(['matrix_level', 'matrix_completion', 'nexus_sponsor', 'nexus_level', 'nexus_completion'])
+    ).scalar() or 0)
+
     # ── Grid progress ──
     active_grids = db.query(Grid).filter(
         Grid.owner_id == user.id, Grid.is_complete == False
@@ -2246,12 +2252,19 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
             CourseCommission.created_at >= month_start, CourseCommission.created_at < month_end
         ).scalar() or 0)
 
+        m_nexus = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+            Commission.to_user_id == user.id,
+            Commission.commission_type.in_(['matrix_level', 'matrix_completion', 'nexus_sponsor', 'nexus_level', 'nexus_completion']),
+            Commission.paid_at >= month_start, Commission.paid_at < month_end
+        ).scalar() or 0)
+
         monthly_streams.insert(0, {
             "month": month_start.strftime('%b'),
             "grid": round(m_grid, 2),
             "membership": round(m_memb, 2),
             "courses": round(m_course, 2),
             "supermarket": 0,
+            "nexus": round(m_nexus, 2),
         })
 
     # ── Recent commissions ──
@@ -2291,6 +2304,7 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
             "membership": round(membership_total, 2),
             "courses": round(course_total, 2),
             "supermarket": round(supermarket_total, 2),
+            "nexus": round(nexus_total, 2),
         },
         "grid_progress": grid_progress,
         "campaigns": campaigns,
@@ -2301,6 +2315,7 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
             "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
             "total_earned": float(user.total_earned or 0),
             "grid_earnings": round(grid_total, 2),
+            "nexus_earnings": round(nexus_total, 2),
             "course_earnings": round(course_total, 2),
             "membership_earnings": round(membership_total, 2),
             "team_size": user.total_team or 0,

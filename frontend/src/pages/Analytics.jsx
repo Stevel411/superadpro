@@ -63,10 +63,10 @@ export default function AnalyticsPage() {
   } : null);
 
   var breakdownRef = useChart(data ? (function(){
-    var b=data.income_breakdown,tot=b.grid+b.membership+b.courses+(b.supermarket||0);
+    var b=data.income_breakdown,tot=b.grid+b.membership+b.courses+(b.nexus||0);
     var cols=['#6366f1','#10b981','#f59e0b','#0ea5e9'];
     if(tot===0) return{type:'doughnut',data:{labels:['No data'],datasets:[{data:[1],backgroundColor:['#e2e8f0'],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{display:false}}}};
-    return{type:'doughnut',data:{labels:['Grid','Membership','Courses'],datasets:[{data:[b.grid,b.membership,b.courses+(b.supermarket||0)],backgroundColor:['#6366f1','#10b981','#f59e0b'],borderWidth:0,hoverOffset:10,borderRadius:4}]},
+    return{type:'doughnut',data:{labels:['Grid','Membership','Courses','Credit Nexus'],datasets:[{data:[b.grid,b.membership,b.courses,b.nexus||0],backgroundColor:['#6366f1','#10b981','#f59e0b','#06b6d4'],borderWidth:0,hoverOffset:10,borderRadius:4}]},
       options:{responsive:true,maintainAspectRatio:false,cutout:'72%',plugins:{legend:{position:'bottom',labels:{padding:16,usePointStyle:true,pointStyle:'circle',color:'#64748b',font:{size:12,weight:600}}},tooltip:{...cTip,callbacks:{label:function(c){return c.label+': $'+c.parsed.toFixed(2)}}}}}};
   })() : null);
 
@@ -93,7 +93,8 @@ export default function AnalyticsPage() {
     type:'bar',data:{labels:data.monthly_streams.map(function(m){return m.month}),
     datasets:[{label:'Membership',data:data.monthly_streams.map(function(m){return m.membership}),backgroundColor:'#10b981',borderRadius:4},
       {label:'Grid',data:data.monthly_streams.map(function(m){return m.grid}),backgroundColor:'#6366f1',borderRadius:4},
-      {label:'Courses',data:data.monthly_streams.map(function(m){return m.courses+(m.supermarket||0)}),backgroundColor:'#f59e0b',borderRadius:4}]},
+      {label:'Courses',data:data.monthly_streams.map(function(m){return m.courses}),backgroundColor:'#f59e0b',borderRadius:4},
+      {label:'Credit Nexus',data:data.monthly_streams.map(function(m){return m.nexus||0}),backgroundColor:'#06b6d4',borderRadius:4}]},
     options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{padding:12,usePointStyle:true,pointStyle:'circle',color:'#64748b',font:{size:11,weight:600}}},tooltip:{...cTip,callbacks:{label:function(c){return c.dataset.label+': $'+c.parsed.y.toFixed(2)}}}},scales:{x:{stacked:true,grid:{display:false},ticks:cTick},y:{stacked:true,grid:cGrid,ticks:{...cTick,callback:function(v){return '$'+v}}}}}
   } : null);
 
