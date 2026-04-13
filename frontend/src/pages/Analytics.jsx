@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect, useRef } from 'react';
 import AppLayout from '../components/layout/AppLayout';
+import WorldMap from 'react-svg-worldmap';
 import * as Chart from 'chart.js';
 
 Chart.Chart.register(Chart.LineController,Chart.BarController,Chart.DoughnutController,Chart.LineElement,Chart.BarElement,Chart.ArcElement,Chart.PointElement,Chart.CategoryScale,Chart.LinearScale,Chart.Tooltip,Chart.Legend,Chart.Filler);
@@ -10,9 +11,6 @@ Chart.Chart.defaults.color='#64748b';
 
 var TL={direct_sponsor:'Direct 40%',uni_level:'Uni-Level',grid_completion_bonus:'Grid Bonus',membership:'Membership',membership_renewal:'Renewal',membership_sponsor:'Membership',course_direct_sale:'Course Sale',course_pass_up:'Course Pass-Up','Membership Sponsor':'Membership',nexus_sponsor:'Nexus',nexus_level:'Nexus Level',nexus_completion:'Nexus Complete',matrix_level:'Nexus Level',matrix_completion:'Nexus Complete'};
 var TC={direct_sponsor:'#059669',uni_level:'#0284c7',grid_completion_bonus:'#d97706',membership:'#15803d',membership_renewal:'#16a34a',membership_sponsor:'#15803d',course_direct_sale:'#ea580c',course_pass_up:'#f97316','Membership Sponsor':'#15803d',nexus_sponsor:'#7c3aed',nexus_level:'#6d28d9',nexus_completion:'#7e22ce',matrix_level:'#6d28d9',matrix_completion:'#7e22ce'};
-
-/* Country code → lat/lng for map dots */
-var GEO={US:[39,-98],GB:[54,-2],CA:[56,-106],AU:[-25,134],DE:[51,10],FR:[46,2],ES:[40,-4],IT:[42,12],NL:[52,5],BR:[-14,-51],IN:[20,78],JP:[36,138],KR:[37,127],CN:[35,105],RU:[61,100],ZA:[-29,24],NG:[10,8],KE:[-1,38],GH:[8,-2],MX:[23,-102],PH:[13,122],ID:[-5,120],TH:[15,101],VN:[14,108],PK:[30,70],BD:[24,90],EG:[27,30],TR:[39,35],SA:[25,45],AE:[24,54],PL:[52,20],SE:[62,15],NO:[62,10],DK:[56,10],FI:[64,26],AR:[-34,-64],CO:[4,-72],CL:[-35,-71],PE:[-10,-76],MY:[4,102],SG:[1,104],NZ:[-41,174],IE:[53,-8],PT:[39,-8],IL:[31,35],UA:[49,32],RO:[46,25],CZ:[50,15],GR:[39,22],HU:[47,20],AT:[47,14],CH:[47,8],BE:[51,4]};
 
 function useChart(cfg){var ref=useRef(null),ch=useRef(null);useEffect(function(){if(!ref.current||!cfg)return;if(ch.current)ch.current.destroy();ch.current=new Chart.Chart(ref.current,cfg);return function(){if(ch.current)ch.current.destroy()};},[cfg]);return ref;}
 
@@ -112,23 +110,22 @@ export default function AnalyticsPage(){
       {/* ═══ ROW 3: Network Map + Breakdown + Team Growth ═══ */}
       <div style={{display:'grid',gridTemplateColumns:'3fr 2fr',gap:12,marginBottom:12}}>
         <WC title="Network by Country" subtitle="Where your team members are based">
-          <div style={{position:'relative',height:200,overflow:'hidden',borderRadius:10,background:'#f8fafc',border:'1px solid #e2e8f0'}}>
-            <svg viewBox="0 0 800 400" style={{width:'100%',height:'100%'}}>
-              {/* Simplified world continents */}
-              <path d="M160,160 Q180,140 210,150 L240,140 Q265,135 290,140 L320,145 Q325,155 330,160 L345,170 Q340,185 335,195 L320,210 Q310,205 295,208 L270,215 Q255,210 240,205 L225,195 Q215,190 210,182 L190,175 Q175,170 160,160Z" fill="#dbeafe" stroke="#bfdbfe" strokeWidth="0.8"/>
-              <path d="M345,110 Q370,90 405,95 L450,93 Q475,98 500,108 L530,115 Q540,130 535,150 L530,170 Q520,185 510,190 L490,195 Q475,190 462,193 L435,200 Q410,205 395,195 L385,185 Q370,178 365,168 L360,150 Q350,135 345,110Z" fill="#dbeafe" stroke="#bfdbfe" strokeWidth="0.8"/>
-              <path d="M410,200 Q425,215 430,235 L435,260 Q440,280 430,295 L415,300 Q395,298 380,288 L375,275 Q372,255 378,235 L388,220 Q400,208 410,200Z" fill="#dbeafe" stroke="#bfdbfe" strokeWidth="0.8"/>
-              <path d="M500,108 Q555,80 610,88 L660,95 Q685,105 700,120 L710,145 Q705,170 690,185 L665,195 Q640,205 615,195 L585,185 Q560,175 545,162 L530,150 Q515,130 500,108Z" fill="#dbeafe" stroke="#bfdbfe" strokeWidth="0.8"/>
-              <path d="M560,240 Q585,220 610,228 L635,235 Q655,248 660,265 L655,282 Q645,295 628,300 L605,298 Q585,290 575,278 L565,262 Q560,252 560,240Z" fill="#dbeafe" stroke="#bfdbfe" strokeWidth="0.8"/>
-              <path d="M105,265 Q130,252 155,258 L180,262 Q195,272 200,285 L198,298 Q190,308 178,312 L160,310 Q140,305 128,295 L115,282 Q108,275 105,265Z" fill="#dbeafe" stroke="#bfdbfe" strokeWidth="0.8"/>
-              {/* Plot member dots */}
-              {nc.map(function(c,i){var pos=GEO[c.code];if(!pos)return null;var x=400+(pos[1]/180)*380;var y=200-(pos[0]/90)*180;var r=Math.min(Math.max(c.count*3,6),20);return<g key={i}><circle cx={x} cy={y} r={r+6} fill="#3b82f6" opacity="0.12"/><circle cx={x} cy={y} r={r} fill="#2563eb" opacity="0.5"/><circle cx={x} cy={y} r={r*0.5} fill="#1d4ed8"/></g>})}
-              {nc.length===0&&<text x="400" y="200" textAnchor="middle" style={{fontSize:14,fill:'#94a3b8'}}>Members will appear here as your team grows</text>}
-            </svg>
+          <div style={{borderRadius:10,overflow:'hidden'}}>
+            <WorldMap
+              color="#2563eb"
+              valueSuffix="members"
+              size="responsive"
+              data={nc.map(function(c){return{country:c.code.toLowerCase(),value:c.count}})}
+              backgroundColor="#f8fafc"
+              strokeOpacity={0.3}
+              borderColor="#e2e8f0"
+              tooltipTextFunction={function(ctx){return ctx.countryName+': '+ctx.countryValue+' member'+(ctx.countryValue!==1?'s':'')}}
+            />
           </div>
           {nc.length>0&&<div style={{display:'flex',gap:12,marginTop:12,flexWrap:'wrap'}}>
             {nc.map(function(c,i){return<div key={i} style={{display:'flex',alignItems:'center',gap:6}}><div style={{width:10,height:10,borderRadius:'50%',background:'linear-gradient(135deg,#2563eb,#3b82f6)'}}/><span style={{fontSize:12,fontWeight:600,color:'#334155'}}>{c.code}</span><span style={{fontSize:11,padding:'2px 8px',borderRadius:10,background:'#f1f5f9',color:'#64748b'}}>{c.count}</span></div>})}
           </div>}
+          {nc.length===0&&<div style={{textAlign:'center',padding:'12px 0',color:'#94a3b8',fontSize:12}}>Members will appear on the map as your team grows</div>}
         </WC>
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
           <WC title="Income Breakdown" subtitle="By stream" style={{flex:1}}><div style={{height:200}}><canvas ref={breakdownRef}/></div></WC>
