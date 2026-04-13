@@ -264,27 +264,9 @@ function GridContent() {
       <CommBox val="5%" label={t('compPlan.completionBonus')} sub={t('compPlan.gridFills64')} gradient="linear-gradient(135deg,#b45309,#f59e0b)" color="var(--sap-amber-dark)" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
     </div>
 
-    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:12 }}>{t('compPlan.eightCampaignTiers')}</div>
-    <div style={{ display:'grid', gridTemplateColumns:'repeat(8,1fr)', gap:6, marginBottom:20 }}>
-      {TIER_NAMES.map(function(n, i) {
-        return <div key={i} style={{ background:TIER_GRADS[i], borderRadius:10, padding:'12px 6px', textAlign:'center', color:'#fff' }}>
-          <div style={{ fontSize:10, fontWeight:600, opacity:.7 }}>{n}</div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:15, fontWeight:800 }}>${TIER_PRICES[i]}</div>
-        </div>;
-      })}
-    </div>
-
-    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:12 }}>{t('compPlan.earningsPerTier')}</div>
-    <EarnTable headers={[t('compPlan.tier'),t('compPlan.direct40'),t('compPlan.uniLevel625'),t('compPlan.completionBonus5')]} rows={[
-      ['T1 Starter $20','$8','$10 '+t('compPlan.perLevel'),'$64'],
-      ['T2 Builder $50','$20','$25 '+t('compPlan.perLevel'),'$160'],
-      ['T3 Pro $100','$40','$50 '+t('compPlan.perLevel'),'$320'],
-      ['T4 Advanced $200','$80','$100 '+t('compPlan.perLevel'),'$640'],
-      ['T5 Elite $400','$160','$200 '+t('compPlan.perLevel'),'$1,280'],
-      ['T6 Premium $600','$240','$300 '+t('compPlan.perLevel'),'$1,920'],
-      ['T7 Executive $800','$320','$400 '+t('compPlan.perLevel'),'$2,560'],
-      ['T8 Ultimate $1,000','$400','$500 '+t('compPlan.perLevel'),'$3,200'],
-    ]} boldLast/>
+    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:4 }}>{t('compPlan.eightCampaignTiers')}</div>
+    <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginBottom:14 }}>Click any tier to see your earnings breakdown</div>
+    <GridTierCards />
 
     <InfoBox items={[
       t('compPlan.gridKey1'),
@@ -343,24 +325,9 @@ function MatrixContent(props) {
       </div>
     </div>
 
-    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:12 }}>{t('compPlan.eightCreditPacks')}</div>
-    <div style={{ display:'grid', gridTemplateColumns:'repeat(8,1fr)', gap:6, marginBottom:20 }}>
-      {TIER_NAMES.map(function(n, i) {
-        return <div key={i} style={{ background:TIER_GRADS[i], borderRadius:10, padding:'12px 6px', textAlign:'center', color:'#fff' }}>
-          <div style={{ fontSize:10, fontWeight:600, opacity:.7 }}>{n}</div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:15, fontWeight:800 }}>${TIER_PRICES[i]}</div>
-          <div style={{ fontSize:9, opacity:.5 }}>{TIER_CREDITS[i].toLocaleString()} cr</div>
-        </div>;
-      })}
-    </div>
-
-    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:12 }}>{t('compPlan.perPositionEarnings')}</div>
-    <EarnTable headers={[t('compPlan.pack'),t('compPlan.price'),t('compPlan.credits'),t('compPlan.earnPerDirect'),t('compPlan.earnPerAutoPlace')]} rows={
-      TIER_NAMES.map(function(n, i) {
-        return [n, '$'+TIER_PRICES[i], TIER_CREDITS[i].toLocaleString(), '$'+(TIER_PRICES[i]*0.15).toFixed(2), '$'+(TIER_PRICES[i]*0.10).toFixed(2)];
-      })
-    }/>
-    <div style={{ fontSize:11, color:'var(--sap-text-muted)', textAlign:'center', marginBottom:20 }}>{t('compPlan.perPositionNote')}</div>
+    <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:4 }}>{t('compPlan.eightCreditPacks')}</div>
+    <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginBottom:14 }}>Click any pack to see your earnings per position</div>
+    <NexusPackCards />
 
     {/* Calculator */}
     <div style={{ background:'var(--sap-bg-elevated)', border:'1px solid #e2e8f0', borderRadius:16, padding:28, marginBottom:20 }}>
@@ -443,6 +410,126 @@ function CoursesContent() {
       t('compPlan.courseKey5'),
       t('compPlan.courseKey6'),
     ]} color="var(--sap-amber)"/>
+  </>;
+}
+
+
+/* ── Grid Clickable Tier Cards ── */
+function GridTierCards() {
+  var { t } = useTranslation();
+  var [selected, setSelected] = useState(null);
+
+  return <>
+    <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10, marginBottom:16 }}>
+      {TIER_NAMES.map(function(n, i) {
+        var isActive = selected === i;
+        var price = TIER_PRICES[i];
+        var direct40 = (price * 0.40).toFixed(2);
+        var uniLevel = (price * 0.0625).toFixed(2);
+        var uniTotal = (price * 0.0625 * 8).toFixed(2);
+        var bonus5 = (price * 0.05 * 64).toFixed(2);
+        var totalGrid = (price * 0.40 + price * 0.0625 * 8 * 64 + price * 0.05 * 64).toFixed(2);
+
+        return <div key={i}>
+          <div onClick={function(){ setSelected(isActive ? null : i); }}
+            style={{
+              background: TIER_GRADS[i], borderRadius:14, padding:'16px 12px', textAlign:'center', color:'#fff',
+              cursor:'pointer', transition:'all 0.2s', position:'relative', overflow:'hidden',
+              transform: isActive ? 'scale(1.03)' : 'scale(1)',
+              boxShadow: isActive ? '0 8px 24px rgba(0,0,0,0.25)' : '0 2px 8px rgba(0,0,0,0.1)',
+              border: isActive ? '2px solid rgba(255,255,255,0.4)' : '2px solid transparent',
+            }}>
+            <div style={{position:'absolute',top:-15,right:-15,width:50,height:50,borderRadius:'50%',background:'rgba(255,255,255,0.08)',pointerEvents:'none'}}/>
+            <div style={{ fontSize:11, fontWeight:600, opacity:.75 }}>{n}</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:900, margin:'4px 0' }}>${price}</div>
+            <div style={{ fontSize:9, opacity:.5, marginTop:2 }}>{isActive ? '▲ tap to close' : '▼ tap for earnings'}</div>
+          </div>
+
+          {isActive && <div style={{
+            background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'16px', marginTop:8,
+            boxShadow:'0 4px 16px rgba(0,0,0,0.08)', animation:'fadeIn 0.2s ease-out',
+          }}>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginBottom:10 }}>
+              <div style={{ background:'rgba(34,197,94,.06)', borderRadius:10, padding:'10px', textAlign:'center' }}>
+                <div style={{ fontSize:9, fontWeight:700, color:'var(--sap-green)', textTransform:'uppercase', letterSpacing:1 }}>Direct 40%</div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:900, color:'var(--sap-green)', marginTop:4 }}>${direct40}</div>
+              </div>
+              <div style={{ background:'rgba(99,102,241,.06)', borderRadius:10, padding:'10px', textAlign:'center' }}>
+                <div style={{ fontSize:9, fontWeight:700, color:'var(--sap-indigo)', textTransform:'uppercase', letterSpacing:1 }}>Uni-Level 6.25%</div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:900, color:'var(--sap-indigo)', marginTop:4 }}>${uniLevel}</div>
+                <div style={{ fontSize:9, color:'var(--sap-text-muted)' }}>× 8 levels</div>
+              </div>
+              <div style={{ background:'rgba(245,158,11,.06)', borderRadius:10, padding:'10px', textAlign:'center' }}>
+                <div style={{ fontSize:9, fontWeight:700, color:'var(--sap-amber-dark)', textTransform:'uppercase', letterSpacing:1 }}>Bonus 5%</div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:900, color:'var(--sap-amber-dark)', marginTop:4 }}>${bonus5}</div>
+                <div style={{ fontSize:9, color:'var(--sap-text-muted)' }}>64 positions</div>
+              </div>
+            </div>
+          </div>}
+        </div>;
+      })}
+    </div>
+  </>;
+}
+
+
+/* ── Nexus Clickable Pack Cards ── */
+function NexusPackCards() {
+  var { t } = useTranslation();
+  var [selected, setSelected] = useState(null);
+
+  return <>
+    <div style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:10, marginBottom:16 }}>
+      {TIER_NAMES.map(function(n, i) {
+        var isActive = selected === i;
+        var price = TIER_PRICES[i];
+        var credits = TIER_CREDITS[i];
+        var directEarn = (price * 0.15).toFixed(2);
+        var autoEarn = (price * 0.10).toFixed(2);
+        var totalIf39 = (3 * price * 0.15 + 36 * price * 0.10 + 39 * price * 0.10).toFixed(2);
+
+        return <div key={i}>
+          <div onClick={function(){ setSelected(isActive ? null : i); }}
+            style={{
+              background: TIER_GRADS[i], borderRadius:14, padding:'16px 12px', textAlign:'center', color:'#fff',
+              cursor:'pointer', transition:'all 0.2s', position:'relative', overflow:'hidden',
+              transform: isActive ? 'scale(1.03)' : 'scale(1)',
+              boxShadow: isActive ? '0 8px 24px rgba(0,0,0,0.25)' : '0 2px 8px rgba(0,0,0,0.1)',
+              border: isActive ? '2px solid rgba(255,255,255,0.4)' : '2px solid transparent',
+            }}>
+            <div style={{position:'absolute',top:-15,right:-15,width:50,height:50,borderRadius:'50%',background:'rgba(255,255,255,0.08)',pointerEvents:'none'}}/>
+            <div style={{ fontSize:11, fontWeight:600, opacity:.75 }}>{n}</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:900, margin:'4px 0' }}>${price}</div>
+            <div style={{ fontSize:10, opacity:.55 }}>{credits.toLocaleString()} credits</div>
+            <div style={{ fontSize:9, opacity:.5, marginTop:4 }}>{isActive ? '▲ tap to close' : '▼ tap for earnings'}</div>
+          </div>
+
+          {isActive && <div style={{
+            background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'16px', marginTop:8,
+            boxShadow:'0 4px 16px rgba(0,0,0,0.08)', animation:'fadeIn 0.2s ease-out',
+          }}>
+            <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:10 }}>
+              <div style={{ background:'rgba(245,158,11,.06)', borderRadius:10, padding:'12px', textAlign:'center' }}>
+                <div style={{ fontSize:10, fontWeight:700, color:'var(--sap-amber-dark)', textTransform:'uppercase', letterSpacing:1 }}>Direct (15%)</div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:900, color:'var(--sap-amber-dark)', marginTop:4 }}>${directEarn}</div>
+                <div style={{ fontSize:10, color:'var(--sap-text-muted)', marginTop:2 }}>per referral</div>
+              </div>
+              <div style={{ background:'rgba(34,197,94,.06)', borderRadius:10, padding:'12px', textAlign:'center' }}>
+                <div style={{ fontSize:10, fontWeight:700, color:'var(--sap-green)', textTransform:'uppercase', letterSpacing:1 }}>Auto-place (10%)</div>
+                <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:900, color:'var(--sap-green)', marginTop:4 }}>${autoEarn}</div>
+                <div style={{ fontSize:10, color:'var(--sap-text-muted)', marginTop:2 }}>per position</div>
+              </div>
+            </div>
+            <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:10, padding:'12px', textAlign:'center' }}>
+              <div style={{ fontSize:10, fontWeight:700, color:'rgba(255,255,255,.6)', textTransform:'uppercase', letterSpacing:1 }}>Full nexus (39 positions)</div>
+              <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:900, color:'#4ade80', marginTop:4 }}>${totalIf39}</div>
+              <div style={{ fontSize:10, color:'rgba(255,255,255,.4)', marginTop:2 }}>3 direct + 36 auto-place + completion</div>
+            </div>
+          </div>}
+        </div>;
+      })}
+    </div>
+    <style>{'@keyframes fadeIn{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}'}</style>
   </>;
 }
 
