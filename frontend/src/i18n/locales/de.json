@@ -557,7 +557,8 @@
     "note": "Notiz",
     "sent": "Gesendet",
     "received": "Empfangen",
-    "userIdPlaceholder": "z.B. SAP-00042"
+    "userIdPlaceholder": "z.B. SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "Ansehen und Verdienen",
@@ -4356,5 +4357,31 @@
     "aiAssistant": "✨ KI-Assistent",
     "clickCodeFull": "⟨/⟩ Klicken ✎ CODE für HTML"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "Verfügbares Guthaben",
+    "affiliateCampaign": "Affiliate + Kampagne",
+    "totalEarned": "Gesamt verdient",
+    "lifetimeAllStreams": "Lebenslang alle Ströme",
+    "teamSize": "Teamgröße",
+    "directReferrals": "Direkte Empfehlungen",
+    "networkByCountry": "Netzwerk nach Land",
+    "whereTeamBased": "Wo Ihre Teammitglieder ansässig sind",
+    "incomeBreakdown": "Einkommensaufschlüsselung",
+    "byStream": "Nach Quelle",
+    "linkPerformance": "Link-Performance",
+    "yourLinks": "Ihre Empfehlungslinks",
+    "totalClicks": "Gesamtklicks",
+    "last7Days": "Letzte 7 Tage",
+    "withdrawals": "Auszahlungen",
+    "usdtPolygon": "USDT auf Polygon",
+    "totalWithdrawn": "Gesamt ausgezahlt",
+    "pending": "Ausstehend",
+    "aiToolsUsage": "KI-Tools Nutzung",
+    "lifetimeGenerated": "Insgesamt generierte Inhalte",
+    "campaignQualification": "Kampagnen-Qualifikation",
+    "watchStatus": "Anzeige-Status",
+    "selectConversation": "Wählen Sie eine Konversation",
+    "noMessagesYet": "Noch keine Nachrichten"
+  }
 }

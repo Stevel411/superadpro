@@ -532,7 +532,8 @@
     "note": "Note",
     "sent": "Envoyé",
     "received": "Reçu",
-    "userIdPlaceholder": "ex. SAP-00042"
+    "userIdPlaceholder": "ex. SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "Regarder pour Gagner",
@@ -4146,5 +4147,31 @@
     "aiAssistant": "✨ Assistant IA",
     "clickCodeFull": "⟨/⟩ Cliquez ✎ CODE pour ajouter du HTML"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "Solde disponible",
+    "affiliateCampaign": "Affilié + Campagne",
+    "totalEarned": "Total gagné",
+    "lifetimeAllStreams": "Total de tous les flux",
+    "teamSize": "Taille de l'équipe",
+    "directReferrals": "Filleuls directs",
+    "networkByCountry": "Réseau par pays",
+    "whereTeamBased": "Où sont basés vos membres",
+    "incomeBreakdown": "Répartition des revenus",
+    "byStream": "Par flux",
+    "linkPerformance": "Performance des liens",
+    "yourLinks": "Vos liens de parrainage",
+    "totalClicks": "Clics totaux",
+    "last7Days": "7 derniers jours",
+    "withdrawals": "Retraits",
+    "usdtPolygon": "USDT sur Polygon",
+    "totalWithdrawn": "Total retiré",
+    "pending": "En attente",
+    "aiToolsUsage": "Utilisation des outils IA",
+    "lifetimeGenerated": "Contenu généré au total",
+    "campaignQualification": "Qualification de campagne",
+    "watchStatus": "Statut de visionnage",
+    "selectConversation": "Sélectionnez une conversation",
+    "noMessagesYet": "Pas encore de messages"
+  }
 }

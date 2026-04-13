@@ -557,7 +557,8 @@
     "note": "메모",
     "sent": "보냄",
     "received": "받음",
-    "userIdPlaceholder": "예: SAP-00042"
+    "userIdPlaceholder": "예: SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "시청하여 수익",
@@ -4356,5 +4357,31 @@
     "aiAssistant": "✨ AI 어시스턴트",
     "clickCodeFull": "⟨/⟩ ✎ CODE로 HTML 추가"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "사용 가능 잔액",
+    "affiliateCampaign": "제휴 + 캠페인",
+    "totalEarned": "총 수익",
+    "lifetimeAllStreams": "전체 수익원 누적",
+    "teamSize": "팀 규모",
+    "directReferrals": "직접 추천",
+    "networkByCountry": "국가별 네트워크",
+    "whereTeamBased": "팀원 소재지",
+    "incomeBreakdown": "수익 분석",
+    "byStream": "수익원별",
+    "linkPerformance": "링크 성과",
+    "yourLinks": "추천 링크",
+    "totalClicks": "총 클릭",
+    "last7Days": "최근 7일",
+    "withdrawals": "출금",
+    "usdtPolygon": "Polygon USDT",
+    "totalWithdrawn": "총 출금",
+    "pending": "보류 중",
+    "aiToolsUsage": "AI 도구 사용",
+    "lifetimeGenerated": "누적 생성 콘텐츠",
+    "campaignQualification": "캠페인 자격",
+    "watchStatus": "시청 상태",
+    "selectConversation": "대화 선택",
+    "noMessagesYet": "메시지 없음"
+  }
 }

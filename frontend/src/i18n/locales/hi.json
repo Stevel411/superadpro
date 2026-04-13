@@ -557,7 +557,8 @@
     "note": "नोट",
     "sent": "भेजा गया",
     "received": "प्राप्त",
-    "userIdPlaceholder": "उदा. SAP-00042"
+    "userIdPlaceholder": "उदा. SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "देखकर कमाएं",
@@ -4356,5 +4357,31 @@
     "aiAssistant": "✨ AI असिस्टेंट",
     "clickCodeFull": "⟨/⟩ ✎ CODE क्लिक करें HTML के लिए"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "उपलब्ध शेष",
+    "affiliateCampaign": "सहबद्ध + अभियान",
+    "totalEarned": "कुल अर्जित",
+    "lifetimeAllStreams": "आजीवन सभी स्रोत",
+    "teamSize": "टीम का आकार",
+    "directReferrals": "प्रत्यक्ष रेफरल",
+    "networkByCountry": "देश के अनुसार नेटवर्क",
+    "whereTeamBased": "आपके सदस्य कहाँ हैं",
+    "incomeBreakdown": "आय विवरण",
+    "byStream": "स्रोत के अनुसार",
+    "linkPerformance": "लिंक प्रदर्शन",
+    "yourLinks": "आपके रेफरल लिंक",
+    "totalClicks": "कुल क्लिक",
+    "last7Days": "पिछले 7 दिन",
+    "withdrawals": "निकासी",
+    "usdtPolygon": "Polygon पर USDT",
+    "totalWithdrawn": "कुल निकाला गया",
+    "pending": "लंबित",
+    "aiToolsUsage": "AI टूल्स उपयोग",
+    "lifetimeGenerated": "कुल उत्पन्न सामग्री",
+    "campaignQualification": "अभियान योग्यता",
+    "watchStatus": "देखने की स्थिति",
+    "selectConversation": "बातचीत चुनें",
+    "noMessagesYet": "अभी कोई संदेश नहीं"
+  }
 }

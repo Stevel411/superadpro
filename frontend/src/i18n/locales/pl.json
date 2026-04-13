@@ -557,7 +557,8 @@
     "note": "Notatka",
     "sent": "Wysłano",
     "received": "Otrzymano",
-    "userIdPlaceholder": "np. SAP-00042"
+    "userIdPlaceholder": "np. SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "Oglądaj i Zarabiaj",
@@ -4356,5 +4357,31 @@
     "aiAssistant": "✨ Asystent AI",
     "clickCodeFull": "⟨/⟩ ✎ KOD dla HTML"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "Dostępne saldo",
+    "affiliateCampaign": "Afiliacja + Kampania",
+    "totalEarned": "Łącznie zarobione",
+    "lifetimeAllStreams": "Łącznie wszystkie źródła",
+    "teamSize": "Wielkość zespołu",
+    "directReferrals": "Bezpośrednie polecenia",
+    "networkByCountry": "Sieć wg kraju",
+    "whereTeamBased": "Gdzie są Twoi członkowie",
+    "incomeBreakdown": "Podział dochodów",
+    "byStream": "Wg źródła",
+    "linkPerformance": "Wydajność linków",
+    "yourLinks": "Twoje linki polecające",
+    "totalClicks": "Łączne kliknięcia",
+    "last7Days": "Ostatnie 7 dni",
+    "withdrawals": "Wypłaty",
+    "usdtPolygon": "USDT na Polygon",
+    "totalWithdrawn": "Łącznie wypłacone",
+    "pending": "Oczekujące",
+    "aiToolsUsage": "Użycie narzędzi AI",
+    "lifetimeGenerated": "Łącznie wygenerowane",
+    "campaignQualification": "Kwalifikacja kampanii",
+    "watchStatus": "Status oglądania",
+    "selectConversation": "Wybierz rozmowę",
+    "noMessagesYet": "Brak wiadomości"
+  }
 }

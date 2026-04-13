@@ -85,31 +85,31 @@ export default function AnalyticsPage(){
 
       {/* ═══ ROW 1: Summary cards ═══ */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:12}}>
-        <GC gradient="linear-gradient(135deg,#0f766e,#14b8a6)" label="Available Balance" value={'$'+(tot.balance||0).toFixed(2)} sub="Affiliate + Campaign"/>
-        <GC gradient="linear-gradient(135deg,#1e40af,#3b82f6)" label="Total Earned" value={'$'+(tot.total_earned||0).toFixed(2)} sub="Lifetime all streams"/>
-        <GC gradient="linear-gradient(135deg,#7e22ce,#a855f7)" label="Team Size" value={String(tot.team_size||0)} sub="Direct referrals"/>
+        <GC gradient="linear-gradient(135deg,#0f766e,#14b8a6)" label={t('analytics.availableBalance')} value={'$'+(tot.balance||0).toFixed(2)} sub={t('analytics.affiliateCampaign')}/>
+        <GC gradient="linear-gradient(135deg,#1e40af,#3b82f6)" label={t('analytics.totalEarned')} value={'$'+(tot.total_earned||0).toFixed(2)} sub={t('analytics.lifetimeAllStreams')}/>
+        <GC gradient="linear-gradient(135deg,#7e22ce,#a855f7)" label={t('analytics.teamSize')} value={String(tot.team_size||0)} sub={t('analytics.directReferrals')}/>
       </div>
 
       {/* ═══ ROW 2: 4 Income Streams ═══ */}
       <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#94a3b8',margin:'16px 0 8px'}}>Your 4 Income Streams</div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
-        <GC gradient="linear-gradient(135deg,#15803d,#22c55e)" label="Membership" value={'$'+(tot.membership_earnings||0).toFixed(2)} sub="50% recurring">
+        <GC gradient="linear-gradient(135deg,#15803d,#22c55e)" label={t('analytics.membership',{defaultValue:'Membership'})} value={'$'+(tot.membership_earnings||0).toFixed(2)} sub={t('analytics.fiftyRecurring',{defaultValue:'50% recurring'})}>
           <div style={{position:'absolute',top:14,right:14}}><Spark data={mSpark('membership')} color="#fff"/></div>
         </GC>
-        <GC gradient="linear-gradient(135deg,#b45309,#f59e0b)" label="Campaign Grid" value={'$'+(tot.grid_earnings||0).toFixed(2)} sub="8×8 grid commissions">
+        <GC gradient="linear-gradient(135deg,#b45309,#f59e0b)" label={t('analytics.campaignGrid',{defaultValue:'Campaign Grid'})} value={'$'+(tot.grid_earnings||0).toFixed(2)} sub={t('analytics.gridCommissions',{defaultValue:'8×8 grid commissions'})}>
           <div style={{position:'absolute',top:14,right:14}}><Spark data={mSpark('grid')} color="#fff"/></div>
         </GC>
-        <GC gradient="linear-gradient(135deg,#6d28d9,#a78bfa)" label="Credit Nexus" value={'$'+(tot.nexus_earnings||0).toFixed(2)} sub="3×3 nexus commissions">
+        <GC gradient="linear-gradient(135deg,#6d28d9,#a78bfa)" label={t('analytics.creditNexus',{defaultValue:'Credit Nexus'})} value={'$'+(tot.nexus_earnings||0).toFixed(2)} sub={t('analytics.nexusCommissions',{defaultValue:'3×3 nexus commissions'})}>
           <div style={{position:'absolute',top:14,right:14}}><Spark data={mSpark('nexus')} color="#fff"/></div>
         </GC>
-        <GC gradient="linear-gradient(135deg,#0369a1,#38bdf8)" label="Courses" value={'$'+(tot.course_earnings||0).toFixed(2)} sub="Sales + pass-ups">
+        <GC gradient="linear-gradient(135deg,#0369a1,#38bdf8)" label={t('analytics.courses',{defaultValue:'Courses'})} value={'$'+(tot.course_earnings||0).toFixed(2)} sub={t('analytics.salesPassUps',{defaultValue:'Sales + pass-ups'})}>
           <div style={{position:'absolute',top:14,right:14}}><Spark data={mSpark('courses')} color="#fff"/></div>
         </GC>
       </div>
 
       {/* ═══ ROW 3: Network Map + Breakdown + Team Growth ═══ */}
       <div style={{display:'grid',gridTemplateColumns:'3fr 2fr',gap:12,marginBottom:12}}>
-        <WC title="Network by Country" subtitle="Where your team members are based">
+        <WC title={t('analytics.networkByCountry')} subtitle={t('analytics.whereTeamBased')}>
           <div style={{borderRadius:10,overflow:'hidden',background:'#eef2ff',border:'1px solid #e2e8f0',padding:4}}>
             <WorldMap
               color="#2563eb"
@@ -138,14 +138,14 @@ export default function AnalyticsPage(){
           {nc.length===0&&<div style={{textAlign:'center',padding:'12px 0',color:'#94a3b8',fontSize:12}}>Members will appear on the map as your team grows</div>}
         </WC>
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
-          <WC title="Income Breakdown" subtitle="By stream" style={{flex:1}}><div style={{height:200}}><canvas ref={breakdownRef}/></div></WC>
+          <WC title={t('analytics.incomeBreakdown')} subtitle={t('analytics.byStream')} style={{flex:1}}><div style={{height:200}}><canvas ref={breakdownRef}/></div></WC>
           <WC title="Team Growth" subtitle="Last 12 weeks"><div style={{height:130}}><canvas ref={teamRef}/></div></WC>
         </div>
       </div>
 
       {/* ═══ ROW 4: Link Clicks + Withdrawals + AI Usage ═══ */}
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:12}}>
-        <WC title="Link Performance" subtitle="Your referral & short links">
+        <WC title={t('analytics.linkPerformance')} subtitle={t('analytics.yourLinks')}>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:12}}>
             <div style={{background:'#f0fdf4',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:10,fontWeight:700,color:'#15803d',textTransform:'uppercase',letterSpacing:1,marginBottom:3}}>Total Clicks</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#166534'}}>{ls.total_clicks||0}</div></div>
             <div style={{background:'#eff6ff',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:10,fontWeight:700,color:'#1d4ed8',textTransform:'uppercase',letterSpacing:1,marginBottom:3}}>Last 7 Days</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#1e3a8a'}}>{ls.clicks_7d||0}</div></div>
@@ -155,7 +155,7 @@ export default function AnalyticsPage(){
           {!ls.total_clicks&&<div style={{textAlign:'center',padding:'16px 0',color:'#94a3b8',fontSize:12}}>Share your referral link to see click data</div>}
         </WC>
 
-        <WC title="Withdrawals" subtitle="USDT on Polygon">
+        <WC title={t('analytics.withdrawals')} subtitle={t('analytics.usdtPolygon')}>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:12}}>
             <div style={{background:'#faf5ff',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:10,fontWeight:700,color:'#7c3aed',textTransform:'uppercase',letterSpacing:1,marginBottom:3}}>Total Withdrawn</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#5b21b6'}}>${ws.total_withdrawn||'0.00'}</div></div>
             <div style={{background:'#fffbeb',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:10,fontWeight:700,color:'#b45309',textTransform:'uppercase',letterSpacing:1,marginBottom:3}}>Pending</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#92400e'}}>${ws.pending||'0.00'}</div></div>
@@ -163,7 +163,7 @@ export default function AnalyticsPage(){
           {ws.last_date?<div style={{background:'#f8fafc',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:11,color:'#94a3b8',marginBottom:4}}>Last withdrawal</div><div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>${ws.last_amount}</span><span style={{fontSize:12,color:'#64748b'}}>{ws.last_date}</span></div></div>:<div style={{textAlign:'center',padding:'16px 0',color:'#94a3b8',fontSize:12}}>No withdrawals yet</div>}
         </WC>
 
-        <WC title="AI Tools Usage" subtitle="Lifetime content generated">
+        <WC title={t('analytics.aiToolsUsage')} subtitle={t('analytics.lifetimeGenerated')}>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
             {[{label:'Campaign Studio',val:ai.campaign_studio||0,bg:'#eff6ff',color:'#1d4ed8'},{label:'Social Posts',val:ai.social_posts||0,bg:'#f0fdf4',color:'#15803d'},{label:'Video Scripts',val:ai.video_scripts||0,bg:'#faf5ff',color:'#7c3aed'},{label:'Niche Finder',val:ai.niche_finder||0,bg:'#fffbeb',color:'#b45309'}].map(function(a,i){return<div key={i} style={{background:a.bg,borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:10,fontWeight:700,color:a.color,textTransform:'uppercase',letterSpacing:1,marginBottom:3}}>{a.label}</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:a.color}}>{a.val}</div></div>})}
           </div>
@@ -189,7 +189,7 @@ export default function AnalyticsPage(){
       {data.watch_stats&&<>
         <div style={{margin:'16px 0 8px'}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:16,fontWeight:800,color:'#0f172a'}}>Campaign Qualification</div><div style={{fontSize:12,color:'#94a3b8',marginTop:2}}>Your daily watch requirement to qualify for Campaign Wallet withdrawals. This is not an income stream — it is your accountability check-in.</div></div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 2fr',gap:12,marginBottom:12}}>
-          <WC title="Watch Status" subtitle="Daily quota compliance">
+          <WC title={t('analytics.watchStatus')} subtitle="Daily quota compliance">
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
               {[{l:'Lifetime Views',v:String(data.watch_stats.total_watched),c:'#7c3aed'},{l:'Streak',v:data.watch_stats.streak_days+' days',c:'#b45309'},{l:"Today's Quota",v:data.watch_stats.today_watched+' / '+data.watch_stats.daily_required,c:data.watch_stats.today_watched>=data.watch_stats.daily_required?'#15803d':'#94a3b8'},{l:'Status',v:data.watch_stats.commissions_paused?'Paused':'Qualified',c:data.watch_stats.commissions_paused?'#dc2626':'#15803d'}].map(function(s,i){return<div key={i} style={{background:'#f8fafc',borderRadius:10,padding:'12px 14px',border:'1px solid #f1f5f9'}}><div style={{fontSize:10,fontWeight:700,color:'#94a3b8',textTransform:'uppercase',letterSpacing:1,marginBottom:3}}>{s.l}</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:18,fontWeight:900,color:s.c}}>{s.v}</div></div>})}
             </div>

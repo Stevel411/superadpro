@@ -557,7 +557,8 @@
     "note": "Tala",
     "sent": "Naipadala",
     "received": "Natanggap",
-    "userIdPlaceholder": "hal. SAP-00042"
+    "userIdPlaceholder": "hal. SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "Manood para Kumita",
@@ -4356,5 +4357,31 @@
     "aiAssistant": "✨ AI Assistant",
     "clickCodeFull": "⟨/⟩ ✎ CODE para sa HTML"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "Available na balanse",
+    "affiliateCampaign": "Affiliate + Campaign",
+    "totalEarned": "Kabuuang kinita",
+    "lifetimeAllStreams": "Panghabambuhay lahat ng streams",
+    "teamSize": "Laki ng team",
+    "directReferrals": "Direktang referral",
+    "networkByCountry": "Network ayon sa bansa",
+    "whereTeamBased": "Saan nakabase ang mga miyembro mo",
+    "incomeBreakdown": "Breakdown ng kita",
+    "byStream": "Ayon sa stream",
+    "linkPerformance": "Performance ng link",
+    "yourLinks": "Iyong referral links",
+    "totalClicks": "Kabuuang clicks",
+    "last7Days": "Huling 7 araw",
+    "withdrawals": "Mga withdrawal",
+    "usdtPolygon": "USDT sa Polygon",
+    "totalWithdrawn": "Kabuuang na-withdraw",
+    "pending": "Nakabinbin",
+    "aiToolsUsage": "Paggamit ng AI tools",
+    "lifetimeGenerated": "Kabuuang content na na-generate",
+    "campaignQualification": "Campaign qualification",
+    "watchStatus": "Watch status",
+    "selectConversation": "Pumili ng conversation",
+    "noMessagesYet": "Wala pang mensahe"
+  }
 }

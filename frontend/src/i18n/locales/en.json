@@ -503,7 +503,8 @@
     "note": "Note",
     "sent": "Sent",
     "received": "Received",
-    "userIdPlaceholder": "e.g. SAP-00042"
+    "userIdPlaceholder": "e.g. SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "Watch to Earn",
@@ -4103,5 +4104,31 @@
     "aiAssistant": "✨ AI Assistant",
     "clickCodeFull": "⟨/⟩ Click ✎ CODE to add HTML"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "Available Balance",
+    "affiliateCampaign": "Affiliate + Campaign",
+    "totalEarned": "Total Earned",
+    "lifetimeAllStreams": "Lifetime all streams",
+    "teamSize": "Team Size",
+    "directReferrals": "Direct referrals",
+    "networkByCountry": "Network by Country",
+    "whereTeamBased": "Where your team members are based",
+    "incomeBreakdown": "Income Breakdown",
+    "byStream": "By stream",
+    "linkPerformance": "Link Performance",
+    "yourLinks": "Your referral & short links",
+    "totalClicks": "Total Clicks",
+    "last7Days": "Last 7 Days",
+    "withdrawals": "Withdrawals",
+    "usdtPolygon": "USDT on Polygon",
+    "totalWithdrawn": "Total Withdrawn",
+    "pending": "Pending",
+    "aiToolsUsage": "AI Tools Usage",
+    "lifetimeGenerated": "Lifetime content generated",
+    "campaignQualification": "Campaign Qualification",
+    "watchStatus": "Watch Status",
+    "selectConversation": "Select a conversation",
+    "noMessagesYet": "No messages yet"
+  }
 }

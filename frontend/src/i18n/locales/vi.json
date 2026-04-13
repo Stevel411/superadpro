@@ -557,7 +557,8 @@
     "note": "Ghi chú",
     "sent": "Đã gửi",
     "received": "Đã nhận",
-    "userIdPlaceholder": "vd. SAP-00042"
+    "userIdPlaceholder": "vd. SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "Xem để Kiếm",
@@ -4356,5 +4357,31 @@
     "aiAssistant": "✨ Trợ lý AI",
     "clickCodeFull": "⟨/⟩ ✎ CODE thêm HTML"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "Số dư khả dụng",
+    "affiliateCampaign": "Liên kết + Chiến dịch",
+    "totalEarned": "Tổng kiếm được",
+    "lifetimeAllStreams": "Tổng tất cả nguồn",
+    "teamSize": "Quy mô đội",
+    "directReferrals": "Giới thiệu trực tiếp",
+    "networkByCountry": "Mạng lưới theo quốc gia",
+    "whereTeamBased": "Thành viên của bạn ở đâu",
+    "incomeBreakdown": "Phân tích thu nhập",
+    "byStream": "Theo nguồn",
+    "linkPerformance": "Hiệu suất liên kết",
+    "yourLinks": "Liên kết giới thiệu",
+    "totalClicks": "Tổng nhấp chuột",
+    "last7Days": "7 ngày qua",
+    "withdrawals": "Rút tiền",
+    "usdtPolygon": "USDT trên Polygon",
+    "totalWithdrawn": "Tổng đã rút",
+    "pending": "Đang chờ",
+    "aiToolsUsage": "Sử dụng công cụ AI",
+    "lifetimeGenerated": "Tổng nội dung đã tạo",
+    "campaignQualification": "Đủ điều kiện chiến dịch",
+    "watchStatus": "Trạng thái xem",
+    "selectConversation": "Chọn cuộc trò chuyện",
+    "noMessagesYet": "Chưa có tin nhắn"
+  }
 }

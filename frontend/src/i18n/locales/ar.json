@@ -557,7 +557,8 @@
     "note": "ملاحظة",
     "sent": "مُرسل",
     "received": "مستلم",
-    "userIdPlaceholder": "مثال SAP-00042"
+    "userIdPlaceholder": "مثال SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "شاهد لتكسب",
@@ -4356,5 +4357,31 @@
     "aiAssistant": "✨ مساعد AI",
     "clickCodeFull": "⟨/⟩ انقر ✎ كود لـ HTML"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "الرصيد المتاح",
+    "affiliateCampaign": "تابع + حملة",
+    "totalEarned": "إجمالي الأرباح",
+    "lifetimeAllStreams": "مدى الحياة جميع المصادر",
+    "teamSize": "حجم الفريق",
+    "directReferrals": "إحالات مباشرة",
+    "networkByCountry": "الشبكة حسب البلد",
+    "whereTeamBased": "أين يتواجد أعضاء فريقك",
+    "incomeBreakdown": "تفصيل الدخل",
+    "byStream": "حسب المصدر",
+    "linkPerformance": "أداء الروابط",
+    "yourLinks": "روابط الإحالة الخاصة بك",
+    "totalClicks": "إجمالي النقرات",
+    "last7Days": "آخر 7 أيام",
+    "withdrawals": "السحوبات",
+    "usdtPolygon": "USDT على Polygon",
+    "totalWithdrawn": "إجمالي المسحوب",
+    "pending": "قيد الانتظار",
+    "aiToolsUsage": "استخدام أدوات الذكاء",
+    "lifetimeGenerated": "المحتوى المُنشأ الإجمالي",
+    "campaignQualification": "تأهيل الحملة",
+    "watchStatus": "حالة المشاهدة",
+    "selectConversation": "اختر محادثة",
+    "noMessagesYet": "لا رسائل بعد"
+  }
 }

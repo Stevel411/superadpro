@@ -557,7 +557,8 @@
     "note": "メモ",
     "sent": "送信済み",
     "received": "受信済み",
-    "userIdPlaceholder": "例: SAP-00042"
+    "userIdPlaceholder": "例: SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "視聴して稼ぐ",
@@ -4356,5 +4357,31 @@
     "aiAssistant": "✨ AIアシスタント",
     "clickCodeFull": "⟨/⟩ ✎ CODE でHTML追加"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "利用可能残高",
+    "affiliateCampaign": "アフィリエイト + キャンペーン",
+    "totalEarned": "合計収益",
+    "lifetimeAllStreams": "全収入源の累計",
+    "teamSize": "チームサイズ",
+    "directReferrals": "直接紹介",
+    "networkByCountry": "国別ネットワーク",
+    "whereTeamBased": "チームメンバーの所在地",
+    "incomeBreakdown": "収入内訳",
+    "byStream": "収入源別",
+    "linkPerformance": "リンクパフォーマンス",
+    "yourLinks": "あなたの紹介リンク",
+    "totalClicks": "合計クリック",
+    "last7Days": "直近7日間",
+    "withdrawals": "出金",
+    "usdtPolygon": "PolygonのUSDT",
+    "totalWithdrawn": "合計出金",
+    "pending": "保留中",
+    "aiToolsUsage": "AIツール使用状況",
+    "lifetimeGenerated": "累計生成コンテンツ",
+    "campaignQualification": "キャンペーン資格",
+    "watchStatus": "視聴ステータス",
+    "selectConversation": "会話を選択",
+    "noMessagesYet": "メッセージなし"
+  }
 }

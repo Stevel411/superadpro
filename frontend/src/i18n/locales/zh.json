@@ -557,7 +557,8 @@
     "note": "备注",
     "sent": "已发送",
     "received": "已收到",
-    "userIdPlaceholder": "例如 SAP-00042"
+    "userIdPlaceholder": "例如 SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "观看赚取",
@@ -4356,5 +4357,31 @@
     "aiAssistant": "✨ AI助手",
     "clickCodeFull": "⟨/⟩ 点击 ✎ 代码 添加HTML"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "可用余额",
+    "affiliateCampaign": "联盟 + 活动",
+    "totalEarned": "总收入",
+    "lifetimeAllStreams": "所有收入来源总计",
+    "teamSize": "团队规模",
+    "directReferrals": "直接推荐",
+    "networkByCountry": "按国家分布",
+    "whereTeamBased": "您的团队成员所在地",
+    "incomeBreakdown": "收入明细",
+    "byStream": "按来源",
+    "linkPerformance": "链接表现",
+    "yourLinks": "您的推荐链接",
+    "totalClicks": "总点击",
+    "last7Days": "近7天",
+    "withdrawals": "提款",
+    "usdtPolygon": "Polygon上的USDT",
+    "totalWithdrawn": "总提款",
+    "pending": "待处理",
+    "aiToolsUsage": "AI工具使用",
+    "lifetimeGenerated": "累计生成内容",
+    "campaignQualification": "活动资格",
+    "watchStatus": "观看状态",
+    "selectConversation": "选择对话",
+    "noMessagesYet": "暂无消息"
+  }
 }

@@ -557,7 +557,8 @@
     "note": "Dokezo",
     "sent": "Imetumwa",
     "received": "Imepokelewa",
-    "userIdPlaceholder": "mf. SAP-00042"
+    "userIdPlaceholder": "mf. SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "Tazama Upate",
@@ -4356,5 +4357,31 @@
     "aiAssistant": "✨ Msaidizi wa AI",
     "clickCodeFull": "⟨/⟩ ✎ MSIMBO kwa HTML"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "Salio inayopatikana",
+    "affiliateCampaign": "Mshirika + Kampeni",
+    "totalEarned": "Jumla iliyopatikana",
+    "lifetimeAllStreams": "Jumla vyanzo vyote",
+    "teamSize": "Ukubwa wa timu",
+    "directReferrals": "Rufaa za moja kwa moja",
+    "networkByCountry": "Mtandao kwa nchi",
+    "whereTeamBased": "Wanachama wako wako wapi",
+    "incomeBreakdown": "Mgawanyo wa mapato",
+    "byStream": "Kwa chanzo",
+    "linkPerformance": "Utendaji wa viungo",
+    "yourLinks": "Viungo vyako vya rufaa",
+    "totalClicks": "Jumla ya kubofya",
+    "last7Days": "Siku 7 zilizopita",
+    "withdrawals": "Utoaji",
+    "usdtPolygon": "USDT kwenye Polygon",
+    "totalWithdrawn": "Jumla iliyotolewa",
+    "pending": "Inasubiri",
+    "aiToolsUsage": "Matumizi ya zana za AI",
+    "lifetimeGenerated": "Maudhui yaliyotengenezwa",
+    "campaignQualification": "Sifa ya kampeni",
+    "watchStatus": "Hali ya kutazama",
+    "selectConversation": "Chagua mazungumzo",
+    "noMessagesYet": "Hakuna ujumbe bado"
+  }
 }

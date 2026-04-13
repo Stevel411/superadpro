@@ -557,7 +557,8 @@
     "note": "Not",
     "sent": "Gönderildi",
     "received": "Alındı",
-    "userIdPlaceholder": "örn. SAP-00042"
+    "userIdPlaceholder": "örn. SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "İzle ve Kazan",
@@ -4356,5 +4357,31 @@
     "aiAssistant": "✨ AI Asistan",
     "clickCodeFull": "⟨/⟩ ✎ KOD ile HTML"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "Kullanılabilir bakiye",
+    "affiliateCampaign": "Ortaklık + Kampanya",
+    "totalEarned": "Toplam kazanılan",
+    "lifetimeAllStreams": "Tüm kaynaklar toplamı",
+    "teamSize": "Takım boyutu",
+    "directReferrals": "Doğrudan referanslar",
+    "networkByCountry": "Ülkelere göre ağ",
+    "whereTeamBased": "Üyelerinizin bulunduğu yerler",
+    "incomeBreakdown": "Gelir dağılımı",
+    "byStream": "Kaynağa göre",
+    "linkPerformance": "Bağlantı performansı",
+    "yourLinks": "Yönlendirme bağlantılarınız",
+    "totalClicks": "Toplam tıklama",
+    "last7Days": "Son 7 gün",
+    "withdrawals": "Çekimler",
+    "usdtPolygon": "Polygon üzerinde USDT",
+    "totalWithdrawn": "Toplam çekilen",
+    "pending": "Beklemede",
+    "aiToolsUsage": "AI araç kullanımı",
+    "lifetimeGenerated": "Toplam üretilen içerik",
+    "campaignQualification": "Kampanya yeterliliği",
+    "watchStatus": "İzleme durumu",
+    "selectConversation": "Bir sohbet seçin",
+    "noMessagesYet": "Henüz mesaj yok"
+  }
 }

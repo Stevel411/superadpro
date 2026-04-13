@@ -101,8 +101,8 @@ export default function TeamMessenger() {
             {filteredContacts.length === 0 ? (
               <div style={{padding:'60px 20px',textAlign:'center'}}>
                 <Users size={32} color="#cbd5e1" style={{marginBottom:10}}/>
-                <div style={{fontSize:13,fontWeight:600,color:'#64748b'}}>{contacts.length===0?'No team members yet':'No results'}</div>
-                <div style={{fontSize:12,color:'#94a3b8',marginTop:4}}>{contacts.length===0?'Recruit members to start messaging':''}</div>
+                <div style={{fontSize:13,fontWeight:600,color:'#64748b'}}>{contacts.length===0?t('analytics.noTeamYet',{defaultValue:'No team members yet'}):t('analytics.noResults',{defaultValue:'No results'})}</div>
+                <div style={{fontSize:12,color:'#94a3b8',marginTop:4}}>{contacts.length===0?t('analytics.recruitToMsg',{defaultValue:'Recruit members to start messaging'}):''}</div>
               </div>
             ) : filteredContacts.map(function(c) {
               var isActive = activeContact && activeContact.id === c.id;
@@ -134,7 +134,7 @@ export default function TeamMessenger() {
                       {ur>0&&<span style={{fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:10,background:'#0ea5e9',color:'#fff',flexShrink:0,marginLeft:6}}>{ur}</span>}
                     </div>
                     <div style={{fontSize:10,fontWeight:600,color:isSponsor?'#0ea5e9':'#3b82f6',marginTop:3}}>
-                      {isSponsor?'Sponsor':'Referral'} · {c.tier||'Basic'}
+                      {isSponsor?t('teamMessenger.sponsor',{defaultValue:'Sponsor'}):t('teamMessenger.referral',{defaultValue:'Referral'})} · {c.tier||'Basic'}
                     </div>
                   </div>
                 </div>
@@ -159,7 +159,7 @@ export default function TeamMessenger() {
               </div>
               <div>
                 <div style={{fontSize:15,fontWeight:700,color:'#0f172a'}}>{activeContact.name}</div>
-                <div style={{fontSize:11,color:'#94a3b8'}}>{activeContact.relationship==='sponsor'?'Your Sponsor':'Your Referral'} · {activeContact.tier||'Basic'}</div>
+                <div style={{fontSize:11,color:'#94a3b8'}}>{activeContact.relationship==='sponsor'?t('teamMessenger.yourSponsor',{defaultValue:'Your Sponsor'}):t('teamMessenger.yourReferral',{defaultValue:'Your Referral'})} · {activeContact.tier||'Basic'}</div>
               </div>
             </div>
 

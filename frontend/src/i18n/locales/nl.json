@@ -557,7 +557,8 @@
     "note": "Notitie",
     "sent": "Verzonden",
     "received": "Ontvangen",
-    "userIdPlaceholder": "bijv. SAP-00042"
+    "userIdPlaceholder": "bijv. SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "Kijken om te Verdienen",
@@ -4356,5 +4357,31 @@
     "aiAssistant": "✨ AI-assistent",
     "clickCodeFull": "⟨/⟩ ✎ CODE voor HTML"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "Beschikbaar saldo",
+    "affiliateCampaign": "Affiliate + Campagne",
+    "totalEarned": "Totaal verdiend",
+    "lifetimeAllStreams": "Levenslang alle bronnen",
+    "teamSize": "Teamgrootte",
+    "directReferrals": "Directe verwijzingen",
+    "networkByCountry": "Netwerk per land",
+    "whereTeamBased": "Waar uw teamleden zich bevinden",
+    "incomeBreakdown": "Inkomstenoverzicht",
+    "byStream": "Per bron",
+    "linkPerformance": "Linkprestaties",
+    "yourLinks": "Uw verwijzingslinks",
+    "totalClicks": "Totaal klikken",
+    "last7Days": "Laatste 7 dagen",
+    "withdrawals": "Opnames",
+    "usdtPolygon": "USDT op Polygon",
+    "totalWithdrawn": "Totaal opgenomen",
+    "pending": "In behandeling",
+    "aiToolsUsage": "AI-tools gebruik",
+    "lifetimeGenerated": "Totaal gegenereerde content",
+    "campaignQualification": "Campagne-kwalificatie",
+    "watchStatus": "Kijkstatus",
+    "selectConversation": "Selecteer een gesprek",
+    "noMessagesYet": "Nog geen berichten"
+  }
 }

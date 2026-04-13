@@ -557,7 +557,8 @@
     "note": "Nota",
     "sent": "Enviado",
     "received": "Recebido",
-    "userIdPlaceholder": "ex. SAP-00042"
+    "userIdPlaceholder": "ex. SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "Assistir para Ganhar",
@@ -4356,5 +4357,31 @@
     "aiAssistant": "✨ Assistente IA",
     "clickCodeFull": "⟨/⟩ Clique ✎ CÓDIGO para HTML"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "Saldo disponível",
+    "affiliateCampaign": "Afiliado + Campanha",
+    "totalEarned": "Total ganho",
+    "lifetimeAllStreams": "Vitalício todos os fluxos",
+    "teamSize": "Tamanho da equipe",
+    "directReferrals": "Indicações diretas",
+    "networkByCountry": "Rede por país",
+    "whereTeamBased": "Onde seus membros estão",
+    "incomeBreakdown": "Detalhamento de renda",
+    "byStream": "Por fonte",
+    "linkPerformance": "Desempenho de links",
+    "yourLinks": "Seus links de indicação",
+    "totalClicks": "Total de cliques",
+    "last7Days": "Últimos 7 dias",
+    "withdrawals": "Saques",
+    "usdtPolygon": "USDT na Polygon",
+    "totalWithdrawn": "Total sacado",
+    "pending": "Pendente",
+    "aiToolsUsage": "Uso de ferramentas IA",
+    "lifetimeGenerated": "Conteúdo gerado total",
+    "campaignQualification": "Qualificação de campanha",
+    "watchStatus": "Status de visualização",
+    "selectConversation": "Selecione uma conversa",
+    "noMessagesYet": "Sem mensagens ainda"
+  }
 }

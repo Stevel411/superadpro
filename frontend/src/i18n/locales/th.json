@@ -557,7 +557,8 @@
     "note": "หมายเหตุ",
     "sent": "ส่งแล้ว",
     "received": "ได้รับ",
-    "userIdPlaceholder": "เช่น SAP-00042"
+    "userIdPlaceholder": "เช่น SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "ดูเพื่อรับ",
@@ -4356,5 +4357,31 @@
     "aiAssistant": "✨ ผู้ช่วย AI",
     "clickCodeFull": "⟨/⟩ ✎ โค้ด เพิ่ม HTML"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "ยอดเงินคงเหลือ",
+    "affiliateCampaign": "พันธมิตร + แคมเปญ",
+    "totalEarned": "รายได้รวม",
+    "lifetimeAllStreams": "รวมทุกช่องทาง",
+    "teamSize": "ขนาดทีม",
+    "directReferrals": "ผู้แนะนำโดยตรง",
+    "networkByCountry": "เครือข่ายตามประเทศ",
+    "whereTeamBased": "สมาชิกของคุณอยู่ที่ไหน",
+    "incomeBreakdown": "รายละเอียดรายได้",
+    "byStream": "ตามช่องทาง",
+    "linkPerformance": "ประสิทธิภาพลิงก์",
+    "yourLinks": "ลิงก์แนะนำของคุณ",
+    "totalClicks": "คลิกทั้งหมด",
+    "last7Days": "7 วันล่าสุด",
+    "withdrawals": "การถอนเงิน",
+    "usdtPolygon": "USDT บน Polygon",
+    "totalWithdrawn": "ยอดถอนรวม",
+    "pending": "รอดำเนินการ",
+    "aiToolsUsage": "การใช้เครื่องมือ AI",
+    "lifetimeGenerated": "เนื้อหาที่สร้างทั้งหมด",
+    "campaignQualification": "คุณสมบัติแคมเปญ",
+    "watchStatus": "สถานะการรับชม",
+    "selectConversation": "เลือกการสนทนา",
+    "noMessagesYet": "ยังไม่มีข้อความ"
+  }
 }

@@ -557,7 +557,8 @@
     "note": "Заметка",
     "sent": "Отправлено",
     "received": "Получено",
-    "userIdPlaceholder": "напр. SAP-00042"
+    "userIdPlaceholder": "напр. SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "Смотри и зарабатывай",
@@ -4356,5 +4357,31 @@
     "aiAssistant": "✨ ИИ-ассистент",
     "clickCodeFull": "⟨/⟩ ✎ КОД для HTML"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "Доступный баланс",
+    "affiliateCampaign": "Партнёрский + Кампания",
+    "totalEarned": "Всего заработано",
+    "lifetimeAllStreams": "За всё время все потоки",
+    "teamSize": "Размер команды",
+    "directReferrals": "Прямые рефералы",
+    "networkByCountry": "Сеть по странам",
+    "whereTeamBased": "Где находятся ваши участники",
+    "incomeBreakdown": "Разбивка дохода",
+    "byStream": "По потокам",
+    "linkPerformance": "Эффективность ссылок",
+    "yourLinks": "Ваши реферальные ссылки",
+    "totalClicks": "Всего кликов",
+    "last7Days": "Последние 7 дней",
+    "withdrawals": "Выводы",
+    "usdtPolygon": "USDT на Polygon",
+    "totalWithdrawn": "Всего выведено",
+    "pending": "В ожидании",
+    "aiToolsUsage": "Использование AI",
+    "lifetimeGenerated": "Всего сгенерировано",
+    "campaignQualification": "Квалификация кампании",
+    "watchStatus": "Статус просмотра",
+    "selectConversation": "Выберите разговор",
+    "noMessagesYet": "Пока нет сообщений"
+  }
 }

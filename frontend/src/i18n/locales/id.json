@@ -557,7 +557,8 @@
     "note": "Catatan",
     "sent": "Terkirim",
     "received": "Diterima",
-    "userIdPlaceholder": "mis. SAP-00042"
+    "userIdPlaceholder": "mis. SAP-00042",
+    "creditNexus": "Credit Nexus"
   },
   "watch": {
     "title": "Tonton untuk Mendapatkan",
@@ -4356,5 +4357,31 @@
     "aiAssistant": "✨ Asisten AI",
     "clickCodeFull": "⟨/⟩ ✎ KODE untuk HTML"
   },
-  "coursePlayer": {}
+  "coursePlayer": {},
+  "analytics": {
+    "availableBalance": "Saldo tersedia",
+    "affiliateCampaign": "Afiliasi + Kampanye",
+    "totalEarned": "Total diperoleh",
+    "lifetimeAllStreams": "Seumur hidup semua sumber",
+    "teamSize": "Ukuran tim",
+    "directReferrals": "Referral langsung",
+    "networkByCountry": "Jaringan per negara",
+    "whereTeamBased": "Di mana anggota tim Anda berada",
+    "incomeBreakdown": "Rincian pendapatan",
+    "byStream": "Per sumber",
+    "linkPerformance": "Kinerja tautan",
+    "yourLinks": "Tautan referral Anda",
+    "totalClicks": "Total klik",
+    "last7Days": "7 hari terakhir",
+    "withdrawals": "Penarikan",
+    "usdtPolygon": "USDT di Polygon",
+    "totalWithdrawn": "Total ditarik",
+    "pending": "Tertunda",
+    "aiToolsUsage": "Penggunaan alat AI",
+    "lifetimeGenerated": "Total konten dihasilkan",
+    "campaignQualification": "Kualifikasi kampanye",
+    "watchStatus": "Status menonton",
+    "selectConversation": "Pilih percakapan",
+    "noMessagesYet": "Belum ada pesan"
+  }
 }
