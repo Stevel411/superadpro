@@ -281,14 +281,14 @@ export default function Dashboard() {
             boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
             position: 'relative', overflow: 'hidden', transition: 'all 0.2s',
           }}>
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: \`linear-gradient(90deg, \${s.color}, \${s.bg})\`, borderRadius: '14px 14px 0 0' }} />
+            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${s.color}, ${s.bg})`, borderRadius: '14px 14px 0 0' }} />
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
               <div style={{ width: 46, height: 46, borderRadius: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', background: s.bg }}>
                 {s.icon}
               </div>
               <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 9px', borderRadius: 20, letterSpacing: 0.3, background: s.bg, color: s.color }}>{s.badge}</span>
             </div>
-            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 6 }}>\${formatMoney(s.val)}</div>
+            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 6 }}>${formatMoney(s.val)}</div>
             <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 3 }}>{s.name}</div>
             <div style={{ fontSize: 12, color: 'var(--sap-text-muted)' }}>{s.detail}</div>
           </div>
