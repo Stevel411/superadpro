@@ -122,11 +122,11 @@ export default function AnalyticsPage(){
               styleFunction={function(ctx){
                 var hasValue=ctx.countryValue!==undefined&&ctx.countryValue>0;
                 return{
-                  fill:hasValue?'#2563eb':'#cbd5e1',
-                  fillOpacity:hasValue?0.85:0.35,
-                  stroke:'#94a3b8',
+                  fill:hasValue?'#1d4ed8':'#94a3b8',
+                  fillOpacity:hasValue?0.9:0.3,
+                  stroke:hasValue?'#1e40af':'#64748b',
                   strokeWidth:hasValue?1.5:0.5,
-                  strokeOpacity:hasValue?0.8:0.4,
+                  strokeOpacity:hasValue?0.9:0.5,
                   cursor:hasValue?'pointer':'default',
                 };
               }}
