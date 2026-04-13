@@ -20,7 +20,7 @@ var PACK_OPTIONS = TIER_NAMES.map(function(n, i) {
 });
 
 var STREAMS_BASE = [
-  { id:'membership', num:'1', Icon:Users, color:'var(--sap-green)', bg:'var(--sap-green-bg-mid)', link:'/affiliate' },
+  { id:'membership', num:'1', Icon:Users, color:'var(--sap-green)', bg:'var(--sap-green-bg-mid)', link:'/network' },
   { id:'grid', num:'2', Icon:Zap, color:'var(--sap-indigo)', bg:'#eef2ff', link:'/grid-visualiser' },
   { id:'matrix', num:'3', Icon:Layers, color:'var(--sap-purple)', bg:'var(--sap-purple-pale)', link:'/nexus-visualiser' },
   { id:'courses', num:'4', Icon:GraduationCap, color:'var(--sap-amber)', bg:'var(--sap-amber-bg)', link:'/courses', comingSoon:true },
@@ -148,8 +148,8 @@ export default function CompensationPlan() {
         </div>
       </div>
 
-      {/* Repurchase Engine */}
-      <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', overflow:'hidden', marginTop:20 }}>
+      {/* Repurchase Engine — only shown on Grid and Nexus tabs */}
+      {(activeIdx === 1 || activeIdx === 2) && <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', overflow:'hidden', marginTop:20 }}>
         <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', padding:'24px 28px', display:'flex', alignItems:'center', gap:16 }}>
           <div style={{ fontSize:32 }}>🔄</div>
           <div>
@@ -194,7 +194,7 @@ export default function CompensationPlan() {
             </div>
           </div>
         </div>
-      </div>
+      </div>}
 
       {/* Two Wallets section */}
       <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', padding:'24px 28px', marginTop:20 }}>
