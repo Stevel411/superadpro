@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
@@ -30,6 +30,8 @@ var STREAMS_BASE = [
 export default function CompensationPlan() {
   var { t } = useTranslation();
   var [activeIdx, setActiveIdx] = useState(0);
+
+  useEffect(function() { window.scrollTo(0, 0); }, []);
 
   var STREAMS = STREAMS_BASE.map(function(s) {
     var titles = {
@@ -79,7 +81,7 @@ export default function CompensationPlan() {
       </div>
 
       {/* Tab bar */}
-      <div style={{ display:'flex', gap:4, overflowX:'auto', marginBottom:20, paddingBottom:4 }}>
+      <div style={{ display:'flex', gap:4, overflowX:'auto', marginBottom:20, paddingBottom:4, scrollbarWidth:'none', msOverflowStyle:'none' }}>
         {STREAMS.map(function(st, i) {
           var isActive = i === activeIdx;
           return <button key={st.id} onClick={function(){ setActiveIdx(i); }}
@@ -478,7 +480,7 @@ function CommBox(props) {
 
 function EarnTable(props) {
   return (
-    <div style={{ overflowX:'auto', marginBottom:14, borderRadius:12, border:'1px solid #e2e8f0', overflow:'hidden' }}>
+    <div style={{ marginBottom:14, borderRadius:12, border:'1px solid #e2e8f0', overflow:'hidden' }}>
       <table style={{ width:'100%', borderCollapse:'collapse' }}>
         <thead><tr style={{background:'#f8fafc'}}>{props.headers.map(function(h, i) {
           return <th key={i} style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:1, padding:'12px 16px', textAlign: i === props.headers.length-1 ? 'right' : 'left', borderBottom:'1px solid #e2e8f0' }}>{h}</th>;
