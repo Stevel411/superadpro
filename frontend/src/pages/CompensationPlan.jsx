@@ -198,15 +198,19 @@ export default function CompensationPlan() {
       <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e2e8f0', padding:'24px 28px', marginTop:20 }}>
         <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:16 }}>{t('compPlan.twoWallets')}</div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:16 }}>
-          <div style={{ background:'rgba(34,197,94,.06)', border:'1px solid rgba(34,197,94,.15)', borderRadius:12, padding:'18px 14px', textAlign:'center' }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'var(--sap-green)' }}>{t('compPlan.affiliateWalletTitle')}</div>
-            <div style={{ fontSize:13, color:'var(--sap-text-muted)', marginTop:8 }}>{t('compPlan.affiliateWalletDesc')}</div>
-            <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-green)', marginTop:8 }}>{t('compPlan.alwaysWithdrawable')}</div>
+          <div style={{ background:'linear-gradient(135deg,#f0fdf4,#dcfce7)', border:'1px solid #bbf7d0', borderRadius:14, padding:'22px 18px', textAlign:'center' }}>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#15803d' }}>{t('compPlan.affiliateWalletTitle')}</div>
+            <div style={{ fontSize:13, color:'#166534', marginTop:10, lineHeight:1.6 }}>Membership commissions</div>
+            <div style={{ fontSize:13, color:'#166534' }}>Credit Nexus commissions</div>
+            <div style={{ fontSize:13, color:'#166534' }}>Course sales commissions</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'#15803d', marginTop:10, padding:'6px 14px', background:'rgba(255,255,255,0.6)', borderRadius:8, display:'inline-block' }}>{t('compPlan.alwaysWithdrawable')}</div>
           </div>
-          <div style={{ background:'rgba(99,102,241,.06)', border:'1px solid rgba(99,102,241,.15)', borderRadius:12, padding:'18px 14px', textAlign:'center' }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'var(--sap-indigo)' }}>{t('compPlan.campaignWalletTitle')}</div>
-            <div style={{ fontSize:13, color:'var(--sap-text-muted)', marginTop:8 }}>{t('compPlan.campaignWalletDesc')}</div>
-            <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-indigo)', marginTop:8 }}>{t('compPlan.requiresActiveTier')}</div>
+          <div style={{ background:'linear-gradient(135deg,#eef2ff,#e0e7ff)', border:'1px solid #c7d2fe', borderRadius:14, padding:'22px 18px', textAlign:'center' }}>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#4338ca' }}>{t('compPlan.campaignWalletTitle')}</div>
+            <div style={{ fontSize:13, color:'#4338ca', marginTop:10, lineHeight:1.6 }}>Direct sponsor 40%</div>
+            <div style={{ fontSize:13, color:'#4338ca' }}>Uni-level 6.25% × 8 levels</div>
+            <div style={{ fontSize:13, color:'#4338ca' }}>Completion bonus 5%</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'#4338ca', marginTop:10, padding:'6px 14px', background:'rgba(255,255,255,0.6)', borderRadius:8, display:'inline-block' }}>{t('compPlan.requiresActiveTier')}</div>
           </div>
         </div>
       </div>
@@ -253,9 +257,9 @@ function GridContent() {
   var { t } = useTranslation();
   return <>
     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:20 }}>
-      <CommBox val="40%" label={t('compPlan.directSponsor')} sub={t('compPlan.yourReferralBuysTier')} color="var(--sap-green)" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
-      <CommBox val="6.25%" label={t('compPlan.eightLevelsDeep')} sub={t('compPlan.earnEntireNetwork')} color="var(--sap-indigo)" bg="rgba(99,102,241,.06)" border="rgba(99,102,241,.15)"/>
-      <CommBox val="5%" label={t('compPlan.completionBonus')} sub={t('compPlan.gridFills64')} color="var(--sap-amber-dark)" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
+      <CommBox val="40%" label={t('compPlan.directSponsor')} sub={t('compPlan.yourReferralBuysTier')} gradient="linear-gradient(135deg,#15803d,#22c55e)" color="var(--sap-green)" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
+      <CommBox val="6.25%" label={t('compPlan.eightLevelsDeep')} sub={t('compPlan.earnEntireNetwork')} gradient="linear-gradient(135deg,#1e40af,#3b82f6)" color="var(--sap-indigo)" bg="rgba(99,102,241,.06)" border="rgba(99,102,241,.15)"/>
+      <CommBox val="5%" label={t('compPlan.completionBonus')} sub={t('compPlan.gridFills64')} gradient="linear-gradient(135deg,#b45309,#f59e0b)" color="var(--sap-amber-dark)" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
     </div>
 
     <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:12 }}>{t('compPlan.eightCampaignTiers')}</div>
@@ -311,9 +315,9 @@ function MatrixContent(props) {
 
   return <>
     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:20 }}>
-      <CommBox val="15%" label={t('compPlan.directReferral')} sub={t('compPlan.youRecruited')} color="var(--sap-amber-dark)" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
-      <CommBox val="10%" label={t('compPlan.autoPlace')} sub={t('compPlan.placedByNetwork')} color="var(--sap-green)" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
-      <CommBox val="10%" label={t('compPlan.completionBonus')} sub={t('compPlan.nexusFills39')} color="var(--sap-purple)" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
+      <CommBox val="15%" label={t('compPlan.directReferral')} sub={t('compPlan.youRecruited')} gradient="linear-gradient(135deg,#b45309,#f59e0b)" color="var(--sap-amber-dark)" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
+      <CommBox val="10%" label={t('compPlan.autoPlace')} sub={t('compPlan.placedByNetwork')} gradient="linear-gradient(135deg,#15803d,#22c55e)" color="var(--sap-green)" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
+      <CommBox val="10%" label={t('compPlan.completionBonus')} sub={t('compPlan.nexusFills39')} gradient="linear-gradient(135deg,#6d28d9,#a78bfa)" color="var(--sap-purple)" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
     </div>
 
     {/* Cost breakdown */}
@@ -424,9 +428,9 @@ function CoursesContent() {
   var { t } = useTranslation();
   return <>
     <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:12, marginBottom:20 }}>
-      <CommBox val="100%" label={t('compPlan.firstSale')} sub={t('compPlan.keepEveryPenny')} color="var(--sap-green)" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
-      <CommBox val="Pass-up" label={t('compPlan.cascadeSystem')} sub={t('compPlan.subsequentSales')} color="var(--sap-amber)" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
-      <CommBox val="3 Tiers" label="$100 / $300 / $500" sub="Course price points" color="var(--sap-purple)" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
+      <CommBox val="100%" label={t('compPlan.firstSale')} sub={t('compPlan.keepEveryPenny')} gradient="linear-gradient(135deg,#15803d,#22c55e)" color="var(--sap-green)" bg="rgba(34,197,94,.06)" border="rgba(34,197,94,.15)"/>
+      <CommBox val="Pass-up" label={t('compPlan.cascadeSystem')} sub={t('compPlan.subsequentSales')} gradient="linear-gradient(135deg,#b45309,#f59e0b)" color="var(--sap-amber)" bg="rgba(245,158,11,.06)" border="rgba(245,158,11,.15)"/>
+      <CommBox val="3 Tiers" label="$100 / $300 / $500" sub="Course price points" gradient="linear-gradient(135deg,#6d28d9,#a78bfa)" color="var(--sap-purple)" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
     </div>
 
     <InfoBox items={[
@@ -448,10 +452,10 @@ function FlowArrow(props) {
     <div style={{ display:'grid', gridTemplateColumns:'1fr auto 1fr auto 1fr', alignItems:'center', gap:0, marginBottom:20 }}>
       {props.steps.map(function(s, i) {
         return <div key={i} style={{ display:'contents' }}>
-          {i > 0 && <div style={{ textAlign:'center', fontSize:24, color:'var(--sap-text-faint)', padding:'0 4px' }}>→</div>}
-          <div style={{ background:s.bg, border:'1px solid '+s.border, borderRadius:12, padding:'18px 14px', textAlign:'center' }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:15, fontWeight:800, color:'var(--sap-text-primary)' }}>{s.title}</div>
-            <div style={{ fontSize:13, marginTop:4, fontWeight:600, color:s.color }}>{s.sub}</div>
+          {i > 0 && <div style={{ textAlign:'center', padding:'0 6px', color:'var(--sap-text-faint)' }}><svg width="28" height="28" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></div>}
+          <div style={{ background:s.bg, border:'1px solid '+s.border, borderRadius:14, padding:'20px 16px', textAlign:'center' }}>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)' }}>{s.title}</div>
+            <div style={{ fontSize:13, marginTop:6, fontWeight:700, color:s.color }}>{s.sub}</div>
           </div>
         </div>;
       })}
@@ -460,26 +464,29 @@ function FlowArrow(props) {
 }
 
 function CommBox(props) {
+  var grad = props.gradient || props.bg;
+  var isGrad = grad && grad.includes('gradient');
   return (
-    <div style={{ background:props.bg, border:'1px solid '+props.border, borderRadius:12, padding:'18px 14px', textAlign:'center' }}>
-      <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:props.color, lineHeight:1 }}>{props.val}</div>
-      <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-primary)', marginTop:6 }}>{props.label}</div>
-      <div style={{ fontSize:11, color:'var(--sap-text-muted)', marginTop:3 }}>{props.sub}</div>
+    <div style={{ background:isGrad?grad:props.bg, border:isGrad?'none':'1px solid '+props.border, borderRadius:14, padding:'20px 16px', textAlign:'center', position:'relative', overflow:'hidden' }}>
+      {isGrad && <div style={{position:'absolute',top:-20,right:-20,width:60,height:60,borderRadius:'50%',background:'rgba(255,255,255,0.1)',pointerEvents:'none'}}/>}
+      <div style={{ fontFamily:'Sora,sans-serif', fontSize:30, fontWeight:900, color:isGrad?'#fff':props.color, lineHeight:1 }}>{props.val}</div>
+      <div style={{ fontSize:13, fontWeight:700, color:isGrad?'rgba(255,255,255,0.9)':'var(--sap-text-primary)', marginTop:8 }}>{props.label}</div>
+      <div style={{ fontSize:11, color:isGrad?'rgba(255,255,255,0.6)':'var(--sap-text-muted)', marginTop:3 }}>{props.sub}</div>
     </div>
   );
 }
 
 function EarnTable(props) {
   return (
-    <div style={{ overflowX:'auto', marginBottom:14 }}>
-      <table style={{ width:'100%', borderCollapse:'separate', borderSpacing:0 }}>
-        <thead><tr>{props.headers.map(function(h, i) {
-          return <th key={i} style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5, padding:'10px 14px', textAlign: i === props.headers.length-1 ? 'right' : 'left', borderBottom:'2px solid #f1f5f9' }}>{h}</th>;
+    <div style={{ overflowX:'auto', marginBottom:14, borderRadius:12, border:'1px solid #e2e8f0', overflow:'hidden' }}>
+      <table style={{ width:'100%', borderCollapse:'collapse' }}>
+        <thead><tr style={{background:'#f8fafc'}}>{props.headers.map(function(h, i) {
+          return <th key={i} style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:1, padding:'12px 16px', textAlign: i === props.headers.length-1 ? 'right' : 'left', borderBottom:'1px solid #e2e8f0' }}>{h}</th>;
         })}</tr></thead>
         <tbody>{props.rows.map(function(row, ri) {
           var isLast = ri === props.rows.length - 1;
-          return <tr key={ri}>{row.map(function(cell, ci) {
-            return <td key={ci} style={{ fontSize:14, padding:'12px 14px', borderBottom: isLast ? 'none' : '1px solid #f8fafc', textAlign: ci === row.length-1 ? 'right' : 'left', fontFamily: ci === row.length-1 ? 'Sora,sans-serif' : 'inherit', fontWeight: (ci === row.length-1 || (isLast && props.boldLast)) ? 700 : 400, color:'var(--sap-text-primary)' }}>{cell}</td>;
+          return <tr key={ri} style={{background: ri%2===0?'#fff':'#fafbfd', transition:'background 0.15s'}} onMouseEnter={function(e){e.currentTarget.style.background='#f0f9ff'}} onMouseLeave={function(e){e.currentTarget.style.background=ri%2===0?'#fff':'#fafbfd'}}>{row.map(function(cell, ci) {
+            return <td key={ci} style={{ fontSize:14, padding:'13px 16px', borderBottom: isLast ? 'none' : '1px solid #f1f5f9', textAlign: ci === row.length-1 ? 'right' : 'left', fontFamily: ci === row.length-1 ? 'Sora,sans-serif' : 'inherit', fontWeight: (ci === row.length-1 || (isLast && props.boldLast)) ? 800 : ci===0?600:400, color: ci === row.length-1 ? '#0f172a' : 'var(--sap-text-primary)' }}>{cell}</td>;
           })}</tr>;
         })}</tbody>
       </table>
