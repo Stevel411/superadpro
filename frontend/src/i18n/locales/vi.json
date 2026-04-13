@@ -102,7 +102,13 @@
     "loadingCreativeStudio": "Đang tải Creative Studio…",
     "loadingContentCreator": "Đang tải Trình tạo nội dung…",
     "migratingTitle": "Đang chuyển sang React — sắp ra mắt",
-    "migratingDesc": "Trang này đang được chuyển sang giao diện mới."
+    "migratingDesc": "Trang này đang được chuyển sang giao diện mới.",
+    "postedBy": "Đăng bởi",
+    "source": "Nguồn",
+    "sponsorUsername": "Tên người giới thiệu",
+    "yourImages": "Hình ảnh của bạn",
+    "videoNotSupported": "URL video không được hỗ trợ.",
+    "alreadyHaveAccount": "Đã có tài khoản?"
   },
   "nav": {
     "dashboard": "Bảng điều khiển",
@@ -392,8 +398,8 @@
     "earningsPerTier": "Thu nhập theo Cấp",
     "tier": "Cấp",
     "direct40": "Trực tiếp (40%)",
-    "uniLevel625": "Đa cấp (6,25% × 8)",
-    "completionBonus5": "Thưởng Hoàn thành (5%)",
+    "uniLevel625": "Uni-level 6,25% × 8 cấp",
+    "completionBonus5": "Thưởng hoàn thành 5%",
     "perLevel": "mỗi cấp",
     "gridKey1": "Kích hoạt cấp để vào Lưới 8×8 (64 vị trí)",
     "gridKey2": "Người giới thiệu và người giới thiệu của họ lấp các vị trí",
@@ -476,7 +482,13 @@
     "campaignWalletTitle": "Ví Chiến dịch",
     "campaignWalletDesc": "Hoa hồng lưới (trực tiếp + đa cấp + thưởng)",
     "requiresActiveTier": "Cần cấp hoạt động + hạn mức xem",
-    "keyThings": "Điều quan trọng cần biết"
+    "keyThings": "Điều quan trọng cần biết",
+    "membershipComm": "Hoa hồng thành viên",
+    "nexusComm": "Hoa hồng Credit Nexus",
+    "courseComm": "Hoa hồng bán khóa học",
+    "directSponsor40": "Người giới thiệu trực tiếp 40%",
+    "clickTierEarnings": "Nhấp vào bất kỳ hạng nào để xem thu nhập",
+    "clickPackEarnings": "Nhấp vào gói bất kỳ để xem thu nhập mỗi vị trí"
   },
   "wallet": {
     "title": "◎ Ví",
@@ -2894,7 +2906,9 @@
     "welcomeDefault": "Chào mừng! Chúng tôi vui vì bạn ở đây.",
     "tipDefault": "Đây là một mẹo quý giá cho hành trình của bạn.",
     "achieveDefault": "Xem những gì thành viên cộng đồng đã đạt được.",
-    "lastChanceDefault": "Đây là cơ hội cuối cùng để tham gia cùng chúng tôi."
+    "lastChanceDefault": "Đây là cơ hội cuối cùng để tham gia cùng chúng tôi.",
+    "sentToLeads": "Đã gửi đến",
+    "leads": "khách hàng tiềm năng"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -3989,13 +4003,13 @@
     "seed": "Seed",
     "yourImage": "Your image",
     "recent": "Recent",
-    "negativePrompt": "Negative Prompt",
+    "negativePrompt": "Prompt phủ định",
     "duration": "Duration",
     "resolution": "Resolution",
     "generate": "Tạo",
     "generating": "Generating...",
     "download": "Tải xuống",
-    "cost": "Cost:",
+    "cost": "Chi phí:",
     "referenceImage": "Reference Image",
     "imageTab": "Images",
     "imageWillAppear": "Your image will appear here",
@@ -4051,8 +4065,8 @@
     "mp4": "MP4",
     "webm": "WebM",
     "gif": "GIF",
-    "start": "Start",
-    "end": "End",
+    "start": "Bắt đầu",
+    "end": "Kết thúc",
     "apply": "Áp dụng",
     "original": "Original",
     "instagram": "Instagram",
@@ -4217,7 +4231,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "Tham chiếu phong cách"
   },
   "superPagesEditor": {
     "title": "Trình chỉnh sửa trang",
@@ -4421,6 +4436,23 @@
     "campaignQualification": "Đủ điều kiện chiến dịch",
     "watchStatus": "Trạng thái xem",
     "selectConversation": "Chọn cuộc trò chuyện",
-    "noMessagesYet": "Chưa có tin nhắn"
+    "noMessagesYet": "Chưa có tin nhắn",
+    "yourIncomeStreams": "4 nguồn thu nhập",
+    "mapEmpty": "Thành viên sẽ xuất hiện trên bản đồ khi đội ngũ phát triển",
+    "deviceSplit": "PHÂN CHIA THIẾT BỊ",
+    "topCountries": "QUỐC GIA HÀNG ĐẦU",
+    "shareLink": "Chia sẻ liên kết giới thiệu để xem dữ liệu nhấp chuột",
+    "lastWithdrawal": "Lần rút cuối",
+    "noWithdrawals": "Chưa có rút tiền",
+    "totalAiGen": "tổng AI đã tạo",
+    "qualificationDesc": "Yêu cầu xem hàng ngày để đủ điều kiện rút tiền từ Ví Chiến dịch. Đây không phải nguồn thu nhập — đây là kiểm tra trách nhiệm."
+  },
+  "superMarket": {
+    "comparePrice": "Giá so sánh",
+    "tags": "Thẻ",
+    "salesVideo": "Video bán hàng",
+    "productFile": "Tệp sản phẩm",
+    "bonusFile": "Tệp thưởng",
+    "continue": "Tiếp tục"
   }
 }

@@ -102,7 +102,13 @@
     "loadingCreativeStudio": "Memuat Creative Studio…",
     "loadingContentCreator": "Memuat Pembuat Konten…",
     "migratingTitle": "Migrasi ke React — segera hadir",
-    "migratingDesc": "Halaman ini sedang dimigrasikan ke antarmuka baru."
+    "migratingDesc": "Halaman ini sedang dimigrasikan ke antarmuka baru.",
+    "postedBy": "Diposting oleh",
+    "source": "Sumber",
+    "sponsorUsername": "Username sponsor",
+    "yourImages": "Gambar Anda",
+    "videoNotSupported": "URL video tidak didukung.",
+    "alreadyHaveAccount": "Sudah punya akun?"
   },
   "nav": {
     "dashboard": "Dasbor",
@@ -392,8 +398,8 @@
     "earningsPerTier": "Pendapatan per Tingkat",
     "tier": "Tingkat",
     "direct40": "Langsung (40%)",
-    "uniLevel625": "Uni-level (6,25% × 8)",
-    "completionBonus5": "Bonus Penyelesaian (5%)",
+    "uniLevel625": "Uni-level 6,25% × 8 level",
+    "completionBonus5": "Bonus penyelesaian 5%",
     "perLevel": "per level",
     "gridKey1": "Aktifkan tingkat untuk masuk Grid 8×8 (64 posisi)",
     "gridKey2": "Referensi Anda dan referensi mereka mengisi posisi",
@@ -476,7 +482,13 @@
     "campaignWalletTitle": "Dompet Kampanye",
     "campaignWalletDesc": "Komisi grid (langsung + uni-level + bonus)",
     "requiresActiveTier": "Perlu tingkat aktif + kuota tontonan",
-    "keyThings": "Hal penting yang perlu diketahui"
+    "keyThings": "Hal penting yang perlu diketahui",
+    "membershipComm": "Komisi keanggotaan",
+    "nexusComm": "Komisi Credit Nexus",
+    "courseComm": "Komisi penjualan kursus",
+    "directSponsor40": "Sponsor langsung 40%",
+    "clickTierEarnings": "Klik tier apa pun untuk melihat penghasilan",
+    "clickPackEarnings": "Klik paket apa pun untuk melihat penghasilan per posisi"
   },
   "wallet": {
     "title": "◎ Dompet",
@@ -2894,7 +2906,9 @@
     "welcomeDefault": "Selamat datang! Kami senang Anda di sini.",
     "tipDefault": "Berikut tip berharga untuk perjalanan Anda.",
     "achieveDefault": "Lihat apa yang telah dicapai anggota komunitas kami.",
-    "lastChanceDefault": "Ini kesempatan terakhir Anda untuk bergabung."
+    "lastChanceDefault": "Ini kesempatan terakhir Anda untuk bergabung.",
+    "sentToLeads": "Dikirim ke",
+    "leads": "prospek"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -3989,13 +4003,13 @@
     "seed": "Seed",
     "yourImage": "Your image",
     "recent": "Recent",
-    "negativePrompt": "Negative Prompt",
+    "negativePrompt": "Prompt negatif",
     "duration": "Duration",
     "resolution": "Resolution",
     "generate": "Hasilkan",
     "generating": "Generating...",
     "download": "Unduh",
-    "cost": "Cost:",
+    "cost": "Biaya:",
     "referenceImage": "Reference Image",
     "imageTab": "Images",
     "imageWillAppear": "Your image will appear here",
@@ -4051,8 +4065,8 @@
     "mp4": "MP4",
     "webm": "WebM",
     "gif": "GIF",
-    "start": "Start",
-    "end": "End",
+    "start": "Mulai",
+    "end": "Selesai",
     "apply": "Terapkan",
     "original": "Original",
     "instagram": "Instagram",
@@ -4217,7 +4231,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "Referensi gaya"
   },
   "superPagesEditor": {
     "title": "Editor halaman",
@@ -4421,6 +4436,23 @@
     "campaignQualification": "Kualifikasi kampanye",
     "watchStatus": "Status menonton",
     "selectConversation": "Pilih percakapan",
-    "noMessagesYet": "Belum ada pesan"
+    "noMessagesYet": "Belum ada pesan",
+    "yourIncomeStreams": "4 sumber pendapatan Anda",
+    "mapEmpty": "Anggota akan muncul di peta seiring tim Anda berkembang",
+    "deviceSplit": "PEMBAGIAN PERANGKAT",
+    "topCountries": "NEGARA TERATAS",
+    "shareLink": "Bagikan tautan referral Anda untuk melihat data klik",
+    "lastWithdrawal": "Penarikan terakhir",
+    "noWithdrawals": "Belum ada penarikan",
+    "totalAiGen": "total generasi AI",
+    "qualificationDesc": "Persyaratan menonton harian untuk kualifikasi penarikan Dompet Kampanye. Ini bukan sumber pendapatan — ini adalah check-in akuntabilitas Anda."
+  },
+  "superMarket": {
+    "comparePrice": "Harga perbandingan",
+    "tags": "Tag",
+    "salesVideo": "Video penjualan",
+    "productFile": "File produk",
+    "bonusFile": "File bonus",
+    "continue": "Lanjutkan"
   }
 }

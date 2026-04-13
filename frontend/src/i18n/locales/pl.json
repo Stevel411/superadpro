@@ -102,7 +102,13 @@
     "loadingCreativeStudio": "Ładowanie Creative Studio…",
     "loadingContentCreator": "Ładowanie Kreatora treści…",
     "migratingTitle": "Migracja do React — wkrótce",
-    "migratingDesc": "Ta strona jest migrowana do nowego interfejsu."
+    "migratingDesc": "Ta strona jest migrowana do nowego interfejsu.",
+    "postedBy": "Opublikowane przez",
+    "source": "Źródło",
+    "sponsorUsername": "Nazwa sponsora",
+    "yourImages": "Twoje obrazy",
+    "videoNotSupported": "URL wideo nie obsługiwany.",
+    "alreadyHaveAccount": "Masz już konto?"
   },
   "nav": {
     "dashboard": "Panel",
@@ -392,8 +398,8 @@
     "earningsPerTier": "Zarobki na Poziom",
     "tier": "Poziom",
     "direct40": "Bezpośredni (40%)",
-    "uniLevel625": "Uni-poziom (6,25% × 8)",
-    "completionBonus5": "Bonus Ukończenia (5%)",
+    "uniLevel625": "Uni-level 6,25% × 8 poziomów",
+    "completionBonus5": "Bonus za ukończenie 5%",
     "perLevel": "na poziom",
     "gridKey1": "Aktywuj poziom, aby wejść do Siatki 8×8 (64 pozycje)",
     "gridKey2": "Twoi poleceni i ich poleceni wypełniają twoje pozycje",
@@ -476,7 +482,13 @@
     "campaignWalletTitle": "Portfel Kampanii",
     "campaignWalletDesc": "Prowizje siatki (bezpośredni + uni-poziom + bonus)",
     "requiresActiveTier": "Wymaga aktywnego poziomu + kwoty oglądania",
-    "keyThings": "Kluczowe informacje"
+    "keyThings": "Kluczowe informacje",
+    "membershipComm": "Prowizje członkowskie",
+    "nexusComm": "Prowizje Credit Nexus",
+    "courseComm": "Prowizje ze sprzedaży kursów",
+    "directSponsor40": "Bezpośredni sponsor 40%",
+    "clickTierEarnings": "Kliknij poziom aby zobaczyć zarobki",
+    "clickPackEarnings": "Kliknij pakiet aby zobaczyć zarobki na pozycję"
   },
   "wallet": {
     "title": "◎ Portfel",
@@ -2292,7 +2304,7 @@
     "of": "z",
     "firstNamePlaceholder": "Twoje imię",
     "lastNamePlaceholder": "Twoje nazwisko",
-    "shortBio": "Krótki opis",
+    "shortBio": "Krótka bio",
     "accountReady": "Twoje konto jest gotowe. Oto co dalej:",
     "adLabel": "Ad",
     "optionalLabel": "(opcjonalnie)",
@@ -2894,7 +2906,9 @@
     "welcomeDefault": "Witamy! Cieszymy się, że tu jesteś.",
     "tipDefault": "Oto cenna wskazówka na Twoją drogę.",
     "achieveDefault": "Zobacz, co osiągnęli członkowie naszej społeczności.",
-    "lastChanceDefault": "To Twoja ostatnia szansa na dołączenie do nas."
+    "lastChanceDefault": "To Twoja ostatnia szansa na dołączenie do nas.",
+    "sentToLeads": "Wysłano do",
+    "leads": "leadów"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -3989,13 +4003,13 @@
     "seed": "Seed",
     "yourImage": "Your image",
     "recent": "Recent",
-    "negativePrompt": "Negative Prompt",
+    "negativePrompt": "Negatywny prompt",
     "duration": "Duration",
     "resolution": "Resolution",
     "generate": "Generuj",
     "generating": "Generating...",
     "download": "Pobierz",
-    "cost": "Cost:",
+    "cost": "Koszt:",
     "referenceImage": "Reference Image",
     "imageTab": "Images",
     "imageWillAppear": "Your image will appear here",
@@ -4051,8 +4065,8 @@
     "mp4": "MP4",
     "webm": "WebM",
     "gif": "GIF",
-    "start": "Start",
-    "end": "End",
+    "start": "Początek",
+    "end": "Koniec",
     "apply": "Zastosuj",
     "original": "Original",
     "instagram": "Instagram",
@@ -4217,7 +4231,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "Referencje stylu"
   },
   "superPagesEditor": {
     "title": "Edytor stron",
@@ -4421,6 +4436,23 @@
     "campaignQualification": "Kwalifikacja kampanii",
     "watchStatus": "Status oglądania",
     "selectConversation": "Wybierz rozmowę",
-    "noMessagesYet": "Brak wiadomości"
+    "noMessagesYet": "Brak wiadomości",
+    "yourIncomeStreams": "Twoje 4 źródła dochodu",
+    "mapEmpty": "Członkowie pojawią się na mapie wraz ze wzrostem zespołu",
+    "deviceSplit": "PODZIAŁ URZĄDZEŃ",
+    "topCountries": "TOP KRAJE",
+    "shareLink": "Udostępnij link polecający aby zobaczyć kliknięcia",
+    "lastWithdrawal": "Ostatnia wypłata",
+    "noWithdrawals": "Brak wypłat",
+    "totalAiGen": "łącznie generacji AI",
+    "qualificationDesc": "Dzienne wymaganie oglądania do wypłat z Portfela Kampanii. To nie jest źródło dochodu — to Twoja kontrola odpowiedzialności."
+  },
+  "superMarket": {
+    "comparePrice": "Cena porównawcza",
+    "tags": "Tagi",
+    "salesVideo": "Film sprzedażowy",
+    "productFile": "Plik produktu",
+    "bonusFile": "Plik bonusowy",
+    "continue": "Kontynuuj"
   }
 }

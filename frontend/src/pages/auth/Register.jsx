@@ -125,7 +125,7 @@ export default function Register() {
             </div>
           ) : (
             <div style={styles.field}>
-              <label style={styles.label}>Sponsor Username <span style={{ color: 'rgba(255,255,255,.3)', fontWeight: 400 }}>{t('auth.whoReferred')}</span></label>
+              <label style={styles.label}>{t('common.sponsorUsername')} <span style={{ color: 'rgba(255,255,255,.3)', fontWeight: 400 }}>{t('auth.whoReferred')}</span></label>
               <input value={form.ref} onChange={set('ref')} placeholder={t('auth.defaultSponsor')} style={styles.input} />
               <div style={{ fontSize: 11, color: 'rgba(255,255,255,.3)', marginTop: 4, lineHeight: 1.4 }}>{t("auth.sponsorDesc")}</div>
             </div>

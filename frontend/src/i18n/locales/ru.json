@@ -102,7 +102,13 @@
     "loadingCreativeStudio": "Загрузка Creative Studio…",
     "loadingContentCreator": "Загрузка Создателя контента…",
     "migratingTitle": "Миграция на React — скоро",
-    "migratingDesc": "Эта страница переносится на новый интерфейс."
+    "migratingDesc": "Эта страница переносится на новый интерфейс.",
+    "postedBy": "Автор",
+    "source": "Источник",
+    "sponsorUsername": "Имя спонсора",
+    "yourImages": "Ваши изображения",
+    "videoNotSupported": "URL видео не поддерживается.",
+    "alreadyHaveAccount": "Уже есть аккаунт?"
   },
   "nav": {
     "dashboard": "Панель",
@@ -392,8 +398,8 @@
     "earningsPerTier": "Доход по уровням",
     "tier": "Уровень",
     "direct40": "Прямой (40%)",
-    "uniLevel625": "Юни-уровень (6.25% × 8)",
-    "completionBonus5": "Бонус за завершение (5%)",
+    "uniLevel625": "Юни-уровень 6,25% × 8 уровней",
+    "completionBonus5": "Бонус за завершение 5%",
     "perLevel": "за уровень",
     "gridKey1": "Активируйте уровень для входа в сетку 8×8 (64 позиции)",
     "gridKey2": "Ваши рефералы и их рефералы заполняют позиции",
@@ -476,7 +482,13 @@
     "campaignWalletTitle": "Кошелёк кампании",
     "campaignWalletDesc": "Комиссии сетки (прямой + юни-уровень + бонус)",
     "requiresActiveTier": "Нужен активный уровень + квота просмотра",
-    "keyThings": "Ключевые моменты"
+    "keyThings": "Ключевые моменты",
+    "membershipComm": "Комиссии за членство",
+    "nexusComm": "Комиссии Credit Nexus",
+    "courseComm": "Комиссии за продажу курсов",
+    "directSponsor40": "Прямой спонсор 40%",
+    "clickTierEarnings": "Нажмите на уровень чтобы увидеть доход",
+    "clickPackEarnings": "Нажмите на пакет для дохода за позицию"
   },
   "wallet": {
     "title": "◎ Кошелёк",
@@ -2292,7 +2304,7 @@
     "of": "из",
     "firstNamePlaceholder": "Ваше имя",
     "lastNamePlaceholder": "Ваша фамилия",
-    "shortBio": "Краткое описание",
+    "shortBio": "Краткая биография",
     "accountReady": "Ваш аккаунт готов. Вот что делать дальше:",
     "adLabel": "Ad",
     "optionalLabel": "(необязательно)",
@@ -2894,7 +2906,9 @@
     "welcomeDefault": "Добро пожаловать! Мы рады, что вы здесь.",
     "tipDefault": "Вот ценный совет для вашего пути.",
     "achieveDefault": "Посмотрите, чего достигли участники нашего сообщества.",
-    "lastChanceDefault": "Это ваш последний шанс присоединиться к нам."
+    "lastChanceDefault": "Это ваш последний шанс присоединиться к нам.",
+    "sentToLeads": "Отправлено",
+    "leads": "лидов"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -3989,13 +4003,13 @@
     "seed": "Seed",
     "yourImage": "Your image",
     "recent": "Recent",
-    "negativePrompt": "Negative Prompt",
+    "negativePrompt": "Негативный промпт",
     "duration": "Duration",
     "resolution": "Resolution",
     "generate": "Сгенерировать",
     "generating": "Generating...",
     "download": "Скачать",
-    "cost": "Cost:",
+    "cost": "Стоимость:",
     "referenceImage": "Reference Image",
     "imageTab": "Images",
     "imageWillAppear": "Your image will appear here",
@@ -4007,7 +4021,7 @@
     "musicDesc": "Generate royalty-free music with Suno AI. Describe your track or write custom lyrics.",
     "simpleMode": "Simple Mode",
     "customMode": "Custom Mode",
-    "titleLabel": "Заголовок",
+    "titleLabel": "Название",
     "vocalGender": "Vocal Gender",
     "instrumentalOnly": "Instrumental Only",
     "noVocals": "No vocals — background music only",
@@ -4051,8 +4065,8 @@
     "mp4": "MP4",
     "webm": "WebM",
     "gif": "GIF",
-    "start": "Start",
-    "end": "End",
+    "start": "Начало",
+    "end": "Конец",
     "apply": "Применить",
     "original": "Original",
     "instagram": "Instagram",
@@ -4217,7 +4231,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "Стилевые ссылки"
   },
   "superPagesEditor": {
     "title": "Редактор страниц",
@@ -4421,6 +4436,23 @@
     "campaignQualification": "Квалификация кампании",
     "watchStatus": "Статус просмотра",
     "selectConversation": "Выберите разговор",
-    "noMessagesYet": "Пока нет сообщений"
+    "noMessagesYet": "Пока нет сообщений",
+    "yourIncomeStreams": "Ваши 4 потока дохода",
+    "mapEmpty": "Участники появятся на карте по мере роста команды",
+    "deviceSplit": "РАЗДЕЛЕНИЕ ПО УСТРОЙСТВАМ",
+    "topCountries": "ТОП СТРАН",
+    "shareLink": "Поделитесь реферальной ссылкой чтобы видеть клики",
+    "lastWithdrawal": "Последний вывод",
+    "noWithdrawals": "Выводов пока нет",
+    "totalAiGen": "всего AI генераций",
+    "qualificationDesc": "Ежедневный просмотр для вывода из Кампейн-кошелька. Это не поток дохода — это проверка ответственности."
+  },
+  "superMarket": {
+    "comparePrice": "Сравнительная цена",
+    "tags": "Теги",
+    "salesVideo": "Видео продаж",
+    "productFile": "Файл продукта",
+    "bonusFile": "Бонусный файл",
+    "continue": "Продолжить"
   }
 }

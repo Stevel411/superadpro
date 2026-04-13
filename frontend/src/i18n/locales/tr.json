@@ -102,7 +102,13 @@
     "loadingCreativeStudio": "Creative Studio yükleniyor…",
     "loadingContentCreator": "İçerik Oluşturucu yükleniyor…",
     "migratingTitle": "React'a geçiş yapılıyor — yakında",
-    "migratingDesc": "Bu sayfa yeni arayüze taşınıyor."
+    "migratingDesc": "Bu sayfa yeni arayüze taşınıyor.",
+    "postedBy": "Yazan",
+    "source": "Kaynak",
+    "sponsorUsername": "Sponsor kullanıcı adı",
+    "yourImages": "Görselleriniz",
+    "videoNotSupported": "Video URL'si desteklenmiyor.",
+    "alreadyHaveAccount": "Zaten hesabınız var mı?"
   },
   "nav": {
     "dashboard": "Kontrol Paneli",
@@ -392,8 +398,8 @@
     "earningsPerTier": "Seviye Başına Kazanç",
     "tier": "Seviye",
     "direct40": "Doğrudan (%40)",
-    "uniLevel625": "Uni-seviye (%6,25 × 8)",
-    "completionBonus5": "Tamamlama Bonusu (%5)",
+    "uniLevel625": "Uni-level %6,25 × 8 seviye",
+    "completionBonus5": "Tamamlanma bonusu %5",
     "perLevel": "seviye başına",
     "gridKey1": "8×8 Izgaraya girmek için seviye aktifleştirin (64 pozisyon)",
     "gridKey2": "Davetleriniz ve onların davetleri pozisyonlarınızı doldurur",
@@ -476,7 +482,13 @@
     "campaignWalletTitle": "Kampanya Cüzdanı",
     "campaignWalletDesc": "Izgara komisyonları (doğrudan + uni-seviye + bonus)",
     "requiresActiveTier": "Aktif seviye + izleme kotası gerekli",
-    "keyThings": "Bilinmesi gereken önemli noktalar"
+    "keyThings": "Bilinmesi gereken önemli noktalar",
+    "membershipComm": "Üyelik komisyonları",
+    "nexusComm": "Credit Nexus komisyonları",
+    "courseComm": "Kurs satış komisyonları",
+    "directSponsor40": "Doğrudan sponsor %40",
+    "clickTierEarnings": "Kazancınızı görmek için bir kademeye tıklayın",
+    "clickPackEarnings": "Pozisyon başına kazancı görmek için pakete tıklayın"
   },
   "wallet": {
     "title": "◎ Cüzdan",
@@ -2894,7 +2906,9 @@
     "welcomeDefault": "Hoş geldiniz! Burada olduğunuz için mutluyuz.",
     "tipDefault": "Yolculuğunuz için değerli bir ipucu.",
     "achieveDefault": "Topluluk üyelerimizin neler başardığına bakın.",
-    "lastChanceDefault": "Bize katılmak için son şansınız."
+    "lastChanceDefault": "Bize katılmak için son şansınız.",
+    "sentToLeads": "Gönderildi",
+    "leads": "müşteri adayı"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -3989,13 +4003,13 @@
     "seed": "Seed",
     "yourImage": "Your image",
     "recent": "Recent",
-    "negativePrompt": "Negative Prompt",
+    "negativePrompt": "Negatif prompt",
     "duration": "Duration",
     "resolution": "Resolution",
     "generate": "Oluştur",
     "generating": "Generating...",
     "download": "İndir",
-    "cost": "Cost:",
+    "cost": "Maliyet:",
     "referenceImage": "Reference Image",
     "imageTab": "Images",
     "imageWillAppear": "Your image will appear here",
@@ -4051,8 +4065,8 @@
     "mp4": "MP4",
     "webm": "WebM",
     "gif": "GIF",
-    "start": "Start",
-    "end": "End",
+    "start": "Başlangıç",
+    "end": "Bitiş",
     "apply": "Uygula",
     "original": "Original",
     "instagram": "Instagram",
@@ -4217,7 +4231,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "Stil referansları"
   },
   "superPagesEditor": {
     "title": "Sayfa Editörü",
@@ -4421,6 +4436,23 @@
     "campaignQualification": "Kampanya yeterliliği",
     "watchStatus": "İzleme durumu",
     "selectConversation": "Bir sohbet seçin",
-    "noMessagesYet": "Henüz mesaj yok"
+    "noMessagesYet": "Henüz mesaj yok",
+    "yourIncomeStreams": "4 gelir kaynağınız",
+    "mapEmpty": "Ekibiniz büyüdükçe üyeler haritada görünecek",
+    "deviceSplit": "CİHAZ DAĞILIMI",
+    "topCountries": "EN ÇOK ÜLKELER",
+    "shareLink": "Tıklama verilerini görmek için referans linkinizi paylaşın",
+    "lastWithdrawal": "Son çekim",
+    "noWithdrawals": "Henüz çekim yok",
+    "totalAiGen": "toplam AI üretimi",
+    "qualificationDesc": "Kampanya Cüzdanı çekim yeterliliği için günlük izleme gereksinimi. Bu bir gelir kaynağı değil — sorumluluk kontrolünüzdür."
+  },
+  "superMarket": {
+    "comparePrice": "Karşılaştırma fiyatı",
+    "tags": "Etiketler",
+    "salesVideo": "Satış videosu",
+    "productFile": "Ürün dosyası",
+    "bonusFile": "Bonus dosyası",
+    "continue": "Devam"
   }
 }

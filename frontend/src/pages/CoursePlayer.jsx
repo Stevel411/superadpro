@@ -43,7 +43,7 @@ function VideoPlayer({ url }) {
   return (
     <div style={{ background: '#111', borderRadius: 12, padding: 40, textAlign: 'center', color: 'rgba(255,255,255,0.4)' }}>
       <div style={{ fontSize: 40, marginBottom: 12 }}>🎬</div>
-      <p>Video URL not supported. <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--sap-accent-light)' }}>{t('courses.openDirectly')}</a></p>
+      <p>{t('common.videoNotSupported')} <a href={url} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--sap-accent-light)' }}>{t('courses.openDirectly')}</a></p>
     </div>
   );
 }

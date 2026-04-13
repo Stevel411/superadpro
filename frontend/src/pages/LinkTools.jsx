@@ -628,7 +628,7 @@ export default function LinkTools() {
           <Input value={utmUrl} onChange={e => setUtmUrl(e.target.value)} placeholder={t("linkTools.baseUrlPlaceholder")}/>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12}}>
             <div>
-              <Label>Source <span style={{color:'var(--sap-red)'}}>*</span></Label>
+              <Label>{t('common.source')} <span style={{color:'var(--sap-red)'}}>*</span></Label>
               <Input value={utmSource} onChange={e => setUtmSource(e.target.value)} placeholder={t("linkTools.sourcePlaceholder")}/>
             </div>
             <div>

@@ -1087,7 +1087,7 @@ export default function CreativeStudio() {
                 <div className="cs-card">
                   <div className="cs-lbl">{t('creativeStudio.generateStep')}</div>
                   <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginBottom: 12, lineHeight: 1.5 }}>{t('creativeStudio.uploadPhotoBody')}ar video synced to the audio.</div>
-                  <div style={{ fontSize: 12, color: 'var(--sap-text-faint)', marginBottom: 8 }}>Cost: <b style={{ color: 'var(--sap-text-primary)' }}>{t('creativeStudio.lipSyncCredits')}</b></div>
+                  <div style={{ fontSize: 12, color: 'var(--sap-text-faint)', marginBottom: 8 }}>{t('superScene.cost')} <b style={{ color: 'var(--sap-text-primary)' }}>{t('creativeStudio.lipSyncCredits')}</b></div>
                 </div>
               </div>
             </div>

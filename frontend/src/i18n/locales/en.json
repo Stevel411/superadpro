@@ -73,7 +73,13 @@
     "loadingContentCreator": "Loading Content Creator…",
     "migratingTitle": "Migrating to React — coming shortly",
     "migratingDesc": "This page is being migrated to the new interface.",
-    "signOut": "Sign Out"
+    "signOut": "Sign Out",
+    "postedBy": "Posted by",
+    "source": "Source",
+    "sponsorUsername": "Sponsor Username",
+    "yourImages": "Your Images",
+    "videoNotSupported": "Video URL not supported.",
+    "alreadyHaveAccount": "Already have an account?"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -338,8 +344,8 @@
     "earningsPerTier": "Earnings Per Tier",
     "tier": "Tier",
     "direct40": "Direct (40%)",
-    "uniLevel625": "Uni-level (6.25% × 8)",
-    "completionBonus5": "Completion Bonus (5%)",
+    "uniLevel625": "Uni-level 6.25% × 8 levels",
+    "completionBonus5": "Completion bonus 5%",
     "perLevel": "per level",
     "gridKey1": "Activate a Campaign Tier to enter the 8×8 Income Grid (64 positions)",
     "gridKey2": "Your referrals and their referrals fill your grid positions",
@@ -422,7 +428,13 @@
     "campaignWalletTitle": "Campaign Wallet",
     "campaignWalletDesc": "Grid commissions (direct + uni-level + bonus)",
     "requiresActiveTier": "Requires active tier + watch quota",
-    "keyThings": "Key things to know"
+    "keyThings": "Key things to know",
+    "membershipComm": "Membership commissions",
+    "nexusComm": "Credit Nexus commissions",
+    "courseComm": "Course sales commissions",
+    "directSponsor40": "Direct sponsor 40%",
+    "clickTierEarnings": "Click any tier to see your earnings breakdown",
+    "clickPackEarnings": "Click any pack to see your earnings per position"
   },
   "wallet": {
     "title": "◎ Wallet",
@@ -2641,7 +2653,9 @@
     "welcomeDefault": "Welcome! We are glad you are here.",
     "tipDefault": "Here is a valuable tip for your journey.",
     "achieveDefault": "See what our community members have achieved.",
-    "lastChanceDefault": "This is your last chance to join us."
+    "lastChanceDefault": "This is your last chance to join us.",
+    "sentToLeads": "Sent to",
+    "leads": "leads"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -3964,7 +3978,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use auto-transcribe.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "Style References"
   },
   "superPagesEditor": {
     "title": "Page Editor",
@@ -4168,6 +4183,23 @@
     "campaignQualification": "Campaign Qualification",
     "watchStatus": "Watch Status",
     "selectConversation": "Select a conversation",
-    "noMessagesYet": "No messages yet"
+    "noMessagesYet": "No messages yet",
+    "yourIncomeStreams": "Your 4 Income Streams",
+    "mapEmpty": "Members will appear on the map as your team grows",
+    "deviceSplit": "DEVICE SPLIT",
+    "topCountries": "TOP COUNTRIES",
+    "shareLink": "Share your referral link to see click data",
+    "lastWithdrawal": "Last withdrawal",
+    "noWithdrawals": "No withdrawals yet",
+    "totalAiGen": "total AI generations",
+    "qualificationDesc": "Your daily watch requirement to qualify for Campaign Wallet withdrawals. This is not an income stream — it is your accountability check-in."
+  },
+  "superMarket": {
+    "comparePrice": "Compare Price",
+    "tags": "Tags",
+    "salesVideo": "Sales Video",
+    "productFile": "Product File",
+    "bonusFile": "Bonus File",
+    "continue": "Continue"
   }
 }

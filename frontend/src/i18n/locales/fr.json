@@ -102,7 +102,13 @@
     "loadingCreativeStudio": "Chargement de Creative Studio…",
     "loadingContentCreator": "Chargement du Créateur de contenu…",
     "migratingTitle": "Migration vers React — bientôt disponible",
-    "migratingDesc": "Cette page est en cours de migration vers la nouvelle interface."
+    "migratingDesc": "Cette page est en cours de migration vers la nouvelle interface.",
+    "postedBy": "Publié par",
+    "source": "Source",
+    "sponsorUsername": "Nom d'utilisateur du parrain",
+    "yourImages": "Vos images",
+    "videoNotSupported": "URL vidéo non prise en charge.",
+    "alreadyHaveAccount": "Déjà un compte?"
   },
   "nav": {
     "dashboard": "Tableau de Bord",
@@ -367,8 +373,8 @@
     "earningsPerTier": "Gains par Niveau",
     "tier": "Niveau",
     "direct40": "Direct (40%)",
-    "uniLevel625": "Uni-niveau (6,25% × 8)",
-    "completionBonus5": "Bonus de Complétion (5%)",
+    "uniLevel625": "Uni-level 6,25% × 8 niveaux",
+    "completionBonus5": "Bonus de complétion 5%",
     "perLevel": "par niveau",
     "gridKey1": "Activez un Niveau pour entrer dans la Grille 8×8 (64 positions)",
     "gridKey2": "Vos filleuls et leurs filleuls remplissent vos positions",
@@ -451,7 +457,13 @@
     "campaignWalletTitle": "Portefeuille Campagne",
     "campaignWalletDesc": "Commissions de grille (direct + uni-niveau + bonus)",
     "requiresActiveTier": "Nécessite un niveau actif + quota de visionnage",
-    "keyThings": "Points clés à savoir"
+    "keyThings": "Points clés à savoir",
+    "membershipComm": "Commissions d'adhésion",
+    "nexusComm": "Commissions Credit Nexus",
+    "courseComm": "Commissions de ventes de cours",
+    "directSponsor40": "Parrain direct 40%",
+    "clickTierEarnings": "Cliquez sur un palier pour voir vos gains",
+    "clickPackEarnings": "Cliquez sur un pack pour voir vos gains par position"
   },
   "wallet": {
     "title": "◎ Portefeuille",
@@ -2564,7 +2576,9 @@
     "welcomeDefault": "Bienvenue ! Nous sommes ravis de vous accueillir.",
     "tipDefault": "Voici un conseil précieux pour votre parcours.",
     "achieveDefault": "Découvrez ce que les membres de notre communauté ont accompli.",
-    "lastChanceDefault": "C'est votre dernière chance de nous rejoindre."
+    "lastChanceDefault": "C'est votre dernière chance de nous rejoindre.",
+    "sentToLeads": "Envoyé à",
+    "leads": "prospects"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -3779,13 +3793,13 @@
     "seed": "Seed",
     "yourImage": "Your image",
     "recent": "Recent",
-    "negativePrompt": "Negative Prompt",
+    "negativePrompt": "Prompt négatif",
     "duration": "Duration",
     "resolution": "Resolution",
     "generate": "Générer",
     "generating": "Generating...",
     "download": "Télécharger",
-    "cost": "Cost:",
+    "cost": "Coût:",
     "referenceImage": "Reference Image",
     "imageTab": "Images",
     "imageWillAppear": "Your image will appear here",
@@ -3841,8 +3855,8 @@
     "mp4": "MP4",
     "webm": "WebM",
     "gif": "GIF",
-    "start": "Start",
-    "end": "End",
+    "start": "Début",
+    "end": "Fin",
     "apply": "Appliquer",
     "original": "Original",
     "instagram": "Instagram",
@@ -4007,7 +4021,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "Références de style"
   },
   "superPagesEditor": {
     "title": "Éditeur de pages",
@@ -4211,6 +4226,23 @@
     "campaignQualification": "Qualification de campagne",
     "watchStatus": "Statut de visionnage",
     "selectConversation": "Sélectionnez une conversation",
-    "noMessagesYet": "Pas encore de messages"
+    "noMessagesYet": "Pas encore de messages",
+    "yourIncomeStreams": "Vos 4 sources de revenus",
+    "mapEmpty": "Les membres apparaîtront sur la carte au fur et à mesure",
+    "deviceSplit": "RÉPARTITION PAR APPAREIL",
+    "topCountries": "PRINCIPAUX PAYS",
+    "shareLink": "Partagez votre lien de parrainage pour voir les clics",
+    "lastWithdrawal": "Dernier retrait",
+    "noWithdrawals": "Aucun retrait",
+    "totalAiGen": "générations IA totales",
+    "qualificationDesc": "Votre exigence de visionnage quotidien pour les retraits du Portefeuille Campagne. Ce n'est pas un flux de revenus — c'est votre contrôle de responsabilité."
+  },
+  "superMarket": {
+    "comparePrice": "Prix de comparaison",
+    "tags": "Tags",
+    "salesVideo": "Vidéo de vente",
+    "productFile": "Fichier produit",
+    "bonusFile": "Fichier bonus",
+    "continue": "Continuer"
   }
 }

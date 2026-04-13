@@ -202,16 +202,16 @@ export default function CompensationPlan() {
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12, marginBottom:16 }}>
           <div style={{ background:'linear-gradient(135deg,#f0fdf4,#dcfce7)', border:'1px solid #bbf7d0', borderRadius:14, padding:'22px 18px', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#15803d' }}>{t('compPlan.affiliateWalletTitle')}</div>
-            <div style={{ fontSize:13, color:'#166534', marginTop:10, lineHeight:1.6 }}>Membership commissions</div>
-            <div style={{ fontSize:13, color:'#166534' }}>Credit Nexus commissions</div>
-            <div style={{ fontSize:13, color:'#166534' }}>Course sales commissions</div>
+            <div style={{ fontSize:13, color:'#166534', marginTop:10, lineHeight:1.6 }}>{t('compPlan.membershipComm')}</div>
+            <div style={{ fontSize:13, color:'#166534' }}>{t('compPlan.nexusComm')}</div>
+            <div style={{ fontSize:13, color:'#166534' }}>{t('compPlan.courseComm')}</div>
             <div style={{ fontSize:13, fontWeight:700, color:'#15803d', marginTop:10, padding:'6px 14px', background:'rgba(255,255,255,0.6)', borderRadius:8, display:'inline-block' }}>{t('compPlan.alwaysWithdrawable')}</div>
           </div>
           <div style={{ background:'linear-gradient(135deg,#eef2ff,#e0e7ff)', border:'1px solid #c7d2fe', borderRadius:14, padding:'22px 18px', textAlign:'center' }}>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'#4338ca' }}>{t('compPlan.campaignWalletTitle')}</div>
-            <div style={{ fontSize:13, color:'#4338ca', marginTop:10, lineHeight:1.6 }}>Direct sponsor 40%</div>
-            <div style={{ fontSize:13, color:'#4338ca' }}>Uni-level 6.25% × 8 levels</div>
-            <div style={{ fontSize:13, color:'#4338ca' }}>Completion bonus 5%</div>
+            <div style={{ fontSize:13, color:'#4338ca', marginTop:10, lineHeight:1.6 }}>{t('compPlan.directSponsor40')}</div>
+            <div style={{ fontSize:13, color:'#4338ca' }}>{t('compPlan.uniLevel625')}</div>
+            <div style={{ fontSize:13, color:'#4338ca' }}>{t('compPlan.completionBonus5')}</div>
             <div style={{ fontSize:13, fontWeight:700, color:'#4338ca', marginTop:10, padding:'6px 14px', background:'rgba(255,255,255,0.6)', borderRadius:8, display:'inline-block' }}>{t('compPlan.requiresActiveTier')}</div>
           </div>
         </div>
@@ -265,7 +265,7 @@ function GridContent() {
     </div>
 
     <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:4 }}>{t('compPlan.eightCampaignTiers')}</div>
-    <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginBottom:14 }}>Click any tier to see your earnings breakdown</div>
+    <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginBottom:14 }}>{t('compPlan.clickTierEarnings')}</div>
     <GridTierCards />
 
     <InfoBox items={[
@@ -326,7 +326,7 @@ function MatrixContent(props) {
     </div>
 
     <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:4 }}>{t('compPlan.eightCreditPacks')}</div>
-    <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginBottom:14 }}>Click any pack to see your earnings per position</div>
+    <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginBottom:14 }}>{t('compPlan.clickPackEarnings')}</div>
     <NexusPackCards />
 
     {/* Calculator */}

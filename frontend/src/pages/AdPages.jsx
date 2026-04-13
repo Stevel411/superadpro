@@ -53,7 +53,7 @@ export function AdDetail() {
             <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 28, fontWeight: 900, margin: '0 0 16px', lineHeight: 1.2 }}>{data.title}</h1>
             <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.55)', lineHeight: 1.8, marginBottom: 28 }}>{data.description}</p>
             <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap', marginBottom: 28 }}>
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>Posted by <strong style={{ color: 'rgba(255,255,255,0.6)' }}>{data.owner}</strong></span>
+              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>{t('common.postedBy')} <strong style={{ color: 'rgba(255,255,255,0.6)' }}>{data.owner}</strong></span>
               <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>{data.views} views · {data.clicks} clicks</span>
             </div>
             <a href={data.link_url} target="_blank" rel="noopener noreferrer" style={{ display: 'inline-block', padding: '14px 32px', borderRadius: 12, background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, textDecoration: 'none', fontFamily: "'Sora',sans-serif" }}>

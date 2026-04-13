@@ -155,7 +155,7 @@ export default function OnboardingWizard() {
             </div>
           </div>
           <div style={{ marginBottom: 20 }}>
-            <label style={lblStyle}>Short Bio <span style={{ fontWeight: 400, color: 'var(--sap-text-ghost)' }}>{t('onboarding.optionalLabel')}</span></label>
+            <label style={lblStyle}>{t('onboarding.shortBio')} <span style={{ fontWeight: 400, color: 'var(--sap-text-ghost)' }}>{t('onboarding.optionalLabel')}</span></label>
             <textarea value={bio} onChange={function(e) { setBio(e.target.value); }} placeholder={t('onboarding.bioPlaceholderFull')} rows={2} style={{ ...inputStyle, resize: 'vertical' }}/>
           </div>
 

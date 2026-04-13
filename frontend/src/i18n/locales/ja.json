@@ -102,7 +102,13 @@
     "loadingCreativeStudio": "クリエイティブスタジオを読み込み中…",
     "loadingContentCreator": "コンテンツクリエイターを読み込み中…",
     "migratingTitle": "Reactに移行中 — まもなく",
-    "migratingDesc": "このページは新しいインターフェースに移行中です。"
+    "migratingDesc": "このページは新しいインターフェースに移行中です。",
+    "postedBy": "投稿者",
+    "source": "ソース",
+    "sponsorUsername": "スポンサーユーザー名",
+    "yourImages": "あなたの画像",
+    "videoNotSupported": "動画URLはサポートされていません。",
+    "alreadyHaveAccount": "アカウントをお持ちですか？"
   },
   "nav": {
     "dashboard": "ダッシュボード",
@@ -392,8 +398,8 @@
     "earningsPerTier": "ティア別収益",
     "tier": "ティア",
     "direct40": "直接（40%）",
-    "uniLevel625": "ユニレベル（6.25% × 8）",
-    "completionBonus5": "完了ボーナス（5%）",
+    "uniLevel625": "ユニレベル 6.25% × 8段階",
+    "completionBonus5": "完了ボーナス 5%",
     "perLevel": "レベルごと",
     "gridKey1": "8×8インカムグリッド（64ポジション）に入るにはティアを有効化",
     "gridKey2": "紹介者とその紹介者がポジションを充填",
@@ -476,7 +482,13 @@
     "campaignWalletTitle": "キャンペーンウォレット",
     "campaignWalletDesc": "グリッドコミッション（直接+ユニレベル+ボーナス）",
     "requiresActiveTier": "アクティブティア+視聴ノルマ必要",
-    "keyThings": "知っておくべきポイント"
+    "keyThings": "知っておくべきポイント",
+    "membershipComm": "メンバーシップコミッション",
+    "nexusComm": "Credit Nexusコミッション",
+    "courseComm": "コース販売コミッション",
+    "directSponsor40": "直接スポンサー 40%",
+    "clickTierEarnings": "収益の内訳を見るにはティアをクリック",
+    "clickPackEarnings": "ポジション毎の収益を見るにはパックをクリック"
   },
   "wallet": {
     "title": "◎ ウォレット",
@@ -2894,7 +2906,9 @@
     "welcomeDefault": "ようこそ！ここにお越しいただきありがとうございます。",
     "tipDefault": "あなたの旅のための貴重なヒントです。",
     "achieveDefault": "コミュニティメンバーの成果をご覧ください。",
-    "lastChanceDefault": "これが私たちに参加する最後のチャンスです。"
+    "lastChanceDefault": "これが私たちに参加する最後のチャンスです。",
+    "sentToLeads": "に送信済み",
+    "leads": "リード"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -3989,13 +4003,13 @@
     "seed": "Seed",
     "yourImage": "Your image",
     "recent": "Recent",
-    "negativePrompt": "Negative Prompt",
+    "negativePrompt": "ネガティブプロンプト",
     "duration": "Duration",
     "resolution": "Resolution",
     "generate": "生成",
     "generating": "Generating...",
     "download": "ダウンロード",
-    "cost": "Cost:",
+    "cost": "コスト:",
     "referenceImage": "Reference Image",
     "imageTab": "Images",
     "imageWillAppear": "Your image will appear here",
@@ -4051,8 +4065,8 @@
     "mp4": "MP4",
     "webm": "WebM",
     "gif": "GIF",
-    "start": "Start",
-    "end": "End",
+    "start": "開始",
+    "end": "終了",
     "apply": "適用",
     "original": "Original",
     "instagram": "Instagram",
@@ -4217,7 +4231,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "スタイルリファレンス"
   },
   "superPagesEditor": {
     "title": "ページエディター",
@@ -4421,6 +4436,23 @@
     "campaignQualification": "キャンペーン資格",
     "watchStatus": "視聴ステータス",
     "selectConversation": "会話を選択",
-    "noMessagesYet": "メッセージなし"
+    "noMessagesYet": "メッセージなし",
+    "yourIncomeStreams": "4つの収入源",
+    "mapEmpty": "チームが成長するとメンバーが地図に表示されます",
+    "deviceSplit": "デバイス分布",
+    "topCountries": "トップ国",
+    "shareLink": "クリックデータを見るには紹介リンクを共有してください",
+    "lastWithdrawal": "最終出金",
+    "noWithdrawals": "出金なし",
+    "totalAiGen": "AI生成合計",
+    "qualificationDesc": "キャンペーンウォレット出金のための毎日の視聴要件。これは収入源ではなく、責任チェックインです。"
+  },
+  "superMarket": {
+    "comparePrice": "比較価格",
+    "tags": "タグ",
+    "salesVideo": "販売ビデオ",
+    "productFile": "製品ファイル",
+    "bonusFile": "ボーナスファイル",
+    "continue": "続行"
   }
 }

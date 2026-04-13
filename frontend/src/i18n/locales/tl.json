@@ -102,7 +102,13 @@
     "loadingCreativeStudio": "Naglo-load ng Creative Studio…",
     "loadingContentCreator": "Naglo-load ng Content Creator…",
     "migratingTitle": "Lumilipat sa React — malapit na",
-    "migratingDesc": "Inililipat ang page na ito sa bagong interface."
+    "migratingDesc": "Inililipat ang page na ito sa bagong interface.",
+    "postedBy": "Na-post ni",
+    "source": "Pinagmulan",
+    "sponsorUsername": "Username ng sponsor",
+    "yourImages": "Iyong mga larawan",
+    "videoNotSupported": "Hindi suportado ang video URL.",
+    "alreadyHaveAccount": "May account na?"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -392,8 +398,8 @@
     "earningsPerTier": "Kita bawat Tier",
     "tier": "Tier",
     "direct40": "Direkta (40%)",
-    "uniLevel625": "Uni-level (6.25% × 8)",
-    "completionBonus5": "Bonus sa Pagkumpleto (5%)",
+    "uniLevel625": "Uni-level 6.25% × 8 levels",
+    "completionBonus5": "Completion bonus 5%",
     "perLevel": "bawat antas",
     "gridKey1": "I-activate ang tier para pumasok sa 8×8 Grid (64 posisyon)",
     "gridKey2": "Ang mga referral mo at referral nila ang nagpupuno ng posisyon",
@@ -476,7 +482,13 @@
     "campaignWalletTitle": "Campaign Wallet",
     "campaignWalletDesc": "Grid komisyon (direkta + uni-level + bonus)",
     "requiresActiveTier": "Kailangan ng aktibong tier + quota ng panonood",
-    "keyThings": "Mahahalagang bagay na dapat malaman"
+    "keyThings": "Mahahalagang bagay na dapat malaman",
+    "membershipComm": "Membership commissions",
+    "nexusComm": "Credit Nexus commissions",
+    "courseComm": "Course sales commissions",
+    "directSponsor40": "Direct sponsor 40%",
+    "clickTierEarnings": "I-click ang anumang tier para makita ang kita",
+    "clickPackEarnings": "I-click ang anumang pack para makita ang kita bawat posisyon"
   },
   "wallet": {
     "title": "◎ Wallet",
@@ -2894,7 +2906,9 @@
     "welcomeDefault": "Maligayang pagdating! Masaya kaming nandito ka.",
     "tipDefault": "Narito ang isang mahalagang tip para sa iyong journey.",
     "achieveDefault": "Tingnan kung ano ang naabot ng mga miyembro ng aming komunidad.",
-    "lastChanceDefault": "Ito na ang huling pagkakataon mong sumali sa amin."
+    "lastChanceDefault": "Ito na ang huling pagkakataon mong sumali sa amin.",
+    "sentToLeads": "Naipadala sa",
+    "leads": "leads"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -3989,13 +4003,13 @@
     "seed": "Seed",
     "yourImage": "Your image",
     "recent": "Recent",
-    "negativePrompt": "Negative Prompt",
+    "negativePrompt": "Negatibong prompt",
     "duration": "Duration",
     "resolution": "Resolution",
     "generate": "I-generate",
     "generating": "Generating...",
     "download": "I-download",
-    "cost": "Cost:",
+    "cost": "Gastos:",
     "referenceImage": "Reference Image",
     "imageTab": "Images",
     "imageWillAppear": "Your image will appear here",
@@ -4051,8 +4065,8 @@
     "mp4": "MP4",
     "webm": "WebM",
     "gif": "GIF",
-    "start": "Start",
-    "end": "End",
+    "start": "Simula",
+    "end": "Wakas",
     "apply": "I-apply",
     "original": "Original",
     "instagram": "Instagram",
@@ -4217,7 +4231,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "Style references"
   },
   "superPagesEditor": {
     "title": "Page Editor",
@@ -4421,6 +4436,23 @@
     "campaignQualification": "Campaign qualification",
     "watchStatus": "Watch status",
     "selectConversation": "Pumili ng conversation",
-    "noMessagesYet": "Wala pang mensahe"
+    "noMessagesYet": "Wala pang mensahe",
+    "yourIncomeStreams": "Iyong 4 na income streams",
+    "mapEmpty": "Lalabas ang mga miyembro sa mapa habang lumalaki ang team mo",
+    "deviceSplit": "DEVICE SPLIT",
+    "topCountries": "TOP COUNTRIES",
+    "shareLink": "I-share ang referral link mo para makita ang click data",
+    "lastWithdrawal": "Huling withdrawal",
+    "noWithdrawals": "Wala pang withdrawal",
+    "totalAiGen": "kabuuang AI generations",
+    "qualificationDesc": "Ang iyong pang-araw-araw na kinakailangang panoorin para sa Campaign Wallet withdrawals. Hindi ito income stream — ito ang iyong accountability check-in."
+  },
+  "superMarket": {
+    "comparePrice": "Compare price",
+    "tags": "Mga tag",
+    "salesVideo": "Sales video",
+    "productFile": "Product file",
+    "bonusFile": "Bonus file",
+    "continue": "Magpatuloy"
   }
 }

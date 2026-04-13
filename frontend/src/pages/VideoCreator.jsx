@@ -325,7 +325,7 @@ export function VideoCreatorContent() {
               </div>
             </div>
             <div style={{ marginTop: 12 }}>
-              <div className="cs-lbl">Your Images <span className="cs-lbl-badge">{t('videoCreator.optionalLabel')}</span></div>
+              <div className="cs-lbl">{t('common.yourImages')} <span className="cs-lbl-badge">{t('videoCreator.optionalLabel')}</span></div>
               <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handleImageUpload} style={{ display: 'none' }}/>
               <div className="cs-upload" style={{ padding: 14 }} onClick={function() { if (!uploading && fileInputRef.current) fileInputRef.current.click(); }}>
                 <div className="cs-upload-text">{uploading ? 'Uploading...' : uploadedImages.length > 0 ? uploadedImages.length + ' images uploaded \u2014 click to add more' : '+ Upload your own images (optional)'}</div>

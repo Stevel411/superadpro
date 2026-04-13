@@ -102,7 +102,13 @@
     "loadingCreativeStudio": "กำลังโหลด Creative Studio…",
     "loadingContentCreator": "กำลังโหลดเครื่องมือสร้างเนื้อหา…",
     "migratingTitle": "กำลังย้ายไปยัง React — เร็วๆ นี้",
-    "migratingDesc": "หน้านี้กำลังย้ายไปยังอินเทอร์เฟซใหม่"
+    "migratingDesc": "หน้านี้กำลังย้ายไปยังอินเทอร์เฟซใหม่",
+    "postedBy": "โพสต์โดย",
+    "source": "แหล่งที่มา",
+    "sponsorUsername": "ชื่อผู้ใช้ผู้แนะนำ",
+    "yourImages": "รูปภาพของคุณ",
+    "videoNotSupported": "ไม่รองรับ URL วิดีโอ",
+    "alreadyHaveAccount": "มีบัญชีอยู่แล้ว?"
   },
   "nav": {
     "dashboard": "แดชบอร์ด",
@@ -392,8 +398,8 @@
     "earningsPerTier": "รายได้ต่อระดับ",
     "tier": "ระดับ",
     "direct40": "ตรง (40%)",
-    "uniLevel625": "ยูนิเลเวล (6.25% × 8)",
-    "completionBonus5": "โบนัสสำเร็จ (5%)",
+    "uniLevel625": "ยูนิเลเวล 6.25% × 8 ระดับ",
+    "completionBonus5": "โบนัสเสร็จสิ้น 5%",
     "perLevel": "ต่อระดับ",
     "gridKey1": "เปิดใช้ระดับเพื่อเข้ากริด 8×8 (64 ตำแหน่ง)",
     "gridKey2": "ผู้แนะนำของคุณและผู้แนะนำของพวกเขาเติมตำแหน่ง",
@@ -476,7 +482,13 @@
     "campaignWalletTitle": "กระเป๋าแคมเปญ",
     "campaignWalletDesc": "ค่าคอมมิชชั่นกริด (ตรง + ยูนิเลเวล + โบนัส)",
     "requiresActiveTier": "ต้องมีระดับใช้งาน + โควต้าดู",
-    "keyThings": "สิ่งสำคัญที่ต้องรู้"
+    "keyThings": "สิ่งสำคัญที่ต้องรู้",
+    "membershipComm": "ค่าคอมมิชชั่นสมาชิก",
+    "nexusComm": "ค่าคอมมิชชั่น Credit Nexus",
+    "courseComm": "ค่าคอมมิชชั่นขายคอร์ส",
+    "directSponsor40": "ผู้แนะนำโดยตรง 40%",
+    "clickTierEarnings": "คลิกที่เทียร์ใดก็ได้เพื่อดูรายได้",
+    "clickPackEarnings": "คลิกที่แพ็คใดก็ได้เพื่อดูรายได้ต่อตำแหน่ง"
   },
   "wallet": {
     "title": "◎ กระเป๋าเงิน",
@@ -2292,7 +2304,7 @@
     "of": "จาก",
     "firstNamePlaceholder": "ชื่อของคุณ",
     "lastNamePlaceholder": "นามสกุลของคุณ",
-    "shortBio": "ประวัติสั้น",
+    "shortBio": "ประวัติย่อ",
     "accountReady": "บัญชีของคุณพร้อมแล้ว นี่คือสิ่งที่ต้องทำต่อไป:",
     "adLabel": "Ad",
     "optionalLabel": "(ไม่บังคับ)",
@@ -2894,7 +2906,9 @@
     "welcomeDefault": "ยินดีต้อนรับ! เรายินดีที่คุณอยู่ที่นี่",
     "tipDefault": "นี่คือเคล็ดลับที่มีค่าสำหรับการเดินทางของคุณ",
     "achieveDefault": "ดูว่าสมาชิกชุมชนของเราบรรลุอะไรบ้าง",
-    "lastChanceDefault": "นี่คือโอกาสสุดท้ายของคุณในการเข้าร่วมกับเรา"
+    "lastChanceDefault": "นี่คือโอกาสสุดท้ายของคุณในการเข้าร่วมกับเรา",
+    "sentToLeads": "ส่งไปยัง",
+    "leads": "ลีด"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -3989,13 +4003,13 @@
     "seed": "Seed",
     "yourImage": "Your image",
     "recent": "Recent",
-    "negativePrompt": "Negative Prompt",
+    "negativePrompt": "พรอมต์เชิงลบ",
     "duration": "Duration",
     "resolution": "Resolution",
     "generate": "สร้าง",
     "generating": "Generating...",
     "download": "ดาวน์โหลด",
-    "cost": "Cost:",
+    "cost": "ค่าใช้จ่าย:",
     "referenceImage": "Reference Image",
     "imageTab": "Images",
     "imageWillAppear": "Your image will appear here",
@@ -4007,7 +4021,7 @@
     "musicDesc": "Generate royalty-free music with Suno AI. Describe your track or write custom lyrics.",
     "simpleMode": "Simple Mode",
     "customMode": "Custom Mode",
-    "titleLabel": "ชื่อ",
+    "titleLabel": "ชื่อเรื่อง",
     "vocalGender": "Vocal Gender",
     "instrumentalOnly": "Instrumental Only",
     "noVocals": "No vocals — background music only",
@@ -4051,8 +4065,8 @@
     "mp4": "MP4",
     "webm": "WebM",
     "gif": "GIF",
-    "start": "Start",
-    "end": "End",
+    "start": "เริ่ม",
+    "end": "สิ้นสุด",
     "apply": "ใช้งาน",
     "original": "Original",
     "instagram": "Instagram",
@@ -4217,7 +4231,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "อ้างอิงสไตล์"
   },
   "superPagesEditor": {
     "title": "ตัวแก้ไขหน้า",
@@ -4421,6 +4436,23 @@
     "campaignQualification": "คุณสมบัติแคมเปญ",
     "watchStatus": "สถานะการรับชม",
     "selectConversation": "เลือกการสนทนา",
-    "noMessagesYet": "ยังไม่มีข้อความ"
+    "noMessagesYet": "ยังไม่มีข้อความ",
+    "yourIncomeStreams": "4 ช่องทางรายได้",
+    "mapEmpty": "สมาชิกจะปรากฏบนแผนที่เมื่อทีมของคุณเติบโต",
+    "deviceSplit": "สัดส่วนอุปกรณ์",
+    "topCountries": "ประเทศยอดนิยม",
+    "shareLink": "แชร์ลิงก์แนะนำเพื่อดูข้อมูลการคลิก",
+    "lastWithdrawal": "การถอนล่าสุด",
+    "noWithdrawals": "ยังไม่มีการถอน",
+    "totalAiGen": "การสร้าง AI ทั้งหมด",
+    "qualificationDesc": "ข้อกำหนดการรับชมรายวันเพื่อมีคุณสมบัติในการถอนเงินจากกระเป๋าแคมเปญ นี่ไม่ใช่แหล่งรายได้ — เป็นการเช็คอินความรับผิดชอบ"
+  },
+  "superMarket": {
+    "comparePrice": "ราคาเปรียบเทียบ",
+    "tags": "แท็ก",
+    "salesVideo": "วิดีโอขาย",
+    "productFile": "ไฟล์สินค้า",
+    "bonusFile": "ไฟล์โบนัส",
+    "continue": "ดำเนินการต่อ"
   }
 }

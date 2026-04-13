@@ -102,7 +102,13 @@
     "loadingCreativeStudio": "Carregando Creative Studio…",
     "loadingContentCreator": "Carregando Criador de Conteúdo…",
     "migratingTitle": "Migrando para React — em breve",
-    "migratingDesc": "Esta página está sendo migrada para a nova interface."
+    "migratingDesc": "Esta página está sendo migrada para a nova interface.",
+    "postedBy": "Publicado por",
+    "source": "Fonte",
+    "sponsorUsername": "Usuário do patrocinador",
+    "yourImages": "Suas imagens",
+    "videoNotSupported": "URL de vídeo não suportada.",
+    "alreadyHaveAccount": "Já tem uma conta?"
   },
   "nav": {
     "dashboard": "Painel",
@@ -392,8 +398,8 @@
     "earningsPerTier": "Ganhos por Nível",
     "tier": "Nível",
     "direct40": "Direto (40%)",
-    "uniLevel625": "Uni-nível (6,25% × 8)",
-    "completionBonus5": "Bônus de Conclusão (5%)",
+    "uniLevel625": "Uni-level 6,25% × 8 níveis",
+    "completionBonus5": "Bônus de conclusão 5%",
     "perLevel": "por nível",
     "gridKey1": "Ative um Nível para entrar na Grade 8×8 (64 posições)",
     "gridKey2": "Seus indicados e os indicados deles preenchem suas posições",
@@ -476,7 +482,13 @@
     "campaignWalletTitle": "Carteira de Campanha",
     "campaignWalletDesc": "Comissões de grade (direto + uni-nível + bônus)",
     "requiresActiveTier": "Requer nível ativo + cota de visualização",
-    "keyThings": "Pontos-chave"
+    "keyThings": "Pontos-chave",
+    "membershipComm": "Comissões de adesão",
+    "nexusComm": "Comissões Credit Nexus",
+    "courseComm": "Comissões de vendas de cursos",
+    "directSponsor40": "Patrocinador direto 40%",
+    "clickTierEarnings": "Clique em qualquer nível para ver seus ganhos",
+    "clickPackEarnings": "Clique em qualquer pacote para ver seus ganhos"
   },
   "wallet": {
     "title": "◎ Carteira",
@@ -2894,7 +2906,9 @@
     "welcomeDefault": "Bem-vindo! Ficamos felizes que você está aqui.",
     "tipDefault": "Aqui está uma dica valiosa para sua jornada.",
     "achieveDefault": "Veja o que nossos membros da comunidade conquistaram.",
-    "lastChanceDefault": "Esta é sua última chance de se juntar a nós."
+    "lastChanceDefault": "Esta é sua última chance de se juntar a nós.",
+    "sentToLeads": "Enviado para",
+    "leads": "leads"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -3989,13 +4003,13 @@
     "seed": "Seed",
     "yourImage": "Your image",
     "recent": "Recent",
-    "negativePrompt": "Negative Prompt",
+    "negativePrompt": "Prompt negativo",
     "duration": "Duration",
     "resolution": "Resolution",
     "generate": "Gerar",
     "generating": "Generating...",
     "download": "Baixar",
-    "cost": "Cost:",
+    "cost": "Custo:",
     "referenceImage": "Reference Image",
     "imageTab": "Images",
     "imageWillAppear": "Your image will appear here",
@@ -4051,8 +4065,8 @@
     "mp4": "MP4",
     "webm": "WebM",
     "gif": "GIF",
-    "start": "Start",
-    "end": "End",
+    "start": "Início",
+    "end": "Fim",
     "apply": "Aplicar",
     "original": "Original",
     "instagram": "Instagram",
@@ -4217,7 +4231,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "Referências de estilo"
   },
   "superPagesEditor": {
     "title": "Editor de páginas",
@@ -4421,6 +4436,23 @@
     "campaignQualification": "Qualificação de campanha",
     "watchStatus": "Status de visualização",
     "selectConversation": "Selecione uma conversa",
-    "noMessagesYet": "Sem mensagens ainda"
+    "noMessagesYet": "Sem mensagens ainda",
+    "yourIncomeStreams": "Suas 4 fontes de renda",
+    "mapEmpty": "Os membros aparecerão no mapa conforme sua equipe cresce",
+    "deviceSplit": "DIVISÃO POR DISPOSITIVO",
+    "topCountries": "PRINCIPAIS PAÍSES",
+    "shareLink": "Compartilhe seu link de indicação para ver os cliques",
+    "lastWithdrawal": "Último saque",
+    "noWithdrawals": "Sem saques ainda",
+    "totalAiGen": "gerações de IA totais",
+    "qualificationDesc": "Seu requisito diário de visualização para saques da Carteira de Campanha. Não é uma fonte de renda — é seu check-in de responsabilidade."
+  },
+  "superMarket": {
+    "comparePrice": "Preço de comparação",
+    "tags": "Tags",
+    "salesVideo": "Vídeo de vendas",
+    "productFile": "Arquivo do produto",
+    "bonusFile": "Arquivo bônus",
+    "continue": "Continuar"
   }
 }

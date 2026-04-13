@@ -102,7 +102,13 @@
     "loadingCreativeStudio": "جارٍ تحميل Creative Studio…",
     "loadingContentCreator": "جارٍ تحميل منشئ المحتوى…",
     "migratingTitle": "جارٍ الترحيل إلى React — قريباً",
-    "migratingDesc": "يتم ترحيل هذه الصفحة إلى الواجهة الجديدة."
+    "migratingDesc": "يتم ترحيل هذه الصفحة إلى الواجهة الجديدة.",
+    "postedBy": "نشر بواسطة",
+    "source": "المصدر",
+    "sponsorUsername": "اسم المستخدم للراعي",
+    "yourImages": "صورك",
+    "videoNotSupported": "رابط الفيديو غير مدعوم.",
+    "alreadyHaveAccount": "هل لديك حساب بالفعل؟"
   },
   "nav": {
     "dashboard": "لوحة التحكم",
@@ -392,8 +398,8 @@
     "earningsPerTier": "الأرباح لكل مستوى",
     "tier": "المستوى",
     "direct40": "مباشر (40%)",
-    "uniLevel625": "متعدد المستويات (6.25% × 8)",
-    "completionBonus5": "مكافأة الإكمال (5%)",
+    "uniLevel625": "أحادي المستوى 6.25% × 8 مستويات",
+    "completionBonus5": "مكافأة الإكمال 5%",
     "perLevel": "لكل مستوى",
     "gridKey1": "فعّل مستوى حملة للدخول في شبكة 8×8 (64 موقعاً)",
     "gridKey2": "إحالاتك وإحالاتهم تملأ مواقعك",
@@ -476,7 +482,13 @@
     "campaignWalletTitle": "محفظة الحملة",
     "campaignWalletDesc": "عمولات الشبكة (مباشر + متعدد المستويات + مكافأة)",
     "requiresActiveTier": "يتطلب مستوى نشط + حصة مشاهدة",
-    "keyThings": "أشياء مهمة يجب معرفتها"
+    "keyThings": "أشياء مهمة يجب معرفتها",
+    "membershipComm": "عمولات العضوية",
+    "nexusComm": "عمولات Credit Nexus",
+    "courseComm": "عمولات مبيعات الدورات",
+    "directSponsor40": "الراعي المباشر 40%",
+    "clickTierEarnings": "انقر على أي مستوى لرؤية تفصيل أرباحك",
+    "clickPackEarnings": "انقر على أي حزمة لرؤية أرباحك لكل موقع"
   },
   "wallet": {
     "title": "◎ المحفظة",
@@ -2292,7 +2304,7 @@
     "of": "من",
     "firstNamePlaceholder": "اسمك الأول",
     "lastNamePlaceholder": "اسم عائلتك",
-    "shortBio": "نبذة مختصرة",
+    "shortBio": "سيرة مختصرة",
     "accountReady": "حسابك جاهز. إليك ما يجب فعله:",
     "adLabel": "Ad",
     "optionalLabel": "(اختياري)",
@@ -2894,7 +2906,9 @@
     "welcomeDefault": "مرحباً! يسعدنا وجودك هنا.",
     "tipDefault": "إليك نصيحة قيّمة لرحلتك.",
     "achieveDefault": "انظر ما حققه أعضاء مجتمعنا.",
-    "lastChanceDefault": "هذه فرصتك الأخيرة للانضمام إلينا."
+    "lastChanceDefault": "هذه فرصتك الأخيرة للانضمام إلينا.",
+    "sentToLeads": "أُرسل إلى",
+    "leads": "عملاء محتملين"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -3989,13 +4003,13 @@
     "seed": "Seed",
     "yourImage": "Your image",
     "recent": "Recent",
-    "negativePrompt": "Negative Prompt",
+    "negativePrompt": "أمر سلبي",
     "duration": "Duration",
     "resolution": "Resolution",
     "generate": "إنشاء",
     "generating": "Generating...",
     "download": "تنزيل",
-    "cost": "Cost:",
+    "cost": "التكلفة:",
     "referenceImage": "Reference Image",
     "imageTab": "Images",
     "imageWillAppear": "Your image will appear here",
@@ -4007,7 +4021,7 @@
     "musicDesc": "Generate royalty-free music with Suno AI. Describe your track or write custom lyrics.",
     "simpleMode": "Simple Mode",
     "customMode": "Custom Mode",
-    "titleLabel": "العنوان",
+    "titleLabel": "عنوان",
     "vocalGender": "Vocal Gender",
     "instrumentalOnly": "Instrumental Only",
     "noVocals": "No vocals — background music only",
@@ -4051,8 +4065,8 @@
     "mp4": "MP4",
     "webm": "WebM",
     "gif": "GIF",
-    "start": "Start",
-    "end": "End",
+    "start": "بداية",
+    "end": "نهاية",
     "apply": "تطبيق",
     "original": "Original",
     "instagram": "Instagram",
@@ -4217,7 +4231,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "مراجع الأسلوب"
   },
   "superPagesEditor": {
     "title": "محرر الصفحات",
@@ -4421,6 +4436,23 @@
     "campaignQualification": "تأهيل الحملة",
     "watchStatus": "حالة المشاهدة",
     "selectConversation": "اختر محادثة",
-    "noMessagesYet": "لا رسائل بعد"
+    "noMessagesYet": "لا رسائل بعد",
+    "yourIncomeStreams": "مصادر دخلك الأربعة",
+    "mapEmpty": "سيظهر الأعضاء على الخريطة مع نمو فريقك",
+    "deviceSplit": "توزيع الأجهزة",
+    "topCountries": "أهم البلدان",
+    "shareLink": "شارك رابط الإحالة لرؤية بيانات النقرات",
+    "lastWithdrawal": "آخر سحب",
+    "noWithdrawals": "لا سحوبات بعد",
+    "totalAiGen": "إجمالي توليدات الذكاء",
+    "qualificationDesc": "متطلب المشاهدة اليومي للتأهل لسحب محفظة الحملة. هذا ليس مصدر دخل — إنه تسجيل المسؤولية."
+  },
+  "superMarket": {
+    "comparePrice": "سعر المقارنة",
+    "tags": "علامات",
+    "salesVideo": "فيديو المبيعات",
+    "productFile": "ملف المنتج",
+    "bonusFile": "ملف المكافأة",
+    "continue": "متابعة"
   }
 }

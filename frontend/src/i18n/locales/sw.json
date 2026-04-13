@@ -102,7 +102,13 @@
     "loadingCreativeStudio": "Kupakia Creative Studio…",
     "loadingContentCreator": "Kupakia Kiunda Maudhui…",
     "migratingTitle": "Kuhamia React — hivi karibuni",
-    "migratingDesc": "Ukurasa huu unahamishiwa kwenye kiolesura kipya."
+    "migratingDesc": "Ukurasa huu unahamishiwa kwenye kiolesura kipya.",
+    "postedBy": "Imechapishwa na",
+    "source": "Chanzo",
+    "sponsorUsername": "Jina la mdhamini",
+    "yourImages": "Picha zako",
+    "videoNotSupported": "URL ya video haihusaidiwi.",
+    "alreadyHaveAccount": "Tayari una akaunti?"
   },
   "nav": {
     "dashboard": "Dashibodi",
@@ -392,8 +398,8 @@
     "earningsPerTier": "Mapato kwa Kiwango",
     "tier": "Kiwango",
     "direct40": "Moja kwa moja (40%)",
-    "uniLevel625": "Uni-level (6.25% × 8)",
-    "completionBonus5": "Bonasi ya Kukamilika (5%)",
+    "uniLevel625": "Uni-level 6.25% × viwango 8",
+    "completionBonus5": "Bonasi ya kukamilika 5%",
     "perLevel": "kwa kiwango",
     "gridKey1": "Washa kiwango kuingia Gridi 8×8 (nafasi 64)",
     "gridKey2": "Rufaa zako na rufaa zao zinajaza nafasi zako",
@@ -476,7 +482,13 @@
     "campaignWalletTitle": "Mkoba wa Kampeni",
     "campaignWalletDesc": "Kamisheni za gridi (moja kwa moja + uni-level + bonasi)",
     "requiresActiveTier": "Inahitaji kiwango hai + kiwango cha kutazama",
-    "keyThings": "Mambo muhimu ya kujua"
+    "keyThings": "Mambo muhimu ya kujua",
+    "membershipComm": "Kamisheni za uanachama",
+    "nexusComm": "Kamisheni za Credit Nexus",
+    "courseComm": "Kamisheni za mauzo ya kozi",
+    "directSponsor40": "Mdhamini wa moja kwa moja 40%",
+    "clickTierEarnings": "Bofya ngazi yoyote kuona mapato yako",
+    "clickPackEarnings": "Bofya kifurushi chochote kuona mapato kwa nafasi"
   },
   "wallet": {
     "title": "◎ Mkoba",
@@ -2894,7 +2906,9 @@
     "welcomeDefault": "Karibu! Tunafuraha kuwa uko hapa.",
     "tipDefault": "Hii hapa ni kidokezo muhimu kwa safari yako.",
     "achieveDefault": "Tazama malengo yaliyofikiwa na wanachama wa jumuiya yetu.",
-    "lastChanceDefault": "Hii ni nafasi yako ya mwisho ya kujiunga nasi."
+    "lastChanceDefault": "Hii ni nafasi yako ya mwisho ya kujiunga nasi.",
+    "sentToLeads": "Imetumwa kwa",
+    "leads": "wapangaji"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -3989,13 +4003,13 @@
     "seed": "Seed",
     "yourImage": "Your image",
     "recent": "Recent",
-    "negativePrompt": "Negative Prompt",
+    "negativePrompt": "Prompt hasi",
     "duration": "Duration",
     "resolution": "Resolution",
     "generate": "Tengeneza",
     "generating": "Generating...",
     "download": "Pakua",
-    "cost": "Cost:",
+    "cost": "Gharama:",
     "referenceImage": "Reference Image",
     "imageTab": "Images",
     "imageWillAppear": "Your image will appear here",
@@ -4051,8 +4065,8 @@
     "mp4": "MP4",
     "webm": "WebM",
     "gif": "GIF",
-    "start": "Start",
-    "end": "End",
+    "start": "Anza",
+    "end": "Mwisho",
     "apply": "Tumia",
     "original": "Original",
     "instagram": "Instagram",
@@ -4217,7 +4231,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "Marejeleo ya mtindo"
   },
   "superPagesEditor": {
     "title": "Kihariri cha kurasa",
@@ -4421,6 +4436,23 @@
     "campaignQualification": "Sifa ya kampeni",
     "watchStatus": "Hali ya kutazama",
     "selectConversation": "Chagua mazungumzo",
-    "noMessagesYet": "Hakuna ujumbe bado"
+    "noMessagesYet": "Hakuna ujumbe bado",
+    "yourIncomeStreams": "Vyanzo vyako 4 vya mapato",
+    "mapEmpty": "Wanachama wataonekana kwenye ramani timu yako inavyokua",
+    "deviceSplit": "MGAWANYO WA VIFAA",
+    "topCountries": "NCHI BORA",
+    "shareLink": "Shiriki kiungo chako cha rufaa kuona data ya kubofya",
+    "lastWithdrawal": "Utoaji wa mwisho",
+    "noWithdrawals": "Hakuna utoaji bado",
+    "totalAiGen": "jumla ya uzalishaji wa AI",
+    "qualificationDesc": "Hitaji lako la kutazama kila siku ili kustahili kutoa Pochi ya Kampeni. Hii si chanzo cha mapato — ni ukaguzi wako wa uwajibikaji."
+  },
+  "superMarket": {
+    "comparePrice": "Bei ya kulinganisha",
+    "tags": "Tagi",
+    "salesVideo": "Video ya mauzo",
+    "productFile": "Faili ya bidhaa",
+    "bonusFile": "Faili ya bonasi",
+    "continue": "Endelea"
   }
 }

@@ -213,7 +213,7 @@ function BcastTab({leads,lists,flash}) {
       <div style={{marginBottom:16}}><label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('myLeads.subjectLabel')}</label><input value={sub} onChange={function(e){setSub(e.target.value);}} style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
       <div style={{marginBottom:16}}><label style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',display:'block',marginBottom:4}}>{t('myLeads.contentLabel')}</label><RichTextEditor content={html} onChange={setHtml} placeholder={t("myLeads.broadcastBodyPlaceholder")}/></div>
       <button onClick={send} disabled={s} style={{display:'flex',alignItems:'center',gap:6,padding:'12px 24px',borderRadius:10,border:'none',background:s?'var(--sap-text-ghost)':'linear-gradient(135deg,#16a34a,#22c55e)',color:'#fff',fontSize:13,fontWeight:800,cursor:s?'default':'pointer',fontFamily:'Sora,sans-serif'}}><Send size={14}/>{s?'Sending...':'Send to '+ct}</button>
-      {sent!==null&&<div style={{marginTop:10,fontSize:12,fontWeight:700,color:'var(--sap-green)'}}>Sent to {sent} leads</div>}
+      {sent!==null&&<div style={{marginTop:10,fontSize:12,fontWeight:700,color:'var(--sap-green)'}}>{t('myLeads.sentToLeads')} {sent} {t('myLeads.leads')}</div>}
     </div></div>;
 }
 

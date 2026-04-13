@@ -102,7 +102,13 @@
     "loadingCreativeStudio": "Creative Studio लोड हो रहा है…",
     "loadingContentCreator": "कंटेंट क्रिएटर लोड हो रहा है…",
     "migratingTitle": "React में माइग्रेट हो रहा है — जल्द आ रहा है",
-    "migratingDesc": "यह पेज नए इंटरफ़ेस में माइग्रेट किया जा रहा है।"
+    "migratingDesc": "यह पेज नए इंटरफ़ेस में माइग्रेट किया जा रहा है।",
+    "postedBy": "द्वारा पोस्ट किया गया",
+    "source": "स्रोत",
+    "sponsorUsername": "प्रायोजक उपयोगकर्ता नाम",
+    "yourImages": "आपकी छवियाँ",
+    "videoNotSupported": "वीडियो URL समर्थित नहीं है।",
+    "alreadyHaveAccount": "पहले से खाता है?"
   },
   "nav": {
     "dashboard": "डैशबोर्ड",
@@ -392,8 +398,8 @@
     "earningsPerTier": "प्रति टियर कमाई",
     "tier": "टियर",
     "direct40": "डायरेक्ट (40%)",
-    "uniLevel625": "यूनी-लेवल (6.25% × 8)",
-    "completionBonus5": "पूर्णता बोनस (5%)",
+    "uniLevel625": "यूनी-लेवल 6.25% × 8 स्तर",
+    "completionBonus5": "पूर्णता बोनस 5%",
     "perLevel": "प्रति स्तर",
     "gridKey1": "8×8 इनकम ग्रिड (64 पद) में प्रवेश के लिए कैम्पेन टियर सक्रिय करें",
     "gridKey2": "आपके रेफरल और उनके रेफरल आपके पद भरते हैं",
@@ -476,7 +482,13 @@
     "campaignWalletTitle": "कैम्पेन वॉलेट",
     "campaignWalletDesc": "ग्रिड कमीशन (डायरेक्ट + यूनी-लेवल + बोनस)",
     "requiresActiveTier": "सक्रिय टियर + वॉच कोटा आवश्यक",
-    "keyThings": "जानने योग्य मुख्य बातें"
+    "keyThings": "जानने योग्य मुख्य बातें",
+    "membershipComm": "सदस्यता कमीशन",
+    "nexusComm": "Credit Nexus कमीशन",
+    "courseComm": "कोर्स बिक्री कमीशन",
+    "directSponsor40": "प्रत्यक्ष प्रायोजक 40%",
+    "clickTierEarnings": "अपनी कमाई देखने के लिए किसी भी टियर पर क्लिक करें",
+    "clickPackEarnings": "प्रति पोजीशन कमाई देखने के लिए किसी पैक पर क्लिक करें"
   },
   "wallet": {
     "title": "◎ वॉलेट",
@@ -2292,7 +2304,7 @@
     "of": "का",
     "firstNamePlaceholder": "आपका पहला नाम",
     "lastNamePlaceholder": "आपका अंतिम नाम",
-    "shortBio": "संक्षिप्त बायो",
+    "shortBio": "संक्षिप्त जीवनी",
     "accountReady": "आपका खाता तैयार है। आगे क्या करें:",
     "adLabel": "Ad",
     "optionalLabel": "(वैकल्पिक)",
@@ -2894,7 +2906,9 @@
     "welcomeDefault": "स्वागत है! हमें खुशी है कि आप यहां हैं।",
     "tipDefault": "आपकी यात्रा के लिए एक मूल्यवान टिप।",
     "achieveDefault": "देखें हमारे समुदाय के सदस्यों ने क्या हासिल किया है।",
-    "lastChanceDefault": "यह हमसे जुड़ने का आपका आखिरी मौका है।"
+    "lastChanceDefault": "यह हमसे जुड़ने का आपका आखिरी मौका है।",
+    "sentToLeads": "को भेजा गया",
+    "leads": "लीड्स"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -3989,13 +4003,13 @@
     "seed": "Seed",
     "yourImage": "Your image",
     "recent": "Recent",
-    "negativePrompt": "Negative Prompt",
+    "negativePrompt": "नकारात्मक प्रॉम्प्ट",
     "duration": "Duration",
     "resolution": "Resolution",
     "generate": "उत्पन्न करें",
     "generating": "Generating...",
     "download": "डाउनलोड",
-    "cost": "Cost:",
+    "cost": "लागत:",
     "referenceImage": "Reference Image",
     "imageTab": "Images",
     "imageWillAppear": "Your image will appear here",
@@ -4051,8 +4065,8 @@
     "mp4": "MP4",
     "webm": "WebM",
     "gif": "GIF",
-    "start": "Start",
-    "end": "End",
+    "start": "शुरू",
+    "end": "समाप्त",
     "apply": "लागू करें",
     "original": "Original",
     "instagram": "Instagram",
@@ -4217,7 +4231,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "शैली संदर्भ"
   },
   "superPagesEditor": {
     "title": "पेज एडिटर",
@@ -4421,6 +4436,23 @@
     "campaignQualification": "अभियान योग्यता",
     "watchStatus": "देखने की स्थिति",
     "selectConversation": "बातचीत चुनें",
-    "noMessagesYet": "अभी कोई संदेश नहीं"
+    "noMessagesYet": "अभी कोई संदेश नहीं",
+    "yourIncomeStreams": "आपके 4 आय स्रोत",
+    "mapEmpty": "सदस्य मानचित्र पर दिखाई देंगे जैसे-जैसे आपकी टीम बढ़ेगी",
+    "deviceSplit": "डिवाइस विभाजन",
+    "topCountries": "शीर्ष देश",
+    "shareLink": "क्लिक डेटा देखने के लिए अपना रेफरल लिंक साझा करें",
+    "lastWithdrawal": "अंतिम निकासी",
+    "noWithdrawals": "अभी कोई निकासी नहीं",
+    "totalAiGen": "कुल AI जनरेशन",
+    "qualificationDesc": "अभियान वॉलेट निकासी के लिए आपकी दैनिक देखने की आवश्यकता। यह आय स्रोत नहीं है — यह आपका जवाबदेही चेक-इन है।"
+  },
+  "superMarket": {
+    "comparePrice": "तुलना मूल्य",
+    "tags": "टैग",
+    "salesVideo": "बिक्री वीडियो",
+    "productFile": "उत्पाद फ़ाइल",
+    "bonusFile": "बोनस फ़ाइल",
+    "continue": "जारी रखें"
   }
 }

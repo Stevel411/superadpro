@@ -102,7 +102,13 @@
     "loadingCreativeStudio": "Creative Studio laden…",
     "loadingContentCreator": "Content Creator laden…",
     "migratingTitle": "Migratie naar React — komt binnenkort",
-    "migratingDesc": "Deze pagina wordt gemigreerd naar de nieuwe interface."
+    "migratingDesc": "Deze pagina wordt gemigreerd naar de nieuwe interface.",
+    "postedBy": "Geplaatst door",
+    "source": "Bron",
+    "sponsorUsername": "Sponsor gebruikersnaam",
+    "yourImages": "Uw afbeeldingen",
+    "videoNotSupported": "Video-URL niet ondersteund.",
+    "alreadyHaveAccount": "Al een account?"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -392,8 +398,8 @@
     "earningsPerTier": "Inkomsten per Niveau",
     "tier": "Niveau",
     "direct40": "Direct (40%)",
-    "uniLevel625": "Uni-level (6,25% × 8)",
-    "completionBonus5": "Voltooiingsbonus (5%)",
+    "uniLevel625": "Uni-level 6,25% × 8 niveaus",
+    "completionBonus5": "Voltooiingsbonus 5%",
     "perLevel": "per niveau",
     "gridKey1": "Activeer een niveau om het 8×8 Raster (64 posities) te betreden",
     "gridKey2": "Jouw verwijzingen en hun verwijzingen vullen je posities",
@@ -476,7 +482,13 @@
     "campaignWalletTitle": "Campagne-portemonnee",
     "campaignWalletDesc": "Rastercommissies (direct + uni-level + bonus)",
     "requiresActiveTier": "Vereist actief niveau + kijkquota",
-    "keyThings": "Belangrijke punten"
+    "keyThings": "Belangrijke punten",
+    "membershipComm": "Lidmaatschapscommissies",
+    "nexusComm": "Credit Nexus commissies",
+    "courseComm": "Cursusverkoopcommissies",
+    "directSponsor40": "Directe sponsor 40%",
+    "clickTierEarnings": "Klik op een tier om uw inkomsten te zien",
+    "clickPackEarnings": "Klik op een pakket voor inkomsten per positie"
   },
   "wallet": {
     "title": "◎ Portemonnee",
@@ -2894,7 +2906,9 @@
     "welcomeDefault": "Welkom! We zijn blij dat u hier bent.",
     "tipDefault": "Hier is een waardevolle tip voor uw reis.",
     "achieveDefault": "Bekijk wat onze communityleden hebben bereikt.",
-    "lastChanceDefault": "Dit is uw laatste kans om mee te doen."
+    "lastChanceDefault": "Dit is uw laatste kans om mee te doen.",
+    "sentToLeads": "Verzonden naar",
+    "leads": "leads"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -3989,13 +4003,13 @@
     "seed": "Seed",
     "yourImage": "Your image",
     "recent": "Recent",
-    "negativePrompt": "Negative Prompt",
+    "negativePrompt": "Negatieve prompt",
     "duration": "Duration",
     "resolution": "Resolution",
     "generate": "Genereren",
     "generating": "Generating...",
     "download": "Downloaden",
-    "cost": "Cost:",
+    "cost": "Kosten:",
     "referenceImage": "Reference Image",
     "imageTab": "Images",
     "imageWillAppear": "Your image will appear here",
@@ -4052,7 +4066,7 @@
     "webm": "WebM",
     "gif": "GIF",
     "start": "Start",
-    "end": "End",
+    "end": "Einde",
     "apply": "Toepassen",
     "original": "Original",
     "instagram": "Instagram",
@@ -4217,7 +4231,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "Stijlreferenties"
   },
   "superPagesEditor": {
     "title": "Pagina-editor",
@@ -4421,6 +4436,23 @@
     "campaignQualification": "Campagne-kwalificatie",
     "watchStatus": "Kijkstatus",
     "selectConversation": "Selecteer een gesprek",
-    "noMessagesYet": "Nog geen berichten"
+    "noMessagesYet": "Nog geen berichten",
+    "yourIncomeStreams": "Uw 4 inkomstenbronnen",
+    "mapEmpty": "Leden verschijnen op de kaart naarmate uw team groeit",
+    "deviceSplit": "APPARAATVERDELING",
+    "topCountries": "TOPLANDEN",
+    "shareLink": "Deel uw verwijzingslink om klikgegevens te zien",
+    "lastWithdrawal": "Laatste opname",
+    "noWithdrawals": "Nog geen opnames",
+    "totalAiGen": "totaal AI-generaties",
+    "qualificationDesc": "Uw dagelijkse kijkvereiste voor Campagne Wallet-opnames. Dit is geen inkomstenbron — het is uw verantwoordelijkheidscontrole."
+  },
+  "superMarket": {
+    "comparePrice": "Vergelijkingsprijs",
+    "tags": "Tags",
+    "salesVideo": "Verkoopvideo",
+    "productFile": "Productbestand",
+    "bonusFile": "Bonusbestand",
+    "continue": "Doorgaan"
   }
 }

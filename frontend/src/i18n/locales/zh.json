@@ -102,7 +102,13 @@
     "loadingCreativeStudio": "正在加载创意工作室…",
     "loadingContentCreator": "正在加载内容创作器…",
     "migratingTitle": "正在迁移到React — 即将推出",
-    "migratingDesc": "此页面正在迁移到新界面。"
+    "migratingDesc": "此页面正在迁移到新界面。",
+    "postedBy": "发布者",
+    "source": "来源",
+    "sponsorUsername": "推荐人用户名",
+    "yourImages": "您的图片",
+    "videoNotSupported": "不支持的视频URL。",
+    "alreadyHaveAccount": "已有账户？"
   },
   "nav": {
     "dashboard": "仪表盘",
@@ -392,8 +398,8 @@
     "earningsPerTier": "每等级收益",
     "tier": "等级",
     "direct40": "直接（40%）",
-    "uniLevel625": "多层级（6.25% × 8）",
-    "completionBonus5": "完成奖金（5%）",
+    "uniLevel625": "单级 6.25% × 8层",
+    "completionBonus5": "完成奖金 5%",
     "perLevel": "每层",
     "gridKey1": "激活活动等级进入8×8收入网格（64个位置）",
     "gridKey2": "你的推荐及其推荐填充你的网格位置",
@@ -476,7 +482,13 @@
     "campaignWalletTitle": "活动钱包",
     "campaignWalletDesc": "网格佣金（直接+多层级+奖金）",
     "requiresActiveTier": "需要活跃等级+观看配额",
-    "keyThings": "关键要点"
+    "keyThings": "关键要点",
+    "membershipComm": "会员佣金",
+    "nexusComm": "Credit Nexus佣金",
+    "courseComm": "课程销售佣金",
+    "directSponsor40": "直推 40%",
+    "clickTierEarnings": "点击任何级别查看您的收益明细",
+    "clickPackEarnings": "点击任何包查看每个位置的收益"
   },
   "wallet": {
     "title": "◎ 钱包",
@@ -2894,7 +2906,9 @@
     "welcomeDefault": "欢迎！我们很高兴您来到这里。",
     "tipDefault": "这里有一个对您的旅程有价值的建议。",
     "achieveDefault": "看看我们社区成员取得了什么成就。",
-    "lastChanceDefault": "这是您加入我们的最后机会。"
+    "lastChanceDefault": "这是您加入我们的最后机会。",
+    "sentToLeads": "已发送到",
+    "leads": "潜在客户"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -3989,13 +4003,13 @@
     "seed": "Seed",
     "yourImage": "Your image",
     "recent": "Recent",
-    "negativePrompt": "Negative Prompt",
+    "negativePrompt": "反向提示",
     "duration": "Duration",
     "resolution": "Resolution",
     "generate": "生成",
     "generating": "Generating...",
     "download": "下载",
-    "cost": "Cost:",
+    "cost": "费用:",
     "referenceImage": "Reference Image",
     "imageTab": "Images",
     "imageWillAppear": "Your image will appear here",
@@ -4051,8 +4065,8 @@
     "mp4": "MP4",
     "webm": "WebM",
     "gif": "GIF",
-    "start": "Start",
-    "end": "End",
+    "start": "开始",
+    "end": "结束",
     "apply": "应用",
     "original": "Original",
     "instagram": "Instagram",
@@ -4217,7 +4231,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "风格参考"
   },
   "superPagesEditor": {
     "title": "页面编辑器",
@@ -4421,6 +4436,23 @@
     "campaignQualification": "活动资格",
     "watchStatus": "观看状态",
     "selectConversation": "选择对话",
-    "noMessagesYet": "暂无消息"
+    "noMessagesYet": "暂无消息",
+    "yourIncomeStreams": "您的4种收入来源",
+    "mapEmpty": "随着团队增长，成员将出现在地图上",
+    "deviceSplit": "设备分布",
+    "topCountries": "热门国家",
+    "shareLink": "分享您的推荐链接以查看点击数据",
+    "lastWithdrawal": "最近提款",
+    "noWithdrawals": "暂无提款",
+    "totalAiGen": "总AI生成次数",
+    "qualificationDesc": "您的每日观看要求，用于活动钱包提款资格。这不是收入来源——而是您的责任签到。"
+  },
+  "superMarket": {
+    "comparePrice": "比较价格",
+    "tags": "标签",
+    "salesVideo": "销售视频",
+    "productFile": "产品文件",
+    "bonusFile": "奖励文件",
+    "continue": "继续"
   }
 }

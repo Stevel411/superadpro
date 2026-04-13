@@ -91,7 +91,7 @@ export default function AnalyticsPage(){
       </div>
 
       {/* ═══ ROW 2: 4 Income Streams ═══ */}
-      <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#94a3b8',margin:'16px 0 8px'}}>Your 4 Income Streams</div>
+      <div style={{fontSize:11,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'#94a3b8',margin:'16px 0 8px'}}>{t('analytics.yourIncomeStreams')}</div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:16}}>
         <GC gradient="linear-gradient(135deg,#15803d,#22c55e)" label={t('analytics.membership',{defaultValue:'Membership'})} value={'$'+(tot.membership_earnings||0).toFixed(2)} sub={t('analytics.fiftyRecurring',{defaultValue:'50% recurring'})}>
           <div style={{position:'absolute',top:14,right:14}}><Spark data={mSpark('membership')} color="#fff"/></div>
@@ -135,7 +135,7 @@ export default function AnalyticsPage(){
           {nc.length>0&&<div style={{display:'flex',gap:12,marginTop:12,flexWrap:'wrap'}}>
             {nc.map(function(c,i){return<div key={i} style={{display:'flex',alignItems:'center',gap:6}}><div style={{width:10,height:10,borderRadius:'50%',background:'linear-gradient(135deg,#2563eb,#3b82f6)'}}/><span style={{fontSize:12,fontWeight:600,color:'#334155'}}>{c.code}</span><span style={{fontSize:11,padding:'2px 8px',borderRadius:10,background:'#f1f5f9',color:'#64748b'}}>{c.count}</span></div>})}
           </div>}
-          {nc.length===0&&<div style={{textAlign:'center',padding:'12px 0',color:'#94a3b8',fontSize:12}}>Members will appear on the map as your team grows</div>}
+          {nc.length===0&&<div style={{textAlign:'center',padding:'12px 0',color:'#94a3b8',fontSize:12}}>{t('analytics.mapEmpty')}</div>}
         </WC>
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
           <WC title={t('analytics.incomeBreakdown')} subtitle={t('analytics.byStream')} style={{flex:1}}><div style={{height:200}}><canvas ref={breakdownRef}/></div></WC>
@@ -147,27 +147,27 @@ export default function AnalyticsPage(){
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:12,marginBottom:12}}>
         <WC title={t('analytics.linkPerformance')} subtitle={t('analytics.yourLinks')}>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:12}}>
-            <div style={{background:'#f0fdf4',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:10,fontWeight:700,color:'#15803d',textTransform:'uppercase',letterSpacing:1,marginBottom:3}}>Total Clicks</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#166534'}}>{ls.total_clicks||0}</div></div>
-            <div style={{background:'#eff6ff',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:10,fontWeight:700,color:'#1d4ed8',textTransform:'uppercase',letterSpacing:1,marginBottom:3}}>Last 7 Days</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#1e3a8a'}}>{ls.clicks_7d||0}</div></div>
+            <div style={{background:'#f0fdf4',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:10,fontWeight:700,color:'#15803d',textTransform:'uppercase',letterSpacing:1,marginBottom:3}}>{t('analytics.totalClicks')}</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#166534'}}>{ls.total_clicks||0}</div></div>
+            <div style={{background:'#eff6ff',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:10,fontWeight:700,color:'#1d4ed8',textTransform:'uppercase',letterSpacing:1,marginBottom:3}}>{t('analytics.last7Days')}</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#1e3a8a'}}>{ls.clicks_7d||0}</div></div>
           </div>
-          {ls.devices&&(ls.devices.mobile||ls.devices.desktop)?<div style={{marginBottom:10}}><div style={{fontSize:11,fontWeight:700,color:'#94a3b8',marginBottom:6}}>DEVICE SPLIT</div><div style={{display:'flex',height:8,borderRadius:4,overflow:'hidden',background:'#f1f5f9'}}>{ls.devices.mobile&&<div style={{width:(ls.devices.mobile/(ls.total_clicks||1)*100)+'%',background:'#22c55e',borderRadius:4}}/>}{ls.devices.desktop&&<div style={{width:(ls.devices.desktop/(ls.total_clicks||1)*100)+'%',background:'#3b82f6',borderRadius:4}}/>}</div><div style={{display:'flex',gap:12,marginTop:6}}>{ls.devices.mobile&&<span style={{fontSize:11,color:'#64748b'}}>📱 Mobile: {ls.devices.mobile}</span>}{ls.devices.desktop&&<span style={{fontSize:11,color:'#64748b'}}>🖥 Desktop: {ls.devices.desktop}</span>}</div></div>:null}
-          {(ls.top_countries||[]).length>0&&<div><div style={{fontSize:11,fontWeight:700,color:'#94a3b8',marginBottom:6}}>TOP COUNTRIES</div>{ls.top_countries.map(function(c,i){return<div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'4px 0'}}><span style={{fontSize:12,color:'#334155'}}>{c.country}</span><span style={{fontSize:12,fontWeight:700,color:'#0f172a'}}>{c.clicks}</span></div>})}</div>}
-          {!ls.total_clicks&&<div style={{textAlign:'center',padding:'16px 0',color:'#94a3b8',fontSize:12}}>Share your referral link to see click data</div>}
+          {ls.devices&&(ls.devices.mobile||ls.devices.desktop)?<div style={{marginBottom:10}}><div style={{fontSize:11,fontWeight:700,color:'#94a3b8',marginBottom:6}}>{t('analytics.deviceSplit')}</div><div style={{display:'flex',height:8,borderRadius:4,overflow:'hidden',background:'#f1f5f9'}}>{ls.devices.mobile&&<div style={{width:(ls.devices.mobile/(ls.total_clicks||1)*100)+'%',background:'#22c55e',borderRadius:4}}/>}{ls.devices.desktop&&<div style={{width:(ls.devices.desktop/(ls.total_clicks||1)*100)+'%',background:'#3b82f6',borderRadius:4}}/>}</div><div style={{display:'flex',gap:12,marginTop:6}}>{ls.devices.mobile&&<span style={{fontSize:11,color:'#64748b'}}>📱 Mobile: {ls.devices.mobile}</span>}{ls.devices.desktop&&<span style={{fontSize:11,color:'#64748b'}}>🖥 Desktop: {ls.devices.desktop}</span>}</div></div>:null}
+          {(ls.top_countries||[]).length>0&&<div><div style={{fontSize:11,fontWeight:700,color:'#94a3b8',marginBottom:6}}>{t('analytics.topCountries')}</div>{ls.top_countries.map(function(c,i){return<div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'4px 0'}}><span style={{fontSize:12,color:'#334155'}}>{c.country}</span><span style={{fontSize:12,fontWeight:700,color:'#0f172a'}}>{c.clicks}</span></div>})}</div>}
+          {!ls.total_clicks&&<div style={{textAlign:'center',padding:'16px 0',color:'#94a3b8',fontSize:12}}>{t('analytics.shareLink')}</div>}
         </WC>
 
         <WC title={t('analytics.withdrawals')} subtitle={t('analytics.usdtPolygon')}>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:12}}>
-            <div style={{background:'#faf5ff',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:10,fontWeight:700,color:'#7c3aed',textTransform:'uppercase',letterSpacing:1,marginBottom:3}}>Total Withdrawn</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#5b21b6'}}>${ws.total_withdrawn||'0.00'}</div></div>
-            <div style={{background:'#fffbeb',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:10,fontWeight:700,color:'#b45309',textTransform:'uppercase',letterSpacing:1,marginBottom:3}}>Pending</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#92400e'}}>${ws.pending||'0.00'}</div></div>
+            <div style={{background:'#faf5ff',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:10,fontWeight:700,color:'#7c3aed',textTransform:'uppercase',letterSpacing:1,marginBottom:3}}>{t('analytics.totalWithdrawn')}</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#5b21b6'}}>${ws.total_withdrawn||'0.00'}</div></div>
+            <div style={{background:'#fffbeb',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:10,fontWeight:700,color:'#b45309',textTransform:'uppercase',letterSpacing:1,marginBottom:3}}>{t('analytics.pending')}</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'#92400e'}}>${ws.pending||'0.00'}</div></div>
           </div>
-          {ws.last_date?<div style={{background:'#f8fafc',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:11,color:'#94a3b8',marginBottom:4}}>Last withdrawal</div><div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>${ws.last_amount}</span><span style={{fontSize:12,color:'#64748b'}}>{ws.last_date}</span></div></div>:<div style={{textAlign:'center',padding:'16px 0',color:'#94a3b8',fontSize:12}}>No withdrawals yet</div>}
+          {ws.last_date?<div style={{background:'#f8fafc',borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:11,color:'#94a3b8',marginBottom:4}}>{t('analytics.lastWithdrawal')}</div><div style={{display:'flex',justifyContent:'space-between'}}><span style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>${ws.last_amount}</span><span style={{fontSize:12,color:'#64748b'}}>{ws.last_date}</span></div></div>:<div style={{textAlign:'center',padding:'16px 0',color:'#94a3b8',fontSize:12}}>{t('analytics.noWithdrawals')}</div>}
         </WC>
 
         <WC title={t('analytics.aiToolsUsage')} subtitle={t('analytics.lifetimeGenerated')}>
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
             {[{label:'Campaign Studio',val:ai.campaign_studio||0,bg:'#eff6ff',color:'#1d4ed8'},{label:'Social Posts',val:ai.social_posts||0,bg:'#f0fdf4',color:'#15803d'},{label:'Video Scripts',val:ai.video_scripts||0,bg:'#faf5ff',color:'#7c3aed'},{label:'Niche Finder',val:ai.niche_finder||0,bg:'#fffbeb',color:'#b45309'}].map(function(a,i){return<div key={i} style={{background:a.bg,borderRadius:10,padding:'12px 14px'}}><div style={{fontSize:10,fontWeight:700,color:a.color,textTransform:'uppercase',letterSpacing:1,marginBottom:3}}>{a.label}</div><div style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:a.color}}>{a.val}</div></div>})}
           </div>
-          <div style={{marginTop:12,background:'linear-gradient(135deg,#f0f9ff,#eff6ff)',borderRadius:10,padding:'12px 14px',textAlign:'center'}}><span style={{fontSize:12,fontWeight:700,color:'#1e40af'}}>{ai.total||0} total AI generations</span></div>
+          <div style={{marginTop:12,background:'linear-gradient(135deg,#f0f9ff,#eff6ff)',borderRadius:10,padding:'12px 14px',textAlign:'center'}}><span style={{fontSize:12,fontWeight:700,color:'#1e40af'}}>{ai.total||0} {t('analytics.totalAiGen')}</span></div>
         </WC>
       </div>
 
@@ -187,7 +187,7 @@ export default function AnalyticsPage(){
 
       {/* ═══ ROW 7: Campaign Qualification ═══ */}
       {data.watch_stats&&<>
-        <div style={{margin:'16px 0 8px'}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:16,fontWeight:800,color:'#0f172a'}}>Campaign Qualification</div><div style={{fontSize:12,color:'#94a3b8',marginTop:2}}>Your daily watch requirement to qualify for Campaign Wallet withdrawals. This is not an income stream — it is your accountability check-in.</div></div>
+        <div style={{margin:'16px 0 8px'}}><div style={{fontFamily:"'Sora',sans-serif",fontSize:16,fontWeight:800,color:'#0f172a'}}>{t('analytics.campaignQualification')}</div><div style={{fontSize:12,color:'#94a3b8',marginTop:2}}>{t('analytics.qualificationDesc')}</div></div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 2fr',gap:12,marginBottom:12}}>
           <WC title={t('analytics.watchStatus')} subtitle="Daily quota compliance">
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>

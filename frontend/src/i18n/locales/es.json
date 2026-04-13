@@ -102,7 +102,13 @@
     "loadingCreativeStudio": "Cargando Creative Studio…",
     "loadingContentCreator": "Cargando Creador de Contenido…",
     "migratingTitle": "Migrando a React — disponible pronto",
-    "migratingDesc": "Esta página se está migrando a la nueva interfaz."
+    "migratingDesc": "Esta página se está migrando a la nueva interfaz.",
+    "postedBy": "Publicado por",
+    "source": "Fuente",
+    "sponsorUsername": "Usuario del patrocinador",
+    "yourImages": "Tus imágenes",
+    "videoNotSupported": "URL de vídeo no soportada.",
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?"
   },
   "nav": {
     "dashboard": "Panel",
@@ -367,8 +373,8 @@
     "earningsPerTier": "Ganancias por Nivel",
     "tier": "Nivel",
     "direct40": "Directo (40%)",
-    "uniLevel625": "Uni-nivel (6.25% × 8)",
-    "completionBonus5": "Bono de Completado (5%)",
+    "uniLevel625": "Uni-level 6.25% × 8 niveles",
+    "completionBonus5": "Bono de finalización 5%",
     "perLevel": "por nivel",
     "gridKey1": "Activa un Nivel de Campaña para entrar en la Cuadrícula 8×8 (64 posiciones)",
     "gridKey2": "Tus referidos y los referidos de ellos llenan las posiciones de tu cuadrícula",
@@ -451,7 +457,13 @@
     "campaignWalletTitle": "Cartera de Campaña",
     "campaignWalletDesc": "Comisiones de cuadrícula (directo + uni-nivel + bono)",
     "requiresActiveTier": "Requiere nivel activo + cuota de visualización",
-    "keyThings": "Cosas clave que saber"
+    "keyThings": "Cosas clave que saber",
+    "membershipComm": "Comisiones de membresía",
+    "nexusComm": "Comisiones Credit Nexus",
+    "courseComm": "Comisiones de ventas de cursos",
+    "directSponsor40": "Patrocinador directo 40%",
+    "clickTierEarnings": "Haz clic en cualquier nivel para ver tus ganancias",
+    "clickPackEarnings": "Haz clic en cualquier paquete para ver tus ganancias"
   },
   "wallet": {
     "title": "◎ Cartera",
@@ -2564,7 +2576,9 @@
     "welcomeDefault": "¡Bienvenido! Nos alegra que estés aquí.",
     "tipDefault": "Aquí hay un consejo valioso para tu camino.",
     "achieveDefault": "Mira lo que han logrado los miembros de nuestra comunidad.",
-    "lastChanceDefault": "Esta es tu última oportunidad de unirte a nosotros."
+    "lastChanceDefault": "Esta es tu última oportunidad de unirte a nosotros.",
+    "sentToLeads": "Enviado a",
+    "leads": "prospectos"
   },
   "adHub": {
     "title": "Hub de Anuncios",
@@ -3779,13 +3793,13 @@
     "seed": "Seed",
     "yourImage": "Your image",
     "recent": "Recent",
-    "negativePrompt": "Negative Prompt",
+    "negativePrompt": "Indicación negativa",
     "duration": "Duration",
     "resolution": "Resolution",
     "generate": "Generar",
     "generating": "Generating...",
     "download": "Descargar",
-    "cost": "Cost:",
+    "cost": "Costo:",
     "referenceImage": "Reference Image",
     "imageTab": "Images",
     "imageWillAppear": "Your image will appear here",
@@ -3841,8 +3855,8 @@
     "mp4": "MP4",
     "webm": "WebM",
     "gif": "GIF",
-    "start": "Start",
-    "end": "End",
+    "start": "Inicio",
+    "end": "Fin",
     "apply": "Aplicar",
     "original": "Original",
     "instagram": "Instagram",
@@ -4007,7 +4021,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "Referencias de estilo"
   },
   "superPagesEditor": {
     "title": "Editor de páginas",
@@ -4211,6 +4226,23 @@
     "campaignQualification": "Calificación de campaña",
     "watchStatus": "Estado de visualización",
     "selectConversation": "Selecciona una conversación",
-    "noMessagesYet": "Sin mensajes aún"
+    "noMessagesYet": "Sin mensajes aún",
+    "yourIncomeStreams": "Tus 4 fuentes de ingreso",
+    "mapEmpty": "Los miembros aparecerán en el mapa a medida que tu equipo crezca",
+    "deviceSplit": "DIVISIÓN POR DISPOSITIVO",
+    "topCountries": "PRINCIPALES PAÍSES",
+    "shareLink": "Comparte tu enlace de referencia para ver los clics",
+    "lastWithdrawal": "Último retiro",
+    "noWithdrawals": "Sin retiros aún",
+    "totalAiGen": "generaciones de IA totales",
+    "qualificationDesc": "Tu requisito diario de visualización para calificar para retiros de la Billetera de Campaña. No es una fuente de ingresos — es tu registro de responsabilidad."
+  },
+  "superMarket": {
+    "comparePrice": "Precio de comparación",
+    "tags": "Etiquetas",
+    "salesVideo": "Vídeo de ventas",
+    "productFile": "Archivo del producto",
+    "bonusFile": "Archivo de bonificación",
+    "continue": "Continuar"
   }
 }

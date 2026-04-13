@@ -699,7 +699,7 @@ export default function EarnPage() {
             <Link to="/register" onClick={function(){setRegOpen(false);}} style={{display:'block',width:'100%',padding:'13px',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',border:'none',borderRadius:10,color:'#fff',fontSize:15,fontWeight:800,fontFamily:'inherit',cursor:'pointer',textAlign:'center',textDecoration:'none',boxSizing:'border-box'}}>
               Create Account →
             </Link>
-            <div style={{textAlign:'center',marginTop:12,fontSize:13,color:'rgba(148,163,184,.5)'}}>Already have an account? <Link to="/login" onClick={function(){setRegOpen(false);}} style={{color:'rgba(56,189,248,.8)',textDecoration:'none',fontWeight:600}}>{t('earnPage.signInLink')}</Link></div>
+            <div style={{textAlign:'center',marginTop:12,fontSize:13,color:'rgba(148,163,184,.5)'}}>{t('common.alreadyHaveAccount')} <Link to="/login" onClick={function(){setRegOpen(false);}} style={{color:'rgba(56,189,248,.8)',textDecoration:'none',fontWeight:600}}>{t('earnPage.signInLink')}</Link></div>
           </div>
         </div>
       )}

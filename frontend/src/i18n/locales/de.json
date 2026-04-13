@@ -102,7 +102,13 @@
     "loadingCreativeStudio": "Creative Studio wird geladen…",
     "loadingContentCreator": "Content Creator wird geladen…",
     "migratingTitle": "Migration zu React — kommt in Kürze",
-    "migratingDesc": "Diese Seite wird zur neuen Oberfläche migriert."
+    "migratingDesc": "Diese Seite wird zur neuen Oberfläche migriert.",
+    "postedBy": "Gepostet von",
+    "source": "Quelle",
+    "sponsorUsername": "Sponsor-Benutzername",
+    "yourImages": "Ihre Bilder",
+    "videoNotSupported": "Video-URL nicht unterstützt.",
+    "alreadyHaveAccount": "Bereits ein Konto?"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -392,8 +398,8 @@
     "earningsPerTier": "Einnahmen pro Stufe",
     "tier": "Stufe",
     "direct40": "Direkt (40%)",
-    "uniLevel625": "Uni-Level (6,25% × 8)",
-    "completionBonus5": "Abschlussbonus (5%)",
+    "uniLevel625": "Uni-Level 6,25% × 8 Ebenen",
+    "completionBonus5": "Abschlussbonus 5%",
     "perLevel": "pro Ebene",
     "gridKey1": "Aktivieren Sie eine Stufe, um ins 8×8 Raster einzutreten (64 Positionen)",
     "gridKey2": "Ihre Empfehlungen und deren Empfehlungen füllen Ihre Positionen",
@@ -476,7 +482,13 @@
     "campaignWalletTitle": "Kampagnen-Wallet",
     "campaignWalletDesc": "Raster-Provisionen (direkt + Uni-Level + Bonus)",
     "requiresActiveTier": "Erfordert aktive Stufe + Sehquote",
-    "keyThings": "Wichtige Punkte"
+    "keyThings": "Wichtige Punkte",
+    "membershipComm": "Mitgliedsprovisionen",
+    "nexusComm": "Credit Nexus Provisionen",
+    "courseComm": "Kursverkaufsprovisionen",
+    "directSponsor40": "Direktsponsor 40%",
+    "clickTierEarnings": "Klicken Sie auf eine Stufe für Ihre Verdienste",
+    "clickPackEarnings": "Klicken Sie auf ein Paket für Ihre Verdienste"
   },
   "wallet": {
     "title": "◎ Geldbörse",
@@ -2894,7 +2906,9 @@
     "welcomeDefault": "Willkommen! Wir freuen uns, dass Sie hier sind.",
     "tipDefault": "Hier ist ein wertvoller Tipp für Ihre Reise.",
     "achieveDefault": "Sehen Sie, was unsere Community-Mitglieder erreicht haben.",
-    "lastChanceDefault": "Dies ist Ihre letzte Chance, uns beizutreten."
+    "lastChanceDefault": "Dies ist Ihre letzte Chance, uns beizutreten.",
+    "sentToLeads": "Gesendet an",
+    "leads": "Leads"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -3989,13 +4003,13 @@
     "seed": "Seed",
     "yourImage": "Your image",
     "recent": "Recent",
-    "negativePrompt": "Negative Prompt",
+    "negativePrompt": "Negativer Prompt",
     "duration": "Duration",
     "resolution": "Resolution",
     "generate": "Generieren",
     "generating": "Generating...",
     "download": "Herunterladen",
-    "cost": "Cost:",
+    "cost": "Kosten:",
     "referenceImage": "Reference Image",
     "imageTab": "Images",
     "imageWillAppear": "Your image will appear here",
@@ -4052,7 +4066,7 @@
     "webm": "WebM",
     "gif": "GIF",
     "start": "Start",
-    "end": "End",
+    "end": "Ende",
     "apply": "Anwenden",
     "original": "Original",
     "instagram": "Instagram",
@@ -4217,7 +4231,8 @@
     "packFooterBody": "🔒 350+ cryptos via NOWPayments · Direct USDT/Polygon · Credits never expire",
     "copyUrlBtn": "📋 Copy URL",
     "captionsDescBody": "Add styled subtitles to your generated video. Type captions manually or use AI transcription.",
-    "crPerFiveSec": "cr/5s"
+    "crPerFiveSec": "cr/5s",
+    "styleRefs": "Stilreferenzen"
   },
   "superPagesEditor": {
     "title": "Seiteneditor",
@@ -4421,6 +4436,23 @@
     "campaignQualification": "Kampagnen-Qualifikation",
     "watchStatus": "Anzeige-Status",
     "selectConversation": "Wählen Sie eine Konversation",
-    "noMessagesYet": "Noch keine Nachrichten"
+    "noMessagesYet": "Noch keine Nachrichten",
+    "yourIncomeStreams": "Ihre 4 Einkommensquellen",
+    "mapEmpty": "Mitglieder erscheinen auf der Karte wenn Ihr Team wächst",
+    "deviceSplit": "GERÄTEAUFTEILUNG",
+    "topCountries": "TOP-LÄNDER",
+    "shareLink": "Teilen Sie Ihren Empfehlungslink um Klickdaten zu sehen",
+    "lastWithdrawal": "Letzte Auszahlung",
+    "noWithdrawals": "Noch keine Auszahlungen",
+    "totalAiGen": "KI-Generierungen insgesamt",
+    "qualificationDesc": "Ihre tägliche Ansichtsanforderung für Kampagnen-Wallet-Auszahlungen. Dies ist keine Einkommensquelle — es ist Ihre Verantwortlichkeitskontrolle."
+  },
+  "superMarket": {
+    "comparePrice": "Vergleichspreis",
+    "tags": "Tags",
+    "salesVideo": "Verkaufsvideo",
+    "productFile": "Produktdatei",
+    "bonusFile": "Bonusdatei",
+    "continue": "Weiter"
   }
 }

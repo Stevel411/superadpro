@@ -1237,7 +1237,7 @@ export default function SuperScenePage() {
                 {/* Negative Prompt */}
                 {selectedModel?.negPrompt && (
                   <div className="sc-section">
-                    <div className="sc-label" style={{ fontSize: 12 }}>Negative Prompt <span className="sc-label-badge">{t('superScene.optional')}</span></div>
+                    <div className="sc-label" style={{ fontSize: 12 }}>{t('superScene.negativePrompt')} <span className="sc-label-badge">{t('superScene.optional')}</span></div>
                     <div className="sc-prompt-box" style={{ minHeight: 'auto', padding: 10 }}>
                       <textarea className="sc-prompt-ta" rows={2} style={{ minHeight: 36, fontSize: 12 }}
                         placeholder={t('superScene.negativePromptPlaceholderFull')}
@@ -1274,7 +1274,7 @@ export default function SuperScenePage() {
                 {/* Style References */}
                 {(model === "seedance" || model === "veo31" || model === "veo31-pro") && (
                   <div className="sc-section">
-                    <div className="sc-label" style={{ fontSize: 12 }}>Style References <span className="sc-label-badge">{t('superScene.optional')}</span></div>
+                    <div className="sc-label" style={{ fontSize: 12 }}>{t('superScene.styleRefs')} <span className="sc-label-badge">{t('superScene.optional')}</span></div>
                     <div className="sc-style-refs">
                       {styleRefs.map(ref => (
                         <div key={ref.id} className="sc-sref-item">
@@ -1711,12 +1711,12 @@ export default function SuperScenePage() {
                         <div className="sc-label">{t('superScene.trimVideo')}</div>
                         <div className="sc-sub sc-ed-desc">{t("superScene.trimDesc")}</div>
                         <div className="sc-ed-range-row">
-                          <label className="sc-ed-range-label">Start
+                          <label className="sc-ed-range-label">{t('superScene.start')}
                             <input type="number" className="sc-ed-range-input" value={trimStart} min={0} max={trimEnd} step={0.1}
                               onChange={e => { const v = parseFloat(e.target.value) || 0; setTrimStart(v); if (editorVideoRef.current) editorVideoRef.current.currentTime = v; }}/>
                             <span className="sc-ed-range-unit">s</span>
                           </label>
-                          <label className="sc-ed-range-label">End
+                          <label className="sc-ed-range-label">{t('superScene.end')}
                             <input type="number" className="sc-ed-range-input" value={trimEnd} min={trimStart} step={0.1}
                               onChange={e => setTrimEnd(parseFloat(e.target.value) || 0)}/>
                             <span className="sc-ed-range-unit">s</span>
@@ -1867,7 +1867,7 @@ export default function SuperScenePage() {
                   </div>
 
                   <div className="sc-section">
-                    <div className="sc-label">Title <span className="sc-label-badge">{t('superScene.optional')}</span></div>
+                    <div className="sc-label">{t('superScene.titleLabel')} <span className="sc-label-badge">{t('superScene.optional')}</span></div>
                     <input type="text" className="sc-studio-input"
                       placeholder={t("superScene.projectNamePlaceholder")}
                       value={pipeTitle} onChange={e => setPipeTitle(e.target.value.slice(0, 200))}/>
@@ -2544,7 +2544,7 @@ export default function SuperScenePage() {
 
                 {/* Negative Prompt */}
                 <div className="sc-section">
-                  <div className="sc-label">Negative Prompt <span className="sc-label-badge">{t('superScene.optional')}</span></div>
+                  <div className="sc-label">{t('superScene.negativePrompt')} <span className="sc-label-badge">{t('superScene.optional')}</span></div>
                   <div className="sc-prompt-box">
                     <textarea className="sc-prompt-ta sc-scene-textarea" rows={2}
                       placeholder={t('superScene.negativeExcludeFull')}
