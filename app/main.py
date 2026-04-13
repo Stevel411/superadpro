@@ -272,6 +272,28 @@ async def startup_event():
         print("✅ Migrations complete")
     except Exception as e:
         print(f"⚠️ Migrations skipped: {e}")
+
+    # ── Daily backup scheduler ──
+    import asyncio, threading
+    def _daily_backup_loop():
+        """Run a database backup every 24 hours to Cloudflare R2."""
+        import time as _time
+        _time.sleep(60)  # Wait 60s after startup before first backup
+        while True:
+            try:
+                from .db_backup import run_backup
+                result = run_backup()
+                if result.get("success"):
+                    print(f"✅ Daily backup: {result['file']} ({result['size_mb']}MB)")
+                else:
+                    print(f"⚠️ Backup failed: {result.get('error', 'unknown')}")
+            except Exception as e:
+                print(f"⚠️ Backup error: {e}")
+            _time.sleep(86400)  # 24 hours
+
+    backup_thread = threading.Thread(target=_daily_backup_loop, daemon=True)
+    backup_thread.start()
+    print("✅ Daily backup scheduler started")
 templates = Jinja2Templates(directory="templates")
 # Make Decimal values render cleanly in templates
 templates.env.filters["money"] = lambda v: f"{float(v or 0):.2f}"
@@ -5827,10 +5849,32 @@ def recent_joiners(db: Session = Depends(get_db)):
 # ═══════════════════════════════════════════════════════════════
 
 
-# DEV ROUTE REMOVED (was at line 5830) — removed for production security
-# DEV ROUTE REMOVED (was at line 5963) — removed for production security
-# DEV ROUTE REMOVED (was at line 5980) — removed for production security
-# DEV ROUTE REMOVED (was at line 6046) — removed for production security
+# ── Database Backup Routes ────────────────────────────────────
+@app.post("/admin/api/backup")
+def admin_run_backup(user: User = Depends(get_current_user)):
+    """Admin: manually trigger a database backup to R2."""
+    _require_admin(user)
+    from .db_backup import run_backup
+    result = run_backup()
+    return JSONResponse(result)
+
+
+@app.get("/admin/api/backups")
+def admin_list_backups(user: User = Depends(get_current_user)):
+    """Admin: list existing backups in R2."""
+    _require_admin(user)
+    from .db_backup import list_backups
+    return JSONResponse({"backups": list_backups()})
+
+
+@app.get("/cron/backup")
+def cron_backup(secret: str = ""):
+    """Cron endpoint: trigger daily backup. Protected by secret."""
+    if secret != os.getenv("BACKUP_SECRET", "superadpro-backup-2026"):
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    from .db_backup import run_backup
+    result = run_backup()
+    return JSONResponse(result)
 @app.get("/admin")
 def admin_panel(request: Request, user: User = Depends(get_current_user)):
     if not user or not is_admin(user):
