@@ -73,7 +73,7 @@ export default function TeamMessenger() {
   }
   function initials(n) { if (!n) return '?'; var p = n.trim().split(' '); return p.length >= 2 ? (p[0][0] + p[1][0]).toUpperCase() : n[0].toUpperCase(); }
 
-  if (loading) return <AppLayout title={t("teamMessenger.title")}><div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'60vh'}}><div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:16}}><div style={{width:40,height:40,borderRadius:'50%',border:'3px solid #e2e8f0',borderTopColor:'#0ea5e9',animation:'spin 0.8s linear infinite'}}/><div style={{fontSize:13,fontWeight:600,color:'#94a3b8'}}>Loading...</div></div><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
+  if (loading) return <AppLayout title={t("teamMessenger.title")}><div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'60vh'}}><div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:16}}><div style={{width:40,height:40,borderRadius:'50%',border:'3px solid #e2e8f0',borderTopColor:'#0ea5e9',animation:'spin 0.8s linear infinite'}}/><div style={{fontSize:13,fontWeight:600,color:'#94a3b8'}}>{t('teamMessenger.loading')}</div></div><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
 
   return (
     <AppLayout title={t("teamMessenger.title")} subtitle={t('teamMessenger.messageSubtitle')}>
@@ -84,13 +84,13 @@ export default function TeamMessenger() {
           {/* Header */}
           <div style={{padding:'16px 18px',borderBottom:'1px solid #f1f5f9'}}>
             <div style={{fontSize:15,fontWeight:800,color:'#0f172a',display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
-              <Users size={16} color="#0ea5e9"/> Contacts
+              <Users size={16} color="#0ea5e9"/> {t('teamMessenger.contacts')}
               {unread > 0 && <span style={{fontSize:10,fontWeight:800,padding:'2px 7px',borderRadius:10,background:'#ef4444',color:'#fff',marginLeft:'auto'}}>{unread}</span>}
             </div>
             <div style={{position:'relative'}}>
               <Search size={14} style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',color:'#94a3b8'}}/>
               <input value={search} onChange={function(e){setSearch(e.target.value);}}
-                placeholder="Search..."
+                placeholder={t("teamMessenger.searchContacts")}
                 style={{width:'100%',padding:'8px 12px 8px 32px',borderRadius:8,border:'1px solid #e2e8f0',background:'#f8fafc',
                   fontSize:13,fontFamily:'inherit',outline:'none',color:'#0f172a',boxSizing:'border-box'}}/>
             </div>
@@ -129,7 +129,7 @@ export default function TeamMessenger() {
                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:2}}>
                       <span style={{fontSize:12,color:'#94a3b8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1}}>
                         {last?(last.direction==='sent'?'You: ':'')+((last.message||'').substring(0,35)+(last.message&&last.message.length>35?'...':''))
-                          :<span style={{fontStyle:'italic',color:'#cbd5e1'}}>No messages yet</span>}
+                          :<span style={{fontStyle:'italic',color:'#cbd5e1'}}>{t('teamMessenger.noMsgPreview')}</span>}
                       </span>
                       {ur>0&&<span style={{fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:10,background:'#0ea5e9',color:'#fff',flexShrink:0,marginLeft:6}}>{ur}</span>}
                     </div>
@@ -168,8 +168,8 @@ export default function TeamMessenger() {
               {groupedMsgs.length === 0 && (
                 <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:10}}>
                   <MessageCircle size={36} color="#cbd5e1"/>
-                  <div style={{fontSize:15,fontWeight:700,color:'#475569'}}>No messages yet</div>
-                  <div style={{fontSize:13,color:'#94a3b8'}}>Say hello to {activeContact.name}!</div>
+                  <div style={{fontSize:15,fontWeight:700,color:'#475569'}}>{t('teamMessenger.noMessagesYet')}</div>
+                  <div style={{fontSize:13,color:'#94a3b8'}}>{t('teamMessenger.sayHello')} {activeContact.name}!</div>
                 </div>
               )}
               {groupedMsgs.map(function(item, idx) {
@@ -210,7 +210,7 @@ export default function TeamMessenger() {
             <div style={{padding:'14px 20px',borderTop:'1px solid #e2e8f0',background:'#fff',display:'flex',gap:10,alignItems:'center'}}>
               <input ref={inputRef} value={text} onChange={function(e){setText(e.target.value);}}
                 onKeyDown={function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}}
-                placeholder={"Message " + activeContact.name + "..."} maxLength={2000}
+                placeholder={t("teamMessenger.messageUser") + " " + activeContact.name + "..."} maxLength={2000}
                 style={{flex:1,padding:'11px 16px',borderRadius:24,border:'1.5px solid #e2e8f0',background:'#f8fafc',
                   fontSize:14,fontFamily:'inherit',outline:'none',color:'#0f172a',boxSizing:'border-box',transition:'border-color 0.2s'}}
                 onFocus={function(e){e.target.style.borderColor='#0ea5e9';}}
@@ -227,8 +227,8 @@ export default function TeamMessenger() {
             <div style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',background:'#f8fafc'}}>
               <div style={{textAlign:'center'}}>
                 <MessageCircle size={48} color="#cbd5e1" style={{marginBottom:14}}/>
-                <div style={{fontSize:17,fontWeight:700,color:'#334155',marginBottom:4}}>Select a conversation</div>
-                <div style={{fontSize:13,color:'#94a3b8'}}>Choose a contact from the left to start chatting</div>
+                <div style={{fontSize:17,fontWeight:700,color:'#334155',marginBottom:4}}>{t('teamMessenger.selectConversation')}</div>
+                <div style={{fontSize:13,color:'#94a3b8'}}>{t('teamMessenger.chooseContact')}</div>
               </div>
             </div>
           )}
