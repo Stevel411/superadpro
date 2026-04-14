@@ -122,8 +122,8 @@ class User(Base):
     password            = Column(String)
     first_name          = Column(String, nullable=True)
     last_name           = Column(String, nullable=True)
-    sponsor_id          = Column(Integer, ForeignKey("users.id"), nullable=True)
-    pass_up_sponsor_id  = Column(Integer, ForeignKey("users.id"), nullable=True)  # permanent pass-up chain
+    sponsor_id          = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    pass_up_sponsor_id  = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)  # permanent pass-up chain
     course_sale_count   = Column(Integer, default=0)              # total personally referred course sales (any tier)
     wallet_address      = Column(String, nullable=True)
     sending_wallet      = Column(String, nullable=True)    # wallet they send crypto payments FROM
@@ -195,8 +195,8 @@ class GridPosition(Base):
     __tablename__ = "grid_positions"
     id              = Column(Integer, primary_key=True, index=True)
     grid_id         = Column(Integer, ForeignKey("grids.id"), index=True)
-    member_id       = Column(Integer, ForeignKey("users.id"))   # person filling this seat
-    grid_level      = Column(Integer)                            # 1-8
+    member_id       = Column(Integer, ForeignKey("users.id"), index=True)   # person filling this seat
+    grid_level      = Column(Integer, index=True)                # 1-8
     position_num    = Column(Integer)                            # 1-8 within the level
     is_overspill    = Column(Boolean, default=False)
     created_at      = Column(DateTime, default=datetime.utcnow)
@@ -209,12 +209,12 @@ class Commission(Base):
     to_user_id      = Column(Integer, ForeignKey("users.id"))
     grid_id         = Column(Integer, ForeignKey("grids.id"), nullable=True)
     amount_usdt     = Column(Money)
-    commission_type = Column(String)   # 'direct_sponsor','uni_level','platform','membership'
+    commission_type = Column(String, index=True)   # 'direct_sponsor','uni_level','platform','membership'
     package_tier    = Column(Integer)
-    status          = Column(String, default="pending")  # pending/paid/failed
+    status          = Column(String, default="pending", index=True)  # pending/paid/failed
     tx_hash         = Column(String, nullable=True)
     notes           = Column(Text, nullable=True)
-    created_at      = Column(DateTime, default=datetime.utcnow)
+    created_at      = Column(DateTime, default=datetime.utcnow, index=True)
     paid_at         = Column(DateTime, nullable=True)
 
 class Course(Base):
@@ -987,7 +987,7 @@ class MemberCoursePurchase(Base):
     creator_commission  = Column(Numeric(10, 2), nullable=False)   # 50%
     sponsor_commission  = Column(Numeric(10, 2), nullable=False)   # 25%
     company_commission  = Column(Numeric(10, 2), nullable=False)   # 25%
-    sponsor_id          = Column(Integer, ForeignKey("users.id"), nullable=True)  # who got sponsor commission
+    sponsor_id          = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)  # who got sponsor commission
     payment_method      = Column(String, default="stripe")         # stripe, wallet, crypto
     payment_ref         = Column(String, nullable=True)            # Stripe payment intent ID
     status              = Column(String, default="completed")      # completed, refunded, disputed
@@ -2298,7 +2298,7 @@ class CreditMatrix(Base):
     owner_id      = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     pack_key      = Column(String(20), nullable=True, index=True)  # which pack this matrix is for
     advance_number = Column(Integer, default=1)                    # increments each time matrix completes
-    status        = Column(String(20), default="active")           # active / completed
+    status        = Column(String(20), default="active", index=True)           # active / completed
     positions_filled = Column(Integer, default=0)                  # 0-39 (1 owner + 3+9+27 downline)
     total_earned  = Column(Numeric(18, 6), default=0)              # total commissions earned from this matrix
     completion_bonus_paid = Column(Numeric(18, 6), default=0)
@@ -2332,13 +2332,13 @@ class CreditMatrixCommission(Base):
     id            = Column(Integer, primary_key=True, index=True)
     matrix_id     = Column(Integer, ForeignKey("credit_matrices.id", ondelete="CASCADE"), nullable=False, index=True)
     earner_id     = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
-    from_user_id  = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    from_user_id  = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     from_position_id = Column(Integer, ForeignKey("credit_matrix_positions.id"), nullable=False)
     level         = Column(Integer, nullable=False)          # 1, 2, or 3
     rate          = Column(Numeric(8, 4), nullable=False)    # 0.10, 0.05, or 0.03
     pack_price    = Column(Numeric(18, 6), nullable=False)   # original pack price
     amount        = Column(Numeric(18, 6), nullable=False)   # actual commission amount
-    commission_type = Column(String(30), default="matrix_level")  # matrix_level / matrix_completion
+    commission_type = Column(String(30), default="matrix_level", index=True)  # matrix_level / matrix_completion
     status        = Column(String(20), default="paid")       # paid / pending / held
     created_at    = Column(DateTime, default=datetime.utcnow)
 
