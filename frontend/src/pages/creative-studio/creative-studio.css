@@ -16,13 +16,13 @@
 .cs-credits-buy { font-size: 10px; font-weight: 700; color: var(--cyan); background: rgba(56,189,248,.12); border: 1px solid rgba(56,189,248,.2); border-radius: 5px; padding: 3px 8px; text-decoration: none; margin-left: 4px; cursor: pointer; }
 
 /* ── Tab Bar (Platform Tour style) ── */
-.cs-tab-bar { background: #fff; border-bottom: 1px solid #e2e8f0; padding: 0 28px; overflow-x: auto; display: flex; align-items: center; gap: 0; }
+.cs-tab-bar { background: linear-gradient(135deg, #172554, #1e3a8a); border-bottom: none; padding: 0 28px; overflow-x: auto; display: flex; align-items: center; gap: 0; }
 .cs-tabs { display: flex; gap: 4px; padding: 12px 0; flex: 1; }
-.cs-credits-buy { font-size: 11px; font-weight: 700; color: #8b5cf6; background: #f5f3ff; border: 1px solid #e9e5ff; border-radius: 6px; padding: 4px 10px; cursor: pointer; font-family: inherit; transition: all .15s; }
-.cs-credits-buy:hover { background: #ede9fe; border-color: #8b5cf6; }
-.cs-tab { padding: 9px 18px; font-size: 13px; font-weight: 600; color: #64748b; cursor: pointer; white-space: nowrap; border: 1.5px solid #e2e8f0; background: #fff; border-radius: 10px; display: flex; align-items: center; gap: 7px; transition: all .15s; font-family: inherit; }
-.cs-tab:hover { border-color: var(--purple); color: var(--purple); background: #f5f3ff; }
-.cs-tab.active { border-color: var(--purple); background: var(--purple); color: #fff; box-shadow: 0 2px 8px rgba(139,92,246,.25); }
+.cs-credits-buy { font-size: 11px; font-weight: 700; color: #fff; background: rgba(139,92,246,.3); border: 1px solid rgba(139,92,246,.4); border-radius: 6px; padding: 4px 10px; cursor: pointer; font-family: inherit; transition: all .15s; }
+.cs-credits-buy:hover { background: rgba(139,92,246,.5); border-color: #8b5cf6; }
+.cs-tab { padding: 9px 18px; font-size: 13px; font-weight: 600; color: rgba(255,255,255,.55); cursor: pointer; white-space: nowrap; border: 1.5px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06); border-radius: 10px; display: flex; align-items: center; gap: 7px; transition: all .15s; font-family: inherit; }
+.cs-tab:hover { border-color: rgba(255,255,255,.25); color: #fff; background: rgba(255,255,255,.1); }
+.cs-tab.active { border-color: var(--purple); background: var(--purple); color: #fff; box-shadow: 0 2px 8px rgba(139,92,246,.35); }
 .cs-tab svg { width: 15px; height: 15px; }
 
 /* ── Main Content Area ── */
@@ -37,7 +37,7 @@
 .cs-stage-inner.r-4x3  { aspect-ratio: 4/3;  height: 100%; width: auto; }
 .cs-stage-inner video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .cs-stage-inner img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.cs-stage-empty { text-align: center; }
+.cs-stage-empty { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
 .cs-stage-empty svg { width: 56px; height: 56px; opacity: .12; margin-bottom: 12px; }
 .cs-stage-empty p { font-size: 15px; color: rgba(255,255,255,.25); font-weight: 600; }
 .cs-stage-empty small { font-size: 12px; color: rgba(255,255,255,.12); display: block; margin-top: 4px; }

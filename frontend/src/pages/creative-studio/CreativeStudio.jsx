@@ -563,7 +563,7 @@ export default function CreativeStudio() {
           </div>
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, paddingLeft: 16 }}>
             <span style={{ fontFamily: 'Sora, sans-serif', fontSize: 16, fontWeight: 800, color: '#4ade80' }}>{credits}</span>
-            <span style={{ fontSize: 11, color: 'var(--sap-text-faint)' }}>{t('creativeStudio.creditsLabel')}</span>
+            <span style={{ fontSize: 11, color: 'rgba(255,255,255,.4)' }}>{t('creativeStudio.creditsLabel')}</span>
             <button className="cs-credits-buy" onClick={function() { switchTab('credits'); }}>{t('creativeStudio.buyCredits')}</button>
           </div>
         </div>
