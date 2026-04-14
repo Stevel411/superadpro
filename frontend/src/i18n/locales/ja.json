@@ -188,7 +188,8 @@
     "videoScriptGen": "動画スクリプトジェネレーター",
     "videoScriptGenDesc": "AI動画スクリプト",
     "emailSwipesDesc": "AIメールコピージェネレーター",
-    "teamMessenger": "チームメッセンジャー"
+    "teamMessenger": "チームメッセンジャー",
+    "marketingMaterials": "マーケティング資料"
   },
   "dashboard": {
     "title": "ダッシュボード",

@@ -17,6 +17,7 @@ import Courses from './pages/Courses';
 import Leaderboard from './pages/Leaderboard';
 import Challenge from './pages/Challenge';
 import Affiliate from './pages/Affiliate';
+import MarketingMaterials from './pages/MarketingMaterials';
 import CampaignTiers from './pages/CampaignTiers';
 import Marketplace from './pages/Marketplace';
 import MyCourses from './pages/MyCourses';
@@ -152,6 +153,7 @@ function AppRoutes() {
       <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
       <Route path="/challenge" element={<ProtectedRoute><Challenge /></ProtectedRoute>} />
       <Route path="/social-share" element={<ProtectedRoute><Affiliate /></ProtectedRoute>} />
+      <Route path="/marketing-materials" element={<ProtectedRoute><MarketingMaterials /></ProtectedRoute>} />
       <Route path="/affiliate" element={<Navigate to="/social-share" replace />} />
       <Route path="/campaign-tiers" element={<ProtectedRoute><CampaignTiers /></ProtectedRoute>} />
       <Route path="/activate/:tierId" element={<ProtectedRoute><ActivateTier /></ProtectedRoute>} />

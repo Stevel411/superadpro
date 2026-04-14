@@ -159,7 +159,8 @@
     "videoScriptGen": "Video Script Generator",
     "videoScriptGenDesc": "AI video scripts",
     "emailSwipesDesc": "AI email copy generator",
-    "teamMessenger": "Team Messenger"
+    "teamMessenger": "Team Messenger",
+    "marketingMaterials": "Marketing Materials"
   },
   "dashboard": {
     "title": "Dashboard",

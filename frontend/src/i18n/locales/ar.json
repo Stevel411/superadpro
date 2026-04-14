@@ -188,7 +188,8 @@
     "videoScriptGen": "منشئ نصوص الفيديو",
     "videoScriptGenDesc": "نصوص فيديو بالذكاء الاصطناعي",
     "emailSwipesDesc": "منشئ نصوص البريد بالذكاء الاصطناعي",
-    "teamMessenger": "مراسل الفريق"
+    "teamMessenger": "مراسل الفريق",
+    "marketingMaterials": "مواد تسويقية"
   },
   "dashboard": {
     "title": "لوحة التحكم",

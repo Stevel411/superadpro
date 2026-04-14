@@ -2834,6 +2834,13 @@ def social_share(request: Request):
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
 
+@app.get("/marketing-materials")
+def marketing_materials(request: Request):
+    """Serve React SPA — Marketing Materials page."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
 @app.get("/affiliate")
 def affiliate(request: Request):
     """Redirect old URL to new Social Share page."""

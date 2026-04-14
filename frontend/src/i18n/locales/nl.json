@@ -188,7 +188,8 @@
     "videoScriptGen": "Videoscriptgenerator",
     "videoScriptGenDesc": "AI-videoscripts",
     "emailSwipesDesc": "AI e-mailtekstgenerator",
-    "teamMessenger": "Team Messenger"
+    "teamMessenger": "Team Messenger",
+    "marketingMaterials": "Marketingmateriaal"
   },
   "dashboard": {
     "title": "Dashboard",

@@ -9,7 +9,7 @@ import {
   Target, Mail, Trophy, Bot, Film, Flame,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
   BookOpen, PlusCircle, Scissors, Clock, UserCircle, Tv,
-  Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers, DollarSign, BarChart3, MessageCircle
+  Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers, DollarSign, BarChart3, MessageCircle, Download
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
@@ -57,6 +57,7 @@ function buildNav(t, isAdmin) {
     { type: 'group', label: t('nav.affiliateHub'), key: 'affiliate', icon: Share2, items: [
       { label: t('nav.myNetwork'), icon: Network, path: '/network' },
       { label: t('nav.socialShare'), icon: Users, path: '/social-share' },
+      { label: t('nav.marketingMaterials'), icon: Download, path: '/marketing-materials' },
       { label: t('nav.leaderboard'), icon: Trophy, path: '/leaderboard' },
       { label: t('nav.challenge30Day'), icon: Flame, path: '/challenge' },
       { label: t('nav.affiliateGuide'), icon: BookOpen, path: '/training' },

@@ -188,7 +188,8 @@
     "videoScriptGen": "Video-Skript-Generator",
     "videoScriptGenDesc": "KI-Videoskripte",
     "emailSwipesDesc": "KI-E-Mail-Textgenerator",
-    "teamMessenger": "Team-Messenger"
+    "teamMessenger": "Team-Messenger",
+    "marketingMaterials": "Marketing-Materialien"
   },
   "dashboard": {
     "title": "Dashboard",

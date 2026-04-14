@@ -188,7 +188,8 @@
     "videoScriptGen": "Генератор видеосценариев",
     "videoScriptGenDesc": "ИИ-видеосценарии",
     "emailSwipesDesc": "ИИ-генератор email-текстов",
-    "teamMessenger": "Командный мессенджер"
+    "teamMessenger": "Командный мессенджер",
+    "marketingMaterials": "Маркетинг Материалы"
   },
   "dashboard": {
     "title": "Панель управления",

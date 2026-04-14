@@ -188,7 +188,8 @@
     "videoScriptGen": "Generatore Script Video",
     "videoScriptGenDesc": "Script video AI",
     "emailSwipesDesc": "Generatore testi email AI",
-    "teamMessenger": "Messenger del Team"
+    "teamMessenger": "Messenger del Team",
+    "marketingMaterials": "Materiali Marketing"
   },
   "dashboard": {
     "title": "Pannello",

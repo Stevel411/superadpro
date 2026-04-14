@@ -188,7 +188,8 @@
     "videoScriptGen": "Video Senaryo Oluşturucu",
     "videoScriptGenDesc": "AI video senaryoları",
     "emailSwipesDesc": "AI e-posta metin oluşturucu",
-    "teamMessenger": "Takım Mesajcısı"
+    "teamMessenger": "Takım Mesajcısı",
+    "marketingMaterials": "Pazarlama Materyalleri"
   },
   "dashboard": {
     "title": "Gösterge Paneli",

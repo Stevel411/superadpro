@@ -188,7 +188,8 @@
     "videoScriptGen": "Gerador de Roteiros de Vídeo",
     "videoScriptGenDesc": "Roteiros de vídeo com IA",
     "emailSwipesDesc": "Gerador de textos de email com IA",
-    "teamMessenger": "Mensageiro da Equipe"
+    "teamMessenger": "Mensageiro da Equipe",
+    "marketingMaterials": "Materiais de Marketing"
   },
   "dashboard": {
     "title": "Painel",
