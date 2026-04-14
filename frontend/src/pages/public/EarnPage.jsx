@@ -419,7 +419,7 @@ export default function EarnPage() {
             },
             {
               icon:'🎓', color:'#a5b4fc', bg:'rgba(99,102,241,.1)', border:'rgba(165,180,252,.15)',
-              title:'Course Marketplace Sales',
+              title:'Course Academy Sales',
               value:'100% commission on your courses',
               desc:'Create and sell courses through the SuperAdPro marketplace. You keep 100% of every sale from your own audience. Plus earn commissions when your referrals buy courses from other creators.',
               tag:'100% Commission',
