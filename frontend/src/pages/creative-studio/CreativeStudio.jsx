@@ -57,6 +57,7 @@ var TABS = [
   { key: 'video-clips', label: 'Video Clips', icon: 'video' },
   { key: 'full-video',  label: 'Full Video',  icon: 'film' },
   { key: 'images',      label: 'Images',      icon: 'image' },
+  { key: 'reimagine',   label: 'Reimagine',   icon: 'wand' },
   { key: 'music',       label: 'Music',       icon: 'music' },
   { key: 'voiceover',   label: 'Voiceover',   icon: 'mic' },
   { key: 'lip-sync',    label: 'Lip Sync',    icon: 'edit' },
@@ -74,6 +75,7 @@ function TabIcon({ type }) {
   if (type === 'edit') return <svg style={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>;
   if (type === 'grid') return <svg style={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>;
   if (type === 'clock') return <svg style={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>;
+  if (type === 'wand') return <svg style={s} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8L19 13M17.8 6.2L19 5M12.2 11.8L11 13M12.2 6.2L11 5"/><line x1="15" y1="9" x2="3" y2="21"/></svg>;
   return null;
 }
 
@@ -184,6 +186,49 @@ export default function CreativeStudio() {
           alert(data.detail || data.error || 'Image generation failed'); setImgGenerating(false); clearInterval(imgProgRef.current);
         }
       }).catch(function(e) { alert(e.message || 'Network error'); setImgGenerating(false); clearInterval(imgProgRef.current); });
+  }
+
+  // ── Reimagine (img2img) tab state ──
+  var [riImg, setRiImg] = useState(null);
+  var [riImgUrl, setRiImgUrl] = useState('');
+  var [riPrompt, setRiPrompt] = useState('');
+  var [riStrength, setRiStrength] = useState(0.75);
+  var [riGenerating, setRiGenerating] = useState(false);
+  var [riUploading, setRiUploading] = useState(false);
+  var [riResults, setRiResults] = useState([]);
+  var [riProgress, setRiProgress] = useState(0);
+  var riProgRef = useRef(null);
+  var riFileRef = useRef(null);
+
+  function reimagineUpload(e) {
+    var file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) { alert('Image must be under 10MB'); return; }
+    setRiUploading(true);
+    setRiImg(URL.createObjectURL(file));
+    var fd = new FormData();
+    fd.append('file', file);
+    fetch('/api/superscene/upload-image', { method: 'POST', body: fd })
+      .then(function(r) { return r.json(); })
+      .then(function(d) { if (d.success) { setRiImgUrl(d.file_url); } else { alert(d.detail || 'Upload failed'); setRiImg(null); } setRiUploading(false); })
+      .catch(function(e) { alert('Upload failed'); setRiUploading(false); setRiImg(null); });
+  }
+
+  function reimagineGenerate() {
+    if (!riImgUrl || !riPrompt.trim() || riGenerating) return;
+    if (credits < 2) { alert('Need 2 credits, have ' + credits); return; }
+    setRiGenerating(true); setRiResults([]); setRiProgress(0);
+    riProgRef.current = setInterval(function() { setRiProgress(function(p) { return Math.min(p + Math.random() * 3 + 1, 90); }); }, 400);
+    fetch('/api/superscene/image/reimagine', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ image_url: riImgUrl, prompt: riPrompt, strength: riStrength })
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      if (data.credits_remaining !== undefined) setCredits(data.credits_remaining);
+      if (data.images && data.images.length > 0) {
+        setRiResults(data.images); setRiProgress(100);
+      } else { alert(data.detail || data.error || 'Reimagine failed'); }
+      setRiGenerating(false); clearInterval(riProgRef.current);
+    }).catch(function(e) { alert(e.message || 'Network error'); setRiGenerating(false); clearInterval(riProgRef.current); });
   }
 
   // ── Music tab state ──
@@ -873,6 +918,100 @@ export default function CreativeStudio() {
               <div className="cs-gen-info">
                 <b>{imgCost} credits</b>
                 {credits} remaining
+              </div>
+            </div>
+          </>}
+
+          {/* ═══ REIMAGINE TAB ═══ */}
+          {tab === 'reimagine' && <>
+            <div className="cs-stage" style={{ background: '#0a0f1e', padding: 32 }}>
+              <div style={{ display: 'flex', gap: 24, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                {/* Upload / preview */}
+                <div style={{ flex: '1 1 260px', minWidth: 260 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,.6)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>Reference Image</div>
+                  {riImg ? (
+                    <div style={{ position: 'relative', borderRadius: 12, overflow: 'hidden', border: '2px solid rgba(255,255,255,.1)' }}>
+                      <img src={riImg} alt="Reference" style={{ width: '100%', display: 'block', maxHeight: 300, objectFit: 'contain', background: '#000' }}/>
+                      <button onClick={function() { setRiImg(null); setRiImgUrl(''); setRiResults([]); }} style={{ position: 'absolute', top: 8, right: 8, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,.6)', border: '1px solid rgba(255,255,255,.2)', color: '#fff', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>×</button>
+                      {riUploading && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ width: 32, height: 32, border: '3px solid rgba(255,255,255,.1)', borderTopColor: '#0ea5e9', borderRadius: '50%', animation: 'spin 1s linear infinite' }}/></div>}
+                    </div>
+                  ) : (
+                    <div onClick={function() { riFileRef.current && riFileRef.current.click(); }} style={{ border: '2px dashed rgba(255,255,255,.15)', borderRadius: 12, padding: '40px 20px', textAlign: 'center', cursor: 'pointer', transition: 'border-color .2s' }} onMouseEnter={function(e) { e.currentTarget.style.borderColor = 'rgba(14,165,233,.4)'; }} onMouseLeave={function(e) { e.currentTarget.style.borderColor = 'rgba(255,255,255,.15)'; }}>
+                      <div style={{ fontSize: 36, marginBottom: 8 }}>📸</div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 4 }}>Upload an image</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,.35)' }}>JPEG, PNG, or WebP — up to 10MB</div>
+                    </div>
+                  )}
+                  <input ref={riFileRef} type="file" accept="image/jpeg,image/png,image/webp" style={{ display: 'none' }} onChange={reimagineUpload}/>
+
+                  {/* Result */}
+                  {riResults.length > 0 && (
+                    <div style={{ marginTop: 16 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,.6)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>Result</div>
+                      <div style={{ borderRadius: 12, overflow: 'hidden', border: '2px solid rgba(139,92,246,.3)' }}>
+                        <img src={riResults[0]} alt="Reimagined" style={{ width: '100%', display: 'block', maxHeight: 400, objectFit: 'contain', background: '#000' }}/>
+                      </div>
+                      <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                        <a href={riResults[0]} download="reimagined.png" target="_blank" rel="noreferrer" style={{ flex: 1, padding: '10px', borderRadius: 8, background: 'rgba(14,165,233,.15)', border: '1px solid rgba(14,165,233,.2)', color: '#0ea5e9', fontSize: 13, fontWeight: 700, textAlign: 'center', textDecoration: 'none' }}>Download</a>
+                        <button onClick={function() { setRiImg(riResults[0]); setRiImgUrl(riResults[0]); setRiResults([]); }} style={{ flex: 1, padding: '10px', borderRadius: 8, background: 'rgba(139,92,246,.15)', border: '1px solid rgba(139,92,246,.2)', color: '#a78bfa', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Use as input</button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Controls */}
+                <div style={{ flex: '1 1 300px', minWidth: 280 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,.6)', marginBottom: 8, textTransform: 'uppercase', letterSpacing: 1 }}>Transformation Prompt</div>
+                  <textarea value={riPrompt} onChange={function(e) { setRiPrompt(e.target.value); }} placeholder="Describe how you want to transform this image... e.g. 'Transform into a cyberpunk neon style with blue highlights' or 'Make it a watercolor painting'" rows={4} style={{ width: '100%', padding: '12px 14px', borderRadius: 10, border: '1.5px solid rgba(255,255,255,.12)', background: 'rgba(255,255,255,.05)', color: '#fff', fontSize: 14, fontFamily: 'inherit', resize: 'vertical', outline: 'none', boxSizing: 'border-box' }}/>
+
+                  <div style={{ marginTop: 16 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,.6)' }}>Transformation Strength</div>
+                      <div style={{ fontSize: 13, fontWeight: 800, color: '#0ea5e9' }}>{Math.round(riStrength * 100)}%</div>
+                    </div>
+                    <input type="range" min="5" max="100" value={Math.round(riStrength * 100)} onChange={function(e) { setRiStrength(parseInt(e.target.value) / 100); }} style={{ width: '100%', accentColor: '#0ea5e9' }}/>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'rgba(255,255,255,.25)', marginTop: 4 }}>
+                      <span>Subtle</span><span>Moderate</span><span>Dramatic</span>
+                    </div>
+                  </div>
+
+                  {/* Cost info */}
+                  <div style={{ marginTop: 16, padding: '12px 16px', borderRadius: 10, background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,.4)' }}>Cost per generation</div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: '#fff' }}>2 credits</div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,.4)' }}>Your balance</div>
+                      <div style={{ fontSize: 16, fontWeight: 800, color: credits >= 2 ? '#4ade80' : '#f87171' }}>{credits} credits</div>
+                    </div>
+                  </div>
+
+                  {/* Generate button */}
+                  <button onClick={reimagineGenerate} disabled={!riImgUrl || !riPrompt.trim() || riGenerating || credits < 2} style={{ width: '100%', padding: '14px', borderRadius: 12, border: 'none', marginTop: 16, background: riImgUrl && riPrompt.trim() && !riGenerating ? 'linear-gradient(135deg,#0ea5e9,#6366f1)' : 'rgba(255,255,255,.08)', color: riImgUrl && riPrompt.trim() && !riGenerating ? '#fff' : 'rgba(255,255,255,.3)', fontSize: 15, fontWeight: 800, fontFamily: 'Sora,sans-serif', cursor: riImgUrl && riPrompt.trim() && !riGenerating ? 'pointer' : 'default', transition: 'all .2s' }}>
+                    {riGenerating ? 'Transforming...' : 'Reimagine — 2 Credits'}
+                  </button>
+
+                  {riGenerating && (
+                    <div style={{ marginTop: 12 }}>
+                      <div style={{ height: 4, borderRadius: 4, background: 'rgba(255,255,255,.06)', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', borderRadius: 4, background: 'linear-gradient(90deg,#0ea5e9,#6366f1)', width: riProgress + '%', transition: 'width .3s' }}/>
+                      </div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,.3)', textAlign: 'center', marginTop: 4 }}>Transforming your image with AI...</div>
+                    </div>
+                  )}
+
+                  {/* Tips */}
+                  <div style={{ marginTop: 20, padding: '14px 16px', borderRadius: 10, background: 'rgba(139,92,246,.06)', border: '1px solid rgba(139,92,246,.1)' }}>
+                    <div style={{ fontSize: 12, fontWeight: 700, color: '#a78bfa', marginBottom: 8 }}>Tips for great results</div>
+                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,.4)', lineHeight: 1.7 }}>
+                      • Use 30-50% strength for subtle style changes<br/>
+                      • Use 70-90% for dramatic transformations<br/>
+                      • Be specific: "cyberpunk neon city at night" works better than "cool style"<br/>
+                      • Click "Use as input" to iterate on results
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </>}

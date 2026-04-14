@@ -21105,6 +21105,108 @@ async def sc_image_poll(task_id: str, request: Request, db: Session = Depends(ge
         logger.exception("Image poll error")
         raise HTTPException(status_code=502, detail=str(e))
 
+# ── Image-to-Image (Reimagine) — fal.ai FLUX Dev ─────────────
+
+@app.post("/api/superscene/image/reimagine")
+async def sc_image_reimagine(request: Request, db: Session = Depends(get_db)):
+    """Transform an uploaded image using AI (image-to-image).
+    Body: {image_url, prompt, strength?, num_inference_steps?, guidance_scale?, seed?}
+    Uses fal.ai FLUX.1 [dev] image-to-image endpoint.
+    Cost: 2 credits per generation.
+    """
+    import httpx
+
+    user = get_current_user(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    body = await request.json()
+    image_url = (body.get("image_url") or "").strip()
+    prompt    = (body.get("prompt") or "").strip()
+    strength  = float(body.get("strength", 0.75))
+    steps     = int(body.get("num_inference_steps", 40))
+    guidance  = float(body.get("guidance_scale", 3.5))
+    seed      = body.get("seed")
+
+    if not image_url:
+        raise HTTPException(status_code=400, detail="Image URL is required")
+    if not prompt:
+        raise HTTPException(status_code=400, detail="Prompt is required")
+
+    # Clamp strength to valid range
+    strength = max(0.05, min(1.0, strength))
+
+    # Cost: 2 credits per reimagine
+    credits_needed = 2
+    credit_row = _get_or_create_sc_credits(user.id, db)
+    if credit_row.balance < credits_needed:
+        raise HTTPException(status_code=402, detail=f"Insufficient credits. Need {credits_needed}, have {credit_row.balance}.")
+
+    credit_row.balance -= credits_needed
+    db.commit()
+
+    fal_key = os.getenv("FAL_KEY", "")
+    if not fal_key:
+        credit_row.balance += credits_needed
+        db.commit()
+        raise HTTPException(status_code=503, detail="Image transformation service not configured")
+
+    payload = {
+        "image_url": image_url,
+        "prompt": prompt,
+        "strength": strength,
+        "num_inference_steps": steps,
+        "guidance_scale": guidance,
+    }
+    if seed is not None:
+        payload["seed"] = int(seed)
+
+    try:
+        async with httpx.AsyncClient(timeout=120.0) as client:
+            resp = await client.post(
+                "https://fal.run/fal-ai/flux/dev/image-to-image",
+                json=payload,
+                headers={
+                    "Authorization": f"Key {fal_key}",
+                    "Content-Type": "application/json",
+                },
+            )
+            data = resp.json()
+
+        logger.info(f"fal.ai img2img response ({resp.status_code}): {str(data)[:500]}")
+
+        if resp.status_code == 200:
+            images = data.get("images") or []
+            urls = [img.get("url") or img for img in images if isinstance(img, dict)]
+            if not urls:
+                urls = [img for img in images if isinstance(img, str)]
+
+            if urls:
+                return {
+                    "success": True,
+                    "images": urls,
+                    "credits_used": credits_needed,
+                    "credits_remaining": credit_row.balance,
+                    "seed": data.get("seed"),
+                }
+
+        # Failed — refund credits
+        credit_row.balance += credits_needed
+        db.commit()
+        err = data.get("detail") or data.get("error") or "Image transformation failed"
+        if isinstance(err, dict):
+            err = err.get("message", str(err))
+        raise HTTPException(status_code=502, detail=str(err)[:300])
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        credit_row.balance += credits_needed
+        db.commit()
+        logger.exception("Image reimagine error")
+        raise HTTPException(status_code=502, detail=str(e)[:300])
+
+
 # ── SuperScene Pipeline — Long-form Video Production ─────────
 
 @app.post("/api/superscene/pipeline/analyse")
