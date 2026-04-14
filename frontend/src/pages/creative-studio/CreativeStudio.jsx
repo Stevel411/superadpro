@@ -222,11 +222,16 @@ export default function CreativeStudio() {
     fetch('/api/superscene/image/reimagine', {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ image_url: riImgUrl, prompt: riPrompt, strength: riStrength })
-    }).then(function(r) { return r.json(); }).then(function(data) {
+    }).then(function(r) {
+      if (!r.ok && r.headers.get('content-type')?.indexOf('json') === -1) {
+        throw new Error('Server error (' + r.status + '). Please try again.');
+      }
+      return r.json();
+    }).then(function(data) {
       if (data.credits_remaining !== undefined) setCredits(data.credits_remaining);
       if (data.images && data.images.length > 0) {
         setRiResults(data.images); setRiProgress(100);
-      } else { alert(data.detail || data.error || 'Reimagine failed'); }
+      } else { alert(data.error || data.detail || 'Reimagine failed'); }
       setRiGenerating(false); clearInterval(riProgRef.current);
     }).catch(function(e) { alert(e.message || 'Network error'); setRiGenerating(false); clearInterval(riProgRef.current); });
   }

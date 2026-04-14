@@ -21118,9 +21118,13 @@ async def sc_image_reimagine(request: Request, db: Session = Depends(get_db)):
 
     user = get_current_user(request, db)
     if not user:
-        raise HTTPException(status_code=401, detail="Not authenticated")
+        return JSONResponse({"success": False, "error": "Not authenticated"}, status_code=401)
 
-    body = await request.json()
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"success": False, "error": "Invalid request body"}, status_code=400)
+
     image_url = (body.get("image_url") or "").strip()
     prompt    = (body.get("prompt") or "").strip()
     strength  = float(body.get("strength", 0.75))
@@ -21129,9 +21133,9 @@ async def sc_image_reimagine(request: Request, db: Session = Depends(get_db)):
     seed      = body.get("seed")
 
     if not image_url:
-        raise HTTPException(status_code=400, detail="Image URL is required")
+        return JSONResponse({"success": False, "error": "Image URL is required"}, status_code=400)
     if not prompt:
-        raise HTTPException(status_code=400, detail="Prompt is required")
+        return JSONResponse({"success": False, "error": "Prompt is required"}, status_code=400)
 
     # Clamp strength to valid range
     strength = max(0.05, min(1.0, strength))
@@ -21140,7 +21144,7 @@ async def sc_image_reimagine(request: Request, db: Session = Depends(get_db)):
     credits_needed = 2
     credit_row = _get_or_create_sc_credits(user.id, db)
     if credit_row.balance < credits_needed:
-        raise HTTPException(status_code=402, detail=f"Insufficient credits. Need {credits_needed}, have {credit_row.balance}.")
+        return JSONResponse({"success": False, "error": f"Insufficient credits. Need {credits_needed}, have {credit_row.balance}."}, status_code=402)
 
     credit_row.balance -= credits_needed
     db.commit()
@@ -21149,7 +21153,7 @@ async def sc_image_reimagine(request: Request, db: Session = Depends(get_db)):
     if not fal_key:
         credit_row.balance += credits_needed
         db.commit()
-        raise HTTPException(status_code=503, detail="Image transformation service not configured")
+        return JSONResponse({"success": False, "error": "Image transformation service not configured"}, status_code=503)
 
     payload = {
         "image_url": image_url,
@@ -21196,15 +21200,13 @@ async def sc_image_reimagine(request: Request, db: Session = Depends(get_db)):
         err = data.get("detail") or data.get("error") or "Image transformation failed"
         if isinstance(err, dict):
             err = err.get("message", str(err))
-        raise HTTPException(status_code=502, detail=str(err)[:300])
+        return JSONResponse({"success": False, "error": str(err)[:300]}, status_code=502)
 
-    except HTTPException:
-        raise
     except Exception as e:
         credit_row.balance += credits_needed
         db.commit()
         logger.exception("Image reimagine error")
-        raise HTTPException(status_code=502, detail=str(e)[:300])
+        return JSONResponse({"success": False, "error": str(e)[:300]}, status_code=502)
 
 
 # ── SuperScene Pipeline — Long-form Video Production ─────────
