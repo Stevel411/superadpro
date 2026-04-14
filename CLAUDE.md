@@ -294,6 +294,15 @@ Pro-locked items (🔒): SuperPages, ProSeller AI, My Leads, Create Course — s
 - MaxMind GeoLite2-Country.mmdb — update monthly from maxmind.com
 - GitHub token "Claude Access" expires mid-Sep 2026
 - GitHub token "SuperAdPro Claude" expires ~Apr 30 2026 — renew before then
-- Run E2E tests quarterly# deploy 1775403298
+- Run E2E tests quarterly
+
+### Weekly: API Provider Balance Checks (CRITICAL)
+These providers require prepaid balances. If they run dry, member-facing features break silently:
+- **fal.ai** (fal.ai/dashboard/billing) — Powers: image generation (Flux, Nano Banana), video (Kling, WAN, Hailuo), Reimagine (img2img). Cost: ~$0.03-0.08 per generation.
+- **EvoLink** (evolink.ai dashboard) — Powers: Sora 2, Grok video, exclusive models. Cost: ~$0.05-0.15 per generation.
+- **Brevo** (app.brevo.com) — Powers: transactional emails, autoresponder sequences, weekly digest. Check sending limits.
+- **NOWPayments** — No prepaid balance needed (charges per transaction), but check for any holds or issues.
+- **xAI/Grok** — Check API usage limits and billing status.
+Recommended: Keep at least $50 float in fal.ai and EvoLink at all times. Enable low-balance email alerts in each provider dashboard.# deploy 1775403298
 # redeploy 1775405531
 # redeploy 1775424225
