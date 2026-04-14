@@ -44,21 +44,21 @@
 
 /* ── Stage Actions ── */
 .cs-stage-actions { display: flex; gap: 8px; justify-content: center; margin-bottom: 24px; }
-.cs-sa-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff; font-size: 12px; font-weight: 600; color: #64748b; cursor: pointer; font-family: inherit; transition: all .12s; display: flex; align-items: center; gap: 5px; }
+.cs-sa-btn { padding: 8px 16px; border-radius: 8px; border: 1px solid #e2e8f0; background: #fff; font-size: 13px; font-weight: 700; color: #334155; cursor: pointer; font-family: inherit; transition: all .12s; display: flex; align-items: center; gap: 5px; }
 .cs-sa-btn:hover { border-color: var(--purple); color: var(--purple); }
 
 /* ── Progress Bar (generating) ── */
 .cs-progress-wrap { max-width: 900px; margin: -10px auto 20px; }
 .cs-progress { height: 4px; background: #e2e8f0; border-radius: 2px; overflow: hidden; }
 .cs-progress-bar { height: 100%; background: linear-gradient(90deg, var(--purple), var(--cyan)); border-radius: 2px; transition: width .3s; }
-.cs-progress-status { text-align: center; font-size: 12px; color: #64748b; margin-top: 6px; font-weight: 600; }
+.cs-progress-status { text-align: center; font-size: 13px; color: #334155; margin-top: 6px; font-weight: 600; }
 
 /* ── Controls Area ── */
 .cs-controls { max-width: 900px; margin: 0 auto; }
 
 /* ── Mode Toggle ── */
 .cs-mode { display: flex; background: #fff; border-radius: 10px; padding: 3px; margin-bottom: 20px; border: 1px solid #e2e8f0; max-width: 280px; }
-.cs-mode button { flex: 1; padding: 9px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; background: transparent; color: #94a3b8; transition: all .15s; }
+.cs-mode button { flex: 1; padding: 9px 16px; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; background: transparent; color: #475569; transition: all .15s; }
 .cs-mode button.on { background: linear-gradient(135deg, var(--cobalt), var(--cobalt2)); color: #fff; box-shadow: 0 2px 8px rgba(23,37,84,.3); }
 
 /* ── Cards ── */
@@ -69,8 +69,8 @@
 .cs-card-full { grid-column: 1 / -1; }
 
 /* ── Labels ── */
-.cs-lbl { font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
-.cs-lbl-badge { font-size: 9px; font-weight: 600; color: #94a3b8; background: #f1f5f9; padding: 1px 6px; border-radius: 3px; margin-left: 6px; text-transform: none; letter-spacing: 0; }
+.cs-lbl { font-size: 11px; font-weight: 700; color: #475569; text-transform: uppercase; letter-spacing: .8px; margin-bottom: 8px; }
+.cs-lbl-badge { font-size: 9px; font-weight: 600; color: #64748b; background: #f1f5f9; padding: 1px 6px; border-radius: 3px; margin-left: 6px; text-transform: none; letter-spacing: 0; }
 
 /* ── Prompt ── */
 .cs-ta { width: 100%; min-height: 80px; padding: 12px 14px; border-radius: 8px; border: 1px solid #e2e8f0; font-size: 14px; font-family: inherit; color: #0f172a; background: #f8fafc; resize: vertical; line-height: 1.5; box-sizing: border-box; }
@@ -78,7 +78,7 @@
 .cs-ta-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 6px; }
 .cs-ta-ai { font-size: 12px; color: var(--purple); cursor: pointer; font-weight: 700; }
 .cs-ta-ai:hover { text-decoration: underline; }
-.cs-ta-ct { font-size: 11px; color: #94a3b8; }
+.cs-ta-ct { font-size: 11px; color: #64748b; }
 
 /* ── Model List ── */
 .cs-model-list { display: flex; flex-direction: column; gap: 4px; max-height: 300px; overflow-y: auto; }
@@ -89,13 +89,13 @@
 .cs-model.sel { border-color: var(--purple); background: #f5f3ff; }
 .cs-model-dot { width: 24px; height: 24px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #fff; flex-shrink: 0; }
 .cs-model-name { font-size: 13px; font-weight: 700; color: #0f172a; }
-.cs-model-desc { font-size: 11px; color: #94a3b8; }
-.cs-model-price { font-size: 11px; color: #94a3b8; text-align: right; }
+.cs-model-desc { font-size: 11px; color: #64748b; }
+.cs-model-price { font-size: 11px; color: #64748b; text-align: right; }
 .cs-model-badge { font-size: 8px; font-weight: 700; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 2px; }
 
 /* ── Aspect Ratio Pills ── */
 .cs-pills { display: flex; gap: 4px; }
-.cs-pill { flex: 1; padding: 9px 0; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; color: #64748b; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; transition: all .12s; }
+.cs-pill { flex: 1; padding: 9px 0; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff; color: #334155; font-size: 13px; font-weight: 600; cursor: pointer; text-align: center; font-family: inherit; transition: all .12s; }
 .cs-pill:hover { border-color: #cbd5e1; }
 .cs-pill.on { background: linear-gradient(135deg, var(--cobalt), var(--cobalt2)); border-color: var(--cobalt2); color: #fff; }
 
@@ -106,7 +106,7 @@
 .cs-upload { width: 100%; padding: 24px; border: 1.5px dashed #cbd5e1; border-radius: 10px; text-align: center; cursor: pointer; transition: all .15s; background: #f8fafc; }
 .cs-upload:hover { border-color: var(--purple); background: #faf5ff; }
 .cs-upload-plus { font-size: 24px; opacity: .3; margin-bottom: 4px; }
-.cs-upload-text { font-size: 12px; color: #64748b; font-weight: 500; }
+.cs-upload-text { font-size: 13px; color: #475569; font-weight: 500; }
 .cs-img-preview { position: relative; border-radius: 10px; overflow: hidden; border: 1px solid #e2e8f0; }
 .cs-img-thumb { width: 100%; height: 140px; object-fit: cover; display: block; }
 .cs-img-overlay { position: absolute; bottom: 0; left: 0; right: 0; padding: 10px 14px; background: linear-gradient(transparent, rgba(0,0,0,.7)); display: flex; justify-content: space-between; align-items: center; }
@@ -119,9 +119,9 @@
 .cs-motion-card { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 8px 4px; border-radius: 7px; background: #f8fafc; border: 1px solid #e2e8f0; cursor: pointer; font-family: inherit; transition: all .15s; }
 .cs-motion-card:hover { border-color: #cbd5e1; background: #f1f5f9; }
 .cs-motion-card.on { background: #ecfeff; border-color: rgba(34,211,238,.35); }
-.cs-motion-icon { font-size: 16px; color: #94a3b8; line-height: 1; }
+.cs-motion-icon { font-size: 16px; color: #475569; line-height: 1; }
 .cs-motion-card.on .cs-motion-icon { color: #06b6d4; }
-.cs-motion-label { font-size: 9px; font-weight: 600; color: #94a3b8; text-align: center; line-height: 1.2; }
+.cs-motion-label { font-size: 9px; font-weight: 600; color: #64748b; text-align: center; line-height: 1.2; }
 .cs-motion-card.on .cs-motion-label { color: #0e7490; }
 
 /* ── Seed ── */
@@ -149,7 +149,7 @@
 .cs-gen-btn:hover:not(:disabled) { filter: brightness(1.1); transform: translateY(-1px); }
 .cs-gen-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #5b21b6; }
 .cs-gen-btn:disabled { opacity: .5; cursor: not-allowed; }
-.cs-gen-info { font-size: 12px; color: #64748b; text-align: right; min-width: 120px; }
+.cs-gen-info { font-size: 13px; color: #475569; text-align: right; min-width: 120px; }
 .cs-gen-info b { color: #0f172a; font-size: 14px; display: block; }
 
 /* ── Recent Gallery Strip ── */

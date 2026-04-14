@@ -210,8 +210,8 @@ export default function CreativeStudio() {
     fd.append('file', file);
     fetch('/api/superscene/upload-image', { method: 'POST', body: fd })
       .then(function(r) { return r.json(); })
-      .then(function(d) { if (d.success) { setRiImgUrl(d.file_url); } else { alert(d.detail || 'Upload failed'); setRiImg(null); } setRiUploading(false); })
-      .catch(function(e) { alert('Upload failed'); setRiUploading(false); setRiImg(null); });
+      .then(function(d) { if (d.success) { setRiImgUrl(d.file_url); } else { alert(d.detail || t('creativeStudio.uploadFailed')); setRiImg(null); } setRiUploading(false); })
+      .catch(function(e) { alert(t('creativeStudio.uploadFailed')); setRiUploading(false); setRiImg(null); });
   }
 
   function reimagineGenerate() {
@@ -231,7 +231,7 @@ export default function CreativeStudio() {
       if (data.credits_remaining !== undefined) setCredits(data.credits_remaining);
       if (data.images && data.images.length > 0) {
         setRiResults(data.images); setRiProgress(100);
-      } else { alert(data.error || data.detail || 'Reimagine failed'); }
+      } else { alert(data.error || data.detail || t('creativeStudio.reimagineFailed')); }
       setRiGenerating(false); clearInterval(riProgRef.current);
     }).catch(function(e) { alert(e.message || 'Network error'); setRiGenerating(false); clearInterval(riProgRef.current); });
   }
@@ -935,7 +935,7 @@ export default function CreativeStudio() {
               {riGenerating ? (
                 <div className="cs-stage-empty">
                   <div style={{ width: 40, height: 40, border: '3px solid rgba(255,255,255,.1)', borderTopColor: 'var(--sap-purple)', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}/>
-                  <p style={{ color: 'rgba(255,255,255,.5)' }}>Reimagining your image...</p>
+                  <p style={{ color: 'rgba(255,255,255,.5)' }}>{t('creativeStudio.reimagining')}</p>
                   <small style={{ color: 'rgba(255,255,255,.25)' }}>FLUX.1 Dev · Strength {Math.round(riStrength * 100)}%</small>
                 </div>
               ) : riResults.length > 0 ? (
@@ -955,8 +955,8 @@ export default function CreativeStudio() {
               ) : (
                 <div className="cs-stage-empty" onClick={function() { riFileRef.current && riFileRef.current.click(); }} style={{ cursor: 'pointer' }}>
                   <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 8v8M8 12h8"/></svg>
-                  <p>Upload an image to reimagine</p>
-                  <small>JPEG, PNG, or WebP — up to 10MB</small>
+                  <p>{t('creativeStudio.uploadToReimagine')}</p>
+                  <small>{t('creativeStudio.uploadFormats')}</small>
                 </div>
               )}
             </div>
@@ -970,9 +970,9 @@ export default function CreativeStudio() {
 
             {/* Result actions */}
             {riResults.length > 0 && !riGenerating && <div className="cs-stage-actions">
-              <button className="cs-sa-btn" onClick={function() { downloadVideo(riResults[0], 'reimagined-' + Date.now() + '.png'); }}>⬇ Download</button>
-              <button className="cs-sa-btn" onClick={function() { setRiImg(riResults[0]); setRiImgUrl(riResults[0]); setRiResults([]); }}>↻ Use as input</button>
-              <button className="cs-sa-btn" onClick={function() { setRiResults([]); }}>Clear result</button>
+              <button className="cs-sa-btn" onClick={function() { downloadVideo(riResults[0], 'reimagined-' + Date.now() + '.png'); }}>{t('creativeStudio.downloadFile')}</button>
+              <button className="cs-sa-btn" onClick={function() { setRiImg(riResults[0]); setRiImgUrl(riResults[0]); setRiResults([]); }}>{t('creativeStudio.useAsInput')}</button>
+              <button className="cs-sa-btn" onClick={function() { setRiResults([]); }}>{t('creativeStudio.clearResult')}</button>
             </div>}
 
             {/* Controls */}
@@ -980,9 +980,9 @@ export default function CreativeStudio() {
               <div className="cs-row">
                 {/* Prompt */}
                 <div className="cs-card">
-                  <div className="cs-lbl">Transformation Prompt</div>
+                  <div className="cs-lbl">{t('creativeStudio.transformationPrompt')}</div>
                   <textarea className="cs-ta" rows={4} value={riPrompt} onChange={function(e) { setRiPrompt(e.target.value.slice(0, 2000)); }}
-                    placeholder="Describe how you want to transform this image... e.g. 'Transform into a cyberpunk neon style' or 'Make it a watercolor painting'"/>
+                    placeholder={t('creativeStudio.transformPromptPlaceholder')}/>
                   <div className="cs-ta-foot">
                     <span className="cs-ta-ct">{riPrompt.length}/2000</span>
                   </div>
@@ -990,29 +990,29 @@ export default function CreativeStudio() {
 
                 {/* Upload + Strength */}
                 <div className="cs-card">
-                  <div className="cs-lbl">Reference Image</div>
+                  <div className="cs-lbl">{t('creativeStudio.referenceImage')}</div>
                   {!riImg ? (
                     <div onClick={function() { riFileRef.current && riFileRef.current.click(); }} style={{ border: '2px dashed rgba(255,255,255,.12)', borderRadius: 10, padding: '20px 16px', textAlign: 'center', cursor: 'pointer', transition: 'border-color .2s', marginBottom: 12 }} onMouseEnter={function(e) { e.currentTarget.style.borderColor = 'rgba(14,165,233,.3)'; }} onMouseLeave={function(e) { e.currentTarget.style.borderColor = 'rgba(255,255,255,.12)'; }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,.5)' }}>Click to upload</div>
-                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,.25)', marginTop: 2 }}>JPEG, PNG, WebP</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,.5)' }}>{t('creativeStudio.clickToUpload')}</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,.25)', marginTop: 2 }}>{t('creativeStudio.uploadFormats')}</div>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.06)', marginBottom: 12 }}>
                       <img src={riImg} alt="" style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover' }}/>
-                      <div style={{ flex: 1, fontSize: 12, color: 'rgba(255,255,255,.5)' }}>Image uploaded</div>
-                      <button onClick={function() { riFileRef.current && riFileRef.current.click(); }} style={{ background: 'none', border: 'none', color: 'var(--sap-accent)', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>Change</button>
+                      <div style={{ flex: 1, fontSize: 12, color: 'rgba(255,255,255,.5)' }}>{t('creativeStudio.imageUploaded')}</div>
+                      <button onClick={function() { riFileRef.current && riFileRef.current.click(); }} style={{ background: 'none', border: 'none', color: 'var(--sap-accent)', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>{t('creativeStudio.change')}</button>
                     </div>
                   )}
 
-                  <div className="cs-lbl">Strength <span style={{ float: 'right', color: 'var(--sap-accent)', fontWeight: 800 }}>{Math.round(riStrength * 100)}%</span></div>
+                  <div className="cs-lbl">{t('creativeStudio.strength')} <span style={{ float: 'right', color: 'var(--sap-accent)', fontWeight: 800 }}>{Math.round(riStrength * 100)}%</span></div>
                   <input type="range" min="5" max="100" value={Math.round(riStrength * 100)} onChange={function(e) { setRiStrength(parseInt(e.target.value) / 100); }} style={{ width: '100%', accentColor: 'var(--sap-accent)' }}/>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'rgba(255,255,255,.2)', marginTop: 4 }}>
-                    <span>Subtle</span><span>Moderate</span><span>Dramatic</span>
+                    <span>{t('creativeStudio.subtle')}</span><span>{t('creativeStudio.moderate')}</span><span>{t('creativeStudio.dramatic')}</span>
                   </div>
 
                   <div style={{ marginTop: 14, padding: '10px 12px', borderRadius: 8, background: 'rgba(139,92,246,.05)', border: '1px solid rgba(139,92,246,.08)', fontSize: 11, color: 'rgba(255,255,255,.35)', lineHeight: 1.6 }}>
-                    <span style={{ fontWeight: 700, color: 'var(--sap-purple-light)' }}>Tips: </span>
-                    30-50% for style tweaks · 70-90% for dramatic changes · Click "Use as input" to iterate
+                    <span style={{ fontWeight: 700, color: 'var(--sap-purple-light)' }}>{t('creativeStudio.tipsTitle')}: </span>
+                    {t('creativeStudio.tipsContent')}
                   </div>
                 </div>
               </div>
@@ -1023,7 +1023,7 @@ export default function CreativeStudio() {
               <button className="cs-gen-btn" onClick={reimagineGenerate}
                 disabled={!riImgUrl || !riPrompt.trim() || riGenerating || credits < 2}>
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 4V2M15 16v-2M8 9h2M20 9h2M17.8 11.8L19 13M17.8 6.2L19 5M12.2 11.8L11 13M12.2 6.2L11 5"/><line x1="15" y1="9" x2="3" y2="21"/></svg>
-                {riGenerating ? 'Transforming...' : !riImgUrl ? 'Upload an image first' : !riPrompt.trim() ? 'Enter a prompt' : credits < 2 ? 'Not enough credits' : 'Reimagine Image'}
+                {riGenerating ? t('creativeStudio.transforming') : !riImgUrl ? t('creativeStudio.uploadFirst') : !riPrompt.trim() ? t('creativeStudio.enterPrompt') : credits < 2 ? t('creativeStudio.notEnoughCredits') : t('creativeStudio.reimagineImage')}
               </button>
               <div className="cs-gen-info">
                 <b>2 credits</b>
