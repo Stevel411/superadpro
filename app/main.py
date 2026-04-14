@@ -29,6 +29,7 @@ from .coinbase_commerce import create_charge as cb_create_charge, verify_webhook
 STRIPE_BOOST_PACKS = {}
 STRIPE_PUBLISHABLE_KEY = ""
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick, Notification, Achievement, BADGES
+from .stats_cache import cache_get, cache_set, cache_delete, cache_invalidate_user, cache_invalidate_leaderboard, cache_stats
 from .database import DigitalProduct, DigitalProductPurchase, DigitalProductReview, DigitalProductAffiliate
 from .database import CoPilotBriefing
 from .database import MemberLead
@@ -2023,12 +2024,20 @@ def serve_react_page(request: Request, tier_id: str = "", tool_path: str = ""):
 @app.get("/api/dashboard")
 def api_dashboard(request: Request, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
-    """JSON dashboard data for React frontend."""
+    """JSON dashboard data for React frontend. Cached for 60s per user."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     try:
         import time as _t
         t0 = _t.time()
+
+        # Check cache first
+        cache_key = f"dash:{user.id}:main"
+        cached = cache_get(cache_key)
+        if cached:
+            logger.info(f"Dashboard API: cache HIT for user {user.id} ({_t.time()-t0:.3f}s)")
+            return cached
+
         check_achievements(db, user)
         t1 = _t.time()
         ctx = get_dashboard_context(request, user, db)
@@ -2044,6 +2053,10 @@ def api_dashboard(request: Request, user: User = Depends(get_current_user),
             except (TypeError, ValueError):
                 safe[k] = str(v)
         t3 = _t.time()
+
+        # Cache for 60 seconds
+        cache_set(cache_key, safe, ttl=60)
+
         logger.info(f"Dashboard API timing: achievements={t1-t0:.3f}s context={t2-t1:.3f}s serialize={t3-t2:.3f}s total={t3-t0:.3f}s")
         return safe
     except Exception as exc:
@@ -6899,6 +6912,13 @@ def admin_api_fix(
     return {"success": True, "issue_type": issue_type, "fixed_count": len(fixed), "details": fixed}
 
 
+@app.get("/admin/api/cache-stats")
+def admin_api_cache_stats(user: User = Depends(get_current_user)):
+    """Cache performance stats for monitoring."""
+    _require_admin(user)
+    return cache_stats()
+
+
 # ═══════════════════════════════════════════════════════════════
 #  ADMIN: Commission Flow Dashboard
 # ═══════════════════════════════════════════════════════════════
@@ -10062,9 +10082,13 @@ def onboarding_complete(user: User = Depends(get_current_user), db: Session = De
 # ═══════════════════════════════════════════════════════════════
 
 def send_notification(db: Session, user_id: int, type: str, icon: str, title: str, message: str, link: str = None):
-    """Create a notification for a user."""
+    """Create a notification for a user. Also invalidates their dashboard cache."""
     notif = Notification(user_id=user_id, type=type, icon=icon, title=title, message=message, link=link)
     db.add(notif)
+    # Invalidate dashboard cache so next load shows fresh data
+    cache_invalidate_user(user_id)
+    if type == "commission":
+        cache_invalidate_leaderboard()
 
 
 @app.get("/api/notifications")
@@ -17384,7 +17408,13 @@ def api_affiliate_data(request: Request, user: User = Depends(get_current_user),
 
 @app.get("/api/leaderboard")
 def api_leaderboard(db: Session = Depends(get_db)):
-    """JSON leaderboard data with full user info + recent activity feed."""
+    """JSON leaderboard data with full user info + recent activity feed. Cached 5 min."""
+
+    # Check cache first (leaderboard is same for everyone)
+    cache_key = "leaderboard:main"
+    cached = cache_get(cache_key)
+    if cached:
+        return cached
 
     def user_data(u):
         # Get user's highest active grid tier
@@ -17468,7 +17498,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
         Commission.status == "paid"
     ).scalar() or 0)
 
-    return {
+    result = {
         "ref_leaders": [user_data(u) for u in ref_leaders],
         "grid_users": [user_data(u) for u in grid_users],
         "course_users": [user_data(u) for u in course_users],
@@ -17478,6 +17508,11 @@ def api_leaderboard(db: Session = Depends(get_db)):
             "total_earned": total_earned,
         }
     }
+
+    # Cache for 5 minutes (same for all users)
+    cache_set(cache_key, result, ttl=300)
+
+    return result
 
 
 @app.get("/api/campaign-tiers")
@@ -18276,9 +18311,16 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
 @app.get("/api/analytics")
 def api_analytics_data(request: Request, user: User = Depends(get_current_user),
                        db: Session = Depends(get_db)):
-    """JSON analytics data."""
+    """JSON analytics data. Cached 120s per user."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # Check cache first
+    cache_key = f"analytics:{user.id}:main"
+    cached = cache_get(cache_key)
+    if cached:
+        return cached
+
     try:
         campaigns = db.query(VideoCampaign).filter(VideoCampaign.user_id == user.id).all()
         lh = db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).first()
@@ -18318,7 +18360,7 @@ def api_analytics_data(request: Request, user: User = Depends(get_current_user),
                 "tier": c.campaign_tier or c.owner_tier or 1,
             })
 
-        return {
+        result = {
             "total_views": total_views + sum(c.views_delivered or 0 for c in campaigns),
             "total_clicks": total_clicks,
             "conversions": user.personal_referrals or 0,
@@ -18339,6 +18381,11 @@ def api_analytics_data(request: Request, user: User = Depends(get_current_user),
             "watch_quota_met": bool(quota and getattr(quota, 'commissions_paused', False) == False) if quota else False,
             "campaigns": campaign_data,
         }
+
+        # Cache for 2 minutes
+        cache_set(cache_key, result, ttl=120)
+
+        return result
     except Exception as e:
         import traceback; traceback.print_exc()
         return JSONResponse({"error": str(e)}, status_code=500)
