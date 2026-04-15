@@ -216,7 +216,7 @@ export default function OnboardingWizard() {
 
           <div style={{ display: 'flex', gap: 10 }}>
             <button onClick={prev} style={btnSecondary}>{t('onboarding.backLabel')}</button>
-            <button onClick={function() { window.open('/platform-tour', '_blank'); }} style={{ ...btnSecondary, flex: 1 }}>{t('onboarding.openFullTour')}</button>
+            <button onClick={function() { window.open('/tour', '_blank'); }} style={{ ...btnSecondary, flex: 1 }}>{t('onboarding.openFullTour')}</button>
             <button onClick={next} style={{ ...btnPrimary, flex: 1 }}>{t('onboarding.continue')}</button>
           </div>
         </div>}
