@@ -9,7 +9,7 @@ import {
   Target, Mail, Trophy, Bot, Film, Flame,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
   BookOpen, PlusCircle, Scissors, Clock, UserCircle, Tv,
-  Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers, DollarSign, BarChart3, MessageCircle, Download
+  Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers, DollarSign, BarChart3, MessageCircle, Download, Search
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
@@ -43,6 +43,7 @@ function buildNav(t, isAdmin) {
     { type: 'group', label: t('nav.proTools'), key: 'pro-tools', icon: Zap, items: [
       { label: t('nav.superPages'), icon: Globe, path: '/pro/funnels', pro: true },
       { label: t('nav.autoResponder'), icon: Mail, path: '/pro/leads', pro: true },
+      { label: 'Lead Finder', icon: Search, path: '/lead-finder', pro: true },
     ]},
     { type: 'divider' },
     { type: 'group', label: t('nav.incomeStreams'), key: 'income', icon: DollarSign, items: [

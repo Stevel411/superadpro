@@ -23351,3 +23351,126 @@ Use a variety of layouts. Make content specific and compelling. Speaker notes sh
         return {"success": True, "slides": slides_data}
     except Exception as e:
         return JSONResponse({"error": f"Failed to parse AI response: {str(e)}", "raw": text[:500]}, status_code=500)
+
+
+# ═══════════════════════════════════════════════════════════════
+#  LEAD FINDER — Pro Tool
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/lead-finder")
+def lead_finder_page(request: Request):
+    """Serve React SPA — Lead Finder page."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
+@app.post("/api/lead-finder/search")
+async def api_lead_finder_search(request: Request,
+                                  user: User = Depends(get_current_user),
+                                  db: Session = Depends(get_db)):
+    """Search for business leads by niche and location."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # Pro-only check
+    tier = (user.membership_tier or "").lower()
+    if tier not in ("pro", "admin") and not user.is_admin:
+        return JSONResponse({"error": "Lead Finder is a Pro feature. Upgrade to access."}, status_code=403)
+
+    data = await request.json()
+    niche = (data.get("niche") or "").strip()
+    location = (data.get("location") or "").strip()
+
+    if not niche or not location:
+        return JSONResponse({"error": "Please enter both a niche and location."}, status_code=400)
+
+    if len(niche) > 100 or len(location) > 100:
+        return JSONResponse({"error": "Search terms too long."}, status_code=400)
+
+    from .lead_finder import _check_rate_limit, _increment_rate_limit, _get_cached, _set_cache, search_businesses
+
+    # Rate limit check
+    allowed, remaining = _check_rate_limit(user.id)
+    if not allowed:
+        return JSONResponse({"error": "Daily search limit reached (10/day). Try again tomorrow.", "remaining": 0}, status_code=429)
+
+    # Check cache first
+    cached = _get_cached(niche, location)
+    if cached is not None:
+        return {"success": True, "results": cached, "count": len(cached),
+                "cached": True, "remaining": remaining, "query": f"{niche} in {location}"}
+
+    # Run the scraper
+    _increment_rate_limit(user.id)
+    remaining -= 1
+
+    try:
+        results = await search_businesses(niche, location)
+        _set_cache(niche, location, results)
+        return {"success": True, "results": results, "count": len(results),
+                "cached": False, "remaining": remaining, "query": f"{niche} in {location}"}
+    except Exception as e:
+        logger.error(f"Lead Finder error: {e}")
+        return JSONResponse({"error": "Search failed. Please try again."}, status_code=500)
+
+
+@app.post("/api/lead-finder/import")
+async def api_lead_finder_import(request: Request,
+                                  user: User = Depends(get_current_user),
+                                  db: Session = Depends(get_db)):
+    """Import scraped leads into the user's AutoResponder lead list."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    data = await request.json()
+    leads = data.get("leads", [])
+    list_name = data.get("list_name", "Imported Leads")
+
+    if not leads:
+        return JSONResponse({"error": "No leads to import."}, status_code=400)
+
+    if len(leads) > 50:
+        return JSONResponse({"error": "Maximum 50 leads per import."}, status_code=400)
+
+    # Create a new lead list
+    lead_list = LeadList(
+        user_id=user.id,
+        name=list_name[:100],
+        description=f"Imported from Lead Finder on {datetime.utcnow().strftime('%d %b %Y')}",
+    )
+    db.add(lead_list)
+    db.flush()
+
+    imported = 0
+    for lead in leads:
+        email = (lead.get("email") or "").strip()
+        if not email or "@" not in email:
+            continue  # Skip leads without email
+
+        # Check for duplicates in this user's leads
+        existing = db.query(MemberLead).filter(
+            MemberLead.user_id == user.id,
+            MemberLead.email == email
+        ).first()
+        if existing:
+            continue
+
+        new_lead = MemberLead(
+            user_id=user.id,
+            list_id=lead_list.id,
+            first_name=lead.get("name", "")[:50],
+            last_name="",
+            email=email,
+            phone=lead.get("phone", "")[:30],
+            company=lead.get("name", "")[:100],
+            source="lead_finder",
+            tags="lead-finder," + lead.get("category", "")[:50],
+        )
+        db.add(new_lead)
+        imported += 1
+
+    db.commit()
+
+    return {"success": True, "imported": imported, "skipped": len(leads) - imported,
+            "list_id": lead_list.id, "list_name": list_name}
