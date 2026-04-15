@@ -6,6 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
 import { formatMoney } from '../utils/money';
 import WalletHelp from './WalletHelp';
+import VoiceGuide from '../components/VoiceGuide';
 
 export default function Wallet() {
   var { t } = useTranslation();
@@ -119,11 +120,6 @@ export default function Wallet() {
 
   return (
     <AppLayout title={t('wallet.title')} subtitle={t('wallet.subtitle')}
-      topbarActions={<>
-        <button onClick={function() { setShowHelp(true); }} style={{ padding:'7px 14px', borderRadius:10, border:'1px solid rgba(255,255,255,.1)', background:'rgba(255,255,255,.06)', cursor:'pointer', fontFamily:'inherit', fontSize:12, fontWeight:600, color:'rgba(255,255,255,.5)', display:'flex', alignItems:'center', gap:4, transition:'all .15s' }}
-          onMouseEnter={function(e){ e.currentTarget.style.background='rgba(255,255,255,.1)'; e.currentTarget.style.color='rgba(255,255,255,.7)'; }}
-          onMouseLeave={function(e){ e.currentTarget.style.background='rgba(255,255,255,.06)'; e.currentTarget.style.color='rgba(255,255,255,.5)'; }}>? {t('wallet.help')}</button>
-      </>}
     >
       {/* 4 Stat Pills */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: 18, marginBottom: 18 }}>
@@ -384,6 +380,7 @@ export default function Wallet() {
           </Card>
         </div>
       )}
+      <VoiceGuide />
     </AppLayout>
   );
 }
