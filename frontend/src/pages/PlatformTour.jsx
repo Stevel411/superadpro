@@ -27,6 +27,7 @@ function getSections(t) { return [
     tips: [t('platformTour.s3_tip1'), t('platformTour.s3_tip2'), t('platformTour.s3_tip3'), t('platformTour.s3_tip4'), t('platformTour.s3_tip5')],
     link: '/watch', linkLabel: t('platformTour.s3_link'),
     Icon: Eye, color: 'var(--sap-amber)', bg: 'var(--sap-amber-bg)',
+    videoSrc: '/static/downloads/tour-videos/watch-to-earn-tour.mp4',
   },
   {
     id: 'basictools', num: '4', title: t('platformTour.s4_title'), shortTitle: t('platformTour.s4_short'),
