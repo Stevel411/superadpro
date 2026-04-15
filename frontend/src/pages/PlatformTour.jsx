@@ -11,7 +11,7 @@ function getSections(t) { return [
     tips: [t('platformTour.s1_tip1'), t('platformTour.s1_tip2'), t('platformTour.s1_tip3'), t('platformTour.s1_tip4')],
     link: '/dashboard', linkLabel: t('platformTour.s1_link'),
     Icon: Map, color: 'var(--sap-indigo)', bg: '#eef2ff',
-    videoSrc: '/static/downloads/tour-videos/dashboard-tour.mp4',
+    videoSrc: '/static/downloads/tour-videos/how-you-earn-tour.mp4',
   },
   {
     id: 'howyouearn', num: '2', title: t('platformTour.s2_title'), shortTitle: t('platformTour.s2_short'),
@@ -19,7 +19,6 @@ function getSections(t) { return [
     tips: [t('platformTour.s2_tip1'), t('platformTour.s2_tip2'), t('platformTour.s2_tip3'), t('platformTour.s2_tip4'), t('platformTour.s2_tip5')],
     link: '/compensation-plan', linkLabel: t('platformTour.s2_link'),
     Icon: DollarSign, color: 'var(--sap-green)', bg: 'var(--sap-green-bg-mid)',
-    videoSrc: '/static/downloads/tour-videos/how-you-earn-tour.mp4',
   },
   {
     id: 'watchearn', num: '3', title: t('platformTour.s3_title'), shortTitle: t('platformTour.s3_short'),
