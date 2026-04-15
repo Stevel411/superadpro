@@ -133,16 +133,6 @@ export default function Dashboard() {
   return (
     <AppLayout
       title={t("dashboard.title")}
-      topbarActions={<>
-        <span style={{
-          fontSize: 11, fontWeight: 700, padding: '7px 14px', borderRadius: 8,
-          ...(d.is_active
-            ? { background: 'rgba(74,222,128,0.1)', border: '1px solid rgba(74,222,128,0.2)', color: '#4ade80' }
-            : { background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', color: 'var(--sap-amber-bright)' })
-        }}>
-          {d.is_active ? '● ' + t('dashboard.activeMember') : '○ ' + t('dashboard.inactive')}
-        </span>
-      </>}
     >
       {/* Free member activation banner */}
       {!d.is_active && (
