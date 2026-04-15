@@ -61,6 +61,7 @@ export default function MarketingMaterials() {
   }
 
   return <AppLayout title="Marketing Materials" activePage="marketing-materials">
+    <style>{'.mm-lang-option:hover{background:#f8fafc !important}'}</style>
     <div style={{ maxWidth: 900, margin: '0 auto' }}>
 
       {/* Page header */}
@@ -89,16 +90,15 @@ export default function MarketingMaterials() {
             position: 'absolute', top: 'calc(100% + 6px)', left: 0, right: 0, zIndex: 50,
             background: '#fff', borderRadius: 12, border: '1.5px solid #e2e8f0',
             boxShadow: '0 12px 40px rgba(0,0,0,.1)', maxHeight: 320, overflowY: 'auto'
-          }}>
+          }} onMouseDown={function(e) { e.stopPropagation(); }}>
             {LANGUAGES.map(function(lang) {
               var isSelected = lang.code === selectedLang;
-              return <div key={lang.code} onClick={function() { setSelectedLang(lang.code); setDropdownOpen(false); }} style={{
+              return <div key={lang.code} onClick={function(e) { e.stopPropagation(); setSelectedLang(lang.code); setDropdownOpen(false); }} className="mm-lang-option" style={{
                 display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px',
-                cursor: 'pointer', transition: 'all .1s',
+                cursor: 'pointer',
                 background: isSelected ? '#f5f3ff' : 'transparent',
                 borderLeft: isSelected ? '3px solid #8b5cf6' : '3px solid transparent',
-              }} onMouseEnter={function(e) { if (!isSelected) e.currentTarget.style.background = '#f8fafc'; }}
-                 onMouseLeave={function(e) { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}>
+              }}>
                 <span style={{ fontSize: 18 }}>{lang.flag}</span>
                 <span style={{ flex: 1, fontSize: 13, fontWeight: isSelected ? 700 : 500, color: isSelected ? '#7c3aed' : '#334155' }}>{lang.name}</span>
                 <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600 }}>{lang.code}</span>
