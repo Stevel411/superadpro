@@ -14,7 +14,7 @@ var STEPS = [
 
 export default function OnboardingWizard() {
   var { t } = useTranslation();
-  var { user, refreshUser } = useAuth();
+  var { user, refreshUser, setUser } = useAuth();
   var navigate = useNavigate();
   var [step, setStep] = useState(0);
   var [firstName, setFirstName] = useState(user?.first_name || '');
@@ -67,12 +67,23 @@ export default function OnboardingWizard() {
 
   function completeOnboarding() {
     apiPost('/api/onboarding/complete', {}).then(function() {
+      // Update user state immediately to prevent dashboard redirect loop
+      if (setUser && user) {
+        setUser(Object.assign({}, user, { onboarding_completed: true }));
+      }
+      // Then refresh from server in background and navigate
       if (refreshUser) {
         refreshUser().then(function() { navigate('/dashboard'); }).catch(function() { navigate('/dashboard'); });
       } else {
         navigate('/dashboard');
       }
-    }).catch(function() { navigate('/dashboard'); });
+    }).catch(function() {
+      // Even on error, try to navigate
+      if (setUser && user) {
+        setUser(Object.assign({}, user, { onboarding_completed: true }));
+      }
+      navigate('/dashboard');
+    });
   }
 
   // ── Outer shell ──
