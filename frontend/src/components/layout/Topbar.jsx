@@ -81,6 +81,16 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
         <span className="hidden md:flex items-center gap-3">{children}</span>
         <span className="hidden md:block"><LanguageSelector /></span>
 
+        {/* Balance — clickable, links to wallet */}
+        {user && <a href="/wallet" style={{ display:'flex', alignItems:'center', gap:6, padding:'6px 14px', borderRadius:10,
+          background:'rgba(255,255,255,.06)', border:'1px solid rgba(255,255,255,.08)', textDecoration:'none', transition:'all .15s',
+          cursor:'pointer' }}
+          onMouseEnter={function(e){ e.currentTarget.style.background='rgba(255,255,255,.1)'; }}
+          onMouseLeave={function(e){ e.currentTarget.style.background='rgba(255,255,255,.06)'; }}>
+          <span style={{ fontSize:11, fontWeight:600, color:'rgba(255,255,255,.4)' }}>Balance</span>
+          <span style={{ fontSize:14, fontWeight:800, color:'#4ade80', fontFamily:"'Sora',sans-serif" }}>${(user.balance || 0).toFixed(2)}</span>
+        </a>}
+
         {/* Notification Bell */}
         <div className="relative" ref={dropdownRef}>
           <button onClick={toggleNotifs}
