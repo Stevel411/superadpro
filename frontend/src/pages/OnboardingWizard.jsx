@@ -67,8 +67,11 @@ export default function OnboardingWizard() {
 
   function completeOnboarding() {
     apiPost('/api/onboarding/complete', {}).then(function() {
-      if (refreshUser) refreshUser();
-      navigate('/dashboard');
+      if (refreshUser) {
+        refreshUser().then(function() { navigate('/dashboard'); }).catch(function() { navigate('/dashboard'); });
+      } else {
+        navigate('/dashboard');
+      }
     }).catch(function() { navigate('/dashboard'); });
   }
 
@@ -254,8 +257,12 @@ export default function OnboardingWizard() {
         </div>}
       </div>
 
-      {/* Skip link */}
-      <button onClick={completeOnboarding} style={{ marginTop: 16, background: 'none', border: 'none', color: 'rgba(255,255,255,.3)', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}>{t('onboarding.skipSetup')}</button>
+      {/* Skip button — prominent for experienced users */}
+      <button onClick={completeOnboarding} style={{ marginTop: 16, padding: '10px 24px', borderRadius: 10, background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.15)', color: 'rgba(255,255,255,.6)', fontSize: 13, fontWeight: 700, cursor: 'pointer', fontFamily: 'inherit', transition: 'all .15s' }}
+        onMouseEnter={function(e) { e.currentTarget.style.background = 'rgba(255,255,255,.12)'; e.currentTarget.style.color = 'rgba(255,255,255,.85)'; }}
+        onMouseLeave={function(e) { e.currentTarget.style.background = 'rgba(255,255,255,.08)'; e.currentTarget.style.color = 'rgba(255,255,255,.6)'; }}>
+        Skip Setup → Go to Dashboard
+      </button>
     </div>
   );
 }
