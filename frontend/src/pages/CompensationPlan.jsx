@@ -311,11 +311,6 @@ function MatrixContent(props) {
       <CommBox val="10%" label={t('compPlan.completionBonus')} sub={t('compPlan.nexusFills39')} gradient="linear-gradient(135deg,#6d28d9,#a78bfa)" color="var(--sap-purple)" bg="rgba(139,92,246,.06)" border="rgba(139,92,246,.15)"/>
     </div>
 
-    {/* Cost breakdown */}
-    <div style={{ background:'var(--sap-bg-elevated)', borderRadius:12, padding:'16px 20px', marginBottom:20, fontSize:13, color:'var(--sap-text-muted)', lineHeight:1.7 }}>
-      <strong style={{ color:'var(--sap-text-primary)' }}>{t('compPlan.whereMoneyGoes')}</strong> {t('compPlan.moneyBreakdown')} <Link to="/income-disclaimer" style={{ color:'#2563eb', textDecoration:'none', fontWeight:700 }}>{t('compPlan.viewDisclaimer')}</Link>
-    </div>
-
     {/* Mini tree */}
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:8, padding:'16px 0', marginBottom:20 }}>
       <div style={{ fontSize:10, color:'var(--sap-text-muted)', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('compPlan.yourNexus39')}</div>
