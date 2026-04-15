@@ -120,17 +120,9 @@ export default function Wallet() {
   return (
     <AppLayout title={t('wallet.title')} subtitle={t('wallet.subtitle')}
       topbarActions={<>
-        <div style={{ display:'flex', gap:8 }}>
-          <div style={{ background: 'rgba(34,197,94,.09)', border: '1px solid rgba(34,197,94,.22)', borderRadius: 10, padding: '7px 14px', textAlign: 'center' }}>
-            <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'rgba(148,163,184,.5)' }}>{t('wallet.affiliate')}</div>
-            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: '#4ade80' }}>${formatMoney(d.balance)}</div>
-          </div>
-          <div style={{ background: 'rgba(99,102,241,.09)', border: '1px solid rgba(99,102,241,.22)', borderRadius: 10, padding: '7px 14px', textAlign: 'center' }}>
-            <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'rgba(148,163,184,.5)' }}>{t('wallet.campaign')}</div>
-            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 15, fontWeight: 800, color: '#818cf8' }}>${formatMoney(d.campaign_balance || 0)}</div>
-          </div>
-          <button onClick={function() { setShowHelp(true); }} style={{ padding:'7px 14px', borderRadius:10, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:12, fontWeight:600, color:'var(--sap-text-muted)', display:'flex', alignItems:'center', gap:4 }}>{t('wallet.help')}</button>
-        </div>
+        <button onClick={function() { setShowHelp(true); }} style={{ padding:'7px 14px', borderRadius:10, border:'1px solid rgba(255,255,255,.1)', background:'rgba(255,255,255,.06)', cursor:'pointer', fontFamily:'inherit', fontSize:12, fontWeight:600, color:'rgba(255,255,255,.5)', display:'flex', alignItems:'center', gap:4, transition:'all .15s' }}
+          onMouseEnter={function(e){ e.currentTarget.style.background='rgba(255,255,255,.1)'; e.currentTarget.style.color='rgba(255,255,255,.7)'; }}
+          onMouseLeave={function(e){ e.currentTarget.style.background='rgba(255,255,255,.06)'; e.currentTarget.style.color='rgba(255,255,255,.5)'; }}>? {t('wallet.help')}</button>
       </>}
     >
       {/* 4 Stat Pills */}
