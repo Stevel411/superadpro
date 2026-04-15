@@ -51,7 +51,7 @@ function buildNav(t, isAdmin) {
       { label: t('nav.myGrid'), icon: Zap, path: '/grid-visualiser' },
       { label: t('nav.profitNexus'), icon: Layers, path: '/credit-nexus' },
       { label: t('nav.myNexus'), icon: Network, path: '/nexus-visualiser' },
-      { label: t('nav.courseMarketplace'), icon: GraduationCap, path: '/courses', comingSoon: true },
+      { label: t('nav.courseAcademy'), icon: GraduationCap, path: '/courses', comingSoon: true },
     ]},
     { type: 'divider' },
     { type: 'group', label: t('nav.affiliateHub'), key: 'affiliate', icon: Share2, items: [
@@ -62,11 +62,6 @@ function buildNav(t, isAdmin) {
       { label: t('nav.challenge30Day'), icon: Flame, path: '/challenge' },
       { label: t('nav.affiliateGuide'), icon: BookOpen, path: '/training' },
       { label: t('nav.payItForward'), icon: Heart, path: '/pay-it-forward' },
-    ]},
-    { type: 'divider' },
-    { type: 'group', label: t('nav.courses') + ' (' + t('nav.comingSoon') + ')', key: 'courses', icon: GraduationCap, items: [
-      { label: t('nav.courseLibrary'), icon: GraduationCap, path: '/courses', comingSoon: true },
-      { label: t('nav.createCourse'), icon: PenLine, path: '/courses/create', pro: true, comingSoon: true },
     ]},
   ];
 

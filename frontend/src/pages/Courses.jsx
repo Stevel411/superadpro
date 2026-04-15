@@ -18,12 +18,29 @@ export default function Courses() {
   if (loading) return <AppLayout title={t('courses.title')}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
 
   return (
-    <AppLayout title={t('courses.title')} subtitle={t('courses.browseCourses')}
+    <AppLayout title="Course Academy" subtitle="Create, sell, and earn from digital courses"
       topbarActions={<>
         <Link to="/courses/how-it-works" style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:10,fontSize:12,fontWeight:600,color:'rgba(200,220,255,0.55)',textDecoration:'none',border:'1px solid rgba(255,255,255,0.08)'}}>{t('courses.howCommissionsWork')}</Link>
         <Link to="/courses/commissions" style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:10,fontSize:12,fontWeight:600,color:'rgba(200,220,255,0.55)',textDecoration:'none',border:'1px solid rgba(255,255,255,0.08)'}}>{t('courses.myCommissions')}</Link>
       </>}
     >
+      {/* Coming Soon Banner */}
+      <div style={{maxWidth:680,margin:'40px auto 32px',textAlign:'center'}}>
+        <div style={{display:'inline-flex',alignItems:'center',gap:8,padding:'6px 16px',borderRadius:20,background:'linear-gradient(135deg,rgba(251,191,36,.1),rgba(251,191,36,.04))',border:'1px solid rgba(251,191,36,.15)',marginBottom:20}}>
+          <span style={{fontSize:14}}>🚀</span>
+          <span style={{fontSize:12,fontWeight:700,color:'#f59e0b',letterSpacing:1,textTransform:'uppercase'}}>Coming Soon</span>
+        </div>
+        <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:28,fontWeight:800,color:'#0f172a',margin:'0 0 12px'}}>Course Academy</h2>
+        <p style={{fontSize:15,color:'#64748b',lineHeight:1.7,maxWidth:520,margin:'0 auto 24px'}}>Create your own courses on any topic, or resell from the marketplace library. Keep 100% of your first sale, with a pass-up system that creates ongoing team income.</p>
+        <div style={{display:'flex',justifyContent:'center',gap:24,flexWrap:'wrap'}}>
+          {[['📤','Upload & sell your own courses'],['💰','100% first sale commission'],['⬆️','Infinite pass-up cascade']].map(function(item,i){
+            return <div key={i} style={{display:'flex',alignItems:'center',gap:8,fontSize:13,color:'#475569',fontWeight:600}}>
+              <span style={{fontSize:18}}>{item[0]}</span>{item[1]}
+            </div>;
+          })}
+        </div>
+      </div>
+
       {courses.length > 0 ? (
         <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(320px,1fr))',gap:24,alignItems:'stretch'}}>
           {courses.map(c => (
