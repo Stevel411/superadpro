@@ -11,7 +11,7 @@ function getSections(t) { return [
     tips: [t('platformTour.s1_tip1'), t('platformTour.s1_tip2'), t('platformTour.s1_tip3'), t('platformTour.s1_tip4')],
     link: '/dashboard', linkLabel: t('platformTour.s1_link'),
     Icon: Map, color: 'var(--sap-indigo)', bg: '#eef2ff',
-    videoId: '3Oun43eM4iI',
+    videoSrc: '/static/downloads/tour-videos/dashboard-tour.mp4',
   },
   {
     id: 'howyouearn', num: '2', title: t('platformTour.s2_title'), shortTitle: t('platformTour.s2_short'),
@@ -99,8 +99,19 @@ export default function PlatformTour() {
         </div>
 
         {/* Video or placeholder */}
-        <div style={{ margin: '24px 28px 0', borderRadius: 14, overflow: 'hidden', aspectRatio: '16/9', position: 'relative' }}>
-          {s.videoId ? (
+        <div style={{ margin: '24px 28px 0', borderRadius: 14, overflow: 'hidden', aspectRatio: '16/9', position: 'relative', background: '#000' }}>
+          {s.videoSrc ? (
+            <video
+              key={s.id}
+              controls
+              preload="metadata"
+              style={{ width: '100%', height: '100%', borderRadius: 14, display: 'block' }}
+              poster=""
+            >
+              <source src={s.videoSrc} type="video/mp4"/>
+              Your browser does not support the video tag.
+            </video>
+          ) : s.videoId ? (
             <iframe
               src={'https://www.youtube-nocookie.com/embed/' + s.videoId + '?rel=0&modestbranding=1&showinfo=0&iv_load_policy=3&color=white'}
               style={{ width: '100%', height: '100%', border: 'none', borderRadius: 14 }}
