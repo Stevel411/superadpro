@@ -191,7 +191,8 @@
     "teamMessenger": "Team Messenger",
     "marketingMaterials": "Marketing Materials",
     "courseAcademy": "Course Academy",
-    "profitGrid": "Profit Grid"
+    "profitGrid": "Profit Grid",
+    "gridCalculator": "Grid Calculator"
   },
   "dashboard": {
     "title": "Dashboard",

@@ -191,7 +191,8 @@
     "teamMessenger": "Team-Messenger",
     "marketingMaterials": "Marketing-Materialien",
     "courseAcademy": "Kurs-Akademie",
-    "profitGrid": "Gewinn-Raster"
+    "profitGrid": "Gewinn-Raster",
+    "gridCalculator": "Raster-Rechner"
   },
   "dashboard": {
     "title": "Dashboard",

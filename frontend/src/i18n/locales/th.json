@@ -191,7 +191,8 @@
     "teamMessenger": "แชททีม",
     "marketingMaterials": "สื่อการตลาด",
     "courseAcademy": "อะคาเดมีคอร์ส",
-    "profitGrid": "กริดกำไร"
+    "profitGrid": "กริดกำไร",
+    "gridCalculator": "เครื่องคำนวณกริด"
   },
   "dashboard": {
     "title": "แดชบอร์ด",

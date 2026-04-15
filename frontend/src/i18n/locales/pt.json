@@ -191,7 +191,8 @@
     "teamMessenger": "Mensageiro da Equipe",
     "marketingMaterials": "Materiais de Marketing",
     "courseAcademy": "Academia de Cursos",
-    "profitGrid": "Grade de Lucros"
+    "profitGrid": "Grade de Lucros",
+    "gridCalculator": "Calculadora de Grade"
   },
   "dashboard": {
     "title": "Painel",

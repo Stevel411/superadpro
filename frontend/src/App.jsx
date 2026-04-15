@@ -66,6 +66,7 @@ const SuperDeckEditor = React.lazy(() => import('./pages/superdeck/SuperDeckEdit
 const VideoCreator = React.lazy(() => import('./pages/VideoCreator'));
 const CreditMatrix = React.lazy(() => import('./pages/CreditMatrix'));
 const GridVisualiser = React.lazy(() => import('./pages/GridVisualiser'));
+const GridCalculator = React.lazy(() => import('./pages/GridCalculator'));
 const CreditMatrixVisualiser = React.lazy(() => import('./pages/CreditMatrixVisualiser'));
 const CampaignAnalytics = React.lazy(() => import('./pages/CampaignAnalytics'));
 const SuperScenePage = React.lazy(() => import('./pages/superscene/SuperScenePage'));
@@ -214,6 +215,7 @@ function AppRoutes() {
       <Route path="/video-creator" element={<ProtectedRoute><VideoCreator /></ProtectedRoute>} />
       <Route path="/credit-nexus" element={<ProtectedRoute><CreditMatrix /></ProtectedRoute>} />
       <Route path="/grid-visualiser" element={<ProtectedRoute><GridVisualiser /></ProtectedRoute>} />
+      <Route path="/grid-calculator" element={<ProtectedRoute><GridCalculator /></ProtectedRoute>} />
       <Route path="/nexus-visualiser" element={<ProtectedRoute><CreditMatrixVisualiser /></ProtectedRoute>} />
       <Route path="/campaign-analytics" element={<ProtectedRoute><CampaignAnalytics /></ProtectedRoute>} />
       <Route path="/superscene" element={<React.Suspense fallback={<div style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100vh',background:'#080c0e',color:'#22d3ee',fontFamily:'DM Sans,sans-serif'}}>{'Loading Creative Studio…'}</div>}><SuperScenePage /></React.Suspense>} />

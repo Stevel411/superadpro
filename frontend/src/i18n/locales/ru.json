@@ -191,7 +191,8 @@
     "teamMessenger": "Командный мессенджер",
     "marketingMaterials": "Маркетинг Материалы",
     "courseAcademy": "Академия Курсов",
-    "profitGrid": "Сетка Прибыли"
+    "profitGrid": "Сетка Прибыли",
+    "gridCalculator": "Калькулятор Сетки"
   },
   "dashboard": {
     "title": "Панель управления",

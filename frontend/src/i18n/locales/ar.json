@@ -191,7 +191,8 @@
     "teamMessenger": "مراسل الفريق",
     "marketingMaterials": "مواد تسويقية",
     "courseAcademy": "أكاديمية الدورات",
-    "profitGrid": "شبكة الأرباح"
+    "profitGrid": "شبكة الأرباح",
+    "gridCalculator": "حاسبة الشبكة"
   },
   "dashboard": {
     "title": "لوحة التحكم",

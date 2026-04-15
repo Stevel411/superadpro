@@ -1247,6 +1247,13 @@ def grid_visualiser(request: Request):
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
 
+@app.get("/grid-calculator")
+def grid_calculator(request: Request):
+    """Serve React SPA — Grid Calculator page."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
 @app.get("/matrix-visualiser")
 def matrix_visualiser(request: Request):
     """Serve React SPA."""

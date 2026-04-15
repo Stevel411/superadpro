@@ -191,7 +191,8 @@
     "teamMessenger": "Team Messenger",
     "marketingMaterials": "Marketingmateriaal",
     "courseAcademy": "Cursus Academie",
-    "profitGrid": "Winstraster"
+    "profitGrid": "Winstraster",
+    "gridCalculator": "Raster Calculator"
   },
   "dashboard": {
     "title": "Dashboard",
