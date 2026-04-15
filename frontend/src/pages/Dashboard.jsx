@@ -134,10 +134,6 @@ export default function Dashboard() {
     <AppLayout
       title={t("dashboard.title")}
       topbarActions={<>
-        <div style={{ background: 'rgba(22,163,74,0.1)', border: '1px solid rgba(22,163,74,0.2)', borderRadius: 10, padding: '7px 16px' }}>
-          <div style={{ fontSize: 9, fontWeight: 800, letterSpacing: 1.2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)' }}>{t('dashboard.balance')}</div>
-          <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 17, fontWeight: 900, color: 'var(--sap-green)' }}>${formatMoney(d.balance)}</div>
-        </div>
         <span style={{
           fontSize: 11, fontWeight: 700, padding: '7px 14px', borderRadius: 8,
           ...(d.is_active
