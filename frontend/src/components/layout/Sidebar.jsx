@@ -37,11 +37,11 @@ function buildNav(t, isAdmin) {
       { label: t('nav.linkTools'), icon: LayoutGrid, path: '/link-tools' },
       { label: t('nav.contentCreator'), icon: Bot, path: '/content-creator' },
       { label: t('nav.creativeStudio'), icon: Sparkles, path: '/creative-studio' },
+      { label: t('nav.superDeck'), icon: Monitor, path: '/superdeck' },
     ]},
     { type: 'divider' },
     { type: 'group', label: t('nav.proTools'), key: 'pro-tools', icon: Zap, items: [
       { label: t('nav.superPages'), icon: Globe, path: '/pro/funnels', pro: true },
-      { label: t('nav.superDeck'), icon: Monitor, path: '/superdeck', pro: true },
       { label: t('nav.autoResponder'), icon: Mail, path: '/pro/leads', pro: true },
     ]},
     { type: 'divider' },

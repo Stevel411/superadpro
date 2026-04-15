@@ -555,7 +555,7 @@ export default function CreativeStudio() {
         {/* ── Tab Bar + Credits (Platform Tour style — directly under AppLayout) ── */}
         <div className="cs-tab-bar">
           <button onClick={function() { var el = document.getElementById('cs-tabs-scroll'); if (el) el.scrollBy({ left: -200, behavior: 'smooth' }); }}
-            style={{ background:'transparent', border:'none', cursor:'pointer', padding:'0 6px', fontSize:18, color:'rgba(255,255,255,.4)', flexShrink:0, display:'flex', alignItems:'center' }}>‹</button>
+            style={{ background:'transparent', border:'none', cursor:'pointer', padding:'0 6px', fontSize:24, fontWeight:800, color:'rgba(255,255,255,.55)', flexShrink:0, display:'flex', alignItems:'center' }}>‹</button>
           <div id="cs-tabs-scroll" className="cs-tabs" style={{ overflowX:'auto', scrollbarWidth:'none', msOverflowStyle:'none' }}>
             <style>{'#cs-tabs-scroll::-webkit-scrollbar{display:none}'}</style>
             {TABS.map(function(t) {
@@ -565,7 +565,7 @@ export default function CreativeStudio() {
             })}
           </div>
           <button onClick={function() { var el = document.getElementById('cs-tabs-scroll'); if (el) el.scrollBy({ left: 200, behavior: 'smooth' }); }}
-            style={{ background:'transparent', border:'none', cursor:'pointer', padding:'0 6px', fontSize:18, color:'rgba(255,255,255,.4)', flexShrink:0, display:'flex', alignItems:'center' }}>›</button>
+            style={{ background:'transparent', border:'none', cursor:'pointer', padding:'0 6px', fontSize:24, fontWeight:800, color:'rgba(255,255,255,.55)', flexShrink:0, display:'flex', alignItems:'center' }}>›</button>
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, paddingLeft: 16 }}>
             <span style={{ fontFamily: 'Sora, sans-serif', fontSize: 16, fontWeight: 800, color: '#4ade80' }}>{credits}</span>
             <span style={{ fontSize: 11, color: 'rgba(255,255,255,.4)' }}>{t('creativeStudio.creditsLabel')}</span>

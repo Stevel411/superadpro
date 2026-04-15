@@ -69,7 +69,7 @@ export default function PlatformTour() {
         <button onClick={function() { var el = document.getElementById('tour-tabs'); if (el) el.scrollBy({ left: -200, behavior: 'smooth' }); }}
           style={{ position: 'absolute', left: 0, top: 0, bottom: 4, width: 36, zIndex: 2, border: 'none', cursor: 'pointer',
             background: 'linear-gradient(90deg, #f1f5f9 60%, transparent)', borderRadius: '10px 0 0 10px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: '#64748b' }}>‹</button>
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 800, color: '#475569' }}>‹</button>
         <div id="tour-tabs" style={{ display: 'flex', gap: 4, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none', msOverflowStyle: 'none', paddingLeft: 32, paddingRight: 32 }}>
           <style>{`#tour-tabs::-webkit-scrollbar{display:none}`}</style>
         {SECTIONS.map(function(sec, i) {
@@ -93,7 +93,7 @@ export default function PlatformTour() {
         <button onClick={function() { var el = document.getElementById('tour-tabs'); if (el) el.scrollBy({ left: 200, behavior: 'smooth' }); }}
           style={{ position: 'absolute', right: 0, top: 0, bottom: 4, width: 36, zIndex: 2, border: 'none', cursor: 'pointer',
             background: 'linear-gradient(270deg, #f1f5f9 60%, transparent)', borderRadius: '0 10px 10px 0',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 16, color: '#64748b' }}>›</button>
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 800, color: '#475569' }}>›</button>
       </div>
 
       {/* Active section content */}
