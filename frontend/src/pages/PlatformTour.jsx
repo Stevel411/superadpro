@@ -11,6 +11,7 @@ function getSections(t) { return [
     tips: [t('platformTour.s1_tip1'), t('platformTour.s1_tip2'), t('platformTour.s1_tip3'), t('platformTour.s1_tip4')],
     link: '/dashboard', linkLabel: t('platformTour.s1_link'),
     Icon: Map, color: 'var(--sap-indigo)', bg: '#eef2ff',
+    videoId: '3Oun43eM4iI',
   },
   {
     id: 'howyouearn', num: '2', title: t('platformTour.s2_title'), shortTitle: t('platformTour.s2_short'),
@@ -97,13 +98,25 @@ export default function PlatformTour() {
           </div>
         </div>
 
-        {/* Image/video placeholder — 16:9 for standard YouTube */}
-        <div style={{ margin: '24px 28px 0', background: s.bg, borderRadius: 14, aspectRatio: '16/9', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '2px dashed ' + s.color + '30' }}>
-          <div style={{ width: 56, height: 56, borderRadius: 16, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, boxShadow: '0 2px 8px rgba(0,0,0,.08)' }}>
-            <Play size={24} color={s.color}/>
-          </div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: s.color }}>{t('platformTour.screenshotComingSoon')}</div>
-          <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginTop: 4 }}>A visual walkthrough of {s.shortTitle} will appear here</div>
+        {/* Video or placeholder */}
+        <div style={{ margin: '24px 28px 0', borderRadius: 14, overflow: 'hidden', aspectRatio: '16/9', position: 'relative' }}>
+          {s.videoId ? (
+            <iframe
+              src={'https://www.youtube.com/embed/' + s.videoId + '?rel=0&modestbranding=1'}
+              style={{ width: '100%', height: '100%', border: 'none', borderRadius: 14 }}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              title={s.title}
+            />
+          ) : (
+            <div style={{ width: '100%', height: '100%', background: s.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '2px dashed ' + s.color + '30' }}>
+              <div style={{ width: 56, height: 56, borderRadius: 16, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, boxShadow: '0 2px 8px rgba(0,0,0,.08)' }}>
+                <Play size={24} color={s.color}/>
+              </div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: s.color }}>{t('platformTour.screenshotComingSoon')}</div>
+              <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginTop: 4 }}>A visual walkthrough of {s.shortTitle} will appear here</div>
+            </div>
+          )}
         </div>
 
         {/* Description */}
