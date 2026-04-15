@@ -29,9 +29,9 @@ export default function IncomeDisclaimer() {
           <Section title={t('incomeDisclaimer.creditPricing')}>
             <p>{t("incomeDisclaimer.creditPackAlloc")}</p>
             <CostBreakdown items={[
-              { pct:'50%', label:'AI Service Costs', desc:'Covers API usage for video, image, music, and voice generation' },
-              { pct:'15%', label:'Platform Management', desc:'Infrastructure, support, and operational costs' },
-              { pct:'35%', label:'Member Commissions', desc:'15% direct referral + 10% auto-place + 10% completion bonus' },
+              { pct:'15%', label:'Direct Referral Commission', desc:'Paid to the member who personally recruited the buyer' },
+              { pct:'10%', label:'Auto-Place Commission', desc:'Paid on positions placed by network growth (spillover)' },
+              { pct:'10%', label:'Completion Bonus', desc:'Paid to the nexus owner when all 39 positions fill' },
             ]}/>
             <p>{t("incomeDisclaimer.creditPackNote")}</p>
           </Section>
@@ -42,7 +42,6 @@ export default function IncomeDisclaimer() {
               { pct:'40%', label:'Direct Sponsor Commission', desc:'Paid to the member who referred you' },
               { pct:'50%', label:'Uni-level Commissions', desc:'6.25% × 8 levels deep in the network' },
               { pct:'5%', label:'Completion Bonus Pool', desc:'Paid when all 64 grid positions fill' },
-              { pct:'5%', label:'Platform Management', desc:'Company operational costs' },
             ]}/>
             <p>{t('incomeDisclaimer.body_L47')}</p>
           </Section>
@@ -50,8 +49,7 @@ export default function IncomeDisclaimer() {
           <Section title={t('incomeDisclaimer.membershipPricing')}>
             <p>{t("incomeDisclaimer.membershipAlloc")}</p>
             <CostBreakdown items={[
-              { pct:'50%', label:'Sponsor Commission', desc:'Paid to the referring member' },
-              { pct:'50%', label:'Platform Revenue', desc:'Covers tools, AI services, hosting, support' },
+              { pct:'50%', label:'Sponsor Commission', desc:'Paid to the referring member every month they remain active' },
             ]}/>
           </Section>
 
