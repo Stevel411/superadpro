@@ -190,7 +190,8 @@
     "emailSwipesDesc": "AI e-mailtekstgenerator",
     "teamMessenger": "Team Messenger",
     "marketingMaterials": "Marketingmateriaal",
-    "courseAcademy": "Cursus Academie"
+    "courseAcademy": "Cursus Academie",
+    "profitGrid": "Winstraster"
   },
   "dashboard": {
     "title": "Dashboard",

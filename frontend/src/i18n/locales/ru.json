@@ -190,7 +190,8 @@
     "emailSwipesDesc": "ИИ-генератор email-текстов",
     "teamMessenger": "Командный мессенджер",
     "marketingMaterials": "Маркетинг Материалы",
-    "courseAcademy": "Академия Курсов"
+    "courseAcademy": "Академия Курсов",
+    "profitGrid": "Сетка Прибыли"
   },
   "dashboard": {
     "title": "Панель управления",

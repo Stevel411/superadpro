@@ -190,7 +190,8 @@
     "emailSwipesDesc": "KI-E-Mail-Textgenerator",
     "teamMessenger": "Team-Messenger",
     "marketingMaterials": "Marketing-Materialien",
-    "courseAcademy": "Kurs-Akademie"
+    "courseAcademy": "Kurs-Akademie",
+    "profitGrid": "Gewinn-Raster"
   },
   "dashboard": {
     "title": "Dashboard",

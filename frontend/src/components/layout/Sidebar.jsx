@@ -27,7 +27,6 @@ function buildNav(t, isAdmin) {
     { type: 'divider' },
     { type: 'group', label: t('nav.watchToEarn'), key: 'earn', icon: Tv, items: [
       { label: t('nav.watch'), icon: Eye, path: '/watch' },
-      { label: t('nav.campaignTiers'), icon: Layers, path: '/campaign-tiers' },
       { label: t('nav.createCampaign'), icon: PlusCircle, path: '/create-campaign' },
       { label: t('nav.myCampaigns'), icon: Film, path: '/video-library' },
       { label: t('nav.campaignAnalytics'), icon: BarChart3, path: '/campaign-analytics' },
@@ -48,6 +47,7 @@ function buildNav(t, isAdmin) {
     { type: 'divider' },
     { type: 'group', label: t('nav.incomeStreams'), key: 'income', icon: DollarSign, items: [
       { label: t('nav.compPlan'), icon: FileText, path: '/compensation-plan' },
+      { label: t('nav.profitGrid'), icon: Target, path: '/campaign-tiers' },
       { label: t('nav.myGrid'), icon: Zap, path: '/grid-visualiser' },
       { label: t('nav.profitNexus'), icon: Layers, path: '/credit-nexus' },
       { label: t('nav.myNexus'), icon: Network, path: '/nexus-visualiser' },
