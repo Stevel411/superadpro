@@ -226,6 +226,17 @@ export default function Sidebar({ open, onClose }) {
 
         {/* Footer */}
         <div style={{marginTop:'auto',padding:'12px',borderTop:'1px solid rgba(255,255,255,0.05)'}}>
+          {user && <div style={{
+            display:'flex', alignItems:'center', justifyContent:'center', gap:6,
+            padding:'8px 12px', marginBottom:8, borderRadius:8,
+            background: user.is_active ? 'rgba(74,222,128,0.06)' : 'rgba(245,158,11,0.06)',
+            border: '1px solid ' + (user.is_active ? 'rgba(74,222,128,0.12)' : 'rgba(245,158,11,0.12)'),
+          }}>
+            <div style={{ width:6, height:6, borderRadius:'50%', background: user.is_active ? '#4ade80' : '#f59e0b' }}/>
+            <span style={{ fontSize:11, fontWeight:700, color: user.is_active ? '#4ade80' : '#f59e0b' }}>
+              {user.is_active ? t('dashboard.activeMember') : t('dashboard.inactive')}
+            </span>
+          </div>}
           <button onClick={logout} style={{
             width:'100%', display:'flex', alignItems:'center', gap:10,
             padding:'8px 12px', fontSize:13, fontWeight:500,
