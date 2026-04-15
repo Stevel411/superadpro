@@ -102,7 +102,7 @@ export default function PlatformTour() {
         <div style={{ margin: '24px 28px 0', borderRadius: 14, overflow: 'hidden', aspectRatio: '16/9', position: 'relative' }}>
           {s.videoId ? (
             <iframe
-              src={'https://www.youtube.com/embed/' + s.videoId + '?rel=0&modestbranding=1'}
+              src={'https://www.youtube-nocookie.com/embed/' + s.videoId + '?rel=0&modestbranding=1&showinfo=0&iv_load_policy=3&color=white'}
               style={{ width: '100%', height: '100%', border: 'none', borderRadius: 14 }}
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen
