@@ -13,6 +13,7 @@ function getSections(t) { return [
     link: '/dashboard', linkLabel: t('platformTour.s1_link'),
     Icon: Map, color: 'var(--sap-indigo)', bg: '#eef2ff',
     videoSrc: '/static/downloads/tour-videos/dashboard-tour.mp4',
+    posterSrc: '/static/downloads/tour-videos/dashboard-tour-poster.jpg',
   },
   {
     id: 'howyouearn', num: '2', title: t('platformTour.s2_title'), shortTitle: t('platformTour.s2_short'),
@@ -21,6 +22,7 @@ function getSections(t) { return [
     link: '/compensation-plan', linkLabel: t('platformTour.s2_link'),
     Icon: DollarSign, color: 'var(--sap-green)', bg: 'var(--sap-green-bg-mid)',
     videoSrc: '/static/downloads/tour-videos/how-you-earn-tour-v2.mp4',
+    posterSrc: '/static/downloads/tour-videos/how-you-earn-tour-v2-poster.jpg',
   },
   {
     id: 'watchearn', num: '3', title: t('platformTour.s3_title'), shortTitle: t('platformTour.s3_short'),
@@ -29,6 +31,7 @@ function getSections(t) { return [
     link: '/watch', linkLabel: t('platformTour.s3_link'),
     Icon: Eye, color: 'var(--sap-amber)', bg: 'var(--sap-amber-bg)',
     videoSrc: '/static/downloads/tour-videos/watch-to-earn-tour.mp4',
+    posterSrc: '/static/downloads/tour-videos/watch-to-earn-tour-poster.jpg',
   },
   {
     id: 'basictools', num: '4', title: t('platformTour.s4_title'), shortTitle: t('platformTour.s4_short'),
@@ -37,6 +40,7 @@ function getSections(t) { return [
     link: '/creative-studio', linkLabel: t('platformTour.s4_link'),
     Icon: Wrench, color: 'var(--sap-accent)', bg: '#e0f2fe',
     videoSrc: '/static/downloads/tour-videos/basic-tools-tour.mp4',
+    posterSrc: '/static/downloads/tour-videos/basic-tools-tour-poster.jpg',
   },
   {
     id: 'protools', num: '5', title: t('platformTour.s5_title'), shortTitle: t('platformTour.s5_short'),
@@ -61,19 +65,33 @@ export default function PlatformTour() {
   var SECTIONS = getSections(t);
   var s = SECTIONS[activeIdx];
 
-  // Preload all tour videos in the background so switching is instant
+  // Preload: posters with HIGH fetchpriority (visual placeholder appears instantly),
+  // videos in the background (faststart makes them start fast anyway)
   useEffect(function() {
-    var videoUrls = SECTIONS.map(function(sec) { return sec.videoSrc; }).filter(Boolean);
-    var links = videoUrls.map(function(url) {
-      var link = document.createElement('link');
-      link.rel = 'preload';
-      link.as = 'video';
-      link.href = url;
-      link.type = 'video/mp4';
-      document.head.appendChild(link);
-      return link;
+    var allLinks = [];
+    SECTIONS.forEach(function(sec) {
+      // Poster — high priority, appears immediately so no black screen
+      if (sec.posterSrc) {
+        var pl = document.createElement('link');
+        pl.rel = 'preload';
+        pl.as = 'image';
+        pl.href = sec.posterSrc;
+        pl.setAttribute('fetchpriority', 'high');
+        document.head.appendChild(pl);
+        allLinks.push(pl);
+      }
+      // Video — background preload, low priority
+      if (sec.videoSrc) {
+        var vl = document.createElement('link');
+        vl.rel = 'preload';
+        vl.as = 'video';
+        vl.href = sec.videoSrc;
+        vl.type = 'video/mp4';
+        document.head.appendChild(vl);
+        allLinks.push(vl);
+      }
     });
-    return function() { links.forEach(function(l) { try { document.head.removeChild(l); } catch(e) {} }); };
+    return function() { allLinks.forEach(function(l) { try { document.head.removeChild(l); } catch(e) {} }); };
   }, []);
 
   // Pause all videos except the active one when switching tabs
@@ -152,6 +170,7 @@ export default function PlatformTour() {
               controls
               preload="auto"
               playsInline
+              poster={sec.posterSrc}
               style={{
                 width: '100%', height: '100%', borderRadius: 14,
                 display: isActive ? 'block' : 'none',
