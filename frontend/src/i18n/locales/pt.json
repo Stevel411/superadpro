@@ -4560,6 +4560,25 @@
     "webSuggest2": "blog marketing de afiliados",
     "webSuggest3": "consultor doTERRA",
     "webSuggest4": "oportunidade negócio em casa",
-    "searchingFor": "Buscando por"
+    "searchingFor": "Buscando por",
+    "searchLibraryTitle": "Biblioteca de Pesquisa Profissional",
+    "searchLibraryMapsTitle": "Biblioteca de Negócios Locais",
+    "searchLibraryDesc": "Clique em qualquer pesquisa abaixo para encontrar marketers de rede, afiliados e empresários em casa. Estas consultas são otimizadas para retornar sites com emails de contato.",
+    "searchLibraryMapsDesc": "Clique em qualquer pesquisa abaixo para encontrar negócios locais com emails do proprietário, informações de contato e localização.",
+    "libHealthWellness": "Saúde e Bem-estar",
+    "libBeautySkincare": "Beleza e Cuidados",
+    "libBusinessFinance": "Negócios e Finanças",
+    "libLifestyleHome": "Estilo de Vida e Casa",
+    "libFitness": "Fitness e Nutrição",
+    "libEcommerce": "E-commerce e Digital",
+    "libFoodDrink": "Comida e Bebida",
+    "libHealthFitness": "Saúde e Fitness",
+    "libBeautyWellness": "Beleza e Bem-estar",
+    "libHomeServices": "Serviços Domésticos",
+    "libProfessional": "Serviços Profissionais",
+    "libRetail": "Varejo e Compras",
+    "proTipTitle": "Dica Pro",
+    "proTipWeb": "Nomes de marcas específicas funcionam melhor. Pesquisas como \"distribuidor Herbalife Brasil\" encontram sites de distribuidores individuais, enquanto termos vagos como \"oportunidade de negócio\" só retornam editores de conteúdo.",
+    "proTipMaps": "Adicionar uma cidade específica dá resultados mais precisos. Experimente combinar um ofício (ex. encanadores, dentistas) com um CEP ou bairro para os melhores leads."
   }
 }

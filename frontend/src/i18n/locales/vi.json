@@ -4560,6 +4560,25 @@
     "webSuggest2": "blog tiếp thị liên kết",
     "webSuggest3": "tư vấn doTERRA",
     "webSuggest4": "cơ hội kinh doanh tại nhà",
-    "searchingFor": "Đang tìm kiếm"
+    "searchingFor": "Đang tìm kiếm",
+    "searchLibraryTitle": "Thư viện Tìm kiếm Chuyên nghiệp",
+    "searchLibraryMapsTitle": "Thư viện Doanh nghiệp Địa phương",
+    "searchLibraryDesc": "Nhấp vào bất kỳ tìm kiếm nào bên dưới để tìm các nhà tiếp thị mạng, đối tác và doanh nhân tại nhà. Các truy vấn này được tối ưu hóa để trả về các trang web có email liên hệ.",
+    "searchLibraryMapsDesc": "Nhấp vào bất kỳ tìm kiếm nào bên dưới để tìm các doanh nghiệp địa phương với email chủ sở hữu, thông tin liên hệ và dữ liệu vị trí.",
+    "libHealthWellness": "Sức khỏe & Thể chất",
+    "libBeautySkincare": "Làm đẹp & Chăm sóc da",
+    "libBusinessFinance": "Kinh doanh & Tài chính",
+    "libLifestyleHome": "Phong cách sống & Nhà",
+    "libFitness": "Thể dục & Dinh dưỡng",
+    "libEcommerce": "Thương mại điện tử",
+    "libFoodDrink": "Đồ ăn & Thức uống",
+    "libHealthFitness": "Sức khỏe & Thể dục",
+    "libBeautyWellness": "Làm đẹp & Sức khỏe",
+    "libHomeServices": "Dịch vụ gia đình",
+    "libProfessional": "Dịch vụ chuyên nghiệp",
+    "libRetail": "Bán lẻ & Mua sắm",
+    "proTipTitle": "Mẹo Pro",
+    "proTipWeb": "Tên thương hiệu cụ thể hoạt động tốt nhất. Các tìm kiếm như \"nhà phân phối Herbalife Việt Nam\" tìm thấy các trang web nhà phân phối cá nhân, trong khi các thuật ngữ mơ hồ như \"cơ hội kinh doanh\" chỉ trả về các nhà xuất bản nội dung.",
+    "proTipMaps": "Thêm một thành phố cụ thể mang lại kết quả sắc nét hơn. Thử kết hợp một nghề (ví dụ: thợ sửa ống nước, nha sĩ) với mã bưu điện hoặc khu phố để có khách hàng tiềm năng tốt nhất."
   }
 }

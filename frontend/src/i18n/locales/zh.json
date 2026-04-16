@@ -4560,6 +4560,25 @@
     "webSuggest2": "联盟营销博客",
     "webSuggest3": "doTERRA顾问",
     "webSuggest4": "家庭业务机会",
-    "searchingFor": "正在搜索"
+    "searchingFor": "正在搜索",
+    "searchLibraryTitle": "专业搜索库",
+    "searchLibraryMapsTitle": "本地企业库",
+    "searchLibraryDesc": "点击下面的任何搜索来查找网络营销人员、联盟营销者和居家企业主。这些查询经过优化以返回带有联系电子邮件的网站。",
+    "searchLibraryMapsDesc": "点击下面的任何搜索来查找本地企业的所有者电子邮件、联系信息和位置数据。",
+    "libHealthWellness": "健康与保健",
+    "libBeautySkincare": "美容与护肤",
+    "libBusinessFinance": "商业与金融",
+    "libLifestyleHome": "生活方式与家居",
+    "libFitness": "健身与营养",
+    "libEcommerce": "电子商务与数字",
+    "libFoodDrink": "食品与饮料",
+    "libHealthFitness": "健康与健身",
+    "libBeautyWellness": "美容与保健",
+    "libHomeServices": "家居服务",
+    "libProfessional": "专业服务",
+    "libRetail": "零售与购物",
+    "proTipTitle": "专业提示",
+    "proTipWeb": "特定品牌名称效果最好。像\"Herbalife经销商中国\"这样的搜索可以找到个人经销商网站，而像\"商业机会\"这样的模糊术语只会返回内容发布者。",
+    "proTipMaps": "添加特定城市可获得更精准的结果。尝试将行业（例如水管工、牙医）与邮政编码或街区结合以获得最佳潜在客户。"
   }
 }

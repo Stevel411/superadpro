@@ -4350,6 +4350,25 @@
     "webSuggest2": "blog marketing d'affiliation",
     "webSuggest3": "consultant doTERRA",
     "webSuggest4": "opportunité business à domicile",
-    "searchingFor": "Recherche de"
+    "searchingFor": "Recherche de",
+    "searchLibraryTitle": "Bibliothèque de Recherche Professionnelle",
+    "searchLibraryMapsTitle": "Bibliothèque d'Entreprises Locales",
+    "searchLibraryDesc": "Cliquez sur n'importe quelle recherche pour trouver des marketeurs de réseau, des affiliés et des entrepreneurs à domicile. Ces requêtes sont optimisées pour retourner des sites avec des emails de contact.",
+    "searchLibraryMapsDesc": "Cliquez sur n'importe quelle recherche pour trouver des entreprises locales avec les emails des propriétaires, coordonnées et localisation.",
+    "libHealthWellness": "Santé et Bien-être",
+    "libBeautySkincare": "Beauté et Soins",
+    "libBusinessFinance": "Affaires et Finance",
+    "libLifestyleHome": "Style de Vie et Maison",
+    "libFitness": "Fitness et Nutrition",
+    "libEcommerce": "E-commerce et Digital",
+    "libFoodDrink": "Nourriture et Boissons",
+    "libHealthFitness": "Santé et Fitness",
+    "libBeautyWellness": "Beauté et Bien-être",
+    "libHomeServices": "Services à Domicile",
+    "libProfessional": "Services Professionnels",
+    "libRetail": "Commerce et Shopping",
+    "proTipTitle": "Astuce Pro",
+    "proTipWeb": "Les noms de marque spécifiques fonctionnent le mieux. Des recherches comme \"distributeur Herbalife France\" trouvent les sites de distributeurs individuels, tandis que des termes vagues comme \"opportunité business\" ne retournent que des éditeurs de contenu.",
+    "proTipMaps": "Ajouter une ville spécifique donne des résultats plus précis. Essayez de combiner un métier (ex. plombiers, dentistes) avec un code postal ou quartier pour les meilleurs leads."
   }
 }

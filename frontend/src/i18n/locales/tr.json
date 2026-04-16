@@ -4560,6 +4560,25 @@
     "webSuggest2": "bağlı kuruluş pazarlama blogu",
     "webSuggest3": "doTERRA danışmanı",
     "webSuggest4": "ev iş fırsatı",
-    "searchingFor": "Aranıyor"
+    "searchingFor": "Aranıyor",
+    "searchLibraryTitle": "Profesyonel Arama Kütüphanesi",
+    "searchLibraryMapsTitle": "Yerel İşletme Kütüphanesi",
+    "searchLibraryDesc": "Ağ pazarlamacıları, bağlı kuruluşlar ve ev girişimcileri bulmak için aşağıdaki aramalara tıklayın. Bu sorgular, iletişim e-postaları olan siteleri döndürmek için optimize edilmiştir.",
+    "searchLibraryMapsDesc": "Sahip e-postaları, iletişim bilgileri ve konum verileri olan yerel işletmeleri bulmak için aşağıdaki aramalara tıklayın.",
+    "libHealthWellness": "Sağlık ve Wellness",
+    "libBeautySkincare": "Güzellik ve Cilt Bakımı",
+    "libBusinessFinance": "İş ve Finans",
+    "libLifestyleHome": "Yaşam Tarzı ve Ev",
+    "libFitness": "Fitness ve Beslenme",
+    "libEcommerce": "E-ticaret ve Dijital",
+    "libFoodDrink": "Yemek ve İçecek",
+    "libHealthFitness": "Sağlık ve Fitness",
+    "libBeautyWellness": "Güzellik ve Wellness",
+    "libHomeServices": "Ev Hizmetleri",
+    "libProfessional": "Profesyonel Hizmetler",
+    "libRetail": "Perakende ve Alışveriş",
+    "proTipTitle": "Pro İpucu",
+    "proTipWeb": "Spesifik marka isimleri en iyi çalışır. \"Herbalife distribütörü Türkiye\" gibi aramalar bireysel distribütör sitelerini bulurken, \"ev iş fırsatı\" gibi belirsiz terimler sadece içerik yayıncılarını döndürür.",
+    "proTipMaps": "Belirli bir şehir eklemek daha keskin sonuçlar verir. En iyi lead'ler için bir meslek (örn. tesisatçılar, dişçiler) ile posta kodu veya mahalle birleştirmeyi deneyin."
   }
 }

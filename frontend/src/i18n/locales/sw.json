@@ -4560,6 +4560,25 @@
     "webSuggest2": "blogu ya masoko ya washirika",
     "webSuggest3": "mshauri doTERRA",
     "webSuggest4": "fursa ya biashara ya nyumbani",
-    "searchingFor": "Inatafuta"
+    "searchingFor": "Inatafuta",
+    "searchLibraryTitle": "Maktaba ya Utafutaji wa Kitaalam",
+    "searchLibraryMapsTitle": "Maktaba ya Biashara za Ndani",
+    "searchLibraryDesc": "Bofya utafutaji wowote hapa chini kupata wauzaji wa mtandao, washirika, na wajasiriamali wa nyumbani. Maswali haya yameboreshwa kurudisha tovuti zenye barua pepe za mawasiliano.",
+    "searchLibraryMapsDesc": "Bofya utafutaji wowote hapa chini kupata biashara za ndani zenye barua pepe za wamiliki, taarifa za mawasiliano, na data ya eneo.",
+    "libHealthWellness": "Afya na Ustawi",
+    "libBeautySkincare": "Urembo na Ngozi",
+    "libBusinessFinance": "Biashara na Fedha",
+    "libLifestyleHome": "Maisha na Nyumbani",
+    "libFitness": "Mazoezi na Lishe",
+    "libEcommerce": "Biashara mtandaoni",
+    "libFoodDrink": "Chakula na Vinywaji",
+    "libHealthFitness": "Afya na Mazoezi",
+    "libBeautyWellness": "Urembo na Ustawi",
+    "libHomeServices": "Huduma za Nyumbani",
+    "libProfessional": "Huduma za Kitaalam",
+    "libRetail": "Rejareja na Ununuzi",
+    "proTipTitle": "Dokezo la Pro",
+    "proTipWeb": "Majina ya chapa mahususi hufanya kazi vizuri zaidi. Utafutaji kama \"msambazaji Herbalife Kenya\" hupata tovuti za wasambazaji binafsi, wakati maneno yasiyoeleweka kama \"fursa ya biashara\" hurudisha tu wachapishaji wa maudhui.",
+    "proTipMaps": "Kuongeza mji mahususi kunatoa matokeo bora. Jaribu kuchanganya kazi (mfano mafundi bomba, madaktari wa meno) na msimbo wa posta au kitongoji kwa viongozi bora."
   }
 }

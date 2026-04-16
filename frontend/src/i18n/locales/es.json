@@ -4350,6 +4350,25 @@
     "webSuggest2": "blog marketing de afiliados",
     "webSuggest3": "consultor doTERRA",
     "webSuggest4": "oportunidad negocio desde casa",
-    "searchingFor": "Buscando"
+    "searchingFor": "Buscando",
+    "searchLibraryTitle": "Biblioteca de Búsqueda Profesional",
+    "searchLibraryMapsTitle": "Biblioteca de Negocios Locales",
+    "searchLibraryDesc": "Haz clic en cualquier búsqueda para encontrar comercializadores de red, afiliados y emprendedores desde casa. Estas consultas están optimizadas para devolver sitios con correos de contacto.",
+    "searchLibraryMapsDesc": "Haz clic en cualquier búsqueda para encontrar negocios locales con correos del propietario, información de contacto y ubicación.",
+    "libHealthWellness": "Salud y Bienestar",
+    "libBeautySkincare": "Belleza y Cuidado",
+    "libBusinessFinance": "Negocios y Finanzas",
+    "libLifestyleHome": "Estilo de Vida y Hogar",
+    "libFitness": "Fitness y Nutrición",
+    "libEcommerce": "E-commerce y Digital",
+    "libFoodDrink": "Comida y Bebida",
+    "libHealthFitness": "Salud y Fitness",
+    "libBeautyWellness": "Belleza y Bienestar",
+    "libHomeServices": "Servicios del Hogar",
+    "libProfessional": "Servicios Profesionales",
+    "libRetail": "Venta y Compras",
+    "proTipTitle": "Consejo Pro",
+    "proTipWeb": "Los nombres de marca específicos funcionan mejor. Búsquedas como \"distribuidor Herbalife España\" encuentran sitios web de distribuidores individuales, mientras que términos vagos como \"oportunidad de negocio\" solo devuelven editores de contenido.",
+    "proTipMaps": "Añadir una ciudad específica da resultados más precisos. Prueba combinando un oficio (p.ej. fontaneros, dentistas) con un código postal o barrio para los mejores leads."
   }
 }

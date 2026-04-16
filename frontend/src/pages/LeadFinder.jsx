@@ -264,25 +264,222 @@ export default function LeadFinder() {
         </div>
       </div>}
 
-      {!loading && !searched && <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', padding: '60px 20px', textAlign: 'center' }}>
-        <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.3 }}>🔍</div>
-        <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 700, color: '#475569' }}>{mode === 'maps' ? t('leadFinder.emptyTitle') : t('leadFinder.emptyTitleWeb')}</div>
-        <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 6, maxWidth: 440, margin: '6px auto 0', lineHeight: 1.6 }}>{mode === 'maps' ? t('leadFinder.emptyDesc') : t('leadFinder.emptyDescWeb')}</div>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 20, flexWrap: 'wrap' }}>
-          {(mode === 'maps' ? [
-            { n: t('leadFinder.suggest1Niche'), l: t('leadFinder.suggest1Loc') },
-            { n: t('leadFinder.suggest2Niche'), l: t('leadFinder.suggest2Loc') },
-            { n: t('leadFinder.suggest3Niche'), l: t('leadFinder.suggest3Loc') },
-            { n: t('leadFinder.suggest4Niche'), l: t('leadFinder.suggest4Loc') },
-          ] : [
-            { n: t('leadFinder.webSuggest1'), l: '' },
-            { n: t('leadFinder.webSuggest2'), l: '' },
-            { n: t('leadFinder.webSuggest3'), l: '' },
-            { n: t('leadFinder.webSuggest4'), l: '' },
-          ]).map(function(s, i) {
-            return <button key={i} onClick={function() { setNiche(s.n); setLocation(s.l); }}
-              style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#f8fafc', fontSize: 12, fontWeight: 600, color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}>{s.l ? s.n + ' · ' + s.l : s.n}</button>;
-          })}
+      {!loading && !searched && <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', padding: '32px 28px', overflow: 'hidden' }}>
+        <div style={{ textAlign: 'center', marginBottom: 24 }}>
+          <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: '#0f172a' }}>{mode === 'web' ? t('leadFinder.searchLibraryTitle') : t('leadFinder.searchLibraryMapsTitle')}</div>
+          <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 6, maxWidth: 520, margin: '6px auto 0', lineHeight: 1.6 }}>{mode === 'web' ? t('leadFinder.searchLibraryDesc') : t('leadFinder.searchLibraryMapsDesc')}</div>
+        </div>
+
+        {mode === 'web' ? (
+          /* Web Search Library — targeted network marketer categories */
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+            {[
+              {
+                title: t('leadFinder.libHealthWellness'),
+                icon: '🌿',
+                color: '#10b981',
+                bg: '#ecfdf5',
+                searches: [
+                  { n: 'Herbalife distributor', l: 'UK' },
+                  { n: 'doTERRA wellness advocate', l: '' },
+                  { n: 'Young Living essential oils', l: '' },
+                  { n: 'Isagenix distributor', l: '' },
+                  { n: 'Plexus ambassador', l: '' },
+                ]
+              },
+              {
+                title: t('leadFinder.libBeautySkincare'),
+                icon: '💄',
+                color: '#ec4899',
+                bg: '#fdf2f8',
+                searches: [
+                  { n: 'Rodan and Fields consultant', l: '' },
+                  { n: 'Mary Kay consultant', l: '' },
+                  { n: 'Avon representative', l: '' },
+                  { n: 'Arbonne consultant', l: '' },
+                  { n: 'Nu Skin distributor', l: '' },
+                ]
+              },
+              {
+                title: t('leadFinder.libBusinessFinance'),
+                icon: '💼',
+                color: '#3b82f6',
+                bg: '#eff6ff',
+                searches: [
+                  { n: 'Primerica agent', l: '' },
+                  { n: 'WFG associate', l: '' },
+                  { n: 'affiliate marketer', l: 'blog' },
+                  { n: 'network marketing coach', l: '' },
+                  { n: 'online business mentor', l: '' },
+                ]
+              },
+              {
+                title: t('leadFinder.libLifestyleHome'),
+                icon: '🏠',
+                color: '#f59e0b',
+                bg: '#fffbeb',
+                searches: [
+                  { n: 'Amway distributor', l: '' },
+                  { n: 'Tupperware consultant', l: '' },
+                  { n: 'Pampered Chef consultant', l: '' },
+                  { n: 'Scentsy consultant', l: '' },
+                  { n: 'Usborne Books consultant', l: '' },
+                ]
+              },
+              {
+                title: t('leadFinder.libFitness'),
+                icon: '💪',
+                color: '#ef4444',
+                bg: '#fef2f2',
+                searches: [
+                  { n: 'Beachbody coach', l: '' },
+                  { n: 'Optavia coach', l: '' },
+                  { n: 'Team BeachBody', l: '' },
+                  { n: 'fitness coach', l: 'blog' },
+                  { n: 'Herbalife nutrition coach', l: '' },
+                ]
+              },
+              {
+                title: t('leadFinder.libEcommerce'),
+                icon: '🛒',
+                color: '#8b5cf6',
+                bg: '#f5f3ff',
+                searches: [
+                  { n: 'dropshipping coach', l: '' },
+                  { n: 'Amazon FBA mentor', l: '' },
+                  { n: 'Shopify store owner', l: 'blog' },
+                  { n: 'Etsy shop owner', l: 'blog' },
+                  { n: 'print on demand', l: 'mentor' },
+                ]
+              },
+            ].map(function(category, ci) {
+              return <div key={ci} style={{ border: '1px solid #e2e8f0', borderRadius: 12, padding: 18, background: '#fff' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, paddingBottom: 12, borderBottom: '1px solid #f1f5f9' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: category.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
+                    {category.icon}
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', fontFamily: "'Sora',sans-serif" }}>{category.title}</div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {category.searches.map(function(s, si) {
+                    return <button key={si} onClick={function() { setNiche(s.n); setLocation(s.l); }}
+                      style={{ textAlign: 'left', padding: '8px 12px', borderRadius: 8, border: '1px solid transparent', background: '#f8fafc', fontSize: 12, fontWeight: 600, color: '#475569', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6, transition: 'all .15s' }}
+                      onMouseEnter={function(e) { e.currentTarget.style.background = category.bg; e.currentTarget.style.color = category.color; e.currentTarget.style.borderColor = category.color + '40'; }}
+                      onMouseLeave={function(e) { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = 'transparent'; }}>
+                      <span style={{ opacity: 0.5, fontSize: 11 }}>→</span> {s.n}{s.l ? ' · ' + s.l : ''}
+                    </button>;
+                  })}
+                </div>
+              </div>;
+            })}
+          </div>
+        ) : (
+          /* Maps Search Library — local business categories */
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+            {[
+              {
+                title: t('leadFinder.libFoodDrink'),
+                icon: '🍴',
+                color: '#ef4444',
+                bg: '#fef2f2',
+                searches: [
+                  { n: 'Restaurants', l: 'London' },
+                  { n: 'Cafes', l: 'Manchester' },
+                  { n: 'Bars', l: 'New York' },
+                  { n: 'Pizzerias', l: 'Sydney' },
+                  { n: 'Bakeries', l: 'Paris' },
+                ]
+              },
+              {
+                title: t('leadFinder.libHealthFitness'),
+                icon: '💪',
+                color: '#10b981',
+                bg: '#ecfdf5',
+                searches: [
+                  { n: 'Gyms', l: 'Dubai' },
+                  { n: 'Personal trainers', l: 'Miami' },
+                  { n: 'Yoga studios', l: 'Los Angeles' },
+                  { n: 'Chiropractors', l: 'Toronto' },
+                  { n: 'Physiotherapists', l: 'Melbourne' },
+                ]
+              },
+              {
+                title: t('leadFinder.libBeautyWellness'),
+                icon: '💄',
+                color: '#ec4899',
+                bg: '#fdf2f8',
+                searches: [
+                  { n: 'Hair salons', l: 'Birmingham' },
+                  { n: 'Beauty salons', l: 'Glasgow' },
+                  { n: 'Nail salons', l: 'Dublin' },
+                  { n: 'Spas', l: 'Bristol' },
+                  { n: 'Barber shops', l: 'Edinburgh' },
+                ]
+              },
+              {
+                title: t('leadFinder.libHomeServices'),
+                icon: '🔧',
+                color: '#f59e0b',
+                bg: '#fffbeb',
+                searches: [
+                  { n: 'Plumbers', l: 'Leeds' },
+                  { n: 'Electricians', l: 'Liverpool' },
+                  { n: 'Cleaners', l: 'Sheffield' },
+                  { n: 'Landscapers', l: 'Newcastle' },
+                  { n: 'Painters', l: 'Cardiff' },
+                ]
+              },
+              {
+                title: t('leadFinder.libProfessional'),
+                icon: '💼',
+                color: '#3b82f6',
+                bg: '#eff6ff',
+                searches: [
+                  { n: 'Estate agents', l: 'London' },
+                  { n: 'Accountants', l: 'Manchester' },
+                  { n: 'Law firms', l: 'Edinburgh' },
+                  { n: 'Marketing agencies', l: 'Leeds' },
+                  { n: 'Financial advisors', l: 'Birmingham' },
+                ]
+              },
+              {
+                title: t('leadFinder.libRetail'),
+                icon: '🛍️',
+                color: '#8b5cf6',
+                bg: '#f5f3ff',
+                searches: [
+                  { n: 'Boutiques', l: 'Brighton' },
+                  { n: 'Jewellers', l: 'Cambridge' },
+                  { n: 'Bookshops', l: 'Oxford' },
+                  { n: 'Florists', l: 'York' },
+                  { n: 'Pet shops', l: 'Bath' },
+                ]
+              },
+            ].map(function(category, ci) {
+              return <div key={ci} style={{ border: '1px solid #e2e8f0', borderRadius: 12, padding: 18, background: '#fff' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 14, paddingBottom: 12, borderBottom: '1px solid #f1f5f9' }}>
+                  <div style={{ width: 36, height: 36, borderRadius: 10, background: category.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18 }}>
+                    {category.icon}
+                  </div>
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', fontFamily: "'Sora',sans-serif" }}>{category.title}</div>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {category.searches.map(function(s, si) {
+                    return <button key={si} onClick={function() { setNiche(s.n); setLocation(s.l); }}
+                      style={{ textAlign: 'left', padding: '8px 12px', borderRadius: 8, border: '1px solid transparent', background: '#f8fafc', fontSize: 12, fontWeight: 600, color: '#475569', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6, transition: 'all .15s' }}
+                      onMouseEnter={function(e) { e.currentTarget.style.background = category.bg; e.currentTarget.style.color = category.color; e.currentTarget.style.borderColor = category.color + '40'; }}
+                      onMouseLeave={function(e) { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = 'transparent'; }}>
+                      <span style={{ opacity: 0.5, fontSize: 11 }}>→</span> {s.n}{s.l ? ' · ' + s.l : ''}
+                    </button>;
+                  })}
+                </div>
+              </div>;
+            })}
+          </div>
+        )}
+
+        <div style={{ marginTop: 24, padding: '14px 18px', background: 'linear-gradient(135deg,#fef3c7,#fde68a)', borderRadius: 10, border: '1px solid #f59e0b30', fontSize: 12, color: '#92400e', lineHeight: 1.6 }}>
+          <strong>💡 {t('leadFinder.proTipTitle')}:</strong> {mode === 'web' ? t('leadFinder.proTipWeb') : t('leadFinder.proTipMaps')}
         </div>
       </div>}
 

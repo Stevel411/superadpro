@@ -4560,6 +4560,25 @@
     "webSuggest2": "アフィリエイトマーケティングブログ",
     "webSuggest3": "doTERRAコンサルタント",
     "webSuggest4": "在宅ビジネス機会",
-    "searchingFor": "検索中"
+    "searchingFor": "検索中",
+    "searchLibraryTitle": "プロフェッショナル検索ライブラリ",
+    "searchLibraryMapsTitle": "ローカルビジネスライブラリ",
+    "searchLibraryDesc": "下記の検索をクリックして、ネットワークマーケター、アフィリエイト、在宅起業家を見つけましょう。これらのクエリは、連絡可能なメールのあるサイトを返すように最適化されています。",
+    "searchLibraryMapsDesc": "下記の検索をクリックして、オーナーのメール、連絡先情報、位置データを持つローカルビジネスを見つけましょう。",
+    "libHealthWellness": "健康とウェルネス",
+    "libBeautySkincare": "美容とスキンケア",
+    "libBusinessFinance": "ビジネスと金融",
+    "libLifestyleHome": "ライフスタイルと家",
+    "libFitness": "フィットネスと栄養",
+    "libEcommerce": "Eコマースとデジタル",
+    "libFoodDrink": "食品と飲料",
+    "libHealthFitness": "健康とフィットネス",
+    "libBeautyWellness": "美容とウェルネス",
+    "libHomeServices": "ホームサービス",
+    "libProfessional": "プロフェッショナルサービス",
+    "libRetail": "小売とショッピング",
+    "proTipTitle": "プロのヒント",
+    "proTipWeb": "特定のブランド名が最も効果的です。「Herbalifeディストリビューター日本」のような検索は個別のディストリビューターサイトを見つけますが、「ビジネスチャンス」のような曖昧な用語はコンテンツパブリッシャーのみを返します。",
+    "proTipMaps": "特定の都市を追加するとより鮮明な結果が得られます。最良のリードを得るために、職業（例：配管工、歯科医）と郵便番号または地区を組み合わせてみてください。"
   }
 }

@@ -4307,6 +4307,25 @@
     "webSuggest2": "affiliate marketer blog",
     "webSuggest3": "doTERRA consultant",
     "webSuggest4": "home business opportunity",
-    "searchingFor": "Searching for"
+    "searchingFor": "Searching for",
+    "searchLibraryTitle": "Professional Search Library",
+    "searchLibraryMapsTitle": "Local Business Search Library",
+    "searchLibraryDesc": "Click any search below to find network marketers, affiliates, and home-based business owners. These queries are optimised to return sites with contactable emails.",
+    "searchLibraryMapsDesc": "Click any search below to find local businesses with owner emails, contact info, and location data.",
+    "libHealthWellness": "Health & Wellness",
+    "libBeautySkincare": "Beauty & Skincare",
+    "libBusinessFinance": "Business & Finance",
+    "libLifestyleHome": "Lifestyle & Home",
+    "libFitness": "Fitness & Nutrition",
+    "libEcommerce": "E-commerce & Digital",
+    "libFoodDrink": "Food & Drink",
+    "libHealthFitness": "Health & Fitness",
+    "libBeautyWellness": "Beauty & Wellness",
+    "libHomeServices": "Home Services",
+    "libProfessional": "Professional Services",
+    "libRetail": "Retail & Shopping",
+    "proTipTitle": "Pro Tip",
+    "proTipWeb": "Specific brand names work best. Searches like \"Herbalife distributor UK\" will find individual distributor websites, whereas vague terms like \"home business opportunity\" just return content publishers.",
+    "proTipMaps": "Adding a specific city gives sharper results. Try combining a trade (e.g. plumbers, dentists) with a postcode or neighbourhood for the best leads."
   }
 }

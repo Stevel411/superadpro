@@ -4560,6 +4560,25 @@
     "webSuggest2": "blog pemasaran afiliasi",
     "webSuggest3": "konsultan doTERRA",
     "webSuggest4": "peluang bisnis rumahan",
-    "searchingFor": "Mencari"
+    "searchingFor": "Mencari",
+    "searchLibraryTitle": "Pustaka Pencarian Profesional",
+    "searchLibraryMapsTitle": "Pustaka Bisnis Lokal",
+    "searchLibraryDesc": "Klik pencarian apa pun di bawah ini untuk menemukan pemasar jaringan, afiliasi, dan pengusaha rumahan. Kueri ini dioptimalkan untuk mengembalikan situs dengan email yang dapat dihubungi.",
+    "searchLibraryMapsDesc": "Klik pencarian apa pun di bawah ini untuk menemukan bisnis lokal dengan email pemilik, informasi kontak, dan data lokasi.",
+    "libHealthWellness": "Kesehatan & Kesejahteraan",
+    "libBeautySkincare": "Kecantikan & Perawatan",
+    "libBusinessFinance": "Bisnis & Keuangan",
+    "libLifestyleHome": "Gaya Hidup & Rumah",
+    "libFitness": "Kebugaran & Nutrisi",
+    "libEcommerce": "E-commerce & Digital",
+    "libFoodDrink": "Makanan & Minuman",
+    "libHealthFitness": "Kesehatan & Kebugaran",
+    "libBeautyWellness": "Kecantikan & Kesejahteraan",
+    "libHomeServices": "Layanan Rumah",
+    "libProfessional": "Layanan Profesional",
+    "libRetail": "Retail & Belanja",
+    "proTipTitle": "Tip Pro",
+    "proTipWeb": "Nama merek spesifik bekerja paling baik. Pencarian seperti \"distributor Herbalife Indonesia\" menemukan situs web distributor individu, sedangkan istilah samar seperti \"peluang bisnis\" hanya mengembalikan penerbit konten.",
+    "proTipMaps": "Menambahkan kota tertentu memberikan hasil yang lebih tajam. Coba kombinasikan pekerjaan (misalnya tukang ledeng, dokter gigi) dengan kode pos atau lingkungan untuk lead terbaik."
   }
 }

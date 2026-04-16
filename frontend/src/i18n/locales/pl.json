@@ -4560,6 +4560,25 @@
     "webSuggest2": "blog marketing afiliacyjny",
     "webSuggest3": "konsultant doTERRA",
     "webSuggest4": "biznes w domu możliwość",
-    "searchingFor": "Wyszukiwanie"
+    "searchingFor": "Wyszukiwanie",
+    "searchLibraryTitle": "Profesjonalna Biblioteka Wyszukiwania",
+    "searchLibraryMapsTitle": "Biblioteka Lokalnych Firm",
+    "searchLibraryDesc": "Kliknij dowolne wyszukiwanie poniżej, aby znaleźć marketerów sieciowych, partnerów i przedsiębiorców domowych. Te zapytania są zoptymalizowane, aby zwracać strony z kontaktowymi adresami e-mail.",
+    "searchLibraryMapsDesc": "Kliknij dowolne wyszukiwanie poniżej, aby znaleźć lokalne firmy z e-mailami właścicieli, informacjami kontaktowymi i danymi lokalizacji.",
+    "libHealthWellness": "Zdrowie i Wellness",
+    "libBeautySkincare": "Uroda i Pielęgnacja",
+    "libBusinessFinance": "Biznes i Finanse",
+    "libLifestyleHome": "Styl Życia i Dom",
+    "libFitness": "Fitness i Żywienie",
+    "libEcommerce": "E-commerce i Cyfrowe",
+    "libFoodDrink": "Jedzenie i Napoje",
+    "libHealthFitness": "Zdrowie i Fitness",
+    "libBeautyWellness": "Uroda i Wellness",
+    "libHomeServices": "Usługi Domowe",
+    "libProfessional": "Usługi Profesjonalne",
+    "libRetail": "Handel i Zakupy",
+    "proTipTitle": "Pro Tip",
+    "proTipWeb": "Konkretne nazwy marek działają najlepiej. Wyszukiwania jak \"dystrybutor Herbalife Polska\" znajdują indywidualne strony dystrybutorów, podczas gdy niejasne terminy jak \"możliwość biznesu\" zwracają tylko wydawców treści.",
+    "proTipMaps": "Dodanie konkretnego miasta daje ostrzejsze wyniki. Spróbuj połączyć zawód (np. hydraulicy, dentyści) z kodem pocztowym lub dzielnicą, aby uzyskać najlepsze leady."
   }
 }

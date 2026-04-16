@@ -4560,6 +4560,25 @@
     "webSuggest2": "blog marketing di affiliazione",
     "webSuggest3": "consulente doTERRA",
     "webSuggest4": "opportunità business da casa",
-    "searchingFor": "Ricerca di"
+    "searchingFor": "Ricerca di",
+    "searchLibraryTitle": "Biblioteca di Ricerca Professionale",
+    "searchLibraryMapsTitle": "Biblioteca Attività Locali",
+    "searchLibraryDesc": "Clicca su una ricerca sotto per trovare marketer di rete, affiliati e imprenditori da casa. Queste query sono ottimizzate per restituire siti con email di contatto.",
+    "searchLibraryMapsDesc": "Clicca su una ricerca sotto per trovare attività locali con email del proprietario, info di contatto e posizione.",
+    "libHealthWellness": "Salute e Benessere",
+    "libBeautySkincare": "Bellezza e Cura",
+    "libBusinessFinance": "Business e Finanza",
+    "libLifestyleHome": "Stile di Vita e Casa",
+    "libFitness": "Fitness e Nutrizione",
+    "libEcommerce": "E-commerce e Digital",
+    "libFoodDrink": "Cibo e Bevande",
+    "libHealthFitness": "Salute e Fitness",
+    "libBeautyWellness": "Bellezza e Benessere",
+    "libHomeServices": "Servizi per la Casa",
+    "libProfessional": "Servizi Professionali",
+    "libRetail": "Vendita e Shopping",
+    "proTipTitle": "Pro Tip",
+    "proTipWeb": "I nomi di brand specifici funzionano meglio. Ricerche come \"distributore Herbalife Italia\" trovano siti di distributori individuali, mentre termini vaghi come \"opportunità business\" restituiscono solo editori di contenuti.",
+    "proTipMaps": "Aggiungere una città specifica dà risultati più precisi. Prova a combinare un mestiere (es. idraulici, dentisti) con un CAP o quartiere per i migliori lead."
   }
 }

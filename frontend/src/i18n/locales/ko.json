@@ -4560,6 +4560,25 @@
     "webSuggest2": "제휴 마케팅 블로그",
     "webSuggest3": "doTERRA 컨설턴트",
     "webSuggest4": "재택 비즈니스 기회",
-    "searchingFor": "검색 중"
+    "searchingFor": "검색 중",
+    "searchLibraryTitle": "전문 검색 라이브러리",
+    "searchLibraryMapsTitle": "지역 비즈니스 라이브러리",
+    "searchLibraryDesc": "아래의 검색을 클릭하여 네트워크 마케터, 제휴자 및 재택 기업가를 찾으세요. 이러한 쿼리는 연락 가능한 이메일이 있는 사이트를 반환하도록 최적화되었습니다.",
+    "searchLibraryMapsDesc": "아래의 검색을 클릭하여 소유자 이메일, 연락처 정보 및 위치 데이터가 있는 지역 비즈니스를 찾으세요.",
+    "libHealthWellness": "건강 및 웰빙",
+    "libBeautySkincare": "뷰티 및 스킨케어",
+    "libBusinessFinance": "비즈니스 및 금융",
+    "libLifestyleHome": "라이프스타일 및 홈",
+    "libFitness": "피트니스 및 영양",
+    "libEcommerce": "이커머스 및 디지털",
+    "libFoodDrink": "음식 및 음료",
+    "libHealthFitness": "건강 및 피트니스",
+    "libBeautyWellness": "뷰티 및 웰빙",
+    "libHomeServices": "홈 서비스",
+    "libProfessional": "전문 서비스",
+    "libRetail": "소매 및 쇼핑",
+    "proTipTitle": "프로 팁",
+    "proTipWeb": "특정 브랜드명이 가장 효과적입니다. \"Herbalife 유통업체 한국\"과 같은 검색은 개별 유통업체 사이트를 찾지만, \"비즈니스 기회\"와 같은 모호한 용어는 콘텐츠 게시자만 반환합니다.",
+    "proTipMaps": "특정 도시를 추가하면 더 선명한 결과를 얻을 수 있습니다. 최고의 리드를 위해 직업(예: 배관공, 치과 의사)과 우편 번호 또는 동네를 결합해보세요."
   }
 }
