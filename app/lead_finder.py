@@ -200,7 +200,7 @@ def _sanitise_description(s: str) -> str:
     return s[:100]
 
 
-
+async def _api_get(client: httpx.AsyncClient, path: str, params: dict, max_retries: int = 5) -> dict:
     """Call Outscraper API with retry on 503 / network errors (Railway + Outscraper both flaky)."""
     last_error = None
     for attempt in range(max_retries):
