@@ -61,6 +61,21 @@ export default function PlatformTour() {
   var SECTIONS = getSections(t);
   var s = SECTIONS[activeIdx];
 
+  // Preload all tour videos in the background so switching is instant
+  useEffect(function() {
+    var videoUrls = SECTIONS.map(function(sec) { return sec.videoSrc; }).filter(Boolean);
+    var links = videoUrls.map(function(url) {
+      var link = document.createElement('link');
+      link.rel = 'preload';
+      link.as = 'video';
+      link.href = url;
+      link.type = 'video/mp4';
+      document.head.appendChild(link);
+      return link;
+    });
+    return function() { links.forEach(function(l) { try { document.head.removeChild(l); } catch(e) {} }); };
+  }, []);
+
   return (
     <AppLayout title={t("platformTour.title")} subtitle={t("platformTour.subtitle")}>
 
@@ -120,9 +135,8 @@ export default function PlatformTour() {
             <video
               key={s.id}
               controls
-              preload="metadata"
+              preload="auto"
               style={{ width: '100%', height: '100%', borderRadius: 14, display: 'block' }}
-              poster=""
             >
               <source src={s.videoSrc} type="video/mp4"/>
               Your browser does not support the video tag.
