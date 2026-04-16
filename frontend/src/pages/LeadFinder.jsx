@@ -188,7 +188,9 @@ export default function LeadFinder() {
 
       {loading && <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', padding: '60px 20px', textAlign: 'center' }}>
         <div style={{ width: 40, height: 40, border: '3px solid #e5e7eb', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin .8s linear infinite', margin: '0 auto 16px' }}/>
-        <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 700, color: '#0f172a' }}>{t('leadFinder.searchingMaps')}</div>
+        <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 700, color: '#0f172a' }}>
+          {t('leadFinder.searchingFor')} "<span style={{ color: '#8b5cf6' }}>{niche}{mode === 'maps' && location ? ' · ' + location : ''}</span>"
+        </div>
         <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 6 }}>{t('leadFinder.searchingTime')}</div>
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>}
