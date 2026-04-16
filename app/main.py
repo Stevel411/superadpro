@@ -23440,6 +23440,11 @@ async def api_lead_finder_import(request: Request,
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
+    # Pro-only (AutoResponder is Pro feature)
+    tier = (user.membership_tier or "").lower()
+    if tier not in ("pro", "admin") and not user.is_admin:
+        return JSONResponse({"error": "AutoResponder is a Pro feature. Upgrade to import leads."}, status_code=403)
+
     data = await request.json()
     leads = data.get("leads", [])
     list_name = data.get("list_name", "Imported Leads")
@@ -23450,44 +23455,90 @@ async def api_lead_finder_import(request: Request,
     if len(leads) > 50:
         return JSONResponse({"error": "Maximum 50 leads per import."}, status_code=400)
 
+    # Import the required models
+    from .database import MemberLead, LeadList
+
+    # Check lead limit
+    current_count = db.query(MemberLead).filter(MemberLead.user_id == user.id).count()
+    limit = _lead_limit(user)
+    remaining = max(0, limit - current_count)
+
+    if remaining == 0:
+        return JSONResponse({
+            "error": f"Lead limit reached ({limit}). Delete existing leads or upgrade your plan.",
+            "limit": limit, "current": current_count
+        }, status_code=400)
+
     # Create a new lead list
     lead_list = LeadList(
         user_id=user.id,
         name=list_name[:100],
         description=f"Imported from Lead Finder on {datetime.utcnow().strftime('%d %b %Y')}",
+        color="#8b5cf6",  # purple to match Lead Finder branding
     )
     db.add(lead_list)
     db.flush()
 
     imported = 0
-    for lead in leads:
-        email = (lead.get("email") or "").strip()
+    skipped = 0
+    for lead in leads[:remaining]:  # Respect lead limit
+        email = (lead.get("email") or "").strip().lower()
         if not email or "@" not in email:
-            continue  # Skip leads without email
+            skipped += 1
+            continue
 
-        # Check for duplicates in this user's leads
+        # Check for duplicates
         existing = db.query(MemberLead).filter(
             MemberLead.user_id == user.id,
             MemberLead.email == email
         ).first()
         if existing:
+            skipped += 1
             continue
+
+        # Build name from business name (could be enhanced)
+        lead_name = (lead.get("name") or "").strip()[:200]
 
         new_lead = MemberLead(
             user_id=user.id,
-            list_id=lead_list.id,
-            first_name=lead.get("name", "")[:50],
-            last_name="",
             email=email,
-            phone=lead.get("phone", "")[:30],
-            company=lead.get("name", "")[:100],
-            source="lead_finder",
-            tags="lead-finder," + lead.get("category", "")[:50],
+            name=lead_name,
+            list_id=lead_list.id,
+            source_url=f"Lead Finder: {lead.get('website', '') or lead.get('category', '') or 'imported'}"[:250],
+            status="new",
         )
         db.add(new_lead)
         imported += 1
 
+    # Update the lead_count on the list
+    lead_list.lead_count = imported
+
     db.commit()
 
-    return {"success": True, "imported": imported, "skipped": len(leads) - imported,
-            "list_id": lead_list.id, "list_name": list_name}
+    # Sync to Brevo in background (non-blocking)
+    if imported > 0:
+        try:
+            from .brevo_service import create_brevo_contact
+            new_leads = db.query(MemberLead).filter(
+                MemberLead.user_id == user.id,
+                MemberLead.list_id == lead_list.id,
+                MemberLead.brevo_contact_id == None,
+            ).limit(imported).all()
+            for nl in new_leads:
+                try:
+                    contact_id = await create_brevo_contact(nl.email, nl.name or "")
+                    if contact_id:
+                        nl.brevo_contact_id = str(contact_id)
+                except Exception:
+                    pass
+            db.commit()
+        except Exception as e:
+            logger.warning(f"Brevo sync skipped: {e}")
+
+    return {
+        "success": True,
+        "imported": imported,
+        "skipped": skipped + (len(leads) - min(len(leads), remaining)),
+        "list_id": lead_list.id,
+        "list_name": lead_list.name,
+    }
