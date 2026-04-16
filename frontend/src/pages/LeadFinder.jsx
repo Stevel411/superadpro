@@ -8,7 +8,7 @@ import { Search, MapPin, Download, Upload, Star, Phone, Globe, Mail, Building2, 
 export default function LeadFinder() {
   var { t } = useTranslation();
   var { user } = useAuth();
-  var [mode, setMode] = useState('maps'); // 'maps' for local businesses, 'web' for network marketers
+  var [mode, setMode] = useState('web'); // 'web' for network marketers (primary), 'maps' for local businesses
   var [niche, setNiche] = useState('');
   var [location, setLocation] = useState('');
   var [results, setResults] = useState([]);
@@ -133,21 +133,21 @@ export default function LeadFinder() {
           <div style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,.4)' }}>{t('leadFinder.searchesToday')}: {10 - remaining}/10</div>
         </div>
 
-        {/* Mode toggle */}
+        {/* Mode toggle - Web Search is primary (first) for network marketers */}
         <div style={{ display: 'flex', gap: 6, marginBottom: 12, background: 'rgba(0,0,0,.2)', padding: 4, borderRadius: 10, border: '1px solid rgba(255,255,255,.08)' }}>
-          <button onClick={function() { setMode('maps'); setSearched(false); setResults([]); }}
-            style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
-              background: mode === 'maps' ? 'linear-gradient(135deg,#8b5cf6,#7c3aed)' : 'transparent',
-              color: mode === 'maps' ? '#fff' : 'rgba(255,255,255,.5)',
-              fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all .15s' }}>
-            <Building2 size={13}/> {t('leadFinder.modeLocalBusinesses')}
-          </button>
           <button onClick={function() { setMode('web'); setSearched(false); setResults([]); }}
             style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
               background: mode === 'web' ? 'linear-gradient(135deg,#8b5cf6,#7c3aed)' : 'transparent',
               color: mode === 'web' ? '#fff' : 'rgba(255,255,255,.5)',
               fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all .15s' }}>
             <Globe size={13}/> {t('leadFinder.modeWebSearch')}
+          </button>
+          <button onClick={function() { setMode('maps'); setSearched(false); setResults([]); }}
+            style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+              background: mode === 'maps' ? 'linear-gradient(135deg,#8b5cf6,#7c3aed)' : 'transparent',
+              color: mode === 'maps' ? '#fff' : 'rgba(255,255,255,.5)',
+              fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all .15s' }}>
+            <Building2 size={13}/> {t('leadFinder.modeLocalBusinesses')}
           </button>
         </div>
 
