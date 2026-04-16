@@ -4549,6 +4549,16 @@
     "suggest3Niche": "Vituo vya mazoezi",
     "suggest3Loc": "Mombasa",
     "suggest4Niche": "Madaktari wa meno",
-    "suggest4Loc": "Kampala"
+    "suggest4Loc": "Kampala",
+    "modeLocalBusinesses": "Biashara za ndani",
+    "modeWebSearch": "Utafutaji wa wavuti",
+    "searchWebDesc": "Tafuta kwenye wavuti wauzaji wa mtandao, washirika na biashara za nyumbani",
+    "webNichePlaceholder": "mf. Msambazaji Herbalife, muuzaji shirika, mkufunzi MLM...",
+    "emptyTitleWeb": "Pata wauzaji na biashara mtandaoni",
+    "emptyDescWeb": "Tafuta wauzaji wa mtandao, washirika, wakufunzi na biashara mtandaoni. Inarudisha tovuti zenye anwani za barua pepe zilizotolewa.",
+    "webSuggest1": "msambazaji Herbalife Kenya",
+    "webSuggest2": "blogu ya masoko ya washirika",
+    "webSuggest3": "mshauri doTERRA",
+    "webSuggest4": "fursa ya biashara ya nyumbani"
   }
 }

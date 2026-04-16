@@ -4549,6 +4549,16 @@
     "suggest3Niche": "صالات رياضية",
     "suggest3Loc": "القاهرة",
     "suggest4Niche": "أطباء أسنان",
-    "suggest4Loc": "جدة"
+    "suggest4Loc": "جدة",
+    "modeLocalBusinesses": "الشركات المحلية",
+    "modeWebSearch": "البحث في الويب",
+    "searchWebDesc": "ابحث في الويب عن مسوقي الشبكات والشركاء والأعمال المنزلية",
+    "webNichePlaceholder": "مثل موزع Herbalife، مسوق بالعمولة، مدرب MLM...",
+    "emptyTitleWeb": "اعثر على المسوقين والأعمال عبر الإنترنت",
+    "emptyDescWeb": "ابحث عن مسوقي الشبكات والشركاء والمدربين والأعمال عبر الإنترنت. يعيد مواقع الويب مع عناوين البريد الإلكتروني المستخرجة.",
+    "webSuggest1": "موزع Herbalife الإمارات",
+    "webSuggest2": "مدونة التسويق بالعمولة",
+    "webSuggest3": "مستشار doTERRA",
+    "webSuggest4": "فرصة عمل من المنزل"
   }
 }

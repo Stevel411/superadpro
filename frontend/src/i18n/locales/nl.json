@@ -4549,6 +4549,16 @@
     "suggest3Niche": "Sportscholen",
     "suggest3Loc": "Utrecht",
     "suggest4Niche": "Tandartsen",
-    "suggest4Loc": "Den Haag"
+    "suggest4Loc": "Den Haag",
+    "modeLocalBusinesses": "Lokale bedrijven",
+    "modeWebSearch": "Web zoeken",
+    "searchWebDesc": "Zoek op het web naar netwerkmarketeers, affiliates en thuisbedrijven",
+    "webNichePlaceholder": "bv. Herbalife distributeur, affiliate marketer, MLM coach...",
+    "emptyTitleWeb": "Vind marketeers en online bedrijven",
+    "emptyDescWeb": "Zoek netwerkmarketeers, affiliates, coaches en online bedrijven. Retourneert websites met geëxtraheerde e-mailadressen.",
+    "webSuggest1": "Herbalife distributeur Nederland",
+    "webSuggest2": "affiliate marketing blog",
+    "webSuggest3": "doTERRA consultant",
+    "webSuggest4": "thuiswerk mogelijkheid"
   }
 }

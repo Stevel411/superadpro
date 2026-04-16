@@ -4549,6 +4549,16 @@
     "suggest3Niche": "Phòng tập gym",
     "suggest3Loc": "Đà Nẵng",
     "suggest4Niche": "Nha sĩ",
-    "suggest4Loc": "Hải Phòng"
+    "suggest4Loc": "Hải Phòng",
+    "modeLocalBusinesses": "Doanh nghiệp địa phương",
+    "modeWebSearch": "Tìm kiếm web",
+    "searchWebDesc": "Tìm kiếm trên web các nhà tiếp thị mạng, đối tác và doanh nghiệp tại nhà",
+    "webNichePlaceholder": "ví dụ: Nhà phân phối Herbalife, nhà tiếp thị liên kết, huấn luyện viên MLM...",
+    "emptyTitleWeb": "Tìm nhà tiếp thị và doanh nghiệp trực tuyến",
+    "emptyDescWeb": "Tìm kiếm nhà tiếp thị mạng, đối tác, huấn luyện viên và doanh nghiệp trực tuyến. Trả về các trang web với địa chỉ email được trích xuất.",
+    "webSuggest1": "nhà phân phối Herbalife Việt Nam",
+    "webSuggest2": "blog tiếp thị liên kết",
+    "webSuggest3": "tư vấn doTERRA",
+    "webSuggest4": "cơ hội kinh doanh tại nhà"
   }
 }

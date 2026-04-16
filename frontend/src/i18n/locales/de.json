@@ -4549,6 +4549,16 @@
     "suggest3Niche": "Fitnessstudios",
     "suggest3Loc": "Hamburg",
     "suggest4Niche": "Zahnärzte",
-    "suggest4Loc": "Köln"
+    "suggest4Loc": "Köln",
+    "modeLocalBusinesses": "Lokale Unternehmen",
+    "modeWebSearch": "Websuche",
+    "searchWebDesc": "Suchen Sie im Web nach Netzwerk-Marketern, Affiliates und Heimgeschäften",
+    "webNichePlaceholder": "z.B. Herbalife Berater, Affiliate-Marketer, MLM-Coach...",
+    "emptyTitleWeb": "Finden Sie Marketer und Online-Unternehmen",
+    "emptyDescWeb": "Suchen Sie nach Netzwerk-Marketern, Affiliates, Coaches und Online-Unternehmen. Gibt Websites mit extrahierten E-Mail-Adressen zurück.",
+    "webSuggest1": "Herbalife Berater Deutschland",
+    "webSuggest2": "Affiliate Marketing Blog",
+    "webSuggest3": "doTERRA Berater",
+    "webSuggest4": "Heimgeschäft Möglichkeit"
   }
 }

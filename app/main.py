@@ -23369,7 +23369,7 @@ def lead_finder_page(request: Request):
 async def api_lead_finder_search(request: Request,
                                   user: User = Depends(get_current_user),
                                   db: Session = Depends(get_db)):
-    """Search for business leads by niche and location."""
+    """Search for business leads by niche and location (maps mode) or keywords (web mode)."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
@@ -23381,11 +23381,18 @@ async def api_lead_finder_search(request: Request,
     data = await request.json()
     niche = (data.get("niche") or "").strip()
     location = (data.get("location") or "").strip()
+    mode = (data.get("mode") or "maps").strip().lower()
+    if mode not in ("maps", "web"):
+        mode = "maps"
 
-    if not niche or not location:
+    if not niche:
+        return JSONResponse({"error": "Please enter a search term."}, status_code=400)
+
+    # For maps mode, location is required. For web mode, it's optional
+    if mode == "maps" and not location:
         return JSONResponse({"error": "Please enter both a niche and location."}, status_code=400)
 
-    if len(niche) > 100 or len(location) > 100:
+    if len(niche) > 200 or len(location) > 100:
         return JSONResponse({"error": "Search terms too long."}, status_code=400)
 
     from .lead_finder import _check_rate_limit, _increment_rate_limit, _get_cached, _set_cache, search_businesses, get_locale_for_country
@@ -23395,11 +23402,14 @@ async def api_lead_finder_search(request: Request,
     if not allowed:
         return JSONResponse({"error": "Daily search limit reached (10/day). Try again tomorrow.", "remaining": 0}, status_code=429)
 
+    # Build query string for display
+    query_display = f"{niche} in {location}" if (mode == "maps" and location) else niche
+
     # Check cache first
-    cached = _get_cached(niche, location)
+    cached = _get_cached(mode, niche, location)
     if cached is not None:
         return {"success": True, "results": cached, "count": len(cached),
-                "cached": True, "remaining": remaining, "query": f"{niche} in {location}"}
+                "cached": True, "remaining": remaining, "query": query_display, "mode": mode}
 
     # Run the scraper with user's locale
     _increment_rate_limit(user.id)
@@ -23408,10 +23418,10 @@ async def api_lead_finder_search(request: Request,
     locale, lang = get_locale_for_country(user.country or "")
 
     try:
-        results = await search_businesses(niche, location, locale=locale, lang=lang)
-        _set_cache(niche, location, results)
+        results = await search_businesses(niche, location, locale=locale, lang=lang, mode=mode)
+        _set_cache(mode, niche, location, results)
         return {"success": True, "results": results, "count": len(results),
-                "cached": False, "remaining": remaining, "query": f"{niche} in {location}"}
+                "cached": False, "remaining": remaining, "query": query_display, "mode": mode}
     except Exception as e:
         logger.error(f"Lead Finder error: {e}")
         return JSONResponse({"error": "Search failed. Please try again."}, status_code=500)

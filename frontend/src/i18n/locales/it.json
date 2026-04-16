@@ -4549,6 +4549,16 @@
     "suggest3Niche": "Palestre",
     "suggest3Loc": "Napoli",
     "suggest4Niche": "Dentisti",
-    "suggest4Loc": "Torino"
+    "suggest4Loc": "Torino",
+    "modeLocalBusinesses": "Attività locali",
+    "modeWebSearch": "Ricerca web",
+    "searchWebDesc": "Cerca sul web marketer di rete, affiliati e attività da casa",
+    "webNichePlaceholder": "es. Distributore Herbalife, marketer affiliato, coach MLM...",
+    "emptyTitleWeb": "Trova marketer e attività online",
+    "emptyDescWeb": "Cerca marketer di rete, affiliati, coach e attività online. Restituisce siti web con indirizzi email estratti.",
+    "webSuggest1": "distributore Herbalife Italia",
+    "webSuggest2": "blog marketing di affiliazione",
+    "webSuggest3": "consulente doTERRA",
+    "webSuggest4": "opportunità business da casa"
   }
 }

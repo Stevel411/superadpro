@@ -4549,6 +4549,16 @@
     "suggest3Niche": "ฟิตเนส",
     "suggest3Loc": "ภูเก็ต",
     "suggest4Niche": "ทันตแพทย์",
-    "suggest4Loc": "พัทยา"
+    "suggest4Loc": "พัทยา",
+    "modeLocalBusinesses": "ธุรกิจท้องถิ่น",
+    "modeWebSearch": "ค้นหาเว็บ",
+    "searchWebDesc": "ค้นหานักการตลาดเครือข่าย พันธมิตร และธุรกิจที่บ้านบนเว็บ",
+    "webNichePlaceholder": "เช่น ตัวแทนจำหน่าย Herbalife, นักการตลาดพันธมิตร, โค้ช MLM...",
+    "emptyTitleWeb": "ค้นหานักการตลาดและธุรกิจออนไลน์",
+    "emptyDescWeb": "ค้นหานักการตลาดเครือข่าย พันธมิตร โค้ช และธุรกิจออนไลน์ ส่งคืนเว็บไซต์พร้อมที่อยู่อีเมลที่สกัดออกมา",
+    "webSuggest1": "ตัวแทนจำหน่าย Herbalife ไทย",
+    "webSuggest2": "บล็อกการตลาดพันธมิตร",
+    "webSuggest3": "ที่ปรึกษา doTERRA",
+    "webSuggest4": "โอกาสธุรกิจที่บ้าน"
   }
 }

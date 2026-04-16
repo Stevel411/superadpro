@@ -4549,6 +4549,16 @@
     "suggest3Niche": "Siłownie",
     "suggest3Loc": "Gdańsk",
     "suggest4Niche": "Dentyści",
-    "suggest4Loc": "Wrocław"
+    "suggest4Loc": "Wrocław",
+    "modeLocalBusinesses": "Lokalne firmy",
+    "modeWebSearch": "Wyszukiwanie w sieci",
+    "searchWebDesc": "Wyszukuj marketerów sieciowych, partnerów i biznesy domowe w sieci",
+    "webNichePlaceholder": "np. Dystrybutor Herbalife, marketer afiliacyjny, coach MLM...",
+    "emptyTitleWeb": "Znajdź marketerów i firmy online",
+    "emptyDescWeb": "Wyszukaj marketerów sieciowych, partnerów, trenerów i firmy online. Zwraca strony z wyodrębnionymi adresami e-mail.",
+    "webSuggest1": "dystrybutor Herbalife Polska",
+    "webSuggest2": "blog marketing afiliacyjny",
+    "webSuggest3": "konsultant doTERRA",
+    "webSuggest4": "biznes w domu możliwość"
   }
 }

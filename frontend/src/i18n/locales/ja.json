@@ -4549,6 +4549,16 @@
     "suggest3Niche": "ジム",
     "suggest3Loc": "名古屋",
     "suggest4Niche": "歯科医",
-    "suggest4Loc": "福岡"
+    "suggest4Loc": "福岡",
+    "modeLocalBusinesses": "ローカルビジネス",
+    "modeWebSearch": "ウェブ検索",
+    "searchWebDesc": "ネットワークマーケター、アフィリエイト、在宅ビジネスをウェブで検索",
+    "webNichePlaceholder": "例:Herbalifeディストリビューター、アフィリエイトマーケター、MLMコーチ...",
+    "emptyTitleWeb": "マーケターとオンラインビジネスを探す",
+    "emptyDescWeb": "ネットワークマーケター、アフィリエイト、コーチ、オンラインビジネスを検索。抽出されたメールアドレスとともにウェブサイトを返します。",
+    "webSuggest1": "Herbalifeディストリビューター日本",
+    "webSuggest2": "アフィリエイトマーケティングブログ",
+    "webSuggest3": "doTERRAコンサルタント",
+    "webSuggest4": "在宅ビジネス機会"
   }
 }

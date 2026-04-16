@@ -4339,6 +4339,16 @@
     "suggest3Niche": "Salles de sport",
     "suggest3Loc": "Marseille",
     "suggest4Niche": "Dentistes",
-    "suggest4Loc": "Bordeaux"
+    "suggest4Loc": "Bordeaux",
+    "modeLocalBusinesses": "Entreprises locales",
+    "modeWebSearch": "Recherche web",
+    "searchWebDesc": "Recherchez sur le web des marketeurs de réseau, affiliés et entreprises à domicile",
+    "webNichePlaceholder": "ex. Distributeur Herbalife, marketeur affilié, coach MLM...",
+    "emptyTitleWeb": "Trouvez des marketeurs et entreprises en ligne",
+    "emptyDescWeb": "Recherchez des marketeurs de réseau, affiliés, coachs et entreprises en ligne. Renvoie des sites avec adresses email extraites.",
+    "webSuggest1": "distributeur Herbalife France",
+    "webSuggest2": "blog marketing d'affiliation",
+    "webSuggest3": "consultant doTERRA",
+    "webSuggest4": "opportunité business à domicile"
   }
 }

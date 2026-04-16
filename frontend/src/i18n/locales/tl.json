@@ -4549,6 +4549,16 @@
     "suggest3Niche": "Mga gym",
     "suggest3Loc": "Quezon City",
     "suggest4Niche": "Mga dentista",
-    "suggest4Loc": "Davao"
+    "suggest4Loc": "Davao",
+    "modeLocalBusinesses": "Mga lokal na negosyo",
+    "modeWebSearch": "Web na paghahanap",
+    "searchWebDesc": "Maghanap sa web ng mga network marketer, affiliate at mga negosyo mula sa bahay",
+    "webNichePlaceholder": "hal. Herbalife distributor, affiliate marketer, MLM coach...",
+    "emptyTitleWeb": "Hanapin ang mga marketer at online na negosyo",
+    "emptyDescWeb": "Maghanap ng mga network marketer, affiliate, coaches at online na negosyo. Nagbabalik ng mga website na may mga extract na email address.",
+    "webSuggest1": "Herbalife distributor Pilipinas",
+    "webSuggest2": "affiliate marketing blog",
+    "webSuggest3": "doTERRA consultant",
+    "webSuggest4": "oportunidad ng negosyo sa bahay"
   }
 }

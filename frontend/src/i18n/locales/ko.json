@@ -4549,6 +4549,16 @@
     "suggest3Niche": "체육관",
     "suggest3Loc": "인천",
     "suggest4Niche": "치과",
-    "suggest4Loc": "대구"
+    "suggest4Loc": "대구",
+    "modeLocalBusinesses": "지역 비즈니스",
+    "modeWebSearch": "웹 검색",
+    "searchWebDesc": "네트워크 마케터, 제휴 마케터 및 재택 비즈니스를 웹에서 검색",
+    "webNichePlaceholder": "예: Herbalife 유통업체, 제휴 마케터, MLM 코치...",
+    "emptyTitleWeb": "마케터와 온라인 비즈니스 찾기",
+    "emptyDescWeb": "네트워크 마케터, 제휴 마케터, 코치 및 온라인 비즈니스를 검색합니다. 추출된 이메일 주소와 함께 웹사이트를 반환합니다.",
+    "webSuggest1": "Herbalife 유통업체 한국",
+    "webSuggest2": "제휴 마케팅 블로그",
+    "webSuggest3": "doTERRA 컨설턴트",
+    "webSuggest4": "재택 비즈니스 기회"
   }
 }

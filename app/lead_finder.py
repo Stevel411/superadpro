@@ -1,46 +1,40 @@
 """
-Lead Finder — Google Maps Business Scraper
-============================================
-Scrapes publicly available business data from Google Maps
-using Playwright (headless browser). Zero API cost.
+Lead Finder — Powered by Outscraper API
+========================================
 
-Features:
-- Search by niche + location
-- Extracts: name, address, phone, website, rating, category
-- Email extraction from business websites
-- 24-hour result caching per query
-- Rate limiting per user (10 searches/day for Pro)
+Two search modes:
+- MAPS: Google Maps local businesses (restaurants, gyms, services)
+- SEARCH: Google Web Search for network marketers, affiliates, etc.
 
-Usage:
-    results = await search_businesses("personal trainers", "Manchester UK")
+Both modes enrich with email addresses via Outscraper's contact enrichment.
 """
 
 import asyncio
 import hashlib
 import json
 import logging
-import re
+import os
 import time
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import Optional
-from urllib.parse import quote_plus, urlparse
+from urllib.parse import quote_plus
+
+import httpx
 
 logger = logging.getLogger("superadpro.lead_finder")
 
-# In-memory cache: { query_hash: { "results": [...], "expires": timestamp } }
-_search_cache = {}
+OUTSCRAPER_API_KEY = os.getenv("OUTSCRAPER_API_KEY", "")
+OUTSCRAPER_BASE_URL = "https://api.outscraper.cloud"
 
-# Rate limiting: { user_id: { "date": "YYYY-MM-DD", "count": int } }
+_search_cache = {}
 _rate_limits = {}
 
 MAX_SEARCHES_PER_DAY = 10
 CACHE_TTL_HOURS = 24
 MAX_RESULTS = 20
 
-
-# Country → locale/language mapping for Google Maps
+# Country → locale/language mapping for Google Maps/Search
 COUNTRY_LOCALE_MAP = {
-    # Europe
     "GB": ("en-GB", "en"), "UK": ("en-GB", "en"), "IE": ("en-IE", "en"),
     "FR": ("fr-FR", "fr"), "DE": ("de-DE", "de"), "ES": ("es-ES", "es"),
     "IT": ("it-IT", "it"), "PT": ("pt-PT", "pt"), "NL": ("nl-NL", "nl"),
@@ -49,47 +43,39 @@ COUNTRY_LOCALE_MAP = {
     "DK": ("da-DK", "da"), "FI": ("fi-FI", "fi"), "RU": ("ru-RU", "ru"),
     "TR": ("tr-TR", "tr"), "GR": ("el-GR", "el"), "CZ": ("cs-CZ", "cs"),
     "HU": ("hu-HU", "hu"), "RO": ("ro-RO", "ro"),
-    # Americas
     "US": ("en-US", "en"), "CA": ("en-CA", "en"),
     "MX": ("es-MX", "es"), "BR": ("pt-BR", "pt"), "AR": ("es-AR", "es"),
     "CL": ("es-CL", "es"), "CO": ("es-CO", "es"), "PE": ("es-PE", "es"),
-    # Asia
     "CN": ("zh-CN", "zh"), "JP": ("ja-JP", "ja"), "KR": ("ko-KR", "ko"),
     "IN": ("en-IN", "en"), "TH": ("th-TH", "th"), "VN": ("vi-VN", "vi"),
     "ID": ("id-ID", "id"), "PH": ("en-PH", "en"), "MY": ("ms-MY", "ms"),
     "SG": ("en-SG", "en"), "HK": ("zh-HK", "zh"), "TW": ("zh-TW", "zh"),
-    # Middle East & Africa
     "AE": ("ar-AE", "ar"), "SA": ("ar-SA", "ar"), "EG": ("ar-EG", "ar"),
     "IL": ("he-IL", "iw"), "ZA": ("en-ZA", "en"), "NG": ("en-NG", "en"),
     "KE": ("en-KE", "en"), "GH": ("en-GH", "en"),
-    # Oceania
     "AU": ("en-AU", "en"), "NZ": ("en-NZ", "en"),
 }
 
 
 def get_locale_for_country(country_code: str) -> tuple:
-    """Get (locale, lang) tuple for a country code. Defaults to en-GB/en."""
     if not country_code:
         return ("en-GB", "en")
     return COUNTRY_LOCALE_MAP.get(country_code.upper(), ("en-GB", "en"))
 
 
-def _cache_key(niche: str, location: str) -> str:
-    raw = f"{niche.lower().strip()}|{location.lower().strip()}"
+def _cache_key(mode: str, query: str, location: str = "") -> str:
+    raw = f"{mode}|{query.lower().strip()}|{location.lower().strip()}"
     return hashlib.md5(raw.encode()).hexdigest()
 
 
 def _check_rate_limit(user_id: int) -> tuple[bool, int]:
-    """Returns (allowed, remaining_searches)."""
     today = datetime.utcnow().strftime("%Y-%m-%d")
     entry = _rate_limits.get(user_id)
     if not entry or entry["date"] != today:
         _rate_limits[user_id] = {"date": today, "count": 0}
         return True, MAX_SEARCHES_PER_DAY
-
     if entry["count"] >= MAX_SEARCHES_PER_DAY:
         return False, 0
-
     return True, MAX_SEARCHES_PER_DAY - entry["count"]
 
 
@@ -102,255 +88,221 @@ def _increment_rate_limit(user_id: int):
         entry["count"] += 1
 
 
-def _get_cached(niche: str, location: str) -> Optional[list]:
-    key = _cache_key(niche, location)
+def _get_cached(mode: str, query: str, location: str = "") -> Optional[list]:
+    key = _cache_key(mode, query, location)
     entry = _search_cache.get(key)
     if entry and time.time() < entry["expires"]:
-        logger.info(f"Lead Finder cache HIT: {niche} in {location}")
+        logger.info(f"Lead Finder cache HIT: {mode} {query} {location}")
         return entry["results"]
     return None
 
 
-def _set_cache(niche: str, location: str, results: list):
-    key = _cache_key(niche, location)
+def _set_cache(mode: str, query: str, location: str, results: list):
+    key = _cache_key(mode, query, location)
     _search_cache[key] = {
         "results": results,
         "expires": time.time() + (CACHE_TTL_HOURS * 3600)
     }
 
 
-async def search_businesses(niche: str, location: str, locale: str = "en-GB", lang: str = "en") -> list:
+async def _outscraper_request(endpoint: str, params: dict, max_wait_seconds: int = 120) -> dict:
     """
-    Search Google Maps for businesses matching niche + location.
-    Returns list of dicts with business details.
-    
-    Args:
-        niche: Type of business (e.g. "restaurants", "dentists")
-        location: Where to search (e.g. "Manchester UK", "Paris")
-        locale: Browser locale (en-GB, fr-FR, es-ES, etc.) — controls Google UI language
-        lang: Language code for Google Maps hl parameter (en, fr, es, etc.)
+    Make an Outscraper API request. Outscraper uses an async job pattern:
+    - POST /endpoint returns a request_id
+    - GET /requests/{request_id} polls for completion
+    - Once status == 'Success', the data is in the response
     """
-    from playwright.async_api import async_playwright
+    if not OUTSCRAPER_API_KEY:
+        raise ValueError("OUTSCRAPER_API_KEY not set in environment")
 
+    headers = {"X-API-KEY": OUTSCRAPER_API_KEY}
+    url = f"{OUTSCRAPER_BASE_URL}{endpoint}"
+
+    async with httpx.AsyncClient(timeout=30.0) as client:
+        # Start the job
+        logger.info(f"Outscraper request: {endpoint} with {params}")
+        response = await client.get(url, headers=headers, params=params)
+
+        if response.status_code == 401:
+            raise ValueError("Outscraper API key invalid or account has no credits")
+        if response.status_code == 402:
+            raise ValueError("Outscraper account needs credits topped up")
+        if response.status_code >= 400:
+            logger.error(f"Outscraper error {response.status_code}: {response.text[:300]}")
+            raise ValueError(f"Outscraper API error: {response.status_code}")
+
+        data = response.json()
+
+        # If response has data immediately
+        if data.get("status") == "Success" and data.get("data"):
+            return data
+
+        # If async, poll for the result
+        request_id = data.get("id")
+        if not request_id:
+            return data
+
+        poll_url = f"{OUTSCRAPER_BASE_URL}/requests/{request_id}"
+        elapsed = 0
+        poll_interval = 3
+        while elapsed < max_wait_seconds:
+            await asyncio.sleep(poll_interval)
+            elapsed += poll_interval
+            poll_resp = await client.get(poll_url, headers=headers)
+            if poll_resp.status_code != 200:
+                logger.warning(f"Poll failed {poll_resp.status_code}")
+                continue
+            poll_data = poll_resp.json()
+            status = poll_data.get("status", "")
+            if status == "Success":
+                return poll_data
+            if status in ("Failed", "Cancelled"):
+                raise ValueError(f"Outscraper task {status}")
+
+        raise TimeoutError(f"Outscraper task timed out after {max_wait_seconds}s")
+
+
+async def search_maps(niche: str, location: str, locale: str = "en-GB", lang: str = "en") -> list:
+    """
+    Search Google Maps for local businesses.
+    Returns name, address, phone, website, rating, email, category.
+    """
     query = f"{niche} in {location}"
-    url = f"https://www.google.com/maps/search/{quote_plus(query)}?hl={lang}"
+
+    params = {
+        "query": query,
+        "limit": MAX_RESULTS,
+        "language": lang,
+        "async": "false",
+        "enrichment": "domains_service",  # Extracts emails from websites
+    }
+
+    try:
+        data = await _outscraper_request("/maps/search-v3", params)
+    except Exception as e:
+        logger.error(f"Maps search failed: {e}")
+        raise
 
     results = []
+    raw = data.get("data", [])
+    # Outscraper returns nested array: data[0] is the first query's results
+    if raw and isinstance(raw[0], list):
+        raw = raw[0]
+
+    for item in raw[:MAX_RESULTS]:
+        if not isinstance(item, dict):
+            continue
+        results.append({
+            "name": item.get("name", ""),
+            "address": item.get("full_address") or item.get("address", ""),
+            "phone": item.get("phone", ""),
+            "website": item.get("site", "") or item.get("website", ""),
+            "rating": str(item.get("rating", "")) if item.get("rating") else "",
+            "review_count": str(item.get("reviews", "")) if item.get("reviews") else "",
+            "category": item.get("type", "") or item.get("category", ""),
+            "email": _extract_email(item),
+            "source": "maps",
+        })
+
+    return results
+
+
+async def search_web(query: str, locale: str = "en-GB", lang: str = "en") -> list:
+    """
+    Search the web via Google Search for network marketers, affiliates, etc.
+    Returns websites with extracted emails.
+    """
+    params = {
+        "query": query,
+        "pagesPerQuery": 2,  # 2 pages of results = ~20 sites
+        "language": lang,
+        "async": "false",
+        "enrichment": "domains_service",
+    }
 
     try:
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
-            context = await browser.new_context(
-                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-                viewport={"width": 1280, "height": 900},
-                locale=locale,
-            )
-            page = await context.new_page()
-
-            # Accept cookies if prompted
-            page.set_default_timeout(15000)
-
-            await page.goto(url, wait_until="domcontentloaded")
-            await page.wait_for_timeout(2000)
-
-            # Try to dismiss cookie consent
-            try:
-                accept_btn = page.locator("button:has-text('Accept all')")
-                if await accept_btn.count() > 0:
-                    await accept_btn.first.click()
-                    await page.wait_for_timeout(1000)
-            except Exception:
-                pass
-
-            # Wait for results to load
-            await page.wait_for_timeout(3000)
-
-            # Scroll the results panel to load more
-            feed = page.locator('[role="feed"]')
-            if await feed.count() > 0:
-                for _ in range(3):
-                    await feed.evaluate("el => el.scrollTop = el.scrollHeight")
-                    await page.wait_for_timeout(1500)
-
-            # Extract business links
-            links = await page.locator('a[href*="/maps/place/"]').all()
-            seen_names = set()
-
-            for link in links[:MAX_RESULTS * 2]:
-                try:
-                    aria = await link.get_attribute("aria-label")
-                    if not aria or aria in seen_names:
-                        continue
-                    seen_names.add(aria)
-
-                    href = await link.get_attribute("href")
-                    if not href or "/maps/place/" not in href:
-                        continue
-
-                    results.append({
-                        "name": aria,
-                        "href": href,
-                    })
-
-                    if len(results) >= MAX_RESULTS:
-                        break
-                except Exception:
-                    continue
-
-            # Now visit each business page to get details
-            detailed = []
-            for biz in results[:MAX_RESULTS]:
-                try:
-                    await page.goto(biz["href"], wait_until="domcontentloaded")
-                    await page.wait_for_timeout(2000)
-
-                    detail = {
-                        "name": biz["name"],
-                        "address": "",
-                        "phone": "",
-                        "website": "",
-                        "rating": "",
-                        "review_count": "",
-                        "category": "",
-                        "email": "",
-                    }
-
-                    # Extract address
-                    try:
-                        addr_el = page.locator('[data-item-id="address"] .fontBodyMedium')
-                        if await addr_el.count() > 0:
-                            detail["address"] = (await addr_el.first.text_content()).strip()
-                    except Exception:
-                        pass
-
-                    # Try alternate address selector
-                    if not detail["address"]:
-                        try:
-                            addr_btn = page.locator('button[data-item-id="address"]')
-                            if await addr_btn.count() > 0:
-                                detail["address"] = (await addr_btn.first.get_attribute("aria-label") or "").replace("Address: ", "")
-                        except Exception:
-                            pass
-
-                    # Extract phone
-                    try:
-                        phone_btn = page.locator('button[data-item-id^="phone:"]')
-                        if await phone_btn.count() > 0:
-                            phone_label = await phone_btn.first.get_attribute("aria-label") or ""
-                            detail["phone"] = phone_label.replace("Phone: ", "").strip()
-                    except Exception:
-                        pass
-
-                    # Extract website
-                    try:
-                        web_link = page.locator('a[data-item-id="authority"]')
-                        if await web_link.count() > 0:
-                            detail["website"] = (await web_link.first.get_attribute("href") or "").strip()
-                    except Exception:
-                        pass
-
-                    # Extract rating
-                    try:
-                        rating_el = page.locator('div.fontDisplayLarge')
-                        if await rating_el.count() > 0:
-                            detail["rating"] = (await rating_el.first.text_content()).strip()
-                    except Exception:
-                        pass
-
-                    # Extract review count
-                    try:
-                        review_el = page.locator('button[jsaction*="review"] span span')
-                        if await review_el.count() > 0:
-                            rc = (await review_el.first.text_content()).strip()
-                            detail["review_count"] = re.sub(r"[^\d]", "", rc)
-                    except Exception:
-                        pass
-
-                    # Extract category
-                    try:
-                        cat_btn = page.locator('button[jsaction*="category"]')
-                        if await cat_btn.count() > 0:
-                            detail["category"] = (await cat_btn.first.text_content()).strip()
-                    except Exception:
-                        pass
-
-                    detailed.append(detail)
-                    logger.info(f"  Scraped: {detail['name']} | {detail['phone']} | {detail['website']}")
-
-                except Exception as e:
-                    logger.warning(f"  Failed to scrape {biz['name']}: {e}")
-                    detailed.append({
-                        "name": biz["name"],
-                        "address": "", "phone": "", "website": "",
-                        "rating": "", "review_count": "", "category": "", "email": "",
-                    })
-
-            await browser.close()
-
-            # Try to extract emails from websites
-            detailed = await _enrich_emails(detailed)
-
-            return detailed
-
+        data = await _outscraper_request("/google-search-v3", params)
     except Exception as e:
-        logger.error(f"Lead Finder search error: {e}")
-        return []
+        logger.error(f"Web search failed: {e}")
+        raise
+
+    results = []
+    raw = data.get("data", [])
+    if raw and isinstance(raw[0], list):
+        raw = raw[0]
+
+    seen_domains = set()
+    for item in raw[:MAX_RESULTS * 2]:
+        if not isinstance(item, dict):
+            continue
+        website = item.get("link", "") or item.get("url", "")
+        if not website:
+            continue
+        from urllib.parse import urlparse
+        domain = urlparse(website).netloc.replace("www.", "")
+        if domain in seen_domains:
+            continue
+        seen_domains.add(domain)
+
+        email = _extract_email(item)
+        # For web search, only include results that have an email
+        if not email:
+            continue
+
+        results.append({
+            "name": item.get("title", domain) or domain,
+            "address": "",
+            "phone": _extract_phone(item),
+            "website": website,
+            "rating": "",
+            "review_count": "",
+            "category": item.get("description", "")[:80] if item.get("description") else "",
+            "email": email,
+            "source": "web",
+        })
+
+        if len(results) >= MAX_RESULTS:
+            break
+
+    return results
 
 
-async def _enrich_emails(businesses: list) -> list:
-    """Visit business websites to find email addresses."""
-    from playwright.async_api import async_playwright
+def _extract_email(item: dict) -> str:
+    """Extract first valid email from an Outscraper result item."""
+    for key in ("email_1", "email", "emails"):
+        val = item.get(key, "")
+        if isinstance(val, list):
+            for e in val:
+                if e and "@" in str(e):
+                    return str(e)
+        elif val and "@" in str(val):
+            return str(val)
+    # Check nested emails array
+    emails_arr = item.get("emails", [])
+    if isinstance(emails_arr, list):
+        for e in emails_arr:
+            if isinstance(e, dict):
+                v = e.get("value", "") or e.get("email", "")
+                if v and "@" in str(v):
+                    return str(v)
+    return ""
 
-    sites_to_check = [(i, b) for i, b in enumerate(businesses) if b.get("website")]
-    if not sites_to_check:
-        return businesses
 
-    try:
-        async with async_playwright() as p:
-            browser = await p.chromium.launch(headless=True)
-            context = await browser.new_context(
-                user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-                viewport={"width": 1280, "height": 900},
-            )
+def _extract_phone(item: dict) -> str:
+    for key in ("phone_1", "phone", "phones"):
+        val = item.get(key, "")
+        if isinstance(val, list):
+            for p in val:
+                if p:
+                    return str(p)
+        elif val:
+            return str(val)
+    return ""
 
-            for idx, biz in sites_to_check[:10]:  # Limit to 10 website checks
-                try:
-                    page = await context.new_page()
-                    page.set_default_timeout(8000)
-                    website = biz["website"]
-                    if not website.startswith("http"):
-                        website = "https://" + website
 
-                    await page.goto(website, wait_until="domcontentloaded")
-                    await page.wait_for_timeout(1500)
-
-                    # Get page content and search for emails
-                    content = await page.content()
-                    emails = re.findall(
-                        r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',
-                        content
-                    )
-
-                    # Filter out common junk emails
-                    junk = {'example.com', 'domain.com', 'email.com', 'yoursite.com',
-                            'sentry.io', 'wixpress.com', 'w3.org', 'schema.org',
-                            'googlemail.com', 'test.com'}
-                    valid_emails = [e for e in emails if not any(j in e.lower() for j in junk)]
-
-                    if valid_emails:
-                        businesses[idx]["email"] = valid_emails[0]
-                        logger.info(f"  Email found for {biz['name']}: {valid_emails[0]}")
-
-                    await page.close()
-                except Exception as e:
-                    logger.debug(f"  Email scrape failed for {biz.get('website')}: {e}")
-                    try:
-                        await page.close()
-                    except Exception:
-                        pass
-
-            await browser.close()
-    except Exception as e:
-        logger.warning(f"Email enrichment error: {e}")
-
-    return businesses
+async def search_businesses(niche: str, location: str, locale: str = "en-GB", lang: str = "en", mode: str = "maps") -> list:
+    """Unified entry point. mode = 'maps' or 'web'."""
+    if mode == "web":
+        query = niche if not location else f"{niche} {location}"
+        return await search_web(query, locale=locale, lang=lang)
+    return await search_maps(niche, location, locale=locale, lang=lang)

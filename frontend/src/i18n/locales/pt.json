@@ -4549,6 +4549,16 @@
     "suggest3Niche": "Academias",
     "suggest3Loc": "Lisboa",
     "suggest4Niche": "Dentistas",
-    "suggest4Loc": "Porto"
+    "suggest4Loc": "Porto",
+    "modeLocalBusinesses": "Negócios locais",
+    "modeWebSearch": "Busca web",
+    "searchWebDesc": "Busque na web por marketers de rede, afiliados e negócios em casa",
+    "webNichePlaceholder": "ex. Distribuidor Herbalife, marketer afiliado, coach MLM...",
+    "emptyTitleWeb": "Encontre marketers e negócios online",
+    "emptyDescWeb": "Busque marketers de rede, afiliados, coaches e negócios online. Retorna sites com endereços de email extraídos.",
+    "webSuggest1": "distribuidor Herbalife Brasil",
+    "webSuggest2": "blog marketing de afiliados",
+    "webSuggest3": "consultor doTERRA",
+    "webSuggest4": "oportunidade negócio em casa"
   }
 }

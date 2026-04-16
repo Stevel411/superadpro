@@ -4549,6 +4549,16 @@
     "suggest3Niche": "जिम",
     "suggest3Loc": "बैंगलोर",
     "suggest4Niche": "दंत चिकित्सक",
-    "suggest4Loc": "चेन्नई"
+    "suggest4Loc": "चेन्नई",
+    "modeLocalBusinesses": "स्थानीय व्यवसाय",
+    "modeWebSearch": "वेब खोज",
+    "searchWebDesc": "नेटवर्क मार्केटर्स, सहयोगियों और घर-आधारित व्यवसायों के लिए वेब पर खोजें",
+    "webNichePlaceholder": "जैसे Herbalife वितरक, सहबद्ध विपणक, MLM कोच...",
+    "emptyTitleWeb": "मार्केटर्स और ऑनलाइन व्यवसाय खोजें",
+    "emptyDescWeb": "नेटवर्क मार्केटर्स, सहयोगियों, कोच और ऑनलाइन व्यवसायों की खोज करें। निकाले गए ईमेल पतों के साथ वेबसाइटें लौटाता है।",
+    "webSuggest1": "Herbalife वितरक भारत",
+    "webSuggest2": "सहबद्ध विपणन ब्लॉग",
+    "webSuggest3": "doTERRA सलाहकार",
+    "webSuggest4": "घर से व्यवसाय अवसर"
   }
 }

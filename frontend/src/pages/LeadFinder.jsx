@@ -8,6 +8,7 @@ import { Search, MapPin, Download, Upload, Star, Phone, Globe, Mail, Building2, 
 export default function LeadFinder() {
   var { t } = useTranslation();
   var { user } = useAuth();
+  var [mode, setMode] = useState('maps'); // 'maps' for local businesses, 'web' for network marketers
   var [niche, setNiche] = useState('');
   var [location, setLocation] = useState('');
   var [results, setResults] = useState([]);
@@ -23,14 +24,16 @@ export default function LeadFinder() {
   var isPro = user && ((user.membership_tier || '').toLowerCase() === 'pro' || user.is_admin);
 
   async function doSearch() {
-    if (!niche.trim() || !location.trim()) { setError(t('leadFinder.enterBoth')); return; }
+    // For maps mode: need both niche and location. For web mode: just niche is enough
+    if (!niche.trim()) { setError(t('leadFinder.enterBoth')); return; }
+    if (mode === 'maps' && !location.trim()) { setError(t('leadFinder.enterBoth')); return; }
     setError('');
     setLoading(true);
     setSearched(true);
     setImportResult(null);
     setSelected({});
     try {
-      var res = await apiPost('/api/lead-finder/search', { niche: niche.trim(), location: location.trim() });
+      var res = await apiPost('/api/lead-finder/search', { niche: niche.trim(), location: location.trim(), mode: mode });
       if (res.success) {
         setResults(res.results || []);
         setQuery(res.query || '');
@@ -125,25 +128,44 @@ export default function LeadFinder() {
           </div>
           <div>
             <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: '#fff' }}>{t('leadFinder.findBusinessLeads')}</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,.4)' }}>{t('leadFinder.searchGoogleMaps')}</div>
+            <div style={{ fontSize: 12, color: 'rgba(255,255,255,.4)' }}>{mode === 'maps' ? t('leadFinder.searchGoogleMaps') : t('leadFinder.searchWebDesc')}</div>
           </div>
           <div style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,.4)' }}>{t('leadFinder.searchesToday')}: {10 - remaining}/10</div>
         </div>
+
+        {/* Mode toggle */}
+        <div style={{ display: 'flex', gap: 6, marginBottom: 12, background: 'rgba(0,0,0,.2)', padding: 4, borderRadius: 10, border: '1px solid rgba(255,255,255,.08)' }}>
+          <button onClick={function() { setMode('maps'); setSearched(false); setResults([]); }}
+            style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+              background: mode === 'maps' ? 'linear-gradient(135deg,#8b5cf6,#7c3aed)' : 'transparent',
+              color: mode === 'maps' ? '#fff' : 'rgba(255,255,255,.5)',
+              fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all .15s' }}>
+            <Building2 size={13}/> {t('leadFinder.modeLocalBusinesses')}
+          </button>
+          <button onClick={function() { setMode('web'); setSearched(false); setResults([]); }}
+            style={{ flex: 1, padding: '10px 14px', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: 'inherit',
+              background: mode === 'web' ? 'linear-gradient(135deg,#8b5cf6,#7c3aed)' : 'transparent',
+              color: mode === 'web' ? '#fff' : 'rgba(255,255,255,.5)',
+              fontSize: 12, fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all .15s' }}>
+            <Globe size={13}/> {t('leadFinder.modeWebSearch')}
+          </button>
+        </div>
+
         <div style={{ display: 'flex', gap: 8 }}>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 10, padding: '0 14px' }}>
+          <div style={{ flex: mode === 'web' ? 2 : 1, display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 10, padding: '0 14px' }}>
             <Building2 size={14} color="rgba(255,255,255,.4)"/>
             <input value={niche} onChange={function(e) { setNiche(e.target.value); }}
               onKeyDown={function(e) { if (e.key === 'Enter' && !loading) doSearch(); }}
-              placeholder={t('leadFinder.nichePlaceholder')}
+              placeholder={mode === 'maps' ? t('leadFinder.nichePlaceholder') : t('leadFinder.webNichePlaceholder')}
               style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#fff', fontSize: 13, fontWeight: 500, fontFamily: 'inherit', padding: '12px 0' }}/>
           </div>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 10, padding: '0 14px' }}>
+          {mode === 'maps' && <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 8, background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.1)', borderRadius: 10, padding: '0 14px' }}>
             <MapPin size={14} color="rgba(255,255,255,.4)"/>
             <input value={location} onChange={function(e) { setLocation(e.target.value); }}
               onKeyDown={function(e) { if (e.key === 'Enter' && !loading) doSearch(); }}
               placeholder={t('leadFinder.locationPlaceholder')}
               style={{ flex: 1, background: 'transparent', border: 'none', outline: 'none', color: '#fff', fontSize: 13, fontWeight: 500, fontFamily: 'inherit', padding: '12px 0' }}/>
-          </div>
+          </div>}
           <button onClick={doSearch} disabled={loading}
             style={{ padding: '12px 24px', borderRadius: 10, border: 'none', cursor: loading ? 'default' : 'pointer',
               background: loading ? 'rgba(139,92,246,.3)' : 'linear-gradient(135deg,#8b5cf6,#7c3aed)', color: '#fff',
@@ -242,17 +264,22 @@ export default function LeadFinder() {
 
       {!loading && !searched && <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', padding: '60px 20px', textAlign: 'center' }}>
         <div style={{ fontSize: 40, marginBottom: 12, opacity: 0.3 }}>🔍</div>
-        <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 700, color: '#475569' }}>{t('leadFinder.emptyTitle')}</div>
-        <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 6, maxWidth: 400, margin: '6px auto 0', lineHeight: 1.6 }}>{t('leadFinder.emptyDesc')}</div>
+        <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 700, color: '#475569' }}>{mode === 'maps' ? t('leadFinder.emptyTitle') : t('leadFinder.emptyTitleWeb')}</div>
+        <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 6, maxWidth: 440, margin: '6px auto 0', lineHeight: 1.6 }}>{mode === 'maps' ? t('leadFinder.emptyDesc') : t('leadFinder.emptyDescWeb')}</div>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 20, flexWrap: 'wrap' }}>
-          {[
+          {(mode === 'maps' ? [
             { n: t('leadFinder.suggest1Niche'), l: t('leadFinder.suggest1Loc') },
             { n: t('leadFinder.suggest2Niche'), l: t('leadFinder.suggest2Loc') },
             { n: t('leadFinder.suggest3Niche'), l: t('leadFinder.suggest3Loc') },
             { n: t('leadFinder.suggest4Niche'), l: t('leadFinder.suggest4Loc') },
-          ].map(function(s, i) {
+          ] : [
+            { n: t('leadFinder.webSuggest1'), l: '' },
+            { n: t('leadFinder.webSuggest2'), l: '' },
+            { n: t('leadFinder.webSuggest3'), l: '' },
+            { n: t('leadFinder.webSuggest4'), l: '' },
+          ]).map(function(s, i) {
             return <button key={i} onClick={function() { setNiche(s.n); setLocation(s.l); }}
-              style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#f8fafc', fontSize: 12, fontWeight: 600, color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}>{s.n} · {s.l}</button>;
+              style={{ padding: '8px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#f8fafc', fontSize: 12, fontWeight: 600, color: '#64748b', cursor: 'pointer', fontFamily: 'inherit' }}>{s.l ? s.n + ' · ' + s.l : s.n}</button>;
           })}
         </div>
       </div>}

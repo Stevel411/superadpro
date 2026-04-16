@@ -4296,6 +4296,16 @@
     "suggest3Niche": "Gyms",
     "suggest3Loc": "New York",
     "suggest4Niche": "Dentists",
-    "suggest4Loc": "Sydney"
+    "suggest4Loc": "Sydney",
+    "modeLocalBusinesses": "Local businesses",
+    "modeWebSearch": "Web search",
+    "searchWebDesc": "Search the web for network marketers, affiliates, and home-based businesses",
+    "webNichePlaceholder": "e.g. Herbalife distributor, affiliate marketer, MLM coach...",
+    "emptyTitleWeb": "Find marketers and online businesses",
+    "emptyDescWeb": "Search for network marketers, affiliates, coaches, and online businesses. Returns websites with email addresses extracted.",
+    "webSuggest1": "Herbalife distributor UK",
+    "webSuggest2": "affiliate marketer blog",
+    "webSuggest3": "doTERRA consultant",
+    "webSuggest4": "home business opportunity"
   }
 }

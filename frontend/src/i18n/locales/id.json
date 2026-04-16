@@ -4549,6 +4549,16 @@
     "suggest3Niche": "Pusat kebugaran",
     "suggest3Loc": "Bandung",
     "suggest4Niche": "Dokter gigi",
-    "suggest4Loc": "Bali"
+    "suggest4Loc": "Bali",
+    "modeLocalBusinesses": "Bisnis lokal",
+    "modeWebSearch": "Pencarian web",
+    "searchWebDesc": "Cari di web untuk pemasar jaringan, afiliasi, dan bisnis rumahan",
+    "webNichePlaceholder": "mis. Distributor Herbalife, pemasar afiliasi, pelatih MLM...",
+    "emptyTitleWeb": "Temukan pemasar dan bisnis online",
+    "emptyDescWeb": "Cari pemasar jaringan, afiliasi, pelatih, dan bisnis online. Mengembalikan situs web dengan alamat email yang diekstrak.",
+    "webSuggest1": "distributor Herbalife Indonesia",
+    "webSuggest2": "blog pemasaran afiliasi",
+    "webSuggest3": "konsultan doTERRA",
+    "webSuggest4": "peluang bisnis rumahan"
   }
 }

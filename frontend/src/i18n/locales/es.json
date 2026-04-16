@@ -4339,6 +4339,16 @@
     "suggest3Niche": "Gimnasios",
     "suggest3Loc": "Buenos Aires",
     "suggest4Niche": "Dentistas",
-    "suggest4Loc": "Barcelona"
+    "suggest4Loc": "Barcelona",
+    "modeLocalBusinesses": "Negocios locales",
+    "modeWebSearch": "Búsqueda web",
+    "searchWebDesc": "Busca en la web a comercializadores de red, afiliados y negocios desde casa",
+    "webNichePlaceholder": "ej. Distribuidor Herbalife, marketer de afiliados, coach MLM...",
+    "emptyTitleWeb": "Encuentra marketers y negocios online",
+    "emptyDescWeb": "Busca comercializadores de red, afiliados, coaches y negocios online. Devuelve sitios web con direcciones de correo extraídas.",
+    "webSuggest1": "distribuidor Herbalife España",
+    "webSuggest2": "blog marketing de afiliados",
+    "webSuggest3": "consultor doTERRA",
+    "webSuggest4": "oportunidad negocio desde casa"
   }
 }

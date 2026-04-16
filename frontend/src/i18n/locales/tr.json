@@ -4549,6 +4549,16 @@
     "suggest3Niche": "Spor salonları",
     "suggest3Loc": "İzmir",
     "suggest4Niche": "Dişçiler",
-    "suggest4Loc": "Antalya"
+    "suggest4Loc": "Antalya",
+    "modeLocalBusinesses": "Yerel işletmeler",
+    "modeWebSearch": "Web araması",
+    "searchWebDesc": "Ağ pazarlamacıları, bağlı kuruluşlar ve ev tabanlı işletmeler için web'de arama yapın",
+    "webNichePlaceholder": "örn. Herbalife distribütörü, bağlı kuruluş pazarlamacı, MLM koçu...",
+    "emptyTitleWeb": "Pazarlamacılar ve online işletmeler bulun",
+    "emptyDescWeb": "Ağ pazarlamacıları, bağlı kuruluşlar, koçlar ve online işletmeler arayın. Çıkarılan e-posta adresleriyle web siteleri döndürür.",
+    "webSuggest1": "Herbalife distribütörü Türkiye",
+    "webSuggest2": "bağlı kuruluş pazarlama blogu",
+    "webSuggest3": "doTERRA danışmanı",
+    "webSuggest4": "ev iş fırsatı"
   }
 }
