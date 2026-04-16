@@ -270,11 +270,11 @@ async def search_web(query: str, lang: str = "en", region: str = None) -> list:
         if data.get("status") == "Pending" and data.get("id"):
             data = await _poll_task(client, data["id"])
         
-        # Extract search results
+        # Extract search results — Outscraper returns 'organic_results' field
         raw = data.get("data", [])
         organic = []
         if raw and isinstance(raw[0], dict):
-            organic = raw[0].get("organic") or raw[0].get("results") or []
+            organic = raw[0].get("organic_results") or raw[0].get("organic") or raw[0].get("results") or []
         elif raw and isinstance(raw[0], list):
             organic = raw[0]
         
