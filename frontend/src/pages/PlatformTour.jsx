@@ -76,6 +76,17 @@ export default function PlatformTour() {
     return function() { links.forEach(function(l) { try { document.head.removeChild(l); } catch(e) {} }); };
   }, []);
 
+  // Pause all videos except the active one when switching tabs
+  useEffect(function() {
+    SECTIONS.forEach(function(sec, i) {
+      if (!sec.videoSrc) return;
+      var vid = document.getElementById('tour-vid-' + sec.id);
+      if (vid && i !== activeIdx) {
+        try { vid.pause(); } catch(e) {}
+      }
+    });
+  }, [activeIdx]);
+
   return (
     <AppLayout title={t("platformTour.title")} subtitle={t("platformTour.subtitle")}>
 
@@ -129,19 +140,30 @@ export default function PlatformTour() {
           </div>
         </div>
 
-        {/* Video or placeholder */}
+        {/* Video container — all videos stay mounted, just show/hide */}
         <div style={{ margin: '24px 28px 0', borderRadius: 14, overflow: 'hidden', aspectRatio: '16/9', position: 'relative', background: '#000' }}>
-          {s.videoSrc ? (
-            <video
-              key={s.id}
+          {/* Render ALL videos, show the active one - keeps them cached and ready */}
+          {SECTIONS.map(function(sec, i) {
+            if (!sec.videoSrc) return null;
+            var isActive = i === activeIdx;
+            return <video
+              key={sec.id}
+              id={'tour-vid-' + sec.id}
               controls
               preload="auto"
-              style={{ width: '100%', height: '100%', borderRadius: 14, display: 'block' }}
+              playsInline
+              style={{
+                width: '100%', height: '100%', borderRadius: 14,
+                display: isActive ? 'block' : 'none',
+                position: 'absolute', top: 0, left: 0,
+              }}
             >
-              <source src={s.videoSrc} type="video/mp4"/>
-              Your browser does not support the video tag.
-            </video>
-          ) : s.videoId ? (
+              <source src={sec.videoSrc} type="video/mp4"/>
+            </video>;
+          })}
+
+          {/* Fallback for sections with videoId (YouTube) or no video */}
+          {!s.videoSrc && s.videoId && (
             <iframe
               src={'https://www.youtube-nocookie.com/embed/' + s.videoId + '?rel=0&modestbranding=1&showinfo=0&iv_load_policy=3&color=white'}
               style={{ width: '100%', height: '100%', border: 'none', borderRadius: 14 }}
@@ -149,7 +171,8 @@ export default function PlatformTour() {
               allowFullScreen
               title={s.title}
             />
-          ) : (
+          )}
+          {!s.videoSrc && !s.videoId && (
             <div style={{ width: '100%', height: '100%', background: s.bg, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', border: '2px dashed ' + s.color + '30' }}>
               <div style={{ width: 56, height: 56, borderRadius: 16, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, boxShadow: '0 2px 8px rgba(0,0,0,.08)' }}>
                 <Play size={24} color={s.color}/>
