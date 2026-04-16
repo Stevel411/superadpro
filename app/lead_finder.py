@@ -38,6 +38,42 @@ CACHE_TTL_HOURS = 24
 MAX_RESULTS = 20
 
 
+# Country → locale/language mapping for Google Maps
+COUNTRY_LOCALE_MAP = {
+    # Europe
+    "GB": ("en-GB", "en"), "UK": ("en-GB", "en"), "IE": ("en-IE", "en"),
+    "FR": ("fr-FR", "fr"), "DE": ("de-DE", "de"), "ES": ("es-ES", "es"),
+    "IT": ("it-IT", "it"), "PT": ("pt-PT", "pt"), "NL": ("nl-NL", "nl"),
+    "BE": ("fr-BE", "fr"), "CH": ("de-CH", "de"), "AT": ("de-AT", "de"),
+    "PL": ("pl-PL", "pl"), "SE": ("sv-SE", "sv"), "NO": ("nb-NO", "no"),
+    "DK": ("da-DK", "da"), "FI": ("fi-FI", "fi"), "RU": ("ru-RU", "ru"),
+    "TR": ("tr-TR", "tr"), "GR": ("el-GR", "el"), "CZ": ("cs-CZ", "cs"),
+    "HU": ("hu-HU", "hu"), "RO": ("ro-RO", "ro"),
+    # Americas
+    "US": ("en-US", "en"), "CA": ("en-CA", "en"),
+    "MX": ("es-MX", "es"), "BR": ("pt-BR", "pt"), "AR": ("es-AR", "es"),
+    "CL": ("es-CL", "es"), "CO": ("es-CO", "es"), "PE": ("es-PE", "es"),
+    # Asia
+    "CN": ("zh-CN", "zh"), "JP": ("ja-JP", "ja"), "KR": ("ko-KR", "ko"),
+    "IN": ("en-IN", "en"), "TH": ("th-TH", "th"), "VN": ("vi-VN", "vi"),
+    "ID": ("id-ID", "id"), "PH": ("en-PH", "en"), "MY": ("ms-MY", "ms"),
+    "SG": ("en-SG", "en"), "HK": ("zh-HK", "zh"), "TW": ("zh-TW", "zh"),
+    # Middle East & Africa
+    "AE": ("ar-AE", "ar"), "SA": ("ar-SA", "ar"), "EG": ("ar-EG", "ar"),
+    "IL": ("he-IL", "iw"), "ZA": ("en-ZA", "en"), "NG": ("en-NG", "en"),
+    "KE": ("en-KE", "en"), "GH": ("en-GH", "en"),
+    # Oceania
+    "AU": ("en-AU", "en"), "NZ": ("en-NZ", "en"),
+}
+
+
+def get_locale_for_country(country_code: str) -> tuple:
+    """Get (locale, lang) tuple for a country code. Defaults to en-GB/en."""
+    if not country_code:
+        return ("en-GB", "en")
+    return COUNTRY_LOCALE_MAP.get(country_code.upper(), ("en-GB", "en"))
+
+
 def _cache_key(niche: str, location: str) -> str:
     raw = f"{niche.lower().strip()}|{location.lower().strip()}"
     return hashlib.md5(raw.encode()).hexdigest()
@@ -83,15 +119,21 @@ def _set_cache(niche: str, location: str, results: list):
     }
 
 
-async def search_businesses(niche: str, location: str) -> list:
+async def search_businesses(niche: str, location: str, locale: str = "en-GB", lang: str = "en") -> list:
     """
     Search Google Maps for businesses matching niche + location.
     Returns list of dicts with business details.
+    
+    Args:
+        niche: Type of business (e.g. "restaurants", "dentists")
+        location: Where to search (e.g. "Manchester UK", "Paris")
+        locale: Browser locale (en-GB, fr-FR, es-ES, etc.) — controls Google UI language
+        lang: Language code for Google Maps hl parameter (en, fr, es, etc.)
     """
     from playwright.async_api import async_playwright
 
     query = f"{niche} in {location}"
-    url = f"https://www.google.com/maps/search/{quote_plus(query)}"
+    url = f"https://www.google.com/maps/search/{quote_plus(query)}?hl={lang}"
 
     results = []
 
@@ -101,7 +143,7 @@ async def search_businesses(niche: str, location: str) -> list:
             context = await browser.new_context(
                 user_agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
                 viewport={"width": 1280, "height": 900},
-                locale="en-GB",
+                locale=locale,
             )
             page = await context.new_page()
 

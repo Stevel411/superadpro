@@ -23388,7 +23388,7 @@ async def api_lead_finder_search(request: Request,
     if len(niche) > 100 or len(location) > 100:
         return JSONResponse({"error": "Search terms too long."}, status_code=400)
 
-    from .lead_finder import _check_rate_limit, _increment_rate_limit, _get_cached, _set_cache, search_businesses
+    from .lead_finder import _check_rate_limit, _increment_rate_limit, _get_cached, _set_cache, search_businesses, get_locale_for_country
 
     # Rate limit check
     allowed, remaining = _check_rate_limit(user.id)
@@ -23401,12 +23401,14 @@ async def api_lead_finder_search(request: Request,
         return {"success": True, "results": cached, "count": len(cached),
                 "cached": True, "remaining": remaining, "query": f"{niche} in {location}"}
 
-    # Run the scraper
+    # Run the scraper with user's locale
     _increment_rate_limit(user.id)
     remaining -= 1
 
+    locale, lang = get_locale_for_country(user.country or "")
+
     try:
-        results = await search_businesses(niche, location)
+        results = await search_businesses(niche, location, locale=locale, lang=lang)
         _set_cache(niche, location, results)
         return {"success": True, "results": results, "count": len(results),
                 "cached": False, "remaining": remaining, "query": f"{niche} in {location}"}
