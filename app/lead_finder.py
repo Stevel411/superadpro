@@ -146,8 +146,8 @@ def _extract_phone(item: dict) -> str:
     return ""
 
 
-async def _api_get(client: httpx.AsyncClient, path: str, params: dict, max_retries: int = 3) -> dict:
-    """Call Outscraper API with retry on 503 (server is flaky)."""
+async def _api_get(client: httpx.AsyncClient, path: str, params: dict, max_retries: int = 5) -> dict:
+    """Call Outscraper API with retry on 503 / network errors (Railway + Outscraper both flaky)."""
     last_error = None
     for attempt in range(max_retries):
         try:
@@ -163,19 +163,19 @@ async def _api_get(client: httpx.AsyncClient, path: str, params: dict, max_retri
             if resp.status_code == 401:
                 raise ValueError("Outscraper API key invalid")
             if resp.status_code == 503:
-                last_error = f"503 (attempt {attempt+1}/{max_retries})"
-                logger.warning(f"[Outscraper] 503 DNS cache overflow, retrying... (attempt {attempt+1}/{max_retries})")
-                await asyncio.sleep(2 + attempt)  # backoff: 2s, 3s, 4s
+                last_error = f"503 service unavailable (attempt {attempt+1}/{max_retries})"
+                logger.warning(f"[Outscraper] 503, retrying in {2 + attempt*2}s (attempt {attempt+1}/{max_retries})")
+                await asyncio.sleep(2 + attempt * 2)  # 2s, 4s, 6s, 8s, 10s
                 continue
             # Other errors — don't retry
             logger.error(f"[Outscraper] Status {resp.status_code}: {resp.text[:300]}")
             raise ValueError(f"Outscraper returned status {resp.status_code}")
         except httpx.RequestError as e:
-            last_error = str(e)
-            logger.warning(f"[Outscraper] Network error, retrying: {e}")
-            await asyncio.sleep(2)
+            last_error = f"{type(e).__name__}: {e}"
+            logger.warning(f"[Outscraper] Network error (attempt {attempt+1}/{max_retries}): {e}")
+            await asyncio.sleep(2 + attempt * 2)
             continue
-    raise ValueError(f"Outscraper API unavailable after {max_retries} retries: {last_error}")
+    raise ValueError(f"Search service temporarily unavailable. Please try again. ({last_error})")
 
 
 async def _poll_task(client: httpx.AsyncClient, request_id: str, max_wait: int = 90) -> dict:

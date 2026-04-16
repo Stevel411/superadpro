@@ -23422,9 +23422,14 @@ async def api_lead_finder_search(request: Request,
         _set_cache(mode, niche, location, results)
         return {"success": True, "results": results, "count": len(results),
                 "cached": False, "remaining": remaining, "query": query_display, "mode": mode}
+    except ValueError as e:
+        # Known errors (API key, credits, 503s) — pass through message to user
+        err_msg = str(e)
+        logger.error(f"Lead Finder error: {err_msg}")
+        return JSONResponse({"error": err_msg}, status_code=500)
     except Exception as e:
-        logger.error(f"Lead Finder error: {e}")
-        return JSONResponse({"error": "Search failed. Please try again."}, status_code=500)
+        logger.error(f"Lead Finder unexpected error: {type(e).__name__}: {e}")
+        return JSONResponse({"error": f"Search failed: {type(e).__name__}. Please try again in a moment."}, status_code=500)
 
 
 @app.post("/api/lead-finder/import")
