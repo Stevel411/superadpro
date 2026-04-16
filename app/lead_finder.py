@@ -134,19 +134,73 @@ def _extract_email(item: dict) -> str:
 
 
 def _extract_phone(item: dict) -> str:
+    """Try multiple fields/shapes to find a phone. Handles both plain strings
+    and Outscraper's enricher dict format: {'value': '...', 'source': '...', 'last_seen': '...'}"""
     if not isinstance(item, dict):
         return ""
+    # Direct string fields
     for key in ("phone", "phone_1"):
         val = item.get(key)
-        if val:
-            return str(val)
+        if val and isinstance(val, (str, int)):
+            return str(val).strip()
+    # List field — can contain strings OR enricher dicts
     phones = item.get("phones")
-    if isinstance(phones, list) and phones:
-        return str(phones[0])
+    if isinstance(phones, list):
+        for p in phones:
+            if isinstance(p, str) and p.strip():
+                return p.strip()
+            if isinstance(p, dict):
+                v = p.get("value") or p.get("phone") or p.get("number")
+                if v:
+                    return str(v).strip()
+    # Defensive fallback — scan any phone-like key
+    for key in item.keys():
+        if "phone" in key.lower() and "validator" not in key.lower():
+            val = item.get(key)
+            if val and isinstance(val, (str, int)):
+                return str(val).strip()
     return ""
 
 
-async def _api_get(client: httpx.AsyncClient, path: str, params: dict, max_retries: int = 5) -> dict:
+def _sanitise_title(s: str) -> str:
+    """Clean Google organic result titles. They sometimes contain breadcrumb junk
+    like 'Find A Beauty Consultant | Mary Kayhttps://www.marykay.com › ibcsearch'."""
+    if not s or not isinstance(s, str):
+        return ""
+    s = s.strip()
+    # Cut at first URL appearance (titles sometimes have the URL appended)
+    for marker in ("https://", "http://"):
+        idx = s.find(marker)
+        if idx > 0:
+            s = s[:idx].strip()
+    # Drop trailing pipe/dash brand suffixes if too long
+    if len(s) > 80:
+        for sep in (" | ", " - ", " — "):
+            if sep in s:
+                s = s.split(sep)[0].strip()
+                break
+    return s[:120]
+
+
+def _sanitise_description(s: str) -> str:
+    """Clean Google organic result snippets. They often contain breadcrumb arrows
+    and URL fragments: 'Mary Kayhttps://www.marykay.com › ibcsearchMary KaySearch...'."""
+    if not s or not isinstance(s, str):
+        return ""
+    s = s.strip()
+    # Remove embedded URLs entirely
+    s = re.sub(r"https?://\S+", "", s)
+    # Drop breadcrumb arrow segments ( › xyz › abc )
+    s = re.sub(r"\s*›\s*\S+", "", s)
+    # Collapse whitespace
+    s = re.sub(r"\s+", " ", s).strip()
+    # If what's left is just brand noise (<15 chars of real prose), drop it
+    if len(s) < 15:
+        return ""
+    return s[:100]
+
+
+
     """Call Outscraper API with retry on 503 / network errors (Railway + Outscraper both flaky)."""
     last_error = None
     for attempt in range(max_retries):
@@ -344,13 +398,13 @@ async def search_web(query: str, lang: str = "en", region: str = None) -> list:
         if not email:
             continue
         output.append({
-            "name": site["title"] or site["domain"],
+            "name": _sanitise_title(site["title"]) or site["domain"],
             "address": "",
             "phone": _extract_phone(contact),
             "website": site["url"],
             "rating": "",
             "review_count": "",
-            "category": (site["description"] or "")[:100],
+            "category": _sanitise_description(site["description"]),
             "email": email,
             "source": "web",
         })

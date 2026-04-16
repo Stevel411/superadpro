@@ -229,7 +229,7 @@ export default function LeadFinder() {
 
         {results.map(function(r, i) {
           var isSelected = selected[i];
-          var hasEmail = r.email && r.email.includes('@');
+          var hasEmail = typeof r.email === 'string' && r.email.includes('@');
           return <div key={i} style={{ display: 'grid', gridTemplateColumns: '32px 2fr 1.5fr 1fr 70px', padding: '14px 20px', alignItems: 'center', borderBottom: '1px solid #f1f5f9', background: isSelected ? 'rgba(139,92,246,.04)' : i % 2 === 0 ? '#fff' : '#fafbfc', transition: 'background .1s' }}>
             <div>
               <input type="checkbox" checked={!!isSelected} onChange={function() { toggleSelect(i); }} style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#8b5cf6' }}/>
@@ -242,7 +242,7 @@ export default function LeadFinder() {
               {r.category && <div style={{ display: 'inline-flex', marginTop: 4, padding: '2px 8px', borderRadius: 4, background: '#f1f5f9', fontSize: 10, fontWeight: 600, color: '#64748b' }}>{r.category}</div>}
             </div>
             <div>
-              {r.phone && <div style={{ fontSize: 13, color: '#334155', display: 'flex', alignItems: 'center', gap: 4 }}><Phone size={11} color="#94a3b8"/> {r.phone}</div>}
+              {typeof r.phone === 'string' && r.phone && <div style={{ fontSize: 13, color: '#334155', display: 'flex', alignItems: 'center', gap: 4 }}><Phone size={11} color="#94a3b8"/> {r.phone}</div>}
               {hasEmail ? <div style={{ fontSize: 12, color: '#2563eb', marginTop: 3, display: 'flex', alignItems: 'center', gap: 4 }}><Mail size={11}/> {r.email}</div>
                 : <div style={{ fontSize: 11, color: '#cbd5e1', marginTop: 3, display: 'flex', alignItems: 'center', gap: 4 }}><Mail size={11}/> {t('leadFinder.noEmail')}</div>}
             </div>
@@ -259,7 +259,7 @@ export default function LeadFinder() {
         })}
 
         <div style={{ padding: '12px 20px', background: '#f8fafc', borderTop: '1px solid #f1f5f9', fontSize: 12, color: '#94a3b8', display: 'flex', justifyContent: 'space-between' }}>
-          <span>{t('leadFinder.resultsFooter', { total: results.length, withEmail: results.filter(function(r){return r.email;}).length })}</span>
+          <span>{t('leadFinder.resultsFooter', { total: results.length, withEmail: results.filter(function(r){return r.email;}).length })} · {mode === 'web' ? t('leadFinder.dataSourceWeb', { defaultValue: 'Data from web search' }) : t('leadFinder.dataSourceMaps', { defaultValue: 'Data from Google Maps' })}</span>
           <span>{t('leadFinder.remainingToday', { count: remaining })}</span>
         </div>
       </div>}
