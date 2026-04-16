@@ -408,6 +408,14 @@ def get_current_user(request: Request, db: Session = Depends(get_db)):
 
 def is_admin(user): return user is not None and getattr(user, "is_admin", False)
 
+def is_pro(user):
+    """Pro-tier or admin. Use for gating Pro features."""
+    if user is None:
+        return False
+    if getattr(user, "is_admin", False):
+        return True
+    return (getattr(user, "membership_tier", "basic") or "basic").lower() == "pro"
+
 def set_secure_cookie(response, user_id):
     """Create an HMAC-signed session token. Cannot be forged without SESSION_SECRET."""
     token = session_serializer.dumps(user_id)
@@ -7211,6 +7219,8 @@ def funnel_load_gjs(page_id: int, request: Request, user: User = Depends(get_cur
     """Load GrapesJS editor data for a page."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
     page = db.query(FunnelPage).filter(FunnelPage.id == page_id, FunnelPage.user_id == user.id).first()
     if not page:
         return JSONResponse({"error": "Page not found"}, status_code=404)
@@ -7235,6 +7245,8 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
     from fastapi.responses import JSONResponse
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
     try:
         body = await request.json()
     except Exception:
@@ -7357,6 +7369,8 @@ async def funnel_upload_image(file: UploadFile = File(...), user: User = Depends
     from fastapi.responses import JSONResponse
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
 
     # Validate file type
     allowed_types = {"image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"}
@@ -7396,6 +7410,8 @@ async def funnel_upload_video(file: UploadFile = File(...), user: User = Depends
     from fastapi.responses import JSONResponse
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
 
     allowed_types = {"video/mp4", "video/webm", "video/ogg"}
     if file.content_type not in allowed_types:
@@ -7433,6 +7449,8 @@ async def funnel_upload_audio(file: UploadFile = File(...), user: User = Depends
     from fastapi.responses import JSONResponse
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
 
     allowed_types = {"audio/mpeg", "audio/wav", "audio/ogg", "audio/mp3", "audio/x-wav"}
     if file.content_type not in allowed_types:
@@ -7556,6 +7574,8 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
                                 db: Session = Depends(get_db)):
     """Create a funnel page from a pre-built niche template."""
     if not user: return {"error": "Not logged in"}
+    if not is_pro(user):
+        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
     body = await request.json()
     niche = body.get("niche", "affiliate-marketing")
     import json, random, string, re as _re
@@ -7950,6 +7970,8 @@ def funnel_delete(page_id: int, user: User = Depends(get_current_user),
     from fastapi.responses import JSONResponse
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
     page = db.query(FunnelPage).filter(FunnelPage.id == page_id, FunnelPage.user_id == user.id).first()
     if not page:
         return JSONResponse({"error": "Page not found"}, status_code=404)
@@ -7979,9 +8001,14 @@ async def capture_lead(request: Request, db: Session = Depends(get_db)):
     except Exception:
         return JSONResponse({"error": "Invalid request"}, status_code=400)
     page_id = body.get("page_id")
-    email = body.get("email", "").strip()
+    email = body.get("email", "").strip().lower()
     if not page_id or not email:
         return JSONResponse({"error": "page_id and email required"}, status_code=400)
+    # Basic email format validation — prevents junk leads, bounce-prone Brevo sends,
+    # and inflated leads_captured counts from bot/form-spam.
+    import re as _re_email
+    if len(email) > 254 or not _re_email.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
+        return JSONResponse({"error": "Please enter a valid email address"}, status_code=400)
     page = db.query(FunnelPage).filter(FunnelPage.id == page_id).first()
     if not page:
         return JSONResponse({"error": "Page not found"}, status_code=404)
@@ -13477,7 +13504,12 @@ async def _old_upgrade_DISABLED(request: Request, db: Session = Depends(get_db))
 
 @app.get("/pro/funnels")
 async def pro_funnels_page(request: Request, db: Session = Depends(get_db)):
-    """Serve React SuperPages listing."""
+    """Serve React SuperPages listing. Non-Pro users are redirected to /upgrade."""
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse(url="/?login=1", status_code=302)
+    if not is_pro(user):
+        return RedirectResponse(url="/upgrade", status_code=302)
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
@@ -13650,7 +13682,12 @@ Return ONLY a valid JSON array. No markdown."""
 
 @app.get("/pro/funnel/{funnel_id}/edit")
 async def pro_funnel_edit(funnel_id: int, request: Request, db: Session = Depends(get_db)):
-    """Serve React SuperPages editor."""
+    """Serve React SuperPages editor. Non-Pro users are redirected to /upgrade."""
+    user = get_current_user(request, db)
+    if not user:
+        return RedirectResponse(url="/?login=1", status_code=302)
+    if not is_pro(user):
+        return RedirectResponse(url="/upgrade", status_code=302)
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
@@ -13791,7 +13828,7 @@ async def api_pro_funnel_create_blank(request: Request, db: Session = Depends(ge
         title=title,
         slug=slug,
         headline=title,
-        status="published",
+        status="draft",
         sections_json="{}",
     )
     db.add(page)
@@ -13830,7 +13867,7 @@ async def api_pro_funnel_create_from_template(request: Request, db: Session = De
             title=tpl['name'],
             slug=slug,
             headline=tpl['name'],
-            status="published",
+            status="draft",
             sections_json="{}",
             gjs_css=_jtpl.dumps({"els": tpl['elements'], "canvasBg": tpl['bg_color']}),
         )
@@ -19191,6 +19228,8 @@ def api_funnels_list(request: Request, user: User = Depends(get_current_user),
     """List user's SuperPages/funnels."""
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
     from .database import FunnelPage
     funnels = db.query(FunnelPage).filter(
         FunnelPage.user_id == user.id
@@ -19336,6 +19375,8 @@ def funnel_duplicate(page_id: int, request: Request, user: User = Depends(get_cu
     from fastapi.responses import JSONResponse
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "SuperPages is a Pro feature. Upgrade to access."}, status_code=403)
     original = db.query(FunnelPage).filter(FunnelPage.id == page_id, FunnelPage.user_id == user.id).first()
     if not original:
         return JSONResponse({"error": "Page not found"}, status_code=404)

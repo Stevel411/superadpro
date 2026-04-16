@@ -23,7 +23,15 @@ export default function SuperPagesEditor() {
   const [previewMode, setPreviewMode] = useState(false);
   const [deviceView, setDeviceView] = useState('desktop');
   const [pageStatus, setPageStatus] = useState('draft');
+  const [isNarrow, setIsNarrow] = useState(typeof window !== 'undefined' && window.innerWidth < 900);
   const updatedAtRef = useRef(null);
+
+  // Track viewport width — editor needs desktop space for drag/resize to work
+  useEffect(() => {
+    const onResize = () => setIsNarrow(window.innerWidth < 900);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   const editor = useEditorState();
   const { els, selId, canvasBg, canvasBgImage, dirty, setDirty,
@@ -158,6 +166,11 @@ export default function SuperPagesEditor() {
 
   const togglePublish = async () => {
     const newStatus = pageStatus === 'published' ? 'draft' : 'published';
+    // Guard: don't let users publish an empty page — it renders as a blank screen
+    if (newStatus === 'published' && (!els || els.length === 0)) {
+      showToast('Add at least one element before publishing');
+      return;
+    }
     setSaving(true);
     try {
       const html = exportHTML(els, canvasBg, canvasBgImage);
@@ -188,6 +201,29 @@ export default function SuperPagesEditor() {
     return (
       <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--sap-cobalt-deep)', color: 'rgba(255,255,255,.4)' }}>
         Loading editor...
+      </div>
+    );
+  }
+
+  // The SuperPages editor relies on mouse-based drag and resize which don't
+  // translate cleanly to touch. Rather than ship a broken mobile experience,
+  // we show a clear message and let people return on a desktop.
+  if (isNarrow) {
+    return (
+      <div style={{ width: '100vw', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--sap-cobalt-deep)', padding: 24, boxSizing: 'border-box' }}>
+        <div style={{ maxWidth: 420, textAlign: 'center', color: '#e2e8f0', fontFamily: 'DM Sans,sans-serif' }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>🖥️</div>
+          <h1 style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 800, margin: '0 0 12px', color: '#fff' }}>Desktop required</h1>
+          <p style={{ fontSize: 15, lineHeight: 1.6, color: 'rgba(255,255,255,.7)', margin: '0 0 24px' }}>
+            The SuperPages editor uses precise drag and drop that needs a desktop or laptop to work properly. Please open this page on a larger screen to build your page.
+          </p>
+          <p style={{ fontSize: 13, lineHeight: 1.6, color: 'rgba(255,255,255,.5)', margin: '0 0 28px' }}>
+            Your pages are fully responsive and will look great on all devices once published — this restriction only applies to the editor itself.
+          </p>
+          <button onClick={() => navigate('/pro/funnels')} style={{ padding: '12px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', background: 'var(--sap-accent)', color: '#fff', fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 700 }}>
+            Back to My Pages
+          </button>
+        </div>
       </div>
     );
   }

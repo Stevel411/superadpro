@@ -110,6 +110,15 @@ document.querySelectorAll('#gjsContent form').forEach(form => {
 
 <div class="page-footer">Powered by <a href="{{ owner_ref_link }}">SuperAdPro</a></div>
 
+{# ──────────────────────────────────────────────────────────────────
+   AI SALES CHATBOT WIDGET — DISABLED FOR BETA (16 Apr 2026)
+   Reason: system prompt contains outdated info (wrong chain, tiers,
+   tools, grid). Value proposition under review. To re-enable:
+   change the condition below to `{% if True %}` AND update the
+   system prompt at app/main.py lines 9244–9273 + fallback strings
+   at lines 9285–9296 to reflect current platform state.
+   ────────────────────────────────────────────────────────────────── #}
+{% if False %}
 <!-- AI SALES CHATBOT WIDGET -->
 <div id="chatWidget">
   <!-- Floating bubble -->
@@ -314,6 +323,8 @@ setTimeout(() => {
   }
 }, 8000);
 </script>
+{% endif %}
+{# END CHATBOT WIDGET GATE #}
 
 <script src="/static/js/section-templates.js"></script>
 <script>
