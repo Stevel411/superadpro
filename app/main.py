@@ -6765,6 +6765,110 @@ def admin_api_withdrawals(
         } for w in ws]
     }
 
+
+@app.get("/admin/api/withdrawals/stuck")
+def admin_withdrawals_stuck(user: User = Depends(get_current_user),
+                             db: Session = Depends(get_db)):
+    """List withdrawals stuck in pending/processing for over 24 hours.
+    These have had balance deducted but no USDT sent — candidates for refund."""
+    _require_admin(user)
+    from datetime import datetime, timedelta
+    cutoff = datetime.utcnow() - timedelta(hours=24)
+    stuck = db.query(Withdrawal).filter(
+        Withdrawal.status.in_(["pending", "processing"]),
+        Withdrawal.requested_at < cutoff,
+    ).order_by(Withdrawal.requested_at.asc()).limit(100).all()
+    user_ids = {w.user_id for w in stuck}
+    users_map = {u.id: u.username for u in db.query(User).filter(User.id.in_(user_ids)).all()} if user_ids else {}
+    return {
+        "stuck": [{
+            "id": w.id, "user_id": w.user_id,
+            "username": users_map.get(w.user_id, "?"),
+            "amount": float(w.amount_usdt or 0),
+            "wallet": w.wallet_address, "status": w.status,
+            "requested": w.requested_at.isoformat() if w.requested_at else None,
+            "age_hours": round((datetime.utcnow() - w.requested_at).total_seconds() / 3600, 1) if w.requested_at else None,
+        } for w in stuck]
+    }
+
+
+@app.post("/admin/api/withdrawals/{withdrawal_id}/refund")
+async def admin_withdrawal_refund(
+    withdrawal_id: int,
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Admin-only: cancel a stuck withdrawal and refund the balance.
+    Reverses the atomic deduction that happened when the withdrawal was requested.
+    Only works on pending/processing withdrawals — paid ones cannot be refunded here.
+
+    Body: {"wallet_type": "affiliate" | "campaign", "reason": "..."}
+    wallet_type must match the column the original deduction came from.
+    """
+    _require_admin(user)
+    from sqlalchemy import text
+    from datetime import datetime
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request"}, status_code=400)
+
+    wallet_type = (body.get("wallet_type") or "affiliate").strip().lower()
+    reason = (body.get("reason") or "Admin refund — stuck withdrawal").strip()[:500]
+
+    if wallet_type not in ("affiliate", "campaign"):
+        return JSONResponse({"error": "wallet_type must be 'affiliate' or 'campaign'"}, status_code=400)
+
+    withdrawal = db.query(Withdrawal).filter(Withdrawal.id == withdrawal_id).first()
+    if not withdrawal:
+        return JSONResponse({"error": "Withdrawal not found"}, status_code=404)
+
+    if withdrawal.status not in ("pending", "processing"):
+        return JSONResponse({
+            "error": f"Cannot refund — withdrawal is '{withdrawal.status}'. Only pending/processing withdrawals can be refunded."
+        }, status_code=400)
+
+    target_user = db.query(User).filter(User.id == withdrawal.user_id).first()
+    if not target_user:
+        return JSONResponse({"error": "User not found"}, status_code=404)
+
+    balance_col = "campaign_balance" if wallet_type == "campaign" else "balance"
+    amount = float(withdrawal.amount_usdt or 0)
+
+    # Atomic refund — also decrement total_withdrawn to keep it consistent
+    db.execute(
+        text(f"UPDATE users SET {balance_col} = COALESCE({balance_col}, 0) + :amt, "
+             f"total_withdrawn = GREATEST(COALESCE(total_withdrawn, 0) - :amt, 0) WHERE id = :uid"),
+        {"amt": amount, "uid": withdrawal.user_id},
+    )
+    withdrawal.status = "failed_refunded"
+    withdrawal.processed_at = datetime.utcnow()
+    existing_notes = (getattr(withdrawal, "notes", "") or "") if hasattr(withdrawal, "notes") else ""
+    refund_note = f"[Admin refund {datetime.utcnow().strftime('%Y-%m-%d %H:%M')} by {user.username}] {reason}"
+    if hasattr(withdrawal, "notes"):
+        withdrawal.notes = (existing_notes + " | " + refund_note).strip(" |") if existing_notes else refund_note
+
+    # Notify the member
+    try:
+        from .database import Notification
+        db.add(Notification(
+            user_id=target_user.id,
+            title="Withdrawal refunded",
+            message=f"Your ${amount:.2f} withdrawal could not be sent and has been refunded to your {wallet_type} balance. You can try again from the Wallet page.",
+            icon="money_bag",
+        ))
+    except Exception as e:
+        logger.warning(f"Refund notification failed: {e}")
+
+    db.commit()
+    logger.info(f"Admin {user.username} refunded withdrawal #{withdrawal_id} (${amount} to user {target_user.username} {wallet_type} balance) — {reason}")
+
+    return {"success": True, "withdrawal_id": withdrawal_id, "refunded_amount": amount,
+            "wallet_type": wallet_type, "user": target_user.username}
+
+
 # ── System Health ────────────────────────────────────────────
 @app.get("/admin/api/kyc-pending")
 def admin_kyc_pending(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
@@ -9609,7 +9713,7 @@ MEMBER'S BRIEF:
 - Tone of voice: {tone}
 - Unique selling point: {usp if usp else "exclusive membership with multiple income streams"}
 
-CONTEXT: SuperAdPro is a $10/month membership that includes a Watch-to-Earn commission system, an AI & Marketing video course, and a suite of AI marketing tools. Members are typically people looking to earn online income, learn digital marketing, or build a side hustle.
+CONTEXT: SuperAdPro is an AI marketing tools platform with a built-in affiliate income opportunity. Membership is $20/month for Basic (core tools + Campaign Tiers) or $35/month for Pro (adds SuperSeller, SuperPages, Lead Finder, Autoresponder, Creative Studio access). Payments are in USDT on Polygon. Members are typically people looking to use AI marketing tools for their own business, earn online income, or build a side hustle.
 
 YOUR TASK:
 Generate all of the following marketing assets. Each section should be complete, specific, and immediately usable — not generic templates. Use the member's exact niche, tone and offer throughout.
@@ -10578,7 +10682,7 @@ MEMBER PROFILE:
 - Time available: {hours}
 - Main goal: {goal}
 - Preferred platform: {platform}
-- Platform context: They are a member of SuperAdPro — a $10/month video marketing membership with Watch-to-Earn commissions, an AI & Marketing course, and AI marketing tools.
+- Platform context: They are a member of SuperAdPro — an AI marketing tools platform ($20/month Basic, $35/month Pro) with Watch-to-Earn commissions, AI-generated funnels, video creation, and a suite of marketing tools for any niche.
 
 YOUR TASK:
 Recommend exactly 3 niches perfectly matched to this person's profile. Return ONLY valid JSON in this exact format with no other text:
@@ -11879,8 +11983,8 @@ Higher tiers unlock larger ad campaigns and greater earning potential.
 ## WITHDRAWALS
 - Minimum withdrawal: $10
 - Fee: $1 per withdrawal
-- Payment method: USDT on Base Chain (crypto)
-- Compatible wallets: MetaMask, Coinbase Wallet
+- Payment method: USDT on Polygon network (crypto)
+- Compatible wallets: MetaMask, Coinbase Wallet, Trust Wallet (any Polygon-compatible wallet)
 
 ## ACCOUNT & SECURITY
 - Two-Factor Authentication (2FA) available via Google Authenticator or Authy
@@ -14794,6 +14898,15 @@ def _send_sequence_email(db, lead, email_index: int):
         owner_name = (owner.first_name or owner.username) if owner else "SuperAdPro"
         body_html = wrap_email_html(body_html, owner_name)
 
+    # ── Quota enforcement — daily free limit + boost credits ──
+    # Prevents a member with a large lead list from silently blowing through
+    # the platform's Brevo free-tier daily quota and breaking email for everyone.
+    if owner:
+        allowed, reason = _check_email_allowance(owner, db, count=1)
+        if not allowed:
+            logger.info(f"Autoresponder quota reached for user {owner.id} — email to lead {lead.id} deferred to next cron tick: {reason}")
+            return False  # cron will retry on next tick when quota resets
+
     # Send via Brevo
     from .email_utils import send_email
     success = send_email(lead.email, subject, body_html)
@@ -14808,10 +14921,15 @@ def _send_sequence_email(db, lead, email_index: int):
         db.add(log)
         lead.emails_sent = (lead.emails_sent or 0) + 1
         lead.status = "nurturing"
+        # Deduct from the owner's daily quota (free first, then boost)
+        if owner:
+            _deduct_email_send(owner, db, count=1)
         db.commit()
         logger.info(f"Autoresponder email {email_index+1} sent to {lead.email} for lead {lead.id}")
+        return True
     else:
         logger.error(f"Autoresponder email {email_index+1} failed for lead {lead.email}")
+        return False
 
 
 # ── Autoresponder Cron Job ──
@@ -14954,6 +15072,106 @@ async def cron_process_autoresponder_get(request: Request, secret: str = "", db:
         "status": "ok",
         "processed": len(nurturing_leads),
         "sent": sent_count,
+        "errors": errors,
+    })
+
+
+# ── Creative Studio stuck-video cron ──
+@app.get("/cron/poll-pending-videos")
+async def cron_poll_pending_videos(request: Request, secret: str = "", db: Session = Depends(get_db)):
+    """Poll the provider for any Creative Studio videos stuck in 'pending' or 'processing'
+    status for more than 30 minutes. Refund credits on failure so users never lose them
+    when they close their browser mid-generation. Run every 15 mins via cron-job.org.
+    """
+    cron_secret = os.getenv("CRON_SECRET", "sap-renewal-cron-2026-X7kP9mQr")
+    if not secret or secret != cron_secret:
+        return JSONResponse({"error": "Invalid secret"}, status_code=401)
+
+    from .database import SuperSceneVideo, SuperSceneCredit
+    from datetime import datetime, timedelta
+
+    cutoff = datetime.utcnow() - timedelta(minutes=30)
+    hard_cutoff = datetime.utcnow() - timedelta(hours=6)  # assume dead after 6h
+
+    stuck = db.query(SuperSceneVideo).filter(
+        SuperSceneVideo.status.in_(["pending", "processing"]),
+        SuperSceneVideo.created_at < cutoff,
+    ).limit(200).all()
+
+    polled = 0
+    refunded = 0
+    completed = 0
+    errors = 0
+
+    for video in stuck:
+        try:
+            task_id = video.task_id or ""
+            # Route to correct provider by prefix
+            if task_id.startswith("grok:"):
+                from .grok_imagine import poll_video_status as _poll
+                result = await _poll(task_id)
+            elif task_id.startswith("fal:"):
+                from .fal_provider import poll_status as _poll
+                result = await _poll(task_id)
+            else:
+                from .superscene_evolink import poll_status as _poll
+                result = await _poll(task_id)
+
+            polled += 1
+
+            if not result.get("success"):
+                # Provider call itself errored — if older than 6h, treat as failed
+                if video.created_at < hard_cutoff and video.credits_used and video.credits_used > 0:
+                    credit_row = db.query(SuperSceneCredit).filter_by(user_id=video.user_id).first()
+                    if credit_row:
+                        credit_row.balance += video.credits_used
+                        refunded += 1
+                        logger.info(f"CS cron: refunded {video.credits_used} credits to user {video.user_id} for unreachable video {task_id}")
+                    video.status = "failed"
+                    video.credits_used = 0
+                    video.completed_at = datetime.utcnow()
+                continue
+
+            status = result.get("status", "")
+            if status == "completed":
+                video.status = "completed"
+                if result.get("video_url"):
+                    video.video_url = result["video_url"]
+                video.completed_at = datetime.utcnow()
+                completed += 1
+            elif status == "failed":
+                # Refund credits (idempotent — sets credits_used to 0 after refund)
+                if video.credits_used and video.credits_used > 0:
+                    credit_row = db.query(SuperSceneCredit).filter_by(user_id=video.user_id).first()
+                    if credit_row:
+                        credit_row.balance += video.credits_used
+                        refunded += 1
+                        logger.info(f"CS cron: refunded {video.credits_used} credits to user {video.user_id} for failed video {task_id}")
+                    video.credits_used = 0
+                video.status = "failed"
+                video.completed_at = datetime.utcnow()
+            elif video.created_at < hard_cutoff:
+                # Still "pending"/"processing" after 6h — provider has clearly lost it. Refund.
+                if video.credits_used and video.credits_used > 0:
+                    credit_row = db.query(SuperSceneCredit).filter_by(user_id=video.user_id).first()
+                    if credit_row:
+                        credit_row.balance += video.credits_used
+                        refunded += 1
+                        logger.info(f"CS cron: refunded {video.credits_used} credits to user {video.user_id} for abandoned video {task_id}")
+                    video.credits_used = 0
+                video.status = "failed"
+                video.completed_at = datetime.utcnow()
+        except Exception as e:
+            logger.error(f"CS cron error for video {video.id}: {e}")
+            errors += 1
+
+    db.commit()
+    return JSONResponse({
+        "status": "ok",
+        "checked": len(stuck),
+        "polled": polled,
+        "completed": completed,
+        "refunded": refunded,
         "errors": errors,
     })
 
