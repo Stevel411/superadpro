@@ -36,6 +36,7 @@ function getSections(t) { return [
     tips: [t('platformTour.s4_tip1'), t('platformTour.s4_tip2'), t('platformTour.s4_tip3'), t('platformTour.s4_tip4')],
     link: '/creative-studio', linkLabel: t('platformTour.s4_link'),
     Icon: Wrench, color: 'var(--sap-accent)', bg: '#e0f2fe',
+    videoSrc: '/static/downloads/tour-videos/basic-tools-tour.mp4',
   },
   {
     id: 'protools', num: '5', title: t('platformTour.s5_title'), shortTitle: t('platformTour.s5_short'),
