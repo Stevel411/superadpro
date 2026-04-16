@@ -12,7 +12,7 @@ function getSections(t) { return [
     tips: [t('platformTour.s1_tip1'), t('platformTour.s1_tip2'), t('platformTour.s1_tip3'), t('platformTour.s1_tip4')],
     link: '/dashboard', linkLabel: t('platformTour.s1_link'),
     Icon: Map, color: 'var(--sap-indigo)', bg: '#eef2ff',
-    videoSrc: '/static/downloads/tour-videos/how-you-earn-tour.mp4',
+    videoSrc: '/static/downloads/tour-videos/dashboard-tour.mp4',
   },
   {
     id: 'howyouearn', num: '2', title: t('platformTour.s2_title'), shortTitle: t('platformTour.s2_short'),
