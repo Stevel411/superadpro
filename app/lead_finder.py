@@ -1,30 +1,28 @@
 """
-Lead Finder — Powered by Outscraper API
-========================================
+Lead Finder — Powered by Outscraper API (direct HTTP calls)
+============================================================
 
 Two search modes:
-- MAPS: Google Maps local businesses (restaurants, gyms, services)
+- MAPS: Google Maps local businesses
 - SEARCH: Google Web Search for network marketers, affiliates, etc.
-
-Both modes enrich with email addresses via Outscraper's contact enrichment.
 """
 
 import asyncio
 import hashlib
-import json
 import logging
 import os
+import re
 import time
 from datetime import datetime
 from typing import Optional
-from urllib.parse import quote_plus
+from urllib.parse import urlparse
 
 import httpx
 
 logger = logging.getLogger("superadpro.lead_finder")
 
 OUTSCRAPER_API_KEY = os.getenv("OUTSCRAPER_API_KEY", "")
-OUTSCRAPER_BASE_URL = "https://api.outscraper.cloud"
+OUTSCRAPER_BASE = "https://api.app.outscraper.com"
 
 _search_cache = {}
 _rate_limits = {}
@@ -33,7 +31,6 @@ MAX_SEARCHES_PER_DAY = 10
 CACHE_TTL_HOURS = 24
 MAX_RESULTS = 20
 
-# Country → locale/language mapping for Google Maps/Search
 COUNTRY_LOCALE_MAP = {
     "GB": ("en-GB", "en"), "UK": ("en-GB", "en"), "IE": ("en-IE", "en"),
     "FR": ("fr-FR", "fr"), "DE": ("de-DE", "de"), "ES": ("es-ES", "es"),
@@ -105,204 +102,272 @@ def _set_cache(mode: str, query: str, location: str, results: list):
     }
 
 
-async def _outscraper_request(endpoint: str, params: dict, max_wait_seconds: int = 120) -> dict:
-    """
-    Make an Outscraper API request. Outscraper uses an async job pattern:
-    - POST /endpoint returns a request_id
-    - GET /requests/{request_id} polls for completion
-    - Once status == 'Success', the data is in the response
-    """
+def _get_headers():
     if not OUTSCRAPER_API_KEY:
-        raise ValueError("OUTSCRAPER_API_KEY not set in environment")
+        raise ValueError("OUTSCRAPER_API_KEY environment variable not set")
+    return {"X-API-KEY": OUTSCRAPER_API_KEY, "Accept": "application/json"}
 
-    headers = {"X-API-KEY": OUTSCRAPER_API_KEY}
-    url = f"{OUTSCRAPER_BASE_URL}{endpoint}"
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
-        # Start the job
-        logger.info(f"Outscraper request: {endpoint} with {params}")
-        response = await client.get(url, headers=headers, params=params)
+def _extract_email(item: dict) -> str:
+    """Try multiple fields to find an email in the result."""
+    if not isinstance(item, dict):
+        return ""
+    for key in ("email_1", "email"):
+        val = item.get(key)
+        if val and isinstance(val, str) and "@" in val:
+            return val
+    emails = item.get("emails")
+    if isinstance(emails, list):
+        for e in emails:
+            if isinstance(e, str) and "@" in e:
+                return e
+            if isinstance(e, dict):
+                v = e.get("value") or e.get("email")
+                if v and "@" in str(v):
+                    return str(v)
+    for key in item.keys():
+        if "email" in key.lower() and "validator" not in key.lower():
+            val = item.get(key)
+            if val and isinstance(val, str) and "@" in val:
+                return val
+    return ""
 
-        if response.status_code == 401:
-            raise ValueError("Outscraper API key invalid or account has no credits")
-        if response.status_code == 402:
-            raise ValueError("Outscraper account needs credits topped up")
-        if response.status_code >= 400:
-            logger.error(f"Outscraper error {response.status_code}: {response.text[:300]}")
-            raise ValueError(f"Outscraper API error: {response.status_code}")
 
-        data = response.json()
+def _extract_phone(item: dict) -> str:
+    if not isinstance(item, dict):
+        return ""
+    for key in ("phone", "phone_1"):
+        val = item.get(key)
+        if val:
+            return str(val)
+    phones = item.get("phones")
+    if isinstance(phones, list) and phones:
+        return str(phones[0])
+    return ""
 
-        # If response has data immediately
-        if data.get("status") == "Success" and data.get("data"):
-            return data
 
-        # If async, poll for the result
-        request_id = data.get("id")
-        if not request_id:
-            return data
-
-        poll_url = f"{OUTSCRAPER_BASE_URL}/requests/{request_id}"
-        elapsed = 0
-        poll_interval = 3
-        while elapsed < max_wait_seconds:
-            await asyncio.sleep(poll_interval)
-            elapsed += poll_interval
-            poll_resp = await client.get(poll_url, headers=headers)
-            if poll_resp.status_code != 200:
-                logger.warning(f"Poll failed {poll_resp.status_code}")
+async def _poll_task(client: httpx.AsyncClient, request_id: str, max_wait: int = 90) -> dict:
+    """Poll an async task until complete."""
+    poll_url = f"{OUTSCRAPER_BASE}/requests/{request_id}"
+    elapsed = 0
+    interval = 3
+    while elapsed < max_wait:
+        await asyncio.sleep(interval)
+        elapsed += interval
+        try:
+            resp = await client.get(poll_url, headers=_get_headers(), timeout=20.0)
+            if resp.status_code != 200:
                 continue
-            poll_data = poll_resp.json()
-            status = poll_data.get("status", "")
+            d = resp.json()
+            status = d.get("status", "")
             if status == "Success":
-                return poll_data
+                return d
             if status in ("Failed", "Cancelled"):
                 raise ValueError(f"Outscraper task {status}")
+        except httpx.RequestError:
+            continue
+    raise TimeoutError(f"Outscraper task timed out after {max_wait}s")
 
-        raise TimeoutError(f"Outscraper task timed out after {max_wait_seconds}s")
 
-
-async def search_maps(niche: str, location: str, locale: str = "en-GB", lang: str = "en") -> list:
-    """
-    Search Google Maps for local businesses.
-    Returns name, address, phone, website, rating, email, category.
-    """
-    query = f"{niche} in {location}"
-
+async def search_maps(niche: str, location: str, lang: str = "en", region: str = None) -> list:
+    """Search Google Maps via Outscraper API."""
+    query = f"{niche}, {location}" if location else niche
+    
     params = {
         "query": query,
         "limit": MAX_RESULTS,
         "language": lang,
         "async": "false",
-        "enrichment": "domains_service",  # Extracts emails from websites
+        "enrichment": "domains_service",  # Adds emails from websites
     }
-
-    try:
-        data = await _outscraper_request("/maps/search-v3", params)
-    except Exception as e:
-        logger.error(f"Maps search failed: {e}")
-        raise
-
-    results = []
+    if region:
+        params["region"] = region
+    
+    logger.info(f"[Outscraper] Maps: {query}")
+    
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        resp = await client.get(
+            f"{OUTSCRAPER_BASE}/maps/search-v3",
+            headers=_get_headers(),
+            params=params,
+        )
+        
+        if resp.status_code == 402:
+            raise ValueError("Outscraper account needs credits — please top up")
+        if resp.status_code == 401:
+            raise ValueError("Outscraper API key invalid")
+        if resp.status_code >= 400:
+            logger.error(f"[Outscraper] Status {resp.status_code}: {resp.text[:300]}")
+            raise ValueError(f"Outscraper returned status {resp.status_code}")
+        
+        data = resp.json()
+        
+        # Handle async response — poll until done
+        if data.get("status") == "Pending" and data.get("id"):
+            data = await _poll_task(client, data["id"])
+    
+    # Parse the results - data.data is array of query-result arrays
     raw = data.get("data", [])
-    # Outscraper returns nested array: data[0] is the first query's results
     if raw and isinstance(raw[0], list):
-        raw = raw[0]
-
-    for item in raw[:MAX_RESULTS]:
+        places = raw[0]
+    elif raw and isinstance(raw[0], dict):
+        places = raw
+    else:
+        places = []
+    
+    logger.info(f"[Outscraper] Maps got {len(places)} places")
+    
+    output = []
+    for item in places[:MAX_RESULTS]:
         if not isinstance(item, dict):
             continue
-        results.append({
-            "name": item.get("name", ""),
-            "address": item.get("full_address") or item.get("address", ""),
-            "phone": item.get("phone", ""),
-            "website": item.get("site", "") or item.get("website", ""),
+        output.append({
+            "name": item.get("name", "") or "",
+            "address": item.get("full_address") or item.get("address") or "",
+            "phone": _extract_phone(item),
+            "website": item.get("site") or item.get("website") or "",
             "rating": str(item.get("rating", "")) if item.get("rating") else "",
             "review_count": str(item.get("reviews", "")) if item.get("reviews") else "",
-            "category": item.get("type", "") or item.get("category", ""),
+            "category": item.get("type") or item.get("category") or "",
             "email": _extract_email(item),
             "source": "maps",
         })
+    return output
 
-    return results
 
-
-async def search_web(query: str, locale: str = "en-GB", lang: str = "en") -> list:
-    """
-    Search the web via Google Search for network marketers, affiliates, etc.
-    Returns websites with extracted emails.
-    """
+async def search_web(query: str, lang: str = "en", region: str = None) -> list:
+    """Search Google (web) via Outscraper, then enrich with emails."""
     params = {
         "query": query,
-        "pagesPerQuery": 2,  # 2 pages of results = ~20 sites
+        "pagesPerQuery": 2,
         "language": lang,
         "async": "false",
-        "enrichment": "domains_service",
     }
-
-    try:
-        data = await _outscraper_request("/google-search-v3", params)
-    except Exception as e:
-        logger.error(f"Web search failed: {e}")
-        raise
-
-    results = []
-    raw = data.get("data", [])
-    if raw and isinstance(raw[0], list):
-        raw = raw[0]
-
-    seen_domains = set()
-    for item in raw[:MAX_RESULTS * 2]:
-        if not isinstance(item, dict):
-            continue
-        website = item.get("link", "") or item.get("url", "")
-        if not website:
-            continue
-        from urllib.parse import urlparse
-        domain = urlparse(website).netloc.replace("www.", "")
-        if domain in seen_domains:
-            continue
-        seen_domains.add(domain)
-
-        email = _extract_email(item)
-        # For web search, only include results that have an email
+    if region:
+        params["region"] = region
+    
+    logger.info(f"[Outscraper] Web: {query}")
+    
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        resp = await client.get(
+            f"{OUTSCRAPER_BASE}/google-search-v3",
+            headers=_get_headers(),
+            params=params,
+        )
+        
+        if resp.status_code == 402:
+            raise ValueError("Outscraper account needs credits — please top up")
+        if resp.status_code == 401:
+            raise ValueError("Outscraper API key invalid")
+        if resp.status_code >= 400:
+            logger.error(f"[Outscraper] Status {resp.status_code}: {resp.text[:300]}")
+            raise ValueError(f"Outscraper returned status {resp.status_code}")
+        
+        data = resp.json()
+        if data.get("status") == "Pending" and data.get("id"):
+            data = await _poll_task(client, data["id"])
+        
+        # Extract search results
+        raw = data.get("data", [])
+        organic = []
+        if raw and isinstance(raw[0], dict):
+            organic = raw[0].get("organic") or raw[0].get("results") or []
+        elif raw and isinstance(raw[0], list):
+            organic = raw[0]
+        
+        logger.info(f"[Outscraper] Web got {len(organic)} search results")
+        
+        # Collect unique non-social domains
+        sites = []
+        seen = set()
+        skip_domains = ("facebook.com", "instagram.com", "twitter.com", "x.com",
+                        "linkedin.com", "youtube.com", "wikipedia.org", "reddit.com",
+                        "pinterest.com", "tiktok.com", "google.com", "amazon.com",
+                        "trustpilot.com", "glassdoor.com", "indeed.com", "yelp.com")
+        
+        for item in organic:
+            if not isinstance(item, dict):
+                continue
+            url = item.get("link") or item.get("url") or ""
+            if not url or not url.startswith("http"):
+                continue
+            domain = urlparse(url).netloc.replace("www.", "").lower()
+            if not domain or domain in seen:
+                continue
+            if any(s in domain for s in skip_domains):
+                continue
+            seen.add(domain)
+            sites.append({
+                "domain": domain,
+                "url": url,
+                "title": item.get("title") or domain,
+                "description": item.get("description") or item.get("snippet") or "",
+            })
+            if len(sites) >= MAX_RESULTS:
+                break
+        
+        if not sites:
+            return []
+        
+        # Enrich: fetch emails/contacts for these domains
+        logger.info(f"[Outscraper] Enriching {len(sites)} domains")
+        enrich_params = {
+            "query": [s["domain"] for s in sites],
+            "async": "false",
+        }
+        try:
+            er = await client.get(
+                f"{OUTSCRAPER_BASE}/emails-and-contacts",
+                headers=_get_headers(),
+                params=enrich_params,
+            )
+            if er.status_code == 200:
+                ed = er.json()
+                if ed.get("status") == "Pending" and ed.get("id"):
+                    ed = await _poll_task(client, ed["id"])
+                enrichment = ed.get("data", [])
+            else:
+                enrichment = []
+        except Exception as e:
+            logger.warning(f"[Outscraper] Enrichment failed: {e}")
+            enrichment = []
+    
+    # Map domain → contact data
+    contact_map = {}
+    if isinstance(enrichment, list):
+        for entry in enrichment:
+            if isinstance(entry, dict):
+                dom = (entry.get("domain") or entry.get("query") or "").replace("www.", "").lower()
+                if dom:
+                    contact_map[dom] = entry
+    
+    # Build final results — include sites with emails (or return all if no emails found)
+    output = []
+    for site in sites:
+        contact = contact_map.get(site["domain"], {})
+        email = _extract_email(contact)
         if not email:
             continue
-
-        results.append({
-            "name": item.get("title", domain) or domain,
+        output.append({
+            "name": site["title"] or site["domain"],
             "address": "",
-            "phone": _extract_phone(item),
-            "website": website,
+            "phone": _extract_phone(contact),
+            "website": site["url"],
             "rating": "",
             "review_count": "",
-            "category": item.get("description", "")[:80] if item.get("description") else "",
+            "category": (site["description"] or "")[:100],
             "email": email,
             "source": "web",
         })
-
-        if len(results) >= MAX_RESULTS:
-            break
-
-    return results
-
-
-def _extract_email(item: dict) -> str:
-    """Extract first valid email from an Outscraper result item."""
-    for key in ("email_1", "email", "emails"):
-        val = item.get(key, "")
-        if isinstance(val, list):
-            for e in val:
-                if e and "@" in str(e):
-                    return str(e)
-        elif val and "@" in str(val):
-            return str(val)
-    # Check nested emails array
-    emails_arr = item.get("emails", [])
-    if isinstance(emails_arr, list):
-        for e in emails_arr:
-            if isinstance(e, dict):
-                v = e.get("value", "") or e.get("email", "")
-                if v and "@" in str(v):
-                    return str(v)
-    return ""
-
-
-def _extract_phone(item: dict) -> str:
-    for key in ("phone_1", "phone", "phones"):
-        val = item.get(key, "")
-        if isinstance(val, list):
-            for p in val:
-                if p:
-                    return str(p)
-        elif val:
-            return str(val)
-    return ""
+    
+    logger.info(f"[Outscraper] Web final results: {len(output)}")
+    return output
 
 
 async def search_businesses(niche: str, location: str, locale: str = "en-GB", lang: str = "en", mode: str = "maps") -> list:
     """Unified entry point. mode = 'maps' or 'web'."""
+    region = locale.split("-")[-1] if "-" in locale else None
     if mode == "web":
-        query = niche if not location else f"{niche} {location}"
-        return await search_web(query, locale=locale, lang=lang)
-    return await search_maps(niche, location, locale=locale, lang=lang)
+        query = f"{niche} {location}".strip() if location else niche
+        return await search_web(query, lang=lang, region=region)
+    return await search_maps(niche, location, lang=lang, region=region)
