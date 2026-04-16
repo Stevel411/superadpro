@@ -62,6 +62,7 @@ function getSections(t) { return [
 export default function PlatformTour() {
   var { t } = useTranslation();
   var [activeIdx, setActiveIdx] = useState(0);
+  var [playingIds, setPlayingIds] = useState({}); // which videos have been clicked to play
   var SECTIONS = getSections(t);
   var s = SECTIONS[activeIdx];
 
@@ -158,12 +159,62 @@ export default function PlatformTour() {
           </div>
         </div>
 
-        {/* Video container — all videos stay mounted, just show/hide */}
+        {/* Video container — shows poster image until user clicks play */}
         <div style={{ margin: '24px 28px 0', borderRadius: 14, overflow: 'hidden', aspectRatio: '16/9', position: 'relative', background: '#000' }}>
-          {/* Render ALL videos, show the active one - keeps them cached and ready */}
           {SECTIONS.map(function(sec, i) {
             if (!sec.videoSrc) return null;
             var isActive = i === activeIdx;
+            var hasStartedPlaying = playingIds[sec.id];
+            
+            // Before first click: show poster image with play button overlay (instant, no buffering)
+            // After first click: render actual <video> which will then play
+            if (!hasStartedPlaying) {
+              return <div key={sec.id}
+                style={{
+                  width: '100%', height: '100%',
+                  display: isActive ? 'flex' : 'none',
+                  position: 'absolute', top: 0, left: 0,
+                  backgroundImage: sec.posterSrc ? 'url(' + sec.posterSrc + ')' : 'none',
+                  backgroundSize: 'cover', backgroundPosition: 'center',
+                  alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer',
+                  borderRadius: 14,
+                }}
+                onClick={function() {
+                  setPlayingIds(function(prev) {
+                    var next = Object.assign({}, prev);
+                    next[sec.id] = true;
+                    return next;
+                  });
+                  // Autoplay once the video element mounts
+                  setTimeout(function() {
+                    var vid = document.getElementById('tour-vid-' + sec.id);
+                    if (vid) { try { vid.play(); } catch(e) {} }
+                  }, 50);
+                }}
+              >
+                <div style={{
+                  width: 80, height: 80, borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.95)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+                  transition: 'transform 0.2s',
+                }}
+                onMouseEnter={function(e) { e.currentTarget.style.transform = 'scale(1.1)'; }}
+                onMouseLeave={function(e) { e.currentTarget.style.transform = 'scale(1)'; }}
+                >
+                  {/* Play triangle */}
+                  <div style={{
+                    width: 0, height: 0,
+                    borderTop: '16px solid transparent',
+                    borderBottom: '16px solid transparent',
+                    borderLeft: '26px solid ' + s.color,
+                    marginLeft: 6,
+                  }}/>
+                </div>
+              </div>;
+            }
+            
             return <video
               key={sec.id}
               id={'tour-vid-' + sec.id}
