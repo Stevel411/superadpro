@@ -146,6 +146,38 @@ def _extract_phone(item: dict) -> str:
     return ""
 
 
+async def _api_get(client: httpx.AsyncClient, path: str, params: dict, max_retries: int = 3) -> dict:
+    """Call Outscraper API with retry on 503 (server is flaky)."""
+    last_error = None
+    for attempt in range(max_retries):
+        try:
+            resp = await client.get(
+                f"{OUTSCRAPER_BASE}{path}",
+                headers=_get_headers(),
+                params=params,
+            )
+            if resp.status_code == 200:
+                return resp.json()
+            if resp.status_code == 402:
+                raise ValueError("Outscraper account needs credits — please top up")
+            if resp.status_code == 401:
+                raise ValueError("Outscraper API key invalid")
+            if resp.status_code == 503:
+                last_error = f"503 (attempt {attempt+1}/{max_retries})"
+                logger.warning(f"[Outscraper] 503 DNS cache overflow, retrying... (attempt {attempt+1}/{max_retries})")
+                await asyncio.sleep(2 + attempt)  # backoff: 2s, 3s, 4s
+                continue
+            # Other errors — don't retry
+            logger.error(f"[Outscraper] Status {resp.status_code}: {resp.text[:300]}")
+            raise ValueError(f"Outscraper returned status {resp.status_code}")
+        except httpx.RequestError as e:
+            last_error = str(e)
+            logger.warning(f"[Outscraper] Network error, retrying: {e}")
+            await asyncio.sleep(2)
+            continue
+    raise ValueError(f"Outscraper API unavailable after {max_retries} retries: {last_error}")
+
+
 async def _poll_task(client: httpx.AsyncClient, request_id: str, max_wait: int = 90) -> dict:
     """Poll an async task until complete."""
     poll_url = f"{OUTSCRAPER_BASE}/requests/{request_id}"
@@ -180,27 +212,13 @@ async def search_maps(niche: str, location: str, lang: str = "en", region: str =
         "async": "false",
         "enrichment": "domains_service",  # Adds emails from websites
     }
-    if region:
-        params["region"] = region
+    # NOTE: region parameter causes Outscraper's server to return
+    # "DNS cache overflow" — locale is embedded in query text instead
     
     logger.info(f"[Outscraper] Maps: {query}")
     
     async with httpx.AsyncClient(timeout=60.0) as client:
-        resp = await client.get(
-            f"{OUTSCRAPER_BASE}/maps/search-v3",
-            headers=_get_headers(),
-            params=params,
-        )
-        
-        if resp.status_code == 402:
-            raise ValueError("Outscraper account needs credits — please top up")
-        if resp.status_code == 401:
-            raise ValueError("Outscraper API key invalid")
-        if resp.status_code >= 400:
-            logger.error(f"[Outscraper] Status {resp.status_code}: {resp.text[:300]}")
-            raise ValueError(f"Outscraper returned status {resp.status_code}")
-        
-        data = resp.json()
+        data = await _api_get(client, "/maps/search-v3", params)
         
         # Handle async response — poll until done
         if data.get("status") == "Pending" and data.get("id"):
@@ -243,27 +261,12 @@ async def search_web(query: str, lang: str = "en", region: str = None) -> list:
         "language": lang,
         "async": "false",
     }
-    if region:
-        params["region"] = region
+    # NOTE: region parameter causes Outscraper server errors
     
     logger.info(f"[Outscraper] Web: {query}")
     
     async with httpx.AsyncClient(timeout=60.0) as client:
-        resp = await client.get(
-            f"{OUTSCRAPER_BASE}/google-search-v3",
-            headers=_get_headers(),
-            params=params,
-        )
-        
-        if resp.status_code == 402:
-            raise ValueError("Outscraper account needs credits — please top up")
-        if resp.status_code == 401:
-            raise ValueError("Outscraper API key invalid")
-        if resp.status_code >= 400:
-            logger.error(f"[Outscraper] Status {resp.status_code}: {resp.text[:300]}")
-            raise ValueError(f"Outscraper returned status {resp.status_code}")
-        
-        data = resp.json()
+        data = await _api_get(client, "/google-search-v3", params)
         if data.get("status") == "Pending" and data.get("id"):
             data = await _poll_task(client, data["id"])
         
@@ -316,18 +319,10 @@ async def search_web(query: str, lang: str = "en", region: str = None) -> list:
             "async": "false",
         }
         try:
-            er = await client.get(
-                f"{OUTSCRAPER_BASE}/emails-and-contacts",
-                headers=_get_headers(),
-                params=enrich_params,
-            )
-            if er.status_code == 200:
-                ed = er.json()
-                if ed.get("status") == "Pending" and ed.get("id"):
-                    ed = await _poll_task(client, ed["id"])
-                enrichment = ed.get("data", [])
-            else:
-                enrichment = []
+            ed = await _api_get(client, "/emails-and-contacts", enrich_params)
+            if ed.get("status") == "Pending" and ed.get("id"):
+                ed = await _poll_task(client, ed["id"])
+            enrichment = ed.get("data", [])
         except Exception as e:
             logger.warning(f"[Outscraper] Enrichment failed: {e}")
             enrichment = []
