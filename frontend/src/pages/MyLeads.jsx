@@ -45,7 +45,6 @@ export default function MyLeads() {
   useEffect(function() { refresh(); }, [refresh]);
 
   if (loading) return <AppLayout title={t('myLeads.superLeadsTitle')}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-indigo)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
-  if (showHelp) return <AppLayout title={t('myLeads.superLeadsTitle')}><MyLeadsHelp onBack={function(){setShowHelp(false);}}/></AppLayout>;
 
   return (
     <AppLayout title={t('myLeads.superLeadsTitle')} subtitle={t('myLeads.crmSubtitle')}>
@@ -141,6 +140,9 @@ export default function MyLeads() {
       {tab==='broadcast' && <BcastTab leads={leads} lists={lists} flash={flash}/>}
       {tab==='import' && <ImpTab stats={stats} lists={lists} sequences={sequences} refresh={refresh} flash={flash}/>}
       {tab==='boost' && <BoostTab emailStats={emailStats} refresh={refresh} flash={flash}/>}
+
+      {/* Help panel — slides in from the right as an overlay */}
+      <MyLeadsHelp visible={showHelp} onClose={function(){setShowHelp(false);}}/>
     </AppLayout>
   );
 }
