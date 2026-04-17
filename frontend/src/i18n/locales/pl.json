@@ -108,7 +108,8 @@
     "sponsorUsername": "Nazwa sponsora",
     "yourImages": "Twoje obrazy",
     "videoNotSupported": "URL wideo nie obsługiwany.",
-    "alreadyHaveAccount": "Masz już konto?"
+    "alreadyHaveAccount": "Masz już konto?",
+    "tapToUnmute": "Dotknij, aby wyłączyć wyciszenie"
   },
   "nav": {
     "dashboard": "Panel",
@@ -192,7 +193,8 @@
     "marketingMaterials": "Materiały Marketingowe",
     "courseAcademy": "Akademia Kursów",
     "profitGrid": "Siatka Zysków",
-    "gridCalculator": "Kalkulator Siatki"
+    "gridCalculator": "Kalkulator Siatki",
+    "incomeChains": "Łańcuchy Dochodów"
   },
   "dashboard": {
     "title": "Panel",
@@ -631,7 +633,8 @@
     "returnToTab": "Wróć do tej karty",
     "general": "General",
     "loading": "Ładowanie...",
-    "playing": "▶ Odtwarzanie"
+    "playing": "▶ Odtwarzanie",
+    "watchOneToQualify": "Obejrzyj 1 film, aby zakwalifikować się dzisiaj"
   },
   "adBoard": {
     "title": "Tablica Ogłoszeń",
@@ -1984,7 +1987,8 @@
     "enterDescription": "Wprowadź opis",
     "enterScript": "Wprowadź skrypt",
     "uploadAnImage": "Prześlij obraz",
-    "remaining": "pozostało"
+    "remaining": "pozostało",
+    "preview": "Podgląd"
   },
   "socialShare": {
     "title": "Udostępnianie Społecznościowe",
@@ -2291,7 +2295,8 @@
     "paymentWindowOpened": "Payment window opened — complete your USDT payment to receive {{credits}} credits. Your nexus will update automatically once payment is confirmed.",
     "creditsAwarded": "{{credits}} credits awarded!",
     "commissionsEarned": "${{amount}} in commissions paid to your upline.",
-    "purchaseFailed": "Purchase failed"
+    "purchaseFailed": "Purchase failed",
+    "perCredit": "za kredyt"
   },
   "matrixVis": {
     "title": "Nexus Zysków",
@@ -2948,7 +2953,243 @@
     "achieveDefault": "Zobacz, co osiągnęli członkowie naszej społeczności.",
     "lastChanceDefault": "To Twoja ostatnia szansa na dołączenie do nas.",
     "sentToLeads": "Wysłano do",
-    "leads": "leadów"
+    "leads": "leadów",
+    "help": {
+      "title": "Pomoc SuperLeads",
+      "subtitle": "Kompletny przewodnik po Twoim CRM i autoresponderze",
+      "searchPlaceholder": "Szukaj tematów pomocy…",
+      "noResults": "Brak wyników dla",
+      "sections": {
+        "gettingStarted": {
+          "category": "Rozpoczęcie",
+          "items": [
+            {
+              "title": "Czym jest SuperLeads?",
+              "desc": "SuperLeads to Twój wbudowany CRM i autoresponder e-mail. Pozwala przechwytywać leady z Twoich funneli SuperPages, organizować je w listy, wysyłać automatyczne sekwencje e-maili i wysyłać jednorazowe wiadomości — wszystko bez potrzeby oddzielnego narzędzia do email marketingu."
+            },
+            {
+              "title": "Jak leady trafiają do mojego CRM?",
+              "desc": "Leady są dodawane automatycznie, gdy ktoś wypełni formularz na jednej z Twoich SuperPages. Ich imię i e-mail są natychmiast przechwytywane i pojawiają się w zakładce Leady. Możesz również ręcznie importować leady przy użyciu pliku CSV przez zakładkę Import."
+            },
+            {
+              "title": "Kto może korzystać z SuperLeads?",
+              "desc": "SuperLeads to funkcja dla członków Pro. Otrzymujesz do 5 000 leadów wliczonych w Twoje członkostwo Pro. Potrzebujesz większej pojemności? Możesz rozszerzyć w dowolnym momencie z ustawień konta."
+            },
+            {
+              "title": "Co się dzieje, gdy pojawia się lead?",
+              "desc": "Gdy lead wypełnia Twój formularz funnela, jest dodawany do Twojego CRM, przypisywany do Twojej najnowszej aktywnej sekwencji e-mail, a pierwszy e-mail tej sekwencji jest natychmiast wysyłany przez Brevo. Wszystko automatycznie — bez kroków ręcznych."
+            }
+          ]
+        },
+        "leadsTab": {
+          "category": "Zakładka Leady",
+          "items": [
+            {
+              "title": "Co pokazuje zakładka Leady?",
+              "desc": "Zakładka Leady to Twoja główna lista kontaktów. Pokazuje każdego przechwyconego lub zaimportowanego leada, w tym imię, e-mail, do której listy należy, jego aktualny status, ile e-maili otrzymał i otworzył oraz do której sekwencji jest przypisany."
+            },
+            {
+              "title": "Objaśnienie statusów leadów",
+              "desc": "Nowy — właśnie dodany, brak interakcji. W kwalifikacji — w aktywnej sekwencji e-maili. Gorący — automatycznie oznaczony, gdy lead otworzy 2+ e-maili lub kliknie dowolny link. Skonwertowany — ręcznie oznacz leada jako skonwertowanego, gdy wykona pożądaną akcję (zakup, rejestracja itp.)."
+            },
+            {
+              "title": "Czym jest gorący lead?",
+              "desc": "Gorący lead to ktoś, kto wykazuje prawdziwe zainteresowanie — otworzył kilka e-maili lub kliknął link. To Twoi najcieplejsi potencjalni klienci, warto dać im priorytet. Gorące leady są automatycznie oznaczane ikoną płomienia i pojawiają się po kliknięciu filtra Gorący."
+            },
+            {
+              "title": "Filtrowanie leadów",
+              "desc": "Użyj kolorowych przycisków filtrów, aby zobaczyć leady według statusu: Wszystkie, Nowy, W kwalifikacji, Gorący lub Skonwertowany. Użyj rozwijanego menu Wszystkie listy po prawej, aby filtrować według konkretnej listy. Łącz oba filtry — na przykład, wyświetl tylko gorące leady z Twojej listy Facebook."
+            },
+            {
+              "title": "Przypisywanie sekwencji do leada",
+              "desc": "W kolumnie Sekwencja obok każdego leada użyj rozwijanego menu, aby przypisać lub zmienić sekwencję e-mail, w której się znajdują. Następnym razem, gdy klikniesz Wyślij następny w tej sekwencji, ten lead zostanie uwzględniony."
+            },
+            {
+              "title": "Usuwanie leada",
+              "desc": "Kliknij czerwoną ikonę kosza po prawej stronie dowolnego wiersza leada, aby go usunąć. Spowoduje to trwałe usunięcie leada i całej jego historii e-maili. Używaj ostrożnie — tego nie można cofnąć."
+            }
+          ]
+        },
+        "lists": {
+          "category": "Listy",
+          "items": [
+            {
+              "title": "Czym są listy?",
+              "desc": "Listy pozwalają organizować leady w grupy. Na przykład: leady z Facebooka, ruch YouTube, zapisy na webinar lub klienci VIP. Każda lista ma swój kolor, dzięki czemu można je natychmiast zidentyfikować w tabeli leadów."
+            },
+            {
+              "title": "Tworzenie listy",
+              "desc": "Kliknij Nowa lista, nadaj jej nazwę, opcjonalny opis, wybierz kolor i opcjonalnie przypisz domyślną sekwencję e-maili. Każdy lead zaimportowany lub przechwycony dla tej listy zostanie automatycznie zapisany do tej sekwencji."
+            },
+            {
+              "title": "Domyślna sekwencja na liście",
+              "desc": "Gdy ustawisz domyślną sekwencję na liście, każdy nowy lead dodany do tej listy (przez przechwycenie formularza lub import CSV) jest automatycznie zapisywany do tej sekwencji. Oszczędza to ręcznego przypisywania sekwencji do każdego nowego leada."
+            },
+            {
+              "title": "Co się stanie, jeśli usunę listę?",
+              "desc": "Jeśli usuniesz listę, wszystkie leady, które w niej były, zostaną przeniesione do Niesklasyfikowanych, a nie usunięte. Możesz filtrować niesklasyfikowane leady i przypisywać je do nowej listy w dowolnym momencie."
+            },
+            {
+              "title": "Liczba leadów na kartach list",
+              "desc": "Każda karta listy pokazuje liczbę leadów, dzięki czemu można od razu zobaczyć, ile kontaktów jest w każdej grupie. Kolorowy pasek na górze każdej karty pasuje do koloru wybranego dla tej listy."
+            }
+          ]
+        },
+        "sequences": {
+          "category": "Sekwencje",
+          "items": [
+            {
+              "title": "Czym jest sekwencja e-mail?",
+              "desc": "Sekwencja to seria e-maili wysyłanych automatycznie w czasie. Piszesz je raz, ustawiasz opóźnienie między każdym e-mailem, a system wysyła je do Twoich leadów na autopilocie. Idealne do serii powitalnych, kampanii kwalifikacyjnych lub przepływów onboardingu."
+            },
+            {
+              "title": "Tworzenie sekwencji",
+              "desc": "Kliknij Utwórz sekwencję, nadaj jej nazwę i dodaj swoje e-maile. Każdy e-mail potrzebuje tematu, treści (napisanej w edytorze tekstu sformatowanego) i opóźnienia wysyłki w dniach. Dzień 0 wysyła natychmiast. Dzień 3 wysyła 3 dni po poprzednim e-mailu."
+            },
+            {
+              "title": "Co robi Wyślij następny?",
+              "desc": "Kliknięcie Wyślij następny na sekwencji wysyła następny oczekujący e-mail do każdego leada przypisanego do tej sekwencji. System śledzi, na którym e-mailu znajduje się każdy lead, dzięki czemu każdy otrzymuje właściwy e-mail we właściwym kroku — nikt nie otrzymuje tego samego e-maila dwukrotnie."
+            },
+            {
+              "title": "Objaśnienie opóźnienia wysyłki",
+              "desc": "Opóźnienie każdego e-maila to liczba dni po wysłaniu poprzedniego e-maila. E-mail 1 przy 0 dniach wysyła natychmiast. E-mail 2 przy 2 dniach wysyła 2 dni po E-mailu 1. E-mail 3 przy 5 dniach wysyła 5 dni po E-mailu 2. Leady, które nie są jeszcze gotowe na kolejny e-mail, są pomijane."
+            },
+            {
+              "title": "Edycja sekwencji",
+              "desc": "Kliknij Edytuj na dowolnej karcie sekwencji, aby zmienić nazwę, dodać lub usunąć e-maile, zaktualizować tematy i treści lub dostosować opóźnienia. Zmiany dotyczą przyszłych wysyłek — leady, które już otrzymały e-mail, nie otrzymają go ponownie."
+            },
+            {
+              "title": "Edytor tekstu sformatowanego",
+              "desc": "Edytor treści e-maila obsługuje pogrubienie, kursywę, podkreślenie, listy punktowane, listy numerowane, nagłówki i linki. Napisz swój e-mail tak, jak chcesz, aby się pojawił. E-maile są wysyłane jako HTML, aby formatowanie zostało zachowane w skrzynce odbiorczej."
+            }
+          ]
+        },
+        "broadcast": {
+          "category": "Wysyłka",
+          "items": [
+            {
+              "title": "Czym jest wysyłka?",
+              "desc": "Wysyłka to jednorazowy e-mail wysyłany teraz do wszystkich lub filtrowanej grupy Twoich leadów. W przeciwieństwie do sekwencji (które sączą się w czasie), wysyłka idzie natychmiast do wszystkich pasujących do Twojego filtra. Używaj jej do ogłoszeń, promocji lub wiadomości wrażliwych czasowo."
+            },
+            {
+              "title": "Filtrowanie odbiorców wysyłki",
+              "desc": "Przed wysłaniem wybierz filtr listy i/lub statusu. Liczba odbiorców aktualizuje się na żywo, dzięki czemu wiesz dokładnie, ile osób otrzyma e-mail, zanim naciśniesz Wyślij. Na przykład: wyślij tylko do gorących leadów z listy Facebook."
+            },
+            {
+              "title": "Liczba odbiorców",
+              "desc": "Liczba wyświetlana obok filtrów to aktualna liczba leadów pasujących do wyboru, które nie wypisały się z listy. To dokładna liczba e-maili, które zostaną wysłane po kliknięciu Wyślij."
+            },
+            {
+              "title": "Wypisane leady",
+              "desc": "Leady, które wypisały się, są automatycznie wykluczane ze wszystkich wysyłek i sekwencji. Nie musisz ich ręcznie filtrować — system zajmie się tym, aby utrzymać zgodność."
+            },
+            {
+              "title": "Wysyłka vs sekwencja",
+              "desc": "Użyj sekwencji dla zaplanowanych, wiecznie zielonych serii e-maili (przepływy powitalne, follow-upy). Użyj wysyłki do jednorazowych wysyłek na całą listę lub segment — promocje błyskawiczne, zaproszenia na webinary, premiery produktów lub ważne aktualizacje."
+            }
+          ]
+        },
+        "import": {
+          "category": "Import",
+          "items": [
+            {
+              "title": "Import leadów przez CSV",
+              "desc": "Przejdź do zakładki Import, prześlij plik CSV lub wklej bezpośrednio tekst CSV. Twój CSV powinien mieć kolumny dla e-maila i opcjonalnie imienia. Kliknij Podgląd, aby sprawdzić dane przed importem, a następnie kliknij Import, aby dodać leady do Twojego CRM."
+            },
+            {
+              "title": "Format CSV",
+              "desc": "Najprostszy format to dwie kolumny: e-mail i imię. Na przykład: email,name w pierwszym wierszu, a następnie john@example.com,John Smith w każdym kolejnym wierszu. Importer jest elastyczny — automatycznie wykryje kolumnę e-mail, nawet jeśli Twoje nagłówki są inne."
+            },
+            {
+              "title": "Przypisanie do listy podczas importu",
+              "desc": "Przed importem wybierz listę, do której chcesz zaimportować leady, za pomocą rozwijanego menu Do listy. Wybór listy oznacza, że wszystkie zaimportowane leady są natychmiast zorganizowane i mogą korzystać z domyślnej sekwencji tej listy."
+            },
+            {
+              "title": "Podgląd przed importem",
+              "desc": "Kliknij Podgląd, aby zobaczyć, ile leadów wykryto w Twoim CSV i sprawdzić wszelkie problemy z formatowaniem. Wyświetlana liczba to liczba leadów, które faktycznie zostaną zaimportowane. Klikaj Import tylko wtedy, gdy jesteś zadowolony z podglądu."
+            },
+            {
+              "title": "Limit leadów",
+              "desc": "Twoja aktualna liczba leadów i limit są wyświetlane na górze zakładki Import. Członkowie Pro mogą pomieścić do 5 000 leadów. Jeśli zbliżasz się do swojego limitu, kup pakiet Email Boost lub skontaktuj się z pomocą techniczną, aby omówić rozszerzenie planu."
+            },
+            {
+              "title": "Obsługa duplikatów",
+              "desc": "Jeśli adres e-mail już istnieje w Twoim CRM, import pominie ten lead zamiast tworzyć duplikat. Twoje istniejące dane leada (status, przypisanie sekwencji, historia e-maili) są zachowywane."
+            }
+          ]
+        },
+        "emailBoost": {
+          "category": "Email Boost",
+          "items": [
+            {
+              "title": "Czym jest Email Boost?",
+              "desc": "Email Boost pozwala wysyłać więcej e-maili niż Twój dzienny bezpłatny przydział. Każdy członek Pro otrzymuje 200 darmowych e-maili dziennie. Jeśli musisz wysłać więcej — dla dużej wysyłki lub dużej sekwencji — możesz kupić Pakiety Boost, które dają Ci dodatkowe kredyty powyżej Twojego dziennego przydziału."
+            },
+            {
+              "title": "Jak działa dzienny limit",
+              "desc": "Otrzymujesz 200 darmowych e-maili każdego dnia. Licznik resetuje się o północy UTC. Jeśli wyślesz wysyłkę do 150 leadów i masz działające 3 sekwencje, Twoje 200 darmowych e-maili jest używanych jako pierwsze. Gdy się wyczerpią, kredyty Boost automatycznie przejmują."
+            },
+            {
+              "title": "Dostępne pakiety Boost",
+              "desc": "1 000 e-maili — 5 $. 5 000 e-maili — 19 $. 10 000 e-maili — 29 $. 50 000 e-maili — 99 $. Kredyty Boost nigdy nie wygasają — przenoszone są na czas nieokreślony, aż zostaną wykorzystane."
+            },
+            {
+              "title": "Jak kredyty są odliczane",
+              "desc": "Dzienne darmowe kredyty są zawsze używane jako pierwsze. Gdy wydasz 200 darmowych e-maili dnia, każdy dodatkowy e-mail automatycznie odlicza jeden kredyt Boost. Nigdy nie musisz przełączać się między nimi ręcznie — wszystko dzieje się w tle."
+            },
+            {
+              "title": "Zakup pakietu Boost",
+              "desc": "Kliknij Kup na dowolnej karcie pakietu Boost. Koszt jest odliczany z salda Twojego portfela SuperAdPro. Kredyty są dodawane natychmiast — możesz ich używać od razu. Przed zakupem upewnij się, że Twój portfel ma wystarczające środki."
+            },
+            {
+              "title": "Sprawdzanie zużycia",
+              "desc": "Pasek postępu na górze strony SuperLeads pokazuje Twoje dzienne zużycie e-maili (np. Dziennie: 45/200). Licznik kredytów w prawym górnym rogu bohatera pokazuje Twoje aktualne saldo kredytów Boost. Oba aktualizują się w czasie rzeczywistym."
+            },
+            {
+              "title": "Kiedy potrzebuję kredytów Boost?",
+              "desc": "Jeśli Twoja lista jest mała (mniej niż 200 leadów) i wysyłasz jedną wysyłkę dziennie, rzadko będziesz potrzebował kredytów Boost. Stają się użyteczne, gdy masz duże listy, uruchamiasz wiele sekwencji jednocześnie lub chcesz wysłać wiele wysyłek w ciągu jednego dnia."
+            }
+          ]
+        }
+      }
+    },
+    "autoresponderLabel": "Autoresponder",
+    "totalLeadsStat": "Łączna liczba leadów",
+    "sequencesStat": "Sekwencje",
+    "sentTodayStat": "Wysłane dzisiaj",
+    "hotLeadsStat": "Gorące leady",
+    "tabLeads": "Leady",
+    "tabSequences": "Sekwencje",
+    "tabBroadcast": "Wysyłka",
+    "tabImport": "Import",
+    "tabBoost": "Boost",
+    "filterAllStatuses": "Wszystkie statusy",
+    "filterAllLists": "Wszystkie listy",
+    "statusNew": "Nowy",
+    "statusNurturing": "W kwalifikacji",
+    "statusHot": "Gorący",
+    "statusConverted": "Skonwertowany",
+    "statusUnsubscribed": "Wypisany",
+    "searchLeadsPlaceholder": "Szukaj leadów…",
+    "newListBtn": "Nowa lista",
+    "deleteLeadConfirm": "Usunąć tego leada?",
+    "leadDeleted": "Lead usunięty",
+    "noLeadsYet": "Jeszcze brak leadów",
+    "defaultWelcomeSubject": "Witamy!",
+    "defaultFollowUpSubject": "Follow-up — szybka wskazówka",
+    "defaultLastChanceSubject": "Ostatnia szansa, aby działać",
+    "dayLabel": "Dzień",
+    "boostPack1kLabel": "1 000 E-maili",
+    "boostPack1kDesc": "Idealne do kampanii celowanej",
+    "boostPack5kLabel": "5 000 E-maili",
+    "boostPack5kDesc": "Uruchom wiele sekwencji",
+    "boostPack10kLabel": "10 000 E-maili",
+    "boostPack10kDesc": "Rozszerz swój zasięg",
+    "boostPack50kLabel": "50 000 E-maili",
+    "boostPack50kDesc": "Wolumen korporacyjny",
+    "contacts": "kontakty",
+    "sent": "wysłane",
+    "noneOption": "Brak"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -4400,7 +4641,198 @@
     "duplicate": "Duplikuj",
     "deleteElement": "Usuń",
     "pages": "Strony",
-    "help": "Pomoc",
+    "help": {
+      "title": "Pomoc SuperPages",
+      "subtitle": "Baza wiedzy kreatora stron",
+      "searchPlaceholder": "Szukaj tematów pomocy…",
+      "noResults": "Brak wyników dla",
+      "sections": {
+        "gettingStarted": {
+          "category": "Rozpoczęcie",
+          "items": [
+            {
+              "title": "Jak działa edytor",
+              "desc": "SuperPages to kreator stron typu drag-and-drop w dowolnym formacie. Kliknij dowolny blok z prawego panelu, aby dodać go do kanwy, a następnie przeciągnij, aby ustawić go w dowolnym miejscu. Dwukrotnie kliknij elementy tekstowe, aby edytować w miejscu. Użyj pływającego paska narzędzi do formatowania tekstu, zmiany czcionek, kolorów i wyrównania."
+            },
+            {
+              "title": "Zaznaczanie i przesuwanie",
+              "desc": "Kliknij raz dowolny element, aby go zaznaczyć — zobaczysz niebieski kontur i uchwyty do zmiany rozmiaru. Kliknij i przeciągnij, aby zmienić pozycję. Przytrzymaj Shift + strzałki, aby przesunąć o 10px, lub same strzałki dla precyzji 1px."
+            },
+            {
+              "title": "Zmiana rozmiaru",
+              "desc": "Zaznaczone elementy pokazują 8 cyjanowych uchwytów zmiany rozmiaru — w czterech rogach i na czterech krawędziach. Przeciągnij dowolny uchwyt, aby zmienić rozmiar. Uchwyty narożne zmieniają rozmiar w obu kierunkach jednocześnie. Minimalny rozmiar to 40px szerokości i 20px wysokości."
+            },
+            {
+              "title": "Zapisywanie i publikowanie",
+              "desc": "Kliknij Zapisz, aby zapisać pracę (automatyczne zapisywanie co 30 sekund). Kliknij Opublikuj, aby Twoja strona była aktywna w sieci. Twój adres URL na żywo pojawi się w Ustawieniach. Przełącz z powrotem na Wersję roboczą, aby cofnąć publikację."
+            },
+            {
+              "title": "Skróty klawiszowe",
+              "desc": "Ctrl+S: Zapisz | Ctrl+Z: Cofnij | Ctrl+Y: Ponów | Delete/Backspace: Usuń zaznaczony element | Strzałki: Przesuń 1px | Shift+strzałki: Przesuń 10px | Escape: Odznacz"
+            }
+          ]
+        },
+        "textElements": {
+          "category": "Elementy tekstowe",
+          "items": [
+            {
+              "title": "Nagłówek",
+              "desc": "Duży, pogrubiony tekst dla tytułów stron i nagłówków sekcji. Domyślnie czcionka Sora 36px w kolorze białym. Kliknij dwukrotnie, aby edytować tekst. Użyj pływającego paska narzędzi, aby zmienić rodzinę czcionek, rozmiar, kolor, pogrubienie, kursywę, podkreślenie i wyrównanie."
+            },
+            {
+              "title": "Tekst",
+              "desc": "Tekst treści dla akapitów i opisów. Domyślnie czcionka Outfit 15px w kolorze szarym z wysokością wiersza 1.8 dla czytelności. Kliknij dwukrotnie, aby edytować. Obsługuje całe formatowanie inline z pływającego paska narzędzi."
+            },
+            {
+              "title": "Etykieta",
+              "desc": "Mały tekst w stylu plakietki idealny dla tagów takich jak PREMIUM, NOWY lub OFERTA OGRANICZONA. Z zaokrąglonym tłem w kształcie pigułki i obramowaniem. Kliknij dwukrotnie, aby zmienić tekst etykiety."
+            }
+          ]
+        },
+        "mediaElements": {
+          "category": "Elementy multimedialne",
+          "items": [
+            {
+              "title": "Obraz",
+              "desc": "Dodaj obrazy do swojej strony. Kliknij przycisk edycji IMAGE w pasku narzędzi elementu, aby wprowadzić adres URL obrazu lub przesłać plik (maks. 5MB). Obsługuje JPG, PNG, GIF i WebP. Obrazy są przechowywane na Cloudflare R2 dla szybkiej globalnej dostawy."
+            },
+            {
+              "title": "Wideo",
+              "desc": "Osadzaj filmy z YouTube, Vimeo lub prześlij własne pliki MP4/WebM (maks. 50MB). Kliknij edycja VIDEO, aby dodać. Adresy URL oglądania YouTube i Vimeo są automatycznie konwertowane do formatu osadzania. Przesłane filmy są hostowane na Cloudflare R2."
+            },
+            {
+              "title": "Audio",
+              "desc": "Dodaj odtwarzacze audio do swojej strony. Kliknij edycja AUDIO, aby wprowadzić adres URL audio lub przesłać pliki MP3/WAV/OGG (maks. 20MB). Idealne do podcastów, próbek muzyki lub referencji audio."
+            }
+          ]
+        },
+        "actionElements": {
+          "category": "Elementy akcji",
+          "items": [
+            {
+              "title": "Przycisk",
+              "desc": "Klikalny przycisk z gradientowym tłem. Kliknij edycja LINK, aby ustawić docelowy adres URL. Kliknij dwukrotnie, aby zmienić tekst przycisku. Idealny do wezwań do działania, takich jak Dołącz teraz, Kup teraz lub Dowiedz się więcej."
+            },
+            {
+              "title": "Formularz Opt-In",
+              "desc": "Formularz przechwytywania e-maili z polem imienia, polem e-mail i przyciskiem wysyłania. Wstępnie stylizowany z ciemnym szklanym tłem. Kliknij edycja FORM, aby dostosować HTML. Połączony z Twoim pulpitem My Leads do zbierania leadów."
+            },
+            {
+              "title": "CTA (wezwanie do działania)",
+              "desc": "Podobny do przycisku, ale stylizowany specjalnie dla podstawowych akcji konwersji. Kliknij edycja LINK, aby ustawić docelowy adres URL. Kliknij dwukrotnie, aby edytować tekst. Użyj dla głównej akcji strony, takiej jak Rozpocznij teraz."
+            }
+          ]
+        },
+        "contentElements": {
+          "category": "Elementy treści",
+          "items": [
+            {
+              "title": "Recenzja",
+              "desc": "Blok recenzji klienta z oceną gwiazdek, tekstem cytatu i atrybucją. Stylizowany z ciemnym tłem karty i cyjanowym lewym obramowaniem. Kliknij dwukrotnie, aby edytować treść recenzji, gwiazdki i nazwę klienta."
+            },
+            {
+              "title": "Plakietka",
+              "desc": "Mała ozdobna plakietka identyczna z etykietą — przydatna dla tagów takich jak NAJLEPSZA WARTOŚĆ, NAJPOPULARNIEJSZY lub POLECANE. Ma domyślnie złoty styl pigułki."
+            },
+            {
+              "title": "Testimonial",
+              "desc": "Rozszerzony blok testimoniala z gwiazdkami, dłuższym cytatem i informacją o autorze. Ma złote lewe obramowanie, aby odróżnić go od recenzji. Kliknij dwukrotnie, aby dostosować tekst testimoniala i atrybucję."
+            },
+            {
+              "title": "FAQ",
+              "desc": "Blok pytań i odpowiedzi stylizowany z subtelnie obramowanym nagłówkiem. Kliknij dwukrotnie, aby edytować tekst pytania i odpowiedzi. Ułóż wiele elementów FAQ, aby zbudować kompletną sekcję FAQ."
+            },
+            {
+              "title": "Statystyka",
+              "desc": "Duży wyświetlacz statystyk — pokazuje dużą liczbę (np. 95%) z etykietą pod spodem. Idealne do społecznego dowodu: 10 000+ członków, 95% współczynnika wypłat, 1 milion dolarów+ wypłacone. Kliknij dwukrotnie, aby edytować."
+            },
+            {
+              "title": "Postęp",
+              "desc": "Animowany pasek postępu z etykietą i procentem. Kliknij edycja SET, aby skonfigurować tekst etykiety, procent (0-100) i kolor paska. Świetne do pokazywania ukończenia kursu, celów finansowania lub ograniczonej dostępności."
+            }
+          ]
+        },
+        "layoutElements": {
+          "category": "Elementy układu",
+          "items": [
+            {
+              "title": "Odliczanie",
+              "desc": "Timer odliczania na żywo, który odlicza do docelowej daty i godziny. Kliknij edycja SET, aby wybrać datę docelową. Wyświetla dni, godziny, minuty i sekundy. Tworzy poczucie pilności dla premier, terminów sprzedaży lub dat wydarzeń."
+            },
+            {
+              "title": "Media społecznościowe",
+              "desc": "Rząd ikon mediów społecznościowych — YouTube, Instagram, TikTok, Facebook, X/Twitter i LinkedIn. Kliknij edycja LINKS, aby dodać adresy URL profilu dla każdej platformy. Ikony łączą się z Twoimi profilami społecznościowymi na opublikowanej stronie."
+            },
+            {
+              "title": "Ikona + tekst",
+              "desc": "Blok funkcji łączący emoji/ikonę z nagłówkiem i tekstem opisu. Idealny do listowania korzyści, funkcji lub kroków. Kliknij dwukrotnie, aby edytować emoji, nagłówek i opis."
+            },
+            {
+              "title": "Separator",
+              "desc": "Ozdobna linia separująca z opcjonalnym tekstem w środku. Kliknij dwukrotnie, aby zmienić tekst separatora. Używaj między sekcjami, aby tworzyć wizualne przerwy."
+            },
+            {
+              "title": "Logotypy",
+              "desc": "Pasek logotypów 'Jak widać w' — wyświetla nazwy marek w poziomym rzędzie. Kliknij dwukrotnie, aby edytować nazwy marek. Używaj do pokazywania wzmianek medialnych, logotypów partnerów lub sygnałów zaufania."
+            },
+            {
+              "title": "Odstęp",
+              "desc": "Niewidoczny element odstępu. Przeciągnij, aby umieścić, i zmień rozmiar, aby kontrolować odstępy między innymi elementami. Nie ma wizualnego wyglądu na opublikowanej stronie — czysto do kontroli układu."
+            },
+            {
+              "title": "Pudełko",
+              "desc": "Pusty pojemnik z subtelnym obramowaniem i zaokrąglonymi rogami. Użyj jako karty tła za innymi elementami, aby utworzyć pogrupowane sekcje. Zmień rozmiar i warstwę za tekstem, obrazami lub formularzami."
+            },
+            {
+              "title": "Linia podziału",
+              "desc": "Prosta pozioma linia. Użyj do oddzielenia sekcji na stronie. Zmień szerokość, aby kontrolować, jak daleko rozciąga się na kanwie."
+            },
+            {
+              "title": "Osadzenie",
+              "desc": "Blok osadzania surowego HTML/kodu. Kliknij edycja CODE, aby wkleić dowolny HTML, w tym iframe, niestandardowe widżety, piksele śledzące lub kody osadzania firm trzecich. Kod jest renderowany na opublikowanej stronie."
+            }
+          ]
+        },
+        "settingsPublishing": {
+          "category": "Ustawienia i publikacja",
+          "items": [
+            {
+              "title": "Tytuł strony",
+              "desc": "Nazwa Twojej strony — pojawia się w zakładce przeglądarki, wynikach wyszukiwarek i na liście SuperPages. Wybierz coś opisowego i przekonującego dla SEO."
+            },
+            {
+              "title": "Slug URL strony",
+              "desc": "Dostosuj adres internetowy opublikowanej strony. Otwórz Ustawienia, znajdź pole Slug URL strony i wpisz preferowaną nazwę, używając tylko małych liter, cyfr i myślników. Kliknij Zapisz ustawienia, aby zastosować zmianę. Każdy slug musi być unikalny — nie możesz użyć tego, który jest już zajęty przez inną stronę."
+            },
+            {
+              "title": "Meta opis",
+              "desc": "Opis, który pojawia się pod tytułem Twojej strony w wynikach wyszukiwania Google. Napisz 150-160 znaków informujących odwiedzających, co oferuje Twoja strona. Ważne dla współczynników klikalności z wyszukiwania."
+            },
+            {
+              "title": "Obraz udostępniania społecznościowego",
+              "desc": "Gdy ktoś udostępnia Twoją opublikowaną stronę na Facebooku, Twitterze, LinkedIn lub WhatsApp, ten obraz pojawia się jako miniatura podglądu. Prześlij lub wprowadź adres URL obrazu 1200x630px dla najlepszych rezultatów."
+            },
+            {
+              "title": "Status strony",
+              "desc": "Wersje robocze są widoczne tylko dla Ciebie. Opublikowane strony są aktywne w sieci pod Twoim adresem URL na żywo. Przełączaj między Wersją roboczą a Opublikowaną w dowolnym momencie. Cofnięcie publikacji strony sprawia, że jest ona natychmiast niedostępna dla odwiedzających."
+            },
+            {
+              "title": "Tło kanwy",
+              "desc": "Zmień tło strony za pomocą próbnika kolorów lub przesyłania obrazu w prawym górnym rogu panelu Bloki. Obsługuje jednolite kolory, gradienty i obrazy tła pełnej strony przesłane do Cloudflare R2."
+            }
+          ]
+        },
+        "aiAssistant": {
+          "category": "Asystent AI",
+          "items": [
+            {
+              "title": "Czat AI",
+              "desc": "Kliknij Asystent AI na dole panelu Bloki, aby otworzyć czat AI. Powiedz mu, czego chcesz: dodaj nagłówek, zmień tło na granatowe, napisz tekst sprzedażowy dla produktu fitness. AI może modyfikować styl strony i generować sugestie treści."
+            }
+          ]
+        }
+      }
+    },
     "knowledgeBase": "Baza wiedzy",
     "learnElements": "Dowiedz się, jak działa każdy element i funkcja",
     "searchPlaceholder": "Szukaj elementów, funkcji...",
@@ -4449,7 +4881,9 @@
     "blkProgress": "Postęp",
     "blkCountdown": "Odliczanie",
     "blkSocials": "Social",
-    "blkIconText": "Ikona+Tekst"
+    "blkIconText": "Ikona+Tekst",
+    "blk": "Blok",
+    "cat": "Kategoria"
   },
   "coursePlayer": {},
   "analytics": {
@@ -4485,7 +4919,18 @@
     "lastWithdrawal": "Ostatnia wypłata",
     "noWithdrawals": "Brak wypłat",
     "totalAiGen": "łącznie generacji AI",
-    "qualificationDesc": "Dzienne wymaganie oglądania do wypłat z Portfela Kampanii. To nie jest źródło dochodu — to Twoja kontrola odpowiedzialności."
+    "qualificationDesc": "Dzienne wymaganie oglądania do wypłat z Portfela Kampanii. To nie jest źródło dochodu — to Twoja kontrola odpowiedzialności.",
+    "campaignGrid": "Siatka kampanii",
+    "courses": "Kursy",
+    "creditNexus": "Credit Nexus",
+    "fiftyRecurring": "50% cykliczne",
+    "gridCommissions": "Prowizje z siatki",
+    "membership": "Członkostwo",
+    "nexusCommissions": "Prowizje Nexus",
+    "noResults": "Brak wyników",
+    "noTeamYet": "Brak zespołu",
+    "recruitToMsg": "Zrekrutuj kogoś, aby rozpocząć wysyłanie wiadomości",
+    "salesPassUps": "Sprzedaż + pass-upy"
   },
   "superMarket": {
     "comparePrice": "Cena porównawcza",
@@ -4579,6 +5024,72 @@
     "libRetail": "Handel i Zakupy",
     "proTipTitle": "Pro Tip",
     "proTipWeb": "Konkretne nazwy marek działają najlepiej. Wyszukiwania jak \"dystrybutor Herbalife Polska\" znajdują indywidualne strony dystrybutorów, podczas gdy niejasne terminy jak \"możliwość biznesu\" zwracają tylko wydawców treści.",
-    "proTipMaps": "Dodanie konkretnego miasta daje ostrzejsze wyniki. Spróbuj połączyć zawód (np. hydraulicy, dentyści) z kodem pocztowym lub dzielnicą, aby uzyskać najlepsze leady."
+    "proTipMaps": "Dodanie konkretnego miasta daje ostrzejsze wyniki. Spróbuj połączyć zawód (np. hydraulicy, dentyści) z kodem pocztowym lub dzielnicą, aby uzyskać najlepsze leady.",
+    "dataSourceMaps": "Dane z Map Google",
+    "dataSourceWeb": "Dane z wyszukiwania"
+  },
+  "myNetwork": {
+    "pageTitle": "Moja Sieć i Zarobki",
+    "pageSubtitle": "Twój zespół, Twoje źródła dochodu, Twój wzrost",
+    "referralLinkLabel": "Twój link polecający",
+    "copyBtn": "Kopiuj link",
+    "copiedBtn": "Skopiowano!",
+    "earningsTitle": "Twoje zarobki",
+    "earningsSubtitle": "Łącznie i miesięcznie w każdym źródle dochodu",
+    "lifetimeEarned": "Zarobki dożywotnie",
+    "lifetimeEarnedSub": "Cały czas we wszystkich źródłach dochodu",
+    "thisMonth": "W tym miesiącu",
+    "thisMonthSub": "Prowizje wypłacone w {{month}}",
+    "streamsCardTitle": "Zarobki według źródła",
+    "streamsCardSubtitle": "Cztery sposoby zarabiania członków na SuperAdPro",
+    "streamMembershipName": "Rezyduum członkostwa",
+    "streamMembershipDesc": "50% miesięcznej opłaty członkowskiej od każdego bezpośredniego polecenia",
+    "streamGridName": "Siatka / Kampanie",
+    "streamGridDesc": "40% bezpośrednio + 50% uni-level z zakupów poziomów kampanii",
+    "streamCourseName": "Akademia Kursów",
+    "streamCourseDesc": "100% prowizji przez 4 nieskończone Łańcuchy Dochodów",
+    "streamNexusName": "Credit Nexus",
+    "streamNexusDesc": "Zarobki z matrycy 3×3 z zakupów pakietów kredytów w downline",
+    "recentCommissionsTitle": "Ostatnie prowizje",
+    "seeAll": "Zobacz wszystko",
+    "colSource": "Źródło",
+    "colDetails": "Szczegóły",
+    "colAmount": "Kwota",
+    "colDate": "Data",
+    "noCommissionsTitle": "Brak prowizji",
+    "noCommissionsSubtitle": "Prowizje pojawią się tutaj, gdy Twój zespół będzie się rozwijał",
+    "teamTitle": "Twój zespół",
+    "teamSubtitle": "Wszyscy pod Tobą, rosnący z czasem",
+    "directReferrals": "Bezpośrednie polecenia",
+    "directReferralsSub": "Osoby, które osobiście zrekrutowałeś",
+    "totalNetwork": "Cała sieć",
+    "totalNetworkSub": "Wszyscy pod Tobą na każdej głębokości",
+    "activeMembers": "Aktywni członkowie",
+    "activeMembersSub": "Wciąż aktywni na platformie",
+    "directReferralsList": "Bezpośrednie polecenia",
+    "totalCount": "{{count}} łącznie",
+    "colMember": "Członek",
+    "colStatus": "Status",
+    "colTheirTeam": "Ich zespół",
+    "colJoined": "Dołączył",
+    "statusActive": "Aktywny",
+    "statusInactive": "Nieaktywny",
+    "noReferralsTitle": "Brak poleceń",
+    "noReferralsSubtitle": "Udostępnij swój link powyżej, aby zacząć budować sieć",
+    "streamCategoryMembership": "Członkostwo",
+    "streamCategoryGrid": "Siatka",
+    "streamCategoryCourses": "Kursy",
+    "streamCategoryCreditNexus": "Credit Nexus",
+    "streamCategoryOther": "Inne",
+    "typeDirectSponsor": "Bonus bezpośredniego sponsora",
+    "typeUniLevel": "Prowizja uni-level",
+    "typeGridCompletion": "Bonus ukończenia siatki",
+    "typePlatform": "Prowizja platformy",
+    "typeMatrixLevel": "Bonus poziomu matrycy kredytów",
+    "typeMatrixCompletion": "Ukończenie matrycy kredytów",
+    "typeNexusSponsor": "Bonus sponsora Credit Nexus",
+    "typeDirectSale": "Bezpośrednia sprzedaż kursu (100%)",
+    "typePassUp": "Kaskada pass-up kursu",
+    "typeMembership": "Polecenie członkostwa"
   }
 }
