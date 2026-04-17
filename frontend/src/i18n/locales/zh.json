@@ -108,7 +108,8 @@
     "sponsorUsername": "推荐人用户名",
     "yourImages": "您的图片",
     "videoNotSupported": "不支持的视频URL。",
-    "alreadyHaveAccount": "已有账户？"
+    "alreadyHaveAccount": "已有账户？",
+    "tapToUnmute": "点击取消静音"
   },
   "nav": {
     "dashboard": "仪表盘",
@@ -192,7 +193,8 @@
     "marketingMaterials": "营销材料",
     "courseAcademy": "课程学院",
     "profitGrid": "利润网格",
-    "gridCalculator": "网格计算器"
+    "gridCalculator": "网格计算器",
+    "incomeChains": "收入链"
   },
   "dashboard": {
     "title": "仪表板",
@@ -631,7 +633,8 @@
     "returnToTab": "返回此标签页继续",
     "general": "General",
     "loading": "加载中...",
-    "playing": "▶ 播放中"
+    "playing": "▶ 播放中",
+    "watchOneToQualify": "观看1个视频即可获得今日资格"
   },
   "adBoard": {
     "title": "广告板",
@@ -1984,7 +1987,8 @@
     "enterDescription": "输入描述",
     "enterScript": "输入脚本",
     "uploadAnImage": "上传图片",
-    "remaining": "剩余"
+    "remaining": "剩余",
+    "preview": "预览"
   },
   "socialShare": {
     "title": "社交分享",
@@ -2291,7 +2295,8 @@
     "paymentWindowOpened": "Payment window opened — complete your USDT payment to receive {{credits}} credits. Your nexus will update automatically once payment is confirmed.",
     "creditsAwarded": "{{credits}} credits awarded!",
     "commissionsEarned": "${{amount}} in commissions paid to your upline.",
-    "purchaseFailed": "Purchase failed"
+    "purchaseFailed": "Purchase failed",
+    "perCredit": "每积分"
   },
   "matrixVis": {
     "title": "利润枢纽",
@@ -2948,7 +2953,243 @@
     "achieveDefault": "看看我们社区成员取得了什么成就。",
     "lastChanceDefault": "这是您加入我们的最后机会。",
     "sentToLeads": "已发送到",
-    "leads": "潜在客户"
+    "leads": "潜在客户",
+    "help": {
+      "title": "SuperLeads 帮助",
+      "subtitle": "您的 CRM 和自动回复器完整指南",
+      "searchPlaceholder": "搜索帮助主题…",
+      "noResults": "没有找到关于",
+      "sections": {
+        "gettingStarted": {
+          "category": "入门",
+          "items": [
+            {
+              "title": "什么是 SuperLeads?",
+              "desc": "SuperLeads 是您的内置 CRM 和电子邮件自动回复器。它允许您从 SuperPages 漏斗中捕获潜在客户,将他们整理到列表中,发送自动电子邮件序列并广播一次性电子邮件 — 所有这些都无需单独的电子邮件营销工具。"
+            },
+            {
+              "title": "潜在客户如何进入我的 CRM?",
+              "desc": "当有人在您的任何 SuperPages 上填写表单时,潜在客户会自动添加。他们的姓名和电子邮件会立即被捕获并出现在您的潜在客户标签中。您也可以通过导入标签使用 CSV 文件手动导入潜在客户。"
+            },
+            {
+              "title": "谁可以使用 SuperLeads?",
+              "desc": "SuperLeads 是 Pro 会员功能。您的 Pro 会员资格包含最多 5,000 个潜在客户。需要更多容量?您可以随时从帐户设置中扩展。"
+            },
+            {
+              "title": "潜在客户到达时会发生什么?",
+              "desc": "当潜在客户填写您的漏斗表单时,他们会被添加到您的 CRM,分配到您最新的活动电子邮件序列中,并且该序列中的第一封电子邮件会通过 Brevo 立即发送。全部自动 — 无需手动步骤。"
+            }
+          ]
+        },
+        "leadsTab": {
+          "category": "潜在客户标签",
+          "items": [
+            {
+              "title": "潜在客户标签显示什么?",
+              "desc": "潜在客户标签是您的主要联系人列表。它显示您捕获或导入的每个潜在客户,包括他们的姓名、电子邮件、他们属于哪个列表、当前状态、他们收到和打开了多少封电子邮件以及他们被分配到哪个序列。"
+            },
+            {
+              "title": "潜在客户状态说明",
+              "desc": "新 — 刚刚添加,尚无交互。培养中 — 在活动电子邮件序列中。热门 — 当潜在客户打开 2+ 封电子邮件或点击任何链接时自动标记。已转化 — 一旦潜在客户采取了所需的操作(购买、注册等),手动将其标记为已转化。"
+            },
+            {
+              "title": "什么是热门潜在客户?",
+              "desc": "热门潜在客户是表现出真正兴趣的人 — 他们打开了多封电子邮件或点击了链接。这些是您最热门的潜在客户,值得优先考虑。热门潜在客户会自动标有火焰图标,并在您点击热门过滤器时出现。"
+            },
+            {
+              "title": "过滤您的潜在客户",
+              "desc": "使用彩色过滤器按钮按状态查看潜在客户:全部、新、培养中、热门或已转化。使用右侧的所有列表下拉菜单按特定列表过滤。组合两个过滤器 — 例如,仅查看 Facebook 列表中的热门潜在客户。"
+            },
+            {
+              "title": "为潜在客户分配序列",
+              "desc": "在每个潜在客户旁边的序列列中,使用下拉菜单分配或更改他们所在的电子邮件序列。下次您在该序列上点击发送下一封时,它将包括此潜在客户。"
+            },
+            {
+              "title": "删除潜在客户",
+              "desc": "点击任何潜在客户行右侧的红色垃圾桶图标以删除它。这将永久删除潜在客户及其所有电子邮件历史记录。请谨慎使用 — 这无法撤消。"
+            }
+          ]
+        },
+        "lists": {
+          "category": "列表",
+          "items": [
+            {
+              "title": "什么是列表?",
+              "desc": "列表允许您将潜在客户整理到组中。例如:Facebook 潜在客户、YouTube 流量、网络研讨会注册或 VIP 客户。每个列表都有自己的颜色,因此您可以在潜在客户表中立即识别它们。"
+            },
+            {
+              "title": "创建列表",
+              "desc": "点击新建列表,给它起个名字、可选的描述、选择颜色,并可选地分配默认电子邮件序列。为此列表导入或捕获的任何潜在客户都将自动注册到该序列中。"
+            },
+            {
+              "title": "列表上的默认序列",
+              "desc": "当您在列表上设置默认序列时,添加到该列表的每个新潜在客户(通过表单捕获或 CSV 导入)都会自动注册到该序列中。这可以节省您手动为每个新潜在客户分配序列的时间。"
+            },
+            {
+              "title": "如果我删除列表会怎样?",
+              "desc": "如果您删除列表,其中的所有潜在客户都会移至未分类,而不是被删除。您可以随时过滤未分类的潜在客户并将它们重新分配给新列表。"
+            },
+            {
+              "title": "列表卡上的潜在客户数",
+              "desc": "每个列表卡显示潜在客户数量,以便您一眼就能看到每组中有多少联系人。每张卡顶部的彩色条与您为该列表选择的颜色相匹配。"
+            }
+          ]
+        },
+        "sequences": {
+          "category": "序列",
+          "items": [
+            {
+              "title": "什么是电子邮件序列?",
+              "desc": "序列是一系列随着时间推移自动发送的电子邮件。您编写一次,设置每封电子邮件之间的延迟,系统会自动将它们发送给您的潜在客户。非常适合欢迎系列、培养活动或入职流程。"
+            },
+            {
+              "title": "创建序列",
+              "desc": "点击创建序列,给它起个名字并添加您的电子邮件。每封电子邮件都需要一个主题、一个正文(用富文本编辑器编写)和以天为单位的发送延迟。第 0 天立即发送。第 3 天在上一封电子邮件后 3 天发送。"
+            },
+            {
+              "title": "发送下一封做什么?",
+              "desc": "在序列上点击发送下一封会将下一封待处理的电子邮件发送给分配给该序列的每个潜在客户。系统跟踪每个潜在客户所处的电子邮件,因此每个人都在正确的步骤收到正确的电子邮件 — 没有人会收到两次相同的电子邮件。"
+            },
+            {
+              "title": "发送延迟说明",
+              "desc": "每封电子邮件的延迟是上一封电子邮件发送后的天数。第 1 封电子邮件在 0 天立即发送。第 2 封电子邮件在 2 天后发送(在第 1 封电子邮件之后 2 天)。第 3 封电子邮件在 5 天后发送(在第 2 封电子邮件之后 5 天)。尚未准备好接收下一封电子邮件的潜在客户将被跳过。"
+            },
+            {
+              "title": "编辑序列",
+              "desc": "点击任何序列卡上的编辑以更改名称、添加或删除电子邮件、更新主题和正文或调整延迟。更改适用于未来的发送 — 已经收到电子邮件的潜在客户不会再次收到。"
+            },
+            {
+              "title": "富文本编辑器",
+              "desc": "电子邮件正文编辑器支持粗体、斜体、下划线、项目符号列表、编号列表、标题和链接。按照您希望的显示方式编写电子邮件。电子邮件以 HTML 形式发送,因此在收件箱中保留格式。"
+            }
+          ]
+        },
+        "broadcast": {
+          "category": "广播",
+          "items": [
+            {
+              "title": "什么是广播?",
+              "desc": "广播是立即发送给您所有或过滤组潜在客户的一次性电子邮件。与序列(随着时间推移逐步发送)不同,广播会立即发送给所有匹配您过滤器的人。用于公告、促销或时间敏感的新闻。"
+            },
+            {
+              "title": "过滤您的广播收件人",
+              "desc": "发送前,选择列表和/或状态过滤器。收件人数量实时更新,因此您在点击发送之前就能确切知道有多少人会收到电子邮件。例如:仅发送给 Facebook 列表中的热门潜在客户。"
+            },
+            {
+              "title": "收件人数量",
+              "desc": "过滤器旁边显示的数字是匹配您选择且未退订的潜在客户的实时计数。这是您点击发送时将发送的电子邮件的确切数量。"
+            },
+            {
+              "title": "已退订的潜在客户",
+              "desc": "已退订的潜在客户会自动从所有广播和序列发送中排除。您无需手动过滤它们 — 系统会为您处理以保持合规。"
+            },
+            {
+              "title": "广播与序列",
+              "desc": "对计划的、常青的电子邮件系列(欢迎流、跟进)使用序列。对您整个列表或细分市场的一次性发送使用广播 — 闪购、网络研讨会邀请、产品发布或重要更新。"
+            }
+          ]
+        },
+        "import": {
+          "category": "导入",
+          "items": [
+            {
+              "title": "通过 CSV 导入潜在客户",
+              "desc": "转到导入标签,上传 CSV 文件或直接粘贴 CSV 文本。您的 CSV 应该有电子邮件列,可选的姓名列。点击预览以在导入前检查数据,然后点击导入将潜在客户添加到您的 CRM。"
+            },
+            {
+              "title": "CSV 格式",
+              "desc": "最简单的格式是两列:电子邮件和姓名。例如:第一行是 email,name,然后每个后续行是 john@example.com,John Smith。导入器很灵活 — 即使您的标题不同,它也会自动检测电子邮件列。"
+            },
+            {
+              "title": "导入时分配到列表",
+              "desc": "导入之前,使用到列表下拉菜单选择要将潜在客户导入到哪个列表。选择列表意味着所有导入的潜在客户都会立即整理好,并可以从该列表的默认序列中受益。"
+            },
+            {
+              "title": "导入前预览",
+              "desc": "点击预览可查看您的 CSV 中检测到多少个潜在客户,并检查任何格式问题。显示的计数是实际将导入多少个潜在客户。只有在您对预览满意时才点击导入。"
+            },
+            {
+              "title": "潜在客户限制",
+              "desc": "您当前的潜在客户数量和限制显示在导入标签的顶部。Pro 会员最多可以容纳 5,000 个潜在客户。如果您接近上限,请购买邮件加速包或联系支持以讨论扩展您的计划。"
+            },
+            {
+              "title": "重复处理",
+              "desc": "如果 CRM 中已存在电子邮件地址,导入将跳过该潜在客户而不是创建重复项。您现有的潜在客户数据(状态、序列分配、电子邮件历史记录)得以保留。"
+            }
+          ]
+        },
+        "emailBoost": {
+          "category": "邮件加速",
+          "items": [
+            {
+              "title": "什么是邮件加速?",
+              "desc": "邮件加速允许您发送超过每日免费配额的电子邮件。每个 Pro 会员每天获得 200 封免费电子邮件。如果您需要发送更多 — 用于大型广播或大型序列 — 您可以购买加速包,为您提供每日配额之上的额外积分。"
+            },
+            {
+              "title": "每日限制如何运作",
+              "desc": "您每天获得 200 封免费电子邮件。计数器在 UTC 午夜重置。如果您向 150 个潜在客户发送广播并运行 3 个序列,则首先使用您的 200 封免费电子邮件。一旦用完,加速积分会自动启动。"
+            },
+            {
+              "title": "可用的加速包",
+              "desc": "1,000 封电子邮件 — 5 美元。5,000 封电子邮件 — 19 美元。10,000 封电子邮件 — 29 美元。50,000 封电子邮件 — 99 美元。加速积分永不过期 — 它们无限期地结转直到使用。"
+            },
+            {
+              "title": "积分如何扣除",
+              "desc": "始终首先使用每日免费积分。一旦您花费了当天的 200 封免费电子邮件,每封额外的电子邮件会自动扣除一个加速积分。您从不需要在它们之间手动切换 — 一切都在后台发生。"
+            },
+            {
+              "title": "购买加速包",
+              "desc": "点击任何加速包卡上的购买。费用从您的 SuperAdPro 钱包余额中扣除。积分会立即添加 — 您可以立即使用它们。购买前确保您的钱包有足够的资金。"
+            },
+            {
+              "title": "检查您的使用情况",
+              "desc": "SuperLeads 页面顶部的进度条显示您的每日电子邮件使用情况(例如每日:45/200)。主角块右上角的积分计数器显示您当前的加速积分余额。两者都实时更新。"
+            },
+            {
+              "title": "我何时需要加速积分?",
+              "desc": "如果您的列表很小(少于 200 个潜在客户)并且每天发送一次广播,您很少需要加速积分。当您拥有大型列表、同时运行多个序列或希望在一天内发送多个广播时,它们会变得有用。"
+            }
+          ]
+        }
+      }
+    },
+    "autoresponderLabel": "自动回复器",
+    "totalLeadsStat": "潜在客户总数",
+    "sequencesStat": "序列",
+    "sentTodayStat": "今日已发送",
+    "hotLeadsStat": "热门潜在客户",
+    "tabLeads": "潜在客户",
+    "tabSequences": "序列",
+    "tabBroadcast": "广播",
+    "tabImport": "导入",
+    "tabBoost": "加速",
+    "filterAllStatuses": "所有状态",
+    "filterAllLists": "所有列表",
+    "statusNew": "新",
+    "statusNurturing": "培养中",
+    "statusHot": "热门",
+    "statusConverted": "已转化",
+    "statusUnsubscribed": "已退订",
+    "searchLeadsPlaceholder": "搜索潜在客户…",
+    "newListBtn": "新建列表",
+    "deleteLeadConfirm": "删除此潜在客户?",
+    "leadDeleted": "潜在客户已删除",
+    "noLeadsYet": "暂无潜在客户",
+    "defaultWelcomeSubject": "欢迎!",
+    "defaultFollowUpSubject": "跟进 — 快速提示",
+    "defaultLastChanceSubject": "采取行动的最后机会",
+    "dayLabel": "天",
+    "boostPack1kLabel": "1,000 封邮件",
+    "boostPack1kDesc": "非常适合定向活动",
+    "boostPack5kLabel": "5,000 封邮件",
+    "boostPack5kDesc": "运行多个序列",
+    "boostPack10kLabel": "10,000 封邮件",
+    "boostPack10kDesc": "扩展您的覆盖范围",
+    "boostPack50kLabel": "50,000 封邮件",
+    "boostPack50kDesc": "企业级容量",
+    "contacts": "联系人",
+    "sent": "已发送",
+    "noneOption": "无"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -4400,7 +4641,198 @@
     "duplicate": "复制",
     "deleteElement": "删除",
     "pages": "页面",
-    "help": "帮助",
+    "help": {
+      "title": "SuperPages 帮助",
+      "subtitle": "页面构建器知识库",
+      "searchPlaceholder": "搜索帮助主题…",
+      "noResults": "没有找到关于",
+      "sections": {
+        "gettingStarted": {
+          "category": "入门",
+          "items": [
+            {
+              "title": "编辑器如何运作",
+              "desc": "SuperPages 是一个自由格式的拖放页面构建器。从右侧面板点击任何块将其添加到画布,然后拖动以将其放置在任何位置。双击文本元素进行内联编辑。使用浮动工具栏格式化文本、更改字体、颜色和对齐方式。"
+            },
+            {
+              "title": "选择与移动",
+              "desc": "单击任何元素以选择它 — 您将看到出现蓝色轮廓和调整大小的手柄。单击并拖动以重新定位。按住 Shift + 方向键移动 10px,或仅按方向键精确 1px。"
+            },
+            {
+              "title": "调整大小",
+              "desc": "选定的元素显示 8 个青色调整大小手柄 — 在所有四个角和四个边上。拖动任何手柄以调整大小。角手柄同时在两个方向上调整大小。最小尺寸为宽 40px 高 20px。"
+            },
+            {
+              "title": "保存与发布",
+              "desc": "点击保存以保存您的工作(每 30 秒自动保存)。点击发布以使您的页面在网络上上线。您的实时 URL 出现在设置中。切换回草稿以取消发布。"
+            },
+            {
+              "title": "键盘快捷键",
+              "desc": "Ctrl+S:保存 | Ctrl+Z:撤消 | Ctrl+Y:重做 | Delete/Backspace:删除选定元素 | 方向键:移动 1px | Shift+方向键:移动 10px | Escape:取消选择"
+            }
+          ]
+        },
+        "textElements": {
+          "category": "文本元素",
+          "items": [
+            {
+              "title": "标题",
+              "desc": "用于页面标题和章节标题的大字体粗体文字。默认为白色 36px Sora 字体。双击以编辑文本。使用浮动工具栏更改字体系列、大小、颜色、粗体、斜体、下划线和对齐方式。"
+            },
+            {
+              "title": "文本",
+              "desc": "用于段落和描述的正文文本。默认为灰色 15px Outfit 字体,行高为 1.8 以提高可读性。双击编辑。支持浮动工具栏中的所有内联格式。"
+            },
+            {
+              "title": "标签",
+              "desc": "小型徽章样式文本,非常适合 PREMIUM、NEW 或 LIMITED OFFER 等标签。附带圆角药丸背景和边框。双击以更改标签文本。"
+            }
+          ]
+        },
+        "mediaElements": {
+          "category": "媒体元素",
+          "items": [
+            {
+              "title": "图片",
+              "desc": "为您的页面添加图片。点击元素工具栏中的编辑 IMAGE 按钮以输入图片 URL 或上传文件(最大 5MB)。支持 JPG、PNG、GIF 和 WebP。图片存储在 Cloudflare R2 上以实现快速的全球交付。"
+            },
+            {
+              "title": "视频",
+              "desc": "嵌入 YouTube、Vimeo 的视频或上传您自己的 MP4/WebM 文件(最大 50MB)。点击编辑 VIDEO 添加。YouTube 和 Vimeo 观看 URL 自动转换为嵌入格式。上传的视频托管在 Cloudflare R2 上。"
+            },
+            {
+              "title": "音频",
+              "desc": "向您的页面添加音频播放器。点击编辑 AUDIO 以输入音频 URL 或上传 MP3/WAV/OGG 文件(最大 20MB)。非常适合播客、音乐样本或音频推荐。"
+            }
+          ]
+        },
+        "actionElements": {
+          "category": "操作元素",
+          "items": [
+            {
+              "title": "按钮",
+              "desc": "带有渐变背景的可点击按钮。点击编辑 LINK 以设置目标 URL。双击以更改按钮文本。非常适合立即加入、立即购买或了解更多等行动号召。"
+            },
+            {
+              "title": "注册表单",
+              "desc": "带有姓名字段、电子邮件字段和提交按钮的电子邮件捕获表单。预先设计为深色玻璃背景。点击编辑 FORM 以自定义 HTML。连接到您的 My Leads 仪表板以进行潜在客户收集。"
+            },
+            {
+              "title": "CTA(行动号召)",
+              "desc": "类似于按钮,但专门为主要转化操作设计。点击编辑 LINK 以设置目标 URL。双击以编辑文本。用于页面的主要操作,例如立即开始。"
+            }
+          ]
+        },
+        "contentElements": {
+          "category": "内容元素",
+          "items": [
+            {
+              "title": "评论",
+              "desc": "带有星级评分、引用文本和归属的客户评论块。采用深色卡片背景和青色左边框设计。双击以编辑评论内容、星级和客户名称。"
+            },
+            {
+              "title": "徽章",
+              "desc": "与标签相同的小型装饰徽章 — 适用于 BEST VALUE、MOST POPULAR 或 FEATURED 等标签。默认采用金色药丸样式。"
+            },
+            {
+              "title": "推荐语",
+              "desc": "带有星级、更长引用和作者署名的扩展推荐语块。具有金色左边框以将其与评论区分开来。双击以自定义推荐语文本和归属。"
+            },
+            {
+              "title": "FAQ",
+              "desc": "带有精细边框标题的问答块。双击以编辑问题和答案文本。堆叠多个 FAQ 元素以构建完整的 FAQ 部分。"
+            },
+            {
+              "title": "统计数据",
+              "desc": "大型统计显示 — 显示一个大数字(如 95%)并在其下方带有标签。非常适合社会证明:10,000+ 会员、95% 支付率、$1M+ 已支付。双击以编辑。"
+            },
+            {
+              "title": "进度",
+              "desc": "带有标签和百分比的动画进度条。点击编辑 SET 以配置标签文本、百分比(0-100)和条颜色。非常适合显示课程完成、资金目标或有限的可用性。"
+            }
+          ]
+        },
+        "layoutElements": {
+          "category": "布局元素",
+          "items": [
+            {
+              "title": "倒计时",
+              "desc": "实时倒计时计时器,倒计时到目标日期和时间。点击编辑 SET 以选择目标日期。显示天、小时、分钟和秒。为发布、销售截止日期或事件日期创造紧迫感。"
+            },
+            {
+              "title": "社交",
+              "desc": "一行社交媒体图标 — YouTube、Instagram、TikTok、Facebook、X/Twitter 和 LinkedIn。点击编辑 LINKS 为每个平台添加您的个人资料 URL。图标链接到已发布页面上您的社交个人资料。"
+            },
+            {
+              "title": "图标 + 文本",
+              "desc": "将表情符号/图标与标题和描述文本结合的功能块。非常适合列出好处、功能或步骤。双击以编辑表情符号、标题和描述。"
+            },
+            {
+              "title": "分隔符",
+              "desc": "带有可选中心文本的装饰性分隔线。双击以更改分隔符文本。在部分之间使用以创建视觉中断。"
+            },
+            {
+              "title": "标志",
+              "desc": "'As seen in' 标志条 — 在水平行中显示品牌名称。双击以编辑品牌名称。用于展示媒体提及、合作伙伴标志或信任信号。"
+            },
+            {
+              "title": "间距",
+              "desc": "不可见的间距元素。拖动以定位,调整大小以控制其他元素之间的空间。在已发布页面上没有视觉外观 — 纯粹用于布局控制。"
+            },
+            {
+              "title": "框",
+              "desc": "带有精细边框和圆角的空容器。用作其他元素后面的背景卡以创建分组部分。调整大小并在文本、图像或表单后面分层。"
+            },
+            {
+              "title": "分隔线",
+              "desc": "简单的水平线。用于分隔页面上的部分。调整宽度以控制它在画布上延伸的距离。"
+            },
+            {
+              "title": "嵌入",
+              "desc": "原始 HTML/代码嵌入块。点击编辑 CODE 以粘贴任何 HTML,包括 iframe、自定义小部件、跟踪像素或第三方嵌入代码。代码在已发布页面上呈现。"
+            }
+          ]
+        },
+        "settingsPublishing": {
+          "category": "设置与发布",
+          "items": [
+            {
+              "title": "页面标题",
+              "desc": "您页面的名称 — 出现在浏览器标签、搜索引擎结果和您的 SuperPages 列表中。选择描述性和引人注目的名称以进行 SEO。"
+            },
+            {
+              "title": "页面 URL slug",
+              "desc": "自定义您已发布页面的网址。打开设置,找到页面 URL slug 字段,使用仅小写字母、数字和连字符键入您首选的名称。点击保存设置以应用更改。每个 slug 必须是唯一的 — 您不能使用已被另一个页面占用的 slug。"
+            },
+            {
+              "title": "Meta 描述",
+              "desc": "在 Google 搜索结果中您页面标题下方出现的描述。写 150-160 个字符告诉访问者您的页面提供什么。对搜索点击率很重要。"
+            },
+            {
+              "title": "社交分享图片",
+              "desc": "当有人在 Facebook、Twitter、LinkedIn 或 WhatsApp 上分享您已发布的页面时,此图像显示为预览缩略图。上传或输入 1200x630px 图像的 URL 以获得最佳效果。"
+            },
+            {
+              "title": "页面状态",
+              "desc": "草稿页面仅您可见。已发布的页面在您的实时 URL 上的网络上实时显示。随时在草稿和已发布之间切换。取消发布页面会立即使访问者无法访问。"
+            },
+            {
+              "title": "画布背景",
+              "desc": "使用块面板右上角的颜色选择器或图片上传更改页面背景。支持纯色、渐变和上传到 Cloudflare R2 的整页背景图像。"
+            }
+          ]
+        },
+        "aiAssistant": {
+          "category": "AI 助手",
+          "items": [
+            {
+              "title": "AI 聊天",
+              "desc": "点击块面板底部的 AI 助手以打开 AI 聊天。告诉它您想要什么:添加标题、将背景更改为海军蓝、为健身产品编写销售文案。AI 可以修改您的页面样式并生成内容建议。"
+            }
+          ]
+        }
+      }
+    },
     "knowledgeBase": "知识库",
     "learnElements": "了解每个元素和功能的工作方式",
     "searchPlaceholder": "搜索元素、功能...",
@@ -4449,7 +4881,9 @@
     "blkProgress": "进度",
     "blkCountdown": "倒计时",
     "blkSocials": "社交",
-    "blkIconText": "图标+文字"
+    "blkIconText": "图标+文字",
+    "blk": "块",
+    "cat": "类别"
   },
   "coursePlayer": {},
   "analytics": {
@@ -4485,7 +4919,18 @@
     "lastWithdrawal": "最近提款",
     "noWithdrawals": "暂无提款",
     "totalAiGen": "总AI生成次数",
-    "qualificationDesc": "您的每日观看要求，用于活动钱包提款资格。这不是收入来源——而是您的责任签到。"
+    "qualificationDesc": "您的每日观看要求，用于活动钱包提款资格。这不是收入来源——而是您的责任签到。",
+    "campaignGrid": "活动网格",
+    "courses": "课程",
+    "creditNexus": "Credit Nexus",
+    "fiftyRecurring": "50% 经常性",
+    "gridCommissions": "网格佣金",
+    "membership": "会员",
+    "nexusCommissions": "Nexus 佣金",
+    "noResults": "无结果",
+    "noTeamYet": "暂无团队",
+    "recruitToMsg": "招募某人开始发送消息",
+    "salesPassUps": "销售 + 上传"
   },
   "superMarket": {
     "comparePrice": "比较价格",
@@ -4579,6 +5024,72 @@
     "libRetail": "零售与购物",
     "proTipTitle": "专业提示",
     "proTipWeb": "特定品牌名称效果最好。像\"Herbalife经销商中国\"这样的搜索可以找到个人经销商网站，而像\"商业机会\"这样的模糊术语只会返回内容发布者。",
-    "proTipMaps": "添加特定城市可获得更精准的结果。尝试将行业（例如水管工、牙医）与邮政编码或街区结合以获得最佳潜在客户。"
+    "proTipMaps": "添加特定城市可获得更精准的结果。尝试将行业（例如水管工、牙医）与邮政编码或街区结合以获得最佳潜在客户。",
+    "dataSourceMaps": "来自 Google 地图的数据",
+    "dataSourceWeb": "来自网页搜索的数据"
+  },
+  "myNetwork": {
+    "pageTitle": "我的网络与收入",
+    "pageSubtitle": "您的团队、您的收入来源、您的成长",
+    "referralLinkLabel": "您的推荐链接",
+    "copyBtn": "复制链接",
+    "copiedBtn": "已复制!",
+    "earningsTitle": "您的收入",
+    "earningsSubtitle": "每个收入来源的总计和每月",
+    "lifetimeEarned": "终身收入",
+    "lifetimeEarnedSub": "所有收入来源的所有时间",
+    "thisMonth": "本月",
+    "thisMonthSub": "{{month}} 支付的佣金",
+    "streamsCardTitle": "按来源划分的收入",
+    "streamsCardSubtitle": "会员在 SuperAdPro 上赚钱的四种方式",
+    "streamMembershipName": "会员残余",
+    "streamMembershipDesc": "每个直接推荐的月度会员费的 50%",
+    "streamGridName": "网格 / 活动",
+    "streamGridDesc": "40% 直接 + 50% 单级别来自活动等级购买",
+    "streamCourseName": "课程学院",
+    "streamCourseDesc": "通过 4 条无限收入链 100% 佣金",
+    "streamNexusName": "Credit Nexus",
+    "streamNexusDesc": "对下线积分包购买的 3×3 矩阵收入",
+    "recentCommissionsTitle": "最近的佣金",
+    "seeAll": "查看全部",
+    "colSource": "来源",
+    "colDetails": "详情",
+    "colAmount": "金额",
+    "colDate": "日期",
+    "noCommissionsTitle": "暂无佣金",
+    "noCommissionsSubtitle": "随着您的团队成长,佣金将在此处显示",
+    "teamTitle": "您的团队",
+    "teamSubtitle": "您下面的每个人,随着时间的推移而成长",
+    "directReferrals": "直接推荐",
+    "directReferralsSub": "您亲自招募的人",
+    "totalNetwork": "总网络",
+    "totalNetworkSub": "您下面每个深度的每个人",
+    "activeMembers": "活跃会员",
+    "activeMembersSub": "仍在平台上活跃",
+    "directReferralsList": "直接推荐",
+    "totalCount": "共 {{count}}",
+    "colMember": "会员",
+    "colStatus": "状态",
+    "colTheirTeam": "他们的团队",
+    "colJoined": "加入",
+    "statusActive": "活跃",
+    "statusInactive": "不活跃",
+    "noReferralsTitle": "暂无推荐",
+    "noReferralsSubtitle": "分享上面的链接开始建立您的网络",
+    "streamCategoryMembership": "会员",
+    "streamCategoryGrid": "网格",
+    "streamCategoryCourses": "课程",
+    "streamCategoryCreditNexus": "Credit Nexus",
+    "streamCategoryOther": "其他",
+    "typeDirectSponsor": "直接赞助商奖励",
+    "typeUniLevel": "单级别佣金",
+    "typeGridCompletion": "网格完成奖励",
+    "typePlatform": "平台佣金",
+    "typeMatrixLevel": "积分矩阵级别奖励",
+    "typeMatrixCompletion": "积分矩阵完成",
+    "typeNexusSponsor": "Credit Nexus 赞助商奖励",
+    "typeDirectSale": "课程直接销售(100%)",
+    "typePassUp": "课程上传级联",
+    "typeMembership": "会员推荐"
   }
 }
