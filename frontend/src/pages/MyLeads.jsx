@@ -52,9 +52,11 @@ export default function MyLeads() {
       <style>{`
         @keyframes spin{to{transform:rotate(360deg)}}
         .sl-tab{transition:all .15s;cursor:pointer}
-        .sl-tab:hover{background:#f1f5f9!important}
+        .sl-tab:hover{background:#eef2ff!important;color:#4f46e5!important}
         .sl-row{transition:background .1s}
         .sl-row:hover{background:#f8fafc!important}
+        .sl-stat-card{transition:transform .2s,box-shadow .2s}
+        .sl-stat-card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(23,37,84,.1)!important}
         @media(max-width:767px){.sl-stats{grid-template-columns:1fr 1fr!important}}
         .sl-select{
           width:100%;padding:10px 36px 10px 14px;border-radius:10px;
@@ -70,24 +72,68 @@ export default function MyLeads() {
         .sl-select option{background:#fff;color:#0f172a;padding:8px}
       `}</style>
 
-      <div style={{background:'#fff',borderRadius:14,padding:'24px 28px',marginBottom:20,border:'1px solid #e2e8f0'}}>
-        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+      {/* ── Hero banner with cobalt gradient ── */}
+      <div style={{background:'linear-gradient(135deg,#0b1e4c 0%,#1e3a8a 55%,#4338ca 100%)',borderRadius:16,padding:'26px 30px',marginBottom:22,position:'relative',overflow:'hidden',boxShadow:'0 8px 28px rgba(23,37,84,.22)'}}>
+        {/* Decorative gradient blob */}
+        <div style={{position:'absolute',top:-60,right:-60,width:220,height:220,borderRadius:'50%',
+                     background:'radial-gradient(circle,rgba(139,92,246,0.25) 0%,transparent 70%)',pointerEvents:'none'}}/>
+        <div style={{position:'relative',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:16}}>
           <div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:4}}>{t('myLeads.title')}</div>
-            <div style={{fontSize:14,color:'var(--sap-text-muted)'}}>{t('myLeads.subtitle')}</div>
+            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
+              <div style={{width:36,height:36,borderRadius:10,background:'rgba(255,255,255,.12)',display:'flex',alignItems:'center',justifyContent:'center',border:'1px solid rgba(255,255,255,.15)'}}>
+                <Mail size={18} color="#a5b4fc"/>
+              </div>
+              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.6,textTransform:'uppercase',color:'#a5b4fc'}}>Autoresponder</div>
+            </div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:800,color:'#fff',marginBottom:4,letterSpacing:-.3}}>{t('myLeads.title')}</div>
+            <div style={{fontSize:14,color:'rgba(255,255,255,.7)',maxWidth:620}}>{t('myLeads.subtitle')}</div>
           </div>
-          <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:5,padding:'8px 16px',borderRadius:8,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-text-secondary)',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',flexShrink:0}}><HelpCircle size={14}/> {t('myLeads.helpBtn')}</button>
+          <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:6,padding:'10px 18px',borderRadius:10,border:'1px solid rgba(255,255,255,.2)',background:'rgba(255,255,255,.08)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',flexShrink:0,backdropFilter:'blur(10px)',transition:'background .2s'}}
+                  onMouseEnter={function(e){ e.currentTarget.style.background = 'rgba(255,255,255,.15)'; }}
+                  onMouseLeave={function(e){ e.currentTarget.style.background = 'rgba(255,255,255,.08)'; }}>
+            <HelpCircle size={14}/> {t('myLeads.helpBtn')}
+          </button>
         </div>
       </div>
 
-      <div className="sl-stats" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12,marginBottom:20}}>
-        {[{v:stats.total||0,l:'Total leads',c:'var(--sap-indigo)'},{v:sequences.length,l:'Sequences',c:'var(--sap-accent)'},{v:emailStats.sent_today||0,l:'Sent today',c:'var(--sap-green)'},{v:stats.hot||0,l:'Hot leads',c:'var(--sap-amber)'}].map(function(s,i){return <div key={i} style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:12,padding:'20px 16px'}}><div style={{fontSize:12,fontWeight:600,color:'var(--sap-text-muted)',marginBottom:8}}>{s.l}</div><div style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:s.c}}>{s.v}</div></div>;})}
+      {/* ── Stat cards with coloured strips + matching icon tiles ── */}
+      <div className="sl-stats" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:22}}>
+        {[
+          {v:stats.total||0,l:'Total leads',c:'#6366f1',icon:UserPlus,bg:'rgba(99,102,241,.1)'},
+          {v:sequences.length,l:'Sequences',c:'#0ea5e9',icon:Zap,bg:'rgba(14,165,233,.1)'},
+          {v:emailStats.sent_today||0,l:'Sent today',c:'#16a34a',icon:Send,bg:'rgba(22,163,74,.1)'},
+          {v:stats.hot||0,l:'Hot leads',c:'#f59e0b',icon:Rocket,bg:'rgba(245,158,11,.1)'},
+        ].map(function(s,i){
+          var Ic = s.icon;
+          return <div key={i} className="sl-stat-card" style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'22px 20px',position:'relative',overflow:'hidden',boxShadow:'0 4px 14px rgba(23,37,84,.05)'}}>
+            <div style={{position:'absolute',top:0,left:0,right:0,height:3,background:'linear-gradient(90deg,'+s.c+','+s.c+'80)'}}/>
+            <div style={{position:'absolute',top:16,right:16,width:36,height:36,borderRadius:10,background:s.bg,display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <Ic size={17} color={s.c}/>
+            </div>
+            <div style={{fontSize:12,fontWeight:700,color:'#64748b',marginBottom:10,letterSpacing:.3}}>{s.l}</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:34,fontWeight:800,color:s.c,letterSpacing:-.5}}>{s.v}</div>
+          </div>;
+        })}
       </div>
 
       {msg && <div style={{padding:'10px 16px',borderRadius:10,marginBottom:16,fontSize:13,fontWeight:700,background:msgType==='ok'?'var(--sap-green-bg)':'var(--sap-red-bg)',border:'1px solid '+(msgType==='ok'?'#bbf7d0':'var(--sap-red-bg-mid)'),color:msgType==='ok'?'var(--sap-green-dark)':'var(--sap-red)'}}>{msg}</div>}
 
-      <div style={{display:'flex',gap:0,marginBottom:20,borderBottom:'2px solid #e2e8f0'}}>
-        {TABS.map(function(t){var a=tab===t.key;var I=t.icon;return <div key={t.key} className={a?'':'sl-tab'} onClick={function(){setTab(t.key);}} style={{padding:'12px 20px',color:a?'var(--sap-indigo)':'var(--sap-text-muted)',fontSize:14,fontWeight:a?700:500,cursor:'pointer',display:'flex',alignItems:'center',gap:6,borderBottom:a?'2px solid #6366f1':'2px solid transparent',marginBottom:'-2px'}}><I size={16}/> {t.label}</div>;})}
+      {/* ── Tab bar: filled pill for active, subtle for inactive ── */}
+      <div style={{display:'flex',gap:6,marginBottom:22,padding:6,background:'#fff',borderRadius:12,border:'1px solid #e8ecf2',boxShadow:'0 2px 8px rgba(23,37,84,.04)',flexWrap:'wrap'}}>
+        {TABS.map(function(tb){
+          var a = tab === tb.key;
+          var I = tb.icon;
+          return <div key={tb.key} className={a?'':'sl-tab'} onClick={function(){setTab(tb.key);}}
+            style={{flex:'1 1 auto',minWidth:110,padding:'10px 16px',borderRadius:8,
+                    background: a ? 'linear-gradient(135deg,#4f46e5,#6366f1)' : 'transparent',
+                    color: a ? '#fff' : '#64748b',
+                    fontSize:13,fontWeight:a?700:600,cursor:'pointer',
+                    display:'flex',alignItems:'center',justifyContent:'center',gap:6,
+                    boxShadow: a ? '0 4px 12px rgba(79,70,229,.3)' : 'none',
+                    transition:'all .15s'}}>
+            <I size={15}/> {tb.label}
+          </div>;
+        })}
       </div>
 
       {tab==='leads' && <LeadsTab leads={leads} lists={lists} sequences={sequences} refresh={refresh} flash={flash}/>}
@@ -147,18 +193,18 @@ function LeadsTab({leads,lists,sequences,refresh,flash}) {
 function SeqTab({sequences,refresh,flash}) {
 
   var { t } = useTranslation();
-  var [ed,setEd]=useState(null);var [t,setT]=useState('');var [em,setEm]=useState([]);var [gen,setGen]=useState(false);
-  function startNew(){setEd('new');setT('');setEm([{subject:'Welcome!',body_html:'',send_delay_days:0},{subject:'Follow up — quick tip',body_html:'',send_delay_days:2},{subject:'Last chance to take action',body_html:'',send_delay_days:5}]);}
-  function editEx(s){setEd(s.id);setT(s.title);setEm(s.emails||[]);}
-  function save(){if(!t.trim()){flash('Title required','err');return;}var c=em.filter(function(e){return e.subject&&e.subject.trim();});if(!c.length){flash('At least one email required','err');return;}(ed==='new'?apiPost('/api/leads/sequences',{title:t,emails:c}):apiPut('/api/leads/sequences/'+ed,{title:t,emails:c})).then(function(){flash('Sequence saved');setEd(null);refresh();}).catch(function(e){flash(e.message,'err');});}
+  var [ed,setEd]=useState(null);var [title,setTitle]=useState('');var [em,setEm]=useState([]);var [gen,setGen]=useState(false);
+  function startNew(){setEd('new');setTitle('');setEm([{subject:'Welcome!',body_html:'',send_delay_days:0},{subject:'Follow up — quick tip',body_html:'',send_delay_days:2},{subject:'Last chance to take action',body_html:'',send_delay_days:5}]);}
+  function editEx(s){setEd(s.id);setTitle(s.title);setEm(s.emails||[]);}
+  function save(){if(!title.trim()){flash('Title required','err');return;}var c=em.filter(function(e){return e.subject&&e.subject.trim();});if(!c.length){flash('At least one email required','err');return;}(ed==='new'?apiPost('/api/leads/sequences',{title:title,emails:c}):apiPut('/api/leads/sequences/'+ed,{title:title,emails:c})).then(function(){flash('Sequence saved');setEd(null);refresh();}).catch(function(e){flash(e.message,'err');});}
   function delSeq(id){if(!window.confirm('Delete?'))return;apiDelete('/api/leads/sequences/'+id).then(function(){flash('Deleted');refresh();}).catch(function(e){flash(e.message,'err');});}
-  function genAI(){setGen(true);var n=window.prompt('What niche? (e.g. fitness, crypto, marketing)');if(!n){setGen(false);return;}apiPost('/api/leads/sequences',{title:n.charAt(0).toUpperCase()+n.slice(1)+' Welcome Series',niche:n,emails:[{subject:'Welcome — your journey starts here',body_html:'<p>'+t('myLeads.welcomeDefault')+'</p>',send_delay_days:0},{subject:'Quick tip to get started',body_html:'<p>'+t('myLeads.tipDefault')+' '+n+'</p>',send_delay_days:1},{subject:'What others are saying',body_html:'<p>'+t('myLeads.achieveDefault')+'</p>',send_delay_days:3},{subject:"Don't miss out",body_html:'<p>{t("myLeads.urgencySubject")}</p>',send_delay_days:5},{subject:'Final call — are you in?',body_html:'<p>'+t('myLeads.lastChanceDefault')+'</p>',send_delay_days:7}]}).then(function(){flash('AI sequence created — edit to customise');setGen(false);refresh();}).catch(function(e){flash(e.message,'err');setGen(false);});}
+  function genAI(){setGen(true);var n=window.prompt('What niche? (e.g. fitness, crypto, marketing)');if(!n){setGen(false);return;}apiPost('/api/leads/sequences',{title:n.charAt(0).toUpperCase()+n.slice(1)+' Welcome Series',niche:n,emails:[{subject:'Welcome — your journey starts here',body_html:'<p>'+t('myLeads.welcomeDefault')+'</p>',send_delay_days:0},{subject:'Quick tip to get started',body_html:'<p>'+t('myLeads.tipDefault')+' '+n+'</p>',send_delay_days:1},{subject:'What others are saying',body_html:'<p>'+t('myLeads.achieveDefault')+'</p>',send_delay_days:3},{subject:"Don't miss out",body_html:'<p>'+t('myLeads.urgencySubject')+'</p>',send_delay_days:5},{subject:'Final call — are you in?',body_html:'<p>'+t('myLeads.lastChanceDefault')+'</p>',send_delay_days:7}]}).then(function(){flash('AI sequence created — edit to customise');setGen(false);refresh();}).catch(function(e){flash(e.message,'err');setGen(false);});}
   function sendNext(sid){apiPost('/api/leads/send-sequence-email',{sequence_id:sid}).then(function(r){flash('Sent '+(r.sent||0)+' emails');refresh();}).catch(function(e){flash(e.message,'err');});}
 
   if(ed!==null)return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
     <div style={{padding:'18px 24px',borderBottom:'1px solid #f1f5f9',display:'flex',justifyContent:'space-between',alignItems:'center'}}><div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800}}>{ed==='new'?'Create':'Edit'} Sequence</div><button onClick={function(){setEd(null);}} style={{fontSize:12,color:'var(--sap-text-muted)',background:'none',border:'none',cursor:'pointer',fontFamily:'inherit'}}>{t('myLeads.cancel')}</button></div>
     <div style={{padding:'20px 24px'}}>
-      <div style={{marginBottom:16}}><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('myLeads.sequenceName')}</label><input value={t} onChange={function(e){setT(e.target.value);}} placeholder={t("myLeads.sequenceNamePlaceholder")} style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
+      <div style={{marginBottom:16}}><label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('myLeads.sequenceName')}</label><input value={title} onChange={function(e){setTitle(e.target.value);}} placeholder={t("myLeads.sequenceNamePlaceholder")} style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/></div>
       {em.map(function(e,i){var color=TC[i%TC.length];return <div key={i} style={{background:'var(--sap-bg-input)',borderRadius:12,padding:16,marginBottom:10,border:'1px solid #e8ecf2',borderLeft:'3px solid '+color}}>
         <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:10}}><span style={{fontSize:12,fontWeight:800,color:color}}>Email {i+1}</span><div style={{display:'flex',gap:6,alignItems:'center'}}><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>{t('myLeads.after')}</span><input type="number" min="0" value={e.send_delay_days} onChange={function(ev){setEm(em.map(function(x,j){return j===i?Object.assign({},x,{send_delay_days:parseInt(ev.target.value)||0}):x;}));}} style={{width:45,padding:4,border:'1px solid #e2e8f0',borderRadius:5,fontSize:11,textAlign:'center'}}/><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>{t('myLeads.days')}</span>{em.length>1&&<button onClick={function(){setEm(em.filter(function(x,j){return j!==i;}));}} style={{color:'var(--sap-red)',background:'none',border:'none',cursor:'pointer',padding:2}}><Trash2 size={12}/></button>}</div></div>
         <input value={e.subject} onChange={function(ev){setEm(em.map(function(x,j){return j===i?Object.assign({},x,{subject:ev.target.value}):x;}));}} placeholder={t("myLeads.subjectPlaceholder")} style={{width:'100%',padding:'9px 12px',border:'1.5px solid #e2e8f0',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',marginBottom:8,background:'#fff'}}/>
