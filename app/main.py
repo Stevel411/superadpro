@@ -13081,55 +13081,118 @@ def admin_test_course_passup_cleanup(
     db: Session = Depends(get_db)
 ):
     """Clean up ALL coursepuptest_* users, related course records, AND
-    any TEST_COURSE_* seed courses. Safe to run multiple times."""
+    any TEST_COURSE_* seed courses. Also reverses any balance/course_earnings
+    that accidentally landed on REAL users (e.g. your master admin receiving
+    platform commissions during a test run). Safe to run multiple times."""
     if secret != "superadpro-owner-2026":
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
 
     from app.database import CoursePurchase, CourseCommission, Course
+    from decimal import Decimal as _D
 
     test_users = db.query(User).filter(User.username.like("coursepuptest_%")).all()
-    test_user_ids = [u.id for u in test_users]
+    test_user_ids_set = {u.id for u in test_users}
+    test_user_ids = list(test_user_ids_set)
 
-    # Delete test course records (purchases, commissions)
-    purchase_ids = []
+    # Identify the set of ALL commissions tied to this test run — either because
+    # the buyer was a test user OR because the purchase was of a TEST_COURSE_.
+    # (A real admin may have earned commissions from these test purchases.)
+    test_courses = db.query(Course).filter(Course.title.like("TEST_COURSE_%")).all()
+    test_course_ids = [c.id for c in test_courses]
+
+    # Gather every purchase that is part of the test set
+    all_test_purchase_ids = set()
+    if test_user_ids:
+        for p in db.query(CoursePurchase).filter(CoursePurchase.user_id.in_(test_user_ids)).all():
+            all_test_purchase_ids.add(p.id)
+    if test_course_ids:
+        for p in db.query(CoursePurchase).filter(CoursePurchase.course_id.in_(test_course_ids)).all():
+            all_test_purchase_ids.add(p.id)
+
+    # Gather all commissions tied to those purchases
+    test_commissions = []
+    if all_test_purchase_ids:
+        test_commissions = db.query(CourseCommission).filter(
+            CourseCommission.purchase_id.in_(list(all_test_purchase_ids))
+        ).all()
+    # Also catch commissions where earner is a test user but somehow unlinked
+    if test_user_ids:
+        extras = db.query(CourseCommission).filter(
+            (CourseCommission.earner_id.in_(test_user_ids)) |
+            (CourseCommission.buyer_id.in_(test_user_ids))
+        ).all()
+        existing_ids = {c.id for c in test_commissions}
+        for c in extras:
+            if c.id not in existing_ids:
+                test_commissions.append(c)
+
+    # ── REVERSE balance/earnings on any REAL user who earned from test commissions ──
+    # A "real user" is any earner whose id is NOT in the test_user_ids set.
+    # This typically catches the master admin who received platform/no-chain commissions.
+    real_user_reversals = {}  # user_id -> total amount to reverse
+    for c in test_commissions:
+        if c.earner_id and c.earner_id not in test_user_ids_set:
+            amt = _D(str(c.amount or 0))
+            real_user_reversals[c.earner_id] = real_user_reversals.get(c.earner_id, _D("0")) + amt
+
+    reversals_applied = []
+    for uid, amt in real_user_reversals.items():
+        real_user = db.query(User).filter(User.id == uid).first()
+        if not real_user:
+            continue
+        # Clamp at 0 — never let reversal push a balance negative
+        current_balance = _D(str(real_user.balance or 0))
+        current_course_earnings = _D(str(real_user.course_earnings or 0))
+        current_total_earned = _D(str(real_user.total_earned or 0))
+
+        applied_balance = min(amt, current_balance)
+        applied_course = min(amt, current_course_earnings)
+        applied_total = min(amt, current_total_earned)
+
+        real_user.balance = current_balance - applied_balance
+        real_user.course_earnings = current_course_earnings - applied_course
+        real_user.total_earned = current_total_earned - applied_total
+
+        reversals_applied.append({
+            "user_id": uid,
+            "username": real_user.username,
+            "amount_reversed": float(amt),
+            "balance_reversed": float(applied_balance),
+            "course_earnings_reversed": float(applied_course),
+            "total_earned_reversed": float(applied_total),
+        })
+
+    # ── Now delete the test data ──
     comm_del = 0
     pur_del = 0
     user_del = 0
 
-    if test_user_ids:
-        purchases = db.query(CoursePurchase).filter(CoursePurchase.user_id.in_(test_user_ids)).all()
-        purchase_ids = [p.id for p in purchases]
+    if all_test_purchase_ids or test_user_ids:
+        # Delete all identified test commissions
+        if test_commissions:
+            test_comm_ids = [c.id for c in test_commissions]
+            comm_del = db.query(CourseCommission).filter(
+                CourseCommission.id.in_(test_comm_ids)
+            ).delete(synchronize_session=False)
 
-        comm_del = db.query(CourseCommission).filter(
-            (CourseCommission.buyer_id.in_(test_user_ids)) |
-            (CourseCommission.earner_id.in_(test_user_ids)) |
-            (CourseCommission.purchase_id.in_(purchase_ids) if purchase_ids else False)
-        ).delete(synchronize_session=False)
-        pur_del = db.query(CoursePurchase).filter(CoursePurchase.user_id.in_(test_user_ids)).delete(synchronize_session=False)
-        user_del = db.query(User).filter(User.id.in_(test_user_ids)).delete(synchronize_session=False)
+        # Delete all test purchases
+        if all_test_purchase_ids:
+            pur_del = db.query(CoursePurchase).filter(
+                CoursePurchase.id.in_(list(all_test_purchase_ids))
+            ).delete(synchronize_session=False)
 
-    # Delete the TEST_COURSE_* seed courses. Must first delete any lingering
-    # purchases/commissions that reference them (belt-and-braces).
-    test_courses = db.query(Course).filter(Course.title.like("TEST_COURSE_%")).all()
-    test_course_ids = [c.id for c in test_courses]
+        # Delete test users
+        if test_user_ids:
+            user_del = db.query(User).filter(User.id.in_(test_user_ids)).delete(synchronize_session=False)
+
+    # Delete the TEST_COURSE_* seed courses themselves
     course_del = 0
     if test_course_ids:
-        # Any purchases that reference these courses (by non-test users too, just in case)
-        course_pur_ids = [p.id for p in db.query(CoursePurchase).filter(
-            CoursePurchase.course_id.in_(test_course_ids)
-        ).all()]
-        if course_pur_ids:
-            db.query(CourseCommission).filter(
-                CourseCommission.purchase_id.in_(course_pur_ids)
-            ).delete(synchronize_session=False)
-            db.query(CoursePurchase).filter(
-                CoursePurchase.id.in_(course_pur_ids)
-            ).delete(synchronize_session=False)
         course_del = db.query(Course).filter(Course.id.in_(test_course_ids)).delete(synchronize_session=False)
 
     db.commit()
 
-    if not test_user_ids and not test_course_ids:
+    if not test_user_ids and not test_course_ids and not reversals_applied:
         return {"message": "No test data found to clean"}
 
     return {
@@ -13138,6 +13201,7 @@ def admin_test_course_passup_cleanup(
         "purchases": pur_del,
         "commissions": comm_del,
         "test_courses": course_del,
+        "reversals_applied": reversals_applied,
     }
 
 
