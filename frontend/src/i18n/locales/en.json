@@ -2938,7 +2938,10 @@
     "boostPack10kLabel": "10,000 Emails",
     "boostPack10kDesc": "Scale your outreach",
     "boostPack50kLabel": "50,000 Emails",
-    "boostPack50kDesc": "Enterprise-level volume"
+    "boostPack50kDesc": "Enterprise-level volume",
+    "contacts": "contacts",
+    "sent": "sent",
+    "noneOption": "None"
   },
   "adHub": {
     "title": "Ad Hub",
