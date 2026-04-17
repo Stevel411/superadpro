@@ -1839,7 +1839,156 @@
       "title": "SuperLeads Help",
       "subtitle": "Volledige gids voor je CRM en autoresponder",
       "searchPlaceholder": "Zoek hulponderwerpen…",
-      "noResults": "Geen resultaten voor"
+      "noResults": "Geen resultaten voor",
+      "sections": {
+        "gettingStarted": {
+          "category": "Aan de slag",
+          "items": [
+            {
+              "title": "Wat is de Autoresponder?",
+              "desc": "Een ingebouwde CRM die leads vanuit je funnels vastlegt, ze in lijsten organiseert en geautomatiseerde e-mailreeksen stuurt om ze om te zetten in klanten."
+            },
+            {
+              "title": "Gratis e-mailcredits",
+              "desc": "Elk lid krijgt 200 gratis e-mailverzendingen per dag. Op? Koop een Boost-pakket om bij te vullen — credits verlopen nooit."
+            },
+            {
+              "title": "Je eerste lead",
+              "desc": "Leads worden automatisch toegevoegd wanneer iemand een formulier invult op je SuperPage, LinkHub of een funnel gekoppeld aan je affiliate-account."
+            },
+            {
+              "title": "Wie ziet deze inhoud?",
+              "desc": "Alleen jij — je leads zijn privé. Niets wordt gedeeld met andere leden of verkocht aan derden."
+            }
+          ]
+        },
+        "leadsTab": {
+          "category": "Leads-tab",
+          "items": [
+            {
+              "title": "Lead-statussen",
+              "desc": "Nieuw (net vastgelegd), Koesteren (ontvangt je reeks), Heet (sterk betrokken), Geconverteerd (betalende klant), Uitgeschreven (heeft zich teruggetrokken)."
+            },
+            {
+              "title": "Een status wijzigen",
+              "desc": "Klik op een lead-rij om te bewerken. Update de status handmatig wanneer je een hete prospect identificeert of een verkoop sluit."
+            },
+            {
+              "title": "Leads verwijderen",
+              "desc": "Verwijder testinvoer of bounces met het verwijderpictogram. Verwijderingen zijn permanent — download eerst een CSV-back-up indien nodig."
+            },
+            {
+              "title": "Zoeken en filteren",
+              "desc": "Gebruik het zoekvak om leads te vinden op e-mail of naam. Combineer met status- en lijstfilters om segmenten te verfijnen."
+            }
+          ]
+        },
+        "lists": {
+          "category": "Lijsten",
+          "items": [
+            {
+              "title": "Wat zijn lijsten?",
+              "desc": "Lijsten groeperen gerelateerde leads — bijvoorbeeld één lijst per niche, één per campagne of één per funnelbron. Elke lijst kan zijn eigen reeks hebben."
+            },
+            {
+              "title": "Een lijst maken",
+              "desc": "Klik op Nieuwe lijst in het tabblad Leads, geef het een duidelijke naam en wijs optioneel een standaardreeks toe om nieuwe leads automatisch te koesteren."
+            },
+            {
+              "title": "Leads tussen lijsten verplaatsen",
+              "desc": "Selecteer leads en gebruik Verplaats naar lijst. Leads kunnen tot meerdere lijsten behoren — handig voor gesegmenteerde re-engagement-campagnes."
+            },
+            {
+              "title": "Uitschrijfverwerking",
+              "desc": "Als een lead zich van een lijst uitschrijft, wordt hij op alle lijsten gemarkeerd als uitgeschreven om te voldoen aan antispamwetten."
+            }
+          ]
+        },
+        "sequences": {
+          "category": "Reeksen",
+          "items": [
+            {
+              "title": "Wat is een reeks?",
+              "desc": "Een serie e-mails die automatisch worden verstuurd met vertragingen ertussen — bijv. welkom (dag 0), tips (dag 1), casestudy (dag 3), aanbod (dag 5)."
+            },
+            {
+              "title": "Een reeks bouwen",
+              "desc": "Voeg e-mails één voor één toe. Elke e-mail heeft een onderwerp, HTML-inhoud en een verzendvertraging (in dagen) vanaf toevoeging van de lead."
+            },
+            {
+              "title": "AI-gegenereerde reeksen",
+              "desc": "Klik op Genereren met AI, voer je niche in en krijg een welkomstreeks van vijf e-mails klaar om aan te passen. Bewerk voor verzending."
+            },
+            {
+              "title": "Toewijzen aan een lijst",
+              "desc": "Reeksen koppelen aan lijsten — zo komt elke nieuwe lead die aan die lijst wordt toegevoegd automatisch in de reeks bij e-mail 1."
+            }
+          ]
+        },
+        "broadcast": {
+          "category": "Uitzending",
+          "items": [
+            {
+              "title": "Eenmalige aankondigingen",
+              "desc": "Uitzendingen sturen één e-mail naar een gefilterde groep — ideaal voor productlanceringen, flash sales of tijdgevoelige updates."
+            },
+            {
+              "title": "Targeting",
+              "desc": "Filter op lijst en status voor verzending. Voorbeeld: stuur alleen naar Hete leads op je Crypto-lijst om een nieuw aanbod aan te kondigen."
+            },
+            {
+              "title": "Gebruikte e-mailcredits",
+              "desc": "Elke ontvanger verbruikt één credit. Een uitzending naar 500 leads gebruikt 500 credits — controleer je saldo voor planning."
+            },
+            {
+              "title": "Tips voor bezorgbaarheid",
+              "desc": "Gebruik een duidelijk onderwerp, één duidelijke call-to-action en vermijd spamwoorden (GRATIS, DRINGEND, !!!) om uit spammappen te blijven."
+            }
+          ]
+        },
+        "import": {
+          "category": "Importeren",
+          "items": [
+            {
+              "title": "CSV-upload",
+              "desc": "Upload een CSV met kolommen e-mail en naam. Tot 5.000 leads per import. Grotere bestanden? Splits ze in batches."
+            },
+            {
+              "title": "E-mails plakken",
+              "desc": "Sla de CSV over en plak direct een lijst e-mailadressen — één per regel. Namen blijven leeg en kunnen later worden ingevuld."
+            },
+            {
+              "title": "Voorbeeld en valideren",
+              "desc": "Voor import toont Voorbeeld en Valideren ongeldige adressen, duplicaten en uitschrijvingen. Deze worden automatisch overgeslagen."
+            },
+            {
+              "title": "Bronlabels",
+              "desc": "Tag imports met een bron zoals webinar-jan-2026 om later prestaties per campagne te meten in Analyses."
+            }
+          ]
+        },
+        "emailBoost": {
+          "category": "E-mail Boost-pakketten",
+          "items": [
+            {
+              "title": "Wanneer een boost kopen",
+              "desc": "Als je naar lijsten groter dan 200 ontvangers stuurt of meerdere uitzendingen op een dag uitvoert, geeft een Boost-pakket je direct extra credits."
+            },
+            {
+              "title": "Pakketgroottes",
+              "desc": "Vier niveaus: 1.000, 5.000, 25.000 en 100.000 credits. Hoe groter het pakket, hoe lager de kosten per e-mail."
+            },
+            {
+              "title": "Hoe betaling werkt",
+              "desc": "Boost-pakketten worden betaald vanuit je Wallet-saldo. Credits worden direct toegevoegd en verlopen nooit — gebruik ze in je eigen tempo."
+            },
+            {
+              "title": "Dagelijkse gratis credits blijven gelden",
+              "desc": "Je 200 dagelijkse gratis credits resetten elke middernacht UTC. Boost-credits worden pas gebruikt na het verbruik van de dagelijkse toewijzing."
+            }
+          ]
+        }
+      }
     },
     "autoresponderLabel": "Automatische reactie",
     "totalLeadsStat": "Totaal leads",
@@ -2257,7 +2406,177 @@
       "title": "SuperPages Help",
       "subtitle": "Kennisbank voor de page builder",
       "searchPlaceholder": "Zoek hulponderwerpen…",
-      "noResults": "Geen resultaten voor"
+      "noResults": "Geen resultaten voor",
+      "sections": {
+        "gettingStarted": {
+          "category": "Aan de slag",
+          "items": [
+            {
+              "title": "Wat is SuperPages?",
+              "desc": "Een drag-and-drop paginabouwer voor het maken van landingpagina's, funnels en lead-capture-formulieren zonder code te schrijven."
+            },
+            {
+              "title": "Een pagina starten",
+              "desc": "Kies een leeg canvas of een van de acht voorgebouwde sjablonen. Je pagina wordt elke paar seconden automatisch opgeslagen — geen Opslaan-knop nodig."
+            },
+            {
+              "title": "Vrij canvas",
+              "desc": "Elementen kunnen overal op de pagina worden gesleept en vanaf elke rand of hoek worden vergroot/verkleind. Snap-to-grid staat standaard aan."
+            },
+            {
+              "title": "Mobiele preview",
+              "desc": "Schakel tussen desktop- en mobiele weergaven met de apparaatschakelaar in de bovenbalk. Layouts passen zich automatisch aan smalle schermen aan."
+            }
+          ]
+        },
+        "textElements": {
+          "category": "Tekstelementen",
+          "items": [
+            {
+              "title": "Koppen",
+              "desc": "Plaats een Kop-element voor titels en subkoppen. Kies H1 tot H6, stijl dan grootte, kleur, gewicht en uitlijning in het rechterpaneel."
+            },
+            {
+              "title": "Paragrafen",
+              "desc": "Reguliere tekstblokken. Ondersteuning voor vet, cursief, onderstreept, links en kleurmarkeringen via de inline opmaakbalk."
+            },
+            {
+              "title": "Lijsten",
+              "desc": "Opsommingstekens of genummerde lijsten voor functies, voordelen of stappen. Items springen automatisch in met Tab; uitspringen met Shift+Tab."
+            },
+            {
+              "title": "Citaten",
+              "desc": "Gestileerde pull-quote blokken voor getuigenissen. Voeg attributie toe onder het citaat en optioneel een sterrenbeoordeling."
+            }
+          ]
+        },
+        "mediaElements": {
+          "category": "Media-elementen",
+          "items": [
+            {
+              "title": "Afbeeldingen",
+              "desc": "Upload afbeeldingen vanaf je apparaat (tot 10MB elk) of plak een URL. Hotlink-veilig — we cachen op onze CDN voor snelle laadtijden."
+            },
+            {
+              "title": "Video's",
+              "desc": "Embed YouTube-, Vimeo- of directe MP4-links. Video's passen zich automatisch aan de container aan met behoud van de beeldverhouding."
+            },
+            {
+              "title": "Audio",
+              "desc": "Voeg audiospelers toe voor podcasts, voice-overs of muziek. Ondersteunt MP3, WAV en M4A. Toont een schone speler-UI met afspeelbediening."
+            },
+            {
+              "title": "Pictogrammen",
+              "desc": "Meer dan 1.000 Lucide-pictogrammen beschikbaar. Perfect voor functielijsten, voordeel-opsommingen en decoratieve accenten."
+            }
+          ]
+        },
+        "actionElements": {
+          "category": "Actie-elementen",
+          "items": [
+            {
+              "title": "Knoppen",
+              "desc": "Calls-to-action die linken naar elke URL of een formulierinzending activeren. Stijl gradiënten, randen, schaduwen, hover-effecten en pictogramprefixen."
+            },
+            {
+              "title": "Formulieren",
+              "desc": "Leg leads vast met naam, e-mail, telefoon of aangepaste velden. Inzendingen voeden direct je Autoresponder-lijsten en -reeksen."
+            },
+            {
+              "title": "Countdown-timers",
+              "desc": "Creëer urgentie voor lanceringen en flash-aanbiedingen. Stel de einddatum in en kies wat er gebeurt wanneer de timer nul bereikt."
+            },
+            {
+              "title": "Link-hubs",
+              "desc": "Embed je volledige LinkHub binnen een pagina — handig voor bio-link-achtige landingpagina's met meerdere bestemmingen."
+            }
+          ]
+        },
+        "contentElements": {
+          "category": "Inhoudselementen",
+          "items": [
+            {
+              "title": "Getuigenissen",
+              "desc": "Voorgebouwde kaarten met foto, naam, rol, citaat en sterrenbeoordeling. Geweldig voor sociaal bewijs — voeg drie tot vijf toe voor maximale impact."
+            },
+            {
+              "title": "FAQ-accordeons",
+              "desc": "Inklapbare vraag-en-antwoord blokken. Klik op een vraag om uit te vouwen. Verkort de pagina terwijl de inhoud scanbaar blijft."
+            },
+            {
+              "title": "Prijstabellen",
+              "desc": "Vergelijk plannen naast elkaar. Ondersteunt functielijsten, gemarkeerde best-value-kolom en CTA-knoppen per niveau."
+            },
+            {
+              "title": "Functie-rasters",
+              "desc": "Toon de voordelen van je product in een 2-, 3- of 4-kolomsraster met pictogram, titel en beschrijving per cel."
+            }
+          ]
+        },
+        "layoutElements": {
+          "category": "Layout-elementen",
+          "items": [
+            {
+              "title": "Secties",
+              "desc": "Containers met volledige breedte met een eigen achtergrond. Gebruik om delen van je pagina te scheiden — hero, functies, getuigenissen, voettekst."
+            },
+            {
+              "title": "Kolommen",
+              "desc": "Splits een sectie in twee, drie of vier kolommen. Op mobiel stapelen kolommen automatisch verticaal."
+            },
+            {
+              "title": "Scheidingstekens en spacers",
+              "desc": "Scheidingstekens voegen een visuele lijn toe; spacers voegen verticale ruimte toe. Beide verstelbaar in hoogte — handig voor fijnafstemming van ritme."
+            },
+            {
+              "title": "Achtergronden",
+              "desc": "Sectie-achtergronden ondersteunen effen kleur, gradiënt, afbeelding of video. De gradiëntbouwer heeft 12 voorgemaakte presets."
+            }
+          ]
+        },
+        "settingsPublishing": {
+          "category": "Instellingen en Publiceren",
+          "items": [
+            {
+              "title": "Pagina-instellingen",
+              "desc": "Stel de paginatitel in (weergegeven in browsertabblad), metabeschrijving (weergegeven in zoekresultaten), favicon en aangepast domeinpad."
+            },
+            {
+              "title": "SEO en social sharing",
+              "desc": "Voeg een social preview-afbeelding toe (1200×630 PNG). Wanneer je pagina wordt gedeeld op Twitter, Facebook of WhatsApp, verschijnt deze afbeelding."
+            },
+            {
+              "title": "Trackingpixels",
+              "desc": "Injecteer Google Analytics, Meta Pixel of aangepaste scripts in de paginakop. Pixels activeren bij elke paginaweergave en formulierinzending."
+            },
+            {
+              "title": "Publiceren",
+              "desc": "Klik op Publiceren om je pagina live te zetten op het gekozen URL-pad. Herpubliceer op elk moment om bewerkingen te pushen — wijzigingen gaan binnen seconden live."
+            }
+          ]
+        },
+        "aiAssistant": {
+          "category": "AI-Assistent",
+          "items": [
+            {
+              "title": "Wat de AI doet",
+              "desc": "De ingebouwde AI helpt met het schrijven van koppen, body-tekst, knoptekst, getuigenissen en volledige paginaconcepten. Getraind op hoog-converterende marketing-copy."
+            },
+            {
+              "title": "Vragen om inhoud",
+              "desc": "Klik op een tekstelement en dan op het sprankelpictogram. Beschrijf wat je wilt — bijv. 'Schrijf een heldenkop voor een cryptocursuslancering'."
+            },
+            {
+              "title": "Regenereren",
+              "desc": "Vind je de eerste output niet mooi? Klik op Regenereren voor een nieuwe versie. Elke generatie gebruikt enkele credits uit je AI-quota."
+            },
+            {
+              "title": "AI-output bewerken",
+              "desc": "Controleer en bewerk AI-gegenereerde inhoud altijd voordat je publiceert. De AI is een startpunt — jouw stem maakt het authentiek."
+            }
+          ]
+        }
+      }
     },
     "desktopPreview": "Desktop (1100px)",
     "tabletPreview": "Tablet (768px)",

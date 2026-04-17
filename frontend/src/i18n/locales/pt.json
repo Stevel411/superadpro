@@ -1839,7 +1839,156 @@
       "title": "Ajuda do SuperLeads",
       "subtitle": "Guia completo do seu CRM e autorresponder",
       "searchPlaceholder": "Pesquisar tópicos de ajuda…",
-      "noResults": "Nenhum resultado para"
+      "noResults": "Nenhum resultado para",
+      "sections": {
+        "gettingStarted": {
+          "category": "Primeiros Passos",
+          "items": [
+            {
+              "title": "O que é o Autorresponder?",
+              "desc": "Um CRM integrado que captura leads dos seus funis, organiza-os em listas e envia sequências de e-mail automatizadas para convertê-los em clientes."
+            },
+            {
+              "title": "Créditos de e-mail grátis",
+              "desc": "Todo membro recebe 200 envios de e-mail grátis por dia. Acabou? Compre um Pacote Boost para recarregar — créditos nunca expiram."
+            },
+            {
+              "title": "Seu primeiro lead",
+              "desc": "Leads são adicionados automaticamente quando alguém preenche um formulário na sua SuperPage, LinkHub ou qualquer funil ligado à sua conta de afiliado."
+            },
+            {
+              "title": "Quem vê este conteúdo?",
+              "desc": "Somente você — seus leads são privados. Nada é compartilhado com outros membros nem vendido a terceiros."
+            }
+          ]
+        },
+        "leadsTab": {
+          "category": "Aba Leads",
+          "items": [
+            {
+              "title": "Status de leads",
+              "desc": "Novo (recém-capturado), Nutrindo (recebendo sua sequência), Quente (altamente engajado), Convertido (cliente pagante), Cancelado (optou por sair)."
+            },
+            {
+              "title": "Alterar um status",
+              "desc": "Clique em qualquer linha de lead para editar. Atualize o status manualmente quando identificar um prospecto quente ou fechar uma venda."
+            },
+            {
+              "title": "Excluir leads",
+              "desc": "Remova entradas de teste ou rebotes com o ícone de excluir. As exclusões são permanentes — baixe um backup CSV primeiro se necessário."
+            },
+            {
+              "title": "Busca e filtragem",
+              "desc": "Use a caixa de busca para encontrar leads por e-mail ou nome. Combine com filtros de status e lista para restringir segmentos."
+            }
+          ]
+        },
+        "lists": {
+          "category": "Listas",
+          "items": [
+            {
+              "title": "O que são listas?",
+              "desc": "Listas agrupam leads relacionados — por exemplo, uma lista por nicho, uma por campanha ou uma por fonte de funil. Cada lista pode ter sua própria sequência."
+            },
+            {
+              "title": "Criar uma lista",
+              "desc": "Clique em Nova Lista na aba Leads, dê um nome claro e opcionalmente atribua uma sequência padrão para nutrir novos leads automaticamente."
+            },
+            {
+              "title": "Mover leads entre listas",
+              "desc": "Selecione leads e use Mover para Lista. Leads podem pertencer a várias listas — útil para campanhas de reengajamento segmentadas."
+            },
+            {
+              "title": "Tratamento de descadastro",
+              "desc": "Se um lead cancelar a inscrição de qualquer lista, é marcado como cancelado em todas as listas para cumprir leis antispam."
+            }
+          ]
+        },
+        "sequences": {
+          "category": "Sequências",
+          "items": [
+            {
+              "title": "O que é uma sequência?",
+              "desc": "Uma série de e-mails enviados automaticamente com atrasos entre eles — ex. boas-vindas (dia 0), dicas (dia 1), caso de estudo (dia 3), oferta (dia 5)."
+            },
+            {
+              "title": "Construir uma sequência",
+              "desc": "Adicione e-mails um por um. Cada e-mail tem assunto, corpo HTML e um atraso de envio (em dias) desde quando o lead foi adicionado."
+            },
+            {
+              "title": "Sequências geradas por IA",
+              "desc": "Clique em Gerar com IA, insira seu nicho e obtenha uma série de boas-vindas de cinco e-mails pronta para personalizar. Edite antes de enviar."
+            },
+            {
+              "title": "Atribuir a uma lista",
+              "desc": "Sequências se anexam a listas — assim cada novo lead adicionado a essa lista entra automaticamente na sequência no e-mail 1."
+            }
+          ]
+        },
+        "broadcast": {
+          "category": "Transmissão",
+          "items": [
+            {
+              "title": "Anúncios únicos",
+              "desc": "Transmissões enviam um único e-mail para um grupo filtrado — ideal para lançamentos de produtos, vendas relâmpago ou atualizações urgentes."
+            },
+            {
+              "title": "Segmentação",
+              "desc": "Filtre por lista e status antes de enviar. Exemplo: envie apenas para leads Quentes da sua lista Cripto para anunciar uma nova oferta."
+            },
+            {
+              "title": "Créditos de e-mail usados",
+              "desc": "Cada destinatário consome um crédito. Uma transmissão para 500 leads usa 500 créditos — verifique seu saldo antes de agendar."
+            },
+            {
+              "title": "Dicas de entregabilidade",
+              "desc": "Use um assunto claro, uma única chamada para ação e evite palavras de spam (GRÁTIS, URGENTE, !!!) para ficar fora da pasta de spam."
+            }
+          ]
+        },
+        "import": {
+          "category": "Importar",
+          "items": [
+            {
+              "title": "Upload CSV",
+              "desc": "Envie um CSV com colunas e-mail e nome. Até 5.000 leads por importação. Arquivos maiores? Divida em lotes."
+            },
+            {
+              "title": "Colar e-mails",
+              "desc": "Pule o CSV e cole uma lista de e-mails diretamente — um por linha. Os nomes ficarão em branco e podem ser preenchidos depois."
+            },
+            {
+              "title": "Visualizar e validar",
+              "desc": "Antes de importar, Visualizar e Validar mostra endereços inválidos, duplicados e cancelamentos. Eles são pulados automaticamente."
+            },
+            {
+              "title": "Etiquetas de fonte",
+              "desc": "Marque importações com uma fonte como webinar-jan-2026 para medir o desempenho por campanha depois nas Analíticas."
+            }
+          ]
+        },
+        "emailBoost": {
+          "category": "Pacotes Boost de E-mail",
+          "items": [
+            {
+              "title": "Quando comprar um boost",
+              "desc": "Se você envia para listas maiores que 200 destinatários ou executa várias transmissões em um dia, um Pacote Boost dá créditos adicionais instantaneamente."
+            },
+            {
+              "title": "Tamanhos de pacotes",
+              "desc": "Quatro níveis: 1.000, 5.000, 25.000 e 100.000 créditos. Quanto maior o pacote, menor o custo por e-mail."
+            },
+            {
+              "title": "Como o pagamento funciona",
+              "desc": "Pacotes Boost são pagos do saldo da sua Carteira. Créditos são adicionados imediatamente e nunca expiram — use no seu ritmo."
+            },
+            {
+              "title": "Créditos grátis diários ainda se aplicam",
+              "desc": "Seus 200 créditos grátis diários reiniciam toda meia-noite UTC. Créditos boost são usados apenas após a cota diária ser gasta."
+            }
+          ]
+        }
+      }
     },
     "autoresponderLabel": "Auto-resposta",
     "totalLeadsStat": "Total de leads",
@@ -2257,7 +2406,177 @@
       "title": "Ajuda do SuperPages",
       "subtitle": "Base de conhecimento do construtor de páginas",
       "searchPlaceholder": "Pesquisar tópicos de ajuda…",
-      "noResults": "Nenhum resultado para"
+      "noResults": "Nenhum resultado para",
+      "sections": {
+        "gettingStarted": {
+          "category": "Primeiros Passos",
+          "items": [
+            {
+              "title": "O que é SuperPages?",
+              "desc": "Um construtor de páginas arrastar-e-soltar para criar landing pages, funis e formulários de captura de leads sem escrever código."
+            },
+            {
+              "title": "Começar uma página",
+              "desc": "Escolha uma tela em branco ou um dos oito modelos pré-construídos. Sua página é salva automaticamente a cada poucos segundos — nenhum botão Salvar necessário."
+            },
+            {
+              "title": "Tela livre",
+              "desc": "Elementos podem ser arrastados em qualquer lugar da página e redimensionados de qualquer borda ou canto. Encaixar à grade é ativado por padrão."
+            },
+            {
+              "title": "Visualização mobile",
+              "desc": "Alterne entre visualizações desktop e mobile com o botão de dispositivo na barra superior. Layouts se adaptam automaticamente a telas estreitas."
+            }
+          ]
+        },
+        "textElements": {
+          "category": "Elementos de Texto",
+          "items": [
+            {
+              "title": "Cabeçalhos",
+              "desc": "Solte um elemento Cabeçalho para títulos e subtítulos. Escolha H1 a H6, então estilize tamanho, cor, peso e alinhamento no painel direito."
+            },
+            {
+              "title": "Parágrafos",
+              "desc": "Blocos de texto de corpo regular. Suporte para negrito, itálico, sublinhado, links e destaques de cor através da barra de formatação inline."
+            },
+            {
+              "title": "Listas",
+              "desc": "Listas com marcadores ou numeradas para recursos, benefícios ou etapas. Itens auto-indentam com Tab; recuar com Shift+Tab."
+            },
+            {
+              "title": "Citações",
+              "desc": "Blocos de citação em destaque estilizados para depoimentos. Inclua atribuição abaixo da citação e classificação opcional por estrelas."
+            }
+          ]
+        },
+        "mediaElements": {
+          "category": "Elementos de Mídia",
+          "items": [
+            {
+              "title": "Imagens",
+              "desc": "Envie imagens do seu dispositivo (até 10MB cada) ou cole uma URL. Seguro contra hotlink — armazenamos em cache em nossa CDN para carregamento rápido."
+            },
+            {
+              "title": "Vídeos",
+              "desc": "Incorpore links do YouTube, Vimeo ou MP4 diretos. Vídeos se ajustam automaticamente ao container preservando a proporção."
+            },
+            {
+              "title": "Áudio",
+              "desc": "Adicione players de áudio para podcasts, narrações ou música. Suporta MP3, WAV e M4A. Mostra uma UI de player limpa com controles de reprodução."
+            },
+            {
+              "title": "Ícones",
+              "desc": "Mais de 1.000 ícones Lucide disponíveis. Perfeitos para listas de recursos, marcadores de benefícios e acentos decorativos."
+            }
+          ]
+        },
+        "actionElements": {
+          "category": "Elementos de Ação",
+          "items": [
+            {
+              "title": "Botões",
+              "desc": "Chamadas para ação que linkam a qualquer URL ou disparam o envio de formulário. Estilize gradientes, bordas, sombras, efeitos hover e prefixos de ícone."
+            },
+            {
+              "title": "Formulários",
+              "desc": "Capture leads com nome, e-mail, telefone ou campos personalizados. Envios alimentam diretamente suas listas e sequências do Autorresponder."
+            },
+            {
+              "title": "Contadores regressivos",
+              "desc": "Crie urgência para lançamentos e ofertas relâmpago. Defina a data final e escolha o que acontece quando o temporizador chega a zero."
+            },
+            {
+              "title": "Hubs de links",
+              "desc": "Incorpore seu LinkHub completo dentro de uma página — útil para landing pages tipo bio-link com múltiplos destinos."
+            }
+          ]
+        },
+        "contentElements": {
+          "category": "Elementos de Conteúdo",
+          "items": [
+            {
+              "title": "Depoimentos",
+              "desc": "Cartões pré-construídos com foto, nome, função, citação e classificação por estrelas. Ótimos para prova social — adicione três a cinco para impacto máximo."
+            },
+            {
+              "title": "Acordeões de FAQ",
+              "desc": "Blocos de perguntas e respostas recolhíveis. Clique em uma pergunta para expandir. Reduz o comprimento da página mantendo o conteúdo escaneável."
+            },
+            {
+              "title": "Tabelas de preços",
+              "desc": "Compare planos lado a lado. Suporta listas de recursos, coluna de melhor valor destacada e botões CTA por nível."
+            },
+            {
+              "title": "Grades de recursos",
+              "desc": "Mostre os benefícios do seu produto em uma grade de 2, 3 ou 4 colunas com ícone, título e descrição por célula."
+            }
+          ]
+        },
+        "layoutElements": {
+          "category": "Elementos de Layout",
+          "items": [
+            {
+              "title": "Seções",
+              "desc": "Containers de largura total com seu próprio fundo. Use para separar partes da sua página — hero, recursos, depoimentos, rodapé."
+            },
+            {
+              "title": "Colunas",
+              "desc": "Divida uma seção em duas, três ou quatro colunas. No mobile, colunas empilham verticalmente automaticamente."
+            },
+            {
+              "title": "Divisores e espaçadores",
+              "desc": "Divisores adicionam uma linha visual; espaçadores adicionam espaço vertical. Ambos com altura ajustável — úteis para ajuste fino."
+            },
+            {
+              "title": "Fundos",
+              "desc": "Fundos de seção suportam cor sólida, gradiente, imagem ou vídeo. O construtor de gradientes tem 12 presets pré-feitos."
+            }
+          ]
+        },
+        "settingsPublishing": {
+          "category": "Configurações e Publicação",
+          "items": [
+            {
+              "title": "Configurações de página",
+              "desc": "Defina o título da página (mostrado na aba do navegador), meta descrição (mostrada nos resultados de busca), favicon e caminho de domínio personalizado."
+            },
+            {
+              "title": "SEO e compartilhamento social",
+              "desc": "Adicione uma imagem de visualização social (PNG 1200×630). Quando sua página é compartilhada no Twitter, Facebook ou WhatsApp, esta imagem aparece."
+            },
+            {
+              "title": "Pixels de rastreamento",
+              "desc": "Injete Google Analytics, Meta Pixel ou scripts personalizados no head da página. Pixels disparam em cada visualização de página e envio de formulário."
+            },
+            {
+              "title": "Publicação",
+              "desc": "Clique em Publicar para colocar sua página ao vivo no caminho URL escolhido. Republique a qualquer momento para aplicar edições — mudanças vão ao ar em segundos."
+            }
+          ]
+        },
+        "aiAssistant": {
+          "category": "Assistente IA",
+          "items": [
+            {
+              "title": "O que a IA faz",
+              "desc": "A IA integrada ajuda a escrever manchetes, texto do corpo, texto de botão, depoimentos e rascunhos de páginas completas. Treinada em textos de marketing de alta conversão."
+            },
+            {
+              "title": "Pedindo conteúdo",
+              "desc": "Clique em qualquer elemento de texto e então no ícone de brilho. Descreva o que você quer — ex. 'Escreva uma manchete hero para o lançamento de um curso de cripto'."
+            },
+            {
+              "title": "Regenerando",
+              "desc": "Não gostou da primeira saída? Clique em Regenerar para uma nova versão. Cada geração usa alguns créditos da sua cota de IA."
+            },
+            {
+              "title": "Editando a saída da IA",
+              "desc": "Sempre revise e edite o conteúdo gerado por IA antes de publicar. A IA é um ponto de partida — sua voz torna autêntico."
+            }
+          ]
+        }
+      }
     },
     "desktopPreview": "Desktop (1100px)",
     "tabletPreview": "Tablet (768px)",

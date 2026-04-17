@@ -1845,20 +1845,20 @@
           "category": "Getting Started",
           "items": [
             {
-              "title": "What is the Autoresponder?",
-              "desc": "A built-in CRM that captures leads from your funnels, organises them into lists, and sends automated email sequences to nurture them into customers."
+              "title": "What is SuperLeads?",
+              "desc": "SuperLeads is your built-in CRM and email autoresponder. Capture leads from funnels or imports, organise them into lists, send broadcasts, and nurture them with automated email sequences — all from one place."
             },
             {
-              "title": "Free email credits",
-              "desc": "Every member gets 200 free email sends per day. Run out? Buy a Boost Pack to top up — credits never expire."
+              "title": "What counts as a lead?",
+              "desc": "Any email address you've captured — through a SuperPages funnel, a manual entry, or a CSV import. Each lead has a status, an optional name, a source tag, and can be assigned to any list."
             },
             {
-              "title": "Your first lead",
-              "desc": "Leads are added automatically when someone fills in a form on your SuperPage, LinkHub, or any funnel tied to your affiliate account."
+              "title": "Free emails vs boost credits",
+              "desc": "Every account gets 200 free email sends per day. Need more? Buy boost packs from the Boost tab — credits never expire and come from your wallet balance."
             },
             {
-              "title": "Who sees this content?",
-              "desc": "Only you — your leads are private. Nothing is shared with other members or sold to third parties."
+              "title": "Lead storage limit",
+              "desc": "Pro members can store up to 5,000 leads. Above that, either delete old leads or upgrade your plan. Leads stay forever unless you delete them."
             }
           ]
         },
@@ -1867,19 +1867,19 @@
           "items": [
             {
               "title": "Lead statuses",
-              "desc": "New (just captured), Nurturing (receiving your sequence), Hot (highly engaged), Converted (paying customer), Unsubscribed (opted out)."
+              "desc": "New, Nurturing, Hot, Converted, and Unsubscribed. Set a status manually or let sequences update it automatically when a lead takes action."
             },
             {
-              "title": "Changing a status",
-              "desc": "Click any lead row to edit. Update the status manually when you identify a hot prospect or close a sale."
+              "title": "Editing a lead",
+              "desc": "Click any lead row to expand and edit name, email, status, or list assignment. Changes save instantly."
             },
             {
-              "title": "Deleting leads",
-              "desc": "Remove test entries or bounces with the delete icon. Deletions are permanent — download a CSV backup first if needed."
+              "title": "Deleting a lead",
+              "desc": "Click the trash icon next to any lead. Deleted leads free up storage and cannot be recovered."
             },
             {
-              "title": "Searching and filtering",
-              "desc": "Use the search box to find leads by email or name. Combine with status and list filters to narrow down segments."
+              "title": "Bulk operations",
+              "desc": "Select multiple leads via the checkbox column, then use the bulk action bar at the bottom to move them to a list, change status, or delete."
             }
           ]
         },
@@ -1888,19 +1888,15 @@
           "items": [
             {
               "title": "What are lists?",
-              "desc": "Lists group related leads — for example, one list per niche, one per campaign, or one per funnel source. Each list can have its own sequence."
+              "desc": "Lists are tags you apply to leads to group them — for example 'Fitness Newsletter' or 'Crypto Prospects'. A single lead can belong to multiple lists."
             },
             {
               "title": "Creating a list",
-              "desc": "Click New List in the Leads tab, give it a clear name, and optionally assign a default sequence so new leads are nurtured automatically."
+              "desc": "Click 'Create List' in the Leads tab sidebar. Name it something descriptive — you'll target sequences and broadcasts by list."
             },
             {
-              "title": "Moving leads between lists",
-              "desc": "Select leads and use Move to List. Leads can belong to multiple lists — handy for segmented re-engagement campaigns."
-            },
-            {
-              "title": "Unsubscribe handling",
-              "desc": "If a lead unsubscribes from any list, they're marked as unsubscribed across all lists to stay compliant with anti-spam laws."
+              "title": "List analytics",
+              "desc": "Each list shows total leads, active subscribers, and conversion rate. Use these to identify which audiences engage best."
             }
           ]
         },
@@ -1909,19 +1905,19 @@
           "items": [
             {
               "title": "What is a sequence?",
-              "desc": "A series of emails sent automatically with delays between them — e.g. welcome (day 0), tips (day 1), case study (day 3), offer (day 5)."
+              "desc": "A sequence is an ordered set of emails sent automatically on a delay after a lead joins. Use them for welcome flows, product launches, or nurture campaigns."
             },
             {
-              "title": "Building a sequence",
-              "desc": "Add emails one at a time. Each email has a subject, HTML body, and a send delay (in days) from when the lead was added."
+              "title": "Creating a sequence",
+              "desc": "Switch to the Sequences tab, click 'New Sequence', and add email steps with send delays (in days). Assign the sequence to one or more lists."
             },
             {
               "title": "AI-generated sequences",
-              "desc": "Click Generate with AI, enter your niche, and get a five-email welcome series ready to customise. Edit before sending."
+              "desc": "Click 'Generate with AI' and enter your niche. SuperLeads writes a 5-email welcome series tailored to your audience. Edit any email before activating."
             },
             {
-              "title": "Assigning to a list",
-              "desc": "Sequences attach to lists — so every new lead added to that list automatically enters the sequence at email 1."
+              "title": "Pausing and resuming",
+              "desc": "Toggle a sequence off to pause all future sends. Leads already in progress stay paused; new leads won't enter. Toggle back on to resume."
             }
           ]
         },
@@ -1929,20 +1925,16 @@
           "category": "Broadcast",
           "items": [
             {
-              "title": "One-off announcements",
-              "desc": "Broadcasts send a single email to a filtered group — ideal for product launches, flash sales, or time-sensitive updates."
+              "title": "What is a broadcast?",
+              "desc": "A one-off email sent immediately (or scheduled) to a list. Use broadcasts for time-sensitive news, offers, or updates that don't fit a sequence."
             },
             {
-              "title": "Targeting",
-              "desc": "Filter by list and status before sending. Example: send only to Hot leads on your Crypto list to announce a new offer."
+              "title": "Writing a broadcast",
+              "desc": "Choose the target list, write a subject line and body (HTML supported), then preview. Send immediately or schedule for later."
             },
             {
-              "title": "Email credits used",
-              "desc": "Each recipient consumes one credit. A broadcast to 500 leads uses 500 credits — check your balance before scheduling."
-            },
-            {
-              "title": "Deliverability tips",
-              "desc": "Use a clear subject, one clear call-to-action, and avoid spammy words (FREE, URGENT, !!!) to stay out of spam folders."
+              "title": "Broadcast cost",
+              "desc": "Each recipient counts as one send against your daily limit. If you exceed 200 sends, the rest come from boost credits."
             }
           ]
         },
@@ -1950,41 +1942,37 @@
           "category": "Import",
           "items": [
             {
-              "title": "CSV upload",
-              "desc": "Upload a CSV with columns email and name. Up to 5,000 leads per import. Larger files? Split them into batches."
+              "title": "Accepted formats",
+              "desc": "CSV file upload or paste a list of email addresses. The format is simple: one email per line, or 'email,name' for named leads."
             },
             {
-              "title": "Paste emails",
-              "desc": "Skip the CSV and paste a list of email addresses directly — one per line. Names will be left blank and can be filled later."
+              "title": "Import settings",
+              "desc": "Before confirming, choose the target list, initial status, and optional source tag. Duplicates within the same list are skipped automatically."
             },
             {
-              "title": "Preview and validate",
-              "desc": "Before import, Preview & Validate shows invalid addresses, duplicates, and unsubscribes. These are automatically skipped."
+              "title": "Auto-assigning a sequence",
+              "desc": "Tick 'Auto-assign sequence' to drop every imported lead straight into a welcome flow. Great for transferring leads from another platform."
             },
             {
-              "title": "Source labels",
-              "desc": "Tag imports with a source like webinar-jan-2026 so you can measure performance by campaign later in Analytics."
+              "title": "Preview and validation",
+              "desc": "After upload, review the preview. Invalid emails are flagged red and won't import. Fix your source file and re-upload if needed."
             }
           ]
         },
         "emailBoost": {
-          "category": "Email Boost Packs",
+          "category": "Email Boost",
           "items": [
             {
-              "title": "When to buy a boost",
-              "desc": "If you send to lists larger than 200 recipients or run multiple broadcasts in a day, a Boost Pack gives you additional credits instantly."
+              "title": "What are boost credits?",
+              "desc": "Extra email sends beyond your 200/day free allocation. Credits come from your wallet balance and never expire."
             },
             {
-              "title": "Pack sizes",
-              "desc": "Four tiers: 1,000, 5,000, 25,000, and 100,000 credits. The bigger the pack, the lower the cost per email."
+              "title": "Boost pack tiers",
+              "desc": "Four pack sizes — 500, 2,000, 10,000, and 50,000 credits. Larger packs give better per-email pricing."
             },
             {
-              "title": "How payment works",
-              "desc": "Boost Packs are paid from your Wallet balance. Credits are added immediately and never expire — use them at your own pace."
-            },
-            {
-              "title": "Daily free credits still apply",
-              "desc": "Your 200 daily free credits reset every midnight UTC. Boost credits are used only after the daily allowance is spent."
+              "title": "When to buy boosts",
+              "desc": "When sending a large broadcast, nurturing a list bigger than 200 leads, or running multiple active sequences. The platform warns you before you hit your daily cap."
             }
           ]
         }
@@ -2413,19 +2401,19 @@
           "items": [
             {
               "title": "What is SuperPages?",
-              "desc": "A drag-and-drop page builder for creating landing pages, funnels, and lead-capture forms without writing code."
+              "desc": "A drag-and-drop builder for landing pages, opt-in funnels, and sales pages. Every page is mobile-responsive and can capture leads directly into SuperLeads."
             },
             {
-              "title": "Starting a page",
-              "desc": "Pick a blank canvas or choose from eight pre-built templates. Your page is auto-saved every few seconds — no Save button needed."
+              "title": "The canvas",
+              "desc": "The centre area is your page. Drag blocks from the left sidebar to add them. Click any element to edit it in the right panel."
             },
             {
-              "title": "Free-form canvas",
-              "desc": "Elements can be dragged anywhere on the page and resized from any edge or corner. Snap-to-grid is enabled by default."
+              "title": "Saving your work",
+              "desc": "Changes save automatically as you edit. The 'Publish' button makes your latest version live at your chosen URL."
             },
             {
-              "title": "Mobile preview",
-              "desc": "Switch between desktop and mobile views with the device toggle in the topbar. Layouts adapt automatically to narrow screens."
+              "title": "Pages vs funnels",
+              "desc": "A single page works for simple opt-ins. A funnel is a sequence of pages (opt-in → thank you → offer) — use the funnel builder to create multi-step flows."
             }
           ]
         },
@@ -2433,20 +2421,20 @@
           "category": "Text Elements",
           "items": [
             {
-              "title": "Headings",
-              "desc": "Drop a Heading element for titles and subheadings. Choose H1 through H6, then style size, colour, weight, and alignment in the right panel."
+              "title": "Heading block",
+              "desc": "For page titles and section headers. Pick H1 through H6, adjust size and weight, and choose a colour. H1 should be used once per page for SEO."
             },
             {
-              "title": "Paragraphs",
-              "desc": "Regular body text blocks. Support for bold, italic, underline, links, and colour highlights via the inline formatting toolbar."
+              "title": "Paragraph block",
+              "desc": "For body copy. Supports bold, italic, links, and line breaks. Use short paragraphs (2-3 sentences) for best readability on mobile."
             },
             {
-              "title": "Lists",
-              "desc": "Bullet or numbered lists for features, benefits, or steps. Items auto-indent when you press Tab; outdent with Shift+Tab."
+              "title": "Quote block",
+              "desc": "A highlighted quote or testimonial with an optional attribution line. Styled distinctly from normal paragraphs."
             },
             {
-              "title": "Quotes",
-              "desc": "Styled pull-quote blocks for testimonials. Include attribution below the quote and optional star rating."
+              "title": "List block",
+              "desc": "Bulleted or numbered lists. Use bulleted lists for features and benefits; numbered lists for steps or ranked items."
             }
           ]
         },
@@ -2454,20 +2442,20 @@
           "category": "Media Elements",
           "items": [
             {
-              "title": "Images",
-              "desc": "Upload images from your device (up to 10MB each) or paste a URL. Hotlink-safe — we cache to our CDN for fast load times."
+              "title": "Image block",
+              "desc": "Upload an image or paste a URL. Images auto-resize to fit the container width and load lazily for fast page speed."
             },
             {
-              "title": "Videos",
-              "desc": "Embed YouTube, Vimeo, or direct MP4 links. Videos auto-size to the container while preserving aspect ratio."
+              "title": "Video block",
+              "desc": "Paste a YouTube, Vimeo, or Wistia URL. The player embeds responsively and plays directly on your page. No custom hosting needed."
             },
             {
-              "title": "Audio",
-              "desc": "Add audio players for podcasts, voiceovers, or music. Supports MP3, WAV, and M4A. Shows a clean player UI with playback controls."
+              "title": "Audio block",
+              "desc": "Embed an MP3 player. Upload the file or paste a direct URL. Great for podcast episodes or voice messages."
             },
             {
-              "title": "Icons",
-              "desc": "Over 1,000 Lucide icons available. Perfect for feature lists, benefit bullets, and decorative accents."
+              "title": "Gallery block",
+              "desc": "A grid of images that opens in a lightbox on click. Add up to 24 images per gallery."
             }
           ]
         },
@@ -2475,20 +2463,20 @@
           "category": "Action Elements",
           "items": [
             {
-              "title": "Buttons",
-              "desc": "Calls-to-action that link to any URL or trigger a form submit. Style gradients, borders, shadows, hover effects, and icon prefixes."
+              "title": "Button block",
+              "desc": "A clickable button with custom text, colour, and action. Set it to open a URL, scroll to a section, or submit a form."
             },
             {
-              "title": "Forms",
-              "desc": "Capture leads with name, email, phone, or custom fields. Submissions feed directly into your Autoresponder lists and sequences."
+              "title": "Form block",
+              "desc": "Collect name, email, and custom fields. Submissions drop directly into SuperLeads with your chosen list and status."
             },
             {
-              "title": "Countdown timers",
-              "desc": "Create urgency for launches and flash offers. Set end date and choose what happens when the timer hits zero."
+              "title": "Countdown timer",
+              "desc": "Drives urgency by showing time until a launch, deadline, or offer expiry. Choose a target date/time and styling."
             },
             {
-              "title": "Link hubs",
-              "desc": "Embed your full LinkHub inside a page — useful for bio-style landing pages with multiple destinations."
+              "title": "Opt-in popup",
+              "desc": "A lightbox form triggered by exit intent, scroll depth, or a time delay. Great for capturing leaving visitors."
             }
           ]
         },
@@ -2496,20 +2484,20 @@
           "category": "Content Elements",
           "items": [
             {
-              "title": "Testimonials",
-              "desc": "Pre-built cards with photo, name, role, quote, and star rating. Great for social proof — add three to five for maximum impact."
+              "title": "FAQ block",
+              "desc": "A collapsible question-and-answer list. Reduces page clutter and boosts SEO — search engines understand FAQ schema."
             },
             {
-              "title": "FAQ accordions",
-              "desc": "Collapsible question-and-answer blocks. Click a question to expand. Reduces page length while keeping content scannable."
+              "title": "Testimonial block",
+              "desc": "Customer quotes with optional avatars, names, and star ratings. Displays as cards, a carousel, or a grid."
             },
             {
-              "title": "Pricing tables",
-              "desc": "Compare plans side-by-side. Supports feature lists, highlighted best-value column, and button CTAs per tier."
+              "title": "Pricing table",
+              "desc": "Compare 2-4 pricing tiers side-by-side with feature lists and a call-to-action button per tier."
             },
             {
-              "title": "Feature grids",
-              "desc": "Showcase product benefits in a 2-, 3-, or 4-column grid with icon, title, and description per cell."
+              "title": "Stats block",
+              "desc": "Big numbers with labels — e.g. '10,000+ members', '$2M paid out'. Use to build credibility quickly."
             }
           ]
         },
@@ -2517,41 +2505,45 @@
           "category": "Layout Elements",
           "items": [
             {
-              "title": "Sections",
-              "desc": "Full-width containers with their own background. Use to separate parts of your page — hero, features, testimonials, footer."
+              "title": "Section block",
+              "desc": "A container that groups other blocks together. Add a background colour, image, or gradient to style entire sections of your page."
             },
             {
               "title": "Columns",
-              "desc": "Split a section into two, three, or four columns. On mobile, columns stack vertically automatically."
+              "desc": "Split a section into 2, 3, or 4 columns. On mobile, columns automatically stack vertically for readability."
             },
             {
-              "title": "Dividers and spacers",
-              "desc": "Dividers add a visual line; spacers add vertical gap. Both adjustable in height — handy for fine-tuning rhythm."
+              "title": "Spacer block",
+              "desc": "Adds vertical whitespace between elements. Use sparingly — too much whitespace fragments the page flow."
             },
             {
-              "title": "Backgrounds",
-              "desc": "Section backgrounds support solid colour, gradient, image, or video. Gradient builder has 12 pre-made presets."
+              "title": "Divider block",
+              "desc": "A horizontal line to separate sections visually. Choose thickness, colour, and style (solid, dashed, dotted)."
             }
           ]
         },
         "settingsPublishing": {
-          "category": "Settings and Publishing",
+          "category": "Settings & Publishing",
           "items": [
             {
-              "title": "Page settings",
-              "desc": "Set the page title (shown in browser tab), meta description (shown in search results), favicon, and custom domain path."
+              "title": "Page URL",
+              "desc": "Set a custom slug under your affiliate subdomain. Keep URLs short, descriptive, and keyword-rich for SEO."
             },
             {
-              "title": "SEO and social sharing",
-              "desc": "Add a social preview image (1200×630 PNG). When your page is shared on Twitter, Facebook, or WhatsApp, this image appears."
-            },
-            {
-              "title": "Tracking pixels",
-              "desc": "Inject Google Analytics, Meta Pixel, or custom scripts in the page head. Pixels fire on every page view and form submission."
+              "title": "SEO meta",
+              "desc": "Set the page title, meta description, and social share image. These show in search results and when your link is shared on social media."
             },
             {
               "title": "Publishing",
-              "desc": "Click Publish to make your page live at your chosen URL path. Republish anytime to push edits — changes go live within seconds."
+              "desc": "Click 'Publish' to make your latest changes live. Draft changes stay private until you publish — you can preview anytime."
+            },
+            {
+              "title": "Analytics",
+              "desc": "Track page views, opt-in rate, and average time on page. Data updates every 5 minutes."
+            },
+            {
+              "title": "Tracking pixels",
+              "desc": "Inject Facebook, Google, or TikTok pixels to track conversions in your ad platforms. Add your pixel ID in the page settings."
             }
           ]
         },
@@ -2559,20 +2551,20 @@
           "category": "AI Assistant",
           "items": [
             {
-              "title": "What the AI does",
-              "desc": "The built-in AI helps write headlines, body copy, button text, testimonials, and full page drafts. Trained on high-converting marketing copy."
+              "title": "What does the AI do?",
+              "desc": "Generates copy for headlines, body paragraphs, CTAs, and FAQs based on your niche and offer. Great for beating blank-page paralysis."
             },
             {
-              "title": "Asking for content",
-              "desc": "Click any text element then hit the sparkle icon. Describe what you want — e.g. 'Write a hero headline for a crypto course launch'."
-            },
-            {
-              "title": "Regenerating",
-              "desc": "Don't like the first output? Click Regenerate for a fresh take. Each generation uses a few credits from your AI quota."
+              "title": "Writing a good prompt",
+              "desc": "Be specific: include your product, your audience, the action you want them to take, and the tone. 'Write a headline for a fitness course aimed at busy mums' beats 'write a headline'."
             },
             {
               "title": "Editing AI output",
-              "desc": "Always review and edit AI-generated copy before publishing. The AI is a starting point — your voice makes it authentic."
+              "desc": "AI drafts are starting points, not final copy. Always read, tweak, and inject your own voice before publishing."
+            },
+            {
+              "title": "Regenerate vs refine",
+              "desc": "'Regenerate' gives a fresh take with the same prompt. 'Refine' takes the current output and tweaks it — use refine when you're close but not quite there."
             }
           ]
         }
