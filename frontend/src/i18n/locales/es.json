@@ -2631,25 +2631,195 @@
       "noResults": "Sin resultados para",
       "sections": {
         "gettingStarted": {
-          "category": "Primeros Pasos"
+          "category": "Primeros Pasos",
+          "items": [
+            {
+              "title": "¿Qué es SuperLeads?",
+              "desc": "SuperLeads es tu CRM y autoresponder de email integrado. Te permite capturar leads desde tus embudos de SuperPages, organizarlos en listas, enviar secuencias automáticas de email y difundir emails puntuales — todo sin necesitar una herramienta de marketing por email separada."
+            },
+            {
+              "title": "¿Cómo entran los leads a mi CRM?",
+              "desc": "Los leads se añaden automáticamente cuando alguien completa un formulario en cualquiera de tus SuperPages. Su nombre y email se capturan al instante y aparecen en tu pestaña de Leads. También puedes importar leads manualmente usando un archivo CSV desde la pestaña Importar."
+            },
+            {
+              "title": "¿Quién puede usar SuperLeads?",
+              "desc": "SuperLeads es una función para miembros Pro. Obtienes hasta 5,000 leads incluidos con tu membresía Pro. ¿Necesitas más capacidad? Puedes expandirla en cualquier momento desde la configuración de tu cuenta."
+            },
+            {
+              "title": "¿Qué pasa cuando llega un lead?",
+              "desc": "Cuando un lead completa tu formulario de embudo, se añade a tu CRM, se le asigna tu secuencia de email activa más reciente, y el primer email de esa secuencia se envía inmediatamente vía Brevo. Todo es automático — no se necesitan pasos manuales."
+            }
+          ]
         },
         "leadsTab": {
-          "category": "Pestaña de Leads"
+          "category": "Pestaña de Leads",
+          "items": [
+            {
+              "title": "¿Qué muestra la pestaña Leads?",
+              "desc": "La pestaña Leads es tu lista principal de contactos. Muestra cada lead que has capturado o importado, incluyendo su nombre, email, a qué lista pertenecen, su estado actual, cuántos emails han recibido y abierto, y a qué secuencia están asignados."
+            },
+            {
+              "title": "Estados de Lead Explicados",
+              "desc": "Nuevo — recién añadido, sin interacción aún. En seguimiento — en una secuencia de email activa. Caliente — marcado automáticamente cuando un lead abre 2+ emails o hace clic en cualquier enlace. Convertido — marca manualmente un lead como convertido una vez que haya realizado la acción que querías (compra, registro, etc.)."
+            },
+            {
+              "title": "¿Qué es un Lead Caliente?",
+              "desc": "Un Lead Caliente es alguien que muestra interés real — ha abierto múltiples emails o ha hecho clic en un enlace. Estos son tus prospectos más cálidos y vale la pena priorizarlos. Los leads calientes se marcan automáticamente con un icono de fuego y aparecen cuando haces clic en el filtro Caliente."
+            },
+            {
+              "title": "Filtrar tus leads",
+              "desc": "Usa los botones de filtro de colores para ver leads por estado: Todos, Nuevo, En seguimiento, Caliente o Convertido. Usa el menú desplegable Todas las Listas a la derecha para filtrar por una lista específica. Combina ambos filtros — por ejemplo, ver solo leads Calientes de tu lista de Facebook."
+            },
+            {
+              "title": "Asignar una secuencia a un lead",
+              "desc": "En la columna Secuencia junto a cada lead, usa el menú desplegable para asignar o cambiar la secuencia de email en la que están. La próxima vez que hagas clic en Enviar Siguiente en esa secuencia, incluirá este lead."
+            },
+            {
+              "title": "Eliminar un lead",
+              "desc": "Haz clic en el icono de papelera rojo a la derecha de cualquier fila de lead para eliminarlo. Esto elimina el lead y todo su historial de emails permanentemente. Úsalo con cuidado — esto no se puede deshacer."
+            }
+          ]
         },
         "lists": {
-          "category": "Listas"
+          "category": "Listas",
+          "items": [
+            {
+              "title": "¿Qué son las Listas?",
+              "desc": "Las Listas te permiten organizar tus leads en grupos. Por ejemplo: Leads de Facebook, Tráfico de YouTube, Registros de Webinar o Clientes VIP. Cada lista tiene su propio color para que puedas identificarlas al instante en tu tabla de leads."
+            },
+            {
+              "title": "Crear una Lista",
+              "desc": "Haz clic en Nueva Lista, dale un nombre, una descripción opcional, elige un color y opcionalmente asigna una secuencia de email por defecto. Cualquier lead importado o capturado para esta lista se inscribirá automáticamente en esa secuencia."
+            },
+            {
+              "title": "Secuencia por Defecto en una Lista",
+              "desc": "Cuando estableces una secuencia por defecto en una lista, cada nuevo lead añadido a esa lista (vía captura de formulario o importación CSV) se inscribe automáticamente en esa secuencia. Esto te ahorra tener que asignar secuencias manualmente a cada nuevo lead."
+            },
+            {
+              "title": "¿Qué pasa si elimino una Lista?",
+              "desc": "Si eliminas una lista, todos los leads que estaban en ella se mueven a Sin Clasificar en lugar de ser eliminados. Puedes filtrar por leads Sin Clasificar y reasignarlos a una nueva lista en cualquier momento."
+            },
+            {
+              "title": "Conteo de leads en las tarjetas de Lista",
+              "desc": "Cada tarjeta de lista muestra un conteo de leads para que puedas ver de un vistazo cuántos contactos hay en cada grupo. La barra de color en la parte superior de cada tarjeta coincide con el color que elegiste para esa lista."
+            }
+          ]
         },
         "sequences": {
-          "category": "Secuencias"
+          "category": "Secuencias",
+          "items": [
+            {
+              "title": "¿Qué es una Secuencia de Email?",
+              "desc": "Una secuencia es una serie de emails enviados automáticamente a lo largo del tiempo. Los escribes una vez, estableces el retraso entre cada email, y el sistema los envía a tus leads en piloto automático. Perfecto para series de bienvenida, campañas de nutrición o flujos de onboarding."
+            },
+            {
+              "title": "Crear una Secuencia",
+              "desc": "Haz clic en Crear Secuencia, dale un nombre y añade tus emails. Cada email necesita un asunto, un cuerpo (escrito con el editor de texto enriquecido) y un retraso de envío en días. Día 0 envía inmediatamente. Día 3 envía 3 días después del email anterior."
+            },
+            {
+              "title": "¿Qué hace Enviar Siguiente?",
+              "desc": "Hacer clic en Enviar Siguiente en una secuencia envía el próximo email pendiente a cada lead asignado a esa secuencia. El sistema rastrea en qué email está cada lead, por lo que cada persona recibe el email correcto en el paso correcto — nadie recibe el mismo email dos veces."
+            },
+            {
+              "title": "Retraso de envío explicado",
+              "desc": "El retraso en cada email es el número de días después de que se envió el email anterior. Email 1 a 0 días envía inmediatamente. Email 2 a 2 días envía 2 días después del Email 1. Email 3 a 5 días envía 5 días después del Email 2. Los leads que aún no están listos para su próximo email se omiten."
+            },
+            {
+              "title": "Editar una Secuencia",
+              "desc": "Haz clic en Editar en cualquier tarjeta de secuencia para cambiar el nombre, añadir o eliminar emails, actualizar asuntos y cuerpos, o ajustar retrasos. Los cambios se aplican a envíos futuros — los leads que ya recibieron un email no lo recibirán de nuevo."
+            },
+            {
+              "title": "Editor de Texto Enriquecido",
+              "desc": "El editor del cuerpo del email admite negrita, cursiva, subrayado, listas con viñetas, listas numeradas, encabezados y enlaces. Escribe tu email como quieras que aparezca. Los emails se envían como HTML para que el formato se preserve en la bandeja de entrada."
+            }
+          ]
         },
         "broadcast": {
-          "category": "Difusión"
+          "category": "Difusión",
+          "items": [
+            {
+              "title": "¿Qué es una Difusión?",
+              "desc": "Una difusión es un email puntual enviado a todos o a un grupo filtrado de tus leads ahora mismo. A diferencia de las secuencias (que se envían gradualmente con el tiempo), una difusión sale inmediatamente a todos los que coincidan con tu filtro. Úsala para anuncios, promociones o noticias urgentes."
+            },
+            {
+              "title": "Filtrar destinatarios de tu difusión",
+              "desc": "Antes de enviar, elige un filtro de Lista y/o Estado. El conteo de destinatarios se actualiza en vivo para que sepas exactamente cuántas personas recibirán el email antes de pulsar Enviar. Por ejemplo: enviar solo a leads Calientes de tu lista de Facebook."
+            },
+            {
+              "title": "Conteo de destinatarios",
+              "desc": "El número que se muestra junto a los filtros es el conteo en vivo de leads que coinciden con tu selección y no se han dado de baja. Este es el número exacto de emails que se enviarán cuando hagas clic en Enviar."
+            },
+            {
+              "title": "Leads dados de baja",
+              "desc": "Los leads que se han dado de baja se excluyen automáticamente de todas las difusiones y envíos de secuencias. No necesitas filtrarlos manualmente — el sistema maneja esto por ti para mantenerte en cumplimiento."
+            },
+            {
+              "title": "Difusión vs Secuencia",
+              "desc": "Usa una Secuencia para series de emails planificadas y perennes (flujos de bienvenida, seguimientos). Usa una Difusión para envíos únicos a toda tu lista o un segmento — ventas flash, invitaciones a webinars, lanzamientos de productos o actualizaciones importantes."
+            }
+          ]
         },
         "import": {
-          "category": "Importar"
+          "category": "Importar",
+          "items": [
+            {
+              "title": "Importar leads vía CSV",
+              "desc": "Ve a la pestaña Importar, sube un archivo CSV o pega el texto CSV directamente. Tu CSV debe tener columnas para email y opcionalmente nombre. Haz clic en Vista Previa para revisar los datos antes de importar, luego haz clic en Importar para añadir los leads a tu CRM."
+            },
+            {
+              "title": "Formato CSV",
+              "desc": "El formato más simple son dos columnas: email y nombre. Por ejemplo: email,name en la primera fila, luego john@example.com,John Smith en cada fila posterior. El importador es flexible — detectará la columna de email automáticamente incluso si tus encabezados son diferentes."
+            },
+            {
+              "title": "Asignar a una Lista al importar",
+              "desc": "Antes de importar, selecciona a qué lista quieres importar leads usando el menú desplegable A Lista. Elegir una lista significa que todos los leads importados se organizan inmediatamente y pueden beneficiarse de la secuencia por defecto de esa lista."
+            },
+            {
+              "title": "Vista previa antes de importar",
+              "desc": "Haz clic en Vista Previa para ver cuántos leads se detectaron en tu CSV y revisar cualquier problema de formato. El conteo mostrado es cuántos leads se importarán realmente. Solo haz clic en Importar una vez que estés satisfecho con la vista previa."
+            },
+            {
+              "title": "Límite de leads",
+              "desc": "Tu conteo actual de leads y el límite se muestran en la parte superior de la pestaña Importar. Los miembros Pro pueden tener hasta 5,000 leads. Si te estás acercando a tu límite, compra un paquete Email Boost o contacta con soporte para discutir la expansión de tu plan."
+            },
+            {
+              "title": "Manejo de duplicados",
+              "desc": "Si una dirección de email ya existe en tu CRM, la importación omitirá ese lead en lugar de crear un duplicado. Los datos existentes de tu lead (estado, asignación de secuencia, historial de email) se preservan."
+            }
+          ]
         },
         "emailBoost": {
-          "category": "Email Boost"
+          "category": "Email Boost",
+          "items": [
+            {
+              "title": "¿Qué es Email Boost?",
+              "desc": "Email Boost te permite enviar más emails que tu asignación diaria gratuita. Cada miembro Pro obtiene 200 emails gratis por día. Si necesitas enviar más — para una difusión grande o una secuencia extensa — puedes comprar Paquetes Boost que te dan créditos extra además de tu asignación diaria."
+            },
+            {
+              "title": "Cómo funciona el límite diario",
+              "desc": "Obtienes 200 emails gratis cada día. El contador se reinicia a medianoche UTC. Si envías una difusión a 150 leads y tienes 3 secuencias en curso, tus 200 emails gratis se usan primero. Una vez que se agotan, los créditos Boost se activan automáticamente."
+            },
+            {
+              "title": "Paquetes Boost disponibles",
+              "desc": "1,000 emails — $5. 5,000 emails — $19. 10,000 emails — $29. 50,000 emails — $99. Los créditos Boost nunca caducan — se acumulan indefinidamente hasta ser usados."
+            },
+            {
+              "title": "Cómo se deducen los créditos",
+              "desc": "Los créditos diarios gratuitos siempre se usan primero. Una vez que se gastan tus 200 emails gratis del día, cada email adicional deduce automáticamente un crédito Boost. Nunca necesitas cambiar entre ellos manualmente — todo sucede en segundo plano."
+            },
+            {
+              "title": "Comprar un Paquete Boost",
+              "desc": "Haz clic en Comprar en cualquier tarjeta de Paquete Boost. El costo se deduce del saldo de tu billetera SuperAdPro. Los créditos se añaden al instante — puedes usarlos de inmediato. Asegúrate de que tu billetera tenga fondos suficientes antes de comprar."
+            },
+            {
+              "title": "Revisar tu uso",
+              "desc": "La barra de progreso en la parte superior de la página SuperLeads muestra tu uso diario de email (ej. Diario: 45/200). El contador de Créditos en la esquina superior derecha del hero muestra tu balance actual de créditos Boost. Ambos se actualizan en tiempo real."
+            },
+            {
+              "title": "¿Cuándo necesito créditos Boost?",
+              "desc": "Si tu lista es pequeña (menos de 200 leads) y envías una difusión por día, rara vez necesitarás créditos Boost. Se vuelven útiles cuando tienes listas grandes, ejecutas múltiples secuencias simultáneamente o quieres enviar varias difusiones en un solo día."
+            }
+          ]
         }
       }
     },
@@ -4268,28 +4438,188 @@
       "noResults": "Sin resultados para",
       "sections": {
         "gettingStarted": {
-          "category": "Primeros Pasos"
+          "category": "Primeros Pasos",
+          "items": [
+            {
+              "title": "Cómo funciona el Editor",
+              "desc": "SuperPages es un constructor de páginas de arrastrar y soltar en formato libre. Haz clic en cualquier bloque del panel derecho para añadirlo a tu lienzo, luego arrástralo para posicionarlo donde quieras. Haz doble clic en los elementos de texto para editarlos en línea. Usa la barra de herramientas flotante para formatear texto, cambiar fuentes, colores y alineación."
+            },
+            {
+              "title": "Seleccionar y Mover",
+              "desc": "Haz clic en cualquier elemento una vez para seleccionarlo — verás aparecer un contorno azul y los manejadores de redimensionamiento. Haz clic y arrastra para reposicionar. Mantén Shift + Teclas de flecha para empujar 10px, o solo las Teclas de flecha para precisión de 1px."
+            },
+            {
+              "title": "Redimensionar",
+              "desc": "Los elementos seleccionados muestran 8 manejadores de redimensionamiento cian — en las cuatro esquinas y cuatro bordes. Arrastra cualquier manejador para redimensionar. Los manejadores de esquina redimensionan en ambas direcciones simultáneamente. El tamaño mínimo es 40px de ancho por 20px de alto."
+            },
+            {
+              "title": "Guardar y Publicar",
+              "desc": "Haz clic en Guardar para guardar tu trabajo (auto-guarda cada 30 segundos). Haz clic en Publicar para hacer que tu página esté en vivo en la web. Tu URL en vivo aparece en Configuración. Cambia de nuevo a Borrador para despublicar."
+            },
+            {
+              "title": "Atajos de Teclado",
+              "desc": "Ctrl+S: Guardar | Ctrl+Z: Deshacer | Ctrl+Y: Rehacer | Suprimir/Retroceso: Eliminar elemento seleccionado | Teclas de flecha: Empujar 1px | Shift+Flechas: Empujar 10px | Escape: Deseleccionar"
+            }
+          ]
         },
         "textElements": {
-          "category": "Elementos de Texto"
+          "category": "Elementos de Texto",
+          "items": [
+            {
+              "title": "Encabezado",
+              "desc": "Texto grande y en negrita para títulos de página y encabezados de sección. El predeterminado es fuente Sora de 36px en blanco. Haz doble clic para editar el texto. Usa la barra de herramientas flotante para cambiar familia de fuente, tamaño, color, negrita, cursiva, subrayado y alineación."
+            },
+            {
+              "title": "Texto",
+              "desc": "Texto del cuerpo para párrafos y descripciones. El predeterminado es fuente Outfit de 15px en gris con 1.8 de altura de línea para legibilidad. Haz doble clic para editar. Admite todo el formato en línea de la barra de herramientas flotante."
+            },
+            {
+              "title": "Etiqueta",
+              "desc": "Texto de estilo insignia pequeña perfecto para etiquetas como PREMIUM, NUEVO u OFERTA LIMITADA. Viene con un fondo de píldora redondeada y un borde. Haz doble clic para cambiar el texto de la etiqueta."
+            }
+          ]
         },
         "mediaElements": {
-          "category": "Elementos Multimedia"
+          "category": "Elementos Multimedia",
+          "items": [
+            {
+              "title": "Imagen",
+              "desc": "Añade imágenes a tu página. Haz clic en el botón editar IMAGEN en la barra de herramientas del elemento para introducir una URL de imagen o subir un archivo (máximo 5MB). Admite JPG, PNG, GIF y WebP. Las imágenes se almacenan en Cloudflare R2 para entrega global rápida."
+            },
+            {
+              "title": "Video",
+              "desc": "Incrusta videos de YouTube, Vimeo, o sube tus propios archivos MP4/WebM (máximo 50MB). Haz clic en editar VIDEO para añadir. Las URLs de visualización de YouTube y Vimeo se convierten automáticamente al formato de incrustación. Los videos subidos se alojan en Cloudflare R2."
+            },
+            {
+              "title": "Audio",
+              "desc": "Añade reproductores de audio a tu página. Haz clic en editar AUDIO para introducir una URL de audio o subir archivos MP3/WAV/OGG (máximo 20MB). Excelente para podcasts, muestras de música o testimonios en audio."
+            }
+          ]
         },
         "actionElements": {
-          "category": "Elementos de Acción"
+          "category": "Elementos de Acción",
+          "items": [
+            {
+              "title": "Botón",
+              "desc": "Botón clicable con fondo degradado. Haz clic en editar ENLACE para establecer la URL de destino. Haz doble clic para cambiar el texto del botón. Perfecto para llamadas a la acción como Únete Ahora, Compra Ahora o Aprende Más."
+            },
+            {
+              "title": "Formulario de Opt-In",
+              "desc": "Formulario de captura de email con campo de nombre, campo de email y botón de envío. Pre-estilizado con un fondo de cristal oscuro. Haz clic en editar FORMULARIO para personalizar el HTML. Conectado a tu panel de Mis Leads para la recolección de leads."
+            },
+            {
+              "title": "CTA (Llamada a la Acción)",
+              "desc": "Similar al Botón pero con un estilo específicamente para acciones de conversión primarias. Haz clic en editar ENLACE para establecer la URL de destino. Haz doble clic para editar el texto. Úsalo para la acción principal de tu página como Comienza Ahora."
+            }
+          ]
         },
         "contentElements": {
-          "category": "Elementos de Contenido"
+          "category": "Elementos de Contenido",
+          "items": [
+            {
+              "title": "Reseña",
+              "desc": "Bloque de reseña de cliente con calificación de estrellas, texto de cita y atribución. Estilizado con un fondo de tarjeta oscuro y borde izquierdo cian. Haz doble clic para editar el contenido de la reseña, las estrellas y el nombre del cliente."
+            },
+            {
+              "title": "Insignia",
+              "desc": "Insignia decorativa pequeña idéntica a Etiqueta — útil para etiquetas como MEJOR VALOR, MÁS POPULAR o DESTACADO. Tiene un estilo de píldora dorada por defecto."
+            },
+            {
+              "title": "Testimonio",
+              "desc": "Bloque de testimonio extendido con estrellas, cita más larga y crédito del autor. Presenta un borde izquierdo dorado para distinguirlo de las reseñas. Haz doble clic para personalizar el texto del testimonio y la atribución."
+            },
+            {
+              "title": "FAQ",
+              "desc": "Bloque de pregunta y respuesta con un encabezado con borde sutil. Haz doble clic para editar el texto de la pregunta y la respuesta. Apila múltiples elementos FAQ para construir una sección FAQ completa."
+            },
+            {
+              "title": "Estadística",
+              "desc": "Visualización de estadística grande — muestra un número grande (como 95%) con una etiqueta debajo. Perfecto para prueba social: 10,000+ Miembros, 95% Tasa de Pago, $1M+ Pagado. Haz doble clic para editar."
+            },
+            {
+              "title": "Progreso",
+              "desc": "Barra de progreso animada con etiqueta y porcentaje. Haz clic en editar ESTABLECER para configurar el texto de la etiqueta, el porcentaje (0-100) y el color de la barra. Excelente para mostrar la finalización del curso, objetivos de financiamiento o disponibilidad limitada."
+            }
+          ]
         },
         "layoutElements": {
-          "category": "Elementos de Diseño"
+          "category": "Elementos de Diseño",
+          "items": [
+            {
+              "title": "Cuenta Regresiva",
+              "desc": "Temporizador de cuenta regresiva en vivo que cuenta hacia una fecha y hora objetivo. Haz clic en editar ESTABLECER para elegir la fecha objetivo. Muestra días, horas, minutos y segundos. Crea urgencia para lanzamientos, fechas límite de ventas o fechas de eventos."
+            },
+            {
+              "title": "Redes Sociales",
+              "desc": "Fila de iconos de redes sociales — YouTube, Instagram, TikTok, Facebook, X/Twitter y LinkedIn. Haz clic en editar ENLACES para añadir las URLs de tus perfiles para cada plataforma. Los iconos enlazan a tus perfiles sociales en la página publicada."
+            },
+            {
+              "title": "Icono + Texto",
+              "desc": "Bloque de característica que combina un emoji/icono con un encabezado y texto de descripción. Perfecto para enumerar beneficios, características o pasos. Haz doble clic para editar el emoji, encabezado y descripción."
+            },
+            {
+              "title": "Separador",
+              "desc": "Línea divisoria decorativa con texto central opcional. Haz doble clic para cambiar el texto del separador. Úsalo entre secciones para crear descansos visuales."
+            },
+            {
+              "title": "Logos",
+              "desc": "Franja de logos 'Como se ve en' — muestra nombres de marcas en una fila horizontal. Haz doble clic para editar los nombres de marca. Úsalo para mostrar menciones en medios, logos de socios o señales de confianza."
+            },
+            {
+              "title": "Espaciador",
+              "desc": "Elemento de espaciado invisible. Arrástralo para posicionar y redimensionar para controlar el espacio entre otros elementos. No tiene apariencia visual en la página publicada — puramente para control de diseño."
+            },
+            {
+              "title": "Caja",
+              "desc": "Contenedor vacío con un borde sutil y esquinas redondeadas. Úsalo como tarjeta de fondo detrás de otros elementos para crear secciones agrupadas. Redimensiona y coloca en capas detrás de texto, imágenes o formularios."
+            },
+            {
+              "title": "Divisor",
+              "desc": "Línea horizontal simple. Úsalo para separar secciones en tu página. Redimensiona el ancho para controlar hasta dónde se extiende a través del lienzo."
+            },
+            {
+              "title": "Incrustar",
+              "desc": "Bloque de incrustación de HTML/código en bruto. Haz clic en editar CÓDIGO para pegar cualquier HTML, incluyendo iframes, widgets personalizados, píxeles de seguimiento o códigos de incrustación de terceros. El código se renderiza en la página publicada."
+            }
+          ]
         },
         "settingsPublishing": {
-          "category": "Configuración y Publicación"
+          "category": "Configuración y Publicación",
+          "items": [
+            {
+              "title": "Título de Página",
+              "desc": "El nombre de tu página — aparece en la pestaña del navegador, resultados de motores de búsqueda y tu listado de SuperPages. Elige algo descriptivo y atractivo para SEO."
+            },
+            {
+              "title": "Slug de URL de Página",
+              "desc": "Personaliza la dirección web de tu página publicada. Abre Configuración, encuentra el campo Slug de URL de Página, y escribe tu nombre preferido usando solo letras minúsculas, números y guiones. Haz clic en Guardar Configuración para aplicar el cambio. Cada slug debe ser único — no puedes usar uno que ya esté tomado por otra página."
+            },
+            {
+              "title": "Meta Descripción",
+              "desc": "La descripción que aparece debajo del título de tu página en los resultados de búsqueda de Google. Escribe 150-160 caracteres que digan a los visitantes qué ofrece tu página. Importante para las tasas de clics desde búsquedas."
+            },
+            {
+              "title": "Imagen de Compartir en Redes Sociales",
+              "desc": "Cuando alguien comparte tu página publicada en Facebook, Twitter, LinkedIn o WhatsApp, esta imagen aparece como la miniatura de vista previa. Sube o introduce la URL de una imagen de 1200x630px para mejores resultados."
+            },
+            {
+              "title": "Estado de Página",
+              "desc": "Las páginas en Borrador solo son visibles para ti. Las páginas Publicadas están en vivo en la web en tu URL en Vivo. Cambia entre Borrador y Publicado en cualquier momento. Despublicar una página la hace inmediatamente inaccesible para los visitantes."
+            },
+            {
+              "title": "Fondo del Lienzo",
+              "desc": "Cambia el fondo de la página usando el selector de color o la carga de imagen en la parte superior derecha del panel de Bloques. Admite colores sólidos, degradados e imágenes de fondo de página completa subidas a Cloudflare R2."
+            }
+          ]
         },
         "aiAssistant": {
-          "category": "Asistente de IA"
+          "category": "Asistente de IA",
+          "items": [
+            {
+              "title": "Chat de IA",
+              "desc": "Haz clic en Asistente de IA en la parte inferior del panel de Bloques para abrir el chat de IA. Dile lo que quieres: añade un encabezado, cambia el fondo a azul marino, escribe texto de ventas para un producto de fitness. La IA puede modificar el estilo de tu página y generar sugerencias de contenido."
+            }
+          ]
         }
       }
     },
