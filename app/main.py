@@ -12642,6 +12642,413 @@ def admin_test_grid_cleanup(
             "commissions": comm_del, "campaigns": camp_del}
 
 
+# ═══════════════════════════════════════════════════════════════════════════
+#  COURSE PASS-UP E2E TEST
+# ═══════════════════════════════════════════════════════════════════════════
+
+@app.get("/admin/test-course-passup-e2e")
+def admin_test_course_passup_e2e(
+    secret: str,
+    tier: int = 1,
+    db: Session = Depends(get_db)
+):
+    """
+    E2E Course Pass-Up Commission Test — verifies the infinite cascade logic.
+
+    Usage: /admin/test-course-passup-e2e?secret=superadpro-owner-2026&tier=1
+
+    Builds a controlled 7-person chain with specific tier-ownership patterns
+    and runs 7 test scenarios covering direct sales, pass-up cascades, and
+    edge cases. Returns a structured report showing exactly where each
+    commission landed versus where it was expected to land.
+
+    Scenarios:
+     1. Direct sale (sale #1) — sponsor OWNS tier → sponsor earns
+     2. Direct sale (sale #3) — sponsor DOES NOT own tier → company absorbs (FOMO)
+     3. Pass-up sale (#2) — immediate pass-up sponsor OWNS tier → depth=1
+     4. Pass-up sale (#2) — pass-up sponsor doesn't own, but their pass-up does → depth=2
+     5. Pass-up sale (#2) — nobody in the chain owns the tier → company absorbs
+     6. Pass-up sale (#2) — chain terminates at admin → admin earns
+     7. Every test user's final balance is reconciled
+
+    Self-cleaning: users are prefixed `coursepuptest_` — purge with
+    /admin/test-course-passup-cleanup once you've reviewed the results.
+    """
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+
+    from app.course_engine import process_course_purchase, is_passup_sale
+    from app.database import Course, CoursePurchase, CourseCommission
+    import secrets as sec
+    from decimal import Decimal as _D
+
+    if tier not in (1, 2, 3):
+        return JSONResponse({"error": "Tier must be 1, 2, or 3"}, status_code=400)
+
+    # ── Find or create the course at this tier ──
+    course = db.query(Course).filter(Course.tier == tier, Course.is_active == True).first()
+    if not course:
+        return JSONResponse({
+            "error": f"No active course found at Tier {tier}. Create a course first via /courses/create.",
+        }, status_code=400)
+
+    course_price = float(course.price or 0)
+    if course_price <= 0:
+        return JSONResponse({"error": f"Course at Tier {tier} has invalid price"}, status_code=400)
+
+    report = {
+        "test": "course_passup_e2e",
+        "tier": tier,
+        "course_price": course_price,
+        "course_title": course.title,
+        "chain": [],
+        "scenarios": [],
+        "commissions": [],
+        "balances_before": {},
+        "balances_after": {},
+        "summary": {},
+    }
+
+    try:
+        run_id = sec.token_hex(3)
+
+        # ── Build a controlled 7-person chain ──
+        # Roles:
+        #   admin_test — acts as root admin (is_admin=True)
+        #   top_owner  — owns tier (qualified) — will be walked-to in scenario 4
+        #   mid_unqual — does NOT own tier (unqualified) — walk passes through
+        #   mid_qual   — owns tier (qualified) — catches pass-up in scenario 3
+        #   sponsor_a  — does NOT own tier (FOMO sponsor) — referrer in scenario 2
+        #   sponsor_b  — OWNS tier (qualified) — referrer in scenarios 1, 3, 4
+        #   no_own_chain — chain where NOBODY owns the tier (scenario 5)
+
+        def _mk_user(username, sponsor_id=None, pass_up_id=None, is_admin=False, owns_tier=False):
+            u = User(
+                username=f"coursepuptest_{username}_{run_id}",
+                email=f"coursepuptest_{username}_{run_id}@test.local",
+                password="test",
+                first_name=username.title(),
+                sponsor_id=sponsor_id,
+                pass_up_sponsor_id=pass_up_id,
+                is_active=True,
+                is_admin=is_admin,
+                membership_tier="basic",
+                balance=_D("0"),
+                total_earned=_D("0"),
+                course_earnings=_D("0"),
+            )
+            db.add(u)
+            db.flush()
+            if owns_tier:
+                # Create a purchase record so user_owns_tier() returns True
+                p = CoursePurchase(
+                    user_id=u.id,
+                    course_id=course.id,
+                    course_tier=tier,
+                    amount_paid=_D(str(course_price)),
+                    payment_method="test_seed",
+                    tx_ref=f"seed_{run_id}",
+                )
+                db.add(p)
+                db.flush()
+            return u
+
+        # Build the chain (sponsor_id not relevant to pass-up logic itself — only pass_up_sponsor_id is)
+        admin_test = _mk_user("admin", is_admin=True, owns_tier=False)       # admin bypasses tier check
+        top_owner  = _mk_user("top_owner", pass_up_id=admin_test.id, owns_tier=True)
+        mid_unqual = _mk_user("mid_unqual", pass_up_id=top_owner.id, owns_tier=False)
+        mid_qual   = _mk_user("mid_qual", pass_up_id=admin_test.id, owns_tier=True)
+        sponsor_a  = _mk_user("sponsor_a", pass_up_id=mid_qual.id, owns_tier=False)   # for scenario 2 FOMO
+        sponsor_b  = _mk_user("sponsor_b", pass_up_id=mid_qual.id, owns_tier=True)    # for scenarios 1, 3
+        sponsor_c  = _mk_user("sponsor_c", pass_up_id=mid_unqual.id, owns_tier=False) # for scenario 4 cascade
+        sponsor_d  = _mk_user("sponsor_d", pass_up_id=None, owns_tier=False)          # scenario 5 no chain
+        sponsor_e  = _mk_user("sponsor_e", pass_up_id=admin_test.id, owns_tier=False) # scenario 6 admin catches
+        db.commit()
+
+        all_test_users = [admin_test, top_owner, mid_unqual, mid_qual, sponsor_a, sponsor_b, sponsor_c, sponsor_d, sponsor_e]
+
+        for u in all_test_users:
+            db.refresh(u)
+            report["chain"].append({
+                "role": u.username.split("_")[1] if "_" in u.username else u.username,
+                "username": u.username,
+                "id": u.id,
+                "is_admin": u.is_admin,
+                "pass_up_sponsor_id": u.pass_up_sponsor_id,
+                "owns_tier": db.query(CoursePurchase).filter(
+                    CoursePurchase.user_id == u.id,
+                    CoursePurchase.course_tier == tier
+                ).count() > 0,
+            })
+            report["balances_before"][u.username] = float(u.balance or 0)
+
+        # ── Helper: force a sponsor's sale_count so next sale is at target # ──
+        def _prime_sponsor_sale_count(sponsor, desired_next_sale):
+            """Make sponsor's next sale be sale number `desired_next_sale`."""
+            sponsor.course_sale_count = desired_next_sale - 1
+
+        # ── Helper: make a buyer, set their sponsor, process purchase ──
+        def _run_scenario(name, sponsor, desired_sale_num, expected_outcome):
+            """Create a buyer, run the purchase, capture the commission row(s)."""
+            _prime_sponsor_sale_count(sponsor, desired_sale_num)
+            db.flush()
+
+            buyer = User(
+                username=f"coursepuptest_buyer_{sec.token_hex(2)}_{run_id}",
+                email=f"coursepuptest_buyer_{sec.token_hex(2)}_{run_id}@test.local",
+                password="test",
+                first_name="Buyer",
+                sponsor_id=sponsor.id,
+                is_active=True,
+                membership_tier="basic",
+                balance=_D(str(course_price + 10)),  # enough to cover wallet payment
+                total_earned=_D("0"),
+                course_earnings=_D("0"),
+            )
+            db.add(buyer)
+            db.flush()
+
+            result = process_course_purchase(
+                db=db, buyer_id=buyer.id, course_id=course.id,
+                payment_method="wallet", tx_ref=f"test_{run_id}_{name}",
+            )
+
+            # Find the commission row that was just written
+            comm = db.query(CourseCommission).filter(
+                CourseCommission.buyer_id == buyer.id
+            ).order_by(CourseCommission.id.desc()).first()
+
+            actual = {
+                "earner_id": comm.earner_id if comm else None,
+                "commission_type": comm.commission_type if comm else None,
+                "pass_up_depth": comm.pass_up_depth if comm else None,
+                "notes": comm.notes if comm else None,
+            }
+            if comm and comm.earner_id:
+                earner_user = db.query(User).filter(User.id == comm.earner_id).first()
+                actual["earner_username"] = earner_user.username if earner_user else None
+
+            # Compare against expected
+            match = True
+            mismatches = []
+            for k, v in expected_outcome.items():
+                if k in actual and actual[k] != v:
+                    match = False
+                    mismatches.append(f"{k}: expected={v}, got={actual[k]}")
+
+            report["scenarios"].append({
+                "scenario": name,
+                "sponsor": sponsor.username,
+                "sale_number": desired_sale_num,
+                "is_passup_sale": is_passup_sale(desired_sale_num),
+                "buyer": buyer.username,
+                "buyer_id": buyer.id,
+                "purchase_result": result,
+                "expected": expected_outcome,
+                "actual": actual,
+                "match": match,
+                "mismatches": mismatches,
+            })
+            return buyer
+
+        # ──────────────────────────────────────────────────────────────
+        # SCENARIO 1 — Direct sale (#1), sponsor OWNS tier → sponsor earns
+        # ──────────────────────────────────────────────────────────────
+        _run_scenario(
+            name="1_direct_sponsor_owns",
+            sponsor=sponsor_b,  # sponsor_b owns tier
+            desired_sale_num=1,
+            expected_outcome={
+                "commission_type": "direct_sale",
+                "pass_up_depth": 0,
+                "earner_username": sponsor_b.username,
+            },
+        )
+
+        # ──────────────────────────────────────────────────────────────
+        # SCENARIO 2 — Direct sale (#3), sponsor DOES NOT own → company absorbs
+        # ──────────────────────────────────────────────────────────────
+        _run_scenario(
+            name="2_direct_sponsor_fomo",
+            sponsor=sponsor_a,  # sponsor_a does NOT own tier
+            desired_sale_num=3,
+            expected_outcome={
+                "commission_type": "platform",
+                "pass_up_depth": 0,
+            },
+        )
+
+        # ──────────────────────────────────────────────────────────────
+        # SCENARIO 3 — Pass-up (#2), immediate pass-up sponsor OWNS → depth=1
+        # sponsor_b.pass_up_sponsor = mid_qual (owns tier) → depth 1
+        # ──────────────────────────────────────────────────────────────
+        _run_scenario(
+            name="3_passup_depth_1",
+            sponsor=sponsor_b,
+            desired_sale_num=2,
+            expected_outcome={
+                "commission_type": "pass_up",
+                "pass_up_depth": 1,
+                "earner_username": mid_qual.username,
+            },
+        )
+
+        # ──────────────────────────────────────────────────────────────
+        # SCENARIO 4 — Pass-up (#2), 1st level unqualified, 2nd owns → depth=2
+        # sponsor_c.pass_up_sponsor = mid_unqual (no own)
+        # mid_unqual.pass_up_sponsor = top_owner (owns tier) → depth 2
+        # ──────────────────────────────────────────────────────────────
+        _run_scenario(
+            name="4_passup_cascade_depth_2",
+            sponsor=sponsor_c,
+            desired_sale_num=2,
+            expected_outcome={
+                "commission_type": "pass_up",
+                "pass_up_depth": 2,
+                "earner_username": top_owner.username,
+            },
+        )
+
+        # ──────────────────────────────────────────────────────────────
+        # SCENARIO 5 — Pass-up (#2), no pass-up sponsor set → company absorbs
+        # ──────────────────────────────────────────────────────────────
+        _run_scenario(
+            name="5_passup_no_chain",
+            sponsor=sponsor_d,
+            desired_sale_num=2,
+            expected_outcome={
+                "commission_type": "platform",
+                "pass_up_depth": 0,
+            },
+        )
+
+        # ──────────────────────────────────────────────────────────────
+        # SCENARIO 6 — Pass-up (#2), chain ends at admin → admin earns (bypass tier check)
+        # sponsor_e.pass_up_sponsor = admin_test
+        # ──────────────────────────────────────────────────────────────
+        _run_scenario(
+            name="6_passup_admin_catches",
+            sponsor=sponsor_e,
+            desired_sale_num=2,
+            expected_outcome={
+                "commission_type": "pass_up",
+                "pass_up_depth": 1,
+                "earner_username": admin_test.username,
+            },
+        )
+
+        # ──────────────────────────────────────────────────────────────
+        # SCENARIO 7 — Pass-up (#4), validate even positions also pass up
+        # ──────────────────────────────────────────────────────────────
+        _run_scenario(
+            name="7_passup_sale_4",
+            sponsor=sponsor_b,
+            desired_sale_num=4,
+            expected_outcome={
+                "commission_type": "pass_up",
+                "pass_up_depth": 1,
+                "earner_username": mid_qual.username,
+            },
+        )
+
+        db.commit()
+
+        # ── Reconcile final balances ──
+        for u in all_test_users:
+            db.refresh(u)
+            report["balances_after"][u.username] = {
+                "balance": float(u.balance or 0),
+                "course_earnings": float(u.course_earnings or 0),
+                "delta": round(float(u.balance or 0) - report["balances_before"][u.username], 2),
+            }
+
+        # ── Collect all commissions generated in this run ──
+        all_comms = db.query(CourseCommission).filter(
+            CourseCommission.notes.like(f"%{run_id}%")
+        ).order_by(CourseCommission.id).all()
+        # If notes don't include run_id, fall back to collecting by purchase ref
+        if not all_comms:
+            test_purchases = db.query(CoursePurchase).filter(
+                CoursePurchase.tx_ref.like(f"test_{run_id}_%")
+            ).all()
+            test_purchase_ids = [p.id for p in test_purchases]
+            all_comms = db.query(CourseCommission).filter(
+                CourseCommission.purchase_id.in_(test_purchase_ids)
+            ).order_by(CourseCommission.id).all() if test_purchase_ids else []
+
+        for c in all_comms:
+            earner = db.query(User).filter(User.id == c.earner_id).first() if c.earner_id else None
+            buyer = db.query(User).filter(User.id == c.buyer_id).first() if c.buyer_id else None
+            report["commissions"].append({
+                "type": c.commission_type,
+                "depth": c.pass_up_depth,
+                "amount": float(c.amount or 0),
+                "buyer": buyer.username if buyer else None,
+                "earner": earner.username if earner else "COMPANY",
+                "notes": c.notes,
+            })
+
+        # ── Summary: scenario pass/fail + totals ──
+        passed = sum(1 for s in report["scenarios"] if s["match"])
+        failed = sum(1 for s in report["scenarios"] if not s["match"])
+        total_commissions = sum(float(c.amount or 0) for c in all_comms)
+        expected_total = len(report["scenarios"]) * course_price
+
+        report["summary"] = {
+            "scenarios_run": len(report["scenarios"]),
+            "scenarios_passed": passed,
+            "scenarios_failed": failed,
+            "all_pass": failed == 0,
+            "total_commission_value": round(total_commissions, 2),
+            "expected_commission_value": round(expected_total, 2),
+            "maths_balances": round(total_commissions, 2) == round(expected_total, 2),
+            "run_id": run_id,
+            "cleanup_url": f"/admin/test-course-passup-cleanup?secret=superadpro-owner-2026",
+        }
+
+        return report
+
+    except Exception as e:
+        import traceback
+        db.rollback()
+        return JSONResponse({
+            "error": str(e),
+            "traceback": traceback.format_exc(),
+            "partial_report": report,
+        }, status_code=500)
+
+
+@app.get("/admin/test-course-passup-cleanup")
+def admin_test_course_passup_cleanup(
+    secret: str,
+    db: Session = Depends(get_db)
+):
+    """Clean up ALL coursepuptest_* users and related course records."""
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+
+    from app.database import CoursePurchase, CourseCommission
+
+    test_users = db.query(User).filter(User.username.like("coursepuptest_%")).all()
+    test_user_ids = [u.id for u in test_users]
+    if not test_user_ids:
+        return {"message": "No test users found"}
+
+    purchases = db.query(CoursePurchase).filter(CoursePurchase.user_id.in_(test_user_ids)).all()
+    purchase_ids = [p.id for p in purchases]
+
+    comm_del = db.query(CourseCommission).filter(
+        (CourseCommission.buyer_id.in_(test_user_ids)) |
+        (CourseCommission.earner_id.in_(test_user_ids)) |
+        (CourseCommission.purchase_id.in_(purchase_ids) if purchase_ids else False)
+    ).delete(synchronize_session=False)
+    pur_del = db.query(CoursePurchase).filter(CoursePurchase.user_id.in_(test_user_ids)).delete(synchronize_session=False)
+    user_del = db.query(User).filter(User.id.in_(test_user_ids)).delete(synchronize_session=False)
+    db.commit()
+
+    return {"cleaned": True, "users": user_del, "purchases": pur_del, "commissions": comm_del}
+
+
 @app.get("/admin/grid-audit")
 def admin_grid_audit(
     secret: str,
