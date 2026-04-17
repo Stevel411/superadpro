@@ -108,7 +108,8 @@
     "sponsorUsername": "Sponsor gebruikersnaam",
     "yourImages": "Uw afbeeldingen",
     "videoNotSupported": "Video-URL niet ondersteund.",
-    "alreadyHaveAccount": "Al een account?"
+    "alreadyHaveAccount": "Al een account?",
+    "tapToUnmute": "Tik om geluid aan te zetten"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -192,7 +193,8 @@
     "marketingMaterials": "Marketingmateriaal",
     "courseAcademy": "Cursus Academie",
     "profitGrid": "Winstraster",
-    "gridCalculator": "Raster Calculator"
+    "gridCalculator": "Raster Calculator",
+    "incomeChains": "Inkomstenketens"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -631,7 +633,8 @@
     "returnToTab": "Keer terug naar dit tabblad",
     "general": "General",
     "loading": "Laden...",
-    "playing": "▶ Afspelen"
+    "playing": "▶ Afspelen",
+    "watchOneToQualify": "Bekijk 1 video om je vandaag te kwalificeren"
   },
   "adBoard": {
     "title": "Advertentiebord",
@@ -1984,7 +1987,8 @@
     "enterDescription": "Voer een beschrijving in",
     "enterScript": "Voer een script in",
     "uploadAnImage": "Upload een afbeelding",
-    "remaining": "resterend"
+    "remaining": "resterend",
+    "preview": "Voorbeeld"
   },
   "socialShare": {
     "title": "Sociaal Delen",
@@ -2291,7 +2295,8 @@
     "paymentWindowOpened": "Payment window opened — complete your USDT payment to receive {{credits}} credits. Your nexus will update automatically once payment is confirmed.",
     "creditsAwarded": "{{credits}} credits awarded!",
     "commissionsEarned": "${{amount}} in commissions paid to your upline.",
-    "purchaseFailed": "Purchase failed"
+    "purchaseFailed": "Purchase failed",
+    "perCredit": "per credit"
   },
   "matrixVis": {
     "title": "Winstnexus",
@@ -2948,7 +2953,243 @@
     "achieveDefault": "Bekijk wat onze communityleden hebben bereikt.",
     "lastChanceDefault": "Dit is uw laatste kans om mee te doen.",
     "sentToLeads": "Verzonden naar",
-    "leads": "leads"
+    "leads": "leads",
+    "help": {
+      "title": "SuperLeads Help",
+      "subtitle": "Volledige gids voor je CRM en autoresponder",
+      "searchPlaceholder": "Zoek hulponderwerpen…",
+      "noResults": "Geen resultaten voor",
+      "sections": {
+        "gettingStarted": {
+          "category": "Aan de Slag",
+          "items": [
+            {
+              "title": "Wat is SuperLeads?",
+              "desc": "SuperLeads is je ingebouwde CRM en e-mailautoresponder. Hiermee kun je leads vastleggen vanuit je SuperPages-funnels, ze organiseren in lijsten, automatische e-mailsequenties verzenden en eenmalige e-mails uitzenden — allemaal zonder een aparte e-mailmarketingtool."
+            },
+            {
+              "title": "Hoe komen leads in mijn CRM?",
+              "desc": "Leads worden automatisch toegevoegd wanneer iemand een formulier invult op een van je SuperPages. Hun naam en e-mail worden direct vastgelegd en verschijnen in je Leads-tab. Je kunt ook leads handmatig importeren met een CSV-bestand via de Importeren-tab."
+            },
+            {
+              "title": "Wie kan SuperLeads gebruiken?",
+              "desc": "SuperLeads is een Pro-lidfunctie. Je krijgt tot 5.000 leads inbegrepen bij je Pro-lidmaatschap. Meer capaciteit nodig? Je kunt op elk moment uitbreiden via je accountinstellingen."
+            },
+            {
+              "title": "Wat gebeurt er als een lead binnenkomt?",
+              "desc": "Wanneer een lead je funnelformulier invult, wordt deze toegevoegd aan je CRM, toegewezen aan je meest recente actieve e-mailsequentie, en de eerste e-mail in die sequentie wordt direct verzonden via Brevo. Alles automatisch — geen handmatige stappen nodig."
+            }
+          ]
+        },
+        "leadsTab": {
+          "category": "Leads Tab",
+          "items": [
+            {
+              "title": "Wat toont de Leads-tab?",
+              "desc": "De Leads-tab is je hoofdcontactenlijst. Het toont elke lead die je hebt vastgelegd of geïmporteerd, inclusief hun naam, e-mail, tot welke lijst ze behoren, hun huidige status, hoeveel e-mails ze hebben ontvangen en geopend, en aan welke sequentie ze zijn toegewezen."
+            },
+            {
+              "title": "Leadstatussen uitgelegd",
+              "desc": "Nieuw — net toegevoegd, nog geen interactie. In begeleiding — in een actieve e-mailsequentie. Heet — automatisch gemarkeerd wanneer een lead 2+ e-mails opent of op een link klikt. Geconverteerd — markeer handmatig een lead als geconverteerd zodra ze de gewenste actie hebben ondernomen (aankoop, aanmelding, etc.)."
+            },
+            {
+              "title": "Wat is een Hete Lead?",
+              "desc": "Een Hete Lead is iemand die echte interesse toont — ze hebben meerdere e-mails geopend of op een link geklikt. Dit zijn je warmste prospects en de moeite waard om prioriteit aan te geven. Hete leads worden automatisch gemarkeerd met een vuur-icoon en verschijnen wanneer je op het Heet-filter klikt."
+            },
+            {
+              "title": "Je leads filteren",
+              "desc": "Gebruik de gekleurde filterknoppen om leads per status te bekijken: Alle, Nieuw, In begeleiding, Heet of Geconverteerd. Gebruik het Alle Lijsten-dropdown rechts om op een specifieke lijst te filteren. Combineer beide filters — bijvoorbeeld, bekijk alleen Hete leads uit je Facebook-lijst."
+            },
+            {
+              "title": "Een sequentie toewijzen aan een lead",
+              "desc": "In de Sequentie-kolom naast elke lead gebruik je het dropdown om de e-mailsequentie toe te wijzen of te wijzigen. De volgende keer dat je Volgende Verzenden klikt op die sequentie, wordt deze lead opgenomen."
+            },
+            {
+              "title": "Een lead verwijderen",
+              "desc": "Klik op het rode prullenbakje rechts van een leadregel om deze te verwijderen. Dit verwijdert de lead en al hun e-mailgeschiedenis permanent. Gebruik met zorg — dit kan niet ongedaan worden gemaakt."
+            }
+          ]
+        },
+        "lists": {
+          "category": "Lijsten",
+          "items": [
+            {
+              "title": "Wat zijn Lijsten?",
+              "desc": "Lijsten stellen je in staat om je leads in groepen te organiseren. Bijvoorbeeld: Facebook Leads, YouTube Traffic, Webinar Aanmeldingen of VIP Klanten. Elke lijst heeft zijn eigen kleur zodat je ze direct kunt herkennen in je leadtabel."
+            },
+            {
+              "title": "Een Lijst maken",
+              "desc": "Klik op Nieuwe Lijst, geef het een naam, een optionele beschrijving, kies een kleur en wijs optioneel een standaard e-mailsequentie toe. Elke lead die wordt geïmporteerd of vastgelegd voor deze lijst wordt automatisch ingeschreven in die sequentie."
+            },
+            {
+              "title": "Standaardsequentie op een Lijst",
+              "desc": "Wanneer je een standaardsequentie instelt op een lijst, wordt elke nieuwe lead toegevoegd aan die lijst (via formuliervastlegging of CSV-import) automatisch ingeschreven in die sequentie. Dit bespaart je het handmatig toewijzen van sequenties aan elke nieuwe lead."
+            },
+            {
+              "title": "Wat gebeurt er als ik een Lijst verwijder?",
+              "desc": "Als je een lijst verwijdert, worden alle leads die erin zaten verplaatst naar Niet Gesorteerd in plaats van verwijderd. Je kunt filteren op Niet Gesorteerde leads en ze op elk moment opnieuw toewijzen aan een nieuwe lijst."
+            },
+            {
+              "title": "Leadaantal op Lijstkaarten",
+              "desc": "Elke lijstkaart toont een leadaantal zodat je in één oogopslag kunt zien hoeveel contacten er in elke groep zitten. De gekleurde balk bovenaan elke kaart komt overeen met de kleur die je voor die lijst hebt gekozen."
+            }
+          ]
+        },
+        "sequences": {
+          "category": "Sequenties",
+          "items": [
+            {
+              "title": "Wat is een E-mailsequentie?",
+              "desc": "Een sequentie is een reeks e-mails die automatisch in de loop van de tijd worden verzonden. Je schrijft ze eenmaal, stelt de vertraging in tussen elke e-mail, en het systeem verzendt ze naar je leads op de automatische piloot. Perfect voor welkomstreeksen, nurture-campagnes of onboarding-flows."
+            },
+            {
+              "title": "Een Sequentie maken",
+              "desc": "Klik op Sequentie Maken, geef het een naam en voeg je e-mails toe. Elke e-mail heeft een onderwerp, een hoofdtekst (geschreven met de rich text editor) en een verzendvertraging in dagen nodig. Dag 0 verzendt direct. Dag 3 verzendt 3 dagen na de vorige e-mail."
+            },
+            {
+              "title": "Wat doet Volgende Verzenden?",
+              "desc": "Klikken op Volgende Verzenden op een sequentie verzendt de volgende wachtende e-mail naar elke lead die aan die sequentie is toegewezen. Het systeem houdt bij op welke e-mail elke lead is, zodat elke persoon de juiste e-mail bij de juiste stap krijgt — niemand krijgt dezelfde e-mail twee keer."
+            },
+            {
+              "title": "Verzendvertraging uitgelegd",
+              "desc": "De vertraging op elke e-mail is het aantal dagen nadat de vorige e-mail is verzonden. E-mail 1 op 0 dagen verzendt direct. E-mail 2 op 2 dagen verzendt 2 dagen na E-mail 1. E-mail 3 op 5 dagen verzendt 5 dagen na E-mail 2. Leads die nog niet toe zijn aan hun volgende e-mail worden overgeslagen."
+            },
+            {
+              "title": "Een Sequentie bewerken",
+              "desc": "Klik op Bewerken op een sequentiekaart om de naam te wijzigen, e-mails toe te voegen of te verwijderen, onderwerpen en hoofdteksten bij te werken, of vertragingen aan te passen. Wijzigingen zijn van toepassing op toekomstige verzendingen — leads die al een e-mail hebben ontvangen, ontvangen deze niet opnieuw."
+            },
+            {
+              "title": "Rich Text Editor",
+              "desc": "De e-mailtekst-editor ondersteunt vet, cursief, onderstrepen, opsommingen, genummerde lijsten, kopteksten en links. Schrijf je e-mail zoals je wilt dat deze verschijnt. E-mails worden verzonden als HTML zodat de opmaak behouden blijft in de inbox."
+            }
+          ]
+        },
+        "broadcast": {
+          "category": "Broadcast",
+          "items": [
+            {
+              "title": "Wat is een Broadcast?",
+              "desc": "Een broadcast is een eenmalige e-mail die nu naar alle of een gefilterde groep van je leads wordt verzonden. In tegenstelling tot sequenties (die in de loop van de tijd druppelen), gaat een broadcast direct uit naar iedereen die overeenkomt met je filter. Gebruik het voor aankondigingen, promoties of tijdgevoelig nieuws."
+            },
+            {
+              "title": "Ontvangers van je broadcast filteren",
+              "desc": "Voor je verzendt, kies een Lijst- en/of Status-filter. Het ontvangersaantal wordt live bijgewerkt zodat je precies weet hoeveel mensen de e-mail zullen ontvangen voordat je op Verzenden drukt. Bijvoorbeeld: stuur alleen naar Hete leads uit je Facebook-lijst."
+            },
+            {
+              "title": "Ontvangersaantal",
+              "desc": "Het nummer naast de filters is de live telling van leads die overeenkomen met je selectie en niet zijn afgemeld. Dit is het exacte aantal e-mails dat wordt verzonden wanneer je op Verzenden klikt."
+            },
+            {
+              "title": "Afgemelde leads",
+              "desc": "Leads die zich hebben afgemeld, worden automatisch uitgesloten van alle broadcasts en sequentieverzendingen. Je hoeft ze niet handmatig te filteren — het systeem regelt dit voor je om conform te blijven."
+            },
+            {
+              "title": "Broadcast vs Sequentie",
+              "desc": "Gebruik een Sequentie voor geplande, groenblijvende e-mailreeksen (welkomstflows, follow-ups). Gebruik een Broadcast voor eenmalige verzendingen naar je hele lijst of een segment — flash-verkopen, webinar-uitnodigingen, productlanceringen of belangrijke updates."
+            }
+          ]
+        },
+        "import": {
+          "category": "Importeren",
+          "items": [
+            {
+              "title": "Leads importeren via CSV",
+              "desc": "Ga naar de Importeren-tab, upload een CSV-bestand of plak CSV-tekst direct. Je CSV moet kolommen hebben voor e-mail en optioneel naam. Klik op Voorbeeld om de gegevens te controleren voor het importeren, klik dan op Importeren om de leads toe te voegen aan je CRM."
+            },
+            {
+              "title": "CSV-formaat",
+              "desc": "Het eenvoudigste formaat is twee kolommen: e-mail en naam. Bijvoorbeeld: email,name op de eerste rij, dan john@example.com,John Smith op elke volgende rij. De importer is flexibel — het detecteert de e-mailkolom automatisch, zelfs als je kopteksten anders zijn."
+            },
+            {
+              "title": "Toewijzen aan een Lijst bij importeren",
+              "desc": "Voor je importeert, selecteer naar welke lijst je leads wilt importeren met het Naar Lijst-dropdown. Een lijst kiezen betekent dat alle geïmporteerde leads direct georganiseerd zijn en kunnen profiteren van de standaardsequentie van die lijst."
+            },
+            {
+              "title": "Voorbeeld voor importeren",
+              "desc": "Klik op Voorbeeld om te zien hoeveel leads zijn gedetecteerd in je CSV en controleer eventuele opmaakproblemen. Het getoonde aantal is hoeveel leads daadwerkelijk worden geïmporteerd. Klik pas op Importeren als je tevreden bent met het voorbeeld."
+            },
+            {
+              "title": "Leadlimiet",
+              "desc": "Je huidige leadaantal en limiet worden bovenaan de Importeren-tab getoond. Pro-leden kunnen tot 5.000 leads hebben. Als je je limiet nadert, koop een Email Boost-pakket of neem contact op met support om uitbreiding van je plan te bespreken."
+            },
+            {
+              "title": "Duplicaatbehandeling",
+              "desc": "Als een e-mailadres al bestaat in je CRM, slaat de import die lead over in plaats van een duplicaat aan te maken. Je bestaande leadgegevens (status, sequentietoewijzing, e-mailgeschiedenis) blijven behouden."
+            }
+          ]
+        },
+        "emailBoost": {
+          "category": "Email Boost",
+          "items": [
+            {
+              "title": "Wat is Email Boost?",
+              "desc": "Met Email Boost kun je meer e-mails verzenden dan je dagelijkse gratis toewijzing. Elk Pro-lid krijgt 200 gratis e-mails per dag. Als je er meer moet verzenden — voor een grote broadcast of een grote sequentie — kun je Boost-pakketten kopen die je extra credits geven bovenop je dagelijkse toewijzing."
+            },
+            {
+              "title": "Hoe de dagelijkse limiet werkt",
+              "desc": "Je krijgt elke dag 200 gratis e-mails. De teller wordt om middernacht UTC gereset. Als je een broadcast verzendt naar 150 leads en 3 sequenties actief hebt, worden je 200 gratis e-mails eerst gebruikt. Zodra ze op zijn, nemen Boost-credits het automatisch over."
+            },
+            {
+              "title": "Beschikbare Boost-pakketten",
+              "desc": "1.000 e-mails — $5. 5.000 e-mails — $19. 10.000 e-mails — $29. 50.000 e-mails — $99. Boost-credits verlopen nooit — ze worden onbeperkt overgedragen tot ze worden gebruikt."
+            },
+            {
+              "title": "Hoe credits worden afgetrokken",
+              "desc": "Dagelijkse gratis credits worden altijd eerst gebruikt. Zodra je 200 gratis e-mails van de dag zijn besteed, trekt elke extra e-mail automatisch een Boost-credit af. Je hoeft nooit handmatig tussen hen te schakelen — alles gebeurt op de achtergrond."
+            },
+            {
+              "title": "Een Boost-pakket kopen",
+              "desc": "Klik op Kopen op een Boost-pakketkaart. De kosten worden afgetrokken van het saldo van je SuperAdPro-portemonnee. Credits worden direct toegevoegd — je kunt ze meteen gebruiken. Zorg dat je portemonnee voldoende geld heeft voor het kopen."
+            },
+            {
+              "title": "Je gebruik controleren",
+              "desc": "De voortgangsbalk bovenaan de SuperLeads-pagina toont je dagelijkse e-mailgebruik (bv. Dagelijks: 45/200). De Credits-teller rechtsboven in de hero toont je huidige Boost-credit-saldo. Beide worden in realtime bijgewerkt."
+            },
+            {
+              "title": "Wanneer heb ik Boost-credits nodig?",
+              "desc": "Als je lijst klein is (minder dan 200 leads) en je verzendt een broadcast per dag, heb je zelden Boost-credits nodig. Ze worden nuttig wanneer je grote lijsten hebt, meerdere sequenties gelijktijdig uitvoert of meerdere broadcasts op één dag wilt verzenden."
+            }
+          ]
+        }
+      }
+    },
+    "autoresponderLabel": "Autoresponder",
+    "totalLeadsStat": "Totaal leads",
+    "sequencesStat": "Sequenties",
+    "sentTodayStat": "Vandaag verzonden",
+    "hotLeadsStat": "Hete leads",
+    "tabLeads": "Leads",
+    "tabSequences": "Sequenties",
+    "tabBroadcast": "Broadcast",
+    "tabImport": "Importeren",
+    "tabBoost": "Boost",
+    "filterAllStatuses": "Alle statussen",
+    "filterAllLists": "Alle lijsten",
+    "statusNew": "Nieuw",
+    "statusNurturing": "In begeleiding",
+    "statusHot": "Heet",
+    "statusConverted": "Geconverteerd",
+    "statusUnsubscribed": "Afgemeld",
+    "searchLeadsPlaceholder": "Zoek leads…",
+    "newListBtn": "Nieuwe lijst",
+    "deleteLeadConfirm": "Deze lead verwijderen?",
+    "leadDeleted": "Lead verwijderd",
+    "noLeadsYet": "Nog geen leads",
+    "defaultWelcomeSubject": "Welkom!",
+    "defaultFollowUpSubject": "Follow-up — snelle tip",
+    "defaultLastChanceSubject": "Laatste kans om actie te ondernemen",
+    "dayLabel": "Dag",
+    "boostPack1kLabel": "1.000 E-mails",
+    "boostPack1kDesc": "Perfect voor een gerichte campagne",
+    "boostPack5kLabel": "5.000 E-mails",
+    "boostPack5kDesc": "Meerdere sequenties uitvoeren",
+    "boostPack10kLabel": "10.000 E-mails",
+    "boostPack10kDesc": "Schaal je bereik",
+    "boostPack50kLabel": "50.000 E-mails",
+    "boostPack50kDesc": "Enterprise-volume",
+    "contacts": "contacten",
+    "sent": "verzonden",
+    "noneOption": "Geen"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -4400,7 +4641,198 @@
     "duplicate": "Dupliceren",
     "deleteElement": "Verwijderen",
     "pages": "Pagina's",
-    "help": "Help",
+    "help": {
+      "title": "SuperPages Help",
+      "subtitle": "Kennisbank voor de page builder",
+      "searchPlaceholder": "Zoek hulponderwerpen…",
+      "noResults": "Geen resultaten voor",
+      "sections": {
+        "gettingStarted": {
+          "category": "Aan de Slag",
+          "items": [
+            {
+              "title": "Hoe de Editor werkt",
+              "desc": "SuperPages is een vrije-vorm drag-and-drop page builder. Klik op een blok uit het rechterpaneel om het aan je canvas toe te voegen, sleep het vervolgens om het overal te positioneren. Dubbelklik op tekstelementen om ze inline te bewerken. Gebruik de zwevende werkbalk om tekst op te maken, lettertypen, kleuren en uitlijning te wijzigen."
+            },
+            {
+              "title": "Selecteren & Verplaatsen",
+              "desc": "Klik eenmaal op een element om het te selecteren — je ziet een blauwe omtrek en formaatgrepen verschijnen. Klik en sleep om te herpositioneren. Houd Shift + Pijltjestoetsen ingedrukt om 10px te verplaatsen, of alleen Pijltjestoetsen voor 1px precisie."
+            },
+            {
+              "title": "Formaat wijzigen",
+              "desc": "Geselecteerde elementen tonen 8 cyaankleurige formaatgrepen — op alle vier hoeken en vier randen. Sleep een greep om het formaat te wijzigen. Hoekgrepen wijzigen de grootte gelijktijdig in beide richtingen. Minimale grootte is 40px breed bij 20px hoog."
+            },
+            {
+              "title": "Opslaan & Publiceren",
+              "desc": "Klik op Opslaan om je werk op te slaan (automatisch opgeslagen elke 30 seconden). Klik op Publiceren om je pagina live op het web te zetten. Je live URL verschijnt in Instellingen. Schakel terug naar Concept om te depubliceren."
+            },
+            {
+              "title": "Sneltoetsen",
+              "desc": "Ctrl+S: Opslaan | Ctrl+Z: Ongedaan maken | Ctrl+Y: Opnieuw doen | Delete/Backspace: Geselecteerd element verwijderen | Pijltjestoetsen: 1px verplaatsen | Shift+Pijltjes: 10px verplaatsen | Escape: Deselecteren"
+            }
+          ]
+        },
+        "textElements": {
+          "category": "Tekstelementen",
+          "items": [
+            {
+              "title": "Kop",
+              "desc": "Grote, vette tekst voor paginatitels en sectiekoppen. Standaard is Sora-lettertype 36px in wit. Dubbelklik om de tekst te bewerken. Gebruik de zwevende werkbalk om lettertype-familie, -grootte, -kleur, vet, cursief, onderstrepen en uitlijning te wijzigen."
+            },
+            {
+              "title": "Tekst",
+              "desc": "Bodytekst voor alinea's en beschrijvingen. Standaard is Outfit-lettertype 15px in grijs met 1.8 regelhoogte voor leesbaarheid. Dubbelklik om te bewerken. Ondersteunt alle inline-opmaak van de zwevende werkbalk."
+            },
+            {
+              "title": "Label",
+              "desc": "Kleine badge-stijl tekst perfect voor tags zoals PREMIUM, NIEUW of BEPERKTE AANBIEDING. Komt met een afgeronde pil-achtergrond en rand. Dubbelklik om de labeltekst te wijzigen."
+            }
+          ]
+        },
+        "mediaElements": {
+          "category": "Media-elementen",
+          "items": [
+            {
+              "title": "Afbeelding",
+              "desc": "Voeg afbeeldingen toe aan je pagina. Klik op de bewerken-AFBEELDING-knop in de elementwerkbalk om een afbeeldings-URL in te voeren of een bestand te uploaden (max 5MB). Ondersteunt JPG, PNG, GIF en WebP. Afbeeldingen worden opgeslagen op Cloudflare R2 voor snelle wereldwijde levering."
+            },
+            {
+              "title": "Video",
+              "desc": "Sluit video's in van YouTube, Vimeo, of upload je eigen MP4/WebM-bestanden (max 50MB). Klik op bewerken-VIDEO om toe te voegen. YouTube- en Vimeo-kijk-URL's worden automatisch geconverteerd naar embed-formaat. Geüploade video's worden gehost op Cloudflare R2."
+            },
+            {
+              "title": "Audio",
+              "desc": "Voeg audiospelers toe aan je pagina. Klik op bewerken-AUDIO om een audio-URL in te voeren of MP3/WAV/OGG-bestanden te uploaden (max 20MB). Geweldig voor podcasts, muziekvoorbeelden of audiogetuigenissen."
+            }
+          ]
+        },
+        "actionElements": {
+          "category": "Actie-elementen",
+          "items": [
+            {
+              "title": "Knop",
+              "desc": "Klikbare knop met kleurverloopachtergrond. Klik op bewerken-LINK om de bestemmings-URL in te stellen. Dubbelklik om de knoptekst te wijzigen. Perfect voor call-to-actions zoals Nu Meedoen, Nu Kopen of Meer Weten."
+            },
+            {
+              "title": "Opt-In-formulier",
+              "desc": "E-mailvastlegformulier met naamveld, e-mailveld en verzendknop. Vooraf gestileerd met een donkere glasachtergrond. Klik op bewerken-FORMULIER om de HTML aan te passen. Verbonden met je Mijn Leads-dashboard voor leadverzameling."
+            },
+            {
+              "title": "CTA (Call to Action)",
+              "desc": "Vergelijkbaar met Knop maar specifiek gestileerd voor primaire conversieacties. Klik op bewerken-LINK om de bestemmings-URL in te stellen. Dubbelklik om de tekst te bewerken. Gebruik voor de hoofdactie van je pagina zoals Nu Beginnen."
+            }
+          ]
+        },
+        "contentElements": {
+          "category": "Inhoudselementen",
+          "items": [
+            {
+              "title": "Recensie",
+              "desc": "Klantrecensieblok met sterbeoordeling, citaattekst en naamsvermelding. Gestileerd met een donkere kaartachtergrond en cyaankleurige linkerrand. Dubbelklik om de recensie-inhoud, sterren en klantnaam te bewerken."
+            },
+            {
+              "title": "Badge",
+              "desc": "Kleine decoratieve badge identiek aan Label — handig voor tags zoals BESTE WAARDE, POPULAIRST of UITGELICHT. Heeft standaard een gouden pilstijl."
+            },
+            {
+              "title": "Getuigenis",
+              "desc": "Uitgebreid getuigenisblok met sterren, langer citaat en auteurkrediet. Heeft een gouden linkerrand om het te onderscheiden van recensies. Dubbelklik om de getuigenistekst en naamsvermelding aan te passen."
+            },
+            {
+              "title": "FAQ",
+              "desc": "Vraag-en-antwoordblok gestileerd met een subtiel omrande header. Dubbelklik om de vraag- en antwoordtekst te bewerken. Stapel meerdere FAQ-elementen om een complete FAQ-sectie te bouwen."
+            },
+            {
+              "title": "Statistiek",
+              "desc": "Grote statistiek-weergave — toont een groot getal (zoals 95%) met een label eronder. Perfect voor social proof: 10.000+ Leden, 95% Uitbetalingstarief, $1M+ Uitbetaald. Dubbelklik om te bewerken."
+            },
+            {
+              "title": "Voortgang",
+              "desc": "Geanimeerde voortgangsbalk met label en percentage. Klik op bewerken-INSTELLEN om de labeltekst, het percentage (0-100) en de balkkleur te configureren. Geweldig voor het tonen van cursusvoltooiing, financieringsdoelen of beperkte beschikbaarheid."
+            }
+          ]
+        },
+        "layoutElements": {
+          "category": "Lay-outelementen",
+          "items": [
+            {
+              "title": "Aftellen",
+              "desc": "Live aftelklok die aftelt naar een doeldatum en -tijd. Klik op bewerken-INSTELLEN om de doeldatum te kiezen. Toont dagen, uren, minuten en seconden. Creëert urgentie voor lanceringen, verkoopdeadlines of evenementdata."
+            },
+            {
+              "title": "Sociale Media",
+              "desc": "Rij met social media-pictogrammen — YouTube, Instagram, TikTok, Facebook, X/Twitter en LinkedIn. Klik op bewerken-LINKS om je profiel-URL's voor elk platform toe te voegen. Pictogrammen linken naar je sociale profielen op de gepubliceerde pagina."
+            },
+            {
+              "title": "Pictogram + Tekst",
+              "desc": "Feature-blok dat een emoji/pictogram combineert met een koptekst en beschrijving. Perfect voor het opsommen van voordelen, features of stappen. Dubbelklik om de emoji, kop en beschrijving te bewerken."
+            },
+            {
+              "title": "Scheidingsteken",
+              "desc": "Decoratieve scheidingslijn met optionele middentekst. Dubbelklik om de scheidingstekst te wijzigen. Gebruik tussen secties om visuele onderbrekingen te creëren."
+            },
+            {
+              "title": "Logo's",
+              "desc": "'Zoals gezien in' logo-strook — toont merknamen in een horizontale rij. Dubbelklik om de merknamen te bewerken. Gebruik om mediavermeldingen, partnerlogo's of vertrouwenssignalen te tonen."
+            },
+            {
+              "title": "Spatie",
+              "desc": "Onzichtbaar afstandelement. Sleep om te positioneren en wijzig de grootte om de ruimte tussen andere elementen te beheren. Heeft geen visuele weergave op de gepubliceerde pagina — puur voor lay-outbeheer."
+            },
+            {
+              "title": "Box",
+              "desc": "Lege container met subtiele rand en afgeronde hoeken. Gebruik als achtergrondkaart achter andere elementen om gegroepeerde secties te creëren. Wijzig grootte en leg achter tekst, afbeeldingen of formulieren."
+            },
+            {
+              "title": "Divider",
+              "desc": "Eenvoudige horizontale lijn. Gebruik om secties op je pagina te scheiden. Wijzig de breedte om te regelen hoe ver deze zich uitstrekt over het canvas."
+            },
+            {
+              "title": "Embed",
+              "desc": "Ruwe HTML/code embed-blok. Klik op bewerken-CODE om HTML te plakken, inclusief iframes, aangepaste widgets, tracking-pixels of embed-codes van derden. De code wordt weergegeven op de gepubliceerde pagina."
+            }
+          ]
+        },
+        "settingsPublishing": {
+          "category": "Instellingen en Publicatie",
+          "items": [
+            {
+              "title": "Paginatitel",
+              "desc": "De naam van je pagina — verschijnt op het browsertabblad, in zoekmachineresultaten en in je SuperPages-lijst. Kies iets beschrijvends en overtuigends voor SEO."
+            },
+            {
+              "title": "Pagina-URL-slug",
+              "desc": "Pas het webadres van je gepubliceerde pagina aan. Open Instellingen, zoek het Pagina-URL-slug-veld en typ je voorkeursnaam met alleen kleine letters, cijfers en koppeltekens. Klik op Instellingen Opslaan om de wijziging toe te passen. Elke slug moet uniek zijn — je kunt er geen gebruiken die al door een andere pagina is gebruikt."
+            },
+            {
+              "title": "Meta-beschrijving",
+              "desc": "De beschrijving die onder je paginatitel verschijnt in Google-zoekresultaten. Schrijf 150-160 tekens die bezoekers vertellen wat je pagina biedt. Belangrijk voor doorklikratio's vanuit zoekresultaten."
+            },
+            {
+              "title": "Social Sharing-afbeelding",
+              "desc": "Wanneer iemand je gepubliceerde pagina deelt op Facebook, Twitter, LinkedIn of WhatsApp, verschijnt deze afbeelding als de voorbeeldminiatuur. Upload of voer de URL in van een 1200x630px afbeelding voor de beste resultaten."
+            },
+            {
+              "title": "Paginastatus",
+              "desc": "Conceptpagina's zijn alleen zichtbaar voor jou. Gepubliceerde pagina's zijn live op het web op je Live URL. Schakel op elk moment tussen Concept en Gepubliceerd. Een pagina depubliceren maakt deze direct ontoegankelijk voor bezoekers."
+            },
+            {
+              "title": "Canvas-achtergrond",
+              "desc": "Wijzig de pagina-achtergrond met de kleurkiezer of afbeeldingsupload rechtsboven in het Blokken-paneel. Ondersteunt effen kleuren, kleurverlopen en paginabrede achtergrondafbeeldingen geüpload naar Cloudflare R2."
+            }
+          ]
+        },
+        "aiAssistant": {
+          "category": "AI-assistent",
+          "items": [
+            {
+              "title": "AI-chat",
+              "desc": "Klik op AI-assistent onderaan het Blokken-paneel om de AI-chat te openen. Vertel het wat je wilt: voeg een kop toe, verander achtergrond naar marineblauw, schrijf verkooptekst voor een fitnessproduct. De AI kan je paginastijl aanpassen en inhoudsvoorstellen genereren."
+            }
+          ]
+        }
+      }
+    },
     "knowledgeBase": "Kennisbank",
     "learnElements": "Leer hoe elk element en elke functie werkt",
     "searchPlaceholder": "Zoek elementen, functies...",
@@ -4449,7 +4881,9 @@
     "blkProgress": "Voortgang",
     "blkCountdown": "Aftellen",
     "blkSocials": "Sociaal",
-    "blkIconText": "Icoon+Tekst"
+    "blkIconText": "Icoon+Tekst",
+    "blk": "Blok",
+    "cat": "Categorie"
   },
   "coursePlayer": {},
   "analytics": {
@@ -4485,7 +4919,18 @@
     "lastWithdrawal": "Laatste opname",
     "noWithdrawals": "Nog geen opnames",
     "totalAiGen": "totaal AI-generaties",
-    "qualificationDesc": "Uw dagelijkse kijkvereiste voor Campagne Wallet-opnames. Dit is geen inkomstenbron — het is uw verantwoordelijkheidscontrole."
+    "qualificationDesc": "Uw dagelijkse kijkvereiste voor Campagne Wallet-opnames. Dit is geen inkomstenbron — het is uw verantwoordelijkheidscontrole.",
+    "campaignGrid": "Campagne Grid",
+    "courses": "Cursussen",
+    "creditNexus": "Credit Nexus",
+    "fiftyRecurring": "50% terugkerend",
+    "gridCommissions": "Grid-commissies",
+    "membership": "Lidmaatschap",
+    "nexusCommissions": "Nexus-commissies",
+    "noResults": "Geen resultaten",
+    "noTeamYet": "Nog geen team",
+    "recruitToMsg": "Werf iemand om te beginnen met berichten sturen",
+    "salesPassUps": "Verkopen + pass-ups"
   },
   "superMarket": {
     "comparePrice": "Vergelijkingsprijs",
@@ -4579,6 +5024,72 @@
     "libRetail": "Detailhandel & Winkelen",
     "proTipTitle": "Pro Tip",
     "proTipWeb": "Specifieke merknamen werken het best. Zoekopdrachten zoals \"Herbalife distributeur Nederland\" vinden individuele distributeur-websites, terwijl vage termen zoals \"thuiswerk kans\" alleen content-uitgevers teruggeven.",
-    "proTipMaps": "Een specifieke stad toevoegen geeft scherpere resultaten. Probeer een beroep (bijv. loodgieters, tandartsen) te combineren met een postcode of wijk voor de beste leads."
+    "proTipMaps": "Een specifieke stad toevoegen geeft scherpere resultaten. Probeer een beroep (bijv. loodgieters, tandartsen) te combineren met een postcode of wijk voor de beste leads.",
+    "dataSourceMaps": "Data van Google Maps",
+    "dataSourceWeb": "Data van webzoekopdracht"
+  },
+  "myNetwork": {
+    "pageTitle": "Mijn Netwerk & Inkomsten",
+    "pageSubtitle": "Je team, je inkomstenbronnen, je groei",
+    "referralLinkLabel": "Jouw Verwijzingslink",
+    "copyBtn": "Link kopiëren",
+    "copiedBtn": "Gekopieerd!",
+    "earningsTitle": "Jouw Inkomsten",
+    "earningsSubtitle": "Totaal en maandelijks, over elke inkomstenbron",
+    "lifetimeEarned": "Levenslang Verdiend",
+    "lifetimeEarnedSub": "Van alle tijden over alle inkomstenbronnen",
+    "thisMonth": "Deze Maand",
+    "thisMonthSub": "Commissies betaald in {{month}}",
+    "streamsCardTitle": "Inkomsten per Bron",
+    "streamsCardSubtitle": "Vier manieren waarop leden verdienen op SuperAdPro",
+    "streamMembershipName": "Lidmaatschaps-residuaal",
+    "streamMembershipDesc": "50% van de maandelijkse lidmaatschapskosten van elke directe verwijzing",
+    "streamGridName": "Grid / Campagnes",
+    "streamGridDesc": "40% direct + 50% uni-level van campagne-tier-aankopen",
+    "streamCourseName": "Cursus Academie",
+    "streamCourseDesc": "100% commissies via 4 oneindige Inkomstenketens",
+    "streamNexusName": "Credit Nexus",
+    "streamNexusDesc": "3×3-matrix inkomsten op aankopen van creditpakketten van je downline",
+    "recentCommissionsTitle": "Recente Commissies",
+    "seeAll": "Alles bekijken",
+    "colSource": "Bron",
+    "colDetails": "Details",
+    "colAmount": "Bedrag",
+    "colDate": "Datum",
+    "noCommissionsTitle": "Nog geen commissies",
+    "noCommissionsSubtitle": "Commissies verschijnen hier als je team groeit",
+    "teamTitle": "Jouw Team",
+    "teamSubtitle": "Iedereen onder je, groeiend in de loop van de tijd",
+    "directReferrals": "Directe Verwijzingen",
+    "directReferralsSub": "Mensen die je persoonlijk hebt geworven",
+    "totalNetwork": "Totaal Netwerk",
+    "totalNetworkSub": "Iedereen onder je op elke diepte",
+    "activeMembers": "Actieve Leden",
+    "activeMembersSub": "Nog steeds actief op het platform",
+    "directReferralsList": "Directe Verwijzingen",
+    "totalCount": "{{count}} in totaal",
+    "colMember": "Lid",
+    "colStatus": "Status",
+    "colTheirTeam": "Hun Team",
+    "colJoined": "Aangesloten",
+    "statusActive": "Actief",
+    "statusInactive": "Inactief",
+    "noReferralsTitle": "Nog geen verwijzingen",
+    "noReferralsSubtitle": "Deel je link hierboven om je netwerk op te bouwen",
+    "streamCategoryMembership": "Lidmaatschap",
+    "streamCategoryGrid": "Grid",
+    "streamCategoryCourses": "Cursussen",
+    "streamCategoryCreditNexus": "Credit Nexus",
+    "streamCategoryOther": "Anders",
+    "typeDirectSponsor": "Directe sponsorbonus",
+    "typeUniLevel": "Uni-level commissie",
+    "typeGridCompletion": "Grid-voltooiingsbonus",
+    "typePlatform": "Platformcommissie",
+    "typeMatrixLevel": "Credit matrix level bonus",
+    "typeMatrixCompletion": "Credit matrix voltooiing",
+    "typeNexusSponsor": "Credit Nexus sponsorbonus",
+    "typeDirectSale": "Directe cursusverkoop (100%)",
+    "typePassUp": "Cursus pass-up cascade",
+    "typeMembership": "Lidmaatschapsverwijzing"
   }
 }
