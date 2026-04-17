@@ -20,8 +20,6 @@ import Affiliate from './pages/Affiliate';
 import MarketingMaterials from './pages/MarketingMaterials';
 import LeadFinder from './pages/LeadFinder';
 import CampaignTiers from './pages/CampaignTiers';
-import Marketplace from './pages/Marketplace';
-import MyCourses from './pages/MyCourses';
 import Watch from './pages/Watch';
 import Analytics from './pages/Analytics';
 import Support from './pages/Support';
@@ -44,10 +42,7 @@ import ProSeller from './pages/ProSeller';
 // SuperSeller removed — replaced by individual AI tools
 import AdminDashboard from './pages/AdminDashboard';
 import Funnels from './pages/Funnels';
-import CourseCreate from './pages/CourseCreate';
-import CourseEditor from './pages/CourseEditor';
 import LinkHubPage from './pages/LinkHub';
-import SuperMarketCreate from './pages/SuperMarketCreate';
 import ActivateTier from './pages/ActivateTier';
 import PayItForward from './pages/PayItForward';
 import GiftLanding from './pages/GiftLanding';
@@ -162,9 +157,6 @@ function AppRoutes() {
       <Route path="/activate/:tierId" element={<ProtectedRoute><ActivateTier /></ProtectedRoute>} />
       <Route path="/pay-it-forward" element={<ProtectedRoute><PayItForward /></ProtectedRoute>} />
       <Route path="/gift/:code" element={<GiftLanding />} />
-      <Route path="/marketplace" element={<Marketplace />} />
-      <Route path="/supermarket/create" element={<ProtectedRoute><SuperMarketCreate /></ProtectedRoute>} />
-      <Route path="/courses/my-courses" element={<ProtectedRoute><MyCourses /></ProtectedRoute>} />
       <Route path="/watch" element={<ProtectedRoute><Watch /></ProtectedRoute>} />
       <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
@@ -197,8 +189,6 @@ function AppRoutes() {
       <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
 
       {/* Complex tools — full React pages */}
-      <Route path="/courses/create" element={<ProtectedRoute><CourseCreate /></ProtectedRoute>} />
-      <Route path="/courses/edit/:id" element={<ProtectedRoute><CourseEditor /></ProtectedRoute>} />
       <Route path="/linkhub" element={<ProtectedRoute><LinkHubPage /></ProtectedRoute>} />
       <Route path="/proseller" element={<ProtectedRoute><ProSeller /></ProtectedRoute>} />
       {/* SuperSeller removed */}

@@ -25,18 +25,10 @@ var TYPE_CONFIG = {
   course: {
     icon: '🎓',
     title: 'Course Unlocked!',
-    desc: 'Your course is now available. Head to My Courses to start learning.',
-    action: '/courses/my-courses',
-    actionLabel: 'View My Courses',
+    desc: 'Your course is now available in the Course Library.',
+    action: '/courses',
+    actionLabel: 'Go to Course Library',
     color: 'var(--sap-purple)',
-  },
-  supermarket: {
-    icon: '🛒',
-    title: 'Purchase Complete!',
-    desc: 'Your digital product is ready to download.',
-    action: '/marketplace',
-    actionLabel: 'View SuperMarket',
-    color: 'var(--sap-accent)',
   },
   email_boost: {
     icon: '🚀',

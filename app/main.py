@@ -430,8 +430,6 @@ def validate_username(u): return bool(re.match(r'^[a-zA-Z0-9_]{3,30}$', u))
 def validate_email(e):    return bool(re.match(r'^[^\@\s]+@[^\@\s]+\.[^\@\s]+$', e))
 def validate_wallet(w):   return bool(re.match(r'^0x[a-fA-F0-9]{40}$', w))
 def sanitize(v):          return bleach.clean(v.strip()) if v else ""
-
-
 # ── Dashboard context ─────────────────────────────────────────
 def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
     from sqlalchemy import func
@@ -511,18 +509,6 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
     # Course stats
     course_sale_count = user.course_sale_count or 0
 
-    # Marketplace stats
-    marketplace_earnings = float(user.marketplace_earnings or 0)
-    marketplace_sales = db.query(MemberCoursePurchase).filter(
-        MemberCoursePurchase.course_id.in_(
-            db.query(MemberCourse.id).filter(MemberCourse.creator_id == user.id)
-        ),
-        MemberCoursePurchase.status == "completed"
-    ).count() if user else 0
-    marketplace_courses = db.query(MemberCourse).filter(
-        MemberCourse.creator_id == user.id, MemberCourse.status == "published"
-    ).count() if user else 0
-
     return {
         "request":           request,
         "user":              user,
@@ -551,9 +537,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "is_admin":          user.is_admin,
         "member_id":         format_member_id(user.id, user.is_admin),
         "course_sale_count": course_sale_count,
-        "marketplace_earnings": marketplace_earnings,
-        "marketplace_sales": marketplace_sales,
-        "marketplace_courses": marketplace_courses,
+        "marketplace_earnings": float(user.marketplace_earnings or 0),
         "GRID_PACKAGES":     GRID_PACKAGES,
         "GRID_TOTAL":        GRID_TOTAL,
         "OWNER_PCT":         OWNER_PCT,
@@ -564,8 +548,6 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "has_linkhub":       db.query(db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).exists()).scalar(),
         "watch_count":       getattr(user, 'videos_watched', 0) or 0,
     }
-
-
 # ═══════════════════════════════════════════════════════════════
 #  SMART DASHBOARD GOALS
 # ═══════════════════════════════════════════════════════════════
@@ -733,8 +715,6 @@ def api_dashboard_goals(user: User = Depends(get_current_user), db: Session = De
         })
 
     return {"goals": goals, "opportunities": opportunities}
-
-
 # ═══════════════════════════════════════════════════════════════
 # ═══════════════════════════════════════════════════════════════
 #  30-DAY LAUNCH CHALLENGE
@@ -821,8 +801,6 @@ CHALLENGE_WEEKS = [
     {"week": 3, "title": "Build momentum",     "desc": "Create AI content, engage your team, explore campaign tiers"},
     {"week": 4, "title": "Level up",           "desc": "Scale your activity, support your team, plan your next 30 days"},
 ]
-
-
 @app.get("/api/challenge")
 def api_challenge(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get the user's 30-day challenge progress and today's tasks."""
@@ -955,8 +933,6 @@ def api_challenge(user: User = Depends(get_current_user), db: Session = Depends(
         "weeks": CHALLENGE_WEEKS,
         "is_complete": current_day >= 30 and prog.is_complete,
     }
-
-
 @app.post("/api/challenge/complete-task")
 async def api_challenge_complete_task(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Mark a manual task as completed."""
@@ -1021,8 +997,6 @@ async def api_challenge_complete_task(request: Request, user: User = Depends(get
 
     db.commit()
     return {"ok": True, "xp": prog.xp, "badges": list(badge_set - {""})}
-
-
 #  PUBLIC ROUTES
 # ═══════════════════════════════════════════════════════════════
 
@@ -1035,8 +1009,6 @@ def home(request: Request):
 @app.get("/health")
 async def health_check():
     return {"status": "ok"}
-
-
 @app.get("/api/public/stats")
 def api_public_stats(db: Session = Depends(get_db)):
     """Public stats for homepage — member count, total earned. No auth required."""
@@ -1051,8 +1023,6 @@ def api_public_stats(db: Session = Depends(get_db)):
         "registered": total_registered,
         "total_earned": total_earned,
     }
-
-
 @app.get("/api/me")
 def api_me(request: Request, db: Session = Depends(get_db)):
     """Return current user data for the React frontend."""
@@ -1094,8 +1064,6 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "sending_wallet": getattr(user, "sending_wallet", "") or "",
         "member_id": getattr(user, "member_id", None),
     }
-
-
 @app.get("/api/notifications")
 def api_notifications(request: Request, db: Session = Depends(get_db)):
     """Return recent notifications for the current user."""
@@ -1114,8 +1082,6 @@ def api_notifications(request: Request, db: Session = Depends(get_db)):
         } for n in notifs],
         "unread_count": unread,
     }
-
-
 @app.post("/api/notifications/mark-read")
 def api_mark_notifications_read(request: Request, db: Session = Depends(get_db)):
     """Mark all notifications as read."""
@@ -1127,8 +1093,6 @@ def api_mark_notifications_read(request: Request, db: Session = Depends(get_db))
     ).update({"is_read": True})
     db.commit()
     return {"ok": True}
-
-
 @app.post("/api/notifications/clear-all")
 def api_clear_all_notifications(request: Request, db: Session = Depends(get_db)):
     """Delete all notifications for the current user."""
@@ -1138,8 +1102,6 @@ def api_clear_all_notifications(request: Request, db: Session = Depends(get_db))
     db.query(Notification).filter(Notification.user_id == user.id).delete()
     db.commit()
     return {"ok": True}
-
-
 @app.delete("/api/notifications/{notif_id}")
 def api_delete_notification(notif_id: int, request: Request, db: Session = Depends(get_db)):
     """Delete a single notification."""
@@ -1451,16 +1413,12 @@ def apple_touch_icon():
     if icon_path.exists():
         return FileResponse(str(icon_path), media_type="image/png")
     return FileResponse(str(Path("static/icons/icon-192.png")), media_type="image/png")
-
-
 @app.get("/earn")
 def earn_page(request: Request):
     """Affiliate recruitment landing page."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.get("/for-advertisers")
 def for_advertisers(request: Request):
     if _react_index.exists():
@@ -1475,8 +1433,6 @@ def referral_link(username: str, request: Request):
     response.set_cookie(key="ref", value=username, max_age=60*60*24*30,
                         httponly=False, samesite="lax")
     return response
-
-
 @app.get("/join/{username}")
 def superlink_page(username: str, request: Request, db: Session = Depends(get_db)):
     """SuperLink — personalised sales page for affiliate sharing.
@@ -1737,10 +1693,6 @@ def register_process(
     response.delete_cookie("ref")
     return response
 
-
-
-
-
 @app.get("/login")
 def login_form(request: Request):
     """Phase 2: serve React SPA — React Router handles /login."""
@@ -1775,8 +1727,6 @@ def login_process(
         return response
     record_failed_attempt(username)
     return JSONResponse({"error": "Invalid username or password."}, status_code=401)
-
-
 @app.post("/api/login")
 @limiter.limit("10/minute")
 async def api_login(
@@ -1814,8 +1764,6 @@ async def api_login(
 
     record_failed_attempt(username)
     return JSONResponse({"error": "Invalid username or password."}, status_code=401)
-
-
 @app.get("/logout")
 def logout():
     response = RedirectResponse(url="/")
@@ -1850,8 +1798,6 @@ async def api_2fa_verify_login(request: Request, db: Session = Depends(get_db)):
         return response
     record_failed_attempt(user.username)
     return JSONResponse({"error": "Invalid code. Please try again."}, status_code=400)
-
-
 @app.get("/api/2fa/setup")
 async def api_2fa_setup(request: Request, user: User = Depends(get_current_user),
                          db: Session = Depends(get_db)):
@@ -1872,8 +1818,6 @@ async def api_2fa_setup(request: Request, user: User = Depends(get_current_user)
     img.save(buf, format="PNG")
     qr_b64 = base64.b64encode(buf.getvalue()).decode()
     return {"qr_b64": qr_b64, "secret": secret, "email": user.email or user.username}
-
-
 @app.post("/api/2fa/confirm-setup")
 async def api_2fa_confirm_setup(request: Request, user: User = Depends(get_current_user),
                                   db: Session = Depends(get_db)):
@@ -1891,8 +1835,6 @@ async def api_2fa_confirm_setup(request: Request, user: User = Depends(get_curre
         db.commit()
         return {"success": True, "message": "2FA enabled successfully"}
     return JSONResponse({"error": "Invalid code. Please try again."}, status_code=400)
-
-
 @app.post("/api/forgot-password")
 @limiter.limit("3/minute")
 async def api_forgot_password(request: Request, db: Session = Depends(get_db)):
@@ -1925,8 +1867,6 @@ async def api_forgot_password(request: Request, db: Session = Depends(get_db)):
             reset_url=reset_url,
         )
     return {"success": True, "message": "If that email is registered, a reset link has been sent."}
-
-
 @app.post("/api/reset-password")
 @limiter.limit("5/minute")
 async def api_reset_password(request: Request, db: Session = Depends(get_db)):
@@ -1960,10 +1900,6 @@ async def api_reset_password(request: Request, db: Session = Depends(get_db)):
     reset.used = True
     db.commit()
     return {"success": True, "message": "Password reset successfully. You can now log in."}
-
-
-
-
 @app.get("/login/2fa")
 def login_2fa_form(request: Request):
     """Phase 2: serve React SPA — React Router handles /login/2fa."""
@@ -2011,21 +1947,16 @@ def app_home(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h2>React app not built yet. Run: cd frontend && npm run build</h2>", status_code=503)
-
-
 @app.get("/dashboard")
 def dashboard(request: Request):
     """Serve React SPA."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 # ── Missing React page routes ──
 @app.get("/network")
 @app.get("/ad-board")
 @app.get("/2fa-setup")
-@app.get("/supermarket/create")
 @app.get("/activate/{tier_id}")
 @app.get("/free/{tool_path:path}")
 @app.get("/pay-it-forward")
@@ -2034,8 +1965,6 @@ def serve_react_page(request: Request, tier_id: str = "", tool_path: str = ""):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.get("/api/dashboard")
 def api_dashboard(request: Request, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
@@ -2085,8 +2014,6 @@ def analytics_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.get("/api/dashboard/new-members")
 def api_new_members(request: Request, since: str = None,
                     user: User = Depends(get_current_user),
@@ -2125,8 +2052,6 @@ def api_new_members(request: Request, since: str = None,
         })
 
     return {"members": members, "checked_at": datetime.utcnow().isoformat()}
-
-
 # ═══════════════════════════════════════════════════════════════
 #  NOTIFICATION HELPER (used by registration, commissions, etc.)
 # ═══════════════════════════════════════════════════════════════
@@ -2143,8 +2068,6 @@ def create_notification(db, user_id, ntype, title, message, icon="🔔", link=No
         db.commit()
     except Exception:
         db.rollback()
-
-
 @app.get("/api/analytics")
 def api_analytics(request: Request, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
@@ -2488,8 +2411,6 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
             "team_size": user.total_team or 0,
         }
     }
-
-
 @app.get("/launch-wizard")
 def launch_wizard(request: Request):
     """Phase 4: serve React SPA."""
@@ -2665,68 +2586,50 @@ def income_grid(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.get("/banner-manager")
 def banner_manager(request: Request):
     """Serve React SPA for banner management."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.get("/ad-hub")
 def ad_hub(request: Request):
     """Serve React SPA for unified Ad Hub."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.get("/superseller")
 def superseller_page(request: Request):
     """Serve React SPA for SuperSeller."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.get("/training")
 def training_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.get("/team-messenger")
 def team_messenger_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.get("/challenges")
 def challenges_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.get("/qr-generator")
 def qr_generator_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.get("/income-grid-3d")
 def income_grid_3d(request: Request):
     """Serve React SPA for 3D income grid visualisation."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.get("/banner-maker")
 def banner_maker_page(request: Request):
     """Serve React SPA for banner maker."""
@@ -2793,8 +2696,6 @@ def _old_wallet_DISABLED(request: Request, user: User = Depends(get_current_user
         "p2p_history": p2p_history,
     })
     return templates.TemplateResponse("wallet.html", ctx)
-
-
 @app.get("/api/wallet")
 def api_wallet_data(request: Request, user: User = Depends(get_current_user),
                     db: Session = Depends(get_db)):
@@ -2840,8 +2741,6 @@ def api_wallet_data(request: Request, user: User = Depends(get_current_user),
         "renewal": renewal,
         "p2p_history": p2p_history,
     }
-
-
 @app.get("/social-share")
 def social_share(request: Request):
     """Serve React SPA — Social Share page."""
@@ -2938,8 +2837,6 @@ def _old_video_library_DISABLED(request: Request, user: User = Depends(get_curre
         "added": request.query_params.get("added", ""),
     })
     return templates.TemplateResponse("video-library.html", ctx)
-
-
 @app.post("/delete-campaign")
 def delete_campaign(
     request: Request,
@@ -2956,8 +2853,6 @@ def delete_campaign(
         campaign.status = "deleted"
         db.commit()
     return RedirectResponse(url="/video-library", status_code=303)
-
-
 @app.delete("/api/campaigns/{campaign_id}")
 def api_delete_campaign(campaign_id: int, request: Request,
                         db: Session = Depends(get_db),
@@ -2986,8 +2881,6 @@ def upload_video(request: Request):
 def _old_upload_DISABLED(request=None, user=None, db=None):
     """Phase 4: upload video moved to React VideoLibrary."""
     pass
-
-
 @app.post("/upload")
 def upload_video_post(
     request: Request,
@@ -3121,8 +3014,6 @@ def activate_grid_form(
         "GRID_PACKAGES": GRID_PACKAGES,
     })
     return JSONResponse({"error": "Payment failed."}, status_code=400)
-
-
 # ═══════════════════════════════════════════════════════════════
 #  COINBASE COMMERCE PAYMENT ROUTES
 # ═══════════════════════════════════════════════════════════════
@@ -3184,8 +3075,6 @@ async def coinbase_create_charge(
         }
     else:
         return JSONResponse({"error": result["error"]}, status_code=500)
-
-
 @app.post("/api/webhook/coinbase")
 async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
     """Handle Coinbase Commerce webhook events.
@@ -3399,8 +3288,6 @@ async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
         return {"status": "grid_activated", "user_id": user_id, "tier": package_tier}
 
     return {"status": "unhandled_payment_type", "payment_type": payment_type}
-
-
 @app.get("/payment/success")
 def payment_success_page(request: Request):
     """Serve React SPA."""
@@ -3414,26 +3301,18 @@ def payment_cancelled_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.get("/payment-success")
 def payment_success_dash(request: Request):
     """Stripe redirects here after payment — serve React SPA."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.get("/payment-cancelled")
 def payment_cancelled_dash(request: Request):
     """Stripe redirects here on cancel — serve React SPA."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
-
-
 
 @app.delete("/admin/api/user/{user_id}")
 def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
@@ -3522,12 +3401,10 @@ def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
         if purchase_ids:
             db.query(CourseCommission).filter(CourseCommission.purchase_id.in_(purchase_ids)).delete(synchronize_session=False)
 
-        # MemberCourseLesson, MemberCourseChapter → references member_courses
-        course_ids = [r.id for r in db.query(MemberCourse).filter(MemberCourse.creator_id == user_id).all()]
-        if course_ids:
-            db.query(MemberCourseLesson).filter(MemberCourseLesson.course_id.in_(course_ids)).delete(synchronize_session=False)
-            db.query(MemberCourseChapter).filter(MemberCourseChapter.course_id.in_(course_ids)).delete(synchronize_session=False)
-            db.query(MemberCoursePurchase).filter(MemberCoursePurchase.course_id.in_(course_ids)).delete(synchronize_session=False)
+        # (Legacy MemberCourse/MemberCoursePurchase deletions removed —
+        # creator-uploaded courses feature has been retired in favour of
+        # the official 3-tier Course Academy. Tables left in place for
+        # historical data integrity; no longer written to.)
 
         # DigitalProduct children
         product_ids = [r.id for r in db.query(DigitalProduct).filter(DigitalProduct.creator_id == user_id).all()]
@@ -3632,8 +3509,6 @@ def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
     except Exception as e:
         db.rollback()
         return JSONResponse({"error": str(e)}, status_code=500)
-
-
 # ═══════════════════════════════════════════════════════════════
 #  AI CO-PILOT — Pro Only
 # ═══════════════════════════════════════════════════════════════
@@ -3712,8 +3587,6 @@ def _build_copilot_context(user, db) -> dict:
         "earned_this_week": round(recent_earned, 2),
         "today": date.today().strftime("%A, %d %B %Y"),
     }
-
-
 def _generate_copilot_briefing(ctx: dict) -> dict:
     """Call Claude Sonnet to generate a personalised briefing + action cards."""
     import json as _json
@@ -3793,8 +3666,6 @@ Available links: /app/campaign-tiers, /app/pro/leads, /app/network, /app/affilia
                 {"emoji": "👥", "title": "Share your referral link", "description": "Every new member grows your recurring income", "link": "/app/affiliate", "color": "#10b981", "priority": "medium"},
             ]
         }
-
-
 @app.get("/api/copilot/briefing")
 async def get_copilot_briefing(request: Request, db: Session = Depends(get_db),
                                 user: User = Depends(get_current_user)):
@@ -3842,8 +3713,6 @@ async def get_copilot_briefing(request: Request, db: Session = Depends(get_db),
         "generated_at": cached.generated_at.isoformat(),
         "cached": False,
     }
-
-
 @app.post("/api/copilot/refresh")
 async def refresh_copilot_briefing(request: Request, db: Session = Depends(get_db),
                                     user: User = Depends(get_current_user)):
@@ -3879,8 +3748,6 @@ async def refresh_copilot_briefing(request: Request, db: Session = Depends(get_d
         "generated_at": cached.generated_at.isoformat(),
         "cached": False,
     }
-
-
 COPILOT_DAILY_ASK_LIMIT = 10  # Max questions per member per day
 
 @app.post("/api/copilot/ask")
@@ -3959,8 +3826,6 @@ STRICT RULES — you must follow these without exception:
         return {"reply": reply, "remaining": remaining}
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
-
-
 # ═══════════════════════════════════════════════════════════════
 #  STRIPE PAYMENTS
 # ═══════════════════════════════════════════════════════════════
@@ -3970,8 +3835,6 @@ async def stripe_membership_checkout(request: Request, db: Session = Depends(get
                                       user: User = Depends(get_current_user)):
     """DISABLED — use NOWPayments or direct crypto."""
     return JSONResponse({"error": "Card payments are not available. Please use crypto payments."}, status_code=410)
-
-
 @app.post("/api/stripe/create-grid-checkout")
 async def stripe_grid_checkout(request: Request, db: Session = Depends(get_db),
                                 user: User = Depends(get_current_user)):
@@ -3988,65 +3851,9 @@ async def stripe_boost_checkout(request: Request, db: Session = Depends(get_db),
 async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     """DISABLED — use NOWPayments or direct crypto."""
     return JSONResponse({"error": "Card payments are not available. Please use crypto payments."}, status_code=410)
-
-def _stripe_process_supermarket(db, user, product_id, session_id, affiliate_id=None):
-    """Complete a SuperMarket purchase after Stripe payment confirmed."""
-    import secrets as _secrets
-    p = db.query(DigitalProduct).filter(
-        DigitalProduct.id == product_id, DigitalProduct.status == "published"
-    ).first()
-    if not p:
-        return
-
-    # Prevent duplicates
-    existing = db.query(DigitalProductPurchase).filter(
-        DigitalProductPurchase.product_id == product_id,
-        DigitalProductPurchase.buyer_id == user.id,
-        DigitalProductPurchase.status == "completed"
-    ).first()
-    if existing:
-        return
-
-    token = _secrets.token_urlsafe(32)
-    from decimal import Decimal
-    creator_amt   = (p.price or Decimal("0")) * Decimal("0.50")
-    affiliate_amt = (p.price or Decimal("0")) * Decimal("0.25")
-    platform_amt  = (p.price or Decimal("0")) * Decimal("0.25")
-
-    purchase = DigitalProductPurchase(
-        product_id=p.id, buyer_id=user.id, buyer_email=user.email,
-        buyer_name=user.first_name or user.username,
-        amount_paid=p.price,
-        creator_commission=creator_amt, affiliate_commission=affiliate_amt,
-        platform_commission=platform_amt, affiliate_id=affiliate_id,
-        download_token=token, status="completed",
-    )
-    db.add(purchase)
-
-    creator = db.query(User).filter(User.id == p.creator_id).first()
-    if creator:
-        creator.balance = (creator.balance or 0) + creator_amt
-        creator.total_earned = (creator.total_earned or 0) + creator_amt
-        creator.marketplace_earnings = (creator.marketplace_earnings or 0) + creator_amt
-
-    if affiliate_id:
-        affiliate = db.query(User).filter(User.id == affiliate_id).first()
-        if affiliate:
-            affiliate.balance = (affiliate.balance or 0) + affiliate_amt
-            affiliate.total_earned = (affiliate.total_earned or 0) + affiliate_amt
-            affiliate.marketplace_earnings = (affiliate.marketplace_earnings or 0) + affiliate_amt
-            aff_rec = db.query(DigitalProductAffiliate).filter(
-                DigitalProductAffiliate.product_id == p.id,
-                DigitalProductAffiliate.user_id == affiliate_id
-            ).first()
-            if aff_rec:
-                aff_rec.sales = (aff_rec.sales or 0) + 1
-                aff_rec.earnings = (aff_rec.earnings or 0) + affiliate_amt
-
-    p.total_sales = (p.total_sales or 0) + 1
-    p.total_revenue = (p.total_revenue or Decimal("0")) + (p.price or Decimal("0"))
-    db.commit()
-
+# (Legacy _stripe_process_supermarket helper removed — SuperMarket/DigitalProduct
+# feature has been retired. Tables remain in the database for historical integrity
+# but no new purchases can be created.)
 def _activate_membership(db, user, tier, source="crypto", subscription_id=None, is_upgrade=False, billing="monthly"):
     """
     Shared membership activation — used by BOTH Stripe and Crypto.
@@ -4158,13 +3965,9 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
 
     db.commit()
     return {"message": f"{tier.title()} membership activated! Expires {user.membership_expires_at.strftime('%d %b %Y')}."}
-
-
 def _stripe_activate_membership(db, user, tier, subscription_id, billing="monthly"):
     """Stripe membership activation — delegates to shared function."""
     return _activate_membership(db, user, tier, source="stripe", subscription_id=subscription_id, billing=billing)
-
-
 def _stripe_renew_membership(db, user, tier, subscription_id):
     """Process monthly renewal — sponsor gets capped commission."""
     from datetime import datetime, timedelta
@@ -4203,8 +4006,6 @@ def _stripe_renew_membership(db, user, tier, subscription_id):
             ))
 
     db.commit()
-
-
 @app.post("/api/upgrade-to-pro")
 async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
                               user: User = Depends(get_current_user)):
@@ -4217,8 +4018,6 @@ async def api_upgrade_to_pro(request: Request, db: Session = Depends(get_db),
         return JSONResponse({"error": "You're already on Pro"}, status_code=400)
 
     return _activate_membership(db, user, "pro", source="upgrade", is_upgrade=True)
-
-
 def _stripe_process_grid(db, user, package_tier, price_usd, session_id):
     """Process campaign tier purchase after Stripe payment — full commission chain."""
     from .grid import process_tier_purchase
@@ -4241,8 +4040,6 @@ def _stripe_process_grid(db, user, package_tier, price_usd, session_id):
         logger.error(f"Grid purchase failed for user {user.id} tier {package_tier}: {result.get('error')}")
 
     db.commit()
-
-
 # ═══════════════════════════════════════════════════════════════
 #  CRYPTO PAYMENTS — USDT on Polygon via Alchemy
 # ═══════════════════════════════════════════════════════════════
@@ -4280,23 +4077,7 @@ async def crypto_create_checkout(request: Request, db: Session = Depends(get_db)
 
         # Validate product
         if product_key not in PRODUCT_PRICES:
-            if product_key.startswith("course_"):
-                course_id = int(product_key.split("_")[1])
-                from .database import MemberCourse
-                course = db.query(MemberCourse).filter(MemberCourse.id == course_id).first()
-                if not course:
-                    return JSONResponse({"error": "Course not found"}, status_code=404)
-                base_price = Decimal(str(course.price or 0))
-                product_type = "course"
-            elif product_key.startswith("supermarket_"):
-                prod_id = int(product_key.split("_")[1])
-                from .database import DigitalProduct
-                product = db.query(DigitalProduct).filter(DigitalProduct.id == prod_id).first()
-                if not product:
-                    return JSONResponse({"error": "Product not found"}, status_code=404)
-                base_price = Decimal(str(product.price or 0))
-                product_type = "supermarket"
-            elif product_key.startswith("superscene_custom_"):
+            if product_key.startswith("superscene_custom_"):
                 try:
                     custom_credits = int(product_key.split("_")[-1])
                     if custom_credits < 10 or custom_credits > 5000:
@@ -4363,8 +4144,6 @@ async def crypto_create_checkout(request: Request, db: Session = Depends(get_db)
         logger.error(f"Crypto checkout error: {e}\n{traceback.format_exc()}")
         db.rollback()
         return JSONResponse({"error": str(e)}, status_code=500)
-
-
 @app.get("/api/crypto/order/{order_id}")
 async def crypto_order_status(order_id: int, request: Request,
                                db: Session = Depends(get_db),
@@ -4397,8 +4176,6 @@ async def crypto_order_status(order_id: int, request: Request,
         "confirmed_at": order.confirmed_at.isoformat() if order.confirmed_at else None,
         "expires_at": order.expires_at.isoformat(),
     }
-
-
 @app.post("/api/crypto/verify-payment")
 async def crypto_verify_payment(request: Request, db: Session = Depends(get_db),
                                  user: User = Depends(get_current_user)):
@@ -4506,8 +4283,6 @@ async def crypto_verify_payment(request: Request, db: Session = Depends(get_db),
         "product_key": order.product_key,
         "message": activation_result.get("message", "Payment confirmed and product activated!"),
     }
-
-
 def _resolve_superscene_credits(product_key: str) -> int:
     """Resolve how many SuperScene credits a product_key represents.
     Handles both preset packs and custom amounts (superscene_custom_XXX)."""
@@ -4527,11 +4302,7 @@ def _resolve_superscene_credits(product_key: str) -> int:
         except (ValueError, IndexError):
             pass
     return 0
-
-
 SUPERSCENE_CREDIT_RATE = decimal.Decimal("0.22")  # price per credit for custom packs
-
-
 def _crypto_activate_product(db, user, order, meta):
 
     SUPERSCENE_CREDIT_RATE = decimal.Decimal("0.22")  # price per credit
@@ -4574,26 +4345,6 @@ def _crypto_activate_product(db, user, order, meta):
             user.email_credits = (user.email_credits or 0) + credits
         return {"message": f"{credits:,} email credits added!"}
 
-    # ── Course ──
-    elif order.product_type == "course":
-        course_id = int(product_key.split("_")[1])
-        tx_ref = f"crypto_{order.tx_hash[:20]}" if order.tx_hash else f"crypto_{uuid.uuid4().hex[:12]}"
-        try:
-            process_course_purchase(db, user.id, course_id, payment_method="crypto", tx_ref=tx_ref)
-        except Exception as e:
-            logger.error(f"Course activation failed: {e}")
-        return {"message": "Course purchased successfully!"}
-
-    # ── SuperMarket ──
-    elif order.product_type == "supermarket":
-        product_id = int(product_key.split("_")[1])
-        affiliate_id = meta.get("affiliate_id")
-        affiliate_id = int(affiliate_id) if affiliate_id else None
-        _stripe_process_supermarket(db, user, product_id,
-                                     order.tx_hash or f"crypto_{uuid.uuid4().hex[:12]}",
-                                     affiliate_id)
-        return {"message": "Product purchased!"}
-
     # ── SuperScene Credit Packs (preset + custom) ──
     elif order.product_type == "superscene":
         credits = _resolve_superscene_credits(product_key)
@@ -4621,8 +4372,6 @@ def _crypto_activate_product(db, user, order, meta):
         return {"message": f"{credits} Creative Studio credits added!"}
 
     return {"message": "Payment confirmed!"}
-
-
 @app.post("/api/crypto/poll-payments")
 async def crypto_poll_payments(request: Request, db: Session = Depends(get_db)):
     """
@@ -4700,8 +4449,6 @@ async def crypto_poll_payments(request: Request, db: Session = Depends(get_db)):
 
     db.commit()
     return {"matched": matched, "pending_count": len(pending)}
-
-
 @app.get("/api/crypto/treasury-balance")
 async def crypto_treasury_balance(request: Request, user: User = Depends(get_current_user)):
     """Admin-only: check treasury USDT balance."""
@@ -4718,8 +4465,6 @@ async def crypto_treasury_balance(request: Request, user: User = Depends(get_cur
         }
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=503)
-
-
 @app.get("/admin/debug-transfers")
 def debug_transfers(secret: str = "", db: Session = Depends(get_db)):
     """TEMPORARY debug — shows raw Alchemy transfer data."""
@@ -4790,8 +4535,6 @@ def debug_transfers(secret: str = "", db: Session = Depends(get_db)):
     except Exception as e:
         import traceback
         return {"error": str(e), "trace": traceback.format_exc()}
-
-
 @app.post("/admin/reset-test-data")
 @app.get("/admin/reset-test-data")
 def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
@@ -4900,19 +4643,9 @@ def admin_reset_test_data(secret: str = "", db: Session = Depends(get_db)):
     except Exception as e:
         import traceback
         return {"error": str(e), "trace": traceback.format_exc()}
-
-
-
-
 @app.post("/api/stripe/create-course-checkout")
 async def stripe_course_checkout(request: Request, db: Session = Depends(get_db),
                                   user: User = Depends(get_current_user)):
-    """DISABLED — use NOWPayments or direct crypto."""
-    return JSONResponse({"error": "Card payments are not available. Please use crypto payments."}, status_code=410)
-
-@app.post("/api/stripe/create-supermarket-checkout")
-async def stripe_supermarket_checkout(request: Request, db: Session = Depends(get_db),
-                                       user: User = Depends(get_current_user)):
     """DISABLED — use NOWPayments or direct crypto."""
     return JSONResponse({"error": "Card payments are not available. Please use crypto payments."}, status_code=410)
 
@@ -4936,8 +4669,6 @@ def nowpayments_config(user: User = Depends(get_current_user)):
     """Return whether NOWPayments is configured (no secrets exposed)."""
     from . import nowpayments_service as nps
     return {"configured": nps.is_configured()}
-
-
 @app.post("/api/nowpayments/create-invoice")
 async def nowpayments_create_invoice(request: Request, db: Session = Depends(get_db),
                                       user: User = Depends(get_current_user)):
@@ -5053,8 +4784,6 @@ async def nowpayments_create_invoice(request: Request, db: Session = Depends(get
         "order_id": order.id,
         "internal_order_id": internal_order_id,
     }
-
-
 @app.post("/api/webhook/nowpayments")
 async def nowpayments_ipn_webhook(request: Request, db: Session = Depends(get_db)):
     """
@@ -5172,8 +4901,6 @@ async def nowpayments_ipn_webhook(request: Request, db: Session = Depends(get_db
     order.status = payment_status
     db.commit()
     return {"status": "updated", "payment_status": payment_status}
-
-
 def _nowpayments_activate_product(db, user, order, meta):
     """Activate the correct product after NOWPayments payment is confirmed.
     Mirrors _crypto_activate_product logic exactly."""
@@ -5254,8 +4981,6 @@ def _nowpayments_activate_product(db, user, order, meta):
                 logger.info(f"Credit Matrix: {user.username} bought {pack_key} pack via NOWPayments, {result.get('credits_awarded')} credits awarded")
         except Exception as e:
             logger.error(f"Credit Matrix fulfilment error: {e}")
-
-
 @app.get("/api/nowpayments/order/{order_id}")
 async def nowpayments_order_status(order_id: int, request: Request,
                                     db: Session = Depends(get_db),
@@ -5284,8 +5009,6 @@ async def nowpayments_order_status(order_id: int, request: Request,
         "confirmed_at": order.confirmed_at.isoformat() if order.confirmed_at else None,
         "created_at": order.created_at.isoformat() if order.created_at else None,
     }
-
-
 @app.post("/withdraw")
 def withdraw(
     request:     Request,
@@ -5322,8 +5045,6 @@ def withdraw(
     else:
         redirect_url = f"/wallet?error={result['error']}"
     return RedirectResponse(url=redirect_url, status_code=303)
-
-
 # ═══════════════════════════════════════════════════════════════
 #  PASSWORD RESET ROUTES
 # ═══════════════════════════════════════════════════════════════
@@ -5334,8 +5055,6 @@ def forgot_password_form(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse(url="/", status_code=302)
-
-
 @app.post("/forgot-password")
 @limiter.limit("3/minute")
 def forgot_password_process(
@@ -5382,8 +5101,6 @@ def forgot_password_process(
     )
     logger.warning(f"Password reset requested for: {email}")
     return success_response()
-
-
 @app.get("/reset-password")
 def reset_password_form(request: Request):
     """Phase 2: serve React SPA — React reads token from query params."""
@@ -5450,8 +5167,6 @@ def reset_password_process(
 DAILY_VIDEO_QUOTA = {1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8}
 WATCH_DURATION    = 30   # seconds minimum
 GRACE_DAYS        = 5    # days before commissions paused
-
-
 def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
     """Get or create watch quota record for user, syncing tier from active grid."""
     from datetime import date
@@ -5499,8 +5214,6 @@ def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
     quota.package_tier   = tier
     quota.daily_required = required
     return quota
-
-
 def get_next_content(db: Session, user_id: int) -> dict:
     """
     Returns the next content item for Watch to Earn — either a video campaign or ad board listing.
@@ -5547,8 +5260,6 @@ def get_next_content(db: Session, user_id: int) -> dict:
         return {"type": "adboard", "data": ad}
 
     return None
-
-
 def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
     """
     Smart campaign selection algorithm:
@@ -5734,8 +5445,6 @@ def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
     # Sort by score descending with random tiebreaker so equal-scored campaigns rotate
     scored.sort(key=lambda x: (x[0], random.random()), reverse=True)
     return scored[0][1]
-
-
 @app.get("/watch")
 def watch_page(request: Request):
     """Serve React SPA."""
@@ -5775,8 +5484,6 @@ def _old_watch_template_DISABLED(request=None, user=None, quota=None, campaign=N
 
 def _dead_code_watch():
     pass  # old watch template data — removed
-
-
 @app.post("/api/record-watch")
 def record_watch(
     request:     Request,
@@ -5847,8 +5554,6 @@ def record_watch(
         "next_content":  next_data,
         "next_campaign": next_data if next_data and next_data.get("type") == "video" else None,
     }
-
-
 @app.post("/api/record-ad-watch")
 def record_ad_watch(
     request:   Request,
@@ -5942,8 +5647,6 @@ def public_videos(request: Request, category: str = "", db: Session = Depends(ge
 
 def _old_public_videos_DISABLED(request: Request, category: str = "", db = None):
     pass
-
-
 # ═══════════════════════════════════════════════════════════════
 #  BANNER ADS — Public Gallery + Click Tracking
 # ═══════════════════════════════════════════════════════════════
@@ -5971,8 +5674,6 @@ def public_banners(request: Request, category: str = "", db: Session = Depends(g
         "selected_category": category, "total_banners": len(banners_all),
         "total_impressions": total_impressions, "total_clicks": total_clicks,
     })
-
-
 @app.get("/banners/click/{banner_id}")
 def banner_click(banner_id: int, db: Session = Depends(get_db)):
     """Track banner click and redirect to advertiser URL."""
@@ -5983,16 +5684,12 @@ def banner_click(banner_id: int, db: Session = Depends(get_db)):
     banner.clicks = (banner.clicks or 0) + 1
     db.commit()
     return RedirectResponse(url=banner.link_url, status_code=302)
-
-
 @app.get("/explore")
 def explore_page(request: Request):
     """Public explore hub page — served by React."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 #  SOCIAL PROOF API — recent joiners notification feed
 # ═══════════════════════════════════════════════════════════════
 
@@ -6037,12 +5734,8 @@ def recent_joiners(db: Session = Depends(get_db)):
 
     random.shuffle(pool)
     return {"joiners": pool}
-
-
 #  ADMIN ROUTES
 # ═══════════════════════════════════════════════════════════════
-
-
 # ── Database Backup Routes ────────────────────────────────────
 @app.post("/admin/api/backup")
 def admin_run_backup(user: User = Depends(get_current_user)):
@@ -6051,16 +5744,12 @@ def admin_run_backup(user: User = Depends(get_current_user)):
     from .db_backup import run_backup
     result = run_backup()
     return JSONResponse(result)
-
-
 @app.get("/admin/api/backups")
 def admin_list_backups(user: User = Depends(get_current_user)):
     """Admin: list existing backups in R2."""
     _require_admin(user)
     from .db_backup import list_backups
     return JSONResponse({"backups": list_backups()})
-
-
 @app.get("/cron/backup")
 def cron_backup(secret: str = ""):
     """Cron endpoint: trigger daily backup. Protected by secret."""
@@ -6077,8 +5766,6 @@ def admin_panel(request: Request, user: User = Depends(get_current_user)):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse(url="/dashboard")
-
-
 # ═══════════════════════════════════════════════════════════════
 #  ADMIN API — dual-purpose: dashboard UI + AI agent automation
 # ═══════════════════════════════════════════════════════════════
@@ -6258,8 +5945,6 @@ def admin_api_toggle_active(
     db.commit()
     logger.info(f"Admin toggle active: {target.username} → {'active' if target.is_active else 'inactive'}")
     return {"success": True, "username": target.username, "is_active": target.is_active}
-
-
 @app.post("/admin/api/user/{user_id}/change-tier")
 async def admin_api_change_tier(
     user_id: int, request: Request,
@@ -6280,8 +5965,6 @@ async def admin_api_change_tier(
     db.commit()
     logger.info(f"Admin changed tier: {target.username} {old_tier} → {new_tier}")
     return {"success": True, "username": target.username, "old_tier": old_tier, "new_tier": new_tier}
-
-
 @app.post("/admin/api/user/{user_id}/gift-membership")
 async def admin_api_gift_membership(
     user_id: int, request: Request,
@@ -6318,8 +6001,6 @@ async def admin_api_gift_membership(
         "expires": expiry,
         "message": f"{target.username} now has {tier.upper()} membership until {expiry}"
     }
-
-
 # ── Content Moderation Queue ──
 @app.get("/admin/api/moderation-queue")
 def admin_api_moderation_queue(
@@ -6348,8 +6029,6 @@ def admin_api_moderation_queue(
             "owner": owner.username if owner else "Unknown",
             "created_at": b.created_at.isoformat() if b.created_at else None})
     return {"ads": ads, "banners": banners, "total": len(ads) + len(banners)}
-
-
 @app.post("/admin/api/moderation/{item_type}/{item_id}/approve")
 def admin_approve_item(item_type: str, item_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     _require_admin(user)
@@ -6370,8 +6049,6 @@ def admin_approve_item(item_type: str, item_id: int, user: User = Depends(get_cu
         raise HTTPException(status_code=404, detail="Item not found")
     db.commit()
     return {"success": True}
-
-
 @app.post("/admin/api/moderation/{item_type}/{item_id}/reject")
 def admin_reject_item(item_type: str, item_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     _require_admin(user)
@@ -6448,8 +6125,6 @@ def admin_api_finances(
             "type": t, "total": float(s or 0), "count": c
         } for t, s, c in comms_by_type],
     }
-
-
 @app.get("/admin/api/email-analytics")
 def admin_api_email_analytics(
     user: User = Depends(get_current_user),
@@ -6568,8 +6243,6 @@ def admin_api_email_analytics(
             "total_boost_credits": int(total_boost_credits_outstanding),
         },
     }
-
-
 @app.get("/admin/api/superscene-analytics")
 def admin_api_superscene_analytics(
     user: User = Depends(get_current_user),
@@ -6709,8 +6382,6 @@ def admin_api_superscene_analytics(
             "pack": p, "sales": c, "revenue": float(r or 0), "credits_sold": int(cr or 0),
         } for p, c, r, cr in pack_sales],
     }
-
-
 @app.get("/admin/api/commissions")
 def admin_api_commissions(
     user: User = Depends(get_current_user),
@@ -6764,8 +6435,6 @@ def admin_api_withdrawals(
             "processed": w.processed_at.isoformat() if w.processed_at else None,
         } for w in ws]
     }
-
-
 @app.get("/admin/api/withdrawals/stuck")
 def admin_withdrawals_stuck(user: User = Depends(get_current_user),
                              db: Session = Depends(get_db)):
@@ -6790,8 +6459,6 @@ def admin_withdrawals_stuck(user: User = Depends(get_current_user),
             "age_hours": round((datetime.utcnow() - w.requested_at).total_seconds() / 3600, 1) if w.requested_at else None,
         } for w in stuck]
     }
-
-
 @app.post("/admin/api/withdrawals/{withdrawal_id}/refund")
 async def admin_withdrawal_refund(
     withdrawal_id: int,
@@ -6867,8 +6534,6 @@ async def admin_withdrawal_refund(
 
     return {"success": True, "withdrawal_id": withdrawal_id, "refunded_amount": amount,
             "wallet_type": wallet_type, "user": target_user.username}
-
-
 # ── System Health ────────────────────────────────────────────
 @app.get("/admin/api/kyc-pending")
 def admin_kyc_pending(db: Session = Depends(get_db), user: User = Depends(get_current_user)):
@@ -6879,8 +6544,6 @@ def admin_kyc_pending(db: Session = Depends(get_db), user: User = Depends(get_cu
              "email": u.email, "country": u.country, "kyc_dob": u.kyc_dob, "kyc_id_type": u.kyc_id_type,
              "kyc_id_filename": u.kyc_id_filename,
              "submitted_at": str(u.kyc_submitted_at) if u.kyc_submitted_at else None} for u in pending]
-
-
 @app.post("/admin/api/kyc-review/{user_id}")
 async def admin_kyc_review(user_id: int, request: Request,
                      db: Session = Depends(get_db), admin: User = Depends(get_current_user)):
@@ -6901,8 +6564,6 @@ async def admin_kyc_review(user_id: int, request: Request,
         target.kyc_reviewed_at = datetime.utcnow()
     db.commit()
     return {"success": True, "status": target.kyc_status}
-
-
 @app.get("/admin/api/kyc-document/{filename}")
 def admin_kyc_document(filename: str, user: User = Depends(get_current_user)):
     """Serve uploaded KYC document (admin only) — reads from R2 or /tmp fallback."""
@@ -6923,8 +6584,6 @@ def admin_kyc_document(filename: str, user: User = Depends(get_current_user)):
         filepath = os.path.join("/tmp/kyc-uploads", filename)
         if not os.path.exists(filepath): raise HTTPException(404)
         return FileResponse(filepath)
-
-
 @app.get("/admin/api/health")
 def admin_api_health(
     user: User = Depends(get_current_user),
@@ -7036,15 +6695,11 @@ def admin_api_fix(
 
     logger.info(f"Admin auto-fix '{issue_type}': {len(fixed)} items fixed")
     return {"success": True, "issue_type": issue_type, "fixed_count": len(fixed), "details": fixed}
-
-
 @app.get("/admin/api/cache-stats")
 def admin_api_cache_stats(user: User = Depends(get_current_user)):
     """Cache performance stats for monitoring."""
     _require_admin(user)
     return cache_stats()
-
-
 # ═══════════════════════════════════════════════════════════════
 #  ADMIN: Commission Flow Dashboard
 # ═══════════════════════════════════════════════════════════════
@@ -7123,8 +6778,6 @@ def admin_api_network_tree(user: User = Depends(get_current_user), db: Session =
             "owned_tiers": sorted(user_tiers.get(u.id, [])),
         })
     return {"nodes": nodes, "root_id": root_id}
-
-
 # ═══════════════════════════════════════════════════════════════
 #  AI USAGE RATE LIMITING
 # ═══════════════════════════════════════════════════════════════
@@ -7276,8 +6929,6 @@ def check_and_increment_ai_quota(db: Session, user_id: int, tool: str) -> dict:
     setattr(quota, total_field, getattr(quota, total_field, 0) + 1)
     db.commit()
     return {"allowed": True, "used": current + 1, "limit": limit, "resets_in": ""}
-
-
 # ═══════════════════════════════════════════════════════════════
 #  FUNNEL PAGE BUILDER
 # ═══════════════════════════════════════════════════════════════
@@ -7287,36 +6938,26 @@ def funnels_page(request: Request, user: User = Depends(get_current_user),
                  db: Session = Depends(get_db)):
     """Redirect to Pro funnels page."""
     return RedirectResponse(url="/pro/funnels", status_code=302)
-
-
 @app.get("/funnels/new")
 def funnel_new(request: Request, user: User = Depends(get_current_user),
                db: Session = Depends(get_db)):
     """Legacy route — redirects to Pro funnels."""
     return RedirectResponse(url="/pro/funnels", status_code=302)
-
-
 @app.get("/funnels/edit/{page_id}")
 def funnel_edit(page_id: int, request: Request, user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
     """Legacy route — redirects to Pro funnel editor."""
     return RedirectResponse(url=f"/pro/funnel/{page_id}/edit", status_code=302)
-
-
 @app.get("/funnels/visual/new")
 def funnel_visual_new(request: Request, user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
     """Legacy route — redirects to Pro funnels."""
     return RedirectResponse(url="/pro/funnels", status_code=302)
-
-
 @app.get("/funnels/visual/{page_id}")
 def funnel_visual_editor(page_id: int, request: Request, user: User = Depends(get_current_user),
                          db: Session = Depends(get_db)):
     """Legacy route — redirects to Pro funnel editor."""
     return RedirectResponse(url=f"/pro/funnel/{page_id}/edit", status_code=302)
-
-
 @app.get("/api/funnels/load/{page_id}")
 def funnel_load_gjs(page_id: int, request: Request, user: User = Depends(get_current_user),
                     db: Session = Depends(get_db)):
@@ -7341,8 +6982,6 @@ def funnel_load_gjs(page_id: int, request: Request, user: User = Depends(get_cur
         "gjs_css": page.gjs_css or "",
         "updated_at": page.updated_at.isoformat() if page.updated_at else None,
     })
-
-
 @app.post("/api/funnels/save")
 async def funnel_save(request: Request, user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
@@ -7464,8 +7103,6 @@ async def funnel_save(request: Request, user: User = Depends(get_current_user),
         "preview_url": f"/p/{page.slug}",
         "updated_at": page.updated_at.isoformat() if page.updated_at else None,
     })
-
-
 @app.post("/api/funnels/upload-image")
 async def funnel_upload_image(file: UploadFile = File(...), user: User = Depends(get_current_user),
                                db: Session = Depends(get_db)):
@@ -7505,8 +7142,6 @@ async def funnel_upload_image(file: UploadFile = File(...), user: User = Depends
         url = f"/static/uploads/{filename}"
 
     return JSONResponse({"success": True, "url": url})
-
-
 @app.post("/api/funnels/upload-video")
 async def funnel_upload_video(file: UploadFile = File(...), user: User = Depends(get_current_user),
                                db: Session = Depends(get_db)):
@@ -7544,8 +7179,6 @@ async def funnel_upload_video(file: UploadFile = File(...), user: User = Depends
         url = f"/static/uploads/{filename}"
 
     return JSONResponse({"success": True, "url": url})
-
-
 @app.post("/api/funnels/upload-audio")
 async def funnel_upload_audio(file: UploadFile = File(...), user: User = Depends(get_current_user),
                                db: Session = Depends(get_db)):
@@ -7582,8 +7215,6 @@ async def funnel_upload_audio(file: UploadFile = File(...), user: User = Depends
         url = f"/static/uploads/{filename}"
 
     return JSONResponse({"success": True, "url": url})
-
-
 @app.post("/api/funnels/generate-copy")
 async def funnel_generate_copy(request: Request, user: User = Depends(get_current_user),
                                 db: Session = Depends(get_db)):
@@ -7671,8 +7302,6 @@ Make every word count. Use power words. Create genuine curiosity and desire. Avo
             "body_copy": "✓ Step-by-step training included\n✓ No experience required\n✓ Proven results from real people\n✓ Full support and community\n✓ Start today risk-free",
             "cta_text": "Get Started Now",
         })
-
-
 @app.post("/api/funnels/from-template")
 async def funnel_from_template(request: Request, user: User = Depends(get_current_user),
                                 db: Session = Depends(get_db)):
@@ -8066,8 +7695,6 @@ async def funnel_from_template(request: Request, user: User = Depends(get_curren
     db.commit()
 
     return {"success": True, "edit_url": f"/funnels/visual/{page.id}"}
-
-
 @app.post("/api/funnels/delete/{page_id}")
 def funnel_delete(page_id: int, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
@@ -8094,8 +7721,6 @@ def funnel_delete(page_id: int, user: User = Depends(get_current_user),
     except Exception as e:
         db.rollback()
         return JSONResponse({"error": f"Delete failed: {str(e)}"}, status_code=500)
-
-
 # ── Phase 2: Lead Capture API ──────────────────────────────
 @app.post("/api/leads/capture")
 async def capture_lead(request: Request, db: Session = Depends(get_db)):
@@ -8184,8 +7809,6 @@ async def capture_lead(request: Request, db: Session = Depends(get_db)):
         if next_pg:
             redirect_url = f"/p/{next_pg.slug}"
     return JSONResponse({"success": True, "redirect": redirect_url})
-
-
 @app.post("/api/funnels/sequence")
 async def funnel_set_sequence(request: Request, user: User = Depends(get_current_user),
                                db: Session = Depends(get_db)):
@@ -8211,8 +7834,6 @@ async def funnel_set_sequence(request: Request, user: User = Depends(get_current
         pg.next_page_id = page_ids[i + 1] if i + 1 < len(page_ids) else None
     db.commit()
     return JSONResponse({"success": True, "funnel_name": funnel_name, "pages": len(page_ids)})
-
-
 @app.get("/api/funnels/sequence/{funnel_name}")
 def funnel_get_sequence(funnel_name: str, user: User = Depends(get_current_user),
                         db: Session = Depends(get_db)):
@@ -8226,8 +7847,6 @@ def funnel_get_sequence(funnel_name: str, user: User = Depends(get_current_user)
         {"id": p.id, "title": p.title, "slug": p.slug, "template_type": p.template_type,
          "status": p.status, "order": p.funnel_order, "next_page_id": p.next_page_id,
          "views": p.views or 0, "clicks": p.clicks or 0} for p in pages]})
-
-
 @app.get("/api/funnels/analytics/{page_id}")
 def funnel_page_analytics(page_id: int, user: User = Depends(get_current_user),
                           db: Session = Depends(get_db)):
@@ -8253,15 +7872,11 @@ def funnel_page_analytics(page_id: int, user: User = Depends(get_current_user),
         "clicks": clicks, "total_leads": total_leads, "conversion_rate": conversion_rate,
         "recent_leads": [{"name": l.name, "email": l.email, "source": l.source,
             "date": l.created_at.strftime("%d %b %Y %H:%M") if l.created_at else ""} for l in recent_leads]})
-
-
 @app.get("/funnels/analytics")
 def funnel_analytics_dashboard(request: Request, user: User = Depends(get_current_user),
                                db: Session = Depends(get_db)):
     """Legacy route — redirects to Pro funnels."""
     return RedirectResponse(url="/pro/funnels", status_code=302)
-
-
 @app.get("/funnels/leads")
 def funnel_leads_page(request: Request):
     """Serve React SPA."""
@@ -8285,8 +7900,6 @@ def _old_funnel_leads_DISABLED(request: Request, user: User = Depends(get_curren
     return templates.TemplateResponse("funnel-leads.html", {
         "request": request, "user": user, "leads": leads,
         "pages_map": pages_map, "total_leads": total_leads, "balance": balance})
-
-
 @app.get("/api/leads/export")
 def export_leads_csv(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     from fastapi.responses import Response
@@ -8303,8 +7916,6 @@ def export_leads_csv(user: User = Depends(get_current_user), db: Session = Depen
             l.created_at.strftime("%Y-%m-%d %H:%M") if l.created_at else ""])
     return Response(content=output.getvalue(), media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=superadpro-leads.csv"})
-
-
 # ── Public page renderer (no auth required) ──────────────────
 @app.get("/p/{username}/{page_slug:path}")
 def render_funnel_page(username: str, page_slug: str, request: Request,
@@ -8361,8 +7972,6 @@ def render_funnel_page(username: str, page_slug: str, request: Request,
         response.set_cookie(key="ref", value=owner.username if owner else username,
                             max_age=60*60*24*30, httponly=False, samesite="lax")
     return response
-
-
 @app.get("/api/funnels/track-click/{page_id}")
 def track_click(page_id: int, db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
@@ -8370,8 +7979,6 @@ def track_click(page_id: int, db: Session = Depends(get_db)):
     db.execute(text("UPDATE funnel_pages SET clicks = COALESCE(clicks, 0) + 1 WHERE id = :pid"), {"pid": page_id})
     db.commit()
     return JSONResponse({"ok": True})
-
-
 # ═══════════════════════════════════════════════════════════════
 # ═══════════════════════════════════════════════════════════════
 #  LINK TOOLS (Bitly-style shortener + rotator)
@@ -8394,8 +8001,6 @@ def link_tools_page(request: Request, user: User = Depends(get_current_user),
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse(url="/dashboard", status_code=302)
-
-
 @limiter.limit("30/minute")
 @app.post("/api/links/create")
 async def create_short_link(request: Request, user: User = Depends(get_current_user),
@@ -8466,8 +8071,6 @@ async def create_short_link(request: Request, user: User = Depends(get_current_u
     db.add(link)
     db.commit()
     return {"success": True, "slug": slug, "id": link.id}
-
-
 @app.post("/api/links/delete/{link_id}")
 def delete_short_link(link_id: int, user: User = Depends(get_current_user),
                        db: Session = Depends(get_db)):
@@ -8477,8 +8080,6 @@ def delete_short_link(link_id: int, user: User = Depends(get_current_user),
         db.delete(link)
         db.commit()
     return {"success": True}
-
-
 @limiter.limit("30/minute")
 @app.post("/api/links/edit/{link_id}")
 async def edit_short_link(link_id: int, request: Request,
@@ -8519,8 +8120,6 @@ async def edit_short_link(link_id: int, request: Request,
     link.updated_at = _dt.utcnow()
     db.commit()
     return {"success": True}
-
-
 @limiter.limit("10/minute")
 @app.post("/go/{slug}/unlock")
 async def go_unlock_password(slug: str, request: Request, db: Session = Depends(get_db)):
@@ -8535,8 +8134,6 @@ async def go_unlock_password(slug: str, request: Request, db: Session = Depends(
     if bcrypt.checkpw(pw.encode(), link.password_hash.encode()):
         return {"success": True, "url": link.destination_url}
     return {"error": "Incorrect password"}
-
-
 @app.get("/api/links/analytics/{link_id}")
 def link_analytics(link_id: int, link_type: str = "short",
                    user: User = Depends(get_current_user),
@@ -8603,8 +8200,6 @@ def link_analytics(link_id: int, link_type: str = "short",
         "utm_campaigns": utm_counts,
         "timeline": timeline
     }
-
-
 @app.post("/api/rotators/create")
 async def create_rotator(request: Request, user: User = Depends(get_current_user),
                           db: Session = Depends(get_db)):
@@ -8650,8 +8245,6 @@ async def create_rotator(request: Request, user: User = Depends(get_current_user
     db.add(rotator)
     db.commit()
     return {"success": True, "slug": slug}
-
-
 @app.post("/api/rotators/edit/{rotator_id}")
 async def edit_rotator(rotator_id: int, request: Request,
                         user: User = Depends(get_current_user),
@@ -8685,8 +8278,6 @@ async def edit_rotator(rotator_id: int, request: Request,
     rot.updated_at = _dt.utcnow()
     db.commit()
     return {"success": True}
-
-
 @app.post("/api/rotators/delete/{rotator_id}")
 def delete_rotator(rotator_id: int, user: User = Depends(get_current_user),
                     db: Session = Depends(get_db)):
@@ -8696,8 +8287,6 @@ def delete_rotator(rotator_id: int, user: User = Depends(get_current_user),
         db.delete(rot)
         db.commit()
     return {"success": True}
-
-
 # ═══════════════════════════════════════════════════
 #  WHAT YOU GET — SHOWCASE PAGE
 # ═══════════════════════════════════════════════════
@@ -8706,10 +8295,6 @@ def what_you_get(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse(url="/", status_code=302)
-
-
-
-
 # ═══════════════════════════════════════════════════
 #  PUBLIC AD BOARD
 # ═══════════════════════════════════════════════════
@@ -8782,8 +8367,6 @@ def _old_ad_board_DISABLED(request: Request, category: str = None, page: int = 1
     except Exception as exc:
         logger.error(f"Ad board error: {exc}", exc_info=True)
         return JSONResponse({"error": f"Ad board error: {exc}"}, status_code=500)
-
-
 @app.get("/ads/listing/{slug}")
 def ad_detail_page(slug: str, request: Request, db: Session = Depends(get_db)):
     """Individual ad page — server-rendered for SEO with meta tags + Schema.org."""
@@ -8828,8 +8411,6 @@ def _old_ad_detail_DISABLED(slug: str, request: Request, db: Session = Depends(g
         "base_url": base_url,
         "join_url": get_join_url(),
     })
-
-
 @app.get("/ads/click/{ad_id}")
 def ad_click(ad_id: int, db: Session = Depends(get_db)):
     listing = db.query(AdListing).filter(AdListing.id == ad_id).first()
@@ -8838,8 +8419,6 @@ def ad_click(ad_id: int, db: Session = Depends(get_db)):
     listing.clicks += 1
     db.commit()
     return RedirectResponse(url=listing.link_url, status_code=302)
-
-
 @app.get("/google718f4df27dcf0df8.html")
 def google_verification():
     """Google Search Console verification file."""
@@ -8881,8 +8460,6 @@ def sitemap_xml(request: Request, db: Session = Depends(get_db)):
 
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "\n".join(urls) + "\n</urlset>"
     return Response(content=xml, media_type="application/xml")
-
-
 @app.get("/robots.txt")
 def robots_txt():
     """Robots.txt for search engine crawlers"""
@@ -8978,8 +8555,6 @@ async def create_ad(request: Request, user: User = Depends(get_current_user), db
     if status == "pending":
         return {"success": True, "id": ad.id, "status": "pending", "message": "Your ad is under review and will be live shortly."}
     return {"success": True, "id": ad.id, "status": "active", "message": "Your ad is live!"}
-
-
 # ── Banner Ad Creation ──
 @app.post("/api/banners/create")
 async def create_banner(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -9041,8 +8616,6 @@ async def create_banner(request: Request, user: User = Depends(get_current_user)
     if status == "pending":
         return {"success": True, "id": banner.id, "status": "pending", "message": "Your banner is under review and will be live shortly."}
     return {"success": True, "id": banner.id, "status": "approved", "message": "Your banner is live!"}
-
-
 @app.get("/api/banners/my")
 def my_banners(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     from .database import BannerAd
@@ -9055,8 +8628,6 @@ def my_banners(user: User = Depends(get_current_user), db: Session = Depends(get
         "clicks": b.clicks or 0, "impressions": b.impressions or 0,
         "is_active": b.is_active, "created_at": b.created_at.isoformat() if b.created_at else None,
     } for b in banners]}
-
-
 @app.post("/api/banners/{banner_id}/toggle")
 async def toggle_banner(banner_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     from .database import BannerAd
@@ -9068,8 +8639,6 @@ async def toggle_banner(banner_id: int, user: User = Depends(get_current_user), 
     banner.is_active = not banner.is_active
     db.commit()
     return {"success": True, "is_active": banner.is_active}
-
-
 @app.post("/api/banners/{banner_id}/delete")
 async def delete_banner(banner_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     from .database import BannerAd
@@ -9105,8 +8674,6 @@ async def delete_ad(ad_id: int, user: User = Depends(get_current_user), db: Sess
     db.delete(ad)
     db.commit()
     return {"success": True}
-
-
 # ═══════════════════════════════════════════════════
 #  VIP WAITING LIST
 # ═══════════════════════════════════════════════════
@@ -9151,8 +8718,6 @@ def vip_export(user: User = Depends(get_current_user), db: Session = Depends(get
         return JSONResponse({"error": "Unauthorized"}, status_code=401)
     signups = db.query(VIPSignup).order_by(VIPSignup.created_at.desc()).all()
     return {"signups": [{"id": s.id, "name": s.name, "email": s.email, "joined": s.created_at.isoformat() if s.created_at else ""} for s in signups]}
-
-
 @app.get("/go/{slug}")
 def go_redirect(slug: str, request: Request, db: Session = Depends(get_db)):
     """Redirect /go/slug with full Linkly-style tracking: geo, device, browser, UTM, smart rules."""
@@ -9317,8 +8882,6 @@ else{{document.getElementById('err').style.display='block'}}}}</script></body></
         return RedirectResponse(url=chosen["url"], status_code=302)
 
     raise HTTPException(status_code=404, detail="Link not found")
-
-
 #  AI SALES CHATBOT (on funnel pages)
 # ═══════════════════════════════════════════════════════════════
 
@@ -9441,8 +9004,6 @@ YOUR PERSONALITY & RULES:
     except Exception as e:
         logger.error(f"Chat API error: {e}")
         return JSONResponse({"reply": f"Thanks for reaching out! I'm having a moment — please try again or reach out to {owner_name} directly for help."})
-
-
 # ═══════════════════════════════════════════════════════════════
 #  CAMPAIGN ANALYTICS
 # ═══════════════════════════════════════════════════════════════
@@ -9525,8 +9086,6 @@ def _old_analytics_DISABLED(request: Request, user: User = Depends(get_current_u
         "overall_pct": min(overall_pct, 100),
     })
     return templates.TemplateResponse("analytics.html", ctx)
-
-
 @app.post("/api/analytics/ai-recommendations")
 async def ai_recommendations(request: Request, user: User = Depends(get_current_user),
                               db: Session = Depends(get_db)):
@@ -9592,8 +9151,6 @@ Keep recommendations concise, specific and immediately actionable. Use a friendl
     except Exception as e:
         logger.error(f"AI recommendations error: {e}")
         return JSONResponse({"recommendations": "Unable to generate AI recommendations right now. Please try again in a moment."})
-
-
 # ═══════════════════════════════════════════════════════════════
 #  AI CAMPAIGN STUDIO
 # ═══════════════════════════════════════════════════════════════
@@ -9604,8 +9161,6 @@ def campaign_studio(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.post("/api/campaign-studio/generate")
 async def generate_campaign(request: Request, user: User = Depends(get_current_user)):
     if not user:
@@ -9787,8 +9342,6 @@ IMPORTANT RULES:
     except Exception as e:
         logging.error(f"Campaign studio error: {e}")
         return JSONResponse({"error": "AI generation failed — please try again"}, status_code=500)
-
-
 # ═══════════════════════════════════════════════════════════════
 #  MEMBER ID HELPER
 # ═══════════════════════════════════════════════════════════════
@@ -9797,8 +9350,6 @@ def format_member_id(user_id: int, is_admin: bool = False) -> str:
     if is_admin:
         return "SAP-00001"
     return f"SAP-{user_id:05d}"
-
-
 # ═══════════════════════════════════════════════════════════════
 #  P2P TRANSFER ROUTES
 # ═══════════════════════════════════════════════════════════════
@@ -9830,8 +9381,6 @@ async def api_p2p_transfer(
     result = process_p2p_transfer(db, user.id, to_member_id, amount, note)
     status_code = 200 if result["success"] else 400
     return JSONResponse(result, status_code=status_code)
-
-
 @app.get("/api/p2p-history")
 def api_p2p_history(
     user: User = Depends(get_current_user),
@@ -9846,8 +9395,6 @@ def api_p2p_history(
         if item.get("created_at"):
             item["created_at"] = item["created_at"].strftime("%d %b %Y %H:%M")
     return JSONResponse({"transfers": history})
-
-
 # ═══════════════════════════════════════════════════════════════
 #  MEMBERSHIP AUTO-RENEWAL ADMIN ENDPOINT
 # ═══════════════════════════════════════════════════════════════
@@ -9863,10 +9410,6 @@ def admin_process_renewals(
         return JSONResponse({"error": "Admin only"}, status_code=403)
     results = process_auto_renewals(db)
     return JSONResponse({"success": True, "results": results})
-
-
-
-
 
 @app.post("/api/register")
 @limiter.limit("5/minute")
@@ -10036,8 +9579,6 @@ async def api_register(
         logger.error(f"api_register error: {exc}", exc_info=True)
         db.rollback()
         return JSONResponse({"error": f"Registration failed: {exc}"}, status_code=500)
-
-
 # ═══════════════════════════════════════════════════════════════
 #  ACCOUNT — PROFILE UPDATE + PASSWORD CHANGE
 # ═══════════════════════════════════════════════════════════════
@@ -10057,8 +9598,6 @@ def account_update_profile(
     user.country    = sanitize(country).strip()
     db.commit()
     return RedirectResponse(url="/account?saved=profile", status_code=303)
-
-
 @app.post("/account/change-password")
 def account_change_password(
     request: Request,
@@ -10087,8 +9626,6 @@ def account_change_password(
     user.password = bcrypt.hashpw(new_password.encode(), bcrypt.gensalt()).decode()
     db.commit()
     return RR(url="/app/account?saved=password", status_code=303)
-
-
 # ═══════════════════════════════════════════════════════════════
 #  KYC — Basic identity verification
 # ═══════════════════════════════════════════════════════════════
@@ -10155,8 +9692,6 @@ def kyc_submit(
     user.kyc_submitted_at = datetime.utcnow()
     db.commit()
     return RedirectResponse(url="/account?saved=kyc_submitted", status_code=303)
-
-
 # ═══════════════════════════════════════════════════════════════
 #  2FA — TOTP Setup & Verification (backend ready, enable later)
 # ═══════════════════════════════════════════════════════════════
@@ -10167,8 +9702,6 @@ def totp_setup_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse(url="/account", status_code=302)
-
-
 @app.post("/account/2fa-verify")
 def totp_verify(
     request: Request,
@@ -10188,8 +9721,6 @@ def totp_verify(
         return RedirectResponse(url="/account?saved=2fa_enabled", status_code=303)
     else:
         return RedirectResponse(url="/account/2fa-setup?error=invalid_code", status_code=303)
-
-
 @app.post("/account/2fa-disable")
 def totp_disable(
     request: Request,
@@ -10210,8 +9741,6 @@ def totp_disable(
         return RedirectResponse(url="/account?saved=2fa_disabled", status_code=303)
     else:
         return RedirectResponse(url="/account?error=invalid_2fa_code", status_code=303)
-
-
 @app.post("/api/onboarding/complete")
 def onboarding_complete(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Mark onboarding wizard as completed."""
@@ -10220,8 +9749,6 @@ def onboarding_complete(user: User = Depends(get_current_user), db: Session = De
     user.onboarding_completed = True
     db.commit()
     return JSONResponse({"ok": True})
-
-
 # ═══════════════════════════════════════════════════════════════
 #  NOTIFICATION SYSTEM
 # ═══════════════════════════════════════════════════════════════
@@ -10234,8 +9761,6 @@ def send_notification(db: Session, user_id: int, type: str, icon: str, title: st
     cache_invalidate_user(user_id)
     if type == "commission":
         cache_invalidate_leaderboard()
-
-
 @app.get("/api/notifications")
 def get_notifications(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get recent notifications for current user."""
@@ -10260,8 +9785,6 @@ def get_notifications(user: User = Depends(get_current_user), db: Session = Depe
         } for n in notifs],
         "unread_count": unread,
     })
-
-
 @app.post("/api/notifications/read-beacon")
 async def mark_notifications_read_beacon(request: Request, db: Session = Depends(get_db)):
     """Mark all notifications as read via sendBeacon (no JSON body)."""
@@ -10273,8 +9796,6 @@ async def mark_notifications_read_beacon(request: Request, db: Session = Depends
     ).update({Notification.is_read: True}, synchronize_session=False)
     db.commit()
     return JSONResponse({"ok": True})
-
-
 @app.post("/api/notifications/read")
 async def mark_notifications_read(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Mark notifications as read."""
@@ -10293,8 +9814,6 @@ async def mark_notifications_read(request: Request, user: User = Depends(get_cur
         ).update({Notification.is_read: True}, synchronize_session=False)
     db.commit()
     return JSONResponse({"ok": True})
-
-
 # ═══════════════════════════════════════════════════════════════
 #  ACHIEVEMENT / BADGE SYSTEM
 # ═══════════════════════════════════════════════════════════════
@@ -10325,8 +9844,6 @@ def gdpr_export_data(user: User = Depends(get_current_user), db: Session = Depen
                          for p in db.query(FunnelPage).filter(FunnelPage.user_id == user.id).all()],
     }
     return JSONResponse(data, headers={"Content-Disposition": f'attachment; filename="superadpro-data-{user.username}.json"'})
-
-
 @app.post("/api/account/delete-data")
 async def gdpr_delete_data(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """GDPR: Delete all user data. Requires confirmation."""
@@ -10388,8 +9905,6 @@ def check_achievements(db: Session, user: User):
     if new_badges:
         db.commit()
     return new_badges
-
-
 @app.get("/achievements")
 def achievements_page(request: Request):
     """Serve React SPA."""
@@ -10408,8 +9923,6 @@ def _old_achievements_DISABLED(request: Request, user: User = Depends(get_curren
     ctx["all_badges"] = BADGES
     ctx["active_page"] = "achievements"
     return templates.TemplateResponse("achievements.html", ctx)
-
-
 # ═══════════════════════════════════════════════════════════════
 #  DAILY CRON — MEMBERSHIP AUTO-RENEWAL
 #  Called by Railway cron job daily at 00:05 UTC
@@ -10467,8 +9980,6 @@ def cron_process_renewals(
             "error":   str(e),
             "run_at":  started_at.strftime("%Y-%m-%d %H:%M:%S UTC"),
         }, status_code=500)
-
-
 @app.get("/cron/process-renewals")
 def cron_process_renewals_get(request: Request, secret: str = "", db: Session = Depends(get_db)):
     """GET version of renewal cron — auth via ?secret= query param for cron-job.org."""
@@ -10482,8 +9993,6 @@ def cron_process_renewals_get(request: Request, secret: str = "", db: Session = 
         return {"ok": True, "renewed": len(results.get("renewed", [])), "failed": len(results.get("failed", []))}
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
-
-
 @app.get("/cron/poll-payments")
 def cron_poll_payments_get(request: Request, secret: str = "", db: Session = Depends(get_db)):
     """GET version of crypto poll — auth via ?secret= query param for cron-job.org."""
@@ -10546,8 +10055,6 @@ def cron_poll_payments_get(request: Request, secret: str = "", db: Session = Dep
         return {"ok": True, "pending": len(pending), "matched": matched}
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
-
-
 # ═══════════════════════════════════════════════════════════════
 #  NICHE FINDER
 # ═══════════════════════════════════════════════════════════════
@@ -10558,8 +10065,6 @@ def niche_finder(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 # ═══════════════════════════════════════════════════════════════
 #  CRON — Nurture sequence processor
 #  Called by Railway cron job daily at 00:15 UTC
@@ -10641,14 +10146,10 @@ def cron_process_nurture(request: Request, db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"[CRON] process-nurture FAILED: {e}")
         return JSONResponse({"success": False, "error": str(e)}, status_code=500)
-
-
 @app.get("/cron/process-nurture")
 def cron_nurture_ping():
     from fastapi.responses import JSONResponse
     return JSONResponse({"status": "ready", "endpoint": "POST /cron/process-nurture", "schedule": "Daily at 00:15 UTC"})
-
-
 @app.post("/api/niche-finder/generate")
 async def generate_niches(request: Request, user: User = Depends(get_current_user)):
     if not user:
@@ -10785,8 +10286,6 @@ IMPORTANT:
     except Exception as e:
         logging.error(f"Niche finder error: {e}")
         return JSONResponse({"error": "AI generation failed — please try again"}, status_code=500)
-
-
 # ═══════════════════════════════════════════════════════════════
 #  AI SOCIAL MEDIA POST GENERATOR
 # ═══════════════════════════════════════════════════════════════
@@ -10797,8 +10296,6 @@ def social_post_generator_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.post("/api/social-posts/generate")
 async def generate_social_posts(request: Request, user: User = Depends(get_current_user)):
     if not user:
@@ -10876,8 +10373,6 @@ Return ONLY the posts, no preamble or explanation."""
     except Exception as e:
         logger.error(f"Social post generation failed: {e}")
         return JSONResponse({"error": "AI generation failed. Please try again."}, status_code=500)
-
-
 # ═══════════════════════════════════════════════════════════════
 #  EMAIL SWIPE LIBRARY
 # ═══════════════════════════════════════════════════════════════
@@ -10888,8 +10383,6 @@ def email_swipes_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 # ═══════════════════════════════════════════════════════════════
 #  AI VIDEO SCRIPT GENERATOR
 # ═══════════════════════════════════════════════════════════════
@@ -10900,8 +10393,6 @@ def video_script_generator_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.post("/api/video-scripts/generate")
 async def generate_video_script(request: Request, user: User = Depends(get_current_user)):
     if not user:
@@ -10995,8 +10486,6 @@ RULES:
     except Exception as e:
         logger.error(f"Video script generation failed: {e}")
         return JSONResponse({"error": "AI generation failed. Please try again."}, status_code=500)
-
-
 # ═══════════════════════════════════════════════════════════════
 #  SWIPE FILE
 # ═══════════════════════════════════════════════════════════════
@@ -11007,8 +10496,6 @@ def swipe_file(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.post("/api/swipe-file/generate")
 async def generate_swipes(request: Request, user: User = Depends(get_current_user),
                            db: Session = Depends(get_db)):
@@ -11093,8 +10580,6 @@ Requirements:
     except Exception as e:
         return JSONResponse({"error": f"AI generation failed: {str(e)[:100]}"}, status_code=500)
 
-
-
 # ── Test email sending ────────────
 @app.get("/admin/test-email")
 def test_email(secret: str, email: str):
@@ -11119,8 +10604,6 @@ def test_email(secret: str, email: str):
         })
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
-
-
 # ── Owner full activation (master affiliate setup) ────────────
 # ── One-time fix: sync upline_earnings from membership commissions ──
 @app.get("/admin/fix-upline-earnings")
@@ -11316,8 +10799,6 @@ def test_dashboard(secret: str, db: Session = Depends(get_db)):
         results["cleanup"] = f"FAILED: {e}"
 
     return JSONResponse(results)
-
-
 @app.get("/admin/test-register")
 def test_register(secret: str, db: Session = Depends(get_db)):
     """Test user creation and return exact error."""
@@ -11342,8 +10823,6 @@ def test_register(secret: str, db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         return JSONResponse({"error": str(e), "trace": traceback.format_exc()}, status_code=500)
-
-
 @app.get("/admin/run-migrations")
 def admin_run_migrations(secret: str = "", db: Session = Depends(get_db)):
     """Force-run DB migrations — use once after deploy."""
@@ -11356,8 +10835,6 @@ def admin_run_migrations(secret: str = "", db: Session = Depends(get_db)):
         return JSONResponse({"success": True, "message": "Migrations complete"})
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
-
-
 @app.get("/admin/force-migrate")
 def admin_force_migrate(secret: str = "", db: Session = Depends(get_db)):
     """Force run specific migrations that may have been missed."""
@@ -11391,8 +10868,6 @@ def admin_force_migrate(secret: str = "", db: Session = Depends(get_db)):
             results.append({"sql": sql[:60], "status": "error", "error": str(e)[:200]})
     db.commit()
     return {"results": results}
-
-
 @app.get("/admin/debug-dashboard")
 def admin_debug_dashboard(secret: str = "", db: Session = Depends(get_db)):
     """Debug: test dashboard context loading for the owner account."""
@@ -11438,8 +10913,6 @@ def admin_debug_dashboard(secret: str = "", db: Session = Depends(get_db)):
         return {"step": "ALL_OK", "failures": failures, "total_keys": len(safe)}
     except Exception as e:
         return {"error": str(e), "tb": _tb.format_exc()[-1500:]}
-
-
 @app.get("/admin/fix-owner")
 def admin_fix_owner(secret: str = "", db: Session = Depends(get_db)):
     """Force SuperAdPro account to Pro + admin + permanent membership."""
@@ -11457,8 +10930,6 @@ def admin_fix_owner(secret: str = "", db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         return JSONResponse({"error": str(e)}, status_code=500)
-
-
 @app.get("/admin/seed-owner-campaigns")
 def admin_seed_owner_campaigns(secret: str = "", db: Session = Depends(get_db)):
     """Seed the owner account with active campaigns at all 8 tiers so they show in grid."""
@@ -11524,8 +10995,6 @@ def linkhub_debug(secret: str = "", db: Session = Depends(get_db)):
         return JSONResponse({"linkhub_links_columns": col_names, "linkhub_profiles_columns": prof_col_names})
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
-
-
 @app.get("/admin/db-check")
 def db_check(secret: str, db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
@@ -11575,8 +11044,6 @@ def force_wipe(secret: str, db: Session = Depends(get_db)):
             db.commit()
         except: db.rollback()
         return JSONResponse({"status": "done_fallback", "error": str(e), "results": results})
-
-
 @app.get("/admin/reset-account")
 def reset_account(secret: str, db: Session = Depends(get_db)):
     from fastapi.responses import JSONResponse
@@ -11606,8 +11073,6 @@ def reset_account(secret: str, db: Session = Depends(get_db)):
     except Exception as e:
         db.rollback()
         return JSONResponse({"error": str(e)}, status_code=500)
-
-
 
 # ═══════════════════════════════════════════════════════════════════
 #  COURSES — Catalogue, Purchase, Pass-Up Commissions
@@ -11653,8 +11118,6 @@ async def _old_courses_DISABLED(request: Request, db: Session = Depends(get_db))
         "course_stats": course_stats,
         "active_page": "courses"
     })
-
-
 @app.post("/courses/purchase/{course_id}")
 async def purchase_course(course_id: int, request: Request, db: Session = Depends(get_db)):
     """Purchase a course — triggers the pass-up commission engine."""
@@ -11670,8 +11133,6 @@ async def purchase_course(course_id: int, request: Request, db: Session = Depend
         return JSONResponse({"error": result["error"]}, status_code=400)
 
     return RedirectResponse(f"/courses/learn/{course_id}?purchased=1", status_code=303)
-
-
 @app.get("/courses/learn/{course_id}")
 def course_learn_page(course_id: int, request: Request):
     """Phase 4: serve React SPA — React calls /api/courses/learn/:id."""
@@ -11684,8 +11145,6 @@ async def _old_course_learn_DISABLED(course_id: int, request: Request,
                                       lesson: int = 0, purchased: int = 0,
                                       db: Session = Depends(get_db)):
     pass
-
-
 @app.get("/courses/how-it-works")
 def course_how_it_works(request: Request):
     """Serve React SPA."""
@@ -11700,8 +11159,6 @@ async def _old_course_how_it_works_DISABLED(request: Request, db: Session = Depe
         "user": user,
         "active_page": "course-how-it-works"
     })
-
-
 @app.get("/courses/commissions")
 async def course_commissions_page(request: Request, db: Session = Depends(get_db)):
     """Member's course commission & network dashboard."""
@@ -11857,8 +11314,6 @@ async def api_my_network_tree(request: Request, db: Session = Depends(get_db)):
         })
 
     return JSONResponse({"nodes": nodes, "root_id": user.id})
-
-
 # --- API endpoints for AJAX/future mobile ---
 
 @app.get("/api/courses")
@@ -11869,8 +11324,6 @@ async def api_courses(request: Request, db: Session = Depends(get_db)):
         "id": c.id, "title": c.title, "slug": c.slug,
         "description": c.description, "price": c.price, "tier": c.tier
     } for c in courses])
-
-
 @app.post("/api/courses/purchase/{course_id}")
 async def api_purchase_course(course_id: int, request: Request, db: Session = Depends(get_db)):
     """JSON purchase endpoint."""
@@ -11880,8 +11333,6 @@ async def api_purchase_course(course_id: int, request: Request, db: Session = De
 
     result = process_course_purchase(db, user.id, course_id, payment_method="wallet")
     return JSONResponse(result)
-
-
 @app.get("/api/courses/stats")
 async def api_course_stats(request: Request, db: Session = Depends(get_db)):
     """JSON course stats for current user."""
@@ -11891,8 +11342,6 @@ async def api_course_stats(request: Request, db: Session = Depends(get_db)):
 
     stats = get_user_course_stats(db, user.id)
     return JSONResponse(stats)
-
-
 @app.post("/api/courses/lesson-complete/{lesson_id}")
 async def api_lesson_complete(lesson_id: int, request: Request, db: Session = Depends(get_db)):
     """Mark a lesson as complete (or uncomplete if already done)."""
@@ -11939,8 +11388,6 @@ async def api_lesson_complete(lesson_id: int, request: Request, db: Session = De
 @app.get("/page-builder-v2")
 async def page_builder_v2(request: Request):
     return RedirectResponse(url="/pro/funnels", status_code=302)
-
-
 # ═══════════════════════════════════════════════════════════════
 #  SUPERADPRO AI CHAT WIDGET — /api/chat
 # ═══════════════════════════════════════════════════════════════
@@ -12048,8 +11495,6 @@ async def api_ai_chat(request: Request):
 
     except Exception as e:
         return JSONResponse({"reply": "I'm having a moment — please try again shortly or visit our Knowledge Base at superadpro.tawk.help"})
-
-
 COMP_PLAN_CHAT_SYSTEM = """You are the SuperAdPro Compensation Plan expert — a friendly, knowledgeable guide who helps members understand exactly how they earn money on the platform.
 
 ## YOUR ROLE
@@ -12124,8 +11569,6 @@ When a member asks "how much could I earn with X referrals", calculate it clearl
 - Keep responses under 150 words unless calculating a detailed scenario
 - End with a friendly follow-up question or encouragement to take action
 """
-
-
 @app.post("/api/chat/comp-plan")
 async def api_comp_plan_chat(request: Request):
     """Comp Plan AI assistant — helps members understand earning potential."""
@@ -12158,8 +11601,6 @@ async def api_comp_plan_chat(request: Request):
     except Exception as e:
         logger.error(f"Comp Plan chat error: {e}")
         return JSONResponse({"reply": "I'm having a moment — please try again shortly!"})
-
-
 # ═══════════════════════════════════════════════════════════════
 
 # ═══════════════════════════════════════════════════════════════
@@ -12179,8 +11620,6 @@ def admin_watchdog_run(secret: str = "", db: Session = Depends(get_db)):
     from .watchdog import run_watchdog
     result = run_watchdog(db)
     return result
-
-
 @app.get("/admin/watchdog/status")
 def admin_watchdog_status(secret: str = "", db: Session = Depends(get_db)):
     """Check watchdog status and recent logs."""
@@ -12211,8 +11650,6 @@ def admin_watchdog_status(secret: str = "", db: Session = Depends(get_db)):
             for log in recent_logs
         ]
     }
-
-
 @app.get("/admin/watchdog/health")
 def admin_watchdog_health_only(secret: str = "", db: Session = Depends(get_db)):
     """Run health check only (no fixes) — useful for monitoring dashboards."""
@@ -12222,8 +11659,6 @@ def admin_watchdog_health_only(secret: str = "", db: Session = Depends(get_db)):
 
     from .watchdog import run_health_check
     return run_health_check(db)
-
-
 @app.post("/admin/watchdog/toggle")
 def admin_watchdog_toggle(secret: str = "", db: Session = Depends(get_db)):
     """Toggle watchdog on/off (runtime only — doesn't persist across deploys)."""
@@ -12236,8 +11671,6 @@ def admin_watchdog_toggle(secret: str = "", db: Session = Depends(get_db)):
     status = "enabled" if wd.WATCHDOG_ENABLED else "disabled"
     logger.info(f"Watchdog toggled: {status}")
     return {"success": True, "watchdog_enabled": wd.WATCHDOG_ENABLED, "message": f"Watchdog {status}. For permanent change, set WATCHDOG_ENABLED in Railway env vars."}
-
-
 @app.get("/admin/adjust-balance")
 def admin_adjust_balance(
     secret: str = "",
@@ -12291,8 +11724,6 @@ def admin_adjust_balance(
         "new_balance": round(new_balance, 2),
         "reason": reason
     }
-
-
 @app.get("/admin/test-grid-fill")
 def admin_test_grid_fill(
     secret: str,
@@ -12395,8 +11826,6 @@ def admin_test_grid_fill(
         "commissions_generated": total_commissions,
         "fill_results": results,
     }
-
-
 @app.get("/admin/test-grid-reset")
 def admin_test_grid_reset(
     secret: str,
@@ -12470,8 +11899,6 @@ def admin_test_grid_reset(
         "test_users_deleted": users_deleted,
         "grids_reset": len(grids),
     }
-
-
 @app.get("/admin/test-grid-e2e")
 def admin_test_grid_e2e(
     secret: str,
@@ -12610,8 +12037,6 @@ def admin_test_grid_e2e(
         import traceback
         db.rollback()
         return JSONResponse({"error": str(e), "traceback": traceback.format_exc()}, status_code=500)
-
-
 @app.get("/admin/test-grid-cleanup")
 def admin_test_grid_cleanup(
     secret: str,
@@ -12640,8 +12065,6 @@ def admin_test_grid_cleanup(
 
     return {"cleaned": True, "users": user_del, "grids": grid_del, "positions": pos_del + pos_del2,
             "commissions": comm_del, "campaigns": camp_del}
-
-
 # ═══════════════════════════════════════════════════════════════════════════
 #  COURSE PASS-UP E2E TEST
 # ═══════════════════════════════════════════════════════════════════════════
@@ -12689,7 +12112,7 @@ def admin_test_course_passup_e2e(
     course = db.query(Course).filter(Course.tier == tier, Course.is_active == True).first()
     if not course:
         return JSONResponse({
-            "error": f"No active course found at Tier {tier}. Create a course first via /courses/create.",
+            "error": f"No active course found at Tier {tier}. Seed test courses first via /admin/test-course-passup-seed.",
         }, status_code=400)
 
     course_price = float(course.price or 0)
@@ -13016,8 +12439,6 @@ def admin_test_course_passup_e2e(
             "traceback": traceback.format_exc(),
             "partial_report": report,
         }, status_code=500)
-
-
 @app.get("/admin/test-course-passup-seed")
 def admin_test_course_passup_seed(
     secret: str,
@@ -13073,8 +12494,6 @@ def admin_test_course_passup_seed(
         "skipped": skipped,
         "next_step": "Now run /admin/test-course-passup-e2e?secret=superadpro-owner-2026&tier=1",
     }
-
-
 @app.get("/admin/test-course-passup-cleanup")
 def admin_test_course_passup_cleanup(
     secret: str,
@@ -13203,8 +12622,6 @@ def admin_test_course_passup_cleanup(
         "test_courses": course_del,
         "reversals_applied": reversals_applied,
     }
-
-
 @app.get("/admin/grid-audit")
 def admin_grid_audit(
     secret: str,
@@ -13276,8 +12693,6 @@ def admin_grid_audit(
         },
         "grids": audit,
     }
-
-
 # ══════════════════════════════════════════════════════════════════════════════
 # ── LINKHUB ───────────────────────────────────────────────────────────────────
 # ══════════════════════════════════════════════════════════════════════════════
@@ -13295,8 +12710,6 @@ def linkhub_editor(request: Request, user: User = Depends(get_current_user)):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse("/dashboard", status_code=302)
-
-
 @app.post("/linkhub/save")
 @limiter.limit("10/minute")
 async def linkhub_save(request: Request, db: Session = Depends(get_db)):
@@ -13461,8 +12874,6 @@ async def linkhub_save(request: Request, db: Session = Depends(get_db)):
         import traceback
         print(f"⚠️ LinkHub save error: {ex}\n{traceback.format_exc()}")
         return JSONResponse({"ok": False, "error": str(ex)[:300]}, status_code=500)
-
-
 @app.post("/linkhub/upload-avatar")
 @limiter.limit("6/minute")
 async def linkhub_upload_avatar(request: Request, file: UploadFile = File(...), db: Session = Depends(get_db)):
@@ -13510,8 +12921,6 @@ async def linkhub_upload_avatar(request: Request, file: UploadFile = File(...), 
     profile.avatar_data = data_url
     db.commit()
     return JSONResponse({"ok": True, "data_url": data_url})
-
-
 @app.get("/linkhub/click/{link_id}")
 @limiter.limit("30/minute")
 def linkhub_track_click(link_id: int, request: Request, db: Session = Depends(get_db)):
@@ -13604,8 +13013,6 @@ def linkhub_track_click(link_id: int, request: Request, db: Session = Depends(ge
             db.commit()
 
     return RedirectResponse(link.url, status_code=302)
-
-
 @app.get("/u/{username}")
 @limiter.limit("60/minute")
 def linkhub_public(username: str, request: Request, db: Session = Depends(get_db)):
@@ -13740,8 +13147,6 @@ def linkhub_public(username: str, request: Request, db: Session = Depends(get_db
         "links": parsed_links,
         "social_links": social_links,
     })
-
-
 # ═══════════════════════════════════════════════════════════════
 #  PROSELLER — AI Sales Coach + Prospect CRM
 # ═══════════════════════════════════════════════════════════════
@@ -13798,8 +13203,6 @@ async def _old_proseller_DISABLED(request: Request, db: Session = Depends(get_db
         "converted_count": sum(1 for p in prospects if p.is_converted),
         "now": now,
     })
-
-
 @app.post("/api/proseller/generate")
 async def api_proseller_generate(request: Request, db: Session = Depends(get_db)):
     """Generate an AI sales message for the given scenario."""
@@ -13912,8 +13315,6 @@ Return ONLY a JSON array of 2 strings. No markdown, no explanation, just the JSO
             "Hey! I came across your profile and love what you're doing. I've been working with a platform that's been generating a solid second income for me — would you be open to a quick look?",
             "Hi! Random question — have you ever looked into monetising what you're already doing online? I found something that's been working really well and thought of you."
         ]})
-
-
 @app.post("/api/proseller/prospect")
 async def api_proseller_prospect(request: Request, db: Session = Depends(get_db)):
     """Create or update a prospect."""
@@ -13967,8 +13368,6 @@ async def api_proseller_prospect(request: Request, db: Session = Depends(get_db)
 
     return JSONResponse({"error": "Invalid action"}, status_code=400)
 
-
-
 @app.get("/api/join/{username}")
 async def api_join_funnel(username: str, db: Session = Depends(get_db)):
     """Public: return sponsor data for the join funnel page."""
@@ -13983,8 +13382,6 @@ async def api_join_funnel(username: str, db: Session = Depends(get_db)):
         "total_members": total_members,
         "ref": username,
     }
-
-
 # ═══════════════════════════════════════════════════════════════
 #  PHASE 4 API ENDPOINTS — Ad Board, Course Player
 # ═══════════════════════════════════════════════════════════════
@@ -14014,8 +13411,6 @@ def api_ad_board(category: str = "", page: int = 1, db: Session = Depends(get_db
         "total_pages": max(1, (total + per_page - 1) // per_page),
         "categories": AD_CATEGORIES,
     }
-
-
 @app.get("/api/ads/listing/{slug}")
 def api_ad_detail(slug: str, db: Session = Depends(get_db)):
     """Public: single ad listing by slug."""
@@ -14045,8 +13440,6 @@ def api_ad_detail(slug: str, db: Session = Depends(get_db)):
                      "category": r.category, "image_url": r.image_url or ""} for r in related],
         "categories": AD_CATEGORIES,
     }
-
-
 @app.get("/api/ads/my")
 def api_my_ads(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Member: list own ad listings."""
@@ -14064,8 +13457,6 @@ def api_my_ads(user: User = Depends(get_current_user), db: Session = Depends(get
         } for l in listings],
         "categories": AD_CATEGORIES,
     }
-
-
 @app.get("/api/courses/learn/{course_id}")
 async def api_course_player(course_id: int, request: Request,
                               db: Session = Depends(get_db)):
@@ -14120,8 +13511,6 @@ async def api_course_player(course_id: int, request: Request,
         "total_lessons": len(lessons),
         "completed_count": len(completed_ids),
     }
-
-
 @app.post("/api/courses/learn/{course_id}/complete/{lesson_id}")
 async def api_mark_lesson_complete(course_id: int, lesson_id: int,
                                     request: Request, db: Session = Depends(get_db)):
@@ -14145,8 +13534,6 @@ async def api_mark_lesson_complete(course_id: int, lesson_id: int,
 #  AFFILIATE SALES FUNNEL — /join/{username}
 #  (Handled by the SuperLink route earlier in the file — line ~791)
 # ═══════════════════════════════════════════════════════════════
-
-
 # ═══════════════════════════════════════════════════════════════
 #  PRO TIER — Upgrade page + AI Funnel Generator + Leads
 # ═══════════════════════════════════════════════════════════════
@@ -14167,8 +13554,6 @@ async def _old_upgrade_DISABLED(request: Request, db: Session = Depends(get_db))
         "user": user,
         "active_page": "upgrade",
     })
-
-
 @app.get("/pro/funnels")
 async def pro_funnels_page(request: Request, db: Session = Depends(get_db)):
     """Serve React SuperPages listing. Non-Pro users are redirected to /upgrade."""
@@ -14180,8 +13565,6 @@ async def pro_funnels_page(request: Request, db: Session = Depends(get_db)):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.post("/api/pro/generate-funnel")
 async def api_pro_generate_funnel(request: Request, db: Session = Depends(get_db)):
     """AI generates a complete landing page + email sequence from 4 inputs."""
@@ -14345,8 +13728,6 @@ Return ONLY a valid JSON array. No markdown."""
         import traceback
         traceback.print_exc()
         return JSONResponse({"error": f"Failed to generate funnel: {str(e)[:200]}"}, status_code=500)
-
-
 @app.get("/pro/funnel/{funnel_id}/edit")
 async def pro_funnel_edit(funnel_id: int, request: Request, db: Session = Depends(get_db)):
     """Serve React SuperPages editor. Non-Pro users are redirected to /upgrade."""
@@ -14358,8 +13739,6 @@ async def pro_funnel_edit(funnel_id: int, request: Request, db: Session = Depend
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.get("/pro/funnel/{funnel_id}/analytics")
 def pro_funnel_analytics(funnel_id: int, request: Request):
     """Phase 4: redirect to React funnels."""
@@ -14474,8 +13853,6 @@ def _old_pro_funnel_analytics_DISABLED(funnel_id: int, request: Request,
         "ab_rate_b": ab_rate_b,
     })
     return templates.TemplateResponse("page-analytics.html", ctx)
-
-
 @app.post("/api/pro/funnel/create-blank")
 async def api_pro_funnel_create_blank(request: Request, db: Session = Depends(get_db)):
     """Create a blank funnel page and go straight to SuperPages."""
@@ -14503,8 +13880,6 @@ async def api_pro_funnel_create_blank(request: Request, db: Session = Depends(ge
     db.refresh(page)
 
     return JSONResponse({"success": True, "funnel_id": page.id, "slug": slug})
-
-
 @app.post("/api/pro/funnel/create-from-template")
 async def api_pro_funnel_create_from_template(request: Request, db: Session = Depends(get_db)):
     """Create a funnel page from a pre-built template."""
@@ -14547,16 +13922,12 @@ async def api_pro_funnel_create_from_template(request: Request, db: Session = De
         db.rollback()
         logger.error(f"Template create error: {e}")
         return JSONResponse({"error": f"Failed: {str(e)[:200]}"}, status_code=500)
-
-
 @app.get("/api/pro/funnel/templates")
 async def api_pro_funnel_templates(request: Request, db: Session = Depends(get_db)):
     """Return the list of available templates."""
     from app.funnel_templates import get_templates
     templates = get_templates()
     return JSONResponse([{"name": t["name"], "description": t["description"], "category": t["category"], "icon": t["icon"]} for t in templates])
-
-
 @app.post("/api/pro/funnel/{funnel_id}/create-ab-variant")
 async def create_ab_variant(funnel_id: int, request: Request,
                             user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -14596,8 +13967,6 @@ async def create_ab_variant(funnel_id: int, request: Request,
     db.commit()
     db.refresh(variant)
     return JSONResponse({"success": True, "variant_id": variant.id})
-
-
 @app.post("/api/pro/funnel/{funnel_id}/ab-split")
 async def update_ab_split(funnel_id: int, request: Request,
                           user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -14613,8 +13982,6 @@ async def update_ab_split(funnel_id: int, request: Request,
     variant.ab_split_pct = pct
     db.commit()
     return JSONResponse({"success": True, "split_pct": pct})
-
-
 @app.post("/api/pro/funnel/{funnel_id}/save")
 async def api_pro_funnel_save(funnel_id: int, request: Request, db: Session = Depends(get_db)):
     """Save inline edits to an AI funnel."""
@@ -14671,8 +14038,6 @@ async def api_pro_funnel_save(funnel_id: int, request: Request, db: Session = De
     db.commit()
 
     return JSONResponse({"success": True})
-
-
 @app.post("/api/pro/funnel/{funnel_id}/delete")
 async def api_pro_funnel_delete(funnel_id: int, request: Request, db: Session = Depends(get_db)):
     """Delete a funnel page and its related data."""
@@ -14698,15 +14063,11 @@ async def api_pro_funnel_delete(funnel_id: int, request: Request, db: Session = 
         db.rollback()
         logger.error(f"Funnel delete error: {e}")
         return JSONResponse({"error": "Delete failed"}, status_code=500)
-
-
 @app.post("/api/pro/funnel/{funnel_id}/regenerate")
 async def api_pro_funnel_regenerate(funnel_id: int, request: Request, db: Session = Depends(get_db)):
     """Regenerate funnel copy with AI feedback."""
     # Kept for backward compat but chat endpoint is primary now
     return JSONResponse({"error": "Use the chat endpoint instead"}, status_code=400)
-
-
 @app.post("/api/pro/funnel/{funnel_id}/chat")
 async def api_pro_funnel_chat(funnel_id: int, request: Request, db: Session = Depends(get_db)):
     """AI chat endpoint — interprets natural language commands and modifies the funnel."""
@@ -14857,8 +14218,6 @@ Return ONLY valid JSON."""
     except Exception as e:
         logger.error(f"Funnel regeneration failed: {e}")
         return JSONResponse({"error": "Regeneration failed"}, status_code=500)
-
-
 @app.post("/api/pro/funnel/{funnel_id}/ai-modify")
 async def api_pro_funnel_ai_modify(funnel_id: int, request: Request, db: Session = Depends(get_db)):
     """AI modifies funnel sections based on natural language instruction."""
@@ -14946,8 +14305,6 @@ No explanation, no markdown. ONLY valid JSON."""
     except Exception as e:
         logger.error(f"AI funnel modify failed: {e}")
         return JSONResponse({"error": f"AI modification failed: {str(e)[:100]}"}, status_code=500)
-
-
 @app.get("/pro/funnel/{funnel_id}/sequence")
 async def pro_funnel_sequence(funnel_id: int, request: Request, db: Session = Depends(get_db)):
     """Email sequence editor for a funnel."""
@@ -14992,8 +14349,6 @@ def _old_sequence_editor_DISABLED(request=None):
         "sequence": sequence,
         "emails": emails,
     })
-
-
 @app.post("/api/pro/funnel/{funnel_id}/sequence/save")
 async def api_pro_funnel_sequence_save(funnel_id: int, request: Request, db: Session = Depends(get_db)):
     """Save edited email sequence."""
@@ -15027,8 +14382,6 @@ async def api_pro_funnel_sequence_save(funnel_id: int, request: Request, db: Ses
     db.commit()
 
     return JSONResponse({"success": True})
-
-
 @app.post("/api/capture/{username}/{slug}")
 async def api_capture_lead(username: str, slug: str, request: Request, db: Session = Depends(get_db)):
     """Public endpoint — captures an email from a funnel form and starts the autoresponder."""
@@ -15085,8 +14438,6 @@ async def api_capture_lead(username: str, slug: str, request: Request, db: Sessi
         _send_sequence_email(db, lead, 0)
 
     return JSONResponse({"success": True, "message": "Welcome! Check your inbox."})
-
-
 @app.get("/pro/leads")
 def pro_leads_page(request: Request):
     """Serve React SPA."""
@@ -15121,8 +14472,6 @@ async def _old_pro_leads_DISABLED(request: Request, db: Session = Depends(get_db
         "nurturing_leads": nurturing,
         "converted_leads": converted,
     })
-
-
 @app.get("/f/{username}/{slug}")
 async def render_ai_funnel(username: str, slug: str, request: Request, db: Session = Depends(get_db)):
     """Render an AI-generated funnel page — public facing. Supports A/B testing."""
@@ -15318,8 +14667,6 @@ document.querySelectorAll('[id^="cd_"]').forEach(function(el){{
         "video_embed": video_embed,
         "bg_image": bg_image,
     })
-
-
 @app.post("/webhook/brevo")
 async def brevo_webhook(request: Request, db: Session = Depends(get_db)):
     """Handle Brevo webhook events — opens, clicks, bounces."""
@@ -15382,8 +14729,6 @@ async def brevo_webhook(request: Request, db: Session = Depends(get_db)):
     except Exception as e:
         logger.error(f"Brevo webhook error: {e}")
         return JSONResponse({"ok": True})
-
-
 # ── Brevo helper: create contact with member tag ──
 def _create_brevo_contact(email: str, name: str, member_id: int) -> str:
     """Create a contact in Brevo tagged with the member's ID."""
@@ -15410,8 +14755,6 @@ def _create_brevo_contact(email: str, name: str, member_id: int) -> str:
     except Exception as e:
         logger.error(f"Brevo contact creation failed: {e}")
         return ""
-
-
 # ── Helper: send a sequence email to a lead ──
 def _send_sequence_email(db, lead, email_index: int):
     """Send a specific email from the lead's assigned sequence."""
@@ -15493,8 +14836,6 @@ def _send_sequence_email(db, lead, email_index: int):
     else:
         logger.error(f"Autoresponder email {email_index+1} failed for lead {lead.email}")
         return False
-
-
 # ── Autoresponder Cron Job ──
 @app.post("/cron/process-autoresponder")
 async def cron_process_autoresponder(request: Request, db: Session = Depends(get_db)):
@@ -15572,8 +14913,6 @@ async def cron_process_autoresponder(request: Request, db: Session = Depends(get
         "sent": sent_count,
         "errors": errors,
     })
-
-
 @app.get("/cron/process-autoresponder")
 async def cron_process_autoresponder_get(request: Request, secret: str = "", db: Session = Depends(get_db)):
     """GET version for cron-job.org — auth via ?secret= query param."""
@@ -15637,8 +14976,6 @@ async def cron_process_autoresponder_get(request: Request, secret: str = "", db:
         "sent": sent_count,
         "errors": errors,
     })
-
-
 # ── Creative Studio stuck-video cron ──
 @app.get("/cron/poll-pending-videos")
 async def cron_poll_pending_videos(request: Request, secret: str = "", db: Session = Depends(get_db)):
@@ -15737,8 +15074,6 @@ async def cron_poll_pending_videos(request: Request, secret: str = "", db: Sessi
         "refunded": refunded,
         "errors": errors,
     })
-
-
 @app.get("/admin/test-autoresponder")
 def admin_test_autoresponder(secret: str = "", db: Session = Depends(get_db)):
     """Debug: show autoresponder status — sequences, nurturing leads, send log."""
@@ -15785,895 +15120,13 @@ def admin_test_autoresponder(secret: str = "", db: Session = Depends(get_db)):
         "recent_send_log": log_list,
     }
 
-
 # ═══════════════════════════════════════════════════════════════
-#  MEMBER COURSE MARKETPLACE
+#  MEMBER COURSE MARKETPLACE — RETIRED
 # ═══════════════════════════════════════════════════════════════
-
-@app.get("/courses/quality-guidelines")
-def course_quality_guidelines(request: Request):
-    """Public page — quality standards for course creators."""
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/dashboard", status_code=302)
-
-def _old_course_guidelines_DISABLED(request=None):
-    return templates.TemplateResponse("course-guidelines.html", {"request": request})
-
-
-@app.get("/marketplace")
-def marketplace_page(request: Request, db: Session = Depends(get_db)):
-    """Public course marketplace — browse all published member courses."""
-    courses = db.query(MemberCourse).filter(
-        MemberCourse.status == "published", MemberCourse.is_public == True
-    ).order_by(MemberCourse.created_at.desc()).all()
-    # Get creator info for each course
-    creator_ids = list(set(c.creator_id for c in courses))
-    creators = {}
-    if creator_ids:
-        for u in db.query(User).filter(User.id.in_(creator_ids)).all():
-            creators[u.id] = u
-    return RedirectResponse(url="/marketplace", status_code=302)
-
-def _old_marketplace_DISABLED(request=None, db=None):
-    return templates.TemplateResponse("marketplace.html", {
-        "request": request, "courses": courses, "creators": creators,
-    })
-
-
-@app.get("/courses/my-courses")
-def my_courses_page(request: Request):
-    """Serve React SPA."""
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return HTMLResponse("<h1>Loading...</h1>")
-
-def _old_my_courses_DISABLED(request: Request, user: User = Depends(get_current_user),
-                    db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/?login=1")
-    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
-        return RedirectResponse(url="/upgrade")
-    courses = db.query(MemberCourse).filter(MemberCourse.creator_id == user.id).order_by(MemberCourse.created_at.desc()).all()
-    return templates.TemplateResponse("my-courses.html", {
-        "request": request, "user": user, "courses": courses,
-    })
-
-
-@app.get("/courses/create")
-def create_course_page(request: Request):
-    """Serve React SPA."""
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return HTMLResponse("<h1>Loading...</h1>")
-
-def _old_create_course_DISABLED(request: Request, user: User = Depends(get_current_user),
-                       db: Session = Depends(get_db)):
-    if not user: return RedirectResponse(url="/?login=1")
-    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
-        return RedirectResponse(url="/upgrade")
-    # Check if user has accepted terms before
-    has_accepted_terms = db.query(MemberCourse).filter(
-        MemberCourse.creator_id == user.id,
-        MemberCourse.creator_agreed_terms_at.isnot(None)
-    ).first() is not None
-    return templates.TemplateResponse("course-create.html", {
-        "request": request, "user": user, "has_accepted_terms": has_accepted_terms,
-    })
-
-
-@app.get("/courses/edit/{course_id}")
-def edit_course_page(course_id: int, request: Request, user: User = Depends(get_current_user),
-                     db: Session = Depends(get_db)):
-    """Edit existing course."""
-    if not user: return RedirectResponse(url="/?login=1")
-    course = db.query(MemberCourse).filter(
-        MemberCourse.id == course_id, MemberCourse.creator_id == user.id
-    ).first()
-    if not course: return RedirectResponse(url="/courses/my-courses")
-    import json as _json_mc
-    chapters = db.query(MemberCourseChapter).filter(
-        MemberCourseChapter.course_id == course.id
-    ).order_by(MemberCourseChapter.chapter_order).all()
-    lessons_by_chapter = {}
-    for ch in chapters:
-        lessons_by_chapter[ch.id] = db.query(MemberCourseLesson).filter(
-            MemberCourseLesson.chapter_id == ch.id
-        ).order_by(MemberCourseLesson.lesson_order).all()
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/dashboard", status_code=302)
-
-def _old_course_edit_DISABLED(course_id=None, request=None, db=None):
-    return templates.TemplateResponse("course-edit.html", {
-        "request": request, "user": user, "course": course,
-        "chapters": chapters, "lessons_by_chapter": lessons_by_chapter,
-    })
-
-
-# ── Marketplace API endpoints ──
-
-@app.post("/api/marketplace/courses")
-async def api_create_course(request: Request, user: User = Depends(get_current_user),
-                            db: Session = Depends(get_db)):
-    """Create a new course (draft)."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if getattr(user, 'membership_tier', 'basic') != 'pro' and not user.is_admin:
-        return JSONResponse({"error": "Pro membership required"}, status_code=403)
-    body = await request.json()
-    title = (body.get("title") or "").strip()
-    if not title or len(title) < 10:
-        return JSONResponse({"error": "Title must be at least 10 characters"}, status_code=400)
-    if len(title) > 100:
-        return JSONResponse({"error": "Title must be under 100 characters"}, status_code=400)
-
-    # Generate slug
-    import re as _re_mc
-    raw_slug = _re_mc.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
-    slug = f"{user.username.lower()}/{raw_slug}"
-    # Check uniqueness
-    existing = db.query(MemberCourse).filter(MemberCourse.slug == slug).first()
-    if existing:
-        return JSONResponse({"error": "A course with this title already exists"}, status_code=400)
-
-    price_str = body.get("price", "25")
-    try:
-        price = float(price_str)
-    except (ValueError, TypeError):
-        return JSONResponse({"error": "Invalid price"}, status_code=400)
-    if price < 20:
-        return JSONResponse({"error": "Minimum price is $20"}, status_code=400)
-
-    # Check terms acceptance
-    agreed_terms = body.get("agreed_terms", False)
-    agreed_at = datetime.utcnow() if agreed_terms else None
-
-    course = MemberCourse(
-        creator_id=user.id,
-        title=title,
-        slug=slug,
-        description=body.get("description", ""),
-        short_description=body.get("short_description", ""),
-        price=price,
-        category=body.get("category", "other"),
-        difficulty_level=body.get("difficulty_level", "beginner"),
-        thumbnail_url=body.get("thumbnail_url", ""),
-        creator_agreed_terms_at=agreed_at,
-        status="draft",
-    )
-    db.add(course)
-    db.commit()
-    db.refresh(course)
-    return JSONResponse({"ok": True, "course_id": course.id, "slug": course.slug})
-
-
-@app.put("/api/marketplace/courses/{course_id}")
-async def api_update_course(course_id: int, request: Request, user: User = Depends(get_current_user),
-                            db: Session = Depends(get_db)):
-    """Update course details."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    course = db.query(MemberCourse).filter(
-        MemberCourse.id == course_id, MemberCourse.creator_id == user.id
-    ).first()
-    if not course:
-        return JSONResponse({"error": "Course not found"}, status_code=404)
-    body = await request.json()
-
-    if "title" in body:
-        title = (body["title"] or "").strip()
-        if len(title) < 10 or len(title) > 100:
-            return JSONResponse({"error": "Title must be 10-100 characters"}, status_code=400)
-        course.title = title
-    if "description" in body:
-        course.description = body["description"]
-    if "short_description" in body:
-        sd = (body["short_description"] or "").strip()
-        if len(sd) > 160:
-            return JSONResponse({"error": "Short description must be under 160 characters"}, status_code=400)
-        course.short_description = sd
-    if "price" in body:
-        try:
-            price = float(body["price"])
-        except (ValueError, TypeError):
-            return JSONResponse({"error": "Invalid price"}, status_code=400)
-        if price < 20:
-            return JSONResponse({"error": "Minimum price is $20"}, status_code=400)
-        course.price = price
-    if "category" in body:
-        course.category = body["category"]
-    if "difficulty_level" in body:
-        course.difficulty_level = body["difficulty_level"]
-    if "thumbnail_url" in body:
-        course.thumbnail_url = body["thumbnail_url"]
-
-    course.updated_at = datetime.utcnow()
-    db.commit()
-    return JSONResponse({"ok": True})
-
-
-@app.post("/api/marketplace/courses/{course_id}/chapters")
-async def api_add_chapter(course_id: int, request: Request, user: User = Depends(get_current_user),
-                          db: Session = Depends(get_db)):
-    """Add a chapter to a course."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    course = db.query(MemberCourse).filter(
-        MemberCourse.id == course_id, MemberCourse.creator_id == user.id
-    ).first()
-    if not course:
-        return JSONResponse({"error": "Course not found"}, status_code=404)
-    body = await request.json()
-    title = (body.get("title") or "").strip()
-    if not title:
-        return JSONResponse({"error": "Chapter title required"}, status_code=400)
-    # Get next order
-    max_order = db.query(MemberCourseChapter).filter(
-        MemberCourseChapter.course_id == course_id
-    ).count()
-    chapter = MemberCourseChapter(
-        course_id=course_id, title=title, chapter_order=max_order + 1,
-    )
-    db.add(chapter)
-    db.commit()
-    db.refresh(chapter)
-    return JSONResponse({"ok": True, "chapter_id": chapter.id, "chapter_order": chapter.chapter_order})
-
-
-@app.put("/api/marketplace/chapters/{chapter_id}")
-async def api_update_chapter(chapter_id: int, request: Request, user: User = Depends(get_current_user),
-                             db: Session = Depends(get_db)):
-    """Update a chapter."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    chapter = db.query(MemberCourseChapter).filter(MemberCourseChapter.id == chapter_id).first()
-    if not chapter:
-        return JSONResponse({"error": "Chapter not found"}, status_code=404)
-    course = db.query(MemberCourse).filter(
-        MemberCourse.id == chapter.course_id, MemberCourse.creator_id == user.id
-    ).first()
-    if not course:
-        return JSONResponse({"error": "Not authorised"}, status_code=403)
-    body = await request.json()
-    if "title" in body:
-        chapter.title = (body["title"] or "").strip()
-    if "chapter_order" in body:
-        chapter.chapter_order = body["chapter_order"]
-    db.commit()
-    return JSONResponse({"ok": True})
-
-
-@app.delete("/api/marketplace/chapters/{chapter_id}")
-def api_delete_chapter(chapter_id: int, user: User = Depends(get_current_user),
-                       db: Session = Depends(get_db)):
-    """Delete a chapter and all its lessons."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    chapter = db.query(MemberCourseChapter).filter(MemberCourseChapter.id == chapter_id).first()
-    if not chapter:
-        return JSONResponse({"error": "Chapter not found"}, status_code=404)
-    course = db.query(MemberCourse).filter(
-        MemberCourse.id == chapter.course_id, MemberCourse.creator_id == user.id
-    ).first()
-    if not course:
-        return JSONResponse({"error": "Not authorised"}, status_code=403)
-    db.delete(chapter)
-    db.commit()
-    return JSONResponse({"ok": True})
-
-
-@app.post("/api/marketplace/chapters/{chapter_id}/lessons")
-async def api_add_lesson(chapter_id: int, request: Request, user: User = Depends(get_current_user),
-                         db: Session = Depends(get_db)):
-    """Add a lesson to a chapter."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    chapter = db.query(MemberCourseChapter).filter(MemberCourseChapter.id == chapter_id).first()
-    if not chapter:
-        return JSONResponse({"error": "Chapter not found"}, status_code=404)
-    course = db.query(MemberCourse).filter(
-        MemberCourse.id == chapter.course_id, MemberCourse.creator_id == user.id
-    ).first()
-    if not course:
-        return JSONResponse({"error": "Not authorised"}, status_code=403)
-    body = await request.json()
-    title = (body.get("title") or "").strip()
-    if not title:
-        return JSONResponse({"error": "Lesson title required"}, status_code=400)
-    max_order = db.query(MemberCourseLesson).filter(
-        MemberCourseLesson.chapter_id == chapter_id
-    ).count()
-    lesson = MemberCourseLesson(
-        chapter_id=chapter_id,
-        course_id=chapter.course_id,
-        title=title,
-        lesson_order=max_order + 1,
-        content_type=body.get("content_type", "text"),
-        video_url=body.get("video_url", ""),
-        text_content=body.get("text_content", ""),
-        pdf_url=body.get("pdf_url", ""),
-        duration_minutes=int(body.get("duration_minutes", 0)),
-        is_preview=body.get("is_preview", False),
-    )
-    db.add(lesson)
-    db.commit()
-    db.refresh(lesson)
-    return JSONResponse({"ok": True, "lesson_id": lesson.id})
-
-
-@app.put("/api/marketplace/lessons/{lesson_id}")
-async def api_update_lesson(lesson_id: int, request: Request, user: User = Depends(get_current_user),
-                            db: Session = Depends(get_db)):
-    """Update a lesson."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    lesson = db.query(MemberCourseLesson).filter(MemberCourseLesson.id == lesson_id).first()
-    if not lesson:
-        return JSONResponse({"error": "Lesson not found"}, status_code=404)
-    course = db.query(MemberCourse).filter(
-        MemberCourse.id == lesson.course_id, MemberCourse.creator_id == user.id
-    ).first()
-    if not course:
-        return JSONResponse({"error": "Not authorised"}, status_code=403)
-    body = await request.json()
-    if "title" in body:
-        lesson.title = (body["title"] or "").strip()
-    if "content_type" in body:
-        lesson.content_type = body["content_type"]
-    if "video_url" in body:
-        lesson.video_url = body["video_url"]
-    if "text_content" in body:
-        lesson.text_content = body["text_content"]
-    if "pdf_url" in body:
-        lesson.pdf_url = body["pdf_url"]
-    if "duration_minutes" in body:
-        lesson.duration_minutes = int(body.get("duration_minutes", 0))
-    if "is_preview" in body:
-        lesson.is_preview = body["is_preview"]
-    if "lesson_order" in body:
-        lesson.lesson_order = body["lesson_order"]
-    db.commit()
-    return JSONResponse({"ok": True})
-
-
-@app.delete("/api/marketplace/lessons/{lesson_id}")
-def api_delete_lesson(lesson_id: int, user: User = Depends(get_current_user),
-                      db: Session = Depends(get_db)):
-    """Delete a lesson."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    lesson = db.query(MemberCourseLesson).filter(MemberCourseLesson.id == lesson_id).first()
-    if not lesson:
-        return JSONResponse({"error": "Lesson not found"}, status_code=404)
-    course = db.query(MemberCourse).filter(
-        MemberCourse.id == lesson.course_id, MemberCourse.creator_id == user.id
-    ).first()
-    if not course:
-        return JSONResponse({"error": "Not authorised"}, status_code=403)
-    db.delete(lesson)
-    db.commit()
-    return JSONResponse({"ok": True})
-
-
-@app.post("/api/marketplace/courses/{course_id}/submit")
-async def api_submit_course(course_id: int, request: Request, user: User = Depends(get_current_user),
-                            db: Session = Depends(get_db)):
-    """Submit course for review — runs quality checks."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    course = db.query(MemberCourse).filter(
-        MemberCourse.id == course_id, MemberCourse.creator_id == user.id
-    ).first()
-    if not course:
-        return JSONResponse({"error": "Course not found"}, status_code=404)
-
-    # Quality checks (Layer 1)
-    errors = []
-    chapters = db.query(MemberCourseChapter).filter(MemberCourseChapter.course_id == course_id).all()
-    lessons = db.query(MemberCourseLesson).filter(MemberCourseLesson.course_id == course_id).all()
-
-    if len(lessons) < 1:
-        errors.append("At least 1 lecture required")
-    total_duration = sum(l.duration_minutes or 0 for l in lessons)
-    if total_duration < 10:
-        errors.append("Minimum 10 minutes total duration required")
-    for l in lessons:
-        if l.content_type == 'text' and l.text_content:
-            word_count = len((l.text_content or "").split())
-            if word_count < 100:
-                errors.append(f"Lesson '{l.title}' has {word_count} words (minimum 100)")
-    preview_count = sum(1 for l in lessons if l.is_preview)
-    if preview_count == 0:
-        errors.append("At least 1 lesson must be marked as a free preview")
-    if not course.thumbnail_url:
-        errors.append("Course thumbnail is required")
-    if not course.description or len(course.description) < 100:
-        errors.append("Description must be at least 100 characters")
-    if course.price < 25:
-        errors.append("Minimum price is $20")
-    if not course.title or len(course.title) < 10:
-        errors.append("Title must be at least 10 characters")
-
-    if errors:
-        return JSONResponse({"error": "Quality checks failed", "issues": errors}, status_code=400)
-
-    # Update course stats
-    course.lesson_count = len(lessons)
-    course.total_duration_mins = total_duration
-    course.status = "pending_review"
-    course.updated_at = datetime.utcnow()
-    db.commit()
-
-    # ── Layer 2: AI Content Scan (async-safe) ──
-    ai_result = {"passed": True, "plagiarism_score": 0, "quality_score": 80, "flagged_issues": [], "summary": ""}
-    try:
-        import os, json as _json_ai
-        import httpx
-        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-        if api_key:
-            # Gather all text content for scanning
-            all_text = f"Title: {course.title}\nDescription: {course.description or ''}\n\n"
-            for l in lessons:
-                all_text += f"Lesson: {l.title}\n{l.text_content or ''}\n\n"
-            all_text = all_text[:8000]  # Cap at ~8k chars to stay within limits
-
-            scan_prompt = f"""You are a course quality reviewer for an online marketplace. Analyse the following course content and return a JSON object with these fields:
-- "passed": boolean (true if acceptable, false if should be rejected)
-- "plagiarism_score": 0-100 (estimated likelihood of plagiarism, 0=original, 100=copied)
-- "quality_score": 0-100 (educational value, 0=worthless, 100=excellent)
-- "flagged_issues": array of objects with "type" (plagiarism|prohibited|misleading|trademark|quality), "severity" (high|medium|low), "description" (brief explanation)
-- "summary": one-sentence assessment
-
-Auto-fail criteria: plagiarism_score > 40, quality_score < 30, any high-severity issue, hate speech, explicit content, misleading income claims.
-
-Course content to review:
-{all_text}
-
-Respond ONLY with valid JSON, no other text."""
-
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                resp = await client.post(
-                    "https://api.anthropic.com/v1/messages",
-                    headers={"x-api-key": api_key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
-                    json={"model": "claude-sonnet-4-20250514", "max_tokens": 1000,
-                          "messages": [{"role": "user", "content": scan_prompt}]}
-                )
-                if resp.status_code == 200:
-                    resp_data = resp.json()
-                    ai_text = ""
-                    for block in resp_data.get("content", []):
-                        if block.get("type") == "text":
-                            ai_text += block.get("text", "")
-                    # Parse JSON from response
-                    ai_text = ai_text.strip()
-                    if ai_text.startswith("```"):
-                        ai_text = ai_text.split("```")[1]
-                        if ai_text.startswith("json"):
-                            ai_text = ai_text[4:]
-                    ai_result = _json_ai.loads(ai_text)
-    except Exception as e:
-        print(f"AI review error (non-fatal): {e}")
-        # If AI review fails, pass through to admin review
-        ai_result = {"passed": True, "plagiarism_score": 0, "quality_score": 50, "flagged_issues": [],
-                      "summary": "AI review unavailable — manual review required"}
-
-    # Store AI result
-    import json as _json_store
-    course.ai_review_result = _json_store.dumps(ai_result)
-    course.ai_reviewed_at = datetime.utcnow()
-
-    # Check auto-reject thresholds
-    if not ai_result.get("passed", True) or ai_result.get("plagiarism_score", 0) > 40 or ai_result.get("quality_score", 100) < 30:
-        course.status = "ai_rejected"
-        course.admin_notes = ai_result.get("summary", "Content did not meet quality standards")
-        db.commit()
-        # Notify creator
-        notif = Notification(
-            user_id=user.id, type="course_rejected",
-            icon="❌", title="Course review: changes needed",
-            message=f"'{course.title}' needs revisions. Check the feedback and resubmit.",
-            link=f"/courses/edit/{course.id}",
-        )
-        db.add(notif)
-        db.commit()
-        issues = [i.get("description", "") for i in ai_result.get("flagged_issues", [])]
-        if ai_result.get("summary"):
-            issues.insert(0, ai_result["summary"])
-        return JSONResponse({"error": "AI review: changes needed", "issues": issues, "ai_result": ai_result}, status_code=400)
-
-    # AI passed — move to admin review queue
-    course.status = "pending_review"
-    db.commit()
-
-    # Create notification for admin
-    admin = db.query(User).filter(User.is_admin == True).first()
-    if admin:
-        notif = Notification(
-            user_id=admin.id, type="course_review",
-            icon="📚", title="New course awaiting review",
-            message=f"{user.first_name or user.username} submitted '{course.title}' (AI approved, score: {ai_result.get('quality_score', '?')}/100)",
-            link="/admin/course-review",
-        )
-        db.add(notif)
-        db.commit()
-
-    return JSONResponse({"ok": True, "status": "pending_review"})
-
-
-@app.get("/api/marketplace/courses/{course_id}")
-def api_get_course(course_id: int, user: User = Depends(get_current_user),
-                   db: Session = Depends(get_db)):
-    """Get full course data for editing."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    course = db.query(MemberCourse).filter(
-        MemberCourse.id == course_id, MemberCourse.creator_id == user.id
-    ).first()
-    if not course:
-        return JSONResponse({"error": "Course not found"}, status_code=404)
-    chapters = db.query(MemberCourseChapter).filter(
-        MemberCourseChapter.course_id == course_id
-    ).order_by(MemberCourseChapter.chapter_order).all()
-    result_chapters = []
-    for ch in chapters:
-        lessons = db.query(MemberCourseLesson).filter(
-            MemberCourseLesson.chapter_id == ch.id
-        ).order_by(MemberCourseLesson.lesson_order).all()
-        result_chapters.append({
-            "id": ch.id, "title": ch.title, "chapter_order": ch.chapter_order,
-            "lessons": [{
-                "id": l.id, "title": l.title, "lesson_order": l.lesson_order,
-                "content_type": l.content_type, "video_url": l.video_url or "",
-                "text_content": l.text_content or "", "pdf_url": l.pdf_url or "",
-                "duration_minutes": l.duration_minutes or 0, "is_preview": l.is_preview,
-            } for l in lessons]
-        })
-    return JSONResponse({
-        "id": course.id, "title": course.title, "slug": course.slug,
-        "description": course.description or "", "short_description": course.short_description or "",
-        "price": float(course.price), "thumbnail_url": course.thumbnail_url or "",
-        "category": course.category or "other", "difficulty_level": course.difficulty_level or "beginner",
-        "status": course.status, "total_sales": course.total_sales or 0,
-        "total_revenue": float(course.total_revenue or 0),
-        "lesson_count": course.lesson_count or 0,
-        "total_duration_mins": course.total_duration_mins or 0,
-        "chapters": result_chapters,
-    })
-
-
-@app.delete("/api/marketplace/courses/{course_id}")
-def api_delete_course(course_id: int, user: User = Depends(get_current_user),
-                      db: Session = Depends(get_db)):
-    """Delete a course and all its chapters/lessons."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    course = db.query(MemberCourse).filter(
-        MemberCourse.id == course_id, MemberCourse.creator_id == user.id
-    ).first()
-    if not course:
-        return JSONResponse({"error": "Course not found"}, status_code=404)
-    # Don't allow deletion of published courses with sales
-    if course.status == "published" and (course.total_sales or 0) > 0:
-        return JSONResponse({"error": "Cannot delete a published course with sales. Unpublish it instead."}, status_code=400)
-    # Cascade delete handles chapters and lessons
-    db.delete(course)
-    db.commit()
-    return JSONResponse({"ok": True})
-
-
-# ═══════════════════════════════════════════════════════════════
-#  PHASE 4: ADMIN COURSE REVIEW QUEUE
-# ═══════════════════════════════════════════════════════════════
-
-@app.get("/admin/course-review")
-def admin_course_review(request: Request, user: User = Depends(get_current_user),
-                        db: Session = Depends(get_db)):
-    """Admin page — review queue for AI-approved courses."""
-    if not user or not user.is_admin:
-        return RedirectResponse(url="/dashboard")
-    courses = db.query(MemberCourse).filter(
-        MemberCourse.status.in_(["pending_review", "ai_rejected"])
-    ).order_by(MemberCourse.updated_at.desc()).all()
-    # Get creator info
-    creators = {}
-    creator_ids = list(set(c.creator_id for c in courses))
-    if creator_ids:
-        for u in db.query(User).filter(User.id.in_(creator_ids)).all():
-            creators[u.id] = u
-    # Get lesson counts
-    lesson_counts = {}
-    for c in courses:
-        lesson_counts[c.id] = db.query(MemberCourseLesson).filter(MemberCourseLesson.course_id == c.id).count()
-    return templates.TemplateResponse("admin-course-review.html", {
-        "request": request, "user": user, "courses": courses,
-        "creators": creators, "lesson_counts": lesson_counts,
-    })
-
-
-@app.post("/api/admin/course-review/{course_id}")
-async def admin_review_course(course_id: int, request: Request, user: User = Depends(get_current_user),
-                              db: Session = Depends(get_db)):
-    """Admin approves or rejects a course."""
-    if not user or not user.is_admin:
-        return JSONResponse({"error": "Not authorised"}, status_code=403)
-    course = db.query(MemberCourse).filter(MemberCourse.id == course_id).first()
-    if not course:
-        return JSONResponse({"error": "Course not found"}, status_code=404)
-    body = await request.json()
-    action = body.get("action")  # "approve" or "reject"
-    notes = body.get("notes", "")
-
-    if action == "approve":
-        course.status = "published"
-        course.admin_reviewed_at = datetime.utcnow()
-        course.admin_notes = notes or "Approved"
-        db.commit()
-        # Notify creator
-        notif = Notification(
-            user_id=course.creator_id, type="course_approved",
-            icon="✅", title="Course approved!",
-            message=f"'{course.title}' is now live on the marketplace!",
-            link=f"/marketplace/{course.slug}" if course.slug else "/courses/my-courses",
-        )
-        db.add(notif)
-        db.commit()
-        return JSONResponse({"ok": True, "status": "published"})
-
-    elif action == "reject":
-        course.status = "ai_rejected"  # reuse same status — creator can fix and resubmit
-        course.admin_reviewed_at = datetime.utcnow()
-        course.admin_notes = notes
-        db.commit()
-        # Notify creator
-        notif = Notification(
-            user_id=course.creator_id, type="course_rejected",
-            icon="❌", title="Course needs changes",
-            message=f"'{course.title}': {notes or 'Please review admin feedback.'}",
-            link=f"/courses/edit/{course.id}",
-        )
-        db.add(notif)
-        db.commit()
-        return JSONResponse({"ok": True, "status": "rejected"})
-
-    return JSONResponse({"error": "Invalid action"}, status_code=400)
-
-
-# ═══════════════════════════════════════════════════════════════
-#  PHASE 6: COURSE MARKETPLACE COMMISSION ENGINE (50/25/25)
-# ═══════════════════════════════════════════════════════════════
-
-@app.post("/api/marketplace/purchase/{course_id}")
-async def purchase_marketplace_course(course_id: int, request: Request,
-                                      user: User = Depends(get_current_user),
-                                      db: Session = Depends(get_db)):
-    """Purchase a member-created course. Executes 50/25/25 commission split."""
-    course = db.query(MemberCourse).filter(
-        MemberCourse.id == course_id, MemberCourse.status == "published"
-    ).first()
-    if not course:
-        return JSONResponse({"error": "Course not found or not published"}, status_code=404)
-
-    # Block self-purchase
-    if user and user.id == course.creator_id:
-        return JSONResponse({"error": "You cannot purchase your own course"}, status_code=400)
-
-    # Check if already purchased (for logged-in users)
-    if user:
-        existing = db.query(MemberCoursePurchase).filter(
-            MemberCoursePurchase.course_id == course_id,
-            MemberCoursePurchase.buyer_id == user.id,
-            MemberCoursePurchase.status == "completed"
-        ).first()
-        if existing:
-            return JSONResponse({"error": "You already own this course"}, status_code=400)
-
-    body = await request.json()
-    payment_method = body.get("payment_method", "wallet")
-    price = float(course.price)
-
-    # ── Calculate 50/25/25 split ──
-    creator_share = round(price * 0.50, 2)
-    sponsor_share = round(price * 0.25, 2)
-    company_share = round(price - creator_share - sponsor_share, 2)  # Absorbs rounding
-
-    # ── Find creator's sponsor ──
-    creator = db.query(User).filter(User.id == course.creator_id).first()
-    sponsor_id = creator.sponsor_id if creator else None
-    # If no sponsor or sponsor is None, default to master affiliate (admin)
-    if not sponsor_id:
-        master = db.query(User).filter(User.is_admin == True).first()
-        sponsor_id = master.id if master else None
-
-    # ── Process payment ──
-    if payment_method == "wallet" and user:
-        if float(user.balance or 0) < price:
-            return JSONResponse({"error": "Insufficient wallet balance"}, status_code=400)
-        user.balance = (user.balance or 0) - price
-    # TODO: Stripe payment flow for card payments and guest purchases
-
-    # ── Generate access token for guest purchases ──
-    import secrets
-    from decimal import Decimal
-    access_token = secrets.token_urlsafe(32) if not user else None
-
-    # ── Create purchase record ──
-    purchase = MemberCoursePurchase(
-        course_id=course_id,
-        buyer_id=user.id if user else None,
-        buyer_email=body.get("buyer_email", user.email if user else ""),
-        buyer_name=body.get("buyer_name", user.first_name if user else ""),
-        amount_paid=price,
-        creator_commission=creator_share,
-        sponsor_commission=sponsor_share,
-        company_commission=company_share,
-        sponsor_id=sponsor_id,
-        payment_method=payment_method,
-        payment_ref=body.get("payment_ref", ""),
-        status="completed",
-        access_token=access_token,
-    )
-    db.add(purchase)
-
-    # ── Credit commissions ──
-    # 50% to creator
-    if creator:
-        creator.balance = Decimal(str(creator.balance or 0)) + Decimal(str(creator_share))
-        creator.total_earned = Decimal(str(creator.total_earned or 0)) + Decimal(str(creator_share))
-        creator.marketplace_earnings = Decimal(str(creator.marketplace_earnings or 0)) + Decimal(str(creator_share))
-        creator.course_earnings = Decimal(str(creator.course_earnings or 0)) + Decimal(str(creator_share))
-
-    # 25% to creator's sponsor
-    sponsor = db.query(User).filter(User.id == sponsor_id).first() if sponsor_id else None
-    if sponsor:
-        sponsor.balance = Decimal(str(sponsor.balance or 0)) + Decimal(str(sponsor_share))
-        sponsor.total_earned = Decimal(str(sponsor.total_earned or 0)) + Decimal(str(sponsor_share))
-        sponsor.marketplace_earnings = Decimal(str(sponsor.marketplace_earnings or 0)) + Decimal(str(sponsor_share))
-
-    # 25% company — no wallet credit needed (revenue stays in system)
-
-    # ── Update course stats ──
-    course.total_sales = (course.total_sales or 0) + 1
-    course.total_revenue = Decimal(str(course.total_revenue or 0)) + Decimal(str(price))
-
-    # ── Notifications ──
-    if creator:
-        db.add(Notification(
-            user_id=creator.id, type="course_sale",
-            icon="💰", title="Course sale!",
-            message=f"Someone purchased '{course.title}' — you earned ${creator_share:.2f}",
-            link="/courses/my-courses",
-        ))
-    if sponsor and sponsor.id != (creator.id if creator else None):
-        db.add(Notification(
-            user_id=sponsor.id, type="course_sponsor_commission",
-            icon="🎓", title="Sponsor commission earned",
-            message=f"Your recruit's course '{course.title}' sold — you earned ${sponsor_share:.2f}",
-            link="/wallet",
-        ))
-
-    db.commit()
-
-    return JSONResponse({
-        "ok": True,
-        "purchase_id": purchase.id,
-        "access_token": access_token,
-        "creator_earned": creator_share,
-        "sponsor_earned": sponsor_share,
-        "company_earned": company_share,
-    })
-
-
-@app.post("/api/marketplace/refund/{purchase_id}")
-async def refund_marketplace_purchase(purchase_id: int, request: Request,
-                                      user: User = Depends(get_current_user),
-                                      db: Session = Depends(get_db)):
-    """Refund a marketplace purchase within 7 days. Reverses all commissions."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-
-    purchase = db.query(MemberCoursePurchase).filter(MemberCoursePurchase.id == purchase_id).first()
-    if not purchase:
-        return JSONResponse({"error": "Purchase not found"}, status_code=404)
-
-    # Only buyer or admin can refund
-    if purchase.buyer_id != user.id and not user.is_admin:
-        return JSONResponse({"error": "Not authorised"}, status_code=403)
-
-    if purchase.status != "completed":
-        return JSONResponse({"error": "Purchase already refunded"}, status_code=400)
-
-    # Check 7-day window
-    if purchase.created_at:
-        days_since = (datetime.utcnow() - purchase.created_at).days
-        if days_since > 7 and not user.is_admin:
-            return JSONResponse({"error": "Refund window expired (7 days)"}, status_code=400)
-
-    # ── Reverse commissions ──
-    course = db.query(MemberCourse).filter(MemberCourse.id == purchase.course_id).first()
-    creator = db.query(User).filter(User.id == course.creator_id).first() if course else None
-    sponsor = db.query(User).filter(User.id == purchase.sponsor_id).first() if purchase.sponsor_id else None
-
-    if creator:
-        creator.balance = max(0, float(creator.balance or 0) - float(purchase.creator_commission))
-        creator.total_earned = max(0, float(creator.total_earned or 0) - float(purchase.creator_commission))
-        creator.marketplace_earnings = max(0, float(creator.marketplace_earnings or 0) - float(purchase.creator_commission))
-
-    if sponsor:
-        sponsor.balance = max(Decimal("0"), (sponsor.balance or Decimal("0")) - (purchase.sponsor_commission or Decimal("0")))
-        sponsor.total_earned = max(0, float(sponsor.total_earned or 0) - float(purchase.sponsor_commission))
-        sponsor.marketplace_earnings = max(0, float(sponsor.marketplace_earnings or 0) - float(purchase.sponsor_commission))
-
-    # Refund buyer (wallet)
-    buyer = db.query(User).filter(User.id == purchase.buyer_id).first() if purchase.buyer_id else None
-    if buyer:
-        buyer.balance = (buyer.balance or 0) + (purchase.amount_paid or 0)
-
-    # Update course stats
-    if course:
-        course.total_sales = max(0, (course.total_sales or 0) - 1)
-        course.total_revenue = max(0, float(course.total_revenue or 0) - float(purchase.amount_paid))
-
-    # Mark purchase as refunded
-    purchase.status = "refunded"
-    purchase.refunded_at = datetime.utcnow()
-
-    db.commit()
-    return JSONResponse({"ok": True, "refunded": float(purchase.amount_paid)})
-
-
-@app.get("/marketplace/{slug:path}")
-def marketplace_course_detail(slug: str, request: Request, db: Session = Depends(get_db)):
-    """Public course detail page — view and purchase."""
-    course = db.query(MemberCourse).filter(
-        MemberCourse.slug == slug, MemberCourse.status == "published"
-    ).first()
-    if not course:
-        return RedirectResponse(url="/marketplace")
-    creator = db.query(User).filter(User.id == course.creator_id).first()
-    chapters = db.query(MemberCourseChapter).filter(
-        MemberCourseChapter.course_id == course.id
-    ).order_by(MemberCourseChapter.chapter_order).all()
-    lessons_by_chapter = {}
-    for ch in chapters:
-        lessons_by_chapter[ch.id] = db.query(MemberCourseLesson).filter(
-            MemberCourseLesson.chapter_id == ch.id
-        ).order_by(MemberCourseLesson.lesson_order).all()
-    # Check if current user already owns it
-    user = None
-    try:
-        user = get_current_user(request, db)
-    except:
-        pass
-    already_purchased = False
-    if user:
-        existing = db.query(MemberCoursePurchase).filter(
-            MemberCoursePurchase.course_id == course.id,
-            MemberCoursePurchase.buyer_id == user.id,
-            MemberCoursePurchase.status == "completed"
-        ).first()
-        already_purchased = existing is not None
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/dashboard", status_code=302)
-
-def _old_marketplace_course_DISABLED(slug=None, request=None, db=None):
-    return templates.TemplateResponse("marketplace-course.html", {
-        "request": request, "course": course, "creator": creator,
-        "chapters": chapters, "lessons_by_chapter": lessons_by_chapter,
-        "user": user, "already_purchased": already_purchased,
-    })
-
-
-@app.get("/courses/creator-agreement")
-def creator_agreement_page(request: Request):
-    """Course Creator Agreement — legal terms page."""
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/dashboard", status_code=302)
-
-def _old_creator_agreement_DISABLED(request=None):
-    return templates.TemplateResponse("course-creator-agreement.html", {"request": request})
-
+# The member-uploaded course marketplace has been retired in favour of
+# the official 3-tier Course Academy (`Course` model). All creator-upload
+# endpoints have been removed. MemberCourse/MemberCoursePurchase DB tables
+# remain in place for historical data integrity but are no longer written to.
 
 # ═══════════════════════════════════════════════════════════════
 #  SUPERSELLER — AI Sales Autopilot API
@@ -16732,8 +15185,6 @@ async def api_superseller_create(request: Request,
     db.refresh(campaign)
 
     return {"success": True, "campaign_id": campaign.id, "status": "created"}
-
-
 def _build_superseller_context(niche, audience, tone, goal, funnel_url):
     """Build the shared AI context string for SuperSeller generation."""
     return f"""You are generating marketing content for a SuperAdPro member.
@@ -16751,8 +15202,6 @@ Funnel URL: {funnel_url}
 
 IMPORTANT: Never make income guarantees. Focus on the tools and platform value.
 All CTAs should point to: {funnel_url}"""
-
-
 @app.post("/api/superseller/campaign/{campaign_id}/generate-step1")
 async def api_superseller_step1(campaign_id: int,
                                  user: User = Depends(get_current_user),
@@ -16841,8 +15290,6 @@ Rotate platforms. Keep posts natural and engaging, not salesy."""
         c.status = "failed"
         db.commit()
         return JSONResponse({"error": "Step 1 failed", "details": errors}, status_code=500)
-
-
 @app.post("/api/superseller/campaign/{campaign_id}/generate-step2")
 async def api_superseller_step2(campaign_id: int,
                                  user: User = Depends(get_current_user),
@@ -16901,8 +15348,6 @@ Each: {{"platform": "facebook|instagram|google", "headline": "headline", "body":
         c.status = "failed"
         db.commit()
         return JSONResponse({"error": "Step 2 failed", "details": errors}, status_code=500)
-
-
 @app.post("/api/superseller/campaign/{campaign_id}/generate-step3")
 async def api_superseller_step3(campaign_id: int,
                                  user: User = Depends(get_current_user),
@@ -16962,8 +15407,6 @@ Generate a 30-day campaign strategy. Return ONLY valid JSON object with:
         c.status = "failed"
         db.commit()
         return JSONResponse({"error": "Step 3 failed", "details": errors}, status_code=500)
-
-
 @app.get("/api/superseller/campaigns")
 def api_superseller_campaigns(request: Request, user: User = Depends(get_current_user),
                                db: Session = Depends(get_db)):
@@ -16997,8 +15440,6 @@ def api_superseller_campaigns(request: Request, user: User = Depends(get_current
         "chat_conversations": c.chat_conversations or 0,
         "created_at": c.created_at.isoformat() if c.created_at else None,
     } for c in campaigns]}
-
-
 @app.get("/api/superseller/campaign/{campaign_id}")
 def api_superseller_detail(campaign_id: int, request: Request,
                             user: User = Depends(get_current_user),
@@ -17058,8 +15499,6 @@ def api_superseller_detail(campaign_id: int, request: Request,
         "chat_conversations": c.chat_conversations or 0,
         "created_at": c.created_at.isoformat() if c.created_at else None,
     }
-
-
 @app.get("/api/superseller/today/{campaign_id}")
 def api_superseller_today(campaign_id: int, request: Request,
                            user: User = Depends(get_current_user),
@@ -17094,8 +15533,6 @@ def api_superseller_today(campaign_id: int, request: Request,
         "funnel_url": c.funnel_url,
         "total_days": 30,
     }
-
-
 @app.delete("/api/superseller/campaign/{campaign_id}")
 def api_superseller_delete(campaign_id: int, request: Request,
                             user: User = Depends(get_current_user),
@@ -17113,8 +15550,6 @@ def api_superseller_delete(campaign_id: int, request: Request,
     db.delete(c)
     db.commit()
     return {"success": True, "message": "Campaign deleted"}
-
-
 async def _call_ai(prompt: str, model: str = "claude-sonnet-4-20250514", retries: int = 2) -> str:
     """Call AI for SuperSeller generation — Gemini first, Claude fallback."""
     import httpx
@@ -17169,8 +15604,6 @@ async def _call_ai(prompt: str, model: str = "claude-sonnet-4-20250514", retries
             import asyncio
             await asyncio.sleep(3)
     raise Exception(f"AI call failed after {retries} attempts: {last_error}")
-
-
 def _extract_json(text: str) -> str:
     """Extract JSON from AI response — handles markdown code blocks."""
     import json as _json
@@ -17200,8 +15633,6 @@ def _extract_json(text: str) -> str:
                             return candidate
                         except: break
         return t
-
-
 # ═══════════════════════════════════════════════════════════════
 #  SUPERSELLER PHASE 2 — Brevo Email Automation
 # ═══════════════════════════════════════════════════════════════
@@ -17246,8 +15677,6 @@ async def api_superseller_activate_emails(campaign_id: int, request: Request,
     except Exception as e:
         logger.error(f"SuperSeller Brevo list creation failed: {e}")
         return JSONResponse({"error": f"Email setup failed: {str(e)}"}, status_code=500)
-
-
 @app.post("/api/superseller/lead-capture/{campaign_id}")
 async def api_superseller_lead_capture(campaign_id: int, request: Request,
                                         db: Session = Depends(get_db)):
@@ -17343,8 +15772,6 @@ async def api_superseller_lead_capture(campaign_id: int, request: Request,
         f"A new lead signed up through your SuperSeller funnel for '{c.niche}'. Check your SuperSeller dashboard.")
 
     return {"success": True, "message": "Lead captured"}
-
-
 def _send_superseller_email(to_email: str, to_name: str, email_data: dict,
                              campaign, db):
     """Send a SuperSeller sequence email via Brevo transactional API."""
@@ -17376,8 +15803,6 @@ def _send_superseller_email(to_email: str, to_name: str, email_data: dict,
         urllib.request.urlopen(req, timeout=15)
     except Exception as e:
         logger.error(f"SuperSeller email send failed: {e}")
-
-
 # ═══════════════════════════════════════════════════════════════
 #  SUPERSELLER PHASE 3 — AI Sales Agent Chatbot
 # ═══════════════════════════════════════════════════════════════
@@ -17439,8 +15864,6 @@ async def api_superseller_create_custom_agent(request: Request, user: User = Dep
     db.refresh(campaign)
 
     return {"success": True, "campaign_id": campaign.id, "status": "active"}
-
-
 @app.get("/superseller/go/{campaign_id}")
 def api_superseller_tracked_click(campaign_id: int, request: Request,
                                     db: Session = Depends(get_db)):
@@ -17452,8 +15875,6 @@ def api_superseller_tracked_click(campaign_id: int, request: Request,
     c.link_clicks = (c.link_clicks or 0) + 1
     db.commit()
     return RedirectResponse(url=c.funnel_url or "/", status_code=302)
-
-
 @app.get("/superseller/page/{campaign_id}")
 def api_superseller_landing_page(campaign_id: int, request: Request,
                                    db: Session = Depends(get_db)):
@@ -17548,8 +15969,6 @@ def api_superseller_landing_page(campaign_id: int, request: Request,
             html = html[:body_end] + c.custom_html_inject + html[body_end:]
 
     return HTMLResponse(html)
-
-
 @app.post("/api/superseller/regenerate-landing/{campaign_id}")
 async def api_superseller_regen_landing(campaign_id: int, request: Request,
                                           user: User = Depends(get_current_user),
@@ -17580,8 +15999,6 @@ Return ONLY complete HTML starting with <!DOCTYPE html>. No markdown."""
         return {"success": True}
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
-
-
 @app.get("/api/superseller/page-customizations/{campaign_id}")
 def api_superseller_get_customizations(campaign_id: int, request: Request,
                                         user: User = Depends(get_current_user),
@@ -17603,8 +16020,6 @@ def api_superseller_get_customizations(campaign_id: int, request: Request,
         "custom_cta_color": c.custom_cta_color or "",
         "custom_html_inject": c.custom_html_inject or "",
     }
-
-
 @app.post("/api/superseller/page-customizations/{campaign_id}")
 async def api_superseller_save_customizations(campaign_id: int, request: Request,
                                                user: User = Depends(get_current_user),
@@ -17642,8 +16057,6 @@ async def api_superseller_save_customizations(campaign_id: int, request: Request
 
     db.commit()
     return {"success": True}
-
-
 @app.post("/api/superseller/chat/{campaign_id}")
 async def api_superseller_chat(campaign_id: int, request: Request,
                                 db: Session = Depends(get_db)):
@@ -17753,8 +16166,6 @@ YOUR ROLE:
     except Exception as e:
         logger.error(f"SuperSeller AI chat failed: {e}")
         return {"reply": "I'm having a moment — could you try asking again?"}
-
-
 async def _call_ai_with_system(system: str, messages: list, model: str = "claude-haiku-4-5-20251001") -> str:
     """Call AI with system prompt — Gemini first, Claude fallback."""
     import httpx
@@ -17799,8 +16210,6 @@ async def _call_ai_with_system(system: str, messages: list, model: str = "claude
             return data["content"][0].get("text", "")
         return "I'm here to help! What would you like to know about SuperAdPro?"
 
-
-
 # ═══════════════════════════════════════════════════════════════
 #  PAY IT FORWARD — Gift Voucher System
 # ═══════════════════════════════════════════════════════════════
@@ -17810,8 +16219,6 @@ import secrets as _secrets
 def _generate_voucher_code():
     """Generate a unique 8-character voucher code."""
     return _secrets.token_urlsafe(6).replace('-', '').replace('_', '')[:8].upper()
-
-
 @app.get("/api/pay-it-forward/dashboard")
 async def api_pif_dashboard(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get Pay It Forward dashboard data for the current user."""
@@ -17886,8 +16293,6 @@ async def api_pif_dashboard(user: User = Depends(get_current_user), db: Session 
         "can_pay_from_wallet": can_pay_from_wallet,
         "wallet_balance": float(user.balance or 0),
     }
-
-
 @app.post("/api/pay-it-forward/create")
 async def api_pif_create(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Create a new gift voucher. Payment via wallet balance or crypto."""
@@ -18035,8 +16440,6 @@ async def api_pif_create(request: Request, user: User = Depends(get_current_user
         "link": f"https://www.superadpro.com/gift/{code}",
         "chain_depth": chain_depth,
     }
-
-
 @app.get("/api/gift/{code}")
 async def api_gift_info(code: str, db: Session = Depends(get_db)):
     """Public endpoint — get gift voucher info for the landing page."""
@@ -18060,8 +16463,6 @@ async def api_gift_info(code: str, db: Session = Depends(get_db)):
         "personal_message": voucher.personal_message,
         "chain_depth": voucher.pif_chain_depth,
     }
-
-
 @app.post("/api/gift/{code}/claim")
 async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_db)):
     """Claim a gift voucher — activates membership for the logged-in user."""
@@ -18110,16 +16511,12 @@ async def api_gift_claim(code: str, request: Request, db: Session = Depends(get_
         "message": "Your membership has been activated! Welcome to SuperAdPro.",
         "gifter_name": db.query(User).filter(User.id == voucher.gifter_user_id).first().first_name or "A member",
     }
-
-
 @app.get("/gift/{code}")
 async def serve_gift_page(code: str):
     """Serve the React SPA for gift voucher landing pages."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h2>Loading...</h2>")
-
-
 # ═══════════════════════════════════════════════════════════════
 #  REACT SPA — Serve the built React frontend
 # ═══════════════════════════════════════════════════════════════
@@ -18133,8 +16530,6 @@ async def serve_react_app(full_path: str):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h2>React app not built yet. Run: cd frontend && npm run build</h2>", status_code=503)
-
-
 @app.post("/api/account/update")
 async def api_account_update(request: Request, user: User = Depends(get_current_user),
                              db: Session = Depends(get_db)):
@@ -18173,8 +16568,6 @@ async def api_account_update(request: Request, user: User = Depends(get_current_
         user.wallet_address = wa
     db.commit()
     return {"ok": True}
-
-
 @app.post("/api/account/change-password")
 async def api_change_password(request: Request, user: User = Depends(get_current_user),
                                db: Session = Depends(get_db)):
@@ -18214,8 +16607,6 @@ def api_courses_list(request: Request, db: Session = Depends(get_db)):
             "total_duration": total_dur,
         })
     return {"courses": result}
-
-
 @app.get("/api/affiliate")
 def api_affiliate_data(request: Request, user: User = Depends(get_current_user),
                        db: Session = Depends(get_db)):
@@ -18236,8 +16627,6 @@ def api_affiliate_data(request: Request, user: User = Depends(get_current_user),
             "created_at": r.created_at.isoformat() if r.created_at else None,
         } for r in referrals],
     }
-
-
 @app.get("/api/leaderboard")
 def api_leaderboard(db: Session = Depends(get_db)):
     """JSON leaderboard data with full user info + recent activity feed. Cached 5 min."""
@@ -18345,8 +16734,6 @@ def api_leaderboard(db: Session = Depends(get_db)):
     cache_set(cache_key, result, ttl=300)
 
     return result
-
-
 @app.get("/api/campaign-tiers")
 def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
                        db: Session = Depends(get_db)):
@@ -18408,680 +16795,16 @@ def api_campaign_tiers(request: Request, user: User = Depends(get_current_user),
     }
 
 
-@app.get("/api/marketplace/browse")
-def api_marketplace_browse(db: Session = Depends(get_db)):
-    """Public: browse published marketplace courses."""
-    courses = db.query(MemberCourse).filter(
-        MemberCourse.status == "published", MemberCourse.is_public == True
-    ).order_by(MemberCourse.created_at.desc()).all()
-    creator_ids = list(set(c.creator_id for c in courses))
-    creators = {}
-    if creator_ids:
-        for u in db.query(User).filter(User.id.in_(creator_ids)).all():
-            creators[u.id] = u
-    return {"courses": [{
-        "id": c.id, "title": c.title, "slug": c.slug,
-        "description": c.description or "", "short_description": c.short_description or "",
-        "price": float(c.price), "thumbnail_url": c.thumbnail_url or "",
-        "category": c.category or "other", "difficulty_level": c.difficulty_level or "beginner",
-        "lesson_count": c.lesson_count or 0, "total_duration_mins": c.total_duration_mins or 0,
-        "total_sales": c.total_sales or 0,
-        "creator_name": (creators[c.creator_id].first_name or creators[c.creator_id].username) if c.creator_id in creators else "Member",
-    } for c in courses]}
-
-
-@app.get("/api/marketplace/my-courses")
-def api_my_marketplace_courses(request: Request, user: User = Depends(get_current_user),
-                               db: Session = Depends(get_db)):
-    """JSON: current user's marketplace courses."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    courses = db.query(MemberCourse).filter(
-        MemberCourse.creator_id == user.id
-    ).order_by(MemberCourse.created_at.desc()).all()
-    return {"courses": [{
-        "id": c.id, "title": c.title, "slug": c.slug, "price": float(c.price),
-        "thumbnail_url": c.thumbnail_url or "", "category": c.category or "other",
-        "status": c.status, "lesson_count": c.lesson_count or 0,
-        "total_duration_mins": c.total_duration_mins or 0,
-        "total_sales": c.total_sales or 0, "total_revenue": float(c.total_revenue or 0),
-    } for c in courses]}
-
 
 # ═══════════════════════════════════════════════════════════════
-#  SUPERMARKET — Digital Product Marketplace APIs (50/25/25)
+#  SUPERMARKET / DIGITAL PRODUCT MARKETPLACE — RETIRED
 # ═══════════════════════════════════════════════════════════════
-
-def _serialize_product(p, creator=None):
-    """Serialize a DigitalProduct for API response."""
-    import json as _j
-    return {
-        "id": p.id, "title": p.title, "slug": p.slug,
-        "short_description": p.short_description or "",
-        "description": p.description or "",
-        "price": float(p.price), "compare_price": float(p.compare_price) if p.compare_price else None,
-        "banner_url": p.banner_url or "", "category": p.category or "other",
-        "tags": (p.tags or "").split(",") if p.tags else [],
-        "file_name": p.file_name or "", "file_size_bytes": p.file_size_bytes or 0,
-        "bonus_file_name": p.bonus_file_name or "",
-        "features": _safe_json(p.features_json), "faq": _safe_json(p.faq_json),
-        "demo_url": p.demo_url or "", "video_url": p.video_url or "",
-        "affiliate_commission": p.affiliate_commission or 25,
-        "affiliate_approved_only": p.affiliate_approved_only or False,
-        "promo_materials": _safe_json(p.promo_materials_json),
-        "status": p.status, "total_sales": p.total_sales or 0,
-        "total_revenue": float(p.total_revenue or 0),
-        "total_clicks": p.total_clicks or 0,
-        "conversion_rate": float(p.conversion_rate or 0),
-        "avg_rating": float(p.avg_rating or 0), "review_count": p.review_count or 0,
-        "is_featured": p.is_featured or False,
-        "creator_id": p.creator_id,
-        "creator_name": (creator.first_name or creator.username) if creator else "Member",
-        "created_at": p.created_at.isoformat() if p.created_at else None,
-        "published_at": p.published_at.isoformat() if p.published_at else None,
-        "ai_review": _safe_json_obj(p.ai_review_result),
-        "admin_notes": p.admin_notes or "",
-    }
-
-
-def _safe_json(s):
-    import json as _j
-    if not s: return []
-    try: return _j.loads(s)
-    except Exception: return []
-
-
-def _safe_json_obj(s):
-    import json as _j
-    if not s: return None
-    try: return _j.loads(s)
-    except Exception: return None
-
-
-@app.get("/api/supermarket/browse")
-def api_supermarket_browse(db: Session = Depends(get_db)):
-    """Public: browse published SuperMarket digital products."""
-    products = db.query(DigitalProduct).filter(
-        DigitalProduct.status == "published"
-    ).order_by(DigitalProduct.created_at.desc()).all()
-    creators = {}
-    cids = list(set(p.creator_id for p in products))
-    if cids:
-        for u in db.query(User).filter(User.id.in_(cids)).all():
-            creators[u.id] = u
-    return {"products": [_serialize_product(p, creators.get(p.creator_id)) for p in products]}
-
-
-@app.get("/api/supermarket/product/{product_id}")
-def api_supermarket_product(product_id: int, db: Session = Depends(get_db)):
-    """Get full product detail."""
-    p = db.query(DigitalProduct).filter(DigitalProduct.id == product_id).first()
-    if not p:
-        return JSONResponse({"error": "Product not found"}, status_code=404)
-    creator = db.query(User).filter(User.id == p.creator_id).first()
-    data = _serialize_product(p, creator)
-    # Add reviews
-    reviews = db.query(DigitalProductReview).filter(
-        DigitalProductReview.product_id == product_id
-    ).order_by(DigitalProductReview.created_at.desc()).limit(20).all()
-    data["reviews"] = [{
-        "id": r.id, "rating": r.rating, "title": r.title or "", "comment": r.comment or "",
-        "is_verified": r.is_verified, "created_at": r.created_at.isoformat() if r.created_at else None,
-    } for r in reviews]
-    return data
-
-
-@app.get("/api/supermarket/my-products")
-def api_supermarket_my_products(request: Request, user: User = Depends(get_current_user),
-                                 db: Session = Depends(get_db)):
-    """List current user's SuperMarket products."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    products = db.query(DigitalProduct).filter(
-        DigitalProduct.creator_id == user.id
-    ).order_by(DigitalProduct.created_at.desc()).all()
-    return {"products": [_serialize_product(p) for p in products]}
-
-
-@app.post("/api/supermarket/products")
-@limiter.limit("10/minute")
-async def api_supermarket_create(request: Request, user: User = Depends(get_current_user),
-                                  db: Session = Depends(get_db)):
-    """Create a new SuperMarket digital product (draft)."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    body = await request.json()
-    import html as _html_sm
-    title = _html_sm.escape((body.get("title") or "").strip())[:120]
-    if not title or len(title) < 5:
-        return JSONResponse({"error": "Title must be at least 5 characters"}, status_code=400)
-    try:
-        price = float(body.get("price", 0))
-    except (ValueError, TypeError):
-        return JSONResponse({"error": "Invalid price"}, status_code=400)
-    if price < 5:
-        return JSONResponse({"error": "Minimum price is $5"}, status_code=400)
-    if price > 10000:
-        return JSONResponse({"error": "Maximum price is $10,000"}, status_code=400)
-
-    import re as _re_dp, json as _j_dp
-    raw_slug = _re_dp.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')
-    slug = f"{user.username.lower()}/{raw_slug}"
-    existing = db.query(DigitalProduct).filter(DigitalProduct.slug == slug).first()
-    if existing:
-        return JSONResponse({"error": "A product with this title already exists"}, status_code=400)
-
-    # Sanitise text fields
-    short_desc = _html_sm.escape((body.get("short_description") or "")[:200])
-    category = (body.get("category") or "other")[:30]
-    tags = _html_sm.escape((body.get("tags") or "")[:500])
-    video_url = (body.get("video_url") or "")[:500]
-    demo_url = (body.get("demo_url") or "")[:500]
-
-    # Validate compare price
-    compare_price = None
-    if body.get("compare_price"):
-        try:
-            compare_price = float(body["compare_price"])
-            if compare_price <= price: compare_price = None
-        except (ValueError, TypeError):
-            compare_price = None
-
-    p = DigitalProduct(
-        creator_id=user.id, title=title, slug=slug,
-        short_description=short_desc,
-        description=body.get("description") or "",
-        price=price,
-        compare_price=compare_price,
-        category=category, tags=tags,
-        video_url=video_url, demo_url=demo_url,
-        features_json=_j_dp.dumps(body.get("features") or []),
-        faq_json=_j_dp.dumps(body.get("faq") or []),
-        affiliate_commission=max(0, min(100, int(body.get("affiliate_commission", 25)))),
-        creator_agreed_terms=body.get("agreed_terms", False),
-        creator_agreed_at=datetime.utcnow() if body.get("agreed_terms") else None,
-        status="draft",
-    )
-    db.add(p)
-    db.commit()
-    db.refresh(p)
-    return {"ok": True, "product_id": p.id, "slug": p.slug}
-
-
-@app.put("/api/supermarket/products/{product_id}")
-async def api_supermarket_update(product_id: int, request: Request, user: User = Depends(get_current_user),
-                                  db: Session = Depends(get_db)):
-    """Update a SuperMarket product."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    p = db.query(DigitalProduct).filter(
-        DigitalProduct.id == product_id, DigitalProduct.creator_id == user.id
-    ).first()
-    if not p:
-        return JSONResponse({"error": "Product not found"}, status_code=404)
-    import json as _j_up
-    body = await request.json()
-    for field in ["title","short_description","description","category","tags","video_url","demo_url","banner_url"]:
-        if field in body:
-            setattr(p, field, (body[field] or "").strip() if isinstance(body.get(field), str) else body.get(field))
-    if "price" in body:
-        p.price = max(5, float(body["price"]))
-    if "compare_price" in body:
-        p.compare_price = float(body["compare_price"]) if body["compare_price"] else None
-    if "features" in body:
-        p.features_json = _j_up.dumps(body["features"])
-    if "faq" in body:
-        p.faq_json = _j_up.dumps(body["faq"])
-    if "affiliate_commission" in body:
-        p.affiliate_commission = max(0, min(100, int(body["affiliate_commission"])))
-    if "affiliate_approved_only" in body:
-        p.affiliate_approved_only = bool(body["affiliate_approved_only"])
-    p.updated_at = datetime.utcnow()
-    db.commit()
-    return {"ok": True}
-
-
-@app.post("/api/supermarket/products/{product_id}/upload")
-async def api_supermarket_upload_file(product_id: int, request: Request, user: User = Depends(get_current_user),
-                                       db: Session = Depends(get_db)):
-    """Upload the main product file or bonus file."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    p = db.query(DigitalProduct).filter(
-        DigitalProduct.id == product_id, DigitalProduct.creator_id == user.id
-    ).first()
-    if not p:
-        return JSONResponse({"error": "Product not found"}, status_code=404)
-    body = await request.json()
-    file_type = body.get("type", "main")  # main or bonus
-    file_data = body.get("data")          # base64
-    file_name = body.get("name", "file")
-    file_size = body.get("size", 0)
-    if not file_data:
-        return JSONResponse({"error": "No file data"}, status_code=400)
-    # File size check — max 50MB base64 (~37MB raw)
-    if len(file_data) > 50 * 1024 * 1024:
-        return JSONResponse({"error": "File too large. Maximum 50MB."}, status_code=400)
-    if file_type == "bonus":
-        p.bonus_file_url = file_data
-        p.bonus_file_name = file_name
-    elif file_type == "banner":
-        p.banner_url = file_data
-    else:
-        p.file_url = file_data
-        p.file_name = file_name
-        p.file_size_bytes = file_size
-    p.updated_at = datetime.utcnow()
-    db.commit()
-    return {"ok": True, "file_name": file_name}
-
-
-@app.post("/api/supermarket/products/{product_id}/submit")
-async def api_supermarket_submit(product_id: int, request: Request, user: User = Depends(get_current_user),
-                                  db: Session = Depends(get_db)):
-    """Submit product for review."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    p = db.query(DigitalProduct).filter(
-        DigitalProduct.id == product_id, DigitalProduct.creator_id == user.id
-    ).first()
-    if not p:
-        return JSONResponse({"error": "Product not found"}, status_code=404)
-    errors = []
-    if not p.title or len(p.title) < 5: errors.append("Title too short (min 5 chars)")
-    # Strip HTML tags for description length check
-    import re as _re_strip
-    plain_desc = _re_strip.sub(r'<[^>]+>', '', p.description or '')
-    if len(plain_desc.strip()) < 50: errors.append("Description must be 50+ characters of actual text")
-    if not p.file_url: errors.append("Product file is required — upload in step 3")
-    if not p.banner_url: errors.append("Banner image is required — upload in step 2")
-    if p.price < 5: errors.append("Minimum price is $5")
-    if not p.creator_agreed_terms: errors.append("Must agree to seller terms")
-    if errors:
-        return JSONResponse({"error": "Quality checks failed", "issues": errors}, status_code=400)
-
-    # ── AI Content Scan ──
-    import json as _json_sm
-    ai_result = {"passed": True, "plagiarism_score": 0, "quality_score": 70, "copyright_risk": "low", "flagged_issues": [], "summary": ""}
-    try:
-        import os
-        import httpx
-        api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-        if api_key:
-            scan_text = f"Title: {p.title}\nCategory: {p.category}\nPrice: ${p.price}\nDescription: {plain_desc[:6000]}\n"
-            features_list = _safe_json(p.features_json)
-            if features_list:
-                scan_text += "Features: " + ", ".join(str(f) for f in features_list) + "\n"
-
-            scan_prompt = f"""You are a digital product quality and compliance reviewer for an affiliate marketplace called SuperMarket. Review this product listing and return a JSON object:
-
-- "passed": boolean (true=acceptable, false=reject)
-- "plagiarism_score": 0-100 (0=original, 100=likely copied/stolen)
-- "quality_score": 0-100 (0=spam/worthless, 100=excellent value)
-- "copyright_risk": "low"|"medium"|"high" (risk of containing copyrighted material)
-- "flagged_issues": array of objects with "type" (copyright|plagiarism|prohibited|misleading|trademark|scam|quality), "severity" (high|medium|low), "description" (brief explanation)
-- "summary": one-sentence assessment for the admin reviewer
-
-Auto-fail criteria:
-- Copyright risk "high" (likely contains copyrighted material)
-- Plagiarism score > 40
-- Quality score < 25
-- Contains hate speech, adult content, illegal content
-- Misleading income claims without disclaimers
-- Known scam patterns (fake software, stolen PLR, rebrandable junk)
-- Title or description is nonsensical or spam
-
-Product listing to review:
-{scan_text}
-
-Respond ONLY with valid JSON, no other text."""
-
-            async with httpx.AsyncClient(timeout=30.0) as client:
-                resp = await client.post(
-                    "https://api.anthropic.com/v1/messages",
-                    headers={"x-api-key": api_key, "anthropic-version": "2023-06-01", "content-type": "application/json"},
-                    json={"model": "claude-sonnet-4-20250514", "max_tokens": 1000,
-                          "messages": [{"role": "user", "content": scan_prompt}]}
-                )
-                if resp.status_code == 200:
-                    resp_data = resp.json()
-                    ai_text = ""
-                    for block in resp_data.get("content", []):
-                        if block.get("type") == "text":
-                            ai_text += block.get("text", "")
-                    ai_text = ai_text.strip()
-                    if ai_text.startswith("```"):
-                        ai_text = ai_text.split("```")[1]
-                        if ai_text.startswith("json"):
-                            ai_text = ai_text[4:]
-                    ai_result = _json_sm.loads(ai_text)
-    except Exception as e:
-        print(f"SuperMarket AI review error (non-fatal): {e}")
-        ai_result = {"passed": True, "plagiarism_score": 0, "quality_score": 50, "copyright_risk": "unknown",
-                      "flagged_issues": [], "summary": "AI review unavailable — manual review required"}
-
-    # Store AI result
-    p.ai_review_result = _json_sm.dumps(ai_result)
-    p.ai_reviewed_at = datetime.utcnow()
-
-    # Check auto-reject thresholds
-    auto_reject = False
-    if not ai_result.get("passed", True):
-        auto_reject = True
-    if ai_result.get("plagiarism_score", 0) > 40:
-        auto_reject = True
-    if ai_result.get("quality_score", 100) < 25:
-        auto_reject = True
-    if ai_result.get("copyright_risk", "low") == "high":
-        auto_reject = True
-
-    if auto_reject:
-        p.status = "draft"
-        p.admin_notes = ai_result.get("summary", "Content did not pass automated review")
-        db.commit()
-        # Notify creator of rejection
-        try:
-            notif = Notification(
-                user_id=user.id, type="supermarket",
-                title="Product needs changes",
-                message=f"Your product '{p.title}' didn't pass our automated review. Please check the issues and resubmit.",
-            )
-            db.add(notif)
-            db.commit()
-        except Exception:
-            pass
-        issues = [i.get("description", "") for i in ai_result.get("flagged_issues", [])]
-        if ai_result.get("summary"):
-            issues.insert(0, ai_result["summary"])
-        return JSONResponse({"error": "AI review: changes needed", "issues": issues, "ai_result": ai_result}, status_code=400)
-
-    # AI passed — move to admin review queue
-    p.status = "pending_review"
-    p.updated_at = datetime.utcnow()
-
-    # Create notification for creator
-    try:
-        ai_summary = ai_result.get("summary", "")
-        notif = Notification(
-            user_id=user.id,
-            type="supermarket",
-            title="Product submitted for review ✓",
-            message=f"Your product '{p.title}' passed AI screening and is now waiting for admin approval. " + (f"AI notes: {ai_summary}" if ai_summary else "We'll notify you when it's live."),
-        )
-        db.add(notif)
-    except Exception:
-        pass
-
-    # Notify admin
-    try:
-        admin = db.query(User).filter(User.is_admin == True).first()
-        if admin:
-            notif_admin = Notification(
-                user_id=admin.id, type="admin",
-                title="New SuperMarket product to review",
-                message=f"'{p.title}' by {user.username} — AI score: {ai_result.get('quality_score', '?')}/100, Copyright risk: {ai_result.get('copyright_risk', '?')}",
-            )
-            db.add(notif_admin)
-    except Exception:
-        pass
-
-    db.commit()
-    return {"ok": True, "status": "pending_review", "ai_result": ai_result}
-
-
-@app.delete("/api/supermarket/products/{product_id}")
-def api_supermarket_delete(product_id: int, user: User = Depends(get_current_user),
-                            db: Session = Depends(get_db)):
-    """Delete a SuperMarket product. Admin can delete any. Creator can delete own."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    if user.is_admin:
-        p = db.query(DigitalProduct).filter(DigitalProduct.id == product_id).first()
-    else:
-        p = db.query(DigitalProduct).filter(
-            DigitalProduct.id == product_id, DigitalProduct.creator_id == user.id
-        ).first()
-    if not p:
-        return JSONResponse({"error": "Product not found"}, status_code=404)
-    # Delete related records first
-    db.query(DigitalProductReview).filter(DigitalProductReview.product_id == product_id).delete()
-    db.query(DigitalProductAffiliate).filter(DigitalProductAffiliate.product_id == product_id).delete()
-    db.query(DigitalProductPurchase).filter(DigitalProductPurchase.product_id == product_id).delete()
-    db.delete(p)
-    db.commit()
-    return {"ok": True}
-
-
-@app.post("/api/supermarket/purchase/{product_id}")
-async def api_supermarket_purchase(product_id: int, request: Request,
-                                    user: User = Depends(get_current_user),
-                                    db: Session = Depends(get_db)):
-    """Purchase a SuperMarket digital product."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    p = db.query(DigitalProduct).filter(DigitalProduct.id == product_id, DigitalProduct.status == "published").first()
-    if not p:
-        return JSONResponse({"error": "Product not found or not available"}, status_code=404)
-    # Prevent self-purchase
-    if p.creator_id == user.id:
-        return JSONResponse({"error": "You cannot purchase your own product"}, status_code=400)
-    # Prevent duplicate purchase
-    existing_purchase = db.query(DigitalProductPurchase).filter(
-        DigitalProductPurchase.product_id == product_id,
-        DigitalProductPurchase.buyer_id == user.id,
-        DigitalProductPurchase.status == "completed"
-    ).first()
-    if existing_purchase:
-        return JSONResponse({"error": "Already purchased", "download_token": existing_purchase.download_token}, status_code=400)
-    body = await request.json()
-    affiliate_id = body.get("affiliate_id")
-
-    import secrets
-    token = secrets.token_urlsafe(32)
-    creator_amt = round(float(p.price) * 0.50, 2)
-    affiliate_amt = round(float(p.price) * 0.25, 2)
-    platform_amt = round(float(p.price) * 0.25, 2)
-
-    purchase = DigitalProductPurchase(
-        product_id=p.id, buyer_id=user.id, buyer_email=user.email,
-        buyer_name=user.first_name or user.username,
-        amount_paid=float(p.price),
-        creator_commission=creator_amt, affiliate_commission=affiliate_amt,
-        platform_commission=platform_amt, affiliate_id=affiliate_id,
-        download_token=token, status="completed",
-    )
-    db.add(purchase)
-
-    # Credit commissions
-    creator = db.query(User).filter(User.id == p.creator_id).first()
-    if creator:
-        creator.balance = (creator.balance or 0) + creator_amt
-        creator.total_earned = (creator.total_earned or 0) + creator_amt
-        creator.marketplace_earnings = (creator.marketplace_earnings or 0) + creator_amt
-    if affiliate_id:
-        affiliate = db.query(User).filter(User.id == affiliate_id).first()
-        if affiliate:
-            affiliate.balance = (affiliate.balance or 0) + affiliate_amt
-            affiliate.total_earned = (affiliate.total_earned or 0) + affiliate_amt
-            affiliate.marketplace_earnings = (affiliate.marketplace_earnings or 0) + affiliate_amt
-            # Update affiliate stats
-            aff_rec = db.query(DigitalProductAffiliate).filter(
-                DigitalProductAffiliate.product_id == p.id,
-                DigitalProductAffiliate.user_id == affiliate_id
-            ).first()
-            if aff_rec:
-                aff_rec.sales = (aff_rec.sales or 0) + 1
-                aff_rec.earnings = (aff_rec.earnings or 0) + affiliate_amt
-
-    p.total_sales = (p.total_sales or 0) + 1
-    p.total_revenue = (p.total_revenue or 0) + float(p.price)
-    db.commit()
-    return {"ok": True, "download_token": token}
-
-
-@app.get("/api/supermarket/download/{token}")
-def api_supermarket_download(token: str, user: User = Depends(get_current_user),
-                              db: Session = Depends(get_db)):
-    """Get download URL for a purchased product."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    purchase = db.query(DigitalProductPurchase).filter(
-        DigitalProductPurchase.download_token == token,
-        DigitalProductPurchase.buyer_id == user.id,
-        DigitalProductPurchase.status == "completed"
-    ).first()
-    if not purchase:
-        return JSONResponse({"error": "Invalid download token"}, status_code=404)
-    product = db.query(DigitalProduct).filter(DigitalProduct.id == purchase.product_id).first()
-    if not product or not product.file_url:
-        return JSONResponse({"error": "File not available"}, status_code=404)
-    purchase.download_count = (purchase.download_count or 0) + 1
-    db.commit()
-    return {
-        "file_url": product.file_url, "file_name": product.file_name or "download",
-        "bonus_file_url": product.bonus_file_url or None,
-        "bonus_file_name": product.bonus_file_name or None,
-    }
-
-
-@app.post("/api/supermarket/products/{product_id}/review")
-async def api_supermarket_review(product_id: int, request: Request,
-                                  user: User = Depends(get_current_user),
-                                  db: Session = Depends(get_db)):
-    """Submit a review for a purchased product."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    # Verify purchase
-    purchase = db.query(DigitalProductPurchase).filter(
-        DigitalProductPurchase.product_id == product_id,
-        DigitalProductPurchase.buyer_id == user.id,
-        DigitalProductPurchase.status == "completed"
-    ).first()
-    if not purchase:
-        return JSONResponse({"error": "Must purchase product to review"}, status_code=403)
-    # Check if already reviewed
-    existing = db.query(DigitalProductReview).filter(
-        DigitalProductReview.product_id == product_id,
-        DigitalProductReview.buyer_id == user.id
-    ).first()
-    if existing:
-        return JSONResponse({"error": "Already reviewed"}, status_code=400)
-    body = await request.json()
-    rating = max(1, min(5, int(body.get("rating", 5))))
-    review = DigitalProductReview(
-        product_id=product_id, buyer_id=user.id, rating=rating,
-        title=(body.get("title") or "")[:100],
-        comment=(body.get("comment") or "")[:1000],
-        is_verified=True,
-    )
-    db.add(review)
-    # Update product avg rating
-    p = db.query(DigitalProduct).filter(DigitalProduct.id == product_id).first()
-    if p:
-        all_reviews = db.query(DigitalProductReview).filter(DigitalProductReview.product_id == product_id).all()
-        total = sum(r.rating for r in all_reviews) + rating
-        count = len(all_reviews) + 1
-        p.avg_rating = round(total / count, 2)
-        p.review_count = count
-    db.commit()
-    return {"ok": True}
-
-
-@app.get("/api/supermarket/affiliate/{product_id}")
-def api_supermarket_affiliate_link(product_id: int, user: User = Depends(get_current_user),
-                                    db: Session = Depends(get_db)):
-    """Get or create affiliate link for a product."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    p = db.query(DigitalProduct).filter(DigitalProduct.id == product_id).first()
-    if not p:
-        return JSONResponse({"error": "Product not found"}, status_code=404)
-    # Check if approved (if required)
-    if p.affiliate_approved_only:
-        aff = db.query(DigitalProductAffiliate).filter(
-            DigitalProductAffiliate.product_id == product_id,
-            DigitalProductAffiliate.user_id == user.id
-        ).first()
-        if not aff or aff.status != "approved":
-            return JSONResponse({"error": "Affiliate approval required"}, status_code=403)
-    # Create affiliate record if not exists
-    aff = db.query(DigitalProductAffiliate).filter(
-        DigitalProductAffiliate.product_id == product_id,
-        DigitalProductAffiliate.user_id == user.id
-    ).first()
-    if not aff:
-        aff = DigitalProductAffiliate(product_id=product_id, user_id=user.id, status="approved")
-        db.add(aff)
-        p.total_affiliates = (p.total_affiliates or 0) + 1
-        db.commit()
-    return {
-        "affiliate_link": f"/supermarket/product/{product_id}?ref={user.username}",
-        "commission": p.affiliate_commission or 25,
-        "clicks": aff.clicks or 0, "sales": aff.sales or 0,
-        "earnings": float(aff.earnings or 0),
-        "promo_materials": _safe_json(p.promo_materials_json),
-    }
-
-
-# Admin: list pending SuperMarket products
-@app.get("/api/supermarket/admin/pending")
-def api_supermarket_admin_pending(user: User = Depends(get_current_user),
-                                   db: Session = Depends(get_db)):
-    """Admin: list products pending review."""
-    _require_admin(user)
-    products = db.query(DigitalProduct).filter(
-        DigitalProduct.status == "pending_review"
-    ).order_by(DigitalProduct.updated_at.desc()).all()
-    creators = {}
-    cids = list(set(p.creator_id for p in products))
-    if cids:
-        for u in db.query(User).filter(User.id.in_(cids)).all():
-            creators[u.id] = u
-    return {"products": [_serialize_product(p, creators.get(p.creator_id)) for p in products]}
-
-
-# Admin: approve/reject SuperMarket products
-@app.post("/api/supermarket/admin/review/{product_id}")
-async def api_supermarket_admin_review(product_id: int, request: Request,
-                                        user: User = Depends(get_current_user),
-                                        db: Session = Depends(get_db)):
-    """Admin: approve or reject a SuperMarket product."""
-    _require_admin(user)
-    p = db.query(DigitalProduct).filter(DigitalProduct.id == product_id).first()
-    if not p:
-        return JSONResponse({"error": "Product not found"}, status_code=404)
-    body = await request.json()
-    action = body.get("action", "approve")
-    if action == "approve":
-        p.status = "published"
-        p.published_at = datetime.utcnow()
-        p.admin_reviewed_at = datetime.utcnow()
-        # Notify creator — approved
-        try:
-            notif = Notification(
-                user_id=p.creator_id, type="supermarket",
-                title="Product approved! 🎉",
-                message=f"Your product '{p.title}' has been approved and is now live on SuperMarket. Affiliates can start promoting it.",
-            )
-            db.add(notif)
-        except Exception: pass
-    elif action == "reject":
-        p.status = "draft"
-        p.admin_notes = body.get("reason", "")
-        p.admin_reviewed_at = datetime.utcnow()
-        # Notify creator — rejected
-        try:
-            reason = body.get("reason", "Please review the product guidelines.")
-            notif = Notification(
-                user_id=p.creator_id, type="supermarket",
-                title="Product needs changes",
-                message=f"Your product '{p.title}' needs some changes before it can be listed: {reason}",
-            )
-            db.add(notif)
-        except Exception: pass
-    db.commit()
-    return {"ok": True, "status": p.status}
-
+# The SuperMarket digital product marketplace has been retired. All
+# /api/supermarket/* endpoints (browse, product CRUD, upload, purchase,
+# reviews, affiliate, admin review) have been removed. DigitalProduct,
+# DigitalProductPurchase, DigitalProductReview, and DigitalProductAffiliate
+# tables remain in the database for historical data integrity but are no
+# longer written to.
 
 @app.get("/api/watch")
 def api_watch_data(request: Request, user: User = Depends(get_current_user),
@@ -19138,8 +16861,6 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
         import traceback
         traceback.print_exc()
         return JSONResponse({"error": str(e)}, status_code=500)
-
-
 @app.get("/api/analytics")
 def api_analytics_data(request: Request, user: User = Depends(get_current_user),
                        db: Session = Depends(get_db)):
@@ -19221,8 +16942,6 @@ def api_analytics_data(request: Request, user: User = Depends(get_current_user),
     except Exception as e:
         import traceback; traceback.print_exc()
         return JSONResponse({"error": str(e)}, status_code=500)
-
-
 @app.get("/api/achievements")
 def api_achievements_data(request: Request, user: User = Depends(get_current_user),
                           db: Session = Depends(get_db)):
@@ -19243,8 +16962,6 @@ def api_achievements_data(request: Request, user: User = Depends(get_current_use
             entry["target"] = badge.get("target", 1)
             available.append(entry)
     return {"earned": earned, "available": available}
-
-
 @app.get("/api/video-library")
 def api_video_library(request: Request, user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
@@ -19270,8 +16987,6 @@ def api_video_library(request: Request, user: User = Depends(get_current_user),
             "views_delivered": c.views_delivered or 0, "views_target": c.views_target or 0,
         } for c in campaigns],
     }
-
-
 @app.post("/api/support/ticket")
 async def api_support_ticket(request: Request, user: User = Depends(get_current_user),
                              db: Session = Depends(get_db)):
@@ -19295,8 +17010,6 @@ async def api_support_ticket(request: Request, user: User = Depends(get_current_
         db.add(notif)
         db.commit()
     return {"ok": True}
-
-
 @app.post("/api/watch/complete")
 async def api_watch_complete(request: Request, user: User = Depends(get_current_user),
                              db: Session = Depends(get_db)):
@@ -19384,8 +17097,6 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
         tb = traceback.format_exc()
         logger.error(f"Watch complete error: {e}\n{tb}")
         return JSONResponse({"error": str(e), "detail": tb}, status_code=500)
-
-
 # ═══════════════════════════════════════════════════════════════
 #  REACT MIGRATION: Remaining API endpoints
 # ═══════════════════════════════════════════════════════════════
@@ -19418,8 +17129,6 @@ def api_network_data(request: Request, user: User = Depends(get_current_user),
         } for r in referrals],
         "commissions": commissions,
     }
-
-
 @app.get("/api/leads")
 def api_leads_data(request: Request, user: User = Depends(get_current_user),
                    db: Session = Depends(get_db)):
@@ -19439,8 +17148,6 @@ def api_leads_data(request: Request, user: User = Depends(get_current_user),
         "is_hot": l.is_hot, "list_id": l.list_id, "sequence_id": l.email_sequence_id,
         "created_at": l.created_at.isoformat() if l.created_at else None,
     } for l in leads], "total": len(leads)}
-
-
 # ═══════════════════════════════════════════════════════════════
 #  MY LEADS — CRM + Autoresponder APIs
 # ═══════════════════════════════════════════════════════════════
@@ -19450,8 +17157,6 @@ def _lead_limit(user):
     tier = getattr(user, 'membership_tier', 'basic')
     if tier == 'pro': return 5000
     return 0  # Basic members cannot use leads/autoresponder
-
-
 DAILY_EMAIL_LIMIT = 200  # Free emails per day for Pro members
 EMAIL_BOOST_PACKS = [
     {"id": "boost_1k", "credits": 1000, "price": 5.00, "label": "🚀 1,000 Emails", "desc": "Perfect for a targeted campaign"},
@@ -19459,8 +17164,6 @@ EMAIL_BOOST_PACKS = [
     {"id": "boost_10k", "credits": 10000, "price": 29.00, "label": "🔥 10,000 Emails", "desc": "Scale your outreach"},
     {"id": "boost_50k", "credits": 50000, "price": 99.00, "label": "💎 50,000 Emails", "desc": "Enterprise-level volume"},
 ]
-
-
 def _check_email_allowance(user, db, count=1):
     """Check if user can send emails. Returns (allowed, reason).
     Uses daily free limit first, then boost credits."""
@@ -19478,8 +17181,6 @@ def _check_email_allowance(user, db, count=1):
         return False, f"Email limit reached. {sent_today}/{DAILY_EMAIL_LIMIT} free used today, {boost_credits} boost credits remaining. Purchase an Email Boost pack for more."
 
     return True, ""
-
-
 def _deduct_email_send(user, db, count=1):
     """Deduct from daily free first, then boost credits."""
     today = datetime.utcnow().strftime("%Y-%m-%d")
@@ -19497,8 +17198,6 @@ def _deduct_email_send(user, db, count=1):
         user.emails_sent_today = DAILY_EMAIL_LIMIT
         boost_needed = count - free_remaining
         user.email_credits = max(0, (user.email_credits or 0) - boost_needed)
-
-
 @app.get("/api/leads/sequences")
 def api_leads_sequences(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get all email sequences for this user."""
@@ -19512,8 +17211,6 @@ def api_leads_sequences(request: Request, user: User = Depends(get_current_user)
         "emails": _safe_json(s.emails_json),
         "created_at": s.created_at.isoformat() if s.created_at else None,
     } for s in seqs]}
-
-
 @app.post("/api/leads/sequences")
 async def api_create_sequence(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Create a new email sequence."""
@@ -19532,8 +17229,6 @@ async def api_create_sequence(request: Request, user: User = Depends(get_current
     db.commit()
     db.refresh(seq)
     return {"ok": True, "sequence_id": seq.id}
-
-
 @app.put("/api/leads/sequences/{seq_id}")
 async def api_update_sequence(seq_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Update an email sequence."""
@@ -19552,8 +17247,6 @@ async def api_update_sequence(seq_id: int, request: Request, user: User = Depend
     if "niche" in body: seq.niche = body["niche"]
     db.commit()
     return {"ok": True}
-
-
 @app.delete("/api/leads/sequences/{seq_id}")
 def api_delete_sequence(seq_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Delete an email sequence."""
@@ -19564,8 +17257,6 @@ def api_delete_sequence(seq_id: int, user: User = Depends(get_current_user), db:
     db.delete(seq)
     db.commit()
     return {"ok": True}
-
-
 @app.post("/api/leads/upload-csv")
 async def api_upload_leads_csv(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Upload leads from CSV. Commercial-grade import with validation, dedup, and auto-assignment."""
@@ -19676,8 +17367,6 @@ async def api_upload_leads_csv(request: Request, user: User = Depends(get_curren
         "skipped_over_limit": skipped,
         "total_leads": current_count + imported, "limit": limit,
     }
-
-
 @app.post("/api/leads/{lead_id}/assign-sequence")
 async def api_assign_sequence(lead_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Assign a lead to an email sequence."""
@@ -19690,8 +17379,6 @@ async def api_assign_sequence(lead_id: int, request: Request, user: User = Depen
     lead.status = "nurturing"
     db.commit()
     return {"ok": True}
-
-
 @app.post("/api/leads/send-sequence-email")
 async def api_send_sequence_email(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Send the next email in a sequence to a lead (or send to all leads in a sequence)."""
@@ -19750,8 +17437,6 @@ async def api_send_sequence_email(request: Request, user: User = Depends(get_cur
     _deduct_email_send(user, db, sent_count)
     db.commit()
     return {"ok": True, "sent": sent_count, "total_leads": len(leads)}
-
-
 @app.post("/api/leads/broadcast")
 async def api_broadcast_email(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Send a one-off broadcast email to all leads or a filtered set."""
@@ -19791,8 +17476,6 @@ async def api_broadcast_email(request: Request, user: User = Depends(get_current
             sent += 1
     _deduct_email_send(user, db, sent)
     return {"ok": True, "sent": sent, "total": len(leads)}
-
-
 @app.delete("/api/leads/{lead_id}")
 def api_delete_lead(lead_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Delete a single lead."""
@@ -19804,8 +17487,6 @@ def api_delete_lead(lead_id: int, user: User = Depends(get_current_user), db: Se
     db.delete(lead)
     db.commit()
     return {"ok": True}
-
-
 @app.get("/api/leads/stats")
 def api_leads_stats(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get lead stats + limit info."""
@@ -19816,8 +17497,6 @@ def api_leads_stats(request: Request, user: User = Depends(get_current_user), db
     hot = db.query(MemberLead).filter(MemberLead.user_id == user.id, MemberLead.is_hot == True).count()
     return {"total": total, "limit": limit, "remaining": max(0, limit - total), "hot": hot,
             "tier": getattr(user, 'membership_tier', 'basic')}
-
-
 @app.get("/api/leads/email-stats")
 def api_email_stats(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get email sending stats + boost credit balance."""
@@ -19834,8 +17513,6 @@ def api_email_stats(request: Request, user: User = Depends(get_current_user), db
         "total_available": max(0, DAILY_EMAIL_LIMIT - sent_today) + (user.email_credits or 0),
         "boost_packs": EMAIL_BOOST_PACKS,
     }
-
-
 @app.post("/api/leads/buy-boost")
 async def api_buy_email_boost(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Purchase an email boost pack using wallet balance."""
@@ -19859,8 +17536,6 @@ async def api_buy_email_boost(request: Request, user: User = Depends(get_current
     db.commit()
 
     return {"ok": True, "credits_added": pack["credits"], "total_credits": user.email_credits, "new_balance": float(user.balance)}
-
-
 # ── Lead Lists ──
 
 @app.get("/api/leads/lists")
@@ -19879,8 +17554,6 @@ def api_leads_lists(request: Request, user: User = Depends(get_current_user), db
         "sequence_id": l.sequence_id,
         "created_at": l.created_at.isoformat() if l.created_at else None,
     } for l in lists]}
-
-
 @app.post("/api/leads/lists")
 async def api_create_lead_list(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Create a new lead list."""
@@ -19899,8 +17572,6 @@ async def api_create_lead_list(request: Request, user: User = Depends(get_curren
     db.commit()
     db.refresh(lst)
     return {"ok": True, "list_id": lst.id}
-
-
 @app.put("/api/leads/lists/{list_id}")
 async def api_update_lead_list(list_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Update a lead list."""
@@ -19915,8 +17586,6 @@ async def api_update_lead_list(list_id: int, request: Request, user: User = Depe
     if "sequence_id" in body: lst.sequence_id = body.get("sequence_id")
     db.commit()
     return {"ok": True}
-
-
 @app.delete("/api/leads/lists/{list_id}")
 def api_delete_lead_list(list_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Delete a lead list (leads move to unsorted)."""
@@ -19929,8 +17598,6 @@ def api_delete_lead_list(list_id: int, user: User = Depends(get_current_user), d
     db.delete(lst)
     db.commit()
     return {"ok": True}
-
-
 @app.get("/api/link-tools")
 def api_link_tools_data(request: Request, user: User = Depends(get_current_user),
                         db: Session = Depends(get_db)):
@@ -19957,8 +17624,6 @@ def api_link_tools_data(request: Request, user: User = Depends(get_current_user)
             "created_at": r.created_at.isoformat() if r.created_at else None,
         } for r in rotators],
     }
-
-
 @app.get("/api/ad-board")
 def api_ad_board_data(db: Session = Depends(get_db)):
     """Public ad board listings."""
@@ -19971,8 +17636,6 @@ def api_ad_board_data(db: Session = Depends(get_db)):
         "icon": a.icon or "📢", "contact_info": a.contact_info or "",
         "user_id": a.user_id, "created_at": a.created_at.isoformat() if a.created_at else None,
     } for a in ads]}
-
-
 @app.get("/api/passup-visualiser")
 def api_passup_visualiser(request: Request, user: User = Depends(get_current_user),
                           db: Session = Depends(get_db)):
@@ -20001,8 +17664,6 @@ def api_passup_visualiser(request: Request, user: User = Depends(get_current_use
             "is_active": d.is_active, "personal_referrals": d.personal_referrals or 0,
         } for d in downline],
     }
-
-
 @app.get("/api/funnels")
 def api_funnels_list(request: Request, user: User = Depends(get_current_user),
                      db: Session = Depends(get_db)):
@@ -20022,8 +17683,6 @@ def api_funnels_list(request: Request, user: User = Depends(get_current_user),
         "is_ai_generated": f.is_ai_generated or False,
         "created_at": f.created_at.isoformat() if f.created_at else None,
     } for f in funnels]}
-
-
 @app.get("/api/linkhub-stats")
 def api_linkhub_stats(request: Request, user: User = Depends(get_current_user),
                       db: Session = Depends(get_db)):
@@ -20042,8 +17701,6 @@ def api_linkhub_stats(request: Request, user: User = Depends(get_current_user),
         "clicks": total_clicks,
         "links": links_count,
     }
-
-
 @app.get("/api/linkhub/editor-data")
 def api_linkhub_editor_data(request: Request, user: User = Depends(get_current_user),
                              db: Session = Depends(get_db)):
@@ -20104,8 +17761,6 @@ def api_linkhub_editor_data(request: Request, user: User = Depends(get_current_u
         "total_clicks": total_clicks,
         "click_30d": click_30d,
     }
-
-
 @limiter.limit("20/minute")
 @app.post("/api/proseller/chat")
 async def api_proseller_chat(request: Request, user: User = Depends(get_current_user),
@@ -20134,8 +17789,6 @@ async def api_proseller_chat(request: Request, user: User = Depends(get_current_
         return {"response": resp.content[0].text}
     except Exception as e:
         return {"response": f"Sorry, I'm temporarily unavailable. Error: {str(e)[:100]}"}
-
-
 @app.get("/api/funnels/templates")
 def funnel_templates_list():
     """List available starter templates for new pages."""
@@ -20147,8 +17800,6 @@ def funnel_templates_list():
         {"key": "ecommerce", "title": "E-Commerce", "desc": "Online store opportunity page", "icon": "🛒", "color": "#f59e0b"},
         {"key": "real-estate", "title": "Real Estate", "desc": "Property investment opportunity page", "icon": "🏠", "color": "#e11d48"},
     ]}
-
-
 @app.post("/api/funnels/duplicate/{page_id}")
 def funnel_duplicate(page_id: int, request: Request, user: User = Depends(get_current_user),
                      db: Session = Depends(get_db)):
@@ -20193,8 +17844,6 @@ def funnel_duplicate(page_id: int, request: Request, user: User = Depends(get_cu
     db.commit()
     return JSONResponse({"success": True, "id": new_page.id, "edit_url": f"/funnels/visual/{new_page.id}"})
 # deploy trigger Wed Mar 18 01:46:38 UTC 2026
-
-
 # ═══════════════════════════════════════════════════════════════
 #  QR CODE GENERATOR
 # ═══════════════════════════════════════════════════════════════
@@ -20216,8 +17865,6 @@ def api_generate_qr(url: str = "", request: Request = None, user: User = Depends
     img.save(buffer, format="PNG")
     b64 = base64.b64encode(buffer.getvalue()).decode("utf-8")
     return {"qr_base64": b64, "url": url}
-
-
 @app.get("/api/qr-code/download")
 def api_download_qr(url: str = "", request: Request = None, user: User = Depends(get_current_user)):
     """Download QR code as PNG file."""
@@ -20237,8 +17884,6 @@ def api_download_qr(url: str = "", request: Request = None, user: User = Depends
     buffer.seek(0)
     return StreamingResponse(buffer, media_type="image/png",
                              headers={"Content-Disposition": "attachment; filename=superadpro-qr.png"})
-
-
 # ═══════════════════════════════════════════════════════════════
 #  SMART NOTIFICATIONS / ACTIVITY FEED
 # ═══════════════════════════════════════════════════════════════
@@ -20307,8 +17952,6 @@ def api_activity_feed(request: Request, user: User = Depends(get_current_user),
     # Sort by time, most recent first
     feed.sort(key=lambda x: x.get("time", ""), reverse=True)
     return {"feed": feed[:30]}
-
-
 # ═══════════════════════════════════════════════════════════════
 #  REFERRAL CHALLENGES / CONTESTS
 # ═══════════════════════════════════════════════════════════════
@@ -20396,8 +18039,6 @@ def api_get_challenges(request: Request, user: User = Depends(get_current_user),
         })
 
     return {"challenges": challenges}
-
-
 # ═══════════════════════════════════════════════════════════════
 #  WEEKLY EARNINGS DIGEST (CRON)
 # ═══════════════════════════════════════════════════════════════
@@ -20539,8 +18180,6 @@ def cron_weekly_digest(secret: str = "", db: Session = Depends(get_db)):
             errors += 1
 
     return {"status": "ok", "sent": sent_count, "errors": errors, "total_active": len(active_users)}
-
-
 # ═══════════════════════════════════════════════════════════════
 #  TEAM MESSENGER
 # ═══════════════════════════════════════════════════════════════
@@ -20606,8 +18245,6 @@ def api_team_messages(request: Request, user: User = Depends(get_current_user),
     ).count()
 
     return {"messages": messages[:50], "contacts": contacts, "unread_count": unread}
-
-
 @app.post("/api/team-messages/send")
 async def api_send_team_message(request: Request, user: User = Depends(get_current_user),
                                  db: Session = Depends(get_db)):
@@ -20660,8 +18297,6 @@ async def api_send_team_message(request: Request, user: User = Depends(get_curre
         message_text[:100])
 
     return {"success": True, "message_id": msg.id}
-
-
 @app.get("/api/team-messages/unread-count")
 def api_unread_messages(request: Request, user: User = Depends(get_current_user),
                         db: Session = Depends(get_db)):
@@ -20673,8 +18308,6 @@ def api_unread_messages(request: Request, user: User = Depends(get_current_user)
         TeamMessage.to_user_id == user.id, TeamMessage.is_read == False
     ).count()
     return {"unread_count": count}
-
-
 # ═══════════════════════════════════════════════════════════════
 #  TRAINING CENTRE
 # ═══════════════════════════════════════════════════════════════
@@ -20769,8 +18402,6 @@ def api_training_centre(request: Request, user: User = Depends(get_current_user)
     ]
 
     return {"modules": modules}
-
-
 # ═══════════════════════════════════════════════════════════════════════════════
 # SUPERSCENE — AI Video Creator
 # Routes: credits, generate, poll, history, buy (Stripe + Crypto)
@@ -20789,8 +18420,6 @@ SUPERSCENE_PACK_PRICES = {
     "studio":  110.00,
     "pro":     264.00,
 }
-
-
 def _get_or_create_sc_credits(user_id: int, db) -> "SuperSceneCredit":
     """Get or create a SuperSceneCredit row for this user."""
     from .database import SuperSceneCredit
@@ -20801,8 +18430,6 @@ def _get_or_create_sc_credits(user_id: int, db) -> "SuperSceneCredit":
         db.commit()
         db.refresh(row)
     return row
-
-
 @app.get("/creative-studio")
 async def creative_studio_page(request: Request):
     """Serve the Creative Studio page — handled by React router client-side."""
@@ -20810,8 +18437,6 @@ async def creative_studio_page(request: Request):
     if _idx.exists():
         return HTMLResponse(_idx.read_text())
     return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
-
-
 @app.get("/superscene")
 async def superscene_page(request: Request):
     """Serve the SuperScene page — handled by React router client-side."""
@@ -20819,14 +18444,10 @@ async def superscene_page(request: Request):
     if _idx.exists():
         return HTMLResponse(_idx.read_text())
     return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
-
-
 @app.get("/supercut")
 async def supercut_redirect():
     """Redirect old SuperCut URL to SuperScene."""
     return RedirectResponse(url="/superscene", status_code=301)
-
-
 @app.post("/api/superscene/admin/grant-credits")
 async def sc_admin_grant_credits(request: Request, db: Session = Depends(get_db)):
     """Admin-only: grant SuperScene credits to a user for testing."""
@@ -20844,8 +18465,6 @@ async def sc_admin_grant_credits(request: Request, db: Session = Depends(get_db)
     db.refresh(row)
     logger.warning(f"SuperScene ADMIN: granted {amount} credits to user {target_id} (new balance: {row.balance})")
     return {"success": True, "user_id": target_id, "granted": amount, "new_balance": row.balance}
-
-
 @app.get("/admin/superscene/grant/{amount}")
 async def sc_admin_grant_credits_get(amount: int, request: Request, db: Session = Depends(get_db)):
     """Admin-only: grant yourself SuperScene credits by visiting this URL."""
@@ -20867,8 +18486,6 @@ async def sc_admin_grant_credits_get(amount: int, request: Request, db: Session 
     <a href="/superscene" style="display:inline-block;margin-top:30px;padding:14px 32px;background:#f43f5e;color:#fff;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px">Go to SuperScene →</a>
     </body></html>
     """)
-
-
 @app.get("/api/superscene/seed-credits")
 async def sc_seed_credits(secret: str, user_id: int = 1, amount: int = 500, db: Session = Depends(get_db)):
     """Secret-key protected: seed SuperScene credits without login. For testing only."""
@@ -20893,8 +18510,6 @@ async def sc_seed_credits(secret: str, user_id: int = 1, amount: int = 500, db: 
     except Exception as e:
         logger.exception("SuperScene seed-credits error")
         raise HTTPException(status_code=500, detail=str(e))
-
-
 @app.get("/api/superscene/credits")
 async def sc_get_credits(request: Request, db: Session = Depends(get_db)):
     user = get_current_user(request, db)
@@ -20902,8 +18517,6 @@ async def sc_get_credits(request: Request, db: Session = Depends(get_db)):
         raise HTTPException(status_code=401, detail="Not authenticated")
     row = _get_or_create_sc_credits(user.id, db)
     return {"balance": row.balance}
-
-
 @app.post("/api/superscene/generate")
 async def sc_generate(request: Request, db: Session = Depends(get_db)):
     """
@@ -21055,8 +18668,6 @@ async def sc_generate(request: Request, db: Session = Depends(get_db)):
         "credits_used": credits_needed,
         "credits_remaining": credit_row.balance,
     }
-
-
 @app.post("/api/superscene/upload-image")
 async def sc_upload_image(request: Request, db: Session = Depends(get_db)):
     """Upload an image for image-to-video generation. Stores in R2, returns public URL."""
@@ -21088,8 +18699,6 @@ async def sc_upload_image(request: Request, db: Session = Depends(get_db)):
     except Exception as e:
         logger.exception("SuperScene image upload failed")
         raise HTTPException(status_code=502, detail=f"Upload failed: {str(e)}")
-
-
 @app.post("/api/superscene/extract-frame")
 async def sc_extract_frame(request: Request, db: Session = Depends(get_db)):
     """
@@ -21148,8 +18757,6 @@ async def sc_extract_frame(request: Request, db: Session = Depends(get_db)):
     except Exception as e:
         logger.exception("Frame extraction error")
         raise HTTPException(status_code=502, detail=f"Frame extraction failed: {str(e)}")
-
-
 @app.get("/api/superscene/status/{task_id:path}")
 async def sc_poll_status(task_id: str, request: Request, db: Session = Depends(get_db)):
     """Poll provider for video generation status and update DB."""
@@ -21203,8 +18810,6 @@ async def sc_poll_status(task_id: str, request: Request, db: Session = Depends(g
         "status":    result["status"],
         "video_url": result.get("video_url"),
     }
-
-
 @app.get("/api/superscene/videos")
 async def sc_videos(request: Request, db: Session = Depends(get_db)):
     """Return the user's video history."""
@@ -21237,8 +18842,6 @@ async def sc_videos(request: Request, db: Session = Depends(get_db)):
         }
         for v in videos
     ]}
-
-
 @app.delete("/api/superscene/videos/{video_id}")
 async def sc_delete_video(video_id: int, request: Request, db: Session = Depends(get_db)):
     """Delete a video from the user's gallery."""
@@ -21259,8 +18862,6 @@ async def sc_delete_video(video_id: int, request: Request, db: Session = Depends
     db.delete(video)
     db.commit()
     return {"success": True, "deleted": video_id}
-
-
 # ── SuperScene — Buy Credits via Stripe ────────────────────────
 
 @app.post("/api/superscene/buy/stripe")
@@ -21347,8 +18948,6 @@ async def sc_buy_crypto(request: Request, db: Session = Depends(get_db)):
         "expires_at": order.expires_at.isoformat(),
         "expires_in_seconds": ORDER_EXPIRY_MINUTES * 60,
     }
-
-
 # ── SuperScene — Stripe Webhook ─────────────────────────────────
 
 @app.post("/webhooks/superscene/stripe")
@@ -21386,8 +18985,6 @@ async def sc_confirm_crypto(order_id: int, request: Request, db: Session = Depen
     db.commit()
 
     return {"ok": True, "credits_added": order.credits, "new_balance": credit_row.balance}
-
-
 @app.post("/api/superscene/admin/add-credits")
 async def sc_admin_add_credits(request: Request, db: Session = Depends(get_db)):
     """Admin only — add SuperScene credits to any user."""
@@ -21467,8 +19064,6 @@ async def sc_music_generate(request: Request, db: Session = Depends(get_db)):
         "credits_used": credits_needed,
         "credits_remaining": credit_row.balance,
     }
-
-
 @app.get("/api/superscene/music/status/{task_id}")
 async def sc_music_poll(task_id: str, request: Request, db: Session = Depends(get_db)):
     """Poll music generation status."""
@@ -21580,8 +19175,6 @@ async def sc_voiceover_generate(request: Request, db: Session = Depends(get_db))
     except Exception as e:
         logger.exception("Voiceover generation error")
         raise HTTPException(status_code=502, detail=str(e))
-
-
 @app.get("/api/superscene/voiceover/voices")
 async def sc_voiceover_voices():
     """Return available TTS voices."""
@@ -21600,8 +19193,6 @@ async def sc_voiceover_voices():
         {"id": "en-AU-WilliamNeural",       "name": "William",      "gender": "Male",   "accent": "Australian"},
     ]
     return {"voices": voices}
-
-
 @app.get("/api/superscene/voiceover/preview/{voice_id}")
 async def sc_voiceover_preview(voice_id: str):
     """Generate a short audio preview of a voice. Returns audio/mpeg stream.
@@ -21647,8 +19238,6 @@ async def sc_voiceover_preview(voice_id: str):
     except Exception as e:
         logger.exception(f"Voice preview error for {voice_id}")
         raise HTTPException(status_code=502, detail="Voice preview generation failed")
-
-
 # ── SuperScene — Lip Sync (OmniHuman 1.5 via EvoLink) ────────
 
 @app.post("/api/superscene/lipsync/generate")
@@ -21951,8 +19540,6 @@ async def sc_image_generate(request: Request, db: Session = Depends(get_db)):
         db.commit()
         logger.exception("Image generation error")
         raise HTTPException(status_code=502, detail=str(e))
-
-
 @app.get("/api/superscene/image/status/{task_id}")
 async def sc_image_poll(task_id: str, request: Request, db: Session = Depends(get_db)):
     """Poll image generation status (for async models)."""
@@ -22090,8 +19677,6 @@ async def sc_image_reimagine(request: Request, db: Session = Depends(get_db)):
         db.commit()
         logger.exception("Image reimagine error")
         return JSONResponse({"success": False, "error": str(e)[:300]}, status_code=502)
-
-
 # ── SuperScene Pipeline — Long-form Video Production ─────────
 
 @app.post("/api/superscene/pipeline/analyse")
@@ -22183,8 +19768,6 @@ async def sc_pipeline_analyse(request: Request, db: Session = Depends(get_db)):
         "scenes": scenes,
         "credits_remaining": credit_row.balance,
     }
-
-
 @app.post("/api/superscene/pipeline/{pipeline_id}/generate")
 async def sc_pipeline_generate(pipeline_id: int, request: Request, background_tasks: BackgroundTasks, db: Session = Depends(get_db)):
     """Start generating all scenes for a pipeline.
@@ -22241,8 +19824,6 @@ async def sc_pipeline_generate(pipeline_id: int, request: Request, background_ta
         "credits_used": total_credits,
         "credits_remaining": credit_row.balance,
     }
-
-
 @app.get("/api/superscene/pipeline/{pipeline_id}/status")
 async def sc_pipeline_status(pipeline_id: int, request: Request, db: Session = Depends(get_db)):
     """Get pipeline progress."""
@@ -22278,8 +19859,6 @@ async def sc_pipeline_status(pipeline_id: int, request: Request, db: Session = D
             "error_message": s.error_message,
         } for s in scenes],
     }
-
-
 @app.get("/api/superscene/pipeline/list")
 async def sc_pipeline_list(request: Request, db: Session = Depends(get_db)):
     """List user's pipelines."""
@@ -22302,8 +19881,6 @@ async def sc_pipeline_list(request: Request, db: Session = Depends(get_db)):
             "created_at": p.created_at.isoformat() if p.created_at else None,
         } for p in pipelines],
     }
-
-
 @app.post("/api/superscene/pipeline/{pipeline_id}/update-scene")
 async def sc_pipeline_update_scene(pipeline_id: int, request: Request, db: Session = Depends(get_db)):
     """Update a scene's narration or visual prompt before generation.
@@ -22339,8 +19916,6 @@ async def sc_pipeline_update_scene(pipeline_id: int, request: Request, db: Sessi
 
     db.commit()
     return {"success": True, "scene_number": scene_num}
-
-
 # ── Pipeline Background Orchestrator ──────────────────────────
 
 async def _run_pipeline(pipeline_id: int, user_id: int):
@@ -22499,8 +20074,6 @@ async def _run_pipeline(pipeline_id: int, user_id: int):
             pass
     finally:
         db.close()
-
-
 # ── Content Creator — AI Marketing Content Generator ─────────
 
 @app.get("/content-creator")
@@ -22511,8 +20084,6 @@ async def content_creator_page(request: Request):
     if _idx.exists():
         return HTMLResponse(_idx.read_text())
     return HTMLResponse("<h2>App not built yet.</h2>", status_code=503)
-
-
 @app.post("/api/content-creator/generate")
 async def content_creator_generate(request: Request, db: Session = Depends(get_db)):
     """Generate marketing content using Claude Haiku.
@@ -22637,8 +20208,6 @@ Provide:
     except Exception as e:
         logger.exception("Content Creator generation error")
         raise HTTPException(status_code=502, detail=str(e))
-
-
 # ═══════════════════════════════════════════════════════════
 # GROK AI ROUTES (xAI) — Cheap AI for content, prompts, sales
 # ═══════════════════════════════════════════════════════════
@@ -22648,8 +20217,6 @@ async def grok_status():
     """Check if Grok API is configured."""
     from .grok_service import is_configured
     return {"configured": is_configured()}
-
-
 @app.post("/api/grok/chat")
 async def grok_chat_endpoint(request: Request, user=Depends(get_current_user)):
     """General Grok chat — authenticated users only."""
@@ -22673,8 +20240,6 @@ async def grok_chat_endpoint(request: Request, user=Depends(get_current_user)):
         raise HTTPException(status_code=502, detail=result["error"])
 
     return {"success": True, **result}
-
-
 @app.post("/api/grok/generate-prompt")
 async def grok_generate_prompt_endpoint(request: Request, user=Depends(get_current_user)):
     """Generate a creative prompt for SuperScene."""
@@ -22688,8 +20253,6 @@ async def grok_generate_prompt_endpoint(request: Request, user=Depends(get_curre
 
     prompt = await grok_generate_prompt(topic, style)
     return {"success": True, "prompt": prompt}
-
-
 @app.post("/api/grok/generate-content")
 async def grok_generate_content_endpoint(request: Request, user=Depends(get_current_user)):
     """Generate marketing content for SuperSeller."""
@@ -22705,8 +20268,6 @@ async def grok_generate_content_endpoint(request: Request, user=Depends(get_curr
 
     content = await grok_generate_content(content_type, topic, tone, length)
     return {"success": True, "content": content, "type": content_type}
-
-
 @app.post("/api/grok/sales-agent")
 @limiter.limit("10/minute")
 async def grok_sales_agent_endpoint(request: Request):
@@ -22722,24 +20283,18 @@ async def grok_sales_agent_endpoint(request: Request):
 
     reply = await grok_sales_agent(message, product_info, history)
     return {"success": True, "reply": reply}
-
-
 @app.get("/crypto-guide")
 def crypto_guide_page(request: Request, user: User = Depends(get_current_user)):
     """Serve React SPA for crypto wallet guide."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse(url="/dashboard", status_code=302)
-
-
 @app.get("/tour")
 def tour_page(request: Request, user: User = Depends(get_current_user)):
     """Serve React SPA for platform tour."""
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse(url="/dashboard", status_code=302)
-
-
 # ═══════════════════════════════════════════════════════════════
 #  VOICE GUIDE — Platform Tour AI Assistant
 # ═══════════════════════════════════════════════════════════════
@@ -22796,8 +20351,6 @@ RULES YOU MUST FOLLOW:
 - Be encouraging but honest — do not make unrealistic income promises
 - Speak naturally as if having a conversation, not reading a manual
 - NEVER use markdown formatting — no asterisks, no hashes, no bullet points, no bold. Write in plain spoken English only. Your responses will be read aloud by a voice system."""
-
-
 @app.post("/api/voice-guide/ask")
 async def voice_guide_ask(request: Request, user: User = Depends(get_current_user)):
     """Voice guide — answers questions about the platform using Gemini."""
@@ -22823,8 +20376,6 @@ async def voice_guide_ask(request: Request, user: User = Depends(get_current_use
     except Exception as e:
         logger.error(f"Voice guide failed: {e}")
         return JSONResponse({"error": "Could not generate answer. Please try again."}, status_code=500)
-
-
 @app.post("/api/voice-guide/speak")
 async def voice_guide_speak(request: Request, user: User = Depends(get_current_user)):
     """Convert text to natural speech using Edge TTS for the voice guide."""
@@ -22868,8 +20419,6 @@ async def voice_guide_speak(request: Request, user: User = Depends(get_current_u
     except Exception as e:
         logger.error(f"Voice guide TTS failed: {e}")
         return JSONResponse({"error": "Speech generation failed"}, status_code=500)
-
-
 @app.get("/admin/recalculate-stats")
 def admin_recalculate_stats(secret: str = "", db: Session = Depends(get_db)):
     """Recalculate personal_referrals and total_team for all users."""
@@ -22888,8 +20437,6 @@ def admin_recalculate_stats(secret: str = "", db: Session = Depends(get_db)):
 
     db.commit()
     return {"success": True, "users_updated": updated}
-
-
 @app.post("/api/early-bird")
 async def api_early_bird(request: Request):
     """Capture early bird email for pre-launch list."""
@@ -22966,8 +20513,6 @@ async def api_early_bird(request: Request):
 
     logger.info(f"Early bird signup: {email}")
     return {"success": True}
-
-
 # ═══════════════════════════════════════════════════════════
 #  SUPERDECK — AI Presentation Studio
 # ═══════════════════════════════════════════════════════════
@@ -23014,8 +20559,6 @@ def campaign_analytics_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.get("/api/superdeck/presentations")
 def api_superdeck_list(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not user:
@@ -23028,8 +20571,6 @@ def api_superdeck_list(user: User = Depends(get_current_user), db: Session = Dep
         "created_at": d.created_at.isoformat() if d.created_at else None,
         "updated_at": d.updated_at.isoformat() if d.updated_at else None,
     } for d in decks]}
-
-
 @app.post("/api/superdeck/create")
 async def api_superdeck_create(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not user:
@@ -23060,8 +20601,6 @@ async def api_superdeck_create(request: Request, user: User = Depends(get_curren
         db.rollback()
         logger.error(f"SuperDeck create failed: {e}")
         return JSONResponse({"error": f"Failed to create: {str(e)[:200]}"}, status_code=500)
-
-
 @app.get("/api/superdeck/{deck_id}")
 def api_superdeck_get(deck_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not user:
@@ -23076,8 +20615,6 @@ def api_superdeck_get(deck_id: int, user: User = Depends(get_current_user), db: 
         "slide_count": deck.slide_count, "status": deck.status,
         "updated_at": deck.updated_at.isoformat() if deck.updated_at else None,
     }
-
-
 @app.post("/api/superdeck/{deck_id}/save")
 async def api_superdeck_save(deck_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not user:
@@ -23098,8 +20635,6 @@ async def api_superdeck_save(deck_id: int, request: Request, user: User = Depend
 
     db.commit()
     return {"success": True, "updated_at": deck.updated_at.isoformat() if deck.updated_at else None}
-
-
 @app.delete("/api/superdeck/{deck_id}")
 def api_superdeck_delete(deck_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not user:
@@ -23110,8 +20645,6 @@ def api_superdeck_delete(deck_id: int, user: User = Depends(get_current_user), d
     db.delete(deck)
     db.commit()
     return {"success": True}
-
-
 @app.post("/api/superdeck/upload-image")
 async def api_superdeck_upload_image(file: UploadFile = File(...), user: User = Depends(get_current_user)):
     """Upload an image for use in SuperDeck slides."""
@@ -23144,8 +20677,6 @@ async def api_superdeck_upload_image(file: UploadFile = File(...), user: User = 
         url = f"/static/uploads/{filename}"
 
     return JSONResponse({"success": True, "url": url})
-
-
 @app.post("/api/superdeck/{deck_id}/export")
 async def api_superdeck_export(deck_id: int, request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Export presentation as .pptx file."""
@@ -23234,8 +20765,6 @@ async def api_superdeck_export(deck_id: int, request: Request, user: User = Depe
         media_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
         headers={"Content-Disposition": f'attachment; filename="{deck.title}.pptx"'}
     )
-
-
 # ═══════════════════════════════════════════════════════════
 #  General image upload (used by Video Creator, etc.)
 # ═══════════════════════════════════════════════════════════
@@ -23256,8 +20785,6 @@ async def api_upload_image(file: UploadFile = File(...), user: User = Depends(ge
         url = upload_image(contents, "user-uploads", ext, content_type)
         return {"url": url}
     return JSONResponse({"error": "Storage not available"}, status_code=500)
-
-
 # ═══════════════════════════════════════════════════════════
 #  AI VIDEO CREATOR — One-click video production pipeline
 # ═══════════════════════════════════════════════════════════
@@ -23543,8 +21070,6 @@ DO NOT include any markdown or explanation. Return ONLY the JSON object."""
     except Exception as e:
         logger.error(f"Video Creator pipeline failed: {e}")
         return JSONResponse({"error": f"Pipeline failed: {str(e)[:200]}"}, status_code=500)
-
-
 @app.get("/api/video-creator/status/{job_id}")
 async def api_video_creator_status(job_id: str, user: User = Depends(get_current_user)):
     """Poll render status from the Remotion renderer."""
@@ -23562,8 +21087,6 @@ async def api_video_creator_status(job_id: str, user: User = Depends(get_current
             return {"status": "unknown", "error": resp.text[:200]}
     except Exception as e:
         return {"status": "error", "error": str(e)}
-
-
 @app.get("/api/video-creator/download/{job_id}")
 async def api_video_creator_download(job_id: str, user: User = Depends(get_current_user)):
     """Download rendered video from Remotion, upload to R2, return public URL."""
@@ -23598,8 +21121,6 @@ async def api_video_creator_download(job_id: str, user: User = Depends(get_curre
                 return JSONResponse({"error": f"Download failed: {resp.text[:200]}"}, status_code=resp.status_code)
     except Exception as e:
         return JSONResponse({"error": f"Download failed: {str(e)}"}, status_code=500)
-
-
 # ═══════════════════════════════════════════════════════════
 #  CREDIT MATRIX — 3×3 Forced Matrix API Endpoints
 # ═══════════════════════════════════════════════════════════
@@ -23625,8 +21146,6 @@ async def api_credit_matrix_packs(user: User = Depends(get_current_user)):
             "completion_bonus": pack["completion_bonus"],
         })
     return {"success": True, "packs": packs}
-
-
 @app.post("/api/credit-matrix/purchase")
 async def api_credit_matrix_purchase(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """
@@ -23720,8 +21239,6 @@ async def api_credit_matrix_purchase(request: Request, user: User = Depends(get_
         }
     else:
         return JSONResponse({"error": "Invalid payment method"}, status_code=400)
-
-
 @app.get("/api/credit-matrix/my-matrix")
 async def api_credit_matrix_my_matrix(user: User = Depends(get_current_user), db: Session = Depends(get_db), pack_key: str = None):
     """Get the current user's active matrix tree for a specific pack."""
@@ -23730,8 +21247,6 @@ async def api_credit_matrix_my_matrix(user: User = Depends(get_current_user), db
 
     data = get_matrix_tree(db, user.id, pack_key=pack_key)
     return {"success": True, **data}
-
-
 @app.get("/api/credit-matrix/all-matrices")
 async def api_credit_matrix_all(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get overview of all 8 matrices for the current user — purchased and locked."""
@@ -23740,8 +21255,6 @@ async def api_credit_matrix_all(user: User = Depends(get_current_user), db: Sess
 
     data = get_all_matrices(db, user.id)
     return {"success": True, **data}
-
-
 @app.get("/api/credit-matrix/history")
 async def api_credit_matrix_history(user: User = Depends(get_current_user), db: Session = Depends(get_db), pack_key: str = None):
     """Get all completed matrix advances for the current user, optionally by pack."""
@@ -23750,8 +21263,6 @@ async def api_credit_matrix_history(user: User = Depends(get_current_user), db: 
 
     advances = get_matrix_history(db, user.id, pack_key=pack_key)
     return {"success": True, "advances": advances}
-
-
 @app.get("/api/credit-matrix/commissions")
 async def api_credit_matrix_commissions(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Get all matrix commissions earned by the current user."""
@@ -23798,8 +21309,6 @@ async def api_credit_matrix_commissions(user: User = Depends(get_current_user), 
             "total_transactions": len(items),
         },
     }
-
-
 @app.get("/api/credit-matrix/stats")
 async def api_credit_matrix_stats(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Dashboard stats for credit matrix earnings."""
@@ -23855,8 +21364,6 @@ async def api_credit_matrix_stats(user: User = Depends(get_current_user), db: Se
             "roi": float((total_earned / total_spent * 100) if total_spent > 0 else 0),
         },
     }
-
-
 @app.get("/api/credit-matrix/team-activity")
 async def api_credit_matrix_team_activity(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Recent credit pack purchases from team members (for activity feed)."""
@@ -23901,8 +21408,6 @@ async def api_credit_matrix_team_activity(user: User = Depends(get_current_user)
         })
 
     return {"success": True, "activity": activity}
-
-
 # ═══════════════════════════════════════════════════════════
 #  CAMPAIGN ANALYTICS — Real view data for campaign owners
 # ═══════════════════════════════════════════════════════════
@@ -24008,8 +21513,6 @@ async def api_campaign_analytics_overview(user: User = Depends(get_current_user)
             "avg_watch_duration": round(float(avg_duration), 1),
         },
     }
-
-
 @app.get("/api/campaign-analytics/{campaign_id}/daily")
 async def api_campaign_analytics_daily(campaign_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Daily view breakdown for a specific campaign — last 30 days."""
@@ -24083,8 +21586,6 @@ async def api_campaign_analytics_daily(campaign_id: int, user: User = Depends(ge
         "daily": days,
         "recent_watches": watch_log,
     }
-
-
 # ═══════════════════════════════════════════════════════════
 #  SUPERDECK AI — Generate presentation from prompt via Grok
 # ═══════════════════════════════════════════════════════════
@@ -24173,8 +21674,6 @@ Use a variety of layouts. Make content specific and compelling. Speaker notes sh
         return {"success": True, "slides": slides_data}
     except Exception as e:
         return JSONResponse({"error": f"Failed to parse AI response: {str(e)}", "raw": text[:500]}, status_code=500)
-
-
 # ═══════════════════════════════════════════════════════════════
 #  LEAD FINDER — Pro Tool
 # ═══════════════════════════════════════════════════════════════
@@ -24185,8 +21684,6 @@ def lead_finder_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-
-
 @app.post("/api/lead-finder/search")
 async def api_lead_finder_search(request: Request,
                                   user: User = Depends(get_current_user),
@@ -24252,8 +21749,6 @@ async def api_lead_finder_search(request: Request,
     except Exception as e:
         logger.error(f"Lead Finder unexpected error: {type(e).__name__}: {e}")
         return JSONResponse({"error": f"Search failed: {type(e).__name__}. Please try again in a moment."}, status_code=500)
-
-
 @app.post("/api/lead-finder/import")
 async def api_lead_finder_import(request: Request,
                                   user: User = Depends(get_current_user),
