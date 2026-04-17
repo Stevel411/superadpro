@@ -3414,8 +3414,13 @@ def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
             db.query(DigitalProductAffiliate).filter(DigitalProductAffiliate.product_id.in_(product_ids)).delete(synchronize_session=False)
 
         # FunnelEvent, FunnelLead → references funnel_pages
+        # MemberLead.source_funnel_id also references funnel_pages — null out
+        # so FK doesn't block the funnel_pages deletion below. The member_leads
+        # rows themselves get deleted later (they have user_id = user_id too).
         funnel_ids = [r.id for r in db.query(FunnelPage).filter(FunnelPage.user_id == user_id).all()]
         if funnel_ids:
+            from sqlalchemy import text as _sql_text_net
+            db.execute(_sql_text_net("UPDATE member_leads SET source_funnel_id = NULL WHERE source_funnel_id = ANY(:ids)"), {"ids": funnel_ids})
             db.query(FunnelEvent).filter(FunnelEvent.page_id.in_(funnel_ids)).delete(synchronize_session=False)
             db.query(FunnelLead).filter(FunnelLead.page_id.in_(funnel_ids)).delete(synchronize_session=False)
 
@@ -7710,17 +7715,23 @@ def funnel_delete(page_id: int, user: User = Depends(get_current_user),
         from sqlalchemy import text
         # Clear any next_page_id references pointing to this page
         db.query(FunnelPage).filter(FunnelPage.next_page_id == page_id).update({"next_page_id": None})
-        # Delete related leads
+        # Null out source_funnel_id on CRM leads captured via this page —
+        # we keep the leads, just detach them from the deleted page.
+        db.execute(text("UPDATE member_leads SET source_funnel_id = NULL WHERE source_funnel_id = :pid"), {"pid": page_id})
+        # Delete related funnel analytics leads (separate table — ephemeral data)
         db.execute(text("DELETE FROM funnel_leads WHERE page_id = :pid"), {"pid": page_id})
         # Delete related analytics events
         db.execute(text("DELETE FROM funnel_events WHERE page_id = :pid"), {"pid": page_id})
+        # Delete A/B variant if exists
+        db.query(FunnelPage).filter(FunnelPage.ab_variant_of == page_id).delete()
         # Now delete the page
         db.delete(page)
         db.commit()
         return JSONResponse({"success": True})
     except Exception as e:
         db.rollback()
-        return JSONResponse({"error": f"Delete failed: {str(e)}"}, status_code=500)
+        logger.error(f"Funnel delete error for page_id={page_id}: {e}")
+        return JSONResponse({"error": "Delete failed. Please try again or contact support."}, status_code=500)
 # ── Phase 2: Lead Capture API ──────────────────────────────
 @app.post("/api/leads/capture")
 async def capture_lead(request: Request, db: Session = Depends(get_db)):
@@ -9855,6 +9866,11 @@ async def gdpr_delete_data(request: Request, user: User = Depends(get_current_us
     # Delete user's data (keep commission records for financial audit)
     db.query(Notification).filter(Notification.user_id == user.id).delete()
     db.query(Achievement).filter(Achievement.user_id == user.id).delete()
+    # Null out member_leads FK before deleting funnel pages to avoid FK violation
+    from sqlalchemy import text as _sql_text_gdpr
+    _funnel_ids_gdpr = [r.id for r in db.query(FunnelPage).filter(FunnelPage.user_id == user.id).all()]
+    if _funnel_ids_gdpr:
+        db.execute(_sql_text_gdpr("UPDATE member_leads SET source_funnel_id = NULL WHERE source_funnel_id = ANY(:ids)"), {"ids": _funnel_ids_gdpr})
     db.query(FunnelPage).filter(FunnelPage.user_id == user.id).delete()
     db.query(LinkHubProfile).filter(LinkHubProfile.user_id == user.id).delete()
     # Anonymise the user record
@@ -14056,9 +14072,15 @@ async def api_pro_funnel_delete(funnel_id: int, request: Request, db: Session = 
         return JSONResponse({"error": "Not found"}, status_code=404)
 
     try:
+        from sqlalchemy import text
         # Delete A/B variant if exists
         db.query(FunnelPage).filter(FunnelPage.ab_variant_of == funnel_id).delete()
-        # Delete related analytics events and leads
+        # Clear any next_page_id references pointing to this page
+        db.query(FunnelPage).filter(FunnelPage.next_page_id == funnel_id).update({"next_page_id": None})
+        # Null out source_funnel_id on CRM leads captured via this page —
+        # we keep the leads, just detach them from the deleted page.
+        db.execute(text("UPDATE member_leads SET source_funnel_id = NULL WHERE source_funnel_id = :pid"), {"pid": funnel_id})
+        # Delete related analytics events and funnel-side leads
         db.query(FunnelEvent).filter(FunnelEvent.page_id == funnel_id).delete()
         db.query(FunnelLead).filter(FunnelLead.page_id == funnel_id).delete()
         # Delete the page itself
@@ -14067,8 +14089,8 @@ async def api_pro_funnel_delete(funnel_id: int, request: Request, db: Session = 
         return JSONResponse({"success": True})
     except Exception as e:
         db.rollback()
-        logger.error(f"Funnel delete error: {e}")
-        return JSONResponse({"error": "Delete failed"}, status_code=500)
+        logger.error(f"Pro funnel delete error for funnel_id={funnel_id}: {e}")
+        return JSONResponse({"error": "Delete failed. Please try again or contact support."}, status_code=500)
 @app.post("/api/pro/funnel/{funnel_id}/regenerate")
 async def api_pro_funnel_regenerate(funnel_id: int, request: Request, db: Session = Depends(get_db)):
     """Regenerate funnel copy with AI feedback."""
