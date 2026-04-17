@@ -284,6 +284,14 @@ class CourseCommission(Base):
     course_tier     = Column(Integer)
     commission_type = Column(String)    # 'direct_sale' or 'pass_up'
     pass_up_depth   = Column(Integer, default=0)    # 0 = direct, 1+ = levels walked
+    source_chain    = Column(Integer, nullable=True, index=True)
+    # Which Income Chain this commission flowed through (1-4).
+    # Populated for pass_up commissions based on the sale number that triggered the cascade:
+    #   sale #2 → chain 1   ("Income Chain 1")
+    #   sale #4 → chain 2   ("Income Chain 2")
+    #   sale #6 → chain 3   ("Income Chain 3")
+    #   sale #8 → chain 4   ("Income Chain 4")
+    # NULL for direct_sale and platform commissions (they don't flow through a chain).
     notes           = Column(Text, nullable=True)
     created_at      = Column(DateTime, default=datetime.utcnow)
 
@@ -1895,6 +1903,15 @@ try:
             conn.execute(text(f"ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS {col} {typ}"))
         conn.commit()
         print("✅ SuperSeller page editor columns added")
+
+        # Income Chain — source_chain on course_commissions
+        # Tags every pass-up commission with its originating chain (1-4).
+        # NULL for direct sales and platform absorptions.
+        conn.execute(text("ALTER TABLE course_commissions ADD COLUMN IF NOT EXISTS source_chain INTEGER"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_course_commissions_source_chain ON course_commissions(source_chain)"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_course_commissions_earner_chain ON course_commissions(earner_id, source_chain)"))
+        conn.commit()
+        print("✅ course_commissions.source_chain column + indexes added")
 
         # Team Messages table
         conn.execute(text("""

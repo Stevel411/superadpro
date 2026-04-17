@@ -45,6 +45,23 @@ from app.database import (
 
 PASSUP_POSITIONS = {2, 4, 6, 8}
 
+# Income Chain mapping — each pass-up position opens a different "Income Chain"
+# for the receiving upline. Used in member-facing UI (dashboard, earnings page).
+SALE_TO_CHAIN = {2: 1, 4: 2, 6: 3, 8: 4}
+CHAIN_NAMES = {
+    1: "Income Chain 1",
+    2: "Income Chain 2",
+    3: "Income Chain 3",
+    4: "Income Chain 4",
+}
+CHAIN_OPENS_AT = {1: 2, 2: 4, 3: 6, 4: 8}
+
+
+def sale_number_to_chain(sale_number: int):
+    """Map a sale number (2/4/6/8) to an Income Chain number (1/2/3/4).
+    Returns None for non-passup sales."""
+    return SALE_TO_CHAIN.get(sale_number)
+
 
 def is_passup_sale(sale_number: int) -> bool:
     return sale_number in PASSUP_POSITIONS
@@ -167,10 +184,14 @@ def _distribute_commission(db: Session, purchase: CoursePurchase,
         # someone who owns the tier (or an admin). If nobody in the chain qualifies,
         # the commission goes to the company. This is the "infinite cascade" model
         # described at the top of this file.
+        chain_number = sale_number_to_chain(sale_number)  # 1, 2, 3, or 4
+        chain_label = CHAIN_NAMES.get(chain_number, "Income Chain")
+
         passup_target_id = sponsor.pass_up_sponsor_id
         if not passup_target_id:
             return _credit_platform(db, purchase, course, commission_amount,
-                                    f"Pass-up from {sponsor.username} sale #{sale_number} - no pass-up sponsor (root)")
+                                    f"Pass-up from {sponsor.username} sale #{sale_number} ({chain_label}) - no pass-up sponsor (root)",
+                                    source_chain=chain_number)
 
         earner, depth = find_qualified_passup_recipient(db, passup_target_id, course.tier)
 
@@ -179,11 +200,13 @@ def _distribute_commission(db: Session, purchase: CoursePurchase,
                 db, purchase, course, earner, commission_amount,
                 commission_type="pass_up",
                 depth=depth,
-                notes=f"Pass-up cascade from {sponsor.username} sale #{sale_number} — walked {depth} level(s) to {earner.username} (Tier {course.tier}, ${commission_amount})"
+                notes=f"{chain_label} cascade from {sponsor.username} sale #{sale_number} — walked {depth} level(s) to {earner.username} (Tier {course.tier}, ${commission_amount})",
+                source_chain=chain_number,
             )
         else:
             return _credit_platform(db, purchase, course, commission_amount,
-                                    f"Pass-up cascade from {sponsor.username} sale #{sale_number} — no qualified recipient in chain at Tier {course.tier}, commission to company")
+                                    f"{chain_label} cascade from {sponsor.username} sale #{sale_number} — no qualified recipient in chain at Tier {course.tier}, commission to company",
+                                    source_chain=chain_number)
     else:
         # Direct sale: commission goes to sponsor
         if user_owns_tier(db, sponsor.id, course.tier):
@@ -191,16 +214,18 @@ def _distribute_commission(db: Session, purchase: CoursePurchase,
                 db, purchase, course, sponsor, commission_amount,
                 commission_type="direct_sale",
                 depth=0,
-                notes=f"Direct sale #{sale_number} at Tier {course.tier} - {sponsor.username} keeps 100%"
+                notes=f"Direct sale #{sale_number} at Tier {course.tier} - {sponsor.username} keeps 100%",
+                source_chain=None,
             )
         else:
             # Sponsor doesn't own the tier — commission goes to company, not upline
             return _credit_platform(db, purchase, course, commission_amount,
-                                    f"{sponsor.username} doesn't own Tier {course.tier} - commission to company (FOMO)")
+                                    f"{sponsor.username} doesn't own Tier {course.tier} - commission to company (FOMO)",
+                                    source_chain=None)
 
 
 def _credit_earner(db, purchase, course, earner, amount,
-                   commission_type, depth, notes) -> dict:
+                   commission_type, depth, notes, source_chain=None) -> dict:
     commission = CourseCommission(
         purchase_id=purchase.id,
         buyer_id=purchase.user_id,
@@ -209,6 +234,7 @@ def _credit_earner(db, purchase, course, earner, amount,
         course_tier=course.tier,
         commission_type=commission_type,
         pass_up_depth=depth,
+        source_chain=source_chain,
         notes=notes
     )
     db.add(commission)
@@ -221,11 +247,13 @@ def _credit_earner(db, purchase, course, earner, amount,
         "amount": amount,
         "type": commission_type,
         "depth": depth,
+        "source_chain": source_chain,
+        "chain_name": CHAIN_NAMES.get(source_chain) if source_chain else None,
         "notes": notes
     }
 
 
-def _credit_platform(db, purchase, course, amount, notes) -> dict:
+def _credit_platform(db, purchase, course, amount, notes, source_chain=None) -> dict:
     admin = db.query(User).filter(User.is_admin == True).first()
     commission = CourseCommission(
         purchase_id=purchase.id,
@@ -235,6 +263,7 @@ def _credit_platform(db, purchase, course, amount, notes) -> dict:
         course_tier=course.tier,
         commission_type="platform",
         pass_up_depth=0,
+        source_chain=source_chain,
         notes=notes
     )
     db.add(commission)
@@ -247,6 +276,8 @@ def _credit_platform(db, purchase, course, amount, notes) -> dict:
         "amount": amount,
         "type": "platform",
         "depth": 0,
+        "source_chain": source_chain,
+        "chain_name": CHAIN_NAMES.get(source_chain) if source_chain else None,
         "notes": notes
     }
 

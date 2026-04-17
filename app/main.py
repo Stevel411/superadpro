@@ -12245,6 +12245,7 @@ def admin_test_course_passup_e2e(
                 "earner_id": comm.earner_id if comm else None,
                 "commission_type": comm.commission_type if comm else None,
                 "pass_up_depth": comm.pass_up_depth if comm else None,
+                "source_chain": comm.source_chain if comm else None,
                 "notes": comm.notes if comm else None,
             }
             if comm and comm.earner_id:
@@ -12312,6 +12313,7 @@ def admin_test_course_passup_e2e(
             expected_outcome={
                 "commission_type": "pass_up",
                 "pass_up_depth": 1,
+                "source_chain": 1,  # sale #2 → Income Chain 1
                 "earner_username": mid_qual.username,
             },
         )
@@ -12328,6 +12330,7 @@ def admin_test_course_passup_e2e(
             expected_outcome={
                 "commission_type": "pass_up",
                 "pass_up_depth": 2,
+                "source_chain": 1,
                 "earner_username": top_owner.username,
             },
         )
@@ -12342,6 +12345,7 @@ def admin_test_course_passup_e2e(
             expected_outcome={
                 "commission_type": "platform",
                 "pass_up_depth": 0,
+                "source_chain": 1,  # still tagged — the chain just found no recipient
             },
         )
 
@@ -12356,12 +12360,13 @@ def admin_test_course_passup_e2e(
             expected_outcome={
                 "commission_type": "pass_up",
                 "pass_up_depth": 1,
+                "source_chain": 1,
                 "earner_username": admin_test.username,
             },
         )
 
         # ──────────────────────────────────────────────────────────────
-        # SCENARIO 7 — Pass-up (#4), validate even positions also pass up
+        # SCENARIO 7 — Pass-up (#4), validate even positions also pass up (Chain 2)
         # ──────────────────────────────────────────────────────────────
         _run_scenario(
             name="7_passup_sale_4",
@@ -12370,6 +12375,7 @@ def admin_test_course_passup_e2e(
             expected_outcome={
                 "commission_type": "pass_up",
                 "pass_up_depth": 1,
+                "source_chain": 2,  # sale #4 → Income Chain 2
                 "earner_username": mid_qual.username,
             },
         )
@@ -17160,6 +17166,99 @@ def api_network_data(request: Request, user: User = Depends(get_current_user),
         } for r in referrals],
         "commissions": commissions,
     }
+
+
+@app.get("/api/income-chains")
+def api_income_chains(request: Request, user: User = Depends(get_current_user),
+                       db: Session = Depends(get_db)):
+    """Income Chain earnings dashboard — 4 chains, totals, recent cascades.
+
+    Each member has ONE pass-up sponsor. Their 2nd/4th/6th/8th direct referrals
+    open 4 separate chains that all flow UP to that sponsor. This endpoint shows
+    the earnings FLOWING IN to the current user, split by which chain carried them.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from app.course_engine import CHAIN_NAMES, CHAIN_OPENS_AT
+
+    # Per-chain totals — sum amount, group by source_chain, filter by earner
+    chain_totals = {1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0}
+    chain_counts = {1: 0, 2: 0, 3: 0, 4: 0}
+
+    chain_rows = db.query(
+        CourseCommission.source_chain,
+        func.coalesce(func.sum(CourseCommission.amount), 0).label("total"),
+        func.count(CourseCommission.id).label("cnt"),
+    ).filter(
+        CourseCommission.earner_id == user.id,
+        CourseCommission.source_chain.isnot(None),
+        CourseCommission.commission_type == "pass_up",
+    ).group_by(CourseCommission.source_chain).all()
+
+    for row in chain_rows:
+        if row.source_chain in chain_totals:
+            chain_totals[row.source_chain] = float(row.total or 0)
+            chain_counts[row.source_chain] = int(row.cnt or 0)
+
+    # Direct course sales (no chain — 100% kept) — shown separately for context
+    direct_total = float(db.query(func.coalesce(func.sum(CourseCommission.amount), 0)).filter(
+        CourseCommission.earner_id == user.id,
+        CourseCommission.commission_type == "direct_sale",
+    ).scalar() or 0)
+    direct_count = int(db.query(func.count(CourseCommission.id)).filter(
+        CourseCommission.earner_id == user.id,
+        CourseCommission.commission_type == "direct_sale",
+    ).scalar() or 0)
+
+    # Build chain card data — one entry per chain, 1 through 4
+    chains = []
+    for chain_num in (1, 2, 3, 4):
+        chains.append({
+            "chain_number": chain_num,
+            "name": CHAIN_NAMES.get(chain_num),
+            "opens_at": CHAIN_OPENS_AT.get(chain_num),
+            "total_earned": round(chain_totals.get(chain_num, 0.0), 2),
+            "cascade_count": chain_counts.get(chain_num, 0),
+        })
+
+    total_chain_income = sum(c["total_earned"] for c in chains)
+
+    # Recent cascades (last 25 pass-up commissions TO this user)
+    recent = db.query(CourseCommission).filter(
+        CourseCommission.earner_id == user.id,
+        CourseCommission.commission_type == "pass_up",
+        CourseCommission.source_chain.isnot(None),
+    ).order_by(CourseCommission.created_at.desc()).limit(25).all()
+
+    recent_cascades = []
+    for c in recent:
+        buyer = db.query(User).filter(User.id == c.buyer_id).first() if c.buyer_id else None
+        recent_cascades.append({
+            "id": c.id,
+            "chain_number": c.source_chain,
+            "chain_name": CHAIN_NAMES.get(c.source_chain),
+            "amount": float(c.amount or 0),
+            "course_tier": c.course_tier,
+            "depth_walked": c.pass_up_depth or 0,
+            "buyer_username": buyer.username if buyer else None,
+            "buyer_name": (buyer.first_name or buyer.username) if buyer else "A member",
+            "notes": c.notes,
+            "created_at": c.created_at.isoformat() if c.created_at else None,
+        })
+
+    return {
+        "chains": chains,
+        "total_chain_income": round(total_chain_income, 2),
+        "direct_sales": {
+            "total": round(direct_total, 2),
+            "count": direct_count,
+        },
+        "course_earnings_total": round(total_chain_income + direct_total, 2),
+        "recent_cascades": recent_cascades,
+    }
+
+
 @app.get("/api/leads")
 def api_leads_data(request: Request, user: User = Depends(get_current_user),
                    db: Session = Depends(get_db)):
