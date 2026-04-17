@@ -64,108 +64,6 @@ export default function MyNetwork() {
       </div>
 
       {/* ═══════════════════════════════════════════════ */}
-      {/*  YOUR TEAM                                        */}
-      {/* ═══════════════════════════════════════════════ */}
-
-      <SectionHeading title="Your Team" subtitle="Everyone below you, growing over time" />
-
-      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:20}}>
-        <StatCard
-          icon={Users}
-          value={d.personal_referrals || 0}
-          label="Direct Referrals"
-          sub="People you recruited personally"
-          color="#0ea5e9"
-          iconBg="rgba(14,165,233,.12)"
-        />
-        <StatCard
-          icon={TrendingUp}
-          value={d.total_team || 0}
-          label="Total Network"
-          sub="Everyone below you at every depth"
-          color="#6366f1"
-          iconBg="rgba(99,102,241,.12)"
-        />
-        <StatCard
-          icon={Zap}
-          value={d.active_this_month || 0}
-          label="Active Members"
-          sub="Still active on the platform"
-          color="#16a34a"
-          iconBg="rgba(22,163,74,.12)"
-        />
-      </div>
-
-      {/* Direct Referrals list */}
-      <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:36,
-                   boxShadow:'0 4px 20px rgba(23,37,84,.06)'}}>
-        <div style={{background:cobaltGradient,padding:'16px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-          <div style={{display:'flex',alignItems:'center',gap:10}}>
-            <div style={{width:8,height:8,borderRadius:4,background:'#22c55e',boxShadow:'0 0 8px rgba(34,197,94,.5)'}}/>
-            <div style={{fontSize:14,fontWeight:800,color:'#fff',letterSpacing:.3}}>Direct Referrals</div>
-          </div>
-          <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.55)'}}>{referrals.length} total</div>
-        </div>
-        <div style={{maxHeight:440,overflowY:'auto'}}>
-          {referrals.length > 0 ? (
-            <table style={{width:'100%',borderCollapse:'collapse'}}>
-              <thead>
-                <tr>
-                  {['Member','Status','Their Team','Joined'].map(function(h){
-                    return <th key={h} style={thStyle}>{h}</th>;
-                  })}
-                </tr>
-              </thead>
-              <tbody>
-                {referrals.map(function(r, i){
-                  return (
-                    <tr key={i}>
-                      <td style={tdStyle}>
-                        <div style={{display:'flex',alignItems:'center',gap:10}}>
-                          <div style={{width:32,height:32,borderRadius:16,background:'linear-gradient(135deg,#1e3a8a,#0ea5e9)',
-                                       display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',
-                                       fontSize:13,fontWeight:800,fontFamily:'Sora,sans-serif'}}>
-                            {((r.first_name || r.username || '?').charAt(0)).toUpperCase()}
-                          </div>
-                          <div>
-                            <div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>
-                              {r.first_name || r.username}
-                            </div>
-                            <div style={{fontSize:11,color:'#94a3b8'}}>@{r.username}</div>
-                          </div>
-                        </div>
-                      </td>
-                      <td style={tdStyle}>
-                        <span style={{fontSize:10,fontWeight:700,padding:'4px 9px',borderRadius:6,
-                          background: r.is_active ? 'rgba(22,163,74,.1)' : 'rgba(148,163,184,.15)',
-                          color: r.is_active ? '#15803d' : '#64748b',
-                          border: '1px solid ' + (r.is_active ? 'rgba(22,163,74,.2)' : 'rgba(148,163,184,.25)')}}>
-                          {r.is_active ? 'Active' : 'Inactive'}
-                        </span>
-                        {r.membership_tier === 'pro' && (
-                          <span style={{fontSize:9,fontWeight:800,padding:'3px 6px',borderRadius:4,
-                            background:'rgba(139,92,246,.1)',color:'#8b5cf6',marginLeft:6,
-                            border:'1px solid rgba(139,92,246,.2)',letterSpacing:.5}}>PRO</span>
-                        )}
-                      </td>
-                      <td style={Object.assign({},tdStyle,{textAlign:'center'})}>
-                        <span style={{fontSize:14,fontWeight:800,color:'#0ea5e9'}}>{r.personal_referrals || 0}</span>
-                      </td>
-                      <td style={Object.assign({},tdStyle,{fontSize:11,color:'#64748b'})}>
-                        {r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—'}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          ) : (
-            <EmptyState icon="👥" title="No referrals yet" subtitle="Share your link above to start building your network" />
-          )}
-        </div>
-      </div>
-
-      {/* ═══════════════════════════════════════════════ */}
       {/*  YOUR EARNINGS                                    */}
       {/* ═══════════════════════════════════════════════ */}
 
@@ -279,6 +177,108 @@ export default function MyNetwork() {
             </table>
           ) : (
             <EmptyState icon="💰" title="No commissions yet" subtitle="Commissions will appear here as your team grows" />
+          )}
+        </div>
+      </div>
+
+      {/* ═══════════════════════════════════════════════ */}
+      {/*  YOUR TEAM                                        */}
+      {/* ═══════════════════════════════════════════════ */}
+
+      <SectionHeading title="Your Team" subtitle="Everyone below you, growing over time" />
+
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:20}}>
+        <StatCard
+          icon={Users}
+          value={d.personal_referrals || 0}
+          label="Direct Referrals"
+          sub="People you recruited personally"
+          color="#0ea5e9"
+          iconBg="rgba(14,165,233,.12)"
+        />
+        <StatCard
+          icon={TrendingUp}
+          value={d.total_team || 0}
+          label="Total Network"
+          sub="Everyone below you at every depth"
+          color="#6366f1"
+          iconBg="rgba(99,102,241,.12)"
+        />
+        <StatCard
+          icon={Zap}
+          value={d.active_this_month || 0}
+          label="Active Members"
+          sub="Still active on the platform"
+          color="#16a34a"
+          iconBg="rgba(22,163,74,.12)"
+        />
+      </div>
+
+      {/* Direct Referrals list */}
+      <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:36,
+                   boxShadow:'0 4px 20px rgba(23,37,84,.06)'}}>
+        <div style={{background:cobaltGradient,padding:'16px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+          <div style={{display:'flex',alignItems:'center',gap:10}}>
+            <div style={{width:8,height:8,borderRadius:4,background:'#22c55e',boxShadow:'0 0 8px rgba(34,197,94,.5)'}}/>
+            <div style={{fontSize:14,fontWeight:800,color:'#fff',letterSpacing:.3}}>Direct Referrals</div>
+          </div>
+          <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.55)'}}>{referrals.length} total</div>
+        </div>
+        <div style={{maxHeight:440,overflowY:'auto'}}>
+          {referrals.length > 0 ? (
+            <table style={{width:'100%',borderCollapse:'collapse'}}>
+              <thead>
+                <tr>
+                  {['Member','Status','Their Team','Joined'].map(function(h){
+                    return <th key={h} style={thStyle}>{h}</th>;
+                  })}
+                </tr>
+              </thead>
+              <tbody>
+                {referrals.map(function(r, i){
+                  return (
+                    <tr key={i}>
+                      <td style={tdStyle}>
+                        <div style={{display:'flex',alignItems:'center',gap:10}}>
+                          <div style={{width:32,height:32,borderRadius:16,background:'linear-gradient(135deg,#1e3a8a,#0ea5e9)',
+                                       display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',
+                                       fontSize:13,fontWeight:800,fontFamily:'Sora,sans-serif'}}>
+                            {((r.first_name || r.username || '?').charAt(0)).toUpperCase()}
+                          </div>
+                          <div>
+                            <div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>
+                              {r.first_name || r.username}
+                            </div>
+                            <div style={{fontSize:11,color:'#94a3b8'}}>@{r.username}</div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style={tdStyle}>
+                        <span style={{fontSize:10,fontWeight:700,padding:'4px 9px',borderRadius:6,
+                          background: r.is_active ? 'rgba(22,163,74,.1)' : 'rgba(148,163,184,.15)',
+                          color: r.is_active ? '#15803d' : '#64748b',
+                          border: '1px solid ' + (r.is_active ? 'rgba(22,163,74,.2)' : 'rgba(148,163,184,.25)')}}>
+                          {r.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                        {r.membership_tier === 'pro' && (
+                          <span style={{fontSize:9,fontWeight:800,padding:'3px 6px',borderRadius:4,
+                            background:'rgba(139,92,246,.1)',color:'#8b5cf6',marginLeft:6,
+                            border:'1px solid rgba(139,92,246,.2)',letterSpacing:.5}}>PRO</span>
+                        )}
+                      </td>
+                      <td style={Object.assign({},tdStyle,{textAlign:'center'})}>
+                        <span style={{fontSize:14,fontWeight:800,color:'#0ea5e9'}}>{r.personal_referrals || 0}</span>
+                      </td>
+                      <td style={Object.assign({},tdStyle,{fontSize:11,color:'#64748b'})}>
+                        {r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—'}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          ) : (
+            <EmptyState icon="👥" title="No referrals yet" subtitle="Share your link above to start building your network" />
           )}
         </div>
       </div>

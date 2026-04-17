@@ -79,7 +79,13 @@
     "sponsorUsername": "Sponsor Username",
     "yourImages": "Your Images",
     "videoNotSupported": "Video URL not supported.",
-    "alreadyHaveAccount": "Already have an account?"
+    "alreadyHaveAccount": "Already have an account?",
+    "tapToUnmute": "Tap to unmute",
+    "all": "All",
+    "generate": "Generate",
+    "generating": "Generating…",
+    "pause": "Pause",
+    "play": "Play"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -1869,7 +1875,8 @@
     "enterDescription": "Enter a description",
     "enterScript": "Enter a script",
     "uploadAnImage": "Upload an image",
-    "remaining": "remaining"
+    "remaining": "remaining",
+    "preview": "Preview"
   },
   "socialShare": {
     "title": "Social Share",
@@ -2176,7 +2183,8 @@
     "creditsAwarded": "{{credits}} credits awarded!",
     "commissionsEarned": "${{amount}} in commissions paid to your upline.",
     "purchaseFailed": "Purchase failed",
-    "emptySlot": "Empty"
+    "emptySlot": "Empty",
+    "perCredit": "per credit"
   },
   "matrixVis": {
     "title": "Profit Nexus",
@@ -4196,7 +4204,9 @@
     "blkProgress": "Progress",
     "blkCountdown": "Countdown",
     "blkSocials": "Socials",
-    "blkIconText": "Icon+Text"
+    "blkIconText": "Icon+Text",
+    "blk": "Block",
+    "cat": "Category"
   },
   "coursePlayer": {},
   "analytics": {
@@ -4232,7 +4242,18 @@
     "lastWithdrawal": "Last withdrawal",
     "noWithdrawals": "No withdrawals yet",
     "totalAiGen": "total AI generations",
-    "qualificationDesc": "Your daily watch requirement to qualify for Campaign Wallet withdrawals. This is not an income stream — it is your accountability check-in."
+    "qualificationDesc": "Your daily watch requirement to qualify for Campaign Wallet withdrawals. This is not an income stream — it is your accountability check-in.",
+    "campaignGrid": "Campaign Grid",
+    "courses": "Courses",
+    "creditNexus": "Credit Nexus",
+    "fiftyRecurring": "50% recurring",
+    "gridCommissions": "Grid commissions",
+    "membership": "Membership",
+    "nexusCommissions": "Nexus commissions",
+    "noResults": "No results",
+    "noTeamYet": "No team yet",
+    "recruitToMsg": "Recruit someone to start messaging",
+    "salesPassUps": "Sales + pass-ups"
   },
   "superMarket": {
     "comparePrice": "Compare Price",
