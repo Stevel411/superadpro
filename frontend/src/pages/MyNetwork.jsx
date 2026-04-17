@@ -17,7 +17,7 @@ export default function MyNetwork() {
     apiGet('/api/network').then(function(r) { setData(r); setLoading(false); }).catch(function() { setLoading(false); });
   }, []);
 
-  if (loading) return <AppLayout title="My Network & Earnings"><Spin/></AppLayout>;
+  if (loading) return <AppLayout title={t('myNetwork.pageTitle')}><Spin/></AppLayout>;
 
   var d = data || {};
   var myUsername = d.username || (authUser && authUser.username) || 'member';
@@ -41,7 +41,7 @@ export default function MyNetwork() {
   var monthName = new Date().toLocaleDateString('en-GB', { month: 'long' });
 
   return (
-    <AppLayout title="My Network & Earnings" subtitle="Your team, your income streams, your growth">
+    <AppLayout title={t('myNetwork.pageTitle')} subtitle={t('myNetwork.pageSubtitle')}>
 
       {/* ── Referral Link Banner ── */}
       <div style={{background:'linear-gradient(135deg,#0b1e4c,#1e3a8a 60%,#2563eb)',borderRadius:16,padding:'22px 28px',marginBottom:28,
@@ -49,7 +49,7 @@ export default function MyNetwork() {
                    boxShadow:'0 8px 30px rgba(23,37,84,0.25)'}}>
         <div style={{flex:1,minWidth:280}}>
           <div style={{fontSize:11,fontWeight:800,letterSpacing:1.6,textTransform:'uppercase',color:'#7dd3fc',marginBottom:6}}>
-            Your Referral Link
+            {t('myNetwork.referralLinkLabel')}
           </div>
           <div style={{fontSize:15,fontWeight:600,color:'rgba(255,255,255,.85)',fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace',wordBreak:'break-all'}}>
             https://www.superadpro.com/ref/{myUsername}
@@ -59,7 +59,7 @@ export default function MyNetwork() {
           style={{display:'flex',alignItems:'center',gap:8,padding:'12px 22px',borderRadius:12,border:'none',cursor:'pointer',
                   background:copied?'#16a34a':'#0ea5e9',color:'#fff',fontSize:13,fontWeight:800,fontFamily:'inherit',transition:'all .2s',
                   boxShadow:'0 4px 14px rgba(14,165,233,.35)'}}>
-          {copied ? <><Check size={14}/> Copied!</> : <><Copy size={14}/> Copy Link</>}
+          {copied ? <><Check size={14}/> {t('myNetwork.copiedBtn')}</> : <><Copy size={14}/> {t('myNetwork.copyBtn')}</>}
         </button>
       </div>
 
@@ -67,19 +67,19 @@ export default function MyNetwork() {
       {/*  YOUR EARNINGS                                    */}
       {/* ═══════════════════════════════════════════════ */}
 
-      <SectionHeading title="Your Earnings" subtitle="Total and monthly, across every income stream" />
+      <SectionHeading title={t('myNetwork.earningsTitle')} subtitle={t('myNetwork.earningsSubtitle')} />
 
       <div style={{display:'grid',gridTemplateColumns:'repeat(2,1fr)',gap:14,marginBottom:20}}>
         <BigStatCard
-          label="Lifetime Earned"
+          label={t('myNetwork.lifetimeEarned')}
           value={'$' + (d.total_earned || 0).toFixed(2)}
-          sub="All-time across all income streams"
+          sub={t('myNetwork.lifetimeEarnedSub')}
           gradient="linear-gradient(135deg,#0b1e4c,#2563eb)"
         />
         <BigStatCard
-          label="This Month"
+          label={t('myNetwork.thisMonth')}
           value={'$' + (d.this_month_total || 0).toFixed(2)}
-          sub={'Commissions paid in ' + monthName}
+          sub={t('myNetwork.thisMonthSub', { month: monthName })}
           gradient="linear-gradient(135deg,#1e3a8a,#0ea5e9)"
         />
       </div>
@@ -87,37 +87,37 @@ export default function MyNetwork() {
       <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:24,
                    boxShadow:'0 4px 20px rgba(23,37,84,.06)'}}>
         <div style={{background:cobaltGradient,padding:'16px 24px'}}>
-          <div style={{fontSize:14,fontWeight:800,color:'#fff',letterSpacing:.3}}>Earnings by Stream</div>
+          <div style={{fontSize:14,fontWeight:800,color:'#fff',letterSpacing:.3}}>{t('myNetwork.streamsCardTitle')}</div>
           <div style={{fontSize:11,fontWeight:600,color:'rgba(255,255,255,.55)',marginTop:3}}>
-            Four ways members earn on SuperAdPro
+            {t('myNetwork.streamsCardSubtitle')}
           </div>
         </div>
         <div>
           <StreamRow
             icon="🔗"
-            name="Membership Residual"
-            desc="50% of every direct referral's monthly membership fee"
+            name={t('myNetwork.streamMembershipName')}
+            desc={t('myNetwork.streamMembershipDesc')}
             amount={membershipEarned}
             colour="#16a34a"
           />
           <StreamRow
             icon="⚡"
-            name="Grid / Campaigns"
-            desc="40% direct + 50% uni-level from campaign tier purchases"
+            name={t('myNetwork.streamGridName')}
+            desc={t('myNetwork.streamGridDesc')}
             amount={gridEarned}
             colour="#0ea5e9"
           />
           <StreamRow
             icon="🎓"
-            name="Course Academy"
-            desc="100% commissions via 4 infinite Income Chains"
+            name={t('myNetwork.streamCourseName')}
+            desc={t('myNetwork.streamCourseDesc')}
             amount={courseEarned}
             colour="#8b5cf6"
           />
           <StreamRow
             icon="💎"
-            name="Credit Nexus"
-            desc="3×3 matrix earnings on downline credit pack purchases"
+            name={t('myNetwork.streamNexusName')}
+            desc={t('myNetwork.streamNexusDesc')}
             amount={nexusEarned}
             colour="#f59e0b"
             last
@@ -131,11 +131,11 @@ export default function MyNetwork() {
         <div style={{background:cobaltGradient,padding:'16px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             <div style={{width:8,height:8,borderRadius:4,background:'#0ea5e9',boxShadow:'0 0 8px rgba(14,165,233,.5)'}}/>
-            <div style={{fontSize:14,fontWeight:800,color:'#fff',letterSpacing:.3}}>Recent Commissions</div>
+            <div style={{fontSize:14,fontWeight:800,color:'#fff',letterSpacing:.3}}>{t('myNetwork.recentCommissionsTitle')}</div>
           </div>
           <a href="/wallet" style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.85)',textDecoration:'none',
                                      display:'flex',alignItems:'center',gap:4}}>
-            See all <ExternalLink size={12}/>
+            {t('myNetwork.seeAll')} <ExternalLink size={12}/>
           </a>
         </div>
         <div style={{maxHeight:400,overflowY:'auto'}}>
@@ -143,14 +143,14 @@ export default function MyNetwork() {
             <table style={{width:'100%',borderCollapse:'collapse'}}>
               <thead>
                 <tr>
-                  {['Source','Details','Amount','Date'].map(function(h){
+                  {[t('myNetwork.colSource'),t('myNetwork.colDetails'),t('myNetwork.colAmount'),t('myNetwork.colDate')].map(function(h){
                     return <th key={h} style={thStyle}>{h}</th>;
                   })}
                 </tr>
               </thead>
               <tbody>
                 {commissions.slice(0,15).map(function(c, i){
-                  var info = streamFromType(c.commission_type || '');
+                  var info = streamFromType(c.commission_type || '', t);
                   return (
                     <tr key={i}>
                       <td style={tdStyle}>
@@ -162,7 +162,7 @@ export default function MyNetwork() {
                         </span>
                       </td>
                       <td style={Object.assign({},tdStyle,{fontSize:12,color:'#475569'})}>
-                        {humaniseType(c.commission_type || '')}
+                        {humaniseType(c.commission_type || '', t)}
                       </td>
                       <td style={Object.assign({},tdStyle,{fontWeight:800,color:'#16a34a',fontSize:14})}>
                         +${formatMoney(c.amount_usdt || c.amount)}
@@ -176,7 +176,7 @@ export default function MyNetwork() {
               </tbody>
             </table>
           ) : (
-            <EmptyState icon="💰" title="No commissions yet" subtitle="Commissions will appear here as your team grows" />
+            <EmptyState icon="💰" title={t('myNetwork.noCommissionsTitle')} subtitle={t('myNetwork.noCommissionsSubtitle')} />
           )}
         </div>
       </div>
@@ -185,30 +185,30 @@ export default function MyNetwork() {
       {/*  YOUR TEAM                                        */}
       {/* ═══════════════════════════════════════════════ */}
 
-      <SectionHeading title="Your Team" subtitle="Everyone below you, growing over time" />
+      <SectionHeading title={t('myNetwork.teamTitle')} subtitle={t('myNetwork.teamSubtitle')} />
 
       <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginBottom:20}}>
         <StatCard
           icon={Users}
           value={d.personal_referrals || 0}
-          label="Direct Referrals"
-          sub="People you recruited personally"
+          label={t('myNetwork.directReferrals')}
+          sub={t('myNetwork.directReferralsSub')}
           color="#0ea5e9"
           iconBg="rgba(14,165,233,.12)"
         />
         <StatCard
           icon={TrendingUp}
           value={d.total_team || 0}
-          label="Total Network"
-          sub="Everyone below you at every depth"
+          label={t('myNetwork.totalNetwork')}
+          sub={t('myNetwork.totalNetworkSub')}
           color="#6366f1"
           iconBg="rgba(99,102,241,.12)"
         />
         <StatCard
           icon={Zap}
           value={d.active_this_month || 0}
-          label="Active Members"
-          sub="Still active on the platform"
+          label={t('myNetwork.activeMembers')}
+          sub={t('myNetwork.activeMembersSub')}
           color="#16a34a"
           iconBg="rgba(22,163,74,.12)"
         />
@@ -220,16 +220,16 @@ export default function MyNetwork() {
         <div style={{background:cobaltGradient,padding:'16px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             <div style={{width:8,height:8,borderRadius:4,background:'#22c55e',boxShadow:'0 0 8px rgba(34,197,94,.5)'}}/>
-            <div style={{fontSize:14,fontWeight:800,color:'#fff',letterSpacing:.3}}>Direct Referrals</div>
+            <div style={{fontSize:14,fontWeight:800,color:'#fff',letterSpacing:.3}}>{t('myNetwork.directReferralsList')}</div>
           </div>
-          <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.55)'}}>{referrals.length} total</div>
+          <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.55)'}}>{t('myNetwork.totalCount', { count: referrals.length })}</div>
         </div>
         <div style={{maxHeight:440,overflowY:'auto'}}>
           {referrals.length > 0 ? (
             <table style={{width:'100%',borderCollapse:'collapse'}}>
               <thead>
                 <tr>
-                  {['Member','Status','Their Team','Joined'].map(function(h){
+                  {[t('myNetwork.colMember'),t('myNetwork.colStatus'),t('myNetwork.colTheirTeam'),t('myNetwork.colJoined')].map(function(h){
                     return <th key={h} style={thStyle}>{h}</th>;
                   })}
                 </tr>
@@ -258,7 +258,7 @@ export default function MyNetwork() {
                           background: r.is_active ? 'rgba(22,163,74,.1)' : 'rgba(148,163,184,.15)',
                           color: r.is_active ? '#15803d' : '#64748b',
                           border: '1px solid ' + (r.is_active ? 'rgba(22,163,74,.2)' : 'rgba(148,163,184,.25)')}}>
-                          {r.is_active ? 'Active' : 'Inactive'}
+                          {r.is_active ? t('myNetwork.statusActive') : t('myNetwork.statusInactive')}
                         </span>
                         {r.membership_tier === 'pro' && (
                           <span style={{fontSize:9,fontWeight:800,padding:'3px 6px',borderRadius:4,
@@ -278,7 +278,7 @@ export default function MyNetwork() {
               </tbody>
             </table>
           ) : (
-            <EmptyState icon="👥" title="No referrals yet" subtitle="Share your link above to start building your network" />
+            <EmptyState icon="👥" title={t('myNetwork.noReferralsTitle')} subtitle={t('myNetwork.noReferralsSubtitle')} />
           )}
         </div>
       </div>
@@ -368,35 +368,35 @@ function EmptyState(props) {
 /*  Type classifiers                                               */
 /* ══════════════════════════════════════════════════════════════ */
 
-function streamFromType(type) {
+function streamFromType(type, t) {
   type = (type || '').toLowerCase();
   if (type.indexOf('matrix') >= 0 || type.indexOf('nexus') >= 0) {
-    return { icon:'💎', label:'Credit Nexus', colour:'#f59e0b' };
+    return { icon:'💎', label: t ? t('myNetwork.streamCategoryCreditNexus') : 'Credit Nexus', colour:'#f59e0b' };
   }
   if (type.indexOf('course') >= 0 || type.indexOf('pass_up') >= 0 || type === 'direct_sale' || type === 'pass_up') {
-    return { icon:'🎓', label:'Courses', colour:'#8b5cf6' };
+    return { icon:'🎓', label: t ? t('myNetwork.streamCategoryCourses') : 'Courses', colour:'#8b5cf6' };
   }
   if (type.indexOf('membership') >= 0 || type === 'sponsor') {
-    return { icon:'🔗', label:'Membership', colour:'#16a34a' };
+    return { icon:'🔗', label: t ? t('myNetwork.streamCategoryMembership') : 'Membership', colour:'#16a34a' };
   }
   if (type.indexOf('direct_sponsor') >= 0 || type.indexOf('uni_level') >= 0 || type.indexOf('grid') >= 0 || type.indexOf('bonus') >= 0) {
-    return { icon:'⚡', label:'Grid', colour:'#0ea5e9' };
+    return { icon:'⚡', label: t ? t('myNetwork.streamCategoryGrid') : 'Grid', colour:'#0ea5e9' };
   }
-  return { icon:'•', label:'Other', colour:'#64748b' };
+  return { icon:'•', label: t ? t('myNetwork.streamCategoryOther') : 'Other', colour:'#64748b' };
 }
 
-function humaniseType(type) {
+function humaniseType(type, t) {
   type = (type || '').toLowerCase();
-  if (type === 'direct_sponsor') return 'Direct sponsor bonus';
-  if (type === 'uni_level') return 'Uni-level commission';
-  if (type === 'grid_completion_bonus') return 'Grid completion bonus';
-  if (type === 'platform') return 'Platform commission';
-  if (type === 'matrix_level' || type === 'nexus_level') return 'Credit matrix level bonus';
-  if (type === 'matrix_completion' || type === 'nexus_completion') return 'Credit matrix completion';
-  if (type === 'nexus_sponsor') return 'Credit Nexus sponsor bonus';
-  if (type === 'direct_sale') return 'Course direct sale (100%)';
-  if (type === 'pass_up') return 'Course pass-up cascade';
-  if (type === 'membership' || type === 'sponsor') return 'Membership referral';
+  if (type === 'direct_sponsor') return t ? t('myNetwork.typeDirectSponsor') : 'Direct sponsor bonus';
+  if (type === 'uni_level') return t ? t('myNetwork.typeUniLevel') : 'Uni-level commission';
+  if (type === 'grid_completion_bonus') return t ? t('myNetwork.typeGridCompletion') : 'Grid completion bonus';
+  if (type === 'platform') return t ? t('myNetwork.typePlatform') : 'Platform commission';
+  if (type === 'matrix_level' || type === 'nexus_level') return t ? t('myNetwork.typeMatrixLevel') : 'Credit matrix level bonus';
+  if (type === 'matrix_completion' || type === 'nexus_completion') return t ? t('myNetwork.typeMatrixCompletion') : 'Credit matrix completion';
+  if (type === 'nexus_sponsor') return t ? t('myNetwork.typeNexusSponsor') : 'Credit Nexus sponsor bonus';
+  if (type === 'direct_sale') return t ? t('myNetwork.typeDirectSale') : 'Course direct sale (100%)';
+  if (type === 'pass_up') return t ? t('myNetwork.typePassUp') : 'Course pass-up cascade';
+  if (type === 'membership' || type === 'sponsor') return t ? t('myNetwork.typeMembership') : 'Membership referral';
   return type.replace(/_/g, ' ').replace(/\b\w/g, function(c){ return c.toUpperCase(); });
 }
 
