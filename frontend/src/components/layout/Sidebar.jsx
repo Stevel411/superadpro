@@ -58,6 +58,7 @@ function buildNav(t, isAdmin) {
     { type: 'divider' },
     { type: 'group', label: t('nav.affiliateHub'), key: 'affiliate', icon: Share2, items: [
       { label: t('nav.myNetwork'), icon: Network, path: '/network' },
+      { label: t('nav.incomeChains'), icon: Link2, path: '/income-chains' },
       { label: t('nav.socialShare'), icon: Users, path: '/social-share' },
       { label: t('nav.marketingMaterials'), icon: Download, path: '/marketing-materials' },
       { label: t('nav.leaderboard'), icon: Trophy, path: '/leaderboard' },
