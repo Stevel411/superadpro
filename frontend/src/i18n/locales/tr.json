@@ -1839,7 +1839,144 @@
       "title": "SuperLeads Yardım",
       "subtitle": "CRM ve otomatik yanıtlayıcı için eksiksiz kılavuz",
       "searchPlaceholder": "Yardım konularını ara…",
-      "noResults": "Sonuç bulunamadı:"
+      "noResults": "Sonuç yok:",
+      "sections": {
+        "gettingStarted": {
+          "category": "Başlarken",
+          "items": [
+            {
+              "title": "SuperLeads nedir?",
+              "desc": "SuperLeads yerleşik CRM ve e-posta otomatik yanıtlayıcınızdır. Huni veya içe aktarmalardan müşteri adaylarını yakalayın, onları listelere organize edin, yayınlar gönderin ve otomatik e-posta dizileriyle onları besleyin — hepsi tek yerden."
+            },
+            {
+              "title": "Müşteri adayı nedir?",
+              "desc": "Yakaladığınız herhangi bir e-posta adresi — SuperPages hunisi, manuel giriş veya CSV içe aktarma yoluyla. Her müşteri adayının bir durumu, isteğe bağlı adı, kaynak etiketi vardır ve herhangi bir listeye atanabilir."
+            },
+            {
+              "title": "Ücretsiz e-postalar vs boost kredileri",
+              "desc": "Her hesap günlük 200 ücretsiz e-posta gönderimi alır. Daha fazla mı gerekiyor? Boost sekmesinden boost paketleri satın alın — krediler asla sona ermez ve cüzdan bakiyenizden gelir."
+            },
+            {
+              "title": "Müşteri adayı depolama limiti",
+              "desc": "Pro üyeler 5.000'e kadar müşteri adayı depolayabilir. Bunun üzerinde, ya eski müşteri adaylarını silin ya da planınızı yükseltin. Silmediğiniz sürece müşteri adayları sonsuza kadar kalır."
+            }
+          ]
+        },
+        "leadsTab": {
+          "category": "Müşteri Adayları Sekmesi",
+          "items": [
+            {
+              "title": "Müşteri adayı durumları",
+              "desc": "Yeni, Besleniyor, Sıcak, Dönüştürüldü ve Aboneliği iptal edildi. Durumu manuel olarak ayarlayın veya müşteri adayı bir işlem yaptığında dizilerin otomatik olarak güncellemesine izin verin."
+            },
+            {
+              "title": "Müşteri adayı düzenleme",
+              "desc": "Adı, e-postayı, durumu veya liste atamasını genişletmek ve düzenlemek için herhangi bir müşteri adayı satırına tıklayın. Değişiklikler anında kaydedilir."
+            },
+            {
+              "title": "Müşteri adayı silme",
+              "desc": "Herhangi bir müşteri adayının yanındaki çöp kutusu simgesine tıklayın. Silinen müşteri adayları depolamayı serbest bırakır ve kurtarılamaz."
+            },
+            {
+              "title": "Toplu işlemler",
+              "desc": "Onay kutusu sütunu aracılığıyla birden fazla müşteri adayı seçin, ardından altta bulunan toplu eylem çubuğunu kullanarak bir listeye taşıyın, durumu değiştirin veya silin."
+            }
+          ]
+        },
+        "lists": {
+          "category": "Listeler",
+          "items": [
+            {
+              "title": "Listeler nedir?",
+              "desc": "Listeler, müşteri adaylarını gruplamak için uyguladığınız etiketlerdir — örneğin 'Fitness Bülteni' veya 'Kripto Potansiyeli'. Tek bir müşteri adayı birden fazla listeye ait olabilir."
+            },
+            {
+              "title": "Liste oluşturma",
+              "desc": "Müşteri Adayları sekmesi kenar çubuğunda 'Liste Oluştur' düğmesine tıklayın. Açıklayıcı bir isim verin — dizileri ve yayınları liste bazında hedefleyeceksiniz."
+            },
+            {
+              "title": "Liste analitiği",
+              "desc": "Her liste, toplam müşteri adayı, aktif abone ve dönüşüm oranını gösterir. En iyi etkileşim gösteren izleyicileri tanımlamak için bunları kullanın."
+            }
+          ]
+        },
+        "sequences": {
+          "category": "Diziler",
+          "items": [
+            {
+              "title": "Dizi nedir?",
+              "desc": "Dizi, bir müşteri adayı katıldıktan sonra gecikmeyle otomatik olarak gönderilen sıralı bir e-posta kümesidir. Karşılama akışları, ürün lansmanları veya besleme kampanyaları için kullanın."
+            },
+            {
+              "title": "Dizi oluşturma",
+              "desc": "Diziler sekmesine geçin, 'Yeni Dizi'ye tıklayın ve gönderim gecikmeleri (gün cinsinden) ile e-posta adımları ekleyin. Diziyi bir veya daha fazla listeye atayın."
+            },
+            {
+              "title": "AI ile oluşturulan diziler",
+              "desc": "'AI ile Oluştur'a tıklayın ve nişinizi girin. SuperLeads, izleyicinize özel 5 e-postalık karşılama serisi yazar. Etkinleştirmeden önce herhangi bir e-postayı düzenleyin."
+            },
+            {
+              "title": "Duraklatma ve devam etme",
+              "desc": "Tüm gelecek gönderimleri duraklatmak için bir diziyi kapalı olarak değiştirin. Zaten devam eden müşteri adayları duraklatılır; yeni müşteri adayları girmez. Devam ettirmek için tekrar açın."
+            }
+          ]
+        },
+        "broadcast": {
+          "category": "Yayın",
+          "items": [
+            {
+              "title": "Yayın nedir?",
+              "desc": "Bir listeye hemen (veya planlanmış) gönderilen tek seferlik bir e-posta. Diziye uymayan zaman duyarlı haberler, teklifler veya güncellemeler için yayın kullanın."
+            },
+            {
+              "title": "Yayın yazma",
+              "desc": "Hedef listeyi seçin, konu satırı ve metin yazın (HTML desteklenir), ardından önizleyin. Hemen gönderin veya sonra için planlayın."
+            },
+            {
+              "title": "Yayın maliyeti",
+              "desc": "Her alıcı günlük limitinize karşı bir gönderim olarak sayılır. 200 gönderimi aşarsanız, kalanlar boost kredilerinden gelir."
+            }
+          ]
+        },
+        "import": {
+          "category": "İçe Aktarma",
+          "items": [
+            {
+              "title": "Kabul edilen formatlar",
+              "desc": "CSV dosya yükleme veya e-posta adresleri listesi yapıştırma. Format basittir: satır başına bir e-posta veya adlandırılmış müşteri adayları için 'email,name'."
+            },
+            {
+              "title": "İçe aktarma ayarları",
+              "desc": "Onaylamadan önce hedef listeyi, başlangıç durumunu ve isteğe bağlı kaynak etiketini seçin. Aynı listedeki yinelenenler otomatik olarak atlanır."
+            },
+            {
+              "title": "Dizi otomatik atama",
+              "desc": "İçe aktarılan her müşteri adayını doğrudan bir karşılama akışına düşürmek için 'Dizi otomatik ata'yı işaretleyin. Başka bir platformdan müşteri adayı aktarmak için harika."
+            },
+            {
+              "title": "Önizleme ve doğrulama",
+              "desc": "Yükledikten sonra önizlemeyi inceleyin. Geçersiz e-postalar kırmızı olarak işaretlenir ve içe aktarılmaz. Gerekirse kaynak dosyanızı düzeltin ve yeniden yükleyin."
+            }
+          ]
+        },
+        "emailBoost": {
+          "category": "E-posta Boost",
+          "items": [
+            {
+              "title": "Boost kredileri nedir?",
+              "desc": "Günlük 200 ücretsiz tahsisatınızın ötesindeki ekstra e-posta gönderimleri. Krediler cüzdan bakiyenizden gelir ve asla sona ermez."
+            },
+            {
+              "title": "Boost paket seviyeleri",
+              "desc": "Dört paket boyutu — 500, 2.000, 10.000 ve 50.000 kredi. Daha büyük paketler e-posta başına daha iyi fiyatlandırma sağlar."
+            },
+            {
+              "title": "Boost ne zaman satın alınır",
+              "desc": "Büyük bir yayın gönderirken, 200 müşteri adayından büyük bir listeyi beslerken veya birden fazla aktif dizi çalıştırırken. Platform, günlük üst sınıra ulaşmadan önce sizi uyarır."
+            }
+          ]
+        }
+      }
     },
     "autoresponderLabel": "Otomatik Yanıtlayıcı",
     "totalLeadsStat": "Toplam potansiyel müşteri",
@@ -2257,7 +2394,181 @@
       "title": "SuperPages Yardım",
       "subtitle": "Sayfa oluşturucu bilgi tabanı",
       "searchPlaceholder": "Yardım konularını ara…",
-      "noResults": "Sonuç bulunamadı:"
+      "noResults": "Sonuç yok:",
+      "sections": {
+        "gettingStarted": {
+          "category": "Başlarken",
+          "items": [
+            {
+              "title": "SuperPages nedir?",
+              "desc": "Açılış sayfaları, katılım hunileri ve satış sayfaları için sürükle-bırak oluşturucu. Her sayfa mobil uyumludur ve müşteri adaylarını doğrudan SuperLeads'e yakalayabilir."
+            },
+            {
+              "title": "Tuval",
+              "desc": "Merkez alan sizin sayfanızdır. Eklemek için sol kenar çubuğundan blokları sürükleyin. Sağ panelde düzenlemek için herhangi bir öğeye tıklayın."
+            },
+            {
+              "title": "Çalışmanızı kaydetme",
+              "desc": "Düzenleme yaparken değişiklikler otomatik olarak kaydedilir. 'Yayınla' düğmesi en son sürümünüzü seçtiğiniz URL'de canlı yapar."
+            },
+            {
+              "title": "Sayfalar vs Huniler",
+              "desc": "Tek bir sayfa basit katılımlar için çalışır. Huni, sayfaların bir dizisidir (katılım → teşekkür → teklif) — çok adımlı akışlar oluşturmak için huni oluşturucuyu kullanın."
+            }
+          ]
+        },
+        "textElements": {
+          "category": "Metin Öğeleri",
+          "items": [
+            {
+              "title": "Başlık bloğu",
+              "desc": "Sayfa başlıkları ve bölüm başlıkları için. H1'den H6'ya kadar seçin, boyut ve ağırlığı ayarlayın ve bir renk seçin. SEO için H1 sayfa başına bir kez kullanılmalıdır."
+            },
+            {
+              "title": "Paragraf bloğu",
+              "desc": "Gövde metni için. Kalın, italik, bağlantılar ve satır sonlarını destekler. Mobilde en iyi okunabilirlik için kısa paragraflar (2-3 cümle) kullanın."
+            },
+            {
+              "title": "Alıntı bloğu",
+              "desc": "İsteğe bağlı atıf satırı ile vurgulanmış bir alıntı veya referans. Normal paragraflardan farklı olarak tasarlanmıştır."
+            },
+            {
+              "title": "Liste bloğu",
+              "desc": "Madde işaretli veya numaralı listeler. Özellikler ve faydalar için madde işaretli listeler kullanın; adımlar veya sıralı öğeler için numaralı listeler."
+            }
+          ]
+        },
+        "mediaElements": {
+          "category": "Medya Öğeleri",
+          "items": [
+            {
+              "title": "Görüntü bloğu",
+              "desc": "Bir görüntü yükleyin veya bir URL yapıştırın. Görüntüler kap genişliğine sığacak şekilde otomatik olarak yeniden boyutlandırılır ve hızlı sayfa hızı için tembel olarak yüklenir."
+            },
+            {
+              "title": "Video bloğu",
+              "desc": "YouTube, Vimeo veya Wistia URL'sini yapıştırın. Oynatıcı uyumlu olarak yerleştirilir ve doğrudan sayfanızda oynatılır. Özel barındırma gerekmez."
+            },
+            {
+              "title": "Ses bloğu",
+              "desc": "Bir MP3 oynatıcı yerleştirin. Dosyayı yükleyin veya doğrudan URL yapıştırın. Podcast bölümleri veya sesli mesajlar için harika."
+            },
+            {
+              "title": "Galeri bloğu",
+              "desc": "Tıklandığında lightbox'ta açılan görüntü ızgarası. Galeri başına en fazla 24 görüntü ekleyin."
+            }
+          ]
+        },
+        "actionElements": {
+          "category": "Eylem Öğeleri",
+          "items": [
+            {
+              "title": "Düğme bloğu",
+              "desc": "Özel metin, renk ve eylemle tıklanabilir bir düğme. URL açmak, bir bölüme kaydırmak veya bir formu göndermek için ayarlayın."
+            },
+            {
+              "title": "Form bloğu",
+              "desc": "Ad, e-posta ve özel alanları toplayın. Gönderimler, seçtiğiniz liste ve durumla doğrudan SuperLeads'e düşer."
+            },
+            {
+              "title": "Geri sayım zamanlayıcı",
+              "desc": "Bir lansmana, son tarihe veya teklif süresinin dolmasına kadar olan zamanı göstererek aciliyeti yönlendirir. Hedef tarih/saati ve stili seçin."
+            },
+            {
+              "title": "Katılım açılır penceresi",
+              "desc": "Çıkış niyeti, kaydırma derinliği veya zaman gecikmesi tarafından tetiklenen bir lightbox formu. Ayrılan ziyaretçileri yakalamak için harika."
+            }
+          ]
+        },
+        "contentElements": {
+          "category": "İçerik Öğeleri",
+          "items": [
+            {
+              "title": "SSS bloğu",
+              "desc": "Daraltılabilir bir soru ve cevap listesi. Sayfa karışıklığını azaltır ve SEO'yu artırır — arama motorları SSS şemasını anlar."
+            },
+            {
+              "title": "Referans bloğu",
+              "desc": "İsteğe bağlı avatarlar, adlar ve yıldız derecelendirmeleri ile müşteri alıntıları. Kartlar, atlıkarınca veya ızgara olarak gösterilir."
+            },
+            {
+              "title": "Fiyatlandırma tablosu",
+              "desc": "Özellik listeleri ve her seviye için eyleme geçirme düğmesi ile 2-4 fiyatlandırma seviyesini yan yana karşılaştırın."
+            },
+            {
+              "title": "İstatistik bloğu",
+              "desc": "Etiketli büyük sayılar — örneğin '10.000+ üye', '$2M ödendi'. Hızlıca güvenilirlik oluşturmak için kullanın."
+            }
+          ]
+        },
+        "layoutElements": {
+          "category": "Düzen Öğeleri",
+          "items": [
+            {
+              "title": "Bölüm bloğu",
+              "desc": "Diğer blokları bir araya gruplandıran bir kap. Sayfanızın tüm bölümlerini biçimlendirmek için bir arka plan rengi, görüntüsü veya gradyan ekleyin."
+            },
+            {
+              "title": "Sütunlar",
+              "desc": "Bir bölümü 2, 3 veya 4 sütuna bölün. Mobilde sütunlar okunabilirlik için otomatik olarak dikey olarak istiflenir."
+            },
+            {
+              "title": "Boşluk bloğu",
+              "desc": "Öğeler arasında dikey boşluk ekler. Dikkatli kullanın — çok fazla boşluk sayfa akışını parçalar."
+            },
+            {
+              "title": "Ayırıcı bloğu",
+              "desc": "Bölümleri görsel olarak ayırmak için yatay bir çizgi. Kalınlığı, rengi ve stili (düz, kesik çizgili, noktalı) seçin."
+            }
+          ]
+        },
+        "settingsPublishing": {
+          "category": "Ayarlar ve Yayınlama",
+          "items": [
+            {
+              "title": "Sayfa URL'si",
+              "desc": "Affiliate alt etki alanınız altında özel bir slug ayarlayın. SEO için URL'leri kısa, açıklayıcı ve anahtar kelimelerle zengin tutun."
+            },
+            {
+              "title": "SEO meta",
+              "desc": "Sayfa başlığını, meta açıklamasını ve sosyal paylaşım görüntüsünü ayarlayın. Bunlar arama sonuçlarında ve bağlantınız sosyal medyada paylaşıldığında görünür."
+            },
+            {
+              "title": "Yayınlama",
+              "desc": "En son değişikliklerinizi canlıya almak için 'Yayınla'ya tıklayın. Taslak değişiklikler yayınlayana kadar özel kalır — istediğiniz zaman önizleyebilirsiniz."
+            },
+            {
+              "title": "Analitik",
+              "desc": "Sayfa görüntülemelerini, katılım oranını ve sayfada geçirilen ortalama süreyi izleyin. Veriler her 5 dakikada bir güncellenir."
+            },
+            {
+              "title": "İzleme pikselleri",
+              "desc": "Reklam platformlarınızda dönüşümleri izlemek için Facebook, Google veya TikTok piksellerini enjekte edin. Sayfa ayarlarınıza piksel ID'nizi ekleyin."
+            }
+          ]
+        },
+        "aiAssistant": {
+          "category": "AI Asistanı",
+          "items": [
+            {
+              "title": "AI ne yapar?",
+              "desc": "Nişiniz ve teklifinize göre başlıklar, gövde paragrafları, CTA'lar ve SSS'ler için kopya oluşturur. Boş sayfa felcini yenmek için harika."
+            },
+            {
+              "title": "İyi bir istem yazma",
+              "desc": "Belirli olun: ürününüzü, hedef kitlenizi, onların yapmasını istediğiniz eylemi ve tonu dahil edin. 'Meşgul annelere yönelik fitness kursu için bir başlık yazın' 'bir başlık yazın'dan daha iyidir."
+            },
+            {
+              "title": "AI çıktısını düzenleme",
+              "desc": "AI taslakları başlangıç noktalarıdır, son kopya değildir. Yayınlamadan önce her zaman okuyun, ince ayar yapın ve kendi sesinizi enjekte edin."
+            },
+            {
+              "title": "Yeniden oluştur vs iyileştir",
+              "desc": "'Yeniden oluştur' aynı istemle yeni bir bakış sağlar. 'İyileştir' mevcut çıktıyı alır ve ince ayar yapar — yakın olduğunuzda ancak tam olarak orada olmadığınızda iyileştirmeyi kullanın."
+            }
+          ]
+        }
+      }
     },
     "desktopPreview": "Desktop (1100px)",
     "tabletPreview": "Tablet (768px)",
