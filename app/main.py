@@ -13018,35 +13018,127 @@ def admin_test_course_passup_e2e(
         }, status_code=500)
 
 
+@app.get("/admin/test-course-passup-seed")
+def admin_test_course_passup_seed(
+    secret: str,
+    db: Session = Depends(get_db)
+):
+    """Seed three skeleton TEST courses at Tier 1/2/3 so the E2E test can run.
+    Safe to run multiple times — skips tiers that already have an active course
+    with the 'TEST_COURSE_' title prefix.
+
+    Delete them via /admin/test-course-passup-cleanup once testing is done.
+    """
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+
+    from app.database import Course
+    from decimal import Decimal as _D
+
+    tier_configs = [
+        {"tier": 1, "price": 100, "title": "TEST_COURSE_Tier_1 (DELETE BEFORE BETA)"},
+        {"tier": 2, "price": 300, "title": "TEST_COURSE_Tier_2 (DELETE BEFORE BETA)"},
+        {"tier": 3, "price": 500, "title": "TEST_COURSE_Tier_3 (DELETE BEFORE BETA)"},
+    ]
+
+    created = []
+    skipped = []
+
+    for cfg in tier_configs:
+        existing = db.query(Course).filter(
+            Course.title == cfg["title"],
+            Course.is_active == True,
+        ).first()
+        if existing:
+            skipped.append({"tier": cfg["tier"], "course_id": existing.id, "reason": "already seeded"})
+            continue
+
+        course = Course(
+            title=cfg["title"],
+            slug=f"test-course-tier-{cfg['tier']}",
+            description=f"Skeleton test course for pass-up E2E verification only. Do not publish.",
+            price=_D(str(cfg["price"])),
+            tier=cfg["tier"],
+            is_active=True,
+            sort_order=999,
+        )
+        db.add(course)
+        db.flush()
+        created.append({"tier": cfg["tier"], "course_id": course.id, "price": cfg["price"], "title": cfg["title"]})
+
+    db.commit()
+    return {
+        "seeded": True,
+        "created": created,
+        "skipped": skipped,
+        "next_step": "Now run /admin/test-course-passup-e2e?secret=superadpro-owner-2026&tier=1",
+    }
+
+
 @app.get("/admin/test-course-passup-cleanup")
 def admin_test_course_passup_cleanup(
     secret: str,
     db: Session = Depends(get_db)
 ):
-    """Clean up ALL coursepuptest_* users and related course records."""
+    """Clean up ALL coursepuptest_* users, related course records, AND
+    any TEST_COURSE_* seed courses. Safe to run multiple times."""
     if secret != "superadpro-owner-2026":
         return JSONResponse({"error": "Invalid secret"}, status_code=403)
 
-    from app.database import CoursePurchase, CourseCommission
+    from app.database import CoursePurchase, CourseCommission, Course
 
     test_users = db.query(User).filter(User.username.like("coursepuptest_%")).all()
     test_user_ids = [u.id for u in test_users]
-    if not test_user_ids:
-        return {"message": "No test users found"}
 
-    purchases = db.query(CoursePurchase).filter(CoursePurchase.user_id.in_(test_user_ids)).all()
-    purchase_ids = [p.id for p in purchases]
+    # Delete test course records (purchases, commissions)
+    purchase_ids = []
+    comm_del = 0
+    pur_del = 0
+    user_del = 0
 
-    comm_del = db.query(CourseCommission).filter(
-        (CourseCommission.buyer_id.in_(test_user_ids)) |
-        (CourseCommission.earner_id.in_(test_user_ids)) |
-        (CourseCommission.purchase_id.in_(purchase_ids) if purchase_ids else False)
-    ).delete(synchronize_session=False)
-    pur_del = db.query(CoursePurchase).filter(CoursePurchase.user_id.in_(test_user_ids)).delete(synchronize_session=False)
-    user_del = db.query(User).filter(User.id.in_(test_user_ids)).delete(synchronize_session=False)
+    if test_user_ids:
+        purchases = db.query(CoursePurchase).filter(CoursePurchase.user_id.in_(test_user_ids)).all()
+        purchase_ids = [p.id for p in purchases]
+
+        comm_del = db.query(CourseCommission).filter(
+            (CourseCommission.buyer_id.in_(test_user_ids)) |
+            (CourseCommission.earner_id.in_(test_user_ids)) |
+            (CourseCommission.purchase_id.in_(purchase_ids) if purchase_ids else False)
+        ).delete(synchronize_session=False)
+        pur_del = db.query(CoursePurchase).filter(CoursePurchase.user_id.in_(test_user_ids)).delete(synchronize_session=False)
+        user_del = db.query(User).filter(User.id.in_(test_user_ids)).delete(synchronize_session=False)
+
+    # Delete the TEST_COURSE_* seed courses. Must first delete any lingering
+    # purchases/commissions that reference them (belt-and-braces).
+    test_courses = db.query(Course).filter(Course.title.like("TEST_COURSE_%")).all()
+    test_course_ids = [c.id for c in test_courses]
+    course_del = 0
+    if test_course_ids:
+        # Any purchases that reference these courses (by non-test users too, just in case)
+        course_pur_ids = [p.id for p in db.query(CoursePurchase).filter(
+            CoursePurchase.course_id.in_(test_course_ids)
+        ).all()]
+        if course_pur_ids:
+            db.query(CourseCommission).filter(
+                CourseCommission.purchase_id.in_(course_pur_ids)
+            ).delete(synchronize_session=False)
+            db.query(CoursePurchase).filter(
+                CoursePurchase.id.in_(course_pur_ids)
+            ).delete(synchronize_session=False)
+        course_del = db.query(Course).filter(Course.id.in_(test_course_ids)).delete(synchronize_session=False)
+
     db.commit()
 
-    return {"cleaned": True, "users": user_del, "purchases": pur_del, "commissions": comm_del}
+    if not test_user_ids and not test_course_ids:
+        return {"message": "No test data found to clean"}
+
+    return {
+        "cleaned": True,
+        "users": user_del,
+        "purchases": pur_del,
+        "commissions": comm_del,
+        "test_courses": course_del,
+    }
 
 
 @app.get("/admin/grid-audit")
