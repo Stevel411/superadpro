@@ -108,7 +108,8 @@
     "sponsorUsername": "Sponsor kullanıcı adı",
     "yourImages": "Görselleriniz",
     "videoNotSupported": "Video URL'si desteklenmiyor.",
-    "alreadyHaveAccount": "Zaten hesabınız var mı?"
+    "alreadyHaveAccount": "Zaten hesabınız var mı?",
+    "tapToUnmute": "Sesi açmak için dokunun"
   },
   "nav": {
     "dashboard": "Kontrol Paneli",
@@ -192,7 +193,8 @@
     "marketingMaterials": "Pazarlama Materyalleri",
     "courseAcademy": "Kurs Akademisi",
     "profitGrid": "Kâr Izgarası",
-    "gridCalculator": "Izgara Hesaplayıcı"
+    "gridCalculator": "Izgara Hesaplayıcı",
+    "incomeChains": "Gelir Zincirleri"
   },
   "dashboard": {
     "title": "Gösterge Paneli",
@@ -631,7 +633,8 @@
     "returnToTab": "Devam etmek için bu sekmeye dönün",
     "general": "General",
     "loading": "Yükleniyor...",
-    "playing": "▶ Oynatılıyor"
+    "playing": "▶ Oynatılıyor",
+    "watchOneToQualify": "Bugün hak kazanmak için 1 video izleyin"
   },
   "adBoard": {
     "title": "Reklam Panosu",
@@ -1984,7 +1987,8 @@
     "enterDescription": "Açıklama girin",
     "enterScript": "Senaryo girin",
     "uploadAnImage": "Görüntü yükleyin",
-    "remaining": "kalan"
+    "remaining": "kalan",
+    "preview": "Önizleme"
   },
   "socialShare": {
     "title": "Sosyal Paylaşım",
@@ -2291,7 +2295,8 @@
     "paymentWindowOpened": "Payment window opened — complete your USDT payment to receive {{credits}} credits. Your nexus will update automatically once payment is confirmed.",
     "creditsAwarded": "{{credits}} credits awarded!",
     "commissionsEarned": "${{amount}} in commissions paid to your upline.",
-    "purchaseFailed": "Purchase failed"
+    "purchaseFailed": "Purchase failed",
+    "perCredit": "kredi başına"
   },
   "matrixVis": {
     "title": "Kâr Bağlantısı",
@@ -2948,7 +2953,243 @@
     "achieveDefault": "Topluluk üyelerimizin neler başardığına bakın.",
     "lastChanceDefault": "Bize katılmak için son şansınız.",
     "sentToLeads": "Gönderildi",
-    "leads": "müşteri adayı"
+    "leads": "müşteri adayı",
+    "help": {
+      "title": "SuperLeads Yardım",
+      "subtitle": "CRM ve otomatik yanıtlayıcı için eksiksiz kılavuz",
+      "searchPlaceholder": "Yardım konularını ara…",
+      "noResults": "Sonuç bulunamadı:",
+      "sections": {
+        "gettingStarted": {
+          "category": "Başlarken",
+          "items": [
+            {
+              "title": "SuperLeads nedir?",
+              "desc": "SuperLeads, yerleşik CRM ve e-posta otomatik yanıtlayıcınızdır. SuperPages huninizden potansiyel müşterileri yakalamanıza, listelere düzenlemenize, otomatik e-posta sekansları göndermenize ve tek seferlik e-postalar yayınlamanıza olanak tanır — tümü ayrı bir e-posta pazarlama aracına ihtiyaç duymadan."
+            },
+            {
+              "title": "Potansiyel müşteriler CRM'ime nasıl gelir?",
+              "desc": "Biri SuperPages'lerinizden birinde bir form doldurduğunda potansiyel müşteriler otomatik olarak eklenir. Adları ve e-postaları anında yakalanır ve Potansiyel Müşteriler sekmenizde görünür. Ayrıca İçe Aktar sekmesi aracılığıyla CSV dosyası kullanarak manuel olarak potansiyel müşteri içe aktarabilirsiniz."
+            },
+            {
+              "title": "SuperLeads'i kim kullanabilir?",
+              "desc": "SuperLeads bir Pro üye özelliğidir. Pro üyeliğinize dahil en fazla 5.000 potansiyel müşteri alırsınız. Daha fazla kapasiteye mi ihtiyacınız var? Hesap ayarlarınızdan istediğiniz zaman genişletebilirsiniz."
+            },
+            {
+              "title": "Bir potansiyel müşteri geldiğinde ne olur?",
+              "desc": "Bir potansiyel müşteri huni formunuzu doldurduğunda, CRM'inize eklenir, en son aktif e-posta sekansınıza atanır ve o sekansın ilk e-postası Brevo aracılığıyla hemen gönderilir. Tümü otomatik — manuel adım gerekmez."
+            }
+          ]
+        },
+        "leadsTab": {
+          "category": "Potansiyel Müşteri Sekmesi",
+          "items": [
+            {
+              "title": "Potansiyel Müşteri sekmesi neyi gösterir?",
+              "desc": "Potansiyel Müşteri sekmesi, ana kişiler listenizdir. Yakaladığınız veya içe aktardığınız her potansiyel müşteriyi adları, e-postaları, ait oldukları liste, mevcut durumları, kaç e-posta aldıkları ve açtıkları ve hangi sekansa atandıklarıyla birlikte gösterir."
+            },
+            {
+              "title": "Potansiyel Müşteri Durumları Açıklaması",
+              "desc": "Yeni — yeni eklendi, henüz etkileşim yok. Yetiştiriliyor — aktif bir e-posta sekansında. Sıcak — bir potansiyel müşteri 2+ e-posta açtığında veya herhangi bir bağlantıya tıkladığında otomatik olarak işaretlenir. Dönüştürüldü — bir potansiyel müşteri istenen eylemi (satın alma, kayıt vb.) gerçekleştirdikten sonra manuel olarak dönüştürüldü olarak işaretleyin."
+            },
+            {
+              "title": "Sıcak Potansiyel Müşteri nedir?",
+              "desc": "Sıcak Potansiyel Müşteri, gerçek ilgi gösteren biridir — birden fazla e-posta açmış veya bir bağlantıya tıklamıştır. Bunlar en sıcak müşteri adaylarınızdır ve öncelik vermeye değer. Sıcak potansiyel müşteriler otomatik olarak alev simgesiyle işaretlenir ve Sıcak filtresine tıkladığınızda görünür."
+            },
+            {
+              "title": "Potansiyel müşterilerinizi filtreleme",
+              "desc": "Potansiyel müşterileri duruma göre görmek için renkli filtre düğmelerini kullanın: Tümü, Yeni, Yetiştiriliyor, Sıcak veya Dönüştürüldü. Belirli bir listeye göre filtrelemek için sağdaki Tüm Listeler açılır menüsünü kullanın. Her iki filtreyi birleştirin — örneğin, yalnızca Facebook listenizden Sıcak potansiyel müşterileri görün."
+            },
+            {
+              "title": "Potansiyel müşteriye sekans atama",
+              "desc": "Her potansiyel müşterinin yanındaki Sekans sütununda, içinde bulundukları e-posta sekansını atamak veya değiştirmek için açılır menüyü kullanın. Bir dahaki sefere o sekansta Sıradakini Gönder'e tıkladığınızda, bu potansiyel müşteri dahil edilecektir."
+            },
+            {
+              "title": "Potansiyel müşteri silme",
+              "desc": "Silmek için herhangi bir potansiyel müşteri satırının sağındaki kırmızı çöp kutusu simgesine tıklayın. Bu, potansiyel müşteriyi ve tüm e-posta geçmişlerini kalıcı olarak kaldırır. Dikkatli kullanın — bu geri alınamaz."
+            }
+          ]
+        },
+        "lists": {
+          "category": "Listeler",
+          "items": [
+            {
+              "title": "Listeler nedir?",
+              "desc": "Listeler, potansiyel müşterilerinizi gruplara düzenlemenize olanak tanır. Örneğin: Facebook Potansiyel Müşterileri, YouTube Trafiği, Web Semineri Kayıtları veya VIP Müşteriler. Her listenin kendi rengi vardır, böylece onları potansiyel müşteri tablonuzda anında tanıyabilirsiniz."
+            },
+            {
+              "title": "Liste Oluşturma",
+              "desc": "Yeni Liste'ye tıklayın, ona bir ad, isteğe bağlı açıklama verin, bir renk seçin ve isteğe bağlı olarak varsayılan bir e-posta sekansı atayın. Bu liste için içe aktarılan veya yakalanan herhangi bir potansiyel müşteri otomatik olarak o sekansa kaydedilir."
+            },
+            {
+              "title": "Listede Varsayılan Sekans",
+              "desc": "Bir listede varsayılan sekans ayarladığınızda, o listeye eklenen her yeni potansiyel müşteri (form yakalama veya CSV içe aktarma yoluyla) otomatik olarak o sekansa kaydedilir. Bu, her yeni potansiyel müşteriye manuel olarak sekans atama zahmetinden sizi kurtarır."
+            },
+            {
+              "title": "Bir listeyi silersem ne olur?",
+              "desc": "Bir listeyi silerseniz, içindeki tüm potansiyel müşteriler silinmek yerine Sınıflandırılmamış'a taşınır. Sınıflandırılmamış potansiyel müşterileri filtreleyebilir ve istediğiniz zaman yeni bir listeye yeniden atayabilirsiniz."
+            },
+            {
+              "title": "Liste Kartlarında Potansiyel Müşteri Sayısı",
+              "desc": "Her liste kartı, her grupta kaç kişi olduğunu bir bakışta görebilmeniz için bir potansiyel müşteri sayısı gösterir. Her kartın üst kısmındaki renkli çubuk, o liste için seçtiğiniz renkle eşleşir."
+            }
+          ]
+        },
+        "sequences": {
+          "category": "Sekanslar",
+          "items": [
+            {
+              "title": "E-posta Sekansı nedir?",
+              "desc": "Bir sekans, zaman içinde otomatik olarak gönderilen bir dizi e-postadır. Bir kez yazarsınız, her e-posta arasındaki gecikmeyi ayarlarsınız ve sistem onları potansiyel müşterilerinize otomatik pilotta gönderir. Karşılama serileri, yetiştirme kampanyaları veya işe alım akışları için mükemmeldir."
+            },
+            {
+              "title": "Sekans Oluşturma",
+              "desc": "Sekans Oluştur'a tıklayın, ona bir ad verin ve e-postalarınızı ekleyin. Her e-postanın bir konuya, bir gövdeye (zengin metin düzenleyicisi ile yazılmış) ve gün cinsinden gönderim gecikmesine ihtiyacı vardır. Gün 0 hemen gönderir. Gün 3, önceki e-postadan 3 gün sonra gönderir."
+            },
+            {
+              "title": "Sıradakini Gönder ne yapar?",
+              "desc": "Bir sekansta Sıradakini Gönder'e tıklamak, o sekansa atanan her potansiyel müşteriye sıradaki bekleyen e-postayı gönderir. Sistem, her potansiyel müşterinin hangi e-postada olduğunu takip eder, böylece herkes doğru adımda doğru e-postayı alır — kimse aynı e-postayı iki kez almaz."
+            },
+            {
+              "title": "Gönderim Gecikmesi Açıklaması",
+              "desc": "Her e-postadaki gecikme, önceki e-postanın gönderildiği tarihten itibaren gün sayısıdır. 0 gündeki 1. E-posta hemen gönderilir. 2 gündeki 2. E-posta, 1. E-postadan 2 gün sonra gönderilir. 5 gündeki 3. E-posta, 2. E-postadan 5 gün sonra gönderilir. Henüz bir sonraki e-postasına hazır olmayan potansiyel müşteriler atlanır."
+            },
+            {
+              "title": "Sekans Düzenleme",
+              "desc": "Adı değiştirmek, e-posta eklemek veya kaldırmak, konuları ve gövdeleri güncellemek veya gecikmeleri ayarlamak için herhangi bir sekans kartında Düzenle'ye tıklayın. Değişiklikler gelecekteki gönderimlere uygulanır — zaten bir e-posta almış olan potansiyel müşteriler onu tekrar almayacaktır."
+            },
+            {
+              "title": "Zengin Metin Düzenleyicisi",
+              "desc": "E-posta gövde düzenleyicisi kalın, italik, altı çizili, madde işaretli listeler, numaralandırılmış listeler, başlıklar ve bağlantıları destekler. E-postanızı görünmesini istediğiniz şekilde yazın. E-postalar HTML olarak gönderilir, böylece biçimlendirme gelen kutusunda korunur."
+            }
+          ]
+        },
+        "broadcast": {
+          "category": "Yayın",
+          "items": [
+            {
+              "title": "Yayın nedir?",
+              "desc": "Yayın, şu anda tüm potansiyel müşterilerinize veya filtrelenmiş bir gruba gönderilen tek seferlik bir e-postadır. Sekanslardan (zaman içinde damlayan) farklı olarak, bir yayın filtrenizle eşleşen herkese hemen gönderilir. Duyurular, promosyonlar veya zaman duyarlı haberler için kullanın."
+            },
+            {
+              "title": "Yayın alıcılarınızı filtreleme",
+              "desc": "Göndermeden önce bir Liste ve/veya Durum filtresi seçin. Alıcı sayısı canlı olarak güncellenir, böylece Gönder'e basmadan önce tam olarak kaç kişinin e-postayı alacağını bilirsiniz. Örnek: yalnızca Facebook listenizden Sıcak potansiyel müşterilere gönderin."
+            },
+            {
+              "title": "Alıcı Sayısı",
+              "desc": "Filtrelerin yanında gösterilen sayı, seçiminizle eşleşen ve abonelikten çıkmamış potansiyel müşterilerin canlı sayısıdır. Bu, Gönder'e tıkladığınızda gönderilecek e-postaların tam sayısıdır."
+            },
+            {
+              "title": "Abonelikten çıkan potansiyel müşteriler",
+              "desc": "Abonelikten çıkan potansiyel müşteriler tüm yayınlardan ve sekans gönderimlerinden otomatik olarak hariç tutulur. Onları manuel olarak filtrelemenize gerek yok — sistem uyumlu kalmanız için bununla ilgilenir."
+            },
+            {
+              "title": "Yayın vs Sekans",
+              "desc": "Planlanmış, sürekli yeşil e-posta serileri (karşılama akışları, takipler) için bir Sekans kullanın. Tüm listenize veya bir segmentine tek seferlik göndermeler için bir Yayın kullanın — flaş satışlar, web semineri davetleri, ürün lansmanları veya önemli güncellemeler."
+            }
+          ]
+        },
+        "import": {
+          "category": "İçe Aktar",
+          "items": [
+            {
+              "title": "CSV ile potansiyel müşteri içe aktarma",
+              "desc": "İçe Aktar sekmesine gidin, bir CSV dosyası yükleyin veya doğrudan CSV metnini yapıştırın. CSV'nizin e-posta için sütunları ve isteğe bağlı olarak adı olmalıdır. İçe aktarmadan önce verileri kontrol etmek için Önizleme'ye tıklayın, ardından potansiyel müşterileri CRM'inize eklemek için İçe Aktar'a tıklayın."
+            },
+            {
+              "title": "CSV Formatı",
+              "desc": "En basit format iki sütundur: e-posta ve ad. Örneğin: ilk satırda email,name, ardından sonraki her satırda john@example.com,John Smith. İçe aktarıcı esnektir — başlıklarınız farklı olsa bile e-posta sütununu otomatik olarak algılayacaktır."
+            },
+            {
+              "title": "İçe aktarırken Listeye atama",
+              "desc": "İçe aktarmadan önce, potansiyel müşterileri hangi listeye içe aktarmak istediğinizi Listeye açılır menüsünü kullanarak seçin. Bir liste seçmek, içe aktarılan tüm potansiyel müşterilerin hemen düzenlendiği ve o listenin varsayılan sekansından yararlanabileceği anlamına gelir."
+            },
+            {
+              "title": "İçe aktarmadan önce önizleme",
+              "desc": "CSV'nizde kaç potansiyel müşteri tespit edildiğini görmek ve herhangi bir biçimlendirme sorunu olup olmadığını kontrol etmek için Önizleme'ye tıklayın. Gösterilen sayı gerçekte kaç potansiyel müşterinin içe aktarılacağıdır. Yalnızca önizlemeden memnun kaldığınızda İçe Aktar'a tıklayın."
+            },
+            {
+              "title": "Potansiyel Müşteri Limiti",
+              "desc": "Mevcut potansiyel müşteri sayınız ve limitiniz İçe Aktar sekmesinin üstünde gösterilir. Pro üyeler en fazla 5.000 potansiyel müşteriyi tutabilir. Limitinize yaklaşıyorsanız bir Email Boost paketi satın alın veya planınızı genişletmek için destekle iletişime geçin."
+            },
+            {
+              "title": "Yinelenen İşleme",
+              "desc": "Bir e-posta adresi CRM'inizde zaten varsa, içe aktarma bir yineleme oluşturmak yerine o potansiyel müşteriyi atlar. Mevcut potansiyel müşteri verileriniz (durum, sekans ataması, e-posta geçmişi) korunur."
+            }
+          ]
+        },
+        "emailBoost": {
+          "category": "Email Boost",
+          "items": [
+            {
+              "title": "Email Boost nedir?",
+              "desc": "Email Boost, günlük ücretsiz kotanızdan daha fazla e-posta göndermenize olanak tanır. Her Pro üye günde 200 ücretsiz e-posta alır. Daha fazla göndermeniz gerekiyorsa — büyük bir yayın veya büyük bir sekans için — günlük kotanızın üzerinde size ek kredi veren Boost Paketleri satın alabilirsiniz."
+            },
+            {
+              "title": "Günlük limit nasıl çalışır",
+              "desc": "Her gün 200 ücretsiz e-posta alırsınız. Sayaç UTC gece yarısı sıfırlanır. 150 potansiyel müşteriye bir yayın gönderirseniz ve 3 sekansınız çalışıyorsa, önce 200 ücretsiz e-postanız kullanılır. Tükendiklerinde, Boost kredileri otomatik olarak devralır."
+            },
+            {
+              "title": "Mevcut Boost Paketleri",
+              "desc": "1.000 e-posta — 5 $. 5.000 e-posta — 19 $. 10.000 e-posta — 29 $. 50.000 e-posta — 99 $. Boost kredilerinin süresi asla dolmaz — kullanılana kadar sonsuza kadar devreder."
+            },
+            {
+              "title": "Krediler Nasıl Düşülür",
+              "desc": "Günlük ücretsiz krediler her zaman önce kullanılır. Günün 200 ücretsiz e-postanızı harcadığınızda, her ek e-posta otomatik olarak bir Boost kredisi düşer. Asla manuel olarak aralarında geçiş yapmanız gerekmez — her şey arka planda olur."
+            },
+            {
+              "title": "Boost Paketi Satın Alma",
+              "desc": "Herhangi bir Boost Paketi kartında Satın Al'a tıklayın. Maliyet SuperAdPro cüzdan bakiyenizden düşülür. Krediler anında eklenir — onları hemen kullanabilirsiniz. Satın almadan önce cüzdanınızda yeterli fon olduğundan emin olun."
+            },
+            {
+              "title": "Kullanımınızı Kontrol Etme",
+              "desc": "SuperLeads sayfasının üstündeki ilerleme çubuğu günlük e-posta kullanımınızı gösterir (örn. Günlük: 45/200). Hero'nun sağ üstündeki Kredi sayacı mevcut Boost kredi bakiyenizi gösterir. Her ikisi de gerçek zamanlı olarak güncellenir."
+            },
+            {
+              "title": "Boost Kredilerine Ne Zaman İhtiyaç Duyarım?",
+              "desc": "Listeniz küçükse (200'den az potansiyel müşteri) ve günde bir yayın gönderirseniz, Boost kredilerine nadiren ihtiyaç duyacaksınız. Büyük listeleriniz olduğunda, aynı anda birden fazla sekans çalıştırdığınızda veya bir günde birden fazla yayın göndermek istediğinizde yararlı hale gelirler."
+            }
+          ]
+        }
+      }
+    },
+    "autoresponderLabel": "Otomatik Yanıtlayıcı",
+    "totalLeadsStat": "Toplam potansiyel müşteri",
+    "sequencesStat": "Sekanslar",
+    "sentTodayStat": "Bugün gönderilen",
+    "hotLeadsStat": "Sıcak potansiyel müşteriler",
+    "tabLeads": "Potansiyel Müşteriler",
+    "tabSequences": "Sekanslar",
+    "tabBroadcast": "Yayın",
+    "tabImport": "İçe Aktar",
+    "tabBoost": "Boost",
+    "filterAllStatuses": "Tüm durumlar",
+    "filterAllLists": "Tüm listeler",
+    "statusNew": "Yeni",
+    "statusNurturing": "Yetiştiriliyor",
+    "statusHot": "Sıcak",
+    "statusConverted": "Dönüştürüldü",
+    "statusUnsubscribed": "Abonelikten çıkıldı",
+    "searchLeadsPlaceholder": "Potansiyel müşterileri ara…",
+    "newListBtn": "Yeni liste",
+    "deleteLeadConfirm": "Bu potansiyel müşteri silinsin mi?",
+    "leadDeleted": "Potansiyel müşteri silindi",
+    "noLeadsYet": "Henüz potansiyel müşteri yok",
+    "defaultWelcomeSubject": "Hoş geldiniz!",
+    "defaultFollowUpSubject": "Takip — hızlı ipucu",
+    "defaultLastChanceSubject": "Harekete geçmek için son şans",
+    "dayLabel": "Gün",
+    "boostPack1kLabel": "1.000 E-posta",
+    "boostPack1kDesc": "Hedefli kampanya için mükemmel",
+    "boostPack5kLabel": "5.000 E-posta",
+    "boostPack5kDesc": "Birden fazla sekans çalıştırın",
+    "boostPack10kLabel": "10.000 E-posta",
+    "boostPack10kDesc": "Erişiminizi genişletin",
+    "boostPack50kLabel": "50.000 E-posta",
+    "boostPack50kDesc": "Kurumsal hacim",
+    "contacts": "kişiler",
+    "sent": "gönderildi",
+    "noneOption": "Hiçbiri"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -4400,7 +4641,198 @@
     "duplicate": "Çoğalt",
     "deleteElement": "Sil",
     "pages": "Sayfalar",
-    "help": "Yardım",
+    "help": {
+      "title": "SuperPages Yardım",
+      "subtitle": "Sayfa oluşturucu bilgi tabanı",
+      "searchPlaceholder": "Yardım konularını ara…",
+      "noResults": "Sonuç bulunamadı:",
+      "sections": {
+        "gettingStarted": {
+          "category": "Başlarken",
+          "items": [
+            {
+              "title": "Düzenleyici Nasıl Çalışır",
+              "desc": "SuperPages, serbest biçimli bir sürükle-bırak sayfa oluşturucusudur. Tuvalinize eklemek için sağ panelden herhangi bir bloğa tıklayın, ardından onu herhangi bir yere yerleştirmek için sürükleyin. Metin öğelerine satır içi düzenleme için çift tıklayın. Metni biçimlendirmek, yazı tiplerini, renkleri ve hizalamayı değiştirmek için kayan araç çubuğunu kullanın."
+            },
+            {
+              "title": "Seçme ve Taşıma",
+              "desc": "Seçmek için herhangi bir öğeye bir kez tıklayın — mavi bir anahat ve yeniden boyutlandırma tutamaçları görünecektir. Yeniden konumlandırmak için tıklayın ve sürükleyin. 10 piksel hareket için Shift + Ok tuşlarını veya 1 piksel hassasiyet için yalnızca Ok tuşlarını basılı tutun."
+            },
+            {
+              "title": "Yeniden Boyutlandırma",
+              "desc": "Seçili öğeler 8 camgöbeği yeniden boyutlandırma tutamacı gösterir — dört köşenin ve dört kenarın tamamında. Yeniden boyutlandırmak için herhangi bir tutamacı sürükleyin. Köşe tutamaçları her iki yönde de aynı anda yeniden boyutlandırır. Minimum boyut 40 piksel genişliğinde 20 piksel yüksekliğindedir."
+            },
+            {
+              "title": "Kaydetme ve Yayınlama",
+              "desc": "Çalışmanızı kaydetmek için Kaydet'e tıklayın (her 30 saniyede bir otomatik kaydedilir). Sayfanızı web'de canlı yapmak için Yayınla'ya tıklayın. Canlı URL'niz Ayarlar'da görünür. Yayından kaldırmak için Taslak'a geri dönün."
+            },
+            {
+              "title": "Klavye Kısayolları",
+              "desc": "Ctrl+S: Kaydet | Ctrl+Z: Geri Al | Ctrl+Y: Yeniden Yap | Delete/Backspace: Seçili öğeyi sil | Ok Tuşları: 1 piksel taşı | Shift+Oklar: 10 piksel taşı | Escape: Seçimi Kaldır"
+            }
+          ]
+        },
+        "textElements": {
+          "category": "Metin Öğeleri",
+          "items": [
+            {
+              "title": "Başlık",
+              "desc": "Sayfa başlıkları ve bölüm başlıkları için büyük, kalın metin. Varsayılan beyaz renkte Sora yazı tipi 36 pikseldir. Metni düzenlemek için çift tıklayın. Yazı tipi ailesini, boyutunu, rengini, kalınlığını, italiğini, altını çizilişini ve hizalamasını değiştirmek için kayan araç çubuğunu kullanın."
+            },
+            {
+              "title": "Metin",
+              "desc": "Paragraflar ve açıklamalar için gövde metni. Varsayılan gri renkte 15 piksel Outfit yazı tipidir ve okunabilirlik için 1,8 satır yüksekliğine sahiptir. Düzenlemek için çift tıklayın. Kayan araç çubuğundan tüm satır içi biçimlendirmeyi destekler."
+            },
+            {
+              "title": "Etiket",
+              "desc": "PREMIUM, YENİ veya SINIRLI TEKLİF gibi etiketler için mükemmel küçük rozet stili metin. Yuvarlak hap arka planı ve kenarlıkla birlikte gelir. Etiket metnini değiştirmek için çift tıklayın."
+            }
+          ]
+        },
+        "mediaElements": {
+          "category": "Medya Öğeleri",
+          "items": [
+            {
+              "title": "Görüntü",
+              "desc": "Sayfanıza görüntüler ekleyin. Bir görüntü URL'si girmek veya bir dosya yüklemek için öğe araç çubuğundaki düzenle IMAGE düğmesine tıklayın (maks. 5MB). JPG, PNG, GIF ve WebP'yi destekler. Görüntüler hızlı küresel teslim için Cloudflare R2'de saklanır."
+            },
+            {
+              "title": "Video",
+              "desc": "YouTube, Vimeo'dan videolar ekleyin veya kendi MP4/WebM dosyalarınızı yükleyin (maks. 50MB). Eklemek için düzenle VIDEO'ya tıklayın. YouTube ve Vimeo izleme URL'leri otomatik olarak yerleştirme biçimine dönüştürülür. Yüklenen videolar Cloudflare R2'de barındırılır."
+            },
+            {
+              "title": "Ses",
+              "desc": "Sayfanıza ses oynatıcılar ekleyin. Bir ses URL'si girmek veya MP3/WAV/OGG dosyaları yüklemek için düzenle AUDIO'ya tıklayın (maks. 20MB). Podcast'ler, müzik örnekleri veya sesli referanslar için harika."
+            }
+          ]
+        },
+        "actionElements": {
+          "category": "Eylem Öğeleri",
+          "items": [
+            {
+              "title": "Düğme",
+              "desc": "Degrade arka planlı tıklanabilir düğme. Hedef URL'yi ayarlamak için düzenle LINK'e tıklayın. Düğme metnini değiştirmek için çift tıklayın. Şimdi Katıl, Şimdi Satın Al veya Daha Fazla Bilgi Edin gibi harekete geçirici mesajlar için mükemmel."
+            },
+            {
+              "title": "Kayıt Formu",
+              "desc": "Ad alanı, e-posta alanı ve gönder düğmesi olan e-posta yakalama formu. Koyu cam arka planla önceden stillendirilmiştir. HTML'yi özelleştirmek için düzenle FORM'a tıklayın. Potansiyel müşteri toplama için My Leads kontrol panelinize bağlıdır."
+            },
+            {
+              "title": "CTA (Harekete Geçirici Mesaj)",
+              "desc": "Düğmeye benzer ancak birincil dönüşüm eylemleri için özel olarak stillendirilmiştir. Hedef URL'yi ayarlamak için düzenle LINK'e tıklayın. Metni düzenlemek için çift tıklayın. Şimdi Başla gibi sayfanın ana eylemi için kullanın."
+            }
+          ]
+        },
+        "contentElements": {
+          "category": "İçerik Öğeleri",
+          "items": [
+            {
+              "title": "İnceleme",
+              "desc": "Yıldız derecelendirmesi, alıntı metni ve atıf içeren müşteri inceleme bloğu. Koyu kart arka planı ve camgöbeği sol kenarlıkla stillendirilmiştir. İnceleme içeriğini, yıldızları ve müşteri adını düzenlemek için çift tıklayın."
+            },
+            {
+              "title": "Rozet",
+              "desc": "Etikete özdeş küçük dekoratif rozet — EN İYİ DEĞER, EN POPÜLER veya ÖNE ÇIKAN gibi etiketler için kullanışlıdır. Varsayılan olarak altın hap stiline sahiptir."
+            },
+            {
+              "title": "Referans",
+              "desc": "Yıldızlar, daha uzun alıntı ve yazar kredisi içeren genişletilmiş referans bloğu. İncelemelerden ayırt etmek için altın sol kenarlık içerir. Referans metnini ve atıfı özelleştirmek için çift tıklayın."
+            },
+            {
+              "title": "SSS",
+              "desc": "İnce kenarlıklı başlıkla stillendirilmiş soru-cevap bloğu. Soru ve cevap metnini düzenlemek için çift tıklayın. Eksiksiz bir SSS bölümü oluşturmak için birden fazla SSS öğesini yığın."
+            },
+            {
+              "title": "İstatistik",
+              "desc": "Büyük istatistik ekranı — altında bir etiketle birlikte büyük bir sayıyı (95% gibi) gösterir. Sosyal kanıt için mükemmel: 10.000+ Üye, %95 Ödeme Oranı, $1M+ Ödendi. Düzenlemek için çift tıklayın."
+            },
+            {
+              "title": "İlerleme",
+              "desc": "Etiket ve yüzde içeren animasyonlu ilerleme çubuğu. Etiket metnini, yüzdeyi (0-100) ve çubuk rengini yapılandırmak için düzenle SET'e tıklayın. Ders tamamlamasını, finansman hedeflerini veya sınırlı kullanılabilirliği göstermek için harika."
+            }
+          ]
+        },
+        "layoutElements": {
+          "category": "Düzen Öğeleri",
+          "items": [
+            {
+              "title": "Geri Sayım",
+              "desc": "Bir hedef tarih ve saate geri sayım yapan canlı geri sayım sayacı. Hedef tarihi seçmek için düzenle SET'e tıklayın. Günleri, saatleri, dakikaları ve saniyeleri görüntüler. Lansmanlar, satış son tarihleri veya etkinlik tarihleri için aciliyet yaratır."
+            },
+            {
+              "title": "Sosyal",
+              "desc": "Sosyal medya simgelerinin bir sırası — YouTube, Instagram, TikTok, Facebook, X/Twitter ve LinkedIn. Her platform için profil URL'lerinizi eklemek için düzenle LINKS'e tıklayın. Simgeler yayınlanan sayfada sosyal profillerinize bağlanır."
+            },
+            {
+              "title": "Simge + Metin",
+              "desc": "Bir emoji/simgeyi başlık ve açıklama metniyle birleştiren özellik bloğu. Faydaları, özellikleri veya adımları listelemek için mükemmel. Emoji, başlık ve açıklamayı düzenlemek için çift tıklayın."
+            },
+            {
+              "title": "Ayırıcı",
+              "desc": "İsteğe bağlı merkez metnine sahip dekoratif ayırıcı çizgi. Ayırıcı metnini değiştirmek için çift tıklayın. Görsel molalar oluşturmak için bölümler arasında kullanın."
+            },
+            {
+              "title": "Logolar",
+              "desc": "'Şurada görüldüğü gibi' logo şeridi — marka isimlerini yatay bir sırada görüntüler. Marka isimlerini düzenlemek için çift tıklayın. Medya sözlerini, iş ortağı logolarını veya güven sinyallerini göstermek için kullanın."
+            },
+            {
+              "title": "Boşluk",
+              "desc": "Görünmez aralık öğesi. Konumlandırmak için sürükleyin ve diğer öğeler arasındaki boşluğu kontrol etmek için yeniden boyutlandırın. Yayınlanan sayfada görsel bir görünümü yoktur — tamamen düzen kontrolü içindir."
+            },
+            {
+              "title": "Kutu",
+              "desc": "İnce kenarlık ve yuvarlatılmış köşelerle boş kap. Gruplandırılmış bölümler oluşturmak için diğer öğelerin arkasında bir arka plan kartı olarak kullanın. Yeniden boyutlandırın ve metin, resim veya formların arkasına katmanlayın."
+            },
+            {
+              "title": "Bölücü",
+              "desc": "Basit yatay çizgi. Sayfanızdaki bölümleri ayırmak için kullanın. Tuvale ne kadar yayıldığını kontrol etmek için genişliği yeniden boyutlandırın."
+            },
+            {
+              "title": "Yerleştirme",
+              "desc": "Ham HTML/kod yerleştirme bloğu. iframe'ler, özel widget'lar, izleme pikselleri veya üçüncü taraf yerleştirme kodları dahil olmak üzere herhangi bir HTML'yi yapıştırmak için düzenle CODE'a tıklayın. Kod yayınlanan sayfada işlenir."
+            }
+          ]
+        },
+        "settingsPublishing": {
+          "category": "Ayarlar ve Yayınlama",
+          "items": [
+            {
+              "title": "Sayfa Başlığı",
+              "desc": "Sayfanızın adı — tarayıcı sekmesinde, arama motoru sonuçlarında ve SuperPages listenizde görünür. SEO için açıklayıcı ve çekici bir şey seçin."
+            },
+            {
+              "title": "Sayfa URL Slug",
+              "desc": "Yayınlanan sayfanızın web adresini özelleştirin. Ayarlar'ı açın, Sayfa URL Slug alanını bulun ve yalnızca küçük harfler, sayılar ve tireler kullanarak tercih ettiğiniz adı yazın. Değişikliği uygulamak için Ayarları Kaydet'e tıklayın. Her slug benzersiz olmalıdır — başka bir sayfa tarafından zaten alınmış bir slug kullanamazsınız."
+            },
+            {
+              "title": "Meta Açıklama",
+              "desc": "Google arama sonuçlarında sayfa başlığınızın altında görünen açıklama. Ziyaretçilere sayfanızın ne sunduğunu söyleyen 150-160 karakter yazın. Aramadan tıklama oranları için önemlidir."
+            },
+            {
+              "title": "Sosyal Paylaşım Görseli",
+              "desc": "Biri yayınlanan sayfanızı Facebook, Twitter, LinkedIn veya WhatsApp'ta paylaştığında, bu görüntü önizleme küçük resmi olarak görünür. En iyi sonuçlar için 1200x630 piksel bir görüntünün URL'sini yükleyin veya girin."
+            },
+            {
+              "title": "Sayfa Durumu",
+              "desc": "Taslak sayfalar yalnızca size görünür. Yayınlanan sayfalar Canlı URL'nizde web'de canlıdır. İstediğiniz zaman Taslak ve Yayınlanmış arasında geçiş yapın. Bir sayfayı yayından kaldırmak, onu ziyaretçiler için hemen erişilemez hale getirir."
+            },
+            {
+              "title": "Tuval Arka Planı",
+              "desc": "Bloklar panelinin sağ üst kısmındaki renk seçici veya görüntü yüklemesini kullanarak sayfa arka planını değiştirin. Düz renkler, degradeler ve Cloudflare R2'ye yüklenmiş sayfa genişliğinde arka plan görüntülerini destekler."
+            }
+          ]
+        },
+        "aiAssistant": {
+          "category": "AI Asistanı",
+          "items": [
+            {
+              "title": "AI Sohbet",
+              "desc": "AI sohbetini açmak için Bloklar panelinin altındaki AI Asistanı'na tıklayın. Ne istediğinizi söyleyin: bir başlık ekle, arka planı lacivert yap, bir fitness ürünü için satış metni yaz. AI sayfa stilinizi değiştirebilir ve içerik önerileri oluşturabilir."
+            }
+          ]
+        }
+      }
+    },
     "knowledgeBase": "Bilgi tabanı",
     "learnElements": "Her öğe ve özelliğin nasıl çalıştığını öğrenin",
     "searchPlaceholder": "Öğeler, özellikler ara...",
@@ -4449,7 +4881,9 @@
     "blkProgress": "İlerleme",
     "blkCountdown": "Geri sayım",
     "blkSocials": "Sosyal",
-    "blkIconText": "İkon+Metin"
+    "blkIconText": "İkon+Metin",
+    "blk": "Blok",
+    "cat": "Kategori"
   },
   "coursePlayer": {},
   "analytics": {
@@ -4485,7 +4919,18 @@
     "lastWithdrawal": "Son çekim",
     "noWithdrawals": "Henüz çekim yok",
     "totalAiGen": "toplam AI üretimi",
-    "qualificationDesc": "Kampanya Cüzdanı çekim yeterliliği için günlük izleme gereksinimi. Bu bir gelir kaynağı değil — sorumluluk kontrolünüzdür."
+    "qualificationDesc": "Kampanya Cüzdanı çekim yeterliliği için günlük izleme gereksinimi. Bu bir gelir kaynağı değil — sorumluluk kontrolünüzdür.",
+    "campaignGrid": "Kampanya Izgarası",
+    "courses": "Kurslar",
+    "creditNexus": "Credit Nexus",
+    "fiftyRecurring": "%50 yinelenen",
+    "gridCommissions": "Izgara komisyonları",
+    "membership": "Üyelik",
+    "nexusCommissions": "Nexus komisyonları",
+    "noResults": "Sonuç yok",
+    "noTeamYet": "Henüz ekip yok",
+    "recruitToMsg": "Mesaj göndermeye başlamak için birini işe alın",
+    "salesPassUps": "Satışlar + devretmeler"
   },
   "superMarket": {
     "comparePrice": "Karşılaştırma fiyatı",
@@ -4579,6 +5024,72 @@
     "libRetail": "Perakende ve Alışveriş",
     "proTipTitle": "Pro İpucu",
     "proTipWeb": "Spesifik marka isimleri en iyi çalışır. \"Herbalife distribütörü Türkiye\" gibi aramalar bireysel distribütör sitelerini bulurken, \"ev iş fırsatı\" gibi belirsiz terimler sadece içerik yayıncılarını döndürür.",
-    "proTipMaps": "Belirli bir şehir eklemek daha keskin sonuçlar verir. En iyi lead'ler için bir meslek (örn. tesisatçılar, dişçiler) ile posta kodu veya mahalle birleştirmeyi deneyin."
+    "proTipMaps": "Belirli bir şehir eklemek daha keskin sonuçlar verir. En iyi lead'ler için bir meslek (örn. tesisatçılar, dişçiler) ile posta kodu veya mahalle birleştirmeyi deneyin.",
+    "dataSourceMaps": "Google Haritalar'dan veri",
+    "dataSourceWeb": "Web aramasından veri"
+  },
+  "myNetwork": {
+    "pageTitle": "Ağım ve Kazançlarım",
+    "pageSubtitle": "Ekibiniz, gelir kaynaklarınız, büyümeniz",
+    "referralLinkLabel": "Yönlendirme Bağlantınız",
+    "copyBtn": "Bağlantıyı Kopyala",
+    "copiedBtn": "Kopyalandı!",
+    "earningsTitle": "Kazançlarınız",
+    "earningsSubtitle": "Her gelir kaynağı için toplam ve aylık",
+    "lifetimeEarned": "Ömür Boyu Kazanılan",
+    "lifetimeEarnedSub": "Tüm gelir kaynakları boyunca tüm zamanlar",
+    "thisMonth": "Bu Ay",
+    "thisMonthSub": "{{month}} ayında ödenen komisyonlar",
+    "streamsCardTitle": "Kaynağa Göre Kazançlar",
+    "streamsCardSubtitle": "Üyelerin SuperAdPro'da kazanmasının dört yolu",
+    "streamMembershipName": "Üyelik Kalıntısı",
+    "streamMembershipDesc": "Her doğrudan yönlendirmenin aylık üyelik ücretinin %50'si",
+    "streamGridName": "Izgara / Kampanyalar",
+    "streamGridDesc": "Kampanya katman alımlarından %40 doğrudan + %50 tek seviye",
+    "streamCourseName": "Kurs Akademisi",
+    "streamCourseDesc": "4 sonsuz Gelir Zinciri üzerinden %100 komisyon",
+    "streamNexusName": "Credit Nexus",
+    "streamNexusDesc": "Alt hat kredi paketi alımlarından 3×3 matris kazançları",
+    "recentCommissionsTitle": "Son Komisyonlar",
+    "seeAll": "Tümünü Gör",
+    "colSource": "Kaynak",
+    "colDetails": "Ayrıntılar",
+    "colAmount": "Tutar",
+    "colDate": "Tarih",
+    "noCommissionsTitle": "Henüz komisyon yok",
+    "noCommissionsSubtitle": "Ekibiniz büyüdükçe komisyonlar burada görünecek",
+    "teamTitle": "Ekibiniz",
+    "teamSubtitle": "Altınızdaki herkes, zamanla büyüyor",
+    "directReferrals": "Doğrudan Yönlendirmeler",
+    "directReferralsSub": "Kişisel olarak işe aldığınız kişiler",
+    "totalNetwork": "Toplam Ağ",
+    "totalNetworkSub": "Altınızdaki her derinlikteki herkes",
+    "activeMembers": "Aktif Üyeler",
+    "activeMembersSub": "Platformda hala aktif",
+    "directReferralsList": "Doğrudan Yönlendirmeler",
+    "totalCount": "toplam {{count}}",
+    "colMember": "Üye",
+    "colStatus": "Durum",
+    "colTheirTeam": "Ekipleri",
+    "colJoined": "Katıldı",
+    "statusActive": "Aktif",
+    "statusInactive": "Aktif değil",
+    "noReferralsTitle": "Henüz yönlendirme yok",
+    "noReferralsSubtitle": "Ağınızı oluşturmaya başlamak için yukarıdaki bağlantınızı paylaşın",
+    "streamCategoryMembership": "Üyelik",
+    "streamCategoryGrid": "Izgara",
+    "streamCategoryCourses": "Kurslar",
+    "streamCategoryCreditNexus": "Credit Nexus",
+    "streamCategoryOther": "Diğer",
+    "typeDirectSponsor": "Doğrudan sponsor bonusu",
+    "typeUniLevel": "Tek seviye komisyonu",
+    "typeGridCompletion": "Izgara tamamlama bonusu",
+    "typePlatform": "Platform komisyonu",
+    "typeMatrixLevel": "Kredi matrisi seviye bonusu",
+    "typeMatrixCompletion": "Kredi matrisi tamamlama",
+    "typeNexusSponsor": "Credit Nexus sponsor bonusu",
+    "typeDirectSale": "Kurs doğrudan satışı (%100)",
+    "typePassUp": "Kurs devretme kaskadı",
+    "typeMembership": "Üyelik yönlendirmesi"
   }
 }
