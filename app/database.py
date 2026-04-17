@@ -2315,22 +2315,3 @@ class CreditMatrixCommission(Base):
 
     earner = relationship("User", foreign_keys=[earner_id], backref="credit_matrix_commissions_earned")
     from_user = relationship("User", foreign_keys=[from_user_id], backref="credit_matrix_commissions_generated")
-
-
-class ChallengeProgress(Base):
-    """Tracks a member's 30-day challenge progress."""
-    __tablename__ = "challenge_progress"
-    id              = Column(Integer, primary_key=True, index=True)
-    user_id         = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), unique=True, index=True)
-    started_at      = Column(DateTime, default=datetime.utcnow)
-    current_day     = Column(Integer, default=1)          # 1-30
-    xp              = Column(Integer, default=0)
-    streak          = Column(Integer, default=0)          # consecutive days with at least 1 task done
-    last_active_day = Column(Integer, default=0)          # last day they completed a task
-    completed_tasks = Column(Text, default="")            # comma-separated "day:task_id" e.g. "1:watch,1:tour,2:watch"
-    badges          = Column(Text, default="")            # comma-separated badge IDs
-    is_complete     = Column(Boolean, default=False)      # True when all 30 days done
-    completed_at    = Column(DateTime, nullable=True)
-    updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    user = relationship("User", backref="challenge_progress")

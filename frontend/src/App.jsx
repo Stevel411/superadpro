@@ -46,7 +46,6 @@ import TrainingCentre from './pages/TrainingCentre';
 import CryptoGuide from './pages/CryptoGuide';
 import PlatformTour from './pages/PlatformTour';
 import TeamMessenger from './pages/TeamMessenger';
-import Challenges from './pages/Challenges';
 import QRGenerator from './pages/QRGenerator';
 import SuperLinkPage from './pages/SuperLink';
 
@@ -186,7 +185,6 @@ function AppRoutes() {
       <Route path="/crypto-guide" element={<ProtectedRoute><CryptoGuide /></ProtectedRoute>} />
       <Route path="/tour" element={<ProtectedRoute><PlatformTour /></ProtectedRoute>} />
       <Route path="/team-messenger" element={<ProtectedRoute><TeamMessenger /></ProtectedRoute>} />
-      <Route path="/challenges" element={<ProtectedRoute><Challenges /></ProtectedRoute>} />
       <Route path="/qr-generator" element={<ProtectedRoute><QRGenerator /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
       <Route path="/pro/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
