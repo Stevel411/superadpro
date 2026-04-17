@@ -17111,15 +17111,46 @@ def api_network_data(request: Request, user: User = Depends(get_current_user),
     referrals = db.query(User).filter(User.sponsor_id == user.id).all()
     # Commission history
     commissions = get_user_commission_history(db, user.id, limit=30)
+
+    # Credit Nexus earnings — commissions from the 3x3 credit-pack matrix
+    # (when downline buy credit packs, matrix pays level commissions + completion bonus)
+    nexus_earnings = float(db.query(
+        func.coalesce(func.sum(Commission.amount_usdt), 0)
+    ).filter(
+        Commission.to_user_id == user.id,
+        Commission.commission_type.in_([
+            "matrix_level", "matrix_completion",
+            "nexus_sponsor", "nexus_level", "nexus_completion",
+        ]),
+    ).scalar() or 0)
+
+    # This-month total across all streams — for the "This Month" stat card
+    from datetime import datetime as _dt_net
+    month_start = _dt_net.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    this_month_grid = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+        Commission.to_user_id == user.id,
+        Commission.paid_at >= month_start,
+    ).scalar() or 0)
+    this_month_courses = float(db.query(func.coalesce(func.sum(CourseCommission.amount), 0)).filter(
+        CourseCommission.earner_id == user.id,
+        CourseCommission.created_at >= month_start,
+    ).scalar() or 0)
+    this_month_total = this_month_grid + this_month_courses
+
+    # Active referrals this month — last activity in current calendar month
+    active_this_month = sum(1 for r in referrals if r.is_active)
+
     return {
         "username": user.username,
         "personal_referrals": user.personal_referrals or 0,
         "total_team": user.total_team or 0,
+        "active_this_month": active_this_month,
         "total_earned": float(user.total_earned or 0),
+        "this_month_total": this_month_total,
         "course_earnings": float(user.course_earnings or 0),
         "grid_earnings": float(user.grid_earnings or 0),
-        "marketplace_earnings": float(user.marketplace_earnings or 0),
         "membership_earned": float(user.membership_earned or 0),
+        "nexus_earnings": nexus_earnings,
         "referrals": [{
             "id": r.id, "username": r.username, "first_name": r.first_name,
             "is_active": r.is_active, "membership_tier": r.membership_tier or "basic",
