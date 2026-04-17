@@ -1452,6 +1452,12 @@ def run_migrations():
         "CREATE INDEX IF NOT EXISTS idx_credit_matrix_positions_user ON credit_matrix_positions(user_id)",
         "CREATE INDEX IF NOT EXISTS idx_credit_matrix_commissions_earner ON credit_matrix_commissions(earner_id)",
         "CREATE INDEX IF NOT EXISTS idx_credit_pack_purchases_user ON credit_pack_purchases(user_id)",
+        # Income Chain — source_chain on course_commissions
+        # Tags every pass-up commission with its originating chain (1-4).
+        # NULL for direct sales. Populated for every pass-up and related platform absorption.
+        "ALTER TABLE course_commissions ADD COLUMN IF NOT EXISTS source_chain INTEGER",
+        "CREATE INDEX IF NOT EXISTS idx_course_commissions_source_chain ON course_commissions(source_chain)",
+        "CREATE INDEX IF NOT EXISTS idx_course_commissions_earner_chain ON course_commissions(earner_id, source_chain)",
     ]
     results = []
     with engine.connect() as conn:
@@ -1903,15 +1909,6 @@ try:
             conn.execute(text(f"ALTER TABLE superseller_campaigns ADD COLUMN IF NOT EXISTS {col} {typ}"))
         conn.commit()
         print("✅ SuperSeller page editor columns added")
-
-        # Income Chain — source_chain on course_commissions
-        # Tags every pass-up commission with its originating chain (1-4).
-        # NULL for direct sales and platform absorptions.
-        conn.execute(text("ALTER TABLE course_commissions ADD COLUMN IF NOT EXISTS source_chain INTEGER"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_course_commissions_source_chain ON course_commissions(source_chain)"))
-        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_course_commissions_earner_chain ON course_commissions(earner_id, source_chain)"))
-        conn.commit()
-        print("✅ course_commissions.source_chain column + indexes added")
 
         # Team Messages table
         conn.execute(text("""
