@@ -117,6 +117,7 @@ export default function Sidebar({ open, onClose }) {
         .sb-item:active { background: rgba(255,255,255,0.1) !important; }
         .sb-item.sb-active:hover { background: rgba(56,189,248,0.12) !important; }
         .sb-group-hdr:hover { background: rgba(0,200,255,0.08) !important; color: #38bdf8 !important; }
+        .sidebar-nav::-webkit-scrollbar { width: 0; height: 0; display: none; }
       `}</style>
       {/* Sidebar panel */}
       <aside style={{
@@ -156,7 +157,7 @@ export default function Sidebar({ open, onClose }) {
         </div>
 
         {/* Navigation */}
-        <nav style={{flex:1,overflowY:'auto',padding:'8px 0'}}>
+        <nav className="sidebar-nav" style={{flex:1,overflowY:'auto',padding:'8px 0',scrollbarWidth:'none',msOverflowStyle:'none'}}>
           {NAV.map(function(item, i) {
             if (item.type === 'divider') {
               return <div key={i} style={{height:1,background:'rgba(0,200,255,0.07)',margin:'6px 16px'}}/>;
