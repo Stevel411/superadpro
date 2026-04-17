@@ -108,7 +108,8 @@
     "sponsorUsername": "Usuario del patrocinador",
     "yourImages": "Tus imágenes",
     "videoNotSupported": "URL de vídeo no soportada.",
-    "alreadyHaveAccount": "¿Ya tienes una cuenta?"
+    "alreadyHaveAccount": "¿Ya tienes una cuenta?",
+    "tapToUnmute": "Toca para activar el sonido"
   },
   "nav": {
     "dashboard": "Panel",
@@ -192,7 +193,8 @@
     "marketingMaterials": "Materiales de Marketing",
     "courseAcademy": "Academia de Cursos",
     "profitGrid": "Cuadrícula de Ganancias",
-    "gridCalculator": "Calculadora de Grid"
+    "gridCalculator": "Calculadora de Grid",
+    "incomeChains": "Cadenas de Ingresos"
   },
   "dashboard": {
     "title": "Panel",
@@ -606,7 +608,8 @@
     "returnToTab": "Vuelve a esta pestaña para continuar",
     "general": "General",
     "loading": "Cargando...",
-    "playing": "▶ Reproduciendo"
+    "playing": "▶ Reproduciendo",
+    "watchOneToQualify": "Mira 1 video para calificar hoy"
   },
   "adBoard": {
     "title": "Tablón de Anuncios",
@@ -1788,7 +1791,8 @@
     "enterDescription": "Escribe una descripción",
     "enterScript": "Escribe un guión",
     "uploadAnImage": "Sube una imagen",
-    "remaining": "restantes"
+    "remaining": "restantes",
+    "preview": "Vista previa"
   },
   "socialShare": {
     "title": "Compartir Social",
@@ -2095,7 +2099,8 @@
     "paymentWindowOpened": "Payment window opened — complete your USDT payment to receive {{credits}} credits. Your nexus will update automatically once payment is confirmed.",
     "creditsAwarded": "{{credits}} credits awarded!",
     "commissionsEarned": "${{amount}} in commissions paid to your upline.",
-    "purchaseFailed": "Purchase failed"
+    "purchaseFailed": "Purchase failed",
+    "perCredit": "por crédito"
   },
   "matrixVis": {
     "title": "Nexo de Ganancias",
@@ -2618,7 +2623,73 @@
     "achieveDefault": "Mira lo que han logrado los miembros de nuestra comunidad.",
     "lastChanceDefault": "Esta es tu última oportunidad de unirte a nosotros.",
     "sentToLeads": "Enviado a",
-    "leads": "prospectos"
+    "leads": "prospectos",
+    "help": {
+      "title": "Ayuda de SuperLeads",
+      "subtitle": "Guía completa de tu CRM y autoresponder",
+      "searchPlaceholder": "Buscar temas de ayuda…",
+      "noResults": "Sin resultados para",
+      "sections": {
+        "gettingStarted": {
+          "category": "Primeros Pasos"
+        },
+        "leadsTab": {
+          "category": "Pestaña de Leads"
+        },
+        "lists": {
+          "category": "Listas"
+        },
+        "sequences": {
+          "category": "Secuencias"
+        },
+        "broadcast": {
+          "category": "Difusión"
+        },
+        "import": {
+          "category": "Importar"
+        },
+        "emailBoost": {
+          "category": "Email Boost"
+        }
+      }
+    },
+    "autoresponderLabel": "Autoresponder",
+    "totalLeadsStat": "Total de leads",
+    "sequencesStat": "Secuencias",
+    "sentTodayStat": "Enviados hoy",
+    "hotLeadsStat": "Leads calientes",
+    "tabLeads": "Leads",
+    "tabSequences": "Secuencias",
+    "tabBroadcast": "Difusión",
+    "tabImport": "Importar",
+    "tabBoost": "Boost",
+    "filterAllStatuses": "Todos los estados",
+    "filterAllLists": "Todas las listas",
+    "statusNew": "Nuevo",
+    "statusNurturing": "En seguimiento",
+    "statusHot": "Caliente",
+    "statusConverted": "Convertido",
+    "statusUnsubscribed": "Dado de baja",
+    "searchLeadsPlaceholder": "Buscar leads…",
+    "newListBtn": "Nueva lista",
+    "deleteLeadConfirm": "¿Eliminar este lead?",
+    "leadDeleted": "Lead eliminado",
+    "noLeadsYet": "Aún no hay leads",
+    "defaultWelcomeSubject": "¡Bienvenido!",
+    "defaultFollowUpSubject": "Seguimiento — consejo rápido",
+    "defaultLastChanceSubject": "Última oportunidad para tomar acción",
+    "dayLabel": "Día",
+    "boostPack1kLabel": "1,000 Emails",
+    "boostPack1kDesc": "Perfecto para una campaña dirigida",
+    "boostPack5kLabel": "5,000 Emails",
+    "boostPack5kDesc": "Ejecuta múltiples secuencias",
+    "boostPack10kLabel": "10,000 Emails",
+    "boostPack10kDesc": "Escala tu alcance",
+    "boostPack50kLabel": "50,000 Emails",
+    "boostPack50kDesc": "Volumen a nivel empresarial",
+    "contacts": "contactos",
+    "sent": "enviados",
+    "noneOption": "Ninguna"
   },
   "adHub": {
     "title": "Hub de Anuncios",
@@ -4190,7 +4261,38 @@
     "duplicate": "Duplicar",
     "deleteElement": "Eliminar",
     "pages": "Páginas",
-    "help": "Ayuda",
+    "help": {
+      "title": "Ayuda de SuperPages",
+      "subtitle": "Base de conocimiento del constructor de páginas",
+      "searchPlaceholder": "Buscar temas de ayuda…",
+      "noResults": "Sin resultados para",
+      "sections": {
+        "gettingStarted": {
+          "category": "Primeros Pasos"
+        },
+        "textElements": {
+          "category": "Elementos de Texto"
+        },
+        "mediaElements": {
+          "category": "Elementos Multimedia"
+        },
+        "actionElements": {
+          "category": "Elementos de Acción"
+        },
+        "contentElements": {
+          "category": "Elementos de Contenido"
+        },
+        "layoutElements": {
+          "category": "Elementos de Diseño"
+        },
+        "settingsPublishing": {
+          "category": "Configuración y Publicación"
+        },
+        "aiAssistant": {
+          "category": "Asistente de IA"
+        }
+      }
+    },
     "knowledgeBase": "Base de conocimiento",
     "learnElements": "Aprende cómo funciona cada elemento y característica",
     "searchPlaceholder": "Buscar elementos, funciones...",
@@ -4239,7 +4341,9 @@
     "blkProgress": "Progreso",
     "blkCountdown": "Cuenta atrás",
     "blkSocials": "Redes",
-    "blkIconText": "Icono+Texto"
+    "blkIconText": "Icono+Texto",
+    "blk": "Bloque",
+    "cat": "Categoría"
   },
   "coursePlayer": {},
   "analytics": {
@@ -4275,7 +4379,18 @@
     "lastWithdrawal": "Último retiro",
     "noWithdrawals": "Sin retiros aún",
     "totalAiGen": "generaciones de IA totales",
-    "qualificationDesc": "Tu requisito diario de visualización para calificar para retiros de la Billetera de Campaña. No es una fuente de ingresos — es tu registro de responsabilidad."
+    "qualificationDesc": "Tu requisito diario de visualización para calificar para retiros de la Billetera de Campaña. No es una fuente de ingresos — es tu registro de responsabilidad.",
+    "campaignGrid": "Grid de Campañas",
+    "courses": "Cursos",
+    "creditNexus": "Credit Nexus",
+    "fiftyRecurring": "50% recurrente",
+    "gridCommissions": "Comisiones del grid",
+    "membership": "Membresía",
+    "nexusCommissions": "Comisiones de Nexus",
+    "noResults": "Sin resultados",
+    "noTeamYet": "Aún no tienes equipo",
+    "recruitToMsg": "Recluta a alguien para empezar a enviar mensajes",
+    "salesPassUps": "Ventas + pass-ups"
   },
   "superMarket": {
     "comparePrice": "Precio de comparación",
@@ -4369,6 +4484,72 @@
     "libRetail": "Venta y Compras",
     "proTipTitle": "Consejo Pro",
     "proTipWeb": "Los nombres de marca específicos funcionan mejor. Búsquedas como \"distribuidor Herbalife España\" encuentran sitios web de distribuidores individuales, mientras que términos vagos como \"oportunidad de negocio\" solo devuelven editores de contenido.",
-    "proTipMaps": "Añadir una ciudad específica da resultados más precisos. Prueba combinando un oficio (p.ej. fontaneros, dentistas) con un código postal o barrio para los mejores leads."
+    "proTipMaps": "Añadir una ciudad específica da resultados más precisos. Prueba combinando un oficio (p.ej. fontaneros, dentistas) con un código postal o barrio para los mejores leads.",
+    "dataSourceMaps": "Datos de Google Maps",
+    "dataSourceWeb": "Datos de búsqueda web"
+  },
+  "myNetwork": {
+    "pageTitle": "Mi Red y Ganancias",
+    "pageSubtitle": "Tu equipo, tus fuentes de ingresos, tu crecimiento",
+    "referralLinkLabel": "Tu enlace de referido",
+    "copyBtn": "Copiar enlace",
+    "copiedBtn": "¡Copiado!",
+    "earningsTitle": "Tus Ganancias",
+    "earningsSubtitle": "Totales y mensuales, en cada fuente de ingresos",
+    "lifetimeEarned": "Ganado de por vida",
+    "lifetimeEarnedSub": "De todos los tiempos en todas las fuentes",
+    "thisMonth": "Este mes",
+    "thisMonthSub": "Comisiones pagadas en {{month}}",
+    "streamsCardTitle": "Ganancias por Fuente",
+    "streamsCardSubtitle": "Cuatro formas en que los miembros ganan en SuperAdPro",
+    "streamMembershipName": "Residual de Membresía",
+    "streamMembershipDesc": "50% de la cuota mensual de cada referido directo",
+    "streamGridName": "Grid / Campañas",
+    "streamGridDesc": "40% directo + 50% uni-nivel de compras de niveles de campaña",
+    "streamCourseName": "Academia de Cursos",
+    "streamCourseDesc": "100% de comisiones vía 4 Cadenas de Ingresos infinitas",
+    "streamNexusName": "Credit Nexus",
+    "streamNexusDesc": "Ganancias de matriz 3×3 sobre compras de paquetes de créditos de tu downline",
+    "recentCommissionsTitle": "Comisiones Recientes",
+    "seeAll": "Ver todo",
+    "colSource": "Fuente",
+    "colDetails": "Detalles",
+    "colAmount": "Monto",
+    "colDate": "Fecha",
+    "noCommissionsTitle": "Aún no hay comisiones",
+    "noCommissionsSubtitle": "Las comisiones aparecerán aquí a medida que crezca tu equipo",
+    "teamTitle": "Tu Equipo",
+    "teamSubtitle": "Todos los que están debajo de ti, creciendo con el tiempo",
+    "directReferrals": "Referidos Directos",
+    "directReferralsSub": "Personas que reclutaste personalmente",
+    "totalNetwork": "Red Total",
+    "totalNetworkSub": "Todos debajo de ti en cada nivel",
+    "activeMembers": "Miembros Activos",
+    "activeMembersSub": "Aún activos en la plataforma",
+    "directReferralsList": "Referidos Directos",
+    "totalCount": "{{count}} en total",
+    "colMember": "Miembro",
+    "colStatus": "Estado",
+    "colTheirTeam": "Su Equipo",
+    "colJoined": "Se unió",
+    "statusActive": "Activo",
+    "statusInactive": "Inactivo",
+    "noReferralsTitle": "Aún no hay referidos",
+    "noReferralsSubtitle": "Comparte tu enlace de arriba para empezar a construir tu red",
+    "streamCategoryMembership": "Membresía",
+    "streamCategoryGrid": "Grid",
+    "streamCategoryCourses": "Cursos",
+    "streamCategoryCreditNexus": "Credit Nexus",
+    "streamCategoryOther": "Otro",
+    "typeDirectSponsor": "Bono de patrocinador directo",
+    "typeUniLevel": "Comisión uni-nivel",
+    "typeGridCompletion": "Bono de finalización de grid",
+    "typePlatform": "Comisión de plataforma",
+    "typeMatrixLevel": "Bono de nivel de matriz de créditos",
+    "typeMatrixCompletion": "Finalización de matriz de créditos",
+    "typeNexusSponsor": "Bono de patrocinador Credit Nexus",
+    "typeDirectSale": "Venta directa de curso (100%)",
+    "typePassUp": "Cascada pass-up de curso",
+    "typeMembership": "Referido de membresía"
   }
 }
