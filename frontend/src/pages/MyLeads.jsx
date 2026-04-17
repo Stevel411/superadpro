@@ -6,19 +6,27 @@ import { apiGet, apiPost, apiPut, apiDelete } from '../utils/api';
 import { Mail, UserPlus, Send, Upload, Trash2, Plus, Zap, Rocket, Search, Sparkles, HelpCircle } from 'lucide-react';
 import CustomSelect from '../components/ui/CustomSelect';
 import MyLeadsHelp from './MyLeadsHelp';
+import { TYPE } from '../styles/typography';
 
-var TABS = [
-  { key:'leads', label:'Leads', icon:UserPlus },
-  { key:'sequences', label:'Sequences', icon:Zap },
-  { key:'broadcast', label:'Broadcast', icon:Send },
-  { key:'import', label:'Import', icon:Upload },
-  { key:'boost', label:'Boost', icon:Rocket },
+// Tab configuration — keys + icons only. Labels come from t() inside component.
+var TAB_CONFIG = [
+  { key:'leads',     icon:UserPlus, labelKey:'tabLeads' },
+  { key:'sequences', icon:Zap,      labelKey:'tabSequences' },
+  { key:'broadcast', icon:Send,     labelKey:'tabBroadcast' },
+  { key:'import',    icon:Upload,   labelKey:'tabImport' },
+  { key:'boost',     icon:Rocket,   labelKey:'tabBoost' },
 ];
-var STATUS_STYLES = {
-  new:{bg:'var(--sap-purple-pale)',color:'var(--sap-violet)',label:'New'}, nurturing:{bg:'var(--sap-green-bg)',color:'var(--sap-green-dark)',label:'Nurturing'},
-  hot:{bg:'#fce7f3',color:'#db2777',label:'Hot'}, converted:{bg:'#ecfeff',color:'#0891b2',label:'Converted'},
-  unsubscribed:{bg:'var(--sap-bg-page)',color:'var(--sap-text-muted)',label:'Unsubscribed'},
+
+// Status style palette — labels come from t() at render time.
+// Structure kept here since colours are UI concern, not translation concern.
+var STATUS_PALETTE = {
+  new:          { bg:'var(--sap-purple-pale)',  color:'var(--sap-violet)',     labelKey:'statusNew' },
+  nurturing:    { bg:'var(--sap-green-bg)',      color:'var(--sap-green-dark)', labelKey:'statusNurturing' },
+  hot:          { bg:'#fce7f3',                  color:'#db2777',               labelKey:'statusHot' },
+  converted:    { bg:'#ecfeff',                  color:'#0891b2',               labelKey:'statusConverted' },
+  unsubscribed: { bg:'var(--sap-bg-page)',       color:'var(--sap-text-muted)', labelKey:'statusUnsubscribed' },
 };
+
 var TC = ['var(--sap-indigo)','var(--sap-accent)','var(--sap-green)','var(--sap-amber)','var(--sap-red-bright)','var(--sap-pink)','var(--sap-purple)','#06b6d4'];
 
 export default function MyLeads() {
@@ -78,19 +86,19 @@ export default function MyLeads() {
                      background:'radial-gradient(circle,rgba(139,92,246,0.25) 0%,transparent 70%)',pointerEvents:'none'}}/>
         <div style={{position:'relative',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:16}}>
           <div>
-            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6}}>
+            <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:8}}>
               <div style={{width:36,height:36,borderRadius:10,background:'rgba(255,255,255,.12)',display:'flex',alignItems:'center',justifyContent:'center',border:'1px solid rgba(255,255,255,.15)'}}>
                 <Mail size={18} color="#a5b4fc"/>
               </div>
-              <div style={{fontSize:11,fontWeight:800,letterSpacing:1.6,textTransform:'uppercase',color:'#a5b4fc'}}>Autoresponder</div>
+              <div style={{fontSize:12,fontWeight:800,letterSpacing:1.4,textTransform:'uppercase',color:'#a5b4fc'}}>{t('myLeads.autoresponderLabel')}</div>
             </div>
-            <div style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:800,color:'#fff',marginBottom:4,letterSpacing:-.3}}>{t('myLeads.title')}</div>
-            <div style={{fontSize:14,color:'rgba(255,255,255,.7)',maxWidth:620}}>{t('myLeads.subtitle')}</div>
+            <div style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:800,color:'#fff',marginBottom:6,letterSpacing:-.3}}>{t('myLeads.title')}</div>
+            <div style={{fontSize:15,color:'rgba(255,255,255,.78)',maxWidth:620,lineHeight:1.5}}>{t('myLeads.subtitle')}</div>
           </div>
-          <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:6,padding:'10px 18px',borderRadius:10,border:'1px solid rgba(255,255,255,.2)',background:'rgba(255,255,255,.08)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',flexShrink:0,backdropFilter:'blur(10px)',transition:'background .2s'}}
+          <button onClick={function(){setShowHelp(true);}} style={{display:'flex',alignItems:'center',gap:6,padding:'10px 20px',borderRadius:10,border:'1px solid rgba(255,255,255,.2)',background:'rgba(255,255,255,.08)',color:'#fff',fontSize:14,fontWeight:700,cursor:'pointer',fontFamily:'inherit',flexShrink:0,backdropFilter:'blur(10px)',transition:'background .2s'}}
                   onMouseEnter={function(e){ e.currentTarget.style.background = 'rgba(255,255,255,.15)'; }}
                   onMouseLeave={function(e){ e.currentTarget.style.background = 'rgba(255,255,255,.08)'; }}>
-            <HelpCircle size={14}/> {t('myLeads.helpBtn')}
+            <HelpCircle size={15}/> {t('myLeads.helpBtn')}
           </button>
         </div>
       </div>
@@ -98,10 +106,10 @@ export default function MyLeads() {
       {/* ── Stat cards with coloured strips + matching icon tiles ── */}
       <div className="sl-stats" style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:22}}>
         {[
-          {v:stats.total||0,l:'Total leads',c:'#6366f1',icon:UserPlus,bg:'rgba(99,102,241,.1)'},
-          {v:sequences.length,l:'Sequences',c:'#0ea5e9',icon:Zap,bg:'rgba(14,165,233,.1)'},
-          {v:emailStats.sent_today||0,l:'Sent today',c:'#16a34a',icon:Send,bg:'rgba(22,163,74,.1)'},
-          {v:stats.hot||0,l:'Hot leads',c:'#f59e0b',icon:Rocket,bg:'rgba(245,158,11,.1)'},
+          {v:stats.total||0,l:t('myLeads.totalLeadsStat'),c:'#6366f1',icon:UserPlus,bg:'rgba(99,102,241,.1)'},
+          {v:sequences.length,l:t('myLeads.sequencesStat'),c:'#0ea5e9',icon:Zap,bg:'rgba(14,165,233,.1)'},
+          {v:emailStats.sent_today||0,l:t('myLeads.sentTodayStat'),c:'#16a34a',icon:Send,bg:'rgba(22,163,74,.1)'},
+          {v:stats.hot||0,l:t('myLeads.hotLeadsStat'),c:'#f59e0b',icon:Rocket,bg:'rgba(245,158,11,.1)'},
         ].map(function(s,i){
           var Ic = s.icon;
           return <div key={i} className="sl-stat-card" style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:'22px 20px',position:'relative',overflow:'hidden',boxShadow:'0 4px 14px rgba(23,37,84,.05)'}}>
@@ -109,28 +117,28 @@ export default function MyLeads() {
             <div style={{position:'absolute',top:16,right:16,width:36,height:36,borderRadius:10,background:s.bg,display:'flex',alignItems:'center',justifyContent:'center'}}>
               <Ic size={17} color={s.c}/>
             </div>
-            <div style={{fontSize:12,fontWeight:700,color:'#64748b',marginBottom:10,letterSpacing:.3}}>{s.l}</div>
+            <div style={{fontSize:13,fontWeight:700,color:'#64748b',marginBottom:10,letterSpacing:.3}}>{s.l}</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:34,fontWeight:800,color:s.c,letterSpacing:-.5}}>{s.v}</div>
           </div>;
         })}
       </div>
 
-      {msg && <div style={{padding:'10px 16px',borderRadius:10,marginBottom:16,fontSize:13,fontWeight:700,background:msgType==='ok'?'var(--sap-green-bg)':'var(--sap-red-bg)',border:'1px solid '+(msgType==='ok'?'#bbf7d0':'var(--sap-red-bg-mid)'),color:msgType==='ok'?'var(--sap-green-dark)':'var(--sap-red)'}}>{msg}</div>}
+      {msg && <div style={{padding:'12px 18px',borderRadius:10,marginBottom:16,fontSize:14,fontWeight:700,background:msgType==='ok'?'var(--sap-green-bg)':'var(--sap-red-bg)',border:'1px solid '+(msgType==='ok'?'#bbf7d0':'var(--sap-red-bg-mid)'),color:msgType==='ok'?'var(--sap-green-dark)':'var(--sap-red)'}}>{msg}</div>}
 
       {/* ── Tab bar: filled pill for active, subtle for inactive ── */}
       <div style={{display:'flex',gap:6,marginBottom:22,padding:6,background:'#fff',borderRadius:12,border:'1px solid #e8ecf2',boxShadow:'0 2px 8px rgba(23,37,84,.04)',flexWrap:'wrap'}}>
-        {TABS.map(function(tb){
+        {TAB_CONFIG.map(function(tb){
           var a = tab === tb.key;
           var I = tb.icon;
           return <div key={tb.key} className={a?'':'sl-tab'} onClick={function(){setTab(tb.key);}}
-            style={{flex:'1 1 auto',minWidth:110,padding:'10px 16px',borderRadius:8,
+            style={{flex:'1 1 auto',minWidth:110,padding:'11px 18px',borderRadius:8,
                     background: a ? 'linear-gradient(135deg,#4f46e5,#6366f1)' : 'transparent',
                     color: a ? '#fff' : '#64748b',
-                    fontSize:13,fontWeight:a?700:600,cursor:'pointer',
-                    display:'flex',alignItems:'center',justifyContent:'center',gap:6,
+                    fontSize:14,fontWeight:a?700:600,cursor:'pointer',
+                    display:'flex',alignItems:'center',justifyContent:'center',gap:7,
                     boxShadow: a ? '0 4px 12px rgba(79,70,229,.3)' : 'none',
                     transition:'all .15s'}}>
-            <I size={15}/> {tb.label}
+            <I size={16}/> {t('myLeads.' + tb.labelKey)}
           </div>;
         })}
       </div>
@@ -157,21 +165,27 @@ function LeadsTab({leads,lists,sequences,refresh,flash}) {
     if(fS!=='all'){if(fS==='hot'){if(!l.is_hot)return false;}else if(l.status!==fS)return false;}
     if(fL&&l.list_id!==parseInt(fL))return false;return true;
   });
-  function del(id){if(!window.confirm('Delete this lead?'))return;apiDelete('/api/leads/'+id).then(function(){flash('Lead deleted');refresh();}).catch(function(e){flash(e.message,'err');});}
+  function del(id){if(!window.confirm(t('myLeads.deleteLeadConfirm')))return;apiDelete('/api/leads/'+id).then(function(){flash(t('myLeads.leadDeleted'));refresh();}).catch(function(e){flash(e.message,'err');});}
   function assignSeq(lid,sid){apiPost('/api/leads/'+lid+'/assign-sequence',{sequence_id:sid?parseInt(sid):null}).then(function(){flash('Sequence assigned');refresh();}).catch(function(e){flash(e.message,'err');});}
   function createList(){var name=window.prompt('Enter a name for your new list:');if(!name||!name.trim())return;apiPost('/api/leads/lists',{name:name.trim()}).then(function(){flash('List created');refresh();}).catch(function(e){flash(e.message,'err');});}
 
   return <div style={{background:'#fff',border:'1px solid #e2e8f0',borderRadius:14,overflow:'hidden'}}>
     <div style={{padding:'14px 18px',borderBottom:'1px solid #e2e8f0',display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:8}}>
       <div style={{display:'flex',gap:8,flexWrap:'wrap',alignItems:'center'}}>
-        <CustomSelect value={fS} onChange={setFS} style={{width:160}} options={[{value:'all',label:'All statuses'},{value:'new',label:'New'},{value:'nurturing',label:'Nurturing'},{value:'hot',label:'Hot'},{value:'converted',label:'Converted'}]}/>
-        <CustomSelect value={fL} onChange={setFL} style={{width:150}} options={[{value:'',label:'All lists'}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))} />
-        <button onClick={createList} style={{padding:'8px 14px',borderRadius:10,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-indigo)',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:4}}><Plus size={14}/> {t('myLeads.newList')}</button>
-        <div style={{position:'relative'}}><Search size={14} color="var(--sap-text-muted)" style={{position:'absolute',left:10,top:10}}/><input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder={t("myLeads.searchPlaceholder")} style={{padding:'8px 8px 8px 30px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,fontFamily:'inherit',width:180,outline:'none',transition:'border-color .15s'}}/></div>
+        <CustomSelect value={fS} onChange={setFS} style={{width:170}} options={[
+          {value:'all',label:t('myLeads.filterAllStatuses')},
+          {value:'new',label:t('myLeads.statusNew')},
+          {value:'nurturing',label:t('myLeads.statusNurturing')},
+          {value:'hot',label:t('myLeads.statusHot')},
+          {value:'converted',label:t('myLeads.statusConverted')},
+        ]}/>
+        <CustomSelect value={fL} onChange={setFL} style={{width:160}} options={[{value:'',label:t('myLeads.filterAllLists')}].concat(lists.map(function(l){return {value:String(l.id),label:l.name};}))} />
+        <button onClick={createList} style={{padding:'9px 16px',borderRadius:10,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-indigo)',fontSize:14,fontWeight:600,cursor:'pointer',fontFamily:'inherit',display:'flex',alignItems:'center',gap:5}}><Plus size={15}/> {t('myLeads.newListBtn')}</button>
+        <div style={{position:'relative'}}><Search size={15} color="var(--sap-text-muted)" style={{position:'absolute',left:11,top:10}}/><input value={search} onChange={function(e){setSearch(e.target.value);}} placeholder={t('myLeads.searchLeadsPlaceholder')} style={{padding:'9px 10px 9px 32px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:14,fontFamily:'inherit',width:200,outline:'none',transition:'border-color .15s'}}/></div>
       </div>
-      <div style={{fontSize:13,color:'var(--sap-text-muted)',fontWeight:600}}>{filtered.length} contacts</div>
+      <div style={{fontSize:14,color:'var(--sap-text-muted)',fontWeight:600}}>{filtered.length} {t('myLeads.contacts') || 'contacts'}</div>
     </div>
-    {filtered.length>0?<div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:13,minWidth:600}}><thead><tr>
+    {filtered.length>0?<div style={{overflowX:'auto'}}><table style={{width:'100%',borderCollapse:'collapse',fontSize:14,minWidth:600}}><thead><tr>
       <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.contact')}</th>
       <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.email')}</th>
       <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.status')}</th>
@@ -179,16 +193,20 @@ function LeadsTab({leads,lists,sequences,refresh,flash}) {
       <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.emails')}</th>
       <th style={{textAlign:'left',padding:'14px 18px',fontWeight:700,color:'var(--sap-text-primary)',fontSize:13,borderBottom:'1px solid #e2e8f0'}}>{t('myLeads.sequence')}</th>
       <th style={{textAlign:'right',padding:'14px 18px',borderBottom:'1px solid #e2e8f0'}}></th>
-    </tr></thead><tbody>{filtered.map(function(l){var st=STATUS_STYLES[l.is_hot?'hot':l.status]||STATUS_STYLES.new;var li=lm[l.list_id];return <tr key={l.id} className="sl-row" style={{borderBottom:'1px solid #f1f5f9'}}>
-      <td style={{padding:'14px 18px',fontWeight:600,color:'var(--sap-text-primary)',fontSize:14}}>{l.name||'—'}</td>
-      <td style={{padding:'14px 18px',color:'var(--sap-text-secondary)',fontSize:14}}>{l.email}</td>
-      <td style={{padding:'14px 18px'}}><span style={{padding:'4px 10px',borderRadius:6,background:st.bg,color:st.color,fontSize:12,fontWeight:600}}>{st.label}</span></td>
-      <td style={{padding:'14px 18px'}}>{li?<span style={{padding:'4px 10px',borderRadius:6,background:li.color+'18',color:li.color,fontSize:12,fontWeight:600}}>{li.name}</span>:<span style={{color:'var(--sap-text-muted)',fontSize:12}}>—</span>}</td>
-      <td style={{padding:'14px 18px',color:'var(--sap-text-secondary)',fontSize:14}}>{l.emails_sent||0} sent</td>
-      <td style={{padding:'14px 18px'}}><CustomSelect value={String(l.sequence_id||'')} onChange={function(v){assignSeq(l.id,v);}} small={true} style={{maxWidth:140}} options={[{value:'',label:'None'}].concat(sequences.map(function(s){return {value:String(s.id),label:s.title};}))}/></td>
-      <td style={{padding:'14px 18px',textAlign:'right'}}><button onClick={function(){del(l.id);}} style={{padding:'5px 10px',borderRadius:6,border:'1px solid #fecaca',background:'#fff',color:'var(--sap-red)',fontSize:11,cursor:'pointer',fontFamily:'inherit'}}><Trash2 size={12}/></button></td>
+    </tr></thead><tbody>{filtered.map(function(l){
+      var statusKey = l.is_hot ? 'hot' : (l.status || 'new');
+      var st = STATUS_PALETTE[statusKey] || STATUS_PALETTE.new;
+      var li=lm[l.list_id];
+      return <tr key={l.id} className="sl-row" style={{borderBottom:'1px solid #f1f5f9'}}>
+      <td style={{padding:'14px 18px',fontWeight:600,color:'var(--sap-text-primary)',fontSize:15}}>{l.name||'—'}</td>
+      <td style={{padding:'14px 18px',color:'var(--sap-text-secondary)',fontSize:15}}>{l.email}</td>
+      <td style={{padding:'14px 18px'}}><span style={{padding:'4px 11px',borderRadius:6,background:st.bg,color:st.color,fontSize:13,fontWeight:600}}>{t('myLeads.' + st.labelKey)}</span></td>
+      <td style={{padding:'14px 18px'}}>{li?<span style={{padding:'4px 11px',borderRadius:6,background:li.color+'18',color:li.color,fontSize:13,fontWeight:600}}>{li.name}</span>:<span style={{color:'var(--sap-text-muted)',fontSize:13}}>—</span>}</td>
+      <td style={{padding:'14px 18px',color:'var(--sap-text-secondary)',fontSize:14}}>{l.emails_sent||0} {t('myLeads.sent') || 'sent'}</td>
+      <td style={{padding:'14px 18px'}}><CustomSelect value={String(l.sequence_id||'')} onChange={function(v){assignSeq(l.id,v);}} small={true} style={{maxWidth:150}} options={[{value:'',label:t('myLeads.noneOption')||'None'}].concat(sequences.map(function(s){return {value:String(s.id),label:s.title};}))}/></td>
+      <td style={{padding:'14px 18px',textAlign:'right'}}><button onClick={function(){del(l.id);}} style={{padding:'6px 11px',borderRadius:6,border:'1px solid #fecaca',background:'#fff',color:'var(--sap-red)',fontSize:12,cursor:'pointer',fontFamily:'inherit'}}><Trash2 size={13}/></button></td>
     </tr>;})}</tbody></table></div>
-    :<div style={{textAlign:'center',padding:'60px 20px'}}><UserPlus size={32} color="var(--sap-text-ghost)" style={{marginBottom:8}}/><div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-muted)'}}>{t('myLeads.noLeads')}</div><div style={{fontSize:12,color:'var(--sap-text-muted)',marginTop:4}}>{t('myLeads.noLeadsDesc')}</div></div>}
+    :<div style={{textAlign:'center',padding:'60px 20px'}}><UserPlus size={32} color="var(--sap-text-ghost)" style={{marginBottom:10}}/><div style={{fontSize:16,fontWeight:700,color:'var(--sap-text-muted)'}}>{t('myLeads.noLeadsYet')}</div><div style={{fontSize:14,color:'var(--sap-text-muted)',marginTop:6,lineHeight:1.5,maxWidth:420,margin:'6px auto 0'}}>{t('myLeads.noLeadsDesc')}</div></div>}
   </div>;
 }
 
