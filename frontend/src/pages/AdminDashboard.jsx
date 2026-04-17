@@ -13,7 +13,6 @@ var TABS = [
   {key:'withdrawals',label:'Withdrawals',icon:CreditCard},
   {key:'kyc',label:'KYC Queue',icon:UserCheck},
   {key:'commissions',label:'Commissions',icon:TrendingUp},
-  {key:'supermarket',label:'SuperMarket',icon:Shield},
   {key:'email',label:'Email Analytics',icon:Mail},
   {key:'superscene',label:'Creative Studio',icon:Sparkles},
   {key:'health',label:'System Health',icon:Shield},
@@ -46,7 +45,6 @@ export default function AdminDashboard() {
       {tab === 'withdrawals' && <WithdrawalsTab/>}
       {tab === 'kyc' && <KYCTab/>}
       {tab === 'commissions' && <CommissionsTab/>}
-      {tab === 'supermarket' && <SuperMarketTab/>}
       {tab === 'email' && <EmailAnalyticsTab/>}
       {tab === 'superscene' && <SuperSceneAnalyticsTab/>}
       {tab === 'health' && <HealthTab/>}
@@ -655,116 +653,6 @@ function CommissionsTab() {
     </div>
   );
 }
-
-// ══════════════════════════════════════════════════════════
-// ══════════════════════════════════════════════════════════
-// SUPERMARKET PRODUCT REVIEW
-// ══════════════════════════════════════════════════════════
-
-function SuperMarketTab() {
-  var [products, setProducts] = useState([]);
-  var [loading, setLoading] = useState(true);
-  var [acting, setActing] = useState('');
-  var [rejectId, setRejectId] = useState(null);
-  var [rejectReason, setRejectReason] = useState('');
-
-  function load() {
-    apiGet('/api/supermarket/admin/pending').then(function(d) { setProducts(d.products || []); setLoading(false); }).catch(function() { setLoading(false); });
-  }
-  useEffect(function() { load(); }, []);
-
-  function approve(id) {
-    setActing('approve-' + id);
-    apiPost('/api/supermarket/admin/review/' + id, { action: 'approve' }).then(function() { load(); setActing(''); }).catch(function() { setActing(''); });
-  }
-  function reject(id) {
-    setActing('reject-' + id);
-    apiPost('/api/supermarket/admin/review/' + id, { action: 'reject', reason: rejectReason }).then(function() { load(); setActing(''); setRejectId(null); setRejectReason(''); }).catch(function() { setActing(''); });
-  }
-
-  if (loading) return <div style={{textAlign:'center',padding:40,color:'var(--sap-text-faint)'}}>Loading...</div>;
-
-  return (
-    <div>
-      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
-        <div>
-          <div style={{fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>SuperMarket Product Review</div>
-          <div style={{fontSize:12,color:'var(--sap-text-faint)'}}>{products.length} product{products.length !== 1 ? 's' : ''} pending review</div>
-        </div>
-      </div>
-
-      {products.length === 0 ? (
-        <div style={{textAlign:'center',padding:'60px 20px',background:'var(--sap-bg-input)',borderRadius:12}}>
-          <div style={{fontSize:32,opacity:.3,marginBottom:8}}>✅</div>
-          <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)'}}>All clear</div>
-          <div style={{fontSize:12,color:'var(--sap-text-faint)'}}>No products waiting for review</div>
-        </div>
-      ) : products.map(function(p) {
-        return (
-          <div key={p.id} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:12,marginBottom:12,overflow:'hidden'}}>
-            <div style={{display:'flex',gap:16,padding:'16px 20px'}}>
-              <div style={{width:120,height:80,borderRadius:8,background:'linear-gradient(135deg,#0b1729,#132240)',overflow:'hidden',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                {p.banner_url ? <img src={p.banner_url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt=""/> : <span style={{fontSize:28,opacity:.2}}>📦</span>}
-              </div>
-              <div style={{flex:1}}>
-                <div style={{fontSize:15,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:2}}>{p.title}</div>
-                <div style={{fontSize:12,color:'var(--sap-text-faint)',marginBottom:4}}>by {p.creator_name} · {p.category} · ${parseFloat(p.price).toFixed(0)}</div>
-                <div style={{fontSize:12,color:'var(--sap-text-secondary)',lineHeight:1.6}}>{(p.short_description || '').slice(0, 150)}</div>
-                {p.file_name && <div style={{fontSize:10,color:'var(--sap-green-mid)',fontWeight:700,marginTop:4}}>📎 {p.file_name}</div>}
-                {p.ai_review && (
-                  <div style={{display:'flex',gap:8,marginTop:6}}>
-                    <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:4,background:p.ai_review.quality_score>=60?'var(--sap-green-bg-mid)':'var(--sap-amber-bg)',color:p.ai_review.quality_score>=60?'var(--sap-green)':'var(--sap-amber-dark)'}}>Quality: {p.ai_review.quality_score}/100</span>
-                    <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:4,background:p.ai_review.copyright_risk==='low'?'var(--sap-green-bg-mid)':p.ai_review.copyright_risk==='medium'?'var(--sap-amber-bg)':'var(--sap-red-bg)',color:p.ai_review.copyright_risk==='low'?'var(--sap-green)':p.ai_review.copyright_risk==='medium'?'var(--sap-amber-dark)':'var(--sap-red)'}}>Copyright: {p.ai_review.copyright_risk}</span>
-                    <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:4,background:p.ai_review.plagiarism_score<20?'var(--sap-green-bg-mid)':'var(--sap-amber-bg)',color:p.ai_review.plagiarism_score<20?'var(--sap-green)':'var(--sap-amber-dark)'}}>Plagiarism: {p.ai_review.plagiarism_score}%</span>
-                    {p.ai_review.summary && <span style={{fontSize:9,color:'var(--sap-text-muted)',fontStyle:'italic'}}>{p.ai_review.summary}</span>}
-                  </div>
-                )}
-                {p.ai_review && p.ai_review.flagged_issues && p.ai_review.flagged_issues.length > 0 && (
-                  <div style={{marginTop:6,padding:'8px 10px',background:'var(--sap-red-bg)',borderRadius:6,border:'1px solid #fecaca'}}>
-                    <div style={{fontSize:9,fontWeight:800,color:'var(--sap-red)',marginBottom:4}}>⚠️ AI Flagged Issues:</div>
-                    {p.ai_review.flagged_issues.map(function(iss,j){
-                      return <div key={j} style={{fontSize:10,color:'var(--sap-red)',marginBottom:2}}>
-                        <span style={{fontWeight:700,textTransform:'capitalize'}}>[{iss.severity||'medium'}]</span> {iss.type}: {iss.description}
-                      </div>;
-                    })}
-                  </div>
-                )}
-                {p.admin_notes && (
-                  <div style={{marginTop:6,fontSize:10,color:'var(--sap-amber)',fontWeight:600}}>Admin notes: {p.admin_notes}</div>
-                )}
-              </div>
-              <div style={{display:'flex',flexDirection:'column',gap:6,flexShrink:0}}>
-                <button onClick={function() { approve(p.id); }} disabled={acting === 'approve-' + p.id}
-                  style={{padding:'8px 20px',borderRadius:8,border:'none',background:'var(--sap-green-mid)',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
-                  {acting === 'approve-' + p.id ? '...' : '✓ Approve'}
-                </button>
-                <button onClick={function() { setRejectId(rejectId === p.id ? null : p.id); }}
-                  style={{padding:'8px 20px',borderRadius:8,border:'1px solid #fecaca',background:'#fff',color:'var(--sap-red)',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
-                  ✗ Reject
-                </button>
-                <button onClick={function() { if(!confirm('Permanently delete "'+p.title+'"?')) return; setActing('del-'+p.id); apiDelete('/api/supermarket/products/'+p.id).then(function(){load();setActing('');}).catch(function(){setActing('');}); }}
-                  disabled={acting==='del-'+p.id}
-                  style={{padding:'8px 20px',borderRadius:8,border:'1px solid #e8ecf2',background:'var(--sap-bg-input)',color:'var(--sap-text-muted)',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
-                  {acting==='del-'+p.id?'...':'🗑 Delete'}
-                </button>
-              </div>
-            </div>
-            {rejectId === p.id && (
-              <div style={{padding:'12px 20px',borderTop:'1px solid #f1f3f7',background:'var(--sap-red-bg)'}}>
-                <input value={rejectReason} onChange={function(e) { setRejectReason(e.target.value); }} placeholder="Reason for rejection..." style={{width:'100%',padding:'8px 12px',border:'1px solid #fecaca',borderRadius:8,fontSize:12,fontFamily:'inherit',outline:'none',boxSizing:'border-box',marginBottom:8}}/>
-                <button onClick={function() { reject(p.id); }} disabled={acting === 'reject-' + p.id}
-                  style={{padding:'6px 16px',borderRadius:6,border:'none',background:'var(--sap-red)',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
-                  {acting === 'reject-' + p.id ? '...' : 'Confirm Reject'}
-                </button>
-              </div>
-            )}
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
 
 // ══════════════════════════════════════════════════════════
 // SYSTEM HEALTH

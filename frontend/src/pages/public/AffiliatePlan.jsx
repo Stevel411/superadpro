@@ -153,7 +153,6 @@ export default function AffiliatePlan() {
               { name:'Membership Commissions', rate:'50%', sub:'recurring monthly', desc:'$10 per Basic member, $17.50 per Pro member — every month they stay active.', color:'var(--sap-green-mid)' },
               { name:'8×8 Profit Grid', rate:'$7,200+', sub:'per grid cycle at Tier 8', desc:'That\'s just the baseline. Personally refer them and earn up to $32,800 per grid. Eight tiers from $20 to $1,000 — each with its own grid that auto-renews.', color:'var(--sap-indigo)' },
               { name:'Course Academy', rate:'100%', sub:'commissions', desc:'Keep every sale. Sales 2,4,6,8 pass up infinitely deep.', color:'var(--sap-amber-bright)', comingSoon:true },
-              { name:'SuperMarket', rate:'50/25/25', sub:'creator / affiliate / platform', desc:'Sell digital products. Create once, earn forever.', color:'var(--sap-accent)', comingSoon:true },
             ].map(function(s, i) {
               return (
                 <Reveal key={i} delay={i * 0.1}>

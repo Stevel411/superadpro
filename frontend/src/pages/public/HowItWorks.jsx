@@ -149,7 +149,7 @@ export default function HowItWorks() {
           <SectionHeader tag="The Platform" title={t("howItWorks.pageTitle")} subtitle={t("howItWorks.pageSubtitle")} />
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 20 }}>
             <FeatureCard icon="🎬" title={t("howItWorks.aiCreativeStudioTitle")} desc="Generate videos, images, music, voiceovers, and captions using 10+ AI models. Create professional content in minutes." color="var(--sap-accent)" />
-            <FeatureCard icon="💰" title={t("howItWorks.fourWaysTitle")} desc="Earn through affiliate commissions, the 8×8 income grid, course sales, and the SuperMarket. Four ways to make money." color="var(--sap-amber-bright)" />
+            <FeatureCard icon="💰" title={t("howItWorks.fourWaysTitle")} desc="Earn through affiliate commissions, the 8×8 income grid, and course sales. Multiple ways to make money." color="var(--sap-amber-bright)" />
             <FeatureCard icon="📢" title={t("howItWorks.advertisingPlatform")} desc="Promote your business with video campaigns watched by real, engaged members. Guaranteed views from motivated entrepreneurs." color="var(--sap-green-mid)" />
           </div>
         </Section>
@@ -203,14 +203,13 @@ export default function HowItWorks() {
           </div>
         </Section>
 
-        {/* ═══ FOUR WAYS TO EARN ═══ */}
+        {/* ═══ THREE WAYS TO EARN ═══ */}
         <Section bg="linear-gradient(180deg,transparent,rgba(251,191,36,0.03),transparent)">
           <SectionHeader tag="Income" tagColor="var(--sap-amber-bright)" title={t("howItWorks.fourWaysTitle")} subtitle={t("howItWorks.fourWaysSubtitle")} />
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
             <IncomeCard title={t("howItWorks.membershipCommissions")} amount="50%" sub="Recurring monthly" desc="$10 per Basic member, $17.50 per Pro member — every single month they stay active." color="var(--sap-green-mid)" />
             <IncomeCard title={t('howItWorks.incomeGridTitle')} amount="$7,200+" sub="Per grid cycle" desc="Eight tiers from $20 to $1,000. Each grid has 64 positions that auto-renew when complete." color="var(--sap-indigo)" />
             <IncomeCard title={t("howItWorks.courseMarketplace")} amount="100%" sub="Commissions" desc="Keep every sale. Sales 2, 4, 6, 8 pass up to your sponsor — creating an infinite depth chain." color="var(--sap-amber-bright)" comingSoon />
-            <IncomeCard title={t("howItWorks.superMarket")} amount="50/25/25" sub="Creator / Affiliate / Platform" desc="Sell digital products. Create once, earn forever. Your affiliates promote for you." color="var(--sap-accent)" comingSoon />
           </div>
           <div style={{ textAlign: 'center', marginTop: 32 }}>
             <Link to="/earn" style={{ fontFamily: "'Sora',sans-serif", fontSize: 15, fontWeight: 800, color: 'var(--sap-amber-bright)', textDecoration: 'none', borderBottom: '2px solid #fbbf24', paddingBottom: 4 }}>{t("howItWorks.seeFullCompPlan")}</Link>

@@ -15,7 +15,6 @@ import Wallet from './pages/Wallet';
 import Account from './pages/Account';
 import Courses from './pages/Courses';
 import Leaderboard from './pages/Leaderboard';
-import Challenge from './pages/Challenge';
 import Affiliate from './pages/Affiliate';
 import MarketingMaterials from './pages/MarketingMaterials';
 import LeadFinder from './pages/LeadFinder';
@@ -23,7 +22,6 @@ import CampaignTiers from './pages/CampaignTiers';
 import Watch from './pages/Watch';
 import Analytics from './pages/Analytics';
 import Support from './pages/Support';
-import Achievements from './pages/Achievements';
 import VideoLibrary from './pages/VideoLibrary';
 import Upgrade from './pages/Upgrade';
 import CompensationPlan from './pages/CompensationPlan';
@@ -34,9 +32,6 @@ import IncomeChains from './pages/IncomeChains';
 import HowCommissionsWork from './pages/HowCommissionsWork';
 import MyLeads from './pages/MyLeads';
 import LinkTools from './pages/LinkTools';
-import AdBoard from './pages/AdBoard';
-import BannerManager from './pages/BannerManager';
-import AdHub from './pages/AdHub';
 import PaymentSuccess from './pages/PaymentSuccess';
 import PassupVisualiser from './pages/PassupVisualiser';
 import ProSeller from './pages/ProSeller';
@@ -56,7 +51,6 @@ import QRGenerator from './pages/QRGenerator';
 import SuperLinkPage from './pages/SuperLink';
 
 // ── Lazy imports (heavy/rare pages only) ──
-const BannerMaker = React.lazy(() => import('./pages/BannerMaker'));
 const SuperPagesEditor = React.lazy(() => import('./pages/superpages/SuperPagesEditor'));
 const SuperDeckList = React.lazy(() => import('./pages/superdeck/SuperDeckList'));
 const SuperDeckEditor = React.lazy(() => import('./pages/superdeck/SuperDeckEditor'));
@@ -113,8 +107,6 @@ import ExplorePage from './pages/public/ExplorePage';
 import JoinFunnel from './pages/public/JoinFunnel';
 import { FAQ, Legal, ForAdvertisers } from './pages/public/PublicPages';
 import AffiliatePlan from './pages/public/AffiliatePlan';
-import PublicAdBoard from './pages/public/AdBoard';
-import { AdDetail, AdBoardManage } from './pages/AdPages';
 import CoursePlayer from './pages/CoursePlayer';
 
 function ProtectedRoute({ children }) {
@@ -149,7 +141,6 @@ function AppRoutes() {
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
       <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
       <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
-      <Route path="/challenge" element={<ProtectedRoute><Challenge /></ProtectedRoute>} />
       <Route path="/social-share" element={<ProtectedRoute><Affiliate /></ProtectedRoute>} />
       <Route path="/marketing-materials" element={<ProtectedRoute><MarketingMaterials /></ProtectedRoute>} />
       <Route path="/lead-finder" element={<ProtectedRoute><LeadFinder /></ProtectedRoute>} />
@@ -161,7 +152,6 @@ function AppRoutes() {
       <Route path="/watch" element={<ProtectedRoute><Watch /></ProtectedRoute>} />
       <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />
       <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
-      <Route path="/achievements" element={<ProtectedRoute><Achievements /></ProtectedRoute>} />
       <Route path="/video-library" element={<ProtectedRoute><VideoLibrary /></ProtectedRoute>} />
       <Route path="/upload" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />
       <Route path="/create-campaign" element={<ProtectedRoute><CreateCampaign /></ProtectedRoute>} />
@@ -221,10 +211,6 @@ function AppRoutes() {
       <Route path="/income-chains" element={<ProtectedRoute><IncomeChains /></ProtectedRoute>} />
       <Route path="/courses/commissions" element={<ProtectedRoute><MyNetwork /></ProtectedRoute>} />
       <Route path="/courses/how-it-works" element={<ProtectedRoute><HowCommissionsWork /></ProtectedRoute>} />
-      <Route path="/ad-hub" element={<ProtectedRoute><AdHub /></ProtectedRoute>} />
-      <Route path="/banner-maker" element={<ProtectedRoute><BannerMaker /></ProtectedRoute>} />
-      <Route path="/ad-board" element={<ProtectedRoute><AdHub /></ProtectedRoute>} />
-      <Route path="/banner-manager" element={<ProtectedRoute><BannerManager /></ProtectedRoute>} />
 
       {/* Public pages — no auth required, no sidebar */}
       <Route path="/" element={<SmartHome />} />
@@ -239,16 +225,13 @@ function AppRoutes() {
       <Route path="/what-you-get" element={<HowItWorks />} />
       <Route path="/vip" element={<Navigate to="/register" replace />} />
       {/* /join/:username handled by SuperLinkPage below */}
-      <Route path="/ads" element={<PublicAdBoard />} />
       <Route path="/free/meme-generator" element={<Lazy><MemeGenerator /></Lazy>} />
       <Route path="/free/qr-code-generator" element={<Lazy><QRCodeGen /></Lazy>} />
       <Route path="/free/banner-creator" element={<Lazy><BannerCreator /></Lazy>} />
       <Route path="/earn" element={<AffiliatePlan />} />
       <Route path="/join/:username" element={<SuperLinkPage />} />
-      <Route path="/ads/listing/:slug" element={<AdDetail />} />
 
       {/* Phase 4 member pages */}
-      <Route path="/ads/my" element={<ProtectedRoute><AdBoardManage /></ProtectedRoute>} />
       <Route path="/courses/learn/:courseId" element={<ProtectedRoute><CoursePlayer /></ProtectedRoute>} />
 
       {/* Auth pages — no sidebar, no auth required */}

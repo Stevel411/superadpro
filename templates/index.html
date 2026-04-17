@@ -340,8 +340,8 @@
         <li style="position:relative" onmouseenter="this.querySelector('.ndm').style.display='block'" onmouseleave="this.querySelector('.ndm').style.display='none'">
             <a href="#" style="cursor:pointer">Explore ▾</a>
             <div class="ndm" style="display:none;position:absolute;top:100%;left:0;background:rgba(10,18,40,0.98);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:8px;min-width:180px;box-shadow:0 12px 40px rgba(0,0,0,.4);z-index:200">
-                <a href="/videos" style="display:block;padding:10px 14px;font-size:14px;font-weight:600;color:rgba(200,220,255,0.7);text-decoration:none;border-radius:8px;transition:.15s" onmouseover="this.style.background='rgba(14,165,233,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(200,220,255,0.7)'">📺 Watch Videos</a>
-                <a href="/ads" style="display:block;padding:10px 14px;font-size:14px;font-weight:600;color:rgba(200,220,255,0.7);text-decoration:none;border-radius:8px;transition:.15s" onmouseover="this.style.background='rgba(14,165,233,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(200,220,255,0.7)'">📋 Ad Board</a>
+                <a href="/how-it-works" style="display:block;padding:10px 14px;font-size:14px;font-weight:600;color:rgba(200,220,255,0.7);text-decoration:none;border-radius:8px;transition:.15s" onmouseover="this.style.background='rgba(14,165,233,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(200,220,255,0.7)'">🎯 How It Works</a>
+                <a href="/for-advertisers" style="display:block;padding:10px 14px;font-size:14px;font-weight:600;color:rgba(200,220,255,0.7);text-decoration:none;border-radius:8px;transition:.15s" onmouseover="this.style.background='rgba(14,165,233,0.1)';this.style.color='#fff'" onmouseout="this.style.background='';this.style.color='rgba(200,220,255,0.7)'">📣 For Advertisers</a>
             </div>
         </li>
     </ul>
@@ -356,8 +356,7 @@
 <div class="mobile-menu" id="mobileMenu">
     <div class="mobile-menu-inner">
         <a href="/how-it-works" data-i18n="nav.howItWorks">How It Works</a>
-        <a href="/videos">Watch Videos</a>
-        <a href="/ads">Ad Board</a>
+        <a href="/for-advertisers">For Advertisers</a>
         <div style="border-top:1px solid rgba(0,180,216,0.15);margin:12px 0;padding-top:12px;display:flex;flex-direction:column;gap:10px">
             <a href="#" onclick="mOpen('mLogin');toggleMobileMenu();return false;" style="color:#38bdf8">Log In</a>
             <a href="#" onclick="mOpen('mReg');toggleMobileMenu();return false;" class="nav-cta" style="text-align:center;display:block">Get started →</a>
@@ -561,7 +560,7 @@
         <span style="font-family:Sora,sans-serif;font-size:22px;font-weight:900;color:#10b981;position:relative;z-index:2;text-shadow:0 2px 12px rgba(0,0,0,.6)">Grow</span>
       </div>
       <div style="padding:18px 20px;background:rgba(5,13,26,0.92);border-top:1px solid rgba(255,255,255,0.04)">
-        <p style="font-size:13px;color:rgba(200,220,255,0.5);line-height:1.65">Build your audience through courses, the Ad Board marketplace, and an affiliate network that promotes your content. Earn commissions as your network grows.</p>
+        <p style="font-size:13px;color:rgba(200,220,255,0.5);line-height:1.65">Build your audience through courses and an affiliate network that promotes your content. Earn commissions as your network grows.</p>
       </div>
     </div>
   </div>
@@ -571,65 +570,6 @@
   </div>
 </section>
 
-<!-- ═══ EXPLORE — AD BOARD + VIDEO ═══ -->
-<section style="padding:80px 40px 0;max-width:1100px;margin:0 auto">
-  <div style="text-align:center;margin-bottom:48px">
-    <div style="font-size:11px;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:#10b981;margin-bottom:12px" data-i18n="explore.superTitle">EXPLORE SUPERADPRO</div>
-    <h2 style="font-family:Sora,sans-serif;font-size:clamp(26px,3.5vw,44px);font-weight:900;color:#fff;line-height:1.15;margin-bottom:14px" data-i18n="explore.title">Free Public Content That Drives Traffic</h2>
-    <p style="font-size:15px;color:rgba(200,220,255,0.45);max-width:640px;margin:0 auto">Our Ad Board and Video Library are public, SEO-indexed, and designed to bring organic traffic to the platform — and to your listings.</p>
-  </div>
-
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px">
-    <!-- Ad Board Card -->
-    <div style="border-radius:16px;overflow:hidden;transition:.3s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
-      <div style="height:180px;position:relative;background:linear-gradient(145deg,#001a12,#003520,#001510);display:flex;align-items:flex-end;justify-content:center;padding-bottom:16px">
-        <div style="position:absolute;inset:0">
-          <div style="position:absolute;width:42%;height:30px;top:14px;left:5%;background:rgba(16,185,129,.18);border-radius:8px;border:1px solid rgba(16,185,129,.15);animation:hpFloat 3s ease-in-out infinite"></div>
-          <div style="position:absolute;width:42%;height:30px;top:14px;right:5%;background:rgba(16,185,129,.14);border-radius:8px;border:1px solid rgba(16,185,129,.12);animation:hpFloat 3s ease-in-out infinite .5s"></div>
-          <div style="position:absolute;width:42%;height:30px;top:54px;left:5%;background:rgba(16,185,129,.12);border-radius:8px;border:1px solid rgba(16,185,129,.1);animation:hpFloat 3s ease-in-out infinite 1s"></div>
-          <div style="position:absolute;width:42%;height:30px;top:54px;right:5%;background:rgba(16,185,129,.1);border-radius:8px;border:1px solid rgba(16,185,129,.08);animation:hpFloat 3s ease-in-out infinite 1.5s"></div>
-          <div style="position:absolute;width:90%;height:14px;top:98px;left:5%;background:rgba(16,185,129,.15);border-radius:7px"></div>
-        </div>
-        <span style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff;position:relative;z-index:2;text-shadow:0 2px 12px rgba(0,0,0,.6)">Ad Board</span>
-      </div>
-      <div style="padding:20px;background:rgba(5,13,26,0.92);border-top:1px solid rgba(255,255,255,0.04)">
-        <p style="font-size:13px;color:rgba(200,220,255,0.5);line-height:1.65;margin-bottom:12px">A public, SEO-indexed community marketplace. Post unlimited listings for free — every ad gets its own Google-indexed page with structured data and a shareable URL.</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-          <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:5px;background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.15)">SEO Indexed</span>
-          <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:5px;background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.15)">Free to Post</span>
-          <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:5px;background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.15)">Unlimited Listings</span>
-          <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:5px;background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.15)">Public Access</span>
-        </div>
-        <a href="/ads" style="font-size:13px;font-weight:700;color:#10b981;text-decoration:none">Browse the Ad Board →</a>
-      </div>
-    </div>
-    <!-- Video Library Card -->
-    <div style="border-radius:16px;overflow:hidden;transition:.3s" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform=''">
-      <div style="height:180px;position:relative;background:linear-gradient(145deg,#1a1000,#2d1a06,#0f0a00);display:flex;align-items:flex-end;justify-content:center;padding-bottom:16px">
-        <div style="position:absolute;inset:0">
-          <div style="position:absolute;width:50px;height:34px;top:20px;left:10%;border-radius:6px;background:rgba(245,158,11,.12);border:1px solid rgba(245,158,11,.15);animation:hpFloat 3s ease-in-out infinite"></div>
-          <div style="position:absolute;width:50px;height:34px;top:20px;left:38%;border-radius:6px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.12);animation:hpFloat 3s ease-in-out infinite .4s"></div>
-          <div style="position:absolute;width:50px;height:34px;top:20px;right:10%;border-radius:6px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.1);animation:hpFloat 3s ease-in-out infinite .8s"></div>
-          <div style="position:absolute;width:50px;height:34px;top:64px;left:24%;border-radius:6px;background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.12);animation:hpFloat 3s ease-in-out infinite .6s"></div>
-          <div style="position:absolute;width:50px;height:34px;top:64px;right:24%;border-radius:6px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.1);animation:hpFloat 3s ease-in-out infinite 1s"></div>
-          <svg style="position:absolute;left:23%;top:30px;z-index:2" width="16" height="16" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="rgba(245,158,11,.5)"/></svg>
-          <svg style="position:absolute;left:51%;top:30px;z-index:2" width="16" height="16" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" fill="rgba(245,158,11,.4)"/></svg>
-        </div>
-        <span style="font-family:Sora,sans-serif;font-size:18px;font-weight:800;color:#fff;position:relative;z-index:2;text-shadow:0 2px 12px rgba(0,0,0,.6)">Video Library</span>
-      </div>
-      <div style="padding:20px;background:rgba(5,13,26,0.92);border-top:1px solid rgba(255,255,255,0.04)">
-        <p style="font-size:13px;color:rgba(200,220,255,0.5);line-height:1.65;margin-bottom:12px">Watch campaign videos from advertisers and earn rewards. A public-facing video library that brings organic viewers to the platform and generates real engagement for advertisers.</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
-          <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:5px;background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.15)">Watch to Earn</span>
-          <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:5px;background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.15)">Real Engagement</span>
-          <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:5px;background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.15)">YouTube + Vimeo</span>
-          <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:5px;background:rgba(245,158,11,.1);color:#f59e0b;border:1px solid rgba(245,158,11,.15)">Public Access</span>
-        </div>
-        <a href="/videos" style="font-size:13px;font-weight:700;color:#f59e0b;text-decoration:none">Watch Videos →</a>
-      </div>
-    </div>
-  </div>
-</section>
 
 <!-- CTA SECTION -->
 <!-- THE PEOPLE'S PLATFORM — MISSION SECTION                    -->
@@ -811,7 +751,7 @@
 <!-- CTA SECTION -->
 <section style="text-align:center;padding:70px 40px 40px">
     <h2 style="font-size:clamp(28px,4vw,52px);font-weight:800;color:#fff;margin-bottom:12px"><span style="background:linear-gradient(135deg,#38bdf8,#10b981);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Earn. Learn. Build.</span> Start Today.</h2>
-    <p style="font-size:19px;color:rgba(200,220,255,0.55);margin-bottom:32px">Join SuperAdPro and get instant access to 4 income streams, a course marketplace, and AI-powered marketing tools.</p>
+    <p style="font-size:19px;color:rgba(200,220,255,0.55);margin-bottom:32px">Join SuperAdPro and get instant access to 4 income streams and AI-powered marketing tools.</p>
     <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:32px">
         <a href="#" class="btn-gold" onclick="mOpen('mReg');return false;">Get Started Free →</a>
         <a href="/how-it-works" class="btn-outline" data-i18n="nav.howItWorks">How It Works</a>
@@ -832,7 +772,6 @@
         <span class="footer-brand"><svg style="width:24px;height:24px;vertical-align:middle;margin-right:6px" viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="#0ea5e9"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>SuperAd<span>Pro</span></span>
     </a>
     <div class="footer-links">
-        <a href="/ads">Ad Board</a>
         <a href="/legal">Legal</a>
         <a href="/faq">FAQ</a>
         <a href="/how-it-works" data-i18n="nav.howItWorks">How It Works</a>

@@ -61,7 +61,6 @@ export default function PassiveIncome({ d }) {
   var membershipEarned = d?.membership_earned || 0;
   var levelEarnings = d?.level_earnings || 0;
   var courseEarnings = d?.course_earnings || 0;
-  var marketEarnings = d?.marketplace_earnings || 0;
   var totalEarned = d?.total_earned || 0;
   var totalTeam = d?.total_team || 0;
   var completions = gridStats.completed_advances || 0;
@@ -146,7 +145,6 @@ export default function PassiveIncome({ d }) {
     { name: 'Memberships',   val: membershipEarned,  color: 'var(--sap-green-mid)', grad: 'linear-gradient(90deg,#10b981,#34d399)', iconType: 'membership', tag: 'Renewal commissions' },
     { name: 'Uni-Level',     val: levelEarnings,     color: 'var(--sap-amber)', grad: 'linear-gradient(90deg,#f59e0b,#fbbf24)', iconType: 'unilevel', tag: '8-level network' },
     { name: 'Courses',       val: courseEarnings,    color: 'var(--sap-purple)', grad: 'linear-gradient(90deg,#8b5cf6,#a78bfa)', iconType: 'courses', tag: 'Pass-up royalties' },
-    { name: 'SuperMarket',   val: marketEarnings,    color: 'var(--sap-accent)', grad: 'linear-gradient(90deg,#0ea5e9,#38bdf8)', iconType: 'market', tag: 'Digital products' },
   ];
 
   var maxStream = Math.max(1, ...streams.map(function(s) { return Number(s.val) || 0; }));

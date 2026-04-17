@@ -17,7 +17,7 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from .database import (
     SessionLocal, User, Payment, Commission, Withdrawal,
-    Grid, GridPosition, PasswordResetToken, VIPSignup, AdListing, GRID_PACKAGES, GRID_TOTAL,
+    Grid, GridPosition, PasswordResetToken, VIPSignup, GRID_PACKAGES, GRID_TOTAL,
     DIRECT_PCT, UNILEVEL_PCT, PER_LEVEL_PCT, PLATFORM_PCT,
     OWNER_PCT, UPLINE_PCT, LEVEL_PCT, COMPANY_PCT
 )
@@ -1955,16 +1955,6 @@ def dashboard(request: Request):
     return HTMLResponse("<h1>Loading...</h1>")
 # ── Missing React page routes ──
 @app.get("/network")
-@app.get("/ad-board")
-@app.get("/2fa-setup")
-@app.get("/activate/{tier_id}")
-@app.get("/free/{tool_path:path}")
-@app.get("/pay-it-forward")
-def serve_react_page(request: Request, tier_id: str = "", tool_path: str = ""):
-    """Serve React SPA for pages without dedicated backend routes."""
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/api/dashboard")
 def api_dashboard(request: Request, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
@@ -2586,18 +2576,6 @@ def income_grid(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-@app.get("/banner-manager")
-def banner_manager(request: Request):
-    """Serve React SPA for banner management."""
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return HTMLResponse("<h1>Loading...</h1>")
-@app.get("/ad-hub")
-def ad_hub(request: Request):
-    """Serve React SPA for unified Ad Hub."""
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/superseller")
 def superseller_page(request: Request):
     """Serve React SPA for SuperSeller."""
@@ -2630,13 +2608,6 @@ def income_grid_3d(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
-@app.get("/banner-maker")
-def banner_maker_page(request: Request):
-    """Serve React SPA for banner maker."""
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return HTMLResponse("<h1>Loading...</h1>")
-
 def _old_income_grid_DISABLED(request: Request, user: User = Depends(get_current_user),
                 db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
@@ -2813,13 +2784,6 @@ def api_wallet_connect(
         db.commit()
         return JSONResponse({"success": True, "wallet": wallet_address})
     return JSONResponse({"error": "Invalid wallet address"}, status_code=400)
-
-@app.get("/video-library")
-def video_library(request: Request):
-    """Serve React SPA."""
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return HTMLResponse("<h1>Loading...</h1>")
 
 def _old_video_library_DISABLED(request: Request, user: User = Depends(get_current_user),
                   db: Session = Depends(get_db)):
@@ -3349,7 +3313,6 @@ def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
         CoPilotBriefing, AIUsageQuota,
         Commission, Payment, Withdrawal, P2PTransfer,
         Notification, Achievement,
-        AdListing,
         CoursePurchase, CourseCommission, CourseProgress, CoursePassUpTracker,
         MemberCourse, MemberCoursePurchase,
         DigitalProduct, DigitalProductPurchase, DigitalProductReview, DigitalProductAffiliate,
@@ -3454,7 +3417,6 @@ def admin_delete_user(user_id: int, user: User = Depends(get_current_user),
         db.query(P2PTransfer).filter((P2PTransfer.from_user_id == user_id) | (P2PTransfer.to_user_id == user_id)).delete()
         db.query(Notification).filter(Notification.user_id == user_id).delete()
         db.query(Achievement).filter(Achievement.user_id == user_id).delete()
-        db.query(AdListing).filter(AdListing.user_id == user_id).delete()
         db.query(CoursePurchase).filter(CoursePurchase.user_id == user_id).delete()
         db.query(CourseProgress).filter(CourseProgress.user_id == user_id).delete()
         db.query(CoursePassUpTracker).filter(CoursePassUpTracker.user_id == user_id).delete()
@@ -5221,48 +5183,13 @@ def get_or_create_quota(db: Session, user: User) -> "WatchQuota":
     return quota
 def get_next_content(db: Session, user_id: int) -> dict:
     """
-    Returns the next content item for Watch to Earn — either a video campaign or ad board listing.
-    Ad board listings are interleaved every 3rd-4th slot as timed display cards.
-    Returns dict with 'type' ('video'|'adboard'), 'data' (campaign or listing), or None.
+    Returns the next content item for Watch to Earn — a video campaign.
+    Returns dict with 'type' ('video'), 'data' (campaign), or None.
     """
-    from datetime import date
-    today_str = str(date.today())
-
-    # Count watches today to decide if this slot should be an ad listing
-    quota = db.query(WatchQuota).filter(WatchQuota.user_id == user_id).first()
-    watched_today = quota.today_watched if quota else 0
-
-    # Every 3rd slot (positions 2, 5, 8...) show an ad board listing
-    show_ad = (watched_today % 3 == 2)
-
-    if show_ad:
-        # Get an active ad listing not owned by user, prefer featured/boosted
-        ad = db.query(AdListing).filter(
-            AdListing.is_active == True,
-            AdListing.user_id != user_id,
-        ).order_by(
-            AdListing.is_featured.desc(),  # boosted first
-            AdListing.views.asc(),         # least viewed first
-        ).first()
-
-        if ad:
-            return {
-                "type": "adboard",
-                "data": ad,
-            }
-
     # Default: return a video campaign
     campaign = get_next_campaign(db, user_id)
     if campaign:
         return {"type": "video", "data": campaign}
-
-    # Fallback: try an ad listing anyway
-    ad = db.query(AdListing).filter(
-        AdListing.is_active == True,
-        AdListing.user_id != user_id,
-    ).order_by(AdListing.views.asc()).first()
-    if ad:
-        return {"type": "adboard", "data": ad}
 
     return None
 def get_next_campaign(db: Session, user_id: int) -> "VideoCampaign | None":
@@ -5462,7 +5389,6 @@ def watch_page(request: Request):
     quota    = get_or_create_quota(db, user)
     content  = get_next_content(db, user.id)
     campaign = content["data"] if content and content["type"] == "video" else None
-    ad_listing = content["data"] if content and content["type"] == "adboard" else None
     content_type = content["type"] if content else "none"
     db.commit()
 
@@ -5483,12 +5409,6 @@ def watch_page(request: Request):
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse(url="/watch", status_code=302)
 
-def _old_watch_template_DISABLED(request=None, user=None, quota=None, campaign=None,
-        ad_listing=None, content_type=None, warning=None):
-    return None  # replaced by React
-
-def _dead_code_watch():
-    pass  # old watch template data — removed
 @app.post("/api/record-watch")
 def record_watch(
     request:     Request,
@@ -5537,19 +5457,14 @@ def record_watch(
 
     db.commit()
 
-    # Get next content (could be video or ad board listing)
+    # Get next content (video campaign)
     next_content = get_next_content(db, user.id)
     quota_met    = quota.today_watched >= quota.daily_required
 
     next_data = None
-    if next_content and not quota_met:
-        if next_content["type"] == "video":
-            c = next_content["data"]
-            next_data = {"type": "video", "id": c.id, "title": c.title, "embed_url": c.embed_url, "platform": c.platform}
-        elif next_content["type"] == "adboard":
-            a = next_content["data"]
-            next_data = {"type": "adboard", "id": a.id, "title": a.title, "description": a.description,
-                        "image_url": a.image_url or "", "link_url": a.link_url, "category": a.category}
+    if next_content and not quota_met and next_content["type"] == "video":
+        c = next_content["data"]
+        next_data = {"type": "video", "id": c.id, "title": c.title, "embed_url": c.embed_url, "platform": c.platform}
 
     return {
         "success":       True,
@@ -5557,148 +5472,13 @@ def record_watch(
         "required":      quota.daily_required,
         "quota_met":     quota_met,
         "next_content":  next_data,
-        "next_campaign": next_data if next_data and next_data.get("type") == "video" else None,
+        "next_campaign": next_data,
     }
 @app.post("/api/record-ad-watch")
-def record_ad_watch(
-    request:   Request,
-    ad_id:     int = Form(),
-    db:        Session = Depends(get_db),
-    user:      User = Depends(get_current_user)
-):
-    """Called after ad board display card timer completes. Records the view."""
-    from datetime import date
-    if not user or not user.is_active:
-        return {"success": False, "error": "Not authorised"}
+def record_ad_watch(request: Request):
+    """DEPRECATED — Ad Board removed. Returns 404."""
+    return {"success": False, "error": "Ad Board has been removed"}
 
-    today_str = str(date.today())
-    quota = get_or_create_quota(db, user)
-    ad = db.query(AdListing).filter(AdListing.id == ad_id, AdListing.is_active == True).first()
-
-    if not ad:
-        return {"success": False, "error": "Ad listing not found"}
-
-    if quota.today_watched >= quota.daily_required:
-        return {"success": False, "error": "Daily quota already completed", "quota_met": True}
-
-    # Record as a watch (counts towards quota)
-    watch = VideoWatch(
-        user_id       = user.id,
-        campaign_id   = 0,  # 0 = ad board view (not a video campaign)
-        watch_date    = today_str,
-        duration_secs = 15,
-    )
-    db.add(watch)
-
-    # Update quota counter
-    quota.today_watched += 1
-    quota.total_watched = (quota.total_watched or 0) + 1
-    if quota.today_watched >= quota.daily_required:
-        quota.last_quota_met     = today_str
-        quota.consecutive_missed = 0
-        quota.commissions_paused = False
-
-    # Increment ad listing views
-    ad.views = (ad.views or 0) + 1
-    db.commit()
-
-    # Get next content
-    next_content = get_next_content(db, user.id)
-    quota_met = quota.today_watched >= quota.daily_required
-
-    next_data = None
-    if next_content and not quota_met:
-        if next_content["type"] == "video":
-            c = next_content["data"]
-            next_data = {"type": "video", "id": c.id, "title": c.title, "embed_url": c.embed_url, "platform": c.platform}
-        elif next_content["type"] == "adboard":
-            a = next_content["data"]
-            next_data = {"type": "adboard", "id": a.id, "title": a.title, "description": a.description,
-                        "image_url": a.image_url or "", "link_url": a.link_url, "category": a.category}
-
-    return {
-        "success":       True,
-        "watched_today": quota.today_watched,
-        "required":      quota.daily_required,
-        "quota_met":     quota_met,
-        "next_content":  next_data,
-    }
-
-# ═══════════════════════════════════════════════════════════════
-# ═══════════════════════════════════════════════════════════════
-#  PUBLIC VIDEO LIBRARY — SEO-friendly, no login required
-# ═══════════════════════════════════════════════════════════════
-
-@app.get("/videos")
-def public_videos(request: Request, category: str = "", db: Session = Depends(get_db)):
-    """Public-facing video library — server-rendered for SEO."""
-    from sqlalchemy import func
-    campaigns = db.query(VideoCampaign).filter(
-        VideoCampaign.status == "active"
-    ).order_by(VideoCampaign.is_spotlight.desc(), VideoCampaign.is_featured.desc(),
-               VideoCampaign.priority_level.desc(), VideoCampaign.created_at.desc()).all()
-    categories = sorted(set(c.category for c in campaigns if c.category))
-    selected_category = category
-    if category:
-        campaigns = [c for c in campaigns if (c.category or "").lower() == category.lower()]
-    spotlight = [c for c in campaigns if getattr(c, 'is_spotlight', False)]
-    total_views = sum(c.views_delivered or 0 for c in campaigns)
-    return templates.TemplateResponse("public-video-library.html", {
-        "request": request, "campaigns": campaigns, "spotlight": spotlight,
-        "categories": categories, "selected_category": selected_category,
-        "total_videos": len(campaigns), "total_views": total_views,
-        "total_categories": len(categories),
-    })
-
-def _old_public_videos_DISABLED(request: Request, category: str = "", db = None):
-    pass
-# ═══════════════════════════════════════════════════════════════
-#  BANNER ADS — Public Gallery + Click Tracking
-# ═══════════════════════════════════════════════════════════════
-
-@app.get("/banners")
-def public_banners(request: Request, category: str = "", db: Session = Depends(get_db)):
-    """Public banner ad gallery — server-rendered for SEO."""
-    from .database import BannerAd
-    query = db.query(BannerAd).filter(BannerAd.is_active == True, BannerAd.status == "approved")
-    banners_all = query.order_by(BannerAd.is_featured.desc(), BannerAd.created_at.desc()).all()
-    categories = sorted(set(b.category for b in banners_all if b.category and b.category != "general"))
-    if category:
-        banners_all = [b for b in banners_all if (b.category or "").lower() == category.lower()]
-    total_impressions = sum(b.impressions or 0 for b in banners_all)
-    total_clicks = sum(b.clicks or 0 for b in banners_all)
-    # Increment impressions for displayed banners
-    for b in banners_all:
-        b.impressions = (b.impressions or 0) + 1
-    try:
-        db.commit()
-    except Exception:
-        db.rollback()
-    return templates.TemplateResponse("public-banners.html", {
-        "request": request, "banners": banners_all, "categories": categories,
-        "selected_category": category, "total_banners": len(banners_all),
-        "total_impressions": total_impressions, "total_clicks": total_clicks,
-    })
-@app.get("/banners/click/{banner_id}")
-def banner_click(banner_id: int, db: Session = Depends(get_db)):
-    """Track banner click and redirect to advertiser URL."""
-    from .database import BannerAd
-    banner = db.query(BannerAd).filter(BannerAd.id == banner_id).first()
-    if not banner:
-        return RedirectResponse(url="/banners", status_code=302)
-    banner.clicks = (banner.clicks or 0) + 1
-    db.commit()
-    return RedirectResponse(url=banner.link_url, status_code=302)
-@app.get("/explore")
-def explore_page(request: Request):
-    """Public explore hub page — served by React."""
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return HTMLResponse("<h1>Loading...</h1>")
-#  SOCIAL PROOF API — recent joiners notification feed
-# ═══════════════════════════════════════════════════════════════
-
-# Simulated fallback pool — used when no real recent signups
 SIMULATED_JOINERS = [
     ("James", "United Kingdom"), ("Sarah", "United States"), ("Mohammed", "UAE"),
     ("Emma", "Australia"), ("Carlos", "Canada"), ("Priya", "India"),
@@ -6012,68 +5792,17 @@ def admin_api_moderation_queue(
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    """Get all pending/flagged ads and banners."""
+    """Ad Board and Banner Ads removed — moderation queue is empty."""
     _require_admin(user)
-    from .database import BannerAd
-    pending_ads = db.query(AdListing).filter(AdListing.status == "pending").order_by(AdListing.created_at.desc()).all()
-    pending_banners = db.query(BannerAd).filter(BannerAd.status == "pending").order_by(BannerAd.created_at.desc()).all()
-    ads = []
-    for a in pending_ads:
-        owner = db.query(User).filter(User.id == a.user_id).first()
-        ads.append({"id": a.id, "type": "ad", "title": a.title, "description": a.description,
-            "category": a.category, "link_url": a.link_url, "image_url": a.image_url,
-            "keywords": a.keywords, "location": a.location,
-            "owner": owner.username if owner else "Unknown",
-            "created_at": a.created_at.isoformat() if a.created_at else None})
-    banners = []
-    for b in pending_banners:
-        owner = db.query(User).filter(User.id == b.user_id).first()
-        banners.append({"id": b.id, "type": "banner", "title": b.title, "description": b.description,
-            "image_url": b.image_url, "link_url": b.link_url, "size": b.size,
-            "category": b.category, "keywords": b.keywords,
-            "owner": owner.username if owner else "Unknown",
-            "created_at": b.created_at.isoformat() if b.created_at else None})
-    return {"ads": ads, "banners": banners, "total": len(ads) + len(banners)}
+    return {"ads": [], "banners": [], "total": 0}
 @app.post("/admin/api/moderation/{item_type}/{item_id}/approve")
 def admin_approve_item(item_type: str, item_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     _require_admin(user)
-    from .database import BannerAd
-    if item_type == "ad":
-        item = db.query(AdListing).filter(AdListing.id == item_id).first()
-        if item:
-            item.status = "active"
-            item.is_active = True
-    elif item_type == "banner":
-        item = db.query(BannerAd).filter(BannerAd.id == item_id).first()
-        if item:
-            item.status = "approved"
-            item.is_active = True
-    else:
-        raise HTTPException(status_code=400, detail="Invalid type")
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-    db.commit()
-    return {"success": True}
+    raise HTTPException(status_code=404, detail="Moderation queue removed")
 @app.post("/admin/api/moderation/{item_type}/{item_id}/reject")
 def admin_reject_item(item_type: str, item_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     _require_admin(user)
-    from .database import BannerAd
-    if item_type == "ad":
-        item = db.query(AdListing).filter(AdListing.id == item_id).first()
-        if item:
-            item.status = "rejected"
-            item.is_active = False
-    elif item_type == "banner":
-        item = db.query(BannerAd).filter(BannerAd.id == item_id).first()
-        if item:
-            item.status = "rejected"
-            item.is_active = False
-    else:
-        raise HTTPException(status_code=400, detail="Invalid type")
-    if not item:
-        raise HTTPException(status_code=404, detail="Item not found")
-    db.commit()
-    return {"success": True}
+    raise HTTPException(status_code=404, detail="Moderation queue removed")
 
 # ── Finances ─────────────────────────────────────────────────
 @app.get("/admin/api/finances")
@@ -8325,111 +8054,6 @@ AD_CATEGORIES = [
     {"id": "general", "name": "General", "icon": "📌"},
 ]
 
-@app.get("/ads")
-def ad_board_public(request: Request, category: str = None, page: int = 1, db: Session = Depends(get_db)):
-    """Public Ad Board — server-rendered for SEO."""
-    query = db.query(AdListing).filter(AdListing.is_active == True)
-    if category:
-        query = query.filter(AdListing.category == category)
-    total_ads = query.count()
-    per_page = 24
-    total_pages = max(1, (total_ads + per_page - 1) // per_page)
-    listings = query.order_by(AdListing.is_featured.desc(), AdListing.created_at.desc()).offset((page - 1) * per_page).limit(per_page).all()
-    categories = sorted(set(a.category for a in db.query(AdListing).filter(AdListing.is_active == True).all() if a.category))
-    return templates.TemplateResponse("public-adboard.html", {
-        "request": request, "listings": listings, "categories": categories,
-        "selected_category": category, "total_pages": total_pages, "current_page": page,
-    })
-
-def _old_ad_board_DISABLED(request: Request, category: str = None, page: int = 1,
-                    user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    try:
-        query = db.query(AdListing).filter(AdListing.is_active == True)
-        if category:
-            query = query.filter(AdListing.category == category)
-        total_ads = query.count()
-        per_page = 30
-        offset = (page - 1) * per_page
-        listings = query.order_by(AdListing.is_featured.desc(), AdListing.created_at.desc()).offset(offset).limit(per_page).all()
-        for listing in listings:
-            owner = db.query(User).filter(User.id == listing.user_id).first()
-            listing.owner_name = owner.username if owner else "Member"
-            listing.views = (listing.views or 0) + 1
-        db.commit()
-        cat_name = None
-        if category:
-            cat_match = [c for c in AD_CATEGORIES if c["id"] == category]
-            cat_name = cat_match[0]["name"] if cat_match else category
-        total_pages = max(1, (total_ads + per_page - 1) // per_page)
-        base_url = os.getenv("BASE_URL", "https://www.superadpro.com")
-        return templates.TemplateResponse("ad-board.html", {
-            "request": request,
-            "listings": listings,
-            "categories": AD_CATEGORIES,
-            "active_category": category,
-            "cat_name": cat_name,
-            "total_ads": total_ads,
-            "page": page,
-            "total_pages": total_pages,
-            "base_url": base_url,
-            "join_url": get_join_url(),
-            "user": user,
-        })
-    except Exception as exc:
-        logger.error(f"Ad board error: {exc}", exc_info=True)
-        return JSONResponse({"error": f"Ad board error: {exc}"}, status_code=500)
-@app.get("/ads/listing/{slug}")
-def ad_detail_page(slug: str, request: Request, db: Session = Depends(get_db)):
-    """Individual ad page — server-rendered for SEO with meta tags + Schema.org."""
-    listing = db.query(AdListing).filter(AdListing.slug == slug, AdListing.is_active == True).first()
-    if not listing:
-        raise HTTPException(status_code=404, detail="Ad not found")
-    listing.views = (listing.views or 0) + 1
-    db.commit()
-    owner = db.query(User).filter(User.id == listing.user_id).first()
-    listing.owner_name = owner.username if owner else "Member"
-    related = db.query(AdListing).filter(
-        AdListing.is_active == True, AdListing.category == listing.category, AdListing.id != listing.id
-    ).order_by(AdListing.is_featured.desc(), AdListing.created_at.desc()).limit(6).all()
-    return templates.TemplateResponse("public-ad-detail.html", {
-        "request": request, "ad": listing, "related": related,
-    })
-
-def _old_ad_detail_DISABLED(slug: str, request: Request, db: Session = Depends(get_db)):
-    """Individual ad page — SEO-indexable, shareable, with OG tags"""
-    listing = db.query(AdListing).filter(AdListing.slug == slug, AdListing.is_active == True).first()
-    if not listing:
-        raise HTTPException(status_code=404, detail="Ad not found")
-    listing.views += 1
-    db.commit()
-    owner = db.query(User).filter(User.id == listing.user_id).first()
-    listing.owner_name = owner.username if owner else "Member"
-    # Related ads in same category
-    related = db.query(AdListing).filter(
-        AdListing.is_active == True,
-        AdListing.category == listing.category,
-        AdListing.id != listing.id
-    ).order_by(AdListing.is_featured.desc(), AdListing.created_at.desc()).limit(6).all()
-    for r in related:
-        r_owner = db.query(User).filter(User.id == r.user_id).first()
-        r.owner_name = r_owner.username if r_owner else "Member"
-    base_url = os.getenv("BASE_URL", "https://www.superadpro.com")
-    return templates.TemplateResponse("ad-detail.html", {
-        "request": request,
-        "ad": listing,
-        "related": related,
-        "categories": AD_CATEGORIES,
-        "base_url": base_url,
-        "join_url": get_join_url(),
-    })
-@app.get("/ads/click/{ad_id}")
-def ad_click(ad_id: int, db: Session = Depends(get_db)):
-    listing = db.query(AdListing).filter(AdListing.id == ad_id).first()
-    if not listing:
-        raise HTTPException(status_code=404, detail="Ad not found")
-    listing.clicks += 1
-    db.commit()
-    return RedirectResponse(url=listing.link_url, status_code=302)
 @app.get("/google718f4df27dcf0df8.html")
 def google_verification():
     """Google Search Console verification file."""
@@ -8437,37 +8061,16 @@ def google_verification():
 
 @app.get("/sitemap.xml")
 def sitemap_xml(request: Request, db: Session = Depends(get_db)):
-    """Dynamic XML sitemap for SEO — includes all active ads, videos, banners, and category pages"""
+    """Dynamic XML sitemap for SEO — public pages and free tools"""
     from fastapi.responses import Response
     base_url = "https://www.superadpro.com"
     urls = []
     # Static pages
-    for path in ["/", "/how-it-works", "/earn", "/for-advertisers", "/faq", "/legal", "/ads", "/banners", "/videos", "/wallet-guide", "/explore"]:
+    for path in ["/", "/how-it-works", "/earn", "/for-advertisers", "/faq", "/legal", "/wallet-guide"]:
         urls.append(f'<url><loc>{base_url}{path}</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>')
     # Free tools — high priority for SEO traffic
     for path in ["/free/meme-generator", "/free/qr-code-generator", "/free/banner-creator"]:
         urls.append(f'<url><loc>{base_url}{path}</loc><changefreq>weekly</changefreq><priority>0.9</priority></url>')
-    # Ad category pages
-    ad_cats = sorted(set(a.category for a in db.query(AdListing).filter(AdListing.is_active == True).all() if a.category))
-    for cat in ad_cats:
-        urls.append(f'<url><loc>{base_url}/ads?category={cat}</loc><changefreq>daily</changefreq><priority>0.7</priority></url>')
-    # Individual ad pages
-    active_ads = db.query(AdListing).filter(AdListing.is_active == True, AdListing.slug.isnot(None)).all()
-    for ad in active_ads:
-        lastmod = ad.updated_at.strftime("%Y-%m-%d") if ad.updated_at else ""
-        lm = f"<lastmod>{lastmod}</lastmod>" if lastmod else ""
-        urls.append(f'<url><loc>{base_url}/ads/listing/{ad.slug}</loc>{lm}<changefreq>weekly</changefreq><priority>0.6</priority></url>')
-    # Video pages
-    active_videos = db.query(VideoCampaign).filter(VideoCampaign.status == "active").all()
-    vid_cats = sorted(set(v.category for v in active_videos if v.category))
-    for cat in vid_cats:
-        urls.append(f'<url><loc>{base_url}/videos?category={cat}</loc><changefreq>daily</changefreq><priority>0.7</priority></url>')
-    # Banner category pages
-    from .database import BannerAd
-    active_banners = db.query(BannerAd).filter(BannerAd.is_active == True, BannerAd.status == "approved").all()
-    banner_cats = sorted(set(b.category for b in active_banners if b.category and b.category != "general"))
-    for cat in banner_cats:
-        urls.append(f'<url><loc>{base_url}/banners?category={cat}</loc><changefreq>daily</changefreq><priority>0.6</priority></url>')
 
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + "\n".join(urls) + "\n</urlset>"
     return Response(content=xml, media_type="application/xml")
@@ -8477,13 +8080,8 @@ def robots_txt():
     from fastapi.responses import Response
     content = """User-agent: *
 Allow: /
-Allow: /ads
-Allow: /ads/listing/
-Allow: /banners
-Allow: /videos
 Allow: /how-it-works
 Allow: /earn
-Allow: /explore
 Allow: /for-advertisers
 Allow: /faq
 Allow: /legal
@@ -8495,7 +8093,6 @@ Allow: /free/banner-creator
 Disallow: /dashboard
 Disallow: /admin
 Disallow: /api/
-Disallow: /ads/my
 Disallow: /wallet
 Disallow: /settings
 Disallow: /app/
@@ -8504,190 +8101,6 @@ Sitemap: https://www.superadpro.com/sitemap.xml
 """
     return Response(content=content, media_type="text/plain")
 
-@app.get("/ads/my")
-def my_ads_page(request: Request):
-    """Phase 4: serve React SPA."""
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/ads", status_code=302)
-
-@app.post("/api/ads/create")
-async def create_ad(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    from fastapi.responses import JSONResponse
-    if not user:
-        return JSONResponse({"error": "Please log in to post an ad"}, status_code=401)
-    if not user.is_active:
-        return JSONResponse({"error": "Active membership required to post ads"}, status_code=403)
-
-    body = await request.json()
-    title = (body.get("title") or "").strip()[:120]
-    description = (body.get("description") or "").strip()[:500]
-    category = body.get("category", "general")
-    link_url = (body.get("link_url") or "").strip()
-    image_url = (body.get("image_url") or "").strip() or None
-    keywords = (body.get("keywords") or "").strip()[:200]
-    location = (body.get("location") or "").strip()[:100]
-    price = (body.get("price") or "").strip()[:50]
-
-    if not title or not description or not link_url:
-        return JSONResponse({"error": "Title, description and link are required"}, status_code=400)
-    if not link_url.startswith("http"):
-        link_url = "https://" + link_url
-
-    # Weekly limit: Basic=3, Pro=6
-    from datetime import datetime, timedelta
-    week_ago = datetime.utcnow() - timedelta(days=7)
-    weekly_count = db.query(AdListing).filter(
-        AdListing.user_id == user.id, AdListing.created_at >= week_ago
-    ).count()
-    weekly_limit = 6 if ((user.membership_tier or "basic") == "pro" or user.is_admin) else 3
-    if weekly_count >= weekly_limit:
-        return JSONResponse({"error": f"Weekly limit reached ({weekly_limit} ads per week). Upgrade to Pro for higher limits."}, status_code=429)
-
-    # Generate slug
-    import re, time
-    slug_base = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')[:80]
-    slug = f"{slug_base}-{int(time.time()) % 100000}"
-
-    # AI content moderation
-    from .moderation import moderate_content
-    mod = moderate_content(title=title, description=description, keywords=keywords, category=category, link_url=link_url)
-    status = "active" if mod["decision"] == "approve" else "pending"
-
-    ad = AdListing(
-        user_id=user.id, title=title, slug=slug, description=description,
-        category=category, link_url=link_url, image_url=image_url,
-        keywords=keywords, location=location, price=price, status=status,
-        is_active=(status == "active"),
-    )
-    db.add(ad)
-    db.commit()
-
-    if status == "pending":
-        return {"success": True, "id": ad.id, "status": "pending", "message": "Your ad is under review and will be live shortly."}
-    return {"success": True, "id": ad.id, "status": "active", "message": "Your ad is live!"}
-# ── Banner Ad Creation ──
-@app.post("/api/banners/create")
-async def create_banner(request: Request, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    from fastapi.responses import JSONResponse
-    from .database import BannerAd
-    if not user:
-        return JSONResponse({"error": "Please log in to create a banner"}, status_code=401)
-    if not user.is_active:
-        return JSONResponse({"error": "Active membership required to create banners"}, status_code=403)
-
-    body = await request.json()
-    title = (body.get("title") or "").strip()[:120]
-    description = (body.get("description") or "").strip()[:300]
-    image_url = (body.get("image_url") or "").strip()
-    link_url = (body.get("link_url") or "").strip()
-    size = body.get("size", "728x90")
-    category = body.get("category", "general")
-    keywords = (body.get("keywords") or "").strip()[:200]
-    location = (body.get("location") or "").strip()[:100]
-
-    if not title or not image_url or not link_url:
-        return JSONResponse({"error": "Title, banner image URL, and click-through URL are required"}, status_code=400)
-    if not link_url.startswith("http"):
-        link_url = "https://" + link_url
-    if not image_url.startswith("http"):
-        return JSONResponse({"error": "Please provide a valid image URL (starting with http)"}, status_code=400)
-    if size not in ("728x90", "300x250", "160x600", "320x50", "970x250"):
-        return JSONResponse({"error": "Invalid banner size"}, status_code=400)
-
-    # Weekly limit: Basic=3, Pro=6
-    from datetime import datetime, timedelta
-    week_ago = datetime.utcnow() - timedelta(days=7)
-    weekly_count = db.query(BannerAd).filter(
-        BannerAd.user_id == user.id, BannerAd.created_at >= week_ago
-    ).count()
-    weekly_limit = 6 if ((user.membership_tier or "basic") == "pro" or user.is_admin) else 3
-    if weekly_count >= weekly_limit:
-        return JSONResponse({"error": f"Weekly limit reached ({weekly_limit} banners per week). Upgrade to Pro for higher limits."}, status_code=429)
-
-    # Generate slug
-    import re, time
-    slug_base = re.sub(r'[^a-z0-9]+', '-', title.lower()).strip('-')[:80]
-    slug = f"{slug_base}-{int(time.time()) % 100000}"
-
-    # AI content moderation
-    from .moderation import moderate_content
-    mod = moderate_content(title=title, description=description, keywords=keywords, category=category, link_url=link_url)
-    status = "approved" if mod["decision"] == "approve" else "pending"
-
-    banner = BannerAd(
-        user_id=user.id, title=title, slug=slug, description=description,
-        image_url=image_url, link_url=link_url, size=size,
-        category=category, keywords=keywords, location=location,
-        status=status, is_active=(status == "approved"),
-    )
-    db.add(banner)
-    db.commit()
-
-    if status == "pending":
-        return {"success": True, "id": banner.id, "status": "pending", "message": "Your banner is under review and will be live shortly."}
-    return {"success": True, "id": banner.id, "status": "approved", "message": "Your banner is live!"}
-@app.get("/api/banners/my")
-def my_banners(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    from .database import BannerAd
-    if not user:
-        return JSONResponse({"error": "Unauthorized"}, status_code=401)
-    banners = db.query(BannerAd).filter(BannerAd.user_id == user.id).order_by(BannerAd.created_at.desc()).all()
-    return {"banners": [{
-        "id": b.id, "title": b.title, "image_url": b.image_url, "link_url": b.link_url,
-        "size": b.size, "category": b.category, "status": b.status,
-        "clicks": b.clicks or 0, "impressions": b.impressions or 0,
-        "is_active": b.is_active, "created_at": b.created_at.isoformat() if b.created_at else None,
-    } for b in banners]}
-@app.post("/api/banners/{banner_id}/toggle")
-async def toggle_banner(banner_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    from .database import BannerAd
-    if not user:
-        return JSONResponse({"error": "Unauthorized"}, status_code=401)
-    banner = db.query(BannerAd).filter(BannerAd.id == banner_id, BannerAd.user_id == user.id).first()
-    if not banner:
-        return JSONResponse({"error": "Banner not found"}, status_code=404)
-    banner.is_active = not banner.is_active
-    db.commit()
-    return {"success": True, "is_active": banner.is_active}
-@app.post("/api/banners/{banner_id}/delete")
-async def delete_banner(banner_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    from .database import BannerAd
-    if not user:
-        return JSONResponse({"error": "Unauthorized"}, status_code=401)
-    banner = db.query(BannerAd).filter(BannerAd.id == banner_id, BannerAd.user_id == user.id).first()
-    if not banner:
-        return JSONResponse({"error": "Banner not found"}, status_code=404)
-    db.delete(banner)
-    db.commit()
-    return {"success": True}
-
-@app.post("/api/ads/{ad_id}/toggle")
-async def toggle_ad(ad_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    from fastapi.responses import JSONResponse
-    if not user:
-        return JSONResponse({"error": "Unauthorized"}, status_code=401)
-    ad = db.query(AdListing).filter(AdListing.id == ad_id, AdListing.user_id == user.id).first()
-    if not ad:
-        return JSONResponse({"error": "Ad not found"}, status_code=404)
-    ad.is_active = not ad.is_active
-    db.commit()
-    return {"success": True, "is_active": ad.is_active}
-
-@app.post("/api/ads/{ad_id}/delete")
-async def delete_ad(ad_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    from fastapi.responses import JSONResponse
-    if not user:
-        return JSONResponse({"error": "Unauthorized"}, status_code=401)
-    ad = db.query(AdListing).filter(AdListing.id == ad_id, AdListing.user_id == user.id).first()
-    if not ad:
-        return JSONResponse({"error": "Ad not found"}, status_code=404)
-    db.delete(ad)
-    db.commit()
-    return {"success": True}
-# ═══════════════════════════════════════════════════
-#  VIP WAITING LIST
-# ═══════════════════════════════════════════════════
 @app.get("/vip")
 def vip_page(request: Request):
     if _react_index.exists():
@@ -13405,80 +12818,9 @@ async def api_join_funnel(username: str, db: Session = Depends(get_db)):
         "ref": username,
     }
 # ═══════════════════════════════════════════════════════════════
-#  PHASE 4 API ENDPOINTS — Ad Board, Course Player
+#  PHASE 4 API ENDPOINTS — Course Player
 # ═══════════════════════════════════════════════════════════════
 
-@app.get("/api/ads")
-def api_ad_board(category: str = "", page: int = 1, db: Session = Depends(get_db)):
-    """Public: list active ad listings."""
-    query = db.query(AdListing).filter(AdListing.is_active == True)
-    if category:
-        query = query.filter(AdListing.category == category)
-    total = query.count()
-    per_page = 20
-    listings = query.order_by(AdListing.is_featured.desc(), AdListing.created_at.desc())                    .offset((page - 1) * per_page).limit(per_page).all()
-    owner_ids = list(set(l.user_id for l in listings))
-    owners = {u.id: u.username for u in db.query(User).filter(User.id.in_(owner_ids)).all()}
-    return {
-        "listings": [{
-            "id": l.id, "title": l.title, "slug": l.slug or str(l.id),
-            "description": l.description, "category": l.category,
-            "link_url": l.link_url, "image_url": l.image_url or "",
-            "is_featured": l.is_featured, "views": l.views or 0, "clicks": l.clicks or 0,
-            "owner": owners.get(l.user_id, "Member"),
-            "created_at": l.created_at.isoformat() if l.created_at else None,
-        } for l in listings],
-        "total": total,
-        "page": page,
-        "total_pages": max(1, (total + per_page - 1) // per_page),
-        "categories": AD_CATEGORIES,
-    }
-@app.get("/api/ads/listing/{slug}")
-def api_ad_detail(slug: str, db: Session = Depends(get_db)):
-    """Public: single ad listing by slug."""
-    listing = db.query(AdListing).filter(AdListing.slug == slug, AdListing.is_active == True).first()
-    if not listing:
-        # Try by ID
-        try:
-            listing = db.query(AdListing).filter(AdListing.id == int(slug)).first()
-        except Exception:
-            pass
-    if not listing:
-        return JSONResponse({"error": "Not found"}, status_code=404)
-    owner = db.query(User).filter(User.id == listing.user_id).first()
-    related = db.query(AdListing).filter(
-        AdListing.category == listing.category,
-        AdListing.id != listing.id,
-        AdListing.is_active == True
-    ).limit(4).all()
-    return {
-        "id": listing.id, "title": listing.title, "slug": listing.slug or str(listing.id),
-        "description": listing.description, "category": listing.category,
-        "link_url": listing.link_url, "image_url": listing.image_url or "",
-        "is_featured": listing.is_featured, "views": listing.views or 0, "clicks": listing.clicks or 0,
-        "owner": owner.username if owner else "Member",
-        "created_at": listing.created_at.isoformat() if listing.created_at else None,
-        "related": [{"id": r.id, "title": r.title, "slug": r.slug or str(r.id),
-                     "category": r.category, "image_url": r.image_url or ""} for r in related],
-        "categories": AD_CATEGORIES,
-    }
-@app.get("/api/ads/my")
-def api_my_ads(user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Member: list own ad listings."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    listings = db.query(AdListing).filter(AdListing.user_id == user.id)                 .order_by(AdListing.created_at.desc()).all()
-    return {
-        "listings": [{
-            "id": l.id, "title": l.title, "slug": l.slug or str(l.id),
-            "description": l.description, "category": l.category,
-            "link_url": l.link_url, "image_url": l.image_url or "",
-            "is_active": l.is_active, "is_featured": l.is_featured,
-            "views": l.views or 0, "clicks": l.clicks or 0,
-            "created_at": l.created_at.isoformat() if l.created_at else None,
-        } for l in listings],
-        "categories": AD_CATEGORIES,
-    }
 @app.get("/api/courses/learn/{course_id}")
 async def api_course_player(course_id: int, request: Request,
                               db: Session = Depends(get_db)):
@@ -15219,7 +14561,7 @@ def _build_superseller_context(niche, audience, tone, goal, funnel_url):
 SuperAdPro is a video advertising and AI marketing platform. Members pay $20-35/month for:
 - Video ad campaigns with real engaged viewers
 - AI marketing tools (campaign studio, social posts, funnels, email)
-- Course marketplace (create and sell courses)
+- Course Academy (resell ready-made courses and keep 100% of first sale)
 - Affiliate network (earn commissions by referring others)
 
 Member niche: {niche}
@@ -16163,7 +15505,7 @@ ABOUT SUPERADPRO:
 - Video advertising and AI marketing platform
 - Members get: video ad campaigns (8 tiers, $20-$1,000), AI marketing tools (Campaign Studio,
   Social Post Generator, Video Script Writer, Niche Finder, Email Swipes), SuperPages landing
-  page builder, LinkHub link-in-bio tool, Link Tools, course marketplace
+  page builder, LinkHub link-in-bio tool, Link Tools, Course Academy
 - Basic plan: $20/month — all core tools
 - Pro plan: $35/month — adds SuperSeller AI autopilot, SuperPages, ProSeller AI, custom AI agents
 - Affiliate commissions: 50% recurring on membership, 40% direct on grid tiers,
@@ -16990,31 +16332,6 @@ def api_achievements_data(request: Request, user: User = Depends(get_current_use
             entry["target"] = badge.get("target", 1)
             available.append(entry)
     return {"earned": earned, "available": available}
-@app.get("/api/video-library")
-def api_video_library(request: Request, user: User = Depends(get_current_user),
-                      db: Session = Depends(get_db)):
-    """JSON video campaign library."""
-    if not user:
-        return JSONResponse({"error": "Not authenticated"}, status_code=401)
-    campaigns = db.query(VideoCampaign).filter(
-        VideoCampaign.user_id == user.id,
-        VideoCampaign.status != "deleted",
-    ).order_by(VideoCampaign.created_at.desc()).all()
-    active = sum(1 for c in campaigns if c.status == "active")
-    total_views = sum(c.views_delivered or 0 for c in campaigns)
-    return {
-        "total_campaigns": len(campaigns),
-        "active_campaigns": active,
-        "total_views": total_views,
-        "campaigns": [{
-            "id": c.id, "title": c.title, "platform": c.platform,
-            "category": c.category, "status": c.status,
-            "embed_url": c.embed_url, "video_url": c.video_url,
-            "target_country": c.target_country or "",
-            "target_interests": c.target_interests or "",
-            "views_delivered": c.views_delivered or 0, "views_target": c.views_target or 0,
-        } for c in campaigns],
-    }
 @app.post("/api/support/ticket")
 async def api_support_ticket(request: Request, user: User = Depends(get_current_user),
                              db: Session = Depends(get_db)):
@@ -17776,18 +17093,6 @@ def api_link_tools_data(request: Request, user: User = Depends(get_current_user)
             "created_at": r.created_at.isoformat() if r.created_at else None,
         } for r in rotators],
     }
-@app.get("/api/ad-board")
-def api_ad_board_data(db: Session = Depends(get_db)):
-    """Public ad board listings."""
-    ads = db.query(AdListing).filter(
-        AdListing.status == "active"
-    ).order_by(AdListing.created_at.desc()).limit(50).all()
-    return {"ads": [{
-        "id": a.id, "title": a.title, "description": a.description or "",
-        "category": a.category or "general", "link_url": a.link_url or "",
-        "icon": a.icon or "📢", "contact_info": a.contact_info or "",
-        "user_id": a.user_id, "created_at": a.created_at.isoformat() if a.created_at else None,
-    } for a in ads]}
 @app.get("/api/passup-visualiser")
 def api_passup_visualiser(request: Request, user: User = Depends(get_current_user),
                           db: Session = Depends(get_db)):
@@ -18515,8 +17820,6 @@ def api_training_centre(request: Request, user: User = Depends(get_current_user)
                  "content": "Link Tools gives you three powerful utilities: Short Links (branded shortlinks that track clicks), Link Rotators (split traffic across multiple URLs — great for A/B testing), and Geo-Redirects (send visitors to different pages based on their country). All links include click analytics."},
                 {"id": "mkt-3", "title": "The Marketing Suite", "type": "guide", "duration": "4 min",
                  "content": "The Marketing Suite includes AI-powered tools for content creation: Niche Finder (discover profitable niches), Social Post Generator (30 days of posts), Video Script Generator (hooks + scripts), Email Swipe File (ready-to-send templates), and Launch Wizard (step-by-step launch plan). All content is generated specifically for your niche."},
-                {"id": "mkt-4", "title": "Ad Hub — Promote Your Business", "type": "guide", "duration": "3 min",
-                 "content": "The Ad Hub lets you create listings, banners, and video campaigns that appear on the public Ad Board, Banner Gallery, and Video Library. These public pages drive external traffic. Basic members can post 3 ads per week, Pro members get 6. All ads go through AI moderation."},
             ]
         },
         {
@@ -20473,7 +19776,7 @@ COMPENSATION PLAN — 5 INCOME STREAMS:
 5. Pay It Forward: Gift a $20 membership to someone — you become their sponsor and earn on their activity. Creates a viral growth chain.
 
 MEMBERSHIP TIERS:
-- Basic ($20/month or $200/year): Affiliate commissions, Income Grid, Watch to Earn, Course marketplace, LinkHub, Ad Board, basic support.
+- Basic ($20/month or $200/year): Affiliate commissions, Income Grid, Watch to Earn, Course Academy, LinkHub, basic support.
 - Pro ($35/month or $350/year): Everything in Basic plus SuperSeller AI, AI Funnel Generator, Email Autoresponder and CRM, Campaign Studio, Niche Finder AI, Social Post Generator, Video Script Generator, Email Swipes, Lead dashboard, priority support.
 - Annual billing saves 2 months free on both tiers.
 

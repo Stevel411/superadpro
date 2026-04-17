@@ -319,7 +319,7 @@ a{text-decoration:none;color:inherit}
       <div class="player-header">
         <div style="min-width:0">
           <div class="cam-title" id="campaignTitle">{% if content_type == 'video' and campaign %}{{ campaign.title }}{% elif content_type == 'adboard' and ad_listing %}{{ ad_listing.title }}{% else %}No content{% endif %}</div>
-          <div class="cam-meta" id="campaignMeta">{% if content_type == 'video' and campaign %}{{ campaign.platform|title }} &middot; {{ campaign.category or 'General' }}{% elif content_type == 'adboard' %}Ad Board &middot; {{ ad_listing.category|title if ad_listing else 'General' }}{% endif %}</div>
+          <div class="cam-meta" id="campaignMeta">{% if content_type == 'video' and campaign %}{{ campaign.platform|title }} &middot; {{ campaign.category or 'General' }}{% endif %}</div>
         </div>
         <div class="cam-badge" id="contentBadge">{% if content_type == 'adboard' %}&#x1F4CB; Sponsored{% else %}&#x25B6; Now Playing{% endif %}</div>
       </div>
@@ -636,7 +636,7 @@ a{text-decoration:none;color:inherit}
         '<a href="' + c.link_url + '" target="_blank" rel="noopener" style="font-size:14px;font-weight:700;color:#10b981;text-decoration:none;display:inline-flex;align-items:center;gap:6px">Visit \u2192</a>';
 
       document.getElementById('campaignTitle').textContent = c.title;
-      document.getElementById('campaignMeta').textContent = 'Ad Board \u00B7 ' + (c.category || 'General');
+      document.getElementById('campaignMeta').textContent = 'Campaign \u00B7 ' + (c.category || 'General');
       document.getElementById('contentBadge').innerHTML = '\uD83D\uDCCB Sponsored';
       if (unmuteOvl) unmuteOvl.classList.add('hidden');
 

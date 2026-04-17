@@ -528,49 +528,6 @@ class VIPSignup(Base):
     email       = Column(String, nullable=False, unique=True)
     created_at  = Column(DateTime, default=datetime.utcnow)
 
-class AdListing(Base):
-    __tablename__ = "ad_listings"
-    id           = Column(Integer, primary_key=True, index=True)
-    user_id      = Column(Integer, ForeignKey("users.id"), nullable=False)
-    title        = Column(String, nullable=False)
-    slug         = Column(String, unique=True, index=True, nullable=True)
-    description  = Column(String, nullable=False)
-    category     = Column(String, nullable=False, default="general")
-    link_url     = Column(String, nullable=False)
-    image_url    = Column(String, nullable=True)
-    is_active    = Column(Boolean, default=True)
-    is_featured  = Column(Boolean, default=False)
-    clicks       = Column(Integer, default=0)
-    views        = Column(Integer, default=0)
-    created_at   = Column(DateTime, default=datetime.utcnow)
-    updated_at   = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    owner = relationship("User", backref="ad_listings")
-
-
-class BannerAd(Base):
-    __tablename__ = "banner_ads"
-    id           = Column(Integer, primary_key=True, index=True)
-    user_id      = Column(Integer, ForeignKey("users.id"), nullable=False)
-    title        = Column(String, nullable=False)
-    slug         = Column(String, unique=True, index=True, nullable=True)
-    description  = Column(String, nullable=True)
-    image_url    = Column(String, nullable=False)           # banner image URL (R2 or external)
-    link_url     = Column(String, nullable=False)           # click-through destination
-    size         = Column(String, default="728x90")         # standard banner size
-    category     = Column(String, default="general")
-    keywords     = Column(String, nullable=True)            # comma-separated SEO keywords
-    location     = Column(String, nullable=True)            # city/region for local targeting
-    is_active    = Column(Boolean, default=True)
-    is_featured  = Column(Boolean, default=False)
-    status       = Column(String, default="pending")        # pending/approved/rejected
-    clicks       = Column(Integer, default=0)
-    impressions  = Column(Integer, default=0)
-    created_at   = Column(DateTime, default=datetime.utcnow)
-    updated_at   = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    owner = relationship("User", backref="banner_ads")
-
 
 class ShortLink(Base):
     """Bitly-style short links: superadpro.com/go/slug"""

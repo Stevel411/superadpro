@@ -421,7 +421,7 @@ export default function EarnPage() {
               icon:'🎓', color:'#a5b4fc', bg:'rgba(99,102,241,.1)', border:'rgba(165,180,252,.15)',
               title:'Course Academy Sales',
               value:'100% commission on your courses',
-              desc:'Create and sell courses through the SuperAdPro marketplace. You keep 100% of every sale from your own audience. Plus earn commissions when your referrals buy courses from other creators.',
+              desc:'Resell professionally-built SuperAdPro courses. You keep 100% of your first sale. Sales 2, 4, 6, 8 pass up to your sponsor — creating an infinite depth chain.',
               tag:'100% Commission',
             },
             {
@@ -607,7 +607,7 @@ export default function EarnPage() {
 
         <div className="earn-two" style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:20,maxWidth:700,margin:'0 auto 32px'}}>
           {[
-            {name:'Basic',price:'$20',period:'/month',features:['Affiliate commissions','Income Grid access','Watch to Earn','Course marketplace','LinkHub page','Community Ad Board','Basic support'],highlight:false},
+            {name:'Basic',price:'$20',period:'/month',features:['Affiliate commissions','Income Grid access','Watch to Earn','Course Academy','LinkHub page','Basic support'],highlight:false},
             {name:'Pro',price:'$35',period:'/month',features:['Everything in Basic','ProSeller AI assistant','AI Funnel Generator','SuperLeads CRM','Campaign Studio','Niche Finder AI','Social Post Generator','Video Script Generator','Priority support'],highlight:true},
           ].map(function(p) {
             return (
