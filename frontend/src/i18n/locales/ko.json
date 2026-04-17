@@ -1051,7 +1051,14 @@
     "suggestion4": "네트워크 마케팅 클로징 기법",
     "thinking": "생각 중...",
     "chatPlaceholder": "AI 세일즈 어시스턴트에게 질문...",
-    "send": "전송"
+    "send": "전송",
+    "socialPosts": "소셜 게시물",
+    "videoScripts": "비디오 스크립트",
+    "emailCopy": "이메일 카피",
+    "adCopy": "광고 카피",
+    "nicheFinder": "니치 파인더",
+    "qrCode": "QR 코드",
+    "aiSalesChat": "AI 세일즈 채팅"
   },
   "creativeStudio": {
     "title": "크리에이티브 스튜디오",
@@ -1852,7 +1859,13 @@
     "noLeadsYet": "아직 리드가 없습니다",
     "contacts": "연락처",
     "sent": "발송됨",
-    "noneOption": "없음"
+    "noneOption": "없음",
+    "tabLeads": "리드",
+    "tabSequences": "시퀀스",
+    "tabBroadcast": "브로드캐스트",
+    "tabImport": "가져오기",
+    "tabBoost": "부스트",
+    "statusUnsubscribed": "구독 취소"
   },
   "videoCreator": {
     "aspectRatio": "화면 비율",

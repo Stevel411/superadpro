@@ -1051,7 +1051,14 @@
     "suggestion4": "Beste Abschlusstechniken für Network Marketing",
     "thinking": "Denkt nach...",
     "chatPlaceholder": "Frage deinen KI-Verkaufsassistenten...",
-    "send": "Senden"
+    "send": "Senden",
+    "socialPosts": "Social-Media-Beiträge",
+    "videoScripts": "Videoskripte",
+    "emailCopy": "E-Mail-Text",
+    "adCopy": "Werbetext",
+    "nicheFinder": "Nischenfinder",
+    "qrCode": "QR-Code",
+    "aiSalesChat": "KI-Verkaufschat"
   },
   "creativeStudio": {
     "title": "Kreativstudio",
@@ -1832,7 +1839,156 @@
       "title": "SuperLeads-Hilfe",
       "subtitle": "Vollständige Anleitung zu Ihrem CRM und Autoresponder",
       "searchPlaceholder": "Hilfethemen suchen…",
-      "noResults": "Keine Ergebnisse für"
+      "noResults": "Keine Ergebnisse für",
+      "sections": {
+        "gettingStarted": {
+          "category": "Erste Schritte",
+          "items": [
+            {
+              "title": "Was ist der Autoresponder?",
+              "desc": "Ein integriertes CRM, das Leads aus deinen Funnels erfasst, in Listen organisiert und automatisierte E-Mail-Sequenzen sendet, um sie zu Kunden zu machen."
+            },
+            {
+              "title": "Kostenlose E-Mail-Credits",
+              "desc": "Jedes Mitglied erhält täglich 200 kostenlose E-Mail-Sendungen. Aufgebraucht? Kaufe ein Boost-Paket zum Auffüllen — Credits verfallen nie."
+            },
+            {
+              "title": "Dein erster Lead",
+              "desc": "Leads werden automatisch hinzugefügt, wenn jemand ein Formular auf deiner SuperPage, LinkHub oder einem mit deinem Affiliate-Konto verknüpften Funnel ausfüllt."
+            },
+            {
+              "title": "Wer sieht diesen Inhalt?",
+              "desc": "Nur du — deine Leads sind privat. Nichts wird mit anderen Mitgliedern geteilt oder an Dritte verkauft."
+            }
+          ]
+        },
+        "leadsTab": {
+          "category": "Leads-Tab",
+          "items": [
+            {
+              "title": "Lead-Status",
+              "desc": "Neu (gerade erfasst), In Pflege (erhält deine Sequenz), Heiß (stark engagiert), Konvertiert (zahlender Kunde), Abgemeldet (hat sich zurückgezogen)."
+            },
+            {
+              "title": "Status ändern",
+              "desc": "Klicke auf eine Lead-Zeile zum Bearbeiten. Aktualisiere den Status manuell, wenn du einen heißen Interessenten identifizierst oder einen Verkauf abschließt."
+            },
+            {
+              "title": "Leads löschen",
+              "desc": "Entferne Testeinträge oder Bounces mit dem Lösch-Symbol. Löschungen sind dauerhaft — lade vorher ein CSV-Backup herunter, falls nötig."
+            },
+            {
+              "title": "Suche und Filter",
+              "desc": "Nutze das Suchfeld, um Leads nach E-Mail oder Name zu finden. Kombiniere mit Status- und Listenfiltern, um Segmente einzugrenzen."
+            }
+          ]
+        },
+        "lists": {
+          "category": "Listen",
+          "items": [
+            {
+              "title": "Was sind Listen?",
+              "desc": "Listen gruppieren verwandte Leads — zum Beispiel eine Liste pro Nische, eine pro Kampagne oder eine pro Funnel-Quelle. Jede Liste kann ihre eigene Sequenz haben."
+            },
+            {
+              "title": "Eine Liste erstellen",
+              "desc": "Klicke im Leads-Tab auf Neue Liste, gib ihr einen klaren Namen und weise optional eine Standardsequenz zu, damit neue Leads automatisch gepflegt werden."
+            },
+            {
+              "title": "Leads zwischen Listen verschieben",
+              "desc": "Wähle Leads aus und nutze In Liste verschieben. Leads können zu mehreren Listen gehören — praktisch für segmentierte Reaktivierungskampagnen."
+            },
+            {
+              "title": "Abmeldungen verwalten",
+              "desc": "Wenn sich ein Lead von einer Liste abmeldet, wird er in allen Listen als abgemeldet markiert, um Anti-Spam-Gesetze einzuhalten."
+            }
+          ]
+        },
+        "sequences": {
+          "category": "Sequenzen",
+          "items": [
+            {
+              "title": "Was ist eine Sequenz?",
+              "desc": "Eine Reihe von E-Mails, die automatisch mit Verzögerungen zwischen ihnen gesendet werden — z.B. Willkommen (Tag 0), Tipps (Tag 1), Fallstudie (Tag 3), Angebot (Tag 5)."
+            },
+            {
+              "title": "Eine Sequenz erstellen",
+              "desc": "Füge E-Mails nacheinander hinzu. Jede E-Mail hat einen Betreff, HTML-Inhalt und eine Versandverzögerung (in Tagen) ab Hinzufügen des Leads."
+            },
+            {
+              "title": "KI-generierte Sequenzen",
+              "desc": "Klicke auf Mit KI generieren, gib deine Nische ein und erhalte eine fünfteilige Willkommensserie zum Anpassen. Bearbeite vor dem Senden."
+            },
+            {
+              "title": "Einer Liste zuweisen",
+              "desc": "Sequenzen werden Listen zugewiesen — so tritt jeder neue Lead, der dieser Liste hinzugefügt wird, automatisch bei E-Mail 1 in die Sequenz ein."
+            }
+          ]
+        },
+        "broadcast": {
+          "category": "Broadcast",
+          "items": [
+            {
+              "title": "Einmalige Ankündigungen",
+              "desc": "Broadcasts senden eine einzelne E-Mail an eine gefilterte Gruppe — ideal für Produktstarts, Flash-Sales oder zeitkritische Updates."
+            },
+            {
+              "title": "Zielgruppenauswahl",
+              "desc": "Filtere nach Liste und Status vor dem Senden. Beispiel: sende nur an Heiße Leads deiner Krypto-Liste, um ein neues Angebot anzukündigen."
+            },
+            {
+              "title": "Verwendete E-Mail-Credits",
+              "desc": "Jeder Empfänger verbraucht ein Credit. Ein Broadcast an 500 Leads nutzt 500 Credits — prüfe dein Guthaben vor dem Planen."
+            },
+            {
+              "title": "Zustellbarkeitstipps",
+              "desc": "Verwende einen klaren Betreff, einen klaren Call-to-Action und vermeide Spam-Wörter (KOSTENLOS, DRINGEND, !!!), um aus Spam-Ordnern herauszubleiben."
+            }
+          ]
+        },
+        "import": {
+          "category": "Importieren",
+          "items": [
+            {
+              "title": "CSV-Upload",
+              "desc": "Lade eine CSV mit den Spalten E-Mail und Name hoch. Bis zu 5.000 Leads pro Import. Größere Dateien? Teile sie in Chargen."
+            },
+            {
+              "title": "E-Mails einfügen",
+              "desc": "Überspringe die CSV und füge eine Liste von E-Mail-Adressen direkt ein — eine pro Zeile. Namen bleiben leer und können später ausgefüllt werden."
+            },
+            {
+              "title": "Vorschau und Validierung",
+              "desc": "Vor dem Import zeigt Vorschau und Validierung ungültige Adressen, Duplikate und Abmeldungen. Diese werden automatisch übersprungen."
+            },
+            {
+              "title": "Quellen-Labels",
+              "desc": "Kennzeichne Importe mit einer Quelle wie webinar-jan-2026, um später in der Analyse die Leistung pro Kampagne zu messen."
+            }
+          ]
+        },
+        "emailBoost": {
+          "category": "E-Mail-Boost-Pakete",
+          "items": [
+            {
+              "title": "Wann einen Boost kaufen",
+              "desc": "Wenn du an Listen mit mehr als 200 Empfängern sendest oder mehrere Broadcasts pro Tag ausführst, gibt dir ein Boost-Paket sofort zusätzliche Credits."
+            },
+            {
+              "title": "Paketgrößen",
+              "desc": "Vier Stufen: 1.000, 5.000, 25.000 und 100.000 Credits. Je größer das Paket, desto niedriger die Kosten pro E-Mail."
+            },
+            {
+              "title": "Wie die Zahlung funktioniert",
+              "desc": "Boost-Pakete werden aus deinem Wallet-Guthaben bezahlt. Credits werden sofort hinzugefügt und verfallen nie — nutze sie in deinem eigenen Tempo."
+            },
+            {
+              "title": "Tägliche kostenlose Credits gelten weiterhin",
+              "desc": "Deine 200 täglichen kostenlosen Credits werden jede Mitternacht UTC zurückgesetzt. Boost-Credits werden erst nach Aufbrauchen des täglichen Kontingents verwendet."
+            }
+          ]
+        }
+      }
     },
     "autoresponderLabel": "Autoresponder",
     "totalLeadsStat": "Leads gesamt",
@@ -1852,7 +2008,13 @@
     "noLeadsYet": "Noch keine Leads",
     "contacts": "Kontakte",
     "sent": "gesendet",
-    "noneOption": "Keine"
+    "noneOption": "Keine",
+    "tabLeads": "Leads",
+    "tabSequences": "Sequenzen",
+    "tabBroadcast": "Broadcast",
+    "tabImport": "Importieren",
+    "tabBoost": "Boost",
+    "statusUnsubscribed": "Abgemeldet"
   },
   "videoCreator": {
     "aspectRatio": "Seitenverhältnis",
@@ -2244,7 +2406,177 @@
       "title": "SuperPages-Hilfe",
       "subtitle": "Wissensdatenbank für den Seiten-Builder",
       "searchPlaceholder": "Hilfethemen suchen…",
-      "noResults": "Keine Ergebnisse für"
+      "noResults": "Keine Ergebnisse für",
+      "sections": {
+        "gettingStarted": {
+          "category": "Erste Schritte",
+          "items": [
+            {
+              "title": "Was ist SuperPages?",
+              "desc": "Ein Drag-and-Drop-Seitenbuilder zum Erstellen von Landing Pages, Funnels und Lead-Capture-Formularen, ohne Code zu schreiben."
+            },
+            {
+              "title": "Eine Seite starten",
+              "desc": "Wähle eine leere Leinwand oder eine der acht vorgefertigten Vorlagen. Deine Seite wird alle paar Sekunden automatisch gespeichert — kein Speichern-Button nötig."
+            },
+            {
+              "title": "Freie Leinwand",
+              "desc": "Elemente können überall auf der Seite gezogen und von jeder Kante oder Ecke skaliert werden. Snap-to-Grid ist standardmäßig aktiviert."
+            },
+            {
+              "title": "Mobile Vorschau",
+              "desc": "Wechsle zwischen Desktop- und Mobilansicht mit dem Geräte-Schalter in der Top-Leiste. Layouts passen sich automatisch an schmale Bildschirme an."
+            }
+          ]
+        },
+        "textElements": {
+          "category": "Textelemente",
+          "items": [
+            {
+              "title": "Überschriften",
+              "desc": "Lege ein Überschrift-Element für Titel und Unterüberschriften ab. Wähle H1 bis H6, dann gestalte Größe, Farbe, Gewicht und Ausrichtung im rechten Panel."
+            },
+            {
+              "title": "Absätze",
+              "desc": "Reguläre Text-Blöcke. Unterstützung für fett, kursiv, unterstrichen, Links und farbige Hervorhebungen über die Inline-Formatierungsleiste."
+            },
+            {
+              "title": "Listen",
+              "desc": "Aufzählungs- oder nummerierte Listen für Funktionen, Vorteile oder Schritte. Elemente rücken automatisch mit Tab ein; mit Shift+Tab ausrücken."
+            },
+            {
+              "title": "Zitate",
+              "desc": "Stilisierte Pull-Quote-Blöcke für Testimonials. Füge Zuschreibung unter dem Zitat und optional eine Sternebewertung hinzu."
+            }
+          ]
+        },
+        "mediaElements": {
+          "category": "Medienelemente",
+          "items": [
+            {
+              "title": "Bilder",
+              "desc": "Lade Bilder von deinem Gerät hoch (bis zu 10 MB pro Stück) oder füge eine URL ein. Hotlink-sicher — wir cachen auf unserem CDN für schnelle Ladezeiten."
+            },
+            {
+              "title": "Videos",
+              "desc": "Bette YouTube-, Vimeo- oder direkte MP4-Links ein. Videos passen sich automatisch an den Container an und behalten das Seitenverhältnis bei."
+            },
+            {
+              "title": "Audio",
+              "desc": "Füge Audio-Player für Podcasts, Voiceovers oder Musik hinzu. Unterstützt MP3, WAV und M4A. Zeigt eine saubere Player-UI mit Wiedergabesteuerung."
+            },
+            {
+              "title": "Icons",
+              "desc": "Über 1.000 Lucide-Icons verfügbar. Perfekt für Funktionslisten, Vorteils-Bullets und dekorative Akzente."
+            }
+          ]
+        },
+        "actionElements": {
+          "category": "Aktionselemente",
+          "items": [
+            {
+              "title": "Buttons",
+              "desc": "Call-to-Actions, die zu jeder URL verlinken oder ein Formular absenden. Gestalte Verläufe, Rahmen, Schatten, Hover-Effekte und Icon-Präfixe."
+            },
+            {
+              "title": "Formulare",
+              "desc": "Erfasse Leads mit Name, E-Mail, Telefon oder benutzerdefinierten Feldern. Einreichungen fließen direkt in deine Autoresponder-Listen und -Sequenzen."
+            },
+            {
+              "title": "Countdown-Timer",
+              "desc": "Erzeuge Dringlichkeit für Launches und Flash-Angebote. Setze das Enddatum und wähle, was passiert, wenn der Timer null erreicht."
+            },
+            {
+              "title": "Link-Hubs",
+              "desc": "Bette deinen vollständigen LinkHub in eine Seite ein — nützlich für Bio-Link-artige Landing Pages mit mehreren Zielen."
+            }
+          ]
+        },
+        "contentElements": {
+          "category": "Inhaltselemente",
+          "items": [
+            {
+              "title": "Testimonials",
+              "desc": "Vorgefertigte Karten mit Foto, Name, Rolle, Zitat und Sternebewertung. Großartig für Social Proof — füge drei bis fünf für maximale Wirkung hinzu."
+            },
+            {
+              "title": "FAQ-Akkordeons",
+              "desc": "Aufklappbare Frage-und-Antwort-Blöcke. Klicke auf eine Frage zum Erweitern. Reduziert die Seitenlänge bei gut scanbarem Inhalt."
+            },
+            {
+              "title": "Preistabellen",
+              "desc": "Vergleiche Pläne nebeneinander. Unterstützt Funktionslisten, hervorgehobene Best-Value-Spalte und Button-CTAs pro Stufe."
+            },
+            {
+              "title": "Funktionsraster",
+              "desc": "Präsentiere Produktvorteile in einem 2-, 3- oder 4-spaltigen Raster mit Icon, Titel und Beschreibung pro Zelle."
+            }
+          ]
+        },
+        "layoutElements": {
+          "category": "Layout-Elemente",
+          "items": [
+            {
+              "title": "Abschnitte",
+              "desc": "Vollbreite-Container mit eigenem Hintergrund. Nutze sie, um Teile deiner Seite zu trennen — Hero, Funktionen, Testimonials, Footer."
+            },
+            {
+              "title": "Spalten",
+              "desc": "Teile einen Abschnitt in zwei, drei oder vier Spalten. Auf Mobilgeräten stapeln sich Spalten automatisch vertikal."
+            },
+            {
+              "title": "Trenner und Abstandshalter",
+              "desc": "Trenner fügen eine visuelle Linie hinzu; Abstandshalter fügen vertikalen Abstand hinzu. Beide in der Höhe anpassbar — praktisch für Feinabstimmung."
+            },
+            {
+              "title": "Hintergründe",
+              "desc": "Abschnittshintergründe unterstützen einfarbige Farbe, Verlauf, Bild oder Video. Der Verlaufsbuilder hat 12 vorgefertigte Presets."
+            }
+          ]
+        },
+        "settingsPublishing": {
+          "category": "Einstellungen und Veröffentlichen",
+          "items": [
+            {
+              "title": "Seiteneinstellungen",
+              "desc": "Lege den Seitentitel (im Browser-Tab angezeigt), Meta-Beschreibung (in Suchergebnissen angezeigt), Favicon und benutzerdefinierten Domain-Pfad fest."
+            },
+            {
+              "title": "SEO und Social Sharing",
+              "desc": "Füge ein Social-Preview-Bild hinzu (1200×630 PNG). Wenn deine Seite auf Twitter, Facebook oder WhatsApp geteilt wird, erscheint dieses Bild."
+            },
+            {
+              "title": "Tracking-Pixel",
+              "desc": "Füge Google Analytics, Meta Pixel oder benutzerdefinierte Skripte in den Seiten-Header ein. Pixel feuern bei jedem Seitenaufruf und jeder Formularübermittlung."
+            },
+            {
+              "title": "Veröffentlichen",
+              "desc": "Klicke auf Veröffentlichen, um deine Seite am gewählten URL-Pfad live zu schalten. Republiziere jederzeit, um Bearbeitungen zu pushen — Änderungen sind in Sekunden live."
+            }
+          ]
+        },
+        "aiAssistant": {
+          "category": "KI-Assistent",
+          "items": [
+            {
+              "title": "Was die KI tut",
+              "desc": "Die integrierte KI hilft beim Schreiben von Überschriften, Body-Text, Button-Text, Testimonials und vollständigen Seitenentwürfen. Trainiert auf hoch konvertierender Marketing-Kopie."
+            },
+            {
+              "title": "Nach Inhalten fragen",
+              "desc": "Klicke auf ein Textelement und dann auf das Funkel-Icon. Beschreibe, was du willst — z.B. 'Schreibe eine Hero-Überschrift für einen Krypto-Kurs-Launch'."
+            },
+            {
+              "title": "Neu generieren",
+              "desc": "Die erste Ausgabe gefällt dir nicht? Klicke auf Neu generieren für eine neue Version. Jede Generation nutzt ein paar Credits aus deinem KI-Kontingent."
+            },
+            {
+              "title": "KI-Ausgabe bearbeiten",
+              "desc": "Überprüfe und bearbeite KI-generierte Inhalte immer vor der Veröffentlichung. Die KI ist ein Ausgangspunkt — deine Stimme macht es authentisch."
+            }
+          ]
+        }
+      }
     },
     "desktopPreview": "Desktop (1100px)",
     "tabletPreview": "Tablet (768px)",

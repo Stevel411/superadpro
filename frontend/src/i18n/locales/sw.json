@@ -1051,7 +1051,14 @@
     "suggestion4": "Mbinu bora za kufunga mauzo",
     "thinking": "Inafikiri...",
     "chatPlaceholder": "Uliza msaidizi wa mauzo AI...",
-    "send": "Tuma"
+    "send": "Tuma",
+    "socialPosts": "Machapisho ya Kijamii",
+    "videoScripts": "Maandiko ya Video",
+    "emailCopy": "Nakala ya Barua Pepe",
+    "adCopy": "Nakala ya Tangazo",
+    "nicheFinder": "Mtafuta Niche",
+    "qrCode": "Msimbo wa QR",
+    "aiSalesChat": "Gumzo la Mauzo la AI"
   },
   "creativeStudio": {
     "title": "Studio ya Ubunifu",
@@ -1852,7 +1859,13 @@
     "noLeadsYet": "Bado hakuna leads",
     "contacts": "mawasiliano",
     "sent": "imetumwa",
-    "noneOption": "Hakuna"
+    "noneOption": "Hakuna",
+    "tabLeads": "Wateja Watarajiwa",
+    "tabSequences": "Mfuatano",
+    "tabBroadcast": "Matangazo",
+    "tabImport": "Ingiza",
+    "tabBoost": "Boost",
+    "statusUnsubscribed": "Alijitoa"
   },
   "videoCreator": {
     "aspectRatio": "Uwiano wa pande",

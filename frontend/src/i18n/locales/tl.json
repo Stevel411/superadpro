@@ -1051,7 +1051,14 @@
     "suggestion4": "Pinakamahusay na closing techniques sa MLM",
     "thinking": "Nag-iisip...",
     "chatPlaceholder": "Tanungin ang AI sales assistant...",
-    "send": "Ipadala"
+    "send": "Ipadala",
+    "socialPosts": "Mga Social Post",
+    "videoScripts": "Mga Video Script",
+    "emailCopy": "Email Copy",
+    "adCopy": "Ad Copy",
+    "nicheFinder": "Niche Finder",
+    "qrCode": "QR Code",
+    "aiSalesChat": "AI Sales Chat"
   },
   "creativeStudio": {
     "title": "Creative Studio",
@@ -1852,7 +1859,13 @@
     "noLeadsYet": "Wala pang mga lead",
     "contacts": "mga contact",
     "sent": "ipinadala",
-    "noneOption": "Wala"
+    "noneOption": "Wala",
+    "tabLeads": "Mga Lead",
+    "tabSequences": "Mga Sequence",
+    "tabBroadcast": "Broadcast",
+    "tabImport": "Import",
+    "tabBoost": "Boost",
+    "statusUnsubscribed": "Nag-unsubscribe"
   },
   "videoCreator": {
     "aspectRatio": "Aspect ratio",

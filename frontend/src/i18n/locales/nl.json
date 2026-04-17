@@ -1051,7 +1051,14 @@
     "suggestion4": "Beste afsluittechnieken voor netwerkmarketing",
     "thinking": "Aan het denken...",
     "chatPlaceholder": "Vraag je AI verkoopasistent...",
-    "send": "Verzenden"
+    "send": "Verzenden",
+    "socialPosts": "Sociale Berichten",
+    "videoScripts": "Videoscripts",
+    "emailCopy": "E-mailtekst",
+    "adCopy": "Advertentietekst",
+    "nicheFinder": "Nichezoeker",
+    "qrCode": "QR-code",
+    "aiSalesChat": "AI-Verkoopchat"
   },
   "creativeStudio": {
     "title": "Creatieve Studio",
@@ -1852,7 +1859,13 @@
     "noLeadsYet": "Nog geen leads",
     "contacts": "contacten",
     "sent": "verzonden",
-    "noneOption": "Geen"
+    "noneOption": "Geen",
+    "tabLeads": "Leads",
+    "tabSequences": "Reeksen",
+    "tabBroadcast": "Uitzending",
+    "tabImport": "Importeren",
+    "tabBoost": "Boost",
+    "statusUnsubscribed": "Uitgeschreven"
   },
   "videoCreator": {
     "aspectRatio": "Beeldverhouding",

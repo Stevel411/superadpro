@@ -1051,7 +1051,14 @@
     "suggestion4": "Kỹ thuật chốt tốt nhất cho MLM",
     "thinking": "Đang suy nghĩ...",
     "chatPlaceholder": "Hỏi trợ lý bán hàng AI...",
-    "send": "Gửi"
+    "send": "Gửi",
+    "socialPosts": "Bài đăng xã hội",
+    "videoScripts": "Kịch bản video",
+    "emailCopy": "Nội dung email",
+    "adCopy": "Nội dung quảng cáo",
+    "nicheFinder": "Tìm thị trường ngách",
+    "qrCode": "Mã QR",
+    "aiSalesChat": "Chat bán hàng AI"
   },
   "creativeStudio": {
     "title": "Studio Sáng tạo",
@@ -1852,7 +1859,13 @@
     "noLeadsYet": "Chưa có khách hàng tiềm năng",
     "contacts": "liên hệ",
     "sent": "đã gửi",
-    "noneOption": "Không có"
+    "noneOption": "Không có",
+    "tabLeads": "Khách hàng tiềm năng",
+    "tabSequences": "Chuỗi",
+    "tabBroadcast": "Phát sóng",
+    "tabImport": "Nhập",
+    "tabBoost": "Boost",
+    "statusUnsubscribed": "Đã hủy đăng ký"
   },
   "videoCreator": {
     "aspectRatio": "Tỷ lệ khung hình",

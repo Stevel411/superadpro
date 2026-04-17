@@ -1051,7 +1051,14 @@
     "suggestion4": "Migliori tecniche di chiusura per network marketing",
     "thinking": "Sta pensando...",
     "chatPlaceholder": "Chiedi all'assistente vendite IA...",
-    "send": "Invia"
+    "send": "Invia",
+    "socialPosts": "Post Social",
+    "videoScripts": "Script Video",
+    "emailCopy": "Testo Email",
+    "adCopy": "Testo Pubblicitario",
+    "nicheFinder": "Trova Nicchie",
+    "qrCode": "Codice QR",
+    "aiSalesChat": "Chat Vendite IA"
   },
   "creativeStudio": {
     "title": "Studio Creativo",
@@ -1852,7 +1859,13 @@
     "noLeadsYet": "Nessun lead ancora",
     "contacts": "contatti",
     "sent": "inviate",
-    "noneOption": "Nessuna"
+    "noneOption": "Nessuna",
+    "tabLeads": "Lead",
+    "tabSequences": "Sequenze",
+    "tabBroadcast": "Trasmissione",
+    "tabImport": "Importa",
+    "tabBoost": "Boost",
+    "statusUnsubscribed": "Disiscritto"
   },
   "videoCreator": {
     "aspectRatio": "Rapporto d'aspetto",

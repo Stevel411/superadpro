@@ -1051,7 +1051,14 @@
     "suggestion4": "网络营销的最佳成交技巧",
     "thinking": "思考中...",
     "chatPlaceholder": "向AI销售助手提问...",
-    "send": "发送"
+    "send": "发送",
+    "socialPosts": "社交帖子",
+    "videoScripts": "视频脚本",
+    "emailCopy": "电子邮件文案",
+    "adCopy": "广告文案",
+    "nicheFinder": "利基发现",
+    "qrCode": "二维码",
+    "aiSalesChat": "AI 销售聊天"
   },
   "creativeStudio": {
     "title": "创意工作室",
@@ -1852,7 +1859,13 @@
     "noLeadsYet": "暂无潜在客户",
     "contacts": "联系人",
     "sent": "已发送",
-    "noneOption": "无"
+    "noneOption": "无",
+    "tabLeads": "潜在客户",
+    "tabSequences": "序列",
+    "tabBroadcast": "广播",
+    "tabImport": "导入",
+    "tabBoost": "加速",
+    "statusUnsubscribed": "已退订"
   },
   "videoCreator": {
     "aspectRatio": "宽高比",

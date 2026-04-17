@@ -1051,7 +1051,14 @@
     "suggestion4": "เทคนิคปิดการขายที่ดีที่สุด",
     "thinking": "กำลังคิด...",
     "chatPlaceholder": "ถามผู้ช่วยขาย AI...",
-    "send": "ส่ง"
+    "send": "ส่ง",
+    "socialPosts": "โพสต์โซเชียล",
+    "videoScripts": "สคริปต์วิดีโอ",
+    "emailCopy": "ข้อความอีเมล",
+    "adCopy": "ข้อความโฆษณา",
+    "nicheFinder": "ค้นหากลุ่มเป้าหมาย",
+    "qrCode": "คิวอาร์โค้ด",
+    "aiSalesChat": "แชทขาย AI"
   },
   "creativeStudio": {
     "title": "สตูดิโอสร้างสรรค์",
@@ -1852,7 +1859,13 @@
     "noLeadsYet": "ยังไม่มี leads",
     "contacts": "รายชื่อติดต่อ",
     "sent": "ส่งแล้ว",
-    "noneOption": "ไม่มี"
+    "noneOption": "ไม่มี",
+    "tabLeads": "ลูกค้าเป้าหมาย",
+    "tabSequences": "ลำดับ",
+    "tabBroadcast": "ออกอากาศ",
+    "tabImport": "นำเข้า",
+    "tabBoost": "บูสต์",
+    "statusUnsubscribed": "ยกเลิกการสมัคร"
   },
   "videoCreator": {
     "aspectRatio": "อัตราส่วนภาพ",

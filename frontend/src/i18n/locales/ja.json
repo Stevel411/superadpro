@@ -1051,7 +1051,14 @@
     "suggestion4": "ネットワークマーケティングのクロージング術",
     "thinking": "思考中...",
     "chatPlaceholder": "AIセールスアシスタントに質問...",
-    "send": "送信"
+    "send": "送信",
+    "socialPosts": "ソーシャル投稿",
+    "videoScripts": "動画スクリプト",
+    "emailCopy": "メールコピー",
+    "adCopy": "広告コピー",
+    "nicheFinder": "ニッチファインダー",
+    "qrCode": "QRコード",
+    "aiSalesChat": "AIセールスチャット"
   },
   "creativeStudio": {
     "title": "クリエイティブスタジオ",
@@ -1852,7 +1859,13 @@
     "noLeadsYet": "リードはまだありません",
     "contacts": "連絡先",
     "sent": "送信済み",
-    "noneOption": "なし"
+    "noneOption": "なし",
+    "tabLeads": "リード",
+    "tabSequences": "シーケンス",
+    "tabBroadcast": "ブロードキャスト",
+    "tabImport": "インポート",
+    "tabBoost": "ブースト",
+    "statusUnsubscribed": "登録解除済み"
   },
   "videoCreator": {
     "aspectRatio": "アスペクト比",

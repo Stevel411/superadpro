@@ -1051,7 +1051,14 @@
     "suggestion4": "Najlepsze techniki zamykania w MLM",
     "thinking": "Myśli...",
     "chatPlaceholder": "Zapytaj asystenta sprzedaży...",
-    "send": "Wyślij"
+    "send": "Wyślij",
+    "socialPosts": "Posty Społecznościowe",
+    "videoScripts": "Skrypty Wideo",
+    "emailCopy": "Tekst E-mail",
+    "adCopy": "Tekst Reklamowy",
+    "nicheFinder": "Wyszukiwarka Nisz",
+    "qrCode": "Kod QR",
+    "aiSalesChat": "Czat Sprzedaży AI"
   },
   "creativeStudio": {
     "title": "Studio Kreatywne",
@@ -1852,7 +1859,13 @@
     "noLeadsYet": "Jeszcze brak leadów",
     "contacts": "kontakty",
     "sent": "wysłane",
-    "noneOption": "Brak"
+    "noneOption": "Brak",
+    "tabLeads": "Leady",
+    "tabSequences": "Sekwencje",
+    "tabBroadcast": "Transmisja",
+    "tabImport": "Importuj",
+    "tabBoost": "Boost",
+    "statusUnsubscribed": "Wypisany"
   },
   "videoCreator": {
     "aspectRatio": "Proporcje",

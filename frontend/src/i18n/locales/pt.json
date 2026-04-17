@@ -1051,7 +1051,14 @@
     "suggestion4": "Melhores técnicas de fechamento",
     "thinking": "Pensando...",
     "chatPlaceholder": "Pergunte ao assistente de vendas IA...",
-    "send": "Enviar"
+    "send": "Enviar",
+    "socialPosts": "Postagens Sociais",
+    "videoScripts": "Roteiros de Vídeo",
+    "emailCopy": "Texto de E-mail",
+    "adCopy": "Texto Publicitário",
+    "nicheFinder": "Localizador de Nicho",
+    "qrCode": "Código QR",
+    "aiSalesChat": "Chat de Vendas IA"
   },
   "creativeStudio": {
     "title": "Estúdio Criativo",
@@ -1852,7 +1859,13 @@
     "noLeadsYet": "Ainda sem leads",
     "contacts": "contatos",
     "sent": "enviados",
-    "noneOption": "Nenhuma"
+    "noneOption": "Nenhuma",
+    "tabLeads": "Leads",
+    "tabSequences": "Sequências",
+    "tabBroadcast": "Transmissão",
+    "tabImport": "Importar",
+    "tabBoost": "Boost",
+    "statusUnsubscribed": "Cancelou inscrição"
   },
   "videoCreator": {
     "aspectRatio": "Proporção",

@@ -1051,7 +1051,14 @@
     "suggestion4": "أفضل تقنيات الإغلاق",
     "thinking": "يفكر...",
     "chatPlaceholder": "اسأل مساعد المبيعات...",
-    "send": "إرسال"
+    "send": "إرسال",
+    "socialPosts": "منشورات اجتماعية",
+    "videoScripts": "نصوص الفيديو",
+    "emailCopy": "نص البريد الإلكتروني",
+    "adCopy": "نص إعلاني",
+    "nicheFinder": "باحث المجال",
+    "qrCode": "رمز QR",
+    "aiSalesChat": "محادثة مبيعات بالذكاء الاصطناعي"
   },
   "creativeStudio": {
     "title": "الاستوديو الإبداعي",
@@ -1852,7 +1859,13 @@
     "noLeadsYet": "لا يوجد عملاء محتملون بعد",
     "contacts": "جهات الاتصال",
     "sent": "تم الإرسال",
-    "noneOption": "لا شيء"
+    "noneOption": "لا شيء",
+    "tabLeads": "العملاء المحتملون",
+    "tabSequences": "التسلسلات",
+    "tabBroadcast": "البث",
+    "tabImport": "استيراد",
+    "tabBoost": "تعزيز",
+    "statusUnsubscribed": "ألغى الاشتراك"
   },
   "videoCreator": {
     "aspectRatio": "نسبة العرض",

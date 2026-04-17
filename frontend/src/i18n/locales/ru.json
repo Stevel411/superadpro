@@ -1051,7 +1051,14 @@
     "suggestion4": "Лучшие техники закрытия для MLM",
     "thinking": "Думаю...",
     "chatPlaceholder": "Спросите ИИ-ассистента...",
-    "send": "Отправить"
+    "send": "Отправить",
+    "socialPosts": "Посты в соцсетях",
+    "videoScripts": "Видео-сценарии",
+    "emailCopy": "Текст письма",
+    "adCopy": "Рекламный текст",
+    "nicheFinder": "Поиск ниши",
+    "qrCode": "QR-код",
+    "aiSalesChat": "ИИ-чат продаж"
   },
   "creativeStudio": {
     "title": "Креативная Студия",
@@ -1852,7 +1859,13 @@
     "noLeadsYet": "Пока нет лидов",
     "contacts": "контакты",
     "sent": "отправлено",
-    "noneOption": "Нет"
+    "noneOption": "Нет",
+    "tabLeads": "Лиды",
+    "tabSequences": "Последовательности",
+    "tabBroadcast": "Рассылка",
+    "tabImport": "Импорт",
+    "tabBoost": "Boost",
+    "statusUnsubscribed": "Отписан"
   },
   "videoCreator": {
     "aspectRatio": "Соотношение сторон",

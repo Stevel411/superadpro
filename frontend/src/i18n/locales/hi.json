@@ -1051,7 +1051,14 @@
     "suggestion4": "नेटवर्क मार्केटिंग की बेस्ट क्लोजिंग तकनीक",
     "thinking": "सोच रहा है...",
     "chatPlaceholder": "AI सेल्स सहायक से पूछें...",
-    "send": "भेजें"
+    "send": "भेजें",
+    "socialPosts": "सोशल पोस्ट्स",
+    "videoScripts": "वीडियो स्क्रिप्ट्स",
+    "emailCopy": "ईमेल कॉपी",
+    "adCopy": "विज्ञापन कॉपी",
+    "nicheFinder": "नीच फ़ाइंडर",
+    "qrCode": "QR कोड",
+    "aiSalesChat": "AI बिक्री चैट"
   },
   "creativeStudio": {
     "title": "क्रिएटिव स्टूडियो",
@@ -1852,7 +1859,13 @@
     "noLeadsYet": "अभी तक कोई लीड नहीं",
     "contacts": "संपर्क",
     "sent": "भेजा गया",
-    "noneOption": "कोई नहीं"
+    "noneOption": "कोई नहीं",
+    "tabLeads": "लीड्स",
+    "tabSequences": "अनुक्रम",
+    "tabBroadcast": "ब्रॉडकास्ट",
+    "tabImport": "आयात",
+    "tabBoost": "बूस्ट",
+    "statusUnsubscribed": "सदस्यता समाप्त"
   },
   "videoCreator": {
     "aspectRatio": "पहलू अनुपात",

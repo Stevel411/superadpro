@@ -1051,7 +1051,14 @@
     "suggestion4": "Ağ pazarlama için en iyi kapanış teknikleri",
     "thinking": "Düşünüyor...",
     "chatPlaceholder": "AI satış asistanına sorun...",
-    "send": "Gönder"
+    "send": "Gönder",
+    "socialPosts": "Sosyal Gönderiler",
+    "videoScripts": "Video Senaryoları",
+    "emailCopy": "E-posta Metni",
+    "adCopy": "Reklam Metni",
+    "nicheFinder": "Niş Bulucu",
+    "qrCode": "QR Kodu",
+    "aiSalesChat": "Yapay Zeka Satış Sohbeti"
   },
   "creativeStudio": {
     "title": "Yaratıcı Stüdyo",
@@ -1852,7 +1859,13 @@
     "noLeadsYet": "Henüz potansiyel müşteri yok",
     "contacts": "kişiler",
     "sent": "gönderildi",
-    "noneOption": "Hiçbiri"
+    "noneOption": "Hiçbiri",
+    "tabLeads": "Müşteri Adayları",
+    "tabSequences": "Diziler",
+    "tabBroadcast": "Yayın",
+    "tabImport": "İçe Aktar",
+    "tabBoost": "Boost",
+    "statusUnsubscribed": "Aboneliği İptal Edildi"
   },
   "videoCreator": {
     "aspectRatio": "En boy oranı",

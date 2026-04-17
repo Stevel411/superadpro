@@ -1051,7 +1051,14 @@
     "suggestion4": "Teknik closing terbaik untuk MLM",
     "thinking": "Berpikir...",
     "chatPlaceholder": "Tanya asisten penjualan AI...",
-    "send": "Kirim"
+    "send": "Kirim",
+    "socialPosts": "Posting Sosial",
+    "videoScripts": "Skrip Video",
+    "emailCopy": "Teks Email",
+    "adCopy": "Teks Iklan",
+    "nicheFinder": "Pencari Niche",
+    "qrCode": "Kode QR",
+    "aiSalesChat": "Chat Penjualan AI"
   },
   "creativeStudio": {
     "title": "Studio Kreatif",
@@ -1852,7 +1859,13 @@
     "noLeadsYet": "Belum ada prospek",
     "contacts": "kontak",
     "sent": "terkirim",
-    "noneOption": "Tidak ada"
+    "noneOption": "Tidak ada",
+    "tabLeads": "Prospek",
+    "tabSequences": "Urutan",
+    "tabBroadcast": "Siaran",
+    "tabImport": "Impor",
+    "tabBoost": "Boost",
+    "statusUnsubscribed": "Berhenti Berlangganan"
   },
   "videoCreator": {
     "aspectRatio": "Rasio aspek",
