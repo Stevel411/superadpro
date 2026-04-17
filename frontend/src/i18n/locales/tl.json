@@ -108,7 +108,8 @@
     "sponsorUsername": "Username ng sponsor",
     "yourImages": "Iyong mga larawan",
     "videoNotSupported": "Hindi suportado ang video URL.",
-    "alreadyHaveAccount": "May account na?"
+    "alreadyHaveAccount": "May account na?",
+    "tapToUnmute": "I-tap para i-unmute"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -192,7 +193,8 @@
     "marketingMaterials": "Marketing Materials",
     "courseAcademy": "Course Academy",
     "profitGrid": "Profit Grid",
-    "gridCalculator": "Grid Calculator"
+    "gridCalculator": "Grid Calculator",
+    "incomeChains": "Mga Income Chain"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -631,7 +633,8 @@
     "returnToTab": "Bumalik sa tab na ito para magpatuloy",
     "general": "General",
     "loading": "Naglo-load...",
-    "playing": "▶ Nagpe-play"
+    "playing": "▶ Nagpe-play",
+    "watchOneToQualify": "Panoorin ang 1 video para mag-qualify ngayon"
   },
   "adBoard": {
     "title": "Ad Board",
@@ -1984,7 +1987,8 @@
     "enterDescription": "Maglagay ng paglalarawan",
     "enterScript": "Maglagay ng script",
     "uploadAnImage": "Mag-upload ng larawan",
-    "remaining": "natitira"
+    "remaining": "natitira",
+    "preview": "Preview"
   },
   "socialShare": {
     "title": "Social Share",
@@ -2291,7 +2295,8 @@
     "paymentWindowOpened": "Payment window opened — complete your USDT payment to receive {{credits}} credits. Your nexus will update automatically once payment is confirmed.",
     "creditsAwarded": "{{credits}} credits awarded!",
     "commissionsEarned": "${{amount}} in commissions paid to your upline.",
-    "purchaseFailed": "Purchase failed"
+    "purchaseFailed": "Purchase failed",
+    "perCredit": "bawat credit"
   },
   "matrixVis": {
     "title": "Profit Nexus",
@@ -2948,7 +2953,243 @@
     "achieveDefault": "Tingnan kung ano ang naabot ng mga miyembro ng aming komunidad.",
     "lastChanceDefault": "Ito na ang huling pagkakataon mong sumali sa amin.",
     "sentToLeads": "Naipadala sa",
-    "leads": "leads"
+    "leads": "leads",
+    "help": {
+      "title": "Tulong para sa SuperLeads",
+      "subtitle": "Kumpletong gabay sa iyong CRM at autoresponder",
+      "searchPlaceholder": "Maghanap ng mga paksa ng tulong…",
+      "noResults": "Walang resulta para sa",
+      "sections": {
+        "gettingStarted": {
+          "category": "Pagsisimula",
+          "items": [
+            {
+              "title": "Ano ang SuperLeads?",
+              "desc": "Ang SuperLeads ay ang iyong built-in na CRM at email autoresponder. Pinapayagan ka nitong kumuha ng mga lead mula sa iyong mga SuperPages funnel, ayusin ang mga ito sa mga listahan, magpadala ng awtomatikong mga email sequence, at mag-broadcast ng isang beses na mga email — lahat nang walang kinakailangang hiwalay na email marketing tool."
+            },
+            {
+              "title": "Paano napupunta ang mga lead sa aking CRM?",
+              "desc": "Ang mga lead ay awtomatikong idinagdag kapag may nagsusulat ng form sa alinman sa iyong mga SuperPages. Ang kanilang pangalan at email ay agad na nakukuha at lumalabas sa iyong tab ng Mga Lead. Maaari mo ring mano-mano na mag-import ng mga lead gamit ang CSV file sa pamamagitan ng tab na Import."
+            },
+            {
+              "title": "Sino ang maaaring gumamit ng SuperLeads?",
+              "desc": "Ang SuperLeads ay isang tampok ng miyembro ng Pro. Makakakuha ka ng hanggang 5,000 lead na kasama sa iyong Pro membership. Kailangan ng higit pang kapasidad? Maaari kang palawakin anumang oras mula sa iyong mga setting ng account."
+            },
+            {
+              "title": "Ano ang mangyayari kapag dumating ang isang lead?",
+              "desc": "Kapag nagsulat ang isang lead sa iyong funnel form, idinadagdag sila sa iyong CRM, iniatas sa iyong pinakabagong aktibong email sequence, at ang unang email sa sequence na iyon ay agad na ipinapadala sa pamamagitan ng Brevo. Lahat awtomatiko — walang kinakailangang mga manu-manong hakbang."
+            }
+          ]
+        },
+        "leadsTab": {
+          "category": "Tab ng Lead",
+          "items": [
+            {
+              "title": "Ano ang ipinapakita ng tab ng Mga Lead?",
+              "desc": "Ang tab ng Mga Lead ay iyong pangunahing listahan ng mga contact. Ipinapakita nito ang bawat lead na iyong nakuha o na-import, kasama ang pangalan, email, kung saan sila kabilang na listahan, kasalukuyang status, kung ilan ang email na natanggap at binuksan nila, at kung aling sequence sila iniatas."
+            },
+            {
+              "title": "Ipinaliwanag ang mga status ng lead",
+              "desc": "Bago — kakaragdag lang, wala pang interaksyon. Inaalagaan — sa isang aktibong email sequence. Hot — awtomatikong minarkahan kapag nagbukas ang isang lead ng 2+ email o nag-click sa anumang link. Na-convert — manu-manong markahan ang isang lead bilang na-convert kapag nagawa na nila ang ninanais na aksyon."
+            },
+            {
+              "title": "Ano ang isang Hot Lead?",
+              "desc": "Ang Hot Lead ay isang taong nagpapakita ng tunay na interes — nagbukas sila ng ilang email o nag-click sa isang link. Ito ang iyong pinakamainit na mga prospek at karapat-dapat na bigyang-prioridad. Ang mga hot lead ay awtomatikong minarkahan ng isang icon ng apoy."
+            },
+            {
+              "title": "Pag-filter ng iyong mga lead",
+              "desc": "Gamitin ang mga kulay-kulay na button ng filter upang makita ang mga lead ayon sa status: Lahat, Bago, Inaalagaan, Hot, o Na-convert. Gamitin ang dropdown na Lahat ng Listahan sa kanan upang mag-filter ayon sa isang tiyak na listahan. Pagsamahin ang parehong filter."
+            },
+            {
+              "title": "Pagtatalaga ng sequence sa isang lead",
+              "desc": "Sa column ng Sequence sa tabi ng bawat lead, gamitin ang dropdown upang italaga o baguhin ang email sequence na kanilang kinaroroonan. Sa susunod na i-click mo ang Ipadala ang Susunod sa sequence na iyon, isasama nito ang lead na ito."
+            },
+            {
+              "title": "Pagtanggal ng lead",
+              "desc": "I-click ang pulang trash icon sa kanan ng anumang row ng lead upang tanggalin ito. Tatanggalin nito ang lead at lahat ng kanilang kasaysayan ng email nang permanente. Gamitin nang maingat — hindi ito maaaring bawiin."
+            }
+          ]
+        },
+        "lists": {
+          "category": "Mga Listahan",
+          "items": [
+            {
+              "title": "Ano ang mga Listahan?",
+              "desc": "Pinapayagan ka ng mga listahan na ayusin ang iyong mga lead sa mga grupo. Halimbawa: Mga Facebook Lead, YouTube Traffic, Mga Pag-signup sa Webinar, o Mga VIP na Kliyente. Ang bawat listahan ay may sariling kulay upang madali mong makilala sa iyong talahanayan ng lead."
+            },
+            {
+              "title": "Paggawa ng Listahan",
+              "desc": "I-click ang Bagong Listahan, bigyan ito ng pangalan, opsyonal na paglalarawan, pumili ng kulay, at opsyonal na magtalaga ng default email sequence. Anumang lead na na-import o nakuha para sa listahang ito ay awtomatikong magpapatala sa sequence na iyon."
+            },
+            {
+              "title": "Default Sequence sa isang Listahan",
+              "desc": "Kapag nag-set up ka ng default sequence sa isang listahan, ang bawat bagong lead na idinagdag sa listahang iyon ay awtomatikong nagpapatala sa sequence na iyon. Nakakatipid ito ng oras mula sa mano-manong pagtatalaga ng sequence."
+            },
+            {
+              "title": "Ano ang mangyayari kung burahin ko ang isang Listahan?",
+              "desc": "Kung burahin mo ang isang listahan, ang lahat ng mga lead na nasa loob nito ay inililipat sa Hindi Nakaayos sa halip na tanggalin. Maaari mong i-filter ang Hindi Nakaayos na mga lead at itakda muli sa bagong listahan anumang oras."
+            },
+            {
+              "title": "Bilang ng lead sa mga card ng Listahan",
+              "desc": "Ang bawat card ng listahan ay nagpapakita ng bilang ng lead upang makita mo nang mabilis kung ilang mga contact ang nasa bawat grupo. Ang may kulay na bar sa itaas ng bawat card ay tumutugma sa kulay na pinili mo para sa listahang iyon."
+            }
+          ]
+        },
+        "sequences": {
+          "category": "Mga Sequence",
+          "items": [
+            {
+              "title": "Ano ang isang Email Sequence?",
+              "desc": "Ang sequence ay isang serye ng mga email na awtomatikong ipinapadala sa paglipas ng panahon. Isulat mo ang mga ito minsan, itakda ang pagkaantala sa pagitan ng bawat email, at ipinapadala ng sistema ang mga ito sa iyong mga lead sa autopilot. Perpekto para sa mga serye ng pagtanggap."
+            },
+            {
+              "title": "Paggawa ng Sequence",
+              "desc": "I-click ang Gumawa ng Sequence, bigyan ito ng pangalan, at idagdag ang iyong mga email. Ang bawat email ay nangangailangan ng paksa, katawan (nakasulat gamit ang rich text editor), at isang pagkaantala sa pagpapadala sa mga araw. Ang Araw 0 ay ipinapadala agad."
+            },
+            {
+              "title": "Ano ang ginagawa ng Ipadala ang Susunod?",
+              "desc": "Ang pag-click sa Ipadala ang Susunod sa isang sequence ay nagpapadala ng susunod na nakaharang na email sa bawat lead na iniatas sa sequence na iyon. Sinusubaybayan ng sistema kung aling email ang kasalukuyang tinatanggap ng bawat lead."
+            },
+            {
+              "title": "Ipinaliwanag ang pagkaantala sa pagpapadala",
+              "desc": "Ang pagkaantala sa bawat email ay ang bilang ng mga araw pagkatapos ipadala ang naunang email. Ang Email 1 sa 0 araw ay ipinapadala agad. Ang Email 2 sa 2 araw ay ipinapadala 2 araw pagkatapos ng Email 1."
+            },
+            {
+              "title": "Pag-edit ng Sequence",
+              "desc": "I-click ang Edit sa alinmang card ng sequence upang baguhin ang pangalan, magdagdag o mag-alis ng mga email, i-update ang mga paksa at katawan, o i-adjust ang mga pagkaantala. Ang mga pagbabago ay nalalapat sa mga pagpapadala sa hinaharap."
+            },
+            {
+              "title": "Rich Text Editor",
+              "desc": "Sinusuportahan ng email body editor ang bold, italic, underline, bulleted lists, numbered lists, headings, at links. Isulat ang iyong email ayon sa nais mo itong lumabas. Ang mga email ay ipinapadala bilang HTML."
+            }
+          ]
+        },
+        "broadcast": {
+          "category": "Broadcast",
+          "items": [
+            {
+              "title": "Ano ang isang Broadcast?",
+              "desc": "Ang broadcast ay isang beses na email na ipinapadala sa lahat o sa isang na-filter na grupo ng iyong mga lead ngayon. Hindi tulad ng mga sequence (na dumadaloy sa paglipas ng panahon), ang broadcast ay agad na napupunta sa lahat ng tumutugma sa iyong filter."
+            },
+            {
+              "title": "Pag-filter ng mga tatanggap ng broadcast",
+              "desc": "Bago magpadala, pumili ng Listahan at/o Status na filter. Ang bilang ng mga tatanggap ay nag-a-update nang live upang malaman mo kung ilang tao ang tatanggap ng email bago mo pindutin ang Ipadala."
+            },
+            {
+              "title": "Bilang ng Mga Tatanggap",
+              "desc": "Ang numero na ipinapakita sa tabi ng mga filter ay ang live na bilang ng mga lead na tumutugma sa iyong seleksyon at hindi nag-unsubscribe. Ito ang eksaktong bilang ng mga email na ipapadala."
+            },
+            {
+              "title": "Mga lead na nag-unsubscribe",
+              "desc": "Ang mga lead na nag-unsubscribe ay awtomatikong inihihiwalay mula sa lahat ng mga broadcast at pagpapadala ng sequence. Hindi mo kailangang i-filter ang mga ito nang mano-mano."
+            },
+            {
+              "title": "Broadcast vs Sequence",
+              "desc": "Gamitin ang Sequence para sa naka-iskedyul, evergreen na serye ng email (mga welcome flow, mga follow-up). Gamitin ang Broadcast para sa isang beses na pagpapadala sa iyong buong listahan — flash sale, mga imbitasyon sa webinar."
+            }
+          ]
+        },
+        "import": {
+          "category": "Import",
+          "items": [
+            {
+              "title": "Pag-import ng mga lead sa pamamagitan ng CSV",
+              "desc": "Pumunta sa tab na Import, mag-upload ng CSV file o idikit ang CSV text nang direkta. Ang iyong CSV ay dapat may mga column para sa email at opsyonal na pangalan. I-click ang Preview upang suriin ang data bago mag-import, pagkatapos ay i-click ang Import."
+            },
+            {
+              "title": "Format ng CSV",
+              "desc": "Ang pinakasimpleng format ay dalawang column: email at pangalan. Halimbawa: email,name sa unang row, pagkatapos ay john@example.com,John Smith sa bawat sumunod na row. Ang importer ay flexible."
+            },
+            {
+              "title": "Pagtatalaga sa isang Listahan sa pag-import",
+              "desc": "Bago mag-import, piliin ang listahang nais mong i-import ang mga lead gamit ang dropdown na Sa Listahan. Ang pagpili ng isang listahan ay nangangahulugan na ang lahat ng na-import na mga lead ay agad na naayos."
+            },
+            {
+              "title": "Preview bago mag-import",
+              "desc": "I-click ang Preview upang makita kung ilang mga lead ang natukoy sa iyong CSV at suriin ang anumang mga isyu sa pag-format. Ang ipinapakitang bilang ay kung ilang mga lead ang talagang ma-import."
+            },
+            {
+              "title": "Limitasyon ng lead",
+              "desc": "Ang iyong kasalukuyang bilang ng lead at limitasyon ay ipinapakita sa tuktok ng tab na Import. Ang mga miyembro ng Pro ay maaaring magkaroon ng hanggang 5,000 lead. Kung malapit ka sa iyong limitasyon, bumili ng Email Boost pack."
+            },
+            {
+              "title": "Pag-handle ng mga duplicate",
+              "desc": "Kung ang isang email address ay nasa iyong CRM na, laktawan ng import ang lead na iyon sa halip na gumawa ng duplicate. Ang iyong mga umiiral na data ng lead (status, pagtatalaga ng sequence, kasaysayan ng email) ay pinapanatili."
+            }
+          ]
+        },
+        "emailBoost": {
+          "category": "Email Boost",
+          "items": [
+            {
+              "title": "Ano ang Email Boost?",
+              "desc": "Pinapayagan ka ng Email Boost na magpadala ng higit pang mga email kaysa sa iyong pang-araw-araw na libreng alokasyon. Ang bawat miyembro ng Pro ay nakakakuha ng 200 libreng email bawat araw. Kung kailangan mong magpadala ng higit pa, maaari kang bumili ng mga Boost Pack."
+            },
+            {
+              "title": "Paano gumagana ang pang-araw-araw na limitasyon",
+              "desc": "Nakakakuha ka ng 200 libreng email araw-araw. Ang counter ay nire-reset sa hatinggabi UTC. Kung magpadala ka ng broadcast sa 150 lead at mayroon kang 3 sequence na tumatakbo, ang iyong 200 libreng email ay ginagamit muna."
+            },
+            {
+              "title": "Mga available na Boost Pack",
+              "desc": "1,000 email — $5. 5,000 email — $19. 10,000 email — $29. 50,000 email — $99. Ang mga Boost credit ay hindi nagte-expire — ipinapasa ang mga ito nang walang katapusan hanggang magamit."
+            },
+            {
+              "title": "Paano ibinabawas ang mga credit",
+              "desc": "Ang pang-araw-araw na libreng credit ay palaging ginagamit muna. Kapag ginagastos na ang 200 libreng email sa araw, awtomatikong ibinabawas ng bawat karagdagang email ang isang Boost credit."
+            },
+            {
+              "title": "Pagbili ng Boost Pack",
+              "desc": "I-click ang Bumili sa anumang card ng Boost Pack. Ang gastos ay ibinabawas mula sa iyong SuperAdPro wallet balance. Ang mga credit ay agad na idinagdag — magagamit mo agad ang mga ito."
+            },
+            {
+              "title": "Pagsusuri ng iyong paggamit",
+              "desc": "Ang progress bar sa tuktok ng pahina ng SuperLeads ay nagpapakita ng iyong pang-araw-araw na paggamit ng email (hal. Pang-araw-araw: 45/200). Ang Credit counter ay nagpapakita ng iyong kasalukuyang Boost credit balance."
+            },
+            {
+              "title": "Kailan ako kailangan ng mga Boost credit?",
+              "desc": "Kung ang iyong listahan ay maliit (mas kaunti sa 200 na lead) at nagpapadala ka ng isang broadcast bawat araw, bihira mong kailanganin ang mga Boost credit. Naging kapaki-pakinabang ang mga ito kapag mayroon kang malalaking listahan."
+            }
+          ]
+        }
+      }
+    },
+    "autoresponderLabel": "Autoresponder",
+    "totalLeadsStat": "Kabuuang mga lead",
+    "sequencesStat": "Mga sequence",
+    "sentTodayStat": "Ipinadala ngayon",
+    "hotLeadsStat": "Mga hot lead",
+    "tabLeads": "Mga Lead",
+    "tabSequences": "Mga Sequence",
+    "tabBroadcast": "Broadcast",
+    "tabImport": "Import",
+    "tabBoost": "Boost",
+    "filterAllStatuses": "Lahat ng status",
+    "filterAllLists": "Lahat ng listahan",
+    "statusNew": "Bago",
+    "statusNurturing": "Inaalagaan",
+    "statusHot": "Hot",
+    "statusConverted": "Na-convert",
+    "statusUnsubscribed": "Nag-unsubscribe",
+    "searchLeadsPlaceholder": "Maghanap ng mga lead…",
+    "newListBtn": "Bagong listahan",
+    "deleteLeadConfirm": "Tanggalin ang lead na ito?",
+    "leadDeleted": "Natanggal ang lead",
+    "noLeadsYet": "Wala pang mga lead",
+    "defaultWelcomeSubject": "Maligayang pagdating!",
+    "defaultFollowUpSubject": "Follow-up — mabilis na tip",
+    "defaultLastChanceSubject": "Huling pagkakataon na kumilos",
+    "dayLabel": "Araw",
+    "boostPack1kLabel": "1,000 Email",
+    "boostPack1kDesc": "Perpekto para sa target na campaign",
+    "boostPack5kLabel": "5,000 Email",
+    "boostPack5kDesc": "Magpatakbo ng maraming sequence",
+    "boostPack10kLabel": "10,000 Email",
+    "boostPack10kDesc": "Palawakin ang iyong abot",
+    "boostPack50kLabel": "50,000 Email",
+    "boostPack50kDesc": "Enterprise volume",
+    "contacts": "mga contact",
+    "sent": "ipinadala",
+    "noneOption": "Wala"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -4400,7 +4641,198 @@
     "duplicate": "I-duplicate",
     "deleteElement": "Tanggalin",
     "pages": "Mga Page",
-    "help": "Tulong",
+    "help": {
+      "title": "Tulong para sa SuperPages",
+      "subtitle": "Knowledge base ng page builder",
+      "searchPlaceholder": "Maghanap ng mga paksa ng tulong…",
+      "noResults": "Walang resulta para sa",
+      "sections": {
+        "gettingStarted": {
+          "category": "Pagsisimula",
+          "items": [
+            {
+              "title": "Paano gumagana ang Editor",
+              "desc": "Ang SuperPages ay isang free-form drag-and-drop page builder. I-click ang anumang block mula sa kanang panel upang idagdag ito sa iyong canvas, pagkatapos ay i-drag upang ilagay ito kahit saan. I-double click ang mga text element upang i-edit sa-inline."
+            },
+            {
+              "title": "Pagpili at Paglilipat",
+              "desc": "I-click nang isang beses sa anumang elemento upang mapili ito — makikita mo ang isang asul na outline at mga resize handle na lumabas. I-click at i-drag upang i-reposition. Pindutin nang matagal ang Shift + Arrow keys upang ilipat ng 10px, o ang mga arrow key lamang para sa 1px precision."
+            },
+            {
+              "title": "Pagbabago ng Laki",
+              "desc": "Ang mga napiling elemento ay nagpapakita ng 8 cyan resize handle — sa lahat ng apat na sulok at apat na gilid. I-drag ang anumang handle upang baguhin ang laki. Ang mga corner handle ay binabago ang laki sa parehong direksyon nang sabay-sabay."
+            },
+            {
+              "title": "Pag-save at Paglalathala",
+              "desc": "I-click ang Save upang i-save ang iyong trabaho (auto-save tuwing 30 segundo). I-click ang Publish upang gawing live ang iyong pahina sa web. Ang iyong live URL ay lumalabas sa Settings."
+            },
+            {
+              "title": "Mga Keyboard Shortcut",
+              "desc": "Ctrl+S: Save | Ctrl+Z: Undo | Ctrl+Y: Redo | Delete: Tanggalin | Arrow keys: Ilipat ng 1px | Shift+Arrows: Ilipat ng 10px | Escape: Deselect"
+            }
+          ]
+        },
+        "textElements": {
+          "category": "Mga elemento ng teksto",
+          "items": [
+            {
+              "title": "Heading",
+              "desc": "Malaki, bold na teksto para sa mga pamagat ng pahina at heading ng seksyon. Default ay Sora font 36px sa puti. I-double click upang mag-edit. Gamitin ang floating toolbar upang baguhin ang font family, laki, kulay."
+            },
+            {
+              "title": "Teksto",
+              "desc": "Body text para sa mga talata at paglalarawan. Default ay Outfit font 15px sa gray na may line height na 1.8 para sa pagbabasa. I-double click upang mag-edit. Sinusuportahan ang lahat ng inline formatting."
+            },
+            {
+              "title": "Label",
+              "desc": "Maliit na badge-style text na perpekto para sa mga tag tulad ng PREMIUM, NEW, o LIMITED OFFER. Kasama ang rounded pill background at border."
+            }
+          ]
+        },
+        "mediaElements": {
+          "category": "Mga elemento ng media",
+          "items": [
+            {
+              "title": "Imahe",
+              "desc": "Magdagdag ng mga imahe sa iyong pahina. I-click ang edit IMAGE button sa element toolbar upang ipasok ang isang image URL o mag-upload ng file (max 5MB). Sinusuportahan ang JPG, PNG, GIF, at WebP."
+            },
+            {
+              "title": "Video",
+              "desc": "Mag-embed ng mga video mula sa YouTube, Vimeo, o mag-upload ng iyong sariling mga MP4/WebM file (max 50MB). I-click ang edit VIDEO upang magdagdag. Ang mga YouTube at Vimeo viewing URL ay awtomatikong kino-convert."
+            },
+            {
+              "title": "Audio",
+              "desc": "Magdagdag ng mga audio player sa iyong pahina. I-click ang edit AUDIO upang ipasok ang isang audio URL o mag-upload ng mga MP3/WAV/OGG file (max 20MB). Mahusay para sa mga podcast."
+            }
+          ]
+        },
+        "actionElements": {
+          "category": "Mga elemento ng aksyon",
+          "items": [
+            {
+              "title": "Button",
+              "desc": "Nakiklik na button na may gradient background. I-click ang edit LINK upang itakda ang destination URL. I-double click upang baguhin ang text ng button. Perpekto para sa mga call-to-action."
+            },
+            {
+              "title": "Opt-In Form",
+              "desc": "Email capture form na may field ng pangalan, field ng email, at submit button. Pre-styled na may dark glass background. I-click ang edit FORM upang i-customize ang HTML. Konektado sa iyong My Leads dashboard."
+            },
+            {
+              "title": "CTA (Call to Action)",
+              "desc": "Katulad ng Button ngunit naka-style partikular para sa mga pangunahing aksyon ng conversion. I-click ang edit LINK upang itakda ang destination URL. Gamitin para sa pangunahing aksyon ng pahina."
+            }
+          ]
+        },
+        "contentElements": {
+          "category": "Mga elemento ng nilalaman",
+          "items": [
+            {
+              "title": "Review",
+              "desc": "Customer review block na may star rating, quote text, at attribution. Naka-style na may dark card background at cyan left border. I-double click upang mag-edit."
+            },
+            {
+              "title": "Badge",
+              "desc": "Maliit na decorative badge na kapareho ng Label — kapaki-pakinabang para sa mga tag tulad ng BEST VALUE, MOST POPULAR, o FEATURED. May gold pill style bilang default."
+            },
+            {
+              "title": "Testimonial",
+              "desc": "Pinalawak na testimonial block na may mga bituin, mas mahabang quote, at author credit. May gold left border upang maiba ito sa mga review."
+            },
+            {
+              "title": "FAQ",
+              "desc": "Question-and-answer block na naka-style na may subtle bordered header. I-double click upang mag-edit ng tanong at sagot. Isalansan ang maraming FAQ element."
+            },
+            {
+              "title": "Statistic",
+              "desc": "Malaking stat display — nagpapakita ng malaking numero (tulad ng 95%) na may label sa ibaba. Perpekto para sa social proof: 10,000+ Miyembro, 95% Payout Rate."
+            },
+            {
+              "title": "Progress",
+              "desc": "Animated progress bar na may label at porsyento. I-click ang edit SET upang i-configure ang label text, porsyento (0-100), at kulay ng bar."
+            }
+          ]
+        },
+        "layoutElements": {
+          "category": "Mga elemento ng layout",
+          "items": [
+            {
+              "title": "Countdown",
+              "desc": "Live countdown timer na nagbibilang pababa sa isang target na petsa at oras. I-click ang edit SET upang piliin ang target na petsa. Nagpapakita ng mga araw, oras, minuto, at segundo."
+            },
+            {
+              "title": "Social",
+              "desc": "Isang hilera ng mga social media icon — YouTube, Instagram, TikTok, Facebook, X/Twitter, at LinkedIn. I-click ang edit LINKS upang magdagdag ng iyong mga profile URL."
+            },
+            {
+              "title": "Icon + Text",
+              "desc": "Feature block na pinagsasama ang isang emoji/icon na may heading at description text. Perpekto para sa paglista ng mga benepisyo, tampok, o hakbang."
+            },
+            {
+              "title": "Separator",
+              "desc": "Dekoratibong separator line na may opsyonal na center text. I-double click upang baguhin ang separator text. Gamitin sa pagitan ng mga seksyon."
+            },
+            {
+              "title": "Logos",
+              "desc": "'As seen in' logo strip — nagpapakita ng mga pangalan ng brand sa isang horizontal row. I-double click upang mag-edit ng mga pangalan ng brand."
+            },
+            {
+              "title": "Spacer",
+              "desc": "Hindi nakikitang spacing element. I-drag upang ilagay at baguhin ang laki upang kontrolin ang espasyo sa pagitan ng iba pang mga elemento. Walang visual appearance sa published page."
+            },
+            {
+              "title": "Box",
+              "desc": "Walang laman na container na may subtle border at rounded corners. Gamitin bilang background card sa likod ng iba pang mga elemento upang lumikha ng mga nakagrupong seksyon."
+            },
+            {
+              "title": "Divider",
+              "desc": "Simpleng horizontal line. Gamitin upang paghiwalayin ang mga seksyon sa iyong pahina. Baguhin ang lapad upang kontrolin kung gaano kalayo ang pag-abot."
+            },
+            {
+              "title": "Embed",
+              "desc": "Raw HTML/code embed block. I-click ang edit CODE upang idikit ang anumang HTML, kabilang ang iframe, custom widget, tracking pixel, o third-party embed code."
+            }
+          ]
+        },
+        "settingsPublishing": {
+          "category": "Mga setting at paglalathala",
+          "items": [
+            {
+              "title": "Pamagat ng Pahina",
+              "desc": "Ang pangalan ng iyong pahina — lumalabas sa browser tab, mga resulta ng search engine, at iyong listahan ng SuperPages. Pumili ng isang bagay na naglalarawan at nakakaakit para sa SEO."
+            },
+            {
+              "title": "Page URL Slug",
+              "desc": "I-customize ang web address ng iyong published page. Buksan ang Settings, hanapin ang Page URL Slug field, at i-type ang iyong gustong pangalan gamit lamang ang maliliit na titik, numero, at gitling. Ang bawat slug ay dapat na natatangi."
+            },
+            {
+              "title": "Meta Description",
+              "desc": "Ang paglalarawan na lumalabas sa ibaba ng pamagat ng iyong pahina sa mga resulta ng Google search. Magsulat ng 150-160 character na nagsasabi sa mga bisita kung ano ang inaalok ng iyong pahina."
+            },
+            {
+              "title": "Social Sharing Image",
+              "desc": "Kapag may nagbabahagi ng iyong published page sa Facebook, Twitter, LinkedIn, o WhatsApp, lumalabas ang imaheng ito bilang preview thumbnail. Gamitin ang 1200x630px."
+            },
+            {
+              "title": "Status ng Pahina",
+              "desc": "Ang mga Draft page ay nakikita mo lamang. Ang mga Published page ay live sa web sa iyong Live URL. Lumipat sa pagitan ng Draft at Published anumang oras."
+            },
+            {
+              "title": "Canvas Background",
+              "desc": "Baguhin ang background ng pahina gamit ang color picker o image upload sa kanang itaas ng Blocks panel. Sinusuportahan ang mga solid na kulay, gradient, at mga full-page background image."
+            }
+          ]
+        },
+        "aiAssistant": {
+          "category": "AI Assistant",
+          "items": [
+            {
+              "title": "AI Chat",
+              "desc": "I-click ang AI Assistant sa ibaba ng Blocks panel upang buksan ang AI chat. Sabihin sa kanya kung ano ang gusto mo: magdagdag ng heading, palitan ang background sa navy, magsulat ng sales copy para sa produkto ng fitness. Maaaring baguhin ng AI ang style ng iyong pahina."
+            }
+          ]
+        }
+      }
+    },
     "knowledgeBase": "Knowledge base",
     "learnElements": "Alamin kung paano gumagana ang bawat element at feature",
     "searchPlaceholder": "Maghanap ng elements, features...",
@@ -4449,7 +4881,9 @@
     "blkProgress": "Progreso",
     "blkCountdown": "Countdown",
     "blkSocials": "Social",
-    "blkIconText": "Icon+Text"
+    "blkIconText": "Icon+Text",
+    "blk": "Bloke",
+    "cat": "Kategorya"
   },
   "coursePlayer": {},
   "analytics": {
@@ -4485,7 +4919,18 @@
     "lastWithdrawal": "Huling withdrawal",
     "noWithdrawals": "Wala pang withdrawal",
     "totalAiGen": "kabuuang AI generations",
-    "qualificationDesc": "Ang iyong pang-araw-araw na kinakailangang panoorin para sa Campaign Wallet withdrawals. Hindi ito income stream — ito ang iyong accountability check-in."
+    "qualificationDesc": "Ang iyong pang-araw-araw na kinakailangang panoorin para sa Campaign Wallet withdrawals. Hindi ito income stream — ito ang iyong accountability check-in.",
+    "campaignGrid": "Campaign Grid",
+    "courses": "Mga kurso",
+    "creditNexus": "Credit Nexus",
+    "fiftyRecurring": "50% paulit-ulit",
+    "gridCommissions": "Mga komisyon sa grid",
+    "membership": "Membership",
+    "nexusCommissions": "Mga komisyon sa Nexus",
+    "noResults": "Walang resulta",
+    "noTeamYet": "Wala pang team",
+    "recruitToMsg": "Mag-recruit ng isang tao upang magsimulang magpadala ng mga mensahe",
+    "salesPassUps": "Mga benta + pass-up"
   },
   "superMarket": {
     "comparePrice": "Compare price",
@@ -4579,6 +5024,72 @@
     "libRetail": "Retail at Shopping",
     "proTipTitle": "Pro Tip",
     "proTipWeb": "Ang mga tiyak na pangalan ng brand ang pinakamaganda. Ang mga paghahanap tulad ng \"Herbalife distributor Pilipinas\" ay nakakahanap ng mga indibidwal na website ng distributor, habang ang malabong termino tulad ng \"oportunidad sa negosyo\" ay nagbabalik lamang ng mga publisher ng nilalaman.",
-    "proTipMaps": "Ang pagdaragdag ng isang tiyak na lungsod ay nagbibigay ng mas malinaw na mga resulta. Subukan na pagsamahin ang isang kalakalan (hal. mga tubero, dentista) na may postal code o kapitbahayan para sa pinakamahusay na mga lead."
+    "proTipMaps": "Ang pagdaragdag ng isang tiyak na lungsod ay nagbibigay ng mas malinaw na mga resulta. Subukan na pagsamahin ang isang kalakalan (hal. mga tubero, dentista) na may postal code o kapitbahayan para sa pinakamahusay na mga lead.",
+    "dataSourceMaps": "Data mula sa Google Maps",
+    "dataSourceWeb": "Data mula sa web search"
+  },
+  "myNetwork": {
+    "pageTitle": "Aking Network at Kita",
+    "pageSubtitle": "Ang iyong team, ang iyong mga pinagkakakitaan, ang iyong paglago",
+    "referralLinkLabel": "Iyong Referral Link",
+    "copyBtn": "Kopyahin ang link",
+    "copiedBtn": "Nakopya!",
+    "earningsTitle": "Iyong Kita",
+    "earningsSubtitle": "Kabuuan at buwanan, sa bawat pinagkakakitaan",
+    "lifetimeEarned": "Kita Habangbuhay",
+    "lifetimeEarnedSub": "Sa buong panahon sa lahat ng pinagkakakitaan",
+    "thisMonth": "Ngayong Buwan",
+    "thisMonthSub": "Mga komisyon na binayad sa {{month}}",
+    "streamsCardTitle": "Kita ayon sa Pinagmulan",
+    "streamsCardSubtitle": "Apat na paraan para kumita ng mga miyembro sa SuperAdPro",
+    "streamMembershipName": "Membership Residual",
+    "streamMembershipDesc": "50% ng buwanang bayarin sa membership ng bawat direktang referral",
+    "streamGridName": "Grid / Mga Campaign",
+    "streamGridDesc": "40% direktang + 50% uni-level mula sa mga pagbili ng tier ng campaign",
+    "streamCourseName": "Course Academy",
+    "streamCourseDesc": "100% komisyon sa pamamagitan ng 4 na walang hanggang Income Chain",
+    "streamNexusName": "Credit Nexus",
+    "streamNexusDesc": "Kita ng 3×3 matrix sa mga pagbili ng credit pack ng downline",
+    "recentCommissionsTitle": "Mga Kamakailang Komisyon",
+    "seeAll": "Tingnan lahat",
+    "colSource": "Pinagmulan",
+    "colDetails": "Mga detalye",
+    "colAmount": "Halaga",
+    "colDate": "Petsa",
+    "noCommissionsTitle": "Wala pang mga komisyon",
+    "noCommissionsSubtitle": "Lalabas ang mga komisyon dito habang lumalaki ang iyong team",
+    "teamTitle": "Iyong Team",
+    "teamSubtitle": "Lahat ng nasa ilalim mo, lumalaki sa paglipas ng panahon",
+    "directReferrals": "Mga Direktang Referral",
+    "directReferralsSub": "Mga taong personal mong nirekrut",
+    "totalNetwork": "Kabuuang Network",
+    "totalNetworkSub": "Lahat ng nasa ilalim mo sa bawat lalim",
+    "activeMembers": "Mga Aktibong Miyembro",
+    "activeMembersSub": "Aktibo pa rin sa platform",
+    "directReferralsList": "Mga Direktang Referral",
+    "totalCount": "{{count}} sa kabuuan",
+    "colMember": "Miyembro",
+    "colStatus": "Status",
+    "colTheirTeam": "Kanilang Team",
+    "colJoined": "Sumali",
+    "statusActive": "Aktibo",
+    "statusInactive": "Hindi aktibo",
+    "noReferralsTitle": "Wala pang mga referral",
+    "noReferralsSubtitle": "Ibahagi ang iyong link sa itaas para magsimula ng network",
+    "streamCategoryMembership": "Membership",
+    "streamCategoryGrid": "Grid",
+    "streamCategoryCourses": "Mga Kurso",
+    "streamCategoryCreditNexus": "Credit Nexus",
+    "streamCategoryOther": "Iba pa",
+    "typeDirectSponsor": "Bonus ng direktang sponsor",
+    "typeUniLevel": "Komisyon sa uni-level",
+    "typeGridCompletion": "Bonus sa pagkumpleto ng grid",
+    "typePlatform": "Komisyon sa platform",
+    "typeMatrixLevel": "Bonus sa level ng credit matrix",
+    "typeMatrixCompletion": "Pagkumpleto ng credit matrix",
+    "typeNexusSponsor": "Bonus ng Credit Nexus sponsor",
+    "typeDirectSale": "Direktang pagbebenta ng kurso (100%)",
+    "typePassUp": "Course pass-up cascade",
+    "typeMembership": "Referral sa membership"
   }
 }

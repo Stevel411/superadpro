@@ -108,7 +108,8 @@
     "sponsorUsername": "Jina la mdhamini",
     "yourImages": "Picha zako",
     "videoNotSupported": "URL ya video haihusaidiwi.",
-    "alreadyHaveAccount": "Tayari una akaunti?"
+    "alreadyHaveAccount": "Tayari una akaunti?",
+    "tapToUnmute": "Gonga ili kusitisha kunyamazisha"
   },
   "nav": {
     "dashboard": "Dashibodi",
@@ -192,7 +193,8 @@
     "marketingMaterials": "Vifaa vya Masoko",
     "courseAcademy": "Chuo cha Kozi",
     "profitGrid": "Gridi ya Faida",
-    "gridCalculator": "Kikokotoo cha Gridi"
+    "gridCalculator": "Kikokotoo cha Gridi",
+    "incomeChains": "Minyororo ya Mapato"
   },
   "dashboard": {
     "title": "Dashibodi",
@@ -631,7 +633,8 @@
     "returnToTab": "Rudi kwenye kichupo hiki kuendelea",
     "general": "General",
     "loading": "Inapakia...",
-    "playing": "▶ Inacheza"
+    "playing": "▶ Inacheza",
+    "watchOneToQualify": "Tazama video 1 ili kustahiki leo"
   },
   "adBoard": {
     "title": "Bodi ya Matangazo",
@@ -1984,7 +1987,8 @@
     "enterDescription": "Ingiza maelezo",
     "enterScript": "Ingiza hati",
     "uploadAnImage": "Pakia picha",
-    "remaining": "imebaki"
+    "remaining": "imebaki",
+    "preview": "Onyesho la awali"
   },
   "socialShare": {
     "title": "Shiriki Kijamii",
@@ -2291,7 +2295,8 @@
     "paymentWindowOpened": "Payment window opened — complete your USDT payment to receive {{credits}} credits. Your nexus will update automatically once payment is confirmed.",
     "creditsAwarded": "{{credits}} credits awarded!",
     "commissionsEarned": "${{amount}} in commissions paid to your upline.",
-    "purchaseFailed": "Purchase failed"
+    "purchaseFailed": "Purchase failed",
+    "perCredit": "kwa mkopo"
   },
   "matrixVis": {
     "title": "Nexus ya Faida",
@@ -2948,7 +2953,243 @@
     "achieveDefault": "Tazama malengo yaliyofikiwa na wanachama wa jumuiya yetu.",
     "lastChanceDefault": "Hii ni nafasi yako ya mwisho ya kujiunga nasi.",
     "sentToLeads": "Imetumwa kwa",
-    "leads": "wapangaji"
+    "leads": "wapangaji",
+    "help": {
+      "title": "Msaada wa SuperLeads",
+      "subtitle": "Mwongozo kamili wa CRM na kijibu otomatiki",
+      "searchPlaceholder": "Tafuta mada za msaada…",
+      "noResults": "Hakuna matokeo kwa",
+      "sections": {
+        "gettingStarted": {
+          "category": "Kuanza",
+          "items": [
+            {
+              "title": "SuperLeads ni nini?",
+              "desc": "SuperLeads ni CRM yako iliyojumuishwa na kijibu otomatiki cha barua pepe. Inakuruhusu kunasa leads kutoka kwa funnel za SuperPages, kuzipanga katika orodha, kutuma mfuatano wa barua pepe otomatiki, na kutangaza barua pepe za mara moja — yote bila kuhitaji chombo tofauti cha uuzaji wa barua pepe."
+            },
+            {
+              "title": "Leads zinaingiaje kwenye CRM yangu?",
+              "desc": "Leads huongezwa kiotomatiki wakati mtu anajaza fomu kwenye SuperPages yoyote yako. Jina lao na barua pepe hunaswa papo hapo na kuonekana kwenye kichupo chako cha Leads. Unaweza pia kuingiza leads kwa mkono ukitumia faili ya CSV kupitia kichupo cha Ingiza."
+            },
+            {
+              "title": "Ni nani anaweza kutumia SuperLeads?",
+              "desc": "SuperLeads ni kipengele cha mwanachama wa Pro. Unapata hadi leads 5,000 zikijumuishwa katika uanachama wako wa Pro. Unahitaji uwezo zaidi? Unaweza kupanua wakati wowote kutoka kwa mipangilio ya akaunti yako."
+            },
+            {
+              "title": "Nini kinatokea lead inapoingia?",
+              "desc": "Wakati lead anajaza fomu yako ya funnel, anaongezwa kwenye CRM yako, anapewa mfuatano wako wa hivi karibuni wa barua pepe unaofanya kazi, na barua pepe ya kwanza katika mfuatano huo inatumwa mara moja kupitia Brevo. Yote otomatiki — hakuna hatua za mkono zinazohitajika."
+            }
+          ]
+        },
+        "leadsTab": {
+          "category": "Kichupo cha Leads",
+          "items": [
+            {
+              "title": "Kichupo cha Leads kinaonyesha nini?",
+              "desc": "Kichupo cha Leads ni orodha yako kuu ya anwani. Inaonyesha kila lead uliyonasa au kuingiza, ikijumuisha jina, barua pepe, orodha wanayoenda, hali yao ya sasa, ni barua pepe ngapi walizopokea na kufungua, na ni mfuatano gani wamepewa."
+            },
+            {
+              "title": "Hali za Leads Zimefafanuliwa",
+              "desc": "Mpya — imeongezwa hivi karibuni, bado hakuna mwingiliano. Inatunzwa — katika mfuatano wa barua pepe unaofanya kazi. Moto — imewekwa alama kiotomatiki wakati lead anafungua barua pepe 2+ au kubofya kiungo chochote. Imebadilishwa — weka alama lead kama imebadilishwa mara tu anapofanya kitendo kinachotaka."
+            },
+            {
+              "title": "Hot Lead ni nini?",
+              "desc": "Hot Lead ni mtu anayeonyesha nia ya kweli — amefungua barua pepe kadhaa au kubofya kiungo. Hawa ni watarajiwa wako wenye moto zaidi na wanastahili kupewa kipaumbele. Hot leads huwekwa alama kiotomatiki na ikoni ya moto."
+            },
+            {
+              "title": "Kuchuja leads zako",
+              "desc": "Tumia vitufe vya kichujio vya rangi ili kuona leads kwa hali: Zote, Mpya, Inatunzwa, Moto, au Imebadilishwa. Tumia menyu ya Orodha Zote kulia kuchuja kwa orodha maalum. Changanya vichujio vyote viwili."
+            },
+            {
+              "title": "Kumpa lead mfuatano",
+              "desc": "Katika safu ya Mfuatano karibu na kila lead, tumia menyu ya kushuka kumpa au kubadilisha mfuatano wa barua pepe wanayoishi. Wakati ujao utakapobofya Tuma Ifuatayo kwenye mfuatano huo, itajumuisha lead hii."
+            },
+            {
+              "title": "Kufuta lead",
+              "desc": "Bofya ikoni nyekundu ya tupio kulia ya mstari wowote wa lead ili kufuta. Hii huondoa lead na historia yote ya barua pepe kabisa. Tumia kwa uangalifu — hii haiwezi kurejeshwa."
+            }
+          ]
+        },
+        "lists": {
+          "category": "Orodha",
+          "items": [
+            {
+              "title": "Orodha ni nini?",
+              "desc": "Orodha zinakuruhusu kupanga leads zako katika vikundi. Kwa mfano: Leads za Facebook, Trafiki ya YouTube, Usajili wa Webinar, au Wateja wa VIP. Kila orodha ina rangi yake ili uweze kuzitambua mara moja."
+            },
+            {
+              "title": "Kuunda Orodha",
+              "desc": "Bofya Orodha Mpya, ipe jina, maelezo ya hiari, chagua rangi, na kwa hiari peana mfuatano wa barua pepe chaguo-msingi. Lead yoyote iliyoletwa au kunaswa kwa orodha hii itajisajili kiotomatiki kwenye mfuatano huo."
+            },
+            {
+              "title": "Mfuatano Chaguo-msingi kwenye Orodha",
+              "desc": "Unapoweka mfuatano chaguo-msingi kwenye orodha, kila lead mpya iliyoongezwa kwenye orodha hiyo (kupitia kunasa fomu au kuingiza CSV) imejisajili kiotomatiki. Hii inakuokoa kugawa mfuatano kwa mkono."
+            },
+            {
+              "title": "Nini kinatokea nikifuta Orodha?",
+              "desc": "Ukifuta orodha, leads zote zilizokuwa ndani yake zinahamishiwa Hazijapangwa badala ya kufutwa. Unaweza kuchuja leads zisizopangwa na kuzipeana orodha mpya wakati wowote."
+            },
+            {
+              "title": "Idadi ya lead kwenye kadi za Orodha",
+              "desc": "Kila kadi ya orodha inaonyesha idadi ya lead ili uweze kuona kwa mtazamo mmoja ni anwani ngapi kwenye kila kikundi. Upau wa rangi juu ya kila kadi unalingana na rangi uliyochagua."
+            }
+          ]
+        },
+        "sequences": {
+          "category": "Mfuatano",
+          "items": [
+            {
+              "title": "Mfuatano wa Barua Pepe ni nini?",
+              "desc": "Mfuatano ni msururu wa barua pepe zinazotumwa kiotomatiki kwa muda. Unaziandika mara moja, unaweka ucheleweshaji kati ya kila barua pepe, na mfumo hutuma kwa leads zako kwa autopilot. Kamili kwa msururu wa karibu."
+            },
+            {
+              "title": "Kuunda Mfuatano",
+              "desc": "Bofya Unda Mfuatano, upe jina, na ongeza barua pepe zako. Kila barua pepe inahitaji mada, mwili (iliyoandikwa kwa kihariri cha maandishi tajiri), na ucheleweshaji wa kutuma kwa siku. Siku 0 inatuma mara moja."
+            },
+            {
+              "title": "Tuma Ifuatayo hufanya nini?",
+              "desc": "Kubofya Tuma Ifuatayo kwenye mfuatano hutuma barua pepe inayofuata inayosubiri kwa kila lead iliyopewa mfuatano huo. Mfumo hufuatilia barua pepe gani kila lead yuko."
+            },
+            {
+              "title": "Ucheleweshaji wa Kutuma Umefafanuliwa",
+              "desc": "Ucheleweshaji kwenye kila barua pepe ni idadi ya siku baada ya barua pepe ya awali kutumwa. Barua pepe 1 kwa siku 0 inatuma mara moja. Barua pepe 2 kwa siku 2 inatuma siku 2 baada ya Barua pepe 1."
+            },
+            {
+              "title": "Kuhariri Mfuatano",
+              "desc": "Bofya Hariri kwenye kadi yoyote ya mfuatano ili kubadilisha jina, kuongeza au kuondoa barua pepe, kusasisha mada na miili, au kurekebisha ucheleweshaji. Mabadiliko yanatumika kwa mitumo ya baadaye."
+            },
+            {
+              "title": "Kihariri cha Maandishi Tajiri",
+              "desc": "Kihariri cha mwili wa barua pepe kinaauni herufi nzito, italiki, mstari chini, orodha za risasi, orodha zilizo na nambari, vichwa, na viungo. Andika barua pepe yako kama unavyotaka ionekane."
+            }
+          ]
+        },
+        "broadcast": {
+          "category": "Matangazo",
+          "items": [
+            {
+              "title": "Tangazo ni nini?",
+              "desc": "Tangazo ni barua pepe ya mara moja iliyotumwa kwa leads zako zote au kikundi kilichochujwa sasa hivi. Tofauti na mfuatano (zinazodondoka kwa muda), tangazo linaenda mara moja kwa kila mtu anayelingana na kichujio chako."
+            },
+            {
+              "title": "Kuchuja wapokeaji wa tangazo lako",
+              "desc": "Kabla ya kutuma, chagua kichujio cha Orodha na/au Hali. Idadi ya wapokeaji inasasishwa moja kwa moja ili ujue ni watu wangapi wanaopokea barua pepe kabla ya kubofya Tuma."
+            },
+            {
+              "title": "Idadi ya Wapokeaji",
+              "desc": "Nambari inayoonyeshwa kando ya vichujio ni hesabu ya moja kwa moja ya leads zinazolingana na uteuzi wako na hazijafutwa. Hii ni idadi halisi ya barua pepe zitakazotumwa."
+            },
+            {
+              "title": "Leads zilizofuta usajili",
+              "desc": "Leads ambazo zimefuta usajili huachwa kiotomatiki kutoka kwa matangazo yote na mitumo ya mfuatano. Huhitaji kuzichuja kwa mkono — mfumo unashughulikia hilo."
+            },
+            {
+              "title": "Matangazo vs Mfuatano",
+              "desc": "Tumia Mfuatano kwa msururu wa barua pepe uliopangwa wa kijani kibichi (flow za karibu, kufuatilia). Tumia Matangazo kwa mitumo ya mara moja kwa orodha yako yote — mauzo ya flash, mialiko ya webinar, uzinduzi wa bidhaa."
+            }
+          ]
+        },
+        "import": {
+          "category": "Ingiza",
+          "items": [
+            {
+              "title": "Kuingiza leads kupitia CSV",
+              "desc": "Nenda kwenye kichupo cha Ingiza, pakia faili ya CSV au bandika maandishi ya CSV moja kwa moja. CSV yako inapaswa kuwa na safu za barua pepe na jina la hiari. Bofya Hakiki kuchunguza data kabla ya kuingiza, kisha bofya Ingiza."
+            },
+            {
+              "title": "Umbo la CSV",
+              "desc": "Umbo rahisi zaidi ni safu mbili: barua pepe na jina. Kwa mfano: email,name kwenye safu ya kwanza, kisha john@example.com,John Smith kwenye kila safu inayofuata. Kiingiza ni laini."
+            },
+            {
+              "title": "Kupeana Orodha unapoingiza",
+              "desc": "Kabla ya kuingiza, chagua orodha ambayo unataka kuingiza leads ukitumia menyu ya Kwa Orodha. Kuchagua orodha inamaanisha leads zote zilizoingizwa zinapangwa papo hapo."
+            },
+            {
+              "title": "Hakiki kabla ya kuingiza",
+              "desc": "Bofya Hakiki kuona leads ngapi zimegunduliwa kwenye CSV yako na angalia matatizo yoyote ya umbizo. Idadi inayoonyeshwa ni leads ngapi zitaingizwa kwa kweli."
+            },
+            {
+              "title": "Kikomo cha lead",
+              "desc": "Idadi ya lead yako ya sasa na kikomo huonyeshwa juu ya kichupo cha Ingiza. Wanachama wa Pro wanaweza kuwa na hadi leads 5,000. Ikiwa unakaribia kikomo chako, nunua pakiti ya Email Boost."
+            },
+            {
+              "title": "Utunzaji wa nakala rudufu",
+              "desc": "Ikiwa anwani ya barua pepe tayari ipo kwenye CRM yako, kuingiza kutaruka lead hiyo badala ya kuunda nakala rudufu. Data yako ya lead iliyopo (hali, mgao wa mfuatano, historia ya barua pepe) imehifadhiwa."
+            }
+          ]
+        },
+        "emailBoost": {
+          "category": "Email Boost",
+          "items": [
+            {
+              "title": "Email Boost ni nini?",
+              "desc": "Email Boost inakuruhusu kutuma barua pepe zaidi kuliko mgao wako wa bure wa kila siku. Kila mwanachama wa Pro anapata barua pepe 200 bure kwa siku. Ikiwa unahitaji kutuma zaidi, unaweza kununua Pakiti za Boost."
+            },
+            {
+              "title": "Jinsi kikomo cha kila siku kinavyofanya kazi",
+              "desc": "Unapata barua pepe 200 bure kila siku. Kihesabu kinaanzisha tena usiku wa manane wa UTC. Ikiwa unatuma tangazo kwa leads 150 na una mfuatano 3 unaoendelea, barua pepe zako 200 za bure zinatumika kwanza."
+            },
+            {
+              "title": "Pakiti za Boost zinazopatikana",
+              "desc": "Barua pepe 1,000 — $5. Barua pepe 5,000 — $19. Barua pepe 10,000 — $29. Barua pepe 50,000 — $99. Mikopo ya Boost haiishi kamwe — inaendelea bila kikomo hadi itumike."
+            },
+            {
+              "title": "Jinsi mikopo inavyotolewa",
+              "desc": "Mikopo ya bure ya kila siku hutumika kwanza kila wakati. Mara baada ya barua pepe 200 za bure za siku kutumika, kila barua pepe ya ziada hutoa kiotomatiki mkopo mmoja wa Boost."
+            },
+            {
+              "title": "Kununua Pakiti ya Boost",
+              "desc": "Bofya Nunua kwenye kadi yoyote ya Pakiti ya Boost. Gharama inatolewa kutoka kwa salio lako la pochi ya SuperAdPro. Mikopo huongezwa papo hapo — unaweza kuitumia mara moja."
+            },
+            {
+              "title": "Kuangalia matumizi yako",
+              "desc": "Upau wa maendeleo juu ya ukurasa wa SuperLeads unaonyesha matumizi yako ya barua pepe ya kila siku (mfano Kila siku: 45/200). Kihesabu cha Mikopo kinaonyesha salio lako la sasa la mikopo ya Boost."
+            },
+            {
+              "title": "Nahitaji lini mikopo ya Boost?",
+              "desc": "Ikiwa orodha yako ni ndogo (chini ya leads 200) na unatuma tangazo moja kwa siku, mara chache utahitaji mikopo ya Boost. Zinakuwa muhimu wakati una orodha kubwa, unaendesha mfuatano mingi wakati mmoja."
+            }
+          ]
+        }
+      }
+    },
+    "autoresponderLabel": "Kijibu otomatiki",
+    "totalLeadsStat": "Jumla ya leads",
+    "sequencesStat": "Mfuatano",
+    "sentTodayStat": "Imetumwa leo",
+    "hotLeadsStat": "Leads za moto",
+    "tabLeads": "Leads",
+    "tabSequences": "Mfuatano",
+    "tabBroadcast": "Matangazo",
+    "tabImport": "Ingiza",
+    "tabBoost": "Boost",
+    "filterAllStatuses": "Hali zote",
+    "filterAllLists": "Orodha zote",
+    "statusNew": "Mpya",
+    "statusNurturing": "Inatunzwa",
+    "statusHot": "Moto",
+    "statusConverted": "Imebadilishwa",
+    "statusUnsubscribed": "Imefuta",
+    "searchLeadsPlaceholder": "Tafuta leads…",
+    "newListBtn": "Orodha mpya",
+    "deleteLeadConfirm": "Futa lead hii?",
+    "leadDeleted": "Lead imefutwa",
+    "noLeadsYet": "Bado hakuna leads",
+    "defaultWelcomeSubject": "Karibu!",
+    "defaultFollowUpSubject": "Kufuatilia — kidokezo cha haraka",
+    "defaultLastChanceSubject": "Nafasi ya mwisho ya kuchukua hatua",
+    "dayLabel": "Siku",
+    "boostPack1kLabel": "Barua pepe 1,000",
+    "boostPack1kDesc": "Kamili kwa kampeni inayolengwa",
+    "boostPack5kLabel": "Barua pepe 5,000",
+    "boostPack5kDesc": "Endesha mfuatano mingi",
+    "boostPack10kLabel": "Barua pepe 10,000",
+    "boostPack10kDesc": "Panua ufikiaji wako",
+    "boostPack50kLabel": "Barua pepe 50,000",
+    "boostPack50kDesc": "Kiasi cha biashara",
+    "contacts": "anwani",
+    "sent": "imetumwa",
+    "noneOption": "Hakuna"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -4400,7 +4641,198 @@
     "duplicate": "Nakili",
     "deleteElement": "Futa",
     "pages": "Kurasa",
-    "help": "Msaada",
+    "help": {
+      "title": "Msaada wa SuperPages",
+      "subtitle": "Msingi wa maarifa wa kiunda ukurasa",
+      "searchPlaceholder": "Tafuta mada za msaada…",
+      "noResults": "Hakuna matokeo kwa",
+      "sections": {
+        "gettingStarted": {
+          "category": "Kuanza",
+          "items": [
+            {
+              "title": "Jinsi Kihariri kinavyofanya kazi",
+              "desc": "SuperPages ni kiunda ukurasa cha kuburuta-na-kuangusha cha umbo huru. Bofya kizuizi chochote kutoka kwa jopo la kulia ili kuongeza kwenye turubai yako, kisha buruta kuiweka popote. Bonyeza mara mbili vipengele vya maandishi ili kuhariri inline."
+            },
+            {
+              "title": "Kuchagua na Kusogeza",
+              "desc": "Bofya mara moja kwenye kipengele chochote ili kukichagua — utaona muhtasari wa bluu na mipini ya kubadilisha saizi ikionekana. Bofya na buruta kurudisha nafasi. Shikilia Shift + Vitufe vya mshale kusogeza 10px, au vitufe vya mshale pekee kwa usahihi wa 1px."
+            },
+            {
+              "title": "Kubadilisha Saizi",
+              "desc": "Vipengele vilivyochaguliwa huonyesha mipini 8 ya samawati ya kubadilisha saizi — kwenye pembe zote nne na pande nne. Buruta mpini wowote kubadilisha saizi. Mipini ya kona hubadilisha saizi kwa pande zote mbili kwa wakati mmoja."
+            },
+            {
+              "title": "Kuhifadhi na Kuchapisha",
+              "desc": "Bofya Hifadhi kuhifadhi kazi yako (hifadhi otomatiki kila sekunde 30). Bofya Chapisha kufanya ukurasa wako uishi wavuti. URL yako ya moja kwa moja inaonekana kwenye Mipangilio."
+            },
+            {
+              "title": "Mikato ya Kibodi",
+              "desc": "Ctrl+S: Hifadhi | Ctrl+Z: Tengua | Ctrl+Y: Rudia | Delete: Ondoa kipengele | Vitufe vya mshale: 1px | Shift+Mshale: 10px | Escape: Batilisha"
+            }
+          ]
+        },
+        "textElements": {
+          "category": "Vipengele vya maandishi",
+          "items": [
+            {
+              "title": "Kichwa",
+              "desc": "Maandishi makubwa, mazito kwa vichwa vya ukurasa na vichwa vya sehemu. Chaguo-msingi ni fonti ya Sora 36px nyeupe. Bonyeza mara mbili kuhariri maandishi. Tumia upau wa zana unaoelea kubadilisha familia ya fonti, saizi, rangi."
+            },
+            {
+              "title": "Maandishi",
+              "desc": "Maandishi ya mwili kwa aya na maelezo. Chaguo-msingi ni fonti ya Outfit 15px kijivu yenye urefu wa mstari wa 1.8 kwa kusomeka. Bonyeza mara mbili kuhariri."
+            },
+            {
+              "title": "Lebo",
+              "desc": "Maandishi madogo ya mtindo wa beji yaliyokamilika kwa lebo kama PREMIUM, NEW, au LIMITED OFFER. Huja na mandharinyuma ya pili iliyozungushwa na mpaka."
+            }
+          ]
+        },
+        "mediaElements": {
+          "category": "Vipengele vya vyombo vya habari",
+          "items": [
+            {
+              "title": "Picha",
+              "desc": "Ongeza picha kwenye ukurasa wako. Bofya kitufe cha kuhariri IMAGE kwenye upau wa zana wa kipengele kuingiza URL ya picha au kupakia faili (max 5MB). Inaunga mkono JPG, PNG, GIF, WebP."
+            },
+            {
+              "title": "Video",
+              "desc": "Pachika video kutoka YouTube, Vimeo, au pakia faili zako mwenyewe za MP4/WebM (max 50MB). Bofya hariri VIDEO kuongeza. URL za kutazama za YouTube na Vimeo hubadilishwa kiotomatiki."
+            },
+            {
+              "title": "Sauti",
+              "desc": "Ongeza wachezaji wa sauti kwenye ukurasa wako. Bofya hariri AUDIO kuingiza URL ya sauti au kupakia faili za MP3/WAV/OGG (max 20MB). Nzuri kwa podcasts, sampuli za muziki."
+            }
+          ]
+        },
+        "actionElements": {
+          "category": "Vipengele vya vitendo",
+          "items": [
+            {
+              "title": "Kitufe",
+              "desc": "Kitufe kinachoweza kubonyezwa chenye mandharinyuma ya gradient. Bofya hariri LINK kuweka URL ya marudio. Bonyeza mara mbili kubadilisha maandishi ya kitufe. Kamili kwa CTAs."
+            },
+            {
+              "title": "Fomu ya Opt-In",
+              "desc": "Fomu ya kunasa barua pepe yenye uga wa jina, uga wa barua pepe, na kitufe cha kuwasilisha. Imetumiwa awali na mandharinyuma ya kioo cha giza. Bofya hariri FORM kubinafsisha HTML."
+            },
+            {
+              "title": "CTA (Wito wa Kuchukua Hatua)",
+              "desc": "Sawa na Kitufe lakini umetumiwa haswa kwa vitendo vya msingi vya ubadilishaji. Bofya hariri LINK kuweka URL ya marudio. Tumia kwa kitendo kikuu cha ukurasa."
+            }
+          ]
+        },
+        "contentElements": {
+          "category": "Vipengele vya maudhui",
+          "items": [
+            {
+              "title": "Ukaguzi",
+              "desc": "Kizuizi cha ukaguzi wa mteja chenye ukadiriaji wa nyota, maandishi ya nukuu, na sifa. Imetumiwa na mandharinyuma ya kadi nyeusi na mpaka wa kushoto wa samawati."
+            },
+            {
+              "title": "Beji",
+              "desc": "Beji ndogo ya mapambo inayofanana na Lebo — muhimu kwa lebo kama BEST VALUE, MOST POPULAR, au FEATURED. Ina mtindo wa pili wa dhahabu kwa chaguo-msingi."
+            },
+            {
+              "title": "Ushahidi",
+              "desc": "Kizuizi cha ushahidi kilichopanuliwa chenye nyota, nukuu ndefu, na salio la mwandishi. Ina mpaka wa kushoto wa dhahabu kuutofautisha na ukaguzi."
+            },
+            {
+              "title": "FAQ",
+              "desc": "Kizuizi cha swali-na-jibu kilichotengenezwa na kichwa chenye mpaka laini. Bonyeza mara mbili kuhariri maandishi ya swali na jibu. Rundika vipengele vingi vya FAQ."
+            },
+            {
+              "title": "Takwimu",
+              "desc": "Onyesho kubwa la takwimu — linaonyesha nambari kubwa (kama 95%) yenye lebo chini. Kamili kwa uthibitisho wa kijamii: Wanachama 10,000+, Kiwango cha Malipo 95%."
+            },
+            {
+              "title": "Maendeleo",
+              "desc": "Upau wa maendeleo wa uhuishaji wenye lebo na asilimia. Bofya hariri SET kusanidi maandishi ya lebo, asilimia (0-100), na rangi ya upau."
+            }
+          ]
+        },
+        "layoutElements": {
+          "category": "Vipengele vya mpangilio",
+          "items": [
+            {
+              "title": "Hesabu ya Kushuka",
+              "desc": "Kipima muda cha kushuka cha moja kwa moja kinachohesabu hadi tarehe na wakati unaolengwa. Bofya hariri SET kuchagua tarehe unayolengwa. Linaunda uharaka."
+            },
+            {
+              "title": "Kijamii",
+              "desc": "Safu ya ikoni za mitandao ya kijamii — YouTube, Instagram, TikTok, Facebook, X/Twitter, na LinkedIn. Bofya hariri LINKS kuongeza URL zako za profaili."
+            },
+            {
+              "title": "Ikoni + Maandishi",
+              "desc": "Kizuizi cha kipengele kinachochanganya emoji/ikoni na kichwa na maandishi ya maelezo. Kamili kwa kuorodhesha faida, vipengele, au hatua."
+            },
+            {
+              "title": "Kitenganishi",
+              "desc": "Mstari wa kitenganishi wa mapambo wenye maandishi ya katikati ya hiari. Bonyeza mara mbili kubadilisha maandishi. Tumia kati ya sehemu."
+            },
+            {
+              "title": "Nembo",
+              "desc": "Ukanda wa nembo 'As seen in' — huonyesha majina ya chapa katika safu mlalo. Bonyeza mara mbili kuhariri majina ya chapa."
+            },
+            {
+              "title": "Nafasi",
+              "desc": "Kipengele kisichoonekana cha nafasi. Buruta kuweka na kubadilisha saizi kudhibiti nafasi kati ya vipengele vingine. Hakuna muonekano wa kuona kwenye ukurasa uliochapishwa."
+            },
+            {
+              "title": "Sanduku",
+              "desc": "Chombo tupu chenye mpaka laini na pembe zilizozungushwa. Tumia kama kadi ya mandharinyuma nyuma ya vipengele vingine kuunda sehemu zilizopangwa."
+            },
+            {
+              "title": "Kigawanyishi",
+              "desc": "Mstari rahisi wa mlalo. Tumia kutenganisha sehemu kwenye ukurasa wako. Badilisha upana kudhibiti jinsi inavyoenea."
+            },
+            {
+              "title": "Pachika",
+              "desc": "Kizuizi cha kupachika HTML/msimbo mbichi. Bofya hariri CODE kubandika HTML yoyote, ikiwa ni pamoja na iframe, vidude maalum, pikseli za kufuatilia."
+            }
+          ]
+        },
+        "settingsPublishing": {
+          "category": "Mipangilio na Kuchapisha",
+          "items": [
+            {
+              "title": "Kichwa cha Ukurasa",
+              "desc": "Jina la ukurasa wako — linaonekana kwenye kichupo cha kivinjari, matokeo ya injini ya utafutaji, na orodha yako ya SuperPages. Chagua kitu cha maelezo na cha kuvutia kwa SEO."
+            },
+            {
+              "title": "Slug ya URL ya Ukurasa",
+              "desc": "Binafsisha anwani ya wavuti ya ukurasa wako uliochapishwa. Fungua Mipangilio, tafuta uga wa Slug ya URL ya Ukurasa, na charaza jina unalopendelea ukitumia herufi ndogo, nambari, na vistari pekee. Kila slug lazima iwe ya kipekee."
+            },
+            {
+              "title": "Maelezo ya Meta",
+              "desc": "Maelezo yanayoonekana chini ya kichwa cha ukurasa wako katika matokeo ya utafutaji ya Google. Andika herufi 150-160 zinazowaambia wageni kile ukurasa wako unatoa."
+            },
+            {
+              "title": "Picha ya Kushiriki Kijamii",
+              "desc": "Wakati mtu akishiriki ukurasa wako uliochapishwa kwenye Facebook, Twitter, LinkedIn, au WhatsApp, picha hii inaonekana kama kijipicha cha onyesho la awali. Tumia 1200x630px."
+            },
+            {
+              "title": "Hali ya Ukurasa",
+              "desc": "Kurasa za rasimu zinaonekana kwako tu. Kurasa zilizochapishwa ziko hai kwenye wavuti kwenye URL yako ya moja kwa moja. Badilisha kati ya Rasimu na Imechapishwa wakati wowote."
+            },
+            {
+              "title": "Mandharinyuma ya Turubai",
+              "desc": "Badilisha mandharinyuma ya ukurasa kwa kutumia kichagua rangi au kupakia picha juu kulia mwa jopo la Vizuizi. Inaunga mkono rangi imara, gradient, na picha za mandharinyuma za ukurasa mzima."
+            }
+          ]
+        },
+        "aiAssistant": {
+          "category": "Msaidizi wa AI",
+          "items": [
+            {
+              "title": "Gumzo la AI",
+              "desc": "Bofya Msaidizi wa AI chini ya jopo la Vizuizi kufungua gumzo la AI. Mwambie unachotaka: ongeza kichwa, badilisha mandharinyuma kuwa navy, andika nakala ya mauzo kwa bidhaa ya fitness. AI inaweza kurekebisha mtindo wa ukurasa wako."
+            }
+          ]
+        }
+      }
+    },
     "knowledgeBase": "Msingi wa maarifa",
     "learnElements": "Jifunze jinsi kila kipengele na kipengee kinavyofanya kazi",
     "searchPlaceholder": "Tafuta vipengele, vipengee...",
@@ -4449,7 +4881,9 @@
     "blkProgress": "Maendeleo",
     "blkCountdown": "Hesabu",
     "blkSocials": "Mitandao",
-    "blkIconText": "Ikoni+Maandishi"
+    "blkIconText": "Ikoni+Maandishi",
+    "blk": "Kizuizi",
+    "cat": "Kategoria"
   },
   "coursePlayer": {},
   "analytics": {
@@ -4485,7 +4919,18 @@
     "lastWithdrawal": "Utoaji wa mwisho",
     "noWithdrawals": "Hakuna utoaji bado",
     "totalAiGen": "jumla ya uzalishaji wa AI",
-    "qualificationDesc": "Hitaji lako la kutazama kila siku ili kustahili kutoa Pochi ya Kampeni. Hii si chanzo cha mapato — ni ukaguzi wako wa uwajibikaji."
+    "qualificationDesc": "Hitaji lako la kutazama kila siku ili kustahili kutoa Pochi ya Kampeni. Hii si chanzo cha mapato — ni ukaguzi wako wa uwajibikaji.",
+    "campaignGrid": "Gridi ya Kampeni",
+    "courses": "Kozi",
+    "creditNexus": "Credit Nexus",
+    "fiftyRecurring": "50% inayojirudia",
+    "gridCommissions": "Kamisheni za gridi",
+    "membership": "Uanachama",
+    "nexusCommissions": "Kamisheni za Nexus",
+    "noResults": "Hakuna matokeo",
+    "noTeamYet": "Bado hakuna timu",
+    "recruitToMsg": "Ajiri mtu ili kuanza kutuma ujumbe",
+    "salesPassUps": "Mauzo + kupitisha"
   },
   "superMarket": {
     "comparePrice": "Bei ya kulinganisha",
@@ -4579,6 +5024,72 @@
     "libRetail": "Rejareja na Ununuzi",
     "proTipTitle": "Dokezo la Pro",
     "proTipWeb": "Majina ya chapa mahususi hufanya kazi vizuri zaidi. Utafutaji kama \"msambazaji Herbalife Kenya\" hupata tovuti za wasambazaji binafsi, wakati maneno yasiyoeleweka kama \"fursa ya biashara\" hurudisha tu wachapishaji wa maudhui.",
-    "proTipMaps": "Kuongeza mji mahususi kunatoa matokeo bora. Jaribu kuchanganya kazi (mfano mafundi bomba, madaktari wa meno) na msimbo wa posta au kitongoji kwa viongozi bora."
+    "proTipMaps": "Kuongeza mji mahususi kunatoa matokeo bora. Jaribu kuchanganya kazi (mfano mafundi bomba, madaktari wa meno) na msimbo wa posta au kitongoji kwa viongozi bora.",
+    "dataSourceMaps": "Data kutoka Google Maps",
+    "dataSourceWeb": "Data kutoka utafutaji wa wavuti"
+  },
+  "myNetwork": {
+    "pageTitle": "Mtandao Wangu na Mapato",
+    "pageSubtitle": "Timu yako, vyanzo vyako vya mapato, ukuaji wako",
+    "referralLinkLabel": "Kiungo Chako cha Rufaa",
+    "copyBtn": "Nakili kiungo",
+    "copiedBtn": "Imenakiliwa!",
+    "earningsTitle": "Mapato Yako",
+    "earningsSubtitle": "Jumla na kwa mwezi, kwenye kila chanzo cha mapato",
+    "lifetimeEarned": "Mapato ya Maisha",
+    "lifetimeEarnedSub": "Wakati wote kwenye vyanzo vyote vya mapato",
+    "thisMonth": "Mwezi Huu",
+    "thisMonthSub": "Kamisheni zilizolipwa mnamo {{month}}",
+    "streamsCardTitle": "Mapato kwa Chanzo",
+    "streamsCardSubtitle": "Njia nne ambazo wanachama hupata pesa kwenye SuperAdPro",
+    "streamMembershipName": "Mabaki ya Uanachama",
+    "streamMembershipDesc": "50% ya ada ya kila mwezi ya uanachama ya kila rufaa ya moja kwa moja",
+    "streamGridName": "Gridi / Kampeni",
+    "streamGridDesc": "40% moja kwa moja + 50% uni-level kutoka ununuzi wa viwango vya kampeni",
+    "streamCourseName": "Chuo cha Kozi",
+    "streamCourseDesc": "100% kamisheni kupitia Minyororo ya Mapato 4 isiyokuwa na kikomo",
+    "streamNexusName": "Credit Nexus",
+    "streamNexusDesc": "Mapato ya matrix 3×3 kwenye ununuzi wa pakiti za mikopo za chini",
+    "recentCommissionsTitle": "Kamisheni za Hivi Karibuni",
+    "seeAll": "Ona zote",
+    "colSource": "Chanzo",
+    "colDetails": "Maelezo",
+    "colAmount": "Kiasi",
+    "colDate": "Tarehe",
+    "noCommissionsTitle": "Bado hakuna kamisheni",
+    "noCommissionsSubtitle": "Kamisheni zitaonekana hapa timu yako ikikua",
+    "teamTitle": "Timu Yako",
+    "teamSubtitle": "Kila mtu chini yako, akikua kwa muda",
+    "directReferrals": "Rufaa za Moja kwa Moja",
+    "directReferralsSub": "Watu uliowaajiri kibinafsi",
+    "totalNetwork": "Jumla ya Mtandao",
+    "totalNetworkSub": "Kila mtu chini yako kwa kila kina",
+    "activeMembers": "Wanachama Hai",
+    "activeMembersSub": "Bado wanafanya kazi kwenye jukwaa",
+    "directReferralsList": "Rufaa za Moja kwa Moja",
+    "totalCount": "{{count}} jumla",
+    "colMember": "Mwanachama",
+    "colStatus": "Hali",
+    "colTheirTeam": "Timu Yao",
+    "colJoined": "Alijiunga",
+    "statusActive": "Hai",
+    "statusInactive": "Si hai",
+    "noReferralsTitle": "Bado hakuna rufaa",
+    "noReferralsSubtitle": "Shiriki kiungo chako hapo juu ili kuanza kujenga mtandao wako",
+    "streamCategoryMembership": "Uanachama",
+    "streamCategoryGrid": "Gridi",
+    "streamCategoryCourses": "Kozi",
+    "streamCategoryCreditNexus": "Credit Nexus",
+    "streamCategoryOther": "Nyingine",
+    "typeDirectSponsor": "Bonasi ya mfadhili wa moja kwa moja",
+    "typeUniLevel": "Kamisheni ya uni-level",
+    "typeGridCompletion": "Bonasi ya kukamilisha gridi",
+    "typePlatform": "Kamisheni ya jukwaa",
+    "typeMatrixLevel": "Bonasi ya kiwango cha matrix ya mikopo",
+    "typeMatrixCompletion": "Kukamilisha matrix ya mikopo",
+    "typeNexusSponsor": "Bonasi ya mfadhili wa Credit Nexus",
+    "typeDirectSale": "Uuzaji wa moja kwa moja wa kozi (100%)",
+    "typePassUp": "Kupitisha kwa mfuatano wa kozi",
+    "typeMembership": "Rufaa ya uanachama"
   }
 }

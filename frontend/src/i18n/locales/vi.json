@@ -108,7 +108,8 @@
     "sponsorUsername": "Tên người giới thiệu",
     "yourImages": "Hình ảnh của bạn",
     "videoNotSupported": "URL video không được hỗ trợ.",
-    "alreadyHaveAccount": "Đã có tài khoản?"
+    "alreadyHaveAccount": "Đã có tài khoản?",
+    "tapToUnmute": "Nhấn để bỏ tắt tiếng"
   },
   "nav": {
     "dashboard": "Bảng điều khiển",
@@ -192,7 +193,8 @@
     "marketingMaterials": "Tài Liệu Marketing",
     "courseAcademy": "Học Viện Khóa Học",
     "profitGrid": "Lưới Lợi Nhuận",
-    "gridCalculator": "Máy Tính Lưới"
+    "gridCalculator": "Máy Tính Lưới",
+    "incomeChains": "Chuỗi Thu Nhập"
   },
   "dashboard": {
     "title": "Bảng điều khiển",
@@ -631,7 +633,8 @@
     "returnToTab": "Quay lại tab này để tiếp tục",
     "general": "General",
     "loading": "Đang tải...",
-    "playing": "▶ Đang phát"
+    "playing": "▶ Đang phát",
+    "watchOneToQualify": "Xem 1 video để đủ điều kiện hôm nay"
   },
   "adBoard": {
     "title": "Bảng Quảng cáo",
@@ -1984,7 +1987,8 @@
     "enterDescription": "Nhập mô tả",
     "enterScript": "Nhập kịch bản",
     "uploadAnImage": "Tải ảnh lên",
-    "remaining": "còn lại"
+    "remaining": "còn lại",
+    "preview": "Xem trước"
   },
   "socialShare": {
     "title": "Chia sẻ Mạng xã hội",
@@ -2291,7 +2295,8 @@
     "paymentWindowOpened": "Payment window opened — complete your USDT payment to receive {{credits}} credits. Your nexus will update automatically once payment is confirmed.",
     "creditsAwarded": "{{credits}} credits awarded!",
     "commissionsEarned": "${{amount}} in commissions paid to your upline.",
-    "purchaseFailed": "Purchase failed"
+    "purchaseFailed": "Purchase failed",
+    "perCredit": "mỗi credit"
   },
   "matrixVis": {
     "title": "Mối nối Lợi nhuận",
@@ -2948,7 +2953,243 @@
     "achieveDefault": "Xem những gì thành viên cộng đồng đã đạt được.",
     "lastChanceDefault": "Đây là cơ hội cuối cùng để tham gia cùng chúng tôi.",
     "sentToLeads": "Đã gửi đến",
-    "leads": "khách hàng tiềm năng"
+    "leads": "khách hàng tiềm năng",
+    "help": {
+      "title": "Trợ giúp SuperLeads",
+      "subtitle": "Hướng dẫn đầy đủ về CRM và trả lời tự động của bạn",
+      "searchPlaceholder": "Tìm kiếm chủ đề trợ giúp…",
+      "noResults": "Không có kết quả cho",
+      "sections": {
+        "gettingStarted": {
+          "category": "Bắt đầu",
+          "items": [
+            {
+              "title": "SuperLeads là gì?",
+              "desc": "SuperLeads là CRM và trả lời tự động email tích hợp của bạn. Nó cho phép bạn thu thập khách hàng tiềm năng từ các kênh SuperPages, sắp xếp chúng thành danh sách, gửi các chuỗi email tự động và phát các email một lần — tất cả mà không cần công cụ tiếp thị email riêng biệt."
+            },
+            {
+              "title": "Khách hàng tiềm năng đến CRM của tôi như thế nào?",
+              "desc": "Khách hàng tiềm năng được thêm tự động khi ai đó điền biểu mẫu trên bất kỳ SuperPage nào của bạn. Tên và email của họ được ghi lại ngay lập tức và xuất hiện trong tab Khách hàng tiềm năng. Bạn cũng có thể nhập thủ công khách hàng tiềm năng bằng tệp CSV qua tab Nhập."
+            },
+            {
+              "title": "Ai có thể sử dụng SuperLeads?",
+              "desc": "SuperLeads là một tính năng dành cho thành viên Pro. Bạn nhận được tối đa 5.000 khách hàng tiềm năng được bao gồm trong tư cách thành viên Pro của mình. Cần nhiều dung lượng hơn? Bạn có thể mở rộng bất kỳ lúc nào từ cài đặt tài khoản."
+            },
+            {
+              "title": "Điều gì xảy ra khi một khách hàng tiềm năng đến?",
+              "desc": "Khi một khách hàng tiềm năng điền biểu mẫu kênh của bạn, họ được thêm vào CRM của bạn, được gán cho chuỗi email đang hoạt động gần đây nhất của bạn và email đầu tiên trong chuỗi đó được gửi ngay lập tức qua Brevo. Tất cả đều tự động — không cần bước thủ công."
+            }
+          ]
+        },
+        "leadsTab": {
+          "category": "Tab Khách hàng tiềm năng",
+          "items": [
+            {
+              "title": "Tab Khách hàng tiềm năng hiển thị gì?",
+              "desc": "Tab Khách hàng tiềm năng là danh sách liên hệ chính của bạn. Nó hiển thị mọi khách hàng tiềm năng bạn đã thu thập hoặc nhập, bao gồm tên, email, danh sách họ thuộc về, trạng thái hiện tại, số email họ đã nhận và mở, và chuỗi nào họ được gán."
+            },
+            {
+              "title": "Giải thích trạng thái khách hàng tiềm năng",
+              "desc": "Mới — vừa được thêm, chưa có tương tác. Đang nuôi dưỡng — trong chuỗi email đang hoạt động. Hot — được đánh dấu tự động khi một khách hàng tiềm năng mở 2+ email hoặc nhấp vào bất kỳ liên kết nào. Đã chuyển đổi — đánh dấu thủ công khách hàng tiềm năng là đã chuyển đổi khi họ đã thực hiện hành động mong muốn (mua hàng, đăng ký, v.v.)."
+            },
+            {
+              "title": "Khách hàng tiềm năng Hot là gì?",
+              "desc": "Khách hàng tiềm năng Hot là người thể hiện sự quan tâm thực sự — họ đã mở nhiều email hoặc nhấp vào một liên kết. Đây là những khách hàng tiềm năng nóng nhất của bạn và đáng được ưu tiên. Khách hàng tiềm năng Hot được đánh dấu tự động bằng biểu tượng ngọn lửa và xuất hiện khi bạn nhấp vào bộ lọc Hot."
+            },
+            {
+              "title": "Lọc khách hàng tiềm năng của bạn",
+              "desc": "Sử dụng các nút lọc có màu để xem khách hàng tiềm năng theo trạng thái: Tất cả, Mới, Đang nuôi dưỡng, Hot hoặc Đã chuyển đổi. Sử dụng menu thả xuống Tất cả danh sách bên phải để lọc theo một danh sách cụ thể. Kết hợp cả hai bộ lọc — ví dụ, chỉ xem các khách hàng tiềm năng Hot từ danh sách Facebook của bạn."
+            },
+            {
+              "title": "Gán chuỗi cho khách hàng tiềm năng",
+              "desc": "Trong cột Chuỗi bên cạnh mỗi khách hàng tiềm năng, sử dụng menu thả xuống để gán hoặc thay đổi chuỗi email mà họ đang ở. Lần tới khi bạn nhấp Gửi Tiếp theo trên chuỗi đó, nó sẽ bao gồm khách hàng tiềm năng này."
+            },
+            {
+              "title": "Xóa một khách hàng tiềm năng",
+              "desc": "Nhấp vào biểu tượng thùng rác màu đỏ ở bên phải của bất kỳ hàng khách hàng tiềm năng nào để xóa. Điều này xóa khách hàng tiềm năng và toàn bộ lịch sử email của họ vĩnh viễn. Sử dụng cẩn thận — điều này không thể hoàn tác."
+            }
+          ]
+        },
+        "lists": {
+          "category": "Danh sách",
+          "items": [
+            {
+              "title": "Danh sách là gì?",
+              "desc": "Danh sách cho phép bạn sắp xếp khách hàng tiềm năng của mình thành các nhóm. Ví dụ: Khách hàng tiềm năng Facebook, Lưu lượng truy cập YouTube, Đăng ký hội thảo web, hoặc Khách hàng VIP. Mỗi danh sách có màu riêng để bạn có thể nhận diện ngay lập tức trong bảng khách hàng tiềm năng."
+            },
+            {
+              "title": "Tạo một danh sách",
+              "desc": "Nhấp vào Danh sách mới, đặt tên, mô tả tùy chọn, chọn màu và tùy chọn gán một chuỗi email mặc định. Bất kỳ khách hàng tiềm năng nào được nhập hoặc thu thập cho danh sách này sẽ được tự động đăng ký vào chuỗi đó."
+            },
+            {
+              "title": "Chuỗi mặc định trên danh sách",
+              "desc": "Khi bạn đặt một chuỗi mặc định trên danh sách, mọi khách hàng tiềm năng mới được thêm vào danh sách đó (qua thu thập biểu mẫu hoặc nhập CSV) được tự động đăng ký vào chuỗi đó. Điều này tiết kiệm thời gian bạn gán thủ công chuỗi cho mỗi khách hàng tiềm năng mới."
+            },
+            {
+              "title": "Điều gì xảy ra nếu tôi xóa một danh sách?",
+              "desc": "Nếu bạn xóa một danh sách, tất cả các khách hàng tiềm năng trong đó sẽ được chuyển đến Chưa được phân loại thay vì bị xóa. Bạn có thể lọc các khách hàng tiềm năng Chưa được phân loại và gán lại chúng cho danh sách mới bất cứ lúc nào."
+            },
+            {
+              "title": "Số lượng khách hàng tiềm năng trên thẻ danh sách",
+              "desc": "Mỗi thẻ danh sách hiển thị số lượng khách hàng tiềm năng để bạn có thể thấy ngay mỗi nhóm có bao nhiêu liên hệ. Thanh màu ở đầu mỗi thẻ khớp với màu bạn đã chọn cho danh sách đó."
+            }
+          ]
+        },
+        "sequences": {
+          "category": "Chuỗi",
+          "items": [
+            {
+              "title": "Chuỗi email là gì?",
+              "desc": "Chuỗi là một loạt các email được gửi tự động theo thời gian. Bạn viết chúng một lần, đặt độ trễ giữa mỗi email và hệ thống gửi chúng cho khách hàng tiềm năng của bạn trên chế độ tự động. Hoàn hảo cho các chuỗi chào mừng, chiến dịch nuôi dưỡng hoặc luồng onboarding."
+            },
+            {
+              "title": "Tạo một chuỗi",
+              "desc": "Nhấp vào Tạo chuỗi, đặt tên và thêm email của bạn. Mỗi email cần một chủ đề, nội dung (được viết bằng trình chỉnh sửa văn bản phong phú) và độ trễ gửi tính bằng ngày. Ngày 0 gửi ngay lập tức. Ngày 3 gửi 3 ngày sau email trước đó."
+            },
+            {
+              "title": "Gửi Tiếp theo làm gì?",
+              "desc": "Nhấp vào Gửi Tiếp theo trên một chuỗi sẽ gửi email đang chờ xử lý tiếp theo cho mỗi khách hàng tiềm năng được gán cho chuỗi đó. Hệ thống theo dõi email mà mỗi khách hàng tiềm năng đang ở, vì vậy mọi người nhận được email đúng ở bước đúng — không ai nhận cùng một email hai lần."
+            },
+            {
+              "title": "Giải thích độ trễ gửi",
+              "desc": "Độ trễ trên mỗi email là số ngày sau khi email trước đó được gửi. Email 1 ở 0 ngày gửi ngay lập tức. Email 2 ở 2 ngày gửi 2 ngày sau Email 1. Email 3 ở 5 ngày gửi 5 ngày sau Email 2. Các khách hàng tiềm năng chưa sẵn sàng cho email tiếp theo của họ được bỏ qua."
+            },
+            {
+              "title": "Chỉnh sửa chuỗi",
+              "desc": "Nhấp vào Chỉnh sửa trên bất kỳ thẻ chuỗi nào để thay đổi tên, thêm hoặc xóa email, cập nhật chủ đề và nội dung, hoặc điều chỉnh độ trễ. Các thay đổi áp dụng cho các lần gửi trong tương lai — các khách hàng tiềm năng đã nhận được email sẽ không nhận lại."
+            },
+            {
+              "title": "Trình chỉnh sửa văn bản phong phú",
+              "desc": "Trình chỉnh sửa nội dung email hỗ trợ đậm, nghiêng, gạch chân, danh sách có dấu đầu dòng, danh sách đánh số, tiêu đề và liên kết. Viết email của bạn theo cách bạn muốn nó xuất hiện. Email được gửi dưới dạng HTML để định dạng được bảo toàn trong hộp thư đến."
+            }
+          ]
+        },
+        "broadcast": {
+          "category": "Phát sóng",
+          "items": [
+            {
+              "title": "Phát sóng là gì?",
+              "desc": "Phát sóng là một email một lần được gửi ngay bây giờ cho tất cả hoặc một nhóm đã lọc của các khách hàng tiềm năng của bạn. Không giống như chuỗi (nhỏ giọt theo thời gian), phát sóng đi ngay cho mọi người phù hợp với bộ lọc của bạn. Sử dụng nó cho các thông báo, khuyến mãi hoặc tin tức nhạy cảm với thời gian."
+            },
+            {
+              "title": "Lọc người nhận phát sóng",
+              "desc": "Trước khi gửi, hãy chọn bộ lọc Danh sách và/hoặc Trạng thái. Số người nhận cập nhật trực tiếp để bạn biết chính xác bao nhiêu người sẽ nhận email trước khi nhấn Gửi. Ví dụ: chỉ gửi cho các khách hàng tiềm năng Hot từ danh sách Facebook của bạn."
+            },
+            {
+              "title": "Số người nhận",
+              "desc": "Số được hiển thị bên cạnh các bộ lọc là số lượng trực tiếp của các khách hàng tiềm năng phù hợp với lựa chọn của bạn và không hủy đăng ký. Đây là số chính xác của email sẽ được gửi khi bạn nhấp vào Gửi."
+            },
+            {
+              "title": "Các khách hàng tiềm năng đã hủy đăng ký",
+              "desc": "Các khách hàng tiềm năng đã hủy đăng ký được tự động loại trừ khỏi tất cả các phát sóng và gửi chuỗi. Bạn không cần lọc chúng thủ công — hệ thống xử lý điều này để giữ cho bạn tuân thủ."
+            },
+            {
+              "title": "Phát sóng vs chuỗi",
+              "desc": "Sử dụng chuỗi cho các loạt email xanh tươi, có kế hoạch (luồng chào mừng, theo dõi). Sử dụng phát sóng cho việc gửi một lần cho toàn bộ danh sách hoặc phân khúc của bạn — khuyến mãi chớp nhoáng, lời mời hội thảo web, ra mắt sản phẩm hoặc cập nhật quan trọng."
+            }
+          ]
+        },
+        "import": {
+          "category": "Nhập",
+          "items": [
+            {
+              "title": "Nhập khách hàng tiềm năng qua CSV",
+              "desc": "Đi đến tab Nhập, tải lên tệp CSV hoặc dán văn bản CSV trực tiếp. CSV của bạn nên có các cột cho email và tùy chọn tên. Nhấp vào Xem trước để kiểm tra dữ liệu trước khi nhập, sau đó nhấp vào Nhập để thêm các khách hàng tiềm năng vào CRM của bạn."
+            },
+            {
+              "title": "Định dạng CSV",
+              "desc": "Định dạng đơn giản nhất là hai cột: email và tên. Ví dụ: email,name ở hàng đầu tiên, sau đó john@example.com,John Smith ở mỗi hàng tiếp theo. Trình nhập rất linh hoạt — nó sẽ tự động phát hiện cột email ngay cả khi tiêu đề của bạn khác."
+            },
+            {
+              "title": "Gán cho danh sách khi nhập",
+              "desc": "Trước khi nhập, hãy chọn danh sách mà bạn muốn nhập các khách hàng tiềm năng bằng menu thả xuống Vào danh sách. Chọn một danh sách có nghĩa là tất cả các khách hàng tiềm năng được nhập được sắp xếp ngay lập tức và có thể hưởng lợi từ chuỗi mặc định của danh sách đó."
+            },
+            {
+              "title": "Xem trước trước khi nhập",
+              "desc": "Nhấp vào Xem trước để xem có bao nhiêu khách hàng tiềm năng được phát hiện trong CSV của bạn và kiểm tra bất kỳ vấn đề định dạng nào. Số lượng được hiển thị là bao nhiêu khách hàng tiềm năng sẽ thực sự được nhập. Chỉ nhấp vào Nhập khi bạn hài lòng với bản xem trước."
+            },
+            {
+              "title": "Giới hạn khách hàng tiềm năng",
+              "desc": "Số lượng khách hàng tiềm năng hiện tại và giới hạn của bạn được hiển thị ở đầu tab Nhập. Các thành viên Pro có thể giữ tối đa 5.000 khách hàng tiềm năng. Nếu bạn đang đến gần giới hạn, hãy mua gói Email Boost hoặc liên hệ hỗ trợ để thảo luận về việc mở rộng kế hoạch của bạn."
+            },
+            {
+              "title": "Xử lý trùng lặp",
+              "desc": "Nếu một địa chỉ email đã tồn tại trong CRM của bạn, quá trình nhập sẽ bỏ qua khách hàng tiềm năng đó thay vì tạo bản sao. Dữ liệu khách hàng tiềm năng hiện có của bạn (trạng thái, gán chuỗi, lịch sử email) được bảo toàn."
+            }
+          ]
+        },
+        "emailBoost": {
+          "category": "Email Boost",
+          "items": [
+            {
+              "title": "Email Boost là gì?",
+              "desc": "Email Boost cho phép bạn gửi nhiều email hơn phân bổ miễn phí hàng ngày của bạn. Mỗi thành viên Pro nhận được 200 email miễn phí mỗi ngày. Nếu bạn cần gửi nhiều hơn — cho một phát sóng lớn hoặc một chuỗi lớn — bạn có thể mua các gói Boost cung cấp cho bạn credit bổ sung trên phân bổ hàng ngày của bạn."
+            },
+            {
+              "title": "Giới hạn hàng ngày hoạt động như thế nào",
+              "desc": "Bạn nhận được 200 email miễn phí mỗi ngày. Bộ đếm đặt lại vào nửa đêm UTC. Nếu bạn gửi phát sóng cho 150 khách hàng tiềm năng và có 3 chuỗi đang chạy, 200 email miễn phí của bạn được sử dụng trước. Khi chúng được sử dụng hết, credit Boost tự động tiếp quản."
+            },
+            {
+              "title": "Các gói Boost có sẵn",
+              "desc": "1.000 email — $5. 5.000 email — $19. 10.000 email — $29. 50.000 email — $99. Credit Boost không bao giờ hết hạn — chúng chuyển tiếp vô thời hạn cho đến khi được sử dụng."
+            },
+            {
+              "title": "Cách trừ credit",
+              "desc": "Credit miễn phí hàng ngày luôn được sử dụng trước. Khi 200 email miễn phí của ngày đã được chi tiêu, mỗi email bổ sung tự động trừ một credit Boost. Bạn không bao giờ cần phải chuyển đổi giữa chúng thủ công — tất cả đều xảy ra ở nền."
+            },
+            {
+              "title": "Mua gói Boost",
+              "desc": "Nhấp vào Mua trên bất kỳ thẻ gói Boost nào. Chi phí được trừ từ số dư ví SuperAdPro của bạn. Credit được thêm ngay lập tức — bạn có thể sử dụng chúng ngay lập tức. Đảm bảo ví của bạn có đủ tiền trước khi mua."
+            },
+            {
+              "title": "Kiểm tra việc sử dụng của bạn",
+              "desc": "Thanh tiến trình ở đầu trang SuperLeads hiển thị việc sử dụng email hàng ngày của bạn (ví dụ: Hàng ngày: 45/200). Bộ đếm Credit ở góc trên bên phải của hero hiển thị số dư credit Boost hiện tại của bạn. Cả hai đều cập nhật theo thời gian thực."
+            },
+            {
+              "title": "Khi nào tôi cần credit Boost?",
+              "desc": "Nếu danh sách của bạn nhỏ (dưới 200 khách hàng tiềm năng) và bạn gửi một phát sóng mỗi ngày, bạn hiếm khi cần credit Boost. Chúng trở nên hữu ích khi bạn có danh sách lớn, chạy nhiều chuỗi đồng thời hoặc muốn gửi nhiều phát sóng trong một ngày."
+            }
+          ]
+        }
+      }
+    },
+    "autoresponderLabel": "Trả lời tự động",
+    "totalLeadsStat": "Tổng số khách hàng tiềm năng",
+    "sequencesStat": "Chuỗi",
+    "sentTodayStat": "Đã gửi hôm nay",
+    "hotLeadsStat": "Khách hàng tiềm năng hot",
+    "tabLeads": "Khách hàng tiềm năng",
+    "tabSequences": "Chuỗi",
+    "tabBroadcast": "Phát sóng",
+    "tabImport": "Nhập",
+    "tabBoost": "Boost",
+    "filterAllStatuses": "Tất cả trạng thái",
+    "filterAllLists": "Tất cả danh sách",
+    "statusNew": "Mới",
+    "statusNurturing": "Đang nuôi dưỡng",
+    "statusHot": "Hot",
+    "statusConverted": "Đã chuyển đổi",
+    "statusUnsubscribed": "Đã hủy đăng ký",
+    "searchLeadsPlaceholder": "Tìm kiếm khách hàng tiềm năng…",
+    "newListBtn": "Danh sách mới",
+    "deleteLeadConfirm": "Xóa khách hàng tiềm năng này?",
+    "leadDeleted": "Đã xóa khách hàng tiềm năng",
+    "noLeadsYet": "Chưa có khách hàng tiềm năng",
+    "defaultWelcomeSubject": "Chào mừng!",
+    "defaultFollowUpSubject": "Theo dõi — mẹo nhanh",
+    "defaultLastChanceSubject": "Cơ hội cuối cùng để hành động",
+    "dayLabel": "Ngày",
+    "boostPack1kLabel": "1.000 Email",
+    "boostPack1kDesc": "Hoàn hảo cho chiến dịch mục tiêu",
+    "boostPack5kLabel": "5.000 Email",
+    "boostPack5kDesc": "Chạy nhiều chuỗi",
+    "boostPack10kLabel": "10.000 Email",
+    "boostPack10kDesc": "Mở rộng phạm vi tiếp cận",
+    "boostPack50kLabel": "50.000 Email",
+    "boostPack50kDesc": "Dung lượng doanh nghiệp",
+    "contacts": "liên hệ",
+    "sent": "đã gửi",
+    "noneOption": "Không có"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -4400,7 +4641,198 @@
     "duplicate": "Nhân bản",
     "deleteElement": "Xóa",
     "pages": "Trang",
-    "help": "Trợ giúp",
+    "help": {
+      "title": "Trợ giúp SuperPages",
+      "subtitle": "Cơ sở kiến thức trình tạo trang",
+      "searchPlaceholder": "Tìm kiếm chủ đề trợ giúp…",
+      "noResults": "Không có kết quả cho",
+      "sections": {
+        "gettingStarted": {
+          "category": "Bắt đầu",
+          "items": [
+            {
+              "title": "Trình chỉnh sửa hoạt động như thế nào",
+              "desc": "SuperPages là một trình tạo trang kéo và thả dạng tự do. Nhấp vào bất kỳ khối nào từ bảng bên phải để thêm nó vào canvas của bạn, sau đó kéo nó để đặt ở bất cứ đâu. Nhấp đúp vào các phần tử văn bản để chỉnh sửa trực tiếp. Sử dụng thanh công cụ nổi để định dạng văn bản, thay đổi phông chữ, màu sắc và căn chỉnh."
+            },
+            {
+              "title": "Chọn & Di chuyển",
+              "desc": "Nhấp một lần vào bất kỳ phần tử nào để chọn nó — bạn sẽ thấy một đường viền màu xanh và các tay nắm thay đổi kích thước xuất hiện. Nhấp và kéo để đặt lại vị trí. Giữ Shift + các phím mũi tên để di chuyển 10px, hoặc chỉ các phím mũi tên cho độ chính xác 1px."
+            },
+            {
+              "title": "Thay đổi kích thước",
+              "desc": "Các phần tử đã chọn hiển thị 8 tay nắm thay đổi kích thước màu lục lam — ở tất cả bốn góc và bốn cạnh. Kéo bất kỳ tay nắm nào để thay đổi kích thước. Các tay nắm góc thay đổi kích thước theo cả hai hướng đồng thời. Kích thước tối thiểu là 40px rộng 20px cao."
+            },
+            {
+              "title": "Lưu & Xuất bản",
+              "desc": "Nhấp vào Lưu để lưu công việc của bạn (tự động lưu mỗi 30 giây). Nhấp vào Xuất bản để đưa trang của bạn trực tiếp lên web. URL trực tiếp của bạn xuất hiện trong Cài đặt. Chuyển lại về Bản nháp để bỏ xuất bản."
+            },
+            {
+              "title": "Phím tắt bàn phím",
+              "desc": "Ctrl+S: Lưu | Ctrl+Z: Hoàn tác | Ctrl+Y: Làm lại | Delete/Backspace: Xóa phần tử đã chọn | Phím mũi tên: Di chuyển 1px | Shift+mũi tên: Di chuyển 10px | Escape: Bỏ chọn"
+            }
+          ]
+        },
+        "textElements": {
+          "category": "Phần tử văn bản",
+          "items": [
+            {
+              "title": "Tiêu đề",
+              "desc": "Văn bản lớn, đậm cho tiêu đề trang và tiêu đề mục. Mặc định là phông chữ Sora 36px màu trắng. Nhấp đúp để chỉnh sửa văn bản. Sử dụng thanh công cụ nổi để thay đổi họ phông chữ, kích thước, màu sắc, đậm, nghiêng, gạch chân và căn chỉnh."
+            },
+            {
+              "title": "Văn bản",
+              "desc": "Văn bản nội dung cho các đoạn văn và mô tả. Mặc định là phông chữ Outfit 15px màu xám với chiều cao dòng 1.8 để dễ đọc. Nhấp đúp để chỉnh sửa. Hỗ trợ tất cả các định dạng nội dòng từ thanh công cụ nổi."
+            },
+            {
+              "title": "Nhãn",
+              "desc": "Văn bản kiểu huy hiệu nhỏ hoàn hảo cho các thẻ như PREMIUM, NEW hoặc LIMITED OFFER. Đi kèm với nền viên thuốc bo tròn và đường viền. Nhấp đúp để thay đổi văn bản nhãn."
+            }
+          ]
+        },
+        "mediaElements": {
+          "category": "Phần tử phương tiện",
+          "items": [
+            {
+              "title": "Hình ảnh",
+              "desc": "Thêm hình ảnh vào trang của bạn. Nhấp vào nút chỉnh sửa IMAGE trong thanh công cụ phần tử để nhập URL hình ảnh hoặc tải lên một tệp (tối đa 5MB). Hỗ trợ JPG, PNG, GIF và WebP. Hình ảnh được lưu trữ trên Cloudflare R2 để phân phối nhanh toàn cầu."
+            },
+            {
+              "title": "Video",
+              "desc": "Nhúng video từ YouTube, Vimeo, hoặc tải lên các tệp MP4/WebM của riêng bạn (tối đa 50MB). Nhấp vào chỉnh sửa VIDEO để thêm. URL xem của YouTube và Vimeo được tự động chuyển đổi sang định dạng nhúng. Video được tải lên được lưu trữ trên Cloudflare R2."
+            },
+            {
+              "title": "Âm thanh",
+              "desc": "Thêm trình phát âm thanh vào trang của bạn. Nhấp vào chỉnh sửa AUDIO để nhập URL âm thanh hoặc tải lên các tệp MP3/WAV/OGG (tối đa 20MB). Tuyệt vời cho podcast, mẫu âm nhạc hoặc lời chứng thực âm thanh."
+            }
+          ]
+        },
+        "actionElements": {
+          "category": "Phần tử hành động",
+          "items": [
+            {
+              "title": "Nút",
+              "desc": "Nút có thể nhấp được với nền gradient. Nhấp vào chỉnh sửa LINK để đặt URL đích. Nhấp đúp để thay đổi văn bản nút. Hoàn hảo cho các lời kêu gọi hành động như Tham gia ngay, Mua ngay hoặc Tìm hiểu thêm."
+            },
+            {
+              "title": "Biểu mẫu Opt-In",
+              "desc": "Biểu mẫu thu thập email với trường tên, trường email và nút gửi. Được tạo kiểu sẵn với nền kính tối. Nhấp vào chỉnh sửa FORM để tùy chỉnh HTML. Kết nối với bảng điều khiển My Leads của bạn để thu thập khách hàng tiềm năng."
+            },
+            {
+              "title": "CTA (Lời kêu gọi hành động)",
+              "desc": "Tương tự như Nút nhưng được tạo kiểu đặc biệt cho các hành động chuyển đổi chính. Nhấp vào chỉnh sửa LINK để đặt URL đích. Nhấp đúp để chỉnh sửa văn bản. Sử dụng cho hành động chính của trang như Bắt đầu ngay."
+            }
+          ]
+        },
+        "contentElements": {
+          "category": "Phần tử nội dung",
+          "items": [
+            {
+              "title": "Đánh giá",
+              "desc": "Khối đánh giá của khách hàng với xếp hạng sao, văn bản trích dẫn và ghi nhận. Được tạo kiểu với nền thẻ tối và viền trái màu lục lam. Nhấp đúp để chỉnh sửa nội dung đánh giá, sao và tên khách hàng."
+            },
+            {
+              "title": "Huy hiệu",
+              "desc": "Huy hiệu trang trí nhỏ giống hệt nhãn — hữu ích cho các thẻ như BEST VALUE, MOST POPULAR hoặc FEATURED. Có kiểu viên thuốc vàng theo mặc định."
+            },
+            {
+              "title": "Lời chứng thực",
+              "desc": "Khối lời chứng thực mở rộng với sao, trích dẫn dài hơn và ghi nhận tác giả. Có viền trái màu vàng để phân biệt với đánh giá. Nhấp đúp để tùy chỉnh văn bản lời chứng thực và ghi nhận."
+            },
+            {
+              "title": "FAQ",
+              "desc": "Khối câu hỏi-trả lời được tạo kiểu với tiêu đề viền tinh tế. Nhấp đúp để chỉnh sửa văn bản câu hỏi và câu trả lời. Xếp chồng nhiều phần tử FAQ để xây dựng một phần FAQ hoàn chỉnh."
+            },
+            {
+              "title": "Thống kê",
+              "desc": "Hiển thị thống kê lớn — hiển thị một số lớn (như 95%) với nhãn bên dưới. Hoàn hảo cho bằng chứng xã hội: 10.000+ thành viên, tỷ lệ thanh toán 95%, $1M+ đã thanh toán. Nhấp đúp để chỉnh sửa."
+            },
+            {
+              "title": "Tiến trình",
+              "desc": "Thanh tiến trình hoạt hình với nhãn và phần trăm. Nhấp vào chỉnh sửa SET để cấu hình văn bản nhãn, phần trăm (0-100) và màu thanh. Tuyệt vời để hiển thị hoàn thành khóa học, mục tiêu tài trợ hoặc sẵn có giới hạn."
+            }
+          ]
+        },
+        "layoutElements": {
+          "category": "Phần tử bố cục",
+          "items": [
+            {
+              "title": "Đếm ngược",
+              "desc": "Bộ đếm ngược trực tiếp đếm ngược đến một ngày và thời gian mục tiêu. Nhấp vào chỉnh sửa SET để chọn ngày mục tiêu. Hiển thị ngày, giờ, phút và giây. Tạo sự cấp bách cho các lần ra mắt, hạn chót bán hàng hoặc ngày sự kiện."
+            },
+            {
+              "title": "Mạng xã hội",
+              "desc": "Một hàng các biểu tượng mạng xã hội — YouTube, Instagram, TikTok, Facebook, X/Twitter và LinkedIn. Nhấp vào chỉnh sửa LINKS để thêm URL hồ sơ của bạn cho mỗi nền tảng. Các biểu tượng liên kết với hồ sơ xã hội của bạn trên trang đã xuất bản."
+            },
+            {
+              "title": "Biểu tượng + Văn bản",
+              "desc": "Khối tính năng kết hợp biểu tượng emoji/biểu tượng với tiêu đề và văn bản mô tả. Hoàn hảo để liệt kê lợi ích, tính năng hoặc các bước. Nhấp đúp để chỉnh sửa emoji, tiêu đề và mô tả."
+            },
+            {
+              "title": "Dấu ngăn cách",
+              "desc": "Đường ngăn cách trang trí với văn bản trung tâm tùy chọn. Nhấp đúp để thay đổi văn bản dấu ngăn cách. Sử dụng giữa các phần để tạo nghỉ trực quan."
+            },
+            {
+              "title": "Logo",
+              "desc": "Dải logo 'As seen in' — hiển thị tên thương hiệu trong hàng ngang. Nhấp đúp để chỉnh sửa tên thương hiệu. Sử dụng để hiển thị các đề cập truyền thông, logo đối tác hoặc tín hiệu tin cậy."
+            },
+            {
+              "title": "Khoảng cách",
+              "desc": "Phần tử khoảng cách vô hình. Kéo để đặt vị trí và thay đổi kích thước để kiểm soát không gian giữa các phần tử khác. Không có ngoại hình trực quan trên trang đã xuất bản — hoàn toàn dành cho kiểm soát bố cục."
+            },
+            {
+              "title": "Hộp",
+              "desc": "Container trống với viền tinh tế và các góc bo tròn. Sử dụng như một thẻ nền phía sau các phần tử khác để tạo các phần được nhóm. Thay đổi kích thước và xếp lớp phía sau văn bản, hình ảnh hoặc biểu mẫu."
+            },
+            {
+              "title": "Đường phân cách",
+              "desc": "Đường ngang đơn giản. Sử dụng để tách các phần trên trang của bạn. Thay đổi chiều rộng để kiểm soát mức độ nó mở rộng qua canvas."
+            },
+            {
+              "title": "Nhúng",
+              "desc": "Khối nhúng HTML/mã thô. Nhấp vào chỉnh sửa CODE để dán bất kỳ HTML nào, bao gồm iframe, widget tùy chỉnh, pixel theo dõi hoặc mã nhúng của bên thứ ba. Mã được kết xuất trên trang đã xuất bản."
+            }
+          ]
+        },
+        "settingsPublishing": {
+          "category": "Cài đặt và Xuất bản",
+          "items": [
+            {
+              "title": "Tiêu đề trang",
+              "desc": "Tên trang của bạn — xuất hiện trên tab trình duyệt, kết quả công cụ tìm kiếm và danh sách SuperPages của bạn. Chọn một cái gì đó mô tả và hấp dẫn cho SEO."
+            },
+            {
+              "title": "Slug URL trang",
+              "desc": "Tùy chỉnh địa chỉ web của trang đã xuất bản. Mở Cài đặt, tìm trường Slug URL trang và nhập tên ưa thích của bạn chỉ sử dụng chữ thường, số và dấu gạch nối. Nhấp vào Lưu cài đặt để áp dụng thay đổi. Mỗi slug phải duy nhất — bạn không thể sử dụng cái đã được sử dụng bởi trang khác."
+            },
+            {
+              "title": "Mô tả Meta",
+              "desc": "Mô tả xuất hiện dưới tiêu đề trang của bạn trong kết quả tìm kiếm Google. Viết 150-160 ký tự cho khách truy cập biết trang của bạn cung cấp gì. Quan trọng đối với tỷ lệ nhấp chuột từ tìm kiếm."
+            },
+            {
+              "title": "Hình ảnh chia sẻ mạng xã hội",
+              "desc": "Khi ai đó chia sẻ trang đã xuất bản của bạn trên Facebook, Twitter, LinkedIn hoặc WhatsApp, hình ảnh này xuất hiện như hình thu nhỏ xem trước. Tải lên hoặc nhập URL của một hình ảnh 1200x630px để có kết quả tốt nhất."
+            },
+            {
+              "title": "Trạng thái trang",
+              "desc": "Các trang bản nháp chỉ hiển thị cho bạn. Các trang đã xuất bản đang hoạt động trực tiếp trên web tại URL trực tiếp của bạn. Chuyển đổi giữa Bản nháp và Đã xuất bản bất cứ lúc nào. Bỏ xuất bản một trang làm cho nó ngay lập tức không thể truy cập được đối với khách truy cập."
+            },
+            {
+              "title": "Nền canvas",
+              "desc": "Thay đổi nền trang bằng bộ chọn màu hoặc tải lên hình ảnh ở góc trên bên phải của bảng Khối. Hỗ trợ màu đơn sắc, gradient và hình ảnh nền toàn trang được tải lên Cloudflare R2."
+            }
+          ]
+        },
+        "aiAssistant": {
+          "category": "Trợ lý AI",
+          "items": [
+            {
+              "title": "Trò chuyện AI",
+              "desc": "Nhấp vào Trợ lý AI ở cuối bảng Khối để mở trò chuyện AI. Cho nó biết bạn muốn gì: thêm tiêu đề, thay đổi nền thành xanh navy, viết bản sao bán hàng cho sản phẩm thể hình. AI có thể sửa đổi kiểu trang của bạn và tạo gợi ý nội dung."
+            }
+          ]
+        }
+      }
+    },
     "knowledgeBase": "Cơ sở kiến thức",
     "learnElements": "Tìm hiểu cách mọi phần tử và tính năng hoạt động",
     "searchPlaceholder": "Tìm phần tử, tính năng...",
@@ -4449,7 +4881,9 @@
     "blkProgress": "Tiến trình",
     "blkCountdown": "Đếm ngược",
     "blkSocials": "Mạng xã hội",
-    "blkIconText": "Icon+Text"
+    "blkIconText": "Icon+Text",
+    "blk": "Khối",
+    "cat": "Danh mục"
   },
   "coursePlayer": {},
   "analytics": {
@@ -4485,7 +4919,18 @@
     "lastWithdrawal": "Lần rút cuối",
     "noWithdrawals": "Chưa có rút tiền",
     "totalAiGen": "tổng AI đã tạo",
-    "qualificationDesc": "Yêu cầu xem hàng ngày để đủ điều kiện rút tiền từ Ví Chiến dịch. Đây không phải nguồn thu nhập — đây là kiểm tra trách nhiệm."
+    "qualificationDesc": "Yêu cầu xem hàng ngày để đủ điều kiện rút tiền từ Ví Chiến dịch. Đây không phải nguồn thu nhập — đây là kiểm tra trách nhiệm.",
+    "campaignGrid": "Lưới chiến dịch",
+    "courses": "Khóa học",
+    "creditNexus": "Credit Nexus",
+    "fiftyRecurring": "50% định kỳ",
+    "gridCommissions": "Hoa hồng lưới",
+    "membership": "Thành viên",
+    "nexusCommissions": "Hoa hồng Nexus",
+    "noResults": "Không có kết quả",
+    "noTeamYet": "Chưa có nhóm",
+    "recruitToMsg": "Tuyển dụng ai đó để bắt đầu gửi tin nhắn",
+    "salesPassUps": "Bán hàng + chuyển qua"
   },
   "superMarket": {
     "comparePrice": "Giá so sánh",
@@ -4579,6 +5024,72 @@
     "libRetail": "Bán lẻ & Mua sắm",
     "proTipTitle": "Mẹo Pro",
     "proTipWeb": "Tên thương hiệu cụ thể hoạt động tốt nhất. Các tìm kiếm như \"nhà phân phối Herbalife Việt Nam\" tìm thấy các trang web nhà phân phối cá nhân, trong khi các thuật ngữ mơ hồ như \"cơ hội kinh doanh\" chỉ trả về các nhà xuất bản nội dung.",
-    "proTipMaps": "Thêm một thành phố cụ thể mang lại kết quả sắc nét hơn. Thử kết hợp một nghề (ví dụ: thợ sửa ống nước, nha sĩ) với mã bưu điện hoặc khu phố để có khách hàng tiềm năng tốt nhất."
+    "proTipMaps": "Thêm một thành phố cụ thể mang lại kết quả sắc nét hơn. Thử kết hợp một nghề (ví dụ: thợ sửa ống nước, nha sĩ) với mã bưu điện hoặc khu phố để có khách hàng tiềm năng tốt nhất.",
+    "dataSourceMaps": "Dữ liệu từ Google Maps",
+    "dataSourceWeb": "Dữ liệu từ tìm kiếm web"
+  },
+  "myNetwork": {
+    "pageTitle": "Mạng lưới & Thu nhập của tôi",
+    "pageSubtitle": "Nhóm của bạn, nguồn thu nhập của bạn, sự phát triển của bạn",
+    "referralLinkLabel": "Liên kết giới thiệu của bạn",
+    "copyBtn": "Sao chép liên kết",
+    "copiedBtn": "Đã sao chép!",
+    "earningsTitle": "Thu nhập của bạn",
+    "earningsSubtitle": "Tổng cộng và hàng tháng, trên mỗi nguồn thu nhập",
+    "lifetimeEarned": "Thu nhập trọn đời",
+    "lifetimeEarnedSub": "Toàn thời gian trên tất cả các nguồn thu nhập",
+    "thisMonth": "Tháng này",
+    "thisMonthSub": "Hoa hồng được thanh toán vào {{month}}",
+    "streamsCardTitle": "Thu nhập theo nguồn",
+    "streamsCardSubtitle": "Bốn cách để thành viên kiếm tiền trên SuperAdPro",
+    "streamMembershipName": "Dư thành viên",
+    "streamMembershipDesc": "50% phí thành viên hàng tháng của mỗi giới thiệu trực tiếp",
+    "streamGridName": "Lưới / Chiến dịch",
+    "streamGridDesc": "40% trực tiếp + 50% đa cấp từ mua hàng cấp chiến dịch",
+    "streamCourseName": "Học viện khóa học",
+    "streamCourseDesc": "100% hoa hồng qua 4 Chuỗi Thu Nhập vô hạn",
+    "streamNexusName": "Credit Nexus",
+    "streamNexusDesc": "Thu nhập ma trận 3×3 từ mua gói credit của downline",
+    "recentCommissionsTitle": "Hoa hồng gần đây",
+    "seeAll": "Xem tất cả",
+    "colSource": "Nguồn",
+    "colDetails": "Chi tiết",
+    "colAmount": "Số tiền",
+    "colDate": "Ngày",
+    "noCommissionsTitle": "Chưa có hoa hồng",
+    "noCommissionsSubtitle": "Hoa hồng sẽ xuất hiện ở đây khi nhóm của bạn phát triển",
+    "teamTitle": "Nhóm của bạn",
+    "teamSubtitle": "Mọi người dưới bạn, phát triển theo thời gian",
+    "directReferrals": "Giới thiệu trực tiếp",
+    "directReferralsSub": "Những người bạn đã tuyển dụng cá nhân",
+    "totalNetwork": "Toàn bộ mạng lưới",
+    "totalNetworkSub": "Mọi người dưới bạn ở mọi độ sâu",
+    "activeMembers": "Thành viên hoạt động",
+    "activeMembersSub": "Vẫn hoạt động trên nền tảng",
+    "directReferralsList": "Giới thiệu trực tiếp",
+    "totalCount": "{{count}} tổng cộng",
+    "colMember": "Thành viên",
+    "colStatus": "Trạng thái",
+    "colTheirTeam": "Nhóm của họ",
+    "colJoined": "Tham gia",
+    "statusActive": "Hoạt động",
+    "statusInactive": "Không hoạt động",
+    "noReferralsTitle": "Chưa có giới thiệu",
+    "noReferralsSubtitle": "Chia sẻ liên kết của bạn ở trên để bắt đầu xây dựng mạng lưới",
+    "streamCategoryMembership": "Thành viên",
+    "streamCategoryGrid": "Lưới",
+    "streamCategoryCourses": "Khóa học",
+    "streamCategoryCreditNexus": "Credit Nexus",
+    "streamCategoryOther": "Khác",
+    "typeDirectSponsor": "Thưởng nhà tài trợ trực tiếp",
+    "typeUniLevel": "Hoa hồng đa cấp",
+    "typeGridCompletion": "Thưởng hoàn thành lưới",
+    "typePlatform": "Hoa hồng nền tảng",
+    "typeMatrixLevel": "Thưởng cấp ma trận credit",
+    "typeMatrixCompletion": "Hoàn thành ma trận credit",
+    "typeNexusSponsor": "Thưởng nhà tài trợ Credit Nexus",
+    "typeDirectSale": "Bán khóa học trực tiếp (100%)",
+    "typePassUp": "Tầng chuyển qua khóa học",
+    "typeMembership": "Giới thiệu thành viên"
   }
 }

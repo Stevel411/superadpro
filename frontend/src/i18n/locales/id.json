@@ -108,7 +108,8 @@
     "sponsorUsername": "Username sponsor",
     "yourImages": "Gambar Anda",
     "videoNotSupported": "URL video tidak didukung.",
-    "alreadyHaveAccount": "Sudah punya akun?"
+    "alreadyHaveAccount": "Sudah punya akun?",
+    "tapToUnmute": "Ketuk untuk membunyikan"
   },
   "nav": {
     "dashboard": "Dasbor",
@@ -192,7 +193,8 @@
     "marketingMaterials": "Materi Pemasaran",
     "courseAcademy": "Akademi Kursus",
     "profitGrid": "Grid Keuntungan",
-    "gridCalculator": "Kalkulator Grid"
+    "gridCalculator": "Kalkulator Grid",
+    "incomeChains": "Rantai Pendapatan"
   },
   "dashboard": {
     "title": "Dasbor",
@@ -631,7 +633,8 @@
     "returnToTab": "Kembali ke tab ini untuk melanjutkan",
     "general": "General",
     "loading": "Memuat...",
-    "playing": "▶ Memutar"
+    "playing": "▶ Memutar",
+    "watchOneToQualify": "Tonton 1 video untuk memenuhi syarat hari ini"
   },
   "adBoard": {
     "title": "Papan Iklan",
@@ -1984,7 +1987,8 @@
     "enterDescription": "Masukkan deskripsi",
     "enterScript": "Masukkan skrip",
     "uploadAnImage": "Unggah gambar",
-    "remaining": "tersisa"
+    "remaining": "tersisa",
+    "preview": "Pratinjau"
   },
   "socialShare": {
     "title": "Bagikan Sosial",
@@ -2291,7 +2295,8 @@
     "paymentWindowOpened": "Payment window opened — complete your USDT payment to receive {{credits}} credits. Your nexus will update automatically once payment is confirmed.",
     "creditsAwarded": "{{credits}} credits awarded!",
     "commissionsEarned": "${{amount}} in commissions paid to your upline.",
-    "purchaseFailed": "Purchase failed"
+    "purchaseFailed": "Purchase failed",
+    "perCredit": "per kredit"
   },
   "matrixVis": {
     "title": "Nexus Keuntungan",
@@ -2948,7 +2953,243 @@
     "achieveDefault": "Lihat apa yang telah dicapai anggota komunitas kami.",
     "lastChanceDefault": "Ini kesempatan terakhir Anda untuk bergabung.",
     "sentToLeads": "Dikirim ke",
-    "leads": "prospek"
+    "leads": "prospek",
+    "help": {
+      "title": "Bantuan SuperLeads",
+      "subtitle": "Panduan lengkap untuk CRM dan autoresponder Anda",
+      "searchPlaceholder": "Cari topik bantuan…",
+      "noResults": "Tidak ada hasil untuk",
+      "sections": {
+        "gettingStarted": {
+          "category": "Memulai",
+          "items": [
+            {
+              "title": "Apa itu SuperLeads?",
+              "desc": "SuperLeads adalah CRM dan autoresponder email bawaan Anda. Ini memungkinkan Anda menangkap prospek dari funnel SuperPages Anda, mengaturnya ke dalam daftar, mengirim urutan email otomatis, dan menyiarkan email sekali kirim — semuanya tanpa memerlukan alat pemasaran email terpisah."
+            },
+            {
+              "title": "Bagaimana prospek masuk ke CRM saya?",
+              "desc": "Prospek ditambahkan secara otomatis saat seseorang mengisi formulir di salah satu SuperPages Anda. Nama dan email mereka langsung ditangkap dan muncul di tab Prospek Anda. Anda juga dapat mengimpor prospek secara manual menggunakan file CSV melalui tab Impor."
+            },
+            {
+              "title": "Siapa yang bisa menggunakan SuperLeads?",
+              "desc": "SuperLeads adalah fitur anggota Pro. Anda mendapatkan hingga 5.000 prospek yang termasuk dalam keanggotaan Pro Anda. Butuh lebih banyak kapasitas? Anda dapat memperluas kapan saja dari pengaturan akun Anda."
+            },
+            {
+              "title": "Apa yang terjadi saat prospek datang?",
+              "desc": "Ketika prospek mengisi formulir funnel Anda, mereka ditambahkan ke CRM Anda, diberikan ke urutan email aktif terbaru Anda, dan email pertama dalam urutan itu segera dikirim melalui Brevo. Semuanya otomatis — tidak perlu langkah manual."
+            }
+          ]
+        },
+        "leadsTab": {
+          "category": "Tab Prospek",
+          "items": [
+            {
+              "title": "Apa yang ditampilkan tab Prospek?",
+              "desc": "Tab Prospek adalah daftar kontak utama Anda. Ini menampilkan setiap prospek yang Anda tangkap atau impor, termasuk nama, email, daftar mereka, status saat ini, berapa banyak email yang mereka terima dan buka, dan urutan mana yang ditugaskan."
+            },
+            {
+              "title": "Status Prospek Dijelaskan",
+              "desc": "Baru — baru ditambahkan, belum ada interaksi. Mengembangkan — dalam urutan email aktif. Panas — ditandai otomatis saat prospek membuka 2+ email atau mengklik tautan apa pun. Dikonversi — tandai prospek secara manual sebagai dikonversi setelah mereka mengambil tindakan yang diinginkan."
+            },
+            {
+              "title": "Apa itu Hot Lead?",
+              "desc": "Hot Lead adalah seseorang yang menunjukkan minat nyata — mereka telah membuka beberapa email atau mengklik tautan. Ini adalah prospek terpanas Anda dan layak diprioritaskan. Hot leads ditandai otomatis dengan ikon api."
+            },
+            {
+              "title": "Memfilter prospek Anda",
+              "desc": "Gunakan tombol filter berwarna untuk melihat prospek berdasarkan status: Semua, Baru, Mengembangkan, Panas, atau Dikonversi. Gunakan dropdown Semua Daftar di kanan untuk memfilter berdasarkan daftar tertentu. Gabungkan kedua filter."
+            },
+            {
+              "title": "Menetapkan urutan ke prospek",
+              "desc": "Di kolom Urutan di samping setiap prospek, gunakan dropdown untuk menetapkan atau mengubah urutan email tempat mereka berada. Klik berikutnya Kirim Berikutnya akan menyertakan prospek ini."
+            },
+            {
+              "title": "Menghapus prospek",
+              "desc": "Klik ikon tempat sampah merah di kanan baris prospek mana pun untuk menghapusnya. Ini menghapus prospek dan seluruh riwayat email mereka secara permanen. Gunakan dengan hati-hati — ini tidak dapat dibatalkan."
+            }
+          ]
+        },
+        "lists": {
+          "category": "Daftar",
+          "items": [
+            {
+              "title": "Apa itu Daftar?",
+              "desc": "Daftar memungkinkan Anda mengatur prospek ke dalam grup. Contoh: Prospek Facebook, Lalu Lintas YouTube, Pendaftaran Webinar, atau Klien VIP. Setiap daftar memiliki warnanya sendiri agar dapat diidentifikasi secara instan."
+            },
+            {
+              "title": "Membuat Daftar",
+              "desc": "Klik Daftar Baru, beri nama, deskripsi opsional, pilih warna, dan secara opsional tetapkan urutan email default. Setiap prospek yang diimpor atau ditangkap untuk daftar ini akan otomatis terdaftar dalam urutan itu."
+            },
+            {
+              "title": "Urutan Default pada Daftar",
+              "desc": "Ketika Anda mengatur urutan default pada daftar, setiap prospek baru yang ditambahkan ke daftar itu (melalui penangkapan formulir atau impor CSV) otomatis terdaftar dalam urutan itu. Ini menghemat waktu dari penetapan manual."
+            },
+            {
+              "title": "Apa yang terjadi jika saya menghapus Daftar?",
+              "desc": "Jika Anda menghapus daftar, semua prospek yang ada di dalamnya dipindahkan ke Tidak Tersortir daripada dihapus. Anda dapat memfilter prospek Tidak Tersortir dan menetapkannya ke daftar baru kapan saja."
+            },
+            {
+              "title": "Jumlah prospek pada kartu Daftar",
+              "desc": "Setiap kartu daftar menunjukkan jumlah prospek sehingga Anda dapat melihat sekilas berapa banyak kontak di setiap grup. Batang berwarna di bagian atas setiap kartu cocok dengan warna yang Anda pilih."
+            }
+          ]
+        },
+        "sequences": {
+          "category": "Urutan",
+          "items": [
+            {
+              "title": "Apa itu Urutan Email?",
+              "desc": "Urutan adalah serangkaian email yang dikirim secara otomatis dari waktu ke waktu. Anda menulisnya sekali, mengatur penundaan antara setiap email, dan sistem mengirimnya ke prospek Anda dengan autopilot. Sempurna untuk seri sambutan."
+            },
+            {
+              "title": "Membuat Urutan",
+              "desc": "Klik Buat Urutan, beri nama, dan tambahkan email Anda. Setiap email membutuhkan subjek, isi (ditulis dengan editor teks kaya), dan penundaan pengiriman dalam hari. Hari 0 mengirim segera."
+            },
+            {
+              "title": "Apa yang dilakukan Kirim Berikutnya?",
+              "desc": "Klik Kirim Berikutnya pada urutan mengirim email berikutnya yang tertunda ke setiap prospek yang ditugaskan. Sistem melacak email mana yang sedang diterima setiap prospek — tidak ada yang mendapat email yang sama dua kali."
+            },
+            {
+              "title": "Penundaan Pengiriman Dijelaskan",
+              "desc": "Penundaan pada setiap email adalah jumlah hari setelah email sebelumnya dikirim. Email 1 pada 0 hari mengirim segera. Email 2 pada 2 hari mengirim 2 hari setelah Email 1."
+            },
+            {
+              "title": "Mengedit Urutan",
+              "desc": "Klik Edit pada kartu urutan mana pun untuk mengubah nama, menambahkan atau menghapus email, memperbarui subjek dan isi, atau menyesuaikan penundaan. Perubahan berlaku untuk pengiriman di masa mendatang."
+            },
+            {
+              "title": "Editor Teks Kaya",
+              "desc": "Editor isi email mendukung tebal, miring, garis bawah, daftar bullet, daftar bernomor, judul, dan tautan. Tulis email Anda seperti yang Anda inginkan. Email dikirim sebagai HTML."
+            }
+          ]
+        },
+        "broadcast": {
+          "category": "Siaran",
+          "items": [
+            {
+              "title": "Apa itu Siaran?",
+              "desc": "Siaran adalah email sekali kirim yang dikirim ke semua atau grup prospek yang difilter sekarang. Berbeda dengan urutan (yang menetes seiring waktu), siaran langsung menjangkau semua yang cocok dengan filter Anda."
+            },
+            {
+              "title": "Memfilter penerima siaran",
+              "desc": "Sebelum mengirim, pilih filter Daftar dan/atau Status. Jumlah penerima diperbarui secara langsung sehingga Anda tahu persis berapa banyak orang akan menerima email sebelum Anda menekan Kirim."
+            },
+            {
+              "title": "Jumlah Penerima",
+              "desc": "Angka yang ditampilkan di samping filter adalah jumlah langsung prospek yang cocok dengan pilihan Anda dan belum berhenti berlangganan. Ini adalah jumlah pasti email yang akan dikirim."
+            },
+            {
+              "title": "Prospek yang berhenti berlangganan",
+              "desc": "Prospek yang telah berhenti berlangganan secara otomatis dikecualikan dari semua siaran dan pengiriman urutan. Anda tidak perlu memfilternya secara manual — sistem menanganinya."
+            },
+            {
+              "title": "Siaran vs Urutan",
+              "desc": "Gunakan Urutan untuk seri email yang terencana dan selalu baru. Gunakan Siaran untuk pengiriman sekali kirim ke seluruh daftar Anda atau segmen — flash sale, undangan webinar, peluncuran produk."
+            }
+          ]
+        },
+        "import": {
+          "category": "Impor",
+          "items": [
+            {
+              "title": "Mengimpor prospek melalui CSV",
+              "desc": "Buka tab Impor, unggah file CSV, atau tempel teks CSV langsung. CSV Anda harus memiliki kolom untuk email dan opsional nama. Klik Pratinjau untuk memeriksa data sebelum mengimpor, lalu klik Impor."
+            },
+            {
+              "title": "Format CSV",
+              "desc": "Format paling sederhana adalah dua kolom: email dan nama. Contoh: email,name di baris pertama, lalu john@example.com,John Smith di setiap baris berikutnya. Importer fleksibel."
+            },
+            {
+              "title": "Menetapkan ke Daftar saat mengimpor",
+              "desc": "Sebelum mengimpor, pilih daftar yang ingin Anda impor prospek menggunakan dropdown Ke Daftar. Memilih daftar berarti semua prospek yang diimpor segera diatur."
+            },
+            {
+              "title": "Pratinjau sebelum mengimpor",
+              "desc": "Klik Pratinjau untuk melihat berapa banyak prospek yang terdeteksi dalam CSV Anda dan memeriksa masalah pemformatan. Jumlah yang ditampilkan adalah jumlah prospek yang akan benar-benar diimpor."
+            },
+            {
+              "title": "Batas prospek",
+              "desc": "Jumlah prospek dan batas Anda saat ini ditampilkan di bagian atas tab Impor. Anggota Pro dapat menyimpan hingga 5.000 prospek. Jika mendekati batas, beli paket Email Boost."
+            },
+            {
+              "title": "Penanganan duplikat",
+              "desc": "Jika alamat email sudah ada di CRM Anda, impor akan melewati prospek itu daripada membuat duplikat. Data prospek Anda yang ada (status, penetapan urutan, riwayat email) dipertahankan."
+            }
+          ]
+        },
+        "emailBoost": {
+          "category": "Email Boost",
+          "items": [
+            {
+              "title": "Apa itu Email Boost?",
+              "desc": "Email Boost memungkinkan Anda mengirim lebih banyak email daripada alokasi gratis harian Anda. Setiap anggota Pro mendapat 200 email gratis per hari. Jika perlu mengirim lebih banyak, Anda dapat membeli Paket Boost."
+            },
+            {
+              "title": "Bagaimana batas harian bekerja",
+              "desc": "Anda mendapat 200 email gratis setiap hari. Penghitung direset pada tengah malam UTC. Jika Anda mengirim siaran ke 150 prospek dan memiliki 3 urutan berjalan, 200 email gratis Anda digunakan terlebih dahulu."
+            },
+            {
+              "title": "Paket Boost yang tersedia",
+              "desc": "1.000 email — $5. 5.000 email — $19. 10.000 email — $29. 50.000 email — $99. Kredit Boost tidak pernah kedaluwarsa — diteruskan tanpa batas waktu."
+            },
+            {
+              "title": "Bagaimana kredit dikurangi",
+              "desc": "Kredit gratis harian selalu digunakan terlebih dahulu. Setelah 200 email gratis hari itu dibelanjakan, setiap email tambahan otomatis mengurangi satu kredit Boost. Anda tidak perlu beralih secara manual."
+            },
+            {
+              "title": "Membeli Paket Boost",
+              "desc": "Klik Beli pada kartu Paket Boost mana pun. Biaya dikurangi dari saldo dompet SuperAdPro Anda. Kredit ditambahkan secara instan. Pastikan dompet memiliki dana yang cukup sebelum membeli."
+            },
+            {
+              "title": "Memeriksa penggunaan Anda",
+              "desc": "Bilah kemajuan di bagian atas halaman SuperLeads menunjukkan penggunaan email harian Anda (mis. Harian: 45/200). Penghitung Kredit di kanan atas hero menunjukkan saldo kredit Boost saat ini."
+            },
+            {
+              "title": "Kapan saya butuh kredit Boost?",
+              "desc": "Jika daftar Anda kecil (kurang dari 200 prospek) dan mengirim satu siaran per hari, Anda jarang membutuhkan kredit Boost. Berguna saat memiliki daftar besar, menjalankan beberapa urutan bersamaan."
+            }
+          ]
+        }
+      }
+    },
+    "autoresponderLabel": "Autoresponder",
+    "totalLeadsStat": "Total prospek",
+    "sequencesStat": "Urutan",
+    "sentTodayStat": "Terkirim hari ini",
+    "hotLeadsStat": "Prospek panas",
+    "tabLeads": "Prospek",
+    "tabSequences": "Urutan",
+    "tabBroadcast": "Siaran",
+    "tabImport": "Impor",
+    "tabBoost": "Boost",
+    "filterAllStatuses": "Semua status",
+    "filterAllLists": "Semua daftar",
+    "statusNew": "Baru",
+    "statusNurturing": "Mengembangkan",
+    "statusHot": "Panas",
+    "statusConverted": "Dikonversi",
+    "statusUnsubscribed": "Berhenti berlangganan",
+    "searchLeadsPlaceholder": "Cari prospek…",
+    "newListBtn": "Daftar baru",
+    "deleteLeadConfirm": "Hapus prospek ini?",
+    "leadDeleted": "Prospek dihapus",
+    "noLeadsYet": "Belum ada prospek",
+    "defaultWelcomeSubject": "Selamat datang!",
+    "defaultFollowUpSubject": "Tindak lanjut — tip cepat",
+    "defaultLastChanceSubject": "Kesempatan terakhir untuk bertindak",
+    "dayLabel": "Hari",
+    "boostPack1kLabel": "1.000 Email",
+    "boostPack1kDesc": "Sempurna untuk kampanye bertarget",
+    "boostPack5kLabel": "5.000 Email",
+    "boostPack5kDesc": "Jalankan beberapa urutan",
+    "boostPack10kLabel": "10.000 Email",
+    "boostPack10kDesc": "Perluas jangkauan Anda",
+    "boostPack50kLabel": "50.000 Email",
+    "boostPack50kDesc": "Volume perusahaan",
+    "contacts": "kontak",
+    "sent": "terkirim",
+    "noneOption": "Tidak ada"
   },
   "adHub": {
     "title": "Ad Hub",
@@ -4400,7 +4641,198 @@
     "duplicate": "Duplikat",
     "deleteElement": "Hapus",
     "pages": "Halaman",
-    "help": "Bantuan",
+    "help": {
+      "title": "Bantuan SuperPages",
+      "subtitle": "Basis pengetahuan pembuat halaman",
+      "searchPlaceholder": "Cari topik bantuan…",
+      "noResults": "Tidak ada hasil untuk",
+      "sections": {
+        "gettingStarted": {
+          "category": "Memulai",
+          "items": [
+            {
+              "title": "Cara kerja Editor",
+              "desc": "SuperPages adalah pembuat halaman drag-and-drop bentuk bebas. Klik blok mana pun dari panel kanan untuk menambahkannya ke kanvas, lalu seret untuk menempatkannya di mana saja. Klik dua kali elemen teks untuk mengeditnya secara inline."
+            },
+            {
+              "title": "Memilih & Memindahkan",
+              "desc": "Klik sekali pada elemen mana pun untuk memilihnya — Anda akan melihat garis biru dan pegangan ubah ukuran. Klik dan seret untuk memposisikan ulang. Tahan Shift + Tombol Panah untuk memindahkan 10px, atau hanya panah untuk presisi 1px."
+            },
+            {
+              "title": "Mengubah Ukuran",
+              "desc": "Elemen yang dipilih menampilkan 8 pegangan ubah ukuran cyan — di keempat sudut dan keempat tepi. Seret pegangan apa pun untuk mengubah ukuran. Pegangan sudut mengubah ukuran di kedua arah secara bersamaan."
+            },
+            {
+              "title": "Menyimpan & Menerbitkan",
+              "desc": "Klik Simpan untuk menyimpan pekerjaan (penyimpanan otomatis setiap 30 detik). Klik Terbitkan untuk membuat halaman Anda langsung di web. URL langsung Anda muncul di Pengaturan."
+            },
+            {
+              "title": "Pintasan Keyboard",
+              "desc": "Ctrl+S: Simpan | Ctrl+Z: Urungkan | Ctrl+Y: Kerjakan ulang | Delete: Hapus elemen | Panah: 1px | Shift+Panah: 10px | Escape: Batal pilih"
+            }
+          ]
+        },
+        "textElements": {
+          "category": "Elemen teks",
+          "items": [
+            {
+              "title": "Heading",
+              "desc": "Teks besar dan tebal untuk judul halaman dan heading bagian. Default adalah font Sora 36px putih. Klik dua kali untuk mengedit. Gunakan toolbar mengambang untuk mengubah keluarga font, ukuran, warna."
+            },
+            {
+              "title": "Teks",
+              "desc": "Teks isi untuk paragraf dan deskripsi. Default adalah font Outfit 15px abu-abu dengan tinggi baris 1.8 untuk keterbacaan. Klik dua kali untuk mengedit."
+            },
+            {
+              "title": "Label",
+              "desc": "Teks kecil bergaya lencana sempurna untuk tag seperti PREMIUM, NEW, atau LIMITED OFFER. Dilengkapi latar belakang pil bulat dan batas."
+            }
+          ]
+        },
+        "mediaElements": {
+          "category": "Elemen media",
+          "items": [
+            {
+              "title": "Gambar",
+              "desc": "Tambahkan gambar ke halaman Anda. Klik tombol edit IMAGE di toolbar elemen untuk memasukkan URL atau mengunggah file (maks 5MB). Mendukung JPG, PNG, GIF, WebP. Disimpan di Cloudflare R2."
+            },
+            {
+              "title": "Video",
+              "desc": "Sematkan video dari YouTube, Vimeo, atau unggah file MP4/WebM sendiri (maks 50MB). Klik edit VIDEO untuk menambahkan. URL tampilan YouTube dan Vimeo otomatis dikonversi."
+            },
+            {
+              "title": "Audio",
+              "desc": "Tambahkan pemutar audio ke halaman Anda. Klik edit AUDIO untuk memasukkan URL atau mengunggah file MP3/WAV/OGG (maks 20MB). Bagus untuk podcast, sampel musik."
+            }
+          ]
+        },
+        "actionElements": {
+          "category": "Elemen tindakan",
+          "items": [
+            {
+              "title": "Tombol",
+              "desc": "Tombol yang dapat diklik dengan latar gradien. Klik edit LINK untuk mengatur URL tujuan. Klik dua kali untuk mengubah teks tombol. Sempurna untuk CTA seperti Gabung Sekarang."
+            },
+            {
+              "title": "Formulir Opt-In",
+              "desc": "Formulir tangkapan email dengan kolom nama, email, dan tombol kirim. Sudah bergaya dengan latar kaca gelap. Klik edit FORM untuk menyesuaikan HTML. Terhubung ke My Leads."
+            },
+            {
+              "title": "CTA",
+              "desc": "Mirip Tombol tetapi bergaya khusus untuk tindakan konversi utama. Klik edit LINK untuk mengatur URL tujuan. Gunakan untuk tindakan utama halaman."
+            }
+          ]
+        },
+        "contentElements": {
+          "category": "Elemen konten",
+          "items": [
+            {
+              "title": "Ulasan",
+              "desc": "Blok ulasan pelanggan dengan peringkat bintang, teks kutipan, dan atribusi. Dengan latar kartu gelap dan batas kiri cyan. Klik dua kali untuk mengedit."
+            },
+            {
+              "title": "Lencana",
+              "desc": "Lencana dekoratif kecil yang identik dengan Label — berguna untuk tag seperti BEST VALUE, MOST POPULAR. Memiliki gaya pil emas secara default."
+            },
+            {
+              "title": "Testimoni",
+              "desc": "Blok testimoni yang diperluas dengan bintang, kutipan lebih panjang, dan kredit penulis. Menampilkan batas kiri emas."
+            },
+            {
+              "title": "FAQ",
+              "desc": "Blok tanya-jawab dengan header bergaya halus. Klik dua kali untuk mengedit teks pertanyaan dan jawaban. Tumpuk beberapa elemen FAQ."
+            },
+            {
+              "title": "Statistik",
+              "desc": "Tampilan statistik besar — menampilkan angka besar (seperti 95%) dengan label di bawah. Sempurna untuk bukti sosial."
+            },
+            {
+              "title": "Kemajuan",
+              "desc": "Bilah kemajuan animasi dengan label dan persentase. Klik edit SET untuk mengonfigurasi teks label, persentase (0-100), dan warna bilah."
+            }
+          ]
+        },
+        "layoutElements": {
+          "category": "Elemen tata letak",
+          "items": [
+            {
+              "title": "Hitung Mundur",
+              "desc": "Timer hitung mundur langsung yang menghitung mundur ke tanggal dan waktu target. Klik edit SET untuk memilih tanggal target. Menciptakan urgensi."
+            },
+            {
+              "title": "Sosial",
+              "desc": "Baris ikon media sosial — YouTube, Instagram, TikTok, Facebook, X/Twitter, dan LinkedIn. Klik edit LINKS untuk menambahkan URL profil."
+            },
+            {
+              "title": "Ikon + Teks",
+              "desc": "Blok fitur yang menggabungkan emoji/ikon dengan heading dan teks deskripsi. Sempurna untuk mencantumkan manfaat atau fitur."
+            },
+            {
+              "title": "Pemisah",
+              "desc": "Garis pemisah dekoratif dengan teks tengah opsional. Klik dua kali untuk mengubah teks. Gunakan antara bagian untuk jeda visual."
+            },
+            {
+              "title": "Logo",
+              "desc": "Strip logo 'Seperti terlihat di' — menampilkan nama merek dalam baris horizontal. Klik dua kali untuk mengedit nama merek."
+            },
+            {
+              "title": "Spacer",
+              "desc": "Elemen spasi tak terlihat. Seret untuk memposisikan dan ubah ukuran untuk mengontrol ruang antara elemen lain. Tidak memiliki tampilan visual."
+            },
+            {
+              "title": "Kotak",
+              "desc": "Kontainer kosong dengan batas halus dan sudut bulat. Gunakan sebagai kartu latar belakang di belakang elemen lain untuk membuat bagian yang dikelompokkan."
+            },
+            {
+              "title": "Pembatas",
+              "desc": "Garis horizontal sederhana. Gunakan untuk memisahkan bagian pada halaman Anda. Ubah lebar untuk mengontrol jangkauannya."
+            },
+            {
+              "title": "Sematkan",
+              "desc": "Blok sematan HTML/kode mentah. Klik edit CODE untuk menempel HTML apa pun, termasuk iframe, widget khusus, piksel pelacakan."
+            }
+          ]
+        },
+        "settingsPublishing": {
+          "category": "Pengaturan dan Penerbitan",
+          "items": [
+            {
+              "title": "Judul Halaman",
+              "desc": "Nama halaman Anda — muncul di tab browser, hasil mesin pencari, dan daftar SuperPages. Pilih sesuatu yang deskriptif dan menarik untuk SEO."
+            },
+            {
+              "title": "Slug URL Halaman",
+              "desc": "Sesuaikan alamat web halaman yang diterbitkan. Buka Pengaturan, temukan kolom Slug URL Halaman, dan ketik nama pilihan menggunakan huruf kecil, angka, dan tanda hubung saja. Setiap slug harus unik."
+            },
+            {
+              "title": "Meta Description",
+              "desc": "Deskripsi yang muncul di bawah judul halaman di hasil pencarian Google. Tulis 150-160 karakter yang memberi tahu pengunjung apa yang ditawarkan halaman Anda."
+            },
+            {
+              "title": "Gambar Berbagi Sosial",
+              "desc": "Saat seseorang membagikan halaman yang diterbitkan di Facebook, Twitter, LinkedIn, atau WhatsApp, gambar ini muncul sebagai thumbnail pratinjau. Gunakan 1200x630px."
+            },
+            {
+              "title": "Status Halaman",
+              "desc": "Halaman Draf hanya terlihat oleh Anda. Halaman yang Diterbitkan langsung di web di URL Langsung Anda. Beralih antara Draf dan Diterbitkan kapan saja."
+            },
+            {
+              "title": "Latar Kanvas",
+              "desc": "Ubah latar halaman menggunakan pemilih warna atau unggahan gambar di kanan atas panel Blok. Mendukung warna solid, gradien, dan gambar latar satu halaman."
+            }
+          ]
+        },
+        "aiAssistant": {
+          "category": "Asisten AI",
+          "items": [
+            {
+              "title": "AI Chat",
+              "desc": "Klik Asisten AI di bagian bawah panel Blok untuk membuka obrolan AI. Beri tahu apa yang Anda inginkan: tambahkan heading, ubah latar ke navy, tulis salinan penjualan untuk produk fitness. AI dapat memodifikasi gaya halaman."
+            }
+          ]
+        }
+      }
+    },
     "knowledgeBase": "Basis pengetahuan",
     "learnElements": "Pelajari cara kerja setiap elemen dan fitur",
     "searchPlaceholder": "Cari elemen, fitur...",
@@ -4449,7 +4881,9 @@
     "blkProgress": "Kemajuan",
     "blkCountdown": "Hitung mundur",
     "blkSocials": "Sosial",
-    "blkIconText": "Ikon+Teks"
+    "blkIconText": "Ikon+Teks",
+    "blk": "Blok",
+    "cat": "Kategori"
   },
   "coursePlayer": {},
   "analytics": {
@@ -4485,7 +4919,18 @@
     "lastWithdrawal": "Penarikan terakhir",
     "noWithdrawals": "Belum ada penarikan",
     "totalAiGen": "total generasi AI",
-    "qualificationDesc": "Persyaratan menonton harian untuk kualifikasi penarikan Dompet Kampanye. Ini bukan sumber pendapatan — ini adalah check-in akuntabilitas Anda."
+    "qualificationDesc": "Persyaratan menonton harian untuk kualifikasi penarikan Dompet Kampanye. Ini bukan sumber pendapatan — ini adalah check-in akuntabilitas Anda.",
+    "campaignGrid": "Grid Kampanye",
+    "courses": "Kursus",
+    "creditNexus": "Credit Nexus",
+    "fiftyRecurring": "50% berulang",
+    "gridCommissions": "Komisi grid",
+    "membership": "Keanggotaan",
+    "nexusCommissions": "Komisi Nexus",
+    "noResults": "Tidak ada hasil",
+    "noTeamYet": "Belum ada tim",
+    "recruitToMsg": "Rekrut seseorang untuk mulai mengirim pesan",
+    "salesPassUps": "Penjualan + pass-up"
   },
   "superMarket": {
     "comparePrice": "Harga perbandingan",
@@ -4579,6 +5024,72 @@
     "libRetail": "Retail & Belanja",
     "proTipTitle": "Tip Pro",
     "proTipWeb": "Nama merek spesifik bekerja paling baik. Pencarian seperti \"distributor Herbalife Indonesia\" menemukan situs web distributor individu, sedangkan istilah samar seperti \"peluang bisnis\" hanya mengembalikan penerbit konten.",
-    "proTipMaps": "Menambahkan kota tertentu memberikan hasil yang lebih tajam. Coba kombinasikan pekerjaan (misalnya tukang ledeng, dokter gigi) dengan kode pos atau lingkungan untuk lead terbaik."
+    "proTipMaps": "Menambahkan kota tertentu memberikan hasil yang lebih tajam. Coba kombinasikan pekerjaan (misalnya tukang ledeng, dokter gigi) dengan kode pos atau lingkungan untuk lead terbaik.",
+    "dataSourceMaps": "Data dari Google Maps",
+    "dataSourceWeb": "Data dari pencarian web"
+  },
+  "myNetwork": {
+    "pageTitle": "Jaringan & Penghasilan Saya",
+    "pageSubtitle": "Tim Anda, sumber pendapatan Anda, pertumbuhan Anda",
+    "referralLinkLabel": "Tautan Rujukan Anda",
+    "copyBtn": "Salin tautan",
+    "copiedBtn": "Disalin!",
+    "earningsTitle": "Penghasilan Anda",
+    "earningsSubtitle": "Total dan bulanan, di setiap sumber pendapatan",
+    "lifetimeEarned": "Penghasilan Seumur Hidup",
+    "lifetimeEarnedSub": "Sepanjang waktu di semua sumber pendapatan",
+    "thisMonth": "Bulan Ini",
+    "thisMonthSub": "Komisi dibayarkan pada {{month}}",
+    "streamsCardTitle": "Penghasilan berdasarkan Sumber",
+    "streamsCardSubtitle": "Empat cara anggota mendapatkan uang di SuperAdPro",
+    "streamMembershipName": "Sisa Keanggotaan",
+    "streamMembershipDesc": "50% dari biaya keanggotaan bulanan setiap rujukan langsung",
+    "streamGridName": "Grid / Kampanye",
+    "streamGridDesc": "40% langsung + 50% uni-level dari pembelian tier kampanye",
+    "streamCourseName": "Akademi Kursus",
+    "streamCourseDesc": "100% komisi melalui 4 Rantai Pendapatan tak terbatas",
+    "streamNexusName": "Credit Nexus",
+    "streamNexusDesc": "Penghasilan matriks 3×3 dari pembelian paket kredit downline",
+    "recentCommissionsTitle": "Komisi Terbaru",
+    "seeAll": "Lihat semua",
+    "colSource": "Sumber",
+    "colDetails": "Detail",
+    "colAmount": "Jumlah",
+    "colDate": "Tanggal",
+    "noCommissionsTitle": "Belum ada komisi",
+    "noCommissionsSubtitle": "Komisi akan muncul di sini saat tim Anda tumbuh",
+    "teamTitle": "Tim Anda",
+    "teamSubtitle": "Semua orang di bawah Anda, tumbuh seiring waktu",
+    "directReferrals": "Rujukan Langsung",
+    "directReferralsSub": "Orang yang Anda rekrut secara pribadi",
+    "totalNetwork": "Total Jaringan",
+    "totalNetworkSub": "Semua orang di bawah Anda di setiap kedalaman",
+    "activeMembers": "Anggota Aktif",
+    "activeMembersSub": "Masih aktif di platform",
+    "directReferralsList": "Rujukan Langsung",
+    "totalCount": "{{count}} total",
+    "colMember": "Anggota",
+    "colStatus": "Status",
+    "colTheirTeam": "Tim mereka",
+    "colJoined": "Bergabung",
+    "statusActive": "Aktif",
+    "statusInactive": "Tidak aktif",
+    "noReferralsTitle": "Belum ada rujukan",
+    "noReferralsSubtitle": "Bagikan tautan Anda di atas untuk mulai membangun jaringan Anda",
+    "streamCategoryMembership": "Keanggotaan",
+    "streamCategoryGrid": "Grid",
+    "streamCategoryCourses": "Kursus",
+    "streamCategoryCreditNexus": "Credit Nexus",
+    "streamCategoryOther": "Lainnya",
+    "typeDirectSponsor": "Bonus sponsor langsung",
+    "typeUniLevel": "Komisi uni-level",
+    "typeGridCompletion": "Bonus penyelesaian grid",
+    "typePlatform": "Komisi platform",
+    "typeMatrixLevel": "Bonus level matriks kredit",
+    "typeMatrixCompletion": "Penyelesaian matriks kredit",
+    "typeNexusSponsor": "Bonus sponsor Credit Nexus",
+    "typeDirectSale": "Penjualan kursus langsung (100%)",
+    "typePassUp": "Kaskade pass-up kursus",
+    "typeMembership": "Rujukan keanggotaan"
   }
 }
