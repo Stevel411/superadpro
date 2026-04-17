@@ -1488,10 +1488,10 @@
     "pricingTitle": "Simple at abot-kayang presyo",
     "pricingSubtitle": "Dalawang plan. Walang hidden fees. I-cancel kahit kailan. Save 17% sa annual.",
     "basic": "Basic",
-    "perMonth": "/month",
-    "saveBasic": "SAVE $40",
-    "recommended": "RECOMMENDED",
-    "savePro": "SAVE $70",
+    "perMonth": "/buwan",
+    "saveBasic": "MAKATIPID NG $40",
+    "recommended": "INIREREKOMENDA",
+    "savePro": "MAKATIPID NG $70",
     "getPro": "Kumuha ng Pro",
     "ctaTitle": "Handa ka nang magsimula?",
     "ctaDesc": "Libre. Walang card. 60 segundo.",
@@ -1506,10 +1506,10 @@
     "marketingPreview": "Marketing tools preview",
     "incomeGridTitle": "8×8 Income Grid",
     "or": "o",
-    "basicAnnual": "$200/year",
-    "proAnnual": "$350/year",
+    "basicAnnual": "$200/taon",
+    "proAnnual": "$350/taon",
     "everythingInBasic": "✓ Lahat ng nasa Basic",
-    "incomeDisclaimerBody": "Income figures represent the compensation plan structure. Results depend on individual effort and team activity."
+    "incomeDisclaimerBody": "Ang mga income figure ay kumakatawan sa istraktura ng compensation plan. Ang mga resulta ay nakadepende sa indibidwal na pagsisikap at aktibidad ng team."
   },
   "earnPage": {
     "heroTitle": "4 na Paraan para Kumita",
