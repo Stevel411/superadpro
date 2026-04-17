@@ -82,6 +82,12 @@ var CSS = `
 .dot-empty { background: #f1f5f9; border: 2px solid #e2e8f0; color: #94a3b8; }
 
 .stat-box { background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 10px; padding: 14px 12px; text-align: center; }
+
+.ring-pulse { animation: ring-pulse 2s ease-in-out infinite; }
+@keyframes ring-pulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
 `;
 
 export default function Watch() {
@@ -564,16 +570,38 @@ export default function Watch() {
             </button>
           </div>
 
-          {/* ── MOBILE: Progress dots ── */}
-          <div className="watch-mobile-progress" style={{display:'none',padding:'16px 20px',background:'#fff',borderBottom:'1px solid #e8ecf2'}}>
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
-              <div style={{fontSize:11,fontWeight:800,letterSpacing:1,textTransform:'uppercase',color:'var(--sap-text-muted)'}}>{t('watch.todaysProgress')}</div>
-              <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:900,color:'var(--sap-text-primary)'}}>
-                {watched} <span style={{fontSize:13,color:'var(--sap-text-muted)',fontWeight:500}}>/ {limit}</span>
+          {/* ── MOBILE: Progress dots (only when limit > 1) ── */}
+          {limit > 1 && (
+            <div className="watch-mobile-progress" style={{display:'none',padding:'16px 20px',background:'#fff',borderBottom:'1px solid #e8ecf2'}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+                <div style={{fontSize:11,fontWeight:800,letterSpacing:1,textTransform:'uppercase',color:'var(--sap-text-muted)'}}>{t('watch.todaysProgress')}</div>
+                <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:900,color:'var(--sap-text-primary)'}}>
+                  {watched} <span style={{fontSize:13,color:'var(--sap-text-muted)',fontWeight:500}}>/ {limit}</span>
+                </div>
+              </div>
+              <ProgressDots/>
+            </div>
+          )}
+
+          {/* ── MOBILE: Status pill for single-video days ── */}
+          {limit === 1 && (
+            <div className="watch-mobile-progress" style={{display:'none',padding:'16px 20px',background:'#fff',borderBottom:'1px solid #e8ecf2'}}>
+              <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:12}}>
+                <div style={{fontSize:11,fontWeight:800,letterSpacing:1,textTransform:'uppercase',color:'var(--sap-text-muted)'}}>{t('watch.todaysProgress')}</div>
+                <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:900,color:'var(--sap-text-primary)'}}>
+                  {watched} <span style={{fontSize:13,color:'var(--sap-text-muted)',fontWeight:500}}>/ {limit}</span>
+                </div>
+              </div>
+              <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,
+                           background: watched >= 1 ? 'rgba(22,163,74,.08)' : 'rgba(14,165,233,.06)',
+                           border: `1px solid ${watched >= 1 ? 'rgba(22,163,74,.2)' : 'rgba(14,165,233,.18)'}`}}>
+                <div style={{fontSize:16}}>{watched >= 1 ? '✅' : '▶️'}</div>
+                <div style={{fontSize:12,fontWeight:700,color: watched >= 1 ? 'var(--sap-green)' : 'var(--sap-accent)'}}>
+                  {watched >= 1 ? t('watch.quotaCompleteLabel') : t('watch.watchOneToQualify')}
+                </div>
               </div>
             </div>
-            <ProgressDots/>
-          </div>
+          )}
 
           {/* ── MOBILE: Stats grid ── */}
           <div className="watch-mobile-stats" style={{display:'none',gridTemplateColumns:'1fr 1fr',gap:10,padding:'16px 20px',background:'#f0f3f9'}}>
@@ -617,10 +645,14 @@ export default function Watch() {
               <div style={{width:90,height:90,position:'relative',flexShrink:0}}>
                 <svg width="90" height="90" style={{transform:'rotate(-90deg)'}}>
                   <defs><linearGradient id="pGrad" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="var(--sap-accent)"/><stop offset="100%" stopColor="var(--sap-green-bright)"/></linearGradient></defs>
+                  {/* Track circle — always visible */}
                   <circle cx="45" cy="45" r={ringR} fill="none" stroke="#eef1f8" strokeWidth="7"/>
+                  {/* Progress stroke — starts at a visible dot even at 0% */}
                   <circle cx="45" cy="45" r={ringR} fill="none" stroke="url(#pGrad)" strokeWidth="7"
-                    strokeLinecap="round" strokeDasharray={ringC} strokeDashoffset={ringOffset}
-                    style={{transition:'stroke-dashoffset .6s'}}/>
+                    strokeLinecap="round"
+                    strokeDasharray={`${Math.max(3, ringC * Math.min(1, watched / limit))} ${ringC}`}
+                    className={watched === 0 ? 'ring-pulse' : ''}
+                    style={{transition:'stroke-dasharray .6s'}}/>
                 </svg>
                 <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:800,color:'var(--sap-text-primary)'}}>{watched}</div>
               </div>
@@ -634,7 +666,17 @@ export default function Watch() {
                 </div>
               </div>
             </div>
-            <ProgressDots/>
+            {limit > 1 && <ProgressDots/>}
+            {limit === 1 && (
+              <div style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:8,
+                           background: watched >= 1 ? 'rgba(22,163,74,.08)' : 'rgba(14,165,233,.06)',
+                           border: `1px solid ${watched >= 1 ? 'rgba(22,163,74,.2)' : 'rgba(14,165,233,.18)'}`}}>
+                <div style={{fontSize:16}}>{watched >= 1 ? '✅' : '▶️'}</div>
+                <div style={{fontSize:12,fontWeight:700,color: watched >= 1 ? 'var(--sap-green)' : 'var(--sap-accent)'}}>
+                  {watched >= 1 ? t('watch.quotaCompleteLabel') : t('watch.watchOneToQualify')}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Session stats */}
