@@ -1,8 +1,20 @@
+import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
+import { changeLanguage, LANGUAGES } from '../../i18n';
 
 export default function HomePage() {
-  var { t } = useTranslation();
+  var { t, i18n } = useTranslation();
+  var [langOpen, setLangOpen] = useState(false);
+  var langRef = useRef(null);
+
+  useEffect(function() {
+    function onClick(e) { if (langRef.current && !langRef.current.contains(e.target)) setLangOpen(false); }
+    document.addEventListener('mousedown', onClick);
+    return function() { document.removeEventListener('mousedown', onClick); };
+  }, []);
+
+  var currentLang = LANGUAGES.find(function(l) { return l.code === i18n.language; }) || LANGUAGES[0];
 
   return (
     <>
@@ -14,6 +26,33 @@ export default function HomePage() {
           <Link to="/how-it-works" className="float-nav-link">{t('homePage.navHow')}</Link>
           <Link to="/earn" className="float-nav-link">{t('homePage.navPlan')}</Link>
           <Link to="/tools" className="float-nav-link">{t('homePage.navTools')}</Link>
+
+          {/* Language pill */}
+          <div ref={langRef} className="float-lang-wrap">
+            <button type="button" className="float-lang-pill" onClick={function() { setLangOpen(!langOpen); }}>
+              <span className="float-lang-flag">{currentLang.flag}</span>
+              <span className="float-lang-code">{currentLang.code.toUpperCase()}</span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{opacity:.6}}>
+                <polyline points="6 9 12 15 18 9"/>
+              </svg>
+            </button>
+            {langOpen && (
+              <div className="float-lang-dropdown">
+                {LANGUAGES.map(function(lang) {
+                  var active = lang.code === i18n.language;
+                  return (
+                    <button key={lang.code} type="button" className={'float-lang-item' + (active ? ' active' : '')}
+                      onClick={function() { changeLanguage(lang.code); setLangOpen(false); }}>
+                      <span className="float-lang-item-flag">{lang.flag}</span>
+                      <span className="float-lang-item-name">{lang.name}</span>
+                      {active && <span className="float-lang-item-check">✓</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           <Link to="/login" className="float-nav-link">{t('homePage.navSignin')}</Link>
           <Link to="/register" className="float-nav-cta">{t('homePage.navCta')}</Link>
         </div>
@@ -146,6 +185,20 @@ var CSS_HOMEPAGE = `
 .home-page .float-nav-link:hover{background:rgba(11,18,48,.7);border-color:var(--ink-20);transform:translateY(-2px)}
 .home-page .float-nav-cta{padding:10px 20px;border-radius:100px;background:var(--ink);color:var(--cobalt-deepest);font-family:'Sora',sans-serif;font-size:13px;font-weight:700;text-decoration:none;transition:all .25s;box-shadow:0 8px 32px rgba(250,251,255,.25)}
 .home-page .float-nav-cta:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(250,251,255,.4)}
+
+/* Language pill (same glass-pill aesthetic as float-nav-link) */
+.home-page .float-lang-wrap{position:relative}
+.home-page .float-lang-pill{display:inline-flex;align-items:center;gap:6px;padding:10px 14px;border-radius:100px;background:rgba(11,18,48,.5);border:1px solid var(--ink-10);backdrop-filter:blur(18px) saturate(180%);font-family:'Sora',sans-serif;font-size:12px;font-weight:700;color:var(--ink);cursor:pointer;transition:all .25s;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.home-page .float-lang-pill:hover{background:rgba(11,18,48,.7);border-color:var(--ink-20);transform:translateY(-2px)}
+.home-page .float-lang-flag{font-size:15px;line-height:1}
+.home-page .float-lang-code{letter-spacing:.05em}
+.home-page .float-lang-dropdown{position:absolute;top:calc(100% + 8px);right:0;width:200px;max-height:360px;overflow-y:auto;background:rgba(11,18,48,.95);border:1px solid var(--ink-10);border-radius:12px;box-shadow:0 12px 40px rgba(0,0,0,.4);backdrop-filter:blur(20px);padding:4px;z-index:200}
+.home-page .float-lang-item{display:flex;align-items:center;gap:10px;width:100%;padding:8px 12px;border-radius:8px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;background:transparent;color:var(--ink-60);text-align:left;transition:all .15s}
+.home-page .float-lang-item:hover{background:rgba(255,255,255,.05);color:var(--ink)}
+.home-page .float-lang-item.active{background:rgba(14,165,233,.12);color:var(--sky-bright);font-weight:700}
+.home-page .float-lang-item-flag{font-size:16px;line-height:1}
+.home-page .float-lang-item-name{flex:1}
+.home-page .float-lang-item-check{margin-left:auto;font-size:11px;color:var(--sky-bright)}
 .home-page .hero{position:relative;min-height:100vh;overflow:hidden}
 .home-page .hero-photo{position:absolute;inset:0;z-index:0;background-image:url("/static/images/homepage-hero.jpg");background-size:cover;background-position:center right;background-repeat:no-repeat;transform:scale(1.02);animation:homeKenBurns 60s ease-in-out infinite alternate}
 @keyframes homeKenBurns{0%{transform:scale(1.02) translate(0,0)}100%{transform:scale(1.06) translate(-1%,-0.3%)}}
