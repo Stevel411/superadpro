@@ -1839,7 +1839,144 @@
       "title": "Tulong para sa SuperLeads",
       "subtitle": "Kumpletong gabay sa iyong CRM at autoresponder",
       "searchPlaceholder": "Maghanap ng mga paksa ng tulong…",
-      "noResults": "Walang resulta para sa"
+      "noResults": "Walang resulta para sa",
+      "sections": {
+        "gettingStarted": {
+          "category": "Pagsisimula",
+          "items": [
+            {
+              "title": "Ano ang SuperLeads?",
+              "desc": "Ang SuperLeads ay ang iyong built-in na CRM at email autoresponder. Kumuha ng mga lead mula sa mga funnel o import, isaayos sila sa mga listahan, magpadala ng mga broadcast, at alagaan sila gamit ang automated email sequences — lahat mula sa isang lugar."
+            },
+            {
+              "title": "Ano ang bibilangin bilang lead?",
+              "desc": "Anumang email address na nakuha mo — sa pamamagitan ng SuperPages funnel, manu-manong entry, o CSV import. Bawat lead ay may status, opsyonal na pangalan, source tag, at maaaring italaga sa anumang listahan."
+            },
+            {
+              "title": "Libreng emails vs boost credits",
+              "desc": "Ang bawat account ay nakakakuha ng 200 libreng email sends kada araw. Kailangan mo ng higit pa? Bumili ng boost packs mula sa Boost tab — ang credits ay hindi nag-e-expire at nanggagaling sa iyong wallet balance."
+            },
+            {
+              "title": "Limitasyon sa imbakan ng lead",
+              "desc": "Ang mga miyembro ng Pro ay maaaring mag-store ng hanggang 5,000 leads. Sa itaas niyan, alisin ang mga lumang leads o i-upgrade ang iyong plano. Mananatili ang mga leads magpakailanman maliban kung tatanggalin mo sila."
+            }
+          ]
+        },
+        "leadsTab": {
+          "category": "Leads Tab",
+          "items": [
+            {
+              "title": "Mga status ng lead",
+              "desc": "Bago, Inaalagaan, Mainit, Na-convert, at Nag-unsubscribe. Itakda ang status nang manu-mano o hayaan ang mga sequence na i-update ito awtomatikong kapag nagsagawa ng aksyon ang lead."
+            },
+            {
+              "title": "Pag-edit ng lead",
+              "desc": "I-click ang anumang lead row upang palawakin at i-edit ang pangalan, email, status, o pagtatalaga ng listahan. Ang mga pagbabago ay nase-save kaagad."
+            },
+            {
+              "title": "Pagtanggal ng lead",
+              "desc": "I-click ang trash icon sa tabi ng anumang lead. Ang mga tinanggal na leads ay nagpapalaya ng imbakan at hindi maibabalik."
+            },
+            {
+              "title": "Mga bulk operation",
+              "desc": "Pumili ng maraming leads sa pamamagitan ng checkbox column, pagkatapos ay gamitin ang bulk action bar sa ibaba upang ilipat sila sa isang listahan, baguhin ang status, o tanggalin."
+            }
+          ]
+        },
+        "lists": {
+          "category": "Mga Listahan",
+          "items": [
+            {
+              "title": "Ano ang mga listahan?",
+              "desc": "Ang mga listahan ay mga tag na inilalapat mo sa mga lead upang pagsama-samahin sila — halimbawa 'Fitness Newsletter' o 'Crypto Prospects'. Ang isang lead ay maaaring mapunta sa maraming listahan."
+            },
+            {
+              "title": "Paglikha ng listahan",
+              "desc": "I-click ang 'Gumawa ng Listahan' sa Leads tab sidebar. Bigyan ito ng nauukol na pangalan — target mo ang mga sequence at broadcast ayon sa listahan."
+            },
+            {
+              "title": "Analytics ng listahan",
+              "desc": "Ang bawat listahan ay nagpapakita ng kabuuang leads, aktibong subscribers, at conversion rate. Gamitin ang mga ito upang tukuyin kung aling mga audience ang pinakamahusay na nakikipag-ugnayan."
+            }
+          ]
+        },
+        "sequences": {
+          "category": "Mga Sequence",
+          "items": [
+            {
+              "title": "Ano ang sequence?",
+              "desc": "Ang sequence ay isang naka-order na hanay ng mga email na awtomatikong ipinadala sa pagkaantala pagkatapos sumali ang lead. Gamitin ito para sa welcome flows, product launches, o nurture campaigns."
+            },
+            {
+              "title": "Paglikha ng sequence",
+              "desc": "Lumipat sa Sequences tab, i-click ang 'Bagong Sequence', at magdagdag ng email steps na may send delays (sa mga araw). Italaga ang sequence sa isa o higit pang listahan."
+            },
+            {
+              "title": "AI-generated sequences",
+              "desc": "I-click ang 'Gumawa gamit ang AI' at ipasok ang iyong niche. Sumusulat ang SuperLeads ng 5-email welcome series na iniakma para sa iyong audience. I-edit ang anumang email bago aktibahin."
+            },
+            {
+              "title": "Pag-pause at pagpapatuloy",
+              "desc": "I-toggle ang sequence off upang i-pause ang lahat ng mga future sends. Ang mga lead na nasa progreso ay mananatiling pause; ang mga bagong lead ay hindi papasok. I-toggle pabalik sa on upang magpatuloy."
+            }
+          ]
+        },
+        "broadcast": {
+          "category": "Broadcast",
+          "items": [
+            {
+              "title": "Ano ang broadcast?",
+              "desc": "Isang one-off na email na agad ipinadala (o naka-schedule) sa isang listahan. Gamitin ang broadcasts para sa mga time-sensitive na balita, offers, o updates na hindi tumugma sa sequence."
+            },
+            {
+              "title": "Pagsusulat ng broadcast",
+              "desc": "Pumili ng target list, magsulat ng subject line at body (sinusuportahan ang HTML), pagkatapos ay mag-preview. Ipadala kaagad o mag-schedule para sa mamaya."
+            },
+            {
+              "title": "Gastos sa broadcast",
+              "desc": "Ang bawat tatanggap ay binibilang bilang isang pagpapadala laban sa iyong daily limit. Kung lalagpas ka ng 200 sends, ang natitira ay mula sa boost credits."
+            }
+          ]
+        },
+        "import": {
+          "category": "Import",
+          "items": [
+            {
+              "title": "Mga tinatanggap na format",
+              "desc": "CSV file upload o i-paste ang listahan ng email addresses. Simpleng format: isang email bawat linya, o 'email,pangalan' para sa mga named lead."
+            },
+            {
+              "title": "Mga setting ng import",
+              "desc": "Bago kumpirmahin, piliin ang target list, initial status, at opsyonal na source tag. Ang mga duplicate sa loob ng parehong listahan ay awtomatikong lumilipas."
+            },
+            {
+              "title": "Awtomatikong pag-assign ng sequence",
+              "desc": "Lagyan ng tsek ang 'Awtomatikong i-assign ang sequence' upang ilaglag ang bawat imported lead nang direkta sa welcome flow. Mahusay para sa paglipat ng mga lead mula sa ibang platform."
+            },
+            {
+              "title": "Preview at validation",
+              "desc": "Pagkatapos ng upload, suriin ang preview. Ang mga invalid na email ay may pulang flag at hindi mag-i-import. Ayusin ang iyong source file at muling mag-upload kung kinakailangan."
+            }
+          ]
+        },
+        "emailBoost": {
+          "category": "Email Boost",
+          "items": [
+            {
+              "title": "Ano ang boost credits?",
+              "desc": "Dagdag na email sends lampas sa iyong 200/araw na libreng allocation. Ang credits ay nanggagaling sa iyong wallet balance at hindi nag-e-expire kailanman."
+            },
+            {
+              "title": "Mga tier ng boost pack",
+              "desc": "Apat na sukat ng pack — 500, 2,000, 10,000, at 50,000 credits. Ang mas malalaking packs ay nagbibigay ng mas magandang per-email pricing."
+            },
+            {
+              "title": "Kailan bumili ng boosts",
+              "desc": "Kapag nagpapadala ng malaking broadcast, nag-aalaga sa listahan na mas malaki sa 200 leads, o nagpapatakbo ng maraming aktibong sequences. Binabalaan ka ng platform bago ka umabot sa iyong daily cap."
+            }
+          ]
+        }
+      }
     },
     "autoresponderLabel": "Auto-responder",
     "totalLeadsStat": "Kabuuang mga lead",
@@ -2257,7 +2394,181 @@
       "title": "Tulong para sa SuperPages",
       "subtitle": "Knowledge base ng page builder",
       "searchPlaceholder": "Maghanap ng mga paksa ng tulong…",
-      "noResults": "Walang resulta para sa"
+      "noResults": "Walang resulta para sa",
+      "sections": {
+        "gettingStarted": {
+          "category": "Pagsisimula",
+          "items": [
+            {
+              "title": "Ano ang SuperPages?",
+              "desc": "Drag-and-drop builder para sa mga landing page, opt-in funnels, at sales pages. Bawat page ay mobile-responsive at maaaring makakuha ng mga lead nang direkta sa SuperLeads."
+            },
+            {
+              "title": "Ang canvas",
+              "desc": "Ang center area ay ang iyong page. I-drag ang mga block mula sa kaliwang sidebar upang idagdag ang mga ito. I-click ang anumang elemento upang i-edit ito sa kanang panel."
+            },
+            {
+              "title": "Pag-save ng iyong trabaho",
+              "desc": "Awtomatikong nase-save ang mga pagbabago habang ikaw ay nag-e-edit. Ang 'Publish' button ay ginagawang live ang iyong pinakabagong bersyon sa iyong napiling URL."
+            },
+            {
+              "title": "Pages vs funnels",
+              "desc": "Ang isang page ay gumagana para sa mga simpleng opt-in. Ang funnel ay isang sequence ng mga page (opt-in → thank you → offer) — gamitin ang funnel builder upang gumawa ng multi-step flows."
+            }
+          ]
+        },
+        "textElements": {
+          "category": "Mga Text Element",
+          "items": [
+            {
+              "title": "Heading block",
+              "desc": "Para sa page titles at section headers. Pumili ng H1 hanggang H6, ayusin ang laki at timbang, at pumili ng kulay. Dapat gamitin ang H1 isang beses bawat page para sa SEO."
+            },
+            {
+              "title": "Paragraph block",
+              "desc": "Para sa body copy. Sinusuportahan ang bold, italic, mga link, at mga line break. Gumamit ng maikling mga paragraph (2-3 pangungusap) para sa pinakamahusay na pagbabasa sa mobile."
+            },
+            {
+              "title": "Quote block",
+              "desc": "Isang itinampok na quote o testimonial na may opsyonal na attribution line. Styled nang natatangi mula sa mga normal na paragraph."
+            },
+            {
+              "title": "List block",
+              "desc": "Bulleted o numbered lists. Gumamit ng bulleted lists para sa mga feature at benefits; numbered lists para sa mga hakbang o ranked na items."
+            }
+          ]
+        },
+        "mediaElements": {
+          "category": "Mga Media Element",
+          "items": [
+            {
+              "title": "Image block",
+              "desc": "Mag-upload ng larawan o i-paste ang URL. Awtomatikong nag-aayos ang mga larawan ng laki upang kasya sa container width at naglo-load ng lazily para sa mabilis na page speed."
+            },
+            {
+              "title": "Video block",
+              "desc": "I-paste ang YouTube, Vimeo, o Wistia URL. Ang player ay nag-e-embed nang responsive at naglalaro nang direkta sa iyong page. Walang custom hosting na kailangan."
+            },
+            {
+              "title": "Audio block",
+              "desc": "Mag-embed ng isang MP3 player. I-upload ang file o i-paste ang direktang URL. Mahusay para sa podcast episodes o voice messages."
+            },
+            {
+              "title": "Gallery block",
+              "desc": "Isang grid ng mga larawan na bumubukas sa lightbox kapag na-click. Magdagdag ng hanggang 24 na larawan bawat gallery."
+            }
+          ]
+        },
+        "actionElements": {
+          "category": "Mga Action Element",
+          "items": [
+            {
+              "title": "Button block",
+              "desc": "Isang clickable button na may custom text, kulay, at aksyon. Itakda ito upang buksan ang URL, mag-scroll sa isang section, o magsumite ng form."
+            },
+            {
+              "title": "Form block",
+              "desc": "Kumuha ng pangalan, email, at custom fields. Ang mga submission ay direktang bumabagsak sa SuperLeads kasama ang iyong napiling listahan at status."
+            },
+            {
+              "title": "Countdown timer",
+              "desc": "Nagtutulak ng urgency sa pamamagitan ng pagpapakita ng oras hanggang sa launch, deadline, o offer expiry. Pumili ng target date/time at styling."
+            },
+            {
+              "title": "Opt-in popup",
+              "desc": "Isang lightbox form na na-trigger ng exit intent, scroll depth, o time delay. Mahusay para sa pagkuha ng mga umaalis na bisita."
+            }
+          ]
+        },
+        "contentElements": {
+          "category": "Mga Content Element",
+          "items": [
+            {
+              "title": "FAQ block",
+              "desc": "Isang collapsible na question-and-answer list. Binabawasan ang page clutter at binubusog ang SEO — naiintindihan ng mga search engine ang FAQ schema."
+            },
+            {
+              "title": "Testimonial block",
+              "desc": "Mga quote ng customer na may opsyonal na avatars, pangalan, at star ratings. Ipinapakita bilang mga card, carousel, o grid."
+            },
+            {
+              "title": "Pricing table",
+              "desc": "Ihambing ang 2-4 na pricing tiers nang magkatabi na may mga feature list at isang call-to-action button bawat tier."
+            },
+            {
+              "title": "Stats block",
+              "desc": "Malalaking numero na may mga label — halimbawa '10,000+ miyembro', '$2M binayaran'. Gamitin upang mabilisang makabuo ng credibility."
+            }
+          ]
+        },
+        "layoutElements": {
+          "category": "Mga Layout Element",
+          "items": [
+            {
+              "title": "Section block",
+              "desc": "Isang container na nag-grupo ng iba pang mga block nang magkasama. Magdagdag ng background color, larawan, o gradient upang i-style ang buong section ng iyong page."
+            },
+            {
+              "title": "Columns",
+              "desc": "Hatiin ang isang section sa 2, 3, o 4 na columns. Sa mobile, awtomatikong nag-stack ang mga column patayo para sa pagbabasa."
+            },
+            {
+              "title": "Spacer block",
+              "desc": "Nagdadagdag ng patayong whitespace sa pagitan ng mga element. Gamitin nang matipid — ang labis na whitespace ay nagpapabigat sa page flow."
+            },
+            {
+              "title": "Divider block",
+              "desc": "Isang horizontal na linya upang visual na paghiwalayin ang mga section. Pumili ng kapal, kulay, at istilo (solid, dashed, dotted)."
+            }
+          ]
+        },
+        "settingsPublishing": {
+          "category": "Mga Setting at Publishing",
+          "items": [
+            {
+              "title": "Page URL",
+              "desc": "Magtakda ng custom slug sa ilalim ng iyong affiliate subdomain. Panatilihing maikli, descriptive, at mayaman sa keyword ang mga URL para sa SEO."
+            },
+            {
+              "title": "SEO meta",
+              "desc": "Itakda ang page title, meta description, at social share image. Lumalabas ang mga ito sa search results at kapag ibinahagi ang iyong link sa social media."
+            },
+            {
+              "title": "Publishing",
+              "desc": "I-click ang 'Publish' upang gawing live ang iyong pinakabagong mga pagbabago. Ang mga draft na pagbabago ay nananatiling pribado hanggang sa iyong i-publish — maaari kang mag-preview anumang oras."
+            },
+            {
+              "title": "Analytics",
+              "desc": "Subaybayan ang page views, opt-in rate, at average na oras sa page. Ang data ay nag-u-update bawat 5 minuto."
+            },
+            {
+              "title": "Tracking pixels",
+              "desc": "Mag-inject ng Facebook, Google, o TikTok pixels upang masubaybayan ang mga conversion sa iyong ad platforms. Idagdag ang iyong pixel ID sa page settings."
+            }
+          ]
+        },
+        "aiAssistant": {
+          "category": "AI Assistant",
+          "items": [
+            {
+              "title": "Ano ang ginagawa ng AI?",
+              "desc": "Gumagawa ng copy para sa mga headline, body paragraph, CTA, at FAQ batay sa iyong niche at offer. Mahusay para sa pagtatanggal ng blank-page paralysis."
+            },
+            {
+              "title": "Pagsusulat ng magandang prompt",
+              "desc": "Maging specific: isama ang iyong produkto, iyong audience, ang aksyon na gusto mong gawin nila, at ang tono. Ang 'Sumulat ng headline para sa fitness course na para sa mga busy na ina' ay talunin ang 'sumulat ng headline'."
+            },
+            {
+              "title": "Pag-edit ng AI output",
+              "desc": "Ang mga AI draft ay mga panimulang punto, hindi final copy. Palaging basahin, i-tweak, at isagawa ang iyong sariling boses bago mag-publish."
+            },
+            {
+              "title": "Regenerate vs refine",
+              "desc": "Nagbibigay ang 'Regenerate' ng bagong pagkakataon sa parehong prompt. Kinukuha ng 'Refine' ang kasalukuyang output at ine-tweak ito — gamitin ang refine kapag malapit ka na ngunit hindi pa talaga."
+            }
+          ]
+        }
+      }
     },
     "desktopPreview": "Desktop (1100px)",
     "tabletPreview": "Tablet (768px)",

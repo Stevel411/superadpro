@@ -1839,7 +1839,144 @@
       "title": "Msaada wa SuperLeads",
       "subtitle": "Mwongozo kamili wa CRM na kijibu otomatiki",
       "searchPlaceholder": "Tafuta mada za msaada…",
-      "noResults": "Hakuna matokeo kwa"
+      "noResults": "Hakuna matokeo kwa",
+      "sections": {
+        "gettingStarted": {
+          "category": "Kuanza",
+          "items": [
+            {
+              "title": "SuperLeads ni nini?",
+              "desc": "SuperLeads ni CRM iliyojengwa na kijibu kiotomatiki cha barua pepe. Kamata miongozo kutoka kwa mafunnel au uingizaji, waipange kwenye orodha, tuma matangazo, na walee kwa mfuatano wa barua pepe wa kiotomatiki — yote kutoka mahali pamoja."
+            },
+            {
+              "title": "Ni nini kinachohesabiwa kama mwongozo?",
+              "desc": "Anwani yoyote ya barua pepe uliyoikamata — kupitia funnel ya SuperPages, kuingia kwa mkono, au uingizaji wa CSV. Kila mwongozo una hali, jina la hiari, lebo ya chanzo, na unaweza kupewa kwa orodha yoyote."
+            },
+            {
+              "title": "Barua pepe za bure dhidi ya salio la boost",
+              "desc": "Kila akaunti hupata matumizi 200 ya barua pepe ya bure kwa siku. Unahitaji zaidi? Nunua pakiti za boost kutoka kwa kichupo cha Boost — salio halikwishi kamwe na linatoka kwa salio la pochi yako."
+            },
+            {
+              "title": "Kikomo cha uhifadhi wa mwongozo",
+              "desc": "Wanachama wa Pro wanaweza kuhifadhi hadi miongozo 5,000. Juu ya hapo, ama futa miongozo ya zamani au uboresha mpango wako. Miongozo hubaki milele isipokuwa unaifuta."
+            }
+          ]
+        },
+        "leadsTab": {
+          "category": "Kichupo cha Miongozo",
+          "items": [
+            {
+              "title": "Hali za mwongozo",
+              "desc": "Mpya, Inayolelewa, Moto, Iliyobadilishwa, na Iliyoghairi usajili. Weka hali kwa mkono au acha mfuatano uisasishe kiotomatiki wakati mwongozo unapochukua hatua."
+            },
+            {
+              "title": "Kuhariri mwongozo",
+              "desc": "Bofya safu yoyote ya mwongozo ili kupanua na kuhariri jina, barua pepe, hali, au ugawaji wa orodha. Mabadiliko yanahifadhiwa mara moja."
+            },
+            {
+              "title": "Kufuta mwongozo",
+              "desc": "Bofya ikoni ya pipa karibu na mwongozo wowote. Miongozo iliyofutwa hutoa nafasi ya kuhifadhi na haiwezi kurejeshwa."
+            },
+            {
+              "title": "Shughuli za wingi",
+              "desc": "Chagua miongozo mingi kupitia safu ya kisanduku cha kuangalia, kisha tumia upau wa hatua ya wingi chini kuwahamisha kwenye orodha, kubadilisha hali, au kufuta."
+            }
+          ]
+        },
+        "lists": {
+          "category": "Orodha",
+          "items": [
+            {
+              "title": "Orodha ni nini?",
+              "desc": "Orodha ni lebo unazotumia kwa miongozo ili kuwagawa — kwa mfano 'Jarida la Fitness' au 'Watarajiwa wa Crypto'. Mwongozo mmoja unaweza kuwa wa orodha nyingi."
+            },
+            {
+              "title": "Kuunda orodha",
+              "desc": "Bofya 'Unda Orodha' kwenye upande wa kichupo cha Miongozo. Ipa jina la kuelezea — utalenga mfuatano na matangazo kwa orodha."
+            },
+            {
+              "title": "Uchambuzi wa orodha",
+              "desc": "Kila orodha inaonyesha miongozo jumla, waliojisajili wanaotumika, na kiwango cha ubadilishaji. Tumia hizi kutambua ni watazamaji gani wanaojihusisha vizuri zaidi."
+            }
+          ]
+        },
+        "sequences": {
+          "category": "Mfuatano",
+          "items": [
+            {
+              "title": "Mfuatano ni nini?",
+              "desc": "Mfuatano ni seti iliyoorodheshwa ya barua pepe zinazotumwa kiotomatiki kwa kuchelewa baada ya mwongozo kujiunga. Tumia kwa mtiririko wa kukaribisha, uzinduzi wa bidhaa, au kampeni za kulea."
+            },
+            {
+              "title": "Kuunda mfuatano",
+              "desc": "Nenda kwenye kichupo cha Mfuatano, bofya 'Mfuatano Mpya', na ongeza hatua za barua pepe na ucheleweshaji wa kutuma (kwa siku). Mpe mfuatano kwa orodha moja au zaidi."
+            },
+            {
+              "title": "Mfuatano unaozalishwa na AI",
+              "desc": "Bofya 'Zalisha kwa AI' na ingiza niche yako. SuperLeads huandika mfululizo wa kukaribisha wa barua pepe 5 uliobinafsishwa kwa watazamaji wako. Hariri barua pepe yoyote kabla ya kuamilisha."
+            },
+            {
+              "title": "Kusitisha na kuendelea",
+              "desc": "Geuza mfuatano kuzimwa ili kusitisha matumizi yote ya baadaye. Miongozo ambayo tayari inaendelea inabaki imesitishwa; miongozo mipya haitaingia. Geuza tena kuwashwa kuendelea."
+            }
+          ]
+        },
+        "broadcast": {
+          "category": "Matangazo",
+          "items": [
+            {
+              "title": "Matangazo ni nini?",
+              "desc": "Barua pepe ya mara moja inayotumwa mara moja (au iliyopangwa) kwa orodha. Tumia matangazo kwa habari nyeti kwa wakati, ofa, au masasisho ambayo hayafai kwenye mfuatano."
+            },
+            {
+              "title": "Kuandika matangazo",
+              "desc": "Chagua orodha ya lengo, andika mstari wa somo na mwili (HTML inasaidiwa), kisha kagua. Tuma mara moja au panga baadaye."
+            },
+            {
+              "title": "Gharama ya matangazo",
+              "desc": "Kila mpokeaji huhesabiwa kama tuma moja dhidi ya kikomo chako cha kila siku. Ikiwa utazidi matumizi 200, mengine hutoka kwa salio la boost."
+            }
+          ]
+        },
+        "import": {
+          "category": "Leta",
+          "items": [
+            {
+              "title": "Miundo inayokubaliwa",
+              "desc": "Pakia faili ya CSV au bandika orodha ya anwani za barua pepe. Muundo ni rahisi: barua pepe moja kwa kila mstari, au 'barua pepe,jina' kwa miongozo iliyotajwa."
+            },
+            {
+              "title": "Mipangilio ya kuleta",
+              "desc": "Kabla ya kuthibitisha, chagua orodha ya lengo, hali ya awali, na lebo ya chanzo ya hiari. Nakala zinazofanana ndani ya orodha hiyohiyo zinaruka kiotomatiki."
+            },
+            {
+              "title": "Kuagiza mfuatano kiotomatiki",
+              "desc": "Weka alama 'Peana mfuatano kiotomatiki' kuangusha kila mwongozo uliyoletwa moja kwa moja kwenye mtiririko wa kukaribisha. Nzuri kwa kuhamisha miongozo kutoka jukwaa lingine."
+            },
+            {
+              "title": "Hakiki na uthibitisho",
+              "desc": "Baada ya kupakia, kagua hakiki. Barua pepe batili hupewa bendera nyekundu na hazitaletwa. Rekebisha faili yako ya chanzo na pakia tena ikiwa inahitajika."
+            }
+          ]
+        },
+        "emailBoost": {
+          "category": "Boost ya Barua Pepe",
+          "items": [
+            {
+              "title": "Salio la boost ni nini?",
+              "desc": "Matumizi ya ziada ya barua pepe zaidi ya ugawaji wako wa bure wa 200/siku. Salio linatoka kwa salio la pochi yako na haliisha kamwe."
+            },
+            {
+              "title": "Viwango vya pakiti za boost",
+              "desc": "Saizi nne za pakiti — salio 500, 2,000, 10,000, na 50,000. Pakiti kubwa zaidi zinatoa bei bora kwa kila barua pepe."
+            },
+            {
+              "title": "Wakati wa kununua boost",
+              "desc": "Wakati wa kutuma matangazo makubwa, kulea orodha kubwa kuliko miongozo 200, au kuendesha mfuatano kadhaa wa kazi. Jukwaa linakuonya kabla ya kufikia kikomo chako cha kila siku."
+            }
+          ]
+        }
+      }
     },
     "autoresponderLabel": "Jibu la Kiotomatiki",
     "totalLeadsStat": "Jumla ya leads",
@@ -2257,7 +2394,181 @@
       "title": "Msaada wa SuperPages",
       "subtitle": "Msingi wa maarifa wa kiunda ukurasa",
       "searchPlaceholder": "Tafuta mada za msaada…",
-      "noResults": "Hakuna matokeo kwa"
+      "noResults": "Hakuna matokeo kwa",
+      "sections": {
+        "gettingStarted": {
+          "category": "Kuanza",
+          "items": [
+            {
+              "title": "SuperPages ni nini?",
+              "desc": "Mjenzi wa kuburuta-na-kushusha kwa kurasa za kutua, mafunnel ya opt-in, na kurasa za mauzo. Kila ukurasa ni rahisi kwa simu na unaweza kukamata miongozo moja kwa moja kwenye SuperLeads."
+            },
+            {
+              "title": "Jukwaa",
+              "desc": "Eneo la katikati ni ukurasa wako. Buruta vizuizi kutoka upande wa kushoto kuviongeza. Bofya kipengele chochote kuhariri kwenye jopo la kulia."
+            },
+            {
+              "title": "Kuhifadhi kazi yako",
+              "desc": "Mabadiliko huhifadhiwa kiotomatiki unapohariri. Kitufe cha 'Chapisha' hufanya toleo lako la hivi karibuni kuwa hai kwenye URL uliyoichagua."
+            },
+            {
+              "title": "Kurasa dhidi ya mafunnel",
+              "desc": "Ukurasa mmoja unafanya kazi kwa opt-in rahisi. Funnel ni mfuatano wa kurasa (opt-in → asante → ofa) — tumia mjenzi wa funnel kuunda mtiririko wa hatua nyingi."
+            }
+          ]
+        },
+        "textElements": {
+          "category": "Vipengele vya Maandishi",
+          "items": [
+            {
+              "title": "Kizuizi cha kichwa",
+              "desc": "Kwa vichwa vya kurasa na vichwa vya sehemu. Chagua H1 hadi H6, rekebisha ukubwa na uzito, na uchague rangi. H1 inapaswa kutumika mara moja kwa kila ukurasa kwa SEO."
+            },
+            {
+              "title": "Kizuizi cha aya",
+              "desc": "Kwa nakala ya mwili. Inasaidia nzito, italiki, viungo, na mapumziko ya mstari. Tumia aya fupi (sentensi 2-3) kwa usomaji bora kwenye simu."
+            },
+            {
+              "title": "Kizuizi cha nukuu",
+              "desc": "Nukuu iliyoangaziwa au ushuhuda wenye mstari wa sifa wa hiari. Imeundwa tofauti na aya za kawaida."
+            },
+            {
+              "title": "Kizuizi cha orodha",
+              "desc": "Orodha za risasi au zenye nambari. Tumia orodha za risasi kwa sifa na faida; orodha zenye nambari kwa hatua au vitu vilivyopangwa."
+            }
+          ]
+        },
+        "mediaElements": {
+          "category": "Vipengele vya Media",
+          "items": [
+            {
+              "title": "Kizuizi cha picha",
+              "desc": "Pakia picha au bandika URL. Picha zinarekebishwa kiotomatiki kufaa upana wa kontena na zinapakiwa kwa uvivu kwa kasi ya haraka ya ukurasa."
+            },
+            {
+              "title": "Kizuizi cha video",
+              "desc": "Bandika URL ya YouTube, Vimeo, au Wistia. Mchezaji anaingizwa kwa kuitikia na anacheza moja kwa moja kwenye ukurasa wako. Hakuna mwenyeji wa kawaida unahitajika."
+            },
+            {
+              "title": "Kizuizi cha sauti",
+              "desc": "Pachika mchezaji wa MP3. Pakia faili au bandika URL ya moja kwa moja. Nzuri kwa vipindi vya podcast au ujumbe wa sauti."
+            },
+            {
+              "title": "Kizuizi cha ghala",
+              "desc": "Gridi ya picha ambayo hufunguka katika lightbox wakati ukibonyeza. Ongeza hadi picha 24 kwa kila ghala."
+            }
+          ]
+        },
+        "actionElements": {
+          "category": "Vipengele vya Hatua",
+          "items": [
+            {
+              "title": "Kizuizi cha kitufe",
+              "desc": "Kitufe kinachoweza kubofyeka chenye maandishi, rangi, na hatua ya kibinafsi. Kiweke ili kufungua URL, kusogeza kwenye sehemu, au kuwasilisha fomu."
+            },
+            {
+              "title": "Kizuizi cha fomu",
+              "desc": "Kusanya jina, barua pepe, na sehemu za kibinafsi. Uwasilishaji huanguka moja kwa moja kwenye SuperLeads na orodha na hali uliyochagua."
+            },
+            {
+              "title": "Kipima muda wa kuhesabu",
+              "desc": "Huchochea dharura kwa kuonyesha muda hadi uzinduzi, tarehe ya mwisho, au kuisha kwa ofa. Chagua tarehe/wakati wa lengo na mtindo."
+            },
+            {
+              "title": "Popup ya opt-in",
+              "desc": "Fomu ya lightbox iliyochochewa na nia ya kutoka, kina cha kusogeza, au kuchelewa kwa muda. Nzuri kwa kukamata wageni wanaoondoka."
+            }
+          ]
+        },
+        "contentElements": {
+          "category": "Vipengele vya Maudhui",
+          "items": [
+            {
+              "title": "Kizuizi cha FAQ",
+              "desc": "Orodha ya swali-na-jibu inayoweza kukunjwa. Hupunguza msongamano wa ukurasa na kuinua SEO — injini za utafutaji zinaelewa schema ya FAQ."
+            },
+            {
+              "title": "Kizuizi cha ushuhuda",
+              "desc": "Nukuu za mteja na avatars za hiari, majina, na viwango vya nyota. Huonyeshwa kama kadi, carousel, au gridi."
+            },
+            {
+              "title": "Meza ya bei",
+              "desc": "Linganisha viwango 2-4 vya bei karibu na kila kimoja na orodha za vipengele na kitufe cha wito wa hatua kwa kila kiwango."
+            },
+            {
+              "title": "Kizuizi cha takwimu",
+              "desc": "Nambari kubwa zenye lebo — kwa mfano 'wanachama 10,000+', 'yamelipwa $2M'. Tumia kujenga uaminifu haraka."
+            }
+          ]
+        },
+        "layoutElements": {
+          "category": "Vipengele vya Mpangilio",
+          "items": [
+            {
+              "title": "Kizuizi cha sehemu",
+              "desc": "Kontena linalogawanya vizuizi vingine pamoja. Ongeza rangi ya mandharinyuma, picha, au gradient kubuni sehemu zote za ukurasa wako."
+            },
+            {
+              "title": "Safu",
+              "desc": "Gawanya sehemu katika safu 2, 3, au 4. Kwenye simu, safu husongamana kiotomatiki kwa usomaji."
+            },
+            {
+              "title": "Kizuizi cha nafasi",
+              "desc": "Huongeza nafasi nyeupe wima kati ya vipengele. Tumia kwa busara — nafasi nyeupe nyingi hugawanya mtiririko wa ukurasa."
+            },
+            {
+              "title": "Kizuizi cha kigawanyaji",
+              "desc": "Mstari wa mlalo kutenganisha sehemu kwa kuona. Chagua unene, rangi, na mtindo (thabiti, nukta, dotted)."
+            }
+          ]
+        },
+        "settingsPublishing": {
+          "category": "Mipangilio na Uchapishaji",
+          "items": [
+            {
+              "title": "URL ya ukurasa",
+              "desc": "Weka slug ya kibinafsi chini ya subdomain yako ya washirika. Weka URLs fupi, zinazoelezea, na zenye maneno muhimu kwa SEO."
+            },
+            {
+              "title": "Meta ya SEO",
+              "desc": "Weka kichwa cha ukurasa, maelezo ya meta, na picha ya kushiriki ya kijamii. Hizi huonekana kwenye matokeo ya utafutaji na wakati kiungo chako kinashirikiwa kwenye mitandao ya kijamii."
+            },
+            {
+              "title": "Uchapishaji",
+              "desc": "Bofya 'Chapisha' kufanya mabadiliko yako ya hivi karibuni kuwa hai. Mabadiliko ya rasimu hubaki siri hadi uchapishe — unaweza kukagua wakati wowote."
+            },
+            {
+              "title": "Uchambuzi",
+              "desc": "Fuatilia maoni ya ukurasa, kiwango cha opt-in, na muda wa wastani kwenye ukurasa. Data inasasishwa kila dakika 5."
+            },
+            {
+              "title": "Pikseli za kufuatilia",
+              "desc": "Dunga pikseli za Facebook, Google, au TikTok kufuatilia ubadilishaji katika majukwaa yako ya matangazo. Ongeza kitambulisho chako cha pikseli kwenye mipangilio ya ukurasa."
+            }
+          ]
+        },
+        "aiAssistant": {
+          "category": "Msaidizi wa AI",
+          "items": [
+            {
+              "title": "AI inafanya nini?",
+              "desc": "Huzalisha nakala kwa vichwa vya habari, aya za mwili, CTAs, na FAQs kulingana na niche yako na ofa. Nzuri kwa kushinda kupooza kwa ukurasa tupu."
+            },
+            {
+              "title": "Kuandika swali zuri",
+              "desc": "Kuwa maalum: jumuisha bidhaa yako, watazamaji wako, hatua unayotaka wachukue, na sauti. 'Andika kichwa cha habari kwa kozi ya siha inayolenga akina mama wenye shughuli nyingi' inashinda 'andika kichwa cha habari'."
+            },
+            {
+              "title": "Kuhariri matokeo ya AI",
+              "desc": "Rasimu za AI ni sehemu za kuanzia, sio nakala ya mwisho. Daima soma, rekebisha, na dunga sauti yako kabla ya kuchapisha."
+            },
+            {
+              "title": "Zalisha tena dhidi ya boresha",
+              "desc": "'Zalisha tena' hutoa mtazamo mpya na swali lile lile. 'Boresha' huchukua matokeo ya sasa na kuirekebisha — tumia boresha unapokuwa karibu lakini haupo kabisa."
+            }
+          ]
+        }
+      }
     },
     "desktopPreview": "Desktop (1100px)",
     "tabletPreview": "Tablet (768px)",

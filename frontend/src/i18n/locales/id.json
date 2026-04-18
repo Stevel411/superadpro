@@ -1839,7 +1839,144 @@
       "title": "Bantuan SuperLeads",
       "subtitle": "Panduan lengkap untuk CRM dan autoresponder Anda",
       "searchPlaceholder": "Cari topik bantuan…",
-      "noResults": "Tidak ada hasil untuk"
+      "noResults": "Tidak ada hasil untuk",
+      "sections": {
+        "gettingStarted": {
+          "category": "Mulai",
+          "items": [
+            {
+              "title": "Apa itu SuperLeads?",
+              "desc": "SuperLeads adalah CRM bawaan dan autoresponder email Anda. Tangkap prospek dari funnel atau impor, organisir mereka ke dalam daftar, kirim siaran, dan pelihara mereka dengan urutan email otomatis — semuanya dari satu tempat."
+            },
+            {
+              "title": "Apa yang dihitung sebagai prospek?",
+              "desc": "Alamat email apa pun yang telah Anda tangkap — melalui funnel SuperPages, entri manual, atau impor CSV. Setiap prospek memiliki status, nama opsional, tag sumber, dan dapat ditugaskan ke daftar mana pun."
+            },
+            {
+              "title": "Email gratis vs kredit boost",
+              "desc": "Setiap akun mendapat 200 pengiriman email gratis per hari. Butuh lebih banyak? Beli paket boost dari tab Boost — kredit tidak pernah kedaluwarsa dan berasal dari saldo dompet Anda."
+            },
+            {
+              "title": "Batas penyimpanan prospek",
+              "desc": "Anggota Pro dapat menyimpan hingga 5.000 prospek. Di atas itu, hapus prospek lama atau tingkatkan rencana Anda. Prospek tetap selamanya kecuali Anda menghapusnya."
+            }
+          ]
+        },
+        "leadsTab": {
+          "category": "Tab Prospek",
+          "items": [
+            {
+              "title": "Status prospek",
+              "desc": "Baru, Dipelihara, Panas, Dikonversi, dan Berhenti berlangganan. Atur status secara manual atau biarkan urutan memperbaruinya secara otomatis saat prospek mengambil tindakan."
+            },
+            {
+              "title": "Mengedit prospek",
+              "desc": "Klik baris prospek apa pun untuk memperluas dan mengedit nama, email, status, atau tugas daftar. Perubahan disimpan secara instan."
+            },
+            {
+              "title": "Menghapus prospek",
+              "desc": "Klik ikon tempat sampah di sebelah prospek mana pun. Prospek yang dihapus membebaskan penyimpanan dan tidak dapat dipulihkan."
+            },
+            {
+              "title": "Operasi massal",
+              "desc": "Pilih beberapa prospek melalui kolom kotak centang, lalu gunakan bilah tindakan massal di bawah untuk memindahkannya ke daftar, mengubah status, atau menghapus."
+            }
+          ]
+        },
+        "lists": {
+          "category": "Daftar",
+          "items": [
+            {
+              "title": "Apa itu daftar?",
+              "desc": "Daftar adalah tag yang Anda terapkan ke prospek untuk mengelompokkannya — misalnya 'Newsletter Kebugaran' atau 'Prospek Kripto'. Prospek tunggal dapat termasuk dalam beberapa daftar."
+            },
+            {
+              "title": "Membuat daftar",
+              "desc": "Klik 'Buat Daftar' di bilah sisi tab Prospek. Beri nama yang deskriptif — Anda akan menargetkan urutan dan siaran berdasarkan daftar."
+            },
+            {
+              "title": "Analitik daftar",
+              "desc": "Setiap daftar menunjukkan total prospek, pelanggan aktif, dan tingkat konversi. Gunakan ini untuk mengidentifikasi audiens mana yang paling baik terlibat."
+            }
+          ]
+        },
+        "sequences": {
+          "category": "Urutan",
+          "items": [
+            {
+              "title": "Apa itu urutan?",
+              "desc": "Urutan adalah kumpulan email berurutan yang dikirim secara otomatis dengan penundaan setelah prospek bergabung. Gunakan untuk alur selamat datang, peluncuran produk, atau kampanye pemeliharaan."
+            },
+            {
+              "title": "Membuat urutan",
+              "desc": "Beralih ke tab Urutan, klik 'Urutan Baru', dan tambahkan langkah email dengan penundaan pengiriman (dalam hari). Tetapkan urutan ke satu atau beberapa daftar."
+            },
+            {
+              "title": "Urutan yang dihasilkan AI",
+              "desc": "Klik 'Hasilkan dengan AI' dan masukkan ceruk Anda. SuperLeads menulis seri selamat datang 5-email yang disesuaikan dengan audiens Anda. Edit email apa pun sebelum mengaktifkan."
+            },
+            {
+              "title": "Menjeda dan melanjutkan",
+              "desc": "Alihkan urutan ke mati untuk menjeda semua pengiriman mendatang. Prospek yang sudah dalam proses tetap dijeda; prospek baru tidak akan masuk. Alihkan kembali ke aktif untuk melanjutkan."
+            }
+          ]
+        },
+        "broadcast": {
+          "category": "Siaran",
+          "items": [
+            {
+              "title": "Apa itu siaran?",
+              "desc": "Email satu kali yang dikirim segera (atau dijadwalkan) ke daftar. Gunakan siaran untuk berita sensitif waktu, penawaran, atau pembaruan yang tidak cocok dalam urutan."
+            },
+            {
+              "title": "Menulis siaran",
+              "desc": "Pilih daftar target, tulis baris subjek dan badan (HTML didukung), lalu pratinjau. Kirim segera atau jadwalkan untuk nanti."
+            },
+            {
+              "title": "Biaya siaran",
+              "desc": "Setiap penerima dihitung sebagai satu pengiriman terhadap batas harian Anda. Jika Anda melebihi 200 pengiriman, sisanya berasal dari kredit boost."
+            }
+          ]
+        },
+        "import": {
+          "category": "Impor",
+          "items": [
+            {
+              "title": "Format yang diterima",
+              "desc": "Unggahan file CSV atau tempel daftar alamat email. Formatnya sederhana: satu email per baris, atau 'email,nama' untuk prospek bernama."
+            },
+            {
+              "title": "Pengaturan impor",
+              "desc": "Sebelum mengkonfirmasi, pilih daftar target, status awal, dan tag sumber opsional. Duplikat dalam daftar yang sama dilewati secara otomatis."
+            },
+            {
+              "title": "Menugaskan urutan secara otomatis",
+              "desc": "Centang 'Otomatis tugaskan urutan' untuk menempatkan setiap prospek yang diimpor langsung ke alur selamat datang. Bagus untuk mentransfer prospek dari platform lain."
+            },
+            {
+              "title": "Pratinjau dan validasi",
+              "desc": "Setelah mengunggah, tinjau pratinjau. Email yang tidak valid ditandai merah dan tidak akan diimpor. Perbaiki file sumber Anda dan unggah ulang jika diperlukan."
+            }
+          ]
+        },
+        "emailBoost": {
+          "category": "Boost Email",
+          "items": [
+            {
+              "title": "Apa itu kredit boost?",
+              "desc": "Pengiriman email tambahan di atas alokasi gratis 200/hari Anda. Kredit berasal dari saldo dompet Anda dan tidak pernah kedaluwarsa."
+            },
+            {
+              "title": "Tingkat paket boost",
+              "desc": "Empat ukuran paket — 500, 2.000, 10.000, dan 50.000 kredit. Paket yang lebih besar memberikan harga per email yang lebih baik."
+            },
+            {
+              "title": "Kapan membeli boost",
+              "desc": "Saat mengirim siaran besar, memelihara daftar lebih besar dari 200 prospek, atau menjalankan beberapa urutan aktif. Platform memperingatkan Anda sebelum mencapai batas harian."
+            }
+          ]
+        }
+      }
     },
     "autoresponderLabel": "Balasan Otomatis",
     "totalLeadsStat": "Total prospek",
@@ -2257,7 +2394,181 @@
       "title": "Bantuan SuperPages",
       "subtitle": "Basis pengetahuan pembuat halaman",
       "searchPlaceholder": "Cari topik bantuan…",
-      "noResults": "Tidak ada hasil untuk"
+      "noResults": "Tidak ada hasil untuk",
+      "sections": {
+        "gettingStarted": {
+          "category": "Mulai",
+          "items": [
+            {
+              "title": "Apa itu SuperPages?",
+              "desc": "Pembuat seret-dan-lepas untuk halaman arahan, funnel opt-in, dan halaman penjualan. Setiap halaman responsif seluler dan dapat menangkap prospek langsung ke SuperLeads."
+            },
+            {
+              "title": "Kanvas",
+              "desc": "Area tengah adalah halaman Anda. Seret blok dari bilah sisi kiri untuk menambahkannya. Klik elemen apa pun untuk mengeditnya di panel kanan."
+            },
+            {
+              "title": "Menyimpan pekerjaan Anda",
+              "desc": "Perubahan disimpan secara otomatis saat Anda mengedit. Tombol 'Terbitkan' membuat versi terbaru Anda aktif di URL yang Anda pilih."
+            },
+            {
+              "title": "Halaman vs funnel",
+              "desc": "Satu halaman berfungsi untuk opt-in sederhana. Funnel adalah urutan halaman (opt-in → terima kasih → penawaran) — gunakan pembuat funnel untuk membuat alur multi-langkah."
+            }
+          ]
+        },
+        "textElements": {
+          "category": "Elemen Teks",
+          "items": [
+            {
+              "title": "Blok judul",
+              "desc": "Untuk judul halaman dan header bagian. Pilih H1 hingga H6, sesuaikan ukuran dan berat, dan pilih warna. H1 harus digunakan sekali per halaman untuk SEO."
+            },
+            {
+              "title": "Blok paragraf",
+              "desc": "Untuk salinan tubuh. Mendukung tebal, miring, tautan, dan jeda baris. Gunakan paragraf pendek (2-3 kalimat) untuk keterbacaan terbaik di seluler."
+            },
+            {
+              "title": "Blok kutipan",
+              "desc": "Kutipan atau testimonial yang disorot dengan garis atribusi opsional. Ditata berbeda dari paragraf normal."
+            },
+            {
+              "title": "Blok daftar",
+              "desc": "Daftar berpoin atau bernomor. Gunakan daftar berpoin untuk fitur dan manfaat; daftar bernomor untuk langkah-langkah atau item peringkat."
+            }
+          ]
+        },
+        "mediaElements": {
+          "category": "Elemen Media",
+          "items": [
+            {
+              "title": "Blok gambar",
+              "desc": "Unggah gambar atau tempel URL. Gambar secara otomatis mengubah ukuran agar sesuai dengan lebar kontainer dan dimuat secara malas untuk kecepatan halaman yang cepat."
+            },
+            {
+              "title": "Blok video",
+              "desc": "Tempel URL YouTube, Vimeo, atau Wistia. Pemutar tersemat secara responsif dan memutar langsung di halaman Anda. Tidak perlu hosting khusus."
+            },
+            {
+              "title": "Blok audio",
+              "desc": "Sematkan pemutar MP3. Unggah file atau tempel URL langsung. Bagus untuk episode podcast atau pesan suara."
+            },
+            {
+              "title": "Blok galeri",
+              "desc": "Grid gambar yang terbuka di lightbox saat diklik. Tambahkan hingga 24 gambar per galeri."
+            }
+          ]
+        },
+        "actionElements": {
+          "category": "Elemen Tindakan",
+          "items": [
+            {
+              "title": "Blok tombol",
+              "desc": "Tombol yang dapat diklik dengan teks, warna, dan tindakan kustom. Atur untuk membuka URL, menggulir ke bagian, atau mengirimkan formulir."
+            },
+            {
+              "title": "Blok formulir",
+              "desc": "Kumpulkan nama, email, dan bidang kustom. Pengajuan jatuh langsung ke SuperLeads dengan daftar dan status yang Anda pilih."
+            },
+            {
+              "title": "Pengatur waktu hitung mundur",
+              "desc": "Mendorong urgensi dengan menampilkan waktu hingga peluncuran, tenggat waktu, atau berakhirnya penawaran. Pilih tanggal/waktu target dan gaya."
+            },
+            {
+              "title": "Popup opt-in",
+              "desc": "Formulir lightbox yang dipicu oleh niat keluar, kedalaman gulir, atau penundaan waktu. Bagus untuk menangkap pengunjung yang pergi."
+            }
+          ]
+        },
+        "contentElements": {
+          "category": "Elemen Konten",
+          "items": [
+            {
+              "title": "Blok FAQ",
+              "desc": "Daftar tanya-jawab yang dapat diciutkan. Mengurangi kekacauan halaman dan meningkatkan SEO — mesin pencari memahami skema FAQ."
+            },
+            {
+              "title": "Blok testimonial",
+              "desc": "Kutipan pelanggan dengan avatar opsional, nama, dan peringkat bintang. Ditampilkan sebagai kartu, korsel, atau grid."
+            },
+            {
+              "title": "Tabel harga",
+              "desc": "Bandingkan 2-4 tingkatan harga berdampingan dengan daftar fitur dan tombol ajakan bertindak per tingkatan."
+            },
+            {
+              "title": "Blok statistik",
+              "desc": "Angka besar dengan label — misalnya '10.000+ anggota', '$2M dibayarkan'. Gunakan untuk membangun kredibilitas dengan cepat."
+            }
+          ]
+        },
+        "layoutElements": {
+          "category": "Elemen Tata Letak",
+          "items": [
+            {
+              "title": "Blok bagian",
+              "desc": "Kontainer yang mengelompokkan blok lain bersama-sama. Tambahkan warna latar belakang, gambar, atau gradien untuk menata seluruh bagian halaman Anda."
+            },
+            {
+              "title": "Kolom",
+              "desc": "Bagi bagian menjadi 2, 3, atau 4 kolom. Di seluler, kolom secara otomatis menumpuk secara vertikal untuk keterbacaan."
+            },
+            {
+              "title": "Blok spacer",
+              "desc": "Menambahkan ruang putih vertikal antara elemen. Gunakan dengan hemat — terlalu banyak ruang putih memecah aliran halaman."
+            },
+            {
+              "title": "Blok pemisah",
+              "desc": "Garis horizontal untuk memisahkan bagian secara visual. Pilih ketebalan, warna, dan gaya (solid, dashed, dotted)."
+            }
+          ]
+        },
+        "settingsPublishing": {
+          "category": "Pengaturan & Penerbitan",
+          "items": [
+            {
+              "title": "URL halaman",
+              "desc": "Atur slug kustom di bawah subdomain afiliasi Anda. Buat URL pendek, deskriptif, dan kaya kata kunci untuk SEO."
+            },
+            {
+              "title": "Meta SEO",
+              "desc": "Atur judul halaman, deskripsi meta, dan gambar berbagi sosial. Ini muncul di hasil pencarian dan saat tautan Anda dibagikan di media sosial."
+            },
+            {
+              "title": "Penerbitan",
+              "desc": "Klik 'Terbitkan' untuk membuat perubahan terbaru Anda aktif. Perubahan draf tetap pribadi hingga Anda terbitkan — Anda dapat pratinjau kapan saja."
+            },
+            {
+              "title": "Analitik",
+              "desc": "Lacak tampilan halaman, tingkat opt-in, dan waktu rata-rata di halaman. Data diperbarui setiap 5 menit."
+            },
+            {
+              "title": "Piksel pelacakan",
+              "desc": "Suntikkan piksel Facebook, Google, atau TikTok untuk melacak konversi di platform iklan Anda. Tambahkan ID piksel Anda di pengaturan halaman."
+            }
+          ]
+        },
+        "aiAssistant": {
+          "category": "Asisten AI",
+          "items": [
+            {
+              "title": "Apa yang dilakukan AI?",
+              "desc": "Menghasilkan salinan untuk judul, paragraf tubuh, CTA, dan FAQ berdasarkan ceruk dan penawaran Anda. Bagus untuk mengalahkan kelumpuhan halaman kosong."
+            },
+            {
+              "title": "Menulis prompt yang baik",
+              "desc": "Jadilah spesifik: sertakan produk Anda, audiens Anda, tindakan yang Anda ingin mereka ambil, dan nada. 'Tulis judul untuk kursus kebugaran yang ditujukan untuk ibu yang sibuk' mengalahkan 'tulis judul'."
+            },
+            {
+              "title": "Mengedit output AI",
+              "desc": "Draf AI adalah titik awal, bukan salinan akhir. Selalu baca, sesuaikan, dan suntikkan suara Anda sendiri sebelum menerbitkan."
+            },
+            {
+              "title": "Regenerasi vs perbaiki",
+              "desc": "'Regenerasi' memberikan pandangan baru dengan prompt yang sama. 'Perbaiki' mengambil output saat ini dan menyesuaikannya — gunakan perbaiki saat Anda dekat tetapi belum sepenuhnya."
+            }
+          ]
+        }
+      }
     },
     "desktopPreview": "Desktop (1100px)",
     "tabletPreview": "Tablet (768px)",
