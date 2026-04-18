@@ -103,7 +103,8 @@ import HomePage from './pages/public/HomePage';
 import HowItWorks from './pages/public/HowItWorks';
 import ExplorePage from './pages/public/ExplorePage';
 import JoinFunnel from './pages/public/JoinFunnel';
-import { FAQ, Legal, ForAdvertisers } from './pages/public/PublicPages';
+import { FAQ, Legal } from './pages/public/PublicPages';
+import ForAdvertisers from './pages/public/ForAdvertisers';
 import AffiliatePlan from './pages/public/AffiliatePlan';
 import CoursePlayer from './pages/CoursePlayer';
 

@@ -150,55 +150,6 @@ export function Legal() {
 }
 
 
-export function ForAdvertisers() {
-  var { t } = useTranslation();
-  return (
-    <PublicLayout>
-      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '60px 24px' }}>
+// ForAdvertisers has been moved to ./ForAdvertisers.jsx as a standalone page.
+// See App.jsx import: import ForAdvertisers from './pages/public/ForAdvertisers';
 
-        {/* Hero */}
-        <div style={{ textAlign: 'center', marginBottom: 64 }}>
-          <div style={{ fontSize: 12, fontWeight: 800, color: 'var(--sap-accent-light)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 12 }}>{t('publicPages.advertisers')}</div>
-          <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 'clamp(32px,5vw,56px)', fontWeight: 900, margin: '0 0 20px' }}>
-            {t('publicPages.reachAudience')}
-          </h1>
-          <p style={{ fontSize: 18, color: 'rgba(255,255,255,0.5)', maxWidth: 560, margin: '0 auto 36px', lineHeight: 1.7 }}>
-            {t('publicPages.advertiserDesc')}
-          </p>
-          <Link to="/register" style={{ display: 'inline-block', padding: '14px 36px', borderRadius: 12, background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, textDecoration: 'none', fontFamily: "'Sora',sans-serif" }}>
-            {t('publicPages.getStarted')}
-          </Link>
-        </div>
-
-        {/* Benefits */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(280px,1fr))', gap: 20, marginBottom: 64 }}>
-          {[
-            { icon: '👁️', title: t('publicPages.genuineViews'), desc: t('publicPages.genuineViewsDesc') },
-            { icon: '🎯', title: t('publicPages.motivatedAudience'), desc: t('publicPages.motivatedAudienceDesc') },
-            { icon: '📊', title: t('publicPages.transparentReporting'), desc: t('publicPages.transparentReportingDesc') },
-            { icon: '💰', title: t('publicPages.costEffective'), desc: t('publicPages.costEffectiveDesc') },
-            { icon: '🔄', title: t('publicPages.recurringExposure'), desc: t('publicPages.recurringExposureDesc') },
-            { icon: '⚡', title: t('publicPages.fastSetup'), desc: t('publicPages.fastSetupDesc') },
-          ].map(function(b) {
-            return (
-              <div key={b.title} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: 16, padding: 24 }}>
-                <div style={{ fontSize: 28, marginBottom: 12 }}>{b.icon}</div>
-                <div style={{ fontSize: 15, fontWeight: 800, color: '#fff', marginBottom: 8 }}>{b.title}</div>
-                <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.6 }}>{b.desc}</div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* CTA */}
-        <div style={{ background: 'linear-gradient(135deg,rgba(14,165,233,0.1),rgba(99,102,241,0.08))', border: '1px solid rgba(14,165,233,0.2)', borderRadius: 20, padding: '48px', textAlign: 'center' }}>
-          <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 28, fontWeight: 900, margin: '0 0 12px' }}>{t('publicPages.readyToAdvertise')}</h2>
-          <p style={{ color: 'rgba(255,255,255,0.5)', marginBottom: 28 }}>{t('publicPages.readyToAdvertiseDesc')}</p>
-          <Link to="/register" style={{ display: 'inline-block', padding: '14px 36px', borderRadius: 12, background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color: '#fff', fontWeight: 800, fontSize: 15, textDecoration: 'none', fontFamily: "'Sora',sans-serif" }}>
-            {t('publicPages.createAdvertiserAccount')}
-          </Link>
-        </div>
-      </div>
-    </PublicLayout>
-  );
-}
