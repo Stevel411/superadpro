@@ -1839,7 +1839,144 @@
       "title": "Pomoc SuperLeads",
       "subtitle": "Kompletny przewodnik po Twoim CRM i autoresponderze",
       "searchPlaceholder": "Szukaj tematów pomocy…",
-      "noResults": "Brak wyników dla"
+      "noResults": "Brak wyników dla",
+      "sections": {
+        "gettingStarted": {
+          "category": "Pierwsze kroki",
+          "items": [
+            {
+              "title": "Czym jest SuperLeads?",
+              "desc": "SuperLeads to wbudowany CRM i autoresponder e-mail. Przechwytuj leady z lejków lub importów, organizuj je w listy, wysyłaj transmisje i pielęgnuj je za pomocą automatycznych sekwencji e-mailowych — wszystko z jednego miejsca."
+            },
+            {
+              "title": "Co liczy się jako lead?",
+              "desc": "Dowolny adres e-mail, który przechwyciłeś — poprzez lejek SuperPages, ręczne wprowadzenie lub import CSV. Każdy lead ma status, opcjonalną nazwę, znacznik źródła i może być przypisany do dowolnej listy."
+            },
+            {
+              "title": "Darmowe e-maile vs kredyty boost",
+              "desc": "Każde konto otrzymuje 200 darmowych wysyłek e-mail dziennie. Potrzebujesz więcej? Kup pakiety boost z zakładki Boost — kredyty nigdy nie wygasają i pochodzą z salda Twojego portfela."
+            },
+            {
+              "title": "Limit przechowywania leadów",
+              "desc": "Członkowie Pro mogą przechowywać do 5 000 leadów. Powyżej tego, albo usuń stare leady, albo ulepsz swój plan. Leady pozostają na zawsze, chyba że je usuniesz."
+            }
+          ]
+        },
+        "leadsTab": {
+          "category": "Zakładka Leady",
+          "items": [
+            {
+              "title": "Statusy leadów",
+              "desc": "Nowy, Pielęgnowany, Gorący, Skonwertowany i Wypisany. Ustaw status ręcznie lub pozwól sekwencjom aktualizować go automatycznie, gdy lead podejmie działanie."
+            },
+            {
+              "title": "Edycja leada",
+              "desc": "Kliknij dowolny wiersz leada, aby rozwinąć i edytować nazwę, e-mail, status lub przypisanie do listy. Zmiany zapisują się natychmiast."
+            },
+            {
+              "title": "Usuwanie leada",
+              "desc": "Kliknij ikonę kosza obok dowolnego leada. Usunięte leady zwalniają przestrzeń i nie mogą być odzyskane."
+            },
+            {
+              "title": "Operacje masowe",
+              "desc": "Wybierz wiele leadów poprzez kolumnę pól wyboru, a następnie użyj paska akcji masowej na dole, aby przenieść je do listy, zmienić status lub usunąć."
+            }
+          ]
+        },
+        "lists": {
+          "category": "Listy",
+          "items": [
+            {
+              "title": "Czym są listy?",
+              "desc": "Listy to tagi, które stosujesz do leadów, aby je grupować — na przykład 'Newsletter Fitness' lub 'Perspektywy Krypto'. Pojedynczy lead może należeć do wielu list."
+            },
+            {
+              "title": "Tworzenie listy",
+              "desc": "Kliknij 'Utwórz listę' w pasku bocznym zakładki Leady. Nadaj jej opisową nazwę — będziesz kierować sekwencje i transmisje według list."
+            },
+            {
+              "title": "Analityka listy",
+              "desc": "Każda lista pokazuje łączną liczbę leadów, aktywnych subskrybentów i wskaźnik konwersji. Użyj ich, aby zidentyfikować, które grupy odbiorców angażują się najlepiej."
+            }
+          ]
+        },
+        "sequences": {
+          "category": "Sekwencje",
+          "items": [
+            {
+              "title": "Czym jest sekwencja?",
+              "desc": "Sekwencja to uporządkowany zestaw e-maili wysyłanych automatycznie z opóźnieniem po dołączeniu leada. Używaj ich do przepływów powitalnych, premier produktów lub kampanii pielęgnacyjnych."
+            },
+            {
+              "title": "Tworzenie sekwencji",
+              "desc": "Przełącz się na zakładkę Sekwencje, kliknij 'Nowa Sekwencja' i dodaj kroki e-mailowe z opóźnieniami wysyłki (w dniach). Przypisz sekwencję do jednej lub więcej list."
+            },
+            {
+              "title": "Sekwencje generowane przez AI",
+              "desc": "Kliknij 'Generuj z AI' i wprowadź swoją niszę. SuperLeads pisze 5-emailową serię powitalną dostosowaną do Twoich odbiorców. Edytuj dowolny e-mail przed aktywacją."
+            },
+            {
+              "title": "Wstrzymywanie i wznawianie",
+              "desc": "Wyłącz sekwencję, aby wstrzymać wszystkie przyszłe wysyłki. Leady już w trakcie pozostają wstrzymane; nowe leady nie wejdą. Włącz z powrotem, aby wznowić."
+            }
+          ]
+        },
+        "broadcast": {
+          "category": "Transmisja",
+          "items": [
+            {
+              "title": "Czym jest transmisja?",
+              "desc": "Jednorazowy e-mail wysyłany natychmiast (lub zaplanowany) do listy. Używaj transmisji do wiadomości wrażliwych na czas, ofert lub aktualizacji, które nie pasują do sekwencji."
+            },
+            {
+              "title": "Pisanie transmisji",
+              "desc": "Wybierz docelową listę, napisz temat i treść (HTML jest obsługiwany), a następnie podglądnij. Wyślij natychmiast lub zaplanuj na później."
+            },
+            {
+              "title": "Koszt transmisji",
+              "desc": "Każdy odbiorca liczy się jako jedna wysyłka w ramach Twojego dziennego limitu. Jeśli przekroczysz 200 wysyłek, reszta pochodzi z kredytów boost."
+            }
+          ]
+        },
+        "import": {
+          "category": "Import",
+          "items": [
+            {
+              "title": "Akceptowane formaty",
+              "desc": "Przesłanie pliku CSV lub wklejenie listy adresów e-mail. Format jest prosty: jeden e-mail na linię lub 'email,nazwa' dla leadów z nazwą."
+            },
+            {
+              "title": "Ustawienia importu",
+              "desc": "Przed potwierdzeniem wybierz listę docelową, początkowy status i opcjonalny znacznik źródła. Duplikaty w obrębie tej samej listy są automatycznie pomijane."
+            },
+            {
+              "title": "Automatyczne przypisywanie sekwencji",
+              "desc": "Zaznacz 'Automatycznie przypisz sekwencję', aby wrzucić każdego zaimportowanego leada bezpośrednio do przepływu powitalnego. Świetne do przenoszenia leadów z innej platformy."
+            },
+            {
+              "title": "Podgląd i walidacja",
+              "desc": "Po przesłaniu przejrzyj podgląd. Nieprawidłowe e-maile są oznaczone na czerwono i nie zostaną zaimportowane. W razie potrzeby napraw plik źródłowy i prześlij ponownie."
+            }
+          ]
+        },
+        "emailBoost": {
+          "category": "Boost E-mail",
+          "items": [
+            {
+              "title": "Czym są kredyty boost?",
+              "desc": "Dodatkowe wysyłki e-mail poza Twoim darmowym przydziałem 200/dzień. Kredyty pochodzą z salda Twojego portfela i nigdy nie wygasają."
+            },
+            {
+              "title": "Poziomy pakietów boost",
+              "desc": "Cztery rozmiary pakietów — 500, 2 000, 10 000 i 50 000 kredytów. Większe pakiety dają lepsze ceny za e-mail."
+            },
+            {
+              "title": "Kiedy kupować boosty",
+              "desc": "Przy wysyłaniu dużej transmisji, pielęgnowaniu listy większej niż 200 leadów lub prowadzeniu wielu aktywnych sekwencji. Platforma ostrzega przed osiągnięciem dziennego limitu."
+            }
+          ]
+        }
+      }
     },
     "autoresponderLabel": "Auto-responder",
     "totalLeadsStat": "Łączna liczba leadów",
@@ -2257,7 +2394,181 @@
       "title": "Pomoc SuperPages",
       "subtitle": "Baza wiedzy kreatora stron",
       "searchPlaceholder": "Szukaj tematów pomocy…",
-      "noResults": "Brak wyników dla"
+      "noResults": "Brak wyników dla",
+      "sections": {
+        "gettingStarted": {
+          "category": "Pierwsze kroki",
+          "items": [
+            {
+              "title": "Czym jest SuperPages?",
+              "desc": "Kreator typu przeciągnij i upuść do stron docelowych, lejków opt-in i stron sprzedażowych. Każda strona jest responsywna na urządzeniach mobilnych i może przechwytywać leady bezpośrednio do SuperLeads."
+            },
+            {
+              "title": "Obszar roboczy",
+              "desc": "Centralny obszar to Twoja strona. Przeciągaj bloki z lewego paska bocznego, aby je dodać. Kliknij dowolny element, aby edytować go w prawym panelu."
+            },
+            {
+              "title": "Zapisywanie pracy",
+              "desc": "Zmiany zapisują się automatycznie podczas edycji. Przycisk 'Opublikuj' uaktywnia najnowszą wersję pod wybranym przez Ciebie adresem URL."
+            },
+            {
+              "title": "Strony vs lejki",
+              "desc": "Pojedyncza strona działa do prostych opt-inów. Lejek to sekwencja stron (opt-in → podziękowanie → oferta) — użyj kreatora lejka, aby tworzyć przepływy wieloetapowe."
+            }
+          ]
+        },
+        "textElements": {
+          "category": "Elementy tekstowe",
+          "items": [
+            {
+              "title": "Blok nagłówka",
+              "desc": "Do tytułów stron i nagłówków sekcji. Wybierz od H1 do H6, dostosuj rozmiar i wagę oraz wybierz kolor. H1 powinien być używany raz na stronę dla SEO."
+            },
+            {
+              "title": "Blok akapitu",
+              "desc": "Do treści głównej. Obsługuje pogrubienie, kursywę, linki i łamanie wierszy. Używaj krótkich akapitów (2-3 zdania) dla najlepszej czytelności na urządzeniach mobilnych."
+            },
+            {
+              "title": "Blok cytatu",
+              "desc": "Wyróżniony cytat lub rekomendacja z opcjonalnym wierszem atrybucji. Stylizowany odmiennie od zwykłych akapitów."
+            },
+            {
+              "title": "Blok listy",
+              "desc": "Listy punktowane lub numerowane. Użyj list punktowanych dla funkcji i korzyści; list numerowanych dla kroków lub rankingowanych elementów."
+            }
+          ]
+        },
+        "mediaElements": {
+          "category": "Elementy multimedialne",
+          "items": [
+            {
+              "title": "Blok obrazu",
+              "desc": "Prześlij obraz lub wklej URL. Obrazy automatycznie dopasowują rozmiar do szerokości kontenera i ładują się leniwie dla szybkiej prędkości strony."
+            },
+            {
+              "title": "Blok wideo",
+              "desc": "Wklej URL YouTube, Vimeo lub Wistia. Odtwarzacz osadza się responsywnie i odtwarza bezpośrednio na Twojej stronie. Nie jest potrzebny niestandardowy hosting."
+            },
+            {
+              "title": "Blok audio",
+              "desc": "Osadź odtwarzacz MP3. Prześlij plik lub wklej bezpośredni URL. Świetne do odcinków podcastów lub wiadomości głosowych."
+            },
+            {
+              "title": "Blok galerii",
+              "desc": "Siatka obrazów, która otwiera się w lightboxie po kliknięciu. Dodaj do 24 obrazów na galerię."
+            }
+          ]
+        },
+        "actionElements": {
+          "category": "Elementy akcji",
+          "items": [
+            {
+              "title": "Blok przycisku",
+              "desc": "Klikalny przycisk z niestandardowym tekstem, kolorem i akcją. Ustaw go, aby otwierał URL, przewijał do sekcji lub przesyłał formularz."
+            },
+            {
+              "title": "Blok formularza",
+              "desc": "Zbieraj imię, e-mail i niestandardowe pola. Zgłoszenia trafiają bezpośrednio do SuperLeads z wybraną listą i statusem."
+            },
+            {
+              "title": "Odliczanie",
+              "desc": "Buduje pilność, pokazując czas do premiery, terminu lub wygaśnięcia oferty. Wybierz datę/czas docelowy i stylizację."
+            },
+            {
+              "title": "Pop-up opt-in",
+              "desc": "Formularz lightbox wyzwalany intencją wyjścia, głębokością przewijania lub opóźnieniem czasowym. Świetne do przechwytywania odchodzących odwiedzających."
+            }
+          ]
+        },
+        "contentElements": {
+          "category": "Elementy treści",
+          "items": [
+            {
+              "title": "Blok FAQ",
+              "desc": "Rozwijana lista pytań i odpowiedzi. Zmniejsza zaśmiecenie strony i wspiera SEO — wyszukiwarki rozumieją schemat FAQ."
+            },
+            {
+              "title": "Blok rekomendacji",
+              "desc": "Cytaty klientów z opcjonalnymi awatarami, imionami i ocenami gwiazdkowymi. Wyświetlane jako karty, karuzela lub siatka."
+            },
+            {
+              "title": "Tabela cenowa",
+              "desc": "Porównaj 2-4 poziomy cenowe obok siebie z listami funkcji i przyciskiem wezwania do działania na poziom."
+            },
+            {
+              "title": "Blok statystyk",
+              "desc": "Duże liczby z etykietami — np. '10 000+ członków', '2 mln $ wypłaconych'. Używaj do szybkiego budowania wiarygodności."
+            }
+          ]
+        },
+        "layoutElements": {
+          "category": "Elementy układu",
+          "items": [
+            {
+              "title": "Blok sekcji",
+              "desc": "Kontener grupujący inne bloki razem. Dodaj kolor tła, obraz lub gradient, aby stylizować całe sekcje strony."
+            },
+            {
+              "title": "Kolumny",
+              "desc": "Podziel sekcję na 2, 3 lub 4 kolumny. Na urządzeniach mobilnych kolumny automatycznie układają się pionowo dla czytelności."
+            },
+            {
+              "title": "Blok odstępu",
+              "desc": "Dodaje pionowy biały obszar między elementami. Używaj oszczędnie — zbyt dużo białego obszaru fragmentuje przepływ strony."
+            },
+            {
+              "title": "Blok separatora",
+              "desc": "Pozioma linia wizualnie oddzielająca sekcje. Wybierz grubość, kolor i styl (ciągła, kreskowana, kropkowana)."
+            }
+          ]
+        },
+        "settingsPublishing": {
+          "category": "Ustawienia i publikacja",
+          "items": [
+            {
+              "title": "URL strony",
+              "desc": "Ustaw niestandardowy slug pod swoją subdomeną afiliacyjną. Utrzymuj URL-e krótkie, opisowe i bogate w słowa kluczowe dla SEO."
+            },
+            {
+              "title": "Meta SEO",
+              "desc": "Ustaw tytuł strony, opis meta i obraz udostępniania społecznościowego. Pokazują się w wynikach wyszukiwania i gdy Twój link jest udostępniany w mediach społecznościowych."
+            },
+            {
+              "title": "Publikacja",
+              "desc": "Kliknij 'Opublikuj', aby najnowsze zmiany stały się aktywne. Zmiany wersji roboczej pozostają prywatne, dopóki ich nie opublikujesz — możesz podglądnąć w dowolnym momencie."
+            },
+            {
+              "title": "Analityka",
+              "desc": "Śledź wyświetlenia strony, wskaźnik opt-in i średni czas na stronie. Dane aktualizują się co 5 minut."
+            },
+            {
+              "title": "Piksele śledzące",
+              "desc": "Wstrzyknij piksele Facebook, Google lub TikTok, aby śledzić konwersje w platformach reklamowych. Dodaj swój identyfikator piksela w ustawieniach strony."
+            }
+          ]
+        },
+        "aiAssistant": {
+          "category": "Asystent AI",
+          "items": [
+            {
+              "title": "Co robi AI?",
+              "desc": "Generuje kopie do nagłówków, akapitów tekstu, CTA i FAQ na podstawie Twojej niszy i oferty. Świetne do pokonywania paraliżu pustej strony."
+            },
+            {
+              "title": "Pisanie dobrego promptu",
+              "desc": "Bądź konkretny: uwzględnij swój produkt, swoją publiczność, działanie, które chcesz, aby podjęli, i ton. 'Napisz nagłówek dla kursu fitness skierowanego do zapracowanych mam' pokonuje 'napisz nagłówek'."
+            },
+            {
+              "title": "Edycja wyników AI",
+              "desc": "Szkice AI to punkty wyjścia, nie finalna kopia. Zawsze czytaj, dostosowuj i wstrzykuj swój własny głos przed publikacją."
+            },
+            {
+              "title": "Regeneruj vs udoskonal",
+              "desc": "'Regeneruj' daje nowe podejście z tym samym promptem. 'Udoskonal' bierze obecny wynik i dostosowuje go — użyj udoskonalenia, gdy jesteś blisko, ale nie do końca."
+            }
+          ]
+        }
+      }
     },
     "desktopPreview": "Desktop (1100px)",
     "tabletPreview": "Tablet (768px)",

@@ -1839,7 +1839,144 @@
       "title": "Trợ giúp SuperLeads",
       "subtitle": "Hướng dẫn đầy đủ về CRM và trả lời tự động của bạn",
       "searchPlaceholder": "Tìm kiếm chủ đề trợ giúp…",
-      "noResults": "Không có kết quả cho"
+      "noResults": "Không có kết quả cho",
+      "sections": {
+        "gettingStarted": {
+          "category": "Bắt đầu",
+          "items": [
+            {
+              "title": "SuperLeads là gì?",
+              "desc": "SuperLeads là CRM tích hợp và trình trả lời tự động email của bạn. Thu thập khách hàng tiềm năng từ phễu hoặc nhập, tổ chức họ vào danh sách, gửi phát sóng và nuôi dưỡng họ bằng các chuỗi email tự động — tất cả từ một nơi."
+            },
+            {
+              "title": "Điều gì được coi là khách hàng tiềm năng?",
+              "desc": "Bất kỳ địa chỉ email nào bạn đã thu thập — qua phễu SuperPages, nhập thủ công hoặc nhập CSV. Mỗi khách hàng tiềm năng có trạng thái, tên tùy chọn, thẻ nguồn và có thể được gán cho bất kỳ danh sách nào."
+            },
+            {
+              "title": "Email miễn phí so với tín dụng boost",
+              "desc": "Mỗi tài khoản nhận được 200 lượt gửi email miễn phí mỗi ngày. Cần thêm? Mua gói boost từ tab Boost — tín dụng không bao giờ hết hạn và đến từ số dư ví của bạn."
+            },
+            {
+              "title": "Giới hạn lưu trữ khách hàng tiềm năng",
+              "desc": "Thành viên Pro có thể lưu trữ tối đa 5.000 khách hàng tiềm năng. Trên đó, hãy xóa khách hàng tiềm năng cũ hoặc nâng cấp gói của bạn. Khách hàng tiềm năng ở lại mãi mãi trừ khi bạn xóa họ."
+            }
+          ]
+        },
+        "leadsTab": {
+          "category": "Tab Khách hàng tiềm năng",
+          "items": [
+            {
+              "title": "Trạng thái khách hàng tiềm năng",
+              "desc": "Mới, Đang nuôi dưỡng, Nóng, Đã chuyển đổi và Đã hủy đăng ký. Đặt trạng thái thủ công hoặc để các chuỗi cập nhật tự động khi khách hàng tiềm năng thực hiện hành động."
+            },
+            {
+              "title": "Chỉnh sửa khách hàng tiềm năng",
+              "desc": "Nhấp vào bất kỳ hàng khách hàng tiềm năng nào để mở rộng và chỉnh sửa tên, email, trạng thái hoặc gán danh sách. Thay đổi lưu ngay lập tức."
+            },
+            {
+              "title": "Xóa khách hàng tiềm năng",
+              "desc": "Nhấp vào biểu tượng thùng rác bên cạnh bất kỳ khách hàng tiềm năng nào. Khách hàng tiềm năng đã xóa giải phóng bộ nhớ và không thể khôi phục."
+            },
+            {
+              "title": "Thao tác hàng loạt",
+              "desc": "Chọn nhiều khách hàng tiềm năng qua cột hộp kiểm, sau đó sử dụng thanh hành động hàng loạt ở dưới cùng để di chuyển họ đến danh sách, thay đổi trạng thái hoặc xóa."
+            }
+          ]
+        },
+        "lists": {
+          "category": "Danh sách",
+          "items": [
+            {
+              "title": "Danh sách là gì?",
+              "desc": "Danh sách là các thẻ bạn áp dụng cho khách hàng tiềm năng để nhóm họ — ví dụ 'Bản tin Thể dục' hoặc 'Khách hàng tiềm năng Tiền điện tử'. Một khách hàng tiềm năng có thể thuộc về nhiều danh sách."
+            },
+            {
+              "title": "Tạo danh sách",
+              "desc": "Nhấp 'Tạo danh sách' trong thanh bên tab Khách hàng tiềm năng. Đặt tên mô tả — bạn sẽ nhắm mục tiêu các chuỗi và phát sóng theo danh sách."
+            },
+            {
+              "title": "Phân tích danh sách",
+              "desc": "Mỗi danh sách hiển thị tổng số khách hàng tiềm năng, người đăng ký hoạt động và tỷ lệ chuyển đổi. Sử dụng chúng để xác định đối tượng nào tương tác tốt nhất."
+            }
+          ]
+        },
+        "sequences": {
+          "category": "Chuỗi",
+          "items": [
+            {
+              "title": "Chuỗi là gì?",
+              "desc": "Chuỗi là một tập hợp email có thứ tự được gửi tự động với độ trễ sau khi khách hàng tiềm năng tham gia. Sử dụng chúng cho luồng chào mừng, ra mắt sản phẩm hoặc chiến dịch nuôi dưỡng."
+            },
+            {
+              "title": "Tạo chuỗi",
+              "desc": "Chuyển sang tab Chuỗi, nhấp 'Chuỗi mới' và thêm các bước email với độ trễ gửi (theo ngày). Gán chuỗi cho một hoặc nhiều danh sách."
+            },
+            {
+              "title": "Chuỗi được tạo bằng AI",
+              "desc": "Nhấp 'Tạo bằng AI' và nhập thị trường ngách của bạn. SuperLeads viết loạt chào mừng 5 email phù hợp với đối tượng của bạn. Chỉnh sửa bất kỳ email nào trước khi kích hoạt."
+            },
+            {
+              "title": "Tạm dừng và tiếp tục",
+              "desc": "Bật tắt chuỗi để tạm dừng tất cả các lần gửi trong tương lai. Khách hàng tiềm năng đã ở trong tiến trình vẫn bị tạm dừng; khách hàng tiềm năng mới sẽ không vào. Bật lại để tiếp tục."
+            }
+          ]
+        },
+        "broadcast": {
+          "category": "Phát sóng",
+          "items": [
+            {
+              "title": "Phát sóng là gì?",
+              "desc": "Một email một lần được gửi ngay lập tức (hoặc đã lên lịch) đến một danh sách. Sử dụng phát sóng cho tin tức nhạy cảm về thời gian, ưu đãi hoặc cập nhật không phù hợp với chuỗi."
+            },
+            {
+              "title": "Viết phát sóng",
+              "desc": "Chọn danh sách mục tiêu, viết dòng chủ đề và nội dung (hỗ trợ HTML), sau đó xem trước. Gửi ngay lập tức hoặc lên lịch sau."
+            },
+            {
+              "title": "Chi phí phát sóng",
+              "desc": "Mỗi người nhận tính là một lần gửi so với giới hạn hàng ngày của bạn. Nếu bạn vượt quá 200 lần gửi, phần còn lại đến từ tín dụng boost."
+            }
+          ]
+        },
+        "import": {
+          "category": "Nhập",
+          "items": [
+            {
+              "title": "Định dạng được chấp nhận",
+              "desc": "Tải lên tệp CSV hoặc dán danh sách địa chỉ email. Định dạng đơn giản: một email mỗi dòng hoặc 'email,tên' cho khách hàng tiềm năng được đặt tên."
+            },
+            {
+              "title": "Cài đặt nhập",
+              "desc": "Trước khi xác nhận, chọn danh sách mục tiêu, trạng thái ban đầu và thẻ nguồn tùy chọn. Các bản sao trong cùng danh sách tự động được bỏ qua."
+            },
+            {
+              "title": "Tự động gán chuỗi",
+              "desc": "Đánh dấu 'Tự động gán chuỗi' để đưa mọi khách hàng tiềm năng đã nhập trực tiếp vào luồng chào mừng. Tuyệt vời để chuyển khách hàng tiềm năng từ nền tảng khác."
+            },
+            {
+              "title": "Xem trước và xác thực",
+              "desc": "Sau khi tải lên, xem lại bản xem trước. Email không hợp lệ được đánh dấu đỏ và sẽ không nhập. Sửa tệp nguồn của bạn và tải lên lại nếu cần."
+            }
+          ]
+        },
+        "emailBoost": {
+          "category": "Boost Email",
+          "items": [
+            {
+              "title": "Tín dụng boost là gì?",
+              "desc": "Các lượt gửi email bổ sung vượt quá phân bổ miễn phí 200/ngày của bạn. Tín dụng đến từ số dư ví của bạn và không bao giờ hết hạn."
+            },
+            {
+              "title": "Các cấp gói boost",
+              "desc": "Bốn kích thước gói — 500, 2.000, 10.000 và 50.000 tín dụng. Các gói lớn hơn cung cấp giá mỗi email tốt hơn."
+            },
+            {
+              "title": "Khi nào mua boost",
+              "desc": "Khi gửi phát sóng lớn, nuôi dưỡng danh sách lớn hơn 200 khách hàng tiềm năng hoặc chạy nhiều chuỗi hoạt động. Nền tảng cảnh báo bạn trước khi đạt giới hạn hàng ngày."
+            }
+          ]
+        }
+      }
     },
     "autoresponderLabel": "Trả lời tự động",
     "totalLeadsStat": "Tổng số khách hàng tiềm năng",
@@ -2257,7 +2394,181 @@
       "title": "Trợ giúp SuperPages",
       "subtitle": "Cơ sở kiến thức trình tạo trang",
       "searchPlaceholder": "Tìm kiếm chủ đề trợ giúp…",
-      "noResults": "Không có kết quả cho"
+      "noResults": "Không có kết quả cho",
+      "sections": {
+        "gettingStarted": {
+          "category": "Bắt đầu",
+          "items": [
+            {
+              "title": "SuperPages là gì?",
+              "desc": "Trình tạo kéo và thả cho các trang đích, phễu opt-in và trang bán hàng. Mọi trang đều phản hồi trên thiết bị di động và có thể thu thập khách hàng tiềm năng trực tiếp vào SuperLeads."
+            },
+            {
+              "title": "Canvas",
+              "desc": "Khu vực trung tâm là trang của bạn. Kéo các khối từ thanh bên trái để thêm chúng. Nhấp vào bất kỳ phần tử nào để chỉnh sửa trong bảng bên phải."
+            },
+            {
+              "title": "Lưu công việc của bạn",
+              "desc": "Thay đổi được lưu tự động khi bạn chỉnh sửa. Nút 'Xuất bản' làm cho phiên bản mới nhất của bạn hoạt động tại URL bạn chọn."
+            },
+            {
+              "title": "Trang vs phễu",
+              "desc": "Một trang đơn hoạt động cho opt-in đơn giản. Phễu là một chuỗi các trang (opt-in → cảm ơn → ưu đãi) — sử dụng trình tạo phễu để tạo các luồng nhiều bước."
+            }
+          ]
+        },
+        "textElements": {
+          "category": "Phần tử văn bản",
+          "items": [
+            {
+              "title": "Khối tiêu đề",
+              "desc": "Cho tiêu đề trang và tiêu đề phần. Chọn H1 đến H6, điều chỉnh kích thước và độ đậm, và chọn màu. H1 nên được sử dụng một lần mỗi trang cho SEO."
+            },
+            {
+              "title": "Khối đoạn văn",
+              "desc": "Cho nội dung chính. Hỗ trợ đậm, nghiêng, liên kết và ngắt dòng. Sử dụng các đoạn văn ngắn (2-3 câu) để có khả năng đọc tốt nhất trên di động."
+            },
+            {
+              "title": "Khối trích dẫn",
+              "desc": "Một trích dẫn hoặc lời chứng thực nổi bật với dòng ghi nhận tùy chọn. Được định kiểu khác biệt so với các đoạn văn thông thường."
+            },
+            {
+              "title": "Khối danh sách",
+              "desc": "Danh sách có dấu đầu dòng hoặc đánh số. Sử dụng danh sách có dấu đầu dòng cho các tính năng và lợi ích; danh sách đánh số cho các bước hoặc các mục xếp hạng."
+            }
+          ]
+        },
+        "mediaElements": {
+          "category": "Phần tử phương tiện",
+          "items": [
+            {
+              "title": "Khối hình ảnh",
+              "desc": "Tải lên hình ảnh hoặc dán URL. Hình ảnh tự động thay đổi kích thước để phù hợp với chiều rộng container và tải chậm để tốc độ trang nhanh."
+            },
+            {
+              "title": "Khối video",
+              "desc": "Dán URL YouTube, Vimeo hoặc Wistia. Trình phát nhúng phản hồi và phát trực tiếp trên trang của bạn. Không cần lưu trữ tùy chỉnh."
+            },
+            {
+              "title": "Khối âm thanh",
+              "desc": "Nhúng trình phát MP3. Tải lên tệp hoặc dán URL trực tiếp. Tuyệt vời cho các tập podcast hoặc tin nhắn thoại."
+            },
+            {
+              "title": "Khối bộ sưu tập",
+              "desc": "Lưới các hình ảnh mở trong lightbox khi nhấp. Thêm tối đa 24 hình ảnh mỗi bộ sưu tập."
+            }
+          ]
+        },
+        "actionElements": {
+          "category": "Phần tử hành động",
+          "items": [
+            {
+              "title": "Khối nút",
+              "desc": "Nút có thể nhấp với văn bản, màu sắc và hành động tùy chỉnh. Đặt nó để mở URL, cuộn đến phần hoặc gửi biểu mẫu."
+            },
+            {
+              "title": "Khối biểu mẫu",
+              "desc": "Thu thập tên, email và các trường tùy chỉnh. Các lần gửi rơi trực tiếp vào SuperLeads với danh sách và trạng thái bạn chọn."
+            },
+            {
+              "title": "Bộ đếm ngược",
+              "desc": "Thúc đẩy tính cấp bách bằng cách hiển thị thời gian đến khi ra mắt, thời hạn hoặc hết hạn ưu đãi. Chọn ngày/giờ mục tiêu và kiểu dáng."
+            },
+            {
+              "title": "Cửa sổ bật lên opt-in",
+              "desc": "Một biểu mẫu lightbox được kích hoạt bởi ý định thoát, độ sâu cuộn hoặc độ trễ thời gian. Tuyệt vời để thu hút khách truy cập rời đi."
+            }
+          ]
+        },
+        "contentElements": {
+          "category": "Phần tử nội dung",
+          "items": [
+            {
+              "title": "Khối FAQ",
+              "desc": "Một danh sách câu hỏi và trả lời có thể thu gọn. Giảm sự lộn xộn trang và tăng cường SEO — các công cụ tìm kiếm hiểu lược đồ FAQ."
+            },
+            {
+              "title": "Khối lời chứng thực",
+              "desc": "Trích dẫn của khách hàng với ảnh đại diện, tên và xếp hạng sao tùy chọn. Hiển thị dưới dạng thẻ, băng chuyền hoặc lưới."
+            },
+            {
+              "title": "Bảng giá",
+              "desc": "So sánh 2-4 bậc giá cạnh nhau với danh sách tính năng và nút kêu gọi hành động trên mỗi bậc."
+            },
+            {
+              "title": "Khối thống kê",
+              "desc": "Số lớn với nhãn — ví dụ '10.000+ thành viên', '$2M đã thanh toán'. Sử dụng để xây dựng uy tín nhanh chóng."
+            }
+          ]
+        },
+        "layoutElements": {
+          "category": "Phần tử bố cục",
+          "items": [
+            {
+              "title": "Khối phần",
+              "desc": "Một container nhóm các khối khác lại với nhau. Thêm màu nền, hình ảnh hoặc gradient để tạo kiểu cho toàn bộ phần của trang của bạn."
+            },
+            {
+              "title": "Cột",
+              "desc": "Chia một phần thành 2, 3 hoặc 4 cột. Trên di động, các cột tự động xếp chồng theo chiều dọc để dễ đọc."
+            },
+            {
+              "title": "Khối khoảng cách",
+              "desc": "Thêm khoảng trắng dọc giữa các phần tử. Sử dụng tiết kiệm — quá nhiều khoảng trắng phân mảnh dòng chảy trang."
+            },
+            {
+              "title": "Khối phân cách",
+              "desc": "Một đường ngang để tách các phần trực quan. Chọn độ dày, màu và kiểu (liền, đứt nét, chấm)."
+            }
+          ]
+        },
+        "settingsPublishing": {
+          "category": "Cài đặt & Xuất bản",
+          "items": [
+            {
+              "title": "URL trang",
+              "desc": "Đặt slug tùy chỉnh dưới tên miền con liên kết của bạn. Giữ URL ngắn, mô tả và giàu từ khóa cho SEO."
+            },
+            {
+              "title": "Meta SEO",
+              "desc": "Đặt tiêu đề trang, mô tả meta và hình ảnh chia sẻ xã hội. Chúng hiển thị trong kết quả tìm kiếm và khi liên kết của bạn được chia sẻ trên mạng xã hội."
+            },
+            {
+              "title": "Xuất bản",
+              "desc": "Nhấp 'Xuất bản' để làm cho các thay đổi mới nhất của bạn hoạt động. Các thay đổi bản nháp vẫn riêng tư cho đến khi bạn xuất bản — bạn có thể xem trước bất cứ lúc nào."
+            },
+            {
+              "title": "Phân tích",
+              "desc": "Theo dõi lượt xem trang, tỷ lệ opt-in và thời gian trung bình trên trang. Dữ liệu cập nhật mỗi 5 phút."
+            },
+            {
+              "title": "Pixel theo dõi",
+              "desc": "Tiêm pixel Facebook, Google hoặc TikTok để theo dõi chuyển đổi trong các nền tảng quảng cáo của bạn. Thêm ID pixel của bạn trong cài đặt trang."
+            }
+          ]
+        },
+        "aiAssistant": {
+          "category": "Trợ lý AI",
+          "items": [
+            {
+              "title": "AI làm gì?",
+              "desc": "Tạo bản sao cho tiêu đề, đoạn văn nội dung, CTA và FAQ dựa trên thị trường ngách và ưu đãi của bạn. Tuyệt vời để đánh bại sự tê liệt trang trắng."
+            },
+            {
+              "title": "Viết lời nhắc tốt",
+              "desc": "Hãy cụ thể: bao gồm sản phẩm của bạn, đối tượng của bạn, hành động bạn muốn họ thực hiện và giọng điệu. 'Viết tiêu đề cho khóa học thể dục nhắm đến các bà mẹ bận rộn' đánh bại 'viết tiêu đề'."
+            },
+            {
+              "title": "Chỉnh sửa đầu ra AI",
+              "desc": "Bản nháp AI là điểm khởi đầu, không phải bản sao cuối cùng. Luôn đọc, điều chỉnh và đưa vào tiếng nói của riêng bạn trước khi xuất bản."
+            },
+            {
+              "title": "Tạo lại vs tinh chỉnh",
+              "desc": "'Tạo lại' đưa ra một góc nhìn mới với cùng lời nhắc. 'Tinh chỉnh' lấy đầu ra hiện tại và điều chỉnh nó — sử dụng tinh chỉnh khi bạn gần nhưng chưa hoàn toàn."
+            }
+          ]
+        }
+      }
     },
     "desktopPreview": "Desktop (1100px)",
     "tabletPreview": "Tablet (768px)",
