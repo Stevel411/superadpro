@@ -2825,6 +2825,11 @@
     "step3Desc": "Anúncio de 30 segundos. Aponte para seu funil ou URL de afiliado. Escolha nichos, geografias, nível de experiência. As vistas começam a chegar após aprovação.",
     "footerLine1": "Um público focado de networkers ativos.",
     "footerLine2": "Sua oferta, na frente deles — nos seus termos.",
-    "footerCta": "Lance seu pitch"
+    "footerCta": "Lance seu pitch",
+    "navHome": "Início",
+    "navIncome": "Receita",
+    "navTools": "Ferramentas",
+    "navSignin": "Entrar",
+    "navCta": "Iniciar campanha"
   }
 }

@@ -2817,6 +2817,11 @@
     "step3Desc": "30-sekundowa reklama. Wskaż swój funnel lub URL affiliate. Wybierz nisze, geografie, poziom doświadczenia. Wyświetlenia zaczynają płynąć po zatwierdzeniu.",
     "footerLine1": "Sfokusowana widownia aktywnych network marketerów.",
     "footerLine2": "Twoja oferta przed nimi — na twoich warunkach.",
-    "footerCta": "Uruchom swój pitch"
+    "footerCta": "Uruchom swój pitch",
+    "navHome": "Start",
+    "navIncome": "Dochód",
+    "navTools": "Narzędzia",
+    "navSignin": "Zaloguj",
+    "navCta": "Uruchom kampanię"
   }
 }

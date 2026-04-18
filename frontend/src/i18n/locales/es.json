@@ -2825,6 +2825,11 @@
     "step3Desc": "Anuncio de 30 segundos. Apunta a tu funnel o URL de afiliado. Elige nichos, geografías, nivel de experiencia. Las vistas empiezan a llegar una vez aprobado.",
     "footerLine1": "Una audiencia enfocada de network marketers activos.",
     "footerLine2": "Tu oferta, frente a ellos — en tus términos.",
-    "footerCta": "Lanza tu pitch"
+    "footerCta": "Lanza tu pitch",
+    "navHome": "Inicio",
+    "navIncome": "Ingresos",
+    "navTools": "Herramientas",
+    "navSignin": "Iniciar sesión",
+    "navCta": "Iniciar campaña"
   }
 }

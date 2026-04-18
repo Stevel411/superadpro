@@ -2825,6 +2825,11 @@
     "step3Desc": "30-Sekunden-Anzeige. Verweise auf deinen Funnel oder deine Affiliate-URL. Wähle Nischen, Regionen, Erfahrungsniveau. Views kommen nach der Freigabe.",
     "footerLine1": "Ein fokussiertes Publikum aktiver Network-Marketer.",
     "footerLine2": "Dein Angebot, vor ihnen — zu deinen Bedingungen.",
-    "footerCta": "Starte deinen Pitch"
+    "footerCta": "Starte deinen Pitch",
+    "navHome": "Start",
+    "navIncome": "Einkommen",
+    "navTools": "Tools",
+    "navSignin": "Anmelden",
+    "navCta": "Kampagne starten"
   }
 }

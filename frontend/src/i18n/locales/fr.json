@@ -2825,6 +2825,11 @@
     "step3Desc": "Pub de 30 secondes. Pointez vers votre funnel ou URL d'affiliation. Choisissez niches, géographies, niveau d'expérience. Les vues arrivent une fois approuvé.",
     "footerLine1": "Une audience concentrée de networkers actifs.",
     "footerLine2": "Votre offre, devant eux — selon vos conditions.",
-    "footerCta": "Lancez votre pitch"
+    "footerCta": "Lancez votre pitch",
+    "navHome": "Accueil",
+    "navIncome": "Revenus",
+    "navTools": "Outils",
+    "navSignin": "Se connecter",
+    "navCta": "Lancer une campagne"
   }
 }

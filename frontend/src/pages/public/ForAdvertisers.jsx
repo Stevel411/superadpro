@@ -1,40 +1,36 @@
-import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
-import PublicLayout from '../../components/layout/PublicLayout';
 
 export default function ForAdvertisers() {
   var { t } = useTranslation();
-  var sectionRef = useRef(null);
-
-  // Reveal-on-scroll for outcome cards
-  useEffect(function() {
-    if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
-      var allCards = document.querySelectorAll('.for-advertisers-page .outcome-stat');
-      allCards.forEach(function(c) { c.classList.add('revealed'); });
-      return;
-    }
-    var io = new IntersectionObserver(function(entries) {
-      entries.forEach(function(e) {
-        if (e.isIntersecting) {
-          e.target.classList.add('revealed');
-          io.unobserve(e.target);
-        }
-      });
-    }, { threshold: 0.3 });
-    var cards = document.querySelectorAll('.for-advertisers-page .outcome-stat');
-    cards.forEach(function(c) { io.observe(c); });
-    return function() { io.disconnect(); };
-  }, []);
 
   return (
-    <PublicLayout>
+    <>
       <style>{CSS_FOR_ADVERTISERS}</style>
       <div className="for-advertisers-page">
         <div className="page-bg"></div>
         <div className="page-bg-overlay"></div>
 
-        <section className="page-section" ref={sectionRef}>
+        {/* Floating brand (top-left) */}
+        <Link to="/" className="float-brand">
+          <div className="float-brand-mark">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <polygon points="9,5 9,19 20,12" fill="#fff"/>
+            </svg>
+          </div>
+          <span className="float-brand-text">SuperAd<em>Pro</em></span>
+        </Link>
+
+        {/* Floating nav (top-right) */}
+        <div className="float-nav">
+          <Link to="/" className="float-nav-link">{t('forAdvertisers.navHome')}</Link>
+          <Link to="/earn" className="float-nav-link">{t('forAdvertisers.navIncome')}</Link>
+          <Link to="/tools" className="float-nav-link">{t('forAdvertisers.navTools')}</Link>
+          <Link to="/login" className="float-nav-link">{t('forAdvertisers.navSignin')}</Link>
+          <Link to="/register" className="float-nav-cta">{t('forAdvertisers.navCta')}</Link>
+        </div>
+
+        <section className="page-section">
 
           <div className="hero-badge">
             <div className="hero-badge-icon">
@@ -57,12 +53,11 @@ export default function ForAdvertisers() {
             <span className="accent">{t('forAdvertisers.headlineLine2')}</span>
           </h2>
 
-          {/* Hero stage — reveals the video screen in bg image */}
           <div className="hero-stage">
             <div className="hero-stage-caption">{t('forAdvertisers.heroCaption')}</div>
           </div>
 
-          {/* Outcome stats — 4 value cards */}
+          {/* 4 outcome cards — always visible */}
           <div className="outcome-row">
 
             <div className="outcome-stat" data-c="amber" data-n="01">
@@ -216,11 +211,12 @@ export default function ForAdvertisers() {
 
         </section>
       </div>
-    </PublicLayout>
+    </>
   );
 }
 
-// Scoped CSS — prefixed with .for-advertisers-page to prevent bleed
+// Scoped CSS — prefixed with .for-advertisers-page. Full mockup CSS including
+// floating nav and floating brand. No PublicLayout wrap on this route.
 var CSS_FOR_ADVERTISERS = `
 .for-advertisers-page{
   --cobalt-deepest:#0b1230;--cobalt-deep:#172554;
@@ -235,28 +231,48 @@ var CSS_FOR_ADVERTISERS = `
   --ink-50:rgba(250,251,255,.5);--ink-40:rgba(250,251,255,.4);
   --ink-20:rgba(250,251,255,.2);--ink-10:rgba(250,251,255,.1);
   --ink-05:rgba(250,251,255,.05);
-  position:relative;color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;overflow:hidden;
+  position:relative;color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;
+  background:var(--cobalt-deepest);
+  overflow-x:hidden;
 }
+
 .for-advertisers-page .page-bg{position:absolute;top:0;left:0;right:0;height:780px;z-index:0;background-image:url("/static/images/advertisers-hero.jpg");background-size:cover;background-position:center top;background-repeat:no-repeat}
 .for-advertisers-page .page-bg-overlay{position:absolute;top:0;left:0;right:0;height:780px;z-index:1;background:linear-gradient(180deg,rgba(11,18,48,0) 0%,rgba(11,18,48,0) 78%,rgba(11,18,48,.55) 88%,rgba(11,18,48,.96) 100%);pointer-events:none}
-.for-advertisers-page .page-section{padding:80px 48px 100px;max-width:1320px;margin:0 auto;position:relative;z-index:2}
+
+/* FLOATING NAV + BRAND (from mockup) */
+.for-advertisers-page .float-nav{position:fixed;top:28px;right:32px;z-index:100;display:flex;align-items:center;gap:10px}
+.for-advertisers-page .float-nav-link{padding:10px 18px;border-radius:100px;background:rgba(11,18,48,.5);border:1px solid var(--ink-10);backdrop-filter:blur(18px) saturate(180%);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:var(--ink);text-decoration:none;letter-spacing:-.005em;transition:all .25s;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.for-advertisers-page .float-nav-link:hover{background:rgba(11,18,48,.7);border-color:var(--ink-20);transform:translateY(-2px)}
+.for-advertisers-page .float-nav-cta{padding:10px 20px;border-radius:100px;background:var(--ink);color:var(--cobalt-deepest);font-family:'Sora',sans-serif;font-size:13px;font-weight:700;text-decoration:none;transition:all .25s;box-shadow:0 8px 32px rgba(250,251,255,.25)}
+.for-advertisers-page .float-nav-cta:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(250,251,255,.4)}
+.for-advertisers-page .float-brand{position:fixed;top:28px;left:32px;z-index:100;display:flex;align-items:center;gap:12px;padding:10px 20px 10px 12px;border-radius:100px;background:rgba(11,18,48,.5);border:1px solid var(--ink-10);backdrop-filter:blur(18px) saturate(180%);text-decoration:none;transition:all .25s;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.for-advertisers-page .float-brand:hover{background:rgba(11,18,48,.7);transform:translateY(-2px)}
+.for-advertisers-page .float-brand-mark{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--sky),var(--indigo));display:flex;align-items:center;justify-content:center;box-shadow:0 0 16px rgba(14,165,233,.45);position:relative}
+.for-advertisers-page .float-brand-mark::before{content:'';position:absolute;inset:-2px;border-radius:10px;background:linear-gradient(135deg,var(--sky),var(--amber),var(--indigo));z-index:-1;opacity:.4;filter:blur(4px)}
+.for-advertisers-page .float-brand-text{font-family:'Sora',sans-serif;font-size:15px;font-weight:900;letter-spacing:-.03em;color:var(--ink)}
+.for-advertisers-page .float-brand-text em{color:var(--sky-bright);font-style:normal}
+
+.for-advertisers-page .page-section{padding:140px 48px 100px;max-width:1320px;margin:0 auto;position:relative;z-index:2}
 .for-advertisers-page .section-tag{display:flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:500;color:var(--ink-40);letter-spacing:.15em;text-transform:uppercase;margin-bottom:20px}
 .for-advertisers-page .section-tag::before{content:'';width:32px;height:1px;background:var(--amber)}
 .for-advertisers-page .section-h2{font-family:'Sora',sans-serif;font-size:clamp(48px,6vw,88px);font-weight:900;line-height:.95;letter-spacing:-.045em;margin-bottom:20px}
 .for-advertisers-page .section-h2 .accent{display:block;font-weight:300;letter-spacing:-.035em;color:var(--ink);opacity:.75;line-height:1.1;padding-bottom:.08em}
-.for-advertisers-page .hero-badge{position:absolute;top:134px;right:48px;z-index:50;display:flex;align-items:center;gap:12px;padding:12px 18px;border-radius:100px;background:linear-gradient(90deg,rgba(11,18,48,.92),rgba(23,37,84,.88));border:1px solid rgba(251,191,36,.45);backdrop-filter:blur(20px) saturate(180%);box-shadow:0 12px 40px rgba(0,0,0,.4),0 0 40px rgba(251,191,36,.18)}
+
+.for-advertisers-page .hero-badge{position:absolute;top:194px;right:48px;z-index:50;display:flex;align-items:center;gap:12px;padding:12px 18px;border-radius:100px;background:linear-gradient(90deg,rgba(11,18,48,.92),rgba(23,37,84,.88));border:1px solid rgba(251,191,36,.45);backdrop-filter:blur(20px) saturate(180%);box-shadow:0 12px 40px rgba(0,0,0,.4),0 0 40px rgba(251,191,36,.18)}
 .for-advertisers-page .hero-badge-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--amber),var(--amber-bright));display:flex;align-items:center;justify-content:center;color:var(--cobalt-deepest);flex-shrink:0;box-shadow:0 0 12px rgba(251,191,36,.45)}
 .for-advertisers-page .hero-badge-body{flex:1}
 .for-advertisers-page .hero-badge-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ink-60);letter-spacing:.12em;text-transform:uppercase;margin-bottom:1px;white-space:nowrap}
 .for-advertisers-page .hero-badge-value{font-family:'Sora',sans-serif;font-weight:800;font-size:14px;color:var(--ink);line-height:1.15;letter-spacing:-.015em;white-space:nowrap}
 .for-advertisers-page .hero-badge-value .accent{color:var(--amber-bright);filter:drop-shadow(0 0 8px rgba(251,191,36,.4))}
+
 .for-advertisers-page .hero-stage{position:relative;margin-top:48px;height:clamp(320px,40vw,520px);display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:none}
 .for-advertisers-page .hero-stage-caption{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:10px;padding:10px 20px;border-radius:100px;background:rgba(11,18,48,.75);border:1px solid rgba(56,189,248,.35);backdrop-filter:blur(16px);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--sky-bright);box-shadow:0 10px 30px rgba(0,0,0,.4),0 0 30px rgba(56,189,248,.2)}
 .for-advertisers-page .hero-stage-caption::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--sky-bright);box-shadow:0 0 10px var(--sky-bright);animation:faAdPulse 1.6s ease-in-out infinite}
 @keyframes faAdPulse{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.3)}}
+
+/* Outcome row — cards ALWAYS VISIBLE (no reveal animation) */
 .for-advertisers-page .outcome-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:40px}
-.for-advertisers-page .outcome-stat{padding:32px 22px 26px;border-radius:16px;background:linear-gradient(180deg,rgba(11,18,48,.88),rgba(11,18,48,.7));border:1px solid var(--ink-10);backdrop-filter:blur(16px);position:relative;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.25);transition:transform .4s cubic-bezier(.2,.8,.2,1),border-color .3s;opacity:0;transform:translateY(30px)}
-.for-advertisers-page .outcome-stat.revealed{opacity:1;transform:translateY(0)}
+.for-advertisers-page .outcome-stat{padding:32px 22px 26px;border-radius:16px;background:linear-gradient(180deg,rgba(11,18,48,.88),rgba(11,18,48,.7));border:1px solid var(--ink-10);backdrop-filter:blur(16px);position:relative;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.25);transition:transform .4s cubic-bezier(.2,.8,.2,1),border-color .3s}
 .for-advertisers-page .outcome-stat:hover{transform:translateY(-6px);border-color:var(--accent)}
 .for-advertisers-page .outcome-stat::before{content:attr(data-n);position:absolute;top:-24px;right:-8px;font-family:'Sora',sans-serif;font-weight:900;font-size:140px;line-height:1;letter-spacing:-.08em;color:rgba(var(--accent-rgb),.08);pointer-events:none;user-select:none}
 .for-advertisers-page .outcome-stat[data-c="amber"]{--accent:var(--amber);--accent-rgb:251,191,36}
@@ -270,9 +286,8 @@ var CSS_FOR_ADVERTISERS = `
 .for-advertisers-page .outcome-sub{font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink-60);line-height:1.5;position:relative;z-index:2}
 .for-advertisers-page .outcome-sub strong{color:var(--ink);font-weight:600}
 .for-advertisers-page .outcome-rule{height:2px;background:rgba(var(--accent-rgb),.15);margin-top:18px;border-radius:2px;overflow:hidden;position:relative;z-index:2}
-.for-advertisers-page .outcome-rule::after{content:'';position:absolute;top:0;left:0;bottom:0;width:0;background:var(--accent);border-radius:2px;box-shadow:0 0 8px var(--accent)}
-.for-advertisers-page .outcome-stat.revealed .outcome-rule::after{animation:faAdRuleFill 1.6s .4s cubic-bezier(.2,.8,.2,1) forwards}
-@keyframes faAdRuleFill{to{width:100%}}
+.for-advertisers-page .outcome-rule::after{content:'';position:absolute;top:0;left:0;bottom:0;width:100%;background:var(--accent);border-radius:2px;box-shadow:0 0 8px var(--accent)}
+
 .for-advertisers-page .why-block{margin-top:80px}
 .for-advertisers-page .why-h{font-family:'Sora',sans-serif;font-weight:900;font-size:clamp(28px,3vw,40px);letter-spacing:-.035em;line-height:1.1;margin-bottom:8px}
 .for-advertisers-page .why-sub{font-size:16px;line-height:1.55;color:var(--ink-60);max-width:620px;margin-bottom:40px}
@@ -291,6 +306,7 @@ var CSS_FOR_ADVERTISERS = `
 .for-advertisers-page .why-desc strong{color:var(--ink);font-weight:600}
 .for-advertisers-page .why-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:100px;width:fit-content;background:rgba(var(--accent-rgb),.15);border:1px solid rgba(var(--accent-rgb),.4);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--accent);font-weight:700;text-transform:uppercase}
 .for-advertisers-page .why-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)}
+
 .for-advertisers-page .flow-band{margin-top:80px;padding:40px;border-radius:24px;background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(56,189,248,.05),transparent),linear-gradient(180deg,rgba(11,18,48,.82),rgba(11,18,48,.72));border:1px solid rgba(251,191,36,.28);backdrop-filter:blur(16px);position:relative;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.3)}
 .for-advertisers-page .flow-band::before{content:'';position:absolute;top:-30%;left:-10%;width:500px;height:500px;background:radial-gradient(circle,rgba(251,191,36,.15),transparent 60%);filter:blur(40px);pointer-events:none}
 .for-advertisers-page .flow-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px;position:relative;z-index:2}
@@ -308,12 +324,14 @@ var CSS_FOR_ADVERTISERS = `
 .for-advertisers-page .flow-step-title{font-family:'Sora',sans-serif;font-weight:800;font-size:16px;letter-spacing:-.02em;color:var(--ink)}
 .for-advertisers-page .flow-step-desc{font-size:12px;color:var(--ink-60);line-height:1.5}
 .for-advertisers-page .flow-arrow{display:flex;align-items:center;justify-content:center;color:var(--amber);opacity:.5}
+
 .for-advertisers-page .footer-banner{margin-top:80px;padding:48px;border-radius:24px;background:linear-gradient(135deg,rgba(11,18,48,.85),rgba(0,0,0,.7)),#050816;border:1px solid rgba(251,191,36,.4);display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center;position:relative;overflow:hidden;backdrop-filter:blur(16px)}
 .for-advertisers-page .footer-banner::before{content:'';position:absolute;top:-50%;left:20%;width:600px;height:600px;background:radial-gradient(circle,rgba(251,191,36,.35),transparent 55%);filter:blur(50px);pointer-events:none}
 .for-advertisers-page .footer-banner-text{position:relative;z-index:2;font-family:'Sora',sans-serif;font-weight:300;font-size:clamp(22px,2.4vw,30px);color:var(--ink-70);line-height:1.3;max-width:540px;letter-spacing:-.02em}
 .for-advertisers-page .footer-banner-text .emph{color:var(--amber-bright);font-weight:700;text-shadow:0 0 20px rgba(251,191,36,.6)}
 .for-advertisers-page .footer-cta{position:relative;z-index:2;display:inline-flex;align-items:center;gap:12px;padding:20px 36px;border-radius:14px;background:linear-gradient(135deg,var(--amber-bright),var(--amber));color:var(--cobalt-deepest);font-family:'Sora',sans-serif;font-size:15px;font-weight:800;text-decoration:none;letter-spacing:-.01em;transition:transform .3s,box-shadow .3s;box-shadow:0 12px 40px rgba(251,191,36,.4);white-space:nowrap}
 .for-advertisers-page .footer-cta:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 16px 50px rgba(251,191,36,.6)}
+
 @media(max-width:1100px){
   .for-advertisers-page .outcome-row{grid-template-columns:repeat(2,1fr)}
   .for-advertisers-page .why-grid{grid-template-columns:1fr}
@@ -321,12 +339,16 @@ var CSS_FOR_ADVERTISERS = `
   .for-advertisers-page .flow-arrow{transform:rotate(90deg)}
 }
 @media(max-width:900px){
-  .for-advertisers-page .page-section{padding:60px 20px 80px}
+  .for-advertisers-page .page-section{padding:120px 20px 80px}
   .for-advertisers-page .hero-badge{position:static;margin-top:24px;min-width:0;width:100%}
   .for-advertisers-page .hero-stage{height:clamp(240px,60vw,340px)}
   .for-advertisers-page .hero-stage-caption{font-size:9px;padding:8px 14px}
   .for-advertisers-page .outcome-row{grid-template-columns:1fr;margin-top:48px}
   .for-advertisers-page .footer-banner{grid-template-columns:1fr;gap:24px;padding:32px;text-align:center}
   .for-advertisers-page .footer-cta{justify-self:center}
+  .for-advertisers-page .float-nav{top:16px;right:16px;gap:6px}
+  .for-advertisers-page .float-nav-link{padding:8px 12px;font-size:11px}
+  .for-advertisers-page .float-nav-cta{padding:8px 14px;font-size:11px}
+  .for-advertisers-page .float-brand{top:16px;left:16px}
 }
 `;

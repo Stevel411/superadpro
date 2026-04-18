@@ -2817,6 +2817,11 @@
     "step3Desc": "30秒广告。指向你的漏斗或联盟URL。选择细分领域、地理位置、经验水平。批准后观看量开始到达。",
     "footerLine1": "一群活跃网络营销者的精准受众。",
     "footerLine2": "你的offer展示给他们 — 按你的条件。",
-    "footerCta": "启动你的推介"
+    "footerCta": "启动你的推介",
+    "navHome": "首页",
+    "navIncome": "收入",
+    "navTools": "工具",
+    "navSignin": "登录",
+    "navCta": "启动活动"
   }
 }

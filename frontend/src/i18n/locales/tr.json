@@ -2817,6 +2817,11 @@
     "step3Desc": "30 saniyelik reklam. Funnel veya affiliate URL'inize yönlendirin. Niş, coğrafya, deneyim seviyesi seçin. Onay sonrası izlenmeler gelmeye başlar.",
     "footerLine1": "Aktif network pazarlamacılardan oluşan odaklanmış bir kitle.",
     "footerLine2": "Teklifiniz, onların önünde — kendi şartlarınızda.",
-    "footerCta": "Pitch'inizi başlatın"
+    "footerCta": "Pitch'inizi başlatın",
+    "navHome": "Ana Sayfa",
+    "navIncome": "Gelir",
+    "navTools": "Araçlar",
+    "navSignin": "Giriş",
+    "navCta": "Kampanya başlat"
   }
 }

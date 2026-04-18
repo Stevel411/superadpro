@@ -2817,6 +2817,11 @@
     "step3Desc": "30-second ad. Point to your funnel or affiliate URL. Pick niches, geos, experience level. Views start landing once approved.",
     "footerLine1": "A focused audience of active network marketers.",
     "footerLine2": "Your offer, in front of them — on your terms.",
-    "footerCta": "Launch your pitch"
+    "footerCta": "Launch your pitch",
+    "navHome": "Home",
+    "navIncome": "Income",
+    "navTools": "Tools",
+    "navSignin": "Sign in",
+    "navCta": "Start a campaign"
   }
 }

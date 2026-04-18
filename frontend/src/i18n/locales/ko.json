@@ -2817,6 +2817,11 @@
     "step3Desc": "30초 광고. 퍼널이나 제휴 URL을 가리키세요. 니치, 지역, 경력 수준을 선택하세요. 승인 후 시청이 시작됩니다.",
     "footerLine1": "활동 중인 네트워크 마케터의 집중된 청중.",
     "footerLine2": "당신의 조건에 따라 — 그들 앞에 당신의 오퍼.",
-    "footerCta": "피치 출시"
+    "footerCta": "피치 출시",
+    "navHome": "홈",
+    "navIncome": "수익",
+    "navTools": "도구",
+    "navSignin": "로그인",
+    "navCta": "캐페인 시작"
   }
 }

@@ -2817,6 +2817,11 @@
     "step3Desc": "Tangazo la sekunde 30. Elekeza kwenye funnel yako au URL ya mshirika. Chagua niches, maeneo ya kijiografia, kiwango cha uzoefu. Mitazamo inaanza kuja baada ya kuidhinishwa.",
     "footerLine1": "Hadhira iliyolenga ya wafanyabiashara wa mtandao wanaofanya kazi.",
     "footerLine2": "Ofa yako, mbele yao — kwa masharti yako.",
-    "footerCta": "Zindua pitch yako"
+    "footerCta": "Zindua pitch yako",
+    "navHome": "Nyumbani",
+    "navIncome": "Mapato",
+    "navTools": "Zana",
+    "navSignin": "Ingia",
+    "navCta": "Anzisha kampeni"
   }
 }
