@@ -550,7 +550,7 @@
     "noLimitPlaceholder": "Pas de limite",
     "editBtn": "Modifier",
     "qrBtn": "QR",
-    "tagsBtn": "Tags",
+    "tagsBtn": "Étiquettes",
     "openBtn": "Ouvrir",
     "addAnotherUrl": "+ Ajouter une autre URL",
     "qrCode": "Code QR",
@@ -1063,7 +1063,7 @@
   "creativeStudio": {
     "title": "Studio Créatif",
     "subtitle": "Créez des vidéos, images, musique et voix avec l'IA",
-    "prompt": "Prompt",
+    "prompt": "Invite",
     "negativePrompt": "Prompt Négatif",
     "negativePromptPlaceholder": "flou, basse qualité, texte, filigrane, déformé…",
     "optional": "Optionnel",
