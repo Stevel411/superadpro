@@ -575,14 +575,14 @@
     "helpDesc": "Tout ce que vous devez savoir sur les liens, le suivi et plus"
   },
   "courses": {
-    "title": "Course Library",
+    "title": "Bibliothèque de cours",
     "myCourses": "Mes cours",
     "coursesOwned": "Cours possédés",
     "courseSales": "Ventes de cours",
     "courseEarnings": "Revenus des cours",
     "totalCommissions": "Commissions totales",
     "availableCourses": "Cours disponibles",
-    "noCourses": "No courses available yet",
+    "noCourses": "Aucun cours disponible pour le moment",
     "coursesWillAppear": "Les cours apparaîtront ici au fur et à mesure de leur publication",
     "completed": "✓ Terminé",
     "continueLearning": "Continuer à apprendre →",
@@ -830,8 +830,8 @@
     "selectPrompt": "Sélectionner..."
   },
   "visualiser": {
-    "title": "Visualiser",
-    "subtitle": "Watch your income streams come to life",
+    "title": "Visualiseur",
+    "subtitle": "Voyez vos sources de revenus prendre vie",
     "infinitePassUp": "Transfert infini",
     "fourPassUpRoutes": "4 itinéraires de transfert",
     "yourTotalThisRound": "Votre total ce tour",
@@ -841,7 +841,7 @@
     "directSales": "Ventes directes",
     "passUps": "Pass-Ups",
     "teamSales": "Team Sales",
-    "tier": "Tier",
+    "tier": "Niveau",
     "activityLog": "Journal d'activité",
     "pressPlayToWatch": "Appuyez sur Lecture pour voir votre équipe se construire...",
     "profitEngine": "Moteur de profit 8×8",
