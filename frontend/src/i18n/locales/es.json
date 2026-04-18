@@ -1947,7 +1947,7 @@
     "tabSequences": "Secuencias",
     "tabBroadcast": "Difusión",
     "tabImport": "Importar",
-    "tabBoost": "Boost",
+    "tabBoost": "Potenciar",
     "statusUnsubscribed": "Desuscrito"
   },
   "comingSoon": {
@@ -2761,7 +2761,7 @@
     "noReferralsTitle": "Aún no hay referidos",
     "noReferralsSubtitle": "Comparte tu enlace de arriba para empezar a construir tu red",
     "streamCategoryMembership": "Membresía",
-    "streamCategoryGrid": "Grid",
+    "streamCategoryGrid": "Cuadrícula",
     "streamCategoryCourses": "Cursos",
     "streamCategoryCreditNexus": "Credit Nexus",
     "streamCategoryOther": "Otro",
