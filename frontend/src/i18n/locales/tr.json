@@ -2823,5 +2823,24 @@
     "navTools": "Araçlar",
     "navSignin": "Giriş",
     "navCta": "Kampanya başlat"
+  },
+  "homePage": {
+    "navHow": "Nasıl çalışır",
+    "navPlan": "Plan",
+    "navTools": "Ücretsiz araçlar",
+    "navSignin": "Giriş",
+    "navCta": "Hesap oluştur",
+    "headlineLine1": "Üreticilerin",
+    "headlineLine2": "üretmek için para kazandığı yer.",
+    "sub": "Yapay zekâ yaratıcı araçlar, video reklam ve <strong>gerçek aktivite üzerinde gerçek komisyon</strong> ödeyen bir ortaklık sistemi — her ay, her üyeye, sonsuza dek.",
+    "ctaPrimary": "Ücretsiz kazanmaya başla",
+    "ctaSecondary": "90 saniyelik tura bak",
+    "activeLabel": "aktif üye",
+    "feat1Title": "AI Yaratıcı Stüdyo",
+    "feat1Sub": "Video, Görsel, Müzik ve Seslendirme",
+    "feat2Title": "Video Reklamcılık",
+    "feat2Sub": "Kampanya Katmanları ve Hedefli Görüntülemeler",
+    "feat3Title": "Ortaklık Sistemi",
+    "feat3Sub": "Her Referanstan Kazanç"
   }
 }

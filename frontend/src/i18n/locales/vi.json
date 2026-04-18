@@ -2823,5 +2823,24 @@
     "navTools": "Công cụ",
     "navSignin": "Đăng nhập",
     "navCta": "Bắt đầu chiến dịch"
+  },
+  "homePage": {
+    "navHow": "Cách hoạt động",
+    "navPlan": "Kế hoạch",
+    "navTools": "Công cụ miễn phí",
+    "navSignin": "Đăng nhập",
+    "navCta": "Tạo tài khoản",
+    "headlineLine1": "Nơi người sáng tạo",
+    "headlineLine2": "được trả tiền để xây dựng.",
+    "sub": "Công cụ sáng tạo AI, quảng cáo video và hệ thống tiếp thị liên kết trả <strong>hoa hồng thực tế cho hoạt động thực tế</strong> — mỗi tháng, cho mỗi thành viên, mãi mãi.",
+    "ctaPrimary": "Bắt đầu kiếm tiền miễn phí",
+    "ctaSecondary": "Xem tour 90 giây",
+    "activeLabel": "thành viên hoạt động",
+    "feat1Title": "Studio Sáng Tạo AI",
+    "feat1Sub": "Video, Hình ảnh, Âm Nhạc và Thuyết Minh",
+    "feat2Title": "Quảng Cáo Video",
+    "feat2Sub": "Cấp Độ Chiến Dịch và Xem Mục Tiêu",
+    "feat3Title": "Hệ Thống Tiếp Thị Liên Kết",
+    "feat3Sub": "Kiếm Tiền Từ Mỗi Giới Thiệu"
   }
 }

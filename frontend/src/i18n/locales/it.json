@@ -2831,5 +2831,24 @@
     "navTools": "Strumenti",
     "navSignin": "Accedi",
     "navCta": "Avvia campagna"
+  },
+  "homePage": {
+    "navHow": "Come funziona",
+    "navPlan": "Il piano",
+    "navTools": "Strumenti gratuiti",
+    "navSignin": "Accedi",
+    "navCta": "Crea account",
+    "headlineLine1": "Dove i creatori",
+    "headlineLine2": "sono pagati per creare.",
+    "sub": "Strumenti creativi AI, pubblicità video e un sistema di affiliazione che paga <strong>commissioni reali su attività reali</strong> — ogni mese, a ogni membro, per sempre.",
+    "ctaPrimary": "Inizia gratis",
+    "ctaSecondary": "Guarda il tour di 90 secondi",
+    "activeLabel": "membri attivi",
+    "feat1Title": "Studio Creativo AI",
+    "feat1Sub": "Video, Immagini, Musica e Voce",
+    "feat2Title": "Pubblicità Video",
+    "feat2Sub": "Livelli Campagna e Visualizzazioni",
+    "feat3Title": "Sistema di Affiliazione",
+    "feat3Sub": "Guadagna da Ogni Referral"
   }
 }

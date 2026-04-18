@@ -2823,5 +2823,24 @@
     "navTools": "Tools",
     "navSignin": "Sign in",
     "navCta": "Start a campaign"
+  },
+  "homePage": {
+    "navHow": "How it works",
+    "navPlan": "The plan",
+    "navTools": "Free tools",
+    "navSignin": "Sign in",
+    "navCta": "Create account",
+    "headlineLine1": "Where creators",
+    "headlineLine2": "get paid to build.",
+    "sub": "AI creative tools, video advertising, and an affiliate system that pays <strong>real commissions on real activity</strong> — every month, to every member, forever.",
+    "ctaPrimary": "Start earning free",
+    "ctaSecondary": "Watch 90-second tour",
+    "activeLabel": "active members",
+    "feat1Title": "AI Creative Studio",
+    "feat1Sub": "Video, Images, Music & Voiceover",
+    "feat2Title": "Video Advertising",
+    "feat2Sub": "Campaign Tiers & Targeted Views",
+    "feat3Title": "Affiliate System",
+    "feat3Sub": "Earn From Every Referral"
   }
 }

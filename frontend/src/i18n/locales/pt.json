@@ -2831,5 +2831,24 @@
     "navTools": "Ferramentas",
     "navSignin": "Entrar",
     "navCta": "Iniciar campanha"
+  },
+  "homePage": {
+    "navHow": "Como funciona",
+    "navPlan": "O plano",
+    "navTools": "Ferramentas grátis",
+    "navSignin": "Entrar",
+    "navCta": "Criar conta",
+    "headlineLine1": "Onde os criadores",
+    "headlineLine2": "são pagos para criar.",
+    "sub": "Ferramentas criativas com IA, publicidade em vídeo e um sistema de afiliados que paga <strong>comissões reais por atividade real</strong> — todo mês, para todo membro, para sempre.",
+    "ctaPrimary": "Começar grátis",
+    "ctaSecondary": "Ver tour de 90 segundos",
+    "activeLabel": "membros ativos",
+    "feat1Title": "Estudio Criativo IA",
+    "feat1Sub": "Vídeo, Imagens, Música e Voz",
+    "feat2Title": "Publicidade em Vídeo",
+    "feat2Sub": "Níveis de Campanha e Visões",
+    "feat3Title": "Sistema de Afiliados",
+    "feat3Sub": "Ganhe com Cada Referência"
   }
 }

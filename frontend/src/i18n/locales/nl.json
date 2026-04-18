@@ -2831,5 +2831,24 @@
     "navTools": "Tools",
     "navSignin": "Inloggen",
     "navCta": "Start campagne"
+  },
+  "homePage": {
+    "navHow": "Hoe het werkt",
+    "navPlan": "Het plan",
+    "navTools": "Gratis tools",
+    "navSignin": "Inloggen",
+    "navCta": "Account aanmaken",
+    "headlineLine1": "Waar makers",
+    "headlineLine2": "betaald krijgen om te bouwen.",
+    "sub": "AI-creatieve tools, videoreclame en een affiliate-systeem dat <strong>echte commissies op echte activiteit</strong> betaalt — elke maand, aan elk lid, voor altijd.",
+    "ctaPrimary": "Gratis beginnen",
+    "ctaSecondary": "Bekijk 90-seconden tour",
+    "activeLabel": "actieve leden",
+    "feat1Title": "AI Creative Studio",
+    "feat1Sub": "Video, Afbeeldingen, Muziek & Stem",
+    "feat2Title": "Videoreclame",
+    "feat2Sub": "Campagneniveaus & Gerichte Views",
+    "feat3Title": "Affiliate-systeem",
+    "feat3Sub": "Verdien aan elke verwijzing"
   }
 }

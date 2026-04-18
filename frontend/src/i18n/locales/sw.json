@@ -2823,5 +2823,24 @@
     "navTools": "Zana",
     "navSignin": "Ingia",
     "navCta": "Anzisha kampeni"
+  },
+  "homePage": {
+    "navHow": "Jinsi inavyofanya kazi",
+    "navPlan": "Mpango",
+    "navTools": "Zana za bure",
+    "navSignin": "Ingia",
+    "navCta": "Fungua akaunti",
+    "headlineLine1": "Pale wabunifu",
+    "headlineLine2": "wanalipwa kwa kuunda.",
+    "sub": "Zana za ubunifu za AI, matangazo ya video, na mfumo wa washirika unaolipa <strong>makamisheni halisi kwa shughuli halisi</strong> — kila mwezi, kwa kila mwanachama, milele.",
+    "ctaPrimary": "Anza kupata bure",
+    "ctaSecondary": "Tazama ziara ya sekunde 90",
+    "activeLabel": "wanachama hai",
+    "feat1Title": "Studio ya Ubunifu ya AI",
+    "feat1Sub": "Video, Picha, Muziki na Sauti",
+    "feat2Title": "Matangazo ya Video",
+    "feat2Sub": "Viwango vya Kampeni na Mitazamo Iliyolengwa",
+    "feat3Title": "Mfumo wa Washirika",
+    "feat3Sub": "Pata Kutoka Kila Rufaa"
   }
 }

@@ -2823,5 +2823,24 @@
     "navTools": "工具",
     "navSignin": "登录",
     "navCta": "启动活动"
+  },
+  "homePage": {
+    "navHow": "如何运作",
+    "navPlan": "计划",
+    "navTools": "免费工具",
+    "navSignin": "登录",
+    "navCta": "创建账户",
+    "headlineLine1": "创作者",
+    "headlineLine2": "因构建而获酬的地方。",
+    "sub": "AI创意工具、视频广告和联盟营销系统，支付<strong>真实行为的真实佣金</strong> — 每月、每个成员、永久。",
+    "ctaPrimary": "免费开始赚取",
+    "ctaSecondary": "观看 90 秒介绍",
+    "activeLabel": "活跃成员",
+    "feat1Title": "AI 创意工作室",
+    "feat1Sub": "视频、图像、音乐和配音",
+    "feat2Title": "视频广告",
+    "feat2Sub": "广告等级和精准观看",
+    "feat3Title": "联盟营销系统",
+    "feat3Sub": "从每次推荐中赚取"
   }
 }

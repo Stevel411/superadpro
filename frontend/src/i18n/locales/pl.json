@@ -2823,5 +2823,24 @@
     "navTools": "Narzędzia",
     "navSignin": "Zaloguj",
     "navCta": "Uruchom kampanię"
+  },
+  "homePage": {
+    "navHow": "Jak to działa",
+    "navPlan": "Plan",
+    "navTools": "Darmowe narzędzia",
+    "navSignin": "Zaloguj",
+    "navCta": "Utwórz konto",
+    "headlineLine1": "Gdzie twórcom",
+    "headlineLine2": "płaci się za tworzenie.",
+    "sub": "Narzędzia kreatywne AI, reklamy wideo i system partnerski, który płaci <strong>prawdziwe prowizje za prawdziwą aktywność</strong> — co miesiąc, każdemu członkowi, na zawsze.",
+    "ctaPrimary": "Zacznij zarabiać za darmo",
+    "ctaSecondary": "Obejrzyj 90-sekundową wycieczkę",
+    "activeLabel": "aktywni członkowie",
+    "feat1Title": "Studio Kreatywne AI",
+    "feat1Sub": "Wideo, Obrazy, Muzyka i Głos",
+    "feat2Title": "Reklama Wideo",
+    "feat2Sub": "Poziomy Kampanii i Wyświetlenia",
+    "feat3Title": "System Partnerski",
+    "feat3Sub": "Zarabiaj z Każdego Polecenia"
   }
 }

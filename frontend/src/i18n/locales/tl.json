@@ -2823,5 +2823,24 @@
     "navTools": "Tools",
     "navSignin": "Mag-sign in",
     "navCta": "Simulan ang kampanya"
+  },
+  "homePage": {
+    "navHow": "Paano ito gumagana",
+    "navPlan": "Plano",
+    "navTools": "Libreng tools",
+    "navSignin": "Mag-sign in",
+    "navCta": "Gumawa ng account",
+    "headlineLine1": "Kung saan ang mga gumagawa",
+    "headlineLine2": "ay bayad sa paglikha.",
+    "sub": "AI creative tools, video advertising, at isang affiliate system na nagbabayad ng <strong>tunay na komisyon sa tunay na aktibidad</strong> — bawat buwan, sa bawat miyembro, magpakailanman.",
+    "ctaPrimary": "Magsimulang kumita nang libre",
+    "ctaSecondary": "Panoorin ang 90-segundong tour",
+    "activeLabel": "aktibong miyembro",
+    "feat1Title": "AI Creative Studio",
+    "feat1Sub": "Video, Imahe, Musika at Voiceover",
+    "feat2Title": "Video Advertising",
+    "feat2Sub": "Mga Tier ng Kampanya at Target na Views",
+    "feat3Title": "Affiliate System",
+    "feat3Sub": "Kumita mula sa Bawat Referral"
   }
 }

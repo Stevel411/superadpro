@@ -2831,5 +2831,24 @@
     "navTools": "Tools",
     "navSignin": "Anmelden",
     "navCta": "Kampagne starten"
+  },
+  "homePage": {
+    "navHow": "So funktioniert's",
+    "navPlan": "Der Plan",
+    "navTools": "Kostenlose Tools",
+    "navSignin": "Anmelden",
+    "navCta": "Konto erstellen",
+    "headlineLine1": "Wo Kreative",
+    "headlineLine2": "fürs Erschaffen bezahlt werden.",
+    "sub": "KI-Kreativtools, Videowerbung und ein Affiliate-System, das <strong>echte Provisionen für echte Aktivität</strong> zahlt — jeden Monat, an jedes Mitglied, für immer.",
+    "ctaPrimary": "Kostenlos starten",
+    "ctaSecondary": "90-Sekunden-Tour ansehen",
+    "activeLabel": "aktive Mitglieder",
+    "feat1Title": "KI-Kreativstudio",
+    "feat1Sub": "Video, Bilder, Musik & Stimme",
+    "feat2Title": "Videowerbung",
+    "feat2Sub": "Kampagnenstufen & gezielte Views",
+    "feat3Title": "Affiliate-System",
+    "feat3Sub": "Verdienen an jeder Empfehlung"
   }
 }

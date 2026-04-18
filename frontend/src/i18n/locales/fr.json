@@ -2831,5 +2831,24 @@
     "navTools": "Outils",
     "navSignin": "Se connecter",
     "navCta": "Lancer une campagne"
+  },
+  "homePage": {
+    "navHow": "Comment ça marche",
+    "navPlan": "Le plan",
+    "navTools": "Outils gratuits",
+    "navSignin": "Se connecter",
+    "navCta": "Créer un compte",
+    "headlineLine1": "Là où les créateurs",
+    "headlineLine2": "sont payés pour créer.",
+    "sub": "Outils créatifs IA, publicité vidéo et un système d'affiliation qui paie des <strong>vraies commissions sur une vraie activité</strong> — chaque mois, à chaque membre, pour toujours.",
+    "ctaPrimary": "Commencer gratuitement",
+    "ctaSecondary": "Voir le tour de 90 secondes",
+    "activeLabel": "membres actifs",
+    "feat1Title": "Studio Créatif IA",
+    "feat1Sub": "Vidéo, Images, Musique et Voix",
+    "feat2Title": "Publicité Vidéo",
+    "feat2Sub": "Niveaux de Campagne et Vues Ciblées",
+    "feat3Title": "Système d'Affiliation",
+    "feat3Sub": "Gagnez à Chaque Parrainage"
   }
 }

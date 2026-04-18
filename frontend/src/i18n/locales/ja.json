@@ -2823,5 +2823,24 @@
     "navTools": "ツール",
     "navSignin": "サインイン",
     "navCta": "キャンペーン開始"
+  },
+  "homePage": {
+    "navHow": "仕組み",
+    "navPlan": "プラン",
+    "navTools": "無料ツール",
+    "navSignin": "サインイン",
+    "navCta": "アカウント作成",
+    "headlineLine1": "クリエイターが",
+    "headlineLine2": "創造で稼ぐ場所。",
+    "sub": "AIクリエイティブツール、動画広告、そして<strong>実際の活動に対する実際のコミッション</strong>を支払うアフィリエイトシステム — 毎月、すべてのメンバーに、永遠に。",
+    "ctaPrimary": "無料で始める",
+    "ctaSecondary": "90秒ツアーを見る",
+    "activeLabel": "アクティブメンバー",
+    "feat1Title": "AIクリエイティブスタジオ",
+    "feat1Sub": "動画、画像、音楽、ナレーション",
+    "feat2Title": "動画広告",
+    "feat2Sub": "キャンペーン階層とターゲティング",
+    "feat3Title": "アフィリエイトシステム",
+    "feat3Sub": "リファラルごとに稼ぐ"
   }
 }
