@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@floating-ui/dom": "^1.7.6",
+    "@radix-ui/react-popover": "^1.1.15",
     "@react-three/fiber": "^8.17.10",
     "@tiptap/extension-color": "^3.22.4",
     "@tiptap/extension-font-family": "^3.22.4",
