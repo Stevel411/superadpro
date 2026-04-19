@@ -34,6 +34,7 @@ from .database import DigitalProduct, DigitalProductPurchase, DigitalProductRevi
 from .database import CoPilotBriefing
 from .database import MemberLead
 from .database import MemberCourse, MemberCourseChapter, MemberCourseLesson, MemberCoursePurchase
+from .database import MemberStory, MemberShowcase
 from .crud import create_user, verify_password
 from .grid import (
     get_grid_stats, get_user_grids, get_grid_positions,
@@ -913,6 +914,181 @@ def api_public_activity_feed(limit: int = 25, db: Session = Depends(get_db)):
     _activity_feed_cache["data"] = result
     return result
 
+# ── /explore Phase 2: Member Stories (opt-in, admin-moderated) ────────────
+# POST endpoints mutate DB (user-triggered, no cache).
+# Public GET has a 60s in-memory cache matching stats/activity pattern.
+_member_stories_cache = {"ts": 0.0, "data": None}
+
+def _compute_display_initials(user):
+    """Two-char uppercase initials for stories/showcase cards.
+    Priority: first+last name → username[:2] → 'SA' as last resort.
+    Historical rows have mixed NULL/empty-string in first_name/last_name, so
+    we check both conditions explicitly (truthy guards both)."""
+    fn = (user.first_name or "").strip()
+    ln = (user.last_name or "").strip()
+    if fn and ln:
+        return (fn[0] + ln[0]).upper()
+    un = (user.username or "").strip()
+    if len(un) >= 2:
+        return un[:2].upper()
+    if un:
+        return (un[0] * 2).upper()
+    return "SA"
+
+
+@app.post("/api/member/story")
+async def api_member_submit_story(request: Request, db: Session = Depends(get_db)):
+    """Member submits a first-dollar story. Creates an unapproved MemberStory row.
+    Gated on: (a) authenticated, (b) at least one paid commission received,
+    (c) no existing pending or approved row for this user.
+    All text fields validated length-wise to match column limits in database.py."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from decimal import Decimal, InvalidOperation
+    from sqlalchemy import func
+
+    # Gate: must have received at least one paid commission
+    paid_count = db.query(func.count(Commission.id)).filter(
+        Commission.to_user_id == user.id,
+        Commission.status == "paid",
+        Commission.amount_usdt > 0,
+    ).scalar() or 0
+    if paid_count < 1:
+        return JSONResponse({
+            "error": "You need at least one paid commission before you can share a first-dollar story."
+        }, status_code=403)
+
+    # Gate: one pending + one approved max
+    existing = db.query(MemberStory).filter(MemberStory.user_id == user.id).count()
+    if existing >= 1:
+        return JSONResponse({
+            "error": "You already have a story on file. Contact support if you want to edit or replace it."
+        }, status_code=409)
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON"}, status_code=400)
+
+    # Server-side validation (frontend enforces too, but never trust the client)
+    niche              = (body.get("niche") or "").strip()[:100]
+    display_country    = (body.get("display_country") or "").strip()[:100]
+    milestone_label    = (body.get("milestone_label") or "").strip()[:120]
+    story_text         = (body.get("story_text") or "").strip()[:400]
+    milestone_color    = (body.get("milestone_color") or "green").strip().lower()
+    if milestone_color not in ("sky", "indigo", "amber", "green", "pink"):
+        milestone_color = "green"
+
+    try:
+        days_to_milestone = int(body.get("days_to_milestone") or 0)
+        if days_to_milestone < 0 or days_to_milestone > 9999:
+            days_to_milestone = None
+    except (TypeError, ValueError):
+        days_to_milestone = None
+
+    now_monthly_raw = body.get("now_monthly_amount")
+    now_monthly_amount = None
+    if now_monthly_raw not in (None, ""):
+        try:
+            v = Decimal(str(now_monthly_raw))
+            if 0 <= v <= Decimal("999999.99"):
+                now_monthly_amount = v
+        except (InvalidOperation, ValueError, TypeError):
+            now_monthly_amount = None
+
+    # Required fields guard
+    if not niche or not milestone_label or not story_text:
+        return JSONResponse({
+            "error": "Niche, milestone label, and story text are all required."
+        }, status_code=400)
+
+    row = MemberStory(
+        user_id            = user.id,
+        display_initials   = _compute_display_initials(user),
+        display_country    = display_country or None,
+        niche              = niche,
+        days_to_milestone  = days_to_milestone,
+        milestone_label    = milestone_label,
+        milestone_color    = milestone_color,
+        story_text         = story_text,
+        now_monthly_amount = now_monthly_amount,
+        approved           = False,
+        sort_order         = 0,
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return {"success": True, "story_id": row.id}
+
+
+@app.get("/api/member/story/mine")
+def api_member_my_story(request: Request, db: Session = Depends(get_db)):
+    """Returns the current user's story (if any) so the form can show 'already submitted' state."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    row = db.query(MemberStory).filter(MemberStory.user_id == user.id).first()
+    if not row:
+        return {"exists": False}
+    return {
+        "exists": True,
+        "approved": bool(row.approved),
+        "niche": row.niche,
+        "milestone_label": row.milestone_label,
+        "story_text": row.story_text,
+        "created_at": row.created_at.isoformat() if row.created_at else None,
+    }
+
+
+@app.get("/api/public/member-stories")
+def api_public_member_stories(db: Session = Depends(get_db)):
+    """Public feed for /explore tab 2. Approved rows only, 60s cache.
+    Privacy: never exposes user_id, username, email, or any PII beyond
+    what the member opted to share (initials + country name)."""
+    import time as _time
+    now_ts = _time.time()
+    if now_ts - _member_stories_cache["ts"] < 60 and _member_stories_cache["data"] is not None:
+        return _member_stories_cache["data"]
+
+    rows = (db.query(MemberStory)
+              .filter(MemberStory.approved == True)
+              .order_by(MemberStory.sort_order.asc(), MemberStory.created_at.desc())
+              .limit(60)
+              .all())
+    result = []
+    for r in rows:
+        now_monthly = None
+        if r.now_monthly_amount is not None:
+            try:
+                now_monthly = float(r.now_monthly_amount)
+            except (TypeError, ValueError):
+                now_monthly = None
+        result.append({
+            "id":                 r.id,
+            "display_initials":   r.display_initials or "SA",
+            "display_country":    r.display_country,
+            "niche":              r.niche,
+            "days_to_milestone":  r.days_to_milestone,
+            "milestone_label":    r.milestone_label,
+            "milestone_color":    r.milestone_color or "green",
+            "story_text":         r.story_text,
+            "now_monthly_amount": now_monthly,
+            "created_at":         r.created_at.isoformat() if r.created_at else None,
+        })
+    _member_stories_cache["ts"] = now_ts
+    _member_stories_cache["data"] = result
+    return result
+
+
+def _invalidate_stories_cache():
+    """Called by admin moderation endpoints after approve/reject/edit/reorder.
+    Phase 2 Step 3 wires the admin UI; this helper is used then."""
+    _member_stories_cache["ts"] = 0.0
+    _member_stories_cache["data"] = None
+
+
 @app.get("/api/me")
 def api_me(request: Request, db: Session = Depends(get_db)):
     """Return current user data for the React frontend."""
@@ -947,6 +1123,7 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "totp_enabled": user.totp_enabled,
         "avatar_url": user.avatar_url or None,
         "country": user.country or "",
+        "display_city": getattr(user, "display_city", None) or "",
         "interests": user.interests or "",
         "gender": user.gender or "",
         "age_range": user.age_range or "",

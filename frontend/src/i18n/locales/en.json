@@ -96,7 +96,8 @@
     "courseAcademy": "Course Academy",
     "profitGrid": "Profit Grid",
     "gridCalculator": "Grid Calculator",
-    "incomeChains": "Income Chains"
+    "incomeChains": "Income Chains",
+    "shareStory": "Share Your Story"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -2993,6 +2994,43 @@
     "footerHeadlineLaunch": "Be one of the first.",
     "footerHeadlineActive": "{{count}} members already earning.",
     "footerSub": "Your first commission could be this week.",
-    "footerCta": "Create free account"
+    "footerCta": "Create free account",
+    "daysDay": "day to",
+    "daysTo": "days to",
+    "earningNow": "Earning now"
+  },
+  "shareStory": {
+    "title": "Share Your Story",
+    "subtitle": "Inspire the next member. Your first-dollar story shows up on /explore once approved.",
+    "introTitle": "Your story helps new members believe",
+    "introBody": "Nothing sells SuperAdPro like a real person describing their first paid commission. Keep it honest, keep it short, and the team will review it within 24 hours.",
+    "nicheLabel": "Your niche",
+    "nichePlaceholder": "e.g. Yoga teacher, Crypto trader, Pet groomer",
+    "nicheHint": "A short description of what you do. Shown on your card.",
+    "countryLabel": "Country (or region)",
+    "countryPlaceholder": "e.g. United Kingdom, California, India",
+    "countryHint": "Optional. Helps readers see members earning from all over the world.",
+    "milestoneLabel": "Milestone",
+    "milestonePlaceholder": "e.g. first $17.50, first grid completion",
+    "daysLabel": "Days to reach it",
+    "daysPlaceholder": "e.g. 3",
+    "storyLabel": "Your story",
+    "storyPlaceholder": "What did you do? How did you share your link? What surprised you? Keep it real — 2-3 sentences works best.",
+    "storyHint": "Honest and specific beats polished. 200 characters is the sweet spot.",
+    "nowMonthlyLabel": "Currently earning per month (optional)",
+    "nowMonthlyPlaceholder": "e.g. 420",
+    "nowMonthlyHint": "Only fill this in if you're comfortable sharing. Shown as 'Now earning $X/mo' on the card footer.",
+    "colorLabel": "Card accent colour",
+    "reviewNote": "Reviewed within 24h before going live",
+    "submitBtn": "Submit for review",
+    "submitting": "Submitting…",
+    "pendingTitle": "Thanks — we're reviewing your story",
+    "pendingBody": "Our team reviews every story to keep /explore authentic. You'll get a notification once it goes live — usually within 24 hours.",
+    "liveTitle": "Your story is live on /explore 🎉",
+    "liveBody": "Your story has been approved and is helping new members see what's possible. Thank you for sharing.",
+    "yourSubmission": "Your submission",
+    "errRequired": "Niche, milestone label, and your story are all required.",
+    "errTooLong": "Story text is too long.",
+    "errSubmitFailed": "Something went wrong. Please try again."
   }
 }

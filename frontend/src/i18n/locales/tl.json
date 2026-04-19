@@ -96,7 +96,8 @@
     "courseAcademy": "Akademya ng Kurso",
     "profitGrid": "Profit Grid",
     "gridCalculator": "Grid Calculator",
-    "incomeChains": "Mga Kadena ng Kita"
+    "incomeChains": "Mga Kadena ng Kita",
+    "shareStory": "Ibahagi ang Kwento Mo"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -2993,6 +2994,43 @@
     "footerHeadlineLaunch": "Maging isa sa mga una.",
     "footerHeadlineActive": "{{count}} na miyembro ang kumikita na.",
     "footerSub": "Ang iyong unang komisyon ay maaaring dumating ngayong linggo.",
-    "footerCta": "Gumawa ng libreng account"
+    "footerCta": "Gumawa ng libreng account",
+    "daysDay": "araw para sa",
+    "daysTo": "araw para sa",
+    "earningNow": "Kumikita ngayon"
+  },
+  "shareStory": {
+    "title": "Ibahagi ang Kwento Mo",
+    "subtitle": "Gising sa susunod na miyembro. Lalabas ang first-dollar na kwento mo sa /explore kapag na-approve na.",
+    "introTitle": "Nakakatulong ang kwento mo sa mga bagong miyembro na maniwala",
+    "introBody": "Walang mas epektibong magbenta ng SuperAdPro kaysa sa totoong tao na nagkukuwento ng kanyang unang bayad na komisyon. Maging tapat, maging maikli — irereview ito ng team sa loob ng 24 oras.",
+    "nicheLabel": "Niche mo",
+    "nichePlaceholder": "hal. Yoga teacher, Crypto trader, Pet groomer",
+    "nicheHint": "Maikling paglalarawan ng ginagawa mo. Ipinapakita sa card mo.",
+    "countryLabel": "Bansa (o rehiyon)",
+    "countryPlaceholder": "hal. Pilipinas, Maynila, Cebu",
+    "countryHint": "Opsyonal. Tumutulong sa mga mambabasa na makita na may mga miyembrong kumikita sa buong mundo.",
+    "milestoneLabel": "Milestone",
+    "milestonePlaceholder": "hal. unang $17.50, unang grid completion",
+    "daysLabel": "Araw para maabot",
+    "daysPlaceholder": "hal. 3",
+    "storyLabel": "Kwento mo",
+    "storyPlaceholder": "Ano ang ginawa mo? Paano mo nai-share ang link mo? Ano ang nakapagpabigla? Maging totoo — 2-3 pangungusap ang pinakamabuti.",
+    "storyHint": "Tapat at tiyak ang mas maganda kaysa pinakintab. 200 characters ang sweet spot.",
+    "nowMonthlyLabel": "Kasalukuyang buwanang kita (opsyonal)",
+    "nowMonthlyPlaceholder": "hal. 420",
+    "nowMonthlyHint": "Punan lang kung komportable kang magbahagi. Ipinapakita bilang 'Kumikita ngayon $X/buwan' sa ibaba ng card.",
+    "colorLabel": "Accent color ng card",
+    "reviewNote": "Nirereview sa loob ng 24 oras bago mag-live",
+    "submitBtn": "Ipasa para irereview",
+    "submitting": "Isinusumite…",
+    "pendingTitle": "Salamat — rinereview namin ang kwento mo",
+    "pendingBody": "Binibigyang-review ng team namin ang bawat kwento para manatiling autentiko ang /explore. Mapapa-notify ka kapag live na — kadalasan sa loob ng 24 oras.",
+    "liveTitle": "Live na ang kwento mo sa /explore 🎉",
+    "liveBody": "Na-approve na ang kwento mo at tumutulong sa mga bagong miyembro na makita kung ano ang posible. Salamat sa pagbabahagi.",
+    "yourSubmission": "Iyong submission",
+    "errRequired": "Niche, milestone, at kwento — lahat ay required.",
+    "errTooLong": "Masyadong mahaba ang teksto ng kwento.",
+    "errSubmitFailed": "May nangyaring mali. Pakisubukang muli."
   }
 }

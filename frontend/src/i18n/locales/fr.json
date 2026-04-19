@@ -96,7 +96,8 @@
     "courseAcademy": "Académie de Cours",
     "profitGrid": "Grille de Profits",
     "gridCalculator": "Calculatrice de Grille",
-    "incomeChains": "Chaînes de Revenus"
+    "incomeChains": "Chaînes de Revenus",
+    "shareStory": "Partage ton histoire"
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -3001,6 +3002,43 @@
     "footerHeadlineLaunch": "Soyez parmi les premiers.",
     "footerHeadlineActive": "{{count}} membres gagnent déjà.",
     "footerSub": "Votre première commission pourrait arriver cette semaine.",
-    "footerCta": "Créer un compte gratuit"
+    "footerCta": "Créer un compte gratuit",
+    "daysDay": "jour avant",
+    "daysTo": "jours avant",
+    "earningNow": "Gagne maintenant"
+  },
+  "shareStory": {
+    "title": "Partage ton histoire",
+    "subtitle": "Inspire le prochain membre. Ton histoire du premier dollar apparaîtra sur /explore une fois approuvée.",
+    "introTitle": "Ton histoire aide les nouveaux membres à y croire",
+    "introBody": "Rien ne vend SuperAdPro comme une vraie personne décrivant sa première commission payée. Reste honnête, reste court, et l'équipe la validera sous 24 heures.",
+    "nicheLabel": "Ta niche",
+    "nichePlaceholder": "ex. Prof de yoga, Trader crypto, Toiletteur canin",
+    "nicheHint": "Une courte description de ce que tu fais. Affichée sur ta carte.",
+    "countryLabel": "Pays (ou région)",
+    "countryPlaceholder": "ex. France, Belgique, Canada",
+    "countryHint": "Optionnel. Aide les lecteurs à voir des membres qui gagnent partout dans le monde.",
+    "milestoneLabel": "Étape",
+    "milestonePlaceholder": "ex. premiers 17,50 $, première grille complétée",
+    "daysLabel": "Jours pour y arriver",
+    "daysPlaceholder": "ex. 3",
+    "storyLabel": "Ton histoire",
+    "storyPlaceholder": "Qu'as-tu fait ? Comment as-tu partagé ton lien ? Qu'est-ce qui t'a surpris ? Reste authentique — 2-3 phrases suffisent.",
+    "storyHint": "Honnête et précis vaut mieux que léché. 200 caractères, c'est le sweet spot.",
+    "nowMonthlyLabel": "Revenus mensuels actuels (optionnel)",
+    "nowMonthlyPlaceholder": "ex. 420",
+    "nowMonthlyHint": "À remplir uniquement si tu es à l'aise pour le partager. Affiché en pied de carte : « Gagne maintenant X $/mois ».",
+    "colorLabel": "Couleur d'accent de la carte",
+    "reviewNote": "Validé sous 24 h avant publication",
+    "submitBtn": "Envoyer pour validation",
+    "submitting": "Envoi…",
+    "pendingTitle": "Merci — nous examinons ton histoire",
+    "pendingBody": "Notre équipe examine chaque histoire pour que /explore reste authentique. Tu recevras une notification dès qu'elle sera en ligne — en général sous 24 heures.",
+    "liveTitle": "Ton histoire est en ligne sur /explore 🎉",
+    "liveBody": "Ton histoire a été approuvée et aide les nouveaux membres à voir ce qui est possible. Merci de la partager.",
+    "yourSubmission": "Ton envoi",
+    "errRequired": "Niche, étape et histoire sont tous obligatoires.",
+    "errTooLong": "Le texte de l'histoire est trop long.",
+    "errSubmitFailed": "Une erreur est survenue. Merci de réessayer."
   }
 }

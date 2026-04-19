@@ -96,7 +96,8 @@
     "courseAcademy": "Cursus Academie",
     "profitGrid": "Winstgrid",
     "gridCalculator": "Grid-calculator",
-    "incomeChains": "Inkomstenketens"
+    "incomeChains": "Inkomstenketens",
+    "shareStory": "Deel je verhaal"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -3001,6 +3002,43 @@
     "footerHeadlineLaunch": "Wees een van de eersten.",
     "footerHeadlineActive": "{{count}} leden verdienen al.",
     "footerSub": "Je eerste commissie kan deze week al binnen zijn.",
-    "footerCta": "Gratis account aanmaken"
+    "footerCta": "Gratis account aanmaken",
+    "daysDay": "dag tot",
+    "daysTo": "dagen tot",
+    "earningNow": "Verdient nu"
+  },
+  "shareStory": {
+    "title": "Deel je verhaal",
+    "subtitle": "Inspireer het volgende lid. Je eerste-dollar-verhaal verschijnt op /explore zodra het is goedgekeurd.",
+    "introTitle": "Jouw verhaal helpt nieuwe leden geloven",
+    "introBody": "Niets verkoopt SuperAdPro als een echt persoon die hun eerste betaalde commissie beschrijft. Blijf eerlijk, blijf kort — het team beoordeelt het binnen 24 uur.",
+    "nicheLabel": "Jouw niche",
+    "nichePlaceholder": "bv. Yogaleraar, Crypto-trader, Hondentrimmer",
+    "nicheHint": "Een korte beschrijving van wat je doet. Getoond op je kaart.",
+    "countryLabel": "Land (of regio)",
+    "countryPlaceholder": "bv. Nederland, België, Amsterdam",
+    "countryHint": "Optioneel. Helpt lezers te zien dat leden wereldwijd verdienen.",
+    "milestoneLabel": "Mijlpaal",
+    "milestonePlaceholder": "bv. eerste $17,50, eerste grid voltooid",
+    "daysLabel": "Dagen om het te bereiken",
+    "daysPlaceholder": "bv. 3",
+    "storyLabel": "Jouw verhaal",
+    "storyPlaceholder": "Wat heb je gedaan? Hoe heb je je link gedeeld? Wat verraste je? Blijf echt — 2-3 zinnen werkt het best.",
+    "storyHint": "Eerlijk en specifiek wint van gepolijst. 200 tekens is de sweet spot.",
+    "nowMonthlyLabel": "Huidige maandverdiensten (optioneel)",
+    "nowMonthlyPlaceholder": "bv. 420",
+    "nowMonthlyHint": "Alleen invullen als je dit comfortabel deelt. Getoond als 'Verdient nu $X/mnd' onderaan de kaart.",
+    "colorLabel": "Accentkleur van de kaart",
+    "reviewNote": "Binnen 24 u beoordeeld voor publicatie",
+    "submitBtn": "Indienen ter beoordeling",
+    "submitting": "Versturen…",
+    "pendingTitle": "Bedankt — we beoordelen je verhaal",
+    "pendingBody": "Ons team beoordeelt elk verhaal om /explore authentiek te houden. Je krijgt een melding zodra het live is — meestal binnen 24 uur.",
+    "liveTitle": "Je verhaal staat live op /explore 🎉",
+    "liveBody": "Je verhaal is goedgekeurd en helpt nieuwe leden te zien wat mogelijk is. Bedankt voor het delen.",
+    "yourSubmission": "Jouw inzending",
+    "errRequired": "Niche, mijlpaal en verhaal zijn allemaal verplicht.",
+    "errTooLong": "De verhaaltekst is te lang.",
+    "errSubmitFailed": "Er ging iets mis. Probeer het opnieuw."
   }
 }

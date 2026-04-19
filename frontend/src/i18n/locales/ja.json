@@ -96,7 +96,8 @@
     "courseAcademy": "コースアカデミー",
     "profitGrid": "プロフィットグリッド",
     "gridCalculator": "グリッド計算機",
-    "incomeChains": "収入チェーン"
+    "incomeChains": "収入チェーン",
+    "shareStory": "あなたのストーリーをシェア"
   },
   "dashboard": {
     "title": "ダッシュボード",
@@ -2993,6 +2994,43 @@
     "footerHeadlineLaunch": "最初のひとりになろう。",
     "footerHeadlineActive": "{{count}} 人のメンバーがすでに稼いでいます。",
     "footerSub": "あなたの初コミッションは今週かもしれません。",
-    "footerCta": "無料アカウント作成"
+    "footerCta": "無料アカウント作成",
+    "daysDay": "日で",
+    "daysTo": "日で",
+    "earningNow": "現在の収益"
+  },
+  "shareStory": {
+    "title": "あなたのストーリーをシェア",
+    "subtitle": "次のメンバーにインスピレーションを。あなたの初収益ストーリーは承認後に /explore に掲載されます。",
+    "introTitle": "あなたのストーリーが新規メンバーを勇気づけます",
+    "introBody": "リアルな人が初めての報酬を語ること以上に SuperAdPro を売り込めるものはありません。正直に、短く。チームが24時間以内にレビューします。",
+    "nicheLabel": "あなたのニッチ",
+    "nichePlaceholder": "例：ヨガ講師、仮想通貨トレーダー、ペットトリマー",
+    "nicheHint": "あなたの仕事の短い説明。カードに表示されます。",
+    "countryLabel": "国 (または地域)",
+    "countryPlaceholder": "例：日本、東京、大阪",
+    "countryHint": "任意。世界中のメンバーが稼いでいることを読者に伝えます。",
+    "milestoneLabel": "マイルストーン",
+    "milestonePlaceholder": "例：最初の $17.50、最初のグリッド完成",
+    "daysLabel": "達成までの日数",
+    "daysPlaceholder": "例：3",
+    "storyLabel": "あなたのストーリー",
+    "storyPlaceholder": "何をしましたか?リンクをどう共有しましたか?何に驚きましたか?リアルに — 2〜3文がベストです。",
+    "storyHint": "磨かれた文章より正直で具体的な方が響きます。200文字が理想です。",
+    "nowMonthlyLabel": "現在の月収 (任意)",
+    "nowMonthlyPlaceholder": "例：420",
+    "nowMonthlyHint": "共有しても問題なければ入力してください。カード下部に「現在 $X/月」と表示されます。",
+    "colorLabel": "カードのアクセントカラー",
+    "reviewNote": "公開前に24時間以内にレビュー",
+    "submitBtn": "レビューに送信",
+    "submitting": "送信中…",
+    "pendingTitle": "ありがとう — ストーリーをレビュー中です",
+    "pendingBody": "/explore の信頼性を保つため、チームがすべてのストーリーをレビューします。公開されたら通知が届きます — 通常24時間以内です。",
+    "liveTitle": "あなたのストーリーが /explore に公開されました 🎉",
+    "liveBody": "ストーリーが承認され、新規メンバーに可能性を見せる助けになっています。シェアしてくれてありがとう。",
+    "yourSubmission": "あなたの投稿",
+    "errRequired": "ニッチ、マイルストーン、ストーリーのすべてが必須です。",
+    "errTooLong": "ストーリーのテキストが長すぎます。",
+    "errSubmitFailed": "問題が発生しました。もう一度お試しください。"
   }
 }

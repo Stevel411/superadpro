@@ -96,7 +96,8 @@
     "courseAcademy": "Akademia ya Kozi",
     "profitGrid": "Gridi ya Faida",
     "gridCalculator": "Kikokotoo cha Gridi",
-    "incomeChains": "Mnyororo wa Mapato"
+    "incomeChains": "Mnyororo wa Mapato",
+    "shareStory": "Shiriki Hadithi Yako"
   },
   "dashboard": {
     "title": "Dashibodi",
@@ -2993,6 +2994,43 @@
     "footerHeadlineLaunch": "Kuwa mmoja wa wa kwanza.",
     "footerHeadlineActive": "Wanachama {{count}} tayari wanapata.",
     "footerSub": "Kamisheni yako ya kwanza inaweza kuwa wiki hii.",
-    "footerCta": "Unda akaunti bila malipo"
+    "footerCta": "Unda akaunti bila malipo",
+    "daysDay": "siku hadi",
+    "daysTo": "siku hadi",
+    "earningNow": "Kupata sasa"
+  },
+  "shareStory": {
+    "title": "Shiriki Hadithi Yako",
+    "subtitle": "Hamasisha mwanachama anayefuata. Hadithi yako ya dola ya kwanza itaonekana kwenye /explore baada ya kuidhinishwa.",
+    "introTitle": "Hadithi yako huwasaidia wanachama wapya kuamini",
+    "introBody": "Hakuna kinachouza SuperAdPro kama mtu halisi akielezea kamisheni yake ya kwanza. Kuwa mkweli, kuwa mfupi — timu itakagua ndani ya saa 24.",
+    "nicheLabel": "Niche yako",
+    "nichePlaceholder": "mfano: Mwalimu wa yoga, Mfanyabiashara wa crypto, Msafishaji wa wanyama",
+    "nicheHint": "Maelezo mafupi ya unachofanya. Yanaonyeshwa kwenye kadi yako.",
+    "countryLabel": "Nchi (au eneo)",
+    "countryPlaceholder": "mfano: Kenya, Tanzania, Nairobi",
+    "countryHint": "Hiari. Husaidia wasomaji kuona wanachama wakipata mapato kote ulimwenguni.",
+    "milestoneLabel": "Hatua muhimu",
+    "milestonePlaceholder": "mfano: $17.50 ya kwanza, gridi ya kwanza kukamilika",
+    "daysLabel": "Siku za kuifikia",
+    "daysPlaceholder": "mfano: 3",
+    "storyLabel": "Hadithi yako",
+    "storyPlaceholder": "Ulifanya nini? Ulishirikije kiungo chako? Nini kilikushangaza? Kuwa halisi — sentensi 2-3 zinafanya vizuri zaidi.",
+    "storyHint": "Ukweli na mahususi bora kuliko iliyong'aa. Herufi 200 ni urefu bora.",
+    "nowMonthlyLabel": "Mapato ya sasa ya kila mwezi (hiari)",
+    "nowMonthlyPlaceholder": "mfano: 420",
+    "nowMonthlyHint": "Jaza tu ikiwa unajisikia vizuri kushiriki. Huonyeshwa kama 'Unapata sasa $X/mwezi' chini ya kadi.",
+    "colorLabel": "Rangi ya kusisitiza ya kadi",
+    "reviewNote": "Hukaguliwa ndani ya saa 24 kabla ya kuwasha",
+    "submitBtn": "Tuma kwa ukaguzi",
+    "submitting": "Inatuma…",
+    "pendingTitle": "Asante — tunakagua hadithi yako",
+    "pendingBody": "Timu yetu hukagua kila hadithi ili /explore ibaki ya kweli. Utapokea arifa mara tu inapowashwa — kawaida ndani ya saa 24.",
+    "liveTitle": "Hadithi yako iko hewani kwenye /explore 🎉",
+    "liveBody": "Hadithi yako imeidhinishwa na inawasaidia wanachama wapya kuona kinachowezekana. Asante kwa kushiriki.",
+    "yourSubmission": "Uwasilishaji wako",
+    "errRequired": "Niche, hatua muhimu na hadithi — zote zinahitajika.",
+    "errTooLong": "Maandishi ya hadithi ni marefu sana.",
+    "errSubmitFailed": "Kuna tatizo limejitokeza. Tafadhali jaribu tena."
   }
 }

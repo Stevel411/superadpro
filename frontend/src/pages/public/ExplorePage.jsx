@@ -49,6 +49,14 @@ export default function ExplorePage() {
   var loaded = _loaded[0];
   var setLoaded = _loaded[1];
 
+  // ── Phase 2: Member stories (lazy-loaded when Stories tab first activates) ──
+  var _stories = useState([]);
+  var stories = _stories[0];
+  var setStories = _stories[1];
+  var _storiesLoaded = useState(false);
+  var storiesLoaded = _storiesLoaded[0];
+  var setStoriesLoaded = _storiesLoaded[1];
+
   // Fetch on mount, re-fetch every 30s
   useEffect(function() {
     var mounted = true;
@@ -67,6 +75,25 @@ export default function ExplorePage() {
     var timer = setInterval(load, 30000);
     return function() { mounted = false; clearInterval(timer); };
   }, []);
+
+  // Load stories when Stories tab first activates; poll every 60s while active
+  useEffect(function() {
+    if (activeTab !== 'stories') return undefined;
+    var mounted = true;
+    function loadStories() {
+      fetch('/api/public/member-stories')
+        .then(function(r) { return r.ok ? r.json() : []; })
+        .then(function(data) {
+          if (!mounted) return;
+          if (Array.isArray(data)) setStories(data);
+          setStoriesLoaded(true);
+        })
+        .catch(function() { if (mounted) setStoriesLoaded(true); });
+    }
+    loadStories();
+    var timer = setInterval(loadStories, 60000);
+    return function() { mounted = false; clearInterval(timer); };
+  }, [activeTab]);
 
   // ── Derived display values ──
   var hourPaid = stats ? stats.hour_paid : 0;
@@ -247,19 +274,59 @@ export default function ExplorePage() {
             </div>
           </div>
 
-          {/* ============ TAB 2: STORIES (empty state for Phase 1) ============ */}
+          {/* ============ TAB 2: STORIES (Phase 2 — live data + opt-in submissions) ============ */}
           <div className={'tab-panel' + (activeTab === 'stories' ? ' active' : '')}>
-            <div className="empty-state" style={{minHeight:'360px'}}>
-              <div className="empty-state-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10"/>
-                  <polyline points="12 6 12 12 16 14"/>
-                </svg>
+            {stories && stories.length > 0 ? (
+              <div className="timeline-grid">
+                {stories.map(function(s) {
+                  var colour = s.milestone_color || 'green';
+                  var nameLine = s.display_country ? (s.display_initials + ' · ' + s.display_country) : s.display_initials;
+                  return (
+                    <div key={s.id} className="tl-card" data-c={colour}>
+                      <div className="tl-header">
+                        <div className="tl-avatar" style={{ background: 'var(--accent)' }}>
+                          {s.display_initials || 'SA'}
+                        </div>
+                        <div className="tl-header-body">
+                          <div className="tl-name">{nameLine}</div>
+                          <div className="tl-niche">{s.niche}</div>
+                        </div>
+                      </div>
+                      {s.days_to_milestone !== null && s.days_to_milestone !== undefined && (
+                        <div className="tl-days">
+                          <div className="tl-days-val">{s.days_to_milestone}</div>
+                          <div className="tl-days-lbl">
+                            {s.days_to_milestone === 1 ? t('explore.daysDay', { defaultValue: 'day to' }) : t('explore.daysTo', { defaultValue: 'days to' })}
+                            <strong>{s.milestone_label}</strong>
+                          </div>
+                        </div>
+                      )}
+                      {s.story_text && (
+                        <div className="tl-story">{s.story_text}</div>
+                      )}
+                      {s.now_monthly_amount !== null && s.now_monthly_amount !== undefined && s.now_monthly_amount > 0 && (
+                        <div className="tl-now">
+                          <div className="tl-now-label">{t('explore.earningNow', { defaultValue: 'Earning now' })}</div>
+                          <div className="tl-now-val">{formatMoney(s.now_monthly_amount)}/mo</div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
-              <div className="empty-state-title">{t('explore.storiesEmptyTitle')}</div>
-              <div className="empty-state-body">{t('explore.storiesEmptyBody')}</div>
-              <Link to="/register" className="empty-state-cta">{t('explore.storiesEmptyCta')}</Link>
-            </div>
+            ) : (
+              <div className="empty-state" style={{minHeight:'360px'}}>
+                <div className="empty-state-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                </div>
+                <div className="empty-state-title">{t('explore.storiesEmptyTitle')}</div>
+                <div className="empty-state-body">{t('explore.storiesEmptyBody')}</div>
+                <Link to="/register" className="empty-state-cta">{t('explore.storiesEmptyCta')}</Link>
+              </div>
+            )}
           </div>
 
           {/* ============ TAB 3: SHOWCASE (empty state for Phase 1) ============ */}

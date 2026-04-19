@@ -96,7 +96,8 @@
     "courseAcademy": "课程学院",
     "profitGrid": "利润网格",
     "gridCalculator": "网格计算器",
-    "incomeChains": "收入链"
+    "incomeChains": "收入链",
+    "shareStory": "分享你的故事"
   },
   "dashboard": {
     "title": "仪表板",
@@ -2993,6 +2994,43 @@
     "footerHeadlineLaunch": "成为第一批。",
     "footerHeadlineActive": "{{count}} 名会员已在赚钱。",
     "footerSub": "你的第一笔佣金可能就是本周。",
-    "footerCta": "创建免费账户"
+    "footerCta": "创建免费账户",
+    "daysDay": "天达成",
+    "daysTo": "天达成",
+    "earningNow": "当前收入"
+  },
+  "shareStory": {
+    "title": "分享你的故事",
+    "subtitle": "激励下一位成员。你的首笔收入故事获批后会出现在 /explore。",
+    "introTitle": "你的故事让新成员相信",
+    "introBody": "没有什么比真人讲述第一笔已付佣金更能推广 SuperAdPro。保持真实、保持简短 — 团队会在 24 小时内审核。",
+    "nicheLabel": "你的领域",
+    "nichePlaceholder": "例如：瑜伽老师、加密货币交易员、宠物美容师",
+    "nicheHint": "对你工作的简短描述。会显示在你的卡片上。",
+    "countryLabel": "国家（或地区）",
+    "countryPlaceholder": "例如：中国、北京、上海",
+    "countryHint": "可选。帮助读者看到来自世界各地的成员都在赚钱。",
+    "milestoneLabel": "里程碑",
+    "milestonePlaceholder": "例如：第一笔 $17.50、第一个网格完成",
+    "daysLabel": "达成所用天数",
+    "daysPlaceholder": "例如：3",
+    "storyLabel": "你的故事",
+    "storyPlaceholder": "你做了什么?怎么分享你的链接?什么让你惊讶?保持真实 — 2-3 句最好。",
+    "storyHint": "真实具体胜过精雕细琢。200 字是最佳长度。",
+    "nowMonthlyLabel": "当前每月收入（可选）",
+    "nowMonthlyPlaceholder": "例如：420",
+    "nowMonthlyHint": "只有在愿意分享时才填写。在卡片底部显示为「当前 $X/月」。",
+    "colorLabel": "卡片强调色",
+    "reviewNote": "上线前 24 小时内审核",
+    "submitBtn": "提交审核",
+    "submitting": "提交中…",
+    "pendingTitle": "谢谢 — 我们正在审核你的故事",
+    "pendingBody": "为了保持 /explore 的真实性,我们的团队会审核每一个故事。上线后你会收到通知 — 通常在 24 小时内。",
+    "liveTitle": "你的故事已在 /explore 上线 🎉",
+    "liveBody": "你的故事已获批,正在帮助新成员看到一切皆有可能。感谢你的分享。",
+    "yourSubmission": "你的提交",
+    "errRequired": "领域、里程碑和故事都是必填项。",
+    "errTooLong": "故事文本过长。",
+    "errSubmitFailed": "出错了,请重试。"
   }
 }

@@ -96,7 +96,8 @@
     "courseAcademy": "Kurs Akademisi",
     "profitGrid": "Kâr Grid'i",
     "gridCalculator": "Grid Hesaplayıcı",
-    "incomeChains": "Gelir Zincirleri"
+    "incomeChains": "Gelir Zincirleri",
+    "shareStory": "Hikâyeni Paylaş"
   },
   "dashboard": {
     "title": "Gösterge Paneli",
@@ -2993,6 +2994,43 @@
     "footerHeadlineLaunch": "İlklerden biri ol.",
     "footerHeadlineActive": "{{count}} üye çoktan kazanıyor.",
     "footerSub": "İlk komisyonun bu hafta gelebilir.",
-    "footerCta": "Ücretsiz hesap oluştur"
+    "footerCta": "Ücretsiz hesap oluştur",
+    "daysDay": "gün için",
+    "daysTo": "gün için",
+    "earningNow": "Şu an kazanıyor"
+  },
+  "shareStory": {
+    "title": "Hikâyeni Paylaş",
+    "subtitle": "Bir sonraki üyeye ilham ver. İlk dolar hikâyen onaylandığında /explore sayfasında görünür.",
+    "introTitle": "Hikâyen yeni üyelerin inanmasına yardım eder",
+    "introBody": "SuperAdPro'yu gerçek bir kişinin ilk komisyonunu anlatmasından daha iyi hiçbir şey satamaz. Dürüst ol, kısa tut — ekip 24 saat içinde inceleyecek.",
+    "nicheLabel": "Nişin",
+    "nichePlaceholder": "ör. Yoga eğitmeni, Kripto tüccarı, Pet bakımcısı",
+    "nicheHint": "Ne yaptığının kısa açıklaması. Kartında görünür.",
+    "countryLabel": "Ülke (veya bölge)",
+    "countryPlaceholder": "ör. Türkiye, İstanbul, Ankara",
+    "countryHint": "İsteğe bağlı. Okuyuculara dünyanın her yerinden kazanan üyeler olduğunu gösterir.",
+    "milestoneLabel": "Kilometre taşı",
+    "milestonePlaceholder": "ör. ilk 17,50 $, ilk grid tamamlama",
+    "daysLabel": "Ulaşmak için geçen gün",
+    "daysPlaceholder": "ör. 3",
+    "storyLabel": "Hikâyen",
+    "storyPlaceholder": "Ne yaptın? Linkini nasıl paylaştın? Seni ne şaşırttı? Gerçek kal — 2-3 cümle en iyisi.",
+    "storyHint": "Dürüst ve özgün, cilalanmışı yener. 200 karakter tatlı nokta.",
+    "nowMonthlyLabel": "Şu anki aylık kazanç (isteğe bağlı)",
+    "nowMonthlyPlaceholder": "ör. 420",
+    "nowMonthlyHint": "Sadece paylaşmak rahatsa doldur. Kart altında 'Şu an kazanıyor $X/ay' olarak görünür.",
+    "colorLabel": "Kart vurgu rengi",
+    "reviewNote": "Yayına girmeden önce 24 saat içinde incelenir",
+    "submitBtn": "İncelemeye gönder",
+    "submitting": "Gönderiliyor…",
+    "pendingTitle": "Teşekkürler — hikâyeni inceliyoruz",
+    "pendingBody": "Ekibimiz /explore'un otantik kalması için her hikâyeyi inceler. Yayına girdiğinde bildirim alırsın — genellikle 24 saat içinde.",
+    "liveTitle": "Hikâyen /explore'da yayında 🎉",
+    "liveBody": "Hikâyen onaylandı ve yeni üyelerin neyin mümkün olduğunu görmesine yardım ediyor. Paylaştığın için teşekkürler.",
+    "yourSubmission": "Gönderin",
+    "errRequired": "Niş, kilometre taşı ve hikâye — hepsi zorunlu.",
+    "errTooLong": "Hikâye metni çok uzun.",
+    "errSubmitFailed": "Bir şeyler yanlış gitti. Lütfen tekrar dene."
   }
 }

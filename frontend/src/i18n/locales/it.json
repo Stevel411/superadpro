@@ -96,7 +96,8 @@
     "courseAcademy": "Accademia dei Corsi",
     "profitGrid": "Griglia Profitti",
     "gridCalculator": "Calcolatore Griglia",
-    "incomeChains": "Catene di Reddito"
+    "incomeChains": "Catene di Reddito",
+    "shareStory": "Condividi la tua storia"
   },
   "dashboard": {
     "title": "Pannello",
@@ -3001,6 +3002,43 @@
     "footerHeadlineLaunch": "Sii tra i primi.",
     "footerHeadlineActive": "{{count}} membri stanno già guadagnando.",
     "footerSub": "La tua prima commissione potrebbe essere questa settimana.",
-    "footerCta": "Crea un account gratuito"
+    "footerCta": "Crea un account gratuito",
+    "daysDay": "giorno per",
+    "daysTo": "giorni per",
+    "earningNow": "Guadagna ora"
+  },
+  "shareStory": {
+    "title": "Condividi la tua storia",
+    "subtitle": "Ispira il prossimo membro. La tua storia del primo dollaro apparirà su /explore una volta approvata.",
+    "introTitle": "La tua storia aiuta i nuovi membri a credere",
+    "introBody": "Niente vende SuperAdPro come una persona reale che racconta la sua prima commissione pagata. Sii onesto, sii breve, e il team la revisionerà entro 24 ore.",
+    "nicheLabel": "La tua nicchia",
+    "nichePlaceholder": "es. Insegnante di yoga, Trader crypto, Toelettatore",
+    "nicheHint": "Una breve descrizione di cosa fai. Mostrata sulla tua card.",
+    "countryLabel": "Paese (o regione)",
+    "countryPlaceholder": "es. Italia, Svizzera, Roma",
+    "countryHint": "Opzionale. Aiuta i lettori a vedere membri che guadagnano da tutto il mondo.",
+    "milestoneLabel": "Traguardo",
+    "milestonePlaceholder": "es. primi 17,50 $, primo grid completato",
+    "daysLabel": "Giorni per raggiungerlo",
+    "daysPlaceholder": "es. 3",
+    "storyLabel": "La tua storia",
+    "storyPlaceholder": "Cosa hai fatto? Come hai condiviso il tuo link? Cosa ti ha sorpreso? Resta autentico — 2-3 frasi funzionano meglio.",
+    "storyHint": "Onesto e specifico batte lucido. 200 caratteri sono il punto ideale.",
+    "nowMonthlyLabel": "Guadagno mensile attuale (opzionale)",
+    "nowMonthlyPlaceholder": "es. 420",
+    "nowMonthlyHint": "Compila solo se ti senti a tuo agio a condividerlo. Mostrato come 'Guadagna ora X $/mese' in fondo alla card.",
+    "colorLabel": "Colore di accento della card",
+    "reviewNote": "Revisionato entro 24 h prima della pubblicazione",
+    "submitBtn": "Invia per revisione",
+    "submitting": "Invio in corso…",
+    "pendingTitle": "Grazie — stiamo revisionando la tua storia",
+    "pendingBody": "Il nostro team revisiona ogni storia per mantenere /explore autentico. Riceverai una notifica appena sarà online — di solito entro 24 ore.",
+    "liveTitle": "La tua storia è online su /explore 🎉",
+    "liveBody": "La tua storia è stata approvata e sta aiutando i nuovi membri a vedere cosa è possibile. Grazie per aver condiviso.",
+    "yourSubmission": "Il tuo invio",
+    "errRequired": "Nicchia, traguardo e storia sono tutti obbligatori.",
+    "errTooLong": "Il testo della storia è troppo lungo.",
+    "errSubmitFailed": "Qualcosa è andato storto. Riprova."
   }
 }

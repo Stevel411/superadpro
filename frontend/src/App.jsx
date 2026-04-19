@@ -41,6 +41,7 @@ import Funnels from './pages/Funnels';
 import LinkHubPage from './pages/LinkHub';
 import ActivateTier from './pages/ActivateTier';
 import PayItForward from './pages/PayItForward';
+import ShareStory from './pages/ShareStory';
 import GiftLanding from './pages/GiftLanding';
 import TrainingCentre from './pages/TrainingCentre';
 import CryptoGuide from './pages/CryptoGuide';
@@ -148,6 +149,7 @@ function AppRoutes() {
       <Route path="/campaign-tiers" element={<ProtectedRoute><CampaignTiers /></ProtectedRoute>} />
       <Route path="/activate/:tierId" element={<ProtectedRoute><ActivateTier /></ProtectedRoute>} />
       <Route path="/pay-it-forward" element={<ProtectedRoute><PayItForward /></ProtectedRoute>} />
+      <Route path="/share-story" element={<ProtectedRoute><ShareStory /></ProtectedRoute>} />
       <Route path="/gift/:code" element={<GiftLanding />} />
       <Route path="/watch" element={<ProtectedRoute><Watch /></ProtectedRoute>} />
       <Route path="/support" element={<ProtectedRoute><Support /></ProtectedRoute>} />

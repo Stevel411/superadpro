@@ -96,7 +96,8 @@
     "courseAcademy": "Học viện khóa học",
     "profitGrid": "Lưới lợi nhuận",
     "gridCalculator": "Máy tính lưới",
-    "incomeChains": "Chuỗi thu nhập"
+    "incomeChains": "Chuỗi thu nhập",
+    "shareStory": "Chia sẻ câu chuyện"
   },
   "dashboard": {
     "title": "Bảng điều khiển",
@@ -2993,6 +2994,43 @@
     "footerHeadlineLaunch": "Hãy là một trong những người đầu tiên.",
     "footerHeadlineActive": "{{count}} thành viên đã đang kiếm tiền.",
     "footerSub": "Hoa hồng đầu tiên của bạn có thể đến ngay tuần này.",
-    "footerCta": "Tạo tài khoản miễn phí"
+    "footerCta": "Tạo tài khoản miễn phí",
+    "daysDay": "ngày để",
+    "daysTo": "ngày để",
+    "earningNow": "Đang kiếm"
+  },
+  "shareStory": {
+    "title": "Chia sẻ câu chuyện của bạn",
+    "subtitle": "Truyền cảm hứng cho thành viên tiếp theo. Câu chuyện đô la đầu tiên của bạn sẽ xuất hiện trên /explore sau khi được duyệt.",
+    "introTitle": "Câu chuyện của bạn giúp thành viên mới tin tưởng",
+    "introBody": "Không gì bán SuperAdPro tốt hơn một người thật kể về hoa hồng đầu tiên của họ. Hãy trung thực, hãy ngắn gọn — đội sẽ duyệt trong 24 giờ.",
+    "nicheLabel": "Niche của bạn",
+    "nichePlaceholder": "vd: Giáo viên yoga, Trader crypto, Chăm sóc thú cưng",
+    "nicheHint": "Mô tả ngắn về công việc của bạn. Hiển thị trên thẻ của bạn.",
+    "countryLabel": "Quốc gia (hoặc khu vực)",
+    "countryPlaceholder": "vd: Việt Nam, Hà Nội, Hồ Chí Minh",
+    "countryHint": "Tùy chọn. Giúp người đọc thấy các thành viên kiếm tiền từ khắp thế giới.",
+    "milestoneLabel": "Cột mốc",
+    "milestonePlaceholder": "vd: $17.50 đầu tiên, hoàn thành grid đầu tiên",
+    "daysLabel": "Ngày để đạt được",
+    "daysPlaceholder": "vd: 3",
+    "storyLabel": "Câu chuyện của bạn",
+    "storyPlaceholder": "Bạn đã làm gì? Bạn chia sẻ liên kết thế nào? Điều gì làm bạn ngạc nhiên? Hãy chân thật — 2-3 câu là tốt nhất.",
+    "storyHint": "Chân thật và cụ thể hơn là trau chuốt. 200 ký tự là độ dài lý tưởng.",
+    "nowMonthlyLabel": "Thu nhập hàng tháng hiện tại (tùy chọn)",
+    "nowMonthlyPlaceholder": "vd: 420",
+    "nowMonthlyHint": "Chỉ điền nếu bạn thoải mái chia sẻ. Hiển thị như 'Đang kiếm $X/tháng' ở cuối thẻ.",
+    "colorLabel": "Màu điểm nhấn của thẻ",
+    "reviewNote": "Duyệt trong 24 giờ trước khi lên sóng",
+    "submitBtn": "Gửi để duyệt",
+    "submitting": "Đang gửi…",
+    "pendingTitle": "Cảm ơn — chúng tôi đang duyệt câu chuyện của bạn",
+    "pendingBody": "Đội của chúng tôi duyệt mọi câu chuyện để giữ /explore chân thực. Bạn sẽ nhận thông báo khi nó lên sóng — thường trong 24 giờ.",
+    "liveTitle": "Câu chuyện của bạn đã lên sóng trên /explore 🎉",
+    "liveBody": "Câu chuyện của bạn đã được duyệt và đang giúp thành viên mới thấy những gì có thể. Cảm ơn bạn đã chia sẻ.",
+    "yourSubmission": "Nội dung bạn gửi",
+    "errRequired": "Niche, cột mốc và câu chuyện — tất cả đều bắt buộc.",
+    "errTooLong": "Nội dung câu chuyện quá dài.",
+    "errSubmitFailed": "Có lỗi xảy ra. Vui lòng thử lại."
   }
 }

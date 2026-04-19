@@ -96,7 +96,8 @@
     "courseAcademy": "Akademi Kursus",
     "profitGrid": "Grid Keuntungan",
     "gridCalculator": "Kalkulator Grid",
-    "incomeChains": "Rantai Pendapatan"
+    "incomeChains": "Rantai Pendapatan",
+    "shareStory": "Bagikan Ceritamu"
   },
   "dashboard": {
     "title": "Dasbor",
@@ -2993,6 +2994,43 @@
     "footerHeadlineLaunch": "Jadilah salah satu yang pertama.",
     "footerHeadlineActive": "{{count}} anggota sudah menghasilkan.",
     "footerSub": "Komisi pertama Anda bisa datang minggu ini.",
-    "footerCta": "Buat akun gratis"
+    "footerCta": "Buat akun gratis",
+    "daysDay": "hari hingga",
+    "daysTo": "hari hingga",
+    "earningNow": "Menghasilkan sekarang"
+  },
+  "shareStory": {
+    "title": "Bagikan Ceritamu",
+    "subtitle": "Menginspirasi anggota berikutnya. Cerita dolar pertamamu muncul di /explore setelah disetujui.",
+    "introTitle": "Ceritamu membantu anggota baru percaya",
+    "introBody": "Tidak ada yang menjual SuperAdPro seperti orang nyata menceritakan komisi pertamanya. Tetap jujur, tetap singkat, tim akan meninjaunya dalam 24 jam.",
+    "nicheLabel": "Niche-mu",
+    "nichePlaceholder": "mis. Guru yoga, Trader kripto, Groomer hewan",
+    "nicheHint": "Deskripsi singkat apa yang kamu lakukan. Ditampilkan di kartumu.",
+    "countryLabel": "Negara (atau wilayah)",
+    "countryPlaceholder": "mis. Indonesia, Jakarta, Bali",
+    "countryHint": "Opsional. Membantu pembaca melihat anggota berpenghasilan dari seluruh dunia.",
+    "milestoneLabel": "Pencapaian",
+    "milestonePlaceholder": "mis. $17,50 pertama, grid pertama selesai",
+    "daysLabel": "Hari untuk mencapainya",
+    "daysPlaceholder": "mis. 3",
+    "storyLabel": "Ceritamu",
+    "storyPlaceholder": "Apa yang kamu lakukan? Bagaimana kamu membagikan link-mu? Apa yang mengejutkan? Tetap nyata — 2-3 kalimat paling bagus.",
+    "storyHint": "Jujur dan spesifik lebih baik dari poles. 200 karakter adalah titik ideal.",
+    "nowMonthlyLabel": "Penghasilan bulanan saat ini (opsional)",
+    "nowMonthlyPlaceholder": "mis. 420",
+    "nowMonthlyHint": "Isi hanya jika nyaman membagikan. Ditampilkan sebagai 'Menghasilkan sekarang $X/bulan' di kaki kartu.",
+    "colorLabel": "Warna aksen kartu",
+    "reviewNote": "Ditinjau dalam 24 jam sebelum tayang",
+    "submitBtn": "Kirim untuk ditinjau",
+    "submitting": "Mengirim…",
+    "pendingTitle": "Terima kasih — kami sedang meninjau ceritamu",
+    "pendingBody": "Tim kami meninjau setiap cerita agar /explore tetap otentik. Kamu akan dapat notifikasi begitu tayang — biasanya dalam 24 jam.",
+    "liveTitle": "Ceritamu tayang di /explore 🎉",
+    "liveBody": "Ceritamu sudah disetujui dan membantu anggota baru melihat apa yang mungkin. Terima kasih telah berbagi.",
+    "yourSubmission": "Pengiriman kamu",
+    "errRequired": "Niche, pencapaian, dan cerita semua wajib diisi.",
+    "errTooLong": "Teks cerita terlalu panjang.",
+    "errSubmitFailed": "Terjadi kesalahan. Silakan coba lagi."
   }
 }

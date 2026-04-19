@@ -64,6 +64,7 @@ function buildNav(t, isAdmin) {
       { label: t('nav.leaderboard'), icon: Trophy, path: '/leaderboard' },
       { label: t('nav.affiliateGuide'), icon: BookOpen, path: '/training' },
       { label: t('nav.payItForward'), icon: Heart, path: '/pay-it-forward' },
+      { label: t('nav.shareStory', { defaultValue: 'Share Your Story' }), icon: Sparkles, path: '/share-story' },
     ]},
   ];
 
