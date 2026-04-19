@@ -12,10 +12,20 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
   var { t } = useTranslation();
   const isPublished = status === 'published';
   return (
-    <div style={{
+    <div className="sp-editor-subbar" style={{
       height: 56, background: '#ffffff', borderBottom: '1px solid #e2e8f0',
       display: 'flex', alignItems: 'center', padding: '0 18px', gap: 8, flexShrink: 0, zIndex: 20,
     }}>
+      <style>{`
+        /* Neutralise the global 'button lifts 1 px on hover' rule inside the
+           editor sub-bar. We have explicit border/color hover handlers already;
+           the extra translateY stacked on top makes buttons feel wobbly. */
+        .sp-editor-subbar button:hover,
+        .sp-editor-subbar button:active {
+          transform: none !important;
+          filter: none !important;
+        }
+      `}</style>
       {/* Back to My Pages */}
       <button onClick={onBack} style={{...btn, background: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0'}}
         onMouseEnter={e => { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.color = '#0ea5e9'; }}

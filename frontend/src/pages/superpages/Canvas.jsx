@@ -502,6 +502,39 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         .cel .cel-resize { pointer-events: auto !important; }
         .cel-editable:focus { outline: none; }
         .cel-editable::selection { background: rgba(14,165,233,0.2); }
+
+        /* Override the global 'button hover lifts 1 px' rule for the element
+           toolbar and resize handles. On these small, absolutely-positioned
+           buttons the 1 px lift moves the button off the cursor, which cancels
+           :hover, which drops it back, which re-triggers :hover — an infinite
+           flicker. Inline background/color hover effects are added via
+           onMouseEnter instead where we still want feedback. */
+        .cel-bar button:hover,
+        .cel-bar button:active,
+        .cel-resize:hover,
+        .cel-resize:active {
+          transform: none !important;
+          filter: none !important;
+        }
+        /* Subtle hover tint on toolbar buttons so there's still visible feedback */
+        .cel-bar button:hover { background: rgba(14,165,233,0.08) !important; border-radius: 4px !important; }
+
+        /* Neutralise globals.css 'main div[style*=background:#fff]:hover' card
+           lift — it targets the canvas surface itself, making the canvas try
+           to lift and shadow-grow whenever the mouse enters it, which both
+           looks wrong and fights with element drag/select. */
+        .sp-canvas-area .sp-canvas:hover,
+        .sp-canvas-area .cel:hover,
+        .sp-canvas-area .cel > *:hover {
+          transform: none !important;
+          box-shadow: 0 1px 3px rgba(15,23,42,0.04), 0 8px 32px rgba(15,23,42,0.06), 0 20px 60px rgba(15,23,42,0.04) !important;
+        }
+
+        /* Protect the glassy palette tiles from the global cursor:pointer
+           brightness filter. The glass effect already lifts + colour-shadows
+           on hover; a brightness filter on top washes the icon colours out. */
+        .pal-item,
+        .pal-item:hover { filter: none !important; }
       `}</style>
 
       {/* Inline Formatting Toolbar */}
