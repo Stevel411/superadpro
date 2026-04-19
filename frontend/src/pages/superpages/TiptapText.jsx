@@ -72,12 +72,18 @@ export default function TiptapText({
   // second popup from within the bubble menu. One floating thing, two
   // states. No nested portals, no focus cascade, no element-underneath
   // click interference.
-  const [linkMode, setLinkMode] = useState({ active: false, url: '' });
+  const [linkMode, setLinkModeState] = useState({ active: false, url: '' });
+  const setLinkMode = useCallback((v) => {
+    const next = typeof v === 'function' ? v(linkModeRef.current) : v;
+    // eslint-disable-next-line no-console
+    console.log('[LinkMode] state change', linkModeRef.current, '→', next, new Error('trace').stack?.split('\n').slice(1, 4).join(' | '));
+    linkModeRef.current = next;
+    setLinkModeState(next);
+  }, []);
   const linkInputRef = useRef(null);
   // Ref mirror of linkMode so the bubble-menu useEffect (which doesn't
   // re-subscribe on linkMode changes) can always read the current value.
-  const linkModeRef = useRef(linkMode);
-  linkModeRef.current = linkMode;
+  const linkModeRef = useRef({ active: false, url: '' });
 
   const onChangeRef = useRef(onChange);
   const onExitRef = useRef(onExit);
@@ -303,12 +309,21 @@ export default function TiptapText({
   const openLinkMode = useCallback(() => {
     if (!editor) return;
     const existing = editor.getAttributes('link').href || '';
+    // eslint-disable-next-line no-console
+    console.log('[LinkMode] openLinkMode CALLED, existing =', existing, 'menuPos =', menuPos);
+    // Set the ref synchronously BEFORE setState so event handlers that
+    // fire immediately (blur, selectionUpdate) see the updated flag.
+    linkModeRef.current = { active: true, url: existing };
     setLinkMode({ active: true, url: existing });
     // Focus input after React mounts it; keeps editor selection intact
     // because the bubble menu's onMouseDown preventDefault has already
     // fired and prevented the selection from collapsing.
-    setTimeout(() => { if (linkInputRef.current) linkInputRef.current.focus(); }, 30);
-  }, [editor]);
+    setTimeout(() => {
+      // eslint-disable-next-line no-console
+      console.log('[LinkMode] setTimeout fired, linkMode active =', linkModeRef.current.active, 'input ref =', !!linkInputRef.current);
+      if (linkInputRef.current) linkInputRef.current.focus();
+    }, 30);
+  }, [editor, menuPos]);
 
   // Apply the URL (or clear the link if blank), then return to
   // formatting mode. Also the path taken on Enter keypress.
