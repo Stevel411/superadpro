@@ -97,7 +97,8 @@
     "profitGrid": "プロフィットグリッド",
     "gridCalculator": "グリッド計算機",
     "incomeChains": "収入チェーン",
-    "shareStory": "あなたのストーリーをシェア"
+    "shareStory": "あなたのストーリーをシェア",
+    "adminStories": "ストーリー審査"
   },
   "dashboard": {
     "title": "ダッシュボード",

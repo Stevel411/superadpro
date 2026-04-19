@@ -37,6 +37,7 @@ import PassupVisualiser from './pages/PassupVisualiser';
 import ProSeller from './pages/ProSeller';
 // SuperSeller removed — replaced by individual AI tools
 import AdminDashboard from './pages/AdminDashboard';
+import AdminStories from './pages/AdminStories';
 import Funnels from './pages/Funnels';
 import LinkHubPage from './pages/LinkHub';
 import ActivateTier from './pages/ActivateTier';
@@ -191,6 +192,7 @@ function AppRoutes() {
       <Route path="/team-messenger" element={<ProtectedRoute><TeamMessenger /></ProtectedRoute>} />
       <Route path="/qr-generator" element={<ProtectedRoute><QRGenerator /></ProtectedRoute>} />
       <Route path="/admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+      <Route path="/admin/stories" element={<ProtectedRoute><AdminStories /></ProtectedRoute>} />
       <Route path="/pro/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
       <Route path="/funnels" element={<ProtectedRoute><Funnels /></ProtectedRoute>} />
       <Route path="/pro/funnel/:pageId/edit" element={<ProtectedRoute><SuperPagesEditor /></ProtectedRoute>} />

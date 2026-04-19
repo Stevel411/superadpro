@@ -97,7 +97,8 @@
     "profitGrid": "Сетка Прибыли",
     "gridCalculator": "Калькулятор Сетки",
     "incomeChains": "Цепочки Дохода",
-    "shareStory": "Поделитесь историей"
+    "shareStory": "Поделитесь историей",
+    "adminStories": "Модерация историй"
   },
   "dashboard": {
     "title": "Панель управления",

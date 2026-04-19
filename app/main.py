@@ -1089,6 +1089,205 @@ def _invalidate_stories_cache():
     _member_stories_cache["data"] = None
 
 
+# ── /explore Phase 2: Admin moderation endpoints ──────────────────────────
+# All endpoints require admin. Any mutation invalidates the public stories cache.
+def _serialise_story_admin(row, user_map):
+    """Full story dict for admin UI — includes user context the public endpoint hides."""
+    u = user_map.get(row.user_id) if row.user_id else None
+    now_monthly = None
+    if row.now_monthly_amount is not None:
+        try:
+            now_monthly = float(row.now_monthly_amount)
+        except (TypeError, ValueError):
+            now_monthly = None
+    return {
+        "id":                 row.id,
+        "user_id":            row.user_id,
+        "username":           (u.username if u else None),
+        "member_id":          (u.id if u else None),
+        "user_country":       (u.display_city if u else None),
+        "display_initials":   row.display_initials or "SA",
+        "display_country":    row.display_country,
+        "niche":              row.niche,
+        "days_to_milestone":  row.days_to_milestone,
+        "milestone_label":    row.milestone_label,
+        "milestone_color":    row.milestone_color or "green",
+        "story_text":         row.story_text,
+        "now_monthly_amount": now_monthly,
+        "approved":           bool(row.approved),
+        "sort_order":         row.sort_order or 0,
+        "created_at":         row.created_at.isoformat() if row.created_at else None,
+        "updated_at":         row.updated_at.isoformat() if row.updated_at else None,
+    }
+
+
+@app.get("/admin/api/stories")
+def admin_api_stories(
+    status: str = "pending",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """List member stories for the admin moderation queue.
+    status=pending | approved | all (default: pending)."""
+    _require_admin(user)
+    from sqlalchemy import func
+    q = db.query(MemberStory)
+    if status == "pending":
+        q = q.filter(MemberStory.approved == False)
+        q = q.order_by(MemberStory.created_at.asc())  # oldest first — FIFO review queue
+    elif status == "approved":
+        q = q.filter(MemberStory.approved == True)
+        q = q.order_by(MemberStory.sort_order.asc(), MemberStory.created_at.desc())
+    else:
+        # "all" — approved first (by sort_order), then pending
+        q = q.order_by(MemberStory.approved.desc(), MemberStory.sort_order.asc(), MemberStory.created_at.desc())
+
+    rows = q.limit(500).all()
+
+    # Batch-load the users we'll need (one SELECT instead of N)
+    user_ids = [r.user_id for r in rows if r.user_id]
+    user_map = {}
+    if user_ids:
+        users = db.query(User).filter(User.id.in_(user_ids)).all()
+        user_map = {u.id: u for u in users}
+
+    return {
+        "stories": [_serialise_story_admin(r, user_map) for r in rows],
+        "counts": {
+            "pending":  db.query(func.count(MemberStory.id)).filter(MemberStory.approved == False).scalar() or 0,
+            "approved": db.query(func.count(MemberStory.id)).filter(MemberStory.approved == True).scalar() or 0,
+        },
+    }
+
+
+@app.post("/admin/api/stories/{story_id}/approve")
+def admin_api_story_approve(
+    story_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Mark a story as approved and publish it to /explore tab 2."""
+    _require_admin(user)
+    row = db.query(MemberStory).filter(MemberStory.id == story_id).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Story not found")
+    row.approved = True
+    row.updated_at = datetime.utcnow()
+    db.commit()
+    _invalidate_stories_cache()
+    return {"success": True, "id": row.id, "approved": True}
+
+
+@app.post("/admin/api/stories/{story_id}/reject")
+def admin_api_story_reject(
+    story_id: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Reject and delete a story. Irreversible — the member can submit a new one afterwards."""
+    _require_admin(user)
+    row = db.query(MemberStory).filter(MemberStory.id == story_id).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Story not found")
+    was_approved = bool(row.approved)
+    db.delete(row)
+    db.commit()
+    if was_approved:
+        _invalidate_stories_cache()  # only needed if it was on the public feed
+    return {"success": True, "id": story_id, "deleted": True}
+
+
+@app.post("/admin/api/stories/{story_id}/edit")
+async def admin_api_story_edit(
+    story_id: int,
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Edit any display field on a story (before or after approval). Same validation as the member endpoint."""
+    _require_admin(user)
+    row = db.query(MemberStory).filter(MemberStory.id == story_id).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Story not found")
+
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON")
+
+    from decimal import Decimal, InvalidOperation
+
+    # Every field is optional — only apply ones the admin sent. None/"" passthrough
+    # retains the existing value rather than blanking it, except for display_country
+    # and now_monthly_amount which are explicitly nullable.
+    if "niche" in body and body["niche"] is not None:
+        row.niche = (body["niche"] or "").strip()[:100] or row.niche
+    if "display_initials" in body and body["display_initials"]:
+        row.display_initials = (body["display_initials"] or "").strip()[:4].upper() or row.display_initials
+    if "display_country" in body:
+        v = (body["display_country"] or "").strip()[:100]
+        row.display_country = v or None
+    if "milestone_label" in body and body["milestone_label"] is not None:
+        row.milestone_label = (body["milestone_label"] or "").strip()[:120] or row.milestone_label
+    if "story_text" in body and body["story_text"] is not None:
+        row.story_text = (body["story_text"] or "").strip()[:400] or row.story_text
+    if "milestone_color" in body and body["milestone_color"]:
+        c = (body["milestone_color"] or "").strip().lower()
+        if c in ("sky", "indigo", "amber", "green", "pink"):
+            row.milestone_color = c
+    if "days_to_milestone" in body:
+        try:
+            v = body["days_to_milestone"]
+            if v in (None, ""):
+                row.days_to_milestone = None
+            else:
+                iv = int(v)
+                row.days_to_milestone = iv if 0 <= iv <= 9999 else None
+        except (TypeError, ValueError):
+            pass
+    if "now_monthly_amount" in body:
+        v = body["now_monthly_amount"]
+        if v in (None, ""):
+            row.now_monthly_amount = None
+        else:
+            try:
+                d = Decimal(str(v))
+                row.now_monthly_amount = d if 0 <= d <= Decimal("999999.99") else row.now_monthly_amount
+            except (InvalidOperation, ValueError, TypeError):
+                pass
+
+    row.updated_at = datetime.utcnow()
+    db.commit()
+    if row.approved:
+        _invalidate_stories_cache()
+    return {"success": True, "id": row.id}
+
+
+@app.post("/admin/api/stories/{story_id}/reorder")
+async def admin_api_story_reorder(
+    story_id: int,
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Set sort_order on an approved story. Lower values display first."""
+    _require_admin(user)
+    row = db.query(MemberStory).filter(MemberStory.id == story_id).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Story not found")
+    try:
+        body = await request.json()
+        so = int(body.get("sort_order", 0))
+    except (Exception, TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="Invalid sort_order")
+    row.sort_order = so
+    row.updated_at = datetime.utcnow()
+    db.commit()
+    if row.approved:
+        _invalidate_stories_cache()
+    return {"success": True, "id": row.id, "sort_order": so}
+
+
 @app.get("/api/me")
 def api_me(request: Request, db: Session = Depends(get_db)):
     """Return current user data for the React frontend."""

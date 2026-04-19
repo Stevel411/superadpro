@@ -97,7 +97,8 @@
     "profitGrid": "Siatka Zysków",
     "gridCalculator": "Kalkulator Siatki",
     "incomeChains": "Łańcuchy Dochodu",
-    "shareStory": "Podziel się historią"
+    "shareStory": "Podziel się historią",
+    "adminStories": "Moderacja historii"
   },
   "dashboard": {
     "title": "Panel",

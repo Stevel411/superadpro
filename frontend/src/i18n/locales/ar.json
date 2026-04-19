@@ -97,7 +97,8 @@
     "profitGrid": "شبكة الأرباح",
     "gridCalculator": "حاسبة الشبكة",
     "incomeChains": "سلاسل الدخل",
-    "shareStory": "شارك قصتك"
+    "shareStory": "شارك قصتك",
+    "adminStories": "إدارة القصص"
   },
   "dashboard": {
     "title": "لوحة التحكم",

@@ -97,7 +97,8 @@
     "profitGrid": "수익 그리드",
     "gridCalculator": "그리드 계산기",
     "incomeChains": "수입 체인",
-    "shareStory": "스토리 공유"
+    "shareStory": "스토리 공유",
+    "adminStories": "스토리 검토"
   },
   "dashboard": {
     "title": "대시보드",

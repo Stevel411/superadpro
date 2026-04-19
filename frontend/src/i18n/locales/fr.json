@@ -97,7 +97,8 @@
     "profitGrid": "Grille de Profits",
     "gridCalculator": "Calculatrice de Grille",
     "incomeChains": "Chaînes de Revenus",
-    "shareStory": "Partage ton histoire"
+    "shareStory": "Partage ton histoire",
+    "adminStories": "Modération des histoires"
   },
   "dashboard": {
     "title": "Tableau de bord",

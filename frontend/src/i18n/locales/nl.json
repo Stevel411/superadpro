@@ -97,7 +97,8 @@
     "profitGrid": "Winstgrid",
     "gridCalculator": "Grid-calculator",
     "incomeChains": "Inkomstenketens",
-    "shareStory": "Deel je verhaal"
+    "shareStory": "Deel je verhaal",
+    "adminStories": "Verhaalmoderatie"
   },
   "dashboard": {
     "title": "Dashboard",

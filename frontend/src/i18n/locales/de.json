@@ -97,7 +97,8 @@
     "profitGrid": "Profit-Grid",
     "gridCalculator": "Grid-Rechner",
     "incomeChains": "Einkommensketten",
-    "shareStory": "Teile deine Geschichte"
+    "shareStory": "Teile deine Geschichte",
+    "adminStories": "Story-Moderation"
   },
   "dashboard": {
     "title": "Dashboard",

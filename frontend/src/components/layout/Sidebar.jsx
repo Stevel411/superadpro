@@ -72,6 +72,7 @@ function buildNav(t, isAdmin) {
     items.push({ type: 'divider' });
     items.push({ type: 'group', label: t('nav.admin'), key: 'admin', icon: Shield, items: [
       { label: t('nav.adminDashboard'), icon: Shield, path: '/admin' },
+      { label: t('nav.adminStories', { defaultValue: 'Story Moderation' }), icon: Sparkles, path: '/admin/stories' },
     ]});
   }
 

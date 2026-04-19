@@ -97,7 +97,8 @@
     "profitGrid": "กริดกำไร",
     "gridCalculator": "เครื่องคำนวณกริด",
     "incomeChains": "ห่วงโซ่รายได้",
-    "shareStory": "แบ่งปันเรื่องราวของคุณ"
+    "shareStory": "แบ่งปันเรื่องราวของคุณ",
+    "adminStories": "การตรวจสอบเรื่องราว"
   },
   "dashboard": {
     "title": "แดชบอร์ด",
