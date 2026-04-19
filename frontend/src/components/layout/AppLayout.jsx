@@ -24,7 +24,48 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
   var isMobile = useIsMobile();
   var location = useLocation();
 
+  // Desktop collapse state — persisted in localStorage so the user's preference
+  // survives reloads. Default is 'open' so new members see the full labels.
+  var [collapsed, setCollapsed] = useState(function() {
+    try {
+      return window.localStorage.getItem('sap-sidebar-collapsed') === '1';
+    } catch (e) { return false; }
+  });
+  var toggleCollapsed = useCallback(function() {
+    setCollapsed(function(prev) {
+      var next = !prev;
+      try { window.localStorage.setItem('sap-sidebar-collapsed', next ? '1' : '0'); } catch (e) {}
+      return next;
+    });
+  }, []);
+
+  // First-view flag — controls the pulse animation on the toggle button.
+  // Shown once per install; dismissed on first click OR automatically after 3s.
+  var [firstView, setFirstView] = useState(function() {
+    try {
+      return window.localStorage.getItem('sap-sidebar-hint-seen') !== '1';
+    } catch (e) { return false; }
+  });
+  // Auto-dismiss after 3 seconds
+  useEffect(function() {
+    if (!firstView) return undefined;
+    var timer = setTimeout(function() {
+      setFirstView(false);
+      try { window.localStorage.setItem('sap-sidebar-hint-seen', '1'); } catch (e) {}
+    }, 3000);
+    return function() { clearTimeout(timer); };
+  }, [firstView]);
+  var dismissFirstView = useCallback(function() {
+    if (firstView) {
+      setFirstView(false);
+      try { window.localStorage.setItem('sap-sidebar-hint-seen', '1'); } catch (e) {}
+    }
+  }, [firstView]);
+
   var isMobileTabPage = isMobile && MOBILE_TABS.indexOf(location.pathname) !== -1;
+
+  // Compute the sidebar offset. Only applies on desktop; mobile always 0.
+  var desktopOffset = collapsed ? 72 : 224;
 
   return (
     <div className="flex min-h-screen">
@@ -38,8 +79,10 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
       )}
 
       {/* Sidebar — hidden on mobile, visible on desktop */}
-      {!isMobile && <Sidebar open={sidebarOpen} onClose={closeSidebar} />}
-      {isMobile && sidebarOpen && <Sidebar open={true} onClose={closeSidebar} />}
+      {!isMobile && <Sidebar open={sidebarOpen} onClose={closeSidebar}
+                              collapsed={collapsed} onToggleCollapsed={function() { dismissFirstView(); toggleCollapsed(); }}
+                              firstView={firstView} />}
+      {isMobile && sidebarOpen && <Sidebar open={true} onClose={closeSidebar} collapsed={false} />}
 
       {/* Main content */}
       <div className="flex-1 flex flex-col min-w-0" style={{marginLeft:'var(--sidebar-offset,0)'}}>
@@ -61,7 +104,7 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
       {/* CSS to handle sidebar offset on desktop only + MOBILE RESPONSIVE */}
       <style>{`
         @media(min-width:768px){
-          :root { --sidebar-offset: 224px; }
+          :root { --sidebar-offset: ${desktopOffset}px; }
         }
         @media(max-width:767px){
           :root { --sidebar-offset: 0px; }
@@ -81,7 +124,7 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
 
           /* ── Table horizontal scroll ── */
           table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
-          
+
           /* ── Admin tabs horizontal scroll ── */
           .admin-tabs { overflow-x: auto !important; flex-wrap: nowrap !important; -webkit-overflow-scrolling: touch; }
           .admin-tabs button { white-space: nowrap; flex-shrink: 0; padding-left: 10px !important; padding-right: 10px !important; font-size: 11px !important; }
