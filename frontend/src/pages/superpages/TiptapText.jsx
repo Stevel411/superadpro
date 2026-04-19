@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEditor, useEditorState, EditorContent } from '@tiptap/react';
 import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -14,26 +14,36 @@ import {
   List, ListOrdered, Link as LinkIcon, Palette, Highlighter,
   Sparkles,
 } from 'lucide-react';
-import { useState } from 'react';
 
 /*
   TiptapText — inline rich-text editor for SuperPages element types.
 
-  Design principles:
-  - The element wrapper (outer <div> in Canvas.jsx) is already a positioned
-    block. Tiptap runs inside that, in 'single-line' mode — no heading nodes,
-    no paragraph stacking, just inline marks (bold, italic, colour, etc).
-  - When the user clicks the element, they should be able to type immediately.
-    We auto-focus on mount if `autoFocus` is true (set by Canvas.jsx on a newly
-    dropped element).
-  - The BubbleMenu floats above the current selection, managed by Tiptap's
-    own positioning (Floating UI under the hood). No manual coordinate math
-    needed — which means no more flicker on hover.
-  - The outer inline styles from el.s (fontFamily, fontSize, color, textAlign,
-    lineHeight, etc) are applied to the EditorContent wrapper. This means text
-    inherits those styles as a baseline; users can override character-by-
-    character via the bubble menu (which uses TextStyle marks for colour).
+  Rewritten to fix React error #185 (maximum update depth exceeded) in
+  production. Three compounding issues caused the loop:
+
+  1. `shouldRerenderOnTransaction: true` — Tiptap calls this legacy
+     behaviour. Every ProseMirror transaction (including cursor moves
+     fired by autofocus on mount) forced a React re-render of the whole
+     component.
+
+  2. Parent re-renders on every keystroke — Canvas.updateElement flows new
+     `els` down, creating new function references for onChange / onExit
+     passed as props.
+
+  3. New function references in the useEditor options object prompted
+     Tiptap's React wrapper to reinitialise the editor, firing more
+     transactions, and back to (1). Loop.
+
+  Fixes:
+
+  - `shouldRerenderOnTransaction: false` (v3 default). Reactive toolbar
+    state comes from `useEditorState` with a narrow selector, which only
+    re-renders when the selected slice actually changes.
+  - Parent callbacks are stored in refs that update each render but are
+    never passed as identity to useEditor — the options object is stable.
+  - lastEmittedRef prevents the html-sync effect from echoing our own output.
 */
+
 export default function TiptapText({
   html,
   onChange,
@@ -47,24 +57,21 @@ export default function TiptapText({
 }) {
   const [aiMenuOpen, setAiMenuOpen] = useState(false);
   const [aiCustom, setAiCustom] = useState('');
-  const wrapperRef = useRef(null);
-  // Tracks the last HTML this editor emitted via onUpdate. Used by the
-  // sync-effect below to avoid an infinite loop: when the parent's html
-  // prop reflects a value that originated FROM this editor, we skip the
-  // setContent call.
+
+  const onChangeRef = useRef(onChange);
+  const onExitRef = useRef(onExit);
+  onChangeRef.current = onChange;
+  onExitRef.current = onExit;
+
   const lastEmittedRef = useRef(html || '');
 
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
-        // We don't want block-level document structure inside a single-line
-        // element. Disable the things that would create unwanted nesting.
         heading: false,
         blockquote: false,
         codeBlock: false,
         horizontalRule: false,
-        // Keep inline marks: bold, italic, strike, code
-        // Keep lists: bulletList, orderedList (user can optionally use them in text blocks)
       }),
       Underline,
       Link.configure({ openOnClick: false, HTMLAttributes: { class: 'sp-editor-link' } }),
@@ -79,56 +86,58 @@ export default function TiptapText({
     ],
     content: html || '',
     autofocus: autoFocus ? 'end' : false,
-    // v3: keep isActive() reactive so toolbar button highlights update as
-    // selection changes. Without this, hitting Bold doesn't visually toggle.
-    shouldRerenderOnTransaction: true,
-    onUpdate: ({ editor }) => {
-      const h = editor.getHTML();
+    immediatelyRender: false,
+    shouldRerenderOnTransaction: false,
+
+    onUpdate: ({ editor: ed }) => {
+      const h = ed.getHTML();
       lastEmittedRef.current = h;
-      if (onChange) onChange(h);
+      if (onChangeRef.current) onChangeRef.current(h);
     },
-    onBlur: () => {
-      // Defer slightly so clicks on the bubble menu don't fire a premature
-      // blur — the menu buttons keep focus inside the editor, so a true
-      // "clicked outside" blur is distinct.
+    onBlur: ({ editor: ed }) => {
       setTimeout(() => {
-        if (!editor || editor.isDestroyed) return;
-        if (editor.isFocused) return;
-        if (onExit) onExit();
+        if (!ed || ed.isDestroyed) return;
+        if (ed.isFocused) return;
+        if (onExitRef.current) onExitRef.current();
       }, 150);
     },
-    // v3 syntax: editor itself is not persisted across react re-renders
-    immediatelyRender: false,
   });
 
-  // Sync external html changes back into the editor if they diverge.
-  // Typically the editor owns the content, but if the parent updates el.txt
-  // programmatically (eg AI rewrite replacement, undo from outside), we want
-  // the editor to reflect it.
-  //
-  // IMPORTANT: we only react to html values DIFFERENT from the last one we
-  // ourselves emitted via onUpdate. Without that check, this effect would
-  // fire infinitely: Tiptap normalises HTML on load (spaces, attribute order,
-  // self-closing tags), so `html !== editor.getHTML()` was true even when
-  // the two represented the same content, and setContent kept triggering
-  // React re-renders. React error #185.
   useEffect(() => {
     if (!editor) return;
     if (html === lastEmittedRef.current) return;
-    // External change — push it into the editor.
     lastEmittedRef.current = html || '';
     editor.commands.setContent(html || '', { emitUpdate: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [html]);
 
-  if (!editor) return null;
+  const tbState = useEditorState({
+    editor,
+    selector: (ctx) => {
+      const ed = ctx.editor;
+      if (!ed) return null;
+      return {
+        bold: ed.isActive('bold'),
+        italic: ed.isActive('italic'),
+        underline: ed.isActive('underline'),
+        strike: ed.isActive('strike'),
+        highlight: ed.isActive('highlight'),
+        alignLeft: ed.isActive({ textAlign: 'left' }),
+        alignCenter: ed.isActive({ textAlign: 'center' }),
+        alignRight: ed.isActive({ textAlign: 'right' }),
+        bulletList: ed.isActive('bulletList'),
+        orderedList: ed.isActive('orderedList'),
+        link: ed.isActive('link'),
+        color: ed.getAttributes('textStyle').color || '',
+      };
+    },
+  });
 
-  const handleAiCommand = (cmd, prompt) => {
-    if (!onAiRequest) return;
+  const handleAiCommand = useCallback((cmd, prompt) => {
+    if (!editor || !onAiRequest) return;
     const { from, to } = editor.state.selection;
     const selectedText = editor.state.doc.textBetween(from, to, ' ');
     if (!selectedText) {
-      // no selection — operate on whole content
       const whole = editor.getText();
       if (!whole.trim()) return;
     }
@@ -138,6 +147,7 @@ export default function TiptapText({
       prompt: prompt || '',
       selection: selectedText,
       replaceSelection: (newText) => {
+        if (!editor || editor.isDestroyed) return;
         if (from !== to) {
           editor.chain().focus().insertContentAt({ from, to }, newText).run();
         } else {
@@ -145,69 +155,64 @@ export default function TiptapText({
         }
       },
     });
-  };
+  }, [editor, onAiRequest]);
+
+  if (!editor) return null;
 
   return (
-    <div ref={wrapperRef} className="sp-tt-wrapper" style={{ width: '100%', height: '100%' }}>
+    <div className="sp-tt-wrapper" style={{ width: '100%', height: '100%' }}>
       <BubbleMenu
         editor={editor}
         updateDelay={0}
         options={{ placement: 'top', offset: 8 }}
       >
         <div className="sp-tt-bubble" onMouseDown={(e) => e.preventDefault()}>
-          {/* Bold / Italic / Underline / Strike */}
-          <BubBtn active={editor.isActive('bold')} onClick={() => editor.chain().focus().toggleBold().run()} title="Bold (Ctrl+B)">
+          <BubBtn active={tbState?.bold} onClick={() => editor.chain().focus().toggleBold().run()} title="Bold (Ctrl+B)">
             <BoldIcon size={13}/>
           </BubBtn>
-          <BubBtn active={editor.isActive('italic')} onClick={() => editor.chain().focus().toggleItalic().run()} title="Italic (Ctrl+I)">
+          <BubBtn active={tbState?.italic} onClick={() => editor.chain().focus().toggleItalic().run()} title="Italic (Ctrl+I)">
             <ItalicIcon size={13}/>
           </BubBtn>
-          <BubBtn active={editor.isActive('underline')} onClick={() => editor.chain().focus().toggleUnderline().run()} title="Underline (Ctrl+U)">
+          <BubBtn active={tbState?.underline} onClick={() => editor.chain().focus().toggleUnderline().run()} title="Underline (Ctrl+U)">
             <UnderlineIcon size={13}/>
           </BubBtn>
-          <BubBtn active={editor.isActive('strike')} onClick={() => editor.chain().focus().toggleStrike().run()} title="Strikethrough">
+          <BubBtn active={tbState?.strike} onClick={() => editor.chain().focus().toggleStrike().run()} title="Strikethrough">
             <Strikethrough size={13}/>
           </BubBtn>
 
           <Divider/>
 
-          {/* Color picker */}
-          <ColorPicker editor={editor} />
+          <ColorPicker editor={editor} currentColor={tbState?.color} />
 
-          {/* Highlight */}
-          <BubBtn active={editor.isActive('highlight')} onClick={() => editor.chain().focus().toggleHighlight({ color: '#fef08a' }).run()} title="Highlight">
+          <BubBtn active={tbState?.highlight} onClick={() => editor.chain().focus().toggleHighlight({ color: '#fef08a' }).run()} title="Highlight">
             <Highlighter size={13}/>
           </BubBtn>
 
           <Divider/>
 
-          {/* Alignment */}
-          <BubBtn active={editor.isActive({ textAlign: 'left' })} onClick={() => editor.chain().focus().setTextAlign('left').run()} title="Align left">
+          <BubBtn active={tbState?.alignLeft} onClick={() => editor.chain().focus().setTextAlign('left').run()} title="Align left">
             <AlignLeft size={13}/>
           </BubBtn>
-          <BubBtn active={editor.isActive({ textAlign: 'center' })} onClick={() => editor.chain().focus().setTextAlign('center').run()} title="Align center">
+          <BubBtn active={tbState?.alignCenter} onClick={() => editor.chain().focus().setTextAlign('center').run()} title="Align center">
             <AlignCenter size={13}/>
           </BubBtn>
-          <BubBtn active={editor.isActive({ textAlign: 'right' })} onClick={() => editor.chain().focus().setTextAlign('right').run()} title="Align right">
+          <BubBtn active={tbState?.alignRight} onClick={() => editor.chain().focus().setTextAlign('right').run()} title="Align right">
             <AlignRight size={13}/>
           </BubBtn>
 
           <Divider/>
 
-          {/* Lists */}
-          <BubBtn active={editor.isActive('bulletList')} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Bullet list">
+          <BubBtn active={tbState?.bulletList} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Bullet list">
             <List size={13}/>
           </BubBtn>
-          <BubBtn active={editor.isActive('orderedList')} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Numbered list">
+          <BubBtn active={tbState?.orderedList} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Numbered list">
             <ListOrdered size={13}/>
           </BubBtn>
 
           <Divider/>
 
-          {/* Link */}
-          <LinkButton editor={editor} />
+          <LinkButton editor={editor} isActive={!!tbState?.link} />
 
-          {/* AI */}
           {showAi && (
             <>
               <Divider/>
@@ -224,7 +229,6 @@ export default function TiptapText({
           )}
         </div>
 
-        {/* AI popover — sits just below the bubble menu */}
         {showAi && aiMenuOpen && (
           <div className="sp-tt-ai-pop" onMouseDown={(e) => e.preventDefault()}>
             <div style={{fontSize:10,fontWeight:700,letterSpacing:0.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:8}}>AI commands</div>
@@ -258,9 +262,7 @@ export default function TiptapText({
           min-height: 1em;
           word-break: break-word;
         }
-        .sp-tt-wrapper .ProseMirror p {
-          margin: 0;
-        }
+        .sp-tt-wrapper .ProseMirror p { margin: 0; }
         .sp-tt-wrapper .ProseMirror p.is-editor-empty:first-child::before {
           content: attr(data-placeholder);
           float: left;
@@ -278,11 +280,8 @@ export default function TiptapText({
           text-decoration: underline;
           cursor: pointer;
         }
-
         .sp-tt-bubble {
-          display: flex;
-          align-items: center;
-          gap: 2px;
+          display: flex; align-items: center; gap: 2px;
           padding: 4px;
           background: #ffffff;
           border: 0.5px solid #e2e8f0;
@@ -298,18 +297,14 @@ export default function TiptapText({
           transition: background 0.1s, color 0.1s;
         }
         .sp-tt-btn:hover:not(:disabled) {
-          background: #f1f5f9;
-          color: #0f172a;
-          transform: none !important;
-          filter: none !important;
+          background: #f1f5f9; color: #0f172a;
+          transform: none !important; filter: none !important;
         }
         .sp-tt-btn:active:not(:disabled) {
-          transform: none !important;
-          filter: none !important;
+          transform: none !important; filter: none !important;
         }
         .sp-tt-btn.sp-tt-active {
-          background: rgba(14,165,233,0.12);
-          color: #0284c7;
+          background: rgba(14,165,233,0.12); color: #0284c7;
         }
         .sp-tt-ai {
           width: auto !important;
@@ -322,52 +317,32 @@ export default function TiptapText({
           background: linear-gradient(135deg, #0284c7, #7c3aed) !important;
           color: #fff !important;
         }
-        .sp-tt-divider {
-          width: 1px; height: 16px; background: #e2e8f0; margin: 0 3px;
-        }
+        .sp-tt-divider { width: 1px; height: 16px; background: #e2e8f0; margin: 0 3px; }
         .sp-tt-ai-pop {
-          position: absolute;
-          top: 100%;
-          left: 50%;
-          transform: translateX(-50%);
+          position: absolute; top: 100%; left: 50%; transform: translateX(-50%);
           margin-top: 6px;
           background: #ffffff;
           border: 0.5px solid #e2e8f0;
           border-radius: 8px;
           box-shadow: 0 8px 20px rgba(15,23,42,0.15), 0 2px 6px rgba(15,23,42,0.08);
-          padding: 10px;
-          width: 300px;
-          z-index: 50;
+          padding: 10px; width: 300px; z-index: 50;
         }
         .sp-tt-ai-cmd {
-          padding: 7px 10px;
-          font-size: 12px;
-          color: #475569;
-          cursor: pointer;
-          border-radius: 4px;
-          margin-bottom: 2px;
+          padding: 7px 10px; font-size: 12px; color: #475569;
+          cursor: pointer; border-radius: 4px; margin-bottom: 2px;
           transition: background 0.1s;
         }
-        .sp-tt-ai-cmd:hover {
-          background: #f8fafc;
-        }
-
-        /* Neutralise the global 'button lifts 1 px on hover' rule for anything
-           inside this editor. Without this, every toolbar button wobbles on
-           hover and breaks the feel. */
+        .sp-tt-ai-cmd:hover { background: #f8fafc; }
         .sp-tt-wrapper button:hover,
         .sp-tt-wrapper button:active,
         .sp-tt-bubble button:hover,
         .sp-tt-bubble button:active {
-          transform: none !important;
-          filter: none !important;
+          transform: none !important; filter: none !important;
         }
       `}</style>
     </div>
   );
 }
-
-/* ═══ Bubble-menu helpers ═══ */
 
 function BubBtn({ active, onClick, title, children }) {
   return (
@@ -389,18 +364,18 @@ function AiCmd({ onClick, children }) {
   return <div className="sp-tt-ai-cmd" onClick={onClick}>{children}</div>;
 }
 
-function ColorPicker({ editor }) {
+function ColorPicker({ editor, currentColor }) {
   const [open, setOpen] = useState(false);
-  const current = editor.getAttributes('textStyle').color || '#0f172a';
+  const current = currentColor || '#0f172a';
   const swatches = [
-    '#0f172a', '#475569', '#94a3b8', // slate ramp
-    '#0ea5e9', '#0284c7', // sky
-    '#6366f1', '#4f46e5', // indigo
-    '#8b5cf6', '#a855f7', // purple
-    '#ec4899', '#db2777', // pink
-    '#22c55e', '#16a34a', // green
-    '#f59e0b', '#d97706', // amber
-    '#ef4444', '#dc2626', // red
+    '#0f172a', '#475569', '#94a3b8',
+    '#0ea5e9', '#0284c7',
+    '#6366f1', '#4f46e5',
+    '#8b5cf6', '#a855f7',
+    '#ec4899', '#db2777',
+    '#22c55e', '#16a34a',
+    '#f59e0b', '#d97706',
+    '#ef4444', '#dc2626',
     '#ffffff',
   ];
   return (
@@ -446,9 +421,13 @@ function ColorPicker({ editor }) {
   );
 }
 
-function LinkButton({ editor }) {
+function LinkButton({ editor, isActive }) {
   const [open, setOpen] = useState(false);
-  const [url, setUrl] = useState(editor.getAttributes('link').href || '');
+  const [url, setUrl] = useState('');
+  const openMenu = () => {
+    setUrl(editor.getAttributes('link').href || '');
+    setOpen(v => !v);
+  };
   const apply = () => {
     if (url) {
       const full = url.startsWith('http') ? url : 'https://' + url;
@@ -461,8 +440,8 @@ function LinkButton({ editor }) {
   return (
     <div style={{position: 'relative'}}>
       <button
-        className={'sp-tt-btn' + (editor.isActive('link') ? ' sp-tt-active' : '')}
-        onClick={() => setOpen(v => !v)}
+        className={'sp-tt-btn' + (isActive ? ' sp-tt-active' : '')}
+        onClick={openMenu}
         title="Link"
       >
         <LinkIcon size={13}/>
