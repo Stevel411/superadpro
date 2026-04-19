@@ -731,75 +731,42 @@ function ColorPicker({ editor, currentColor }) {
   );
 }
 
+/**
+ * Link button — uses window.prompt() for URL entry.
+ *
+ * Switched from an in-editor popup to prompt() after extended attempts
+ * to keep a custom popup open through the bubble menu's focus/portal
+ * lifecycle failed. prompt() is synchronous, blocks the event loop,
+ * and is immune to the focus/blur/selection-update cascade that kept
+ * tearing down the popup. Works reliably on desktop and mobile.
+ *
+ * UX:
+ * - Click link icon → native prompt appears
+ * - Empty field → click OK clears any existing link
+ * - Pre-filled if the cursor is on an existing link
+ * - URLs without a scheme get 'https://' prepended automatically
+ * - Cancel → nothing changes
+ */
 function LinkButton({ editor, isActive }) {
-  const [open, setOpen] = useState(false);
-  const [url, setUrl] = useState('');
-  const inputRef = useRef(null);
-
-  const openMenu = () => {
-    setUrl(editor.getAttributes('link').href || '');
-    setOpen(v => !v);
-    // Focus the input manually after a frame so React has mounted it —
-    // but IMPORTANT: use setTimeout(0) instead of React's autoFocus so
-    // the focus happens asynchronously, well after the current click
-    // event's focus handling has settled. This prevents the autoFocus
-    // from cascading into editor blur → selectionUpdate → unmount.
-    setTimeout(() => {
-      if (inputRef.current) inputRef.current.focus();
-    }, 50);
-  };
-  const apply = () => {
-    if (url) {
-      const full = url.startsWith('http') ? url : 'https://' + url;
-      editor.chain().focus().extendMarkRange('link').setLink({ href: full }).run();
-    } else {
+  const handleClick = () => {
+    const existing = editor.getAttributes('link').href || '';
+    const input = window.prompt('Enter a URL (leave blank to remove link):', existing);
+    if (input === null) return;  // user cancelled
+    const trimmed = input.trim();
+    if (!trimmed) {
       editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
     }
-    setOpen(false);
+    const full = /^https?:\/\//i.test(trimmed) ? trimmed : 'https://' + trimmed;
+    editor.chain().focus().extendMarkRange('link').setLink({ href: full }).run();
   };
   return (
-    <div style={{position: 'relative'}}>
-      <button
-        className={'sp-tt-btn' + (isActive ? ' sp-tt-active' : '')}
-        onClick={openMenu}
-        title="Link"
-      >
-        <LinkIcon size={13}/>
-      </button>
-      {open && (
-        <div
-          onMouseDown={e => e.preventDefault()}
-          style={{
-            position: 'absolute', top: '100%', left: 0, marginTop: 4,
-            background: '#fff', border: '0.5px solid #e2e8f0', borderRadius: 6,
-            boxShadow: '0 4px 12px rgba(15,23,42,0.1)', padding: 6, zIndex: 60,
-            display: 'flex', gap: 4, width: 260,
-          }}
-        >
-          <input
-            ref={inputRef}
-            value={url}
-            onChange={e => setUrl(e.target.value)}
-            onKeyDown={e => { if (e.key === 'Enter') apply(); }}
-            placeholder="https://…"
-            style={{
-              flex: 1, padding: '6px 8px', fontSize: 12,
-              border: '0.5px solid #e2e8f0', borderRadius: 4, outline: 'none',
-              fontFamily: 'inherit',
-            }}
-          />
-          <button
-            onClick={apply}
-            style={{
-              padding: '6px 10px', fontSize: 11, fontWeight: 600,
-              background: '#0ea5e9', color: '#fff', border: 'none',
-              borderRadius: 4, cursor: 'pointer', fontFamily: 'inherit',
-            }}
-          >
-            OK
-          </button>
-        </div>
-      )}
-    </div>
+    <button
+      className={'sp-tt-btn' + (isActive ? ' sp-tt-active' : '')}
+      onClick={handleClick}
+      title={isActive ? 'Edit or remove link' : 'Add link'}
+    >
+      <LinkIcon size={13}/>
+    </button>
   );
 }
