@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
 import { useEditor, useEditorState, EditorContent } from '@tiptap/react';
-import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
@@ -8,6 +7,7 @@ import { TextStyle, Color } from '@tiptap/extension-text-style';
 import Highlight from '@tiptap/extension-highlight';
 import TextAlign from '@tiptap/extension-text-align';
 import Placeholder from '@tiptap/extension-placeholder';
+import { createPortal } from 'react-dom';
 import {
   Bold as BoldIcon, Italic as ItalicIcon, Underline as UnderlineIcon,
   Strikethrough, AlignLeft, AlignCenter, AlignRight,
@@ -57,18 +57,18 @@ export default function TiptapText({
 }) {
   const [aiMenuOpen, setAiMenuOpen] = useState(false);
   const [aiCustom, setAiCustom] = useState('');
+  // Manual bubble-menu positioning. Replaces Tiptap's BubbleMenu component
+  // which was anchoring to (0,0) for reasons I couldn't track down. We
+  // compute the selection's on-screen coords ourselves and render a plain
+  // portal-mounted <div> using position:fixed.
+  const [menuPos, setMenuPos] = useState(null);  // {x, y} in viewport coords, or null when hidden
 
   const onChangeRef = useRef(onChange);
   const onExitRef = useRef(onExit);
   onChangeRef.current = onChange;
   onExitRef.current = onExit;
 
-  // Wrapper ref used as the BubbleMenu portal target. Keeps the menu
-  // anchored inside our editor's DOM context instead of document.body —
-  // so if positioning fails it at least falls back near the editor rather
-  // than at screen (0,0).
   const wrapperRef = useRef(null);
-
   const lastEmittedRef = useRef(html || '');
 
   const editor = useEditor({
@@ -116,6 +116,58 @@ export default function TiptapText({
     editor.commands.setContent(html || '', { emitUpdate: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [html]);
+
+  // Manual bubble-menu positioning: subscribe to the editor's selection
+  // and blur/focus events, compute viewport coords for the selected range
+  // via ProseMirror's coordsAtPos, and update menuPos. When the selection
+  // is empty or the editor isn't focused, menuPos = null → menu hides.
+  useEffect(() => {
+    if (!editor) return;
+
+    function updateMenuPos() {
+      if (!editor || editor.isDestroyed) { setMenuPos(null); return; }
+      const { from, to, empty } = editor.state.selection;
+      // Hide when no text is selected or editor lost focus
+      if (empty || !editor.view.hasFocus()) { setMenuPos(null); return; }
+
+      try {
+        const startCoords = editor.view.coordsAtPos(from);
+        const endCoords = editor.view.coordsAtPos(to);
+        // Anchor the menu above the midpoint of the selection's first line.
+        // We use the smaller top coord (higher on screen) in case selection
+        // spans multiple lines.
+        const top = Math.min(startCoords.top, endCoords.top);
+        const leftMid = (startCoords.left + endCoords.left) / 2;
+        setMenuPos({ x: leftMid, y: top });
+      } catch (err) {
+        // coordsAtPos can throw if the position is out of bounds during
+        // a transaction — ignore and retry on the next update.
+        setMenuPos(null);
+      }
+    }
+
+    // Fire on every selection change + when editor gains/loses focus.
+    editor.on('selectionUpdate', updateMenuPos);
+    editor.on('focus', updateMenuPos);
+    editor.on('blur', () => {
+      // Delay hiding so that if the blur was caused by clicking a menu
+      // button, onUpdate will re-focus the editor before we hide.
+      setTimeout(() => {
+        if (!editor || editor.isDestroyed) return;
+        if (!editor.view.hasFocus()) setMenuPos(null);
+      }, 100);
+    });
+    // Reposition on window scroll/resize so the menu stays glued to the text
+    window.addEventListener('scroll', updateMenuPos, { passive: true, capture: true });
+    window.addEventListener('resize', updateMenuPos);
+
+    return () => {
+      editor.off('selectionUpdate', updateMenuPos);
+      editor.off('focus', updateMenuPos);
+      window.removeEventListener('scroll', updateMenuPos, { capture: true });
+      window.removeEventListener('resize', updateMenuPos);
+    };
+  }, [editor]);
 
   const tbState = useEditorState({
     editor,
@@ -167,113 +219,107 @@ export default function TiptapText({
 
   return (
     <div ref={wrapperRef} className="sp-tt-wrapper" style={{ width: '100%', height: '100%' }}>
-      <BubbleMenu
-        editor={editor}
-        updateDelay={100}
-        options={{ placement: 'top', offset: 8 }}
-        shouldShow={({ editor: ed, state }) => {
-          if (!ed) return false;
-          // Only show when there's an actual text selection. Autofocus on
-          // mount lands the cursor at position 0 with an empty selection —
-          // if we let the menu show then, Floating UI has no anchor rect
-          // and positions at screen (0,0). Showing only on real selections
-          // avoids that entirely.
-          const { from, to, empty } = state.selection;
-          if (empty) return false;
-          if (from === to) return false;
-          // Don't show during composition (IME input like Japanese/Chinese)
-          if (ed.view.composing) return false;
-          return true;
-        }}
-        appendTo={() => wrapperRef.current || document.body}
-      >
-        <div className="sp-tt-bubble" onMouseDown={(e) => e.preventDefault()}>
-          <BubBtn active={tbState?.bold} onClick={() => editor.chain().focus().toggleBold().run()} title="Bold (Ctrl+B)">
-            <BoldIcon size={13}/>
-          </BubBtn>
-          <BubBtn active={tbState?.italic} onClick={() => editor.chain().focus().toggleItalic().run()} title="Italic (Ctrl+I)">
-            <ItalicIcon size={13}/>
-          </BubBtn>
-          <BubBtn active={tbState?.underline} onClick={() => editor.chain().focus().toggleUnderline().run()} title="Underline (Ctrl+U)">
-            <UnderlineIcon size={13}/>
-          </BubBtn>
-          <BubBtn active={tbState?.strike} onClick={() => editor.chain().focus().toggleStrike().run()} title="Strikethrough">
-            <Strikethrough size={13}/>
-          </BubBtn>
+      {menuPos && createPortal(
+        <div
+          className="sp-tt-bubble-wrap"
+          style={{
+            position: 'fixed',
+            top: menuPos.y,
+            left: menuPos.x,
+            transform: 'translate(-50%, calc(-100% - 8px))',
+            zIndex: 1000,
+          }}
+          onMouseDown={(e) => e.preventDefault()}
+        >
+          <div className="sp-tt-bubble">
+            <BubBtn active={tbState?.bold} onClick={() => editor.chain().focus().toggleBold().run()} title="Bold (Ctrl+B)">
+              <BoldIcon size={13}/>
+            </BubBtn>
+            <BubBtn active={tbState?.italic} onClick={() => editor.chain().focus().toggleItalic().run()} title="Italic (Ctrl+I)">
+              <ItalicIcon size={13}/>
+            </BubBtn>
+            <BubBtn active={tbState?.underline} onClick={() => editor.chain().focus().toggleUnderline().run()} title="Underline (Ctrl+U)">
+              <UnderlineIcon size={13}/>
+            </BubBtn>
+            <BubBtn active={tbState?.strike} onClick={() => editor.chain().focus().toggleStrike().run()} title="Strikethrough">
+              <Strikethrough size={13}/>
+            </BubBtn>
 
-          <Divider/>
+            <Divider/>
 
-          <ColorPicker editor={editor} currentColor={tbState?.color} />
+            <ColorPicker editor={editor} currentColor={tbState?.color} />
 
-          <BubBtn active={tbState?.highlight} onClick={() => editor.chain().focus().toggleHighlight({ color: '#fef08a' }).run()} title="Highlight">
-            <Highlighter size={13}/>
-          </BubBtn>
+            <BubBtn active={tbState?.highlight} onClick={() => editor.chain().focus().toggleHighlight({ color: '#fef08a' }).run()} title="Highlight">
+              <Highlighter size={13}/>
+            </BubBtn>
 
-          <Divider/>
+            <Divider/>
 
-          <BubBtn active={tbState?.alignLeft} onClick={() => editor.chain().focus().setTextAlign('left').run()} title="Align left">
-            <AlignLeft size={13}/>
-          </BubBtn>
-          <BubBtn active={tbState?.alignCenter} onClick={() => editor.chain().focus().setTextAlign('center').run()} title="Align center">
-            <AlignCenter size={13}/>
-          </BubBtn>
-          <BubBtn active={tbState?.alignRight} onClick={() => editor.chain().focus().setTextAlign('right').run()} title="Align right">
-            <AlignRight size={13}/>
-          </BubBtn>
+            <BubBtn active={tbState?.alignLeft} onClick={() => editor.chain().focus().setTextAlign('left').run()} title="Align left">
+              <AlignLeft size={13}/>
+            </BubBtn>
+            <BubBtn active={tbState?.alignCenter} onClick={() => editor.chain().focus().setTextAlign('center').run()} title="Align center">
+              <AlignCenter size={13}/>
+            </BubBtn>
+            <BubBtn active={tbState?.alignRight} onClick={() => editor.chain().focus().setTextAlign('right').run()} title="Align right">
+              <AlignRight size={13}/>
+            </BubBtn>
 
-          <Divider/>
+            <Divider/>
 
-          <BubBtn active={tbState?.bulletList} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Bullet list">
-            <List size={13}/>
-          </BubBtn>
-          <BubBtn active={tbState?.orderedList} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Numbered list">
-            <ListOrdered size={13}/>
-          </BubBtn>
+            <BubBtn active={tbState?.bulletList} onClick={() => editor.chain().focus().toggleBulletList().run()} title="Bullet list">
+              <List size={13}/>
+            </BubBtn>
+            <BubBtn active={tbState?.orderedList} onClick={() => editor.chain().focus().toggleOrderedList().run()} title="Numbered list">
+              <ListOrdered size={13}/>
+            </BubBtn>
 
-          <Divider/>
+            <Divider/>
 
-          <LinkButton editor={editor} isActive={!!tbState?.link} />
+            <LinkButton editor={editor} isActive={!!tbState?.link} />
 
-          {showAi && (
-            <>
-              <Divider/>
-              <button
-                className="sp-tt-btn sp-tt-ai"
-                onClick={() => setAiMenuOpen(v => !v)}
-                title="AI rewrite"
-                disabled={aiBusy}
-              >
-                <Sparkles size={11}/>
-                <span style={{marginLeft: 3}}>{aiBusy ? '…' : 'AI'}</span>
-              </button>
-            </>
-          )}
-        </div>
-
-        {showAi && aiMenuOpen && (
-          <div className="sp-tt-ai-pop" onMouseDown={(e) => e.preventDefault()}>
-            <div style={{fontSize:10,fontWeight:700,letterSpacing:0.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:8}}>AI commands</div>
-            <AiCmd onClick={() => handleAiCommand('rewrite')}>✨ Rewrite for clarity</AiCmd>
-            <AiCmd onClick={() => handleAiCommand('shorten')}>📏 Make it shorter</AiCmd>
-            <AiCmd onClick={() => handleAiCommand('sharper')}>🎯 Sharper hook</AiCmd>
-            <AiCmd onClick={() => handleAiCommand('benefit')}>📝 More benefit-driven</AiCmd>
-            <AiCmd onClick={() => handleAiCommand('translate_es')}>🌍 Translate to Spanish</AiCmd>
-            <div style={{borderTop:'0.5px solid #e2e8f0',margin:'6px -2px 4px'}}/>
-            <input
-              value={aiCustom}
-              onChange={e => setAiCustom(e.target.value)}
-              onKeyDown={e => {
-                if (e.key === 'Enter' && aiCustom.trim()) {
-                  handleAiCommand('custom', aiCustom.trim());
-                  setAiCustom('');
-                }
-              }}
-              placeholder="Or type your own command…"
-              style={{width:'100%',padding:'7px 10px',fontSize:12,border:'0.5px solid #e2e8f0',borderRadius:4,outline:'none',background:'#f8fafc',boxSizing:'border-box',fontFamily:'inherit'}}
-            />
+            {showAi && (
+              <>
+                <Divider/>
+                <button
+                  className="sp-tt-btn sp-tt-ai"
+                  onClick={() => setAiMenuOpen(v => !v)}
+                  title="AI rewrite"
+                  disabled={aiBusy}
+                >
+                  <Sparkles size={11}/>
+                  <span style={{marginLeft: 3}}>{aiBusy ? '…' : 'AI'}</span>
+                </button>
+              </>
+            )}
           </div>
-        )}
-      </BubbleMenu>
+
+          {showAi && aiMenuOpen && (
+            <div className="sp-tt-ai-pop" onMouseDown={(e) => e.preventDefault()}>
+              <div style={{fontSize:10,fontWeight:700,letterSpacing:0.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:8}}>AI commands</div>
+              <AiCmd onClick={() => handleAiCommand('rewrite')}>✨ Rewrite for clarity</AiCmd>
+              <AiCmd onClick={() => handleAiCommand('shorten')}>📏 Make it shorter</AiCmd>
+              <AiCmd onClick={() => handleAiCommand('sharper')}>🎯 Sharper hook</AiCmd>
+              <AiCmd onClick={() => handleAiCommand('benefit')}>📝 More benefit-driven</AiCmd>
+              <AiCmd onClick={() => handleAiCommand('translate_es')}>🌍 Translate to Spanish</AiCmd>
+              <div style={{borderTop:'0.5px solid #e2e8f0',margin:'6px -2px 4px'}}/>
+              <input
+                value={aiCustom}
+                onChange={e => setAiCustom(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && aiCustom.trim()) {
+                    handleAiCommand('custom', aiCustom.trim());
+                    setAiCustom('');
+                  }
+                }}
+                placeholder="Or type your own command…"
+                style={{width:'100%',padding:'7px 10px',fontSize:12,border:'0.5px solid #e2e8f0',borderRadius:4,outline:'none',background:'#f8fafc',boxSizing:'border-box',fontFamily:'inherit'}}
+              />
+            </div>
+          )}
+        </div>,
+        document.body
+      )}
 
       <EditorContent editor={editor} className="sp-tt-content" style={styleOverrides} />
 
