@@ -3,7 +3,7 @@ import { useEditor, useEditorState, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
-import { TextStyle, Color } from '@tiptap/extension-text-style';
+import { TextStyle, Color, FontFamily, FontSize } from '@tiptap/extension-text-style';
 import Highlight from '@tiptap/extension-highlight';
 import TextAlign from '@tiptap/extension-text-align';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -12,8 +12,9 @@ import {
   Bold as BoldIcon, Italic as ItalicIcon, Underline as UnderlineIcon,
   Strikethrough, AlignLeft, AlignCenter, AlignRight,
   List, ListOrdered, Link as LinkIcon, Palette, Highlighter,
-  Sparkles,
+  Sparkles, ChevronDown,
 } from 'lucide-react';
+import { FONTS, FONT_SIZES } from './elementDefaults';
 
 /*
   TiptapText — inline rich-text editor for SuperPages element types.
@@ -83,6 +84,8 @@ export default function TiptapText({
       Link.configure({ openOnClick: false, HTMLAttributes: { class: 'sp-editor-link' } }),
       TextStyle,
       Color,
+      FontFamily,
+      FontSize,
       Highlight.configure({ multicolor: true }),
       TextAlign.configure({ types: ['paragraph', 'heading'] }),
       Placeholder.configure({
@@ -177,6 +180,8 @@ export default function TiptapText({
         orderedList: ed.isActive('orderedList'),
         link: ed.isActive('link'),
         color: ed.getAttributes('textStyle').color || '',
+        fontFamily: ed.getAttributes('textStyle').fontFamily || '',
+        fontSize: ed.getAttributes('textStyle').fontSize || '',
       };
     },
   });
@@ -222,6 +227,11 @@ export default function TiptapText({
           onMouseDown={(e) => e.preventDefault()}
         >
           <div className="sp-tt-bubble">
+            <FontSelect editor={editor} currentFont={tbState?.fontFamily} />
+            <SizeInput editor={editor} currentSize={tbState?.fontSize} />
+
+            <Divider/>
+
             <BubBtn active={tbState?.bold} onClick={() => editor.chain().focus().toggleBold().run()} title="Bold (Ctrl+B)">
               <BoldIcon size={13}/>
             </BubBtn>
@@ -363,6 +373,22 @@ export default function TiptapText({
         .sp-tt-btn.sp-tt-active {
           background: rgba(14,165,233,0.12); color: #0284c7;
         }
+        .sp-tt-select {
+          display: inline-flex; align-items: center;
+          height: 26px; padding: 0 6px;
+          border: 0.5px solid #e2e8f0; background: #fff;
+          color: #0f172a; border-radius: 4px;
+          font-size: 11px; font-weight: 500;
+          cursor: pointer;
+          transition: background 0.1s;
+        }
+        .sp-tt-select:hover {
+          background: #f1f5f9;
+          transform: none !important; filter: none !important;
+        }
+        .sp-tt-select:active {
+          transform: none !important; filter: none !important;
+        }
         .sp-tt-ai {
           width: auto !important;
           padding: 4px 10px !important;
@@ -419,6 +445,155 @@ function Divider() {
 
 function AiCmd({ onClick, children }) {
   return <div className="sp-tt-ai-cmd" onClick={onClick}>{children}</div>;
+}
+
+/**
+ * Font family dropdown. Shows the current font name (or 'Font' if none set),
+ * renders each option in its own typeface so the user can preview the look
+ * before picking. 24 fonts sourced from elementDefaults.FONTS.
+ */
+function FontSelect({ editor, currentFont }) {
+  const [open, setOpen] = useState(false);
+  // Try to match the current fontFamily (which is a full CSS value like
+  // 'Sora,sans-serif') to one of our known fonts so we can show its label.
+  const currentLabel = (() => {
+    if (!currentFont) return 'Font';
+    const match = FONTS.find(f => f.value === currentFont || currentFont.includes(f.label));
+    return match ? match.label : 'Custom';
+  })();
+
+  return (
+    <div style={{position: 'relative'}}>
+      <button
+        className="sp-tt-select"
+        onClick={() => setOpen(v => !v)}
+        title="Font family"
+      >
+        <span style={{maxWidth: 80, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: currentFont || 'inherit'}}>
+          {currentLabel}
+        </span>
+        <ChevronDown size={11} style={{marginLeft: 2, flexShrink: 0}}/>
+      </button>
+      {open && (
+        <div
+          onMouseDown={e => e.preventDefault()}
+          style={{
+            position: 'absolute', top: '100%', left: 0, marginTop: 4,
+            background: '#fff', border: '0.5px solid #e2e8f0', borderRadius: 6,
+            boxShadow: '0 4px 12px rgba(15,23,42,0.1)', padding: 4,
+            width: 220, maxHeight: 320, overflowY: 'auto', zIndex: 60,
+          }}
+        >
+          {FONTS.map(f => (
+            <div
+              key={f.value}
+              onClick={() => {
+                editor.chain().focus().setFontFamily(f.value).run();
+                setOpen(false);
+              }}
+              style={{
+                padding: '8px 10px', fontSize: 14, cursor: 'pointer',
+                borderRadius: 4, fontFamily: f.value,
+                background: currentFont === f.value ? 'rgba(14,165,233,0.12)' : 'transparent',
+                color: currentFont === f.value ? '#0284c7' : '#0f172a',
+              }}
+              onMouseEnter={e => { if (currentFont !== f.value) e.currentTarget.style.background = '#f1f5f9'; }}
+              onMouseLeave={e => { if (currentFont !== f.value) e.currentTarget.style.background = 'transparent'; }}
+            >
+              {f.label}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Font size input — number input + dropdown of presets.
+ * User can type a custom number (in pixels) or click the arrow to pick
+ * from the 20 preset sizes.
+ */
+function SizeInput({ editor, currentSize }) {
+  const [open, setOpen] = useState(false);
+  // Parse the current fontSize into a plain number for the input.
+  const currentPx = (() => {
+    if (!currentSize) return '';
+    const n = parseInt(currentSize, 10);
+    return isNaN(n) ? '' : String(n);
+  })();
+  const [value, setValue] = useState(currentPx);
+
+  // Keep the input synced with the editor's current size
+  useEffect(() => { setValue(currentPx); /* eslint-disable-next-line */ }, [currentSize]);
+
+  const apply = (px) => {
+    const n = parseInt(px, 10);
+    if (isNaN(n) || n < 1 || n > 500) return;
+    editor.chain().focus().setFontSize(n + 'px').run();
+  };
+
+  return (
+    <div style={{position: 'relative', display: 'flex', alignItems: 'center'}}>
+      <input
+        type="text"
+        value={value}
+        onChange={e => setValue(e.target.value.replace(/[^0-9]/g, ''))}
+        onKeyDown={e => { if (e.key === 'Enter') { apply(value); e.currentTarget.blur(); } }}
+        onBlur={() => apply(value)}
+        onMouseDown={e => e.stopPropagation()}
+        title="Font size (px)"
+        placeholder="–"
+        style={{
+          width: 34, height: 26, padding: '0 4px',
+          border: '0.5px solid #e2e8f0', borderRadius: 4,
+          background: '#fff', color: '#0f172a', fontSize: 11,
+          textAlign: 'center', outline: 'none', fontFamily: 'inherit',
+          marginLeft: 4,
+        }}
+      />
+      <button
+        className="sp-tt-btn"
+        onClick={() => setOpen(v => !v)}
+        title="Preset sizes"
+        style={{width: 18, marginLeft: -2}}
+      >
+        <ChevronDown size={11}/>
+      </button>
+      {open && (
+        <div
+          onMouseDown={e => e.preventDefault()}
+          style={{
+            position: 'absolute', top: '100%', left: 0, marginTop: 4,
+            background: '#fff', border: '0.5px solid #e2e8f0', borderRadius: 6,
+            boxShadow: '0 4px 12px rgba(15,23,42,0.1)', padding: 4,
+            width: 60, maxHeight: 260, overflowY: 'auto', zIndex: 60,
+          }}
+        >
+          {FONT_SIZES.map(size => (
+            <div
+              key={size}
+              onClick={() => {
+                editor.chain().focus().setFontSize(size).run();
+                setValue(parseInt(size, 10) + '');
+                setOpen(false);
+              }}
+              style={{
+                padding: '6px 10px', fontSize: 12, cursor: 'pointer',
+                borderRadius: 4, textAlign: 'center',
+                background: currentSize === size ? 'rgba(14,165,233,0.12)' : 'transparent',
+                color: currentSize === size ? '#0284c7' : '#475569',
+              }}
+              onMouseEnter={e => { if (currentSize !== size) e.currentTarget.style.background = '#f1f5f9'; }}
+              onMouseLeave={e => { if (currentSize !== size) e.currentTarget.style.background = 'transparent'; }}
+            >
+              {parseInt(size, 10)}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 function ColorPicker({ editor, currentColor }) {
