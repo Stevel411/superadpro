@@ -2896,7 +2896,8 @@
     "feat2Title": "Reklama Wideo",
     "feat2Sub": "Poziomy Kampanii i Wyświetlenia",
     "feat3Title": "System Partnerski",
-    "feat3Sub": "Zarabiaj z Każdego Polecenia"
+    "feat3Sub": "Zarabiaj z Każdego Polecenia",
+    "navExplore": "Eksploruj"
   },
   "tools": {
     "navHome": "Strona główna",
@@ -3066,5 +3067,47 @@
     "reviewNote": "Nasz zespół sprawdza każde zgłoszenie przed publikacją na /explore. Zwykle w ciągu 24 godzin.",
     "submitBtn": "Wyślij do weryfikacji",
     "submitting": "Wysyłanie…"
+  },
+  "exploreHub": {
+    "navHome": "Strona główna",
+    "navSignin": "Zaloguj się",
+    "navCta": "Utwórz darmowe konto",
+    "eyebrow": "EKSPLORUJ SUPERADPRO",
+    "headline1": "Prawdziwi członkowie.",
+    "headline2": "Prawdziwe wyniki.",
+    "sub": "Zobacz zarobki na żywo, historie sukcesu członków i pracę, którą społeczność wypuszcza właśnie teraz.",
+    "videoPlaceholderTitle": "Film powitalny wkrótce",
+    "videoPlaceholderSub": "90-sekundowa wycieczka po tym, co SuperAdPro może dla Ciebie zrobić",
+    "cardLiveTitle": "Aktywność na żywo",
+    "cardLiveBody": "Prowizje wypłacane właśnie teraz. Godzina po godzinie, dzień po dniu. Bez szumu — same liczby.",
+    "cardStoriesTitle": "Historie sukcesu",
+    "cardStoriesBody": "Historie pierwszego dolara od prawdziwych członków. Jak to zrobili, ile czasu zajęło, ile zarabiają teraz.",
+    "cardShowcaseTitle": "Showcase członków",
+    "cardShowcaseBody": "Bio linki, strony lądowania i kampanie reklamowe stworzone przez członków narzędziami SuperAdPro.",
+    "cardFreeToolsTitle": "Darmowe narzędzia",
+    "cardFreeToolsBody": "Generator memów, generator QR, kreator bannerów. Darmowe — bez rejestracji.",
+    "cardLink": "Zobacz na żywo",
+    "footerLine1": "Gotowy by zacząć zarabiać?",
+    "footerLine2": "Utwórz darmowe konto w 30 sekund.",
+    "footerCta": "Utwórz darmowe konto"
+  },
+  "freeTools": {
+    "backToHub": "Powrót do Eksploracji",
+    "navSignin": "Zaloguj się",
+    "navCta": "Utwórz darmowe konto",
+    "eyebrow": "DARMOWE NARZĘDZIA · BEZ REJESTRACJI",
+    "headline1": "Narzędzia na koszt firmy.",
+    "headline2": "Używaj kiedy chcesz.",
+    "sub": "Mała próbka tego, co jest w SuperAdPro. Te trzy są darmowe dla każdego — bez konta. W środku czeka znacznie więcej narzędzi.",
+    "memeTitle": "Generator memów",
+    "memeBody": "Twórz brand-owe memy w sekundy. Przeciągnij tekst, zmień szablon, eksportuj PNG.",
+    "qrTitle": "Generator QR",
+    "qrBody": "Zamień każdy link w skanowalny kod QR. Kolor, logo, rozmiar — wszystko konfigurowalne.",
+    "bannerTitle": "Kreator bannerów",
+    "bannerBody": "Projektuj bannery reklamowe w każdym standardowym rozmiarze. Wklej URL, przeciągnij obrazy, eksportuj PNG.",
+    "openTool": "Otwórz narzędzie",
+    "footerLine1": "Chcesz pełny zestaw?",
+    "footerLine2": "W środku jest 30+ więcej narzędzi.",
+    "footerCta": "Utwórz darmowe konto"
   }
 }

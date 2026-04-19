@@ -103,13 +103,12 @@ import ResetPassword from './pages/auth/ResetPassword';
 
 // Public pages
 import HomePage from './pages/public/HomePage';
-import HowItWorks from './pages/public/HowItWorks';
 import ExplorePage from './pages/public/ExplorePage';
+import ExploreHub from './pages/public/ExploreHub';
+import FreeTools from './pages/public/FreeTools';
 import JoinFunnel from './pages/public/JoinFunnel';
 import { FAQ, Legal } from './pages/public/PublicPages';
 import ForAdvertisers from './pages/public/ForAdvertisers';
-import AffiliatePlan from './pages/public/AffiliatePlan';
-import Tools from './pages/public/Tools';
 import CoursePlayer from './pages/CoursePlayer';
 
 function ProtectedRoute({ children }) {
@@ -218,22 +217,32 @@ function AppRoutes() {
 
       {/* Public pages — no auth required, no sidebar */}
       <Route path="/" element={<SmartHome />} />
-      <Route path="/how-it-works" element={<HowItWorks />} />
-      <Route path="/explore" element={<ExplorePage />} />
+
+      {/* Explore hub + sub-pages (new) */}
+      <Route path="/explore" element={<ExploreHub />} />
+      <Route path="/explore/live" element={<ExplorePage defaultTab="activity" hideTabs={true} />} />
+      <Route path="/explore/stories" element={<ExplorePage defaultTab="stories" hideTabs={true} />} />
+      <Route path="/explore/showcase" element={<ExplorePage defaultTab="showcase" hideTabs={true} />} />
+      <Route path="/explore/free-tools" element={<FreeTools />} />
+
+      {/* Old public pages — replaced by /explore hub. Redirect preserves any
+          search-engine rank + honours any existing bookmarks/shared links. */}
+      <Route path="/how-it-works" element={<Navigate to="/explore" replace />} />
+      <Route path="/what-you-get" element={<Navigate to="/explore" replace />} />
+      <Route path="/earn" element={<Navigate to="/explore" replace />} />
+      <Route path="/tools" element={<Navigate to="/explore/free-tools" replace />} />
+
       <Route path="/for-advertisers" element={<ForAdvertisers />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/legal" element={<Legal />} />
       <Route path="/affiliates" element={<Navigate to="/register" replace />} />
       <Route path="/membership" element={<Navigate to="/register" replace />} />
       <Route path="/packages" element={<Navigate to="/register" replace />} />
-      <Route path="/what-you-get" element={<HowItWorks />} />
       <Route path="/vip" element={<Navigate to="/register" replace />} />
       {/* /join/:username handled by SuperLinkPage below */}
       <Route path="/free/meme-generator" element={<Lazy><MemeGenerator /></Lazy>} />
       <Route path="/free/qr-code-generator" element={<Lazy><QRCodeGen /></Lazy>} />
       <Route path="/free/banner-creator" element={<Lazy><BannerCreator /></Lazy>} />
-      <Route path="/earn" element={<AffiliatePlan />} />
-      <Route path="/tools" element={<Tools />} />
       <Route path="/join/:username" element={<SuperLinkPage />} />
 
       {/* Phase 4 member pages */}

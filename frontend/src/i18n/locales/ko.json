@@ -2896,7 +2896,8 @@
     "feat2Title": "동영상 광고",
     "feat2Sub": "캠페인 계층과 타겟 뷰",
     "feat3Title": "제휴 시스템",
-    "feat3Sub": "모든 추천에서 수익"
+    "feat3Sub": "모든 추천에서 수익",
+    "navExplore": "탐색"
   },
   "tools": {
     "navHome": "홈",
@@ -3066,5 +3067,47 @@
     "reviewNote": "팀이 /explore 게시 전에 모든 제출물을 검토합니다. 보통 24시간 이내.",
     "submitBtn": "검토 요청",
     "submitting": "전송 중…"
+  },
+  "exploreHub": {
+    "navHome": "홈",
+    "navSignin": "로그인",
+    "navCta": "무료 계정 만들기",
+    "eyebrow": "SUPERADPRO 탐색",
+    "headline1": "진짜 멤버들.",
+    "headline2": "진짜 결과들.",
+    "sub": "실시간 수익, 멤버 성공 스토리, 커뮤니티가 지금 내놓고 있는 작품을 확인하세요.",
+    "videoPlaceholderTitle": "환영 영상 곧 공개",
+    "videoPlaceholderSub": "SuperAdPro로 할 수 있는 것들의 90초 투어",
+    "cardLiveTitle": "실시간 활동",
+    "cardLiveBody": "지금 지급되는 커미션. 시간별, 일별. 과장 없이 — 숫자만.",
+    "cardStoriesTitle": "성공 스토리",
+    "cardStoriesBody": "실제 멤버들의 첫 달러 스토리. 어떻게 했는지, 얼마나 걸렸는지, 지금 얼마 버는지.",
+    "cardShowcaseTitle": "멤버 쇼케이스",
+    "cardShowcaseBody": "SuperAdPro 툴로 멤버들이 만든 바이오 링크, 랜딩 페이지, 광고 캠페인.",
+    "cardFreeToolsTitle": "무료 툴",
+    "cardFreeToolsBody": "밈 생성기, QR 코드 생성기, 배너 크리에이터. 무료 — 가입 불필요.",
+    "cardLink": "라이브로 보기",
+    "footerLine1": "수익을 시작할 준비가 됐나요?",
+    "footerLine2": "30초 만에 무료 계정을 만드세요.",
+    "footerCta": "무료 계정 만들기"
+  },
+  "freeTools": {
+    "backToHub": "탐색으로 돌아가기",
+    "navSignin": "로그인",
+    "navCta": "무료 계정 만들기",
+    "eyebrow": "무료 툴 · 가입 불필요",
+    "headline1": "툴은 저희가 쏩니다.",
+    "headline2": "언제든 사용하세요.",
+    "sub": "SuperAdPro 안에 있는 것들의 작은 샘플. 이 세 개는 누구나 무료로 사용 가능 — 계정 불필요. 안에는 더 많은 툴이 있습니다.",
+    "memeTitle": "밈 생성기",
+    "memeBody": "몇 초 만에 브랜드에 맞는 밈 생성. 텍스트 드래그, 템플릿 변경, PNG로 내보내기.",
+    "qrTitle": "QR 코드 생성기",
+    "qrBody": "어떤 링크든 스캔 가능한 QR 코드로 변환. 색상, 로고, 크기 — 모두 커스터마이즈 가능.",
+    "bannerTitle": "배너 크리에이터",
+    "bannerBody": "어떤 표준 크기든 광고 배너 디자인. URL 붙여넣기, 이미지 드래그, PNG 내보내기.",
+    "openTool": "툴 열기",
+    "footerLine1": "전체 툴킷을 원하시나요?",
+    "footerLine2": "안에 30개 이상의 툴이 더 있습니다.",
+    "footerCta": "무료 계정 만들기"
   }
 }

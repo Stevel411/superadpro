@@ -2896,7 +2896,8 @@
     "feat2Title": "Quảng Cáo Video",
     "feat2Sub": "Cấp Độ Chiến Dịch và Xem Mục Tiêu",
     "feat3Title": "Hệ Thống Tiếp Thị Liên Kết",
-    "feat3Sub": "Kiếm Tiền Từ Mỗi Giới Thiệu"
+    "feat3Sub": "Kiếm Tiền Từ Mỗi Giới Thiệu",
+    "navExplore": "Khám phá"
   },
   "tools": {
     "navHome": "Trang chủ",
@@ -3066,5 +3067,47 @@
     "reviewNote": "Đội ngũ của chúng tôi duyệt mọi bài gửi trước khi lên sóng trên /explore. Thường trong 24 giờ.",
     "submitBtn": "Gửi để duyệt",
     "submitting": "Đang gửi…"
+  },
+  "exploreHub": {
+    "navHome": "Trang chủ",
+    "navSignin": "Đăng nhập",
+    "navCta": "Tạo tài khoản miễn phí",
+    "eyebrow": "KHÁM PHÁ SUPERADPRO",
+    "headline1": "Thành viên thật.",
+    "headline2": "Kết quả thật.",
+    "sub": "Xem thu nhập trực tiếp, câu chuyện thành công của thành viên và công việc mà cộng đồng đang ra mắt ngay bây giờ.",
+    "videoPlaceholderTitle": "Video chào mừng sắp ra mắt",
+    "videoPlaceholderSub": "Tour 90 giây về những gì SuperAdPro có thể làm cho bạn",
+    "cardLiveTitle": "Hoạt động trực tiếp",
+    "cardLiveBody": "Hoa hồng được trả ngay bây giờ. Giờ qua giờ, ngày qua ngày. Không thổi phồng — chỉ có số.",
+    "cardStoriesTitle": "Câu chuyện thành công",
+    "cardStoriesBody": "Câu chuyện đô la đầu tiên từ thành viên thật. Họ làm thế nào, mất bao lâu, giờ kiếm được bao nhiêu.",
+    "cardShowcaseTitle": "Showcase thành viên",
+    "cardShowcaseBody": "Bio link, landing page và chiến dịch quảng cáo do thành viên tạo bằng công cụ SuperAdPro.",
+    "cardFreeToolsTitle": "Công cụ miễn phí",
+    "cardFreeToolsBody": "Meme generator, QR code generator, banner creator. Miễn phí — không cần đăng ký.",
+    "cardLink": "Xem trực tiếp",
+    "footerLine1": "Sẵn sàng bắt đầu kiếm tiền?",
+    "footerLine2": "Tạo tài khoản miễn phí của bạn trong 30 giây.",
+    "footerCta": "Tạo tài khoản miễn phí"
+  },
+  "freeTools": {
+    "backToHub": "Quay lại Khám phá",
+    "navSignin": "Đăng nhập",
+    "navCta": "Tạo tài khoản miễn phí",
+    "eyebrow": "CÔNG CỤ MIỄN PHÍ · KHÔNG CẦN ĐĂNG KÝ",
+    "headline1": "Công cụ nhà tặng.",
+    "headline2": "Dùng bất cứ lúc nào.",
+    "sub": "Một mẫu nhỏ của những gì có trong SuperAdPro. Ba cái này miễn phí cho mọi người — không cần tài khoản. Bên trong còn rất nhiều công cụ khác.",
+    "memeTitle": "Meme Generator",
+    "memeBody": "Tạo meme đúng brand trong vài giây. Kéo chữ, đổi template, xuất PNG.",
+    "qrTitle": "QR Code Generator",
+    "qrBody": "Biến bất kỳ link nào thành mã QR có thể quét. Màu, logo, kích thước — đều tùy chỉnh được.",
+    "bannerTitle": "Banner Creator",
+    "bannerBody": "Thiết kế banner quảng cáo ở bất kỳ kích thước chuẩn nào. Dán URL, kéo hình, xuất PNG.",
+    "openTool": "Mở công cụ",
+    "footerLine1": "Muốn toàn bộ toolkit?",
+    "footerLine2": "Bên trong có thêm 30+ công cụ.",
+    "footerCta": "Tạo tài khoản miễn phí"
   }
 }

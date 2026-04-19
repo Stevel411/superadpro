@@ -2896,7 +2896,8 @@
     "feat2Title": "動画広告",
     "feat2Sub": "キャンペーン階層とターゲティング",
     "feat3Title": "アフィリエイトシステム",
-    "feat3Sub": "リファラルごとに稼ぐ"
+    "feat3Sub": "リファラルごとに稼ぐ",
+    "navExplore": "探索"
   },
   "tools": {
     "navHome": "ホーム",
@@ -3066,5 +3067,47 @@
     "reviewNote": "チームが /explore での公開前にすべての投稿を審査します。通常24時間以内。",
     "submitBtn": "審査に送る",
     "submitting": "送信中…"
+  },
+  "exploreHub": {
+    "navHome": "ホーム",
+    "navSignin": "ログイン",
+    "navCta": "無料アカウント作成",
+    "eyebrow": "SUPERADPROを探索",
+    "headline1": "本物のメンバー。",
+    "headline2": "本物の結果。",
+    "sub": "リアルタイムの収益、メンバーの成功談、コミュニティが今公開している作品を見てください。",
+    "videoPlaceholderTitle": "ウェルカム動画近日公開",
+    "videoPlaceholderSub": "SuperAdProができることの90秒ツアー",
+    "cardLiveTitle": "ライブアクティビティ",
+    "cardLiveBody": "今まさに支払われている報酬。時間ごと、日ごと。誇張なし — 数字だけ。",
+    "cardStoriesTitle": "成功談",
+    "cardStoriesBody": "本物のメンバーの初収益の話。どうやったか、どのくらいかかったか、今いくら稼いでいるか。",
+    "cardShowcaseTitle": "メンバーショーケース",
+    "cardShowcaseBody": "SuperAdProのツールでメンバーが作ったバイオリンク、ランディングページ、広告キャンペーン。",
+    "cardFreeToolsTitle": "無料ツール",
+    "cardFreeToolsBody": "ミームジェネレーター、QRコードジェネレーター、バナークリエイター。無料 — 登録不要。",
+    "cardLink": "ライブで見る",
+    "footerLine1": "稼ぎ始める準備はできた?",
+    "footerLine2": "30秒で無料アカウントを作成。",
+    "footerCta": "無料アカウント作成"
+  },
+  "freeTools": {
+    "backToHub": "探索に戻る",
+    "navSignin": "ログイン",
+    "navCta": "無料アカウント作成",
+    "eyebrow": "無料ツール · 登録不要",
+    "headline1": "ツールはオンハウス。",
+    "headline2": "いつでも使える。",
+    "sub": "SuperAdProの中身のほんの一部。この3つは誰でも無料で使えます — アカウント不要。中にはもっと多くのツールが待っています。",
+    "memeTitle": "ミームジェネレーター",
+    "memeBody": "ブランドに合ったミームを秒で作成。テキストをドラッグ、テンプレート切替、PNGエクスポート。",
+    "qrTitle": "QRコードジェネレーター",
+    "qrBody": "任意のリンクをスキャン可能なQRコードに変換。色、ロゴ、サイズ — すべてカスタマイズ可能。",
+    "bannerTitle": "バナークリエイター",
+    "bannerBody": "あらゆる標準サイズの広告バナーをデザイン。URLを貼り付け、画像をドラッグ、PNGエクスポート。",
+    "openTool": "ツールを開く",
+    "footerLine1": "完全なツールキットが欲しい?",
+    "footerLine2": "中にはさらに30以上のツールがあります。",
+    "footerCta": "無料アカウント作成"
   }
 }

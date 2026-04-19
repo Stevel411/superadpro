@@ -2896,7 +2896,8 @@
     "feat2Title": "Matangazo ya Video",
     "feat2Sub": "Viwango vya Kampeni na Mitazamo Iliyolengwa",
     "feat3Title": "Mfumo wa Washirika",
-    "feat3Sub": "Pata Kutoka Kila Rufaa"
+    "feat3Sub": "Pata Kutoka Kila Rufaa",
+    "navExplore": "Chunguza"
   },
   "tools": {
     "navHome": "Nyumbani",
@@ -3066,5 +3067,47 @@
     "reviewNote": "Timu yetu hukagua kila uwasilishaji kabla ya kuchapishwa kwenye /explore. Kawaida ndani ya saa 24.",
     "submitBtn": "Wasilisha kwa ukaguzi",
     "submitting": "Inatuma…"
+  },
+  "exploreHub": {
+    "navHome": "Nyumbani",
+    "navSignin": "Ingia",
+    "navCta": "Fungua akaunti bure",
+    "eyebrow": "CHUNGUZA SUPERADPRO",
+    "headline1": "Wanachama halisi.",
+    "headline2": "Matokeo halisi.",
+    "sub": "Ona mapato ya moja kwa moja, hadithi za mafanikio za wanachama, na kazi ambayo jumuiya inatoa sasa hivi.",
+    "videoPlaceholderTitle": "Video ya karibu hivi karibuni",
+    "videoPlaceholderSub": "Ziara ya sekunde 90 ya kile SuperAdPro inaweza kukufanyia",
+    "cardLiveTitle": "Shughuli za moja kwa moja",
+    "cardLiveBody": "Kamisheni zinazolipwa sasa hivi. Saa kwa saa, siku kwa siku. Hakuna matangazo — namba tu.",
+    "cardStoriesTitle": "Hadithi za mafanikio",
+    "cardStoriesBody": "Hadithi za dola ya kwanza kutoka kwa wanachama halisi. Jinsi walivyofanya, muda uliotumika, wanavyopata sasa.",
+    "cardShowcaseTitle": "Onyesho la wanachama",
+    "cardShowcaseBody": "Viungo vya bio, kurasa za kutua, na kampeni za matangazo zilizotengenezwa na wanachama kwa zana za SuperAdPro.",
+    "cardFreeToolsTitle": "Zana za bure",
+    "cardFreeToolsBody": "Meme generator, QR code generator, banner creator. Bure — hakuna usajili unaohitajika.",
+    "cardLink": "Tazama moja kwa moja",
+    "footerLine1": "Tayari kuanza kupata pesa?",
+    "footerLine2": "Fungua akaunti yako ya bure kwa sekunde 30.",
+    "footerCta": "Fungua akaunti bure"
+  },
+  "freeTools": {
+    "backToHub": "Rudi kwa Chunguza",
+    "navSignin": "Ingia",
+    "navCta": "Fungua akaunti bure",
+    "eyebrow": "ZANA ZA BURE · HAKUNA USAJILI",
+    "headline1": "Zana kwa mkono wa nyumba.",
+    "headline2": "Tumia wakati wowote.",
+    "sub": "Sampuli ndogo ya yaliyomo ndani ya SuperAdPro. Hizi tatu ni bure kwa kila mtu — hakuna akaunti inayohitajika. Kuna zana nyingi zaidi ndani.",
+    "memeTitle": "Meme Generator",
+    "memeBody": "Tengeneza meme za chapa kwa sekunde. Vuta maandishi, badilisha violezo, hamisha kama PNG.",
+    "qrTitle": "QR Code Generator",
+    "qrBody": "Geuza kiungo chochote kuwa msimbo wa QR unaoweza kuchanganuliwa. Rangi, nembo, saizi — vyote vinaweza kubadilishwa.",
+    "bannerTitle": "Banner Creator",
+    "bannerBody": "Tengeneza mabango ya matangazo kwa saizi yoyote ya kawaida. Bandika URL, vuta picha, hamisha PNG.",
+    "openTool": "Fungua zana",
+    "footerLine1": "Unataka toolkit kamili?",
+    "footerLine2": "Kuna zana 30+ zaidi ndani.",
+    "footerCta": "Fungua akaunti bure"
   }
 }

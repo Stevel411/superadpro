@@ -2896,7 +2896,8 @@
     "feat2Title": "Video Advertising",
     "feat2Sub": "Mga Tier ng Kampanya at Target na Views",
     "feat3Title": "Affiliate System",
-    "feat3Sub": "Kumita mula sa Bawat Referral"
+    "feat3Sub": "Kumita mula sa Bawat Referral",
+    "navExplore": "Galugarin"
   },
   "tools": {
     "navHome": "Home",
@@ -3066,5 +3067,47 @@
     "reviewNote": "Nirireview ng team namin ang lahat ng submission bago ma-live sa /explore. Karaniwang sa loob ng 24 oras.",
     "submitBtn": "Isumite para sa review",
     "submitting": "Isinusumite…"
+  },
+  "exploreHub": {
+    "navHome": "Home",
+    "navSignin": "Mag-sign in",
+    "navCta": "Gumawa ng libreng account",
+    "eyebrow": "GALUGARIN ANG SUPERADPRO",
+    "headline1": "Totoong miyembro.",
+    "headline2": "Totoong resulta.",
+    "sub": "Tingnan ang live na kita, mga kwentong tagumpay ng mga miyembro, at ang mga gawa ng komunidad ngayon.",
+    "videoPlaceholderTitle": "Welcome video darating",
+    "videoPlaceholderSub": "90-segundong tour ng kaya ng SuperAdPro para sa iyo",
+    "cardLiveTitle": "Live na aktibidad",
+    "cardLiveBody": "Mga komisyong binabayaran ngayon. Oras-oras, araw-araw. Walang hype — numero lang.",
+    "cardStoriesTitle": "Mga kwentong tagumpay",
+    "cardStoriesBody": "Mga unang-dolyar na kwento mula sa totoong miyembro. Paano nila ginawa, gaano katagal, magkano ngayon.",
+    "cardShowcaseTitle": "Showcase ng miyembro",
+    "cardShowcaseBody": "Bio links, landing pages, at ad campaigns na gawa ng mga miyembro gamit ang SuperAdPro tools.",
+    "cardFreeToolsTitle": "Libreng tools",
+    "cardFreeToolsBody": "Meme generator, QR code generator, banner creator. Libre — walang signup.",
+    "cardLink": "Tingnan live",
+    "footerLine1": "Handa nang kumita?",
+    "footerLine2": "Gumawa ng libreng account mo sa 30 segundo.",
+    "footerCta": "Gumawa ng libreng account"
+  },
+  "freeTools": {
+    "backToHub": "Balik sa Galugarin",
+    "navSignin": "Mag-sign in",
+    "navCta": "Gumawa ng libreng account",
+    "eyebrow": "LIBRENG TOOLS · WALANG SIGNUP",
+    "headline1": "Tools na libre.",
+    "headline2": "Gamitin kahit kailan.",
+    "sub": "Maliit na sample ng nasa loob ng SuperAdPro. Libre ang tatlong ito para sa lahat — walang kailangang account. Marami pang tools sa loob.",
+    "memeTitle": "Meme Generator",
+    "memeBody": "Gumawa ng on-brand memes sa loob ng segundo. I-drag ang text, palitan ang template, i-export sa PNG.",
+    "qrTitle": "QR Code Generator",
+    "qrBody": "Gawing scannable QR code ang kahit anong link. Kulay, logo, laki — lahat pwedeng i-customize.",
+    "bannerTitle": "Banner Creator",
+    "bannerBody": "Mag-disenyo ng ad banners sa kahit anong standard na laki. I-paste ang URL, i-drag ang image, i-export sa PNG.",
+    "openTool": "Buksan ang tool",
+    "footerLine1": "Gusto ng buong toolkit?",
+    "footerLine2": "May 30+ pa na tools sa loob.",
+    "footerCta": "Gumawa ng libreng account"
   }
 }

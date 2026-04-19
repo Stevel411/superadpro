@@ -14,7 +14,7 @@ function formatTimeAgo(mins) {
   return mins + ' min ago';
 }
 
-export default function ExplorePage() {
+export default function ExplorePage(props) {
   var tr = useTranslation();
   var t = tr.t;
   var i18n = tr.i18n;
@@ -32,9 +32,13 @@ export default function ExplorePage() {
   var currentLang = LANGUAGES.find(function(l) { return l.code === i18n.language; }) || LANGUAGES[0];
 
   // ── Tab state ──
-  var _activeTab = useState('activity');
+  // When rendered from /explore/live, /explore/stories, /explore/showcase,
+  // the parent passes defaultTab to force that tab on mount, and hideTabs=true
+  // to suppress the top-level tab bar (since each page is now its own URL).
+  var _activeTab = useState(props.defaultTab || 'activity');
   var activeTab = _activeTab[0];
   var setActiveTab = _activeTab[1];
+  var hideTabs = props.hideTabs === true;
 
   // ── Stats + activity feed (real data) ──
   var _stats = useState(null);
@@ -217,7 +221,8 @@ export default function ExplorePage() {
             <span className="accent">{t('explore.headlineLine2')}</span>
           </h2>
 
-          {/* Tab bar */}
+          {/* Tab bar — hidden on /explore/{live,stories,showcase}; each is its own URL now */}
+          {!hideTabs && (
           <div className="tab-bar" role="tablist">
             <button className={'tab' + (activeTab === 'activity' ? ' active' : '')} onClick={function() { setActiveTab('activity'); }}>
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v6M12 17v6M4.22 4.22l4.24 4.24M15.54 15.54l4.24 4.24M1 12h6M17 12h6M4.22 19.78l4.24-4.24M15.54 8.46l4.24-4.24"/></svg>
@@ -235,6 +240,7 @@ export default function ExplorePage() {
               <span className="tab-count">{tabCounts.showcase}</span>
             </button>
           </div>
+          )}
 
           {/* ============ TAB 1: LIVE ACTIVITY ============ */}
           <div className={'tab-panel' + (activeTab === 'activity' ? ' active' : '')}>

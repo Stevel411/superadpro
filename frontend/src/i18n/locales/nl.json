@@ -2904,7 +2904,8 @@
     "feat2Title": "Videoreclame",
     "feat2Sub": "Campagneniveaus & Gerichte Views",
     "feat3Title": "Affiliate-systeem",
-    "feat3Sub": "Verdien aan elke verwijzing"
+    "feat3Sub": "Verdien aan elke verwijzing",
+    "navExplore": "Ontdekken"
   },
   "tools": {
     "navHome": "Home",
@@ -3074,5 +3075,47 @@
     "reviewNote": "Ons team beoordeelt elke inzending voordat deze live gaat op /explore. Meestal binnen 24 uur.",
     "submitBtn": "Indienen ter beoordeling",
     "submitting": "Versturen…"
+  },
+  "exploreHub": {
+    "navHome": "Home",
+    "navSignin": "Inloggen",
+    "navCta": "Gratis account aanmaken",
+    "eyebrow": "ONTDEK SUPERADPRO",
+    "headline1": "Echte leden.",
+    "headline2": "Echte resultaten.",
+    "sub": "Bekijk live verdiensten, succesverhalen van leden en het werk dat de community nu uitbrengt.",
+    "videoPlaceholderTitle": "Welkomstvideo komt eraan",
+    "videoPlaceholderSub": "Een rondleiding van 90 seconden over wat SuperAdPro voor je kan doen",
+    "cardLiveTitle": "Live activiteit",
+    "cardLiveBody": "Commissies die nu worden uitbetaald. Uur voor uur, dag voor dag. Geen hype — alleen de cijfers.",
+    "cardStoriesTitle": "Succesverhalen",
+    "cardStoriesBody": "Eerste-dollar-verhalen van echte leden. Hoe ze het deden, hoe lang het duurde, wat ze nu verdienen.",
+    "cardShowcaseTitle": "Ledenshowcase",
+    "cardShowcaseBody": "Bio-links, landingpagina's en advertentiecampagnes gemaakt door leden met SuperAdPro-tools.",
+    "cardFreeToolsTitle": "Gratis tools",
+    "cardFreeToolsBody": "Memegenerator, QR-codegenerator, bannermaker. Gratis — geen registratie nodig.",
+    "cardLink": "Live bekijken",
+    "footerLine1": "Klaar om geld te gaan verdienen?",
+    "footerLine2": "Maak je gratis account in 30 seconden aan.",
+    "footerCta": "Gratis account aanmaken"
+  },
+  "freeTools": {
+    "backToHub": "Terug naar Ontdekken",
+    "navSignin": "Inloggen",
+    "navCta": "Gratis account aanmaken",
+    "eyebrow": "GRATIS TOOLS · GEEN REGISTRATIE",
+    "headline1": "Tools van het huis.",
+    "headline2": "Gebruik ze wanneer je wilt.",
+    "sub": "Een klein voorproefje van wat er in SuperAdPro zit. Deze drie zijn gratis voor iedereen — geen account nodig. Er wachten nog veel meer tools binnen.",
+    "memeTitle": "Memegenerator",
+    "memeBody": "Maak on-brand memes in seconden. Sleep tekst, wissel templates, exporteer als PNG.",
+    "qrTitle": "QR-codegenerator",
+    "qrBody": "Verander elke link in een scanbare QR-code. Kleur, logo, formaat — alles aanpasbaar.",
+    "bannerTitle": "Bannermaker",
+    "bannerBody": "Ontwerp advertentiebanners in elk standaardformaat. Plak URL's, sleep afbeeldingen, exporteer PNG.",
+    "openTool": "Tool openen",
+    "footerLine1": "Wil je het volledige pakket?",
+    "footerLine2": "Er zitten er 30+ meer binnen.",
+    "footerCta": "Gratis account aanmaken"
   }
 }

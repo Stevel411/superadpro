@@ -2896,7 +2896,8 @@
     "feat2Title": "Iklan Video",
     "feat2Sub": "Tingkat Kampanye & Tayangan Bertarget",
     "feat3Title": "Sistem Afiliasi",
-    "feat3Sub": "Hasilkan dari Setiap Rujukan"
+    "feat3Sub": "Hasilkan dari Setiap Rujukan",
+    "navExplore": "Jelajahi"
   },
   "tools": {
     "navHome": "Beranda",
@@ -3066,5 +3067,47 @@
     "reviewNote": "Tim kami meninjau setiap pengajuan sebelum tayang di /explore. Biasanya dalam 24 jam.",
     "submitBtn": "Ajukan untuk review",
     "submitting": "Mengirim…"
+  },
+  "exploreHub": {
+    "navHome": "Beranda",
+    "navSignin": "Masuk",
+    "navCta": "Buat akun gratis",
+    "eyebrow": "JELAJAHI SUPERADPRO",
+    "headline1": "Anggota nyata.",
+    "headline2": "Hasil nyata.",
+    "sub": "Lihat pendapatan langsung, kisah sukses anggota, dan karya yang sedang dikirim komunitas sekarang.",
+    "videoPlaceholderTitle": "Video selamat datang akan hadir",
+    "videoPlaceholderSub": "Tur 90 detik tentang apa yang bisa SuperAdPro lakukan untukmu",
+    "cardLiveTitle": "Aktivitas langsung",
+    "cardLiveBody": "Komisi dibayarkan sekarang juga. Per jam, per hari. Tanpa hype — hanya angka.",
+    "cardStoriesTitle": "Kisah sukses",
+    "cardStoriesBody": "Kisah dolar pertama dari anggota nyata. Bagaimana mereka melakukannya, berapa lama, berapa pendapatan sekarang.",
+    "cardShowcaseTitle": "Showcase anggota",
+    "cardShowcaseBody": "Bio link, landing page, dan kampanye iklan yang dibuat anggota dengan tool SuperAdPro.",
+    "cardFreeToolsTitle": "Tool gratis",
+    "cardFreeToolsBody": "Meme generator, QR code generator, banner creator. Gratis — tanpa daftar.",
+    "cardLink": "Lihat langsung",
+    "footerLine1": "Siap mulai menghasilkan?",
+    "footerLine2": "Buat akun gratismu dalam 30 detik.",
+    "footerCta": "Buat akun gratis"
+  },
+  "freeTools": {
+    "backToHub": "Kembali ke Jelajahi",
+    "navSignin": "Masuk",
+    "navCta": "Buat akun gratis",
+    "eyebrow": "TOOL GRATIS · TANPA DAFTAR",
+    "headline1": "Tool gratis dari kami.",
+    "headline2": "Pakai kapan saja.",
+    "sub": "Sampel kecil dari yang ada di dalam SuperAdPro. Tiga ini gratis untuk semua — tanpa akun. Masih banyak tool lain di dalam.",
+    "memeTitle": "Meme Generator",
+    "memeBody": "Buat meme sesuai brand dalam hitungan detik. Seret teks, ganti template, ekspor PNG.",
+    "qrTitle": "QR Code Generator",
+    "qrBody": "Ubah link apa saja jadi QR code yang bisa dipindai. Warna, logo, ukuran — semua bisa diatur.",
+    "bannerTitle": "Banner Creator",
+    "bannerBody": "Desain banner iklan dalam ukuran standar apapun. Tempel URL, seret gambar, ekspor PNG.",
+    "openTool": "Buka tool",
+    "footerLine1": "Mau toolkit lengkap?",
+    "footerLine2": "Ada 30+ tool lagi di dalam.",
+    "footerCta": "Buat akun gratis"
   }
 }

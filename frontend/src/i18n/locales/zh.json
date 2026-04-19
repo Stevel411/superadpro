@@ -2896,7 +2896,8 @@
     "feat2Title": "视频广告",
     "feat2Sub": "广告等级和精准观看",
     "feat3Title": "联盟营销系统",
-    "feat3Sub": "从每次推荐中赚取"
+    "feat3Sub": "从每次推荐中赚取",
+    "navExplore": "探索"
   },
   "tools": {
     "navHome": "首页",
@@ -3066,5 +3067,47 @@
     "reviewNote": "我们的团队会在 /explore 上线前审核每个提交。通常 24 小时内完成。",
     "submitBtn": "提交审核",
     "submitting": "提交中…"
+  },
+  "exploreHub": {
+    "navHome": "首页",
+    "navSignin": "登录",
+    "navCta": "创建免费账户",
+    "eyebrow": "探索 SUPERADPRO",
+    "headline1": "真实成员。",
+    "headline2": "真实成果。",
+    "sub": "查看实时收入、成员成功故事,以及社区现在正在发布的作品。",
+    "videoPlaceholderTitle": "欢迎视频即将推出",
+    "videoPlaceholderSub": "SuperAdPro 能为你做什么的 90 秒快览",
+    "cardLiveTitle": "实时活动",
+    "cardLiveBody": "正在支付的佣金。按小时、按天。不夸张 — 只有数字。",
+    "cardStoriesTitle": "成功故事",
+    "cardStoriesBody": "真实成员的第一美元故事。他们怎么做的、花了多长时间、现在赚多少。",
+    "cardShowcaseTitle": "成员展示",
+    "cardShowcaseBody": "成员用 SuperAdPro 工具制作的简介链接、落地页和广告活动。",
+    "cardFreeToolsTitle": "免费工具",
+    "cardFreeToolsBody": "表情包生成器、二维码生成器、横幅创建器。免费使用 — 无需注册。",
+    "cardLink": "实时查看",
+    "footerLine1": "准备开始赚钱?",
+    "footerLine2": "30 秒创建你的免费账户。",
+    "footerCta": "创建免费账户"
+  },
+  "freeTools": {
+    "backToHub": "返回探索",
+    "navSignin": "登录",
+    "navCta": "创建免费账户",
+    "eyebrow": "免费工具 · 无需注册",
+    "headline1": "工具免费请用。",
+    "headline2": "随时使用。",
+    "sub": "SuperAdPro 内部的一小部分样本。这三个工具对所有人免费 — 无需账户。里面还有更多工具等着你。",
+    "memeTitle": "表情包生成器",
+    "memeBody": "几秒钟创建品牌表情包。拖动文字、切换模板、导出 PNG。",
+    "qrTitle": "二维码生成器",
+    "qrBody": "将任何链接变成可扫描的二维码。颜色、标志、大小 — 全部可自定义。",
+    "bannerTitle": "横幅创建器",
+    "bannerBody": "设计任何标准尺寸的广告横幅。粘贴 URL、拖动图片、导出 PNG。",
+    "openTool": "打开工具",
+    "footerLine1": "想要完整工具包?",
+    "footerLine2": "里面还有 30+ 个工具。",
+    "footerCta": "创建免费账户"
   }
 }

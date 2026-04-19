@@ -2896,7 +2896,8 @@
     "feat2Title": "Video Reklamcılık",
     "feat2Sub": "Kampanya Katmanları ve Hedefli Görüntülemeler",
     "feat3Title": "Ortaklık Sistemi",
-    "feat3Sub": "Her Referanstan Kazanç"
+    "feat3Sub": "Her Referanstan Kazanç",
+    "navExplore": "Keşfet"
   },
   "tools": {
     "navHome": "Ana Sayfa",
@@ -3066,5 +3067,47 @@
     "reviewNote": "Ekibimiz, /explore'da yayına girmeden önce her gönderiyi inceler. Genellikle 24 saat içinde.",
     "submitBtn": "İncelemeye gönder",
     "submitting": "Gönderiliyor…"
+  },
+  "exploreHub": {
+    "navHome": "Ana Sayfa",
+    "navSignin": "Giriş yap",
+    "navCta": "Ücretsiz hesap oluştur",
+    "eyebrow": "SUPERADPRO'YU KEŞFET",
+    "headline1": "Gerçek üyeler.",
+    "headline2": "Gerçek sonuçlar.",
+    "sub": "Canlı kazançları, üye başarı hikâyelerini ve topluluğun şu anda yayınladığı işleri görün.",
+    "videoPlaceholderTitle": "Karşılama videosu yakında",
+    "videoPlaceholderSub": "SuperAdPro'nun senin için neler yapabileceğinin 90 saniyelik turu",
+    "cardLiveTitle": "Canlı Aktivite",
+    "cardLiveBody": "Şu an ödenen komisyonlar. Saat saat, gün gün. Hype yok — sadece rakamlar.",
+    "cardStoriesTitle": "Başarı Hikâyeleri",
+    "cardStoriesBody": "Gerçek üyelerden ilk dolar hikâyeleri. Nasıl yaptılar, ne kadar sürdü, şimdi ne kadar kazanıyorlar.",
+    "cardShowcaseTitle": "Üye Vitrini",
+    "cardShowcaseBody": "Üyelerin SuperAdPro araçlarıyla oluşturduğu bio linkler, açılış sayfaları ve reklam kampanyaları.",
+    "cardFreeToolsTitle": "Ücretsiz Araçlar",
+    "cardFreeToolsBody": "Mem üretici, QR kod üretici, banner oluşturucu. Ücretsiz — kayıt gerekmez.",
+    "cardLink": "Canlı gör",
+    "footerLine1": "Kazanmaya başlamaya hazır mısın?",
+    "footerLine2": "Ücretsiz hesabını 30 saniyede oluştur.",
+    "footerCta": "Ücretsiz hesap oluştur"
+  },
+  "freeTools": {
+    "backToHub": "Keşfet'e dön",
+    "navSignin": "Giriş yap",
+    "navCta": "Ücretsiz hesap oluştur",
+    "eyebrow": "ÜCRETSİZ ARAÇLAR · KAYIT GEREKMEZ",
+    "headline1": "Ev ikramı araçlar.",
+    "headline2": "İstediğin zaman kullan.",
+    "sub": "SuperAdPro'nun içinde olanların küçük bir örneği. Bu üçü herkese ücretsiz — hesap gerekmez. İçeride çok daha fazla araç seni bekliyor.",
+    "memeTitle": "Mem Üretici",
+    "memeBody": "Markaya uygun memleri saniyeler içinde oluştur. Metni sürükle, şablonları değiştir, PNG olarak dışa aktar.",
+    "qrTitle": "QR Kod Üretici",
+    "qrBody": "Herhangi bir linki taranabilir QR koda dönüştür. Renk, logo, boyut — her şey özelleştirilebilir.",
+    "bannerTitle": "Banner Oluşturucu",
+    "bannerBody": "Herhangi bir standart boyutta reklam bannerları tasarla. URL'leri yapıştır, görselleri sürükle, PNG dışa aktar.",
+    "openTool": "Aracı aç",
+    "footerLine1": "Tam seti ister misin?",
+    "footerLine2": "İçeride 30+ araç daha var.",
+    "footerCta": "Ücretsiz hesap oluştur"
   }
 }
