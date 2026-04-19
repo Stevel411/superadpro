@@ -741,6 +741,48 @@ def api_public_stats(db: Session = Depends(get_db)):
         "registered": total_registered,
         "total_earned": total_earned,
     }
+
+# In-memory cache for the public payouts feed (30 s window)
+_recent_payouts_cache = {"ts": 0.0, "data": []}
+
+@app.get("/api/public/recent-payouts")
+def api_public_recent_payouts(db: Session = Depends(get_db)):
+    """
+    Public feed for the /earn page's live income toast.
+    Returns up to 20 most-recent paid commissions as { name, amount } pairs.
+    Only first name (or username as fallback) + rounded integer amount —
+    no email, no user_id, no timestamp, no commission_type exposed.
+    Cached for 30 s so the poll endpoint doesn't thrash the DB.
+    Returns an empty list when there are no paid commissions yet (launch day).
+    """
+    import time as _time
+    now = _time.time()
+    if now - _recent_payouts_cache["ts"] < 30 and _recent_payouts_cache["data"]:
+        return _recent_payouts_cache["data"]
+
+    rows = (
+        db.query(Commission, User)
+          .join(User, User.id == Commission.to_user_id)
+          .filter(Commission.status == "paid")
+          .filter(Commission.amount_usdt > 0)
+          .order_by(Commission.created_at.desc())
+          .limit(20)
+          .all()
+    )
+    result = []
+    for commission, user in rows:
+        raw_name = (user.first_name or "").strip() or (user.username or "").strip() or "Member"
+        # First token only — "Steve L" -> "Steve", "stevepersonal" -> "stevepersonal"
+        display_name = raw_name.split()[0]
+        amount = int(round(float(commission.amount_usdt or 0)))
+        if amount <= 0:
+            continue
+        result.append({"name": display_name, "amount": amount})
+
+    _recent_payouts_cache["ts"] = now
+    _recent_payouts_cache["data"] = result
+    return result
+
 @app.get("/api/me")
 def api_me(request: Request, db: Session = Depends(get_db)):
     """Return current user data for the React frontend."""
