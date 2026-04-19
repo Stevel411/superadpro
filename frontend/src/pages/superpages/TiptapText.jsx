@@ -65,10 +65,12 @@ export default function TiptapText({
   // portal-mounted <div> using position:fixed.
   const [menuPos, setMenuPos] = useState(null);  // {x, y} in viewport coords, or null when hidden
 
-  // linkModeRef kept as a no-op (always false) so the bubble menu
-  // effect's guards still work. We're not using link-edit-mode anymore
-  // (window.prompt for now; a proper floating editor panel is planned),
-  // but keeping the ref avoids a larger refactor.
+  // Link popup state. Restored from the git graveyard purely for
+  // diagnostic purposes — so we can inspect what's happening in the DOM
+  // when the popup "disappears." linkPopupRef points at the rendered div.
+  const [linkPopup, setLinkPopup] = useState({ open: false, url: '', pos: null });
+  const linkPopupRef = useRef(null);
+  const linkInputRef = useRef(null);
   const linkModeRef = useRef({ active: false });
 
   const onChangeRef = useRef(onChange);
@@ -81,6 +83,75 @@ export default function TiptapText({
   const wrapperRef = useRef(null);
   const lastEmittedRef = useRef(html || '');
   const lastReportedHeightRef = useRef(0);
+
+  // DIAGNOSTIC: When link popup opens, intensively monitor the DOM to
+  // figure out why it disappears. This runs every 50ms for 3 seconds.
+  // Logs each tick the popup's computed styles, bounding rect, parent
+  // chain, and crucially: what element is at the popup's center point
+  // (elementFromPoint). If something is covering it, we'll find out.
+  useEffect(() => {
+    if (!linkPopup.open) return;
+    let tickCount = 0;
+    // eslint-disable-next-line no-console
+    console.log('%c[LinkDiag] === POPUP OPENED — starting 3s inspection ===', 'background:#0ea5e9;color:#fff;padding:2px 6px;font-weight:700');
+    const interval = setInterval(() => {
+      tickCount++;
+      const el = linkPopupRef.current;
+      if (!el) {
+        // eslint-disable-next-line no-console
+        console.log(`[LinkDiag t=${tickCount*50}ms] ref is NULL — popup DOM node gone`);
+        return;
+      }
+      if (!document.body.contains(el)) {
+        // eslint-disable-next-line no-console
+        console.log(`[LinkDiag t=${tickCount*50}ms] popup element NOT IN DOM TREE (detached)`);
+        return;
+      }
+      const cs = window.getComputedStyle(el);
+      const rect = el.getBoundingClientRect();
+      // Walk up the parent chain looking for ancestors that might hide
+      const hidingAncestors = [];
+      let node = el.parentElement;
+      while (node && node !== document.body) {
+        const acs = window.getComputedStyle(node);
+        if (acs.display === 'none' || acs.visibility === 'hidden' || acs.opacity === '0' ||
+            (acs.overflow === 'hidden' && (node.getBoundingClientRect().width === 0 || node.getBoundingClientRect().height === 0))) {
+          hidingAncestors.push({ tag: node.tagName, cls: node.className, display: acs.display, visibility: acs.visibility, opacity: acs.opacity, overflow: acs.overflow });
+        }
+        node = node.parentElement;
+      }
+      // What's at the popup's center? If it's not our popup (or descendant), something is covering it
+      const centerX = rect.left + rect.width / 2;
+      const centerY = rect.top + rect.height / 2;
+      const elAtPoint = document.elementFromPoint(centerX, centerY);
+      const isPopupOrDescendant = elAtPoint && (elAtPoint === el || el.contains(elAtPoint));
+      const activeEl = document.activeElement;
+      const info = {
+        tick: `t=${tickCount*50}ms`,
+        display: cs.display,
+        visibility: cs.visibility,
+        opacity: cs.opacity,
+        zIndex: cs.zIndex,
+        position: cs.position,
+        rect: { x: Math.round(rect.x), y: Math.round(rect.y), w: Math.round(rect.width), h: Math.round(rect.height) },
+        activeEl: activeEl ? `${activeEl.tagName}${activeEl.className ? '.' + activeEl.className.split(' ')[0] : ''}` : null,
+        elAtCenter: elAtPoint ? `${elAtPoint.tagName}${elAtPoint.className ? '.' + (typeof elAtPoint.className === 'string' ? elAtPoint.className.split(' ')[0] : '') : ''}` : null,
+        isVisible: isPopupOrDescendant,
+        hidingAncestors: hidingAncestors.length > 0 ? hidingAncestors : 'none',
+      };
+      // eslint-disable-next-line no-console
+      console.log(`[LinkDiag ${info.tick}]`, info);
+    }, 50);
+    const stop = setTimeout(() => {
+      clearInterval(interval);
+      // eslint-disable-next-line no-console
+      console.log('%c[LinkDiag] === inspection ended ===', 'background:#64748b;color:#fff;padding:2px 6px');
+    }, 3000);
+    return () => {
+      clearInterval(interval);
+      clearTimeout(stop);
+    };
+  }, [linkPopup.open]);
 
   const editor = useEditor({
     extensions: [
@@ -363,7 +434,13 @@ export default function TiptapText({
 
             <Divider/>
 
-            <LinkButton editor={editor} isActive={!!tbState?.link} />
+            <LinkButton editor={editor} isActive={!!tbState?.link} openPopup={() => {
+              const existing = editor.getAttributes('link').href || '';
+              // eslint-disable-next-line no-console
+              console.log('%c[LinkDiag] openPopup() called from LinkButton', 'background:#8b5cf6;color:#fff;padding:2px 6px', 'menuPos=', menuPos);
+              setLinkPopup({ open: true, url: existing, pos: menuPos });
+              setTimeout(() => { if (linkInputRef.current) linkInputRef.current.focus(); }, 30);
+            }} />
 
             {showAi && (
               <>
@@ -404,6 +481,71 @@ export default function TiptapText({
               />
             </div>
           )}
+        </div>,
+        document.body
+      )}
+
+      {/* DIAGNOSTIC POPUP — restored purely for debugging. This is the
+          popup that "pops up and disappears" that we've been chasing all
+          day. We render it unconditionally via style-based show/hide
+          (NOT conditional mount) so the diagnostic effect can always
+          read its DOM. data-sp-link-popup makes it findable in Elements
+          tab. */}
+      {createPortal(
+        <div
+          ref={linkPopupRef}
+          data-sp-link-popup="true"
+          style={{
+            position: 'fixed',
+            top: linkPopup.pos ? linkPopup.pos.y - 50 : -9999,
+            left: linkPopup.pos ? linkPopup.pos.x : -9999,
+            transform: 'translate(-50%, -100%)',
+            zIndex: 1001,
+            background: '#fff',
+            border: '2px solid #ef4444',  // bright red border so we can SEE it
+            borderRadius: 8,
+            boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+            padding: 8,
+            display: linkPopup.open ? 'flex' : 'none',
+            gap: 6,
+            alignItems: 'center',
+          }}
+          onMouseDown={e => e.stopPropagation()}
+        >
+          <input
+            ref={linkInputRef}
+            type="text"
+            value={linkPopup.url}
+            onChange={e => setLinkPopup(prev => ({ ...prev, url: e.target.value }))}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                const t = linkPopup.url.trim();
+                if (!t) editor?.chain().focus().extendMarkRange('link').unsetLink().run();
+                else {
+                  const full = /^https?:\/\//i.test(t) ? t : 'https://' + t;
+                  editor?.chain().focus().extendMarkRange('link').setLink({ href: full }).run();
+                }
+                setLinkPopup({ open: false, url: '', pos: null });
+              }
+              if (e.key === 'Escape') setLinkPopup({ open: false, url: '', pos: null });
+            }}
+            placeholder="https://example.com"
+            style={{
+              width: 240, padding: '7px 10px', fontSize: 13,
+              border: '0.5px solid #cbd5e1', borderRadius: 5,
+              outline: 'none', fontFamily: 'inherit',
+            }}
+          />
+          <button
+            onClick={() => setLinkPopup({ open: false, url: '', pos: null })}
+            style={{
+              padding: '7px 10px', fontSize: 12,
+              background: '#ef4444', color: '#fff', border: 'none',
+              borderRadius: 5, cursor: 'pointer',
+            }}
+          >
+            Close
+          </button>
         </div>,
         document.body
       )}
@@ -741,45 +883,19 @@ function ColorPicker({ editor, currentColor }) {
 }
 
 /**
- * Link button. Triggers the link dialog owned by TiptapText (top level,
- * independent of the bubble menu's mount/unmount cycles). No local
- * state — just dispatches the click.
+ * Link button — DIAGNOSTIC MODE.
+ *
+ * Opens a popup managed by TiptapText's linkPopup state. TiptapText
+ * has a useEffect watching linkPopup.open that inspects the popup's
+ * DOM every 50ms and logs what's happening. The popup has a BRIGHT
+ * RED BORDER so we can see it visually and find it in the Elements
+ * tab (it also has data-sp-link-popup="true" attribute).
  */
-/**
- * Link button — uses window.prompt() for URL entry.
- *
- * After 15+ attempts at custom popups (manual portals, separate dialogs,
- * mui-tiptap pattern, Radix UI), none could reliably keep a URL-entry
- * popup stable in our Canvas environment. The issue is likely in how
- * our Canvas component handles element clicks and the contentEditable
- * loses focus at the same moment the popup tries to mount, but after
- * 11+ hours we couldn't pin it down.
- *
- * window.prompt() sidesteps the entire problem because it blocks the
- * event loop synchronously — no React lifecycle, no focus cascade, no
- * portal race condition. It's ugly but bulletproof.
- *
- * The long-term solution is the draggable floating editor panel that
- * Steve and I mocked up — an editor not coupled to the selection at
- * all. Until that's built, this stays.
- */
-function LinkButton({ editor, isActive }) {
-  const handleClick = () => {
-    const existing = editor.getAttributes('link').href || '';
-    const input = window.prompt('Enter a URL (leave blank to remove link):', existing);
-    if (input === null) return;  // user cancelled
-    const trimmed = input.trim();
-    if (!trimmed) {
-      editor.chain().focus().extendMarkRange('link').unsetLink().run();
-      return;
-    }
-    const full = /^https?:\/\//i.test(trimmed) ? trimmed : 'https://' + trimmed;
-    editor.chain().focus().extendMarkRange('link').setLink({ href: full }).run();
-  };
+function LinkButton({ editor, isActive, openPopup }) {
   return (
     <button
       className={'sp-tt-btn' + (isActive ? ' sp-tt-active' : '')}
-      onClick={handleClick}
+      onClick={openPopup}
       title={isActive ? 'Edit or remove link' : 'Add link'}
     >
       <LinkIcon size={13}/>
