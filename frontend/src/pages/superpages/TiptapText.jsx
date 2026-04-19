@@ -65,14 +65,19 @@ export default function TiptapText({
   // portal-mounted <div> using position:fixed.
   const [menuPos, setMenuPos] = useState(null);  // {x, y} in viewport coords, or null when hidden
 
-  // Link dialog state is held at this top level (not inside LinkButton)
-  // so it survives any re-render of the bubble menu tree. Previously,
-  // when the popup was owned by LinkButton, transient menuPos null
-  // toggles during focus transitions unmounted the button and killed
-  // the popup. Here, the dialog is rendered as a sibling of the bubble
-  // menu and is independent of menuPos entirely.
-  const [linkDialog, setLinkDialog] = useState({ open: false, url: '', pos: null });
+  // Link edit mode. When true, the bubble menu swaps its CONTENTS from
+  // formatting buttons to a URL input row — same container, same position,
+  // different children. This is the mui-tiptap 'LinkBubbleMenu' pattern,
+  // settled on by the community after years of failed attempts to spawn a
+  // second popup from within the bubble menu. One floating thing, two
+  // states. No nested portals, no focus cascade, no element-underneath
+  // click interference.
+  const [linkMode, setLinkMode] = useState({ active: false, url: '' });
   const linkInputRef = useRef(null);
+  // Ref mirror of linkMode so the bubble-menu useEffect (which doesn't
+  // re-subscribe on linkMode changes) can always read the current value.
+  const linkModeRef = useRef(linkMode);
+  linkModeRef.current = linkMode;
 
   const onChangeRef = useRef(onChange);
   const onExitRef = useRef(onExit);
@@ -149,19 +154,18 @@ export default function TiptapText({
     // menu (focus inside a toolbar input/button)? If so, we should NOT
     // hide the menu even if the editor has lost focus. Used by both the
     // selection-update path and the blur path so they agree.
-    // Also recognizes the link dialog — if the user is typing in the
-    // URL field, keep the menu visible so it reappears naturally when
-    // they dismiss the dialog.
     function focusInsideMenu() {
       const a = document.activeElement;
       if (!a || !a.closest) return false;
-      if (a.closest('.sp-tt-bubble-wrap')) return true;
-      if (a.closest('.sp-tt-link-dialog')) return true;
-      return false;
+      return !!a.closest('.sp-tt-bubble-wrap');
     }
 
     function updateMenuPos() {
       if (!editor || editor.isDestroyed) { setMenuPos(null); return; }
+      // Link-edit mode — freeze the menu in place. The menu IS the link
+      // editor now; any selection/focus changes triggered by the URL
+      // input should not move or hide it.
+      if (linkModeRef.current.active) return;
       const { from, to, empty } = editor.state.selection;
       // If there's no selection, hide — UNLESS the user is interacting
       // with a menu control (clicking a link input collapses the
@@ -191,6 +195,8 @@ export default function TiptapText({
     editor.on('blur', () => {
       queueMicrotask(() => {
         if (!editor || editor.isDestroyed) return;
+        // Link-edit mode — keep menu visible, it's being used for the link editor
+        if (linkModeRef.current.active) return;
         if (focusInsideMenu()) return;
         if (editor.view.hasFocus()) return;
         setMenuPos(null);
@@ -292,21 +298,21 @@ export default function TiptapText({
   }, [editor, onAiRequest]);
 
   // Open the link dialog. Snapshots the selection's current href (if
-  // the cursor is on a link) and the bubble menu's current position so
-  // the dialog can sit right under the toolbar.
-  const openLinkDialog = useCallback(() => {
+  // Enter link-edit mode — bubble menu swaps its contents to the URL
+  // editor. Pre-fills with the existing href if cursor is on a link.
+  const openLinkMode = useCallback(() => {
     if (!editor) return;
     const existing = editor.getAttributes('link').href || '';
-    setLinkDialog({
-      open: true,
-      url: existing,
-      pos: menuPos,  // snapshot the anchor — dialog follows the menu's position at the time of opening
-    });
-    // Focus the input after React mounts it (next tick is enough)
+    setLinkMode({ active: true, url: existing });
+    // Focus input after React mounts it; keeps editor selection intact
+    // because the bubble menu's onMouseDown preventDefault has already
+    // fired and prevented the selection from collapsing.
     setTimeout(() => { if (linkInputRef.current) linkInputRef.current.focus(); }, 30);
-  }, [editor, menuPos]);
+  }, [editor]);
 
-  const applyLinkDialog = useCallback((newUrl) => {
+  // Apply the URL (or clear the link if blank), then return to
+  // formatting mode. Also the path taken on Enter keypress.
+  const applyLink = useCallback((newUrl) => {
     if (!editor) return;
     const trimmed = (newUrl || '').trim();
     if (!trimmed) {
@@ -315,7 +321,13 @@ export default function TiptapText({
       const full = /^https?:\/\//i.test(trimmed) ? trimmed : 'https://' + trimmed;
       editor.chain().focus().extendMarkRange('link').setLink({ href: full }).run();
     }
-    setLinkDialog({ open: false, url: '', pos: null });
+    setLinkMode({ active: false, url: '' });
+  }, [editor]);
+
+  // Cancel link-edit mode without applying. Used by ✕ button and Escape.
+  const cancelLinkMode = useCallback(() => {
+    setLinkMode({ active: false, url: '' });
+    if (editor) editor.commands.focus();
   }, [editor]);
 
   if (!editor) return null;
@@ -339,18 +351,65 @@ export default function TiptapText({
             left: menuPos ? menuPos.x : -9999,
             transform: 'translate(-50%, calc(-100% - 8px))',
             zIndex: 1000,
-            // Hide when there's no selection, OR when the link dialog is
-            // open (cleaner UX — user is focused on URL entry, menu
-            // isn't needed and would otherwise sit visually below the
-            // dialog creating clutter).
-            visibility: (menuPos && !linkDialog.open) ? 'visible' : 'hidden',
-            pointerEvents: (menuPos && !linkDialog.open) ? 'auto' : 'none',
-            opacity: (menuPos && !linkDialog.open) ? 1 : 0,
+            // Visible whenever we have a position. In link-edit mode the
+            // menu stays visible — it becomes the link editor itself.
+            visibility: menuPos ? 'visible' : 'hidden',
+            pointerEvents: menuPos ? 'auto' : 'none',
+            opacity: menuPos ? 1 : 0,
             transition: 'opacity 0.12s',
           }}
           onMouseDown={(e) => e.preventDefault()}
         >
-          <div className="sp-tt-bubble">
+          {/* The bubble menu has two modes: formatting (default) and
+              link-edit. In link-edit mode the toolbar's children swap to
+              a URL input row. Same container, same position, different
+              children. This is the mui-tiptap LinkBubbleMenu pattern. */}
+          {linkMode.active ? (
+            <div className="sp-tt-bubble" style={{padding: '6px 8px', gap: 8, alignItems: 'center'}}>
+              <LinkIcon size={14} style={{color: '#0284c7', flexShrink: 0}}/>
+              <input
+                ref={linkInputRef}
+                type="text"
+                value={linkMode.url}
+                onChange={e => setLinkMode(prev => ({ ...prev, url: e.target.value }))}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') { e.preventDefault(); applyLink(linkMode.url); }
+                  if (e.key === 'Escape') { e.preventDefault(); cancelLinkMode(); }
+                }}
+                placeholder="https://example.com"
+                style={{
+                  width: 280, height: 30, padding: '0 10px',
+                  border: '0.5px solid #cbd5e1', borderRadius: 5,
+                  background: '#fff', color: '#0f172a', fontSize: 13,
+                  outline: 'none', fontFamily: 'inherit',
+                }}
+              />
+              <button
+                onClick={() => applyLink(linkMode.url)}
+                style={{
+                  height: 30, padding: '0 14px', border: 'none',
+                  background: '#0ea5e9', color: '#fff', fontWeight: 600,
+                  fontSize: 12, borderRadius: 5, cursor: 'pointer',
+                  fontFamily: 'inherit', flexShrink: 0,
+                }}
+              >
+                {linkMode.url.trim() ? 'Apply' : 'Clear'}
+              </button>
+              <button
+                onClick={cancelLinkMode}
+                title="Cancel"
+                style={{
+                  height: 30, padding: '0 10px', border: 'none',
+                  background: 'transparent', color: '#64748b',
+                  fontSize: 14, borderRadius: 5, cursor: 'pointer',
+                  fontFamily: 'inherit', flexShrink: 0,
+                }}
+              >
+                ✕
+              </button>
+            </div>
+          ) : (
+            <div className="sp-tt-bubble">
             <FontSelect editor={editor} currentFont={tbState?.fontFamily} />
             <SizeInput editor={editor} currentSize={tbState?.fontSize} />
 
@@ -400,7 +459,7 @@ export default function TiptapText({
 
             <Divider/>
 
-            <LinkButton isActive={!!tbState?.link} onClick={openLinkDialog} />
+            <LinkButton isActive={!!tbState?.link} onClick={openLinkMode} />
 
             {showAi && (
               <>
@@ -417,6 +476,7 @@ export default function TiptapText({
               </>
             )}
           </div>
+          )}
 
           {showAi && aiMenuOpen && (
             <div className="sp-tt-ai-pop" onMouseDown={(e) => e.preventDefault()}>
@@ -441,75 +501,6 @@ export default function TiptapText({
               />
             </div>
           )}
-        </div>,
-        document.body
-      )}
-
-      {/* Link dialog — separate portal, rendered independently of the
-          bubble menu. Appears below where the menu was when the user
-          clicked 🔗. State lives on TiptapText so it persists even if
-          the bubble menu portal re-renders. */}
-      {linkDialog.open && linkDialog.pos && createPortal(
-        <div
-          className="sp-tt-link-dialog"
-          style={{
-            position: 'fixed',
-            // Position ABOVE the text (where the bubble menu was). The
-            // bubble menu is hidden while this dialog is open, so the
-            // dialog effectively replaces it. y - 50 puts the dialog's
-            // bottom edge ~8px above the top of the selected text.
-            top: linkDialog.pos.y - 50,
-            left: linkDialog.pos.x,
-            transform: 'translate(-50%, -100%)',
-            zIndex: 1001,
-            background: '#fff',
-            border: '0.5px solid #e2e8f0',
-            borderRadius: 8,
-            boxShadow: '0 8px 24px rgba(15,23,42,0.15)',
-            padding: 8,
-            display: 'flex',
-            gap: 6,
-            alignItems: 'center',
-          }}
-          onMouseDown={e => e.stopPropagation()}
-        >
-          <input
-            ref={linkInputRef}
-            type="text"
-            value={linkDialog.url}
-            onChange={e => setLinkDialog(prev => ({ ...prev, url: e.target.value }))}
-            onKeyDown={e => {
-              if (e.key === 'Enter') applyLinkDialog(linkDialog.url);
-              if (e.key === 'Escape') setLinkDialog({ open: false, url: '', pos: null });
-            }}
-            placeholder="https://example.com"
-            style={{
-              width: 220, padding: '7px 10px', fontSize: 13,
-              border: '0.5px solid #cbd5e1', borderRadius: 5,
-              outline: 'none', fontFamily: 'inherit',
-            }}
-          />
-          <button
-            onClick={() => applyLinkDialog(linkDialog.url)}
-            style={{
-              padding: '7px 14px', fontSize: 12, fontWeight: 600,
-              background: '#0ea5e9', color: '#fff', border: 'none',
-              borderRadius: 5, cursor: 'pointer', fontFamily: 'inherit',
-            }}
-          >
-            {linkDialog.url.trim() ? 'Apply' : 'Clear'}
-          </button>
-          <button
-            onClick={() => setLinkDialog({ open: false, url: '', pos: null })}
-            style={{
-              padding: '7px 10px', fontSize: 12, fontWeight: 500,
-              background: 'transparent', color: '#64748b', border: 'none',
-              borderRadius: 5, cursor: 'pointer', fontFamily: 'inherit',
-            }}
-            title="Cancel"
-          >
-            ✕
-          </button>
         </div>,
         document.body
       )}
