@@ -140,6 +140,7 @@ class User(Base):
     personal_referrals  = Column(Integer, default=0)      # direct recruits
     total_team          = Column(Integer, default=0)      # entire network size
     country             = Column(String, nullable=True)
+    display_city        = Column(String, nullable=True)    # Populated by GeoIP at registration; /explore activity feed uses this
     interests           = Column(String, nullable=True)    # comma-separated interest tags
     age_range           = Column(String, nullable=True)    # "18-24","25-34","35-44","45-54","55+"
     gender              = Column(String, nullable=True)    # "male","female","other"
@@ -1415,6 +1416,49 @@ def run_migrations():
         "ALTER TABLE course_commissions ADD COLUMN IF NOT EXISTS source_chain INTEGER",
         "CREATE INDEX IF NOT EXISTS idx_course_commissions_source_chain ON course_commissions(source_chain)",
         "CREATE INDEX IF NOT EXISTS idx_course_commissions_earner_chain ON course_commissions(earner_id, source_chain)",
+        # /explore page (Phase 1): User display_city column (country already exists).
+        # GeoIP populates these at registration; users can optionally override in profile.
+        "ALTER TABLE users ADD COLUMN IF NOT EXISTS display_city VARCHAR",
+        # /explore page Phase 2 — Member stories (first-dollar narratives, opt-in, admin-moderated).
+        # Kept empty on Phase 1 launch; forms + admin UI arrive in Phase 2.
+        """CREATE TABLE IF NOT EXISTS member_stories (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id),
+            display_initials VARCHAR(4),
+            display_country VARCHAR(100),
+            niche VARCHAR(100),
+            days_to_milestone INTEGER,
+            milestone_label VARCHAR(120),
+            milestone_color VARCHAR(20) DEFAULT 'green',
+            story_text VARCHAR(400),
+            now_monthly_amount NUMERIC(12,2),
+            approved BOOLEAN DEFAULT FALSE,
+            sort_order INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_member_stories_approved ON member_stories(approved, sort_order)",
+        "CREATE INDEX IF NOT EXISTS idx_member_stories_user ON member_stories(user_id)",
+        # /explore page Phase 3 — Member showcase (featured artifacts, opt-in, admin-moderated).
+        # artifact_type: 'bio-link' | 'landing-page' | 'campaign' | 'course'
+        # artifact_id: FK to the respective table row (linkhub_profiles / funnel_pages / video_campaigns / courses)
+        """CREATE TABLE IF NOT EXISTS member_showcase (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER REFERENCES users(id),
+            artifact_type VARCHAR(32) NOT NULL,
+            artifact_id INTEGER,
+            display_title VARCHAR(160),
+            display_niche VARCHAR(80),
+            metric_label VARCHAR(60),
+            metric_value VARCHAR(40),
+            accent_color VARCHAR(20) DEFAULT 'sky',
+            approved BOOLEAN DEFAULT FALSE,
+            sort_order INTEGER DEFAULT 0,
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+        )""",
+        "CREATE INDEX IF NOT EXISTS idx_member_showcase_approved ON member_showcase(approved, artifact_type, sort_order)",
+        "CREATE INDEX IF NOT EXISTS idx_member_showcase_user ON member_showcase(user_id)",
     ]
     results = []
     with engine.connect() as conn:
@@ -2315,3 +2359,47 @@ class CreditMatrixCommission(Base):
 
     earner = relationship("User", foreign_keys=[earner_id], backref="credit_matrix_commissions_earned")
     from_user = relationship("User", foreign_keys=[from_user_id], backref="credit_matrix_commissions_generated")
+
+
+# ═════════════════════════════════════════════════════════════
+# /explore page — Phase 2 & 3 opt-in tables.
+# Empty on Phase 1 launch. Phase 2 wires MemberStory. Phase 3 wires MemberShowcase.
+# ═════════════════════════════════════════════════════════════
+class MemberStory(Base):
+    """First-dollar stories shown on /explore tab 2.
+    User-submitted, admin-moderated. Only rows with approved=True are public."""
+    __tablename__ = "member_stories"
+    id                 = Column(Integer, primary_key=True, index=True)
+    user_id            = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    display_initials   = Column(String(4), nullable=True)     # "SM", "DR" — shown on card
+    display_country    = Column(String(100), nullable=True)   # free text, not ISO — "India" / "UK" / "USA"
+    niche              = Column(String(100), nullable=True)   # "Yoga teacher", "Crypto trader", etc.
+    days_to_milestone  = Column(Integer, nullable=True)       # e.g. 3
+    milestone_label    = Column(String(120), nullable=True)   # "first $17.50" / "first grid completion"
+    milestone_color    = Column(String(20), default="green")  # sky / indigo / amber / green / pink
+    story_text         = Column(String(400), nullable=True)   # narrative body, max ~200 chars recommended
+    now_monthly_amount = Column(Numeric(12, 2), nullable=True)  # current monthly earnings (optional)
+    approved           = Column(Boolean, default=False, index=True)
+    sort_order         = Column(Integer, default=0)           # admin-set display order
+    created_at         = Column(DateTime, default=datetime.utcnow)
+    updated_at         = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class MemberShowcase(Base):
+    """Featured artifacts shown on /explore tab 3.
+    User-opted, admin-moderated. Only rows with approved=True are public.
+    artifact_type + artifact_id reference the underlying work."""
+    __tablename__ = "member_showcase"
+    id             = Column(Integer, primary_key=True, index=True)
+    user_id        = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
+    artifact_type  = Column(String(32), nullable=False)       # bio-link | landing-page | campaign | course
+    artifact_id    = Column(Integer, nullable=True)           # FK to the respective table's id
+    display_title  = Column(String(160), nullable=True)       # "The clean eating reset · 7 days"
+    display_niche  = Column(String(80), nullable=True)        # "Nutrition", "Trading", "Wellness"
+    metric_label   = Column(String(60), nullable=True)        # "Clicks this month" / "Active subscribers" / "Conversion rate" / "Sales total"
+    metric_value   = Column(String(40), nullable=True)        # "8,420" / "1,247" / "12.4%" / "$3,840" — free text
+    accent_color   = Column(String(20), default="sky")        # sky / indigo / amber / green / pink
+    approved       = Column(Boolean, default=False, index=True)
+    sort_order     = Column(Integer, default=0)
+    created_at     = Column(DateTime, default=datetime.utcnow)
+    updated_at     = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

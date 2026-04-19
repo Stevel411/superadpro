@@ -783,6 +783,136 @@ def api_public_recent_payouts(db: Session = Depends(get_db)):
     _recent_payouts_cache["data"] = result
     return result
 
+# ── /explore page endpoints (Phase 1) ─────────────────────────
+# Both cached briefly so frontend polling (every ~30s) doesn't thrash the DB.
+_explore_stats_cache = {"ts": 0.0, "data": None}
+_activity_feed_cache = {"ts": 0.0, "data": None}
+
+@app.get("/api/public/explore-stats")
+def api_public_explore_stats(db: Session = Depends(get_db)):
+    """Aggregates for /explore: paid by time window, active-member count, tab counts.
+    All zero pre-launch — page handles empty states per Q5 decisions."""
+    import time as _time
+    from sqlalchemy import func
+    from datetime import datetime, timedelta
+
+    now_ts = _time.time()
+    if now_ts - _explore_stats_cache["ts"] < 30 and _explore_stats_cache["data"]:
+        return _explore_stats_cache["data"]
+
+    now = datetime.utcnow()
+    hour_ago = now - timedelta(hours=1)
+    day_ago = now - timedelta(hours=24)
+    month_ago = now - timedelta(days=30)
+
+    def sum_paid(since):
+        v = db.query(func.sum(Commission.amount_usdt)).filter(
+            Commission.status == "paid",
+            Commission.created_at >= since
+        ).scalar()
+        return float(v or 0)
+
+    hour_paid = sum_paid(hour_ago)
+    today_paid = sum_paid(day_ago)
+    month_paid = sum_paid(month_ago)
+
+    # Active earners in the past 30 days (distinct recipients of paid commissions)
+    active_members = db.query(func.count(func.distinct(Commission.to_user_id))).filter(
+        Commission.status == "paid",
+        Commission.created_at >= month_ago
+    ).scalar() or 0
+
+    # Tab counts
+    activity_count = db.query(func.count(Commission.id)).filter(
+        Commission.status == "paid",
+        Commission.created_at >= hour_ago
+    ).scalar() or 0
+
+    try:
+        from app.database import MemberStory, MemberShowcase
+        stories_count = db.query(func.count(MemberStory.id)).filter(MemberStory.approved == True).scalar() or 0
+        showcase_count = db.query(func.count(MemberShowcase.id)).filter(MemberShowcase.approved == True).scalar() or 0
+    except Exception:
+        # Tables may not exist yet if migrations haven't run
+        stories_count = 0
+        showcase_count = 0
+
+    data = {
+        "hour_paid": hour_paid,
+        "today_paid": today_paid,
+        "month_paid": month_paid,
+        "active_members": int(active_members),
+        "tab_counts": {
+            "activity": int(activity_count),
+            "stories": int(stories_count),
+            "showcase": int(showcase_count),
+        },
+    }
+    _explore_stats_cache["ts"] = now_ts
+    _explore_stats_cache["data"] = data
+    return data
+
+
+@app.get("/api/public/activity-feed")
+def api_public_activity_feed(limit: int = 25, db: Session = Depends(get_db)):
+    """Live activity feed for /explore tab 1.
+    Returns up to 25 paid commissions from the last hour.
+    Privacy-filtered: first name + country name (no email, no user_id, no city until GeoLite2-City.mmdb is installed).
+    Cached 30s to match polling cadence."""
+    import time as _time
+    from datetime import datetime, timedelta
+
+    cache_key = min(max(limit, 1), 50)
+    now_ts = _time.time()
+    if now_ts - _activity_feed_cache["ts"] < 30 and _activity_feed_cache["data"] is not None:
+        cached = _activity_feed_cache["data"]
+        if len(cached) >= cache_key:
+            return cached[:cache_key]
+
+    hour_ago = datetime.utcnow() - timedelta(hours=1)
+    rows = (db.query(Commission, User)
+              .join(User, User.id == Commission.to_user_id)
+              .filter(Commission.status == "paid")
+              .filter(Commission.amount_usdt > 0)
+              .filter(Commission.created_at >= hour_ago)
+              .order_by(Commission.created_at.desc())
+              .limit(min(cache_key, 50))
+              .all())
+
+    # Friendly reason labels — maps raw commission_type to user-facing strings
+    reason_map = {
+        "direct_sponsor":         "Direct referral",
+        "uni_level":              "Uni-level",
+        "platform":               "Platform",
+        "membership":             "Membership · recurring",
+        "grid_completion_bonus":  "Grid completion bonus",
+        "matrix_level":           "Profit Nexus",
+        "matrix_completion":      "Profit Nexus · completion",
+        "course_sale":            "Course sale",
+        "course_passup":          "Course sale · passed up",
+    }
+
+    now = datetime.utcnow()
+    result = []
+    for c, u in rows:
+        raw_name = (u.first_name or "").strip() or (u.username or "").strip() or "Member"
+        display_name = raw_name.split()[0]
+        minutes_ago = max(0, int((now - c.created_at).total_seconds() / 60))
+        # Location: display_city is the country NAME (e.g. "United Kingdom") until city DB is available
+        location = u.display_city or None
+        result.append({
+            "name":        display_name,
+            "location":    location,
+            "reason":      reason_map.get(c.commission_type, c.commission_type or "Payout"),
+            "amount":      int(round(float(c.amount_usdt or 0))),
+            "minutes_ago": minutes_ago,
+            "color":       f"c{(u.id % 8) + 1}",  # c1..c8 for avatar color variety
+        })
+
+    _activity_feed_cache["ts"] = now_ts
+    _activity_feed_cache["data"] = result
+    return result
+
 @app.get("/api/me")
 def api_me(request: Request, db: Session = Depends(get_db)):
     """Return current user data for the React frontend."""
@@ -1185,6 +1315,12 @@ def tools_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
+@app.get("/explore")
+def explore_page(request: Request):
+    """Live activity + first-dollar stories + member showcase."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/for-advertisers")
 def for_advertisers(request: Request):
     if _react_index.exists():
@@ -1369,14 +1505,32 @@ def register_process(
             sponsor_id = company.id
             company.total_team = (company.total_team or 0) + 1
 
+    # GeoIP: derive country ISO + country name from signup IP.
+    # Feeds /explore activity feed + any country-targeted features.
+    # Currently only GeoLite2-Country.mmdb is available → country-level only (no city).
+    # display_city stores the country NAME as a readable label for the public feed.
+    signup_country_iso = ""
+    signup_country_name = ""
+    try:
+        from app.database import _geoip_reader
+        client_ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip() or request.client.host
+        if _geoip_reader and client_ip not in ("127.0.0.1", "::1", "localhost"):
+            geo = _geoip_reader.country(client_ip)
+            signup_country_iso = geo.country.iso_code or ""
+            signup_country_name = geo.country.name or ""
+    except Exception:
+        pass
+
     user = create_user(
         db, username, email, password,
         sponsor_id=sponsor_id,
         first_name=first_name,
         last_name="",
         wallet_address="",
-        country="",
+        country=signup_country_iso,
     )
+    if signup_country_name:
+        user.display_city = signup_country_name
 
     # Assign pass-up sponsor for course commission chain
     if sponsor_id:
@@ -8651,14 +8805,29 @@ async def api_register(
                 sponsor_id = company.id
                 company.total_team = (company.total_team or 0) + 1
 
+        # GeoIP: derive country ISO + name from signup IP (see /register handler above for rationale)
+        signup_country_iso = ""
+        signup_country_name = ""
+        try:
+            from app.database import _geoip_reader
+            client_ip = request.headers.get("x-forwarded-for", "").split(",")[0].strip() or request.client.host
+            if _geoip_reader and client_ip not in ("127.0.0.1", "::1", "localhost"):
+                geo = _geoip_reader.country(client_ip)
+                signup_country_iso = geo.country.iso_code or ""
+                signup_country_name = geo.country.name or ""
+        except Exception:
+            pass
+
         user = create_user(
             db, username, email, password,
             sponsor_id=sponsor_id,
             first_name=first_name,
             last_name="",
             wallet_address="",
-            country="",
+            country=signup_country_iso,
         )
+        if signup_country_name:
+            user.display_city = signup_country_name
 
         # Assign pass-up sponsor for course commission chain
         if sponsor_id:
