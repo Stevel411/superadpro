@@ -150,25 +150,19 @@ export default function TiptapText({
     editor.on('selectionUpdate', updateMenuPos);
     editor.on('focus', updateMenuPos);
     editor.on('blur', () => {
-      // When focus leaves the editor, we need to decide whether to hide
-      // the menu. The editor blurs in two scenarios:
-      //
-      // 1. User clicked outside the editor entirely (canvas, sidebar,
-      //    another element) → hide the menu.
-      // 2. Focus moved to a control INSIDE our bubble menu (link URL
-      //    input, AI prompt, size input, etc.) → keep menu alive.
-      //
-      // We can't check relatedTarget because it's null for programmatic
-      // focus changes like autoFocus on a newly-mounted input. Instead we
-      // defer to a microtask, then check where focus actually ended up.
-      // document.activeElement is reliable and accurate post-transition.
+      // eslint-disable-next-line no-console
+      console.log('[TiptapText] editor BLUR fired, activeEl before microtask =', document.activeElement?.tagName, document.activeElement?.className);
       queueMicrotask(() => {
         if (!editor || editor.isDestroyed) return;
         const active = document.activeElement;
+        // eslint-disable-next-line no-console
+        console.log('[TiptapText] blur microtask, activeEl =', active?.tagName, active?.className, 'inside bubble-wrap =', !!(active && active.closest && active.closest('.sp-tt-bubble-wrap')));
         if (active && active.closest && active.closest('.sp-tt-bubble-wrap')) {
-          return;  // Focus inside our menu — keep alive
+          return;
         }
-        if (editor.view.hasFocus()) return;  // Editor got focus back
+        if (editor.view.hasFocus()) return;
+        // eslint-disable-next-line no-console
+        console.log('[TiptapText] HIDING MENU (setMenuPos null)');
         setMenuPos(null);
       });
     });
@@ -713,7 +707,24 @@ function ColorPicker({ editor, currentColor }) {
 function LinkButton({ editor, isActive }) {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState('');
+
+  // Diagnostic: log every time `open` changes + mount/unmount
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('[LinkButton] mounted');
+    return () => {
+      // eslint-disable-next-line no-console
+      console.log('[LinkButton] UNMOUNTED (this is bad if it happens during open popup)');
+    };
+  }, []);
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('[LinkButton] open =', open, 'activeEl =', document.activeElement?.tagName, document.activeElement?.className);
+  }, [open]);
+
   const openMenu = () => {
+    // eslint-disable-next-line no-console
+    console.log('[LinkButton] openMenu() called, current open=', open, 'will toggle');
     setUrl(editor.getAttributes('link').href || '');
     setOpen(v => !v);
   };
