@@ -39,13 +39,30 @@ export default function SuperPagesEditor() {
     addElement, deleteElement, duplicateElement, updateElement,
     setEls, setCanvasBg, setCanvasBgImage, markDirty, undo, redo, deselectAll, clearCanvas, selectElement } = editor;
 
+  // Which element types route through the Tiptap editor. These auto-enter
+  // edit mode when first dropped on the canvas, so the user can type
+  // immediately without a second click.
+  const TIPTAP_AUTO_EDIT_TYPES = ['heading', 'text', 'label'];
+
+  // Wrapped add — fires an auto-edit signal for tiptap-able types.
+  const addElementWithAutoEdit = useCallback((type, x, y) => {
+    const newEl = addElement(type, x, y);
+    if (newEl && TIPTAP_AUTO_EDIT_TYPES.includes(type)) {
+      // Defer so Canvas has a chance to render the new element first.
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent('sp-auto-edit', { detail: { id: newEl.id } }));
+      }, 30);
+    }
+    return newEl;
+  }, [addElement]);
+
   // ── Expose functions for Canvas to call via window (cross-component communication) ──
   useEffect(() => {
-    window._spAddElement = (type, x, y) => addElement(type, x, y);
+    window._spAddElement = (type, x, y) => addElementWithAutoEdit(type, x, y);
     window._spDeleteElement = (id) => { if (confirm('Delete this element?')) deleteElement(id); };
     window._spDuplicateElement = (id) => duplicateElement(id);
     return () => { delete window._spAddElement; delete window._spDeleteElement; delete window._spDuplicateElement; };
-  }, [addElement, deleteElement, duplicateElement]);
+  }, [addElementWithAutoEdit, deleteElement, duplicateElement]);
 
   // ── Load page data ──
   useEffect(() => {

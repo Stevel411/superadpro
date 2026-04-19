@@ -2,6 +2,14 @@ import { useTranslation } from 'react-i18next';
 import { useRef, useCallback, useEffect, useState } from 'react';
 import { CANVAS_WIDTH, SNAP_THRESHOLD, SOCIAL_SVGS } from './elementDefaults';
 import InlineToolbar from './InlineToolbar';
+import TiptapText from './TiptapText';
+
+// Element types that use the Tiptap-powered inline editor. Starting with
+// the three simplest types — they store plain or lightly-formatted text as
+// el.txt, and have no complex nested structure. Complex types (review,
+// testimonial, faq, icontext, separator, logostrip) stay on the old flow
+// for now; we'll migrate them once these three are solid on production.
+const TIPTAP_TYPES = ['heading', 'text', 'label'];
 
 export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, markDirty, onEditElement, deviceView }) {
   var { t } = useTranslation();
@@ -99,6 +107,20 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       window.removeEventListener('resize', update);
     };
   }, [editingId]);
+
+  // Auto-edit on drop — when SuperPagesEditor adds a tiptap-able element from
+  // the palette, it fires `sp-auto-edit`. We immediately set editingId to
+  // that element's id so TiptapText mounts with autoFocus=true and the user
+  // can start typing without a second click.
+  useEffect(() => {
+    function onAutoEdit(e) {
+      const id = e && e.detail && e.detail.id;
+      if (!id) return;
+      setEditingId(id);
+    }
+    window.addEventListener('sp-auto-edit', onAutoEdit);
+    return () => window.removeEventListener('sp-auto-edit', onAutoEdit);
+  }, []);
 
   // ── Background style ──
   // Default to white when no canvasBg is set — matches the light theme.
@@ -282,6 +304,39 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       innerStyle += 'display:flex;align-items:center;justify-content:center;';
     }
 
+    // ── Tiptap-powered inline editing for the 3 simplest types ──
+    // When this element is being edited, mount the TiptapText component
+    // with the element's current HTML; it handles focus, formatting toolbar,
+    // and AI. When not editing, fall through to a plain div so the element
+    // is draggable and selectable exactly like before.
+    if (TIPTAP_TYPES.includes(el.type) && editingId === el.id) {
+      // Parse innerStyle (a CSS string) back into a React style object so we
+      // can pass it to TiptapText. This matches the way the existing default
+      // branch does it at the bottom of this function.
+      const styleObj = Object.fromEntries(
+        innerStyle.split(';').filter(Boolean).map(s => {
+          const [k, ...v] = s.split(':');
+          return [k.trim().replace(/-([a-z])/g, (_, c) => c.toUpperCase()), v.join(':').trim()];
+        })
+      );
+      const placeholderByType = {
+        heading: 'Your heading here…',
+        text: 'Your text content goes here. Click to edit.',
+        label: '⭐ LABEL',
+      };
+      return (
+        <TiptapText
+          html={el.txt || ''}
+          onChange={(html) => updateElement(el.id, { txt: html })}
+          onExit={() => { setEditingId(null); markDirty(); }}
+          placeholder={placeholderByType[el.type] || ''}
+          autoFocus={true}
+          styleOverrides={styleObj}
+          showAi={false}
+        />
+      );
+    }
+
     if (el.type === 'video' && el.txt) {
       // Auto-convert YouTube/Vimeo watch URLs to embed URLs at render time
       let videoSrc = el.txt;
@@ -441,7 +496,17 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
             className={`cel${el.id === selId ? ' selected' : ''}${el.id === editingId ? ' editing' : ''}`}
             style={getOuterStyle(el)}
             onMouseDown={e => { if (editingId === el.id) return; startDrag(e, el.id); }}
-            onDoubleClick={() => { if (EDITABLE_TYPES.includes(el.type)) { selectElement(el.id); startInlineEdit(el.id); } }}
+            onClick={e => {
+              // Single-click-to-edit for Tiptap-managed types. A click only
+              // fires after a complete mousedown+mouseup without an intervening
+              // drag, so repositioning still works via mousedown-drag-release.
+              if (TIPTAP_TYPES.includes(el.type) && editingId !== el.id) {
+                e.stopPropagation();
+                selectElement(el.id);
+                setEditingId(el.id);
+              }
+            }}
+            onDoubleClick={() => { if (EDITABLE_TYPES.includes(el.type) && !TIPTAP_TYPES.includes(el.type)) { selectElement(el.id); startInlineEdit(el.id); } }}
           >
             {/* Inner content */}
             <div style={{ pointerEvents: editingId === el.id ? 'auto' : 'none', width: '100%', height: '100%' }}>{renderInner(el)}</div>
@@ -456,7 +521,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
                 background: '#fff', borderRadius: 8, boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
                 zIndex: 20, whiteSpace: 'nowrap',
               }}>
-              {!['spacer', 'divider', 'box'].includes(el.type) && (
+              {!['spacer', 'divider', 'box'].includes(el.type) && !TIPTAP_TYPES.includes(el.type) && (
                 <>
                   <button onClick={e => { e.stopPropagation(); if (EDITABLE_TYPES.includes(el.type)) { startInlineEdit(el.id); } else { onEditElement(el.id); } }}
                     style={{ padding: '2px 8px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 800, color: EDITABLE_TYPES.includes(el.type) ? 'var(--sap-indigo)' : 'var(--sap-accent)' }}>
