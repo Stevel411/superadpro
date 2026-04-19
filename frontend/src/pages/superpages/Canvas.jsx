@@ -638,9 +638,13 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         .pal-item:hover { filter: none !important; }
       `}</style>
 
-      {/* Inline Formatting Toolbar */}
+      {/* Inline Formatting Toolbar — for non-Tiptap types only. Tiptap
+          elements (heading, text, label) get their own bubble menu from
+          the TiptapText component. Showing both caused the old toolbar
+          to appear stranded at the top-left because toolbarPos isn't
+          updated for Tiptap-managed edits. */}
       <InlineToolbar
-        visible={!!editingId}
+        visible={!!editingId && !TIPTAP_TYPES.includes((els.find(e => e.id === editingId) || {}).type)}
         position={toolbarPos}
         onCommand={() => {
           // Sync content back to state on every formatting change

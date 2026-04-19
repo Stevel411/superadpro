@@ -124,15 +124,9 @@ export default function TiptapText({
   useEffect(() => {
     if (!editor) return;
 
-    // eslint-disable-next-line no-console
-    console.log('[TiptapText v6af4e2f2] mounted, editor ready');
-
     function updateMenuPos() {
       if (!editor || editor.isDestroyed) { setMenuPos(null); return; }
       const { from, to, empty } = editor.state.selection;
-      // eslint-disable-next-line no-console
-      console.log('[TiptapText] selectionUpdate from=', from, 'to=', to, 'empty=', empty, 'hasFocus=', editor.view.hasFocus());
-      // Hide when no text is selected or editor lost focus
       if (empty || !editor.view.hasFocus()) { setMenuPos(null); return; }
 
       try {
@@ -140,12 +134,8 @@ export default function TiptapText({
         const endCoords = editor.view.coordsAtPos(to);
         const top = Math.min(startCoords.top, endCoords.top);
         const leftMid = (startCoords.left + endCoords.left) / 2;
-        // eslint-disable-next-line no-console
-        console.log('[TiptapText] coords start=', startCoords, 'end=', endCoords, '→ menuPos=', { x: leftMid, y: top });
         setMenuPos({ x: leftMid, y: top });
       } catch (err) {
-        // eslint-disable-next-line no-console
-        console.warn('[TiptapText] coordsAtPos threw:', err);
         setMenuPos(null);
       }
     }
@@ -232,7 +222,6 @@ export default function TiptapText({
           onMouseDown={(e) => e.preventDefault()}
         >
           <div className="sp-tt-bubble">
-            <span style={{fontSize:9,color:'#94a3b8',marginRight:4,userSelect:'none'}}>v6af-dbg</span>
             <BubBtn active={tbState?.bold} onClick={() => editor.chain().focus().toggleBold().run()} title="Bold (Ctrl+B)">
               <BoldIcon size={13}/>
             </BubBtn>
