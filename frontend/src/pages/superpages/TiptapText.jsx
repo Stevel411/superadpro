@@ -84,6 +84,32 @@ export default function TiptapText({
   const lastEmittedRef = useRef(html || '');
   const lastReportedHeightRef = useRef(0);
 
+  // DIAG: mount/unmount — tells us if TiptapText actually unmounts when
+  // Steve deletes an element. If it DOESN'T unmount, the bubble menu
+  // portal stays alive, which would explain the orphan menu bug.
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('%c[TiptapText] MOUNTED', 'background:#10b981;color:#fff;padding:2px 6px');
+    return () => {
+      // eslint-disable-next-line no-console
+      console.log('%c[TiptapText] UNMOUNTED', 'background:#dc2626;color:#fff;padding:2px 6px');
+    };
+  }, []);
+
+  // DIAG: watch linkPopup.open transitions. If it goes true → false
+  // shortly after opening, something is closing it. The stack trace on
+  // the Error tells us who.
+  const prevLinkPopupOpenRef = useRef(false);
+  useEffect(() => {
+    if (prevLinkPopupOpenRef.current !== linkPopup.open) {
+      // eslint-disable-next-line no-console
+      console.log(`%c[LinkDiag v2] popup.open: ${prevLinkPopupOpenRef.current} → ${linkPopup.open}`,
+        linkPopup.open ? 'background:#22c55e;color:#fff;padding:2px 6px' : 'background:#ef4444;color:#fff;padding:2px 6px',
+        linkPopup.open ? '' : new Error('stack').stack?.split('\n').slice(1, 5).join('\n'));
+      prevLinkPopupOpenRef.current = linkPopup.open;
+    }
+  }, [linkPopup.open]);
+
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -366,14 +392,10 @@ export default function TiptapText({
             <Divider/>
 
             <LinkButton editor={editor} isActive={!!tbState?.link} openPopup={() => {
-              // THE FIX: don't use stale menuPos — compute fresh coordinates
-              // from the editor's live selection at click time. This bug
-              // caused the popup to render at (0,0) or off-screen when
-              // menuPos was stale/null, which we misdiagnosed as "popup
-              // disappearing" for an entire day of commits.
               if (!editor) return;
               const { from, to } = editor.state.selection;
               let pos;
+              let coordsErr = null;
               try {
                 const startCoords = editor.view.coordsAtPos(from);
                 const endCoords = editor.view.coordsAtPos(to);
@@ -381,13 +403,19 @@ export default function TiptapText({
                   x: (startCoords.left + endCoords.left) / 2,
                   y: Math.min(startCoords.top, endCoords.top),
                 };
-              } catch {
-                // Fallback: centre of viewport. Happens only if the editor
-                // selection is in a weird state — rare but better than
-                // rendering off-screen.
+              } catch (err) {
+                coordsErr = err.message;
                 pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
               }
               const existing = editor.getAttributes('link').href || '';
+              // eslint-disable-next-line no-console
+              console.log('%c[LinkDiag v2] openPopup()', 'background:#8b5cf6;color:#fff;padding:2px 6px',
+                '\n  from/to:', from, to,
+                '\n  computed pos:', pos,
+                '\n  coordsErr:', coordsErr,
+                '\n  stored menuPos:', menuPos,
+                '\n  editor focused:', editor.view.hasFocus(),
+                '\n  existing href:', existing);
               setLinkPopup({ open: true, url: existing, pos });
               setTimeout(() => { if (linkInputRef.current) linkInputRef.current.focus(); }, 30);
             }} />
