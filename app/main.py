@@ -1179,6 +1179,12 @@ def earn_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
+@app.get("/tools")
+def tools_page(request: Request):
+    """Public tools showcase page."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/for-advertisers")
 def for_advertisers(request: Request):
     if _react_index.exists():

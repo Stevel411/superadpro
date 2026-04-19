@@ -106,6 +106,7 @@ import JoinFunnel from './pages/public/JoinFunnel';
 import { FAQ, Legal } from './pages/public/PublicPages';
 import ForAdvertisers from './pages/public/ForAdvertisers';
 import AffiliatePlan from './pages/public/AffiliatePlan';
+import Tools from './pages/public/Tools';
 import CoursePlayer from './pages/CoursePlayer';
 
 function ProtectedRoute({ children }) {
@@ -226,6 +227,7 @@ function AppRoutes() {
       <Route path="/free/qr-code-generator" element={<Lazy><QRCodeGen /></Lazy>} />
       <Route path="/free/banner-creator" element={<Lazy><BannerCreator /></Lazy>} />
       <Route path="/earn" element={<AffiliatePlan />} />
+      <Route path="/tools" element={<Tools />} />
       <Route path="/join/:username" element={<SuperLinkPage />} />
 
       {/* Phase 4 member pages */}
