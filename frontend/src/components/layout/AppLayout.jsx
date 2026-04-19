@@ -39,6 +39,23 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
     });
   }, []);
 
+  // Listen for external collapse requests — used by the SuperPages editor to
+  // auto-collapse the sidebar when the editor opens, so the canvas gets max
+  // working space. Any page can dispatch `sap-sidebar-set-collapsed` with a
+  // boolean detail to request a state change without direct coupling.
+  useEffect(function() {
+    function onRequest(e) {
+      var wanted = !!(e && e.detail);
+      setCollapsed(function(prev) {
+        if (prev === wanted) return prev;
+        try { window.localStorage.setItem('sap-sidebar-collapsed', wanted ? '1' : '0'); } catch (err) {}
+        return wanted;
+      });
+    }
+    window.addEventListener('sap-sidebar-set-collapsed', onRequest);
+    return function() { window.removeEventListener('sap-sidebar-set-collapsed', onRequest); };
+  }, []);
+
   // First-view flag — controls the pulse animation on the toggle button.
   // Shown once per install; dismissed on first click OR automatically after 3s.
   var [firstView, setFirstView] = useState(function() {

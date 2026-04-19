@@ -1825,7 +1825,10 @@
     "audiencePlaceholderFull": "es. principianti, professionisti, genitori casalinghi...",
     "storyQuestion": "3. La tua storia o angolo unico (facoltativo)",
     "storyPlaceholder": "es. sono passato dal verde a 5.000$/mese in 6 mesi...",
-    "toneQuestion": "4. Tono di voce"
+    "toneQuestion": "4. Tono di voce",
+    "untitled": "Senza titolo",
+    "statusLive": "● Live",
+    "statusDraft": "○ Bozza"
   },
   "myLeads": {
     "title": "Contatti",
@@ -2650,7 +2653,29 @@
     "aiAssistant": "✨ Assistente AI",
     "clickCodeFull": "⟨/⟩ ✎ CODICE per HTML",
     "blk": "Blocco",
-    "cat": "Categoria"
+    "cat": "Categoria",
+    "backShort": "Indietro",
+    "unsavedChanges": "Modifiche non salvate",
+    "unsavedShort": "Non salvato",
+    "clearCanvasLabel": "Svuota canvas",
+    "editLabel": "Modifica",
+    "previewLabel": "Anteprima",
+    "savingLabel": "Salvataggio…",
+    "saveLabel": "Salva",
+    "openLink": "Apri ↗",
+    "loading": "Caricamento editor…",
+    "untitledPage": "Pagina senza titolo",
+    "desktopRequiredTitle": "Desktop richiesto",
+    "desktopRequiredBody": "L'editor SuperPages usa un drag-and-drop preciso che richiede un desktop o laptop per funzionare correttamente. Apri questa pagina su uno schermo più grande.",
+    "desktopRequiredNote": "Le tue pagine sono completamente responsive e appariranno benissimo su tutti i dispositivi una volta pubblicate — questa restrizione si applica solo all'editor.",
+    "backToMyPages": "Torna a Le Mie Pagine",
+    "responsivePreview": "Anteprima responsiva — passa a Desktop per modificare gli elementi",
+    "bgSolid": "Tinta unita",
+    "bgGradient": "Sfumatura",
+    "bgImage": "Immagine",
+    "aiGreeting": "Dimmi cosa cambiare — \"aggiungi un titolo\", \"cambia sfondo in blu\", \"scrivi testo di vendita\"",
+    "aiDone": "Fatto!",
+    "aiConnError": "Errore di connessione."
   },
   "analytics": {
     "availableBalance": "Saldo disponibile",

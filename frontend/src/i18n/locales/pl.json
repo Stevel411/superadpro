@@ -1825,7 +1825,10 @@
     "audiencePlaceholderFull": "np. początkujący, pracujący profesjonaliści, rodzice w domu...",
     "storyQuestion": "3. Twoja historia lub unikalne podejście (opcjonalnie)",
     "storyPlaceholder": "np. z bez grosza do 5 tys. $ miesięcznie w 6 miesięcy...",
-    "toneQuestion": "4. Ton głosu"
+    "toneQuestion": "4. Ton głosu",
+    "untitled": "Bez tytułu",
+    "statusLive": "● Na żywo",
+    "statusDraft": "○ Szkic"
   },
   "myLeads": {
     "title": "Kontakty",
@@ -2642,7 +2645,29 @@
     "aiAssistant": "✨ Asystent AI",
     "clickCodeFull": "⟨/⟩ ✎ KOD dla HTML",
     "blk": "Blok",
-    "cat": "Kategoria"
+    "cat": "Kategoria",
+    "backShort": "Wstecz",
+    "unsavedChanges": "Niezapisane zmiany",
+    "unsavedShort": "Niezapisane",
+    "clearCanvasLabel": "Wyczyść obszar",
+    "editLabel": "Edytuj",
+    "previewLabel": "Podgląd",
+    "savingLabel": "Zapisywanie…",
+    "saveLabel": "Zapisz",
+    "openLink": "Otwórz ↗",
+    "loading": "Ładowanie edytora…",
+    "untitledPage": "Strona bez tytułu",
+    "desktopRequiredTitle": "Wymagany komputer",
+    "desktopRequiredBody": "Edytor SuperPages używa precyzyjnego przeciągania i upuszczania, które wymaga komputera lub laptopa. Otwórz tę stronę na większym ekranie.",
+    "desktopRequiredNote": "Twoje strony są w pełni responsywne i będą świetnie wyglądać na wszystkich urządzeniach po opublikowaniu — to ograniczenie dotyczy tylko edytora.",
+    "backToMyPages": "Powrót do Moich Stron",
+    "responsivePreview": "Podgląd responsywny — przełącz na Desktop aby edytować elementy",
+    "bgSolid": "Jednolity",
+    "bgGradient": "Gradient",
+    "bgImage": "Obraz",
+    "aiGreeting": "Powiedz co zmienić — \"dodaj nagłówek\", \"zmień tło na granatowe\", \"napisz tekst sprzedażowy\"",
+    "aiDone": "Gotowe!",
+    "aiConnError": "Błąd połączenia."
   },
   "analytics": {
     "availableBalance": "Dostępne saldo",

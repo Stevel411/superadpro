@@ -2,82 +2,121 @@ import { useTranslation } from 'react-i18next';
 import { Eye, Save, Undo2, Redo2, Settings, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, Tablet, HelpCircle } from 'lucide-react';
 import FeatureOnExploreButton from '../../components/FeatureOnExploreButton';
 
+/*
+  EditorTopbar — the editor's sub-toolbar that sits directly below the AppLayout
+  cobalt topbar. Rendered in light theme so the navigation chrome (cobalt) is
+  visually separate from the editor tools (white), and the canvas below feels
+  like the workspace centrepiece.
+*/
 export default function EditorTopbar({ title, slug, pageId, saving, dirty, status, onSave, onClear, onShowSettings, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, deviceView, onSetDevice, onShowHelp }) {
   var { t } = useTranslation();
   const isPublished = status === 'published';
   return (
     <div style={{
-      height: 60, background: 'var(--sap-cobalt-deep)', borderBottom: '1px solid #1e3a8a',
-      display: 'flex', alignItems: 'center', padding: '0 16px', gap: 10, flexShrink: 0, zIndex: 50,
+      height: 56, background: '#ffffff', borderBottom: '1px solid #e2e8f0',
+      display: 'flex', alignItems: 'center', padding: '0 18px', gap: 8, flexShrink: 0, zIndex: 20,
     }}>
-      {/* SuperPages Logo — Concept B */}
-      <div onClick={onBack} style={{cursor:'pointer',display:'flex',alignItems:'center',gap:8,flexShrink:0}}>
-        <svg width="28" height="28" viewBox="0 0 48 48">
-          <rect x="6" y="6" width="16" height="16" rx="4" fill="var(--sap-accent)" opacity=".9"/>
-          <rect x="26" y="6" width="16" height="16" rx="4" fill="var(--sap-indigo)" opacity=".7"/>
-          <rect x="6" y="26" width="16" height="16" rx="4" fill="var(--sap-indigo)" opacity=".5"/>
-          <rect x="26" y="26" width="16" height="16" rx="4" fill="var(--sap-accent)" opacity=".3"/>
-        </svg>
-        <div style={{fontFamily:'Sora,sans-serif',fontWeight:800,fontSize:15,color:'#fff',lineHeight:1}}>
-          Super<span style={{color:'var(--sap-accent)'}}>{t('superPagesEditor.pages')}</span>
+      {/* Back to My Pages */}
+      <button onClick={onBack} style={{...btn, background: '#f8fafc', color: '#475569', border: '1px solid #e2e8f0'}}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.color = '#0ea5e9'; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569'; }}
+        title={t('superPagesEditor.backToMyPages', { defaultValue: 'Back to My Pages' })}>
+        <ArrowLeft size={13}/> <span>{t('superPagesEditor.backShort', { defaultValue: 'Back' })}</span>
+      </button>
+
+      <div style={{width:1, height:24, background:'#e2e8f0'}}/>
+
+      {/* Dirty indicator — small amber dot when there are unsaved changes */}
+      {dirty && (
+        <div style={{display:'flex', alignItems:'center', gap:6, fontSize:11, color:'#f59e0b', fontWeight:700}} title={t('superPagesEditor.unsavedChanges', { defaultValue: 'Unsaved changes' })}>
+          <span style={{width:7, height:7, borderRadius:'50%', background:'#f59e0b', display:'inline-block'}}/>
+          <span>{t('superPagesEditor.unsavedShort', { defaultValue: 'Unsaved' })}</span>
         </div>
+      )}
+
+      <div style={{flex:1}}/>
+
+      {/* Device view toggles — grouped pill */}
+      <div style={{display:'inline-flex', background:'#f1f5f9', border:'1px solid #e2e8f0', borderRadius:8, padding:3, gap:0}}>
+        <button onClick={() => onSetDevice('desktop')} style={{...grpBtn, ...(deviceView==='desktop' ? grpBtnActive : {})}} title={t('superPagesEditor.desktopPreview')}><Monitor size={13}/></button>
+        <button onClick={() => onSetDevice('tablet')} style={{...grpBtn, ...(deviceView==='tablet' ? grpBtnActive : {})}} title={t('superPagesEditor.tabletPreview')}><Tablet size={13}/></button>
+        <button onClick={() => onSetDevice('mobile')} style={{...grpBtn, ...(deviceView==='mobile' ? grpBtnActive : {})}} title={t('superPagesEditor.mobilePreview')}><Smartphone size={13}/></button>
       </div>
 
-      <div style={{width:1,height:28,background:'rgba(255,255,255,0.06)'}}/>
+      <div style={{width:1, height:24, background:'#e2e8f0'}}/>
 
-      <div style={{fontSize:12,color:'rgba(255,255,255,.4)',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>
-        {title || 'Untitled Page'}
-        {dirty && <span style={{color:'var(--sap-amber)',marginLeft:6}}>●</span>}
-      </div>
-
-      {/* Device view toggles */}
-      <button onClick={() => onSetDevice('desktop')} style={{...gh,background:deviceView==='desktop'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='desktop'?'var(--sap-accent-light)':'rgba(255,255,255,.45)'}} title={t('superPagesEditor.desktopPreview')}>
-        <Monitor size={14}/>
+      <button onClick={onUndo} style={ghost} title={t('superPagesEditor.undoLabel')}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.color = '#0ea5e9'; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569'; }}>
+        <Undo2 size={13}/>
       </button>
-      <button onClick={() => onSetDevice('tablet')} style={{...gh,background:deviceView==='tablet'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='tablet'?'var(--sap-accent-light)':'rgba(255,255,255,.45)'}} title={t('superPagesEditor.tabletPreview')}>
-        <Tablet size={14}/>
-      </button>
-      <button onClick={() => onSetDevice('mobile')} style={{...gh,background:deviceView==='mobile'?'rgba(14,165,233,.15)':'rgba(255,255,255,.05)',color:deviceView==='mobile'?'var(--sap-accent-light)':'rgba(255,255,255,.45)'}} title={t('superPagesEditor.mobilePreview')}>
-        <Smartphone size={14}/>
+      <button onClick={onRedo} style={ghost} title={t('superPagesEditor.redoLabel')}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.color = '#0ea5e9'; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569'; }}>
+        <Redo2 size={13}/>
       </button>
 
-      <div style={{width:1,height:22,background:'rgba(255,255,255,0.06)'}}/>
+      <div style={{width:1, height:24, background:'#e2e8f0'}}/>
 
-      <button onClick={onUndo} style={gh} title={t('superPagesEditor.undoLabel')}><Undo2 size={14}/></button>
-      <button onClick={onRedo} style={gh} title={t('superPagesEditor.redoLabel')}><Redo2 size={14}/></button>
-
-      <div style={{width:1,height:22,background:'rgba(255,255,255,0.06)'}}/>
-
-      <button onClick={onShowSettings} style={gh}><Settings size={13}/> <span style={{marginLeft:2}}>{t('superPagesEditor.settings')}</span></button>
-      <button onClick={onShowHelp} style={{...gh,color:'var(--sap-accent-light)'}}><HelpCircle size={13}/> <span style={{marginLeft:2}}>{t('superPagesEditor.help')}</span></button>
-      <button onClick={onClear} style={{...gh,color:'var(--sap-red)'}}><Trash2 size={13}/></button>
-
-      <div style={{width:1,height:22,background:'rgba(255,255,255,0.06)'}}/>
-
-      {/* Preview */}
-      <button onClick={onTogglePreview} style={{...btn,background:previewMode?'var(--sap-indigo)':'rgba(99,102,241,.15)',color:previewMode?'#fff':'#818cf8'}}>
-        <Eye size={13}/> {previewMode ? 'Edit' : 'Preview'}
+      <button onClick={onShowSettings} style={ghost}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.color = '#0ea5e9'; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#475569'; }}>
+        <Settings size={13}/> <span style={{marginLeft:3}}>{t('superPagesEditor.settings')}</span>
+      </button>
+      <button onClick={onShowHelp} style={{...ghost, color: '#0ea5e9'}}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.background = 'rgba(14,165,233,0.06)'; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#ffffff'; }}>
+        <HelpCircle size={13}/> <span style={{marginLeft:3}}>{t('superPagesEditor.help')}</span>
+      </button>
+      <button onClick={onClear} style={{...ghost, color: '#dc2626'}}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = '#dc2626'; e.currentTarget.style.background = 'rgba(220,38,38,0.06)'; }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#ffffff'; }}
+        title={t('superPagesEditor.clearCanvasLabel', { defaultValue: 'Clear canvas' })}>
+        <Trash2 size={13}/>
       </button>
 
-      {/* Save */}
-      <button onClick={onSave} disabled={saving} style={{...btn,background:saving?'var(--sap-text-muted)':'var(--sap-green-mid)',color:'#fff'}}>
-        <Save size={13}/> {saving ? 'Saving...' : 'Save'}
+      <div style={{width:1, height:24, background:'#e2e8f0'}}/>
+
+      {/* Preview toggle */}
+      <button onClick={onTogglePreview} style={{
+        ...btn,
+        background: previewMode ? '#6366f1' : 'rgba(99,102,241,0.1)',
+        color: previewMode ? '#fff' : '#6366f1',
+        border: '1px solid ' + (previewMode ? '#6366f1' : 'rgba(99,102,241,0.25)'),
+      }}>
+        <Eye size={13}/> {previewMode ? t('superPagesEditor.editLabel', { defaultValue: 'Edit' }) : t('superPagesEditor.previewLabel', { defaultValue: 'Preview' })}
       </button>
 
       {/* Publish toggle */}
-      <button onClick={onTogglePublish} style={{...btn,background:isPublished?'rgba(22,163,74,.12)':'rgba(14,165,233,.12)',color:isPublished?'var(--sap-green)':'var(--sap-accent-light)',border:`1px solid ${isPublished?'rgba(22,163,74,.2)':'rgba(14,165,233,.2)'}`}}>
+      <button onClick={onTogglePublish} style={{
+        ...btn,
+        background: isPublished ? 'rgba(22,163,74,0.08)' : 'rgba(14,165,233,0.08)',
+        color: isPublished ? '#16a34a' : '#0284c7',
+        border: '1px solid ' + (isPublished ? 'rgba(22,163,74,0.25)' : 'rgba(14,165,233,0.25)'),
+      }}>
         {isPublished ? <><Globe size={13}/> {t('superPagesEditor.publishedLabel')}</> : <><GlobeLock size={13}/> {t('superPagesEditor.publishBtn')}</>}
       </button>
 
-      {/* Live link */}
+      {/* Save — primary action, green */}
+      <button onClick={onSave} disabled={saving} style={{
+        ...btn,
+        background: saving ? '#94a3b8' : '#22c55e',
+        color: '#fff', border: '1px solid ' + (saving ? '#94a3b8' : '#16a34a'),
+        boxShadow: saving ? 'none' : '0 2px 6px rgba(34,197,94,0.25)',
+        cursor: saving ? 'not-allowed' : 'pointer',
+      }}>
+        <Save size={13}/> {saving ? t('superPagesEditor.savingLabel', { defaultValue: 'Saving…' }) : t('superPagesEditor.saveLabel', { defaultValue: 'Save' })}
+      </button>
+
+      {/* Live link — only when published */}
       {isPublished && slug && (
         <a href={`/p/${slug}`} target="_blank" rel="noopener noreferrer"
-          style={{...btn,background:'var(--sap-accent)',color:'#fff',textDecoration:'none'}}>
-          Open ↗
+          style={{...btn, background: '#0ea5e9', color: '#fff', border: '1px solid #0284c7', textDecoration: 'none', boxShadow: '0 2px 6px rgba(14,165,233,0.25)'}}>
+          {t('superPagesEditor.openLink', { defaultValue: 'Open ↗' })}
         </a>
       )}
 
-      {/* Feature on /explore — only when published, since server rejects drafts anyway */}
+      {/* Feature on /explore — only when published */}
       {isPublished && pageId && (
         <FeatureOnExploreButton
           artifactType="landing-page"
@@ -91,9 +130,24 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
 }
 
 const btn = {
-  padding:'7px 12px',border:'none',borderRadius:7,fontSize:11,fontWeight:700,
-  cursor:'pointer',display:'inline-flex',alignItems:'center',gap:4,fontFamily:'DM Sans,sans-serif',
+  padding: '7px 12px', border: 'none', borderRadius: 8, fontSize: 11, fontWeight: 700,
+  cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5,
+  fontFamily: 'DM Sans,sans-serif', transition: 'all .12s',
 };
-const gh = {
-  ...btn,background:'rgba(255,255,255,0.05)',color:'rgba(255,255,255,.45)',border:'1px solid #1e3a8a',
+const ghost = {
+  ...btn,
+  background: '#ffffff',
+  color: '#475569',
+  border: '1px solid #e2e8f0',
+};
+const grpBtn = {
+  padding: '5px 9px', border: 'none', borderRadius: 6, cursor: 'pointer',
+  background: 'transparent', color: '#64748b',
+  display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+  fontFamily: 'DM Sans,sans-serif', transition: 'all .12s',
+};
+const grpBtnActive = {
+  background: '#ffffff',
+  color: '#0ea5e9',
+  boxShadow: '0 1px 3px rgba(15,23,42,0.08)',
 };

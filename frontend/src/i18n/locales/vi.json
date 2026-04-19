@@ -1825,7 +1825,10 @@
     "audiencePlaceholderFull": "ví dụ: người mới bắt đầu, dân văn phòng, phụ huynh nội trợ...",
     "storyQuestion": "3. Câu chuyện hoặc góc nhìn độc đáo của bạn (tùy chọn)",
     "storyPlaceholder": "ví dụ: tôi đã từ trắng tay đến kiếm 5K$/tháng trong 6 tháng...",
-    "toneQuestion": "4. Giọng điệu"
+    "toneQuestion": "4. Giọng điệu",
+    "untitled": "Không tiêu đề",
+    "statusLive": "● Đang hoạt động",
+    "statusDraft": "○ Bản nháp"
   },
   "myLeads": {
     "title": "Liên hệ",
@@ -2642,7 +2645,29 @@
     "aiAssistant": "✨ Trợ lý AI",
     "clickCodeFull": "⟨/⟩ ✎ CODE thêm HTML",
     "blk": "Khối",
-    "cat": "Danh mục"
+    "cat": "Danh mục",
+    "backShort": "Quay lại",
+    "unsavedChanges": "Thay đổi chưa lưu",
+    "unsavedShort": "Chưa lưu",
+    "clearCanvasLabel": "Xóa canvas",
+    "editLabel": "Sửa",
+    "previewLabel": "Xem trước",
+    "savingLabel": "Đang lưu…",
+    "saveLabel": "Lưu",
+    "openLink": "Mở ↗",
+    "loading": "Đang tải trình soạn thảo…",
+    "untitledPage": "Trang không tiêu đề",
+    "desktopRequiredTitle": "Cần máy tính bàn",
+    "desktopRequiredBody": "Trình soạn thảo SuperPages sử dụng kéo và thả chính xác cần máy tính bàn hoặc laptop để hoạt động đúng. Vui lòng mở trang này trên màn hình lớn hơn.",
+    "desktopRequiredNote": "Các trang của bạn hoàn toàn responsive và sẽ hiển thị đẹp trên mọi thiết bị sau khi xuất bản — hạn chế này chỉ áp dụng cho trình soạn thảo.",
+    "backToMyPages": "Quay lại Trang của tôi",
+    "responsivePreview": "Xem trước responsive — chuyển sang Máy tính bàn để sửa phần tử",
+    "bgSolid": "Đồng nhất",
+    "bgGradient": "Gradient",
+    "bgImage": "Hình ảnh",
+    "aiGreeting": "Cho tôi biết bạn muốn thay đổi gì — \"thêm tiêu đề\", \"đổi nền sang xanh navy\", \"viết văn bản bán hàng\"",
+    "aiDone": "Xong!",
+    "aiConnError": "Lỗi kết nối."
   },
   "analytics": {
     "availableBalance": "Số dư khả dụng",

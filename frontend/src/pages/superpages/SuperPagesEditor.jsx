@@ -8,6 +8,7 @@ import EditorTopbar from './EditorTopbar';
 import HelpPanel from './HelpPanel';
 import exportHTML from './exportHTML';
 import { apiGet, apiPost } from '../../utils/api';
+import AppLayout from '../../components/layout/AppLayout';
 
 export default function SuperPagesEditor() {
   var { t } = useTranslation();
@@ -72,6 +73,16 @@ export default function SuperPagesEditor() {
       setLoading(false);
     });
   }, [pageId, setEls, setCanvasBg, setCanvasBgImage]);
+
+  // ── Auto-collapse the sidebar on editor entry ──
+  // The SuperPages editor benefits from maximum canvas width. Most users
+  // will want the sidebar out of the way while building a page, so we
+  // collapse it on mount. If they want it back, the toggle button is right
+  // there on the sidebar's edge.
+  useEffect(function() {
+    if (typeof window === 'undefined') return;
+    window.dispatchEvent(new CustomEvent('sap-sidebar-set-collapsed', { detail: true }));
+  }, []);
 
   // ── Save ──
   const save = useCallback(async () => {
@@ -199,9 +210,11 @@ export default function SuperPagesEditor() {
 
   if (loading) {
     return (
-      <div style={{ width: '100vw', height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--sap-cobalt-deep)', color: 'rgba(255,255,255,.4)' }}>
-        Loading editor...
-      </div>
+      <AppLayout title="SuperPages" subtitle={t('superPagesEditor.loading', { defaultValue: 'Loading editor…' })}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', color: '#64748b' }}>
+          {t('superPagesEditor.loading', { defaultValue: 'Loading editor…' })}
+        </div>
+      </AppLayout>
     );
   }
 
@@ -210,26 +223,35 @@ export default function SuperPagesEditor() {
   // we show a clear message and let people return on a desktop.
   if (isNarrow) {
     return (
-      <div style={{ width: '100vw', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--sap-cobalt-deep)', padding: 24, boxSizing: 'border-box' }}>
-        <div style={{ maxWidth: 420, textAlign: 'center', color: '#e2e8f0', fontFamily: 'DM Sans,sans-serif' }}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>🖥️</div>
-          <h1 style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 800, margin: '0 0 12px', color: '#fff' }}>Desktop required</h1>
-          <p style={{ fontSize: 15, lineHeight: 1.6, color: 'rgba(255,255,255,.7)', margin: '0 0 24px' }}>
-            The SuperPages editor uses precise drag and drop that needs a desktop or laptop to work properly. Please open this page on a larger screen to build your page.
-          </p>
-          <p style={{ fontSize: 13, lineHeight: 1.6, color: 'rgba(255,255,255,.5)', margin: '0 0 28px' }}>
-            Your pages are fully responsive and will look great on all devices once published — this restriction only applies to the editor itself.
-          </p>
-          <button onClick={() => navigate('/pro/funnels')} style={{ padding: '12px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', background: 'var(--sap-accent)', color: '#fff', fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 700 }}>
-            Back to My Pages
-          </button>
+      <AppLayout title="SuperPages">
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', padding: 24, boxSizing: 'border-box' }}>
+          <div style={{ maxWidth: 420, textAlign: 'center', color: '#475569', fontFamily: 'DM Sans,sans-serif' }}>
+            <div style={{ fontSize: 48, marginBottom: 16 }}>🖥️</div>
+            <h1 style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 800, margin: '0 0 12px', color: '#0f172a' }}>
+              {t('superPagesEditor.desktopRequiredTitle', { defaultValue: 'Desktop required' })}
+            </h1>
+            <p style={{ fontSize: 15, lineHeight: 1.6, color: '#475569', margin: '0 0 24px' }}>
+              {t('superPagesEditor.desktopRequiredBody', { defaultValue: 'The SuperPages editor uses precise drag and drop that needs a desktop or laptop to work properly. Please open this page on a larger screen to build your page.' })}
+            </p>
+            <p style={{ fontSize: 13, lineHeight: 1.6, color: '#64748b', margin: '0 0 28px' }}>
+              {t('superPagesEditor.desktopRequiredNote', { defaultValue: 'Your pages are fully responsive and will look great on all devices once published — this restriction only applies to the editor itself.' })}
+            </p>
+            <button onClick={() => navigate('/pro/funnels')} style={{ padding: '12px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', background: 'var(--sap-accent)', color: '#fff', fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 700 }}>
+              {t('superPagesEditor.backToMyPages', { defaultValue: 'Back to My Pages' })}
+            </button>
+          </div>
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   return (
-    <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', overflow: 'hidden', background: 'var(--sap-cobalt-deep)', fontFamily: 'DM Sans,sans-serif' }}>
+    <AppLayout
+      title={pageSettings.title || t('superPagesEditor.untitledPage', { defaultValue: 'Untitled page' })}
+      subtitle={pageSettings.slug ? '/' + pageSettings.slug : undefined}
+      bgStyle={{ padding: 0, background: '#f8fafc', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, fontFamily: 'DM Sans,sans-serif' }}>
       <EditorTopbar
         title={pageSettings.title}
         slug={pageSettings.slug}
@@ -250,22 +272,31 @@ export default function SuperPagesEditor() {
         deviceView={deviceView}
         onSetDevice={setDeviceView}
       />
-      <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
+      <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
         {(previewMode || deviceView !== 'desktop') ? (
           /* Preview mode — shows rendered HTML with responsive CSS */
-          <div style={{flex:1,background:'#132044',overflow:'auto',display:'flex',flexDirection:'column',alignItems:'center',padding:20}}>
+          <div style={{
+            flex:1,
+            background: '#f1f5f9',
+            backgroundImage: 'radial-gradient(ellipse at 30% 20%, rgba(14,165,233,0.04), transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(236,72,153,0.03), transparent 50%)',
+            overflow:'auto',
+            display:'flex',
+            flexDirection:'column',
+            alignItems:'center',
+            padding:20
+          }}>
             {previewMode && (
-              <div style={{marginBottom:12,padding:'10px 24px',background:'rgba(99,102,241,.12)',border:'1px solid rgba(99,102,241,.25)',borderRadius:10,fontSize:13,color:'#a5b4fc',fontWeight:700,display:'flex',alignItems:'center',gap:12}}>
+              <div style={{marginBottom:12,padding:'10px 24px',background:'rgba(99,102,241,.12)',border:'1px solid rgba(99,102,241,.25)',borderRadius:10,fontSize:13,color:'#4338ca',fontWeight:700,display:'flex',alignItems:'center',gap:12}}>
                 <span>{t('superPagesEditor.previewMode')}</span>
                 <button onClick={() => setPreviewMode(false)} style={{padding:'6px 16px',borderRadius:8,border:'none',background:'var(--sap-indigo)',color:'#fff',fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>{t('superPagesEditor.backToEditor')}</button>
               </div>
             )}
             {deviceView !== 'desktop' && !previewMode && (
-              <div style={{marginBottom:12,padding:'8px 16px',background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.2)',borderRadius:8,fontSize:11,color:'var(--sap-accent-light)',fontWeight:600}}>
-                📱 Responsive Preview — switch to Desktop to edit elements
+              <div style={{marginBottom:12,padding:'8px 16px',background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.25)',borderRadius:8,fontSize:11,color:'#0284c7',fontWeight:600}}>
+                📱 {t('superPagesEditor.responsivePreview', { defaultValue: 'Responsive Preview — switch to Desktop to edit elements' })}
               </div>
             )}
-            <div style={{width:deviceView==='mobile'?390:deviceView==='tablet'?768:1100,transition:'width .3s',background:canvasBg||'var(--sap-cobalt-deep)',borderRadius:8,overflow:'hidden',boxShadow:'0 0 60px rgba(0,0,0,.3)',minHeight:600}}>
+            <div style={{width:deviceView==='mobile'?390:deviceView==='tablet'?768:1100,transition:'width .3s',background:canvasBg||'#ffffff',borderRadius:10,overflow:'hidden',boxShadow:'0 4px 24px rgba(15,23,42,0.08), 0 12px 40px rgba(15,23,42,0.06)',minHeight:600,border:'1px solid #e2e8f0'}}>
               <iframe
                 srcDoc={`<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=DM+Sans:wght@400;500;600;700;800&family=Outfit:wght@400;600;700;800&family=Poppins:wght@400;600;700;800&family=Montserrat:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Playfair+Display:wght@400;700;800&display=swap" rel="stylesheet"><style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:Outfit,sans-serif}img{max-width:100%;height:auto}</style></head><body>${exportHTML(els, canvasBg, canvasBgImage)}</body></html>`}
                 style={{width:'100%',height:'100%',border:'none',minHeight:800}}
@@ -376,6 +407,7 @@ export default function SuperPagesEditor() {
       {/* Knowledge Base Help Panel */}
       <HelpPanel visible={showHelp} onClose={() => setShowHelp(false)} />
     </div>
+    </AppLayout>
   );
 }
 

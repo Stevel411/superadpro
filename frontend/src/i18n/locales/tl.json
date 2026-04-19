@@ -1825,7 +1825,10 @@
     "audiencePlaceholderFull": "hal. mga baguhan, nagtatrabahong propesyonal, mga magulang sa bahay...",
     "storyQuestion": "3. Ang iyong kwento o natatanging anggulo (opsyonal)",
     "storyPlaceholder": "hal. mula sa walang-wala hanggang kumita ng $5K/buwan sa loob ng 6 na buwan...",
-    "toneQuestion": "4. Tono ng boses"
+    "toneQuestion": "4. Tono ng boses",
+    "untitled": "Walang pamagat",
+    "statusLive": "● Live",
+    "statusDraft": "○ Draft"
   },
   "myLeads": {
     "title": "Mga Contact",
@@ -2642,7 +2645,29 @@
     "aiAssistant": "✨ AI Assistant",
     "clickCodeFull": "⟨/⟩ ✎ CODE para sa HTML",
     "blk": "Bloke",
-    "cat": "Kategorya"
+    "cat": "Kategorya",
+    "backShort": "Bumalik",
+    "unsavedChanges": "Hindi pa naka-save na pagbabago",
+    "unsavedShort": "Hindi naka-save",
+    "clearCanvasLabel": "I-clear ang canvas",
+    "editLabel": "I-edit",
+    "previewLabel": "Preview",
+    "savingLabel": "Nag-se-save…",
+    "saveLabel": "I-save",
+    "openLink": "Buksan ↗",
+    "loading": "Niloload ang editor…",
+    "untitledPage": "Walang pamagat na pahina",
+    "desktopRequiredTitle": "Kailangan ng Desktop",
+    "desktopRequiredBody": "Ang SuperPages editor ay gumagamit ng tumpak na drag at drop na nangangailangan ng desktop o laptop para gumana nang maayos. Pakibuksan ang pahinang ito sa mas malaking screen.",
+    "desktopRequiredNote": "Ang iyong mga pahina ay ganap na responsive at magiging maganda ang hitsura sa lahat ng device kapag na-publish — ang paghihigpit na ito ay para lamang sa editor.",
+    "backToMyPages": "Bumalik sa Aking Mga Pahina",
+    "responsivePreview": "Responsive preview — lumipat sa Desktop para i-edit ang mga elemento",
+    "bgSolid": "Solid",
+    "bgGradient": "Gradient",
+    "bgImage": "Imahe",
+    "aiGreeting": "Sabihin sa akin kung ano ang ibabago — \"magdagdag ng heading\", \"palitan ang background sa navy\", \"sumulat ng sales copy\"",
+    "aiDone": "Tapos na!",
+    "aiConnError": "Error sa koneksyon."
   },
   "analytics": {
     "availableBalance": "Available na balanse",

@@ -1825,7 +1825,10 @@
     "audiencePlaceholderFull": "e.g. Beginners, working professionals, stay-at-home parents...",
     "storyQuestion": "3. Your story or unique angle (optional)",
     "storyPlaceholder": "e.g. I went from broke to earning $5K/month in 6 months...",
-    "toneQuestion": "4. Tone of voice"
+    "toneQuestion": "4. Tone of voice",
+    "untitled": "Untitled",
+    "statusLive": "● Live",
+    "statusDraft": "○ Draft"
   },
   "myLeads": {
     "title": "Contacts",
@@ -2642,7 +2645,29 @@
     "aiAssistant": "✨ AI Assistant",
     "clickCodeFull": "⟨/⟩ Click ✎ CODE to add HTML",
     "blk": "Block",
-    "cat": "Category"
+    "cat": "Category",
+    "backShort": "Back",
+    "unsavedChanges": "Unsaved changes",
+    "unsavedShort": "Unsaved",
+    "clearCanvasLabel": "Clear canvas",
+    "editLabel": "Edit",
+    "previewLabel": "Preview",
+    "savingLabel": "Saving…",
+    "saveLabel": "Save",
+    "openLink": "Open ↗",
+    "loading": "Loading editor…",
+    "untitledPage": "Untitled page",
+    "desktopRequiredTitle": "Desktop required",
+    "desktopRequiredBody": "The SuperPages editor uses precise drag and drop that needs a desktop or laptop to work properly. Please open this page on a larger screen to build your page.",
+    "desktopRequiredNote": "Your pages are fully responsive and will look great on all devices once published — this restriction only applies to the editor itself.",
+    "backToMyPages": "Back to My Pages",
+    "responsivePreview": "Responsive Preview — switch to Desktop to edit elements",
+    "bgSolid": "Solid",
+    "bgGradient": "Gradient",
+    "bgImage": "Image",
+    "aiGreeting": "Tell me what to change — \"add a heading\", \"change background to navy\", \"write sales copy\"",
+    "aiDone": "Done!",
+    "aiConnError": "Connection error."
   },
   "analytics": {
     "availableBalance": "Available Balance",

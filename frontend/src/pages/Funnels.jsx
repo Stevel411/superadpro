@@ -173,15 +173,15 @@ export default function Funnels() {
 
             <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
               <h2 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('superPages.yourPages')}</h2>
-              <span style={{fontSize:11,color:'var(--sap-text-muted)'}}>{pages.length} page{pages.length!==1?'s':''}</span>
+              <span style={{fontSize:11,color:'var(--sap-text-muted)'}}>{t('superPages.pageCount', { count: pages.length, defaultValue: pages.length === 1 ? '1 page' : `${pages.length} pages` })}</span>
             </div>
             <div style={{display:'flex',flexDirection:'column',gap:10}}>
               {pages.map(p=>(
                 <div key={p.id} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.03)'}}>
                   <div style={{padding:'12px 14px',borderBottom:'1px solid #f1f3f7'}}>
                     <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:3}}>
-                      <div style={{fontSize:13,fontWeight:800,color:'var(--sap-text-primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1}}>{p.title||'Untitled'}</div>
-                      <span style={{fontSize:8,fontWeight:700,padding:'2px 7px',borderRadius:4,marginLeft:8,flexShrink:0,...(p.status==='published'?{background:'rgba(22,163,74,.08)',color:'var(--sap-green)'}:{background:'var(--sap-bg-input)',color:'var(--sap-text-muted)'})}}>{p.status==='published'?'● Live':'○ Draft'}</span>
+                      <div style={{fontSize:13,fontWeight:800,color:'var(--sap-text-primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1}}>{p.title||t('superPages.untitled', { defaultValue: 'Untitled' })}</div>
+                      <span style={{fontSize:8,fontWeight:700,padding:'2px 7px',borderRadius:4,marginLeft:8,flexShrink:0,...(p.status==='published'?{background:'rgba(22,163,74,.08)',color:'var(--sap-green)'}:{background:'var(--sap-bg-input)',color:'var(--sap-text-muted)'})}}>{p.status==='published'?t('superPages.statusLive', { defaultValue: '● Live' }):t('superPages.statusDraft', { defaultValue: '○ Draft' })}</span>
                     </div>
                     {p.slug&&<div style={{fontSize:10,color:'var(--sap-text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>/{p.slug}</div>}
                   </div>

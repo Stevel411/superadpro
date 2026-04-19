@@ -1825,7 +1825,10 @@
     "audiencePlaceholderFull": "例：初心者、社会人、専業主婦/主夫...",
     "storyQuestion": "3. あなたのストーリーまたは独自の視点（任意）",
     "storyPlaceholder": "例：6ヶ月で無一文から月5千ドル稼ぐまでになりました...",
-    "toneQuestion": "4. トーン"
+    "toneQuestion": "4. トーン",
+    "untitled": "無題",
+    "statusLive": "● 公開中",
+    "statusDraft": "○ 下書き"
   },
   "myLeads": {
     "title": "連絡先",
@@ -2642,7 +2645,29 @@
     "aiAssistant": "✨ AIアシスタント",
     "clickCodeFull": "⟨/⟩ ✎ CODE でHTML追加",
     "blk": "ブロック",
-    "cat": "カテゴリー"
+    "cat": "カテゴリー",
+    "backShort": "戻る",
+    "unsavedChanges": "未保存の変更",
+    "unsavedShort": "未保存",
+    "clearCanvasLabel": "キャンバスをクリア",
+    "editLabel": "編集",
+    "previewLabel": "プレビュー",
+    "savingLabel": "保存中…",
+    "saveLabel": "保存",
+    "openLink": "開く ↗",
+    "loading": "エディタを読み込み中…",
+    "untitledPage": "無題のページ",
+    "desktopRequiredTitle": "デスクトップが必要です",
+    "desktopRequiredBody": "SuperPagesエディタは正確なドラッグ&ドロップを使用するため、デスクトップまたはラップトップが必要です。より大きな画面でこのページを開いてください。",
+    "desktopRequiredNote": "公開後、ページは完全にレスポンシブになり、すべてのデバイスで美しく表示されます — この制限はエディタのみに適用されます。",
+    "backToMyPages": "マイページに戻る",
+    "responsivePreview": "レスポンシブプレビュー — 要素を編集するにはデスクトップに切り替えてください",
+    "bgSolid": "単色",
+    "bgGradient": "グラデーション",
+    "bgImage": "画像",
+    "aiGreeting": "変更したいことを教えてください — 「見出しを追加」「背景をネイビーに」「販売コピーを書いて」",
+    "aiDone": "完了!",
+    "aiConnError": "接続エラー。"
   },
   "analytics": {
     "availableBalance": "利用可能残高",

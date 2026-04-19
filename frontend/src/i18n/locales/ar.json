@@ -1825,7 +1825,10 @@
     "audiencePlaceholderFull": "مثل: مبتدئون، محترفون عاملون، آباء يعملون في المنزل...",
     "storyQuestion": "3. قصتك أو زاويتك الفريدة (اختياري)",
     "storyPlaceholder": "مثل: انتقلت من الإفلاس إلى كسب 5000 دولار شهريًا في 6 أشهر...",
-    "toneQuestion": "4. نبرة الصوت"
+    "toneQuestion": "4. نبرة الصوت",
+    "untitled": "بدون عنوان",
+    "statusLive": "● مباشر",
+    "statusDraft": "○ مسودة"
   },
   "myLeads": {
     "title": "جهات الاتصال",
@@ -2642,7 +2645,29 @@
     "aiAssistant": "✨ مساعد AI",
     "clickCodeFull": "⟨/⟩ انقر ✎ كود لـ HTML",
     "blk": "كتلة",
-    "cat": "فئة"
+    "cat": "فئة",
+    "backShort": "رجوع",
+    "unsavedChanges": "تغييرات غير محفوظة",
+    "unsavedShort": "غير محفوظ",
+    "clearCanvasLabel": "مسح اللوحة",
+    "editLabel": "تحرير",
+    "previewLabel": "معاينة",
+    "savingLabel": "جارٍ الحفظ…",
+    "saveLabel": "حفظ",
+    "openLink": "فتح ↗",
+    "loading": "جارٍ تحميل المحرر…",
+    "untitledPage": "صفحة بدون عنوان",
+    "desktopRequiredTitle": "يتطلب سطح المكتب",
+    "desktopRequiredBody": "يستخدم محرر SuperPages السحب والإفلات الدقيق الذي يحتاج إلى سطح مكتب أو كمبيوتر محمول ليعمل بشكل صحيح. يرجى فتح هذه الصفحة على شاشة أكبر.",
+    "desktopRequiredNote": "صفحاتك مستجيبة بالكامل وستظهر رائعة على جميع الأجهزة بمجرد النشر — هذا القيد ينطبق فقط على المحرر نفسه.",
+    "backToMyPages": "العودة إلى صفحاتي",
+    "responsivePreview": "معاينة مستجيبة — انتقل إلى سطح المكتب لتحرير العناصر",
+    "bgSolid": "لون موحد",
+    "bgGradient": "متدرج",
+    "bgImage": "صورة",
+    "aiGreeting": "أخبرني ما تريد تغييره — «أضف عنوانًا»، «غيّر الخلفية إلى الكحلي»، «اكتب نصًا للمبيعات»",
+    "aiDone": "تم!",
+    "aiConnError": "خطأ في الاتصال."
   },
   "analytics": {
     "availableBalance": "الرصيد المتاح",

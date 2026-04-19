@@ -1825,7 +1825,10 @@
     "audiencePlaceholderFull": "bijv. beginners, werkenden, thuisblijvende ouders...",
     "storyQuestion": "3. Uw verhaal of unieke invalshoek (optioneel)",
     "storyPlaceholder": "bijv. ik ging van blut naar $5K/maand in 6 maanden...",
-    "toneQuestion": "4. Toon"
+    "toneQuestion": "4. Toon",
+    "untitled": "Naamloos",
+    "statusLive": "● Live",
+    "statusDraft": "○ Concept"
   },
   "myLeads": {
     "title": "Contacten",
@@ -2650,7 +2653,29 @@
     "aiAssistant": "✨ AI-assistent",
     "clickCodeFull": "⟨/⟩ ✎ CODE voor HTML",
     "blk": "Blok",
-    "cat": "Categorie"
+    "cat": "Categorie",
+    "backShort": "Terug",
+    "unsavedChanges": "Niet-opgeslagen wijzigingen",
+    "unsavedShort": "Niet opgeslagen",
+    "clearCanvasLabel": "Canvas wissen",
+    "editLabel": "Bewerken",
+    "previewLabel": "Voorbeeld",
+    "savingLabel": "Opslaan…",
+    "saveLabel": "Opslaan",
+    "openLink": "Openen ↗",
+    "loading": "Editor laden…",
+    "untitledPage": "Naamloze pagina",
+    "desktopRequiredTitle": "Desktop vereist",
+    "desktopRequiredBody": "De SuperPages-editor gebruikt nauwkeurig slepen en neerzetten en vereist een desktop of laptop om goed te werken. Open deze pagina op een groter scherm.",
+    "desktopRequiredNote": "Je pagina's zijn volledig responsive en zien er geweldig uit op alle apparaten zodra ze zijn gepubliceerd — deze beperking geldt alleen voor de editor.",
+    "backToMyPages": "Terug naar Mijn Pagina's",
+    "responsivePreview": "Responsive voorbeeld — schakel naar Desktop om elementen te bewerken",
+    "bgSolid": "Effen",
+    "bgGradient": "Gradiënt",
+    "bgImage": "Afbeelding",
+    "aiGreeting": "Vertel me wat er moet veranderen — \"voeg een kop toe\", \"verander achtergrond in marineblauw\", \"schrijf verkoopteksten\"",
+    "aiDone": "Klaar!",
+    "aiConnError": "Verbindingsfout."
   },
   "analytics": {
     "availableBalance": "Beschikbaar saldo",

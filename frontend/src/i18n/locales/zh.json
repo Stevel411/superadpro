@@ -1825,7 +1825,10 @@
     "audiencePlaceholderFull": "例如初学者、在职专业人士、全职父母...",
     "storyQuestion": "3. 你的故事或独特角度（可选）",
     "storyPlaceholder": "例如，我在 6 个月内从破产到每月赚 5,000 美元...",
-    "toneQuestion": "4. 语气风格"
+    "toneQuestion": "4. 语气风格",
+    "untitled": "无标题",
+    "statusLive": "● 直播",
+    "statusDraft": "○ 草稿"
   },
   "myLeads": {
     "title": "联系人",
@@ -2642,7 +2645,29 @@
     "aiAssistant": "✨ AI助手",
     "clickCodeFull": "⟨/⟩ 点击 ✎ 代码 添加HTML",
     "blk": "块",
-    "cat": "类别"
+    "cat": "类别",
+    "backShort": "返回",
+    "unsavedChanges": "未保存的更改",
+    "unsavedShort": "未保存",
+    "clearCanvasLabel": "清空画布",
+    "editLabel": "编辑",
+    "previewLabel": "预览",
+    "savingLabel": "保存中…",
+    "saveLabel": "保存",
+    "openLink": "打开 ↗",
+    "loading": "正在加载编辑器…",
+    "untitledPage": "无标题页面",
+    "desktopRequiredTitle": "需要桌面设备",
+    "desktopRequiredBody": "SuperPages编辑器使用精确的拖放操作,需要桌面或笔记本电脑才能正常工作。请在更大的屏幕上打开此页面。",
+    "desktopRequiredNote": "发布后,您的页面将在所有设备上完全响应式显示 — 此限制仅适用于编辑器本身。",
+    "backToMyPages": "返回我的页面",
+    "responsivePreview": "响应式预览 — 切换到桌面以编辑元素",
+    "bgSolid": "纯色",
+    "bgGradient": "渐变",
+    "bgImage": "图片",
+    "aiGreeting": "告诉我要更改什么 — \"添加标题\"、\"将背景改为海军蓝\"、\"写销售文案\"",
+    "aiDone": "完成!",
+    "aiConnError": "连接错误。"
   },
   "analytics": {
     "availableBalance": "可用余额",

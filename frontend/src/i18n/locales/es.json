@@ -1759,7 +1759,10 @@
     "audiencePlaceholderFull": "p.ej. principiantes, profesionales, padres amas/amos de casa...",
     "storyQuestion": "3. Tu historia o ángulo único (opcional)",
     "storyPlaceholder": "p.ej. pasé de estar sin dinero a ganar $5K/mes en 6 meses...",
-    "toneQuestion": "4. Tono de voz"
+    "toneQuestion": "4. Tono de voz",
+    "untitled": "Sin título",
+    "statusLive": "● En vivo",
+    "statusDraft": "○ Borrador"
   },
   "myLeads": {
     "title": "Contactos",
@@ -2650,7 +2653,29 @@
     "aiAssistant": "✨ Asistente IA",
     "clickCodeFull": "⟨/⟩ Haz clic ✎ CÓDIGO para agregar HTML",
     "blk": "Bloque",
-    "cat": "Categoría"
+    "cat": "Categoría",
+    "backShort": "Atrás",
+    "unsavedChanges": "Cambios sin guardar",
+    "unsavedShort": "Sin guardar",
+    "clearCanvasLabel": "Limpiar lienzo",
+    "editLabel": "Editar",
+    "previewLabel": "Vista previa",
+    "savingLabel": "Guardando…",
+    "saveLabel": "Guardar",
+    "openLink": "Abrir ↗",
+    "loading": "Cargando editor…",
+    "untitledPage": "Página sin título",
+    "desktopRequiredTitle": "Se requiere ordenador",
+    "desktopRequiredBody": "El editor de SuperPages usa arrastrar y soltar preciso que necesita un ordenador o portátil para funcionar correctamente. Por favor, abre esta página en una pantalla más grande para construir tu página.",
+    "desktopRequiredNote": "Tus páginas son totalmente adaptables y se verán genial en todos los dispositivos una vez publicadas — esta restricción solo se aplica al editor.",
+    "backToMyPages": "Volver a Mis Páginas",
+    "responsivePreview": "Vista adaptable — cambia a Ordenador para editar elementos",
+    "bgSolid": "Sólido",
+    "bgGradient": "Gradiente",
+    "bgImage": "Imagen",
+    "aiGreeting": "Dime qué cambiar — «añade un titular», «cambia el fondo a azul», «escribe copia de ventas»",
+    "aiDone": "¡Listo!",
+    "aiConnError": "Error de conexión."
   },
   "analytics": {
     "availableBalance": "Saldo disponible",

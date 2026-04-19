@@ -1825,7 +1825,10 @@
     "audiencePlaceholderFull": "mfano: wanaoanza, wataalamu wanaofanya kazi, wazazi wanaokaa nyumbani...",
     "storyQuestion": "3. Hadithi yako au mtazamo wa kipekee (hiari)",
     "storyPlaceholder": "mfano: nilikuwa nimefilisika kisha nikapata $5K/mwezi kwa miezi 6...",
-    "toneQuestion": "4. Toni ya sauti"
+    "toneQuestion": "4. Toni ya sauti",
+    "untitled": "Bila jina",
+    "statusLive": "● Moja kwa moja",
+    "statusDraft": "○ Rasimu"
   },
   "myLeads": {
     "title": "Mawasiliano",
@@ -2642,7 +2645,29 @@
     "aiAssistant": "✨ Msaidizi wa AI",
     "clickCodeFull": "⟨/⟩ ✎ MSIMBO kwa HTML",
     "blk": "Kizuizi",
-    "cat": "Kategoria"
+    "cat": "Kategoria",
+    "backShort": "Rudi",
+    "unsavedChanges": "Mabadiliko hayajahifadhiwa",
+    "unsavedShort": "Hajahifadhiwa",
+    "clearCanvasLabel": "Futa turubai",
+    "editLabel": "Hariri",
+    "previewLabel": "Hakiki",
+    "savingLabel": "Inahifadhi…",
+    "saveLabel": "Hifadhi",
+    "openLink": "Fungua ↗",
+    "loading": "Inapakia kihariri…",
+    "untitledPage": "Ukurasa usio na jina",
+    "desktopRequiredTitle": "Inahitaji Desktop",
+    "desktopRequiredBody": "Kihariri cha SuperPages kinatumia buruta na dondosha sahihi ambayo inahitaji desktop au laptop ili kufanya kazi vizuri. Tafadhali fungua ukurasa huu kwenye skrini kubwa zaidi.",
+    "desktopRequiredNote": "Kurasa zako ni zinazojibu kabisa na zitaonekana vizuri kwenye vifaa vyote zikishachapishwa — kizuizi hiki kinatumika kwa kihariri tu.",
+    "backToMyPages": "Rudi kwa Kurasa Zangu",
+    "responsivePreview": "Hakiki inayojibu — badilisha kuwa Desktop ili kuhariri vipengele",
+    "bgSolid": "Imara",
+    "bgGradient": "Graduji",
+    "bgImage": "Picha",
+    "aiGreeting": "Niambie nini cha kubadilisha — \"ongeza kichwa\", \"badilisha mandharinyuma kuwa bluu\", \"andika nakala ya mauzo\"",
+    "aiDone": "Imekamilika!",
+    "aiConnError": "Hitilafu ya muunganisho."
   },
   "analytics": {
     "availableBalance": "Salio inayopatikana",

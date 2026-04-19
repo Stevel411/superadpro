@@ -23,9 +23,7 @@ export default function HomePage() {
 
         {/* Floating nav pills (top-right) */}
         <div className="float-nav">
-          <Link to="/how-it-works" className="float-nav-link">{t('homePage.navHow')}</Link>
-          <Link to="/earn" className="float-nav-link">{t('homePage.navPlan')}</Link>
-          <Link to="/tools" className="float-nav-link">{t('homePage.navTools')}</Link>
+          <Link to="/explore" className="float-nav-link">{t('homePage.navExplore', { defaultValue: 'Explore' })}</Link>
 
           {/* Language pill */}
           <div ref={langRef} className="float-lang-wrap">
@@ -91,7 +89,7 @@ export default function HomePage() {
                     <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </Link>
-                <Link to="/how-it-works" className="cta-secondary">
+                <Link to="/explore" className="cta-secondary">
                   <span className="play-icon">
                     <svg width="10" height="10" viewBox="0 0 24 24" fill="none">
                       <polygon points="8,5 8,19 19,12" fill="currentColor"/>

@@ -85,8 +85,9 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
   }, [editingId]);
 
   // ── Background style ──
+  // Default to white when no canvasBg is set — matches the light theme.
   const bgStyle = {
-    background: canvasBg,
+    background: canvasBg || '#ffffff',
     ...(canvasBgImage ? {
       backgroundImage: `url(${canvasBgImage})`,
       backgroundSize: 'cover',
@@ -286,13 +287,13 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       </div>;
     }
     if (el.type === 'video' && !el.txt) {
-      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,41,0.3)', borderRadius: 12, border: '1px dashed #334155', color: 'var(--sap-text-secondary)', fontSize: 13 }}>{t('superPagesEditor.clickVideoToAdd')}</div>;
+      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', color: '#64748b', fontSize: 13 }}>{t('superPagesEditor.clickVideoToAdd')}</div>;
     }
     if (el.type === 'image' && el.txt) {
       return <img src={el.txt} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: el.s?.borderRadius || '8px' }} alt="" />;
     }
     if (el.type === 'image' && !el.txt) {
-      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,41,0.3)', borderRadius: 12, border: '1px dashed #334155', color: 'var(--sap-text-secondary)', fontSize: 13 }}>{t('superPagesEditor.clickImageToUpload')}</div>;
+      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', color: '#64748b', fontSize: 13 }}>{t('superPagesEditor.clickImageToUpload')}</div>;
     }
     if (['spacer', 'divider', 'box'].includes(el.type) && !el.txt) return null;
     if (el.type === 'button' || el.type === 'announcement') {
@@ -334,13 +335,13 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
           <div style={{ position: 'absolute', inset: 0, zIndex: 2, cursor: 'grab' }} />
         </div>;
       }
-      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,41,0.3)', borderRadius: 12, border: '1px dashed #334155', color: 'var(--sap-text-secondary)', fontSize: 13, gap: 8 }}>{t('superPagesEditor.clickAudioToAdd')}</div>;
+      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', color: '#64748b', fontSize: 13, gap: 8 }}>{t('superPagesEditor.clickAudioToAdd')}</div>;
     }
     if (el.type === 'embed') {
       if (el._embedCode) {
         return <div style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: 8, pointerEvents: 'none' }} dangerouslySetInnerHTML={{ __html: el._embedCode }} />;
       }
-      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(15,23,41,0.3)', borderRadius: 12, border: '1px dashed #334155', color: 'var(--sap-text-secondary)', fontSize: 13, gap: 8 }}>{t('superPagesEditor.clickCodeFull')}</div>;
+      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', color: '#64748b', fontSize: 13, gap: 8 }}>{t('superPagesEditor.clickCodeFull')}</div>;
     }
     // Badge/label: render as centred pill
     if (el.type === 'badge' || el.type === 'label') {
@@ -372,7 +373,16 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
   };
 
   return (
-    <div className="sp-canvas-area" style={{ flex: 1, background: '#0f1525', overflow: 'auto', padding: 20, display: 'flex', justifyContent: 'center', alignItems: 'flex-start' }}>
+    <div className="sp-canvas-area" style={{
+      flex: 1,
+      background: '#f1f5f9',
+      backgroundImage: 'radial-gradient(ellipse at 30% 20%, rgba(14,165,233,0.04), transparent 50%), radial-gradient(ellipse at 70% 80%, rgba(236,72,153,0.03), transparent 50%)',
+      overflow: 'auto',
+      padding: 28,
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'flex-start',
+    }}>
       <div
         ref={canvasRef}
         className="sp-canvas"
@@ -381,7 +391,9 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         onDrop={handleDrop}
         style={{
           width: CANVAS_WIDTH, minHeight: canvasHeight, position: 'relative',
-          borderRadius: 6, boxShadow: '0 0 60px rgba(0,0,0,0.3)',
+          borderRadius: 10,
+          boxShadow: '0 1px 3px rgba(15,23,42,0.04), 0 8px 32px rgba(15,23,42,0.06), 0 20px 60px rgba(15,23,42,0.04)',
+          border: '1px solid #e2e8f0',
           ...bgStyle,
         }}
       >
@@ -398,9 +410,9 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         {/* Empty state */}
         {els.length === 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 600 }}>
-            <div style={{ fontSize: 40, marginBottom: 12 }}>✦</div>
-            <h3 style={{ fontFamily: 'Sora,sans-serif', fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 6 }}>{t('superPagesEditor.startBuilding')}</h3>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,.4)', maxWidth: 280, textAlign: 'center', lineHeight: 1.6 }}>{t('superPagesEditor.startBuildingDesc')}</p>
+            <div style={{ fontSize: 40, marginBottom: 12, color: '#94a3b8' }}>✦</div>
+            <h3 style={{ fontFamily: 'Sora,sans-serif', fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>{t('superPagesEditor.startBuilding')}</h3>
+            <p style={{ fontSize: 12, color: '#64748b', maxWidth: 280, textAlign: 'center', lineHeight: 1.6 }}>{t('superPagesEditor.startBuildingDesc')}</p>
           </div>
         )}
 

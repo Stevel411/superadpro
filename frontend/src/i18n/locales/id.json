@@ -1825,7 +1825,10 @@
     "audiencePlaceholderFull": "mis. pemula, profesional bekerja, orang tua yang tinggal di rumah...",
     "storyQuestion": "3. Cerita atau sudut pandang unik Anda (opsional)",
     "storyPlaceholder": "mis. saya berubah dari bangkrut menjadi menghasilkan $5rb/bulan dalam 6 bulan...",
-    "toneQuestion": "4. Nada suara"
+    "toneQuestion": "4. Nada suara",
+    "untitled": "Tanpa judul",
+    "statusLive": "● Langsung",
+    "statusDraft": "○ Draf"
   },
   "myLeads": {
     "title": "Kontak",
@@ -2642,7 +2645,29 @@
     "aiAssistant": "✨ Asisten AI",
     "clickCodeFull": "⟨/⟩ ✎ KODE untuk HTML",
     "blk": "Blok",
-    "cat": "Kategori"
+    "cat": "Kategori",
+    "backShort": "Kembali",
+    "unsavedChanges": "Perubahan belum disimpan",
+    "unsavedShort": "Belum disimpan",
+    "clearCanvasLabel": "Bersihkan kanvas",
+    "editLabel": "Edit",
+    "previewLabel": "Pratinjau",
+    "savingLabel": "Menyimpan…",
+    "saveLabel": "Simpan",
+    "openLink": "Buka ↗",
+    "loading": "Memuat editor…",
+    "untitledPage": "Halaman tanpa judul",
+    "desktopRequiredTitle": "Membutuhkan Desktop",
+    "desktopRequiredBody": "Editor SuperPages menggunakan drag and drop presisi yang membutuhkan desktop atau laptop untuk bekerja dengan benar. Silakan buka halaman ini di layar yang lebih besar.",
+    "desktopRequiredNote": "Halaman Anda sepenuhnya responsif dan akan terlihat bagus di semua perangkat setelah dipublikasikan — pembatasan ini hanya berlaku untuk editor.",
+    "backToMyPages": "Kembali ke Halaman Saya",
+    "responsivePreview": "Pratinjau responsif — beralih ke Desktop untuk mengedit elemen",
+    "bgSolid": "Solid",
+    "bgGradient": "Gradien",
+    "bgImage": "Gambar",
+    "aiGreeting": "Beritahu saya apa yang diubah — \"tambah judul\", \"ubah latar belakang ke navy\", \"tulis salinan penjualan\"",
+    "aiDone": "Selesai!",
+    "aiConnError": "Kesalahan koneksi."
   },
   "analytics": {
     "availableBalance": "Saldo tersedia",

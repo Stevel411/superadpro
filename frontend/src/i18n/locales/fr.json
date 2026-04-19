@@ -1759,7 +1759,10 @@
     "audiencePlaceholderFull": "ex. débutants, actifs, parents au foyer...",
     "storyQuestion": "3. Votre histoire ou angle unique (facultatif)",
     "storyPlaceholder": "ex. Je suis passé de fauché à gagner 5 000 $/mois en 6 mois...",
-    "toneQuestion": "4. Ton de voix"
+    "toneQuestion": "4. Ton de voix",
+    "untitled": "Sans titre",
+    "statusLive": "● En ligne",
+    "statusDraft": "○ Brouillon"
   },
   "myLeads": {
     "title": "Contacts",
@@ -2650,7 +2653,29 @@
     "aiAssistant": "✨ Assistant IA",
     "clickCodeFull": "⟨/⟩ Cliquez ✎ CODE pour ajouter du HTML",
     "blk": "Bloc",
-    "cat": "Catégorie"
+    "cat": "Catégorie",
+    "backShort": "Retour",
+    "unsavedChanges": "Modifications non enregistrées",
+    "unsavedShort": "Non enregistré",
+    "clearCanvasLabel": "Effacer la toile",
+    "editLabel": "Modifier",
+    "previewLabel": "Aperçu",
+    "savingLabel": "Enregistrement…",
+    "saveLabel": "Enregistrer",
+    "openLink": "Ouvrir ↗",
+    "loading": "Chargement de l'éditeur…",
+    "untitledPage": "Page sans titre",
+    "desktopRequiredTitle": "Ordinateur requis",
+    "desktopRequiredBody": "L'éditeur SuperPages utilise un glisser-déposer précis qui nécessite un ordinateur pour fonctionner correctement. Veuillez ouvrir cette page sur un écran plus grand pour créer votre page.",
+    "desktopRequiredNote": "Vos pages sont entièrement adaptatives et s'afficheront parfaitement sur tous les appareils une fois publiées — cette restriction s'applique uniquement à l'éditeur.",
+    "backToMyPages": "Retour à Mes Pages",
+    "responsivePreview": "Aperçu adaptatif — passez en mode Ordinateur pour modifier les éléments",
+    "bgSolid": "Uni",
+    "bgGradient": "Dégradé",
+    "bgImage": "Image",
+    "aiGreeting": "Dites-moi ce qu'il faut changer — « ajouter un titre », « changer l'arrière-plan en bleu », « écrire du texte de vente »",
+    "aiDone": "Terminé !",
+    "aiConnError": "Erreur de connexion."
   },
   "analytics": {
     "availableBalance": "Solde disponible",

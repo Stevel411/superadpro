@@ -1825,7 +1825,10 @@
     "audiencePlaceholderFull": "예: 초보자, 직장인, 전업 부모...",
     "storyQuestion": "3. 당신의 이야기나 고유한 각도 (선택사항)",
     "storyPlaceholder": "예: 6개월 만에 빈털터리에서 월 $5천 벌기까지...",
-    "toneQuestion": "4. 톤"
+    "toneQuestion": "4. 톤",
+    "untitled": "제목 없음",
+    "statusLive": "● 라이브",
+    "statusDraft": "○ 초안"
   },
   "myLeads": {
     "title": "연락처",
@@ -2642,7 +2645,29 @@
     "aiAssistant": "✨ AI 어시스턴트",
     "clickCodeFull": "⟨/⟩ ✎ CODE로 HTML 추가",
     "blk": "블록",
-    "cat": "카테고리"
+    "cat": "카테고리",
+    "backShort": "뒤로",
+    "unsavedChanges": "저장되지 않은 변경사항",
+    "unsavedShort": "미저장",
+    "clearCanvasLabel": "캔버스 지우기",
+    "editLabel": "편집",
+    "previewLabel": "미리보기",
+    "savingLabel": "저장 중…",
+    "saveLabel": "저장",
+    "openLink": "열기 ↗",
+    "loading": "에디터 로딩 중…",
+    "untitledPage": "제목 없는 페이지",
+    "desktopRequiredTitle": "데스크톱 필요",
+    "desktopRequiredBody": "SuperPages 에디터는 정확한 드래그 앤 드롭을 사용하므로 제대로 작동하려면 데스크톱 또는 노트북이 필요합니다. 더 큰 화면에서 이 페이지를 열어주세요.",
+    "desktopRequiredNote": "페이지가 게시되면 모든 기기에서 완벽하게 반응형으로 표시됩니다 — 이 제한은 에디터에만 적용됩니다.",
+    "backToMyPages": "내 페이지로 돌아가기",
+    "responsivePreview": "반응형 미리보기 — 요소를 편집하려면 데스크톱으로 전환",
+    "bgSolid": "단색",
+    "bgGradient": "그라디언트",
+    "bgImage": "이미지",
+    "aiGreeting": "변경할 내용을 알려주세요 — \"제목 추가\", \"배경을 네이비로 변경\", \"영업 카피 작성\"",
+    "aiDone": "완료!",
+    "aiConnError": "연결 오류."
   },
   "analytics": {
     "availableBalance": "사용 가능 잔액",

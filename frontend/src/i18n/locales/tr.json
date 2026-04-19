@@ -1825,7 +1825,10 @@
     "audiencePlaceholderFull": "ör. yeni başlayanlar, çalışan profesyoneller, evde kalan ebeveynler...",
     "storyQuestion": "3. Hikayeniz veya benzersiz yaklaşımınız (isteğe bağlı)",
     "storyPlaceholder": "ör. 6 ayda meteliksizden aylık 5.000$ kazanmaya geldim...",
-    "toneQuestion": "4. Ses tonu"
+    "toneQuestion": "4. Ses tonu",
+    "untitled": "Başlıksız",
+    "statusLive": "● Canlı",
+    "statusDraft": "○ Taslak"
   },
   "myLeads": {
     "title": "Kişiler",
@@ -2642,7 +2645,29 @@
     "aiAssistant": "✨ AI Asistan",
     "clickCodeFull": "⟨/⟩ ✎ KOD ile HTML",
     "blk": "Blok",
-    "cat": "Kategori"
+    "cat": "Kategori",
+    "backShort": "Geri",
+    "unsavedChanges": "Kaydedilmemiş değişiklikler",
+    "unsavedShort": "Kaydedilmedi",
+    "clearCanvasLabel": "Tuvali temizle",
+    "editLabel": "Düzenle",
+    "previewLabel": "Önizleme",
+    "savingLabel": "Kaydediliyor…",
+    "saveLabel": "Kaydet",
+    "openLink": "Aç ↗",
+    "loading": "Editör yükleniyor…",
+    "untitledPage": "Başlıksız sayfa",
+    "desktopRequiredTitle": "Masaüstü gerekli",
+    "desktopRequiredBody": "SuperPages editörü hassas sürükle bırak kullanır ve düzgün çalışmak için masaüstü veya dizüstü bilgisayar gerektirir. Lütfen bu sayfayı daha büyük bir ekranda açın.",
+    "desktopRequiredNote": "Sayfalarınız tamamen duyarlıdır ve yayınlandıktan sonra tüm cihazlarda harika görünür — bu kısıtlama yalnızca editör için geçerlidir.",
+    "backToMyPages": "Sayfalarıma Dön",
+    "responsivePreview": "Duyarlı önizleme — öğeleri düzenlemek için Masaüstüne geçin",
+    "bgSolid": "Düz",
+    "bgGradient": "Gradyan",
+    "bgImage": "Görsel",
+    "aiGreeting": "Ne değiştirmek istediğini söyle — \"başlık ekle\", \"arka planı lacivert yap\", \"satış metni yaz\"",
+    "aiDone": "Tamam!",
+    "aiConnError": "Bağlantı hatası."
   },
   "analytics": {
     "availableBalance": "Kullanılabilir bakiye",

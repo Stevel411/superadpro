@@ -1825,7 +1825,10 @@
     "audiencePlaceholderFull": "z.B. Anfänger, Berufstätige, Eltern zu Hause...",
     "storyQuestion": "3. Ihre Geschichte oder Ihr einzigartiger Blickwinkel (optional)",
     "storyPlaceholder": "z.B. Ich ging in 6 Monaten von pleite zu 5.000 $/Monat...",
-    "toneQuestion": "4. Tonalität"
+    "toneQuestion": "4. Tonalität",
+    "untitled": "Unbenannt",
+    "statusLive": "● Live",
+    "statusDraft": "○ Entwurf"
   },
   "myLeads": {
     "title": "Kontakte",
@@ -2650,7 +2653,29 @@
     "aiAssistant": "✨ KI-Assistent",
     "clickCodeFull": "⟨/⟩ Klicken ✎ CODE für HTML",
     "blk": "Block",
-    "cat": "Kategorie"
+    "cat": "Kategorie",
+    "backShort": "Zurück",
+    "unsavedChanges": "Nicht gespeicherte Änderungen",
+    "unsavedShort": "Ungesichert",
+    "clearCanvasLabel": "Canvas leeren",
+    "editLabel": "Bearbeiten",
+    "previewLabel": "Vorschau",
+    "savingLabel": "Speichern…",
+    "saveLabel": "Speichern",
+    "openLink": "Öffnen ↗",
+    "loading": "Editor wird geladen…",
+    "untitledPage": "Unbenannte Seite",
+    "desktopRequiredTitle": "Desktop erforderlich",
+    "desktopRequiredBody": "Der SuperPages-Editor verwendet präzises Drag-and-Drop, das einen Desktop oder Laptop benötigt. Bitte öffnen Sie diese Seite auf einem größeren Bildschirm.",
+    "desktopRequiredNote": "Ihre Seiten sind vollständig responsiv und sehen auf allen Geräten großartig aus, sobald sie veröffentlicht sind — diese Einschränkung gilt nur für den Editor.",
+    "backToMyPages": "Zurück zu Meine Seiten",
+    "responsivePreview": "Responsive Vorschau — Zu Desktop wechseln, um Elemente zu bearbeiten",
+    "bgSolid": "Einfarbig",
+    "bgGradient": "Verlauf",
+    "bgImage": "Bild",
+    "aiGreeting": "Sag mir, was zu ändern ist — 'Überschrift hinzufügen', 'Hintergrund zu Marineblau ändern', 'Verkaufstext schreiben'",
+    "aiDone": "Fertig!",
+    "aiConnError": "Verbindungsfehler."
   },
   "analytics": {
     "availableBalance": "Verfügbares Guthaben",
