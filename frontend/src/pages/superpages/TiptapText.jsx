@@ -154,6 +154,15 @@ export default function TiptapText({
   // via ProseMirror's coordsAtPos, and update menuPos. When the selection
   // is empty or the editor isn't focused, menuPos = null → menu hides.
   useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('[TiptapText] component MOUNTED');
+    return () => {
+      // eslint-disable-next-line no-console
+      console.log('[TiptapText] component UNMOUNTED ← this would be very bad mid-link-edit');
+    };
+  }, []);
+
+  useEffect(() => {
     if (!editor) return;
 
     // Shared check: is the user currently interacting with our bubble
@@ -171,19 +180,29 @@ export default function TiptapText({
       // Link-edit mode — freeze the menu in place. The menu IS the link
       // editor now; any selection/focus changes triggered by the URL
       // input should not move or hide it.
-      if (linkModeRef.current.active) return;
+      if (linkModeRef.current.active) {
+        // eslint-disable-next-line no-console
+        console.log('[MenuPos] updateMenuPos called but linkMode active — returning early');
+        return;
+      }
       const { from, to, empty } = editor.state.selection;
       // If there's no selection, hide — UNLESS the user is interacting
       // with a menu control (clicking a link input collapses the
       // editor's selection to a cursor, we should still keep the menu).
       if (empty) {
         if (focusInsideMenu()) return;
+        // eslint-disable-next-line no-console
+        console.log('[MenuPos] HIDING: empty selection, no focus in menu');
         setMenuPos(null); return;
       }
       // Editor blurred but focus went to our menu — keep position as-is.
       if (!editor.view.hasFocus() && focusInsideMenu()) return;
       // Editor blurred and focus is NOT in our menu — hide.
-      if (!editor.view.hasFocus()) { setMenuPos(null); return; }
+      if (!editor.view.hasFocus()) {
+        // eslint-disable-next-line no-console
+        console.log('[MenuPos] HIDING: editor no focus, focus not in menu, activeEl =', document.activeElement?.tagName);
+        setMenuPos(null); return;
+      }
 
       try {
         const startCoords = editor.view.coordsAtPos(from);
@@ -192,19 +211,32 @@ export default function TiptapText({
         const leftMid = (startCoords.left + endCoords.left) / 2;
         setMenuPos({ x: leftMid, y: top });
       } catch (err) {
+        // eslint-disable-next-line no-console
+        console.log('[MenuPos] HIDING: coordsAtPos threw');
         setMenuPos(null);
       }
     }
 
-    editor.on('selectionUpdate', updateMenuPos);
-    editor.on('focus', updateMenuPos);
+    editor.on('selectionUpdate', () => {
+      // eslint-disable-next-line no-console
+      console.log('[MenuPos] selectionUpdate event, linkMode =', linkModeRef.current.active);
+      updateMenuPos();
+    });
+    editor.on('focus', () => {
+      // eslint-disable-next-line no-console
+      console.log('[MenuPos] focus event');
+      updateMenuPos();
+    });
     editor.on('blur', () => {
+      // eslint-disable-next-line no-console
+      console.log('[MenuPos] blur event, linkMode =', linkModeRef.current.active);
       queueMicrotask(() => {
         if (!editor || editor.isDestroyed) return;
-        // Link-edit mode — keep menu visible, it's being used for the link editor
         if (linkModeRef.current.active) return;
         if (focusInsideMenu()) return;
         if (editor.view.hasFocus()) return;
+        // eslint-disable-next-line no-console
+        console.log('[MenuPos] HIDING: blur microtask fell through');
         setMenuPos(null);
       });
     });
