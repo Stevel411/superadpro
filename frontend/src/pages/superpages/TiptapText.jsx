@@ -149,18 +149,28 @@ export default function TiptapText({
 
     editor.on('selectionUpdate', updateMenuPos);
     editor.on('focus', updateMenuPos);
-    editor.on('blur', ({ event }) => {
-      // Where did focus actually go? If it went anywhere inside our
-      // bubble menu — the link input, font dropdown, size input, AI
-      // prompt, a toolbar button, anything — keep the menu open. The
-      // menu contains interactive controls that NEED focus to work.
-      const target = event && event.relatedTarget;
-      if (target && target.closest && target.closest('.sp-tt-bubble-wrap')) {
-        return;  // Focus is still inside our UI; don't hide
-      }
-      // Focus went elsewhere (or to null — e.g. clicking the canvas
-      // background). Safe to hide.
-      setMenuPos(null);
+    editor.on('blur', () => {
+      // When focus leaves the editor, we need to decide whether to hide
+      // the menu. The editor blurs in two scenarios:
+      //
+      // 1. User clicked outside the editor entirely (canvas, sidebar,
+      //    another element) → hide the menu.
+      // 2. Focus moved to a control INSIDE our bubble menu (link URL
+      //    input, AI prompt, size input, etc.) → keep menu alive.
+      //
+      // We can't check relatedTarget because it's null for programmatic
+      // focus changes like autoFocus on a newly-mounted input. Instead we
+      // defer to a microtask, then check where focus actually ended up.
+      // document.activeElement is reliable and accurate post-transition.
+      queueMicrotask(() => {
+        if (!editor || editor.isDestroyed) return;
+        const active = document.activeElement;
+        if (active && active.closest && active.closest('.sp-tt-bubble-wrap')) {
+          return;  // Focus inside our menu — keep alive
+        }
+        if (editor.view.hasFocus()) return;  // Editor got focus back
+        setMenuPos(null);
+      });
     });
     window.addEventListener('scroll', updateMenuPos, { passive: true, capture: true });
     window.addEventListener('resize', updateMenuPos);
