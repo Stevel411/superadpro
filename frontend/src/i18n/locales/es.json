@@ -194,7 +194,11 @@
     "goalWatchNowDesc": "Completa tu visualización diaria para mantenerte cualificado para retiros de la cartera de campañas. Necesitas {{required}} videos hoy.",
     "goalWatchNow": "Ver ahora",
     "goalStartWatching": "Comienza tu visualización diaria",
-    "goalStartWatchingDesc": "Ve un video corto cada día para mantenerte cualificado para retiros de la cartera de campañas."
+    "goalStartWatchingDesc": "Ve un video corto cada día para mantenerte cualificado para retiros de la cartera de campañas.",
+    "storyPromptTitle": "¡Ganaste tus primeros {{amount}}!",
+    "storyPromptBody": "Cuenta cómo lo hiciste — tu experiencia podría inspirar al próximo miembro. Tarda 2 minutos. Nuestro equipo revisa antes de publicarlo en /explore.",
+    "storyPromptCta": "Compartir mi historia",
+    "storyPromptDismiss": "Cerrar"
   },
   "compPlan": {
     "title": "Plan de Compensación",

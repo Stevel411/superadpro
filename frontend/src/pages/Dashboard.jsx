@@ -27,6 +27,24 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
   const [toasts, setToasts] = useState([]);
   const [goals, setGoals] = useState(null);
+
+  // Story prompt nudge — shown to members with ≥1 paid commission who
+  // haven't submitted a story. Dismissal persists in localStorage.
+  const [storyPrompt, setStoryPrompt] = useState(null);
+  const [storyPromptDismissed, setStoryPromptDismissed] = useState(function() {
+    try { return localStorage.getItem('story-prompt-dismissed') === '1'; } catch(e) { return false; }
+  });
+  useEffect(function() {
+    if (storyPromptDismissed) return;
+    apiGet('/api/member/story/prompt-check')
+      .then(function(r) { if (r && r.show) setStoryPrompt(r); })
+      .catch(function() {});
+  }, [storyPromptDismissed]);
+  function dismissStoryPrompt() {
+    setStoryPromptDismissed(true);
+    try { localStorage.setItem('story-prompt-dismissed', '1'); } catch(e) {}
+  }
+
   var pollRef = useRef(null);
   var lastCheckRef = useRef(new Date().toISOString());
   var chachingRef = useRef(null);
@@ -154,6 +172,46 @@ export default function Dashboard() {
             }}>{t('dashboard.activateNow')}</a>
             <Link to="/affiliate" style={{ fontSize: 13, fontWeight: 600, color: '#0891b2', textDecoration: 'none' }}>{t('dashboard.getMyReferralLink')}</Link>
           </div>
+        </div>
+      )}
+
+      {/* Story prompt nudge — only shown to members with ≥1 paid commission who
+          haven't submitted a story yet. Server-gated via /api/member/story/prompt-check.
+          Dismissible (localStorage). */}
+      {storyPrompt && !storyPromptDismissed && (
+        <div style={{
+          position: 'relative',
+          background: 'linear-gradient(135deg,#fef3c7,#fde68a)',
+          border: '1px solid #fcd34d',
+          borderRadius: 12, padding: '18px 22px', marginBottom: 20,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
+        }}>
+          {/* Dismiss (×) — absolute top-right */}
+          <button onClick={dismissStoryPrompt}
+            aria-label={t('dashboard.storyPromptDismiss', { defaultValue: 'Dismiss' })}
+            style={{
+              position: 'absolute', top: 8, right: 10,
+              background: 'transparent', border: 'none',
+              fontSize: 20, lineHeight: 1, color: '#92400e',
+              cursor: 'pointer', padding: '2px 6px', opacity: 0.55,
+            }}>×</button>
+          <div style={{ flex: 1, minWidth: 240, paddingRight: 24 }}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#78350f', marginBottom: 6 }}>
+              🎉 {t('dashboard.storyPromptTitle', { amount: formatMoney(storyPrompt.first_amount), defaultValue: 'You earned your first ' + formatMoney(storyPrompt.first_amount) + '!' })}
+            </div>
+            <p style={{ fontSize: 14, color: '#78350f', lineHeight: 1.6, margin: 0 }}>
+              {t('dashboard.storyPromptBody', { defaultValue: 'Share the story of how you did it — your experience could inspire the next member. Takes 2 minutes. Our team reviews before it goes live on /explore.' })}
+            </p>
+          </div>
+          <Link to="/share-story" style={{
+            fontSize: 14, fontWeight: 700, color: '#fff',
+            background: 'linear-gradient(135deg,#d97706,#f59e0b)',
+            padding: '11px 22px', borderRadius: 9, textDecoration: 'none',
+            boxShadow: '0 4px 14px rgba(217,119,6,0.35)', flexShrink: 0,
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+          }}>
+            {t('dashboard.storyPromptCta', { defaultValue: 'Share my story' })} →
+          </Link>
         </div>
       )}
 

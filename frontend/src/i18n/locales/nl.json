@@ -194,7 +194,11 @@
     "goalWatchNowDesc": "Voltooi je dagelijkse bekijken om gekwalificeerd te blijven voor opnames uit de campagne-wallet. Je hebt vandaag {{required}} video's nodig.",
     "goalWatchNow": "Nu bekijken",
     "goalStartWatching": "Begin je dagelijkse bekijken",
-    "goalStartWatchingDesc": "Bekijk elke dag een korte video om gekwalificeerd te blijven voor opnames uit de campagne-wallet."
+    "goalStartWatchingDesc": "Bekijk elke dag een korte video om gekwalificeerd te blijven voor opnames uit de campagne-wallet.",
+    "storyPromptTitle": "Je hebt je eerste {{amount}} verdiend!",
+    "storyPromptBody": "Vertel hoe je het deed — jouw ervaring kan het volgende lid inspireren. Kost 2 minuten. Ons team beoordeelt voordat het live gaat op /explore.",
+    "storyPromptCta": "Mijn verhaal delen",
+    "storyPromptDismiss": "Sluiten"
   },
   "compPlan": {
     "title": "Compensatieplan",

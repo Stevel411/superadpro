@@ -194,7 +194,11 @@
     "goalWatchNowDesc": "Kampanya cüzdanı çekimleri için yeterli kalmak üzere günlük izlemenizi tamamlayın. Bugün {{required}} videoya ihtiyacınız var.",
     "goalWatchNow": "Şimdi izle",
     "goalStartWatching": "Günlük izlemenize başlayın",
-    "goalStartWatchingDesc": "Kampanya cüzdanı çekimleri için yeterli kalmak üzere her gün kısa bir video izleyin."
+    "goalStartWatchingDesc": "Kampanya cüzdanı çekimleri için yeterli kalmak üzere her gün kısa bir video izleyin.",
+    "storyPromptTitle": "İlk {{amount}}'ını kazandın!",
+    "storyPromptBody": "Nasıl başardığını anlat — deneyimin bir sonraki üyeye ilham olabilir. 2 dakika sürer. Ekibimiz /explore'da yayına girmeden önce inceler.",
+    "storyPromptCta": "Hikâyemi paylaş",
+    "storyPromptDismiss": "Kapat"
   },
   "compPlan": {
     "title": "Tazminat Planı",

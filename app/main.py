@@ -1042,6 +1042,40 @@ def api_member_my_story(request: Request, db: Session = Depends(get_db)):
     }
 
 
+@app.get("/api/member/story/prompt-check")
+def api_member_story_prompt_check(request: Request, db: Session = Depends(get_db)):
+    """Single cheap check for the dashboard nudge: should we prompt this user
+    to share their story? Returns show=True only if they've received at least
+    one paid commission AND haven't submitted a story yet. Also returns the
+    amount of their first paid commission and the milestone date, which the
+    banner uses to personalise the headline ('You earned your first $17.50 —
+    share your story')."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # Already submitted? Skip the nudge entirely.
+    existing_story = db.query(MemberStory).filter(MemberStory.user_id == user.id).first()
+    if existing_story:
+        return {"show": False, "reason": "already_submitted"}
+
+    # Find their FIRST paid commission (oldest, ordered by created_at ascending)
+    first_paid = (db.query(Commission)
+                    .filter(Commission.to_user_id == user.id,
+                            Commission.status == "paid",
+                            Commission.amount_usdt > 0)
+                    .order_by(Commission.created_at.asc())
+                    .first())
+    if not first_paid:
+        return {"show": False, "reason": "no_paid_commission"}
+
+    return {
+        "show": True,
+        "first_amount": float(first_paid.amount_usdt or 0),
+        "first_paid_at": first_paid.created_at.isoformat() if first_paid.created_at else None,
+    }
+
+
 @app.get("/api/public/member-stories")
 def api_public_member_stories(db: Session = Depends(get_db)):
     """Public feed for /explore tab 2. Approved rows only, 60s cache.

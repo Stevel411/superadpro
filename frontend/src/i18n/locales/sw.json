@@ -194,7 +194,11 @@
     "goalWatchNowDesc": "Kamilisha kutazama kwako kwa kila siku ili ubaki umekidhi sifa za kutoa kwenye mkoba wa kampeni. Unahitaji video {{required}} leo.",
     "goalWatchNow": "Tazama sasa",
     "goalStartWatching": "Anza kutazama kwako kwa kila siku",
-    "goalStartWatchingDesc": "Tazama video fupi kila siku ili ubaki umekidhi sifa za kutoa kwenye mkoba wa kampeni."
+    "goalStartWatchingDesc": "Tazama video fupi kila siku ili ubaki umekidhi sifa za kutoa kwenye mkoba wa kampeni.",
+    "storyPromptTitle": "Umepata {{amount}} yako ya kwanza!",
+    "storyPromptBody": "Eleza jinsi ulivyofanya — uzoefu wako unaweza kuhamasisha mwanachama ajaye. Inachukua dakika 2. Timu yetu inakagua kabla ya kuwasha kwenye /explore.",
+    "storyPromptCta": "Shiriki hadithi yangu",
+    "storyPromptDismiss": "Funga"
   },
   "compPlan": {
     "title": "Mpango wa Fidia",

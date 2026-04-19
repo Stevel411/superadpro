@@ -194,7 +194,11 @@
     "goalWatchNowDesc": "Complete your daily watch to stay qualified for campaign wallet withdrawals. You need {{required}} videos today.",
     "goalWatchNow": "Watch now",
     "goalStartWatching": "Start your daily watch",
-    "goalStartWatchingDesc": "Watch a short video each day to stay qualified for campaign wallet withdrawals."
+    "goalStartWatchingDesc": "Watch a short video each day to stay qualified for campaign wallet withdrawals.",
+    "storyPromptTitle": "You earned your first {{amount}}!",
+    "storyPromptBody": "Share the story of how you did it — your experience could inspire the next member. Takes 2 minutes. Our team reviews before it goes live on /explore.",
+    "storyPromptCta": "Share my story",
+    "storyPromptDismiss": "Dismiss"
   },
   "compPlan": {
     "title": "Compensation Plan",

@@ -194,7 +194,11 @@
     "goalWatchNowDesc": "Ukończ swoje codzienne oglądanie, aby pozostać uprawnionym do wypłat z portfela kampanii. Potrzebujesz dziś {{required}} filmów.",
     "goalWatchNow": "Oglądaj teraz",
     "goalStartWatching": "Rozpocznij codzienne oglądanie",
-    "goalStartWatchingDesc": "Oglądaj krótki film każdego dnia, aby pozostać uprawnionym do wypłat z portfela kampanii."
+    "goalStartWatchingDesc": "Oglądaj krótki film każdego dnia, aby pozostać uprawnionym do wypłat z portfela kampanii.",
+    "storyPromptTitle": "Zdobyłeś swoje pierwsze {{amount}}!",
+    "storyPromptBody": "Opowiedz, jak to zrobiłeś — twoje doświadczenie może zainspirować kolejnego członka. Zajmie 2 minuty. Nasz zespół weryfikuje przed publikacją na /explore.",
+    "storyPromptCta": "Podziel się moją historią",
+    "storyPromptDismiss": "Zamknij"
   },
   "compPlan": {
     "title": "Plan Wynagrodzeń",

@@ -194,7 +194,11 @@
     "goalWatchNowDesc": "Vervollständige deine tägliche Anschauung, um für Auszahlungen aus dem Kampagnen-Wallet qualifiziert zu bleiben. Du brauchst heute {{required}} Videos.",
     "goalWatchNow": "Jetzt ansehen",
     "goalStartWatching": "Beginne deine tägliche Anschauung",
-    "goalStartWatchingDesc": "Sieh dir täglich ein kurzes Video an, um für Auszahlungen aus dem Kampagnen-Wallet qualifiziert zu bleiben."
+    "goalStartWatchingDesc": "Sieh dir täglich ein kurzes Video an, um für Auszahlungen aus dem Kampagnen-Wallet qualifiziert zu bleiben.",
+    "storyPromptTitle": "Du hast deine ersten {{amount}} verdient!",
+    "storyPromptBody": "Erzähl, wie du es geschafft hast — deine Erfahrung kann das nächste Mitglied inspirieren. Dauert 2 Minuten. Unser Team prüft, bevor es auf /explore live geht.",
+    "storyPromptCta": "Meine Story teilen",
+    "storyPromptDismiss": "Schließen"
   },
   "compPlan": {
     "title": "Vergütungsplan",

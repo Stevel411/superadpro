@@ -194,7 +194,11 @@
     "goalWatchNowDesc": "完成您的每日观看，以保持有资格进行活动钱包提现。您今天需要 {{required}} 个视频。",
     "goalWatchNow": "立即观看",
     "goalStartWatching": "开始您的每日观看",
-    "goalStartWatchingDesc": "每天观看一个短视频，以保持有资格进行活动钱包提现。"
+    "goalStartWatchingDesc": "每天观看一个短视频，以保持有资格进行活动钱包提现。",
+    "storyPromptTitle": "你赚到了第一笔 {{amount}}!",
+    "storyPromptBody": "讲讲你是怎么做到的 — 你的经历可能会启发下一位成员。只需 2 分钟。我们的团队会在 /explore 上线前审核。",
+    "storyPromptCta": "分享我的故事",
+    "storyPromptDismiss": "关闭"
   },
   "compPlan": {
     "title": "薪酬计划",

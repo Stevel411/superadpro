@@ -194,7 +194,11 @@
     "goalWatchNowDesc": "Selesaikan tontonan harian Anda untuk tetap memenuhi syarat untuk penarikan dompet kampanye. Anda membutuhkan {{required}} video hari ini.",
     "goalWatchNow": "Tonton sekarang",
     "goalStartWatching": "Mulai tontonan harian Anda",
-    "goalStartWatchingDesc": "Tonton video singkat setiap hari untuk tetap memenuhi syarat untuk penarikan dompet kampanye."
+    "goalStartWatchingDesc": "Tonton video singkat setiap hari untuk tetap memenuhi syarat untuk penarikan dompet kampanye.",
+    "storyPromptTitle": "Kamu memperoleh {{amount}} pertamamu!",
+    "storyPromptBody": "Ceritakan bagaimana kamu melakukannya — pengalamanmu bisa menginspirasi anggota berikutnya. Butuh 2 menit. Tim kami meninjau sebelum tayang di /explore.",
+    "storyPromptCta": "Bagikan ceritaku",
+    "storyPromptDismiss": "Tutup"
   },
   "compPlan": {
     "title": "Rencana Kompensasi",

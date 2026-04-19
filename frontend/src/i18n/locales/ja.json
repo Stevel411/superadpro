@@ -194,7 +194,11 @@
     "goalWatchNowDesc": "キャンペーンウォレットの出金資格を維持するには、毎日の視聴を完了してください。今日は{{required}}本の動画が必要です。",
     "goalWatchNow": "今すぐ見る",
     "goalStartWatching": "毎日の視聴を始めましょう",
-    "goalStartWatchingDesc": "キャンペーンウォレットの出金資格を維持するために、毎日短い動画を見ましょう。"
+    "goalStartWatchingDesc": "キャンペーンウォレットの出金資格を維持するために、毎日短い動画を見ましょう。",
+    "storyPromptTitle": "初の{{amount}}を獲得しました!",
+    "storyPromptBody": "どうやって達成したか教えてください — あなたの体験が次のメンバーを刺激するかもしれません。2分で完了。/explore 公開前にチームが審査します。",
+    "storyPromptCta": "ストーリーをシェア",
+    "storyPromptDismiss": "閉じる"
   },
   "compPlan": {
     "title": "報酬プラン",

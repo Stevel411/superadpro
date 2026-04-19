@@ -194,7 +194,11 @@
     "goalWatchNowDesc": "Complete sua visualização diária para se manter qualificado para saques da carteira de campanha. Você precisa de {{required}} vídeos hoje.",
     "goalWatchNow": "Assistir agora",
     "goalStartWatching": "Comece sua visualização diária",
-    "goalStartWatchingDesc": "Assista a um vídeo curto todos os dias para se manter qualificado para saques da carteira de campanha."
+    "goalStartWatchingDesc": "Assista a um vídeo curto todos os dias para se manter qualificado para saques da carteira de campanha.",
+    "storyPromptTitle": "Você ganhou seus primeiros {{amount}}!",
+    "storyPromptBody": "Conte como você fez — sua experiência pode inspirar o próximo membro. Leva 2 minutos. Nosso time revisa antes de ir ao ar em /explore.",
+    "storyPromptCta": "Compartilhar minha história",
+    "storyPromptDismiss": "Fechar"
   },
   "compPlan": {
     "title": "Plano de Compensação",

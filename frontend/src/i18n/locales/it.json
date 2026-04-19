@@ -194,7 +194,11 @@
     "goalWatchNowDesc": "Completa la tua visione quotidiana per rimanere qualificato per i prelievi dal portafoglio campagne. Hai bisogno di {{required}} video oggi.",
     "goalWatchNow": "Guarda ora",
     "goalStartWatching": "Inizia la tua visione quotidiana",
-    "goalStartWatchingDesc": "Guarda un breve video ogni giorno per rimanere qualificato per i prelievi dal portafoglio campagne."
+    "goalStartWatchingDesc": "Guarda un breve video ogni giorno per rimanere qualificato per i prelievi dal portafoglio campagne.",
+    "storyPromptTitle": "Hai guadagnato i tuoi primi {{amount}}!",
+    "storyPromptBody": "Racconta come hai fatto — la tua esperienza può ispirare il prossimo membro. Ci vogliono 2 minuti. Il nostro team revisiona prima della pubblicazione su /explore.",
+    "storyPromptCta": "Condividi la mia storia",
+    "storyPromptDismiss": "Chiudi"
   },
   "compPlan": {
     "title": "Piano di Compensazione",

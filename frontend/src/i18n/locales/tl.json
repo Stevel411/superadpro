@@ -194,7 +194,11 @@
     "goalWatchNowDesc": "Kumpletuhin ang iyong pang-araw-araw na panonood para manatiling kwalipikado para sa mga withdrawal ng campaign wallet. Kailangan mo ng {{required}} na video ngayon.",
     "goalWatchNow": "Manood ngayon",
     "goalStartWatching": "Simulan ang iyong pang-araw-araw na panonood",
-    "goalStartWatchingDesc": "Manood ng maikling video bawat araw para manatiling kwalipikado para sa mga withdrawal ng campaign wallet."
+    "goalStartWatchingDesc": "Manood ng maikling video bawat araw para manatiling kwalipikado para sa mga withdrawal ng campaign wallet.",
+    "storyPromptTitle": "Kumita ka na ng unang {{amount}} mo!",
+    "storyPromptBody": "Ikuwento kung paano mo ito ginawa — ang karanasan mo ay pwedeng makapagbigay-inspirasyon sa susunod na miyembro. 2 minuto lang. Iri-review ng team namin bago ma-live sa /explore.",
+    "storyPromptCta": "Ibahagi ang kwento ko",
+    "storyPromptDismiss": "Isara"
   },
   "compPlan": {
     "title": "Plano ng Kompensasyon",
