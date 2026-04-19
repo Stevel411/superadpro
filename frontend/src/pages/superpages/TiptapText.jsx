@@ -65,6 +65,15 @@ export default function TiptapText({
   // portal-mounted <div> using position:fixed.
   const [menuPos, setMenuPos] = useState(null);  // {x, y} in viewport coords, or null when hidden
 
+  // Link dialog state is held at this top level (not inside LinkButton)
+  // so it survives any re-render of the bubble menu tree. Previously,
+  // when the popup was owned by LinkButton, transient menuPos null
+  // toggles during focus transitions unmounted the button and killed
+  // the popup. Here, the dialog is rendered as a sibling of the bubble
+  // menu and is independent of menuPos entirely.
+  const [linkDialog, setLinkDialog] = useState({ open: false, url: '', pos: null });
+  const linkInputRef = useRef(null);
+
   const onChangeRef = useRef(onChange);
   const onExitRef = useRef(onExit);
   const onHeightChangeRef = useRef(onHeightChange);
@@ -140,9 +149,15 @@ export default function TiptapText({
     // menu (focus inside a toolbar input/button)? If so, we should NOT
     // hide the menu even if the editor has lost focus. Used by both the
     // selection-update path and the blur path so they agree.
+    // Also recognizes the link dialog — if the user is typing in the
+    // URL field, keep the menu visible so it reappears naturally when
+    // they dismiss the dialog.
     function focusInsideMenu() {
       const a = document.activeElement;
-      return !!(a && a.closest && a.closest('.sp-tt-bubble-wrap'));
+      if (!a || !a.closest) return false;
+      if (a.closest('.sp-tt-bubble-wrap')) return true;
+      if (a.closest('.sp-tt-link-dialog')) return true;
+      return false;
     }
 
     function updateMenuPos() {
@@ -276,6 +291,33 @@ export default function TiptapText({
     });
   }, [editor, onAiRequest]);
 
+  // Open the link dialog. Snapshots the selection's current href (if
+  // the cursor is on a link) and the bubble menu's current position so
+  // the dialog can sit right under the toolbar.
+  const openLinkDialog = useCallback(() => {
+    if (!editor) return;
+    const existing = editor.getAttributes('link').href || '';
+    setLinkDialog({
+      open: true,
+      url: existing,
+      pos: menuPos,  // snapshot the anchor — dialog follows the menu's position at the time of opening
+    });
+    // Focus the input after React mounts it (next tick is enough)
+    setTimeout(() => { if (linkInputRef.current) linkInputRef.current.focus(); }, 30);
+  }, [editor, menuPos]);
+
+  const applyLinkDialog = useCallback((newUrl) => {
+    if (!editor) return;
+    const trimmed = (newUrl || '').trim();
+    if (!trimmed) {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+    } else {
+      const full = /^https?:\/\//i.test(trimmed) ? trimmed : 'https://' + trimmed;
+      editor.chain().focus().extendMarkRange('link').setLink({ href: full }).run();
+    }
+    setLinkDialog({ open: false, url: '', pos: null });
+  }, [editor]);
+
   if (!editor) return null;
 
   return (
@@ -354,7 +396,7 @@ export default function TiptapText({
 
             <Divider/>
 
-            <LinkButton editor={editor} isActive={!!tbState?.link} />
+            <LinkButton isActive={!!tbState?.link} onClick={openLinkDialog} />
 
             {showAi && (
               <>
@@ -395,6 +437,76 @@ export default function TiptapText({
               />
             </div>
           )}
+        </div>,
+        document.body
+      )}
+
+      {/* Link dialog — separate portal, rendered independently of the
+          bubble menu. Appears below where the menu was when the user
+          clicked 🔗. State lives on TiptapText so it persists even if
+          the bubble menu portal re-renders. */}
+      {linkDialog.open && linkDialog.pos && createPortal(
+        <div
+          className="sp-tt-link-dialog"
+          style={{
+            position: 'fixed',
+            // Position just below where the bubble menu was. Menu is
+            // centred at linkDialog.pos.x and sits above it with
+            // transform translate(-50%, calc(-100% - 8px)). Our dialog
+            // appears in the same horizontal position but a bit below
+            // the text, so it doesn't overlap the menu itself.
+            top: linkDialog.pos.y + 36,
+            left: linkDialog.pos.x,
+            transform: 'translateX(-50%)',
+            zIndex: 1001,
+            background: '#fff',
+            border: '0.5px solid #e2e8f0',
+            borderRadius: 8,
+            boxShadow: '0 8px 24px rgba(15,23,42,0.15)',
+            padding: 8,
+            display: 'flex',
+            gap: 6,
+            alignItems: 'center',
+          }}
+          onMouseDown={e => e.stopPropagation()}
+        >
+          <input
+            ref={linkInputRef}
+            type="text"
+            value={linkDialog.url}
+            onChange={e => setLinkDialog(prev => ({ ...prev, url: e.target.value }))}
+            onKeyDown={e => {
+              if (e.key === 'Enter') applyLinkDialog(linkDialog.url);
+              if (e.key === 'Escape') setLinkDialog({ open: false, url: '', pos: null });
+            }}
+            placeholder="https://example.com"
+            style={{
+              width: 220, padding: '7px 10px', fontSize: 13,
+              border: '0.5px solid #cbd5e1', borderRadius: 5,
+              outline: 'none', fontFamily: 'inherit',
+            }}
+          />
+          <button
+            onClick={() => applyLinkDialog(linkDialog.url)}
+            style={{
+              padding: '7px 14px', fontSize: 12, fontWeight: 600,
+              background: '#0ea5e9', color: '#fff', border: 'none',
+              borderRadius: 5, cursor: 'pointer', fontFamily: 'inherit',
+            }}
+          >
+            {linkDialog.url.trim() ? 'Apply' : 'Clear'}
+          </button>
+          <button
+            onClick={() => setLinkDialog({ open: false, url: '', pos: null })}
+            style={{
+              padding: '7px 10px', fontSize: 12, fontWeight: 500,
+              background: 'transparent', color: '#64748b', border: 'none',
+              borderRadius: 5, cursor: 'pointer', fontFamily: 'inherit',
+            }}
+            title="Cancel"
+          >
+            ✕
+          </button>
         </div>,
         document.body
       )}
@@ -732,38 +844,15 @@ function ColorPicker({ editor, currentColor }) {
 }
 
 /**
- * Link button — uses window.prompt() for URL entry.
- *
- * Switched from an in-editor popup to prompt() after extended attempts
- * to keep a custom popup open through the bubble menu's focus/portal
- * lifecycle failed. prompt() is synchronous, blocks the event loop,
- * and is immune to the focus/blur/selection-update cascade that kept
- * tearing down the popup. Works reliably on desktop and mobile.
- *
- * UX:
- * - Click link icon → native prompt appears
- * - Empty field → click OK clears any existing link
- * - Pre-filled if the cursor is on an existing link
- * - URLs without a scheme get 'https://' prepended automatically
- * - Cancel → nothing changes
+ * Link button. Triggers the link dialog owned by TiptapText (top level,
+ * independent of the bubble menu's mount/unmount cycles). No local
+ * state — just dispatches the click.
  */
-function LinkButton({ editor, isActive }) {
-  const handleClick = () => {
-    const existing = editor.getAttributes('link').href || '';
-    const input = window.prompt('Enter a URL (leave blank to remove link):', existing);
-    if (input === null) return;  // user cancelled
-    const trimmed = input.trim();
-    if (!trimmed) {
-      editor.chain().focus().extendMarkRange('link').unsetLink().run();
-      return;
-    }
-    const full = /^https?:\/\//i.test(trimmed) ? trimmed : 'https://' + trimmed;
-    editor.chain().focus().extendMarkRange('link').setLink({ href: full }).run();
-  };
+function LinkButton({ isActive, onClick }) {
   return (
     <button
       className={'sp-tt-btn' + (isActive ? ' sp-tt-active' : '')}
-      onClick={handleClick}
+      onClick={onClick}
       title={isActive ? 'Edit or remove link' : 'Add link'}
     >
       <LinkIcon size={13}/>
