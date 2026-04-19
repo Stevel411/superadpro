@@ -193,10 +193,47 @@ export default function SuperPagesEditor() {
   };
 
   // ── Clear canvas ──
-  const handleClear = () => {
-    if (!confirm('Remove all elements from this page?')) return;
+  // Reset elements AND canvas background, then save to the server so the
+  // refresh behaviour matches the user's expectation: cleared means cleared.
+  // Without the explicit save, the page reloads from the last saved version
+  // which still has the old elements and dark background.
+  const handleClear = async () => {
+    if (!confirm('Remove all elements and reset the background? This will save the page.')) return;
     clearCanvas();
-    showToast('All elements removed');
+    setCanvasBg('#ffffff');
+    setCanvasBgImage('');
+    // Persist to the server with the cleared state. We construct the payload
+    // here directly rather than calling save() because React state updates
+    // from clearCanvas/setCanvasBg haven't flushed yet.
+    setSaving(true);
+    try {
+      const clearedEls = [];
+      const html = exportHTML(clearedEls, '#ffffff', '');
+      const payload = {
+        id: parseInt(pageId),
+        title: pageSettings.title || 'Untitled',
+        headline: pageSettings.title || 'Untitled',
+        meta_description: pageSettings.metaDescription || '',
+        image_url: pageSettings.ogImage || '',
+        custom_slug: pageSettings.customSlug || '',
+        gjs_html: html,
+        gjs_css: JSON.stringify({ els: clearedEls, canvasBg: '#ffffff', canvasBgImage: '' }),
+        status: pageStatus,
+        updated_at: updatedAtRef.current,
+      };
+      const res = await apiPost('/api/funnels/save', payload);
+      if (res.success || res.id) {
+        if (res.updated_at) updatedAtRef.current = res.updated_at;
+        setDirty(false);
+        showToast('✓ Page cleared and saved');
+      } else {
+        showToast('Cleared locally — save failed: ' + (res.error || 'unknown'));
+      }
+    } catch (e) {
+      showToast('Cleared locally — save error: ' + e.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   const togglePublish = async () => {

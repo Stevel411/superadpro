@@ -610,12 +610,18 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
            :hover, which drops it back, which re-triggers :hover — an infinite
            flicker. Inline background/color hover effects are added via
            onMouseEnter instead where we still want feedback. */
+        .cel-bar,
+        .cel-bar *,
+        .cel-bar button,
         .cel-bar button:hover,
         .cel-bar button:active,
+        .cel-bar button:focus,
+        .cel-resize,
         .cel-resize:hover,
         .cel-resize:active {
           transform: none !important;
           filter: none !important;
+          transition: background-color 0.08s !important;
         }
         /* Subtle hover tint on toolbar buttons so there's still visible feedback */
         .cel-bar button:hover { background: rgba(14,165,233,0.08) !important; border-radius: 4px !important; }
