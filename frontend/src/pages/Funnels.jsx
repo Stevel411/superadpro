@@ -3,264 +3,394 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet, apiPost } from '../utils/api';
-import { Plus, Eye, Pencil, Trash2, Copy, ExternalLink, FileText, Sparkles, LayoutGrid, Zap, TrendingUp, Users, Target, DollarSign, BookOpen, Video, ShoppingBag, Megaphone, Award } from 'lucide-react';
+import { Plus, Eye, Pencil, Trash2, Copy, ExternalLink, FileText, Sparkles } from 'lucide-react';
 
-const TEMPLATES = [
-  { key: 'lead-capture', title: 'Lead Capture', titleKey: 'superPages.tplLeadCapture', desc: 'Email capture with headline, video, form and feature list', descKey: 'superPages.tplLeadCaptureDesc', icon: Target, color: 'var(--sap-accent)', bg: '#0c1222', accent: 'var(--sap-accent)' },
-  { key: 'video-sales', title: 'Video Sales Letter', titleKey: 'superPages.tplVideoSales', desc: 'Video-led page with attention headline, VSL and social proof', descKey: 'superPages.tplVideoSalesDesc', icon: Video, color: 'var(--sap-purple)', bg: '#132044', accent: 'var(--sap-purple)' },
-  { key: 'product-offer', title: 'Product Offer', titleKey: 'superPages.tplProductOffer', desc: 'Sales page with pricing, features, guarantee and CTA', descKey: 'superPages.tplProductOfferDesc', icon: ShoppingBag, color: 'var(--sap-green-mid)', bg: 'var(--sap-text-primary)', accent: 'var(--sap-green-mid)' },
-  { key: 'network-opportunity', title: 'Business Opportunity', titleKey: 'superPages.tplBusinessOpp', desc: 'Network marketing recruitment page with income potential', descKey: 'superPages.tplBusinessOppDesc', icon: Users, color: 'var(--sap-amber)', bg: '#132044', accent: 'var(--sap-amber)' },
-  { key: 'webinar-registration', title: 'Webinar Registration', titleKey: 'superPages.tplWebinar', desc: 'Event signup with countdown timer, speaker bio and urgency', descKey: 'superPages.tplWebinarDesc', icon: Megaphone, color: 'var(--sap-pink)', bg: '#132044', accent: 'var(--sap-pink)' },
-  { key: 'coaching-program', title: 'Coaching Program', titleKey: 'superPages.tplCoaching', desc: 'Personal brand page with bio, testimonials and booking CTA', descKey: 'superPages.tplCoachingDesc', icon: Award, color: 'var(--sap-indigo)', bg: 'var(--sap-text-primary)', accent: 'var(--sap-indigo)' },
-  { key: 'digital-product', title: 'Digital Product', titleKey: 'superPages.tplDigitalProduct', desc: 'Ebook, course or download page with feature stack and pricing', descKey: 'superPages.tplDigitalProductDesc', icon: BookOpen, color: '#14b8a6', bg: '#0c1222', accent: '#14b8a6' },
-  { key: 'affiliate-income', title: 'Affiliate Funnel', titleKey: 'superPages.tplAffiliate', desc: 'Commission income page with earnings calculator and signup', descKey: 'superPages.tplAffiliateDesc', icon: DollarSign, color: 'var(--sap-red-bright)', bg: '#132044', accent: 'var(--sap-red-bright)' },
-  { key: 'thank-you', title: 'Thank You Page', titleKey: 'superPages.tplThankYou', desc: 'Post-signup confirmation with next steps and CTA button', descKey: 'superPages.tplThankYouDesc', icon: Award, color: 'var(--sap-green-mid)', bg: '#0a0a1a', accent: 'var(--sap-green-mid)' },
-];
+// ─── Browser-framed template preview components ─────────────────────────
+// Each is a miniature mock-up of what the template looks like, rendered as
+// inline HTML+SVG (no image assets). Wrapped in a light Chrome-style frame
+// (traffic lights + URL bar) for that "this is a real web page" feel.
 
-function TemplatePreview({ bg, accent, Icon }) {
+function BrowserFrame({ url, children, bg = 'linear-gradient(180deg,#f0f9ff,#fff)' }) {
   return (
-    <div style={{width:'100%',height:'100%',background:bg,borderRadius:'10px 10px 0 0',position:'relative',overflow:'hidden'}}>
-      {/* Large soft glow */}
-      <div style={{position:'absolute',top:'-20%',right:'-10%',width:140,height:140,borderRadius:'50%',background:`radial-gradient(circle,${accent}25 0%,transparent 65%)`}}/>
-      <div style={{position:'absolute',bottom:'-15%',left:'-5%',width:100,height:100,borderRadius:'50%',background:`radial-gradient(circle,${accent}18 0%,transparent 65%)`}}/>
-      {/* Floating bubbles */}
-      <div style={{position:'absolute',top:'18%',left:'20%',width:10,height:10,borderRadius:'50%',background:`${accent}40`,boxShadow:`0 0 12px ${accent}30`}}/>
-      <div style={{position:'absolute',top:'35%',right:'22%',width:14,height:14,borderRadius:'50%',background:`${accent}30`,boxShadow:`0 0 16px ${accent}25`}}/>
-      <div style={{position:'absolute',bottom:'30%',left:'35%',width:8,height:8,borderRadius:'50%',background:`${accent}35`,boxShadow:`0 0 10px ${accent}20`}}/>
-      <div style={{position:'absolute',top:'55%',right:'40%',width:6,height:6,borderRadius:'50%',background:`${accent}45`,boxShadow:`0 0 8px ${accent}30`}}/>
-      <div style={{position:'absolute',top:'25%',left:'55%',width:12,height:12,borderRadius:'50%',background:`${accent}25`,boxShadow:`0 0 14px ${accent}20`}}/>
-      <div style={{position:'absolute',bottom:'20%',right:'15%',width:9,height:9,borderRadius:'50%',background:`${accent}35`,boxShadow:`0 0 10px ${accent}25`}}/>
-      {/* Star sparkles */}
-      <div style={{position:'absolute',top:'22%',right:'35%',fontSize:16,color:accent,opacity:.5,textShadow:`0 0 8px ${accent}`}}>✦</div>
-      <div style={{position:'absolute',bottom:'35%',left:'18%',fontSize:12,color:accent,opacity:.4,textShadow:`0 0 6px ${accent}`}}>✦</div>
-      <div style={{position:'absolute',top:'50%',left:'45%',fontSize:20,color:accent,opacity:.3,textShadow:`0 0 10px ${accent}`}}>✦</div>
-      {/* Centre icon — large and prominent */}
-      <div style={{position:'absolute',top:'50%',left:'50%',transform:'translate(-50%,-50%)',width:52,height:52,borderRadius:14,background:`${accent}18`,border:`1px solid ${accent}35`,display:'flex',alignItems:'center',justifyContent:'center',boxShadow:`0 8px 32px ${accent}20`}}>
-        <Icon size={24} color={accent} strokeWidth={1.5}/>
+    <div style={{background:'#fff',borderRadius:8,overflow:'hidden',border:'1px solid #e2e8f0',boxShadow:'0 1px 4px rgba(15,23,42,.05)'}}>
+      <div style={{padding:'6px 10px',borderBottom:'1px solid #e2e8f0',display:'flex',alignItems:'center',gap:7,background:'#f8fafc'}}>
+        <div style={{display:'flex',gap:4}}>
+          <div style={{width:7,height:7,borderRadius:'50%',background:'#ef4444'}}/>
+          <div style={{width:7,height:7,borderRadius:'50%',background:'#f59e0b'}}/>
+          <div style={{width:7,height:7,borderRadius:'50%',background:'#10b981'}}/>
+        </div>
+        <div style={{flex:1,background:'#fff',borderRadius:3,padding:'2px 8px',fontSize:9,color:'#94a3b8',border:'0.5px solid #e2e8f0',textAlign:'center',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{url}</div>
+      </div>
+      <div style={{background:bg,padding:'14px 14px 16px',minHeight:150}}>
+        {children}
       </div>
     </div>
   );
 }
 
+function LeadCapturePreview() {
+  return (
+    <BrowserFrame url="yoursite.com/free-guide" bg="linear-gradient(180deg,#f0f9ff,#fff)">
+      <div style={{fontSize:11,fontWeight:700,color:'#0f172a',textAlign:'center',lineHeight:1.3,marginBottom:4}}>Get Our Free Guide</div>
+      <div style={{fontSize:8,color:'#64748b',textAlign:'center',marginBottom:10}}>Join 12,000+ marketers</div>
+      <div style={{background:'#fff',border:'0.5px solid #cbd5e1',borderRadius:4,padding:'5px 8px',fontSize:8,color:'#94a3b8',marginBottom:6}}>your@email.com</div>
+      <div style={{background:'#0ea5e9',color:'#fff',padding:6,textAlign:'center',borderRadius:4,fontSize:9,fontWeight:600}}>Get instant access →</div>
+    </BrowserFrame>
+  );
+}
+
+function VideoSalesPreview() {
+  return (
+    <BrowserFrame url="yoursite.com/watch" bg="#0f172a">
+      <div style={{fontSize:10,fontWeight:700,color:'#fff',textAlign:'center',marginBottom:7}}>Watch How This Works</div>
+      <div style={{background:'#1e293b',borderRadius:4,padding:16,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:6,border:'0.5px solid #334155'}}>
+        <div style={{width:22,height:22,borderRadius:'50%',background:'rgba(255,255,255,.95)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+          <div style={{borderLeft:'7px solid #0f172a',borderTop:'4px solid transparent',borderBottom:'4px solid transparent',marginLeft:3}}/>
+        </div>
+      </div>
+      <div style={{background:'#8b5cf6',color:'#fff',padding:5,textAlign:'center',borderRadius:4,fontSize:9,fontWeight:600}}>Claim your spot →</div>
+    </BrowserFrame>
+  );
+}
+
+function ProductOfferPreview() {
+  return (
+    <BrowserFrame url="yoursite.com/offer" bg="linear-gradient(180deg,#fef3c7,#fff)">
+      <div style={{fontSize:10,fontWeight:700,color:'#0f172a',textAlign:'center',marginBottom:6}}>Transform Your Business</div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:5,marginBottom:6}}>
+        <div style={{background:'#fff',border:'0.5px solid #e2e8f0',borderRadius:4,padding:6,textAlign:'center'}}>
+          <div style={{fontSize:12,fontWeight:700,color:'#0f172a'}}>$47</div>
+          <div style={{fontSize:7,color:'#64748b'}}>Starter</div>
+        </div>
+        <div style={{background:'#fef3c7',border:'1px solid #f59e0b',borderRadius:4,padding:6,textAlign:'center'}}>
+          <div style={{fontSize:12,fontWeight:700,color:'#92400e'}}>$97</div>
+          <div style={{fontSize:7,color:'#92400e',fontWeight:600}}>Pro</div>
+        </div>
+      </div>
+      <div style={{background:'#dc2626',color:'#fff',padding:5,textAlign:'center',borderRadius:4,fontSize:9,fontWeight:600}}>Buy now →</div>
+    </BrowserFrame>
+  );
+}
+
+function CoachingPreview() {
+  return (
+    <BrowserFrame url="yoursite.com/book" bg="linear-gradient(180deg,#fce7f3,#fff)">
+      <div style={{fontSize:10,fontWeight:700,color:'#0f172a',textAlign:'center',marginBottom:7}}>Book Your Free Call</div>
+      <div style={{background:'#fff',border:'0.5px solid #fbcfe8',borderRadius:4,padding:7,marginBottom:6}}>
+        <div style={{fontSize:7,color:'#9d174d',fontWeight:600,marginBottom:4,textAlign:'center'}}>Select a day</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:2}}>
+          {[0,1,2,3,4,5,6].map(i=><div key={i} style={{background:i===3?'#ec4899':(i%2===0?'#fbcfe8':'#f9a8d4'),borderRadius:2,height:8}}/>)}
+        </div>
+      </div>
+      <div style={{background:'#ec4899',color:'#fff',padding:5,textAlign:'center',borderRadius:4,fontSize:9,fontWeight:600}}>Schedule now →</div>
+    </BrowserFrame>
+  );
+}
+
+function WebinarPreview() {
+  return (
+    <BrowserFrame url="yoursite.com/webinar" bg="linear-gradient(180deg,#dcfce7,#fff)">
+      <div style={{color:'#f59e0b',fontSize:8,textAlign:'center',marginBottom:3,letterSpacing:1}}>★★★★★</div>
+      <div style={{fontSize:10,fontWeight:700,color:'#0f172a',textAlign:'center',marginBottom:5}}>Free Training Webinar</div>
+      <div style={{background:'#fff',border:'0.5px solid #bbf7d0',borderRadius:4,padding:6,marginBottom:6}}>
+        <div style={{height:3,background:'#86efac',borderRadius:1,width:'90%',marginBottom:2}}/>
+        <div style={{height:3,background:'#86efac',borderRadius:1,width:'75%',marginBottom:2}}/>
+        <div style={{height:3,background:'#86efac',borderRadius:1,width:'60%'}}/>
+      </div>
+      <div style={{background:'#16a34a',color:'#fff',padding:5,textAlign:'center',borderRadius:4,fontSize:9,fontWeight:600}}>Reserve my seat →</div>
+    </BrowserFrame>
+  );
+}
+
+// ─── Template definitions ────────────────────────────────────────────────
+// Primary = shown on landing, 5 cards + Blank Canvas in a 3-col grid.
+// Secondary = behind "View more templates" toggle.
+
+const PRIMARY_TEMPLATES = [
+  { key: 'lead-capture', title: 'Lead Capture', desc: 'Build your email list with a compelling opt-in', Preview: LeadCapturePreview },
+  { key: 'video-sales', title: 'Video Sales', desc: 'VSL-driven page with CTA below the video', Preview: VideoSalesPreview },
+  { key: 'product-offer', title: 'Product Offer', desc: 'Sales page with pricing tiers and CTAs', Preview: ProductOfferPreview },
+  { key: 'coaching-program', title: 'Coaching', desc: 'Book-a-call booking page with testimonials', Preview: CoachingPreview },
+  { key: 'webinar-registration', title: 'Webinar', desc: 'Free training signup with urgency and proof', Preview: WebinarPreview },
+];
+
+const SECONDARY_TEMPLATES = [
+  { key: 'network-opportunity', title: 'Business Opportunity', desc: 'Network marketing recruitment with income potential' },
+  { key: 'digital-product', title: 'Digital Product', desc: 'Delivery page for ebooks, guides, or downloads' },
+  { key: 'affiliate-income', title: 'Affiliate Funnel', desc: 'Commission income page with earnings calculator' },
+  { key: 'thank-you', title: 'Thank You Page', desc: 'Post-signup confirmation with next steps' },
+];
+
 export default function Funnels() {
-  var { t } = useTranslation();
-  const [pages,setPages]=useState([]);
-  const [loading,setLoading]=useState(true);
-  const [creating,setCreating]=useState(false);
-  const [creatingKey,setCreatingKey]=useState(null);
-  const [confirmDelete,setConfirmDelete]=useState(null);
-  const [showAiWizard,setShowAiWizard]=useState(false);
-  const [aiForm,setAiForm]=useState({niche:'',audience:'',story:'',tone:'professional'});
-  const [aiGenerating,setAiGenerating]=useState(false);
-  const navigate=useNavigate();
+  const { t } = useTranslation();
+  const [pages, setPages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [creating, setCreating] = useState(false);
+  const [creatingKey, setCreatingKey] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null);
+  const [showAiWizard, setShowAiWizard] = useState(false);
+  const [showMoreTemplates, setShowMoreTemplates] = useState(false);
+  const [aiForm, setAiForm] = useState({ niche: '', audience: '', story: '', tone: 'professional' });
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const navigate = useNavigate();
 
-  const load=()=>apiGet('/api/funnels').then(d=>{setPages(d.funnels||d.pages||[]);setLoading(false)}).catch(()=>setLoading(false));
-  useEffect(()=>{load()},[]);
+  const load = () => apiGet('/api/funnels').then(d => { setPages(d.funnels || d.pages || []); setLoading(false); }).catch(() => setLoading(false));
+  useEffect(() => { load(); }, []);
 
-  const createFromTemplate=async(key)=>{
-    setCreating(true);setCreatingKey(key);
-    try{
-      if(key==='blank'){
-        const res=await apiPost('/api/funnels/save',{title:`Untitled Page ${Date.now().toString(36).slice(-4)}`,status:'draft'});
-        if(res.id) window.location.href=`/pro/funnel/${res.id}/edit`;
+  const createFromTemplate = async (key) => {
+    setCreating(true); setCreatingKey(key);
+    try {
+      if (key === 'blank') {
+        const res = await apiPost('/api/funnels/save', { title: `Untitled Page ${Date.now().toString(36).slice(-4)}`, status: 'draft' });
+        if (res.id) window.location.href = `/pro/funnel/${res.id}/edit`;
       } else {
-        const res=await apiPost('/api/funnels/from-template',{niche:key});
-        if(res.id){window.location.href=`/pro/funnel/${res.id}/edit`;}
-        else if(res.edit_url){const parts=res.edit_url.match(/\/(\d+)\//);if(parts)window.location.href=`/pro/funnel/${parts[1]}/edit`;}
+        const res = await apiPost('/api/funnels/from-template', { niche: key });
+        if (res.id) { window.location.href = `/pro/funnel/${res.id}/edit`; }
+        else if (res.edit_url) { const parts = res.edit_url.match(/\/(\d+)\//); if (parts) window.location.href = `/pro/funnel/${parts[1]}/edit`; }
       }
-    }catch(e){alert(e.message)}
-    setCreating(false);setCreatingKey(null);
+    } catch (e) { alert(e.message); }
+    setCreating(false); setCreatingKey(null);
   };
 
-  const deletePage=async(id)=>{
-    try{await apiPost(`/api/funnels/delete/${id}`,{});setPages(p=>p.filter(x=>x.id!==id));setConfirmDelete(null)}catch(e){alert(e.message)}
+  const deletePage = async (id) => {
+    try { await apiPost(`/api/funnels/delete/${id}`, {}); setPages(p => p.filter(x => x.id !== id)); setConfirmDelete(null); }
+    catch (e) { alert(e.message); }
   };
 
-  const generateAiFunnel=async()=>{
-    if(!aiForm.niche.trim()){alert('Please enter your niche');return}
+  const duplicatePage = async (id) => {
+    try { const res = await apiPost(`/api/funnels/duplicate/${id}`, {}); if (res.id) window.location.href = `/pro/funnel/${res.id}/edit`; else load(); }
+    catch (e) { alert(e.message); }
+  };
+
+  const generateAiFunnel = async () => {
+    if (!aiForm.niche.trim()) { alert('Please enter your niche'); return; }
     setAiGenerating(true);
-    try{
-      const res=await apiPost('/api/pro/generate-funnel',aiForm);
+    try {
+      const res = await apiPost('/api/pro/generate-funnel', aiForm);
       const pageId = res.id || res.funnel_id;
-      if(pageId) { window.location.href=`/pro/funnel/${pageId}/edit`; }
-      else if(res.error) alert(res.error);
+      if (pageId) { window.location.href = `/pro/funnel/${pageId}/edit`; }
+      else if (res.error) alert(res.error);
       else alert(t('superPages.generationFailed'));
-    }catch(e){alert(t('superPages.errorPrefix') + e.message)}
+    } catch (e) { alert(t('superPages.errorPrefix') + e.message); }
     setAiGenerating(false);
   };
 
-  const duplicatePage=async(id)=>{
-    try{const res=await apiPost(`/api/funnels/duplicate/${id}`,{});if(res.id)window.location.href=`/pro/funnel/${res.id}/edit`;else load()}catch(e){alert(e.message)}
-  };
+  const totalViews = pages.reduce((a, p) => a + (p.views || 0), 0);
+  const totalLeads = pages.reduce((a, p) => a + (p.leads_captured || 0), 0);
+  const published = pages.filter(p => p.status === 'published').length;
 
-  const totalViews=pages.reduce((a,p)=>a+(p.views||0),0);
-  const totalLeads=pages.reduce((a,p)=>a+(p.leads_captured||0),0);
-  const published=pages.filter(p=>p.status==='published').length;
-
-  if(loading) return <AppLayout title={t("superPages.title")}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style></div></AppLayout>;
+  if (loading) return <AppLayout title={t('superPages.title')}><div style={{display:'flex',justifyContent:'center',padding:80}}><div style={{width:40,height:40,border:'3px solid #e5e7eb',borderTopColor:'var(--sap-accent)',borderRadius:'50%',animation:'spin .8s linear infinite'}}/><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
 
   return (
     <AppLayout>
-      {/* Hero */}
-      <div style={{marginBottom:24}}>
-        <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:4}}>
-          <svg width="32" height="32" viewBox="0 0 48 48"><rect x="6" y="6" width="16" height="16" rx="4" fill="var(--sap-accent)" opacity=".9"/><rect x="26" y="6" width="16" height="16" rx="4" fill="var(--sap-indigo)" opacity=".7"/><rect x="6" y="26" width="16" height="16" rx="4" fill="var(--sap-indigo)" opacity=".5"/><rect x="26" y="26" width="16" height="16" rx="4" fill="var(--sap-accent)" opacity=".3"/></svg>
-          <h1 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:'var(--sap-text-primary)'}}>Super<span style={{color:'var(--sap-accent)'}}>{t('superPages.pagesLabel')}</span></h1>
-        </div>
-        <p style={{margin:0,fontSize:13,color:'var(--sap-text-muted)'}}>{t('superPages.subtitle')}</p>
-      </div>
-
-      {/* Hero cards */}
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:16,marginBottom:24}}>
-        <div style={{background:'linear-gradient(135deg,#0c1222,#1e3a5f)',borderRadius:16,padding:24,position:'relative',overflow:'hidden',border:'1px solid rgba(14,165,233,.15)'}}>
-          <div style={{position:'absolute',top:-30,right:-30,width:120,height:120,background:'radial-gradient(circle,rgba(14,165,233,.15),transparent 70%)',borderRadius:'50%'}}/>
-          <Sparkles size={24} color="var(--sap-accent)" style={{marginBottom:10}}/>
-          <h3 style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#fff',margin:'0 0 6px'}}>{t('superPages.aiFunnelGenerator')}</h3>
-          <p style={{fontSize:12,color:'var(--sap-text-muted)',lineHeight:1.6,marginBottom:16}}>{t('superPages.aiFunnelDesc')}</p>
-          <button onClick={()=>setShowAiWizard(true)} style={{padding:'10px 22px',borderRadius:10,border:'none',cursor:'pointer',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',fontFamily:'Sora,sans-serif',fontSize:12,fontWeight:700,boxShadow:'0 4px 14px rgba(14,165,233,.3)'}}>{t('superPages.createAiFunnel')}</button>
-        </div>
-        <div style={{background:'linear-gradient(135deg,#e8e5fb,#d8d4f7)',borderRadius:16,padding:24,position:'relative',overflow:'hidden',border:'1px solid rgba(99,102,241,.15)'}}>
-          <div style={{position:'absolute',top:-20,right:-20,width:100,height:100,background:'radial-gradient(circle,rgba(99,102,241,.1),transparent 70%)',borderRadius:'50%'}}/>
-          <div style={{position:'absolute',bottom:10,right:10,width:70,height:70,border:'1px dashed rgba(99,102,241,.15)',borderRadius:12,opacity:.5}}/>
-          <LayoutGrid size={24} color="var(--sap-indigo)" style={{marginBottom:10}}/>
-          <h3 style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'var(--sap-cobalt-deep)',margin:'0 0 6px'}}>{t('superPages.blankCanvas')}</h3>
-          <p style={{fontSize:12,color:'var(--sap-indigo)',lineHeight:1.6,marginBottom:16,opacity:.7}}>{t('superPages.blankCanvasDesc')}</p>
-          <button onClick={()=>createFromTemplate('blank')} disabled={creating} style={{padding:'10px 22px',borderRadius:10,border:'none',cursor:'pointer',background:'var(--sap-indigo)',color:'#fff',fontFamily:'Sora,sans-serif',fontSize:12,fontWeight:700,boxShadow:'0 4px 14px rgba(99,102,241,.3)'}}>{t('superPages.openSuperPages')}</button>
-        </div>
-      </div>
-
-      {/* Two-column layout: Templates left, Pages right */}
-      <div style={{display:'grid',gridTemplateColumns:pages.length>0?'1fr 380px':'1fr',gap:24,alignItems:'start'}}>
-
-        {/* LEFT — Templates */}
-        <div>
-          <div style={{marginBottom:12,display:'flex',alignItems:'center',gap:8}}>
-            <h2 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('superPages.startFromTemplate')}</h2>
+      {/* Header — logo + subtitle + My Pages button */}
+      <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',marginBottom:20,flexWrap:'wrap',gap:12}}>
+        <div style={{display:'flex',alignItems:'center',gap:12}}>
+          <svg width="40" height="40" viewBox="0 0 48 48" style={{flexShrink:0}}>
+            <rect x="6" y="6" width="16" height="16" rx="4" fill="var(--sap-accent)" opacity=".9"/>
+            <rect x="26" y="6" width="16" height="16" rx="4" fill="var(--sap-indigo)" opacity=".7"/>
+            <rect x="6" y="26" width="16" height="16" rx="4" fill="var(--sap-indigo)" opacity=".5"/>
+            <rect x="26" y="26" width="16" height="16" rx="4" fill="var(--sap-accent)" opacity=".3"/>
+          </svg>
+          <div>
+            <h1 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:800,color:'var(--sap-text-primary)',lineHeight:1}}>
+              Super<span style={{color:'var(--sap-accent)'}}>Pages</span>
+            </h1>
+            <p style={{margin:'4px 0 0',fontSize:12,color:'var(--sap-text-muted)'}}>Build high-converting landing pages and funnels</p>
           </div>
-          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(220px,1fr))',gap:14}}>
-            {TEMPLATES.map(tpl=>{
-              const Icon=tpl.icon;const isCreating=creating&&creatingKey===tpl.key;
+        </div>
+        {pages.length > 0 && (
+          <button onClick={() => document.getElementById('your-pages')?.scrollIntoView({behavior:'smooth'})} style={{background:'#fff',color:'var(--sap-text-primary)',border:'1px solid #e2e8f0',padding:'8px 14px',borderRadius:8,fontSize:12,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}}>
+            My pages · {pages.length}
+          </button>
+        )}
+      </div>
+
+      {/* AI Hero — light theme banner */}
+      <div style={{background:'linear-gradient(135deg,#eff6ff 0%,#e0e7ff 50%,#f3e8ff 100%)',border:'1px solid #c7d2fe',borderRadius:14,padding:'20px 24px',marginBottom:24,display:'flex',alignItems:'center',justifyContent:'space-between',gap:16,flexWrap:'wrap'}}>
+        <div style={{display:'flex',alignItems:'center',gap:14,flex:1,minWidth:240}}>
+          <div style={{width:46,height:46,borderRadius:12,background:'linear-gradient(135deg,#0ea5e9,#8b5cf6)',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,boxShadow:'0 6px 16px rgba(14,165,233,.25)'}}>
+            <Sparkles size={22} color="#fff" strokeWidth={2.2}/>
+          </div>
+          <div>
+            <div style={{fontSize:15,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:2,fontFamily:'Sora,sans-serif'}}>Let AI build your page</div>
+            <div style={{fontSize:12,color:'#475569'}}>Answer 4 questions, get a complete funnel in 30 seconds</div>
+          </div>
+        </div>
+        <button onClick={() => setShowAiWizard(true)} style={{background:'var(--sap-text-primary)',color:'#fff',border:'none',padding:'11px 20px',borderRadius:9,fontSize:12,fontWeight:700,cursor:'pointer',fontFamily:'Sora,sans-serif',whiteSpace:'nowrap',flexShrink:0}}>
+          Generate with AI →
+        </button>
+      </div>
+
+      {/* Section label */}
+      <div style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:1,marginBottom:12}}>
+        Or start from a template
+      </div>
+
+      {/* 3-column template grid — 5 templates + Blank Canvas as 6th tile */}
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:14,marginBottom:16}}>
+        {PRIMARY_TEMPLATES.map(tpl => {
+          const { Preview } = tpl;
+          const isCreating = creating && creatingKey === tpl.key;
+          return (
+            <div key={tpl.key} className="tpl-card" onClick={() => !creating && createFromTemplate(tpl.key)} style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',overflow:'hidden',cursor:creating?'wait':'pointer',transition:'all .2s',display:'flex',flexDirection:'column'}}>
+              <div style={{padding:'10px 10px 0'}}>
+                <Preview/>
+              </div>
+              <div style={{padding:'12px 14px 14px',flex:1,display:'flex',flexDirection:'column'}}>
+                <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:2,fontFamily:'Sora,sans-serif'}}>{tpl.title}</div>
+                <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:10,flex:1}}>{tpl.desc}</div>
+                <div style={{padding:'7px 12px',borderRadius:6,fontSize:11,fontWeight:600,background:isCreating?'#f1f5f9':'transparent',color:isCreating?'#64748b':'#0284c7',border:`1px solid ${isCreating?'#e2e8f0':'#bae6fd'}`,textAlign:'center'}}>
+                  {isCreating ? 'Creating…' : 'Use this template →'}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Blank Canvas — 6th tile, dashed */}
+        <div className="tpl-card" onClick={() => !creating && createFromTemplate('blank')} style={{background:'#fff',borderRadius:10,border:'1.5px dashed #cbd5e1',overflow:'hidden',cursor:creating?'wait':'pointer',transition:'all .2s',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'40px 20px',minHeight:260}}>
+          <div style={{width:44,height:44,borderRadius:'50%',background:'#f1f5f9',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:12}}>
+            <Plus size={20} color="#64748b" strokeWidth={2}/>
+          </div>
+          <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:3,fontFamily:'Sora,sans-serif'}}>Blank canvas</div>
+          <div style={{fontSize:11,color:'var(--sap-text-muted)',textAlign:'center'}}>Start from scratch</div>
+        </div>
+      </div>
+
+      {/* View more templates toggle */}
+      {!showMoreTemplates && (
+        <div style={{textAlign:'center',marginBottom:24}}>
+          <button onClick={() => setShowMoreTemplates(true)} style={{background:'transparent',border:'none',color:'#0284c7',fontSize:12,fontWeight:600,cursor:'pointer',padding:'8px 16px',fontFamily:'inherit'}}>
+            View {SECONDARY_TEMPLATES.length} more templates →
+          </button>
+        </div>
+      )}
+
+      {/* Expanded secondary templates */}
+      {showMoreTemplates && (
+        <div style={{marginBottom:24}}>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(260px,1fr))',gap:14}}>
+            {SECONDARY_TEMPLATES.map(tpl => {
+              const isCreating = creating && creatingKey === tpl.key;
               return (
-                <div key={tpl.key} className="tpl-card" onClick={()=>!creating&&createFromTemplate(tpl.key)} style={{background:'#fff',borderRadius:12,overflow:'hidden',border:'1px solid #e8ecf2',cursor:'pointer',boxShadow:'0 2px 8px rgba(0,0,0,.03)',transition:'all .2s',display:'flex',flexDirection:'column'}}>
-                  <div style={{height:180,position:'relative'}}>
-                    <TemplatePreview bg={tpl.bg} accent={tpl.accent} Icon={tpl.icon}/>
-                  </div>
-                  <div style={{padding:'12px 14px',flex:1,display:'flex',flexDirection:'column'}}>
-                    <div style={{fontSize:13,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:3}}>{t(tpl.titleKey)}</div>
-                    <div style={{fontSize:11,color:'var(--sap-text-muted)',lineHeight:1.5,flex:1}}>{t(tpl.descKey)}</div>
-                    <div style={{marginTop:10}}>
-                      <div style={{padding:'7px 14px',borderRadius:7,fontSize:10,fontWeight:700,background:isCreating?'var(--sap-bg-page)':`${tpl.color}10`,color:isCreating?'var(--sap-text-muted)':tpl.color,border:`1px solid ${isCreating?'var(--sap-border)':tpl.color+'25'}`,textAlign:'center'}}>{isCreating?t('superPages.creating'):t('superPages.useTemplate')}</div>
-                    </div>
+                <div key={tpl.key} className="tpl-card" onClick={() => !creating && createFromTemplate(tpl.key)} style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',overflow:'hidden',cursor:creating?'wait':'pointer',transition:'all .2s',padding:'20px 16px',display:'flex',flexDirection:'column',minHeight:160}}>
+                  <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4,fontFamily:'Sora,sans-serif'}}>{tpl.title}</div>
+                  <div style={{fontSize:12,color:'var(--sap-text-muted)',marginBottom:14,flex:1,lineHeight:1.5}}>{tpl.desc}</div>
+                  <div style={{padding:'7px 12px',borderRadius:6,fontSize:11,fontWeight:600,background:isCreating?'#f1f5f9':'transparent',color:isCreating?'#64748b':'#0284c7',border:`1px solid ${isCreating?'#e2e8f0':'#bae6fd'}`,textAlign:'center'}}>
+                    {isCreating ? 'Creating…' : 'Use this template →'}
                   </div>
                 </div>
               );
             })}
           </div>
-        </div>
-
-        {/* RIGHT — Your Pages */}
-        {pages.length>0&&(
-          <div>
-            {/* Stats */}
-            <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:16}}>
-              {[{label:t('superPages.pages'),val:published,color:'var(--sap-green)',icon:Zap},{label:t('superPages.leads'),val:totalLeads,color:'var(--sap-accent)',icon:Target},{label:t('superPages.views'),val:totalViews,color:'var(--sap-purple)',icon:TrendingUp}].map((s,i)=>(
-                <div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:'12px 14px',borderLeft:`3px solid ${s.color}`}}>
-                  <div style={{fontSize:8,fontWeight:700,letterSpacing:.8,color:'var(--sap-text-muted)',textTransform:'uppercase'}}>{s.label}</div>
-                  <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:900,color:'var(--sap-text-primary)',margin:'2px 0'}}>{s.val}</div>
-                </div>
-              ))}
-            </div>
-
-            <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:10}}>
-              <h2 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('superPages.yourPages')}</h2>
-              <span style={{fontSize:11,color:'var(--sap-text-muted)'}}>{t('superPages.pageCount', { count: pages.length, defaultValue: pages.length === 1 ? '1 page' : `${pages.length} pages` })}</span>
-            </div>
-            <div style={{display:'flex',flexDirection:'column',gap:10}}>
-              {pages.map(p=>(
-                <div key={p.id} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,overflow:'hidden',boxShadow:'0 2px 8px rgba(0,0,0,.03)'}}>
-                  <div style={{padding:'12px 14px',borderBottom:'1px solid #f1f3f7'}}>
-                    <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:3}}>
-                      <div style={{fontSize:13,fontWeight:800,color:'var(--sap-text-primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1}}>{p.title||t('superPages.untitled', { defaultValue: 'Untitled' })}</div>
-                      <span style={{fontSize:8,fontWeight:700,padding:'2px 7px',borderRadius:4,marginLeft:8,flexShrink:0,...(p.status==='published'?{background:'rgba(22,163,74,.08)',color:'var(--sap-green)'}:{background:'var(--sap-bg-input)',color:'var(--sap-text-muted)'})}}>{p.status==='published'?t('superPages.statusLive', { defaultValue: '● Live' }):t('superPages.statusDraft', { defaultValue: '○ Draft' })}</span>
-                    </div>
-                    {p.slug&&<div style={{fontSize:10,color:'var(--sap-text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>/{p.slug}</div>}
-                  </div>
-                  <div style={{padding:'8px 14px',display:'flex',gap:12,borderBottom:'1px solid #f1f3f7'}}>
-                    <div style={{display:'flex',alignItems:'center',gap:4}}><Eye size={12} color="var(--sap-text-muted)"/><span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.views||0}</span><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>{t('superPages.viewsLabel')}</span></div>
-                    <div style={{display:'flex',alignItems:'center',gap:4}}><FileText size={12} color="var(--sap-text-muted)"/><span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.leads_captured||0}</span><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>{t('superPages.leadsLabel')}</span></div>
-                    {p.is_ai_generated&&<span style={{fontSize:8,fontWeight:700,color:'var(--sap-indigo)',background:'rgba(99,102,241,.08)',padding:'2px 5px',borderRadius:4,marginLeft:'auto'}}>{t('superPages.aiLabel')}</span>}
-                  </div>
-                  <div style={{padding:'8px 14px',display:'flex',gap:5}}>
-                    {confirmDelete===p.id ? (
-                      <>
-                        <div style={{flex:1,fontSize:11,fontWeight:700,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>{t('superPages.deletePageConfirm')}</div>
-                        <button onClick={()=>deletePage(p.id)} style={{padding:'7px 14px',borderRadius:6,border:'none',background:'var(--sap-red)',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer'}}>{t('superPages.yesDelete')}</button>
-                        <button onClick={()=>setConfirmDelete(null)} style={{padding:'7px 14px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-text-muted)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{t('superPages.noLabel')}</button>
-                      </>
-                    ) : (
-                      <>
-                        <a href={`/pro/funnel/${p.id}/edit`} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:11,fontWeight:700,textDecoration:'none',background:'var(--sap-accent)',color:'#fff'}}><Pencil size={11}/> {t('superPages.editBtn')}</a>
-                        {p.status==='published'&&p.slug&&(<a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:11,fontWeight:700,textDecoration:'none',background:'var(--sap-bg-input)',color:'var(--sap-text-primary)',border:'1px solid #e8ecf2'}}><ExternalLink size={11}/> {t('superPages.viewBtn')}</a>)}
-                        <button onClick={()=>duplicatePage(p.id)} title={t('superPages.duplicatePage')} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #e8ecf2',background:'var(--sap-bg-input)',cursor:'pointer'}}><Copy size={12} color="var(--sap-text-muted)"/></button>
-                        <button onClick={()=>setConfirmDelete(p.id)} title={t('superPages.deletePage')} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer'}}><Trash2 size={12} color="var(--sap-red)"/></button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
+          <div style={{textAlign:'center',marginTop:12}}>
+            <button onClick={() => setShowMoreTemplates(false)} style={{background:'transparent',border:'none',color:'#64748b',fontSize:11,fontWeight:500,cursor:'pointer',padding:'4px 10px',fontFamily:'inherit'}}>
+              Show less
+            </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
+
+      {/* Your Pages section (preserved from original) */}
+      {pages.length > 0 && (
+        <div id="your-pages" style={{marginTop:32}}>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:16,maxWidth:480}}>
+            {[{label:'Published',val:published,color:'var(--sap-green)'},{label:'Leads',val:totalLeads,color:'var(--sap-accent)'},{label:'Views',val:totalViews,color:'var(--sap-purple)'}].map((s,i) => (
+              <div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:'12px 14px',borderLeft:`3px solid ${s.color}`}}>
+                <div style={{fontSize:9,fontWeight:700,letterSpacing:.8,color:'var(--sap-text-muted)',textTransform:'uppercase'}}>{s.label}</div>
+                <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:900,color:'var(--sap-text-primary)',margin:'2px 0'}}>{s.val}</div>
+              </div>
+            ))}
+          </div>
+
+          <h2 style={{margin:'0 0 12px',fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>Your pages</h2>
+
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(280px,1fr))',gap:12}}>
+            {pages.map(p => (
+              <div key={p.id} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,overflow:'hidden'}}>
+                <div style={{padding:'12px 14px'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:4}}>
+                    <div style={{width:6,height:6,borderRadius:'50%',background:p.status==='published'?'#10b981':'#cbd5e1'}}/>
+                    <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.title||'Untitled'}</div>
+                  </div>
+                  {p.slug && <div style={{fontSize:10,color:'var(--sap-text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>/{p.slug}</div>}
+                </div>
+                <div style={{padding:'8px 14px',display:'flex',gap:12,borderBottom:'1px solid #f1f3f7',borderTop:'1px solid #f1f3f7'}}>
+                  <div style={{display:'flex',alignItems:'center',gap:4}}><Eye size={12} color="var(--sap-text-muted)"/><span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.views||0}</span><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>views</span></div>
+                  <div style={{display:'flex',alignItems:'center',gap:4}}><FileText size={12} color="var(--sap-text-muted)"/><span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.leads_captured||0}</span><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>leads</span></div>
+                  {p.is_ai_generated && <span style={{fontSize:8,fontWeight:700,color:'var(--sap-indigo)',background:'rgba(99,102,241,.08)',padding:'2px 5px',borderRadius:4,marginLeft:'auto'}}>AI</span>}
+                </div>
+                <div style={{padding:'8px 14px',display:'flex',gap:5}}>
+                  {confirmDelete === p.id ? (
+                    <>
+                      <div style={{flex:1,fontSize:11,fontWeight:700,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>Delete?</div>
+                      <button onClick={() => deletePage(p.id)} style={{padding:'7px 14px',borderRadius:6,border:'none',background:'var(--sap-red)',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer'}}>Yes</button>
+                      <button onClick={() => setConfirmDelete(null)} style={{padding:'7px 14px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-text-muted)',fontSize:11,fontWeight:700,cursor:'pointer'}}>No</button>
+                    </>
+                  ) : (
+                    <>
+                      <a href={`/pro/funnel/${p.id}/edit`} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:11,fontWeight:700,textDecoration:'none',background:'var(--sap-accent)',color:'#fff'}}><Pencil size={11}/> Edit</a>
+                      {p.status === 'published' && p.slug && (<a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:11,fontWeight:700,textDecoration:'none',background:'var(--sap-bg-input)',color:'var(--sap-text-primary)',border:'1px solid #e8ecf2'}}><ExternalLink size={11}/> View</a>)}
+                      <button onClick={() => duplicatePage(p.id)} title="Duplicate" style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #e8ecf2',background:'var(--sap-bg-input)',cursor:'pointer'}}><Copy size={12} color="var(--sap-text-muted)"/></button>
+                      <button onClick={() => setConfirmDelete(p.id)} title="Delete" style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer'}}><Trash2 size={12} color="var(--sap-red)"/></button>
+                    </>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <style>{`
-        .tpl-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.08),0 4px 12px rgba(0,0,0,.04)!important;border-color:#cbd5e1!important}
-        .tpl-card:active{transform:scale(.98)!important}
+        .tpl-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(15,23,42,.06),0 2px 8px rgba(15,23,42,.03)!important;border-color:#cbd5e1!important}
+        .tpl-card:active{transform:scale(.99)!important}
       `}</style>
 
-      {/* AI Funnel Wizard Modal */}
+      {/* AI Funnel Wizard Modal (preserved from original) */}
       {showAiWizard && (
-        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(4px)'}} onClick={()=>!aiGenerating&&setShowAiWizard(false)}>
-          <div onClick={e=>e.stopPropagation()} style={{background:'#fff',borderRadius:16,padding:28,width:500,maxHeight:'85vh',overflowY:'auto',boxShadow:'0 20px 60px rgba(0,0,0,.3)'}}>
+        <div style={{position:'fixed',inset:0,background:'rgba(0,0,0,.5)',zIndex:200,display:'flex',alignItems:'center',justifyContent:'center',backdropFilter:'blur(4px)'}} onClick={() => !aiGenerating && setShowAiWizard(false)}>
+          <div onClick={e => e.stopPropagation()} style={{background:'#fff',borderRadius:16,padding:28,width:500,maxHeight:'85vh',overflowY:'auto',boxShadow:'0 20px 60px rgba(0,0,0,.3)'}}>
             <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
               <Sparkles size={20} color="var(--sap-accent)"/>
               <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-text-primary)'}}>{t('superPages.aiFunnelGenerator')}</h3>
             </div>
-            <p style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:20}}>{t("superPages.aiWizardIntro")}</p>
+            <p style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:20}}>{t('superPages.aiWizardIntro')}</p>
 
             <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>{t('superPages.nicheQuestionFull')}</label>
-            <input value={aiForm.niche} onChange={e=>setAiForm(p=>({...p,niche:e.target.value}))} placeholder={t('superPages.nichePlaceholderFull')}
+            <input value={aiForm.niche} onChange={e => setAiForm(p => ({...p, niche: e.target.value}))} placeholder={t('superPages.nichePlaceholderFull')}
               style={{width:'100%',padding:'10px 14px',border:'2px solid #e2e8f0',borderRadius:10,fontSize:13,outline:'none',marginBottom:14,boxSizing:'border-box'}}/>
 
             <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>{t('superPages.audienceQuestionFull')}</label>
-            <input value={aiForm.audience} onChange={e=>setAiForm(p=>({...p,audience:e.target.value}))} placeholder={t('superPages.audiencePlaceholderFull')}
+            <input value={aiForm.audience} onChange={e => setAiForm(p => ({...p, audience: e.target.value}))} placeholder={t('superPages.audiencePlaceholderFull')}
               style={{width:'100%',padding:'10px 14px',border:'2px solid #e2e8f0',borderRadius:10,fontSize:13,outline:'none',marginBottom:14,boxSizing:'border-box'}}/>
 
             <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>{t('superPages.storyQuestion')}</label>
-            <textarea value={aiForm.story} onChange={e=>setAiForm(p=>({...p,story:e.target.value}))} placeholder={t('superPages.storyPlaceholder')}
+            <textarea value={aiForm.story} onChange={e => setAiForm(p => ({...p, story: e.target.value}))} placeholder={t('superPages.storyPlaceholder')}
               rows={3} style={{width:'100%',padding:'10px 14px',border:'2px solid #e2e8f0',borderRadius:10,fontSize:13,outline:'none',marginBottom:14,boxSizing:'border-box',resize:'vertical',fontFamily:'inherit'}}/>
 
             <label style={{display:'block',fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',marginBottom:4}}>{t('superPages.toneQuestion')}</label>
             <div style={{display:'flex',gap:8,marginBottom:20}}>
-              {['professional','casual','urgent','inspirational'].map(t=>(
-                <button key={t} onClick={()=>setAiForm(p=>({...p,tone:t}))} style={{
-                  flex:1,padding:'8px 0',borderRadius:8,fontSize:11,fontWeight:700,cursor:'pointer',textTransform:'capitalize',
-                  border:aiForm.tone===t?'2px solid #0ea5e9':'2px solid #e2e8f0',
-                  background:aiForm.tone===t?'rgba(14,165,233,.06)':'#fff',
-                  color:aiForm.tone===t?'var(--sap-accent)':'var(--sap-text-muted)',fontFamily:'inherit',
-                }}>{t}</button>
+              {['professional', 'casual', 'urgent', 'inspirational'].map(tone => (
+                <button key={tone} onClick={() => setAiForm(p => ({...p, tone}))} style={{
+                  flex:1, padding:'8px 0', borderRadius:8, fontSize:11, fontWeight:700, cursor:'pointer', textTransform:'capitalize',
+                  border: aiForm.tone === tone ? '2px solid #0ea5e9' : '2px solid #e2e8f0',
+                  background: aiForm.tone === tone ? 'rgba(14,165,233,.06)' : '#fff',
+                  color: aiForm.tone === tone ? 'var(--sap-accent)' : 'var(--sap-text-muted)', fontFamily:'inherit',
+                }}>{tone}</button>
               ))}
             </div>
 
             <div style={{display:'flex',gap:8}}>
               <button onClick={generateAiFunnel} disabled={aiGenerating} style={{
-                flex:1,padding:'12px',borderRadius:10,border:'none',cursor:'pointer',
-                background:aiGenerating?'var(--sap-text-muted)':'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',
-                fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:700,
-              }}>{aiGenerating?t('superPages.generating'):t('superPages.generateMyPage')}</button>
-              <button onClick={()=>setShowAiWizard(false)} disabled={aiGenerating} style={{
-                padding:'12px 20px',borderRadius:10,border:'1px solid #e2e8f0',cursor:'pointer',
-                background:'#fff',color:'var(--sap-text-muted)',fontSize:13,fontWeight:600,fontFamily:'inherit',
+                flex:1, padding:'12px', borderRadius:10, border:'none', cursor:'pointer',
+                background: aiGenerating ? 'var(--sap-text-muted)' : 'linear-gradient(135deg,#0ea5e9,#38bdf8)', color:'#fff',
+                fontFamily:'Sora,sans-serif', fontSize:13, fontWeight:700,
+              }}>{aiGenerating ? t('superPages.generating') : t('superPages.generateMyPage')}</button>
+              <button onClick={() => setShowAiWizard(false)} disabled={aiGenerating} style={{
+                padding:'12px 20px', borderRadius:10, border:'1px solid #e2e8f0', cursor:'pointer',
+                background:'#fff', color:'var(--sap-text-muted)', fontSize:13, fontWeight:600, fontFamily:'inherit',
               }}>{t('superPages.cancel')}</button>
             </div>
           </div>
@@ -269,4 +399,3 @@ export default function Funnels() {
     </AppLayout>
   );
 }
-// v2 inline delete
