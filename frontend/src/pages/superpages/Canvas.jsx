@@ -660,9 +660,20 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
           elements (heading, text, label) get their own bubble menu from
           the TiptapText component. Showing both caused the old toolbar
           to appear stranded at the top-left because toolbarPos isn't
-          updated for Tiptap-managed edits. */}
+          updated for Tiptap-managed edits.
+
+          Also guards against stale editingId referencing a deleted
+          element: if editingId is set but the element no longer exists
+          in els (e.g. user deleted it), the toolbar would otherwise
+          render at toolbarPos {0,0} with no way to dismiss. We require
+          the element to actually exist before showing. */}
       <InlineToolbar
-        visible={!!editingId && !TIPTAP_TYPES.includes((els.find(e => e.id === editingId) || {}).type)}
+        visible={(() => {
+          if (!editingId) return false;
+          const editingEl = els.find(e => e.id === editingId);
+          if (!editingEl) return false;  // stale id, element was deleted
+          return !TIPTAP_TYPES.includes(editingEl.type);
+        })()}
         position={toolbarPos}
         onCommand={() => {
           // Sync content back to state on every formatting change
