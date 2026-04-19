@@ -341,6 +341,7 @@ export default function SuperPagesEditor() {
             markDirty={markDirty}
             onEditElement={handleEditElement}
             deviceView={deviceView}
+            pageId={pageId}
           />
         )}
         {!previewMode && (

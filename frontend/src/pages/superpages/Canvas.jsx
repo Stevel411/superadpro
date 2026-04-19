@@ -3,6 +3,7 @@ import { useRef, useCallback, useEffect, useState } from 'react';
 import { CANVAS_WIDTH, SNAP_THRESHOLD, SOCIAL_SVGS } from './elementDefaults';
 import InlineToolbar from './InlineToolbar';
 import TiptapText from './TiptapText';
+import { apiPost } from '../../utils/api';
 
 // Element types that use the Tiptap-powered inline editor. Starting with
 // the three simplest types — they store plain or lightly-formatted text as
@@ -11,7 +12,7 @@ import TiptapText from './TiptapText';
 // for now; we'll migrate them once these three are solid on production.
 const TIPTAP_TYPES = ['heading', 'text', 'label'];
 
-export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, markDirty, onEditElement, deviceView }) {
+export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElement, deselectAll, updateElement, markDirty, onEditElement, deviceView, pageId }) {
   var { t } = useTranslation();
   const canvasRef = useRef(null);
   const dragRef = useRef(null);
@@ -19,6 +20,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
   const guideRefs = useRef({});
   const [editingId, setEditingId] = useState(null);
   const [toolbarPos, setToolbarPos] = useState({ x: 0, y: 0 });
+  const [aiBusy, setAiBusy] = useState(false);
   const editableRef = useRef(null);
 
   const EDITABLE_TYPES = ['heading', 'text', 'label', 'review', 'testimonial', 'faq', 'stat', 'icontext', 'separator', 'logostrip'];
@@ -121,6 +123,38 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     window.addEventListener('sp-auto-edit', onAutoEdit);
     return () => window.removeEventListener('sp-auto-edit', onAutoEdit);
   }, []);
+
+  // ── AI rewrite handler (passed down to TiptapText) ──
+  // Called when the user picks a command from the bubble menu's AI menu.
+  // POSTs the selection + command to the backend, then calls the component's
+  // replaceSelection() callback with the rewritten text — which inserts it
+  // in place of the selection and triggers the editor's normal onUpdate
+  // path, which saves via updateElement.
+  const handleAiRewrite = useCallback(async ({ command, prompt, selection, replaceSelection }) => {
+    if (!pageId) {
+      alert('Save the page first before using AI rewrite.');
+      return;
+    }
+    if (aiBusy) return;
+    setAiBusy(true);
+    try {
+      const data = await apiPost(`/api/pro/funnel/${pageId}/ai-rewrite`, {
+        selection,
+        command,
+        prompt: prompt || '',
+      });
+      if (data && data.success && data.result) {
+        replaceSelection(data.result);
+        markDirty();
+      } else {
+        alert((data && data.error) || 'AI rewrite failed. Try again.');
+      }
+    } catch (err) {
+      alert('AI rewrite failed: ' + (err && err.message ? err.message : 'network error'));
+    } finally {
+      setAiBusy(false);
+    }
+  }, [pageId, aiBusy, markDirty]);
 
   // ── Background style ──
   // Default to white when no canvasBg is set — matches the light theme.
@@ -332,7 +366,9 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
           placeholder={placeholderByType[el.type] || ''}
           autoFocus={true}
           styleOverrides={styleObj}
-          showAi={false}
+          showAi={!!pageId}
+          onAiRequest={handleAiRewrite}
+          aiBusy={aiBusy}
         />
       );
     }

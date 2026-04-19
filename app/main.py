@@ -14407,6 +14407,99 @@ Return ONLY valid JSON."""
     except Exception as e:
         logger.error(f"Funnel regeneration failed: {e}")
         return JSONResponse({"error": "Regeneration failed"}, status_code=500)
+
+
+@app.post("/api/pro/funnel/{funnel_id}/ai-rewrite")
+async def api_pro_funnel_ai_rewrite(funnel_id: int, request: Request, db: Session = Depends(get_db)):
+    """Rewrite a selected text span via AI.
+
+    Called from the Tiptap bubble menu in the SuperPages editor. Takes a short
+    text selection plus a command (rewrite/shorten/sharper/benefit/translate_es
+    /custom) and returns the rewritten text. Frontend then inserts that text
+    in place of the current selection.
+
+    This endpoint returns plain text only — no JSON structure — so we don't
+    need to defend against model-invented fields or markdown fencing.
+    """
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not logged in"}, status_code=401)
+    if not is_pro(user):
+        return JSONResponse({"error": "Pro tier required"}, status_code=403)
+
+    # Ownership check — you can only rewrite text on your own pages.
+    page = db.query(FunnelPage).filter(FunnelPage.id == funnel_id, FunnelPage.user_id == user.id).first()
+    if not page:
+        return JSONResponse({"error": "Not found"}, status_code=404)
+
+    api_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if not api_key:
+        return JSONResponse({"error": "AI unavailable"}, status_code=503)
+
+    body = await request.json()
+    selection = (body.get("selection") or "").strip()
+    command = (body.get("command") or "rewrite").strip()
+    custom_prompt = (body.get("prompt") or "").strip()
+
+    if not selection:
+        return JSONResponse({"error": "No text selected"}, status_code=400)
+
+    # Cap selection length to keep costs bounded. Headlines, subheads, CTA
+    # copy — all well under 2000 chars.
+    if len(selection) > 2000:
+        return JSONResponse({"error": "Selection too long (max 2000 characters)"}, status_code=400)
+
+    # Map each preset command to a concrete instruction for the model.
+    # Keep instructions terse — Haiku follows short instructions reliably.
+    instructions = {
+        "rewrite":      "Rewrite this for clarity. Keep the meaning. Same approximate length.",
+        "shorten":      "Make this shorter and punchier. Cut filler words. Keep the core message.",
+        "sharper":      "Rewrite this as a sharper, more compelling hook. More active verbs. More urgency.",
+        "benefit":      "Rewrite this to lead with the customer benefit, not the feature. What's in it for the reader?",
+        "translate_es": "Translate this to Spanish. Preserve tone and formatting. Return ONLY the Spanish translation.",
+        "translate_fr": "Translate this to French. Preserve tone and formatting. Return ONLY the French translation.",
+        "translate_de": "Translate this to German. Preserve tone and formatting. Return ONLY the German translation.",
+        "custom":       custom_prompt or "Rewrite this.",
+    }
+    instruction = instructions.get(command, instructions["rewrite"])
+
+    system_prompt = (
+        "You are rewriting a single short span of text from a landing page. "
+        "Return ONLY the rewritten text — no preamble, no quotation marks, "
+        "no explanation, no markdown. Match the original's rough length unless "
+        "the instruction says otherwise. Preserve any HTML tags that appear "
+        "inside the text (like <strong> or <em>) if sensible; otherwise return "
+        "plain text. Never add hype, income promises, or exaggerated claims."
+    )
+
+    user_prompt = (
+        f"Instruction: {instruction}\n\n"
+        f"Text to rewrite:\n{selection}"
+    )
+
+    try:
+        client = anthropic.Anthropic(api_key=api_key)
+        resp = client.messages.create(
+            model=AI_MODEL_HAIKU,
+            max_tokens=500,
+            messages=[{"role": "user", "content": user_prompt}],
+            system=system_prompt,
+        )
+        rewritten = resp.content[0].text.strip()
+        # Model sometimes wraps the result in quotes despite instructions —
+        # strip one layer of leading/trailing quotes if present.
+        if len(rewritten) >= 2 and rewritten[0] in ('"', "'") and rewritten[-1] == rewritten[0]:
+            rewritten = rewritten[1:-1].strip()
+        if not rewritten:
+            return JSONResponse({"error": "Empty response from AI"}, status_code=502)
+
+        return JSONResponse({"success": True, "result": rewritten})
+
+    except Exception as e:
+        logger.error(f"AI rewrite error: {e}")
+        return JSONResponse({"error": f"AI rewrite failed: {str(e)[:120]}"}, status_code=502)
+
+
 @app.post("/api/pro/funnel/{funnel_id}/ai-modify")
 async def api_pro_funnel_ai_modify(funnel_id: int, request: Request, db: Session = Depends(get_db)):
     """AI modifies funnel sections based on natural language instruction."""
