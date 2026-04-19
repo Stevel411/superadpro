@@ -280,15 +280,27 @@ export default function TiptapText({
 
   return (
     <div ref={wrapperRef} className="sp-tt-wrapper" style={{ width: '100%', height: '100%' }}>
-      {menuPos && createPortal(
+      {/* Portal is ALWAYS rendered, even when menuPos is null. Hiding
+          via CSS instead of unmounting preserves the internal state of
+          children like LinkButton (the popup's `open` state) across
+          transient menuPos null/value toggles that happen during focus
+          transitions. Previously, conditional rendering of this portal
+          destroyed LinkButton the moment its own popup tried to open,
+          because the popup triggered a focus change which briefly set
+          menuPos to null, unmounting the whole tree. */}
+      {createPortal(
         <div
           className="sp-tt-bubble-wrap"
           style={{
             position: 'fixed',
-            top: menuPos.y,
-            left: menuPos.x,
+            top: menuPos ? menuPos.y : -9999,
+            left: menuPos ? menuPos.x : -9999,
             transform: 'translate(-50%, calc(-100% - 8px))',
             zIndex: 1000,
+            visibility: menuPos ? 'visible' : 'hidden',
+            pointerEvents: menuPos ? 'auto' : 'none',
+            opacity: menuPos ? 1 : 0,
+            transition: 'opacity 0.12s',
           }}
           onMouseDown={(e) => e.preventDefault()}
         >
@@ -723,21 +735,6 @@ function LinkButton({ editor, isActive }) {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState('');
   const inputRef = useRef(null);
-
-  // Diagnostic: confirm this version is running + track unmount
-  useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log('[LinkButton v74afd710] mounted');
-    return () => {
-      // eslint-disable-next-line no-console
-      console.log('[LinkButton v74afd710] UNMOUNTED — open was', open);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-  useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log('[LinkButton] open changed to', open);
-  }, [open]);
 
   const openMenu = () => {
     setUrl(editor.getAttributes('link').href || '');
