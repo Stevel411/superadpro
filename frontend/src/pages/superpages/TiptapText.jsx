@@ -722,9 +722,34 @@ function ColorPicker({ editor, currentColor }) {
 function LinkButton({ editor, isActive }) {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState('');
+  const inputRef = useRef(null);
+
+  // Diagnostic: confirm this version is running + track unmount
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('[LinkButton v74afd710] mounted');
+    return () => {
+      // eslint-disable-next-line no-console
+      console.log('[LinkButton v74afd710] UNMOUNTED — open was', open);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  useEffect(() => {
+    // eslint-disable-next-line no-console
+    console.log('[LinkButton] open changed to', open);
+  }, [open]);
+
   const openMenu = () => {
     setUrl(editor.getAttributes('link').href || '');
     setOpen(v => !v);
+    // Focus the input manually after a frame so React has mounted it —
+    // but IMPORTANT: use setTimeout(0) instead of React's autoFocus so
+    // the focus happens asynchronously, well after the current click
+    // event's focus handling has settled. This prevents the autoFocus
+    // from cascading into editor blur → selectionUpdate → unmount.
+    setTimeout(() => {
+      if (inputRef.current) inputRef.current.focus();
+    }, 50);
   };
   const apply = () => {
     if (url) {
@@ -755,10 +780,10 @@ function LinkButton({ editor, isActive }) {
           }}
         >
           <input
+            ref={inputRef}
             value={url}
             onChange={e => setUrl(e.target.value)}
             onKeyDown={e => { if (e.key === 'Enter') apply(); }}
-            autoFocus
             placeholder="https://…"
             style={{
               flex: 1, padding: '6px 8px', fontSize: 12,
