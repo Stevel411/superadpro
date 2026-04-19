@@ -98,7 +98,8 @@
     "gridCalculator": "حاسبة الشبكة",
     "incomeChains": "سلاسل الدخل",
     "shareStory": "شارك قصتك",
-    "adminStories": "إدارة القصص"
+    "adminStories": "إدارة القصص",
+    "adminShowcase": "إدارة العروض"
   },
   "dashboard": {
     "title": "لوحة التحكم",
@@ -2998,7 +2999,15 @@
     "footerCta": "أنشئ حسابًا مجانيًا",
     "daysDay": "يوم للوصول إلى",
     "daysTo": "أيام للوصول إلى",
-    "earningNow": "الأرباح حالياً"
+    "earningNow": "الأرباح حالياً",
+    "showcaseFilterAll": "الكل",
+    "showcaseFilterBio": "روابط البايو",
+    "showcaseFilterLanding": "صفحات الهبوط",
+    "showcaseFilterCampaign": "الحملات",
+    "showcaseTypeBio": "رابط بايو",
+    "showcaseTypeLanding": "صفحة هبوط",
+    "showcaseTypeCampaign": "حملة",
+    "showcaseVisit": "زيارة"
   },
   "shareStory": {
     "title": "شارك قصتك",
@@ -3033,5 +3042,25 @@
     "errRequired": "المجال ووصف الإنجاز والقصة — كلها مطلوبة.",
     "errTooLong": "نص القصة طويل جداً.",
     "errSubmitFailed": "حدث خطأ ما. يرجى المحاولة مرة أخرى."
+  },
+  "featureExplore": {
+    "loading": "جارٍ التحميل…",
+    "live": "ظاهر على /explore",
+    "pending": "قيد المراجعة",
+    "cta": "اعرض على /explore",
+    "modalTitle": "اعرض على /explore",
+    "modalSubtitle": "عملك قد يُلهم العضو التالي. بعد الموافقة، ستظهر هذه البطاقة في تبويب العرض ليراها الزوار الجدد.",
+    "titleLabel": "عنوان العرض",
+    "titlePlaceholder": "مثال: إعادة ضبط الأكل الصحي · 7 أيام",
+    "nicheLabel": "المجال",
+    "nichePlaceholder": "مثال: تغذية، تداول، لياقة",
+    "metricLabelLabel": "تسمية المقياس",
+    "metricLabelPlaceholder": "مثال: الأعضاء المسجلون",
+    "metricValueLabel": "قيمة المقياس",
+    "metricValuePlaceholder": "مثال: 8,420",
+    "colorLabel": "لون التمييز",
+    "reviewNote": "يراجع فريقنا كل إرسال قبل نشره على /explore. عادةً خلال 24 ساعة.",
+    "submitBtn": "إرسال للمراجعة",
+    "submitting": "جارٍ الإرسال…"
   }
 }

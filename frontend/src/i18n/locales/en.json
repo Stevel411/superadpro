@@ -98,7 +98,8 @@
     "gridCalculator": "Grid Calculator",
     "incomeChains": "Income Chains",
     "shareStory": "Share Your Story",
-    "adminStories": "Story Moderation"
+    "adminStories": "Story Moderation",
+    "adminShowcase": "Showcase Moderation"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -2998,7 +2999,15 @@
     "footerCta": "Create free account",
     "daysDay": "day to",
     "daysTo": "days to",
-    "earningNow": "Earning now"
+    "earningNow": "Earning now",
+    "showcaseFilterAll": "All",
+    "showcaseFilterBio": "Bio Links",
+    "showcaseFilterLanding": "Landing Pages",
+    "showcaseFilterCampaign": "Campaigns",
+    "showcaseTypeBio": "Bio Link",
+    "showcaseTypeLanding": "Landing Page",
+    "showcaseTypeCampaign": "Campaign",
+    "showcaseVisit": "Visit"
   },
   "shareStory": {
     "title": "Share Your Story",
@@ -3033,5 +3042,25 @@
     "errRequired": "Niche, milestone label, and your story are all required.",
     "errTooLong": "Story text is too long.",
     "errSubmitFailed": "Something went wrong. Please try again."
+  },
+  "featureExplore": {
+    "loading": "Loading…",
+    "live": "Featured on /explore",
+    "pending": "Pending review",
+    "cta": "Feature on /explore",
+    "modalTitle": "Feature on /explore",
+    "modalSubtitle": "Your work could inspire the next member. Once approved, this card will appear on /explore tab 3 for new visitors to see.",
+    "titleLabel": "Display title",
+    "titlePlaceholder": "e.g. The clean-eating reset · 7 days",
+    "nicheLabel": "Niche",
+    "nichePlaceholder": "e.g. Nutrition, Trading, Fitness",
+    "metricLabelLabel": "Metric label",
+    "metricLabelPlaceholder": "e.g. Members enrolled",
+    "metricValueLabel": "Metric value",
+    "metricValuePlaceholder": "e.g. 8,420",
+    "colorLabel": "Accent colour",
+    "reviewNote": "Our team reviews every submission before it goes live on /explore. Usually within 24 hours.",
+    "submitBtn": "Submit for review",
+    "submitting": "Submitting…"
   }
 }

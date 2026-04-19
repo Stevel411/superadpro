@@ -98,7 +98,8 @@
     "gridCalculator": "Calculatrice de Grille",
     "incomeChains": "Chaînes de Revenus",
     "shareStory": "Partage ton histoire",
-    "adminStories": "Modération des histoires"
+    "adminStories": "Modération des histoires",
+    "adminShowcase": "Modération du showcase"
   },
   "dashboard": {
     "title": "Tableau de bord",
@@ -3006,7 +3007,15 @@
     "footerCta": "Créer un compte gratuit",
     "daysDay": "jour avant",
     "daysTo": "jours avant",
-    "earningNow": "Gagne maintenant"
+    "earningNow": "Gagne maintenant",
+    "showcaseFilterAll": "Tout",
+    "showcaseFilterBio": "Bio Links",
+    "showcaseFilterLanding": "Landing Pages",
+    "showcaseFilterCampaign": "Campagnes",
+    "showcaseTypeBio": "Bio Link",
+    "showcaseTypeLanding": "Landing Page",
+    "showcaseTypeCampaign": "Campagne",
+    "showcaseVisit": "Visiter"
   },
   "shareStory": {
     "title": "Partage ton histoire",
@@ -3041,5 +3050,25 @@
     "errRequired": "Niche, étape et histoire sont tous obligatoires.",
     "errTooLong": "Le texte de l'histoire est trop long.",
     "errSubmitFailed": "Une erreur est survenue. Merci de réessayer."
+  },
+  "featureExplore": {
+    "loading": "Chargement…",
+    "live": "Mis en avant sur /explore",
+    "pending": "En attente de validation",
+    "cta": "Mettre en avant sur /explore",
+    "modalTitle": "Mettre en avant sur /explore",
+    "modalSubtitle": "Ton travail pourrait inspirer le prochain membre. Une fois validée, cette carte apparaîtra sur l'onglet 3 de /explore pour les nouveaux visiteurs.",
+    "titleLabel": "Titre d'affichage",
+    "titlePlaceholder": "ex. Le reset alimentation saine · 7 jours",
+    "nicheLabel": "Niche",
+    "nichePlaceholder": "ex. Nutrition, Trading, Fitness",
+    "metricLabelLabel": "Intitulé de métrique",
+    "metricLabelPlaceholder": "ex. Membres inscrits",
+    "metricValueLabel": "Valeur de métrique",
+    "metricValuePlaceholder": "ex. 8 420",
+    "colorLabel": "Couleur d'accent",
+    "reviewNote": "Notre équipe examine chaque soumission avant sa mise en ligne sur /explore. En général sous 24 heures.",
+    "submitBtn": "Envoyer pour validation",
+    "submitting": "Envoi…"
   }
 }

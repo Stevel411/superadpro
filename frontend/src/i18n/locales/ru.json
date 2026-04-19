@@ -98,7 +98,8 @@
     "gridCalculator": "Калькулятор Сетки",
     "incomeChains": "Цепочки Дохода",
     "shareStory": "Поделитесь историей",
-    "adminStories": "Модерация историй"
+    "adminStories": "Модерация историй",
+    "adminShowcase": "Модерация витрины"
   },
   "dashboard": {
     "title": "Панель управления",
@@ -3006,7 +3007,15 @@
     "footerCta": "Создать бесплатный аккаунт",
     "daysDay": "день до",
     "daysTo": "дней до",
-    "earningNow": "Зарабатывает сейчас"
+    "earningNow": "Зарабатывает сейчас",
+    "showcaseFilterAll": "Все",
+    "showcaseFilterBio": "Био-ссылки",
+    "showcaseFilterLanding": "Лендинги",
+    "showcaseFilterCampaign": "Кампании",
+    "showcaseTypeBio": "Био-ссылка",
+    "showcaseTypeLanding": "Лендинг",
+    "showcaseTypeCampaign": "Кампания",
+    "showcaseVisit": "Перейти"
   },
   "shareStory": {
     "title": "Поделитесь историей",
@@ -3041,5 +3050,25 @@
     "errRequired": "Ниша, достижение и история — всё обязательно.",
     "errTooLong": "Текст истории слишком длинный.",
     "errSubmitFailed": "Что-то пошло не так. Попробуйте ещё раз."
+  },
+  "featureExplore": {
+    "loading": "Загрузка…",
+    "live": "Размещено на /explore",
+    "pending": "На проверке",
+    "cta": "Разместить на /explore",
+    "modalTitle": "Разместить на /explore",
+    "modalSubtitle": "Ваша работа может вдохновить следующего участника. После одобрения карточка появится на вкладке 3 /explore для новых посетителей.",
+    "titleLabel": "Отображаемый заголовок",
+    "titlePlaceholder": "например: Ресет чистого питания · 7 дней",
+    "nicheLabel": "Ниша",
+    "nichePlaceholder": "например: Питание, Трейдинг, Фитнес",
+    "metricLabelLabel": "Название метрики",
+    "metricLabelPlaceholder": "например: Записанные участники",
+    "metricValueLabel": "Значение метрики",
+    "metricValuePlaceholder": "например: 8 420",
+    "colorLabel": "Акцентный цвет",
+    "reviewNote": "Наша команда проверяет каждую заявку перед публикацией на /explore. Обычно в течение 24 часов.",
+    "submitBtn": "Отправить на проверку",
+    "submitting": "Отправка…"
   }
 }

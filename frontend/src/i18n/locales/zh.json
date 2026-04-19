@@ -98,7 +98,8 @@
     "gridCalculator": "网格计算器",
     "incomeChains": "收入链",
     "shareStory": "分享你的故事",
-    "adminStories": "故事审核"
+    "adminStories": "故事审核",
+    "adminShowcase": "展示审核"
   },
   "dashboard": {
     "title": "仪表板",
@@ -2998,7 +2999,15 @@
     "footerCta": "创建免费账户",
     "daysDay": "天达成",
     "daysTo": "天达成",
-    "earningNow": "当前收入"
+    "earningNow": "当前收入",
+    "showcaseFilterAll": "全部",
+    "showcaseFilterBio": "简介链接",
+    "showcaseFilterLanding": "落地页",
+    "showcaseFilterCampaign": "广告活动",
+    "showcaseTypeBio": "简介链接",
+    "showcaseTypeLanding": "落地页",
+    "showcaseTypeCampaign": "广告活动",
+    "showcaseVisit": "访问"
   },
   "shareStory": {
     "title": "分享你的故事",
@@ -3033,5 +3042,25 @@
     "errRequired": "领域、里程碑和故事都是必填项。",
     "errTooLong": "故事文本过长。",
     "errSubmitFailed": "出错了,请重试。"
+  },
+  "featureExplore": {
+    "loading": "加载中…",
+    "live": "已在 /explore 展示",
+    "pending": "等待审核",
+    "cta": "在 /explore 展示",
+    "modalTitle": "在 /explore 展示",
+    "modalSubtitle": "你的作品可能会启发下一位成员。审核通过后,这张卡片会出现在 /explore 第 3 个标签页,供新访客看到。",
+    "titleLabel": "展示标题",
+    "titlePlaceholder": "如:净食重置 · 7 天",
+    "nicheLabel": "领域",
+    "nichePlaceholder": "如:营养、交易、健身",
+    "metricLabelLabel": "指标标签",
+    "metricLabelPlaceholder": "如:已注册成员",
+    "metricValueLabel": "指标值",
+    "metricValuePlaceholder": "如:8,420",
+    "colorLabel": "强调色",
+    "reviewNote": "我们的团队会在 /explore 上线前审核每个提交。通常 24 小时内完成。",
+    "submitBtn": "提交审核",
+    "submitting": "提交中…"
   }
 }

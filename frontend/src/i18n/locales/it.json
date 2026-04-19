@@ -98,7 +98,8 @@
     "gridCalculator": "Calcolatore Griglia",
     "incomeChains": "Catene di Reddito",
     "shareStory": "Condividi la tua storia",
-    "adminStories": "Moderazione storie"
+    "adminStories": "Moderazione storie",
+    "adminShowcase": "Moderazione showcase"
   },
   "dashboard": {
     "title": "Pannello",
@@ -3006,7 +3007,15 @@
     "footerCta": "Crea un account gratuito",
     "daysDay": "giorno per",
     "daysTo": "giorni per",
-    "earningNow": "Guadagna ora"
+    "earningNow": "Guadagna ora",
+    "showcaseFilterAll": "Tutto",
+    "showcaseFilterBio": "Bio Link",
+    "showcaseFilterLanding": "Landing Page",
+    "showcaseFilterCampaign": "Campagne",
+    "showcaseTypeBio": "Bio Link",
+    "showcaseTypeLanding": "Landing Page",
+    "showcaseTypeCampaign": "Campagna",
+    "showcaseVisit": "Visita"
   },
   "shareStory": {
     "title": "Condividi la tua storia",
@@ -3041,5 +3050,25 @@
     "errRequired": "Nicchia, traguardo e storia sono tutti obbligatori.",
     "errTooLong": "Il testo della storia è troppo lungo.",
     "errSubmitFailed": "Qualcosa è andato storto. Riprova."
+  },
+  "featureExplore": {
+    "loading": "Caricamento…",
+    "live": "In evidenza su /explore",
+    "pending": "In attesa di revisione",
+    "cta": "Metti in evidenza su /explore",
+    "modalTitle": "Metti in evidenza su /explore",
+    "modalSubtitle": "Il tuo lavoro potrebbe ispirare il prossimo membro. Una volta approvata, questa card apparirà nella tab 3 di /explore ai nuovi visitatori.",
+    "titleLabel": "Titolo visualizzato",
+    "titlePlaceholder": "es. Il reset clean eating · 7 giorni",
+    "nicheLabel": "Nicchia",
+    "nichePlaceholder": "es. Nutrizione, Trading, Fitness",
+    "metricLabelLabel": "Etichetta metrica",
+    "metricLabelPlaceholder": "es. Membri iscritti",
+    "metricValueLabel": "Valore metrica",
+    "metricValuePlaceholder": "es. 8.420",
+    "colorLabel": "Colore di accento",
+    "reviewNote": "Il nostro team revisiona ogni invio prima della pubblicazione su /explore. Di solito entro 24 ore.",
+    "submitBtn": "Invia per revisione",
+    "submitting": "Invio…"
   }
 }

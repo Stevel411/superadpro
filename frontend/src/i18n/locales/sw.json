@@ -98,7 +98,8 @@
     "gridCalculator": "Kikokotoo cha Gridi",
     "incomeChains": "Mnyororo wa Mapato",
     "shareStory": "Shiriki Hadithi Yako",
-    "adminStories": "Usimamizi wa Hadithi"
+    "adminStories": "Usimamizi wa Hadithi",
+    "adminShowcase": "Usimamizi wa Showcase"
   },
   "dashboard": {
     "title": "Dashibodi",
@@ -2998,7 +2999,15 @@
     "footerCta": "Unda akaunti bila malipo",
     "daysDay": "siku hadi",
     "daysTo": "siku hadi",
-    "earningNow": "Kupata sasa"
+    "earningNow": "Kupata sasa",
+    "showcaseFilterAll": "Yote",
+    "showcaseFilterBio": "Viungo vya Bio",
+    "showcaseFilterLanding": "Kurasa za Kutua",
+    "showcaseFilterCampaign": "Kampeni",
+    "showcaseTypeBio": "Kiungo cha Bio",
+    "showcaseTypeLanding": "Ukurasa wa Kutua",
+    "showcaseTypeCampaign": "Kampeni",
+    "showcaseVisit": "Tembelea"
   },
   "shareStory": {
     "title": "Shiriki Hadithi Yako",
@@ -3033,5 +3042,25 @@
     "errRequired": "Niche, hatua muhimu na hadithi — zote zinahitajika.",
     "errTooLong": "Maandishi ya hadithi ni marefu sana.",
     "errSubmitFailed": "Kuna tatizo limejitokeza. Tafadhali jaribu tena."
+  },
+  "featureExplore": {
+    "loading": "Inapakia…",
+    "live": "Imeangaziwa kwenye /explore",
+    "pending": "Inasubiri ukaguzi",
+    "cta": "Angazia kwenye /explore",
+    "modalTitle": "Angazia kwenye /explore",
+    "modalSubtitle": "Kazi yako inaweza kuvutia mwanachama ajaye. Ikiidhinishwa, kadi hii itatokea kwenye kichupo cha 3 cha /explore kwa wageni wapya.",
+    "titleLabel": "Kichwa cha onyesho",
+    "titlePlaceholder": "mf. Uboreshaji wa lishe bora · siku 7",
+    "nicheLabel": "Niche",
+    "nichePlaceholder": "mf. Lishe, Biashara, Fitness",
+    "metricLabelLabel": "Lebo ya metriki",
+    "metricLabelPlaceholder": "mf. Wanachama waliojiandikisha",
+    "metricValueLabel": "Thamani ya metriki",
+    "metricValuePlaceholder": "mf. 8,420",
+    "colorLabel": "Rangi ya msisitizo",
+    "reviewNote": "Timu yetu hukagua kila uwasilishaji kabla ya kuchapishwa kwenye /explore. Kawaida ndani ya saa 24.",
+    "submitBtn": "Wasilisha kwa ukaguzi",
+    "submitting": "Inatuma…"
   }
 }

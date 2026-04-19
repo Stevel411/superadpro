@@ -57,6 +57,17 @@ export default function ExplorePage() {
   var storiesLoaded = _storiesLoaded[0];
   var setStoriesLoaded = _storiesLoaded[1];
 
+  // ── Phase 3: Member showcase (lazy-loaded when Showcase tab first activates) ──
+  var _showcase = useState([]);
+  var showcase = _showcase[0];
+  var setShowcase = _showcase[1];
+  var _showcaseFilter = useState('all');
+  var showcaseFilter = _showcaseFilter[0];
+  var setShowcaseFilter = _showcaseFilter[1];
+  var _showcaseLoaded = useState(false);
+  var showcaseLoaded = _showcaseLoaded[0];
+  var setShowcaseLoaded = _showcaseLoaded[1];
+
   // Fetch on mount, re-fetch every 30s
   useEffect(function() {
     var mounted = true;
@@ -94,6 +105,25 @@ export default function ExplorePage() {
     var timer = setInterval(loadStories, 60000);
     return function() { mounted = false; clearInterval(timer); };
   }, [activeTab]);
+
+  // Load showcase when Showcase tab activates OR filter changes; poll every 60s
+  useEffect(function() {
+    if (activeTab !== 'showcase') return undefined;
+    var mounted = true;
+    function loadShowcase() {
+      fetch('/api/public/member-showcase?filter=' + encodeURIComponent(showcaseFilter))
+        .then(function(r) { return r.ok ? r.json() : []; })
+        .then(function(data) {
+          if (!mounted) return;
+          if (Array.isArray(data)) setShowcase(data);
+          setShowcaseLoaded(true);
+        })
+        .catch(function() { if (mounted) setShowcaseLoaded(true); });
+    }
+    loadShowcase();
+    var timer = setInterval(loadShowcase, 60000);
+    return function() { mounted = false; clearInterval(timer); };
+  }, [activeTab, showcaseFilter]);
 
   // ── Derived display values ──
   var hourPaid = stats ? stats.hour_paid : 0;
@@ -329,21 +359,120 @@ export default function ExplorePage() {
             )}
           </div>
 
-          {/* ============ TAB 3: SHOWCASE (empty state for Phase 1) ============ */}
+          {/* ============ TAB 3: SHOWCASE (Phase 3 — live data + filters) ============ */}
           <div className={'tab-panel' + (activeTab === 'showcase' ? ' active' : '')}>
-            <div className="empty-state" style={{minHeight:'360px'}}>
-              <div className="empty-state-icon">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="3" width="7" height="7"/>
-                  <rect x="14" y="3" width="7" height="7"/>
-                  <rect x="14" y="14" width="7" height="7"/>
-                  <rect x="3" y="14" width="7" height="7"/>
-                </svg>
+            {/* Filter chips — shown whenever there's at least one approved showcase row in any filter */}
+            {(tabCounts.showcase > 0 || showcase.length > 0) && (
+              <div className="showcase-filters">
+                {[
+                  { key: 'all',          label: t('explore.showcaseFilterAll', { defaultValue: 'All' }) },
+                  { key: 'bio-link',     label: t('explore.showcaseFilterBio', { defaultValue: 'Bio Links' }) },
+                  { key: 'landing-page', label: t('explore.showcaseFilterLanding', { defaultValue: 'Landing Pages' }) },
+                  { key: 'campaign',     label: t('explore.showcaseFilterCampaign', { defaultValue: 'Campaigns' }) },
+                ].map(function(f) {
+                  return (
+                    <button
+                      key={f.key}
+                      className={'sc-filter' + (showcaseFilter === f.key ? ' active' : '')}
+                      onClick={function() { setShowcaseFilter(f.key); }}
+                    >{f.label}</button>
+                  );
+                })}
               </div>
-              <div className="empty-state-title">{t('explore.showcaseEmptyTitle')}</div>
-              <div className="empty-state-body">{t('explore.showcaseEmptyBody')}</div>
-              <Link to="/register" className="empty-state-cta">{t('explore.showcaseEmptyCta')}</Link>
-            </div>
+            )}
+
+            {showcase && showcase.length > 0 ? (
+              <div className="showcase-grid">
+                {showcase.map(function(s, idx) {
+                  var colour = s.accent_color || 'sky';
+                  var art = s.artifact || {};
+                  var cnum = ((idx % 6) + 1);
+                  var typeBadge = s.artifact_type === 'bio-link' ? t('explore.showcaseTypeBio', { defaultValue: 'Bio Link' })
+                                : s.artifact_type === 'landing-page' ? t('explore.showcaseTypeLanding', { defaultValue: 'Landing Page' })
+                                : t('explore.showcaseTypeCampaign', { defaultValue: 'Campaign' });
+                  // External links (artifact URLs) may be /linkhub/... (internal) or http... (campaign videos)
+                  var href = art.url || null;
+                  var isExternal = href && /^https?:\/\//i.test(href);
+                  return (
+                    <div key={s.id} className="sc-card" data-c={colour}>
+                      <div className="sc-preview">
+                        <div className="sc-type-badge">{typeBadge}</div>
+                        {/* If a real thumbnail exists (campaign YouTube, page og:image), use it as background */}
+                        {art.banner_url && (
+                          <div style={{
+                            position:'absolute', inset:0,
+                            backgroundImage: 'url(' + art.banner_url + ')',
+                            backgroundSize: 'cover', backgroundPosition: 'center',
+                            opacity: 0.5,
+                          }}/>
+                        )}
+                        {/* Abstract mini-preview (matches mockup when no thumbnail) */}
+                        {!art.banner_url && (
+                          <div className="sc-preview-inner">
+                            <div className="sc-mini-avatar"/>
+                            <div className="sc-mini-h"/>
+                            <div className="sc-mini-p"/>
+                            {s.artifact_type === 'bio-link' ? (
+                              <div className="sc-mini-btns">
+                                <div/><div/><div/>
+                              </div>
+                            ) : (
+                              <div className="sc-mini-btn"/>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      <div className="sc-body">
+                        <div className="sc-owner">
+                          <div className={'sc-owner-av c' + cnum}>{(s.display_niche || '?').charAt(0).toUpperCase()}</div>
+                          <div style={{minWidth:0, flex:1}}>
+                            <div className="sc-owner-name">{art.title || s.display_title}</div>
+                            <div className="sc-owner-niche">{s.display_niche}</div>
+                          </div>
+                        </div>
+                        <div className="sc-title">{s.display_title}</div>
+                        {s.metric_label && s.metric_value && (
+                          <div className="sc-metric">
+                            <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:'10px',color:'var(--ink-50)',letterSpacing:'.1em',textTransform:'uppercase'}}>{s.metric_label}</span>
+                            <span style={{fontFamily:"'Sora',sans-serif",fontWeight:900,fontSize:'18px',color:'var(--accent)',letterSpacing:'-.02em'}}>{s.metric_value}</span>
+                          </div>
+                        )}
+                        {href && (
+                          <a
+                            href={href}
+                            target={isExternal ? '_blank' : undefined}
+                            rel={isExternal ? 'noopener noreferrer' : undefined}
+                            style={{
+                              display:'inline-flex', alignItems:'center', justifyContent:'center', gap:6,
+                              padding:'8px 14px', borderRadius:10,
+                              background:'rgba(var(--accent-rgb),.15)', border:'1px solid rgba(var(--accent-rgb),.35)',
+                              color:'var(--accent)', fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:12,
+                              textDecoration:'none', textAlign:'center', marginTop:6,
+                            }}
+                          >
+                            {t('explore.showcaseVisit', { defaultValue: 'Visit' })} →
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="empty-state" style={{minHeight:'360px'}}>
+                <div className="empty-state-icon">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                  </svg>
+                </div>
+                <div className="empty-state-title">{t('explore.showcaseEmptyTitle')}</div>
+                <div className="empty-state-body">{t('explore.showcaseEmptyBody')}</div>
+                <Link to="/register" className="empty-state-cta">{t('explore.showcaseEmptyCta')}</Link>
+              </div>
+            )}
           </div>
 
           <div className="footer-banner">

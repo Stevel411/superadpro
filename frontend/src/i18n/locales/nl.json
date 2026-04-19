@@ -98,7 +98,8 @@
     "gridCalculator": "Grid-calculator",
     "incomeChains": "Inkomstenketens",
     "shareStory": "Deel je verhaal",
-    "adminStories": "Verhaalmoderatie"
+    "adminStories": "Verhaalmoderatie",
+    "adminShowcase": "Showcase-moderatie"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -3006,7 +3007,15 @@
     "footerCta": "Gratis account aanmaken",
     "daysDay": "dag tot",
     "daysTo": "dagen tot",
-    "earningNow": "Verdient nu"
+    "earningNow": "Verdient nu",
+    "showcaseFilterAll": "Alles",
+    "showcaseFilterBio": "Bio-links",
+    "showcaseFilterLanding": "Landingpagina's",
+    "showcaseFilterCampaign": "Campagnes",
+    "showcaseTypeBio": "Bio-link",
+    "showcaseTypeLanding": "Landingpagina",
+    "showcaseTypeCampaign": "Campagne",
+    "showcaseVisit": "Bekijk"
   },
   "shareStory": {
     "title": "Deel je verhaal",
@@ -3041,5 +3050,25 @@
     "errRequired": "Niche, mijlpaal en verhaal zijn allemaal verplicht.",
     "errTooLong": "De verhaaltekst is te lang.",
     "errSubmitFailed": "Er ging iets mis. Probeer het opnieuw."
+  },
+  "featureExplore": {
+    "loading": "Laden…",
+    "live": "Uitgelicht op /explore",
+    "pending": "In beoordeling",
+    "cta": "Uitlichten op /explore",
+    "modalTitle": "Uitlichten op /explore",
+    "modalSubtitle": "Jouw werk kan het volgende lid inspireren. Na goedkeuring verschijnt deze kaart op /explore tab 3 voor nieuwe bezoekers.",
+    "titleLabel": "Weergavetitel",
+    "titlePlaceholder": "bv. De clean-eating reset · 7 dagen",
+    "nicheLabel": "Niche",
+    "nichePlaceholder": "bv. Voeding, Trading, Fitness",
+    "metricLabelLabel": "Metriek-label",
+    "metricLabelPlaceholder": "bv. Ingeschreven leden",
+    "metricValueLabel": "Metriek-waarde",
+    "metricValuePlaceholder": "bv. 8.420",
+    "colorLabel": "Accentkleur",
+    "reviewNote": "Ons team beoordeelt elke inzending voordat deze live gaat op /explore. Meestal binnen 24 uur.",
+    "submitBtn": "Indienen ter beoordeling",
+    "submitting": "Versturen…"
   }
 }

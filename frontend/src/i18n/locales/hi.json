@@ -98,7 +98,8 @@
     "gridCalculator": "ग्रिड कैलकुलेटर",
     "incomeChains": "आय श्रृंखला",
     "shareStory": "अपनी कहानी साझा करें",
-    "adminStories": "कहानी मॉडरेशन"
+    "adminStories": "कहानी मॉडरेशन",
+    "adminShowcase": "शोकेस मॉडरेशन"
   },
   "dashboard": {
     "title": "डैशबोर्ड",
@@ -2998,7 +2999,15 @@
     "footerCta": "मुफ़्त खाता बनाएँ",
     "daysDay": "दिन तक",
     "daysTo": "दिन तक",
-    "earningNow": "अभी कमाई"
+    "earningNow": "अभी कमाई",
+    "showcaseFilterAll": "सभी",
+    "showcaseFilterBio": "बायो लिंक",
+    "showcaseFilterLanding": "लैंडिंग पेज",
+    "showcaseFilterCampaign": "कैंपेन",
+    "showcaseTypeBio": "बायो लिंक",
+    "showcaseTypeLanding": "लैंडिंग पेज",
+    "showcaseTypeCampaign": "कैंपेन",
+    "showcaseVisit": "देखें"
   },
   "shareStory": {
     "title": "अपनी कहानी साझा करें",
@@ -3033,5 +3042,25 @@
     "errRequired": "निच, माइलस्टोन और कहानी — सभी आवश्यक हैं।",
     "errTooLong": "कहानी का टेक्स्ट बहुत लंबा है।",
     "errSubmitFailed": "कुछ गलत हुआ। कृपया पुनः प्रयास करें।"
+  },
+  "featureExplore": {
+    "loading": "लोड हो रहा है…",
+    "live": "/explore पर फ़ीचर किया गया",
+    "pending": "समीक्षा लंबित",
+    "cta": "/explore पर फ़ीचर करें",
+    "modalTitle": "/explore पर फ़ीचर करें",
+    "modalSubtitle": "आपका काम अगले सदस्य को प्रेरित कर सकता है। स्वीकृति के बाद यह कार्ड /explore टैब 3 पर नए विज़िटरों को दिखेगा।",
+    "titleLabel": "डिस्प्ले टाइटल",
+    "titlePlaceholder": "जैसे क्लीन-ईटिंग रीसेट · 7 दिन",
+    "nicheLabel": "निच",
+    "nichePlaceholder": "जैसे न्यूट्रिशन, ट्रेडिंग, फ़िटनेस",
+    "metricLabelLabel": "मीट्रिक लेबल",
+    "metricLabelPlaceholder": "जैसे दाख़िल हुए सदस्य",
+    "metricValueLabel": "मीट्रिक वैल्यू",
+    "metricValuePlaceholder": "जैसे 8,420",
+    "colorLabel": "एक्सेंट रंग",
+    "reviewNote": "हमारी टीम /explore पर लाइव होने से पहले हर सबमिशन की समीक्षा करती है। आमतौर पर 24 घंटे में।",
+    "submitBtn": "समीक्षा के लिए भेजें",
+    "submitting": "भेजा जा रहा है…"
   }
 }

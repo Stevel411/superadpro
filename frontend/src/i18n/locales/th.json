@@ -98,7 +98,8 @@
     "gridCalculator": "เครื่องคำนวณกริด",
     "incomeChains": "ห่วงโซ่รายได้",
     "shareStory": "แบ่งปันเรื่องราวของคุณ",
-    "adminStories": "การตรวจสอบเรื่องราว"
+    "adminStories": "การตรวจสอบเรื่องราว",
+    "adminShowcase": "ตรวจสอบโชว์เคส"
   },
   "dashboard": {
     "title": "แดชบอร์ด",
@@ -2998,7 +2999,15 @@
     "footerCta": "สร้างบัญชีฟรี",
     "daysDay": "วันจน",
     "daysTo": "วันจน",
-    "earningNow": "รายได้ตอนนี้"
+    "earningNow": "รายได้ตอนนี้",
+    "showcaseFilterAll": "ทั้งหมด",
+    "showcaseFilterBio": "ไบโอลิงก์",
+    "showcaseFilterLanding": "แลนดิ้งเพจ",
+    "showcaseFilterCampaign": "แคมเปญ",
+    "showcaseTypeBio": "ไบโอลิงก์",
+    "showcaseTypeLanding": "แลนดิ้งเพจ",
+    "showcaseTypeCampaign": "แคมเปญ",
+    "showcaseVisit": "เข้าชม"
   },
   "shareStory": {
     "title": "แบ่งปันเรื่องราวของคุณ",
@@ -3033,5 +3042,25 @@
     "errRequired": "ช่องทาง, ไมล์สโตน และเรื่องราว — ทั้งหมดจำเป็น",
     "errTooLong": "ข้อความเรื่องราวยาวเกินไป",
     "errSubmitFailed": "มีบางอย่างผิดพลาด กรุณาลองอีกครั้ง"
+  },
+  "featureExplore": {
+    "loading": "กำลังโหลด…",
+    "live": "แสดงบน /explore",
+    "pending": "รอการตรวจสอบ",
+    "cta": "แสดงบน /explore",
+    "modalTitle": "แสดงบน /explore",
+    "modalSubtitle": "งานของคุณอาจสร้างแรงบันดาลใจให้สมาชิกคนถัดไป เมื่ออนุมัติแล้ว การ์ดนี้จะปรากฏในแท็บ 3 ของ /explore ให้ผู้เยี่ยมชมใหม่ได้เห็น",
+    "titleLabel": "ชื่อที่แสดง",
+    "titlePlaceholder": "เช่น รีเซ็ตการกินสะอาด · 7 วัน",
+    "nicheLabel": "ช่องทาง",
+    "nichePlaceholder": "เช่น โภชนาการ เทรด ฟิตเนส",
+    "metricLabelLabel": "ป้ายชื่อเมตริก",
+    "metricLabelPlaceholder": "เช่น สมาชิกที่ลงทะเบียน",
+    "metricValueLabel": "ค่าเมตริก",
+    "metricValuePlaceholder": "เช่น 8,420",
+    "colorLabel": "สีเน้น",
+    "reviewNote": "ทีมงานตรวจสอบทุกการส่งก่อนปรากฏบน /explore มักภายใน 24 ชั่วโมง",
+    "submitBtn": "ส่งเพื่อตรวจสอบ",
+    "submitting": "กำลังส่ง…"
   }
 }

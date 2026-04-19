@@ -98,7 +98,8 @@
     "gridCalculator": "グリッド計算機",
     "incomeChains": "収入チェーン",
     "shareStory": "あなたのストーリーをシェア",
-    "adminStories": "ストーリー審査"
+    "adminStories": "ストーリー審査",
+    "adminShowcase": "ショーケース審査"
   },
   "dashboard": {
     "title": "ダッシュボード",
@@ -2998,7 +2999,15 @@
     "footerCta": "無料アカウント作成",
     "daysDay": "日で",
     "daysTo": "日で",
-    "earningNow": "現在の収益"
+    "earningNow": "現在の収益",
+    "showcaseFilterAll": "すべて",
+    "showcaseFilterBio": "バイオリンク",
+    "showcaseFilterLanding": "ランディングページ",
+    "showcaseFilterCampaign": "キャンペーン",
+    "showcaseTypeBio": "バイオリンク",
+    "showcaseTypeLanding": "ランディングページ",
+    "showcaseTypeCampaign": "キャンペーン",
+    "showcaseVisit": "見る"
   },
   "shareStory": {
     "title": "あなたのストーリーをシェア",
@@ -3033,5 +3042,25 @@
     "errRequired": "ニッチ、マイルストーン、ストーリーのすべてが必須です。",
     "errTooLong": "ストーリーのテキストが長すぎます。",
     "errSubmitFailed": "問題が発生しました。もう一度お試しください。"
+  },
+  "featureExplore": {
+    "loading": "読み込み中…",
+    "live": "/explore に掲載中",
+    "pending": "レビュー待ち",
+    "cta": "/explore に掲載する",
+    "modalTitle": "/explore に掲載する",
+    "modalSubtitle": "あなたの作品が次のメンバーを刺激するかもしれません。承認されると /explore タブ3に新しい訪問者向けに表示されます。",
+    "titleLabel": "表示タイトル",
+    "titlePlaceholder": "例：クリーンイーティング・リセット · 7日間",
+    "nicheLabel": "ニッチ",
+    "nichePlaceholder": "例：栄養、トレーディング、フィットネス",
+    "metricLabelLabel": "指標ラベル",
+    "metricLabelPlaceholder": "例：登録メンバー数",
+    "metricValueLabel": "指標の値",
+    "metricValuePlaceholder": "例：8,420",
+    "colorLabel": "アクセントカラー",
+    "reviewNote": "チームが /explore での公開前にすべての投稿を審査します。通常24時間以内。",
+    "submitBtn": "審査に送る",
+    "submitting": "送信中…"
   }
 }

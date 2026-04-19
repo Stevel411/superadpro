@@ -98,7 +98,8 @@
     "gridCalculator": "Calculadora de Grid",
     "incomeChains": "Cadeias de Renda",
     "shareStory": "Compartilhe sua história",
-    "adminStories": "Moderação de histórias"
+    "adminStories": "Moderação de histórias",
+    "adminShowcase": "Moderação do showcase"
   },
   "dashboard": {
     "title": "Painel",
@@ -3006,7 +3007,15 @@
     "footerCta": "Criar conta grátis",
     "daysDay": "dia para",
     "daysTo": "dias para",
-    "earningNow": "Ganhando agora"
+    "earningNow": "Ganhando agora",
+    "showcaseFilterAll": "Tudo",
+    "showcaseFilterBio": "Bio Links",
+    "showcaseFilterLanding": "Landing Pages",
+    "showcaseFilterCampaign": "Campanhas",
+    "showcaseTypeBio": "Bio Link",
+    "showcaseTypeLanding": "Landing Page",
+    "showcaseTypeCampaign": "Campanha",
+    "showcaseVisit": "Visitar"
   },
   "shareStory": {
     "title": "Compartilhe sua história",
@@ -3041,5 +3050,25 @@
     "errRequired": "Nicho, marco e história — todos obrigatórios.",
     "errTooLong": "O texto da história está muito longo.",
     "errSubmitFailed": "Algo deu errado. Tente novamente."
+  },
+  "featureExplore": {
+    "loading": "Carregando…",
+    "live": "Em destaque em /explore",
+    "pending": "Em análise",
+    "cta": "Destacar em /explore",
+    "modalTitle": "Destacar em /explore",
+    "modalSubtitle": "Seu trabalho pode inspirar o próximo membro. Depois de aprovado, este card aparecerá na aba 3 do /explore para novos visitantes.",
+    "titleLabel": "Título de exibição",
+    "titlePlaceholder": "ex. O reset de alimentação limpa · 7 dias",
+    "nicheLabel": "Nicho",
+    "nichePlaceholder": "ex. Nutrição, Trading, Fitness",
+    "metricLabelLabel": "Rótulo de métrica",
+    "metricLabelPlaceholder": "ex. Membros inscritos",
+    "metricValueLabel": "Valor da métrica",
+    "metricValuePlaceholder": "ex. 8.420",
+    "colorLabel": "Cor de destaque",
+    "reviewNote": "Nosso time analisa toda submissão antes de ir ao ar em /explore. Normalmente em 24 horas.",
+    "submitBtn": "Enviar para análise",
+    "submitting": "Enviando…"
   }
 }

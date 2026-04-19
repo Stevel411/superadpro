@@ -98,7 +98,8 @@
     "gridCalculator": "그리드 계산기",
     "incomeChains": "수입 체인",
     "shareStory": "스토리 공유",
-    "adminStories": "스토리 검토"
+    "adminStories": "스토리 검토",
+    "adminShowcase": "쇼케이스 검토"
   },
   "dashboard": {
     "title": "대시보드",
@@ -2998,7 +2999,15 @@
     "footerCta": "무료 계정 만들기",
     "daysDay": "일",
     "daysTo": "일",
-    "earningNow": "현재 수익"
+    "earningNow": "현재 수익",
+    "showcaseFilterAll": "전체",
+    "showcaseFilterBio": "바이오 링크",
+    "showcaseFilterLanding": "랜딩 페이지",
+    "showcaseFilterCampaign": "캠페인",
+    "showcaseTypeBio": "바이오 링크",
+    "showcaseTypeLanding": "랜딩 페이지",
+    "showcaseTypeCampaign": "캠페인",
+    "showcaseVisit": "방문"
   },
   "shareStory": {
     "title": "스토리 공유",
@@ -3033,5 +3042,25 @@
     "errRequired": "니치, 마일스톤, 스토리 모두 필수입니다.",
     "errTooLong": "스토리 텍스트가 너무 깁니다.",
     "errSubmitFailed": "문제가 발생했습니다. 다시 시도해 주세요."
+  },
+  "featureExplore": {
+    "loading": "로딩 중…",
+    "live": "/explore에 노출 중",
+    "pending": "검토 대기",
+    "cta": "/explore에 노출하기",
+    "modalTitle": "/explore에 노출하기",
+    "modalSubtitle": "당신의 작품이 다음 멤버에게 영감이 될 수 있습니다. 승인되면 이 카드는 /explore 탭 3에 새 방문자에게 노출됩니다.",
+    "titleLabel": "노출 제목",
+    "titlePlaceholder": "예: 클린 이팅 리셋 · 7일",
+    "nicheLabel": "니치",
+    "nichePlaceholder": "예: 영양, 트레이딩, 피트니스",
+    "metricLabelLabel": "지표 라벨",
+    "metricLabelPlaceholder": "예: 등록한 멤버",
+    "metricValueLabel": "지표 값",
+    "metricValuePlaceholder": "예: 8,420",
+    "colorLabel": "강조 색상",
+    "reviewNote": "팀이 /explore 게시 전에 모든 제출물을 검토합니다. 보통 24시간 이내.",
+    "submitBtn": "검토 요청",
+    "submitting": "전송 중…"
   }
 }

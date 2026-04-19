@@ -98,7 +98,8 @@
     "gridCalculator": "Calculadora de Cuadrícula",
     "incomeChains": "Cadenas de Ingresos",
     "shareStory": "Comparte tu historia",
-    "adminStories": "Moderación de historias"
+    "adminStories": "Moderación de historias",
+    "adminShowcase": "Moderación de showcase"
   },
   "dashboard": {
     "title": "Panel",
@@ -3006,7 +3007,15 @@
     "footerCta": "Crear cuenta gratuita",
     "daysDay": "día hasta",
     "daysTo": "días hasta",
-    "earningNow": "Ganando ahora"
+    "earningNow": "Ganando ahora",
+    "showcaseFilterAll": "Todo",
+    "showcaseFilterBio": "Bio Links",
+    "showcaseFilterLanding": "Landing Pages",
+    "showcaseFilterCampaign": "Campañas",
+    "showcaseTypeBio": "Bio Link",
+    "showcaseTypeLanding": "Landing Page",
+    "showcaseTypeCampaign": "Campaña",
+    "showcaseVisit": "Visitar"
   },
   "shareStory": {
     "title": "Comparte tu historia",
@@ -3041,5 +3050,25 @@
     "errRequired": "Nicho, hito e historia son todos obligatorios.",
     "errTooLong": "El texto de la historia es demasiado largo.",
     "errSubmitFailed": "Algo salió mal. Por favor, inténtalo de nuevo."
+  },
+  "featureExplore": {
+    "loading": "Cargando…",
+    "live": "Destacado en /explore",
+    "pending": "En revisión",
+    "cta": "Destacar en /explore",
+    "modalTitle": "Destacar en /explore",
+    "modalSubtitle": "Tu trabajo podría inspirar al próximo miembro. Una vez aprobada, esta tarjeta aparecerá en la pestaña 3 de /explore para los nuevos visitantes.",
+    "titleLabel": "Título de visualización",
+    "titlePlaceholder": "p. ej. El reset de alimentación limpia · 7 días",
+    "nicheLabel": "Nicho",
+    "nichePlaceholder": "p. ej. Nutrición, Trading, Fitness",
+    "metricLabelLabel": "Etiqueta de métrica",
+    "metricLabelPlaceholder": "p. ej. Miembros inscritos",
+    "metricValueLabel": "Valor de métrica",
+    "metricValuePlaceholder": "p. ej. 8.420",
+    "colorLabel": "Color de acento",
+    "reviewNote": "Nuestro equipo revisa cada envío antes de que se publique en /explore. Normalmente en 24 horas.",
+    "submitBtn": "Enviar para revisión",
+    "submitting": "Enviando…"
   }
 }

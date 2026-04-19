@@ -98,7 +98,8 @@
     "gridCalculator": "Kalkulator Grid",
     "incomeChains": "Rantai Pendapatan",
     "shareStory": "Bagikan Ceritamu",
-    "adminStories": "Moderasi Cerita"
+    "adminStories": "Moderasi Cerita",
+    "adminShowcase": "Moderasi Showcase"
   },
   "dashboard": {
     "title": "Dasbor",
@@ -2998,7 +2999,15 @@
     "footerCta": "Buat akun gratis",
     "daysDay": "hari hingga",
     "daysTo": "hari hingga",
-    "earningNow": "Menghasilkan sekarang"
+    "earningNow": "Menghasilkan sekarang",
+    "showcaseFilterAll": "Semua",
+    "showcaseFilterBio": "Bio Link",
+    "showcaseFilterLanding": "Landing Page",
+    "showcaseFilterCampaign": "Kampanye",
+    "showcaseTypeBio": "Bio Link",
+    "showcaseTypeLanding": "Landing Page",
+    "showcaseTypeCampaign": "Kampanye",
+    "showcaseVisit": "Kunjungi"
   },
   "shareStory": {
     "title": "Bagikan Ceritamu",
@@ -3033,5 +3042,25 @@
     "errRequired": "Niche, pencapaian, dan cerita semua wajib diisi.",
     "errTooLong": "Teks cerita terlalu panjang.",
     "errSubmitFailed": "Terjadi kesalahan. Silakan coba lagi."
+  },
+  "featureExplore": {
+    "loading": "Memuat…",
+    "live": "Ditampilkan di /explore",
+    "pending": "Menunggu review",
+    "cta": "Tampilkan di /explore",
+    "modalTitle": "Tampilkan di /explore",
+    "modalSubtitle": "Karyamu bisa menginspirasi anggota berikutnya. Setelah disetujui, kartu ini muncul di tab 3 /explore untuk pengunjung baru.",
+    "titleLabel": "Judul tampil",
+    "titlePlaceholder": "mis. The clean-eating reset · 7 hari",
+    "nicheLabel": "Niche",
+    "nichePlaceholder": "mis. Nutrisi, Trading, Fitness",
+    "metricLabelLabel": "Label metrik",
+    "metricLabelPlaceholder": "mis. Anggota terdaftar",
+    "metricValueLabel": "Nilai metrik",
+    "metricValuePlaceholder": "mis. 8.420",
+    "colorLabel": "Warna aksen",
+    "reviewNote": "Tim kami meninjau setiap pengajuan sebelum tayang di /explore. Biasanya dalam 24 jam.",
+    "submitBtn": "Ajukan untuk review",
+    "submitting": "Mengirim…"
   }
 }

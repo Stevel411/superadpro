@@ -98,7 +98,8 @@
     "gridCalculator": "Grid-Rechner",
     "incomeChains": "Einkommensketten",
     "shareStory": "Teile deine Geschichte",
-    "adminStories": "Story-Moderation"
+    "adminStories": "Story-Moderation",
+    "adminShowcase": "Showcase-Moderation"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -3006,7 +3007,15 @@
     "footerCta": "Kostenloses Konto erstellen",
     "daysDay": "Tag bis",
     "daysTo": "Tage bis",
-    "earningNow": "Verdient jetzt"
+    "earningNow": "Verdient jetzt",
+    "showcaseFilterAll": "Alle",
+    "showcaseFilterBio": "Bio-Links",
+    "showcaseFilterLanding": "Landingpages",
+    "showcaseFilterCampaign": "Kampagnen",
+    "showcaseTypeBio": "Bio-Link",
+    "showcaseTypeLanding": "Landingpage",
+    "showcaseTypeCampaign": "Kampagne",
+    "showcaseVisit": "Ansehen"
   },
   "shareStory": {
     "title": "Teile deine Geschichte",
@@ -3041,5 +3050,25 @@
     "errRequired": "Nische, Meilenstein und Geschichte sind alle Pflichtfelder.",
     "errTooLong": "Der Geschichtstext ist zu lang.",
     "errSubmitFailed": "Etwas ist schiefgelaufen. Bitte versuche es erneut."
+  },
+  "featureExplore": {
+    "loading": "Wird geladen…",
+    "live": "Auf /explore vorgestellt",
+    "pending": "In Prüfung",
+    "cta": "Auf /explore vorstellen",
+    "modalTitle": "Auf /explore vorstellen",
+    "modalSubtitle": "Deine Arbeit könnte das nächste Mitglied inspirieren. Nach Freigabe erscheint diese Karte auf /explore Tab 3 für neue Besucher.",
+    "titleLabel": "Anzeigetitel",
+    "titlePlaceholder": "z. B. Der Clean-Eating-Reset · 7 Tage",
+    "nicheLabel": "Nische",
+    "nichePlaceholder": "z. B. Ernährung, Trading, Fitness",
+    "metricLabelLabel": "Kennzahl-Bezeichnung",
+    "metricLabelPlaceholder": "z. B. Eingeschriebene Mitglieder",
+    "metricValueLabel": "Kennzahl-Wert",
+    "metricValuePlaceholder": "z. B. 8.420",
+    "colorLabel": "Akzentfarbe",
+    "reviewNote": "Unser Team prüft jede Einreichung, bevor sie auf /explore live geht. Meist innerhalb von 24 Stunden.",
+    "submitBtn": "Zur Prüfung einreichen",
+    "submitting": "Wird gesendet…"
   }
 }

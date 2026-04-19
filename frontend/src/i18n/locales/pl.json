@@ -98,7 +98,8 @@
     "gridCalculator": "Kalkulator Siatki",
     "incomeChains": "Łańcuchy Dochodu",
     "shareStory": "Podziel się historią",
-    "adminStories": "Moderacja historii"
+    "adminStories": "Moderacja historii",
+    "adminShowcase": "Moderacja showcase"
   },
   "dashboard": {
     "title": "Panel",
@@ -2998,7 +2999,15 @@
     "footerCta": "Utwórz darmowe konto",
     "daysDay": "dzień do",
     "daysTo": "dni do",
-    "earningNow": "Zarabia teraz"
+    "earningNow": "Zarabia teraz",
+    "showcaseFilterAll": "Wszystko",
+    "showcaseFilterBio": "Bio Linki",
+    "showcaseFilterLanding": "Strony lądowania",
+    "showcaseFilterCampaign": "Kampanie",
+    "showcaseTypeBio": "Bio Link",
+    "showcaseTypeLanding": "Strona lądowania",
+    "showcaseTypeCampaign": "Kampania",
+    "showcaseVisit": "Odwiedź"
   },
   "shareStory": {
     "title": "Podziel się historią",
@@ -3033,5 +3042,25 @@
     "errRequired": "Nisza, kamień milowy i historia — wszystkie są wymagane.",
     "errTooLong": "Tekst historii jest za długi.",
     "errSubmitFailed": "Coś poszło nie tak. Spróbuj ponownie."
+  },
+  "featureExplore": {
+    "loading": "Ładowanie…",
+    "live": "Wyróżnione na /explore",
+    "pending": "Oczekuje na weryfikację",
+    "cta": "Wyróżnij na /explore",
+    "modalTitle": "Wyróżnij na /explore",
+    "modalSubtitle": "Twoja praca może zainspirować kolejnego członka. Po zatwierdzeniu ta karta pojawi się w zakładce 3 na /explore dla nowych odwiedzających.",
+    "titleLabel": "Tytuł wyświetlany",
+    "titlePlaceholder": "np. Reset czystego odżywiania · 7 dni",
+    "nicheLabel": "Nisza",
+    "nichePlaceholder": "np. Odżywianie, Trading, Fitness",
+    "metricLabelLabel": "Etykieta metryki",
+    "metricLabelPlaceholder": "np. Zapisani członkowie",
+    "metricValueLabel": "Wartość metryki",
+    "metricValuePlaceholder": "np. 8 420",
+    "colorLabel": "Kolor akcentu",
+    "reviewNote": "Nasz zespół sprawdza każde zgłoszenie przed publikacją na /explore. Zwykle w ciągu 24 godzin.",
+    "submitBtn": "Wyślij do weryfikacji",
+    "submitting": "Wysyłanie…"
   }
 }

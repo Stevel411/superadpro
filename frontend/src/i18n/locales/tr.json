@@ -98,7 +98,8 @@
     "gridCalculator": "Grid Hesaplayıcı",
     "incomeChains": "Gelir Zincirleri",
     "shareStory": "Hikâyeni Paylaş",
-    "adminStories": "Hikâye Moderasyonu"
+    "adminStories": "Hikâye Moderasyonu",
+    "adminShowcase": "Showcase Moderasyonu"
   },
   "dashboard": {
     "title": "Gösterge Paneli",
@@ -2998,7 +2999,15 @@
     "footerCta": "Ücretsiz hesap oluştur",
     "daysDay": "gün için",
     "daysTo": "gün için",
-    "earningNow": "Şu an kazanıyor"
+    "earningNow": "Şu an kazanıyor",
+    "showcaseFilterAll": "Tümü",
+    "showcaseFilterBio": "Bio Linkler",
+    "showcaseFilterLanding": "Açılış Sayfaları",
+    "showcaseFilterCampaign": "Kampanyalar",
+    "showcaseTypeBio": "Bio Link",
+    "showcaseTypeLanding": "Açılış Sayfası",
+    "showcaseTypeCampaign": "Kampanya",
+    "showcaseVisit": "Ziyaret"
   },
   "shareStory": {
     "title": "Hikâyeni Paylaş",
@@ -3033,5 +3042,25 @@
     "errRequired": "Niş, kilometre taşı ve hikâye — hepsi zorunlu.",
     "errTooLong": "Hikâye metni çok uzun.",
     "errSubmitFailed": "Bir şeyler yanlış gitti. Lütfen tekrar dene."
+  },
+  "featureExplore": {
+    "loading": "Yükleniyor…",
+    "live": "/explore'da öne çıkarıldı",
+    "pending": "İnceleme bekliyor",
+    "cta": "/explore'da öne çıkar",
+    "modalTitle": "/explore'da öne çıkar",
+    "modalSubtitle": "Çalışman bir sonraki üyeye ilham olabilir. Onaylandığında bu kart /explore'un 3. sekmesinde yeni ziyaretçilere görünür.",
+    "titleLabel": "Görünen başlık",
+    "titlePlaceholder": "ör. Temiz beslenme resetleme · 7 gün",
+    "nicheLabel": "Niş",
+    "nichePlaceholder": "ör. Beslenme, Trading, Fitness",
+    "metricLabelLabel": "Metrik etiketi",
+    "metricLabelPlaceholder": "ör. Kayıtlı üyeler",
+    "metricValueLabel": "Metrik değeri",
+    "metricValuePlaceholder": "ör. 8.420",
+    "colorLabel": "Vurgu rengi",
+    "reviewNote": "Ekibimiz, /explore'da yayına girmeden önce her gönderiyi inceler. Genellikle 24 saat içinde.",
+    "submitBtn": "İncelemeye gönder",
+    "submitting": "Gönderiliyor…"
   }
 }

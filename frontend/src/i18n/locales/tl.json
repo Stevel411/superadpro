@@ -98,7 +98,8 @@
     "gridCalculator": "Grid Calculator",
     "incomeChains": "Mga Kadena ng Kita",
     "shareStory": "Ibahagi ang Kwento Mo",
-    "adminStories": "Pag-moderate ng Kwento"
+    "adminStories": "Pag-moderate ng Kwento",
+    "adminShowcase": "Pag-moderate ng Showcase"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -2998,7 +2999,15 @@
     "footerCta": "Gumawa ng libreng account",
     "daysDay": "araw para sa",
     "daysTo": "araw para sa",
-    "earningNow": "Kumikita ngayon"
+    "earningNow": "Kumikita ngayon",
+    "showcaseFilterAll": "Lahat",
+    "showcaseFilterBio": "Bio Links",
+    "showcaseFilterLanding": "Landing Pages",
+    "showcaseFilterCampaign": "Mga Kampanya",
+    "showcaseTypeBio": "Bio Link",
+    "showcaseTypeLanding": "Landing Page",
+    "showcaseTypeCampaign": "Kampanya",
+    "showcaseVisit": "Pumunta"
   },
   "shareStory": {
     "title": "Ibahagi ang Kwento Mo",
@@ -3033,5 +3042,25 @@
     "errRequired": "Niche, milestone, at kwento — lahat ay required.",
     "errTooLong": "Masyadong mahaba ang teksto ng kwento.",
     "errSubmitFailed": "May nangyaring mali. Pakisubukang muli."
+  },
+  "featureExplore": {
+    "loading": "Naglo-load…",
+    "live": "Naka-feature sa /explore",
+    "pending": "Nasa review",
+    "cta": "I-feature sa /explore",
+    "modalTitle": "I-feature sa /explore",
+    "modalSubtitle": "Ang trabaho mo ay pwedeng makapagbigay-inspirasyon sa susunod na miyembro. Kapag naaprubahan, lalabas ang card na ito sa tab 3 ng /explore para sa mga bagong bisita.",
+    "titleLabel": "Display na pamagat",
+    "titlePlaceholder": "hal. The clean-eating reset · 7 araw",
+    "nicheLabel": "Niche",
+    "nichePlaceholder": "hal. Nutrisyon, Trading, Fitness",
+    "metricLabelLabel": "Label ng metric",
+    "metricLabelPlaceholder": "hal. Mga enrolled na miyembro",
+    "metricValueLabel": "Halaga ng metric",
+    "metricValuePlaceholder": "hal. 8,420",
+    "colorLabel": "Accent color",
+    "reviewNote": "Nirireview ng team namin ang lahat ng submission bago ma-live sa /explore. Karaniwang sa loob ng 24 oras.",
+    "submitBtn": "Isumite para sa review",
+    "submitting": "Isinusumite…"
   }
 }

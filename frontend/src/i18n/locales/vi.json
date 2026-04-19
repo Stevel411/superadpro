@@ -98,7 +98,8 @@
     "gridCalculator": "Máy tính lưới",
     "incomeChains": "Chuỗi thu nhập",
     "shareStory": "Chia sẻ câu chuyện",
-    "adminStories": "Kiểm duyệt câu chuyện"
+    "adminStories": "Kiểm duyệt câu chuyện",
+    "adminShowcase": "Kiểm duyệt Showcase"
   },
   "dashboard": {
     "title": "Bảng điều khiển",
@@ -2998,7 +2999,15 @@
     "footerCta": "Tạo tài khoản miễn phí",
     "daysDay": "ngày để",
     "daysTo": "ngày để",
-    "earningNow": "Đang kiếm"
+    "earningNow": "Đang kiếm",
+    "showcaseFilterAll": "Tất cả",
+    "showcaseFilterBio": "Bio Link",
+    "showcaseFilterLanding": "Landing Page",
+    "showcaseFilterCampaign": "Chiến dịch",
+    "showcaseTypeBio": "Bio Link",
+    "showcaseTypeLanding": "Landing Page",
+    "showcaseTypeCampaign": "Chiến dịch",
+    "showcaseVisit": "Xem"
   },
   "shareStory": {
     "title": "Chia sẻ câu chuyện của bạn",
@@ -3033,5 +3042,25 @@
     "errRequired": "Niche, cột mốc và câu chuyện — tất cả đều bắt buộc.",
     "errTooLong": "Nội dung câu chuyện quá dài.",
     "errSubmitFailed": "Có lỗi xảy ra. Vui lòng thử lại."
+  },
+  "featureExplore": {
+    "loading": "Đang tải…",
+    "live": "Được giới thiệu trên /explore",
+    "pending": "Đang chờ duyệt",
+    "cta": "Giới thiệu trên /explore",
+    "modalTitle": "Giới thiệu trên /explore",
+    "modalSubtitle": "Công việc của bạn có thể truyền cảm hứng cho thành viên tiếp theo. Sau khi duyệt, thẻ này sẽ xuất hiện ở tab 3 của /explore cho khách mới.",
+    "titleLabel": "Tiêu đề hiển thị",
+    "titlePlaceholder": "vd: Reset ăn sạch · 7 ngày",
+    "nicheLabel": "Niche",
+    "nichePlaceholder": "vd: Dinh dưỡng, Trading, Fitness",
+    "metricLabelLabel": "Nhãn số liệu",
+    "metricLabelPlaceholder": "vd: Thành viên đăng ký",
+    "metricValueLabel": "Giá trị số liệu",
+    "metricValuePlaceholder": "vd: 8.420",
+    "colorLabel": "Màu điểm nhấn",
+    "reviewNote": "Đội ngũ của chúng tôi duyệt mọi bài gửi trước khi lên sóng trên /explore. Thường trong 24 giờ.",
+    "submitBtn": "Gửi để duyệt",
+    "submitting": "Đang gửi…"
   }
 }
