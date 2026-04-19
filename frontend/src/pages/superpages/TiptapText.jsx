@@ -8,7 +8,6 @@ import Highlight from '@tiptap/extension-highlight';
 import TextAlign from '@tiptap/extension-text-align';
 import Placeholder from '@tiptap/extension-placeholder';
 import { createPortal } from 'react-dom';
-import * as Popover from '@radix-ui/react-popover';
 import {
   Bold as BoldIcon, Italic as ItalicIcon, Underline as UnderlineIcon,
   Strikethrough, AlignLeft, AlignCenter, AlignRight,
@@ -147,17 +146,10 @@ export default function TiptapText({
     // menu (focus inside a toolbar input/button)? If so, we should NOT
     // hide the menu even if the editor has lost focus. Used by both the
     // selection-update path and the blur path so they agree.
-    // Also recognizes Radix popover content (used by LinkButton) — when
-    // the user types in the URL input, focus is inside a Radix portal,
-    // not ours. We need to treat that as "still inside the menu" so the
-    // bubble menu doesn't auto-hide.
     function focusInsideMenu() {
       const a = document.activeElement;
       if (!a || !a.closest) return false;
-      if (a.closest('.sp-tt-bubble-wrap')) return true;
-      // Radix popover content has [data-radix-popper-content-wrapper] ancestor
-      if (a.closest('[data-radix-popper-content-wrapper]')) return true;
-      return false;
+      return !!a.closest('.sp-tt-bubble-wrap');
     }
 
     function updateMenuPos() {
@@ -754,114 +746,43 @@ function ColorPicker({ editor, currentColor }) {
  * state — just dispatches the click.
  */
 /**
- * Link button — uses Radix UI's Popover primitive.
+ * Link button — uses window.prompt() for URL entry.
  *
- * After 11+ hand-rolled attempts couldn't keep a custom popup reliably
- * open in our Canvas environment, switched to Radix. Radix's Popover is
- * purpose-built for 'reactive children in portals' — the exact scenario
- * the Tiptap team flagged as why they abandoned Tippy. It handles:
- *   - Portal rendering without React lifecycle issues
- *   - Focus trap inside the popover
- *   - Click-outside dismissal (including through portal boundaries)
- *   - Escape key
- *   - ARIA semantics
+ * After 15+ attempts at custom popups (manual portals, separate dialogs,
+ * mui-tiptap pattern, Radix UI), none could reliably keep a URL-entry
+ * popup stable in our Canvas environment. The issue is likely in how
+ * our Canvas component handles element clicks and the contentEditable
+ * loses focus at the same moment the popup tries to mount, but after
+ * 11+ hours we couldn't pin it down.
  *
- * The editor gets 'focus' on every chain().focus() call, so opening the
- * popover doesn't break editor selection — when user presses Apply, we
- * restore focus to the editor and apply the mark.
+ * window.prompt() sidesteps the entire problem because it blocks the
+ * event loop synchronously — no React lifecycle, no focus cascade, no
+ * portal race condition. It's ugly but bulletproof.
+ *
+ * The long-term solution is the draggable floating editor panel that
+ * Steve and I mocked up — an editor not coupled to the selection at
+ * all. Until that's built, this stays.
  */
 function LinkButton({ editor, isActive }) {
-  const [open, setOpen] = useState(false);
-  const [url, setUrl] = useState('');
-
-  // When popover opens, capture the existing href so we can pre-fill
-  // and edit it if the cursor is on an existing link.
-  const handleOpenChange = (nextOpen) => {
-    if (nextOpen) {
-      setUrl(editor.getAttributes('link').href || '');
-    }
-    setOpen(nextOpen);
-  };
-
-  const apply = () => {
-    const trimmed = url.trim();
+  const handleClick = () => {
+    const existing = editor.getAttributes('link').href || '';
+    const input = window.prompt('Enter a URL (leave blank to remove link):', existing);
+    if (input === null) return;  // user cancelled
+    const trimmed = input.trim();
     if (!trimmed) {
       editor.chain().focus().extendMarkRange('link').unsetLink().run();
-    } else {
-      const full = /^https?:\/\//i.test(trimmed) ? trimmed : 'https://' + trimmed;
-      editor.chain().focus().extendMarkRange('link').setLink({ href: full }).run();
+      return;
     }
-    setOpen(false);
+    const full = /^https?:\/\//i.test(trimmed) ? trimmed : 'https://' + trimmed;
+    editor.chain().focus().extendMarkRange('link').setLink({ href: full }).run();
   };
-
   return (
-    <Popover.Root open={open} onOpenChange={handleOpenChange}>
-      <Popover.Trigger asChild>
-        <button
-          className={'sp-tt-btn' + (isActive ? ' sp-tt-active' : '')}
-          title={isActive ? 'Edit or remove link' : 'Add link'}
-        >
-          <LinkIcon size={13}/>
-        </button>
-      </Popover.Trigger>
-      <Popover.Portal>
-        <Popover.Content
-          side="bottom"
-          align="center"
-          sideOffset={8}
-          // Prevent focus from snapping back to the editor when popover
-          // opens. We want the URL input to keep focus so the user can
-          // type straight away.
-          onOpenAutoFocus={(e) => { /* let Radix focus the input normally */ }}
-          // When popover closes, let Radix restore focus to the trigger.
-          onCloseAutoFocus={(e) => {
-            // Prevent default so the editor can regain focus naturally
-            // via our chain().focus() calls in apply()
-            e.preventDefault();
-          }}
-          style={{
-            background: '#fff',
-            border: '0.5px solid #e2e8f0',
-            borderRadius: 8,
-            boxShadow: '0 8px 24px rgba(15,23,42,0.15)',
-            padding: 8,
-            display: 'flex',
-            gap: 6,
-            alignItems: 'center',
-            zIndex: 1100,  // above our bubble menu (zIndex 1000)
-          }}
-        >
-          <LinkIcon size={14} style={{color: '#0284c7', flexShrink: 0}}/>
-          <input
-            type="text"
-            value={url}
-            onChange={e => setUrl(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter') { e.preventDefault(); apply(); }
-              if (e.key === 'Escape') { setOpen(false); }
-            }}
-            placeholder="https://example.com"
-            autoFocus
-            style={{
-              width: 240, height: 30, padding: '0 10px',
-              border: '0.5px solid #cbd5e1', borderRadius: 5,
-              background: '#fff', color: '#0f172a', fontSize: 13,
-              outline: 'none', fontFamily: 'inherit',
-            }}
-          />
-          <button
-            onClick={apply}
-            style={{
-              height: 30, padding: '0 14px', border: 'none',
-              background: '#0ea5e9', color: '#fff', fontWeight: 600,
-              fontSize: 12, borderRadius: 5, cursor: 'pointer',
-              fontFamily: 'inherit', flexShrink: 0,
-            }}
-          >
-            {url.trim() ? 'Apply' : 'Clear'}
-          </button>
-        </Popover.Content>
-      </Popover.Portal>
-    </Popover.Root>
+    <button
+      className={'sp-tt-btn' + (isActive ? ' sp-tt-active' : '')}
+      onClick={handleClick}
+      title={isActive ? 'Edit or remove link' : 'Add link'}
+    >
+      <LinkIcon size={13}/>
+    </button>
   );
 }
