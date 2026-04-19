@@ -339,9 +339,13 @@ export default function TiptapText({
             left: menuPos ? menuPos.x : -9999,
             transform: 'translate(-50%, calc(-100% - 8px))',
             zIndex: 1000,
-            visibility: menuPos ? 'visible' : 'hidden',
-            pointerEvents: menuPos ? 'auto' : 'none',
-            opacity: menuPos ? 1 : 0,
+            // Hide when there's no selection, OR when the link dialog is
+            // open (cleaner UX — user is focused on URL entry, menu
+            // isn't needed and would otherwise sit visually below the
+            // dialog creating clutter).
+            visibility: (menuPos && !linkDialog.open) ? 'visible' : 'hidden',
+            pointerEvents: (menuPos && !linkDialog.open) ? 'auto' : 'none',
+            opacity: (menuPos && !linkDialog.open) ? 1 : 0,
             transition: 'opacity 0.12s',
           }}
           onMouseDown={(e) => e.preventDefault()}
@@ -450,14 +454,13 @@ export default function TiptapText({
           className="sp-tt-link-dialog"
           style={{
             position: 'fixed',
-            // Position just below where the bubble menu was. Menu is
-            // centred at linkDialog.pos.x and sits above it with
-            // transform translate(-50%, calc(-100% - 8px)). Our dialog
-            // appears in the same horizontal position but a bit below
-            // the text, so it doesn't overlap the menu itself.
-            top: linkDialog.pos.y + 36,
+            // Position ABOVE the text (where the bubble menu was). The
+            // bubble menu is hidden while this dialog is open, so the
+            // dialog effectively replaces it. y - 50 puts the dialog's
+            // bottom edge ~8px above the top of the selected text.
+            top: linkDialog.pos.y - 50,
             left: linkDialog.pos.x,
-            transform: 'translateX(-50%)',
+            transform: 'translate(-50%, -100%)',
             zIndex: 1001,
             background: '#fff',
             border: '0.5px solid #e2e8f0',
