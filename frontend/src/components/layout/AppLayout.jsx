@@ -17,7 +17,7 @@ function useIsMobile() {
 
 var MOBILE_TABS = ['/watch', '/dashboard', '/wallet', '/'];
 
-export default function AppLayout({ title, subtitle, topbarActions, children, bgStyle }) {
+export default function AppLayout({ title, subtitle, topbarActions, children, bgStyle, fullHeight }) {
   var [sidebarOpen, setSidebarOpen] = useState(false);
   var closeSidebar = useCallback(function() { setSidebarOpen(false); }, []);
   var openSidebar = useCallback(function() { setSidebarOpen(true); }, []);
@@ -85,7 +85,10 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
   var desktopOffset = collapsed ? 72 : 224;
 
   return (
-    <div className="flex min-h-screen">
+    <div
+      className={fullHeight ? 'flex' : 'flex min-h-screen'}
+      style={fullHeight ? { height: '100vh', overflow: 'hidden' } : undefined}
+    >
 
       {/* Mobile overlay — tap to close sidebar */}
       {sidebarOpen && (
@@ -101,14 +104,20 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
                               firstView={firstView} />}
       {isMobile && sidebarOpen && <Sidebar open={true} onClose={closeSidebar} collapsed={false} />}
 
-      {/* Main content */}
-      <div className="flex-1 flex flex-col min-w-0" style={{marginLeft:'var(--sidebar-offset,0)'}}>
+      {/* Main content — in fullHeight mode, lock to parent's 100vh so main's
+          overflow:hidden is authoritative and child scroll containers own the scroll */}
+      <div className="flex-1 flex flex-col min-w-0"
+        style={Object.assign(
+          { marginLeft: 'var(--sidebar-offset,0)' },
+          fullHeight ? { height: '100vh', minHeight: 0 } : {}
+        )}>
         <Topbar title={title} subtitle={subtitle} onMenuClick={openSidebar}>
           {topbarActions}
         </Topbar>
         <main className="flex-1 overflow-y-auto" style={Object.assign(
           {background:'#f0f3f9', padding: isMobile ? '16px' : '24px'},
           isMobileTabPage ? {paddingBottom: 80} : {},
+          fullHeight ? { minHeight: 0 } : {},
           bgStyle || {}
         )}>
           {children}

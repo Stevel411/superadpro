@@ -256,6 +256,7 @@ export default function SuperPagesEditor() {
     <AppLayout
       title={pageSettings.title || t('superPagesEditor.untitledPage', { defaultValue: 'Untitled page' })}
       subtitle={pageSettings.slug ? '/' + pageSettings.slug : undefined}
+      fullHeight
       bgStyle={{ padding: 0, background: '#f8fafc', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowY: 'hidden' }}
     >
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, fontFamily: 'DM Sans,sans-serif' }}>

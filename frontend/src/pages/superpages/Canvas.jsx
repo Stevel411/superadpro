@@ -407,6 +407,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         onDrop={handleDrop}
         style={{
           width: CANVAS_WIDTH, minHeight: canvasHeight, position: 'relative',
+          flexShrink: 0, // critical — elements use absolute px coords assuming CANVAS_WIDTH
           borderRadius: 10,
           boxShadow: '0 1px 3px rgba(15,23,42,0.04), 0 8px 32px rgba(15,23,42,0.06), 0 20px 60px rgba(15,23,42,0.04)',
           border: '1px solid #e2e8f0',
@@ -446,13 +447,15 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
             <div style={{ pointerEvents: editingId === el.id ? 'auto' : 'none', width: '100%', height: '100%' }}>{renderInner(el)}</div>
 
             {/* Toolbar */}
-            <div className="cel-bar" style={{
-              position: 'absolute', top: -32, left: '50%', transform: 'translateX(-50%)',
-              display: el.id === selId ? 'flex' : 'none',
-              alignItems: 'center', gap: 2, padding: '3px 4px',
-              background: '#fff', borderRadius: 8, boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
-              zIndex: 20, whiteSpace: 'nowrap',
-            }}>
+            <div className="cel-bar"
+              onMouseDown={e => e.stopPropagation()}
+              style={{
+                position: 'absolute', top: -32, left: '50%', transform: 'translateX(-50%)',
+                display: el.id === selId ? 'flex' : 'none',
+                alignItems: 'center', gap: 2, padding: '3px 4px',
+                background: '#fff', borderRadius: 8, boxShadow: '0 2px 12px rgba(0,0,0,0.15)',
+                zIndex: 20, whiteSpace: 'nowrap',
+              }}>
               {!['spacer', 'divider', 'box'].includes(el.type) && (
                 <>
                   <button onClick={e => { e.stopPropagation(); if (EDITABLE_TYPES.includes(el.type)) { startInlineEdit(el.id); } else { onEditElement(el.id); } }}

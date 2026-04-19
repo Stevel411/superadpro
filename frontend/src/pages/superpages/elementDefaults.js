@@ -3,8 +3,8 @@
 
 export const ELEMENT_TYPES = {
   // ── Text ──
-  heading: { w: 1000, h: 55, txt: 'Your Heading Here', s: { fontFamily: 'Sora,sans-serif', fontWeight: '900', fontSize: '36px', color: '#fff', textAlign: 'center' } },
-  text: { w: 900, h: 50, txt: 'Your text content goes here. Click to edit.', s: { fontFamily: 'Outfit,sans-serif', fontSize: '15px', color: '#94a3b8', textAlign: 'left', lineHeight: '1.8' } },
+  heading: { w: 1000, h: 55, txt: 'Your Heading Here', s: { fontFamily: 'Sora,sans-serif', fontWeight: '900', fontSize: '36px', color: '#0f172a', textAlign: 'center' } },
+  text: { w: 900, h: 50, txt: 'Your text content goes here. Click to edit.', s: { fontFamily: 'Outfit,sans-serif', fontSize: '15px', color: '#475569', textAlign: 'left', lineHeight: '1.8' } },
   label: { w: 200, h: 30, txt: '⭐ PREMIUM', s: { fontFamily: 'DM Sans,sans-serif', fontWeight: '700', fontSize: '12px', color: '#fbbf24', textAlign: 'center', background: 'rgba(251,191,36,0.1)', borderRadius: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid rgba(251,191,36,0.2)' } },
 
   // ── Media ──
