@@ -48,6 +48,11 @@ export default function TiptapText({
   const [aiMenuOpen, setAiMenuOpen] = useState(false);
   const [aiCustom, setAiCustom] = useState('');
   const wrapperRef = useRef(null);
+  // Tracks the last HTML this editor emitted via onUpdate. Used by the
+  // sync-effect below to avoid an infinite loop: when the parent's html
+  // prop reflects a value that originated FROM this editor, we skip the
+  // setContent call.
+  const lastEmittedRef = useRef(html || '');
 
   const editor = useEditor({
     extensions: [
@@ -78,7 +83,9 @@ export default function TiptapText({
     // selection changes. Without this, hitting Bold doesn't visually toggle.
     shouldRerenderOnTransaction: true,
     onUpdate: ({ editor }) => {
-      if (onChange) onChange(editor.getHTML());
+      const h = editor.getHTML();
+      lastEmittedRef.current = h;
+      if (onChange) onChange(h);
     },
     onBlur: () => {
       // Defer slightly so clicks on the bubble menu don't fire a premature
@@ -96,14 +103,21 @@ export default function TiptapText({
 
   // Sync external html changes back into the editor if they diverge.
   // Typically the editor owns the content, but if the parent updates el.txt
-  // programmatically (eg AI rewrite, undo), we want the editor to reflect it.
+  // programmatically (eg AI rewrite replacement, undo from outside), we want
+  // the editor to reflect it.
+  //
+  // IMPORTANT: we only react to html values DIFFERENT from the last one we
+  // ourselves emitted via onUpdate. Without that check, this effect would
+  // fire infinitely: Tiptap normalises HTML on load (spaces, attribute order,
+  // self-closing tags), so `html !== editor.getHTML()` was true even when
+  // the two represented the same content, and setContent kept triggering
+  // React re-renders. React error #185.
   useEffect(() => {
     if (!editor) return;
-    const current = editor.getHTML();
-    if (html !== undefined && html !== current) {
-      editor.commands.setContent(html, false); // `false` = don't emit update
-    }
-    // We intentionally don't list `editor` in deps — it's stable
+    if (html === lastEmittedRef.current) return;
+    // External change — push it into the editor.
+    lastEmittedRef.current = html || '';
+    editor.commands.setContent(html || '', { emitUpdate: false });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [html]);
 
