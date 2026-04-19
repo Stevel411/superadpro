@@ -124,40 +124,40 @@ export default function TiptapText({
   useEffect(() => {
     if (!editor) return;
 
+    // eslint-disable-next-line no-console
+    console.log('[TiptapText v6af4e2f2] mounted, editor ready');
+
     function updateMenuPos() {
       if (!editor || editor.isDestroyed) { setMenuPos(null); return; }
       const { from, to, empty } = editor.state.selection;
+      // eslint-disable-next-line no-console
+      console.log('[TiptapText] selectionUpdate from=', from, 'to=', to, 'empty=', empty, 'hasFocus=', editor.view.hasFocus());
       // Hide when no text is selected or editor lost focus
       if (empty || !editor.view.hasFocus()) { setMenuPos(null); return; }
 
       try {
         const startCoords = editor.view.coordsAtPos(from);
         const endCoords = editor.view.coordsAtPos(to);
-        // Anchor the menu above the midpoint of the selection's first line.
-        // We use the smaller top coord (higher on screen) in case selection
-        // spans multiple lines.
         const top = Math.min(startCoords.top, endCoords.top);
         const leftMid = (startCoords.left + endCoords.left) / 2;
+        // eslint-disable-next-line no-console
+        console.log('[TiptapText] coords start=', startCoords, 'end=', endCoords, '→ menuPos=', { x: leftMid, y: top });
         setMenuPos({ x: leftMid, y: top });
       } catch (err) {
-        // coordsAtPos can throw if the position is out of bounds during
-        // a transaction — ignore and retry on the next update.
+        // eslint-disable-next-line no-console
+        console.warn('[TiptapText] coordsAtPos threw:', err);
         setMenuPos(null);
       }
     }
 
-    // Fire on every selection change + when editor gains/loses focus.
     editor.on('selectionUpdate', updateMenuPos);
     editor.on('focus', updateMenuPos);
     editor.on('blur', () => {
-      // Delay hiding so that if the blur was caused by clicking a menu
-      // button, onUpdate will re-focus the editor before we hide.
       setTimeout(() => {
         if (!editor || editor.isDestroyed) return;
         if (!editor.view.hasFocus()) setMenuPos(null);
       }, 100);
     });
-    // Reposition on window scroll/resize so the menu stays glued to the text
     window.addEventListener('scroll', updateMenuPos, { passive: true, capture: true });
     window.addEventListener('resize', updateMenuPos);
 
@@ -232,6 +232,7 @@ export default function TiptapText({
           onMouseDown={(e) => e.preventDefault()}
         >
           <div className="sp-tt-bubble">
+            <span style={{fontSize:9,color:'#94a3b8',marginRight:4,userSelect:'none'}}>v6af-dbg</span>
             <BubBtn active={tbState?.bold} onClick={() => editor.chain().focus().toggleBold().run()} title="Bold (Ctrl+B)">
               <BoldIcon size={13}/>
             </BubBtn>
