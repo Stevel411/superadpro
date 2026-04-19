@@ -282,8 +282,8 @@ var CSS_FOR_ADVERTISERS = `
 .for-advertisers-page .float-nav{position:fixed;top:28px;right:32px;z-index:100;display:flex;align-items:center;gap:10px}
 .for-advertisers-page .float-nav-link{padding:10px 18px;border-radius:100px;background:rgba(11,18,48,.5);border:1px solid var(--ink-10);backdrop-filter:blur(18px) saturate(180%);font-family:'Sora',sans-serif;font-size:13px;font-weight:600;color:var(--ink);text-decoration:none;letter-spacing:-.005em;transition:all .25s;box-shadow:0 4px 20px rgba(0,0,0,.3)}
 .for-advertisers-page .float-nav-link:hover{background:rgba(11,18,48,.7);border-color:var(--ink-20);transform:translateY(-2px)}
-.for-advertisers-page .float-nav-cta{padding:10px 20px;border-radius:100px;background:var(--ink);color:var(--cobalt-deepest);font-family:'Sora',sans-serif;font-size:13px;font-weight:700;text-decoration:none;transition:all .25s;box-shadow:0 8px 32px rgba(250,251,255,.25)}
-.for-advertisers-page .float-nav-cta:hover{transform:translateY(-2px);box-shadow:0 10px 40px rgba(250,251,255,.4)}
+.for-advertisers-page .float-nav-cta{padding:10px 20px;border-radius:100px;background:rgba(11,18,48,.5);border:1px solid rgba(56,189,248,.35);backdrop-filter:blur(18px) saturate(180%);font-family:'Sora',sans-serif;font-size:13px;font-weight:700;color:var(--sky-bright);text-decoration:none;letter-spacing:-.005em;transition:all .25s;box-shadow:0 4px 20px rgba(0,0,0,.3),0 0 24px rgba(56,189,248,.18)}
+.for-advertisers-page .float-nav-cta:hover{background:rgba(11,18,48,.7);border-color:rgba(56,189,248,.6);transform:translateY(-2px);box-shadow:0 6px 28px rgba(0,0,0,.4),0 0 40px rgba(56,189,248,.35)}
 
 /* Language pill */
 .for-advertisers-page .float-lang-wrap{position:relative}

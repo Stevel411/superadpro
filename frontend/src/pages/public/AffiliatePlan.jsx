@@ -470,18 +470,23 @@ transform: translateY(-2px);
 .affiliate-plan-page .float-nav-cta {
 padding: 10px 20px;
 border-radius: 100px;
-background: var(--ink);
-color: var(--cobalt-deepest);
+background: rgba(11, 18, 48, 0.5);
+border: 1px solid rgba(56, 189, 248, 0.35);
+backdrop-filter: blur(18px) saturate(180%);
 font-family: 'Sora', sans-serif;
 font-size: 13px;
 font-weight: 700;
+color: var(--sky-bright);
 text-decoration: none;
+letter-spacing: -0.005em;
 transition: all 0.25s;
-box-shadow: 0 8px 32px rgba(250, 251, 255, 0.25);
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 24px rgba(56, 189, 248, 0.18);
 }
 .affiliate-plan-page .float-nav-cta:hover {
+background: rgba(11, 18, 48, 0.7);
+border-color: rgba(56, 189, 248, 0.6);
 transform: translateY(-2px);
-box-shadow: 0 10px 40px rgba(250, 251, 255, 0.4);
+box-shadow: 0 6px 28px rgba(0, 0, 0, 0.4), 0 0 40px rgba(56, 189, 248, 0.35);
 }
 .affiliate-plan-page .float-brand {
 position: fixed;
