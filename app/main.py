@@ -1288,6 +1288,491 @@ async def admin_api_story_reorder(
     return {"success": True, "id": row.id, "sort_order": so}
 
 
+# ═════════════════════════════════════════════════════════════════════════
+# /explore Phase 3: Member Showcase — opt-in featured artifacts.
+# Three artifact types: bio-link (LinkHubProfile), landing-page (FunnelPage),
+# campaign (VideoCampaign). NO course type — platform course model is owner-
+# authored only; members buy and resell, they don't create courses.
+# ═════════════════════════════════════════════════════════════════════════
+_member_showcase_cache = {"key": None, "ts": 0.0, "data": None}
+
+SHOWCASE_ARTIFACT_TYPES = ("bio-link", "landing-page", "campaign")
+SHOWCASE_COLOURS = ("sky", "indigo", "amber", "green", "pink")
+
+
+def _fetch_artifact_for_ownership(db, artifact_type, artifact_id, user_id):
+    """Return the artifact row if owned by user_id AND eligible for showcase,
+    otherwise None. Eligibility varies by type:
+      bio-link:    must be published
+      landing-page: must be status='published'
+      campaign:    must have views_delivered >= 1
+    """
+    if artifact_type == "bio-link":
+        row = db.query(LinkHubProfile).filter(
+            LinkHubProfile.id == artifact_id,
+            LinkHubProfile.user_id == user_id,
+        ).first()
+        if row and row.is_published:
+            return row
+        return None
+
+    if artifact_type == "landing-page":
+        row = db.query(FunnelPage).filter(
+            FunnelPage.id == artifact_id,
+            FunnelPage.user_id == user_id,
+        ).first()
+        if row and (row.status or "") == "published":
+            return row
+        return None
+
+    if artifact_type == "campaign":
+        row = db.query(VideoCampaign).filter(
+            VideoCampaign.id == artifact_id,
+            VideoCampaign.user_id == user_id,
+        ).first()
+        if row and (row.views_delivered or 0) >= 1:
+            return row
+        return None
+
+    return None
+
+
+def _fetch_artifact_display(db, artifact_type, artifact_id):
+    """Dereference an artifact to a small dict of display fields.
+    Used by the admin preview and by /api/public/member-showcase so cards
+    can render with the real title/thumb/slug without a second fetch client-side.
+    Returns None if the artifact has been deleted since showcase submission."""
+    if artifact_type == "bio-link":
+        row = db.query(LinkHubProfile).filter(LinkHubProfile.id == artifact_id).first()
+        if not row:
+            return None
+        return {
+            "title":      row.display_name or "",
+            "subtitle":   (row.bio or "")[:120],
+            "avatar_url": row.avatar_r2_url or None,
+            "banner_url": row.banner_r2_url or None,
+            "url":        f"/linkhub/{row.user_id}",  # frontend routes to /linkhub/:user_id
+            "extra":      {"views": int(row.total_views or 0)},
+        }
+
+    if artifact_type == "landing-page":
+        row = db.query(FunnelPage).filter(FunnelPage.id == artifact_id).first()
+        if not row:
+            return None
+        return {
+            "title":      row.title or "",
+            "subtitle":   (row.headline or row.subheadline or row.meta_description or "")[:160],
+            "avatar_url": None,
+            "banner_url": row.og_image_url or row.image_url or None,
+            "url":        f"/p/{row.slug}" if row.slug else None,
+            "extra":      {"template": row.template_type or "opportunity"},
+        }
+
+    if artifact_type == "campaign":
+        row = db.query(VideoCampaign).filter(VideoCampaign.id == artifact_id).first()
+        if not row:
+            return None
+        # Thumbnail: YouTube-derived URL if platform is youtube and video_id present.
+        thumb = None
+        if (row.platform or "").lower() == "youtube" and row.video_id:
+            thumb = f"https://i.ytimg.com/vi/{row.video_id}/hqdefault.jpg"
+        return {
+            "title":      row.title or "",
+            "subtitle":   (row.description or "")[:160],
+            "avatar_url": None,
+            "banner_url": thumb,
+            "url":        row.video_url or row.embed_url or None,
+            "extra":      {
+                "platform": row.platform or "",
+                "views":    int(row.views_delivered or 0),
+                "category": row.category or "",
+            },
+        }
+
+    return None
+
+
+@app.get("/api/member/showcase/eligible")
+def api_member_showcase_eligible(request: Request, db: Session = Depends(get_db)):
+    """Returns the user's eligible artifacts per type, so the editor
+    pages can show/hide the 'Feature on /explore' button accurately.
+    Also returns already-submitted showcase rows so the UI can show state."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # LinkHub — members have 0 or 1 profile
+    lh = db.query(LinkHubProfile).filter(
+        LinkHubProfile.user_id == user.id,
+        LinkHubProfile.is_published == True,
+    ).first()
+    bio_links = [{"id": lh.id, "title": lh.display_name or "My LinkHub"}] if lh else []
+
+    # SuperPages — potentially many
+    pages = db.query(FunnelPage).filter(
+        FunnelPage.user_id == user.id,
+        FunnelPage.status == "published",
+    ).order_by(FunnelPage.updated_at.desc()).limit(50).all()
+    landing_pages = [{"id": p.id, "title": p.title or "(Untitled page)"} for p in pages]
+
+    # Campaigns — only those with ≥1 view delivered
+    camps = db.query(VideoCampaign).filter(
+        VideoCampaign.user_id == user.id,
+        VideoCampaign.views_delivered >= 1,
+        VideoCampaign.status != "deleted",
+    ).order_by(VideoCampaign.created_at.desc()).limit(50).all()
+    campaigns = [{"id": c.id, "title": c.title or "(Untitled campaign)", "views": int(c.views_delivered or 0)} for c in camps]
+
+    # Existing showcase rows for this user — so UI can mark "already submitted"
+    existing = db.query(MemberShowcase).filter(MemberShowcase.user_id == user.id).all()
+    submitted = {}
+    for r in existing:
+        submitted[f"{r.artifact_type}:{r.artifact_id}"] = {
+            "id": r.id,
+            "approved": bool(r.approved),
+            "created_at": r.created_at.isoformat() if r.created_at else None,
+        }
+
+    return {
+        "bio_links":      bio_links,
+        "landing_pages":  landing_pages,
+        "campaigns":      campaigns,
+        "submitted":      submitted,
+    }
+
+
+@app.post("/api/member/showcase")
+async def api_member_submit_showcase(request: Request, db: Session = Depends(get_db)):
+    """Member opts their artifact into /explore tab 3. Admin must approve before it goes public.
+    Gates: auth + ≥1 paid commission + ownership + artifact eligibility + one submission
+    per artifact (a member may have multiple showcase rows, but not duplicates for the same artifact)."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    from sqlalchemy import func
+
+    # Gate: ≥1 paid commission (same rule as stories — member has tangible stake in platform)
+    paid_count = db.query(func.count(Commission.id)).filter(
+        Commission.to_user_id == user.id,
+        Commission.status == "paid",
+        Commission.amount_usdt > 0,
+    ).scalar() or 0
+    if paid_count < 1:
+        return JSONResponse({
+            "error": "You need at least one paid commission before featuring work on /explore."
+        }, status_code=403)
+
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON"}, status_code=400)
+
+    artifact_type = (body.get("artifact_type") or "").strip().lower()
+    if artifact_type not in SHOWCASE_ARTIFACT_TYPES:
+        return JSONResponse({"error": "Invalid artifact_type"}, status_code=400)
+    try:
+        artifact_id = int(body.get("artifact_id"))
+    except (TypeError, ValueError):
+        return JSONResponse({"error": "Invalid artifact_id"}, status_code=400)
+
+    # Ownership + eligibility check
+    artifact = _fetch_artifact_for_ownership(db, artifact_type, artifact_id, user.id)
+    if not artifact:
+        return JSONResponse({
+            "error": "We couldn't find that item, or it isn't eligible yet (bio links + landing pages must be published, campaigns must have at least 1 view)."
+        }, status_code=404)
+
+    # One submission per artifact
+    existing = db.query(MemberShowcase).filter(
+        MemberShowcase.user_id == user.id,
+        MemberShowcase.artifact_type == artifact_type,
+        MemberShowcase.artifact_id == artifact_id,
+    ).first()
+    if existing:
+        return JSONResponse({
+            "error": "You already submitted this one. Check your showcase list for status."
+        }, status_code=409)
+
+    # Form fields
+    display_title = (body.get("display_title") or "").strip()[:160]
+    display_niche = (body.get("display_niche") or "").strip()[:80]
+    metric_label  = (body.get("metric_label") or "").strip()[:60]
+    metric_value  = (body.get("metric_value") or "").strip()[:40]
+    accent_color  = (body.get("accent_color") or "sky").strip().lower()
+    if accent_color not in SHOWCASE_COLOURS:
+        accent_color = "sky"
+
+    if not display_title or not display_niche:
+        return JSONResponse({
+            "error": "Title and niche are both required."
+        }, status_code=400)
+
+    row = MemberShowcase(
+        user_id       = user.id,
+        artifact_type = artifact_type,
+        artifact_id   = artifact_id,
+        display_title = display_title,
+        display_niche = display_niche,
+        metric_label  = metric_label or None,
+        metric_value  = metric_value or None,
+        accent_color  = accent_color,
+        approved      = False,
+        sort_order    = 0,
+    )
+    db.add(row)
+    db.commit()
+    db.refresh(row)
+    return {"success": True, "showcase_id": row.id}
+
+
+@app.get("/api/member/showcase/mine")
+def api_member_my_showcase(request: Request, db: Session = Depends(get_db)):
+    """Returns current user's showcase submissions with status."""
+    user = get_current_user(request, db)
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    rows = db.query(MemberShowcase).filter(
+        MemberShowcase.user_id == user.id
+    ).order_by(MemberShowcase.created_at.desc()).all()
+    return {
+        "showcase": [{
+            "id":            r.id,
+            "artifact_type": r.artifact_type,
+            "artifact_id":   r.artifact_id,
+            "display_title": r.display_title,
+            "display_niche": r.display_niche,
+            "metric_label":  r.metric_label,
+            "metric_value":  r.metric_value,
+            "accent_color":  r.accent_color or "sky",
+            "approved":      bool(r.approved),
+            "created_at":    r.created_at.isoformat() if r.created_at else None,
+        } for r in rows],
+    }
+
+
+@app.get("/api/public/member-showcase")
+def api_public_member_showcase(filter: str = "all", db: Session = Depends(get_db)):
+    """Public /explore tab 3 feed. Approved rows only, 60s cache keyed per filter.
+    Privacy: we expose only display fields + the dereferenced artifact preview.
+    Never exposes user_id / username / email."""
+    import time as _time
+
+    f = (filter or "all").lower()
+    if f not in ("all",) + SHOWCASE_ARTIFACT_TYPES:
+        f = "all"
+
+    now_ts = _time.time()
+    if (_member_showcase_cache["key"] == f
+            and now_ts - _member_showcase_cache["ts"] < 60
+            and _member_showcase_cache["data"] is not None):
+        return _member_showcase_cache["data"]
+
+    q = db.query(MemberShowcase).filter(MemberShowcase.approved == True)
+    if f != "all":
+        q = q.filter(MemberShowcase.artifact_type == f)
+    rows = q.order_by(MemberShowcase.sort_order.asc(), MemberShowcase.created_at.desc()).limit(60).all()
+
+    result = []
+    for r in rows:
+        art = _fetch_artifact_display(db, r.artifact_type, r.artifact_id)
+        # If the underlying artifact was deleted, skip (don't render a broken card).
+        if art is None:
+            continue
+        result.append({
+            "id":            r.id,
+            "artifact_type": r.artifact_type,
+            "display_title": r.display_title,
+            "display_niche": r.display_niche,
+            "metric_label":  r.metric_label,
+            "metric_value":  r.metric_value,
+            "accent_color":  r.accent_color or "sky",
+            "created_at":    r.created_at.isoformat() if r.created_at else None,
+            "artifact":      art,
+        })
+
+    _member_showcase_cache["key"] = f
+    _member_showcase_cache["ts"] = now_ts
+    _member_showcase_cache["data"] = result
+    return result
+
+
+def _invalidate_showcase_cache():
+    """Called after any admin mutation so the public feed refreshes immediately."""
+    _member_showcase_cache["key"] = None
+    _member_showcase_cache["ts"] = 0.0
+    _member_showcase_cache["data"] = None
+
+
+# ── /explore Phase 3: Admin moderation endpoints ─────────────────────────
+def _serialise_showcase_admin(row, user_map, db):
+    u = user_map.get(row.user_id) if row.user_id else None
+    artifact_preview = _fetch_artifact_display(db, row.artifact_type, row.artifact_id)
+    return {
+        "id":             row.id,
+        "user_id":        row.user_id,
+        "username":       (u.username if u else None),
+        "artifact_type":  row.artifact_type,
+        "artifact_id":    row.artifact_id,
+        "artifact_alive": artifact_preview is not None,
+        "artifact":       artifact_preview,
+        "display_title":  row.display_title,
+        "display_niche":  row.display_niche,
+        "metric_label":   row.metric_label,
+        "metric_value":   row.metric_value,
+        "accent_color":   row.accent_color or "sky",
+        "approved":       bool(row.approved),
+        "sort_order":     row.sort_order or 0,
+        "created_at":     row.created_at.isoformat() if row.created_at else None,
+        "updated_at":     row.updated_at.isoformat() if row.updated_at else None,
+    }
+
+
+@app.get("/admin/api/showcase")
+def admin_api_showcase(
+    status: str = "pending",
+    artifact_type: str = "",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """List showcase rows for admin moderation.
+    status = pending | approved | all (default pending).
+    artifact_type = bio-link | landing-page | campaign (optional)."""
+    _require_admin(user)
+    from sqlalchemy import func
+
+    q = db.query(MemberShowcase)
+    if status == "pending":
+        q = q.filter(MemberShowcase.approved == False)
+        q = q.order_by(MemberShowcase.created_at.asc())
+    elif status == "approved":
+        q = q.filter(MemberShowcase.approved == True)
+        q = q.order_by(MemberShowcase.sort_order.asc(), MemberShowcase.created_at.desc())
+    else:
+        q = q.order_by(MemberShowcase.approved.desc(), MemberShowcase.sort_order.asc(), MemberShowcase.created_at.desc())
+
+    if artifact_type in SHOWCASE_ARTIFACT_TYPES:
+        q = q.filter(MemberShowcase.artifact_type == artifact_type)
+
+    rows = q.limit(500).all()
+
+    user_ids = [r.user_id for r in rows if r.user_id]
+    user_map = {}
+    if user_ids:
+        users = db.query(User).filter(User.id.in_(user_ids)).all()
+        user_map = {u.id: u for u in users}
+
+    return {
+        "showcase": [_serialise_showcase_admin(r, user_map, db) for r in rows],
+        "counts": {
+            "pending":  db.query(func.count(MemberShowcase.id)).filter(MemberShowcase.approved == False).scalar() or 0,
+            "approved": db.query(func.count(MemberShowcase.id)).filter(MemberShowcase.approved == True).scalar() or 0,
+        },
+    }
+
+
+@app.post("/admin/api/showcase/{sid}/approve")
+def admin_api_showcase_approve(
+    sid: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    _require_admin(user)
+    row = db.query(MemberShowcase).filter(MemberShowcase.id == sid).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Showcase not found")
+    row.approved = True
+    row.updated_at = datetime.utcnow()
+    db.commit()
+    _invalidate_showcase_cache()
+    return {"success": True, "id": row.id, "approved": True}
+
+
+@app.post("/admin/api/showcase/{sid}/reject")
+def admin_api_showcase_reject(
+    sid: int,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Reject and delete the showcase row. Member can re-submit afterwards."""
+    _require_admin(user)
+    row = db.query(MemberShowcase).filter(MemberShowcase.id == sid).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Showcase not found")
+    was_approved = bool(row.approved)
+    db.delete(row)
+    db.commit()
+    if was_approved:
+        _invalidate_showcase_cache()
+    return {"success": True, "id": sid, "deleted": True}
+
+
+@app.post("/admin/api/showcase/{sid}/edit")
+async def admin_api_showcase_edit(
+    sid: int,
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    _require_admin(user)
+    row = db.query(MemberShowcase).filter(MemberShowcase.id == sid).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Showcase not found")
+    try:
+        body = await request.json()
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid JSON")
+
+    if "display_title" in body and body["display_title"] is not None:
+        v = (body["display_title"] or "").strip()[:160]
+        if v:
+            row.display_title = v
+    if "display_niche" in body and body["display_niche"] is not None:
+        v = (body["display_niche"] or "").strip()[:80]
+        if v:
+            row.display_niche = v
+    if "metric_label" in body:
+        v = (body["metric_label"] or "").strip()[:60]
+        row.metric_label = v or None
+    if "metric_value" in body:
+        v = (body["metric_value"] or "").strip()[:40]
+        row.metric_value = v or None
+    if "accent_color" in body and body["accent_color"]:
+        c = (body["accent_color"] or "").strip().lower()
+        if c in SHOWCASE_COLOURS:
+            row.accent_color = c
+
+    row.updated_at = datetime.utcnow()
+    db.commit()
+    if row.approved:
+        _invalidate_showcase_cache()
+    return {"success": True, "id": row.id}
+
+
+@app.post("/admin/api/showcase/{sid}/reorder")
+async def admin_api_showcase_reorder(
+    sid: int,
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    _require_admin(user)
+    row = db.query(MemberShowcase).filter(MemberShowcase.id == sid).first()
+    if not row:
+        raise HTTPException(status_code=404, detail="Showcase not found")
+    try:
+        body = await request.json()
+        so = int(body.get("sort_order", 0))
+    except (Exception, TypeError, ValueError):
+        raise HTTPException(status_code=400, detail="Invalid sort_order")
+    row.sort_order = so
+    row.updated_at = datetime.utcnow()
+    db.commit()
+    if row.approved:
+        _invalidate_showcase_cache()
+    return {"success": True, "id": row.id, "sort_order": so}
+
+
 @app.get("/api/me")
 def api_me(request: Request, db: Session = Depends(get_db)):
     """Return current user data for the React frontend."""

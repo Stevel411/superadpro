@@ -233,6 +233,7 @@ export default function SuperPagesEditor() {
       <EditorTopbar
         title={pageSettings.title}
         slug={pageSettings.slug}
+        pageId={pageId}
         saving={saving}
         dirty={dirty}
         status={pageStatus}

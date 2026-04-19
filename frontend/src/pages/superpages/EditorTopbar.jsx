@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { Eye, Save, Undo2, Redo2, Settings, Trash2, ArrowLeft, Globe, GlobeLock, Smartphone, Monitor, Tablet, HelpCircle } from 'lucide-react';
+import FeatureOnExploreButton from '../../components/FeatureOnExploreButton';
 
-export default function EditorTopbar({ title, slug, saving, dirty, status, onSave, onClear, onShowSettings, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, deviceView, onSetDevice, onShowHelp }) {
+export default function EditorTopbar({ title, slug, pageId, saving, dirty, status, onSave, onClear, onShowSettings, onUndo, onRedo, onBack, onTogglePublish, onTogglePreview, previewMode, deviceView, onSetDevice, onShowHelp }) {
   var { t } = useTranslation();
   const isPublished = status === 'published';
   return (
@@ -74,6 +75,16 @@ export default function EditorTopbar({ title, slug, saving, dirty, status, onSav
           style={{...btn,background:'var(--sap-accent)',color:'#fff',textDecoration:'none'}}>
           Open ↗
         </a>
+      )}
+
+      {/* Feature on /explore — only when published, since server rejects drafts anyway */}
+      {isPublished && pageId && (
+        <FeatureOnExploreButton
+          artifactType="landing-page"
+          artifactId={parseInt(pageId, 10)}
+          artifactTitle={title || ''}
+          variant="secondary"
+        />
       )}
     </div>
   );

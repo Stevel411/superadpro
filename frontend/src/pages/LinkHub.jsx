@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { apiGet, apiPost } from '../utils/api';
 import { Copy, Check, Trash2, Plus, ExternalLink, ChevronUp, ChevronDown, Upload, AlignLeft, AlignCenter, AlignRight, ChevronRight, ArrowRight, ArrowUpRight, MoveRight } from 'lucide-react';
 import AppLayout from '../components/layout/AppLayout';
+import FeatureOnExploreButton from '../components/FeatureOnExploreButton';
 
 var FONTS = ['DM Sans','Sora','Inter','Poppins','Playfair Display','Space Grotesk','Nunito','Raleway',
   'Montserrat','Lato','Roboto','Open Sans','Oswald','Merriweather','Outfit','Quicksand','Rubik',
@@ -264,6 +265,13 @@ export default function LinkHub() {
 
         {/* Save */}
         <div style={{padding:'14px 20px',borderTop:'1px solid #e5e7eb',flexShrink:0}}>
+          <div style={{marginBottom:10,display:'flex',justifyContent:'center'}}>
+            <FeatureOnExploreButton
+              artifactType="bio-link"
+              artifactTitle={profile.display_name || ''}
+              variant="secondary"
+            />
+          </div>
           <button onClick={save} disabled={saving}
             style={{width:'100%',padding:'15px',borderRadius:10,border:'none',background:saved?'var(--sap-green)':'linear-gradient(135deg,#8b5cf6,#a78bfa)',color:'#fff',fontSize:14,fontWeight:800,cursor:saving?'default':'pointer',fontFamily:'inherit',boxShadow:'0 4px 14px rgba(139,92,246,.3)',opacity:saving?0.6:1}}>
             {saving?t('linkHub.saving'):saved?t('linkHub.saved'):t('linkHub.savePublish')}
