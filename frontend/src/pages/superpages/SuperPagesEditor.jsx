@@ -59,7 +59,7 @@ export default function SuperPagesEditor() {
   // ── Expose functions for Canvas to call via window (cross-component communication) ──
   useEffect(() => {
     window._spAddElement = (type, x, y) => addElementWithAutoEdit(type, x, y);
-    window._spDeleteElement = (id) => { if (confirm('Delete this element?')) deleteElement(id); };
+    window._spDeleteElement = (id) => { deleteElement(id); };
     window._spDuplicateElement = (id) => duplicateElement(id);
     return () => { delete window._spAddElement; delete window._spDeleteElement; delete window._spDuplicateElement; };
   }, [addElementWithAutoEdit, deleteElement, duplicateElement]);

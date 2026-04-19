@@ -65,25 +65,11 @@ export default function TiptapText({
   // portal-mounted <div> using position:fixed.
   const [menuPos, setMenuPos] = useState(null);  // {x, y} in viewport coords, or null when hidden
 
-  // Link edit mode. When true, the bubble menu swaps its CONTENTS from
-  // formatting buttons to a URL input row — same container, same position,
-  // different children. This is the mui-tiptap 'LinkBubbleMenu' pattern,
-  // settled on by the community after years of failed attempts to spawn a
-  // second popup from within the bubble menu. One floating thing, two
-  // states. No nested portals, no focus cascade, no element-underneath
-  // click interference.
-  const [linkMode, setLinkModeState] = useState({ active: false, url: '' });
-  const setLinkMode = useCallback((v) => {
-    const next = typeof v === 'function' ? v(linkModeRef.current) : v;
-    // eslint-disable-next-line no-console
-    console.log('[LinkMode] state change', linkModeRef.current, '→', next, new Error('trace').stack?.split('\n').slice(1, 4).join(' | '));
-    linkModeRef.current = next;
-    setLinkModeState(next);
-  }, []);
-  const linkInputRef = useRef(null);
-  // Ref mirror of linkMode so the bubble-menu useEffect (which doesn't
-  // re-subscribe on linkMode changes) can always read the current value.
-  const linkModeRef = useRef({ active: false, url: '' });
+  // linkModeRef kept as a no-op (always false) so the bubble menu
+  // effect's guards still work. We're not using link-edit-mode anymore
+  // (window.prompt for now; a proper floating editor panel is planned),
+  // but keeping the ref avoids a larger refactor.
+  const linkModeRef = useRef({ active: false });
 
   const onChangeRef = useRef(onChange);
   const onExitRef = useRef(onExit);
@@ -154,15 +140,6 @@ export default function TiptapText({
   // via ProseMirror's coordsAtPos, and update menuPos. When the selection
   // is empty or the editor isn't focused, menuPos = null → menu hides.
   useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log('[TiptapText] component MOUNTED');
-    return () => {
-      // eslint-disable-next-line no-console
-      console.log('[TiptapText] component UNMOUNTED ← this would be very bad mid-link-edit');
-    };
-  }, []);
-
-  useEffect(() => {
     if (!editor) return;
 
     // Shared check: is the user currently interacting with our bubble
@@ -180,29 +157,14 @@ export default function TiptapText({
       // Link-edit mode — freeze the menu in place. The menu IS the link
       // editor now; any selection/focus changes triggered by the URL
       // input should not move or hide it.
-      if (linkModeRef.current.active) {
-        // eslint-disable-next-line no-console
-        console.log('[MenuPos] updateMenuPos called but linkMode active — returning early');
-        return;
-      }
+      if (linkModeRef.current.active) return;
       const { from, to, empty } = editor.state.selection;
-      // If there's no selection, hide — UNLESS the user is interacting
-      // with a menu control (clicking a link input collapses the
-      // editor's selection to a cursor, we should still keep the menu).
       if (empty) {
         if (focusInsideMenu()) return;
-        // eslint-disable-next-line no-console
-        console.log('[MenuPos] HIDING: empty selection, no focus in menu');
         setMenuPos(null); return;
       }
-      // Editor blurred but focus went to our menu — keep position as-is.
       if (!editor.view.hasFocus() && focusInsideMenu()) return;
-      // Editor blurred and focus is NOT in our menu — hide.
-      if (!editor.view.hasFocus()) {
-        // eslint-disable-next-line no-console
-        console.log('[MenuPos] HIDING: editor no focus, focus not in menu, activeEl =', document.activeElement?.tagName);
-        setMenuPos(null); return;
-      }
+      if (!editor.view.hasFocus()) { setMenuPos(null); return; }
 
       try {
         const startCoords = editor.view.coordsAtPos(from);
@@ -211,32 +173,18 @@ export default function TiptapText({
         const leftMid = (startCoords.left + endCoords.left) / 2;
         setMenuPos({ x: leftMid, y: top });
       } catch (err) {
-        // eslint-disable-next-line no-console
-        console.log('[MenuPos] HIDING: coordsAtPos threw');
         setMenuPos(null);
       }
     }
 
-    editor.on('selectionUpdate', () => {
-      // eslint-disable-next-line no-console
-      console.log('[MenuPos] selectionUpdate event, linkMode =', linkModeRef.current.active);
-      updateMenuPos();
-    });
-    editor.on('focus', () => {
-      // eslint-disable-next-line no-console
-      console.log('[MenuPos] focus event');
-      updateMenuPos();
-    });
+    editor.on('selectionUpdate', updateMenuPos);
+    editor.on('focus', updateMenuPos);
     editor.on('blur', () => {
-      // eslint-disable-next-line no-console
-      console.log('[MenuPos] blur event, linkMode =', linkModeRef.current.active);
       queueMicrotask(() => {
         if (!editor || editor.isDestroyed) return;
         if (linkModeRef.current.active) return;
         if (focusInsideMenu()) return;
         if (editor.view.hasFocus()) return;
-        // eslint-disable-next-line no-console
-        console.log('[MenuPos] HIDING: blur microtask fell through');
         setMenuPos(null);
       });
     });
@@ -335,48 +283,6 @@ export default function TiptapText({
     });
   }, [editor, onAiRequest]);
 
-  // Open the link dialog. Snapshots the selection's current href (if
-  // Enter link-edit mode — bubble menu swaps its contents to the URL
-  // editor. Pre-fills with the existing href if cursor is on a link.
-  const openLinkMode = useCallback(() => {
-    if (!editor) return;
-    const existing = editor.getAttributes('link').href || '';
-    // eslint-disable-next-line no-console
-    console.log('[LinkMode] openLinkMode CALLED, existing =', existing, 'menuPos =', menuPos);
-    // Set the ref synchronously BEFORE setState so event handlers that
-    // fire immediately (blur, selectionUpdate) see the updated flag.
-    linkModeRef.current = { active: true, url: existing };
-    setLinkMode({ active: true, url: existing });
-    // Focus input after React mounts it; keeps editor selection intact
-    // because the bubble menu's onMouseDown preventDefault has already
-    // fired and prevented the selection from collapsing.
-    setTimeout(() => {
-      // eslint-disable-next-line no-console
-      console.log('[LinkMode] setTimeout fired, linkMode active =', linkModeRef.current.active, 'input ref =', !!linkInputRef.current);
-      if (linkInputRef.current) linkInputRef.current.focus();
-    }, 30);
-  }, [editor, menuPos]);
-
-  // Apply the URL (or clear the link if blank), then return to
-  // formatting mode. Also the path taken on Enter keypress.
-  const applyLink = useCallback((newUrl) => {
-    if (!editor) return;
-    const trimmed = (newUrl || '').trim();
-    if (!trimmed) {
-      editor.chain().focus().extendMarkRange('link').unsetLink().run();
-    } else {
-      const full = /^https?:\/\//i.test(trimmed) ? trimmed : 'https://' + trimmed;
-      editor.chain().focus().extendMarkRange('link').setLink({ href: full }).run();
-    }
-    setLinkMode({ active: false, url: '' });
-  }, [editor]);
-
-  // Cancel link-edit mode without applying. Used by ✕ button and Escape.
-  const cancelLinkMode = useCallback(() => {
-    setLinkMode({ active: false, url: '' });
-    if (editor) editor.commands.focus();
-  }, [editor]);
-
   if (!editor) return null;
 
   return (
@@ -407,56 +313,7 @@ export default function TiptapText({
           }}
           onMouseDown={(e) => e.preventDefault()}
         >
-          {/* The bubble menu has two modes: formatting (default) and
-              link-edit. In link-edit mode the toolbar's children swap to
-              a URL input row. Same container, same position, different
-              children. This is the mui-tiptap LinkBubbleMenu pattern. */}
-          {linkMode.active ? (
-            <div className="sp-tt-bubble" style={{padding: '6px 8px', gap: 8, alignItems: 'center'}}>
-              <LinkIcon size={14} style={{color: '#0284c7', flexShrink: 0}}/>
-              <input
-                ref={linkInputRef}
-                type="text"
-                value={linkMode.url}
-                onChange={e => setLinkMode(prev => ({ ...prev, url: e.target.value }))}
-                onKeyDown={e => {
-                  if (e.key === 'Enter') { e.preventDefault(); applyLink(linkMode.url); }
-                  if (e.key === 'Escape') { e.preventDefault(); cancelLinkMode(); }
-                }}
-                placeholder="https://example.com"
-                style={{
-                  width: 280, height: 30, padding: '0 10px',
-                  border: '0.5px solid #cbd5e1', borderRadius: 5,
-                  background: '#fff', color: '#0f172a', fontSize: 13,
-                  outline: 'none', fontFamily: 'inherit',
-                }}
-              />
-              <button
-                onClick={() => applyLink(linkMode.url)}
-                style={{
-                  height: 30, padding: '0 14px', border: 'none',
-                  background: '#0ea5e9', color: '#fff', fontWeight: 600,
-                  fontSize: 12, borderRadius: 5, cursor: 'pointer',
-                  fontFamily: 'inherit', flexShrink: 0,
-                }}
-              >
-                {linkMode.url.trim() ? 'Apply' : 'Clear'}
-              </button>
-              <button
-                onClick={cancelLinkMode}
-                title="Cancel"
-                style={{
-                  height: 30, padding: '0 10px', border: 'none',
-                  background: 'transparent', color: '#64748b',
-                  fontSize: 14, borderRadius: 5, cursor: 'pointer',
-                  fontFamily: 'inherit', flexShrink: 0,
-                }}
-              >
-                ✕
-              </button>
-            </div>
-          ) : (
-            <div className="sp-tt-bubble">
+          <div className="sp-tt-bubble">
             <FontSelect editor={editor} currentFont={tbState?.fontFamily} />
             <SizeInput editor={editor} currentSize={tbState?.fontSize} />
 
@@ -506,7 +363,7 @@ export default function TiptapText({
 
             <Divider/>
 
-            <LinkButton isActive={!!tbState?.link} onClick={openLinkMode} />
+            <LinkButton editor={editor} isActive={!!tbState?.link} />
 
             {showAi && (
               <>
@@ -523,7 +380,6 @@ export default function TiptapText({
               </>
             )}
           </div>
-          )}
 
           {showAi && aiMenuOpen && (
             <div className="sp-tt-ai-pop" onMouseDown={(e) => e.preventDefault()}>
@@ -889,11 +745,37 @@ function ColorPicker({ editor, currentColor }) {
  * independent of the bubble menu's mount/unmount cycles). No local
  * state — just dispatches the click.
  */
-function LinkButton({ isActive, onClick }) {
+/**
+ * Link button — uses window.prompt() for URL entry.
+ *
+ * We tried a custom in-editor popup for link entry (11+ commits across a
+ * long session) and could not get it to reliably survive the focus
+ * transitions that happen when a React input mounts inside a bubble
+ * menu that's portaled to document.body while the edited element has
+ * its own click/mousedown handlers.
+ *
+ * window.prompt() sidesteps the entire focus cascade because it blocks
+ * the event loop synchronously. The future plan is a draggable floating
+ * editor panel (Figma-style inspector) that's not coupled to the
+ * selection at all. Until then this is robust.
+ */
+function LinkButton({ editor, isActive }) {
+  const handleClick = () => {
+    const existing = editor.getAttributes('link').href || '';
+    const input = window.prompt('Enter a URL (leave blank to remove link):', existing);
+    if (input === null) return;  // user cancelled
+    const trimmed = input.trim();
+    if (!trimmed) {
+      editor.chain().focus().extendMarkRange('link').unsetLink().run();
+      return;
+    }
+    const full = /^https?:\/\//i.test(trimmed) ? trimmed : 'https://' + trimmed;
+    editor.chain().focus().extendMarkRange('link').setLink({ href: full }).run();
+  };
   return (
     <button
       className={'sp-tt-btn' + (isActive ? ' sp-tt-active' : '')}
-      onClick={onClick}
+      onClick={handleClick}
       title={isActive ? 'Edit or remove link' : 'Add link'}
     >
       <LinkIcon size={13}/>
