@@ -84,9 +84,10 @@ export default function TiptapText({
   const lastEmittedRef = useRef(html || '');
   const lastReportedHeightRef = useRef(0);
 
-  // DIAG: mount/unmount — tells us if TiptapText actually unmounts when
-  // Steve deletes an element. If it DOESN'T unmount, the bubble menu
-  // portal stays alive, which would explain the orphan menu bug.
+  // PERMANENT DIAGNOSTIC (kept 19 Apr 2026): mount/unmount logging
+  // helps future debugging of any editor-lifecycle bugs. Cost is
+  // negligible. If any editor issue appears, paste console and we'll
+  // know immediately if the component is being killed unexpectedly.
   useEffect(() => {
     // eslint-disable-next-line no-console
     console.log('%c[TiptapText] MOUNTED', 'background:#10b981;color:#fff;padding:2px 6px');
@@ -96,9 +97,9 @@ export default function TiptapText({
     };
   }, []);
 
-  // DIAG: watch linkPopup.open transitions. If it goes true → false
-  // shortly after opening, something is closing it. The stack trace on
-  // the Error tells us who.
+  // PERMANENT DIAGNOSTIC: link popup state transitions with stack
+  // trace on close. Logs are visually distinct (green=opened,
+  // red=closed) so they're easy to spot.
   const prevLinkPopupOpenRef = useRef(false);
   useEffect(() => {
     if (prevLinkPopupOpenRef.current !== linkPopup.open) {
@@ -426,6 +427,9 @@ export default function TiptapText({
                 pos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
               }
               const existing = editor.getAttributes('link').href || '';
+              // PERMANENT DIAGNOSTIC: logs the click context so if the
+              // popup ever misbehaves again, one paste of console tells
+              // us exactly what was happening.
               // eslint-disable-next-line no-console
               console.log('%c[LinkDiag v2] openPopup()', 'background:#8b5cf6;color:#fff;padding:2px 6px',
                 '\n  from/to:', from, to,
