@@ -147,9 +147,27 @@ export default function TiptapText({
       if (onChangeRef.current) onChangeRef.current(h);
     },
     onBlur: ({ editor: ed }) => {
+      // CRITICAL: this setTimeout was the root cause of the 'link popup
+      // disappears' bug. When user clicks 🔗, editor blurs, 150ms later
+      // this fires, sees editor unfocused, and calls onExit which sets
+      // editingId=null in Canvas, which UNMOUNTS the whole TiptapText
+      // component — taking the popup portal with it.
+      //
+      // Fix: before calling onExit, check if focus is inside our bubble
+      // menu (including the link popup which is a sibling portal). If
+      // it is, the user is just interacting with our UI and we should
+      // NOT exit edit mode.
       setTimeout(() => {
         if (!ed || ed.isDestroyed) return;
         if (ed.isFocused) return;
+        // Check current activeElement — if it's inside our bubble menu
+        // or link popup, don't exit. Both have distinct data attributes
+        // / class names on them.
+        const a = document.activeElement;
+        if (a && a.closest) {
+          if (a.closest('.sp-tt-bubble-wrap')) return;       // bubble menu
+          if (a.closest('[data-sp-link-popup="true"]')) return;  // link popup
+        }
         if (onExitRef.current) onExitRef.current();
       }, 150);
     },
