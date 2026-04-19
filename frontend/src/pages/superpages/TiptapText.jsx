@@ -149,11 +149,18 @@ export default function TiptapText({
 
     editor.on('selectionUpdate', updateMenuPos);
     editor.on('focus', updateMenuPos);
-    editor.on('blur', () => {
-      setTimeout(() => {
-        if (!editor || editor.isDestroyed) return;
-        if (!editor.view.hasFocus()) setMenuPos(null);
-      }, 100);
+    editor.on('blur', ({ event }) => {
+      // Where did focus actually go? If it went anywhere inside our
+      // bubble menu — the link input, font dropdown, size input, AI
+      // prompt, a toolbar button, anything — keep the menu open. The
+      // menu contains interactive controls that NEED focus to work.
+      const target = event && event.relatedTarget;
+      if (target && target.closest && target.closest('.sp-tt-bubble-wrap')) {
+        return;  // Focus is still inside our UI; don't hide
+      }
+      // Focus went elsewhere (or to null — e.g. clicking the canvas
+      // background). Safe to hide.
+      setMenuPos(null);
     });
     window.addEventListener('scroll', updateMenuPos, { passive: true, capture: true });
     window.addEventListener('resize', updateMenuPos);
