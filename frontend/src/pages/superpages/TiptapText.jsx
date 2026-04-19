@@ -63,6 +63,12 @@ export default function TiptapText({
   onChangeRef.current = onChange;
   onExitRef.current = onExit;
 
+  // Wrapper ref used as the BubbleMenu portal target. Keeps the menu
+  // anchored inside our editor's DOM context instead of document.body —
+  // so if positioning fails it at least falls back near the editor rather
+  // than at screen (0,0).
+  const wrapperRef = useRef(null);
+
   const lastEmittedRef = useRef(html || '');
 
   const editor = useEditor({
@@ -160,11 +166,26 @@ export default function TiptapText({
   if (!editor) return null;
 
   return (
-    <div className="sp-tt-wrapper" style={{ width: '100%', height: '100%' }}>
+    <div ref={wrapperRef} className="sp-tt-wrapper" style={{ width: '100%', height: '100%' }}>
       <BubbleMenu
         editor={editor}
-        updateDelay={0}
+        updateDelay={100}
         options={{ placement: 'top', offset: 8 }}
+        shouldShow={({ editor: ed, state }) => {
+          if (!ed) return false;
+          // Only show when there's an actual text selection. Autofocus on
+          // mount lands the cursor at position 0 with an empty selection —
+          // if we let the menu show then, Floating UI has no anchor rect
+          // and positions at screen (0,0). Showing only on real selections
+          // avoids that entirely.
+          const { from, to, empty } = state.selection;
+          if (empty) return false;
+          if (from === to) return false;
+          // Don't show during composition (IME input like Japanese/Chinese)
+          if (ed.view.composing) return false;
+          return true;
+        }}
+        appendTo={() => wrapperRef.current || document.body}
       >
         <div className="sp-tt-bubble" onMouseDown={(e) => e.preventDefault()}>
           <BubBtn active={tbState?.bold} onClick={() => editor.chain().focus().toggleBold().run()} title="Bold (Ctrl+B)">
