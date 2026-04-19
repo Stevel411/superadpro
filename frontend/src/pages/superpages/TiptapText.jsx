@@ -83,6 +83,11 @@ export default function TiptapText({
         blockquote: false,
         codeBlock: false,
         horizontalRule: false,
+        // Disable StarterKit's built-in Link and Underline — we register
+        // them ourselves below. Keeping both results in the 'duplicate
+        // extension names' warning Tiptap prints to the console.
+        link: false,
+        underline: false,
       }),
       Underline,
       Link.configure({ openOnClick: false, HTMLAttributes: { class: 'sp-editor-link' } }),
@@ -131,10 +136,29 @@ export default function TiptapText({
   useEffect(() => {
     if (!editor) return;
 
+    // Shared check: is the user currently interacting with our bubble
+    // menu (focus inside a toolbar input/button)? If so, we should NOT
+    // hide the menu even if the editor has lost focus. Used by both the
+    // selection-update path and the blur path so they agree.
+    function focusInsideMenu() {
+      const a = document.activeElement;
+      return !!(a && a.closest && a.closest('.sp-tt-bubble-wrap'));
+    }
+
     function updateMenuPos() {
       if (!editor || editor.isDestroyed) { setMenuPos(null); return; }
       const { from, to, empty } = editor.state.selection;
-      if (empty || !editor.view.hasFocus()) { setMenuPos(null); return; }
+      // If there's no selection, hide — UNLESS the user is interacting
+      // with a menu control (clicking a link input collapses the
+      // editor's selection to a cursor, we should still keep the menu).
+      if (empty) {
+        if (focusInsideMenu()) return;
+        setMenuPos(null); return;
+      }
+      // Editor blurred but focus went to our menu — keep position as-is.
+      if (!editor.view.hasFocus() && focusInsideMenu()) return;
+      // Editor blurred and focus is NOT in our menu — hide.
+      if (!editor.view.hasFocus()) { setMenuPos(null); return; }
 
       try {
         const startCoords = editor.view.coordsAtPos(from);
@@ -150,19 +174,10 @@ export default function TiptapText({
     editor.on('selectionUpdate', updateMenuPos);
     editor.on('focus', updateMenuPos);
     editor.on('blur', () => {
-      // eslint-disable-next-line no-console
-      console.log('[TiptapText] editor BLUR fired, activeEl before microtask =', document.activeElement?.tagName, document.activeElement?.className);
       queueMicrotask(() => {
         if (!editor || editor.isDestroyed) return;
-        const active = document.activeElement;
-        // eslint-disable-next-line no-console
-        console.log('[TiptapText] blur microtask, activeEl =', active?.tagName, active?.className, 'inside bubble-wrap =', !!(active && active.closest && active.closest('.sp-tt-bubble-wrap')));
-        if (active && active.closest && active.closest('.sp-tt-bubble-wrap')) {
-          return;
-        }
+        if (focusInsideMenu()) return;
         if (editor.view.hasFocus()) return;
-        // eslint-disable-next-line no-console
-        console.log('[TiptapText] HIDING MENU (setMenuPos null)');
         setMenuPos(null);
       });
     });
@@ -707,24 +722,7 @@ function ColorPicker({ editor, currentColor }) {
 function LinkButton({ editor, isActive }) {
   const [open, setOpen] = useState(false);
   const [url, setUrl] = useState('');
-
-  // Diagnostic: log every time `open` changes + mount/unmount
-  useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log('[LinkButton] mounted');
-    return () => {
-      // eslint-disable-next-line no-console
-      console.log('[LinkButton] UNMOUNTED (this is bad if it happens during open popup)');
-    };
-  }, []);
-  useEffect(() => {
-    // eslint-disable-next-line no-console
-    console.log('[LinkButton] open =', open, 'activeEl =', document.activeElement?.tagName, document.activeElement?.className);
-  }, [open]);
-
   const openMenu = () => {
-    // eslint-disable-next-line no-console
-    console.log('[LinkButton] openMenu() called, current open=', open, 'will toggle');
     setUrl(editor.getAttributes('link').href || '');
     setOpen(v => !v);
   };
