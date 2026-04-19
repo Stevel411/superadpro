@@ -218,8 +218,21 @@ export default function TiptapText({
         const endCoords = editor.view.coordsAtPos(to);
         const top = Math.min(startCoords.top, endCoords.top);
         const leftMid = (startCoords.left + endCoords.left) / 2;
+        // [BubbleDiag] Track every menu position update — helps diagnose
+        // cases where the bubble ends up at (0,0) due to stale coords after
+        // parent re-renders (e.g. deleting a different element on the canvas).
+        console.log('[BubbleDiag] updateMenuPos →', {
+          from, to,
+          startCoords: { top: startCoords.top, left: startCoords.left },
+          endCoords: { top: endCoords.top, left: endCoords.left },
+          computed: { x: leftMid, y: top },
+          editorFocused: editor.view.hasFocus(),
+          pmInDom: !!wrapperRef.current?.querySelector('.ProseMirror')?.isConnected,
+          trigger: new Error().stack.split('\n')[2]?.trim() || 'unknown',
+        });
         setMenuPos({ x: leftMid, y: top });
       } catch (err) {
+        console.log('[BubbleDiag] updateMenuPos threw →', err.message);
         setMenuPos(null);
       }
     }
@@ -269,7 +282,13 @@ export default function TiptapText({
           if (empty) return;
           const s = editor.view.coordsAtPos(from);
           const e = editor.view.coordsAtPos(to);
-          setMenuPos({ x: (s.left + e.left) / 2, y: Math.min(s.top, e.top) });
+          const computed = { x: (s.left + e.left) / 2, y: Math.min(s.top, e.top) };
+          console.log('[BubbleDiag] ResizeObserver → setMenuPos', {
+            computed,
+            pmHeight: h,
+            editorFocused: editor.view.hasFocus(),
+          });
+          setMenuPos(computed);
         } catch (err) { /* ignore */ }
       }
     };
@@ -331,6 +350,10 @@ export default function TiptapText({
   }, [editor, onAiRequest]);
 
   if (!editor) return null;
+
+  // [BubbleDiag] Every render, log the current menuPos so we can see the
+  // final state after all setMenuPos calls have been processed.
+  console.log('[BubbleDiag] render → menuPos =', menuPos);
 
   return (
     <div ref={wrapperRef} className="sp-tt-wrapper" style={{ width: '100%', height: '100%' }}>
