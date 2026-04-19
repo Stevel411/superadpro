@@ -60,26 +60,42 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       ce.contentEditable = 'false';
       ce.style.pointerEvents = 'none';
       ce.style.cursor = 'grab';
+      // Explicitly blur so future Delete/Backspace keypresses route to the
+      // element-delete handler in SuperPagesEditor rather than being swallowed
+      // by the now-read-only contentEditable still holding focus.
+      if (typeof ce.blur === 'function') ce.blur();
     }
     setEditingId(null);
     editableRef.current = null;
   }, [editingId, updateElement, markDirty]);
 
-  // Update toolbar position on scroll/resize
+  // Update toolbar position on scroll/resize. Listens on both `.sp-canvas-area`
+  // (the inner scroll container) AND the window, so the toolbar follows
+  // regardless of which ancestor is scrolling — this matters now that the
+  // editor lives inside AppLayout and there are two possible scroll owners.
+  // Uses requestAnimationFrame so we never run the layout twice in one frame.
   useEffect(() => {
     if (!editingId) return;
+    let rafId = null;
     const update = () => {
-      const dom = document.getElementById(editingId);
-      if (dom) {
-        const rect = dom.getBoundingClientRect();
-        setToolbarPos({ x: rect.left + rect.width / 2, y: Math.max(10, rect.top - 50) });
-      }
+      if (rafId) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        const dom = document.getElementById(editingId);
+        if (dom) {
+          const rect = dom.getBoundingClientRect();
+          setToolbarPos({ x: rect.left + rect.width / 2, y: Math.max(10, rect.top - 50) });
+        }
+      });
     };
     const area = document.querySelector('.sp-canvas-area');
-    if (area) area.addEventListener('scroll', update);
+    if (area) area.addEventListener('scroll', update, { passive: true });
+    window.addEventListener('scroll', update, { passive: true });
     window.addEventListener('resize', update);
     return () => {
+      if (rafId) cancelAnimationFrame(rafId);
       if (area) area.removeEventListener('scroll', update);
+      window.removeEventListener('scroll', update);
       window.removeEventListener('resize', update);
     };
   }, [editingId]);

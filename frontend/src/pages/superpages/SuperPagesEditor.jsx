@@ -127,7 +127,14 @@ export default function SuperPagesEditor() {
   // ── Keyboard shortcuts ──
   useEffect(() => {
     const handler = (e) => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable) return;
+      // Skip the element-delete handler only if the user is genuinely typing
+      // into an editable field. `isContentEditable` stays true on elements
+      // that were once editable but are now locked, so we check the attribute
+      // explicitly — 'true' means actively editable, 'false' or unset means
+      // the element is read-only and Delete should remove the canvas element.
+      const tgt = e.target;
+      if (tgt && (tgt.tagName === 'INPUT' || tgt.tagName === 'TEXTAREA')) return;
+      if (tgt && tgt.getAttribute && tgt.getAttribute('contenteditable') === 'true') return;
       if (e.ctrlKey || e.metaKey) {
         if (e.key === 'z') { e.preventDefault(); undo(); }
         if (e.key === 'y') { e.preventDefault(); redo(); }
@@ -249,7 +256,7 @@ export default function SuperPagesEditor() {
     <AppLayout
       title={pageSettings.title || t('superPagesEditor.untitledPage', { defaultValue: 'Untitled page' })}
       subtitle={pageSettings.slug ? '/' + pageSettings.slug : undefined}
-      bgStyle={{ padding: 0, background: '#f8fafc', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+      bgStyle={{ padding: 0, background: '#f8fafc', display: 'flex', flexDirection: 'column', overflow: 'hidden', overflowY: 'hidden' }}
     >
       <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, fontFamily: 'DM Sans,sans-serif' }}>
       <EditorTopbar

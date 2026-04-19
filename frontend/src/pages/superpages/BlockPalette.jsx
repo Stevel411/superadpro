@@ -37,6 +37,18 @@ function iconBubbleBg(rgb) {
   return `linear-gradient(180deg, rgba(255,255,255,0.7) 0%, rgba(255,255,255,0.1) 60%), rgba(${rgb},0.14)`;
 }
 
+// Resolve a translated label for a palette item. The i18n key pattern is
+// 'superPagesEditor.blk<Suffix>' where <Suffix> is the element's type with a
+// handful of aliases (form→OptIn, announcement→Banner, etc) and the first
+// letter capitalised. If the key isn't present we fall through to the
+// English name from the PALETTE data, which is never missing.
+function blockLabel(t, item) {
+  const type = item.type;
+  const aliases = { form: 'OptIn', announcement: 'Banner', socialicons: 'Socials', icontext: 'IconText', faq: 'FAQ' };
+  const suffix = aliases[type] || (type.charAt(0).toUpperCase() + type.slice(1));
+  return t('superPagesEditor.blk' + suffix, { defaultValue: item.name });
+}
+
 export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, setCanvasBgImage, markDirty, onAddElement, pageId, onAiMessage }) {
   var { t } = useTranslation();
   const [bgType, setBgType] = useState(canvasBg?.startsWith('linear') ? 'gradient' : canvasBgImage ? 'image' : 'solid');
@@ -227,7 +239,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
               <div style={{display:'flex',alignItems:'center',gap:7,padding:'12px 4px 8px',...(ci===0?{paddingTop:4}:{})}}>
                 <span style={{width:8,height:8,borderRadius:'50%',background:catColor,flexShrink:0,boxShadow:`0 0 0 3px rgba(${catRgb},0.12)`}}/>
                 <span style={{fontSize:10,fontWeight:800,letterSpacing:1.4,textTransform:'uppercase',color:'#64748b'}}>
-                  {t('superPagesEditor.cat'+cat.label)||cat.label}
+                  {t('superPagesEditor.cat'+cat.label, { defaultValue: cat.label })}
                 </span>
               </div>
 
@@ -268,7 +280,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                       }}>
                         <Icon size={18} strokeWidth={2.2}/>
                       </div>
-                      <span className="pal-label" style={{fontSize:9,fontWeight:700,letterSpacing:0.3,textTransform:'uppercase',color:'#334155',position:'relative',zIndex:2,transition:'color 0.22s'}}>{t('superPagesEditor.blk'+(item.type==='form'?'OptIn':item.type==='announcement'?'Banner':item.type==='socialicons'?'Socials':item.type==='icontext'?'IconText':item.type==='faq'?'FAQ':item.type.charAt(0).toUpperCase()+item.type.slice(1)))||item.name}</span>
+                      <span className="pal-label" style={{fontSize:9,fontWeight:700,letterSpacing:0.3,textTransform:'uppercase',color:'#334155',position:'relative',zIndex:2,transition:'color 0.22s'}}>{blockLabel(t, item)}</span>
                     </div>
                   );
                 })}

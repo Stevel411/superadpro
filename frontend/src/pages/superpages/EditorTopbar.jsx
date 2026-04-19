@@ -66,7 +66,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
       <button onClick={onShowHelp} style={{...ghost, color: '#0ea5e9'}}
         onMouseEnter={e => { e.currentTarget.style.borderColor = '#0ea5e9'; e.currentTarget.style.background = 'rgba(14,165,233,0.06)'; }}
         onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.background = '#ffffff'; }}>
-        <HelpCircle size={13}/> <span style={{marginLeft:3}}>{t('superPagesEditor.help')}</span>
+        <HelpCircle size={13}/> <span style={{marginLeft:3}}>{t('superPagesEditor.helpLabel', { defaultValue: 'Help' })}</span>
       </button>
       <button onClick={onClear} style={{...ghost, color: '#dc2626'}}
         onMouseEnter={e => { e.currentTarget.style.borderColor = '#dc2626'; e.currentTarget.style.background = 'rgba(220,38,38,0.06)'; }}
