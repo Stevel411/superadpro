@@ -344,11 +344,14 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
     // and AI. When not editing, fall through to a plain div so the element
     // is draggable and selectable exactly like before.
     if (TIPTAP_TYPES.includes(el.type) && editingId === el.id) {
-      // Parse innerStyle (a CSS string) back into a React style object so we
-      // can pass it to TiptapText. This matches the way the existing default
-      // branch does it at the bottom of this function.
+      // For Tiptap-edited elements we strip overflow:hidden from the inner
+      // style. The editor needs to show its full content height so the
+      // ResizeObserver inside TiptapText can report up the real height and
+      // grow the element. With overflow:hidden the text at tall font sizes
+      // just gets clipped inside a fixed-height element.
+      const innerStyleNoClip = innerStyle.replace('overflow:hidden;', '');
       const styleObj = Object.fromEntries(
-        innerStyle.split(';').filter(Boolean).map(s => {
+        innerStyleNoClip.split(';').filter(Boolean).map(s => {
           const [k, ...v] = s.split(':');
           return [k.trim().replace(/-([a-z])/g, (_, c) => c.toUpperCase()), v.join(':').trim()];
         })
@@ -369,6 +372,15 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
           showAi={!!pageId}
           onAiRequest={handleAiRewrite}
           aiBusy={aiBusy}
+          onHeightChange={(measuredH) => {
+            // Grow the element box if the rendered text is taller than the
+            // current element height. We add a small 12px buffer so the
+            // bottom of descenders isn't flush against the edge. Never
+            // shrink automatically — the user still has manual resize
+            // handles for that.
+            const needed = Math.ceil(measuredH) + 12;
+            if (needed > el.h) updateElement(el.id, { h: needed });
+          }}
         />
       );
     }

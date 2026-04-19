@@ -55,6 +55,7 @@ export default function TiptapText({
   showAi,
   onAiRequest,
   aiBusy,
+  onHeightChange,
 }) {
   const [aiMenuOpen, setAiMenuOpen] = useState(false);
   const [aiCustom, setAiCustom] = useState('');
@@ -66,11 +67,14 @@ export default function TiptapText({
 
   const onChangeRef = useRef(onChange);
   const onExitRef = useRef(onExit);
+  const onHeightChangeRef = useRef(onHeightChange);
   onChangeRef.current = onChange;
   onExitRef.current = onExit;
+  onHeightChangeRef.current = onHeightChange;
 
   const wrapperRef = useRef(null);
   const lastEmittedRef = useRef(html || '');
+  const lastReportedHeightRef = useRef(0);
 
   const editor = useEditor({
     extensions: [
@@ -160,6 +164,42 @@ export default function TiptapText({
       window.removeEventListener('scroll', updateMenuPos, { capture: true });
       window.removeEventListener('resize', updateMenuPos);
     };
+  }, [editor]);
+
+  // Auto-grow the element height based on the editor content's actual
+  // rendered height. Watches the ProseMirror DOM node with a
+  // ResizeObserver. When the height changes by >= 4px, report up so Canvas
+  // can resize the element. Also triggers a menu reposition because the
+  // selection rect moves when text reflows.
+  useEffect(() => {
+    if (!editor || !wrapperRef.current) return;
+    const pmNode = wrapperRef.current.querySelector('.ProseMirror');
+    if (!pmNode) return;
+
+    const report = () => {
+      const h = pmNode.scrollHeight || pmNode.offsetHeight;
+      if (!h) return;
+      if (Math.abs(h - lastReportedHeightRef.current) < 4) return;
+      lastReportedHeightRef.current = h;
+      if (onHeightChangeRef.current) onHeightChangeRef.current(h);
+      // Text reflowed → selection rect may have moved, recompute menu pos
+      if (editor && !editor.isDestroyed && editor.view.hasFocus()) {
+        try {
+          const { from, to, empty } = editor.state.selection;
+          if (empty) return;
+          const s = editor.view.coordsAtPos(from);
+          const e = editor.view.coordsAtPos(to);
+          setMenuPos({ x: (s.left + e.left) / 2, y: Math.min(s.top, e.top) });
+        } catch (err) { /* ignore */ }
+      }
+    };
+
+    // Fire once on mount for the initial height
+    report();
+
+    const ro = new ResizeObserver(report);
+    ro.observe(pmNode);
+    return () => ro.disconnect();
   }, [editor]);
 
   const tbState = useEditorState({
