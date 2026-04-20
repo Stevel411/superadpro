@@ -12,6 +12,7 @@ export default function CreateCampaign() {
   var [description, setDescription] = useState('');
   var [targetCountry, setTargetCountry] = useState('');
   var [targetInterests, setTargetInterests] = useState('');
+  var [ctaUrl, setCtaUrl] = useState('');
   var [submitting, setSubmitting] = useState(false);
   var [result, setResult] = useState(null);
   var [error, setError] = useState(null);
@@ -55,9 +56,18 @@ export default function CreateCampaign() {
     formData.append('description', description.trim());
     formData.append('target_country', targetCountry.trim());
     formData.append('target_interests', targetInterests.trim());
+    var ctaTrimmed = ctaUrl.trim();
+    if (ctaTrimmed) {
+      if (!/^https?:\/\//i.test(ctaTrimmed)) {
+        setSubmitting(false);
+        setError(t('createCampaign.errCtaUrl', { defaultValue: 'CTA URL must start with http:// or https://' }));
+        return;
+      }
+      formData.append('cta_url', ctaTrimmed);
+    }
     fetch('/upload', { method: 'POST', credentials: 'include', headers: { 'Content-Type': 'application/x-www-form-urlencoded' }, body: formData.toString() })
       .then(function(r) { return r.json(); })
-      .then(function(d) { setSubmitting(false); if (d.error) { setError(d.error); } else { setResult(d); setTitle(''); setVideoUrl(''); setDescription(''); setPreview(null); } })
+      .then(function(d) { setSubmitting(false); if (d.error) { setError(d.error); } else { setResult(d); setTitle(''); setVideoUrl(''); setDescription(''); setCtaUrl(''); setPreview(null); } })
       .catch(function(e) { setSubmitting(false); setError(e.message); });
   }
 
@@ -144,6 +154,14 @@ export default function CreateCampaign() {
             <input style={inputStyle} value={targetInterests} onChange={function(e){setTargetInterests(e.target.value);}} placeholder={t("createCampaign.targetInterestsPlaceholder")} maxLength={200}
               onFocus={function(e){e.target.style.borderColor='#0ea5e9';}} onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
           </div>
+        </div>
+
+        <label style={labelStyle}>{t('createCampaign.ctaUrl', { defaultValue: 'Call-to-action URL (optional)' })}</label>
+        <input style={inputStyle} value={ctaUrl} onChange={function(e){setCtaUrl(e.target.value);}}
+          placeholder={t("createCampaign.ctaUrlPlaceholder", { defaultValue: 'https://your-website.com' })} maxLength={500} type="url"
+          onFocus={function(e){e.target.style.borderColor='#0ea5e9';}} onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
+        <div style={{ fontSize:11, color:'#64748b', marginTop:6, lineHeight:1.4 }}>
+          {t('createCampaign.ctaUrlHelp', { defaultValue: 'Optional. If set, a "Visit Website" button appears below your video once members have watched the full 30 seconds.' })}
         </div>
 
         {error && <div style={{ marginTop:16, padding:'12px 16px', borderRadius:10, background:'rgba(239,68,68,0.06)', border:'1px solid rgba(239,68,68,0.15)', color:'#ef4444', fontSize:14, fontWeight:600 }}>{error}</div>}

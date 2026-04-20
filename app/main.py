@@ -3681,6 +3681,7 @@ def upload_video_post(
     description: str = Form(""),
     target_country: str = Form(""),
     target_interests: str = Form(""),
+    cta_url:     str = Form(""),
     db: Session = Depends(get_db),
     user: User  = Depends(get_current_user)
 ):
@@ -3728,6 +3729,14 @@ def upload_video_post(
     # Priority queue placement (Tier 5+)
     campaign.priority_level = tier_features["priority"]
 
+    # CTA URL (optional) — only accept http/https to prevent javascript: injection
+    cta_url_clean = (cta_url or "").strip()
+    if cta_url_clean:
+        if cta_url_clean.lower().startswith(("http://", "https://")) and len(cta_url_clean) <= 500:
+            campaign.cta_url = cta_url_clean
+        else:
+            return err("CTA URL must start with http:// or https:// and be under 500 characters.")
+
     # Geo & interest targeting (Tier 4+)
     if tier_features["targeting"]:
         campaign.target_country = sanitize(target_country)[:200] if target_country else None
@@ -3755,6 +3764,36 @@ def upload_video_post(
     db.commit()
 
     return JSONResponse({"success": True, "status": campaign.status, "id": campaign.id, "title": campaign.title})
+
+# ═══════════════════════════════════════════════════════════════
+#  CAMPAIGN CTA — click tracking + redirect to advertiser URL
+# ═══════════════════════════════════════════════════════════════
+
+@app.get("/campaign-cta/{campaign_id}")
+def campaign_cta_click(campaign_id: int, db: Session = Depends(get_db)):
+    """Track a CTA click and redirect to the advertiser's destination URL.
+
+    Deliberately not authenticated — members click these after watching.
+    Increments cta_clicks atomically via an UPDATE statement to avoid
+    race conditions under load.
+    """
+    campaign = db.query(VideoCampaign).filter(VideoCampaign.id == campaign_id).first()
+    if not campaign or not campaign.cta_url:
+        return RedirectResponse(url="/", status_code=302)
+
+    # Atomic increment — avoids read-modify-write race under concurrent clicks
+    db.query(VideoCampaign).filter(VideoCampaign.id == campaign_id).update(
+        {VideoCampaign.cta_clicks: (VideoCampaign.cta_clicks or 0) + 1},
+        synchronize_session=False,
+    )
+    db.commit()
+
+    # Final safety check — only redirect to http/https even though input was validated
+    dest = campaign.cta_url.strip()
+    if not dest.lower().startswith(("http://", "https://")):
+        return RedirectResponse(url="/", status_code=302)
+
+    return RedirectResponse(url=dest, status_code=302)
 
 #  PAYMENT ROUTES
 # ═══════════════════════════════════════════════════════════════
@@ -17131,7 +17170,8 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
                 if next_content["type"] == "video":
                     c = next_content["data"]
                     next_video = {"id": c.id, "title": c.title, "platform": c.platform or "youtube",
-                                  "category": c.category or "General", "embed_url": c.embed_url, "is_watched": False}
+                                  "category": c.category or "General", "embed_url": c.embed_url,
+                                  "cta_url": c.cta_url or None, "is_watched": False}
                 elif next_content["type"] == "adboard":
                     a = next_content["data"]
                     next_video = {"id": a.id, "title": a.title, "platform": "adboard",
@@ -21849,6 +21889,8 @@ async def api_campaign_analytics_overview(user: User = Depends(get_current_user)
             "unique_viewers": c_unique,
             "daily_rate": daily_rate,
             "days_to_complete": days_to_complete,
+            "cta_url": c.cta_url,
+            "cta_clicks": c.cta_clicks or 0,
             "created_at": c.created_at.isoformat() if c.created_at else None,
         })
 

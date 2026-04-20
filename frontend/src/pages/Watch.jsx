@@ -540,6 +540,19 @@ export default function Watch() {
               )}
             </div>
 
+            {/* CTA — "Visit Website" — only shown after 30s watch complete and if advertiser set one */}
+            {timerDone && current?.cta_url && (
+              <div style={{padding:'10px 16px',background:'linear-gradient(90deg, rgba(14,165,233,.06), rgba(124,58,237,.06))',borderTop:'1px solid #e8ecf2',display:'flex',alignItems:'center',justifyContent:'space-between',gap:12,flexWrap:'wrap'}}>
+                <div style={{fontSize:12,color:'var(--sap-text-muted)',fontWeight:600}}>
+                  {t('watch.ctaPrompt', { defaultValue: 'Interested? Visit the advertiser\u2019s site.' })}
+                </div>
+                <a href={'/campaign-cta/' + current.id} target="_blank" rel="noopener noreferrer nofollow"
+                  style={{display:'inline-flex',alignItems:'center',gap:6,padding:'8px 16px',background:'var(--sap-accent)',color:'#fff',borderRadius:8,fontSize:13,fontWeight:700,textDecoration:'none',whiteSpace:'nowrap'}}>
+                  {t('watch.visitWebsite', { defaultValue: 'Visit Website' })} →
+                </a>
+              </div>
+            )}
+
             {/* Desktop footer */}
             <div className="watch-hint" style={{padding:'12px 16px',display:'flex',alignItems:'center',justifyContent:'space-between',gap:14,background:'var(--sap-bg-input)',borderTop:'1px solid #f1f3f7'}}>
               <div style={{display:'flex',alignItems:'center',gap:14}}>

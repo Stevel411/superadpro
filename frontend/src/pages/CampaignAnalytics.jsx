@@ -228,6 +228,23 @@ export default function CampaignAnalytics() {
                 )}
               </div>
 
+              {/* CTR — only shown when campaign has a CTA URL */}
+              {c.cta_url ? (
+                <div style={{ textAlign: 'center', flexShrink: 0, minWidth: 66 }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-accent)' }}>
+                    {c.views_delivered > 0 ? ((c.cta_clicks / c.views_delivered) * 100).toFixed(1) + '%' : '—'}
+                  </div>
+                  <div style={{ fontSize: 10, color: 'var(--sap-text-faint)' }}>
+                    {t('campaignAnalytics.ctr', { defaultValue: 'CTR' })} · {c.cta_clicks || 0}
+                  </div>
+                </div>
+              ) : (
+                <div style={{ textAlign: 'center', flexShrink: 0, minWidth: 66 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--sap-text-faint)' }}>—</div>
+                  <div style={{ fontSize: 10, color: 'var(--sap-text-faint)' }}>{t('campaignAnalytics.noCta', { defaultValue: 'no CTA' })}</div>
+                </div>
+              )}
+
               {isOpen ? <ChevronUp size={18} color="var(--sap-text-faint)" /> : <ChevronDown size={18} color="var(--sap-text-faint)" />}
             </div>
 

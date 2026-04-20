@@ -376,6 +376,9 @@ class VideoCampaign(Base):
     # Featured & Spotlight (Premium tier 6+ / Executive 7+)
     is_featured     = Column(Boolean, default=False)   # auto-featured on public page
     is_spotlight    = Column(Boolean, default=False)   # brand spotlight (large card)
+    # CTA — optional "Visit Website" button shown after watch completes
+    cta_url         = Column(String, nullable=True)    # destination URL (validated on input)
+    cta_clicks      = Column(Integer, default=0)       # total clicks through the CTA
     created_at      = Column(DateTime, default=datetime.utcnow)
     updated_at      = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -1300,6 +1303,8 @@ def run_migrations():
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS target_gender VARCHAR",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS is_featured BOOLEAN DEFAULT FALSE",
         "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS is_spotlight BOOLEAN DEFAULT FALSE",
+        "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS cta_url VARCHAR",
+        "ALTER TABLE video_campaigns ADD COLUMN IF NOT EXISTS cta_clicks INTEGER DEFAULT 0",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS age_range VARCHAR",
         "ALTER TABLE users ADD COLUMN IF NOT EXISTS gender VARCHAR",
         # User interests
