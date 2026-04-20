@@ -266,7 +266,25 @@ var CSS_EXPLORE_HUB = `
   max-width: 1100px; margin: 0 auto; padding: 100px 24px 80px;
   position: relative; z-index: 1;
 }
-.explore-hub .hub-hero { text-align: center; margin-bottom: 48px; }
+.explore-hub .hub-hero {
+  position: relative;
+  text-align: center;
+  margin-bottom: 48px;
+  padding: 80px 40px;
+  border-radius: 22px;
+  overflow: hidden;
+  background-image:
+    linear-gradient(180deg, rgba(11,18,48,0.55) 0%, rgba(11,18,48,0.35) 30%, rgba(11,18,48,0.55) 70%, rgba(11,18,48,0.95) 100%),
+    url("/static/images/explore-hub-hero.jpg");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  border: 1px solid var(--ink-10);
+  box-shadow: 0 12px 48px rgba(0,0,0,0.35);
+}
+@media (max-width: 720px) {
+  .explore-hub .hub-hero { padding: 56px 24px; }
+}
 .explore-hub .hub-eyebrow {
   font-family: 'JetBrains Mono', monospace; font-size: 11px;
   color: var(--sky-bright); letter-spacing: .2em; text-transform: uppercase;
