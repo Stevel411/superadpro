@@ -3272,5 +3272,13 @@
     "adminDashboard": "管理",
     "adminStories": "物語",
     "adminShowcase": "展示"
+  },
+  "pwa": {
+    "installPromptAria": "SuperAdProをインストール",
+    "installTitle": "SuperAdProをホーム画面に追加",
+    "installSubIOS": "共有をタップし、「ホーム画面に追加」を選んでデイリークオータにワンタップでアクセス。",
+    "installSub": "デイリークオータをワンタップで。ブラウザ不要、待ち時間なし。",
+    "installBtn": "インストール",
+    "installDismiss": "閉じる"
   }
 }

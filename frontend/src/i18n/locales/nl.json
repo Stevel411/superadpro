@@ -3280,5 +3280,13 @@
     "adminDashboard": "Admin",
     "adminStories": "Verhalen",
     "adminShowcase": "Vitrine"
+  },
+  "pwa": {
+    "installPromptAria": "SuperAdPro installeren",
+    "installTitle": "Voeg SuperAdPro toe aan je beginscherm",
+    "installSubIOS": "Tik op Delen en dan \"Zet op beginscherm\" voor toegang tot je quota met één tik.",
+    "installSub": "Bekijk je dagelijkse quota met één tik. Geen browser, geen vertraging.",
+    "installBtn": "Installeren",
+    "installDismiss": "Sluiten"
   }
 }

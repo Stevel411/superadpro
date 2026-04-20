@@ -3272,5 +3272,13 @@
     "adminDashboard": "إدارة",
     "adminStories": "قصص",
     "adminShowcase": "عرض"
+  },
+  "pwa": {
+    "installPromptAria": "تثبيت SuperAdPro",
+    "installTitle": "أضف SuperAdPro إلى الشاشة الرئيسية",
+    "installSubIOS": "اضغط على مشاركة، ثم \"إضافة إلى الشاشة الرئيسية\" للوصول إلى حصتك اليومية بضغطة واحدة.",
+    "installSub": "شاهد حصتك اليومية بضغطة واحدة. بدون متصفح، بدون تأخير.",
+    "installBtn": "تثبيت",
+    "installDismiss": "إغلاق"
   }
 }

@@ -3280,5 +3280,13 @@
     "adminDashboard": "Admin",
     "adminStories": "Historias",
     "adminShowcase": "Showcase"
+  },
+  "pwa": {
+    "installPromptAria": "Instalar SuperAdPro",
+    "installTitle": "Añade SuperAdPro a tu pantalla de inicio",
+    "installSubIOS": "Toca Compartir y luego «Añadir a pantalla de inicio» para acceder a tu cuota con un solo toque.",
+    "installSub": "Mira tu cuota diaria con un solo toque. Sin navegador, sin demoras.",
+    "installBtn": "Instalar",
+    "installDismiss": "Cerrar"
   }
 }

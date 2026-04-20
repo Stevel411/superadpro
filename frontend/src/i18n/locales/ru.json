@@ -3280,5 +3280,13 @@
     "adminDashboard": "Админ",
     "adminStories": "Истор",
     "adminShowcase": "Витрина"
+  },
+  "pwa": {
+    "installPromptAria": "Установить SuperAdPro",
+    "installTitle": "Добавьте SuperAdPro на главный экран",
+    "installSubIOS": "Нажмите «Поделиться», затем «На экран \"Домой\"», чтобы открывать дневную норму одним касанием.",
+    "installSub": "Смотрите дневную норму одним касанием. Без браузера, без задержек.",
+    "installBtn": "Установить",
+    "installDismiss": "Закрыть"
   }
 }

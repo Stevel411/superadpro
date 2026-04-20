@@ -3272,5 +3272,13 @@
     "adminDashboard": "एडमिन",
     "adminStories": "कहानियां",
     "adminShowcase": "शोकेस"
+  },
+  "pwa": {
+    "installPromptAria": "SuperAdPro इंस्टॉल करें",
+    "installTitle": "SuperAdPro को अपनी होम स्क्रीन पर जोड़ें",
+    "installSubIOS": "शेयर पर टैप करें, फिर \"होम स्क्रीन पर जोड़ें\" पर टैप करें ताकि अपनी दैनिक क्वोटा एक टैप में देख सकें।",
+    "installSub": "अपनी दैनिक क्वोटा एक टैप में देखें। ब्राउज़र नहीं, देरी नहीं।",
+    "installBtn": "इंस्टॉल करें",
+    "installDismiss": "बंद करें"
   }
 }

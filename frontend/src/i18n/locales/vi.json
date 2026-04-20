@@ -3272,5 +3272,13 @@
     "adminDashboard": "Quản trị",
     "adminStories": "Chuyện",
     "adminShowcase": "Trưng"
+  },
+  "pwa": {
+    "installPromptAria": "Cài đặt SuperAdPro",
+    "installTitle": "Thêm SuperAdPro vào màn hình chính",
+    "installSubIOS": "Nhấn Chia sẻ, rồi chọn \"Thêm vào Màn hình chính\" để truy cập hạn mức hàng ngày chỉ với một lần chạm.",
+    "installSub": "Xem hạn mức hàng ngày chỉ với một lần chạm. Không trình duyệt, không chậm trễ.",
+    "installBtn": "Cài đặt",
+    "installDismiss": "Đóng"
   }
 }

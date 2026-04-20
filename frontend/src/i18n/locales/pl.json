@@ -3272,5 +3272,13 @@
     "adminDashboard": "Admin",
     "adminStories": "Historie",
     "adminShowcase": "Vitryna"
+  },
+  "pwa": {
+    "installPromptAria": "Zainstaluj SuperAdPro",
+    "installTitle": "Dodaj SuperAdPro do ekranu głównego",
+    "installSubIOS": "Stuknij Udostępnij, a następnie „Do ekranu początkowego\", aby mieć dostęp do dziennego limitu jednym stuknięciem.",
+    "installSub": "Oglądaj swój dzienny limit jednym stuknięciem. Bez przeglądarki, bez opóźnień.",
+    "installBtn": "Zainstaluj",
+    "installDismiss": "Zamknij"
   }
 }

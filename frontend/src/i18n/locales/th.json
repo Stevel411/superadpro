@@ -3272,5 +3272,13 @@
     "adminDashboard": "แอดมิน",
     "adminStories": "เรื่อง",
     "adminShowcase": "โชว์เคส"
+  },
+  "pwa": {
+    "installPromptAria": "ติดตั้ง SuperAdPro",
+    "installTitle": "เพิ่ม SuperAdPro ลงในหน้าจอหลัก",
+    "installSubIOS": "แตะ แชร์ แล้วเลือก \"เพิ่มไปที่หน้าจอโฮม\" เพื่อเข้าถึงโควต้ารายวันของคุณในแตะเดียว",
+    "installSub": "ดูโควต้ารายวันของคุณในแตะเดียว ไม่ต้องใช้เบราว์เซอร์ ไม่ล่าช้า",
+    "installBtn": "ติดตั้ง",
+    "installDismiss": "ปิด"
   }
 }

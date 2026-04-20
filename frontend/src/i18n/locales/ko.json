@@ -3272,5 +3272,13 @@
     "adminDashboard": "관리",
     "adminStories": "스토리",
     "adminShowcase": "쇼케이스"
+  },
+  "pwa": {
+    "installPromptAria": "SuperAdPro 설치",
+    "installTitle": "SuperAdPro를 홈 화면에 추가하세요",
+    "installSubIOS": "공유를 탭한 다음 \"홈 화면에 추가\"를 선택하면 일일 할당량에 한 번의 탭으로 접근할 수 있습니다.",
+    "installSub": "일일 할당량을 한 번의 탭으로 확인하세요. 브라우저 없이, 지연 없이.",
+    "installBtn": "설치",
+    "installDismiss": "닫기"
   }
 }

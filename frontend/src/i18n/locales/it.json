@@ -3280,5 +3280,13 @@
     "adminDashboard": "Admin",
     "adminStories": "Storie",
     "adminShowcase": "Vetrina"
+  },
+  "pwa": {
+    "installPromptAria": "Installa SuperAdPro",
+    "installTitle": "Aggiungi SuperAdPro alla schermata Home",
+    "installSubIOS": "Tocca Condividi, poi «Aggiungi a Home» per accedere alla tua quota con un solo tocco.",
+    "installSub": "Guarda la tua quota giornaliera con un tocco. Nessun browser, nessun ritardo.",
+    "installBtn": "Installa",
+    "installDismiss": "Chiudi"
   }
 }

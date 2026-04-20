@@ -3272,5 +3272,13 @@
     "adminDashboard": "Admin",
     "adminStories": "Cerita",
     "adminShowcase": "Showcase"
+  },
+  "pwa": {
+    "installPromptAria": "Pasang SuperAdPro",
+    "installTitle": "Tambahkan SuperAdPro ke layar utama",
+    "installSubIOS": "Ketuk Bagikan, lalu \"Tambahkan ke Layar Utama\" untuk akses kuota harian dengan sekali ketuk.",
+    "installSub": "Tonton kuota harianmu dengan sekali ketuk. Tanpa browser, tanpa penundaan.",
+    "installBtn": "Pasang",
+    "installDismiss": "Tutup"
   }
 }

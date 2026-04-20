@@ -3280,5 +3280,13 @@
     "adminDashboard": "Admin",
     "adminStories": "Histórias",
     "adminShowcase": "Vitrine"
+  },
+  "pwa": {
+    "installPromptAria": "Instalar SuperAdPro",
+    "installTitle": "Adicione o SuperAdPro à tela inicial",
+    "installSubIOS": "Toque em Compartilhar e depois em \"Adicionar à Tela de Início\" para acessar sua cota com um toque.",
+    "installSub": "Assista à sua cota diária com um toque. Sem navegador, sem demora.",
+    "installBtn": "Instalar",
+    "installDismiss": "Fechar"
   }
 }

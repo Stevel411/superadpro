@@ -3272,5 +3272,13 @@
     "adminDashboard": "Admin",
     "adminStories": "Kwento",
     "adminShowcase": "Showcase"
+  },
+  "pwa": {
+    "installPromptAria": "I-install ang SuperAdPro",
+    "installTitle": "Idagdag ang SuperAdPro sa iyong home screen",
+    "installSubIOS": "I-tap ang Share, pagkatapos ay \"Add to Home Screen\" para sa one-tap na access sa iyong araw-araw na quota.",
+    "installSub": "Panoorin ang iyong araw-araw na quota sa isang tap. Walang browser, walang pagkaantala.",
+    "installBtn": "I-install",
+    "installDismiss": "Isara"
   }
 }

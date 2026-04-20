@@ -3272,5 +3272,13 @@
     "adminDashboard": "管理",
     "adminStories": "故事",
     "adminShowcase": "展示"
+  },
+  "pwa": {
+    "installPromptAria": "安装 SuperAdPro",
+    "installTitle": "将 SuperAdPro 添加到主屏幕",
+    "installSubIOS": "点击\"分享\",然后点击\"添加到主屏幕\",一键直达每日任务。",
+    "installSub": "一键观看每日任务。无需浏览器,零延迟。",
+    "installBtn": "安装",
+    "installDismiss": "关闭"
   }
 }

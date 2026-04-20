@@ -3280,5 +3280,13 @@
     "adminDashboard": "Admin",
     "adminStories": "Storys",
     "adminShowcase": "Vitrine"
+  },
+  "pwa": {
+    "installPromptAria": "SuperAdPro installieren",
+    "installTitle": "SuperAdPro zum Startbildschirm hinzufügen",
+    "installSubIOS": "Tippe auf Teilen und dann „Zum Home-Bildschirm\" für Ein-Tipp-Zugriff auf dein Tagesziel.",
+    "installSub": "Erreiche dein Tagesziel mit einem Tipp. Kein Browser, keine Verzögerung.",
+    "installBtn": "Installieren",
+    "installDismiss": "Schließen"
   }
 }

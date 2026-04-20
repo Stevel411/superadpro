@@ -3272,5 +3272,13 @@
     "adminDashboard": "Admin",
     "adminStories": "Hadithi",
     "adminShowcase": "Onesho"
+  },
+  "pwa": {
+    "installPromptAria": "Sakinisha SuperAdPro",
+    "installTitle": "Ongeza SuperAdPro kwenye skrini yako ya mwanzo",
+    "installSubIOS": "Gusa Shiriki, kisha \"Ongeza kwenye Skrini ya Mwanzo\" ili kufikia kiwango chako cha kila siku kwa mguso mmoja.",
+    "installSub": "Tazama kiwango chako cha kila siku kwa mguso mmoja. Bila kivinjari, bila ucheleweshaji.",
+    "installBtn": "Sakinisha",
+    "installDismiss": "Funga"
   }
 }

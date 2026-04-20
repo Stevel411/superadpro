@@ -3272,5 +3272,13 @@
     "adminDashboard": "Yönetim",
     "adminStories": "Hikâye",
     "adminShowcase": "Vitrin"
+  },
+  "pwa": {
+    "installPromptAria": "SuperAdPro'yu yükle",
+    "installTitle": "SuperAdPro'yu ana ekranınıza ekleyin",
+    "installSubIOS": "Paylaş simgesine ve ardından \"Ana Ekrana Ekle\" seçeneğine dokunarak günlük kotanıza tek dokunuşla erişin.",
+    "installSub": "Günlük kotanızı tek dokunuşla izleyin. Tarayıcı yok, gecikme yok.",
+    "installBtn": "Yükle",
+    "installDismiss": "Kapat"
   }
 }
