@@ -27,6 +27,8 @@ export default function ExploreHub() {
   return (
     <>
       <style>{CSS_EXPLORE_HUB}</style>
+      {/* Full-page background image — fixed behind everything, outside the clipping container */}
+      <div className="explore-hub-page-bg" aria-hidden="true" />
       <div className="explore-hub">
 
         {/* Floating nav */}
@@ -194,7 +196,7 @@ var CSS_EXPLORE_HUB = `
   --ink-10: rgba(255,255,255,0.1);
   --ink-05: rgba(255,255,255,0.05);
   min-height: 100vh;
-  background: radial-gradient(ellipse at top, #0f1939 0%, var(--cobalt-deepest) 60%);
+  background-color: transparent;
   color: var(--ink);
   font-family: 'Inter', -apple-system, sans-serif;
   position: relative;
@@ -207,6 +209,17 @@ var CSS_EXPLORE_HUB = `
   background-image:
     radial-gradient(circle at 20% 30%, rgba(14,165,233,0.08), transparent 40%),
     radial-gradient(circle at 80% 70%, rgba(129,140,248,0.06), transparent 40%);
+  pointer-events: none;
+}
+.explore-hub-page-bg {
+  position: fixed; inset: 0; z-index: -2;
+  background-color: var(--cobalt-deepest);
+  background-image:
+    linear-gradient(180deg, rgba(5,13,26,0.70) 0%, rgba(5,13,26,0.55) 40%, rgba(5,13,26,0.80) 100%),
+    url("/static/images/explore-hub-hero.jpg");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
   pointer-events: none;
 }
 
@@ -266,25 +279,7 @@ var CSS_EXPLORE_HUB = `
   max-width: 1100px; margin: 0 auto; padding: 100px 24px 80px;
   position: relative; z-index: 1;
 }
-.explore-hub .hub-hero {
-  position: relative;
-  text-align: center;
-  margin-bottom: 48px;
-  padding: 80px 40px;
-  border-radius: 22px;
-  overflow: hidden;
-  background-image:
-    linear-gradient(180deg, rgba(11,18,48,0.55) 0%, rgba(11,18,48,0.35) 30%, rgba(11,18,48,0.55) 70%, rgba(11,18,48,0.95) 100%),
-    url("/static/images/explore-hub-hero.jpg");
-  background-size: cover;
-  background-position: center center;
-  background-repeat: no-repeat;
-  border: 1px solid var(--ink-10);
-  box-shadow: 0 12px 48px rgba(0,0,0,0.35);
-}
-@media (max-width: 720px) {
-  .explore-hub .hub-hero { padding: 56px 24px; }
-}
+.explore-hub .hub-hero { text-align: center; margin-bottom: 48px; }
 .explore-hub .hub-eyebrow {
   font-family: 'JetBrains Mono', monospace; font-size: 11px;
   color: var(--sky-bright); letter-spacing: .2em; text-transform: uppercase;
