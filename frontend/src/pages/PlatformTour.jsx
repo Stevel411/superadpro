@@ -112,60 +112,54 @@ export default function PlatformTour() {
       {/* Active section content */}
       <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, overflow: 'hidden' }}>
 
-        {/* Section header — title on the left, tab bar on the right.
-            Previously the tab bar sat on its own row above this card; moving
-            it inline here reclaims ~70px of vertical space so the video
-            sits higher on first load. The tab strip still scrolls
-            horizontally with ‹ › arrows when tabs overflow on narrow
-            viewports. */}
-        <div style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
-          {/* Title block — fixed natural width */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
-            <div style={{ width: 48, height: 48, borderRadius: 12, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <s.Icon size={24} color={s.color}/>
-            </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ fontFamily: 'Sora,sans-serif', fontSize: 20, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{s.title}</span>
-                {s.pro && <span style={{ padding: '3px 10px', borderRadius: 6, background: 'rgba(139,92,246,.1)', fontSize: 12, fontWeight: 700, color: 'var(--sap-violet)' }}>{t('platformTour.proLabel')}</span>}
-              </div>
-              <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginTop: 2 }}>{t('platformTour.stepXofY', { num: s.num, total: 6 })}</div>
-            </div>
+        {/* Section header — tab navigation only. The active tab's
+            coloured highlight (border + tinted background + filled icon)
+            serves as the section title, so the old icon/title block on
+            the left was redundant and has been removed. Arrows sit
+            inline on either side of the tab group as a single centred
+            unit — this keeps them visually tied to the tabs they
+            control rather than floating at card edges. */}
+        <div style={{ padding: '16px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}>
+          {/* Left arrow — inline, directly before the tab group */}
+          <button onClick={function() { var el = document.getElementById('tour-tabs'); if (el) el.scrollBy({ left: -240, behavior: 'smooth' }); }}
+            style={{ width: 36, height: 36, flexShrink: 0, border: '1px solid #e2e8f0', background: '#fff', borderRadius: 9,
+              cursor: 'pointer', fontSize: 22, fontWeight: 800, color: '#475569',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .15s' }}
+            aria-label={t('platformTour.scrollLeft', { defaultValue: 'Previous' })}>‹</button>
+
+          {/* Tab strip — horizontally scrollable if it overflows. Tabs
+              centred when they fit, scroll-anchored to start when they
+              don't. Larger padding/fonts than the previous inline
+              version since tabs now own the entire row. */}
+          <div id="tour-tabs" style={{ display: 'flex', gap: 6, overflowX: 'auto', scrollbarWidth: 'none', msOverflowStyle: 'none', padding: '2px 0', justifyContent: 'center', maxWidth: '100%' }}>
+            <style>{`#tour-tabs::-webkit-scrollbar{display:none}`}</style>
+            {SECTIONS.map(function(sec, i) {
+              var isActive = i === activeIdx;
+              return <button key={sec.id} onClick={function() { setActiveIdx(i); }}
+                style={{
+                  display: 'flex', alignItems: 'center', gap: 9, padding: '11px 18px', borderRadius: 11,
+                  border: isActive ? '1.5px solid ' + sec.color : '1px solid #e2e8f0',
+                  background: isActive ? sec.bg : '#fff',
+                  cursor: 'pointer', fontFamily: 'inherit', fontSize: 14, fontWeight: isActive ? 700 : 600,
+                  color: isActive ? sec.color : 'var(--sap-text-muted)', whiteSpace: 'nowrap', flexShrink: 0,
+                  transition: 'all .15s',
+                  boxShadow: isActive ? '0 2px 8px ' + sec.color + '18' : 'none',
+                }}>
+                <div style={{ width: 26, height: 26, borderRadius: 7, background: isActive ? sec.color : sec.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <sec.Icon size={14} color={isActive ? '#fff' : sec.color}/>
+                </div>
+                {sec.shortTitle}
+                {sec.pro && <span style={{ marginLeft: 2, padding: '2px 7px', borderRadius: 5, background: 'rgba(139,92,246,.12)', fontSize: 10, fontWeight: 700, color: 'var(--sap-violet)', letterSpacing: 0.3 }}>{t('platformTour.proLabel')}</span>}
+              </button>;
+            })}
           </div>
 
-          {/* Tab bar with scroll arrows — flex:1 so it fills the remaining
-              space. justifyContent:center on the tab strip keeps the tabs
-              visually centred within whatever space is available. */}
-          <div style={{ position: 'relative', flex: 1, minWidth: 280 }}>
-            <button onClick={function() { var el = document.getElementById('tour-tabs'); if (el) el.scrollBy({ left: -200, behavior: 'smooth' }); }}
-              style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 28, zIndex: 2, border: 'none', cursor: 'pointer',
-                background: 'linear-gradient(90deg, #fff 60%, transparent)', borderRadius: '8px 0 0 8px',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 800, color: '#475569' }}>‹</button>
-            <div id="tour-tabs" style={{ display: 'flex', gap: 4, overflowX: 'auto', paddingBottom: 2, scrollbarWidth: 'none', msOverflowStyle: 'none', paddingLeft: 28, paddingRight: 28, justifyContent: 'center' }}>
-              <style>{`#tour-tabs::-webkit-scrollbar{display:none}`}</style>
-              {SECTIONS.map(function(sec, i) {
-                var isActive = i === activeIdx;
-                return <button key={sec.id} onClick={function() { setActiveIdx(i); }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 9,
-                    border: isActive ? '1.5px solid ' + sec.color : '1px solid #e2e8f0',
-                    background: isActive ? sec.bg : '#fff',
-                    cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, fontWeight: isActive ? 700 : 500,
-                    color: isActive ? sec.color : 'var(--sap-text-muted)', whiteSpace: 'nowrap', flexShrink: 0,
-                    transition: 'all .15s',
-                  }}>
-                  <div style={{ width: 20, height: 20, borderRadius: 5, background: isActive ? sec.color : sec.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <sec.Icon size={11} color={isActive ? '#fff' : sec.color}/>
-                  </div>
-                  {sec.shortTitle}
-                </button>;
-              })}
-            </div>
-            <button onClick={function() { var el = document.getElementById('tour-tabs'); if (el) el.scrollBy({ left: 200, behavior: 'smooth' }); }}
-              style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 28, zIndex: 2, border: 'none', cursor: 'pointer',
-                background: 'linear-gradient(270deg, #fff 60%, transparent)', borderRadius: '0 8px 8px 0',
-                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 800, color: '#475569' }}>›</button>
-          </div>
+          {/* Right arrow — inline, directly after the tab group */}
+          <button onClick={function() { var el = document.getElementById('tour-tabs'); if (el) el.scrollBy({ left: 240, behavior: 'smooth' }); }}
+            style={{ width: 36, height: 36, flexShrink: 0, border: '1px solid #e2e8f0', background: '#fff', borderRadius: 9,
+              cursor: 'pointer', fontSize: 22, fontWeight: 800, color: '#475569',
+              display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all .15s' }}
+            aria-label={t('platformTour.scrollRight', { defaultValue: 'Next' })}>›</button>
         </div>
 
         {/* Video container — shows poster image until user clicks play */}
