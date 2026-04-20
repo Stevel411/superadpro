@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { changeLanguage, LANGUAGES } from '../../i18n';
 import { Globe } from 'lucide-react';
 
-export default function LanguageSelector({ compact }) {
+export default function LanguageSelector({ compact, openUp }) {
   var { i18n } = useTranslation();
   var [open, setOpen] = useState(false);
   var ref = useRef(null);
@@ -33,9 +33,14 @@ export default function LanguageSelector({ compact }) {
       </button>
 
       {open && (
-        <div style={{position:'absolute',top:'100%',right:0,marginTop:6,width:200,maxHeight:360,overflowY:'auto',
-          background:'#172554',border:'1px solid rgba(255,255,255,.1)',borderRadius:10,
-          boxShadow:'0 12px 40px rgba(0,0,0,.4)',zIndex:999,padding:4}}>
+        <div style={Object.assign(
+          {position:'absolute',right:0,width:200,maxHeight:360,overflowY:'auto',
+            background:'#172554',border:'1px solid rgba(255,255,255,.1)',borderRadius:10,
+            boxShadow:'0 12px 40px rgba(0,0,0,.4)',zIndex:999,padding:4},
+          openUp
+            ? {bottom:'100%', marginBottom:6}
+            : {top:'100%', marginTop:6}
+        )}>
           {LANGUAGES.map(function(lang) {
             var isActive = lang.code === i18n.language;
             return (
