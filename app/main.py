@@ -2217,6 +2217,15 @@ def explore_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
+@app.get("/explore/live")
+@app.get("/explore/stories")
+@app.get("/explore/showcase")
+@app.get("/explore/free-tools")
+def explore_subpages(request: Request):
+    """React SPA subpages under /explore — served by React Router on the client."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 @app.get("/for-advertisers")
 def for_advertisers(request: Request):
     if _react_index.exists():
