@@ -1,7 +1,10 @@
-// SuperAdPro Service Worker v2
-var CACHE = 'superadpro-v2';
+// SuperAdPro Service Worker v3
+var CACHE = 'superadpro-v3';
 var STATIC = [
   '/',
+  '/watch',
+  '/wallet',
+  '/network',
   '/static/manifest.json',
   '/static/icons/icon-192.png',
   '/static/icons/icon-512.png',

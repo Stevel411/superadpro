@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import MobileTabBar from './MobileTabBar';
+import InstallPrompt from '../InstallPrompt';
 import { useLocation } from 'react-router-dom';
 
 function useIsMobile() {
@@ -126,6 +127,9 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
 
       {/* Mobile bottom tab bar — only on the 3 key pages */}
       {isMobileTabPage && <MobileTabBar />}
+
+      {/* PWA install prompt — auto-hides if already installed or recently dismissed */}
+      <InstallPrompt />
 
       {/* CSS to handle sidebar offset on desktop only + MOBILE RESPONSIVE */}
       <style>{`

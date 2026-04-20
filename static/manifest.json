@@ -2,7 +2,7 @@
   "name": "SuperAdPro",
   "short_name": "SuperAdPro",
   "description": "Video advertising, affiliate commissions, AI marketing tools and multiple income streams.",
-  "start_url": "/dashboard",
+  "start_url": "/watch",
   "scope": "/",
   "display": "standalone",
   "background_color": "#050d1a",
@@ -29,6 +29,29 @@
       "type": "image/png",
       "form_factor": "narrow",
       "label": "SuperAdPro Dashboard"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Watch & Earn",
+      "short_name": "Watch",
+      "description": "Complete your daily view quota",
+      "url": "/watch",
+      "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Wallet",
+      "short_name": "Wallet",
+      "description": "Check your balance and earnings",
+      "url": "/wallet",
+      "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "My Network",
+      "short_name": "Network",
+      "description": "View your team and downline",
+      "url": "/network",
+      "icons": [{ "src": "/static/icons/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }
