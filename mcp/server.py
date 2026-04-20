@@ -2,31 +2,33 @@
 SuperAdPro MCP Monitoring Server
 =================================
 
-FastAPI service implementing the MCP (Model Context Protocol) streamable HTTP
-transport, exposing 10 read-only operational monitoring tools.
+FastAPI service implementing the MCP (Model Context Protocol) 2025-03-26
+Streamable HTTP transport, exposing 10 read-only operational monitoring tools.
 
 Runs as a separate Railway service. Never mutates data. All tools return aggregates.
 
 Endpoints:
-  GET  /            - Health check
-  POST /mcp         - MCP JSON-RPC 2.0 endpoint (streamable HTTP transport)
-  GET  /tools       - Human-readable tool list (for debugging)
+  GET  /             - Health check (service status, not MCP)
+  POST /mcp          - MCP JSON-RPC 2.0 endpoint (Streamable HTTP transport)
+  GET  /mcp          - Returns 405 (no SSE stream — all responses synchronous)
+  DELETE /mcp        - Optional session termination
+  GET  /tools        - Human-readable tool list (for debugging, not MCP)
 
-Auth: MCP_AUTH_TOKEN env var sent as `Authorization: Bearer <token>`
-
-Response shape for all tools:
-  {"status": "...", "data": {...}, "meta": {"generated_at": "iso", "cached": bool}}
+Auth: If MCP_AUTH_TOKEN env var is set, requires `Authorization: Bearer <token>`.
+      Not set → anonymous access allowed.
 """
 
 import os
 import json
 import time
+import uuid
 import logging
 from datetime import datetime, timezone
 from typing import Any
 
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 
@@ -51,18 +53,21 @@ MCP_AUTH_TOKEN = os.environ.get("MCP_AUTH_TOKEN")
 if not DATABASE_URL:
     log.warning("DATABASE_URL not set — server will start but tools will fail.")
 if not MCP_AUTH_TOKEN:
-    log.warning("MCP_AUTH_TOKEN not set — auth is DISABLED (dev only).")
+    log.warning("MCP_AUTH_TOKEN not set — auth is DISABLED.")
+
+
+# Protocol versions we support. Client (Claude) sends what it supports;
+# server MUST respond with a version both sides support.
+SUPPORTED_PROTOCOL_VERSIONS = ["2025-03-26", "2024-11-05"]
 
 
 # ─────────────────────────────────────────────────────────────
-#  Database (read-only)
+#  Database
 # ─────────────────────────────────────────────────────────────
 engine = None
 SessionLocal = None
 
 if DATABASE_URL:
-    # Railway postgres URLs sometimes come through as postgres:// which SQLAlchemy
-    # doesn't accept — normalise to postgresql://
     db_url = DATABASE_URL
     if db_url.startswith("postgres://"):
         db_url = db_url.replace("postgres://", "postgresql://", 1)
@@ -79,14 +84,13 @@ if DATABASE_URL:
 
 
 def get_db():
-    """Yields a read-only DB session. Caller must close."""
     if not SessionLocal:
         raise RuntimeError("DATABASE_URL not configured")
     return SessionLocal()
 
 
 # ─────────────────────────────────────────────────────────────
-#  Simple in-memory cache (30-second TTL per tool)
+#  Cache
 # ─────────────────────────────────────────────────────────────
 _cache: dict[str, tuple[float, Any]] = {}
 CACHE_TTL_SECONDS = 30
@@ -104,15 +108,32 @@ def cached_call(tool_name: str, func, *args, **kwargs):
     return value, False
 
 
+# Ephemeral session tracking
+_known_sessions: set[str] = set()
+
+
 # ─────────────────────────────────────────────────────────────
 #  FastAPI app
 # ─────────────────────────────────────────────────────────────
-app = FastAPI(title="SuperAdPro MCP Monitoring Server", version="0.1.0")
+app = FastAPI(title="SuperAdPro MCP Monitoring Server", version="0.2.0")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "https://claude.ai",
+        "https://claude.com",
+        "https://www.anthropic.com",
+        "https://api.anthropic.com",
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
+    allow_headers=["*"],
+    expose_headers=["Mcp-Session-Id"],
+)
 
 
 @app.get("/")
 def health():
-    """Health check endpoint."""
     db_ok = False
     if engine:
         try:
@@ -123,17 +144,17 @@ def health():
             log.error(f"DB health check failed: {e}")
     return {
         "service": "superadpro-mcp",
-        "version": "0.1.0",
+        "version": "0.2.0",
         "status": "ok" if db_ok else "degraded",
         "database": "ok" if db_ok else "unreachable",
         "tools_loaded": len(tool_registry.TOOLS),
         "auth_enabled": bool(MCP_AUTH_TOKEN),
+        "mcp_protocol": "2025-03-26 (Streamable HTTP)",
     }
 
 
 @app.get("/tools")
 def list_tools_human():
-    """Human-readable tool list for debugging."""
     return {
         "tools": [
             {
@@ -147,28 +168,23 @@ def list_tools_human():
 
 
 def _check_auth(request: Request):
-    """Reject request if Authorization header missing or wrong.
-    In dev (no MCP_AUTH_TOKEN set), auth is skipped with a warning."""
     if not MCP_AUTH_TOKEN:
-        return  # dev mode
+        return
     auth = request.headers.get("authorization", "")
     if not auth.startswith("Bearer "):
         raise HTTPException(status_code=401, detail="Missing Bearer token")
-    token = auth[7:]
-    if token != MCP_AUTH_TOKEN:
+    if auth[7:] != MCP_AUTH_TOKEN:
         raise HTTPException(status_code=401, detail="Invalid token")
 
 
-@app.post("/mcp")
-async def mcp_endpoint(request: Request):
-    """
-    MCP JSON-RPC 2.0 over HTTP.
+def _negotiate_protocol_version(client_version: str) -> str:
+    if client_version in SUPPORTED_PROTOCOL_VERSIONS:
+        return client_version
+    return SUPPORTED_PROTOCOL_VERSIONS[0]
 
-    Supports methods:
-      - initialize
-      - tools/list
-      - tools/call
-    """
+
+@app.post("/mcp")
+async def mcp_post(request: Request):
     _check_auth(request)
 
     try:
@@ -176,53 +192,65 @@ async def mcp_endpoint(request: Request):
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid JSON")
 
+    if isinstance(body, list):
+        body = body[0] if body else {}
+
     method = body.get("method")
     request_id = body.get("id")
-    params = body.get("params", {})
+    params = body.get("params", {}) or {}
 
-    log.info(f"MCP request: {method}")
+    session_id = request.headers.get("mcp-session-id") or request.headers.get("Mcp-Session-Id")
 
-    # ── initialize handshake ──
+    log.info(f"MCP request: method={method} session={session_id}")
+
+    response_headers: dict[str, str] = {}
+
+    # ── initialize ──
     if method == "initialize":
-        return {
+        client_proto = params.get("protocolVersion", "2025-03-26")
+        negotiated = _negotiate_protocol_version(client_proto)
+
+        new_session_id = f"sap-{uuid.uuid4().hex}"
+        _known_sessions.add(new_session_id)
+        response_headers["Mcp-Session-Id"] = new_session_id
+
+        log.info(f"initialize: client_proto={client_proto} negotiated={negotiated} new_session={new_session_id}")
+
+        return JSONResponse(content={
             "jsonrpc": "2.0",
             "id": request_id,
             "result": {
-                "protocolVersion": "2024-11-05",
-                "serverInfo": {
-                    "name": "superadpro-mcp",
-                    "version": "0.1.0",
-                },
-                "capabilities": {
-                    "tools": {"listChanged": False},
-                },
+                "protocolVersion": negotiated,
+                "serverInfo": {"name": "superadpro-mcp", "version": "0.2.0"},
+                "capabilities": {"tools": {"listChanged": False}},
             },
-        }
+        }, headers=response_headers)
 
-    # ── notifications/initialized — no response needed ──
-    if method == "notifications/initialized":
-        return JSONResponse(content={}, status_code=204)
+    # ── notifications ──
+    if method in ("notifications/initialized", "initialized"):
+        log.info("client initialized notification received")
+        return Response(status_code=202)
+
+    # ── ping ──
+    if method == "ping":
+        return JSONResponse(content={"jsonrpc": "2.0", "id": request_id, "result": {}})
 
     # ── tools/list ──
     if method == "tools/list":
-        return {
-            "jsonrpc": "2.0",
-            "id": request_id,
-            "result": {
-                "tools": [
-                    {
-                        "name": t["name"],
-                        "description": t["description"],
-                        "inputSchema": t.get("input_schema", {
-                            "type": "object",
-                            "properties": {},
-                            "required": [],
-                        }),
-                    }
-                    for t in tool_registry.TOOLS.values()
-                ]
-            },
-        }
+        tools_out = []
+        for t in tool_registry.TOOLS.values():
+            tools_out.append({
+                "name": t["name"],
+                "description": t["description"],
+                "inputSchema": t.get("input_schema", {
+                    "type": "object",
+                    "properties": {},
+                    "required": [],
+                }),
+            })
+        return JSONResponse(
+            content={"jsonrpc": "2.0", "id": request_id, "result": {"tools": tools_out}},
+        )
 
     # ── tools/call ──
     if method == "tools/call":
@@ -230,14 +258,11 @@ async def mcp_endpoint(request: Request):
         tool_args = params.get("arguments", {}) or {}
 
         if tool_name not in tool_registry.TOOLS:
-            return {
+            return JSONResponse(content={
                 "jsonrpc": "2.0",
                 "id": request_id,
-                "error": {
-                    "code": -32601,
-                    "message": f"Tool not found: {tool_name}",
-                },
-            }
+                "error": {"code": -32602, "message": f"Tool not found: {tool_name}"},
+            })
 
         tool_def = tool_registry.TOOLS[tool_name]
         tool_func = tool_def["func"]
@@ -259,43 +284,53 @@ async def mcp_endpoint(request: Request):
                 },
             }
 
-            return {
+            return JSONResponse(content={
                 "jsonrpc": "2.0",
                 "id": request_id,
                 "result": {
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": json.dumps(payload, default=str, indent=2),
-                        }
-                    ],
+                    "content": [{
+                        "type": "text",
+                        "text": json.dumps(payload, default=str, indent=2),
+                    }],
+                    "isError": False,
                 },
-            }
+            })
+
         except Exception as e:
             log.exception(f"Tool {tool_name} failed")
-            return {
+            return JSONResponse(content={
                 "jsonrpc": "2.0",
                 "id": request_id,
-                "error": {
-                    "code": -32000,
-                    "message": f"Tool error: {type(e).__name__}: {e}",
+                "result": {
+                    "content": [{
+                        "type": "text",
+                        "text": f"Tool error: {type(e).__name__}: {e}",
+                    }],
+                    "isError": True,
                 },
-            }
+            })
 
-    # Unknown method
-    return {
+    return JSONResponse(content={
         "jsonrpc": "2.0",
         "id": request_id,
-        "error": {
-            "code": -32601,
-            "message": f"Method not found: {method}",
-        },
-    }
+        "error": {"code": -32601, "message": f"Method not found: {method}"},
+    })
 
 
-# ─────────────────────────────────────────────────────────────
-#  Entrypoint (used by `python server.py` for local dev)
-# ─────────────────────────────────────────────────────────────
+@app.get("/mcp")
+async def mcp_get():
+    """GET /mcp → 405. Tells client to use POST only (no passive SSE stream)."""
+    return Response(status_code=405, headers={"Allow": "POST, DELETE"})
+
+
+@app.delete("/mcp")
+async def mcp_delete(request: Request):
+    session_id = request.headers.get("mcp-session-id") or request.headers.get("Mcp-Session-Id")
+    if session_id:
+        _known_sessions.discard(session_id)
+    return Response(status_code=204)
+
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8001))
