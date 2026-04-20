@@ -2228,6 +2228,7 @@ def explore_page(request: Request):
 @app.get("/explore/stories")
 @app.get("/explore/showcase")
 @app.get("/explore/free-tools")
+@app.get("/explore/watch-to-earn")
 def explore_subpages(request: Request):
     """React SPA subpages under /explore — served by React Router on the client."""
     if _react_index.exists():

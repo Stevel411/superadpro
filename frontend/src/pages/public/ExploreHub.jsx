@@ -155,6 +155,19 @@ export default function ExploreHub() {
               <div className="hub-card-link">{t('exploreHub.cardLink', { defaultValue: 'See it live' })} →</div>
             </Link>
 
+            {/* Card 5: Watch & Earn — the engine */}
+            <Link to="/explore/watch-to-earn" className="hub-card" data-c="purple">
+              <div className="hub-card-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polygon points="23 7 16 12 23 17 23 7"/>
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+                </svg>
+              </div>
+              <div className="hub-card-title">{t('exploreHub.cardWatchEarnTitle', { defaultValue: 'Watch & Earn' })}</div>
+              <div className="hub-card-body">{t('exploreHub.cardWatchEarnBody', { defaultValue: 'The engine that powers SuperAdPro. Members watch, campaigns get real views, commissions flow. One system, two roles.' })}</div>
+              <div className="hub-card-link">{t('exploreHub.cardLink', { defaultValue: 'See it live' })} →</div>
+            </Link>
+
           </div>
 
           {/* Footer banner */}
@@ -336,8 +349,11 @@ var CSS_EXPLORE_HUB = `
 
 /* ── Cards ── */
 .explore-hub .hub-cards {
-  display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
   margin-top: 60px;
+}
+@media(max-width:980px){
+  .explore-hub .hub-cards { grid-template-columns: repeat(2, 1fr); }
 }
 .explore-hub .hub-card {
   display: flex; flex-direction: column; gap: 14px;
@@ -362,6 +378,7 @@ var CSS_EXPLORE_HUB = `
 .explore-hub .hub-card[data-c="green"]  { --accent: var(--green);       --accent-rgb: 52,211,153; }
 .explore-hub .hub-card[data-c="indigo"] { --accent: var(--indigo-soft); --accent-rgb: 129,140,248; }
 .explore-hub .hub-card[data-c="amber"]  { --accent: var(--amber);       --accent-rgb: 251,191,36; }
+.explore-hub .hub-card[data-c="purple"] { --accent: #c084fc;            --accent-rgb: 192,132,252; }
 
 .explore-hub .hub-card-icon {
   width: 52px; height: 52px; border-radius: 14px;

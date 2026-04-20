@@ -180,6 +180,24 @@ export default function ForAdvertisers() {
             </div>
           </div>
 
+          {/* Two side-by-side role cards — YOU EARN / YOU REACH */}
+          <div className="roles-row">
+            <div className="role-card" data-c="green">
+              <div className="role-pill">{t('forAdvertisers.earnCardPill')}</div>
+              <div className="role-label">{t('forAdvertisers.earnCardLabel')}</div>
+              <div className="role-title">{t('forAdvertisers.earnCardTitle')}</div>
+              <div className="role-desc" dangerouslySetInnerHTML={{ __html: t('forAdvertisers.earnCardDesc') }}></div>
+              <ul className="role-bullets" dangerouslySetInnerHTML={{ __html: t('forAdvertisers.earnCardBullets') }}></ul>
+            </div>
+            <div className="role-card" data-c="amber">
+              <div className="role-pill">{t('forAdvertisers.reachCardPill')}</div>
+              <div className="role-label">{t('forAdvertisers.reachCardLabel')}</div>
+              <div className="role-title">{t('forAdvertisers.reachCardTitle')}</div>
+              <div className="role-desc" dangerouslySetInnerHTML={{ __html: t('forAdvertisers.reachCardDesc') }}></div>
+              <ul className="role-bullets" dangerouslySetInnerHTML={{ __html: t('forAdvertisers.reachCardBullets') }}></ul>
+            </div>
+          </div>
+
           {/* Flow band */}
           <div className="flow-band">
             <div className="flow-head">
@@ -232,6 +250,21 @@ export default function ForAdvertisers() {
                 <div className="flow-step-title">{t('forAdvertisers.step3Title')}</div>
                 <div className="flow-step-desc">{t('forAdvertisers.step3Desc')}</div>
               </div>
+
+              <div className="flow-arrow">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 18 15 12 9 6"/>
+                </svg>
+              </div>
+
+              <div className="flow-step">
+                <div className="flow-step-num">
+                  <span className="flow-step-num-circle">04</span>
+                  <span>{t('forAdvertisers.step4Verb')}</span>
+                </div>
+                <div className="flow-step-title">{t('forAdvertisers.step4Title')}</div>
+                <div className="flow-step-desc">{t('forAdvertisers.step4Desc')}</div>
+              </div>
             </div>
           </div>
 
@@ -241,7 +274,7 @@ export default function ForAdvertisers() {
               {t('forAdvertisers.footerLine1')}<br/>
               <span className="emph">{t('forAdvertisers.footerLine2')}</span>
             </div>
-            <Link to="/register" className="footer-cta">
+            <Link to="/campaign-tiers" className="footer-cta">
               {t('forAdvertisers.footerCta')}
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
@@ -363,8 +396,25 @@ var CSS_FOR_ADVERTISERS = `
 .for-advertisers-page .why-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:100px;width:fit-content;background:rgba(var(--accent-rgb),.15);border:1px solid rgba(var(--accent-rgb),.4);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--accent);font-weight:700;text-transform:uppercase}
 .for-advertisers-page .why-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)}
 
-.for-advertisers-page .flow-band{margin-top:80px;padding:40px;border-radius:24px;background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(56,189,248,.05),transparent),linear-gradient(180deg,rgba(11,18,48,.82),rgba(11,18,48,.72));border:1px solid rgba(251,191,36,.28);backdrop-filter:blur(16px);position:relative;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.3)}
-.for-advertisers-page .flow-band::before{content:'';position:absolute;top:-30%;left:-10%;width:500px;height:500px;background:radial-gradient(circle,rgba(251,191,36,.15),transparent 60%);filter:blur(40px);pointer-events:none}
+.for-advertisers-page .roles-row{margin-top:80px;display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.for-advertisers-page .role-card{padding:40px;border-radius:22px;background:linear-gradient(180deg,rgba(11,18,48,.88),rgba(11,18,48,.72));border:1px solid var(--ink-10);backdrop-filter:blur(16px);position:relative;overflow:hidden;display:flex;flex-direction:column;gap:18px;min-height:380px;transition:transform .3s,border-color .3s,box-shadow .3s}
+.for-advertisers-page .role-card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 16px 50px rgba(0,0,0,.4),0 0 80px rgba(var(--accent-rgb),.18)}
+.for-advertisers-page .role-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--accent),transparent)}
+.for-advertisers-page .role-card::after{content:'';position:absolute;top:-40%;right:-20%;width:500px;height:500px;background:radial-gradient(circle,rgba(var(--accent-rgb),.16),transparent 60%);filter:blur(50px);pointer-events:none;opacity:.5;transition:opacity .5s}
+.for-advertisers-page .role-card:hover::after{opacity:1}
+.for-advertisers-page .role-card[data-c="green"]{--accent:var(--green-bright);--accent-rgb:110,231,183}
+.for-advertisers-page .role-card[data-c="amber"]{--accent:var(--amber-bright);--accent-rgb:252,211,77}
+.for-advertisers-page .role-pill{display:inline-flex;align-items:center;gap:8px;padding:8px 14px;border-radius:100px;width:fit-content;background:rgba(var(--accent-rgb),.15);border:1px solid rgba(var(--accent-rgb),.4);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--accent);font-weight:700;text-transform:uppercase;position:relative;z-index:2}
+.for-advertisers-page .role-pill::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)}
+.for-advertisers-page .role-label{font-family:'Sora',sans-serif;font-weight:900;font-size:13px;letter-spacing:.18em;color:var(--accent);text-transform:uppercase;filter:drop-shadow(0 0 10px rgba(var(--accent-rgb),.35));position:relative;z-index:2}
+.for-advertisers-page .role-title{font-family:'Sora',sans-serif;font-weight:800;font-size:clamp(24px,2.4vw,30px);letter-spacing:-.025em;line-height:1.15;color:var(--ink);position:relative;z-index:2}
+.for-advertisers-page .role-desc{font-size:15px;line-height:1.6;color:var(--ink-70);position:relative;z-index:2}
+.for-advertisers-page .role-desc strong{color:var(--ink);font-weight:700}
+.for-advertisers-page .role-bullets{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:10px;position:relative;z-index:2;margin-top:auto}
+.for-advertisers-page .role-bullets li{font-size:14px;color:var(--ink-60);padding-left:22px;position:relative;line-height:1.4}
+.for-advertisers-page .role-bullets li::before{content:'';position:absolute;left:0;top:6px;width:10px;height:10px;border-radius:50%;background:rgba(var(--accent-rgb),.2);border:1px solid var(--accent);box-shadow:0 0 6px rgba(var(--accent-rgb),.4)}
+
+.for-advertisers-page .flow-band{margin-top:80px;padding:40px;border-radius:24px;background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(56,189,248,.05),transparent),linear-gradient(180deg,rgba(11,18,48,.82),rgba(11,18,48,.72));border:1px solid rgba(251,191,36,.28);backdrop-filter:blur(16px);position:relative;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.3)}.for-advertisers-page .flow-band::before{content:'';position:absolute;top:-30%;left:-10%;width:500px;height:500px;background:radial-gradient(circle,rgba(251,191,36,.15),transparent 60%);filter:blur(40px);pointer-events:none}
 .for-advertisers-page .flow-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;flex-wrap:wrap;gap:16px;position:relative;z-index:2}
 .for-advertisers-page .flow-head-left{flex:1;min-width:280px}
 .for-advertisers-page .flow-head-title{font-family:'Sora',sans-serif;font-weight:900;font-size:clamp(24px,2.6vw,32px);letter-spacing:-.03em;line-height:1.1;margin-bottom:6px}
@@ -372,7 +422,7 @@ var CSS_FOR_ADVERTISERS = `
 .for-advertisers-page .flow-head-meta{display:flex;align-items:center;gap:12px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase}
 .for-advertisers-page .flow-head-meta .flow-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:faAdPulse 1.5s ease-out infinite}
 .for-advertisers-page .flow-head-meta .flow-meta-text{color:var(--amber)}
-.for-advertisers-page .flow-steps{display:grid;grid-template-columns:1fr 40px 1fr 40px 1fr;gap:12px;align-items:stretch;position:relative;z-index:2}
+.for-advertisers-page .flow-steps{display:grid;grid-template-columns:1fr 32px 1fr 32px 1fr 32px 1fr;gap:10px;align-items:stretch;position:relative;z-index:2}
 .for-advertisers-page .flow-step{padding:22px 20px;border-radius:14px;background:rgba(11,18,48,.6);border:1px solid var(--ink-10);display:flex;flex-direction:column;gap:10px;transition:border-color .3s}
 .for-advertisers-page .flow-step:hover{border-color:rgba(251,191,36,.35)}
 .for-advertisers-page .flow-step-num{display:inline-flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--amber);font-weight:700}
@@ -391,6 +441,7 @@ var CSS_FOR_ADVERTISERS = `
 @media(max-width:1100px){
   .for-advertisers-page .outcome-row{grid-template-columns:repeat(2,1fr)}
   .for-advertisers-page .why-grid{grid-template-columns:1fr}
+  .for-advertisers-page .roles-row{grid-template-columns:1fr}
   .for-advertisers-page .flow-steps{grid-template-columns:1fr;gap:16px}
   .for-advertisers-page .flow-arrow{transform:rotate(90deg)}
 }

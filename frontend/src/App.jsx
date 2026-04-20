@@ -225,6 +225,7 @@ function AppRoutes() {
       <Route path="/explore/stories" element={<ExplorePage defaultTab="stories" hideTabs={true} />} />
       <Route path="/explore/showcase" element={<ExplorePage defaultTab="showcase" hideTabs={true} />} />
       <Route path="/explore/free-tools" element={<FreeTools />} />
+      <Route path="/explore/watch-to-earn" element={<ForAdvertisers />} />
 
       {/* Old public pages — replaced by /explore hub. Redirect preserves any
           search-engine rank + honours any existing bookmarks/shared links. */}
@@ -233,7 +234,7 @@ function AppRoutes() {
       <Route path="/earn" element={<Navigate to="/explore" replace />} />
       <Route path="/tools" element={<Navigate to="/explore/free-tools" replace />} />
 
-      <Route path="/for-advertisers" element={<ForAdvertisers />} />
+      <Route path="/for-advertisers" element={<Navigate to="/explore/watch-to-earn" replace />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/legal" element={<Legal />} />
       <Route path="/legal/income-disclosure" element={<PublicIncomeDisclosure />} />
