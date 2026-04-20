@@ -40,6 +40,11 @@ export default function ExplorePage(props) {
   var setActiveTab = _activeTab[1];
   var hideTabs = props.hideTabs === true;
 
+  // Scroll to top on mount and whenever navigating between /explore/live,
+  // /explore/stories, /explore/showcase — previously each subpage opened
+  // mid-scroll because browser preserved scroll position across SPA routes.
+  useEffect(function() { window.scrollTo(0, 0); }, [props.defaultTab]);
+
   // ── Stats + activity feed (real data) ──
   var _stats = useState(null);
   var stats = _stats[0];
@@ -164,8 +169,7 @@ export default function ExplorePage(props) {
         {/* Floating nav */}
         <div className="float-nav">
           <Link to="/" className="float-nav-link">{t('explore.navHome')}</Link>
-          <Link to="/earn" className="float-nav-link">{t('explore.navIncome')}</Link>
-          <Link to="/tools" className="float-nav-link">{t('explore.navTools')}</Link>
+          <Link to="/explore" className="float-nav-link">{t('explore.navExplore', { defaultValue: 'Explore' })}</Link>
 
           {/* Language pill */}
           <div ref={langRef} className="float-lang-wrap">

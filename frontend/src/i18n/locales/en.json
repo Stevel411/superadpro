@@ -3086,6 +3086,7 @@
   },
   "explore": {
     "navHome": "Home",
+    "navExplore": "Explore",
     "navIncome": "Income",
     "navTools": "Tools",
     "navSignin": "Sign in",

@@ -22,6 +22,7 @@ export default function ExploreHub() {
     document.addEventListener('mousedown', onClick);
     return function() { document.removeEventListener('mousedown', onClick); };
   }, []);
+  useEffect(function() { window.scrollTo(0, 0); }, []);
   var currentLang = LANGUAGES.find(function(l) { return l.code === i18n.language; }) || LANGUAGES[0];
 
   return (
