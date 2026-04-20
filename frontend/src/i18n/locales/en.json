@@ -198,7 +198,11 @@
     "storyPromptTitle": "You earned your first {{amount}}!",
     "storyPromptBody": "Share the story of how you did it — your experience could inspire the next member. Takes 2 minutes. Our team reviews before it goes live on /explore.",
     "storyPromptCta": "Share my story",
-    "storyPromptDismiss": "Dismiss"
+    "storyPromptDismiss": "Dismiss",
+    "annualUpsellTitle": "Switch to annual billing and save up to $70/year",
+    "annualUpsellBody": "Pay yearly and save 17% — that's $40/year off Basic or $70/year off Pro. Switch anytime, no hassle.",
+    "annualUpsellCta": "View plans",
+    "annualUpsellDismiss": "Dismiss"
   },
   "compPlan": {
     "title": "Compensation Plan",

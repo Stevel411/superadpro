@@ -1822,6 +1822,7 @@ def api_me(request: Request, db: Session = Depends(get_db)):
         "is_admin": user.is_admin,
         "is_active": user.is_active,
         "membership_tier": user.membership_tier or "basic",
+        "membership_billing": user.membership_billing or "monthly",
         "balance": float(user.balance or 0), "campaign_balance": float(user.campaign_balance or 0),
         "total_earned": float(user.total_earned or 0),
         "total_withdrawn": float(user.total_withdrawn or 0),
@@ -4730,7 +4731,7 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     # Send welcome email
     try:
         from .email_utils import send_membership_activated_email
-        send_membership_activated_email(user.email, user.first_name or user.username)
+        send_membership_activated_email(user.email, user.first_name or user.username, billing=user.membership_billing or "monthly")
     except Exception:
         pass
 

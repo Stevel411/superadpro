@@ -105,9 +105,13 @@ def send_password_reset_email(to_email, first_name, reset_url):
 # ═══════════════════════════════════════════════════════════════
 # EMAIL 4: MEMBERSHIP ACTIVATED
 # ═══════════════════════════════════════════════════════════════
-def send_membership_activated_email(to_email, first_name):
+def send_membership_activated_email(to_email, first_name, billing="monthly"):
     hero = f'<div style="font-size:48px;margin-bottom:14px">&#128640;</div><p style="margin:0 0 10px;font-size:28px;font-weight:900;color:#0f172a;line-height:1.2">You\'re officially a member, <span style="color:#8b5cf6">{first_name}!</span></p><p style="margin:0;font-size:15px;color:#4c1d95;line-height:1.7">Your SuperAdPro membership is now active. Here\'s everything you\'ve unlocked:</p>'
-    body = _card(_check('Earn 50% referral commissions ($10 per Basic, $17.50 per Pro) every month', 'Creative Studio — AI video clips, full videos, images, music, voiceover, and lip sync', 'Watch daily campaign videos to qualify for grid commissions', 'Build your LinkHub page and track links with Link Tools', 'Withdraw earnings via USDT anytime from $10'), bg='#faf5ff', border='#ddd6fe') + _card('<p style="margin:0;font-size:15px;color:#166534;text-align:center;line-height:1.6"><strong>Pro tip:</strong> Refer just 2 Basic members and your $20/month membership pays for itself. Pro referrals are even better at $17.50 each.</p>', bg='#f0fdf4', border='#bbf7d0') + _btn(f"{SITE_URL}/dashboard", "Explore my dashboard &rarr;", "#8b5cf6")
+    body = _card(_check('Earn 50% referral commissions ($10 per Basic, $17.50 per Pro) every month', 'Creative Studio — AI video clips, full videos, images, music, voiceover, and lip sync', 'Watch daily campaign videos to qualify for grid commissions', 'Build your LinkHub page and track links with Link Tools', 'Withdraw earnings via USDT anytime from $10'), bg='#faf5ff', border='#ddd6fe') + _card('<p style="margin:0;font-size:15px;color:#166534;text-align:center;line-height:1.6"><strong>Pro tip:</strong> Refer just 2 Basic members and your $20/month membership pays for itself. Pro referrals are even better at $17.50 each.</p>', bg='#f0fdf4', border='#bbf7d0')
+    # Annual upsell — only for monthly members
+    if billing == "monthly":
+        body += _card(f'<p style="margin:0;font-size:14px;color:#1e40af;text-align:center;line-height:1.6">&#128176; <strong>Prefer to pay yearly?</strong> Save 17% by switching to annual billing — that\'s <strong>$40/year</strong> off Basic or <strong>$70/year</strong> off Pro. You can switch anytime from your <a href="{SITE_URL}/upgrade" style="color:#2563eb;font-weight:700;text-decoration:underline">upgrade page</a>.</p>', bg='#eff6ff', border='#bfdbfe')
+    body += _btn(f"{SITE_URL}/dashboard", "Explore my dashboard &rarr;", "#8b5cf6")
     return send_email(to_email, f"Your SuperAdPro membership is active!", _shell("You're in!", "linear-gradient(135deg,#faf5ff,#ede9fe)", hero, body), f"Hi {first_name}, your SuperAdPro membership is now active. Go to {SITE_URL}/dashboard")
 
 

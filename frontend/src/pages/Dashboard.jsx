@@ -45,6 +45,19 @@ export default function Dashboard() {
     try { localStorage.setItem('story-prompt-dismissed', '1'); } catch(e) {}
   }
 
+  // Annual upsell banner — shown to monthly-billing active members.
+  // Dismissal persists in localStorage.
+  const [annualUpsellDismissed, setAnnualUpsellDismissed] = useState(function() {
+    try { return localStorage.getItem('annual-upsell-dismissed') === '1'; } catch(e) { return false; }
+  });
+  function dismissAnnualUpsell() {
+    setAnnualUpsellDismissed(true);
+    try { localStorage.setItem('annual-upsell-dismissed', '1'); } catch(e) {}
+  }
+  var showAnnualUpsell = !annualUpsellDismissed
+    && user && user.is_active
+    && (user.membership_billing || 'monthly') === 'monthly';
+
   var pollRef = useRef(null);
   var lastCheckRef = useRef(new Date().toISOString());
   var chachingRef = useRef(null);
@@ -211,6 +224,44 @@ export default function Dashboard() {
             display: 'inline-flex', alignItems: 'center', gap: 6,
           }}>
             {t('dashboard.storyPromptCta', { defaultValue: 'Share my story' })} →
+          </Link>
+        </div>
+      )}
+
+      {/* Annual billing upsell — shown to monthly members only, dismissible.
+          State handled by showAnnualUpsell + dismissAnnualUpsell above. */}
+      {showAnnualUpsell && (
+        <div style={{
+          position: 'relative',
+          background: 'linear-gradient(135deg,#dbeafe,#bfdbfe)',
+          border: '1px solid #93c5fd',
+          borderRadius: 12, padding: '18px 22px', marginBottom: 20,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
+        }}>
+          <button onClick={dismissAnnualUpsell}
+            aria-label={t('dashboard.annualUpsellDismiss', { defaultValue: 'Dismiss' })}
+            style={{
+              position: 'absolute', top: 8, right: 10,
+              background: 'transparent', border: 'none',
+              fontSize: 20, lineHeight: 1, color: '#1e40af',
+              cursor: 'pointer', padding: '2px 6px', opacity: 0.55,
+            }}>×</button>
+          <div style={{ flex: 1, minWidth: 240, paddingRight: 24 }}>
+            <div style={{ fontSize: 15, fontWeight: 800, color: '#1e3a8a', marginBottom: 6 }}>
+              💰 {t('dashboard.annualUpsellTitle', { defaultValue: 'Switch to annual billing and save up to $70/year' })}
+            </div>
+            <p style={{ fontSize: 14, color: '#1e40af', lineHeight: 1.6, margin: 0 }}>
+              {t('dashboard.annualUpsellBody', { defaultValue: 'Pay yearly and save 17% — that\'s $40/year off Basic or $70/year off Pro. Switch anytime, no hassle.' })}
+            </p>
+          </div>
+          <Link to="/upgrade" style={{
+            fontSize: 14, fontWeight: 700, color: '#fff',
+            background: 'linear-gradient(135deg,#1e40af,#2563eb)',
+            padding: '11px 22px', borderRadius: 9, textDecoration: 'none',
+            boxShadow: '0 4px 14px rgba(30,64,175,0.35)', flexShrink: 0,
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+          }}>
+            {t('dashboard.annualUpsellCta', { defaultValue: 'View plans' })} →
           </Link>
         </div>
       )}
