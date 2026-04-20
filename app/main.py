@@ -21762,6 +21762,43 @@ async def api_campaign_analytics_overview(user: User = Depends(get_current_user)
         VideoWatch.campaign_id.in_(campaign_ids),
     ).scalar() or 0
 
+    # ── NEW: Platform-wide viewer country breakdown (top 5) ──
+    # Joins VideoWatch → User to group by country. Shows where your audience is.
+    country_rows = db.query(
+        User.country,
+        func.count(func.distinct(VideoWatch.user_id)).label("viewers"),
+    ).join(VideoWatch, VideoWatch.user_id == User.id).filter(
+        VideoWatch.campaign_id.in_(campaign_ids),
+        User.country.isnot(None),
+        User.country != "",
+    ).group_by(User.country).order_by(func.count(func.distinct(VideoWatch.user_id)).desc()).limit(5).all()
+
+    top_countries = [{"country": row[0], "viewers": int(row[1])} for row in country_rows]
+
+    # ── NEW: Hourly distribution across all campaigns (7×24 heatmap data) ──
+    # Returns 168 cells: for each (day_of_week, hour), how many views landed there.
+    # Uses SQL EXTRACT for portability; Postgres and SQLite both support it.
+    # dow: 0=Sunday..6=Saturday (Postgres); hour: 0-23
+    from sqlalchemy import extract
+    hourly_rows = db.query(
+        extract("dow", VideoWatch.watched_at).label("dow"),
+        extract("hour", VideoWatch.watched_at).label("hour"),
+        func.count(VideoWatch.id).label("views"),
+    ).filter(
+        VideoWatch.campaign_id.in_(campaign_ids),
+    ).group_by("dow", "hour").all()
+
+    # Build a 7×24 matrix, zero-filled
+    heatmap = [[0 for _ in range(24)] for _ in range(7)]
+    for row in hourly_rows:
+        try:
+            dow_idx = int(row[0]) if row[0] is not None else 0
+            hr_idx = int(row[1]) if row[1] is not None else 0
+            if 0 <= dow_idx <= 6 and 0 <= hr_idx <= 23:
+                heatmap[dow_idx][hr_idx] = int(row[2])
+        except (TypeError, ValueError):
+            continue
+
     # Per-campaign stats
     campaign_data = []
     for c in campaigns:
@@ -21779,6 +21816,22 @@ async def api_campaign_analytics_overview(user: User = Depends(get_current_user)
             VideoWatch.campaign_id == c.id,
         ).scalar() or 0
 
+        # ── NEW: Velocity — recent 7-day view rate, used to estimate days-to-completion ──
+        # If a campaign is averaging 150 views/day and has 2000 left, ~14 days to go.
+        recent_7d_views = db.query(func.count(VideoWatch.id)).filter(
+            VideoWatch.campaign_id == c.id,
+            VideoWatch.watch_date >= week_ago,
+        ).scalar() or 0
+
+        daily_rate = round(recent_7d_views / 7.0, 1) if recent_7d_views else 0
+        remaining = max((c.views_target or 0) - (c.views_delivered or 0), 0)
+        if daily_rate > 0 and remaining > 0:
+            days_to_complete = round(remaining / daily_rate, 1)
+        elif remaining == 0:
+            days_to_complete = 0  # already complete
+        else:
+            days_to_complete = None  # not enough data
+
         completion_pct = round(((c.views_delivered or 0) / max(c.views_target or 1, 1)) * 100, 1)
 
         campaign_data.append({
@@ -21794,6 +21847,8 @@ async def api_campaign_analytics_overview(user: User = Depends(get_current_user)
             "views_today": c_views_today,
             "views_this_week": c_views_week,
             "unique_viewers": c_unique,
+            "daily_rate": daily_rate,
+            "days_to_complete": days_to_complete,
             "created_at": c.created_at.isoformat() if c.created_at else None,
         })
 
@@ -21809,6 +21864,8 @@ async def api_campaign_analytics_overview(user: User = Depends(get_current_user)
             "unique_viewers": unique_viewers,
             "avg_watch_duration": round(float(avg_duration), 1),
         },
+        "top_countries": top_countries,
+        "hourly_heatmap": heatmap,
     }
 @app.get("/api/campaign-analytics/{campaign_id}/daily")
 async def api_campaign_analytics_daily(campaign_id: int, user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -21870,6 +21927,37 @@ async def api_campaign_analytics_daily(campaign_id: int, user: User = Depends(ge
             "date": w.watch_date,
         })
 
+    # ── NEW: Per-campaign country breakdown (top 5) ──
+    country_rows = db.query(
+        User.country,
+        func.count(func.distinct(VideoWatch.user_id)).label("viewers"),
+    ).join(VideoWatch, VideoWatch.user_id == User.id).filter(
+        VideoWatch.campaign_id == campaign_id,
+        User.country.isnot(None),
+        User.country != "",
+    ).group_by(User.country).order_by(func.count(func.distinct(VideoWatch.user_id)).desc()).limit(5).all()
+    campaign_countries = [{"country": row[0], "viewers": int(row[1])} for row in country_rows]
+
+    # ── NEW: Per-campaign hourly heatmap (7×24) ──
+    from sqlalchemy import extract
+    hourly_rows = db.query(
+        extract("dow", VideoWatch.watched_at).label("dow"),
+        extract("hour", VideoWatch.watched_at).label("hour"),
+        func.count(VideoWatch.id).label("views"),
+    ).filter(
+        VideoWatch.campaign_id == campaign_id,
+    ).group_by("dow", "hour").all()
+
+    campaign_heatmap = [[0 for _ in range(24)] for _ in range(7)]
+    for row in hourly_rows:
+        try:
+            dow_idx = int(row[0]) if row[0] is not None else 0
+            hr_idx = int(row[1]) if row[1] is not None else 0
+            if 0 <= dow_idx <= 6 and 0 <= hr_idx <= 23:
+                campaign_heatmap[dow_idx][hr_idx] = int(row[2])
+        except (TypeError, ValueError):
+            continue
+
     return {
         "success": True,
         "campaign": {
@@ -21882,6 +21970,8 @@ async def api_campaign_analytics_daily(campaign_id: int, user: User = Depends(ge
         },
         "daily": days,
         "recent_watches": watch_log,
+        "top_countries": campaign_countries,
+        "hourly_heatmap": campaign_heatmap,
     }
 # ═══════════════════════════════════════════════════════════
 #  SUPERDECK AI — Generate presentation from prompt via Grok

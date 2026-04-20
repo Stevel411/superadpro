@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
-import { BarChart3, Eye, Users, Clock, TrendingUp, ChevronDown, ChevronUp, Loader2, Play, Calendar, Target } from 'lucide-react';
+import { BarChart3, Eye, Users, Clock, TrendingUp, ChevronDown, ChevronUp, Loader2, Play, Calendar, Target, Globe, Zap } from 'lucide-react';
 
 export default function CampaignAnalytics() {
   var { t } = useTranslation();
@@ -91,6 +91,54 @@ export default function CampaignAnalytics() {
         </div>
       </div>
 
+      {/* NEW: Country breakdown + hourly heatmap — only shown if there's data */}
+      {campaigns.length > 0 && data && (data.top_countries || data.hourly_heatmap) && (
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 12, marginBottom: 20 }}>
+
+          {/* Country breakdown card */}
+          <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '18px 22px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <Globe size={16} color="var(--sap-accent)" />
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)' }}>{t('campaignAnalytics.topCountries', { defaultValue: 'Where your viewers are' })}</div>
+            </div>
+            {data.top_countries && data.top_countries.length > 0 ? (
+              data.top_countries.map(function(row, i) {
+                var maxViewers = data.top_countries[0].viewers || 1;
+                var pct = Math.round((row.viewers / maxViewers) * 100);
+                return (
+                  <div key={i} style={{ marginBottom: 10 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 4 }}>
+                      <span style={{ fontWeight: 600, color: 'var(--sap-text-primary)' }}>{row.country}</span>
+                      <span style={{ color: 'var(--sap-text-faint)' }}>{row.viewers.toLocaleString()}</span>
+                    </div>
+                    <div style={{ height: 6, background: 'var(--sap-border)', borderRadius: 3 }}>
+                      <div style={{ height: '100%', width: pct + '%', background: 'linear-gradient(90deg, var(--sap-accent), var(--sap-accent-light))', borderRadius: 3 }} />
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div style={{ fontSize: 12, color: 'var(--sap-text-faint)', textAlign: 'center', padding: '20px 0' }}>
+                {t('campaignAnalytics.noCountryData', { defaultValue: 'Geographic data will appear as your viewers watch.' })}
+              </div>
+            )}
+          </div>
+
+          {/* Hourly heatmap card (7 days × 24 hours) */}
+          <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '18px 22px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
+              <Clock size={16} color="var(--sap-purple)" />
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)' }}>{t('campaignAnalytics.whenViewersWatch', { defaultValue: 'When your viewers watch' })}</div>
+              <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', marginLeft: 'auto' }}>{t('campaignAnalytics.heatmapSub', { defaultValue: 'Day × hour — darker = more views' })}</div>
+            </div>
+            {data.hourly_heatmap && (
+              <HourlyHeatmap matrix={data.hourly_heatmap} />
+            )}
+          </div>
+
+        </div>
+      )}
+
       {/* No campaigns */}
       {campaigns.length === 0 && (
         <div style={{ background: '#fff', borderRadius: 14, border: '1px solid #e2e8f0', padding: '60px 24px', textAlign: 'center' }}>
@@ -155,6 +203,31 @@ export default function CampaignAnalytics() {
                 <div style={{ fontSize: 10, color: 'var(--sap-text-faint)' }}>{t('campaignAnalytics.unique')}</div>
               </div>
 
+              {/* Velocity — daily rate + days to complete */}
+              <div style={{ textAlign: 'center', flexShrink: 0, minWidth: 74 }}>
+                {c.daily_rate > 0 ? (
+                  <>
+                    <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-purple)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 3 }}>
+                      <Zap size={13} color="var(--sap-purple)" />
+                      {c.daily_rate}
+                    </div>
+                    <div style={{ fontSize: 10, color: 'var(--sap-text-faint)' }}>
+                      {c.days_to_complete === 0
+                        ? t('campaignAnalytics.completePace', { defaultValue: 'complete' })
+                        : c.days_to_complete
+                          ? t('campaignAnalytics.daysToGo', { defaultValue: '~{{d}}d to go', d: c.days_to_complete })
+                          : t('campaignAnalytics.viewsPerDay', { defaultValue: 'views/day' })
+                      }
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--sap-text-faint)' }}>—</div>
+                    <div style={{ fontSize: 10, color: 'var(--sap-text-faint)' }}>{t('campaignAnalytics.pace', { defaultValue: 'pace' })}</div>
+                  </>
+                )}
+              </div>
+
               {isOpen ? <ChevronUp size={18} color="var(--sap-text-faint)" /> : <ChevronDown size={18} color="var(--sap-text-faint)" />}
             </div>
 
@@ -197,6 +270,44 @@ export default function CampaignAnalytics() {
                       <span>{dailyData.daily[0] ? dailyData.daily[0].date : ''}</span>
                       <span style={{ color: 'var(--sap-green-bright)', fontWeight: 600 }}>{t('campaignAnalytics.today')}</span>
                     </div>
+
+                    {/* Per-campaign country breakdown + heatmap */}
+                    {((dailyData.top_countries && dailyData.top_countries.length > 0) || dailyData.hourly_heatmap) && (
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 16, marginBottom: 20 }}>
+                        {dailyData.top_countries && dailyData.top_countries.length > 0 && (
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 10 }}>
+                              <Globe size={14} color="var(--sap-accent)" />
+                              {t('campaignAnalytics.viewersBy', { defaultValue: 'Viewers by country' })}
+                            </div>
+                            {dailyData.top_countries.map(function(row, i) {
+                              var maxV = dailyData.top_countries[0].viewers || 1;
+                              var pct = Math.round((row.viewers / maxV) * 100);
+                              return (
+                                <div key={i} style={{ marginBottom: 8 }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 3 }}>
+                                    <span style={{ fontWeight: 600, color: 'var(--sap-text-primary)' }}>{row.country}</span>
+                                    <span style={{ color: 'var(--sap-text-faint)' }}>{row.viewers}</span>
+                                  </div>
+                                  <div style={{ height: 4, background: 'var(--sap-border)', borderRadius: 2 }}>
+                                    <div style={{ height: '100%', width: pct + '%', background: 'var(--sap-accent)', borderRadius: 2 }} />
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                        {dailyData.hourly_heatmap && (
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 10 }}>
+                              <Clock size={14} color="var(--sap-purple)" />
+                              {t('campaignAnalytics.whenWatched', { defaultValue: 'When viewers watched' })}
+                            </div>
+                            <HourlyHeatmap matrix={dailyData.hourly_heatmap} small={true} />
+                          </div>
+                        )}
+                      </div>
+                    )}
 
                     {/* Recent watch log */}
                     <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 10 }}>{t('campaignAnalytics.recentWatches')}</div>
@@ -247,5 +358,78 @@ export default function CampaignAnalytics() {
 
       <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
     </AppLayout>
+  );
+}
+
+/**
+ * HourlyHeatmap — renders a 7×24 matrix of view counts as a colour-graded grid.
+ * matrix is an array of 7 arrays of 24 ints. Row 0 = Sunday, column 0 = 00:00.
+ * Colour intensity scales to the max value in the matrix.
+ */
+function HourlyHeatmap(props) {
+  var matrix = props.matrix || [];
+  var small = props.small === true;
+  var maxVal = 0;
+  for (var r = 0; r < matrix.length; r++) {
+    for (var c = 0; c < (matrix[r] || []).length; c++) {
+      if (matrix[r][c] > maxVal) maxVal = matrix[r][c];
+    }
+  }
+
+  var dayLabels = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  var cellSize = small ? 10 : 14;
+  var gap = small ? 2 : 2;
+  var fontSize = small ? 9 : 10;
+
+  function cellColour(val) {
+    if (!val || maxVal === 0) return '#f1f5f9';
+    var pct = val / maxVal;
+    // Purple gradient — light for low, saturated for high
+    if (pct < 0.2) return '#ede9fe';
+    if (pct < 0.4) return '#c4b5fd';
+    if (pct < 0.6) return '#a78bfa';
+    if (pct < 0.8) return '#8b5cf6';
+    return '#7c3aed';
+  }
+
+  if (maxVal === 0) {
+    return (
+      <div style={{ fontSize: 12, color: 'var(--sap-text-faint)', textAlign: 'center', padding: '30px 0' }}>
+        Activity data will appear as your viewers watch.
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', gap: 6 }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: gap, paddingTop: fontSize + 4 }}>
+        {dayLabels.map(function(d, i) {
+          return <div key={i} style={{ height: cellSize, fontSize: fontSize, color: 'var(--sap-text-faint)', display: 'flex', alignItems: 'center' }}>{d}</div>;
+        })}
+      </div>
+      <div style={{ flex: 1 }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(24, 1fr)', gap: fontSize > 9 ? 2 : 1, marginBottom: 3, fontSize: fontSize, color: 'var(--sap-text-faint)', textAlign: 'center' }}>
+          {[0,3,6,9,12,15,18,21].map(function(h) {
+            return <div key={h} style={{ gridColumn: 'span 3' }}>{h}</div>;
+          })}
+        </div>
+        <div style={{ display: 'grid', gridTemplateRows: 'repeat(7, ' + cellSize + 'px)', gap: gap }}>
+          {matrix.map(function(row, ri) {
+            return (
+              <div key={ri} style={{ display: 'grid', gridTemplateColumns: 'repeat(24, 1fr)', gap: gap }}>
+                {row.map(function(v, ci) {
+                  return (
+                    <div key={ci}
+                      title={dayLabels[ri] + ' ' + (ci < 10 ? '0' + ci : ci) + ':00 — ' + v + ' views'}
+                      style={{ background: cellColour(v), borderRadius: 2, height: cellSize, cursor: v > 0 ? 'pointer' : 'default' }}
+                    />
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
   );
 }
