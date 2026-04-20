@@ -78,6 +78,7 @@ class CourseCommission(TestBase):
     course_tier = Column(Integer)
     commission_type = Column(String)
     pass_up_depth = Column(Integer, default=0)
+    source_chain = Column(Integer, nullable=True)  # Income Chain (1-4), NULL for direct sales
     notes = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -233,21 +234,27 @@ def test_fomo_direct():
     db.rollback(); db.close()
 
 def test_fomo_passup():
-    print("\n━━ TEST 6: FOMO — Unqualified Pass-Up Sponsor → Company ━━")
+    print("\n━━ TEST 6: FOMO — Unqualified Pass-Up Sponsor, Cascade Walks Up ━━")
     db = Session()
     admin = make_user(db, "t6_admin", is_admin=True)
     steve = make_user(db, "t6_steve"); steve.pass_up_sponsor_id = admin.id
     alice = make_user(db, "t6_alice", sponsor=steve)
     c2 = make_course(db, "t6-adv", 300, 2)
     own_course(db, alice, c2)
-    # Steve does NOT own tier 2
+    # Steve does NOT own tier 2 — pass-up should walk past him to admin
 
     b1 = make_user(db, "t6_b1", sponsor=alice)
     process_course_purchase(db, b1.id, c2.id, payment_method="wallet")
 
     b2 = make_user(db, "t6_b2", sponsor=alice)
     r2 = process_course_purchase(db, b2.id, c2.id, payment_method="wallet")
-    check("Pass-up to unqualified Steve → platform", r2["commission"]["type"]=="platform", f"got {r2['commission']['type']}")
+    # Production behaviour: cascade walks Steve (unqualified) → admin (qualified as admin)
+    # Commission is pass_up to admin, NOT to platform
+    check("Pass-up cascades past unqualified Steve to admin",
+          r2["commission"]["type"]=="pass_up", f"got {r2['commission']['type']}")
+    check("Admin receives the cascaded commission",
+          r2["commission"]["earner_username"]=="t6_admin",
+          f"got {r2['commission'].get('earner_username')}")
     db.rollback(); db.close()
 
 def test_infinite_cascade():

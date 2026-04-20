@@ -54,9 +54,12 @@ class User(TestBase):
     is_admin = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     balance = Column(Float, default=0.0)
+    campaign_balance = Column(Float, default=0.0)  # dual-wallet: campaign wallet
     total_earned = Column(Float, default=0.0)
+    total_withdrawn = Column(Float, default=0.0)
     grid_earnings = Column(Float, default=0.0)
     level_earnings = Column(Float, default=0.0)
+    upline_earnings = Column(Float, default=0.0)
     bonus_earnings = Column(Float, default=0.0)
     total_team = Column(Integer, default=0)
     personal_referrals = Column(Integer, default=0)
@@ -233,7 +236,7 @@ db.refresh(sponsor)
 expected_direct = 20.0 * 0.40  # $8
 check(f"Sponsor grid_earnings = ${expected_direct}", abs(float(sponsor.grid_earnings) - expected_direct) < 0.01,
       f"got ${float(sponsor.grid_earnings):.2f}")
-check("Sponsor balance includes direct + uni-level", float(sponsor.balance) > expected_direct)
+check("Sponsor campaign_balance includes direct + uni-level", float(sponsor.campaign_balance) > expected_direct)
 
 direct_comms = get_comms(db, "direct_sponsor")
 check("Direct sponsor commission recorded", len(direct_comms) == 1)
@@ -279,7 +282,7 @@ db = Session()
 company = make_user(db, "company", is_admin=True)
 sponsor = make_user(db, "sponsor", sponsor=company)
 buyer = make_user(db, "buyer", sponsor=sponsor)
-# Only sponsor is qualified, company is not
+# sponsor has active campaign; company is admin (auto-qualified)
 make_campaign(db, sponsor.id, tier=1)
 db.commit()
 
@@ -288,8 +291,11 @@ process_tier_purchase(db, buyer.id, 1)
 uni_comms = get_comms(db, "uni_level")
 paid_comms = [c for c in uni_comms if c.to_user_id is not None]
 platform_comms = [c for c in uni_comms if c.to_user_id is None]
-check("1 paid uni-level (sponsor only)", len(paid_comms) == 1)
-check("7 company-absorbed uni-level (company unqualified + 6 empty chain)", len(platform_comms) == 7)
+# Admin auto-qualifies, so sponsor + company both earn. Chain beyond company is empty.
+check("2 paid uni-level (sponsor + admin company)", len(paid_comms) == 2,
+      f"got {len(paid_comms)} paid")
+check("6 company-absorbed uni-level (empty chain beyond company)", len(platform_comms) == 6,
+      f"got {len(platform_comms)} absorbed")
 db.close()
 
 # ═══════════════════════════════════════════════════════════════
