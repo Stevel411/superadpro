@@ -17,6 +17,7 @@ export default function ExploreHub() {
   // Language pill
   var _langOpen = useState(false); var langOpen = _langOpen[0]; var setLangOpen = _langOpen[1];
   var langRef = useRef(null);
+  var _videoStarted = useState(false); var videoStarted = _videoStarted[0]; var setVideoStarted = _videoStarted[1];
   useEffect(function() {
     function onClick(e) { if (langRef.current && !langRef.current.contains(e.target)) setLangOpen(false); }
     document.addEventListener('mousedown', onClick);
@@ -80,22 +81,43 @@ export default function ExploreHub() {
             </p>
           </div>
 
-          {/* Welcome video — PLACEHOLDER (TODO: replace with real video URL) */}
+          {/* Welcome video — click to play, renders real <video> with native controls */}
           <div className="hub-video">
             <div className="hub-video-frame">
-              <div className="hub-video-placeholder">
-                <div className="hub-video-play">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
-                    <polygon points="8,5 8,19 19,12" fill="currentColor"/>
-                  </svg>
+              {!videoStarted ? (
+                <div className="hub-video-placeholder"
+                  onClick={function() {
+                    setVideoStarted(true);
+                    setTimeout(function() {
+                      var v = document.getElementById('hub-welcome-video');
+                      if (v) { try { v.play(); } catch(e) {} }
+                    }, 50);
+                  }}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className="hub-video-play">
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+                      <polygon points="8,5 8,19 19,12" fill="currentColor"/>
+                    </svg>
+                  </div>
+                  <div className="hub-video-label">
+                    {t('exploreHub.videoTitle', { defaultValue: 'Watch the 90-second tour' })}
+                  </div>
+                  <div className="hub-video-sub">
+                    {t('exploreHub.videoSub', { defaultValue: 'Everything SuperAdPro can do for you, in under two minutes' })}
+                  </div>
                 </div>
-                <div className="hub-video-label">
-                  {t('exploreHub.videoPlaceholderTitle', { defaultValue: 'Welcome video coming soon' })}
-                </div>
-                <div className="hub-video-sub">
-                  {t('exploreHub.videoPlaceholderSub', { defaultValue: 'A 90-second tour of what SuperAdPro can do for you' })}
-                </div>
-              </div>
+              ) : (
+                <video
+                  id="hub-welcome-video"
+                  controls
+                  playsInline
+                  preload="auto"
+                  style={{ width: '100%', height: '100%', display: 'block', borderRadius: 18, background: '#000' }}
+                >
+                  <source src="/static/images/explore-welcome.mp4" type="video/mp4"/>
+                </video>
+              )}
             </div>
           </div>
 
