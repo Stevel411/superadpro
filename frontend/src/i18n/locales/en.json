@@ -1563,7 +1563,8 @@
     "s6_tip3": "Minimum withdrawal is $10 with a $1 fee — paid in USDT cryptocurrency",
     "s6_tip4": "Set up MetaMask or Coinbase Wallet using the Crypto Guide (under Account)",
     "s6_tip5": "Pay It Forward — gift a $20 Basic membership to anyone. You become their sponsor and earn commissions on everything they do. When they earn $20+, they are prompted to gift someone else — creating a viral growth chain",
-    "s6_link": "View Your Wallet"
+    "s6_link": "View Your Wallet",
+    "stepXofY": "Step {{num}} of {{total}}"
   },
   "howItWorks": {
     "pageTitle": "What is SuperAdPro?",

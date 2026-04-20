@@ -1497,7 +1497,8 @@
     "s6_tip3": "Prelievo minimo $10, commissione $1 — in USDT",
     "s6_tip4": "Configura MetaMask o Coinbase Wallet con la Guida Crypto (in Account)",
     "s6_tip5": "Pay It Forward — regala un'iscrizione Basic da $20. Diventi lo sponsor e guadagni commissioni. Quando guadagnano $20+, regalano a loro volta — creando una catena virale.",
-    "s6_link": "Visualizza portafoglio"
+    "s6_link": "Visualizza portafoglio",
+    "stepXofY": "Passo {{num}} di {{total}}"
   },
   "howItWorks": {
     "getStarted": "Inizia Gratis",

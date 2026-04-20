@@ -1497,7 +1497,8 @@
     "s6_tip3": "Min. opname $10, $1 kosten — in USDT",
     "s6_tip4": "Stel MetaMask of Coinbase Wallet in met de Crypto-gids (onder Account)",
     "s6_tip5": "Pay It Forward — schenk een $20 Basic-lidmaatschap. U wordt sponsor en verdient commissies. Bij $20+ verdiensten geven zij het door — een virale keten.",
-    "s6_link": "Portemonnee bekijken"
+    "s6_link": "Portemonnee bekijken",
+    "stepXofY": "Stap {{num}} van {{total}}"
   },
   "howItWorks": {
     "getStarted": "Gratis Beginnen",

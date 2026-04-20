@@ -1497,7 +1497,8 @@
     "s6_tip3": "Penarikan min. $10, biaya $1 — USDT",
     "s6_tip4": "Siapkan MetaMask atau Coinbase Wallet dengan Panduan Crypto (di Akun)",
     "s6_tip5": "Pay It Forward — hadiahkan keanggotaan Basic $20 kepada siapa pun. Anda menjadi sponsor dan mendapat komisi. Saat mereka menghasilkan $20+, mereka diajak menghadiahkan orang lain — menciptakan rantai pertumbuhan viral.",
-    "s6_link": "Lihat dompet"
+    "s6_link": "Lihat dompet",
+    "stepXofY": "Langkah {{num}} dari {{total}}"
   },
   "howItWorks": {
     "getStarted": "Mulai Gratis",

@@ -1497,7 +1497,8 @@
     "s6_tip3": "Min. withdrawal $10, $1 fee — USDT",
     "s6_tip4": "I-setup ang MetaMask o Coinbase Wallet gamit ang Crypto Guide (sa Account)",
     "s6_tip5": "Pay It Forward — mag-regalo ng $20 Basic membership sa kahit sino. Ikaw ang magiging sponsor nila at kikita ka ng komisyon. Kapag kumita sila ng $20+, hihikayatin silang mag-regalo rin — lumilikha ng viral growth chain.",
-    "s6_link": "Tingnan ang wallet"
+    "s6_link": "Tingnan ang wallet",
+    "stepXofY": "Hakbang {{num}} ng {{total}}"
   },
   "howItWorks": {
     "getStarted": "Magsimula ng Libre",

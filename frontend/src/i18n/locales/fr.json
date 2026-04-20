@@ -1497,7 +1497,8 @@
     "s6_tip3": "Retrait minimum 10$ avec frais de 1$ — en USDT",
     "s6_tip4": "Configurez MetaMask ou Coinbase Wallet avec le Guide Crypto (dans Compte)",
     "s6_tip5": "Pay It Forward — offrez une adhésion Basic de 20$ à quelqu'un. Vous devenez leur sponsor et gagnez des commissions sur tout. Quand ils gagnent 20$+, ils offrent à leur tour — créant une chaîne virale.",
-    "s6_link": "Voir votre portefeuille"
+    "s6_link": "Voir votre portefeuille",
+    "stepXofY": "Étape {{num}} sur {{total}}"
   },
   "howItWorks": {
     "getStarted": "Commencer Gratuitement",

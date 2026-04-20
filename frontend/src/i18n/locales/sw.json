@@ -1497,7 +1497,8 @@
     "s6_tip3": "Kutoa angalau $10, ada ya $1 — USDT",
     "s6_tip4": "Weka MetaMask au Coinbase Wallet kwa kutumia Mwongozo wa Crypto (katika Akaunti)",
     "s6_tip5": "Pay It Forward — toa uanachama wa Basic wa $20 kwa mtu yeyote. Unakuwa mdhamini wao na kupata kamisheni. Wanapopata $20+, wanashauriwa kutoa kwa mtu mwingine — kuunda msururu wa ukuaji wa virusi.",
-    "s6_link": "Tazama pochi"
+    "s6_link": "Tazama pochi",
+    "stepXofY": "Hatua {{num}} ya {{total}}"
   },
   "howItWorks": {
     "getStarted": "Anza Bure",

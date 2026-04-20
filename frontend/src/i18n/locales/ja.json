@@ -1497,7 +1497,8 @@
     "s6_tip3": "最低出金$10、手数料$1 — USDT",
     "s6_tip4": "暗号ガイド（アカウント内）でMetaMaskまたはCoinbase Walletをセットアップ",
     "s6_tip5": "Pay It Forward — $20 Basicメンバーシップを贈る。あなたがスポンサーになり、コミッションを獲得。$20+稼いだら次の人へ贈る——バイラル成長チェーン。",
-    "s6_link": "ウォレットを見る"
+    "s6_link": "ウォレットを見る",
+    "stepXofY": "ステップ {{num}} / {{total}}"
   },
   "howItWorks": {
     "getStarted": "無料で始める",

@@ -1497,7 +1497,8 @@
     "s6_tip3": "Saque mínimo $10 com taxa de $1 — em USDT",
     "s6_tip4": "Configure MetaMask ou Coinbase Wallet com o Guia Crypto (em Conta)",
     "s6_tip5": "Pay It Forward — presenteie uma membresía Basic de $20. Você se torna o sponsor e ganha comissões. Quando ganharem $20+, são convidados a presentear alguém — criando uma cadeia viral.",
-    "s6_link": "Ver sua carteira"
+    "s6_link": "Ver sua carteira",
+    "stepXofY": "Passo {{num}} de {{total}}"
   },
   "howItWorks": {
     "getStarted": "Comece Grátis",

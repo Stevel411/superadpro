@@ -1497,7 +1497,8 @@
     "s6_tip3": "Rút tối thiểu $10, phí $1 — USDT",
     "s6_tip4": "Thiết lập MetaMask hoặc Coinbase Wallet bằng Hướng dẫn Crypto (trong Tài khoản)",
     "s6_tip5": "Pay It Forward — tặng tư cách thành viên Basic $20. Bạn trở thành người bảo trợ và kiếm hoa hồng. Khi họ kiếm được $20+, được mời tặng tiếp — tạo chuỗi tăng trưởng lan truyền.",
-    "s6_link": "Xem ví"
+    "s6_link": "Xem ví",
+    "stepXofY": "Bước {{num}} / {{total}}"
   },
   "howItWorks": {
     "getStarted": "Bắt đầu Miễn phí",

@@ -1497,7 +1497,8 @@
     "s6_tip3": "Min. wypłata $10, opłata $1 — w USDT",
     "s6_tip4": "Skonfiguruj MetaMask lub Coinbase Wallet za pomocą Przewodnika Crypto (w Koncie)",
     "s6_tip5": "Pay It Forward — podaruj członkostwo Basic za $20. Stajesz się sponsorem i zarabiasz prowizje. Gdy zarobią $20+, przekazują dalej — tworząc łańcuch wirusowy.",
-    "s6_link": "Zobacz portfel"
+    "s6_link": "Zobacz portfel",
+    "stepXofY": "Krok {{num}} z {{total}}"
   },
   "howItWorks": {
     "getStarted": "Zacznij Za Darmo",

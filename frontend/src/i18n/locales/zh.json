@@ -1497,7 +1497,8 @@
     "s6_tip3": "最低提现$10，手续费$1 — USDT支付",
     "s6_tip4": "使用Crypto Guide（在账户下）设置MetaMask或Coinbase Wallet",
     "s6_tip5": "Pay It Forward — 赠送$20 Basic会员资格给任何人。您成为他们的推荐人并赚取佣金。当他们赚到$20+时，会被提示传递善意——形成病毒式增长链。",
-    "s6_link": "查看钱包"
+    "s6_link": "查看钱包",
+    "stepXofY": "第 {{num}} 步，共 {{total}} 步"
   },
   "howItWorks": {
     "getStarted": "免费开始",

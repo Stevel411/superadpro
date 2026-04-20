@@ -1497,7 +1497,8 @@
     "s6_tip3": "Min. çekim $10, $1 ücret — USDT",
     "s6_tip4": "Kripto Rehberi ile MetaMask veya Coinbase Wallet kurun (Hesap altında)",
     "s6_tip5": "Pay It Forward — birine $20 Basic üyelik hediye edin. Onların sponsoru olursunuz ve komisyon kazanırsınız. $20+ kazandıklarında onlar da birine hediye eder — viral büyüme zinciri.",
-    "s6_link": "Cüzdanı gör"
+    "s6_link": "Cüzdanı gör",
+    "stepXofY": "{{total}} adımdan {{num}}. adım"
   },
   "howItWorks": {
     "getStarted": "Ücretsiz Başla",

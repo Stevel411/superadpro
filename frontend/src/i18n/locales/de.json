@@ -1497,7 +1497,8 @@
     "s6_tip3": "Mindestauszahlung $10 mit $1 Gebühr — in USDT",
     "s6_tip4": "MetaMask oder Coinbase Wallet mit dem Krypto-Guide einrichten (unter Konto)",
     "s6_tip5": "Pay It Forward — verschenken Sie eine $20 Basic-Mitgliedschaft. Sie werden Sponsor und verdienen Provisionen. Bei $20+ Verdienst wird der Beschenkte aufgefordert, weiterzugeben — eine virale Kette.",
-    "s6_link": "Wallet anzeigen"
+    "s6_link": "Wallet anzeigen",
+    "stepXofY": "Schritt {{num}} von {{total}}"
   },
   "howItWorks": {
     "getStarted": "Kostenlos Starten",

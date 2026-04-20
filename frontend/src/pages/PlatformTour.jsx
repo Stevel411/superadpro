@@ -109,53 +109,62 @@ export default function PlatformTour() {
   return (
     <AppLayout title={t("platformTour.title")} subtitle={t("platformTour.subtitle")}>
 
-      {/* Tab bar */}
-      {/* Tab bar with scroll arrows */}
-      <div style={{ position: 'relative', marginBottom: 20 }}>
-        <button onClick={function() { var el = document.getElementById('tour-tabs'); if (el) el.scrollBy({ left: -200, behavior: 'smooth' }); }}
-          style={{ position: 'absolute', left: 0, top: 0, bottom: 4, width: 36, zIndex: 2, border: 'none', cursor: 'pointer',
-            background: 'linear-gradient(90deg, #f1f5f9 60%, transparent)', borderRadius: '10px 0 0 10px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 800, color: '#475569' }}>‹</button>
-        <div id="tour-tabs" style={{ display: 'flex', gap: 4, overflowX: 'auto', paddingBottom: 4, scrollbarWidth: 'none', msOverflowStyle: 'none', paddingLeft: 32, paddingRight: 32 }}>
-          <style>{`#tour-tabs::-webkit-scrollbar{display:none}`}</style>
-        {SECTIONS.map(function(sec, i) {
-          var isActive = i === activeIdx;
-          return <button key={sec.id} onClick={function() { setActiveIdx(i); }}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 6, padding: '10px 14px', borderRadius: 10,
-              border: isActive ? '1.5px solid ' + sec.color : '1px solid #e2e8f0',
-              background: isActive ? sec.bg : '#fff',
-              cursor: 'pointer', fontFamily: 'inherit', fontSize: 13, fontWeight: isActive ? 700 : 500,
-              color: isActive ? sec.color : 'var(--sap-text-muted)', whiteSpace: 'nowrap', flexShrink: 0,
-              transition: 'all .15s',
-            }}>
-            <div style={{ width: 22, height: 22, borderRadius: 6, background: isActive ? sec.color : sec.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <sec.Icon size={12} color={isActive ? '#fff' : sec.color}/>
-            </div>
-            {sec.shortTitle}
-          </button>;
-        })}
-        </div>
-        <button onClick={function() { var el = document.getElementById('tour-tabs'); if (el) el.scrollBy({ left: 200, behavior: 'smooth' }); }}
-          style={{ position: 'absolute', right: 0, top: 0, bottom: 4, width: 36, zIndex: 2, border: 'none', cursor: 'pointer',
-            background: 'linear-gradient(270deg, #f1f5f9 60%, transparent)', borderRadius: '0 10px 10px 0',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24, fontWeight: 800, color: '#475569' }}>›</button>
-      </div>
-
       {/* Active section content */}
       <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 16, overflow: 'hidden' }}>
 
-        {/* Section header */}
-        <div style={{ padding: '24px 28px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 16 }}>
-          <div style={{ width: 52, height: 52, borderRadius: 14, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <s.Icon size={26} color={s.color}/>
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{s.title}</span>
-              {s.pro && <span style={{ padding: '3px 10px', borderRadius: 6, background: 'rgba(139,92,246,.1)', fontSize: 12, fontWeight: 700, color: 'var(--sap-violet)' }}>{t('platformTour.proLabel')}</span>}
+        {/* Section header — title on the left, tab bar on the right.
+            Previously the tab bar sat on its own row above this card; moving
+            it inline here reclaims ~70px of vertical space so the video
+            sits higher on first load. The tab strip still scrolls
+            horizontally with ‹ › arrows when tabs overflow on narrow
+            viewports. */}
+        <div style={{ padding: '20px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+          {/* Title block — fixed natural width */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexShrink: 0 }}>
+            <div style={{ width: 48, height: 48, borderRadius: 12, background: s.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <s.Icon size={24} color={s.color}/>
             </div>
-            <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', marginTop: 2 }}>Step {s.num} of 6</div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontFamily: 'Sora,sans-serif', fontSize: 20, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{s.title}</span>
+                {s.pro && <span style={{ padding: '3px 10px', borderRadius: 6, background: 'rgba(139,92,246,.1)', fontSize: 12, fontWeight: 700, color: 'var(--sap-violet)' }}>{t('platformTour.proLabel')}</span>}
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginTop: 2 }}>{t('platformTour.stepXofY', { num: s.num, total: 6 })}</div>
+            </div>
+          </div>
+
+          {/* Tab bar with scroll arrows — flex:1 so it fills the remaining
+              space. justifyContent:center on the tab strip keeps the tabs
+              visually centred within whatever space is available. */}
+          <div style={{ position: 'relative', flex: 1, minWidth: 280 }}>
+            <button onClick={function() { var el = document.getElementById('tour-tabs'); if (el) el.scrollBy({ left: -200, behavior: 'smooth' }); }}
+              style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 28, zIndex: 2, border: 'none', cursor: 'pointer',
+                background: 'linear-gradient(90deg, #fff 60%, transparent)', borderRadius: '8px 0 0 8px',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 800, color: '#475569' }}>‹</button>
+            <div id="tour-tabs" style={{ display: 'flex', gap: 4, overflowX: 'auto', paddingBottom: 2, scrollbarWidth: 'none', msOverflowStyle: 'none', paddingLeft: 28, paddingRight: 28, justifyContent: 'center' }}>
+              <style>{`#tour-tabs::-webkit-scrollbar{display:none}`}</style>
+              {SECTIONS.map(function(sec, i) {
+                var isActive = i === activeIdx;
+                return <button key={sec.id} onClick={function() { setActiveIdx(i); }}
+                  style={{
+                    display: 'flex', alignItems: 'center', gap: 6, padding: '8px 12px', borderRadius: 9,
+                    border: isActive ? '1.5px solid ' + sec.color : '1px solid #e2e8f0',
+                    background: isActive ? sec.bg : '#fff',
+                    cursor: 'pointer', fontFamily: 'inherit', fontSize: 12, fontWeight: isActive ? 700 : 500,
+                    color: isActive ? sec.color : 'var(--sap-text-muted)', whiteSpace: 'nowrap', flexShrink: 0,
+                    transition: 'all .15s',
+                  }}>
+                  <div style={{ width: 20, height: 20, borderRadius: 5, background: isActive ? sec.color : sec.bg, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <sec.Icon size={11} color={isActive ? '#fff' : sec.color}/>
+                  </div>
+                  {sec.shortTitle}
+                </button>;
+              })}
+            </div>
+            <button onClick={function() { var el = document.getElementById('tour-tabs'); if (el) el.scrollBy({ left: 200, behavior: 'smooth' }); }}
+              style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 28, zIndex: 2, border: 'none', cursor: 'pointer',
+                background: 'linear-gradient(270deg, #fff 60%, transparent)', borderRadius: '0 8px 8px 0',
+                display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 800, color: '#475569' }}>›</button>
           </div>
         </div>
 
