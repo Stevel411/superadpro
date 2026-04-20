@@ -2179,6 +2179,13 @@ def legal(request: Request):
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse(url="/", status_code=302)
 
+@app.get("/legal/income-disclosure")
+def legal_income_disclosure(request: Request):
+    """Public income disclosure page — linked from affiliate-plan and public footers."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/", status_code=302)
+
 @app.get("/contact")
 def contact(request: Request):
     if _react_index.exists():

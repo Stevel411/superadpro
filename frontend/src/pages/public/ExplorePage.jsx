@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { changeLanguage, LANGUAGES } from '../../i18n';
+import DisclaimerLink from '../../components/DisclaimerLink';
 
 function formatMoney(n) {
   var v = Math.max(0, Math.floor(Number(n) || 0));
@@ -499,6 +500,8 @@ export default function ExplorePage(props) {
           </div>
 
         </section>
+
+        <DisclaimerLink />
       </div>
     </>
   );

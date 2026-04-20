@@ -108,6 +108,7 @@ import ExploreHub from './pages/public/ExploreHub';
 import FreeTools from './pages/public/FreeTools';
 import JoinFunnel from './pages/public/JoinFunnel';
 import { FAQ, Legal } from './pages/public/PublicPages';
+import PublicIncomeDisclosure from './pages/public/PublicIncomeDisclosure';
 import ForAdvertisers from './pages/public/ForAdvertisers';
 import CoursePlayer from './pages/CoursePlayer';
 
@@ -235,6 +236,7 @@ function AppRoutes() {
       <Route path="/for-advertisers" element={<ForAdvertisers />} />
       <Route path="/faq" element={<FAQ />} />
       <Route path="/legal" element={<Legal />} />
+      <Route path="/legal/income-disclosure" element={<PublicIncomeDisclosure />} />
       <Route path="/affiliates" element={<Navigate to="/register" replace />} />
       <Route path="/membership" element={<Navigate to="/register" replace />} />
       <Route path="/packages" element={<Navigate to="/register" replace />} />

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
+import DisclaimerLink from '../DisclaimerLink';
 
 export default function PublicLayout({ children }) {
 
@@ -63,6 +64,8 @@ export default function PublicLayout({ children }) {
 
       {/* ── Page content ── */}
       <main>{children}</main>
+
+      <DisclaimerLink />
 
       {/* ── Footer ── */}
       <footer style={{ borderTop: '1px solid rgba(255,255,255,0.06)', padding: '48px 24px 32px', marginTop: 80 }}>

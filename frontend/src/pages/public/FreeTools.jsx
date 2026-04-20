@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { changeLanguage, LANGUAGES } from '../../i18n';
+import DisclaimerLink from '../../components/DisclaimerLink';
 
 /**
  * FreeTools — public directory of free tools.
@@ -126,6 +127,8 @@ export default function FreeTools() {
             </Link>
           </div>
         </section>
+
+        <DisclaimerLink />
       </div>
     </>
   );
