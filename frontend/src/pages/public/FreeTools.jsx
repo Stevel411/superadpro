@@ -115,8 +115,8 @@ export default function FreeTools() {
 
           <div className="ft-footer">
             <div className="ft-footer-text">
-              {t('freeTools.footerLine1', { defaultValue: 'Want the full toolkit?' })}<br/>
-              <span className="emph">{t('freeTools.footerLine2', { defaultValue: 'There are 30+ more tools inside.' })}</span>
+              {t('freeTools.footerLine1', { defaultValue: 'Want more than this?' })}<br/>
+              <span className="emph">{t('freeTools.footerLine2', { defaultValue: 'A complete marketing toolkit inside.' })}</span>
             </div>
             <Link to="/register" className="ft-footer-cta">
               {t('freeTools.footerCta', { defaultValue: 'Create free account' })}
