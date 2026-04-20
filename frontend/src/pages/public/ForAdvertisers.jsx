@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { changeLanguage, LANGUAGES } from '../../i18n';
+import DisclaimerLink from '../../components/DisclaimerLink';
 
 export default function ForAdvertisers() {
   var { t, i18n } = useTranslation();
@@ -249,6 +250,8 @@ export default function ForAdvertisers() {
           </div>
 
         </section>
+
+        <DisclaimerLink />
       </div>
     </>
   );
