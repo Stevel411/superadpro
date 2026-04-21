@@ -40,6 +40,26 @@ If commission logic exists in a module, USE IT — don't write simplified duplic
 ### Reuse Existing Components
 Before building ANY new feature, check how similar features work elsewhere in the codebase. If a component exists (e.g. CryptoCheckout, AppLayout, CryptoPaymentOrder flow), USE IT. Never write a custom version of something that already works. Ask: "How does this work everywhere else on the platform?"
 
+### Surgical Changes
+Touch only what the request asked for. Do not "improve" adjacent code, comments, formatting, or variable names while editing — even if you'd do it differently. Match the existing style of the file, even where it's inconsistent with your preference. Every changed line must trace directly back to the user's request. If you notice unrelated dead code or a cleanup opportunity, mention it — don't delete it. The only cleanup you own is orphans YOUR changes created (unused imports/variables/functions that became dead because of your edit).
+
+### Goal-Driven Execution
+Transform imperative requests into verifiable success criteria before writing code.
+
+- "Fix the bug" → "Write a test or reproduction steps that show the bug, then make them pass"
+- "Add validation" → "Write test cases for invalid inputs, then make them fail correctly"
+- "Refactor X" → "Define what behaviour must remain identical, verify before and after"
+
+For multi-step tasks, state a brief plan with a verification step for each item:
+```
+1. [Step] → verify: [what I'll check before moving on]
+2. [Step] → verify: [what I'll check before moving on]
+```
+Strong success criteria let the work be checked objectively. Weak criteria ("make it work") leave room for silent misinterpretation. If the success criteria aren't clear from the request, ask before coding — don't guess.
+
+### Surface Assumptions Before Coding
+If the request is ambiguous, state the interpretation you're about to run with before you start — don't silently pick one and proceed. If multiple interpretations are viable and the choice materially affects the approach, present them as options. Push back when a simpler approach exists rather than quietly over-engineering. Stop and name confusion rather than flailing through it — asking one clarifying question costs less than rewriting a wrong answer.
+
 ## Mandatory Checks Before Every Push
 
 ### 1. Logic Verification
