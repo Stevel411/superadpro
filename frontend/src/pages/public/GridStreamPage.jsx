@@ -650,7 +650,7 @@ html{scroll-behavior:smooth}
 /* ════════════════════════════════════════
    COMMON
    ════════════════════════════════════════ */
-.section{position:relative;z-index:2;padding:120px 48px;max-width:1320px;margin:0 auto}
+.section{position:relative;z-index:2;padding:70px 48px;max-width:1320px;margin:0 auto}
 .section-tag{display:inline-flex;align-items:center;gap:14px;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;color:var(--sky-bright);letter-spacing:.22em;text-transform:uppercase;margin-bottom:22px}
 .section-tag::before{content:'';width:40px;height:1px;background:var(--sky-bright);opacity:.6}
 .section-h{font-family:'Sora',sans-serif;font-size:clamp(44px,5.8vw,80px);font-weight:900;line-height:.98;letter-spacing:-.04em;margin-bottom:20px}
@@ -663,7 +663,7 @@ html{scroll-behavior:smooth}
 /* ════════════════════════════════════════
    HERO — cinematic with earning promise
    ════════════════════════════════════════ */
-.hero{position:relative;min-height:auto;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:90px 48px 100px;z-index:2;overflow:hidden}
+.hero{position:relative;min-height:auto;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:90px 48px 70px;z-index:2;overflow:hidden}
 .hero::before{content:'';position:absolute;top:30%;left:-30%;width:160%;height:400px;background:linear-gradient(90deg,transparent 0%,rgba(56,189,248,.12) 48%,rgba(79,70,229,.08) 55%,transparent 100%);filter:blur(40px);animation:heroSweep 14s ease-in-out infinite;pointer-events:none}
 @keyframes heroSweep{0%,100%{transform:translateX(-10%) rotate(-8deg)}50%{transform:translateX(10%) rotate(-8deg)}}
 
@@ -752,7 +752,7 @@ html{scroll-behavior:smooth}
 /* ════════════════════════════════════════
    SECTION 2 — THE GRID IN ACTION (HERO VIZ)
    ════════════════════════════════════════ */
-.grid-action-section{position:relative;padding:100px 0 140px;z-index:2;overflow:hidden}
+.grid-action-section{position:relative;padding:70px 0 80px;z-index:2;overflow:hidden}
 .grid-action-intro{max-width:1100px;margin:0 auto 60px;padding:0 48px;text-align:center}
 .grid-action-tag{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--sky-bright);letter-spacing:.22em;text-transform:uppercase;font-weight:700;margin-bottom:22px;display:inline-flex;align-items:center;gap:14px}
 .grid-action-tag::before,.grid-action-tag::after{content:'';width:48px;height:1px;background:var(--sky-bright);opacity:.6}
@@ -900,7 +900,7 @@ html{scroll-behavior:smooth}
 /* ════════════════════════════════════════
    SECTION 4 — CALCULATOR · Floating, no panel
    ════════════════════════════════════════ */
-.calc-section{padding:140px 48px;max-width:1320px;margin:0 auto;position:relative;z-index:2}
+.calc-section{padding:80px 48px;max-width:1320px;margin:0 auto;position:relative;z-index:2}
 
 /* Floating calculator — no containment panel, ambient glow on page */
 .calc-wrap{position:relative;padding:40px 0;overflow:visible}
@@ -1006,7 +1006,7 @@ html{scroll-behavior:smooth}
 /* ════════════════════════════════════════
    SECTION 5 — HONEST MOMENT (composed, deliberate)
    ════════════════════════════════════════ */
-.honest{padding:140px 48px 100px;max-width:1100px;margin:0 auto;position:relative;z-index:2}
+.honest{padding:80px 48px 70px;max-width:1100px;margin:0 auto;position:relative;z-index:2}
 .honest-card{position:relative;padding:80px 80px 72px;border-radius:32px;background:
   linear-gradient(180deg,rgba(16,185,129,.06) 0%,rgba(23,37,84,.5) 50%,rgba(11,18,48,.55) 100%);
   border:1px solid rgba(16,185,129,.2);
@@ -1036,7 +1036,7 @@ html{scroll-behavior:smooth}
 /* ════════════════════════════════════════
    SECTION 6 — CTA
    ════════════════════════════════════════ */
-.cta{padding:60px 48px 120px;max-width:1100px;margin:0 auto;text-align:center;position:relative;z-index:2}
+.cta{padding:40px 48px 100px;max-width:1100px;margin:0 auto;text-align:center;position:relative;z-index:2}
 .cta-h{font-family:'Sora',sans-serif;font-weight:300;font-size:clamp(34px,4.2vw,52px);letter-spacing:-.03em;line-height:1.2;margin-bottom:44px;color:var(--ink-70)}
 .cta-h .emph{display:block;font-weight:800;color:var(--sky-bright);text-shadow:0 0 30px rgba(56,189,248,.5);margin-top:10px}
 .cta-btn{display:inline-flex;align-items:center;gap:14px;padding:26px 52px;border-radius:18px;background:linear-gradient(135deg,var(--sky-bright),var(--sky));color:#fff;font-family:'Sora',sans-serif;font-size:18px;font-weight:800;text-decoration:none;letter-spacing:-.01em;transition:transform .3s cubic-bezier(.2,.9,.3,1),box-shadow .3s;box-shadow:0 18px 60px rgba(56,189,248,.5)}
