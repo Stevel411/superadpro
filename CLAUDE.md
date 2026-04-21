@@ -109,15 +109,37 @@ New columns must be added to BOTH:
 `create_all()` only creates NEW tables — it does NOT add columns to existing tables.
 
 ### React Page Routes
-Every React page path in `frontend/src/App.jsx` needs a corresponding backend route in `app/main.py` that serves the React `index.html`. Without this, direct URL access returns 404.
+
+⚠️ **Every new React page MUST have ALL of the following — miss any one and the route 404s in production.** This is the most common cause of shipped-but-broken pages.
+
+**Mandatory checklist when adding a new React page:**
+
+1. **React Router** — Add the `<Route>` in `frontend/src/App.jsx` (public or protected as needed)
+2. **Component file** — Create the `.jsx` file, usually in `frontend/src/pages/` or `frontend/src/pages/public/`
+3. **i18n namespace** — Add keys to `frontend/src/i18n/locales/en.json`, then to all 19 other language files
+4. **FastAPI handler** — Add a route in `app/main.py` that serves the React `index.html` (see pattern below)
+5. **Vite build** — Run `cd frontend && npm run build` and commit `static/app/`
+6. **Python compile check** — Run `python3 -m compileall -q app/` before push
+
+The FastAPI handler is the step that gets forgotten most often. Without it, hitting the URL directly returns `{"detail":"Not Found"}` — the backend intercepts the request before React Router can see it.
 
 ```python
+# For a public page (no auth needed)
 @app.get("/your-page")
 def your_page(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
-    return HTMLResponse("<h1>Loading...</h1>")
+    return RedirectResponse(url="/", status_code=302)
+
+# For a protected page (user must be logged in)
+@app.get("/your-page")
+def your_page(request: Request, user: User = Depends(get_current_user)):
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/", status_code=302)
 ```
+
+**Verification before considering a new React page "done":** Claim the page is live only after confirming it loads end-to-end at the deployed URL, not after a successful build. "Python compiles" and "Vite builds" are necessary but not sufficient — they don't test the request path a real user takes.
 
 ### New pip Packages
 Add to `requirements.txt`. Railway deployment takes 3-4 minutes instead of the usual 1-2 when new packages are installed.
