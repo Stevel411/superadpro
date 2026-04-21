@@ -291,18 +291,18 @@ export default function GridStreamPage() {
                     </div>
                   );
                 })}
-                <div id="tip-1" className={'grid-tip t-amber' + (tipsShown.tip1 ? ' show' : '')}>
-                  <div className="grid-tip-label">{t('gridStream.tip.directLabel')}</div>
-                  <div className="grid-tip-val">+$160</div>
-                </div>
-                <div id="tip-2" className={'grid-tip t-sky' + (tipsShown.tip2 ? ' show' : '')}>
-                  <div className="grid-tip-label">{t('gridStream.tip.uniLabel')}</div>
-                  <div className="grid-tip-val">+$20</div>
-                </div>
-                <div id="tip-3" className={'grid-tip t-purple' + (tipsShown.tip3 ? ' show' : '')}>
-                  <div className="grid-tip-label">{t('gridStream.tip.bonusLabel')}</div>
-                  <div className="grid-tip-val">+$1,280</div>
-                </div>
+              </div>
+              <div id="tip-1" className={'grid-tip t-amber' + (tipsShown.tip1 ? ' show' : '')}>
+                <div className="grid-tip-label">{t('gridStream.tip.directLabel')}</div>
+                <div className="grid-tip-val">+$160</div>
+              </div>
+              <div id="tip-2" className={'grid-tip t-sky' + (tipsShown.tip2 ? ' show' : '')}>
+                <div className="grid-tip-label">{t('gridStream.tip.uniLabel')}</div>
+                <div className="grid-tip-val">+$20</div>
+              </div>
+              <div id="tip-3" className={'grid-tip t-purple' + (tipsShown.tip3 ? ' show' : '')}>
+                <div className="grid-tip-label">{t('gridStream.tip.bonusLabel')}</div>
+                <div className="grid-tip-val">+$1,280</div>
               </div>
             </div>
           </div>

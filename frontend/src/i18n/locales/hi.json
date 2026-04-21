@@ -3357,9 +3357,9 @@
       "bonusSub": "5% × 64 × tier price"
     },
     "tip": {
-      "directLabel": "Direct commission",
-      "uniLabel": "Uni-level",
-      "bonusLabel": "Completion bonus"
+      "directLabel": "Direct Referral · Tier 5",
+      "uniLabel": "Uni-Level · Per Seat",
+      "bonusLabel": "Grid Completion · Tier 5"
     },
     "tier": {
       "starter": "Starter",
