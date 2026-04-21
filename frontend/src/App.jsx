@@ -243,7 +243,6 @@ function AppRoutes() {
       <Route path="/legal" element={<Legal />} />
       <Route path="/legal/income-disclosure" element={<PublicIncomeDisclosure />} />
       <Route path="/affiliates" element={<Navigate to="/register" replace />} />
-      <Route path="/membership" element={<Navigate to="/register" replace />} />
       <Route path="/packages" element={<Navigate to="/register" replace />} />
       <Route path="/vip" element={<Navigate to="/register" replace />} />
       {/* /join/:username handled by SuperLinkPage below */}

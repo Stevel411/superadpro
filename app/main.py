@@ -2151,12 +2151,6 @@ def faq(request: Request):
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse(url="/", status_code=302)
 
-@app.get("/membership")
-def membership(request: Request):
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return RedirectResponse(url="/register", status_code=302)
-
 @app.get("/pricing")
 def pricing(request: Request):
     """Alias for /membership."""
