@@ -1933,6 +1933,13 @@ def grid_stream_page(request: Request):
         return HTMLResponse(_react_index.read_text())
     return RedirectResponse(url="/", status_code=302)
 
+@app.get("/membership")
+def membership_stream_page(request: Request):
+    """Serve React SPA for the Stream 01 Membership compensation page. Public."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return RedirectResponse(url="/", status_code=302)
+
 def _old_compensation_plan_DISABLED(request: Request, user: User = Depends(get_current_user)):
     ctx = {
         "request": request,
