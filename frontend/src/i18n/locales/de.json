@@ -3288,5 +3288,118 @@
     "installSub": "Erreiche dein Tagesziel mit einem Tipp. Kein Browser, keine Verzögerung.",
     "installBtn": "Installieren",
     "installDismiss": "Schließen"
+  },
+  "gridStream": {
+    "backLink": "Compensation Overview",
+    "hero": {
+      "tag": "Stream 02 · The Engine",
+      "word1": "The",
+      "word2": "8×8",
+      "word3": "Grid.",
+      "word4": "Watch",
+      "word5": "it build.",
+      "promiseLabel": "Maximum per cycle · All 8 tiers active",
+      "promiseSub": "Real platform math · The ceiling is real · Getting there is on you",
+      "sub": "Every campaign tier activates a fresh 64-seat grid. Directs seed it. Spillover fills it. Completion pays the bonus. Four grids running together makes money. Eight makes freedom.",
+      "stat1Label": "Seats per grid",
+      "stat2Label": "Tier levels",
+      "stat3Label": "Grids per tier",
+      "scroll": "Scroll to watch it build"
+    },
+    "section1": {
+      "tag": "§ 01 · Live simulation",
+      "title": "The grid, in action.",
+      "titleAccent": "Tier 5 Elite · $400/seat",
+      "sub": "Below is exactly how your grid fills over time. Your directs seed it. Spillover from your sponsor's team fills the rest. When the 64th seat locks in, the completion bonus drops. Watch once. You'll see why this works."
+    },
+    "gridStat": {
+      "seats": "Total seats to fill",
+      "direct": "Paid on each direct referral",
+      "uni": "Paid across spillover seats",
+      "bonus": "Paid on grid completion"
+    },
+    "btn": {
+      "reset": "Reset",
+      "play": "Play again"
+    },
+    "caption": {
+      "start": "Ready when you are...",
+      "you": "You activate your tier — the grid opens",
+      "directs": "Your directs seed the first row",
+      "spillover": "Spillover starts flowing in from above",
+      "fills": "The grid fills from every direction",
+      "complete": "Grid complete — the bonus drops"
+    },
+    "section2": {
+      "tag": "§ 02 · The mechanic",
+      "title": "How the 64 seats",
+      "titleAccent": "actually get filled.",
+      "sub": "Three things happen, in order. Every grid. Every tier. No exceptions."
+    },
+    "mechanic": {
+      "step1Title": "Your directs seed the grid",
+      "step1Desc": "When you refer someone and they activate the same tier as you, they take a seat in your grid. That's how the first few seats get filled — by the people you personally brought in. Every direct pays you 40% of the tier price instantly.",
+      "step2Title": "Spillover fills the rest",
+      "step2DescPre": "When your directs refer their own people — and when overflow comes from your sponsor's team above you — those seats drop into your grid. Most of your 64 seats come from",
+      "step2DescPost": ", not from you.",
+      "step3Title": "The 64th seat triggers the bonus",
+      "step3Desc": "When the final seat locks in, the grid completes. A lump-sum bonus drops into your wallet — 5% of the total seat value across all 64 members. Then a fresh grid opens and the cycle begins again."
+    },
+    "section3": {
+      "tag": "§ 03 · Your grid math",
+      "title": "Pick your tier.",
+      "titleAccent": "See what fills your bank.",
+      "sub": "Choose a tier. Set your activity level. Watch the math. Every number is pulled directly from the platform — nothing inflated."
+    },
+    "calc": {
+      "tierLabel": "Active campaign tier",
+      "refsLabel": "Your direct referrals in this grid",
+      "cyclesLabel": "Grids completed per year",
+      "annualLabel": "Annual potential · Selected tier only",
+      "annualSub": "Tiers stack when activated together · Real platform math",
+      "cycleLabel": "Per-cycle commissions",
+      "cycleSubPre": "Direct +",
+      "cycleSubPost": " · 64 seats",
+      "bonusBadge": "Bonus",
+      "bonusLabel": "Completion payout",
+      "bonusSub": "5% × 64 × tier price"
+    },
+    "tip": {
+      "directLabel": "Direct commission",
+      "uniLabel": "Uni-level",
+      "bonusLabel": "Completion bonus"
+    },
+    "tier": {
+      "starter": "Starter",
+      "builder": "Builder",
+      "pro": "Pro",
+      "advanced": "Advanced",
+      "elite": "Elite",
+      "premium": "Premium",
+      "executive": "Executive",
+      "ultimate": "Ultimate"
+    },
+    "term": {
+      "spillover": "spillover",
+      "spilloverTitle": "Spillover",
+      "spilloverDef": "When someone above or below you in the structure refers more people than they need, those extra members \"spill over\" into your grid — filling your seats and earning you uni-level commissions.",
+      "unilevel": "uni-level",
+      "unilevelTitle": "Uni-Level",
+      "unilevelDef": "A small commission paid to you for every seat in your grid that's filled by someone other than your direct referrals — typically from spillover. 6.25% of the tier price per seat."
+    },
+    "section4": {
+      "tag": "§ 04 · The honest part",
+      "title": "This is not a shortcut.",
+      "titleAccent": "It's a system that rewards real work.",
+      "p1": "No grid fills itself. Spillover <strong>only happens when the people above and below you are actively referring</strong>. If your upline is quiet and your downline is quiet, your grid sits there and nothing happens.",
+      "p2": "The grid is a powerful engine — but it's still an engine. It needs fuel. Your activity, your network, your consistency. Put those in, the math works. Don't, and the math tells you exactly the same thing every month: zero.",
+      "keyLabel": "The bottom line",
+      "keyText": "Show up, bring people in, stay consistent. The grid takes care of the rest."
+    },
+    "cta": {
+      "title": "The grid is ready.",
+      "titleAccent": "Your first seat is waiting.",
+      "button": "Register Today"
+    }
   }
 }
