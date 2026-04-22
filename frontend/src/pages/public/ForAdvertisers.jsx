@@ -37,8 +37,7 @@ export default function ForAdvertisers() {
         {/* Floating nav (top-right) */}
         <div className="float-nav">
           <Link to="/" className="float-nav-link">{t('forAdvertisers.navHome')}</Link>
-          <Link to="/earn" className="float-nav-link">{t('forAdvertisers.navIncome')}</Link>
-          <Link to="/tools" className="float-nav-link">{t('forAdvertisers.navTools')}</Link>
+          <Link to="/explore" className="float-nav-link">{t('forAdvertisers.navExplore', { defaultValue: 'Explore' })}</Link>
 
           {/* Language pill */}
           <div ref={langRef} className="float-lang-wrap">
