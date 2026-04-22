@@ -205,10 +205,8 @@ export default function GridStreamPage() {
     <div className="grid-stream-page">
       <style>{gridStreamStyles}</style>
 
-      <div className="ambient-bg">
-        <div className="ambient-stars"></div>
-        <div className="ambient-wash"></div>
-      </div>
+      <div className="ambient-bg"></div>
+      <div className="ambient-stars"></div>
 
       {/* TOP — minimal back link */}
       <nav className="stream-nav">
@@ -608,27 +606,25 @@ html{scroll-behavior:smooth}
 .grid-stream-page{background:#0b1230;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.5;overflow-x:hidden;min-height:100vh}
 
 /* ════════════════════════════════════════
-   AMBIENT BACKGROUND — lifted to match other public pages
+   AMBIENT BACKGROUND — calmer treatment matching Nexus (sky/indigo-tinted)
    ════════════════════════════════════════ */
 .ambient-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;background:
-  radial-gradient(ellipse at 50% 0%,#172554 0%,#0b1230 40%,#0b1230 100%)}
-.ambient-stars{position:absolute;inset:0;background-image:
-  radial-gradient(1px 1px at 20% 30%,rgba(255,255,255,.5),transparent),
-  radial-gradient(1px 1px at 60% 70%,rgba(255,255,255,.4),transparent),
-  radial-gradient(2px 2px at 40% 80%,rgba(255,255,255,.3),transparent),
-  radial-gradient(1px 1px at 30% 50%,rgba(56,189,248,.45),transparent),
-  radial-gradient(1px 1px at 85% 15%,rgba(168,85,247,.3),transparent),
-  radial-gradient(1px 1px at 70% 40%,rgba(251,191,36,.28),transparent);
-  background-size:800px 800px,600px 600px,900px 900px,750px 750px,650px 650px,820px 820px;
-  animation:starsDrift 260s linear infinite;opacity:.7}
-@keyframes starsDrift{from{background-position:0 0,0 0,0 0,0 0,0 0,0 0}to{background-position:-1600px -1600px,-1200px -1200px,-1800px -1800px,-1500px -1500px,-1300px -1300px,-1640px -1640px}}
-
-/* Brighter ambient wash — matches Watch & Earn / Explore Hub energy */
-.ambient-wash{position:absolute;inset:0;background:
-  radial-gradient(ellipse 1200px 800px at 50% 20%,rgba(56,189,248,.22) 0%,transparent 55%),
-  radial-gradient(ellipse 900px 700px at 15% 60%,rgba(79,70,229,.18) 0%,transparent 50%),
-  radial-gradient(ellipse 900px 700px at 85% 75%,rgba(147,51,234,.16) 0%,transparent 50%),
-  radial-gradient(ellipse 1400px 500px at 50% 100%,rgba(14,165,233,.12) 0%,transparent 60%)}
+  radial-gradient(ellipse 70% 50% at 50% 0%,rgba(56,189,248,.16),transparent 60%),
+  radial-gradient(ellipse 60% 40% at 10% 100%,rgba(79,70,229,.14),transparent 60%),
+  radial-gradient(ellipse 60% 40% at 90% 100%,rgba(147,51,234,.12),transparent 60%);
+}
+.ambient-stars{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 20% 30%,#fff 0,transparent 50%),
+    radial-gradient(1px 1px at 75% 70%,#fff 0,transparent 50%),
+    radial-gradient(1px 1px at 10% 80%,#fff 0,transparent 50%),
+    radial-gradient(1px 1px at 50% 50%,#fff 0,transparent 50%),
+    radial-gradient(1px 1px at 90% 20%,#fff 0,transparent 50%);
+  background-size:900px 900px,700px 700px,1100px 1100px,800px 800px,600px 600px;
+  opacity:.35;
+  animation:starDrift 280s linear infinite;
+}
+@keyframes starDrift{to{transform:translateY(-900px)}}
 
 /* ════════════════════════════════════════
    MOCKUP BANNER
@@ -668,9 +664,9 @@ html{scroll-behavior:smooth}
 .hero-mark::before{content:'';position:absolute;inset:-4px;border-radius:28px;background:linear-gradient(135deg,var(--sky),var(--sky-pale),var(--purple));z-index:-1;opacity:.5;filter:blur(14px);animation:markPulse 4s ease-in-out infinite}
 .hero-mark::after{content:'';position:absolute;inset:-18px;border-radius:44px;border:1px solid rgba(56,189,248,.25);animation:markRing 6s ease-in-out infinite}
 .hero-mark svg{width:40px;height:40px;color:#fff}
-@keyframes heroMarkRise{from{transform:translateY(24px) scale(.88);opacity:0}to{transform:translateY(0) scale(1);opacity:1}}
-@keyframes markPulse{0%,100%{opacity:.4}50%{opacity:.7}}
-@keyframes markRing{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.15);opacity:.6}}
+@keyframes heroMarkRise{0%{opacity:0;transform:translateY(-20px) scale(.8)}100%{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes markPulse{0%,100%{opacity:.5;transform:scale(1)}50%{opacity:.75;transform:scale(1.04)}}
+@keyframes markRing{0%,100%{transform:scale(1);opacity:.4}50%{transform:scale(1.08);opacity:.15}}
 
 .hero-tag{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:var(--sky-bright);letter-spacing:.24em;text-transform:uppercase;margin-bottom:22px;opacity:0;animation:heroFade .9s ease-out .6s forwards;display:inline-flex;align-items:center;gap:14px}
 .hero-tag::before,.hero-tag::after{content:'';width:36px;height:1px;background:var(--sky-bright);opacity:.6}
