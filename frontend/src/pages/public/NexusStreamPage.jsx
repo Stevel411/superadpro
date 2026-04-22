@@ -497,7 +497,14 @@ body{
 /* ═══════════════════════════════════════════
    HERO
    ═══════════════════════════════════════════ */
-.hero{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:140px 48px 40px;text-align:center}
+.hero{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:140px 48px 40px;text-align:center;opacity:0;animation:heroShellFade .5s ease-out .1s forwards}
+@keyframes heroShellFade{to{opacity:1}}
+
+/* Hold sections below hero until the hero cascade settles (stats land ~2.6s) */
+.hero ~ .section{opacity:0;animation:sectionReveal .9s ease-out forwards}
+.hero ~ .section:nth-of-type(2){animation-delay:2.8s}
+.hero ~ .section:nth-of-type(3){animation-delay:3.0s}
+@keyframes sectionReveal{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
 .hero-mark{width:84px;height:84px;border-radius:22px;background:linear-gradient(135deg,var(--purple-bright),var(--purple-deep) 60%,var(--indigo));display:flex;align-items:center;justify-content:center;margin-bottom:28px;position:relative;animation:heroMarkRise 1.6s cubic-bezier(.2,.9,.3,1) both;box-shadow:0 0 80px rgba(147,51,234,.55),0 0 160px rgba(79,70,229,.3)}
 .hero-mark::before{content:'';position:absolute;inset:-4px;border-radius:28px;background:linear-gradient(135deg,var(--purple-bright),var(--indigo-soft),var(--purple));z-index:-1;opacity:.5;filter:blur(14px);animation:markPulse 4s ease-in-out infinite}
