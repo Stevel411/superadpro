@@ -168,6 +168,19 @@ export default function ExploreHub() {
               <div className="hub-card-link">{t('exploreHub.cardLink', { defaultValue: 'See it live' })} →</div>
             </Link>
 
+            {/* Card 6: Compensation Plan — the four income streams */}
+            <Link to="/explore/compensation" className="hub-card" data-c="pink">
+              <div className="hub-card-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="1" x2="12" y2="23"/>
+                  <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+                </svg>
+              </div>
+              <div className="hub-card-title">{t('exploreHub.cardCompPlanTitle', { defaultValue: 'Compensation Plan' })}</div>
+              <div className="hub-card-body">{t('exploreHub.cardCompPlanBody', { defaultValue: 'How you actually get paid. Four income streams, broken down simply. Pick one to see how it works.' })}</div>
+              <div className="hub-card-link">{t('exploreHub.cardLink', { defaultValue: 'See it live' })} →</div>
+            </Link>
+
           </div>
 
           {/* Footer banner */}
@@ -379,6 +392,7 @@ var CSS_EXPLORE_HUB = `
 .explore-hub .hub-card[data-c="indigo"] { --accent: var(--indigo-soft); --accent-rgb: 129,140,248; }
 .explore-hub .hub-card[data-c="amber"]  { --accent: var(--amber);       --accent-rgb: 251,191,36; }
 .explore-hub .hub-card[data-c="purple"] { --accent: #c084fc;            --accent-rgb: 192,132,252; }
+.explore-hub .hub-card[data-c="pink"]   { --accent: #f472b6;            --accent-rgb: 244,114,182; }
 
 .explore-hub .hub-card-icon {
   width: 52px; height: 52px; border-radius: 14px;
