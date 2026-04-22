@@ -66,7 +66,7 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
       <div className="flex items-center gap-3 min-w-0">
         {/* Hamburger — mobile only */}
         <button
-          onClick={onMenuClick}
+          onClick={(e) => { e.stopPropagation(); onMenuClick(); }}
           className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg bg-white/5 hover:bg-white/10 transition-all border-none cursor-pointer flex-shrink-0"
           aria-label={t('nav.openMenu')}
         >
