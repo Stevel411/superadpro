@@ -99,7 +99,6 @@ class ErrorBoundary extends Component {
 // Auth pages
 import Login from './pages/auth/Login';
 import Register from './pages/auth/Register';
-import ComingSoon from './pages/auth/ComingSoon';
 import TwoFactorLogin from './pages/auth/TwoFactorLogin';
 import TwoFactorSetup from './pages/auth/TwoFactorSetup';
 import ForgotPassword from './pages/auth/ForgotPassword';
@@ -260,8 +259,8 @@ function AppRoutes() {
 
       {/* Auth pages — no sidebar, no auth required */}
       <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<ComingSoon />} />
-      <Route path="/register/:ref" element={<ComingSoon />} />
+      <Route path="/register" element={<Register />} />
+      <Route path="/register/:ref" element={<Register />} />
       <Route path="/login/2fa" element={<TwoFactorLogin />} />
       <Route path="/2fa-setup" element={<ProtectedRoute><TwoFactorSetup /></ProtectedRoute>} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
