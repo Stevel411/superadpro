@@ -172,6 +172,7 @@ class User(Base):
     stripe_subscription_id  = Column(String, nullable=True)                 # active Stripe subscription ID
     membership_expires_at   = Column(DateTime, nullable=True)               # next renewal date
     membership_billing      = Column(String, default="monthly")             # "monthly" or "annual"
+    activated_at            = Column(DateTime, nullable=True)               # first payment / activation timestamp; preserved on subsequent renewals
 
 class Grid(Base):
     """One grid instance per user per package tier."""
@@ -1514,6 +1515,11 @@ try:
         conn.execute(text("CREATE TABLE IF NOT EXISTS ai_response_cache (id SERIAL PRIMARY KEY, tool VARCHAR, prompt_hash VARCHAR UNIQUE, response TEXT, hit_count INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW(), expires_at TIMESTAMP)"))
         conn.execute(text("CREATE TABLE IF NOT EXISTS link_clicks (id SERIAL PRIMARY KEY, link_id INTEGER, link_type VARCHAR DEFAULT 'short', source VARCHAR, referrer TEXT, country VARCHAR, device VARCHAR, clicked_at TIMESTAMP DEFAULT NOW())"))
         conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS first_payment_to_company BOOLEAN DEFAULT FALSE"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS activated_at TIMESTAMP"))
+        # Backfill: anyone already is_active but with NULL activated_at gets membership_expires_at - 31 days as a best-guess.
+        # Falls back to created_at if expiry is also NULL. This is a one-time migration so existing active users have *some* timestamp.
+        conn.execute(text("UPDATE users SET activated_at = COALESCE(membership_expires_at - INTERVAL '31 days', created_at) WHERE is_active = TRUE AND activated_at IS NULL"))
+        conn.execute(text("CREATE INDEX IF NOT EXISTS idx_users_activated_at ON users(activated_at) WHERE activated_at IS NOT NULL"))
         # --- Course + Pass-Up tables ---
         conn.execute(text("CREATE TABLE IF NOT EXISTS courses (id SERIAL PRIMARY KEY, title VARCHAR NOT NULL, slug VARCHAR UNIQUE, description TEXT, price FLOAT NOT NULL, tier INTEGER NOT NULL, is_active BOOLEAN DEFAULT TRUE, sort_order INTEGER DEFAULT 0, created_at TIMESTAMP DEFAULT NOW())"))
         conn.execute(text("CREATE TABLE IF NOT EXISTS course_purchases (id SERIAL PRIMARY KEY, user_id INTEGER REFERENCES users(id), course_id INTEGER REFERENCES courses(id), course_tier INTEGER, amount_paid FLOAT, payment_method VARCHAR DEFAULT 'wallet', tx_ref VARCHAR, created_at TIMESTAMP DEFAULT NOW())"))

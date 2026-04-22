@@ -2875,8 +2875,10 @@ def api_new_members(request: Request, since: str = None,
 
     new_members = db.query(User).filter(
         User.sponsor_id == user.id,
-        User.created_at > since_dt
-    ).order_by(User.created_at.desc()).limit(10).all()
+        User.is_active == True,
+        User.activated_at.isnot(None),
+        User.activated_at > since_dt
+    ).order_by(User.activated_at.desc()).limit(10).all()
 
     members = []
     for m in new_members:
@@ -2889,7 +2891,7 @@ def api_new_members(request: Request, since: str = None,
             "last_name": m.last_name or '',
             "tier": tier,
             "commission": commission,
-            "joined_at": m.created_at.isoformat() if m.created_at else None,
+            "joined_at": m.activated_at.isoformat() if m.activated_at else None,
         })
 
     return {"members": members, "checked_at": datetime.utcnow().isoformat()}
@@ -3972,6 +3974,7 @@ async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
     if payment_type == "membership":
         # Activate membership — mirrors process_membership_payment logic
         user.is_active = True
+        user.activated_at = user.activated_at or datetime.utcnow()
         if not user.first_payment_to_company:
             user.first_payment_to_company = True
 
@@ -4724,6 +4727,7 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
 
     # Activate user
     user.is_active = True
+    user.activated_at = user.activated_at or datetime.utcnow()
     user.membership_tier = tier
     # Set billing type (safe — column may not exist yet in DB)
     try:
@@ -4825,6 +4829,7 @@ def _stripe_renew_membership(db, user, tier, subscription_id):
     sponsor_share = fee * Decimal("0.50")
 
     user.is_active = True
+    user.activated_at = user.activated_at or datetime.utcnow()
     user.membership_expires_at = datetime.utcnow() + timedelta(days=31)
     tx_ref = f"stripe_renew_{uuid.uuid4().hex[:12]}"
     payment = Payment(
@@ -6652,6 +6657,7 @@ async def admin_api_gift_membership(
 
     target.membership_tier = tier
     target.is_active = True
+    target.activated_at = target.activated_at or datetime.utcnow()
     target.membership_expires_at = datetime.utcnow() + timedelta(days=months * 31)
 
     db.commit()
@@ -10985,6 +10991,7 @@ def activate_owner(secret: str, username: str, db: Session = Depends(get_db)):
     try:
         # 1. Activate membership (Stream 1)
         user.is_active  = True
+        user.activated_at = user.activated_at or datetime.utcnow()
         user.is_admin   = True
         user.sponsor_id = None  # owner sits at root
 
