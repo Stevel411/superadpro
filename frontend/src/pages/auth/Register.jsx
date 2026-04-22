@@ -7,7 +7,14 @@ export default function Register() {
   const { t } = useTranslation();
   const { refreshUser } = useAuth();
   const params = new URLSearchParams(window.location.search);
-  const refCode = params.get('ref') || params.get('r') || '';
+  // Precedence: URL ?ref= or ?r= wins, cookie is the fallback.
+  // Cookie is set by /ref/:username (30-day life) so the sponsor is preserved
+  // if the user clicks a referral link, navigates away, and returns later.
+  function readCookie(name) {
+    const m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+    return m ? decodeURIComponent(m[1]) : '';
+  }
+  const refCode = params.get('ref') || params.get('r') || readCookie('ref') || '';
 
   const [form, setForm] = useState({ first_name: '', last_name: '', username: '', email: '', password: '', confirm_password: '', ref: refCode });
   const [error, setError] = useState('');
