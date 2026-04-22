@@ -410,6 +410,55 @@ export default function NexusStreamPage() {
           })}
         </div>
       </section>
+
+      {/* ═══ SECTION 03 — THE HONEST MOMENT ═══ */}
+      <section className="section honest-section">
+        <div className="section-tag">{t('nexusStream.section3.tag', { defaultValue: '§ 03 · The honest moment' })}</div>
+        <h2 className="section-h">
+          <span className="accent">{t('nexusStream.section3.headline1', { defaultValue: 'Not every Nexus fills.' })}</span>{' '}
+          {t('nexusStream.section3.headline2', { defaultValue: 'Here' + String.fromCharCode(8217) + 's what that means.' })}
+        </h2>
+        <p className="section-sub">{t('nexusStream.section3.sub', { defaultValue: 'Every Nexus starts the same way — you buy the pack, you earn 15% on everyone you personally bring in, and 10% on anyone they bring in. The question is how far the structure fills.' })}</p>
+
+        <div className="scenarios">
+          <div className="scenario-card" data-stage="partial">
+            <div className="scenario-label">{t('nexusStream.section3.partial.label', { defaultValue: 'Partial fill' })}</div>
+            <div className="scenario-num">{t('nexusStream.section3.partial.num', { defaultValue: '3 + 9' })}</div>
+            <div className="scenario-desc">{t('nexusStream.section3.partial.desc', { defaultValue: '3 directs, 9 spillover. You' + String.fromCharCode(8217) + 've earned 15% on every direct, plus 10% on every spillover — paid in credits you can use or withdraw.' })}</div>
+          </div>
+          <div className="scenario-card" data-stage="mid">
+            <div className="scenario-label">{t('nexusStream.section3.mid.label', { defaultValue: 'Mid fill' })}</div>
+            <div className="scenario-num">{t('nexusStream.section3.mid.num', { defaultValue: '12+' })}</div>
+            <div className="scenario-desc">{t('nexusStream.section3.mid.desc', { defaultValue: 'Twelve positions filled across Levels 1 and 2. At this point, credits earned typically cover the pack price several times over.' })}</div>
+          </div>
+          <div className="scenario-card" data-stage="full">
+            <div className="scenario-label">{t('nexusStream.section3.full.label', { defaultValue: 'Full cycle' })}</div>
+            <div className="scenario-num">{t('nexusStream.section3.full.num', { defaultValue: '39 / 39' })}</div>
+            <div className="scenario-desc">{t('nexusStream.section3.full.desc', { defaultValue: 'All 39 positions filled. Your 35% share materialises as credits to withdraw, plus a 10% completion bonus paid on the full Nexus value.' })}</div>
+          </div>
+        </div>
+
+        <p className="honest-close">{t('nexusStream.section3.close', { defaultValue: 'The structure rewards activity, not enrolment. If you bring people in and they bring people in, your Nexus fills. If no one moves, nothing moves. That' + String.fromCharCode(8217) + 's the trade.' })}</p>
+      </section>
+
+      {/* ═══ SECTION 04 — CTA ═══ */}
+      <section className="section cta-section">
+        <div className="cta-card">
+          <div className="section-tag">{t('nexusStream.section4.tag', { defaultValue: '§ 04 · Start a Nexus' })}</div>
+          <h2 className="cta-h">{t('nexusStream.section4.headline', { defaultValue: 'Ready when you are.' })}</h2>
+          <p className="cta-sub">{t('nexusStream.section4.sub', { defaultValue: 'Pick a pack. Share it. Let the structure work.' })}</p>
+          <div className="cta-actions">
+            <Link to="/register" className="cta-primary">
+              {t('nexusStream.section4.primary', { defaultValue: 'Create an account' })}
+              <svg viewBox="0 0 24 24" fill="none"><path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </Link>
+            <Link to="/explore/compensation" className="cta-secondary">
+              <svg viewBox="0 0 24 24" fill="none"><path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+              {t('nexusStream.section4.secondary', { defaultValue: 'Back to compensation overview' })}
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
@@ -504,6 +553,8 @@ body{
 .hero ~ .section{opacity:0;animation:sectionReveal .9s ease-out forwards}
 .hero ~ .section:nth-of-type(2){animation-delay:2.8s}
 .hero ~ .section:nth-of-type(3){animation-delay:3.0s}
+.hero ~ .section:nth-of-type(4){animation-delay:3.2s}
+.hero ~ .section:nth-of-type(5){animation-delay:3.4s}
 @keyframes sectionReveal{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 
 .hero-mark{width:84px;height:84px;border-radius:22px;background:linear-gradient(135deg,var(--purple-bright),var(--purple-deep) 60%,var(--indigo));display:flex;align-items:center;justify-content:center;margin-bottom:28px;position:relative;animation:heroMarkRise 1.6s cubic-bezier(.2,.9,.3,1) both;box-shadow:0 0 80px rgba(147,51,234,.55),0 0 160px rgba(79,70,229,.3)}
@@ -881,8 +932,134 @@ body{
 }
 
 /* ═══════════════════════════════════════════
-   RESPONSIVE
+   SECTION 03 — HONEST MOMENT
    ═══════════════════════════════════════════ */
+.honest-section{padding-top:40px}
+
+.scenarios{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin:48px 0 36px}
+
+.scenario-card{
+  position:relative;
+  padding:32px 28px;border-radius:16px;
+  background:linear-gradient(180deg,rgba(11,18,48,.7),rgba(11,18,48,.4));
+  backdrop-filter:blur(16px);
+  border:1px solid rgba(var(--purple-rgb),.18);
+  box-shadow:0 14px 40px rgba(0,0,0,.3),0 0 0 1px rgba(var(--purple-rgb),.04);
+  display:flex;flex-direction:column;gap:14px;
+  overflow:hidden;
+  transition:transform .35s cubic-bezier(.2,.9,.3,1),border-color .35s,box-shadow .35s;
+}
+.scenario-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--purple-bright),transparent);
+  opacity:.7;
+}
+.scenario-card:hover{
+  transform:translateY(-3px);
+  border-color:rgba(var(--purple-rgb),.4);
+  box-shadow:0 20px 50px rgba(0,0,0,.4),0 0 0 1px rgba(var(--purple-rgb),.18),0 0 30px rgba(var(--purple-rgb),.12);
+}
+
+.scenario-card[data-stage="partial"]{--stage-accent:var(--indigo-soft)}
+.scenario-card[data-stage="mid"]    {--stage-accent:var(--purple-bright)}
+.scenario-card[data-stage="full"]   {--stage-accent:var(--amber)}
+
+.scenario-label{
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;
+  letter-spacing:.2em;text-transform:uppercase;
+  color:var(--stage-accent);
+}
+.scenario-num{
+  font-family:'Sora',sans-serif;font-size:48px;font-weight:900;
+  letter-spacing:-.04em;line-height:.95;color:var(--ink);
+}
+.scenario-desc{
+  font-size:15px;line-height:1.55;color:var(--ink-60);
+}
+
+.honest-close{
+  font-size:17px;line-height:1.6;color:var(--ink-60);
+  max-width:720px;margin:36px 0 0;
+  padding:22px 26px;border-left:2px solid var(--purple-bright);
+  background:rgba(147,51,234,.05);border-radius:0 12px 12px 0;
+  font-style:italic;
+}
+
+/* ═══════════════════════════════════════════
+   SECTION 04 — CTA
+   ═══════════════════════════════════════════ */
+.cta-section{padding-top:40px;padding-bottom:140px}
+
+.cta-card{
+  position:relative;
+  padding:64px 48px;border-radius:24px;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 0%,rgba(147,51,234,.18),transparent 70%),
+    linear-gradient(180deg,rgba(11,18,48,.75),rgba(11,18,48,.5));
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(var(--purple-rgb),.22);
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.4),
+    0 0 0 1px rgba(var(--purple-rgb),.06),
+    0 0 80px rgba(147,51,234,.12);
+  text-align:center;
+  overflow:hidden;
+}
+.cta-card::before{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:60%;height:2px;
+  background:linear-gradient(90deg,transparent,var(--purple-bright),transparent);
+  opacity:.8;
+}
+
+.cta-card .section-tag{justify-content:center;display:flex;margin-bottom:22px}
+.cta-card .section-tag::before{display:none}
+
+.cta-h{
+  font-family:'Sora',sans-serif;font-size:clamp(36px,4.4vw,58px);font-weight:900;
+  letter-spacing:-.04em;line-height:1;margin:0 0 16px;color:var(--ink);
+}
+.cta-sub{
+  font-size:18px;line-height:1.6;color:var(--ink-60);
+  max-width:540px;margin:0 auto 40px;
+}
+
+.cta-actions{
+  display:flex;gap:16px;flex-wrap:wrap;
+  align-items:center;justify-content:center;
+}
+
+.cta-primary{
+  display:inline-flex;align-items:center;gap:12px;
+  padding:16px 28px;border-radius:12px;
+  background:linear-gradient(135deg,var(--purple-bright),var(--purple-deep) 60%,var(--indigo));
+  color:#fff;text-decoration:none;
+  font-family:'Sora',sans-serif;font-size:15px;font-weight:700;
+  letter-spacing:-.01em;
+  box-shadow:0 14px 40px rgba(147,51,234,.35),0 0 0 1px rgba(255,255,255,.08) inset;
+  transition:transform .3s cubic-bezier(.2,.9,.3,1),box-shadow .3s,filter .3s;
+}
+.cta-primary svg{width:16px;height:16px;transition:transform .3s}
+.cta-primary:hover{
+  transform:translateY(-2px);
+  filter:brightness(1.08);
+  box-shadow:0 20px 50px rgba(147,51,234,.5),0 0 0 1px rgba(255,255,255,.12) inset,0 0 30px rgba(192,132,252,.3);
+}
+.cta-primary:hover svg{transform:translateX(3px)}
+
+.cta-secondary{
+  display:inline-flex;align-items:center;gap:10px;
+  padding:16px 22px;border-radius:12px;
+  background:transparent;color:var(--ink-60);text-decoration:none;
+  font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600;
+  letter-spacing:.14em;text-transform:uppercase;
+  transition:color .3s,transform .3s;
+}
+.cta-secondary svg{width:14px;height:14px;transition:transform .3s}
+.cta-secondary:hover{color:var(--ink);transform:translateX(-2px)}
+.cta-secondary:hover svg{transform:translateX(-2px)}
+
+
 @media (max-width:900px){
   .hero{padding:100px 20px 60px}
   .hero-stats{gap:28px}
@@ -895,5 +1072,13 @@ body{
   .matrix-box[data-level="3"] .matrix-slots{grid-template-columns:repeat(9,1fr);gap:4px}
   .matrix-slot{font-size:9px}
   .matrix-summary{grid-template-columns:1fr;text-align:center}
+  .scenarios{grid-template-columns:1fr;gap:16px}
+  .scenario-card{padding:26px 22px}
+  .scenario-num{font-size:38px}
+  .honest-close{padding:18px 20px;font-size:15px}
+  .cta-card{padding:44px 24px;border-radius:20px}
+  .cta-section{padding-bottom:100px}
+  .cta-actions{flex-direction:column;gap:12px;width:100%}
+  .cta-primary,.cta-secondary{width:100%;justify-content:center}
 }
 `;

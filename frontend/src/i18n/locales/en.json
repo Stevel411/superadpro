@@ -3596,6 +3596,35 @@
       "headlineBreak": "Every pack has its own Nexus.",
       "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
       "credits": "credits"
+    },
+    "section3": {
+      "tag": "§ 03 · The honest moment",
+      "headline1": "Not every Nexus fills.",
+      "headline2": "Here’s what that means.",
+      "sub": "Every Nexus starts the same way — you buy the pack, you earn 15% on everyone you personally bring in, and 10% on anyone they bring in. The question is how far the structure fills.",
+      "partial": {
+        "label": "Partial fill",
+        "num": "3 + 9",
+        "desc": "3 directs, 9 spillover. You’ve earned 15% on every direct, plus 10% on every spillover — paid in credits you can use or withdraw."
+      },
+      "mid": {
+        "label": "Mid fill",
+        "num": "12+",
+        "desc": "Twelve positions filled across Levels 1 and 2. At this point, credits earned typically cover the pack price several times over."
+      },
+      "full": {
+        "label": "Full cycle",
+        "num": "39 / 39",
+        "desc": "All 39 positions filled. Your 35% share materialises as credits to withdraw, plus a 10% completion bonus paid on the full Nexus value."
+      },
+      "close": "The structure rewards activity, not enrolment. If you bring people in and they bring people in, your Nexus fills. If no one moves, nothing moves. That’s the trade."
+    },
+    "section4": {
+      "tag": "§ 04 · Start a Nexus",
+      "headline": "Ready when you are.",
+      "sub": "Pick a pack. Share it. Let the structure work.",
+      "primary": "Create an account",
+      "secondary": "Back to compensation overview"
     }
   }
 }
