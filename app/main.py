@@ -2395,12 +2395,6 @@ def register_process(
     ref:              str  = Form(""),
     db: Session = Depends(get_db)
 ):
-    # ── REGISTRATION GATE ──
-    REGISTRATION_OPEN = False
-    if not REGISTRATION_OPEN:
-        return RedirectResponse(url="/register", status_code=302)
-    # ── END GATE ──
-
     username   = sanitize(username)
     email      = sanitize(email)
     first_name = sanitize(first_name)
@@ -9728,12 +9722,6 @@ async def api_register(
 ):
     """JSON register endpoint for the modal."""
     from fastapi.responses import JSONResponse
-
-    # ── REGISTRATION GATE — remove this block to open registrations ──
-    REGISTRATION_OPEN = False
-    if not REGISTRATION_OPEN:
-        return JSONResponse({"error": "Registration is not open yet. Coming soon!"}, status_code=403)
-    # ── END GATE ──
 
     try:
         body = await request.json()
