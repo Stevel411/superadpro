@@ -3492,5 +3492,28 @@
       "titleEmph": "Start the stream today.",
       "button": "Register Today"
     }
+  },
+  "compHub": {
+    "backLink": "Home",
+    "hero": {
+      "word1": "Four",
+      "word2": "streams.",
+      "word3": "One platform."
+    },
+    "streams": {
+      "membershipNum": "01",
+      "membershipName": "Membership",
+      "membershipTag": "The Foundation Starts Here",
+      "gridNum": "02",
+      "gridName": "The Grid",
+      "gridTag": "Recurring Income · Advertising Views",
+      "nexusNum": "03",
+      "nexusName": "Nexus",
+      "nexusTag": "Recurring Income · Creators Choice",
+      "coursesNum": "04",
+      "coursesName": "Courses",
+      "coursesTag": "Infinite Pass-ups · 100% Commissions",
+      "comingSoon": "Coming Soon"
+    }
   }
 }
