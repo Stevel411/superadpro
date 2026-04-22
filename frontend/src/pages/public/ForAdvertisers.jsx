@@ -359,7 +359,7 @@ var CSS_FOR_ADVERTISERS = `
 @keyframes faAdPulse{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.3)}}
 
 /* Outcome row — cards ALWAYS VISIBLE (no reveal animation) */
-.for-advertisers-page .outcome-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:40px}
+.for-advertisers-page .outcome-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:12px}
 .for-advertisers-page .outcome-stat{padding:32px 22px 26px;border-radius:16px;background:linear-gradient(180deg,rgba(11,18,48,.88),rgba(11,18,48,.7));border:1px solid var(--ink-10);backdrop-filter:blur(16px);position:relative;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.25);transition:transform .4s cubic-bezier(.2,.8,.2,1),border-color .3s}
 .for-advertisers-page .outcome-stat:hover{transform:translateY(-6px);border-color:var(--accent)}
 .for-advertisers-page .outcome-stat::before{content:attr(data-n);position:absolute;top:-24px;right:-8px;font-family:'Sora',sans-serif;font-weight:900;font-size:140px;line-height:1;letter-spacing:-.08em;color:rgba(var(--accent-rgb),.08);pointer-events:none;user-select:none}
