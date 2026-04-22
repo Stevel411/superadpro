@@ -69,13 +69,15 @@ export default function CompensationHubPage() {
             </div>
           </Link>
 
-          {/* 03 Nexus — coming soon */}
-          <div className="hero-stream-card coming-soon" data-c="purple" data-delay="2">
-            <div className="hero-stream-badge">{t('compHub.streams.comingSoon')}</div>
+          {/* 03 Nexus — active */}
+          <Link to="/nexus" className="hero-stream-card" data-c="purple" data-delay="2">
             <div className="hero-stream-num">{t('compHub.streams.nexusNum')}</div>
             <div className="hero-stream-name">{t('compHub.streams.nexusName')}</div>
             <div className="hero-stream-tag">{t('compHub.streams.nexusTag')}</div>
-          </div>
+            <div className="hero-stream-arrow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+            </div>
+          </Link>
 
           {/* 04 Courses — coming soon */}
           <div className="hero-stream-card coming-soon" data-c="amber" data-delay="3">

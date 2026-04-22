@@ -3523,5 +3523,66 @@
       "coursesTag": "Infinite Pass-ups · 100% Commissions",
       "comingSoon": "Coming Soon"
     }
+  },
+  "nexusStream": {
+    "backLink": "Compensation Overview",
+    "hero": {
+      "tag": "Stream 03 · The Credit Nexus",
+      "word1": "3",
+      "word2": "levels.",
+      "word3": "39 positions.",
+      "line2word1": "One",
+      "line2word2": "Nexus",
+      "line2word3": "per pack.",
+      "sub": "Your referrals buy credit packs to use the AI Creative Studio. You earn on <strong>every single pack</strong> they buy — down three levels deep. Own all 8 packs yourself and you have 8 independent Nexuses filling in parallel.",
+      "stat1Num": "35%",
+      "stat1Label": "Total commission share",
+      "stat2Num": "39",
+      "stat2Label": "Positions per Nexus",
+      "stat3Num": "8×",
+      "stat3Label": "Running in parallel"
+    },
+    "section1": {
+      "tag": "§ 01 · The structure",
+      "headline1": "Two commission tiers.",
+      "headline2": "Based on who <em>you</em> bring in.",
+      "headlineBreak": "Not based on where they land in the Nexus.",
+      "sub": "Every person who buys a credit pack pays commission somewhere in your Nexus. The rate isn't decided by what level they fall into — it's decided by <strong>who recruited them</strong>. Anyone you personally brought in pays you 15%, wherever they land. Anyone brought in by your team pays you 10%, wherever they land. When all 39 positions have bought, you earn a <strong>10% completion bonus</strong> on the full Nexus value.",
+      "legendDirectBadge": "D",
+      "legendDirectRate": "15%",
+      "legendDirectLabel": "Direct referral",
+      "legendDirectDesc": "Anyone <strong>you</strong> personally recruited. Rate applies no matter which level they land in.",
+      "legendSpilloverBadge": "S",
+      "legendSpilloverRate": "10%",
+      "legendSpilloverLabel": "Spillover",
+      "legendSpilloverDesc": "Anyone recruited by your <strong>team</strong>. Rate applies no matter which level they land in.",
+      "captionStart": "› Start building your Nexus.",
+      "captionPhase1": "› You recruit your first 3.",
+      "captionPhase2": "› Your team starts recruiting.",
+      "captionPhase3": "› You bring a 4th — they spill to Level 3 but still pay 15%.",
+      "captionPhase4": "› Level 3 fills with your network.",
+      "captionComplete": "★ Nexus complete. Cycle pays.",
+      "replay": "Replay",
+      "box1Num": "Level 01",
+      "box1Name": "3 positions",
+      "box1Desc": "The top row of your Nexus. Fills first with anyone you or your team bring in.",
+      "box2Num": "Level 02",
+      "box2Name": "9 positions",
+      "box2Desc": "The middle layer. Three positions under each Level 01 slot.",
+      "box3Num": "Level 03",
+      "box3Name": "27 positions",
+      "box3Desc": "The deepest row. Three positions under each Level 02 slot — 27 in total.",
+      "summaryText": "When your Nexus fills with 39 purchases, you earn a <span class=\"emph\">10% completion bonus</span> on the total Nexus value — and a fresh one opens for that pack.",
+      "summaryNum": "35%",
+      "summaryLabel": "Total per Nexus cycle"
+    },
+    "section2": {
+      "tag": "§ 02 · The 8 packs",
+      "headline1": "Eight tiers.",
+      "headline2": "From $20 to $1,000.",
+      "headlineBreak": "Every pack has its own Nexus.",
+      "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
+      "credits": "credits"
+    }
   }
 }
