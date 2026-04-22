@@ -20,6 +20,48 @@ SuperAdPro is a video advertising and affiliate marketing platform. FastAPI/Pyth
 - **Payments:** NOWPayments (350+ cryptos + card via Banxa), direct USDT/USDC on Polygon via Alchemy. Stripe fully removed.
 - **AI:** Anthropic Claude API (Haiku for cost-optimised generation), xAI Grok API (sales agent, content, prompts), EvoLink + fal.ai (video/image generation)
 
+## The Four Income Streams — CANONICAL REFERENCE
+
+SuperAdPro members earn through four separate, independent income streams. Every public page, every pitch, every piece of marketing material must stay consistent with these mechanics. The platform engine is already coded — pages describe what exists, not what we wish existed.
+
+### Stream 01 — Membership (GREEN)
+- **What it is:** 50% recurring commission on every month's subscription payment from a referral.
+- **Trigger:** Someone signs up through your link and keeps paying ($20 Basic or $35 Pro).
+- **Pays:** $10/month per Basic referral, $17.50/month per Pro referral.
+- **Rhythm:** Recurring — paid every month for as long as they stay subscribed.
+- **Break-even:** 2 Pro referrals cover your own Pro subscription.
+- **Code:** standard membership commission flow in `app/payment.py` + `app/crud.py`.
+
+### Stream 02 — The Grid (INDIGO)
+- **What it is:** 8×8 spillover grid on campaign tier purchases. Direct + uni-level.
+- **Trigger:** Someone buys a campaign tier ($X one-off to run ads).
+- **Pays:** 40% on direct referrals (row 1). 6.25% on each of 7 spillover levels below.
+- **Rhythm:** Per grid cycle — you cycle when your grid fills, then a new one opens.
+- **Max per cycle:** $103,976 at Ultimate tier (when a full grid completes).
+- **Code:** `app/grid.py` + `app/matrix.py`. Tied to campaign tier purchases, not credit packs.
+
+### Stream 03 — Nexus (PURPLE) — the Credit Matrix
+- **What it is:** 3×3 forced matrix on credit pack purchases. One matrix per pack, 39 positions each (3 + 9 + 27).
+- **Trigger:** Referrals (any level, up to 3 deep) buy credit packs to use Creative Studio and AI tools.
+- **Pays:** 15% on every direct referral's pack purchase, 10% on every spillover purchase in levels 2 and 3, 10% completion bonus when a matrix fills (39 pack purchases across your downline).
+- **Total commission share:** 35% of every pack sale (15 + 10 + 10).
+- **Pack price split:** 50% AI cost / 15% company / 35% commissions.
+- **Packs:** Starter $20 (100cr) → Ultimate $1,000 (5,000cr). 8 tiers total. One matrix per pack per member — owning all 8 means 8 matrices filling in parallel.
+- **Rhythm:** Recurring and uncapped — as your downline creates content, they burn credits, they re-up, you earn on every re-up. "Creators' choice" because heavy users generate the most.
+- **Code:** `app/credit_matrix.py` (673 lines). Constants in `app/database.py`: `CREDIT_PACKS`, `MATRIX_WIDTH=3`, `MATRIX_DEPTH=3`, `MATRIX_COMMISSION_RATES={1:0.15, 2:0.10, 3:0.10}`.
+
+### Stream 04 — Courses (AMBER) — [public page not yet built]
+- **What it is:** Course sales with pass-up commissions.
+- **Status:** Platform mechanic built; public marketing page pending.
+- **Tagline on hub:** "Infinite Pass-ups · 100% Commissions"
+- **Code:** `app/course_engine.py` (contains the commission logic).
+
+### Cross-stream rules
+- All streams coexist — members build all four in whatever order suits them.
+- Streams are independent: buying a credit pack doesn't affect your Grid, joining Nexus doesn't affect your Membership stream.
+- **DO NOT invent cross-stream mechanics** in public copy. If the code doesn't do it, the page doesn't claim it.
+- Before writing ANY public commission copy, re-read this section and verify against the source module.
+
 ## Engineering Principles — NON-NEGOTIABLE
 
 ### No Vibe Coding
