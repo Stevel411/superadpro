@@ -230,7 +230,12 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed, f
       {/* Sidebar panel */}
       <aside style={{
         position: 'fixed',
-        top: 0, left: 0, bottom: 0,
+        top: 0, left: 0,
+        // Use 100dvh (dynamic viewport height) instead of bottom:0 so the sidebar
+        // doesn't flicker on mobile portrait when browser chrome (address bar /
+        // PWA install banner) is visible. dvh updates smoothly as chrome
+        // shows/hides; bottom:0 caused a one-frame repaint mid-mount-animation.
+        height: '100dvh',
         width: collapsed ? 72 : 224,
         background: 'linear-gradient(180deg, #172554 0%, #172554 72px, #1e3a8a 100%)',
         zIndex: 50,
