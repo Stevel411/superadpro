@@ -49,6 +49,8 @@ function getSections(t) { return [
     link: '/upgrade', linkLabel: t('platformTour.s5_link'),
     Icon: Lock, color: 'var(--sap-purple)', bg: 'var(--sap-purple-pale)',
     pro: true,
+    videoSrc: '/static/downloads/tour-videos/pro-tools-tour.mp4',
+    posterSrc: '/static/downloads/tour-videos/pro-tools-tour-poster.jpg',
   },
   {
     id: 'wallet', num: '6', title: t('platformTour.s6_title'), shortTitle: t('platformTour.s6_short'),
