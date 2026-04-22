@@ -560,7 +560,7 @@ export default function Dashboard() {
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
             {[
-              { val: d.personal_referrals || 0, lbl: t('dashboard.directReferrals') },
+              { val: d.direct_referrals_count || 0, lbl: t('dashboard.directReferrals') },
               { val: d.total_team || 0, lbl: t('dashboard.totalNetwork') },
               { val: `$${formatMoney(d.total_earned)}`, lbl: t('dashboard.lifetimeEarned') },
               { val: `$${formatMoney(d.creative_studio_earned || 0)}`, lbl: t('dashboard.nexusEarned', { defaultValue: 'Nexus Earned' }) },

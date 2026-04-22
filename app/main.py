@@ -526,6 +526,7 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "boost_earned":      boost_earned,
         "creative_studio_earned": float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(Commission.to_user_id == user.id, Commission.commission_type.in_(["matrix_level", "matrix_completion"]), Commission.amount_usdt > 0).scalar() or 0),
         "personal_referrals":user.personal_referrals or 0,
+        "direct_referrals_count": db.query(User).filter(User.sponsor_id == user.id).count(),
         "total_team":        user.total_team or 0,
         "grid_stats":        stats,
         "active_grids":      active_grids,
