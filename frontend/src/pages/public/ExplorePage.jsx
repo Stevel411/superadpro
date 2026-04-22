@@ -484,6 +484,98 @@ export default function ExplorePage(props) {
                 <Link to="/register" className="empty-state-cta">{t('explore.showcaseEmptyCta')}</Link>
               </div>
             )}
+
+            {/* ═══════════ Tool Lineup ═══════════ */}
+            <div className="tool-lineup">
+              <div className="tool-lineup-head">
+                <div className="tool-lineup-eyebrow">{t('explore.toolsEyebrow', { defaultValue: 'What\'s inside' })}</div>
+                <h3 className="tool-lineup-title">{t('explore.toolsTitle', { defaultValue: 'The tools that come with your membership.' })}</h3>
+                <p className="tool-lineup-sub">{t('explore.toolsSub', { defaultValue: 'Nine tools, split across two tiers. Every Basic member gets the first six. Pro members get three more.' })}</p>
+              </div>
+
+              {/* Basic tier */}
+              <div className="tool-tier">
+                <div className="tool-tier-head">
+                  <div className="tool-tier-badge tier-basic">{t('explore.toolsBasicBadge', { defaultValue: 'Basic · $20/mo' })}</div>
+                  <div className="tool-tier-label">{t('explore.toolsBasicLabel', { defaultValue: 'Included with every membership' })}</div>
+                </div>
+                <div className="tool-grid">
+                  <div className="tool-card" data-c="sky">
+                    <div className="tool-card-icon">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
+                    </div>
+                    <div className="tool-card-name">{t('explore.toolRotatorName', { defaultValue: 'Rotator' })}</div>
+                    <div className="tool-card-body">{t('explore.toolRotatorBody', { defaultValue: 'One link, rotates to multiple destinations. Click analytics included.' })}</div>
+                  </div>
+                  <div className="tool-card" data-c="green">
+                    <div className="tool-card-icon">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+                    </div>
+                    <div className="tool-card-name">{t('explore.toolShortenerName', { defaultValue: 'Link Shortener' })}</div>
+                    <div className="tool-card-body">{t('explore.toolShortenerBody', { defaultValue: 'Shorten any URL. Track clicks. GeoIP targeting and QR codes built in.' })}</div>
+                  </div>
+                  <div className="tool-card" data-c="indigo">
+                    <div className="tool-card-icon">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                    </div>
+                    <div className="tool-card-name">{t('explore.toolLinklyName', { defaultValue: 'Linkly Style Page' })}</div>
+                    <div className="tool-card-body">{t('explore.toolLinklyBody', { defaultValue: 'Bio-link pages like Linktree or Stan Store. Live preview, full theming, unlimited links.' })}</div>
+                  </div>
+                  <div className="tool-card" data-c="amber">
+                    <div className="tool-card-icon">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+                    </div>
+                    <div className="tool-card-name">{t('explore.toolContentCreatorName', { defaultValue: 'Content Creator' })}</div>
+                    <div className="tool-card-body">{t('explore.toolContentCreatorBody', { defaultValue: 'AI-powered copy generation for posts, captions, ads and email. Writer\'s block, solved.' })}</div>
+                  </div>
+                  <div className="tool-card" data-c="purple">
+                    <div className="tool-card-icon">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                    </div>
+                    <div className="tool-card-name">{t('explore.toolCreativeStudioName', { defaultValue: 'Creative Studio' })}</div>
+                    <div className="tool-card-body">{t('explore.toolCreativeStudioBody', { defaultValue: 'AI video, images, music, voiceover, lip sync. Pay-as-you-go with credit packs.' })}</div>
+                  </div>
+                  <div className="tool-card" data-c="pink">
+                    <div className="tool-card-icon">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                    </div>
+                    <div className="tool-card-name">{t('explore.toolSuperDeckName', { defaultValue: 'SuperDeck' })}</div>
+                    <div className="tool-card-body">{t('explore.toolSuperDeckBody', { defaultValue: 'AI slide-deck builder. Describe your pitch, get a polished presentation in minutes.' })}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Pro tier */}
+              <div className="tool-tier">
+                <div className="tool-tier-head">
+                  <div className="tool-tier-badge tier-pro">{t('explore.toolsProBadge', { defaultValue: 'Pro · $35/mo' })}</div>
+                  <div className="tool-tier-label">{t('explore.toolsProLabel', { defaultValue: 'Everything in Basic, plus three more' })}</div>
+                </div>
+                <div className="tool-grid">
+                  <div className="tool-card tool-card-pro" data-c="sky">
+                    <div className="tool-card-icon">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                    </div>
+                    <div className="tool-card-name">{t('explore.toolSuperPagesName', { defaultValue: 'SuperPages' })}</div>
+                    <div className="tool-card-body">{t('explore.toolSuperPagesBody', { defaultValue: 'Drag-and-drop landing pages. 8 templates, free-form blocks, instant publish.' })}</div>
+                  </div>
+                  <div className="tool-card tool-card-pro" data-c="green">
+                    <div className="tool-card-icon">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+                    </div>
+                    <div className="tool-card-name">{t('explore.toolAutoResponderName', { defaultValue: 'AutoResponder' })}</div>
+                    <div className="tool-card-body">{t('explore.toolAutoResponderBody', { defaultValue: 'Automated email sequences for your leads. AI-generated copy, visual timeline editor.' })}</div>
+                  </div>
+                  <div className="tool-card tool-card-pro" data-c="indigo">
+                    <div className="tool-card-icon">
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                    </div>
+                    <div className="tool-card-name">{t('explore.toolLeadFinderName', { defaultValue: 'Lead Finder' })}</div>
+                    <div className="tool-card-body">{t('explore.toolLeadFinderBody', { defaultValue: 'Find real businesses in any niche, anywhere. Maps + web search. Export straight to your CRM.' })}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="footer-banner">
@@ -809,8 +901,43 @@ padding-top:10px;border-top:1px solid var(--ink-05);
 .explore-page .footer-banner-text .emph {color:var(--sky-bright);font-weight:700;text-shadow:0 0 20px rgba(56,189,248,.6)}
 .explore-page .footer-cta {position:relative;z-index:2;display:inline-flex;align-items:center;gap:12px;padding:20px 36px;border-radius:14px;background:linear-gradient(135deg,var(--amber-bright),var(--amber));color:var(--cobalt-deepest);font-family:'Sora',sans-serif;font-size:15px;font-weight:800;text-decoration:none;letter-spacing:-.01em;transition:transform .3s,box-shadow .3s;box-shadow:0 12px 40px rgba(251,191,36,.4);white-space:nowrap}
 .explore-page .footer-cta:hover {transform:translateY(-3px) scale(1.02);box-shadow:0 16px 50px rgba(251,191,36,.6)}
+
+/* ════════════════════ TOOL LINEUP ════════════════════ */
+.explore-page .tool-lineup {margin-top:80px;padding-top:60px;border-top:1px solid var(--ink-10)}
+.explore-page .tool-lineup-head {text-align:center;margin-bottom:48px;max-width:680px;margin-left:auto;margin-right:auto}
+.explore-page .tool-lineup-eyebrow {font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--sky-bright);letter-spacing:.2em;text-transform:uppercase;margin-bottom:16px;font-weight:700}
+.explore-page .tool-lineup-title {font-family:'Sora',sans-serif;font-size:clamp(28px,3.2vw,42px);font-weight:800;letter-spacing:-.03em;line-height:1.15;color:var(--ink);margin:0 0 16px}
+.explore-page .tool-lineup-sub {font-size:16px;color:var(--ink-70);line-height:1.55;margin:0}
+
+.explore-page .tool-tier {margin-bottom:52px}
+.explore-page .tool-tier-head {display:flex;align-items:center;gap:16px;margin-bottom:24px;flex-wrap:wrap}
+.explore-page .tool-tier-badge {display:inline-flex;align-items:center;padding:8px 16px;border-radius:100px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
+.explore-page .tool-tier-badge.tier-basic {background:rgba(56,189,248,.12);border:1px solid rgba(56,189,248,.4);color:var(--sky-bright)}
+.explore-page .tool-tier-badge.tier-pro {background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.4);color:var(--amber)}
+.explore-page .tool-tier-label {font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--ink-60);letter-spacing:-.005em}
+
+.explore-page .tool-grid {display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+
+.explore-page .tool-card {position:relative;padding:28px 24px;border-radius:18px;background:linear-gradient(180deg,rgba(11,18,48,.6),rgba(11,18,48,.35));border:1px solid rgba(var(--accent-rgb),.22);backdrop-filter:blur(16px);display:flex;flex-direction:column;gap:12px;transition:transform .3s,border-color .3s,box-shadow .3s}
+.explore-page .tool-card::before {content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.8}
+.explore-page .tool-card:hover {transform:translateY(-3px);border-color:rgba(var(--accent-rgb),.5);box-shadow:0 16px 40px rgba(0,0,0,.35),0 0 30px rgba(var(--accent-rgb),.18)}
+
+.explore-page .tool-card[data-c="sky"]    {--accent:#38bdf8; --accent-rgb:56,189,248}
+.explore-page .tool-card[data-c="green"]  {--accent:#34d399; --accent-rgb:52,211,153}
+.explore-page .tool-card[data-c="indigo"] {--accent:#818cf8; --accent-rgb:129,140,248}
+.explore-page .tool-card[data-c="amber"]  {--accent:#fbbf24; --accent-rgb:251,191,36}
+.explore-page .tool-card[data-c="purple"] {--accent:#c084fc; --accent-rgb:192,132,252}
+.explore-page .tool-card[data-c="pink"]   {--accent:#f472b6; --accent-rgb:244,114,182}
+
+.explore-page .tool-card-pro::after {content:'PRO';position:absolute;top:16px;right:16px;font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:800;letter-spacing:.15em;color:var(--amber);background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);padding:3px 7px;border-radius:4px}
+
+.explore-page .tool-card-icon {width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,rgba(var(--accent-rgb),.2),rgba(var(--accent-rgb),.08));border:1px solid rgba(var(--accent-rgb),.3);display:flex;align-items:center;justify-content:center;color:var(--accent);margin-bottom:4px}
+.explore-page .tool-card-name {font-family:'Sora',sans-serif;font-size:19px;font-weight:800;letter-spacing:-.02em;color:var(--ink);line-height:1.2}
+.explore-page .tool-card-body {font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--ink-70);line-height:1.5;letter-spacing:-.005em}
+
 @media(max-width:1100px){
 .explore-page .showcase-grid {grid-template-columns:repeat(2,1fr)}
+.explore-page .tool-grid {grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:900px){
 .explore-page .page-section {padding:120px 20px 80px}
@@ -819,6 +946,8 @@ padding-top:10px;border-top:1px solid var(--ink-05);
 .explore-page .timeline-grid, .explore-page .showcase-grid {grid-template-columns:1fr}
 .explore-page .footer-banner {grid-template-columns:1fr;gap:24px;padding:32px;text-align:center}
 .explore-page .footer-cta {justify-self:center}
+.explore-page .tool-grid {grid-template-columns:1fr}
+.explore-page .tool-lineup {margin-top:56px;padding-top:40px}
 }
 .explore-page .mock-label {position:fixed;bottom:16px;right:16px;z-index:1000;padding:8px 14px;background:rgba(11,18,48,.95);border:1px solid var(--ink-10);border-radius:6px;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;color:var(--ink-60);letter-spacing:.15em;text-transform:uppercase;backdrop-filter:blur(12px)}
 /* Language pill — product-standard addition not in mockup */
