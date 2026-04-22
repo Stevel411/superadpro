@@ -133,6 +133,7 @@ app.add_middleware(
 
 
 @app.get("/")
+@app.get("/health")
 def health():
     db_ok = False
     if engine:
