@@ -56,6 +56,16 @@ export default function FreeTools() {
       <style>{CSS_FREE_TOOLS}</style>
       <div className="free-tools-page">
 
+        {/* Floating brand (top-left) — returns to home */}
+        <Link to="/" className="float-brand">
+          <div className="float-brand-mark">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+              <polygon points="9,5 9,19 20,12" fill="#fff"/>
+            </svg>
+          </div>
+          <span className="float-brand-text">SuperAd<em>Pro</em></span>
+        </Link>
+
         <div className="float-nav">
           <Link to="/explore" className="float-nav-link">← {t('freeTools.backToHub', { defaultValue: 'Back to Explore' })}</Link>
 
@@ -153,6 +163,33 @@ var CSS_FREE_TOOLS = `
   position: relative;
   overflow-x: hidden;
 }
+
+.free-tools-page .float-brand {
+  position: fixed; top: 20px; left: 20px; z-index: 100;
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 20px 10px 12px; border-radius: 100px;
+  background: rgba(11,18,48,.5); border: 1px solid var(--ink-10);
+  backdrop-filter: blur(18px) saturate(180%);
+  text-decoration: none; transition: all .25s;
+  box-shadow: 0 4px 20px rgba(0,0,0,.3);
+}
+.free-tools-page .float-brand:hover { background: rgba(11,18,48,.7); transform: translateY(-2px); }
+.free-tools-page .float-brand-mark {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--sky, #0ea5e9), var(--indigo, #4f46e5));
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 0 16px rgba(14,165,233,.45); position: relative;
+}
+.free-tools-page .float-brand-mark::before {
+  content: ''; position: absolute; inset: -2px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--sky, #0ea5e9), var(--amber, #fbbf24), var(--indigo, #4f46e5));
+  z-index: -1; opacity: .4; filter: blur(4px);
+}
+.free-tools-page .float-brand-text {
+  font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 900;
+  letter-spacing: -.03em; color: var(--ink);
+}
+.free-tools-page .float-brand-text em { color: var(--sky-bright, #38bdf8); font-style: normal; }
 
 .free-tools-page .float-nav {
   position: fixed; top: 20px; right: 20px; z-index: 100;
