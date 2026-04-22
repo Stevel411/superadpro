@@ -224,7 +224,6 @@ export default function GridStreamPage() {
 
       {/* HERO */}
       <section className="hero">
-        <div className="hero-pattern"></div>
         <div className="hero-mark">
           <svg viewBox="0 0 24 24" fill="none">
             <rect x="4" y="4" width="7" height="7" rx="1" fill="#fff"/>
@@ -664,20 +663,6 @@ html{scroll-behavior:smooth}
    HERO — cinematic with earning promise
    ════════════════════════════════════════ */
 .hero{position:relative;min-height:auto;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:90px 48px 70px;z-index:2;overflow:hidden}
-.hero::before{content:'';position:absolute;top:30%;left:-30%;width:160%;height:400px;background:linear-gradient(90deg,transparent 0%,rgba(56,189,248,.12) 48%,rgba(79,70,229,.08) 55%,transparent 100%);filter:blur(40px);animation:heroSweep 14s ease-in-out infinite;pointer-events:none}
-@keyframes heroSweep{0%,100%{transform:translateX(-10%) rotate(-8deg)}50%{transform:translateX(10%) rotate(-8deg)}}
-
-/* Subtle grid pattern in hero background — echoes what's coming */
-.hero-pattern{position:absolute;inset:0;pointer-events:none;opacity:.25;background-image:
-  linear-gradient(rgba(56,189,248,.14) 1px,transparent 1px),
-  linear-gradient(90deg,rgba(56,189,248,.14) 1px,transparent 1px);
-  background-size:80px 80px;
-  mask-image:radial-gradient(ellipse 900px 600px at 50% 50%,black 20%,transparent 75%);
-  -webkit-mask-image:radial-gradient(ellipse 900px 600px at 50% 50%,black 20%,transparent 75%);
-  transform:perspective(900px) rotateX(58deg) translateY(120px);transform-origin:center center}
-
-.hero-depth{position:absolute;inset:0;pointer-events:none}
-.hero-depth .dp{position:absolute;border-radius:50%;pointer-events:none}
 
 .hero-mark{width:84px;height:84px;border-radius:22px;background:linear-gradient(135deg,var(--sky),var(--indigo) 60%,var(--purple));display:flex;align-items:center;justify-content:center;margin-bottom:28px;position:relative;animation:heroMarkRise 1.6s cubic-bezier(.2,.9,.3,1) both;box-shadow:0 0 80px rgba(14,165,233,.65),0 0 160px rgba(79,70,229,.35)}
 .hero-mark::before{content:'';position:absolute;inset:-4px;border-radius:28px;background:linear-gradient(135deg,var(--sky),var(--sky-pale),var(--purple));z-index:-1;opacity:.5;filter:blur(14px);animation:markPulse 4s ease-in-out infinite}
@@ -1080,7 +1065,6 @@ html{scroll-behavior:smooth}
   .hero-stats{gap:28px;margin-bottom:36px;flex-wrap:wrap;justify-content:center}
   .hero-stat{text-align:center}
   .hero-stat-num{font-size:26px}
-  .hero-pattern{background-size:40px 40px}
 
   /* Mechanic cards — single column */
   .mechanic-wrap{grid-template-columns:1fr;gap:14px}

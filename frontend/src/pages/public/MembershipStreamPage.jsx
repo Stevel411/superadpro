@@ -102,8 +102,6 @@ export default function MembershipStreamPage() {
 
       {/* ══════════════ HERO ══════════════ */}
       <section className="hero" id="sec-hero">
-        <div className="hero-pattern"></div>
-        <div className="hero-depth"></div>
         <div className="hero-mark">
           <svg viewBox="0 0 24 24" fill="none">
             <path d="M3 12c2-4 4-4 6 0s4 4 6 0 4-4 6 0" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" fill="none"/>
@@ -489,18 +487,6 @@ body{background:#0b1230;color:var(--ink);font-family:'DM Sans',sans-serif;font-s
    HERO — "The monthly stream."
    ════════════════════════════════════════ */
 .hero{position:relative;min-height:auto;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:70px 48px 70px;z-index:2;overflow:hidden}
-.hero::before{content:'';position:absolute;top:30%;left:-30%;width:160%;height:400px;background:linear-gradient(90deg,transparent 0%,rgba(16,185,129,.14) 48%,rgba(20,184,166,.08) 55%,transparent 100%);filter:blur(40px);animation:heroSweep 14s ease-in-out infinite;pointer-events:none}
-@keyframes heroSweep{0%,100%{transform:translateX(-10%) rotate(-8deg)}50%{transform:translateX(10%) rotate(-8deg)}}
-
-/* Soft "stream" pattern in hero — flowing horizontal lines */
-.hero-pattern{position:absolute;inset:0;pointer-events:none;opacity:.2;background-image:
-  linear-gradient(180deg,rgba(16,185,129,.22) 1px,transparent 1px);
-  background-size:100% 120px;
-  mask-image:radial-gradient(ellipse 900px 600px at 50% 50%,black 20%,transparent 75%);
-  -webkit-mask-image:radial-gradient(ellipse 900px 600px at 50% 50%,black 20%,transparent 75%)}
-
-.hero-depth{position:absolute;inset:0;pointer-events:none}
-.hero-depth .dp{position:absolute;border-radius:50%;pointer-events:none}
 
 .hero-mark{width:84px;height:84px;border-radius:22px;background:linear-gradient(135deg,var(--rose),var(--rose-deep) 60%,var(--purple));display:flex;align-items:center;justify-content:center;margin-bottom:28px;position:relative;animation:heroMarkRise 1.6s cubic-bezier(.2,.9,.3,1) both;box-shadow:0 0 80px rgba(16,185,129,.65),0 0 160px rgba(5,150,105,.35)}
 .hero-mark::before{content:'';position:absolute;inset:-4px;border-radius:28px;background:linear-gradient(135deg,var(--rose),var(--rose-bright),var(--coral));z-index:-1;opacity:.5;filter:blur(14px);animation:markPulse 4s ease-in-out infinite}
