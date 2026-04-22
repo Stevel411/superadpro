@@ -17439,6 +17439,7 @@ async def api_watch_complete(request: Request, user: User = Depends(get_current_
 def api_network_data(request: Request, user: User = Depends(get_current_user),
                      db: Session = Depends(get_db)):
     """My Network & Earnings data."""
+    from sqlalchemy import func
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     # Direct referrals with their earnings contribution
