@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
 import { useTranslation } from 'react-i18next';
-import LanguageSelector from './LanguageSelector';
 import {
   Home, User, Wallet, Headphones, Eye, Zap, LayoutGrid, Link2,
   Globe, GraduationCap, PenLine, Network, FileText, Users,
@@ -449,10 +448,6 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed, f
                 {user.is_active ? t('dashboard.activeMember') : t('dashboard.inactive')}
               </span>
             </div>}
-            {/* Language selector — visible on both mobile (via hamburger) and desktop */}
-            <div style={{ padding: '4px 4px 8px', borderBottom: '1px solid rgba(255,255,255,0.05)', marginBottom: 8 }}>
-              <LanguageSelector openUp={true} />
-            </div>
             <button onClick={logout} style={{
               width:'100%', display:'flex', alignItems:'center', gap:10,
               padding:'8px 12px', fontSize:13, fontWeight:500,

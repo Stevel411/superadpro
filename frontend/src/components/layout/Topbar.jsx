@@ -80,6 +80,7 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
       <div className="flex items-center gap-3">
         <span className="hidden md:flex items-center gap-3">{children}</span>
         <span className="hidden md:block"><LanguageSelector /></span>
+        <span className="md:hidden"><LanguageSelector compact={true} /></span>
 
         {/* Balance — clickable, links to wallet */}
         {user && <a href="/wallet" style={{ display:'flex', alignItems:'center', gap:6, padding:'6px 14px', borderRadius:10,
@@ -170,14 +171,6 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
               </div>
             </div>
           )}
-        </div>
-
-        {/* User Avatar */}
-        <div className="w-9 h-9 rounded-full bg-cyan/20 flex items-center justify-center text-xs font-bold text-cyan overflow-hidden" style={{flexShrink:0}}>
-          {user?.avatar_url
-            ? <img src={user.avatar_url} alt="" style={{width:'100%',height:'100%',objectFit:'cover'}} onError={function(e){e.target.style.display='none';}}/>
-            : (user?.first_name || user?.username || '?')[0].toUpperCase()
-          }
         </div>
       </div>
     </header>
