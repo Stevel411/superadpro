@@ -72,7 +72,8 @@ export default function ExploreHub() {
           <div className="hub-hero">
             <div className="hub-eyebrow">{t('exploreHub.eyebrow', { defaultValue: 'EXPLORE SUPERADPRO' })}</div>
             <h1 className="hub-headline">
-              <span className="accent">{t('exploreHub.headline1', { defaultValue: "This isn't a pitch." })}</span>
+              {t('exploreHub.headline1', { defaultValue: 'Explore' })}{' '}
+              <span className="accent">{t('exploreHub.headline2', { defaultValue: 'SuperAdPro' })}</span>
             </h1>
             <p className="hub-sub">
               {t('exploreHub.sub', { defaultValue: 'See live earnings, member success stories, and the work the community is shipping right now.' })}
