@@ -2265,8 +2265,10 @@ def for_advertisers(request: Request):
 # ── Referral link ─────────────────────────────────────────────
 @app.get("/ref/{username}")
 def referral_link(username: str, request: Request):
-    # Redirect to home page — modal opens automatically via ?join= param
-    response = RedirectResponse(url=f"/?join={username}", status_code=302)
+    # Route directly to the registration page with the sponsor code pre-filled.
+    # Cookie is still set so the sponsor is preserved if the user navigates away
+    # and comes back later.
+    response = RedirectResponse(url=f"/register?ref={username}", status_code=302)
     response.set_cookie(key="ref", value=username, max_age=60*60*24*30,
                         httponly=False, samesite="lax")
     return response
