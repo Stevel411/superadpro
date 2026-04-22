@@ -72,9 +72,7 @@ export default function ExploreHub() {
           <div className="hub-hero">
             <div className="hub-eyebrow">{t('exploreHub.eyebrow', { defaultValue: 'EXPLORE SUPERADPRO' })}</div>
             <h1 className="hub-headline">
-              {t('exploreHub.headline1', { defaultValue: 'Real members.' })}
-              <br/>
-              <span className="accent">{t('exploreHub.headline2', { defaultValue: 'Real results.' })}</span>
+              <span className="accent">{t('exploreHub.headline1', { defaultValue: "This isn't a pitch." })}</span>
             </h1>
             <p className="hub-sub">
               {t('exploreHub.sub', { defaultValue: 'See live earnings, member success stories, and the work the community is shipping right now.' })}
@@ -315,8 +313,8 @@ var CSS_EXPLORE_HUB = `
   margin-bottom: 20px;
 }
 .explore-hub .hub-headline {
-  font-family: 'Sora', sans-serif; font-weight: 800; font-size: 56px;
-  line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 20px;
+  font-family: 'Sora', sans-serif; font-weight: 800; font-size: 44px;
+  line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 16px;
   color: var(--ink);
 }
 .explore-hub .hub-headline .accent {
@@ -445,7 +443,7 @@ var CSS_EXPLORE_HUB = `
 /* ── Responsive ── */
 @media (max-width: 720px) {
   .explore-hub .hub-section { padding: 80px 16px 60px; }
-  .explore-hub .hub-headline { font-size: 38px; }
+  .explore-hub .hub-headline { font-size: 30px; }
   .explore-hub .hub-sub { font-size: 15px; }
   .explore-hub .hub-cards { grid-template-columns: 1fr; gap: 14px; }
   .explore-hub .hub-card { padding: 24px 22px; }
