@@ -213,7 +213,7 @@ export default function GridStreamPage() {
       {/* TOP — minimal back link */}
       <nav className="stream-nav">
         <div className="stream-nav-inner">
-          <Link to="/register" className="stream-back">
+          <Link to="/explore/compensation" className="stream-back">
             <svg viewBox="0 0 24 24" fill="none">
               <path d="M19 12H5M12 19l-7-7 7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
