@@ -353,8 +353,8 @@ var CSS_FOR_ADVERTISERS = `
 .for-advertisers-page .hero-badge-value{font-family:'Sora',sans-serif;font-weight:800;font-size:14px;color:var(--ink);line-height:1.15;letter-spacing:-.015em;white-space:nowrap}
 .for-advertisers-page .hero-badge-value .accent{color:var(--amber-bright);filter:drop-shadow(0 0 8px rgba(251,191,36,.4))}
 
-.for-advertisers-page .hero-stage{position:relative;margin-top:48px;height:clamp(320px,40vw,520px);display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:none}
-.for-advertisers-page .hero-stage-caption{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:10px;padding:10px 20px;border-radius:100px;background:rgba(11,18,48,.75);border:1px solid rgba(56,189,248,.35);backdrop-filter:blur(16px);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--sky-bright);box-shadow:0 10px 30px rgba(0,0,0,.4),0 0 30px rgba(56,189,248,.2)}
+.for-advertisers-page .hero-stage{position:relative;margin-top:48px;height:clamp(280px,32vw,400px);display:flex;align-items:center;justify-content:center;text-align:center;pointer-events:none}
+.for-advertisers-page .hero-stage-caption{position:absolute;bottom:30%;left:50%;transform:translateX(-50%);display:inline-flex;align-items:center;gap:10px;padding:10px 20px;border-radius:100px;background:rgba(11,18,48,.75);border:1px solid rgba(56,189,248,.35);backdrop-filter:blur(16px);font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--sky-bright);box-shadow:0 10px 30px rgba(0,0,0,.4),0 0 30px rgba(56,189,248,.2)}
 .for-advertisers-page .hero-stage-caption::before{content:'';width:7px;height:7px;border-radius:50%;background:var(--sky-bright);box-shadow:0 0 10px var(--sky-bright);animation:faAdPulse 1.6s ease-in-out infinite}
 @keyframes faAdPulse{0%{opacity:.8;transform:scale(1)}100%{opacity:0;transform:scale(1.3)}}
 
