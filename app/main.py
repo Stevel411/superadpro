@@ -17475,6 +17475,13 @@ def api_network_data(request: Request, user: User = Depends(get_current_user),
     # Active referrals this month — last activity in current calendar month
     active_this_month = sum(1 for r in referrals if r.is_active)
 
+    # Membership-stream earnings — computed from commissions (no stored counter on User).
+    # Matches the pattern used by /api/income-chains for consistency.
+    membership_earned = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+        Commission.to_user_id == user.id,
+        Commission.commission_type.ilike("%membership%"),
+    ).scalar() or 0)
+
     return {
         "username": user.username,
         "personal_referrals": user.personal_referrals or 0,
@@ -17484,7 +17491,7 @@ def api_network_data(request: Request, user: User = Depends(get_current_user),
         "this_month_total": this_month_total,
         "course_earnings": float(user.course_earnings or 0),
         "grid_earnings": float(user.grid_earnings or 0),
-        "membership_earned": float(user.membership_earned or 0),
+        "membership_earned": membership_earned,
         "nexus_earnings": nexus_earnings,
         "referrals": [{
             "id": r.id, "username": r.username, "first_name": r.first_name,
