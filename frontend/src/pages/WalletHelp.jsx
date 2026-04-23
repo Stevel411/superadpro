@@ -76,7 +76,7 @@ export default function WalletHelp({ onBack }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <div>
           <h2 style={{ fontFamily: 'Sora,sans-serif', fontSize: 20, fontWeight: 800, margin: 0, color: 'var(--sap-text-primary)' }}>{t('walletHelp.walletGuide')}</h2>
-          <p style={{ margin: '2px 0 0', fontSize: 13, color: 'var(--sap-text-muted)' }}>{t('walletHelp.walletGuideDesc')}</p>
+          <p style={{ margin: '2px 0 0', fontSize: 16, color: 'var(--sap-text-muted)' }}>{t('walletHelp.walletGuideDesc')}</p>
         </div>
         <button onClick={onBack} style={{ width: 32, height: 32, borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <X size={16} color="var(--sap-text-faint)"/>
@@ -87,7 +87,7 @@ export default function WalletHelp({ onBack }) {
         <Search size={16} color="var(--sap-text-faint)" style={{ position: 'absolute', left: 14, top: 12 }}/>
         <input value={search} onChange={function(e) { setSearch(e.target.value); }}
           placeholder={t('walletHelp.searchWalletHelp')}
-          style={{ width: '100%', padding: '10px 10px 10px 40px', border: '1.5px solid #e2e8f0', borderRadius: 10, fontSize: 14, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}/>
+          style={{ width: '100%', padding: '10px 10px 10px 40px', border: '1.5px solid #e2e8f0', borderRadius: 10, fontSize: 15, fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box' }}/>
       </div>
 
       {filtered.map(function(section, si) {
@@ -97,7 +97,7 @@ export default function WalletHelp({ onBack }) {
             <div onClick={function() { setOpenSection(isOpen && !search ? -1 : si); }}
               style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 18px', background: '#fff', border: '1px solid #e2e8f0', borderRadius: isOpen ? '12px 12px 0 0' : 12, cursor: 'pointer' }}>
               <div style={{ width: 8, height: 8, borderRadius: 4, background: section.color, flexShrink: 0 }}/>
-              <div style={{ flex: 1, fontSize: 14, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{section.category}</div>
+              <div style={{ flex: 1, fontSize: 16, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{section.category}</div>
               <div style={{ color: 'var(--sap-text-faint)', transform: isOpen ? 'rotate(90deg)' : 'none', transition: 'transform .2s' }}><ChevronRight size={16}/></div>
             </div>
             {isOpen && (
@@ -109,11 +109,11 @@ export default function WalletHelp({ onBack }) {
                     <div key={ii}>
                       <div onClick={function() { setOpenItem(itemOpen ? null : itemKey); }}
                         style={{ padding: '12px 18px', background: itemOpen ? 'var(--sap-bg-elevated)' : '#fff', cursor: 'pointer', borderTop: ii > 0 ? '1px solid #f1f5f9' : 'none', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--sap-text-primary)' }}>{item.title}</span>
+                        <span style={{ fontSize: 15, fontWeight: 600, color: 'var(--sap-text-primary)' }}>{item.title}</span>
                         <ChevronDown size={14} color="var(--sap-text-faint)" style={{ transform: itemOpen ? 'rotate(180deg)' : 'none', transition: 'transform .2s', flexShrink: 0 }}/>
                       </div>
                       {itemOpen && (
-                        <div style={{ padding: '0 18px 14px', background: 'var(--sap-bg-elevated)', fontSize: 13, color: 'var(--sap-text-secondary)', lineHeight: 1.8 }}>{item.desc}</div>
+                        <div style={{ padding: '0 18px 14px', background: 'var(--sap-bg-elevated)', fontSize: 15, color: 'var(--sap-text-secondary)', lineHeight: 1.8 }}>{item.desc}</div>
                       )}
                     </div>
                   );

@@ -568,7 +568,7 @@ export default function CreativeStudio() {
             style={{ background:'transparent', border:'none', cursor:'pointer', padding:'0 6px', fontSize:24, fontWeight:800, color:'rgba(255,255,255,.55)', flexShrink:0, display:'flex', alignItems:'center' }}>›</button>
           <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0, paddingLeft: 16 }}>
             <span style={{ fontFamily: 'Sora, sans-serif', fontSize: 16, fontWeight: 800, color: '#4ade80' }}>{credits}</span>
-            <span style={{ fontSize: 13, color: 'rgba(255,255,255,.4)' }}>{t('creativeStudio.creditsLabel')}</span>
+            <span style={{ fontSize: 14, color: 'rgba(255,255,255,.4)' }}>{t('creativeStudio.creditsLabel')}</span>
             <button className="cs-credits-buy" onClick={function() { switchTab('credits'); }}>{t('creativeStudio.buyCredits')}</button>
           </div>
         </div>
@@ -595,7 +595,7 @@ export default function CreativeStudio() {
                   <img src={imagePreview} alt={t('creativeStudio.preview')}/>
                   <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, padding: '48px 24px 24px', background: 'linear-gradient(transparent, rgba(0,0,0,.85))' }}>
                     <div style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{t('creativeStudio.yourImage')}</div>
-                    <div style={{ fontSize: 13, color: 'rgba(255,255,255,.6)' }}>
+                    <div style={{ fontSize: 14, color: 'rgba(255,255,255,.6)' }}>
                       {motionPresets.length > 0 ? 'Motion: ' + motionPresets.map(function(k) { var m = CAMERA_MOTIONS.find(function(cm) { return cm.key === k; }); return m ? m.label : ''; }).join(', ') : 'Write a prompt and hit Create'}
                     </div>
                   </div>
@@ -701,7 +701,7 @@ export default function CreativeStudio() {
                   {/* Audio toggle */}
                   {selectedModel.audio && <div className="cs-audio-toggle" style={{ marginTop: 10 }} onClick={function() { setGenAudio(!genAudio); }}>
                     <div className={'cs-toggle-track' + (genAudio ? ' on' : '')}><div className="cs-toggle-thumb"/></div>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>AI Audio (+{AUDIO_EXTRA_PER_5S} cr/5s)</div>
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>AI Audio (+{AUDIO_EXTRA_PER_5S} cr/5s)</div>
                   </div>}
                 </div>
                 <div className="cs-card">
@@ -886,7 +886,7 @@ export default function CreativeStudio() {
                   <div className="cs-pills" style={{ marginBottom: 10 }}>
                     {IMG_QUALITIES.map(function(q) {
                       return <button key={q} className={'cs-pill' + (imgQuality === q ? ' on' : '')} onClick={function() { setImgQuality(q); }}>
-                        {q} <span style={{ fontSize: 13, opacity: .6, marginLeft: 4 }}>{IMG_CREDIT_MAP[q]}cr</span>
+                        {q} <span style={{ fontSize: 14, opacity: .6, marginLeft: 4 }}>{IMG_CREDIT_MAP[q]}cr</span>
                       </button>;
                     })}
                   </div>
@@ -955,7 +955,7 @@ export default function CreativeStudio() {
                     <img src={riImg} alt="Reference" style={{ width: '100%', height: '100%', objectFit: 'contain', display: 'block', borderRadius: 10 }}/>
                     {riUploading && <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ width: 32, height: 32, border: '3px solid rgba(255,255,255,.1)', borderTopColor: '#0ea5e9', borderRadius: '50%', animation: 'spin 1s linear infinite' }}/></div>}
                   </div>
-                  <button onClick={function() { setRiImg(null); setRiImgUrl(''); setRiResults([]); }} style={{ position: 'absolute', top: 20, right: 20, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,.6)', border: '1px solid rgba(255,255,255,.2)', color: '#fff', cursor: 'pointer', fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>×</button>
+                  <button onClick={function() { setRiImg(null); setRiImgUrl(''); setRiResults([]); }} style={{ position: 'absolute', top: 20, right: 20, width: 28, height: 28, borderRadius: '50%', background: 'rgba(0,0,0,.6)', border: '1px solid rgba(255,255,255,.2)', color: '#fff', cursor: 'pointer', fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2 }}>×</button>
                 </div>
               ) : (
                 <div className="cs-stage-empty" onClick={function() { riFileRef.current && riFileRef.current.click(); }} style={{ cursor: 'pointer' }}>
@@ -998,24 +998,24 @@ export default function CreativeStudio() {
                   <div className="cs-lbl">{t('creativeStudio.referenceImage')}</div>
                   {!riImg ? (
                     <div onClick={function() { riFileRef.current && riFileRef.current.click(); }} style={{ border: '2px dashed rgba(255,255,255,.12)', borderRadius: 10, padding: '20px 16px', textAlign: 'center', cursor: 'pointer', transition: 'border-color .2s', marginBottom: 12 }} onMouseEnter={function(e) { e.currentTarget.style.borderColor = 'rgba(14,165,233,.3)'; }} onMouseLeave={function(e) { e.currentTarget.style.borderColor = 'rgba(255,255,255,.12)'; }}>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,.5)' }}>{t('creativeStudio.clickToUpload')}</div>
-                      <div style={{ fontSize: 13, color: 'rgba(255,255,255,.25)', marginTop: 2 }}>{t('creativeStudio.uploadFormats')}</div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: 'rgba(255,255,255,.5)' }}>{t('creativeStudio.clickToUpload')}</div>
+                      <div style={{ fontSize: 14, color: 'rgba(255,255,255,.25)', marginTop: 2 }}>{t('creativeStudio.uploadFormats')}</div>
                     </div>
                   ) : (
                     <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 12px', borderRadius: 8, background: 'rgba(255,255,255,.04)', border: '1px solid rgba(255,255,255,.06)', marginBottom: 12 }}>
                       <img src={riImg} alt="" style={{ width: 40, height: 40, borderRadius: 6, objectFit: 'cover' }}/>
-                      <div style={{ flex: 1, fontSize: 12, color: 'rgba(255,255,255,.5)' }}>{t('creativeStudio.imageUploaded')}</div>
-                      <button onClick={function() { riFileRef.current && riFileRef.current.click(); }} style={{ background: 'none', border: 'none', color: 'var(--sap-accent)', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>{t('creativeStudio.change')}</button>
+                      <div style={{ flex: 1, fontSize: 13, color: 'rgba(255,255,255,.5)' }}>{t('creativeStudio.imageUploaded')}</div>
+                      <button onClick={function() { riFileRef.current && riFileRef.current.click(); }} style={{ background: 'none', border: 'none', color: 'var(--sap-accent)', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>{t('creativeStudio.change')}</button>
                     </div>
                   )}
 
                   <div className="cs-lbl">{t('creativeStudio.strength')} <span style={{ float: 'right', color: 'var(--sap-accent)', fontWeight: 800 }}>{Math.round(riStrength * 100)}%</span></div>
                   <input type="range" min="5" max="100" value={Math.round(riStrength * 100)} onChange={function(e) { setRiStrength(parseInt(e.target.value) / 100); }} style={{ width: '100%', accentColor: 'var(--sap-accent)' }}/>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'rgba(255,255,255,.2)', marginTop: 4 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, color: 'rgba(255,255,255,.2)', marginTop: 4 }}>
                     <span>{t('creativeStudio.subtle')}</span><span>{t('creativeStudio.moderate')}</span><span>{t('creativeStudio.dramatic')}</span>
                   </div>
 
-                  <div style={{ marginTop: 14, padding: '10px 12px', borderRadius: 8, background: 'rgba(139,92,246,.05)', border: '1px solid rgba(139,92,246,.08)', fontSize: 13, color: 'rgba(255,255,255,.35)', lineHeight: 1.6 }}>
+                  <div style={{ marginTop: 14, padding: '10px 12px', borderRadius: 8, background: 'rgba(139,92,246,.05)', border: '1px solid rgba(139,92,246,.08)', fontSize: 14, color: 'rgba(255,255,255,.35)', lineHeight: 1.6 }}>
                     <span style={{ fontWeight: 700, color: 'var(--sap-purple-light)' }}>{t('creativeStudio.tipsTitle')}: </span>
                     {t('creativeStudio.tipsContent')}
                   </div>
@@ -1076,20 +1076,20 @@ export default function CreativeStudio() {
                   <textarea className="cs-ta" rows={musicCustom ? 8 : 4} value={musicPrompt} onChange={function(e) { setMusicPrompt(e.target.value); }}
                     placeholder={musicCustom ? '[Verse]\nWalking down the road...\n\n[Chorus]\nHere we go again...' : 'Upbeat pop song for Instagram Reels, energetic and fun'}/>
                   {musicCustom && <div className="cs-ta-foot">
-                    <button style={{ fontSize: 12, fontWeight: 700, color: 'var(--sap-purple)', background: '#f5f3ff', border: '1px solid #e9e5ff', borderRadius: 6, padding: '4px 12px', cursor: 'pointer', fontFamily: 'inherit' }} onClick={generateLyrics} disabled={lyricsGenerating}>{lyricsGenerating ? 'Writing...' : '✦ AI Lyrics Writer'}</button>
+                    <button style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-purple)', background: '#f5f3ff', border: '1px solid #e9e5ff', borderRadius: 6, padding: '4px 12px', cursor: 'pointer', fontFamily: 'inherit' }} onClick={generateLyrics} disabled={lyricsGenerating}>{lyricsGenerating ? 'Writing...' : '✦ AI Lyrics Writer'}</button>
                     <span className="cs-ta-ct">{musicPrompt.length}/3000</span>
                   </div>}
                 </div>
                 <div className="cs-card">
                   <div className="cs-lbl">{t('creativeStudio.model')}</div>
                   <div className="cs-pills" style={{ marginBottom: 12 }}>
-                    {MUSIC_MODELS.map(function(m) { return <button key={m.key} className={'cs-pill' + (musicModel === m.key ? ' on' : '')} onClick={function() { setMusicModel(m.key); }}>{m.name} {m.badge ? '· ' + m.badge : ''} <span style={{ fontSize: 13, opacity: .6, marginLeft: 4 }}>{m.cost}cr</span></button>; })}
+                    {MUSIC_MODELS.map(function(m) { return <button key={m.key} className={'cs-pill' + (musicModel === m.key ? ' on' : '')} onClick={function() { setMusicModel(m.key); }}>{m.name} {m.badge ? '· ' + m.badge : ''} <span style={{ fontSize: 14, opacity: .6, marginLeft: 4 }}>{m.cost}cr</span></button>; })}
                   </div>
                   {musicCustom && <>
                     <div className="cs-lbl">{t('creativeStudio.styleLabel')}</div>
-                    <input style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', marginBottom: 10, boxSizing: 'border-box' }} placeholder={t('creativeStudio.stylePlaceholderFull')} value={musicStyle} onChange={function(e) { setMusicStyle(e.target.value); }}/>
+                    <input style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, fontFamily: 'inherit', marginBottom: 10, boxSizing: 'border-box' }} placeholder={t('creativeStudio.stylePlaceholderFull')} value={musicStyle} onChange={function(e) { setMusicStyle(e.target.value); }}/>
                     <div className="cs-lbl">{t('creativeStudio.titleLabel')}</div>
-                    <input style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 13, fontFamily: 'inherit', marginBottom: 10, boxSizing: 'border-box' }} placeholder={t("creativeStudio.songTitlePlaceholder")} value={musicTitle} onChange={function(e) { setMusicTitle(e.target.value); }}/>
+                    <input style={{ width: '100%', padding: '8px 12px', borderRadius: 8, border: '1px solid #e2e8f0', fontSize: 14, fontFamily: 'inherit', marginBottom: 10, boxSizing: 'border-box' }} placeholder={t("creativeStudio.songTitlePlaceholder")} value={musicTitle} onChange={function(e) { setMusicTitle(e.target.value); }}/>
                     <div className="cs-lbl">{t('creativeStudio.vocalGender')}</div>
                     <div className="cs-pills">
                       {[['', 'Auto'], ['m', 'Male'], ['f', 'Female']].map(function(g) { return <button key={g[0]} className={'cs-pill' + (musicGender === g[0] ? ' on' : '')} onClick={function() { setMusicGender(g[0]); }}>{g[1]}</button>; })}
@@ -1099,7 +1099,7 @@ export default function CreativeStudio() {
                     <div className="cs-lbl">{t('creativeStudio.instrumentalLabel')}</div>
                     <div className="cs-audio-toggle" onClick={function() { setMusicInstrumental(!musicInstrumental); }}>
                       <div className={'cs-toggle-track' + (musicInstrumental ? ' on' : '')}><div className="cs-toggle-thumb"/></div>
-                      <div style={{ fontSize: 12, fontWeight: 600, color: '#334155' }}>{t('creativeStudio.noVocals')}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#334155' }}>{t('creativeStudio.noVocals')}</div>
                     </div>
                   </div>
                 </div>
@@ -1155,7 +1155,7 @@ export default function CreativeStudio() {
                       var catVoices = VO_VOICES.filter(function(v) { return v.cat === cat; });
                       if (!catVoices.length) return null;
                       return <div key={cat}>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-faint)', textTransform: 'uppercase', letterSpacing: '.8px', padding: '8px 0 4px', borderTop: cat !== 'American' ? '1px solid #f1f5f9' : 'none', marginTop: cat !== 'American' ? 4 : 0 }}>{cat}</div>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--sap-text-faint)', textTransform: 'uppercase', letterSpacing: '.8px', padding: '8px 0 4px', borderTop: cat !== 'American' ? '1px solid #f1f5f9' : 'none', marginTop: cat !== 'American' ? 4 : 0 }}>{cat}</div>
                         {catVoices.map(function(v) {
                           var isSel = voVoice === v.id;
                           var isPlaying = voPreviewPlaying === v.id;
@@ -1166,7 +1166,7 @@ export default function CreativeStudio() {
                               <div className="cs-model-desc">{v.desc}</div>
                             </div>
                             <div onClick={function(e) { e.stopPropagation(); previewVoice(v.id); }}
-                              style={{ width: 28, height: 28, borderRadius: 7, background: isPlaying ? 'var(--sap-purple-pale)' : 'var(--sap-bg-elevated)', border: '1px solid ' + (isPlaying ? 'var(--sap-purple)' : 'var(--sap-border)'), display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 13, color: isPlaying ? 'var(--sap-purple)' : 'var(--sap-text-faint)', flexShrink: 0 }}
+                              style={{ width: 28, height: 28, borderRadius: 7, background: isPlaying ? 'var(--sap-purple-pale)' : 'var(--sap-bg-elevated)', border: '1px solid ' + (isPlaying ? 'var(--sap-purple)' : 'var(--sap-border)'), display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: 14, color: isPlaying ? 'var(--sap-purple)' : 'var(--sap-text-faint)', flexShrink: 0 }}
                               title={isPlaying ? 'Stop preview' : 'Preview voice'}>{isPlaying ? '■' : '▶'}</div>
                           </div>;
                         })}
@@ -1233,21 +1233,21 @@ export default function CreativeStudio() {
                   <div className="cs-lbl">{t('creativeStudio.audioSource')}</div>
                   {voAudioUrl ? (
                     <div>
-                      <div style={{ fontSize: 12, color: 'var(--sap-green-bright)', fontWeight: 600, marginBottom: 8 }}>{t('creativeStudio.voiceoverReady')}</div>
+                      <div style={{ fontSize: 13, color: 'var(--sap-green-bright)', fontWeight: 600, marginBottom: 8 }}>{t('creativeStudio.voiceoverReady')}</div>
                       <audio src={voAudioUrl} controls style={{ width: '100%' }}/>
-                      <div style={{ fontSize: 13, color: 'var(--sap-text-faint)', marginTop: 6 }}>{t('creativeStudio.generatedFromVoiceover')}</div>
+                      <div style={{ fontSize: 14, color: 'var(--sap-text-faint)', marginTop: 6 }}>{t('creativeStudio.generatedFromVoiceover')}</div>
                     </div>
                   ) : (
-                    <div style={{ textAlign: 'center', padding: 20, color: 'var(--sap-text-faint)', fontSize: 13 }}>
+                    <div style={{ textAlign: 'center', padding: 20, color: 'var(--sap-text-faint)', fontSize: 14 }}>
                       <div style={{ marginBottom: 8 }}>{t('creativeStudio.noAudioYet')}</div>
-                      <button style={{ fontSize: 12, fontWeight: 700, color: 'var(--sap-purple)', background: '#f5f3ff', border: '1px solid #e9e5ff', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontFamily: 'inherit' }} onClick={function() { switchTab('voiceover'); }}>{t('creativeStudio.goToVoiceover')}</button>
+                      <button style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-purple)', background: '#f5f3ff', border: '1px solid #e9e5ff', borderRadius: 8, padding: '8px 16px', cursor: 'pointer', fontFamily: 'inherit' }} onClick={function() { switchTab('voiceover'); }}>{t('creativeStudio.goToVoiceover')}</button>
                     </div>
                   )}
                 </div>
                 <div className="cs-card">
                   <div className="cs-lbl">{t('creativeStudio.generateStep')}</div>
-                  <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginBottom: 12, lineHeight: 1.5 }}>{t('creativeStudio.uploadPhotoBody')}</div>
-                  <div style={{ fontSize: 12, color: 'var(--sap-text-faint)', marginBottom: 8 }}>{t('creativeStudio.cost')} <b style={{ color: 'var(--sap-text-primary)' }}>{t('creativeStudio.lipSyncCredits')}</b></div>
+                  <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', marginBottom: 12, lineHeight: 1.5 }}>{t('creativeStudio.uploadPhotoBody')}</div>
+                  <div style={{ fontSize: 13, color: 'var(--sap-text-faint)', marginBottom: 8 }}>{t('creativeStudio.cost')} <b style={{ color: 'var(--sap-text-primary)' }}>{t('creativeStudio.lipSyncCredits')}</b></div>
                 </div>
               </div>
             </div>
@@ -1270,8 +1270,8 @@ export default function CreativeStudio() {
                     return <div key={v.id} style={{ borderRadius: 10, overflow: 'hidden', border: '1px solid #e2e8f0', background: '#fff' }}>
                       <video src={v.video_url} muted preload="metadata" style={{ width: '100%', height: 120, objectFit: 'cover', display: 'block', cursor: 'pointer' }} onClick={function() { switchTab('video-clips'); setVideoUrl(v.video_url); setGenStatus('done'); }}/>
                       <div style={{ padding: '8px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                        <span style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>{v.model || 'Video'}</span>
-                        <button className="cs-sa-btn" style={{ padding: '4px 8px', fontSize: 13 }} onClick={function() { downloadVideo(v.video_url); }}>⬇</button>
+                        <span style={{ fontSize: 14, color: 'var(--sap-text-faint)' }}>{v.model || 'Video'}</span>
+                        <button className="cs-sa-btn" style={{ padding: '4px 8px', fontSize: 14 }} onClick={function() { downloadVideo(v.video_url); }}>⬇</button>
                       </div>
                     </div>;
                   })}
@@ -1279,8 +1279,8 @@ export default function CreativeStudio() {
               ) : (
                 <div style={{ textAlign: 'center', padding: 60, color: 'var(--sap-text-faint)' }}>
                   <div style={{ fontSize: 36, marginBottom: 12, opacity: .3 }}>📁</div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--sap-text-muted)' }}>{t('creativeStudio.noContentYet')}</div>
-                  <div style={{ fontSize: 13, marginTop: 4 }}>{t('creativeStudio.startCreating')}</div>
+                  <div style={{ fontSize: 16, fontWeight: 600, color: 'var(--sap-text-muted)' }}>{t('creativeStudio.noContentYet')}</div>
+                  <div style={{ fontSize: 14, marginTop: 4 }}>{t('creativeStudio.startCreating')}</div>
                 </div>
               )}
             </div>

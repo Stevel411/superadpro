@@ -103,13 +103,13 @@ export default function CryptoGuide() {
         })}
 
         <div style={{ position: 'relative', zIndex: 2, maxWidth: 640 }}>
-          <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)', marginBottom: 8 }}>
+          <div style={{ fontSize: 14, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)', marginBottom: 8 }}>
             {t('cryptoGuide.heroSubtitle')}
           </div>
           <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 900, color: '#fff', marginBottom: 12, lineHeight: 1.15 }}>
             {t('cryptoGuide.heroTitle')}
           </div>
-          <div style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)', lineHeight: 1.6 }}>
+          <div style={{ fontSize: 16, color: 'rgba(255,255,255,0.75)', lineHeight: 1.6 }}>
             {t('cryptoGuide.heroDesc')}
           </div>
         </div>
@@ -146,13 +146,13 @@ export default function CryptoGuide() {
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 14,
+                fontSize: 16,
                 fontWeight: 800,
                 color: '#fff',
                 flexShrink: 0,
                 fontFamily: 'Sora,sans-serif',
               }}>{s.num}</div>
-              <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--sap-text-primary)', lineHeight: 1.3 }}>{s.title}</div>
+              <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--sap-text-primary)', lineHeight: 1.3 }}>{s.title}</div>
             </button>
           );
         })}
@@ -195,7 +195,7 @@ export default function CryptoGuide() {
                 </div>
                 <div>
                   <div style={{ fontSize: 17, fontWeight: 700, color: 'var(--sap-text-primary)', fontFamily: 'Sora,sans-serif' }}>{s.title}</div>
-                  <div style={{ fontSize: 12, color: 'var(--sap-text-muted)', marginTop: 2 }}>{t('cryptoGuide.stepOf', { num: s.num })}</div>
+                  <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', marginTop: 2 }}>{t('cryptoGuide.stepOf', { num: s.num })}</div>
                 </div>
               </div>
               {isOpen
@@ -208,7 +208,7 @@ export default function CryptoGuide() {
               <div style={{ padding: '18px 22px 22px' }}>
                 {s.content.map(function (p, pi) {
                   return (
-                    <p key={pi} style={{ fontSize: 14, color: 'var(--sap-text-secondary)', lineHeight: 1.7, margin: '0 0 12px' }}>{p}</p>
+                    <p key={pi} style={{ fontSize: 16, color: 'var(--sap-text-secondary)', lineHeight: 1.7, margin: '0 0 12px' }}>{p}</p>
                   );
                 })}
 
@@ -223,7 +223,7 @@ export default function CryptoGuide() {
                     marginBottom: 12,
                   }}>
                     <AlertTriangle size={18} color="var(--sap-red)" style={{ flexShrink: 0, marginTop: 2 }} />
-                    <div style={{ fontSize: 13, color: '#991b1b', lineHeight: 1.6, fontWeight: 600 }}>{s.warning}</div>
+                    <div style={{ fontSize: 14, color: '#991b1b', lineHeight: 1.6, fontWeight: 600 }}>{s.warning}</div>
                   </div>
                 )}
 
@@ -238,18 +238,18 @@ export default function CryptoGuide() {
                     marginBottom: 12,
                   }}>
                     <CheckCircle size={18} color="var(--sap-green)" style={{ flexShrink: 0, marginTop: 2 }} />
-                    <div style={{ fontSize: 13, color: '#166534', lineHeight: 1.6 }}>{s.tip}</div>
+                    <div style={{ fontSize: 14, color: '#166534', lineHeight: 1.6 }}>{s.tip}</div>
                   </div>
                 )}
 
                 {s.comparison && (
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
                     <div style={{ background: 'var(--sap-red-bg)', border: '1px solid #fecaca', borderRadius: 10, padding: '14px 16px', textAlign: 'center' }}>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: '#991b1b', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.comparison.bad.label}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#991b1b', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.comparison.bad.label}</div>
                       <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-red)', marginTop: 4 }}>{s.comparison.bad.cost}</div>
                     </div>
                     <div style={{ background: 'var(--sap-green-bg)', border: '1px solid #bbf7d0', borderRadius: 10, padding: '14px 16px', textAlign: 'center' }}>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: '#166534', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.comparison.good.label}</div>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: '#166534', textTransform: 'uppercase', letterSpacing: 0.5 }}>{s.comparison.good.label}</div>
                       <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 800, color: 'var(--sap-green)', marginTop: 4 }}>{s.comparison.good.cost}</div>
                     </div>
                   </div>
@@ -261,7 +261,7 @@ export default function CryptoGuide() {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: 6,
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: 700,
                       color: '#fff',
                       textDecoration: 'none',
@@ -304,8 +304,8 @@ export default function CryptoGuide() {
           <Shield size={22} color="#fff" />
         </div>
         <div>
-          <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-text-primary)', fontFamily: 'Sora,sans-serif', marginBottom: 3 }}>{t('cryptoGuide.securityTitle')}</div>
-          <div style={{ fontSize: 13, color: '#475569', lineHeight: 1.6 }}>{t('cryptoGuide.securityDesc')}</div>
+          <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)', fontFamily: 'Sora,sans-serif', marginBottom: 3 }}>{t('cryptoGuide.securityTitle')}</div>
+          <div style={{ fontSize: 15, color: '#475569', lineHeight: 1.6 }}>{t('cryptoGuide.securityDesc')}</div>
         </div>
       </div>
 

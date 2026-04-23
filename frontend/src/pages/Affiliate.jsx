@@ -71,14 +71,14 @@ export default function Affiliate() {
       {/* Header */}
       <div style={{ background: 'linear-gradient(135deg, #172554, #172554)', padding: '20px 24px 16px' }}>
         <div style={{ fontSize: 22, fontWeight: 700, color: '#fff', fontFamily: "'Sora','Rethink Sans',sans-serif" }}>{t('socialShare.title')}</div>
-        <div style={{ fontSize: 12, color: 'rgba(255,255,255,.5)', marginTop: 3 }}>{t('socialShare.subtitle')}</div>
+        <div style={{ fontSize: 16, color: 'rgba(255,255,255,.5)', marginTop: 3 }}>{t('socialShare.subtitle')}</div>
       </div>
       {/* Referral link bar */}
       <div style={{ background: 'linear-gradient(180deg, #172554, #172554)', padding: '0 24px 14px' }}>
         <div style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.12)', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,.5)', whiteSpace: 'nowrap' }}>{t('socialShare.yourLink')}</span>
-          <span style={{ flex: 1, fontSize: 12, color: '#22d3ee', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{refLink}</span>
-          <button onClick={copyRef} style={{ background: 'rgba(34,211,238,.15)', color: '#22d3ee', padding: '5px 14px', borderRadius: 6, fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>{copied ? t('socialShare.copied') : t('socialShare.copy')}</button>
+          <span style={{ fontSize: 14, fontWeight: 700, color: 'rgba(255,255,255,.5)', whiteSpace: 'nowrap' }}>{t('socialShare.yourLink')}</span>
+          <span style={{ flex: 1, fontSize: 14, color: '#22d3ee', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{refLink}</span>
+          <button onClick={copyRef} style={{ background: 'rgba(34,211,238,.15)', color: '#22d3ee', padding: '5px 14px', borderRadius: 6, fontSize: 16, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>{copied ? t('socialShare.copied') : t('socialShare.copy')}</button>
         </div>
       </div>
 
@@ -86,10 +86,10 @@ export default function Affiliate() {
       <div style={{ display: 'flex', minHeight: 500, background: 'var(--sap-bg-page)' }}>
         {/* Left panel */}
         <div style={{ width: 380, flexShrink: 0, background: '#fff', borderRight: '1px solid #e2e8f0', padding: 22, overflowY: 'auto' }}>
-          <div style={{ fontSize: 17, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>{t('socialShare.generatePost')}</div>
-          <div style={{ fontSize: 12, color: 'var(--sap-text-muted)', marginBottom: 16 }}>{t('socialShare.generateDesc')}</div>
+          <div style={{ fontSize: 18, fontWeight: 700, color: '#1e293b', marginBottom: 4 }}>{t('socialShare.generatePost')}</div>
+          <div style={{ fontSize: 16, color: 'var(--sap-text-muted)', marginBottom: 16 }}>{t('socialShare.generateDesc')}</div>
 
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>{t('socialShare.platformLabel')}</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>{t('socialShare.platformLabel')}</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 6, marginBottom: 18 }}>
             {PLATFORMS.map(function(p) {
               var on = platform === p.key;
@@ -109,58 +109,58 @@ export default function Affiliate() {
                       style={{ display: 'block' }}
                       dangerouslySetInnerHTML={{ __html: p.svg }} />
                   </div>
-                  <span style={{ fontSize: 12, fontWeight: on ? 700 : 500, color: on ? (p.dark ? 'var(--sap-text-primary)' : '#fff') : 'var(--sap-text-secondary)' }}>{p.label}</span>
+                  <span style={{ fontSize: 13, fontWeight: on ? 700 : 500, color: on ? (p.dark ? 'var(--sap-text-primary)' : '#fff') : 'var(--sap-text-secondary)' }}>{p.label}</span>
                 </div>
               );
             })}
           </div>
 
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>{t('socialShare.tone')}</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>{t('socialShare.tone')}</div>
           <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
             {TONES.map(function(t) {
               var on = tone === t;
-              return <button key={t} onClick={function() { setTone(t); }} style={{ padding: '6px 14px', borderRadius: 8, fontSize: 12, fontWeight: on ? 500 : 400, cursor: 'pointer', fontFamily: 'inherit', border: on ? '1px solid #93c5fd' : '1px solid #e2e8f0', background: on ? '#eff6ff' : 'var(--sap-bg-elevated)', color: on ? '#2563eb' : 'var(--sap-text-muted)', transition: 'all .15s' }}>{t}</button>;
+              return <button key={t} onClick={function() { setTone(t); }} style={{ padding: '6px 14px', borderRadius: 8, fontSize: 14, fontWeight: on ? 500 : 400, cursor: 'pointer', fontFamily: 'inherit', border: on ? '1px solid #93c5fd' : '1px solid #e2e8f0', background: on ? '#eff6ff' : 'var(--sap-bg-elevated)', color: on ? '#2563eb' : 'var(--sap-text-muted)', transition: 'all .15s' }}>{t}</button>;
             })}
           </div>
 
-          <div style={{ fontSize: 12, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>{t('socialShare.yourNiche')}</div>
+          <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', marginBottom: 8 }}>{t('socialShare.yourNiche')}</div>
           <input value={niche} onChange={function(e) { setNiche(e.target.value); }}
             placeholder={t("socialShare.nichePlaceholder")}
-            style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '11px 12px', fontSize: 13, fontFamily: 'inherit', background: 'var(--sap-bg-elevated)', boxSizing: 'border-box', outline: 'none', color: '#1e293b' }} />
+            style={{ width: '100%', border: '1px solid #e2e8f0', borderRadius: 10, padding: '11px 12px', fontSize: 15, fontFamily: 'inherit', background: 'var(--sap-bg-elevated)', boxSizing: 'border-box', outline: 'none', color: '#1e293b' }} />
 
           <button onClick={generate} disabled={generating}
-            style={{ width: '100%', marginTop: 20, padding: 13, background: generating ? 'var(--sap-text-faint)' : 'linear-gradient(135deg, #0ea5e9, #38bdf8)', color: '#fff', border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', opacity: generating ? 0.7 : 1, transition: 'all .2s' }}>
+            style={{ width: '100%', marginTop: 20, padding: 13, background: generating ? 'var(--sap-text-faint)' : 'linear-gradient(135deg, #0ea5e9, #38bdf8)', color: '#fff', border: 'none', borderRadius: 10, fontSize: 16, fontWeight: 600, cursor: generating ? 'default' : 'pointer', fontFamily: 'inherit', opacity: generating ? 0.7 : 1, transition: 'all .2s' }}>
             {generating ? t('socialShare.generating') : t('socialShare.generateFor', {platform: selected.label})}
           </button>
         </div>
 
         {/* Right panel */}
         <div style={{ flex: 1, padding: 22, display: 'flex', flexDirection: 'column' }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#1e293b', marginBottom: 14 }}>{t('socialShare.generatedPost')}</div>
+          <div style={{ fontSize: 15, fontWeight: 600, color: '#1e293b', marginBottom: 14 }}>{t('socialShare.generatedPost')}</div>
           <div style={{ flex: 1, background: '#fff', borderRadius: 12, border: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             {generating ? (
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ width: 36, height: 36, border: '3px solid #e2e8f0', borderTopColor: 'var(--sap-accent)', borderRadius: '50%', animation: 'ssspin .8s linear infinite', margin: '0 auto 12px' }} />
-                  <div style={{ fontSize: 13, color: 'var(--sap-text-muted)' }}>{t('socialShare.writingPost', {platform: selected.label})}</div>
+                  <div style={{ fontSize: 16, color: 'var(--sap-text-muted)' }}>{t('socialShare.writingPost', {platform: selected.label})}</div>
                 </div>
               </div>
             ) : post ? (
               <>
                 <div style={{ flex: 1, padding: 20, overflowY: 'auto' }}>
-                  <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', fontFamily: "'DM Sans',sans-serif", fontSize: 13, lineHeight: 1.7, color: 'var(--sap-text-ghost)', margin: 0 }}>{post}</pre>
+                  <pre style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', fontFamily: "'DM Sans',sans-serif", fontSize: 15, lineHeight: 1.7, color: 'var(--sap-text-ghost)', margin: 0 }}>{post}</pre>
                 </div>
                 <div style={{ padding: '12px 20px', borderTop: '1px solid #e2e8f0', display: 'flex', gap: 8 }}>
                   <button onClick={function() { navigator.clipboard.writeText(post); setPostCopied(true); setTimeout(function() { setPostCopied(false); }, 2000); }}
-                    style={{ padding: '10px 16px', borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: 'pointer', border: '1px solid #e2e8f0', background: postCopied ? 'var(--sap-green-bg-mid)' : 'var(--sap-bg-elevated)', color: postCopied ? 'var(--sap-green)' : 'var(--sap-text-secondary)', fontFamily: 'inherit' }}>
+                    style={{ padding: '10px 16px', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', border: '1px solid #e2e8f0', background: postCopied ? 'var(--sap-green-bg-mid)' : 'var(--sap-bg-elevated)', color: postCopied ? 'var(--sap-green)' : 'var(--sap-text-secondary)', fontFamily: 'inherit' }}>
                     {postCopied ? t('socialShare.copied') : t('socialShare.copyPost')}
                   </button>
                   <button onClick={generate} disabled={generating}
-                    style={{ padding: '10px 16px', borderRadius: 8, fontSize: 12, fontWeight: 500, cursor: 'pointer', border: '1px solid #e2e8f0', background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-secondary)', fontFamily: 'inherit' }}>
+                    style={{ padding: '10px 16px', borderRadius: 8, fontSize: 14, fontWeight: 500, cursor: 'pointer', border: '1px solid #e2e8f0', background: 'var(--sap-bg-elevated)', color: 'var(--sap-text-secondary)', fontFamily: 'inherit' }}>
                     ↻ Regenerate
                   </button>
                   <button onClick={shareNow}
-                    style={{ flex: 1, padding: '10px 16px', borderRadius: 8, fontSize: 12, fontWeight: 600, cursor: 'pointer', border: 'none', background: selected.color, color: selected.dark ? '#333' : '#fff', fontFamily: 'inherit', transition: 'all .15s' }}>
+                    style={{ flex: 1, padding: '10px 16px', borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: 'pointer', border: 'none', background: selected.color, color: selected.dark ? '#333' : '#fff', fontFamily: 'inherit', transition: 'all .15s' }}>
                     Share to {selected.label}
                   </button>
                 </div>
@@ -171,8 +171,8 @@ export default function Affiliate() {
                   <div style={{ width: 48, height: 48, margin: '0 auto 14px', borderRadius: '50%', background: 'var(--sap-bg-page)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--sap-text-faint)" strokeWidth="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
                   </div>
-                  <div style={{ fontSize: 15, fontWeight: 500, color: '#1e293b' }}>{t('socialShare.postWillAppear')}</div>
-                  <div style={{ fontSize: 12, color: 'var(--sap-text-faint)', marginTop: 6, maxWidth: 280 }}>{t('socialShare.postWillAppearDesc')}</div>
+                  <div style={{ fontSize: 16, fontWeight: 500, color: '#1e293b' }}>{t('socialShare.postWillAppear')}</div>
+                  <div style={{ fontSize: 16, color: 'var(--sap-text-faint)', marginTop: 6, maxWidth: 280 }}>{t('socialShare.postWillAppearDesc')}</div>
                 </div>
               </div>
             )}

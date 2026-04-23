@@ -20,21 +20,21 @@ export default function Courses() {
   return (
     <AppLayout title="Course Academy" subtitle="Resell SuperAdPro courses and keep 100% commissions"
       topbarActions={<>
-        <Link to="/courses/how-it-works" style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:10,fontSize:12,fontWeight:600,color:'rgba(200,220,255,0.55)',textDecoration:'none',border:'1px solid rgba(255,255,255,0.08)'}}>{t('courses.howCommissionsWork')}</Link>
-        <Link to="/courses/commissions" style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:10,fontSize:12,fontWeight:600,color:'rgba(200,220,255,0.55)',textDecoration:'none',border:'1px solid rgba(255,255,255,0.08)'}}>{t('courses.myCommissions')}</Link>
+        <Link to="/courses/how-it-works" style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:10,fontSize:14,fontWeight:600,color:'rgba(200,220,255,0.55)',textDecoration:'none',border:'1px solid rgba(255,255,255,0.08)'}}>{t('courses.howCommissionsWork')}</Link>
+        <Link to="/courses/commissions" style={{display:'flex',alignItems:'center',gap:6,padding:'8px 14px',borderRadius:10,fontSize:14,fontWeight:600,color:'rgba(200,220,255,0.55)',textDecoration:'none',border:'1px solid rgba(255,255,255,0.08)'}}>{t('courses.myCommissions')}</Link>
       </>}
     >
       {/* Coming Soon Banner */}
       <div style={{maxWidth:680,margin:'40px auto 32px',textAlign:'center'}}>
         <div style={{display:'inline-flex',alignItems:'center',gap:8,padding:'6px 16px',borderRadius:20,background:'linear-gradient(135deg,rgba(251,191,36,.1),rgba(251,191,36,.04))',border:'1px solid rgba(251,191,36,.15)',marginBottom:20}}>
-          <span style={{fontSize:14}}>🚀</span>
-          <span style={{fontSize:12,fontWeight:700,color:'#f59e0b',letterSpacing:1,textTransform:'uppercase'}}>Coming Soon</span>
+          <span style={{fontSize:16}}>🚀</span>
+          <span style={{fontSize:13,fontWeight:700,color:'#f59e0b',letterSpacing:1,textTransform:'uppercase'}}>Coming Soon</span>
         </div>
         <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:28,fontWeight:800,color:'#0f172a',margin:'0 0 12px'}}>Course Academy</h2>
-        <p style={{fontSize:15,color:'#475569',lineHeight:1.7,maxWidth:520,margin:'0 auto 24px'}}>Resell professionally-built SuperAdPro courses to your audience. Keep 100% of your first sale, with a pass-up system that creates ongoing team income.</p>
+        <p style={{fontSize:16,color:'#475569',lineHeight:1.7,maxWidth:520,margin:'0 auto 24px'}}>Resell professionally-built SuperAdPro courses to your audience. Keep 100% of your first sale, with a pass-up system that creates ongoing team income.</p>
         <div style={{display:'flex',justifyContent:'center',gap:24,flexWrap:'wrap'}}>
           {[['📚','Ready-made courses to resell'],['💰','100% first sale commission'],['⬆️','Infinite pass-up cascade']].map(function(item,i){
-            return <div key={i} style={{display:'flex',alignItems:'center',gap:8,fontSize:13,color:'#475569',fontWeight:600}}>
+            return <div key={i} style={{display:'flex',alignItems:'center',gap:8,fontSize:16,color:'#475569',fontWeight:600}}>
               <span style={{fontSize:18}}>{item[0]}</span>{item[1]}
             </div>;
           })}
@@ -55,13 +55,13 @@ export default function Courses() {
                   </div>
                 )}
                 <div style={{position:'absolute',top:14,right:14,background:'rgba(0,0,0,0.6)',backdropFilter:'blur(8px)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'5px 12px',fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#fff'}}>${Math.round(c.price)}</div>
-                {c.owned && <div style={{position:'absolute',top:14,left:14,background:'rgba(22,163,74,0.9)',borderRadius:8,padding:'4px 12px',fontSize:13,fontWeight:700,color:'#fff',letterSpacing:0.5}}>{t('courses.owned')}</div>}
+                {c.owned && <div style={{position:'absolute',top:14,left:14,background:'rgba(22,163,74,0.9)',borderRadius:8,padding:'4px 12px',fontSize:14,fontWeight:700,color:'#fff',letterSpacing:0.5}}>{t('courses.owned')}</div>}
               </div>
               {/* Body */}
               <div style={{padding:20,flex:1,display:'flex',flexDirection:'column'}}>
                 <div style={{fontSize:17,fontWeight:800,color:'#132044',marginBottom:6,letterSpacing:-0.2}}>{c.title}</div>
-                <div style={{fontSize:13,color:'var(--sap-text-secondary)',lineHeight:1.6,marginBottom:16,flex:1}}>{c.description || 'Master the skills you need to succeed in digital marketing and online business.'}</div>
-                <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:16,fontSize:12,color:'var(--sap-text-muted)'}}>
+                <div style={{fontSize:15,color:'var(--sap-text-secondary)',lineHeight:1.6,marginBottom:16,flex:1}}>{c.description || 'Master the skills you need to succeed in digital marketing and online business.'}</div>
+                <div style={{display:'flex',alignItems:'center',gap:16,marginBottom:16,fontSize:14,color:'var(--sap-text-muted)'}}>
                   <span style={{display:'flex',alignItems:'center',gap:4}}>📖 {c.chapter_count || 0} chapters</span>
                   <span style={{display:'flex',alignItems:'center',gap:4}}>▶ {c.lesson_count || 0} lessons</span>
                   <span style={{display:'flex',alignItems:'center',gap:4}}>⏱ {c.total_duration || 0}m</span>
@@ -71,14 +71,14 @@ export default function Courses() {
                     <div style={{height:5,background:'#f1f3f7',borderRadius:99,overflow:'hidden',marginBottom:4}}>
                       <div style={{height:'100%',background:'linear-gradient(90deg,#0ea5e9,#38bdf8)',borderRadius:99,width:`${c.progress_pct}%`}}/>
                     </div>
-                    <div style={{fontSize:13,fontWeight:700,color:'var(--sap-accent)'}}>{c.progress_done || 0}/{c.progress_total || 0} complete ({c.progress_pct}%)</div>
+                    <div style={{fontSize:16,fontWeight:700,color:'var(--sap-accent)'}}>{c.progress_done || 0}/{c.progress_total || 0} complete ({c.progress_pct}%)</div>
                   </div>
                 )}
                 {c.owned ? (
-                  <a href={`/courses/learn/${c.id}`} style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontSize:14,fontWeight:700,textAlign:'center',textDecoration:'none',background:'var(--sap-accent)',color:'#fff',boxShadow:'0 2px 8px rgba(14,165,233,0.25)',boxSizing:'border-box'}}>{t('courses.continueLearning')}</a>
+                  <a href={`/courses/learn/${c.id}`} style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontSize:16,fontWeight:700,textAlign:'center',textDecoration:'none',background:'var(--sap-accent)',color:'#fff',boxShadow:'0 2px 8px rgba(14,165,233,0.25)',boxSizing:'border-box'}}>{t('courses.continueLearning')}</a>
                 ) : (
                   <form method="POST" action={`/courses/purchase/${c.id}`} onSubmit={e => { if(!confirm(`Purchase ${c.title} for $${Math.round(c.price)} from your wallet balance?`)) e.preventDefault(); }}>
-                    <button type="submit" style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontFamily:'inherit',fontSize:14,fontWeight:700,cursor:'pointer',textAlign:'center',background:'#132044',color:'#fff',boxShadow:'0 1px 3px rgba(0,0,0,0.1)',boxSizing:'border-box'}}>Buy Course — ${Math.round(c.price)}</button>
+                    <button type="submit" style={{display:'block',width:'100%',padding:12,border:'none',borderRadius:10,fontFamily:'inherit',fontSize:16,fontWeight:700,cursor:'pointer',textAlign:'center',background:'#132044',color:'#fff',boxShadow:'0 1px 3px rgba(0,0,0,0.1)',boxSizing:'border-box'}}>Buy Course — ${Math.round(c.price)}</button>
                   </form>
                 )}
               </div>
@@ -89,7 +89,7 @@ export default function Courses() {
         <div style={{textAlign:'center',padding:'80px 20px'}}>
           <div style={{fontSize:48,marginBottom:16,opacity:0.5}}>📚</div>
           <div style={{fontSize:18,fontWeight:800,color:'#132044',marginBottom:6}}>{t('courses.noCourses')}</div>
-          <div style={{fontSize:14,color:'var(--sap-text-muted)'}}>{t('courses.checkBackSoon')}</div>
+          <div style={{fontSize:15,color:'var(--sap-text-muted)'}}>{t('courses.checkBackSoon')}</div>
         </div>
       )}
 
