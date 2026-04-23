@@ -420,7 +420,7 @@ export default function Dashboard() {
                             </div>
                             <div style={{...TYPE.cardTitleBold, lineHeight: 1.3}}>{goalText(g, 'title')}</div>
                           </div>
-                          <div style={{ fontSize: 14, color:'var(--sap-text-muted)', lineHeight:1.5, marginBottom:14 }}>{goalText(g, 'desc')}</div>
+                          <div style={{...TYPE.bodyMuted, marginBottom: 14}}>{goalText(g, 'desc')}</div>
                           {g.progress !== undefined && !g.ring && (
                             <>
                               <div style={{ height:6, borderRadius:99, background:`${g.color}18`, overflow:'hidden', marginBottom:6 }}>
@@ -466,7 +466,7 @@ export default function Dashboard() {
                         </div>
                         <div style={{...TYPE.cardTitleBold, lineHeight: 1.3}}>{goalText(g, 'title')}</div>
                       </div>
-                      <div style={{ fontSize: 14, color:'var(--sap-text-muted)', lineHeight:1.5, marginBottom:14 }}>{goalText(g, 'desc')}</div>
+                      <div style={{...TYPE.bodyMuted, marginBottom: 14}}>{goalText(g, 'desc')}</div>
                       <Link to={g.cta_link} style={{ display:'inline-block', fontSize:12, fontWeight:700, padding:'8px 18px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none' }}>{goalText(g, 'cta')}</Link>
                     </div>
                   );
