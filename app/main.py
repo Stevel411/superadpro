@@ -4728,7 +4728,6 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     MEMBERSHIP_PRICES = {"pro": Decimal("35.00"), "basic": Decimal("20.00")}
     ANNUAL_MEMBERSHIP_PRICES = {"pro": Decimal("350.00"), "basic": Decimal("200.00")}
     COMMISSION_CAPS = {"pro": Decimal("17.50"), "basic": Decimal("10.00")}
-    ANNUAL_COMMISSION = {"pro": Decimal("175.00"), "basic": Decimal("100.00")}
 
     is_annual = (billing == "annual")
     fee = ANNUAL_MEMBERSHIP_PRICES.get(tier, Decimal("200.00")) if is_annual else MEMBERSHIP_PRICES.get(tier, Decimal("20.00"))
@@ -4773,12 +4772,16 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
     if user.sponsor_id and not is_upgrade:
         sponsor = db.query(User).filter(User.id == user.sponsor_id).first()
         if sponsor:
+            sponsor_tier = getattr(sponsor, "membership_tier", "basic") or "basic"
             if is_annual:
-                # Annual: flat 50% commission, no tier cap
-                sponsor_share = ANNUAL_COMMISSION.get(tier, Decimal("100.00"))
+                # Annual: cap commission at sponsor's own annual tier
+                # Basic sponsor -> max $100. Pro sponsor -> max $175.
+                ANNUAL_CAPS = {"pro": Decimal("175.00"), "basic": Decimal("100.00")}
+                max_commission = ANNUAL_CAPS.get(sponsor_tier, Decimal("100.00"))
+                sponsor_share = min(fee * Decimal("0.50"), max_commission)
             else:
-                # Monthly: cap commission at sponsor's own tier level
-                sponsor_tier = getattr(sponsor, "membership_tier", "basic") or "basic"
+                # Monthly: cap commission at sponsor's own monthly tier
+                # Basic sponsor -> max $10. Pro sponsor -> max $17.50.
                 max_commission = COMMISSION_CAPS.get(sponsor_tier, Decimal("10.00"))
                 sponsor_share = min(fee * Decimal("0.50"), max_commission)
 
