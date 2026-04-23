@@ -171,7 +171,7 @@ export default function Wallet() {
             ) : (
               <div style={{ textAlign:'center' }}>
                 <div style={{ fontSize:15, color:'var(--sap-text-muted)', marginBottom:10 }}>{t('wallet.noWalletAddress')}</div>
-                <Link to="/account" style={{ fontSize:13, fontWeight:700, color:'var(--sap-accent)', textDecoration:'none' }}>{t('wallet.addWalletSettings')}</Link>
+                <Link to="/account" style={{ fontSize:14, fontWeight:700, color:'var(--sap-accent)', textDecoration:'none' }}>{t('wallet.addWalletSettings')}</Link>
               </div>
             )}
           </Card>
@@ -211,7 +211,7 @@ export default function Wallet() {
             ) : (
               <div style={{ textAlign:'center' }}>
                 <div style={{ fontSize:15, color:'var(--sap-text-muted)', marginBottom:10 }}>{t('wallet.noWalletAddress')}</div>
-                <Link to="/account" style={{ fontSize:13, fontWeight:700, color:'var(--sap-accent)', textDecoration:'none' }}>{t('wallet.addWalletSettings')}</Link>
+                <Link to="/account" style={{ fontSize:14, fontWeight:700, color:'var(--sap-accent)', textDecoration:'none' }}>{t('wallet.addWalletSettings')}</Link>
               </div>
             )}
           </Card>
@@ -263,12 +263,12 @@ export default function Wallet() {
                           {tx.type}
                           {tx.wallet && <span style={{ marginLeft:6, padding:'2px 6px', borderRadius:4, fontSize:14, fontWeight:700, background: tx.wallet === 'campaign' ? '#eef2ff' : 'var(--sap-green-bg)', color: tx.wallet === 'campaign' ? 'var(--sap-indigo)' : 'var(--sap-green)' }}>{tx.wallet === 'campaign' ? t('wallet.campaign') : t('wallet.affiliate')}</span>}
                         </td>
-                        <td style={{ ...tdStyle, fontSize: 13, color: 'var(--sap-text-muted)' }}>{tx.detail}</td>
+                        <td style={{ ...tdStyle, fontSize: 14, color: 'var(--sap-text-muted)' }}>{tx.detail}</td>
                         <td style={{ ...tdStyle, fontWeight: 800, color: tx.amountColor }}>{tx.amount}</td>
                         <td style={tdStyle}>
                           <span style={tx.status === 'paid' ? badgeGreen : tx.status === 'processing' ? badgeCyan : badgeAmber}>{(tx.status || '').charAt(0).toUpperCase() + (tx.status || '').slice(1)}</span>
                         </td>
-                        <td style={{ ...tdStyle, fontSize: 13, color: '#6b7d94' }}>{tx.date ? new Date(tx.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '—'}</td>
+                        <td style={{ ...tdStyle, fontSize: 14, color: '#6b7d94' }}>{tx.date ? new Date(tx.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short' }) : '—'}</td>
                       </tr>
                     );
                   })}
@@ -279,7 +279,7 @@ export default function Wallet() {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: 28, textAlign: 'center' }}>
               <div style={{ fontSize: 32, marginBottom: 10 }}>📊</div>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#3d5068', marginBottom: 6 }}>{t('wallet.noTransactions')}</div>
-              <div style={{ fontSize: 14, color: '#7b91a8', marginBottom: 16 }}>{t('wallet.referAndActivate')}</div>
+              <div style={{ fontSize: 15, color: '#7b91a8', marginBottom: 16 }}>{t('wallet.referAndActivate')}</div>
               <Link to="/campaign-tiers" style={{ ...btnPrimary, fontSize: 14, padding: '8px 18px' }}>{t('wallet.activateGrid')}</Link>
             </div>
           )}
@@ -298,10 +298,10 @@ export default function Wallet() {
           ) : null}>
           {renewal.has_renewal ? (<>
             {renewal.in_grace_period && (
-              <div style={{ background: 'var(--sap-red-bg)', border: '1px solid rgba(220,38,38,.2)', borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 14, color: 'var(--sap-red)', fontWeight: 600 }}>⚠ {t('wallet.graceWarning')}</div>
+              <div style={{ background: 'var(--sap-red-bg)', border: '1px solid rgba(220,38,38,.2)', borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 15, color: 'var(--sap-red)', fontWeight: 600 }}>⚠ {t('wallet.graceWarning')}</div>
             )}
             {renewal.status === 'warning' && !renewal.in_grace_period && (
-              <div style={{ background: '#fefce8', border: '1px solid rgba(234,179,8,.25)', borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 14, color: '#b45309', fontWeight: 600 }}>⏱ {t('wallet.renewalIn', { days: renewal.days_remaining })} {renewal.can_afford ? t('wallet.youreCovered') : t('wallet.topUpNeeded')}</div>
+              <div style={{ background: '#fefce8', border: '1px solid rgba(234,179,8,.25)', borderRadius: 10, padding: 12, marginBottom: 12, fontSize: 15, color: '#b45309', fontWeight: 600 }}>⏱ {t('wallet.renewalIn', { days: renewal.days_remaining })} {renewal.can_afford ? t('wallet.youreCovered') : t('wallet.topUpNeeded')}</div>
             )}
             <div className="grid-3-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10, marginBottom: 14 }}>
               <MiniStat val={`${renewal.days_remaining || 0}d`} lbl={t('wallet.untilRenewal')} />
@@ -311,8 +311,8 @@ export default function Wallet() {
             <div style={{ height: 5, borderRadius: 999, background: '#eef1f8', overflow: 'hidden', margin: '10px 0' }}>
               <div style={{ height: '100%', borderRadius: 999, width: `${Math.max(5, 100 - ((renewal.days_remaining || 30) / 30 * 100))}%`, background: renewal.in_grace_period ? 'var(--sap-red)' : renewal.status === 'warning' ? 'var(--sap-amber)' : 'var(--sap-green-mid)', transition: 'width 0.4s' }} />
             </div>
-            <div style={{ fontSize: 13, color: '#7b91a8', textAlign: 'right', marginTop: 6 }}>{t('wallet.nextRenewal')} {renewal.next_renewal_date || 'N/A'}</div>
-            <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(15,25,60,.07)', fontSize: 14, color: '#7b91a8', lineHeight: 1.6 }}>
+            <div style={{ fontSize: 14, color: '#7b91a8', textAlign: 'right', marginTop: 6 }}>{t('wallet.nextRenewal')} {renewal.next_renewal_date || 'N/A'}</div>
+            <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid rgba(15,25,60,.07)', fontSize: 15, color: '#7b91a8', lineHeight: 1.6 }}>
               💡 {t('wallet.renewalAutoDeducted')}
             </div>
           </>) : (
@@ -343,7 +343,7 @@ export default function Wallet() {
               fontSize: 16, fontWeight: 800, color: '#fff', cursor: 'pointer', fontFamily: 'inherit', whiteSpace: 'nowrap',
               opacity: p2pSending ? 0.6 : 1,
             }}>{p2pSending ? t('wallet.sending') : t('wallet.sendFundsBtn')}</button>
-            <span style={{ fontSize: 13, color: '#7b91a8' }}>{t('wallet.sendLimits')}</span>
+            <span style={{ fontSize: 14, color: '#7b91a8' }}>{t('wallet.sendLimits')}</span>
           </div>
           {p2pResult && (
             <div style={{ marginTop: 12, padding: '11px 14px', borderRadius: 8, fontSize: 16, fontWeight: 600,
@@ -368,7 +368,7 @@ export default function Wallet() {
                       <td style={{ ...tdStyle, fontSize: 14, color: '#7b91a8' }}>{tx.created_at}</td>
                       <td style={tdStyle}>{tx.direction === 'sent' ? <span style={{ color: 'var(--sap-red)', fontWeight: 700 }}>↑ {t('wallet.sent')}</span> : <span style={{ color: 'var(--sap-green)', fontWeight: 700 }}>↓ {t('wallet.received')}</span>}</td>
                       <td style={{ ...tdStyle, fontSize: 16, fontWeight: 600 }}>{tx.other_party || tx.other_user}<br /><span style={{ fontSize: 14, color: '#7b91a8' }}>{tx.other_id || ''}</span></td>
-                      <td style={{ ...tdStyle, fontSize: 14, color: '#3d5068' }}>{tx.note || '—'}</td>
+                      <td style={{ ...tdStyle, fontSize: 15, color: '#3d5068' }}>{tx.note || '—'}</td>
                       <td style={{ ...tdStyle, textAlign: 'right', fontWeight: 700, color: tx.direction === 'sent' ? 'var(--sap-red)' : 'var(--sap-green)' }}>
                         {tx.direction === 'sent' ? '-' : '+'}${formatMoney(tx.amount)}
                       </td>
@@ -440,7 +440,7 @@ function EarningsCard({ icon, label, value, color, desc }) {
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontSize: 14, fontWeight: 700, color: '#7b91a8', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
         <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 20, fontWeight: 800, color: 'var(--sap-text-primary)', marginTop: 2 }}>${formatMoney(value)}</div>
-        {desc && <div style={{ fontSize: 14, color: 'var(--sap-text-faint)', marginTop: 2 }}>{desc}</div>}
+        {desc && <div style={{ fontSize: 15, color: 'var(--sap-text-faint)', marginTop: 2 }}>{desc}</div>}
       </div>
     </div>
   );
