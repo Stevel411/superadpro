@@ -48,8 +48,9 @@ export const TYPE = {
 
   // Body text — primary reading content
   // e.g. item descriptions, help text, explainer paragraphs
+  // 16px aligns with 2026 SaaS standard (Notion, Vercel reading views)
   body: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: 500,
     color: '#334155',
     lineHeight: 1.6,
@@ -58,10 +59,28 @@ export const TYPE = {
   // Body text in muted colour (secondary content)
   // e.g. card subtitles, meta rows, caption blocks
   bodyMuted: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: 500,
     color: '#475569',
     lineHeight: 1.6,
+  },
+
+  // Dense body — for data-dense contexts where 16px is too roomy
+  // e.g. Wallet transaction tables, MyLeads cards, Analytics stat rows.
+  // Use SPARINGLY — default should always be TYPE.body. If you reach for
+  // bodyDense more than 2-3 times on a page, the layout is the problem,
+  // not the type size. Added 23 Apr 2026.
+  bodyDense: {
+    fontSize: 15,
+    fontWeight: 500,
+    color: '#334155',
+    lineHeight: 1.55,
+  },
+  bodyDenseMuted: {
+    fontSize: 15,
+    fontWeight: 500,
+    color: '#475569',
+    lineHeight: 1.55,
   },
 
   // Sub text — slightly smaller than body but still comfortably readable
