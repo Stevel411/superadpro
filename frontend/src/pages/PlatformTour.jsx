@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
 import VoiceGuide from '../components/VoiceGuide';
 import { Map, Share2, DollarSign, Link2, Users, Zap, Eye, Sparkles, Wallet, Heart, Play, ArrowRight, ChevronLeft, ChevronRight, Wrench, Lock } from 'lucide-react';
+import { TYPE } from '../styles/typography';
 
 function getSections(t) { return [
   {
@@ -252,25 +253,25 @@ export default function PlatformTour() {
               <div style={{ width: 56, height: 56, borderRadius: 16, background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 10, boxShadow: '0 2px 8px rgba(0,0,0,.08)' }}>
                 <Play size={24} color={s.color}/>
               </div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: s.color }}>{t('platformTour.screenshotComingSoon')}</div>
-              <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginTop: 4 }}>A visual walkthrough of {s.shortTitle} will appear here</div>
+              <div style={{...TYPE.cardTitleBold, color: s.color}}>{t('platformTour.screenshotComingSoon')}</div>
+              <div style={{...TYPE.caption, marginTop: 4}}>A visual walkthrough of {s.shortTitle} will appear here</div>
             </div>
           )}
         </div>
 
         {/* Description */}
         <div style={{ padding: '20px 28px 0' }}>
-          <p style={{ fontSize: 16, color: 'var(--sap-text-secondary)', lineHeight: 1.8, margin: 0 }}>{s.desc}</p>
+          <p style={{...TYPE.bodyLarge, margin: 0, lineHeight: 1.7}}>{s.desc}</p>
         </div>
 
         {/* Tips */}
         <div style={{ margin: '20px 28px 0' }}>
           <div style={{ background: 'var(--sap-bg-elevated)', borderRadius: 12, padding: '18px 22px' }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 10 }}>{t('platformTour.keyThings')}</div>
+            <div style={{...TYPE.cardTitleBold, marginBottom: 10}}>{t('platformTour.keyThings')}</div>
             {s.tips.map(function(tip, ti) {
               return <div key={ti} style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginBottom: ti < s.tips.length - 1 ? 10 : 0 }}>
                 <div style={{ width: 6, height: 6, borderRadius: '50%', background: s.color, marginTop: 8, flexShrink: 0 }}/>
-                <div style={{ fontSize: 15, color: 'var(--sap-text-secondary)', lineHeight: 1.7 }}>{tip}</div>
+                <div style={TYPE.body}>{tip}</div>
               </div>;
             })}
           </div>

@@ -46,6 +46,17 @@ export const TYPE = {
     lineHeight: 1.35,
   },
 
+  // Larger card title — for marquee/hero cards where the title is the main
+  // focal point (Dashboard Quick Action cards, Platform Tour section titles).
+  // One step up from cardTitleBold. Added 23 Apr 2026 after desktop review
+  // showed standard 16px titles felt underweighted on larger screens.
+  cardTitleLarge: {
+    fontSize: 18,
+    fontWeight: 800,
+    color: '#0f172a',
+    lineHeight: 1.3,
+  },
+
   // Body text — primary reading content
   // e.g. item descriptions, help text, explainer paragraphs
   // 16px aligns with 2026 SaaS standard (Notion, Vercel reading views)
@@ -63,6 +74,23 @@ export const TYPE = {
     fontWeight: 500,
     color: '#475569',
     lineHeight: 1.6,
+  },
+
+  // Larger body text — for marquee/hero sections where body should have
+  // more presence. Platform Tour section descriptions, Dashboard banner
+  // bodies. Added 23 Apr 2026. Weight 600 (not 500) for better desktop
+  // legibility at viewing distance.
+  bodyLarge: {
+    fontSize: 17,
+    fontWeight: 500,
+    color: '#334155',
+    lineHeight: 1.65,
+  },
+  bodyLargeMuted: {
+    fontSize: 17,
+    fontWeight: 500,
+    color: '#475569',
+    lineHeight: 1.65,
   },
 
   // Dense body — for data-dense contexts where 16px is too roomy

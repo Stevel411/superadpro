@@ -6,6 +6,7 @@ import { apiGet, apiPost } from '../utils/api';
 import { formatMoney } from '../utils/money';
 import AppLayout from '../components/layout/AppLayout';
 import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye, TrendingUp } from 'lucide-react';
+import { TYPE } from '../styles/typography';
 import CoPilot from './CoPilot';
 
 // ── Dashboard data cache — survives navigation, clears on full page reload ──
@@ -173,8 +174,8 @@ export default function Dashboard() {
           display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
         }}>
           <div style={{ flex: 1, minWidth: 240 }}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#132044', marginBottom: 6 }}>🎯 {t('dashboard.activationTitle')}</div>
-            <p style={{ fontSize: 14, color: 'var(--sap-text-secondary)', lineHeight: 1.7, margin: 0 }}>
+            <div style={{...TYPE.cardTitleLarge, color: '#132044', marginBottom: 6}}>🎯 {t('dashboard.activationTitle')}</div>
+            <p style={{...TYPE.bodyLarge, margin: 0}}>
               {t('dashboard.activationDesc1')} <strong>{t('dashboard.activationDesc2')}</strong>. {t('dashboard.activationDesc3')} <strong style={{ color: '#0891b2' }}>{t('dashboard.activationPaidFor')}</strong>.
             </p>
           </div>
@@ -209,10 +210,10 @@ export default function Dashboard() {
               cursor: 'pointer', padding: '2px 6px', opacity: 0.55,
             }}>×</button>
           <div style={{ flex: 1, minWidth: 240, paddingRight: 24 }}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#78350f', marginBottom: 6 }}>
+            <div style={{...TYPE.cardTitleLarge, color: '#78350f', marginBottom: 6}}>
               🎉 {t('dashboard.storyPromptTitle', { amount: formatMoney(storyPrompt.first_amount), defaultValue: 'You earned your first ' + formatMoney(storyPrompt.first_amount) + '!' })}
             </div>
-            <p style={{ fontSize: 14, color: '#78350f', lineHeight: 1.6, margin: 0 }}>
+            <p style={{...TYPE.bodyLarge, color: '#78350f', margin: 0}}>
               {t('dashboard.storyPromptBody', { defaultValue: 'Share the story of how you did it — your experience could inspire the next member. Takes 2 minutes. Our team reviews before it goes live on /explore.' })}
             </p>
           </div>
@@ -247,10 +248,10 @@ export default function Dashboard() {
               cursor: 'pointer', padding: '2px 6px', opacity: 0.55,
             }}>×</button>
           <div style={{ flex: 1, minWidth: 240, paddingRight: 24 }}>
-            <div style={{ fontSize: 15, fontWeight: 800, color: '#1e3a8a', marginBottom: 6 }}>
+            <div style={{...TYPE.cardTitleLarge, color: '#1e3a8a', marginBottom: 6}}>
               💰 {t('dashboard.annualUpsellTitle', { defaultValue: 'Switch to annual billing and save up to $70/year' })}
             </div>
-            <p style={{ fontSize: 14, color: '#1e40af', lineHeight: 1.6, margin: 0 }}>
+            <p style={{...TYPE.bodyLarge, color: '#1e40af', margin: 0}}>
               {t('dashboard.annualUpsellBody', { defaultValue: 'Pay yearly and save 17% — that\'s $40/year off Basic or $70/year off Pro. Switch anytime, no hassle.' })}
             </p>
           </div>
@@ -294,7 +295,7 @@ export default function Dashboard() {
         <div style={{ position:'relative', zIndex:2 }}>
           <div style={{ fontSize:13, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,0.65)', marginBottom:8 }}>{t('dashboard.welcomeBack')}</div>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#fff', marginBottom:8 }}>{d.display_name || user?.username}</div>
-          <div style={{ fontSize:14, color:'rgba(255,255,255,0.6)', lineHeight:1.6, maxWidth:420, marginBottom:16 }}>
+          <div style={{ fontSize:17, fontWeight: 500, color:'rgba(255,255,255,0.78)', lineHeight:1.6, maxWidth:460, marginBottom:16 }}>
             {t('dashboard.networkMembers', { count: d.total_team || 0 })}{(d.total_earned || 0) > 0 && ` ${t('dashboard.andEarned', { amount: formatMoney(d.total_earned) })}`}.
           </div>
 
@@ -384,7 +385,7 @@ export default function Dashboard() {
               <span style={{ fontSize: 13, fontWeight: 700, padding: '3px 9px', borderRadius: 20, letterSpacing: 0.3, background: s.bg, color: s.color }}>{s.badge}</span>
             </div>
             <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 6 }}>${formatMoney(s.val)}</div>
-            <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 3 }}>{s.name}</div>
+            <div style={{...TYPE.cardTitleBold, marginBottom: 3}}>{s.name}</div>
             <div style={{ fontSize: 12, color: 'var(--sap-text-muted)' }}>{s.detail}</div>
           </div>
         ))}
@@ -417,9 +418,9 @@ export default function Dashboard() {
                             <div style={{ width:38, height:38, borderRadius:10, background:g.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                               {ICONS[g.icon] || ICONS.zap}
                             </div>
-                            <div style={{ fontSize:14, fontWeight:800, color:'var(--sap-text-primary)', lineHeight:1.3 }}>{goalText(g, 'title')}</div>
+                            <div style={{...TYPE.cardTitleBold, lineHeight: 1.3}}>{goalText(g, 'title')}</div>
                           </div>
-                          <div style={{ fontSize:12, color:'var(--sap-text-muted)', lineHeight:1.5, marginBottom:14 }}>{goalText(g, 'desc')}</div>
+                          <div style={{ fontSize: 14, color:'var(--sap-text-muted)', lineHeight:1.5, marginBottom:14 }}>{goalText(g, 'desc')}</div>
                           {g.progress !== undefined && !g.ring && (
                             <>
                               <div style={{ height:6, borderRadius:99, background:`${g.color}18`, overflow:'hidden', marginBottom:6 }}>
@@ -463,9 +464,9 @@ export default function Dashboard() {
                         <div style={{ width:38, height:38, borderRadius:10, background:g.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
                           {ICONS[g.icon] || ICONS.target}
                         </div>
-                        <div style={{ fontSize:14, fontWeight:800, color:'var(--sap-text-primary)', lineHeight:1.3 }}>{goalText(g, 'title')}</div>
+                        <div style={{...TYPE.cardTitleBold, lineHeight: 1.3}}>{goalText(g, 'title')}</div>
                       </div>
-                      <div style={{ fontSize:12, color:'var(--sap-text-muted)', lineHeight:1.5, marginBottom:14 }}>{goalText(g, 'desc')}</div>
+                      <div style={{ fontSize: 14, color:'var(--sap-text-muted)', lineHeight:1.5, marginBottom:14 }}>{goalText(g, 'desc')}</div>
                       <Link to={g.cta_link} style={{ display:'inline-block', fontSize:12, fontWeight:700, padding:'8px 18px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none' }}>{goalText(g, 'cta')}</Link>
                     </div>
                   );
@@ -521,8 +522,8 @@ export default function Dashboard() {
             <div style={{ width: 68, height: 68, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', background: a.bg }}>
               {a.icon}
             </div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{a.name}</div>
-            <div style={{ fontSize: 14, color: 'var(--sap-text-muted)', lineHeight: 1.5 }}>{a.desc}</div>
+            <div style={TYPE.cardTitleLarge}>{a.name}</div>
+            <div style={{...TYPE.body, color: '#475569', lineHeight: 1.5}}>{a.desc}</div>
           </Link>
         ))}
       </div>
@@ -532,7 +533,7 @@ export default function Dashboard() {
         {/* Recent Activity */}
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 22, boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{t('dashboard.recentActivity')}</div>
+            <div style={TYPE.cardTitleLarge}>{t('dashboard.recentActivity')}</div>
             <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('dashboard.viewAll')}</Link>
           </div>
           {(!Array.isArray(d.recent_activity) || d.recent_activity.length === 0) ? (
@@ -555,7 +556,7 @@ export default function Dashboard() {
         {/* Network Snapshot */}
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 22, boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{t('dashboard.yourNetwork')}</div>
+            <div style={TYPE.cardTitleLarge}>{t('dashboard.yourNetwork')}</div>
             <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('dashboard.fullNetwork')}</Link>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
