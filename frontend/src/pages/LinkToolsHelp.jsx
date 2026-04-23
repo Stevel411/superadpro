@@ -175,8 +175,8 @@ export default function LinkToolsHelp({ visible, onClose }) {
                   style={{ padding: '10px 20px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8, userSelect: 'none' }}
                 >
                   {expanded[si] || q ? <ChevronDown size={14} color={section.color} /> : <ChevronRight size={14} color={section.color} />}
-                  <span style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', color: section.color }}>{section.category}</span>
-                  <span style={{ fontSize: 10, color: 'var(--sap-text-ghost)', fontWeight: 600 }}>({section.items.length})</span>
+                  <span style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1, textTransform: 'uppercase', color: section.color }}>{section.category}</span>
+                  <span style={{ fontSize: 13, color: 'var(--sap-text-ghost)', fontWeight: 600 }}>({section.items.length})</span>
                 </div>
                 {(expanded[si] || q) && section.items.map(function(item, ii) {
                   return (

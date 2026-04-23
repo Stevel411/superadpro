@@ -61,7 +61,7 @@ export default function ProSeller() {
                 {/* Quick stat pills */}
                 <div style={{display:'flex',justifyContent:'center',gap:8,marginTop:20,position:'relative',zIndex:1}}>
                   {['Content Writer','Objection Handler','Strategy Coach','Growth Planner'].map(function(s){
-                    return <span key={s} style={{padding:'5px 14px',borderRadius:20,background:'rgba(139,92,246,.12)',border:'1px solid rgba(139,92,246,.2)',fontSize:11,fontWeight:700,color:'var(--sap-purple-light)'}}>{s}</span>;
+                    return <span key={s} style={{padding:'5px 14px',borderRadius:20,background:'rgba(139,92,246,.12)',border:'1px solid rgba(139,92,246,.2)',fontSize:13,fontWeight:700,color:'var(--sap-purple-light)'}}>{s}</span>;
                   })}
                 </div>
               </div>
@@ -101,10 +101,10 @@ export default function ProSeller() {
                       {isUser?<User size={17} color="#fff"/>:<Bot size={17} color="#fff"/>}
                     </div>
                     <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontSize:11,fontWeight:800,color:isUser?'var(--sap-accent)':'var(--sap-purple)',marginBottom:5,textTransform:'uppercase',letterSpacing:.5}}>{isUser?'You':'ProSeller AI'}</div>
+                      <div style={{fontSize:13,fontWeight:800,color:isUser?'var(--sap-accent)':'var(--sap-purple)',marginBottom:5,textTransform:'uppercase',letterSpacing:.5}}>{isUser?'You':'ProSeller AI'}</div>
                       <div style={{fontSize:14,color:'var(--sap-text-primary)',lineHeight:1.9,whiteSpace:'pre-wrap',wordBreak:'break-word'}}>{m.content}</div>
                       {!isUser&&(
-                        <button onClick={function(){copyMsg(m.content,i);}} style={{display:'inline-flex',alignItems:'center',gap:4,marginTop:10,padding:'5px 12px',borderRadius:6,border:'1px solid #e8ecf2',background:'#fff',color:copied===i?'var(--sap-green)':'var(--sap-text-muted)',fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit',transition:'all .15s'}}>
+                        <button onClick={function(){copyMsg(m.content,i);}} style={{display:'inline-flex',alignItems:'center',gap:4,marginTop:10,padding:'5px 12px',borderRadius:6,border:'1px solid #e8ecf2',background:'#fff',color:copied===i?'var(--sap-green)':'var(--sap-text-muted)',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',transition:'all .15s'}}>
                           {copied===i?<><Check size={10}/>{t('proSeller.copiedResponse')}</>:<><Copy size={10}/>{t('proSeller.copyResponse')}</>}
                         </button>
                       )}
@@ -127,7 +127,7 @@ export default function ProSeller() {
 
         {/* Input */}
         <div style={{background:'#fff',borderRadius:'0 0 16px 16px',border:'1px solid #e8ecf2',borderTop:'none',padding:'16px 20px'}}>
-          {hasMessages&&<div style={{textAlign:'center',marginBottom:10}}><button onClick={function(){setMessages([]);}} style={{display:'inline-flex',alignItems:'center',gap:4,padding:'5px 14px',borderRadius:6,border:'1px solid #e8ecf2',background:'transparent',color:'var(--sap-text-muted)',fontSize:10,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}} onMouseEnter={function(e){e.currentTarget.style.color='var(--sap-red-bright)';e.currentTarget.style.borderColor='var(--sap-red-bg-mid)';}} onMouseLeave={function(e){e.currentTarget.style.color='var(--sap-text-muted)';e.currentTarget.style.borderColor='var(--sap-border-light)';}}><RefreshCw size={10}/>{t('proSeller.newConversation')}</button></div>}
+          {hasMessages&&<div style={{textAlign:'center',marginBottom:10}}><button onClick={function(){setMessages([]);}} style={{display:'inline-flex',alignItems:'center',gap:4,padding:'5px 14px',borderRadius:6,border:'1px solid #e8ecf2',background:'transparent',color:'var(--sap-text-muted)',fontSize:13,fontWeight:600,cursor:'pointer',fontFamily:'inherit'}} onMouseEnter={function(e){e.currentTarget.style.color='var(--sap-red-bright)';e.currentTarget.style.borderColor='var(--sap-red-bg-mid)';}} onMouseLeave={function(e){e.currentTarget.style.color='var(--sap-text-muted)';e.currentTarget.style.borderColor='var(--sap-border-light)';}}><RefreshCw size={10}/>{t('proSeller.newConversation')}</button></div>}
           <div style={{display:'flex',gap:10,alignItems:'center'}}>
             <input value={input} onChange={function(e){setInput(e.target.value);}} onKeyDown={function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}} placeholder={t("proSeller.askPlaceholder")} style={{flex:1,padding:'15px 20px',border:'2px solid #e8ecf2',borderRadius:14,fontSize:15,fontFamily:'inherit',background:'var(--sap-bg-input)',outline:'none',transition:'all .2s'}} onFocus={function(e){e.target.style.borderColor='var(--sap-purple)';e.target.style.background='#fff';e.target.style.boxShadow='0 0 0 4px rgba(139,92,246,.08)';}} onBlur={function(e){e.target.style.borderColor='var(--sap-border-light)';e.target.style.background='var(--sap-bg-input)';e.target.style.boxShadow='none';}}/>
             <button onClick={function(){send();}} disabled={loading||!input.trim()} style={{width:52,height:52,borderRadius:14,border:'none',display:'flex',alignItems:'center',justifyContent:'center',cursor:(loading||!input.trim())?'default':'pointer',background:(loading||!input.trim())?'var(--sap-border-light)':'linear-gradient(135deg,#8b5cf6,#a78bfa)',boxShadow:(loading||!input.trim())?'none':'0 6px 20px rgba(139,92,246,.3)',transition:'all .2s'}}>

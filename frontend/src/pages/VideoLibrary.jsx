@@ -81,8 +81,8 @@ export default function VideoLibrary() {
             <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('videos.yourCampaigns')}</div>
           </div>
           <div style={{display:'flex',alignItems:'center',gap:12}}>
-            <span style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.4)'}}>{campaigns.length} campaign{campaigns.length !== 1 ? 's' : ''}</span>
-            <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,color:'#fff',background:'var(--sap-accent)',padding:'6px 14px',borderRadius:8,textDecoration:'none'}}>
+            <span style={{fontSize:13,fontWeight:700,color:'rgba(255,255,255,.4)'}}>{campaigns.length} campaign{campaigns.length !== 1 ? 's' : ''}</span>
+            <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:13,fontWeight:700,color:'#fff',background:'var(--sap-accent)',padding:'6px 14px',borderRadius:8,textDecoration:'none'}}>
               <Plus size={12}/> {t('videos.newCampaign')}
             </Link>
           </div>
@@ -118,12 +118,12 @@ export default function VideoLibrary() {
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:4}}>
                       <div style={{fontSize:15,fontWeight:700,color:'var(--sap-text-primary)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.title || 'Untitled'}</div>
-                      <span style={{display:'inline-flex',alignItems:'center',gap:3,fontSize:10,fontWeight:700,padding:'2px 8px',borderRadius:6,
+                      <span style={{display:'inline-flex',alignItems:'center',gap:3,fontSize:13,fontWeight:700,padding:'2px 8px',borderRadius:6,
                         background:sc.bg,color:sc.color,border:'1px solid '+sc.border,textTransform:'capitalize',flexShrink:0}}>
                         {statusIcon(c.status)} {c.status}
                       </span>
                     </div>
-                    <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:8}}>
+                    <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:8}}>
                       {c.platform || '—'} · {c.category || 'General'}
                       {c.target_country ? ' · 🎯 ' + c.target_country : ''}
                       {c.target_interests ? ' · ' + c.target_interests : ''}
@@ -133,8 +133,8 @@ export default function VideoLibrary() {
                         <div style={{height:'100%',borderRadius:3,background:pct>=100?'var(--sap-green)':'var(--sap-accent)',width:pct+'%',transition:'width .3s'}}/>
                       </div>
                       <span style={{fontSize:12,fontWeight:700,color:'var(--sap-accent)'}}>{(c.views_delivered||0).toLocaleString()}</span>
-                      <span style={{fontSize:10,color:'var(--sap-text-muted)'}}>/ {(c.views_target||0).toLocaleString()} {t('videos.views')}</span>
-                      <span style={{fontSize:11,fontWeight:700,color:pct>=100?'var(--sap-green)':'var(--sap-text-muted)'}}>{pct}%</span>
+                      <span style={{fontSize:13,color:'var(--sap-text-muted)'}}>/ {(c.views_target||0).toLocaleString()} {t('videos.views')}</span>
+                      <span style={{fontSize:13,fontWeight:700,color:pct>=100?'var(--sap-green)':'var(--sap-text-muted)'}}>{pct}%</span>
                     </div>
                   </div>
 
@@ -150,12 +150,12 @@ export default function VideoLibrary() {
                     )}
                     {c.video_url && (
                       <a href={c.video_url} target="_blank" rel="noreferrer"
-                        style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,color:'var(--sap-accent)',padding:'6px 12px',borderRadius:8,border:'1px solid rgba(14,165,233,.2)',background:'rgba(14,165,233,.04)',textDecoration:'none',cursor:'pointer'}}>
+                        style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:13,fontWeight:700,color:'var(--sap-accent)',padding:'6px 12px',borderRadius:8,border:'1px solid rgba(14,165,233,.2)',background:'rgba(14,165,233,.04)',textDecoration:'none',cursor:'pointer'}}>
                         <Eye size={12}/> {t('videos.view')}
                       </a>
                     )}
                     <button onClick={function(){deleteCampaign(c.id, c.title);}} disabled={deleting === c.id}
-                      style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,color:'var(--sap-red)',padding:'6px 12px',borderRadius:8,border:'1px solid rgba(220,38,38,.15)',background:'rgba(220,38,38,.04)',cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>
+                      style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:13,fontWeight:700,color:'var(--sap-red)',padding:'6px 12px',borderRadius:8,border:'1px solid rgba(220,38,38,.15)',background:'rgba(220,38,38,.04)',cursor:'pointer',fontFamily:'DM Sans,sans-serif'}}>
                       <Trash2 size={12}/> {deleting === c.id ? '...' : t('videos.delete')}
                     </button>
                   </div>

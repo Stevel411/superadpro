@@ -52,7 +52,7 @@ export default function MyCourses() {
             <GraduationCap size={16} color="var(--sap-purple-light)"/>
             <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{t('courses.availableCourses')}</div>
           </div>
-          <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.4)'}}>{courses.length} courses</div>
+          <div style={{fontSize:13,fontWeight:700,color:'rgba(255,255,255,.4)'}}>{courses.length} courses</div>
         </div>
         <div style={{padding:'20px'}}>
           {courses.length > 0 ? (
@@ -65,7 +65,7 @@ export default function MyCourses() {
                 return (
                   <div key={c.id || i} style={{borderRadius:12,border:'1px solid #e8ecf2',overflow:'hidden',position:'relative'}}>
                     <div style={{background:color,padding:'18px 16px',textAlign:'center'}}>
-                      <div style={{fontSize:10,fontWeight:800,color:'rgba(255,255,255,.6)',letterSpacing:1,textTransform:'uppercase'}}>Tier {c.tier} — {tierNames[c.tier] || 'Course'}</div>
+                      <div style={{fontSize:13,fontWeight:800,color:'rgba(255,255,255,.6)',letterSpacing:1,textTransform:'uppercase'}}>Tier {c.tier} — {tierNames[c.tier] || 'Course'}</div>
                       <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'#fff',margin:'6px 0'}}>${c.price}</div>
                     </div>
                     <div style={{padding:'16px'}}>

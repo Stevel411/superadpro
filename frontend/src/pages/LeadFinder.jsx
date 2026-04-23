@@ -112,7 +112,7 @@ export default function LeadFinder() {
       <div style={{ maxWidth: 600, margin: '60px auto', textAlign: 'center' }}>
         <div style={{ fontSize: 48, marginBottom: 16 }}>🔒</div>
         <h2 style={{ fontFamily: "'Sora',sans-serif", fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>{t('leadFinder.proOnlyTitle')}</h2>
-        <p style={{ fontSize: 14, color: '#64748b', lineHeight: 1.6, marginBottom: 20 }}>{t('leadFinder.proOnlyDesc')}</p>
+        <p style={{ fontSize: 14, color: '#475569', lineHeight: 1.6, marginBottom: 20 }}>{t('leadFinder.proOnlyDesc')}</p>
         <a href="/upgrade" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '12px 28px', borderRadius: 12, background: 'linear-gradient(135deg,#8b5cf6,#7c3aed)', color: '#fff', textDecoration: 'none', fontSize: 14, fontWeight: 700 }}>{t('leadFinder.upgradeBtn')}</a>
       </div>
     </AppLayout>;
@@ -130,7 +130,7 @@ export default function LeadFinder() {
             <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: '#fff' }}>{t('leadFinder.findBusinessLeads')}</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,.4)' }}>{mode === 'maps' ? t('leadFinder.searchGoogleMaps') : t('leadFinder.searchWebDesc')}</div>
           </div>
-          <div style={{ marginLeft: 'auto', fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,.4)' }}>{t('leadFinder.searchesToday')}: {10 - remaining}/10</div>
+          <div style={{ marginLeft: 'auto', fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,.4)' }}>{t('leadFinder.searchesToday')}: {10 - remaining}/10</div>
         </div>
 
         {/* Mode toggle - Web Search is primary (first) for network marketers */}
@@ -181,7 +181,7 @@ export default function LeadFinder() {
       {importResult && <div style={{ padding: '14px 18px', borderRadius: 12, background: '#f0fdf4', border: '1px solid #bbf7d0', marginBottom: 16, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
         <div>
           <div style={{ fontSize: 14, fontWeight: 700, color: '#16a34a' }}>✓ {t('leadFinder.importedTo', { count: importResult.imported, list: importResult.list_name })}</div>
-          {importResult.skipped > 0 && <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{t('leadFinder.skippedCount', { count: importResult.skipped })}</div>}
+          {importResult.skipped > 0 && <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>{t('leadFinder.skippedCount', { count: importResult.skipped })}</div>}
         </div>
         <a href="/pro/leads" style={{ padding: '8px 16px', borderRadius: 8, background: '#16a34a', color: '#fff', fontSize: 12, fontWeight: 700, textDecoration: 'none' }}>{t('leadFinder.openAutoResponder')}</a>
       </div>}
@@ -191,7 +191,7 @@ export default function LeadFinder() {
         <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 700, color: '#0f172a' }}>
           {t('leadFinder.searchingFor')} "<span style={{ color: '#8b5cf6' }}>{niche}{mode === 'maps' && location ? ' · ' + location : ''}</span>"
         </div>
-        <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 6 }}>{t('leadFinder.searchingTime')}</div>
+        <div style={{ fontSize: 13, color: '#7a8899', marginTop: 6 }}>{t('leadFinder.searchingTime')}</div>
         <style>{`@keyframes spin{to{transform:rotate(360deg)}}`}</style>
       </div>}
 
@@ -203,7 +203,7 @@ export default function LeadFinder() {
               <input type="checkbox" checked={Object.keys(selected).length === results.length} onChange={selectAll} style={{ width: 16, height: 16, cursor: 'pointer' }}/>
               {t('leadFinder.selectAll')}
             </label>
-            <span style={{ fontSize: 13, color: '#94a3b8' }}>{t('leadFinder.foundWithEmail', { total: results.length, withEmail: results.filter(function(r){return r.email;}).length })}</span>
+            <span style={{ fontSize: 13, color: '#7a8899' }}>{t('leadFinder.foundWithEmail', { total: results.length, withEmail: results.filter(function(r){return r.email;}).length })}</span>
           </div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button onClick={exportCSV} style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: '1px solid #e2e8f0', background: '#fff', fontSize: 12, fontWeight: 600, color: '#475569', cursor: 'pointer', fontFamily: 'inherit' }}>
@@ -212,14 +212,14 @@ export default function LeadFinder() {
             <button onClick={importLeads} disabled={importing || selectedLeads.length === 0}
               style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '7px 14px', borderRadius: 8, border: 'none',
                 background: selectedLeads.length > 0 ? 'linear-gradient(135deg,#16a34a,#22c55e)' : '#e2e8f0',
-                fontSize: 12, fontWeight: 700, color: selectedLeads.length > 0 ? '#fff' : '#94a3b8',
+                fontSize: 12, fontWeight: 700, color: selectedLeads.length > 0 ? '#fff' : '#7a8899',
                 cursor: selectedLeads.length > 0 ? 'pointer' : 'default', fontFamily: 'inherit', transition: 'all .15s' }}>
               <Upload size={13}/> {importing ? t('leadFinder.importing') : t('leadFinder.importCount', { count: selectedLeads.length })}
             </button>
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '32px 2fr 1.5fr 1fr 70px', padding: '10px 20px', fontSize: 10, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: 0.5, borderBottom: '1px solid #f1f5f9' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '32px 2fr 1.5fr 1fr 70px', padding: '10px 20px', fontSize: 13, fontWeight: 700, color: '#7a8899', textTransform: 'uppercase', letterSpacing: 0.5, borderBottom: '1px solid #f1f5f9' }}>
           <div></div>
           <div>{t('leadFinder.colBusiness')}</div>
           <div>{t('leadFinder.colContact')}</div>
@@ -236,29 +236,29 @@ export default function LeadFinder() {
             </div>
             <div>
               <div style={{ fontSize: 14, fontWeight: 600, color: '#0f172a' }}>{r.name}</div>
-              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
+              <div style={{ fontSize: 12, color: '#7a8899', marginTop: 2, display: 'flex', alignItems: 'center', gap: 4 }}>
                 <MapPin size={10}/> {r.address || t('leadFinder.noAddress')}
               </div>
-              {r.category && <div style={{ display: 'inline-flex', marginTop: 4, padding: '2px 8px', borderRadius: 4, background: '#f1f5f9', fontSize: 10, fontWeight: 600, color: '#64748b' }}>{r.category}</div>}
+              {r.category && <div style={{ display: 'inline-flex', marginTop: 4, padding: '2px 8px', borderRadius: 4, background: '#f1f5f9', fontSize: 13, fontWeight: 600, color: '#475569' }}>{r.category}</div>}
             </div>
             <div>
-              {typeof r.phone === 'string' && r.phone && <div style={{ fontSize: 13, color: '#334155', display: 'flex', alignItems: 'center', gap: 4 }}><Phone size={11} color="#94a3b8"/> {r.phone}</div>}
+              {typeof r.phone === 'string' && r.phone && <div style={{ fontSize: 13, color: '#334155', display: 'flex', alignItems: 'center', gap: 4 }}><Phone size={11} color="#7a8899"/> {r.phone}</div>}
               {hasEmail ? <div style={{ fontSize: 12, color: '#2563eb', marginTop: 3, display: 'flex', alignItems: 'center', gap: 4 }}><Mail size={11}/> {r.email}</div>
-                : <div style={{ fontSize: 11, color: '#cbd5e1', marginTop: 3, display: 'flex', alignItems: 'center', gap: 4 }}><Mail size={11}/> {t('leadFinder.noEmail')}</div>}
+                : <div style={{ fontSize: 13, color: '#cbd5e1', marginTop: 3, display: 'flex', alignItems: 'center', gap: 4 }}><Mail size={11}/> {t('leadFinder.noEmail')}</div>}
             </div>
             <div>
               {r.website ? <a href={r.website} target="_blank" rel="noopener noreferrer" style={{ fontSize: 12, color: '#2563eb', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 <Globe size={11}/> {r.website.replace(/^https?:\/\/(www\.)?/, '').replace(/\/$/, '').substring(0, 25)}
-              </a> : <span style={{ fontSize: 11, color: '#cbd5e1' }}>—</span>}
+              </a> : <span style={{ fontSize: 13, color: '#cbd5e1' }}>—</span>}
             </div>
             <div style={{ textAlign: 'center' }}>
-              {r.rating ? <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}><Star size={12} fill="#f59e0b" color="#f59e0b" style={{ marginRight: 3, verticalAlign: -1 }}/>{r.rating}</span> : <span style={{ fontSize: 11, color: '#cbd5e1' }}>—</span>}
-              {r.review_count && <div style={{ fontSize: 10, color: '#94a3b8' }}>({r.review_count})</div>}
+              {r.rating ? <span style={{ fontSize: 13, fontWeight: 700, color: '#0f172a' }}><Star size={12} fill="#f59e0b" color="#f59e0b" style={{ marginRight: 3, verticalAlign: -1 }}/>{r.rating}</span> : <span style={{ fontSize: 13, color: '#cbd5e1' }}>—</span>}
+              {r.review_count && <div style={{ fontSize: 13, color: '#7a8899' }}>({r.review_count})</div>}
             </div>
           </div>;
         })}
 
-        <div style={{ padding: '12px 20px', background: '#f8fafc', borderTop: '1px solid #f1f5f9', fontSize: 12, color: '#94a3b8', display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ padding: '12px 20px', background: '#f8fafc', borderTop: '1px solid #f1f5f9', fontSize: 12, color: '#7a8899', display: 'flex', justifyContent: 'space-between' }}>
           <span>{t('leadFinder.resultsFooter', { total: results.length, withEmail: results.filter(function(r){return r.email;}).length })} · {mode === 'web' ? t('leadFinder.dataSourceWeb', { defaultValue: 'Data from web search' }) : t('leadFinder.dataSourceMaps', { defaultValue: 'Data from Google Maps' })}</span>
           <span>{t('leadFinder.remainingToday', { count: remaining })}</span>
         </div>
@@ -267,7 +267,7 @@ export default function LeadFinder() {
       {!loading && !searched && <div style={{ background: '#fff', borderRadius: 16, border: '1px solid #e2e8f0', padding: '32px 28px', overflow: 'hidden' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: '#0f172a' }}>{mode === 'web' ? t('leadFinder.searchLibraryTitle') : t('leadFinder.searchLibraryMapsTitle')}</div>
-          <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 6, maxWidth: 520, margin: '6px auto 0', lineHeight: 1.6 }}>{mode === 'web' ? t('leadFinder.searchLibraryDesc') : t('leadFinder.searchLibraryMapsDesc')}</div>
+          <div style={{ fontSize: 13, color: '#7a8899', marginTop: 6, maxWidth: 520, margin: '6px auto 0', lineHeight: 1.6 }}>{mode === 'web' ? t('leadFinder.searchLibraryDesc') : t('leadFinder.searchLibraryMapsDesc')}</div>
         </div>
 
         {mode === 'web' ? (
@@ -366,7 +366,7 @@ export default function LeadFinder() {
                       style={{ textAlign: 'left', padding: '8px 12px', borderRadius: 8, border: '1px solid transparent', background: '#f8fafc', fontSize: 12, fontWeight: 600, color: '#475569', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6, transition: 'all .15s' }}
                       onMouseEnter={function(e) { e.currentTarget.style.background = category.bg; e.currentTarget.style.color = category.color; e.currentTarget.style.borderColor = category.color + '40'; }}
                       onMouseLeave={function(e) { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = 'transparent'; }}>
-                      <span style={{ opacity: 0.5, fontSize: 11 }}>→</span> {s.n}{s.l ? ' · ' + s.l : ''}
+                      <span style={{ opacity: 0.5, fontSize: 13 }}>→</span> {s.n}{s.l ? ' · ' + s.l : ''}
                     </button>;
                   })}
                 </div>
@@ -469,7 +469,7 @@ export default function LeadFinder() {
                       style={{ textAlign: 'left', padding: '8px 12px', borderRadius: 8, border: '1px solid transparent', background: '#f8fafc', fontSize: 12, fontWeight: 600, color: '#475569', cursor: 'pointer', fontFamily: 'inherit', display: 'flex', alignItems: 'center', gap: 6, transition: 'all .15s' }}
                       onMouseEnter={function(e) { e.currentTarget.style.background = category.bg; e.currentTarget.style.color = category.color; e.currentTarget.style.borderColor = category.color + '40'; }}
                       onMouseLeave={function(e) { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = 'transparent'; }}>
-                      <span style={{ opacity: 0.5, fontSize: 11 }}>→</span> {s.n}{s.l ? ' · ' + s.l : ''}
+                      <span style={{ opacity: 0.5, fontSize: 13 }}>→</span> {s.n}{s.l ? ' · ' + s.l : ''}
                     </button>;
                   })}
                 </div>
@@ -483,7 +483,7 @@ export default function LeadFinder() {
         </div>
       </div>}
 
-      <div style={{ fontSize: 10, color: '#94a3b8', textAlign: 'center', marginTop: 16, lineHeight: 1.5 }}>
+      <div style={{ fontSize: 13, color: '#7a8899', textAlign: 'center', marginTop: 16, lineHeight: 1.5 }}>
         {t('leadFinder.disclaimer')}
       </div>
     </div>

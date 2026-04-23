@@ -47,7 +47,7 @@ export default function AiTool({ title, subtitle, apiEndpoint, fields, resultLab
             {(fields || []).map(function(f, i) {
               return (
                 <div key={i} style={{marginBottom:16}}>
-                  <label style={{display:'block',fontSize:11,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>{f.label}</label>
+                  <label style={{display:'block',fontSize:13,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>{f.label}</label>
                   {f.type === 'textarea' ? (
                     <textarea value={values[f.key] || ''} onChange={function(e) { set(f.key, e.target.value); }}
                       placeholder={f.placeholder} rows={f.rows || 3}
@@ -95,7 +95,7 @@ export default function AiTool({ title, subtitle, apiEndpoint, fields, resultLab
               <button onClick={copy}
                 style={{display:'flex',alignItems:'center',gap:4,padding:'5px 12px',borderRadius:6,border:'none',cursor:'pointer',
                   background:copied?'rgba(22,163,74,.2)':'rgba(255,255,255,.1)',color:copied?'#4ade80':'rgba(255,255,255,.6)',
-                  fontSize:11,fontWeight:700,fontFamily:'inherit',transition:'all .2s'}}>
+                  fontSize:13,fontWeight:700,fontFamily:'inherit',transition:'all .2s'}}>
                 {copied ? <><Check size={12}/> {t('common.copied')}</> : <><Copy size={12}/> {t('common.copy')}</>}
               </button>
             )}

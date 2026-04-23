@@ -19,7 +19,7 @@ function BrowserFrame({ url, children, bg = 'linear-gradient(180deg,#f0f9ff,#fff
           <div style={{width:7,height:7,borderRadius:'50%',background:'#f59e0b'}}/>
           <div style={{width:7,height:7,borderRadius:'50%',background:'#10b981'}}/>
         </div>
-        <div style={{flex:1,background:'#fff',borderRadius:3,padding:'2px 8px',fontSize:9,color:'#94a3b8',border:'0.5px solid #e2e8f0',textAlign:'center',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{url}</div>
+        <div style={{flex:1,background:'#fff',borderRadius:3,padding:'2px 8px',fontSize:13,color:'#7a8899',border:'0.5px solid #e2e8f0',textAlign:'center',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{url}</div>
       </div>
       <div style={{background:bg,padding:'14px 14px 16px',minHeight:150}}>
         {children}
@@ -32,10 +32,10 @@ function LeadCapturePreview() {
   const { t } = useTranslation();
   return (
     <BrowserFrame url="yoursite.com/free-guide" bg="linear-gradient(180deg,#f0f9ff,#fff)">
-      <div style={{fontSize:11,fontWeight:700,color:'#0f172a',textAlign:'center',lineHeight:1.3,marginBottom:4}}>{t('superPages.previewLeadHeadline')}</div>
-      <div style={{fontSize:8,color:'#64748b',textAlign:'center',marginBottom:10}}>{t('superPages.previewLeadSubtext')}</div>
-      <div style={{background:'#fff',border:'0.5px solid #cbd5e1',borderRadius:4,padding:'5px 8px',fontSize:8,color:'#94a3b8',marginBottom:6}}>{t('superPages.previewLeadEmail')}</div>
-      <div style={{background:'#0ea5e9',color:'#fff',padding:6,textAlign:'center',borderRadius:4,fontSize:9,fontWeight:600}}>{t('superPages.previewLeadCTA')} →</div>
+      <div style={{fontSize:13,fontWeight:700,color:'#0f172a',textAlign:'center',lineHeight:1.3,marginBottom:4}}>{t('superPages.previewLeadHeadline')}</div>
+      <div style={{fontSize:8,color:'#475569',textAlign:'center',marginBottom:10}}>{t('superPages.previewLeadSubtext')}</div>
+      <div style={{background:'#fff',border:'0.5px solid #cbd5e1',borderRadius:4,padding:'5px 8px',fontSize:8,color:'#7a8899',marginBottom:6}}>{t('superPages.previewLeadEmail')}</div>
+      <div style={{background:'#0ea5e9',color:'#fff',padding:6,textAlign:'center',borderRadius:4,fontSize:13,fontWeight:600}}>{t('superPages.previewLeadCTA')} →</div>
     </BrowserFrame>
   );
 }
@@ -44,13 +44,13 @@ function VideoSalesPreview() {
   const { t } = useTranslation();
   return (
     <BrowserFrame url="yoursite.com/watch" bg="#0f172a">
-      <div style={{fontSize:10,fontWeight:700,color:'#fff',textAlign:'center',marginBottom:7}}>{t('superPages.previewVideoHeadline')}</div>
+      <div style={{fontSize:13,fontWeight:700,color:'#fff',textAlign:'center',marginBottom:7}}>{t('superPages.previewVideoHeadline')}</div>
       <div style={{background:'#1e293b',borderRadius:4,padding:16,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:6,border:'0.5px solid #334155'}}>
         <div style={{width:22,height:22,borderRadius:'50%',background:'rgba(255,255,255,.95)',display:'flex',alignItems:'center',justifyContent:'center'}}>
           <div style={{borderLeft:'7px solid #0f172a',borderTop:'4px solid transparent',borderBottom:'4px solid transparent',marginLeft:3}}/>
         </div>
       </div>
-      <div style={{background:'#8b5cf6',color:'#fff',padding:5,textAlign:'center',borderRadius:4,fontSize:9,fontWeight:600}}>{t('superPages.previewVideoCTA')} →</div>
+      <div style={{background:'#8b5cf6',color:'#fff',padding:5,textAlign:'center',borderRadius:4,fontSize:13,fontWeight:600}}>{t('superPages.previewVideoCTA')} →</div>
     </BrowserFrame>
   );
 }
@@ -59,18 +59,18 @@ function ProductOfferPreview() {
   const { t } = useTranslation();
   return (
     <BrowserFrame url="yoursite.com/offer" bg="linear-gradient(180deg,#fef3c7,#fff)">
-      <div style={{fontSize:10,fontWeight:700,color:'#0f172a',textAlign:'center',marginBottom:6}}>{t('superPages.previewProductHeadline')}</div>
+      <div style={{fontSize:13,fontWeight:700,color:'#0f172a',textAlign:'center',marginBottom:6}}>{t('superPages.previewProductHeadline')}</div>
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:5,marginBottom:6}}>
         <div style={{background:'#fff',border:'0.5px solid #e2e8f0',borderRadius:4,padding:6,textAlign:'center'}}>
           <div style={{fontSize:12,fontWeight:700,color:'#0f172a'}}>$47</div>
-          <div style={{fontSize:7,color:'#64748b'}}>{t('superPages.previewProductStarter')}</div>
+          <div style={{fontSize:7,color:'#475569'}}>{t('superPages.previewProductStarter')}</div>
         </div>
         <div style={{background:'#fef3c7',border:'1px solid #f59e0b',borderRadius:4,padding:6,textAlign:'center'}}>
           <div style={{fontSize:12,fontWeight:700,color:'#92400e'}}>$97</div>
           <div style={{fontSize:7,color:'#92400e',fontWeight:600}}>{t('superPages.previewProductPro')}</div>
         </div>
       </div>
-      <div style={{background:'#dc2626',color:'#fff',padding:5,textAlign:'center',borderRadius:4,fontSize:9,fontWeight:600}}>{t('superPages.previewProductCTA')} →</div>
+      <div style={{background:'#dc2626',color:'#fff',padding:5,textAlign:'center',borderRadius:4,fontSize:13,fontWeight:600}}>{t('superPages.previewProductCTA')} →</div>
     </BrowserFrame>
   );
 }
@@ -79,14 +79,14 @@ function CoachingPreview() {
   const { t } = useTranslation();
   return (
     <BrowserFrame url="yoursite.com/book" bg="linear-gradient(180deg,#fce7f3,#fff)">
-      <div style={{fontSize:10,fontWeight:700,color:'#0f172a',textAlign:'center',marginBottom:7}}>{t('superPages.previewCoachingHeadline')}</div>
+      <div style={{fontSize:13,fontWeight:700,color:'#0f172a',textAlign:'center',marginBottom:7}}>{t('superPages.previewCoachingHeadline')}</div>
       <div style={{background:'#fff',border:'0.5px solid #fbcfe8',borderRadius:4,padding:7,marginBottom:6}}>
         <div style={{fontSize:7,color:'#9d174d',fontWeight:600,marginBottom:4,textAlign:'center'}}>{t('superPages.previewCoachingSelectDay')}</div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:2}}>
           {[0,1,2,3,4,5,6].map(i=><div key={i} style={{background:i===3?'#ec4899':(i%2===0?'#fbcfe8':'#f9a8d4'),borderRadius:2,height:8}}/>)}
         </div>
       </div>
-      <div style={{background:'#ec4899',color:'#fff',padding:5,textAlign:'center',borderRadius:4,fontSize:9,fontWeight:600}}>{t('superPages.previewCoachingCTA')} →</div>
+      <div style={{background:'#ec4899',color:'#fff',padding:5,textAlign:'center',borderRadius:4,fontSize:13,fontWeight:600}}>{t('superPages.previewCoachingCTA')} →</div>
     </BrowserFrame>
   );
 }
@@ -96,13 +96,13 @@ function WebinarPreview() {
   return (
     <BrowserFrame url="yoursite.com/webinar" bg="linear-gradient(180deg,#dcfce7,#fff)">
       <div style={{color:'#f59e0b',fontSize:8,textAlign:'center',marginBottom:3,letterSpacing:1}}>★★★★★</div>
-      <div style={{fontSize:10,fontWeight:700,color:'#0f172a',textAlign:'center',marginBottom:5}}>{t('superPages.previewWebinarHeadline')}</div>
+      <div style={{fontSize:13,fontWeight:700,color:'#0f172a',textAlign:'center',marginBottom:5}}>{t('superPages.previewWebinarHeadline')}</div>
       <div style={{background:'#fff',border:'0.5px solid #bbf7d0',borderRadius:4,padding:6,marginBottom:6}}>
         <div style={{height:3,background:'#86efac',borderRadius:1,width:'90%',marginBottom:2}}/>
         <div style={{height:3,background:'#86efac',borderRadius:1,width:'75%',marginBottom:2}}/>
         <div style={{height:3,background:'#86efac',borderRadius:1,width:'60%'}}/>
       </div>
-      <div style={{background:'#16a34a',color:'#fff',padding:5,textAlign:'center',borderRadius:4,fontSize:9,fontWeight:600}}>{t('superPages.previewWebinarCTA')} →</div>
+      <div style={{background:'#16a34a',color:'#fff',padding:5,textAlign:'center',borderRadius:4,fontSize:13,fontWeight:600}}>{t('superPages.previewWebinarCTA')} →</div>
     </BrowserFrame>
   );
 }
@@ -228,7 +228,7 @@ export default function Funnels() {
       </div>
 
       {/* Section label */}
-      <div style={{fontSize:10,fontWeight:700,color:'#64748b',textTransform:'uppercase',letterSpacing:1,marginBottom:12}}>
+      <div style={{fontSize:13,fontWeight:700,color:'#475569',textTransform:'uppercase',letterSpacing:1,marginBottom:12}}>
         {t('superPages.orStartFromTemplate')}
       </div>
 
@@ -244,8 +244,8 @@ export default function Funnels() {
               </div>
               <div style={{padding:'12px 14px 14px',flex:1,display:'flex',flexDirection:'column'}}>
                 <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:2,fontFamily:'Sora,sans-serif'}}>{t('superPages.' + tpl.titleKey)}</div>
-                <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:10,flex:1}}>{t('superPages.' + tpl.descKey)}</div>
-                <div style={{padding:'7px 12px',borderRadius:6,fontSize:11,fontWeight:600,background:isCreating?'#f1f5f9':'transparent',color:isCreating?'#64748b':'#0284c7',border:`1px solid ${isCreating?'#e2e8f0':'#bae6fd'}`,textAlign:'center'}}>
+                <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:10,flex:1}}>{t('superPages.' + tpl.descKey)}</div>
+                <div style={{padding:'7px 12px',borderRadius:6,fontSize:13,fontWeight:600,background:isCreating?'#f1f5f9':'transparent',color:isCreating?'#475569':'#0284c7',border:`1px solid ${isCreating?'#e2e8f0':'#bae6fd'}`,textAlign:'center'}}>
                   {isCreating ? t('superPages.creatingEllipsis') : t('superPages.useThisTemplate') + ' →'}
                 </div>
               </div>
@@ -256,10 +256,10 @@ export default function Funnels() {
         {/* Blank Canvas — 6th tile, dashed */}
         <div className="tpl-card" onClick={() => !creating && createFromTemplate('blank')} style={{background:'#fff',borderRadius:10,border:'1.5px dashed #cbd5e1',overflow:'hidden',cursor:creating?'wait':'pointer',transition:'all .2s',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',padding:'40px 20px',minHeight:260}}>
           <div style={{width:44,height:44,borderRadius:'50%',background:'#f1f5f9',display:'flex',alignItems:'center',justifyContent:'center',marginBottom:12}}>
-            <Plus size={20} color="#64748b" strokeWidth={2}/>
+            <Plus size={20} color="#475569" strokeWidth={2}/>
           </div>
           <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:3,fontFamily:'Sora,sans-serif'}}>{t('superPages.blankCanvasName')}</div>
-          <div style={{fontSize:11,color:'var(--sap-text-muted)',textAlign:'center'}}>{t('superPages.blankCanvasTagline')}</div>
+          <div style={{fontSize:13,color:'var(--sap-text-muted)',textAlign:'center'}}>{t('superPages.blankCanvasTagline')}</div>
         </div>
       </div>
 
@@ -282,7 +282,7 @@ export default function Funnels() {
                 <div key={tpl.key} className="tpl-card" onClick={() => !creating && createFromTemplate(tpl.key)} style={{background:'#fff',borderRadius:10,border:'1px solid #e2e8f0',overflow:'hidden',cursor:creating?'wait':'pointer',transition:'all .2s',padding:'20px 16px',display:'flex',flexDirection:'column',minHeight:160}}>
                   <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',marginBottom:4,fontFamily:'Sora,sans-serif'}}>{t('superPages.' + tpl.titleKey)}</div>
                   <div style={{fontSize:12,color:'var(--sap-text-muted)',marginBottom:14,flex:1,lineHeight:1.5}}>{t('superPages.' + tpl.descKey)}</div>
-                  <div style={{padding:'7px 12px',borderRadius:6,fontSize:11,fontWeight:600,background:isCreating?'#f1f5f9':'transparent',color:isCreating?'#64748b':'#0284c7',border:`1px solid ${isCreating?'#e2e8f0':'#bae6fd'}`,textAlign:'center'}}>
+                  <div style={{padding:'7px 12px',borderRadius:6,fontSize:13,fontWeight:600,background:isCreating?'#f1f5f9':'transparent',color:isCreating?'#475569':'#0284c7',border:`1px solid ${isCreating?'#e2e8f0':'#bae6fd'}`,textAlign:'center'}}>
                     {isCreating ? t('superPages.creatingEllipsis') : t('superPages.useThisTemplate') + ' →'}
                   </div>
                 </div>
@@ -290,7 +290,7 @@ export default function Funnels() {
             })}
           </div>
           <div style={{textAlign:'center',marginTop:12}}>
-            <button onClick={() => setShowMoreTemplates(false)} style={{background:'transparent',border:'none',color:'#64748b',fontSize:11,fontWeight:500,cursor:'pointer',padding:'4px 10px',fontFamily:'inherit'}}>
+            <button onClick={() => setShowMoreTemplates(false)} style={{background:'transparent',border:'none',color:'#475569',fontSize:13,fontWeight:500,cursor:'pointer',padding:'4px 10px',fontFamily:'inherit'}}>
               {t('superPages.showLess')}
             </button>
           </div>
@@ -303,7 +303,7 @@ export default function Funnels() {
           <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:10,marginBottom:16,maxWidth:480}}>
             {[{label:t('superPages.publishedLabel'),val:published,color:'var(--sap-green)'},{label:t('superPages.leadsLabel2'),val:totalLeads,color:'var(--sap-accent)'},{label:t('superPages.viewsLabel2'),val:totalViews,color:'var(--sap-purple)'}].map((s,i) => (
               <div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:'12px 14px',borderLeft:`3px solid ${s.color}`}}>
-                <div style={{fontSize:9,fontWeight:700,letterSpacing:.8,color:'var(--sap-text-muted)',textTransform:'uppercase'}}>{s.label}</div>
+                <div style={{fontSize:13,fontWeight:700,letterSpacing:.8,color:'var(--sap-text-muted)',textTransform:'uppercase'}}>{s.label}</div>
                 <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:900,color:'var(--sap-text-primary)',margin:'2px 0'}}>{s.val}</div>
               </div>
             ))}
@@ -319,24 +319,24 @@ export default function Funnels() {
                     <div style={{width:6,height:6,borderRadius:'50%',background:p.status==='published'?'#10b981':'#cbd5e1'}}/>
                     <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)',flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.title||t('superPages.untitled')}</div>
                   </div>
-                  {p.slug && <div style={{fontSize:10,color:'var(--sap-text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>/{p.slug}</div>}
+                  {p.slug && <div style={{fontSize:13,color:'var(--sap-text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>/{p.slug}</div>}
                 </div>
                 <div style={{padding:'8px 14px',display:'flex',gap:12,borderBottom:'1px solid #f1f3f7',borderTop:'1px solid #f1f3f7'}}>
-                  <div style={{display:'flex',alignItems:'center',gap:4}}><Eye size={12} color="var(--sap-text-muted)"/><span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.views||0}</span><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>{t('superPages.viewsLabel2').toLowerCase()}</span></div>
-                  <div style={{display:'flex',alignItems:'center',gap:4}}><FileText size={12} color="var(--sap-text-muted)"/><span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.leads_captured||0}</span><span style={{fontSize:10,color:'var(--sap-text-muted)'}}>{t('superPages.leadsLabel2').toLowerCase()}</span></div>
+                  <div style={{display:'flex',alignItems:'center',gap:4}}><Eye size={12} color="var(--sap-text-muted)"/><span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.views||0}</span><span style={{fontSize:13,color:'var(--sap-text-muted)'}}>{t('superPages.viewsLabel2').toLowerCase()}</span></div>
+                  <div style={{display:'flex',alignItems:'center',gap:4}}><FileText size={12} color="var(--sap-text-muted)"/><span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.leads_captured||0}</span><span style={{fontSize:13,color:'var(--sap-text-muted)'}}>{t('superPages.leadsLabel2').toLowerCase()}</span></div>
                   {p.is_ai_generated && <span style={{fontSize:8,fontWeight:700,color:'var(--sap-indigo)',background:'rgba(99,102,241,.08)',padding:'2px 5px',borderRadius:4,marginLeft:'auto'}}>AI</span>}
                 </div>
                 <div style={{padding:'8px 14px',display:'flex',gap:5}}>
                   {confirmDelete === p.id ? (
                     <>
-                      <div style={{flex:1,fontSize:11,fontWeight:700,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>{t('superPages.deletePrompt')}</div>
-                      <button onClick={() => deletePage(p.id)} style={{padding:'7px 14px',borderRadius:6,border:'none',background:'var(--sap-red)',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer'}}>{t('superPages.deleteYes')}</button>
-                      <button onClick={() => setConfirmDelete(null)} style={{padding:'7px 14px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-text-muted)',fontSize:11,fontWeight:700,cursor:'pointer'}}>{t('superPages.deleteNo')}</button>
+                      <div style={{flex:1,fontSize:13,fontWeight:700,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>{t('superPages.deletePrompt')}</div>
+                      <button onClick={() => deletePage(p.id)} style={{padding:'7px 14px',borderRadius:6,border:'none',background:'var(--sap-red)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer'}}>{t('superPages.deleteYes')}</button>
+                      <button onClick={() => setConfirmDelete(null)} style={{padding:'7px 14px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-text-muted)',fontSize:13,fontWeight:700,cursor:'pointer'}}>{t('superPages.deleteNo')}</button>
                     </>
                   ) : (
                     <>
-                      <a href={`/pro/funnel/${p.id}/edit`} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:11,fontWeight:700,textDecoration:'none',background:'var(--sap-accent)',color:'#fff'}}><Pencil size={11}/> {t('superPages.editBtn2')}</a>
-                      {p.status === 'published' && p.slug && (<a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:11,fontWeight:700,textDecoration:'none',background:'var(--sap-bg-input)',color:'var(--sap-text-primary)',border:'1px solid #e8ecf2'}}><ExternalLink size={11}/> {t('superPages.viewBtn2')}</a>)}
+                      <a href={`/pro/funnel/${p.id}/edit`} style={{flex:1,display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:13,fontWeight:700,textDecoration:'none',background:'var(--sap-accent)',color:'#fff'}}><Pencil size={11}/> {t('superPages.editBtn2')}</a>
+                      {p.status === 'published' && p.slug && (<a href={`/p/${p.slug}`} target="_blank" rel="noopener noreferrer" style={{display:'flex',alignItems:'center',justifyContent:'center',gap:4,padding:'7px 10px',borderRadius:6,fontSize:13,fontWeight:700,textDecoration:'none',background:'var(--sap-bg-input)',color:'var(--sap-text-primary)',border:'1px solid #e8ecf2'}}><ExternalLink size={11}/> {t('superPages.viewBtn2')}</a>)}
                       <button onClick={() => duplicatePage(p.id)} title={t('superPages.duplicateTooltip')} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #e8ecf2',background:'var(--sap-bg-input)',cursor:'pointer'}}><Copy size={12} color="var(--sap-text-muted)"/></button>
                       <button onClick={() => setConfirmDelete(p.id)} title={t('superPages.deleteTooltip')} style={{display:'flex',alignItems:'center',justifyContent:'center',padding:'7px 8px',borderRadius:6,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer'}}><Trash2 size={12} color="var(--sap-red)"/></button>
                     </>
@@ -382,7 +382,7 @@ export default function Funnels() {
             <div style={{display:'flex',gap:8,marginBottom:20}}>
               {['professional', 'casual', 'urgent', 'inspirational'].map(tone => (
                 <button key={tone} onClick={() => setAiForm(p => ({...p, tone}))} style={{
-                  flex:1, padding:'8px 0', borderRadius:8, fontSize:11, fontWeight:700, cursor:'pointer', textTransform:'capitalize',
+                  flex:1, padding:'8px 0', borderRadius:8, fontSize:13, fontWeight:700, cursor:'pointer', textTransform:'capitalize',
                   border: aiForm.tone === tone ? '2px solid #0ea5e9' : '2px solid #e2e8f0',
                   background: aiForm.tone === tone ? 'rgba(14,165,233,.06)' : '#fff',
                   color: aiForm.tone === tone ? 'var(--sap-accent)' : 'var(--sap-text-muted)', fontFamily:'inherit',

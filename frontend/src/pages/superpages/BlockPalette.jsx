@@ -111,7 +111,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
       {/* Header */}
       <div style={{padding:'14px 16px',borderBottom:'1px solid #e8ecf2',flexShrink:0}}>
         <h3 style={{margin:0,fontFamily:'Sora,sans-serif',fontSize:13,fontWeight:800,color:'#0f172a'}}>{t('superPagesEditor.blocks')}</h3>
-        <p style={{margin:'2px 0 0',fontSize:10,color:'#64748b'}}>{t('superPagesEditor.clickOrDragToAdd')}</p>
+        <p style={{margin:'2px 0 0',fontSize:13,color:'#475569'}}>{t('superPagesEditor.clickOrDragToAdd')}</p>
       </div>
 
       {/* Background Controls — collapsible */}
@@ -120,15 +120,15 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
           <div style={{display:'flex',alignItems:'center',gap:8}}>
             <div style={{width:24,height:24,borderRadius:6,border:'1px solid #e2e8f0',flexShrink:0,background:canvasBgImage?`url(${canvasBgImage}) center/cover`:canvasBg||'#ffffff',boxShadow:'inset 0 0 0 1px rgba(255,255,255,0.5)'}}/>
             <div>
-              <div style={{fontSize:10,fontWeight:800,letterSpacing:0.5,textTransform:'uppercase',color:'#475569'}}>{t('superPagesEditor.pageBackground')}</div>
-              <div style={{fontSize:9,color:'#64748b',marginTop:1}}>
+              <div style={{fontSize:13,fontWeight:800,letterSpacing:0.5,textTransform:'uppercase',color:'#475569'}}>{t('superPagesEditor.pageBackground')}</div>
+              <div style={{fontSize:13,color:'#475569',marginTop:1}}>
                 {canvasBgImage ? t('superPagesEditor.bgImage', { defaultValue: 'Image' })
                   : canvasBg?.startsWith('linear') ? t('superPagesEditor.bgGradient', { defaultValue: 'Gradient' })
                   : canvasBg || t('superPagesEditor.bgSolid', { defaultValue: 'Solid' })}
               </div>
             </div>
           </div>
-          <span style={{fontSize:12,color:'#94a3b8',transition:'transform 0.2s',transform:bgOpen?'rotate(0)':'rotate(-90deg)'}}>▼</span>
+          <span style={{fontSize:12,color:'#7a8899',transition:'transform 0.2s',transform:bgOpen?'rotate(0)':'rotate(-90deg)'}}>▼</span>
         </div>
 
         {bgOpen && (
@@ -141,9 +141,9 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                 ['image', t('superPagesEditor.bgImage', { defaultValue: 'Image' })],
               ].map(([key,label]) => (
                 <button key={key} onClick={() => setBgType(key)} style={{
-                  flex:1,padding:'6px 0',border:bgType===key?'1px solid rgba(14,165,233,0.3)':'1px solid #e2e8f0',borderRadius:6,fontSize:9,fontWeight:700,letterSpacing:0.3,textTransform:'uppercase',cursor:'pointer',
+                  flex:1,padding:'6px 0',border:bgType===key?'1px solid rgba(14,165,233,0.3)':'1px solid #e2e8f0',borderRadius:6,fontSize:13,fontWeight:700,letterSpacing:0.3,textTransform:'uppercase',cursor:'pointer',
                   background:bgType===key?'rgba(14,165,233,0.08)':'#ffffff',
-                  color:bgType===key?'#0284c7':'#64748b',
+                  color:bgType===key?'#0284c7':'#475569',
                   transition:'all .15s',
                 }}>{label}</button>
               ))}
@@ -157,7 +157,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                     <input type="color" value={canvasBg?.startsWith('#')?canvasBg:'#ffffff'} onChange={e => applyBg(e.target.value)}
                       style={{position:'absolute',inset:-4,width:'calc(100% + 8px)',height:'calc(100% + 8px)',border:'none',cursor:'pointer',padding:0}}/>
                   </div>
-                  <div style={{fontSize:11,fontFamily:'monospace',color:'#475569'}}>{canvasBg?.startsWith('#')?canvasBg:'#ffffff'}</div>
+                  <div style={{fontSize:13,fontFamily:'monospace',color:'#475569'}}>{canvasBg?.startsWith('#')?canvasBg:'#ffffff'}</div>
                 </div>
                 <div style={{display:'flex',flexWrap:'wrap',gap:4}}>
                   {['#ffffff','#f8fafc','#f1f5f9','#e2e8f0','#0f172a','#132044','#1e293b','#0ea5e9','#6366f1','#8b5cf6','#16a34a','#f59e0b','#ec4899','#dc2626'].map(c => (
@@ -177,11 +177,11 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                 <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:8}}>
                   <input type="color" value={grad1.startsWith('#')?grad1:'#0ea5e9'} onChange={e => { setGrad1(e.target.value); applyGradient(e.target.value, grad2, gradDir); }}
                     style={{width:34,height:30,borderRadius:6,border:'1px solid #e2e8f0',cursor:'pointer',padding:0}}/>
-                  <span style={{fontSize:14,color:'#94a3b8'}}>→</span>
+                  <span style={{fontSize:14,color:'#7a8899'}}>→</span>
                   <input type="color" value={grad2.startsWith('#')?grad2:'#6366f1'} onChange={e => { setGrad2(e.target.value); applyGradient(grad1, e.target.value, gradDir); }}
                     style={{width:34,height:30,borderRadius:6,border:'1px solid #e2e8f0',cursor:'pointer',padding:0}}/>
                   <select value={gradDir} onChange={e => { setGradDir(e.target.value); applyGradient(grad1, grad2, e.target.value); }}
-                    style={{padding:'5px 8px',borderRadius:6,border:'1px solid #e2e8f0',fontSize:10,background:'#ffffff',color:'#475569',cursor:'pointer'}}>
+                    style={{padding:'5px 8px',borderRadius:6,border:'1px solid #e2e8f0',fontSize:13,background:'#ffffff',color:'#475569',cursor:'pointer'}}>
                     <option value="135deg">↘</option><option value="180deg">↓</option><option value="90deg">→</option><option value="45deg">↗</option>
                   </select>
                 </div>
@@ -201,7 +201,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
             {bgType === 'image' && (
               <div>
                 <label style={{display:'flex',alignItems:'center',justifyContent:'center',gap:6,padding:'12px',borderRadius:8,border:'1px dashed #cbd5e1',cursor:'pointer',background:'#f8fafc',marginBottom:8}}>
-                  <span style={{fontSize:11,color:'#475569',fontWeight:600}}>{t('superPagesEditor.uploadBgImage')}</span>
+                  <span style={{fontSize:13,color:'#475569',fontWeight:600}}>{t('superPagesEditor.uploadBgImage')}</span>
                   <input type="file" accept="image/*" style={{display:'none'}} onChange={async e => {
                     const f = e.target.files?.[0]; if (!f) return;
                     const fd = new FormData(); fd.append('file', f);
@@ -215,9 +215,9 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                 {canvasBgImage && (
                   <div style={{display:'flex',alignItems:'center',gap:6}}>
                     <div style={{width:40,height:28,borderRadius:4,background:`url(${canvasBgImage}) center/cover`,border:'1px solid #e2e8f0'}}/>
-                    <div style={{flex:1,fontSize:9,color:'#64748b',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{t('superPagesEditor.backgroundSet')}</div>
+                    <div style={{flex:1,fontSize:13,color:'#475569',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{t('superPagesEditor.backgroundSet')}</div>
                     <button onClick={() => { setCanvasBgImage(''); setBgImageUrl(''); markDirty(); }}
-                      style={{width:22,height:22,borderRadius:4,background:'rgba(220,38,38,0.08)',border:'1px solid rgba(220,38,38,0.25)',cursor:'pointer',fontSize:9,color:'#dc2626',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
+                      style={{width:22,height:22,borderRadius:4,background:'rgba(220,38,38,0.08)',border:'1px solid rgba(220,38,38,0.25)',cursor:'pointer',fontSize:13,color:'#dc2626',display:'flex',alignItems:'center',justifyContent:'center'}}>✕</button>
                   </div>
                 )}
               </div>
@@ -238,7 +238,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
               {/* Section head with coloured dot */}
               <div style={{display:'flex',alignItems:'center',gap:7,padding:'12px 4px 8px',...(ci===0?{paddingTop:4}:{})}}>
                 <span style={{width:8,height:8,borderRadius:'50%',background:catColor,flexShrink:0,boxShadow:`0 0 0 3px rgba(${catRgb},0.12)`}}/>
-                <span style={{fontSize:10,fontWeight:800,letterSpacing:1.4,textTransform:'uppercase',color:'#64748b'}}>
+                <span style={{fontSize:13,fontWeight:800,letterSpacing:1.4,textTransform:'uppercase',color:'#475569'}}>
                   {t('superPagesEditor.cat'+cat.label, { defaultValue: cat.label })}
                 </span>
               </div>
@@ -280,7 +280,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
                       }}>
                         <Icon size={18} strokeWidth={2.2}/>
                       </div>
-                      <span className="pal-label" style={{fontSize:9,fontWeight:700,letterSpacing:0.3,textTransform:'uppercase',color:'#334155',position:'relative',zIndex:2,transition:'color 0.22s'}}>{blockLabel(t, item)}</span>
+                      <span className="pal-label" style={{fontSize:13,fontWeight:700,letterSpacing:0.3,textTransform:'uppercase',color:'#334155',position:'relative',zIndex:2,transition:'color 0.22s'}}>{blockLabel(t, item)}</span>
                     </div>
                   );
                 })}
@@ -293,15 +293,15 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
       {/* AI Chat — light theme */}
       <div style={{borderTop:'1px solid #e8ecf2',flexShrink:0,background:'#ffffff',display:'flex',flexDirection:'column'}}>
         <div onClick={() => setChatOpen(!chatOpen)} style={{padding:'10px 14px',cursor:'pointer',userSelect:'none',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-          <span style={{fontSize:10,fontWeight:800,letterSpacing:0.7,textTransform:'uppercase',color:'#0284c7'}}>{t('superPagesEditor.aiAssistant')}</span>
-          <span style={{fontSize:12,color:'#94a3b8',transition:'transform 0.2s',transform:chatOpen?'rotate(0)':'rotate(180deg)'}}>▼</span>
+          <span style={{fontSize:13,fontWeight:800,letterSpacing:0.7,textTransform:'uppercase',color:'#0284c7'}}>{t('superPagesEditor.aiAssistant')}</span>
+          <span style={{fontSize:12,color:'#7a8899',transition:'transform 0.2s',transform:chatOpen?'rotate(0)':'rotate(180deg)'}}>▼</span>
         </div>
         {chatOpen && (
           <div style={{display:'flex',flexDirection:'column',maxHeight:220,overflow:'hidden'}}>
             <div ref={chatRef} style={{flex:1,overflowY:'auto',padding:'8px 12px',display:'flex',flexDirection:'column',gap:5,background:'#f8fafc',minHeight:0}}>
               {chatHistory.map((m,i) => (
                 <div key={i} style={{
-                  maxWidth:'88%',padding:'7px 11px',borderRadius:10,fontSize:11,lineHeight:1.5,wordWrap:'break-word',
+                  maxWidth:'88%',padding:'7px 11px',borderRadius:10,fontSize:13,lineHeight:1.5,wordWrap:'break-word',
                   ...(m.role==='user'
                     ? {background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',alignSelf:'flex-end',borderBottomRightRadius:2,boxShadow:'0 2px 6px rgba(14,165,233,0.25)'}
                     : {background:'#ffffff',color:'#334155',alignSelf:'flex-start',border:'1px solid #e2e8f0',borderBottomLeftRadius:2}),
@@ -312,7 +312,7 @@ export default function BlockPalette({ canvasBg, canvasBgImage, setCanvasBg, set
               <textarea value={chatMsg} onChange={e => setChatMsg(e.target.value)}
                 onKeyDown={e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChat()} }}
                 rows={1} placeholder={t("superPagesEditor.askAiPlaceholder")}
-                style={{flex:1,padding:'8px 11px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:11,fontFamily:'DM Sans,sans-serif',color:'#0f172a',resize:'none',background:'#ffffff',outline:'none'}}/>
+                style={{flex:1,padding:'8px 11px',border:'1px solid #e2e8f0',borderRadius:8,fontSize:13,fontFamily:'DM Sans,sans-serif',color:'#0f172a',resize:'none',background:'#ffffff',outline:'none'}}/>
               <button onClick={sendChat} disabled={chatSending}
                 style={{width:34,height:34,border:'none',borderRadius:8,background:'linear-gradient(135deg,#0ea5e9,#6366f1)',color:'#fff',fontSize:13,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,opacity:chatSending?0.5:1,boxShadow:'0 2px 6px rgba(14,165,233,0.3)'}}>
                 <Send size={14}/>

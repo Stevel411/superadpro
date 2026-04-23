@@ -234,7 +234,7 @@ export default function BannerCreator() {
         </Link>
         <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 20, color: '#fff' }}>{t('freeBanner.socialMediaCreator')}</span>
-          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-accent)', border: '1px solid rgba(14,165,233,0.4)', borderRadius: 20, padding: '4px 14px', letterSpacing: 1.5 }}>{t('freeBanner.free')}</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-accent)', border: '1px solid rgba(14,165,233,0.4)', borderRadius: 20, padding: '4px 14px', letterSpacing: 1.5 }}>{t('freeBanner.free')}</span>
         </div>
         <Link to="/register" style={{ background: 'var(--sap-accent)', color: '#fff', fontSize: 15, fontWeight: 600, padding: '10px 24px', borderRadius: 10, textDecoration: 'none', boxShadow: '0 2px 12px rgba(14,165,233,0.25)' }}>{t('freeBanner.getStartedFree')}</Link>
       </nav>
@@ -248,7 +248,7 @@ export default function BannerCreator() {
             <canvas ref={canvasRef} style={{ maxWidth: '100%', maxHeight: '100%', borderRadius: 8, display: 'block', boxShadow: '0 4px 24px rgba(0,0,0,0.3)' }} />
           </div>
 
-          <div style={{ textAlign: 'center', padding: '6px 0 0', fontSize: 11, color: '#7b8594' }}>
+          <div style={{ textAlign: 'center', padding: '6px 0 0', fontSize: 13, color: '#7b8594' }}>
             {platform.name} — {platform.w} × {platform.h}px
           </div>
 
@@ -260,8 +260,8 @@ export default function BannerCreator() {
           <div style={{ background: 'rgba(14,165,233,0.04)', border: '1px solid rgba(0,180,216,0.1)', borderRadius: 12, padding: '12px 16px', flexShrink: 0 }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 3 }}>{t('freeBanner.createStunningContent')}</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-              <span style={{ fontSize: 11, color: 'rgba(200,220,255,.35)', flex: 1 }}>{t("freeBanner.aiVideoMusicDesc")}</span>
-              <Link to="/register" style={{ background: 'var(--sap-accent)', color: '#fff', fontWeight: 700, fontSize: 11, padding: '7px 14px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap' }}>{t('freeBanner.learnMore')}</Link>
+              <span style={{ fontSize: 13, color: 'rgba(200,220,255,.35)', flex: 1 }}>{t("freeBanner.aiVideoMusicDesc")}</span>
+              <Link to="/register" style={{ background: 'var(--sap-accent)', color: '#fff', fontWeight: 700, fontSize: 13, padding: '7px 14px', borderRadius: 8, textDecoration: 'none', whiteSpace: 'nowrap' }}>{t('freeBanner.learnMore')}</Link>
             </div>
           </div>
         </div>
@@ -270,10 +270,10 @@ export default function BannerCreator() {
         <div style={{ display: 'flex', flexDirection: 'column', background: '#0a1220', overflow: 'auto', padding: '16px 18px 14px' }}>
 
           {/* Platform picker */}
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>{t('freeBanner.choosePlatform')}</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>{t('freeBanner.choosePlatform')}</div>
           <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
-            <button onClick={() => setCatFilter('banner')} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, fontWeight: catFilter === 'banner' ? 700 : 600, background: catFilter === 'banner' ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: catFilter === 'banner' ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: catFilter === 'banner' ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{t('freeBanner.bannersAndPosts')}</button>
-            <button onClick={() => setCatFilter('profile')} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, fontWeight: catFilter === 'profile' ? 700 : 600, background: catFilter === 'profile' ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: catFilter === 'profile' ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: catFilter === 'profile' ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{t('freeBanner.profilePictures')}</button>
+            <button onClick={() => setCatFilter('banner')} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 13, fontWeight: catFilter === 'banner' ? 700 : 600, background: catFilter === 'banner' ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: catFilter === 'banner' ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: catFilter === 'banner' ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{t('freeBanner.bannersAndPosts')}</button>
+            <button onClick={() => setCatFilter('profile')} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 13, fontWeight: catFilter === 'profile' ? 700 : 600, background: catFilter === 'profile' ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: catFilter === 'profile' ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: catFilter === 'profile' ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{t('freeBanner.profilePictures')}</button>
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginBottom: 14, maxHeight: 200, overflow: 'auto' }}>
@@ -286,18 +286,18 @@ export default function BannerCreator() {
                 }}>
                 <PlatformIcon icon={p.icon} size={24} />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: platform.id === p.id ? '#fff' : '#c5cad1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
-                  <div style={{ fontSize: 9, color: '#7b8594' }}>{p.w} × {p.h}</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: platform.id === p.id ? '#fff' : '#c5cad1', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{p.name}</div>
+                  <div style={{ fontSize: 13, color: '#7b8594' }}>{p.w} × {p.h}</div>
                 </div>
               </div>
             ))}
           </div>
 
           {/* Background */}
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>{t('freeBanner.background')}</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>{t('freeBanner.background')}</div>
           <div style={{ display: 'flex', gap: 6, marginBottom: 8 }}>
             {['gradient', 'solid', 'image'].map(m => (
-              <button key={m} onClick={() => setBgMode(m)} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 11, textTransform: 'capitalize', fontWeight: bgMode === m ? 700 : 600, background: bgMode === m ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: bgMode === m ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: bgMode === m ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{m}</button>
+              <button key={m} onClick={() => setBgMode(m)} style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif', fontSize: 13, textTransform: 'capitalize', fontWeight: bgMode === m ? 700 : 600, background: bgMode === m ? 'var(--sap-accent)' : 'var(--sap-navy-soft)', color: bgMode === m ? '#fff' : '#7b8594', borderWidth: 1, borderStyle: 'solid', borderColor: bgMode === m ? 'var(--sap-accent)' : 'var(--sap-navy-card)' }}>{m}</button>
             ))}
           </div>
 
@@ -326,27 +326,27 @@ export default function BannerCreator() {
           )}
 
           {/* Main text */}
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>{t('freeBanner.mainText')}</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>{t('freeBanner.mainText')}</div>
           <input type="text" value={mainText} onChange={e => setMainText(e.target.value)} placeholder={t("freeBanner.headlinePlaceholder")} style={{ ...inp, marginBottom: 8 }}
             onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 10 }}>
             <div>
-              <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Size <span style={{ color: '#fff', fontWeight: 700 }}>{mainSize}</span></div>
+              <div style={{ fontSize: 13, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Size <span style={{ color: '#fff', fontWeight: 700 }}>{mainSize}</span></div>
               <input type="range" min="16" max="80" value={mainSize} onChange={e => setMainSize(+e.target.value)} style={{ width: '100%', accentColor: 'var(--sap-accent)' }} />
             </div>
             <div>
-              <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>{t('freeBanner.colour')}</div>
+              <div style={{ fontSize: 13, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>{t('freeBanner.colour')}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 8 }}>
                 <input type="color" value={mainColor} onChange={e => setMainColor(e.target.value)} style={{ width: 20, height: 20, border: 'none', borderRadius: 4, cursor: 'pointer', padding: 0, background: 'none' }} />
-                <span style={{ fontSize: 10, color: '#c5cad1' }}>{mainColor}</span>
+                <span style={{ fontSize: 13, color: '#c5cad1' }}>{mainColor}</span>
               </div>
             </div>
           </div>
 
           {/* Font */}
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>{t('freeBanner.fontLabel')}</div>
+            <div style={{ fontSize: 13, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>{t('freeBanner.fontLabel')}</div>
             <select value={mainFont.id} onChange={e => setMainFont(FONTS.find(f => f.id === e.target.value))}
               style={{ width: '100%', padding: '9px 30px 9px 12px', borderRadius: 10, border: '1px solid #2a3040', background: 'var(--sap-navy-soft)', color: '#fff', fontSize: 12, fontFamily: '"DM Sans",sans-serif', cursor: 'pointer', appearance: 'none', WebkitAppearance: 'none', backgroundImage: chevron, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 10px center', outline: 'none' }}>
               {FONTS.map(f => <option key={f.id} value={f.id}>{f.name}</option>)}
@@ -354,28 +354,28 @@ export default function BannerCreator() {
           </div>
 
           {/* Subtitle */}
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>{t('freeBanner.subtitleLabel')}</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>{t('freeBanner.subtitleLabel')}</div>
           <input type="text" value={subText} onChange={e => setSubText(e.target.value)} placeholder={t("freeBanner.subtitlePlaceholder")} style={{ ...inp, marginBottom: 8 }}
             onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 12 }}>
             <div>
-              <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Size <span style={{ color: '#fff', fontWeight: 700 }}>{subSize}</span></div>
+              <div style={{ fontSize: 13, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>Size <span style={{ color: '#fff', fontWeight: 700 }}>{subSize}</span></div>
               <input type="range" min="8" max="48" value={subSize} onChange={e => setSubSize(+e.target.value)} style={{ width: '100%', accentColor: 'var(--sap-accent)' }} />
             </div>
             <div>
-              <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>{t('freeBanner.colour')}</div>
+              <div style={{ fontSize: 13, color: '#7b8594', marginBottom: 3, fontWeight: 600 }}>{t('freeBanner.colour')}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 8px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 8 }}>
                 <input type="color" value={subColor} onChange={e => setSubColor(e.target.value)} style={{ width: 20, height: 20, border: 'none', borderRadius: 4, cursor: 'pointer', padding: 0, background: 'none' }} />
-                <span style={{ fontSize: 10, color: '#c5cad1' }}>{subColor}</span>
+                <span style={{ fontSize: 13, color: '#c5cad1' }}>{subColor}</span>
               </div>
             </div>
           </div>
 
           {/* Bottom CTA */}
           <div style={{ padding: '8px 14px', background: 'rgba(14,165,233,0.03)', borderTop: '1px solid rgba(0,180,216,0.06)', borderRadius: 8, display: 'flex', alignItems: 'center', gap: 8, marginTop: 'auto' }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#fff', flex: 1 }}>{t('freeBanner.earnCta')}</span>
-            <Link to="/earn" style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('freeBanner.seeHow')}</Link>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#fff', flex: 1 }}>{t('freeBanner.earnCta')}</span>
+            <Link to="/earn" style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('freeBanner.seeHow')}</Link>
           </div>
         </div>
       </div>

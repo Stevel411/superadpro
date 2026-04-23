@@ -104,7 +104,7 @@ export default function CreateCampaign() {
               <card.Icon size={20} color="#fff"/>
             </div>
             <div style={{ fontFamily:"'Sora',sans-serif", fontSize:14, fontWeight:800, color:'#0f172a', marginBottom:4 }}>{card.title}</div>
-            <div style={{ fontSize:13, color:'#64748b', lineHeight:1.6 }}>{card.desc}</div>
+            <div style={{ fontSize:13, color:'#475569', lineHeight:1.6 }}>{card.desc}</div>
           </div>;
         })}
       </div>
@@ -126,10 +126,10 @@ export default function CreateCampaign() {
           <div style={{ marginTop:16, borderRadius:14, overflow:'hidden', border:'1px solid #e2e8f0' }}>
             <iframe src={preview.embed} style={{ width:'100%', height:360, border:'none', background:'#000' }} allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen title={t('createCampaign.previewLabel')}/>
             <div style={{ padding:'10px 16px', background:'#f8fafc', display:'flex', alignItems:'center', gap:8, borderTop:'1px solid #e2e8f0' }}>
-              <span style={{ padding:'3px 10px', borderRadius:6, fontSize:10, fontWeight:800, textTransform:'uppercase',
+              <span style={{ padding:'3px 10px', borderRadius:6, fontSize:13, fontWeight:800, textTransform:'uppercase',
                 background:preview.platform==='youtube'?'rgba(239,68,68,0.08)':'rgba(14,165,233,0.08)',
                 color:preview.platform==='youtube'?'#ef4444':'#0ea5e9' }}>{preview.platform}</span>
-              <span style={{ fontSize:12, color:'#94a3b8' }}>ID: {preview.id}</span>
+              <span style={{ fontSize:12, color:'#7a8899' }}>ID: {preview.id}</span>
             </div>
           </div>
         )}
@@ -160,7 +160,7 @@ export default function CreateCampaign() {
         <input style={inputStyle} value={ctaUrl} onChange={function(e){setCtaUrl(e.target.value);}}
           placeholder={t("createCampaign.ctaUrlPlaceholder", { defaultValue: 'https://your-website.com' })} maxLength={500} type="url"
           onFocus={function(e){e.target.style.borderColor='#0ea5e9';}} onBlur={function(e){e.target.style.borderColor='#e2e8f0';}}/>
-        <div style={{ fontSize:11, color:'#64748b', marginTop:6, lineHeight:1.4 }}>
+        <div style={{ fontSize:13, color:'#475569', marginTop:6, lineHeight:1.4 }}>
           {t('createCampaign.ctaUrlHelp', { defaultValue: 'Optional. If set, a "Visit Website" button appears below your video once members have watched the full 30 seconds.' })}
         </div>
 
@@ -173,10 +173,10 @@ export default function CreateCampaign() {
         <div style={{ display:'flex', alignItems:'center', gap:16, marginTop:24 }}>
           <button onClick={handleSubmit} disabled={submitting}
             style={{ padding:'14px 36px', borderRadius:12, fontFamily:"'Sora',sans-serif", fontSize:15, fontWeight:800, border:'none', cursor:submitting?'not-allowed':'pointer',
-              background:submitting?'#94a3b8':'linear-gradient(135deg,#0ea5e9,#3b82f6)', color:'#fff', opacity:submitting?0.6:1, transition:'all 0.2s' }}>
+              background:submitting?'#7a8899':'linear-gradient(135deg,#0ea5e9,#3b82f6)', color:'#fff', opacity:submitting?0.6:1, transition:'all 0.2s' }}>
             {submitting ? t('createCampaign.creating') : t('createCampaign.launchCampaign')}
           </button>
-          <div style={{ fontSize:13, color:'#94a3b8' }}>{t('createCampaign.tierNote')}</div>
+          <div style={{ fontSize:13, color:'#7a8899' }}>{t('createCampaign.tierNote')}</div>
         </div>
       </div>
 

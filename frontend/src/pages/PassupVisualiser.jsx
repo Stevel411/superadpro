@@ -389,7 +389,7 @@ function PassUpSection() {
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
           <div style={{background:'var(--sap-cobalt-deep)',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div>
-              <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-purple-light)'}}>{t('visualiser.infinitePassUp')}</div>
+              <div style={{fontSize:13,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-purple-light)'}}>{t('visualiser.infinitePassUp')}</div>
               <div style={{fontSize:15,fontWeight:800,color:'#fff'}}>${tier} {tier===100?'Starter':tier===300?'Advanced':'Elite'} Tier</div>
             </div>
             <div style={{display:'flex',gap:6}}>
@@ -484,7 +484,7 @@ function PassUpSection() {
               {label:'Pass-Up',bg:'var(--sap-amber-bg)',border:'var(--sap-amber)'},
             ].map(function(l, i) {
               return (
-                <div key={i} style={{display:'flex',alignItems:'center',gap:5,fontSize:11,color:'var(--sap-text-muted)'}}>
+                <div key={i} style={{display:'flex',alignItems:'center',gap:5,fontSize:13,color:'var(--sap-text-muted)'}}>
                   <div style={{width:12,height:12,borderRadius:3,background:l.bg,border:'1.5px solid '+l.border,flexShrink:0}}/>
                   {l.label}
                 </div>
@@ -500,24 +500,24 @@ function PassUpSection() {
         {/* RIGHT — Stats */}
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
           <div style={{background:'linear-gradient(135deg,#4c1d95,#7c3aed)',borderRadius:14,padding:20,textAlign:'center',color:'#fff'}}>
-            <div style={{fontSize:10,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.5)',marginBottom:4}}>{t('visualiser.yourTotalThisRound')}</div>
+            <div style={{fontSize:13,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'rgba(255,255,255,.5)',marginBottom:4}}>{t('visualiser.yourTotalThisRound')}</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:36,fontWeight:800}}>${totalAmt.toLocaleString()}</div>
             <div style={{fontSize:12,color:'rgba(255,255,255,.5)',marginTop:4}}>{st.kept} kept · {st.passups} pass-ups received</div>
           </div>
 
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16}}>
-            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-purple)',marginBottom:10}}>{t('visualiser.liveEarnings')}</div>
+            <div style={{fontSize:13,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-purple)',marginBottom:10}}>{t('visualiser.liveEarnings')}</div>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0',borderBottom:'1px solid #f5f6f8'}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
                 <div style={{width:8,height:8,borderRadius:4,background:'var(--sap-green-mid)'}}/>
-                <div><div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)'}}>{t('visualiser.directSalesKept')}</div><div style={{fontSize:10,color:'var(--sap-text-muted)'}}>{t('visualiser.yourSales')}</div></div>
+                <div><div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)'}}>{t('visualiser.directSalesKept')}</div><div style={{fontSize:13,color:'var(--sap-text-muted)'}}>{t('visualiser.yourSales')}</div></div>
               </div>
               <div style={{fontSize:18,fontWeight:800,color:'var(--sap-green-mid)'}}>${st.keptAmt.toLocaleString()}</div>
             </div>
             <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',padding:'8px 0'}}>
               <div style={{display:'flex',alignItems:'center',gap:8}}>
                 <div style={{width:8,height:8,borderRadius:4,background:'var(--sap-amber)'}}/>
-                <div><div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)'}}>{t('visualiser.passUpsReceived')}</div><div style={{fontSize:10,color:'var(--sap-text-muted)'}}>{t('visualiser.teamSalesFull')}</div></div>
+                <div><div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)'}}>{t('visualiser.passUpsReceived')}</div><div style={{fontSize:13,color:'var(--sap-text-muted)'}}>{t('visualiser.teamSalesFull')}</div></div>
               </div>
               <div style={{fontSize:18,fontWeight:800,color:'var(--sap-amber)'}}>${st.passupAmt.toLocaleString()}</div>
             </div>
@@ -525,25 +525,25 @@ function PassUpSection() {
 
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
-              <div style={{fontSize:9,fontWeight:700,color:'var(--sap-text-muted)',letterSpacing:1}}>{t('visualiser.directSales')}</div>
+              <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',letterSpacing:1}}>{t('visualiser.directSales')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'var(--sap-green-mid)'}}>{st.kept}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
-              <div style={{fontSize:9,fontWeight:700,color:'var(--sap-text-muted)',letterSpacing:1}}>{t('visualiser.passUps')}</div>
+              <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',letterSpacing:1}}>{t('visualiser.passUps')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'var(--sap-amber)'}}>{st.passups}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
-              <div style={{fontSize:9,fontWeight:700,color:'var(--sap-text-muted)',letterSpacing:1}}>{t('visualiser.teamSales')}</div>
+              <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',letterSpacing:1}}>{t('visualiser.teamSales')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:'var(--sap-accent)'}}>{st.totalSales}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
-              <div style={{fontSize:9,fontWeight:700,color:'var(--sap-text-muted)',letterSpacing:1}}>{t('visualiser.tier')}</div>
+              <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',letterSpacing:1}}>{t('visualiser.tier')}</div>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'var(--sap-purple)'}}>${tier}</div>
             </div>
           </div>
 
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16}}>
-            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-purple)',marginBottom:10}}>{t('visualiser.fourPassUpRoutes')}</div>
+            <div style={{fontSize:13,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-purple)',marginBottom:10}}>{t('visualiser.fourPassUpRoutes')}</div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:6}}>
               {[
                 {n:'1',title:'Keep',desc:'Sales 1,3,5,7,9+',color:'var(--sap-green-mid)'},
@@ -553,9 +553,9 @@ function PassUpSection() {
               ].map(function(s, i) {
                 return (
                   <div key={i} style={{padding:10,background:'var(--sap-bg-input)',borderRadius:8,border:'1px solid #e8ecf2',textAlign:'center'}}>
-                    <div style={{width:22,height:22,borderRadius:'50%',background:s.color+'15',color:s.color,fontSize:11,fontWeight:800,display:'inline-flex',alignItems:'center',justifyContent:'center',marginBottom:4}}>{s.n}</div>
-                    <div style={{fontSize:11,fontWeight:800,color:'var(--sap-text-primary)'}}>{s.title}</div>
-                    <div style={{fontSize:9,color:'var(--sap-text-muted)',lineHeight:1.4}}>{s.desc}</div>
+                    <div style={{width:22,height:22,borderRadius:'50%',background:s.color+'15',color:s.color,fontSize:13,fontWeight:800,display:'inline-flex',alignItems:'center',justifyContent:'center',marginBottom:4}}>{s.n}</div>
+                    <div style={{fontSize:13,fontWeight:800,color:'var(--sap-text-primary)'}}>{s.title}</div>
+                    <div style={{fontSize:13,color:'var(--sap-text-muted)',lineHeight:1.4}}>{s.desc}</div>
                   </div>
                 );
               })}
@@ -563,16 +563,16 @@ function PassUpSection() {
           </div>
 
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16,flex:1,minHeight:180}}>
-            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-purple)',marginBottom:10}}>{t('visualiser.activityLog')}</div>
+            <div style={{fontSize:13,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-purple)',marginBottom:10}}>{t('visualiser.activityLog')}</div>
             <div style={{display:'flex',flexDirection:'column',gap:4,maxHeight:300,overflowY:'auto'}}>
-              {log.length === 0 && <div style={{fontSize:11,color:'var(--sap-text-muted)'}}>{t('visualiser.pressPlayToWatch')}</div>}
+              {log.length === 0 && <div style={{fontSize:13,color:'var(--sap-text-muted)'}}>{t('visualiser.pressPlayToWatch')}</div>}
               {log.map(function(l, i) {
                 return (
                   <div key={i} style={{display:'flex',alignItems:'center',justifyContent:'space-between',padding:'5px 0',borderBottom:'1px solid #f5f6f8',fontSize:12}}>
                     <div style={{display:'flex',alignItems:'center',gap:6,minWidth:0,overflow:'hidden'}}>
                       <span style={{fontWeight:700,color:'var(--sap-text-primary)',minWidth:36,flexShrink:0}}>{l.who}</span>
-                      <span style={{color:'var(--sap-text-muted)',fontSize:10,flexShrink:0}}>#{l.sale}</span>
-                      <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:3,whiteSpace:'nowrap',flexShrink:0,
+                      <span style={{color:'var(--sap-text-muted)',fontSize:13,flexShrink:0}}>#{l.sale}</span>
+                      <span style={{fontSize:13,fontWeight:700,padding:'2px 6px',borderRadius:3,whiteSpace:'nowrap',flexShrink:0,
                         color:l.type==='kept'?'var(--sap-green-mid)':'var(--sap-amber)',
                         background:l.type==='kept'?'rgba(16,185,129,.06)':'rgba(245,158,11,.06)',
                         border:'1px solid '+(l.type==='kept'?'rgba(16,185,129,.2)':'rgba(245,158,11,.2)')}}>{l.action}</span>
@@ -584,7 +584,7 @@ function PassUpSection() {
             </div>
           </div>
 
-          <div style={{padding:'10px 12px',background:'#fffbeb',borderRadius:8,border:'1px solid #fef3c7',fontSize:10,color:'#92400e',lineHeight:1.5}}>
+          <div style={{padding:'10px 12px',background:'#fffbeb',borderRadius:8,border:'1px solid #fef3c7',fontSize:13,color:'#92400e',lineHeight:1.5}}>
             <strong>{t('visualiser.disclaimer')}</strong> Simulation for educational purposes only. Actual earnings depend on personal activity and network performance. Income is not guaranteed.
           </div>
         </div>
@@ -749,17 +749,17 @@ function GridVisSection() {
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',boxShadow:'0 4px 20px rgba(0,0,0,.06)'}}>
           <div style={{background:'var(--sap-cobalt-deep)',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
             <div>
-              <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-accent-light)'}}>{t('visualiser.profitEngine')}</div>
+              <div style={{fontSize:13,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-accent-light)'}}>{t('visualiser.profitEngine')}</div>
               <div style={{fontSize:15,fontWeight:800,color:'#fff'}}>${PRICE} {tier.name} Grid</div>
             </div>
             <div style={{display:'flex',gap:6,alignItems:'center'}}>
-              <div style={{display:'flex',alignItems:'center',gap:4,fontSize:9,color:'var(--sap-text-muted)',letterSpacing:1,background:'rgba(255,255,255,.08)',padding:'5px 10px',borderRadius:6}}>
+              <div style={{display:'flex',alignItems:'center',gap:4,fontSize:13,color:'var(--sap-text-muted)',letterSpacing:1,background:'rgba(255,255,255,.08)',padding:'5px 10px',borderRadius:6}}>
                 <span style={{color:'#fff',fontWeight:700}}>{t('visualiser.directs')}</span>
                 <input type="number" min={1} max={30} value={numDirects}
                   onChange={function(e) { var v = parseInt(e.target.value); if (v >= 1 && v <= 30) setNumDirects(v); }}
                   style={{width:38,padding:'3px 4px',borderRadius:4,border:'1px solid rgba(255,255,255,.2)',background:'rgba(255,255,255,.1)',color:'#fff',fontSize:12,fontWeight:800,fontFamily:'inherit',textAlign:'center'}}/>
               </div>
-              <div style={{display:'flex',alignItems:'center',gap:4,fontSize:9,color:'var(--sap-text-muted)',letterSpacing:1}}>
+              <div style={{display:'flex',alignItems:'center',gap:4,fontSize:13,color:'var(--sap-text-muted)',letterSpacing:1}}>
                 <span>{t('visualiser.speed')}</span>
                 <input type="range" min={1} max={5} value={speed} onChange={function(e) { setSpeed(parseInt(e.target.value)); }}
                   style={{width:50,accentColor:'var(--sap-accent)',cursor:'pointer'}}/>
@@ -840,7 +840,7 @@ function GridVisSection() {
                 {label:'Level 5+',color:DEPTH_COLORS[4]},
               ].map(function(l, i) {
                 return (
-                  <div key={i} style={{display:'flex',alignItems:'center',gap:5,fontSize:11,fontWeight:600,color:'var(--sap-text-muted)'}}>
+                  <div key={i} style={{display:'flex',alignItems:'center',gap:5,fontSize:13,fontWeight:600,color:'var(--sap-text-muted)'}}>
                     <div style={{width:10,height:10,borderRadius:3,background:l.color,flexShrink:0}}/>{l.label}
                   </div>
                 );
@@ -853,21 +853,21 @@ function GridVisSection() {
         <div style={{display:'flex',flexDirection:'column',gap:12}}>
           {/* Total hero */}
           <div style={{background:'linear-gradient(135deg,#0b1729,#132240)',borderRadius:14,padding:20,textAlign:'center',color:'#fff'}}>
-            <div style={{fontSize:9,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'rgba(56,189,248,.5)',marginBottom:4}}>{t('visualiser.yourTotalEarnings')}</div>
+            <div style={{fontSize:13,fontWeight:700,letterSpacing:2,textTransform:'uppercase',color:'rgba(56,189,248,.5)',marginBottom:4}}>{t('visualiser.yourTotalEarnings')}</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:34,fontWeight:800}}>${Math.round(totalEarned).toLocaleString()}</div>
-            <div style={{fontSize:11,color:'rgba(200,220,255,.35)',marginTop:4}}>Per grid completion · {tier.name} tier</div>
+            <div style={{fontSize:13,color:'rgba(200,220,255,.35)',marginTop:4}}>Per grid completion · {tier.name} tier</div>
           </div>
 
           {/* Commission split bar */}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16}}>
-            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-accent)',marginBottom:8}}>Per Seat — ${PRICE}</div>
+            <div style={{fontSize:13,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-accent)',marginBottom:8}}>Per Seat — ${PRICE}</div>
             <div style={{height:8,borderRadius:4,overflow:'hidden',display:'flex',gap:2,marginBottom:8}}>
               <div style={{flex:40,background:'var(--sap-accent)',borderRadius:3}}/>
               <div style={{flex:50,background:'var(--sap-indigo)',borderRadius:3}}/>
               <div style={{flex:5,background:'var(--sap-amber)',borderRadius:3}}/>
               <div style={{flex:5,background:'var(--sap-green-mid)',borderRadius:3}}/>
             </div>
-            <div style={{display:'flex',justifyContent:'space-between',fontSize:11}}>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:13}}>
               <span style={{color:'var(--sap-accent)',fontWeight:700}}>{t('visualiser.sponsorSplit')}</span>
               <span style={{color:'var(--sap-indigo)',fontWeight:700}}>{t('visualiser.uniLevelSplit')}</span>
               <span style={{color:'var(--sap-amber)',fontWeight:600}}>5%</span>
@@ -879,25 +879,25 @@ function GridVisSection() {
           <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-accent)'}}>{st.direct}</div>
-              <div style={{fontSize:9,fontWeight:700,color:'var(--sap-text-muted)',letterSpacing:.5}}>{t('visualiser.directFills')}</div>
+              <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',letterSpacing:.5}}>{t('visualiser.directFills')}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-green-bright)'}}>{st.network}</div>
-              <div style={{fontSize:9,fontWeight:700,color:'var(--sap-text-muted)',letterSpacing:.5}}>{t('visualiser.networkFills')}</div>
+              <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',letterSpacing:.5}}>{t('visualiser.networkFills')}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-indigo)'}}>${Math.round(st.earned)}</div>
-              <div style={{fontSize:9,fontWeight:700,color:'var(--sap-text-muted)',letterSpacing:.5}}>{t('visualiser.uniLevel')}</div>
+              <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',letterSpacing:.5}}>{t('visualiser.uniLevel')}</div>
             </div>
             <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:10,padding:12,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-green-mid)'}}>${Math.round(st.bonus)}</div>
-              <div style={{fontSize:9,fontWeight:700,color:'var(--sap-text-muted)',letterSpacing:.5}}>{t('visualiser.bonus')}</div>
+              <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',letterSpacing:.5}}>{t('visualiser.bonus')}</div>
             </div>
           </div>
 
           {/* Earnings breakdown */}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16}}>
-            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-accent)',marginBottom:10}}>{t('visualiser.earningsBreakdown')}</div>
+            <div style={{fontSize:13,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-accent)',marginBottom:10}}>{t('visualiser.earningsBreakdown')}</div>
             {[
               {label:'Direct Sponsor (40%)',val:'$'+Math.round(st.directAmt),color:'var(--sap-accent)'},
               {label:'Uni-Level (6.25% × '+filled+')',val:'$'+Math.round(st.earned),color:'var(--sap-indigo)'},
@@ -914,9 +914,9 @@ function GridVisSection() {
 
           {/* Live commission log */}
           <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:16,flex:1,minHeight:180}}>
-            <div style={{fontSize:10,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-accent)',marginBottom:10}}>{t('visualiser.liveCommissionFeed')}</div>
+            <div style={{fontSize:13,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-accent)',marginBottom:10}}>{t('visualiser.liveCommissionFeed')}</div>
             <div style={{display:'flex',flexDirection:'column',gap:4,maxHeight:280,overflowY:'auto'}}>
-              {logs.length === 0 && <div style={{fontSize:11,color:'var(--sap-text-muted)',textAlign:'center',padding:12}}>{t('visualiser.pressSimulateToStart')}</div>}
+              {logs.length === 0 && <div style={{fontSize:13,color:'var(--sap-text-muted)',textAlign:'center',padding:12}}>{t('visualiser.pressSimulateToStart')}</div>}
               {logs.map(function(l, i) {
                 var color = DEPTH_COLORS[l.depth - 1];
                 return (
@@ -924,8 +924,8 @@ function GridVisSection() {
                     <div style={{display:'flex',alignItems:'center',gap:6}}>
                       <span style={{display:'inline-block',width:8,height:8,borderRadius:3,background:color,flexShrink:0}}/>
                       <span style={{fontWeight:700,color:'var(--sap-text-primary)'}}>{l.name}</span>
-                      <span style={{fontSize:10,color:'var(--sap-text-muted)'}}>#{l.seat}</span>
-                      <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:3,color:color,
+                      <span style={{fontSize:13,color:'var(--sap-text-muted)'}}>#{l.seat}</span>
+                      <span style={{fontSize:13,fontWeight:700,padding:'2px 6px',borderRadius:3,color:color,
                         background:color+'12',border:'1px solid '+color+'25'}}>
                         {l.isDirect?'DIRECT':'L'+l.depth}
                       </span>
@@ -942,11 +942,11 @@ function GridVisSection() {
             <div style={{textAlign:'center',padding:16,background:'linear-gradient(135deg,rgba(74,222,128,.08),rgba(14,165,233,.08))',borderRadius:12,border:'1px solid rgba(74,222,128,.15)'}}>
               <div style={{fontSize:16,fontWeight:800,color:'#4ade80',marginBottom:6}}>{t('visualiser.gridComplete')}</div>
               <div style={{fontSize:12,color:'var(--sap-text-muted)'}}>64 seats filled. Total earned: <strong style={{color:'var(--sap-accent)'}}>${Math.round(totalEarned).toLocaleString()}</strong></div>
-              <div style={{fontSize:11,color:'var(--sap-text-muted)',marginTop:4}}>{t('visualiser.gridAdvancesBody')}</div>
+              <div style={{fontSize:13,color:'var(--sap-text-muted)',marginTop:4}}>{t('visualiser.gridAdvancesBody')}</div>
             </div>
           )}
 
-          <div style={{padding:'10px 12px',background:'#fffbeb',borderRadius:8,border:'1px solid #fef3c7',fontSize:10,color:'#92400e',lineHeight:1.5}}>
+          <div style={{padding:'10px 12px',background:'#fffbeb',borderRadius:8,border:'1px solid #fef3c7',fontSize:13,color:'#92400e',lineHeight:1.5}}>
             <strong>{t('visualiser.note')}</strong> Adjust the DIRECTS control to set how many of the 64 seats are your personal referrals. Direct referrals earn you 40% sponsor commission on top of the 6.25% uni-level. Income is not guaranteed.
           </div>
         </div>

@@ -92,7 +92,7 @@ export default function ResetPassword() {
                     <div style={{ flex: 1, height: 3, borderRadius: 2, background: 'rgba(255,255,255,.1)', overflow: 'hidden' }}>
                       <div style={{ width: `${strength * 25}%`, height: '100%', background: strengthColor[strength], borderRadius: 2, transition: 'width .3s' }} />
                     </div>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: strengthColor[strength] }}>{strengthLabel[strength]}</span>
+                    <span style={{ fontSize: 13, fontWeight: 700, color: strengthColor[strength] }}>{strengthLabel[strength]}</span>
                   </div>
                 )}
               </div>

@@ -19,7 +19,7 @@ export default function PublicIncomeDisclosure() {
           position: 'relative', overflow: 'hidden',
         }}>
           <div style={{ position: 'absolute', top: -60, right: -60, width: 220, height: 220, borderRadius: '50%', background: 'rgba(14,165,233,0.06)', pointerEvents: 'none' }}/>
-          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, letterSpacing: '.2em', textTransform: 'uppercase', color: 'rgba(200,220,255,0.5)', marginBottom: 12 }}>
+          <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 13, letterSpacing: '.2em', textTransform: 'uppercase', color: 'rgba(200,220,255,0.5)', marginBottom: 12 }}>
             {t('incomeDisclaimer.legal', { defaultValue: 'LEGAL' })}
           </div>
           <h1 style={{ fontFamily: "'Sora', sans-serif", fontSize: 34, fontWeight: 900, color: '#fff', margin: '0 0 10px', lineHeight: 1.15 }}>

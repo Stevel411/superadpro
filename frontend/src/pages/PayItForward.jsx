@@ -248,7 +248,7 @@ export default function PayItForward() {
                 </div>
                 {!isClaimed && (
                   <button onClick={function() { copyLink(v.link); }}
-                    style={{ padding:'6px 12px', borderRadius:6, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', display:'flex', alignItems:'center', gap:4 }}>
+                    style={{ padding:'6px 12px', borderRadius:6, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:700, color:'var(--sap-text-muted)', display:'flex', alignItems:'center', gap:4 }}>
                     {copied === v.link ? <><Check size={12}/> {t('payItForward.copiedLabel')}</> : <><Copy size={12}/> {t('payItForward.copyLinkBtn')}</>}
                   </button>
                 )}

@@ -145,7 +145,7 @@ export default function Wallet() {
           <Card title={t("wallet.affiliateWallet")} dotColor="var(--sap-green)">
             <div style={{ padding:'10px 14px', background:'var(--sap-green-bg)', border:'1px solid #bbf7d0', borderRadius:10, marginBottom:14 }}>
               <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-green-dark)', marginBottom:2 }}>{t('wallet.alwaysWithdrawable')}</div>
-              <div style={{ fontSize:11, color:'var(--sap-text-secondary)', lineHeight:1.6 }}>{t('wallet.affiliateWalletDesc')}</div>
+              <div style={{ fontSize:13, color:'var(--sap-text-secondary)', lineHeight:1.6 }}>{t('wallet.affiliateWalletDesc')}</div>
             </div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'var(--sap-green)', textAlign:'center', marginBottom:14 }}>${formatMoney(d.balance)}</div>
             {d.wallet_address ? (
@@ -162,7 +162,7 @@ export default function Wallet() {
                     </div>
                   )}
                   <button onClick={() => handleWithdraw('affiliate')} disabled={withdrawing} style={{...btnPrimary, opacity: withdrawing ? 0.6 : 1}}>{withdrawing ? 'Processing...' : t('wallet.withdrawAffiliate')}</button>
-                  <div style={{ fontSize:11, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('wallet.affiliateFeeNote')}</div>
+                  <div style={{ fontSize:13, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('wallet.affiliateFeeNote')}</div>
                   {withdrawResult && <div style={{ padding:'11px 14px', borderRadius:8, fontSize:14, fontWeight:600, ...(withdrawResult.type==='success'?{background:'var(--sap-green-bg)',border:'1px solid #86efac',color:'#15803d'}:{background:'var(--sap-red-bg)',border:'1px solid #fecaca',color:'var(--sap-red)'}) }}>{withdrawResult.msg}</div>}
                 </div>
               ) : (
@@ -180,7 +180,7 @@ export default function Wallet() {
           <Card title={t("wallet.campaignWallet")} dotColor="var(--sap-indigo)">
             <div style={{ padding:'10px 14px', background:'#eef2ff', border:'1px solid #c7d2fe', borderRadius:10, marginBottom:14 }}>
               <div style={{ fontSize:13, fontWeight:700, color:'#4338ca', marginBottom:2 }}>{t('wallet.requiresActiveTier')}</div>
-              <div style={{ fontSize:11, color:'var(--sap-text-secondary)', lineHeight:1.6 }}>{t('wallet.campaignWalletDesc')}</div>
+              <div style={{ fontSize:13, color:'var(--sap-text-secondary)', lineHeight:1.6 }}>{t('wallet.campaignWalletDesc')}</div>
             </div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'var(--sap-indigo)', textAlign:'center', marginBottom:14 }}>${formatMoney(d.campaign_balance || 0)}</div>
             {d.wallet_address ? (
@@ -197,7 +197,7 @@ export default function Wallet() {
                     </div>
                   )}
                   <button onClick={() => handleWithdraw('campaign')} disabled={withdrawing} style={{...btnPrimary, background:'linear-gradient(135deg,#6366f1,#818cf8)', opacity: withdrawing ? 0.6 : 1}}>{withdrawing ? 'Processing...' : t('wallet.withdrawCampaign')}</button>
-                  <div style={{ fontSize:11, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('wallet.campaignFeeNote')}</div>
+                  <div style={{ fontSize:13, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('wallet.campaignFeeNote')}</div>
                   {withdrawResult && <div style={{ padding:'11px 14px', borderRadius:8, fontSize:14, fontWeight:600, ...(withdrawResult.type==='success'?{background:'var(--sap-green-bg)',border:'1px solid #86efac',color:'#15803d'}:{background:'var(--sap-red-bg)',border:'1px solid #fecaca',color:'var(--sap-red)'}) }}>{withdrawResult.msg}</div>}
                 </div>
               ) : (
@@ -261,7 +261,7 @@ export default function Wallet() {
                       <tr key={i}>
                         <td style={{ ...tdStyle, fontSize: 13 }}>
                           {tx.type}
-                          {tx.wallet && <span style={{ marginLeft:6, padding:'2px 6px', borderRadius:4, fontSize:9, fontWeight:700, background: tx.wallet === 'campaign' ? '#eef2ff' : 'var(--sap-green-bg)', color: tx.wallet === 'campaign' ? 'var(--sap-indigo)' : 'var(--sap-green)' }}>{tx.wallet === 'campaign' ? t('wallet.campaign') : t('wallet.affiliate')}</span>}
+                          {tx.wallet && <span style={{ marginLeft:6, padding:'2px 6px', borderRadius:4, fontSize:13, fontWeight:700, background: tx.wallet === 'campaign' ? '#eef2ff' : 'var(--sap-green-bg)', color: tx.wallet === 'campaign' ? 'var(--sap-indigo)' : 'var(--sap-green)' }}>{tx.wallet === 'campaign' ? t('wallet.campaign') : t('wallet.affiliate')}</span>}
                         </td>
                         <td style={{ ...tdStyle, fontSize: 12, color: 'var(--sap-text-muted)' }}>{tx.detail}</td>
                         <td style={{ ...tdStyle, fontWeight: 800, color: tx.amountColor }}>{tx.amount}</td>
@@ -325,16 +325,16 @@ export default function Wallet() {
           <p style={{ fontSize: 14, color: '#3d5068', marginBottom: 16 }}>{t('wallet.sendFundsDesc')}</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 12 }}>
             <div>
-              <label style={{ ...labelStyle, fontSize: 11 }}>{t('wallet.recipientMemberId')}</label>
+              <label style={{ ...labelStyle, fontSize: 13 }}>{t('wallet.recipientMemberId')}</label>
               <input id="p2pRecipient" type="text" placeholder={t('wallet.userIdPlaceholder')} autoComplete="off" style={p2pInputStyle} />
             </div>
             <div>
-              <label style={{ ...labelStyle, fontSize: 11 }}>{t('wallet.amountUSDT')}</label>
+              <label style={{ ...labelStyle, fontSize: 13 }}>{t('wallet.amountUSDT')}</label>
               <input id="p2pAmount" type="number" placeholder="e.g. 20.00" min="1" max="500" step="0.01" style={p2pInputStyle} />
             </div>
           </div>
           <div style={{ marginBottom: 16 }}>
-            <label style={{ ...labelStyle, fontSize: 11 }}>{t('wallet.noteOptional')}</label>
+            <label style={{ ...labelStyle, fontSize: 13 }}>{t('wallet.noteOptional')}</label>
             <input id="p2pNote" type="text" placeholder={t('wallet.notePlaceholder')} maxLength="200" style={p2pInputStyle} />
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
@@ -399,7 +399,7 @@ function Card({ title, dotColor, badge, headerRight, flex, children }) {
           <div style={{ width: 6, height: 6, borderRadius: '50%', background: dotColor || 'var(--sap-accent)', flexShrink: 0 }} />
           {title}
         </div>
-        {badge && <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: badge.bg, color: badge.color, border: '1px solid ' + badge.border }}>{badge.text}</span>}
+        {badge && <span style={{ fontSize: 13, fontWeight: 700, padding: '3px 10px', borderRadius: 999, background: badge.bg, color: badge.color, border: '1px solid ' + badge.border }}>{badge.text}</span>}
         {headerRight}
       </div>
       <div style={{ padding: '18px 20px', flex: 1 }}>{children}</div>
@@ -415,7 +415,7 @@ function StatPill({ value, label, gradient }) {
     }}>
       <div style={{position:'absolute',top:-20,right:-20,width:60,height:60,borderRadius:'50%',background:'rgba(255,255,255,0.1)',pointerEvents:'none'}}/>
       <div style={{position:'absolute',bottom:-15,left:-15,width:45,height:45,borderRadius:'50%',background:'rgba(255,255,255,0.06)',pointerEvents:'none'}}/>
-      <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.7)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 6 }}>{label}</div>
       <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 900, letterSpacing: -0.5, lineHeight: 1, color: '#fff' }}>{value}</div>
     </div>
   );
@@ -425,7 +425,7 @@ function MiniStat({ val, lbl }) {
   return (
     <div style={{ background: '#f6f8fc', border: '1px solid rgba(15,25,60,.07)', borderRadius: 10, padding: 12, textAlign: 'center' }}>
       <div style={{ fontSize: 20, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{val}</div>
-      <div style={{ fontSize: 10, color: '#7b91a8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 3 }}>{lbl}</div>
+      <div style={{ fontSize: 13, color: '#7b91a8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 3 }}>{lbl}</div>
     </div>
   );
 }
@@ -438,9 +438,9 @@ function EarningsCard({ icon, label, value, color, desc }) {
     }}>
       <div style={{ width: 42, height: 42, borderRadius: 10, background: `${color}12`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, flexShrink: 0 }}>{icon}</div>
       <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: '#7b91a8', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
+        <div style={{ fontSize: 13, fontWeight: 700, color: '#7b91a8', textTransform: 'uppercase', letterSpacing: 0.5 }}>{label}</div>
         <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 20, fontWeight: 800, color: 'var(--sap-text-primary)', marginTop: 2 }}>${formatMoney(value)}</div>
-        {desc && <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', marginTop: 2 }}>{desc}</div>}
+        {desc && <div style={{ fontSize: 13, color: 'var(--sap-text-faint)', marginTop: 2 }}>{desc}</div>}
       </div>
     </div>
   );
@@ -458,7 +458,7 @@ const labelStyle = { fontSize: 12, fontWeight: 700, color: '#7b91a8', textTransf
 const inputStyle = { width: '100%', padding: '11px 14px', border: '1px solid rgba(15,25,60,.12)', borderRadius: 9, fontSize: 15, color: 'var(--sap-text-primary)', fontFamily: 'inherit', background: '#f6f8fc', boxSizing: 'border-box' };
 const p2pInputStyle = { width: '100%', padding: '11px 14px', border: '1px solid rgba(15,25,60,.12)', borderRadius: 9, fontSize: 15, fontFamily: 'inherit', color: 'var(--sap-text-primary)', background: '#f6f8fc', boxSizing: 'border-box' };
 const btnPrimary = { fontSize: 15, fontWeight: 700, color: '#fff', background: 'linear-gradient(135deg,#0ea5e9,#38bdf8)', padding: '11px 22px', borderRadius: 9, textDecoration: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', display: 'inline-block' };
-const thStyle = { fontSize: 11, fontWeight: 800, color: '#7b91a8', textTransform: 'uppercase', letterSpacing: 1, padding: '11px 14px', borderBottom: '1px solid rgba(15,25,60,.08)', textAlign: 'left', background: '#f6f8fc' };
+const thStyle = { fontSize: 13, fontWeight: 800, color: '#7b91a8', textTransform: 'uppercase', letterSpacing: 1, padding: '11px 14px', borderBottom: '1px solid rgba(15,25,60,.08)', textAlign: 'left', background: '#f6f8fc' };
 const tdStyle = { padding: '12px 14px', borderBottom: '1px solid rgba(15,25,60,.05)', fontSize: 15, color: 'var(--sap-text-primary)', verticalAlign: 'middle' };
 const badgeGreen = { fontSize: 12, fontWeight: 700, padding: '4px 11px', borderRadius: 999, background: 'rgba(22,163,74,.09)', color: 'var(--sap-green)', border: '1px solid rgba(22,163,74,.2)' };
 const badgeAmber = { fontSize: 12, fontWeight: 700, padding: '4px 11px', borderRadius: 999, background: 'rgba(245,158,11,.09)', color: 'var(--sap-amber-dark)', border: '1px solid rgba(245,158,11,.2)' };

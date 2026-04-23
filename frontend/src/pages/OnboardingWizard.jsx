@@ -108,7 +108,7 @@ export default function OnboardingWizard() {
               <div style={{ width: 32, height: 32, borderRadius: '50%', background: done ? 'var(--sap-green-bright)' : active ? 'var(--sap-purple)' : 'rgba(255,255,255,.1)', border: active ? '2px solid #a78bfa' : '2px solid transparent', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, color: done || active ? '#fff' : 'rgba(255,255,255,.3)', fontWeight: 700, transition: 'all .3s' }}>
                 {done ? '✓' : i + 1}
               </div>
-              <div style={{ fontSize: 9, color: active ? 'var(--sap-purple-light)' : done ? 'var(--sap-green-bright)' : 'rgba(255,255,255,.25)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.5px', textAlign: 'center' }}>{s.title.split(' ').slice(0, 2).join(' ')}</div>
+              <div style={{ fontSize: 13, color: active ? 'var(--sap-purple-light)' : done ? 'var(--sap-green-bright)' : 'rgba(255,255,255,.25)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.5px', textAlign: 'center' }}>{s.title.split(' ').slice(0, 2).join(' ')}</div>
             </div>;
           })}
         </div>
@@ -131,7 +131,7 @@ export default function OnboardingWizard() {
             <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)', marginBottom: 8 }}>{t('onboarding.heresWhatWeDo')}</div>
             {['Set up your profile photo and name', 'Copy your personal referral link', 'Take a quick platform tour', 'Create your first piece of AI content'].map(function(t, i) {
               return <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--sap-text-secondary)', marginBottom: 6 }}>
-                <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--sap-purple-pale)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: 'var(--sap-violet)', flexShrink: 0 }}>{i + 1}</div>
+                <div style={{ width: 20, height: 20, borderRadius: '50%', background: 'var(--sap-purple-pale)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, color: 'var(--sap-violet)', flexShrink: 0 }}>{i + 1}</div>
                 {t}
               </div>;
             })}
@@ -152,7 +152,7 @@ export default function OnboardingWizard() {
             <div onClick={function() { if (fileRef.current) fileRef.current.click(); }}
               style={{ width: 96, height: 96, borderRadius: '50%', background: photoUrl ? 'none' : 'var(--sap-bg-page)', border: '3px dashed ' + (photoUrl ? 'var(--sap-purple)' : 'var(--sap-border)'), overflow: 'hidden', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative' }}>
               {photoUrl ? <img src={photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/> :
-                <div style={{ textAlign: 'center', color: 'var(--sap-text-muted)', fontSize: 11, fontWeight: 600 }}>{uploading ? 'Uploading...' : 'Click to\nupload'}</div>}
+                <div style={{ textAlign: 'center', color: 'var(--sap-text-muted)', fontSize: 13, fontWeight: 600 }}>{uploading ? 'Uploading...' : 'Click to\nupload'}</div>}
             </div>
             <input ref={fileRef} type="file" accept="image/*" onChange={uploadPhoto} style={{ display: 'none' }}/>
           </div>
@@ -222,7 +222,7 @@ export default function OnboardingWizard() {
                 <div style={{ fontSize: 20, flexShrink: 0 }}>{item.icon}</div>
                 <div>
                   <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)' }}>{item.title}</div>
-                  <div style={{ fontSize: 11, color: 'var(--sap-text-muted)' }}>{item.desc}</div>
+                  <div style={{ fontSize: 13, color: 'var(--sap-text-muted)' }}>{item.desc}</div>
                 </div>
               </div>;
             })}

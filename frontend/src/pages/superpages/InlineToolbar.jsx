@@ -64,7 +64,7 @@ export default function InlineToolbar({ visible, position, onCommand }) {
     }}>
       {/* Font family */}
       <select onMouseDown={e => e.stopPropagation()} onChange={e => cmd('fontName', e.target.value)} defaultValue=""
-        style={{height:28,border:'1px solid #e2e8f0',borderRadius:6,fontSize:10,fontWeight:600,color:'var(--sap-text-secondary)',background:'#fff',padding:'0 4px',maxWidth:90,cursor:'pointer',outline:'none'}}>
+        style={{height:28,border:'1px solid #e2e8f0',borderRadius:6,fontSize:13,fontWeight:600,color:'var(--sap-text-secondary)',background:'#fff',padding:'0 4px',maxWidth:90,cursor:'pointer',outline:'none'}}>
         <option value="" disabled>{t('superPagesEditor.font')}</option>
         {FONTS.map(f => <option key={f.value} value={f.value} style={{fontFamily:f.value}}>{f.label}</option>)}
       </select>
@@ -74,7 +74,7 @@ export default function InlineToolbar({ visible, position, onCommand }) {
           document.querySelectorAll('font[size="7"]').forEach(el => { el.removeAttribute('size'); el.style.fontSize = sz; });
           if (onCommand) onCommand();
         }, 10); }} defaultValue=""
-        style={{height:28,border:'1px solid #e2e8f0',borderRadius:6,fontSize:10,fontWeight:600,color:'var(--sap-text-secondary)',background:'#fff',padding:'0 4px',width:52,cursor:'pointer',outline:'none'}}>
+        style={{height:28,border:'1px solid #e2e8f0',borderRadius:6,fontSize:13,fontWeight:600,color:'var(--sap-text-secondary)',background:'#fff',padding:'0 4px',width:52,cursor:'pointer',outline:'none'}}>
         <option value="" disabled>{t('superPagesEditor.size')}</option>
         {FONT_SIZES.map(s => <option key={s} value={s}>{s}</option>)}
       </select>
@@ -91,7 +91,7 @@ export default function InlineToolbar({ visible, position, onCommand }) {
       {/* Text colour */}
       <div style={{position:'relative'}}>
         <TB onClick={() => openPicker(colorRef)} title={t('superPagesEditor.textColourTitle')}>
-          <span style={{fontSize:10,fontWeight:800,color:'var(--sap-text-secondary)'}}>A</span>
+          <span style={{fontSize:13,fontWeight:800,color:'var(--sap-text-secondary)'}}>A</span>
           <div style={{position:'absolute',bottom:3,left:7,right:7,height:3,background:'var(--sap-red-bright)',borderRadius:1}}/>
         </TB>
         <input ref={colorRef} type="color" defaultValue="#ffffff"
@@ -102,7 +102,7 @@ export default function InlineToolbar({ visible, position, onCommand }) {
       {/* Background highlight */}
       <div style={{position:'relative'}}>
         <TB onClick={() => openPicker(bgRef)} title={t('superPagesEditor.backgroundHighlight')}>
-          <span style={{fontSize:10,fontWeight:800,color:'var(--sap-text-secondary)',background:'var(--sap-amber-bright)',padding:'1px 4px',borderRadius:3}}>A</span>
+          <span style={{fontSize:13,fontWeight:800,color:'var(--sap-text-secondary)',background:'var(--sap-amber-bright)',padding:'1px 4px',borderRadius:3}}>A</span>
         </TB>
         <input ref={bgRef} type="color" defaultValue="var(--sap-amber-bright)"
           onChange={e => applyColor('hiliteColor', e.target.value)}
@@ -118,7 +118,7 @@ export default function InlineToolbar({ visible, position, onCommand }) {
       <Sep/>
 
       <TB onClick={() => cmd('removeFormat')} title={t('superPagesEditor.clearFormatting')}>
-        <span style={{fontSize:11,fontWeight:800,color:'var(--sap-red)'}}>✕</span>
+        <span style={{fontSize:13,fontWeight:800,color:'var(--sap-red)'}}>✕</span>
       </TB>
     </div>
   );

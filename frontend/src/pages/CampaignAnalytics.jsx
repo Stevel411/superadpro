@@ -82,7 +82,7 @@ export default function CampaignAnalytics() {
               <div key={i} style={{ background: '#fff', borderRadius: 10, padding: '14px 16px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
                   <card.icon size={16} color={card.color} />
-                  <div style={{ fontSize: 11, color: 'var(--sap-text-faint)' }}>{card.label}</div>
+                  <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>{card.label}</div>
                 </div>
                 <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{card.value}</div>
               </div>
@@ -129,7 +129,7 @@ export default function CampaignAnalytics() {
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 14 }}>
               <Clock size={16} color="var(--sap-purple)" />
               <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-primary)' }}>{t('campaignAnalytics.whenViewersWatch', { defaultValue: 'When your viewers watch' })}</div>
-              <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', marginLeft: 'auto' }}>{t('campaignAnalytics.heatmapSub', { defaultValue: 'Day × hour — darker = more views' })}</div>
+              <div style={{ fontSize: 13, color: 'var(--sap-text-faint)', marginLeft: 'auto' }}>{t('campaignAnalytics.heatmapSub', { defaultValue: 'Day × hour — darker = more views' })}</div>
             </div>
             {data.hourly_heatmap && (
               <HourlyHeatmap matrix={data.hourly_heatmap} />
@@ -173,14 +173,14 @@ export default function CampaignAnalytics() {
                 <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--sap-text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{c.title}</div>
                 <div style={{ fontSize: 12, color: 'var(--sap-text-faint)', marginTop: 2 }}>
                   {c.platform} · {c.category}
-                  {c.status !== 'active' && <span style={{ marginLeft: 8, padding: '1px 8px', borderRadius: 6, background: c.status === 'completed' ? 'var(--sap-green-bg)' : 'var(--sap-red-bg)', color: c.status === 'completed' ? 'var(--sap-green)' : 'var(--sap-red)', fontSize: 11, fontWeight: 600 }}>{c.status}</span>}
+                  {c.status !== 'active' && <span style={{ marginLeft: 8, padding: '1px 8px', borderRadius: 6, background: c.status === 'completed' ? 'var(--sap-green-bg)' : 'var(--sap-red-bg)', color: c.status === 'completed' ? 'var(--sap-green)' : 'var(--sap-red)', fontSize: 13, fontWeight: 600 }}>{c.status}</span>}
                 </div>
               </div>
 
               {/* View stats */}
               <div style={{ textAlign: 'right', flexShrink: 0 }}>
                 <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--sap-text-primary)' }}>{(c.views_delivered || 0).toLocaleString()}</div>
-                <div style={{ fontSize: 11, color: 'var(--sap-text-faint)' }}>of {(c.views_target || 0).toLocaleString()} target</div>
+                <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>of {(c.views_target || 0).toLocaleString()} target</div>
               </div>
 
               {/* Progress bar */}
@@ -188,19 +188,19 @@ export default function CampaignAnalytics() {
                 <div style={{ height: 6, background: 'var(--sap-border)', borderRadius: 3 }}>
                   <div style={{ height: '100%', width: Math.min(c.completion_pct, 100) + '%', background: c.completion_pct >= 100 ? 'var(--sap-green-bright)' : 'var(--sap-purple)', borderRadius: 3, transition: 'width 0.5s' }} />
                 </div>
-                <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', textAlign: 'center', marginTop: 2 }}>{c.completion_pct}%</div>
+                <div style={{ fontSize: 13, color: 'var(--sap-text-faint)', textAlign: 'center', marginTop: 2 }}>{c.completion_pct}%</div>
               </div>
 
               {/* Today's views */}
               <div style={{ textAlign: 'center', flexShrink: 0, minWidth: 60 }}>
                 <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-green-bright)' }}>+{c.views_today}</div>
-                <div style={{ fontSize: 10, color: 'var(--sap-text-faint)' }}>{t('campaignAnalytics.today')}</div>
+                <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>{t('campaignAnalytics.today')}</div>
               </div>
 
               {/* Unique viewers */}
               <div style={{ textAlign: 'center', flexShrink: 0, minWidth: 60 }}>
                 <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-accent)' }}>{c.unique_viewers}</div>
-                <div style={{ fontSize: 10, color: 'var(--sap-text-faint)' }}>{t('campaignAnalytics.unique')}</div>
+                <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>{t('campaignAnalytics.unique')}</div>
               </div>
 
               {/* Velocity — daily rate + days to complete */}
@@ -211,7 +211,7 @@ export default function CampaignAnalytics() {
                       <Zap size={13} color="var(--sap-purple)" />
                       {c.daily_rate}
                     </div>
-                    <div style={{ fontSize: 10, color: 'var(--sap-text-faint)' }}>
+                    <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>
                       {c.days_to_complete === 0
                         ? t('campaignAnalytics.completePace', { defaultValue: 'complete' })
                         : c.days_to_complete
@@ -223,7 +223,7 @@ export default function CampaignAnalytics() {
                 ) : (
                   <>
                     <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--sap-text-faint)' }}>—</div>
-                    <div style={{ fontSize: 10, color: 'var(--sap-text-faint)' }}>{t('campaignAnalytics.pace', { defaultValue: 'pace' })}</div>
+                    <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>{t('campaignAnalytics.pace', { defaultValue: 'pace' })}</div>
                   </>
                 )}
               </div>
@@ -234,14 +234,14 @@ export default function CampaignAnalytics() {
                   <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-accent)' }}>
                     {c.views_delivered > 0 ? ((c.cta_clicks / c.views_delivered) * 100).toFixed(1) + '%' : '—'}
                   </div>
-                  <div style={{ fontSize: 10, color: 'var(--sap-text-faint)' }}>
+                  <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>
                     {t('campaignAnalytics.ctr', { defaultValue: 'CTR' })} · {c.cta_clicks || 0}
                   </div>
                 </div>
               ) : (
                 <div style={{ textAlign: 'center', flexShrink: 0, minWidth: 66 }}>
                   <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--sap-text-faint)' }}>—</div>
-                  <div style={{ fontSize: 10, color: 'var(--sap-text-faint)' }}>{t('campaignAnalytics.noCta', { defaultValue: 'no CTA' })}</div>
+                  <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>{t('campaignAnalytics.noCta', { defaultValue: 'no CTA' })}</div>
                 </div>
               )}
 
@@ -267,7 +267,7 @@ export default function CampaignAnalytics() {
                         var isToday = i === dailyData.daily.length - 1;
                         return (
                           <div key={i} style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-                            <div style={{ fontSize: 9, color: 'var(--sap-text-faint)', minHeight: 12 }}>
+                            <div style={{ fontSize: 13, color: 'var(--sap-text-faint)', minHeight: 12 }}>
                               {day.views > 0 ? day.views : ''}
                             </div>
                             <div
@@ -283,7 +283,7 @@ export default function CampaignAnalytics() {
                         );
                       })}
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 10, color: 'var(--sap-text-faint)', marginBottom: 20 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, color: 'var(--sap-text-faint)', marginBottom: 20 }}>
                       <span>{dailyData.daily[0] ? dailyData.daily[0].date : ''}</span>
                       <span style={{ color: 'var(--sap-green-bright)', fontWeight: 600 }}>{t('campaignAnalytics.today')}</span>
                     </div>
@@ -302,7 +302,7 @@ export default function CampaignAnalytics() {
                               var pct = Math.round((row.viewers / maxV) * 100);
                               return (
                                 <div key={i} style={{ marginBottom: 8 }}>
-                                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 3 }}>
+                                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginBottom: 3 }}>
                                     <span style={{ fontWeight: 600, color: 'var(--sap-text-primary)' }}>{row.country}</span>
                                     <span style={{ color: 'var(--sap-text-faint)' }}>{row.viewers}</span>
                                   </div>
@@ -335,16 +335,16 @@ export default function CampaignAnalytics() {
                             <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0',
                               borderBottom: i < dailyData.recent_watches.length - 1 ? '1px solid #f1f5f9' : 'none' }}>
                               <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#f3f0ff', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                fontSize: 11, fontWeight: 700, color: 'var(--sap-purple)' }}>{w.viewer.slice(0, 1).toUpperCase()}</div>
+                                fontSize: 13, fontWeight: 700, color: 'var(--sap-purple)' }}>{w.viewer.slice(0, 1).toUpperCase()}</div>
                               <div style={{ flex: 1 }}>
                                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--sap-text-primary)' }}>{w.viewer}</div>
-                                <div style={{ fontSize: 11, color: 'var(--sap-text-faint)' }}>{w.date}</div>
+                                <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>{w.date}</div>
                               </div>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                                 <Clock size={12} color="var(--sap-green-bright)" />
                                 <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-green-bright)' }}>{w.duration}s watched</span>
                               </div>
-                              <div style={{ fontSize: 11, color: 'var(--sap-text-faint)' }}>
+                              <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>
                                 {w.watched_at ? new Date(w.watched_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : ''}
                               </div>
                             </div>

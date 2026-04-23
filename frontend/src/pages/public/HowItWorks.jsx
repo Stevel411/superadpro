@@ -54,7 +54,7 @@ function ToolMiniCard({ name, desc, color }) {
   return (
     <div style={{ background: `${color}08`, border: `1px solid ${color}15`, borderRadius: 12, padding: '14px 16px' }}>
       <div style={{ fontWeight: 700, fontSize: 13, marginBottom: 4, color: '#fff' }}>{name}</div>
-      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)' }}>{desc}</div>
+      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>{desc}</div>
     </div>
   );
 }
@@ -64,10 +64,10 @@ function IncomeCard({ title, amount, sub, desc, color, comingSoon }) {
   var { t } = useTranslation();
   return (
     <div style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderTop: `3px solid ${color}`, borderRadius: 16, padding: '28px 24px', position: 'relative' }}>
-      {comingSoon && <div style={{ position: 'absolute', top: 16, right: 16, padding: '4px 12px', borderRadius: 8, background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)', fontFamily: "'Sora',sans-serif", fontSize: 9, fontWeight: 800, color: 'var(--sap-amber-bright)', letterSpacing: 1.5, textTransform: 'uppercase' }}>{t('howItWorks.comingSoon')}</div>}
+      {comingSoon && <div style={{ position: 'absolute', top: 16, right: 16, padding: '4px 12px', borderRadius: 8, background: 'rgba(251,191,36,0.12)', border: '1px solid rgba(251,191,36,0.25)', fontFamily: "'Sora',sans-serif", fontSize: 13, fontWeight: 800, color: 'var(--sap-amber-bright)', letterSpacing: 1.5, textTransform: 'uppercase' }}>{t('howItWorks.comingSoon')}</div>}
       <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 16, fontWeight: 800, marginBottom: 6 }}>{title}</div>
       <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 32, fontWeight: 900, color, marginBottom: 4 }}>{amount}</div>
-      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>{sub}</div>
+      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 10 }}>{sub}</div>
       <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>{desc}</div>
     </div>
   );
@@ -240,7 +240,7 @@ export default function HowItWorks() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                 <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>{t('howItWorks.or')}</span>
                 <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--sap-green-mid)' }}>{t('howItWorks.basicAnnual')}</span>
-                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-green-mid)', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 6 }}>{t('howItWorks.saveBasic')}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-green-mid)', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 6 }}>{t('howItWorks.saveBasic')}</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
                 {['Full affiliate commissions', '8×8 income grid access', 'Campaign video advertising', 'LinkHub bio page', 'Marketing suite tools', 'Creative Studio credit packs'].map(f => (
@@ -251,7 +251,7 @@ export default function HowItWorks() {
             </div>
             {/* Pro */}
             <div style={{ background: 'rgba(14,165,233,0.05)', border: '2px solid rgba(14,165,233,0.2)', borderRadius: 20, padding: '36px 28px', position: 'relative' }}>
-              <div style={{ position: 'absolute', top: -12, right: 20, padding: '4px 16px', borderRadius: 20, background: 'var(--sap-accent)', fontFamily: "'Sora',sans-serif", fontSize: 11, fontWeight: 800, color: '#fff', letterSpacing: 1 }}>{t('howItWorks.recommended')}</div>
+              <div style={{ position: 'absolute', top: -12, right: 20, padding: '4px 16px', borderRadius: 20, background: 'var(--sap-accent)', fontFamily: "'Sora',sans-serif", fontSize: 13, fontWeight: 800, color: '#fff', letterSpacing: 1 }}>{t('howItWorks.recommended')}</div>
               <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 14, fontWeight: 700, color: 'var(--sap-accent-light)', letterSpacing: 1, textTransform: 'uppercase', marginBottom: 8 }}>{t('common.pro')}</div>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginBottom: 4 }}>
                 <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 40, fontWeight: 900 }}>$35</span>
@@ -260,7 +260,7 @@ export default function HowItWorks() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
                 <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)' }}>{t('howItWorks.or')}</span>
                 <span style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: 'var(--sap-green-mid)' }}>{t('howItWorks.proAnnual')}</span>
-                <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-green-mid)', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 6 }}>{t('howItWorks.savePro')}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-green-mid)', background: 'rgba(16,185,129,0.15)', padding: '2px 8px', borderRadius: 6 }}>{t('howItWorks.savePro')}</span>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 24 }}>
                 <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.5)' }}>{t('howItWorks.everythingInBasic')}</div>
@@ -291,10 +291,10 @@ export default function HowItWorks() {
             <Link to="/free/qr-code-generator" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>{t('howItWorks.freeQRCodeGenerator')}</Link>
             <Link to="/free/banner-creator" style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', textDecoration: 'none' }}>{t('howItWorks.freeBannerCreator')}</Link>
           </div>
-          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.15)', lineHeight: 1.7 }}>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.15)', lineHeight: 1.7 }}>
             SuperAdPro · <Link to="/legal" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none' }}>{t('howItWorks.terms')}</Link> · <Link to="/legal" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none' }}>{t('howItWorks.privacy')}</Link> · <Link to="/support" style={{ color: 'rgba(255,255,255,0.2)', textDecoration: 'none' }}>{t('howItWorks.support')}</Link>
           </p>
-          <p style={{ fontSize: 11, color: 'rgba(255,255,255,0.1)', marginTop: 6 }}>{t('howItWorks.incomeDisclaimerBody')}vidual effort.</p>
+          <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.1)', marginTop: 6 }}>{t('howItWorks.incomeDisclaimerBody')}vidual effort.</p>
         </footer>
       </div>
     </div>

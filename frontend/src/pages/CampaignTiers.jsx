@@ -127,7 +127,7 @@ export default function CampaignTiers() {
         <div style={{ position:'absolute', top:-50, right:-50, width:180, height:180, borderRadius:'50%', background:'rgba(255,255,255,.05)', pointerEvents:'none' }}/>
         <div style={{ position:'absolute', bottom:-40, left:-40, width:140, height:140, borderRadius:'50%', background:'rgba(255,255,255,.04)', pointerEvents:'none' }}/>
         <div style={{ position:'relative' }}>
-          <div style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,.45)', marginBottom:8 }}>{t('campaignTiers.gridSystem')}</div>
+          <div style={{ fontSize:13, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,.45)', marginBottom:8 }}>{t('campaignTiers.gridSystem')}</div>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color:'#fff', marginBottom:4 }}>
             {t('campaignTiers.activateTiers')}
           </div>
@@ -165,12 +165,12 @@ export default function CampaignTiers() {
                   {/* Decorative circle */}
                   <div style={{ position:'absolute', top:-30, right:-30, width:100, height:100, borderRadius:'50%', background:'rgba(255,255,255,.06)', pointerEvents:'none' }}/>
 
-                  {isPopular && <span style={{ position:'absolute', top:10, right:10, fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>{t('campaignTiers.popular')}</span>}
-                  {isMax && <span style={{ position:'absolute', top:10, right:10, fontSize:9, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>{t('campaignTiers.max')}</span>}
+                  {isPopular && <span style={{ position:'absolute', top:10, right:10, fontSize:13, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>{t('campaignTiers.popular')}</span>}
+                  {isMax && <span style={{ position:'absolute', top:10, right:10, fontSize:13, fontWeight:700, padding:'2px 8px', borderRadius:4, background: a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)', color: a.darkText ? '#1f2937' : '#fff' }}>{t('campaignTiers.max')}</span>}
 
                   <div style={{ fontSize:15, fontWeight:800, color: a.darkText ? '#1f2937' : '#fff', position:'relative' }}>{tier.name}</div>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:800, color: a.darkText ? '#1f2937' : '#fff', position:'relative' }}>${tier.price.toLocaleString()}</div>
-                  <div style={{ fontSize:11, color: a.darkText ? 'rgba(0,0,0,.4)' : 'rgba(255,255,255,.6)', position:'relative' }}>{tier.views_target.toLocaleString()} views</div>
+                  <div style={{ fontSize:13, color: a.darkText ? 'rgba(0,0,0,.4)' : 'rgba(255,255,255,.6)', position:'relative' }}>{tier.views_target.toLocaleString()} views</div>
 
                   {active ? (
                     <div style={{ padding:9, borderRadius:8, background: a.darkText ? 'rgba(0,0,0,.06)' : 'rgba(255,255,255,.12)', border:'1px solid ' + (a.darkText ? 'rgba(0,0,0,.08)' : 'rgba(255,255,255,.15)'), marginTop:'auto', position:'relative' }}>
@@ -198,7 +198,7 @@ export default function CampaignTiers() {
         </div>
         <div style={{ borderTop:'1px solid #f1f5f9', marginTop:14, paddingTop:14, display:'flex', alignItems:'flex-start', gap:10 }}>
           <div style={{ width:20, height:20, borderRadius:6, background:'var(--sap-amber-bg)', border:'1px solid #fde68a', display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0, marginTop:1 }}>
-            <span style={{ fontSize:11, color:'var(--sap-amber-dark)', fontWeight:800 }}>!</span>
+            <span style={{ fontSize:13, color:'var(--sap-amber-dark)', fontWeight:800 }}>!</span>
           </div>
           <div style={{ fontSize:13, color:'var(--sap-text-muted)', lineHeight:1.7 }}>
             <span style={{ fontWeight:700, color:'var(--sap-text-primary)' }}>{t('campaignTiers.renewalLabel')}</span> Tiers expire once all allocated views have been delivered. To continue receiving views and earning grid commissions, simply re-activate the tier. All one-time USDT payments — no subscriptions or recurring charges.
@@ -230,9 +230,9 @@ export default function CampaignTiers() {
                 <div>
                   <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:6 }}>
                     <span style={{ fontFamily:'Sora,sans-serif', fontSize:24, fontWeight:800, color:'var(--sap-text-primary)' }}>{modalTier.name}</span>
-                    <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>Tier {modalTier.tier}</span>
-                    {modalTier.tier === 3 && <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>{t('campaignTiers.popular')}</span>}
-                    {modalTier.tier === 8 && <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>{t('campaignTiers.maxEarnings')}</span>}
+                    <span style={{ fontSize:13, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>Tier {modalTier.tier}</span>
+                    {modalTier.tier === 3 && <span style={{ fontSize:13, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>{t('campaignTiers.popular')}</span>}
+                    {modalTier.tier === 8 && <span style={{ fontSize:13, fontWeight:700, padding:'3px 10px', borderRadius:6, background:modalAccent.bg, color:modalAccent.dark }}>{t('campaignTiers.maxEarnings')}</span>}
                   </div>
                   <div style={{ fontSize:13, color:'var(--sap-text-muted)' }}>
                     {t('campaignTiers.videoViewsAcross', {count: modalTier.views_target.toLocaleString()})}
@@ -241,7 +241,7 @@ export default function CampaignTiers() {
                 <div style={{ display:'flex', alignItems:'flex-start', gap:16 }}>
                   <div className="ct-modal-price" style={{ textAlign:'right' }}>
                     <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:800, color:'var(--sap-text-primary)' }}>${modalTier.price.toLocaleString()}</div>
-                    <div style={{ fontSize:11, color:'var(--sap-text-muted)' }}>{t('campaignTiers.oneTimeUSDT')}</div>
+                    <div style={{ fontSize:13, color:'var(--sap-text-muted)' }}>{t('campaignTiers.oneTimeUSDT')}</div>
                   </div>
                   <div onClick={function() { setSelected(null); }}
                     style={{ width:32, height:32, borderRadius:8, border:'1px solid #e2e8f0', display:'flex', alignItems:'center', justifyContent:'center', cursor:'pointer', flexShrink:0 }}>
@@ -254,23 +254,23 @@ export default function CampaignTiers() {
               <div className="ct-detail-stats" style={{ display:'grid', gridTemplateColumns:'repeat(4,1fr)', gap:12, marginBottom:20 }}>
                 <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'var(--sap-bg-elevated)', border:'1px solid #f1f5f9' }}>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${formatMoney(modalTier.direct_commission)}</div>
-                  <div style={{ fontSize:11, color:'var(--sap-text-muted)', marginTop:3 }}>{t('campaignTiers.directEarn')}</div>
+                  <div style={{ fontSize:13, color:'var(--sap-text-muted)', marginTop:3 }}>{t('campaignTiers.directEarn')}</div>
                 </div>
                 <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'var(--sap-bg-elevated)', border:'1px solid #f1f5f9' }}>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${formatMoney(modalTier.uni_level_per_member)}</div>
-                  <div style={{ fontSize:11, color:'var(--sap-text-muted)', marginTop:3 }}>{t('campaignTiers.perMember')}</div>
+                  <div style={{ fontSize:13, color:'var(--sap-text-muted)', marginTop:3 }}>{t('campaignTiers.perMember')}</div>
                 </div>
                 <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:'var(--sap-bg-elevated)', border:'1px solid #f1f5f9' }}>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${modalTier.completion_bonus.toLocaleString()}</div>
-                  <div style={{ fontSize:11, color:'var(--sap-text-muted)', marginTop:3 }}>{t('campaignTiers.gridBonus')}</div>
+                  <div style={{ fontSize:13, color:'var(--sap-text-muted)', marginTop:3 }}>{t('campaignTiers.gridBonus')}</div>
                 </div>
                 <div style={{ textAlign:'center', padding:'14px 8px', borderRadius:10, background:modalAccent.bg, border:'1px solid ' + modalAccent.border }}>
                   <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:modalAccent.dark }}>${modalTotal.toLocaleString()}</div>
-                  <div style={{ fontSize:11, color:modalAccent.dark, marginTop:3, fontWeight:600 }}>{t('campaignTiers.estEarnings')}</div>
+                  <div style={{ fontSize:13, color:modalAccent.dark, marginTop:3, fontWeight:600 }}>{t('campaignTiers.estEarnings')}</div>
                 </div>
               </div>
 
-              <div style={{ fontSize:11, color:'var(--sap-text-muted)', fontStyle:'italic', marginBottom:20 }}>
+              <div style={{ fontSize:13, color:'var(--sap-text-muted)', fontStyle:'italic', marginBottom:20 }}>
                 {t('campaignTiers.earningsDisclaimer')}
               </div>
 

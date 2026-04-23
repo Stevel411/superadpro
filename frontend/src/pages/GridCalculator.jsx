@@ -150,7 +150,7 @@ export default function GridCalculator() {
             var on = activeTier === ti.t;
             return <button key={ti.t} onClick={function() { if (!running) { setActiveTier(ti.t); resetSim(); } }}
               style={{ padding:'10px 16px', borderRadius:10, border: on ? 'none' : '1px solid #e2e8f0',
-                background: on ? ti.grad : '#fff', color: on ? '#fff' : '#64748b',
+                background: on ? ti.grad : '#fff', color: on ? '#fff' : '#475569',
                 fontSize:12, fontWeight:700, cursor: running ? 'default' : 'pointer',
                 fontFamily:'inherit', whiteSpace:'nowrap', transition:'all .2s',
                 opacity: running && !on ? 0.5 : 1 }}>
@@ -184,15 +184,15 @@ export default function GridCalculator() {
             <div style={{ display:'flex', alignItems:'center', gap:12, marginBottom:16, padding:'14px 18px', background:'#fff', borderRadius:14, border:'1px solid #e2e8f0' }}>
               <button onClick={startSim} disabled={running}
                 style={{ padding:'10px 20px', borderRadius:10, fontSize:13, fontWeight:700, border:'none', cursor: running ? 'default' : 'pointer',
-                  background: running ? '#94a3b8' : 'linear-gradient(135deg,#172554,#1e3a8a)', color:'#fff', fontFamily:'inherit',
+                  background: running ? '#7a8899' : 'linear-gradient(135deg,#172554,#1e3a8a)', color:'#fff', fontFamily:'inherit',
                   opacity: running ? 0.6 : 1, transition:'all .2s', display:'flex', alignItems:'center', gap:6 }}>
                 {filled === 0 ? '▶ Start Simulation' : running ? '⏳ Running...' : complete ? '▶ Replay' : '▶ Resume'}
               </button>
               {filled > 0 && !running && <button onClick={resetSim}
                 style={{ padding:'10px 16px', borderRadius:10, fontSize:13, fontWeight:600, border:'1px solid #e2e8f0',
-                  background:'#fff', color:'#64748b', cursor:'pointer', fontFamily:'inherit' }}>Reset</button>}
+                  background:'#fff', color:'#475569', cursor:'pointer', fontFamily:'inherit' }}>Reset</button>}
               <div style={{ flex:1 }}/>
-              <span style={{ fontSize:11, fontWeight:700, color:'#94a3b8' }}>Speed:</span>
+              <span style={{ fontSize:13, fontWeight:700, color:'#7a8899' }}>Speed:</span>
               <input type="range" className="gc-slider" min={50} max={800} value={800 - speed + 50}
                 onChange={function(e) { setSpeed(800 - parseInt(e.target.value) + 50); }}
                 style={{ width:80, height:4, borderRadius:2, appearance:'none', WebkitAppearance:'none', background:'linear-gradient(90deg,#172554 ' + ((800-speed)/750*100) + '%,#e2e8f0 ' + ((800-speed)/750*100) + '%)' }}/>
@@ -208,11 +208,11 @@ export default function GridCalculator() {
                 <div style={{ display:'flex', gap:14 }}>
                   <div style={{ display:'flex', alignItems:'center', gap:5 }}>
                     <div style={{ width:10, height:10, borderRadius:3, background:GOLD_GRAD }}/>
-                    <span style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,.6)' }}>Personal ({personalCount})</span>
+                    <span style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,.6)' }}>Personal ({personalCount})</span>
                   </div>
                   <div style={{ display:'flex', alignItems:'center', gap:5 }}>
                     <div style={{ width:10, height:10, borderRadius:3, background:GREEN_GRAD }}/>
-                    <span style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,.6)' }}>Spillover ({spillCount})</span>
+                    <span style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,.6)' }}>Spillover ({spillCount})</span>
                   </div>
                 </div>
               </div>
@@ -233,7 +233,7 @@ export default function GridCalculator() {
                     return <div key={idx} className={'gc-seat ' + (isFilled ? 'filled' + glowClass : 'empty')}
                       style={isFilled ? { background:grad } : {}}>
                       {isFilled && <>
-                        <div style={{ fontSize:10, fontWeight:800, color:'#fff', lineHeight:1, textShadow:'0 1px 3px rgba(0,0,0,.3)' }}>{seat ? seat.name : ''}</div>
+                        <div style={{ fontSize:13, fontWeight:800, color:'#fff', lineHeight:1, textShadow:'0 1px 3px rgba(0,0,0,.3)' }}>{seat ? seat.name : ''}</div>
                         <div style={{ fontSize:7, fontWeight:700, color:'rgba(255,255,255,.7)', marginTop:2 }}>{isPersonal ? '40%' : '6.25%'}</div>
                       </>}
                       {!isFilled && <div style={{ fontSize:8, fontWeight:700, color:'#cbd5e1' }}>{idx + 1}</div>}
@@ -250,7 +250,7 @@ export default function GridCalculator() {
                   { label:'Progress', val:pct+'%', color: complete ? '#4ade80' : '#0ea5e9' },
                 ].map(function(s, i) {
                   return <div key={i} style={{ background:'#fff', padding:'14px 10px', textAlign:'center' }}>
-                    <div style={{ fontSize:9, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:.5 }}>{s.label}</div>
+                    <div style={{ fontSize:13, fontWeight:700, color:'#7a8899', textTransform:'uppercase', letterSpacing:.5 }}>{s.label}</div>
                     <div style={{ fontFamily:"'Sora',sans-serif", fontSize:22, fontWeight:800, color:s.color }}>{s.val}</div>
                   </div>;
                 })}
@@ -268,7 +268,7 @@ export default function GridCalculator() {
                     { label:'TOTAL', val:'$'+total.toFixed(0), color:'#4ade80' },
                   ].map(function(s, i) {
                     return <div key={i}>
-                      <div style={{ fontSize:10, fontWeight:700, color:s.color }}>{s.label}</div>
+                      <div style={{ fontSize:13, fontWeight:700, color:s.color }}>{s.label}</div>
                       <div style={{ fontFamily:"'Sora',sans-serif", fontSize:20, fontWeight:800, color:s.color }}>{s.val}</div>
                     </div>;
                   })}
@@ -281,58 +281,58 @@ export default function GridCalculator() {
           <div style={{ display:'flex', flexDirection:'column', gap:16 }}>
             <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:16, padding:24, textAlign:'center', position:'relative', overflow:'hidden' }}>
               <div style={{ position:'absolute', top:-30, right:-30, width:100, height:100, borderRadius:'50%', background:'rgba(255,255,255,.03)' }}/>
-              <div style={{ fontSize:10, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>Total Grid Earnings</div>
+              <div style={{ fontSize:13, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>Total Grid Earnings</div>
               <div style={{ fontFamily:"'Sora',sans-serif", fontSize:44, fontWeight:900, color:'#4ade80', lineHeight:1 }}>${total.toFixed(2)}</div>
-              <div style={{ fontSize:11, color:'rgba(255,255,255,.35)', marginTop:8 }}>T{tier.t} {tier.name} — ${price}/position</div>
+              <div style={{ fontSize:13, color:'rgba(255,255,255,.35)', marginTop:8 }}>T{tier.t} {tier.name} — ${price}/position</div>
             </div>
 
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:10 }}>
               <div style={{ background:'linear-gradient(135deg,rgba(251,191,36,.06),rgba(180,131,9,.04))', borderRadius:12, padding:16, border:'1px solid rgba(251,191,36,.15)', textAlign:'center' }}>
-                <div style={{ fontSize:10, fontWeight:700, color:'#b45309', textTransform:'uppercase', letterSpacing:.5 }}>Direct (40%)</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'#b45309', textTransform:'uppercase', letterSpacing:.5 }}>Direct (40%)</div>
                 <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:800, color:'#b45309', marginTop:4 }}>${earnings.direct.toFixed(0)}</div>
-                <div style={{ fontSize:10, color:'#b4530988', marginTop:2 }}>{Math.min(filled,personalCount)} × ${(price*directRate).toFixed(0)}</div>
+                <div style={{ fontSize:13, color:'#b4530988', marginTop:2 }}>{Math.min(filled,personalCount)} × ${(price*directRate).toFixed(0)}</div>
               </div>
               <div style={{ background:'linear-gradient(135deg,rgba(16,185,129,.06),rgba(4,120,87,.04))', borderRadius:12, padding:16, border:'1px solid rgba(16,185,129,.15)', textAlign:'center' }}>
-                <div style={{ fontSize:10, fontWeight:700, color:'#047857', textTransform:'uppercase', letterSpacing:.5 }}>Uni-Level (6.25%)</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'#047857', textTransform:'uppercase', letterSpacing:.5 }}>Uni-Level (6.25%)</div>
                 <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:800, color:'#047857', marginTop:4 }}>${earnings.uni.toFixed(0)}</div>
-                <div style={{ fontSize:10, color:'#04785788', marginTop:2 }}>{Math.max(0,filled-personalCount)} × ${(price*uniRate).toFixed(2)}</div>
+                <div style={{ fontSize:13, color:'#04785788', marginTop:2 }}>{Math.max(0,filled-personalCount)} × ${(price*uniRate).toFixed(2)}</div>
               </div>
               <div style={{ background:'#fff', borderRadius:12, padding:16, border:'1px solid #e2e8f0', textAlign:'center' }}>
-                <div style={{ fontSize:10, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:.5 }}>Bonus (5%)</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'#7a8899', textTransform:'uppercase', letterSpacing:.5 }}>Bonus (5%)</div>
                 <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:800, color: complete ? '#6366f1' : '#cbd5e1', marginTop:4 }}>{complete ? '$'+earnings.bonus.toFixed(0) : '🔒'}</div>
-                <div style={{ fontSize:10, color:'#94a3b8', marginTop:2 }}>{complete ? 'Unlocked!' : 'Fills at 64/64'}</div>
+                <div style={{ fontSize:13, color:'#7a8899', marginTop:2 }}>{complete ? 'Unlocked!' : 'Fills at 64/64'}</div>
               </div>
               <div style={{ background:'#fff', borderRadius:12, padding:16, border:'1px solid #e2e8f0', textAlign:'center' }}>
-                <div style={{ fontSize:10, fontWeight:700, color:'#94a3b8', textTransform:'uppercase', letterSpacing:.5 }}>Positions</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'#7a8899', textTransform:'uppercase', letterSpacing:.5 }}>Positions</div>
                 <div style={{ fontFamily:"'Sora',sans-serif", fontSize:24, fontWeight:800, color:'#0f172a', marginTop:4 }}>{filled}/64</div>
-                <div style={{ fontSize:10, color:'#94a3b8', marginTop:2 }}>{64-filled} remaining</div>
+                <div style={{ fontSize:13, color:'#7a8899', marginTop:2 }}>{64-filled} remaining</div>
               </div>
             </div>
 
             <div style={{ background:'#fff', borderRadius:14, border:'1px solid #e2e8f0', overflow:'hidden', flex:1, minHeight:200 }}>
               <div style={{ padding:'12px 16px', borderBottom:'1px solid #f1f5f9', fontSize:12, fontWeight:700, color:'#475569' }}>Live Commission Feed</div>
               <div style={{ maxHeight:300, overflowY:'auto', padding:'6px 10px' }}>
-                {feed.length === 0 && <div style={{ textAlign:'center', padding:24, fontSize:13, color:'#94a3b8' }}>Press Start to begin simulation</div>}
+                {feed.length === 0 && <div style={{ textAlign:'center', padding:24, fontSize:13, color:'#7a8899' }}>Press Start to begin simulation</div>}
                 {feed.map(function(entry, i) {
                   var isBonus = entry.type === 'bonus';
                   var isPersonal = entry.isPersonal;
                   return <div key={i} className="gc-feed-item" style={{ display:'flex', alignItems:'center', gap:8, padding:'5px 8px', borderRadius:8,
                     background: i === 0 ? (isBonus ? 'rgba(74,222,128,.06)' : isPersonal ? 'rgba(251,191,36,.05)' : 'rgba(16,185,129,.05)') : 'transparent', marginBottom:1 }}>
                     {isBonus ? (
-                      <div style={{ width:22, height:22, borderRadius:6, background:'linear-gradient(135deg,#4ade80,#22c55e)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:10, flexShrink:0 }}>🎉</div>
+                      <div style={{ width:22, height:22, borderRadius:6, background:'linear-gradient(135deg,#4ade80,#22c55e)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:13, flexShrink:0 }}>🎉</div>
                     ) : (
                       <div style={{ width:22, height:22, borderRadius:6, background: isPersonal ? GOLD_GRAD : GREEN_GRAD, display:'flex', alignItems:'center', justifyContent:'center', fontSize:8, fontWeight:800, color:'#fff', flexShrink:0 }}>
                         {isPersonal ? '★' : '↓'}
                       </div>
                     )}
-                    <div style={{ flex:1, fontSize:11, color:'#475569', lineHeight:1.3 }}>{entry.text}</div>
+                    <div style={{ flex:1, fontSize:13, color:'#475569', lineHeight:1.3 }}>{entry.text}</div>
                     <div style={{ fontSize:12, fontWeight:800, color: isBonus ? '#4ade80' : isPersonal ? '#b45309' : '#047857', flexShrink:0 }}>${entry.amount.toFixed(2)}</div>
                   </div>;
                 })}
               </div>
             </div>
 
-            <div style={{ fontSize:10, color:'#94a3b8', textAlign:'center', lineHeight:1.5 }}>
+            <div style={{ fontSize:13, color:'#7a8899', textAlign:'center', lineHeight:1.5 }}>
               This is a simulator for illustration purposes only. Actual earnings depend on your referral activity and network growth. Income is not guaranteed.
             </div>
           </div>

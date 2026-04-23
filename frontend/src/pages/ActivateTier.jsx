@@ -113,7 +113,7 @@ export default function ActivateTier() {
             {paying ? 'Creating payment...' : `\uD83C\uDF10 Pay with 350+ Cryptos — $${tier.price.toLocaleString()}`}
           </button>
 
-          <div style={{textAlign:'center',fontSize:10,color:'var(--sap-text-muted)'}}>{"\uD83D\uDD12"} Secure payment · Instant activation · {"\uD83D\uDCB3"} Card payments coming soon</div>
+          <div style={{textAlign:'center',fontSize:13,color:'var(--sap-text-muted)'}}>{"\uD83D\uDD12"} Secure payment · Instant activation · {"\uD83D\uDCB3"} Card payments coming soon</div>
         </div>
 
         <div style={{padding:'10px 14px',background:'var(--sap-red-bg)',border:'1px solid #fecaca',borderRadius:10,marginBottom:24,fontSize:12,color:'#991b1b',lineHeight:1.5,textAlign:'center'}}>

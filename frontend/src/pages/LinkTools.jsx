@@ -304,7 +304,7 @@ export default function LinkTools() {
             <div style={{fontFamily:'Sora,sans-serif',fontSize:52,fontWeight:900,color:'#fff',lineHeight:1,marginBottom:6,animation:'ltCount .6s ease both',animationDelay:s.delay+.1+'s',textShadow:'0 2px 8px rgba(0,0,0,.15)'}}>{s.val}</div>
             {/* Labels */}
             <div style={{fontSize:15,fontWeight:800,color:'rgba(255,255,255,.95)',marginBottom:3,letterSpacing:.2}}>{s.label}</div>
-            <div style={{fontSize:11,color:'rgba(255,255,255,.65)',fontWeight:600,textTransform:'uppercase',letterSpacing:.8}}>{s.sub}</div>
+            <div style={{fontSize:13,color:'rgba(255,255,255,.65)',fontWeight:600,textTransform:'uppercase',letterSpacing:.8}}>{s.sub}</div>
           </div>
         ))}
       </div>
@@ -363,21 +363,21 @@ export default function LinkTools() {
                     <div style={{display:'flex',alignItems:'center',gap:6,flexWrap:'wrap'}}>
                       <span style={{fontSize:13,fontWeight:700,color:'var(--sap-accent)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{BASE}/go/{l.short_code}</span>
                       {l.has_password && <Lock size={11} color="var(--sap-amber)"/>}
-                      {isExpired && <span style={{fontSize:9,fontWeight:700,background:'#fee2e2',color:'var(--sap-red)',padding:'1px 6px',borderRadius:4}}>{t('linkTools.expired')}</span>}
-                      {l.expires_at && !isExpired && <span style={{fontSize:9,fontWeight:700,background:'#fef9c3',color:'#a16207',padding:'1px 6px',borderRadius:4}}>EXPIRES {new Date(l.expires_at).toLocaleDateString()}</span>}
+                      {isExpired && <span style={{fontSize:13,fontWeight:700,background:'#fee2e2',color:'var(--sap-red)',padding:'1px 6px',borderRadius:4}}>{t('linkTools.expired')}</span>}
+                      {l.expires_at && !isExpired && <span style={{fontSize:13,fontWeight:700,background:'#fef9c3',color:'#a16207',padding:'1px 6px',borderRadius:4}}>EXPIRES {new Date(l.expires_at).toLocaleDateString()}</span>}
                     </div>
-                    <div style={{fontSize:11,color:'var(--sap-text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.title ? l.title + ' — ' : ''}{l.destination_url}</div>
+                    <div style={{fontSize:13,color:'var(--sap-text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{l.title ? l.title + ' — ' : ''}{l.destination_url}</div>
                     {tags.length > 0 && (
                       <div style={{display:'flex',gap:4,marginTop:4,flexWrap:'wrap'}}>
                         {tags.map(function(t, i) {
                           var c = TAG_COLORS[t.color] || TAG_COLORS[0];
-                          return <span key={i} style={{fontSize:9,fontWeight:700,padding:'2px 8px',borderRadius:10,background:c.bg,color:c.text}}>{t.name}</span>;
+                          return <span key={i} style={{fontSize:13,fontWeight:700,padding:'2px 8px',borderRadius:10,background:c.bg,color:c.text}}>{t.name}</span>;
                         })}
                       </div>
                     )}
                   </div>
                   <div style={{textAlign:'center',padding:'8px 14px',background:'linear-gradient(135deg,#f0f9ff,#e0f2fe)',borderRadius:10,flexShrink:0,border:'1px solid #bae6fd',minWidth:64}}>
-                    <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:900,color:'#0284c7',lineHeight:1}}>{l.click_count||0}{l.click_cap ? <span style={{fontSize:11,fontWeight:600,color:'var(--sap-text-muted)'}}>/{l.click_cap}</span> : null}</div>
+                    <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:900,color:'#0284c7',lineHeight:1}}>{l.click_count||0}{l.click_cap ? <span style={{fontSize:13,fontWeight:600,color:'var(--sap-text-muted)'}}>/{l.click_cap}</span> : null}</div>
                     <div style={{fontSize:8,color:'var(--sap-accent)',fontWeight:700,letterSpacing:.5,marginTop:2}}>{t('linkTools.clicksLabel')}</div>
                     {l.click_cap && (
                       <div style={{height:3,background:'#e0f2fe',borderRadius:2,marginTop:4,overflow:'hidden'}}>
@@ -396,7 +396,7 @@ export default function LinkTools() {
                   <div style={{flex:1}}/>
                   {confirmDelete === 'link-' + l.id ? (
                     <>
-                      <span style={{fontSize:11,fontWeight:600,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>{t('linkTools.deleteConfirm')}</span>
+                      <span style={{fontSize:13,fontWeight:600,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>{t('linkTools.deleteConfirm')}</span>
                       <button onClick={() => deleteItem(l.id,'short')} style={{...smallBtn,background:'var(--sap-red)',color:'#fff',border:'none'}}>{t('linkTools.yes')}</button>
                       <button onClick={() => setConfirmDelete(null)} style={smallBtn}>{t('common.no')}</button>
                     </>
@@ -441,7 +441,7 @@ export default function LinkTools() {
                 <div style={{flex:1}}/>
                 {confirmDelete === 'rot-' + r.id ? (
                   <>
-                    <span style={{fontSize:11,fontWeight:600,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>{t('linkTools.deleteConfirm')}</span>
+                    <span style={{fontSize:13,fontWeight:600,color:'var(--sap-red)',display:'flex',alignItems:'center'}}>{t('linkTools.deleteConfirm')}</span>
                     <button onClick={() => deleteItem(r.id,'rotator')} style={{...smallBtn,background:'var(--sap-red)',color:'#fff',border:'none'}}>{t('linkTools.yes')}</button>
                     <button onClick={() => setConfirmDelete(null)} style={smallBtn}>{t('common.no')}</button>
                   </>
@@ -461,7 +461,7 @@ export default function LinkTools() {
           <Input value={newUrl} onChange={e => setNewUrl(e.target.value)} placeholder={t("linkTools.destinationUrlPlaceholder")}/>
           <Label>{t('linkTools.customSlug')}</Label>
           <Input value={newSlug} onChange={e => setNewSlug(e.target.value)} placeholder={t("linkTools.customSlugPlaceholder")}/>
-          {newSlug && <div style={{fontSize:11,color:'var(--sap-text-muted)',marginTop:-6,marginBottom:10}}>Preview: {BASE}/go/{newSlug || '...'}</div>}
+          {newSlug && <div style={{fontSize:13,color:'var(--sap-text-muted)',marginTop:-6,marginBottom:10}}>Preview: {BASE}/go/{newSlug || '...'}</div>}
           <Label>{t('linkTools.titleOptional')}</Label>
           <Input value={newTitle} onChange={e => setNewTitle(e.target.value)} placeholder={t("linkTools.titlePlaceholder")}/>
 
@@ -509,7 +509,7 @@ export default function LinkTools() {
           <div style={{display:'flex',gap:6,marginBottom:14}}>
             {[['equal','Equal Split'],['weighted','Weighted'],['sequential','Sequential']].map(([k,l]) => (
               <button key={k} onClick={() => setRotMode(k)} style={{
-                flex:1,padding:'8px',borderRadius:8,fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit',
+                flex:1,padding:'8px',borderRadius:8,fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',
                 border:rotMode===k?'2px solid #8b5cf6':'2px solid #e2e8f0',
                 background:rotMode===k?'rgba(139,92,246,.06)':'#fff',color:rotMode===k?'var(--sap-purple)':'var(--sap-text-muted)',
               }}>{l}</button>
@@ -530,7 +530,7 @@ export default function LinkTools() {
               )}
             </div>
           ))}
-          <button onClick={() => setRotDests([...rotDests,{url:'',weight:50}])} style={{fontSize:11,fontWeight:600,color:'var(--sap-accent)',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12}}>{t('linkTools.addAnotherUrl')}</button>
+          <button onClick={() => setRotDests([...rotDests,{url:'',weight:50}])} style={{fontSize:13,fontWeight:600,color:'var(--sap-accent)',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12}}>{t('linkTools.addAnotherUrl')}</button>
           <div style={{display:'flex',gap:8,marginTop:8}}>
             <button onClick={createRotator} disabled={rotCreating} style={btnPrimary('var(--sap-purple)')}>{rotCreating?'Creating...':'Create Rotator →'}</button>
             <button onClick={() => setShowRotatorCreate(false)} style={btnSecondary}>{t('linkTools.cancel')}</button>
@@ -541,7 +541,7 @@ export default function LinkTools() {
       {/* ── EDIT LINK MODAL ── */}
       {editLink && (
         <Modal onClose={() => setEditLink(null)} title={t('linkTools.editLink')} icon={<Edit3 size={18} color="var(--sap-accent)"/>}>
-          <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:14,fontWeight:600}}>{BASE}/go/{editLink.short_code}</div>
+          <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:14,fontWeight:600}}>{BASE}/go/{editLink.short_code}</div>
           <Label>{t('linkTools.destinationUrl')}</Label>
           <Input value={editDest} onChange={e => setEditDest(e.target.value)} placeholder={t('superPagesEditor.urlPlaceholder')}/>
           <Label>{t('linkTools.linkTitle')}</Label>
@@ -557,13 +557,13 @@ export default function LinkTools() {
             </div>
           </div>
           <div style={{marginTop:12}}>
-            <Label><Lock size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Password {editLink.has_password && <span style={{fontSize:9,color:'var(--sap-amber)'}}>{t('linkTools.currentlySet')}</span>}</Label>
+            <Label><Lock size={11} style={{display:'inline',verticalAlign:'middle',marginRight:4}}/>Password {editLink.has_password && <span style={{fontSize:13,color:'var(--sap-amber)'}}>{t('linkTools.currentlySet')}</span>}</Label>
             <Input type="password" value={editPassword} onChange={e => setEditPassword(e.target.value)} placeholder={editLink.has_password ? 'Enter new password or leave blank' : 'Leave blank for none'}/>
             {editLink.has_password && (
               <button onClick={async () => {
                 await apiPost('/api/links/edit/' + editLink.id, { password: '' });
                 showToast('✓ Password removed'); setEditLink(null); load();
-              }} style={{fontSize:11,fontWeight:600,color:'var(--sap-red)',background:'none',border:'none',cursor:'pointer',marginTop:-6,marginBottom:8,fontFamily:'inherit'}}>
+              }} style={{fontSize:13,fontWeight:600,color:'var(--sap-red)',background:'none',border:'none',cursor:'pointer',marginTop:-6,marginBottom:8,fontFamily:'inherit'}}>
                 Remove password protection
               </button>
             )}
@@ -584,7 +584,7 @@ export default function LinkTools() {
           <div style={{display:'flex',gap:6,marginBottom:14}}>
             {[['equal','Equal Split'],['weighted','Weighted'],['sequential','Sequential']].map(([k,l]) => (
               <button key={k} onClick={() => setEditRotMode(k)} style={{
-                flex:1,padding:'8px',borderRadius:8,fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit',
+                flex:1,padding:'8px',borderRadius:8,fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',
                 border:editRotMode===k?'2px solid #8b5cf6':'2px solid #e2e8f0',
                 background:editRotMode===k?'rgba(139,92,246,.06)':'#fff',color:editRotMode===k?'var(--sap-purple)':'var(--sap-text-muted)',
               }}>{l}</button>
@@ -605,7 +605,7 @@ export default function LinkTools() {
               )}
             </div>
           ))}
-          <button onClick={() => setEditRotDests([...editRotDests,{url:'',weight:50,clicks:0}])} style={{fontSize:11,fontWeight:600,color:'var(--sap-purple)',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12}}>{t('linkTools.addUrl')}</button>
+          <button onClick={() => setEditRotDests([...editRotDests,{url:'',weight:50,clicks:0}])} style={{fontSize:13,fontWeight:600,color:'var(--sap-purple)',background:'none',border:'none',cursor:'pointer',padding:'4px 0',marginBottom:12}}>{t('linkTools.addUrl')}</button>
           <div style={{display:'flex',gap:8,marginTop:8}}>
             <button onClick={saveEditRotator} disabled={editRotSaving} style={btnPrimary('var(--sap-purple)')}>{editRotSaving?'Saving...':'Save Changes →'}</button>
             <button onClick={() => setEditRotator(null)} style={btnSecondary}>{t('linkTools.cancel')}</button>
@@ -649,7 +649,7 @@ export default function LinkTools() {
 
           {utmResult && (
             <div style={{background:'var(--sap-green-bg)',border:'1px solid #bbf7d0',borderRadius:10,padding:14,marginTop:8}}>
-              <div style={{fontSize:10,fontWeight:700,color:'#15803d',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>{t('linkTools.generatedUrl')}</div>
+              <div style={{fontSize:13,fontWeight:700,color:'#15803d',textTransform:'uppercase',letterSpacing:.5,marginBottom:6}}>{t('linkTools.generatedUrl')}</div>
               <div style={{fontSize:12,color:'var(--sap-text-primary)',wordBreak:'break-all',fontFamily:'monospace',lineHeight:1.6}}>{utmResult}</div>
               <div style={{display:'flex',gap:8,marginTop:12}}>
                 <button onClick={() => copyToClip(utmResult)} style={{...smallBtn,background:'var(--sap-green-mid)',color:'#fff',border:'none'}}><Copy size={12}/> {t('linkTools.copyUrl')}</button>
@@ -659,7 +659,7 @@ export default function LinkTools() {
           )}
 
           <div style={{marginTop:16}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>{t('linkTools.quickPresets')}</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>{t('linkTools.quickPresets')}</div>
             <div style={{display:'flex',gap:6,flexWrap:'wrap'}}>
               {[
                 {label:'Facebook Ad',s:'facebook',m:'cpc',c:'fb_ad'},
@@ -671,7 +671,7 @@ export default function LinkTools() {
               ].map(function(p, i) {
                 return (
                   <button key={i} onClick={() => { setUtmSource(p.s); setUtmMedium(p.m); setUtmCampaign(p.c); }}
-                    style={{fontSize:10,fontWeight:700,padding:'5px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-text-secondary)',cursor:'pointer',fontFamily:'inherit'}}>
+                    style={{fontSize:13,fontWeight:700,padding:'5px 10px',borderRadius:6,border:'1px solid #e2e8f0',background:'#fff',color:'var(--sap-text-secondary)',cursor:'pointer',fontFamily:'inherit'}}>
                     {p.label}
                   </button>
                 );
@@ -684,13 +684,13 @@ export default function LinkTools() {
       {/* ── TAG EDITOR MODAL ── */}
       {tagLink && (
         <Modal onClose={() => setTagLink(null)} title={t('linkTools.editTags')} icon={<Tag size={18} color="var(--sap-purple)"/>}>
-          <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:14}}>{BASE}/go/{tagLink.short_code}</div>
+          <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:14}}>{BASE}/go/{tagLink.short_code}</div>
           {editTags.length > 0 && (
             <div style={{display:'flex',gap:6,flexWrap:'wrap',marginBottom:14}}>
               {editTags.map(function(t, i) {
                 var c = TAG_COLORS[t.color] || TAG_COLORS[0];
                 return (
-                  <span key={i} style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:11,fontWeight:700,padding:'4px 10px',borderRadius:12,background:c.bg,color:c.text}}>
+                  <span key={i} style={{display:'inline-flex',alignItems:'center',gap:4,fontSize:13,fontWeight:700,padding:'4px 10px',borderRadius:12,background:c.bg,color:c.text}}>
                     {t.name}
                     <button onClick={() => removeTag(i)} style={{background:'none',border:'none',cursor:'pointer',padding:0,display:'flex'}}><X size={10} color={c.text}/></button>
                   </span>
@@ -735,7 +735,7 @@ export default function LinkTools() {
               </div>
               {analytics.timeline && analytics.timeline.length > 0 && (
                 <div style={{marginBottom:20}}>
-                  <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>{t('linkTools.clicksLast30')}</div>
+                  <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>{t('linkTools.clicksLast30')}</div>
                   <div style={{display:'flex',alignItems:'flex-end',gap:2,height:80,background:'var(--sap-bg-input)',borderRadius:8,padding:'8px 4px'}}>
                     {analytics.timeline.map(function(d, i) {
                       var max = Math.max.apply(null, analytics.timeline.map(function(t){ return t.clicks; }).concat([1]));
@@ -747,7 +747,7 @@ export default function LinkTools() {
               )}
               {analytics.sources && Object.keys(analytics.sources).length > 0 && (
                 <div style={{marginBottom:16}}>
-                  <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>{t('linkTools.trafficSources')}</div>
+                  <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>{t('linkTools.trafficSources')}</div>
                   {Object.entries(analytics.sources).sort(function(a,b){ return b[1]-a[1]; }).map(function(pair) {
                     return (
                       <div key={pair[0]} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
@@ -760,7 +760,7 @@ export default function LinkTools() {
               )}
               {analytics.countries && Object.keys(analytics.countries).length > 0 && (
                 <div>
-                  <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>{t('linkTools.topCountries')}</div>
+                  <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.5,marginBottom:8}}>{t('linkTools.topCountries')}</div>
                   {Object.entries(analytics.countries).map(function(pair) {
                     return (
                       <div key={pair[0]} style={{display:'flex',justifyContent:'space-between',padding:'6px 0',borderBottom:'1px solid #f5f6f8'}}>
@@ -818,7 +818,7 @@ function QrCodeDisplay({ url, slug }) {
   return (
     <div style={{textAlign:'center'}}>
       <canvas ref={canvasRef} style={{borderRadius:8,margin:'0 auto 16px',display:'block'}}/>
-      <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:16,wordBreak:'break-all'}}>{url}</div>
+      <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:16,wordBreak:'break-all'}}>{url}</div>
 
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:16}}>
         <div>
@@ -834,14 +834,14 @@ function QrCodeDisplay({ url, slug }) {
           <Label>{t('linkTools.foreground')}</Label>
           <div style={{display:'flex',alignItems:'center',gap:6}}>
             <input type="color" value={fgColor} onChange={e => setFgColor(e.target.value)} style={{width:32,height:32,border:'none',background:'none',cursor:'pointer',padding:0}}/>
-            <span style={{fontSize:11,color:'var(--sap-text-muted)'}}>{fgColor}</span>
+            <span style={{fontSize:13,color:'var(--sap-text-muted)'}}>{fgColor}</span>
           </div>
         </div>
         <div>
           <Label>{t('linkTools.background')}</Label>
           <div style={{display:'flex',alignItems:'center',gap:6}}>
             <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)} style={{width:32,height:32,border:'none',background:'none',cursor:'pointer',padding:0}}/>
-            <span style={{fontSize:11,color:'var(--sap-text-muted)'}}>{bgColor}</span>
+            <span style={{fontSize:13,color:'var(--sap-text-muted)'}}>{bgColor}</span>
           </div>
         </div>
       </div>
@@ -880,7 +880,7 @@ function Modal({ onClose, title, icon, wide, children }) {
 function StatBox({ label, val, color }) {
   return (
     <div style={{background:'var(--sap-bg-input)',borderRadius:8,padding:'12px',borderLeft:'3px solid ' + color}}>
-      <div style={{fontSize:9,fontWeight:700,letterSpacing:.5,color:'var(--sap-text-muted)',textTransform:'uppercase'}}>{label}</div>
+      <div style={{fontSize:13,fontWeight:700,letterSpacing:.5,color:'var(--sap-text-muted)',textTransform:'uppercase'}}>{label}</div>
       <div style={{fontSize:22,fontWeight:900,color:'var(--sap-text-primary)',fontFamily:'Sora,sans-serif'}}>{val}</div>
     </div>
   );
@@ -896,7 +896,7 @@ function Input(props) {
 
 var smallBtn = {
   display:'inline-flex',alignItems:'center',gap:5,padding:'7px 12px',borderRadius:7,
-  fontSize:11,fontWeight:700,border:'1px solid #e8ecf2',background:'#fff',
+  fontSize:13,fontWeight:700,border:'1px solid #e8ecf2',background:'#fff',
   color:'var(--sap-text-secondary)',cursor:'pointer',fontFamily:'inherit',
   transition:'all .15s ease',
 };

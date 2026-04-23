@@ -38,7 +38,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
 
       {/* Dirty indicator — small amber dot when there are unsaved changes */}
       {dirty && (
-        <div style={{display:'flex', alignItems:'center', gap:6, fontSize:11, color:'#f59e0b', fontWeight:700}} title={t('superPagesEditor.unsavedChanges', { defaultValue: 'Unsaved changes' })}>
+        <div style={{display:'flex', alignItems:'center', gap:6, fontSize:13, color:'#f59e0b', fontWeight:700}} title={t('superPagesEditor.unsavedChanges', { defaultValue: 'Unsaved changes' })}>
           <span style={{width:7, height:7, borderRadius:'50%', background:'#f59e0b', display:'inline-block'}}/>
           <span>{t('superPagesEditor.unsavedShort', { defaultValue: 'Unsaved' })}</span>
         </div>
@@ -110,8 +110,8 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
       {/* Save — primary action, green */}
       <button onClick={onSave} disabled={saving} style={{
         ...btn,
-        background: saving ? '#94a3b8' : '#22c55e',
-        color: '#fff', border: '1px solid ' + (saving ? '#94a3b8' : '#16a34a'),
+        background: saving ? '#7a8899' : '#22c55e',
+        color: '#fff', border: '1px solid ' + (saving ? '#7a8899' : '#16a34a'),
         boxShadow: saving ? 'none' : '0 2px 6px rgba(34,197,94,0.25)',
         cursor: saving ? 'not-allowed' : 'pointer',
       }}>
@@ -140,7 +140,7 @@ export default function EditorTopbar({ title, slug, pageId, saving, dirty, statu
 }
 
 const btn = {
-  padding: '7px 12px', border: 'none', borderRadius: 8, fontSize: 11, fontWeight: 700,
+  padding: '7px 12px', border: 'none', borderRadius: 8, fontSize: 13, fontWeight: 700,
   cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5,
   fontFamily: 'DM Sans,sans-serif', transition: 'all .12s',
 };
@@ -152,7 +152,7 @@ const ghost = {
 };
 const grpBtn = {
   padding: '5px 9px', border: 'none', borderRadius: 6, cursor: 'pointer',
-  background: 'transparent', color: '#64748b',
+  background: 'transparent', color: '#475569',
   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
   fontFamily: 'DM Sans,sans-serif', transition: 'all .12s',
 };

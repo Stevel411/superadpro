@@ -444,7 +444,7 @@ export default function ExplorePage(props) {
                         <div className="sc-title">{s.display_title}</div>
                         {s.metric_label && s.metric_value && (
                           <div className="sc-metric">
-                            <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:'10px',color:'var(--ink-50)',letterSpacing:'.1em',textTransform:'uppercase'}}>{s.metric_label}</span>
+                            <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:'13px',color:'var(--ink-50)',letterSpacing:'.1em',textTransform:'uppercase'}}>{s.metric_label}</span>
                             <span style={{fontFamily:"'Sora',sans-serif",fontWeight:900,fontSize:'18px',color:'var(--accent)',letterSpacing:'-.02em'}}>{s.metric_value}</span>
                           </div>
                         )}

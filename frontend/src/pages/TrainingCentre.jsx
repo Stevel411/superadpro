@@ -68,7 +68,7 @@ export default function TrainingCentre() {
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:8}}>
                   {modDone === mod.lessons.length && mod.lessons.length > 0 && (
-                    <span style={{fontSize:10,fontWeight:800,padding:'3px 8px',borderRadius:4,background:'var(--sap-green-bg-mid)',color:'var(--sap-green)'}}>{t('training.complete')}</span>
+                    <span style={{fontSize:13,fontWeight:800,padding:'3px 8px',borderRadius:4,background:'var(--sap-green-bg-mid)',color:'var(--sap-green)'}}>{t('training.complete')}</span>
                   )}
                   {isOpen ? <ChevronDown size={18} color="var(--sap-text-muted)"/> : <ChevronRight size={18} color="var(--sap-text-muted)"/>}
                 </div>
@@ -89,7 +89,7 @@ export default function TrainingCentre() {
                             <span style={{fontSize:13,fontWeight:700,color:isDone?'var(--sap-green)':'#334155'}}>{lesson.title}</span>
                           </div>
                           <div style={{display:'flex',alignItems:'center',gap:8}}>
-                            <span style={{fontSize:11,color:'var(--sap-text-muted)',display:'flex',alignItems:'center',gap:3}}>
+                            <span style={{fontSize:13,color:'var(--sap-text-muted)',display:'flex',alignItems:'center',gap:3}}>
                               <Clock size={11}/> {lesson.duration}
                             </span>
                             {lessonOpen ? <ChevronDown size={14} color="var(--sap-text-muted)"/> : <ChevronRight size={14} color="var(--sap-text-muted)"/>}

@@ -122,7 +122,7 @@ export default function QRCodeGenerator() {
       case 'url':
         return (
           <div>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>{t('freeQR.urlType')}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>{t('freeQR.urlType')}</div>
             <input type="url" value={url} onChange={e => setUrl(e.target.value)} placeholder={t("freeQR.urlPlaceholder")} style={inp}
               onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
           </div>
@@ -130,7 +130,7 @@ export default function QRCodeGenerator() {
       case 'text':
         return (
           <div>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>{t('freeQR.textType')}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>{t('freeQR.textType')}</div>
             <textarea value={text} onChange={e => setText(e.target.value)} placeholder={t("freeQR.textPlaceholder")} rows={3}
               style={{ ...inp, resize: 'vertical', minHeight: 60 }}
               onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
@@ -139,7 +139,7 @@ export default function QRCodeGenerator() {
       case 'wifi':
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 }}>{t('freeQR.wifiType')}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 }}>{t('freeQR.wifiType')}</div>
             <input type="text" value={wifiName} onChange={e => setWifiName(e.target.value)} placeholder={t("freeQR.wifiSsidPlaceholder")} style={inp}
               onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
             <input type="text" value={wifiPass} onChange={e => setWifiPass(e.target.value)} placeholder={t("freeQR.wifiPasswordPlaceholder")} style={inp}
@@ -148,7 +148,7 @@ export default function QRCodeGenerator() {
               {['WPA', 'WEP', 'nopass'].map(t => (
                 <button key={t} onClick={() => setWifiType(t)}
                   style={{ flex: 1, padding: '7px 0', borderRadius: 8, border: 'none', cursor: 'pointer', fontFamily: '"DM Sans",sans-serif',
-                    fontSize: 11, fontWeight: wifiType === t ? 700 : 600,
+                    fontSize: 13, fontWeight: wifiType === t ? 700 : 600,
                     background: wifiType === t ? 'var(--sap-accent)' : 'var(--sap-navy-soft)',
                     color: wifiType === t ? '#fff' : '#7b8594',
                     borderWidth: 1, borderStyle: 'solid', borderColor: wifiType === t ? 'var(--sap-accent)' : 'var(--sap-navy-card)',
@@ -160,7 +160,7 @@ export default function QRCodeGenerator() {
       case 'email':
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 }}>{t('freeQR.emailType')}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 }}>{t('freeQR.emailType')}</div>
             <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder={t("freeQR.emailPlaceholder")} style={inp}
               onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
             <input type="text" value={emailSubject} onChange={e => setEmailSubject(e.target.value)} placeholder={t('freeQR.subjectPlaceholder')} style={inp}
@@ -170,7 +170,7 @@ export default function QRCodeGenerator() {
       case 'phone':
         return (
           <div>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>{t('freeQR.phoneType')}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>{t('freeQR.phoneType')}</div>
             <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+44 7700 900000" style={inp}
               onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
           </div>
@@ -178,7 +178,7 @@ export default function QRCodeGenerator() {
       case 'sms':
         return (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 }}>{t('freeQR.smsType')}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 4 }}>{t('freeQR.smsType')}</div>
             <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder={t('freeQR.phonePlaceholder')} style={inp}
               onFocus={e => e.target.style.borderColor = 'var(--sap-accent)'} onBlur={e => e.target.style.borderColor = 'var(--sap-navy-card)'} />
             <textarea value={smsBody} onChange={e => setSmsBody(e.target.value)} placeholder={t('freeQR.messagePlaceholder')} rows={2}
@@ -207,7 +207,7 @@ export default function QRCodeGenerator() {
         </Link>
         <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 22, color: '#fff' }}>{t('freeQR.title')}</span>
-          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-accent)', border: '1px solid rgba(14,165,233,0.4)', borderRadius: 20, padding: '4px 14px', letterSpacing: 1.5 }}>{t('freeQR.free')}</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-accent)', border: '1px solid rgba(14,165,233,0.4)', borderRadius: 20, padding: '4px 14px', letterSpacing: 1.5 }}>{t('freeQR.free')}</span>
         </div>
         <Link to="/register" style={{ background: 'var(--sap-accent)', color: '#fff', fontSize: 15, fontWeight: 600, padding: '10px 24px', borderRadius: 10, textDecoration: 'none', boxShadow: '0 2px 12px rgba(14,165,233,0.25)' }}>{t('freeQR.getStartedFree')}</Link>
       </nav>
@@ -250,7 +250,7 @@ export default function QRCodeGenerator() {
         <div style={{ display: 'flex', flexDirection: 'column', background: '#0a1220', overflow: 'auto', padding: '20px 20px 16px' }}>
 
           {/* Content type tabs */}
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>{t('freeQR.contentType')}</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>{t('freeQR.contentType')}</div>
           <div style={{ display: 'flex', gap: 6, marginBottom: 16, flexWrap: 'wrap' }}>
             {MODES.map(m => (
               <button key={m.id} onClick={() => setMode(m.id)}
@@ -273,11 +273,11 @@ export default function QRCodeGenerator() {
           </div>
 
           {/* Customise */}
-          <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>{t('freeQR.customise')}</div>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 10 }}>{t('freeQR.customise')}</div>
 
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
             <div>
-              <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>{t('freeQR.foreground')}</div>
+              <div style={{ fontSize: 13, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>{t('freeQR.foreground')}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 10 }}>
                 <input type="color" value={fgColor} onChange={e => setFgColor(e.target.value)}
                   style={{ width: 28, height: 28, border: 'none', borderRadius: 6, cursor: 'pointer', padding: 0, background: 'none' }} />
@@ -285,7 +285,7 @@ export default function QRCodeGenerator() {
               </div>
             </div>
             <div>
-              <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>{t('freeQR.backgroundColour')}</div>
+              <div style={{ fontSize: 13, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>{t('freeQR.backgroundColour')}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', background: 'var(--sap-navy-soft)', border: '1px solid #2a3040', borderRadius: 10 }}>
                 <input type="color" value={bgColor} onChange={e => setBgColor(e.target.value)}
                   style={{ width: 28, height: 28, border: 'none', borderRadius: 6, cursor: 'pointer', padding: 0, background: 'none' }} />
@@ -297,8 +297,8 @@ export default function QRCodeGenerator() {
           {/* Size slider */}
           <div style={{ marginBottom: 12 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-              <span style={{ fontSize: 10, color: '#7b8594', fontWeight: 600 }}>{t('freeQR.size')}</span>
-              <span style={{ fontSize: 11, color: '#fff', fontWeight: 700 }}>{size}px</span>
+              <span style={{ fontSize: 13, color: '#7b8594', fontWeight: 600 }}>{t('freeQR.size')}</span>
+              <span style={{ fontSize: 13, color: '#fff', fontWeight: 700 }}>{size}px</span>
             </div>
             <input type="range" min="100" max="600" step="50" value={size} onChange={e => setSize(+e.target.value)}
               style={{ width: '100%', accentColor: 'var(--sap-accent)' }} />
@@ -306,13 +306,13 @@ export default function QRCodeGenerator() {
 
           {/* Error correction */}
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 6, fontWeight: 600 }}>{t('freeQR.errorCorrection')}</div>
+            <div style={{ fontSize: 13, color: '#7b8594', marginBottom: 6, fontWeight: 600 }}>{t('freeQR.errorCorrection')}</div>
             <div style={{ display: 'flex', gap: 6 }}>
               {EC_LEVELS.map(ec => (
                 <button key={ec.id} onClick={() => setEcLevel(ec.id)}
                   style={{
                     flex: 1, padding: '8px 0', borderRadius: 8, border: 'none', cursor: 'pointer',
-                    fontFamily: '"DM Sans",sans-serif', fontSize: 11,
+                    fontFamily: '"DM Sans",sans-serif', fontSize: 13,
                     fontWeight: ecLevel === ec.id ? 700 : 600,
                     background: ecLevel === ec.id ? 'var(--sap-accent)' : 'var(--sap-navy-soft)',
                     color: ecLevel === ec.id ? '#fff' : '#7b8594',
@@ -326,8 +326,8 @@ export default function QRCodeGenerator() {
 
           {/* Bottom CTA */}
           <div style={{ padding: '10px 14px', background: 'rgba(14,165,233,0.03)', borderTop: '1px solid rgba(0,180,216,0.06)', borderRadius: 10, display: 'flex', alignItems: 'center', gap: 10, marginTop: 'auto' }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#fff', flex: 1 }}>{t('freeQR.earnCta')}</span>
-            <Link to="/earn" style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('freeQR.seeHow')}</Link>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#fff', flex: 1 }}>{t('freeQR.earnCta')}</span>
+            <Link to="/earn" style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('freeQR.seeHow')}</Link>
           </div>
         </div>
       </div>

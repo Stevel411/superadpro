@@ -16,7 +16,7 @@ export default function IncomeGrid3DPage() {
         </div>
       </nav>
       <div style={{ textAlign: 'center', padding: '32px 20px 0' }}>
-        <div style={{ display: 'inline-block', fontSize: 10, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--sap-accent)', border: '1px solid rgba(14,165,233,.3)', padding: '6px 16px', borderRadius: 20, marginBottom: 12 }}>{t('incomeGrid3D.interactive3D')}</div>
+        <div style={{ display: 'inline-block', fontSize: 13, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--sap-accent)', border: '1px solid rgba(14,165,233,.3)', padding: '6px 16px', borderRadius: 20, marginBottom: 12 }}>{t('incomeGrid3D.interactive3D')}</div>
         <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 'clamp(24px,4vw,42px)', fontWeight: 900, color: '#fff', margin: '0 0 8px', lineHeight: 1.1 }}>
           Watch Your <span style={{ color: 'var(--sap-accent-light)' }}>{t('incomeGrid3D.incomeGridTitle')}</span> Build
         </h1>

@@ -127,13 +127,13 @@ export default function Support() {
               <div>
                 {/* Category */}
                 <div style={{marginBottom:16}}>
-                  <label style={{fontSize:11,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.8,marginBottom:6,display:'block'}}>{t('support.categoryLabel')}</label>
+                  <label style={{fontSize:13,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.8,marginBottom:6,display:'block'}}>{t('support.categoryLabel')}</label>
                   <div style={{display:'flex',flexWrap:'wrap',gap:6}}>
                     {categories.map(function(c) {
                       var on = category === c.value;
                       return (
                         <button key={c.value} onClick={function(){setCategory(c.value);}}
-                          style={{padding:'7px 14px',borderRadius:8,fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit',
+                          style={{padding:'7px 14px',borderRadius:8,fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',
                             border:on ? '1.5px solid #0ea5e9' : '1px solid #e2e8f0',
                             background:on ? 'rgba(14,165,233,.06)' : '#fff',
                             color:on ? 'var(--sap-accent)' : 'var(--sap-text-muted)',transition:'all .15s'}}>
@@ -146,7 +146,7 @@ export default function Support() {
 
                 {/* Subject */}
                 <div style={{marginBottom:16}}>
-                  <label style={{fontSize:11,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.8,marginBottom:6,display:'block'}}>{t('support.subject')}</label>
+                  <label style={{fontSize:13,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.8,marginBottom:6,display:'block'}}>{t('support.subject')}</label>
                   <input value={subject} onChange={function(e){setSubject(e.target.value);}}
                     placeholder={t("support.subjectPlaceholder")}
                     style={{width:'100%',padding:'11px 14px',border:'1.5px solid #e2e8f0',borderRadius:10,fontSize:13,
@@ -157,7 +157,7 @@ export default function Support() {
 
                 {/* Message */}
                 <div style={{marginBottom:20}}>
-                  <label style={{fontSize:11,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.8,marginBottom:6,display:'block'}}>{t('support.message')}</label>
+                  <label style={{fontSize:13,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.8,marginBottom:6,display:'block'}}>{t('support.message')}</label>
                   <textarea value={message} onChange={function(e){setMessage(e.target.value);}}
                     placeholder={t("support.messagePlaceholder")}
                     rows={6}
@@ -177,7 +177,7 @@ export default function Support() {
                   <Send size={15}/> {sending ? t('support.sending') : t('support.submitBtn')}
                 </button>
 
-                <div style={{textAlign:'center',marginTop:12,fontSize:11,color:'var(--sap-text-ghost)',lineHeight:1.5}}>
+                <div style={{textAlign:'center',marginTop:12,fontSize:13,color:'var(--sap-text-ghost)',lineHeight:1.5}}>
                   We typically respond within 24 hours. Check your email for our reply.
                 </div>
               </div>
@@ -193,7 +193,7 @@ export default function Support() {
           <Mail size={16} color="var(--sap-text-muted)"/>
           <span style={{fontSize:13,color:'var(--sap-text-muted)'}}>{t('support.emailDirectly')} <span style={{fontWeight:700,color:'var(--sap-accent)'}}>steve@superadpro.com</span></span>
         </div>
-        <div style={{fontSize:11,color:'var(--sap-text-ghost)'}}>{t('support.responseTime')}</div>
+        <div style={{fontSize:13,color:'var(--sap-text-ghost)'}}>{t('support.responseTime')}</div>
       </div>
     </AppLayout>
   );

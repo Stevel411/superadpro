@@ -151,7 +151,7 @@ export default function PlatformTour() {
                   <sec.Icon size={14} color={isActive ? '#fff' : sec.color}/>
                 </div>
                 {sec.shortTitle}
-                {sec.pro && <span style={{ marginLeft: 2, padding: '2px 7px', borderRadius: 5, background: 'rgba(139,92,246,.12)', fontSize: 10, fontWeight: 700, color: 'var(--sap-violet)', letterSpacing: 0.3 }}>{t('platformTour.proLabel')}</span>}
+                {sec.pro && <span style={{ marginLeft: 2, padding: '2px 7px', borderRadius: 5, background: 'rgba(139,92,246,.12)', fontSize: 13, fontWeight: 700, color: 'var(--sap-violet)', letterSpacing: 0.3 }}>{t('platformTour.proLabel')}</span>}
               </button>;
             })}
           </div>

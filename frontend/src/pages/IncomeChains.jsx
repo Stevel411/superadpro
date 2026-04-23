@@ -40,7 +40,7 @@ export default function IncomeChains() {
                      background:'radial-gradient(circle,rgba(14,165,233,0.25) 0%,transparent 70%)'}}/>
         <div style={{position:'relative',display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:20}}>
           <div style={{flex:1,minWidth:280}}>
-            <div style={{fontSize:11,fontWeight:800,letterSpacing:1.6,textTransform:'uppercase',color:'#7dd3fc',marginBottom:8}}>
+            <div style={{fontSize:13,fontWeight:800,letterSpacing:1.6,textTransform:'uppercase',color:'#7dd3fc',marginBottom:8}}>
               Total Income Chain Earnings
             </div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:44,fontWeight:800,letterSpacing:-1,marginBottom:6}}>
@@ -67,7 +67,7 @@ export default function IncomeChains() {
       {/* ── 4 Chain Cards ── */}
       <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:14,marginBottom:28}}>
         {chains.map(function(chain){
-          var colour = chainColours[chain.chain_number] || '#64748b';
+          var colour = chainColours[chain.chain_number] || '#475569';
           return (
             <ChainCard
               key={chain.chain_number}
@@ -93,7 +93,7 @@ export default function IncomeChains() {
           </div>
           <div style={{flex:1}}>
             <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:2}}>Direct Course Sales</div>
-            <div style={{fontSize:12,color:'#64748b'}}>
+            <div style={{fontSize:12,color:'#475569'}}>
               {directSales.count} sales where you kept 100% — doesn't flow through any Income Chain
             </div>
           </div>
@@ -111,7 +111,7 @@ export default function IncomeChains() {
             <div style={{width:8,height:8,borderRadius:4,background:'#0ea5e9',boxShadow:'0 0 8px rgba(14,165,233,.5)'}}/>
             <div style={{fontSize:14,fontWeight:800,color:'#fff',letterSpacing:.3}}>Recent Cascades</div>
           </div>
-          <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.55)'}}>
+          <div style={{fontSize:13,fontWeight:700,color:'rgba(255,255,255,.55)'}}>
             {recentCascades.length} entries
           </div>
         </div>
@@ -119,7 +119,7 @@ export default function IncomeChains() {
         {recentCascades.length > 0 ? (
           <div style={{maxHeight:500,overflowY:'auto'}}>
             {recentCascades.map(function(c, i){
-              var colour = chainColours[c.chain_number] || '#64748b';
+              var colour = chainColours[c.chain_number] || '#475569';
               return (
                 <div key={c.id || i} style={{display:'flex',alignItems:'center',padding:'14px 24px',
                                               borderBottom: i === recentCascades.length - 1 ? 'none' : '1px solid #f1f5f9'}}>
@@ -128,7 +128,7 @@ export default function IncomeChains() {
                     <div style={{display:'inline-block',padding:'4px 10px',borderRadius:6,
                                  background:colour+'15',color:colour,
                                  border:'1px solid '+colour+'30',
-                                 fontSize:10,fontWeight:800,letterSpacing:.5}}>
+                                 fontSize:13,fontWeight:800,letterSpacing:.5}}>
                       CHAIN {c.chain_number}
                     </div>
                   </div>
@@ -137,10 +137,10 @@ export default function IncomeChains() {
                     <div style={{fontSize:13,fontWeight:700,color:'#0f172a',marginBottom:2}}>
                       {c.buyer_name || 'A member'} bought Tier {c.course_tier}
                     </div>
-                    <div style={{fontSize:11,color:'#64748b',display:'flex',alignItems:'center',gap:6}}>
+                    <div style={{fontSize:13,color:'#475569',display:'flex',alignItems:'center',gap:6}}>
                       <ArrowUpRight size={11} color={colour}/>
                       Cascaded {c.depth_walked} level{c.depth_walked === 1 ? '' : 's'} to you
-                      {c.created_at && <span style={{color:'#94a3b8',marginLeft:4}}>
+                      {c.created_at && <span style={{color:'#7a8899',marginLeft:4}}>
                         • {new Date(c.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short'})}
                       </span>}
                     </div>
@@ -192,17 +192,17 @@ function ChainCard(props) {
       <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:16}}>
         <div style={{display:'inline-flex',alignItems:'center',gap:6,padding:'4px 10px',borderRadius:6,
                      background:colour+'15',color:colour,border:'1px solid '+colour+'30',
-                     fontSize:10,fontWeight:800,letterSpacing:.5}}>
+                     fontSize:13,fontWeight:800,letterSpacing:.5}}>
           <Zap size={10}/> CHAIN {props.number}
         </div>
-        <div style={{fontSize:10,fontWeight:700,color:'#94a3b8'}}>
+        <div style={{fontSize:13,fontWeight:700,color:'#7a8899'}}>
           opens at #{props.opensAt}
         </div>
       </div>
 
       {/* Name */}
       <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:4}}>{props.name}</div>
-      <div style={{fontSize:11,color:'#64748b',marginBottom:18}}>
+      <div style={{fontSize:13,color:'#475569',marginBottom:18}}>
         Your {ordinal(props.opensAt)} referral and every {ordinal(props.opensAt)} below
       </div>
 
@@ -210,7 +210,7 @@ function ChainCard(props) {
       <div style={{fontFamily:'Sora,sans-serif',fontSize:30,fontWeight:800,color:colour,letterSpacing:-.5,marginBottom:4}}>
         ${props.total.toFixed(2)}
       </div>
-      <div style={{fontSize:11,color:'#64748b',display:'flex',alignItems:'center',gap:4}}>
+      <div style={{fontSize:13,color:'#475569',display:'flex',alignItems:'center',gap:4}}>
         <TrendingUp size={11} color={colour}/>
         {props.cascadeCount} cascade{props.cascadeCount === 1 ? '' : 's'} received
       </div>
@@ -266,11 +266,11 @@ function RuleCard(props) {
   return (
     <div style={{padding:'18px 20px',background:'#f8fafc',borderRadius:10,border:'1px solid #e8ecf2',position:'relative'}}>
       <div style={{position:'absolute',top:0,left:0,bottom:0,width:3,background:props.colour,borderRadius:'10px 0 0 10px'}}/>
-      <div style={{fontSize:11,fontWeight:800,color:props.colour,letterSpacing:.5,marginBottom:6,textTransform:'uppercase'}}>
+      <div style={{fontSize:13,fontWeight:800,color:props.colour,letterSpacing:.5,marginBottom:6,textTransform:'uppercase'}}>
         {props.title}
       </div>
       <div style={{fontSize:13,fontWeight:700,color:'#0f172a',marginBottom:4}}>{props.rule}</div>
-      <div style={{fontSize:12,color:'#64748b',lineHeight:1.5}}>{props.detail}</div>
+      <div style={{fontSize:12,color:'#475569',lineHeight:1.5}}>{props.detail}</div>
     </div>
   );
 }
@@ -292,7 +292,7 @@ function EmptyState(props) {
     <div style={{textAlign:'center',padding:'56px 32px'}}>
       <div style={{fontSize:40,marginBottom:14,opacity:.4}}>{props.icon}</div>
       <div style={{fontSize:15,fontWeight:700,color:'#0f172a',marginBottom:8}}>{props.title}</div>
-      <div style={{fontSize:12,color:'#64748b',maxWidth:420,margin:'0 auto',lineHeight:1.55}}>{props.subtitle}</div>
+      <div style={{fontSize:12,color:'#475569',maxWidth:420,margin:'0 auto',lineHeight:1.55}}>{props.subtitle}</div>
     </div>
   );
 }

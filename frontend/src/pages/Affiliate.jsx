@@ -76,9 +76,9 @@ export default function Affiliate() {
       {/* Referral link bar */}
       <div style={{ background: 'linear-gradient(180deg, #172554, #172554)', padding: '0 24px 14px' }}>
         <div style={{ background: 'rgba(255,255,255,.08)', border: '1px solid rgba(255,255,255,.12)', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,.5)', whiteSpace: 'nowrap' }}>{t('socialShare.yourLink')}</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,.5)', whiteSpace: 'nowrap' }}>{t('socialShare.yourLink')}</span>
           <span style={{ flex: 1, fontSize: 12, color: '#22d3ee', fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{refLink}</span>
-          <button onClick={copyRef} style={{ background: 'rgba(34,211,238,.15)', color: '#22d3ee', padding: '5px 14px', borderRadius: 6, fontSize: 11, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>{copied ? t('socialShare.copied') : t('socialShare.copy')}</button>
+          <button onClick={copyRef} style={{ background: 'rgba(34,211,238,.15)', color: '#22d3ee', padding: '5px 14px', borderRadius: 6, fontSize: 13, fontWeight: 600, border: 'none', cursor: 'pointer', fontFamily: 'inherit' }}>{copied ? t('socialShare.copied') : t('socialShare.copy')}</button>
         </div>
       </div>
 

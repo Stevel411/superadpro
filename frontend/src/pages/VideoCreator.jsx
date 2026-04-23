@@ -66,7 +66,7 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
         onMouseEnter={function() { setHovered(true); }}
         onMouseLeave={function() { setHovered(false); }}
         style={{ background: isActive ? 'var(--sap-cobalt-mid)' : '#fff', borderRadius: 10, padding: '12px 14px', cursor: 'pointer', border: '2px solid ' + (isActive ? 'var(--sap-cobalt-mid)' : 'transparent'), transition: 'all 0.15s ease', transform: hovered && !open ? 'translateY(-2px)' : 'none', boxShadow: hovered && !open ? '0 8px 24px rgba(0,0,0,0.2)' : 'none' }}>
-        <div style={{ fontSize: 11, color: isActive ? 'rgba(255,255,255,0.6)' : 'var(--sap-text-faint)', marginBottom: 4 }}>{label}</div>
+        <div style={{ fontSize: 13, color: isActive ? 'rgba(255,255,255,0.6)' : 'var(--sap-text-faint)', marginBottom: 4 }}>{label}</div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <div style={{ width: 28, height: 28, borderRadius: 6, background: selected.color || iconColor || 'var(--sap-indigo)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
             {icon === 'layers' && <Layers size={14} color="#fff" />}
@@ -104,10 +104,10 @@ function CompactDropdown({ label, icon, iconColor, items, value, onChange, initi
                     </div>
                     <div>
                       <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--sap-text-primary)' }}>{item.label}</div>
-                      {item.desc && <div style={{ fontSize: 11, color: 'var(--sap-text-faint)' }}>{item.desc}</div>}
+                      {item.desc && <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>{item.desc}</div>}
                     </div>
                   </div>
-                  {item.tag && <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 8px', borderRadius: 10, background: (item.tagColor || item.color) + '18', color: item.tagColor || item.color, whiteSpace: 'nowrap' }}>{item.tag}</span>}
+                  {item.tag && <span style={{ fontSize: 13, fontWeight: 700, padding: '3px 8px', borderRadius: 10, background: (item.tagColor || item.color) + '18', color: item.tagColor || item.color, whiteSpace: 'nowrap' }}>{item.tag}</span>}
                 </div>
               );
             })}
@@ -159,7 +159,7 @@ function StyledSelect({ label, items, value, onChange, renderLabel, renderDesc, 
                 {colorKey && item[colorKey] && <div style={{ width: 8, height: 8, borderRadius: '50%', background: item[colorKey], flexShrink: 0 }}/>}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: 12, fontWeight: 600, color: isSel ? 'var(--sap-purple)' : 'var(--sap-text-primary)' }}>{renderLabel(item)}</div>
-                  {renderDesc && <div style={{ fontSize: 10, color: 'var(--sap-text-faint)', marginTop: 1 }}>{renderDesc(item)}</div>}
+                  {renderDesc && <div style={{ fontSize: 13, color: 'var(--sap-text-faint)', marginTop: 1 }}>{renderDesc(item)}</div>}
                 </div>
                 {isSel && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--sap-purple)" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>}
               </div>
@@ -290,7 +290,7 @@ export function VideoCreatorContent() {
         <div className="cs-progress"><div className="cs-progress-bar" style={{ width: progress + '%' }}/></div>
         <div className="cs-progress-status">{status || 'Generating...'} \u2014 {progress}%</div>
         {steps.length > 0 && <div style={{ display: 'flex', gap: 12, justifyContent: 'center', marginTop: 8, flexWrap: 'wrap' }}>
-          {steps.map(function(s, i) { var labels = { script: 'Script', images: 'Visuals', voiceover: 'Voiceover', render: 'Composing', video_clips: 'Motion clips' }; var done = s.status === 'ok'; return <span key={i} style={{ fontSize: 11, color: done ? 'var(--sap-green-bright)' : 'var(--sap-text-faint)', fontWeight: 600 }}>{done ? '\u2713' : '\u25CB'} {labels[s.step] || s.step}</span>; })}
+          {steps.map(function(s, i) { var labels = { script: 'Script', images: 'Visuals', voiceover: 'Voiceover', render: 'Composing', video_clips: 'Motion clips' }; var done = s.status === 'ok'; return <span key={i} style={{ fontSize: 13, color: done ? 'var(--sap-green-bright)' : 'var(--sap-text-faint)', fontWeight: 600 }}>{done ? '\u2713' : '\u25CB'} {labels[s.step] || s.step}</span>; })}
         </div>}
       </div>}
 
@@ -334,7 +334,7 @@ export function VideoCreatorContent() {
                 {uploadedImages.map(function(img, i) {
                   return <div key={i} style={{ position: 'relative', width: 48, height: 48, borderRadius: 6, overflow: 'hidden', border: '1px solid #e2e8f0' }}>
                     <img src={img.url} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }}/>
-                    <div onClick={function() { removeImage(i); }} style={{ position: 'absolute', top: 2, right: 2, width: 16, height: 16, borderRadius: '50%', background: 'rgba(0,0,0,.6)', color: '#fff', fontSize: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>\u2715</div>
+                    <div onClick={function() { removeImage(i); }} style={{ position: 'absolute', top: 2, right: 2, width: 16, height: 16, borderRadius: '50%', background: 'rgba(0,0,0,.6)', color: '#fff', fontSize: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>\u2715</div>
                   </div>;
                 })}
               </div>}

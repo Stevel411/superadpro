@@ -31,7 +31,7 @@ export default function Courses() {
           <span style={{fontSize:12,fontWeight:700,color:'#f59e0b',letterSpacing:1,textTransform:'uppercase'}}>Coming Soon</span>
         </div>
         <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:28,fontWeight:800,color:'#0f172a',margin:'0 0 12px'}}>Course Academy</h2>
-        <p style={{fontSize:15,color:'#64748b',lineHeight:1.7,maxWidth:520,margin:'0 auto 24px'}}>Resell professionally-built SuperAdPro courses to your audience. Keep 100% of your first sale, with a pass-up system that creates ongoing team income.</p>
+        <p style={{fontSize:15,color:'#475569',lineHeight:1.7,maxWidth:520,margin:'0 auto 24px'}}>Resell professionally-built SuperAdPro courses to your audience. Keep 100% of your first sale, with a pass-up system that creates ongoing team income.</p>
         <div style={{display:'flex',justifyContent:'center',gap:24,flexWrap:'wrap'}}>
           {[['📚','Ready-made courses to resell'],['💰','100% first sale commission'],['⬆️','Infinite pass-up cascade']].map(function(item,i){
             return <div key={i} style={{display:'flex',alignItems:'center',gap:8,fontSize:13,color:'#475569',fontWeight:600}}>
@@ -55,7 +55,7 @@ export default function Courses() {
                   </div>
                 )}
                 <div style={{position:'absolute',top:14,right:14,background:'rgba(0,0,0,0.6)',backdropFilter:'blur(8px)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:8,padding:'5px 12px',fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'#fff'}}>${Math.round(c.price)}</div>
-                {c.owned && <div style={{position:'absolute',top:14,left:14,background:'rgba(22,163,74,0.9)',borderRadius:8,padding:'4px 12px',fontSize:11,fontWeight:700,color:'#fff',letterSpacing:0.5}}>{t('courses.owned')}</div>}
+                {c.owned && <div style={{position:'absolute',top:14,left:14,background:'rgba(22,163,74,0.9)',borderRadius:8,padding:'4px 12px',fontSize:13,fontWeight:700,color:'#fff',letterSpacing:0.5}}>{t('courses.owned')}</div>}
               </div>
               {/* Body */}
               <div style={{padding:20,flex:1,display:'flex',flexDirection:'column'}}>
@@ -71,7 +71,7 @@ export default function Courses() {
                     <div style={{height:5,background:'#f1f3f7',borderRadius:99,overflow:'hidden',marginBottom:4}}>
                       <div style={{height:'100%',background:'linear-gradient(90deg,#0ea5e9,#38bdf8)',borderRadius:99,width:`${c.progress_pct}%`}}/>
                     </div>
-                    <div style={{fontSize:11,fontWeight:700,color:'var(--sap-accent)'}}>{c.progress_done || 0}/{c.progress_total || 0} complete ({c.progress_pct}%)</div>
+                    <div style={{fontSize:13,fontWeight:700,color:'var(--sap-accent)'}}>{c.progress_done || 0}/{c.progress_total || 0} complete ({c.progress_pct}%)</div>
                   </div>
                 )}
                 {c.owned ? (

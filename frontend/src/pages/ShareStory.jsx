@@ -153,7 +153,7 @@ export default function ShareStory() {
               background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: 12,
               textAlign: 'left',
             }}>
-              <div style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:6 }}>
+              <div style={{ fontSize:13, fontWeight:700, color:'#475569', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:6 }}>
                 {t('shareStory.yourSubmission', { defaultValue: 'Your submission' })}
               </div>
               <div style={{ fontSize:14, fontWeight:700, color:'#0f172a', marginBottom:4 }}>
@@ -182,7 +182,7 @@ export default function ShareStory() {
     >
       <style>{`
         .ss-label { display:block; font-size:12px; font-weight:700; color:#334155; text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px; }
-        .ss-hint  { font-size:12px; color:#64748b; margin-top:6px; line-height:1.5; }
+        .ss-hint  { font-size:12px; color:#475569; margin-top:6px; line-height:1.5; }
         .ss-input, .ss-textarea {
           width:100%; padding:11px 14px; font-size:14px; font-family:inherit;
           border:1px solid #cbd5e1; border-radius:10px; background:#fff; color:#0f172a;
@@ -192,7 +192,7 @@ export default function ShareStory() {
           outline:none; border-color:#0ea5e9; box-shadow: 0 0 0 3px rgba(14,165,233,.15);
         }
         .ss-textarea { min-height:110px; resize:vertical; line-height:1.5; }
-        .ss-counter { font-size:11px; color:#94a3b8; font-weight:600; }
+        .ss-counter { font-size:13px; color:#7a8899; font-weight:600; }
         .ss-counter.warn { color:#f59e0b; }
         .ss-counter.over { color:#ef4444; }
         .ss-row { display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
@@ -355,7 +355,7 @@ export default function ShareStory() {
             {t('shareStory.nowMonthlyLabel', { defaultValue: 'Currently earning per month (optional)' })}
           </label>
           <div style={{ position:'relative' }}>
-            <span style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', color:'#64748b', fontWeight:700, fontSize:14 }}>$</span>
+            <span style={{ position:'absolute', left:14, top:'50%', transform:'translateY(-50%)', color:'#475569', fontWeight:700, fontSize:14 }}>$</span>
             <input
               className="ss-input" type="number" min="0" step="0.01"
               style={{ paddingLeft:26 }}
@@ -393,7 +393,7 @@ export default function ShareStory() {
 
         {/* Submit */}
         <div style={{ display:'flex', justifyContent:'flex-end', gap:12, alignItems:'center' }}>
-          <div style={{ fontSize:12, color:'#64748b' }}>
+          <div style={{ fontSize:12, color:'#475569' }}>
             {t('shareStory.reviewNote', { defaultValue: 'Reviewed within 24h before going live' })}
           </div>
           <button

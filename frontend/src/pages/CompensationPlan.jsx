@@ -313,11 +313,11 @@ function MatrixContent(props) {
 
     {/* Mini tree */}
     <div style={{ display:'flex', flexDirection:'column', alignItems:'center', gap:8, padding:'16px 0', marginBottom:20 }}>
-      <div style={{ fontSize:10, color:'var(--sap-text-muted)', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('compPlan.yourNexus39')}</div>
+      <div style={{ fontSize:13, color:'var(--sap-text-muted)', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('compPlan.yourNexus39')}</div>
       <div style={{ display:'flex', gap:8 }}><TreeNode type="you" label={t('compPlan.you')}/></div>
-      <div style={{ fontSize:10, color:'var(--sap-text-muted)', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('compPlan.goldDirect')}</div>
+      <div style={{ fontSize:13, color:'var(--sap-text-muted)', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('compPlan.goldDirect')}</div>
       <div style={{ display:'flex', gap:8 }}><TreeNode type="direct"/><TreeNode type="direct"/><TreeNode type="direct"/></div>
-      <div style={{ fontSize:10, color:'var(--sap-text-muted)', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('compPlan.greenAutoPlace')}</div>
+      <div style={{ fontSize:13, color:'var(--sap-text-muted)', fontWeight:600, textTransform:'uppercase', letterSpacing:.5 }}>{t('compPlan.greenAutoPlace')}</div>
       <div style={{ display:'flex', gap:8, flexWrap:'wrap', justifyContent:'center' }}>
         {Array.from({length:9}, function(_,i){ return <TreeNode key={i} type="spill"/>; })}
       </div>
@@ -359,19 +359,19 @@ function MatrixContent(props) {
         <div style={{ fontFamily:'Sora,sans-serif', fontSize:42, fontWeight:900, color:'#4ade80', textAlign:'center', marginBottom:16 }}>${mTotal.toFixed(2)}</div>
         <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:10 }}>
           <div style={{ background:'rgba(255,255,255,.08)', borderRadius:10, padding:14, textAlign:'center' }}>
-            <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>{t('compPlan.directPercent')}</div>
+            <div style={{ fontSize:13, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>{t('compPlan.directPercent')}</div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'var(--sap-amber-bright)', marginTop:4 }}>${mDirectEarn.toFixed(2)}</div>
-            <div style={{ fontSize:10, color:'rgba(255,255,255,.4)', marginTop:2 }}>{props.matrixDirect} × ${mPrice} × 15%</div>
+            <div style={{ fontSize:13, color:'rgba(255,255,255,.4)', marginTop:2 }}>{props.matrixDirect} × ${mPrice} × 15%</div>
           </div>
           <div style={{ background:'rgba(255,255,255,.08)', borderRadius:10, padding:14, textAlign:'center' }}>
-            <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>{t('compPlan.autoPlacePercent')}</div>
+            <div style={{ fontSize:13, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>{t('compPlan.autoPlacePercent')}</div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#4ade80', marginTop:4 }}>${mSpillEarn.toFixed(2)}</div>
-            <div style={{ fontSize:10, color:'rgba(255,255,255,.4)', marginTop:2 }}>{props.matrixSpill} × ${mPrice} × 10%</div>
+            <div style={{ fontSize:13, color:'rgba(255,255,255,.4)', marginTop:2 }}>{props.matrixSpill} × ${mPrice} × 10%</div>
           </div>
           <div style={{ background: mComplete ? 'rgba(139,92,246,.2)' : 'rgba(255,255,255,.05)', borderRadius:10, padding:14, textAlign:'center', border: mComplete ? '1px solid rgba(139,92,246,.3)' : '1px solid transparent' }}>
-            <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>{t('compPlan.bonusPercent')}</div>
+            <div style={{ fontSize:13, color:'rgba(255,255,255,.5)', textTransform:'uppercase', fontWeight:700, letterSpacing:.5 }}>{t('compPlan.bonusPercent')}</div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color: mComplete ? '#c084fc' : 'rgba(255,255,255,.2)', marginTop:4 }}>{mComplete ? '$'+mCompletionBonus.toFixed(2) : '🔒'}</div>
-            <div style={{ fontSize:10, color:'rgba(255,255,255,.4)', marginTop:2 }}>{mComplete ? '39 × $'+mPrice+' × 10%' : t('compPlan.unlocksAt')}</div>
+            <div style={{ fontSize:13, color:'rgba(255,255,255,.4)', marginTop:2 }}>{mComplete ? '39 × $'+mPrice+' × 10%' : t('compPlan.unlocksAt')}</div>
           </div>
         </div>
         <div style={{ textAlign:'center', marginTop:14, fontSize:12, color:'rgba(255,255,255,.35)' }}>{t('compPlan.buyAll8')}</div>
@@ -442,9 +442,9 @@ function GridTierCards() {
               border: isActive ? '2px solid rgba(255,255,255,0.4)' : '2px solid transparent',
             }}>
             <div style={{position:'absolute',top:-15,right:-15,width:50,height:50,borderRadius:'50%',background:'rgba(255,255,255,0.08)',pointerEvents:'none'}}/>
-            <div style={{ fontSize:11, fontWeight:600, opacity:.75 }}>{n}</div>
+            <div style={{ fontSize:13, fontWeight:600, opacity:.75 }}>{n}</div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:900, margin:'4px 0' }}>${price}</div>
-            <div style={{ fontSize:9, opacity:.5, marginTop:2 }}>{isActive ? '▲ tap to close' : '▼ tap for earnings'}</div>
+            <div style={{ fontSize:13, opacity:.5, marginTop:2 }}>{isActive ? '▲ tap to close' : '▼ tap for earnings'}</div>
           </div>
 
           {isActive && <div style={{
@@ -453,18 +453,18 @@ function GridTierCards() {
           }}>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr 1fr', gap:8, marginBottom:10 }}>
               <div style={{ background:'rgba(34,197,94,.06)', borderRadius:10, padding:'10px', textAlign:'center' }}>
-                <div style={{ fontSize:9, fontWeight:700, color:'var(--sap-green)', textTransform:'uppercase', letterSpacing:1 }}>Direct 40%</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-green)', textTransform:'uppercase', letterSpacing:1 }}>Direct 40%</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:900, color:'var(--sap-green)', marginTop:4 }}>${direct40}</div>
               </div>
               <div style={{ background:'rgba(99,102,241,.06)', borderRadius:10, padding:'10px', textAlign:'center' }}>
-                <div style={{ fontSize:9, fontWeight:700, color:'var(--sap-indigo)', textTransform:'uppercase', letterSpacing:1 }}>Uni-Level 6.25%</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-indigo)', textTransform:'uppercase', letterSpacing:1 }}>Uni-Level 6.25%</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:900, color:'var(--sap-indigo)', marginTop:4 }}>${uniLevel}</div>
-                <div style={{ fontSize:9, color:'var(--sap-text-muted)' }}>× 8 levels</div>
+                <div style={{ fontSize:13, color:'var(--sap-text-muted)' }}>× 8 levels</div>
               </div>
               <div style={{ background:'rgba(245,158,11,.06)', borderRadius:10, padding:'10px', textAlign:'center' }}>
-                <div style={{ fontSize:9, fontWeight:700, color:'var(--sap-amber-dark)', textTransform:'uppercase', letterSpacing:1 }}>Bonus 5%</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-amber-dark)', textTransform:'uppercase', letterSpacing:1 }}>Bonus 5%</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:900, color:'var(--sap-amber-dark)', marginTop:4 }}>${bonus5}</div>
-                <div style={{ fontSize:9, color:'var(--sap-text-muted)' }}>64 positions</div>
+                <div style={{ fontSize:13, color:'var(--sap-text-muted)' }}>64 positions</div>
               </div>
             </div>
           </div>}
@@ -494,9 +494,9 @@ function PackSelector({ value, onChange, options }) {
         {sel && <div style={{ width:36, height:36, borderRadius:10, background:sel.gradient, display:'flex', alignItems:'center', justifyContent:'center', fontSize:18, flexShrink:0 }}>{sel.emoji}</div>}
         <div style={{ flex:1 }}>
           <div style={{ fontSize:14, fontWeight:700, color:'#0f172a' }}>{sel ? sel.label : 'Select a pack...'}</div>
-          {sel && <div style={{ fontSize:12, color:'#64748b' }}>${sel.price} · {sel.credits.toLocaleString()} credits</div>}
+          {sel && <div style={{ fontSize:12, color:'#475569' }}>${sel.price} · {sel.credits.toLocaleString()} credits</div>}
         </div>
-        <ChevronDown size={16} color="#64748b" style={{ flexShrink:0, transition:'transform .2s', transform: open?'rotate(180deg)':'none' }}/>
+        <ChevronDown size={16} color="#475569" style={{ flexShrink:0, transition:'transform .2s', transform: open?'rotate(180deg)':'none' }}/>
       </div>
       {open && (
         <div style={{ position:'absolute', top:'100%', left:0, right:0, marginTop:4, background:'#fff', border:'1.5px solid #e2e8f0',
@@ -514,7 +514,7 @@ function PackSelector({ value, onChange, options }) {
                 <div style={{ width:34, height:34, borderRadius:9, background:o.gradient, display:'flex', alignItems:'center', justifyContent:'center', fontSize:16, flexShrink:0 }}>{o.emoji}</div>
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:13, fontWeight:isSel?700:500, color:isSel?'#4f46e5':'#0f172a' }}>{o.label}</div>
-                  <div style={{ fontSize:11, color:'#94a3b8' }}>${o.price} · {o.credits.toLocaleString()} credits</div>
+                  <div style={{ fontSize:13, color:'#7a8899' }}>${o.price} · {o.credits.toLocaleString()} credits</div>
                 </div>
                 {isSel && <Check size={16} color="#6366f1"/>}
               </div>
@@ -550,10 +550,10 @@ function NexusPackCards() {
               border: isActive ? '2px solid rgba(255,255,255,0.4)' : '2px solid transparent',
             }}>
             <div style={{position:'absolute',top:-15,right:-15,width:50,height:50,borderRadius:'50%',background:'rgba(255,255,255,0.08)',pointerEvents:'none'}}/>
-            <div style={{ fontSize:11, fontWeight:600, opacity:.75 }}>{n}</div>
+            <div style={{ fontSize:13, fontWeight:600, opacity:.75 }}>{n}</div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:900, margin:'4px 0' }}>${price}</div>
-            <div style={{ fontSize:10, opacity:.55 }}>{credits.toLocaleString()} credits</div>
-            <div style={{ fontSize:9, opacity:.5, marginTop:4 }}>{isActive ? '▲ tap to close' : '▼ tap for earnings'}</div>
+            <div style={{ fontSize:13, opacity:.55 }}>{credits.toLocaleString()} credits</div>
+            <div style={{ fontSize:13, opacity:.5, marginTop:4 }}>{isActive ? '▲ tap to close' : '▼ tap for earnings'}</div>
           </div>
 
           {isActive && <div style={{
@@ -562,20 +562,20 @@ function NexusPackCards() {
           }}>
             <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:8, marginBottom:10 }}>
               <div style={{ background:'rgba(245,158,11,.06)', borderRadius:10, padding:'12px', textAlign:'center' }}>
-                <div style={{ fontSize:10, fontWeight:700, color:'var(--sap-amber-dark)', textTransform:'uppercase', letterSpacing:1 }}>Direct (15%)</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-amber-dark)', textTransform:'uppercase', letterSpacing:1 }}>Direct (15%)</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:900, color:'var(--sap-amber-dark)', marginTop:4 }}>${directEarn}</div>
-                <div style={{ fontSize:10, color:'var(--sap-text-muted)', marginTop:2 }}>per referral</div>
+                <div style={{ fontSize:13, color:'var(--sap-text-muted)', marginTop:2 }}>per referral</div>
               </div>
               <div style={{ background:'rgba(34,197,94,.06)', borderRadius:10, padding:'12px', textAlign:'center' }}>
-                <div style={{ fontSize:10, fontWeight:700, color:'var(--sap-green)', textTransform:'uppercase', letterSpacing:1 }}>Auto-place (10%)</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-green)', textTransform:'uppercase', letterSpacing:1 }}>Auto-place (10%)</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:900, color:'var(--sap-green)', marginTop:4 }}>${autoEarn}</div>
-                <div style={{ fontSize:10, color:'var(--sap-text-muted)', marginTop:2 }}>per position</div>
+                <div style={{ fontSize:13, color:'var(--sap-text-muted)', marginTop:2 }}>per position</div>
               </div>
             </div>
             <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:10, padding:'12px', textAlign:'center' }}>
-              <div style={{ fontSize:10, fontWeight:700, color:'rgba(255,255,255,.6)', textTransform:'uppercase', letterSpacing:1 }}>Full nexus (39 positions)</div>
+              <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,.6)', textTransform:'uppercase', letterSpacing:1 }}>Full nexus (39 positions)</div>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:900, color:'#4ade80', marginTop:4 }}>${totalIf39}</div>
-              <div style={{ fontSize:10, color:'rgba(255,255,255,.4)', marginTop:2 }}>3 direct + 36 auto-place + completion</div>
+              <div style={{ fontSize:13, color:'rgba(255,255,255,.4)', marginTop:2 }}>3 direct + 36 auto-place + completion</div>
             </div>
           </div>}
         </div>;
@@ -612,7 +612,7 @@ function CommBox(props) {
       {isGrad && <div style={{position:'absolute',top:-20,right:-20,width:60,height:60,borderRadius:'50%',background:'rgba(255,255,255,0.1)',pointerEvents:'none'}}/>}
       <div style={{ fontFamily:'Sora,sans-serif', fontSize:30, fontWeight:900, color:isGrad?'#fff':props.color, lineHeight:1 }}>{props.val}</div>
       <div style={{ fontSize:13, fontWeight:700, color:isGrad?'rgba(255,255,255,0.9)':'var(--sap-text-primary)', marginTop:8 }}>{props.label}</div>
-      <div style={{ fontSize:11, color:isGrad?'rgba(255,255,255,0.6)':'var(--sap-text-muted)', marginTop:3 }}>{props.sub}</div>
+      <div style={{ fontSize:13, color:isGrad?'rgba(255,255,255,0.6)':'var(--sap-text-muted)', marginTop:3 }}>{props.sub}</div>
     </div>
   );
 }
@@ -622,7 +622,7 @@ function EarnTable(props) {
     <div style={{ marginBottom:14, borderRadius:12, border:'1px solid #e2e8f0', overflow:'hidden' }}>
       <table style={{ width:'100%', borderCollapse:'collapse' }}>
         <thead><tr style={{background:'#f8fafc'}}>{props.headers.map(function(h, i) {
-          return <th key={i} style={{ fontSize:11, fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:1, padding:'12px 16px', textAlign: i === props.headers.length-1 ? 'right' : 'left', borderBottom:'1px solid #e2e8f0' }}>{h}</th>;
+          return <th key={i} style={{ fontSize:13, fontWeight:700, color:'#475569', textTransform:'uppercase', letterSpacing:1, padding:'12px 16px', textAlign: i === props.headers.length-1 ? 'right' : 'left', borderBottom:'1px solid #e2e8f0' }}>{h}</th>;
         })}</tr></thead>
         <tbody>{props.rows.map(function(row, ri) {
           var isLast = ri === props.rows.length - 1;
@@ -660,7 +660,7 @@ function TreeNode(props) {
   };
   var s = styles[props.type] || styles.empty;
   var label = props.type === 'you' ? (props.label || 'You') : props.type === 'direct' ? '★' : props.type === 'empty' ? '' : '↓';
-  return <div style={{ width:44, height:44, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', fontSize:11, fontWeight:800, ...s }}>{label}</div>;
+  return <div style={{ width:44, height:44, borderRadius:10, display:'flex', alignItems:'center', justifyContent:'center', fontSize:13, fontWeight:800, ...s }}>{label}</div>;
 }
 
 function SliderRow(props) {

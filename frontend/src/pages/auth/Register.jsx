@@ -112,7 +112,7 @@ export default function Register() {
                 <div style={{ flex: 1, height: 3, borderRadius: 2, background: 'rgba(255,255,255,.1)', overflow: 'hidden' }}>
                   <div style={{ width: `${strength * 25}%`, height: '100%', background: strengthColor[strength], borderRadius: 2, transition: 'width .3s, background .3s' }} />
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 700, color: strengthColor[strength] }}>{strengthLabel[strength]}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: strengthColor[strength] }}>{strengthLabel[strength]}</span>
               </div>
             )}
           </div>
@@ -134,7 +134,7 @@ export default function Register() {
             <div style={styles.field}>
               <label style={styles.label}>{t('common.sponsorUsername')} <span style={{ color: 'rgba(255,255,255,.3)', fontWeight: 400 }}>{t('auth.whoReferred')}</span></label>
               <input value={form.ref} onChange={set('ref')} placeholder={t('auth.defaultSponsor')} style={styles.input} />
-              <div style={{ fontSize: 11, color: 'rgba(255,255,255,.3)', marginTop: 4, lineHeight: 1.4 }}>{t("auth.sponsorDesc")}</div>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,.3)', marginTop: 4, lineHeight: 1.4 }}>{t("auth.sponsorDesc")}</div>
             </div>
           )}
 
@@ -181,7 +181,7 @@ const styles = {
   eyeBtn: { position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, padding: 0, lineHeight: 1 },
   btn: { marginTop: 6, padding: '14px', borderRadius: 12, border: 'none', background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)', color: '#fff', fontSize: 15, fontWeight: 700, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif" },
   btnDisabled: { marginTop: 6, padding: '14px', borderRadius: 12, border: 'none', background: 'rgba(14,165,233,.4)', color: 'rgba(255,255,255,.5)', fontSize: 15, fontWeight: 700, cursor: 'not-allowed', fontFamily: "'DM Sans', sans-serif" },
-  terms: { fontSize: 11, color: 'rgba(255,255,255,.25)', textAlign: 'center', marginTop: 16, lineHeight: 1.6 },
+  terms: { fontSize: 13, color: 'rgba(255,255,255,.25)', textAlign: 'center', marginTop: 16, lineHeight: 1.6 },
   link: { color: 'var(--sap-accent-light)', textDecoration: 'none' },
   divider: { display: 'flex', alignItems: 'center', gap: 10, margin: '20px 0 16px' },
   dividerLine: { flex: 1, height: 1, background: 'rgba(255,255,255,.08)' },

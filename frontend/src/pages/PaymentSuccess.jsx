@@ -88,7 +88,7 @@ export default function PaymentSuccess() {
               {/* Check badge */}
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: `${config.color}12`, border: `1px solid ${config.color}30`, borderRadius: 99, padding: '4px 14px', marginBottom: 20 }}>
                 <CheckCircle size={14} color={config.color} />
-                <span style={{ fontSize: 11, fontWeight: 700, color: config.color }}>{t('paymentSuccess.paymentConfirmed')}</span>
+                <span style={{ fontSize: 13, fontWeight: 700, color: config.color }}>{t('paymentSuccess.paymentConfirmed')}</span>
               </div>
 
               <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 22, fontWeight: 900, color: 'var(--sap-text-primary)', marginBottom: 10 }}>

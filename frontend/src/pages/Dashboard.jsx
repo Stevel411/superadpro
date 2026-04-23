@@ -292,7 +292,7 @@ export default function Dashboard() {
         })}
 
         <div style={{ position:'relative', zIndex:2 }}>
-          <div style={{ fontSize:11, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,0.65)', marginBottom:8 }}>{t('dashboard.welcomeBack')}</div>
+          <div style={{ fontSize:13, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,0.65)', marginBottom:8 }}>{t('dashboard.welcomeBack')}</div>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#fff', marginBottom:8 }}>{d.display_name || user?.username}</div>
           <div style={{ fontSize:14, color:'rgba(255,255,255,0.6)', lineHeight:1.6, maxWidth:420, marginBottom:16 }}>
             {t('dashboard.networkMembers', { count: d.total_team || 0 })}{(d.total_earned || 0) > 0 && ` ${t('dashboard.andEarned', { amount: formatMoney(d.total_earned) })}`}.
@@ -300,7 +300,7 @@ export default function Dashboard() {
 
           {/* Referral link bar */}
           <div style={{ display:'flex', alignItems:'center', gap:10, background:'rgba(0,0,0,0.25)', borderRadius:10, padding:'10px 16px', maxWidth:520 }}>
-            <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.4)', flexShrink:0 }}>{t('dashboard.yourLink')}</div>
+            <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.4)', flexShrink:0 }}>{t('dashboard.yourLink')}</div>
             <div style={{ fontSize:13, fontWeight:600, color:'var(--sap-accent-light)', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', fontFamily:'monospace' }}>
               www.superadpro.com/ref/{user?.username}
             </div>
@@ -313,7 +313,7 @@ export default function Dashboard() {
       </div>
 
       {/* 4 Income Streams */}
-      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.yourIncomeStreams', { defaultValue: 'Your 4 Income Streams' })}</div>
+      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.yourIncomeStreams', { defaultValue: 'Your 4 Income Streams' })}</div>
       <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
@@ -381,7 +381,7 @@ export default function Dashboard() {
               <div style={{ width: 46, height: 46, borderRadius: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', background: s.bg }}>
                 {s.icon}
               </div>
-              <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 9px', borderRadius: 20, letterSpacing: 0.3, background: s.bg, color: s.color }}>{s.badge}</span>
+              <span style={{ fontSize: 13, fontWeight: 700, padding: '3px 9px', borderRadius: 20, letterSpacing: 0.3, background: s.bg, color: s.color }}>{s.badge}</span>
             </div>
             <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 6 }}>${formatMoney(s.val)}</div>
             <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--sap-text-primary)', marginBottom: 3 }}>{s.name}</div>
@@ -395,7 +395,7 @@ export default function Dashboard() {
         <>
           {goals.goals && goals.goals.length > 0 && (
             <>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.goalsThisWeek')}</div>
+              <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.goalsThisWeek')}</div>
               <div className="goals-grid" style={{ display: 'grid', gridTemplateColumns: goals.goals.length === 1 ? '1fr' : 'repeat(2,1fr)', gap: 12, marginBottom: 20 }}>
                 {goals.goals.map(function(g, i) {
                   var ICONS = {
@@ -425,7 +425,7 @@ export default function Dashboard() {
                               <div style={{ height:6, borderRadius:99, background:`${g.color}18`, overflow:'hidden', marginBottom:6 }}>
                                 <div style={{ height:'100%', borderRadius:99, background:`linear-gradient(90deg,${g.color},${g.color}cc)`, width:`${g.progress}%`, transition:'width .8s ease-out' }}/>
                               </div>
-                              <div style={{ display:'flex', justifyContent:'space-between', fontSize:11, color:'var(--sap-text-muted)' }}>
+                              <div style={{ display:'flex', justifyContent:'space-between', fontSize:13, color:'var(--sap-text-muted)' }}>
                                 <span>{goalText(g, 'progress_label')}</span>
                                 <span style={{ color:g.color, fontWeight:700 }}>{g.progress}%</span>
                               </div>
@@ -449,7 +449,7 @@ export default function Dashboard() {
           )}
           {goals.opportunities && goals.opportunities.length > 0 && (
             <>
-              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.moreOpportunities')}</div>
+              <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.moreOpportunities')}</div>
               <div className="goals-grid" style={{ display: 'grid', gridTemplateColumns: goals.opportunities.length === 1 ? '1fr' : 'repeat(2,1fr)', gap: 12, marginBottom: 20 }}>
                 {goals.opportunities.map(function(g, i) {
                   var ICONS = {
@@ -477,7 +477,7 @@ export default function Dashboard() {
       )}
 
       {/* Quick Actions — 6 cards, same for all members */}
-      <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>{t('dashboard.quickActions')}</div>
+      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>{t('dashboard.quickActions')}</div>
       <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
@@ -567,7 +567,7 @@ export default function Dashboard() {
             ].map((s, i) => (
               <div key={i} style={{ background: 'var(--sap-bg-page)', borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
                 <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 24, fontWeight: 800, color: 'var(--sap-green)' }}>{s.val}</div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>{s.lbl}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>{s.lbl}</div>
               </div>
             ))}
           </div>
@@ -578,7 +578,7 @@ export default function Dashboard() {
             </div>
             <button onClick={copyRef} style={{
               padding: '6px 12px', borderRadius: 7, border: '1px solid #e5e7eb', background: '#fff',
-              fontSize: 11, fontWeight: 700, color: 'var(--sap-text-secondary)', cursor: 'pointer', flexShrink: 0, fontFamily: 'inherit',
+              fontSize: 13, fontWeight: 700, color: 'var(--sap-text-secondary)', cursor: 'pointer', flexShrink: 0, fontFamily: 'inherit',
             }}>{refCopied ? t('dashboard.copied') : t('dashboard.copy')}</button>
           </div>
         </div>
@@ -636,8 +636,8 @@ export default function Dashboard() {
                 {t('dashboard.youllEarn')} <strong style={{ color: 'var(--sap-cobalt-deep)' }}>{commission}{t('dashboard.perMonth')}</strong>
               </div>
               <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <span style={{ padding: '3px 12px', borderRadius: 6, background: badgeBg, border: '1px solid ' + badgeBorder, color: 'var(--sap-cobalt-deep)', fontSize: 10, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.5px' }}>{isPro ? '★ ' + t('dashboard.proMember') : t('dashboard.basicMember')}</span>
-                <span style={{ fontSize: 10, color: 'rgba(15,29,58,.4)' }}>@{toast.username}</span>
+                <span style={{ padding: '3px 12px', borderRadius: 6, background: badgeBg, border: '1px solid ' + badgeBorder, color: 'var(--sap-cobalt-deep)', fontSize: 13, fontWeight: 800, textTransform: 'uppercase', letterSpacing: '.5px' }}>{isPro ? '★ ' + t('dashboard.proMember') : t('dashboard.basicMember')}</span>
+                <span style={{ fontSize: 13, color: 'rgba(15,29,58,.4)' }}>@{toast.username}</span>
               </div>
             </div>
             <button onClick={function() { dismissToast(toast.key); }}

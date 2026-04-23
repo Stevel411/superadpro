@@ -231,8 +231,8 @@ export default function LinkHub() {
                 <div style={{position:'absolute',right:6,top:6,fontSize:18,opacity:.2,animation:'lhFloat '+(5+i)+'s ease-in-out infinite',animationDelay:i*1.3+'s',pointerEvents:'none',userSelect:'none'}}>{s.emoji}</div>
                 {/* Value */}
                 <div style={{fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:900,color:'#fff',lineHeight:1,animation:'lhCount .5s ease both',animationDelay:s.delay+.1+'s',textShadow:'0 2px 6px rgba(0,0,0,.15)'}}>{s.v}</div>
-                <div style={{fontSize:11,fontWeight:800,color:'rgba(255,255,255,.9)',marginTop:3,letterSpacing:.2}}>{s.l}</div>
-                <div style={{fontSize:9,color:'rgba(255,255,255,.55)',fontWeight:600,textTransform:'uppercase',letterSpacing:.6,marginTop:1}}>{s.sub}</div>
+                <div style={{fontSize:13,fontWeight:800,color:'rgba(255,255,255,.9)',marginTop:3,letterSpacing:.2}}>{s.l}</div>
+                <div style={{fontSize:13,color:'rgba(255,255,255,.55)',fontWeight:600,textTransform:'uppercase',letterSpacing:.6,marginTop:1}}>{s.sub}</div>
                 {/* Bottom bar */}
                 <div style={{position:'absolute',bottom:0,left:0,right:0,height:2,background:'rgba(255,255,255,.3)'}}/>
               </div>
@@ -330,14 +330,14 @@ export default function LinkHub() {
                   );
                 })}
               </div>
-              <div style={{marginTop:32,fontSize:10,color:style.text_color,opacity:.2}}>{t('linkHub.poweredBy')}</div>
+              <div style={{marginTop:32,fontSize:13,color:style.text_color,opacity:.2}}>{t('linkHub.poweredBy')}</div>
             </div>
           </div>
         </div>
         <div style={{position:'absolute',bottom:16,left:'50%',transform:'translateX(-50%)',background:'#fff',borderRadius:8,padding:'6px 14px',boxShadow:'0 2px 8px rgba(0,0,0,.1)',display:'flex',alignItems:'center',gap:6,whiteSpace:'nowrap'}}>
           <div style={{width:6,height:6,borderRadius:'50%',background:'var(--sap-green)'}}/>
-          <span style={{fontSize:11,fontWeight:600,color:'var(--sap-text-muted)'}}>{window.location.host}/u/</span>
-          <span style={{fontSize:11,fontWeight:800,color:'var(--sap-text-primary)'}}>{data?.username||'yourname'}</span>
+          <span style={{fontSize:13,fontWeight:600,color:'var(--sap-text-muted)'}}>{window.location.host}/u/</span>
+          <span style={{fontSize:13,fontWeight:800,color:'var(--sap-text-primary)'}}>{data?.username||'yourname'}</span>
         </div>
         </div>
       </div>
@@ -382,7 +382,7 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
                       : <span style={{fontSize:16,color:'var(--sap-text-faint)',lineHeight:1}}>＋</span>}
                   </button>
                   <span style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{link.title||'Untitled'}</span>
-                  {link.click_count > 0 && <span style={{fontSize:9,color:'var(--sap-text-faint)',background:'var(--sap-bg-page)',padding:'1px 5px',borderRadius:3}}>{link.click_count} clicks</span>}
+                  {link.click_count > 0 && <span style={{fontSize:13,color:'var(--sap-text-faint)',background:'var(--sap-bg-page)',padding:'1px 5px',borderRadius:3}}>{link.click_count} clicks</span>}
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:6}}>
                   <button onClick={function(){toggleLink(link.id);}} style={{width:36,height:20,borderRadius:10,border:'none',cursor:'pointer',position:'relative',background:link.is_active?'var(--sap-purple)':'#d1d5db',transition:'background .2s'}}>
@@ -400,13 +400,13 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
                       style={{display:'flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:6,border:link.icon==='none'?'2px solid #8b5cf6':'2px solid #e5e7eb',background:link.icon==='none'?'rgba(139,92,246,.06)':'var(--sap-bg-input)',cursor:'pointer',fontSize:12,fontWeight:600,color:'var(--sap-text-muted)',fontFamily:'inherit'}}>
                       <span style={{fontSize:16}}>✕</span> No Icon
                     </button>
-                    <span style={{fontSize:11,color:'var(--sap-text-faint)'}}>{t('linkHub.clickCategory')}</span>
+                    <span style={{fontSize:13,color:'var(--sap-text-faint)'}}>{t('linkHub.clickCategory')}</span>
                   </div>
                   {/* Categories */}
                   {ICON_CATEGORIES.map(function(cat) {
                     return (
                       <div key={cat.label} style={{borderBottom:'1px solid #f1f5f9'}}>
-                        <div style={{padding:'6px 12px',fontSize:10,fontWeight:700,color:'var(--sap-text-faint)',textTransform:'uppercase',letterSpacing:.5,background:'#fafbfc'}}>{cat.label}</div>
+                        <div style={{padding:'6px 12px',fontSize:13,fontWeight:700,color:'var(--sap-text-faint)',textTransform:'uppercase',letterSpacing:.5,background:'#fafbfc'}}>{cat.label}</div>
                         <div style={{display:'flex',flexWrap:'wrap',gap:4,padding:'8px 10px'}}>                          {cat.icons.map(function(ic) {
                             var isSelected = link.icon === ic.id;
                             return (
@@ -429,14 +429,14 @@ function LinksPanel({ links, style, addLink, updateLink, removeLink, toggleLink,
               <input value={link.url} onChange={function(e){updateLink(link.id,'url',e.target.value);}} placeholder={t('common.urlPlaceholder')} style={{width:'100%',padding:'10px 12px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box',background:'#fff',color:'var(--sap-text-muted)'}}/>
               {/* Per-link button colour */}
               <div style={{display:'flex',alignItems:'center',gap:8,marginTop:8}}>
-                <label style={{fontSize:11,fontWeight:600,color:'var(--sap-text-faint)',whiteSpace:'nowrap'}}>{t('linkHub.buttonColour')}</label>
+                <label style={{fontSize:13,fontWeight:600,color:'var(--sap-text-faint)',whiteSpace:'nowrap'}}>{t('linkHub.buttonColour')}</label>
                 <input type="color" value={link.btn_bg_color||style.btn_color||'var(--sap-purple)'}
                   onChange={function(e){updateLink(link.id,'btn_bg_color',e.target.value);}}
                   style={{width:28,height:28,padding:2,border:'1px solid #e5e7eb',borderRadius:6,cursor:'pointer',background:'none'}}/>
-                <span style={{fontSize:11,color:'var(--sap-text-muted)',fontFamily:'monospace'}}>{link.btn_bg_color||'(global)'}</span>
+                <span style={{fontSize:13,color:'var(--sap-text-muted)',fontFamily:'monospace'}}>{link.btn_bg_color||'(global)'}</span>
                 {link.btn_bg_color && (
                   <button onClick={function(){updateLink(link.id,'btn_bg_color','');}}
-                    style={{fontSize:10,color:'var(--sap-text-faint)',background:'none',border:'none',cursor:'pointer',padding:'2px 6px',borderRadius:4,fontFamily:'inherit'}}>
+                    style={{fontSize:13,color:'var(--sap-text-faint)',background:'none',border:'none',cursor:'pointer',padding:'2px 6px',borderRadius:4,fontFamily:'inherit'}}>
                     ✕ Reset
                   </button>
                 )}
@@ -480,7 +480,7 @@ function StylePanel({ style, setStyle }) {
             <label style={{fontSize:13,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{c.label}</label>
             <div style={{display:'flex',alignItems:'center',gap:8}}>
               <input type="color" value={style[c.key]||'#ffffff'} onChange={upd(c.key)} style={{width:36,height:36,border:'2px solid #e5e7eb',borderRadius:8,cursor:'pointer',padding:0}}/>
-              <input value={style[c.key]||''} onChange={upd(c.key)} style={{flex:1,padding:'7px 10px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:11,fontFamily:'monospace',outline:'none'}}/>
+              <input value={style[c.key]||''} onChange={upd(c.key)} style={{flex:1,padding:'7px 10px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'monospace',outline:'none'}}/>
               {/* Preview dot */}
               <div style={{width:20,height:20,borderRadius:4,background:style[c.key]||'#fff',border:'1px solid #d1d5db'}}/>
             </div>
@@ -497,13 +497,13 @@ function StylePanel({ style, setStyle }) {
               var newStyle = Object.assign({},style,{bg_image_url:''});
               setStyle(newStyle);
               apiPost('/linkhub/save', Object.assign({},newStyle,{display_name:profile.display_name,bio:profile.bio,avatar_url:profile.avatar_url,is_published:true,links:links.map(function(l,i){return {id:l.id>9999999?undefined:l.id,title:l.title,url:l.url,icon:l.icon||'link',is_active:l.is_active,sort_order:i};})})).catch(function(){});
-            }} style={{position:'absolute',top:6,right:6,padding:'4px 10px',borderRadius:6,border:'none',background:'rgba(220,38,38,.85)',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:3,fontFamily:'inherit'}}>
+            }} style={{position:'absolute',top:6,right:6,padding:'4px 10px',borderRadius:6,border:'none',background:'rgba(220,38,38,.85)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',display:'flex',alignItems:'center',gap:3,fontFamily:'inherit'}}>
               ✕ Remove
             </button>
           </div>
         )}
         <div style={{display:'flex',gap:6}}>
-          <label style={{display:'flex',alignItems:'center',gap:4,padding:'8px 14px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',cursor:'pointer',fontSize:11,fontWeight:600,color:'var(--sap-text-muted)',whiteSpace:'nowrap'}}>
+          <label style={{display:'flex',alignItems:'center',gap:4,padding:'8px 14px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',cursor:'pointer',fontSize:13,fontWeight:600,color:'var(--sap-text-muted)',whiteSpace:'nowrap'}}>
             <Upload size={12}/> Upload
             <input type="file" accept="image/*" onChange={function(e){
               var file=e.target.files[0]; if(!file) return;
@@ -512,7 +512,7 @@ function StylePanel({ style, setStyle }) {
               reader.readAsDataURL(file);
             }} style={{display:'none'}}/>
           </label>
-          <input value={style.bg_image_url||''} onChange={upd('bg_image_url')} placeholder={t("linkHub.orPasteUrl")} style={{flex:1,padding:'8px 10px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:10,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/>
+          <input value={style.bg_image_url||''} onChange={upd('bg_image_url')} placeholder={t("linkHub.orPasteUrl")} style={{flex:1,padding:'8px 10px',border:'1px solid #e5e7eb',borderRadius:8,fontSize:13,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}}/>
         </div>
       </div>
 
@@ -540,7 +540,7 @@ function StylePanel({ style, setStyle }) {
               <button key={bs.k} onClick={function(){setStyle(function(s){return Object.assign({},s,{btn_style_type:bs.k,btn_radius:bs.r+'px'});});}}
                 style={{flex:1,padding:'8px 4px',borderRadius:8,border:on?'2px solid #8b5cf6':'2px solid #e5e7eb',background:on?'rgba(139,92,246,.06)':'#fff',cursor:'pointer',fontFamily:'inherit',display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
                 <div style={{width:48,height:18,borderRadius:bs.r,background:bs.k==='outline'?'transparent':(on?style.btn_color||'var(--sap-purple)':'#c4c4c4'),border:bs.k==='outline'?'2px solid '+(on?style.btn_color||'var(--sap-purple)':'#c4c4c4'):'none'}}/>
-                <span style={{fontSize:9,fontWeight:on?700:500,color:on?'var(--sap-purple)':'var(--sap-text-faint)'}}>{bs.label}</span>
+                <span style={{fontSize:13,fontWeight:on?700:500,color:on?'var(--sap-purple)':'var(--sap-text-faint)'}}>{bs.label}</span>
               </button>
             );
           })}
@@ -624,12 +624,12 @@ function ProfilePanel({ profile, setProfile, onRemoveAvatar }) {
           {profile.avatar_url ? <img src={profile.avatar_url} style={{width:'100%',height:'100%',objectFit:'cover'}} alt="" onError={function(e){e.target.style.display='none';}}/> : <div style={{width:'100%',height:'100%',display:'flex',alignItems:'center',justifyContent:'center',fontSize:28,color:'var(--sap-text-faint)'}}>{(profile.display_name||'?')[0]}</div>}
         </div>
         <div style={{display:'flex',gap:8,justifyContent:'center',alignItems:'center'}}>
-          <label style={{display:'inline-flex',alignItems:'center',gap:4,padding:'6px 14px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',cursor:'pointer',fontSize:11,fontWeight:600,color:'var(--sap-text-muted)'}}>
+          <label style={{display:'inline-flex',alignItems:'center',gap:4,padding:'6px 14px',borderRadius:8,border:'1px solid #e5e7eb',background:'#fff',cursor:'pointer',fontSize:13,fontWeight:600,color:'var(--sap-text-muted)'}}>
             <Upload size={12}/> Upload Photo
             <input type="file" accept="image/*" onChange={handleAvatarUpload} style={{display:'none'}}/>
           </label>
           {profile.avatar_url && (
-            <button onClick={onRemoveAvatar} style={{display:'inline-flex',alignItems:'center',gap:4,padding:'6px 12px',borderRadius:8,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer',fontSize:11,fontWeight:600,color:'var(--sap-red)',fontFamily:'inherit'}}>
+            <button onClick={onRemoveAvatar} style={{display:'inline-flex',alignItems:'center',gap:4,padding:'6px 12px',borderRadius:8,border:'1px solid #fecaca',background:'var(--sap-red-bg)',cursor:'pointer',fontSize:13,fontWeight:600,color:'var(--sap-red)',fontFamily:'inherit'}}>
               ✕ Remove
             </button>
           )}
@@ -646,7 +646,7 @@ function ProfilePanel({ profile, setProfile, onRemoveAvatar }) {
       </div>
       <div>
         <label style={{fontSize:12,fontWeight:700,color:'var(--sap-text-secondary)',display:'block',marginBottom:6}}>{t('linkHub.avatarUrl')}</label>
-        <input value={profile.avatar_url} onChange={upd('avatar_url')} placeholder={t('common.urlPlaceholder')} style={Object.assign({},inputStyle,{fontSize:11,color:'var(--sap-text-muted)'})}/>
+        <input value={profile.avatar_url} onChange={upd('avatar_url')} placeholder={t('common.urlPlaceholder')} style={Object.assign({},inputStyle,{fontSize:13,color:'var(--sap-text-muted)'})}/>
       </div>
     </div>
   );

@@ -118,7 +118,7 @@ export default function Upgrade() {
             style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', padding:16, borderRadius:14, fontSize:15, fontWeight:700, border:'none', cursor: loading === 'upgrade' ? 'default' : 'pointer', fontFamily:'inherit', background: loading === 'upgrade' ? 'var(--sap-text-muted)' : btnGrad, color:'#fff', boxShadow: loading === 'upgrade' ? 'none' : btnShadow }}>
             {loading === 'upgrade' ? t('upgrade.upgrading') : t('upgrade.upgradeToPro')}
           </button>
-          <div style={{ fontSize:11, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('upgrade.upgradeProDiff')}</div>
+          <div style={{ fontSize:13, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('upgrade.upgradeProDiff')}</div>
         </div>
       );
     }
@@ -136,7 +136,7 @@ export default function Upgrade() {
           <Globe size={16} />
           {loading === tier + '_np' ? t('upgrade.loadingCheckout') : t('upgrade.payWith350', {price})}
         </button>
-        <div style={{ textAlign:'center', fontSize:10, color:'var(--sap-text-muted)' }}>{t('upgrade.securePayment')}</div>
+        <div style={{ textAlign:'center', fontSize:13, color:'var(--sap-text-muted)' }}>{t('upgrade.securePayment')}</div>
       </div>
     );
   }
@@ -160,7 +160,7 @@ export default function Upgrade() {
               <div className="up-toggle-thumb"/>
             </div>
             <span onClick={function(){setBilling('annual')}} style={{ fontSize:14, fontWeight:600, color: isAnnual ? 'var(--sap-text-primary)' : 'var(--sap-text-muted)', cursor:'pointer', userSelect:'none', transition:'color .2s' }}>{t('upgrade.annual')}</span>
-            <span style={{ fontSize:11, fontWeight:700, color:'var(--sap-green)', background:'var(--sap-green-bg)', border:'1px solid #dcfce7', padding:'3px 10px', borderRadius:20 }}>{t('upgrade.save17')}</span>
+            <span style={{ fontSize:13, fontWeight:700, color:'var(--sap-green)', background:'var(--sap-green-bg)', border:'1px solid #dcfce7', padding:'3px 10px', borderRadius:20 }}>{t('upgrade.save17')}</span>
           </div>
         </div>
 
@@ -207,7 +207,7 @@ export default function Upgrade() {
 
           {/* PRO */}
           <div className="up-card up-card-pro" style={{ display:'flex', flexDirection:'column' }}>
-            <div style={{ position:'absolute', top:16, right:16, fontSize:10, fontWeight:700, color:'#fff', background:'rgba(255,255,255,.15)', backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)', padding:'5px 14px', borderRadius:6, zIndex:3, textTransform:'uppercase', letterSpacing:.5 }}>{t('upgrade.mostPopular')}</div>
+            <div style={{ position:'absolute', top:16, right:16, fontSize:13, fontWeight:700, color:'#fff', background:'rgba(255,255,255,.15)', backdropFilter:'blur(8px)', WebkitBackdropFilter:'blur(8px)', padding:'5px 14px', borderRadius:6, zIndex:3, textTransform:'uppercase', letterSpacing:.5 }}>{t('upgrade.mostPopular')}</div>
             <div style={{ padding:'44px 32px 40px', background:'linear-gradient(135deg,#450a0a,#991b1b,#ef4444)', textAlign:'center', position:'relative', overflow:'hidden' }}>
               <div style={{ position:'absolute', top:-40, right:-40, width:140, height:140, borderRadius:'50%', background:'rgba(255,255,255,.06)', pointerEvents:'none' }}/>
               <div style={{ position:'absolute', bottom:-30, left:-30, width:100, height:100, borderRadius:'50%', background:'rgba(255,255,255,.04)', pointerEvents:'none' }}/>

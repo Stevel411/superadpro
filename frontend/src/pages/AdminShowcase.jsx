@@ -38,7 +38,7 @@ function ArtifactPreview(props) {
         <AlertCircle size={20} color="#dc2626"/>
         <div>
           <div style={{ fontSize:13, fontWeight:700, color:'#b91c1c', marginBottom:2 }}>Artifact deleted</div>
-          <div style={{ fontSize:11, color:'#64748b' }}>
+          <div style={{ fontSize:13, color:'#475569' }}>
             The source {meta.label.toLowerCase()} (id {s.artifact_id}) no longer exists. Rejecting this submission is recommended.
           </div>
         </div>
@@ -64,7 +64,7 @@ function ArtifactPreview(props) {
         )}
         <div style={{
           position:'absolute', top:10, left:10,
-          padding:'3px 10px', borderRadius:100, fontSize:10, fontWeight:700, letterSpacing:'.08em', textTransform:'uppercase',
+          padding:'3px 10px', borderRadius:100, fontSize:13, fontWeight:700, letterSpacing:'.08em', textTransform:'uppercase',
           background:'rgba(11,18,48,.75)', backdropFilter:'blur(8px)',
           border:'1px solid rgba(255,255,255,.1)', color: meta.accent,
           display:'inline-flex', alignItems:'center', gap:5,
@@ -94,24 +94,24 @@ function ArtifactPreview(props) {
         {art.extra && (
           <div style={{ marginTop:10, display:'flex', gap:10, flexWrap:'wrap' }}>
             {s.artifact_type === 'bio-link' && art.extra.views !== undefined && (
-              <span style={{ fontSize:11, color:'rgba(255,255,255,.5)', fontFamily:'JetBrains Mono,monospace' }}>
+              <span style={{ fontSize:13, color:'rgba(255,255,255,.5)', fontFamily:'JetBrains Mono,monospace' }}>
                 {art.extra.views.toLocaleString()} views
               </span>
             )}
             {s.artifact_type === 'landing-page' && art.extra.template && (
-              <span style={{ fontSize:11, color:'rgba(255,255,255,.5)', fontFamily:'JetBrains Mono,monospace', textTransform:'uppercase', letterSpacing:'.05em' }}>
+              <span style={{ fontSize:13, color:'rgba(255,255,255,.5)', fontFamily:'JetBrains Mono,monospace', textTransform:'uppercase', letterSpacing:'.05em' }}>
                 {art.extra.template}
               </span>
             )}
             {s.artifact_type === 'campaign' && (
               <>
                 {art.extra.platform && (
-                  <span style={{ fontSize:11, color:'rgba(255,255,255,.5)', fontFamily:'JetBrains Mono,monospace', textTransform:'uppercase' }}>
+                  <span style={{ fontSize:13, color:'rgba(255,255,255,.5)', fontFamily:'JetBrains Mono,monospace', textTransform:'uppercase' }}>
                     {art.extra.platform}
                   </span>
                 )}
                 {art.extra.views !== undefined && (
-                  <span style={{ fontSize:11, color:'rgba(255,255,255,.5)', fontFamily:'JetBrains Mono,monospace' }}>
+                  <span style={{ fontSize:13, color:'rgba(255,255,255,.5)', fontFamily:'JetBrains Mono,monospace' }}>
                     {art.extra.views.toLocaleString()} views delivered
                   </span>
                 )}
@@ -124,7 +124,7 @@ function ArtifactPreview(props) {
           <a href={art.url} target="_blank" rel="noopener noreferrer"
             style={{
               marginTop:12, display:'inline-flex', alignItems:'center', gap:5,
-              fontSize:11, color: meta.accent, fontWeight:700, textDecoration:'none',
+              fontSize:13, color: meta.accent, fontWeight:700, textDecoration:'none',
             }}>
             <ExternalLink size={11}/>Open source artifact
           </a>
@@ -229,7 +229,7 @@ function EditModal(props) {
 function Field(props) {
   return (
     <div style={{ marginBottom:14 }}>
-      <label style={{ display:'block', fontSize:11, fontWeight:700, color:'#334155', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:6 }}>{props.label}</label>
+      <label style={{ display:'block', fontSize:13, fontWeight:700, color:'#334155', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:6 }}>{props.label}</label>
       {props.children}
     </div>
   );
@@ -304,7 +304,7 @@ export default function AdminShowcase() {
   if (auth && auth.user && !auth.user.is_admin) {
     return (
       <AppLayout title="Admin — Showcase">
-        <div style={{ padding:40, textAlign:'center', color:'#64748b' }}>Admin access required.</div>
+        <div style={{ padding:40, textAlign:'center', color:'#475569' }}>Admin access required.</div>
       </AppLayout>
     );
   }
@@ -334,9 +334,9 @@ export default function AdminShowcase() {
               style={{ display:'flex', alignItems:'center', gap:6, padding:'10px 16px', fontSize:13, fontWeight: on ? 800 : 600,
                        border:'none', borderBottom: on ? '3px solid #0ea5e9' : '3px solid transparent',
                        cursor:'pointer', fontFamily:'inherit', background: on ? 'rgba(14,165,233,.06)' : 'transparent',
-                       color: on ? '#0ea5e9' : '#64748b', marginBottom:-2, borderRadius:'6px 6px 0 0', transition:'all .15s' }}>
+                       color: on ? '#0ea5e9' : '#475569', marginBottom:-2, borderRadius:'6px 6px 0 0', transition:'all .15s' }}>
               <Icon size={14}/><span>{t.label}</span>
-              <span style={{ background: on ? '#0ea5e9' : '#cbd5e1', color:'#fff', padding:'2px 7px', borderRadius:10, fontSize:11, fontWeight:700 }}>{t.count}</span>
+              <span style={{ background: on ? '#0ea5e9' : '#cbd5e1', color:'#fff', padding:'2px 7px', borderRadius:10, fontSize:13, fontWeight:700 }}>{t.count}</span>
             </button>
           );
         })}
@@ -358,7 +358,7 @@ export default function AdminShowcase() {
                 borderRadius:100, cursor:'pointer', fontFamily:'inherit',
                 border: on ? '1px solid #0ea5e9' : '1px solid #cbd5e1',
                 background: on ? 'rgba(14,165,233,.08)' : '#fff',
-                color: on ? '#0ea5e9' : '#64748b',
+                color: on ? '#0ea5e9' : '#475569',
               }}>{f.label}</button>
           );
         })}
@@ -370,8 +370,8 @@ export default function AdminShowcase() {
           <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
         </div>
       ) : rows.length === 0 ? (
-        <div style={{ padding:60, textAlign:'center', color:'#64748b', background:'#f8fafc', border:'1px dashed #cbd5e1', borderRadius:16 }}>
-          <Sparkles size={32} style={{ color:'#94a3b8', marginBottom:10 }}/>
+        <div style={{ padding:60, textAlign:'center', color:'#475569', background:'#f8fafc', border:'1px dashed #cbd5e1', borderRadius:16 }}>
+          <Sparkles size={32} style={{ color:'#7a8899', marginBottom:10 }}/>
           <div style={{ fontSize:15, fontWeight:600, marginBottom:4 }}>No {tab === 'pending' ? 'pending' : tab === 'approved' ? 'approved' : ''} showcase entries</div>
           <div style={{ fontSize:13 }}>
             {tab === 'pending' ? "When members opt artifacts in, they'll show up here for review." : tab === 'approved' ? 'Approved showcase entries appear on /explore tab 3.' : 'No showcase entries have been submitted yet.'}
@@ -390,31 +390,31 @@ export default function AdminShowcase() {
                   <div>
                     <div style={{
                       display:'inline-flex', alignItems:'center', gap:6,
-                      padding:'3px 10px', borderRadius:100, fontSize:11, fontWeight:700,
+                      padding:'3px 10px', borderRadius:100, fontSize:13, fontWeight:700,
                       background: s.approved ? 'rgba(34,197,94,.12)' : 'rgba(245,158,11,.12)',
                       color: s.approved ? '#16a34a' : '#d97706',
                     }}>
                       {s.approved ? <Check size={12}/> : <Clock size={12}/>}
                       {s.approved ? 'LIVE' : 'PENDING'}
                     </div>
-                    <div style={{ fontSize:12, color:'#64748b', marginTop:6 }}>
+                    <div style={{ fontSize:12, color:'#475569', marginTop:6 }}>
                       <strong style={{ color:'#334155' }}>#{s.id}</strong>
                       {s.username && <> · <span style={{ color:'#0ea5e9' }}>@{s.username}</span></>}
                     </div>
-                    <div style={{ fontSize:11, color:'#94a3b8', marginTop:2 }}>
+                    <div style={{ fontSize:13, color:'#7a8899', marginTop:2 }}>
                       Submitted {s.created_at ? new Date(s.created_at).toLocaleString() : '—'}
                     </div>
                   </div>
                   {s.approved && (
                     <div style={{ display:'flex', gap:4, alignItems:'center' }}>
                       <button onClick={function() { reorder(s.id, -1); }} disabled={busyId === s.id}
-                        style={{ padding:4, border:'1px solid #e2e8f0', borderRadius:6, background:'#fff', cursor:'pointer', color:'#64748b' }}
+                        style={{ padding:4, border:'1px solid #e2e8f0', borderRadius:6, background:'#fff', cursor:'pointer', color:'#475569' }}
                         title="Move up">
                         <ChevronUp size={14}/>
                       </button>
-                      <span style={{ fontSize:11, color:'#94a3b8', minWidth:18, textAlign:'center' }}>{s.sort_order}</span>
+                      <span style={{ fontSize:13, color:'#7a8899', minWidth:18, textAlign:'center' }}>{s.sort_order}</span>
                       <button onClick={function() { reorder(s.id, 1); }} disabled={busyId === s.id}
-                        style={{ padding:4, border:'1px solid #e2e8f0', borderRadius:6, background:'#fff', cursor:'pointer', color:'#64748b' }}
+                        style={{ padding:4, border:'1px solid #e2e8f0', borderRadius:6, background:'#fff', cursor:'pointer', color:'#475569' }}
                         title="Move down">
                         <ChevronDown size={14}/>
                       </button>
@@ -427,11 +427,11 @@ export default function AdminShowcase() {
 
                 {/* Member-submitted showcase copy */}
                 <div style={{ padding:'12px 14px', background:'#f8fafc', border:'1px solid #e2e8f0', borderRadius:10 }}>
-                  <div style={{ fontSize:10, fontWeight:700, color:'#64748b', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:4 }}>
+                  <div style={{ fontSize:13, fontWeight:700, color:'#475569', textTransform:'uppercase', letterSpacing:'.08em', marginBottom:4 }}>
                     Member-submitted copy
                   </div>
                   <div style={{ fontSize:14, fontWeight:700, color:'#0f172a', marginBottom:2 }}>{s.display_title}</div>
-                  <div style={{ fontSize:12, color:'#64748b' }}>{s.display_niche}</div>
+                  <div style={{ fontSize:12, color:'#475569' }}>{s.display_niche}</div>
                   {s.metric_label && s.metric_value && (
                     <div style={{ marginTop:8, fontSize:12, color:'#475569' }}>
                       <strong>{s.metric_label}:</strong> {s.metric_value}

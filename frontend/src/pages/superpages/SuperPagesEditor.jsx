@@ -272,7 +272,7 @@ export default function SuperPagesEditor() {
   if (loading) {
     return (
       <AppLayout title="SuperPages" subtitle={t('superPagesEditor.loading', { defaultValue: 'Loading editor…' })}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', color: '#64748b' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh', color: '#475569' }}>
           {t('superPagesEditor.loading', { defaultValue: 'Loading editor…' })}
         </div>
       </AppLayout>
@@ -294,7 +294,7 @@ export default function SuperPagesEditor() {
             <p style={{ fontSize: 15, lineHeight: 1.6, color: '#475569', margin: '0 0 24px' }}>
               {t('superPagesEditor.desktopRequiredBody', { defaultValue: 'The SuperPages editor uses precise drag and drop that needs a desktop or laptop to work properly. Please open this page on a larger screen to build your page.' })}
             </p>
-            <p style={{ fontSize: 13, lineHeight: 1.6, color: '#64748b', margin: '0 0 28px' }}>
+            <p style={{ fontSize: 13, lineHeight: 1.6, color: '#475569', margin: '0 0 28px' }}>
               {t('superPagesEditor.desktopRequiredNote', { defaultValue: 'Your pages are fully responsive and will look great on all devices once published — this restriction only applies to the editor itself.' })}
             </p>
             <button onClick={() => navigate('/pro/funnels')} style={{ padding: '12px 24px', borderRadius: 10, border: 'none', cursor: 'pointer', background: 'var(--sap-accent)', color: '#fff', fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 700 }}>
@@ -354,7 +354,7 @@ export default function SuperPagesEditor() {
               </div>
             )}
             {deviceView !== 'desktop' && !previewMode && (
-              <div style={{marginBottom:12,padding:'8px 16px',background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.25)',borderRadius:8,fontSize:11,color:'#0284c7',fontWeight:600}}>
+              <div style={{marginBottom:12,padding:'8px 16px',background:'rgba(14,165,233,.1)',border:'1px solid rgba(14,165,233,.25)',borderRadius:8,fontSize:13,color:'#0284c7',fontWeight:600}}>
                 📱 {t('superPagesEditor.responsivePreview', { defaultValue: 'Responsive Preview — switch to Desktop to edit elements' })}
               </div>
             )}
@@ -420,7 +420,7 @@ export default function SuperPagesEditor() {
                 placeholder={t("superPagesEditor.slugPlaceholder")}
                 style={{ flex: 1, padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: '0 10px 10px 0', fontSize: 13, outline: 'none', boxSizing: 'border-box' }} />
             </div>
-            <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 14 }}>{t("superPagesEditor.slugNote")}</div>
+            <div style={{ fontSize: 13, color: 'var(--sap-text-faint)', marginBottom: 14 }}>{t("superPagesEditor.slugNote")}</div>
             {pageSettings.slug && (
               <div style={{ padding: '10px 14px', background: 'var(--sap-green-bg)', border: '1px solid rgba(22,163,74,.2)', borderRadius: 8, fontSize: 12, color: 'var(--sap-green)', marginBottom: 14, wordBreak: 'break-all' }}>
                 Live URL: {window.location.origin}/p/{pageSettings.slug}
@@ -557,7 +557,7 @@ function ElementEditorModal({ el, elId, els, updateElement, markDirty, onClose }
                   if (d.url) setLocalTxt(d.url);
                 } catch(err) { alert('Upload failed'); }
               }} style={{marginBottom:12, fontSize:12}} />
-              {localTxt && <div style={{fontSize:11,color:'var(--sap-green)',padding:'6px 10px',background:'var(--sap-green-bg)',border:'1px solid rgba(22,163,74,.2)',borderRadius:6,marginBottom:12,wordBreak:'break-all'}}>Embed: {localTxt}</div>}
+              {localTxt && <div style={{fontSize:13,color:'var(--sap-green)',padding:'6px 10px',background:'var(--sap-green-bg)',border:'1px solid rgba(22,163,74,.2)',borderRadius:6,marginBottom:12,wordBreak:'break-all'}}>Embed: {localTxt}</div>}
             </>
           )}
 
@@ -670,8 +670,8 @@ function AudioEditor({ elId, el, updateElement, markDirty, onClose }) {
     <input value={url} onChange={e => setUrl(e.target.value)} placeholder={t('superPagesEditor.urlPlaceholder')} style={{ ...inputStyle, marginBottom: 8 }} />
     <label style={{...lblStyle, marginTop:4}}>{t('superPagesEditor.uploadAudio')}</label>
     <input type="file" accept="audio/mpeg,audio/wav,audio/ogg,audio/mp3" onChange={upload} disabled={uploading} style={{marginBottom:12, fontSize:12}} />
-    {uploading && <div style={{fontSize:11,color:'var(--sap-accent)',marginBottom:8}}>{t('superPagesEditor.uploading')}</div>}
-    {url && <div style={{fontSize:11,color:'var(--sap-green)',padding:'6px 10px',background:'var(--sap-green-bg)',border:'1px solid rgba(22,163,74,.2)',borderRadius:6,marginBottom:12,wordBreak:'break-all'}}>Audio: {url}</div>}
+    {uploading && <div style={{fontSize:13,color:'var(--sap-accent)',marginBottom:8}}>{t('superPagesEditor.uploading')}</div>}
+    {url && <div style={{fontSize:13,color:'var(--sap-green)',padding:'6px 10px',background:'var(--sap-green-bg)',border:'1px solid rgba(22,163,74,.2)',borderRadius:6,marginBottom:12,wordBreak:'break-all'}}>Audio: {url}</div>}
     <BtnRow onApply={() => { updateElement(elId, { _audioUrl: url }); markDirty(); onClose(); }} onClose={onClose} />
   </>;
 }
@@ -759,7 +759,7 @@ function ButtonEditor({ elId, el, type, updateElement, markDirty, onClose }) {
         <input type="color" value={bgColor.startsWith('#') ? bgColor : 'var(--sap-accent)'} onChange={e => setBgColor(e.target.value)}
           style={{ position: 'absolute', inset: -4, width: 'calc(100% + 8px)', height: 'calc(100% + 8px)', border: 'none', cursor: 'pointer', padding: 0 }} />
       </div>
-      <span style={{ fontSize: 11, fontFamily: 'monospace', color: 'var(--sap-text-faint)' }}>{bgColor.startsWith('#') ? bgColor : 'Gradient'}</span>
+      <span style={{ fontSize: 13, fontFamily: 'monospace', color: 'var(--sap-text-faint)' }}>{bgColor.startsWith('#') ? bgColor : 'Gradient'}</span>
     </div>
     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, marginBottom: 12 }}>
       {PRESETS.map((p, i) => (
@@ -870,10 +870,10 @@ function FormEditor({ elId, el, updateElement, markDirty, onClose }) {
     {/* Preview */}
     <div style={{ padding: 16, background: 'var(--sap-text-primary)', borderRadius: 12, marginBottom: 14 }}>
       <div style={{ textAlign: 'center', fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 16, color: '#fff', marginBottom: 4 }}>{heading}</div>
-      <div style={{ textAlign: 'center', fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 12 }}>{subtitle}</div>
-      {showName && <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 6 }}>{t('superPagesEditor.firstNamePlaceholder')}</div>}
-      <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 6 }}>{t('superPagesEditor.emailPlaceholder')}</div>
-      {showPhone && <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 11, color: 'var(--sap-text-faint)', marginBottom: 6 }}>{t('superPagesEditor.phonePlaceholder')}</div>}
+      <div style={{ textAlign: 'center', fontSize: 13, color: 'var(--sap-text-faint)', marginBottom: 12 }}>{subtitle}</div>
+      {showName && <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 13, color: 'var(--sap-text-faint)', marginBottom: 6 }}>{t('superPagesEditor.firstNamePlaceholder')}</div>}
+      <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 13, color: 'var(--sap-text-faint)', marginBottom: 6 }}>{t('superPagesEditor.emailPlaceholder')}</div>
+      {showPhone && <div style={{ background: '#fff', borderRadius: 6, padding: '8px 10px', fontSize: 13, color: 'var(--sap-text-faint)', marginBottom: 6 }}>{t('superPagesEditor.phonePlaceholder')}</div>}
       <div style={{ background: btnColor, borderRadius: 8, padding: '10px', textAlign: 'center', color: '#fff', fontWeight: 700, fontSize: 12 }}>{btnText}</div>
     </div>
 

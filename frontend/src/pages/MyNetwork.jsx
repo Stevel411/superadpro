@@ -48,7 +48,7 @@ export default function MyNetwork() {
                    display:'flex',alignItems:'center',justifyContent:'space-between',flexWrap:'wrap',gap:16,
                    boxShadow:'0 8px 30px rgba(23,37,84,0.25)'}}>
         <div style={{flex:1,minWidth:280}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:1.6,textTransform:'uppercase',color:'#7dd3fc',marginBottom:6}}>
+          <div style={{fontSize:13,fontWeight:800,letterSpacing:1.6,textTransform:'uppercase',color:'#7dd3fc',marginBottom:6}}>
             {t('myNetwork.referralLinkLabel')}
           </div>
           <div style={{fontSize:15,fontWeight:600,color:'rgba(255,255,255,.85)',fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace',wordBreak:'break-all'}}>
@@ -88,7 +88,7 @@ export default function MyNetwork() {
                    boxShadow:'0 4px 20px rgba(23,37,84,.06)'}}>
         <div style={{background:cobaltGradient,padding:'16px 24px'}}>
           <div style={{fontSize:14,fontWeight:800,color:'#fff',letterSpacing:.3}}>{t('myNetwork.streamsCardTitle')}</div>
-          <div style={{fontSize:11,fontWeight:600,color:'rgba(255,255,255,.55)',marginTop:3}}>
+          <div style={{fontSize:13,fontWeight:600,color:'rgba(255,255,255,.55)',marginTop:3}}>
             {t('myNetwork.streamsCardSubtitle')}
           </div>
         </div>
@@ -133,7 +133,7 @@ export default function MyNetwork() {
             <div style={{width:8,height:8,borderRadius:4,background:'#0ea5e9',boxShadow:'0 0 8px rgba(14,165,233,.5)'}}/>
             <div style={{fontSize:14,fontWeight:800,color:'#fff',letterSpacing:.3}}>{t('myNetwork.recentCommissionsTitle')}</div>
           </div>
-          <a href="/wallet" style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.85)',textDecoration:'none',
+          <a href="/wallet" style={{fontSize:13,fontWeight:700,color:'rgba(255,255,255,.85)',textDecoration:'none',
                                      display:'flex',alignItems:'center',gap:4}}>
             {t('myNetwork.seeAll')} <ExternalLink size={12}/>
           </a>
@@ -155,7 +155,7 @@ export default function MyNetwork() {
                     <tr key={i}>
                       <td style={tdStyle}>
                         <span style={{display:'inline-flex',alignItems:'center',gap:6,
-                                      fontSize:11,fontWeight:700,padding:'4px 9px',borderRadius:6,
+                                      fontSize:13,fontWeight:700,padding:'4px 9px',borderRadius:6,
                                       color:info.colour,background:info.colour+'12',border:'1px solid '+info.colour+'25',
                                       whiteSpace:'nowrap'}}>
                           <span>{info.icon}</span> {info.label}
@@ -167,7 +167,7 @@ export default function MyNetwork() {
                       <td style={Object.assign({},tdStyle,{fontWeight:800,color:'#16a34a',fontSize:14})}>
                         +${formatMoney(c.amount_usdt || c.amount)}
                       </td>
-                      <td style={Object.assign({},tdStyle,{fontSize:11,color:'#64748b'})}>
+                      <td style={Object.assign({},tdStyle,{fontSize:13,color:'#475569'})}>
                         {c.created_at ? new Date(c.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short'}) : '—'}
                       </td>
                     </tr>
@@ -222,7 +222,7 @@ export default function MyNetwork() {
             <div style={{width:8,height:8,borderRadius:4,background:'#22c55e',boxShadow:'0 0 8px rgba(34,197,94,.5)'}}/>
             <div style={{fontSize:14,fontWeight:800,color:'#fff',letterSpacing:.3}}>{t('myNetwork.directReferralsList')}</div>
           </div>
-          <div style={{fontSize:11,fontWeight:700,color:'rgba(255,255,255,.55)'}}>{t('myNetwork.totalCount', { count: referrals.length })}</div>
+          <div style={{fontSize:13,fontWeight:700,color:'rgba(255,255,255,.55)'}}>{t('myNetwork.totalCount', { count: referrals.length })}</div>
         </div>
         <div style={{maxHeight:440,overflowY:'auto'}}>
           {referrals.length > 0 ? (
@@ -249,19 +249,19 @@ export default function MyNetwork() {
                             <div style={{fontSize:13,fontWeight:700,color:'#0f172a'}}>
                               {r.first_name || r.username}
                             </div>
-                            <div style={{fontSize:11,color:'#94a3b8'}}>@{r.username}</div>
+                            <div style={{fontSize:13,color:'#7a8899'}}>@{r.username}</div>
                           </div>
                         </div>
                       </td>
                       <td style={tdStyle}>
-                        <span style={{fontSize:10,fontWeight:700,padding:'4px 9px',borderRadius:6,
+                        <span style={{fontSize:13,fontWeight:700,padding:'4px 9px',borderRadius:6,
                           background: r.is_active ? 'rgba(22,163,74,.1)' : 'rgba(148,163,184,.15)',
-                          color: r.is_active ? '#15803d' : '#64748b',
+                          color: r.is_active ? '#15803d' : '#475569',
                           border: '1px solid ' + (r.is_active ? 'rgba(22,163,74,.2)' : 'rgba(148,163,184,.25)')}}>
                           {r.is_active ? t('myNetwork.statusActive') : t('myNetwork.statusInactive')}
                         </span>
                         {r.membership_tier === 'pro' && (
-                          <span style={{fontSize:9,fontWeight:800,padding:'3px 6px',borderRadius:4,
+                          <span style={{fontSize:13,fontWeight:800,padding:'3px 6px',borderRadius:4,
                             background:'rgba(139,92,246,.1)',color:'#8b5cf6',marginLeft:6,
                             border:'1px solid rgba(139,92,246,.2)',letterSpacing:.5}}>PRO</span>
                         )}
@@ -269,7 +269,7 @@ export default function MyNetwork() {
                       <td style={Object.assign({},tdStyle,{textAlign:'center'})}>
                         <span style={{fontSize:14,fontWeight:800,color:'#0ea5e9'}}>{r.personal_referrals || 0}</span>
                       </td>
-                      <td style={Object.assign({},tdStyle,{fontSize:11,color:'#64748b'})}>
+                      <td style={Object.assign({},tdStyle,{fontSize:13,color:'#475569'})}>
                         {r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—'}
                       </td>
                     </tr>
@@ -297,7 +297,7 @@ function SectionHeading(props) {
       <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0f172a',letterSpacing:-.2}}>
         {props.title}
       </div>
-      <div style={{fontSize:12,color:'#64748b',marginTop:2}}>{props.subtitle}</div>
+      <div style={{fontSize:12,color:'#475569',marginTop:2}}>{props.subtitle}</div>
     </div>
   );
 }
@@ -315,7 +315,7 @@ function StatCard(props) {
         {props.value}
       </div>
       <div style={{fontSize:13,fontWeight:700,color:'#0f172a',marginBottom:2}}>{props.label}</div>
-      <div style={{fontSize:11,color:'#64748b'}}>{props.sub}</div>
+      <div style={{fontSize:13,color:'#475569'}}>{props.sub}</div>
     </div>
   );
 }
@@ -345,7 +345,7 @@ function StreamRow(props) {
       </div>
       <div style={{flex:1,minWidth:0}}>
         <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:2}}>{props.name}</div>
-        <div style={{fontSize:12,color:'#64748b'}}>{props.desc}</div>
+        <div style={{fontSize:12,color:'#475569'}}>{props.desc}</div>
       </div>
       <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:props.colour,marginLeft:16,whiteSpace:'nowrap'}}>
         ${(props.amount || 0).toFixed(2)}
@@ -359,7 +359,7 @@ function EmptyState(props) {
     <div style={{textAlign:'center',padding:'48px 20px'}}>
       <div style={{fontSize:36,marginBottom:12,opacity:.35}}>{props.icon}</div>
       <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:6}}>{props.title}</div>
-      <div style={{fontSize:12,color:'#64748b'}}>{props.subtitle}</div>
+      <div style={{fontSize:12,color:'#475569'}}>{props.subtitle}</div>
     </div>
   );
 }
@@ -382,7 +382,7 @@ function streamFromType(type, t) {
   if (type.indexOf('direct_sponsor') >= 0 || type.indexOf('uni_level') >= 0 || type.indexOf('grid') >= 0 || type.indexOf('bonus') >= 0) {
     return { icon:'⚡', label: t ? t('myNetwork.streamCategoryGrid') : 'Grid', colour:'#0ea5e9' };
   }
-  return { icon:'•', label: t ? t('myNetwork.streamCategoryOther') : 'Other', colour:'#64748b' };
+  return { icon:'•', label: t ? t('myNetwork.streamCategoryOther') : 'Other', colour:'#475569' };
 }
 
 function humaniseType(type, t) {
@@ -405,7 +405,7 @@ function humaniseType(type, t) {
 /* ══════════════════════════════════════════════════════════════ */
 
 var thStyle = {
-  fontSize:10, fontWeight:800, color:'#64748b', textTransform:'uppercase', letterSpacing:1.2,
+  fontSize:13, fontWeight:800, color:'#475569', textTransform:'uppercase', letterSpacing:1.2,
   padding:'12px 16px', borderBottom:'1px solid #e8ecf2', textAlign:'left', background:'#f8fafc',
 };
 

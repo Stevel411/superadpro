@@ -21,7 +21,7 @@ var GOLD_GRAD = 'linear-gradient(135deg,#78350f,#b45309,#fbbf24)';
 var GREEN_GRAD = 'linear-gradient(135deg,#064e3b,#047857,#10b981)';
 
 var css = `
-  .gv-tier-tab{padding:10px 18px;border-radius:10px;border:1px solid #e2e8f0;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;color:#64748b;background:#fff}
+  .gv-tier-tab{padding:10px 18px;border-radius:10px;border:1px solid #e2e8f0;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;color:#475569;background:#fff}
   .gv-tier-tab:hover:not(.active){background:#f8fafc}
   .gv-tier-tab.active{color:#fff;border-color:transparent}
   .gv-seat{border-radius:10px;aspect-ratio:1;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:10px;transition:all .2s;position:relative;overflow:hidden}
@@ -147,7 +147,7 @@ export default function GridVisualiser() {
                       <div style={{ width:28, height:28, borderRadius:'50%', background:'rgba(255,255,255,.2)', border:'2px solid rgba(255,255,255,.3)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:800, marginBottom:3 }}>
                         {seat.username.charAt(0).toUpperCase()}
                       </div>
-                      <div style={{ fontSize:9, fontWeight:700, maxWidth:'90%', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{seat.username}</div>
+                      <div style={{ fontSize:13, fontWeight:700, maxWidth:'90%', overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap' }}>{seat.username}</div>
                       <div style={{ fontSize:8, opacity:.7 }}>{seat.member_id}</div>
                     </div>
                   );
@@ -178,7 +178,7 @@ export default function GridVisualiser() {
               </div>
             </div>
             <div style={{ textAlign:'right', minWidth:200 }}>
-              <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5 }}>{tr('visualiser.accruedSoFar')}</div>
+              <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:.5 }}>{tr('visualiser.accruedSoFar')}</div>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:900, color: isComplete ? 'var(--sap-green)' : 'var(--sap-amber)', lineHeight:1.1, marginTop:2 }}>
                 ${bonusAccrued.toFixed(2)}
               </div>
@@ -186,7 +186,7 @@ export default function GridVisualiser() {
               <div style={{ height:8, background:'var(--sap-amber-bg)', borderRadius:4, marginTop:10, overflow:'hidden' }}>
                 <div style={{ height:'100%', borderRadius:4, width:bonusPct+'%', background:'linear-gradient(90deg,#f59e0b,#fbbf24)', transition:'width .5s' }}/>
               </div>
-              <div style={{ fontSize:11, fontWeight:700, marginTop:6, color: isComplete ? 'var(--sap-green)' : '#92400e' }}>
+              <div style={{ fontSize:13, fontWeight:700, marginTop:6, color: isComplete ? 'var(--sap-green)' : '#92400e' }}>
                 {isComplete ? '✅ UNLOCKED — paid to your wallet!' : '🔒 Unlocks at 64/64 (' + (64 - filled) + ' to go)'}
               </div>
             </div>

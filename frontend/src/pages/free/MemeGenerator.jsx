@@ -170,7 +170,7 @@ export default function MemeGenerator() {
         </Link>
         <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', display: 'flex', alignItems: 'center', gap: 12 }}>
           <span style={{ fontFamily: 'Sora,sans-serif', fontWeight: 800, fontSize: 22, color: '#fff' }}>{t('freeMeme.title')}</span>
-          <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--sap-accent)', border: '1px solid rgba(14,165,233,0.4)', borderRadius: 20, padding: '4px 14px', letterSpacing: 1.5 }}>{t('freeMeme.free')}</span>
+          <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-accent)', border: '1px solid rgba(14,165,233,0.4)', borderRadius: 20, padding: '4px 14px', letterSpacing: 1.5 }}>{t('freeMeme.free')}</span>
         </div>
         <Link to="/register" style={{ background: 'var(--sap-accent)', color: '#fff', fontSize: 15, fontWeight: 600, padding: '10px 24px', borderRadius: 10, textDecoration: 'none', boxShadow: '0 2px 12px rgba(14,165,233,0.25)' }}>{t('freeMeme.getStartedFree')}</Link>
       </nav>
@@ -207,7 +207,7 @@ export default function MemeGenerator() {
 
           {/* TOP: Template grid — CONTAINED with internal scroll */}
           <div style={{ padding: '16px 16px 8px' }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
               Choose template <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0, color: '#7b8594' }}>— {templates.length} available (scroll to browse)</span>
             </div>
             {/* Search + Upload — above the grid */}
@@ -237,7 +237,7 @@ export default function MemeGenerator() {
           <div style={{ padding: '12px 16px 14px', borderTop: '1px solid rgba(0,180,216,0.06)', background: '#0d1628' }}>
 
             {/* Caption */}
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>
               Caption {selected && <span style={{ fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>— {selected.name}</span>}
             </div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 12 }}>
@@ -248,25 +248,25 @@ export default function MemeGenerator() {
             </div>
 
             {/* Style — rich dropdowns */}
-            <div style={{ fontSize: 10, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>{t('freeMeme.styleLabel')}</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'rgba(200,220,255,.3)', textTransform: 'uppercase', letterSpacing: 1.5, marginBottom: 8 }}>{t('freeMeme.styleLabel')}</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
               <div>
-                <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>{t('freeMeme.fontLabel')}</div>
+                <div style={{ fontSize: 13, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>{t('freeMeme.fontLabel')}</div>
                 <RichDropdown items={FONTS} value={fontId} onChange={setFontId} open={fontOpen} setOpen={v => { setFontOpen(v); setColorOpen(false); }}
                   renderItem={(f, isTrigger) => (
                     <>
                       <div style={{ width: 32, height: 32, borderRadius: 8, background: `${f.color}20`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: f.color, flexShrink: 0, fontFamily: FONT_FAMILIES[f.id] }}>{t('freeMeme.fontPreviewAa')}</div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{f.name}</div>
-                        {!isTrigger && <div style={{ fontSize: 10, color: '#7b8594' }}>{f.desc}</div>}
+                        {!isTrigger && <div style={{ fontSize: 13, color: '#7b8594' }}>{f.desc}</div>}
                       </div>
-                      {f.badge && <span style={{ fontSize: 9, fontWeight: 700, color: 'var(--sap-accent)', border: '1px solid rgba(14,165,233,.3)', borderRadius: 4, padding: '1px 6px', letterSpacing: 0.5, flexShrink: 0 }}>{f.badge}</span>}
+                      {f.badge && <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-accent)', border: '1px solid rgba(14,165,233,.3)', borderRadius: 4, padding: '1px 6px', letterSpacing: 0.5, flexShrink: 0 }}>{f.badge}</span>}
                     </>
                   )}
                 />
               </div>
               <div>
-                <div style={{ fontSize: 10, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>{t('freeMeme.textColour')}</div>
+                <div style={{ fontSize: 13, color: '#7b8594', marginBottom: 4, fontWeight: 600 }}>{t('freeMeme.textColour')}</div>
                 <RichDropdown items={COLORS} value={colorId} onChange={setColorId} open={colorOpen} setOpen={v => { setColorOpen(v); setFontOpen(false); }}
                   renderItem={(c, isTrigger) => (
                     <>
@@ -275,9 +275,9 @@ export default function MemeGenerator() {
                       </div>
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>{c.name}</div>
-                        {!isTrigger && <div style={{ fontSize: 10, color: '#7b8594' }}>{c.desc}</div>}
+                        {!isTrigger && <div style={{ fontSize: 13, color: '#7b8594' }}>{c.desc}</div>}
                       </div>
-                      {c.badge && <span style={{ fontSize: 9, fontWeight: 700, color: '#22d3ee', border: '1px solid rgba(34,211,238,.3)', borderRadius: 4, padding: '1px 6px', letterSpacing: 0.5, flexShrink: 0 }}>{c.badge}</span>}
+                      {c.badge && <span style={{ fontSize: 13, fontWeight: 700, color: '#22d3ee', border: '1px solid rgba(34,211,238,.3)', borderRadius: 4, padding: '1px 6px', letterSpacing: 0.5, flexShrink: 0 }}>{c.badge}</span>}
                     </>
                   )}
                 />
@@ -286,17 +286,17 @@ export default function MemeGenerator() {
 
             {/* Size slider */}
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-              <span style={{ fontSize: 10, color: '#7b8594', fontWeight: 600 }}>{t('freeMeme.sizeLabel')}</span>
+              <span style={{ fontSize: 13, color: '#7b8594', fontWeight: 600 }}>{t('freeMeme.sizeLabel')}</span>
               <input type="range" min="16" max="80" value={fontSize} onChange={e => setFontSize(+e.target.value)} style={{ flex: 1, accentColor: 'var(--sap-accent)' }} />
-              <span style={{ fontSize: 11, color: '#fff', fontWeight: 700, minWidth: 32, textAlign: 'right' }}>{fontSize}px</span>
+              <span style={{ fontSize: 13, color: '#fff', fontWeight: 700, minWidth: 32, textAlign: 'right' }}>{fontSize}px</span>
             </div>
 
           </div>
 
           {/* Earn CTA */}
           <div style={{ padding: '8px 16px 10px', borderTop: '1px solid rgba(0,180,216,0.06)', background: 'rgba(14,165,233,0.03)', display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: '#fff', flex: 1 }}>{t('freeMeme.earnCtaFull')}</span>
-            <Link to="/earn" style={{ fontSize: 10, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('freeMeme.seeHowFull')}</Link>
+            <span style={{ fontSize: 13, fontWeight: 700, color: '#fff', flex: 1 }}>{t('freeMeme.earnCtaFull')}</span>
+            <Link to="/earn" style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('freeMeme.seeHowFull')}</Link>
           </div>
         </div>
       </div>

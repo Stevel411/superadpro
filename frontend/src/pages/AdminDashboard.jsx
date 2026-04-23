@@ -106,7 +106,7 @@ function OverviewTab() {
                     <div style={{width:8,height:8,borderRadius:'50%',background:color}}/>
                     <span style={{fontSize:13,fontWeight:600,color:'var(--sap-text-primary)'}}>{c.name}</span>
                   </div>
-                  <span style={{fontSize:11,fontWeight:700,color:color,textTransform:'uppercase'}}>{c.detail || c.status}</span>
+                  <span style={{fontSize:13,fontWeight:700,color:color,textTransform:'uppercase'}}>{c.detail || c.status}</span>
                 </div>
               );
             })}
@@ -198,19 +198,19 @@ function UsersTab() {
                 onMouseEnter={function(e) { if (!isSel) e.currentTarget.style.background='var(--sap-bg-input)'; }}
                 onMouseLeave={function(e) { if (!isSel) e.currentTarget.style.background='transparent'; }}>
                 <div style={{display:'flex',alignItems:'center',gap:10}}>
-                  <div style={{width:32,height:32,borderRadius:'50%',background:'var(--sap-border-light)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:11,fontWeight:800,color:'var(--sap-text-muted)'}}>
+                  <div style={{width:32,height:32,borderRadius:'50%',background:'var(--sap-border-light)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:13,fontWeight:800,color:'var(--sap-text-muted)'}}>
                     {((u.first_name||'')[0]||'')+(((u.last_name||u.username||'')[0])||'')}
                   </div>
                   <div>
                     <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{u.first_name || u.username} {u.last_name || ''}</div>
-                    <div style={{fontSize:10,color:'var(--sap-text-faint)'}}>@{u.username} · ID: {u.id}</div>
+                    <div style={{fontSize:13,color:'var(--sap-text-faint)'}}>@{u.username} · ID: {u.id}</div>
                   </div>
                 </div>
                 <div style={{display:'flex',alignItems:'center',gap:6}}>
-                  <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:3,background:isActive?'var(--sap-green-bg-mid)':'var(--sap-red-bg)',color:isActive?'var(--sap-green)':'var(--sap-red)'}}>{isActive?'Active':'Inactive'}</span>
+                  <span style={{fontSize:13,fontWeight:700,padding:'2px 6px',borderRadius:3,background:isActive?'var(--sap-green-bg-mid)':'var(--sap-red-bg)',color:isActive?'var(--sap-green)':'var(--sap-red)'}}>{isActive?'Active':'Inactive'}</span>
                   {u.membership_tier === 'pro' && <span style={{fontSize:8,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(139,92,246,.1)',color:'var(--sap-purple)'}}>PRO</span>}
                   {(!u.membership_tier || u.membership_tier === 'basic') && <span style={{fontSize:8,fontWeight:800,padding:'2px 5px',borderRadius:3,background:'rgba(14,165,233,.1)',color:'var(--sap-accent)'}}>BASIC</span>}
-                  <span style={{fontSize:10,fontWeight:700,color:'var(--sap-accent)'}}>${(u.balance||0).toFixed(0)}</span>
+                  <span style={{fontSize:13,fontWeight:700,color:'var(--sap-accent)'}}>${(u.balance||0).toFixed(0)}</span>
                 </div>
               </div>
             );
@@ -227,9 +227,9 @@ function UsersTab() {
             <div style={{background:'var(--sap-cobalt-deep)',padding:'14px 20px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
               <div>
                 <div style={{fontSize:14,fontWeight:800,color:'#fff'}}>{detail.first_name || detail.username} {detail.last_name || ''}</div>
-                <div style={{fontSize:11,color:'rgba(255,255,255,.4)'}}>@{detail.username} · SAP-{String(detail.id).padStart(5,'0')}</div>
+                <div style={{fontSize:13,color:'rgba(255,255,255,.4)'}}>@{detail.username} · SAP-{String(detail.id).padStart(5,'0')}</div>
               </div>
-              <button onClick={function(){setSelected(null);setDetail(null);}} style={{background:'rgba(255,255,255,.1)',border:'none',borderRadius:6,color:'#fff',fontSize:11,fontWeight:700,padding:'4px 10px',cursor:'pointer',fontFamily:'inherit'}}>✕ Close</button>
+              <button onClick={function(){setSelected(null);setDetail(null);}} style={{background:'rgba(255,255,255,.1)',border:'none',borderRadius:6,color:'#fff',fontSize:13,fontWeight:700,padding:'4px 10px',cursor:'pointer',fontFamily:'inherit'}}>✕ Close</button>
             </div>
             <div style={{padding:'16px 20px'}}>
               <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,fontSize:12}}>
@@ -294,7 +294,7 @@ function UsersTab() {
               {!detail.is_admin && <GiftMembership userId={selected} username={detail.username} onDone={function(m) { setMsg(m); openUser(selected); loadUsers(); }}/>}
 
               {/* Adjust balance */}
-              <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:6}}>Adjust Balance</div>
+              <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:6}}>Adjust Balance</div>
               <div style={{display:'flex',gap:6,marginBottom:6}}>
                 <input value={adjustAmt} onChange={function(e) { setAdjustAmt(e.target.value); }}
                   placeholder="Amount (+ or -)" type="number" step="0.01"
@@ -359,11 +359,11 @@ function ModerationTab() {
                     <div style={{flex:1}}>
                       <div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:4}}>{a.title}</div>
                       <div style={{fontSize:12,color:'var(--sap-text-muted)',lineHeight:1.5,marginBottom:6}}>{a.description}</div>
-                      <div style={{fontSize:11,color:'var(--sap-text-faint)'}}>
+                      <div style={{fontSize:13,color:'var(--sap-text-faint)'}}>
                         {a.category} · by @{a.owner} · {a.created_at ? new Date(a.created_at).toLocaleDateString('en-GB') : ''}
                       </div>
-                      {a.link_url && <div style={{fontSize:11,color:'var(--sap-accent)',marginTop:4}}>{a.link_url}</div>}
-                      {a.keywords && <div style={{fontSize:10,color:'var(--sap-text-faint)',marginTop:4}}>Keywords: {a.keywords}</div>}
+                      {a.link_url && <div style={{fontSize:13,color:'var(--sap-accent)',marginTop:4}}>{a.link_url}</div>}
+                      {a.keywords && <div style={{fontSize:13,color:'var(--sap-text-faint)',marginTop:4}}>Keywords: {a.keywords}</div>}
                     </div>
                     {a.image_url && <img src={a.image_url} alt="" style={{width:80,height:60,objectFit:'cover',borderRadius:6,flexShrink:0}} />}
                   </div>
@@ -390,8 +390,8 @@ function ModerationTab() {
                     <div style={{flex:1}}>
                       <div style={{fontSize:14,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:4}}>{b.title}</div>
                       {b.description && <div style={{fontSize:12,color:'var(--sap-text-muted)',marginBottom:4}}>{b.description}</div>}
-                      <div style={{fontSize:11,color:'var(--sap-text-faint)'}}>{b.size} · {b.category} · by @{b.owner}</div>
-                      {b.link_url && <div style={{fontSize:11,color:'var(--sap-accent)',marginTop:4}}>{b.link_url}</div>}
+                      <div style={{fontSize:13,color:'var(--sap-text-faint)'}}>{b.size} · {b.category} · by @{b.owner}</div>
+                      {b.link_url && <div style={{fontSize:13,color:'var(--sap-accent)',marginTop:4}}>{b.link_url}</div>}
                     </div>
                   </div>
                   <div style={{display:'flex',gap:8,marginTop:12}}>
@@ -429,7 +429,7 @@ function FinancesTab() {
           return (
             <div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:20,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:26,fontWeight:800,color:s.color}}>{s.value}</div>
-              <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-faint)',marginTop:4}}>{s.label}</div>
+              <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-faint)',marginTop:4}}>{s.label}</div>
             </div>
           );
         })}
@@ -446,7 +446,7 @@ function FinancesTab() {
                 <div key={i} style={{padding:'10px 20px',borderBottom:'1px solid #f5f6f8',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                   <div>
                     <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.username || 'User #'+p.user_id}</div>
-                    <div style={{fontSize:10,color:'var(--sap-text-faint)'}}>{p.type || 'payment'} · {p.date || '—'}</div>
+                    <div style={{fontSize:13,color:'var(--sap-text-faint)'}}>{p.type || 'payment'} · {p.date || '—'}</div>
                   </div>
                   <div style={{fontSize:14,fontWeight:800,color:'var(--sap-green)'}}>${formatMoney(p.amount)}</div>
                 </div>
@@ -476,11 +476,11 @@ function WithdrawalsTab() {
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:14,marginBottom:20}}>
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:20,textAlign:'center'}}>
           <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'var(--sap-red)'}}>{pending.length}</div>
-          <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-faint)'}}>Pending Withdrawals</div>
+          <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-faint)'}}>Pending Withdrawals</div>
         </div>
         <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:20,textAlign:'center'}}>
           <div style={{fontFamily:'Sora,sans-serif',fontSize:28,fontWeight:800,color:'var(--sap-green)'}}>{completed.length}</div>
-          <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-faint)'}}>Processed</div>
+          <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-faint)'}}>Processed</div>
         </div>
       </div>
 
@@ -494,7 +494,7 @@ function WithdrawalsTab() {
               <div key={i} style={{padding:'14px 20px',borderBottom:'1px solid #f5f6f8',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                 <div>
                   <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)'}}>{w.username || 'User #'+w.user_id}</div>
-                  <div style={{fontSize:10,color:'var(--sap-text-faint)'}}>Wallet: {(w.wallet_address||'').slice(0,20)}... · {w.date || '—'}</div>
+                  <div style={{fontSize:13,color:'var(--sap-text-faint)'}}>Wallet: {(w.wallet_address||'').slice(0,20)}... · {w.date || '—'}</div>
                 </div>
                 <div style={{fontSize:16,fontWeight:800,color:'var(--sap-red)'}}>${formatMoney(w.amount)}</div>
               </div>
@@ -514,11 +514,11 @@ function WithdrawalsTab() {
                 <div key={i} style={{padding:'10px 20px',borderBottom:'1px solid #f5f6f8',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                   <div>
                     <div style={{fontSize:12,fontWeight:600,color:'var(--sap-text-primary)'}}>{w.username || 'User #'+w.user_id}</div>
-                    <div style={{fontSize:10,color:'var(--sap-text-faint)'}}>{w.date || '—'}</div>
+                    <div style={{fontSize:13,color:'var(--sap-text-faint)'}}>{w.date || '—'}</div>
                   </div>
                   <div style={{display:'flex',alignItems:'center',gap:6}}>
                     <span style={{fontSize:12,fontWeight:700,color:'var(--sap-green)'}}>${formatMoney(w.amount)}</span>
-                    <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:3,background:'var(--sap-green-bg-mid)',color:'var(--sap-green)',textTransform:'capitalize'}}>{w.status}</span>
+                    <span style={{fontSize:13,fontWeight:700,padding:'2px 6px',borderRadius:3,background:'var(--sap-green-bg-mid)',color:'var(--sap-green)',textTransform:'capitalize'}}>{w.status}</span>
                   </div>
                 </div>
               );
@@ -561,7 +561,7 @@ function KYCTab() {
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:8}}>
                   <div>
                     <div style={{fontSize:14,fontWeight:700,color:'var(--sap-text-primary)'}}>{u.first_name||''} {u.last_name||''} <span style={{fontWeight:400,color:'var(--sap-text-faint)'}}>@{u.username}</span></div>
-                    <div style={{fontSize:11,color:'var(--sap-text-muted)',marginTop:2}}>{u.email}</div>
+                    <div style={{fontSize:13,color:'var(--sap-text-muted)',marginTop:2}}>{u.email}</div>
                   </div>
                   <div style={{display:'flex',gap:6}}>
                     <button onClick={function() { reviewKYC(u.id, 'approve'); }}
@@ -574,7 +574,7 @@ function KYCTab() {
                     </button>
                   </div>
                 </div>
-                <div style={{display:'flex',gap:16,fontSize:11,color:'var(--sap-text-secondary)',flexWrap:'wrap'}}>
+                <div style={{display:'flex',gap:16,fontSize:13,color:'var(--sap-text-secondary)',flexWrap:'wrap'}}>
                   <span><strong>ID Type:</strong> {(u.kyc_id_type||'—').replace('_',' ')}</span>
                   <span><strong>DOB:</strong> {u.kyc_dob||'—'}</span>
                   <span><strong>Country:</strong> {u.country||'—'}</span>
@@ -622,7 +622,7 @@ function CommissionsTab() {
           return (
             <div key={i} style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,padding:20,textAlign:'center'}}>
               <div style={{fontFamily:'Sora,sans-serif',fontSize:24,fontWeight:800,color:s.color}}>{s.value}</div>
-              <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-faint)',marginTop:4}}>{s.label}</div>
+              <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-faint)',marginTop:4}}>{s.label}</div>
             </div>
           );
         })}
@@ -639,9 +639,9 @@ function CommissionsTab() {
               return (
                 <div key={i} style={{padding:'10px 20px',borderBottom:'1px solid #f5f6f8',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                   <div style={{display:'flex',alignItems:'center',gap:8}}>
-                    <span style={{fontSize:9,fontWeight:700,padding:'2px 6px',borderRadius:3,background:(typeColors[c.type]||'var(--sap-text-muted)')+'15',color:typeColors[c.type]||'var(--sap-text-muted)',textTransform:'uppercase'}}>{c.type}</span>
+                    <span style={{fontSize:13,fontWeight:700,padding:'2px 6px',borderRadius:3,background:(typeColors[c.type]||'var(--sap-text-muted)')+'15',color:typeColors[c.type]||'var(--sap-text-muted)',textTransform:'uppercase'}}>{c.type}</span>
                     <span style={{fontSize:12,fontWeight:600,color:'var(--sap-text-primary)'}}>{c.to_username || 'User #'+c.to_user_id}</span>
-                    <span style={{fontSize:10,color:'var(--sap-text-faint)'}}>from {c.from_username || 'User #'+c.from_user_id}</span>
+                    <span style={{fontSize:13,color:'var(--sap-text-faint)'}}>from {c.from_username || 'User #'+c.from_user_id}</span>
                   </div>
                   <span style={{fontSize:13,fontWeight:800,color:'var(--sap-green)'}}>${formatMoney(c.amount)}</span>
                 </div>
@@ -691,10 +691,10 @@ function HealthTab() {
                 <Icon size={16} color={color}/>
                 <div>
                   <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)'}}>{c.name}</div>
-                  <div style={{fontSize:11,color:'var(--sap-text-faint)'}}>{c.detail}</div>
+                  <div style={{fontSize:13,color:'var(--sap-text-faint)'}}>{c.detail}</div>
                 </div>
               </div>
-              <span style={{fontSize:10,fontWeight:800,padding:'3px 10px',borderRadius:4,background:color+'12',color:color,textTransform:'uppercase'}}>{c.status}</span>
+              <span style={{fontSize:13,fontWeight:800,padding:'3px 10px',borderRadius:4,background:color+'12',color:color,textTransform:'uppercase'}}>{c.status}</span>
             </div>
           );
         })}
@@ -710,10 +710,10 @@ function HealthTab() {
               <div key={i} style={{padding:'14px 20px',borderBottom:'1px solid #f5f6f8',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
                 <div>
                   <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-primary)'}}>{issue.type}</div>
-                  <div style={{fontSize:11,color:'var(--sap-text-faint)'}}>Severity: {issue.severity} · Count: {issue.count || '—'}</div>
+                  <div style={{fontSize:13,color:'var(--sap-text-faint)'}}>Severity: {issue.severity} · Count: {issue.count || '—'}</div>
                 </div>
                 <button onClick={function() { fixIssue(issue.type); }} disabled={fixing===issue.type}
-                  style={{padding:'6px 14px',borderRadius:6,border:'none',background:'var(--sap-amber)',color:'#fff',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit',opacity:fixing===issue.type?0.5:1}}>
+                  style={{padding:'6px 14px',borderRadius:6,border:'none',background:'var(--sap-amber)',color:'#fff',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',opacity:fixing===issue.type?0.5:1}}>
                   {fixing===issue.type ? 'Fixing...' : 'Auto-Fix'}
                 </button>
               </div>
@@ -753,19 +753,19 @@ function EmailAnalyticsTab() {
         <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:14}}>Brevo Cost Analysis</div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
           <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Current tier</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Current tier</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:c.brevo_tier==='Free'?'var(--sap-green)':'var(--sap-amber)'}}>{c.brevo_tier}</div>
           </div>
           <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Est. monthly cost</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Est. monthly cost</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-text-primary)'}}>${c.estimated_monthly_brevo}</div>
           </div>
           <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Cost per email</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Cost per email</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-text-primary)'}}>${c.cost_per_email}</div>
           </div>
           <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Free cap</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Free cap</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-text-muted)'}}>{c.free_daily_cap}/day</div>
           </div>
         </div>
@@ -778,19 +778,19 @@ function EmailAnalyticsTab() {
         <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:14}}>Platform Email Stats</div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
           <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Total leads</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Total leads</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-indigo)'}}>{ps.total_leads||0}</div>
           </div>
           <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Nurturing</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Nurturing</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-accent)'}}>{ps.leads_nurturing||0}</div>
           </div>
           <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Active sequences</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Active sequences</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-green)'}}>{ps.active_sequences||0}</div>
           </div>
           <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Boost credits out</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Boost credits out</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-amber)'}}>{(ps.total_boost_credits||0).toLocaleString()}</div>
           </div>
         </div>
@@ -802,9 +802,9 @@ function EmailAnalyticsTab() {
           <div style={{padding:'16px 20px',borderBottom:'1px solid #f1f5f9',fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800}}>Top Email Senders (30 days)</div>
           <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
             <thead><tr style={{background:'var(--sap-bg-elevated)'}}>
-              <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11}}>User</th>
-              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11}}>Emails sent</th>
-              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11}}>Boost credits</th>
+              <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:13}}>User</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:13}}>Emails sent</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:13}}>Boost credits</th>
             </tr></thead>
             <tbody>
               {data.top_senders.map(function(s,i){return <tr key={i} style={{borderTop:'1px solid #f1f5f9'}}>
@@ -827,15 +827,15 @@ function EmailAnalyticsTab() {
               return data.daily_breakdown.map(function(d,i){
                 var h = Math.max(4, (d.count / maxVal) * 100);
                 return <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:2}} title={d.date+': '+d.count+' emails'}>
-                  <div style={{fontSize:9,color:'var(--sap-text-faint)',fontWeight:600}}>{d.count>0?d.count:''}</div>
+                  <div style={{fontSize:13,color:'var(--sap-text-faint)',fontWeight:600}}>{d.count>0?d.count:''}</div>
                   <div style={{width:'100%',height:h,background:'linear-gradient(180deg,#6366f1,#818cf8)',borderRadius:'3px 3px 0 0',minHeight:4}}/>
                 </div>;
               });
             })()}
           </div>
           <div style={{display:'flex',justifyContent:'space-between',marginTop:6}}>
-            <span style={{fontSize:9,color:'var(--sap-text-faint)'}}>{data.daily_breakdown[0]?.date}</span>
-            <span style={{fontSize:9,color:'var(--sap-text-faint)'}}>{data.daily_breakdown[data.daily_breakdown.length-1]?.date}</span>
+            <span style={{fontSize:13,color:'var(--sap-text-faint)'}}>{data.daily_breakdown[0]?.date}</span>
+            <span style={{fontSize:13,color:'var(--sap-text-faint)'}}>{data.daily_breakdown[data.daily_breakdown.length-1]?.date}</span>
           </div>
         </div>
       )}
@@ -871,41 +871,41 @@ function SuperSceneAnalyticsTab() {
         <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:14}}>Financial Overview</div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(5,1fr)',gap:10,marginBottom:16}}>
           <div style={{background:'var(--sap-green-bg)',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-green-dark)',marginBottom:4}}>Revenue (month)</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-green-dark)',marginBottom:4}}>Revenue (month)</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-green-dark)'}}>${fin.revenue_this_month||0}</div>
           </div>
           <div style={{background:'var(--sap-red-bg)',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-red)',marginBottom:4}}>Provider cost</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-red)',marginBottom:4}}>Provider cost</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-red)'}}>${fin.estimated_provider_cost||0}</div>
           </div>
           <div style={{background:'#fff7ed',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'#ea580c',marginBottom:4}}>Sponsor comms</div>
+            <div style={{fontSize:13,fontWeight:700,color:'#ea580c',marginBottom:4}}>Sponsor comms</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#ea580c'}}>${fin.sponsor_commissions||0}</div>
           </div>
           <div style={{background:'var(--sap-green-bg)',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-green-dark)',marginBottom:4}}>Net margin</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-green-dark)',marginBottom:4}}>Net margin</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-green-dark)'}}>${fin.estimated_margin||0}</div>
           </div>
           <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Margin %</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Margin %</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:fin.margin_pct>=50?'var(--sap-green-dark)':fin.margin_pct>=20?'var(--sap-amber-dark)':'var(--sap-red)'}}>{fin.margin_pct||0}%</div>
           </div>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:10}}>
           <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Total revenue</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Total revenue</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>${fin.total_revenue||0}</div>
           </div>
           <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Sell price/credit</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Sell price/credit</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>${cr.credit_sell_price||'0.22'}</div>
           </div>
           <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Provider/credit</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Provider/credit</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>${fin.provider_cost_per_credit||'0.08'}</div>
           </div>
           <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 12px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Sponsor/credit</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Sponsor/credit</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:16,fontWeight:800,color:'var(--sap-text-primary)'}}>${fin.sponsor_rate_per_credit||'0.025'}</div>
           </div>
         </div>
@@ -916,19 +916,19 @@ function SuperSceneAnalyticsTab() {
         <div style={{fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800,marginBottom:14}}>Credit Usage</div>
         <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:12}}>
           <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Used this month</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Used this month</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-purple)'}}>{(cr.used_this_month||0).toLocaleString()}</div>
           </div>
           <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Used this week</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Used this week</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-accent)'}}>{(cr.used_this_week||0).toLocaleString()}</div>
           </div>
           <div style={{background:'var(--sap-bg-elevated)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Total used (all time)</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:4}}>Total used (all time)</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-indigo)'}}>{(cr.total_used||0).toLocaleString()}</div>
           </div>
           <div style={{background:'var(--sap-amber-bg)',borderRadius:10,padding:'14px 16px',textAlign:'center'}}>
-            <div style={{fontSize:10,fontWeight:700,color:'var(--sap-amber-dark)',marginBottom:4}}>Outstanding balance</div>
+            <div style={{fontSize:13,fontWeight:700,color:'var(--sap-amber-dark)',marginBottom:4}}>Outstanding balance</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'var(--sap-amber-dark)'}}>{(cr.outstanding_balance||0).toLocaleString()}</div>
           </div>
         </div>
@@ -941,10 +941,10 @@ function SuperSceneAnalyticsTab() {
           <div style={{padding:'16px 20px',borderBottom:'1px solid #f1f5f9',fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800}}>Model Usage (30 days)</div>
           <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
             <thead><tr style={{background:'var(--sap-bg-elevated)'}}>
-              <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11}}>Model</th>
-              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11}}>Generations</th>
-              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11}}>Credits used</th>
-              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11}}>Est. cost</th>
+              <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:13}}>Model</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:13}}>Generations</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:13}}>Credits used</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:13}}>Est. cost</th>
             </tr></thead>
             <tbody>
               {data.model_usage.map(function(m,i){return <tr key={i} style={{borderTop:'1px solid #f1f5f9'}}>
@@ -964,10 +964,10 @@ function SuperSceneAnalyticsTab() {
           <div style={{padding:'16px 20px',borderBottom:'1px solid #f1f5f9',fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800}}>Credit Pack Sales</div>
           <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
             <thead><tr style={{background:'var(--sap-bg-elevated)'}}>
-              <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11}}>Pack</th>
-              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11}}>Sales</th>
-              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11}}>Credits sold</th>
-              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11}}>Revenue</th>
+              <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:13}}>Pack</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:13}}>Sales</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:13}}>Credits sold</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:13}}>Revenue</th>
             </tr></thead>
             <tbody>
               {data.pack_sales.map(function(p,i){return <tr key={i} style={{borderTop:'1px solid #f1f5f9'}}>
@@ -987,10 +987,10 @@ function SuperSceneAnalyticsTab() {
           <div style={{padding:'16px 20px',borderBottom:'1px solid #f1f5f9',fontFamily:'Sora,sans-serif',fontSize:15,fontWeight:800}}>Top Users (30 days)</div>
           <table style={{width:'100%',borderCollapse:'collapse',fontSize:13}}>
             <thead><tr style={{background:'var(--sap-bg-elevated)'}}>
-              <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11}}>User</th>
-              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11}}>Generations</th>
-              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11}}>Credits used</th>
-              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:11}}>Remaining</th>
+              <th style={{textAlign:'left',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:13}}>User</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:13}}>Generations</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:13}}>Credits used</th>
+              <th style={{textAlign:'right',padding:'10px 16px',fontWeight:700,color:'var(--sap-text-secondary)',fontSize:13}}>Remaining</th>
             </tr></thead>
             <tbody>
               {data.top_users.map(function(u,i){return <tr key={i} style={{borderTop:'1px solid #f1f5f9'}}>
@@ -1014,15 +1014,15 @@ function SuperSceneAnalyticsTab() {
               return data.daily_breakdown.map(function(d,i){
                 var h = Math.max(4, (d.credits / maxVal) * 100);
                 return <div key={i} style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',gap:2}} title={d.date+': '+d.generations+' gens, '+d.credits+' credits'}>
-                  <div style={{fontSize:9,color:'var(--sap-text-faint)',fontWeight:600}}>{d.credits>0?d.credits:''}</div>
+                  <div style={{fontSize:13,color:'var(--sap-text-faint)',fontWeight:600}}>{d.credits>0?d.credits:''}</div>
                   <div style={{width:'100%',height:h,background:'linear-gradient(180deg,#8b5cf6,#a78bfa)',borderRadius:'3px 3px 0 0',minHeight:4}}/>
                 </div>;
               });
             })()}
           </div>
           <div style={{display:'flex',justifyContent:'space-between',marginTop:6}}>
-            <span style={{fontSize:9,color:'var(--sap-text-faint)'}}>{data.daily_breakdown[0]?.date}</span>
-            <span style={{fontSize:9,color:'var(--sap-text-faint)'}}>{data.daily_breakdown[data.daily_breakdown.length-1]?.date}</span>
+            <span style={{fontSize:13,color:'var(--sap-text-faint)'}}>{data.daily_breakdown[0]?.date}</span>
+            <span style={{fontSize:13,color:'var(--sap-text-faint)'}}>{data.daily_breakdown[data.daily_breakdown.length-1]?.date}</span>
           </div>
         </div>
       )}
@@ -1052,29 +1052,29 @@ function GiftMembership(props) {
 
   return (
     <div style={{borderTop:'1px solid #e2e8f0',paddingTop:12,marginTop:4}}>
-      <div style={{fontSize:11,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:8}}>🎁 Gift Free Membership</div>
+      <div style={{fontSize:13,fontWeight:700,color:'var(--sap-text-muted)',marginBottom:8}}>🎁 Gift Free Membership</div>
       <div style={{display:'flex',gap:6,marginBottom:8}}>
         <div style={{flex:1}}>
-          <div style={{fontSize:10,color:'var(--sap-text-faint)',marginBottom:3}}>Tier</div>
+          <div style={{fontSize:13,color:'var(--sap-text-faint)',marginBottom:3}}>Tier</div>
           <div style={{display:'flex',gap:4}}>
             {['basic','pro'].map(function(t) {
               return <button key={t} onClick={function() { setTier(t); }}
                 style={{flex:1,padding:'7px 0',borderRadius:6,border:'1px solid ' + (tier===t?'var(--sap-purple)':'var(--sap-border)'),
                   background:tier===t?(t==='pro'?'var(--sap-purple)':'var(--sap-accent)'):'#fff',
-                  color:tier===t?'#fff':'var(--sap-text-muted)',fontSize:11,fontWeight:700,cursor:'pointer',fontFamily:'inherit',textTransform:'uppercase'}}>
+                  color:tier===t?'#fff':'var(--sap-text-muted)',fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit',textTransform:'uppercase'}}>
                 {t}
               </button>;
             })}
           </div>
         </div>
         <div style={{flex:1}}>
-          <div style={{fontSize:10,color:'var(--sap-text-faint)',marginBottom:3}}>Duration</div>
+          <div style={{fontSize:13,color:'var(--sap-text-faint)',marginBottom:3}}>Duration</div>
           <div style={{display:'flex',gap:4}}>
             {[1,3,6,12].map(function(m) {
               return <button key={m} onClick={function() { setMonths(m); }}
                 style={{flex:1,padding:'7px 0',borderRadius:6,border:'1px solid ' + (months===m?'var(--sap-purple)':'var(--sap-border)'),
                   background:months===m?'var(--sap-purple)':'#fff',color:months===m?'#fff':'var(--sap-text-muted)',
-                  fontSize:10,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
+                  fontSize:13,fontWeight:700,cursor:'pointer',fontFamily:'inherit'}}>
                 {m === 12 ? '1yr' : m + 'mo'}
               </button>;
             })}

@@ -169,7 +169,7 @@ export default function CoursePlayer() {
             <div style={{ height: 6, background: 'var(--sap-border)', borderRadius: 3, overflow: 'hidden' }}>
               <div style={{ height: '100%', width: progress + '%', background: 'linear-gradient(90deg,#10b981,#34d399)', transition: 'width .3s' }}/>
             </div>
-            <div style={{ fontSize: 11, color: 'var(--sap-text-faint)', marginTop: 4 }}>{data.completed_count} / {data.total_lessons} lessons</div>
+            <div style={{ fontSize: 13, color: 'var(--sap-text-faint)', marginTop: 4 }}>{data.completed_count} / {data.total_lessons} lessons</div>
           </div>
 
           {/* Chapters and lessons */}
@@ -177,14 +177,14 @@ export default function CoursePlayer() {
             {(data.chapters || []).map(function(chapter) {
               return (
                 <div key={chapter.id}>
-                  <div style={{ padding: '10px 20px 6px', fontSize: 11, fontWeight: 800, color: 'var(--sap-text-faint)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
+                  <div style={{ padding: '10px 20px 6px', fontSize: 13, fontWeight: 800, color: 'var(--sap-text-faint)', textTransform: 'uppercase', letterSpacing: 0.5 }}>
                     {chapter.title}
                   </div>
                   {(chapter.lessons || []).map(function(lesson) {
                     var isActive = activeLesson && activeLesson.id === lesson.id;
                     return (
                       <button key={lesson.id} onClick={function(){setActiveLesson(lesson);}} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '10px 20px', border: 'none', background: isActive ? 'rgba(14,165,233,0.08)' : 'transparent', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', borderLeft: isActive ? '3px solid #0ea5e9' : '3px solid transparent' }}>
-                        <div style={{ width: 22, height: 22, borderRadius: '50%', background: lesson.completed ? 'var(--sap-green-bg-mid)' : isActive ? 'rgba(14,165,233,0.15)' : 'var(--sap-border)', border: lesson.completed ? '2px solid #16a34a' : isActive ? '2px solid #0ea5e9' : '2px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 11 }}>
+                        <div style={{ width: 22, height: 22, borderRadius: '50%', background: lesson.completed ? 'var(--sap-green-bg-mid)' : isActive ? 'rgba(14,165,233,0.15)' : 'var(--sap-border)', border: lesson.completed ? '2px solid #16a34a' : isActive ? '2px solid #0ea5e9' : '2px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 13 }}>
                           {lesson.completed ? '✓' : ''}
                         </div>
                         <div style={{ flex: 1, minWidth: 0 }}>
@@ -192,7 +192,7 @@ export default function CoursePlayer() {
                             {lesson.title}
                           </div>
                           {lesson.duration_mins > 0 && (
-                            <div style={{ fontSize: 11, color: 'var(--sap-text-faint)' }}>{lesson.duration_mins}m</div>
+                            <div style={{ fontSize: 13, color: 'var(--sap-text-faint)' }}>{lesson.duration_mins}m</div>
                           )}
                         </div>
                       </button>
@@ -209,7 +209,7 @@ export default function CoursePlayer() {
                   var isActive = activeLesson && activeLesson.id === lesson.id;
                   return (
                     <button key={lesson.id} onClick={function(){setActiveLesson(lesson);}} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: 10, padding: '10px 20px', border: 'none', background: isActive ? 'rgba(14,165,233,0.08)' : 'transparent', cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', borderLeft: isActive ? '3px solid #0ea5e9' : '3px solid transparent' }}>
-                      <div style={{ width: 22, height: 22, borderRadius: '50%', background: lesson.completed ? 'var(--sap-green-bg-mid)' : 'var(--sap-border)', border: lesson.completed ? '2px solid #16a34a' : '2px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 11 }}>
+                      <div style={{ width: 22, height: 22, borderRadius: '50%', background: lesson.completed ? 'var(--sap-green-bg-mid)' : 'var(--sap-border)', border: lesson.completed ? '2px solid #16a34a' : '2px solid #cbd5e1', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 13 }}>
                         {lesson.completed ? '✓' : ''}
                       </div>
                       <div style={{ fontSize: 13, fontWeight: isActive ? 700 : 600, color: isActive ? 'var(--sap-accent)' : 'var(--sap-text-primary)', lineHeight: 1.3 }}>

@@ -39,7 +39,7 @@ function StoryPreview(props) {
         }}>{s.display_initials || 'SA'}</div>
         <div style={{ minWidth:0, flex:1 }}>
           <div style={{ fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:15, color:'#fff', letterSpacing:'-.01em' }}>{nameLine}</div>
-          <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', letterSpacing:'.1em', textTransform:'uppercase', marginTop:2, fontFamily:'JetBrains Mono,monospace' }}>{s.niche}</div>
+          <div style={{ fontSize:13, color:'rgba(255,255,255,.5)', letterSpacing:'.1em', textTransform:'uppercase', marginTop:2, fontFamily:'JetBrains Mono,monospace' }}>{s.niche}</div>
         </div>
       </div>
       {(s.days_to_milestone !== null && s.days_to_milestone !== undefined) && (
@@ -50,7 +50,7 @@ function StoryPreview(props) {
           display:'flex', alignItems:'baseline', justifyContent:'space-between', marginBottom:12,
         }}>
           <div style={{ fontFamily:'Sora,sans-serif', fontWeight:900, fontSize:28, color: colourHex, letterSpacing:'-.04em', lineHeight:1 }}>{s.days_to_milestone}</div>
-          <div style={{ fontSize:9, color:'rgba(255,255,255,.5)', letterSpacing:'.1em', textTransform:'uppercase', textAlign:'right', fontFamily:'JetBrains Mono,monospace' }}>
+          <div style={{ fontSize:13, color:'rgba(255,255,255,.5)', letterSpacing:'.1em', textTransform:'uppercase', textAlign:'right', fontFamily:'JetBrains Mono,monospace' }}>
             {s.days_to_milestone === 1 ? 'day to' : 'days to'}
             <div style={{ color:'#fff', fontFamily:'Sora,sans-serif', fontWeight:700, fontSize:12, marginTop:2, textTransform:'none', letterSpacing:'-.01em' }}>{s.milestone_label}</div>
           </div>
@@ -67,7 +67,7 @@ function StoryPreview(props) {
           display:'flex', alignItems:'center', justifyContent:'space-between',
           paddingTop:10, borderTop:'1px solid rgba(255,255,255,.08)',
         }}>
-          <div style={{ fontSize:10, color:'rgba(255,255,255,.5)', letterSpacing:'.1em', textTransform:'uppercase', fontFamily:'JetBrains Mono,monospace' }}>earning now</div>
+          <div style={{ fontSize:13, color:'rgba(255,255,255,.5)', letterSpacing:'.1em', textTransform:'uppercase', fontFamily:'JetBrains Mono,monospace' }}>earning now</div>
           <div style={{ fontFamily:'Sora,sans-serif', fontWeight:900, fontSize:18, color:'#4ade80', letterSpacing:'-.02em' }}>{formatMoney(s.now_monthly_amount)}/mo</div>
         </div>
       )}
@@ -185,7 +185,7 @@ function EditModal(props) {
 function Field(props) {
   return (
     <div style={{ marginBottom:14 }}>
-      <label style={{ display:'block', fontSize:11, fontWeight:700, color:'#334155', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:6 }}>{props.label}</label>
+      <label style={{ display:'block', fontSize:13, fontWeight:700, color:'#334155', textTransform:'uppercase', letterSpacing:'.05em', marginBottom:6 }}>{props.label}</label>
       {props.children}
     </div>
   );
@@ -258,7 +258,7 @@ export default function AdminStories() {
   if (auth && auth.user && !auth.user.is_admin) {
     return (
       <AppLayout title="Admin — Stories">
-        <div style={{ padding:40, textAlign:'center', color:'#64748b' }}>Admin access required.</div>
+        <div style={{ padding:40, textAlign:'center', color:'#475569' }}>Admin access required.</div>
       </AppLayout>
     );
   }
@@ -288,9 +288,9 @@ export default function AdminStories() {
               style={{ display:'flex', alignItems:'center', gap:6, padding:'10px 16px', fontSize:13, fontWeight: on ? 800 : 600,
                        border:'none', borderBottom: on ? '3px solid #0ea5e9' : '3px solid transparent',
                        cursor:'pointer', fontFamily:'inherit', background: on ? 'rgba(14,165,233,.06)' : 'transparent',
-                       color: on ? '#0ea5e9' : '#64748b', marginBottom:-2, borderRadius:'6px 6px 0 0', transition:'all .15s' }}>
+                       color: on ? '#0ea5e9' : '#475569', marginBottom:-2, borderRadius:'6px 6px 0 0', transition:'all .15s' }}>
               <Icon size={14}/><span>{t.label}</span>
-              <span style={{ background: on ? '#0ea5e9' : '#cbd5e1', color:'#fff', padding:'2px 7px', borderRadius:10, fontSize:11, fontWeight:700 }}>{t.count}</span>
+              <span style={{ background: on ? '#0ea5e9' : '#cbd5e1', color:'#fff', padding:'2px 7px', borderRadius:10, fontSize:13, fontWeight:700 }}>{t.count}</span>
             </button>
           );
         })}
@@ -302,8 +302,8 @@ export default function AdminStories() {
           <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
         </div>
       ) : stories.length === 0 ? (
-        <div style={{ padding:60, textAlign:'center', color:'#64748b', background:'#f8fafc', border:'1px dashed #cbd5e1', borderRadius:16 }}>
-          <Sparkles size={32} style={{ color:'#94a3b8', marginBottom:10 }}/>
+        <div style={{ padding:60, textAlign:'center', color:'#475569', background:'#f8fafc', border:'1px dashed #cbd5e1', borderRadius:16 }}>
+          <Sparkles size={32} style={{ color:'#7a8899', marginBottom:10 }}/>
           <div style={{ fontSize:15, fontWeight:600, marginBottom:4 }}>No {tab === 'pending' ? 'pending' : tab === 'approved' ? 'approved' : ''} stories</div>
           <div style={{ fontSize:13 }}>
             {tab === 'pending' ? "When members submit, they'll show up here for review." : tab === 'approved' ? 'Approved stories appear on /explore tab 2.' : 'No stories have been submitted yet.'}
@@ -322,32 +322,32 @@ export default function AdminStories() {
                   <div>
                     <div style={{
                       display:'inline-flex', alignItems:'center', gap:6,
-                      padding:'3px 10px', borderRadius:100, fontSize:11, fontWeight:700,
+                      padding:'3px 10px', borderRadius:100, fontSize:13, fontWeight:700,
                       background: s.approved ? 'rgba(34,197,94,.12)' : 'rgba(245,158,11,.12)',
                       color: s.approved ? '#16a34a' : '#d97706',
                     }}>
                       {s.approved ? <Check size={12}/> : <Clock size={12}/>}
                       {s.approved ? 'LIVE' : 'PENDING'}
                     </div>
-                    <div style={{ fontSize:12, color:'#64748b', marginTop:6 }}>
+                    <div style={{ fontSize:12, color:'#475569', marginTop:6 }}>
                       <strong style={{ color:'#334155' }}>#{s.id}</strong>
                       {s.username && <> · <span style={{ color:'#0ea5e9' }}>@{s.username}</span></>}
                       {s.user_country && <> · {s.user_country}</>}
                     </div>
-                    <div style={{ fontSize:11, color:'#94a3b8', marginTop:2 }}>
+                    <div style={{ fontSize:13, color:'#7a8899', marginTop:2 }}>
                       Submitted {s.created_at ? new Date(s.created_at).toLocaleString() : '—'}
                     </div>
                   </div>
                   {s.approved && (
                     <div style={{ display:'flex', gap:4, alignItems:'center' }}>
                       <button onClick={function() { reorder(s.id, -1); }} disabled={busyId === s.id}
-                        style={{ padding:4, border:'1px solid #e2e8f0', borderRadius:6, background:'#fff', cursor:'pointer', color:'#64748b' }}
+                        style={{ padding:4, border:'1px solid #e2e8f0', borderRadius:6, background:'#fff', cursor:'pointer', color:'#475569' }}
                         title="Move up (lower sort_order)">
                         <ChevronUp size={14}/>
                       </button>
-                      <span style={{ fontSize:11, color:'#94a3b8', minWidth:18, textAlign:'center' }}>{s.sort_order}</span>
+                      <span style={{ fontSize:13, color:'#7a8899', minWidth:18, textAlign:'center' }}>{s.sort_order}</span>
                       <button onClick={function() { reorder(s.id, 1); }} disabled={busyId === s.id}
-                        style={{ padding:4, border:'1px solid #e2e8f0', borderRadius:6, background:'#fff', cursor:'pointer', color:'#64748b' }}
+                        style={{ padding:4, border:'1px solid #e2e8f0', borderRadius:6, background:'#fff', cursor:'pointer', color:'#475569' }}
                         title="Move down (higher sort_order)">
                         <ChevronDown size={14}/>
                       </button>

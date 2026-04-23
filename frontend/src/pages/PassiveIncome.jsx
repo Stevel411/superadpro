@@ -169,7 +169,7 @@ export default function PassiveIncome({ d }) {
       display: 'inline-flex', alignItems: 'center', gap: 7,
       background: 'rgba(99,102,241,0.15)', border: '1px solid rgba(99,102,241,0.35)',
       borderRadius: 99, padding: '5px 14px', marginBottom: 16,
-      fontSize: 10, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase', color: '#a5b4fc',
+      fontSize: 13, fontWeight: 800, letterSpacing: 2, textTransform: 'uppercase', color: '#a5b4fc',
     },
     heroTitle: {
       fontFamily: 'Sora,sans-serif', fontSize: 32, fontWeight: 900, color: '#fff',
@@ -187,7 +187,7 @@ export default function PassiveIncome({ d }) {
     totalStats: { display: 'flex', gap: 24, flexWrap: 'wrap' },
     totalStat: { textAlign: 'center' },
     totalStatVal: { fontFamily: 'Sora,sans-serif', fontSize: 20, fontWeight: 900, color: '#fff' },
-    totalStatLbl: { fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginTop: 2 },
+    totalStatLbl: { fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.35)', textTransform: 'uppercase', letterSpacing: 1, marginTop: 2 },
 
     // Streams row
     streamsRow: { display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: 12, marginBottom: 20 },
@@ -274,7 +274,7 @@ export default function PassiveIncome({ d }) {
 
           <div style={S.totalRow}>
             <div>
-              <div style={{ fontSize:10, fontWeight:800, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,0.3)', marginBottom:4 }}>{t('passiveIncome.totalEarnedAllTime')}</div>
+              <div style={{ fontSize:13, fontWeight:800, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,0.3)', marginBottom:4 }}>{t('passiveIncome.totalEarnedAllTime')}</div>
               <div style={S.totalAmount}>
                 $<CountUp target={totalEarned} duration={2000} isMoney/>
               </div>
@@ -308,12 +308,12 @@ export default function PassiveIncome({ d }) {
                   <StreamIcon type={s.iconType} color={s.color}/>
                 </div>
               </div>
-              <div style={{ fontSize:11, fontWeight:800, textTransform:'uppercase', letterSpacing:1, color:'rgba(255,255,255,0.35)', marginBottom:8 }}>{s.name}</div>
+              <div style={{ fontSize:13, fontWeight:800, textTransform:'uppercase', letterSpacing:1, color:'rgba(255,255,255,0.35)', marginBottom:8 }}>{s.name}</div>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:26, fontWeight:900, color:s.color, marginBottom:10 }}>
                 $<CountUp target={s.val} duration={1600} isMoney/>
               </div>
               <Bar pct={maxStream > 0 ? (s.val/maxStream)*100 : 0} gradient={s.grad} height={8}/>
-              <div style={{ fontSize:11, color:'rgba(255,255,255,0.25)', marginTop:8 }}>{s.tag}</div>
+              <div style={{ fontSize:13, color:'rgba(255,255,255,0.25)', marginTop:8 }}>{s.tag}</div>
             </div>
           );
         })}
@@ -331,7 +331,7 @@ export default function PassiveIncome({ d }) {
               {closestGrid.filled} of 64 positions filled — your team is {closestGrid.pct}% of the way there
             </div>
             <Bar pct={closestGrid.pct} gradient="linear-gradient(90deg,#10b981,#34d399,#6ee7b7)" height={10}/>
-            <div style={{ display:'flex', justifyContent:'space-between', fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:5 }}>
+            <div style={{ display:'flex', justifyContent:'space-between', fontSize:13, color:'rgba(255,255,255,0.3)', marginTop:5 }}>
               <span style={{ color:'#34d399', fontWeight:700 }}>{closestGrid.filled} filled</span>
               <span>{t('passiveIncome.needed64')}</span>
             </div>
@@ -340,7 +340,7 @@ export default function PassiveIncome({ d }) {
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:900, color:'#34d399' }}>
               ${(TIER_BONUSES[closestGrid.tier] || 0).toLocaleString()}
             </div>
-            <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)' }}>{t('passiveIncome.completionBonus')}</div>
+            <div style={{ fontSize:13, color:'rgba(255,255,255,0.35)' }}>{t('passiveIncome.completionBonus')}</div>
           </div>
         </div>
       ) : null}
@@ -357,7 +357,7 @@ export default function PassiveIncome({ d }) {
               <Ring pct={passiveScore} color={passiveLevel.color} size={150}/>
               <div style={{ position:'absolute', inset:0, display:'flex', flexDirection:'column', alignItems:'center', justifyContent:'center' }}>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:38, fontWeight:900, color:'#fff', lineHeight:1 }}>{passiveScore}</div>
-                <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:1, marginTop:4 }}>{t('passiveIncome.score')}</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.4)', textTransform:'uppercase', letterSpacing:1, marginTop:4 }}>{t('passiveIncome.score')}</div>
               </div>
             </div>
             <div style={{ flex:1 }}>
@@ -394,7 +394,7 @@ export default function PassiveIncome({ d }) {
           <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:18 }}>
             <div>
               <div style={S.sectionTitle}>{t('passiveIncome.earningsBreakdown')}</div>
-              <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)' }}>{t('passiveIncome.earningsBreakdownDesc')}</div>
+              <div style={{ fontSize:13, color:'rgba(255,255,255,0.35)' }}>{t('passiveIncome.earningsBreakdownDesc')}</div>
             </div>
             <div style={{ textAlign:'right' }}>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:48, fontWeight:900, color:'var(--sap-green-mid)', lineHeight:1 }}>
@@ -429,7 +429,7 @@ export default function PassiveIncome({ d }) {
         <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:4 }}>
           <div style={S.sectionTitle}>{t('passiveIncome.earningsAway')}</div>
         </div>
-        <div style={{ fontSize:11, color:'rgba(255,255,255,0.35)', marginBottom:16 }}>{t("passiveIncome.networkGenerated")}</div>
+        <div style={{ fontSize:13, color:'rgba(255,255,255,0.35)', marginBottom:16 }}>{t("passiveIncome.networkGenerated")}</div>
 
         {activity.length > 0 ? (
           <div>
@@ -447,7 +447,7 @@ export default function PassiveIncome({ d }) {
                   </div>
                   <div style={{ textAlign:'right' }}>
                     <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:c }}>+${formatMoney(item.amount || 0)}</div>
-                    <div style={{ fontSize:11, color:'rgba(255,255,255,0.25)', marginTop:2 }}>
+                    <div style={{ fontSize:13, color:'rgba(255,255,255,0.25)', marginTop:2 }}>
                       {item.date ? new Date(item.date).toLocaleDateString('en-GB', {day:'numeric',month:'short'}) : ''}
                     </div>
                   </div>

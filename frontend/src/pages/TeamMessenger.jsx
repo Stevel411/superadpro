@@ -73,7 +73,7 @@ export default function TeamMessenger() {
   }
   function initials(n) { if (!n) return '?'; var p = n.trim().split(' '); return p.length >= 2 ? (p[0][0] + p[1][0]).toUpperCase() : n[0].toUpperCase(); }
 
-  if (loading) return <AppLayout title={t("teamMessenger.title")}><div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'60vh'}}><div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:16}}><div style={{width:40,height:40,borderRadius:'50%',border:'3px solid #e2e8f0',borderTopColor:'#0ea5e9',animation:'spin 0.8s linear infinite'}}/><div style={{fontSize:13,fontWeight:600,color:'#94a3b8'}}>{t('teamMessenger.loading')}</div></div><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
+  if (loading) return <AppLayout title={t("teamMessenger.title")}><div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'60vh'}}><div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:16}}><div style={{width:40,height:40,borderRadius:'50%',border:'3px solid #e2e8f0',borderTopColor:'#0ea5e9',animation:'spin 0.8s linear infinite'}}/><div style={{fontSize:13,fontWeight:600,color:'#7a8899'}}>{t('teamMessenger.loading')}</div></div><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
 
   return (
     <AppLayout title={t("teamMessenger.title")} subtitle={t('teamMessenger.messageSubtitle')}>
@@ -85,10 +85,10 @@ export default function TeamMessenger() {
           <div style={{padding:'16px 18px',borderBottom:'1px solid #f1f5f9'}}>
             <div style={{fontSize:15,fontWeight:800,color:'#0f172a',display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
               <Users size={16} color="#0ea5e9"/> {t('teamMessenger.contacts')}
-              {unread > 0 && <span style={{fontSize:10,fontWeight:800,padding:'2px 7px',borderRadius:10,background:'#ef4444',color:'#fff',marginLeft:'auto'}}>{unread}</span>}
+              {unread > 0 && <span style={{fontSize:13,fontWeight:800,padding:'2px 7px',borderRadius:10,background:'#ef4444',color:'#fff',marginLeft:'auto'}}>{unread}</span>}
             </div>
             <div style={{position:'relative'}}>
-              <Search size={14} style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',color:'#94a3b8'}}/>
+              <Search size={14} style={{position:'absolute',left:10,top:'50%',transform:'translateY(-50%)',color:'#7a8899'}}/>
               <input value={search} onChange={function(e){setSearch(e.target.value);}}
                 placeholder={t("teamMessenger.searchContacts")}
                 style={{width:'100%',padding:'8px 12px 8px 32px',borderRadius:8,border:'1px solid #e2e8f0',background:'#f8fafc',
@@ -101,8 +101,8 @@ export default function TeamMessenger() {
             {filteredContacts.length === 0 ? (
               <div style={{padding:'60px 20px',textAlign:'center'}}>
                 <Users size={32} color="#cbd5e1" style={{marginBottom:10}}/>
-                <div style={{fontSize:13,fontWeight:600,color:'#64748b'}}>{contacts.length===0?t('analytics.noTeamYet',{defaultValue:'No team members yet'}):t('analytics.noResults',{defaultValue:'No results'})}</div>
-                <div style={{fontSize:12,color:'#94a3b8',marginTop:4}}>{contacts.length===0?t('analytics.recruitToMsg',{defaultValue:'Recruit members to start messaging'}):''}</div>
+                <div style={{fontSize:13,fontWeight:600,color:'#475569'}}>{contacts.length===0?t('analytics.noTeamYet',{defaultValue:'No team members yet'}):t('analytics.noResults',{defaultValue:'No results'})}</div>
+                <div style={{fontSize:12,color:'#7a8899',marginTop:4}}>{contacts.length===0?t('analytics.recruitToMsg',{defaultValue:'Recruit members to start messaging'}):''}</div>
               </div>
             ) : filteredContacts.map(function(c) {
               var isActive = activeContact && activeContact.id === c.id;
@@ -124,16 +124,16 @@ export default function TeamMessenger() {
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center'}}>
                       <span style={{fontSize:13,fontWeight:isActive||ur>0?700:500,color:'#0f172a',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{c.name}</span>
-                      {last&&<span style={{fontSize:10,color:'#94a3b8',flexShrink:0,marginLeft:6}}>{fmtTime(last.created_at)}</span>}
+                      {last&&<span style={{fontSize:13,color:'#7a8899',flexShrink:0,marginLeft:6}}>{fmtTime(last.created_at)}</span>}
                     </div>
                     <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginTop:2}}>
-                      <span style={{fontSize:12,color:'#94a3b8',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1}}>
+                      <span style={{fontSize:12,color:'#7a8899',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap',flex:1}}>
                         {last?(last.direction==='sent'?'You: ':'')+((last.message||'').substring(0,35)+(last.message&&last.message.length>35?'...':''))
                           :<span style={{fontStyle:'italic',color:'#cbd5e1'}}>{t('teamMessenger.noMsgPreview')}</span>}
                       </span>
-                      {ur>0&&<span style={{fontSize:9,fontWeight:800,padding:'2px 6px',borderRadius:10,background:'#0ea5e9',color:'#fff',flexShrink:0,marginLeft:6}}>{ur}</span>}
+                      {ur>0&&<span style={{fontSize:13,fontWeight:800,padding:'2px 6px',borderRadius:10,background:'#0ea5e9',color:'#fff',flexShrink:0,marginLeft:6}}>{ur}</span>}
                     </div>
-                    <div style={{fontSize:10,fontWeight:600,color:isSponsor?'#0ea5e9':'#3b82f6',marginTop:3}}>
+                    <div style={{fontSize:13,fontWeight:600,color:isSponsor?'#0ea5e9':'#3b82f6',marginTop:3}}>
                       {isSponsor?t('teamMessenger.sponsor',{defaultValue:'Sponsor'}):t('teamMessenger.referral',{defaultValue:'Referral'})} · {c.tier||'Basic'}
                     </div>
                   </div>
@@ -148,7 +148,7 @@ export default function TeamMessenger() {
           {activeContact ? (<>
             {/* Chat header */}
             <div style={{padding:'14px 24px',borderBottom:'1px solid #e2e8f0',display:'flex',alignItems:'center',gap:14,background:'#fff'}}>
-              <button onClick={function(){setActiveContact(null);}} style={{background:'none',border:'none',cursor:'pointer',padding:0,display:'flex',color:'#94a3b8'}}>
+              <button onClick={function(){setActiveContact(null);}} style={{background:'none',border:'none',cursor:'pointer',padding:0,display:'flex',color:'#7a8899'}}>
                 <ArrowLeft size={18}/>
               </button>
               <div style={{width:38,height:38,borderRadius:'50%',flexShrink:0,
@@ -159,7 +159,7 @@ export default function TeamMessenger() {
               </div>
               <div>
                 <div style={{fontSize:15,fontWeight:700,color:'#0f172a'}}>{activeContact.name}</div>
-                <div style={{fontSize:11,color:'#94a3b8'}}>{activeContact.relationship==='sponsor'?t('teamMessenger.yourSponsor',{defaultValue:'Your Sponsor'}):t('teamMessenger.yourReferral',{defaultValue:'Your Referral'})} · {activeContact.tier||'Basic'}</div>
+                <div style={{fontSize:13,color:'#7a8899'}}>{activeContact.relationship==='sponsor'?t('teamMessenger.yourSponsor',{defaultValue:'Your Sponsor'}):t('teamMessenger.yourReferral',{defaultValue:'Your Referral'})} · {activeContact.tier||'Basic'}</div>
               </div>
             </div>
 
@@ -169,13 +169,13 @@ export default function TeamMessenger() {
                 <div style={{flex:1,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:10}}>
                   <MessageCircle size={36} color="#cbd5e1"/>
                   <div style={{fontSize:15,fontWeight:700,color:'#475569'}}>{t('teamMessenger.noMessagesYet')}</div>
-                  <div style={{fontSize:13,color:'#94a3b8'}}>{t('teamMessenger.sayHello')} {activeContact.name}!</div>
+                  <div style={{fontSize:13,color:'#7a8899'}}>{t('teamMessenger.sayHello')} {activeContact.name}!</div>
                 </div>
               )}
               {groupedMsgs.map(function(item, idx) {
                 if (item.type === 'date') return (
                   <div key={'d'+idx} style={{textAlign:'center',margin:'12px 0 6px'}}>
-                    <span style={{fontSize:11,fontWeight:600,color:'#94a3b8',background:'#e2e8f0',padding:'3px 12px',borderRadius:12}}>{item.date}</span>
+                    <span style={{fontSize:13,fontWeight:600,color:'#7a8899',background:'#e2e8f0',padding:'3px 12px',borderRadius:12}}>{item.date}</span>
                   </div>
                 );
                 var m = item.data, mine = m.direction === 'sent';
@@ -184,7 +184,7 @@ export default function TeamMessenger() {
                     {!mine&&<div style={{width:26,height:26,borderRadius:'50%',flexShrink:0,marginRight:8,marginTop:'auto',
                       background:activeContact.relationship==='sponsor'?'linear-gradient(135deg,#0369a1,#0ea5e9)':'linear-gradient(135deg,#1e40af,#3b82f6)',
                       display:'flex',alignItems:'center',justifyContent:'center'}}>
-                      <span style={{fontSize:9,fontWeight:800,color:'#fff'}}>{initials(activeContact.name)}</span>
+                      <span style={{fontSize:13,fontWeight:800,color:'#fff'}}>{initials(activeContact.name)}</span>
                     </div>}
                     <div style={{maxWidth:'68%',padding:'10px 14px',
                       borderRadius:mine?'16px 16px 4px 16px':'16px 16px 16px 4px',
@@ -194,7 +194,7 @@ export default function TeamMessenger() {
                       border:mine?'none':'1px solid #e2e8f0'}}>
                       <div>{m.message}</div>
                       <div style={{display:'flex',alignItems:'center',justifyContent:'flex-end',gap:4,marginTop:3}}>
-                        <span style={{fontSize:10,color:mine?'rgba(255,255,255,.55)':'#94a3b8'}}>
+                        <span style={{fontSize:13,color:mine?'rgba(255,255,255,.55)':'#7a8899'}}>
                           {m.created_at?new Date(m.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):''}
                         </span>
                         {mine&&<CheckCheck size={12} color={m.is_read?'#bbf7d0':'rgba(255,255,255,.35)'}/>}
@@ -228,7 +228,7 @@ export default function TeamMessenger() {
               <div style={{textAlign:'center'}}>
                 <MessageCircle size={48} color="#cbd5e1" style={{marginBottom:14}}/>
                 <div style={{fontSize:17,fontWeight:700,color:'#334155',marginBottom:4}}>{t('teamMessenger.selectConversation')}</div>
-                <div style={{fontSize:13,color:'#94a3b8'}}>{t('teamMessenger.chooseContact')}</div>
+                <div style={{fontSize:13,color:'#7a8899'}}>{t('teamMessenger.chooseContact')}</div>
               </div>
             </div>
           )}

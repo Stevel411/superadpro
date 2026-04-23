@@ -22,7 +22,7 @@ var NODE_COLORS = {
 };
 
 var css = `
-  .mx-tab{padding:10px 16px;border-radius:10px;border:1px solid #e2e8f0;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;color:#64748b;background:#fff}
+  .mx-tab{padding:10px 16px;border-radius:10px;border:1px solid #e2e8f0;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .2s;color:#475569;background:#fff}
   .mx-tab:hover:not(.active):not(:disabled){background:#f8fafc}
   .mx-tab.active{color:#fff;border-color:transparent}
   .mx-tab:disabled{opacity:.45;cursor:not-allowed}
@@ -93,7 +93,7 @@ export default function CreditMatrixVisualiser() {
       return (
         <div className="mx-node empty">
           <div style={{ width:36, height:36, borderRadius:'50%', background:'var(--sap-bg-page)', margin:'0 auto 6px', display:'flex', alignItems:'center', justifyContent:'center', color:'var(--sap-text-faint)', fontSize:16 }}>?</div>
-          <div style={{ fontSize:10, color:'var(--sap-text-faint)', fontWeight:600 }}>{t('matrixVis.empty')}</div>
+          <div style={{ fontSize:13, color:'var(--sap-text-faint)', fontWeight:600 }}>{t('matrixVis.empty')}</div>
         </div>
       );
     }
@@ -108,7 +108,7 @@ export default function CreditMatrixVisualiser() {
         <div style={{ width:36, height:36, borderRadius:'50%', background:'rgba(255,255,255,.2)', border:'2px solid rgba(255,255,255,.3)', margin:'0 auto 6px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:14, fontWeight:800 }}>
           {isOwner ? 'Y' : node.username.charAt(0).toUpperCase()}
         </div>
-        <div style={{ fontSize:10, fontWeight:700 }}>{isOwner ? 'You' : node.username}</div>
+        <div style={{ fontSize:13, fontWeight:700 }}>{isOwner ? 'You' : node.username}</div>
         <div style={{ fontSize:8, opacity:.7, marginTop:2 }}>{node.member_id}</div>
       </div>
     );
@@ -228,7 +228,7 @@ export default function CreditMatrixVisualiser() {
 
                 {/* Level 1 */}
                 <div style={{ textAlign:'center', marginTop:8 }}>
-                  <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
+                  <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
                     Level 1 — 15% commission ({stats.l1_filled || 0}/3 filled)
                   </div>
                 </div>
@@ -238,7 +238,7 @@ export default function CreditMatrixVisualiser() {
 
                 {/* Level 2 */}
                 <div style={{ textAlign:'center', marginTop:8 }}>
-                  <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
+                  <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
                     Level 2 — 10% commission ({stats.l2_filled || 0}/9 filled)
                   </div>
                 </div>
@@ -248,7 +248,7 @@ export default function CreditMatrixVisualiser() {
 
                 {/* Level 3 */}
                 <div style={{ textAlign:'center', marginTop:8 }}>
-                  <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
+                  <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:1, marginBottom:6 }}>
                     Level 3 — 10% commission ({stats.l3_filled || 0}/27 filled)
                   </div>
                 </div>
@@ -261,24 +261,24 @@ export default function CreditMatrixVisualiser() {
             {/* Level earnings */}
             <div style={{ display:'flex', gap:12, marginTop:20 }}>
               <div style={{ flex:1, background:'var(--sap-bg-elevated)', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
-                <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>{t('matrixVis.level1')}</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>{t('matrixVis.level1')}</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${e1.toFixed(2)}</div>
-                <div style={{ fontSize:10, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.l1_filled || 0} × ${packPrice} × 15%</div>
+                <div style={{ fontSize:13, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.l1_filled || 0} × ${packPrice} × 15%</div>
               </div>
               <div style={{ flex:1, background:'var(--sap-bg-elevated)', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
-                <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>{t('matrixVis.level2')}</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>{t('matrixVis.level2')}</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${e2.toFixed(2)}</div>
-                <div style={{ fontSize:10, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.l2_filled || 0} × ${packPrice} × 10%</div>
+                <div style={{ fontSize:13, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.l2_filled || 0} × ${packPrice} × 10%</div>
               </div>
               <div style={{ flex:1, background:'var(--sap-bg-elevated)', borderRadius:10, padding:14, textAlign:'center', border:'1px solid #f1f5f9' }}>
-                <div style={{ fontSize:11, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>{t('matrixVis.level3')}</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-muted)', textTransform:'uppercase' }}>{t('matrixVis.level3')}</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:tc.dark, marginTop:4 }}>${e3.toFixed(2)}</div>
-                <div style={{ fontSize:10, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.l3_filled || 0} × ${packPrice} × 10%</div>
+                <div style={{ fontSize:13, color:'var(--sap-text-muted)', marginTop:2 }}>{stats.l3_filled || 0} × ${packPrice} × 10%</div>
               </div>
               <div style={{ flex:1, background:tc.grad, borderRadius:10, padding:14, textAlign:'center', border:'none' }}>
-                <div style={{ fontSize:11, fontWeight:700, color:'rgba(255,255,255,.7)', textTransform:'uppercase' }}>{t('matrixVis.total')}</div>
+                <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,.7)', textTransform:'uppercase' }}>{t('matrixVis.total')}</div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:800, color:'#fff', marginTop:4 }}>${eTotal.toFixed(2)}</div>
-                <div style={{ fontSize:10, color:'rgba(255,255,255,.6)', marginTop:2 }}>of ${eMax.toFixed(2)} max</div>
+                <div style={{ fontSize:13, color:'rgba(255,255,255,.6)', marginTop:2 }}>of ${eMax.toFixed(2)} max</div>
               </div>
             </div>
             </div>

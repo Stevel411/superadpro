@@ -106,7 +106,7 @@ function Toast() {
       <div style={{fontSize:24}}>{joiner.flag}</div>
       <div>
         <div style={{fontSize:13,fontWeight:700,color:'#fff',marginBottom:1}}>{joiner.name} from {joiner.country}</div>
-        <div style={{fontSize:11,color:'rgba(200,220,255,.55)'}}>{t('earnPage.justJoined')}</div>
+        <div style={{fontSize:13,color:'rgba(200,220,255,.55)'}}>{t('earnPage.justJoined')}</div>
       </div>
       <div style={{width:7,height:7,borderRadius:'50%',background:'var(--sap-green-bright)',boxShadow:'0 0 8px #22c55e',marginLeft:'auto',flexShrink:0}}/>
     </div>
@@ -160,9 +160,9 @@ function EarningsCalculator({ onJoin }) {
       {/* ── MEMBERSHIP CALCULATOR ── */}
       <div style={{background:'rgba(255,255,255,.03)',border:'1px solid rgba(16,185,129,.15)',borderRadius:18,overflow:'hidden',marginBottom:24}}>
         <div style={{background:'linear-gradient(135deg,rgba(16,185,129,.12),rgba(16,185,129,.04))',padding:'16px 24px',borderBottom:'1px solid rgba(16,185,129,.1)'}}>
-          <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#34d399',marginBottom:4}}>{t('earnPage.monthlyRecurring')}</div>
+          <div style={{fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#34d399',marginBottom:4}}>{t('earnPage.monthlyRecurring')}</div>
           <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>{t('earnPage.membershipCommissions')}</div>
-          <div style={{fontSize:11,color:'rgba(200,220,255,.4)',marginTop:2}}>{t('earnPage.membershipDescBody')}</div>
+          <div style={{fontSize:13,color:'rgba(200,220,255,.4)',marginTop:2}}>{t('earnPage.membershipDescBody')}</div>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',minHeight:220}}>
           {/* Controls */}
@@ -174,7 +174,7 @@ function EarningsCalculator({ onJoin }) {
               </div>
               <input type="range" min={1} max={100} value={memRefs} onChange={function(e){setMemRefs(parseInt(e.target.value));}}
                 className="ecalc-slider" style={Object.assign({}, ss, sliderTrack(memRefs, 100))}/>
-              <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'rgba(255,255,255,.2)',marginTop:3}}>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:13,color:'rgba(255,255,255,.2)',marginTop:3}}>
                 <span>1</span><span>100</span>
               </div>
             </div>
@@ -185,7 +185,7 @@ function EarningsCalculator({ onJoin }) {
               </div>
               <input type="range" min={0} max={100} value={memProRatio} onChange={function(e){setMemProRatio(parseInt(e.target.value));}}
                 className="ecalc-slider" style={Object.assign({}, ss, sliderTrack(memProRatio, 100))}/>
-              <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'rgba(255,255,255,.2)',marginTop:3}}>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:13,color:'rgba(255,255,255,.2)',marginTop:3}}>
                 <span>0%</span><span>100%</span>
               </div>
             </div>
@@ -195,21 +195,21 @@ function EarningsCalculator({ onJoin }) {
             <div style={{display:'flex',justifyContent:'space-between',padding:'10px 14px',borderRadius:10,background:'rgba(16,185,129,.06)',border:'1px solid rgba(16,185,129,.1)',marginBottom:8}}>
               <div>
                 <div style={{fontSize:12,fontWeight:700,color:'#34d399'}}>Basic referrals ({memBasicCount})</div>
-                <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>{t('earnPage.basicCalc')}</div>
+                <div style={{fontSize:13,color:'rgba(200,220,255,.35)'}}>{t('earnPage.basicCalc')}</div>
               </div>
               <div style={{fontSize:20,fontWeight:900,color:'#34d399'}}>${memBasicEarn}</div>
             </div>
             <div style={{display:'flex',justifyContent:'space-between',padding:'10px 14px',borderRadius:10,background:'rgba(139,92,246,.06)',border:'1px solid rgba(139,92,246,.1)',marginBottom:12}}>
               <div>
                 <div style={{fontSize:12,fontWeight:700,color:'var(--sap-purple-light)'}}>Pro referrals ({memProCount})</div>
-                <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>{t('earnPage.proCalc')}</div>
+                <div style={{fontSize:13,color:'rgba(200,220,255,.35)'}}>{t('earnPage.proCalc')}</div>
               </div>
               <div style={{fontSize:20,fontWeight:900,color:'var(--sap-purple-light)'}}>${memProEarn.toFixed(0)}</div>
             </div>
             <div style={{padding:'14px 16px',borderRadius:12,background:'linear-gradient(135deg,rgba(16,185,129,.15),rgba(16,185,129,.05))',border:'1px solid rgba(16,185,129,.2)',textAlign:'center'}}>
-              <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#34d399'}}>{t('earnPage.monthlyRecurringIncome')}</div>
+              <div style={{fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'#34d399'}}>{t('earnPage.monthlyRecurringIncome')}</div>
               <div style={{fontFamily:"'Sora',sans-serif",fontSize:40,fontWeight:900,color:'#fff'}}>${memTotal.toFixed(0)}</div>
-              <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>{t('earnPage.perMonthRecurring')}</div>
+              <div style={{fontSize:13,color:'rgba(200,220,255,.35)'}}>{t('earnPage.perMonthRecurring')}</div>
             </div>
           </div>
         </div>
@@ -218,9 +218,9 @@ function EarningsCalculator({ onJoin }) {
       {/* ── GRID CALCULATOR ── */}
       <div style={{background:'rgba(255,255,255,.03)',border:'1px solid rgba(56,189,248,.12)',borderRadius:18,overflow:'hidden',marginBottom:24}}>
         <div style={{background:'linear-gradient(135deg,rgba(56,189,248,.12),rgba(56,189,248,.04))',padding:'16px 24px',borderBottom:'1px solid rgba(56,189,248,.1)'}}>
-          <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:4}}>{t('earnPage.perPurchase')}</div>
+          <div style={{fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:4}}>{t('earnPage.perPurchase')}</div>
           <div style={{fontSize:16,fontWeight:800,color:'#fff'}}>{t('earnPage.gridCommissions')}</div>
-          <div style={{fontSize:11,color:'rgba(200,220,255,.4)',marginTop:2}}>{t("earnPage.perPurchaseDesc")}</div>
+          <div style={{fontSize:13,color:'rgba(200,220,255,.4)',marginTop:2}}>{t("earnPage.perPurchaseDesc")}</div>
         </div>
         <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',minHeight:320}}>
           {/* Controls */}
@@ -235,7 +235,7 @@ function EarningsCalculator({ onJoin }) {
                     <button key={t} onClick={function(){setGridTier(t);}}
                       style={{padding:'8px 4px',borderRadius:8,border:on?'1.5px solid #38bdf8':'1px solid rgba(255,255,255,.08)',
                         background:on?'rgba(56,189,248,.12)':'rgba(255,255,255,.03)',cursor:'pointer',fontFamily:'inherit',textAlign:'center'}}>
-                      <div style={{fontSize:11,fontWeight:800,color:on?'var(--sap-accent-light)':'rgba(200,220,255,.5)'}}>${gridPrices[t]}</div>
+                      <div style={{fontSize:13,fontWeight:800,color:on?'var(--sap-accent-light)':'rgba(200,220,255,.5)'}}>${gridPrices[t]}</div>
                       <div style={{fontSize:8,color:'rgba(200,220,255,.3)',fontWeight:600}}>{gridNames[t]}</div>
                     </button>
                   );
@@ -250,7 +250,7 @@ function EarningsCalculator({ onJoin }) {
               </div>
               <input type="range" min={1} max={50} value={gridDirectRefs} onChange={function(e){setGridDirectRefs(parseInt(e.target.value));}}
                 className="ecalc-slider" style={Object.assign({}, ss, sliderTrack(gridDirectRefs, 50))}/>
-              <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'rgba(255,255,255,.2)',marginTop:3}}>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:13,color:'rgba(255,255,255,.2)',marginTop:3}}>
                 <span>1</span><span>50</span>
               </div>
             </div>
@@ -262,7 +262,7 @@ function EarningsCalculator({ onJoin }) {
               </div>
               <input type="range" min={0} max={20} value={gridL2Refs} onChange={function(e){setGridL2Refs(parseInt(e.target.value));}}
                 className="ecalc-slider" style={Object.assign({}, ss, sliderTrack(gridL2Refs, 20))}/>
-              <div style={{display:'flex',justifyContent:'space-between',fontSize:10,color:'rgba(255,255,255,.2)',marginTop:3}}>
+              <div style={{display:'flex',justifyContent:'space-between',fontSize:13,color:'rgba(255,255,255,.2)',marginTop:3}}>
                 <span>0</span><span>20</span>
               </div>
             </div>
@@ -272,38 +272,38 @@ function EarningsCalculator({ onJoin }) {
             <div style={{display:'flex',justifyContent:'space-between',padding:'10px 14px',borderRadius:10,background:'rgba(56,189,248,.06)',border:'1px solid rgba(56,189,248,.1)',marginBottom:8}}>
               <div>
                 <div style={{fontSize:12,fontWeight:700,color:'var(--sap-accent-light)'}}>{t('earnPage.directSponsor')}</div>
-                <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>{gridDirectRefs} refs × ${gDirect.toFixed(0)} each</div>
+                <div style={{fontSize:13,color:'rgba(200,220,255,.35)'}}>{gridDirectRefs} refs × ${gDirect.toFixed(0)} each</div>
               </div>
               <div style={{fontSize:20,fontWeight:900,color:'var(--sap-accent-light)'}}>${gDirectTotal.toFixed(0)}</div>
             </div>
             <div style={{display:'flex',justifyContent:'space-between',padding:'10px 14px',borderRadius:10,background:'rgba(139,92,246,.06)',border:'1px solid rgba(139,92,246,.1)',marginBottom:8}}>
               <div>
                 <div style={{fontSize:12,fontWeight:700,color:'var(--sap-purple-light)'}}>{t('earnPage.uniLevel')}</div>
-                <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>{gL2Total} level-2 members × ${formatMoney(gUniLevel)}</div>
+                <div style={{fontSize:13,color:'rgba(200,220,255,.35)'}}>{gL2Total} level-2 members × ${formatMoney(gUniLevel)}</div>
               </div>
               <div style={{fontSize:20,fontWeight:900,color:'var(--sap-purple-light)'}}>${gUniTotal.toFixed(0)}</div>
             </div>
             <div style={{display:'flex',justifyContent:'space-between',padding:'10px 14px',borderRadius:10,background:'rgba(245,158,11,.06)',border:'1px solid rgba(245,158,11,.1)',marginBottom:12}}>
               <div>
                 <div style={{fontSize:12,fontWeight:700,color:'var(--sap-amber-bright)'}}>{t('earnPage.gridCompletionBonus')}</div>
-                <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>5% × 64 members on {gridNames[gridTier]} tier</div>
+                <div style={{fontSize:13,color:'rgba(200,220,255,.35)'}}>5% × 64 members on {gridNames[gridTier]} tier</div>
               </div>
               <div style={{fontSize:20,fontWeight:900,color:'var(--sap-amber-bright)'}}>${gBonus.toFixed(0)}</div>
             </div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginBottom:12}}>
               <div style={{padding:'10px 12px',borderRadius:10,background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.06)',textAlign:'center'}}>
                 <div style={{fontSize:18,fontWeight:900,color:'#fff'}}>{gridDirectRefs + gL2Total}</div>
-                <div style={{fontSize:9,color:'rgba(200,220,255,.3)',fontWeight:700,textTransform:'uppercase'}}>{t('earnPage.networkSize')}</div>
+                <div style={{fontSize:13,color:'rgba(200,220,255,.3)',fontWeight:700,textTransform:'uppercase'}}>{t('earnPage.networkSize')}</div>
               </div>
               <div style={{padding:'10px 12px',borderRadius:10,background:'rgba(255,255,255,.03)',border:'1px solid rgba(255,255,255,.06)',textAlign:'center'}}>
                 <div style={{fontSize:18,fontWeight:900,color:'#fff'}}>${gPerGrid.toLocaleString()}</div>
-                <div style={{fontSize:9,color:'rgba(200,220,255,.3)',fontWeight:700,textTransform:'uppercase'}}>{t('earnPage.perGridComplete')}</div>
+                <div style={{fontSize:13,color:'rgba(200,220,255,.3)',fontWeight:700,textTransform:'uppercase'}}>{t('earnPage.perGridComplete')}</div>
               </div>
             </div>
             <div style={{padding:'14px 16px',borderRadius:12,background:'linear-gradient(135deg,rgba(56,189,248,.15),rgba(56,189,248,.05))',border:'1px solid rgba(56,189,248,.2)',textAlign:'center'}}>
-              <div style={{fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'var(--sap-accent-light)'}}>{t('earnPage.totalGridEarnings')}</div>
+              <div style={{fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'var(--sap-accent-light)'}}>{t('earnPage.totalGridEarnings')}</div>
               <div style={{fontFamily:"'Sora',sans-serif",fontSize:40,fontWeight:900,color:'#fff'}}>${(gDirectTotal + gUniTotal).toFixed(0)}</div>
-              <div style={{fontSize:10,color:'rgba(200,220,255,.35)'}}>{t('earnPage.perPurchase')}</div>
+              <div style={{fontSize:13,color:'rgba(200,220,255,.35)'}}>{t('earnPage.perPurchase')}</div>
             </div>
           </div>
         </div>
@@ -315,7 +315,7 @@ function EarningsCalculator({ onJoin }) {
           background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',boxShadow:'0 4px 20px rgba(14,165,233,.4)',letterSpacing:.3}}>
           Start Building Your Network →
         </button>
-        <div style={{fontSize:10,color:'rgba(200,220,255,.25)',marginTop:10,lineHeight:1.5}}>
+        <div style={{fontSize:13,color:'rgba(200,220,255,.25)',marginTop:10,lineHeight:1.5}}>
           Income figures are illustrative only. Actual earnings depend on your effort, network activity, and member retention. Not a guarantee of income.
         </div>
       </div>
@@ -386,7 +386,7 @@ export default function EarnPage() {
                 <div style={{fontFamily:"'Sora',sans-serif",fontSize:22,fontWeight:900,color:'var(--sap-accent-light)',marginBottom:3}}>
                   <Counter target={s.val} prefix={s.prefix||''} suffix={s.suffix||''}/>
                 </div>
-                <div style={{fontSize:10,fontWeight:700,color:'rgba(200,220,255,.4)',textTransform:'uppercase',letterSpacing:1.5}}>{s.label}</div>
+                <div style={{fontSize:13,fontWeight:700,color:'rgba(200,220,255,.4)',textTransform:'uppercase',letterSpacing:1.5}}>{s.label}</div>
               </div>
             );
           })}
@@ -396,7 +396,7 @@ export default function EarnPage() {
       {/* INCOME STREAMS */}
       <section style={{padding:'60px 40px',maxWidth:1100,margin:'0 auto'}}>
         <div style={{textAlign:'center',marginBottom:48}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:12}}>{t('earnPage.heroTitle')}</div>
+          <div style={{fontSize:13,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:12}}>{t('earnPage.heroTitle')}</div>
           <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,40px)',fontWeight:900,color:'#fff',marginBottom:12}}>{t("earnPage.heroSubtitle")}</h2>
           <p style={{fontSize:15,color:'rgba(200,220,255,.45)',maxWidth:560,margin:'0 auto'}}>{t("earnPage.heroDesc")}</p>
         </div>
@@ -438,7 +438,7 @@ export default function EarnPage() {
                 <div style={{flex:1,minWidth:0}}>
                   <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:6,flexWrap:'wrap'}}>
                     <div style={{fontFamily:"'Sora',sans-serif",fontSize:17,fontWeight:800,color:'#fff'}}>{s.title}</div>
-                    <span style={{fontSize:10,fontWeight:800,padding:'3px 10px',borderRadius:20,background:s.bg,color:s.color,border:'1px solid '+s.border,letterSpacing:.5}}>{s.tag}</span>
+                    <span style={{fontSize:13,fontWeight:800,padding:'3px 10px',borderRadius:20,background:s.bg,color:s.color,border:'1px solid '+s.border,letterSpacing:.5}}>{s.tag}</span>
                   </div>
                   <div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:900,color:s.color,marginBottom:8}}>{s.value}</div>
                   <div style={{fontSize:14,color:'rgba(200,220,255,.55)',lineHeight:1.7}}>{s.desc}</div>
@@ -453,7 +453,7 @@ export default function EarnPage() {
       <div style={{maxWidth:1100,margin:'0 auto',padding:'0 40px'}}><div style={{height:1,background:'linear-gradient(90deg,transparent,rgba(56,189,248,.15),transparent)'}}/></div>
       <section style={{padding:'60px 40px',maxWidth:1100,margin:'0 auto'}}>
         <div style={{textAlign:'center',marginBottom:32}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-pink)',marginBottom:12}}>{t('earnPage.interactive3D')}</div>
+          <div style={{fontSize:13,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-pink)',marginBottom:12}}>{t('earnPage.interactive3D')}</div>
           <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,40px)',fontWeight:900,color:'#fff',marginBottom:12}}>{t('earnPage.watch3DDesc')}</h2>
           <p style={{fontSize:15,color:'rgba(200,220,255,.4)',maxWidth:550,margin:'0 auto',lineHeight:1.6}}>{t('earnPage.selectTierDesc')}</p>
         </div>
@@ -465,7 +465,7 @@ export default function EarnPage() {
 
       <section style={{padding:'60px 40px',maxWidth:1100,margin:'0 auto'}}>
         <div style={{textAlign:'center',marginBottom:48}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-green-mid)',marginBottom:12}}>{t('earnPage.simpleToStart')}</div>
+          <div style={{fontSize:13,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-green-mid)',marginBottom:12}}>{t('earnPage.simpleToStart')}</div>
           <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,40px)',fontWeight:900,color:'#fff',marginBottom:12}}>{t('earnPage.upAndEarning')}</h2>
         </div>
 
@@ -502,14 +502,14 @@ export default function EarnPage() {
               <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:16,position:'relative'}}>
                 <svg style={{width:22,height:22}} viewBox="0 0 32 32" fill="none"><circle cx="16" cy="16" r="16" fill="var(--sap-accent)"/><path d="M13 10.5L22 16L13 21.5V10.5Z" fill="white"/></svg>
                 <span style={{fontFamily:"'Sora',sans-serif",fontWeight:900,fontSize:15,color:'#fff'}}>SuperAd<span style={{color:'var(--sap-accent-light)'}}>{t('earnPage.pro')}</span></span>
-                <span style={{marginLeft:'auto',fontSize:9,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-accent-light)',border:'1px solid rgba(56,189,248,.25)',borderRadius:20,padding:'2px 8px'}}>{t('earnPage.nowOpen')}</span>
+                <span style={{marginLeft:'auto',fontSize:13,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'var(--sap-accent-light)',border:'1px solid rgba(56,189,248,.25)',borderRadius:20,padding:'2px 8px'}}>{t('earnPage.nowOpen')}</span>
               </div>
 
               {/* Headline */}
               <div style={{fontFamily:"'Sora',sans-serif",fontSize:20,fontWeight:900,color:'#fff',lineHeight:1.15,marginBottom:6,position:'relative'}}>
                 Turn Your Network Into<br/><span style={{background:'linear-gradient(135deg,#38bdf8,#7dd3fc)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>{t('earnPage.recurringIncome')}</span>
               </div>
-              <div style={{fontSize:11,color:'rgba(200,220,255,.5)',marginBottom:18,position:'relative'}}>{t("earnPage.recurringIncomeDesc")}</div>
+              <div style={{fontSize:13,color:'rgba(200,220,255,.5)',marginBottom:18,position:'relative'}}>{t("earnPage.recurringIncomeDesc")}</div>
 
               {/* Mini bullets */}
               {[
@@ -549,14 +549,14 @@ export default function EarnPage() {
             </div>
 
             {/* Floating badge */}
-            <div style={{position:'absolute',top:-12,right:-12,background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:10,padding:'8px 14px',fontSize:11,fontWeight:800,color:'#fff',boxShadow:'0 4px 20px rgba(14,165,233,.4)',animation:'hpFloat 3s ease-in-out infinite'}}>
+            <div style={{position:'absolute',top:-12,right:-12,background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:10,padding:'8px 14px',fontSize:13,fontWeight:800,color:'#fff',boxShadow:'0 4px 20px rgba(14,165,233,.4)',animation:'hpFloat 3s ease-in-out infinite'}}>
               Share This!
             </div>
           </div>
 
           {/* Right side text */}
           <div>
-            <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:14}}>{t('earnPage.shareRecruit')}</div>
+            <div style={{fontSize:13,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:14}}>{t('earnPage.shareRecruit')}</div>
             <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(22px,3vw,34px)',fontWeight:900,color:'#fff',lineHeight:1.2,marginBottom:16}}>
               When You Join, You Get<br/>
               <span style={{background:'linear-gradient(135deg,#38bdf8,#10b981)',WebkitBackgroundClip:'text',WebkitTextFillColor:'transparent',backgroundClip:'text'}}>{t('earnPage.yourOwnMarketingKit')}</span>
@@ -590,7 +590,7 @@ export default function EarnPage() {
 
       <section style={{padding:'60px 40px',maxWidth:900,margin:'0 auto'}}>
         <div style={{textAlign:'center',marginBottom:36}}>
-          <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:12}}>{t('earnPage.earningsSimulator')}</div>
+          <div style={{fontSize:13,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'var(--sap-accent-light)',marginBottom:12}}>{t('earnPage.earningsSimulator')}</div>
           <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,38px)',fontWeight:900,color:'#fff',marginBottom:12}}>{t('earnPage.seeWhatYouCouldEarn')}</h2>
           <p style={{fontSize:15,color:'rgba(200,220,255,.45)',maxWidth:520,margin:'0 auto'}}>{t('earnPage.twoCalcDescFull')}</p>
         </div>
@@ -601,7 +601,7 @@ export default function EarnPage() {
       <div style={{maxWidth:1100,margin:'0 auto',padding:'0 40px'}}><div style={{height:1,background:'linear-gradient(90deg,transparent,rgba(56,189,248,.15),transparent)'}}/></div>
 
       <section style={{padding:'60px 40px',maxWidth:900,margin:'0 auto',textAlign:'center'}}>
-        <div style={{fontSize:11,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'#a5b4fc',marginBottom:12}}>{t('earnPage.simplePricing')}</div>
+        <div style={{fontSize:13,fontWeight:800,letterSpacing:3,textTransform:'uppercase',color:'#a5b4fc',marginBottom:12}}>{t('earnPage.simplePricing')}</div>
         <h2 style={{fontFamily:"'Sora',sans-serif",fontSize:'clamp(24px,3.5vw,38px)',fontWeight:900,color:'#fff',marginBottom:12}}>{t("earnPage.oneMembership")}</h2>
         <p style={{fontSize:15,color:'rgba(200,220,255,.45)',maxWidth:520,margin:'0 auto 40px'}}>{t("earnPage.pricingDesc")}</p>
 
@@ -612,14 +612,14 @@ export default function EarnPage() {
           ].map(function(p) {
             return (
               <div key={p.name} className="earn-card" style={{background:p.highlight?'rgba(14,165,233,.06)':'rgba(255,255,255,.03)',border:p.highlight?'1.5px solid rgba(56,189,248,.25)':'1px solid rgba(255,255,255,.08)',borderRadius:16,padding:'28px 24px',position:'relative',textAlign:'left'}}>
-                {p.highlight && <div style={{position:'absolute',top:14,right:14,fontSize:9,fontWeight:800,letterSpacing:1,textTransform:'uppercase',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',padding:'3px 10px',borderRadius:20}}>{t('earnPage.recommended')}</div>}
-                <div style={{fontSize:11,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:p.highlight?'var(--sap-accent-light)':'rgba(200,220,255,.4)',marginBottom:8}}>{p.name}</div>
+                {p.highlight && <div style={{position:'absolute',top:14,right:14,fontSize:13,fontWeight:800,letterSpacing:1,textTransform:'uppercase',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',color:'#fff',padding:'3px 10px',borderRadius:20}}>{t('earnPage.recommended')}</div>}
+                <div style={{fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:p.highlight?'var(--sap-accent-light)':'rgba(200,220,255,.4)',marginBottom:8}}>{p.name}</div>
                 <div style={{fontFamily:"'Sora',sans-serif",fontSize:36,fontWeight:900,color:'#fff',lineHeight:1,marginBottom:4}}>{p.price}<span style={{fontSize:14,fontWeight:500,color:'rgba(200,220,255,.4)'}}>{p.period}</span></div>
                 <div style={{fontSize:12,color:'rgba(200,220,255,.35)',marginBottom:20}}>{t("earnPage.perMemberPerMonth")}</div>
                 <div style={{display:'flex',flexDirection:'column',gap:8,marginBottom:24}}>
                   {p.features.map(function(f){
                     return <div key={f} style={{display:'flex',alignItems:'center',gap:8,fontSize:13,color:'rgba(200,220,255,.65)'}}>
-                      <span style={{color:p.highlight?'var(--sap-accent-light)':'var(--sap-green-mid)',fontWeight:800,fontSize:11}}>✓</span>{f}
+                      <span style={{color:p.highlight?'var(--sap-accent-light)':'var(--sap-green-mid)',fontWeight:800,fontSize:13}}>✓</span>{f}
                     </div>;
                   })}
                 </div>
@@ -680,20 +680,20 @@ export default function EarnPage() {
             <div style={{fontSize:14,color:'rgba(148,163,184,.7)',marginBottom:20}}>{t('earnPage.takes60sec')}</div>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:12,marginBottom:12}}>
               <div>
-                <label style={{display:'block',fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>{t('earnPage.firstName')}</label>
+                <label style={{display:'block',fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>{t('earnPage.firstName')}</label>
                 <input style={{width:'100%',padding:'10px 13px',border:'1.5px solid rgba(56,189,248,.15)',borderRadius:8,background:'rgba(56,189,248,.04)',color:'var(--sap-bg-page)',fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} placeholder={t('earnPage.firstNamePlaceholder')}/>
               </div>
               <div>
-                <label style={{display:'block',fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>{t('earnPage.username')}</label>
+                <label style={{display:'block',fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>{t('earnPage.username')}</label>
                 <input style={{width:'100%',padding:'10px 13px',border:'1.5px solid rgba(56,189,248,.15)',borderRadius:8,background:'rgba(56,189,248,.04)',color:'var(--sap-bg-page)',fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} placeholder={t('earnPage.usernamePlaceholder')}/>
               </div>
             </div>
             <div style={{marginBottom:12}}>
-              <label style={{display:'block',fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>{t('earnPage.emailAddress')}</label>
+              <label style={{display:'block',fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>{t('earnPage.emailAddress')}</label>
               <input type="email" style={{width:'100%',padding:'10px 13px',border:'1.5px solid rgba(56,189,248,.15)',borderRadius:8,background:'rgba(56,189,248,.04)',color:'var(--sap-bg-page)',fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} placeholder={t('earnPage.emailPlaceholder')}/>
             </div>
             <div style={{marginBottom:20}}>
-              <label style={{display:'block',fontSize:10,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>{t('earnPage.password')}</label>
+              <label style={{display:'block',fontSize:13,fontWeight:800,letterSpacing:2,textTransform:'uppercase',color:'rgba(148,163,184,.7)',marginBottom:6}}>{t('earnPage.password')}</label>
               <input type="password" style={{width:'100%',padding:'10px 13px',border:'1.5px solid rgba(56,189,248,.15)',borderRadius:8,background:'rgba(56,189,248,.04)',color:'var(--sap-bg-page)',fontSize:14,fontFamily:'inherit',outline:'none',boxSizing:'border-box'}} placeholder={t('earnPage.passwordPlaceholder')}/>
             </div>
             <Link to="/register" onClick={function(){setRegOpen(false);}} style={{display:'block',width:'100%',padding:'13px',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',border:'none',borderRadius:10,color:'#fff',fontSize:15,fontWeight:800,fontFamily:'inherit',cursor:'pointer',textAlign:'center',textDecoration:'none',boxSizing:'border-box'}}>

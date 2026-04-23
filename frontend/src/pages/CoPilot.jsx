@@ -95,21 +95,21 @@ export default function CoPilot() {
               AI Co-Pilot
             </span>
             <span style={{
-              fontSize: 9, fontWeight: 800, padding: '2px 7px', borderRadius: 99,
+              fontSize: 13, fontWeight: 800, padding: '2px 7px', borderRadius: 99,
               background: 'linear-gradient(135deg,#6366f1,#818cf8)', color: '#fff', letterSpacing: 0.5,
             }}>{t('coPilot.proLabel')}</span>
             {briefing && !briefing.cached && (
-              <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.35)' }}>
                 • Fresh today
               </span>
             )}
             {briefing && briefing.cached && (
-              <span style={{ fontSize: 9, fontWeight: 700, color: 'rgba(255,255,255,0.25)' }}>
+              <span style={{ fontSize: 13, fontWeight: 700, color: 'rgba(255,255,255,0.25)' }}>
                 • Cached
               </span>
             )}
           </div>
-          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>
+          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', marginTop: 1 }}>
             Your personal business advisor — powered by Claude
           </div>
         </div>
@@ -123,7 +123,7 @@ export default function CoPilot() {
               style={{
                 background: 'none', border: 'none', cursor: 'pointer',
                 color: 'rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center',
-                gap: 4, fontSize: 11, fontWeight: 600, fontFamily: 'inherit', transition: 'color .15s',
+                gap: 4, fontSize: 13, fontWeight: 600, fontFamily: 'inherit', transition: 'color .15s',
               }}
             >
               <RefreshCw size={12} style={{ animation: refreshing ? 'cpSpin 1s linear infinite' : 'none' }}/>
@@ -182,7 +182,7 @@ export default function CoPilot() {
               {briefing.actions && briefing.actions.length > 0 && (
                 <div style={{ marginBottom: 18 }}>
                   <div style={{
-                    fontSize: 9, fontWeight: 800, letterSpacing: 2,
+                    fontSize: 13, fontWeight: 800, letterSpacing: 2,
                     textTransform: 'uppercase', color: 'rgba(255,255,255,0.3)',
                     marginBottom: 10,
                   }}>
@@ -216,11 +216,11 @@ export default function CoPilot() {
                           <div style={{ fontSize: 12, fontWeight: 800, color: '#fff', marginBottom: 4 }}>
                             {action.title}
                           </div>
-                          <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
+                          <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.45)', lineHeight: 1.5 }}>
                             {action.description}
                           </div>
                           <div style={{
-                            marginTop: 10, fontSize: 10, fontWeight: 700,
+                            marginTop: 10, fontSize: 13, fontWeight: 700,
                             color: action.color || '#818cf8', display: 'flex', alignItems: 'center', gap: 4,
                           }}>
                             <Zap size={10}/> Do this now →
@@ -239,7 +239,7 @@ export default function CoPilot() {
                 borderRadius: 12, overflow: 'hidden',
               }}>
                 <div style={{
-                  fontSize: 9, fontWeight: 800, letterSpacing: 2,
+                  fontSize: 13, fontWeight: 800, letterSpacing: 2,
                   textTransform: 'uppercase', color: 'rgba(255,255,255,0.25)',
                   padding: '10px 14px 0',
                 }}>
@@ -302,7 +302,7 @@ export default function CoPilot() {
                     return (
                       <button key={i} onClick={function() { setQuestion(q); }}
                         style={{
-                          fontSize: 10, fontWeight: 600, padding: '4px 10px',
+                          fontSize: 13, fontWeight: 600, padding: '4px 10px',
                           borderRadius: 99, border: '1px solid rgba(255,255,255,0.08)',
                           background: 'rgba(255,255,255,0.03)', color: 'rgba(255,255,255,0.4)',
                           cursor: 'pointer', fontFamily: 'inherit', transition: 'all .15s',

@@ -460,7 +460,7 @@ export default function TiptapText({
 
           {showAi && aiMenuOpen && (
             <div className="sp-tt-ai-pop" onMouseDown={(e) => e.preventDefault()}>
-              <div style={{fontSize:10,fontWeight:700,letterSpacing:0.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:8}}>AI commands</div>
+              <div style={{fontSize:13,fontWeight:700,letterSpacing:0.5,textTransform:'uppercase',color:'#8b5cf6',marginBottom:8}}>AI commands</div>
               <AiCmd onClick={() => handleAiCommand('rewrite')}>✨ Rewrite for clarity</AiCmd>
               <AiCmd onClick={() => handleAiCommand('shorten')}>📏 Make it shorter</AiCmd>
               <AiCmd onClick={() => handleAiCommand('sharper')}>🎯 Sharper hook</AiCmd>
@@ -558,7 +558,7 @@ export default function TiptapText({
             onClick={() => setLinkPopup({ open: false, url: '', pos: null })}
             style={{
               height: 30, padding: '0 8px', border: 'none',
-              background: 'transparent', color: '#64748b',
+              background: 'transparent', color: '#475569',
               fontSize: 14, borderRadius: 5, cursor: 'pointer',
               fontFamily: 'inherit', flexShrink: 0,
             }}
@@ -796,7 +796,7 @@ function SizeInput({ editor, currentSize }) {
         style={{
           width: 34, height: 26, padding: '0 4px',
           border: '0.5px solid #e2e8f0', borderRadius: 4,
-          background: '#fff', color: '#0f172a', fontSize: 11,
+          background: '#fff', color: '#0f172a', fontSize: 13,
           textAlign: 'center', outline: 'none', fontFamily: 'inherit',
           marginLeft: 4,
         }}
@@ -849,7 +849,7 @@ function ColorPicker({ editor, currentColor }) {
   const [open, setOpen] = useState(false);
   const current = currentColor || '#0f172a';
   const swatches = [
-    '#0f172a', '#475569', '#94a3b8',
+    '#0f172a', '#475569', '#7a8899',
     '#0ea5e9', '#0284c7',
     '#6366f1', '#4f46e5',
     '#8b5cf6', '#a855f7',
@@ -889,8 +889,8 @@ function ColorPicker({ editor, currentColor }) {
           <div
             onClick={() => { editor.chain().focus().unsetColor().run(); setOpen(false); }}
             style={{
-              gridColumn: 'span 5', marginTop: 3, fontSize: 10, padding: '4px 6px',
-              textAlign: 'center', color: '#64748b', cursor: 'pointer',
+              gridColumn: 'span 5', marginTop: 3, fontSize: 13, padding: '4px 6px',
+              textAlign: 'center', color: '#475569', cursor: 'pointer',
               border: '0.5px solid #e2e8f0', borderRadius: 4,
             }}
           >

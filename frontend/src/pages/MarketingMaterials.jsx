@@ -67,7 +67,7 @@ export default function MarketingMaterials() {
       {/* Page header */}
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontFamily: "'Sora',sans-serif", fontSize: 26, fontWeight: 800, color: '#0f172a', margin: 0 }}>Marketing Materials</h1>
-        <p style={{ fontSize: 14, color: '#64748b', marginTop: 6, lineHeight: 1.6 }}>Download ready-made presentations to share with prospects. Available in 20 languages.</p>
+        <p style={{ fontSize: 14, color: '#475569', marginTop: 6, lineHeight: 1.6 }}>Download ready-made presentations to share with prospects. Available in 20 languages.</p>
       </div>
 
       {/* Language selector — premium dropdown */}
@@ -81,8 +81,8 @@ export default function MarketingMaterials() {
           }}>
             <span style={{ fontSize: 20 }}>{selected.flag}</span>
             <span style={{ flex: 1, fontSize: 14, fontWeight: 700, color: '#0f172a' }}>{selected.name}</span>
-            <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 700 }}>{selected.code}</span>
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" strokeWidth="2.5" style={{ transform: dropdownOpen ? 'rotate(180deg)' : '', transition: 'transform .2s' }}><path d="M6 9l6 6 6-6"/></svg>
+            <span style={{ fontSize: 13, color: '#7a8899', fontWeight: 700 }}>{selected.code}</span>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#7a8899" strokeWidth="2.5" style={{ transform: dropdownOpen ? 'rotate(180deg)' : '', transition: 'transform .2s' }}><path d="M6 9l6 6 6-6"/></svg>
           </div>
 
           {/* Dropdown panel */}
@@ -101,7 +101,7 @@ export default function MarketingMaterials() {
               }}>
                 <span style={{ fontSize: 18 }}>{lang.flag}</span>
                 <span style={{ flex: 1, fontSize: 13, fontWeight: isSelected ? 700 : 500, color: isSelected ? '#7c3aed' : '#334155' }}>{lang.name}</span>
-                <span style={{ fontSize: 10, color: '#94a3b8', fontWeight: 600 }}>{lang.code}</span>
+                <span style={{ fontSize: 13, color: '#7a8899', fontWeight: 600 }}>{lang.code}</span>
                 {isSelected && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" strokeWidth="3"><polyline points="20 6 9 17 4 12"/></svg>}
               </div>;
             })}
@@ -114,7 +114,7 @@ export default function MarketingMaterials() {
 
         {/* Slide preview strip */}
         <div style={{ padding: '16px 20px 6px' }}>
-          <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1.5, color: '#94a3b8', textTransform: 'uppercase', marginBottom: 10 }}>Preview — 5 Slides</div>
+          <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1.5, color: '#7a8899', textTransform: 'uppercase', marginBottom: 10 }}>Preview — 5 Slides</div>
           <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
             {SLIDE_NAMES.map(function(name, i) {
               return <div key={i} style={{
@@ -124,7 +124,7 @@ export default function MarketingMaterials() {
                 padding: 8, border: '1px solid #e2e8f0'
               }}>
                 <div style={{ fontSize: 18, marginBottom: 4 }}>{['📊', '💰', '🎯', '🌀', '🎓'][i]}</div>
-                <div style={{ fontSize: 9, fontWeight: 700, color: '#fff', textAlign: 'center', lineHeight: 1.3 }}>{name}</div>
+                <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', textAlign: 'center', lineHeight: 1.3 }}>{name}</div>
               </div>;
             })}
           </div>
@@ -134,16 +134,16 @@ export default function MarketingMaterials() {
         <div style={{ padding: '12px 20px 20px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
             <div style={{ fontFamily: "'Sora',sans-serif", fontSize: 18, fontWeight: 800, color: '#0f172a' }}>4 Income Streams Presentation</div>
-            <div style={{ fontSize: 10, fontWeight: 700, padding: '4px 10px', borderRadius: 6, background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}>✓ 20 Languages</div>
+            <div style={{ fontSize: 13, fontWeight: 700, padding: '4px 10px', borderRadius: 6, background: '#f0fdf4', color: '#16a34a', border: '1px solid #bbf7d0' }}>✓ 20 Languages</div>
           </div>
-          <p style={{ fontSize: 13, color: '#64748b', lineHeight: 1.6, marginBottom: 14 }}>
+          <p style={{ fontSize: 13, color: '#475569', lineHeight: 1.6, marginBottom: 14 }}>
             Professional presentation covering all four SuperAdPro income streams — Membership Referrals, Campaign Grid, Credit Nexus, and Course Academy. Perfect for prospect meetings, team calls, or sharing online.
           </p>
 
           {/* Meta */}
           <div style={{ display: 'flex', gap: 16, marginBottom: 16, flexWrap: 'wrap' }}>
             {[['📊', '5 slides'], ['📁', 'PowerPoint (.pptx)'], ['📐', '16:9 widescreen'], ['💾', '~4 MB']].map(function(m, i) {
-              return <div key={i} style={{ fontSize: 12, color: '#94a3b8', display: 'flex', alignItems: 'center', gap: 4 }}>{m[0]} {m[1]}</div>;
+              return <div key={i} style={{ fontSize: 12, color: '#7a8899', display: 'flex', alignItems: 'center', gap: 4 }}>{m[0]} {m[1]}</div>;
             })}
           </div>
 
@@ -185,7 +185,7 @@ export default function MarketingMaterials() {
             return <div key={i} style={{ padding: 20, borderRadius: 12, background: '#fff', border: '1px solid #e2e8f0', textAlign: 'center', opacity: .6 }}>
               <div style={{ fontSize: 28, marginBottom: 8 }}>{item[0]}</div>
               <div style={{ fontSize: 13, fontWeight: 700, color: '#475569' }}>{item[1]}</div>
-              <div style={{ fontSize: 10, color: '#94a3b8', marginTop: 4, fontWeight: 600 }}>Coming Soon</div>
+              <div style={{ fontSize: 13, color: '#7a8899', marginTop: 4, fontWeight: 600 }}>Coming Soon</div>
             </div>;
           })}
         </div>

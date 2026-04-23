@@ -96,9 +96,9 @@ export default function Leaderboard() {
           </div>
           {myRank>=0 && (
             <div style={{ background:'rgba(255,255,255,0.06)', border:'1px solid rgba(255,255,255,0.12)', borderRadius:14, padding:'12px 20px', textAlign:'center' }}>
-              <div style={{ fontSize:10, fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:1, textTransform:'uppercase', marginBottom:4 }}>{t('leaderboard.yourRank')}</div>
+              <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.4)', letterSpacing:1, textTransform:'uppercase', marginBottom:4 }}>{t('leaderboard.yourRank')}</div>
               <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'var(--sap-amber-bright)' }}>#{myRank+1}</div>
-              <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:2 }}>{t('leaderboard.of', {count: leaders.length})}</div>
+              <div style={{ fontSize:13, color:'rgba(255,255,255,0.3)', marginTop:2 }}>{t('leaderboard.of', {count: leaders.length})}</div>
             </div>
           )}
         </div>
@@ -115,10 +115,10 @@ export default function Leaderboard() {
                   <div style={{ width:28, height:28, borderRadius:8, background:isActive?tb.grad:'rgba(255,255,255,0.06)', display:'flex', alignItems:'center', justifyContent:'center' }}>
                     <Icon size={14} color={isActive?'#fff':'rgba(255,255,255,0.3)'}/>
                   </div>
-                  <span style={{ fontSize:11, fontWeight:700, color:isActive?'#fff':'rgba(255,255,255,0.4)' }}>{tb.label}</span>
+                  <span style={{ fontSize:13, fontWeight:700, color:isActive?'#fff':'rgba(255,255,255,0.4)' }}>{tb.label}</span>
                 </div>
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:22, fontWeight:900, color:isActive?tb.color:'rgba(255,255,255,0.2)' }}>{count}</div>
-                <div style={{ fontSize:10, color:'rgba(255,255,255,0.3)', marginTop:2 }}>{t('leaderboard.onTheBoard')}</div>
+                <div style={{ fontSize:13, color:'rgba(255,255,255,0.3)', marginTop:2 }}>{t('leaderboard.onTheBoard')}</div>
               </div>
             );
           })}
@@ -137,7 +137,7 @@ export default function Leaderboard() {
           {leaders.length>=3 && (
             <div style={{ background:'#fff', borderRadius:20, border:'1px solid #e8ecf2', padding:'28px 24px 0', marginBottom:20, overflow:'hidden', boxShadow:'0 4px 24px rgba(0,0,0,0.06)' }}>
               <div style={{ textAlign:'center', marginBottom:20 }}>
-                <span style={{ fontSize:11, fontWeight:800, letterSpacing:2, textTransform:'uppercase', color:'var(--sap-text-muted)' }}>{t('leaderboard.topPerformersLabel')}</span>
+                <span style={{ fontSize:13, fontWeight:800, letterSpacing:2, textTransform:'uppercase', color:'var(--sap-text-muted)' }}>{t('leaderboard.topPerformersLabel')}</span>
               </div>
               <div style={{ display:'flex', justifyContent:'center', alignItems:'flex-end', gap:8 }}>
                 <PodiumCard user={leaders[1]} place={2} tab={activeTab}/>
@@ -152,13 +152,13 @@ export default function Leaderboard() {
             <div style={{ padding:'16px 20px', borderBottom:'1px solid #f1f5f9', display:'flex', alignItems:'center', gap:8 }}>
               <TrendingUp size={16} color={activeTab.color}/>
               <span style={{ fontFamily:'Sora,sans-serif', fontSize:14, fontWeight:800, color:'var(--sap-text-primary)' }}>{t('leaderboard.fullRankings')}</span>
-              <span style={{ fontSize:11, color:'var(--sap-text-muted)', marginLeft:4 }}>— {activeTab.label}</span>
+              <span style={{ fontSize:13, color:'var(--sap-text-muted)', marginLeft:4 }}>— {activeTab.label}</span>
             </div>
             <table style={{ width:'100%', borderCollapse:'collapse' }}>
               <thead>
                 <tr style={{ background:'var(--sap-bg-input)' }}>
                   {[t('leaderboard.rank'),t('leaderboard.member'),t('leaderboard.tierLabel'),activeTab.metricLabel,t('leaderboard.progress')].map(function(h,i){
-                    return <th key={h} style={{ fontSize:10, fontWeight:800, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:1, padding:'10px 16px', borderBottom:'1px solid #e8ecf2', textAlign:i>=3?'right':'left' }}>{h}</th>;
+                    return <th key={h} style={{ fontSize:13, fontWeight:800, color:'var(--sap-text-muted)', textTransform:'uppercase', letterSpacing:1, padding:'10px 16px', borderBottom:'1px solid #e8ecf2', textAlign:i>=3?'right':'left' }}>{h}</th>;
                   })}
                 </tr>
               </thead>
@@ -190,26 +190,26 @@ export default function Leaderboard() {
                           <div>
                             <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-primary)', display:'flex', alignItems:'center', gap:6 }}>
                               {u.first_name||u.username}
-                              {isMe && <span style={{ fontSize:10, fontWeight:700, padding:'2px 7px', borderRadius:5, background:`${activeTab.color}15`, color:activeTab.color }}>{t('leaderboard.you')}</span>}
+                              {isMe && <span style={{ fontSize:13, fontWeight:700, padding:'2px 7px', borderRadius:5, background:`${activeTab.color}15`, color:activeTab.color }}>{t('leaderboard.you')}</span>}
                               {i===0 && <Crown size={12} color="var(--sap-amber)"/>}
                             </div>
-                            <div style={{ fontSize:11, color:'var(--sap-text-muted)' }}>@{u.username}</div>
+                            <div style={{ fontSize:13, color:'var(--sap-text-muted)' }}>@{u.username}</div>
                           </div>
                         </div>
                       </td>
                       <td style={{ padding:'12px 16px', borderBottom:'1px solid #f5f6f8' }}>
-                        <span style={{ fontSize:10, fontWeight:700, padding:'3px 10px', borderRadius:6, background:`${activeTab.color}10`, color:activeTab.color, border:`1px solid ${activeTab.color}20` }}>{t('leaderboard.tierLabel')} {u.grid_tier||0}</span>
+                        <span style={{ fontSize:13, fontWeight:700, padding:'3px 10px', borderRadius:6, background:`${activeTab.color}10`, color:activeTab.color, border:`1px solid ${activeTab.color}20` }}>{t('leaderboard.tierLabel')} {u.grid_tier||0}</span>
                       </td>
                       <td style={{ padding:'12px 16px', borderBottom:'1px solid #f5f6f8', textAlign:'right' }}>
                         <span style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:900, color:i<3?activeTab.color:'var(--sap-text-primary)' }}>{val}</span>
-                        <div style={{ fontSize:9, color:'var(--sap-text-muted)', fontWeight:600, marginTop:1 }}>{activeTab.metricLabel}</div>
+                        <div style={{ fontSize:13, color:'var(--sap-text-muted)', fontWeight:600, marginTop:1 }}>{activeTab.metricLabel}</div>
                       </td>
                       <td style={{ padding:'12px 16px', borderBottom:'1px solid #f5f6f8', textAlign:'right', width:140 }}>
                         <div style={{ display:'flex', alignItems:'center', gap:8, justifyContent:'flex-end' }}>
                           <div style={{ flex:1, height:6, background:'var(--sap-bg-page)', borderRadius:99, overflow:'hidden', minWidth:80 }}>
                             <div style={{ height:'100%', borderRadius:99, background:i<3?activeTab.grad:`${activeTab.color}60`, width:`${pct}%`, transition:'width .8s ease-out' }}/>
                           </div>
-                          <span style={{ fontSize:10, fontWeight:700, color:'var(--sap-text-muted)', minWidth:28, textAlign:'right' }}>{pct}%</span>
+                          <span style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-muted)', minWidth:28, textAlign:'right' }}>{pct}%</span>
                         </div>
                       </td>
                     </tr>
@@ -252,7 +252,7 @@ export default function Leaderboard() {
                   <div style={{ flex:1 }}>
                     <div style={{ fontSize:13, color:'var(--sap-text-primary)', fontWeight:500 }}>{a.text}</div>
                   </div>
-                  <div style={{ fontSize:10, color:'var(--sap-text-ghost)', flexShrink:0 }}>{timeAgo}</div>
+                  <div style={{ fontSize:13, color:'var(--sap-text-ghost)', flexShrink:0 }}>{timeAgo}</div>
                 </div>
               );
             })}
@@ -262,14 +262,14 @@ export default function Leaderboard() {
         {/* Platform Stats */}
         <div style={{ display:'flex', flexDirection:'column', gap:12 }}>
           <div style={{ background:'linear-gradient(135deg,#172554,#1e3a8a)', borderRadius:16, padding:'24px 20px', textAlign:'center' }}>
-            <div style={{ fontSize:10, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>{t('leaderboard.activeMembers')}</div>
+            <div style={{ fontSize:13, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>{t('leaderboard.activeMembers')}</div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:36, fontWeight:900, color:'#fff' }}>{(d.stats||{}).total_members||0}</div>
-            <div style={{ fontSize:11, color:'rgba(255,255,255,.3)', marginTop:4 }}>{t('leaderboard.andGrowing')}</div>
+            <div style={{ fontSize:13, color:'rgba(255,255,255,.3)', marginTop:4 }}>{t('leaderboard.andGrowing')}</div>
           </div>
           <div style={{ background:'linear-gradient(135deg,#065f46,#059669)', borderRadius:16, padding:'24px 20px', textAlign:'center' }}>
-            <div style={{ fontSize:10, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>{t('leaderboard.totalEarnedByMembers')}</div>
+            <div style={{ fontSize:13, fontWeight:700, letterSpacing:1.5, textTransform:'uppercase', color:'rgba(255,255,255,.4)', marginBottom:8 }}>{t('leaderboard.totalEarnedByMembers')}</div>
             <div style={{ fontFamily:'Sora,sans-serif', fontSize:32, fontWeight:900, color:'#fff' }}>${Math.round((d.stats||{}).total_earned||0).toLocaleString()}</div>
-            <div style={{ fontSize:11, color:'rgba(255,255,255,.3)', marginTop:4 }}>{t('leaderboard.paidOut')}</div>
+            <div style={{ fontSize:13, color:'rgba(255,255,255,.3)', marginTop:4 }}>{t('leaderboard.paidOut')}</div>
           </div>
           <div style={{ background:'#fff', borderRadius:16, border:'1px solid #e8ecf2', padding:'20px', textAlign:'center' }}>
             <div style={{ fontSize:13, fontWeight:700, color:'var(--sap-text-primary)', marginBottom:8 }}>{t('leaderboard.wantToBeOnBoard')}</div>

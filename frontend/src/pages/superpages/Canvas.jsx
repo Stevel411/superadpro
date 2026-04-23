@@ -406,13 +406,13 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
       </div>;
     }
     if (el.type === 'video' && !el.txt) {
-      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', color: '#64748b', fontSize: 13 }}>{t('superPagesEditor.clickVideoToAdd')}</div>;
+      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', color: '#475569', fontSize: 13 }}>{t('superPagesEditor.clickVideoToAdd')}</div>;
     }
     if (el.type === 'image' && el.txt) {
       return <img src={el.txt} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: el.s?.borderRadius || '8px' }} alt="" />;
     }
     if (el.type === 'image' && !el.txt) {
-      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', color: '#64748b', fontSize: 13 }}>{t('superPagesEditor.clickImageToUpload')}</div>;
+      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', color: '#475569', fontSize: 13 }}>{t('superPagesEditor.clickImageToUpload')}</div>;
     }
     if (['spacer', 'divider', 'box'].includes(el.type) && !el.txt) return null;
     if (el.type === 'button' || el.type === 'announcement') {
@@ -423,7 +423,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         {['Days', 'Hrs', 'Min', 'Sec'].map(l => (
           <div key={l} style={{ textAlign: 'center' }}>
             <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 900, color: '#fff', background: 'rgba(255,255,255,0.06)', borderRadius: 10, padding: '8px 14px', minWidth: 50, border: '1px solid rgba(255,255,255,0.08)' }}>00</div>
-            <div style={{ fontSize: 10, color: 'var(--sap-text-muted)', marginTop: 4, textTransform: 'uppercase', letterSpacing: '.5px' }}>{l}</div>
+            <div style={{ fontSize: 13, color: 'var(--sap-text-muted)', marginTop: 4, textTransform: 'uppercase', letterSpacing: '.5px' }}>{l}</div>
           </div>
         ))}
       </div>;
@@ -454,13 +454,13 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
           <div style={{ position: 'absolute', inset: 0, zIndex: 2, cursor: 'grab' }} />
         </div>;
       }
-      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', color: '#64748b', fontSize: 13, gap: 8 }}>{t('superPagesEditor.clickAudioToAdd')}</div>;
+      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', color: '#475569', fontSize: 13, gap: 8 }}>{t('superPagesEditor.clickAudioToAdd')}</div>;
     }
     if (el.type === 'embed') {
       if (el._embedCode) {
         return <div style={{ width: '100%', height: '100%', overflow: 'hidden', borderRadius: 8, pointerEvents: 'none' }} dangerouslySetInnerHTML={{ __html: el._embedCode }} />;
       }
-      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', color: '#64748b', fontSize: 13, gap: 8 }}>{t('superPagesEditor.clickCodeFull')}</div>;
+      return <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8fafc', borderRadius: 12, border: '1px dashed #cbd5e1', color: '#475569', fontSize: 13, gap: 8 }}>{t('superPagesEditor.clickCodeFull')}</div>;
     }
     // Badge/label: render as centred pill
     if (el.type === 'badge' || el.type === 'label') {
@@ -530,9 +530,9 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
         {/* Empty state */}
         {els.length === 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', minHeight: 600 }}>
-            <div style={{ fontSize: 40, marginBottom: 12, color: '#94a3b8' }}>✦</div>
+            <div style={{ fontSize: 40, marginBottom: 12, color: '#7a8899' }}>✦</div>
             <h3 style={{ fontFamily: 'Sora,sans-serif', fontSize: 16, fontWeight: 700, color: '#0f172a', marginBottom: 6 }}>{t('superPagesEditor.startBuilding')}</h3>
-            <p style={{ fontSize: 12, color: '#64748b', maxWidth: 280, textAlign: 'center', lineHeight: 1.6 }}>{t('superPagesEditor.startBuildingDesc')}</p>
+            <p style={{ fontSize: 12, color: '#475569', maxWidth: 280, textAlign: 'center', lineHeight: 1.6 }}>{t('superPagesEditor.startBuildingDesc')}</p>
           </div>
         )}
 
@@ -572,7 +572,7 @@ export default function Canvas({ els, selId, canvasBg, canvasBgImage, selectElem
               {!['spacer', 'divider', 'box'].includes(el.type) && !TIPTAP_TYPES.includes(el.type) && (
                 <>
                   <button onClick={e => { e.stopPropagation(); if (EDITABLE_TYPES.includes(el.type)) { startInlineEdit(el.id); } else { onEditElement(el.id); } }}
-                    style={{ padding: '2px 8px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 10, fontWeight: 800, color: EDITABLE_TYPES.includes(el.type) ? 'var(--sap-indigo)' : 'var(--sap-accent)' }}>
+                    style={{ padding: '2px 8px', background: 'none', border: 'none', cursor: 'pointer', fontSize: 13, fontWeight: 800, color: EDITABLE_TYPES.includes(el.type) ? 'var(--sap-indigo)' : 'var(--sap-accent)' }}>
                     {EDITABLE_TYPES.includes(el.type) ? '✎ EDIT' : editLabel(el.type)}
                   </button>
                   <div style={{ width: 1, height: 14, background: 'var(--sap-border-strong)' }} />

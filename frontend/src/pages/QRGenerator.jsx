@@ -78,7 +78,7 @@ export default function QRGenerator() {
           </div>
 
           {/* Quick presets */}
-          <div style={{fontSize:11,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:1,marginBottom:10}}>{t('freeQR.quickLinks')}</div>
+          <div style={{fontSize:13,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:1,marginBottom:10}}>{t('freeQR.quickLinks')}</div>
           <div style={{display:'flex',flexDirection:'column',gap:6}}>
             {presets.map(function(p) {
               return (
@@ -89,7 +89,7 @@ export default function QRGenerator() {
                   <span style={{fontSize:18}}>{p.emoji}</span>
                   <div style={{flex:1,minWidth:0}}>
                     <div style={{fontSize:12,fontWeight:700,color:'var(--sap-text-primary)'}}>{p.label}</div>
-                    <div style={{fontSize:10,color:'var(--sap-text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.url}</div>
+                    <div style={{fontSize:13,color:'var(--sap-text-muted)',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.url}</div>
                   </div>
                 </button>
               );
@@ -105,7 +105,7 @@ export default function QRGenerator() {
                 <img src={'data:image/png;base64,' + qrData.qr_base64} alt={t('freeQR.qrAlt')}
                   style={{width:280,height:280,borderRadius:12,border:'1px solid #f1f5f9'}}/>
               </div>
-              <div style={{fontSize:11,color:'var(--sap-text-muted)',marginBottom:16,fontFamily:'monospace',wordBreak:'break-all',maxWidth:300,margin:'0 auto 16px'}}>
+              <div style={{fontSize:13,color:'var(--sap-text-muted)',marginBottom:16,fontFamily:'monospace',wordBreak:'break-all',maxWidth:300,margin:'0 auto 16px'}}>
                 {qrData.url}
               </div>
               <div style={{display:'flex',gap:8,justifyContent:'center'}}>
@@ -122,7 +122,7 @@ export default function QRGenerator() {
                 </a>
               </div>
               <div style={{marginTop:20,padding:'14px',background:'var(--sap-bg-elevated)',borderRadius:10,border:'1px solid #e8ecf2'}}>
-                <div style={{fontSize:11,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.8,marginBottom:6}}>{t('freeQR.usageTips')}</div>
+                <div style={{fontSize:13,fontWeight:800,color:'var(--sap-text-muted)',textTransform:'uppercase',letterSpacing:.8,marginBottom:6}}>{t('freeQR.usageTips')}</div>
                 <div style={{fontSize:12,color:'var(--sap-text-muted)',lineHeight:1.7}}>
                   Print on business cards, flyers, or stickers. Share in WhatsApp groups. Display at events and meetups. Perfect for bridging offline to online.
                 </div>

@@ -103,7 +103,7 @@ export default function CryptoGuide() {
         })}
 
         <div style={{ position: 'relative', zIndex: 2, maxWidth: 640 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)', marginBottom: 8 }}>
+          <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)', marginBottom: 8 }}>
             {t('cryptoGuide.heroSubtitle')}
           </div>
           <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 900, color: '#fff', marginBottom: 12, lineHeight: 1.15 }}>
