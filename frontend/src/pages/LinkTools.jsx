@@ -386,7 +386,7 @@ export default function LinkTools() {
                     )}
                   </div>
                 </div>
-                <div style={{padding:'8px 16px',borderTop:'1px solid #f1f5f9',display:'flex',gap:6,flexWrap:'wrap',padding:'10px 20px'}}>
+                <div style={{padding:'10px 20px',borderTop:'1px solid #f1f5f9',display:'flex',gap:6,flexWrap:'wrap'}}>
                   <button onClick={() => copyToClip(BASE + '/go/' + l.short_code)} style={smallBtn}><Copy size={12}/> {t('linkTools.copy')}</button>
                   <button onClick={() => openAnalytics(l.id, 'short')} style={smallBtn}><BarChart3 size={12}/> {t('linkTools.analytics')}</button>
                   <button onClick={() => openEdit(l)} style={smallBtn}><Edit3 size={12}/> {t('linkTools.editBtn')}</button>

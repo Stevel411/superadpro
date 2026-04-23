@@ -83,7 +83,7 @@ export default function Upgrade() {
         <div style={{ width:30, height:30, borderRadius:'50%', background:bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
           {icon || <Check size={14} color={stroke} strokeWidth={2.5} />}
         </div>
-        <span style={{ fontSize:14, color: bold ? 'var(--sap-text-primary)' : 'var(--sap-text-secondary)', fontWeight: bold ? 700 : 400, lineHeight:1.5 }}>{text}</span>
+        <span style={{ fontSize:15, color: bold ? 'var(--sap-text-primary)' : 'var(--sap-text-secondary)', fontWeight: bold ? 700 : 400, lineHeight:1.5 }}>{text}</span>
       </div>
     );
   }
@@ -105,7 +105,7 @@ export default function Upgrade() {
 
     if (isCurrent) {
       return (
-        <div style={{ padding:14, borderRadius:14, fontSize:14, fontWeight:700, textAlign:'center', background:'linear-gradient(135deg,#dcfce7,#bbf7d0)', color:'var(--sap-green-dark)', border:'1px solid #86efac' }}>
+        <div style={{ padding:14, borderRadius:14, fontSize:15, fontWeight:700, textAlign:'center', background:'linear-gradient(135deg,#dcfce7,#bbf7d0)', color:'var(--sap-green-dark)', border:'1px solid #86efac' }}>
           {t("upgrade.currentPlan")}
         </div>
       );
@@ -118,7 +118,7 @@ export default function Upgrade() {
             style={{ display:'flex', alignItems:'center', justifyContent:'center', gap:8, width:'100%', padding:16, borderRadius:14, fontSize:15, fontWeight:700, border:'none', cursor: loading === 'upgrade' ? 'default' : 'pointer', fontFamily:'inherit', background: loading === 'upgrade' ? 'var(--sap-text-muted)' : btnGrad, color:'#fff', boxShadow: loading === 'upgrade' ? 'none' : btnShadow }}>
             {loading === 'upgrade' ? t('upgrade.upgrading') : t('upgrade.upgradeToPro')}
           </button>
-          <div style={{ fontSize:13, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('upgrade.upgradeProDiff')}</div>
+          <div style={{ fontSize:14, color:'var(--sap-text-muted)', textAlign:'center' }}>{t('upgrade.upgradeProDiff')}</div>
         </div>
       );
     }
@@ -147,7 +147,7 @@ export default function Upgrade() {
       <div style={{ maxWidth:900, margin:'0 auto' }}>
 
         {error && (
-          <div style={{ background:'var(--sap-red-bg)', border:'1px solid #fecaca', borderRadius:10, padding:'12px 16px', marginBottom:20, fontSize:14, color:'var(--sap-red)', textAlign:'center' }}>
+          <div style={{ background:'var(--sap-red-bg)', border:'1px solid #fecaca', borderRadius:10, padding:'12px 16px', marginBottom:20, fontSize:15, color:'var(--sap-red)', textAlign:'center' }}>
             {error}
           </div>
         )}
@@ -155,11 +155,11 @@ export default function Upgrade() {
         {/* Toggle */}
         <div style={{ display:'flex', justifyContent:'center', marginBottom:36 }}>
           <div style={{ display:'inline-flex', alignItems:'center', gap:14, background:'var(--sap-bg-elevated)', border:'1px solid #e2e8f0', borderRadius:50, padding:'8px 24px' }}>
-            <span onClick={function(){setBilling('monthly')}} style={{ fontSize:14, fontWeight:600, color: !isAnnual ? 'var(--sap-text-primary)' : 'var(--sap-text-muted)', cursor:'pointer', userSelect:'none', transition:'color .2s' }}>{t('upgrade.monthly')}</span>
+            <span onClick={function(){setBilling('monthly')}} style={{ fontSize:15, fontWeight:600, color: !isAnnual ? 'var(--sap-text-primary)' : 'var(--sap-text-muted)', cursor:'pointer', userSelect:'none', transition:'color .2s' }}>{t('upgrade.monthly')}</span>
             <div className={'up-toggle-track' + (isAnnual ? ' on' : '')} onClick={function(){setBilling(isAnnual ? 'monthly' : 'annual')}}>
               <div className="up-toggle-thumb"/>
             </div>
-            <span onClick={function(){setBilling('annual')}} style={{ fontSize:14, fontWeight:600, color: isAnnual ? 'var(--sap-text-primary)' : 'var(--sap-text-muted)', cursor:'pointer', userSelect:'none', transition:'color .2s' }}>{t('upgrade.annual')}</span>
+            <span onClick={function(){setBilling('annual')}} style={{ fontSize:15, fontWeight:600, color: isAnnual ? 'var(--sap-text-primary)' : 'var(--sap-text-muted)', cursor:'pointer', userSelect:'none', transition:'color .2s' }}>{t('upgrade.annual')}</span>
             <span style={{ fontSize:13, fontWeight:700, color:'var(--sap-green)', background:'var(--sap-green-bg)', border:'1px solid #dcfce7', padding:'3px 10px', borderRadius:20 }}>{t('upgrade.save17')}</span>
           </div>
         </div>
@@ -177,7 +177,7 @@ export default function Upgrade() {
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:64, fontWeight:900, color:'#fff', lineHeight:1 }}>
                   {isAnnual ? '$200' : '$20'}<span style={{ fontSize:20, fontWeight:600, color:'rgba(255,255,255,.7)' }}>{isAnnual ? '/yr' : '/mo'}</span>
                 </div>
-                <div style={{ fontSize:14, fontWeight:500, color:'rgba(255,255,255,.7)', marginTop:8 }}>
+                <div style={{ fontSize:15, fontWeight:500, color:'rgba(255,255,255,.8)', marginTop:8 }}>
                   {isAnnual ? t('upgrade.basicEffective') : t('upgrade.billedMonthly')}
                 </div>
                 {isAnnual && (
@@ -185,7 +185,7 @@ export default function Upgrade() {
                     {t('upgrade.saveBasicAnnual')}
                   </div>
                 )}
-                <div style={{ fontSize:14, fontWeight:500, color:'rgba(255,255,255,.7)', marginTop:16, lineHeight:1.6 }}>
+                <div style={{ fontSize:15, fontWeight:500, color:'rgba(255,255,255,.8)', marginTop:16, lineHeight:1.6 }}>
                   {t('upgrade.basicDesc')}
                 </div>
               </div>
@@ -216,7 +216,7 @@ export default function Upgrade() {
                 <div style={{ fontFamily:'Sora,sans-serif', fontSize:64, fontWeight:900, color:'#fff', lineHeight:1 }}>
                   {isBasicActive ? '$15' : isAnnual ? '$350' : '$35'}<span style={{ fontSize:20, fontWeight:600, color:'rgba(255,255,255,.7)' }}>/{isBasicActive ? 'upgrade' : isAnnual ? 'yr' : 'mo'}</span>
                 </div>
-                <div style={{ fontSize:14, fontWeight:500, color:'rgba(255,255,255,.7)', marginTop:8 }}>
+                <div style={{ fontSize:15, fontWeight:500, color:'rgba(255,255,255,.8)', marginTop:8 }}>
                   {isBasicActive ? t('upgrade.proUpgradeNext') : isAnnual ? t('upgrade.proEffective') : t('upgrade.billedMonthly')}
                 </div>
                 {isAnnual && !isBasicActive && (
@@ -224,7 +224,7 @@ export default function Upgrade() {
                     {t('upgrade.saveProAnnual')}
                   </div>
                 )}
-                <div style={{ fontSize:14, fontWeight:500, color:'rgba(255,255,255,.7)', marginTop:16, lineHeight:1.6 }}>
+                <div style={{ fontSize:15, fontWeight:500, color:'rgba(255,255,255,.8)', marginTop:16, lineHeight:1.6 }}>
                   {t('upgrade.proDesc')}
                 </div>
               </div>
@@ -248,8 +248,8 @@ export default function Upgrade() {
 
         {/* Sponsor section */}
         <div style={{ background:'var(--sap-bg-elevated)', borderRadius:20, border:'1px solid #e2e8f0', padding:'28px 32px', textAlign:'center', marginBottom:20, boxShadow:'0 2px 8px rgba(0,0,0,.03)' }}>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:8 }}>{t('upgrade.earnWhileGrow')}</div>
-          <div style={{ fontSize:14, color:'var(--sap-text-muted)', lineHeight:1.7 }}>{t('upgrade.earnWhileGrowDesc')}</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:20, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:8 }}>{t('upgrade.earnWhileGrow')}</div>
+          <div style={{ fontSize:16, color:'var(--sap-text-muted)', lineHeight:1.7 }}>{t('upgrade.earnWhileGrowDesc')}</div>
           <div style={{ display:'inline-flex', alignItems:'center', gap:8, marginTop:14, padding:'10px 20px', background:'var(--sap-green-bg)', border:'1px solid #dcfce7', borderRadius:12, fontSize:14, fontWeight:700, color:'var(--sap-green)' }}>
             {t('upgrade.annualProReferral')}
           </div>
@@ -259,7 +259,7 @@ export default function Upgrade() {
           <WalletGuideCard compact />
         </div>
 
-        <p style={{ textAlign:'center', fontSize:12, color:'var(--sap-text-muted)', marginTop:16 }}>
+        <p style={{ textAlign:'center', fontSize:13, color:'var(--sap-text-muted)', marginTop:16 }}>
           {t('upgrade.securePaymentFooter')}
         </p>
       </div>

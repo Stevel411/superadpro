@@ -107,15 +107,15 @@ export default function PayItForward() {
       <div style={{ display:'grid', gridTemplateColumns:'repeat(3,1fr)', gap:12, marginBottom:24 }}>
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', textAlign:'center' }}>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:34, fontWeight:800, color:'var(--sap-pink)' }}>{stats.total_gifted || 0}</div>
-          <div style={{ fontSize:14, color:'var(--sap-text-muted)', marginTop:6 }}>{t('payItForward.giftsGiven')}</div>
+          <div style={{ fontSize:15, color:'var(--sap-text-muted)', marginTop:6 }}>{t('payItForward.giftsGiven')}</div>
         </div>
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', textAlign:'center' }}>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:34, fontWeight:800, color:'var(--sap-green-mid)' }}>{stats.total_claimed || 0}</div>
-          <div style={{ fontSize:14, color:'var(--sap-text-muted)', marginTop:6 }}>{t('payItForward.livesChanged')}</div>
+          <div style={{ fontSize:15, color:'var(--sap-text-muted)', marginTop:6 }}>{t('payItForward.livesChanged')}</div>
         </div>
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:12, padding:'18px 16px', textAlign:'center' }}>
           <div style={{ fontFamily:'Sora,sans-serif', fontSize:34, fontWeight:800, color:'var(--sap-purple)' }}>{stats.max_chain_depth || 0}</div>
-          <div style={{ fontSize:14, color:'var(--sap-text-muted)', marginTop:6 }}>{t('payItForward.chainDepthLabel')}</div>
+          <div style={{ fontSize:15, color:'var(--sap-text-muted)', marginTop:6 }}>{t('payItForward.chainDepthLabel')}</div>
         </div>
       </div>
 
@@ -124,23 +124,23 @@ export default function PayItForward() {
         <div style={{ background:'#fdf4ff', border:'1px solid #f0abfc', borderRadius:12, padding:'16px 20px', marginBottom:20, display:'flex', alignItems:'center', gap:12 }}>
           <Gift size={20} color="#a855f7"/>
           <div>
-            <div style={{ fontSize:14, fontWeight:700, color:'var(--sap-text-primary)' }}>Your membership was gifted by {data.received_gift.gifter_name}</div>
-            {data.received_gift.message && <div style={{ fontSize:12, color:'var(--sap-text-muted)', marginTop:2, fontStyle:'italic' }}>"{data.received_gift.message}"</div>}
-            <div style={{ fontSize:12, color:'#a855f7', marginTop:4, fontWeight:600 }}>{t("payItForward.payItForwardDesc")}</div>
+            <div style={{ fontSize:16, fontWeight:700, color:'var(--sap-text-primary)' }}>Your membership was gifted by {data.received_gift.gifter_name}</div>
+            {data.received_gift.message && <div style={{ fontSize:14, color:'var(--sap-text-muted)', marginTop:2, fontStyle:'italic' }}>"{data.received_gift.message}"</div>}
+            <div style={{ fontSize:14, color:'#a855f7', marginTop:4, fontWeight:600 }}>{t("payItForward.payItForwardDesc")}</div>
           </div>
         </div>
       )}
 
       {/* Error / Success */}
-      {error && <div style={{ padding:'12px 16px', background:'var(--sap-red-bg)', border:'1px solid #fecaca', borderRadius:10, marginBottom:16, fontSize:13, fontWeight:600, color:'var(--sap-red)' }}>{error}</div>}
+      {error && <div style={{ padding:'12px 16px', background:'var(--sap-red-bg)', border:'1px solid #fecaca', borderRadius:10, marginBottom:16, fontSize:14, fontWeight:600, color:'var(--sap-red)' }}>{error}</div>}
       {success && (
         <div style={{ padding:'16px 20px', background:'var(--sap-green-bg)', border:'1px solid #bbf7d0', borderRadius:10, marginBottom:16 }}>
-          <div style={{ fontSize:14, fontWeight:700, color:'var(--sap-green-dark)', marginBottom:8 }}>{success}</div>
+          <div style={{ fontSize:16, fontWeight:700, color:'var(--sap-green-dark)', marginBottom:8 }}>{success}</div>
           {newLink && (
             <div style={{ display:'flex', gap:8, alignItems:'center' }}>
-              <input value={newLink} readOnly style={{ flex:1, padding:'10px 14px', border:'1px solid #e2e8f0', borderRadius:8, fontSize:13, fontFamily:'inherit', background:'#fff' }}/>
+              <input value={newLink} readOnly style={{ flex:1, padding:'10px 14px', border:'1px solid #e2e8f0', borderRadius:8, fontSize:15, fontFamily:'inherit', background:'#fff' }}/>
               <button onClick={function() { copyLink(newLink); }}
-                style={{ padding:'10px 16px', borderRadius:8, border:'none', background: copied === newLink ? 'var(--sap-green-mid)' : 'var(--sap-purple)', color:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:700, display:'flex', alignItems:'center', gap:4 }}>
+                style={{ padding:'10px 16px', borderRadius:8, border:'none', background: copied === newLink ? 'var(--sap-green-mid)' : 'var(--sap-purple)', color:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:14, fontWeight:700, display:'flex', alignItems:'center', gap:4 }}>
                 {copied === newLink ? <><Check size={14}/> {t('payItForward.copiedLabel')}</> : <><Copy size={14}/> {t('payItForward.copyBtn')}</>}
               </button>
             </div>
@@ -167,13 +167,13 @@ export default function PayItForward() {
         </button>
       ) : (
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, padding:24, marginBottom:24 }}>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:16 }}>{t('payItForward.giftMembership')}</div>
+          <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'var(--sap-text-primary)', marginBottom:16 }}>{t('payItForward.giftMembership')}</div>
 
           <div style={{ marginBottom:12 }}>
             <label style={{ fontSize:12, fontWeight:700, color:'var(--sap-text-muted)', display:'block', marginBottom:4 }}>{t('payItForward.recipientName')}</label>
             <input value={recipientName} onChange={function(e) { setRecipientName(e.target.value); }}
               placeholder={t("payItForward.recipientNamePlaceholder")}
-              style={{ width:'100%', padding:'10px 14px', border:'1px solid #e2e8f0', borderRadius:8, fontSize:14, fontFamily:'inherit', boxSizing:'border-box' }}/>
+              style={{ width:'100%', padding:'10px 14px', border:'1px solid #e2e8f0', borderRadius:8, fontSize:15, fontFamily:'inherit', boxSizing:'border-box' }}/>
           </div>
 
           <div style={{ marginBottom:16 }}>
@@ -181,10 +181,10 @@ export default function PayItForward() {
             <textarea value={message} onChange={function(e) { setMessage(e.target.value); }}
               placeholder={t("payItForward.personalMessagePlaceholder")}
               rows={3}
-              style={{ width:'100%', padding:'10px 14px', border:'1px solid #e2e8f0', borderRadius:8, fontSize:14, fontFamily:'inherit', boxSizing:'border-box', resize:'vertical' }}/>
+              style={{ width:'100%', padding:'10px 14px', border:'1px solid #e2e8f0', borderRadius:8, fontSize:15, fontFamily:'inherit', boxSizing:'border-box', resize:'vertical' }}/>
           </div>
 
-          <div style={{ padding:'12px 16px', background:'var(--sap-bg-elevated)', borderRadius:8, border:'1px solid #f1f5f9', marginBottom:16, fontSize:14, color:'var(--sap-text-muted)' }}>
+          <div style={{ padding:'12px 16px', background:'var(--sap-bg-elevated)', borderRadius:8, border:'1px solid #f1f5f9', marginBottom:16, fontSize:15, color:'var(--sap-text-muted)' }}>
             Choose how to pay — <strong style={{ color:'var(--sap-text-primary)' }}>$20.00</strong> per gift voucher
             {data && <span> · Wallet balance: <strong style={{ color:'var(--sap-green-mid)' }}>${data.wallet_balance.toFixed(2)}</strong></span>}
           </div>
@@ -211,7 +211,7 @@ export default function PayItForward() {
 
           <div style={{ display:'flex', justifyContent:'center' }}>
             <button onClick={function() { setShowForm(false); }}
-              style={{ padding:'10px 20px', borderRadius:10, border:'none', background:'transparent', cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:600, color:'var(--sap-text-muted)' }}>
+              style={{ padding:'10px 20px', borderRadius:10, border:'none', background:'transparent', cursor:'pointer', fontFamily:'inherit', fontSize:14, fontWeight:600, color:'var(--sap-text-muted)' }}>
               Cancel
             </button>
           </div>
@@ -222,7 +222,7 @@ export default function PayItForward() {
       {vouchers.length > 0 && (
         <div style={{ background:'#fff', border:'1px solid #e2e8f0', borderRadius:14, overflow:'hidden', marginBottom:24 }}>
           <div style={{ padding:'16px 20px', borderBottom:'1px solid #e2e8f0' }}>
-            <div style={{ fontFamily:'Sora,sans-serif', fontSize:16, fontWeight:800, color:'var(--sap-text-primary)' }}>{t('payItForward.yourGiftVouchers')}</div>
+            <div style={{ fontFamily:'Sora,sans-serif', fontSize:18, fontWeight:800, color:'var(--sap-text-primary)' }}>{t('payItForward.yourGiftVouchers')}</div>
           </div>
           {vouchers.map(function(v) {
             var isClaimed = v.status === 'claimed';
@@ -237,18 +237,18 @@ export default function PayItForward() {
                     {isClaimed ? <Check size={16} color="var(--sap-green-mid)"/> : <Gift size={16} color="#a855f7"/>}
                   </div>
                   <div>
-                    <div style={{ fontSize:15, fontWeight:700, color:'var(--sap-text-primary)' }}>
+                    <div style={{ fontSize:16, fontWeight:700, color:'var(--sap-text-primary)' }}>
                       {v.recipient_name || 'Open gift'}
                       {isClaimed && v.claimed_by && <span style={{ fontWeight:400, color:'var(--sap-text-muted)' }}> — claimed by {v.claimed_by.first_name || v.claimed_by.username}</span>}
                     </div>
-                    <div style={{ fontSize:13, color:'var(--sap-text-muted)' }}>
+                    <div style={{ fontSize:14, color:'var(--sap-text-muted)' }}>
                       {v.code} · {isClaimed ? 'Claimed' : 'Available'} · Chain depth {v.chain_depth}
                     </div>
                   </div>
                 </div>
                 {!isClaimed && (
                   <button onClick={function() { copyLink(v.link); }}
-                    style={{ padding:'6px 12px', borderRadius:6, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:13, fontWeight:700, color:'var(--sap-text-muted)', display:'flex', alignItems:'center', gap:4 }}>
+                    style={{ padding:'6px 12px', borderRadius:6, border:'1px solid #e2e8f0', background:'#fff', cursor:'pointer', fontFamily:'inherit', fontSize:14, fontWeight:700, color:'var(--sap-text-muted)', display:'flex', alignItems:'center', gap:4 }}>
                     {copied === v.link ? <><Check size={12}/> {t('payItForward.copiedLabel')}</> : <><Copy size={12}/> {t('payItForward.copyLinkBtn')}</>}
                   </button>
                 )}
@@ -271,8 +271,8 @@ export default function PayItForward() {
               <div key={s.n} style={{ display:'flex', gap:14, alignItems:'flex-start' }}>
                 <div style={{ width:36, height:36, borderRadius:10, background:s.bg, display:'flex', alignItems:'center', justifyContent:'center', fontSize:15, fontWeight:800, color:s.color, flexShrink:0 }}>{s.n}</div>
                 <div>
-                  <div style={{ fontSize:16, fontWeight:700, color:'var(--sap-text-primary)' }}>{s.title}</div>
-                  <div style={{ fontSize:14, color:'var(--sap-text-muted)', lineHeight:1.7 }}>{s.desc}</div>
+                  <div style={{ fontSize:18, fontWeight:700, color:'var(--sap-text-primary)' }}>{s.title}</div>
+                  <div style={{ fontSize:16, color:'var(--sap-text-muted)', lineHeight:1.7 }}>{s.desc}</div>
                 </div>
               </div>
             );
