@@ -51,13 +51,13 @@ export default function MyNetwork() {
           <div style={{fontSize:13,fontWeight:800,letterSpacing:1.6,textTransform:'uppercase',color:'#7dd3fc',marginBottom:6}}>
             {t('myNetwork.referralLinkLabel')}
           </div>
-          <div style={{fontSize:15,fontWeight:600,color:'rgba(255,255,255,.85)',fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace',wordBreak:'break-all'}}>
+          <div style={{fontSize:16,fontWeight:600,color:'rgba(255,255,255,.85)',fontFamily:'ui-monospace, SFMono-Regular, Menlo, monospace',wordBreak:'break-all'}}>
             https://www.superadpro.com/ref/{myUsername}
           </div>
         </div>
         <button onClick={copyLink}
           style={{display:'flex',alignItems:'center',gap:8,padding:'12px 22px',borderRadius:12,border:'none',cursor:'pointer',
-                  background:copied?'#16a34a':'#0ea5e9',color:'#fff',fontSize:13,fontWeight:800,fontFamily:'inherit',transition:'all .2s',
+                  background:copied?'#16a34a':'#0ea5e9',color:'#fff',fontSize:14,fontWeight:800,fontFamily:'inherit',transition:'all .2s',
                   boxShadow:'0 4px 14px rgba(14,165,233,.35)'}}>
           {copied ? <><Check size={14}/> {t('myNetwork.copiedBtn')}</> : <><Copy size={14}/> {t('myNetwork.copyBtn')}</>}
         </button>
@@ -87,8 +87,8 @@ export default function MyNetwork() {
       <div style={{background:'#fff',border:'1px solid #e8ecf2',borderRadius:14,overflow:'hidden',marginBottom:24,
                    boxShadow:'0 4px 20px rgba(23,37,84,.06)'}}>
         <div style={{background:cobaltGradient,padding:'16px 24px'}}>
-          <div style={{fontSize:14,fontWeight:800,color:'#fff',letterSpacing:.3}}>{t('myNetwork.streamsCardTitle')}</div>
-          <div style={{fontSize:13,fontWeight:600,color:'rgba(255,255,255,.55)',marginTop:3}}>
+          <div style={{fontSize:18,fontWeight:800,color:'#fff',letterSpacing:.3}}>{t('myNetwork.streamsCardTitle')}</div>
+          <div style={{fontSize:15,fontWeight:600,color:'rgba(255,255,255,.55)',marginTop:3}}>
             {t('myNetwork.streamsCardSubtitle')}
           </div>
         </div>
@@ -131,9 +131,9 @@ export default function MyNetwork() {
         <div style={{background:cobaltGradient,padding:'16px 24px',display:'flex',alignItems:'center',justifyContent:'space-between'}}>
           <div style={{display:'flex',alignItems:'center',gap:10}}>
             <div style={{width:8,height:8,borderRadius:4,background:'#0ea5e9',boxShadow:'0 0 8px rgba(14,165,233,.5)'}}/>
-            <div style={{fontSize:14,fontWeight:800,color:'#fff',letterSpacing:.3}}>{t('myNetwork.recentCommissionsTitle')}</div>
+            <div style={{fontSize:18,fontWeight:800,color:'#fff',letterSpacing:.3}}>{t('myNetwork.recentCommissionsTitle')}</div>
           </div>
-          <a href="/wallet" style={{fontSize:13,fontWeight:700,color:'rgba(255,255,255,.85)',textDecoration:'none',
+          <a href="/wallet" style={{fontSize:14,fontWeight:700,color:'rgba(255,255,255,.85)',textDecoration:'none',
                                      display:'flex',alignItems:'center',gap:4}}>
             {t('myNetwork.seeAll')} <ExternalLink size={12}/>
           </a>
@@ -161,13 +161,13 @@ export default function MyNetwork() {
                           <span>{info.icon}</span> {info.label}
                         </span>
                       </td>
-                      <td style={Object.assign({},tdStyle,{fontSize:12,color:'#475569'})}>
+                      <td style={Object.assign({},tdStyle,{fontSize:14,color:'#475569'})}>
                         {humaniseType(c.commission_type || '', t)}
                       </td>
-                      <td style={Object.assign({},tdStyle,{fontWeight:800,color:'#16a34a',fontSize:14})}>
+                      <td style={Object.assign({},tdStyle,{fontWeight:800,color:'#16a34a',fontSize:16})}>
                         +${formatMoney(c.amount_usdt || c.amount)}
                       </td>
-                      <td style={Object.assign({},tdStyle,{fontSize:13,color:'#475569'})}>
+                      <td style={Object.assign({},tdStyle,{fontSize:14,color:'#475569'})}>
                         {c.created_at ? new Date(c.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short'}) : '—'}
                       </td>
                     </tr>
@@ -267,9 +267,9 @@ export default function MyNetwork() {
                         )}
                       </td>
                       <td style={Object.assign({},tdStyle,{textAlign:'center'})}>
-                        <span style={{fontSize:14,fontWeight:800,color:'#0ea5e9'}}>{r.personal_referrals || 0}</span>
+                        <span style={{fontSize:16,fontWeight:800,color:'#0ea5e9'}}>{r.personal_referrals || 0}</span>
                       </td>
-                      <td style={Object.assign({},tdStyle,{fontSize:13,color:'#475569'})}>
+                      <td style={Object.assign({},tdStyle,{fontSize:14,color:'#475569'})}>
                         {r.created_at ? new Date(r.created_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}) : '—'}
                       </td>
                     </tr>
@@ -297,7 +297,7 @@ function SectionHeading(props) {
       <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#0f172a',letterSpacing:-.2}}>
         {props.title}
       </div>
-      <div style={{fontSize:12,color:'#475569',marginTop:2}}>{props.subtitle}</div>
+      <div style={{fontSize:14,color:'#475569',marginTop:2}}>{props.subtitle}</div>
     </div>
   );
 }
@@ -314,8 +314,8 @@ function StatCard(props) {
       <div style={{fontFamily:'Sora,sans-serif',fontSize:32,fontWeight:800,color:props.color,marginBottom:4,letterSpacing:-.5}}>
         {props.value}
       </div>
-      <div style={{fontSize:13,fontWeight:700,color:'#0f172a',marginBottom:2}}>{props.label}</div>
-      <div style={{fontSize:13,color:'#475569'}}>{props.sub}</div>
+      <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:2}}>{props.label}</div>
+      <div style={{fontSize:14,color:'#475569'}}>{props.sub}</div>
     </div>
   );
 }
@@ -324,13 +324,13 @@ function BigStatCard(props) {
   return (
     <div style={{background:props.gradient,borderRadius:14,padding:'24px 28px',color:'#fff',
                  boxShadow:'0 8px 28px rgba(23,37,84,.25)',position:'relative',overflow:'hidden'}}>
-      <div style={{fontSize:12,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'rgba(255,255,255,.75)',marginBottom:8}}>
+      <div style={{fontSize:13,fontWeight:800,letterSpacing:1.5,textTransform:'uppercase',color:'rgba(255,255,255,.75)',marginBottom:8}}>
         {props.label}
       </div>
       <div style={{fontFamily:'Sora,sans-serif',fontSize:38,fontWeight:800,letterSpacing:-.8,marginBottom:4}}>
         {props.value}
       </div>
-      <div style={{fontSize:12,color:'rgba(255,255,255,.7)'}}>{props.sub}</div>
+      <div style={{fontSize:14,color:'rgba(255,255,255,.7)'}}>{props.sub}</div>
     </div>
   );
 }
@@ -344,8 +344,8 @@ function StreamRow(props) {
         {props.icon}
       </div>
       <div style={{flex:1,minWidth:0}}>
-        <div style={{fontSize:14,fontWeight:800,color:'#0f172a',marginBottom:2}}>{props.name}</div>
-        <div style={{fontSize:12,color:'#475569'}}>{props.desc}</div>
+        <div style={{fontSize:16,fontWeight:800,color:'#0f172a',marginBottom:2}}>{props.name}</div>
+        <div style={{fontSize:14,color:'#475569'}}>{props.desc}</div>
       </div>
       <div style={{fontFamily:'Sora,sans-serif',fontSize:22,fontWeight:800,color:props.colour,marginLeft:16,whiteSpace:'nowrap'}}>
         ${(props.amount || 0).toFixed(2)}
@@ -358,8 +358,8 @@ function EmptyState(props) {
   return (
     <div style={{textAlign:'center',padding:'48px 20px'}}>
       <div style={{fontSize:36,marginBottom:12,opacity:.35}}>{props.icon}</div>
-      <div style={{fontSize:14,fontWeight:700,color:'#0f172a',marginBottom:6}}>{props.title}</div>
-      <div style={{fontSize:12,color:'#475569'}}>{props.subtitle}</div>
+      <div style={{fontSize:16,fontWeight:700,color:'#0f172a',marginBottom:6}}>{props.title}</div>
+      <div style={{fontSize:14,color:'#475569'}}>{props.subtitle}</div>
     </div>
   );
 }
@@ -410,7 +410,7 @@ var thStyle = {
 };
 
 var tdStyle = {
-  padding:'14px 16px', borderBottom:'1px solid #f5f6f8', fontSize:13, color:'#0f172a', verticalAlign:'middle',
+  padding:'14px 16px', borderBottom:'1px solid #f5f6f8', fontSize:14, color:'#0f172a', verticalAlign:'middle',
 };
 
 function Spin() {
