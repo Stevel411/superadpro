@@ -426,13 +426,13 @@ export default function Dashboard() {
                               <div style={{ height:6, borderRadius:99, background:`${g.color}18`, overflow:'hidden', marginBottom:6 }}>
                                 <div style={{ height:'100%', borderRadius:99, background:`linear-gradient(90deg,${g.color},${g.color}cc)`, width:`${g.progress}%`, transition:'width .8s ease-out' }}/>
                               </div>
-                              <div style={{ display:'flex', justifyContent:'space-between', fontSize:13, color:'var(--sap-text-muted)' }}>
+                              <div style={{ display:'flex', justifyContent:'space-between', fontSize:15, color:'var(--sap-text-muted)' }}>
                                 <span>{goalText(g, 'progress_label')}</span>
                                 <span style={{ color:g.color, fontWeight:700 }}>{g.progress}%</span>
                               </div>
                             </>
                           )}
-                          <Link to={g.cta_link} style={{ display:'inline-block', fontSize:12, fontWeight:700, padding:'8px 18px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none', marginTop:10 }}>{goalText(g, 'cta')}</Link>
+                          <Link to={g.cta_link} style={{ display:'inline-block', ...TYPE.btn, padding:'10px 22px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none', marginTop:10 }}>{goalText(g, 'cta')}</Link>
                         </div>
                         {g.ring && (
                           <svg width="56" height="56" viewBox="0 0 52 52" style={{ flexShrink:0, marginTop:4 }}>
@@ -467,7 +467,7 @@ export default function Dashboard() {
                         <div style={{...TYPE.cardTitleBold, lineHeight: 1.3}}>{goalText(g, 'title')}</div>
                       </div>
                       <div style={{...TYPE.bodyMuted, marginBottom: 14}}>{goalText(g, 'desc')}</div>
-                      <Link to={g.cta_link} style={{ display:'inline-block', fontSize:12, fontWeight:700, padding:'8px 18px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none' }}>{goalText(g, 'cta')}</Link>
+                      <Link to={g.cta_link} style={{ display:'inline-block', ...TYPE.btn, padding:'10px 22px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none' }}>{goalText(g, 'cta')}</Link>
                     </div>
                   );
                 })}
