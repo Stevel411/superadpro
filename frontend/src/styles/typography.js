@@ -60,7 +60,7 @@ export const TYPE = {
   bodyMuted: {
     fontSize: 15,
     fontWeight: 500,
-    color: '#64748b',
+    color: '#475569',
     lineHeight: 1.6,
   },
 
@@ -69,7 +69,7 @@ export const TYPE = {
   sub: {
     fontSize: 14,
     fontWeight: 500,
-    color: '#64748b',
+    color: '#475569',
     lineHeight: 1.55,
   },
   subDark: {
@@ -79,12 +79,13 @@ export const TYPE = {
     lineHeight: 1.55,
   },
 
-  // Caption — smallest acceptable text for metadata only
-  // e.g. date stamps, fine print. Do NOT use for content members need to read.
+  // Caption — smallest acceptable text for readable content
+  // e.g. date stamps, fine print, form field helpers, table metadata.
+  // 14px floor established 23 Apr 2026 — nothing readable goes below this.
   caption: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: 500,
-    color: '#94a3b8',
+    color: '#7a8899',
     lineHeight: 1.45,
   },
 
@@ -102,7 +103,7 @@ export const TYPE = {
   th: {
     fontSize: 12,
     fontWeight: 800,
-    color: '#64748b',
+    color: '#475569',
     textTransform: 'uppercase',
     letterSpacing: 0.8,
   },
@@ -113,8 +114,8 @@ export const TYPE = {
     color: '#0f172a',
   },
   tdMuted: {
-    fontSize: 13,
-    color: '#64748b',
+    fontSize: 14,
+    color: '#475569',
   },
 };
 
@@ -125,9 +126,9 @@ export const TYPE = {
 export const COLOR = {
   textPrimary: '#0f172a',
   textSecondary: '#334155',
-  textMuted: '#64748b',
-  textFaint: '#94a3b8',
-  textGhost: '#cbd5e1',
+  textMuted: '#475569',    // was #64748b — darkened 23 Apr 2026 for WCAG AA on page bg
+  textFaint: '#7a8899',    // was #94a3b8 — darkened 23 Apr 2026 for WCAG AA Large
+  textGhost: '#cbd5e1',    // structural accent only — never readable text
 
   accent: '#0ea5e9',
   indigo: '#6366f1',

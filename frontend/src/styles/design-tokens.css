@@ -48,9 +48,9 @@
   /* ── Neutral Text ─────────────────────────────────────────── */
   --sap-text-primary:   #0f172a;   /* headings, primary text */
   --sap-text-secondary: #475569;   /* body text, descriptions */
-  --sap-text-muted:     #64748b;   /* labels, subtle text */
-  --sap-text-faint:     #94a3b8;   /* placeholders, disabled */
-  --sap-text-ghost:     #cbd5e1;   /* timestamps, very subtle */
+  --sap-text-muted:     #475569;   /* labels, subtle text — was #64748b, darkened 23 Apr 2026 for WCAG AA on page bg */
+  --sap-text-faint:     #7a8899;   /* placeholders, disabled — was #94a3b8, darkened 23 Apr 2026 for WCAG AA Large */
+  --sap-text-ghost:     #cbd5e1;   /* timestamps, very subtle — structural accent only, never body text */
 
   /* ── Neutral Surfaces ─────────────────────────────────────── */
   --sap-bg-page:        #f1f5f9;   /* page background */
@@ -96,6 +96,28 @@
   --sap-font-body:      'DM Sans', 'Rethink Sans', system-ui, sans-serif;
   --sap-font-heading:   'Sora', 'Rethink Sans', system-ui, sans-serif;
   --sap-font-mono:      'JetBrains Mono', 'Fira Code', monospace;
+
+  /* ── Font Sizes (added 23 Apr 2026) ───────────────────────── */
+  /* Single source of truth for type scale. Mirrors TYPE object    */
+  /* in frontend/src/styles/typography.js. Minimum allowed body    */
+  /* size is --sap-text-sm (14px). Do NOT introduce 9/10/11/12px   */
+  /* for readable content — 12px is labels/chart-ticks only.       */
+  --sap-text-xxs:       11px;   /* chart ticks, recharts axis labels only */
+  --sap-text-xs:        12px;   /* uppercase labels, table headers only */
+  --sap-text-sm:        14px;   /* captions, table metadata, sub text */
+  --sap-text-base:      15px;   /* body text, card content (dense contexts) */
+  --sap-text-md:        16px;   /* card titles, reading-context body */
+  --sap-text-lg:        18px;   /* section subheadings */
+  --sap-text-xl:        20px;   /* section headings */
+  --sap-text-2xl:       24px;   /* page subheadings */
+  --sap-text-3xl:       28px;   /* hero-adjacent headings */
+  --sap-text-4xl:       36px;   /* hero headings */
+
+  /* ── Line Heights ─────────────────────────────────────────── */
+  --sap-leading-tight:  1.25;   /* hero text, big stat numbers */
+  --sap-leading-snug:   1.35;   /* card titles, headings */
+  --sap-leading-normal: 1.5;    /* dense UI text, buttons */
+  --sap-leading-relaxed: 1.6;   /* body reading text */
 
   /* ── Gradients ────────────────────────────────────────────── */
   --sap-gradient-cobalt: linear-gradient(135deg, #172554, #1e3a8a);
