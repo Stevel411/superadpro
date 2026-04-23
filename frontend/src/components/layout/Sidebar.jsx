@@ -22,7 +22,6 @@ function buildNav(t, isAdmin) {
       { label: t('nav.wallet'), shortLabel: t('navShort.wallet', { defaultValue: 'Wallet' }), icon: Wallet, path: '/wallet' },
       { label: t('nav.cryptoGuide'), shortLabel: t('navShort.cryptoGuide', { defaultValue: 'Crypto' }), icon: Shield, path: '/crypto-guide' },
       { label: t('nav.support'), shortLabel: t('navShort.support', { defaultValue: 'Support' }), icon: Headphones, path: '/support' },
-      { label: t('nav.faq', { defaultValue: 'FAQ' }), shortLabel: t('navShort.faq', { defaultValue: 'FAQ' }), icon: HelpCircle, path: '/account/faq' },
     ]},
     { type: 'divider' },
     { type: 'group', label: t('nav.watchToEarn'), shortLabel: t('navShort.watchToEarn', { defaultValue: 'Earn' }), key: 'earn', icon: Tv, items: [
@@ -66,6 +65,8 @@ function buildNav(t, isAdmin) {
       { label: t('nav.payItForward'), shortLabel: t('navShort.payItForward', { defaultValue: 'Pay Fwd' }), icon: Heart, path: '/pay-it-forward' },
       { label: t('nav.shareStory', { defaultValue: 'Share Your Story' }), shortLabel: t('navShort.shareStory', { defaultValue: 'My Story' }), icon: Sparkles, path: '/share-story' },
     ]},
+    { type: 'divider' },
+    { type: 'standalone', label: t('nav.faq', { defaultValue: 'FAQ' }), shortLabel: t('navShort.faq', { defaultValue: 'FAQ' }), icon: HelpCircle, path: '/account/faq' },
   ];
 
   if (isAdmin) {
