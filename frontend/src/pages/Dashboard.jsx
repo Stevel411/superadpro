@@ -534,20 +534,20 @@ export default function Dashboard() {
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 22, boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
             <div style={TYPE.cardTitleBold}>{t('dashboard.recentActivity')}</div>
-            <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('dashboard.viewAll')}</Link>
+            <Link to="/courses/commissions" style={{ fontSize: 14, fontWeight: 600, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('dashboard.viewAll')}</Link>
           </div>
           {(!Array.isArray(d.recent_activity) || d.recent_activity.length === 0) ? (
-            <div style={{ textAlign: 'center', padding: 24, color: 'var(--sap-text-muted)', fontSize: 13 }}>{t('dashboard.noRecentActivity')}</div>
+            <div style={{ textAlign: 'center', padding: 24, color: 'var(--sap-text-muted)', fontSize: 15 }}>{t('dashboard.noRecentActivity')}</div>
           ) : d.recent_activity.map((a, i) => {
             const colorMap = { green: 'var(--sap-green-bg-mid)', cyan: '#e0f2fe', purple: 'var(--sap-purple-pale)', amber: 'var(--sap-amber-bg)' };
             return (
               <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < d.recent_activity.length - 1 ? '1px solid #e5e7eb' : 'none' }}>
                 <div style={{ width: 32, height: 32, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0, background: colorMap[a.color] || 'var(--sap-bg-page)' }}>{a.icon}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--sap-text-primary)' }}>{a.title}</div>
-                  <div style={{ fontSize: 12, color: 'var(--sap-text-muted)' }}>{a.sub}</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)' }}>{a.title}</div>
+                  <div style={{ fontSize: 14, color: 'var(--sap-text-muted)' }}>{a.sub}</div>
                 </div>
-                <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 14, fontWeight: 800, color: 'var(--sap-green)' }}>+${formatMoney(a.amount)}</div>
+                <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 16, fontWeight: 800, color: 'var(--sap-green)' }}>+${formatMoney(a.amount)}</div>
               </div>
             );
           })}
