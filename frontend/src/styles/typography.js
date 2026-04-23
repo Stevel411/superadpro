@@ -34,23 +34,16 @@ export const TYPE = {
   // Card titles — the main heading inside a bordered card
   // e.g. "Direct Course Sales", "Recent Commissions"
   cardTitle: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 700,
     color: '#0f172a',
-    lineHeight: 1.35,
+    lineHeight: 1.3,
   },
+  // Platform anchor: card titles across Dashboard, stream cards, panel
+  // headers, and data cards all share this size. Set to 18px on 23 Apr 2026
+  // after desktop review showed 16px felt underweighted. Full platform cascade
+  // for other sizes anchors off this value.
   cardTitleBold: {
-    fontSize: 16,
-    fontWeight: 800,
-    color: '#0f172a',
-    lineHeight: 1.35,
-  },
-
-  // Larger card title — for marquee/hero cards where the title is the main
-  // focal point (Dashboard Quick Action cards, Platform Tour section titles).
-  // One step up from cardTitleBold. Added 23 Apr 2026 after desktop review
-  // showed standard 16px titles felt underweighted on larger screens.
-  cardTitleLarge: {
     fontSize: 18,
     fontWeight: 800,
     color: '#0f172a',
@@ -76,10 +69,9 @@ export const TYPE = {
     lineHeight: 1.6,
   },
 
-  // Larger body text — for marquee/hero sections where body should have
-  // more presence. Platform Tour section descriptions, Dashboard banner
-  // bodies. Added 23 Apr 2026. Weight 600 (not 500) for better desktop
-  // legibility at viewing distance.
+  // Larger body for marquee sections where body should have more presence
+  // (Platform Tour section descriptions, Dashboard banner bodies).
+  // Kept at 17px — one step up from the 16px baseline.
   bodyLarge: {
     fontSize: 17,
     fontWeight: 500,

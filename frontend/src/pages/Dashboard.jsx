@@ -174,7 +174,7 @@ export default function Dashboard() {
           display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 16, flexWrap: 'wrap',
         }}>
           <div style={{ flex: 1, minWidth: 240 }}>
-            <div style={{...TYPE.cardTitleLarge, color: '#132044', marginBottom: 6}}>🎯 {t('dashboard.activationTitle')}</div>
+            <div style={{...TYPE.cardTitleBold, color: '#132044', marginBottom: 6}}>🎯 {t('dashboard.activationTitle')}</div>
             <p style={{...TYPE.bodyLarge, margin: 0}}>
               {t('dashboard.activationDesc1')} <strong>{t('dashboard.activationDesc2')}</strong>. {t('dashboard.activationDesc3')} <strong style={{ color: '#0891b2' }}>{t('dashboard.activationPaidFor')}</strong>.
             </p>
@@ -210,7 +210,7 @@ export default function Dashboard() {
               cursor: 'pointer', padding: '2px 6px', opacity: 0.55,
             }}>×</button>
           <div style={{ flex: 1, minWidth: 240, paddingRight: 24 }}>
-            <div style={{...TYPE.cardTitleLarge, color: '#78350f', marginBottom: 6}}>
+            <div style={{...TYPE.cardTitleBold, color: '#78350f', marginBottom: 6}}>
               🎉 {t('dashboard.storyPromptTitle', { amount: formatMoney(storyPrompt.first_amount), defaultValue: 'You earned your first ' + formatMoney(storyPrompt.first_amount) + '!' })}
             </div>
             <p style={{...TYPE.bodyLarge, color: '#78350f', margin: 0}}>
@@ -248,7 +248,7 @@ export default function Dashboard() {
               cursor: 'pointer', padding: '2px 6px', opacity: 0.55,
             }}>×</button>
           <div style={{ flex: 1, minWidth: 240, paddingRight: 24 }}>
-            <div style={{...TYPE.cardTitleLarge, color: '#1e3a8a', marginBottom: 6}}>
+            <div style={{...TYPE.cardTitleBold, color: '#1e3a8a', marginBottom: 6}}>
               💰 {t('dashboard.annualUpsellTitle', { defaultValue: 'Switch to annual billing and save up to $70/year' })}
             </div>
             <p style={{...TYPE.bodyLarge, color: '#1e40af', margin: 0}}>
@@ -386,7 +386,7 @@ export default function Dashboard() {
             </div>
             <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 6 }}>${formatMoney(s.val)}</div>
             <div style={{...TYPE.cardTitleBold, marginBottom: 3}}>{s.name}</div>
-            <div style={{ fontSize: 12, color: 'var(--sap-text-muted)' }}>{s.detail}</div>
+            <div style={TYPE.bodyMuted}>{s.detail}</div>
           </div>
         ))}
       </div>
@@ -522,7 +522,7 @@ export default function Dashboard() {
             <div style={{ width: 68, height: 68, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', background: a.bg }}>
               {a.icon}
             </div>
-            <div style={TYPE.cardTitleLarge}>{a.name}</div>
+            <div style={TYPE.cardTitleBold}>{a.name}</div>
             <div style={{...TYPE.body, color: '#475569', lineHeight: 1.5}}>{a.desc}</div>
           </Link>
         ))}
@@ -533,7 +533,7 @@ export default function Dashboard() {
         {/* Recent Activity */}
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 22, boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div style={TYPE.cardTitleLarge}>{t('dashboard.recentActivity')}</div>
+            <div style={TYPE.cardTitleBold}>{t('dashboard.recentActivity')}</div>
             <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('dashboard.viewAll')}</Link>
           </div>
           {(!Array.isArray(d.recent_activity) || d.recent_activity.length === 0) ? (
@@ -556,7 +556,7 @@ export default function Dashboard() {
         {/* Network Snapshot */}
         <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 22, boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div style={TYPE.cardTitleLarge}>{t('dashboard.yourNetwork')}</div>
+            <div style={TYPE.cardTitleBold}>{t('dashboard.yourNetwork')}</div>
             <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('dashboard.fullNetwork')}</Link>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
