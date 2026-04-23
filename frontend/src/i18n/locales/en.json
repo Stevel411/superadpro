@@ -100,7 +100,8 @@
     "incomeChains": "Income Chains",
     "shareStory": "Share Your Story",
     "adminStories": "Story Moderation",
-    "adminShowcase": "Showcase Moderation"
+    "adminShowcase": "Showcase Moderation",
+    "faq": "FAQ"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -1382,10 +1383,10 @@
     "privacyPolicy": "Privacy Policy",
     "signInInstead": "Sign in instead",
     "termsLabel": "Terms",
-    "firstNamePlaceholder": "John",
-    "lastNamePlaceholder": "Smith",
-    "usernamePlaceholder2": "john_smith",
-    "emailPlaceholder2": "john@example.com",
+    "firstNamePlaceholder": "Your first name",
+    "lastNamePlaceholder": "Your last name",
+    "usernamePlaceholder2": "Choose a username",
+    "emailPlaceholder2": "your@email.com",
     "passwordPlaceholder2": "Min. 8 characters",
     "createNewPassword": "Create new password",
     "confirmNewPassword": "Confirm New Password",
@@ -3292,7 +3293,8 @@
     "admin": "Admin",
     "adminDashboard": "Admin",
     "adminStories": "Stories",
-    "adminShowcase": "Showcase"
+    "adminShowcase": "Showcase",
+    "faq": "FAQ"
   },
   "pwa": {
     "installPromptAria": "Install SuperAdPro",
@@ -3626,5 +3628,17 @@
       "primary": "Create an account",
       "secondary": "Back to compensation overview"
     }
+  },
+  "faqPage": {
+    "title": "FAQ",
+    "subtitle": "Answers to the most common questions",
+    "heroTitle": "Frequently Asked Questions",
+    "heroSubtitle": "Tap any question to see the answer. Still stuck? Contact support any time.",
+    "searchPlaceholder": "Search questions…",
+    "noResultsTitle": "No questions match your search",
+    "noResultsSub": "Try different keywords or clear the search.",
+    "stillStuckTitle": "Still have questions?",
+    "stillStuckSub": "Our support team usually replies within a few hours.",
+    "contactSupport": "Contact Support"
   }
 }

@@ -3598,6 +3598,13 @@ def account(request: Request):
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
 
+@app.get("/account/faq")
+def account_faq(request: Request):
+    """Serve React SPA — internal FAQ page rendered inside AppLayout."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
 @app.post("/save-wallet")
 def save_wallet(
     request: Request,

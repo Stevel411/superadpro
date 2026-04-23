@@ -8,7 +8,7 @@ import {
   Target, Mail, Trophy, Bot, Film,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
   BookOpen, PlusCircle, Scissors, Clock, UserCircle, Tv,
-  Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers, DollarSign, BarChart3, MessageCircle, Download, Search
+  Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers, DollarSign, BarChart3, MessageCircle, Download, Search, HelpCircle
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
@@ -22,6 +22,7 @@ function buildNav(t, isAdmin) {
       { label: t('nav.wallet'), shortLabel: t('navShort.wallet', { defaultValue: 'Wallet' }), icon: Wallet, path: '/wallet' },
       { label: t('nav.cryptoGuide'), shortLabel: t('navShort.cryptoGuide', { defaultValue: 'Crypto' }), icon: Shield, path: '/crypto-guide' },
       { label: t('nav.support'), shortLabel: t('navShort.support', { defaultValue: 'Support' }), icon: Headphones, path: '/support' },
+      { label: t('nav.faq', { defaultValue: 'FAQ' }), shortLabel: t('navShort.faq', { defaultValue: 'FAQ' }), icon: HelpCircle, path: '/account/faq' },
     ]},
     { type: 'divider' },
     { type: 'group', label: t('nav.watchToEarn'), shortLabel: t('navShort.watchToEarn', { defaultValue: 'Earn' }), key: 'earn', icon: Tv, items: [

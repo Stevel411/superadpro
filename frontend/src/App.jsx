@@ -111,6 +111,7 @@ import ExploreHub from './pages/public/ExploreHub';
 import FreeTools from './pages/public/FreeTools';
 import JoinFunnel from './pages/public/JoinFunnel';
 import { FAQ, Legal } from './pages/public/PublicPages';
+import InternalFAQ from './pages/FAQ';
 import PublicIncomeDisclosure from './pages/public/PublicIncomeDisclosure';
 import ForAdvertisers from './pages/public/ForAdvertisers';
 import CoursePlayer from './pages/CoursePlayer';
@@ -145,6 +146,7 @@ function AppRoutes() {
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
+      <Route path="/account/faq" element={<ProtectedRoute><InternalFAQ /></ProtectedRoute>} />
       <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />
       <Route path="/leaderboard" element={<ProtectedRoute><Leaderboard /></ProtectedRoute>} />
       <Route path="/social-share" element={<ProtectedRoute><Affiliate /></ProtectedRoute>} />
