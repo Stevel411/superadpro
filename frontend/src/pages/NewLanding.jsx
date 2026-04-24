@@ -30,8 +30,8 @@ const DOORS = [
     title: 'Command Centre',
     desc: "Daily briefing, team pulse, today's play. Your operations room for running the business.",
     count: '9 items',
-    colour: '#2755d6',        // cobalt
-    colourDark: '#1e3a8a',
+    colour: '#0ea5e9',        // sap-accent (matches platform primary CTA)
+    colourDark: '#172554',
     icon: Gauge,
     href: '/dashboard',        // temporary — points to current dashboard
   },
@@ -125,15 +125,20 @@ export default function NewLanding() {
 
   return (
     <AppLayout title="New Landing (Preview)">
-      <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+      {/* Fluid container — fills available width. No max-width so the page
+          adapts to any viewport. 8px inner breathing room matches the
+          rest of the platform. */}
+      <div style={{ width: '100%' }}>
 
         {/* ── HERO ──────────────────────────────────────────── */}
+        {/* Gradient matches the platform Topbar (#172554 → #1e3a8a) so the
+            hero reads as a continuation of the chrome, not a foreign element. */}
         <section style={{
-          background: 'linear-gradient(135deg, #1e3a8a 0%, #2755d6 100%)',
+          background: 'linear-gradient(135deg, #172554 0%, #1e3a8a 100%)',
           color: '#fff',
           borderRadius: 14,
           padding: '22px 28px',
-          marginBottom: 16,
+          marginBottom: 14,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -143,9 +148,10 @@ export default function NewLanding() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{
               width: 52, height: 52, borderRadius: '50%',
-              background: '#93c5fd', color: '#1e3a8a',
+              background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)',
+              color: '#fff',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 500,
+              fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 600,
             }}>{displayName.charAt(0).toUpperCase()}</div>
             <div>
               <div style={{
@@ -183,11 +189,13 @@ export default function NewLanding() {
                 }}>{referralLink.replace(/^https?:\/\//, '')}</span>
               </div>
               <button onClick={copyRef} style={{
-                background: '#fff', color: '#1e3a8a', border: 'none',
+                background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)',
+                color: '#fff', border: 'none',
                 padding: '8px 14px', borderRadius: 6,
-                fontSize: 12, fontWeight: 500, cursor: 'pointer',
+                fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 fontFamily: 'DM Sans, sans-serif',
                 display: 'inline-flex', alignItems: 'center', gap: 5,
+                boxShadow: '0 2px 8px rgba(14,165,233,0.3)',
               }}>
                 {refCopied ? <><Check size={12} /> Copied</> : <><Copy size={12} /> Copy</>}
               </button>
@@ -197,52 +205,56 @@ export default function NewLanding() {
 
         {/* ── FAST START PILL ──────────────────────────────── */}
         {/* Auto-hides when member has worked through the Fast Start guide.
-            Progress comes from /api/dashboard.fast_start_progress (0-3).
-            Falls back to showing the pill if data isn't loaded yet. */}
+            Uses the platform's accent-cyan gradient so it reads as a
+            "primary action" moment, consistent with other CTAs on the site. */}
         {showFastStart(dash) && (
           <section style={{
-            background: 'linear-gradient(135deg, #2755d6 0%, #7c3aed 100%)',
+            background: 'linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%)',
             color: '#fff',
             borderRadius: 12,
-            padding: '12px 18px',
+            padding: '14px 20px',
             marginBottom: 14,
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             gap: 14, flexWrap: 'wrap',
+            boxShadow: '0 4px 14px rgba(14,165,233,0.25)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{
-                width: 34, height: 34,
-                background: 'rgba(255,255,255,0.2)',
-                borderRadius: 8,
+                width: 36, height: 36,
+                background: 'rgba(255,255,255,0.22)',
+                borderRadius: 9,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0,
-              }}><Rocket size={16} /></div>
+              }}><Rocket size={17} /></div>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 500 }}>
+                <div style={{ fontSize: 14, fontWeight: 600 }}>
                   Fast Start · {fastStartProgress(dash)} of 3 done
                 </div>
-                <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.85)', marginTop: 1 }}>
+                <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.9)', marginTop: 2 }}>
                   {fastStartMessage(dash)}
                 </div>
               </div>
             </div>
             <Link to="/training" style={{
-              background: '#fff', color: '#1e3a8a',
-              padding: '7px 14px', borderRadius: 6,
-              fontSize: 12, fontWeight: 500,
+              background: '#fff', color: '#0ea5e9',
+              padding: '8px 16px', borderRadius: 7,
+              fontSize: 13, fontWeight: 600,
               textDecoration: 'none',
               display: 'inline-flex', alignItems: 'center', gap: 5,
-            }}>Continue <ArrowRight size={12} /></Link>
+            }}>Continue <ArrowRight size={13} /></Link>
           </section>
         )}
 
         {/* ── THE 4 DOORS ──────────────────────────────────── */}
+        {/* 4 columns on desktop, collapses to 2 on tablet, 1 on mobile.
+            Cards stretch with viewport because of the 1fr columns. */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+          gridTemplateColumns: 'repeat(4, 1fr)',
           gap: 14,
           marginBottom: 20,
-        }}>
+        }}
+          className="sap-doors-grid">
           {DOORS.map((door) => {
             const Icon = door.icon;
             return (
@@ -309,15 +321,16 @@ export default function NewLanding() {
         </div>
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
+          gridTemplateColumns: 'repeat(4, 1fr)',
           gap: 12,
           marginBottom: 20,
-        }}>
+        }}
+          className="sap-streams-grid">
           {STREAMS.map((stream) => {
             const Icon = stream.icon;
             return (
               <div key={stream.id} style={{
-                background: '#2755d6',
+                background: 'linear-gradient(135deg, #172554 0%, #1e3a8a 100%)',
                 color: '#fff',
                 borderRadius: 12,
                 padding: '16px 18px',
@@ -350,14 +363,20 @@ export default function NewLanding() {
           })}
         </div>
 
-        {/* Debug footer — helps you see what data the page received, useful for
-            the early preview period. Remove before final cutover. */}
-        <div style={{
-          fontSize: 11, color: '#94a3b8', textAlign: 'center',
-          padding: '16px 0', borderTop: '1px dashed #e2e8f0',
-        }}>
-          Preview page · {dash ? 'data loaded' : 'loading…'} · user: {user ? user.username : 'anonymous'}
-        </div>
+        {/* Responsive breakpoints — 4 columns on desktop, 2 on tablet, 1 on mobile.
+            Using inline <style> so the rules ship with the component and don't
+            depend on any parent CSS file. Scoped via the .sap-doors-grid and
+            .sap-streams-grid class names. */}
+        <style>{`
+          @media (max-width: 1024px) {
+            .sap-doors-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            .sap-streams-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          }
+          @media (max-width: 560px) {
+            .sap-doors-grid { grid-template-columns: 1fr !important; }
+            .sap-streams-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          }
+        `}</style>
 
       </div>
     </AppLayout>
