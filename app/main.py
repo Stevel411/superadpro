@@ -2805,6 +2805,15 @@ def dashboard(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
+# ── 4-door redesign preview (Phase 1) ──
+# See docs/redesign/ for the design spec and route audit.
+# This route is behind /new/* so the rest of the platform is unaffected.
+@app.get("/new/landing")
+def new_landing(request: Request):
+    """4-door landing page preview — Phase 1. Serves React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
 # ── Missing React page routes ──
 @app.get("/network")
 @app.get("/api/dashboard")

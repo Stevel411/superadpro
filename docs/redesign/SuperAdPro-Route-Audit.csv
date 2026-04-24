@@ -1,0 +1,288 @@
+route,category,action,notes
+/account,COMMAND_CENTRE,301 → /command-centre/account,Account settings
+/account/2fa-setup,COMMAND_CENTRE,301 → /command-centre/account/2fa-setup,Preserve sub-route
+/account/faq,COMMAND_CENTRE,301 → /command-centre/account/faq,Preserve sub-route
+/achievements,COMMAND_CENTRE,301 → /command-centre/achievements,Achievements
+/activate-grid,INCOME,301 → /income/grid/activate,Grid activation
+/admin,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/activate-owner,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/adjust-balance,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/backups,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/cache-stats,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/commission-flows,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/commissions,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/email-analytics,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/finances,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/health,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/kyc-document/{filename},ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/kyc-pending,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/moderation-queue,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/network-tree,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/showcase,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/stories,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/superscene-analytics,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/user/{user_id},ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/users,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/withdrawals,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/api/withdrawals/stuck,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/commission-flows,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/db-check,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/debug-dashboard,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/debug-transfers,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/fix-owner,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/fix-upline-earnings,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/force-migrate,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/force-wipe,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/grid-audit,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/hot-wallet-balance,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/process-pending-withdrawals,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/recalculate-stats,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/reset-account,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/reset-test-data,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/run-migrations,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/seed-owner-campaigns,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/superscene/grant/{amount},ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/test-autoresponder,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/test-course-passup-cleanup,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/test-course-passup-e2e,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/test-course-passup-seed,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/test-dashboard,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/test-email,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/test-grid-cleanup,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/test-grid-e2e,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/test-grid-fill,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/test-grid-reset,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/test-register,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/watchdog,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/watchdog/health,ADMIN,no change,"Admin endpoint, secret-param protected"
+/admin/watchdog/status,ADMIN,no change,"Admin endpoint, secret-param protected"
+/affiliate,COMMAND_CENTRE,301 → /command-centre/team,Consolidate into team
+/affiliates,PUBLIC,no change,Public marketing page
+/analytics,COMMAND_CENTRE,301 → /command-centre/analytics,Analytics page
+/api/2fa/setup,API,no change,"Internal JSON API, frontend consumer"
+/api/account/export-data,API,no change,"Internal JSON API, frontend consumer"
+/api/achievements,API,no change,"Internal JSON API, frontend consumer"
+/api/activity-feed,API,no change,"Internal JSON API, frontend consumer"
+/api/affiliate,API,no change,"Internal JSON API, frontend consumer"
+/api/analytics,API,no change,"Internal JSON API, frontend consumer"
+/api/campaign-analytics/overview,API,no change,"Internal JSON API, frontend consumer"
+/api/campaign-analytics/{campaign_id}/daily,API,no change,"Internal JSON API, frontend consumer"
+/api/campaign-tiers,API,no change,"Internal JSON API, frontend consumer"
+/api/copilot/briefing,API,no change,"Internal JSON API, frontend consumer"
+/api/courses,API,no change,"Internal JSON API, frontend consumer"
+/api/courses/learn/{course_id},API,no change,"Internal JSON API, frontend consumer"
+/api/courses/stats,API,no change,"Internal JSON API, frontend consumer"
+/api/credit-matrix/all-matrices,API,no change,"Internal JSON API, frontend consumer"
+/api/credit-matrix/commissions,API,no change,"Internal JSON API, frontend consumer"
+/api/credit-matrix/history,API,no change,"Internal JSON API, frontend consumer"
+/api/credit-matrix/my-matrix,API,no change,"Internal JSON API, frontend consumer"
+/api/credit-matrix/packs,API,no change,"Internal JSON API, frontend consumer"
+/api/credit-matrix/stats,API,no change,"Internal JSON API, frontend consumer"
+/api/credit-matrix/team-activity,API,no change,"Internal JSON API, frontend consumer"
+/api/crypto/order/{order_id},API,no change,"Internal JSON API, frontend consumer"
+/api/crypto/treasury-balance,API,no change,"Internal JSON API, frontend consumer"
+/api/dashboard,API,no change,"Internal JSON API, frontend consumer"
+/api/dashboard/goals,API,no change,"Internal JSON API, frontend consumer"
+/api/dashboard/new-members,API,no change,"Internal JSON API, frontend consumer"
+/api/fomo-stats,API,no change,"Internal JSON API, frontend consumer"
+/api/funnels,API,no change,"Internal JSON API, frontend consumer"
+/api/funnels/analytics/{page_id},API,no change,"Internal JSON API, frontend consumer"
+/api/funnels/load/{page_id},API,no change,"Internal JSON API, frontend consumer"
+/api/funnels/sequence/{funnel_name},API,no change,"Internal JSON API, frontend consumer"
+/api/funnels/templates,API,no change,"Internal JSON API, frontend consumer"
+/api/funnels/track-click/{page_id},API,no change,"Internal JSON API, frontend consumer"
+/api/gift/{code},API,no change,"Internal JSON API, frontend consumer"
+/api/grid-visualiser,API,no change,"Internal JSON API, frontend consumer"
+/api/grok/status,API,no change,"Internal JSON API, frontend consumer"
+/api/income-chains,API,no change,"Internal JSON API, frontend consumer"
+/api/join/{username},API,no change,"Internal JSON API, frontend consumer"
+/api/leaderboard,API,no change,"Internal JSON API, frontend consumer"
+/api/leads,API,no change,"Internal JSON API, frontend consumer"
+/api/leads/email-stats,API,no change,"Internal JSON API, frontend consumer"
+/api/leads/export,API,no change,"Internal JSON API, frontend consumer"
+/api/leads/lists,API,no change,"Internal JSON API, frontend consumer"
+/api/leads/sequences,API,no change,"Internal JSON API, frontend consumer"
+/api/leads/stats,API,no change,"Internal JSON API, frontend consumer"
+/api/link-tools,API,no change,"Internal JSON API, frontend consumer"
+/api/linkhub-stats,API,no change,"Internal JSON API, frontend consumer"
+/api/linkhub/editor-data,API,no change,"Internal JSON API, frontend consumer"
+/api/links/analytics/{link_id},API,no change,"Internal JSON API, frontend consumer"
+/api/me,API,no change,"Internal JSON API, frontend consumer"
+/api/member/showcase/eligible,API,no change,"Internal JSON API, frontend consumer"
+/api/member/showcase/mine,API,no change,"Internal JSON API, frontend consumer"
+/api/member/story/mine,API,no change,"Internal JSON API, frontend consumer"
+/api/member/story/prompt-check,API,no change,"Internal JSON API, frontend consumer"
+/api/my-commission-flows,API,no change,"Internal JSON API, frontend consumer"
+/api/my-network-tree,API,no change,"Internal JSON API, frontend consumer"
+/api/network,API,no change,"Internal JSON API, frontend consumer"
+/api/notifications,API,no change,"Internal JSON API, frontend consumer"
+/api/nowpayments/config,API,no change,"Internal JSON API, frontend consumer"
+/api/nowpayments/order/{order_id},API,no change,"Internal JSON API, frontend consumer"
+/api/p2p-history,API,no change,"Internal JSON API, frontend consumer"
+/api/passup-visualiser,API,no change,"Internal JSON API, frontend consumer"
+/api/pay-it-forward/dashboard,API,no change,"Internal JSON API, frontend consumer"
+/api/pro/funnel/templates,API,no change,"Internal JSON API, frontend consumer"
+/api/public/activity-feed,API,no change,"Internal JSON API, frontend consumer"
+/api/public/explore-stats,API,no change,"Internal JSON API, frontend consumer"
+/api/public/member-showcase,API,no change,"Internal JSON API, frontend consumer"
+/api/public/member-stories,API,no change,"Internal JSON API, frontend consumer"
+/api/public/recent-payouts,API,no change,"Internal JSON API, frontend consumer"
+/api/public/stats,API,no change,"Internal JSON API, frontend consumer"
+/api/qr-code,API,no change,"Internal JSON API, frontend consumer"
+/api/qr-code/download,API,no change,"Internal JSON API, frontend consumer"
+/api/recent-joiners,API,no change,"Internal JSON API, frontend consumer"
+/api/stripe/config,API,no change,"Internal JSON API, frontend consumer"
+/api/superdeck/presentations,API,no change,"Internal JSON API, frontend consumer"
+/api/superdeck/{deck_id},API,no change,"Internal JSON API, frontend consumer"
+/api/superscene/credits,API,no change,"Internal JSON API, frontend consumer"
+/api/superscene/image/status/{task_id},API,no change,"Internal JSON API, frontend consumer"
+/api/superscene/music/status/{task_id},API,no change,"Internal JSON API, frontend consumer"
+/api/superscene/pipeline/list,API,no change,"Internal JSON API, frontend consumer"
+/api/superscene/pipeline/{pipeline_id}/status,API,no change,"Internal JSON API, frontend consumer"
+/api/superscene/seed-credits,API,no change,"Internal JSON API, frontend consumer"
+/api/superscene/status/{task_id:path},API,no change,"Internal JSON API, frontend consumer"
+/api/superscene/videos,API,no change,"Internal JSON API, frontend consumer"
+/api/superscene/voiceover/preview/{voice_id},API,no change,"Internal JSON API, frontend consumer"
+/api/superscene/voiceover/voices,API,no change,"Internal JSON API, frontend consumer"
+/api/superseller/campaign/{campaign_id},API,no change,"Internal JSON API, frontend consumer"
+/api/superseller/campaigns,API,no change,"Internal JSON API, frontend consumer"
+/api/superseller/page-customizations/{campaign_id},API,no change,"Internal JSON API, frontend consumer"
+/api/superseller/today/{campaign_id},API,no change,"Internal JSON API, frontend consumer"
+/api/team-messages,API,no change,"Internal JSON API, frontend consumer"
+/api/team-messages/unread-count,API,no change,"Internal JSON API, frontend consumer"
+/api/training,API,no change,"Internal JSON API, frontend consumer"
+/api/video-creator/download/{job_id},API,no change,"Internal JSON API, frontend consumer"
+/api/video-creator/status/{job_id},API,no change,"Internal JSON API, frontend consumer"
+/api/vip/count,API,no change,"Internal JSON API, frontend consumer"
+/api/vip/export,API,no change,"Internal JSON API, frontend consumer"
+/api/wallet,API,no change,"Internal JSON API, frontend consumer"
+/api/watch,API,no change,"Internal JSON API, frontend consumer"
+/app,APP_MOUNT,no change,React SPA mount
+/app/{full_path:path},APP_MOUNT,no change,React SPA mount
+/apple-touch-icon-precomposed.png,INFRA,no change,Infrastructure / SEO
+/apple-touch-icon.png,INFRA,no change,Infrastructure / SEO
+/campaign-analytics,INCOME,301 → /income/grid/analytics,Grid analytics
+/campaign-cta/{campaign_id},INCOME,301 → /income/grid/analytics,Grid analytics deep link
+/campaign-studio,TOOLS,301 → /tools/campaign-studio,Campaign Studio
+/campaign-tiers,INCOME,301 → /income/grid,Campaign tiers = Grid
+/compensation-plan,PUBLIC,no change,Public marketing page
+/contact,PUBLIC,no change,Public marketing page
+/content-creator,TOOLS,301 → /tools/campaign-studio,Consolidate
+/courses,INCOME,301 → /income/courses,Courses transactional
+/courses/commissions,INCOME,301 → /income/courses,Consolidate
+/courses/how-it-works,INCOME,301 → /income/courses,Consolidate
+/courses/learn/{course_id},LEARN,301 → /learn/my-courses/{course_id},Course consumption
+/create-campaign,TOOLS,301 → /tools/campaign-studio,Consolidate
+/creative-studio,TOOLS,301 → /tools/creative-studio,Creative Studio
+/credit-matrix,INCOME,301 → /income/nexus,Credit Nexus
+/credit-nexus,INCOME,301 → /income/nexus,Credit Nexus
+/cron/backup,CRON,no change,Scheduled job (cron-job.org)
+/cron/poll-payments,CRON,no change,Scheduled job (cron-job.org)
+/cron/poll-pending-videos,CRON,no change,Scheduled job (cron-job.org)
+/cron/process-autoresponder,CRON,no change,Scheduled job (cron-job.org)
+/cron/process-nurture,CRON,no change,Scheduled job (cron-job.org)
+/cron/process-renewals,CRON,no change,Scheduled job (cron-job.org)
+/cron/weekly-digest,CRON,no change,Scheduled job (cron-job.org)
+/crypto-guide,PUBLIC,no change,Public marketing page
+/dashboard,REDIRECT,301 → /,New 4-door landing
+/earn,PUBLIC,no change,Public marketing page
+/email-swipes,TOOLS,301 → /tools/email-swipes,Email Swipes
+/explore,PUBLIC,no change,Public marketing page
+/explore/compensation,PUBLIC,no change,Public marketing page
+/explore/free-tools,PUBLIC,no change,Public marketing page
+/explore/live,PUBLIC,no change,Public marketing page
+/explore/showcase,PUBLIC,no change,Public marketing page
+/explore/stories,PUBLIC,no change,Public marketing page
+/explore/watch-to-earn,PUBLIC,no change,Public marketing page
+/f/{username}/{slug},LINKHUB_PUBLIC,no change,Public profile URL
+/faq,PUBLIC,no change,Public marketing page
+/for-advertisers,PUBLIC,no change,Public marketing page
+/forgot-password,AUTH,no change,Authentication flow
+/funnels,TOOLS,301 → /tools/funnels,Funnels
+/funnels/analytics,TOOLS,301 → /tools/funnels/analytics,Preserve sub-route
+/funnels/edit/{page_id},TOOLS,301 → /tools/funnels/edit/{page_id},Preserve sub-route
+/funnels/leads,TOOLS,301 → /tools/funnels/leads,Preserve sub-route
+/funnels/new,TOOLS,301 → /tools/funnels/new,Preserve sub-route
+/funnels/visual/new,TOOLS,301 → /tools/funnels/visual/new,Preserve sub-route
+/funnels/visual/{page_id},TOOLS,301 → /tools/funnels/visual/{page_id},Preserve sub-route
+/gift/{code},REFERRAL,no change,Referral / signup link
+/go/{slug},LINKHUB_PUBLIC,no change,Public profile URL
+/google718f4df27dcf0df8.html,INFRA,no change,Infrastructure / SEO
+/grid,PUBLIC,no change,Public marketing page
+/grid-calculator,PUBLIC,no change,Public marketing page
+/grid-visualiser,PUBLIC,no change,Public marketing page
+/health,INFRA,no change,Infrastructure / SEO
+/how-it-works,PUBLIC,no change,Public marketing page
+/income-disclaimer,PUBLIC,no change,Public marketing page
+/income-grid,INCOME,301 → /income/grid,Grid stream
+/income-grid-3d,INCOME,301 → /income/grid,Consolidate
+/income-grid/{grid_id},INCOME,301 → /income/grid/{grid_id},Preserve sub-route
+/join/{username},REFERRAL,no change,Referral / signup link
+/launch-wizard,UNCERTAIN,DECIDE,Onboarding wizard — keep or retire now Fast Start covers onboarding?
+/lead-finder,TOOLS,301 → /tools/lead-finder,Lead Finder
+/leaderboard,PUBLIC,no change,Public marketing page
+/legal,PUBLIC,no change,Public marketing page
+/legal/income-disclosure,PUBLIC,no change,Public marketing page
+/link-tools,TOOLS,301 → /tools/link-tools,Link Tools
+/linkhub,TOOLS,301 → /tools/linkhub,LinkHub
+/linkhub/click/{link_id},LINKHUB_PUBLIC,no change,Public profile URL
+/login,AUTH,no change,Authentication flow
+/login/2fa,AUTH,no change,Authentication flow
+/logout,AUTH,no change,Authentication flow
+/marketing-materials,TOOLS,301 → /tools/marketing-materials,Marketing Materials deck
+/matrix-visualiser,PUBLIC,no change,Public marketing page
+/membership,PUBLIC,no change,Public marketing page
+/momentum,PUBLIC,no change,Public marketing page
+/network,COMMAND_CENTRE,301 → /command-centre/team,Team/network view
+/nexus,PUBLIC,no change,Public marketing page
+/nexus-visualiser,PUBLIC,no change,Public marketing page
+/niche-finder,TOOLS,301 → /tools/niche-finder,Niche Finder
+/onboarding,PUBLIC,no change,Public marketing page
+/p/{username}/{page_slug:path},LINKHUB_PUBLIC,no change,Public profile URL
+/packages,PUBLIC,no change,Public marketing page
+/page-builder-v2,TOOLS,301 → /tools/linkhub,Consolidate
+/passup-visualiser,PUBLIC,no change,Public marketing page
+/pay-membership,PAYMENT,no change,Payment provider callback
+/payment-cancelled,PAYMENT,no change,Payment provider callback
+/payment-success,PAYMENT,no change,Payment provider callback
+/payment/cancelled,PAYMENT,no change,Payment provider callback
+/payment/success,PAYMENT,no change,Payment provider callback
+/pricing,PUBLIC,no change,Public marketing page
+/pro/funnel/{funnel_id}/analytics,TOOLS,301 → /tools/funnels/analytics/{funnel_id},Consolidate
+/pro/funnel/{funnel_id}/edit,TOOLS,301 → /tools/funnels/edit/{funnel_id},Consolidate
+/pro/funnel/{funnel_id}/sequence,TOOLS,301 → /tools/funnels/sequence/{funnel_id},Consolidate
+/pro/funnels,TOOLS,301 → /tools/funnels,Consolidate under Tools
+/pro/leads,TOOLS,301 → /tools/my-leads,My Leads (Pro-locked)
+/proseller,TOOLS,301 → /tools/proseller,ProSeller AI (Pro-locked)
+/qr-generator,TOOLS,301 → /tools/qr-generator,QR Generator
+/ref/{username},REFERRAL,no change,Referral / signup link
+/register,AUTH,no change,Authentication flow
+/reset-password,AUTH,no change,Authentication flow
+/robots.txt,INFRA,no change,Infrastructure / SEO
+/sitemap.xml,INFRA,no change,Infrastructure / SEO
+/social-post-generator,TOOLS,301 → /tools/social-share,Consolidate
+/social-share,TOOLS,301 → /tools/social-share,Social Share
+/supercut,TOOLS,301 → /tools/creative-studio,Consolidate
+/superdeck,TOOLS,301 → /tools/superdeck,SuperDeck
+/superdeck/{path:path},TOOLS,301 → /tools/superdeck/{path},Preserve sub-route
+/superscene,TOOLS,301 → /tools/creative-studio,Consolidate
+/superseller,TOOLS,301 → /tools/superseller,SuperSeller
+/superseller/go/{campaign_id},TOOLS,301 → /tools/superseller/go/{campaign_id},Preserve sub-route
+/superseller/page/{campaign_id},TOOLS,301 → /tools/superseller/page/{campaign_id},Preserve sub-route
+/support,LEARN,301 → /learn/help,Logged-in support
+/support-public,PUBLIC,no change,Public marketing page
+/swipe-file,TOOLS,301 → /tools/email-swipes,Consolidate
+/team-messenger,COMMAND_CENTRE,301 → /command-centre/messenger,Team messaging
+/tools,PUBLIC,no change,Public marketing page — COLLISION: /tools is also the proposed member section prefix — see decision needed
+/tour,PUBLIC,no change,Public marketing page
+/training,LEARN,301 → /learn/training,Training Centre
+/u/{username},LINKHUB_PUBLIC,no change,Public profile URL
+/upgrade,PUBLIC,no change,Public marketing page
+/upload,TOOLS,301 → /tools/upload,Utility — or leave at root
+/video-creator,TOOLS,301 → /tools/video-scripts,Consolidate under video
+/video-script-generator,TOOLS,301 → /tools/video-scripts,Video Scripts
+/vip,UNCERTAIN,DECIDE,VIP landing page — still an active feature?
+/wallet,INCOME,301 → /income/wallet,Wallet
+/wallet-guide,PUBLIC,no change,Public marketing page
+/watch,INCOME,301 → /income/grid/watch,Watch-to-Earn inside Grid
+/what-you-get,PUBLIC,no change,Public marketing page

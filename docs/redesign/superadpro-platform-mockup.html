@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SuperAdPro — Platform Mockup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', -apple-system, sans-serif;
+    background: #eef1f6;
+    color: #0f172a;
+    line-height: 1.5;
+    padding: 40px 20px;
+  }
+
+  .page-title {
+    max-width: 1280px;
+    margin: 0 auto 32px;
+    text-align: center;
+  }
+  .page-title h1 {
+    font-family: 'Sora', sans-serif;
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.6px;
+    color: #0f172a;
+    margin-bottom: 6px;
+  }
+  .page-title p {
+    font-size: 15px;
+    color: #64748b;
+  }
+
+  .stack { display: flex; flex-direction: column; gap: 40px; max-width: 1280px; margin: 0 auto; }
+
+  .block-label {
+    font-size: 13px;
+    letter-spacing: 1.4px;
+    color: #64748b;
+    text-transform: uppercase;
+    font-weight: 500;
+    margin-bottom: 6px;
+  }
+  .block-sub {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 16px;
+    line-height: 1.6;
+    max-width: 900px;
+  }
+
+  .frame {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 24px rgba(15, 23, 42, 0.06);
+  }
+
+  /* CHROME (top bar) */
+  .chrome-top {
+    background: #1e3a8a;
+    color: #fff;
+    padding: 14px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .chrome-logo { display: flex; align-items: center; gap: 10px; font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 500; }
+  .chrome-mark { width: 30px; height: 30px; background: #2755d6; border-radius: 7px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; }
+  .chrome-search { flex: 1; background: rgba(255,255,255,0.15); border-radius: 8px; padding: 9px 14px; font-size: 13px; color: rgba(255,255,255,0.7); }
+  .chrome-right { display: flex; align-items: center; gap: 12px; }
+  .chrome-wallet { background: rgba(255,255,255,0.15); border-radius: 8px; padding: 8px 13px; font-size: 13px; }
+  .chrome-wallet strong { color: #4ade80; font-weight: 500; margin-left: 5px; }
+  .chrome-av { width: 30px; height: 30px; border-radius: 50%; background: #2755d6; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 500; }
+
+  /* SIDEBAR */
+  .shell { display: grid; grid-template-columns: 200px 1fr; }
+  .sb { background: #1e3a8a; padding: 18px 10px; display: flex; flex-direction: column; gap: 1px; min-height: 100%; }
+  .sb-back { color: rgba(255,255,255,0.6); font-size: 11px; padding: 5px 10px 12px; letter-spacing: 0.8px; text-transform: uppercase; font-weight: 500; cursor: pointer; }
+  .sb-group { font-size: 10px; color: rgba(255,255,255,0.5); letter-spacing: 1.3px; text-transform: uppercase; font-weight: 500; padding: 14px 10px 5px; }
+  .sb-group:first-of-type { padding-top: 0; }
+  .sb-item { color: rgba(255,255,255,0.8); font-size: 13px; padding: 8px 11px; border-radius: 6px; display: flex; align-items: center; gap: 9px; cursor: pointer; }
+  .sb-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+  .sb-item.active { background: rgba(255,255,255,0.18); color: #fff; }
+  .sb-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .sb-dot.c { background: #93c5fd; }
+  .sb-dot.g { background: #86efac; }
+  .sb-dot.p { background: #c4b5fd; }
+  .sb-dot.a { background: #fdba74; }
+  .sb-dot.white { background: #fff; }
+  .sb-deep { padding: 8px 10px; border-top: 0.5px solid rgba(255,255,255,0.1); margin-top: 10px; }
+  .sb-deep-lab { font-size: 9px; color: rgba(255,255,255,0.45); letter-spacing: 1px; text-transform: uppercase; font-weight: 500; margin-bottom: 5px; padding: 0 3px; }
+  .sb-deep-item { color: rgba(255,255,255,0.6); font-size: 11px; padding: 4px 3px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .sb-deep-item:hover { color: rgba(255,255,255,0.9); }
+  .sb-deep-item::before { content: '↗'; font-size: 10px; opacity: 0.6; }
+
+  .main { background: #f8fafc; padding: 28px 32px; }
+
+  /* ========== STATE 1: 4-DOOR LANDING ========== */
+  .landing-hero {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2755d6 100%);
+    color: #fff;
+    border-radius: 14px;
+    padding: 22px 28px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+  }
+  .lh-left { display: flex; align-items: center; gap: 16px; }
+  .lh-av { width: 52px; height: 52px; border-radius: 50%; background: #93c5fd; color: #1e3a8a; display: flex; align-items: center; justify-content: center; font-weight: 500; font-size: 20px; }
+  .lh-name { font-family: 'Sora', sans-serif; font-size: 22px; font-weight: 500; letter-spacing: -0.3px; }
+  .lh-meta { font-size: 13px; color: rgba(255,255,255,0.8); margin-top: 3px; }
+  .lh-meta .streak { color: #fbbf24; }
+  .lh-link { background: rgba(255,255,255,0.15); border-radius: 9px; padding: 9px 11px 9px 16px; display: flex; align-items: center; gap: 12px; }
+  .lh-link-lab { font-size: 10px; color: rgba(255,255,255,0.7); letter-spacing: 1px; text-transform: uppercase; display: block; font-weight: 500; }
+  .lh-link-url { font-size: 14px; font-family: 'JetBrains Mono', monospace; font-weight: 500; }
+  .lh-copy { background: #fff; color: #1e3a8a; border: none; padding: 8px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .lh-copy:hover { background: #f1f5f9; }
+
+  .doors { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  .door { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 20px 22px; cursor: pointer; transition: border-color 0.15s, transform 0.15s; }
+  .door:hover { border-color: #cbd5e1; transform: translateY(-1px); }
+  .door-ico { width: 46px; height: 46px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 13px; }
+  .door-ico svg { width: 22px; height: 22px; }
+  .door-ico.cobalt { background: #2755d6; }
+  .door-ico.green { background: #16a34a; }
+  .door-ico.purple { background: #7c3aed; }
+  .door-ico.amber { background: #d97706; }
+  .door-label { font-size: 10px; letter-spacing: 1.3px; color: #94a3b8; text-transform: uppercase; font-weight: 500; margin-bottom: 3px; }
+  .door-title { font-family: 'Sora', sans-serif; font-size: 22px; font-weight: 500; color: #0f172a; margin: 0 0 6px; letter-spacing: -0.3px; }
+  .door-desc { font-size: 13px; color: #64748b; margin: 0 0 14px; line-height: 1.55; }
+  .door-open { font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: space-between; padding-top: 10px; border-top: 1px solid #f1f5f9; }
+  .door-count { color: #94a3b8; }
+  .door-go.cobalt { color: #2755d6; }
+  .door-go.green { color: #16a34a; }
+  .door-go.purple { color: #7c3aed; }
+  .door-go.amber { color: #d97706; }
+
+  .strip-label { font-size: 11px; letter-spacing: 1.3px; color: #94a3b8; text-transform: uppercase; font-weight: 500; margin-bottom: 11px; }
+  .strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .strip-card { background: #2755d6; color: #fff; border-radius: 12px; padding: 16px 18px; position: relative; overflow: hidden; }
+  .strip-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 5px; }
+  .strip-card.membership::before { background: #93c5fd; }
+  .strip-card.grid::before { background: #86efac; }
+  .strip-card.nexus::before { background: #c4b5fd; }
+  .strip-card.courses::before { background: #fdba74; }
+  .strip-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .strip-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .strip-card.membership .strip-dot { background: #93c5fd; }
+  .strip-card.grid .strip-dot { background: #86efac; }
+  .strip-card.nexus .strip-dot { background: #c4b5fd; }
+  .strip-card.courses .strip-dot { background: #fdba74; }
+  .strip-pay { font-size: 9px; color: rgba(255,255,255,0.75); letter-spacing: 0.5px; text-transform: uppercase; font-weight: 500; }
+  .strip-amt { font-family: 'Sora', sans-serif; font-size: 26px; font-weight: 500; letter-spacing: -0.5px; line-height: 1.05; margin-bottom: 3px; }
+  .strip-name { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .strip-ctx { font-size: 11px; color: rgba(255,255,255,0.7); line-height: 1.4; }
+
+  /* ========== STATE 2: INCOME OVERVIEW ========== */
+  .inc-hero {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2755d6 50%, #3b5fd1 100%);
+    color: #fff;
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 20px;
+  }
+  .inc-hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 16px; }
+  .inc-hero-eyebrow { font-size: 11px; letter-spacing: 1.3px; text-transform: uppercase; color: rgba(255,255,255,0.7); font-weight: 500; padding-top: 6px; }
+  .inc-hero-nums { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; }
+  .inc-hero-block { border-left: 1px solid rgba(255,255,255,0.2); padding-left: 18px; }
+  .inc-hero-block:first-child { border-left: none; padding-left: 0; }
+  .inc-hero-lab { font-size: 10px; letter-spacing: 1px; color: rgba(255,255,255,0.7); text-transform: uppercase; font-weight: 500; margin-bottom: 4px; }
+  .inc-hero-val { font-family: 'Sora', sans-serif; font-size: 32px; font-weight: 500; color: #fff; letter-spacing: -0.5px; line-height: 1.05; margin-bottom: 4px; }
+  .inc-hero-ctx { font-size: 11px; color: rgba(255,255,255,0.7); }
+  .inc-hero-ctx.up { color: #86efac; }
+
+  .sect-label { font-size: 11px; letter-spacing: 1.3px; color: #94a3b8; text-transform: uppercase; font-weight: 500; margin: 10px 0 14px; }
+  .streams { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .stream-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px 20px; position: relative; overflow: hidden; cursor: pointer; transition: border-color 0.15s, transform 0.15s; }
+  .stream-card:hover { border-color: #cbd5e1; transform: translateY(-1px); }
+  .stream-card::before { content: ''; position: absolute; top: 0; left: 0; bottom: 0; width: 5px; }
+  .stream-card.membership::before { background: #2755d6; }
+  .stream-card.grid::before { background: #16a34a; }
+  .stream-card.nexus::before { background: #7c3aed; }
+  .stream-card.courses::before { background: #d97706; }
+  .sc-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .sc-name-row { display: flex; align-items: center; gap: 10px; }
+  .sc-ico { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+  .sc-ico svg { width: 16px; height: 16px; }
+  .stream-card.membership .sc-ico { background: #2755d6; }
+  .stream-card.grid .sc-ico { background: #16a34a; }
+  .stream-card.nexus .sc-ico { background: #7c3aed; }
+  .stream-card.courses .sc-ico { background: #d97706; }
+  .sc-name { font-family: 'Sora', sans-serif; font-size: 17px; font-weight: 500; color: #0f172a; letter-spacing: -0.2px; }
+  .sc-pay { font-size: 10px; padding: 3px 9px; border-radius: 11px; font-weight: 500; letter-spacing: 0.3px; }
+  .stream-card.membership .sc-pay { background: #dbeafe; color: #1e40af; }
+  .stream-card.grid .sc-pay { background: #dcfce7; color: #166534; }
+  .stream-card.nexus .sc-pay { background: #ede9fe; color: #5b21b6; }
+  .stream-card.courses .sc-pay { background: #fed7aa; color: #9a3412; }
+  .sc-numrow { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+  .sc-big { font-family: 'Sora', sans-serif; font-size: 32px; font-weight: 500; color: #0f172a; letter-spacing: -0.6px; line-height: 1; }
+  .sc-period { font-size: 10px; color: #94a3b8; letter-spacing: 0.8px; text-transform: uppercase; font-weight: 500; }
+  .sc-ctx { font-size: 13px; color: #64748b; margin-bottom: 14px; line-height: 1.5; }
+  .sc-open { display: flex; align-items: center; justify-content: space-between; font-size: 12px; font-weight: 500; padding-top: 12px; border-top: 1px solid #f1f5f9; }
+  .sc-count { color: #94a3b8; }
+  .sc-open.grid .sc-go { color: #16a34a; }
+  .sc-open.membership .sc-go { color: #2755d6; }
+  .sc-open.nexus .sc-go { color: #7c3aed; }
+  .sc-open.courses .sc-go { color: #d97706; }
+
+  /* ========== STATE 3: GRID STREAM PAGE ========== */
+  .grid-hero {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2755d6 50%, #3b5fd1 100%);
+    color: #fff;
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .grid-hero-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 16px; }
+  .grid-hero-eyebrow { font-size: 11px; letter-spacing: 1.3px; text-transform: uppercase; color: rgba(255,255,255,0.7); font-weight: 500; margin-bottom: 8px; }
+  .grid-tag { background: #16a34a; color: #fff; font-size: 11px; padding: 4px 11px; border-radius: 12px; font-weight: 500; letter-spacing: 0.4px; text-transform: uppercase; display: inline-block; }
+
+  .tabs-bar { background: #fff; border: 1px solid #e2e8f0; border-radius: 12px; padding: 5px; display: flex; gap: 3px; margin-bottom: 16px; }
+  .tab { flex: 1; padding: 11px 14px; font-size: 13px; font-weight: 500; color: #64748b; text-align: center; border-radius: 8px; cursor: pointer; transition: background 0.15s; }
+  .tab:hover { background: #f8fafc; }
+  .tab.active { background: #16a34a; color: #fff; }
+  .tab.active:hover { background: #16a34a; }
+
+  .content-panels { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+  .panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 18px 20px; }
+  .panel-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .panel-h-title { font-family: 'Sora', sans-serif; font-size: 15px; font-weight: 500; color: #0f172a; letter-spacing: -0.1px; }
+  .panel-h-lab { font-size: 12px; color: #64748b; font-weight: 500; }
+
+  .grid-viz { display: grid; grid-template-columns: repeat(8, 1fr); gap: 3px; margin-bottom: 12px; }
+  .grid-cell { aspect-ratio: 1; border-radius: 3px; background: #e2e8f0; }
+  .grid-cell.filled { background: #16a34a; }
+  .grid-progress { display: flex; justify-content: space-between; font-size: 12px; margin-top: 10px; }
+  .gp-label { color: #64748b; }
+  .gp-num { color: #0f172a; font-weight: 500; font-family: 'JetBrains Mono', monospace; }
+
+  .bonus { background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 12px; padding: 14px 16px; margin-top: 14px; }
+  .bonus-lab { font-size: 10px; color: #15803d; letter-spacing: 1px; text-transform: uppercase; font-weight: 500; margin-bottom: 4px; }
+  .bonus-val { font-family: 'Sora', sans-serif; font-size: 26px; font-weight: 500; color: #0f172a; letter-spacing: -0.4px; }
+  .bonus-sub { font-size: 12px; color: #64748b; margin-top: 3px; }
+
+  .wte { background: #f8fafc; border-radius: 10px; padding: 13px 15px; margin-bottom: 12px; }
+  .wte-h { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+  .wte-title { font-size: 13px; font-weight: 500; color: #0f172a; }
+  .wte-count { font-size: 11px; color: #16a34a; font-weight: 500; font-family: 'JetBrains Mono', monospace; }
+  .wte-desc { font-size: 12px; color: #64748b; line-height: 1.5; margin-bottom: 11px; }
+  .wte-btn { background: #16a34a; color: #fff; border: none; padding: 10px 14px; border-radius: 7px; font-size: 13px; font-weight: 500; width: 100%; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .wte-btn:hover { background: #15803d; }
+
+  .tier-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 0; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+  .tier-row:last-child { border-bottom: none; }
+  .tier-row.active { background: #f0fdf4; padding: 9px 11px; border-radius: 6px; border: 1px solid #bbf7d0; }
+  .tier-name { color: #0f172a; font-weight: 500; }
+  .tier-name .check { color: #16a34a; font-weight: 500; margin-left: 5px; font-size: 11px; }
+  .tier-price { color: #64748b; font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+
+  /* divider */
+  .divider { display: flex; align-items: center; justify-content: center; gap: 14px; padding: 8px 0; }
+  .divider-line { flex: 1; height: 1px; background: #cbd5e1; max-width: 120px; }
+  .divider-arrow { font-size: 22px; color: #94a3b8; }
+  .divider-text { font-size: 12px; color: #64748b; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase; }
+</style>
+</head>
+<body>
+
+<div class="page-title">
+  <h1>SuperAdPro — Platform Mockup</h1>
+  <p>Landing · Income Overview · Campaign Grid stream</p>
+</div>
+
+<div class="stack">
+
+  <!-- STATE 1: LANDING -->
+  <div>
+    <div class="block-label">1 — Landing page · the 4 doors</div>
+    <p class="block-sub">Member logs in and sees this. Cobalt hero with identity and referral link, four doors for section navigation, four cobalt stream cards showing this month's earnings per stream. No filtered sidebar — this is home.</p>
+    <div class="frame">
+      <div class="chrome-top">
+        <div class="chrome-logo"><div class="chrome-mark">S</div>SuperAdPro</div>
+        <div class="chrome-search">Search tools, team members, earnings…</div>
+        <div class="chrome-right">
+          <div class="chrome-wallet">Wallet <strong>$127.50</strong></div>
+          <div class="chrome-av">S</div>
+        </div>
+      </div>
+      <div class="main">
+        <div class="landing-hero">
+          <div class="lh-left">
+            <div class="lh-av">S</div>
+            <div>
+              <div class="lh-name">Good morning, Steve</div>
+              <div class="lh-meta"><span class="streak">🔥 12 day streak</span> · Pro · Active since Mar 2026</div>
+            </div>
+          </div>
+          <div class="lh-link">
+            <div>
+              <span class="lh-link-lab">Your referral link</span>
+              <span class="lh-link-url">superadpro.com/@steve</span>
+            </div>
+            <button class="lh-copy">Copy</button>
+          </div>
+        </div>
+        <div class="doors">
+          <div class="door">
+            <div class="door-ico cobalt"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4" stroke="#fff" stroke-width="2"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <div class="door-label">Your cockpit</div>
+            <h3 class="door-title">Command Centre</h3>
+            <p class="door-desc">Daily briefing, team pulse, today's play. Your operations room for running the business.</p>
+            <div class="door-open"><span class="door-count">9 items</span><span class="door-go cobalt">Open →</span></div>
+          </div>
+          <div class="door">
+            <div class="door-ico green"><svg viewBox="0 0 24 24" fill="none"><path d="M3 17l5-5 4 4 9-9" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 7h7v7" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+            <div class="door-label">Where you earn</div>
+            <h3 class="door-title">Income</h3>
+            <p class="door-desc">Earnings, wallet, and the 4 streams that pay you. See where your money comes from.</p>
+            <div class="door-open"><span class="door-count">7 items</span><span class="door-go green">Open →</span></div>
+          </div>
+          <div class="door">
+            <div class="door-ico purple"><svg viewBox="0 0 24 24" fill="none"><path d="M14.7 6.3a1 1 0 010 1.4l-9 9-4 1 1-4 9-9a1 1 0 011.4 0z" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg></div>
+            <div class="door-label">Build your business</div>
+            <h3 class="door-title">Tools</h3>
+            <p class="door-desc">Creative Studio, Lead Finder, funnels, outreach. Everything you need to create and capture.</p>
+            <div class="door-open"><span class="door-count">14 tools</span><span class="door-go purple">Open →</span></div>
+          </div>
+          <div class="door">
+            <div class="door-ico amber"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19h16M4 5h16M4 12h16" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
+            <div class="door-label">Skill up</div>
+            <h3 class="door-title">Learn</h3>
+            <p class="door-desc">Fast Start, comp plan, traffic guide, community. Understand how it all works.</p>
+            <div class="door-open"><span class="door-count">8 items</span><span class="door-go amber">Open →</span></div>
+          </div>
+        </div>
+        <div class="strip-label">Your 4 income streams · this month</div>
+        <div class="strip">
+          <div class="strip-card membership">
+            <div class="strip-head"><span class="strip-dot"></span><span class="strip-pay">50% recurring</span></div>
+            <div class="strip-amt">$175.00</div>
+            <div class="strip-name">Membership</div>
+            <div class="strip-ctx">10 active referrals</div>
+          </div>
+          <div class="strip-card grid">
+            <div class="strip-head"><span class="strip-dot"></span><span class="strip-pay">8 tiers</span></div>
+            <div class="strip-amt">$80.00</div>
+            <div class="strip-name">Campaign Grid</div>
+            <div class="strip-ctx">Tier 2 · 3/8 filled</div>
+          </div>
+          <div class="strip-card nexus">
+            <div class="strip-head"><span class="strip-dot"></span><span class="strip-pay">3×3 matrix</span></div>
+            <div class="strip-amt">$67.50</div>
+            <div class="strip-name">Credit Nexus</div>
+            <div class="strip-ctx">$200 pack active</div>
+          </div>
+          <div class="strip-card courses">
+            <div class="strip-head"><span class="strip-dot"></span><span class="strip-pay">100% resale</span></div>
+            <div class="strip-amt">$25.00</div>
+            <div class="strip-name">Courses</div>
+            <div class="strip-ctx">1 sale this month</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"><div class="divider-line"></div><span class="divider-text">Click Income door</span><span class="divider-arrow">↓</span><div class="divider-line"></div></div>
+
+  <!-- STATE 2: INCOME OVERVIEW -->
+  <div>
+    <div class="block-label">2 — Income door open · overview page</div>
+    <p class="block-sub">Cobalt sidebar appears with Income's 7 menu items. Hero summarises money across all 4 streams — current balance, this month, all time. Stream cards below with brand accent bars for each stream. Referral link moves to top-right of the hero.</p>
+    <div class="frame">
+      <div class="chrome-top">
+        <div class="chrome-logo"><div class="chrome-mark">S</div>SuperAdPro</div>
+        <div class="chrome-search">Search tools, team members, earnings…</div>
+        <div class="chrome-right">
+          <div class="chrome-wallet">Wallet <strong>$127.50</strong></div>
+          <div class="chrome-av">S</div>
+        </div>
+      </div>
+      <div class="shell">
+        <div class="sb">
+          <div class="sb-back">← All sections</div>
+          <div class="sb-group">Income</div>
+          <div class="sb-item active"><span class="sb-dot white"></span>Overview</div>
+          <div class="sb-item"><span class="sb-dot c"></span>Wallet</div>
+          <div class="sb-item"><span class="sb-dot c"></span>Earnings history</div>
+          <div class="sb-group">Your 4 streams</div>
+          <div class="sb-item"><span class="sb-dot c"></span>Membership</div>
+          <div class="sb-item"><span class="sb-dot g"></span>Campaign Grid</div>
+          <div class="sb-item"><span class="sb-dot p"></span>Credit Nexus</div>
+          <div class="sb-item"><span class="sb-dot a"></span>Courses</div>
+          <div class="sb-deep">
+            <div class="sb-deep-lab">Quick jump</div>
+            <div class="sb-deep-item">Comp plan</div>
+            <div class="sb-deep-item">My courses</div>
+          </div>
+        </div>
+        <div class="main">
+          <div class="inc-hero">
+            <div class="inc-hero-top">
+              <div class="inc-hero-eyebrow">Income summary · across all 4 streams</div>
+              <div class="lh-link">
+                <div>
+                  <span class="lh-link-lab">Your referral link</span>
+                  <span class="lh-link-url">superadpro.com/@steve</span>
+                </div>
+                <button class="lh-copy">Copy</button>
+              </div>
+            </div>
+            <div class="inc-hero-nums">
+              <div class="inc-hero-block">
+                <div class="inc-hero-lab">Current balance</div>
+                <div class="inc-hero-val">$127.50</div>
+                <div class="inc-hero-ctx">Available now</div>
+              </div>
+              <div class="inc-hero-block">
+                <div class="inc-hero-lab">This month · April</div>
+                <div class="inc-hero-val">$347.50</div>
+                <div class="inc-hero-ctx up">↑ +18% vs March</div>
+              </div>
+              <div class="inc-hero-block">
+                <div class="inc-hero-lab">All time</div>
+                <div class="inc-hero-val">$1,247.50</div>
+                <div class="inc-hero-ctx">Since Mar 2026</div>
+              </div>
+            </div>
+          </div>
+          <div class="sect-label">Your 4 income streams</div>
+          <div class="streams">
+            <div class="stream-card membership">
+              <div class="sc-head">
+                <div class="sc-name-row">
+                  <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="#fff" stroke-width="2"/><path d="M4 20c0-4 3.5-7 8-7s8 3 8 7" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg></div>
+                  <span class="sc-name">Membership</span>
+                </div>
+                <span class="sc-pay">50% recurring</span>
+              </div>
+              <div class="sc-numrow"><div class="sc-big">$175.00</div><div class="sc-period">This month</div></div>
+              <div class="sc-ctx">10 active Basic + Pro referrals. Earning every month they stay.</div>
+              <div class="sc-open membership"><span class="sc-count">Balance: $12.50</span><span class="sc-go">Open →</span></div>
+            </div>
+            <div class="stream-card grid">
+              <div class="sc-head">
+                <div class="sc-name-row">
+                  <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" stroke="#fff" stroke-width="2"/><rect x="14" y="3" width="7" height="7" stroke="#fff" stroke-width="2"/><rect x="3" y="14" width="7" height="7" stroke="#fff" stroke-width="2"/><rect x="14" y="14" width="7" height="7" stroke="#fff" stroke-width="2"/></svg></div>
+                  <span class="sc-name">Campaign Grid</span>
+                </div>
+                <span class="sc-pay">8 tiers</span>
+              </div>
+              <div class="sc-numrow"><div class="sc-big">$80.00</div><div class="sc-period">This month</div></div>
+              <div class="sc-ctx">Tier 2 · 3 of 8 spots filled. $160 bonus pending.</div>
+              <div class="sc-open grid"><span class="sc-count">Balance: $22.50</span><span class="sc-go">Open →</span></div>
+            </div>
+            <div class="stream-card nexus">
+              <div class="sc-head">
+                <div class="sc-name-row">
+                  <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none"><polygon points="12 2 15 8 22 9 17 14 18 21 12 18 6 21 7 14 2 9 9 8" stroke="#fff" stroke-width="2" stroke-linejoin="round"/></svg></div>
+                  <span class="sc-name">Credit Nexus</span>
+                </div>
+                <span class="sc-pay">3×3 matrix</span>
+              </div>
+              <div class="sc-numrow"><div class="sc-big">$67.50</div><div class="sc-period">This month</div></div>
+              <div class="sc-ctx">$200 pack active. 10 of 39 positions filled.</div>
+              <div class="sc-open nexus"><span class="sc-count">Balance: $67.50</span><span class="sc-go">Open →</span></div>
+            </div>
+            <div class="stream-card courses">
+              <div class="sc-head">
+                <div class="sc-name-row">
+                  <div class="sc-ico"><svg viewBox="0 0 24 24" fill="none"><path d="M4 19.5A2.5 2.5 0 016.5 17H20M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                  <span class="sc-name">Courses</span>
+                </div>
+                <span class="sc-pay">100% resale</span>
+              </div>
+              <div class="sc-numrow"><div class="sc-big">$25.00</div><div class="sc-period">This month</div></div>
+              <div class="sc-ctx">1 sold this month. Next sale passes up.</div>
+              <div class="sc-open courses"><span class="sc-count">Balance: $25.00</span><span class="sc-go">Open →</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"><div class="divider-line"></div><span class="divider-text">Click Campaign Grid</span><span class="divider-arrow">↓</span><div class="divider-line"></div></div>
+
+  <!-- STATE 3: GRID STREAM PAGE -->
+  <div>
+    <div class="block-label">3 — Campaign Grid stream page · with tabs</div>
+    <p class="block-sub">Sidebar active state moves to "Campaign Grid". Hero now shows Grid-specific numbers — grid balance, this month's Grid earnings, and the completion bonus. Tabs let members navigate Your grid · Watch to Earn · Tier ladder · Recent fills without leaving the page. The 8×8 grid visualisation is the primary content.</p>
+    <div class="frame">
+      <div class="chrome-top">
+        <div class="chrome-logo"><div class="chrome-mark">S</div>SuperAdPro</div>
+        <div class="chrome-search">Search tools, team members, earnings…</div>
+        <div class="chrome-right">
+          <div class="chrome-wallet">Wallet <strong>$127.50</strong></div>
+          <div class="chrome-av">S</div>
+        </div>
+      </div>
+      <div class="shell">
+        <div class="sb">
+          <div class="sb-back">← All sections</div>
+          <div class="sb-group">Income</div>
+          <div class="sb-item"><span class="sb-dot c"></span>Overview</div>
+          <div class="sb-item"><span class="sb-dot c"></span>Wallet</div>
+          <div class="sb-item"><span class="sb-dot c"></span>Earnings history</div>
+          <div class="sb-group">Your 4 streams</div>
+          <div class="sb-item"><span class="sb-dot c"></span>Membership</div>
+          <div class="sb-item active"><span class="sb-dot g"></span>Campaign Grid</div>
+          <div class="sb-item"><span class="sb-dot p"></span>Credit Nexus</div>
+          <div class="sb-item"><span class="sb-dot a"></span>Courses</div>
+          <div class="sb-deep">
+            <div class="sb-deep-lab">Quick jump</div>
+            <div class="sb-deep-item">Comp plan</div>
+            <div class="sb-deep-item">My courses</div>
+          </div>
+        </div>
+        <div class="main">
+          <div class="grid-hero">
+            <div class="grid-hero-top">
+              <div>
+                <div class="grid-hero-eyebrow">Campaign Grid · 8 tiers</div>
+                <span class="grid-tag">Active · Tier 2</span>
+              </div>
+              <div class="lh-link">
+                <div>
+                  <span class="lh-link-lab">Your referral link</span>
+                  <span class="lh-link-url">superadpro.com/@steve</span>
+                </div>
+                <button class="lh-copy">Copy</button>
+              </div>
+            </div>
+            <div class="inc-hero-nums">
+              <div class="inc-hero-block">
+                <div class="inc-hero-lab">Grid balance</div>
+                <div class="inc-hero-val">$22.50</div>
+                <div class="inc-hero-ctx">Available now</div>
+              </div>
+              <div class="inc-hero-block">
+                <div class="inc-hero-lab">This month</div>
+                <div class="inc-hero-val">$80.00</div>
+                <div class="inc-hero-ctx up">Grid earnings</div>
+              </div>
+              <div class="inc-hero-block">
+                <div class="inc-hero-lab">Completion bonus</div>
+                <div class="inc-hero-val">$160.00</div>
+                <div class="inc-hero-ctx">Tier 2 bonus pool</div>
+              </div>
+            </div>
+          </div>
+          <div class="tabs-bar">
+            <div class="tab active">Your grid</div>
+            <div class="tab">Watch to Earn</div>
+            <div class="tab">Tier ladder</div>
+            <div class="tab">Recent fills</div>
+          </div>
+          <div class="content-panels">
+            <div class="panel">
+              <div class="panel-h">
+                <span class="panel-h-title">Your Tier 2 grid</span>
+                <span class="panel-h-lab">3 / 64 filled</span>
+              </div>
+              <div class="grid-viz" id="grid-viz"></div>
+              <div class="grid-progress">
+                <span class="gp-label">Fills left to completion</span>
+                <span class="gp-num">61 of 64</span>
+              </div>
+              <div class="bonus">
+                <div class="bonus-lab">Completion bonus</div>
+                <div class="bonus-val">$160.00</div>
+                <div class="bonus-sub">Paid when all 64 seats fill. Funded by 5% of every tier 2 purchase.</div>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-h">
+                <span class="panel-h-title">Watch to Earn</span>
+                <span class="panel-h-lab">Earn today</span>
+              </div>
+              <div class="wte">
+                <div class="wte-h">
+                  <span class="wte-title">Available today</span>
+                  <span class="wte-count">12 campaigns</span>
+                </div>
+                <div class="wte-desc">Watching campaigns keeps your tier active and qualifies you to earn commissions when your grid fills.</div>
+                <button class="wte-btn">Start watching →</button>
+              </div>
+              <div class="panel-h" style="margin-top: 16px;">
+                <span class="panel-h-title">Tier progression</span>
+              </div>
+              <div class="tier-row active">
+                <span class="tier-name">Tier 2 <span class="check">✓ active</span></span>
+                <span class="tier-price">$50</span>
+              </div>
+              <div class="tier-row">
+                <span class="tier-name">Tier 3</span>
+                <span class="tier-price">$100</span>
+              </div>
+              <div class="tier-row">
+                <span class="tier-name">Tier 4</span>
+                <span class="tier-price">$200</span>
+              </div>
+              <div class="tier-row">
+                <span class="tier-name">Tier 5</span>
+                <span class="tier-price">$400</span>
+              </div>
+              <div class="tier-row">
+                <span class="tier-name">Tier 6</span>
+                <span class="tier-price">$600</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // Build the 8x8 grid with 3 filled cells
+  const gridViz = document.getElementById('grid-viz');
+  if (gridViz) {
+    for (let i = 0; i < 64; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'grid-cell' + (i < 3 ? ' filled' : '');
+      gridViz.appendChild(cell);
+    }
+  }
+</script>
+
+</body>
+</html>
