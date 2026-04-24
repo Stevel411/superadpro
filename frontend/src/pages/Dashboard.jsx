@@ -563,22 +563,31 @@ export default function Dashboard() {
         })}
       </div>
 
-      {/* ── Quick actions · 2 kept cards (Share Link + Platform Tour) ──
-          These are the two actions that don't belong inside a door:
-          - Share Your Link is the #1 growth action, deserves persistent prominence
-          - Platform Tour helps brand-new members get oriented */}
+      {/* ── Quick actions · Pay It Forward + Platform Tour ──
+          Two shortcuts that don't belong inside a door:
+          - Pay It Forward: the generosity action — gift a membership to
+            someone, reminds members to help others (distinct from
+            self-promotion which the Smart Goals card already handles).
+          - Platform Tour: helps brand-new members get oriented fast. */}
       <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>{t('dashboard.quickActions')}</div>
       <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
-            name: t('dashboard.shareYourLink'), desc: t('dashboard.shareYourLinkDesc'), link: '/affiliate',
-            color: 'var(--sap-accent)', bg: 'linear-gradient(135deg,#ecfeff,#cffafe)',
-            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#cffafe" stroke="var(--sap-accent)" strokeWidth="1.5"/><path d="M8 12h8M12 8v8" stroke="#0891b2" strokeWidth="2" strokeLinecap="round"/><circle cx="18" cy="6" r="3" fill="var(--sap-accent)"/><text x="18" y="8" textAnchor="middle" fontSize="4" fontWeight="bold" fill="#fff">$</text></svg>)
+            name: t('dashboard.payItForward', { defaultValue: 'Pay It Forward' }),
+            desc: t('dashboard.payItForwardDesc', { defaultValue: 'Gift a membership to someone starting out — help others while you grow.' }),
+            link: '/pay-it-forward',
+            color: 'var(--sap-pink)',
+            bg: 'linear-gradient(135deg,#fdf2f8,#fce7f3)',
+            // Gift icon — same shape as used inside PayItForward.jsx itself
+            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="13" rx="2" fill="#fce7f3" stroke="var(--sap-pink)" strokeWidth="1.5"/><path d="M3 12h18" stroke="var(--sap-pink)" strokeWidth="1.5"/><path d="M12 8v13" stroke="var(--sap-pink)" strokeWidth="1.5"/><path d="M7.5 8c-1.5 0-2.5-1-2.5-2.5S6 3 7.5 3C9 3 10 4.5 12 8c2-3.5 3-5 4.5-5S19 4 19 5.5 18 8 16.5 8" stroke="var(--sap-pink)" strokeWidth="1.5" fill="#fdf2f8"/></svg>),
           },
           {
-            name: t('dashboard.platformTour'), desc: t('dashboard.platformTourDesc'), link: '/tour',
-            color: 'var(--sap-violet)', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
-            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="var(--sap-purple-pale)" stroke="var(--sap-violet)" strokeWidth="1.5"/><path d="M12 8v4l3 3" stroke="var(--sap-violet)" strokeWidth="2" strokeLinecap="round"/><path d="M9 3l3-1 3 1" stroke="var(--sap-purple-light)" strokeWidth="1.5" strokeLinecap="round"/></svg>)
+            name: t('dashboard.platformTour'),
+            desc: t('dashboard.platformTourDesc'),
+            link: '/tour',
+            color: 'var(--sap-violet)',
+            bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
+            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="var(--sap-purple-pale)" stroke="var(--sap-violet)" strokeWidth="1.5"/><path d="M12 8v4l3 3" stroke="var(--sap-violet)" strokeWidth="2" strokeLinecap="round"/><path d="M9 3l3-1 3 1" stroke="var(--sap-purple-light)" strokeWidth="1.5" strokeLinecap="round"/></svg>),
           },
         ].map((a, i) => (
           <Link key={i} to={a.link} className="action-card" style={{
