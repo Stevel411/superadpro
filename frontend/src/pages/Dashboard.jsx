@@ -267,49 +267,129 @@ export default function Dashboard() {
         </div>
       )}
 
-      {/* Welcome Banner — Cosmic Purple with referral link */}
+      {/* ── Compact welcome hero ──────────────────────────────
+          Narrower, cleaner hero replacing the taller cosmic-purple
+          banner. Avatar + name/meta on left, referral pill on right.
+          Uses design-token cobalt gradient matching other hero banners
+          on the platform. */}
       <div style={{
-        background: 'linear-gradient(135deg,#172554,#1e3a8a,#4338ca)',
-        borderRadius: 18, padding: '30px 34px', marginBottom: 20,
-        position: 'relative', overflow: 'hidden',
-        boxShadow: '0 8px 32px rgba(67,56,202,0.35)',
+        background: 'linear-gradient(135deg, var(--sap-cobalt-deep), var(--sap-cobalt-mid))',
+        borderRadius: 18,
+        padding: '22px 28px',
+        marginBottom: 20,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        gap: 20,
+        flexWrap: 'wrap',
+        boxShadow: '0 8px 32px rgba(30,58,138,0.35)',
       }}>
-
-        {/* Radar rings + money bag */}
-        <div style={{ position:'absolute', right:44, top:'50%', transform:'translateY(-50%)', pointerEvents:'none' }}>
-          <div style={{ width:110, height:110, borderRadius:'50%', border:'1px solid rgba(196,181,253,0.2)', position:'relative' }}>
-            <div style={{ position:'absolute', inset:16, borderRadius:'50%', border:'1px solid rgba(196,181,253,0.3)' }}>
-              <div style={{ position:'absolute', inset:14, borderRadius:'50%', background:'rgba(139,92,246,0.2)', border:'1px solid rgba(196,181,253,0.45)' }} />
+        {/* Left — avatar + identity */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 20, minWidth: 0 }}>
+          {/* Avatar: show uploaded image if user has one, otherwise first letter */}
+          {user?.avatar_url ? (
+            <img src={user.avatar_url} alt=""
+              style={{
+                width: 72, height: 72, borderRadius: '50%',
+                objectFit: 'cover', flexShrink: 0,
+                border: '3px solid rgba(255,255,255,0.15)',
+              }} />
+          ) : (
+            <div style={{
+              width: 72, height: 72, borderRadius: '50%',
+              background: 'linear-gradient(135deg, var(--sap-accent-pale), var(--sap-accent))',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontFamily: 'Sora, sans-serif', fontSize: 32, fontWeight: 900,
+              color: '#fff', flexShrink: 0,
+              border: '3px solid rgba(255,255,255,0.15)',
+              boxShadow: '0 4px 14px rgba(14,165,233,0.25)',
+            }}>
+              {(d.display_name || d.first_name || user?.username || '?').charAt(0).toUpperCase()}
             </div>
-            <div style={{ position:'absolute', inset:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
-              <span style={{ fontSize:42, opacity:0.45, animation:'wbBag 15.2s ease-in-out infinite', display:'inline-block' }}>💰</span>
+          )}
+          <div style={{ minWidth: 0 }}>
+            <div style={{
+              fontSize: 11, fontWeight: 700, letterSpacing: 2,
+              textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)',
+              marginBottom: 4,
+            }}>{t('dashboard.welcomeBack', { defaultValue: 'Welcome back' })}</div>
+            <div style={{
+              fontFamily: 'Sora, sans-serif', fontSize: 28, fontWeight: 900,
+              color: '#fff', marginBottom: 6, lineHeight: 1.1,
+              letterSpacing: '-0.3px',
+            }}>
+              {d.display_name || d.first_name || user?.username || ''}
+            </div>
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              fontSize: 13, color: 'rgba(255,255,255,0.75)',
+              flexWrap: 'wrap',
+            }}>
+              {/* Tier badge */}
+              {d.tier_name && (
+                <span style={{
+                  padding: '3px 10px', borderRadius: 6,
+                  background: 'rgba(255,255,255,0.1)',
+                  border: '1px solid rgba(255,255,255,0.15)',
+                  fontSize: 10, fontWeight: 800, letterSpacing: 1.2,
+                  textTransform: 'uppercase', color: '#fff',
+                }}>{d.tier_name}</span>
+              )}
+              {/* Streak */}
+              {(d.streak_days || 0) > 0 && (
+                <>
+                  <span style={{ opacity: 0.4 }}>·</span>
+                  <span style={{
+                    color: 'var(--sap-amber-bright)', fontWeight: 700,
+                    display: 'inline-flex', alignItems: 'center', gap: 4,
+                  }}>🔥 {d.streak_days} {t('dashboard.dayStreak', { defaultValue: 'day streak' })}</span>
+                </>
+              )}
+              {/* Active since */}
+              {d.active_since && (
+                <>
+                  <span style={{ opacity: 0.4 }}>·</span>
+                  <span>{t('dashboard.activeSince', { defaultValue: 'Active since' })} {d.active_since}</span>
+                </>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Twinkling stars */}
-        {[[15,35,2.1,0],[60,55,2.8,0.6],[28,72,1.9,1.2],[75,28,3,0.9],[45,82,2.5,1.8],[20,65,2.2,0.4]].map(function([t,l,dur,delay],i){
-          return <div key={i} style={{ position:'absolute', width: i%3===0?5:i%3===1?3:4, height: i%3===0?5:i%3===1?3:4, borderRadius:'50%', background: i%2===0?'#fff':'#c4b5fd', top:`${t}%`, right:`${l*0.5+2}%`, animation:`wbStar ${dur}s ease-in-out infinite`, animationDelay:`${delay}s`, pointerEvents:'none' }} />;
-        })}
-
-        <div style={{ position:'relative', zIndex:2 }}>
-          <div style={{ fontSize:13, fontWeight:700, letterSpacing:2, textTransform:'uppercase', color:'rgba(255,255,255,0.65)', marginBottom:8 }}>{t('dashboard.welcomeBack')}</div>
-          <div style={{ fontFamily:'Sora,sans-serif', fontSize:28, fontWeight:900, color:'#fff', marginBottom:8 }}>{d.display_name || user?.username}</div>
-          <div style={{ fontSize:17, fontWeight: 500, color:'rgba(255,255,255,0.78)', lineHeight:1.6, maxWidth:460, marginBottom:16 }}>
-            {t('dashboard.networkMembers', { count: d.total_team || 0 })}{(d.total_earned || 0) > 0 && ` ${t('dashboard.andEarned', { amount: formatMoney(d.total_earned) })}`}.
-          </div>
-
-          {/* Referral link bar */}
-          <div style={{ display:'flex', alignItems:'center', gap:10, background:'rgba(0,0,0,0.25)', borderRadius:10, padding:'10px 16px', maxWidth:520 }}>
-            <div style={{ fontSize:13, fontWeight:700, color:'rgba(255,255,255,0.4)', flexShrink:0 }}>{t('dashboard.yourLink')}</div>
-            <div style={{ fontSize:13, fontWeight:600, color:'var(--sap-accent-light)', flex:1, overflow:'hidden', textOverflow:'ellipsis', whiteSpace:'nowrap', fontFamily:'monospace' }}>
-              www.superadpro.com/ref/{user?.username}
+        {/* Right — referral link pill */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          background: 'rgba(255,255,255,0.1)',
+          border: '1px solid rgba(255,255,255,0.15)',
+          borderRadius: 12,
+          padding: '10px 12px 10px 18px',
+          flexShrink: 0,
+          minWidth: 280,
+        }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{
+              fontSize: 10, fontWeight: 700, letterSpacing: 1.3,
+              textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)',
+              marginBottom: 2,
+            }}>{t('dashboard.yourReferralLink', { defaultValue: 'Your referral link' })}</div>
+            <div style={{
+              fontSize: 14, fontFamily: 'monospace', fontWeight: 600,
+              color: '#fff',
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}>
+              superadpro.com/ref/{user?.username}
             </div>
-            <button onClick={function() { copyRefLink('https://www.superadpro.com/ref/' + (user?.username || '')); }}
-              style={{ padding:'6px 14px', borderRadius:8, border:'none', background:'var(--sap-accent)', color:'#fff', fontSize:12, fontWeight:700, cursor:'pointer', fontFamily:'inherit', flexShrink:0 }}>
-              {refCopied ? t('dashboard.copied') : t('dashboard.copy')}
-            </button>
           </div>
+          <button onClick={function() { copyRefLink('https://www.superadpro.com/ref/' + (user?.username || '')); }}
+            style={{
+              padding: '8px 14px', borderRadius: 8, border: 'none',
+              background: '#fff', color: 'var(--sap-cobalt-mid)',
+              fontSize: 12, fontWeight: 700, cursor: 'pointer',
+              fontFamily: 'inherit', flexShrink: 0,
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+            }}>
+            📋 {refCopied ? t('dashboard.copied') : t('dashboard.copy')}
+          </button>
         </div>
       </div>
 
@@ -390,92 +470,6 @@ export default function Dashboard() {
           </div>
         ))}
       </div>
-
-      {/* ── Smart Goals ── */}
-      {goals && ((goals.goals && goals.goals.length > 0) || (goals.opportunities && goals.opportunities.length > 0)) && (
-        <>
-          {goals.goals && goals.goals.length > 0 && (
-            <>
-              <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.goalsThisWeek')}</div>
-              <div className="goals-grid" style={{ display: 'grid', gridTemplateColumns: goals.goals.length === 1 ? '1fr' : 'repeat(2,1fr)', gap: 12, marginBottom: 20 }}>
-                {goals.goals.map(function(g, i) {
-                  var ICONS = {
-                    users: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" fill={g.color}/><path d="M2 21v-1a7 7 0 0114 0v1" stroke={g.color} strokeWidth="2" strokeLinecap="round"/><path d="M16 3.13a4 4 0 010 7.75" stroke={g.color} strokeWidth="2" strokeLinecap="round" opacity=".6"/></svg>,
-                    grid: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="2" fill={g.color}/><rect x="14" y="3" width="7" height="7" rx="2" fill={g.color} opacity=".7"/><rect x="3" y="14" width="7" height="7" rx="2" fill={g.color} opacity=".7"/><rect x="14" y="14" width="7" height="7" rx="2" fill={g.color} opacity=".4"/></svg>,
-                    wallet: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="14" rx="3" fill={g.color} opacity=".8"/><circle cx="16" cy="13" r="2" fill="#fff"/><path d="M3 10h18" stroke="#fff" strokeWidth="1" opacity=".3"/></svg>,
-                    zap: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill={g.color}/></svg>,
-                    check: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill={g.color}/><path d="M8 12l3 3 5-5" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
-                  };
-                  var R = 22, C = 2 * Math.PI * R;
-                  var ringOffset = C - (C * (g.progress || 0) / 100);
-                  var isCompleted = g.completed;
-                  return (
-                    <div key={i} style={{ background: isCompleted ? 'var(--sap-green-bg)' : '#fff', borderRadius:14, border: isCompleted ? '1px solid #bbf7d0' : '1px solid #e8ecf2', padding:'18px 20px', position:'relative', overflow:'hidden' }}>
-                      <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:`linear-gradient(90deg,${g.color},${g.color}80)` }}/>
-                      <div style={{ display:'flex', alignItems:'flex-start', gap:14 }}>
-                        <div style={{ flex:1 }}>
-                          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
-                            <div style={{ width:38, height:38, borderRadius:10, background:g.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                              {ICONS[g.icon] || ICONS.zap}
-                            </div>
-                            <div style={{...TYPE.cardTitleBold, lineHeight: 1.3}}>{goalText(g, 'title')}</div>
-                          </div>
-                          <div style={{...TYPE.bodyMuted, marginBottom: 14}}>{goalText(g, 'desc')}</div>
-                          {g.progress !== undefined && !g.ring && (
-                            <>
-                              <div style={{ height:6, borderRadius:99, background:`${g.color}18`, overflow:'hidden', marginBottom:6 }}>
-                                <div style={{ height:'100%', borderRadius:99, background:`linear-gradient(90deg,${g.color},${g.color}cc)`, width:`${g.progress}%`, transition:'width .8s ease-out' }}/>
-                              </div>
-                              <div style={{ display:'flex', justifyContent:'space-between', fontSize:15, color:'var(--sap-text-muted)' }}>
-                                <span>{goalText(g, 'progress_label')}</span>
-                                <span style={{ color:g.color, fontWeight:700 }}>{g.progress}%</span>
-                              </div>
-                            </>
-                          )}
-                          <Link to={g.cta_link} style={{ display:'inline-block', ...TYPE.btn, padding:'10px 22px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none', marginTop:10 }}>{goalText(g, 'cta')}</Link>
-                        </div>
-                        {g.ring && (
-                          <svg width="56" height="56" viewBox="0 0 52 52" style={{ flexShrink:0, marginTop:4 }}>
-                            <circle cx="26" cy="26" r={R} fill="none" stroke="var(--sap-bg-page)" strokeWidth="5"/>
-                            <circle cx="26" cy="26" r={R} fill="none" stroke={g.color} strokeWidth="5" strokeLinecap="round" strokeDasharray={C} strokeDashoffset={ringOffset} style={{ transform:'rotate(-90deg)', transformOrigin:'center' }}/>
-                            <text x="26" y="26" textAnchor="middle" dominantBaseline="central" fill={g.color} style={{ fontSize:13, fontWeight:800 }}>{g.progress}%</text>
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
-          {goals.opportunities && goals.opportunities.length > 0 && (
-            <>
-              <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.moreOpportunities')}</div>
-              <div className="goals-grid" style={{ display: 'grid', gridTemplateColumns: goals.opportunities.length === 1 ? '1fr' : 'repeat(2,1fr)', gap: 12, marginBottom: 20 }}>
-                {goals.opportunities.map(function(g, i) {
-                  var ICONS = {
-                    video: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="3" fill={g.color} opacity=".8"/><polygon points="10,7 10,14 16,10.5" fill="#fff"/><rect x="6" y="19" width="12" height="2" rx="1" fill={g.color} opacity=".4"/></svg>,
-                    link: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill={g.bg} stroke={g.color} strokeWidth="1.5"/><path d="M10 14l4-4" stroke={g.color} strokeWidth="2" strokeLinecap="round"/><path d="M14 10a2 2 0 012 2" stroke={g.color} strokeWidth="2" strokeLinecap="round"/><path d="M10 14a2 2 0 01-2-2" stroke={g.color} strokeWidth="2" strokeLinecap="round"/></svg>,
-                    target: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke={g.color} strokeWidth="1.5"/><circle cx="12" cy="12" r="5" stroke={g.color} strokeWidth="1.5"/><circle cx="12" cy="12" r="1.5" fill={g.color}/></svg>,
-                  };
-                  return (
-                    <div key={i} style={{ background:'#fff', borderRadius:'0 14px 14px 0', border:'1px solid #e8ecf2', borderLeft:`3px solid ${g.color}`, padding:'18px 20px' }}>
-                      <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
-                        <div style={{ width:38, height:38, borderRadius:10, background:g.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                          {ICONS[g.icon] || ICONS.target}
-                        </div>
-                        <div style={{...TYPE.cardTitleBold, lineHeight: 1.3}}>{goalText(g, 'title')}</div>
-                      </div>
-                      <div style={{...TYPE.bodyMuted, marginBottom: 14}}>{goalText(g, 'desc')}</div>
-                      <Link to={g.cta_link} style={{ display:'inline-block', ...TYPE.btn, padding:'10px 22px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none' }}>{goalText(g, 'cta')}</Link>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
-        </>
-      )}
 
       {/* ── Explore the platform · 4 doors (1×4 row) ──
           Dashboard is the member's entry point. These 4 doors are the
@@ -602,6 +596,92 @@ export default function Dashboard() {
           </Link>
         ))}
       </div>
+
+      {/* ── Smart Goals ── */}
+      {goals && ((goals.goals && goals.goals.length > 0) || (goals.opportunities && goals.opportunities.length > 0)) && (
+        <>
+          {goals.goals && goals.goals.length > 0 && (
+            <>
+              <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.goalsThisWeek')}</div>
+              <div className="goals-grid" style={{ display: 'grid', gridTemplateColumns: goals.goals.length === 1 ? '1fr' : 'repeat(2,1fr)', gap: 12, marginBottom: 20 }}>
+                {goals.goals.map(function(g, i) {
+                  var ICONS = {
+                    users: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" fill={g.color}/><path d="M2 21v-1a7 7 0 0114 0v1" stroke={g.color} strokeWidth="2" strokeLinecap="round"/><path d="M16 3.13a4 4 0 010 7.75" stroke={g.color} strokeWidth="2" strokeLinecap="round" opacity=".6"/></svg>,
+                    grid: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="2" fill={g.color}/><rect x="14" y="3" width="7" height="7" rx="2" fill={g.color} opacity=".7"/><rect x="3" y="14" width="7" height="7" rx="2" fill={g.color} opacity=".7"/><rect x="14" y="14" width="7" height="7" rx="2" fill={g.color} opacity=".4"/></svg>,
+                    wallet: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="14" rx="3" fill={g.color} opacity=".8"/><circle cx="16" cy="13" r="2" fill="#fff"/><path d="M3 10h18" stroke="#fff" strokeWidth="1" opacity=".3"/></svg>,
+                    zap: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill={g.color}/></svg>,
+                    check: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill={g.color}/><path d="M8 12l3 3 5-5" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
+                  };
+                  var R = 22, C = 2 * Math.PI * R;
+                  var ringOffset = C - (C * (g.progress || 0) / 100);
+                  var isCompleted = g.completed;
+                  return (
+                    <div key={i} style={{ background: isCompleted ? 'var(--sap-green-bg)' : '#fff', borderRadius:14, border: isCompleted ? '1px solid #bbf7d0' : '1px solid #e8ecf2', padding:'18px 20px', position:'relative', overflow:'hidden' }}>
+                      <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:`linear-gradient(90deg,${g.color},${g.color}80)` }}/>
+                      <div style={{ display:'flex', alignItems:'flex-start', gap:14 }}>
+                        <div style={{ flex:1 }}>
+                          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
+                            <div style={{ width:38, height:38, borderRadius:10, background:g.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                              {ICONS[g.icon] || ICONS.zap}
+                            </div>
+                            <div style={{...TYPE.cardTitleBold, lineHeight: 1.3}}>{goalText(g, 'title')}</div>
+                          </div>
+                          <div style={{...TYPE.bodyMuted, marginBottom: 14}}>{goalText(g, 'desc')}</div>
+                          {g.progress !== undefined && !g.ring && (
+                            <>
+                              <div style={{ height:6, borderRadius:99, background:`${g.color}18`, overflow:'hidden', marginBottom:6 }}>
+                                <div style={{ height:'100%', borderRadius:99, background:`linear-gradient(90deg,${g.color},${g.color}cc)`, width:`${g.progress}%`, transition:'width .8s ease-out' }}/>
+                              </div>
+                              <div style={{ display:'flex', justifyContent:'space-between', fontSize:15, color:'var(--sap-text-muted)' }}>
+                                <span>{goalText(g, 'progress_label')}</span>
+                                <span style={{ color:g.color, fontWeight:700 }}>{g.progress}%</span>
+                              </div>
+                            </>
+                          )}
+                          <Link to={g.cta_link} style={{ display:'inline-block', ...TYPE.btn, padding:'10px 22px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none', marginTop:10 }}>{goalText(g, 'cta')}</Link>
+                        </div>
+                        {g.ring && (
+                          <svg width="56" height="56" viewBox="0 0 52 52" style={{ flexShrink:0, marginTop:4 }}>
+                            <circle cx="26" cy="26" r={R} fill="none" stroke="var(--sap-bg-page)" strokeWidth="5"/>
+                            <circle cx="26" cy="26" r={R} fill="none" stroke={g.color} strokeWidth="5" strokeLinecap="round" strokeDasharray={C} strokeDashoffset={ringOffset} style={{ transform:'rotate(-90deg)', transformOrigin:'center' }}/>
+                            <text x="26" y="26" textAnchor="middle" dominantBaseline="central" fill={g.color} style={{ fontSize:13, fontWeight:800 }}>{g.progress}%</text>
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+          {goals.opportunities && goals.opportunities.length > 0 && (
+            <>
+              <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.moreOpportunities')}</div>
+              <div className="goals-grid" style={{ display: 'grid', gridTemplateColumns: goals.opportunities.length === 1 ? '1fr' : 'repeat(2,1fr)', gap: 12, marginBottom: 20 }}>
+                {goals.opportunities.map(function(g, i) {
+                  var ICONS = {
+                    video: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="3" fill={g.color} opacity=".8"/><polygon points="10,7 10,14 16,10.5" fill="#fff"/><rect x="6" y="19" width="12" height="2" rx="1" fill={g.color} opacity=".4"/></svg>,
+                    link: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill={g.bg} stroke={g.color} strokeWidth="1.5"/><path d="M10 14l4-4" stroke={g.color} strokeWidth="2" strokeLinecap="round"/><path d="M14 10a2 2 0 012 2" stroke={g.color} strokeWidth="2" strokeLinecap="round"/><path d="M10 14a2 2 0 01-2-2" stroke={g.color} strokeWidth="2" strokeLinecap="round"/></svg>,
+                    target: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke={g.color} strokeWidth="1.5"/><circle cx="12" cy="12" r="5" stroke={g.color} strokeWidth="1.5"/><circle cx="12" cy="12" r="1.5" fill={g.color}/></svg>,
+                  };
+                  return (
+                    <div key={i} style={{ background:'#fff', borderRadius:'0 14px 14px 0', border:'1px solid #e8ecf2', borderLeft:`3px solid ${g.color}`, padding:'18px 20px' }}>
+                      <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
+                        <div style={{ width:38, height:38, borderRadius:10, background:g.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
+                          {ICONS[g.icon] || ICONS.target}
+                        </div>
+                        <div style={{...TYPE.cardTitleBold, lineHeight: 1.3}}>{goalText(g, 'title')}</div>
+                      </div>
+                      <div style={{...TYPE.bodyMuted, marginBottom: 14}}>{goalText(g, 'desc')}</div>
+                      <Link to={g.cta_link} style={{ display:'inline-block', ...TYPE.btn, padding:'10px 22px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none' }}>{goalText(g, 'cta')}</Link>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </>
+      )}
 
       {/* Bottom Row */}
       <div className="bottom-grid grid-2-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'stretch' }}>
