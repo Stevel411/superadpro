@@ -596,7 +596,15 @@ export default function Dashboard() {
             boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
             textDecoration: 'none', transition: 'all 0.15s', display: 'flex', flexDirection: 'column',
             alignItems: 'center', textAlign: 'center', gap: 10,
+            position: 'relative', overflow: 'hidden',
           }}>
+            {/* Top accent bar — matches the pattern on income-stream cards
+                and Smart Goals cards for visual consistency across the dashboard */}
+            <div style={{
+              position: 'absolute', top: 0, left: 0, right: 0, height: 4,
+              background: `linear-gradient(90deg, ${a.color}, ${a.bg})`,
+              borderRadius: '14px 14px 0 0',
+            }} />
             <div style={{ width: 68, height: 68, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', background: a.bg }}>
               {a.icon}
             </div>
