@@ -22,45 +22,27 @@ SuperAdPro is a video advertising and affiliate marketing platform. FastAPI/Pyth
 
 ## The Four Income Streams — CANONICAL REFERENCE
 
-SuperAdPro members earn through four separate, independent income streams. Every public page, every pitch, every piece of marketing material must stay consistent with these mechanics. The platform engine is already coded — pages describe what exists, not what we wish existed.
+**→ Read `docs/commission-spec.md` FIRST. That file is the locked ground truth for commission rates, tier prices, and payout mechanics.**
 
-### Stream 01 — Membership (GREEN)
-- **What it is:** 50% recurring commission on every month's subscription payment from a referral.
-- **Trigger:** Someone signs up through your link and keeps paying ($20 Basic or $35 Pro).
-- **Pays:** $10/month per Basic referral, $17.50/month per Pro referral.
-- **Rhythm:** Recurring — paid every month for as long as they stay subscribed.
-- **Break-even:** 2 Pro referrals cover your own Pro subscription.
-- **Code:** standard membership commission flow in `app/payment.py` + `app/crud.py`.
+The spec at `docs/commission-spec.md` supersedes any commission-related content anywhere else in the repo — including this file, code comments, old spec docs, or memory from previous sessions. If this section and the spec file disagree, the spec file wins. Raise the discrepancy with Steve.
 
-### Stream 02 — The Grid (INDIGO)
-- **What it is:** 8×8 spillover grid on campaign tier purchases. Direct + uni-level.
-- **Trigger:** Someone buys a campaign tier ($X one-off to run ads).
-- **Pays:** 40% on direct referrals (row 1). 6.25% on each of 7 spillover levels below.
-- **Rhythm:** Per grid cycle — you cycle when your grid fills, then a new one opens.
-- **Max per cycle:** $103,976 at Ultimate tier (when a full grid completes).
-- **Code:** `app/grid.py` + `app/matrix.py`. Tied to campaign tier purchases, not credit packs.
+### Why this matters
 
-### Stream 03 — Nexus (PURPLE) — the Credit Matrix
-- **What it is:** 3×3 forced matrix on credit pack purchases. One matrix per pack, 39 positions each (3 + 9 + 27).
-- **Trigger:** Referrals (any level, up to 3 deep) buy credit packs to use Creative Studio and AI tools.
-- **Pays:** 15% on every direct referral's pack purchase, 10% on every spillover purchase in levels 2 and 3, 10% completion bonus when a matrix fills (39 pack purchases across your downline).
-- **Total commission share:** 35% of every pack sale (15 + 10 + 10).
-- **Pack price split:** 50% AI cost / 15% company / 35% commissions.
-- **Packs:** Starter $20 (100cr) → Ultimate $1,000 (5,000cr). 8 tiers total. One matrix per pack per member — owning all 8 means 8 matrices filling in parallel.
-- **Rhythm:** Recurring and uncapped — as your downline creates content, they burn credits, they re-up, you earn on every re-up. "Creators' choice" because heavy users generate the most.
-- **Code:** `app/credit_matrix.py` (673 lines). Constants in `app/database.py`: `CREDIT_PACKS`, `MATRIX_WIDTH=3`, `MATRIX_DEPTH=3`, `MATRIX_COMMISSION_RATES={1:0.15, 2:0.10, 3:0.10}`.
+Earlier versions of this file and various session memories carried fabricated or stale commission numbers ($28,000+ Grid earnings, $97 course prices, "L1/L2/L3" level-based Nexus rates, "$103,976 per Grid cycle", etc.). Steve had to catch these manually across multiple sessions. The spec file exists so every new session starts from confirmed numbers instead of guessing.
 
-### Stream 04 — Courses (AMBER) — [public page not yet built]
-- **What it is:** Course sales with pass-up commissions.
-- **Status:** Platform mechanic built; public marketing page pending.
-- **Tagline on hub:** "Infinite Pass-ups · 100% Commissions"
-- **Code:** `app/course_engine.py` (contains the commission logic).
+### Quick summary (full detail in spec file)
+
+- **Stream 01 Membership (cobalt blue):** 50% commission, capped at sponsor's own tier for both monthly AND annual. Excess retained by company (do not mention in customer-facing copy). Code: `app/main.py::_activate_membership`.
+- **Stream 02 Grid (green):** 8×8 grid, 40% direct + 6.25% × 8 levels + 5% completion bonus. Requires active campaign at tier or above to earn. Code: `app/grid.py`.
+- **Stream 03 Nexus (purple):** 3×3 matrix per pack (39 positions). **15% direct / 10% spillover** (relationship-based, NOT level-based) + 10% completion bonus. No tier ownership required. 8 independent matrices possible per member. Code: `app/credit_matrix.py`.
+- **Stream 04 Courses (amber/orange):** Tier-ownership required. Odd/even 1+Up pass-up structure. Details partially unconfirmed — check spec and ask Steve before publishing. Code: `app/course_engine.py`.
 
 ### Cross-stream rules
+
 - All streams coexist — members build all four in whatever order suits them.
 - Streams are independent: buying a credit pack doesn't affect your Grid, joining Nexus doesn't affect your Membership stream.
 - **DO NOT invent cross-stream mechanics** in public copy. If the code doesn't do it, the page doesn't claim it.
-- Before writing ANY public commission copy, re-read this section and verify against the source module.
+- Before writing ANY public commission copy, read `docs/commission-spec.md` and verify against the source module.
 
 ## Engineering Principles — NON-NEGOTIABLE
 
