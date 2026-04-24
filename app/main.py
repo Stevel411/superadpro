@@ -514,6 +514,9 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "request":           request,
         "user":              user,
         "display_name":      user.first_name or user.username,
+        # Member "active since" — formatted from user.created_at for display
+        # in the dashboard hero. Safe fallback if created_at is missing.
+        "active_since":      user.created_at.strftime("%b %Y") if getattr(user, "created_at", None) else None,
         "balance":           float(user.balance or 0),
         "campaign_balance":  float(user.campaign_balance or 0),
         "total_earned":      float(user.total_earned or 0),

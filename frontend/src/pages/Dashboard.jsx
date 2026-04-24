@@ -325,40 +325,35 @@ export default function Dashboard() {
               fontSize: 13, color: 'rgba(255,255,255,0.75)',
               flexWrap: 'wrap',
             }}>
-              {/* Tier badge — metallic gold for Pro, silver for Basic.
-                  Uses the same 5-stop gradients as new-member toast
-                  notifications (lines ~784) so the treatment is consistent
-                  across the platform. Reads user.membership_tier from
-                  useAuth (authoritative: "pro" or "basic"), NOT d.tier_name
-                  which is the Grid tier name (Starter/Builder/etc). */}
+              {/* Tier badge — subtle outline pill with metallic gradient
+                  TEXT (gold for Pro, silver for Basic). Text uses
+                  background-clip:text to fill the letterforms with the
+                  same 5-stop gradient used on new-member toast
+                  notifications, so Pro reads Pro everywhere on the
+                  platform. Reads user.membership_tier from useAuth
+                  ("pro" or "basic"), NOT d.tier_name (Grid tier). */}
               {user?.membership_tier && (
                 <span style={{
-                  padding: '3px 10px', borderRadius: 6,
-                  background: user.membership_tier === 'pro'
-                    ? 'linear-gradient(135deg, #b8860b, #daa520 30%, #ffd700 50%, #daa520 70%, #b8860b)'
-                    : 'linear-gradient(135deg, #8e9aaf, #b8c4d4 30%, #d4dce8 50%, #b8c4d4 70%, #8e9aaf)',
+                  padding: '3px 11px', borderRadius: 6,
+                  background: 'rgba(255,255,255,0.08)',
                   border: user.membership_tier === 'pro'
-                    ? '1px solid rgba(255,235,150,.35)'
-                    : '1px solid rgba(220,230,240,.4)',
-                  boxShadow: user.membership_tier === 'pro'
-                    ? '0 2px 8px rgba(255,215,0,.3)'
-                    : '0 2px 8px rgba(180,195,215,.2)',
-                  fontSize: 10, fontWeight: 900, letterSpacing: 1.3,
+                    ? '1px solid rgba(255,215,0,.35)'
+                    : '1px solid rgba(220,230,240,.3)',
+                  fontSize: 10, fontWeight: 900, letterSpacing: 1.4,
                   textTransform: 'uppercase',
-                  color: 'var(--sap-cobalt-deep)',
+                  // Metallic gradient text effect — 5-stop gradient,
+                  // clipped to letterforms, text itself transparent.
+                  backgroundImage: user.membership_tier === 'pro'
+                    ? 'linear-gradient(135deg, #b8860b, #daa520 30%, #ffd700 50%, #daa520 70%, #b8860b), rgba(255,255,255,0.08)'
+                    : 'linear-gradient(135deg, #8e9aaf, #b8c4d4 30%, #d4dce8 50%, #b8c4d4 70%, #8e9aaf), rgba(255,255,255,0.08)',
+                  WebkitBackgroundClip: 'text',
+                  backgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  color: 'transparent',
                 }}>{user.membership_tier}</span>
               )}
-              {/* Streak */}
-              {(d.streak_days || 0) > 0 && (
-                <>
-                  <span style={{ opacity: 0.4 }}>·</span>
-                  <span style={{
-                    color: 'var(--sap-amber-bright)', fontWeight: 700,
-                    display: 'inline-flex', alignItems: 'center', gap: 4,
-                  }}>🔥 {d.streak_days} {t('dashboard.dayStreak', { defaultValue: 'day streak' })}</span>
-                </>
-              )}
-              {/* Active since */}
+              {/* Active since — date from user.created_at, added server-side
+                  to /api/dashboard as d.active_since (format: "Mar 2026") */}
               {d.active_since && (
                 <>
                   <span style={{ opacity: 0.4 }}>·</span>
