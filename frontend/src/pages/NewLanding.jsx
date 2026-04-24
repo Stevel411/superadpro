@@ -1,11 +1,18 @@
 /**
  * NewLanding.jsx — 4-door landing page (Phase 1 prototype)
  *
- * Test page at /new/landing. Renders the 4-door navigation model inside
- * the existing AppLayout (sidebar + topbar). No member-facing navigation
- * points here yet; this route exists for design review only.
+ * Test page at /new/landing. Rebuilt 24 Apr 2026 to match the locked
+ * design mockup at docs/redesign/superadpro-platform-mockup.html exactly.
  *
- * See docs/redesign/ for the full design spec and route audit.
+ * Layout:
+ *   - Cobalt hero (full width)
+ *   - Fast Start pill (full width, cobalt→purple gradient)
+ *   - 2×2 grid of door cards (big, white, one per section)
+ *   - 1×4 stream strip (small cobalt cards, one per income stream)
+ *
+ * Palette follows the redesign spec, not the current platform tokens.
+ * The hero is meant to feel distinct from the darker sidebar — they
+ * form a cobalt L-shape with two tones (spec §3).
  */
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
@@ -13,16 +20,15 @@ import { useAuth } from '../hooks/useAuth';
 import { apiGet } from '../utils/api';
 import { formatMoney } from '../utils/money';
 import AppLayout from '../components/layout/AppLayout';
-import { TYPE } from '../styles/typography';
 import {
-  Gauge, TrendingUp, Wrench, BookOpen,
+  Gauge, TrendingUp, PenSquare, BookOpen,
   Rocket, Flame, Copy, Check, ArrowRight,
   Users, LayoutGrid, Star, GraduationCap,
 } from 'lucide-react';
 
-// ── Door configuration ─────────────────────────────────────
-// Each door = one section of the platform. Colour is fixed per the design
-// spec (see SuperAdPro-4-Door-Redesign-Spec.docx §3).
+// ── Door configuration (spec §3) ───────────────────────────
+// Each door has a distinct brand colour used ONLY on the icon square
+// and the "Open →" text. Card body stays white with slate borders.
 const DOORS = [
   {
     id: 'command-centre',
@@ -30,10 +36,9 @@ const DOORS = [
     title: 'Command Centre',
     desc: "Daily briefing, team pulse, today's play. Your operations room for running the business.",
     count: '9 items',
-    colour: '#0ea5e9',        // sap-accent (matches platform primary CTA)
-    colourDark: '#172554',
+    colour: '#2755d6',   // cobalt (brand primary for the redesign)
     icon: Gauge,
-    href: '/dashboard',        // temporary — points to current dashboard
+    href: '/dashboard',   // temporary — real destination in Phase 2
   },
   {
     id: 'income',
@@ -41,10 +46,9 @@ const DOORS = [
     title: 'Income',
     desc: 'Earnings, wallet, and the 4 streams that pay you. See where your money comes from.',
     count: '7 items',
-    colour: '#16a34a',        // green
-    colourDark: '#15803d',
+    colour: '#16a34a',   // green
     icon: TrendingUp,
-    href: '/wallet',           // temporary
+    href: '/wallet',
   },
   {
     id: 'tools',
@@ -52,10 +56,9 @@ const DOORS = [
     title: 'Tools',
     desc: 'Creative Studio, Lead Finder, funnels, outreach. Everything you need to create and capture.',
     count: '14 tools',
-    colour: '#7c3aed',        // purple
-    colourDark: '#6d28d9',
-    icon: Wrench,
-    href: '/marketing-materials', // temporary
+    colour: '#7c3aed',   // purple
+    icon: PenSquare,
+    href: '/marketing-materials',
   },
   {
     id: 'learn',
@@ -63,19 +66,21 @@ const DOORS = [
     title: 'Learn',
     desc: 'Fast Start, comp plan, traffic guide, community. Understand how it all works.',
     count: '8 items',
-    colour: '#d97706',        // amber
-    colourDark: '#b45309',
+    colour: '#d97706',   // amber
     icon: BookOpen,
-    href: '/training',         // temporary
+    href: '/training',
   },
 ];
 
-// ── Stream configuration — for the bottom strip ────────────
+// ── Stream strip (spec §3) ─────────────────────────────────
+// Cards are solid cobalt with a stream-coloured left accent bar + dot.
+// The brand-coloured accent is the ONLY place the stream colour appears
+// in the strip (spec rule: cobalt is chrome, stream colours are accents).
 const STREAMS = [
-  { id: 'membership',  name: 'Membership',    colour: '#2755d6', light: '#93c5fd', payModel: '50% recurring', icon: Users },
-  { id: 'grid',        name: 'Campaign Grid', colour: '#16a34a', light: '#86efac', payModel: '8 tiers',       icon: LayoutGrid },
-  { id: 'nexus',       name: 'Credit Nexus',  colour: '#7c3aed', light: '#c4b5fd', payModel: '3×3 matrix',    icon: Star },
-  { id: 'courses',     name: 'Courses',       colour: '#d97706', light: '#fdba74', payModel: '100% resale',   icon: GraduationCap },
+  { id: 'membership', name: 'Membership',    accent: '#93c5fd', payModel: '50% recurring', icon: Users },
+  { id: 'grid',       name: 'Campaign Grid', accent: '#86efac', payModel: '8 tiers',       icon: LayoutGrid },
+  { id: 'nexus',      name: 'Credit Nexus',  accent: '#c4b5fd', payModel: '3×3 matrix',    icon: Star },
+  { id: 'courses',    name: 'Courses',       accent: '#fdba74', payModel: '100% resale',   icon: GraduationCap },
 ];
 
 export default function NewLanding() {
@@ -83,17 +88,14 @@ export default function NewLanding() {
   const [dash, setDash] = useState(null);
   const [refCopied, setRefCopied] = useState(false);
 
-  // Fetch dashboard data to populate hero + stream strip with real numbers.
-  // Uses the existing /api/dashboard endpoint — no new backend work needed.
   useEffect(() => {
     let cancelled = false;
     apiGet('/api/dashboard')
       .then((data) => { if (!cancelled) setDash(data); })
-      .catch(() => { /* non-fatal; page still renders with placeholder zeros */ });
+      .catch(() => { /* non-fatal */ });
     return () => { cancelled = true; };
   }, []);
 
-  // Referral link — use the same shape as Dashboard.jsx for consistency.
   const referralLink = user && user.username
     ? `${window.location.origin}/join/${user.username}`
     : '';
@@ -104,16 +106,16 @@ export default function NewLanding() {
       navigator.clipboard.writeText(referralLink);
       setRefCopied(true);
       setTimeout(() => setRefCopied(false), 2000);
-    } catch (e) { /* clipboard API unavailable — ignore */ }
+    } catch (e) { /* ignore */ }
   }
 
-  // Streak count (fallback 0) + display name.
   const streakDays = (dash && dash.streak_days) || 0;
   const displayName = (user && (user.display_name || user.username)) || 'there';
   const tierName = (user && user.tier_name) || 'Free';
 
-  // Placeholder stream values — Phase 1 uses whatever is in /api/dashboard.
-  // Later phases will wire each stream to its dedicated endpoint.
+  // Pull per-stream values from /api/dashboard. These fields don't all
+  // exist yet — will be wired up as part of Phase 1. Missing values
+  // render as $0.00 which is correct for new members.
   function streamValue(id) {
     if (!dash) return 0;
     if (id === 'membership') return dash.membership_earnings_month || 0;
@@ -123,22 +125,32 @@ export default function NewLanding() {
     return 0;
   }
 
+  // Context line shown beneath each stream's amount. Temporary placeholders
+  // while the real per-stream endpoints are being built.
+  function streamContext(id) {
+    if (!dash) return '';
+    if (id === 'membership') return `${dash.active_referrals || 0} active referrals`;
+    if (id === 'grid')       return dash.current_tier_name ? `Tier ${dash.current_tier_name}` : 'No tier active';
+    if (id === 'nexus')      return dash.nexus_pack_active ? 'Pack active' : 'No pack';
+    if (id === 'courses')    return `${dash.courses_sales_month || 0} sales this month`;
+    return '';
+  }
+
   return (
     <AppLayout title="New Landing (Preview)">
-      {/* Fluid container — fills available width. No max-width so the page
-          adapts to any viewport. 8px inner breathing room matches the
-          rest of the platform. */}
       <div style={{ width: '100%' }}>
 
-        {/* ── HERO ──────────────────────────────────────────── */}
-        {/* Gradient matches the platform Topbar (#172554 → #1e3a8a) so the
-            hero reads as a continuation of the chrome, not a foreign element. */}
+        {/* ── HERO ────────────────────────────────────────────── */}
+        {/* Mockup spec: gradient #1e3a8a → #2755d6, padding 22/28,
+            border-radius 14, margin-bottom 20. NOT the platform Topbar
+            gradient — the hero is intentionally a lighter cobalt so the
+            chrome and hero read as two tones of one system. */}
         <section style={{
-          background: 'linear-gradient(135deg, #172554 0%, #1e3a8a 100%)',
+          background: 'linear-gradient(135deg, #1e3a8a 0%, #2755d6 100%)',
           color: '#fff',
           borderRadius: 14,
           padding: '22px 28px',
-          marginBottom: 14,
+          marginBottom: 20,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -148,10 +160,9 @@ export default function NewLanding() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
             <div style={{
               width: 52, height: 52, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)',
-              color: '#fff',
+              background: '#93c5fd', color: '#1e3a8a',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 600,
+              fontFamily: 'Sora, sans-serif', fontSize: 20, fontWeight: 500,
             }}>{displayName.charAt(0).toUpperCase()}</div>
             <div>
               <div style={{
@@ -160,13 +171,15 @@ export default function NewLanding() {
               }}>
                 {greeting()}, {displayName}
               </div>
-              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 3, display: 'flex', alignItems: 'center', gap: 6 }}>
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.8)', marginTop: 3, display: 'inline-flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
                 {streakDays > 0 && (
-                  <span style={{ color: '#fbbf24', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                    <Flame size={12} /> {streakDays} day streak
-                  </span>
+                  <>
+                    <span style={{ color: '#fbbf24', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      <Flame size={12} /> {streakDays} day streak
+                    </span>
+                    <span style={{ opacity: 0.5 }}>·</span>
+                  </>
                 )}
-                {streakDays > 0 && <span>·</span>}
                 <span>{tierName}</span>
               </div>
             </div>
@@ -189,13 +202,11 @@ export default function NewLanding() {
                 }}>{referralLink.replace(/^https?:\/\//, '')}</span>
               </div>
               <button onClick={copyRef} style={{
-                background: 'linear-gradient(135deg, #0ea5e9, #38bdf8)',
-                color: '#fff', border: 'none',
+                background: '#fff', color: '#1e3a8a', border: 'none',
                 padding: '8px 14px', borderRadius: 6,
-                fontSize: 12, fontWeight: 600, cursor: 'pointer',
+                fontSize: 12, fontWeight: 500, cursor: 'pointer',
                 fontFamily: 'DM Sans, sans-serif',
                 display: 'inline-flex', alignItems: 'center', gap: 5,
-                boxShadow: '0 2px 8px rgba(14,165,233,0.3)',
               }}>
                 {refCopied ? <><Check size={12} /> Copied</> : <><Copy size={12} /> Copy</>}
               </button>
@@ -204,30 +215,29 @@ export default function NewLanding() {
         </section>
 
         {/* ── FAST START PILL ──────────────────────────────── */}
-        {/* Auto-hides when member has worked through the Fast Start guide.
-            Uses the platform's accent-cyan gradient so it reads as a
-            "primary action" moment, consistent with other CTAs on the site. */}
+        {/* Mockup spec: gradient cobalt → purple, communicates "onboarding
+            moment" — visually distinct from the hero. Auto-hides when all
+            three tabs are complete. */}
         {showFastStart(dash) && (
           <section style={{
-            background: 'linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%)',
+            background: 'linear-gradient(135deg, #2755d6 0%, #7c3aed 100%)',
             color: '#fff',
             borderRadius: 12,
             padding: '14px 20px',
-            marginBottom: 14,
+            marginBottom: 20,
             display: 'flex', alignItems: 'center', justifyContent: 'space-between',
             gap: 14, flexWrap: 'wrap',
-            boxShadow: '0 4px 14px rgba(14,165,233,0.25)',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
               <div style={{
                 width: 36, height: 36,
-                background: 'rgba(255,255,255,0.22)',
+                background: 'rgba(255,255,255,0.2)',
                 borderRadius: 9,
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0,
               }}><Rocket size={17} /></div>
               <div>
-                <div style={{ fontSize: 14, fontWeight: 600 }}>
+                <div style={{ fontSize: 14, fontWeight: 500 }}>
                   Fast Start · {fastStartProgress(dash)} of 3 done
                 </div>
                 <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.9)', marginTop: 2 }}>
@@ -236,25 +246,26 @@ export default function NewLanding() {
               </div>
             </div>
             <Link to="/training" style={{
-              background: '#fff', color: '#0ea5e9',
+              background: '#fff', color: '#1e3a8a',
               padding: '8px 16px', borderRadius: 7,
-              fontSize: 13, fontWeight: 600,
+              fontSize: 13, fontWeight: 500,
               textDecoration: 'none',
               display: 'inline-flex', alignItems: 'center', gap: 5,
             }}>Continue <ArrowRight size={13} /></Link>
           </section>
         )}
 
-        {/* ── THE 4 DOORS ──────────────────────────────────── */}
-        {/* 4 columns on desktop, collapses to 2 on tablet, 1 on mobile.
-            Cards stretch with viewport because of the 1fr columns. */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 14,
-          marginBottom: 20,
-        }}
-          className="sap-doors-grid">
+        {/* ── THE 4 DOORS (2×2) ─────────────────────────────── */}
+        {/* Mockup spec: grid-template-columns: 1fr 1fr → 2×2.
+            Cards are white (#fff) with slate-200 border. */}
+        <div
+          className="sap-new-doors-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: 14,
+            marginBottom: 20,
+          }}>
           {DOORS.map((door) => {
             const Icon = door.icon;
             return (
@@ -284,7 +295,11 @@ export default function NewLanding() {
                 }}>
                   <Icon size={22} color="#fff" />
                 </div>
-                <div style={{ ...TYPE.labelSmall, color: '#94a3b8', marginBottom: 3 }}>
+                <div style={{
+                  fontSize: 10, fontWeight: 500,
+                  letterSpacing: 1.3, textTransform: 'uppercase',
+                  color: '#94a3b8', marginBottom: 3,
+                }}>
                   {door.label}
                 </div>
                 <h3 style={{
@@ -315,66 +330,75 @@ export default function NewLanding() {
           })}
         </div>
 
-        {/* ── STREAM STRIP ──────────────────────────────────── */}
-        <div style={{ ...TYPE.labelSmall, color: '#94a3b8', marginBottom: 11 }}>
+        {/* ── STREAM STRIP (1×4) ────────────────────────────── */}
+        {/* Mockup spec: grid-template-columns: repeat(4, 1fr).
+            Cards are solid #2755d6 cobalt, 5px stream-coloured left
+            accent bar, small dot + pay-model label + big $ + name + context. */}
+        <div style={{
+          fontSize: 11, letterSpacing: 1.3, color: '#94a3b8',
+          textTransform: 'uppercase', fontWeight: 500, marginBottom: 11,
+        }}>
           Your 4 income streams · this month
         </div>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(4, 1fr)',
-          gap: 12,
-          marginBottom: 20,
-        }}
-          className="sap-streams-grid">
-          {STREAMS.map((stream) => {
-            const Icon = stream.icon;
-            return (
-              <div key={stream.id} style={{
-                background: 'linear-gradient(135deg, #172554 0%, #1e3a8a 100%)',
-                color: '#fff',
-                borderRadius: 12,
-                padding: '16px 18px',
-                position: 'relative',
-                overflow: 'hidden',
+        <div
+          className="sap-new-streams-grid"
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(4, 1fr)',
+            gap: 12,
+          }}>
+          {STREAMS.map((stream) => (
+            <div key={stream.id} style={{
+              background: '#2755d6',
+              color: '#fff',
+              borderRadius: 12,
+              padding: '16px 18px',
+              position: 'relative',
+              overflow: 'hidden',
+            }}>
+              {/* 5px left accent bar in the stream's brand colour */}
+              <div style={{
+                position: 'absolute', top: 0, left: 0, bottom: 0,
+                width: 5, background: stream.accent,
+              }} />
+              <div style={{
+                display: 'flex', justifyContent: 'space-between',
+                alignItems: 'center', marginBottom: 8,
               }}>
-                {/* Left accent bar — per design spec: stream colour appears ONLY
-                    as the accent bar on stream cards, never as the full fill */}
-                <div style={{
-                  position: 'absolute', top: 0, left: 0, bottom: 0,
-                  width: 5, background: stream.light,
+                {/* Dot matches the accent bar */}
+                <span style={{
+                  width: 10, height: 10, borderRadius: '50%',
+                  background: stream.accent,
                 }} />
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                  <Icon size={14} style={{ color: stream.light }} />
-                  <span style={{
-                    fontSize: 9, color: 'rgba(255,255,255,0.75)',
-                    letterSpacing: 0.5, textTransform: 'uppercase', fontWeight: 500,
-                  }}>{stream.payModel}</span>
-                </div>
-                <div style={{
-                  fontFamily: 'Sora, sans-serif',
-                  fontSize: 24, fontWeight: 500,
-                  letterSpacing: '-0.5px', lineHeight: 1.05, marginBottom: 2,
-                }}>{formatMoney(streamValue(stream.id))}</div>
-                <div style={{ fontSize: 12, fontWeight: 500, marginBottom: 1 }}>
-                  {stream.name}
-                </div>
+                <span style={{
+                  fontSize: 9, color: 'rgba(255,255,255,0.75)',
+                  letterSpacing: 0.5, textTransform: 'uppercase', fontWeight: 500,
+                }}>{stream.payModel}</span>
               </div>
-            );
-          })}
+              <div style={{
+                fontFamily: 'Sora, sans-serif',
+                fontSize: 26, fontWeight: 500,
+                letterSpacing: '-0.5px', lineHeight: 1.05, marginBottom: 3,
+              }}>{formatMoney(streamValue(stream.id))}</div>
+              <div style={{ fontSize: 13, fontWeight: 500, marginBottom: 2 }}>
+                {stream.name}
+              </div>
+              <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', lineHeight: 1.4 }}>
+                {streamContext(stream.id) || '\u00A0'}
+              </div>
+            </div>
+          ))}
         </div>
 
-        {/* Responsive breakpoints — 4 columns on desktop, 2 on tablet, 1 on mobile.
-            Using inline <style> so the rules ship with the component and don't
-            depend on any parent CSS file. Scoped via the .sap-doors-grid and
-            .sap-streams-grid class names. */}
+        {/* Responsive: tablet drops streams to 2 cols; phone drops
+            doors and streams to 1 col each. */}
         <style>{`
-          @media (max-width: 1024px) {
-            .sap-doors-grid { grid-template-columns: repeat(2, 1fr) !important; }
-            .sap-streams-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          @media (max-width: 900px) {
+            .sap-new-streams-grid { grid-template-columns: repeat(2, 1fr) !important; }
           }
           @media (max-width: 560px) {
-            .sap-doors-grid { grid-template-columns: 1fr !important; }
-            .sap-streams-grid { grid-template-columns: repeat(2, 1fr) !important; }
+            .sap-new-doors-grid { grid-template-columns: 1fr !important; }
+            .sap-new-streams-grid { grid-template-columns: 1fr !important; }
           }
         `}</style>
 
@@ -398,8 +422,6 @@ function fastStartProgress(dash) {
 }
 
 function showFastStart(dash) {
-  // Show the pill until all 3 steps are complete.
-  // If no data loaded yet, show it (new members need to see it immediately).
   if (!dash) return true;
   return fastStartProgress(dash) < 3;
 }
