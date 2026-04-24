@@ -325,31 +325,26 @@ export default function Dashboard() {
               fontSize: 13, color: 'rgba(255,255,255,0.75)',
               flexWrap: 'wrap',
             }}>
-              {/* Tier badge — subtle outline pill with metallic gradient
-                  TEXT (gold for Pro, silver for Basic). Text uses
-                  background-clip:text to fill the letterforms with the
-                  same 5-stop gradient used on new-member toast
-                  notifications, so Pro reads Pro everywhere on the
-                  platform. Reads user.membership_tier from useAuth
-                  ("pro" or "basic"), NOT d.tier_name (Grid tier). */}
+              {/* Tier badge — subtle outline matching the rest of the
+                  meta row, with solid gold (Pro) or silver (Basic) text
+                  inside. The outline stays neutral — only the letterforms
+                  carry the tier colour, which reads as premium without
+                  shouting. */}
               {user?.membership_tier && (
                 <span style={{
                   padding: '3px 11px', borderRadius: 6,
-                  background: 'rgba(255,255,255,0.08)',
-                  border: user.membership_tier === 'pro'
-                    ? '1px solid rgba(255,215,0,.35)'
-                    : '1px solid rgba(220,230,240,.3)',
-                  fontSize: 10, fontWeight: 900, letterSpacing: 1.4,
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  fontSize: 11, fontWeight: 900, letterSpacing: 1.4,
                   textTransform: 'uppercase',
-                  // Metallic gradient text effect — 5-stop gradient,
-                  // clipped to letterforms, text itself transparent.
-                  backgroundImage: user.membership_tier === 'pro'
-                    ? 'linear-gradient(135deg, #b8860b, #daa520 30%, #ffd700 50%, #daa520 70%, #b8860b), rgba(255,255,255,0.08)'
-                    : 'linear-gradient(135deg, #8e9aaf, #b8c4d4 30%, #d4dce8 50%, #b8c4d4 70%, #8e9aaf), rgba(255,255,255,0.08)',
-                  WebkitBackgroundClip: 'text',
-                  backgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  color: 'transparent',
+                  // Solid metallic colour for the letterforms — gold for
+                  // Pro (#ffd700 core gold), silver for Basic (#d4dce8
+                  // cool silver). Chosen from the mid-stop of the 5-stop
+                  // metallic gradients used on toast notifications.
+                  color: user.membership_tier === 'pro' ? '#ffd700' : '#d4dce8',
+                  textShadow: user.membership_tier === 'pro'
+                    ? '0 1px 2px rgba(0,0,0,0.4)'
+                    : '0 1px 2px rgba(0,0,0,0.3)',
                 }}>{user.membership_tier}</span>
               )}
               {/* Active since — date from user.created_at, added server-side
@@ -585,6 +580,9 @@ export default function Dashboard() {
             desc: t('dashboard.payItForwardDesc', { defaultValue: 'Gift a membership to someone starting out — help others while you grow.' }),
             link: '/pay-it-forward',
             color: 'var(--sap-pink)',
+            // Pale end-stop for the accent bar gradient (solid colour, NOT a nested
+            // gradient — nesting gradients produces invalid CSS that fails silently)
+            accentPale: '#fbcfe8',
             bg: 'linear-gradient(135deg,#fdf2f8,#fce7f3)',
             // Gift icon — same shape as used inside PayItForward.jsx itself
             icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="13" rx="2" fill="#fce7f3" stroke="var(--sap-pink)" strokeWidth="1.5"/><path d="M3 12h18" stroke="var(--sap-pink)" strokeWidth="1.5"/><path d="M12 8v13" stroke="var(--sap-pink)" strokeWidth="1.5"/><path d="M7.5 8c-1.5 0-2.5-1-2.5-2.5S6 3 7.5 3C9 3 10 4.5 12 8c2-3.5 3-5 4.5-5S19 4 19 5.5 18 8 16.5 8" stroke="var(--sap-pink)" strokeWidth="1.5" fill="#fdf2f8"/></svg>),
@@ -594,6 +592,7 @@ export default function Dashboard() {
             desc: t('dashboard.platformTourDesc'),
             link: '/tour',
             color: 'var(--sap-violet)',
+            accentPale: '#ddd6fe',
             bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
             icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="var(--sap-purple-pale)" stroke="var(--sap-violet)" strokeWidth="1.5"/><path d="M12 8v4l3 3" stroke="var(--sap-violet)" strokeWidth="2" strokeLinecap="round"/><path d="M9 3l3-1 3 1" stroke="var(--sap-purple-light)" strokeWidth="1.5" strokeLinecap="round"/></svg>),
           },
@@ -606,11 +605,12 @@ export default function Dashboard() {
             alignItems: 'center', textAlign: 'center', gap: 10,
             position: 'relative', overflow: 'hidden',
           }}>
-            {/* Top accent bar — matches the pattern on income-stream cards
-                and Smart Goals cards for visual consistency across the dashboard */}
+            {/* Top accent bar — matches income-stream card pattern. Uses
+                a.accentPale (SOLID colour) for the second gradient stop,
+                NOT a.bg (which is a full nested gradient — invalid CSS). */}
             <div style={{
               position: 'absolute', top: 0, left: 0, right: 0, height: 4,
-              background: `linear-gradient(90deg, ${a.color}, ${a.bg})`,
+              background: `linear-gradient(90deg, ${a.color}, ${a.accentPale})`,
               borderRadius: '14px 14px 0 0',
             }} />
             <div style={{ width: 68, height: 68, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', background: a.bg }}>
