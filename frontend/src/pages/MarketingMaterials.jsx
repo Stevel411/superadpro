@@ -25,8 +25,8 @@ var LANGUAGES = [
   { code: 'SW', flag: '🇰🇪', name: 'Kiswahili' },
 ];
 
-var SLIDE_NAMES = ['Intro — 4 Income Streams', 'Membership Referrals', 'Campaign Grid', 'Credit Nexus', 'Course Academy'];
-var SLIDE_COLORS = ['#172554', '#0ea5e9', '#22c55e', '#8b5cf6', '#ef4444'];
+var SLIDE_NAMES = ['Intro — 4 Income Streams', 'Membership Referrals', 'Annual vs Monthly', 'Campaign Grid', 'Grid Math', 'Credit Nexus', 'Credit Repurchase', 'Course Academy', 'Pass-Up System'];
+var SLIDE_COLORS = ['#172554', '#0ea5e9', '#0ea5e9', '#22c55e', '#22c55e', '#8b5cf6', '#8b5cf6', '#ef4444', '#ef4444'];
 
 export default function MarketingMaterials() {
   var { t, i18n } = useTranslation();
@@ -114,7 +114,7 @@ export default function MarketingMaterials() {
 
         {/* Slide preview strip */}
         <div style={{ padding: '16px 20px 6px' }}>
-          <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1.5, color: '#7a8899', textTransform: 'uppercase', marginBottom: 10 }}>Preview — 5 Slides</div>
+          <div style={{ fontSize: 13, fontWeight: 700, letterSpacing: 1.5, color: '#7a8899', textTransform: 'uppercase', marginBottom: 10 }}>Preview — 9 Slides</div>
           <div style={{ display: 'flex', gap: 8, overflowX: 'auto', paddingBottom: 8 }}>
             {SLIDE_NAMES.map(function(name, i) {
               return <div key={i} style={{
@@ -123,7 +123,7 @@ export default function MarketingMaterials() {
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
                 padding: 8, border: '1px solid #e2e8f0'
               }}>
-                <div style={{ fontSize: 18, marginBottom: 4 }}>{['📊', '💰', '🎯', '🌀', '🎓'][i]}</div>
+                <div style={{ fontSize: 18, marginBottom: 4 }}>{['📊', '💰', '💵', '🎯', '📈', '🌀', '♻️', '🎓', '⬆️'][i]}</div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', textAlign: 'center', lineHeight: 1.3 }}>{name}</div>
               </div>;
             })}
