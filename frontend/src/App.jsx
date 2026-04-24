@@ -51,7 +51,6 @@ import PlatformTour from './pages/PlatformTour';
 import TeamMessenger from './pages/TeamMessenger';
 import QRGenerator from './pages/QRGenerator';
 import SuperLinkPage from './pages/SuperLink';
-import NewLanding from './pages/NewLanding';
 
 // ── Lazy imports (heavy/rare pages only) ──
 const SuperPagesEditor = React.lazy(() => import('./pages/superpages/SuperPagesEditor'));
@@ -145,8 +144,6 @@ function AppRoutes() {
       {/* Fully migrated pages */}
       <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-      {/* 4-door redesign preview — Phase 1. See docs/redesign/ */}
-      <Route path="/new/landing" element={<ProtectedRoute><NewLanding /></ProtectedRoute>} />
       <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
       <Route path="/account/faq" element={<ProtectedRoute><InternalFAQ /></ProtectedRoute>} />

@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
 import { formatMoney } from '../utils/money';
 import AppLayout from '../components/layout/AppLayout';
-import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye, TrendingUp } from 'lucide-react';
+import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye, TrendingUp, Gauge } from 'lucide-react';
 import { TYPE } from '../styles/typography';
 import CoPilot from './CoPilot';
 
@@ -477,39 +477,114 @@ export default function Dashboard() {
         </>
       )}
 
-      {/* Quick Actions — 6 cards, same for all members */}
-      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>{t('dashboard.quickActions')}</div>
-      <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 20 }}>
+      {/* ── Explore the platform · 4 doors (1×4 row) ──
+          Dashboard is the member's entry point. These 4 doors are the
+          navigation out to each major area of the platform. The Command
+          Centre door stays on /dashboard (= "home") — other three take
+          the member outward. Uses only design-tokens.css variables,
+          same responsive pattern as income-grid (4 cols → 2 on mobile). */}
+      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>{t('dashboard.exploreSection', { defaultValue: 'Explore the platform' })}</div>
+      <div className="doors-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
-            name: t('dashboard.platformTour'), desc: t('dashboard.platformTourDesc'), link: '/tour',
-            color: 'var(--sap-violet)', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
-            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="var(--sap-purple-pale)" stroke="var(--sap-violet)" strokeWidth="1.5"/><path d="M12 8v4l3 3" stroke="var(--sap-violet)" strokeWidth="2" strokeLinecap="round"/><path d="M9 3l3-1 3 1" stroke="var(--sap-purple-light)" strokeWidth="1.5" strokeLinecap="round"/></svg>)
+            id: 'command-centre',
+            label: t('dashboard.doorCockpitLabel', { defaultValue: 'Your cockpit' }),
+            title: t('dashboard.doorCommandCentre', { defaultValue: 'Command Centre' }),
+            desc: t('dashboard.doorCommandCentreDesc', { defaultValue: "Daily briefing, team pulse, today's play." }),
+            count: t('dashboard.doorItems', { count: 9, defaultValue: '9 items' }),
+            colourVar: 'var(--sap-accent)',
+            icon: Gauge,
+            link: '/dashboard',
           },
+          {
+            id: 'income',
+            label: t('dashboard.doorEarnLabel', { defaultValue: 'Where you earn' }),
+            title: t('dashboard.doorIncome', { defaultValue: 'Income' }),
+            desc: t('dashboard.doorIncomeDesc', { defaultValue: 'Earnings, wallet, and the 4 streams that pay you.' }),
+            count: t('dashboard.doorItems', { count: 7, defaultValue: '7 items' }),
+            colourVar: 'var(--sap-green)',
+            icon: TrendingUp,
+            link: '/wallet',
+          },
+          {
+            id: 'tools',
+            label: t('dashboard.doorBuildLabel', { defaultValue: 'Build your business' }),
+            title: t('dashboard.doorTools', { defaultValue: 'Tools' }),
+            desc: t('dashboard.doorToolsDesc', { defaultValue: 'Creative Studio, Lead Finder, funnels, outreach.' }),
+            count: t('dashboard.doorTools', { count: 14, defaultValue: '14 tools' }),
+            colourVar: 'var(--sap-violet)',
+            icon: PenSquare,
+            link: '/marketing-materials',
+          },
+          {
+            id: 'learn',
+            label: t('dashboard.doorLearnLabel', { defaultValue: 'Skill up' }),
+            title: t('dashboard.doorLearn', { defaultValue: 'Learn' }),
+            desc: t('dashboard.doorLearnDesc', { defaultValue: 'Fast Start, comp plan, traffic guide, community.' }),
+            count: t('dashboard.doorItems', { count: 8, defaultValue: '8 items' }),
+            colourVar: 'var(--sap-amber-dark)',
+            icon: BookOpen,
+            link: '/training',
+          },
+        ].map((door) => {
+          const Icon = door.icon;
+          return (
+            <Link key={door.id} to={door.link} className="action-card" style={{
+              background: 'var(--sap-bg-card)',
+              border: '1px solid var(--sap-border)',
+              borderRadius: 14,
+              padding: 20,
+              boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
+              textDecoration: 'none',
+              transition: 'all 0.15s',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 0,
+              position: 'relative',
+              overflow: 'hidden',
+              color: 'inherit',
+            }}>
+              {/* 4px top accent in the door's brand colour — matches stream-card pattern */}
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: door.colourVar }} />
+              <div style={{ width: 44, height: 44, borderRadius: 11, background: door.colourVar, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
+                <Icon size={20} color="#fff" />
+              </div>
+              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.3, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 4 }}>
+                {door.label}
+              </div>
+              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 18, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.2px', marginBottom: 6 }}>
+                {door.title}
+              </div>
+              <div style={{...TYPE.bodyMuted, fontSize: 12, lineHeight: 1.5, marginBottom: 10, flex: 1}}>
+                {door.desc}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: '1px solid var(--sap-border-light)', fontSize: 12, fontWeight: 700 }}>
+                <span style={{ color: 'var(--sap-text-faint)' }}>{door.count}</span>
+                <span style={{ color: door.colourVar, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                  {t('dashboard.doorOpen', { defaultValue: 'Open' })} →
+                </span>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* ── Quick actions · 2 kept cards (Share Link + Platform Tour) ──
+          These are the two actions that don't belong inside a door:
+          - Share Your Link is the #1 growth action, deserves persistent prominence
+          - Platform Tour helps brand-new members get oriented */}
+      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>{t('dashboard.quickActions')}</div>
+      <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 14, marginBottom: 20 }}>
+        {[
           {
             name: t('dashboard.shareYourLink'), desc: t('dashboard.shareYourLinkDesc'), link: '/affiliate',
             color: 'var(--sap-accent)', bg: 'linear-gradient(135deg,#ecfeff,#cffafe)',
             icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="#cffafe" stroke="var(--sap-accent)" strokeWidth="1.5"/><path d="M8 12h8M12 8v8" stroke="#0891b2" strokeWidth="2" strokeLinecap="round"/><circle cx="18" cy="6" r="3" fill="var(--sap-accent)"/><text x="18" y="8" textAnchor="middle" fontSize="4" fontWeight="bold" fill="#fff">$</text></svg>)
           },
           {
-            name: t('dashboard.campaignTiers'), desc: t('dashboard.campaignTiersDesc'), link: '/campaign-tiers',
-            color: 'var(--sap-green)', bg: 'linear-gradient(135deg,#f0fdf4,#dcfce7)',
-            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="url(#qaZap)"/><defs><linearGradient id="qaZap" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse"><stop stopColor="#4ade80"/><stop offset="1" stopColor="var(--sap-green)"/></linearGradient></defs></svg>)
-          },
-          {
-            name: t('dashboard.compPlanAction'), desc: t('dashboard.compPlanDesc'), link: '/compensation-plan',
-            color: 'var(--sap-indigo)', bg: 'linear-gradient(135deg,#eef2ff,#e0e7ff)',
-            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="3" fill="#e0e7ff" stroke="var(--sap-indigo)" strokeWidth="1.5"/><path d="M8 8h8M8 12h6M8 16h4" stroke="var(--sap-indigo)" strokeWidth="1.5" strokeLinecap="round"/><circle cx="18" cy="6" r="4" fill="var(--sap-indigo)"/><text x="18" y="8" textAnchor="middle" fontSize="5" fontWeight="bold" fill="#fff">5</text></svg>)
-          },
-          {
-            name: t('dashboard.analytics'), desc: t('dashboard.analyticsDesc'), link: '/analytics',
-            color: 'var(--sap-purple)', bg: 'linear-gradient(135deg,#faf5ff,#ede9fe)',
-            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="3" y="14" width="4" height="7" rx="1" fill="#c4b5fd"/><rect x="10" y="9" width="4" height="12" rx="1" fill="var(--sap-purple-light)"/><rect x="17" y="4" width="4" height="17" rx="1" fill="var(--sap-purple)"/></svg>)
-          },
-          {
-            name: t('dashboard.myNetwork'), desc: t('dashboard.myNetworkDesc'), link: '/network',
-            color: 'var(--sap-pink)', bg: 'linear-gradient(135deg,#fdf2f8,#fce7f3)',
-            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" fill="#fce7f3" stroke="var(--sap-pink)" strokeWidth="1.5"/><circle cx="5" cy="18" r="3" fill="#f9a8d4"/><circle cx="19" cy="18" r="3" fill="#f9a8d4"/><path d="M12 12v3M8 15l-3 3M16 15l3 3" stroke="var(--sap-pink)" strokeWidth="1.5" strokeLinecap="round"/></svg>)
+            name: t('dashboard.platformTour'), desc: t('dashboard.platformTourDesc'), link: '/tour',
+            color: 'var(--sap-violet)', bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
+            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="var(--sap-purple-pale)" stroke="var(--sap-violet)" strokeWidth="1.5"/><path d="M12 8v4l3 3" stroke="var(--sap-violet)" strokeWidth="2" strokeLinecap="round"/><path d="M9 3l3-1 3 1" stroke="var(--sap-purple-light)" strokeWidth="1.5" strokeLinecap="round"/></svg>)
           },
         ].map((a, i) => (
           <Link key={i} to={a.link} className="action-card" style={{
@@ -594,6 +669,7 @@ export default function Dashboard() {
         .action-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16)!important;transform:translateY(-3px)}
         @media(max-width:767px){
           .income-grid{grid-template-columns:repeat(2,1fr)!important}
+          .doors-grid{grid-template-columns:repeat(2,1fr)!important}
           .actions-grid{grid-template-columns:repeat(2,1fr)!important}
           .goals-grid{grid-template-columns:1fr!important}
           .bottom-grid{grid-template-columns:1fr!important}
