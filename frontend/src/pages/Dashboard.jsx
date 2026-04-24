@@ -325,15 +325,28 @@ export default function Dashboard() {
               fontSize: 13, color: 'rgba(255,255,255,0.75)',
               flexWrap: 'wrap',
             }}>
-              {/* Tier badge */}
-              {d.tier_name && (
+              {/* Tier badge — metallic gold for Pro, silver for Basic.
+                  Uses the same 5-stop gradients as new-member toast
+                  notifications (lines ~784) so the treatment is consistent
+                  across the platform. Reads user.membership_tier from
+                  useAuth (authoritative: "pro" or "basic"), NOT d.tier_name
+                  which is the Grid tier name (Starter/Builder/etc). */}
+              {user?.membership_tier && (
                 <span style={{
                   padding: '3px 10px', borderRadius: 6,
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1px solid rgba(255,255,255,0.15)',
-                  fontSize: 10, fontWeight: 800, letterSpacing: 1.2,
-                  textTransform: 'uppercase', color: '#fff',
-                }}>{d.tier_name}</span>
+                  background: user.membership_tier === 'pro'
+                    ? 'linear-gradient(135deg, #b8860b, #daa520 30%, #ffd700 50%, #daa520 70%, #b8860b)'
+                    : 'linear-gradient(135deg, #8e9aaf, #b8c4d4 30%, #d4dce8 50%, #b8c4d4 70%, #8e9aaf)',
+                  border: user.membership_tier === 'pro'
+                    ? '1px solid rgba(255,235,150,.35)'
+                    : '1px solid rgba(220,230,240,.4)',
+                  boxShadow: user.membership_tier === 'pro'
+                    ? '0 2px 8px rgba(255,215,0,.3)'
+                    : '0 2px 8px rgba(180,195,215,.2)',
+                  fontSize: 10, fontWeight: 900, letterSpacing: 1.3,
+                  textTransform: 'uppercase',
+                  color: 'var(--sap-cobalt-deep)',
+                }}>{user.membership_tier}</span>
               )}
               {/* Streak */}
               {(d.streak_days || 0) > 0 && (
