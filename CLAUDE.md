@@ -1,5 +1,13 @@
 # CLAUDE.md — SuperAdPro Project Instructions
 
+## 🎯 Immediate Next Task
+
+**Command Centre redesign.** Steve wants to revisit the Command Centre concept with fresh thinking about both the dashboard AND the current menu/sidebar structure.
+
+Earlier mockups exist (`hub-dashboard.html`, `command-centre-desktop.html`, `command-centre-mockup.html`, `recruiting-hq-mockup.html`) — Steve has these files available and may upload them. Don't assume they're still directionally right; let him describe what he wants.
+
+Handover details at `/mnt/user-data/outputs/handover-command-centre-2026-04-24.md` if it still exists. Otherwise ask Steve to describe his ideas for the dashboard and menu. Four framing questions: (1) what are your ideas? (2) polish, reorganise, or rebuild? (3) who is it for — all members, tier-adaptive, or state-adaptive? (4) reference earlier mockups or start fresh?
+
 ## Project Overview
 
 SuperAdPro is a video advertising and affiliate marketing platform. FastAPI/Python backend, Jinja2 templates (99) + React frontend (42 pages), PostgreSQL, deployed on Railway auto-deploying from GitHub main branch.
@@ -234,7 +242,6 @@ The grid has 64 positions (8 levels × 8 wide). Every position that fills in YOU
 | 8 | $1,000 | $4,000 | $3,200 | **$7,200** |
 
 Grids auto-renew after completion — a new grid opens immediately and the cycle repeats.
-| 8 | $3,200 |
 
 **Spillover model:** When a member purchases a tier, they fill ONE seat in EVERY upline grid at that tier (walking up the full sponsor chain). One person, one seat per grid advance.
 
@@ -259,6 +266,29 @@ Grids auto-renew after completion — a new grid opens immediately and the cycle
 ### Stream 4: SuperMarket (Digital Products)
 - **Split:** Creator 50%, Affiliate 25%, Platform 25%
 - **Source:** `app/main.py` line ~2910
+
+## Marketing Materials — Downloadable Deck
+
+Members download a 9-slide "4 Income Streams" PowerPoint from `/marketing-materials` (React page `frontend/src/pages/MarketingMaterials.jsx`). Deck is available in 20 languages.
+
+**How it works:**
+- UI shows language picker (auto-detects from platform language on mount)
+- Slide preview strip shows 9 thumbnails with emoji + stream colour gradient
+- Download URL: `/static/downloads/income-streams/SuperAdPro-4-Income-Streams-{LANG}.pptx` (codes UPPERCASE — EN, ES, FR, DE, PT, IT, AR, ZH, JA, KO, RU, HI, NL, PL, TR, VI, TH, ID, TL, SW)
+- Files are static — pre-built per language, served directly from the repo
+
+**Deck design:**
+- 9 slides, 16:9 layout, stream-coloured backgrounds (cobalt S1, green S2, purple S3, amber S4)
+- Two concentric circles in stream colour upper-left (signature visual)
+- 30pt stream titles, consistent ~0.4" bottom breathing room across all slides
+- Brand terms kept in English in all languages: SuperAdPro, Pro, Basic, Campaign Grid, Credit Nexus, Course Academy, Creative Studio, Income Chains, Pass-Up, UNI-LEVEL, 1+Up
+
+**If regenerating the deck** (e.g. commission change requires updated numbers):
+- Build scripts are NOT in the repo — they live in `/home/claude/deck/` during active sessions and get cleaned up between sessions
+- To rebuild: use `build-i18n.js` reading strings from `strings/{lang}.json`
+- To update copy: change `strings/en.json` first, then translate to all 19 others
+- Always commit outputs to `static/downloads/income-streams/` overwriting existing files
+- If slide count changes, also update `SLIDE_NAMES`, `SLIDE_COLORS`, emoji array, and "Preview — N Slides" label in `MarketingMaterials.jsx`, then `npm run build` + commit `static/app/`
 
 ## Key Files
 
@@ -313,9 +343,48 @@ Pro-locked items (🔒): SuperPages, ProSeller AI, My Leads, Create Course — s
 - No opacity dimming on unselected cards — full vibrancy always
 - Test credentials: SuperAdPro / SuperAdPro@1411 (2FA enabled)
 
-## Current Status (Updated: 1 April 2026)
+## Current Status (Updated: 24 April 2026)
 
-### Recent Sessions: 30-31 March + 1 April 2026
+### Most recent session: 24 April 2026 — Deck Replacement
+
+**Completed:**
+- Built new 9-slide "4 Income Streams" deck from scratch (replaced old 5-slide version)
+- All commission numbers verified against `docs/commission-spec.md` (one $45/$540 fabrication caught by Steve and corrected mid-session)
+- Design refinements: two concentric circles per slide in signature stream colour, 30pt titles, consistent ~0.4" bottom breathing room across all 9 slides, no corner ticks, no ambient dots
+- Underlying layout bug fixed on S4 (grid caption was overlapping tier card — affected all languages including EN)
+- Translated deck into 19 other languages (ES, FR, DE, PT, IT, AR, ZH, JA, KO, RU, HI, NL, PL, TR, VI, TH, ID, TL, SW) — all Claude-generated, Spanish + Chinese spot-checked for layout, others built clean but not per-slide verified
+- 20 `.pptx` files deployed to `static/downloads/income-streams/SuperAdPro-4-Income-Streams-{LANG}.pptx`
+- Updated `frontend/src/pages/MarketingMaterials.jsx`: SLIDE_NAMES expanded from 5 to 9, SLIDE_COLORS to 9 matching stream colours, emoji array to 9, label "Preview — 5 Slides" → "Preview — 9 Slides"
+- Frontend bundle rebuilt, committed `static/app/`
+- Commit `9b10d1d` pushed to main, Railway auto-deployed
+
+**New 9-slide structure:**
+1. Cover — 4 Income Streams intro
+2. Membership · Opportunity (50%/UNL/2x, income card shows 3 Basic = $30/mo OR 3 Pro = $52.50/mo — never a single fabricated number)
+3. Membership · Annual vs Monthly (comparison: $175/mo vs $1,750 upfront)
+4. Campaign Grid · Opportunity (40%/6.25%/5%, 8×8 visual)
+5. Grid · Math (tier ladder + stacked total $103,976)
+6. Credit Nexus · Opportunity (15%/10%/10%, 3×3 matrix, 8 pack tiers)
+7. Nexus · Repurchase engine (4-step cycle, $200 pack example = $1,590)
+8. Course Academy · Opportunity (100%, 4 pass-ups, uses "Example" tier names because back office will hold real course names)
+9. Course Academy · How 1+Up Pass-Up works (12-cell sales 1-12 visualization)
+
+**Translation caveat to remember:** The 18 non-EN, non-ES, non-ZH languages were translated by Claude and not visually verified per-slide. If members report layout issues in a specific language, it's a fast fix — just need language + slide identified.
+
+**Pending (carried from earlier):**
+- NOWPayments Banxa KYB approval (card payments)
+- Non-www redirect (superadpro.com causes redirect loops)
+- Google Search Console — submit sitemap
+- SuperSeller E2E test
+- SuperScene: convert credit system to real USD wallet (pay-per-use)
+- TREASURY_PRIVATE_KEY + POL gas for auto-withdrawals
+- Duplicate Jinja2/React route cleanup (15 routes)
+- MaxMind GeoIP update (last: 17 Mar 2026)
+- Course Marketplace (Phase 2)
+- SuperMarket (Phase 2)
+- How It Works videos + screenshots
+
+### Previous session: 30-31 March + 1 April 2026
 
 **Completed:**
 - Stripe removed entirely — all payments via NOWPayments + direct USDT/USDC
@@ -334,19 +403,6 @@ Pro-locked items (🔒): SuperPages, ProSeller AI, My Leads, Create Course — s
 - Brevo domain auth + FROM_EMAIL configured
 - CreateCampaign page wrapped in AppLayout
 - Explainer video script written
-
-**Pending:**
-- NOWPayments Banxa KYB approval (card payments)
-- Non-www redirect (superadpro.com causes redirect loops)
-- Google Search Console — submit sitemap
-- SuperSeller E2E test
-- SuperScene: convert credit system to real USD wallet (pay-per-use)
-- TREASURY_PRIVATE_KEY + POL gas for auto-withdrawals
-- Duplicate Jinja2/React route cleanup (15 routes)
-- MaxMind GeoIP update (last: 17 Mar 2026)
-- Course Marketplace (Phase 2)
-- SuperMarket (Phase 2)
-- How It Works videos + screenshots
 
 ### Platform Stats
 - 99 Jinja2 templates, ~42 React pages, 370+ routes, 210+ API endpoints, 26 DB models
@@ -369,6 +425,4 @@ These providers require prepaid balances. If they run dry, member-facing feature
 - **Brevo** (app.brevo.com) — Powers: transactional emails, autoresponder sequences, weekly digest. Check sending limits.
 - **NOWPayments** — No prepaid balance needed (charges per transaction), but check for any holds or issues.
 - **xAI/Grok** — Check API usage limits and billing status.
-Recommended: Keep at least $50 float in fal.ai and EvoLink at all times. Enable low-balance email alerts in each provider dashboard.# deploy 1775403298
-# redeploy 1775405531
-# redeploy 1775424225
+Recommended: Keep at least $50 float in fal.ai and EvoLink at all times. Enable low-balance email alerts in each provider dashboard.
