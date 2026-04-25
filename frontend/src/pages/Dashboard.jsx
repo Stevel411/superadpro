@@ -491,7 +491,7 @@ export default function Dashboard() {
             count: t('dashboard.doorItems', { count: 9, defaultValue: '9 items' }),
             colourVar: 'var(--sap-accent)',
             icon: Gauge,
-            link: '/dashboard',
+            link: '/command-centre',
           },
           {
             id: 'income',

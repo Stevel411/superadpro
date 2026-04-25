@@ -531,6 +531,22 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "personal_referrals":user.personal_referrals or 0,
         "direct_referrals_count": db.query(User).filter(User.sponsor_id == user.id).count(),
         "total_team":        user.total_team or 0,
+        # ── Command Centre stats (added Apr 2026) ──
+        # active_team_members: count of direct referrals where is_active=True
+        # (membership paid + not paused). Used on /command-centre stat cards.
+        "active_team_members": db.query(User).filter(
+            User.sponsor_id == user.id, User.is_active == True
+        ).count(),
+        # earnings_this_month: sum of all paid commissions to this user since
+        # the start of the current calendar month. Used on /command-centre.
+        "earnings_this_month": float(
+            db.query(func.coalesce(func.sum(Commission.amount_usdt), 0))
+            .filter(
+                Commission.to_user_id == user.id,
+                Commission.amount_usdt > 0,
+                Commission.created_at >= datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+            ).scalar() or 0
+        ),
         "grid_stats":        stats,
         "active_grids":      active_grids,
         "recent_commissions":commissions,
@@ -2808,6 +2824,17 @@ def dashboard(request: Request):
     if _react_index.exists():
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
+
+# Command Centre — business management cockpit page (Apr 2026).
+# Reached from the "Command Centre" door on /dashboard. Required so
+# direct URL access and refresh work via React Router (CLAUDE.md rule).
+@app.get("/command-centre")
+def command_centre(request: Request):
+    """Serve React SPA."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
 # ── Missing React page routes ──
 @app.get("/network")
 @app.get("/api/dashboard")
