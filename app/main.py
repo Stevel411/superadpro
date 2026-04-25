@@ -3065,6 +3065,7 @@ def api_command_centre_directs(
     Never exposes earnings, balances, email addresses, or anything else
     that would let a sponsor see another member's financial activity.
     """
+    from sqlalchemy import func
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
     if bucket not in ("active", "lapsed", "never_paid"):
@@ -3122,6 +3123,7 @@ def api_command_centre_grid_team(
 ):
     """Distinct members occupying positions in any of THIS user's grids.
     Privacy-conscious — public profile fields only, no earnings."""
+    from sqlalchemy import func
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
@@ -3160,6 +3162,7 @@ def api_command_centre_nexus_team(
 ):
     """Distinct members in THIS user's credit matrix positions, excluding
     the owner themselves. Privacy-conscious — same shape as grid-team."""
+    from sqlalchemy import func
     if not user:
         return JSONResponse({"error": "Not authenticated"}, status_code=401)
 
