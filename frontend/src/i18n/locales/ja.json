@@ -3622,6 +3622,14 @@
     "rowCountry": "国",
     "bucketEmpty": "このカテゴリにはまだ誰もいません",
     "noSearchResults": "一致なし",
-    "actionsComingSoon": "メッセージと再アクティブ化機能は近日公開"
+    "actionsComingSoon": "メッセージと再アクティブ化機能は近日公開",
+    "nudgeButton": "再アクティブ化リマインダーを送信",
+    "nudgeButtonSent": "リマインダーを送信しました",
+    "nudgeButtonPending": "すでに未読のリマインダーがあります",
+    "nudgeButtonError": "送信できませんでした"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "あなたの SuperAdPro メンバーシップが失効しました",
+    "reengagement_lapsed_message": "あなたのネットワークと収益はまだここで待っています。下をクリックして再アクティブ化してください。"
   }
 }

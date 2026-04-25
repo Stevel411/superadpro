@@ -3622,6 +3622,14 @@
     "rowCountry": "الدولة",
     "bucketEmpty": "لا أحد في هذه الفئة بعد",
     "noSearchResults": "لا توجد نتائج",
-    "actionsComingSoon": "إجراءات الرسائل وإعادة التنشيط قريبًا"
+    "actionsComingSoon": "إجراءات الرسائل وإعادة التنشيط قريبًا",
+    "nudgeButton": "إرسال تذكير التفعيل",
+    "nudgeButtonSent": "تم إرسال التذكير",
+    "nudgeButtonPending": "لديهم بالفعل تذكير غير مقروء",
+    "nudgeButtonError": "تعذّر الإرسال"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "انتهت عضويتك في SuperAdPro",
+    "reengagement_lapsed_message": "شبكتك وأرباحك لا تزال هنا في انتظارك. اضغط أدناه للتفعيل من جديد."
   }
 }

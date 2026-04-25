@@ -3622,6 +3622,14 @@
     "rowCountry": "देश",
     "bucketEmpty": "इस श्रेणी में अभी कोई नहीं",
     "noSearchResults": "कोई मिलान नहीं",
-    "actionsComingSoon": "संदेश और पुनः सक्रियण क्रियाएं जल्द ही"
+    "actionsComingSoon": "संदेश और पुनः सक्रियण क्रियाएं जल्द ही",
+    "nudgeButton": "पुनः सक्रियण अनुस्मारक भेजें",
+    "nudgeButtonSent": "अनुस्मारक भेजा गया",
+    "nudgeButtonPending": "उनके पास पहले से एक अपठित अनुस्मारक है",
+    "nudgeButtonError": "भेज नहीं सका"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "आपकी SuperAdPro सदस्यता समाप्त हो गई है",
+    "reengagement_lapsed_message": "आपका नेटवर्क और कमाई अभी भी आपका इंतज़ार कर रहे हैं। पुनः सक्रिय करने के लिए नीचे क्लिक करें।"
   }
 }

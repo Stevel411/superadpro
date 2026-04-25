@@ -10349,9 +10349,18 @@ def onboarding_complete(user: User = Depends(get_current_user), db: Session = De
 #  NOTIFICATION SYSTEM
 # ═══════════════════════════════════════════════════════════════
 
-def send_notification(db: Session, user_id: int, type: str, icon: str, title: str, message: str, link: str = None):
-    """Create a notification for a user. Also invalidates their dashboard cache."""
-    notif = Notification(user_id=user_id, type=type, icon=icon, title=title, message=message, link=link)
+def send_notification(db: Session, user_id: int, type: str, icon: str, title: str, message: str, link: str = None, translation_key: str = None):
+    """Create a notification for a user. Also invalidates their dashboard cache.
+
+    If translation_key is provided, the frontend will translate the title/
+    message at display time using the user's locale. The literal title and
+    message values are still required (used as the English fallback for
+    older clients and for any i18n cache miss)."""
+    notif = Notification(
+        user_id=user_id, type=type, icon=icon,
+        title=title, message=message, link=link,
+        translation_key=translation_key,
+    )
     db.add(notif)
     # Invalidate dashboard cache so next load shows fresh data
     cache_invalidate_user(user_id)
@@ -10377,6 +10386,7 @@ def get_notifications(user: User = Depends(get_current_user), db: Session = Depe
             "message": n.message,
             "link": n.link,
             "is_read": n.is_read,
+            "translation_key": n.translation_key,
             "created_at": n.created_at.isoformat() if n.created_at else None,
         } for n in notifs],
         "unread_count": unread,
@@ -10594,6 +10604,142 @@ def cron_process_renewals_get(request: Request, secret: str = "", db: Session = 
         return {"ok": True, "renewed": len(results.get("renewed", [])), "failed": len(results.get("failed", []))}
     except Exception as e:
         return JSONResponse({"error": str(e)}, status_code=500)
+
+
+# ── Re-engagement notification (Layer 3) ─────────────────────────
+# Sends a single notification to lapsed members nudging them to come
+# back. Translation key handled client-side so each user sees the
+# message in their preferred language.
+#
+# Idempotent — uses a sentinel notification.type ("reengagement") plus
+# is_read=False to dedup. A user with an unread re-engagement
+# notification will not get another one. If they read it (clicks the
+# bell), reactivate, then lapse again, a fresh one will be created
+# next cron run because the previous one is now is_read=True OR the
+# user is_active=True flipped at some point in between.
+
+REENGAGEMENT_NOTIF_TYPE = "reengagement"
+REENGAGEMENT_TRANSLATION_KEY = "notification.reengagement_lapsed"
+REENGAGEMENT_LINK = "/upgrade"
+
+def _create_reengagement_notification(db: Session, user_id: int) -> bool:
+    """Create a re-engagement notification for the given user, IF they
+    don't already have an unread one. Returns True if created, False if
+    one was already pending. Caller is responsible for db.commit()."""
+    existing = db.query(Notification).filter(
+        Notification.user_id == user_id,
+        Notification.type == REENGAGEMENT_NOTIF_TYPE,
+        Notification.is_read == False,
+    ).first()
+    if existing:
+        return False
+    # Literal English fallback — frontend uses translation_key when
+    # available. These plain strings are what an old/stale client
+    # without the i18n key would display.
+    send_notification(
+        db=db,
+        user_id=user_id,
+        type=REENGAGEMENT_NOTIF_TYPE,
+        icon="💛",
+        title="Your SuperAdPro membership lapsed",
+        message="Your network and earnings are still here waiting for you. Click below to reactivate.",
+        link=REENGAGEMENT_LINK,
+        translation_key=REENGAGEMENT_TRANSLATION_KEY,
+    )
+    return True
+
+
+@app.get("/cron/reengagement-notifications")
+def cron_reengagement_notifications(request: Request, secret: str = "", db: Session = Depends(get_db)):
+    """Nightly cron — scans for lapsed users and creates a re-engagement
+    notification for each. Idempotent: users with an unread reengagement
+    notification are skipped. Auth via ?secret= query param.
+
+    "Lapsed" = is_active=False AND has at least one confirmed membership
+    Payment record. Same definition as the Command Centre Layer 1
+    'lapsed' bucket so members and the system see the same set."""
+    from fastapi.responses import JSONResponse
+    cron_secret = os.environ.get("CRON_SECRET", "")
+    if not cron_secret or secret != cron_secret:
+        return JSONResponse({"error": "Unauthorised"}, status_code=401)
+    try:
+        # Find every user that's currently lapsed
+        lapsed_user_ids = [row[0] for row in db.query(User.id).filter(
+            User.is_active == False,
+            User.id.in_(
+                db.query(Payment.from_user_id).filter(
+                    Payment.payment_type.like("membership%"),
+                    Payment.status.in_(["confirmed", "paid"]),
+                )
+            ),
+        ).all()]
+
+        created = 0
+        skipped = 0
+        for uid in lapsed_user_ids:
+            if _create_reengagement_notification(db, uid):
+                created += 1
+            else:
+                skipped += 1
+        db.commit()
+        return {"ok": True, "lapsed_total": len(lapsed_user_ids), "created": created, "skipped_already_pending": skipped}
+    except Exception as e:
+        db.rollback()
+        import traceback
+        logger.error(f"Re-engagement cron error: {traceback.format_exc()}")
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.post("/api/command-centre/nudge-lapsed")
+async def api_command_centre_nudge_lapsed(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Sponsor manual trigger: send a re-engagement notification to a
+    specific lapsed direct. Body: { "member_id": <int> }. The member
+    must be a direct referral of the requesting user AND currently
+    lapsed (is_active=False with confirmed payment history)."""
+    from fastapi.responses import JSONResponse
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    try:
+        body = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid request body"}, status_code=400)
+    member_id = body.get("member_id")
+    if not isinstance(member_id, int):
+        return JSONResponse({"error": "member_id required"}, status_code=400)
+
+    # Validate: target must be a direct referral of requesting user
+    target = db.query(User).filter(User.id == member_id, User.sponsor_id == user.id).first()
+    if not target:
+        # Privacy-safe error — don't tell sponsors whether the user exists at all,
+        # only whether they're allowed to nudge them.
+        return JSONResponse({"error": "Not your direct referral"}, status_code=403)
+
+    # Validate: target must be currently lapsed
+    if target.is_active:
+        return JSONResponse({"error": "This member is currently active — no nudge needed"}, status_code=400)
+    has_paid = db.query(Payment).filter(
+        Payment.from_user_id == target.id,
+        Payment.payment_type.like("membership%"),
+        Payment.status.in_(["confirmed", "paid"]),
+    ).first() is not None
+    if not has_paid:
+        # Never-paid users are a different bucket, different copy probably needed.
+        # For now, decline rather than send the wrong message.
+        return JSONResponse({"error": "This member has never paid — re-engagement notification only applies to lapsed members"}, status_code=400)
+
+    created = _create_reengagement_notification(db, target.id)
+    db.commit()
+    return {
+        "ok": True,
+        "created": created,
+        "already_pending": not created,
+    }
+
+
 @app.get("/cron/poll-payments")
 def cron_poll_payments_get(request: Request, secret: str = "", db: Session = Depends(get_db)):
     """GET version of crypto poll — auth via ?secret= query param for cron-job.org."""

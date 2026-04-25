@@ -3630,6 +3630,14 @@
     "rowCountry": "Страна",
     "bucketEmpty": "В этой категории пока никого",
     "noSearchResults": "Совпадений нет",
-    "actionsComingSoon": "Сообщения и реактивация скоро"
+    "actionsComingSoon": "Сообщения и реактивация скоро",
+    "nudgeButton": "Отправить напоминание о возобновлении",
+    "nudgeButtonSent": "Напоминание отправлено",
+    "nudgeButtonPending": "У них уже есть непрочитанное напоминание",
+    "nudgeButtonError": "Не удалось отправить"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "Ваше членство SuperAdPro истекло",
+    "reengagement_lapsed_message": "Ваша сеть и доходы по-прежнему ждут вас. Нажмите ниже, чтобы возобновить."
   }
 }

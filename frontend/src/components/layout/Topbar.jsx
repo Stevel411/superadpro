@@ -154,10 +154,16 @@ export default function Topbar({ title, subtitle, children, onMenuClick }) {
                       <div style={{ width: 32, height: 32, borderRadius: 8, background: bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, fontSize: 15 }}>{n.icon || '🔔'}</div>
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center justify-between gap-2">
-                          <div className="text-[13px] font-bold text-slate-900 truncate">{n.title}</div>
+                          <div className="text-[13px] font-bold text-slate-900 truncate">{
+                            // If notification has translation_key, render localised string;
+                            // otherwise show the literal title (back-compat with old data).
+                            n.translation_key ? t(n.translation_key + '_title', { defaultValue: n.title }) : n.title
+                          }</div>
                           <div className="text-[9px] text-slate-300 whitespace-nowrap flex-shrink-0">{timeAgo}</div>
                         </div>
-                        <div className="text-[12px] text-slate-500 mt-0.5 leading-relaxed">{n.message}</div>
+                        <div className="text-[12px] text-slate-500 mt-0.5 leading-relaxed">{
+                          n.translation_key ? t(n.translation_key + '_message', { defaultValue: n.message }) : n.message
+                        }</div>
                       </div>
                     </div>
                     <button onClick={(e) => { e.stopPropagation(); dismissOne(n.id); }}

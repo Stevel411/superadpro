@@ -3622,6 +3622,14 @@
     "rowCountry": "Ülke",
     "bucketEmpty": "Bu kategoride henüz kimse yok",
     "noSearchResults": "Eşleşme yok",
-    "actionsComingSoon": "Mesaj ve yeniden aktifleştirme yakında"
+    "actionsComingSoon": "Mesaj ve yeniden aktifleştirme yakında",
+    "nudgeButton": "Yeniden etkinleştirme hatırlatması gönder",
+    "nudgeButtonSent": "Hatırlatma gönderildi",
+    "nudgeButtonPending": "Zaten okunmamış bir hatırlatmaları var",
+    "nudgeButtonError": "Gönderilemedi"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "SuperAdPro üyeliğiniz sona erdi",
+    "reengagement_lapsed_message": "Ağınız ve kazançlarınız hâlâ sizi bekliyor. Yeniden etkinleştirmek için aşağıya tıklayın."
   }
 }

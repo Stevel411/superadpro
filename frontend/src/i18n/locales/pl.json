@@ -3622,6 +3622,14 @@
     "rowCountry": "Kraj",
     "bucketEmpty": "Nikogo w tej kategorii",
     "noSearchResults": "Brak wyników",
-    "actionsComingSoon": "Akcje wiadomości i reaktywacji wkrótce"
+    "actionsComingSoon": "Akcje wiadomości i reaktywacji wkrótce",
+    "nudgeButton": "Wyślij przypomnienie o reaktywacji",
+    "nudgeButtonSent": "Przypomnienie wysłane",
+    "nudgeButtonPending": "Mają już nieprzeczytane przypomnienie",
+    "nudgeButtonError": "Nie udało się wysłać"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "Twoje członkostwo SuperAdPro wygasło",
+    "reengagement_lapsed_message": "Twoja sieć i zarobki nadal na Ciebie czekają. Kliknij poniżej, aby reaktywować."
   }
 }

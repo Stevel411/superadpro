@@ -3630,6 +3630,14 @@
     "rowCountry": "Paese",
     "bucketEmpty": "Nessuno in questa categoria ancora",
     "noSearchResults": "Nessun risultato",
-    "actionsComingSoon": "Azioni di messaggio e riattivazione presto"
+    "actionsComingSoon": "Azioni di messaggio e riattivazione presto",
+    "nudgeButton": "Invia promemoria di riattivazione",
+    "nudgeButtonSent": "Promemoria inviato",
+    "nudgeButtonPending": "Hanno già un promemoria non letto",
+    "nudgeButtonError": "Impossibile inviare"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "La tua iscrizione SuperAdPro è scaduta",
+    "reengagement_lapsed_message": "La tua rete e i tuoi guadagni ti stanno ancora aspettando. Clicca qui sotto per riattivare."
   }
 }

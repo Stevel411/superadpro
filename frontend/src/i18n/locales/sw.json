@@ -3622,6 +3622,14 @@
     "rowCountry": "Nchi",
     "bucketEmpty": "Bado hakuna mtu katika kategoria hii",
     "noSearchResults": "Hakuna kupatana",
-    "actionsComingSoon": "Vitendo vya ujumbe na kuwasha tena vinakuja hivi karibuni"
+    "actionsComingSoon": "Vitendo vya ujumbe na kuwasha tena vinakuja hivi karibuni",
+    "nudgeButton": "Tuma kikumbusho cha kuwasha tena",
+    "nudgeButtonSent": "Kikumbusho kimetumwa",
+    "nudgeButtonPending": "Tayari wana kikumbusho ambacho hakijasomwa",
+    "nudgeButtonError": "Imeshindwa kutuma"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "Uanachama wako wa SuperAdPro umemalizika",
+    "reengagement_lapsed_message": "Mtandao wako na mapato yako bado yanakusubiri. Bofya hapa chini ili kuwasha tena."
   }
 }

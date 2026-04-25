@@ -3622,6 +3622,14 @@
     "rowCountry": "国家",
     "bucketEmpty": "此类别中还没有人",
     "noSearchResults": "无匹配",
-    "actionsComingSoon": "消息和重新激活操作即将推出"
+    "actionsComingSoon": "消息和重新激活操作即将推出",
+    "nudgeButton": "发送重新激活提醒",
+    "nudgeButtonSent": "提醒已发送",
+    "nudgeButtonPending": "他们已经有一条未读提醒",
+    "nudgeButtonError": "无法发送"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "您的 SuperAdPro 会员已过期",
+    "reengagement_lapsed_message": "您的网络和收益仍在等您。点击下方重新激活。"
   }
 }

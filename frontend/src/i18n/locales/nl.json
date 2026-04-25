@@ -3630,6 +3630,14 @@
     "rowCountry": "Land",
     "bucketEmpty": "Nog niemand in deze categorie",
     "noSearchResults": "Geen resultaten",
-    "actionsComingSoon": "Bericht- en reactivatie-acties binnenkort"
+    "actionsComingSoon": "Bericht- en reactivatie-acties binnenkort",
+    "nudgeButton": "Heractiveringsherinnering sturen",
+    "nudgeButtonSent": "Herinnering verzonden",
+    "nudgeButtonPending": "Ze hebben al een ongelezen herinnering",
+    "nudgeButtonError": "Kon niet verzenden"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "Je SuperAdPro-lidmaatschap is verlopen",
+    "reengagement_lapsed_message": "Je netwerk en inkomsten staan nog op je te wachten. Klik hieronder om te reactiveren."
   }
 }

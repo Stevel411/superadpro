@@ -3622,6 +3622,14 @@
     "rowCountry": "Bansa",
     "bucketEmpty": "Wala pang nasa kategoryang ito",
     "noSearchResults": "Walang tugma",
-    "actionsComingSoon": "Mensahe at re-activation actions paparating na"
+    "actionsComingSoon": "Mensahe at re-activation actions paparating na",
+    "nudgeButton": "Magpadala ng paalala sa reactivation",
+    "nudgeButtonSent": "Naipadala ang paalala",
+    "nudgeButtonPending": "May hindi pa nababasang paalala sila",
+    "nudgeButtonError": "Hindi maipadala"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "Nag-expire na ang iyong SuperAdPro membership",
+    "reengagement_lapsed_message": "Ang iyong network at kita ay nakaabang pa rin para sa iyo. I-click sa ibaba upang i-reactivate."
   }
 }

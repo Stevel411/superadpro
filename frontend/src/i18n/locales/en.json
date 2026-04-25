@@ -3686,6 +3686,14 @@
     "rowCountry": "Country",
     "bucketEmpty": "Nobody in this bucket yet",
     "noSearchResults": "No matches",
-    "actionsComingSoon": "Message and re-activation actions coming soon"
+    "actionsComingSoon": "Message and re-activation actions coming soon",
+    "nudgeButton": "Send re-engagement reminder",
+    "nudgeButtonSent": "Reminder sent",
+    "nudgeButtonPending": "They already have an unread reminder",
+    "nudgeButtonError": "Could not send"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "Your SuperAdPro membership lapsed",
+    "reengagement_lapsed_message": "Your network and earnings are still here waiting for you. Click below to reactivate."
   }
 }

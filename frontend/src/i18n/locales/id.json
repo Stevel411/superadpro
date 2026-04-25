@@ -3622,6 +3622,14 @@
     "rowCountry": "Negara",
     "bucketEmpty": "Belum ada orang di kategori ini",
     "noSearchResults": "Tidak ada hasil",
-    "actionsComingSoon": "Aksi pesan dan reaktivasi segera hadir"
+    "actionsComingSoon": "Aksi pesan dan reaktivasi segera hadir",
+    "nudgeButton": "Kirim pengingat reaktivasi",
+    "nudgeButtonSent": "Pengingat terkirim",
+    "nudgeButtonPending": "Mereka sudah memiliki pengingat yang belum dibaca",
+    "nudgeButtonError": "Tidak dapat mengirim"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "Keanggotaan SuperAdPro Anda telah berakhir",
+    "reengagement_lapsed_message": "Jaringan dan penghasilan Anda masih menunggu. Klik di bawah untuk mengaktifkan kembali."
   }
 }

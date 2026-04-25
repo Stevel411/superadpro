@@ -3630,6 +3630,14 @@
     "rowCountry": "País",
     "bucketEmpty": "Ninguém nesta categoria ainda",
     "noSearchResults": "Sem correspondências",
-    "actionsComingSoon": "Ações de mensagem e reativação em breve"
+    "actionsComingSoon": "Ações de mensagem e reativação em breve",
+    "nudgeButton": "Enviar lembrete de reativação",
+    "nudgeButtonSent": "Lembrete enviado",
+    "nudgeButtonPending": "Eles já têm um lembrete não lido",
+    "nudgeButtonError": "Não foi possível enviar"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "Sua assinatura SuperAdPro expirou",
+    "reengagement_lapsed_message": "Sua rede e seus ganhos ainda estão aqui esperando por você. Clique abaixo para reativar."
   }
 }

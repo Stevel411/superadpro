@@ -720,6 +720,11 @@ class Notification(Base):
     link        = Column(String, nullable=True)          # optional action URL
     is_read     = Column(Boolean, default=False)
     created_at  = Column(DateTime, default=datetime.utcnow)
+    # Optional i18n key. When present, frontend translates title/message
+    # against the user's current locale instead of using the literal text.
+    # See Layer 3 of Command Centre — re-engagement notifications need
+    # to render in the recipient's language regardless of when created.
+    translation_key = Column(String, nullable=True)
 
     user = relationship("User", backref="notifications")
 
@@ -1465,6 +1470,12 @@ def run_migrations():
         )""",
         "CREATE INDEX IF NOT EXISTS idx_member_showcase_approved ON member_showcase(approved, artifact_type, sort_order)",
         "CREATE INDEX IF NOT EXISTS idx_member_showcase_user ON member_showcase(user_id)",
+        # ── Layer 3 (Apr 2026): translatable notifications ──
+        # Optional translation key — when present, frontend looks it up
+        # against the user's current i18n locale so notifications speak
+        # the user's language. Falls back to literal title/message
+        # columns when null (backwards-compatible with existing data).
+        "ALTER TABLE notifications ADD COLUMN IF NOT EXISTS translation_key VARCHAR",
     ]
     results = []
     with engine.connect() as conn:

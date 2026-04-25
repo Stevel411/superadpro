@@ -3630,6 +3630,14 @@
     "rowCountry": "Pays",
     "bucketEmpty": "Personne dans cette catégorie",
     "noSearchResults": "Aucune correspondance",
-    "actionsComingSoon": "Actions de message et réactivation bientôt"
+    "actionsComingSoon": "Actions de message et réactivation bientôt",
+    "nudgeButton": "Envoyer un rappel de réactivation",
+    "nudgeButtonSent": "Rappel envoyé",
+    "nudgeButtonPending": "Ils ont déjà un rappel non lu",
+    "nudgeButtonError": "Impossible d'envoyer"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "Votre abonnement SuperAdPro a expiré",
+    "reengagement_lapsed_message": "Votre réseau et vos revenus vous attendent. Cliquez ci-dessous pour réactiver."
   }
 }

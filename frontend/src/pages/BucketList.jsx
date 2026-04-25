@@ -21,7 +21,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
-import { apiGet } from '../utils/api';
+import { apiGet, apiPost } from '../utils/api';
 import { TYPE } from '../styles/typography';
 import { Search, Filter, ArrowLeft, Users } from 'lucide-react';
 
@@ -151,6 +151,40 @@ export default function BucketList(props) {
   const [filterOpen, setFilterOpen] = useState(false);
   const [sortBy, setSortBy] = useState('recent');
   const [expandedId, setExpandedId] = useState(null);
+  // Track per-member nudge state. Keys are member IDs, values are
+  // 'sending' | 'sent' | 'pending' | 'error'. Lets the UI show feedback
+  // after a sponsor clicks "send re-engagement reminder" without
+  // re-fetching the whole list.
+  const [nudgeStatus, setNudgeStatus] = useState({});
+
+  // Send re-engagement nudge to a specific direct.
+  // Only valid for lapsed members — UI button only renders for them.
+  function sendNudge(memberId) {
+    setNudgeStatus(function(prev) {
+      var next = Object.assign({}, prev);
+      next[memberId] = 'sending';
+      return next;
+    });
+    apiPost('/api/command-centre/nudge-lapsed', { member_id: memberId })
+      .then(function(r) {
+        setNudgeStatus(function(prev) {
+          var next = Object.assign({}, prev);
+          // 'created' = new notification queued; 'pending' = user already had unread one
+          next[memberId] = r && r.created ? 'sent' : 'pending';
+          return next;
+        });
+      })
+      .catch(function(err) {
+        if (typeof console !== 'undefined' && console.error) {
+          console.error('[BucketList] nudge failed for member', memberId, err);
+        }
+        setNudgeStatus(function(prev) {
+          var next = Object.assign({}, prev);
+          next[memberId] = 'error';
+          return next;
+        });
+      });
+  }
 
   useEffect(function() {
     if (!config) {
@@ -447,10 +481,52 @@ export default function BucketList(props) {
                         <div><strong style={{ color: 'var(--sap-text-primary)' }}>{t('commandCentre.rowCountry', { defaultValue: 'Country' })}:</strong> {flag} {m.country}</div>
                       )}
                     </div>
-                    {/* Layer 3 placeholder */}
-                    <div style={{ marginTop: 14, ...TYPE.bodyMuted, fontSize: 11, fontStyle: 'italic' }}>
-                      {t('commandCentre.actionsComingSoon', { defaultValue: 'Message and re-activation actions coming soon' })}
-                    </div>
+                    {/* Send re-engagement nudge — only for lapsed bucket.
+                        Other buckets have nothing to do here yet. */}
+                    {bucketKey === 'directs-lapsed' && (() => {
+                      var status = nudgeStatus[m.id];
+                      var label, color, disabled;
+                      if (status === 'sending') {
+                        label = t('commandCentre.nudgeButton');
+                        color = 'var(--sap-text-faint)';
+                        disabled = true;
+                      } else if (status === 'sent') {
+                        label = '✓ ' + t('commandCentre.nudgeButtonSent');
+                        color = 'var(--sap-green)';
+                        disabled = true;
+                      } else if (status === 'pending') {
+                        label = t('commandCentre.nudgeButtonPending');
+                        color = 'var(--sap-text-muted)';
+                        disabled = true;
+                      } else if (status === 'error') {
+                        label = t('commandCentre.nudgeButtonError');
+                        color = '#dc2626';
+                        disabled = false;
+                      } else {
+                        label = t('commandCentre.nudgeButton');
+                        color = 'var(--sap-amber-dark)';
+                        disabled = false;
+                      }
+                      return (
+                        <button
+                          onClick={function(e) { e.stopPropagation(); sendNudge(m.id); }}
+                          disabled={disabled}
+                          style={{
+                            marginTop: 14,
+                            padding: '8px 16px', borderRadius: 8,
+                            background: disabled ? 'var(--sap-bg-card)' : color,
+                            color: disabled ? color : '#fff',
+                            border: '1px solid ' + color,
+                            fontSize: 12, fontWeight: 700,
+                            cursor: disabled ? 'default' : 'pointer',
+                            fontFamily: 'inherit',
+                            display: 'inline-flex', alignItems: 'center', gap: 6,
+                            transition: 'all 0.15s',
+                          }}>
+                          {label}
+                        </button>
+                      );
+                    })()}
                   </div>
                 )}
               </div>

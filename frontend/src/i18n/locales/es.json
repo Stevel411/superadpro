@@ -3630,6 +3630,14 @@
     "rowCountry": "País",
     "bucketEmpty": "Nadie en esta categoría aún",
     "noSearchResults": "Sin coincidencias",
-    "actionsComingSoon": "Acciones de mensaje y reactivación próximamente"
+    "actionsComingSoon": "Acciones de mensaje y reactivación próximamente",
+    "nudgeButton": "Enviar recordatorio de reactivación",
+    "nudgeButtonSent": "Recordatorio enviado",
+    "nudgeButtonPending": "Ya tienen un recordatorio sin leer",
+    "nudgeButtonError": "No se pudo enviar"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "Tu membresía SuperAdPro caducó",
+    "reengagement_lapsed_message": "Tu red y tus ganancias siguen aquí esperándote. Haz clic abajo para reactivar."
   }
 }

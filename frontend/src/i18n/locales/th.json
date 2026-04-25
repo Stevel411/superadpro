@@ -3622,6 +3622,14 @@
     "rowCountry": "ประเทศ",
     "bucketEmpty": "ยังไม่มีใครในหมวดนี้",
     "noSearchResults": "ไม่พบผลลัพธ์",
-    "actionsComingSoon": "การส่งข้อความและการเปิดใช้งานใหม่เร็วๆ นี้"
+    "actionsComingSoon": "การส่งข้อความและการเปิดใช้งานใหม่เร็วๆ นี้",
+    "nudgeButton": "ส่งการแจ้งเตือนการเปิดใช้งานใหม่",
+    "nudgeButtonSent": "ส่งการแจ้งเตือนแล้ว",
+    "nudgeButtonPending": "พวกเขามีการแจ้งเตือนที่ยังไม่ได้อ่านอยู่แล้ว",
+    "nudgeButtonError": "ไม่สามารถส่งได้"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "การเป็นสมาชิก SuperAdPro ของคุณหมดอายุ",
+    "reengagement_lapsed_message": "เครือข่ายและรายได้ของคุณยังรออยู่ คลิกด้านล่างเพื่อเปิดใช้งานอีกครั้ง"
   }
 }

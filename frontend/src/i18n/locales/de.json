@@ -3630,6 +3630,14 @@
     "rowCountry": "Land",
     "bucketEmpty": "Noch niemand in dieser Kategorie",
     "noSearchResults": "Keine Treffer",
-    "actionsComingSoon": "Nachrichten- und Reaktivierungsaktionen bald verfügbar"
+    "actionsComingSoon": "Nachrichten- und Reaktivierungsaktionen bald verfügbar",
+    "nudgeButton": "Reaktivierungs-Erinnerung senden",
+    "nudgeButtonSent": "Erinnerung gesendet",
+    "nudgeButtonPending": "Sie haben bereits eine ungelesene Erinnerung",
+    "nudgeButtonError": "Konnte nicht gesendet werden"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "Ihre SuperAdPro Mitgliedschaft ist abgelaufen",
+    "reengagement_lapsed_message": "Ihr Netzwerk und Ihre Einnahmen warten noch auf Sie. Klicken Sie unten, um zu reaktivieren."
   }
 }

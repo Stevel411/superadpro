@@ -3622,6 +3622,14 @@
     "rowCountry": "국가",
     "bucketEmpty": "이 카테고리에 아직 아무도 없습니다",
     "noSearchResults": "일치 항목 없음",
-    "actionsComingSoon": "메시지 및 재활성화 작업이 곧 추가됩니다"
+    "actionsComingSoon": "메시지 및 재활성화 작업이 곧 추가됩니다",
+    "nudgeButton": "재활성화 알림 보내기",
+    "nudgeButtonSent": "알림이 전송됨",
+    "nudgeButtonPending": "이미 읽지 않은 알림이 있습니다",
+    "nudgeButtonError": "전송할 수 없습니다"
+  },
+  "notification": {
+    "reengagement_lapsed_title": "SuperAdPro 멤버십이 만료되었습니다",
+    "reengagement_lapsed_message": "네트워크와 수익이 아직 기다리고 있습니다. 아래를 클릭하여 다시 활성화하세요."
   }
 }
