@@ -9595,12 +9595,11 @@ YOUR PERSONALITY & RULES:
 #  CAMPAIGN ANALYTICS
 # ═══════════════════════════════════════════════════════════════
 
-@app.get("/analytics")
-def analytics_page(request: Request):
-    """Serve React SPA."""
-    if _react_index.exists():
-        return HTMLResponse(_react_index.read_text())
-    return HTMLResponse("<h1>Loading...</h1>")
+# (Note: /analytics route is registered earlier in this file at the
+# Command Centre section. The duplicate handler that used to live here
+# was identical and has been removed. _old_analytics_DISABLED below is
+# legacy code from an earlier server-rendered version — kept for now
+# as historical reference but unreachable.)
 
 def _old_analytics_DISABLED(request: Request, user: User = Depends(get_current_user),
                    db: Session = Depends(get_db)):
