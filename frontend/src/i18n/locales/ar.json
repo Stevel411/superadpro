@@ -3576,5 +3576,38 @@
       "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
       "credits": "credits"
     }
+  },
+  "commandCentre": {
+    "pageTitle": "Command Centre",
+    "eyebrow": "Command Centre الخاص بك",
+    "backToDashboard": "العودة إلى Dashboard",
+    "directsHeader": "إحالاتك المباشرة",
+    "structuresHeader": "هياكل الدخل الخاصة بك",
+    "manageHeader": "أدر عملك",
+    "performanceHeader": "الأداء",
+    "activeDirectsLabel": "نشط",
+    "activeDirectsSublabel": "أعضاء يدفعون",
+    "lapsedDirectsLabel": "منتهي",
+    "lapsedDirectsSublabel": "كانوا يدفعون، توقفوا",
+    "neverPaidDirectsLabel": "لم يدفعوا أبدًا",
+    "neverPaidDirectsSublabel": "سجلوا لكن لم ينشطوا",
+    "gridTeamLabel": "في Grid الخاص بك",
+    "gridTeamSublabel": "أشخاص في هياكل 8×8 الخاصة بك",
+    "nexusTeamLabel": "في Nexus الخاص بك",
+    "nexusTeamSublabel": "أشخاص في مصفوفات 3×3 الخاصة بك",
+    "earningsThisMonth": "الأرباح هذا الشهر",
+    "earningsThisMonthSublabel": "عمولات هذا الشهر التقويمي",
+    "vsLastMonth": "مقابل الشهر الماضي",
+    "sameAsLastMonth": "نفس الشهر الماضي",
+    "viewFullTeamTitle": "عرض الفريق الكامل",
+    "viewFullTeamDesc": "شاهد الجميع في شبكتك مع الحالة وتواريخ التسجيل والعمولات المكتسبة.",
+    "sendBroadcastTitle": "إرسال بث",
+    "sendBroadcastDesc": "راسل فريقك بالكامل دفعة واحدة — إعلانات، تحفيز، تحديثات تدريب.",
+    "leaderboardTitle": "عرض المتصدرين",
+    "leaderboardDesc": "الترتيب على المنصة حسب الإحالات وإكمال grid ومبيعات الدورات.",
+    "fullAnalyticsTitle": "لوحة التحليل الكاملة",
+    "fullAnalyticsDesc": "رسوم بيانية وتفاصيل وأداء الروابط وسجل السحوبات ونمو الفريق.",
+    "open": "فتح",
+    "view": "عرض"
   }
 }

@@ -3584,5 +3584,38 @@
       "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
       "credits": "credits"
     }
+  },
+  "commandCentre": {
+    "pageTitle": "Command Centre",
+    "eyebrow": "Jouw Command Centre",
+    "backToDashboard": "Terug naar Dashboard",
+    "directsHeader": "Jouw directe referrals",
+    "structuresHeader": "Jouw inkomensstructuren",
+    "manageHeader": "Beheer je bedrijf",
+    "performanceHeader": "Prestatie",
+    "activeDirectsLabel": "Actief",
+    "activeDirectsSublabel": "betalende leden",
+    "lapsedDirectsLabel": "Vervallen",
+    "lapsedDirectsSublabel": "betaalden, gestopt",
+    "neverPaidDirectsLabel": "Nooit betaald",
+    "neverPaidDirectsSublabel": "aangemeld maar niet geactiveerd",
+    "gridTeamLabel": "In jouw Grid",
+    "gridTeamSublabel": "mensen in jouw 8×8-structuren",
+    "nexusTeamLabel": "In jouw Nexus",
+    "nexusTeamSublabel": "mensen in jouw 3×3-matrices",
+    "earningsThisMonth": "Deze maand verdiend",
+    "earningsThisMonthSublabel": "commissies deze kalendermaand",
+    "vsLastMonth": "vs vorige maand",
+    "sameAsLastMonth": "gelijk aan vorige maand",
+    "viewFullTeamTitle": "Bekijk volledig team",
+    "viewFullTeamDesc": "Zie iedereen in je netwerk met status, aanmelddatums en verdiende commissies.",
+    "sendBroadcastTitle": "Verstuur broadcast",
+    "sendBroadcastDesc": "Bericht je hele team in één keer — aankondigingen, motivatie, updates.",
+    "leaderboardTitle": "Bekijk leaderboard",
+    "leaderboardDesc": "Ranglijst over het hele platform op referrals, grid-voltooiingen en verkopen.",
+    "fullAnalyticsTitle": "Volledig analyse-dashboard",
+    "fullAnalyticsDesc": "Grafieken, uitsplitsingen, link-prestaties, opnamegeschiedenis, teamgroei.",
+    "open": "Openen",
+    "view": "Bekijken"
   }
 }

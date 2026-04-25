@@ -3584,5 +3584,38 @@
       "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
       "credits": "credits"
     }
+  },
+  "commandCentre": {
+    "pageTitle": "Command Centre",
+    "eyebrow": "Votre Command Centre",
+    "backToDashboard": "Retour au Dashboard",
+    "directsHeader": "Vos parrainages directs",
+    "structuresHeader": "Vos structures de revenus",
+    "manageHeader": "Gérez votre business",
+    "performanceHeader": "Performance",
+    "activeDirectsLabel": "Actifs",
+    "activeDirectsSublabel": "membres payants",
+    "lapsedDirectsLabel": "Inactifs",
+    "lapsedDirectsSublabel": "payaient, ont arrêté",
+    "neverPaidDirectsLabel": "N'ont jamais payé",
+    "neverPaidDirectsSublabel": "inscrits mais jamais activés",
+    "gridTeamLabel": "Dans votre Grid",
+    "gridTeamSublabel": "personnes dans vos structures 8×8",
+    "nexusTeamLabel": "Dans votre Nexus",
+    "nexusTeamSublabel": "personnes dans vos matrices 3×3",
+    "earningsThisMonth": "Gagné ce mois-ci",
+    "earningsThisMonthSublabel": "commissions de ce mois calendaire",
+    "vsLastMonth": "vs mois dernier",
+    "sameAsLastMonth": "identique au mois dernier",
+    "viewFullTeamTitle": "Voir l'équipe complète",
+    "viewFullTeamDesc": "Voyez tous les membres de votre réseau avec leur statut, dates et commissions.",
+    "sendBroadcastTitle": "Envoyer un message",
+    "sendBroadcastDesc": "Messagez toute votre équipe d'un coup — annonces, motivation, mises à jour.",
+    "leaderboardTitle": "Voir le classement",
+    "leaderboardDesc": "Classement sur toute la plateforme par parrainages, grids complétés et ventes.",
+    "fullAnalyticsTitle": "Tableau d'analyse complet",
+    "fullAnalyticsDesc": "Graphiques, détails, performance des liens, historique de retraits, croissance d'équipe.",
+    "open": "Ouvrir",
+    "view": "Voir"
   }
 }

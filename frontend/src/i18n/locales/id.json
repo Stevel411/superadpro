@@ -3576,5 +3576,38 @@
       "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
       "credits": "credits"
     }
+  },
+  "commandCentre": {
+    "pageTitle": "Command Centre",
+    "eyebrow": "Command Centre Anda",
+    "backToDashboard": "Kembali ke Dashboard",
+    "directsHeader": "Referal langsung Anda",
+    "structuresHeader": "Struktur penghasilan Anda",
+    "manageHeader": "Kelola bisnis Anda",
+    "performanceHeader": "Kinerja",
+    "activeDirectsLabel": "Aktif",
+    "activeDirectsSublabel": "anggota yang membayar",
+    "lapsedDirectsLabel": "Kedaluwarsa",
+    "lapsedDirectsSublabel": "pernah bayar, berhenti",
+    "neverPaidDirectsLabel": "Belum pernah bayar",
+    "neverPaidDirectsSublabel": "mendaftar tapi belum aktif",
+    "gridTeamLabel": "Dalam Grid Anda",
+    "gridTeamSublabel": "orang dalam struktur 8×8 Anda",
+    "nexusTeamLabel": "Dalam Nexus Anda",
+    "nexusTeamSublabel": "orang dalam matriks 3×3 Anda",
+    "earningsThisMonth": "Pendapatan bulan ini",
+    "earningsThisMonthSublabel": "komisi bulan kalender ini",
+    "vsLastMonth": "vs bulan lalu",
+    "sameAsLastMonth": "sama seperti bulan lalu",
+    "viewFullTeamTitle": "Lihat tim lengkap",
+    "viewFullTeamDesc": "Lihat semua orang di jaringan dengan status, tanggal daftar, dan komisi.",
+    "sendBroadcastTitle": "Kirim broadcast",
+    "sendBroadcastDesc": "Kirim pesan ke seluruh tim sekaligus — pengumuman, motivasi, pembaruan.",
+    "leaderboardTitle": "Lihat papan peringkat",
+    "leaderboardDesc": "Peringkat seluruh platform berdasarkan referal, grid selesai, dan penjualan.",
+    "fullAnalyticsTitle": "Dasbor analitik lengkap",
+    "fullAnalyticsDesc": "Grafik, rincian, kinerja tautan, riwayat penarikan, pertumbuhan tim.",
+    "open": "Buka",
+    "view": "Lihat"
   }
 }

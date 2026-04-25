@@ -3576,5 +3576,38 @@
       "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
       "credits": "credits"
     }
+  },
+  "commandCentre": {
+    "pageTitle": "Command Centre",
+    "eyebrow": "당신의 Command Centre",
+    "backToDashboard": "Dashboard로 돌아가기",
+    "directsHeader": "직접 추천한 사람들",
+    "structuresHeader": "수익 구조",
+    "manageHeader": "비즈니스 관리",
+    "performanceHeader": "성과",
+    "activeDirectsLabel": "활성",
+    "activeDirectsSublabel": "결제 중인 회원",
+    "lapsedDirectsLabel": "만료됨",
+    "lapsedDirectsSublabel": "결제했지만 중단함",
+    "neverPaidDirectsLabel": "결제하지 않음",
+    "neverPaidDirectsSublabel": "가입했지만 활성화 안 함",
+    "gridTeamLabel": "당신의 Grid에",
+    "gridTeamSublabel": "8×8 구조의 사람들",
+    "nexusTeamLabel": "당신의 Nexus에",
+    "nexusTeamSublabel": "3×3 매트릭스의 사람들",
+    "earningsThisMonth": "이번 달 수익",
+    "earningsThisMonthSublabel": "이번 달 커미션",
+    "vsLastMonth": "지난 달 대비",
+    "sameAsLastMonth": "지난 달과 동일",
+    "viewFullTeamTitle": "전체 팀 보기",
+    "viewFullTeamDesc": "네트워크의 모든 사람을 상태, 가입일, 커미션과 함께 봅니다.",
+    "sendBroadcastTitle": "브로드캐스트 보내기",
+    "sendBroadcastDesc": "한 번에 전체 팀에게 메시지 — 공지, 동기 부여, 교육 업데이트.",
+    "leaderboardTitle": "리더보드 보기",
+    "leaderboardDesc": "추천, grid 완료, 코스 판매별 전체 플랫폼 순위.",
+    "fullAnalyticsTitle": "전체 분석 대시보드",
+    "fullAnalyticsDesc": "차트, 세부 사항, 링크 성과, 출금 기록, 팀 성장.",
+    "open": "열기",
+    "view": "보기"
   }
 }

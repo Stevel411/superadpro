@@ -3576,5 +3576,38 @@
       "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
       "credits": "credits"
     }
+  },
+  "commandCentre": {
+    "pageTitle": "Command Centre",
+    "eyebrow": "您的 Command Centre",
+    "backToDashboard": "返回 Dashboard",
+    "directsHeader": "您的直接推荐",
+    "structuresHeader": "您的收入结构",
+    "manageHeader": "管理您的业务",
+    "performanceHeader": "表现",
+    "activeDirectsLabel": "活跃",
+    "activeDirectsSublabel": "付费会员",
+    "lapsedDirectsLabel": "已失效",
+    "lapsedDirectsSublabel": "曾付费，已停止",
+    "neverPaidDirectsLabel": "从未付费",
+    "neverPaidDirectsSublabel": "已注册但未激活",
+    "gridTeamLabel": "在您的 Grid 中",
+    "gridTeamSublabel": "您的 8×8 结构中的人数",
+    "nexusTeamLabel": "在您的 Nexus 中",
+    "nexusTeamSublabel": "您的 3×3 矩阵中的人数",
+    "earningsThisMonth": "本月收入",
+    "earningsThisMonthSublabel": "本日历月的佣金",
+    "vsLastMonth": "对比上月",
+    "sameAsLastMonth": "与上月相同",
+    "viewFullTeamTitle": "查看完整团队",
+    "viewFullTeamDesc": "查看您网络中的所有人,包括状态、注册日期和已赚取的佣金。",
+    "sendBroadcastTitle": "发送广播",
+    "sendBroadcastDesc": "一次向整个团队发消息 — 公告、激励、培训更新。",
+    "leaderboardTitle": "查看排行榜",
+    "leaderboardDesc": "整个平台按推荐、grid 完成和课程销售的排名。",
+    "fullAnalyticsTitle": "完整分析仪表板",
+    "fullAnalyticsDesc": "图表、细分、链接表现、提现历史、团队增长。",
+    "open": "打开",
+    "view": "查看"
   }
 }

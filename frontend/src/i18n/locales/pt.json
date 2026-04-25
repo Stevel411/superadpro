@@ -3584,5 +3584,38 @@
       "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
       "credits": "credits"
     }
+  },
+  "commandCentre": {
+    "pageTitle": "Command Centre",
+    "eyebrow": "Seu Command Centre",
+    "backToDashboard": "Voltar ao Dashboard",
+    "directsHeader": "Suas indicações diretas",
+    "structuresHeader": "Suas estruturas de renda",
+    "manageHeader": "Gerencie seu negócio",
+    "performanceHeader": "Desempenho",
+    "activeDirectsLabel": "Ativos",
+    "activeDirectsSublabel": "membros pagantes",
+    "lapsedDirectsLabel": "Inativos",
+    "lapsedDirectsSublabel": "pagavam, pararam",
+    "neverPaidDirectsLabel": "Nunca pagaram",
+    "neverPaidDirectsSublabel": "cadastraram mas não ativaram",
+    "gridTeamLabel": "No seu Grid",
+    "gridTeamSublabel": "pessoas em suas estruturas 8×8",
+    "nexusTeamLabel": "No seu Nexus",
+    "nexusTeamSublabel": "pessoas em suas matrizes 3×3",
+    "earningsThisMonth": "Ganho este mês",
+    "earningsThisMonthSublabel": "comissões deste mês calendário",
+    "vsLastMonth": "vs mês passado",
+    "sameAsLastMonth": "igual ao mês passado",
+    "viewFullTeamTitle": "Ver equipe completa",
+    "viewFullTeamDesc": "Veja todos na sua rede com status, datas de cadastro e comissões ganhas.",
+    "sendBroadcastTitle": "Enviar broadcast",
+    "sendBroadcastDesc": "Envie mensagem a toda equipe de uma vez — anúncios, motivação, atualizações.",
+    "leaderboardTitle": "Ver ranking",
+    "leaderboardDesc": "Ranking de toda a plataforma por indicações, grids completados e vendas.",
+    "fullAnalyticsTitle": "Painel de análise completo",
+    "fullAnalyticsDesc": "Gráficos, detalhamentos, desempenho de links, histórico de saques, crescimento.",
+    "open": "Abrir",
+    "view": "Ver"
   }
 }

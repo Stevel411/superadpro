@@ -31,6 +31,7 @@ STRIPE_PUBLISHABLE_KEY = ""
 from .database import VideoCampaign, VideoWatch, WatchQuota, AIUsageQuota, AIResponseCache, MembershipRenewal, P2PTransfer, FunnelPage, ShortLink, LinkRotator, LinkClick, FunnelLead, FunnelEvent, WatchdogLog, LinkHubProfile, LinkHubLink, LinkHubClick, Notification, Achievement, BADGES
 from .stats_cache import cache_get, cache_set, cache_delete, cache_invalidate_user, cache_invalidate_leaderboard, cache_stats
 from .database import DigitalProduct, DigitalProductPurchase, DigitalProductReview, DigitalProductAffiliate
+from .database import CreditMatrix, CreditMatrixPosition
 from .database import CoPilotBriefing
 from .database import MemberLead
 from .database import MemberCourse, MemberCourseChapter, MemberCourseLesson, MemberCoursePurchase
@@ -531,20 +532,69 @@ def get_dashboard_context(request: Request, user: User, db: Session) -> dict:
         "personal_referrals":user.personal_referrals or 0,
         "direct_referrals_count": db.query(User).filter(User.sponsor_id == user.id).count(),
         "total_team":        user.total_team or 0,
-        # ── Command Centre stats (added Apr 2026) ──
-        # active_team_members: count of direct referrals where is_active=True
-        # (membership paid + not paused). Used on /command-centre stat cards.
-        "active_team_members": db.query(User).filter(
+        # ── Command Centre Layer 1 stats (Apr 2026) ──────────────────────
+        # Three-bucket breakdown of direct referrals so members can see who's
+        # actually paying, who lapsed (re-activation candidates), and who
+        # never paid (cold leads). All use sponsor_id = user.id.
+        # See /command-centre on the frontend.
+        #
+        # NOTE: "lapsed" is computed by looking at confirmed Payment rows
+        # for membership* payment_types. A direct who has a confirmed
+        # membership payment but is_active=False = lapsed.
+        # No payment record + is_active=False = never_paid.
+        "directs_active": db.query(User).filter(
             User.sponsor_id == user.id, User.is_active == True
         ).count(),
-        # earnings_this_month: sum of all paid commissions to this user since
-        # the start of the current calendar month. Used on /command-centre.
+        "directs_lapsed": db.query(User).filter(
+            User.sponsor_id == user.id, User.is_active == False,
+            User.id.in_(
+                db.query(Payment.from_user_id).filter(
+                    Payment.payment_type.like("membership%"),
+                    Payment.status.in_(["confirmed", "paid"]),
+                )
+            )
+        ).count(),
+        "directs_never_paid": db.query(User).filter(
+            User.sponsor_id == user.id, User.is_active == False,
+            ~User.id.in_(
+                db.query(Payment.from_user_id).filter(
+                    Payment.payment_type.like("membership%"),
+                    Payment.status.in_(["confirmed", "paid"]),
+                )
+            )
+        ).count(),
+        # Distinct members who have positions in any of THIS user's grids.
+        # JOIN: GridPosition → Grid where Grid.owner_id = user.id.
+        # Excludes the owner themselves (who isn't a position-filler).
+        "grid_team_count": db.query(GridPosition.member_id).join(
+            Grid, GridPosition.grid_id == Grid.id
+        ).filter(Grid.owner_id == user.id).distinct().count(),
+        # Distinct members who have positions in this user's credit matrices.
+        # Subtract 1 to exclude the owner (level 0 in their own matrix).
+        "nexus_team_count": max(0, db.query(CreditMatrixPosition.user_id).join(
+            CreditMatrix, CreditMatrixPosition.matrix_id == CreditMatrix.id
+        ).filter(CreditMatrix.owner_id == user.id).distinct().count() - 1),
+        # Earnings this calendar month (commissions paid TO this user).
+        # Used as the headline number on Command Centre's outcome card.
         "earnings_this_month": float(
             db.query(func.coalesce(func.sum(Commission.amount_usdt), 0))
             .filter(
                 Commission.to_user_id == user.id,
                 Commission.amount_usdt > 0,
                 Commission.created_at >= datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+            ).scalar() or 0
+        ),
+        # Earnings LAST calendar month — used to compute a +/- delta on
+        # the Command Centre outcome card so members can see momentum.
+        # First-of-this-month minus 1 day = some day in last month → use
+        # that month's first day as the lower bound.
+        "earnings_last_month": float(
+            db.query(func.coalesce(func.sum(Commission.amount_usdt), 0))
+            .filter(
+                Commission.to_user_id == user.id,
+                Commission.amount_usdt > 0,
+                Commission.created_at >= (datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)).replace(day=1, hour=0, minute=0, second=0, microsecond=0),
+                Commission.created_at < datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0),
             ).scalar() or 0
         ),
         "grid_stats":        stats,

@@ -3576,5 +3576,38 @@
       "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
       "credits": "credits"
     }
+  },
+  "commandCentre": {
+    "pageTitle": "Command Centre",
+    "eyebrow": "Iyong Command Centre",
+    "backToDashboard": "Bumalik sa Dashboard",
+    "directsHeader": "Mga direktang referral mo",
+    "structuresHeader": "Mga istruktura ng kita mo",
+    "manageHeader": "Pamahalaan ang iyong negosyo",
+    "performanceHeader": "Performance",
+    "activeDirectsLabel": "Aktibo",
+    "activeDirectsSublabel": "mga miyembrong nagbabayad",
+    "lapsedDirectsLabel": "Nag-expire",
+    "lapsedDirectsSublabel": "nagbayad noon, huminto",
+    "neverPaidDirectsLabel": "Hindi pa nakakabayad",
+    "neverPaidDirectsSublabel": "nag-sign up pero hindi nag-activate",
+    "gridTeamLabel": "Sa iyong Grid",
+    "gridTeamSublabel": "mga tao sa iyong 8×8 na istruktura",
+    "nexusTeamLabel": "Sa iyong Nexus",
+    "nexusTeamSublabel": "mga tao sa iyong 3×3 matrices",
+    "earningsThisMonth": "Kinita ngayong buwan",
+    "earningsThisMonthSublabel": "mga komisyon ngayong buwan ng kalendaryo",
+    "vsLastMonth": "vs nakaraang buwan",
+    "sameAsLastMonth": "pareho sa nakaraang buwan",
+    "viewFullTeamTitle": "Tingnan ang buong team",
+    "viewFullTeamDesc": "Makita ang lahat sa network mo na may status, petsa ng pag-sign up, at komisyon.",
+    "sendBroadcastTitle": "Magpadala ng broadcast",
+    "sendBroadcastDesc": "Magmensahe sa buong team nang sabay — anunsyo, motibasyon, update.",
+    "leaderboardTitle": "Tingnan ang leaderboard",
+    "leaderboardDesc": "Ranking sa buong platform ayon sa referral, natapos na grid, at benta ng kurso.",
+    "fullAnalyticsTitle": "Buong analytics dashboard",
+    "fullAnalyticsDesc": "Mga chart, paghahati, performance ng link, kasaysayan ng pag-withdraw, paglaki.",
+    "open": "Buksan",
+    "view": "Tingnan"
   }
 }

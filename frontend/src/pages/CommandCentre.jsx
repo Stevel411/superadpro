@@ -1,20 +1,31 @@
 /**
- * CommandCentre.jsx — Business management cockpit
+ * CommandCentre.jsx — Business management cockpit (Layer 1)
  *
- * The destination behind the "Command Centre" door on the Dashboard.
- * Purpose: cockpit view of your business — team summary, performance
- * snapshot, and quick links to deeper management pages.
+ * Reached from the Command Centre door on /dashboard. Purpose:
+ * give members a clear, motivating snapshot of their business.
  *
- * Layout (from agreed spec):
- *   1. Compact hero (mirrors Dashboard hero, eyebrow says "Your Command Centre")
- *   2. Team summary — 4 stat cards
- *   3. Quick actions — 3 cards linking out to /network, /team-messenger, /leaderboard
- *   4. Performance preview — link out to /analytics
+ * Layout (Layer 1, Apr 2026):
+ *   1. Compact cobalt hero (avatar, name, tier, "Your Command Centre")
+ *   2. "Your direct referrals" panel — Active / Lapsed / Never paid
+ *      (3 stat columns inside one card)
+ *   3. "Your income structures" panel — Grid team / Nexus team
+ *      (2 stat columns inside one card)
+ *   4. "This month earned" outcome card — value + delta vs last month
+ *   5. "Manage your business" — 3 outbound action cards
+ *      (View team, Send broadcast, Leaderboard)
+ *   6. "Performance" — single full-analytics CTA card
  *
- * Backend deps: /api/dashboard now returns active_team_members and
- * earnings_this_month (added in main.py get_dashboard_context).
+ * Layer 1 is read-only — clicking a stat card today navigates to the
+ * existing /network page. Layer 2 will add proper drill-down lists,
+ * Layer 3 will add per-member actions (message, re-activation email).
  *
- * Reuses platform CSS variables only (design-tokens.css) — no new colours.
+ * Translations: all visible strings via t('commandCentre.X'). Namespace
+ * exists in all 20 locale files.
+ *
+ * Backend deps (in /api/dashboard via get_dashboard_context):
+ *   directs_active, directs_lapsed, directs_never_paid,
+ *   grid_team_count, nexus_team_count,
+ *   earnings_this_month, earnings_last_month
  */
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -24,7 +35,13 @@ import { apiGet } from '../utils/api';
 import { useAuth } from '../hooks/useAuth';
 import { formatMoney } from '../utils/money';
 import { TYPE } from '../styles/typography';
-import { Users, UserCheck, DollarSign, TrendingUp, MessageSquare, Award, BarChart3, ArrowRight } from 'lucide-react';
+import {
+  Users, UserCheck, UserMinus, UserX,
+  LayoutGrid, Star,
+  DollarSign, TrendingUp, TrendingDown,
+  MessageSquare, Award, BarChart3,
+  ArrowRight,
+} from 'lucide-react';
 
 export default function CommandCentre() {
   const { t } = useTranslation();
@@ -40,7 +57,7 @@ export default function CommandCentre() {
 
   if (loading) {
     return (
-      <AppLayout title="Command Centre">
+      <AppLayout title={t('commandCentre.pageTitle')}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
           <div style={{ width: 44, height: 44, borderRadius: '50%', border: '3px solid #e2e8f0', borderTopColor: 'var(--sap-accent)', animation: 'spin 0.8s linear infinite' }} />
           <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
@@ -50,49 +67,73 @@ export default function CommandCentre() {
   }
 
   const d = data || {};
+  const displayName = d.display_name || (user && user.username) || '';
 
-  // ── Stat card config — 4 cards, identical pattern to Dashboard income streams ──
-  const stats = [
+  // ── Three direct-referral buckets ──
+  // Layer 1: navigate-only on click. Layer 2 will replace these
+  // hrefs with proper drill-down routes per bucket.
+  const directBuckets = [
     {
-      label: 'Personal referrals',
-      value: d.personal_referrals || 0,
-      icon: Users,
-      color: 'var(--sap-accent)',
-      accentPale: '#cffafe',
-      sublabel: 'people you signed up directly',
-    },
-    {
-      label: 'Active members',
-      value: d.active_team_members || 0,
+      label: t('commandCentre.activeDirectsLabel'),
+      sublabel: t('commandCentre.activeDirectsSublabel'),
+      value: d.directs_active || 0,
       icon: UserCheck,
       color: 'var(--sap-green)',
-      accentPale: '#bbf7d0',
-      sublabel: 'currently paying members',
+      link: '/network',  // TODO Layer 2: /command-centre/directs/active
     },
     {
-      label: 'Total team',
-      value: d.total_team || 0,
-      icon: TrendingUp,
-      color: 'var(--sap-violet)',
-      accentPale: '#ddd6fe',
-      sublabel: 'across your whole network',
-    },
-    {
-      label: 'This month earned',
-      value: '$' + formatMoney(d.earnings_this_month || 0),
-      icon: DollarSign,
+      label: t('commandCentre.lapsedDirectsLabel'),
+      sublabel: t('commandCentre.lapsedDirectsSublabel'),
+      value: d.directs_lapsed || 0,
+      icon: UserMinus,
       color: 'var(--sap-amber-dark)',
-      accentPale: '#fed7aa',
-      sublabel: 'commissions this calendar month',
-      isCurrency: true,
+      link: '/network',  // TODO Layer 2: /command-centre/directs/lapsed
+    },
+    {
+      label: t('commandCentre.neverPaidDirectsLabel'),
+      sublabel: t('commandCentre.neverPaidDirectsSublabel'),
+      value: d.directs_never_paid || 0,
+      icon: UserX,
+      color: 'var(--sap-text-muted)',
+      link: '/network',  // TODO Layer 2: /command-centre/directs/never-paid
     },
   ];
 
-  // ── Quick action links — link OUT to existing pages ──
+  // ── Two income-structure buckets ──
+  const structureBuckets = [
+    {
+      label: t('commandCentre.gridTeamLabel'),
+      sublabel: t('commandCentre.gridTeamSublabel'),
+      value: d.grid_team_count || 0,
+      icon: LayoutGrid,
+      color: 'var(--sap-violet)',
+    },
+    {
+      label: t('commandCentre.nexusTeamLabel'),
+      sublabel: t('commandCentre.nexusTeamSublabel'),
+      value: d.nexus_team_count || 0,
+      icon: Star,
+      color: 'var(--sap-indigo)',
+    },
+  ];
+
+  // ── Earnings delta computation ──
+  const thisMonth = d.earnings_this_month || 0;
+  const lastMonth = d.earnings_last_month || 0;
+  const deltaAbs = thisMonth - lastMonth;
+  // Don't compute percentage if last month was 0 — division by zero
+  // produces Infinity which renders as a confusing label.
+  const deltaPct = lastMonth > 0 ? (deltaAbs / lastMonth) * 100 : null;
+  const deltaPositive = deltaAbs > 0;
+  const deltaNegative = deltaAbs < 0;
+  const deltaZero = deltaAbs === 0 && lastMonth > 0;
+  const deltaColor = deltaPositive ? 'var(--sap-green)' : (deltaNegative ? '#dc2626' : 'var(--sap-text-muted)');
+
+  // ── Outbound action cards (existing pages) ──
   const actions = [
     {
-      title: 'View full team',
-      desc: 'See everyone in your network with status, signup dates, and commissions earned.',
+      title: t('commandCentre.viewFullTeamTitle'),
+      desc: t('commandCentre.viewFullTeamDesc'),
       link: '/network',
       icon: Users,
       color: 'var(--sap-accent)',
@@ -100,8 +141,8 @@ export default function CommandCentre() {
       bg: 'linear-gradient(135deg,#ecfeff,#cffafe)',
     },
     {
-      title: 'Send a broadcast',
-      desc: 'Message your whole team at once — announcements, motivation, training updates.',
+      title: t('commandCentre.sendBroadcastTitle'),
+      desc: t('commandCentre.sendBroadcastDesc'),
       link: '/team-messenger',
       icon: MessageSquare,
       color: 'var(--sap-violet)',
@@ -109,8 +150,8 @@ export default function CommandCentre() {
       bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
     },
     {
-      title: 'See leaderboard',
-      desc: 'Ranking across the whole platform by referrals, grid completions, and course sales.',
+      title: t('commandCentre.leaderboardTitle'),
+      desc: t('commandCentre.leaderboardDesc'),
       link: '/leaderboard',
       icon: Award,
       color: 'var(--sap-amber-dark)',
@@ -119,14 +160,10 @@ export default function CommandCentre() {
     },
   ];
 
-  const displayName = d.display_name || (user && user.username) || '';
-
   return (
-    <AppLayout title="Command Centre">
+    <AppLayout title={t('commandCentre.pageTitle')}>
 
-      {/* ── HERO ────────────────────────────────────────────
-          Compact cobalt hero, same pattern as Dashboard. Eyebrow
-          identifies WHICH room we're in ("Your Command Centre"). */}
+      {/* ── HERO ─────────────────────────────────────────── */}
       <div style={{
         background: 'linear-gradient(135deg, var(--sap-cobalt-deep), var(--sap-cobalt-mid))',
         borderRadius: 18,
@@ -140,7 +177,6 @@ export default function CommandCentre() {
         boxShadow: '0 8px 32px rgba(30,58,138,0.35)',
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 20, minWidth: 0 }}>
-          {/* Avatar — uploaded image or initial */}
           {user && user.avatar_url ? (
             <img src={user.avatar_url} alt=""
               style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '3px solid rgba(255,255,255,0.15)' }} />
@@ -157,7 +193,7 @@ export default function CommandCentre() {
           )}
           <div style={{ minWidth: 0 }}>
             <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)', marginBottom: 4 }}>
-              Your Command Centre
+              {t('commandCentre.eyebrow')}
             </div>
             <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 28, fontWeight: 900, color: '#fff', marginBottom: 6, lineHeight: 1.1, letterSpacing: '-0.3px' }}>
               {displayName}
@@ -176,12 +212,11 @@ export default function CommandCentre() {
               )}
               {d.active_since && (<>
                 <span style={{ opacity: 0.4 }}>·</span>
-                <span>Active since {d.active_since}</span>
+                <span>{t('dashboard.activeSince', { defaultValue: 'Active since' })} {d.active_since}</span>
               </>)}
             </div>
           </div>
         </div>
-        {/* Right side — back to Dashboard link */}
         <Link to="/dashboard" style={{
           display: 'inline-flex', alignItems: 'center', gap: 6,
           padding: '8px 16px', borderRadius: 8,
@@ -189,54 +224,171 @@ export default function CommandCentre() {
           border: '1px solid rgba(255,255,255,0.15)',
           color: '#fff', textDecoration: 'none',
           fontSize: 13, fontWeight: 700,
-        }}>← Back to Dashboard</Link>
+        }}>← {t('commandCentre.backToDashboard')}</Link>
       </div>
 
-      {/* ── TEAM SUMMARY STATS ─────────────────────────────
-          4 stat cards in a row. Pattern matches Dashboard
-          income-stream cards: 4px coloured top accent bar,
-          icon tile, value (Sora 900), label, sublabel. */}
+      {/* ── DIRECT REFERRALS PANEL — 3 columns ───────────────
+          Three buckets in one panel because they answer the same
+          conceptual question ("how is my direct line composed?").
+          Each column is clickable; Layer 1 navigates to /network,
+          Layer 2 will route to bucket-filtered drill-downs. */}
       <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>
-        Your business at a glance
+        {t('commandCentre.directsHeader')}
       </div>
-      <div className="cc-stats-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 24 }}>
-        {stats.map(function(s, i) {
-          const Icon = s.icon;
+      <div className="cc-directs-panel" style={{
+        background: 'var(--sap-bg-card)',
+        border: '1px solid var(--sap-border)',
+        borderRadius: 14,
+        boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
+        marginBottom: 20,
+        position: 'relative',
+        overflow: 'hidden',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+      }}>
+        {/* Top accent — three-stop gradient blending the bucket colours */}
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: 4,
+          background: 'linear-gradient(90deg, var(--sap-green), var(--sap-amber-dark), var(--sap-text-muted))',
+          borderRadius: '14px 14px 0 0',
+        }} />
+        {directBuckets.map(function(b, i) {
+          const Icon = b.icon;
+          const isLast = i === directBuckets.length - 1;
           return (
-            <div key={i} className="stream-card" style={{
-              background: 'var(--sap-bg-card)',
-              border: '1px solid var(--sap-border)',
-              borderRadius: 14,
-              padding: 20,
-              boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
-              position: 'relative',
-              overflow: 'hidden',
-              transition: 'all 0.15s',
+            <Link key={i} to={b.link} className="cc-bucket" style={{
+              padding: '24px 24px 20px',
+              borderRight: isLast ? 'none' : '1px solid var(--sap-border-light)',
+              textDecoration: 'none',
+              color: 'inherit',
+              transition: 'background 0.15s',
             }}>
-              {/* 4px top accent bar */}
-              <div style={{
-                position: 'absolute', top: 0, left: 0, right: 0, height: 4,
-                background: 'linear-gradient(90deg, ' + s.color + ', ' + s.accentPale + ')',
-                borderRadius: '14px 14px 0 0',
-              }} />
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-                <div style={{ width: 42, height: 42, borderRadius: 11, background: s.color, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Icon size={18} color="#fff" />
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 9, background: b.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Icon size={16} color="#fff" />
                 </div>
+                <div style={{...TYPE.cardTitleBold, fontSize: 14}}>{b.label}</div>
               </div>
-              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 28, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 6 }}>
-                {s.value}
+              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 32, fontWeight: 900, color: b.color, lineHeight: 1, marginBottom: 6 }}>
+                {b.value}
               </div>
-              <div style={{...TYPE.cardTitleBold, marginBottom: 3}}>{s.label}</div>
-              <div style={TYPE.bodyMuted}>{s.sublabel}</div>
+              <div style={TYPE.bodyMuted}>{b.sublabel}</div>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* ── INCOME STRUCTURES PANEL — 2 columns ───────────── */}
+      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>
+        {t('commandCentre.structuresHeader')}
+      </div>
+      <div className="cc-structures-panel" style={{
+        background: 'var(--sap-bg-card)',
+        border: '1px solid var(--sap-border)',
+        borderRadius: 14,
+        boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
+        marginBottom: 20,
+        position: 'relative',
+        overflow: 'hidden',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(2, 1fr)',
+      }}>
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: 4,
+          background: 'linear-gradient(90deg, var(--sap-violet), var(--sap-indigo))',
+          borderRadius: '14px 14px 0 0',
+        }} />
+        {structureBuckets.map(function(b, i) {
+          const Icon = b.icon;
+          const isLast = i === structureBuckets.length - 1;
+          return (
+            <div key={i} style={{
+              padding: '24px 24px 20px',
+              borderRight: isLast ? 'none' : '1px solid var(--sap-border-light)',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+                <div style={{ width: 36, height: 36, borderRadius: 9, background: b.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Icon size={16} color="#fff" />
+                </div>
+                <div style={{...TYPE.cardTitleBold, fontSize: 14}}>{b.label}</div>
+              </div>
+              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 32, fontWeight: 900, color: b.color, lineHeight: 1, marginBottom: 6 }}>
+                {b.value}
+              </div>
+              <div style={TYPE.bodyMuted}>{b.sublabel}</div>
             </div>
           );
         })}
       </div>
 
-      {/* ── QUICK ACTIONS — 3 outbound cards ────────────── */}
+      {/* ── EARNINGS THIS MONTH WITH DELTA ───────────────────
+          Single full-width card. Big number on the left, delta vs
+          last month on the right with up/down arrow + colour. The
+          delta is the real "is my business growing?" answer. */}
       <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>
-        Manage your business
+        {t('commandCentre.performanceHeader')}
+      </div>
+      <div className="stream-card" style={{
+        background: 'var(--sap-bg-card)',
+        border: '1px solid var(--sap-border)',
+        borderRadius: 14,
+        padding: 24,
+        boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
+        marginBottom: 24,
+        position: 'relative',
+        overflow: 'hidden',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        flexWrap: 'wrap',
+        gap: 20,
+      }}>
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: 4,
+          background: 'linear-gradient(90deg, var(--sap-amber-dark), #fed7aa)',
+          borderRadius: '14px 14px 0 0',
+        }} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 18, minWidth: 0 }}>
+          <div style={{ width: 56, height: 56, borderRadius: 14, background: 'var(--sap-amber-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <DollarSign size={24} color="#fff" />
+          </div>
+          <div style={{ minWidth: 0 }}>
+            <div style={{...TYPE.cardTitleBold, fontSize: 14, marginBottom: 4}}>{t('commandCentre.earningsThisMonth')}</div>
+            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 36, fontWeight: 900, color: 'var(--sap-amber-dark)', lineHeight: 1, marginBottom: 4 }}>
+              ${formatMoney(thisMonth)}
+            </div>
+            <div style={TYPE.bodyMuted}>{t('commandCentre.earningsThisMonthSublabel')}</div>
+          </div>
+        </div>
+        {/* Delta badge — only show meaningful delta (not when both months are 0) */}
+        {(thisMonth > 0 || lastMonth > 0) && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '12px 18px', borderRadius: 12,
+            background: deltaPositive ? 'rgba(22,163,74,0.08)' : (deltaNegative ? 'rgba(220,38,38,0.08)' : 'rgba(122,136,153,0.08)'),
+            border: '1px solid ' + (deltaPositive ? 'rgba(22,163,74,0.2)' : (deltaNegative ? 'rgba(220,38,38,0.2)' : 'rgba(122,136,153,0.2)')),
+          }}>
+            {deltaPositive && <TrendingUp size={20} color={deltaColor} />}
+            {deltaNegative && <TrendingDown size={20} color={deltaColor} />}
+            <div>
+              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 18, fontWeight: 900, color: deltaColor, lineHeight: 1.1 }}>
+                {deltaZero
+                  ? t('commandCentre.sameAsLastMonth')
+                  : (deltaPositive ? '+' : '') + (deltaPct !== null ? deltaPct.toFixed(0) + '%' : '$' + formatMoney(Math.abs(deltaAbs)))}
+              </div>
+              {!deltaZero && (
+                <div style={{...TYPE.bodyMuted, fontSize: 12, marginTop: 2}}>
+                  {t('commandCentre.vsLastMonth')}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ── MANAGE BUSINESS — 3 outbound action cards ────── */}
+      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>
+        {t('commandCentre.manageHeader')}
       </div>
       <div className="cc-actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 14, marginBottom: 24 }}>
         {actions.map(function(a, i) {
@@ -256,7 +408,6 @@ export default function CommandCentre() {
               position: 'relative',
               overflow: 'hidden',
             }}>
-              {/* 4px top accent bar */}
               <div style={{
                 position: 'absolute', top: 0, left: 0, right: 0, height: 4,
                 background: 'linear-gradient(90deg, ' + a.color + ', ' + a.accentPale + ')',
@@ -268,21 +419,14 @@ export default function CommandCentre() {
               <div style={TYPE.cardTitleBold}>{a.title}</div>
               <div style={{...TYPE.body, color: '#475569', lineHeight: 1.5, flex: 1}}>{a.desc}</div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: a.color, fontSize: 13, fontWeight: 700, paddingTop: 6, borderTop: '1px solid var(--sap-border-light)' }}>
-                Open <ArrowRight size={14} />
+                {t('commandCentre.open')} <ArrowRight size={14} />
               </div>
             </Link>
           );
         })}
       </div>
 
-      {/* ── PERFORMANCE PREVIEW LINK ─────────────────────
-          Single CTA to the full Analytics page. v1 keeps this
-          simple (a link out) rather than embedding charts —
-          can upgrade to inline charts later if usage shows
-          members want to see them here. */}
-      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>
-        Performance & insights
-      </div>
+      {/* ── FULL ANALYTICS LINK ─────────────────────────── */}
       <Link to="/analytics" className="action-card" style={{
         display: 'flex',
         alignItems: 'center',
@@ -307,19 +451,36 @@ export default function CommandCentre() {
           <BarChart3 size={24} color="var(--sap-indigo)" />
         </div>
         <div style={{ flex: 1 }}>
-          <div style={TYPE.cardTitleBold}>Full analytics dashboard</div>
-          <div style={{...TYPE.bodyMuted, marginTop: 4}}>Charts, breakdowns, link performance, withdrawal history, team growth over time.</div>
+          <div style={TYPE.cardTitleBold}>{t('commandCentre.fullAnalyticsTitle')}</div>
+          <div style={{...TYPE.bodyMuted, marginTop: 4}}>{t('commandCentre.fullAnalyticsDesc')}</div>
         </div>
         <div style={{ color: 'var(--sap-indigo)', fontSize: 13, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-          View <ArrowRight size={14} />
+          {t('commandCentre.view')} <ArrowRight size={14} />
         </div>
       </Link>
 
-      {/* ── RESPONSIVE ─── matches Dashboard pattern ─── */}
+      {/* ── RESPONSIVE ─────────────────────────────────────
+          Same 767px breakpoint as the rest of the platform.
+          Directs panel: 3 cols → 1 col on mobile.
+          Structures panel: 2 cols → 1 col on mobile.
+          Actions grid: 3 cols → 1 col on mobile. */}
       <style>{`
-        @media(max-width:767px) {
-          .cc-stats-grid{grid-template-columns:repeat(2,1fr)!important}
-          .cc-actions-grid{grid-template-columns:1fr!important}
+        .cc-bucket:hover { background: var(--sap-bg-hover, #f8fafc); }
+        @media(max-width: 767px) {
+          .cc-directs-panel { grid-template-columns: 1fr !important; }
+          .cc-structures-panel { grid-template-columns: 1fr !important; }
+          .cc-actions-grid { grid-template-columns: 1fr !important; }
+        }
+        @media(max-width: 767px) {
+          .cc-directs-panel > a,
+          .cc-structures-panel > div {
+            border-right: none !important;
+            border-bottom: 1px solid var(--sap-border-light);
+          }
+          .cc-directs-panel > a:last-child,
+          .cc-structures-panel > div:last-child {
+            border-bottom: none;
+          }
         }
       `}</style>
     </AppLayout>

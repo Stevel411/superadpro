@@ -3576,5 +3576,38 @@
       "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
       "credits": "credits"
     }
+  },
+  "commandCentre": {
+    "pageTitle": "Command Centre",
+    "eyebrow": "Command Centre yako",
+    "backToDashboard": "Rudi kwenye Dashboard",
+    "directsHeader": "Wapendekezi wako wa moja kwa moja",
+    "structuresHeader": "Miundo yako ya mapato",
+    "manageHeader": "Simamia biashara yako",
+    "performanceHeader": "Utendaji",
+    "activeDirectsLabel": "Hai",
+    "activeDirectsSublabel": "wanachama wanaolipa",
+    "lapsedDirectsLabel": "Imeisha",
+    "lapsedDirectsSublabel": "walilipa, wakaacha",
+    "neverPaidDirectsLabel": "Hawajawahi kulipa",
+    "neverPaidDirectsSublabel": "walijisajili lakini hawajaanzisha",
+    "gridTeamLabel": "Katika Grid yako",
+    "gridTeamSublabel": "watu katika miundo yako ya 8×8",
+    "nexusTeamLabel": "Katika Nexus yako",
+    "nexusTeamSublabel": "watu katika matriki yako ya 3×3",
+    "earningsThisMonth": "Mapato ya mwezi huu",
+    "earningsThisMonthSublabel": "tume za mwezi huu wa kalenda",
+    "vsLastMonth": "dhidi ya mwezi uliopita",
+    "sameAsLastMonth": "sawa na mwezi uliopita",
+    "viewFullTeamTitle": "Tazama timu kamili",
+    "viewFullTeamDesc": "Ona kila mtu kwenye mtandao wako na hali, tarehe za kujiandikisha, na tume.",
+    "sendBroadcastTitle": "Tuma matangazo",
+    "sendBroadcastDesc": "Tuma ujumbe kwa timu nzima mara moja — matangazo, motisha, masasisho.",
+    "leaderboardTitle": "Ona orodha ya viongozi",
+    "leaderboardDesc": "Cheo kwenye jukwaa zima kwa wapendekezi, grid zilizokamilika, na mauzo.",
+    "fullAnalyticsTitle": "Dashibodi kamili ya uchanganuzi",
+    "fullAnalyticsDesc": "Chati, uchambuzi, utendaji wa viungo, historia ya kutoa, ukuaji wa timu.",
+    "open": "Fungua",
+    "view": "Tazama"
   }
 }

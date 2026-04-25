@@ -3584,5 +3584,38 @@
       "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
       "credits": "credits"
     }
+  },
+  "commandCentre": {
+    "pageTitle": "Command Centre",
+    "eyebrow": "Ваш Command Centre",
+    "backToDashboard": "Вернуться к Dashboard",
+    "directsHeader": "Ваши прямые рефералы",
+    "structuresHeader": "Ваши структуры дохода",
+    "manageHeader": "Управляйте своим бизнесом",
+    "performanceHeader": "Производительность",
+    "activeDirectsLabel": "Активные",
+    "activeDirectsSublabel": "платящие участники",
+    "lapsedDirectsLabel": "Неактивные",
+    "lapsedDirectsSublabel": "платили, перестали",
+    "neverPaidDirectsLabel": "Никогда не платили",
+    "neverPaidDirectsSublabel": "зарегистрировались, но не активировали",
+    "gridTeamLabel": "В вашем Grid",
+    "gridTeamSublabel": "людей в ваших структурах 8×8",
+    "nexusTeamLabel": "В вашем Nexus",
+    "nexusTeamSublabel": "людей в ваших матрицах 3×3",
+    "earningsThisMonth": "Заработано в этом месяце",
+    "earningsThisMonthSublabel": "комиссии за этот календарный месяц",
+    "vsLastMonth": "против прошлого месяца",
+    "sameAsLastMonth": "столько же, сколько в прошлом месяце",
+    "viewFullTeamTitle": "Посмотреть всю команду",
+    "viewFullTeamDesc": "Все в вашей сети со статусом, датами регистрации и заработанными комиссиями.",
+    "sendBroadcastTitle": "Отправить рассылку",
+    "sendBroadcastDesc": "Сообщение всей команде сразу — анонсы, мотивация, обновления обучения.",
+    "leaderboardTitle": "Посмотреть рейтинг",
+    "leaderboardDesc": "Рейтинг по всей платформе по рефералам, завершённым grid и продажам.",
+    "fullAnalyticsTitle": "Полная панель аналитики",
+    "fullAnalyticsDesc": "Графики, разбивки, производительность ссылок, история выводов, рост команды.",
+    "open": "Открыть",
+    "view": "Посмотреть"
   }
 }

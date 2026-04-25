@@ -3576,5 +3576,38 @@
       "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
       "credits": "credits"
     }
+  },
+  "commandCentre": {
+    "pageTitle": "Command Centre",
+    "eyebrow": "आपका Command Centre",
+    "backToDashboard": "Dashboard पर वापस",
+    "directsHeader": "आपके सीधे रेफरल",
+    "structuresHeader": "आपकी आय संरचनाएं",
+    "manageHeader": "अपना व्यवसाय प्रबंधित करें",
+    "performanceHeader": "प्रदर्शन",
+    "activeDirectsLabel": "सक्रिय",
+    "activeDirectsSublabel": "भुगतान करने वाले सदस्य",
+    "lapsedDirectsLabel": "समाप्त",
+    "lapsedDirectsSublabel": "भुगतान करते थे, बंद कर दिया",
+    "neverPaidDirectsLabel": "कभी भुगतान नहीं किया",
+    "neverPaidDirectsSublabel": "साइन अप किया लेकिन सक्रिय नहीं किया",
+    "gridTeamLabel": "आपके Grid में",
+    "gridTeamSublabel": "आपकी 8×8 संरचनाओं में लोग",
+    "nexusTeamLabel": "आपके Nexus में",
+    "nexusTeamSublabel": "आपकी 3×3 मैट्रिक्स में लोग",
+    "earningsThisMonth": "इस महीने कमाई",
+    "earningsThisMonthSublabel": "इस कैलेंडर महीने का कमीशन",
+    "vsLastMonth": "पिछले महीने की तुलना में",
+    "sameAsLastMonth": "पिछले महीने जैसा",
+    "viewFullTeamTitle": "पूरी टीम देखें",
+    "viewFullTeamDesc": "अपने नेटवर्क में सभी को स्थिति, साइनअप तिथियों और कमीशन के साथ देखें।",
+    "sendBroadcastTitle": "ब्रॉडकास्ट भेजें",
+    "sendBroadcastDesc": "पूरी टीम को एक साथ संदेश — घोषणाएं, प्रेरणा, प्रशिक्षण अपडेट।",
+    "leaderboardTitle": "लीडरबोर्ड देखें",
+    "leaderboardDesc": "रेफरल, grid पूरा करने और कोर्स बिक्री के अनुसार पूरे प्लेटफॉर्म की रैंकिंग।",
+    "fullAnalyticsTitle": "पूर्ण एनालिटिक्स डैशबोर्ड",
+    "fullAnalyticsDesc": "चार्ट, ब्रेकडाउन, लिंक प्रदर्शन, निकासी इतिहास, टीम विकास।",
+    "open": "खोलें",
+    "view": "देखें"
   }
 }

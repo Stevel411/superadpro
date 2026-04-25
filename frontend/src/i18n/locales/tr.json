@@ -3576,5 +3576,38 @@
       "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
       "credits": "credits"
     }
+  },
+  "commandCentre": {
+    "pageTitle": "Command Centre",
+    "eyebrow": "Command Centre'ınız",
+    "backToDashboard": "Dashboard'a Dön",
+    "directsHeader": "Doğrudan referanslarınız",
+    "structuresHeader": "Gelir yapılarınız",
+    "manageHeader": "İşinizi yönetin",
+    "performanceHeader": "Performans",
+    "activeDirectsLabel": "Aktif",
+    "activeDirectsSublabel": "ödeyen üyeler",
+    "lapsedDirectsLabel": "Süresi dolmuş",
+    "lapsedDirectsSublabel": "ödüyorlardı, durdular",
+    "neverPaidDirectsLabel": "Hiç ödemedi",
+    "neverPaidDirectsSublabel": "kaydoldu ama aktifleştirmedi",
+    "gridTeamLabel": "Grid'inizde",
+    "gridTeamSublabel": "8×8 yapılarınızdaki kişiler",
+    "nexusTeamLabel": "Nexus'unuzda",
+    "nexusTeamSublabel": "3×3 matrislerinizdeki kişiler",
+    "earningsThisMonth": "Bu ay kazanıldı",
+    "earningsThisMonthSublabel": "bu takvim ayının komisyonları",
+    "vsLastMonth": "geçen aya kıyasla",
+    "sameAsLastMonth": "geçen ayla aynı",
+    "viewFullTeamTitle": "Tüm ekibi görüntüle",
+    "viewFullTeamDesc": "Ağınızdaki herkesi durum, kayıt tarihleri ve kazanılan komisyonlarla görün.",
+    "sendBroadcastTitle": "Yayın gönder",
+    "sendBroadcastDesc": "Tüm ekibinize tek seferde mesaj — duyurular, motivasyon, güncellemeler.",
+    "leaderboardTitle": "Liderlik tablosunu gör",
+    "leaderboardDesc": "Platform genelinde referans, grid tamamlama ve kurs satışına göre sıralama.",
+    "fullAnalyticsTitle": "Tam analiz paneli",
+    "fullAnalyticsDesc": "Grafikler, dağılımlar, link performansı, çekim geçmişi, ekip büyümesi.",
+    "open": "Aç",
+    "view": "Görüntüle"
   }
 }

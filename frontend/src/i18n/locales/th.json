@@ -3576,5 +3576,38 @@
       "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
       "credits": "credits"
     }
+  },
+  "commandCentre": {
+    "pageTitle": "Command Centre",
+    "eyebrow": "Command Centre ของคุณ",
+    "backToDashboard": "กลับไปที่ Dashboard",
+    "directsHeader": "การแนะนำโดยตรงของคุณ",
+    "structuresHeader": "โครงสร้างรายได้ของคุณ",
+    "manageHeader": "จัดการธุรกิจของคุณ",
+    "performanceHeader": "ประสิทธิภาพ",
+    "activeDirectsLabel": "ใช้งานอยู่",
+    "activeDirectsSublabel": "สมาชิกที่ชำระเงิน",
+    "lapsedDirectsLabel": "หมดอายุ",
+    "lapsedDirectsSublabel": "เคยชำระ, หยุดแล้ว",
+    "neverPaidDirectsLabel": "ไม่เคยชำระ",
+    "neverPaidDirectsSublabel": "สมัครแต่ยังไม่เปิดใช้งาน",
+    "gridTeamLabel": "ใน Grid ของคุณ",
+    "gridTeamSublabel": "คนในโครงสร้าง 8×8 ของคุณ",
+    "nexusTeamLabel": "ใน Nexus ของคุณ",
+    "nexusTeamSublabel": "คนในเมทริกซ์ 3×3 ของคุณ",
+    "earningsThisMonth": "รายได้เดือนนี้",
+    "earningsThisMonthSublabel": "คอมมิชชั่นของเดือนปฏิทินนี้",
+    "vsLastMonth": "เทียบกับเดือนที่แล้ว",
+    "sameAsLastMonth": "เหมือนเดือนที่แล้ว",
+    "viewFullTeamTitle": "ดูทีมทั้งหมด",
+    "viewFullTeamDesc": "ดูทุกคนในเครือข่ายของคุณพร้อมสถานะ วันที่สมัคร และคอมมิชชั่น",
+    "sendBroadcastTitle": "ส่งบรอดแคสต์",
+    "sendBroadcastDesc": "ส่งข้อความถึงทั้งทีมพร้อมกัน — ประกาศ, แรงจูงใจ, อัปเดตการฝึกอบรม",
+    "leaderboardTitle": "ดูลีดเดอร์บอร์ด",
+    "leaderboardDesc": "อันดับทั่วทั้งแพลตฟอร์มตามการแนะนำ การทำ grid สำเร็จ และยอดขายคอร์ส",
+    "fullAnalyticsTitle": "แดชบอร์ดวิเคราะห์ฉบับเต็ม",
+    "fullAnalyticsDesc": "แผนภูมิ การแยกย่อย ประสิทธิภาพลิงก์ ประวัติการถอน การเติบโตของทีม",
+    "open": "เปิด",
+    "view": "ดู"
   }
 }

@@ -3576,5 +3576,38 @@
       "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
       "credits": "credits"
     }
+  },
+  "commandCentre": {
+    "pageTitle": "Command Centre",
+    "eyebrow": "あなたの Command Centre",
+    "backToDashboard": "Dashboard に戻る",
+    "directsHeader": "直接紹介者",
+    "structuresHeader": "収入構造",
+    "manageHeader": "ビジネスを管理",
+    "performanceHeader": "パフォーマンス",
+    "activeDirectsLabel": "アクティブ",
+    "activeDirectsSublabel": "支払い中のメンバー",
+    "lapsedDirectsLabel": "期限切れ",
+    "lapsedDirectsSublabel": "支払っていたが停止",
+    "neverPaidDirectsLabel": "未払い",
+    "neverPaidDirectsSublabel": "登録したが未有効化",
+    "gridTeamLabel": "あなたの Grid 内",
+    "gridTeamSublabel": "8×8 構造内の人数",
+    "nexusTeamLabel": "あなたの Nexus 内",
+    "nexusTeamSublabel": "3×3 マトリックス内の人数",
+    "earningsThisMonth": "今月の収益",
+    "earningsThisMonthSublabel": "今暦月のコミッション",
+    "vsLastMonth": "先月比",
+    "sameAsLastMonth": "先月と同じ",
+    "viewFullTeamTitle": "チーム全体を表示",
+    "viewFullTeamDesc": "ネットワーク全員のステータス、登録日、獲得コミッションを表示。",
+    "sendBroadcastTitle": "ブロードキャスト送信",
+    "sendBroadcastDesc": "チーム全体に一度に通知 — お知らせ、モチベーション、トレーニング更新。",
+    "leaderboardTitle": "リーダーボードを見る",
+    "leaderboardDesc": "プラットフォーム全体での紹介、grid 完了、コース販売別ランキング。",
+    "fullAnalyticsTitle": "完全分析ダッシュボード",
+    "fullAnalyticsDesc": "チャート、内訳、リンクパフォーマンス、出金履歴、チーム成長。",
+    "open": "開く",
+    "view": "表示"
   }
 }

@@ -3584,5 +3584,38 @@
       "sub": "Each pack unlocks credits for the AI Creative Studio — video, images, music, voiceover, and more. Own all 8 and you have 8 independent Nexuses filling in parallel, each paying commissions on its own pack's purchases.",
       "credits": "credits"
     }
+  },
+  "commandCentre": {
+    "pageTitle": "Command Centre",
+    "eyebrow": "Ihr Command Centre",
+    "backToDashboard": "Zurück zum Dashboard",
+    "directsHeader": "Ihre direkten Empfehlungen",
+    "structuresHeader": "Ihre Einkommensstrukturen",
+    "manageHeader": "Verwalten Sie Ihr Geschäft",
+    "performanceHeader": "Leistung",
+    "activeDirectsLabel": "Aktiv",
+    "activeDirectsSublabel": "zahlende Mitglieder",
+    "lapsedDirectsLabel": "Ausgesetzt",
+    "lapsedDirectsSublabel": "zahlten, dann aufgehört",
+    "neverPaidDirectsLabel": "Nie bezahlt",
+    "neverPaidDirectsSublabel": "angemeldet, nie aktiviert",
+    "gridTeamLabel": "In Ihrem Grid",
+    "gridTeamSublabel": "Personen in Ihren 8×8-Strukturen",
+    "nexusTeamLabel": "In Ihrem Nexus",
+    "nexusTeamSublabel": "Personen in Ihren 3×3-Matrizen",
+    "earningsThisMonth": "Diesen Monat verdient",
+    "earningsThisMonthSublabel": "Provisionen in diesem Kalendermonat",
+    "vsLastMonth": "vs letzter Monat",
+    "sameAsLastMonth": "gleich wie letzter Monat",
+    "viewFullTeamTitle": "Gesamtes Team anzeigen",
+    "viewFullTeamDesc": "Sehen Sie alle in Ihrem Netzwerk mit Status, Anmeldedaten und verdienten Provisionen.",
+    "sendBroadcastTitle": "Broadcast senden",
+    "sendBroadcastDesc": "Nachricht an Ihr ganzes Team — Ankündigungen, Motivation, Schulungsupdates.",
+    "leaderboardTitle": "Rangliste ansehen",
+    "leaderboardDesc": "Ranking auf der ganzen Plattform nach Empfehlungen, Grid-Abschlüssen und Kursverkäufen.",
+    "fullAnalyticsTitle": "Vollständiges Analyse-Dashboard",
+    "fullAnalyticsDesc": "Diagramme, Aufschlüsselungen, Link-Performance, Auszahlungshistorie, Teamwachstum.",
+    "open": "Öffnen",
+    "view": "Ansehen"
   }
 }
