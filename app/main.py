@@ -2957,6 +2957,101 @@ def _direct_member_payload(u, last_paid_at):
     }
 
 
+# ── Command Centre diagnostic endpoint ─────────────────────────
+# Admin-only debugging tool to investigate count discrepancies between
+# Layer 1 stats and Layer 2 drill-down lists. Returns each direct
+# referral with their is_active state, payment record summary, and
+# which bucket they fall into. Read-only, never mutates state.
+@app.get("/api/command-centre/diagnostic")
+def api_command_centre_diagnostic(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Diagnostic snapshot of the requesting user's directs."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    directs = db.query(User).filter(User.sponsor_id == user.id).order_by(User.id).all()
+
+    # Build per-direct details
+    out = []
+    for d in directs:
+        # Did this direct ever have a confirmed membership payment?
+        membership_payments = db.query(Payment).filter(
+            Payment.from_user_id == d.id,
+            Payment.payment_type.like("membership%"),
+        ).all()
+        confirmed_count = sum(1 for p in membership_payments
+                              if p.status in ("confirmed", "paid"))
+
+        # Which bucket does my Layer 2 query put them in?
+        if d.is_active:
+            bucket = "active"
+        elif confirmed_count > 0:
+            bucket = "lapsed"
+        else:
+            bucket = "never_paid"
+
+        out.append({
+            "id": d.id,
+            "username": d.username,
+            "is_active": bool(d.is_active),
+            "membership_tier": d.membership_tier,
+            "created_at": d.created_at.isoformat() if d.created_at else None,
+            "membership_payment_total": len(membership_payments),
+            "membership_payment_confirmed": confirmed_count,
+            "payment_statuses": [p.status for p in membership_payments],
+            "bucket": bucket,
+        })
+
+    # Compare against the live count queries (the same SQL Layer 1 uses)
+    live_counts = {
+        "active": db.query(User).filter(
+            User.sponsor_id == user.id, User.is_active == True
+        ).count(),
+        "lapsed": db.query(User).filter(
+            User.sponsor_id == user.id, User.is_active == False,
+            User.id.in_(
+                db.query(Payment.from_user_id).filter(
+                    Payment.payment_type.like("membership%"),
+                    Payment.status.in_(["confirmed", "paid"]),
+                )
+            )
+        ).count(),
+        "never_paid": db.query(User).filter(
+            User.sponsor_id == user.id, User.is_active == False,
+            ~User.id.in_(
+                db.query(Payment.from_user_id).filter(
+                    Payment.payment_type.like("membership%"),
+                    Payment.status.in_(["confirmed", "paid"]),
+                )
+            )
+        ).count(),
+    }
+
+    # Also dump the cached dashboard value for comparison
+    cached_dash = cache_get(f"dash:{user.id}:main")
+    cached_summary = None
+    if cached_dash:
+        cached_summary = {
+            "directs_active": cached_dash.get("directs_active"),
+            "directs_lapsed": cached_dash.get("directs_lapsed"),
+            "directs_never_paid": cached_dash.get("directs_never_paid"),
+            "personal_referrals": cached_dash.get("personal_referrals"),
+            "total_team": cached_dash.get("total_team"),
+        }
+
+    return {
+        "owner_id": user.id,
+        "owner_username": user.username,
+        "total_directs": len(directs),
+        "live_bucket_counts": live_counts,
+        "cached_dashboard_response": cached_summary,
+        "directs": out,
+    }
+
+
 @app.get("/api/command-centre/directs")
 def api_command_centre_directs(
     request: Request,
