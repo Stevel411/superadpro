@@ -160,16 +160,13 @@ export default function BucketList(props) {
     setFetchError(null);
     apiGet(config.apiUrl)
       .then(function(r) {
-        // Log to browser console for debugging — confirms we got data
-        // and what shape it's in. Will be removed once stable.
-        if (typeof console !== 'undefined' && console.log) {
-          console.log('[BucketList] ' + bucketKey + ' response:', r);
-        }
         setData(r);
         setLoading(false);
       })
       .catch(function(err) {
-        // Surface the error instead of silently swallowing it
+        // Log + surface — never silently swallow API errors.
+        // (Lesson from Apr 2026: an empty catch hid a NameError for
+        // a full session before it was caught.)
         if (typeof console !== 'undefined' && console.error) {
           console.error('[BucketList] ' + bucketKey + ' fetch error:', err);
         }
