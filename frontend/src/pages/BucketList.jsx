@@ -146,6 +146,7 @@ export default function BucketList(props) {
   const config = BUCKET_CONFIG[bucketKey];
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState(null);
   const [search, setSearch] = useState('');
   const [filterOpen, setFilterOpen] = useState(false);
   const [sortBy, setSortBy] = useState('recent');
@@ -156,9 +157,25 @@ export default function BucketList(props) {
       setLoading(false);
       return;
     }
+    setFetchError(null);
     apiGet(config.apiUrl)
-      .then(function(r) { setData(r); setLoading(false); })
-      .catch(function() { setLoading(false); });
+      .then(function(r) {
+        // Log to browser console for debugging — confirms we got data
+        // and what shape it's in. Will be removed once stable.
+        if (typeof console !== 'undefined' && console.log) {
+          console.log('[BucketList] ' + bucketKey + ' response:', r);
+        }
+        setData(r);
+        setLoading(false);
+      })
+      .catch(function(err) {
+        // Surface the error instead of silently swallowing it
+        if (typeof console !== 'undefined' && console.error) {
+          console.error('[BucketList] ' + bucketKey + ' fetch error:', err);
+        }
+        setFetchError(err && err.message ? err.message : 'Failed to load');
+        setLoading(false);
+      });
   }, [bucketKey]);
 
   // Filter + sort applied client-side (the bucket lists are small enough
@@ -341,7 +358,15 @@ export default function BucketList(props) {
               <style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style>
             </div>
           )}
-          {!loading && visibleMembers.length === 0 && (
+          {!loading && fetchError && (
+            <div style={{ padding: '40px 20px', textAlign: 'center', color: '#dc2626' }}>
+              <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 8 }}>
+                {t('commandCentre.fetchFailed', { defaultValue: 'Could not load this list' })}
+              </div>
+              <div style={{...TYPE.bodyMuted, fontSize: 12}}>{fetchError}</div>
+            </div>
+          )}
+          {!loading && !fetchError && visibleMembers.length === 0 && (
             <div style={{ padding: '40px 20px', textAlign: 'center', color: 'var(--sap-text-muted)' }}>
               <Users size={32} style={{ opacity: 0.3, marginBottom: 12 }} />
               <div style={{...TYPE.bodyMuted}}>
