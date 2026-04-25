@@ -3608,6 +3608,20 @@
     "fullAnalyticsTitle": "पूर्ण एनालिटिक्स डैशबोर्ड",
     "fullAnalyticsDesc": "चार्ट, ब्रेकडाउन, लिंक प्रदर्शन, निकासी इतिहास, टीम विकास।",
     "open": "खोलें",
-    "view": "देखें"
+    "view": "देखें",
+    "searchPlaceholder": "नाम से खोजें",
+    "sortBy": "इस अनुसार क्रमबद्ध करें",
+    "sortRecent": "सबसे नए",
+    "sortOldest": "सबसे पुराने पहले",
+    "sortName": "नाम",
+    "rowJoined": "शामिल हुए",
+    "rowLastPaid": "अंतिम भुगतान",
+    "rowDaysAgo": "दिन पहले",
+    "rowActive": "सक्रिय",
+    "rowInactive": "निष्क्रिय",
+    "rowCountry": "देश",
+    "bucketEmpty": "इस श्रेणी में अभी कोई नहीं",
+    "noSearchResults": "कोई मिलान नहीं",
+    "actionsComingSoon": "संदेश और पुनः सक्रियण क्रियाएं जल्द ही"
   }
 }

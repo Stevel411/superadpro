@@ -3608,6 +3608,20 @@
     "fullAnalyticsTitle": "Buong analytics dashboard",
     "fullAnalyticsDesc": "Mga chart, paghahati, performance ng link, kasaysayan ng pag-withdraw, paglaki.",
     "open": "Buksan",
-    "view": "Tingnan"
+    "view": "Tingnan",
+    "searchPlaceholder": "Hanapin ayon sa pangalan",
+    "sortBy": "Pagsunud-sunurin ayon sa",
+    "sortRecent": "Pinakabago",
+    "sortOldest": "Pinakaluma muna",
+    "sortName": "Pangalan",
+    "rowJoined": "Sumali",
+    "rowLastPaid": "huling bayad",
+    "rowDaysAgo": "araw na nakalipas",
+    "rowActive": "Aktibo",
+    "rowInactive": "Hindi aktibo",
+    "rowCountry": "Bansa",
+    "bucketEmpty": "Wala pang nasa kategoryang ito",
+    "noSearchResults": "Walang tugma",
+    "actionsComingSoon": "Mensahe at re-activation actions paparating na"
   }
 }

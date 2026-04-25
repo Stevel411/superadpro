@@ -3672,6 +3672,20 @@
     "fullAnalyticsTitle": "Full analytics dashboard",
     "fullAnalyticsDesc": "Charts, breakdowns, link performance, withdrawal history, team growth over time.",
     "open": "Open",
-    "view": "View"
+    "view": "View",
+    "searchPlaceholder": "Search by name",
+    "sortBy": "Sort by",
+    "sortRecent": "Most recent",
+    "sortOldest": "Oldest first",
+    "sortName": "Name",
+    "rowJoined": "Joined",
+    "rowLastPaid": "last paid",
+    "rowDaysAgo": "days ago",
+    "rowActive": "Active",
+    "rowInactive": "Inactive",
+    "rowCountry": "Country",
+    "bucketEmpty": "Nobody in this bucket yet",
+    "noSearchResults": "No matches",
+    "actionsComingSoon": "Message and re-activation actions coming soon"
   }
 }

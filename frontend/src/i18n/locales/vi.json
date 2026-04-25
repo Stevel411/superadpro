@@ -3608,6 +3608,20 @@
     "fullAnalyticsTitle": "Bảng điều khiển phân tích đầy đủ",
     "fullAnalyticsDesc": "Biểu đồ, phân tích, hiệu suất liên kết, lịch sử rút tiền, tăng trưởng đội.",
     "open": "Mở",
-    "view": "Xem"
+    "view": "Xem",
+    "searchPlaceholder": "Tìm theo tên",
+    "sortBy": "Sắp xếp theo",
+    "sortRecent": "Mới nhất",
+    "sortOldest": "Cũ nhất trước",
+    "sortName": "Tên",
+    "rowJoined": "Tham gia",
+    "rowLastPaid": "thanh toán gần nhất",
+    "rowDaysAgo": "ngày trước",
+    "rowActive": "Đang hoạt động",
+    "rowInactive": "Không hoạt động",
+    "rowCountry": "Quốc gia",
+    "bucketEmpty": "Chưa có ai trong danh mục này",
+    "noSearchResults": "Không có kết quả",
+    "actionsComingSoon": "Hành động nhắn tin và kích hoạt lại sắp ra mắt"
   }
 }

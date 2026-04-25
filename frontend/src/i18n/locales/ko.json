@@ -3608,6 +3608,20 @@
     "fullAnalyticsTitle": "전체 분석 대시보드",
     "fullAnalyticsDesc": "차트, 세부 사항, 링크 성과, 출금 기록, 팀 성장.",
     "open": "열기",
-    "view": "보기"
+    "view": "보기",
+    "searchPlaceholder": "이름으로 검색",
+    "sortBy": "정렬 기준",
+    "sortRecent": "최신순",
+    "sortOldest": "오래된순",
+    "sortName": "이름",
+    "rowJoined": "가입",
+    "rowLastPaid": "최근 결제",
+    "rowDaysAgo": "일 전",
+    "rowActive": "활성",
+    "rowInactive": "비활성",
+    "rowCountry": "국가",
+    "bucketEmpty": "이 카테고리에 아직 아무도 없습니다",
+    "noSearchResults": "일치 항목 없음",
+    "actionsComingSoon": "메시지 및 재활성화 작업이 곧 추가됩니다"
   }
 }

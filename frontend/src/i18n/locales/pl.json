@@ -3608,6 +3608,20 @@
     "fullAnalyticsTitle": "Pełny panel analityczny",
     "fullAnalyticsDesc": "Wykresy, podziały, wydajność linków, historia wypłat, wzrost zespołu.",
     "open": "Otwórz",
-    "view": "Zobacz"
+    "view": "Zobacz",
+    "searchPlaceholder": "Szukaj po nazwie",
+    "sortBy": "Sortuj według",
+    "sortRecent": "Najnowsze",
+    "sortOldest": "Najstarsze pierwsze",
+    "sortName": "Nazwa",
+    "rowJoined": "Dołączył",
+    "rowLastPaid": "ostatnia płatność",
+    "rowDaysAgo": "dni temu",
+    "rowActive": "Aktywny",
+    "rowInactive": "Nieaktywny",
+    "rowCountry": "Kraj",
+    "bucketEmpty": "Nikogo w tej kategorii",
+    "noSearchResults": "Brak wyników",
+    "actionsComingSoon": "Akcje wiadomości i reaktywacji wkrótce"
   }
 }

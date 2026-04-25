@@ -3616,6 +3616,20 @@
     "fullAnalyticsTitle": "Полная панель аналитики",
     "fullAnalyticsDesc": "Графики, разбивки, производительность ссылок, история выводов, рост команды.",
     "open": "Открыть",
-    "view": "Посмотреть"
+    "view": "Посмотреть",
+    "searchPlaceholder": "Поиск по имени",
+    "sortBy": "Сортировать",
+    "sortRecent": "Сначала новые",
+    "sortOldest": "Сначала старые",
+    "sortName": "Имя",
+    "rowJoined": "Присоединился",
+    "rowLastPaid": "последняя оплата",
+    "rowDaysAgo": "дн. назад",
+    "rowActive": "Активный",
+    "rowInactive": "Неактивный",
+    "rowCountry": "Страна",
+    "bucketEmpty": "В этой категории пока никого",
+    "noSearchResults": "Совпадений нет",
+    "actionsComingSoon": "Сообщения и реактивация скоро"
   }
 }

@@ -3608,6 +3608,20 @@
     "fullAnalyticsTitle": "Dashibodi kamili ya uchanganuzi",
     "fullAnalyticsDesc": "Chati, uchambuzi, utendaji wa viungo, historia ya kutoa, ukuaji wa timu.",
     "open": "Fungua",
-    "view": "Tazama"
+    "view": "Tazama",
+    "searchPlaceholder": "Tafuta kwa jina",
+    "sortBy": "Panga kwa",
+    "sortRecent": "Mpya zaidi",
+    "sortOldest": "Za zamani kwanza",
+    "sortName": "Jina",
+    "rowJoined": "Alijiunga",
+    "rowLastPaid": "malipo ya mwisho",
+    "rowDaysAgo": "siku zilizopita",
+    "rowActive": "Hai",
+    "rowInactive": "Si hai",
+    "rowCountry": "Nchi",
+    "bucketEmpty": "Bado hakuna mtu katika kategoria hii",
+    "noSearchResults": "Hakuna kupatana",
+    "actionsComingSoon": "Vitendo vya ujumbe na kuwasha tena vinakuja hivi karibuni"
   }
 }

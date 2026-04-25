@@ -9,6 +9,7 @@ import { Component, Suspense } from 'react';
 // ── Direct imports (core pages — instant navigation, no spinner) ──
 import Dashboard from './pages/Dashboard';
 import CommandCentre from './pages/CommandCentre';
+import BucketList from './pages/BucketList';
 import OnboardingWizard from './pages/OnboardingWizard';
 import AnalyticsPage from './pages/Analytics';
 import CreateCampaign from './pages/CreateCampaign';
@@ -146,6 +147,11 @@ function AppRoutes() {
       <Route path="/onboarding" element={<ProtectedRoute><OnboardingWizard /></ProtectedRoute>} />
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/command-centre" element={<ProtectedRoute><CommandCentre /></ProtectedRoute>} />
+      <Route path="/command-centre/directs/active" element={<ProtectedRoute><BucketList bucketKey="directs-active" /></ProtectedRoute>} />
+      <Route path="/command-centre/directs/lapsed" element={<ProtectedRoute><BucketList bucketKey="directs-lapsed" /></ProtectedRoute>} />
+      <Route path="/command-centre/directs/never-paid" element={<ProtectedRoute><BucketList bucketKey="directs-never-paid" /></ProtectedRoute>} />
+      <Route path="/command-centre/grid-team" element={<ProtectedRoute><BucketList bucketKey="grid-team" /></ProtectedRoute>} />
+      <Route path="/command-centre/nexus-team" element={<ProtectedRoute><BucketList bucketKey="nexus-team" /></ProtectedRoute>} />
       <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
       <Route path="/account/faq" element={<ProtectedRoute><InternalFAQ /></ProtectedRoute>} />

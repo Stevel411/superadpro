@@ -3608,6 +3608,20 @@
     "fullAnalyticsTitle": "Tam analiz paneli",
     "fullAnalyticsDesc": "Grafikler, dağılımlar, link performansı, çekim geçmişi, ekip büyümesi.",
     "open": "Aç",
-    "view": "Görüntüle"
+    "view": "Görüntüle",
+    "searchPlaceholder": "İsme göre ara",
+    "sortBy": "Sıralama",
+    "sortRecent": "En yeni",
+    "sortOldest": "En eski",
+    "sortName": "İsim",
+    "rowJoined": "Katıldı",
+    "rowLastPaid": "son ödeme",
+    "rowDaysAgo": "gün önce",
+    "rowActive": "Aktif",
+    "rowInactive": "Pasif",
+    "rowCountry": "Ülke",
+    "bucketEmpty": "Bu kategoride henüz kimse yok",
+    "noSearchResults": "Eşleşme yok",
+    "actionsComingSoon": "Mesaj ve yeniden aktifleştirme yakında"
   }
 }

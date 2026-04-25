@@ -3616,6 +3616,20 @@
     "fullAnalyticsTitle": "Tableau d'analyse complet",
     "fullAnalyticsDesc": "Graphiques, détails, performance des liens, historique de retraits, croissance d'équipe.",
     "open": "Ouvrir",
-    "view": "Voir"
+    "view": "Voir",
+    "searchPlaceholder": "Rechercher par nom",
+    "sortBy": "Trier par",
+    "sortRecent": "Plus récent",
+    "sortOldest": "Plus ancien",
+    "sortName": "Nom",
+    "rowJoined": "Rejoint",
+    "rowLastPaid": "dernier paiement",
+    "rowDaysAgo": "jours",
+    "rowActive": "Actif",
+    "rowInactive": "Inactif",
+    "rowCountry": "Pays",
+    "bucketEmpty": "Personne dans cette catégorie",
+    "noSearchResults": "Aucune correspondance",
+    "actionsComingSoon": "Actions de message et réactivation bientôt"
   }
 }

@@ -3616,6 +3616,20 @@
     "fullAnalyticsTitle": "Vollständiges Analyse-Dashboard",
     "fullAnalyticsDesc": "Diagramme, Aufschlüsselungen, Link-Performance, Auszahlungshistorie, Teamwachstum.",
     "open": "Öffnen",
-    "view": "Ansehen"
+    "view": "Ansehen",
+    "searchPlaceholder": "Nach Namen suchen",
+    "sortBy": "Sortieren nach",
+    "sortRecent": "Neueste zuerst",
+    "sortOldest": "Älteste zuerst",
+    "sortName": "Name",
+    "rowJoined": "Beigetreten",
+    "rowLastPaid": "zuletzt bezahlt",
+    "rowDaysAgo": "Tage her",
+    "rowActive": "Aktiv",
+    "rowInactive": "Inaktiv",
+    "rowCountry": "Land",
+    "bucketEmpty": "Noch niemand in dieser Kategorie",
+    "noSearchResults": "Keine Treffer",
+    "actionsComingSoon": "Nachrichten- und Reaktivierungsaktionen bald verfügbar"
   }
 }

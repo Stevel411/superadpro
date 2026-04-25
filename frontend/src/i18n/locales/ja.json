@@ -3608,6 +3608,20 @@
     "fullAnalyticsTitle": "完全分析ダッシュボード",
     "fullAnalyticsDesc": "チャート、内訳、リンクパフォーマンス、出金履歴、チーム成長。",
     "open": "開く",
-    "view": "表示"
+    "view": "表示",
+    "searchPlaceholder": "名前で検索",
+    "sortBy": "並び替え",
+    "sortRecent": "最新順",
+    "sortOldest": "古い順",
+    "sortName": "名前",
+    "rowJoined": "参加",
+    "rowLastPaid": "最終支払い",
+    "rowDaysAgo": "日前",
+    "rowActive": "アクティブ",
+    "rowInactive": "非アクティブ",
+    "rowCountry": "国",
+    "bucketEmpty": "このカテゴリにはまだ誰もいません",
+    "noSearchResults": "一致なし",
+    "actionsComingSoon": "メッセージと再アクティブ化機能は近日公開"
   }
 }

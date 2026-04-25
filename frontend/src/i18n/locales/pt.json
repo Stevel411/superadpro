@@ -3616,6 +3616,20 @@
     "fullAnalyticsTitle": "Painel de análise completo",
     "fullAnalyticsDesc": "Gráficos, detalhamentos, desempenho de links, histórico de saques, crescimento.",
     "open": "Abrir",
-    "view": "Ver"
+    "view": "Ver",
+    "searchPlaceholder": "Buscar por nome",
+    "sortBy": "Ordenar por",
+    "sortRecent": "Mais recentes",
+    "sortOldest": "Mais antigos primeiro",
+    "sortName": "Nome",
+    "rowJoined": "Cadastrou-se",
+    "rowLastPaid": "último pagamento",
+    "rowDaysAgo": "dias atrás",
+    "rowActive": "Ativo",
+    "rowInactive": "Inativo",
+    "rowCountry": "País",
+    "bucketEmpty": "Ninguém nesta categoria ainda",
+    "noSearchResults": "Sem correspondências",
+    "actionsComingSoon": "Ações de mensagem e reativação em breve"
   }
 }

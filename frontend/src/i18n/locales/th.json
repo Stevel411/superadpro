@@ -3608,6 +3608,20 @@
     "fullAnalyticsTitle": "แดชบอร์ดวิเคราะห์ฉบับเต็ม",
     "fullAnalyticsDesc": "แผนภูมิ การแยกย่อย ประสิทธิภาพลิงก์ ประวัติการถอน การเติบโตของทีม",
     "open": "เปิด",
-    "view": "ดู"
+    "view": "ดู",
+    "searchPlaceholder": "ค้นหาตามชื่อ",
+    "sortBy": "เรียงตาม",
+    "sortRecent": "ล่าสุด",
+    "sortOldest": "เก่าสุดก่อน",
+    "sortName": "ชื่อ",
+    "rowJoined": "เข้าร่วม",
+    "rowLastPaid": "ชำระล่าสุด",
+    "rowDaysAgo": "วันที่แล้ว",
+    "rowActive": "ใช้งาน",
+    "rowInactive": "ไม่ใช้งาน",
+    "rowCountry": "ประเทศ",
+    "bucketEmpty": "ยังไม่มีใครในหมวดนี้",
+    "noSearchResults": "ไม่พบผลลัพธ์",
+    "actionsComingSoon": "การส่งข้อความและการเปิดใช้งานใหม่เร็วๆ นี้"
   }
 }

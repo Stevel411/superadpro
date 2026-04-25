@@ -2930,6 +2930,190 @@ def api_dashboard(request: Request, user: User = Depends(get_current_user),
         logger.error(f"Dashboard API error for user {user.id}: {traceback.format_exc()}")
         return JSONResponse({"error": str(exc), "trace": traceback.format_exc()[-500:]}, status_code=500)
 
+
+# ── Command Centre Layer 2: drill-down endpoints ─────────────────
+# Returns lists of members in a given bucket, privacy-conscious by
+# design — never exposes other members' earnings or financial data.
+# Public profile fields only: username, display name, avatar, country,
+# membership tier, signup date, last membership-payment date.
+#
+# Layer 1 returns counts via /api/dashboard. Layer 2 returns the actual
+# members behind those counts so members can see who to follow up with.
+# Layer 3 will add per-member actions (message, re-activate email).
+
+def _direct_member_payload(u, last_paid_at):
+    """Build a member row dict — privacy-conscious. No earnings, no email,
+    no balance. Used by /api/command-centre/directs and grid/nexus too."""
+    return {
+        "id": u.id,
+        "username": u.username,
+        "display_name": u.first_name or u.username,
+        "avatar_url": u.avatar_url or None,
+        "country": u.country or None,
+        "membership_tier": u.membership_tier or "basic",
+        "is_active": bool(u.is_active),
+        "signed_up_at": u.created_at.isoformat() if u.created_at else None,
+        "last_paid_at": last_paid_at.isoformat() if last_paid_at else None,
+    }
+
+
+@app.get("/api/command-centre/directs")
+def api_command_centre_directs(
+    request: Request,
+    bucket: str = "active",
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """List of direct referrals filtered by bucket (active/lapsed/never_paid).
+
+    Returns ONLY public profile fields + signup/last-paid dates.
+    Never exposes earnings, balances, email addresses, or anything else
+    that would let a sponsor see another member's financial activity.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if bucket not in ("active", "lapsed", "never_paid"):
+        return JSONResponse({"error": "Invalid bucket"}, status_code=400)
+
+    # Base query: all direct referrals
+    base = db.query(User).filter(User.sponsor_id == user.id)
+
+    if bucket == "active":
+        members = base.filter(User.is_active == True).order_by(User.created_at.desc()).all()
+    else:
+        # Both lapsed and never_paid are is_active=False; difference is
+        # whether they have a confirmed membership Payment row.
+        ever_paid_subq = db.query(Payment.from_user_id).filter(
+            Payment.payment_type.like("membership%"),
+            Payment.status.in_(["confirmed", "paid"]),
+        )
+        if bucket == "lapsed":
+            members = base.filter(
+                User.is_active == False,
+                User.id.in_(ever_paid_subq),
+            ).order_by(User.created_at.desc()).all()
+        else:  # never_paid
+            members = base.filter(
+                User.is_active == False,
+                ~User.id.in_(ever_paid_subq),
+            ).order_by(User.created_at.desc()).all()
+
+    # Look up last membership payment date per member (single query, then map)
+    member_ids = [m.id for m in members]
+    last_paid_map = {}
+    if member_ids:
+        rows = db.query(
+            Payment.from_user_id,
+            func.max(Payment.created_at),
+        ).filter(
+            Payment.from_user_id.in_(member_ids),
+            Payment.payment_type.like("membership%"),
+            Payment.status.in_(["confirmed", "paid"]),
+        ).group_by(Payment.from_user_id).all()
+        last_paid_map = {row[0]: row[1] for row in rows}
+
+    return {
+        "bucket": bucket,
+        "count": len(members),
+        "members": [_direct_member_payload(m, last_paid_map.get(m.id)) for m in members],
+    }
+
+
+@app.get("/api/command-centre/grid-team")
+def api_command_centre_grid_team(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Distinct members occupying positions in any of THIS user's grids.
+    Privacy-conscious — public profile fields only, no earnings."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # Distinct user IDs filling positions in this user's grids
+    member_ids = [row[0] for row in db.query(GridPosition.member_id).join(
+        Grid, GridPosition.grid_id == Grid.id
+    ).filter(Grid.owner_id == user.id).distinct().all() if row[0]]
+
+    if not member_ids:
+        return {"count": 0, "members": []}
+
+    members = db.query(User).filter(User.id.in_(member_ids)).order_by(User.created_at.desc()).all()
+
+    # Last membership payment date per member
+    last_paid_map = {}
+    rows = db.query(
+        Payment.from_user_id, func.max(Payment.created_at),
+    ).filter(
+        Payment.from_user_id.in_(member_ids),
+        Payment.payment_type.like("membership%"),
+        Payment.status.in_(["confirmed", "paid"]),
+    ).group_by(Payment.from_user_id).all()
+    last_paid_map = {row[0]: row[1] for row in rows}
+
+    return {
+        "count": len(members),
+        "members": [_direct_member_payload(m, last_paid_map.get(m.id)) for m in members],
+    }
+
+
+@app.get("/api/command-centre/nexus-team")
+def api_command_centre_nexus_team(
+    request: Request,
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Distinct members in THIS user's credit matrix positions, excluding
+    the owner themselves. Privacy-conscious — same shape as grid-team."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    # Distinct user IDs in this user's matrices, excluding the owner
+    member_ids = [row[0] for row in db.query(CreditMatrixPosition.user_id).join(
+        CreditMatrix, CreditMatrixPosition.matrix_id == CreditMatrix.id
+    ).filter(
+        CreditMatrix.owner_id == user.id,
+        CreditMatrixPosition.user_id != user.id,
+    ).distinct().all() if row[0]]
+
+    if not member_ids:
+        return {"count": 0, "members": []}
+
+    members = db.query(User).filter(User.id.in_(member_ids)).order_by(User.created_at.desc()).all()
+
+    last_paid_map = {}
+    rows = db.query(
+        Payment.from_user_id, func.max(Payment.created_at),
+    ).filter(
+        Payment.from_user_id.in_(member_ids),
+        Payment.payment_type.like("membership%"),
+        Payment.status.in_(["confirmed", "paid"]),
+    ).group_by(Payment.from_user_id).all()
+    last_paid_map = {row[0]: row[1] for row in rows}
+
+    return {
+        "count": len(members),
+        "members": [_direct_member_payload(m, last_paid_map.get(m.id)) for m in members],
+    }
+
+
+# ── Command Centre Layer 2: SPA route handlers ─────────────────
+# CLAUDE.md mandatory rule: every React route in App.jsx needs a
+# corresponding @app.get() in main.py serving _react_index.read_text()
+# so direct URL access and refresh work.
+
+@app.get("/command-centre/directs/active")
+@app.get("/command-centre/directs/lapsed")
+@app.get("/command-centre/directs/never-paid")
+@app.get("/command-centre/grid-team")
+@app.get("/command-centre/nexus-team")
+def command_centre_drilldown_pages(request: Request):
+    """Serve React SPA for any Command Centre Layer 2 drill-down page."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+
 @app.get("/analytics")
 def analytics_page(request: Request):
     """Serve React SPA for analytics."""

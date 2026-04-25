@@ -3616,6 +3616,20 @@
     "fullAnalyticsTitle": "Dashboard analitica completa",
     "fullAnalyticsDesc": "Grafici, dettagli, performance dei link, storico prelievi, crescita del team.",
     "open": "Apri",
-    "view": "Vedi"
+    "view": "Vedi",
+    "searchPlaceholder": "Cerca per nome",
+    "sortBy": "Ordina per",
+    "sortRecent": "Più recente",
+    "sortOldest": "Più vecchio",
+    "sortName": "Nome",
+    "rowJoined": "Registrato",
+    "rowLastPaid": "ultimo pagamento",
+    "rowDaysAgo": "giorni fa",
+    "rowActive": "Attivo",
+    "rowInactive": "Inattivo",
+    "rowCountry": "Paese",
+    "bucketEmpty": "Nessuno in questa categoria ancora",
+    "noSearchResults": "Nessun risultato",
+    "actionsComingSoon": "Azioni di messaggio e riattivazione presto"
   }
 }

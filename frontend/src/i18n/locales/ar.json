@@ -3608,6 +3608,20 @@
     "fullAnalyticsTitle": "لوحة التحليل الكاملة",
     "fullAnalyticsDesc": "رسوم بيانية وتفاصيل وأداء الروابط وسجل السحوبات ونمو الفريق.",
     "open": "فتح",
-    "view": "عرض"
+    "view": "عرض",
+    "searchPlaceholder": "بحث بالاسم",
+    "sortBy": "ترتيب حسب",
+    "sortRecent": "الأحدث",
+    "sortOldest": "الأقدم أولاً",
+    "sortName": "الاسم",
+    "rowJoined": "انضم",
+    "rowLastPaid": "آخر دفعة",
+    "rowDaysAgo": "أيام مضت",
+    "rowActive": "نشط",
+    "rowInactive": "غير نشط",
+    "rowCountry": "الدولة",
+    "bucketEmpty": "لا أحد في هذه الفئة بعد",
+    "noSearchResults": "لا توجد نتائج",
+    "actionsComingSoon": "إجراءات الرسائل وإعادة التنشيط قريبًا"
   }
 }

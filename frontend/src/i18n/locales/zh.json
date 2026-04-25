@@ -3608,6 +3608,20 @@
     "fullAnalyticsTitle": "完整分析仪表板",
     "fullAnalyticsDesc": "图表、细分、链接表现、提现历史、团队增长。",
     "open": "打开",
-    "view": "查看"
+    "view": "查看",
+    "searchPlaceholder": "按姓名搜索",
+    "sortBy": "排序方式",
+    "sortRecent": "最新",
+    "sortOldest": "最早",
+    "sortName": "姓名",
+    "rowJoined": "加入",
+    "rowLastPaid": "最后付款",
+    "rowDaysAgo": "天前",
+    "rowActive": "活跃",
+    "rowInactive": "非活跃",
+    "rowCountry": "国家",
+    "bucketEmpty": "此类别中还没有人",
+    "noSearchResults": "无匹配",
+    "actionsComingSoon": "消息和重新激活操作即将推出"
   }
 }

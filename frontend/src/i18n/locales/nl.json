@@ -3616,6 +3616,20 @@
     "fullAnalyticsTitle": "Volledig analyse-dashboard",
     "fullAnalyticsDesc": "Grafieken, uitsplitsingen, link-prestaties, opnamegeschiedenis, teamgroei.",
     "open": "Openen",
-    "view": "Bekijken"
+    "view": "Bekijken",
+    "searchPlaceholder": "Zoek op naam",
+    "sortBy": "Sorteer op",
+    "sortRecent": "Meest recent",
+    "sortOldest": "Oudste eerst",
+    "sortName": "Naam",
+    "rowJoined": "Aangemeld",
+    "rowLastPaid": "laatst betaald",
+    "rowDaysAgo": "dagen geleden",
+    "rowActive": "Actief",
+    "rowInactive": "Inactief",
+    "rowCountry": "Land",
+    "bucketEmpty": "Nog niemand in deze categorie",
+    "noSearchResults": "Geen resultaten",
+    "actionsComingSoon": "Bericht- en reactivatie-acties binnenkort"
   }
 }

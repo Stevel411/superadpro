@@ -3608,6 +3608,20 @@
     "fullAnalyticsTitle": "Dasbor analitik lengkap",
     "fullAnalyticsDesc": "Grafik, rincian, kinerja tautan, riwayat penarikan, pertumbuhan tim.",
     "open": "Buka",
-    "view": "Lihat"
+    "view": "Lihat",
+    "searchPlaceholder": "Cari berdasarkan nama",
+    "sortBy": "Urutkan berdasarkan",
+    "sortRecent": "Terbaru",
+    "sortOldest": "Terlama dulu",
+    "sortName": "Nama",
+    "rowJoined": "Bergabung",
+    "rowLastPaid": "pembayaran terakhir",
+    "rowDaysAgo": "hari lalu",
+    "rowActive": "Aktif",
+    "rowInactive": "Tidak aktif",
+    "rowCountry": "Negara",
+    "bucketEmpty": "Belum ada orang di kategori ini",
+    "noSearchResults": "Tidak ada hasil",
+    "actionsComingSoon": "Aksi pesan dan reaktivasi segera hadir"
   }
 }

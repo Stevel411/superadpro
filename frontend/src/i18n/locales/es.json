@@ -3616,6 +3616,20 @@
     "fullAnalyticsTitle": "Panel de análisis completo",
     "fullAnalyticsDesc": "Gráficos, desgloses, rendimiento de enlaces, historial de retiros, crecimiento del equipo.",
     "open": "Abrir",
-    "view": "Ver"
+    "view": "Ver",
+    "searchPlaceholder": "Buscar por nombre",
+    "sortBy": "Ordenar por",
+    "sortRecent": "Más reciente",
+    "sortOldest": "Más antiguo primero",
+    "sortName": "Nombre",
+    "rowJoined": "Se unió",
+    "rowLastPaid": "último pago",
+    "rowDaysAgo": "días atrás",
+    "rowActive": "Activo",
+    "rowInactive": "Inactivo",
+    "rowCountry": "País",
+    "bucketEmpty": "Nadie en esta categoría aún",
+    "noSearchResults": "Sin coincidencias",
+    "actionsComingSoon": "Acciones de mensaje y reactivación próximamente"
   }
 }

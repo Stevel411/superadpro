@@ -79,7 +79,7 @@ export default function CommandCentre() {
       value: d.directs_active || 0,
       icon: UserCheck,
       color: 'var(--sap-green)',
-      link: '/network',  // TODO Layer 2: /command-centre/directs/active
+      link: '/command-centre/directs/active',
     },
     {
       label: t('commandCentre.lapsedDirectsLabel'),
@@ -87,7 +87,7 @@ export default function CommandCentre() {
       value: d.directs_lapsed || 0,
       icon: UserMinus,
       color: 'var(--sap-amber-dark)',
-      link: '/network',  // TODO Layer 2: /command-centre/directs/lapsed
+      link: '/command-centre/directs/lapsed',
     },
     {
       label: t('commandCentre.neverPaidDirectsLabel'),
@@ -95,7 +95,7 @@ export default function CommandCentre() {
       value: d.directs_never_paid || 0,
       icon: UserX,
       color: 'var(--sap-text-muted)',
-      link: '/network',  // TODO Layer 2: /command-centre/directs/never-paid
+      link: '/command-centre/directs/never-paid',
     },
   ];
 
@@ -107,6 +107,7 @@ export default function CommandCentre() {
       value: d.grid_team_count || 0,
       icon: LayoutGrid,
       color: 'var(--sap-violet)',
+      link: '/command-centre/grid-team',
     },
     {
       label: t('commandCentre.nexusTeamLabel'),
@@ -114,6 +115,7 @@ export default function CommandCentre() {
       value: d.nexus_team_count || 0,
       icon: Star,
       color: 'var(--sap-indigo)',
+      link: '/command-centre/nexus-team',
     },
   ];
 
@@ -302,9 +304,12 @@ export default function CommandCentre() {
           const Icon = b.icon;
           const isLast = i === structureBuckets.length - 1;
           return (
-            <div key={i} style={{
+            <Link key={i} to={b.link} className="cc-bucket" style={{
               padding: '24px 24px 20px',
               borderRight: isLast ? 'none' : '1px solid var(--sap-border-light)',
+              textDecoration: 'none',
+              color: 'inherit',
+              transition: 'background 0.15s',
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                 <div style={{ width: 36, height: 36, borderRadius: 9, background: b.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -316,7 +321,7 @@ export default function CommandCentre() {
                 {b.value}
               </div>
               <div style={TYPE.bodyMuted}>{b.sublabel}</div>
-            </div>
+            </Link>
           );
         })}
       </div>
@@ -473,12 +478,12 @@ export default function CommandCentre() {
         }
         @media(max-width: 767px) {
           .cc-directs-panel > a,
-          .cc-structures-panel > div {
+          .cc-structures-panel > a {
             border-right: none !important;
             border-bottom: 1px solid var(--sap-border-light);
           }
           .cc-directs-panel > a:last-child,
-          .cc-structures-panel > div:last-child {
+          .cc-structures-panel > a:last-child {
             border-bottom: none;
           }
         }
