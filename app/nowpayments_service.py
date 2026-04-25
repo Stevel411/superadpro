@@ -57,13 +57,33 @@ PRODUCT_CATALOG = {
     "email_boost_5000":     {"price": Decimal("19.00"), "type": "email_boost", "desc": "Email Boost — 5,000 Credits"},
     "email_boost_10000":    {"price": Decimal("29.00"), "type": "email_boost", "desc": "Email Boost — 10,000 Credits"},
     "email_boost_50000":    {"price": Decimal("99.00"), "type": "email_boost", "desc": "Email Boost — 50,000 Credits"},
-    # Credit Matrix Packs (replaces old SuperScene packs)
-    "credit_matrix_starter":  {"price": Decimal("25.00"),  "type": "credit_matrix", "desc": "Profit Nexus Starter — 150 Credits"},
-    "credit_matrix_builder":  {"price": Decimal("50.00"),  "type": "credit_matrix", "desc": "Profit Nexus Builder — 350 Credits"},
-    "credit_matrix_pro":      {"price": Decimal("100.00"), "type": "credit_matrix", "desc": "Profit Nexus Pro — 800 Credits"},
-    "credit_matrix_elite":    {"price": Decimal("250.00"), "type": "credit_matrix", "desc": "Profit Nexus Elite — 2,200 Credits"},
-    "credit_matrix_ultimate": {"price": Decimal("500.00"), "type": "credit_matrix", "desc": "Profit Nexus Ultimate — 5,000 Credits"},
 }
+
+# ── Credit Matrix (Profit Nexus) packs ───────────────────────────
+# These are generated DYNAMICALLY from CREDIT_PACKS in database.py
+# so the two files can never drift apart on price or pack count.
+# Previously this section was hardcoded with stale prices (e.g. $20
+# pack listed at $25, $1000 listed at $500, missing 3 packs entirely)
+# which caused real overcharge/undercharge bugs at the NOWPayments
+# checkout. (Apr 25 2026 fix.)
+#
+# Source of truth: CREDIT_PACKS in app/database.py — used by
+# credit_matrix.py for matrix logic, commission calcs, credit awards.
+# This block keeps PRODUCT_CATALOG aligned automatically.
+def _build_credit_matrix_entries():
+    """Pull pack prices and labels from CREDIT_PACKS at import time."""
+    from .database import CREDIT_PACKS
+    entries = {}
+    for pack_key, pack in CREDIT_PACKS.items():
+        product_key = f"credit_matrix_{pack_key}"
+        entries[product_key] = {
+            "price": Decimal(str(pack["price"])),
+            "type": "credit_matrix",
+            "desc": f"Profit Nexus {pack['label']} — {pack['credits']:,} Credits",
+        }
+    return entries
+
+PRODUCT_CATALOG.update(_build_credit_matrix_entries())
 
 
 def is_configured() -> bool:
