@@ -3762,6 +3762,18 @@ def wallet(request: Request):
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
 
+@app.get("/income")
+def income_landing(request: Request):
+    """Serve React SPA for the new Income door landing page (Apr 2026).
+    Door 2 of 4 — gateway to the four income streams + wallet. The actual
+    React page is at frontend/src/pages/IncomePage.jsx with route /income
+    in App.jsx; this FastAPI handler just makes sure direct navigation to
+    /income (browser address bar, link from Dashboard, deep link) returns
+    index.html so the SPA can take over."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
 def _old_wallet_DISABLED(request: Request, user: User = Depends(get_current_user),
            db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
