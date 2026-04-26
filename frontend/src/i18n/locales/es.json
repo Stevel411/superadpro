@@ -99,7 +99,21 @@
     "incomeChains": "Cadenas de Ingresos",
     "shareStory": "Comparte tu historia",
     "adminStories": "Moderación de historias",
-    "adminShowcase": "Moderación de showcase"
+    "adminShowcase": "Moderación de showcase",
+    "income": "INCOME",
+    "tools": "TOOLS",
+    "learn": "LEARN",
+    "bannerCreator": "Banner Creator",
+    "memeGenerator": "Meme Generator",
+    "qrGenerator": "QR Generator",
+    "nicheFinder": "Niche Finder",
+    "proSeller": "ProSeller",
+    "training": "Training",
+    "emailSwipes": "Email Swipes",
+    "showcases": "Showcases",
+    "memberStories": "Member Stories",
+    "leadFinder": "Lead Finder",
+    "commandCentre": "Command Centre"
   },
   "dashboard": {
     "title": "Panel",

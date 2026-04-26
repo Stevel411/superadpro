@@ -99,7 +99,21 @@
     "incomeChains": "Gelir Zincirleri",
     "shareStory": "Hikâyeni Paylaş",
     "adminStories": "Hikâye Moderasyonu",
-    "adminShowcase": "Showcase Moderasyonu"
+    "adminShowcase": "Showcase Moderasyonu",
+    "income": "INCOME",
+    "tools": "TOOLS",
+    "learn": "LEARN",
+    "bannerCreator": "Banner Creator",
+    "memeGenerator": "Meme Generator",
+    "qrGenerator": "QR Generator",
+    "nicheFinder": "Niche Finder",
+    "proSeller": "ProSeller",
+    "training": "Training",
+    "emailSwipes": "Email Swipes",
+    "showcases": "Showcases",
+    "memberStories": "Member Stories",
+    "leadFinder": "Lead Finder",
+    "commandCentre": "Command Centre"
   },
   "dashboard": {
     "title": "Gösterge Paneli",

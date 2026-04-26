@@ -5,68 +5,113 @@ import { useTranslation } from 'react-i18next';
 import {
   Home, User, Wallet, Headphones, Eye, Zap, LayoutGrid, Link2,
   Globe, GraduationCap, PenLine, Network, FileText, Users,
-  Target, Mail, Trophy, Bot, Film,
+  Target, Mail, Trophy, Bot, Film, Gauge,
   LogOut, ChevronRight, Play, Lock, Sparkles, Shield, X,
   BookOpen, PlusCircle, Scissors, Clock, UserCircle, Tv,
   Wrench, Share2, Megaphone, Heart, Monitor, Map, Layers, DollarSign, BarChart3, MessageCircle, Download, Search, HelpCircle
 } from 'lucide-react';
 
 function buildNav(t, isAdmin) {
+  // ════════════════════════════════════════════════════════════════
+  // FOUR-DOOR NAVIGATION TAXONOMY
+  // ════════════════════════════════════════════════════════════════
+  // Sidebar reorganised 26 Apr 2026 to align with Dashboard's four
+  // door cards: Command Centre / Income / Tools / Learn. Each
+  // sidebar group corresponds to one door so members hold ONE
+  // mental model, not two.
+  //
+  // Removed from sidebar (intentional):
+  //   - Team Messenger     → lives inside Command Centre
+  //   - Pay It Forward     → reachable from Dashboard
+  //   - Watch to Earn group → Watch folded into INCOME's grid section
+  //   - Affiliate Hub group → items distributed across other groups
+  //
+  // FAQ + Support sit together at the bottom as the "help cluster".
+  // ════════════════════════════════════════════════════════════════
   var items = [
+    // ── Top standalones ────────────────────────────────────────
     { type: 'standalone', label: t('nav.dashboard'), shortLabel: t('navShort.dashboard', { defaultValue: 'Home' }), icon: Home, path: '/dashboard' },
-    { type: 'standalone', label: t('nav.platformTour'), shortLabel: t('navShort.platformTour', { defaultValue: 'Tour' }), icon: Map, path: '/tour' },
-    { type: 'standalone', label: t('nav.teamMessenger', { defaultValue: 'Team Messenger' }), shortLabel: t('navShort.teamMessenger', { defaultValue: 'Chat' }), icon: MessageCircle, path: '/team-messenger' },
+    { type: 'standalone', label: t('nav.commandCentre', { defaultValue: 'Command Centre' }), shortLabel: t('navShort.commandCentre', { defaultValue: 'Centre' }), icon: Gauge, path: '/command-centre' },
+
     { type: 'divider' },
-    { type: 'group', label: t('nav.account'), shortLabel: t('navShort.account', { defaultValue: 'Acct' }), key: 'account', icon: UserCircle, items: [
-      { label: t('nav.myProfile'), shortLabel: t('navShort.myProfile', { defaultValue: 'Profile' }), icon: User, path: '/account' },
+
+    // ── INCOME ── 4 streams + wallet + grid sub-features ──────
+    // Order: Wallet first (most-used), then the four streams in canonical
+    // order (Membership/Grid/Nexus/Courses). Grid is the busiest stream
+    // so its sub-features (Watch, Create, Videos, Analytics, Calculator,
+    // My Grid) sit immediately after the Grid entry as a flat block.
+    { type: 'group', label: t('nav.income', { defaultValue: 'INCOME' }), shortLabel: t('navShort.income', { defaultValue: 'Income' }), key: 'income', icon: DollarSign, items: [
       { label: t('nav.wallet'), shortLabel: t('navShort.wallet', { defaultValue: 'Wallet' }), icon: Wallet, path: '/wallet' },
-      { label: t('nav.cryptoGuide'), shortLabel: t('navShort.cryptoGuide', { defaultValue: 'Crypto' }), icon: Shield, path: '/crypto-guide' },
-      { label: t('nav.support'), shortLabel: t('navShort.support', { defaultValue: 'Support' }), icon: Headphones, path: '/support' },
-    ]},
-    { type: 'divider' },
-    { type: 'group', label: t('nav.watchToEarn'), shortLabel: t('navShort.watchToEarn', { defaultValue: 'Earn' }), key: 'earn', icon: Tv, items: [
+      { label: t('nav.profitGrid'), shortLabel: t('navShort.profitGrid', { defaultValue: 'Grid' }), icon: Target, path: '/campaign-tiers' },
       { label: t('nav.watch'), shortLabel: t('navShort.watch', { defaultValue: 'Watch' }), icon: Eye, path: '/watch' },
       { label: t('nav.createCampaign'), shortLabel: t('navShort.createCampaign', { defaultValue: 'Create' }), icon: PlusCircle, path: '/create-campaign' },
       { label: t('nav.myCampaigns'), shortLabel: t('navShort.myCampaigns', { defaultValue: 'Videos' }), icon: Film, path: '/video-library' },
       { label: t('nav.campaignAnalytics'), shortLabel: t('navShort.campaignAnalytics', { defaultValue: 'Stats' }), icon: BarChart3, path: '/campaign-analytics' },
-    ]},
-    { type: 'divider' },
-    { type: 'group', label: t('nav.basicTools'), shortLabel: t('navShort.basicTools', { defaultValue: 'Basic' }), key: 'basic-tools', icon: Wrench, items: [
-      { label: t('nav.linkHub'), shortLabel: t('navShort.linkHub', { defaultValue: 'Links' }), icon: Link2, path: '/linkhub' },
-      { label: t('nav.linkTools'), shortLabel: t('navShort.linkTools', { defaultValue: 'Tools' }), icon: LayoutGrid, path: '/link-tools' },
-      { label: t('nav.contentCreator'), shortLabel: t('navShort.contentCreator', { defaultValue: 'Content' }), icon: Bot, path: '/content-creator' },
-      { label: t('nav.creativeStudio'), shortLabel: t('navShort.creativeStudio', { defaultValue: 'Studio' }), icon: Sparkles, path: '/creative-studio' },
-      { label: t('nav.superDeck'), shortLabel: t('navShort.superDeck', { defaultValue: 'Deck' }), icon: Monitor, path: '/superdeck' },
-    ]},
-    { type: 'divider' },
-    { type: 'group', label: t('nav.proTools'), shortLabel: t('navShort.proTools', { defaultValue: 'Pro' }), key: 'pro-tools', icon: Zap, items: [
-      { label: t('nav.superPages'), shortLabel: t('navShort.superPages', { defaultValue: 'Pages' }), icon: Globe, path: '/pro/funnels', pro: true },
-      { label: t('nav.autoResponder'), shortLabel: t('navShort.autoResponder', { defaultValue: 'Email' }), icon: Mail, path: '/pro/leads', pro: true },
-      { label: 'Lead Finder', shortLabel: t('navShort.leadFinder', { defaultValue: 'Leads' }), icon: Search, path: '/lead-finder', pro: true },
-    ]},
-    { type: 'divider' },
-    { type: 'group', label: t('nav.incomeStreams'), shortLabel: t('navShort.incomeStreams', { defaultValue: 'Income' }), key: 'income', icon: DollarSign, items: [
-      { label: t('nav.compPlan'), shortLabel: t('navShort.compPlan', { defaultValue: 'Plan' }), icon: FileText, path: '/compensation-plan' },
-      { label: t('nav.profitGrid'), shortLabel: t('navShort.profitGrid', { defaultValue: 'Grid' }), icon: Target, path: '/campaign-tiers' },
       { label: t('nav.gridCalculator'), shortLabel: t('navShort.gridCalculator', { defaultValue: 'Calc' }), icon: Zap, path: '/grid-calculator' },
-      { label: t('nav.myGrid'), shortLabel: t('navShort.myGrid', { defaultValue: 'My Grid' }), icon: Zap, path: '/grid-visualiser' },
+      { label: t('nav.myGrid'), shortLabel: t('navShort.myGrid', { defaultValue: 'My Grid' }), icon: LayoutGrid, path: '/grid-visualiser' },
       { label: t('nav.profitNexus'), shortLabel: t('navShort.profitNexus', { defaultValue: 'Nexus' }), icon: Layers, path: '/credit-nexus' },
       { label: t('nav.myNexus'), shortLabel: t('navShort.myNexus', { defaultValue: 'My Nexus' }), icon: Network, path: '/nexus-visualiser' },
       { label: t('nav.courseAcademy'), shortLabel: t('navShort.courseAcademy', { defaultValue: 'Courses' }), icon: GraduationCap, path: '/courses', comingSoon: true },
-    ]},
-    { type: 'divider' },
-    { type: 'group', label: t('nav.affiliateHub'), shortLabel: t('navShort.affiliateHub', { defaultValue: 'Affiliate' }), key: 'affiliate', icon: Share2, items: [
-      { label: t('nav.myNetwork'), shortLabel: t('navShort.myNetwork', { defaultValue: 'Network' }), icon: Network, path: '/network' },
       { label: t('nav.incomeChains'), shortLabel: t('navShort.incomeChains', { defaultValue: 'Chains' }), icon: Link2, path: '/income-chains' },
-      { label: t('nav.socialShare'), shortLabel: t('navShort.socialShare', { defaultValue: 'Share' }), icon: Users, path: '/social-share' },
-      { label: t('nav.marketingMaterials'), shortLabel: t('navShort.marketingMaterials', { defaultValue: 'Media' }), icon: Download, path: '/marketing-materials' },
-      { label: t('nav.leaderboard'), shortLabel: t('navShort.leaderboard', { defaultValue: 'Ranks' }), icon: Trophy, path: '/leaderboard' },
-      { label: t('nav.affiliateGuide'), shortLabel: t('navShort.affiliateGuide', { defaultValue: 'Guide' }), icon: BookOpen, path: '/training' },
-      { label: t('nav.payItForward'), shortLabel: t('navShort.payItForward', { defaultValue: 'Pay Fwd' }), icon: Heart, path: '/pay-it-forward' },
-      { label: t('nav.shareStory', { defaultValue: 'Share Your Story' }), shortLabel: t('navShort.shareStory', { defaultValue: 'My Story' }), icon: Sparkles, path: '/share-story' },
     ]},
+
     { type: 'divider' },
-    { type: 'standalone', label: t('nav.faq', { defaultValue: 'FAQ' }), shortLabel: t('navShort.faq', { defaultValue: 'FAQ' }), icon: HelpCircle, path: '/account/faq' },
+
+    // ── TOOLS ── Basic creators first, then PRO items ─────────
+    // Pro items are flagged with `pro: true` which renders them locked
+    // for free members (existing pattern). Quick Tools (banner/meme/QR)
+    // are lightweight one-off creators kept inline rather than nested.
+    { type: 'group', label: t('nav.tools', { defaultValue: 'TOOLS' }), shortLabel: t('navShort.tools', { defaultValue: 'Tools' }), key: 'tools', icon: Wrench, items: [
+      { label: t('nav.creativeStudio'), shortLabel: t('navShort.creativeStudio', { defaultValue: 'Studio' }), icon: Sparkles, path: '/creative-studio' },
+      { label: t('nav.contentCreator'), shortLabel: t('navShort.contentCreator', { defaultValue: 'Content' }), icon: Bot, path: '/content-creator' },
+      { label: t('nav.linkHub'), shortLabel: t('navShort.linkHub', { defaultValue: 'Links' }), icon: Link2, path: '/linkhub' },
+      { label: t('nav.linkTools'), shortLabel: t('navShort.linkTools', { defaultValue: 'Tools' }), icon: LayoutGrid, path: '/link-tools' },
+      { label: t('nav.superDeck'), shortLabel: t('navShort.superDeck', { defaultValue: 'Deck' }), icon: Monitor, path: '/superdeck' },
+      { label: t('nav.bannerCreator', { defaultValue: 'Banner Creator' }), shortLabel: t('navShort.bannerCreator', { defaultValue: 'Banner' }), icon: PenLine, path: '/free/banner-creator' },
+      { label: t('nav.memeGenerator', { defaultValue: 'Meme Generator' }), shortLabel: t('navShort.memeGenerator', { defaultValue: 'Meme' }), icon: Sparkles, path: '/free/meme-generator' },
+      { label: t('nav.qrGenerator', { defaultValue: 'QR Generator' }), shortLabel: t('navShort.qrGenerator', { defaultValue: 'QR' }), icon: Globe, path: '/free/qr-code-generator' },
+      { label: t('nav.superPages'), shortLabel: t('navShort.superPages', { defaultValue: 'Pages' }), icon: Globe, path: '/pro/funnels', pro: true },
+      { label: t('nav.autoResponder'), shortLabel: t('navShort.autoResponder', { defaultValue: 'Email' }), icon: Mail, path: '/pro/leads', pro: true },
+      { label: t('nav.leadFinder', { defaultValue: 'Lead Finder' }), shortLabel: t('navShort.leadFinder', { defaultValue: 'Leads' }), icon: Search, path: '/lead-finder', pro: true },
+      { label: t('nav.nicheFinder', { defaultValue: 'Niche Finder' }), shortLabel: t('navShort.nicheFinder', { defaultValue: 'Niche' }), icon: Search, path: '/niche-finder', pro: true },
+      { label: t('nav.proSeller', { defaultValue: 'ProSeller' }), shortLabel: t('navShort.proSeller', { defaultValue: 'Seller' }), icon: Megaphone, path: '/proseller', pro: true },
+    ]},
+
+    { type: 'divider' },
+
+    // ── LEARN ── Education + promotional asset library ────────
+    // Marketing materials live here (per founder direction) because
+    // they're paired with how-to-promote education, not deployed alone.
+    { type: 'group', label: t('nav.learn', { defaultValue: 'LEARN' }), shortLabel: t('navShort.learn', { defaultValue: 'Learn' }), key: 'learn', icon: GraduationCap, items: [
+      { label: t('nav.training', { defaultValue: 'Training' }), shortLabel: t('navShort.training', { defaultValue: 'Training' }), icon: BookOpen, path: '/training' },
+      { label: t('nav.compPlan'), shortLabel: t('navShort.compPlan', { defaultValue: 'Plan' }), icon: FileText, path: '/compensation-plan' },
+      { label: t('nav.platformTour'), shortLabel: t('navShort.platformTour', { defaultValue: 'Tour' }), icon: Map, path: '/tour' },
+      { label: t('nav.marketingMaterials'), shortLabel: t('navShort.marketingMaterials', { defaultValue: 'Media' }), icon: Download, path: '/marketing-materials' },
+      { label: t('nav.emailSwipes', { defaultValue: 'Email Swipes' }), shortLabel: t('navShort.emailSwipes', { defaultValue: 'Swipes' }), icon: Mail, path: '/email-swipes' },
+      { label: t('nav.socialShare'), shortLabel: t('navShort.socialShare', { defaultValue: 'Share' }), icon: Share2, path: '/social-share' },
+      { label: t('nav.cryptoGuide'), shortLabel: t('navShort.cryptoGuide', { defaultValue: 'Crypto' }), icon: Shield, path: '/crypto-guide' },
+      { label: t('nav.shareStory', { defaultValue: 'Share Your Story' }), shortLabel: t('navShort.shareStory', { defaultValue: 'My Story' }), icon: Sparkles, path: '/share-story' },
+      { label: t('nav.leaderboard'), shortLabel: t('navShort.leaderboard', { defaultValue: 'Ranks' }), icon: Trophy, path: '/leaderboard' },
+    ]},
+
+    { type: 'divider' },
+
+    // ── ACCOUNT ── Member's own profile (intentionally small) ─
+    // Wallet moved to Income, Crypto Guide moved to Learn,
+    // Support promoted to standalone in the help cluster.
+    // Only Profile remains here.
+    { type: 'group', label: t('nav.account'), shortLabel: t('navShort.account', { defaultValue: 'Acct' }), key: 'account', icon: UserCircle, items: [
+      { label: t('nav.myProfile'), shortLabel: t('navShort.myProfile', { defaultValue: 'Profile' }), icon: User, path: '/account' },
+    ]},
+
+    { type: 'divider' },
+
+    // ── Help cluster at the bottom ─────────────────────────────
+    // FAQ + Support paired together because "I need help" is a single
+    // intent for members. Standalones rather than a group so they're
+    // always one click from anywhere.
+    { type: 'standalone', label: t('nav.faq'), shortLabel: t('navShort.faq', { defaultValue: 'FAQ' }), icon: HelpCircle, path: '/account/faq' },
+    { type: 'standalone', label: t('nav.support'), shortLabel: t('navShort.support', { defaultValue: 'Help' }), icon: Headphones, path: '/support' },
   ];
 
   if (isAdmin) {

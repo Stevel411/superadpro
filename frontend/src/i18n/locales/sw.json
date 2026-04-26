@@ -99,7 +99,21 @@
     "incomeChains": "Mnyororo wa Mapato",
     "shareStory": "Shiriki Hadithi Yako",
     "adminStories": "Usimamizi wa Hadithi",
-    "adminShowcase": "Usimamizi wa Showcase"
+    "adminShowcase": "Usimamizi wa Showcase",
+    "income": "INCOME",
+    "tools": "TOOLS",
+    "learn": "LEARN",
+    "bannerCreator": "Banner Creator",
+    "memeGenerator": "Meme Generator",
+    "qrGenerator": "QR Generator",
+    "nicheFinder": "Niche Finder",
+    "proSeller": "ProSeller",
+    "training": "Training",
+    "emailSwipes": "Email Swipes",
+    "showcases": "Showcases",
+    "memberStories": "Member Stories",
+    "leadFinder": "Lead Finder",
+    "commandCentre": "Command Centre"
   },
   "dashboard": {
     "title": "Dashibodi",

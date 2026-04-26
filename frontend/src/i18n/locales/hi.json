@@ -99,7 +99,21 @@
     "incomeChains": "आय श्रृंखला",
     "shareStory": "अपनी कहानी साझा करें",
     "adminStories": "कहानी मॉडरेशन",
-    "adminShowcase": "शोकेस मॉडरेशन"
+    "adminShowcase": "शोकेस मॉडरेशन",
+    "income": "INCOME",
+    "tools": "TOOLS",
+    "learn": "LEARN",
+    "bannerCreator": "Banner Creator",
+    "memeGenerator": "Meme Generator",
+    "qrGenerator": "QR Generator",
+    "nicheFinder": "Niche Finder",
+    "proSeller": "ProSeller",
+    "training": "Training",
+    "emailSwipes": "Email Swipes",
+    "showcases": "Showcases",
+    "memberStories": "Member Stories",
+    "leadFinder": "Lead Finder",
+    "commandCentre": "Command Centre"
   },
   "dashboard": {
     "title": "डैशबोर्ड",
