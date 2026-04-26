@@ -40,7 +40,7 @@ function buildNav(t, isAdmin) {
     // order (Membership/Grid/Nexus/Courses). Grid is the busiest stream
     // so its sub-features (Watch, Create, Videos, Analytics, Calculator,
     // My Grid) sit immediately after the Grid entry as a flat block.
-    { type: 'group', label: t('nav.income', { defaultValue: 'INCOME' }), shortLabel: t('navShort.income', { defaultValue: 'Income' }), key: 'income', icon: DollarSign, items: [
+    { type: 'group', label: t('nav.income', { defaultValue: 'Income' }), shortLabel: t('navShort.income', { defaultValue: 'Income' }), key: 'income', icon: DollarSign, items: [
       { label: t('nav.wallet'), shortLabel: t('navShort.wallet', { defaultValue: 'Wallet' }), icon: Wallet, path: '/wallet' },
       { label: t('nav.profitGrid'), shortLabel: t('navShort.profitGrid', { defaultValue: 'Grid' }), icon: Target, path: '/campaign-tiers' },
       { label: t('nav.watch'), shortLabel: t('navShort.watch', { defaultValue: 'Watch' }), icon: Eye, path: '/watch' },
@@ -61,7 +61,7 @@ function buildNav(t, isAdmin) {
     // Pro items are flagged with `pro: true` which renders them locked
     // for free members (existing pattern). Quick Tools (banner/meme/QR)
     // are lightweight one-off creators kept inline rather than nested.
-    { type: 'group', label: t('nav.tools', { defaultValue: 'TOOLS' }), shortLabel: t('navShort.tools', { defaultValue: 'Tools' }), key: 'tools', icon: Wrench, items: [
+    { type: 'group', label: t('nav.tools', { defaultValue: 'Tools' }), shortLabel: t('navShort.tools', { defaultValue: 'Tools' }), key: 'tools', icon: Wrench, items: [
       { label: t('nav.creativeStudio'), shortLabel: t('navShort.creativeStudio', { defaultValue: 'Studio' }), icon: Sparkles, path: '/creative-studio' },
       { label: t('nav.contentCreator'), shortLabel: t('navShort.contentCreator', { defaultValue: 'Content' }), icon: Bot, path: '/content-creator' },
       { label: t('nav.linkHub'), shortLabel: t('navShort.linkHub', { defaultValue: 'Links' }), icon: Link2, path: '/linkhub' },
@@ -82,7 +82,7 @@ function buildNav(t, isAdmin) {
     // ── LEARN ── Education + promotional asset library ────────
     // Marketing materials live here (per founder direction) because
     // they're paired with how-to-promote education, not deployed alone.
-    { type: 'group', label: t('nav.learn', { defaultValue: 'LEARN' }), shortLabel: t('navShort.learn', { defaultValue: 'Learn' }), key: 'learn', icon: GraduationCap, items: [
+    { type: 'group', label: t('nav.learn', { defaultValue: 'Learn' }), shortLabel: t('navShort.learn', { defaultValue: 'Learn' }), key: 'learn', icon: GraduationCap, items: [
       { label: t('nav.training', { defaultValue: 'Training' }), shortLabel: t('navShort.training', { defaultValue: 'Training' }), icon: BookOpen, path: '/training' },
       { label: t('nav.compPlan'), shortLabel: t('navShort.compPlan', { defaultValue: 'Plan' }), icon: FileText, path: '/compensation-plan' },
       { label: t('nav.platformTour'), shortLabel: t('navShort.platformTour', { defaultValue: 'Tour' }), icon: Map, path: '/tour' },
