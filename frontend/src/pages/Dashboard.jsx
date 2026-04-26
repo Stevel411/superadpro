@@ -584,7 +584,7 @@ export default function Dashboard() {
             cta: t('dashboard.affiliateShareCta', { defaultValue: 'Open share' }),
             colourVar: 'var(--sap-green)',
             icon: Share2,
-            link: '/share-story',
+            link: '/social-share',
           },
         ].map(function(action, i) {
           var Icon = action.icon;
@@ -638,91 +638,16 @@ export default function Dashboard() {
         })}
       </div>
 
-      {/* ── Smart Goals ── */}
-      {goals && ((goals.goals && goals.goals.length > 0) || (goals.opportunities && goals.opportunities.length > 0)) && (
-        <>
-          {goals.goals && goals.goals.length > 0 && (
-            <>
-              <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.goalsThisWeek')}</div>
-              <div className="goals-grid" style={{ display: 'grid', gridTemplateColumns: goals.goals.length === 1 ? '1fr' : 'repeat(2,1fr)', gap: 12, marginBottom: 20 }}>
-                {goals.goals.map(function(g, i) {
-                  var ICONS = {
-                    users: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="7" r="4" fill={g.color}/><path d="M2 21v-1a7 7 0 0114 0v1" stroke={g.color} strokeWidth="2" strokeLinecap="round"/><path d="M16 3.13a4 4 0 010 7.75" stroke={g.color} strokeWidth="2" strokeLinecap="round" opacity=".6"/></svg>,
-                    grid: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="2" fill={g.color}/><rect x="14" y="3" width="7" height="7" rx="2" fill={g.color} opacity=".7"/><rect x="3" y="14" width="7" height="7" rx="2" fill={g.color} opacity=".7"/><rect x="14" y="14" width="7" height="7" rx="2" fill={g.color} opacity=".4"/></svg>,
-                    wallet: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="14" rx="3" fill={g.color} opacity=".8"/><circle cx="16" cy="13" r="2" fill="#fff"/><path d="M3 10h18" stroke="#fff" strokeWidth="1" opacity=".3"/></svg>,
-                    zap: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill={g.color}/></svg>,
-                    check: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="10" fill={g.color}/><path d="M8 12l3 3 5-5" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
-                  };
-                  var R = 22, C = 2 * Math.PI * R;
-                  var ringOffset = C - (C * (g.progress || 0) / 100);
-                  var isCompleted = g.completed;
-                  return (
-                    <div key={i} style={{ background: isCompleted ? 'var(--sap-green-bg)' : '#fff', borderRadius:14, border: isCompleted ? '1px solid #bbf7d0' : '1px solid #e8ecf2', padding:'18px 20px', position:'relative', overflow:'hidden' }}>
-                      <div style={{ position:'absolute', top:0, left:0, right:0, height:3, background:`linear-gradient(90deg,${g.color},${g.color}80)` }}/>
-                      <div style={{ display:'flex', alignItems:'flex-start', gap:14 }}>
-                        <div style={{ flex:1 }}>
-                          <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
-                            <div style={{ width:38, height:38, borderRadius:10, background:g.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                              {ICONS[g.icon] || ICONS.zap}
-                            </div>
-                            <div style={{...TYPE.cardTitleBold, lineHeight: 1.3}}>{goalText(g, 'title')}</div>
-                          </div>
-                          <div style={{...TYPE.bodyMuted, marginBottom: 14}}>{goalText(g, 'desc')}</div>
-                          {g.progress !== undefined && !g.ring && (
-                            <>
-                              <div style={{ height:6, borderRadius:99, background:`${g.color}18`, overflow:'hidden', marginBottom:6 }}>
-                                <div style={{ height:'100%', borderRadius:99, background:`linear-gradient(90deg,${g.color},${g.color}cc)`, width:`${g.progress}%`, transition:'width .8s ease-out' }}/>
-                              </div>
-                              <div style={{ display:'flex', justifyContent:'space-between', fontSize:15, color:'var(--sap-text-muted)' }}>
-                                <span>{goalText(g, 'progress_label')}</span>
-                                <span style={{ color:g.color, fontWeight:700 }}>{g.progress}%</span>
-                              </div>
-                            </>
-                          )}
-                          <Link to={g.cta_link} style={{ display:'inline-block', ...TYPE.btn, padding:'10px 22px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none', marginTop:10 }}>{goalText(g, 'cta')}</Link>
-                        </div>
-                        {g.ring && (
-                          <svg width="56" height="56" viewBox="0 0 52 52" style={{ flexShrink:0, marginTop:4 }}>
-                            <circle cx="26" cy="26" r={R} fill="none" stroke="var(--sap-bg-page)" strokeWidth="5"/>
-                            <circle cx="26" cy="26" r={R} fill="none" stroke={g.color} strokeWidth="5" strokeLinecap="round" strokeDasharray={C} strokeDashoffset={ringOffset} style={{ transform:'rotate(-90deg)', transformOrigin:'center' }}/>
-                            <text x="26" y="26" textAnchor="middle" dominantBaseline="central" fill={g.color} style={{ fontSize:13, fontWeight:800 }}>{g.progress}%</text>
-                          </svg>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
-          {goals.opportunities && goals.opportunities.length > 0 && (
-            <>
-              <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.moreOpportunities')}</div>
-              <div className="goals-grid" style={{ display: 'grid', gridTemplateColumns: goals.opportunities.length === 1 ? '1fr' : 'repeat(2,1fr)', gap: 12, marginBottom: 20 }}>
-                {goals.opportunities.map(function(g, i) {
-                  var ICONS = {
-                    video: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="2" y="3" width="20" height="14" rx="3" fill={g.color} opacity=".8"/><polygon points="10,7 10,14 16,10.5" fill="#fff"/><rect x="6" y="19" width="12" height="2" rx="1" fill={g.color} opacity=".4"/></svg>,
-                    link: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill={g.bg} stroke={g.color} strokeWidth="1.5"/><path d="M10 14l4-4" stroke={g.color} strokeWidth="2" strokeLinecap="round"/><path d="M14 10a2 2 0 012 2" stroke={g.color} strokeWidth="2" strokeLinecap="round"/><path d="M10 14a2 2 0 01-2-2" stroke={g.color} strokeWidth="2" strokeLinecap="round"/></svg>,
-                    target: <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke={g.color} strokeWidth="1.5"/><circle cx="12" cy="12" r="5" stroke={g.color} strokeWidth="1.5"/><circle cx="12" cy="12" r="1.5" fill={g.color}/></svg>,
-                  };
-                  return (
-                    <div key={i} style={{ background:'#fff', borderRadius:'0 14px 14px 0', border:'1px solid #e8ecf2', borderLeft:`3px solid ${g.color}`, padding:'18px 20px' }}>
-                      <div style={{ display:'flex', alignItems:'center', gap:10, marginBottom:12 }}>
-                        <div style={{ width:38, height:38, borderRadius:10, background:g.bg, display:'flex', alignItems:'center', justifyContent:'center', flexShrink:0 }}>
-                          {ICONS[g.icon] || ICONS.target}
-                        </div>
-                        <div style={{...TYPE.cardTitleBold, lineHeight: 1.3}}>{goalText(g, 'title')}</div>
-                      </div>
-                      <div style={{...TYPE.bodyMuted, marginBottom: 14}}>{goalText(g, 'desc')}</div>
-                      <Link to={g.cta_link} style={{ display:'inline-block', ...TYPE.btn, padding:'10px 22px', borderRadius:8, background:g.color, color:'#fff', textDecoration:'none' }}>{goalText(g, 'cta')}</Link>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
-        </>
-      )}
+      {/* ── Smart Goals removed (26 Apr 2026, founder direction) ──
+          The "Your Goals This Week" and "More Opportunities" cards used
+          to render here from server-driven `goals` data. Removed because
+          they duplicated the function of the Quick Actions row above
+          (e.g. the goals shareLink card and quick action Affiliate Share
+          both pointed members to grow their team; the goals watchVideo
+          card and a quick action Watch Video card pointed to /watch).
+          The /api/dashboard/smart-goals endpoint and its server-side
+          logic in app/main.py are left intact in case we want to reuse
+          the data elsewhere later. */}
 
       {/* ── Network strip · compact at-a-glance team metrics ──
           Replaces the previous 'Bottom Row' which was Recent Activity +
