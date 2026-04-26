@@ -3785,6 +3785,34 @@ def tools_landing(request: Request):
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
 
+@app.get("/tools/free")
+def tools_free_page(request: Request):
+    """Serve React SPA for /tools/free — the Free Tools sub-page.
+    Open to all logged-in members. Renders the 3 free tool cards."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/tools/basic")
+def tools_basic_page(request: Request):
+    """Serve React SPA for /tools/basic — the Basic Tools sub-page.
+    Tier-aware: Basic+ members see the 5 basic tools; non-members
+    see an upgrade-to-Basic card. Tier check happens client-side
+    in BasicToolsPage.jsx."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/tools/pro")
+def tools_pro_page(request: Request):
+    """Serve React SPA for /tools/pro — the Pro Tools sub-page.
+    Tier-aware: Pro members see the 5 pro tools; Basic members and
+    non-members see an upgrade-to-Pro card. Tier check happens
+    client-side in ProToolsPage.jsx."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
 def _old_wallet_DISABLED(request: Request, user: User = Depends(get_current_user),
            db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
