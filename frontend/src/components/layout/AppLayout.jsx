@@ -4,6 +4,7 @@ import Topbar from './Topbar';
 import MobileTabBar from './MobileTabBar';
 import IncomeTabs, { isIncomeFamilyRoute } from './IncomeTabs';
 import ToolsTabs, { isToolsFamilyRoute } from './ToolsTabs';
+import LearnTabs, { isLearnFamilyRoute } from './LearnTabs';
 import InstallPrompt from '../InstallPrompt';
 import { useLocation } from 'react-router-dom';
 
@@ -127,6 +128,11 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
             label but stay tappable, leading to the sub-page that itself
             renders the upgrade card as content. */}
         {isToolsFamilyRoute(location.pathname) && <ToolsTabs />}
+        {/* Persistent Learn tabs strip — Door 4. No tier-gating since
+            Learn content is open to all members. Active tab adopts its
+            section colour (indigo / pink / amber) instead of the violet
+            used by Tools' Overview tab — matches each section's brand. */}
+        {isLearnFamilyRoute(location.pathname) && <LearnTabs />}
         <main className="flex-1 overflow-y-auto" style={Object.assign(
           {background:'#f0f3f9', padding: isMobile ? '16px' : '24px'},
           isMobileTabPage ? {paddingBottom: 80} : {},
