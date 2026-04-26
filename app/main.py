@@ -6005,37 +6005,67 @@ async def nowpayments_ipn_webhook(request: Request, db: Session = Depends(get_db
             logger.info(f"NOWPayments IPN: order {order_id_str} already fulfilled (status={prev_status})")
             return {"status": "already_processed"}
 
-        order.status = "finished"
-        order.confirmed_at = datetime.utcnow()
-        db.flush()
+        # Atomic activation block. If any step raises, rollback so we don't
+        # leave inconsistent state (e.g. order marked finished but Payment
+        # row missing, or activation half-applied). Returning 500 causes
+        # NOWPayments to retry — the prev_status check above makes retry
+        # safe because already-processed orders short-circuit.
+        #
+        # Note: engine functions (_activate_membership, purchase_credit_pack,
+        # etc.) commit internally. If they commit successfully but a later
+        # step here raises, the engine's work persists and we log loudly
+        # for manual reconciliation. This is a known limitation — full
+        # atomicity would require refactoring engine signatures, which is
+        # tracked as a post-launch improvement.
+        try:
+            order.status = "finished"
+            order.confirmed_at = datetime.utcnow()
+            db.flush()
 
-        # Load the user
-        user = db.query(User).filter(User.id == order.user_id).first()
-        if not user:
-            logger.error(f"NOWPayments IPN: user {order.user_id} not found for order {order_id_str}")
+            # Load the user
+            user = db.query(User).filter(User.id == order.user_id).first()
+            if not user:
+                logger.error(f"NOWPayments IPN: user {order.user_id} not found for order {order_id_str}")
+                db.rollback()
+                return JSONResponse({"error": "User not found"}, status_code=404)
+
+            meta = _json.loads(order.product_meta) if order.product_meta else {}
+
+            # Record payment in main payments table
+            import uuid
+            payment = Payment(
+                from_user_id=user.id, to_user_id=None,
+                amount_usdt=order.price_usd,
+                payment_type=f"nowpayments_{order.product_type}",
+                tx_hash=f"np_{np_payment_id or uuid.uuid4().hex[:12]}",
+                status="confirmed",
+            )
+            db.add(payment)
+            db.flush()
+
+            # ── Activate product using same shared logic as crypto payments ──
+            _nowpayments_activate_product(db, user, order, meta)
+
             db.commit()
-            return JSONResponse({"error": "User not found"}, status_code=404)
-
-        meta = _json.loads(order.product_meta) if order.product_meta else {}
-
-        # Record payment in main payments table
-        import uuid
-        payment = Payment(
-            from_user_id=user.id, to_user_id=None,
-            amount_usdt=order.price_usd,
-            payment_type=f"nowpayments_{order.product_type}",
-            tx_hash=f"np_{np_payment_id or uuid.uuid4().hex[:12]}",
-            status="confirmed",
-        )
-        db.add(payment)
-        db.flush()
-
-        # ── Activate product using same shared logic as crypto payments ──
-        _nowpayments_activate_product(db, user, order, meta)
-
-        db.commit()
-        logger.info(f"NOWPayments IPN: order {order_id_str} FULFILLED — {order.product_type}/{order.product_key}")
-        return {"status": "fulfilled", "payment_status": payment_status}
+            logger.info(f"NOWPayments IPN: order {order_id_str} FULFILLED — {order.product_type}/{order.product_key}")
+            return {"status": "fulfilled", "payment_status": payment_status}
+        except Exception as exc:
+            db.rollback()
+            logger.error(
+                f"NOWPayments IPN: ACTIVATION FAILED for order {order_id_str} "
+                f"(user={order.user_id}, product_type={order.product_type}, "
+                f"product_key={order.product_key}): {exc}",
+                exc_info=True,
+            )
+            # Return 500 so NOWPayments retries. The order is left in its
+            # previous status (still pending or whatever it was), so the retry
+            # will re-attempt activation cleanly. If an engine commit
+            # succeeded internally before the exception, we'll see it in the
+            # logs and can manually reconcile.
+            return JSONResponse(
+                {"error": "Activation failed, will retry", "order_id": order_id_str},
+                status_code=500,
+            )
 
     # Unknown status
     order.status = payment_status
