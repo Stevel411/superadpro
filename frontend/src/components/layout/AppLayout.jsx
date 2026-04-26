@@ -3,6 +3,7 @@ import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import MobileTabBar from './MobileTabBar';
 import IncomeTabs, { isIncomeFamilyRoute } from './IncomeTabs';
+import ToolsTabs, { isToolsFamilyRoute } from './ToolsTabs';
 import InstallPrompt from '../InstallPrompt';
 import { useLocation } from 'react-router-dom';
 
@@ -120,6 +121,12 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
             (Wallet, Comp Plan, Campaign Grid, etc.) so members can hop
             between sub-pages with one click. Same Platform-Tour pattern. */}
         {isIncomeFamilyRoute(location.pathname) && <IncomeTabs />}
+        {/* Persistent Tools tabs strip — same pattern, for the Tools door
+            family (Overview / Free / Basic / Pro and all individual tool
+            pages). Tier-aware: locked tabs show a Lock icon and Locked
+            label but stay tappable, leading to the sub-page that itself
+            renders the upgrade card as content. */}
+        {isToolsFamilyRoute(location.pathname) && <ToolsTabs />}
         <main className="flex-1 overflow-y-auto" style={Object.assign(
           {background:'#f0f3f9', padding: isMobile ? '16px' : '24px'},
           isMobileTabPage ? {paddingBottom: 80} : {},

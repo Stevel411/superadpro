@@ -63,26 +63,10 @@ export function getProTools(t) {
 }
 
 // ──────────────────────────────────────────────────────────────────
-// Family-of-routes detector — used by ToolsTabs in AppLayout to know
-// when to render the persistent tab strip.
+// Note: isToolsFamilyRoute lives in components/layout/ToolsTabs.jsx
+// (the canonical location, since AppLayout imports it from there).
+// Don't add it here — keeping a single source of truth prevents drift.
 // ──────────────────────────────────────────────────────────────────
-const TOOLS_FAMILY_PATHS = [
-  '/tools',
-  // Free tool pages
-  '/free/banner-creator', '/free/meme-generator', '/free/qr-code-generator',
-  // Basic tool pages
-  '/creative-studio', '/content-creator', '/linkhub', '/link-tools', '/superdeck',
-  // Pro tool pages
-  '/pro/funnels', '/pro/leads', '/lead-finder', '/niche-finder', '/proseller',
-];
-
-export function isToolsFamilyRoute(pathname) {
-  for (var i = 0; i < TOOLS_FAMILY_PATHS.length; i++) {
-    var p = TOOLS_FAMILY_PATHS[i];
-    if (pathname === p || pathname.indexOf(p + '/') === 0) return true;
-  }
-  return false;
-}
 
 // ──────────────────────────────────────────────────────────────────
 // ToolGrid — 4-column grid of tool cards, used on the three sub-pages
@@ -436,12 +420,4 @@ export function SubPageHero({ user, t, eyebrowKey, eyebrowDefault, backLinkTo, b
       </div>
     </div>
   );
-}
-
-// Hook to collapse sidebar on mount and restore on unmount.
-// Used by all four Tools-family pages.
-export function useSidebarCollapse() {
-  // This deliberately uses useEffect imperatively below — pulling React
-  // import here keeps the shared module dependency-light. Callers should
-  // wrap with useEffect themselves; we expose the body as a helper.
 }
