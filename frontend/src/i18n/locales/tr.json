@@ -214,7 +214,19 @@
     "storyPromptCta": "Hikâyemi paylaş",
     "storyPromptDismiss": "Kapat",
     "earningsStrip": "Your earnings this month",
-    "monthlyEarned": "This Month"
+    "monthlyEarned": "This Month",
+    "payItForwardLabel": "Help others",
+    "payItForwardCta": "Gift now",
+    "platformTourLabel": "Get oriented",
+    "platformTourCta": "Start tour",
+    "todaysWatchLabel": "Earn today",
+    "todaysWatch": "Today's Watch Video",
+    "todaysWatchDesc": "Watch your daily campaign-grid video to earn credits and grow your team.",
+    "todaysWatchCta": "Watch now",
+    "affiliateShareLabel": "Grow your team",
+    "affiliateShare": "Affiliate Share",
+    "affiliateShareDesc": "Share your link and story to bring more members onto your team.",
+    "affiliateShareCta": "Open share"
   },
   "compPlan": {
     "title": "Tazminat Planı",

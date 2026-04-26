@@ -5,7 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { apiGet, apiPost } from '../utils/api';
 import { formatMoney } from '../utils/money';
 import AppLayout from '../components/layout/AppLayout';
-import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye, TrendingUp, Gauge } from 'lucide-react';
+import { Users, LayoutGrid, GraduationCap, Rocket, Store, BookOpen, PenSquare, Zap, Bot, Eye, TrendingUp, Gauge, Gift, Compass, Share2 } from 'lucide-react';
 import { TYPE } from '../styles/typography';
 import CoPilot from './CoPilot';
 
@@ -528,60 +528,114 @@ export default function Dashboard() {
         })}
       </div>
 
-      {/* ── Quick actions · Pay It Forward + Platform Tour ──
-          Two shortcuts that don't belong inside a door:
-          - Pay It Forward: the generosity action — gift a membership to
-            someone, reminds members to help others (distinct from
-            self-promotion which the Smart Goals card already handles).
-          - Platform Tour: helps brand-new members get oriented fast. */}
+      {/* ── Quick actions · 4 cards matching the door card template ──
+          Same visual weight as the doors row above — 5px top accent
+          stripe, 64px icon block, eyebrow + 28px Sora title, description,
+          footer with action label + Open pill. Members get four shortcut
+          actions that don't belong inside a door but still deserve
+          prominent placement on the home page:
+
+            - Pay It Forward · gift a membership to someone starting out
+            - Platform Tour · onboarding refresher for new members
+            - Today's Watch Video · the campaign-grid earning video
+            - Affiliate Share · jump straight to the share page
+
+          Same hover lift + same typography as the four doors so the page
+          reads as two consistent rows of cards rather than a heroic row
+          followed by a smaller secondary row. */}
       <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 14 }}>{t('dashboard.quickActions')}</div>
-      <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 14, marginBottom: 20 }}>
+      <div className="actions-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 20 }}>
         {[
           {
-            name: t('dashboard.payItForward', { defaultValue: 'Pay It Forward' }),
+            id: 'payItForward',
+            label: t('dashboard.payItForwardLabel', { defaultValue: 'Help others' }),
+            title: t('dashboard.payItForward', { defaultValue: 'Pay It Forward' }),
             desc: t('dashboard.payItForwardDesc', { defaultValue: 'Gift a membership to someone starting out — help others while you grow.' }),
+            cta: t('dashboard.payItForwardCta', { defaultValue: 'Gift now' }),
+            colourVar: 'var(--sap-pink)',
+            icon: Gift,
             link: '/pay-it-forward',
-            color: 'var(--sap-pink)',
-            // Pale end-stop for the accent bar gradient (solid colour, NOT a nested
-            // gradient — nesting gradients produces invalid CSS that fails silently)
-            accentPale: '#fbcfe8',
-            bg: 'linear-gradient(135deg,#fdf2f8,#fce7f3)',
-            // Gift icon — same shape as used inside PayItForward.jsx itself
-            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><rect x="3" y="8" width="18" height="13" rx="2" fill="#fce7f3" stroke="var(--sap-pink)" strokeWidth="1.5"/><path d="M3 12h18" stroke="var(--sap-pink)" strokeWidth="1.5"/><path d="M12 8v13" stroke="var(--sap-pink)" strokeWidth="1.5"/><path d="M7.5 8c-1.5 0-2.5-1-2.5-2.5S6 3 7.5 3C9 3 10 4.5 12 8c2-3.5 3-5 4.5-5S19 4 19 5.5 18 8 16.5 8" stroke="var(--sap-pink)" strokeWidth="1.5" fill="#fdf2f8"/></svg>),
           },
           {
-            name: t('dashboard.platformTour'),
-            desc: t('dashboard.platformTourDesc'),
+            id: 'platformTour',
+            label: t('dashboard.platformTourLabel', { defaultValue: 'Get oriented' }),
+            title: t('dashboard.platformTour', { defaultValue: 'Platform Tour' }),
+            desc: t('dashboard.platformTourDesc', { defaultValue: 'Quick walkthrough of the platform so you know where everything lives.' }),
+            cta: t('dashboard.platformTourCta', { defaultValue: 'Start tour' }),
+            colourVar: 'var(--sap-violet)',
+            icon: Compass,
             link: '/tour',
-            color: 'var(--sap-violet)',
-            accentPale: '#ddd6fe',
-            bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
-            icon: (<svg width="34" height="34" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" fill="var(--sap-purple-pale)" stroke="var(--sap-violet)" strokeWidth="1.5"/><path d="M12 8v4l3 3" stroke="var(--sap-violet)" strokeWidth="2" strokeLinecap="round"/><path d="M9 3l3-1 3 1" stroke="var(--sap-purple-light)" strokeWidth="1.5" strokeLinecap="round"/></svg>),
           },
-        ].map((a, i) => (
-          <Link key={i} to={a.link} className="action-card" style={{
-            background: '#fff',
-            border: '1px solid #e2e8f0', borderRadius: 14, padding: 24,
-            boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
-            textDecoration: 'none', transition: 'all 0.15s', display: 'flex', flexDirection: 'column',
-            alignItems: 'center', textAlign: 'center', gap: 10,
-            position: 'relative', overflow: 'hidden',
-          }}>
-            {/* Top accent bar — matches income-stream card pattern. Uses
-                a.accentPale (SOLID colour) for the second gradient stop,
-                NOT a.bg (which is a full nested gradient — invalid CSS). */}
-            <div style={{
-              position: 'absolute', top: 0, left: 0, right: 0, height: 4,
-              background: `linear-gradient(90deg, ${a.color}, ${a.accentPale})`,
-              borderRadius: '14px 14px 0 0',
-            }} />
-            <div style={{ width: 68, height: 68, borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', background: a.bg }}>
-              {a.icon}
-            </div>
-            <div style={TYPE.cardTitleBold}>{a.name}</div>
-            <div style={{...TYPE.body, color: '#475569', lineHeight: 1.5}}>{a.desc}</div>
-          </Link>
-        ))}
+          {
+            id: 'watchVideo',
+            label: t('dashboard.todaysWatchLabel', { defaultValue: 'Earn today' }),
+            title: t('dashboard.todaysWatch', { defaultValue: "Today's Watch Video" }),
+            desc: t('dashboard.todaysWatchDesc', { defaultValue: 'Watch your daily campaign-grid video to earn credits and grow your team.' }),
+            cta: t('dashboard.todaysWatchCta', { defaultValue: 'Watch now' }),
+            colourVar: 'var(--sap-accent)',
+            icon: Eye,
+            link: '/watch',
+          },
+          {
+            id: 'affiliateShare',
+            label: t('dashboard.affiliateShareLabel', { defaultValue: 'Grow your team' }),
+            title: t('dashboard.affiliateShare', { defaultValue: 'Affiliate Share' }),
+            desc: t('dashboard.affiliateShareDesc', { defaultValue: 'Share your link and story to bring more members onto your team.' }),
+            cta: t('dashboard.affiliateShareCta', { defaultValue: 'Open share' }),
+            colourVar: 'var(--sap-green)',
+            icon: Share2,
+            link: '/share-story',
+          },
+        ].map(function(action, i) {
+          var Icon = action.icon;
+          return (
+            <Link key={i} to={action.link} className="action-card" style={{
+              background: '#fff',
+              border: '1px solid #e2e8f0',
+              borderRadius: 18,
+              padding: '32px 28px 28px',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.06), 0 12px 28px rgba(0,0,0,0.06)',
+              textDecoration: 'none',
+              transition: 'all 0.18s',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 0,
+              position: 'relative',
+              overflow: 'hidden',
+              color: 'inherit',
+              minHeight: 280,
+            }}
+            onMouseEnter={function(e) {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08), 0 16px 32px rgba(0,0,0,0.08)';
+            }}
+            onMouseLeave={function(e) {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.06), 0 12px 28px rgba(0,0,0,0.06)';
+            }}>
+              {/* 5px top accent in the action's brand colour — same as doors */}
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 5, background: action.colourVar }} />
+              <div style={{ width: 64, height: 64, borderRadius: 16, background: action.colourVar, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
+                <Icon size={28} color="#fff" />
+              </div>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 8 }}>
+                {action.label}
+              </div>
+              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 28, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.6px', lineHeight: 1.1, marginBottom: 10 }}>
+                {action.title}
+              </div>
+              <div style={{...TYPE.bodyMuted, fontSize: 14, lineHeight: 1.5, marginBottom: 16, flex: 1}}>
+                {action.desc}
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 16, borderTop: '1px solid var(--sap-border-light)', fontSize: 13, fontWeight: 700 }}>
+                <span style={{ color: 'var(--sap-text-faint)' }}>{action.cta}</span>
+                <span style={{ color: action.colourVar, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                  {t('dashboard.doorOpen', { defaultValue: 'Open' })} →
+                </span>
+              </div>
+            </Link>
+          );
+        })}
       </div>
 
       {/* ── Smart Goals ── */}
@@ -726,6 +780,9 @@ export default function Dashboard() {
         @keyframes wbStar{0%,100%{opacity:0}50%{opacity:1}}
         .stream-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16)!important;transform:translateY(-2px)}
         .action-card:hover{box-shadow:0 6px 20px rgba(0,0,0,0.22),0 12px 40px rgba(0,0,0,0.16)!important;transform:translateY(-3px)}
+        @media(max-width:1100px){
+          .actions-grid{grid-template-columns:repeat(2,1fr)!important}
+        }
         @media(max-width:767px){
           .income-grid{grid-template-columns:repeat(2,1fr)!important}
           .doors-grid{grid-template-columns:repeat(2,1fr)!important}
