@@ -5075,21 +5075,32 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
                         commission_type="Membership Sponsor",
                         from_username=user.username,
                     )
-            except Exception:
-                pass
+            except Exception as exc:
+                logger.warning(f"Commission email failed for sponsor {sponsor.id} ({sponsor.username}): {exc}")
 
     # Create renewal record
+    # CRITICAL: if this fails the user is activated but the renewal cron
+    # will never bill them again — silent revenue loss. Log loudly so we
+    # see it in production logs and can backfill manually if needed.
     try:
         initialise_renewal_record(db, user.id, source=source)
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.error(
+            f"Membership renewal record creation FAILED for user {user.id} "
+            f"({user.username}, tier={tier}, source={source}): {exc}",
+            exc_info=True,
+        )
+        # Don't re-raise — activation succeeded, we just lose auto-renewal.
+        # Manual intervention required to backfill the renewal record.
 
     # Send welcome email
+    # Email failures are non-critical; activation should still succeed.
+    # Log at warning level so we can see deliverability issues over time.
     try:
         from .email_utils import send_membership_activated_email
         send_membership_activated_email(user.email, user.first_name or user.username, billing=user.membership_billing or "monthly")
-    except Exception:
-        pass
+    except Exception as exc:
+        logger.warning(f"Welcome email failed for user {user.id} ({user.username}): {exc}")
 
     db.commit()
     return {"message": f"{tier.title()} membership activated! Expires {user.membership_expires_at.strftime('%d %b %Y')}."}
