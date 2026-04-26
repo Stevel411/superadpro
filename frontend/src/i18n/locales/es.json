@@ -3102,7 +3102,124 @@
     "slCopy": "copiar",
     "footerLine1": "Siete herramientas. Una plataforma.",
     "footerLine2": "Todo lo que necesitas, nada de lo que no.",
-    "footerCta": "Empezar a crear"
+    "footerCta": "Empezar a crear",
+    "pageTitle": "Tools",
+    "heroEyebrow": "Your Tools",
+    "activeSince": "Active since",
+    "backToDashboard": "Back to Dashboard",
+    "scrollLeft": "Scroll left",
+    "scrollRight": "Scroll right",
+    "locked": "Locked",
+    "categoriesSection": "Your tool categories",
+    "tabs": {
+      "overview": "Overview",
+      "free": "Free Tools",
+      "basic": "Basic Membership",
+      "pro": "Pro Membership"
+    },
+    "door": {
+      "free": {
+        "eyebrow": "Open to everyone",
+        "title": "Free Tools",
+        "desc": "Banner Creator, Meme Generator, QR Generator. Lead-magnet tools you can use any time.",
+        "count": "3 tools"
+      },
+      "basic": {
+        "eyebrowOpen": "Basic plan & up",
+        "eyebrowLocked": "Upgrade to unlock",
+        "title": "Basic Membership Tools",
+        "desc": "Creative Studio, Content Creator, LinkHub, Link Tools, SuperDeck. Everyday building tools.",
+        "count": "5 tools",
+        "countLocked": "5 tools · locked"
+      },
+      "pro": {
+        "eyebrowOpen": "Pro plan unlocked",
+        "eyebrowLocked": "Upgrade to unlock",
+        "title": "Pro Membership Tools",
+        "desc": "SuperPages, AutoResponder, Lead Finder, Niche Finder, ProSeller. Serious business growth tools.",
+        "count": "5 tools",
+        "countLocked": "5 tools · locked"
+      }
+    },
+    "section": {
+      "free": "Free Tools · open to everyone",
+      "basicUnlocked": "Basic Membership Tools · 5 tools unlocked at $20/mo",
+      "basicLocked": "Basic Membership Tools · upgrade to unlock",
+      "proUnlocked": "Pro Membership Tools · 5 tools unlocked at $97/mo",
+      "proLocked": "Pro Membership Tools · upgrade to unlock"
+    },
+    "free": {
+      "banner": {
+        "name": "Banner Creator",
+        "desc": "AI-generated banners and profile images for social platforms."
+      },
+      "meme": {
+        "name": "Meme Generator",
+        "desc": "Quick template-based memes and viral images."
+      },
+      "qr": {
+        "name": "QR Generator",
+        "desc": "Custom QR codes for any link. Trackable."
+      }
+    },
+    "basic": {
+      "studio": {
+        "name": "Creative Studio",
+        "desc": "AI image, video, music, voiceover, lipsync, captions. Your creative powerhouse."
+      },
+      "content": {
+        "name": "Content Creator",
+        "desc": "AI-written posts, articles, captions, scripts."
+      },
+      "linkhub": {
+        "name": "LinkHub",
+        "desc": "Linktree-style page hosting all your links in one place."
+      },
+      "links": {
+        "name": "Link Tools",
+        "desc": "Shorteners, cloakers, pixel-tracking, A/B redirect."
+      },
+      "deck": {
+        "name": "SuperDeck",
+        "desc": "AI presentation builder with 18 fonts and present mode."
+      }
+    },
+    "pro": {
+      "pages": {
+        "name": "SuperPages",
+        "desc": "Drag-and-drop landing page builder. Hosted, mobile-ready, conversion-focused."
+      },
+      "auto": {
+        "name": "AutoResponder",
+        "desc": "Email sequences, broadcasts, lead nurture. Powered by Brevo."
+      },
+      "leads": {
+        "name": "Lead Finder",
+        "desc": "Outscraper-powered local business and web prospect finder."
+      },
+      "niche": {
+        "name": "Niche Finder",
+        "desc": "Discover under-served niches with AI-powered analysis."
+      },
+      "seller": {
+        "name": "ProSeller",
+        "desc": "Personal AI sales coach. Strategy, copy, objection handling."
+      }
+    },
+    "upgrade": {
+      "perMonth": "/mo",
+      "cta": "Upgrade now",
+      "basic": {
+        "eyebrow": "Unlock 5 building tools",
+        "title": "Upgrade to Basic Membership",
+        "desc": "Everything you need to create content for your business: AI image and video, written content, link management, presentations."
+      },
+      "pro": {
+        "eyebrow": "Unlock 5 more pro tools",
+        "title": "Upgrade to Pro Membership",
+        "desc": "Get the serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching."
+      }
+    }
   },
   "explore": {
     "navHome": "Inicio",

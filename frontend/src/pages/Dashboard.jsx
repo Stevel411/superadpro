@@ -471,7 +471,7 @@ export default function Dashboard() {
             count: t('dashboard.doorTools', { count: 14, defaultValue: '14 tools' }),
             colourVar: 'var(--sap-violet)',
             icon: PenSquare,
-            link: '/marketing-materials',
+            link: '/tools',
           },
           {
             id: 'learn',

@@ -3774,6 +3774,17 @@ def income_landing(request: Request):
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
 
+@app.get("/tools")
+def tools_landing(request: Request):
+    """Serve React SPA for the Tools door landing page (Apr 2026).
+    Door 3 of 4 — gateway to the 13 tools split across Free / Basic /
+    Pro membership tiers. Tier-aware: the React component shows or
+    hides sections based on the member's membership_tier. Same FastAPI
+    pattern as /income — just serves index.html, the SPA does the rest."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
 def _old_wallet_DISABLED(request: Request, user: User = Depends(get_current_user),
            db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")
