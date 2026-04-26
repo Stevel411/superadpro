@@ -213,7 +213,8 @@
     "storyPromptBody": "どうやって達成したか教えてください — あなたの体験が次のメンバーを刺激するかもしれません。2分で完了。/explore 公開前にチームが審査します。",
     "storyPromptCta": "ストーリーをシェア",
     "storyPromptDismiss": "閉じる",
-    "earningsStrip": "Your earnings this month"
+    "earningsStrip": "Your earnings this month",
+    "monthlyEarned": "This Month"
   },
   "compPlan": {
     "title": "報酬プラン",

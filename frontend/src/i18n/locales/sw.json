@@ -213,7 +213,8 @@
     "storyPromptBody": "Eleza jinsi ulivyofanya — uzoefu wako unaweza kuhamasisha mwanachama ajaye. Inachukua dakika 2. Timu yetu inakagua kabla ya kuwasha kwenye /explore.",
     "storyPromptCta": "Shiriki hadithi yangu",
     "storyPromptDismiss": "Funga",
-    "earningsStrip": "Your earnings this month"
+    "earningsStrip": "Your earnings this month",
+    "monthlyEarned": "This Month"
   },
   "compPlan": {
     "title": "Mpango wa Fidia",

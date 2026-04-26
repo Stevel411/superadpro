@@ -213,7 +213,8 @@
     "storyPromptBody": "شارك قصة كيف فعلت ذلك — تجربتك قد تُلهم العضو التالي. يستغرق الأمر دقيقتين. يراجع فريقنا قبل النشر على /explore.",
     "storyPromptCta": "شارك قصتي",
     "storyPromptDismiss": "إغلاق",
-    "earningsStrip": "Your earnings this month"
+    "earningsStrip": "Your earnings this month",
+    "monthlyEarned": "This Month"
   },
   "compPlan": {
     "title": "خطة التعويضات",

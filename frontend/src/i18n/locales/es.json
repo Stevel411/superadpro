@@ -213,7 +213,8 @@
     "storyPromptBody": "Cuenta cómo lo hiciste — tu experiencia podría inspirar al próximo miembro. Tarda 2 minutos. Nuestro equipo revisa antes de publicarlo en /explore.",
     "storyPromptCta": "Compartir mi historia",
     "storyPromptDismiss": "Cerrar",
-    "earningsStrip": "Your earnings this month"
+    "earningsStrip": "Your earnings this month",
+    "monthlyEarned": "This Month"
   },
   "compPlan": {
     "title": "Plan de Compensación",

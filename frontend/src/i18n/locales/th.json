@@ -213,7 +213,8 @@
     "storyPromptBody": "เล่าเรื่องว่าทำยังไง — ประสบการณ์ของคุณอาจสร้างแรงบันดาลใจให้สมาชิกคนถัดไป ใช้เวลา 2 นาที ทีมงานจะตรวจสอบก่อนเผยแพร่บน /explore",
     "storyPromptCta": "แชร์เรื่องราวของฉัน",
     "storyPromptDismiss": "ปิด",
-    "earningsStrip": "Your earnings this month"
+    "earningsStrip": "Your earnings this month",
+    "monthlyEarned": "This Month"
   },
   "compPlan": {
     "title": "แผนค่าตอบแทน",

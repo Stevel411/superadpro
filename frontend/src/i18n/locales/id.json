@@ -213,7 +213,8 @@
     "storyPromptBody": "Ceritakan bagaimana kamu melakukannya — pengalamanmu bisa menginspirasi anggota berikutnya. Butuh 2 menit. Tim kami meninjau sebelum tayang di /explore.",
     "storyPromptCta": "Bagikan ceritaku",
     "storyPromptDismiss": "Tutup",
-    "earningsStrip": "Your earnings this month"
+    "earningsStrip": "Your earnings this month",
+    "monthlyEarned": "This Month"
   },
   "compPlan": {
     "title": "Rencana Kompensasi",

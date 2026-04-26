@@ -213,7 +213,8 @@
     "storyPromptBody": "Nasıl başardığını anlat — deneyimin bir sonraki üyeye ilham olabilir. 2 dakika sürer. Ekibimiz /explore'da yayına girmeden önce inceler.",
     "storyPromptCta": "Hikâyemi paylaş",
     "storyPromptDismiss": "Kapat",
-    "earningsStrip": "Your earnings this month"
+    "earningsStrip": "Your earnings this month",
+    "monthlyEarned": "This Month"
   },
   "compPlan": {
     "title": "Tazminat Planı",

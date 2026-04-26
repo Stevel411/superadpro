@@ -213,7 +213,8 @@
     "storyPromptBody": "Vertel hoe je het deed — jouw ervaring kan het volgende lid inspireren. Kost 2 minuten. Ons team beoordeelt voordat het live gaat op /explore.",
     "storyPromptCta": "Mijn verhaal delen",
     "storyPromptDismiss": "Sluiten",
-    "earningsStrip": "Your earnings this month"
+    "earningsStrip": "Your earnings this month",
+    "monthlyEarned": "This Month"
   },
   "compPlan": {
     "title": "Compensatieplan",
