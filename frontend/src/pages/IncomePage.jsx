@@ -48,22 +48,20 @@
  * with English defaults across all 20 locale files in this commit.
  */
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { apiGet } from '../utils/api';
 import { useAuth } from '../hooks/useAuth';
 import { formatMoney } from '../utils/money';
 import {
-  ArrowLeft, ChevronLeft, ChevronRight, Compass, Wallet,
-  FileText, Users, Target, Layers, GraduationCap, Clock,
+  ArrowLeft, Users, Target, Layers, GraduationCap,
   DollarSign, TrendingUp, Calendar
 } from 'lucide-react';
 
 export default function IncomePage() {
   const { t } = useTranslation();
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [data, setData] = useState(null);
 
   // ──────────────────────────────────────────────────────────────
@@ -129,30 +127,6 @@ export default function IncomePage() {
       const d = new Date(user.created_at);
       activeSinceLabel = d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
     } catch (e) { /* ignore */ }
-  }
-
-  // ──────────────────────────────────────────────────────────────
-  // Section tabs config
-  // ──────────────────────────────────────────────────────────────
-  // Each tab has icon, label, destination route, colour theme.
-  // Colours match the stream-card top accents below for visual continuity.
-  const TABS = [
-    { id: 'overview',   label: t('income.tabs.overview',   { defaultValue: 'Overview' }),         icon: Compass,        path: '/income',                  tone: 'violet',  active: true },
-    { id: 'wallet',     label: t('income.tabs.wallet',     { defaultValue: 'Wallet' }),           icon: Wallet,         path: '/wallet',                  tone: 'green' },
-    { id: 'comp-plan',  label: t('income.tabs.compPlan',   { defaultValue: 'Comp Plan' }),        icon: FileText,       path: '/compensation-plan',       tone: 'gray' },
-    { id: 'membership', label: t('income.tabs.membership', { defaultValue: 'Membership' }),       icon: Users,          path: '/compensation-plan#membership', tone: 'green' },
-    { id: 'grid',       label: t('income.tabs.grid',       { defaultValue: 'Campaign Grid' }),    icon: Target,         path: '/campaign-tiers',          tone: 'cyan' },
-    { id: 'nexus',      label: t('income.tabs.nexus',      { defaultValue: 'Profit Nexus' }),     icon: Layers,         path: '/credit-nexus',            tone: 'violet' },
-    { id: 'courses',    label: t('income.tabs.courses',    { defaultValue: 'Course Academy' }),   icon: GraduationCap,  path: '/courses',                 tone: 'amber' },
-    { id: 'history',    label: t('income.tabs.history',    { defaultValue: 'Earnings History' }), icon: Clock,          path: '/wallet',                  tone: 'dark' },
-  ];
-
-  // ──────────────────────────────────────────────────────────────
-  // Tab strip horizontal scroll handlers
-  // ──────────────────────────────────────────────────────────────
-  function scrollTabs(direction) {
-    const el = document.getElementById('income-tabs-scroll');
-    if (el) el.scrollBy({ left: direction === 'left' ? -240 : 240, behavior: 'smooth' });
   }
 
   // ──────────────────────────────────────────────────────────────
@@ -236,107 +210,6 @@ export default function IncomePage() {
             <ArrowLeft size={14} strokeWidth={2.5} />
             {t('income.backToDashboard', { defaultValue: 'Back to Dashboard' })}
           </Link>
-        </div>
-
-        {/* ── Section tabs (scrollable strip) ── */}
-        <div style={{ position: 'relative', marginBottom: 28 }}>
-          <button
-            type="button"
-            onClick={() => scrollTabs('left')}
-            aria-label={t('income.scrollLeft', { defaultValue: 'Scroll left' })}
-            style={{
-              position: 'absolute', top: '50%', left: -8, transform: 'translateY(-50%)',
-              width: 36, height: 36, borderRadius: '50%',
-              background: '#fff', border: '1px solid var(--sap-border, #e2e8f0)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', zIndex: 2,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-              color: 'var(--sap-text-secondary, #475569)',
-            }}
-          >
-            <ChevronLeft size={14} strokeWidth={2.5} />
-          </button>
-
-          <div id="income-tabs-scroll" style={{
-            display: 'flex', gap: 10,
-            overflowX: 'auto', overflowY: 'hidden',
-            scrollBehavior: 'smooth',
-            padding: '4px 44px 4px 4px',
-            scrollbarWidth: 'none', msOverflowStyle: 'none',
-          }}>
-            {TABS.map((tab) => {
-              const TabIcon = tab.icon;
-              const toneStyle = {
-                violet: { bg: '#ede9fe', color: '#7c3aed' },
-                green:  { bg: '#dcfce7', color: '#16a34a' },
-                gray:   { bg: '#f1f5f9', color: '#475569' },
-                cyan:   { bg: '#cffafe', color: '#0891b2' },
-                amber:  { bg: '#fef3c7', color: '#f59e0b' },
-                dark:   { bg: '#f1f5f9', color: '#0f172a' },
-              }[tab.tone] || { bg: '#f1f5f9', color: '#475569' };
-
-              const isActiveTab = tab.active;
-              return (
-                <Link
-                  key={tab.id}
-                  to={tab.path}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 12,
-                    flexShrink: 0,
-                    padding: '10px 18px 10px 10px',
-                    background: '#fff',
-                    border: isActiveTab ? '1.5px solid #7c3aed' : '1.5px solid var(--sap-border, #e2e8f0)',
-                    borderRadius: 14,
-                    fontSize: 15, fontWeight: 700,
-                    color: isActiveTab ? '#7c3aed' : 'var(--sap-text-primary, #0f172a)',
-                    transition: 'all 0.15s',
-                    whiteSpace: 'nowrap',
-                    textDecoration: 'none',
-                    boxShadow: isActiveTab ? '0 0 0 3px rgba(124,58,237,0.1)' : 'none',
-                  }}
-                  onMouseEnter={(e) => {
-                    if (!isActiveTab) {
-                      e.currentTarget.style.borderColor = 'var(--sap-text-faint, #94a3b8)';
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    if (!isActiveTab) {
-                      e.currentTarget.style.borderColor = 'var(--sap-border, #e2e8f0)';
-                      e.currentTarget.style.transform = 'translateY(0)';
-                    }
-                  }}
-                >
-                  <span style={{
-                    width: 36, height: 36, borderRadius: 10,
-                    background: toneStyle.bg, color: toneStyle.color,
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    flexShrink: 0,
-                  }}>
-                    <TabIcon size={18} strokeWidth={2.2} />
-                  </span>
-                  {tab.label}
-                </Link>
-              );
-            })}
-          </div>
-
-          <button
-            type="button"
-            onClick={() => scrollTabs('right')}
-            aria-label={t('income.scrollRight', { defaultValue: 'Scroll right' })}
-            style={{
-              position: 'absolute', top: '50%', right: -8, transform: 'translateY(-50%)',
-              width: 36, height: 36, borderRadius: '50%',
-              background: '#fff', border: '1px solid var(--sap-border, #e2e8f0)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              cursor: 'pointer', zIndex: 2,
-              boxShadow: '0 2px 8px rgba(0,0,0,0.08)',
-              color: 'var(--sap-text-secondary, #475569)',
-            }}
-          >
-            <ChevronRight size={14} strokeWidth={2.5} />
-          </button>
         </div>
 
         {/* ── Earnings summary card ── */}
@@ -489,8 +362,6 @@ export default function IncomePage() {
           .income-summary-grid > div { border-right: none !important; border-bottom: 1px solid var(--sap-border-light, #f1f5f9); }
           .income-summary-grid > div:last-child { border-bottom: none; }
         }
-        /* Hide tabs scroll bar in webkit */
-        #income-tabs-scroll::-webkit-scrollbar { display: none; }
       `}</style>
     </AppLayout>
   );

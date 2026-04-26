@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 import MobileTabBar from './MobileTabBar';
+import IncomeTabs, { isIncomeFamilyRoute } from './IncomeTabs';
 import InstallPrompt from '../InstallPrompt';
 import { useLocation } from 'react-router-dom';
 
@@ -115,6 +116,10 @@ export default function AppLayout({ title, subtitle, topbarActions, children, bg
         <Topbar title={title} subtitle={subtitle} onMenuClick={openSidebar}>
           {topbarActions}
         </Topbar>
+        {/* Persistent Income tabs strip — rendered on any Income family route
+            (Wallet, Comp Plan, Campaign Grid, etc.) so members can hop
+            between sub-pages with one click. Same Platform-Tour pattern. */}
+        {isIncomeFamilyRoute(location.pathname) && <IncomeTabs />}
         <main className="flex-1 overflow-y-auto" style={Object.assign(
           {background:'#f0f3f9', padding: isMobile ? '16px' : '24px'},
           isMobileTabPage ? {paddingBottom: 80} : {},
