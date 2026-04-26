@@ -40,7 +40,6 @@ import {
   LayoutGrid, Star,
   DollarSign, TrendingUp, TrendingDown,
   MessageSquare, Award, BarChart3,
-  ArrowRight,
 } from 'lucide-react';
 
 export default function CommandCentre() {
@@ -159,6 +158,7 @@ export default function CommandCentre() {
       color: 'var(--sap-accent)',
       accentPale: '#cffafe',
       bg: 'linear-gradient(135deg,#ecfeff,#cffafe)',
+      pillBg: '#cffafe', pillBgHover: '#a5f3fc', pillColor: '#0e7490',
     },
     {
       title: t('commandCentre.sendBroadcastTitle'),
@@ -168,6 +168,7 @@ export default function CommandCentre() {
       color: 'var(--sap-violet)',
       accentPale: '#ddd6fe',
       bg: 'linear-gradient(135deg,#f5f3ff,#ede9fe)',
+      pillBg: '#ede9fe', pillBgHover: '#ddd6fe', pillColor: '#6d28d9',
     },
     {
       title: t('commandCentre.leaderboardTitle'),
@@ -177,6 +178,7 @@ export default function CommandCentre() {
       color: 'var(--sap-amber-dark)',
       accentPale: '#fed7aa',
       bg: 'linear-gradient(135deg,#fff7ed,#fed7aa)',
+      pillBg: '#fef3c7', pillBgHover: '#fde68a', pillColor: '#b45309',
     },
   ];
 
@@ -499,6 +501,22 @@ export default function CommandCentre() {
               gap: 12,
               position: 'relative',
               overflow: 'hidden',
+            }}
+            onMouseEnter={(e) => {
+              const pill = e.currentTarget.querySelector('.cc-pill');
+              if (pill) {
+                pill.style.background = a.pillBgHover;
+                const arrow = pill.querySelector('.cc-pill-arrow');
+                if (arrow) { arrow.style.transform = 'translateX(2px)'; arrow.style.opacity = '1'; }
+              }
+            }}
+            onMouseLeave={(e) => {
+              const pill = e.currentTarget.querySelector('.cc-pill');
+              if (pill) {
+                pill.style.background = a.pillBg;
+                const arrow = pill.querySelector('.cc-pill-arrow');
+                if (arrow) { arrow.style.transform = 'translateX(0)'; arrow.style.opacity = '0.65'; }
+              }
             }}>
               <div style={{
                 position: 'absolute', top: 0, left: 0, right: 0, height: 4,
@@ -510,8 +528,23 @@ export default function CommandCentre() {
               </div>
               <div style={TYPE.cardTitleBold}>{a.title}</div>
               <div style={{...TYPE.body, color: '#475569', lineHeight: 1.5, flex: 1}}>{a.desc}</div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 4, color: a.color, fontSize: 13, fontWeight: 700, paddingTop: 6, borderTop: '1px solid var(--sap-border-light)' }}>
-                {t('commandCentre.open')} <ArrowRight size={14} />
+              <div style={{ paddingTop: 14, borderTop: '1px solid var(--sap-border-light)' }}>
+                <span className="cc-pill" style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 4,
+                  padding: '6px 12px',
+                  borderRadius: 99,
+                  fontSize: 12, fontWeight: 700,
+                  background: a.pillBg,
+                  color: a.pillColor,
+                  transition: 'background 0.12s',
+                }}>
+                  {t('commandCentre.open')}
+                  <span className="cc-pill-arrow" style={{
+                    fontSize: 11, opacity: 0.65,
+                    transition: 'transform 0.12s, opacity 0.12s',
+                    display: 'inline-block',
+                  }}>→</span>
+                </span>
               </div>
             </Link>
           );
@@ -533,6 +566,22 @@ export default function CommandCentre() {
         position: 'relative',
         overflow: 'hidden',
         marginBottom: 24,
+      }}
+      onMouseEnter={(e) => {
+        const pill = e.currentTarget.querySelector('.cc-pill');
+        if (pill) {
+          pill.style.background = '#c7d2fe';
+          const arrow = pill.querySelector('.cc-pill-arrow');
+          if (arrow) { arrow.style.transform = 'translateX(2px)'; arrow.style.opacity = '1'; }
+        }
+      }}
+      onMouseLeave={(e) => {
+        const pill = e.currentTarget.querySelector('.cc-pill');
+        if (pill) {
+          pill.style.background = '#e0e7ff';
+          const arrow = pill.querySelector('.cc-pill-arrow');
+          if (arrow) { arrow.style.transform = 'translateX(0)'; arrow.style.opacity = '0.65'; }
+        }
       }}>
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: 4,
@@ -546,9 +595,23 @@ export default function CommandCentre() {
           <div style={TYPE.cardTitleBold}>{t('commandCentre.fullAnalyticsTitle')}</div>
           <div style={{...TYPE.bodyMuted, marginTop: 4}}>{t('commandCentre.fullAnalyticsDesc')}</div>
         </div>
-        <div style={{ color: 'var(--sap-indigo)', fontSize: 13, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
-          {t('commandCentre.view')} <ArrowRight size={14} />
-        </div>
+        <span className="cc-pill" style={{
+          display: 'inline-flex', alignItems: 'center', gap: 4,
+          padding: '6px 12px',
+          borderRadius: 99,
+          fontSize: 12, fontWeight: 700,
+          background: '#e0e7ff',
+          color: '#4338ca',
+          transition: 'background 0.12s',
+          flexShrink: 0,
+        }}>
+          {t('commandCentre.view')}
+          <span className="cc-pill-arrow" style={{
+            fontSize: 11, opacity: 0.65,
+            transition: 'transform 0.12s, opacity 0.12s',
+            display: 'inline-block',
+          }}>→</span>
+        </span>
       </Link>
 
       {/* ── RESPONSIVE ─────────────────────────────────────
