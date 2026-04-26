@@ -55,9 +55,10 @@ import { apiGet } from '../utils/api';
 import { useAuth } from '../hooks/useAuth';
 import { formatMoney } from '../utils/money';
 import {
-  ArrowLeft, Users, Target, Layers, GraduationCap,
+  Users, Target, Layers, GraduationCap,
   DollarSign, TrendingUp, Calendar
 } from 'lucide-react';
+import { SubPageHero } from './tools-shared';
 
 export default function IncomePage() {
   const { t } = useTranslation();
@@ -115,12 +116,9 @@ export default function IncomePage() {
   const nexusActive = (data?.nexus_team_count || 0) > 0;
   const coursesActive = (data?.course_earned || 0) > 0;
 
-  const username = user?.username || user?.email || 'Member';
-  const initial = username.charAt(0).toUpperCase();
-  const tierLabel = (user?.membership_tier || '').toUpperCase() || 'BASIC';
-  const isPro = tierLabel === 'PRO';
-
-  // Format member-since date — falls back gracefully if no created_at.
+  // Format member-since date — used in the earnings summary card caption.
+  // Hero displays its own active-since via SubPageHero; this local is kept
+  // for the "since Mar 2026" lifetime-earnings caption further down.
   let activeSinceLabel = '';
   if (user?.created_at) {
     try {
@@ -136,81 +134,18 @@ export default function IncomePage() {
     <AppLayout title={t('income.pageTitle', { defaultValue: 'Income' })}>
       <div style={{ maxWidth: 1200, margin: '0 auto', paddingBottom: 32 }}>
 
-        {/* ── Identity hero ── */}
-        <div style={{
-          background: 'var(--sap-cobalt-deep, #172554)',
-          borderRadius: 16,
-          padding: '24px 28px',
-          marginBottom: 24,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 24,
-          color: '#fff',
-          position: 'relative',
-          overflow: 'hidden',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
-          flexWrap: 'wrap',
-        }}>
-          {/* Soft cyan glow on the right side, matching Command Centre's hero */}
-          <div style={{
-            position: 'absolute', right: 0, top: 0, bottom: 0, width: '50%',
-            background: 'radial-gradient(circle at 70% 50%, rgba(14,165,233,0.18), transparent 60%)',
-            pointerEvents: 'none',
-          }} />
-
-          {/* Avatar + name block */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, flex: 1, minWidth: 0, position: 'relative', zIndex: 1 }}>
-            <div style={{
-              width: 80, height: 80, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #0ea5e9, #7c3aed)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: "'Sora', sans-serif", fontSize: 30, fontWeight: 800, color: '#fff',
-              flexShrink: 0,
-              border: '3px solid rgba(255,255,255,0.1)',
-            }}>{initial}</div>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>
-                {t('income.heroEyebrow', { defaultValue: 'Your Income' })}
-              </div>
-              <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 32, fontWeight: 800, color: '#fff', lineHeight: 1, letterSpacing: '-0.5px', marginBottom: 8, wordBreak: 'break-word' }}>
-                {username}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                {isPro && (
-                  <span style={{ background: '#f59e0b', color: '#1f1300', fontSize: 11, fontWeight: 800, padding: '3px 9px', borderRadius: 6, letterSpacing: '0.06em' }}>
-                    PRO
-                  </span>
-                )}
-                {activeSinceLabel && (
-                  <span style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.7)' }}>
-                    {!isPro ? '' : <span style={{ color: 'rgba(255,255,255,0.4)', marginRight: 8 }}>·</span>}
-                    {t('income.activeSince', { defaultValue: 'Active since' })} {activeSinceLabel}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Back to Dashboard button */}
-          <Link to="/dashboard" style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            padding: '10px 18px',
-            background: 'rgba(255,255,255,0.06)',
-            border: '1px solid rgba(255,255,255,0.18)',
-            borderRadius: 10,
-            color: '#fff',
-            fontSize: 14, fontWeight: 600,
-            textDecoration: 'none',
-            transition: 'all 0.15s',
-            position: 'relative', zIndex: 1,
-            flexShrink: 0,
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
-            <ArrowLeft size={14} strokeWidth={2.5} />
-            {t('income.backToDashboard', { defaultValue: 'Back to Dashboard' })}
-          </Link>
-        </div>
+        {/* ── Identity hero (shared Dashboard-style component) ──
+            Used to be a custom flat-navy block with an 80px gradient
+            avatar and just a Back to Dashboard button on the right.
+            Replaced 26 Apr 2026 with the shared SubPageHero so the
+            Income door matches Dashboard, Tools, and Learn — single
+            hero language across the platform. */}
+        <SubPageHero
+          user={user}
+          t={t}
+          eyebrowKey="income.heroEyebrow"
+          eyebrowDefault="Your Income"
+        />
 
         {/* ── Earnings summary card ── */}
         <div style={{
