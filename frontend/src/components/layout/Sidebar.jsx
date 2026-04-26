@@ -445,7 +445,10 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed, f
                 );
               }
 
-              // Expanded (default) group layout — unchanged from before
+              // Expanded (default) group layout — group icon shown next to label
+              // so INCOME / TOOLS / LEARN / ACCOUNT look visually equal in weight to
+              // the Dashboard and Command Centre standalones above them.
+              var GroupIcon = item.icon;
               return (
                 <div key={i}>
                   <button onClick={function() { toggle(item.key); }} className="sb-group-hdr" style={{
@@ -455,7 +458,10 @@ export default function Sidebar({ open, onClose, collapsed, onToggleCollapsed, f
                     cursor:'pointer', border:'none', background:'transparent', transition:'all .15s',
                     fontFamily:'inherit', borderRadius: 8, margin: '1px 0',
                   }}>
-                    <span>{item.label}</span>
+                    <span style={{display:'flex',alignItems:'center',gap:10}}>
+                      {GroupIcon && <GroupIcon style={{width:16,height:16,flexShrink:0}}/>}
+                      <span>{item.label}</span>
+                    </span>
                     <ChevronRight style={{width:14,height:14,color:'rgba(255,255,255,0.2)',transform:isOpen?'rotate(90deg)':'none',transition:'transform .2s'}}/>
                   </button>
                   {isOpen && (
