@@ -57,8 +57,8 @@ function buildTabs(t) {
       id: 'membership',
       label: t('income.tabs.membership', { defaultValue: 'Membership' }),
       icon: Users, tone: 'green',
-      path: '/compensation-plan#membership',
-      match: ['/membership'], // future: when a dedicated /income/membership exists
+      path: '/income/membership',
+      match: ['/income/membership'],
     },
     {
       id: 'grid',

@@ -36,6 +36,7 @@ import ToolsPage from './pages/ToolsPage';
 import FreeToolsPage from './pages/FreeToolsPage';
 import BasicToolsPage from './pages/BasicToolsPage';
 import ProToolsPage from './pages/ProToolsPage';
+import IncomeMembershipPage from './pages/IncomeMembershipPage';
 import LearnPage from './pages/LearnPage';
 import EducationPage from './pages/EducationPage';
 import AssetsPage from './pages/AssetsPage';
@@ -235,6 +236,7 @@ function AppRoutes() {
       <Route path="/passup-visualiser" element={<ProtectedRoute><PassupVisualiser /></ProtectedRoute>} />
       <Route path="/network" element={<ProtectedRoute><MyNetwork /></ProtectedRoute>} />
       <Route path="/income" element={<ProtectedRoute><IncomePage /></ProtectedRoute>} />
+      <Route path="/income/membership" element={<ProtectedRoute><IncomeMembershipPage /></ProtectedRoute>} />
       <Route path="/tools" element={<ProtectedRoute><ToolsPage /></ProtectedRoute>} />
       <Route path="/tools/free" element={<ProtectedRoute><FreeToolsPage /></ProtectedRoute>} />
       <Route path="/tools/basic" element={<ProtectedRoute><BasicToolsPage /></ProtectedRoute>} />

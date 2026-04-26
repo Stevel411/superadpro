@@ -3774,6 +3774,19 @@ def income_landing(request: Request):
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
 
+@app.get("/income/membership")
+def income_membership_page(request: Request):
+    """Serve React SPA for /income/membership — the new Membership stream
+    deep-dive page (Apr 2026). Replaces the previous /compensation-plan#membership
+    placeholder anchor that the IncomeTabs Membership tab used to point at.
+    The React component (IncomeMembershipPage.jsx) renders different content
+    based on the viewer's direct count: 0 directs = coaching mode, 1-4 directs
+    = encouragement mode with progress bar, 5+ directs = data mode with
+    quality metrics. Real data comes from /api/membership-stream."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
 @app.get("/tools")
 def tools_landing(request: Request):
     """Serve React SPA for the Tools door landing page (Apr 2026).
@@ -18054,6 +18067,199 @@ def api_network_data(request: Request, user: User = Depends(get_current_user),
             "created_at": r.created_at.isoformat() if r.created_at else None,
         } for r in referrals],
         "commissions": commissions,
+    }
+
+
+@app.get("/api/membership-stream")
+def api_membership_stream(request: Request, user: User = Depends(get_current_user),
+                          db: Session = Depends(get_db)):
+    """Membership Stream dashboard data (Apr 2026).
+
+    Powers /income/membership — the Membership-stream-specific deep-dive page.
+    Returns everything the page needs in one call to keep the React side simple:
+    lifetime/this-month/last-month earnings, current MRR, projection if Basic
+    directs upgrade, count of directs in each state (active/lapsed/never paid),
+    quality metrics (activation rate, retention rate, average tenure), and a
+    snapshot of all 4 streams' this-month earnings for the comparison strip.
+
+    The page renders different content blocks based on direct_count:
+      0 directs    → coaching mode (motivational hero, first 3 steps, quick math)
+      1-4 directs  → encouragement mode (progress to 5 banner, link to CC)
+      5+ directs   → data mode (quality metrics rings, link to CC)
+    All members see: hero, tab strip, earnings stat row, stream comparison.
+    Basic-tier members additionally see the upgrade-to-Pro card.
+
+    Per-direct rows are NOT included — that data lives on Command Centre. This
+    endpoint is purely for the stream-economics view: how much, how it compares,
+    where opportunities lie. No PII beyond what a member can already see in CC.
+    """
+    from sqlalchemy import func
+    from datetime import datetime as _dt_ms, timedelta as _td_ms
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+
+    referrals = db.query(User).filter(User.sponsor_id == user.id).all()
+    direct_count = len(referrals)
+
+    # ── Counts by status & tier ──
+    # Status definitions:
+    #   active     = is_active=True AND has paid (membership_tier set)
+    #   lapsed     = had paid before but is_active=False now (best proxy:
+    #                inactive direct who has had a paying tier set)
+    #   never_paid = is_active=False AND no paying history (tier null/basic with
+    #                no commissions ever earned by the sponsor for this member)
+    # Without a separate `last_paid_at` column we approximate using is_active +
+    # commission history. Good enough for v1; we can refine later.
+    active_count = 0
+    lapsed_count = 0
+    never_paid_count = 0
+    active_basic_count = 0
+    active_pro_count = 0
+    for r in referrals:
+        if r.is_active:
+            active_count += 1
+            tier = (r.membership_tier or 'basic').lower()
+            if tier == 'pro':
+                active_pro_count += 1
+            else:
+                active_basic_count += 1
+        else:
+            # Inactive — has the sponsor ever earned a membership commission
+            # tied to this referral? If yes, they once paid → lapsed. If no →
+            # never paid.
+            ever_paid = db.query(Commission).filter(
+                Commission.to_user_id == user.id,
+                Commission.from_user_id == r.id,
+                Commission.commission_type.ilike("%membership%"),
+            ).first()
+            if ever_paid:
+                lapsed_count += 1
+            else:
+                never_paid_count += 1
+
+    # ── Lifetime membership earnings ──
+    lifetime_earned = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+        Commission.to_user_id == user.id,
+        Commission.commission_type.ilike("%membership%"),
+    ).scalar() or 0)
+
+    # ── This month + last month (for the delta arrow) ──
+    now = _dt_ms.utcnow()
+    month_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    # Last month start = first day of previous month
+    if month_start.month == 1:
+        last_month_start = month_start.replace(year=month_start.year - 1, month=12)
+    else:
+        last_month_start = month_start.replace(month=month_start.month - 1)
+
+    this_month_membership = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+        Commission.to_user_id == user.id,
+        Commission.commission_type.ilike("%membership%"),
+        Commission.paid_at >= month_start,
+    ).scalar() or 0)
+
+    last_month_membership = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+        Commission.to_user_id == user.id,
+        Commission.commission_type.ilike("%membership%"),
+        Commission.paid_at >= last_month_start,
+        Commission.paid_at < month_start,
+    ).scalar() or 0)
+
+    delta = this_month_membership - last_month_membership
+
+    # ── Current MRR & projection ──
+    # Commission rates are tier-dependent for the SPONSOR not the direct — so
+    # the rate depends on the viewing user's tier, not the direct's.
+    # Pro sponsors earn $17.50/Pro-direct + $10/Basic-direct
+    # Basic sponsors earn $10/Pro-direct + $10/Basic-direct (capped)
+    # Reference: docs/commission-spec.md (commission ground truth).
+    # If the rates above are wrong, raise with Steve before adjusting.
+    is_pro_viewer = (user.membership_tier or '').lower() == 'pro'
+    if is_pro_viewer:
+        mrr = (active_pro_count * 17.50) + (active_basic_count * 10.0)
+        # Projection assumes all Basic directs upgrade to Pro
+        projection = (active_pro_count + active_basic_count) * 17.50
+        projection_basis = "if all Basic upgrade to Pro"
+    else:
+        mrr = active_count * 10.0
+        # As a Basic sponsor, the upside is the sponsor upgrading themselves
+        # which would lift the per-direct rate to $17.50.
+        projection = active_count * 17.50
+        projection_basis = "if you upgrade to Pro"
+
+    # ── Quality metrics (only really meaningful for 5+ directs) ──
+    # Activation rate = paid count / total signups
+    # paid_count = active + lapsed (anyone who ever paid)
+    paid_count = active_count + lapsed_count
+    activation_rate = (paid_count / direct_count * 100.0) if direct_count > 0 else 0
+    # Retention rate = currently active / ever paid
+    retention_rate = (active_count / paid_count * 100.0) if paid_count > 0 else 0
+    # Average tenure (days) of currently-active directs
+    avg_tenure_days = 0
+    if active_count > 0:
+        total_tenure = 0
+        active_with_dates = 0
+        for r in referrals:
+            if r.is_active and r.created_at:
+                total_tenure += (now - r.created_at).days
+                active_with_dates += 1
+        if active_with_dates > 0:
+            avg_tenure_days = total_tenure // active_with_dates
+
+    # ── Stream comparison snapshot (this month, all 4 streams) ──
+    this_month_grid = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+        Commission.to_user_id == user.id,
+        Commission.commission_type.in_(["grid_level", "grid_completion"]),
+        Commission.paid_at >= month_start,
+    ).scalar() or 0)
+    this_month_courses = float(db.query(func.coalesce(func.sum(CourseCommission.amount), 0)).filter(
+        CourseCommission.earner_id == user.id,
+        CourseCommission.created_at >= month_start,
+    ).scalar() or 0)
+    this_month_nexus = float(db.query(func.coalesce(func.sum(Commission.amount_usdt), 0)).filter(
+        Commission.to_user_id == user.id,
+        Commission.commission_type.in_([
+            "matrix_level", "matrix_completion",
+            "nexus_sponsor", "nexus_level", "nexus_completion",
+        ]),
+        Commission.paid_at >= month_start,
+    ).scalar() or 0)
+
+    # ── Active-since label for hero ──
+    active_since = ''
+    if user.created_at:
+        active_since = user.created_at.strftime('%b %Y')
+
+    return {
+        "username": user.username,
+        "membership_tier": (user.membership_tier or 'basic').lower(),
+        "active_since": active_since,
+        # Counts
+        "direct_count": direct_count,
+        "active_count": active_count,
+        "active_pro_count": active_pro_count,
+        "active_basic_count": active_basic_count,
+        "lapsed_count": lapsed_count,
+        "never_paid_count": never_paid_count,
+        # Earnings
+        "lifetime_earned": lifetime_earned,
+        "this_month": this_month_membership,
+        "last_month": last_month_membership,
+        "delta": delta,
+        "mrr": mrr,
+        "projection": projection,
+        "projection_basis": projection_basis,
+        # Quality metrics
+        "activation_rate": activation_rate,
+        "retention_rate": retention_rate,
+        "avg_tenure_days": avg_tenure_days,
+        # Stream comparison snapshot
+        "stream_this_month": {
+            "membership": this_month_membership,
+            "grid": this_month_grid,
+            "course": this_month_courses,
+            "nexus": this_month_nexus,
+        },
     }
 
 
