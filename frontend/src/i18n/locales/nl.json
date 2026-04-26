@@ -212,7 +212,8 @@
     "storyPromptTitle": "Je hebt je eerste {{amount}} verdiend!",
     "storyPromptBody": "Vertel hoe je het deed — jouw ervaring kan het volgende lid inspireren. Kost 2 minuten. Ons team beoordeelt voordat het live gaat op /explore.",
     "storyPromptCta": "Mijn verhaal delen",
-    "storyPromptDismiss": "Sluiten"
+    "storyPromptDismiss": "Sluiten",
+    "earningsStrip": "Your earnings this month"
   },
   "compPlan": {
     "title": "Compensatieplan",

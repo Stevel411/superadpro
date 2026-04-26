@@ -396,80 +396,40 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* 4 Income Streams */}
-      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.yourIncomeStreams', { defaultValue: 'Your 4 Income Streams' })}</div>
-      <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 14, marginBottom: 20 }}>
+      {/* ── Income strip · compact at-a-glance per-stream earnings ──
+          This row used to be 4 hero-sized cards which competed with the
+          door cards below for attention and made the hierarchy feel
+          upside-down. Rebalanced 26 Apr 2026: shrunk to a tight one-row
+          strip so the four doors below become the visual anchor of the
+          page. Same data binding (membership_earned / boost_earned /
+          creative_studio_earned / course_earnings from /api/dashboard).
+          Members who want full income detail click the green Income door
+          which has its own dedicated landing page. */}
+      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12 }}>{t('dashboard.earningsStrip', { defaultValue: 'Your earnings this month' })}</div>
+      <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 28 }}>
         {[
-          {
-            color: 'var(--sap-green)', bg: 'var(--sap-green-bg-mid)', badge: t('dashboard.perReferral'),
-            val: d.membership_earned, name: t('dashboard.membership'),
-            detail: t('dashboard.personalReferrals', { count: d.personal_referrals || 0 }),
-            icon: (
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <circle cx="9" cy="7" r="4" fill="var(--sap-green)" opacity="0.9"/>
-                <path d="M2 21v-1a7 7 0 0 1 14 0v1" stroke="var(--sap-green)" strokeWidth="2" strokeLinecap="round"/>
-                <circle cx="19" cy="8" r="2.5" fill="#4ade80"/>
-                <path d="M22 21v-.5a4.5 4.5 0 0 0-6-4.24" stroke="#4ade80" strokeWidth="1.8" strokeLinecap="round"/>
-              </svg>
-            )
-          },
-          {
-            color: 'var(--sap-amber-dark)', bg: 'var(--sap-amber-bg)', badge: t('dashboard.watchAndGrid'),
-            val: d.boost_earned, name: t('dashboard.campaigns'),
-            detail: t('dashboard.watchGridCommissions'),
-            icon: (
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="var(--sap-amber)"/>
-                <polygon points="13,2 3,14 12,14 11,22 21,10 12,10" fill="url(#zapGrad)"/>
-                <defs>
-                  <linearGradient id="zapGrad" x1="3" y1="2" x2="21" y2="22" gradientUnits="userSpaceOnUse">
-                    <stop stopColor="var(--sap-amber-bright)"/>
-                    <stop offset="1" stopColor="var(--sap-amber-dark)"/>
-                  </linearGradient>
-                </defs>
-              </svg>
-            )
-          },
-          {
-            color: 'var(--sap-purple)', bg: 'var(--sap-purple-pale)', badge: t('dashboard.profitNexus'),
-            val: d.creative_studio_earned || 0, name: t('dashboard.creditNexus', { defaultValue: 'Credit Nexus' }),
-            detail: t('dashboard.nexusCommissions'),
-            icon: (
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <rect x="2" y="3" width="20" height="14" rx="3" fill="var(--sap-purple)" opacity=".8"/>
-                <polygon points="10,7 10,14 16,10.5" fill="#fff"/>
-                <rect x="6" y="19" width="12" height="2" rx="1" fill="var(--sap-purple-light)"/>
-              </svg>
-            )
-          },
-          {
-            color: 'var(--sap-accent)', bg: '#ecfeff', badge: t('dashboard.courseSales', { defaultValue: 'Pass-Up' }),
-            val: d.course_earnings || 0, name: t('dashboard.courseIncome', { defaultValue: 'Courses' }),
-            detail: t('dashboard.courseCommissions', { defaultValue: 'Course sales + pass-ups' }),
-            icon: (
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-                <rect x="3" y="2" width="18" height="18" rx="3" fill="var(--sap-accent)" opacity=".8"/>
-                <path d="M8 7h8M8 11h6M8 15h4" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"/>
-                <rect x="6" y="20" width="12" height="2" rx="1" fill="#7dd3fc"/>
-              </svg>
-            )
-          },
+          { color: 'var(--sap-green)',       val: d.membership_earned,            name: t('dashboard.membership') },
+          { color: 'var(--sap-amber-dark)',  val: d.boost_earned,                 name: t('dashboard.campaigns') },
+          { color: 'var(--sap-purple)',      val: d.creative_studio_earned || 0,  name: t('dashboard.creditNexus', { defaultValue: 'Credit Nexus' }) },
+          { color: 'var(--sap-accent)',      val: d.course_earnings || 0,         name: t('dashboard.courseIncome', { defaultValue: 'Courses' }) },
         ].map((s, i) => (
-          <div key={i} className="stream-card" style={{
-            background: '#fff', border: '1px solid #e2e8f0', borderRadius: 14, padding: 20,
-            boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
-            position: 'relative', overflow: 'hidden', transition: 'all 0.2s',
+          <div key={i} style={{
+            background: '#fff',
+            border: '1px solid var(--sap-border)',
+            borderRadius: 10,
+            padding: '14px 16px',
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
           }}>
-            <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: `linear-gradient(90deg, ${s.color}, ${s.bg})`, borderRadius: '14px 14px 0 0' }} />
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-              <div style={{ width: 46, height: 46, borderRadius: 13, display: 'flex', alignItems: 'center', justifyContent: 'center', background: s.bg }}>
-                {s.icon}
-              </div>
-              <span style={{ fontSize: 13, fontWeight: 700, padding: '3px 9px', borderRadius: 20, letterSpacing: 0.3, background: s.bg, color: s.color }}>{s.badge}</span>
+            {/* Left-edge accent stripe in the stream's brand colour */}
+            <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 3, background: s.color }} />
+            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.5px', color: 'var(--sap-text-primary)' }}>
+              ${formatMoney(s.val)}
             </div>
-            <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 28, fontWeight: 900, color: s.color, lineHeight: 1, marginBottom: 6 }}>${formatMoney(s.val)}</div>
-            <div style={{...TYPE.cardTitleBold, marginBottom: 3}}>{s.name}</div>
-            <div style={TYPE.bodyMuted}>{s.detail}</div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-text-muted)', marginTop: 2 }}>
+              {s.name}
+            </div>
           </div>
         ))}
       </div>
@@ -529,33 +489,35 @@ export default function Dashboard() {
             <Link key={door.id} to={door.link} className="action-card" style={{
               background: 'var(--sap-bg-card)',
               border: '1px solid var(--sap-border)',
-              borderRadius: 14,
-              padding: 20,
-              boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
+              borderRadius: 18,
+              padding: '32px 28px 28px',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.06), 0 12px 28px rgba(0,0,0,0.06)',
               textDecoration: 'none',
-              transition: 'all 0.15s',
+              transition: 'all 0.18s',
               display: 'flex',
               flexDirection: 'column',
               gap: 0,
               position: 'relative',
               overflow: 'hidden',
               color: 'inherit',
+              minHeight: 280,
             }}>
-              {/* 4px top accent in the door's brand colour — matches stream-card pattern */}
-              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 4, background: door.colourVar }} />
-              <div style={{ width: 44, height: 44, borderRadius: 11, background: door.colourVar, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>
-                <Icon size={20} color="#fff" />
+              {/* 5px top accent in the door's brand colour — slightly thicker
+                  than before (4px → 5px) to read at the new larger card size */}
+              <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 5, background: door.colourVar }} />
+              <div style={{ width: 64, height: 64, borderRadius: 16, background: door.colourVar, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 24 }}>
+                <Icon size={28} color="#fff" />
               </div>
-              <div style={{ fontSize: 10, fontWeight: 800, letterSpacing: 1.3, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 4 }}>
+              <div style={{ fontSize: 11, fontWeight: 800, letterSpacing: 1.4, textTransform: 'uppercase', color: 'var(--sap-text-faint)', marginBottom: 8 }}>
                 {door.label}
               </div>
-              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 18, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.2px', marginBottom: 6 }}>
+              <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 28, fontWeight: 800, color: 'var(--sap-text-primary)', letterSpacing: '-0.6px', lineHeight: 1.1, marginBottom: 10 }}>
                 {door.title}
               </div>
-              <div style={{...TYPE.bodyMuted, fontSize: 12, lineHeight: 1.5, marginBottom: 10, flex: 1}}>
+              <div style={{...TYPE.bodyMuted, fontSize: 14, lineHeight: 1.5, marginBottom: 16, flex: 1}}>
                 {door.desc}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 10, borderTop: '1px solid var(--sap-border-light)', fontSize: 12, fontWeight: 700 }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: 16, borderTop: '1px solid var(--sap-border-light)', fontSize: 13, fontWeight: 700 }}>
                 <span style={{ color: 'var(--sap-text-faint)' }}>{door.count}</span>
                 <span style={{ color: door.colourVar, display: 'inline-flex', alignItems: 'center', gap: 3 }}>
                   {t('dashboard.doorOpen', { defaultValue: 'Open' })} →

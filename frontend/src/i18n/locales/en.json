@@ -218,7 +218,8 @@
     "annualUpsellTitle": "Switch to annual billing and save up to $70/year",
     "annualUpsellBody": "Pay yearly and save 17% — that's $40/year off Basic or $70/year off Pro. Switch anytime, no hassle.",
     "annualUpsellCta": "View plans",
-    "annualUpsellDismiss": "Dismiss"
+    "annualUpsellDismiss": "Dismiss",
+    "earningsStrip": "Your earnings this month"
   },
   "compPlan": {
     "title": "Compensation Plan",

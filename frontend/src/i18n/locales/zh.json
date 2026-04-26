@@ -212,7 +212,8 @@
     "storyPromptTitle": "你赚到了第一笔 {{amount}}!",
     "storyPromptBody": "讲讲你是怎么做到的 — 你的经历可能会启发下一位成员。只需 2 分钟。我们的团队会在 /explore 上线前审核。",
     "storyPromptCta": "分享我的故事",
-    "storyPromptDismiss": "关闭"
+    "storyPromptDismiss": "关闭",
+    "earningsStrip": "Your earnings this month"
   },
   "compPlan": {
     "title": "薪酬计划",

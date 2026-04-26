@@ -212,7 +212,8 @@
     "storyPromptTitle": "आपने अपना पहला {{amount}} कमाया!",
     "storyPromptBody": "बताइए आपने यह कैसे किया — आपका अनुभव अगले सदस्य को प्रेरित कर सकता है। 2 मिनट लगते हैं। /explore पर लाइव होने से पहले हमारी टीम समीक्षा करेगी।",
     "storyPromptCta": "मेरी कहानी शेयर करें",
-    "storyPromptDismiss": "बंद करें"
+    "storyPromptDismiss": "बंद करें",
+    "earningsStrip": "Your earnings this month"
   },
   "compPlan": {
     "title": "मुआवजा योजना",

@@ -212,7 +212,8 @@
     "storyPromptTitle": "Du hast deine ersten {{amount}} verdient!",
     "storyPromptBody": "Erzähl, wie du es geschafft hast — deine Erfahrung kann das nächste Mitglied inspirieren. Dauert 2 Minuten. Unser Team prüft, bevor es auf /explore live geht.",
     "storyPromptCta": "Meine Story teilen",
-    "storyPromptDismiss": "Schließen"
+    "storyPromptDismiss": "Schließen",
+    "earningsStrip": "Your earnings this month"
   },
   "compPlan": {
     "title": "Vergütungsplan",

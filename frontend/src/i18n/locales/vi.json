@@ -212,7 +212,8 @@
     "storyPromptTitle": "Bạn đã kiếm được {{amount}} đầu tiên!",
     "storyPromptBody": "Kể lại bạn đã làm thế nào — trải nghiệm của bạn có thể truyền cảm hứng cho thành viên tiếp theo. Mất 2 phút. Đội ngũ của chúng tôi duyệt trước khi lên sóng trên /explore.",
     "storyPromptCta": "Chia sẻ câu chuyện của tôi",
-    "storyPromptDismiss": "Đóng"
+    "storyPromptDismiss": "Đóng",
+    "earningsStrip": "Your earnings this month"
   },
   "compPlan": {
     "title": "Kế hoạch Bồi thường",

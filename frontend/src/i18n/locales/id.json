@@ -212,7 +212,8 @@
     "storyPromptTitle": "Kamu memperoleh {{amount}} pertamamu!",
     "storyPromptBody": "Ceritakan bagaimana kamu melakukannya — pengalamanmu bisa menginspirasi anggota berikutnya. Butuh 2 menit. Tim kami meninjau sebelum tayang di /explore.",
     "storyPromptCta": "Bagikan ceritaku",
-    "storyPromptDismiss": "Tutup"
+    "storyPromptDismiss": "Tutup",
+    "earningsStrip": "Your earnings this month"
   },
   "compPlan": {
     "title": "Rencana Kompensasi",

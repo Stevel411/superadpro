@@ -212,7 +212,8 @@
     "storyPromptTitle": "Zdobyłeś swoje pierwsze {{amount}}!",
     "storyPromptBody": "Opowiedz, jak to zrobiłeś — twoje doświadczenie może zainspirować kolejnego członka. Zajmie 2 minuty. Nasz zespół weryfikuje przed publikacją na /explore.",
     "storyPromptCta": "Podziel się moją historią",
-    "storyPromptDismiss": "Zamknij"
+    "storyPromptDismiss": "Zamknij",
+    "earningsStrip": "Your earnings this month"
   },
   "compPlan": {
     "title": "Plan Wynagrodzeń",

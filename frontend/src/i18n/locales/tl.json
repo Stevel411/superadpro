@@ -212,7 +212,8 @@
     "storyPromptTitle": "Kumita ka na ng unang {{amount}} mo!",
     "storyPromptBody": "Ikuwento kung paano mo ito ginawa — ang karanasan mo ay pwedeng makapagbigay-inspirasyon sa susunod na miyembro. 2 minuto lang. Iri-review ng team namin bago ma-live sa /explore.",
     "storyPromptCta": "Ibahagi ang kwento ko",
-    "storyPromptDismiss": "Isara"
+    "storyPromptDismiss": "Isara",
+    "earningsStrip": "Your earnings this month"
   },
   "compPlan": {
     "title": "Plano ng Kompensasyon",
