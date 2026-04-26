@@ -268,23 +268,21 @@ export default function CommandCentre() {
         display: 'grid',
         gridTemplateColumns: 'repeat(3, 1fr)',
       }}>
-        {/* Top accent — three-stop gradient blending the bucket colours */}
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 4,
-          background: 'linear-gradient(90deg, var(--sap-green), var(--sap-amber-dark), var(--sap-text-muted))',
-          borderRadius: '14px 14px 0 0',
-        }} />
+        {/* No parent top stripe — each column carries its own left-edge accent
+            below, which reads as "this is the active lane / lapsed lane / never
+            paid lane" rather than a horizontal decorative band. */}
         {directBuckets.map(function(b, i) {
           const Icon = b.icon;
           const isLast = i === directBuckets.length - 1;
           return (
             <Link key={i} to={b.link} className="cc-bucket" style={{
-              padding: '24px 24px 20px',
+              padding: '24px 24px 20px 28px',
               borderRight: isLast ? 'none' : '1px solid var(--sap-border-light)',
               textDecoration: 'none',
               color: 'inherit',
               transition: 'background 0.15s',
               display: 'flex', flexDirection: 'column',
+              position: 'relative',
             }}
             onMouseEnter={(e) => {
               const pill = e.currentTarget.querySelector('.cc-pill');
@@ -302,6 +300,11 @@ export default function CommandCentre() {
                 if (arrow) { arrow.style.transform = 'translateX(0)'; arrow.style.opacity = '0.65'; }
               }
             }}>
+              {/* Left-edge accent stripe — column reads as a coloured "lane" */}
+              <div style={{
+                position: 'absolute', top: 0, bottom: 0, left: 0, width: 4,
+                background: b.color,
+              }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                 <div style={{ width: 36, height: 36, borderRadius: 9, background: b.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Icon size={16} color="#fff" />
@@ -350,22 +353,19 @@ export default function CommandCentre() {
         display: 'grid',
         gridTemplateColumns: 'repeat(2, 1fr)',
       }}>
-        <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 4,
-          background: 'linear-gradient(90deg, var(--sap-violet), var(--sap-indigo))',
-          borderRadius: '14px 14px 0 0',
-        }} />
+        {/* No parent top stripe — each column carries its own left-edge accent. */}
         {structureBuckets.map(function(b, i) {
           const Icon = b.icon;
           const isLast = i === structureBuckets.length - 1;
           return (
             <Link key={i} to={b.link} className="cc-bucket" style={{
-              padding: '24px 24px 20px',
+              padding: '24px 24px 20px 28px',
               borderRight: isLast ? 'none' : '1px solid var(--sap-border-light)',
               textDecoration: 'none',
               color: 'inherit',
               transition: 'background 0.15s',
               display: 'flex', flexDirection: 'column',
+              position: 'relative',
             }}
             onMouseEnter={(e) => {
               const pill = e.currentTarget.querySelector('.cc-pill');
@@ -383,6 +383,11 @@ export default function CommandCentre() {
                 if (arrow) { arrow.style.transform = 'translateX(0)'; arrow.style.opacity = '0.65'; }
               }
             }}>
+              {/* Left-edge accent stripe */}
+              <div style={{
+                position: 'absolute', top: 0, bottom: 0, left: 0, width: 4,
+                background: b.color,
+              }} />
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                 <div style={{ width: 36, height: 36, borderRadius: 9, background: b.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Icon size={16} color="#fff" />
@@ -426,7 +431,7 @@ export default function CommandCentre() {
         background: 'var(--sap-bg-card)',
         border: '1px solid var(--sap-border)',
         borderRadius: 14,
-        padding: 24,
+        padding: '24px 24px 24px 28px',
         boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
         marginBottom: 24,
         position: 'relative',
@@ -437,10 +442,10 @@ export default function CommandCentre() {
         flexWrap: 'wrap',
         gap: 20,
       }}>
+        {/* Left-edge accent stripe in the Performance card's amber brand colour */}
         <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 4,
-          background: 'linear-gradient(90deg, var(--sap-amber-dark), #fed7aa)',
-          borderRadius: '14px 14px 0 0',
+          position: 'absolute', top: 0, bottom: 0, left: 0, width: 4,
+          background: 'var(--sap-amber-dark)',
         }} />
         <div style={{ display: 'flex', alignItems: 'center', gap: 18, minWidth: 0 }}>
           <div style={{ width: 56, height: 56, borderRadius: 14, background: 'var(--sap-amber-dark)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -492,7 +497,7 @@ export default function CommandCentre() {
               background: '#fff',
               border: '1px solid #e2e8f0',
               borderRadius: 14,
-              padding: 24,
+              padding: '24px 24px 24px 28px',
               boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
               textDecoration: 'none',
               transition: 'all 0.15s',
@@ -518,10 +523,10 @@ export default function CommandCentre() {
                 if (arrow) { arrow.style.transform = 'translateX(0)'; arrow.style.opacity = '0.65'; }
               }
             }}>
+              {/* Left-edge accent in card brand colour */}
               <div style={{
-                position: 'absolute', top: 0, left: 0, right: 0, height: 4,
-                background: 'linear-gradient(90deg, ' + a.color + ', ' + a.accentPale + ')',
-                borderRadius: '14px 14px 0 0',
+                position: 'absolute', top: 0, bottom: 0, left: 0, width: 4,
+                background: a.color,
               }} />
               <div style={{ width: 56, height: 56, borderRadius: 14, display: 'flex', alignItems: 'center', justifyContent: 'center', background: a.bg }}>
                 <Icon size={24} color={a.color} />
@@ -559,7 +564,7 @@ export default function CommandCentre() {
         background: '#fff',
         border: '1px solid var(--sap-border)',
         borderRadius: 14,
-        padding: '20px 24px',
+        padding: '20px 24px 20px 28px',
         boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
         textDecoration: 'none',
         transition: 'all 0.15s',
@@ -584,9 +589,8 @@ export default function CommandCentre() {
         }
       }}>
         <div style={{
-          position: 'absolute', top: 0, left: 0, right: 0, height: 4,
-          background: 'linear-gradient(90deg, var(--sap-indigo), #c7d2fe)',
-          borderRadius: '14px 14px 0 0',
+          position: 'absolute', top: 0, bottom: 0, left: 0, width: 4,
+          background: 'var(--sap-indigo)',
         }} />
         <div style={{ width: 56, height: 56, borderRadius: 14, background: 'linear-gradient(135deg,#eef2ff,#e0e7ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
           <BarChart3 size={24} color="var(--sap-indigo)" />
