@@ -670,61 +670,49 @@ export default function Dashboard() {
         </>
       )}
 
-      {/* Bottom Row */}
-      <div className="bottom-grid grid-2-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'stretch' }}>
-        {/* Recent Activity */}
-        <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 22, boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div style={TYPE.cardTitleBold}>{t('dashboard.recentActivity')}</div>
-            <Link to="/courses/commissions" style={{ fontSize: 14, fontWeight: 600, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('dashboard.viewAll')}</Link>
-          </div>
-          {(!Array.isArray(d.recent_activity) || d.recent_activity.length === 0) ? (
-            <div style={{ textAlign: 'center', padding: 24, color: 'var(--sap-text-muted)', fontSize: 15 }}>{t('dashboard.noRecentActivity')}</div>
-          ) : d.recent_activity.map((a, i) => {
-            const colorMap = { green: 'var(--sap-green-bg-mid)', cyan: '#e0f2fe', purple: 'var(--sap-purple-pale)', amber: 'var(--sap-amber-bg)' };
-            return (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 0', borderBottom: i < d.recent_activity.length - 1 ? '1px solid #e5e7eb' : 'none' }}>
-                <div style={{ width: 32, height: 32, borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, flexShrink: 0, background: colorMap[a.color] || 'var(--sap-bg-page)' }}>{a.icon}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--sap-text-primary)' }}>{a.title}</div>
-                  <div style={{ fontSize: 14, color: 'var(--sap-text-muted)' }}>{a.sub}</div>
-                </div>
-                <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 16, fontWeight: 800, color: 'var(--sap-green)' }}>+${formatMoney(a.amount)}</div>
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Network Snapshot */}
-        <div style={{ background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, padding: 22, boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-            <div style={TYPE.cardTitleBold}>{t('dashboard.yourNetwork')}</div>
-            <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-accent)', textDecoration: 'none' }}>{t('dashboard.fullNetwork')}</Link>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 14 }}>
-            {[
-              { val: d.direct_referrals_count || 0, lbl: t('dashboard.directReferrals') },
-              { val: d.total_team || 0, lbl: t('dashboard.totalNetwork') },
-              { val: `$${formatMoney(d.total_earned)}`, lbl: t('dashboard.lifetimeEarned') },
-              { val: `$${formatMoney(d.creative_studio_earned || 0)}`, lbl: t('dashboard.nexusEarned', { defaultValue: 'Nexus Earned' }) },
-            ].map((s, i) => (
-              <div key={i} style={{ background: 'var(--sap-bg-page)', borderRadius: 12, padding: '14px 16px', textAlign: 'center' }}>
-                <div style={{ fontFamily: 'Sora,sans-serif', fontSize: 24, fontWeight: 800, color: 'var(--sap-green)' }}>{s.val}</div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-text-secondary)', textTransform: 'uppercase', letterSpacing: 0.5, marginTop: 4 }}>{s.lbl}</div>
-              </div>
-            ))}
-          </div>
-          <div style={{ background: 'var(--sap-bg-page)', borderRadius: 12, padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--sap-text-secondary)' }}>{t('dashboard.yourReferralLink')}</div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--sap-accent)', wordBreak: 'break-all' }}>www.superadpro.com/ref/{user?.username}</div>
+      {/* ── Network strip · compact at-a-glance team metrics ──
+          Replaces the previous 'Bottom Row' which was Recent Activity +
+          Your Network 2x2 metric grid + duplicate referral link.
+          Rebalanced 26 Apr 2026 alongside the earnings strip up top so
+          Dashboard reads as: Hero → Earnings strip → 4 BIG doors →
+          Quick actions → Goals → Network strip. Same visual treatment
+          as the earnings strip (12px pad, 22px Sora number, 12px label,
+          3px left-edge accent) for clean symmetry.
+          Recent Activity removed entirely — that information lives on
+          Command Centre, where status content belongs. The duplicate
+          referral link is dropped too — already in the welcome hero. */}
+      <div style={{ fontSize: 13, fontWeight: 800, letterSpacing: 1.5, textTransform: 'uppercase', color: 'var(--sap-text-muted)', marginBottom: 12, marginTop: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <span>{t('dashboard.yourNetwork')}</span>
+        <Link to="/courses/commissions" style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-accent)', textDecoration: 'none', textTransform: 'none', letterSpacing: 0 }}>
+          {t('dashboard.fullNetwork')} →
+        </Link>
+      </div>
+      <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
+        {[
+          { color: 'var(--sap-green)',      val: d.direct_referrals_count || 0,                 name: t('dashboard.directReferrals') },
+          { color: 'var(--sap-accent)',     val: d.total_team || 0,                             name: t('dashboard.totalNetwork') },
+          { color: 'var(--sap-amber-dark)', val: `$${formatMoney(d.total_earned)}`,             name: t('dashboard.lifetimeEarned') },
+          { color: 'var(--sap-purple)',     val: `$${formatMoney(d.creative_studio_earned || 0)}`, name: t('dashboard.nexusEarned', { defaultValue: 'Nexus Earned' }) },
+        ].map((s, i) => (
+          <div key={i} style={{
+            background: '#fff',
+            border: '1px solid var(--sap-border)',
+            borderRadius: 10,
+            padding: '14px 16px',
+            position: 'relative',
+            overflow: 'hidden',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.03)',
+          }}>
+            {/* Left-edge accent stripe */}
+            <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 3, background: s.color }} />
+            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.5px', color: 'var(--sap-text-primary)' }}>
+              {s.val}
             </div>
-            <button onClick={copyRef} style={{
-              padding: '6px 12px', borderRadius: 7, border: '1px solid #e5e7eb', background: '#fff',
-              fontSize: 13, fontWeight: 700, color: 'var(--sap-text-secondary)', cursor: 'pointer', flexShrink: 0, fontFamily: 'inherit',
-            }}>{refCopied ? t('dashboard.copied') : t('dashboard.copy')}</button>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-text-muted)', marginTop: 2 }}>
+              {s.name}
+            </div>
           </div>
-        </div>
+        ))}
       </div>
 
       {/* Welcome banner animations */}
