@@ -21971,12 +21971,41 @@ async def api_credit_matrix_purchase(request: Request, user: User = Depends(get_
         if balance < pack_price:
             return JSONResponse({"error": f"Insufficient balance. Need ${price}, have ${float(balance):.2f}"}, status_code=400)
 
-        # Deduct from wallet
-        user.balance = balance - pack_price
-        db.flush()
-
-        result = purchase_credit_pack(db, user, pack_key, payment_ref=f"wallet_{user.id}_{pack_key}", payment_method="wallet")
-        return result
+        # Deduct from wallet + spend in a single atomic block.
+        # If purchase_credit_pack raises for any reason, we MUST rollback
+        # the wallet deduction — otherwise member loses balance with
+        # nothing to show for it (real money lost, no credits awarded).
+        try:
+            user.balance = balance - pack_price
+            db.flush()
+            result = purchase_credit_pack(
+                db, user, pack_key,
+                payment_ref=f"wallet_{user.id}_{pack_key}",
+                payment_method="wallet",
+            )
+            if not result.get("success"):
+                # Engine returned a soft failure — also rollback the deduction.
+                db.rollback()
+                logger.error(
+                    f"Wallet credit-pack purchase soft-failed for user {user.id} "
+                    f"(pack={pack_key}, price=${pack_price}): {result.get('error')}"
+                )
+                return JSONResponse(
+                    {"error": result.get("error", "Purchase failed")},
+                    status_code=400,
+                )
+            return result
+        except Exception as exc:
+            db.rollback()
+            logger.error(
+                f"Wallet credit-pack purchase EXCEPTION for user {user.id} "
+                f"(pack={pack_key}, price=${pack_price}): {exc}",
+                exc_info=True,
+            )
+            return JSONResponse(
+                {"error": "Purchase failed due to a system error. Your balance has not been charged. Please try again."},
+                status_code=500,
+            )
 
     elif payment_method == "crypto":
         # Create a NOWPayments invoice via the existing endpoint logic

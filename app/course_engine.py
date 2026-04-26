@@ -35,12 +35,15 @@ QUALIFICATION:
 """
 
 from datetime import datetime
+import logging
 from sqlalchemy.orm import Session
 from decimal import Decimal
 from sqlalchemy import text
 from app.database import (
     User, Course, CoursePurchase, CourseCommission
 )
+
+logger = logging.getLogger("superadpro.course_engine")
 
 
 PASSUP_POSITIONS = {2, 4, 6, 8}
@@ -135,22 +138,37 @@ def process_course_purchase(db: Session, buyer_id: int, course_id: int,
     if payment_method == "wallet" and buyer.balance < course.price:
         return {"success": False, "error": f"Insufficient balance. Need ${course.price:.2f}, have ${buyer.balance:.2f}"}
 
-    purchase = CoursePurchase(
-        user_id=buyer_id,
-        course_id=course_id,
-        course_tier=course.tier,
-        amount_paid=course.price,
-        payment_method=payment_method,
-        tx_ref=tx_ref
-    )
-    db.add(purchase)
-    db.flush()
+    # Atomic write block: purchase row + balance deduction + commission distribution
+    # all commit together. If anything raises, rollback so we don't leave the
+    # buyer charged with no commission flowing or no purchase record.
+    try:
+        purchase = CoursePurchase(
+            user_id=buyer_id,
+            course_id=course_id,
+            course_tier=course.tier,
+            amount_paid=course.price,
+            payment_method=payment_method,
+            tx_ref=tx_ref
+        )
+        db.add(purchase)
+        db.flush()
 
-    if payment_method == "wallet":
-        buyer.balance -= course.price
+        if payment_method == "wallet":
+            buyer.balance -= course.price
 
-    commission_result = _distribute_commission(db, purchase, buyer, course)
-    db.commit()
+        commission_result = _distribute_commission(db, purchase, buyer, course)
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        logger.error(
+            f"Course purchase EXCEPTION for buyer {buyer_id} "
+            f"(course_id={course_id}, tier={course.tier}, price=${course.price}): {exc}",
+            exc_info=True,
+        )
+        return {
+            "success": False,
+            "error": "Purchase failed due to a system error. Your balance has not been charged. Please try again.",
+        }
 
     return {
         "success": True,
