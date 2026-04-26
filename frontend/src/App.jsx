@@ -31,6 +31,7 @@ import IncomeDisclaimer from './pages/IncomeDisclaimer';
 import AiTool from './pages/AiTool';
 import MyNetwork from './pages/MyNetwork';
 import IncomeChains from './pages/IncomeChains';
+import IncomePage from './pages/IncomePage';
 import HowCommissionsWork from './pages/HowCommissionsWork';
 import MyLeads from './pages/MyLeads';
 import LinkTools from './pages/LinkTools';
@@ -225,6 +226,7 @@ function AppRoutes() {
       <Route path="/link-tools" element={<ProtectedRoute><LinkTools /></ProtectedRoute>} />
       <Route path="/passup-visualiser" element={<ProtectedRoute><PassupVisualiser /></ProtectedRoute>} />
       <Route path="/network" element={<ProtectedRoute><MyNetwork /></ProtectedRoute>} />
+      <Route path="/income" element={<ProtectedRoute><IncomePage /></ProtectedRoute>} />
       <Route path="/income-chains" element={<ProtectedRoute><IncomeChains /></ProtectedRoute>} />
       <Route path="/courses/commissions" element={<ProtectedRoute><MyNetwork /></ProtectedRoute>} />
       <Route path="/courses/how-it-works" element={<ProtectedRoute><HowCommissionsWork /></ProtectedRoute>} />

@@ -3653,5 +3653,75 @@
   "notification": {
     "reengagement_lapsed_title": "Sua assinatura SuperAdPro expirou",
     "reengagement_lapsed_message": "Sua rede e seus ganhos ainda estão aqui esperando por você. Clique abaixo para reativar."
+  },
+  "income": {
+    "pageTitle": "Income",
+    "heroEyebrow": "Your Income",
+    "activeSince": "Active since",
+    "backToDashboard": "Back to Dashboard",
+    "scrollLeft": "Scroll left",
+    "scrollRight": "Scroll right",
+    "earningsSection": "Your earnings",
+    "streamsSection": "Your four income streams",
+    "tabs": {
+      "overview": "Overview",
+      "wallet": "Wallet",
+      "compPlan": "Comp Plan",
+      "membership": "Membership",
+      "grid": "Campaign Grid",
+      "nexus": "Profit Nexus",
+      "courses": "Course Academy",
+      "history": "Earnings History"
+    },
+    "summary": {
+      "available": "Available",
+      "availableCaption": "in your wallet now",
+      "thisMonth": "This month",
+      "thisMonthCaption": "commissions earned this month",
+      "nextPayout": "Next payout",
+      "nextPayoutValue": "On request",
+      "nextPayoutCaption": "crypto withdrawal anytime",
+      "allTime": "All time",
+      "allTimeCaption": "lifetime earnings",
+      "allTimeCaptionSince": "since {{since}}"
+    },
+    "tag": {
+      "active": "Active",
+      "tier": "Active",
+      "available": "Available"
+    },
+    "stat": {
+      "directs": "Directs paying",
+      "team": "In your team",
+      "earnedAllTime": "Earned all time"
+    },
+    "stream": {
+      "membership": "Membership Sponsor",
+      "membershipSub": "25% on every direct's monthly fee",
+      "membershipDormant": "Share your link to activate the easiest stream — paid every month they stay.",
+      "grid": "Campaign Tier Grid",
+      "gridSub": "8×8 forced matrix · advertise + earn",
+      "gridDormant": "Buy a Grid tier to advertise AND earn from the 8×8 spillover matrix.",
+      "nexus": "Profit Nexus",
+      "nexusSub": "3×3 credit matrix · cascading commissions",
+      "nexusDormant": "Buy a credit pack to take your position in the 3×3 matrix.",
+      "courses": "Course Academy",
+      "coursesSub": "Pass-up commissions · infinite depth",
+      "coursesDormant": "Buy a course tier to qualify for upline pass-ups on every sale."
+    },
+    "action": {
+      "myReferrals": "My referrals",
+      "shareLink": "Get share link",
+      "compPlan": "Comp plan",
+      "myGrid": "My Grid",
+      "watchAds": "Watch ads",
+      "calculator": "Calculator",
+      "upgradeTier": "Upgrade tier",
+      "buyCredits": "Buy credits",
+      "myNexus": "My Nexus",
+      "howItWorks": "How it works",
+      "browseCourses": "Browse courses",
+      "passUp": "How pass-up works"
+    }
   }
 }

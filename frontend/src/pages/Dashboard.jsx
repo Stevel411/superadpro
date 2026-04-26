@@ -501,7 +501,7 @@ export default function Dashboard() {
             count: t('dashboard.doorItems', { count: 7, defaultValue: '7 items' }),
             colourVar: 'var(--sap-green)',
             icon: TrendingUp,
-            link: '/wallet',
+            link: '/income',
           },
           {
             id: 'tools',
