@@ -3650,7 +3650,9 @@
     "nudgeButton": "Envoyer un rappel de réactivation",
     "nudgeButtonSent": "Rappel envoyé",
     "nudgeButtonPending": "Ils ont déjà un rappel non lu",
-    "nudgeButtonError": "Impossible d'envoyer"
+    "nudgeButtonError": "Impossible d'envoyer",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "Votre abonnement SuperAdPro a expiré",

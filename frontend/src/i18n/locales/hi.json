@@ -3642,7 +3642,9 @@
     "nudgeButton": "पुनः सक्रियण अनुस्मारक भेजें",
     "nudgeButtonSent": "अनुस्मारक भेजा गया",
     "nudgeButtonPending": "उनके पास पहले से एक अपठित अनुस्मारक है",
-    "nudgeButtonError": "भेज नहीं सका"
+    "nudgeButtonError": "भेज नहीं सका",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "आपकी SuperAdPro सदस्यता समाप्त हो गई है",

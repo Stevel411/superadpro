@@ -3642,7 +3642,9 @@
     "nudgeButton": "再アクティブ化リマインダーを送信",
     "nudgeButtonSent": "リマインダーを送信しました",
     "nudgeButtonPending": "すでに未読のリマインダーがあります",
-    "nudgeButtonError": "送信できませんでした"
+    "nudgeButtonError": "送信できませんでした",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "あなたの SuperAdPro メンバーシップが失効しました",

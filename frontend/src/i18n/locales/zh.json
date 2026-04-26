@@ -3642,7 +3642,9 @@
     "nudgeButton": "发送重新激活提醒",
     "nudgeButtonSent": "提醒已发送",
     "nudgeButtonPending": "他们已经有一条未读提醒",
-    "nudgeButtonError": "无法发送"
+    "nudgeButtonError": "无法发送",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "您的 SuperAdPro 会员已过期",

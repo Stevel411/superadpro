@@ -3642,7 +3642,9 @@
     "nudgeButton": "Wyślij przypomnienie o reaktywacji",
     "nudgeButtonSent": "Przypomnienie wysłane",
     "nudgeButtonPending": "Mają już nieprzeczytane przypomnienie",
-    "nudgeButtonError": "Nie udało się wysłać"
+    "nudgeButtonError": "Nie udało się wysłać",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "Twoje członkostwo SuperAdPro wygasło",

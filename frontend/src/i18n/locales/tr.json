@@ -3642,7 +3642,9 @@
     "nudgeButton": "Yeniden etkinleştirme hatırlatması gönder",
     "nudgeButtonSent": "Hatırlatma gönderildi",
     "nudgeButtonPending": "Zaten okunmamış bir hatırlatmaları var",
-    "nudgeButtonError": "Gönderilemedi"
+    "nudgeButtonError": "Gönderilemedi",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "SuperAdPro üyeliğiniz sona erdi",

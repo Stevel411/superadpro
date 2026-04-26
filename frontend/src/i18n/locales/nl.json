@@ -3650,7 +3650,9 @@
     "nudgeButton": "Heractiveringsherinnering sturen",
     "nudgeButtonSent": "Herinnering verzonden",
     "nudgeButtonPending": "Ze hebben al een ongelezen herinnering",
-    "nudgeButtonError": "Kon niet verzenden"
+    "nudgeButtonError": "Kon niet verzenden",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "Je SuperAdPro-lidmaatschap is verlopen",

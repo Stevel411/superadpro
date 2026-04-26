@@ -3650,7 +3650,9 @@
     "nudgeButton": "Reaktivierungs-Erinnerung senden",
     "nudgeButtonSent": "Erinnerung gesendet",
     "nudgeButtonPending": "Sie haben bereits eine ungelesene Erinnerung",
-    "nudgeButtonError": "Konnte nicht gesendet werden"
+    "nudgeButtonError": "Konnte nicht gesendet werden",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "Ihre SuperAdPro Mitgliedschaft ist abgelaufen",

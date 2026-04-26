@@ -3642,7 +3642,9 @@
     "nudgeButton": "재활성화 알림 보내기",
     "nudgeButtonSent": "알림이 전송됨",
     "nudgeButtonPending": "이미 읽지 않은 알림이 있습니다",
-    "nudgeButtonError": "전송할 수 없습니다"
+    "nudgeButtonError": "전송할 수 없습니다",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "SuperAdPro 멤버십이 만료되었습니다",

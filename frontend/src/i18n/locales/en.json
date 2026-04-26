@@ -3706,7 +3706,9 @@
     "nudgeButton": "Send re-engagement reminder",
     "nudgeButtonSent": "Reminder sent",
     "nudgeButtonPending": "They already have an unread reminder",
-    "nudgeButtonError": "Could not send"
+    "nudgeButtonError": "Could not send",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "Your SuperAdPro membership lapsed",

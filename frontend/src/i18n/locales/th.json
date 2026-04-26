@@ -3642,7 +3642,9 @@
     "nudgeButton": "ส่งการแจ้งเตือนการเปิดใช้งานใหม่",
     "nudgeButtonSent": "ส่งการแจ้งเตือนแล้ว",
     "nudgeButtonPending": "พวกเขามีการแจ้งเตือนที่ยังไม่ได้อ่านอยู่แล้ว",
-    "nudgeButtonError": "ไม่สามารถส่งได้"
+    "nudgeButtonError": "ไม่สามารถส่งได้",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "การเป็นสมาชิก SuperAdPro ของคุณหมดอายุ",

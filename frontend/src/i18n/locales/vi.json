@@ -3642,7 +3642,9 @@
     "nudgeButton": "Gửi nhắc nhở kích hoạt lại",
     "nudgeButtonSent": "Đã gửi nhắc nhở",
     "nudgeButtonPending": "Họ đã có một nhắc nhở chưa đọc",
-    "nudgeButtonError": "Không thể gửi"
+    "nudgeButtonError": "Không thể gửi",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "Tư cách thành viên SuperAdPro của bạn đã hết hạn",

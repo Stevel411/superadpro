@@ -72,6 +72,14 @@ export default function CommandCentre() {
   // ── Three direct-referral buckets ──
   // Layer 1: navigate-only on click. Layer 2 will replace these
   // hrefs with proper drill-down routes per bucket.
+  // ─────────────────────────────────────────────────────────────
+  // Three direct-referral buckets · adds visible pill affordance
+  // ─────────────────────────────────────────────────────────────
+  // Each bucket is a clickable column. Until 26 Apr 2026 the click
+  // affordance was invisible — the whole column was a Link but nothing
+  // told the member they could tap it. Added small coloured pills at
+  // the bottom of each column matching the column's brand colour, so
+  // members read each column as "this is interactive."
   const directBuckets = [
     {
       label: t('commandCentre.activeDirectsLabel'),
@@ -80,6 +88,8 @@ export default function CommandCentre() {
       icon: UserCheck,
       color: 'var(--sap-green)',
       link: '/command-centre/directs/active',
+      pillBg: '#dcfce7', pillBgHover: '#bbf7d0', pillColor: '#15803d',
+      pillLabel: t('commandCentre.viewList', { defaultValue: 'View list' }),
     },
     {
       label: t('commandCentre.lapsedDirectsLabel'),
@@ -88,6 +98,8 @@ export default function CommandCentre() {
       icon: UserMinus,
       color: 'var(--sap-amber-dark)',
       link: '/command-centre/directs/lapsed',
+      pillBg: '#fef3c7', pillBgHover: '#fde68a', pillColor: '#b45309',
+      pillLabel: t('commandCentre.viewList', { defaultValue: 'View list' }),
     },
     {
       label: t('commandCentre.neverPaidDirectsLabel'),
@@ -96,6 +108,8 @@ export default function CommandCentre() {
       icon: UserX,
       color: 'var(--sap-text-muted)',
       link: '/command-centre/directs/never-paid',
+      pillBg: '#f1f5f9', pillBgHover: '#e2e8f0', pillColor: '#475569',
+      pillLabel: t('commandCentre.viewList', { defaultValue: 'View list' }),
     },
   ];
 
@@ -108,6 +122,8 @@ export default function CommandCentre() {
       icon: LayoutGrid,
       color: 'var(--sap-violet)',
       link: '/command-centre/grid-team',
+      pillBg: '#ede9fe', pillBgHover: '#ddd6fe', pillColor: '#6d28d9',
+      pillLabel: t('commandCentre.viewTeam', { defaultValue: 'View team' }),
     },
     {
       label: t('commandCentre.nexusTeamLabel'),
@@ -116,6 +132,8 @@ export default function CommandCentre() {
       icon: Star,
       color: 'var(--sap-indigo)',
       link: '/command-centre/nexus-team',
+      pillBg: '#e0e7ff', pillBgHover: '#c7d2fe', pillColor: '#4338ca',
+      pillLabel: t('commandCentre.viewTeam', { defaultValue: 'View team' }),
     },
   ];
 
@@ -264,6 +282,23 @@ export default function CommandCentre() {
               textDecoration: 'none',
               color: 'inherit',
               transition: 'background 0.15s',
+              display: 'flex', flexDirection: 'column',
+            }}
+            onMouseEnter={(e) => {
+              const pill = e.currentTarget.querySelector('.cc-pill');
+              if (pill) {
+                pill.style.background = b.pillBgHover;
+                const arrow = pill.querySelector('.cc-pill-arrow');
+                if (arrow) { arrow.style.transform = 'translateX(2px)'; arrow.style.opacity = '1'; }
+              }
+            }}
+            onMouseLeave={(e) => {
+              const pill = e.currentTarget.querySelector('.cc-pill');
+              if (pill) {
+                pill.style.background = b.pillBg;
+                const arrow = pill.querySelector('.cc-pill-arrow');
+                if (arrow) { arrow.style.transform = 'translateX(0)'; arrow.style.opacity = '0.65'; }
+              }
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                 <div style={{ width: 36, height: 36, borderRadius: 9, background: b.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -274,7 +309,25 @@ export default function CommandCentre() {
               <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 32, fontWeight: 900, color: b.color, lineHeight: 1, marginBottom: 6 }}>
                 {b.value}
               </div>
-              <div style={TYPE.bodyMuted}>{b.sublabel}</div>
+              <div style={{...TYPE.bodyMuted, marginBottom: 14, flex: 1}}>{b.sublabel}</div>
+              {/* Pill — visible click affordance with hover transition */}
+              <span className="cc-pill" style={{
+                alignSelf: 'flex-start',
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                padding: '6px 12px',
+                borderRadius: 99,
+                fontSize: 12, fontWeight: 700,
+                background: b.pillBg,
+                color: b.pillColor,
+                transition: 'background 0.12s',
+              }}>
+                {b.pillLabel}
+                <span className="cc-pill-arrow" style={{
+                  fontSize: 11, opacity: 0.65,
+                  transition: 'transform 0.12s, opacity 0.12s',
+                  display: 'inline-block',
+                }}>→</span>
+              </span>
             </Link>
           );
         })}
@@ -310,6 +363,23 @@ export default function CommandCentre() {
               textDecoration: 'none',
               color: 'inherit',
               transition: 'background 0.15s',
+              display: 'flex', flexDirection: 'column',
+            }}
+            onMouseEnter={(e) => {
+              const pill = e.currentTarget.querySelector('.cc-pill');
+              if (pill) {
+                pill.style.background = b.pillBgHover;
+                const arrow = pill.querySelector('.cc-pill-arrow');
+                if (arrow) { arrow.style.transform = 'translateX(2px)'; arrow.style.opacity = '1'; }
+              }
+            }}
+            onMouseLeave={(e) => {
+              const pill = e.currentTarget.querySelector('.cc-pill');
+              if (pill) {
+                pill.style.background = b.pillBg;
+                const arrow = pill.querySelector('.cc-pill-arrow');
+                if (arrow) { arrow.style.transform = 'translateX(0)'; arrow.style.opacity = '0.65'; }
+              }
             }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
                 <div style={{ width: 36, height: 36, borderRadius: 9, background: b.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -320,7 +390,24 @@ export default function CommandCentre() {
               <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 32, fontWeight: 900, color: b.color, lineHeight: 1, marginBottom: 6 }}>
                 {b.value}
               </div>
-              <div style={TYPE.bodyMuted}>{b.sublabel}</div>
+              <div style={{...TYPE.bodyMuted, marginBottom: 14, flex: 1}}>{b.sublabel}</div>
+              <span className="cc-pill" style={{
+                alignSelf: 'flex-start',
+                display: 'inline-flex', alignItems: 'center', gap: 4,
+                padding: '6px 12px',
+                borderRadius: 99,
+                fontSize: 12, fontWeight: 700,
+                background: b.pillBg,
+                color: b.pillColor,
+                transition: 'background 0.12s',
+              }}>
+                {b.pillLabel}
+                <span className="cc-pill-arrow" style={{
+                  fontSize: 11, opacity: 0.65,
+                  transition: 'transform 0.12s, opacity 0.12s',
+                  display: 'inline-block',
+                }}>→</span>
+              </span>
             </Link>
           );
         })}

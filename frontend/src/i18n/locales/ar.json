@@ -3642,7 +3642,9 @@
     "nudgeButton": "إرسال تذكير التفعيل",
     "nudgeButtonSent": "تم إرسال التذكير",
     "nudgeButtonPending": "لديهم بالفعل تذكير غير مقروء",
-    "nudgeButtonError": "تعذّر الإرسال"
+    "nudgeButtonError": "تعذّر الإرسال",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "انتهت عضويتك في SuperAdPro",

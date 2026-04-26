@@ -3650,7 +3650,9 @@
     "nudgeButton": "Enviar recordatorio de reactivación",
     "nudgeButtonSent": "Recordatorio enviado",
     "nudgeButtonPending": "Ya tienen un recordatorio sin leer",
-    "nudgeButtonError": "No se pudo enviar"
+    "nudgeButtonError": "No se pudo enviar",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "Tu membresía SuperAdPro caducó",

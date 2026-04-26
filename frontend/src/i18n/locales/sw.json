@@ -3642,7 +3642,9 @@
     "nudgeButton": "Tuma kikumbusho cha kuwasha tena",
     "nudgeButtonSent": "Kikumbusho kimetumwa",
     "nudgeButtonPending": "Tayari wana kikumbusho ambacho hakijasomwa",
-    "nudgeButtonError": "Imeshindwa kutuma"
+    "nudgeButtonError": "Imeshindwa kutuma",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "Uanachama wako wa SuperAdPro umemalizika",

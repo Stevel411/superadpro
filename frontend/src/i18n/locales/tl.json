@@ -3642,7 +3642,9 @@
     "nudgeButton": "Magpadala ng paalala sa reactivation",
     "nudgeButtonSent": "Naipadala ang paalala",
     "nudgeButtonPending": "May hindi pa nababasang paalala sila",
-    "nudgeButtonError": "Hindi maipadala"
+    "nudgeButtonError": "Hindi maipadala",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "Nag-expire na ang iyong SuperAdPro membership",

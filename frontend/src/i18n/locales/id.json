@@ -3642,7 +3642,9 @@
     "nudgeButton": "Kirim pengingat reaktivasi",
     "nudgeButtonSent": "Pengingat terkirim",
     "nudgeButtonPending": "Mereka sudah memiliki pengingat yang belum dibaca",
-    "nudgeButtonError": "Tidak dapat mengirim"
+    "nudgeButtonError": "Tidak dapat mengirim",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "Keanggotaan SuperAdPro Anda telah berakhir",

@@ -3650,7 +3650,9 @@
     "nudgeButton": "Enviar lembrete de reativação",
     "nudgeButtonSent": "Lembrete enviado",
     "nudgeButtonPending": "Eles já têm um lembrete não lido",
-    "nudgeButtonError": "Não foi possível enviar"
+    "nudgeButtonError": "Não foi possível enviar",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "Sua assinatura SuperAdPro expirou",

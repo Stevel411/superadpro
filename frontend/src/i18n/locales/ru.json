@@ -3650,7 +3650,9 @@
     "nudgeButton": "Отправить напоминание о возобновлении",
     "nudgeButtonSent": "Напоминание отправлено",
     "nudgeButtonPending": "У них уже есть непрочитанное напоминание",
-    "nudgeButtonError": "Не удалось отправить"
+    "nudgeButtonError": "Не удалось отправить",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "Ваше членство SuperAdPro истекло",

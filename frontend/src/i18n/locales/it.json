@@ -3650,7 +3650,9 @@
     "nudgeButton": "Invia promemoria di riattivazione",
     "nudgeButtonSent": "Promemoria inviato",
     "nudgeButtonPending": "Hanno già un promemoria non letto",
-    "nudgeButtonError": "Impossibile inviare"
+    "nudgeButtonError": "Impossibile inviare",
+    "viewList": "View list",
+    "viewTeam": "View team"
   },
   "notification": {
     "reengagement_lapsed_title": "La tua iscrizione SuperAdPro è scaduta",
