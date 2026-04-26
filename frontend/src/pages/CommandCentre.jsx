@@ -309,7 +309,7 @@ export default function CommandCentre() {
                 <div style={{ width: 36, height: 36, borderRadius: 9, background: b.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Icon size={16} color="#fff" />
                 </div>
-                <div style={{...TYPE.cardTitleBold, fontSize: 14}}>{b.label}</div>
+                <div style={{...TYPE.cardTitleBold, fontSize: 18}}>{b.label}</div>
               </div>
               <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 32, fontWeight: 900, color: b.color, lineHeight: 1, marginBottom: 6 }}>
                 {b.value}
@@ -392,7 +392,7 @@ export default function CommandCentre() {
                 <div style={{ width: 36, height: 36, borderRadius: 9, background: b.color, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Icon size={16} color="#fff" />
                 </div>
-                <div style={{...TYPE.cardTitleBold, fontSize: 14}}>{b.label}</div>
+                <div style={{...TYPE.cardTitleBold, fontSize: 18}}>{b.label}</div>
               </div>
               <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 32, fontWeight: 900, color: b.color, lineHeight: 1, marginBottom: 6 }}>
                 {b.value}
