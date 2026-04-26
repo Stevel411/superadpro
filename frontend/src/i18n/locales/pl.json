@@ -3211,7 +3211,11 @@
         "title": "Upgrade to Pro Membership",
         "desc": "Get the serious business-growth toolkit: hosted landing pages, email automation, lead-finding, niche analysis, AI sales coaching."
       }
-    }
+    },
+    "backToTools": "Back to Tools",
+    "yourReferralLink": "Your referral link",
+    "copy": "Copy",
+    "copied": "Copied!"
   },
   "explore": {
     "navHome": "Strona główna",

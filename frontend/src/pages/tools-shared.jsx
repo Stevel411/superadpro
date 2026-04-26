@@ -15,6 +15,7 @@
  *   list. If we add a new tool, we add it here once and all four
  *   pages pick it up.
  */
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   // Free tool icons
@@ -252,19 +253,44 @@ export function UpgradeCard({ tone, icon: Icon, eyebrow, title, desc, items, pri
 }
 
 // ──────────────────────────────────────────────────────────────────
-// SubPageHero — the navy identity hero used by Free/Basic/Pro pages
-// (the overview /tools page has its own slightly different hero).
+// SubPageHero — Dashboard-style identity hero used by all four
+// Tools-family pages.
+//
+// Reuses the Dashboard welcome hero pattern exactly so we have one
+// hero language across the platform — same cobalt gradient, same
+// 72px avatar, same gold/silver tier badge inside neutral outline,
+// same referral pill on the right.
+//
+// The only addition vs Dashboard: a small pill-button to the LEFT of
+// the referral pill (e.g. "Back to Dashboard" on /tools, "Back to
+// Tools" on /tools/free etc.). Sits adjacent to the referral pill on
+// the right side of the hero — not stacked above it.
+//
+// Props:
+//   user           — auth user object
+//   t              — translation function
+//   eyebrowKey     — i18n key for the small uppercase eyebrow above name
+//   eyebrowDefault — fallback eyebrow text
+//   backLinkTo     — destination for the small back pill (default /dashboard)
+//   backLinkLabelKey/backLinkLabelDefault — label for the back pill
 // ──────────────────────────────────────────────────────────────────
-export function SubPageHero({ user, t, eyebrowKey, eyebrowDefault, glowColor }) {
-  const tier = (user?.membership_tier || '').toLowerCase();
-  const isPro = tier === 'pro';
-  const isBasic = tier === 'basic' || isPro;
-  const tierLabel = isPro ? 'PRO' : (isBasic ? 'BASIC' : 'FREE');
-  const tierClass = isPro ? 'pro' : (isBasic ? 'basic' : 'none');
+export function SubPageHero({ user, t, eyebrowKey, eyebrowDefault, backLinkTo, backLinkLabelKey, backLinkLabelDefault }) {
+  const [refCopied, setRefCopied] = useState(false);
 
-  const username = user?.username || user?.email || 'Member';
-  const initial = username.charAt(0).toUpperCase();
+  const copyRefLink = (link) => {
+    try {
+      navigator.clipboard.writeText(link);
+      setRefCopied(true);
+      setTimeout(() => setRefCopied(false), 2000);
+    } catch (e) { /* clipboard unavailable */ }
+  };
 
+  const username = user?.username || '';
+  const displayName = user?.display_name || user?.first_name || username || '';
+  const initial = (displayName || '?').charAt(0).toUpperCase();
+  const tier = user?.membership_tier;
+
+  // Active since label — formatted from user.created_at when available
   let activeSinceLabel = '';
   if (user?.created_at) {
     try {
@@ -273,74 +299,141 @@ export function SubPageHero({ user, t, eyebrowKey, eyebrowDefault, glowColor }) 
     } catch (e) { /* ignore */ }
   }
 
+  const back = {
+    to: backLinkTo || '/dashboard',
+    labelKey: backLinkLabelKey || 'tools.backToDashboard',
+    labelDefault: backLinkLabelDefault || 'Back to Dashboard',
+  };
+
   return (
     <div style={{
-      background: 'var(--sap-cobalt-deep, #172554)',
-      borderRadius: 16,
-      padding: '24px 28px',
-      marginBottom: 24,
-      display: 'flex', alignItems: 'center', gap: 24,
-      color: '#fff',
-      position: 'relative', overflow: 'hidden',
-      boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
+      background: 'linear-gradient(135deg, var(--sap-cobalt-deep), var(--sap-cobalt-mid))',
+      borderRadius: 18,
+      padding: '22px 28px',
+      marginBottom: 20,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 20,
       flexWrap: 'wrap',
+      boxShadow: '0 8px 32px rgba(30,58,138,0.35)',
     }}>
-      <div style={{
-        position: 'absolute', right: 0, top: 0, bottom: 0, width: '50%',
-        background: `radial-gradient(circle at 70% 50%, ${glowColor || 'rgba(139,92,246,0.18)'}, transparent 60%)`,
-        pointerEvents: 'none',
-      }} />
-      <div style={{ display: 'flex', alignItems: 'center', gap: 20, flex: 1, minWidth: 0, position: 'relative', zIndex: 1 }}>
-        <div style={{
-          width: 80, height: 80, borderRadius: '50%',
-          background: 'linear-gradient(135deg, #8b5cf6, #0ea5e9)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontFamily: "'Sora', sans-serif", fontSize: 30, fontWeight: 800, color: '#fff',
-          flexShrink: 0,
-          border: '3px solid rgba(255,255,255,0.1)',
-        }}>{initial}</div>
+      {/* Left — avatar + identity (same structure as Dashboard) */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 20, minWidth: 0 }}>
+        {user?.avatar_url ? (
+          <img src={user.avatar_url} alt=""
+            style={{
+              width: 72, height: 72, borderRadius: '50%',
+              objectFit: 'cover', flexShrink: 0,
+              border: '3px solid rgba(255,255,255,0.15)',
+            }} />
+        ) : (
+          <div style={{
+            width: 72, height: 72, borderRadius: '50%',
+            background: 'linear-gradient(135deg, var(--sap-accent-pale), var(--sap-accent))',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontFamily: 'Sora, sans-serif', fontSize: 32, fontWeight: 900,
+            color: '#fff', flexShrink: 0,
+            border: '3px solid rgba(255,255,255,0.15)',
+            boxShadow: '0 4px 14px rgba(14,165,233,0.25)',
+          }}>{initial}</div>
+        )}
         <div style={{ minWidth: 0 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>
-            {t(eyebrowKey, { defaultValue: eyebrowDefault })}
-          </div>
-          <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 32, fontWeight: 800, color: '#fff', lineHeight: 1, letterSpacing: '-0.5px', marginBottom: 8, wordBreak: 'break-word' }}>
-            {username}
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-            <span style={{
-              fontSize: 11, fontWeight: 800, padding: '3px 9px', borderRadius: 6, letterSpacing: '0.06em',
-              background: tierClass === 'pro' ? '#f59e0b' : tierClass === 'basic' ? '#0ea5e9' : 'rgba(255,255,255,0.15)',
-              color: tierClass === 'pro' ? '#1f1300' : '#fff',
-            }}>
-              {tierLabel}
-            </span>
+          <div style={{
+            fontSize: 11, fontWeight: 700, letterSpacing: 2,
+            textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)',
+            marginBottom: 4,
+          }}>{t(eyebrowKey, { defaultValue: eyebrowDefault })}</div>
+          <div style={{
+            fontFamily: 'Sora, sans-serif', fontSize: 28, fontWeight: 900,
+            color: '#fff', marginBottom: 6, lineHeight: 1.1,
+            letterSpacing: '-0.3px',
+          }}>{displayName}</div>
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            fontSize: 13, color: 'rgba(255,255,255,0.75)',
+            flexWrap: 'wrap',
+          }}>
+            {tier && (
+              <span style={{
+                padding: '3px 11px', borderRadius: 6,
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                fontSize: 11, fontWeight: 900, letterSpacing: 1.4,
+                textTransform: 'uppercase',
+                // Match Dashboard exactly: gold for Pro, silver for Basic
+                color: tier === 'pro' ? '#ffd700' : '#d4dce8',
+                textShadow: tier === 'pro'
+                  ? '0 1px 2px rgba(0,0,0,0.4)'
+                  : '0 1px 2px rgba(0,0,0,0.3)',
+              }}>{tier}</span>
+            )}
             {activeSinceLabel && (
-              <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>
-                <span style={{ color: 'rgba(255,255,255,0.4)', marginRight: 8 }}>·</span>
-                {t('tools.activeSince', { defaultValue: 'Active since' })} {activeSinceLabel}
-              </span>
+              <>
+                <span style={{ opacity: 0.4 }}>·</span>
+                <span>{t('tools.activeSince', { defaultValue: 'Active since' })} {activeSinceLabel}</span>
+              </>
             )}
           </div>
         </div>
       </div>
-      <Link to="/tools" style={{
-        display: 'inline-flex', alignItems: 'center', gap: 8,
-        padding: '10px 18px',
-        background: 'rgba(255,255,255,0.06)',
-        border: '1px solid rgba(255,255,255,0.18)',
-        borderRadius: 10,
-        color: '#fff',
-        fontSize: 14, fontWeight: 600,
-        textDecoration: 'none',
-        transition: 'all 0.15s',
-        position: 'relative', zIndex: 1,
-        flexShrink: 0,
-      }}
-      onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
-      onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        {t('tools.backToOverview', { defaultValue: 'Back to Tools' })}
-      </Link>
+
+      {/* Right — small back pill ADJACENT to (left of) the referral pill */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, flexWrap: 'wrap' }}>
+        <Link to={back.to} style={{
+          display: 'inline-flex', alignItems: 'center', gap: 6,
+          padding: '8px 14px',
+          background: 'rgba(255,255,255,0.08)',
+          border: '1px solid rgba(255,255,255,0.18)',
+          borderRadius: 10,
+          color: '#fff',
+          fontSize: 13, fontWeight: 600,
+          textDecoration: 'none',
+          transition: 'background 0.15s',
+        }}
+        onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; }}
+        onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; }}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+          {t(back.labelKey, { defaultValue: back.labelDefault })}
+        </Link>
+
+        {/* Referral pill — identical to Dashboard */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 12,
+          background: 'rgba(255,255,255,0.1)',
+          border: '1px solid rgba(255,255,255,0.15)',
+          borderRadius: 12,
+          padding: '10px 12px 10px 18px',
+          minWidth: 280,
+        }}>
+          <div style={{ minWidth: 0 }}>
+            <div style={{
+              fontSize: 10, fontWeight: 700, letterSpacing: 1.3,
+              textTransform: 'uppercase', color: 'rgba(255,255,255,0.55)',
+              marginBottom: 2,
+            }}>{t('tools.yourReferralLink', { defaultValue: 'Your referral link' })}</div>
+            <div style={{
+              fontSize: 14, fontFamily: 'monospace', fontWeight: 600,
+              color: '#fff',
+              overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+            }}>
+              superadpro.com/ref/{username}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => copyRefLink('https://www.superadpro.com/ref/' + (username || ''))}
+            style={{
+              padding: '8px 14px', borderRadius: 8, border: 'none',
+              background: '#fff', color: 'var(--sap-cobalt-mid)',
+              fontSize: 12, fontWeight: 700, cursor: 'pointer',
+              fontFamily: 'inherit', flexShrink: 0,
+              display: 'inline-flex', alignItems: 'center', gap: 5,
+            }}>
+            📋 {refCopied ? t('tools.copied', { defaultValue: 'Copied!' }) : t('tools.copy', { defaultValue: 'Copy' })}
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

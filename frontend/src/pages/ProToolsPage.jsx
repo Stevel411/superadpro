@@ -43,7 +43,9 @@ export default function ProToolsPage() {
           t={t}
           eyebrowKey="tools.pro.heroEyebrow"
           eyebrowDefault="Pro Membership Tools"
-          glowColor="rgba(245,158,11,0.18)"
+          backLinkTo="/tools"
+          backLinkLabelKey="tools.backToTools"
+          backLinkLabelDefault="Back to Tools"
         />
 
         <div style={{

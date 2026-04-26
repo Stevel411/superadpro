@@ -43,7 +43,9 @@ export default function BasicToolsPage() {
           t={t}
           eyebrowKey="tools.basic.heroEyebrow"
           eyebrowDefault="Basic Membership Tools"
-          glowColor="rgba(14,165,233,0.18)"
+          backLinkTo="/tools"
+          backLinkLabelKey="tools.backToTools"
+          backLinkLabelDefault="Back to Tools"
         />
 
         <div style={{

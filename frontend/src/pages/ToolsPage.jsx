@@ -25,11 +25,12 @@
  * inline tool grids).
  */
 import { useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
-import { ArrowLeft, Lock, Plus, Wrench, Zap } from 'lucide-react';
+import { Lock, Plus, Wrench, Zap } from 'lucide-react';
+import { SubPageHero } from './tools-shared';
 
 export default function ToolsPage() {
   const { t } = useTranslation();
@@ -46,100 +47,22 @@ export default function ToolsPage() {
     };
   }, []);
 
-  // Tier detection
+  // Tier detection — used to pick door card eyebrow text and pill labels
   const tier = (user?.membership_tier || '').toLowerCase();
   const isPro = tier === 'pro';
   const isBasic = tier === 'basic' || isPro;
-
-  const tierLabel = isPro ? 'PRO' : (isBasic ? 'BASIC' : 'FREE');
-  const tierClass = isPro ? 'pro' : (isBasic ? 'basic' : 'none');
-
-  const username = user?.username || user?.email || 'Member';
-  const initial = username.charAt(0).toUpperCase();
-
-  let activeSinceLabel = '';
-  if (user?.created_at) {
-    try {
-      const d = new Date(user.created_at);
-      activeSinceLabel = d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
-    } catch (e) { /* ignore */ }
-  }
 
   return (
     <AppLayout title={t('tools.pageTitle', { defaultValue: 'Tools' })}>
       <div style={{ maxWidth: 1200, margin: '0 auto', paddingBottom: 32 }}>
 
-        {/* ── Identity hero ── */}
-        <div style={{
-          background: 'var(--sap-cobalt-deep, #172554)',
-          borderRadius: 16,
-          padding: '24px 28px',
-          marginBottom: 24,
-          display: 'flex', alignItems: 'center', gap: 24,
-          color: '#fff',
-          position: 'relative', overflow: 'hidden',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.06)',
-          flexWrap: 'wrap',
-        }}>
-          <div style={{
-            position: 'absolute', right: 0, top: 0, bottom: 0, width: '50%',
-            background: 'radial-gradient(circle at 70% 50%, rgba(139,92,246,0.18), transparent 60%)',
-            pointerEvents: 'none',
-          }} />
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, flex: 1, minWidth: 0, position: 'relative', zIndex: 1 }}>
-            <div style={{
-              width: 80, height: 80, borderRadius: '50%',
-              background: 'linear-gradient(135deg, #8b5cf6, #0ea5e9)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: "'Sora', sans-serif", fontSize: 30, fontWeight: 800, color: '#fff',
-              flexShrink: 0,
-              border: '3px solid rgba(255,255,255,0.1)',
-            }}>{initial}</div>
-            <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.5)', marginBottom: 6 }}>
-                {t('tools.heroEyebrow', { defaultValue: 'Your Tools' })}
-              </div>
-              <div style={{ fontFamily: "'Sora', sans-serif", fontSize: 32, fontWeight: 800, color: '#fff', lineHeight: 1, letterSpacing: '-0.5px', marginBottom: 8, wordBreak: 'break-word' }}>
-                {username}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
-                <span style={{
-                  fontSize: 11, fontWeight: 800, padding: '3px 9px', borderRadius: 6, letterSpacing: '0.06em',
-                  background: tierClass === 'pro' ? '#f59e0b' : tierClass === 'basic' ? '#0ea5e9' : 'rgba(255,255,255,0.15)',
-                  color: tierClass === 'pro' ? '#1f1300' : '#fff',
-                }}>
-                  {tierLabel}
-                </span>
-                {activeSinceLabel && (
-                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)' }}>
-                    <span style={{ color: 'rgba(255,255,255,0.4)', marginRight: 8 }}>·</span>
-                    {t('tools.activeSince', { defaultValue: 'Active since' })} {activeSinceLabel}
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <Link to="/dashboard" style={{
-            display: 'inline-flex', alignItems: 'center', gap: 8,
-            padding: '10px 18px',
-            background: 'rgba(255,255,255,0.06)',
-            border: '1px solid rgba(255,255,255,0.18)',
-            borderRadius: 10,
-            color: '#fff',
-            fontSize: 14, fontWeight: 600,
-            textDecoration: 'none',
-            transition: 'all 0.15s',
-            position: 'relative', zIndex: 1,
-            flexShrink: 0,
-          }}
-          onMouseEnter={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.12)'; }}
-          onMouseLeave={(e) => { e.currentTarget.style.background = 'rgba(255,255,255,0.06)'; }}>
-            <ArrowLeft size={14} strokeWidth={2.5} />
-            {t('tools.backToDashboard', { defaultValue: 'Back to Dashboard' })}
-          </Link>
-        </div>
+        {/* ── Identity hero (shared Dashboard-style component) ── */}
+        <SubPageHero
+          user={user}
+          t={t}
+          eyebrowKey="tools.heroEyebrow"
+          eyebrowDefault="Your Tools"
+        />
 
         {/* ── Three door cards (the entire content of /tools) ── */}
         <div style={{

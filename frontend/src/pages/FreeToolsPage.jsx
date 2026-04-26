@@ -37,7 +37,9 @@ export default function FreeToolsPage() {
           t={t}
           eyebrowKey="tools.free.heroEyebrow"
           eyebrowDefault="Free Tools"
-          glowColor="rgba(34,197,94,0.18)"
+          backLinkTo="/tools"
+          backLinkLabelKey="tools.backToTools"
+          backLinkLabelDefault="Back to Tools"
         />
 
         <div style={{
