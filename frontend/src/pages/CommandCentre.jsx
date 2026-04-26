@@ -35,6 +35,7 @@ import { apiGet } from '../utils/api';
 import { useAuth } from '../hooks/useAuth';
 import { formatMoney } from '../utils/money';
 import { TYPE } from '../styles/typography';
+import { SubPageHero } from './tools-shared';
 import {
   Users, UserCheck, UserMinus, UserX,
   LayoutGrid, Star,
@@ -66,7 +67,6 @@ export default function CommandCentre() {
   }
 
   const d = data || {};
-  const displayName = d.display_name || (user && user.username) || '';
 
   // ── Three direct-referral buckets ──
   // Layer 1: navigate-only on click. Layer 2 will replace these
@@ -185,69 +185,18 @@ export default function CommandCentre() {
   return (
     <AppLayout title={t('commandCentre.pageTitle')}>
 
-      {/* ── HERO ─────────────────────────────────────────── */}
-      <div style={{
-        background: 'linear-gradient(135deg, var(--sap-cobalt-deep), var(--sap-cobalt-mid))',
-        borderRadius: 18,
-        padding: '22px 28px',
-        marginBottom: 20,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 20,
-        flexWrap: 'wrap',
-        boxShadow: '0 8px 32px rgba(30,58,138,0.35)',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 20, minWidth: 0 }}>
-          {user && user.avatar_url ? (
-            <img src={user.avatar_url} alt=""
-              style={{ width: 72, height: 72, borderRadius: '50%', objectFit: 'cover', flexShrink: 0, border: '3px solid rgba(255,255,255,0.15)' }} />
-          ) : (
-            <div style={{
-              width: 72, height: 72, borderRadius: '50%',
-              background: 'linear-gradient(135deg, var(--sap-accent-pale), var(--sap-accent))',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontFamily: 'Sora, sans-serif', fontSize: 32, fontWeight: 900,
-              color: '#fff', flexShrink: 0,
-              border: '3px solid rgba(255,255,255,0.15)',
-              boxShadow: '0 4px 14px rgba(14,165,233,0.25)',
-            }}>{(displayName || '?').charAt(0).toUpperCase()}</div>
-          )}
-          <div style={{ minWidth: 0 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, textTransform: 'uppercase', color: 'rgba(255,255,255,0.65)', marginBottom: 4 }}>
-              {t('commandCentre.eyebrow')}
-            </div>
-            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 28, fontWeight: 900, color: '#fff', marginBottom: 6, lineHeight: 1.1, letterSpacing: '-0.3px' }}>
-              {displayName}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontSize: 13, color: 'rgba(255,255,255,0.75)', flexWrap: 'wrap' }}>
-              {user && user.membership_tier && (
-                <span style={{
-                  padding: '3px 11px', borderRadius: 6,
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.2)',
-                  fontSize: 11, fontWeight: 900, letterSpacing: 1.4,
-                  textTransform: 'uppercase',
-                  color: user.membership_tier === 'pro' ? '#ffd700' : '#d4dce8',
-                  textShadow: user.membership_tier === 'pro' ? '0 1px 2px rgba(0,0,0,0.4)' : '0 1px 2px rgba(0,0,0,0.3)',
-                }}>{user.membership_tier}</span>
-              )}
-              {d.active_since && (<>
-                <span style={{ opacity: 0.4 }}>·</span>
-                <span>{t('dashboard.activeSince', { defaultValue: 'Active since' })} {d.active_since}</span>
-              </>)}
-            </div>
-          </div>
-        </div>
-        <Link to="/dashboard" style={{
-          display: 'inline-flex', alignItems: 'center', gap: 6,
-          padding: '8px 16px', borderRadius: 8,
-          background: 'rgba(255,255,255,0.1)',
-          border: '1px solid rgba(255,255,255,0.15)',
-          color: '#fff', textDecoration: 'none',
-          fontSize: 13, fontWeight: 700,
-        }}>← {t('commandCentre.backToDashboard')}</Link>
-      </div>
+      {/* ── HERO (shared Dashboard-style component) ──────────
+          Was an inline custom hero very close to but not identical
+          to the shared SubPageHero. Swapped 26 Apr 2026 so Command
+          Centre matches Dashboard, Income, Tools, and Learn — single
+          hero language across the platform, including the small
+          Back to Dashboard pill adjacent to the referral link pill. */}
+      <SubPageHero
+        user={user}
+        t={t}
+        eyebrowKey="commandCentre.eyebrow"
+        eyebrowDefault="Your Command Centre"
+      />
 
       {/* ── DIRECT REFERRALS PANEL — 3 columns ───────────────
           Three buckets in one panel because they answer the same
