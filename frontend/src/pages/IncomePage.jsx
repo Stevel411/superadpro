@@ -391,6 +391,22 @@ function StreamCard({ tone, icon: Icon, title, subtitle, tag, stats, statusLine,
       ? { bg: '#dbeafe', color: '#1d4ed8' }
       : { bg: '#f1f5f9', color: '#64748b' };
 
+  // ──────────────────────────────────────────────────────────────
+  // Pill style for the bottom action row
+  // ──────────────────────────────────────────────────────────────
+  // Each stream's pills inherit the stream's brand colour so the card
+  // reads as a coloured "zone" — green pills inside the green
+  // Membership card, cyan inside Grid, etc. Background uses the lightest
+  // tint (50/100 weight), text uses the 700 weight for AA contrast.
+  // Hover step is one tint stronger (200 weight) for tactile feedback.
+  // Approved 26 Apr 2026 via /mnt/user-data/outputs/pill-links-mockup.html.
+  const pillStyle = {
+    green:  { bg: '#dcfce7', bgHover: '#bbf7d0', color: '#15803d' },
+    cyan:   { bg: '#cffafe', bgHover: '#a5f3fc', color: '#0e7490' },
+    violet: { bg: '#ede9fe', bgHover: '#ddd6fe', color: '#6d28d9' },
+    amber:  { bg: '#fef3c7', bgHover: '#fde68a', color: '#b45309' },
+  }[tone] || { bg: '#f1f5f9', bgHover: '#e2e8f0', color: '#475569' };
+
   return (
     <div style={{
       background: '#fff',
@@ -456,16 +472,53 @@ function StreamCard({ tone, icon: Icon, title, subtitle, tag, stats, statusLine,
         </div>
       )}
 
-      {/* Action links */}
+      {/* Action links — coloured pills matching the stream's brand.
+          Stronger affordance than text+arrow: members read these as
+          tappable buttons rather than inline links. Arrow nudges right
+          on hover for subtle interactive feedback. */}
       <div style={{
-        display: 'flex', gap: 16, flexWrap: 'wrap',
+        display: 'flex', gap: 8, flexWrap: 'wrap',
         paddingTop: 14,
         borderTop: '1px solid var(--sap-border-light, #f1f5f9)',
         marginTop: 'auto',
       }}>
         {actions.map((a, i) => (
-          <Link key={i} to={a.to} style={{ fontSize: 13, fontWeight: 600, color: '#0ea5e9', textDecoration: 'none' }}>
-            {a.label} →
+          <Link
+            key={i}
+            to={a.to}
+            style={{
+              display: 'inline-flex', alignItems: 'center', gap: 4,
+              padding: '6px 12px',
+              borderRadius: 99,
+              fontSize: 13, fontWeight: 600,
+              background: pillStyle.bg,
+              color: pillStyle.color,
+              textDecoration: 'none',
+              transition: 'all 0.12s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = pillStyle.bgHover;
+              const arrow = e.currentTarget.querySelector('.pill-arrow');
+              if (arrow) {
+                arrow.style.transform = 'translateX(2px)';
+                arrow.style.opacity = '1';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = pillStyle.bg;
+              const arrow = e.currentTarget.querySelector('.pill-arrow');
+              if (arrow) {
+                arrow.style.transform = 'translateX(0)';
+                arrow.style.opacity = '0.65';
+              }
+            }}
+          >
+            {a.label}
+            <span className="pill-arrow" style={{
+              fontSize: 11, opacity: 0.65,
+              transition: 'transform 0.12s, opacity 0.12s',
+              display: 'inline-block',
+            }}>→</span>
           </Link>
         ))}
       </div>
