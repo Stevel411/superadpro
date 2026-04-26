@@ -3852,5 +3852,90 @@
       "browseCourses": "Browse courses",
       "passUp": "How pass-up works"
     }
+  },
+  "learn": {
+    "pageTitle": "Learn",
+    "heroEyebrow": "Your Learning",
+    "categoriesSection": "Your learning categories",
+    "backToLearn": "Back to Learn",
+    "tabs": {
+      "overview": "Overview",
+      "education": "Education",
+      "assets": "Promotional Assets",
+      "community": "Community"
+    },
+    "door": {
+      "education": {
+        "eyebrow": "Skill up",
+        "title": "Education",
+        "desc": "Training, comp plan explainer, platform tour, crypto guide. Master how the platform works.",
+        "count": "4 items"
+      },
+      "assets": {
+        "eyebrow": "Share & promote",
+        "title": "Promotional Assets",
+        "desc": "Marketing materials, email swipes, social share posts. Everything you need to grow your team.",
+        "count": "3 items"
+      },
+      "community": {
+        "eyebrow": "Connect & celebrate",
+        "title": "Community",
+        "desc": "Leaderboard rankings and submit your own success story. Be seen, get inspired.",
+        "count": "2 items"
+      }
+    },
+    "edu": {
+      "pageTitle": "Education",
+      "heroEyebrow": "Education",
+      "section": "Education · 4 ways to skill up",
+      "training": {
+        "name": "Training Centre",
+        "desc": "Step-by-step lessons covering everything from basics to advanced strategies."
+      },
+      "comp": {
+        "name": "Comp Plan Explainer",
+        "desc": "Full breakdown of how the compensation plan works. Every commission, every tier."
+      },
+      "tour": {
+        "name": "Platform Tour",
+        "desc": "Quick walkthrough of the entire platform. Find everything in 5 minutes."
+      },
+      "crypto": {
+        "name": "Crypto Guide",
+        "desc": "How to set up a wallet, receive USDT payouts, and stay safe with crypto."
+      }
+    },
+    "assets": {
+      "pageTitle": "Promotional Assets",
+      "heroEyebrow": "Promotional Assets",
+      "section": "Promotional Assets · 3 ways to share & grow",
+      "materials": {
+        "name": "Marketing Materials",
+        "desc": "Banners, graphics, social posts ready to download and share."
+      },
+      "swipes": {
+        "name": "Email Swipes",
+        "desc": "AI-generated email templates for outreach campaigns. Copy-and-paste ready."
+      },
+      "social": {
+        "name": "Social Share",
+        "desc": "One-click share to Facebook, X, LinkedIn, WhatsApp with AI-generated post copy."
+      }
+    },
+    "community": {
+      "pageTitle": "Community",
+      "heroEyebrow": "Community",
+      "section": "Community · be seen, get inspired",
+      "leaderboard": {
+        "name": "Leaderboard",
+        "desc": "Top earners and top recruiters across the platform. See where you rank."
+      },
+      "story": {
+        "name": "Share Your Story",
+        "desc": "Submit your success milestone. Inspire others, get featured on the homepage."
+      }
+    },
+    "scrollLeft": "Scroll left",
+    "scrollRight": "Scroll right"
   }
 }

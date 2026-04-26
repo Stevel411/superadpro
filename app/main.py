@@ -3813,6 +3813,44 @@ def tools_pro_page(request: Request):
         return HTMLResponse(_react_index.read_text())
     return HTMLResponse("<h1>Loading...</h1>")
 
+@app.get("/learn")
+def learn_landing(request: Request):
+    """Serve React SPA for the Learn door overview page (Apr 2026).
+    Door 4 of 4 — gateway to the 9 items split across three categories
+    (Education, Promotional Assets, Community). Open to all members
+    regardless of tier - no tier-gating on Learn content."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/learn/education")
+def learn_education_page(request: Request):
+    """Serve React SPA for /learn/education — Education sub-page.
+    4 items: Training Centre, Comp Plan Explainer, Platform Tour,
+    Crypto Guide. All open to any member."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/learn/assets")
+def learn_assets_page(request: Request):
+    """Serve React SPA for /learn/assets — Promotional Assets sub-page.
+    3 items: Marketing Materials, Email Swipes, Social Share.
+    Promotional assets members can use to grow their team."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
+@app.get("/learn/community")
+def learn_community_page(request: Request):
+    """Serve React SPA for /learn/community — Community sub-page.
+    2 items: Leaderboard rankings + Share Your Story (testimonial
+    submission form). Members see their position in the platform-wide
+    rankings and submit their own success milestone."""
+    if _react_index.exists():
+        return HTMLResponse(_react_index.read_text())
+    return HTMLResponse("<h1>Loading...</h1>")
+
 def _old_wallet_DISABLED(request: Request, user: User = Depends(get_current_user),
            db: Session = Depends(get_db)):
     if not user: return RedirectResponse(url="/?login=1")

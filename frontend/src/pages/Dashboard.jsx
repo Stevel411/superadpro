@@ -477,11 +477,11 @@ export default function Dashboard() {
             id: 'learn',
             label: t('dashboard.doorLearnLabel', { defaultValue: 'Skill up' }),
             title: t('dashboard.doorLearn', { defaultValue: 'Learn' }),
-            desc: t('dashboard.doorLearnDesc', { defaultValue: 'Fast Start, comp plan, traffic guide, community.' }),
-            count: t('dashboard.doorItems', { count: 8, defaultValue: '8 items' }),
+            desc: t('dashboard.doorLearnDesc', { defaultValue: 'Training, comp plan, promotional assets, community.' }),
+            count: t('dashboard.doorItems', { count: 9, defaultValue: '9 items' }),
             colourVar: 'var(--sap-amber-dark)',
             icon: BookOpen,
-            link: '/training',
+            link: '/learn',
           },
         ].map((door) => {
           const Icon = door.icon;

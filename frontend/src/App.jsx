@@ -36,6 +36,10 @@ import ToolsPage from './pages/ToolsPage';
 import FreeToolsPage from './pages/FreeToolsPage';
 import BasicToolsPage from './pages/BasicToolsPage';
 import ProToolsPage from './pages/ProToolsPage';
+import LearnPage from './pages/LearnPage';
+import EducationPage from './pages/EducationPage';
+import AssetsPage from './pages/AssetsPage';
+import CommunityPage from './pages/CommunityPage';
 import HowCommissionsWork from './pages/HowCommissionsWork';
 import MyLeads from './pages/MyLeads';
 import LinkTools from './pages/LinkTools';
@@ -235,6 +239,10 @@ function AppRoutes() {
       <Route path="/tools/free" element={<ProtectedRoute><FreeToolsPage /></ProtectedRoute>} />
       <Route path="/tools/basic" element={<ProtectedRoute><BasicToolsPage /></ProtectedRoute>} />
       <Route path="/tools/pro" element={<ProtectedRoute><ProToolsPage /></ProtectedRoute>} />
+      <Route path="/learn" element={<ProtectedRoute><LearnPage /></ProtectedRoute>} />
+      <Route path="/learn/education" element={<ProtectedRoute><EducationPage /></ProtectedRoute>} />
+      <Route path="/learn/assets" element={<ProtectedRoute><AssetsPage /></ProtectedRoute>} />
+      <Route path="/learn/community" element={<ProtectedRoute><CommunityPage /></ProtectedRoute>} />
       <Route path="/income-chains" element={<ProtectedRoute><IncomeChains /></ProtectedRoute>} />
       <Route path="/courses/commissions" element={<ProtectedRoute><MyNetwork /></ProtectedRoute>} />
       <Route path="/courses/how-it-works" element={<ProtectedRoute><HowCommissionsWork /></ProtectedRoute>} />
