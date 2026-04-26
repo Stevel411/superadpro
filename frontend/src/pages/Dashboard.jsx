@@ -424,7 +424,7 @@ export default function Dashboard() {
           }}>
             {/* Left-edge accent stripe in the stream's brand colour */}
             <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 3, background: s.color }} />
-            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.5px', color: 'var(--sap-text-primary)' }}>
+            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.5px', color: 'var(--sap-green)' }}>
               ${formatMoney(s.val)}
             </div>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-text-muted)', marginTop: 2 }}>
@@ -689,10 +689,10 @@ export default function Dashboard() {
       </div>
       <div className="income-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12 }}>
         {[
-          { color: 'var(--sap-green)',      val: d.direct_referrals_count || 0,                 name: t('dashboard.directReferrals') },
-          { color: 'var(--sap-accent)',     val: d.total_team || 0,                             name: t('dashboard.totalNetwork') },
-          { color: 'var(--sap-amber-dark)', val: `$${formatMoney(d.total_earned)}`,             name: t('dashboard.lifetimeEarned') },
-          { color: 'var(--sap-purple)',     val: `$${formatMoney(d.creative_studio_earned || 0)}`, name: t('dashboard.nexusEarned', { defaultValue: 'Nexus Earned' }) },
+          { color: 'var(--sap-green)',      val: d.direct_referrals_count || 0,                    name: t('dashboard.directReferrals'), isMoney: false },
+          { color: 'var(--sap-accent)',     val: d.total_team || 0,                                name: t('dashboard.totalNetwork'),    isMoney: false },
+          { color: 'var(--sap-amber-dark)', val: `$${formatMoney(d.total_earned)}`,                name: t('dashboard.lifetimeEarned'),  isMoney: true  },
+          { color: 'var(--sap-purple)',     val: `$${formatMoney(d.creative_studio_earned || 0)}`, name: t('dashboard.nexusEarned', { defaultValue: 'Nexus Earned' }), isMoney: true },
         ].map((s, i) => (
           <div key={i} style={{
             background: '#fff',
@@ -705,7 +705,11 @@ export default function Dashboard() {
           }}>
             {/* Left-edge accent stripe */}
             <div style={{ position: 'absolute', top: 0, left: 0, bottom: 0, width: 3, background: s.color }} />
-            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.5px', color: 'var(--sap-text-primary)' }}>
+            {/* Numeral renders green when it's a dollar amount (real money in
+                the member's wallet) and dark for raw counts of people. Lets
+                members instantly scan the page and see what's earnings vs
+                what's team size. */}
+            <div style={{ fontFamily: 'Sora, sans-serif', fontSize: 22, fontWeight: 800, lineHeight: 1, letterSpacing: '-0.5px', color: s.isMoney ? 'var(--sap-green)' : 'var(--sap-text-primary)' }}>
               {s.val}
             </div>
             <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-text-muted)', marginTop: 2 }}>
