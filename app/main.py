@@ -3433,13 +3433,14 @@ def api_analytics(request: Request, user: User = Depends(get_current_user),
         "commissions_paused": getattr(quota, 'commissions_paused', False),
     }
 
-    # Daily watch history (last 30 days)
+    # Daily watch history (last 30 days, completed watches only)
     daily_watches = []
     for day_offset in range(30):
         d = (now - timedelta(days=29-day_offset)).date()
         count = db.query(func.count(VideoWatch.id)).filter(
             VideoWatch.user_id == user.id,
-            VideoWatch.watch_date == str(d)
+            VideoWatch.watch_date == str(d),
+            VideoWatch.is_complete == True,  # noqa: E712
         ).scalar() or 0
         daily_watches.append({"date": str(d), "count": count})
 
@@ -9885,23 +9886,25 @@ def _old_analytics_DISABLED(request: Request, user: User = Depends(get_current_u
     total_target = 0
 
     if campaign_ids:
-        # Daily views for chart
+        # Daily views for chart (completed watches only)
         from sqlalchemy import func
         daily_raw = db.query(
             VideoWatch.watch_date,
             func.count(VideoWatch.id)
         ).filter(
             VideoWatch.campaign_id.in_(campaign_ids),
-            VideoWatch.watch_date >= thirty_days_ago
+            VideoWatch.watch_date >= thirty_days_ago,
+            VideoWatch.is_complete == True,  # noqa: E712
         ).group_by(VideoWatch.watch_date).order_by(VideoWatch.watch_date).all()
         daily_views = [{"date": d[0], "views": d[1]} for d in daily_raw]
 
-        # Geo breakdown — join watch → user → country
+        # Geo breakdown — join watch → user → country (completed watches only)
         geo_raw = db.query(
             User.country,
             func.count(VideoWatch.id)
         ).join(User, VideoWatch.user_id == User.id).filter(
-            VideoWatch.campaign_id.in_(campaign_ids)
+            VideoWatch.campaign_id.in_(campaign_ids),
+            VideoWatch.is_complete == True,  # noqa: E712
         ).group_by(User.country).order_by(func.count(VideoWatch.id).desc()).limit(10).all()
         geo_breakdown = {(g[0] or "Unknown"): g[1] for g in geo_raw}
 
@@ -22918,35 +22921,41 @@ async def api_campaign_analytics_overview(user: User = Depends(get_current_user)
         VideoWatch.is_complete == True,  # noqa: E712
     ).scalar() or 0
 
-    # Views this week
+    # Views this week (only count complete watches)
     views_week = db.query(func.count(VideoWatch.id)).filter(
         VideoWatch.campaign_id.in_(campaign_ids),
         VideoWatch.watch_date >= week_ago,
+        VideoWatch.is_complete == True,  # noqa: E712
     ).scalar() or 0
 
-    # Views this month
+    # Views this month (only count complete watches)
     views_month = db.query(func.count(VideoWatch.id)).filter(
         VideoWatch.campaign_id.in_(campaign_ids),
         VideoWatch.watch_date >= month_ago,
+        VideoWatch.is_complete == True,  # noqa: E712
     ).scalar() or 0
 
-    # Average watch duration
+    # Average watch duration (only count complete watches - started-but-not-finished
+    # rows have duration_secs=0 which would drag the average toward zero)
     avg_duration = db.query(func.avg(VideoWatch.duration_secs)).filter(
         VideoWatch.campaign_id.in_(campaign_ids),
+        VideoWatch.is_complete == True,  # noqa: E712
     ).scalar() or 30
 
-    # Unique viewers
+    # Unique viewers (only count viewers who actually completed at least one watch)
     unique_viewers = db.query(func.count(func.distinct(VideoWatch.user_id))).filter(
         VideoWatch.campaign_id.in_(campaign_ids),
+        VideoWatch.is_complete == True,  # noqa: E712
     ).scalar() or 0
 
-    # ── NEW: Platform-wide viewer country breakdown (top 5) ──
+    # ── NEW: Platform-wide viewer country breakdown (top 5, completed watches only) ──
     # Joins VideoWatch → User to group by country. Shows where your audience is.
     country_rows = db.query(
         User.country,
         func.count(func.distinct(VideoWatch.user_id)).label("viewers"),
     ).join(VideoWatch, VideoWatch.user_id == User.id).filter(
         VideoWatch.campaign_id.in_(campaign_ids),
+        VideoWatch.is_complete == True,  # noqa: E712
         User.country.isnot(None),
         User.country != "",
     ).group_by(User.country).order_by(func.count(func.distinct(VideoWatch.user_id)).desc()).limit(5).all()
@@ -22964,6 +22973,7 @@ async def api_campaign_analytics_overview(user: User = Depends(get_current_user)
         func.count(VideoWatch.id).label("views"),
     ).filter(
         VideoWatch.campaign_id.in_(campaign_ids),
+        VideoWatch.is_complete == True,  # noqa: E712
     ).group_by("dow", "hour").all()
 
     # Build a 7×24 matrix, zero-filled
@@ -23079,6 +23089,7 @@ async def api_campaign_analytics_daily(campaign_id: int, user: User = Depends(ge
     ).filter(
         VideoWatch.campaign_id == campaign_id,
         VideoWatch.watch_date >= thirty_days_ago,
+        VideoWatch.is_complete == True,  # noqa: E712
     ).group_by(VideoWatch.watch_date).order_by(VideoWatch.watch_date).all()
 
     # Fill in missing days with zero
@@ -23096,9 +23107,11 @@ async def api_campaign_analytics_daily(campaign_id: int, user: User = Depends(ge
             "avg_duration": data["avg_duration"],
         })
 
-    # Recent individual watches (last 20)
+    # Recent individual watches (last 20, completed only - owners shouldn't see
+    # started-but-not-finished sessions as confirmed views)
     recent_watches = db.query(VideoWatch).filter(
         VideoWatch.campaign_id == campaign_id,
+        VideoWatch.is_complete == True,  # noqa: E712
     ).order_by(VideoWatch.watched_at.desc()).limit(20).all()
 
     watch_log = []
@@ -23111,18 +23124,19 @@ async def api_campaign_analytics_daily(campaign_id: int, user: User = Depends(ge
             "date": w.watch_date,
         })
 
-    # ── NEW: Per-campaign country breakdown (top 5) ──
+    # ── NEW: Per-campaign country breakdown (top 5, completed watches only) ──
     country_rows = db.query(
         User.country,
         func.count(func.distinct(VideoWatch.user_id)).label("viewers"),
     ).join(VideoWatch, VideoWatch.user_id == User.id).filter(
         VideoWatch.campaign_id == campaign_id,
+        VideoWatch.is_complete == True,  # noqa: E712
         User.country.isnot(None),
         User.country != "",
     ).group_by(User.country).order_by(func.count(func.distinct(VideoWatch.user_id)).desc()).limit(5).all()
     campaign_countries = [{"country": row[0], "viewers": int(row[1])} for row in country_rows]
 
-    # ── NEW: Per-campaign hourly heatmap (7×24) ──
+    # ── NEW: Per-campaign hourly heatmap (7×24, completed watches only) ──
     from sqlalchemy import extract
     hourly_rows = db.query(
         extract("dow", VideoWatch.watched_at).label("dow"),
@@ -23130,6 +23144,7 @@ async def api_campaign_analytics_daily(campaign_id: int, user: User = Depends(ge
         func.count(VideoWatch.id).label("views"),
     ).filter(
         VideoWatch.campaign_id == campaign_id,
+        VideoWatch.is_complete == True,  # noqa: E712
     ).group_by("dow", "hour").all()
 
     campaign_heatmap = [[0 for _ in range(24)] for _ in range(7)]
