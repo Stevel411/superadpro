@@ -217,42 +217,42 @@
     "storyPromptBody": "どうやって達成したか教えてください — あなたの体験が次のメンバーを刺激するかもしれません。2分で完了。/explore 公開前にチームが審査します。",
     "storyPromptCta": "ストーリーをシェア",
     "storyPromptDismiss": "閉じる",
-    "earningsStrip": "Your earnings this month",
-    "monthlyEarned": "This Month",
-    "payItForwardLabel": "Help others",
-    "payItForwardCta": "Gift now",
-    "platformTourLabel": "Get oriented",
-    "platformTourCta": "Start tour",
-    "todaysWatchLabel": "Stay qualified",
-    "todaysWatch": "Today's Watch Video",
-    "todaysWatchDesc": "Watch your daily campaign-grid video to activate Grid Payouts.",
-    "todaysWatchCta": "Watch now",
-    "affiliateShareLabel": "Grow your team",
-    "affiliateShare": "Affiliate Share",
-    "affiliateShareDesc": "Share your link and story to bring more members onto your team.",
-    "affiliateShareCta": "Open share",
-    "activeSince": "Active since {{date}}",
-    "doorBuildLabel": "Build",
-    "doorCockpitLabel": "Cockpit",
+    "earningsStrip": "今月の収益",
+    "monthlyEarned": "今月",
+    "payItForwardLabel": "他のユーザーを手助けする",
+    "payItForwardCta": "ギフトを送る",
+    "platformTourLabel": "初期設定を行う",
+    "platformTourCta": "ツアーを開始",
+    "todaysWatchLabel": "資格を保つ",
+    "todaysWatch": "本日のビデオ視聴",
+    "todaysWatchDesc": "毎日のキャンペーングリッドビデオを視聴して、Grid Payoutsを有効化してください。",
+    "todaysWatchCta": "今すぐ視聴",
+    "affiliateShareLabel": "チームを成長させる",
+    "affiliateShare": "アフィリエイト共有",
+    "affiliateShareDesc": "あなたのリンクとストーリーをシェアして、より多くのメンバーをチームに招待しましょう。",
+    "affiliateShareCta": "シェアを開く",
+    "activeSince": "{{date}}からアクティブ",
+    "doorBuildLabel": "構築",
+    "doorCockpitLabel": "コックピット",
     "doorCommandCentre": "Command Centre",
-    "doorCommandCentreDesc": "Track your team, send broadcasts, climb the leaderboard.",
-    "doorEarnLabel": "Earn",
-    "doorIncome": "Income",
-    "doorIncomeDesc": "All four income streams in one place.",
-    "doorItems": "{{count}} items",
-    "doorLearn": "Learn",
-    "doorLearnDesc": "Education, assets, and community to help you grow.",
-    "doorLearnLabel": "Learn",
-    "doorOpen": "Open",
-    "doorTools": "Tools",
-    "doorToolsDesc": "Free, Basic, and Pro tools to power your campaigns.",
-    "exploreSection": "Explore",
-    "payItForward": "Pay it forward",
-    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership.",
-    "annualUpsellTitle": "Switch to annual billing and save up to $70/year",
-    "annualUpsellBody": "Pay yearly and save 17% — that's $40/year off Basic or $70/year off Pro. Switch anytime, no hassle.",
-    "annualUpsellCta": "View plans",
-    "annualUpsellDismiss": "Dismiss"
+    "doorCommandCentreDesc": "チームを管理し、ブロードキャストを送信し、リーダーボードを上昇させましょう。",
+    "doorEarnLabel": "稼ぐ",
+    "doorIncome": "インカム",
+    "doorIncomeDesc": "4つの収入源すべてを一箇所で管理。",
+    "doorItems": "{{count}}件",
+    "doorLearn": "学習",
+    "doorLearnDesc": "あなたの成長を支援する教育、資産、コミュニティ。",
+    "doorLearnLabel": "学習",
+    "doorOpen": "開く",
+    "doorTools": "ツール",
+    "doorToolsDesc": "キャンペーンを強化するための無料、Basic、Pro ツール。",
+    "exploreSection": "探索する",
+    "payItForward": "それを先へ渡す",
+    "payItForwardDesc": "苦しんでいるメンバーに Tier 1 メンバーシップをギフトして支援してください。",
+    "annualUpsellTitle": "年間請求に切り替えると、年間最大$70節約できます",
+    "annualUpsellBody": "年払いすると17%節約できます。Basic月額$40引き、Pro月額$70引き。いつでも切り替え可能、手続き簡単。",
+    "annualUpsellCta": "プランを見る",
+    "annualUpsellDismiss": "閉じる"
   },
   "compPlan": {
     "title": "報酬プラン",
@@ -4020,89 +4020,89 @@
     }
   },
   "learn": {
-    "pageTitle": "Learn",
-    "heroEyebrow": "Your Learning",
-    "categoriesSection": "Your learning categories",
-    "backToLearn": "Back to Learn",
+    "pageTitle": "学ぶ",
+    "heroEyebrow": "あなたの学習",
+    "categoriesSection": "あなたの学習カテゴリー",
+    "backToLearn": "「学ぶ」に戻る",
     "tabs": {
-      "overview": "Overview",
-      "education": "Education",
-      "assets": "Promotional Assets",
-      "community": "Community"
+      "overview": "概要",
+      "education": "教育",
+      "assets": "プロモーションアセット",
+      "community": "コミュニティ"
     },
     "door": {
       "education": {
-        "eyebrow": "Skill up",
-        "title": "Education",
-        "desc": "Training, comp plan explainer, platform tour, crypto guide. Master how the platform works.",
-        "count": "4 items"
+        "eyebrow": "スキルアップ",
+        "title": "教育",
+        "desc": "トレーニング、報酬プラン説明、プラットフォームツアー、暗号ガイド。プラットフォームの使い方をマスターしましょう。",
+        "count": "4項目"
       },
       "assets": {
-        "eyebrow": "Share & promote",
-        "title": "Promotional Assets",
-        "desc": "Marketing materials, email swipes, social share posts. Everything you need to grow your team.",
-        "count": "3 items"
+        "eyebrow": "シェア＆プロモート",
+        "title": "プロモーションアセット",
+        "desc": "マーケティング資料、メールスウィープ、ソーシャル投稿。チームを成長させるために必要なすべてが揃っています。",
+        "count": "3項目"
       },
       "community": {
-        "eyebrow": "Connect & celebrate",
-        "title": "Community",
-        "desc": "Leaderboard rankings and submit your own success story. Be seen, get inspired.",
-        "count": "2 items"
+        "eyebrow": "つながる＆祝う",
+        "title": "コミュニティ",
+        "desc": "リーダーボードランキングと独自の成功ストーリーを投稿。目立つ、インスピレーションを得る。",
+        "count": "2項目"
       }
     },
     "edu": {
-      "pageTitle": "Education",
-      "heroEyebrow": "Education",
-      "section": "Education · 4 ways to skill up",
+      "pageTitle": "教育",
+      "heroEyebrow": "教育",
+      "section": "教育・スキルアップの4つの方法",
       "training": {
-        "name": "Training Centre",
-        "desc": "Step-by-step lessons covering everything from basics to advanced strategies."
+        "name": "トレーニングセンター",
+        "desc": "基本から高度な戦略まで、すべてをカバーするステップバイステップレッスン。"
       },
       "comp": {
-        "name": "Comp Plan Explainer",
-        "desc": "Full breakdown of how the compensation plan works. Every commission, every tier."
+        "name": "報酬プラン説明",
+        "desc": "報酬プランの仕組みの完全な内訳。すべてのコミッション、すべてのティア。"
       },
       "tour": {
-        "name": "Platform Tour",
-        "desc": "Quick walkthrough of the entire platform. Find everything in 5 minutes."
+        "name": "プラットフォームツアー",
+        "desc": "プラットフォーム全体のクイックウォークスルー。5分ですべてを見つけることができます。"
       },
       "crypto": {
-        "name": "Crypto Guide",
-        "desc": "How to set up a wallet, receive USDT payouts, and stay safe with crypto."
+        "name": "暗号ガイド",
+        "desc": "ウォレットのセットアップ方法、USDTの支払い受け取り、暗号資産の安全な利用。"
       }
     },
     "assets": {
-      "pageTitle": "Promotional Assets",
-      "heroEyebrow": "Promotional Assets",
-      "section": "Promotional Assets · 3 ways to share & grow",
+      "pageTitle": "プロモーショナル資材",
+      "heroEyebrow": "プロモーショナル資材",
+      "section": "プロモーショナル資材 · 3つのシェア&グロース方法",
       "materials": {
-        "name": "Marketing Materials",
-        "desc": "Banners, graphics, social posts ready to download and share."
+        "name": "マーケティング資材",
+        "desc": "ダウンロードして共有する準備ができたバナー、グラフィック、ソーシャルポスト。"
       },
       "swipes": {
-        "name": "Email Swipes",
-        "desc": "AI-generated email templates for outreach campaigns. Copy-and-paste ready."
+        "name": "メールスイプ",
+        "desc": "アウトリーチキャンペーン向けのAI生成メールテンプレート。コピー&ペースト対応。"
       },
       "social": {
-        "name": "Social Share",
-        "desc": "One-click share to Facebook, X, LinkedIn, WhatsApp with AI-generated post copy."
+        "name": "ソーシャルシェア",
+        "desc": "Facebook、X、LinkedIn、WhatsAppへワンクリックで共有。AI生成のポストコピー付き。"
       }
     },
     "community": {
-      "pageTitle": "Community",
-      "heroEyebrow": "Community",
-      "section": "Community · be seen, get inspired",
+      "pageTitle": "コミュニティ",
+      "heroEyebrow": "コミュニティ",
+      "section": "コミュニティ · 目立つ、インスピレーションを得る",
       "leaderboard": {
-        "name": "Leaderboard",
-        "desc": "Top earners and top recruiters across the platform. See where you rank."
+        "name": "リーダーボード",
+        "desc": "プラットフォーム全体のトップ稼ぎ手とトップリクルーター。ランキングをチェック。"
       },
       "story": {
-        "name": "Share Your Story",
-        "desc": "Submit your success milestone. Inspire others, get featured on the homepage."
+        "name": "ストーリーをシェア",
+        "desc": "成功のマイルストーンを投稿。他者にインスピレーションを与え、ホームページで紹介される。"
       }
     },
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "左にスクロール",
+    "scrollRight": "右にスクロール"
   },
   "membership": {
     "heroEyebrow": "メンバーシップストリーム",

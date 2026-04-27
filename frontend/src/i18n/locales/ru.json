@@ -217,42 +217,42 @@
     "storyPromptBody": "Расскажите, как вам это удалось — ваш опыт может вдохновить следующего участника. Займёт 2 минуты. Наша команда проверит перед публикацией на /explore.",
     "storyPromptCta": "Поделиться историей",
     "storyPromptDismiss": "Закрыть",
-    "earningsStrip": "Your earnings this month",
-    "monthlyEarned": "This Month",
-    "payItForwardLabel": "Help others",
-    "payItForwardCta": "Gift now",
-    "platformTourLabel": "Get oriented",
-    "platformTourCta": "Start tour",
-    "todaysWatchLabel": "Stay qualified",
-    "todaysWatch": "Today's Watch Video",
-    "todaysWatchDesc": "Watch your daily campaign-grid video to activate Grid Payouts.",
-    "todaysWatchCta": "Watch now",
-    "affiliateShareLabel": "Grow your team",
+    "earningsStrip": "Ваш заработок в этом месяце",
+    "monthlyEarned": "В этом месяце",
+    "payItForwardLabel": "Помогайте другим",
+    "payItForwardCta": "Подарить сейчас",
+    "platformTourLabel": "Ориентируйтесь",
+    "platformTourCta": "Начать тур",
+    "todaysWatchLabel": "Оставайтесь квалифицированными",
+    "todaysWatch": "Видео дня",
+    "todaysWatchDesc": "Смотрите ежедневное видео campaign-grid, чтобы активировать Grid Payouts.",
+    "todaysWatchCta": "Смотреть сейчас",
+    "affiliateShareLabel": "Развивайте свою команду",
     "affiliateShare": "Affiliate Share",
-    "affiliateShareDesc": "Share your link and story to bring more members onto your team.",
-    "affiliateShareCta": "Open share",
-    "activeSince": "Active since {{date}}",
-    "doorBuildLabel": "Build",
+    "affiliateShareDesc": "Поделитесь своей ссылкой и историей, чтобы привести больше участников в вашу команду.",
+    "affiliateShareCta": "Открыть общий доступ",
+    "activeSince": "Активен с {{date}}",
+    "doorBuildLabel": "Создавайте",
     "doorCockpitLabel": "Cockpit",
     "doorCommandCentre": "Command Centre",
-    "doorCommandCentreDesc": "Track your team, send broadcasts, climb the leaderboard.",
-    "doorEarnLabel": "Earn",
-    "doorIncome": "Income",
-    "doorIncomeDesc": "All four income streams in one place.",
-    "doorItems": "{{count}} items",
-    "doorLearn": "Learn",
-    "doorLearnDesc": "Education, assets, and community to help you grow.",
-    "doorLearnLabel": "Learn",
-    "doorOpen": "Open",
-    "doorTools": "Tools",
-    "doorToolsDesc": "Free, Basic, and Pro tools to power your campaigns.",
-    "exploreSection": "Explore",
-    "payItForward": "Pay it forward",
-    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership.",
-    "annualUpsellTitle": "Switch to annual billing and save up to $70/year",
-    "annualUpsellBody": "Pay yearly and save 17% — that's $40/year off Basic or $70/year off Pro. Switch anytime, no hassle.",
-    "annualUpsellCta": "View plans",
-    "annualUpsellDismiss": "Dismiss"
+    "doorCommandCentreDesc": "Отслеживайте вашу команду, отправляйте трансляции, поднимайтесь в таблице лидеров.",
+    "doorEarnLabel": "Зарабатывайте",
+    "doorIncome": "Доход",
+    "doorIncomeDesc": "Все четыре потока доходов в одном месте.",
+    "doorItems": "{{count}} элементов",
+    "doorLearn": "Учитесь",
+    "doorLearnDesc": "Образование, ресурсы и сообщество, чтобы помочь вам расти.",
+    "doorLearnLabel": "Учитесь",
+    "doorOpen": "Открыть",
+    "doorTools": "Инструменты",
+    "doorToolsDesc": "Бесплатные, Basic и Pro инструменты для ваших кампаний.",
+    "exploreSection": "Изучить",
+    "payItForward": "Поделитесь благом",
+    "payItForwardDesc": "Помогите члену сообщества, подарив ему членство Tier 1.",
+    "annualUpsellTitle": "Переходите на ежегодное выставление счетов и экономьте до $70/год",
+    "annualUpsellBody": "Платите ежегодно и экономьте 17% — это $40/год для Basic или $70/год для Pro. Переключайтесь в любое время, без хлопот.",
+    "annualUpsellCta": "Посмотреть планы",
+    "annualUpsellDismiss": "Закрыть"
   },
   "compPlan": {
     "title": "План вознаграждений",
@@ -3958,159 +3958,159 @@
     "reengagement_lapsed_message": "Ваша сеть и доходы по-прежнему ждут вас. Нажмите ниже, чтобы возобновить."
   },
   "income": {
-    "pageTitle": "Income",
-    "heroEyebrow": "Your Income",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "earningsSection": "Your earnings",
-    "streamsSection": "Your four income streams",
+    "pageTitle": "Доход",
+    "heroEyebrow": "Ваш доход",
+    "activeSince": "Активен с",
+    "backToDashboard": "Вернуться на главную",
+    "scrollLeft": "Прокрутить влево",
+    "scrollRight": "Прокрутить вправо",
+    "earningsSection": "Ваши заработки",
+    "streamsSection": "Ваши четыре источника дохода",
     "tabs": {
-      "overview": "Overview",
-      "wallet": "Wallet",
-      "compPlan": "Comp Plan",
-      "membership": "Membership",
-      "grid": "Campaign Grid",
+      "overview": "Обзор",
+      "wallet": "Кошелек",
+      "compPlan": "План комиссий",
+      "membership": "Членство",
+      "grid": "Сетка кампаний",
       "nexus": "Profit Nexus",
-      "courses": "Course Academy",
-      "history": "Earnings History"
+      "courses": "Академия курсов",
+      "history": "История заработков"
     },
     "summary": {
-      "available": "Available",
-      "availableCaption": "in your wallet now",
-      "thisMonth": "This month",
-      "thisMonthCaption": "commissions earned this month",
-      "nextPayout": "Next payout",
-      "nextPayoutValue": "On request",
-      "nextPayoutCaption": "crypto withdrawal anytime",
-      "allTime": "All time",
-      "allTimeCaption": "lifetime earnings",
-      "allTimeCaptionSince": "since {{since}}"
+      "available": "Доступно",
+      "availableCaption": "в вашем кошельке сейчас",
+      "thisMonth": "В этом месяце",
+      "thisMonthCaption": "комиссий заработано в этом месяце",
+      "nextPayout": "Следующая выплата",
+      "nextPayoutValue": "По запросу",
+      "nextPayoutCaption": "вывод крипто в любой момент",
+      "allTime": "За все время",
+      "allTimeCaption": "заработки за все время",
+      "allTimeCaptionSince": "с {{since}}"
     },
     "tag": {
-      "active": "Active",
-      "tier": "Active",
-      "available": "Available"
+      "active": "Активно",
+      "tier": "Активно",
+      "available": "Доступно"
     },
     "stat": {
-      "directs": "Directs paying",
-      "team": "In your team",
-      "earnedAllTime": "Earned all time"
+      "directs": "Прямых партнеров получают",
+      "team": "В вашей команде",
+      "earnedAllTime": "Заработано всего"
     },
     "stream": {
-      "membership": "Membership Sponsor",
-      "membershipSub": "25% on every direct's monthly fee",
-      "membershipDormant": "Share your link to activate the easiest stream — paid every month they stay.",
-      "grid": "Campaign Tier Grid",
-      "gridSub": "8×8 forced matrix · advertise + earn",
-      "gridDormant": "Buy a Grid tier to advertise AND earn from the 8×8 spillover matrix.",
+      "membership": "Спонсор членства",
+      "membershipSub": "25% с ежемесячного платежа каждого прямого партнера",
+      "membershipDormant": "Поделитесь ссылкой, чтобы активировать самый простой поток доходов — платежи каждый месяц, пока они остаются.",
+      "grid": "Сетка уровней кампании",
+      "gridSub": "Матрица 8×8 · реклама + доход",
+      "gridDormant": "Купите уровень Grid, чтобы размещать объявления И получать доход от матрицы 8×8.",
       "nexus": "Profit Nexus",
-      "nexusSub": "3×3 credit matrix · cascading commissions",
-      "nexusDormant": "Buy a credit pack to take your position in the 3×3 matrix.",
-      "courses": "Course Academy",
-      "coursesSub": "Pass-up commissions · infinite depth",
-      "coursesDormant": "Buy a course tier to qualify for upline pass-ups on every sale."
+      "nexusSub": "Матрица кредитов 3×3 · каскадные комиссии",
+      "nexusDormant": "Купите пакет кредитов, чтобы занять позицию в матрице 3×3.",
+      "courses": "Академия курсов",
+      "coursesSub": "Pass-up комиссии · бесконечная глубина",
+      "coursesDormant": "Купите уровень курса, чтобы квалифицироваться на pass-up от вышестоящих партнеров по каждой продаже."
     },
     "action": {
-      "myReferrals": "My referrals",
-      "shareLink": "Get share link",
-      "compPlan": "Comp plan",
-      "myGrid": "My Grid",
-      "watchAds": "Watch ads",
-      "calculator": "Calculator",
-      "upgradeTier": "Upgrade tier",
-      "buyCredits": "Buy credits",
+      "myReferrals": "Мои рефералы",
+      "shareLink": "Получить ссылку для sharing",
+      "compPlan": "План компенсации",
+      "myGrid": "Мои Grid",
+      "watchAds": "Смотреть объявления",
+      "calculator": "Калькулятор",
+      "upgradeTier": "Повысить уровень",
+      "buyCredits": "Купить кредиты",
       "myNexus": "My Nexus",
-      "howItWorks": "How it works",
-      "browseCourses": "Browse courses",
-      "passUp": "How pass-up works"
+      "howItWorks": "Как это работает",
+      "browseCourses": "Просмотр курсов",
+      "passUp": "Как работает pass-up"
     }
   },
   "learn": {
-    "pageTitle": "Learn",
-    "heroEyebrow": "Your Learning",
-    "categoriesSection": "Your learning categories",
-    "backToLearn": "Back to Learn",
+    "pageTitle": "Обучение",
+    "heroEyebrow": "Ваше обучение",
+    "categoriesSection": "Ваши категории обучения",
+    "backToLearn": "Назад к обучению",
     "tabs": {
-      "overview": "Overview",
-      "education": "Education",
-      "assets": "Promotional Assets",
-      "community": "Community"
+      "overview": "Обзор",
+      "education": "Образование",
+      "assets": "Маркетинговые материалы",
+      "community": "Сообщество"
     },
     "door": {
       "education": {
-        "eyebrow": "Skill up",
-        "title": "Education",
-        "desc": "Training, comp plan explainer, platform tour, crypto guide. Master how the platform works.",
-        "count": "4 items"
+        "eyebrow": "Развивайте навыки",
+        "title": "Образование",
+        "desc": "Обучение, описание плана компенсации, экскурсия по платформе, крипто-гайд. Освойте, как работает платформа.",
+        "count": "4 элемента"
       },
       "assets": {
-        "eyebrow": "Share & promote",
-        "title": "Promotional Assets",
-        "desc": "Marketing materials, email swipes, social share posts. Everything you need to grow your team.",
-        "count": "3 items"
+        "eyebrow": "Делитесь и продвигайте",
+        "title": "Маркетинговые материалы",
+        "desc": "Маркетинговые материалы, готовые письма, посты для соцсетей. Всё, что нужно для роста вашей команды.",
+        "count": "3 элемента"
       },
       "community": {
-        "eyebrow": "Connect & celebrate",
-        "title": "Community",
-        "desc": "Leaderboard rankings and submit your own success story. Be seen, get inspired.",
-        "count": "2 items"
+        "eyebrow": "Взаимодействуйте и праздничте",
+        "title": "Сообщество",
+        "desc": "Рейтинги лидеров и поделитесь своей историей успеха. Будьте замечены, вдохновляйтесь.",
+        "count": "2 элемента"
       }
     },
     "edu": {
-      "pageTitle": "Education",
-      "heroEyebrow": "Education",
-      "section": "Education · 4 ways to skill up",
+      "pageTitle": "Образование",
+      "heroEyebrow": "Образование",
+      "section": "Образование · 4 способа развить навыки",
       "training": {
-        "name": "Training Centre",
-        "desc": "Step-by-step lessons covering everything from basics to advanced strategies."
+        "name": "Учебный центр",
+        "desc": "Пошаговые уроки от основ до продвинутых стратегий."
       },
       "comp": {
-        "name": "Comp Plan Explainer",
-        "desc": "Full breakdown of how the compensation plan works. Every commission, every tier."
+        "name": "Описание плана компенсации",
+        "desc": "Полный разбор работы плана компенсации. Каждая комиссия, каждый уровень."
       },
       "tour": {
-        "name": "Platform Tour",
-        "desc": "Quick walkthrough of the entire platform. Find everything in 5 minutes."
+        "name": "Экскурсия по платформе",
+        "desc": "Быстрый обзор всей платформы. Найдите всё за 5 минут."
       },
       "crypto": {
-        "name": "Crypto Guide",
-        "desc": "How to set up a wallet, receive USDT payouts, and stay safe with crypto."
+        "name": "Крипто-гайд",
+        "desc": "Как настроить кошелек, получать выплаты USDT и оставаться в безопасности с крипто."
       }
     },
     "assets": {
-      "pageTitle": "Promotional Assets",
-      "heroEyebrow": "Promotional Assets",
-      "section": "Promotional Assets · 3 ways to share & grow",
+      "pageTitle": "Промо-материалы",
+      "heroEyebrow": "Промо-материалы",
+      "section": "Промо-материалы · 3 способа делиться и расти",
       "materials": {
-        "name": "Marketing Materials",
-        "desc": "Banners, graphics, social posts ready to download and share."
+        "name": "Маркетинговые материалы",
+        "desc": "Баннеры, графика, посты в соцсетях готовы к скачиванию и публикации."
       },
       "swipes": {
-        "name": "Email Swipes",
-        "desc": "AI-generated email templates for outreach campaigns. Copy-and-paste ready."
+        "name": "Email-шаблоны",
+        "desc": "AI-генерируемые email-шаблоны для кампаний. Готовы к копированию и вставке."
       },
       "social": {
-        "name": "Social Share",
-        "desc": "One-click share to Facebook, X, LinkedIn, WhatsApp with AI-generated post copy."
+        "name": "Поделиться в соцсетях",
+        "desc": "Поделитесь одним кликом в Facebook, X, LinkedIn, WhatsApp с AI-генерируемым текстом поста."
       }
     },
     "community": {
-      "pageTitle": "Community",
-      "heroEyebrow": "Community",
-      "section": "Community · be seen, get inspired",
+      "pageTitle": "Сообщество",
+      "heroEyebrow": "Сообщество",
+      "section": "Сообщество · покажитесь, вдохновляйтесь",
       "leaderboard": {
-        "name": "Leaderboard",
-        "desc": "Top earners and top recruiters across the platform. See where you rank."
+        "name": "Рейтинг",
+        "desc": "Топ заработчиков и топ рекрутеров платформы. Посмотрите свой рейтинг."
       },
       "story": {
-        "name": "Share Your Story",
-        "desc": "Submit your success milestone. Inspire others, get featured on the homepage."
+        "name": "Поделитесь своей историей",
+        "desc": "Поделитесь своим достижением. Вдохновляйте других, попадите на главную страницу."
       }
     },
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "Прокрутить влево",
+    "scrollRight": "Прокрутить вправо"
   },
   "membership": {
     "heroEyebrow": "Поток подписок",

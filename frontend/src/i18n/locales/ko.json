@@ -217,42 +217,42 @@
     "storyPromptBody": "어떻게 했는지 이야기해 주세요 — 당신의 경험이 다음 멤버에게 영감이 될 수 있습니다. 2분이면 됩니다. /explore에 공개 전 팀이 검토합니다.",
     "storyPromptCta": "스토리 공유",
     "storyPromptDismiss": "닫기",
-    "earningsStrip": "Your earnings this month",
-    "monthlyEarned": "This Month",
-    "payItForwardLabel": "Help others",
-    "payItForwardCta": "Gift now",
-    "platformTourLabel": "Get oriented",
-    "platformTourCta": "Start tour",
-    "todaysWatchLabel": "Stay qualified",
-    "todaysWatch": "Today's Watch Video",
-    "todaysWatchDesc": "Watch your daily campaign-grid video to activate Grid Payouts.",
-    "todaysWatchCta": "Watch now",
-    "affiliateShareLabel": "Grow your team",
-    "affiliateShare": "Affiliate Share",
-    "affiliateShareDesc": "Share your link and story to bring more members onto your team.",
-    "affiliateShareCta": "Open share",
-    "activeSince": "Active since {{date}}",
-    "doorBuildLabel": "Build",
+    "earningsStrip": "이번 달 수익",
+    "monthlyEarned": "이번 달",
+    "payItForwardLabel": "다른 사람 도와주기",
+    "payItForwardCta": "지금 선물하기",
+    "platformTourLabel": "안내 받기",
+    "platformTourCta": "투어 시작",
+    "todaysWatchLabel": "자격 유지하기",
+    "todaysWatch": "오늘의 영상 시청",
+    "todaysWatchDesc": "매일 캠페인 그리드 영상을 시청하여 Grid 페이아웃을 활성화하세요.",
+    "todaysWatchCta": "지금 보기",
+    "affiliateShareLabel": "팀 성장시키기",
+    "affiliateShare": "제휴 공유",
+    "affiliateShareDesc": "귀사의 링크와 스토리를 공유하여 더 많은 팀원을 모집하세요.",
+    "affiliateShareCta": "공유 열기",
+    "activeSince": "{{date}}부터 활성",
+    "doorBuildLabel": "구축",
     "doorCockpitLabel": "Cockpit",
     "doorCommandCentre": "Command Centre",
-    "doorCommandCentreDesc": "Track your team, send broadcasts, climb the leaderboard.",
-    "doorEarnLabel": "Earn",
-    "doorIncome": "Income",
-    "doorIncomeDesc": "All four income streams in one place.",
-    "doorItems": "{{count}} items",
-    "doorLearn": "Learn",
-    "doorLearnDesc": "Education, assets, and community to help you grow.",
-    "doorLearnLabel": "Learn",
-    "doorOpen": "Open",
-    "doorTools": "Tools",
-    "doorToolsDesc": "Free, Basic, and Pro tools to power your campaigns.",
-    "exploreSection": "Explore",
-    "payItForward": "Pay it forward",
-    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership.",
-    "annualUpsellTitle": "Switch to annual billing and save up to $70/year",
-    "annualUpsellBody": "Pay yearly and save 17% — that's $40/year off Basic or $70/year off Pro. Switch anytime, no hassle.",
-    "annualUpsellCta": "View plans",
-    "annualUpsellDismiss": "Dismiss"
+    "doorCommandCentreDesc": "팀을 추적하고, 브로드캐스트를 전송하며, 리더보드에서 올라가세요.",
+    "doorEarnLabel": "수익",
+    "doorIncome": "소득",
+    "doorIncomeDesc": "네 가지 수익 흐름을 한 곳에서 관리하세요.",
+    "doorItems": "{{count}}개 항목",
+    "doorLearn": "학습",
+    "doorLearnDesc": "성장을 돕는 교육, 자산, 커뮤니티.",
+    "doorLearnLabel": "학습",
+    "doorOpen": "열기",
+    "doorTools": "도구",
+    "doorToolsDesc": "캠페인을 강화하는 무료, Basic, Pro 도구",
+    "exploreSection": "탐색",
+    "payItForward": "이를 전파하세요",
+    "payItForwardDesc": "고생하는 회원에게 Tier 1 멤버십을 선물해 도와주세요.",
+    "annualUpsellTitle": "연간 청구로 전환하고 연간 최대 $70 절약하세요",
+    "annualUpsellBody": "연간 결제 시 17% 절약 — Basic은 연간 $40 할인, Pro는 연간 $70 할인입니다. 언제든지 전환 가능, 번거로움 없음.",
+    "annualUpsellCta": "요금제 보기",
+    "annualUpsellDismiss": "닫기"
   },
   "compPlan": {
     "title": "보상 플랜",
@@ -4020,89 +4020,89 @@
     }
   },
   "learn": {
-    "pageTitle": "Learn",
-    "heroEyebrow": "Your Learning",
-    "categoriesSection": "Your learning categories",
-    "backToLearn": "Back to Learn",
+    "pageTitle": "배우기",
+    "heroEyebrow": "당신의 학습",
+    "categoriesSection": "학습 카테고리",
+    "backToLearn": "배우기로 돌아가기",
     "tabs": {
-      "overview": "Overview",
-      "education": "Education",
-      "assets": "Promotional Assets",
-      "community": "Community"
+      "overview": "개요",
+      "education": "교육",
+      "assets": "프로모션 자산",
+      "community": "커뮤니티"
     },
     "door": {
       "education": {
-        "eyebrow": "Skill up",
-        "title": "Education",
-        "desc": "Training, comp plan explainer, platform tour, crypto guide. Master how the platform works.",
-        "count": "4 items"
+        "eyebrow": "스킬 업",
+        "title": "교육",
+        "desc": "교육, 보상 계획 설명, 플랫폼 둘러보기, 암호화폐 가이드. 플랫폼 작동 방식을 마스터하세요.",
+        "count": "4개 항목"
       },
       "assets": {
-        "eyebrow": "Share & promote",
-        "title": "Promotional Assets",
-        "desc": "Marketing materials, email swipes, social share posts. Everything you need to grow your team.",
-        "count": "3 items"
+        "eyebrow": "공유 및 홍보",
+        "title": "프로모션 자산",
+        "desc": "마케팅 자료, 이메일 스와이프, 소셜 공유 게시물. 팀을 성장시키기 위해 필요한 모든 것.",
+        "count": "3개 항목"
       },
       "community": {
-        "eyebrow": "Connect & celebrate",
-        "title": "Community",
-        "desc": "Leaderboard rankings and submit your own success story. Be seen, get inspired.",
-        "count": "2 items"
+        "eyebrow": "연결 및 축하",
+        "title": "커뮤니티",
+        "desc": "리더보드 순위 및 당신의 성공 사례를 제출하세요. 주목받고, 영감을 얻으세요.",
+        "count": "2개 항목"
       }
     },
     "edu": {
-      "pageTitle": "Education",
-      "heroEyebrow": "Education",
-      "section": "Education · 4 ways to skill up",
+      "pageTitle": "교육",
+      "heroEyebrow": "교육",
+      "section": "교육 · 스킬 업하는 4가지 방법",
       "training": {
-        "name": "Training Centre",
-        "desc": "Step-by-step lessons covering everything from basics to advanced strategies."
+        "name": "교육 센터",
+        "desc": "기초부터 고급 전략까지 모든 것을 다루는 단계별 수업."
       },
       "comp": {
-        "name": "Comp Plan Explainer",
-        "desc": "Full breakdown of how the compensation plan works. Every commission, every tier."
+        "name": "보상 계획 설명",
+        "desc": "보상 계획이 어떻게 작동하는지에 대한 전체 설명. 모든 커미션, 모든 티어."
       },
       "tour": {
-        "name": "Platform Tour",
-        "desc": "Quick walkthrough of the entire platform. Find everything in 5 minutes."
+        "name": "플랫폼 둘러보기",
+        "desc": "전체 플랫폼의 빠른 둘러보기. 5분 안에 모든 것을 찾으세요."
       },
       "crypto": {
-        "name": "Crypto Guide",
-        "desc": "How to set up a wallet, receive USDT payouts, and stay safe with crypto."
+        "name": "암호화폐 가이드",
+        "desc": "지갑 설정 방법, USDT 지급금 받기, 암호화폐로 안전하게 거래하는 방법"
       }
     },
     "assets": {
-      "pageTitle": "Promotional Assets",
-      "heroEyebrow": "Promotional Assets",
-      "section": "Promotional Assets · 3 ways to share & grow",
+      "pageTitle": "프로모션 자료",
+      "heroEyebrow": "프로모션 자료",
+      "section": "프로모션 자료 · 3가지 공유 및 성장 방법",
       "materials": {
-        "name": "Marketing Materials",
-        "desc": "Banners, graphics, social posts ready to download and share."
+        "name": "마케팅 자료",
+        "desc": "다운로드 및 공유할 수 있는 배너, 그래픽, 소셜 포스트"
       },
       "swipes": {
-        "name": "Email Swipes",
-        "desc": "AI-generated email templates for outreach campaigns. Copy-and-paste ready."
+        "name": "이메일 템플릿",
+        "desc": "아웃리치 캠페인을 위한 AI 생성 이메일 템플릿. 복사해서 붙여넣기만 하면 됩니다."
       },
       "social": {
-        "name": "Social Share",
-        "desc": "One-click share to Facebook, X, LinkedIn, WhatsApp with AI-generated post copy."
+        "name": "소셜 공유",
+        "desc": "Facebook, X, LinkedIn, WhatsApp에 AI 생성 포스트 사본과 함께 원클릭 공유"
       }
     },
     "community": {
-      "pageTitle": "Community",
-      "heroEyebrow": "Community",
-      "section": "Community · be seen, get inspired",
+      "pageTitle": "커뮤니티",
+      "heroEyebrow": "커뮤니티",
+      "section": "커뮤니티 · 보여지고, 영감을 얻으세요",
       "leaderboard": {
-        "name": "Leaderboard",
-        "desc": "Top earners and top recruiters across the platform. See where you rank."
+        "name": "리더보드",
+        "desc": "플랫폼 전체의 상위 수익자 및 상위 모집자. 본인의 순위를 확인하세요."
       },
       "story": {
-        "name": "Share Your Story",
-        "desc": "Submit your success milestone. Inspire others, get featured on the homepage."
+        "name": "스토리 공유",
+        "desc": "성공 이정표를 제출하세요. 다른 사람에게 영감을 주고 홈페이지에 소개될 기회를 얻으세요."
       }
     },
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "왼쪽으로 스크롤",
+    "scrollRight": "오른쪽으로 스크롤"
   },
   "membership": {
     "heroEyebrow": "멤버십 스트림",

@@ -217,42 +217,42 @@
     "storyPromptBody": "Eleza jinsi ulivyofanya — uzoefu wako unaweza kuhamasisha mwanachama ajaye. Inachukua dakika 2. Timu yetu inakagua kabla ya kuwasha kwenye /explore.",
     "storyPromptCta": "Shiriki hadithi yangu",
     "storyPromptDismiss": "Funga",
-    "earningsStrip": "Your earnings this month",
-    "monthlyEarned": "This Month",
-    "payItForwardLabel": "Help others",
-    "payItForwardCta": "Gift now",
-    "platformTourLabel": "Get oriented",
-    "platformTourCta": "Start tour",
-    "todaysWatchLabel": "Stay qualified",
-    "todaysWatch": "Today's Watch Video",
-    "todaysWatchDesc": "Watch your daily campaign-grid video to activate Grid Payouts.",
-    "todaysWatchCta": "Watch now",
-    "affiliateShareLabel": "Grow your team",
-    "affiliateShare": "Affiliate Share",
-    "affiliateShareDesc": "Share your link and story to bring more members onto your team.",
-    "affiliateShareCta": "Open share",
-    "activeSince": "Active since {{date}}",
-    "doorBuildLabel": "Build",
+    "earningsStrip": "Mapato yako mwezi huu",
+    "monthlyEarned": "Mwezi Huu",
+    "payItForwardLabel": "Saidia wengine",
+    "payItForwardCta": "Kumei sasa",
+    "platformTourLabel": "Pata msaada",
+    "platformTourCta": "Anza ziara",
+    "todaysWatchLabel": "Baki na haki",
+    "todaysWatch": "Video ya Sasa",
+    "todaysWatchDesc": "Tazama video yako ya kila siku ya campaign-grid ili kuamsha Grid Payouts.",
+    "todaysWatchCta": "Tazama sasa",
+    "affiliateShareLabel": "Kukuza timu yako",
+    "affiliateShare": "Mgawanyiko wa Njia ya Kufanya Pesa",
+    "affiliateShareDesc": "Sambaza kiungo chako na hadithi yako ili kuleta wanachama zaidi kwenye timu yako.",
+    "affiliateShareCta": "Fungua mgawanyiko",
+    "activeSince": "Imekuwa kitendo tangu {{date}}",
+    "doorBuildLabel": "Jenga",
     "doorCockpitLabel": "Cockpit",
     "doorCommandCentre": "Command Centre",
-    "doorCommandCentreDesc": "Track your team, send broadcasts, climb the leaderboard.",
-    "doorEarnLabel": "Earn",
-    "doorIncome": "Income",
-    "doorIncomeDesc": "All four income streams in one place.",
-    "doorItems": "{{count}} items",
-    "doorLearn": "Learn",
-    "doorLearnDesc": "Education, assets, and community to help you grow.",
-    "doorLearnLabel": "Learn",
-    "doorOpen": "Open",
-    "doorTools": "Tools",
-    "doorToolsDesc": "Free, Basic, and Pro tools to power your campaigns.",
-    "exploreSection": "Explore",
-    "payItForward": "Pay it forward",
-    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership.",
-    "annualUpsellTitle": "Switch to annual billing and save up to $70/year",
-    "annualUpsellBody": "Pay yearly and save 17% — that's $40/year off Basic or $70/year off Pro. Switch anytime, no hassle.",
-    "annualUpsellCta": "View plans",
-    "annualUpsellDismiss": "Dismiss"
+    "doorCommandCentreDesc": "Fuatilia timu yako, tuma matangazo, panda kwenye ubao wa liderisha.",
+    "doorEarnLabel": "Kumea",
+    "doorIncome": "Mapato",
+    "doorIncomeDesc": "Njia zote nne za kumea katika mahali pamoja.",
+    "doorItems": "{{count}} mambo",
+    "doorLearn": "Jifunze",
+    "doorLearnDesc": "Elimu, mali, na jamii ili kukusaidia kukua.",
+    "doorLearnLabel": "Jifunze",
+    "doorOpen": "Fungua",
+    "doorTools": "Zana",
+    "doorToolsDesc": "Zana za Bure, Basic, na Pro ili kueneza kampeni zako.",
+    "exploreSection": "Tukuza",
+    "payItForward": "Lipia mbele",
+    "payItForwardDesc": "Saidia mwanachama anayeikabili matatizo kwa kuwapa zawadi ya Tier 1 membership.",
+    "annualUpsellTitle": "Badili kuwa kila mwaka na kuokoa hadi $70/mwaka",
+    "annualUpsellBody": "Lipa kila mwaka na kuokoa 17% — hiyo ni $40/mwaka mbali na Basic au $70/mwaka mbali na Pro. Badili anywani, hakuna matatizo.",
+    "annualUpsellCta": "Tazama mipango",
+    "annualUpsellDismiss": "Ondoa"
   },
   "compPlan": {
     "title": "Mpango wa Fidia",
@@ -3950,159 +3950,159 @@
     "reengagement_lapsed_message": "Mtandao wako na mapato yako bado yanakusubiri. Bofya hapa chini ili kuwasha tena."
   },
   "income": {
-    "pageTitle": "Income",
-    "heroEyebrow": "Your Income",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "earningsSection": "Your earnings",
-    "streamsSection": "Your four income streams",
+    "pageTitle": "Mapato",
+    "heroEyebrow": "Mapato Yako",
+    "activeSince": "Imetumika tangu",
+    "backToDashboard": "Rudi kwenye Dashboard",
+    "scrollLeft": "Sukuma kushoto",
+    "scrollRight": "Sukuma kulia",
+    "earningsSection": "Mapato Yako",
+    "streamsSection": "Mabonde yako ya mapato manne",
     "tabs": {
-      "overview": "Overview",
-      "wallet": "Wallet",
-      "compPlan": "Comp Plan",
-      "membership": "Membership",
-      "grid": "Campaign Grid",
+      "overview": "Muhtasari",
+      "wallet": "Mkoba",
+      "compPlan": "Mpango wa Kumbi",
+      "membership": "Uanachama",
+      "grid": "Gridi ya Kampeni",
       "nexus": "Profit Nexus",
-      "courses": "Course Academy",
-      "history": "Earnings History"
+      "courses": "Akademi ya Kozi",
+      "history": "Historia ya Mapato"
     },
     "summary": {
-      "available": "Available",
-      "availableCaption": "in your wallet now",
-      "thisMonth": "This month",
-      "thisMonthCaption": "commissions earned this month",
-      "nextPayout": "Next payout",
-      "nextPayoutValue": "On request",
-      "nextPayoutCaption": "crypto withdrawal anytime",
-      "allTime": "All time",
-      "allTimeCaption": "lifetime earnings",
-      "allTimeCaptionSince": "since {{since}}"
+      "available": "Inayopatikana",
+      "availableCaption": "katika mkoba wako sasa",
+      "thisMonth": "Mwezi huu",
+      "thisMonthCaption": "kamata zilizotangazwa mwezi huu",
+      "nextPayout": "Malipo Yajayo",
+      "nextPayoutValue": "Kwa Ombi",
+      "nextPayoutCaption": "kuchota crypto wakati wowote",
+      "allTime": "Jumla ya Wakati",
+      "allTimeCaption": "mapato ya maisha",
+      "allTimeCaptionSince": "tangu {{since}}"
     },
     "tag": {
-      "active": "Active",
-      "tier": "Active",
-      "available": "Available"
+      "active": "Imetumika",
+      "tier": "Imetumika",
+      "available": "Inayopatikana"
     },
     "stat": {
-      "directs": "Directs paying",
-      "team": "In your team",
-      "earnedAllTime": "Earned all time"
+      "directs": "Moja kwa moja kulipa",
+      "team": "Katika timu yako",
+      "earnedAllTime": "Kimetandikwa kila wakati"
     },
     "stream": {
-      "membership": "Membership Sponsor",
-      "membershipSub": "25% on every direct's monthly fee",
-      "membershipDormant": "Share your link to activate the easiest stream — paid every month they stay.",
+      "membership": "Mjumbe wa Uanachama",
+      "membershipSub": "25% kwa kila moja ya ada ya kila mwezi ya mmoja wa moja kwa moja",
+      "membershipDormant": "Shiriki kiungo chako ili kuwezesha mkondo rahisi zaidi — kulipwa kila mwezi wanabaki.",
       "grid": "Campaign Tier Grid",
-      "gridSub": "8×8 forced matrix · advertise + earn",
-      "gridDormant": "Buy a Grid tier to advertise AND earn from the 8×8 spillover matrix.",
+      "gridSub": "Matrix ya 8×8 iliyoimazwa · tangaza + kutanda",
+      "gridDormant": "Nunua ngazi ya Grid ili kutangaza NA kutanda kutoka kwa matrix ya spillover ya 8×8.",
       "nexus": "Profit Nexus",
-      "nexusSub": "3×3 credit matrix · cascading commissions",
-      "nexusDormant": "Buy a credit pack to take your position in the 3×3 matrix.",
+      "nexusSub": "Matrix ya fedha ya 3×3 · tume za kuviringa",
+      "nexusDormant": "Nunua pakiti ya fedha ili kuchukua nafasi yako katika matrix ya 3×3.",
       "courses": "Course Academy",
-      "coursesSub": "Pass-up commissions · infinite depth",
-      "coursesDormant": "Buy a course tier to qualify for upline pass-ups on every sale."
+      "coursesSub": "Tume za pass-up · kina tupu",
+      "coursesDormant": "Nunua ngazi ya kozi ili kualika kwa pass-ups za upline kwa kila mauzo."
     },
     "action": {
-      "myReferrals": "My referrals",
-      "shareLink": "Get share link",
-      "compPlan": "Comp plan",
-      "myGrid": "My Grid",
-      "watchAds": "Watch ads",
-      "calculator": "Calculator",
-      "upgradeTier": "Upgrade tier",
-      "buyCredits": "Buy credits",
+      "myReferrals": "Mareferensi yangu",
+      "shareLink": "Pata kiungo cha kushiriki",
+      "compPlan": "Mpango wa tume",
+      "myGrid": "Gridi yangu",
+      "watchAds": "Tazama tangazo",
+      "calculator": "Kikokotoo",
+      "upgradeTier": "Boresha ngazi",
+      "buyCredits": "Nunua fedha",
       "myNexus": "My Nexus",
-      "howItWorks": "How it works",
-      "browseCourses": "Browse courses",
-      "passUp": "How pass-up works"
+      "howItWorks": "Jinsi inavyofanya kazi",
+      "browseCourses": "Fungua kozi",
+      "passUp": "Jinsi pass-up inavyofanya kazi"
     }
   },
   "learn": {
-    "pageTitle": "Learn",
-    "heroEyebrow": "Your Learning",
-    "categoriesSection": "Your learning categories",
-    "backToLearn": "Back to Learn",
+    "pageTitle": "Jifunza",
+    "heroEyebrow": "Elimu Yako",
+    "categoriesSection": "Kategoria za elimu yako",
+    "backToLearn": "Rudi kwenye Jifunza",
     "tabs": {
-      "overview": "Overview",
-      "education": "Education",
-      "assets": "Promotional Assets",
-      "community": "Community"
+      "overview": "Muhtasari",
+      "education": "Elimu",
+      "assets": "Rasilimali za Ukuzaji",
+      "community": "Jamii"
     },
     "door": {
       "education": {
-        "eyebrow": "Skill up",
-        "title": "Education",
-        "desc": "Training, comp plan explainer, platform tour, crypto guide. Master how the platform works.",
-        "count": "4 items"
+        "eyebrow": "Jipatanishe ujuzi",
+        "title": "Elimu",
+        "desc": "Mafunzo, mwongozo wa mpango wa kupatanisha, onyesho la jukwaa, mwongozo wa crypto. Kufahamu jinsi jukwaa linavyofanya kazi.",
+        "count": "bidhaa 4"
       },
       "assets": {
-        "eyebrow": "Share & promote",
-        "title": "Promotional Assets",
-        "desc": "Marketing materials, email swipes, social share posts. Everything you need to grow your team.",
-        "count": "3 items"
+        "eyebrow": "Shiriki & kuza",
+        "title": "Rasilimali za Ukuzaji",
+        "desc": "Vifaa vya uuzaji, ujumbe wa barua pepe, ujumbe wa kufahamiana katika mitandao ya kijamii. Kila kitu unachokihitaji ili kuzimarisha timu yako.",
+        "count": "bidhaa 3"
       },
       "community": {
-        "eyebrow": "Connect & celebrate",
-        "title": "Community",
-        "desc": "Leaderboard rankings and submit your own success story. Be seen, get inspired.",
-        "count": "2 items"
+        "eyebrow": "Unganisha & tupike",
+        "title": "Jamii",
+        "desc": "Kiwango cha ubao wa viongezi na wasilishe hadithi yako ya mafanikio. Onekana, pata msukumo.",
+        "count": "bidhaa 2"
       }
     },
     "edu": {
-      "pageTitle": "Education",
-      "heroEyebrow": "Education",
-      "section": "Education · 4 ways to skill up",
+      "pageTitle": "Elimu",
+      "heroEyebrow": "Elimu",
+      "section": "Elimu · njia 4 za kujipatanishe ujuzi",
       "training": {
-        "name": "Training Centre",
-        "desc": "Step-by-step lessons covering everything from basics to advanced strategies."
+        "name": "Kituo cha Mafunzo",
+        "desc": "Masomo ya hatua kwa hatua yanayofunika kila kitu kuanzia msingi hadi mkakati wa juu."
       },
       "comp": {
-        "name": "Comp Plan Explainer",
-        "desc": "Full breakdown of how the compensation plan works. Every commission, every tier."
+        "name": "Mwongozo wa Mpango wa Kupatanisha",
+        "desc": "Uchambuzi kamili wa jinsi mpango wa kupatanisha unavyofanya kazi. Kila tume, kila Tier."
       },
       "tour": {
-        "name": "Platform Tour",
-        "desc": "Quick walkthrough of the entire platform. Find everything in 5 minutes."
+        "name": "Onyesho la Jukwaa",
+        "desc": "Onyesho fupi la jukwaa lote. Tafuta kila kitu kwa dakika 5."
       },
       "crypto": {
-        "name": "Crypto Guide",
-        "desc": "How to set up a wallet, receive USDT payouts, and stay safe with crypto."
+        "name": "Mwongozo wa Crypto",
+        "desc": "Jinsi ya kuandaa kila sahani, kupokea malipiano ya USDT, na kujihadhari kwa crypto."
       }
     },
     "assets": {
-      "pageTitle": "Promotional Assets",
-      "heroEyebrow": "Promotional Assets",
-      "section": "Promotional Assets · 3 ways to share & grow",
+      "pageTitle": "Rasilimali za Uhamasishaji",
+      "heroEyebrow": "Rasilimali za Uhamasishaji",
+      "section": "Rasilimali za Uhamasishaji · Njia 3 za kushiriki na kukua",
       "materials": {
-        "name": "Marketing Materials",
-        "desc": "Banners, graphics, social posts ready to download and share."
+        "name": "Nyenzo za Uuzaji",
+        "desc": "Baneri, picha, na machapisho ya mtandao tayari kupakuliwa na kushiriki."
       },
       "swipes": {
-        "name": "Email Swipes",
-        "desc": "AI-generated email templates for outreach campaigns. Copy-and-paste ready."
+        "name": "Upitaji wa Barua Pepe",
+        "desc": "Vielezo vya barua pepe vya AI kwa kampeni za kuwasiliana. Tayari kunakili-nabiga."
       },
       "social": {
-        "name": "Social Share",
-        "desc": "One-click share to Facebook, X, LinkedIn, WhatsApp with AI-generated post copy."
+        "name": "Kushiriki Mtandaoni",
+        "desc": "Kushiriki kwa kufanya klabu moja kwenye Facebook, X, LinkedIn, WhatsApp na kichapisho cha AI."
       }
     },
     "community": {
-      "pageTitle": "Community",
-      "heroEyebrow": "Community",
-      "section": "Community · be seen, get inspired",
+      "pageTitle": "Jamii",
+      "heroEyebrow": "Jamii",
+      "section": "Jamii · jionyeshe, pata inspiresheni",
       "leaderboard": {
-        "name": "Leaderboard",
-        "desc": "Top earners and top recruiters across the platform. See where you rank."
+        "name": "Orodha ya Juu",
+        "desc": "Wakichumi wa juu na wakubwa wa juu wa ukamataji katika jukwaa. Jua mahali upo."
       },
       "story": {
-        "name": "Share Your Story",
-        "desc": "Submit your success milestone. Inspire others, get featured on the homepage."
+        "name": "Shiriki Hadithi Yako",
+        "desc": "Wasilisha muhtasari wa mafanikio yako. Kamata wengine, pata mahali katika ukurasa wa nyumbani."
       }
     },
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "Kusulikirisha kushoto",
+    "scrollRight": "Kusulikirisha kulia"
   },
   "membership": {
     "heroEyebrow": "Mtiririko wa Uanachama",

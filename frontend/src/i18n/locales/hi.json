@@ -217,42 +217,42 @@
     "storyPromptBody": "बताइए आपने यह कैसे किया — आपका अनुभव अगले सदस्य को प्रेरित कर सकता है। 2 मिनट लगते हैं। /explore पर लाइव होने से पहले हमारी टीम समीक्षा करेगी।",
     "storyPromptCta": "मेरी कहानी शेयर करें",
     "storyPromptDismiss": "बंद करें",
-    "earningsStrip": "Your earnings this month",
-    "monthlyEarned": "This Month",
-    "payItForwardLabel": "Help others",
-    "payItForwardCta": "Gift now",
-    "platformTourLabel": "Get oriented",
-    "platformTourCta": "Start tour",
-    "todaysWatchLabel": "Stay qualified",
-    "todaysWatch": "Today's Watch Video",
-    "todaysWatchDesc": "Watch your daily campaign-grid video to activate Grid Payouts.",
-    "todaysWatchCta": "Watch now",
-    "affiliateShareLabel": "Grow your team",
+    "earningsStrip": "इस महीने आपकी कमाई",
+    "monthlyEarned": "इस महीने",
+    "payItForwardLabel": "दूसरों की मदद करें",
+    "payItForwardCta": "अभी उपहार दें",
+    "platformTourLabel": "शुरुआत करें",
+    "platformTourCta": "टूर शुरू करें",
+    "todaysWatchLabel": "योग्य रहें",
+    "todaysWatch": "आज का वीडियो देखें",
+    "todaysWatchDesc": "Grid Payouts को सक्रिय करने के लिए अपना दैनिक campaign-grid वीडियो देखें।",
+    "todaysWatchCta": "अभी देखें",
+    "affiliateShareLabel": "अपनी टीम बढ़ाएं",
     "affiliateShare": "Affiliate Share",
-    "affiliateShareDesc": "Share your link and story to bring more members onto your team.",
-    "affiliateShareCta": "Open share",
-    "activeSince": "Active since {{date}}",
-    "doorBuildLabel": "Build",
+    "affiliateShareDesc": "अपनी लिंक और कहानी साझा करें ताकि अधिक सदस्य आपकी टीम में शामिल हों।",
+    "affiliateShareCta": "शेयर खोलें",
+    "activeSince": "{{date}} से सक्रिय",
+    "doorBuildLabel": "बनाएं",
     "doorCockpitLabel": "Cockpit",
     "doorCommandCentre": "Command Centre",
-    "doorCommandCentreDesc": "Track your team, send broadcasts, climb the leaderboard.",
-    "doorEarnLabel": "Earn",
+    "doorCommandCentreDesc": "अपनी टीम को ट्रैक करें, प्रसारण भेजें, लीडरबोर्ड पर चढ़ें।",
+    "doorEarnLabel": "कमाएं",
     "doorIncome": "Income",
-    "doorIncomeDesc": "All four income streams in one place.",
-    "doorItems": "{{count}} items",
-    "doorLearn": "Learn",
-    "doorLearnDesc": "Education, assets, and community to help you grow.",
-    "doorLearnLabel": "Learn",
-    "doorOpen": "Open",
-    "doorTools": "Tools",
-    "doorToolsDesc": "Free, Basic, and Pro tools to power your campaigns.",
-    "exploreSection": "Explore",
-    "payItForward": "Pay it forward",
-    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership.",
-    "annualUpsellTitle": "Switch to annual billing and save up to $70/year",
-    "annualUpsellBody": "Pay yearly and save 17% — that's $40/year off Basic or $70/year off Pro. Switch anytime, no hassle.",
-    "annualUpsellCta": "View plans",
-    "annualUpsellDismiss": "Dismiss"
+    "doorIncomeDesc": "सभी चार आय स्ट्रीम एक जगह पर।",
+    "doorItems": "{{count}} आइटम",
+    "doorLearn": "सीखें",
+    "doorLearnDesc": "शिक्षा, संपत्ति, और समुदाय आपकी वृद्धि में मदद करने के लिए।",
+    "doorLearnLabel": "सीखें",
+    "doorOpen": "खोलें",
+    "doorTools": "उपकरण",
+    "doorToolsDesc": "आपके अभियानों को शक्तिशाली बनाने के लिए Free, Basic, और Pro उपकरण।",
+    "exploreSection": "अन्वेषण करें",
+    "payItForward": "आगे भुगतान करें",
+    "payItForwardDesc": "एक संघर्षरत सदस्य को Tier 1 सदस्यता उपहार देकर मदद करें।",
+    "annualUpsellTitle": "वार्षिक बिलिंग पर स्विच करें और $70/year तक बचाएं",
+    "annualUpsellBody": "साल भर के लिए भुगतान करें और 17% बचाएं — यानी Basic पर $40/year या Pro पर $70/year की छूट। कभी भी स्विच करें, कोई परेशानी नहीं।",
+    "annualUpsellCta": "प्लान देखें",
+    "annualUpsellDismiss": "खारिज करें"
   },
   "compPlan": {
     "title": "मुआवजा योजना",
@@ -4020,89 +4020,89 @@
     }
   },
   "learn": {
-    "pageTitle": "Learn",
-    "heroEyebrow": "Your Learning",
-    "categoriesSection": "Your learning categories",
-    "backToLearn": "Back to Learn",
+    "pageTitle": "सीखें",
+    "heroEyebrow": "आपकी सीखना",
+    "categoriesSection": "आपकी सीखने की श्रेणियां",
+    "backToLearn": "सीखने पर वापस जाएं",
     "tabs": {
-      "overview": "Overview",
-      "education": "Education",
-      "assets": "Promotional Assets",
-      "community": "Community"
+      "overview": "अवलोकन",
+      "education": "शिक्षा",
+      "assets": "प्रचारात्मक संपत्ति",
+      "community": "समुदाय"
     },
     "door": {
       "education": {
-        "eyebrow": "Skill up",
-        "title": "Education",
-        "desc": "Training, comp plan explainer, platform tour, crypto guide. Master how the platform works.",
-        "count": "4 items"
+        "eyebrow": "कौशल बढ़ाएं",
+        "title": "शिक्षा",
+        "desc": "प्रशिक्षण, मुआवजा योजना व्याख्याता, प्लेटफॉर्म टूर, क्रिप्टो गाइड। प्लेटफॉर्म कैसे काम करता है यह सीखें।",
+        "count": "4 आइटम"
       },
       "assets": {
-        "eyebrow": "Share & promote",
-        "title": "Promotional Assets",
-        "desc": "Marketing materials, email swipes, social share posts. Everything you need to grow your team.",
-        "count": "3 items"
+        "eyebrow": "साझा करें और प्रचार करें",
+        "title": "प्रचारात्मक संपत्ति",
+        "desc": "विपणन सामग्री, ईमेल स्वाइप, सामाजिक शेयर पोस्ट। आपकी टीम को बढ़ाने के लिए सब कुछ।",
+        "count": "3 आइटम"
       },
       "community": {
-        "eyebrow": "Connect & celebrate",
-        "title": "Community",
-        "desc": "Leaderboard rankings and submit your own success story. Be seen, get inspired.",
-        "count": "2 items"
+        "eyebrow": "जुड़ें और जश्न मनाएं",
+        "title": "समुदाय",
+        "desc": "लीडरबोर्ड रैंकिंग और अपनी सफलता की कहानी जमा करें। दिखें, प्रेरित हों।",
+        "count": "2 आइटम"
       }
     },
     "edu": {
-      "pageTitle": "Education",
-      "heroEyebrow": "Education",
-      "section": "Education · 4 ways to skill up",
+      "pageTitle": "शिक्षा",
+      "heroEyebrow": "शिक्षा",
+      "section": "शिक्षा · कौशल बढ़ाने के 4 तरीके",
       "training": {
-        "name": "Training Centre",
-        "desc": "Step-by-step lessons covering everything from basics to advanced strategies."
+        "name": "प्रशिक्षण केंद्र",
+        "desc": "बुनियादी बातों से लेकर उन्नत रणनीतियों तक सब कुछ को कवर करने वाले चरण-दर-चरण पाठ।"
       },
       "comp": {
-        "name": "Comp Plan Explainer",
-        "desc": "Full breakdown of how the compensation plan works. Every commission, every tier."
+        "name": "मुआवजा योजना व्याख्याता",
+        "desc": "मुआवजा योजना कैसे काम करती है इसका पूर्ण विवरण। हर कमीशन, हर स्तर।"
       },
       "tour": {
-        "name": "Platform Tour",
-        "desc": "Quick walkthrough of the entire platform. Find everything in 5 minutes."
+        "name": "प्लेटफॉर्म टूर",
+        "desc": "पूरे प्लेटफॉर्म का त्वरित दौरा। 5 मिनट में सब कुछ खोजें।"
       },
       "crypto": {
-        "name": "Crypto Guide",
-        "desc": "How to set up a wallet, receive USDT payouts, and stay safe with crypto."
+        "name": "क्रिप्टो गाइड",
+        "desc": "वॉलेट सेट अप कैसे करें, USDT पेआउट प्राप्त करें, और क्रिप्टो के साथ सुरक्षित रहें।"
       }
     },
     "assets": {
-      "pageTitle": "Promotional Assets",
-      "heroEyebrow": "Promotional Assets",
-      "section": "Promotional Assets · 3 ways to share & grow",
+      "pageTitle": "प्रचारात्मक संपत्तियां",
+      "heroEyebrow": "प्रचारात्मक संपत्तियां",
+      "section": "प्रचारात्मक संपत्तियां · साझा करने और बढ़ने के 3 तरीके",
       "materials": {
-        "name": "Marketing Materials",
-        "desc": "Banners, graphics, social posts ready to download and share."
+        "name": "मार्केटिंग सामग्री",
+        "desc": "बैनर, ग्राफिक्स, सोशल पोस्ट डाउनलोड और साझा करने के लिए तैयार।"
       },
       "swipes": {
-        "name": "Email Swipes",
-        "desc": "AI-generated email templates for outreach campaigns. Copy-and-paste ready."
+        "name": "ईमेल स्वाइप्स",
+        "desc": "आउटरीच कैंपेन के लिए AI-जनित ईमेल टेम्पलेट। कॉपी और पेस्ट करने के लिए तैयार।"
       },
       "social": {
-        "name": "Social Share",
-        "desc": "One-click share to Facebook, X, LinkedIn, WhatsApp with AI-generated post copy."
+        "name": "सोशल शेयर",
+        "desc": "Facebook, X, LinkedIn, WhatsApp पर एक क्लिक में साझा करें AI-जनित पोस्ट कॉपी के साथ।"
       }
     },
     "community": {
-      "pageTitle": "Community",
-      "heroEyebrow": "Community",
-      "section": "Community · be seen, get inspired",
+      "pageTitle": "समुदाय",
+      "heroEyebrow": "समुदाय",
+      "section": "समुदाय · दिखें, प्रेरित हों",
       "leaderboard": {
-        "name": "Leaderboard",
-        "desc": "Top earners and top recruiters across the platform. See where you rank."
+        "name": "लीडरबोर्ड",
+        "desc": "शीर्ष कमाने वाले और शीर्ष भर्तीकर्ता पूरे प्लेटफॉर्म में। देखें आप कहां रैंक करते हैं।"
       },
       "story": {
-        "name": "Share Your Story",
-        "desc": "Submit your success milestone. Inspire others, get featured on the homepage."
+        "name": "अपनी कहानी साझा करें",
+        "desc": "अपनी सफलता का मील का पत्थर जमा करें। दूसरों को प्रेरित करें, होमपेज पर फीचर्ड हों।"
       }
     },
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "बाईं ओर स्क्रॉल करें",
+    "scrollRight": "दाईं ओर स्क्रॉल करें"
   },
   "membership": {
     "heroEyebrow": "सदस्यता प्रवाह",

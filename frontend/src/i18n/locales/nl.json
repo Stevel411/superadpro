@@ -217,42 +217,42 @@
     "storyPromptBody": "Vertel hoe je het deed — jouw ervaring kan het volgende lid inspireren. Kost 2 minuten. Ons team beoordeelt voordat het live gaat op /explore.",
     "storyPromptCta": "Mijn verhaal delen",
     "storyPromptDismiss": "Sluiten",
-    "earningsStrip": "Your earnings this month",
-    "monthlyEarned": "This Month",
-    "payItForwardLabel": "Help others",
-    "payItForwardCta": "Gift now",
-    "platformTourLabel": "Get oriented",
-    "platformTourCta": "Start tour",
-    "todaysWatchLabel": "Stay qualified",
-    "todaysWatch": "Today's Watch Video",
-    "todaysWatchDesc": "Watch your daily campaign-grid video to activate Grid Payouts.",
-    "todaysWatchCta": "Watch now",
-    "affiliateShareLabel": "Grow your team",
+    "earningsStrip": "Uw inkomsten deze maand",
+    "monthlyEarned": "Deze maand",
+    "payItForwardLabel": "Help anderen",
+    "payItForwardCta": "Nu verschenken",
+    "platformTourLabel": "Oriëntatie",
+    "platformTourCta": "Tour starten",
+    "todaysWatchLabel": "Blijf gekwalificeerd",
+    "todaysWatch": "Video van vandaag",
+    "todaysWatchDesc": "Bekijk uw dagelijkse campagne-grid video om Grid Payouts te activeren.",
+    "todaysWatchCta": "Nu bekijken",
+    "affiliateShareLabel": "Bouw uw team uit",
     "affiliateShare": "Affiliate Share",
-    "affiliateShareDesc": "Share your link and story to bring more members onto your team.",
-    "affiliateShareCta": "Open share",
-    "activeSince": "Active since {{date}}",
-    "doorBuildLabel": "Build",
+    "affiliateShareDesc": "Deel uw link en verhaal om meer leden in uw team te brengen.",
+    "affiliateShareCta": "Delen openen",
+    "activeSince": "Actief sinds {{date}}",
+    "doorBuildLabel": "Bouwen",
     "doorCockpitLabel": "Cockpit",
     "doorCommandCentre": "Command Centre",
-    "doorCommandCentreDesc": "Track your team, send broadcasts, climb the leaderboard.",
-    "doorEarnLabel": "Earn",
-    "doorIncome": "Income",
-    "doorIncomeDesc": "All four income streams in one place.",
+    "doorCommandCentreDesc": "Volg uw team, verzend uitzendingen, klim de ranglijst op.",
+    "doorEarnLabel": "Verdienen",
+    "doorIncome": "Inkomsten",
+    "doorIncomeDesc": "Alle vier inkomstenstromen op één plaats.",
     "doorItems": "{{count}} items",
-    "doorLearn": "Learn",
-    "doorLearnDesc": "Education, assets, and community to help you grow.",
-    "doorLearnLabel": "Learn",
-    "doorOpen": "Open",
+    "doorLearn": "Leren",
+    "doorLearnDesc": "Onderwijs, middelen en community om u te helpen groeien.",
+    "doorLearnLabel": "Leren",
+    "doorOpen": "Openen",
     "doorTools": "Tools",
-    "doorToolsDesc": "Free, Basic, and Pro tools to power your campaigns.",
-    "exploreSection": "Explore",
-    "payItForward": "Pay it forward",
-    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership.",
-    "annualUpsellTitle": "Switch to annual billing and save up to $70/year",
-    "annualUpsellBody": "Pay yearly and save 17% — that's $40/year off Basic or $70/year off Pro. Switch anytime, no hassle.",
-    "annualUpsellCta": "View plans",
-    "annualUpsellDismiss": "Dismiss"
+    "doorToolsDesc": "Gratis, Basic en Pro tools om je campagnes krachtig te maken.",
+    "exploreSection": "Verkennen",
+    "payItForward": "Geef het door",
+    "payItForwardDesc": "Help een moeizaam lid door hen een Tier 1 lidmaatschap cadeau te geven.",
+    "annualUpsellTitle": "Schakel over naar jaarlijkse facturering en bespaar tot $70/jaar",
+    "annualUpsellBody": "Betaal jaarlijks en bespaar 17% — dat is $40/jaar korting op Basic of $70/jaar korting op Pro. Wissel op elk moment, zonder gedoe.",
+    "annualUpsellCta": "Plans weergeven",
+    "annualUpsellDismiss": "Sluiten"
   },
   "compPlan": {
     "title": "Compensatieplan",
@@ -4028,89 +4028,89 @@
     }
   },
   "learn": {
-    "pageTitle": "Learn",
-    "heroEyebrow": "Your Learning",
-    "categoriesSection": "Your learning categories",
-    "backToLearn": "Back to Learn",
+    "pageTitle": "Leren",
+    "heroEyebrow": "Jouw Leren",
+    "categoriesSection": "Jouw leergebieden",
+    "backToLearn": "Terug naar Leren",
     "tabs": {
-      "overview": "Overview",
-      "education": "Education",
-      "assets": "Promotional Assets",
-      "community": "Community"
+      "overview": "Overzicht",
+      "education": "Onderwijs",
+      "assets": "Promotionele Materialen",
+      "community": "Gemeenschap"
     },
     "door": {
       "education": {
-        "eyebrow": "Skill up",
-        "title": "Education",
-        "desc": "Training, comp plan explainer, platform tour, crypto guide. Master how the platform works.",
+        "eyebrow": "Verbeter je vaardigheden",
+        "title": "Onderwijs",
+        "desc": "Training, comp plan uitleg, platform tour, crypto gids. Beheers hoe het platform werkt.",
         "count": "4 items"
       },
       "assets": {
-        "eyebrow": "Share & promote",
-        "title": "Promotional Assets",
-        "desc": "Marketing materials, email swipes, social share posts. Everything you need to grow your team.",
+        "eyebrow": "Delen & promoten",
+        "title": "Promotionele Materialen",
+        "desc": "Marketingmaterialen, email templates, social media posts. Alles wat je nodig hebt om je team uit te breiden.",
         "count": "3 items"
       },
       "community": {
-        "eyebrow": "Connect & celebrate",
-        "title": "Community",
-        "desc": "Leaderboard rankings and submit your own success story. Be seen, get inspired.",
+        "eyebrow": "Verbinden & vieren",
+        "title": "Gemeenschap",
+        "desc": "Ranglijsten en deel jouw succesverhaal. Word gezien, laat je inspireren.",
         "count": "2 items"
       }
     },
     "edu": {
-      "pageTitle": "Education",
-      "heroEyebrow": "Education",
-      "section": "Education · 4 ways to skill up",
+      "pageTitle": "Onderwijs",
+      "heroEyebrow": "Onderwijs",
+      "section": "Onderwijs · 4 manieren om je vaardigheden te verbeteren",
       "training": {
         "name": "Training Centre",
-        "desc": "Step-by-step lessons covering everything from basics to advanced strategies."
+        "desc": "Stap-voor-stap lessen van basisbegrippen tot geavanceerde strategieën."
       },
       "comp": {
         "name": "Comp Plan Explainer",
-        "desc": "Full breakdown of how the compensation plan works. Every commission, every tier."
+        "desc": "Volledige uitleg van hoe het compensatieplan werkt. Elke commissie, elk niveau."
       },
       "tour": {
         "name": "Platform Tour",
-        "desc": "Quick walkthrough of the entire platform. Find everything in 5 minutes."
+        "desc": "Snelle rondleiding door het hele platform. Vind alles in 5 minuten."
       },
       "crypto": {
         "name": "Crypto Guide",
-        "desc": "How to set up a wallet, receive USDT payouts, and stay safe with crypto."
+        "desc": "Hoe je een wallet instelt, USDT-uitbetalingen ontvangt en veilig blijft met crypto."
       }
     },
     "assets": {
-      "pageTitle": "Promotional Assets",
-      "heroEyebrow": "Promotional Assets",
-      "section": "Promotional Assets · 3 ways to share & grow",
+      "pageTitle": "Promotiebestanden",
+      "heroEyebrow": "Promotiebestanden",
+      "section": "Promotiebestanden · 3 manieren om te delen en te groeien",
       "materials": {
-        "name": "Marketing Materials",
-        "desc": "Banners, graphics, social posts ready to download and share."
+        "name": "Marketingmaterialen",
+        "desc": "Banners, grafische bestanden en social posts klaar om te downloaden en te delen."
       },
       "swipes": {
-        "name": "Email Swipes",
-        "desc": "AI-generated email templates for outreach campaigns. Copy-and-paste ready."
+        "name": "E-mailsjablonen",
+        "desc": "AI-gegenereerde e-mailsjablonen voor uitreik-campagnes. Kopieer-en-plak gereed."
       },
       "social": {
-        "name": "Social Share",
-        "desc": "One-click share to Facebook, X, LinkedIn, WhatsApp with AI-generated post copy."
+        "name": "Delen op sociale media",
+        "desc": "Delen met Facebook, X, LinkedIn, WhatsApp in één klik met AI-gegenereerde post-tekst."
       }
     },
     "community": {
       "pageTitle": "Community",
       "heroEyebrow": "Community",
-      "section": "Community · be seen, get inspired",
+      "section": "Community · zichtbaar zijn, inspiratie opdoen",
       "leaderboard": {
-        "name": "Leaderboard",
-        "desc": "Top earners and top recruiters across the platform. See where you rank."
+        "name": "Ranglijst",
+        "desc": "Top verdieners en top recruïterders op het platform. Zie waar je staat."
       },
       "story": {
-        "name": "Share Your Story",
-        "desc": "Submit your success milestone. Inspire others, get featured on the homepage."
+        "name": "Deel je verhaal",
+        "desc": "Dien je succes in. Inspireer anderen en kom op de homepage."
       }
     },
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "Scroll naar links",
+    "scrollRight": "Scroll naar rechts"
   },
   "membership": {
     "heroEyebrow": "Membership Stream",

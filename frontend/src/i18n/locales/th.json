@@ -217,42 +217,42 @@
     "storyPromptBody": "เล่าเรื่องว่าทำยังไง — ประสบการณ์ของคุณอาจสร้างแรงบันดาลใจให้สมาชิกคนถัดไป ใช้เวลา 2 นาที ทีมงานจะตรวจสอบก่อนเผยแพร่บน /explore",
     "storyPromptCta": "แชร์เรื่องราวของฉัน",
     "storyPromptDismiss": "ปิด",
-    "earningsStrip": "Your earnings this month",
-    "monthlyEarned": "This Month",
-    "payItForwardLabel": "Help others",
-    "payItForwardCta": "Gift now",
-    "platformTourLabel": "Get oriented",
-    "platformTourCta": "Start tour",
-    "todaysWatchLabel": "Stay qualified",
-    "todaysWatch": "Today's Watch Video",
-    "todaysWatchDesc": "Watch your daily campaign-grid video to activate Grid Payouts.",
-    "todaysWatchCta": "Watch now",
-    "affiliateShareLabel": "Grow your team",
+    "earningsStrip": "รายได้ของคุณเดือนนี้",
+    "monthlyEarned": "เดือนนี้",
+    "payItForwardLabel": "ช่วยเหลือคนอื่น",
+    "payItForwardCta": "ให้เป็นของขวัญตอนนี้",
+    "platformTourLabel": "เริ่มต้นใช้งาน",
+    "platformTourCta": "เริ่มทัวร์",
+    "todaysWatchLabel": "อยู่ในสถานะที่เหมาะสม",
+    "todaysWatch": "วิดีโอวันนี้",
+    "todaysWatchDesc": "ชมวิดีโอ Grid ประจำวันของคุณเพื่อเปิดใช้ Grid Payouts",
+    "todaysWatchCta": "ชมเลย",
+    "affiliateShareLabel": "เพิ่มทีมของคุณ",
     "affiliateShare": "Affiliate Share",
-    "affiliateShareDesc": "Share your link and story to bring more members onto your team.",
-    "affiliateShareCta": "Open share",
-    "activeSince": "Active since {{date}}",
-    "doorBuildLabel": "Build",
+    "affiliateShareDesc": "แบ่งปันลิงก์และเรื่องราวของคุณเพื่อนำสมาชิกมายังทีมของคุณ",
+    "affiliateShareCta": "เปิดแชร์",
+    "activeSince": "ใช้งานมาตั้งแต่ {{date}}",
+    "doorBuildLabel": "สร้าง",
     "doorCockpitLabel": "Cockpit",
     "doorCommandCentre": "Command Centre",
-    "doorCommandCentreDesc": "Track your team, send broadcasts, climb the leaderboard.",
-    "doorEarnLabel": "Earn",
-    "doorIncome": "Income",
-    "doorIncomeDesc": "All four income streams in one place.",
-    "doorItems": "{{count}} items",
-    "doorLearn": "Learn",
-    "doorLearnDesc": "Education, assets, and community to help you grow.",
-    "doorLearnLabel": "Learn",
-    "doorOpen": "Open",
-    "doorTools": "Tools",
-    "doorToolsDesc": "Free, Basic, and Pro tools to power your campaigns.",
-    "exploreSection": "Explore",
-    "payItForward": "Pay it forward",
-    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership.",
-    "annualUpsellTitle": "Switch to annual billing and save up to $70/year",
-    "annualUpsellBody": "Pay yearly and save 17% — that's $40/year off Basic or $70/year off Pro. Switch anytime, no hassle.",
-    "annualUpsellCta": "View plans",
-    "annualUpsellDismiss": "Dismiss"
+    "doorCommandCentreDesc": "ติดตามทีมของคุณ ส่งประกาศ ปีนเข้าสู่อันดับแรก",
+    "doorEarnLabel": "หารายได้",
+    "doorIncome": "รายได้",
+    "doorIncomeDesc": "แหล่งรายได้ทั้งสี่ในที่เดียว",
+    "doorItems": "{{count}} รายการ",
+    "doorLearn": "เรียนรู้",
+    "doorLearnDesc": "การศึกษา สินทรัพย์ และชุมชนเพื่อช่วยให้คุณเติบโต",
+    "doorLearnLabel": "เรียนรู้",
+    "doorOpen": "เปิด",
+    "doorTools": "เครื่องมือ",
+    "doorToolsDesc": "เครื่องมือ Free, Basic และ Pro เพื่อเพิ่มพลังให้แคมเปญของคุณ",
+    "exploreSection": "สำรวจ",
+    "payItForward": "ช่วยเหลือต่อไป",
+    "payItForwardDesc": "ช่วยสมาชิกที่ประสบปัญหาด้วยการมอบสมาชิก Tier 1 ให้พวกเขา",
+    "annualUpsellTitle": "เปลี่ยนเป็นการจ่ายรายปีและประหยัดสูงสุด $70/ปี",
+    "annualUpsellBody": "จ่ายแบบรายปีและประหยัด 17% — ได้ $40/ปีสำหรับ Basic หรือ $70/ปีสำหรับ Pro จ่ายเปลี่ยนได้ตลอด ไม่มีปัญหา",
+    "annualUpsellCta": "ดูแผน",
+    "annualUpsellDismiss": "ปิด"
   },
   "compPlan": {
     "title": "แผนค่าตอบแทน",
@@ -3950,159 +3950,159 @@
     "reengagement_lapsed_message": "เครือข่ายและรายได้ของคุณยังรออยู่ คลิกด้านล่างเพื่อเปิดใช้งานอีกครั้ง"
   },
   "income": {
-    "pageTitle": "Income",
-    "heroEyebrow": "Your Income",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "earningsSection": "Your earnings",
-    "streamsSection": "Your four income streams",
+    "pageTitle": "รายได้",
+    "heroEyebrow": "รายได้ของคุณ",
+    "activeSince": "ทำงานมาตั้งแต่",
+    "backToDashboard": "กลับไปแดชบอร์ด",
+    "scrollLeft": "เลื่อนซ้าย",
+    "scrollRight": "เลื่อนขวา",
+    "earningsSection": "รายได้ของคุณ",
+    "streamsSection": "สตรีมรายได้สี่ประการของคุณ",
     "tabs": {
-      "overview": "Overview",
-      "wallet": "Wallet",
+      "overview": "ภาพรวม",
+      "wallet": "กระเป๋าเงิน",
       "compPlan": "Comp Plan",
-      "membership": "Membership",
+      "membership": "สมาชิกภาพ",
       "grid": "Campaign Grid",
       "nexus": "Profit Nexus",
       "courses": "Course Academy",
-      "history": "Earnings History"
+      "history": "ประวัติการสร้างรายได้"
     },
     "summary": {
-      "available": "Available",
-      "availableCaption": "in your wallet now",
-      "thisMonth": "This month",
-      "thisMonthCaption": "commissions earned this month",
-      "nextPayout": "Next payout",
-      "nextPayoutValue": "On request",
-      "nextPayoutCaption": "crypto withdrawal anytime",
-      "allTime": "All time",
-      "allTimeCaption": "lifetime earnings",
-      "allTimeCaptionSince": "since {{since}}"
+      "available": "พร้อมใช้",
+      "availableCaption": "ในกระเป๋าเงินของคุณในตอนนี้",
+      "thisMonth": "เดือนนี้",
+      "thisMonthCaption": "คมมิชชั่นที่ได้รับในเดือนนี้",
+      "nextPayout": "การจ่ายเงินครั้งถัดไป",
+      "nextPayoutValue": "ตามคำขอ",
+      "nextPayoutCaption": "ถอนเงินสกุลเงินดิจิทัลได้ตลอดเวลา",
+      "allTime": "ตลอดเวลา",
+      "allTimeCaption": "รายได้ตลอดชีวิต",
+      "allTimeCaptionSince": "ตั้งแต่ {{since}}"
     },
     "tag": {
-      "active": "Active",
-      "tier": "Active",
-      "available": "Available"
+      "active": "ทำงานอยู่",
+      "tier": "ทำงานอยู่",
+      "available": "พร้อมใช้"
     },
     "stat": {
-      "directs": "Directs paying",
-      "team": "In your team",
-      "earnedAllTime": "Earned all time"
+      "directs": "Directs ที่จ่ายเงิน",
+      "team": "ในทีมของคุณ",
+      "earnedAllTime": "ได้รับการสนับสนุนตลอดเวลา"
     },
     "stream": {
-      "membership": "Membership Sponsor",
-      "membershipSub": "25% on every direct's monthly fee",
-      "membershipDormant": "Share your link to activate the easiest stream — paid every month they stay.",
+      "membership": "สปอนเซอร์สมาชิก",
+      "membershipSub": "25% จากค่าสมาชิกรายเดือนของแต่ละคนที่แนะนำ",
+      "membershipDormant": "แชร์ลิงก์ของคุณเพื่อเปิดใช้สตรีมที่ง่ายที่สุด — ได้รับเงินทุกเดือนตราบที่พวกเขาอยู่",
       "grid": "Campaign Tier Grid",
-      "gridSub": "8×8 forced matrix · advertise + earn",
-      "gridDormant": "Buy a Grid tier to advertise AND earn from the 8×8 spillover matrix.",
+      "gridSub": "เมทริกซ์บังคับ 8×8 · โฆษณา + หารายได้",
+      "gridDormant": "ซื้อ Grid tier เพื่อโฆษณา และหารายได้จากเมทริกซ์ spillover 8×8",
       "nexus": "Profit Nexus",
-      "nexusSub": "3×3 credit matrix · cascading commissions",
-      "nexusDormant": "Buy a credit pack to take your position in the 3×3 matrix.",
+      "nexusSub": "เมทริกซ์เครดิต 3×3 · คมิชชั่นแบบหลั่ง",
+      "nexusDormant": "ซื้อแพคเกจเครดิตเพื่อรับตำแหน่งของคุณในเมทริกซ์ 3×3",
       "courses": "Course Academy",
-      "coursesSub": "Pass-up commissions · infinite depth",
-      "coursesDormant": "Buy a course tier to qualify for upline pass-ups on every sale."
+      "coursesSub": "คมิชชั่นผ่านตัวแทน · ความลึกไม่จำกัด",
+      "coursesDormant": "ซื้อ course tier เพื่อมีสิทธิ์ได้รับคมิชชั่นผ่านตัวแทนจากทุกยอดขาย"
     },
     "action": {
-      "myReferrals": "My referrals",
-      "shareLink": "Get share link",
-      "compPlan": "Comp plan",
-      "myGrid": "My Grid",
-      "watchAds": "Watch ads",
-      "calculator": "Calculator",
-      "upgradeTier": "Upgrade tier",
-      "buyCredits": "Buy credits",
-      "myNexus": "My Nexus",
-      "howItWorks": "How it works",
-      "browseCourses": "Browse courses",
-      "passUp": "How pass-up works"
+      "myReferrals": "ผู้ติดตามของฉัน",
+      "shareLink": "รับลิงก์แชร์",
+      "compPlan": "แผนคมิชชั่น",
+      "myGrid": "Grid ของฉัน",
+      "watchAds": "ดูโฆษณา",
+      "calculator": "เครื่องคิดเลข",
+      "upgradeTier": "อัปเกรด Tier",
+      "buyCredits": "ซื้อเครดิต",
+      "myNexus": "Nexus ของฉัน",
+      "howItWorks": "วิธีการทำงาน",
+      "browseCourses": "เรียนดูคอร์ส",
+      "passUp": "วิธีการทำงานของคมิชชั่นผ่านตัวแทน"
     }
   },
   "learn": {
-    "pageTitle": "Learn",
-    "heroEyebrow": "Your Learning",
-    "categoriesSection": "Your learning categories",
-    "backToLearn": "Back to Learn",
+    "pageTitle": "เรียนรู้",
+    "heroEyebrow": "การเรียนรู้ของคุณ",
+    "categoriesSection": "หมวดหมู่การเรียนรู้ของคุณ",
+    "backToLearn": "กลับไปที่เรียนรู้",
     "tabs": {
-      "overview": "Overview",
-      "education": "Education",
-      "assets": "Promotional Assets",
-      "community": "Community"
+      "overview": "ภาพรวม",
+      "education": "การศึกษา",
+      "assets": "สื่อการส่งเสริม",
+      "community": "ชุมชน"
     },
     "door": {
       "education": {
-        "eyebrow": "Skill up",
-        "title": "Education",
-        "desc": "Training, comp plan explainer, platform tour, crypto guide. Master how the platform works.",
-        "count": "4 items"
+        "eyebrow": "พัฒนาทักษะ",
+        "title": "การศึกษา",
+        "desc": "การฝึกอบรม แผนการชดเชย คำอธิบาย แพลตฟอร์มทัวร์ คู่มือ Crypto พัฒนาทักษะของคุณให้เชี่ยวชาญในวิธีการทำงานของแพลตฟอร์ม",
+        "count": "4 รายการ"
       },
       "assets": {
-        "eyebrow": "Share & promote",
-        "title": "Promotional Assets",
-        "desc": "Marketing materials, email swipes, social share posts. Everything you need to grow your team.",
-        "count": "3 items"
+        "eyebrow": "แชร์และส่งเสริม",
+        "title": "สื่อการส่งเสริม",
+        "desc": "วัสดุทางการตลาด อีเมลสวิป โพสต์แชร์โซเชียล ทุกอย่างที่คุณต้องการเพื่อเพิ่มทีมของคุณ",
+        "count": "3 รายการ"
       },
       "community": {
-        "eyebrow": "Connect & celebrate",
-        "title": "Community",
-        "desc": "Leaderboard rankings and submit your own success story. Be seen, get inspired.",
-        "count": "2 items"
+        "eyebrow": "เชื่อมต่อและเฉลิมฉลอง",
+        "title": "ชุมชน",
+        "desc": "การจัดอันดับเลดเบิร์ด และส่งเรื่องราวความสำเร็จของคุณเอง มองเห็น ได้รับแรงบันดาลใจ",
+        "count": "2 รายการ"
       }
     },
     "edu": {
-      "pageTitle": "Education",
-      "heroEyebrow": "Education",
-      "section": "Education · 4 ways to skill up",
+      "pageTitle": "การศึกษา",
+      "heroEyebrow": "การศึกษา",
+      "section": "การศึกษา · 4 วิธีในการพัฒนาทักษะ",
       "training": {
-        "name": "Training Centre",
-        "desc": "Step-by-step lessons covering everything from basics to advanced strategies."
+        "name": "ศูนย์การฝึกอบรม",
+        "desc": "บทเรียนทีละขั้นตอนที่ครอบคลุมทุกอย่างตั้งแต่พื้นฐานไปจนถึงกลยุทธ์ขั้นสูง"
       },
       "comp": {
-        "name": "Comp Plan Explainer",
-        "desc": "Full breakdown of how the compensation plan works. Every commission, every tier."
+        "name": "คำอธิบายแผนการชดเชย",
+        "desc": "การแบ่งแยกอย่างละเอียดเกี่ยวกับวิธีการทำงานของแผนการชดเชย ทุกคำสั่ง ทุกชั้น"
       },
       "tour": {
-        "name": "Platform Tour",
-        "desc": "Quick walkthrough of the entire platform. Find everything in 5 minutes."
+        "name": "ทัวร์แพลตฟอร์ม",
+        "desc": "ทัวร์ด่วนของแพลตฟอร์มทั้งหมด ค้นหาทุกอย่างในเวลา 5 นาที"
       },
       "crypto": {
-        "name": "Crypto Guide",
-        "desc": "How to set up a wallet, receive USDT payouts, and stay safe with crypto."
+        "name": "คู่มือ Crypto",
+        "desc": "วิธีตั้งค่าวอลเล็ต รับการจ่ายเงิน USDT และรักษาความปลอดภัยด้วยคริปโต"
       }
     },
     "assets": {
-      "pageTitle": "Promotional Assets",
-      "heroEyebrow": "Promotional Assets",
-      "section": "Promotional Assets · 3 ways to share & grow",
+      "pageTitle": "สินทรัพย์ส่งเสริมการขาย",
+      "heroEyebrow": "สินทรัพย์ส่งเสริมการขาย",
+      "section": "สินทรัพย์ส่งเสริมการขาย · 3 วิธีในการแชร์และเติบโต",
       "materials": {
-        "name": "Marketing Materials",
-        "desc": "Banners, graphics, social posts ready to download and share."
+        "name": "วัสดุการตลาด",
+        "desc": "แบนเนอร์ กราฟิก โพสต์โซเชียลพร้อมดาวน์โหลดและแชร์"
       },
       "swipes": {
         "name": "Email Swipes",
-        "desc": "AI-generated email templates for outreach campaigns. Copy-and-paste ready."
+        "desc": "แม่แบบอีเมลที่สร้างโดย AI สำหรับแคมเปญการติดต่อ พร้อมคัดลอกและวาง"
       },
       "social": {
         "name": "Social Share",
-        "desc": "One-click share to Facebook, X, LinkedIn, WhatsApp with AI-generated post copy."
+        "desc": "แชร์ไปยัง Facebook, X, LinkedIn, WhatsApp ด้วยการคลิกเดียว พร้อมข้อความโพสต์ที่สร้างโดย AI"
       }
     },
     "community": {
-      "pageTitle": "Community",
-      "heroEyebrow": "Community",
-      "section": "Community · be seen, get inspired",
+      "pageTitle": "ชุมชน",
+      "heroEyebrow": "ชุมชน",
+      "section": "ชุมชน · ปรากฏตัว รับแรงบันดาลใจ",
       "leaderboard": {
-        "name": "Leaderboard",
-        "desc": "Top earners and top recruiters across the platform. See where you rank."
+        "name": "ลีดเดอร์บอร์ด",
+        "desc": "ผู้ได้รับรายได้มากที่สุดและผู้ที่รับสมัครมากที่สุดทั่วทั้งแพลตฟอร์ม ดูอันดับของคุณ"
       },
       "story": {
-        "name": "Share Your Story",
-        "desc": "Submit your success milestone. Inspire others, get featured on the homepage."
+        "name": "แชร์เรื่องราวของคุณ",
+        "desc": "ส่งเสริมจุดสำคัญความสำเร็จของคุณ แรงบันดาลใจให้ผู้อื่น และได้รับการเลือกปั่นบนหน้าแรก"
       }
     },
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "เลื่อนไปทางซ้าย",
+    "scrollRight": "เลื่อนไปทางขวา"
   },
   "membership": {
     "heroEyebrow": "Membership Stream",

@@ -217,42 +217,42 @@
     "storyPromptBody": "讲讲你是怎么做到的 — 你的经历可能会启发下一位成员。只需 2 分钟。我们的团队会在 /explore 上线前审核。",
     "storyPromptCta": "分享我的故事",
     "storyPromptDismiss": "关闭",
-    "earningsStrip": "Your earnings this month",
-    "monthlyEarned": "This Month",
-    "payItForwardLabel": "Help others",
-    "payItForwardCta": "Gift now",
-    "platformTourLabel": "Get oriented",
-    "platformTourCta": "Start tour",
-    "todaysWatchLabel": "Stay qualified",
-    "todaysWatch": "Today's Watch Video",
-    "todaysWatchDesc": "Watch your daily campaign-grid video to activate Grid Payouts.",
-    "todaysWatchCta": "Watch now",
-    "affiliateShareLabel": "Grow your team",
-    "affiliateShare": "Affiliate Share",
-    "affiliateShareDesc": "Share your link and story to bring more members onto your team.",
-    "affiliateShareCta": "Open share",
-    "activeSince": "Active since {{date}}",
-    "doorBuildLabel": "Build",
-    "doorCockpitLabel": "Cockpit",
+    "earningsStrip": "本月收益",
+    "monthlyEarned": "本月",
+    "payItForwardLabel": "帮助他人",
+    "payItForwardCta": "立即赠送",
+    "platformTourLabel": "快速上手",
+    "platformTourCta": "开始导览",
+    "todaysWatchLabel": "保持资格",
+    "todaysWatch": "今日观看视频",
+    "todaysWatchDesc": "观看您的每日 campaign-grid 视频以激活 Grid Payouts。",
+    "todaysWatchCta": "立即观看",
+    "affiliateShareLabel": "扩大团队",
+    "affiliateShare": "联盟分享",
+    "affiliateShareDesc": "分享您的链接和故事，将更多成员引入您的团队。",
+    "affiliateShareCta": "打开分享",
+    "activeSince": "活跃自 {{date}}",
+    "doorBuildLabel": "建立",
+    "doorCockpitLabel": "座舱",
     "doorCommandCentre": "Command Centre",
-    "doorCommandCentreDesc": "Track your team, send broadcasts, climb the leaderboard.",
-    "doorEarnLabel": "Earn",
-    "doorIncome": "Income",
-    "doorIncomeDesc": "All four income streams in one place.",
-    "doorItems": "{{count}} items",
-    "doorLearn": "Learn",
-    "doorLearnDesc": "Education, assets, and community to help you grow.",
-    "doorLearnLabel": "Learn",
-    "doorOpen": "Open",
-    "doorTools": "Tools",
-    "doorToolsDesc": "Free, Basic, and Pro tools to power your campaigns.",
-    "exploreSection": "Explore",
-    "payItForward": "Pay it forward",
-    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership.",
-    "annualUpsellTitle": "Switch to annual billing and save up to $70/year",
-    "annualUpsellBody": "Pay yearly and save 17% — that's $40/year off Basic or $70/year off Pro. Switch anytime, no hassle.",
-    "annualUpsellCta": "View plans",
-    "annualUpsellDismiss": "Dismiss"
+    "doorCommandCentreDesc": "追踪您的团队，发送广播，登上排行榜。",
+    "doorEarnLabel": "赚取",
+    "doorIncome": "收入",
+    "doorIncomeDesc": "四个收入流汇聚一处。",
+    "doorItems": "{{count}} 项",
+    "doorLearn": "学习",
+    "doorLearnDesc": "教育、资产和社区助力您成长。",
+    "doorLearnLabel": "学习",
+    "doorOpen": "打开",
+    "doorTools": "工具",
+    "doorToolsDesc": "免费、Basic 和 Pro 工具助力您的营销活动。",
+    "exploreSection": "探索",
+    "payItForward": "传递爱心",
+    "payItForwardDesc": "通过赠送 Tier 1 会员资格来帮助困难中的成员。",
+    "annualUpsellTitle": "按年计费，每年可节省高达 $70",
+    "annualUpsellBody": "按年支付可节省 17% — 即 Basic 每年减少 $40 或 Pro 每年减少 $70。随时切换，无需麻烦。",
+    "annualUpsellCta": "查看计划",
+    "annualUpsellDismiss": "关闭"
   },
   "compPlan": {
     "title": "薪酬计划",
@@ -3950,159 +3950,159 @@
     "reengagement_lapsed_message": "您的网络和收益仍在等您。点击下方重新激活。"
   },
   "income": {
-    "pageTitle": "Income",
-    "heroEyebrow": "Your Income",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "earningsSection": "Your earnings",
-    "streamsSection": "Your four income streams",
+    "pageTitle": "收入",
+    "heroEyebrow": "您的收入",
+    "activeSince": "活跃时间",
+    "backToDashboard": "返回仪表板",
+    "scrollLeft": "向左滚动",
+    "scrollRight": "向右滚动",
+    "earningsSection": "您的收益",
+    "streamsSection": "您的四个收入来源",
     "tabs": {
-      "overview": "Overview",
-      "wallet": "Wallet",
-      "compPlan": "Comp Plan",
-      "membership": "Membership",
+      "overview": "概览",
+      "wallet": "钱包",
+      "compPlan": "补偿计划",
+      "membership": "会员资格",
       "grid": "Campaign Grid",
       "nexus": "Profit Nexus",
-      "courses": "Course Academy",
-      "history": "Earnings History"
+      "courses": "课程学院",
+      "history": "收益历史"
     },
     "summary": {
-      "available": "Available",
-      "availableCaption": "in your wallet now",
-      "thisMonth": "This month",
-      "thisMonthCaption": "commissions earned this month",
-      "nextPayout": "Next payout",
-      "nextPayoutValue": "On request",
-      "nextPayoutCaption": "crypto withdrawal anytime",
-      "allTime": "All time",
-      "allTimeCaption": "lifetime earnings",
-      "allTimeCaptionSince": "since {{since}}"
+      "available": "可用",
+      "availableCaption": "现在在您的钱包中",
+      "thisMonth": "本月",
+      "thisMonthCaption": "本月赚取的佣金",
+      "nextPayout": "下次支付",
+      "nextPayoutValue": "按需支付",
+      "nextPayoutCaption": "随时提取加密货币",
+      "allTime": "历史总计",
+      "allTimeCaption": "终身收益",
+      "allTimeCaptionSince": "自 {{since}}"
     },
     "tag": {
-      "active": "Active",
-      "tier": "Active",
-      "available": "Available"
+      "active": "活跃",
+      "tier": "活跃",
+      "available": "可用"
     },
     "stat": {
-      "directs": "Directs paying",
-      "team": "In your team",
-      "earnedAllTime": "Earned all time"
+      "directs": "直接支付方",
+      "team": "在您的团队中",
+      "earnedAllTime": "累计收益"
     },
     "stream": {
-      "membership": "Membership Sponsor",
-      "membershipSub": "25% on every direct's monthly fee",
-      "membershipDormant": "Share your link to activate the easiest stream — paid every month they stay.",
-      "grid": "Campaign Tier Grid",
-      "gridSub": "8×8 forced matrix · advertise + earn",
-      "gridDormant": "Buy a Grid tier to advertise AND earn from the 8×8 spillover matrix.",
+      "membership": "会员赞助者",
+      "membershipSub": "直属会员每月费用的25%",
+      "membershipDormant": "分享你的链接来激活最简单的收入方式——他们保持活跃期间每月支付。",
+      "grid": "活动级别网格",
+      "gridSub": "8×8强制矩阵·广告+赚钱",
+      "gridDormant": "购买网格级别来广告并从8×8溢出矩阵中赚钱。",
       "nexus": "Profit Nexus",
-      "nexusSub": "3×3 credit matrix · cascading commissions",
-      "nexusDormant": "Buy a credit pack to take your position in the 3×3 matrix.",
-      "courses": "Course Academy",
-      "coursesSub": "Pass-up commissions · infinite depth",
-      "coursesDormant": "Buy a course tier to qualify for upline pass-ups on every sale."
+      "nexusSub": "3×3信用矩阵·级联佣金",
+      "nexusDormant": "购买信用包来在3×3矩阵中获得你的位置。",
+      "courses": "课程学院",
+      "coursesSub": "代理佣金·无限深度",
+      "coursesDormant": "购买课程级别来获得每笔销售的上线代理资格。"
     },
     "action": {
-      "myReferrals": "My referrals",
-      "shareLink": "Get share link",
-      "compPlan": "Comp plan",
-      "myGrid": "My Grid",
-      "watchAds": "Watch ads",
-      "calculator": "Calculator",
-      "upgradeTier": "Upgrade tier",
-      "buyCredits": "Buy credits",
-      "myNexus": "My Nexus",
-      "howItWorks": "How it works",
-      "browseCourses": "Browse courses",
-      "passUp": "How pass-up works"
+      "myReferrals": "我的推荐",
+      "shareLink": "获取分享链接",
+      "compPlan": "佣金计划",
+      "myGrid": "我的网格",
+      "watchAds": "观看广告",
+      "calculator": "计算器",
+      "upgradeTier": "升级级别",
+      "buyCredits": "购买积分",
+      "myNexus": "我的Nexus",
+      "howItWorks": "工作原理",
+      "browseCourses": "浏览课程",
+      "passUp": "代理佣金如何运作"
     }
   },
   "learn": {
-    "pageTitle": "Learn",
-    "heroEyebrow": "Your Learning",
-    "categoriesSection": "Your learning categories",
-    "backToLearn": "Back to Learn",
+    "pageTitle": "学习",
+    "heroEyebrow": "你的学习",
+    "categoriesSection": "你的学习类别",
+    "backToLearn": "返回学习",
     "tabs": {
-      "overview": "Overview",
-      "education": "Education",
-      "assets": "Promotional Assets",
-      "community": "Community"
+      "overview": "概览",
+      "education": "教育",
+      "assets": "推广资源",
+      "community": "社区"
     },
     "door": {
       "education": {
-        "eyebrow": "Skill up",
-        "title": "Education",
-        "desc": "Training, comp plan explainer, platform tour, crypto guide. Master how the platform works.",
-        "count": "4 items"
+        "eyebrow": "提升技能",
+        "title": "教育",
+        "desc": "培训、薪酬计划说明、平台导览、加密指南。掌握平台的运作方式。",
+        "count": "4 项"
       },
       "assets": {
-        "eyebrow": "Share & promote",
-        "title": "Promotional Assets",
-        "desc": "Marketing materials, email swipes, social share posts. Everything you need to grow your team.",
-        "count": "3 items"
+        "eyebrow": "分享与推广",
+        "title": "推广资源",
+        "desc": "营销资料、电子邮件文案、社交媒体帖子。你需要的一切资源来增长你的团队。",
+        "count": "3 项"
       },
       "community": {
-        "eyebrow": "Connect & celebrate",
-        "title": "Community",
-        "desc": "Leaderboard rankings and submit your own success story. Be seen, get inspired.",
-        "count": "2 items"
+        "eyebrow": "连接与庆祝",
+        "title": "社区",
+        "desc": "排行榜排名和提交你自己的成功故事。被看见，获得灵感。",
+        "count": "2 项"
       }
     },
     "edu": {
-      "pageTitle": "Education",
-      "heroEyebrow": "Education",
-      "section": "Education · 4 ways to skill up",
+      "pageTitle": "教育",
+      "heroEyebrow": "教育",
+      "section": "教育 · 4 种提升技能的方式",
       "training": {
-        "name": "Training Centre",
-        "desc": "Step-by-step lessons covering everything from basics to advanced strategies."
+        "name": "培训中心",
+        "desc": "从基础到高级策略的分步教程。"
       },
       "comp": {
-        "name": "Comp Plan Explainer",
-        "desc": "Full breakdown of how the compensation plan works. Every commission, every tier."
+        "name": "薪酬计划说明",
+        "desc": "薪酬计划如何运作的完整说明。每一笔佣金，每一个等级。"
       },
       "tour": {
-        "name": "Platform Tour",
-        "desc": "Quick walkthrough of the entire platform. Find everything in 5 minutes."
+        "name": "平台导览",
+        "desc": "整个平台的快速导览。5 分钟内找到一切。"
       },
       "crypto": {
-        "name": "Crypto Guide",
-        "desc": "How to set up a wallet, receive USDT payouts, and stay safe with crypto."
+        "name": "加密指南",
+        "desc": "如何设置钱包、接收 USDT 支付和安全使用加密货币。"
       }
     },
     "assets": {
-      "pageTitle": "Promotional Assets",
-      "heroEyebrow": "Promotional Assets",
-      "section": "Promotional Assets · 3 ways to share & grow",
+      "pageTitle": "推广资源",
+      "heroEyebrow": "推广资源",
+      "section": "推广资源 · 3 种分享和增长方式",
       "materials": {
-        "name": "Marketing Materials",
-        "desc": "Banners, graphics, social posts ready to download and share."
+        "name": "营销素材",
+        "desc": "横幅、图形、社交文章，随时可下载和分享。"
       },
       "swipes": {
-        "name": "Email Swipes",
-        "desc": "AI-generated email templates for outreach campaigns. Copy-and-paste ready."
+        "name": "电子邮件模板",
+        "desc": "AI 生成的电子邮件模板，用于外联活动。即复即用。"
       },
       "social": {
-        "name": "Social Share",
-        "desc": "One-click share to Facebook, X, LinkedIn, WhatsApp with AI-generated post copy."
+        "name": "社交分享",
+        "desc": "一键分享到 Facebook、X、LinkedIn、WhatsApp，附带 AI 生成的文案。"
       }
     },
     "community": {
-      "pageTitle": "Community",
-      "heroEyebrow": "Community",
-      "section": "Community · be seen, get inspired",
+      "pageTitle": "社区",
+      "heroEyebrow": "社区",
+      "section": "社区 · 展示自己，获得启发",
       "leaderboard": {
-        "name": "Leaderboard",
-        "desc": "Top earners and top recruiters across the platform. See where you rank."
+        "name": "排行榜",
+        "desc": "平台内顶级收入者和顶级推荐者。查看您的排名。"
       },
       "story": {
-        "name": "Share Your Story",
-        "desc": "Submit your success milestone. Inspire others, get featured on the homepage."
+        "name": "分享您的故事",
+        "desc": "提交您的成功里程碑。激励他人，在首页获得展示。"
       }
     },
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "向左滚动",
+    "scrollRight": "向右滚动"
   },
   "membership": {
     "heroEyebrow": "会员流",

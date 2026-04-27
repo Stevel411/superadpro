@@ -217,42 +217,42 @@
     "storyPromptBody": "Ikuwento kung paano mo ito ginawa — ang karanasan mo ay pwedeng makapagbigay-inspirasyon sa susunod na miyembro. 2 minuto lang. Iri-review ng team namin bago ma-live sa /explore.",
     "storyPromptCta": "Ibahagi ang kwento ko",
     "storyPromptDismiss": "Isara",
-    "earningsStrip": "Your earnings this month",
-    "monthlyEarned": "This Month",
-    "payItForwardLabel": "Help others",
-    "payItForwardCta": "Gift now",
-    "platformTourLabel": "Get oriented",
-    "platformTourCta": "Start tour",
-    "todaysWatchLabel": "Stay qualified",
-    "todaysWatch": "Today's Watch Video",
-    "todaysWatchDesc": "Watch your daily campaign-grid video to activate Grid Payouts.",
-    "todaysWatchCta": "Watch now",
-    "affiliateShareLabel": "Grow your team",
+    "earningsStrip": "Ang iyong kita ngayong buwan",
+    "monthlyEarned": "Ngayong Buwan",
+    "payItForwardLabel": "Tumulong sa iba",
+    "payItForwardCta": "Magregalo ngayon",
+    "platformTourLabel": "Makilala ang platform",
+    "platformTourCta": "Magsimula ng tour",
+    "todaysWatchLabel": "Manatiling qualified",
+    "todaysWatch": "Video sa Panood Ngayon",
+    "todaysWatchDesc": "Panoorin ang iyong pang-araw-araw na campaign-grid video upang i-activate ang Grid Payouts.",
+    "todaysWatchCta": "Panoorin ngayon",
+    "affiliateShareLabel": "Palakihin ang iyong koponan",
     "affiliateShare": "Affiliate Share",
-    "affiliateShareDesc": "Share your link and story to bring more members onto your team.",
-    "affiliateShareCta": "Open share",
-    "activeSince": "Active since {{date}}",
-    "doorBuildLabel": "Build",
+    "affiliateShareDesc": "Ibahagi ang iyong link at kwento upang magdala ng mas maraming miyembro sa iyong koponan.",
+    "affiliateShareCta": "Buksan ang pagbabahagi",
+    "activeSince": "Aktibo mula noong {{date}}",
+    "doorBuildLabel": "Bumuo",
     "doorCockpitLabel": "Cockpit",
     "doorCommandCentre": "Command Centre",
-    "doorCommandCentreDesc": "Track your team, send broadcasts, climb the leaderboard.",
-    "doorEarnLabel": "Earn",
-    "doorIncome": "Income",
-    "doorIncomeDesc": "All four income streams in one place.",
-    "doorItems": "{{count}} items",
-    "doorLearn": "Learn",
-    "doorLearnDesc": "Education, assets, and community to help you grow.",
-    "doorLearnLabel": "Learn",
-    "doorOpen": "Open",
-    "doorTools": "Tools",
-    "doorToolsDesc": "Free, Basic, and Pro tools to power your campaigns.",
-    "exploreSection": "Explore",
-    "payItForward": "Pay it forward",
-    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership.",
-    "annualUpsellTitle": "Switch to annual billing and save up to $70/year",
-    "annualUpsellBody": "Pay yearly and save 17% — that's $40/year off Basic or $70/year off Pro. Switch anytime, no hassle.",
-    "annualUpsellCta": "View plans",
-    "annualUpsellDismiss": "Dismiss"
+    "doorCommandCentreDesc": "Subaybayan ang iyong koponan, magpadala ng broadcasts, umakyat sa leaderboard.",
+    "doorEarnLabel": "Kumita",
+    "doorIncome": "Kita",
+    "doorIncomeDesc": "Lahat ng apat na stream ng kita sa isang lugar.",
+    "doorItems": "{{count}} na mga item",
+    "doorLearn": "Matuto",
+    "doorLearnDesc": "Edukasyon, assets, at komunidad upang tulungan kang lumago.",
+    "doorLearnLabel": "Matuto",
+    "doorOpen": "Buksan",
+    "doorTools": "Mga Tool",
+    "doorToolsDesc": "Mga libreng, Basic, at Pro tool upang palakasin ang iyong mga kampanya.",
+    "exploreSection": "Tuklasin",
+    "payItForward": "Ipasa nang pataas",
+    "payItForwardDesc": "Tumulong sa isang miyembro na nagdaranas ng pagdududa sa pamamagitan ng pagbibigay sa kanila ng Tier 1 membership.",
+    "annualUpsellTitle": "Lumipat sa taunang pagbabayad at makatipid ng hanggang $70/taon",
+    "annualUpsellBody": "Magbayad bawat taon at makatipid ng 17% — iyan ay $40/taon na diskwento sa Basic o $70/taon sa Pro. Lumipat anumang oras, walang hassle.",
+    "annualUpsellCta": "Tingnan ang mga plano",
+    "annualUpsellDismiss": "Pagsara"
   },
   "compPlan": {
     "title": "Plano ng Kompensasyon",
@@ -3950,125 +3950,125 @@
     "reengagement_lapsed_message": "Ang iyong network at kita ay nakaabang pa rin para sa iyo. I-click sa ibaba upang i-reactivate."
   },
   "income": {
-    "pageTitle": "Income",
-    "heroEyebrow": "Your Income",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "earningsSection": "Your earnings",
-    "streamsSection": "Your four income streams",
+    "pageTitle": "Kita",
+    "heroEyebrow": "Ang Iyong Kita",
+    "activeSince": "Aktibo simula",
+    "backToDashboard": "Bumalik sa Dashboard",
+    "scrollLeft": "I-scroll sa kaliwa",
+    "scrollRight": "I-scroll sa kanan",
+    "earningsSection": "Ang iyong kita",
+    "streamsSection": "Ang iyong apat na pinagkukitaan",
     "tabs": {
-      "overview": "Overview",
+      "overview": "Pangkalahatang Pananaw",
       "wallet": "Wallet",
       "compPlan": "Comp Plan",
       "membership": "Membership",
       "grid": "Campaign Grid",
       "nexus": "Profit Nexus",
       "courses": "Course Academy",
-      "history": "Earnings History"
+      "history": "Kasaysayan ng Kita"
     },
     "summary": {
       "available": "Available",
-      "availableCaption": "in your wallet now",
-      "thisMonth": "This month",
-      "thisMonthCaption": "commissions earned this month",
-      "nextPayout": "Next payout",
-      "nextPayoutValue": "On request",
-      "nextPayoutCaption": "crypto withdrawal anytime",
-      "allTime": "All time",
-      "allTimeCaption": "lifetime earnings",
-      "allTimeCaptionSince": "since {{since}}"
+      "availableCaption": "sa iyong wallet ngayon",
+      "thisMonth": "Ngayong buwan",
+      "thisMonthCaption": "komisyon na nakuha ngayong buwan",
+      "nextPayout": "Susunod na payout",
+      "nextPayoutValue": "Sa hiling",
+      "nextPayoutCaption": "crypto withdrawal anumang oras",
+      "allTime": "Lahat ng oras",
+      "allTimeCaption": "kita sa buong buhay",
+      "allTimeCaptionSince": "mula {{since}}"
     },
     "tag": {
-      "active": "Active",
-      "tier": "Active",
+      "active": "Aktibo",
+      "tier": "Aktibo",
       "available": "Available"
     },
     "stat": {
-      "directs": "Directs paying",
-      "team": "In your team",
-      "earnedAllTime": "Earned all time"
+      "directs": "Directs na nagbabayad",
+      "team": "Sa iyong koponan",
+      "earnedAllTime": "Nakuha lahat ng oras"
     },
     "stream": {
       "membership": "Membership Sponsor",
-      "membershipSub": "25% on every direct's monthly fee",
-      "membershipDormant": "Share your link to activate the easiest stream — paid every month they stay.",
+      "membershipSub": "25% sa bawat direct's monthly fee",
+      "membershipDormant": "Ibahagi ang iyong link para i-activate ang pinakamadaling stream — binabayaran bawat buwan na sila ay nanatili.",
       "grid": "Campaign Tier Grid",
-      "gridSub": "8×8 forced matrix · advertise + earn",
-      "gridDormant": "Buy a Grid tier to advertise AND earn from the 8×8 spillover matrix.",
+      "gridSub": "8×8 forced matrix · mag-advertise + kumita",
+      "gridDormant": "Bumili ng Grid tier upang mag-advertise AT kumita mula sa 8×8 spillover matrix.",
       "nexus": "Profit Nexus",
       "nexusSub": "3×3 credit matrix · cascading commissions",
-      "nexusDormant": "Buy a credit pack to take your position in the 3×3 matrix.",
+      "nexusDormant": "Bumili ng credit pack upang kunin ang iyong posisyon sa 3×3 matrix.",
       "courses": "Course Academy",
       "coursesSub": "Pass-up commissions · infinite depth",
-      "coursesDormant": "Buy a course tier to qualify for upline pass-ups on every sale."
+      "coursesDormant": "Bumili ng course tier upang makakuha ng karapatan sa upline pass-ups sa bawat benta."
     },
     "action": {
-      "myReferrals": "My referrals",
-      "shareLink": "Get share link",
+      "myReferrals": "Aking mga referrals",
+      "shareLink": "Kunin ang share link",
       "compPlan": "Comp plan",
       "myGrid": "My Grid",
-      "watchAds": "Watch ads",
+      "watchAds": "Manood ng ads",
       "calculator": "Calculator",
-      "upgradeTier": "Upgrade tier",
-      "buyCredits": "Buy credits",
+      "upgradeTier": "I-upgrade ang tier",
+      "buyCredits": "Bumili ng credits",
       "myNexus": "My Nexus",
-      "howItWorks": "How it works",
-      "browseCourses": "Browse courses",
-      "passUp": "How pass-up works"
+      "howItWorks": "Paano ito gumagana",
+      "browseCourses": "Tuklasin ang mga kurso",
+      "passUp": "Paano gumagana ang pass-up"
     }
   },
   "learn": {
-    "pageTitle": "Learn",
-    "heroEyebrow": "Your Learning",
-    "categoriesSection": "Your learning categories",
-    "backToLearn": "Back to Learn",
+    "pageTitle": "Matuto",
+    "heroEyebrow": "Ang Iyong Pag-aaral",
+    "categoriesSection": "Ang iyong mga kategorya sa pag-aaral",
+    "backToLearn": "Bumalik sa Matuto",
     "tabs": {
-      "overview": "Overview",
-      "education": "Education",
+      "overview": "Pangkalahatang-kalagayan",
+      "education": "Edukasyon",
       "assets": "Promotional Assets",
-      "community": "Community"
+      "community": "Komunidad"
     },
     "door": {
       "education": {
-        "eyebrow": "Skill up",
-        "title": "Education",
-        "desc": "Training, comp plan explainer, platform tour, crypto guide. Master how the platform works.",
-        "count": "4 items"
+        "eyebrow": "Palakasin ang Iyong Kasanayan",
+        "title": "Edukasyon",
+        "desc": "Training, comp plan explainer, platform tour, crypto guide. Master kung paano gumagana ang platform.",
+        "count": "4 na item"
       },
       "assets": {
-        "eyebrow": "Share & promote",
+        "eyebrow": "Ibahagi at i-promote",
         "title": "Promotional Assets",
-        "desc": "Marketing materials, email swipes, social share posts. Everything you need to grow your team.",
-        "count": "3 items"
+        "desc": "Marketing materials, email swipes, social share posts. Lahat ng kailangan mo upang lumaki ang iyong koponan.",
+        "count": "3 na item"
       },
       "community": {
-        "eyebrow": "Connect & celebrate",
-        "title": "Community",
-        "desc": "Leaderboard rankings and submit your own success story. Be seen, get inspired.",
-        "count": "2 items"
+        "eyebrow": "Kumonekta at magdiwang",
+        "title": "Komunidad",
+        "desc": "Leaderboard rankings at ibigay ang iyong sariling success story. Makita, mag-inspire.",
+        "count": "2 item"
       }
     },
     "edu": {
-      "pageTitle": "Education",
-      "heroEyebrow": "Education",
-      "section": "Education · 4 ways to skill up",
+      "pageTitle": "Edukasyon",
+      "heroEyebrow": "Edukasyon",
+      "section": "Edukasyon · 4 paraan upang palakasin ang iyong kasanayan",
       "training": {
         "name": "Training Centre",
-        "desc": "Step-by-step lessons covering everything from basics to advanced strategies."
+        "desc": "Step-by-step na mga aral na sumasaklaw sa lahat mula sa mga pangunahing kaalaman hanggang sa advanced na estratehiya."
       },
       "comp": {
         "name": "Comp Plan Explainer",
-        "desc": "Full breakdown of how the compensation plan works. Every commission, every tier."
+        "desc": "Buong pagsasaad kung paano gumagana ang compensation plan. Bawat commission, bawat tier."
       },
       "tour": {
         "name": "Platform Tour",
-        "desc": "Quick walkthrough of the entire platform. Find everything in 5 minutes."
+        "desc": "Mabilis na paglalakbay sa buong platform. Hanapin ang lahat sa loob ng 5 minuto."
       },
       "crypto": {
         "name": "Crypto Guide",
-        "desc": "How to set up a wallet, receive USDT payouts, and stay safe with crypto."
+        "desc": "Paano mag-set up ng wallet, makatanggap ng USDT payouts, at manatiling ligtas sa crypto."
       }
     },
     "assets": {
@@ -4081,11 +4081,11 @@
       },
       "swipes": {
         "name": "Email Swipes",
-        "desc": "AI-generated email templates for outreach campaigns. Copy-and-paste ready."
+        "desc": "AI-generated email templates para sa outreach campaigns. Copy-and-paste ready."
       },
       "social": {
         "name": "Social Share",
-        "desc": "One-click share to Facebook, X, LinkedIn, WhatsApp with AI-generated post copy."
+        "desc": "One-click share sa Facebook, X, LinkedIn, WhatsApp with AI-generated post copy."
       }
     },
     "community": {
@@ -4094,11 +4094,11 @@
       "section": "Community · be seen, get inspired",
       "leaderboard": {
         "name": "Leaderboard",
-        "desc": "Top earners and top recruiters across the platform. See where you rank."
+        "desc": "Top earners at top recruiters across the platform. Tingnan kung saan ka naka-rank."
       },
       "story": {
         "name": "Share Your Story",
-        "desc": "Submit your success milestone. Inspire others, get featured on the homepage."
+        "desc": "I-submit ang iyong success milestone. Mag-inspire ng iba, maging featured sa homepage."
       }
     },
     "scrollLeft": "Scroll left",

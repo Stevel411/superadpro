@@ -217,42 +217,42 @@
     "storyPromptBody": "Ceritakan bagaimana kamu melakukannya — pengalamanmu bisa menginspirasi anggota berikutnya. Butuh 2 menit. Tim kami meninjau sebelum tayang di /explore.",
     "storyPromptCta": "Bagikan ceritaku",
     "storyPromptDismiss": "Tutup",
-    "earningsStrip": "Your earnings this month",
-    "monthlyEarned": "This Month",
-    "payItForwardLabel": "Help others",
-    "payItForwardCta": "Gift now",
-    "platformTourLabel": "Get oriented",
-    "platformTourCta": "Start tour",
-    "todaysWatchLabel": "Stay qualified",
-    "todaysWatch": "Today's Watch Video",
-    "todaysWatchDesc": "Watch your daily campaign-grid video to activate Grid Payouts.",
-    "todaysWatchCta": "Watch now",
-    "affiliateShareLabel": "Grow your team",
-    "affiliateShare": "Affiliate Share",
-    "affiliateShareDesc": "Share your link and story to bring more members onto your team.",
-    "affiliateShareCta": "Open share",
-    "activeSince": "Active since {{date}}",
-    "doorBuildLabel": "Build",
+    "earningsStrip": "Penghasilan Anda bulan ini",
+    "monthlyEarned": "Bulan Ini",
+    "payItForwardLabel": "Bantu orang lain",
+    "payItForwardCta": "Hadiah sekarang",
+    "platformTourLabel": "Orientasi diri",
+    "platformTourCta": "Mulai tur",
+    "todaysWatchLabel": "Tetap memenuhi syarat",
+    "todaysWatch": "Video Tonton Hari Ini",
+    "todaysWatchDesc": "Tonton video campaign-grid harian Anda untuk mengaktifkan Grid Payouts.",
+    "todaysWatchCta": "Tonton sekarang",
+    "affiliateShareLabel": "Kembangkan tim Anda",
+    "affiliateShare": "Bagian Afiliasi",
+    "affiliateShareDesc": "Bagikan tautan dan cerita Anda untuk membawa lebih banyak anggota ke tim Anda.",
+    "affiliateShareCta": "Buka bagikan",
+    "activeSince": "Aktif sejak {{date}}",
+    "doorBuildLabel": "Bangun",
     "doorCockpitLabel": "Cockpit",
     "doorCommandCentre": "Command Centre",
-    "doorCommandCentreDesc": "Track your team, send broadcasts, climb the leaderboard.",
-    "doorEarnLabel": "Earn",
-    "doorIncome": "Income",
-    "doorIncomeDesc": "All four income streams in one place.",
-    "doorItems": "{{count}} items",
-    "doorLearn": "Learn",
-    "doorLearnDesc": "Education, assets, and community to help you grow.",
-    "doorLearnLabel": "Learn",
-    "doorOpen": "Open",
-    "doorTools": "Tools",
-    "doorToolsDesc": "Free, Basic, and Pro tools to power your campaigns.",
-    "exploreSection": "Explore",
-    "payItForward": "Pay it forward",
-    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership.",
-    "annualUpsellTitle": "Switch to annual billing and save up to $70/year",
-    "annualUpsellBody": "Pay yearly and save 17% — that's $40/year off Basic or $70/year off Pro. Switch anytime, no hassle.",
-    "annualUpsellCta": "View plans",
-    "annualUpsellDismiss": "Dismiss"
+    "doorCommandCentreDesc": "Pantau tim Anda, kirim siaran, naiki papan peringkat.",
+    "doorEarnLabel": "Hasilkan",
+    "doorIncome": "Penghasilan",
+    "doorIncomeDesc": "Keempat aliran pendapatan dalam satu tempat.",
+    "doorItems": "{{count}} item",
+    "doorLearn": "Pelajari",
+    "doorLearnDesc": "Pendidikan, aset, dan komunitas untuk membantu Anda berkembang.",
+    "doorLearnLabel": "Pelajari",
+    "doorOpen": "Buka",
+    "doorTools": "Alat",
+    "doorToolsDesc": "Alat gratis, Basic, dan Pro untuk menggerakkan kampanye Anda.",
+    "exploreSection": "Jelajahi",
+    "payItForward": "Berbagi kebaikan",
+    "payItForwardDesc": "Bantu anggota yang sedang kesulitan dengan memberikan mereka keanggotaan Tier 1.",
+    "annualUpsellTitle": "Beralih ke penagihan tahunan dan hemat hingga $70/tahun",
+    "annualUpsellBody": "Bayar per tahun dan hemat 17% — itu $40/tahun untuk Basic atau $70/tahun untuk Pro. Beralih kapan saja, tanpa repot.",
+    "annualUpsellCta": "Lihat paket",
+    "annualUpsellDismiss": "Tutup"
   },
   "compPlan": {
     "title": "Rencana Kompensasi",
@@ -4020,89 +4020,89 @@
     }
   },
   "learn": {
-    "pageTitle": "Learn",
-    "heroEyebrow": "Your Learning",
-    "categoriesSection": "Your learning categories",
-    "backToLearn": "Back to Learn",
+    "pageTitle": "Pelajari",
+    "heroEyebrow": "Pembelajaran Anda",
+    "categoriesSection": "Kategori pembelajaran Anda",
+    "backToLearn": "Kembali ke Pelajari",
     "tabs": {
-      "overview": "Overview",
-      "education": "Education",
-      "assets": "Promotional Assets",
-      "community": "Community"
+      "overview": "Ringkasan",
+      "education": "Edukasi",
+      "assets": "Aset Promosi",
+      "community": "Komunitas"
     },
     "door": {
       "education": {
-        "eyebrow": "Skill up",
-        "title": "Education",
-        "desc": "Training, comp plan explainer, platform tour, crypto guide. Master how the platform works.",
-        "count": "4 items"
+        "eyebrow": "Tingkatkan Skill",
+        "title": "Edukasi",
+        "desc": "Pelatihan, penjelasan rencana komisi, tur platform, panduan crypto. Kuasai cara kerja platform.",
+        "count": "4 item"
       },
       "assets": {
-        "eyebrow": "Share & promote",
-        "title": "Promotional Assets",
-        "desc": "Marketing materials, email swipes, social share posts. Everything you need to grow your team.",
-        "count": "3 items"
+        "eyebrow": "Bagikan & promosikan",
+        "title": "Aset Promosi",
+        "desc": "Materi pemasaran, email swipes, posting media sosial. Semua yang Anda butuhkan untuk mengembangkan tim Anda.",
+        "count": "3 item"
       },
       "community": {
-        "eyebrow": "Connect & celebrate",
-        "title": "Community",
-        "desc": "Leaderboard rankings and submit your own success story. Be seen, get inspired.",
-        "count": "2 items"
+        "eyebrow": "Terhubung & rayakan",
+        "title": "Komunitas",
+        "desc": "Peringkat leaderboard dan kirimkan cerita kesuksesan Anda sendiri. Dikenal, dapatkan inspirasi.",
+        "count": "2 item"
       }
     },
     "edu": {
-      "pageTitle": "Education",
-      "heroEyebrow": "Education",
-      "section": "Education · 4 ways to skill up",
+      "pageTitle": "Edukasi",
+      "heroEyebrow": "Edukasi",
+      "section": "Edukasi · 4 cara untuk meningkatkan skill",
       "training": {
-        "name": "Training Centre",
-        "desc": "Step-by-step lessons covering everything from basics to advanced strategies."
+        "name": "Pusat Pelatihan",
+        "desc": "Pelajaran langkah demi langkah yang mencakup segalanya dari dasar hingga strategi lanjutan."
       },
       "comp": {
-        "name": "Comp Plan Explainer",
-        "desc": "Full breakdown of how the compensation plan works. Every commission, every tier."
+        "name": "Penjelasan Rencana Komisi",
+        "desc": "Penjelasan lengkap tentang cara kerja rencana komisi. Setiap komisi, setiap tier."
       },
       "tour": {
-        "name": "Platform Tour",
-        "desc": "Quick walkthrough of the entire platform. Find everything in 5 minutes."
+        "name": "Tur Platform",
+        "desc": "Panduan cepat seluruh platform. Temukan semua dalam 5 menit."
       },
       "crypto": {
-        "name": "Crypto Guide",
-        "desc": "How to set up a wallet, receive USDT payouts, and stay safe with crypto."
+        "name": "Panduan Crypto",
+        "desc": "Cara mengatur dompet, menerima pembayaran USDT, dan tetap aman dengan crypto."
       }
     },
     "assets": {
-      "pageTitle": "Promotional Assets",
-      "heroEyebrow": "Promotional Assets",
-      "section": "Promotional Assets · 3 ways to share & grow",
+      "pageTitle": "Aset Promosi",
+      "heroEyebrow": "Aset Promosi",
+      "section": "Aset Promosi · 3 cara untuk berbagi & berkembang",
       "materials": {
-        "name": "Marketing Materials",
-        "desc": "Banners, graphics, social posts ready to download and share."
+        "name": "Materi Pemasaran",
+        "desc": "Spanduk, grafis, postingan media sosial siap diunduh dan dibagikan."
       },
       "swipes": {
         "name": "Email Swipes",
-        "desc": "AI-generated email templates for outreach campaigns. Copy-and-paste ready."
+        "desc": "Template email yang dihasilkan AI untuk kampanye jangkauan. Siap salin-tempel."
       },
       "social": {
         "name": "Social Share",
-        "desc": "One-click share to Facebook, X, LinkedIn, WhatsApp with AI-generated post copy."
+        "desc": "Bagikan sekali klik ke Facebook, X, LinkedIn, WhatsApp dengan salinan postingan yang dihasilkan AI."
       }
     },
     "community": {
-      "pageTitle": "Community",
-      "heroEyebrow": "Community",
-      "section": "Community · be seen, get inspired",
+      "pageTitle": "Komunitas",
+      "heroEyebrow": "Komunitas",
+      "section": "Komunitas · terlihat, dapatkan inspirasi",
       "leaderboard": {
         "name": "Leaderboard",
-        "desc": "Top earners and top recruiters across the platform. See where you rank."
+        "desc": "Penghasil teratas dan perekrut teratas di seluruh platform. Lihat peringkat Anda."
       },
       "story": {
-        "name": "Share Your Story",
-        "desc": "Submit your success milestone. Inspire others, get featured on the homepage."
+        "name": "Bagikan Kisah Anda",
+        "desc": "Kirimkan pencapaian kesuksesan Anda. Inspirasi orang lain, dapatkan penampilan di halaman beranda."
       }
     },
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "Gulir ke kiri",
+    "scrollRight": "Gulir ke kanan"
   },
   "membership": {
     "heroEyebrow": "Aliran Keanggotaan",

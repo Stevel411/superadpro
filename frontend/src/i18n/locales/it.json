@@ -217,42 +217,42 @@
     "storyPromptBody": "Racconta come hai fatto — la tua esperienza può ispirare il prossimo membro. Ci vogliono 2 minuti. Il nostro team revisiona prima della pubblicazione su /explore.",
     "storyPromptCta": "Condividi la mia storia",
     "storyPromptDismiss": "Chiudi",
-    "earningsStrip": "Your earnings this month",
-    "monthlyEarned": "This Month",
-    "payItForwardLabel": "Help others",
-    "payItForwardCta": "Gift now",
-    "platformTourLabel": "Get oriented",
-    "platformTourCta": "Start tour",
-    "todaysWatchLabel": "Stay qualified",
-    "todaysWatch": "Today's Watch Video",
-    "todaysWatchDesc": "Watch your daily campaign-grid video to activate Grid Payouts.",
-    "todaysWatchCta": "Watch now",
-    "affiliateShareLabel": "Grow your team",
-    "affiliateShare": "Affiliate Share",
-    "affiliateShareDesc": "Share your link and story to bring more members onto your team.",
-    "affiliateShareCta": "Open share",
-    "activeSince": "Active since {{date}}",
-    "doorBuildLabel": "Build",
+    "earningsStrip": "I tuoi guadagni questo mese",
+    "monthlyEarned": "Questo mese",
+    "payItForwardLabel": "Aiuta altri",
+    "payItForwardCta": "Regala ora",
+    "platformTourLabel": "Orientati",
+    "platformTourCta": "Inizia il tour",
+    "todaysWatchLabel": "Rimani qualificato",
+    "todaysWatch": "Video di oggi",
+    "todaysWatchDesc": "Guarda il tuo video campagna-grid giornaliero per attivare Grid Payouts.",
+    "todaysWatchCta": "Guarda ora",
+    "affiliateShareLabel": "Fai crescere il tuo team",
+    "affiliateShare": "Condivisione affiliate",
+    "affiliateShareDesc": "Condividi il tuo link e la tua storia per portare più membri nel tuo team.",
+    "affiliateShareCta": "Apri condivisione",
+    "activeSince": "Attivo dal {{date}}",
+    "doorBuildLabel": "Costruisci",
     "doorCockpitLabel": "Cockpit",
     "doorCommandCentre": "Command Centre",
-    "doorCommandCentreDesc": "Track your team, send broadcasts, climb the leaderboard.",
-    "doorEarnLabel": "Earn",
-    "doorIncome": "Income",
-    "doorIncomeDesc": "All four income streams in one place.",
-    "doorItems": "{{count}} items",
-    "doorLearn": "Learn",
-    "doorLearnDesc": "Education, assets, and community to help you grow.",
-    "doorLearnLabel": "Learn",
-    "doorOpen": "Open",
-    "doorTools": "Tools",
-    "doorToolsDesc": "Free, Basic, and Pro tools to power your campaigns.",
-    "exploreSection": "Explore",
-    "payItForward": "Pay it forward",
-    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership.",
-    "annualUpsellTitle": "Switch to annual billing and save up to $70/year",
-    "annualUpsellBody": "Pay yearly and save 17% — that's $40/year off Basic or $70/year off Pro. Switch anytime, no hassle.",
-    "annualUpsellCta": "View plans",
-    "annualUpsellDismiss": "Dismiss"
+    "doorCommandCentreDesc": "Traccia il tuo team, invia broadcast, sali in classifica.",
+    "doorEarnLabel": "Guadagna",
+    "doorIncome": "Reddito",
+    "doorIncomeDesc": "Tutti e quattro i flussi di reddito in un unico posto.",
+    "doorItems": "{{count}} elementi",
+    "doorLearn": "Impara",
+    "doorLearnDesc": "Formazione, risorse e comunità per aiutarti a crescere.",
+    "doorLearnLabel": "Impara",
+    "doorOpen": "Apri",
+    "doorTools": "Strumenti",
+    "doorToolsDesc": "Strumenti gratuiti, Basic e Pro per potenziare le tue campagne.",
+    "exploreSection": "Esplora",
+    "payItForward": "Condividi il successo",
+    "payItForwardDesc": "Aiuta un membro in difficoltà regalandogli un abbonamento Tier 1.",
+    "annualUpsellTitle": "Passa alla fatturazione annuale e risparmi fino a $70/anno",
+    "annualUpsellBody": "Paga annualmente e risparmia il 17% — sono $40/anno su Basic oppure $70/anno su Pro. Cambia quando vuoi, senza problemi.",
+    "annualUpsellCta": "Visualizza piani",
+    "annualUpsellDismiss": "Chiudi"
   },
   "compPlan": {
     "title": "Piano di Compensazione",
@@ -4028,89 +4028,89 @@
     }
   },
   "learn": {
-    "pageTitle": "Learn",
-    "heroEyebrow": "Your Learning",
-    "categoriesSection": "Your learning categories",
-    "backToLearn": "Back to Learn",
+    "pageTitle": "Impara",
+    "heroEyebrow": "Il tuo apprendimento",
+    "categoriesSection": "Le tue categorie di apprendimento",
+    "backToLearn": "Torna a Impara",
     "tabs": {
-      "overview": "Overview",
-      "education": "Education",
-      "assets": "Promotional Assets",
-      "community": "Community"
+      "overview": "Panoramica",
+      "education": "Formazione",
+      "assets": "Risorse promozionali",
+      "community": "Comunità"
     },
     "door": {
       "education": {
-        "eyebrow": "Skill up",
-        "title": "Education",
-        "desc": "Training, comp plan explainer, platform tour, crypto guide. Master how the platform works.",
-        "count": "4 items"
+        "eyebrow": "Migliora le tue competenze",
+        "title": "Formazione",
+        "desc": "Training, spiegazione del piano di compenso, tour della piattaforma, guida crypto. Padroneggia il funzionamento della piattaforma.",
+        "count": "4 elementi"
       },
       "assets": {
-        "eyebrow": "Share & promote",
-        "title": "Promotional Assets",
-        "desc": "Marketing materials, email swipes, social share posts. Everything you need to grow your team.",
-        "count": "3 items"
+        "eyebrow": "Condividi e promuovi",
+        "title": "Risorse promozionali",
+        "desc": "Materiali di marketing, email swipes, post social. Tutto ciò di cui hai bisogno per far crescere il tuo team.",
+        "count": "3 elementi"
       },
       "community": {
-        "eyebrow": "Connect & celebrate",
-        "title": "Community",
-        "desc": "Leaderboard rankings and submit your own success story. Be seen, get inspired.",
-        "count": "2 items"
+        "eyebrow": "Connetti e festeggia",
+        "title": "Comunità",
+        "desc": "Classifiche della leaderboard e invia la tua storia di successo. Fatti vedere, lasciati ispirare.",
+        "count": "2 elementi"
       }
     },
     "edu": {
-      "pageTitle": "Education",
-      "heroEyebrow": "Education",
-      "section": "Education · 4 ways to skill up",
+      "pageTitle": "Formazione",
+      "heroEyebrow": "Formazione",
+      "section": "Formazione · 4 modi per migliorare le tue competenze",
       "training": {
-        "name": "Training Centre",
-        "desc": "Step-by-step lessons covering everything from basics to advanced strategies."
+        "name": "Centro di formazione",
+        "desc": "Lezioni passo dopo passo che coprono tutto, dalle basi alle strategie avanzate."
       },
       "comp": {
-        "name": "Comp Plan Explainer",
-        "desc": "Full breakdown of how the compensation plan works. Every commission, every tier."
+        "name": "Spiegazione del piano di compenso",
+        "desc": "Analisi completa di come funziona il piano di compenso. Ogni commissione, ogni livello."
       },
       "tour": {
-        "name": "Platform Tour",
-        "desc": "Quick walkthrough of the entire platform. Find everything in 5 minutes."
+        "name": "Tour della piattaforma",
+        "desc": "Rapida panoramica dell'intera piattaforma. Trova tutto in 5 minuti."
       },
       "crypto": {
-        "name": "Crypto Guide",
-        "desc": "How to set up a wallet, receive USDT payouts, and stay safe with crypto."
+        "name": "Guida Crypto",
+        "desc": "Come configurare un portafoglio, ricevere pagamenti USDT e stare al sicuro con le criptovalute."
       }
     },
     "assets": {
-      "pageTitle": "Promotional Assets",
-      "heroEyebrow": "Promotional Assets",
-      "section": "Promotional Assets · 3 ways to share & grow",
+      "pageTitle": "Risorse Promozionali",
+      "heroEyebrow": "Risorse Promozionali",
+      "section": "Risorse Promozionali · 3 modi per condividere e crescere",
       "materials": {
-        "name": "Marketing Materials",
-        "desc": "Banners, graphics, social posts ready to download and share."
+        "name": "Materiali di Marketing",
+        "desc": "Banner, grafiche e post social pronti da scaricare e condividere."
       },
       "swipes": {
         "name": "Email Swipes",
-        "desc": "AI-generated email templates for outreach campaigns. Copy-and-paste ready."
+        "desc": "Modelli di email generati da IA per campagne di outreach. Pronti da copiare e incollare."
       },
       "social": {
         "name": "Social Share",
-        "desc": "One-click share to Facebook, X, LinkedIn, WhatsApp with AI-generated post copy."
+        "desc": "Condividi con un click su Facebook, X, LinkedIn, WhatsApp con copy generato da IA."
       }
     },
     "community": {
       "pageTitle": "Community",
       "heroEyebrow": "Community",
-      "section": "Community · be seen, get inspired",
+      "section": "Community · vieni visto, ispirati",
       "leaderboard": {
         "name": "Leaderboard",
-        "desc": "Top earners and top recruiters across the platform. See where you rank."
+        "desc": "I migliori guadagnatori e i migliori reclutatori sulla piattaforma. Scopri la tua posizione."
       },
       "story": {
-        "name": "Share Your Story",
-        "desc": "Submit your success milestone. Inspire others, get featured on the homepage."
+        "name": "Condividi la Tua Storia",
+        "desc": "Invia il tuo traguardo di successo. Ispira gli altri e sii presente sulla homepage."
       }
     },
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "Scorri a sinistra",
+    "scrollRight": "Scorri a destra"
   },
   "membership": {
     "heroEyebrow": "Flusso di Iscrizioni",

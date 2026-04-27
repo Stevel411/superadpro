@@ -217,42 +217,42 @@
     "storyPromptBody": "Kể lại bạn đã làm thế nào — trải nghiệm của bạn có thể truyền cảm hứng cho thành viên tiếp theo. Mất 2 phút. Đội ngũ của chúng tôi duyệt trước khi lên sóng trên /explore.",
     "storyPromptCta": "Chia sẻ câu chuyện của tôi",
     "storyPromptDismiss": "Đóng",
-    "earningsStrip": "Your earnings this month",
-    "monthlyEarned": "This Month",
-    "payItForwardLabel": "Help others",
-    "payItForwardCta": "Gift now",
-    "platformTourLabel": "Get oriented",
-    "platformTourCta": "Start tour",
-    "todaysWatchLabel": "Stay qualified",
-    "todaysWatch": "Today's Watch Video",
-    "todaysWatchDesc": "Watch your daily campaign-grid video to activate Grid Payouts.",
-    "todaysWatchCta": "Watch now",
-    "affiliateShareLabel": "Grow your team",
-    "affiliateShare": "Affiliate Share",
-    "affiliateShareDesc": "Share your link and story to bring more members onto your team.",
-    "affiliateShareCta": "Open share",
-    "activeSince": "Active since {{date}}",
-    "doorBuildLabel": "Build",
+    "earningsStrip": "Thu nhập của bạn tháng này",
+    "monthlyEarned": "Tháng này",
+    "payItForwardLabel": "Giúp đỡ người khác",
+    "payItForwardCta": "Tặng ngay",
+    "platformTourLabel": "Làm quen",
+    "platformTourCta": "Bắt đầu tour",
+    "todaysWatchLabel": "Duy trì trạng thái đủ điều kiện",
+    "todaysWatch": "Video hôm nay",
+    "todaysWatchDesc": "Xem video Grid hàng ngày của bạn để kích hoạt Grid Payouts.",
+    "todaysWatchCta": "Xem ngay",
+    "affiliateShareLabel": "Phát triển đội của bạn",
+    "affiliateShare": "Chia sẻ Affiliate",
+    "affiliateShareDesc": "Chia sẻ liên kết và câu chuyện của bạn để mang thêm thành viên vào đội của bạn.",
+    "affiliateShareCta": "Mở chia sẻ",
+    "activeSince": "Hoạt động kể từ {{date}}",
+    "doorBuildLabel": "Xây dựng",
     "doorCockpitLabel": "Cockpit",
     "doorCommandCentre": "Command Centre",
-    "doorCommandCentreDesc": "Track your team, send broadcasts, climb the leaderboard.",
-    "doorEarnLabel": "Earn",
-    "doorIncome": "Income",
-    "doorIncomeDesc": "All four income streams in one place.",
-    "doorItems": "{{count}} items",
-    "doorLearn": "Learn",
-    "doorLearnDesc": "Education, assets, and community to help you grow.",
-    "doorLearnLabel": "Learn",
-    "doorOpen": "Open",
-    "doorTools": "Tools",
-    "doorToolsDesc": "Free, Basic, and Pro tools to power your campaigns.",
-    "exploreSection": "Explore",
-    "payItForward": "Pay it forward",
-    "payItForwardDesc": "Help a struggling member by gifting them a Tier 1 membership.",
-    "annualUpsellTitle": "Switch to annual billing and save up to $70/year",
-    "annualUpsellBody": "Pay yearly and save 17% — that's $40/year off Basic or $70/year off Pro. Switch anytime, no hassle.",
-    "annualUpsellCta": "View plans",
-    "annualUpsellDismiss": "Dismiss"
+    "doorCommandCentreDesc": "Theo dõi đội của bạn, gửi thông báo, leo bảng xếp hạng.",
+    "doorEarnLabel": "Kiếm",
+    "doorIncome": "Thu nhập",
+    "doorIncomeDesc": "Cả bốn luồng thu nhập tại một nơi.",
+    "doorItems": "{{count}} mục",
+    "doorLearn": "Học",
+    "doorLearnDesc": "Giáo dục, tài sản và cộng đồng để giúp bạn phát triển.",
+    "doorLearnLabel": "Học",
+    "doorOpen": "Mở",
+    "doorTools": "Công cụ",
+    "doorToolsDesc": "Các công cụ Free, Basic và Pro để hỗ trợ các chiến dịch của bạn.",
+    "exploreSection": "Khám phá",
+    "payItForward": "Giúp đỡ cộng đồng",
+    "payItForwardDesc": "Giúp một thành viên gặp khó khăn bằng cách tặng họ một kỳ hạn Tier 1.",
+    "annualUpsellTitle": "Chuyển sang lập hoá hàng năm và tiết kiệm tới $70/năm",
+    "annualUpsellBody": "Thanh toán hàng năm và tiết kiệm 17% — đó là $40/năm cho Basic hoặc $70/năm cho Pro. Chuyển đổi bất cứ lúc nào, không phức tạp.",
+    "annualUpsellCta": "Xem các gói",
+    "annualUpsellDismiss": "Loại bỏ"
   },
   "compPlan": {
     "title": "Kế hoạch Bồi thường",
@@ -3950,112 +3950,112 @@
     "reengagement_lapsed_message": "Mạng lưới và thu nhập của bạn vẫn đang chờ. Nhấp bên dưới để kích hoạt lại."
   },
   "income": {
-    "pageTitle": "Income",
-    "heroEyebrow": "Your Income",
-    "activeSince": "Active since",
-    "backToDashboard": "Back to Dashboard",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right",
-    "earningsSection": "Your earnings",
-    "streamsSection": "Your four income streams",
+    "pageTitle": "Doanh thu",
+    "heroEyebrow": "Doanh thu của bạn",
+    "activeSince": "Hoạt động từ",
+    "backToDashboard": "Quay lại Bảng điều khiển",
+    "scrollLeft": "Cuộn trái",
+    "scrollRight": "Cuộn phải",
+    "earningsSection": "Earnings của bạn",
+    "streamsSection": "Bốn nguồn thu nhập của bạn",
     "tabs": {
-      "overview": "Overview",
-      "wallet": "Wallet",
+      "overview": "Tổng quan",
+      "wallet": "Ví",
       "compPlan": "Comp Plan",
       "membership": "Membership",
       "grid": "Campaign Grid",
       "nexus": "Profit Nexus",
       "courses": "Course Academy",
-      "history": "Earnings History"
+      "history": "Lịch sử Earnings"
     },
     "summary": {
-      "available": "Available",
-      "availableCaption": "in your wallet now",
-      "thisMonth": "This month",
-      "thisMonthCaption": "commissions earned this month",
-      "nextPayout": "Next payout",
-      "nextPayoutValue": "On request",
-      "nextPayoutCaption": "crypto withdrawal anytime",
-      "allTime": "All time",
-      "allTimeCaption": "lifetime earnings",
-      "allTimeCaptionSince": "since {{since}}"
+      "available": "Có sẵn",
+      "availableCaption": "trong ví của bạn ngay bây giờ",
+      "thisMonth": "Tháng này",
+      "thisMonthCaption": "hoa hồng kiếm được trong tháng này",
+      "nextPayout": "Thanh toán tiếp theo",
+      "nextPayoutValue": "Theo yêu cầu",
+      "nextPayoutCaption": "rút tiền điện tử bất kỳ lúc nào",
+      "allTime": "Toàn bộ thời gian",
+      "allTimeCaption": "earnings suốt đời",
+      "allTimeCaptionSince": "kể từ {{since}}"
     },
     "tag": {
-      "active": "Active",
-      "tier": "Active",
-      "available": "Available"
+      "active": "Hoạt động",
+      "tier": "Hoạt động",
+      "available": "Có sẵn"
     },
     "stat": {
-      "directs": "Directs paying",
-      "team": "In your team",
-      "earnedAllTime": "Earned all time"
+      "directs": "Những người giới thiệu trực tiếp đang thanh toán",
+      "team": "Trong đội của bạn",
+      "earnedAllTime": "Kiếm được tất cả thời gian"
     },
     "stream": {
-      "membership": "Membership Sponsor",
-      "membershipSub": "25% on every direct's monthly fee",
-      "membershipDormant": "Share your link to activate the easiest stream — paid every month they stay.",
-      "grid": "Campaign Tier Grid",
-      "gridSub": "8×8 forced matrix · advertise + earn",
-      "gridDormant": "Buy a Grid tier to advertise AND earn from the 8×8 spillover matrix.",
+      "membership": "Thành viên Tài trợ",
+      "membershipSub": "25% trên phí hàng tháng của mỗi người trực tiếp",
+      "membershipDormant": "Chia sẻ liên kết của bạn để kích hoạt luồng dễ nhất — trả lương hàng tháng khi họ ở lại.",
+      "grid": "Lưới Cấp độ Chiến dịch",
+      "gridSub": "Ma trận bắt buộc 8×8 · quảng cáo + kiếm",
+      "gridDormant": "Mua cấp độ Grid để quảng cáo VÀ kiếm từ ma trận tràn 8×8.",
       "nexus": "Profit Nexus",
-      "nexusSub": "3×3 credit matrix · cascading commissions",
-      "nexusDormant": "Buy a credit pack to take your position in the 3×3 matrix.",
-      "courses": "Course Academy",
-      "coursesSub": "Pass-up commissions · infinite depth",
-      "coursesDormant": "Buy a course tier to qualify for upline pass-ups on every sale."
+      "nexusSub": "Ma trận tín dụng 3×3 · hoa hồng tầng",
+      "nexusDormant": "Mua gói tín dụng để chiếm vị trí của bạn trong ma trận 3×3.",
+      "courses": "Học viện Khóa học",
+      "coursesSub": "Hoa hồng chuyển tiếp · độ sâu vô hạn",
+      "coursesDormant": "Mua cấp độ khóa học để đủ điều kiện nhận hoa hồng chuyển tiếp từ tất cả các bản bán."
     },
     "action": {
-      "myReferrals": "My referrals",
-      "shareLink": "Get share link",
-      "compPlan": "Comp plan",
-      "myGrid": "My Grid",
-      "watchAds": "Watch ads",
-      "calculator": "Calculator",
-      "upgradeTier": "Upgrade tier",
-      "buyCredits": "Buy credits",
-      "myNexus": "My Nexus",
-      "howItWorks": "How it works",
-      "browseCourses": "Browse courses",
-      "passUp": "How pass-up works"
+      "myReferrals": "Người giới thiệu của tôi",
+      "shareLink": "Lấy liên kết chia sẻ",
+      "compPlan": "Kế hoạch bù trừ",
+      "myGrid": "Lưới của tôi",
+      "watchAds": "Xem quảng cáo",
+      "calculator": "Máy tính",
+      "upgradeTier": "Nâng cấp cấp độ",
+      "buyCredits": "Mua tín dụng",
+      "myNexus": "Nexus của tôi",
+      "howItWorks": "Cách thức hoạt động",
+      "browseCourses": "Duyệt các khóa học",
+      "passUp": "Cách thức hoạt động của hoa hồng chuyển tiếp"
     }
   },
   "learn": {
-    "pageTitle": "Learn",
-    "heroEyebrow": "Your Learning",
-    "categoriesSection": "Your learning categories",
-    "backToLearn": "Back to Learn",
+    "pageTitle": "Học Tập",
+    "heroEyebrow": "Học Tập Của Bạn",
+    "categoriesSection": "Các danh mục học tập của bạn",
+    "backToLearn": "Quay Lại Học Tập",
     "tabs": {
-      "overview": "Overview",
-      "education": "Education",
-      "assets": "Promotional Assets",
-      "community": "Community"
+      "overview": "Tổng Quan",
+      "education": "Giáo Dục",
+      "assets": "Tài Liệu Quảng Bá",
+      "community": "Cộng Đồng"
     },
     "door": {
       "education": {
-        "eyebrow": "Skill up",
-        "title": "Education",
+        "eyebrow": "Nâng Cao Kỹ Năng",
+        "title": "Giáo Dục",
         "desc": "Training, comp plan explainer, platform tour, crypto guide. Master how the platform works.",
-        "count": "4 items"
+        "count": "4 mục"
       },
       "assets": {
-        "eyebrow": "Share & promote",
-        "title": "Promotional Assets",
+        "eyebrow": "Chia Sẻ & Quảng Bá",
+        "title": "Tài Liệu Quảng Bá",
         "desc": "Marketing materials, email swipes, social share posts. Everything you need to grow your team.",
-        "count": "3 items"
+        "count": "3 mục"
       },
       "community": {
-        "eyebrow": "Connect & celebrate",
-        "title": "Community",
+        "eyebrow": "Kết Nối & Ăn Mừng",
+        "title": "Cộng Đồng",
         "desc": "Leaderboard rankings and submit your own success story. Be seen, get inspired.",
-        "count": "2 items"
+        "count": "2 mục"
       }
     },
     "edu": {
-      "pageTitle": "Education",
-      "heroEyebrow": "Education",
-      "section": "Education · 4 ways to skill up",
+      "pageTitle": "Giáo Dục",
+      "heroEyebrow": "Giáo Dục",
+      "section": "Giáo Dục · 4 cách nâng cao kỹ năng",
       "training": {
-        "name": "Training Centre",
+        "name": "Trung Tâm Đào Tạo",
         "desc": "Step-by-step lessons covering everything from basics to advanced strategies."
       },
       "comp": {
@@ -4068,41 +4068,41 @@
       },
       "crypto": {
         "name": "Crypto Guide",
-        "desc": "How to set up a wallet, receive USDT payouts, and stay safe with crypto."
+        "desc": "Cách thiết lập ví, nhận thanh toán USDT và giữ an toàn với tiền điện tử."
       }
     },
     "assets": {
-      "pageTitle": "Promotional Assets",
-      "heroEyebrow": "Promotional Assets",
-      "section": "Promotional Assets · 3 ways to share & grow",
+      "pageTitle": "Tài Liệu Quảng Cáo",
+      "heroEyebrow": "Tài Liệu Quảng Cáo",
+      "section": "Tài Liệu Quảng Cáo · 3 cách chia sẻ và phát triển",
       "materials": {
-        "name": "Marketing Materials",
-        "desc": "Banners, graphics, social posts ready to download and share."
+        "name": "Tài Liệu Marketing",
+        "desc": "Banner, đồ họa, bài đăng mạng xã hội sẵn sàng tải xuống và chia sẻ."
       },
       "swipes": {
         "name": "Email Swipes",
-        "desc": "AI-generated email templates for outreach campaigns. Copy-and-paste ready."
+        "desc": "Mẫu email được tạo bởi AI cho các chiến dịch tiếp cận. Sẵn sàng sao chép và dán."
       },
       "social": {
-        "name": "Social Share",
-        "desc": "One-click share to Facebook, X, LinkedIn, WhatsApp with AI-generated post copy."
+        "name": "Chia Sẻ Trên Mạng Xã Hội",
+        "desc": "Chia sẻ một cách với Facebook, X, LinkedIn, WhatsApp với bài đăng được tạo bởi AI."
       }
     },
     "community": {
-      "pageTitle": "Community",
-      "heroEyebrow": "Community",
-      "section": "Community · be seen, get inspired",
+      "pageTitle": "Cộng Đồng",
+      "heroEyebrow": "Cộng Đồng",
+      "section": "Cộng Đồng · được nhìn thấy, lấy cảm hứng",
       "leaderboard": {
-        "name": "Leaderboard",
-        "desc": "Top earners and top recruiters across the platform. See where you rank."
+        "name": "Bảng Xếp Hạng",
+        "desc": "Những người kiếm tiền hàng đầu và những người tuyển dụng hàng đầu trên nền tảng. Xem vị trí của bạn."
       },
       "story": {
-        "name": "Share Your Story",
-        "desc": "Submit your success milestone. Inspire others, get featured on the homepage."
+        "name": "Chia Sẻ Câu Chuyện Của Bạn",
+        "desc": "Gửi cột mốc thành công của bạn. Truyền cảm hứng cho những người khác, được đặc biệt trên trang chủ."
       }
     },
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "Cuộn sang trái",
+    "scrollRight": "Cuộn sang phải"
   },
   "membership": {
     "heroEyebrow": "Dòng Thành Viên",
