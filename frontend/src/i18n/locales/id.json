@@ -3903,6 +3903,20 @@
       "sub": "Pilih paket. Bagikan. Biarkan struktur bekerja.",
       "primary": "Buat akun",
       "secondary": "Kembali ke ikhtisar kompensasi"
+    },
+    "explainer": {
+      "headline": "Apa yang sebenarnya saya beli?",
+      "subtitle": "AI Creator Credits • Nexus",
+      "p1Pre": "A Nexus adalah paket",
+      "p1Bold": "Kredit AI",
+      "p1Post": " digunakan di Creative Studio untuk menghasilkan video, gambar, musik, voice-over, video lip-sync, dan lainnya — sempurna untuk membuat konten kampanye atau bisnis Anda.",
+      "p2": "Setiap paket ($20 → $1.000) membuka Nexus 39-posisi sendiri yang terisi dengan referral langsung Anda (komisi 15%) dan team spillover (komisi 10%), plus bonus penyelesaian 10% ketika semua 39 posisi terisi.",
+      "buyingLabel": "Anda membeli",
+      "buyingText": "Kredit AI untuk Creative Studio, plus posisi Nexus yang menghasilkan komisi ketika tim Anda membeli paket yang sama.",
+      "tiersLabel": "Cara kerja tier",
+      "tiersText": "Setiap paket membuka Nexus sendiri. Untuk mendapatkan penghasilan dari pembelian referral di tier paket tertentu, Anda harus memiliki paket yang sama. Beli paket lebih tinggi saat berkembang — miliki semua 8 dan dapatkan penghasilan dari setiap pembelian tim Anda.",
+      "expand": "Baca selengkapnya",
+      "collapse": "Tampilkan lebih sedikit"
     }
   },
   "commandCentre": {

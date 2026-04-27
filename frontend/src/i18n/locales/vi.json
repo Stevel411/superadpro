@@ -3903,6 +3903,20 @@
       "sub": "Chọn một gói. Chia sẻ nó. Để cấu trúc hoạt động.",
       "primary": "Tạo tài khoản",
       "secondary": "Quay lại tổng quan bồi thường"
+    },
+    "explainer": {
+      "headline": "Tôi đang mua cái gì thực tế?",
+      "subtitle": "AI Creator Credits • Nexus",
+      "p1Pre": "A Nexus là một gói",
+      "p1Bold": "AI credits",
+      "p1Post": "được sử dụng trong Creative Studio để tạo video, hình ảnh, âm nhạc, voiceover, video lip-sync và nhiều hơn nữa — hoàn hảo để tạo nội dung cho các chiến dịch hoặc doanh nghiệp của bạn.",
+      "p2": "Mỗi gói ($20 → $1,000) mở ra Nexus 39 vị trí riêng của nó được điền bằng các giới thiệu trực tiếp của bạn (hoa hồng 15%) và tràn đôi của nhóm (hoa hồng 10%), cộng với tiền thưởng hoàn thành 10% khi tất cả 39 vị trí được điền đầy đủ.",
+      "buyingLabel": "Bạn đang mua",
+      "buyingText": "AI credits cho Creative Studio, cộng với vị trí Nexus kiếm hoa hồng cho bạn khi nhóm của bạn mua cùng gói.",
+      "tiersLabel": "Cách các tầng hoạt động",
+      "tiersText": "Mỗi gói mở ra Nexus riêng của nó. Để kiếm từ mua hàng của một người giới thiệu ở mức tầng gói nhất định, bạn phải sở hữu cùng gói đó. Mua gói cao hơn khi bạn phát triển — sở hữu tất cả 8 gói và bạn kiếm từ mọi lần mua của nhóm bạn.",
+      "expand": "Đọc thêm",
+      "collapse": "Hiển thị ít hơn"
     }
   },
   "commandCentre": {

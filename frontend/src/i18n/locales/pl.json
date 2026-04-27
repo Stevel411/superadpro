@@ -3903,6 +3903,20 @@
       "sub": "Wybierz pakiet. Udostępnij go. Pozwól strukturze działać.",
       "primary": "Utwórz konto",
       "secondary": "Powrót do przeglądu wynagrodzeń"
+    },
+    "explainer": {
+      "headline": "Co dokładnie kupuję?",
+      "subtitle": "AI Creator Credits • Nexus",
+      "p1Pre": "Nexus to pakiet ",
+      "p1Bold": "kredytów AI",
+      "p1Post": " używanych w Creative Studio do generowania filmów, obrazów, muzyki, voiceoverów, klipów z synchronizacją ust i wielu innych — idealne do tworzenia treści do kampanii lub dla swojej firmy.",
+      "p2": "Każdy pakiet (20 $ → 1000 $) otwiera własny 39-pozycyjny Nexus, który wypełnia się Twoimi bezpośrednimi poleceniami (15% prowizji) i przelaniem zespołu (10% prowizji), plus bonus 10% za wypełnienie, gdy wszystkie 39 pozycji się zapełni.",
+      "buyingLabel": "Kupujesz",
+      "buyingText": "Kredyty AI dla Creative Studio, plus pozycję Nexus, która przynosi Ci prowizje, gdy Twój zespół kupuje ten sam pakiet.",
+      "tiersLabel": "Jak działają poziomy",
+      "tiersText": "Każdy pakiet otwiera własny Nexus. Aby zarabiać na zakupie polecenia na danym poziomie pakietu, musisz posiadać ten sam pakiet. Kupuj wyższe pakiety, gdy rozwijasz się — posiadaj wszystkie 8, a zarabiaj na każdym zakupie, który robi Twój zespół.",
+      "expand": "Czytaj więcej",
+      "collapse": "Pokaż mniej"
     }
   },
   "commandCentre": {

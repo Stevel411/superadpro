@@ -3903,6 +3903,20 @@
       "sub": "Pick a pack. Share it. Let the structure work.",
       "primary": "Create an account",
       "secondary": "Back to compensation overview"
+    },
+    "explainer": {
+      "headline": "What am I actually buying?",
+      "subtitle": "AI Creator Credits • Nexus",
+      "p1Pre": "A Nexus is a pack of ",
+      "p1Bold": "AI credits",
+      "p1Post": " used in Creative Studio to generate videos, images, music, voiceovers, lip-sync clips, and more — perfect for creating content for your campaigns or your business.",
+      "p2": "Each pack ($20 → $1,000) opens its own 39-position Nexus that fills with your direct referrals (15% commission) and team spillover (10% commission), plus a 10% completion bonus when all 39 positions fill.",
+      "buyingLabel": "You're buying",
+      "buyingText": "AI credits for the Creative Studio, plus a Nexus position that earns you commissions when your team buys the same pack.",
+      "tiersLabel": "How tiers work",
+      "tiersText": "Each pack opens its own Nexus. To earn from a referral's purchase at a given pack tier, you must own that same pack yourself. Buy higher packs as you grow — own all 8 and you earn on every purchase your team makes.",
+      "expand": "Read more",
+      "collapse": "Show less"
     }
   },
   "faqPage": {

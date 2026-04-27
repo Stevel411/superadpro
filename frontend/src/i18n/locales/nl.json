@@ -3911,6 +3911,20 @@
       "sub": "Kies een pack. Deel het. Laat de structuur werken.",
       "primary": "Account aanmaken",
       "secondary": "Terug naar compensatieoverzicht"
+    },
+    "explainer": {
+      "headline": "Wat koop ik eigenlijk?",
+      "subtitle": "AI Creator Credits • Nexus",
+      "p1Pre": "Een Nexus is een pakket van",
+      "p1Bold": "AI-credits",
+      "p1Post": " gebruikt in Creative Studio om video's, afbeeldingen, muziek, voice-overs, lip-sync clips en meer te genereren — perfect voor het maken van inhoud voor je campagnes of je bedrijf.",
+      "p2": "Elk pakket ($20 → $1.000) opent zijn eigen 39-positie Nexus die zich vult met je directe referrals (15% commissie) en team spillover (10% commissie), plus een 10% bonusje wanneer alle 39 posities vol zijn.",
+      "buyingLabel": "Je koopt",
+      "buyingText": "AI-credits voor de Creative Studio, plus een Nexus-positie die je commissies oplevert wanneer je team hetzelfde pakket koopt.",
+      "tiersLabel": "Hoe tiers werken",
+      "tiersText": "Elk pakket opent zijn eigen Nexus. Om inkomsten uit een referral's aankoop op een bepaald packetniveau te verdienen, moet je dat pakket zelf ook hebben. Koop hogere pakketten naarmate je groeit — eigen alle 8 en je verdient op elke aankoop die je team doet.",
+      "expand": "Meer lezen",
+      "collapse": "Minder weergeven"
     }
   },
   "commandCentre": {

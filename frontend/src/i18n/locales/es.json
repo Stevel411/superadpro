@@ -3911,6 +3911,20 @@
       "sub": "Elige un pack. Compártelo. Deja que la estructura funcione.",
       "primary": "Crear una cuenta",
       "secondary": "Volver a descripción general de compensación"
+    },
+    "explainer": {
+      "headline": "¿Qué estoy comprando realmente?",
+      "subtitle": "Créditos de Creador IA • Nexus",
+      "p1Pre": "Un Nexus es un paquete de",
+      "p1Bold": "créditos de IA",
+      "p1Post": "utilizados en Creative Studio para generar videos, imágenes, música, voces en off, clips de sincronización de labios y más — perfectos para crear contenido para tus campañas o tu negocio.",
+      "p2": "Cada paquete ($20 → $1,000) abre su propio Nexus de 39 posiciones que se llena con tus referidos directos (comisión del 15%) y derrame del equipo (comisión del 10%), más un bono de finalización del 10% cuando todas las 39 posiciones se llenen.",
+      "buyingLabel": "Estás comprando",
+      "buyingText": "Créditos de IA para Creative Studio, más una posición Nexus que te genera comisiones cuando tu equipo compra el mismo paquete.",
+      "tiersLabel": "Cómo funcionan los niveles",
+      "tiersText": "Cada paquete abre su propio Nexus. Para ganar con la compra de un referido en un nivel de paquete determinado, debes poseer ese mismo paquete. Compra paquetes más altos conforme crezcas — posee los 8 y ganarás con cada compra que haga tu equipo.",
+      "expand": "Leer más",
+      "collapse": "Mostrar menos"
     }
   },
   "commandCentre": {

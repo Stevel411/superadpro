@@ -3903,6 +3903,20 @@
       "sub": "Bir paket seç. Paylaş. Yapıyı çalışmaya bırak.",
       "primary": "Hesap oluştur",
       "secondary": "Telafi genel bakışına dön"
+    },
+    "explainer": {
+      "headline": "Aslında ne satın alıyorum?",
+      "subtitle": "AI Creator Credits • Nexus",
+      "p1Pre": "Bir Nexus şu paketleri içerir:",
+      "p1Bold": "AI kredileri",
+      "p1Post": " Creative Studio'da videolar, görseller, müzik, seslendirmeler, dudak senkronizasyonu klipleri ve daha fazlasını oluşturmak için kullanılır — kampanyalarınız veya işletmeniz için içerik oluşturmak için mükemmeldir.",
+      "p2": "Her paket ($20 → $1.000) kendi 39 pozisyonlu Nexus'unu açar ve doğrudan referanslarınızla (%15 komisyon) ve takım taşması (%10 komisyon) dolar, plus tüm 39 pozisyon dolduğunda %10 tamamlama bonusu.",
+      "buyingLabel": "Satın aldığınız şey",
+      "buyingText": "Creative Studio için AI kredileri, plus takımınız aynı paketi satın aldığında size komisyon kazandıran bir Nexus pozisyonu.",
+      "tiersLabel": "Seviyeler nasıl çalışır?",
+      "tiersText": "Her paket kendi Nexus'unu açar. Belirli bir paket seviyesinde bir referansın satın alımından kazanmak için, siz de aynı pakete sahip olmalısınız. Büyüdükçe daha yüksek paketler satın alın — 8'inin tamamına sahip olun ve takımınızın yaptığı her satın almada kazanç sağlayın.",
+      "expand": "Daha fazla oku",
+      "collapse": "Daha az göster"
     }
   },
   "commandCentre": {

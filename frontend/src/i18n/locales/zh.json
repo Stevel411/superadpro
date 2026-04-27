@@ -3903,6 +3903,20 @@
       "sub": "选择一个套餐。分享它。让结构发挥作用。",
       "primary": "创建账户",
       "secondary": "返回奖励计划概览"
+    },
+    "explainer": {
+      "headline": "我实际上在购买什么？",
+      "subtitle": "AI Creator Credits • Nexus",
+      "p1Pre": "Nexus 是一个包含",
+      "p1Bold": "AI credits",
+      "p1Post": "用于 Creative Studio 生成视频、图像、音乐、配音、口型同步视频等——非常适合为您的活动或业务创建内容。",
+      "p2": "每个包（$20 → $1,000）开启自己的 39 个位置的 Nexus，由您的直接推荐人（15% 佣金）和团队溢出（10% 佣金）填充，加上当全部 39 个位置填满时的 10% 完成奖金。",
+      "buyingLabel": "您购买的是",
+      "buyingText": "Creative Studio 的 AI credits，加上一个 Nexus 位置，当您的团队购买同一包时，您可以获得佣金。",
+      "tiersLabel": "层级如何运作",
+      "tiersText": "每个包都开启自己的 Nexus。要从推荐人在特定包层级的购买中获得收益，您必须自己拥有该包。随着成长购买更高层级的包——拥有全部 8 个，您就能从团队的每次购买中获得收益。",
+      "expand": "了解更多",
+      "collapse": "显示更少"
     }
   },
   "commandCentre": {

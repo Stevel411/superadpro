@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next';
 import { useState, useEffect } from 'react';
 import AppLayout from '../components/layout/AppLayout';
+import ProductExplainer from '../components/ProductExplainer';
 import { apiGet, apiPost } from '../utils/api';
 import { Sparkles, TrendingUp, Users, DollarSign, Gift, ChevronDown, ChevronUp, Loader2, CheckCircle, AlertCircle, Zap, Award, Layers } from 'lucide-react';
 
@@ -154,6 +155,9 @@ export function CreditMatrixContent() {
           <span style={{ fontSize: 14, color: message.type === 'success' ? '#166534' : '#991b1b' }}>{message.text}</span>
         </div>
       )}
+
+      {/* Product explainer — "What am I actually buying?" */}
+      <ProductExplainer t={t} tNamespace="nexusStream" variant="nexus" defaultOpen={true} />
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 20 }}>
         <div>

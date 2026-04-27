@@ -3911,6 +3911,20 @@
       "sub": "Choisissez un pack. Partagez-le. Laissez la structure fonctionner.",
       "primary": "Créer un compte",
       "secondary": "Retour à l'aperçu de la rémunération"
+    },
+    "explainer": {
+      "headline": "Qu'est-ce que j'achète vraiment ?",
+      "subtitle": "AI Creator Credits • Nexus",
+      "p1Pre": "Un Nexus est un pack de",
+      "p1Bold": "crédits IA",
+      "p1Post": "utilisés dans Creative Studio pour générer des vidéos, des images, de la musique, des voix off, des clips de synchronisation labiale, et bien plus — parfait pour créer du contenu pour vos campagnes ou votre entreprise.",
+      "p2": "Chaque pack (20 $ → 1 000 $) ouvre son propre Nexus de 39 positions qui se remplit avec vos parrainages directs (commission 15 %) et débordement d'équipe (commission 10 %), plus une prime de complétion de 10 % quand les 39 positions sont remplies.",
+      "buyingLabel": "Vous achetez",
+      "buyingText": "des crédits IA pour Creative Studio, plus une position Nexus qui vous rapporte des commissions quand votre équipe achète le même pack.",
+      "tiersLabel": "Comment fonctionnent les paliers",
+      "tiersText": "Chaque pack ouvre son propre Nexus. Pour gagner sur l'achat d'un parrain à un palier de pack donné, vous devez posséder le même pack vous-même. Achetez des packs plus élevés en grandissant — possédez les 8 et vous gagnez sur chaque achat que votre équipe fait.",
+      "expand": "En savoir plus",
+      "collapse": "Afficher moins"
     }
   },
   "commandCentre": {

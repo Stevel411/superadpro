@@ -3911,6 +3911,20 @@
       "sub": "Scegli un pack. Condividilo. Lascia che la struttura faccia il suo lavoro.",
       "primary": "Crea un account",
       "secondary": "Torna alla panoramica della compensazione"
+    },
+    "explainer": {
+      "headline": "Cosa sto effettivamente acquistando?",
+      "subtitle": "AI Creator Credits • Nexus",
+      "p1Pre": "Un Nexus è un pacchetto di",
+      "p1Bold": "crediti AI",
+      "p1Post": "utilizzati in Creative Studio per generare video, immagini, musica, voiceover, clip sincronizzate con le labbra e molto altro — perfetto per creare contenuti per le tue campagne o la tua attività.",
+      "p2": "Ogni pacchetto ($20 → $1.000) apre il suo Nexus a 39 posizioni che si riempie con i tuoi referral diretti (commissione del 15%) e lo spillover del team (commissione del 10%), più un bonus del 10% al completamento quando tutte le 39 posizioni si riempiono.",
+      "buyingLabel": "Stai acquistando",
+      "buyingText": "crediti AI per Creative Studio, più una posizione Nexus che ti consente di guadagnare commissioni quando il tuo team acquista lo stesso pacchetto.",
+      "tiersLabel": "Come funzionano i tier",
+      "tiersText": "Ogni pacchetto apre il suo Nexus. Per guadagnare dall'acquisto di un referral a un determinato tier di pacchetto, devi possedere quel stesso pacchetto. Acquista pacchetti superiori man mano che cresci — possiedi tutti gli 8 e guadagni da ogni acquisto che il tuo team effettua.",
+      "expand": "Leggi di più",
+      "collapse": "Mostra meno"
     }
   },
   "commandCentre": {

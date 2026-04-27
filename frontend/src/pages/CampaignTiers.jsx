@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import AppLayout from '../components/layout/AppLayout';
+import ProductExplainer from '../components/ProductExplainer';
 import { apiGet } from '../utils/api';
 import { Check, X } from 'lucide-react';
 import { formatMoney } from '../utils/money';
@@ -139,6 +140,9 @@ export default function CampaignTiers() {
           </div>
         </div>
       </div>
+
+      {/* ── Product explainer — "What am I actually buying?" ── */}
+      <ProductExplainer t={t} tNamespace="gridStream" variant="grid" defaultOpen={true} />
 
       {/* ── Tier Cards — 4-column grid ── */}
       {[0, 4].map(function(start) {

@@ -3903,6 +3903,20 @@
       "sub": "Chagua pack. Ibahagi. Acha muundo ufanye kazi.",
       "primary": "Unda akaunti",
       "secondary": "Rudi kwenye muhtasari wa fidia"
+    },
+    "explainer": {
+      "headline": "Nini kwa kweli nininunua?",
+      "subtitle": "AI Creator Credits • Nexus",
+      "p1Pre": "Nexus ni pakiti ya",
+      "p1Bold": "krediti za AI",
+      "p1Post": "inayotumiwa katika Creative Studio kutengeneza video, picha, muziki, sauti za hotuba, klipи za lip-sync, na zaidi — kamili kwa kuunda maudhui ya kampeni zako au biashara yako.",
+      "p2": "Kila pakiti ($20 → $1,000) inafungua Nexus yake mwenyewe yenye nafasi 39 ambayo inajaza kwa referral zako za moja kwa moja (komisheni ya 15%) na spillover ya timu (komisheni ya 10%), pamoja na bonus ya kumaliza 10% wakati nafasi zote 39 zinajaza.",
+      "buyingLabel": "Ununua",
+      "buyingText": "krediti za AI kwa Creative Studio, pamoja na nafasi ya Nexus inayokupatia komisheni wakati timu yako inunua pakiti sawa.",
+      "tiersLabel": "Jinsi tiers zinavyofanya kazi",
+      "tiersText": "Kila pakiti inafungua Nexus yake mwenyewe. Ili kupata faida kutokana na ununuzi wa referral katika pakiti fulani, lazima uwe na pakiti sawa mwenyewe. Nunua pakiti kubwa kadri unavyoota — kuwa na zote 8 na utapata faida kwa kila ununuzi ambao timu yako inafanya.",
+      "expand": "Soma zaidi",
+      "collapse": "Onesha chini"
     }
   },
   "commandCentre": {

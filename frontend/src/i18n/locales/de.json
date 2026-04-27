@@ -3911,6 +3911,20 @@
       "sub": "Wählen Sie einen Pack. Teilen Sie ihn. Lassen Sie die Struktur arbeiten.",
       "primary": "Konto erstellen",
       "secondary": "Zurück zur Kompensationsübersicht"
+    },
+    "explainer": {
+      "headline": "Was kaufe ich eigentlich?",
+      "subtitle": "AI Creator Credits • Nexus",
+      "p1Pre": "Ein Nexus ist ein Paket mit ",
+      "p1Bold": "AI-Credits",
+      "p1Post": " die in Creative Studio verwendet werden, um Videos, Bilder, Musik, Voiceovers, Lip-Sync-Clips und mehr zu generieren — perfekt für die Erstellung von Inhalten für deine Kampagnen oder dein Unternehmen.",
+      "p2": "Jedes Paket ($20 → $1.000) öffnet sein eigenes 39er-Nexus, das sich mit deinen direkten Empfehlungen (15% Provision) und Team-Spillover (10% Provision) füllt, plus einen 10% Bonusbonus, wenn alle 39 Positionen gefüllt sind.",
+      "buyingLabel": "Du kaufst",
+      "buyingText": "AI-Credits für Creative Studio sowie eine Nexus-Position, mit der du Provisionen verdienst, wenn dein Team das gleiche Paket kauft.",
+      "tiersLabel": "Wie Pakete funktionieren",
+      "tiersText": "Jedes Paket öffnet sein eigenes Nexus. Um von einer Empfehlung auf einer bestimmten Paketebene zu verdienen, musst du selbst das gleiche Paket besitzen. Kaufe höherwertige Pakete, während du wächst — besitze alle 8 und verdiene an jedem Kauf deines Teams.",
+      "expand": "Mehr lesen",
+      "collapse": "Weniger anzeigen"
     }
   },
   "commandCentre": {

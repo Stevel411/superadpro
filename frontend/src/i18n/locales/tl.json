@@ -3903,6 +3903,20 @@
       "sub": "Pumili ng pack. I-share ito. Hayaang gumana ang istruktura.",
       "primary": "Lumikha ng account",
       "secondary": "Bumalik sa compensation overview"
+    },
+    "explainer": {
+      "headline": "Ano talaga ang binibili ko?",
+      "subtitle": "AI Creator Credits • Nexus",
+      "p1Pre": "Ang Nexus ay isang pack ng",
+      "p1Bold": "AI credits",
+      "p1Post": "ginagamit sa Creative Studio upang makabuo ng mga video, larawan, musika, voice-overs, lip-sync clips, at marami pang iba — perpekto para sa paglikha ng content para sa iyong mga kampanya o negosyo.",
+      "p2": "Bawat pack ($20 → $1,000) ay nagbubukas ng sariling 39-position Nexus na puno ng iyong direktang referrals (15% commission) at team spillover (10% commission), kasama ang 10% completion bonus kapag puno ang lahat ng 39 na posisyon.",
+      "buyingLabel": "Binibili mo",
+      "buyingText": "AI credits para sa Creative Studio, kasama ang Nexus position na kumikita ka ng commissions kapag bumili ang iyong team ng parehong pack.",
+      "tiersLabel": "Paano gumagana ang mga tier",
+      "tiersText": "Bawat pack ay nagbubukas ng sariling Nexus. Upang kumita mula sa pagbili ng referral sa isang ibinigay na pack tier, dapat mong mayroon ang parehong pack. Bumili ng mas mataas na packs habang lumalaki ka — magkaroon ng lahat ng 8 at kikita ka sa bawat pagbili ng iyong team.",
+      "expand": "Basahin pa",
+      "collapse": "Ipakita ng mas kaunti"
     }
   },
   "commandCentre": {
