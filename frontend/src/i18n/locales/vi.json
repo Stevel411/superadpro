@@ -482,7 +482,10 @@
     "playing": "▶ Đang phát",
     "watchOneToQualify": "Xem 1 video để đủ điều kiện hôm nay",
     "resumedWatch": "Resuming earlier watch — finish to qualify",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "progressSaved": "Your progress is saved",
+    "createACampaign": "+ Create a campaign",
+    "buyACampaignTier": "Buy a Campaign Tier"
   },
   "linkHub": {
     "title": "LinkHub",

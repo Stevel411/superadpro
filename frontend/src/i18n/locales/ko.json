@@ -482,7 +482,10 @@
     "playing": "▶ 재생 중",
     "watchOneToQualify": "오늘 자격을 얻으려면 1개 비디오 시청",
     "resumedWatch": "Resuming earlier watch — finish to qualify",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "progressSaved": "Your progress is saved",
+    "createACampaign": "+ Create a campaign",
+    "buyACampaignTier": "Buy a Campaign Tier"
   },
   "linkHub": {
     "title": "LinkHub",

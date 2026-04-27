@@ -17960,12 +17960,19 @@ def api_watch_data(request: Request, user: User = Depends(get_current_user),
         # Build videos list: the next video to watch (if any)
         videos = [next_video] if next_video else []
 
+        # Has-Campaign-Tier flag for the empty-state UI - lets us show
+        # appropriate CTAs depending on whether the user is already a paying
+        # campaign owner or needs to buy a tier first. get_user_highest_tier
+        # returns 0 for unpaid users, 8 for admins.
+        user_has_tier = get_user_highest_tier(db, user.id) > 0
+
         return {
             "watched_today": watched_today,
             "daily_limit": daily_limit,
             "daily_required": daily_limit,
             "quota_reached": quota_reached,
             "tier": quota.package_tier or 1,
+            "has_campaign_tier": user_has_tier,
             "streak_days": getattr(quota, 'streak_days', 0) or 0,
             "total_watched": getattr(quota, 'total_watched', 0) or 0,
             "commissions_paused": getattr(quota, 'commissions_paused', False),

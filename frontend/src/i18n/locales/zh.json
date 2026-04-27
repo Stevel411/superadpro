@@ -482,7 +482,10 @@
     "playing": "▶ 播放中",
     "watchOneToQualify": "观看1个视频即可获得今日资格",
     "resumedWatch": "Resuming earlier watch — finish to qualify",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "progressSaved": "Your progress is saved",
+    "createACampaign": "+ Create a campaign",
+    "buyACampaignTier": "Buy a Campaign Tier"
   },
   "linkHub": {
     "title": "LinkHub",

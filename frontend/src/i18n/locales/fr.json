@@ -482,7 +482,10 @@
     "playing": "▶ Lecture",
     "watchOneToQualify": "Regardez 1 vidéo pour vous qualifier aujourd'hui",
     "resumedWatch": "Resuming earlier watch — finish to qualify",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "progressSaved": "Your progress is saved",
+    "createACampaign": "+ Create a campaign",
+    "buyACampaignTier": "Buy a Campaign Tier"
   },
   "linkHub": {
     "title": "LinkHub",

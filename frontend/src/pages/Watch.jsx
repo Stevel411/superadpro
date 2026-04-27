@@ -450,6 +450,7 @@ export default function Watch() {
 
   // ── NO VIDEOS ──
   if (videos.length === 0 && !quotaComplete) {
+    const userHasTier = d?.has_campaign_tier;
     return (
       <AppLayout title={t('watch.title')} subtitle={t('watch.noActiveCampaigns')}>
         <style>{CSS}</style>
@@ -458,7 +459,18 @@ export default function Watch() {
             <div style={{fontSize:48,marginBottom:16,opacity:.5}}>📭</div>
             <div style={{fontFamily:'Sora,sans-serif',fontSize:20,fontWeight:800,color:'var(--sap-text-primary)',marginBottom:8}}>{t('watch.noActiveCampaigns')}</div>
             <div style={{fontSize:16,color:'var(--sap-text-muted)',lineHeight:1.7,marginBottom:24}}>{t('watch.checkBackSoon')}</div>
-            <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>{t('watch.dashboard')}</Link>
+            <div style={{display:'flex',gap:10,justifyContent:'center',flexWrap:'wrap'}}>
+              {userHasTier ? (
+                <Link to="/create-campaign" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#fff',background:'linear-gradient(135deg,#0ea5e9,#38bdf8)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>
+                  {t('watch.createACampaign', { defaultValue: '+ Create a campaign' })}
+                </Link>
+              ) : (
+                <Link to="/campaign-tiers" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'#1f1300',background:'linear-gradient(135deg,#f59e0b,#d97706)',borderRadius:10,padding:'12px 28px',textDecoration:'none',boxShadow:'0 4px 12px rgba(245,158,11,0.25)'}}>
+                  {t('watch.buyACampaignTier', { defaultValue: 'Buy a Campaign Tier' })}
+                </Link>
+              )}
+              <Link to="/dashboard" style={{display:'inline-flex',alignItems:'center',gap:6,fontSize:14,fontWeight:700,color:'var(--sap-text-primary)',background:'#fff',border:'1.5px solid var(--sap-border)',borderRadius:10,padding:'12px 28px',textDecoration:'none'}}>{t('watch.dashboard')}</Link>
+            </div>
           </div>
         </div>
       </AppLayout>
@@ -580,6 +592,7 @@ export default function Watch() {
                   <div style={{fontSize:40}}>⏸</div>
                   <div style={{fontFamily:'Sora,sans-serif',fontSize:18,fontWeight:800,color:'#fff'}}>{t('watch.pausedOverlay')}</div>
                   <div style={{fontSize:14,color:'rgba(255,255,255,.7)'}}>{t('watch.returnToTab')}</div>
+                  <div style={{fontSize:13,color:'rgba(255,255,255,.5)',marginTop:6}}>{t('watch.progressSaved', { defaultValue: 'Your progress is saved' })}</div>
                 </div>
               )}
             </div>

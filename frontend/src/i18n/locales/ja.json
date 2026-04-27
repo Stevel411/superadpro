@@ -482,7 +482,10 @@
     "playing": "▶ 再生中",
     "watchOneToQualify": "1本の動画を視聴して今日の資格を獲得",
     "resumedWatch": "Resuming earlier watch — finish to qualify",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "progressSaved": "Your progress is saved",
+    "createACampaign": "+ Create a campaign",
+    "buyACampaignTier": "Buy a Campaign Tier"
   },
   "linkHub": {
     "title": "LinkHub",

@@ -482,7 +482,10 @@
     "playing": "▶ Odtwarzanie",
     "watchOneToQualify": "Obejrzyj 1 film, aby zakwalifikować się dzisiaj",
     "resumedWatch": "Resuming earlier watch — finish to qualify",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "progressSaved": "Your progress is saved",
+    "createACampaign": "+ Create a campaign",
+    "buyACampaignTier": "Buy a Campaign Tier"
   },
   "linkHub": {
     "title": "LinkHub",
