@@ -1598,8 +1598,8 @@
     "s6_tip5": "Pay It Forward — hadiahkan keanggotaan Basic $20 kepada siapa pun. Anda menjadi sponsor dan mendapat komisi. Saat mereka menghasilkan $20+, mereka diajak menghadiahkan orang lain — menciptakan rantai pertumbuhan viral.",
     "s6_link": "Lihat dompet",
     "stepXofY": "Langkah {{num}} dari {{total}}",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "Gulir ke kiri",
+    "scrollRight": "Gulir ke kanan"
   },
   "howItWorks": {
     "getStarted": "Mulai Gratis",
@@ -4173,7 +4173,7 @@
   },
   "gridVis": {
     "title": "Income Grid",
-    "subtitle": "Your 8x8 spillover grid"
+    "subtitle": "Grid spillover 8x8 Anda"
   },
   "faqPage": {
     "title": "FAQ",

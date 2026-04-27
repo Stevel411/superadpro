@@ -1598,8 +1598,8 @@
     "s6_tip5": "Pay It Forward — regala un'iscrizione Basic da $20. Diventi lo sponsor e guadagni commissioni. Quando guadagnano $20+, regalano a loro volta — creando una catena virale.",
     "s6_link": "Visualizza portafoglio",
     "stepXofY": "Passo {{num}} di {{total}}",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "Scorri a sinistra",
+    "scrollRight": "Scorri a destra"
   },
   "howItWorks": {
     "getStarted": "Inizia Gratis",
@@ -4181,7 +4181,7 @@
   },
   "gridVis": {
     "title": "Income Grid",
-    "subtitle": "Your 8x8 spillover grid"
+    "subtitle": "La tua griglia di spillover 8x8"
   },
   "faqPage": {
     "title": "Domande frequenti",

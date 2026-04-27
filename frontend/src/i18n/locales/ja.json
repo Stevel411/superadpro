@@ -548,7 +548,7 @@
     "clickSave": "保存をクリックして適用",
     "searchIcons": "アイコンを検索...",
     "customizeStyle": "スタイルをカスタマイズ",
-    "bioLabel": "Bio",
+    "bioLabel": "プロフィール",
     "copiedLabel": "コピーしました！",
     "copyUrlBtn": "URLをコピー"
   },
@@ -1598,8 +1598,8 @@
     "s6_tip5": "Pay It Forward — $20 Basicメンバーシップを贈る。あなたがスポンサーになり、コミッションを獲得。$20+稼いだら次の人へ贈る——バイラル成長チェーン。",
     "s6_link": "ウォレットを見る",
     "stepXofY": "ステップ {{num}} / {{total}}",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "左にスクロール",
+    "scrollRight": "右にスクロール"
   },
   "howItWorks": {
     "getStarted": "無料で始める",

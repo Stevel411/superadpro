@@ -998,11 +998,11 @@
     "heroSubtitle": "Ook als je nog nooit crypto hebt gebruikt",
     "heroDesc": "SuperAdPro gebruikt cryptocurrency voor betalingen en commissies. Deze gids helpt je een gratis wallet in te stellen in circa 5 minuten.",
     "stepOf": "Stap {{num}} van 5",
-    "step1Title": "Download MetaMask",
+    "step1Title": "MetaMask downloaden",
     "step1P1": "MetaMask is een gratis crypto wallet gebruikt door meer dan 100 miljoen mensen.",
     "step1P2": "Ga naar metamask.io en download de officiële app. Maak een nieuw wallet en je krijgt een herstelzin van 12 woorden.",
     "step1Warning": "Schrijf je herstelzin op papier en bewaar het veilig. Deel deze woorden nooit.",
-    "step1Link": "Download MetaMask",
+    "step1Link": "MetaMask downloaden",
     "step2Title": "Schakel naar het Polygon-netwerk",
     "step2P1": "SuperAdPro gebruikt het Polygon-netwerk — transacties kosten minder dan 1 cent in plaats van $5-15 op Ethereum.",
     "step2P2": "Tik in MetaMask op het netwerkmenu en selecteer \"Polygon Mainnet\".",
@@ -1541,7 +1541,7 @@
     "accountReadyBody": "Account klaar. Volgende stappen:"
   },
   "platformTour": {
-    "title": "Platform Tour",
+    "title": "Platformrondleiding",
     "subtitle": "Ontdek alles wat SuperAdPro biedt",
     "screenshotComingSoon": "Screenshot of video komt binnenkort",
     "keyThings": "Belangrijke zaken",
@@ -1598,8 +1598,8 @@
     "s6_tip5": "Pay It Forward — schenk een $20 Basic-lidmaatschap. U wordt sponsor en verdient commissies. Bij $20+ verdiensten geven zij het door — een virale keten.",
     "s6_link": "Portemonnee bekijken",
     "stepXofY": "Stap {{num}} van {{total}}",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "Naar links scrollen",
+    "scrollRight": "Naar rechts scrollen"
   },
   "howItWorks": {
     "getStarted": "Gratis Beginnen",
@@ -4181,7 +4181,7 @@
   },
   "gridVis": {
     "title": "Income Grid",
-    "subtitle": "Your 8x8 spillover grid"
+    "subtitle": "Uw 8x8 spillover grid"
   },
   "faqPage": {
     "title": "Veelgestelde vragen",

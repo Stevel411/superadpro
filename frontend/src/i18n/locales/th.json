@@ -548,7 +548,7 @@
     "clickSave": "คลิกบันทึกเพื่อใช้งาน",
     "searchIcons": "ค้นหาไอคอน...",
     "customizeStyle": "ปรับแต่งสไตล์",
-    "bioLabel": "Bio",
+    "bioLabel": "ชีวประวัติ",
     "copiedLabel": "คัดลอกแล้ว!",
     "copyUrlBtn": "คัดลอก URL"
   },
@@ -1598,8 +1598,8 @@
     "s6_tip5": "Pay It Forward — มอบสมาชิก Basic $20 ให้ใครก็ได้ คุณเป็นผู้สนับสนุนและรับค่าคอมฯ เมื่อพวกเขาหาได้ $20+ จะถูกเชิญให้มอบต่อ — สร้างโซ่การเติบโตแบบไวรัล",
     "s6_link": "ดูกระเป๋าเงิน",
     "stepXofY": "ขั้นตอนที่ {{num}} จาก {{total}}",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "เลื่อนไปทางซ้าย",
+    "scrollRight": "เลื่อนไปทางขวา"
   },
   "howItWorks": {
     "getStarted": "เริ่มฟรี",
@@ -4173,7 +4173,7 @@
   },
   "gridVis": {
     "title": "Income Grid",
-    "subtitle": "Your 8x8 spillover grid"
+    "subtitle": "Grid spillover 8x8 ของคุณ"
   },
   "faqPage": {
     "title": "คำถามที่พบบ่อย",

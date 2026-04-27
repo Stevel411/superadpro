@@ -1598,8 +1598,8 @@
     "s6_tip5": "Pay It Forward — offrez une adhésion Basic de 20$ à quelqu'un. Vous devenez leur sponsor et gagnez des commissions sur tout. Quand ils gagnent 20$+, ils offrent à leur tour — créant une chaîne virale.",
     "s6_link": "Voir votre portefeuille",
     "stepXofY": "Étape {{num}} sur {{total}}",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "Faire défiler vers la gauche",
+    "scrollRight": "Faire défiler vers la droite"
   },
   "howItWorks": {
     "getStarted": "Commencer Gratuitement",
@@ -4181,7 +4181,7 @@
   },
   "gridVis": {
     "title": "Income Grid",
-    "subtitle": "Your 8x8 spillover grid"
+    "subtitle": "Votre grille de débordement 8x8"
   },
   "faqPage": {
     "title": "FAQ",

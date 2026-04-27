@@ -548,7 +548,7 @@
     "clickSave": "Нажмите Сохранить для применения",
     "searchIcons": "Поиск иконок...",
     "customizeStyle": "Настроить стиль",
-    "bioLabel": "Bio",
+    "bioLabel": "Биография",
     "copiedLabel": "Скопировано!",
     "copyUrlBtn": "Копировать URL"
   },
@@ -1598,8 +1598,8 @@
     "s6_tip5": "Pay It Forward — подарите $20 Basic-членство. Вы становитесь спонсором и зарабатываете комиссии. Когда они заработают $20+, им предложат подарить — создавая вирусную цепочку.",
     "s6_link": "Посмотреть кошелёк",
     "stepXofY": "Шаг {{num}} из {{total}}",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "Прокрутить влево",
+    "scrollRight": "Прокрутить вправо"
   },
   "howItWorks": {
     "getStarted": "Начать Бесплатно",
@@ -4181,7 +4181,7 @@
   },
   "gridVis": {
     "title": "Income Grid",
-    "subtitle": "Your 8x8 spillover grid"
+    "subtitle": "Ваша сетка переполнения 8x8"
   },
   "faqPage": {
     "title": "FAQ",

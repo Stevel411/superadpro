@@ -548,7 +548,7 @@
     "clickSave": "点击保存以应用",
     "searchIcons": "搜索图标...",
     "customizeStyle": "自定义样式",
-    "bioLabel": "Bio",
+    "bioLabel": "个人简介",
     "copiedLabel": "已复制！",
     "copyUrlBtn": "复制链接"
   },
@@ -1598,8 +1598,8 @@
     "s6_tip5": "Pay It Forward — 赠送$20 Basic会员资格给任何人。您成为他们的推荐人并赚取佣金。当他们赚到$20+时，会被提示传递善意——形成病毒式增长链。",
     "s6_link": "查看钱包",
     "stepXofY": "第 {{num}} 步，共 {{total}} 步",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "向左滚动",
+    "scrollRight": "向右滚动"
   },
   "howItWorks": {
     "getStarted": "免费开始",
@@ -2311,7 +2311,7 @@
     "wifiType": "WiFi 详情",
     "emailType": "电子邮件",
     "phoneType": "电话号码",
-    "smsType": "SMS",
+    "smsType": "短信",
     "textPlaceholder": "输入任何文本...",
     "wifiSsidPlaceholder": "网络名称 (SSID)",
     "wifiPasswordPlaceholder": "密码",
@@ -4173,7 +4173,7 @@
   },
   "gridVis": {
     "title": "Income Grid",
-    "subtitle": "Your 8x8 spillover grid"
+    "subtitle": "您的 8x8 溢出网格"
   },
   "faqPage": {
     "title": "常见问题",

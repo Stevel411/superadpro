@@ -1598,8 +1598,8 @@
     "s6_tip5": "Pay It Forward — mag-regalo ng $20 Basic membership sa kahit sino. Ikaw ang magiging sponsor nila at kikita ka ng komisyon. Kapag kumita sila ng $20+, hihikayatin silang mag-regalo rin — lumilikha ng viral growth chain.",
     "s6_link": "Tingnan ang wallet",
     "stepXofY": "Hakbang {{num}} ng {{total}}",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "Mag-scroll sa kaliwa",
+    "scrollRight": "Mag-scroll sa kanan"
   },
   "howItWorks": {
     "getStarted": "Magsimula ng Libre",
@@ -4173,7 +4173,7 @@
   },
   "gridVis": {
     "title": "Income Grid",
-    "subtitle": "Your 8x8 spillover grid"
+    "subtitle": "Ang iyong 8x8 spillover grid"
   },
   "faqPage": {
     "title": "FAQ",

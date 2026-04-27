@@ -1598,8 +1598,8 @@
     "s6_tip5": "Pay It Forward — birine $20 Basic üyelik hediye edin. Onların sponsoru olursunuz ve komisyon kazanırsınız. $20+ kazandıklarında onlar da birine hediye eder — viral büyüme zinciri.",
     "s6_link": "Cüzdanı gör",
     "stepXofY": "{{total}} adımdan {{num}}. adım",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "Sola kaydır",
+    "scrollRight": "Sağa kaydır"
   },
   "howItWorks": {
     "getStarted": "Ücretsiz Başla",
@@ -4173,7 +4173,7 @@
   },
   "gridVis": {
     "title": "Income Grid",
-    "subtitle": "Your 8x8 spillover grid"
+    "subtitle": "8x8 taşma grid'iniz"
   },
   "faqPage": {
     "title": "SSS",

@@ -1598,8 +1598,8 @@
     "s6_tip5": "Pay It Forward — verschenken Sie eine $20 Basic-Mitgliedschaft. Sie werden Sponsor und verdienen Provisionen. Bei $20+ Verdienst wird der Beschenkte aufgefordert, weiterzugeben — eine virale Kette.",
     "s6_link": "Wallet anzeigen",
     "stepXofY": "Schritt {{num}} von {{total}}",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "Nach links scrollen",
+    "scrollRight": "Nach rechts scrollen"
   },
   "howItWorks": {
     "getStarted": "Kostenlos Starten",
@@ -4181,7 +4181,7 @@
   },
   "gridVis": {
     "title": "Income Grid",
-    "subtitle": "Your 8x8 spillover grid"
+    "subtitle": "Dein 8x8 Spillover Grid"
   },
   "faqPage": {
     "title": "FAQ",

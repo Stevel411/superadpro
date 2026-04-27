@@ -548,7 +548,7 @@
     "clickSave": "저장을 클릭하여 적용",
     "searchIcons": "아이콘 검색...",
     "customizeStyle": "스타일 맞춤설정",
-    "bioLabel": "Bio",
+    "bioLabel": "소개",
     "copiedLabel": "복사됨!",
     "copyUrlBtn": "URL 복사"
   },
@@ -1598,8 +1598,8 @@
     "s6_tip5": "Pay It Forward — $20 Basic 멤버십 선물. 당신이 스폰서가 되어 커미션 획득. $20+ 벌면 다른 사람에게 선물 권유 — 바이럴 성장 체인.",
     "s6_link": "지갑 보기",
     "stepXofY": "{{total}}단계 중 {{num}}단계",
-    "scrollLeft": "Scroll left",
-    "scrollRight": "Scroll right"
+    "scrollLeft": "왼쪽으로 스크롤",
+    "scrollRight": "오른쪽으로 스크롤"
   },
   "howItWorks": {
     "getStarted": "무료로 시작",
@@ -4173,7 +4173,7 @@
   },
   "gridVis": {
     "title": "Income Grid",
-    "subtitle": "Your 8x8 spillover grid"
+    "subtitle": "8x8 스필오버 그리드"
   },
   "faqPage": {
     "title": "FAQ",

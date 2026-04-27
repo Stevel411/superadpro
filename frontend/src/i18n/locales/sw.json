@@ -548,7 +548,7 @@
     "clickSave": "Bofya Hifadhi ili kutumia",
     "searchIcons": "Tafuta ikoni...",
     "customizeStyle": "Binafsisha mtindo",
-    "bioLabel": "Bio",
+    "bioLabel": "Wasifu",
     "copiedLabel": "Imenakiliwa!",
     "copyUrlBtn": "Nakili URL"
   },
@@ -4173,7 +4173,7 @@
   },
   "gridVis": {
     "title": "Income Grid",
-    "subtitle": "Your 8x8 spillover grid"
+    "subtitle": "Gridi yako ya 8x8 ya kuzidisha"
   },
   "faqPage": {
     "title": "FAQ",
