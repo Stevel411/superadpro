@@ -76,11 +76,11 @@ export default function TeamMessenger() {
   if (loading) return <AppLayout title={t("teamMessenger.title")}><div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'60vh'}}><div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:16}}><div style={{width:40,height:40,borderRadius:'50%',border:'3px solid #e2e8f0',borderTopColor:'#0ea5e9',animation:'spin 0.8s linear infinite'}}/><div style={{fontSize:13,fontWeight:600,color:'#7a8899'}}>{t('teamMessenger.loading')}</div></div><style>{'@keyframes spin{to{transform:rotate(360deg)}}'}</style></div></AppLayout>;
 
   return (
-    <AppLayout title={t("teamMessenger.title")} subtitle={t('teamMessenger.messageSubtitle')}>
-      <div style={{display:'flex',gap:0,background:'#fff',border:'1px solid #e2e8f0',borderRadius:16,overflow:'hidden',minHeight:600,boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}}>
+    <AppLayout title={t("teamMessenger.title")} subtitle={t('teamMessenger.messageSubtitle')} fullHeight>
+      <div style={{display:'flex',gap:0,background:'#fff',border:'1px solid #e2e8f0',borderRadius:16,overflow:'hidden',height:'100%',minHeight:0,boxShadow:'0 1px 3px rgba(0,0,0,0.04)'}}>
 
         {/* ═══ LEFT: CONTACT LIST ═══ */}
-        <div style={{width:300,borderRight:'1px solid #e2e8f0',display:'flex',flexDirection:'column',flexShrink:0}}>
+        <div style={{width:300,borderRight:'1px solid #e2e8f0',display:'flex',flexDirection:'column',flexShrink:0,minHeight:0}}>
           {/* Header */}
           <div style={{padding:'16px 18px',borderBottom:'1px solid #f1f5f9'}}>
             <div style={{fontSize:15,fontWeight:800,color:'#0f172a',display:'flex',alignItems:'center',gap:8,marginBottom:12}}>
@@ -144,7 +144,7 @@ export default function TeamMessenger() {
         </div>
 
         {/* ═══ RIGHT: CHAT AREA ═══ */}
-        <div style={{flex:1,display:'flex',flexDirection:'column',minWidth:0}}>
+        <div style={{flex:1,display:'flex',flexDirection:'column',minWidth:0,minHeight:0}}>
           {activeContact ? (<>
             {/* Chat header */}
             <div style={{padding:'14px 24px',borderBottom:'1px solid #e2e8f0',display:'flex',alignItems:'center',gap:14,background:'#fff'}}>
