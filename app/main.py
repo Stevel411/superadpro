@@ -11738,6 +11738,22 @@ def recompute_personal_referrals(secret: str, db: Session = Depends(get_db)):
 
     return {"updated": len(fixed), "details": fixed}
 
+
+# ── Force-flush the leaderboard cache ──
+# The leaderboard cache is per-worker in-memory, so invalidations from one
+# request only clear that worker's copy. Call this endpoint repeatedly
+# (each hit lands on a different worker) until you see fresh data, OR
+# simply wait up to 5 minutes for the natural TTL to expire.
+@app.get("/admin/flush-leaderboard-cache")
+def flush_leaderboard_cache(secret: str):
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+    try:
+        cache_invalidate_leaderboard()
+        return {"flushed": True, "note": "Cache cleared on this worker. Hit the URL again to clear other workers."}
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+
 @app.get("/admin/activate-owner")
 def activate_owner(secret: str, username: str, db: Session = Depends(get_db)):
 
