@@ -4222,5 +4222,35 @@
     "stillStuckTitle": "May mga katanungan pa rin ba?",
     "stillStuckSub": "Karaniwang sumasagot ang aming support team sa loob ng ilang oras.",
     "contactSupport": "Makipag-ugnayan sa Support"
+  },
+  "upgradeFromBalance": {
+    "title": "I-activate ang iyong membership",
+    "errorGeneric": "May problema. Mangyaring subukan ulit.",
+    "alreadyActiveTitle": "Aktibo na kami!",
+    "alreadyActiveBody": "Ang iyong membership ay aktibo na. Walang kailangang gawin dito.",
+    "goToDashboard": "Pumunta sa dashboard",
+    "notYetTitle": "Hindi pa kailanman",
+    "notYetBody": "Mayroon ka ngayon na ${{balance}} sa iyong commission balance. Kapag umabot ka na sa ${{fee}}, maaari mong i-activate ang Basic membership gamit ang iyong earnings — walang bayad na ilabas.",
+    "notYetGoal": "Kailangan mo ng ${{needed}} pa upang makatugma.",
+    "shareYourLink": "Ibahagi ang iyong link upang kumita",
+    "heroEyebrow": "Nag-qualify ka na",
+    "heroTitle": "I-activate ang Basic membership nang libre",
+    "heroSubtitle": "Ang iyong commission earnings ay sumasaklaw dito — walang bayad na ilabas.",
+    "choiceTitle": "Ito ang iyong pagpipilian",
+    "choiceBody1": "Nakakuha ka na ng ${{balance}} sa commissions hanggang ngayon. Maaari mong gamitin ang ${{fee}} nito upang i-activate ang Basic membership ngayon, o panatilihin ang iyong earnings sa iyong wallet upang i-withdraw anumang oras.",
+    "choiceBody2": "Ang pag-activate ay nagbubukas ng mas mataas na commission rates at buong Basic features. Ang pagpapanatili ng iyong earnings ay nangangahulugang manatili sila sa iyong wallet — maaari kang mag-activate mamaya kapag handa ka na.",
+    "currentBalance": "Kasalukuyang balance",
+    "basicFee": "Basic membership fee",
+    "remainingAfter": "Natitira pagkatapos ng activation",
+    "activating": "Ina-activate…",
+    "activateBtn": "I-activate ang Basic para sa ${{fee}}",
+    "keepBtn": "Panatilihin ang aking earnings",
+    "reassurance": "Maaari mong palaging i-activate mamaya — ang iyong earnings ay manatili sa iyong wallet hanggang sa magpasya ka."
+  },
+  "notifications": {
+    "membershipOffer": {
+      "title": "I-activate ang iyong membership nang libre",
+      "message": "Nakakuha ka na ng $20 sa commissions! I-activate ang Basic membership ngayon gamit ang iyong earnings, o panatilihin ang mga ito sa iyong wallet upang i-withdraw mamaya."
+    }
   }
 }

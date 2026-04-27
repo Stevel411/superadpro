@@ -4302,6 +4302,100 @@ def verify_membership(
         return RedirectResponse(url=redirect_url, status_code=303)
     return JSONResponse({"error": result["error"]}, status_code=400)
 
+
+# ── Activate-from-balance (Option B membership offer) ──
+# When a free member's commission balance reaches $20, payment.py creates
+# a notification offering them the choice to activate Basic for free
+# (consuming their $20 balance) or keep their earnings. These two
+# endpoints power the consent flow at /upgrade-from-balance.
+@app.get("/api/membership/balance-offer")
+def api_membership_balance_offer(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """Returns whether the current user qualifies for the balance-based offer."""
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    balance = float(user.balance or 0)
+    return {
+        "is_active": bool(user.is_active),
+        "balance": balance,
+        "membership_fee": float(MEMBERSHIP_FEE),
+        "qualifies": (not user.is_active) and balance >= float(MEMBERSHIP_FEE),
+    }
+
+
+@app.post("/api/membership/activate-from-balance")
+def api_membership_activate_from_balance(
+    user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    """
+    Activate Basic membership using $20 from the user's commission balance.
+    Only free members with balance >= MEMBERSHIP_FEE may call this.
+    """
+    if not user:
+        return JSONResponse({"error": "Not authenticated"}, status_code=401)
+    if user.is_active:
+        return JSONResponse({"error": "Membership is already active."}, status_code=400)
+
+    fee = decimal.Decimal(str(MEMBERSHIP_FEE))
+    balance = decimal.Decimal(str(user.balance or 0))
+    if balance < fee:
+        return JSONResponse(
+            {"error": f"You need ${MEMBERSHIP_FEE} to activate. Current balance: ${float(balance):.2f}."},
+            status_code=400,
+        )
+
+    # Deduct fee, activate Basic. activated_at + membership_expires_at
+    # follow the same pattern as a regular paid activation.
+    user.balance = balance - fee
+    user.is_active = True
+    user.membership_tier = "basic"
+    user.activated_at = user.activated_at or datetime.utcnow()
+    user.membership_expires_at = (user.membership_expires_at or datetime.utcnow()) + timedelta(days=31)
+
+    # Mark any pending membership_offer notification as read so it
+    # disappears from the user's inbox (they've acted on it).
+    from .database import Notification
+    pending_offers = (
+        db.query(Notification)
+        .filter(
+            Notification.user_id == user.id,
+            Notification.type == "membership_offer",
+            Notification.is_read == False,
+        )
+        .all()
+    )
+    for n in pending_offers:
+        n.is_read = True
+
+    # Record the activation as a payment for audit trail. Source
+    # 'balance_redemption' distinguishes it from crypto/stripe/coinbase.
+    db.add(Payment(
+        from_user_id=user.id,
+        to_user_id=None,
+        amount_usdt=fee,
+        payment_type="membership_balance",
+        tx_hash=f"bal_{user.id}_{int(datetime.utcnow().timestamp())}",
+        status="confirmed",
+    ))
+
+    # Initialise renewal record so the cron knows when to bill next.
+    try:
+        initialise_renewal_record(db, user.id, source="balance_redemption")
+    except Exception as exc:
+        logger.warning(f"Renewal record creation failed for user {user.id} after balance activation: {exc}")
+
+    db.commit()
+    logger.info(f"Member {user.username} activated Basic via balance redemption (${MEMBERSHIP_FEE} consumed).")
+
+    return {
+        "success": True,
+        "tier": "basic",
+        "remaining_balance": float(user.balance),
+    }
+
 @app.get("/activate-grid")
 def activate_grid_form(
     request: Request,
@@ -4491,7 +4585,9 @@ async def coinbase_webhook(request: Request, db: Session = Depends(get_db)):
                     notes=f"Membership 50% company share (${MEMBERSHIP_COMPANY_SHARE})",
                 ))
 
-                # Auto-activation cascade — if sponsor is free and balance >= $20, auto-activate them
+                # Membership offer check — if sponsor is a free member whose
+                # balance has crossed the threshold, queue a notification
+                # offering them the choice to activate (Option B, never silent).
                 _cascade_auto_activation(
                     db=db,
                     recipient=sponsor,
@@ -5244,6 +5340,19 @@ def _activate_membership(db, user, tier, source="crypto", subscription_id=None, 
                 paid_at=datetime.utcnow(),
             )
             db.add(comm)
+
+            # If sponsor is a free member whose balance just crossed the
+            # membership threshold, send them a one-time offer notification
+            # (Option B — never auto-consume their earnings without consent).
+            try:
+                from .payment import _cascade_auto_activation
+                _cascade_auto_activation(
+                    db=db, recipient=sponsor,
+                    tx_hash=f"act_{user.id}", chain_depth=1,
+                    activated_users=[],
+                )
+            except Exception as exc:
+                logger.warning(f"Membership-offer notification check failed for sponsor {sponsor.id}: {exc}")
 
             # Send cha-ching commission email to sponsor
             try:

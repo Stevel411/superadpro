@@ -4222,5 +4222,35 @@
     "stillStuckTitle": "여전히 질문이 있으신가요?",
     "stillStuckSub": "지원팀은 보통 몇 시간 이내에 답변합니다.",
     "contactSupport": "지원팀에 문의"
+  },
+  "upgradeFromBalance": {
+    "title": "멤버십 활성화",
+    "errorGeneric": "문제가 발생했습니다. 다시 시도해주세요.",
+    "alreadyActiveTitle": "이미 활성화되었습니다!",
+    "alreadyActiveBody": "이미 멤버십이 활성화되어 있습니다. 할 일이 없습니다.",
+    "goToDashboard": "대시보드로 이동",
+    "notYetTitle": "아직 준비가 덜 되었습니다",
+    "notYetBody": "현재 수수료 잔액에 ${{balance}}가 있습니다. ${{fee}}에 도달하면 추가 비용 없이 수익으로 Basic 멤버십을 활성화할 수 있습니다.",
+    "notYetGoal": "자격을 얻으려면 ${{needed}}가 더 필요합니다.",
+    "shareYourLink": "링크를 공유하여 수익을 얻으세요",
+    "heroEyebrow": "자격을 갖추셨습니다",
+    "heroTitle": "Basic 멤버십을 무료로 활성화하세요",
+    "heroSubtitle": "수수료 수익으로 충당됩니다 — 추가 비용이 없습니다.",
+    "choiceTitle": "선택은 당신의 것입니다",
+    "choiceBody1": "지금까지 ${{balance}}의 수수료 수익을 얻었습니다. 이제 Basic 멤버십을 활성화하는 데 ${{fee}}를 사용하거나 필요할 때 출금하기 위해 지갑에 보관할 수 있습니다.",
+    "choiceBody2": "활성화하면 더 높은 수수료 요율과 전체 Basic 기능을 사용할 수 있습니다. 수익을 유지하면 지갑에 유지되므로 준비가 되면 나중에 활성화할 수 있습니다.",
+    "currentBalance": "현재 잔액",
+    "basicFee": "Basic 멤버십 수수료",
+    "remainingAfter": "활성화 후 남은 금액",
+    "activating": "활성화 중…",
+    "activateBtn": "Basic을 ${{fee}}로 활성화",
+    "keepBtn": "수익 유지",
+    "reassurance": "언제든지 나중에 활성화할 수 있습니다 — 결정할 때까지 수익이 지갑에 유지됩니다."
+  },
+  "notifications": {
+    "membershipOffer": {
+      "title": "멤버십을 무료로 활성화하세요",
+      "message": "지금까지 $20의 수수료 수익을 얻었습니다! 이제 수익으로 Basic 멤버십을 활성화하거나 나중에 출금하기 위해 지갑에 보관하세요."
+    }
   }
 }

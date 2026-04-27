@@ -4230,5 +4230,35 @@
     "stillStuckTitle": "Nog steeds vragen?",
     "stillStuckSub": "Ons ondersteuningsteam reageert meestal binnen een paar uur.",
     "contactSupport": "Contact opnemen met ondersteuning"
+  },
+  "upgradeFromBalance": {
+    "title": "Activeer je lidmaatschap",
+    "errorGeneric": "Er is iets misgegaan. Probeer het opnieuw.",
+    "alreadyActiveTitle": "Je bent al actief!",
+    "alreadyActiveBody": "Je lidmaatschap is al actief. Er is hier niets te doen.",
+    "goToDashboard": "Ga naar dashboard",
+    "notYetTitle": "Nog niet helemaal daar",
+    "notYetBody": "Je hebt momenteel ${{balance}} in je commissiesaldo. Zodra je ${{fee}} bereikt, kun je Basic-lidmaatschap activeren met je inkomsten — geen uitgaven uit eigen zak.",
+    "notYetGoal": "Je hebt nog ${{needed}} nodig om te kwalificeren.",
+    "shareYourLink": "Deel je link om te verdienen",
+    "heroEyebrow": "Je hebt gekwalificeerd",
+    "heroTitle": "Activeer Basic-lidmaatschap gratis",
+    "heroSubtitle": "Je commissie-inkomsten dekken het — geen uitgaven uit eigen zak.",
+    "choiceTitle": "Het is jouw keuze",
+    "choiceBody1": "Je hebt tot nu toe ${{balance}} in commissies verdiend. Je kunt ${{fee}} daarvan nu gebruiken om Basic-lidmaatschap te activeren, of je inkomsten in je portemonnee houden om later op te nemen.",
+    "choiceBody2": "Activering ontgrendelt hogere commissietarieven en volledige Basic-functies. Je inkomsten behouden betekent dat ze in je portemonnee blijven — je kunt later activeren wanneer je klaar bent.",
+    "currentBalance": "Hudig saldo",
+    "basicFee": "Basic-lidmaatschapskosten",
+    "remainingAfter": "Resterend na activering",
+    "activating": "Activeren…",
+    "activateBtn": "Activeer Basic voor ${{fee}}",
+    "keepBtn": "Behoud mijn inkomsten",
+    "reassurance": "Je kunt altijd later activeren — je inkomsten blijven in je portemonnee totdat je besluit."
+  },
+  "notifications": {
+    "membershipOffer": {
+      "title": "Activeer je lidmaatschap gratis",
+      "message": "Je hebt $20 in commissies verdiend! Activeer nu Basic-lidmaatschap met je inkomsten, of behoud ze in je portemonnee om later op te nemen."
+    }
   }
 }

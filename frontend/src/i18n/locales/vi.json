@@ -4222,5 +4222,35 @@
     "stillStuckTitle": "Vẫn còn câu hỏi?",
     "stillStuckSub": "Đội hỗ trợ của chúng tôi thường trả lời trong vài giờ.",
     "contactSupport": "Liên hệ hỗ trợ"
+  },
+  "upgradeFromBalance": {
+    "title": "Kích hoạt tư cách thành viên của bạn",
+    "errorGeneric": "Có lỗi xảy ra. Vui lòng thử lại.",
+    "alreadyActiveTitle": "Bạn đã kích hoạt rồi!",
+    "alreadyActiveBody": "Tư cách thành viên của bạn đã kích hoạt. Không có gì để làm ở đây.",
+    "goToDashboard": "Đi đến bảng điều khiển",
+    "notYetTitle": "Chưa đủ điều kiện",
+    "notYetBody": "Bạn hiện có ${{balance}} trong số dư hoa hồng của mình. Khi bạn đạt ${{fee}}, bạn có thể kích hoạt tư cách thành viên Basic bằng thu nhập của mình — không cần chi phí riêng.",
+    "notYetGoal": "Bạn cần thêm ${{needed}} để đủ điều kiện.",
+    "shareYourLink": "Chia sẻ liên kết của bạn để kiếm tiền",
+    "heroEyebrow": "Bạn đã đủ điều kiện",
+    "heroTitle": "Kích hoạt tư cách thành viên Basic miễn phí",
+    "heroSubtitle": "Thu nhập hoa hồng của bạn bao phủ nó — không cần chi phí riêng.",
+    "choiceTitle": "Tùy thuộc vào bạn",
+    "choiceBody1": "Bạn đã kiếm được ${{balance}} hoa hồng cho đến nay. Bạn có thể sử dụng ${{fee}} từ đó để kích hoạt tư cách thành viên Basic ngay bây giờ, hoặc giữ thu nhập của mình trong ví để rút bất kỳ lúc nào.",
+    "choiceBody2": "Kích hoạt sẽ mở khóa tỷ lệ hoa hồng cao hơn và các tính năng Basic đầy đủ. Giữ thu nhập của bạn có nghĩa là chúng sẽ ở trong ví của bạn — bạn có thể kích hoạt sau khi sẵn sàng.",
+    "currentBalance": "Số dư hiện tại",
+    "basicFee": "Phí tư cách thành viên Basic",
+    "remainingAfter": "Còn lại sau khi kích hoạt",
+    "activating": "Đang kích hoạt…",
+    "activateBtn": "Kích hoạt Basic với ${{fee}}",
+    "keepBtn": "Giữ thu nhập của tôi",
+    "reassurance": "Bạn luôn có thể kích hoạt sau — thu nhập của bạn sẽ ở lại trong ví của bạn cho đến khi bạn quyết định."
+  },
+  "notifications": {
+    "membershipOffer": {
+      "title": "Kích hoạt tư cách thành viên của bạn miễn phí",
+      "message": "Bạn đã kiếm được $20 hoa hồng! Kích hoạt tư cách thành viên Basic ngay bây giờ bằng thu nhập của mình, hoặc giữ chúng trong ví để rút sau."
+    }
   }
 }

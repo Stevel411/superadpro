@@ -4230,5 +4230,35 @@
     "stillStuckTitle": "Haben Sie noch Fragen?",
     "stillStuckSub": "Unser Support-Team antwortet normalerweise innerhalb von wenigen Stunden.",
     "contactSupport": "Support kontaktieren"
+  },
+  "upgradeFromBalance": {
+    "title": "Aktivieren Sie Ihre Mitgliedschaft",
+    "errorGeneric": "Etwas ist schief gelaufen. Bitte versuchen Sie es erneut.",
+    "alreadyActiveTitle": "Sie sind bereits aktiv!",
+    "alreadyActiveBody": "Ihre Mitgliedschaft ist bereits aktiv. Es gibt hier nichts zu tun.",
+    "goToDashboard": "Zum Dashboard",
+    "notYetTitle": "Noch nicht ganz dort",
+    "notYetBody": "Sie haben derzeit ${{balance}} in Ihrem Provisionskontostand. Sobald Sie ${{fee}} erreichen, können Sie die Basic-Mitgliedschaft mit Ihren Einnahmen aktivieren – ohne eigene Kosten.",
+    "notYetGoal": "Sie benötigen ${{needed}} mehr, um sich zu qualifizieren.",
+    "shareYourLink": "Teilen Sie Ihren Link, um zu verdienen",
+    "heroEyebrow": "Sie haben sich qualifiziert",
+    "heroTitle": "Aktivieren Sie die Basic-Mitgliedschaft kostenlos",
+    "heroSubtitle": "Ihre Provisionseinnahmen decken es – ohne eigene Kosten.",
+    "choiceTitle": "Es ist Ihre Wahl",
+    "choiceBody1": "Sie haben bisher ${{balance}} in Provisionen verdient. Sie können ${{fee}} davon jetzt verwenden, um die Basic-Mitgliedschaft zu aktivieren, oder Ihre Einnahmen in Ihrem Portemonnaie behalten, um sie jederzeit abzuheben.",
+    "choiceBody2": "Die Aktivierung schaltet höhere Provisionsraten und vollständige Basic-Funktionen frei. Wenn Sie Ihre Einnahmen behalten, bleiben diese in Ihrem Portemonnaie – Sie können später aktivieren, wenn Sie bereit sind.",
+    "currentBalance": "Aktueller Kontostand",
+    "basicFee": "Gebühr für Basic-Mitgliedschaft",
+    "remainingAfter": "Verbleibend nach Aktivierung",
+    "activating": "Wird aktiviert…",
+    "activateBtn": "Basic für ${{fee}} aktivieren",
+    "keepBtn": "Meine Einnahmen behalten",
+    "reassurance": "Sie können jederzeit später aktivieren – Ihre Einnahmen bleiben in Ihrem Portemonnaie, bis Sie sich entscheiden."
+  },
+  "notifications": {
+    "membershipOffer": {
+      "title": "Aktivieren Sie Ihre Mitgliedschaft kostenlos",
+      "message": "Sie haben $20 in Provisionen verdient! Aktivieren Sie jetzt die Basic-Mitgliedschaft mit Ihren Einnahmen, oder behalten Sie diese in Ihrem Portemonnaie, um sie später abzuheben."
+    }
   }
 }

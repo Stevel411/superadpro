@@ -4222,5 +4222,35 @@
     "stillStuckTitle": "还有其他问题吗？",
     "stillStuckSub": "我们的支持团队通常在几小时内回复。",
     "contactSupport": "联系支持"
+  },
+  "upgradeFromBalance": {
+    "title": "激活您的会员资格",
+    "errorGeneric": "出错了。请重试。",
+    "alreadyActiveTitle": "您已激活！",
+    "alreadyActiveBody": "您的会员资格已激活。这里没有什么要做的。",
+    "goToDashboard": "前往仪表板",
+    "notYetTitle": "还没完成",
+    "notYetBody": "您当前在佣金余额中有 ${{balance}}。一旦达到 ${{fee}}，您就可以使用您的收入激活 Basic 会员 — 无需自掏腰包。",
+    "notYetGoal": "您还需要 ${{needed}} 才能符合条件。",
+    "shareYourLink": "分享您的链接来赚取收入",
+    "heroEyebrow": "您已符合条件",
+    "heroTitle": "免费激活 Basic 会员",
+    "heroSubtitle": "您的佣金收入可以覆盖 — 无需自掏腰包。",
+    "choiceTitle": "由您选择",
+    "choiceBody1": "您目前已赚取 ${{balance}} 的佣金。您可以使用其中的 ${{fee}} 现在激活 Basic 会员，或将您的收入保留在钱包中以便随时提取。",
+    "choiceBody2": "激活可解锁更高的佣金率和完整的 Basic 功能。保留您的收入意味着它们会留在您的钱包中 — 当您准备好时，您可以稍后激活。",
+    "currentBalance": "当前余额",
+    "basicFee": "Basic 会员费",
+    "remainingAfter": "激活后的余额",
+    "activating": "激活中…",
+    "activateBtn": "以 ${{fee}} 激活 Basic",
+    "keepBtn": "保留我的收入",
+    "reassurance": "您随时可以激活 — 您的收入将保留在钱包中，直到您决定提取为止。"
+  },
+  "notifications": {
+    "membershipOffer": {
+      "title": "免费激活您的会员资格",
+      "message": "您已赚取 $20 的佣金！立即使用您的收入激活 Basic 会员，或将其保留在钱包中以供稍后提取。"
+    }
   }
 }

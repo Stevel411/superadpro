@@ -4223,5 +4223,35 @@
   "gridVis": {
     "title": "Income Grid",
     "subtitle": "Your 8x8 spillover grid"
+  },
+  "upgradeFromBalance": {
+    "title": "Activate your membership",
+    "errorGeneric": "Something went wrong. Please try again.",
+    "alreadyActiveTitle": "You're already active!",
+    "alreadyActiveBody": "Your membership is already active. There's nothing to do here.",
+    "goToDashboard": "Go to dashboard",
+    "notYetTitle": "Not quite there yet",
+    "notYetBody": "You currently have ${{balance}} in your commission balance. Once you reach ${{fee}}, you can activate Basic membership using your earnings — no out-of-pocket cost.",
+    "notYetGoal": "You need ${{needed}} more to qualify.",
+    "shareYourLink": "Share your link to earn",
+    "heroEyebrow": "You've qualified",
+    "heroTitle": "Activate Basic membership for free",
+    "heroSubtitle": "Your commission earnings cover it — no out-of-pocket cost.",
+    "choiceTitle": "It's your choice",
+    "choiceBody1": "You've earned ${{balance}} in commissions so far. You can use ${{fee}} of that to activate Basic membership now, or keep your earnings in your wallet to withdraw whenever you like.",
+    "choiceBody2": "Activating unlocks higher commission rates and full Basic features. Keeping your earnings means they stay in your wallet — you can activate later when you're ready.",
+    "currentBalance": "Current balance",
+    "basicFee": "Basic membership fee",
+    "remainingAfter": "Remaining after activation",
+    "activating": "Activating…",
+    "activateBtn": "Activate Basic for ${{fee}}",
+    "keepBtn": "Keep my earnings",
+    "reassurance": "You can always activate later — your earnings will stay in your wallet until you decide."
+  },
+  "notifications": {
+    "membershipOffer": {
+      "title": "Activate your membership for free",
+      "message": "You've earned $20 in commissions! Activate Basic membership now using your earnings, or keep them in your wallet to withdraw later."
+    }
   }
 }

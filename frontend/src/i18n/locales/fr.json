@@ -4230,5 +4230,35 @@
     "stillStuckTitle": "Vous avez encore des questions ?",
     "stillStuckSub": "Notre équipe d'assistance répond généralement dans quelques heures.",
     "contactSupport": "Contacter le support"
+  },
+  "upgradeFromBalance": {
+    "title": "Activez votre adhésion",
+    "errorGeneric": "Une erreur s'est produite. Veuillez réessayer.",
+    "alreadyActiveTitle": "Vous êtes déjà actif !",
+    "alreadyActiveBody": "Votre adhésion est déjà active. Il n'y a rien à faire ici.",
+    "goToDashboard": "Aller au tableau de bord",
+    "notYetTitle": "Pas encore tout à fait là",
+    "notYetBody": "Vous avez actuellement ${{balance}} dans votre solde de commission. Une fois que vous atteindrez ${{fee}}, vous pourrez activer l'adhésion Basic en utilisant vos revenus — sans frais à votre charge.",
+    "notYetGoal": "Vous avez besoin de ${{needed}} de plus pour être admissible.",
+    "shareYourLink": "Partagez votre lien pour gagner",
+    "heroEyebrow": "Vous êtes admissible",
+    "heroTitle": "Activez l'adhésion Basic gratuitement",
+    "heroSubtitle": "Vos revenus de commission le couvrent — sans frais à votre charge.",
+    "choiceTitle": "C'est votre choix",
+    "choiceBody1": "Vous avez gagné ${{balance}} en commissions jusqu'à présent. Vous pouvez utiliser ${{fee}} de cela pour activer l'adhésion Basic maintenant, ou garder vos revenus dans votre portefeuille pour les retirer quand vous le souhaitez.",
+    "choiceBody2": "L'activation déverrouille des taux de commission plus élevés et toutes les fonctionnalités Basic. Garder vos revenus signifie qu'ils resteront dans votre portefeuille — vous pourrez activer plus tard quand vous serez prêt.",
+    "currentBalance": "Solde actuel",
+    "basicFee": "Frais d'adhésion Basic",
+    "remainingAfter": "Solde après activation",
+    "activating": "Activation en cours…",
+    "activateBtn": "Activez Basic pour ${{fee}}",
+    "keepBtn": "Garder mes revenus",
+    "reassurance": "Vous pouvez toujours activer plus tard — vos revenus resteront dans votre portefeuille jusqu'à ce que vous décidiez."
+  },
+  "notifications": {
+    "membershipOffer": {
+      "title": "Activez votre adhésion gratuitement",
+      "message": "Vous avez gagné $20 en commissions ! Activez maintenant l'adhésion Basic en utilisant vos revenus, ou gardez-les dans votre portefeuille pour les retirer plus tard."
+    }
   }
 }

@@ -4230,5 +4230,35 @@
     "stillStuckTitle": "Ainda tem perguntas?",
     "stillStuckSub": "Nosso time de suporte geralmente responde em poucas horas.",
     "contactSupport": "Contatar Suporte"
+  },
+  "upgradeFromBalance": {
+    "title": "Ative sua associação",
+    "errorGeneric": "Algo deu errado. Tente novamente.",
+    "alreadyActiveTitle": "Você já está ativo!",
+    "alreadyActiveBody": "Sua associação já está ativa. Não há nada para fazer aqui.",
+    "goToDashboard": "Ir para o painel",
+    "notYetTitle": "Ainda não chegou lá",
+    "notYetBody": "Você tem ${{balance}} em seu saldo de comissões. Quando atingir ${{fee}}, você poderá ativar a associação Basic usando seus ganhos — sem custo do seu bolso.",
+    "notYetGoal": "Você precisa de mais ${{needed}} para se qualificar.",
+    "shareYourLink": "Compartilhe seu link para ganhar",
+    "heroEyebrow": "Você se qualificou",
+    "heroTitle": "Ative a associação Basic gratuitamente",
+    "heroSubtitle": "Seus ganhos de comissão cobrem isso — sem custo do seu bolso.",
+    "choiceTitle": "É sua escolha",
+    "choiceBody1": "Você ganhou ${{balance}} em comissões até agora. Você pode usar ${{fee}} disso para ativar a associação Basic agora, ou manter seus ganhos na carteira para sacar quando quiser.",
+    "choiceBody2": "Ativar desbloqueia taxas de comissão mais altas e recursos completos do Basic. Manter seus ganhos significa que eles permanecem na carteira — você pode ativar depois quando estiver pronto.",
+    "currentBalance": "Saldo atual",
+    "basicFee": "Taxa de associação Basic",
+    "remainingAfter": "Saldo após ativação",
+    "activating": "Ativando…",
+    "activateBtn": "Ative Basic por ${{fee}}",
+    "keepBtn": "Manter meus ganhos",
+    "reassurance": "Você sempre pode ativar depois — seus ganhos permanecerão na carteira até que você decida."
+  },
+  "notifications": {
+    "membershipOffer": {
+      "title": "Ative sua associação gratuitamente",
+      "message": "Você ganhou $20 em comissões! Ative a associação Basic agora usando seus ganhos, ou mantenha-os na carteira para sacar depois."
+    }
   }
 }

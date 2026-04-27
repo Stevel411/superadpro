@@ -4222,5 +4222,35 @@
     "stillStuckTitle": "Hala sorularınız var mı?",
     "stillStuckSub": "Destek ekibimiz genellikle birkaç saat içinde yanıt verir.",
     "contactSupport": "Destek ile İletişime Geç"
+  },
+  "upgradeFromBalance": {
+    "title": "Üyeliğini etkinleştir",
+    "errorGeneric": "Bir şeyler yanlış gitti. Lütfen tekrar dene.",
+    "alreadyActiveTitle": "Zaten aktif misin!",
+    "alreadyActiveBody": "Üyeliğin zaten aktif. Burada yapılacak bir şey yok.",
+    "goToDashboard": "Panoya git",
+    "notYetTitle": "Henüz tam değilsin",
+    "notYetBody": "Şu anda komisyon bakiyende ${{balance}} var. ${{fee}} limitine ulaştığında, kazancını kullanarak Basic üyeliği etkinleştirebilirsin — hiçbir cebinden para çıkmaz.",
+    "notYetGoal": "Uygun olmak için ${{needed}} daha gerekli.",
+    "shareYourLink": "Kazanmak için bağlantını paylaş",
+    "heroEyebrow": "Uygun hale geldin",
+    "heroTitle": "Basic üyeliği ücretsiz etkinleştir",
+    "heroSubtitle": "Komisyon kazancın bunu karşılıyor — hiçbir cebinden para çıkmaz.",
+    "choiceTitle": "Seçim senin",
+    "choiceBody1": "Şu ana kadar komisyondan ${{balance}} kazandın. Bu tutarın ${{fee}} kadarını kullanarak şimdi Basic üyeliği etkinleştirebilir ya da kazancını cüzdanında tutarak istediğin zaman çekebilirsin.",
+    "choiceBody2": "Üyeliği etkinleştirmek daha yüksek komisyon oranlarını ve tüm Basic özelliklerini açar. Kazancını tutmak, cüzdanında kalıyor demektir — hazır olduğunda etkinleştirebilirsin.",
+    "currentBalance": "Mevcut bakiye",
+    "basicFee": "Basic üyelik ücreti",
+    "remainingAfter": "Etkinleştirmeden sonra kalan",
+    "activating": "Etkinleştiriliyor…",
+    "activateBtn": "Basic'i ${{fee}} için etkinleştir",
+    "keepBtn": "Kazancımı tut",
+    "reassurance": "İstediğin zaman etkinleştirebilirsin — kazancın karar verene kadar cüzdanında kalacak."
+  },
+  "notifications": {
+    "membershipOffer": {
+      "title": "Üyeliğini ücretsiz etkinleştir",
+      "message": "Komisyondan $20 kazandın! Basic üyeliği şimdi kazancını kullanarak etkinleştir ya da daha sonra çekmek için cüzdanında tut."
+    }
   }
 }

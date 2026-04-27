@@ -4222,5 +4222,35 @@
     "stillStuckTitle": "Bado una maswali?",
     "stillStuckSub": "Timu yetu ya support kawaida hurudi ndani ya saa chache.",
     "contactSupport": "Wasiliana na Support"
+  },
+  "upgradeFromBalance": {
+    "title": "Akativishi uzikwata wako",
+    "errorGeneric": "Kitu fulani kikatakalanguka. Tafadhali jaribu tena.",
+    "alreadyActiveTitle": "Wewe tayari umekuwa mnamo uhalali!",
+    "alreadyActiveBody": "Uzikwata wako tayari umekuwa mnamo uhalali. Hakuna kitu cha kufanya hapa.",
+    "goToDashboard": "Nenda kwenye dashibodi",
+    "notYetTitle": "Sio kabisa hapo",
+    "notYetBody": "Kwa sasa una ${{balance}} katika salio lako la kamisheni. Mara tu utakapofikia ${{fee}}, unaweza kuaktivisha uzikwata wa Basic kwa kutumia mapato yako — hakuna malipo yenye moja kwa moja.",
+    "notYetGoal": "Unahitaji ${{needed}} zaidi ili kukidhi.",
+    "shareYourLink": "Sambaza kiungo chako ili kupata pesa",
+    "heroEyebrow": "Wewe umekidhi",
+    "heroTitle": "Aktivisha uzikwata wa Basic bila malipo",
+    "heroSubtitle": "Mapato yako ya kamisheni yanayogharamia — hakuna malipo yenye moja kwa moja.",
+    "choiceTitle": "Ni chaguo lako",
+    "choiceBody1": "Umepata ${{balance}} katika kamisheni hadi sasa. Unaweza kutumia ${{fee}} ya hiyo kuaktivisha uzikwata wa Basic sasa, au kuweka mapato yako katika pochi yako ili kuyarudisha wakati wowote unavyotaka.",
+    "choiceBody2": "Kuaktivisha kunabuka viwango vya kamisheni vya juu na vipengele kamili vya Basic. Kuweka mapato yako maana yake yatabaki katika pochi yako — unaweza kuaktivisha baadaye wakati uwe tayari.",
+    "currentBalance": "Salio la sasa",
+    "basicFee": "Malipo ya uzikwata wa Basic",
+    "remainingAfter": "Iliyobaki baada ya kuaktivisha",
+    "activating": "Inaaktivisha…",
+    "activateBtn": "Aktivisha Basic kwa ${{fee}}",
+    "keepBtn": "Kuweka mapato yangu",
+    "reassurance": "Unaweza kila wakati kuaktivisha baadaye — mapato yako yatabaki katika pochi yako hadi utakapoamua."
+  },
+  "notifications": {
+    "membershipOffer": {
+      "title": "Aktivisha uzikwata wako bila malipo",
+      "message": "Umepata $20 katika kamisheni! Aktivisha uzikwata wa Basic sasa kwa kutumia mapato yako, au kuweka katika pochi yako ili kuyarudisha baadaye."
+    }
   }
 }

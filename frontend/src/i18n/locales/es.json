@@ -4230,5 +4230,35 @@
     "stillStuckTitle": "¿Aún tienes preguntas?",
     "stillStuckSub": "Nuestro equipo de soporte generalmente responde en pocas horas.",
     "contactSupport": "Contactar Soporte"
+  },
+  "upgradeFromBalance": {
+    "title": "Activa tu membresía",
+    "errorGeneric": "Algo salió mal. Por favor, intenta de nuevo.",
+    "alreadyActiveTitle": "¡Ya estás activo!",
+    "alreadyActiveBody": "Tu membresía ya está activa. No hay nada que hacer aquí.",
+    "goToDashboard": "Ir al panel",
+    "notYetTitle": "Casi llegamos",
+    "notYetBody": "Actualmente tienes ${{balance}} en tu saldo de comisiones. Una vez que alcances ${{fee}}, podrás activar la membresía Basic usando tus ganancias — sin costo de tu bolsillo.",
+    "notYetGoal": "Necesitas ${{needed}} más para calificar.",
+    "shareYourLink": "Comparte tu enlace para ganar",
+    "heroEyebrow": "Ya calificas",
+    "heroTitle": "Activa la membresía Basic gratis",
+    "heroSubtitle": "Tus ganancias de comisiones lo cubren — sin costo de tu bolsillo.",
+    "choiceTitle": "Es tu decisión",
+    "choiceBody1": "Has ganado ${{balance}} en comisiones hasta ahora. Puedes usar ${{fee}} de eso para activar la membresía Basic ahora, o mantener tus ganancias en tu billetera para retirar cuando quieras.",
+    "choiceBody2": "Activar desbloquea tasas de comisión más altas y todas las características de Basic. Mantener tus ganancias significa que permanecerán en tu billetera — puedes activar más tarde cuando estés listo.",
+    "currentBalance": "Saldo actual",
+    "basicFee": "Tarifa de membresía Basic",
+    "remainingAfter": "Restante después de la activación",
+    "activating": "Activando…",
+    "activateBtn": "Activa Basic por ${{fee}}",
+    "keepBtn": "Mantener mis ganancias",
+    "reassurance": "Siempre puedes activar más tarde — tus ganancias permanecerán en tu billetera hasta que decidas."
+  },
+  "notifications": {
+    "membershipOffer": {
+      "title": "Activa tu membresía gratis",
+      "message": "¡Has ganado $20 en comisiones! Activa la membresía Basic ahora usando tus ganancias, o mantenlas en tu billetera para retirar más tarde."
+    }
   }
 }

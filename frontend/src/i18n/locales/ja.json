@@ -4222,5 +4222,35 @@
     "stillStuckTitle": "ご質問はありますか？",
     "stillStuckSub": "サポートチームは通常、数時間以内に返信します。",
     "contactSupport": "サポートに問い合わせる"
+  },
+  "upgradeFromBalance": {
+    "title": "メンバーシップを有効化する",
+    "errorGeneric": "エラーが発生しました。もう一度お試しください。",
+    "alreadyActiveTitle": "すでに有効化されています！",
+    "alreadyActiveBody": "メンバーシップはすでに有効化されています。ここでは何もすることはありません。",
+    "goToDashboard": "ダッシュボードへ",
+    "notYetTitle": "もう少しです",
+    "notYetBody": "現在、コミッション残高に${{balance}}があります。${{fee}}に達すると、獲得したコミッションを使ってBasicメンバーシップを無料で有効化できます。",
+    "notYetGoal": "${{needed}}多く必要です。",
+    "shareYourLink": "リンクをシェアして稼ごう",
+    "heroEyebrow": "適格条件を満たしました",
+    "heroTitle": "Basicメンバーシップを無料で有効化",
+    "heroSubtitle": "コミッション収益でカバーできます — 自腹は不要です。",
+    "choiceTitle": "選択はあなた次第",
+    "choiceBody1": "これまでコミッションで${{balance}}を獲得しました。その内${{fee}}を使ってBasicメンバーシップを今すぐ有効化することも、ウォレットに保管して好きな時に引き出すこともできます。",
+    "choiceBody2": "有効化するとコミッション率が上がり、Basicの全機能が利用できます。収益を保管しておけば、ウォレットに残り、準備できたときにいつでも有効化できます。",
+    "currentBalance": "現在の残高",
+    "basicFee": "Basicメンバーシップ料金",
+    "remainingAfter": "有効化後の残額",
+    "activating": "有効化中…",
+    "activateBtn": "Basicを${{fee}}で有効化",
+    "keepBtn": "収益は保管しておく",
+    "reassurance": "いつでも有効化できます — 決めるまで収益はウォレットに残ります。"
+  },
+  "notifications": {
+    "membershipOffer": {
+      "title": "メンバーシップを無料で有効化",
+      "message": "コミッションで$20を獲得しました！今すぐ獲得したコミッションを使ってBasicメンバーシップを有効化するか、ウォレットに保管して後で引き出すこともできます。"
+    }
   }
 }

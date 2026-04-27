@@ -4230,5 +4230,35 @@
     "stillStuckTitle": "Hai ancora domande?",
     "stillStuckSub": "Il nostro team di supporto di solito risponde entro poche ore.",
     "contactSupport": "Contatta il supporto"
+  },
+  "upgradeFromBalance": {
+    "title": "Attiva la tua iscrizione",
+    "errorGeneric": "Qualcosa è andato storto. Per favore riprova.",
+    "alreadyActiveTitle": "Sei già attivo!",
+    "alreadyActiveBody": "La tua iscrizione è già attiva. Non c'è nulla da fare qui.",
+    "goToDashboard": "Vai alla dashboard",
+    "notYetTitle": "Non ancora",
+    "notYetBody": "Al momento hai ${{balance}} nel saldo delle tue commissioni. Una volta raggiunto ${{fee}}, potrai attivare l'iscrizione Basic utilizzando i tuoi guadagni — senza costi diretti.",
+    "notYetGoal": "Ti servono ${{needed}} in più per qualificarti.",
+    "shareYourLink": "Condividi il tuo link per guadagnare",
+    "heroEyebrow": "Ti sei qualificato",
+    "heroTitle": "Attiva l'iscrizione Basic gratuitamente",
+    "heroSubtitle": "I tuoi guadagni da commissioni la coprono — senza costi diretti.",
+    "choiceTitle": "La scelta è tua",
+    "choiceBody1": "Hai guadagnato ${{balance}} in commissioni finora. Puoi utilizzare ${{fee}} di quello per attivare l'iscrizione Basic ora, oppure mantenere i tuoi guadagni nel tuo portafoglio per prelevare quando vuoi.",
+    "choiceBody2": "L'attivazione sblocca tassi di commissione più alti e tutte le funzioni Basic. Mantenere i tuoi guadagni significa che rimangono nel tuo portafoglio — puoi attivare in seguito quando sei pronto.",
+    "currentBalance": "Saldo attuale",
+    "basicFee": "Quota iscrizione Basic",
+    "remainingAfter": "Rimanente dopo l'attivazione",
+    "activating": "Attivazione in corso…",
+    "activateBtn": "Attiva Basic per ${{fee}}",
+    "keepBtn": "Mantieni i miei guadagni",
+    "reassurance": "Puoi sempre attivare in seguito — i tuoi guadagni rimarranno nel tuo portafoglio finché non decidi."
+  },
+  "notifications": {
+    "membershipOffer": {
+      "title": "Attiva la tua iscrizione gratuitamente",
+      "message": "Hai guadagnato $20 in commissioni! Attiva l'iscrizione Basic ora utilizzando i tuoi guadagni, oppure mantienili nel tuo portafoglio per prelevare in seguito."
+    }
   }
 }

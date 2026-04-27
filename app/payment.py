@@ -163,56 +163,64 @@ def _cascade_auto_activation(
     max_depth: int = 50
 ):
     """
-    Recursive cascade — travels up the sponsor chain activating every
-    free member whose wallet reaches $10 from the incoming commission.
+    DEPRECATED BEHAVIOUR — was: recursive cascade that auto-activated every
+    free member up the sponsor chain whose balance hit $20. That silently
+    consumed members' first $20 of commission earnings to pay for a
+    membership they hadn't explicitly chosen to buy. Compliance-adjacent
+    bad pattern (members reasonably interpreted it as commission theft).
 
-    recipient      — the user who just received a $10 commission
-    tx_hash        — original tx hash (used to generate unique audit hashes)
-    chain_depth    — how many levels up from the original payment (1 = direct sponsor)
-    activated_users — list collecting every user auto-activated in this cascade
-    max_depth      — safety cap to prevent infinite loops (default 50 levels)
+    NEW BEHAVIOUR (Apr 2026, Option B per Steve) — when a free member's
+    balance reaches the membership threshold, send them a notification
+    offering the choice. They KEEP their earnings unless they explicitly
+    click Activate. Function signature preserved so callers in main.py
+    don't need touching, but the cascade is now a single notification:
+
+      - If recipient is already active → no-op
+      - If balance < $20 → no-op
+      - If a pending membership_offer notification already exists → no-op
+        (we only want to nudge once until they act on it)
+      - Otherwise → create one notification linking to /upgrade-from-balance
+
+    No recursion. Each member makes their own choice independently.
+    `tx_hash`, `chain_depth`, `activated_users`, `max_depth` are now
+    ignored; kept for API compatibility with existing callers.
     """
-    if chain_depth > max_depth:
-        return  # Safety cap
-
     if recipient.is_active:
-        return  # Chain stops — this person is already active, they keep the $10
+        return  # Already paid up, nothing to offer
+    if (recipient.balance or 0) < MEMBERSHIP_FEE:
+        return  # Not enough yet
 
-    # Free member with enough to activate ($20 membership) — auto-activate
-    if recipient.balance >= MEMBERSHIP_FEE:
-        recipient.balance   = Decimal(str(recipient.balance or 0)) - Decimal(str(MEMBERSHIP_FEE))
-        recipient.is_active  = True
-        activated_users.append((recipient, chain_depth))
-
-        # Find recipient's sponsor to receive sponsor share ($10)
-        next_recipient = None
-        if recipient.sponsor_id:
-            next_recipient = db.query(User).filter(User.id == recipient.sponsor_id).first()
-
-        # Credit the next person up the chain with sponsor share only
-        if next_recipient:
-            next_recipient.balance          = Decimal(str(next_recipient.balance or 0)) + Decimal(str(MEMBERSHIP_SPONSOR_SHARE))
-            next_recipient.total_earned     += MEMBERSHIP_SPONSOR_SHARE
-            next_recipient.personal_referrals += 1
-        # Company share ($10) stays consumed from the cascade payment
-
-        # Audit record for this hop in the cascade
-        hop_payment = Payment(
-            from_user_id = recipient.id,
-            to_user_id   = next_recipient.id if next_recipient else None,
-            amount_usdt  = MEMBERSHIP_SPONSOR_SHARE,
-            payment_type = "membership_auto",
-            tx_hash      = f"{tx_hash}_cascade_{chain_depth}",
-            status       = "confirmed",
+    # Suppress duplicate offer if one is already pending. The notification
+    # type 'membership_offer' is unique per user — we only want to nudge
+    # them once until they act on it.
+    from .database import Notification
+    existing = (
+        db.query(Notification)
+        .filter(
+            Notification.user_id == recipient.id,
+            Notification.type == "membership_offer",
+            Notification.is_read == False,
         )
-        db.add(hop_payment)
+        .first()
+    )
+    if existing:
+        return  # Already nudged, don't spam
 
-        # Recurse — does the next person up also qualify?
-        if next_recipient:
-            _cascade_auto_activation(
-                db, next_recipient, tx_hash,
-                chain_depth + 1, activated_users, max_depth
-            )
+    notif = Notification(
+        user_id=recipient.id,
+        type="membership_offer",
+        icon="🎉",
+        title="Activate your membership for free",
+        message=(
+            f"You've earned ${MEMBERSHIP_FEE} in commissions! Activate Basic "
+            "membership now using your earnings, or keep them in your wallet "
+            "to withdraw later."
+        ),
+        link="/upgrade-from-balance",
+        # i18n: frontend translates against the user's locale at render time
+        translation_key="notifications.membershipOffer",
+    )
+    db.add(notif)
 
 
 def process_membership_payment(db: Session, user_id: int, tx_hash: str) -> dict:

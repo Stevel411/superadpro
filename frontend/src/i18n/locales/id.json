@@ -4222,5 +4222,35 @@
     "stillStuckTitle": "Masih ada pertanyaan?",
     "stillStuckSub": "Tim support kami biasanya merespons dalam beberapa jam.",
     "contactSupport": "Hubungi Support"
+  },
+  "upgradeFromBalance": {
+    "title": "Aktifkan keanggotaan Anda",
+    "errorGeneric": "Terjadi kesalahan. Silakan coba lagi.",
+    "alreadyActiveTitle": "Anda sudah aktif!",
+    "alreadyActiveBody": "Keanggotaan Anda sudah aktif. Tidak ada yang perlu dilakukan di sini.",
+    "goToDashboard": "Ke dasbor",
+    "notYetTitle": "Belum sampai di sana",
+    "notYetBody": "Anda saat ini memiliki ${{balance}} dalam saldo komisi Anda. Setelah mencapai ${{fee}}, Anda dapat mengaktifkan keanggotaan Basic menggunakan penghasilan Anda — tanpa biaya dari kantong Anda.",
+    "notYetGoal": "Anda memerlukan ${{needed}} lagi untuk memenuhi syarat.",
+    "shareYourLink": "Bagikan tautan Anda untuk mendapatkan penghasilan",
+    "heroEyebrow": "Anda telah memenuhi syarat",
+    "heroTitle": "Aktifkan keanggotaan Basic secara gratis",
+    "heroSubtitle": "Penghasilan komisi Anda mencakupnya — tanpa biaya dari kantong Anda.",
+    "choiceTitle": "Itu pilihan Anda",
+    "choiceBody1": "Anda telah mendapatkan ${{balance}} dalam komisi sejauh ini. Anda dapat menggunakan ${{fee}} dari itu untuk mengaktifkan keanggotaan Basic sekarang, atau menyimpan penghasilan Anda di dompet Anda untuk ditarik kapan saja.",
+    "choiceBody2": "Pengaktifan membuka tarif komisi yang lebih tinggi dan fitur Basic lengkap. Menyimpan penghasilan Anda berarti mereka tetap berada di dompet Anda — Anda dapat mengaktifkan nanti saat Anda siap.",
+    "currentBalance": "Saldo saat ini",
+    "basicFee": "Biaya keanggotaan Basic",
+    "remainingAfter": "Sisa setelah aktivasi",
+    "activating": "Mengaktifkan…",
+    "activateBtn": "Aktifkan Basic untuk ${{fee}}",
+    "keepBtn": "Simpan penghasilan saya",
+    "reassurance": "Anda selalu dapat mengaktifkan nanti — penghasilan Anda akan tetap berada di dompet Anda sampai Anda memutuskan."
+  },
+  "notifications": {
+    "membershipOffer": {
+      "title": "Aktifkan keanggotaan Anda secara gratis",
+      "message": "Anda telah mendapatkan $20 dalam komisi! Aktifkan keanggotaan Basic sekarang menggunakan penghasilan Anda, atau simpan di dompet Anda untuk ditarik nanti."
+    }
   }
 }

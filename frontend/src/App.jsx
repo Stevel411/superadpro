@@ -14,6 +14,7 @@ import OnboardingWizard from './pages/OnboardingWizard';
 import AnalyticsPage from './pages/Analytics';
 import CreateCampaign from './pages/CreateCampaign';
 import Wallet from './pages/Wallet';
+import UpgradeFromBalance from './pages/UpgradeFromBalance';
 import Account from './pages/Account';
 import Courses from './pages/Courses';
 import Leaderboard from './pages/Leaderboard';
@@ -163,6 +164,7 @@ function AppRoutes() {
       <Route path="/command-centre/grid-team" element={<ProtectedRoute><BucketList bucketKey="grid-team" /></ProtectedRoute>} />
       <Route path="/command-centre/nexus-team" element={<ProtectedRoute><BucketList bucketKey="nexus-team" /></ProtectedRoute>} />
       <Route path="/wallet" element={<ProtectedRoute><Wallet /></ProtectedRoute>} />
+      <Route path="/upgrade-from-balance" element={<ProtectedRoute><UpgradeFromBalance /></ProtectedRoute>} />
       <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
       <Route path="/account/faq" element={<ProtectedRoute><InternalFAQ /></ProtectedRoute>} />
       <Route path="/courses" element={<ProtectedRoute><Courses /></ProtectedRoute>} />

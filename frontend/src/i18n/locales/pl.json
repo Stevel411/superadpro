@@ -4222,5 +4222,35 @@
     "stillStuckTitle": "Masz jeszcze pytania?",
     "stillStuckSub": "Nasz zespół wsparcia zwykle odpowiada w ciągu kilku godzin.",
     "contactSupport": "Skontaktuj się z Supportem"
+  },
+  "upgradeFromBalance": {
+    "title": "Aktywuj swoją członkowość",
+    "errorGeneric": "Coś poszło nie tak. Spróbuj ponownie.",
+    "alreadyActiveTitle": "Już jesteś aktywny!",
+    "alreadyActiveBody": "Twoja członkowość jest już aktywna. Nie ma tu nic do zrobienia.",
+    "goToDashboard": "Przejdź do panelu",
+    "notYetTitle": "Jeszcze nie do końca",
+    "notYetBody": "Masz obecnie {{balance}} USD w saldzie prowizji. Po osiągnięciu {{fee}} USD możesz aktywować członkowość Basic, korzystając z dochodów — bez dodatkowych kosztów.",
+    "notYetGoal": "Potrzebujesz jeszcze {{needed}} USD, aby się zakwalifikować.",
+    "shareYourLink": "Udostępnij swój link i zarabiaj",
+    "heroEyebrow": "Się zakwalifikowałeś",
+    "heroTitle": "Aktywuj członkowość Basic za darmo",
+    "heroSubtitle": "Twoje dochody z prowizji to pokrywają — bez dodatkowych kosztów.",
+    "choiceTitle": "Decyzja należy do Ciebie",
+    "choiceBody1": "Zarabiłeś dotąd {{balance}} USD z prowizji. Możesz użyć {{fee}} USD z tego, aby aktywować członkowość Basic teraz, lub zatrzymać zarobki w portfelu i wycofać je, kiedy chcesz.",
+    "choiceBody2": "Aktywacja odblokowuje wyższe stawki prowizji i pełne funkcje Basic. Zatrzymanie zarobków oznacza, że pozostaną w Twoim portfelu — możesz aktywować później, gdy będziesz gotowy.",
+    "currentBalance": "Aktualne saldo",
+    "basicFee": "Opłata członkowości Basic",
+    "remainingAfter": "Pozostałość po aktywacji",
+    "activating": "Aktywacja w toku…",
+    "activateBtn": "Aktywuj Basic za {{fee}} USD",
+    "keepBtn": "Zatrzymaj moje zarobki",
+    "reassurance": "Zawsze możesz aktywować później — Twoje zarobki pozostaną w portfelu, aż się zdecydujesz."
+  },
+  "notifications": {
+    "membershipOffer": {
+      "title": "Aktywuj swoją członkowość za darmo",
+      "message": "Zarobiłeś 20 USD z prowizji! Aktywuj członkowość Basic teraz, korzystając ze swoich zarobków, lub zatrzymaj je w portfelu, aby wycofać je później."
+    }
   }
 }
