@@ -453,7 +453,7 @@ export default function TeamMessenger() {
                     value={broadcastText}
                     onChange={function(e){ setBroadcastText(e.target.value.slice(0, 2000)); }}
                     placeholder={t('teamMessenger.broadcastPlaceholder', {
-                      defaultValue: "Write your broadcast message…\n\nMarkdown supported: **bold**, *italic*, [links](https://example.com)",
+                      defaultValue: "Write your broadcast message…",
                     })}
                     style={{
                       width:'100%', minHeight:160, padding:14,
