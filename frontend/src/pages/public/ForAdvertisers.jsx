@@ -346,7 +346,7 @@ var CSS_FOR_ADVERTISERS = `
 .for-advertisers-page .section-h2{font-family:'Sora',sans-serif;font-size:clamp(48px,6vw,88px);font-weight:900;line-height:.95;letter-spacing:-.045em;margin-bottom:20px}
 .for-advertisers-page .section-h2 .accent{display:block;font-weight:300;letter-spacing:-.035em;color:var(--ink);opacity:.75;line-height:1.1;padding-bottom:.08em}
 
-.for-advertisers-page .hero-badge{position:absolute;top:194px;right:48px;z-index:50;display:flex;align-items:center;gap:12px;padding:12px 18px;border-radius:100px;background:linear-gradient(90deg,rgba(11,18,48,.92),rgba(23,37,84,.88));border:1px solid rgba(251,191,36,.45);backdrop-filter:blur(20px) saturate(180%);box-shadow:0 12px 40px rgba(0,0,0,.4),0 0 40px rgba(251,191,36,.18)}
+.for-advertisers-page .hero-badge{display:inline-flex;align-items:center;gap:12px;padding:12px 18px;margin-bottom:18px;border-radius:100px;background:linear-gradient(90deg,rgba(11,18,48,.92),rgba(23,37,84,.88));border:1px solid rgba(251,191,36,.45);backdrop-filter:blur(20px) saturate(180%);box-shadow:0 12px 40px rgba(0,0,0,.4),0 0 40px rgba(251,191,36,.18)}
 .for-advertisers-page .hero-badge-icon{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--amber),var(--amber-bright));display:flex;align-items:center;justify-content:center;color:var(--cobalt-deepest);flex-shrink:0;box-shadow:0 0 12px rgba(251,191,36,.45)}
 .for-advertisers-page .hero-badge-body{flex:1}
 .for-advertisers-page .hero-badge-label{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--ink-60);letter-spacing:.12em;text-transform:uppercase;margin-bottom:1px;white-space:nowrap}
@@ -446,7 +446,7 @@ var CSS_FOR_ADVERTISERS = `
 }
 @media(max-width:900px){
   .for-advertisers-page .page-section{padding:120px 20px 80px}
-  .for-advertisers-page .hero-badge{position:static;margin-top:24px;min-width:0;width:100%}
+  .for-advertisers-page .hero-badge{display:flex;width:100%;margin-top:24px}
   .for-advertisers-page .hero-stage{height:clamp(240px,60vw,340px)}
   .for-advertisers-page .hero-stage-caption{font-size:9px;padding:8px 14px}
   .for-advertisers-page .outcome-row{grid-template-columns:1fr;margin-top:48px}
