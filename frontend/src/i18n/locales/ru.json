@@ -847,8 +847,11 @@
     "heroEyebrow": "Таблица лидеров партнёров",
     "heroTitle": "Лучшие исполнители",
     "heroSubtitle": "По всей сети SuperAdPro",
-    "profitGridLabel": "Profit Grid",
-    "nexusMetric": "Nexus team"
+    "profitGridLabel": "Сетка доходов",
+    "nexusMetric": "Команда Nexus",
+    "signupsLabel": "Регистрации",
+    "signupsMetric": "Регистрации",
+    "activeMembersLabel": "Активные участники"
   },
   "upgrade": {
     "title": "⚡ Улучшение",

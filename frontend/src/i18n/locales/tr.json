@@ -847,8 +847,11 @@
     "heroEyebrow": "Affiliate Liderler Tablosu",
     "heroTitle": "En başarılı performansçılar",
     "heroSubtitle": "SuperAdPro ağı genelinde",
-    "profitGridLabel": "Profit Grid",
-    "nexusMetric": "Nexus ekibi"
+    "profitGridLabel": "Kâr Ağı",
+    "nexusMetric": "Nexus ekibi",
+    "signupsLabel": "Kaydolmalar",
+    "signupsMetric": "Kaydolmalar",
+    "activeMembersLabel": "Aktif Üyeler"
   },
   "upgrade": {
     "title": "⚡ Yükselt",

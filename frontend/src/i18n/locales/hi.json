@@ -848,7 +848,10 @@
     "heroTitle": "शीर्ष प्रदर्शनकर्ता",
     "heroSubtitle": "SuperAdPro नेटवर्क भर में",
     "profitGridLabel": "प्रॉफिट Grid",
-    "nexusMetric": "Nexus टीम"
+    "nexusMetric": "Nexus टीम",
+    "signupsLabel": "साइन-अप",
+    "signupsMetric": "साइन-अप",
+    "activeMembersLabel": "सक्रिय सदस्य"
   },
   "upgrade": {
     "title": "⚡ अपग्रेड",

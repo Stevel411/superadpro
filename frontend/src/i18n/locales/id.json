@@ -847,8 +847,11 @@
     "heroEyebrow": "Papan Peringkat Afiliasi",
     "heroTitle": "Performa terbaik",
     "heroSubtitle": "Di seluruh jaringan SuperAdPro",
-    "profitGridLabel": "Profit Grid",
-    "nexusMetric": "Tim Nexus"
+    "profitGridLabel": "Kisi Keuntungan",
+    "nexusMetric": "Tim Nexus",
+    "signupsLabel": "Pendaftaran",
+    "signupsMetric": "Pendaftaran",
+    "activeMembersLabel": "Anggota Aktif"
   },
   "upgrade": {
     "title": "⚡ Tingkatkan",

@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import AppLayout from '../components/layout/AppLayout';
 import { useAuth } from '../hooks/useAuth';
 import { apiGet } from '../utils/api';
-import { Trophy, Users, Zap, Layers, GraduationCap, Crown, TrendingUp } from 'lucide-react';
+import { Trophy, Users, UserPlus, Zap, Layers, GraduationCap, Crown, TrendingUp } from 'lucide-react';
 
 // TABS moved inside component
 
@@ -87,19 +87,20 @@ function Spin() {
 export default function Leaderboard() {
   var { t } = useTranslation();
   var { user } = useAuth();
-  // Four leaderboard categories matching the four income streams.
-  // Labels use the platform's product naming: Profit Grid (video campaigns)
-  // and Nexus (AI Creator Credits) instead of the older 'Grid Members'
-  // and 'Course Sales' phrasing.
+  // Five leaderboard categories. Sign-ups (any join via your link) +
+  // Active Members (paid-only via personal_referrals) + the three income
+  // streams. Default to 'signups' since it fills up faster on new
+  // platforms and gives early adopters something to climb.
   var TABS = [
-    { key: 'referrals', label: t('leaderboard.membersReferred', { defaultValue: 'Members Referred' }), icon: Users,         color: 'var(--sap-accent)',     grad: 'linear-gradient(135deg,#0284c7,#38bdf8)', metric: function(u){ return u.personal_referrals || 0; }, metricLabel: t('leaderboard.referrals', { defaultValue: 'Referrals' }) },
-    { key: 'grid',      label: t('leaderboard.profitGridLabel', { defaultValue: 'Profit Grid' }),     icon: Zap,           color: 'var(--sap-green-mid)',  grad: 'linear-gradient(135deg,#059669,#34d399)', metric: function(u){ return u._grid_count || u.grid_count || 0; }, metricLabel: t('leaderboard.grid', { defaultValue: 'Team' }) },
-    { key: 'nexus',     label: t('leaderboard.nexusLabel', { defaultValue: 'Nexus' }),                icon: Layers,        color: '#8b5cf6',                grad: 'linear-gradient(135deg,#6d28d9,#a78bfa)', metric: function(u){ return u._nexus_count || 0; },                  metricLabel: t('leaderboard.nexusMetric', { defaultValue: 'Nexus team' }) },
-    { key: 'courses',   label: t('leaderboard.courseSales', { defaultValue: 'Course Sales' }),       icon: GraduationCap, color: 'var(--sap-amber-dark)', grad: 'linear-gradient(135deg,#b45309,#f59e0b)', metric: function(u){ return u.course_sale_count || u._course_count || 0; }, metricLabel: t('leaderboard.sales', { defaultValue: 'Sales' }) },
+    { key: 'signups',   label: t('leaderboard.signupsLabel', { defaultValue: 'Sign-ups' }),                 icon: UserPlus,      color: '#0ea5e9',                grad: 'linear-gradient(135deg,#0284c7,#38bdf8)', metric: function(u){ return u.total_team || 0; },                  metricLabel: t('leaderboard.signupsMetric', { defaultValue: 'Sign-ups' }) },
+    { key: 'referrals', label: t('leaderboard.activeMembersLabel', { defaultValue: 'Active Members' }),     icon: Users,         color: 'var(--sap-green-mid)',  grad: 'linear-gradient(135deg,#059669,#34d399)', metric: function(u){ return u.personal_referrals || 0; },          metricLabel: t('leaderboard.referrals', { defaultValue: 'Active' }) },
+    { key: 'grid',      label: t('leaderboard.profitGridLabel', { defaultValue: 'Profit Grid' }),           icon: Zap,           color: '#f59e0b',                grad: 'linear-gradient(135deg,#b45309,#f59e0b)', metric: function(u){ return u._grid_count || u.grid_count || 0; }, metricLabel: t('leaderboard.grid', { defaultValue: 'Team' }) },
+    { key: 'nexus',     label: t('leaderboard.nexusLabel', { defaultValue: 'Nexus' }),                      icon: Layers,        color: '#8b5cf6',                grad: 'linear-gradient(135deg,#6d28d9,#a78bfa)', metric: function(u){ return u._nexus_count || 0; },                  metricLabel: t('leaderboard.nexusMetric', { defaultValue: 'Nexus team' }) },
+    { key: 'courses',   label: t('leaderboard.courseSales', { defaultValue: 'Course Sales' }),              icon: GraduationCap, color: 'var(--sap-amber-dark)', grad: 'linear-gradient(135deg,#9a3412,#ea580c)', metric: function(u){ return u.course_sale_count || u._course_count || 0; }, metricLabel: t('leaderboard.sales', { defaultValue: 'Sales' }) },
   ];
   var [data, setData] = useState(null);
   var [loading, setLoading] = useState(true);
-  var [tab, setTab] = useState('referrals');
+  var [tab, setTab] = useState('signups');
 
   useEffect(function() {
     apiGet('/api/leaderboard').then(function(d){ setData(d); setLoading(false); }).catch(function(){ setLoading(false); });
@@ -109,10 +110,11 @@ export default function Leaderboard() {
 
   var d = data || {};
   var allData = {
-    referrals: d.ref_leaders || [],
-    grid:      d.grid_users  || [],
-    nexus:     d.nexus_users || [],
-    courses:   d.course_users|| [],
+    signups:   d.signup_users || [],
+    referrals: d.ref_leaders  || [],
+    grid:      d.grid_users   || [],
+    nexus:     d.nexus_users  || [],
+    courses:   d.course_users || [],
   };
   var activeTab = TABS.find(function(tb){ return tb.key===tab; })||TABS[0];
   var leaders = allData[tab]||[];
@@ -196,7 +198,7 @@ export default function Leaderboard() {
       </div>
 
       {/* ── Category pill row — same styling as the new top-of-page nav pills.
-          Four tabs: Members Referred · Profit Grid · Nexus · Course Sales.
+          Five tabs: Sign-ups · Active Members · Profit Grid · Nexus · Course Sales.
           White bg, cobalt text, soft dark-grey shadow lift. Active pill
           gets cobalt border + stronger shadow + filled icon halo so the
           "you're viewing this leaderboard" cue reads clearly. */}
@@ -211,9 +213,9 @@ export default function Leaderboard() {
           return (
             <button key={tb.key} onClick={function(){ setTab(tb.key); }}
               style={{
-                flex: '1 1 220px',
-                display: 'flex', alignItems: 'center', gap: 12,
-                padding: '12px 16px',
+                flex: '1 1 180px',
+                display: 'flex', alignItems: 'center', gap: 10,
+                padding: '10px 14px',
                 background: '#fff',
                 border: isActive ? '1px solid var(--sap-cobalt-deep, #172554)' : '1px solid #e2e8f0',
                 borderRadius: 14,
@@ -229,25 +231,25 @@ export default function Leaderboard() {
               onMouseLeave={function(e){ if (!isActive) { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 2px 6px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04)'; } }}
             >
               <div style={{
-                width: 38, height: 38, borderRadius: 10,
+                width: 34, height: 34, borderRadius: 9,
                 background: isActive ? tb.grad : tb.color + '15',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
                 flexShrink: 0,
                 boxShadow: isActive ? '0 0 14px ' + tb.color + '50' : 'none',
                 transition: 'all 0.2s',
               }}>
-                <Icon size={18} color={isActive ? '#fff' : tb.color} strokeWidth={2.2} />
+                <Icon size={16} color={isActive ? '#fff' : tb.color} strokeWidth={2.2} />
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
-                  fontSize: 14, fontWeight: 700,
+                  fontSize: 13, fontWeight: 700,
                   color: 'var(--sap-cobalt-deep, #172554)',
                   marginBottom: 2,
                 }}>{tb.label}</div>
                 <div style={{
-                  fontFamily: 'Sora, sans-serif', fontSize: 18, fontWeight: 900,
+                  fontFamily: 'Sora, sans-serif', fontSize: 16, fontWeight: 900,
                   color: tb.color, lineHeight: 1,
-                }}>{count} <span style={{ fontSize: 12, fontWeight: 600, color: 'var(--sap-text-muted, #64748b)' }}>{t('leaderboard.onTheBoard', { defaultValue: 'on the board' })}</span></div>
+                }}>{count} <span style={{ fontSize: 11, fontWeight: 600, color: 'var(--sap-text-muted, #64748b)' }}>{t('leaderboard.onTheBoard', { defaultValue: 'on the board' })}</span></div>
               </div>
             </button>
           );

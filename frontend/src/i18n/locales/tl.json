@@ -848,7 +848,10 @@
     "heroTitle": "Mga nangungunang performer",
     "heroSubtitle": "Sa buong SuperAdPro network",
     "profitGridLabel": "Profit Grid",
-    "nexusMetric": "Nexus team"
+    "nexusMetric": "Nexus team",
+    "signupsLabel": "Mga Sign-ups",
+    "signupsMetric": "Mga Sign-ups",
+    "activeMembersLabel": "Mga Aktibong Miyembro"
   },
   "upgrade": {
     "title": "⚡ Upgrade",

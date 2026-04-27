@@ -847,8 +847,11 @@
     "heroEyebrow": "لوحة ترتيب الشركاء",
     "heroTitle": "الأفضلون أداءً",
     "heroSubtitle": "عبر شبكة SuperAdPro",
-    "profitGridLabel": "Profit Grid",
-    "nexusMetric": "فريق Nexus"
+    "profitGridLabel": "شبكة الأرباح",
+    "nexusMetric": "فريق Nexus",
+    "signupsLabel": "التسجيلات",
+    "signupsMetric": "التسجيلات",
+    "activeMembersLabel": "الأعضاء النشطون"
   },
   "upgrade": {
     "title": "⚡ ترقية",

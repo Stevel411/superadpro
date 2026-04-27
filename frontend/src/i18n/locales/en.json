@@ -849,7 +849,10 @@
     "heroSubtitle": "Across the SuperAdPro network",
     "profitGridLabel": "Profit Grid",
     "nexusLabel": "Nexus",
-    "nexusMetric": "Nexus team"
+    "nexusMetric": "Nexus team",
+    "signupsLabel": "Sign-ups",
+    "signupsMetric": "Sign-ups",
+    "activeMembersLabel": "Active Members"
   },
   "upgrade": {
     "title": "⚡ Upgrade",

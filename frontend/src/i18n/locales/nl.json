@@ -809,7 +809,7 @@
   "leaderboard": {
     "title": "Ranglijst",
     "subtitle": "Toppresteerders in het SuperAdPro-netwerk",
-    "affiliateLeaderboard": "Affiliate",
+    "affiliateLeaderboard": "Partner",
     "leaderboardHighlight": "Ranglijst",
     "topPerformers": "Toppresteerders in het netwerk",
     "yourRank": "Jouw Rang",
@@ -846,9 +846,12 @@
     "shareYourLink": "Link delen",
     "heroEyebrow": "Affiliate Ranglijst",
     "heroTitle": "Topperformers",
-    "heroSubtitle": "Across the SuperAdPro network",
+    "heroSubtitle": "In het SuperAdPro-netwerk",
     "profitGridLabel": "Profit Grid",
-    "nexusMetric": "Nexus team"
+    "nexusMetric": "Nexus-team",
+    "signupsLabel": "Aanmeldingen",
+    "signupsMetric": "Aanmeldingen",
+    "activeMembersLabel": "Actieve leden"
   },
   "upgrade": {
     "title": "⚡ Upgraden",

@@ -847,8 +847,11 @@
     "heroEyebrow": "Tablica liderów afiliacyjnych",
     "heroTitle": "Najlepsi performerzy",
     "heroSubtitle": "W całej sieci SuperAdPro",
-    "profitGridLabel": "Profit Grid",
-    "nexusMetric": "Zespół Nexus"
+    "profitGridLabel": "Siatka Zysków",
+    "nexusMetric": "Zespół Nexus",
+    "signupsLabel": "Rejestracje",
+    "signupsMetric": "Rejestracje",
+    "activeMembersLabel": "Aktywni Członkowie"
   },
   "upgrade": {
     "title": "⚡ Ulepszenie",

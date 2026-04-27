@@ -848,7 +848,10 @@
     "heroTitle": "상위 실적자",
     "heroSubtitle": "SuperAdPro 네트워크 전체",
     "profitGridLabel": "수익 Grid",
-    "nexusMetric": "Nexus team"
+    "nexusMetric": "Nexus 팀",
+    "signupsLabel": "가입",
+    "signupsMetric": "가입",
+    "activeMembersLabel": "활성 멤버"
   },
   "upgrade": {
     "title": "⚡ 업그레이드",

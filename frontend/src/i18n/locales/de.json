@@ -809,7 +809,7 @@
   "leaderboard": {
     "title": "Bestenliste",
     "subtitle": "Top-Performer im SuperAdPro-Netzwerk",
-    "affiliateLeaderboard": "Affiliate",
+    "affiliateLeaderboard": "Partner",
     "leaderboardHighlight": "Bestenliste",
     "topPerformers": "Top-Performer im SuperAdPro-Netzwerk",
     "yourRank": "Dein Rang",
@@ -848,7 +848,10 @@
     "heroTitle": "Top-Performer",
     "heroSubtitle": "Im gesamten SuperAdPro-Netzwerk",
     "profitGridLabel": "Profit Grid",
-    "nexusMetric": "Nexus-Team"
+    "nexusMetric": "Nexus-Team",
+    "signupsLabel": "Anmeldungen",
+    "signupsMetric": "Anmeldungen",
+    "activeMembersLabel": "Aktive Mitglieder"
   },
   "upgrade": {
     "title": "⚡ Upgrade",

@@ -847,8 +847,11 @@
     "heroEyebrow": "アフィリエイトリーダーボード",
     "heroTitle": "トップパフォーマー",
     "heroSubtitle": "SuperAdProネットワーク全体",
-    "profitGridLabel": "Profit Grid",
-    "nexusMetric": "Nexusチーム"
+    "profitGridLabel": "利益グリッド",
+    "nexusMetric": "Nexusチーム",
+    "signupsLabel": "サインアップ",
+    "signupsMetric": "サインアップ",
+    "activeMembersLabel": "アクティブメンバー"
   },
   "upgrade": {
     "title": "⚡ アップグレード",

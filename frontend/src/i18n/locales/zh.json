@@ -848,7 +848,10 @@
     "heroTitle": "顶级表现者",
     "heroSubtitle": "遍布 SuperAdPro 网络",
     "profitGridLabel": "利润网格",
-    "nexusMetric": "Nexus 团队"
+    "nexusMetric": "Nexus 团队",
+    "signupsLabel": "注册用户",
+    "signupsMetric": "注册用户",
+    "activeMembersLabel": "活跃成员"
   },
   "upgrade": {
     "title": "⚡ 升级",

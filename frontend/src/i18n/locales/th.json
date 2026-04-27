@@ -848,7 +848,10 @@
     "heroTitle": "ผู้ทำผลสำเร็จยอดเยี่ยม",
     "heroSubtitle": "ทั่วเครือข่าย SuperAdPro",
     "profitGridLabel": "Profit Grid",
-    "nexusMetric": "ทีม Nexus"
+    "nexusMetric": "ทีม Nexus",
+    "signupsLabel": "ลงทะเบียน",
+    "signupsMetric": "ลงทะเบียน",
+    "activeMembersLabel": "สมาชิกที่ใช้งาน"
   },
   "upgrade": {
     "title": "⚡ อัปเกรด",

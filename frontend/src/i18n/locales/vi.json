@@ -847,8 +847,11 @@
     "heroEyebrow": "Bảng xếp hạng Liên kết",
     "heroTitle": "Những người dẫn đầu",
     "heroSubtitle": "Trên toàn bộ mạng SuperAdPro",
-    "profitGridLabel": "Profit Grid",
-    "nexusMetric": "Nexus team"
+    "profitGridLabel": "Lưới Lợi Nhuận",
+    "nexusMetric": "Nhóm Nexus",
+    "signupsLabel": "Đăng ký",
+    "signupsMetric": "Đăng ký",
+    "activeMembersLabel": "Thành viên Hoạt động"
   },
   "upgrade": {
     "title": "⚡ Nâng cấp",

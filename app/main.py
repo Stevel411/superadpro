@@ -7170,7 +7170,24 @@ async def admin_api_change_tier(
     if not target:
         raise HTTPException(status_code=404, detail="User not found")
     old_tier = target.membership_tier or "basic"
+    was_active_paid = bool(target.is_active and old_tier in ("basic", "pro") and target.activated_at)
     target.membership_tier = new_tier
+
+    # If this admin action is the user's FIRST transition into a paid tier
+    # (i.e. they weren't previously a paying member), bump the sponsor's
+    # personal_referrals counter so the leaderboard reflects this paid sign-up.
+    # Without this, admin-driven upgrades silently left sponsor counters stuck.
+    if not was_active_paid and target.sponsor_id:
+        sponsor = db.query(User).filter(User.id == target.sponsor_id).first()
+        if sponsor:
+            sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
+            target.is_active = True
+            target.activated_at = target.activated_at or datetime.utcnow()
+            try:
+                cache_invalidate_leaderboard()
+            except Exception:
+                pass
+
     db.commit()
     logger.info(f"Admin changed tier: {target.username} {old_tier} → {new_tier}")
     return {"success": True, "username": target.username, "old_tier": old_tier, "new_tier": new_tier}
@@ -7195,10 +7212,24 @@ async def admin_api_gift_membership(
     if not target:
         raise HTTPException(status_code=404, detail="User not found")
 
+    # Track whether this is the user's first paid activation so we know
+    # whether to bump the sponsor's personal_referrals counter (otherwise
+    # admin gifts silently leave sponsor leaderboard counters stuck).
+    was_active_paid = bool(target.is_active and target.activated_at)
+
     target.membership_tier = tier
     target.is_active = True
     target.activated_at = target.activated_at or datetime.utcnow()
     target.membership_expires_at = datetime.utcnow() + timedelta(days=months * 31)
+
+    if not was_active_paid and target.sponsor_id:
+        sponsor = db.query(User).filter(User.id == target.sponsor_id).first()
+        if sponsor:
+            sponsor.personal_referrals = (sponsor.personal_referrals or 0) + 1
+            try:
+                cache_invalidate_leaderboard()
+            except Exception:
+                pass
 
     db.commit()
     expiry = target.membership_expires_at.strftime('%d %b %Y')
@@ -11659,6 +11690,53 @@ def process_pending_withdrawals(secret: str, db: Session = Depends(get_db)):
         r = process_withdrawal(db, w.id)
         results.append({"withdrawal_id": w.id, "user_id": w.user_id, "amount": float(w.amount_usdt), "result": r})
     return {"processed": len(results), "details": results}
+
+# ── Recompute personal_referrals from actual paid members ──
+# One-shot fix for the bug where admin tier-upgrades didn't bump the
+# sponsor's personal_referrals counter. Counts the number of active paid
+# members per sponsor and corrects the counter to match. Safe to re-run.
+@app.get("/admin/recompute-personal-referrals")
+def recompute_personal_referrals(secret: str, db: Session = Depends(get_db)):
+    if secret != "superadpro-owner-2026":
+        return JSONResponse({"error": "Invalid secret"}, status_code=403)
+
+    # Aggregate paid downline by sponsor: anyone active with a paid tier and
+    # an activation timestamp counts as one paid referral for their sponsor.
+    from sqlalchemy import func as sa_func
+    rows = (
+        db.query(
+            User.sponsor_id.label("sid"),
+            sa_func.count(User.id).label("paid_count"),
+        )
+        .filter(User.sponsor_id.isnot(None))
+        .filter(User.is_active == True)
+        .filter(User.membership_tier.in_(("basic", "pro")))
+        .filter(User.activated_at.isnot(None))
+        .group_by(User.sponsor_id)
+        .all()
+    )
+
+    paid_by_sponsor = {r.sid: r.paid_count for r in rows}
+    fixed = []
+    for sponsor in db.query(User).all():
+        new_count = paid_by_sponsor.get(sponsor.id, 0)
+        old_count = sponsor.personal_referrals or 0
+        if new_count != old_count:
+            sponsor.personal_referrals = new_count
+            fixed.append({
+                "username": sponsor.username,
+                "old": old_count,
+                "new": new_count,
+                "delta": new_count - old_count,
+            })
+    db.commit()
+
+    try:
+        cache_invalidate_leaderboard()
+    except Exception:
+        pass
+
+    return {"updated": len(fixed), "details": fixed}
 
 @app.get("/admin/activate-owner")
 def activate_owner(secret: str, username: str, db: Session = Depends(get_db)):
@@ -17713,10 +17791,17 @@ def api_leaderboard(db: Session = Depends(get_db)):
             "membership_tier": u.membership_tier or "basic",
         }
 
-    # Top referrers
+    # Top referrers — by paid personal_referrals (active members only)
     ref_leaders = db.query(User).filter(
         User.is_active == True, User.personal_referrals > 0
     ).order_by(User.personal_referrals.desc()).limit(20).all()
+
+    # Top sign-up sponsors — by total_team (anyone joined via your link,
+    # paid or not). This board fills up faster than ref_leaders since it
+    # doesn't require the downline to be on a paid plan.
+    signup_users = db.query(User).filter(
+        User.total_team > 0
+    ).order_by(User.total_team.desc()).limit(20).all()
 
     # Top grid builders (by total team size)
     grid_users = db.query(User).filter(
@@ -17795,6 +17880,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
 
     result = {
         "ref_leaders": [user_data(u) for u in ref_leaders],
+        "signup_users": [user_data(u) for u in signup_users],
         "grid_users": [user_data(u) for u in grid_users],
         "nexus_users": [user_data(u) for u in nexus_users_q],
         "course_users": [user_data(u) for u in course_users],

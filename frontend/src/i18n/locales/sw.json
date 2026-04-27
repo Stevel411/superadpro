@@ -847,8 +847,11 @@
     "heroEyebrow": "Ubao wa Washirikiano Walio Juu",
     "heroTitle": "Waendeshaji Bora",
     "heroSubtitle": "Kote katika mtandao wa SuperAdPro",
-    "profitGridLabel": "Profit Grid",
-    "nexusMetric": "Nexus team"
+    "profitGridLabel": "Mtandao wa Faida",
+    "nexusMetric": "Timu ya Nexus",
+    "signupsLabel": "Wajisajili",
+    "signupsMetric": "Wajisajili",
+    "activeMembersLabel": "Wanachama Hai"
   },
   "upgrade": {
     "title": "⚡ Boresha",
