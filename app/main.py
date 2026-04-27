@@ -17797,6 +17797,7 @@ def api_leaderboard(db: Session = Depends(get_db)):
             "username": u.username,
             "first_name": u.first_name or u.username,
             "last_name": u.last_name or "",
+            "avatar_url": u.avatar_url or None,
             "personal_referrals": u.personal_referrals or 0,
             "total_team": u.total_team or 0,
             "total_earned": float(u.total_earned or 0),

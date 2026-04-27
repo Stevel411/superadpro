@@ -34,16 +34,29 @@ function PodiumCard({ user, place, tab }) {
         : <div style={{ height: 38 }} />
       }
       <div style={{ position: 'relative', marginBottom: 12 }}>
-        <div style={{
-          width: sizes[place], height: sizes[place],
-          borderRadius: '50%',
-          background: tab.grad,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          fontSize: sizes[place] * 0.42, fontWeight: 800, color: '#fff',
-          fontFamily: 'Sora, sans-serif',
-          border: '3px solid ' + rs.border,
-          boxShadow: '0 0 ' + (isFirst ? 32 : 18) + 'px ' + rs.glow,
-        }}>{(user.first_name || user.username || 'U')[0].toUpperCase()}</div>
+        {user.avatar_url ? (
+          <img src={user.avatar_url} alt=""
+            style={{
+              width: sizes[place], height: sizes[place],
+              borderRadius: '50%',
+              objectFit: 'cover',
+              border: '3px solid ' + rs.border,
+              boxShadow: '0 0 ' + (isFirst ? 32 : 18) + 'px ' + rs.glow,
+              display: 'block',
+            }}
+          />
+        ) : (
+          <div style={{
+            width: sizes[place], height: sizes[place],
+            borderRadius: '50%',
+            background: tab.grad,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: sizes[place] * 0.42, fontWeight: 800, color: '#fff',
+            fontFamily: 'Sora, sans-serif',
+            border: '3px solid ' + rs.border,
+            boxShadow: '0 0 ' + (isFirst ? 32 : 18) + 'px ' + rs.glow,
+          }}>{(user.first_name || user.username || 'U')[0].toUpperCase()}</div>
+        )}
         <div style={{
           position: 'absolute', bottom: -6, right: -6,
           fontSize: isFirst ? 26 : 20,
@@ -384,16 +397,27 @@ export default function Leaderboard() {
                       </td>
                       <td style={{ padding: '14px 18px', borderBottom: '1px solid #f5f6f8' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <div style={{
-                            width: 40, height: 40, borderRadius: 12,
-                            background: i < 3 ? activeTab.grad : 'linear-gradient(135deg,#e2e8f0,#cbd5e1)',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 16, fontWeight: 800,
-                            color: i < 3 ? '#fff' : 'var(--sap-text-muted)',
-                            flexShrink: 0,
-                            fontFamily: 'Sora, sans-serif',
-                            boxShadow: i < 3 ? '0 2px 8px ' + activeTab.color + '30' : 'none',
-                          }}>{(u.first_name || u.username || 'U')[0].toUpperCase()}</div>
+                          {u.avatar_url ? (
+                            <img src={u.avatar_url} alt=""
+                              style={{
+                                width: 40, height: 40, borderRadius: 12,
+                                objectFit: 'cover',
+                                flexShrink: 0,
+                                boxShadow: i < 3 ? '0 2px 8px ' + activeTab.color + '30' : 'none',
+                              }}
+                            />
+                          ) : (
+                            <div style={{
+                              width: 40, height: 40, borderRadius: 12,
+                              background: i < 3 ? activeTab.grad : 'linear-gradient(135deg,#e2e8f0,#cbd5e1)',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                              fontSize: 16, fontWeight: 800,
+                              color: i < 3 ? '#fff' : 'var(--sap-text-muted)',
+                              flexShrink: 0,
+                              fontFamily: 'Sora, sans-serif',
+                              boxShadow: i < 3 ? '0 2px 8px ' + activeTab.color + '30' : 'none',
+                            }}>{(u.first_name || u.username || 'U')[0].toUpperCase()}</div>
+                          )}
                           <div>
                             <div style={{
                               fontSize: 14, fontWeight: 700,
