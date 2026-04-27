@@ -46,8 +46,8 @@
     "videoNotSupported": "Video-URL niet ondersteund.",
     "alreadyHaveAccount": "Heb je al een account?",
     "tapToUnmute": "Tik om geluid aan te zetten",
-    "loading": "Loading…",
-    "notFound": "Not found",
+    "loading": "Laden…",
+    "notFound": "Niet gevonden",
     "disclaimerLink": "Disclaimer"
   },
   "nav": {
@@ -1070,9 +1070,9 @@
     "liveAnalyticsDesc": "Volg geleverde weergaven, voltooiingspercentage en campagnevoortgang in realtime op je dashboard.",
     "previewLabel": "voorbeeld",
     "ctaUrl": "Call-to-action URL",
-    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrlHelp": "Optioneel. Waar kijkers terechtkomen wanneer ze op 'Website bezoeken' klikken na het kijken.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "Voer een geldige URL in die begint met https://"
   },
   "campaignAnalytics": {
     "title": "Campagne Analyse",
@@ -1486,9 +1486,9 @@
     "step3Text": "Verdien 25% op Niveau 1, 15% op Niveau 2, 10% op Niveau 3",
     "step4Text": "Wanneer alle 39 posities bezet zijn, verdient u een voltooiingsbonus",
     "step5Text": "Nexus wordt gereset — verdiensten gaan automatisch door",
-    "l1Label": "L1 (3 members × 25%)",
-    "l2Label": "L2 (9 members × 15%)",
-    "l3Label": "L3 (27 members × 10%)",
+    "l1Label": "L1 (3 leden × 25%)",
+    "l2Label": "L2 (9 leden × 15%)",
+    "l3Label": "L3 (27 leden × 10%)",
     "completionBonusLabel": "Voltooiingsbonus",
     "emptySlot": "Leeg",
     "yourNexusTitle": "Jouw 3×3 Nexus",
@@ -1908,7 +1908,7 @@
     "generateMyPage": "Mijn pagina genereren →",
     "cancel": "Annuleren",
     "generationFailed": "Generatie mislukt — probeer het opnieuw",
-    "errorPrefix": "Error: ",
+    "errorPrefix": "Fout: ",
     "pagesLabel": "Pagina's",
     "viewsLabel": "Weergaven",
     "leadsLabel": "Leads",
@@ -2009,7 +2009,7 @@
     "noSequencesDesc": "Maak een reeks aan om je leads automatisch te koesteren",
     "addEmail": "E-mail toevoegen",
     "urgencySubject": "This is your last chance to join us.",
-    "broadcastTitle": "Broadcast",
+    "broadcastTitle": "Uitzending",
     "broadcastDesc": "Verstuur een eenmalige e-mail naar je leads",
     "listLabel": "Lijst",
     "statusLabel": "Status",
@@ -3949,9 +3949,9 @@
     "nudgeButtonSent": "Herinnering verzonden",
     "nudgeButtonPending": "Ze hebben al een ongelezen herinnering",
     "nudgeButtonError": "Kon niet verzenden",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "Lijst weergeven",
+    "viewTeam": "Team weergeven",
+    "fetchFailed": "Kon commandocentrumgegevens niet laden. Probeer te vernieuwen."
   },
   "notification": {
     "reengagement_lapsed_title": "Je SuperAdPro-lidmaatschap is verlopen",

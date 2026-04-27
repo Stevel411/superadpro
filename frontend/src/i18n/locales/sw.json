@@ -46,9 +46,9 @@
     "videoNotSupported": "URL ya video haitumiki.",
     "alreadyHaveAccount": "Una akaunti tayari?",
     "tapToUnmute": "Gonga ili kuondoa kimya",
-    "loading": "Loading…",
-    "notFound": "Not found",
-    "disclaimerLink": "Disclaimer"
+    "loading": "Inapakia…",
+    "notFound": "Haipatikani",
+    "disclaimerLink": "Kanusho"
   },
   "nav": {
     "dashboard": "Dashibodi",
@@ -1069,10 +1069,10 @@
     "liveAnalytics": "Uchambuzi Moja kwa Moja",
     "liveAnalyticsDesc": "Fuatilia mionekano iliyotolewa, kiwango cha kukamilika, na maendeleo ya kampeni kwa wakati halisi kwenye dashibodi yako.",
     "previewLabel": "onyesho",
-    "ctaUrl": "Call-to-action URL",
-    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrl": "URL ya Wito wa Vitendo",
+    "ctaUrlHelp": "Ya hiari. Mahali ambapo waangalizi huenda wanapokamatia 'Tembelea Tovuti' baada ya kuangalia.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "Tafadhali ingiza URL halali inayoanza na https://"
   },
   "campaignAnalytics": {
     "title": "Uchambuzi wa Kampeni",
@@ -1486,9 +1486,9 @@
     "step3Text": "Pata 25% katika Kiwango 1, 15% katika Kiwango 2, 10% katika Kiwango 3",
     "step4Text": "Nafasi zote 39 zinapojazwa, pata bonasi ya kukamilisha",
     "step5Text": "Nexus inarudi upya — mapato yanaendelea kiotomatiki",
-    "l1Label": "L1 (3 members × 25%)",
-    "l2Label": "L2 (9 members × 15%)",
-    "l3Label": "L3 (27 members × 10%)",
+    "l1Label": "L1 (wanachama 3 × 25%)",
+    "l2Label": "L2 (wanachama 9 × 15%)",
+    "l3Label": "L3 (wanachama 27 × 10%)",
     "completionBonusLabel": "Bonasi ya kukamilisha",
     "emptySlot": "Tupu",
     "yourNexusTitle": "Nexus 3×3 Yako",
@@ -1810,7 +1810,7 @@
     "viz3L2": "K2 · Uwekaji otomatiki",
     "viz3L3": "K3 · Kukamilika",
     "stream4Num": "Mkondo 04",
-    "stream4Name": "Course Academy",
+    "stream4Name": "Akadamia ya Kozi",
     "stream4Badge": "R2 2026",
     "stream4HeadVal": "100%",
     "stream4HeadValSmall": "ya mauzo yako",
@@ -1908,7 +1908,7 @@
     "generateMyPage": "Zalisha Ukurasa Wangu →",
     "cancel": "Ghairi",
     "generationFailed": "Uundaji umeshindwa — tafadhali jaribu tena",
-    "errorPrefix": "Error: ",
+    "errorPrefix": "Hitilafu:",
     "pagesLabel": "Kurasa",
     "viewsLabel": "Maoni",
     "leadsLabel": "Miongozo",
@@ -3941,9 +3941,9 @@
     "nudgeButtonSent": "Kikumbusho kimetumwa",
     "nudgeButtonPending": "Tayari wana kikumbusho ambacho hakijasomwa",
     "nudgeButtonError": "Imeshindwa kutuma",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "Angalia orodha",
+    "viewTeam": "Angalia timu",
+    "fetchFailed": "Haikuweza kupakua data ya kituo cha amri. Jaribu kuonyesha tena."
   },
   "notification": {
     "reengagement_lapsed_title": "Uanachama wako wa SuperAdPro umemalizika",

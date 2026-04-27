@@ -46,9 +46,9 @@
     "videoNotSupported": "URL vidéo non prise en charge.",
     "alreadyHaveAccount": "Vous avez déjà un compte ?",
     "tapToUnmute": "Appuyez pour activer le son",
-    "loading": "Loading…",
-    "notFound": "Not found",
-    "disclaimerLink": "Disclaimer"
+    "loading": "Chargement…",
+    "notFound": "Non trouvé",
+    "disclaimerLink": "Clause de non-responsabilité"
   },
   "nav": {
     "dashboard": "Tableau de Bord",
@@ -444,7 +444,7 @@
     "transferHistory": "Historique des Transferts",
     "direction": "Direction",
     "member": "Membre",
-    "note": "Note",
+    "note": "Remarque",
     "sent": "Envoyé",
     "received": "Reçu",
     "userIdPlaceholder": "ex. SAP-00042",
@@ -1069,10 +1069,10 @@
     "liveAnalytics": "Analyses en Direct",
     "liveAnalyticsDesc": "Suivez les vues livrées, le taux d'achèvement et la progression de la campagne en temps réel sur votre tableau de bord.",
     "previewLabel": "aperçu",
-    "ctaUrl": "Call-to-action URL",
-    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrl": "URL d'appel à l'action",
+    "ctaUrlHelp": "Facultatif. Où les spectateurs vont-ils quand ils cliquent sur « Visiter le site » après avoir regardé.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "Veuillez entrer une URL valide commençant par https://"
   },
   "campaignAnalytics": {
     "title": "Analytiques Campagne",
@@ -1486,9 +1486,9 @@
     "step3Text": "Gagnez 25% au Niveau 1, 15% au Niveau 2, 10% au Niveau 3",
     "step4Text": "Quand les 39 positions sont remplies, gagnez un bonus de complétion",
     "step5Text": "Le nexus se réinitialise — les gains continuent automatiquement",
-    "l1Label": "L1 (3 members × 25%)",
-    "l2Label": "L2 (9 members × 15%)",
-    "l3Label": "L3 (27 members × 10%)",
+    "l1Label": "L1 (3 membres × 25%)",
+    "l2Label": "L2 (9 membres × 15%)",
+    "l3Label": "L3 (27 membres × 10%)",
     "completionBonusLabel": "Bonus de complétion",
     "emptySlot": "Vide",
     "yourNexusTitle": "Votre Nexus 3×3",
@@ -1842,7 +1842,7 @@
     "generateMyPage": "Générer Ma Page →",
     "cancel": "Annuler",
     "generationFailed": "Échec de la génération — réessayez",
-    "errorPrefix": "Error: ",
+    "errorPrefix": "Erreur : ",
     "pagesLabel": "Pages",
     "viewsLabel": "Vues",
     "leadsLabel": "Prospects",
@@ -3949,9 +3949,9 @@
     "nudgeButtonSent": "Rappel envoyé",
     "nudgeButtonPending": "Ils ont déjà un rappel non lu",
     "nudgeButtonError": "Impossible d'envoyer",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "Afficher la liste",
+    "viewTeam": "Afficher l'équipe",
+    "fetchFailed": "Impossible de charger les données du centre de commande. Essayez de rafraîchir."
   },
   "notification": {
     "reengagement_lapsed_title": "Votre abonnement SuperAdPro a expiré",

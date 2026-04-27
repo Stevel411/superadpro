@@ -46,9 +46,9 @@
     "videoNotSupported": "URL видео не поддерживается.",
     "alreadyHaveAccount": "Уже есть аккаунт?",
     "tapToUnmute": "Нажмите, чтобы включить звук",
-    "loading": "Loading…",
-    "notFound": "Not found",
-    "disclaimerLink": "Disclaimer"
+    "loading": "Загрузка…",
+    "notFound": "Не найдено",
+    "disclaimerLink": "Дисклеймер"
   },
   "nav": {
     "dashboard": "Панель",
@@ -1069,10 +1069,10 @@
     "liveAnalytics": "Аналитика в Реальном Времени",
     "liveAnalyticsDesc": "Отслеживайте доставленные просмотры, скорость завершения и прогресс кампании в реальном времени на вашей панели.",
     "previewLabel": "предпросмотр",
-    "ctaUrl": "Call-to-action URL",
-    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrl": "URL призыва к действию",
+    "ctaUrlHelp": "Опционально. Куда перейдут зрители при клике на 'Посетить веб-сайт' после просмотра.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "Пожалуйста, введите корректный URL, начинающийся с https://"
   },
   "campaignAnalytics": {
     "title": "Аналитика Кампаний",
@@ -1486,9 +1486,9 @@
     "step3Text": "Зарабатывайте 25% на Уровне 1, 15% на Уровне 2, 10% на Уровне 3",
     "step4Text": "Когда все 39 позиций заполнены, получите бонус за завершение",
     "step5Text": "Узел сбрасывается — заработок продолжается автоматически",
-    "l1Label": "L1 (3 members × 25%)",
-    "l2Label": "L2 (9 members × 15%)",
-    "l3Label": "L3 (27 members × 10%)",
+    "l1Label": "L1 (3 участника × 25%)",
+    "l2Label": "L2 (9 участников × 15%)",
+    "l3Label": "L3 (27 участников × 10%)",
     "completionBonusLabel": "Бонус за завершение",
     "emptySlot": "Пусто",
     "yourNexusTitle": "Ваш 3×3 Nexus",
@@ -1908,7 +1908,7 @@
     "generateMyPage": "Создать мою страницу →",
     "cancel": "Отмена",
     "generationFailed": "Ошибка генерации — попробуйте снова",
-    "errorPrefix": "Error: ",
+    "errorPrefix": "Ошибка: ",
     "pagesLabel": "Страницы",
     "viewsLabel": "Просмотры",
     "leadsLabel": "Лиды",
@@ -3949,9 +3949,9 @@
     "nudgeButtonSent": "Напоминание отправлено",
     "nudgeButtonPending": "У них уже есть непрочитанное напоминание",
     "nudgeButtonError": "Не удалось отправить",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "Посмотреть список",
+    "viewTeam": "Посмотреть команду",
+    "fetchFailed": "Не удалось загрузить данные командного центра. Попробуйте обновить."
   },
   "notification": {
     "reengagement_lapsed_title": "Ваше членство SuperAdPro истекло",

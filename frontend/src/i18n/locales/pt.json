@@ -46,9 +46,9 @@
     "videoNotSupported": "URL de vídeo não suportada.",
     "alreadyHaveAccount": "Já tem uma conta?",
     "tapToUnmute": "Toque para ativar o som",
-    "loading": "Loading…",
-    "notFound": "Not found",
-    "disclaimerLink": "Disclaimer"
+    "loading": "Carregando…",
+    "notFound": "Não encontrado",
+    "disclaimerLink": "Aviso legal"
   },
   "nav": {
     "dashboard": "Painel",
@@ -1069,10 +1069,10 @@
     "liveAnalytics": "Análises ao Vivo",
     "liveAnalyticsDesc": "Acompanhe visualizações entregues, taxa de conclusão e progresso da campanha em tempo real no seu painel.",
     "previewLabel": "prévia",
-    "ctaUrl": "Call-to-action URL",
-    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrl": "URL de chamada para ação",
+    "ctaUrlHelp": "Opcional. Para onde os espectadores vão quando clicam em 'Visitar Website' após assistir.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "Digite uma URL válida começando com https://"
   },
   "campaignAnalytics": {
     "title": "Análise de Campanha",
@@ -1486,9 +1486,9 @@
     "step3Text": "Ganhe 25% no Nível 1, 15% no Nível 2, 10% no Nível 3",
     "step4Text": "Quando todas as 39 posições são preenchidas, ganhe um bônus de conclusão",
     "step5Text": "O nexus reinicia — os ganhos continuam automaticamente",
-    "l1Label": "L1 (3 members × 25%)",
-    "l2Label": "L2 (9 members × 15%)",
-    "l3Label": "L3 (27 members × 10%)",
+    "l1Label": "L1 (3 membros × 25%)",
+    "l2Label": "L2 (9 membros × 15%)",
+    "l3Label": "L3 (27 membros × 10%)",
     "completionBonusLabel": "Bônus de conclusão",
     "emptySlot": "Vazio",
     "yourNexusTitle": "Seu Nexus 3×3",
@@ -1908,7 +1908,7 @@
     "generateMyPage": "Gerar minha página →",
     "cancel": "Cancelar",
     "generationFailed": "Falha na geração — tente novamente",
-    "errorPrefix": "Error: ",
+    "errorPrefix": "Erro: ",
     "pagesLabel": "Páginas",
     "viewsLabel": "Visualizações",
     "leadsLabel": "Leads",
@@ -1979,7 +1979,7 @@
     "previewVideoHeadline": "Veja como funciona",
     "previewVideoCTA": "Reservar meu lugar",
     "previewProductHeadline": "Transforme seu negócio",
-    "previewProductStarter": "Starter",
+    "previewProductStarter": "Iniciante",
     "previewProductPro": "Pro",
     "previewProductCTA": "Comprar agora",
     "previewCoachingHeadline": "Agende sua chamada gratuita",
@@ -2229,7 +2229,7 @@
     "tabSequences": "Sequências",
     "tabBroadcast": "Transmissão",
     "tabImport": "Importar",
-    "tabBoost": "Boost",
+    "tabBoost": "Impulsionar",
     "statusUnsubscribed": "Cancelou inscrição"
   },
   "videoCreator": {
@@ -3949,9 +3949,9 @@
     "nudgeButtonSent": "Lembrete enviado",
     "nudgeButtonPending": "Eles já têm um lembrete não lido",
     "nudgeButtonError": "Não foi possível enviar",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "Ver lista",
+    "viewTeam": "Ver equipe",
+    "fetchFailed": "Não foi possível carregar os dados do painel de controle. Tente atualizar."
   },
   "notification": {
     "reengagement_lapsed_title": "Sua assinatura SuperAdPro expirou",

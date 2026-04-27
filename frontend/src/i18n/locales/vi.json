@@ -46,9 +46,9 @@
     "videoNotSupported": "URL video không được hỗ trợ.",
     "alreadyHaveAccount": "Đã có tài khoản?",
     "tapToUnmute": "Chạm để bật tiếng",
-    "loading": "Loading…",
-    "notFound": "Not found",
-    "disclaimerLink": "Disclaimer"
+    "loading": "Đang tải…",
+    "notFound": "Không tìm thấy",
+    "disclaimerLink": "Miễn trừ trách nhiệm"
   },
   "nav": {
     "dashboard": "Bảng điều khiển",
@@ -1069,10 +1069,10 @@
     "liveAnalytics": "Phân tích Trực tiếp",
     "liveAnalyticsDesc": "Theo dõi lượt xem đã giao, tỷ lệ hoàn thành và tiến độ chiến dịch theo thời gian thực trên bảng điều khiển của bạn.",
     "previewLabel": "xem trước",
-    "ctaUrl": "Call-to-action URL",
-    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrl": "URL Lời kêu gọi hành động",
+    "ctaUrlHelp": "Tùy chọn. Nơi người xem được chuyển hướng khi nhấp 'Truy cập Website' sau khi xem xong.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "Vui lòng nhập URL hợp lệ bắt đầu bằng https://"
   },
   "campaignAnalytics": {
     "title": "Phân tích Chiến dịch",
@@ -1486,9 +1486,9 @@
     "step3Text": "Kiếm 25% ở Cấp 1, 15% ở Cấp 2, 10% ở Cấp 3",
     "step4Text": "Khi tất cả 39 vị trí được lấp đầy, nhận thưởng hoàn thành",
     "step5Text": "Nexus đặt lại — thu nhập tiếp tục tự động",
-    "l1Label": "L1 (3 members × 25%)",
-    "l2Label": "L2 (9 members × 15%)",
-    "l3Label": "L3 (27 members × 10%)",
+    "l1Label": "L1 (3 thành viên × 25%)",
+    "l2Label": "L2 (9 thành viên × 15%)",
+    "l3Label": "L3 (27 thành viên × 10%)",
     "completionBonusLabel": "Thưởng hoàn thành",
     "emptySlot": "Trống",
     "yourNexusTitle": "Nexus 3×3 của bạn",
@@ -1908,7 +1908,7 @@
     "generateMyPage": "Tạo trang của tôi →",
     "cancel": "Hủy",
     "generationFailed": "Tạo thất bại — vui lòng thử lại",
-    "errorPrefix": "Error: ",
+    "errorPrefix": "Lỗi: ",
     "pagesLabel": "Trang",
     "viewsLabel": "Lượt xem",
     "leadsLabel": "Khách hàng tiềm năng",
@@ -3941,9 +3941,9 @@
     "nudgeButtonSent": "Đã gửi nhắc nhở",
     "nudgeButtonPending": "Họ đã có một nhắc nhở chưa đọc",
     "nudgeButtonError": "Không thể gửi",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "Xem danh sách",
+    "viewTeam": "Xem đội",
+    "fetchFailed": "Không thể tải dữ liệu trung tâm lệnh. Hãy thử làm mới."
   },
   "notification": {
     "reengagement_lapsed_title": "Tư cách thành viên SuperAdPro của bạn đã hết hạn",

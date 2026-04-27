@@ -46,8 +46,8 @@
     "videoNotSupported": "URL video non supportato.",
     "alreadyHaveAccount": "Hai già un account?",
     "tapToUnmute": "Tocca per attivare l'audio",
-    "loading": "Loading…",
-    "notFound": "Not found",
+    "loading": "Caricamento…",
+    "notFound": "Non trovato",
     "disclaimerLink": "Disclaimer"
   },
   "nav": {
@@ -1069,10 +1069,10 @@
     "liveAnalytics": "Analisi in Tempo Reale",
     "liveAnalyticsDesc": "Monitora visualizzazioni consegnate, tasso di completamento e progresso della campagna in tempo reale nella tua dashboard.",
     "previewLabel": "anteprima",
-    "ctaUrl": "Call-to-action URL",
-    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrl": "URL call-to-action",
+    "ctaUrlHelp": "Facoltativo. Dove vanno gli spettatori quando fanno clic su 'Visita sito web' dopo la visione.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "Inserisci un URL valido che inizi con https://"
   },
   "campaignAnalytics": {
     "title": "Analisi Campagne",
@@ -1486,9 +1486,9 @@
     "step3Text": "Guadagna 25% al Livello 1, 15% al Livello 2, 10% al Livello 3",
     "step4Text": "Quando tutte le 39 posizioni sono occupate, guadagna un bonus completamento",
     "step5Text": "Il nexus si resetta — i guadagni continuano automaticamente",
-    "l1Label": "L1 (3 members × 25%)",
-    "l2Label": "L2 (9 members × 15%)",
-    "l3Label": "L3 (27 members × 10%)",
+    "l1Label": "L1 (3 membri × 25%)",
+    "l2Label": "L2 (9 membri × 15%)",
+    "l3Label": "L3 (27 membri × 10%)",
     "completionBonusLabel": "Bonus completamento",
     "emptySlot": "Vuoto",
     "yourNexusTitle": "Il tuo Nexus 3×3",
@@ -1908,7 +1908,7 @@
     "generateMyPage": "Genera la mia pagina →",
     "cancel": "Annulla",
     "generationFailed": "Generazione fallita — riprova",
-    "errorPrefix": "Error: ",
+    "errorPrefix": "Errore: ",
     "pagesLabel": "Pagine",
     "viewsLabel": "Visualizzazioni",
     "leadsLabel": "Lead",
@@ -3949,9 +3949,9 @@
     "nudgeButtonSent": "Promemoria inviato",
     "nudgeButtonPending": "Hanno già un promemoria non letto",
     "nudgeButtonError": "Impossibile inviare",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "Visualizza elenco",
+    "viewTeam": "Visualizza team",
+    "fetchFailed": "Impossibile caricare i dati del centro di controllo. Prova ad aggiornare."
   },
   "notification": {
     "reengagement_lapsed_title": "La tua iscrizione SuperAdPro è scaduta",

@@ -46,9 +46,9 @@
     "videoNotSupported": "ไม่รองรับ URL วิดีโอ",
     "alreadyHaveAccount": "มีบัญชีอยู่แล้ว?",
     "tapToUnmute": "แตะเพื่อเปิดเสียง",
-    "loading": "Loading…",
-    "notFound": "Not found",
-    "disclaimerLink": "Disclaimer"
+    "loading": "กำลังโหลด…",
+    "notFound": "ไม่พบ",
+    "disclaimerLink": "ข้อความปฏิเสธความรับผิดชอบ"
   },
   "nav": {
     "dashboard": "แดชบอร์ด",
@@ -1069,10 +1069,10 @@
     "liveAnalytics": "การวิเคราะห์สด",
     "liveAnalyticsDesc": "ติดตามการดูที่ส่งมอบ อัตราความสำเร็จ และความคืบหน้าของแคมเปญแบบเรียลไทม์บนแดชบอร์ดของคุณ",
     "previewLabel": "ดูตัวอย่าง",
-    "ctaUrl": "Call-to-action URL",
-    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrl": "URL Call-to-action",
+    "ctaUrlHelp": "ไม่จำเป็น เป็นหน้าที่จะพาผู้ชมไปหลังจากที่พวกเขากด 'Visit Website' เสร็จสิ้น",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "กรุณากรอก URL ที่ถูกต้องโดยขึ้นต้นด้วย https://"
   },
   "campaignAnalytics": {
     "title": "วิเคราะห์แคมเปญ",
@@ -1486,9 +1486,9 @@
     "step3Text": "รับ 25% ในระดับ 1, 15% ในระดับ 2, 10% ในระดับ 3",
     "step4Text": "เมื่อตำแหน่งทั้ง 39 เต็ม จะได้รับโบนัสเมื่อครบ",
     "step5Text": "เน็กซัสรีเซ็ต — รายได้ดำเนินต่อโดยอัตโนมัติ",
-    "l1Label": "L1 (3 members × 25%)",
-    "l2Label": "L2 (9 members × 15%)",
-    "l3Label": "L3 (27 members × 10%)",
+    "l1Label": "L1 (3 คน × 25%)",
+    "l2Label": "L2 (9 คน × 15%)",
+    "l3Label": "L3 (27 คน × 10%)",
     "completionBonusLabel": "โบนัสเมื่อครบ",
     "emptySlot": "ว่าง",
     "yourNexusTitle": "Nexus 3×3 ของคุณ",
@@ -1908,7 +1908,7 @@
     "generateMyPage": "สร้างหน้าของฉัน →",
     "cancel": "ยกเลิก",
     "generationFailed": "การสร้างล้มเหลว — กรุณาลองอีกครั้ง",
-    "errorPrefix": "Error: ",
+    "errorPrefix": "ข้อผิดพลาด: ",
     "pagesLabel": "หน้า",
     "viewsLabel": "ยอดดู",
     "leadsLabel": "ลูกค้าเป้าหมาย",
@@ -3941,9 +3941,9 @@
     "nudgeButtonSent": "ส่งการแจ้งเตือนแล้ว",
     "nudgeButtonPending": "พวกเขามีการแจ้งเตือนที่ยังไม่ได้อ่านอยู่แล้ว",
     "nudgeButtonError": "ไม่สามารถส่งได้",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "ดูรายการ",
+    "viewTeam": "ดูทีม",
+    "fetchFailed": "ไม่สามารถโหลดข้อมูล Command Centre ได้ ลองรีเฟรชดูครับ"
   },
   "notification": {
     "reengagement_lapsed_title": "การเป็นสมาชิก SuperAdPro ของคุณหมดอายุ",

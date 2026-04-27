@@ -46,9 +46,9 @@
     "videoNotSupported": "Video-URL wird nicht unterstützt.",
     "alreadyHaveAccount": "Hast du schon ein Konto?",
     "tapToUnmute": "Tippen, um Ton einzuschalten",
-    "loading": "Loading…",
-    "notFound": "Not found",
-    "disclaimerLink": "Disclaimer"
+    "loading": "Wird geladen…",
+    "notFound": "Nicht gefunden",
+    "disclaimerLink": "Haftungsausschluss"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -1069,10 +1069,10 @@
     "liveAnalytics": "Live-Analysen",
     "liveAnalyticsDesc": "Verfolge Aufrufe, Abschlussrate und Kampagnenfortschritt in Echtzeit in deinem Dashboard.",
     "previewLabel": "Vorschau",
-    "ctaUrl": "Call-to-action URL",
-    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrl": "Call-to-Action-URL",
+    "ctaUrlHelp": "Optional. Hier werden Zuschauer hingeleitet, wenn sie nach dem Ansehen auf ‚Website besuchen' klicken.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "Bitte geben Sie eine gültige URL ein, die mit https:// beginnt"
   },
   "campaignAnalytics": {
     "title": "Kampagnenanalyse",
@@ -1486,9 +1486,9 @@
     "step3Text": "Verdienen Sie 25% auf Stufe 1, 15% auf Stufe 2, 10% auf Stufe 3",
     "step4Text": "Wenn alle 39 Positionen besetzt sind, erhalten Sie einen Abschlussbonus",
     "step5Text": "Nexus wird zurückgesetzt — Einnahmen gehen automatisch weiter",
-    "l1Label": "L1 (3 members × 25%)",
-    "l2Label": "L2 (9 members × 15%)",
-    "l3Label": "L3 (27 members × 10%)",
+    "l1Label": "L1 (3 Mitglieder × 25%)",
+    "l2Label": "L2 (9 Mitglieder × 15%)",
+    "l3Label": "L3 (27 Mitglieder × 10%)",
     "completionBonusLabel": "Abschlussbonus",
     "emptySlot": "Leer",
     "yourNexusTitle": "Dein 3×3 Nexus",
@@ -1908,7 +1908,7 @@
     "generateMyPage": "Meine Seite generieren →",
     "cancel": "Abbrechen",
     "generationFailed": "Generierung fehlgeschlagen — bitte erneut versuchen",
-    "errorPrefix": "Error: ",
+    "errorPrefix": "Fehler: ",
     "pagesLabel": "Seiten",
     "viewsLabel": "Aufrufe",
     "leadsLabel": "Leads",
@@ -3949,9 +3949,9 @@
     "nudgeButtonSent": "Erinnerung gesendet",
     "nudgeButtonPending": "Sie haben bereits eine ungelesene Erinnerung",
     "nudgeButtonError": "Konnte nicht gesendet werden",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "Liste anzeigen",
+    "viewTeam": "Team anzeigen",
+    "fetchFailed": "Konnte Befehlszentrum-Daten nicht laden. Versuchen Sie zu aktualisieren."
   },
   "notification": {
     "reengagement_lapsed_title": "Ihre SuperAdPro Mitgliedschaft ist abgelaufen",

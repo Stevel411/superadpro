@@ -46,9 +46,9 @@
     "videoNotSupported": "ビデオURLはサポートされていません。",
     "alreadyHaveAccount": "すでにアカウントをお持ちですか？",
     "tapToUnmute": "タップしてミュート解除",
-    "loading": "Loading…",
-    "notFound": "Not found",
-    "disclaimerLink": "Disclaimer"
+    "loading": "読み込み中…",
+    "notFound": "見つかりません",
+    "disclaimerLink": "免責事項"
   },
   "nav": {
     "dashboard": "ダッシュボード",
@@ -1069,10 +1069,10 @@
     "liveAnalytics": "ライブ分析",
     "liveAnalyticsDesc": "配信されたビュー、完了率、キャンペーンの進捗をダッシュボードでリアルタイムで追跡できます。",
     "previewLabel": "プレビュー",
-    "ctaUrl": "Call-to-action URL",
-    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrl": "行動喚起URL",
+    "ctaUrlHelp": "オプション。視聴者が視聴後に「ウェブサイトにアクセス」をクリックしたときの移動先。",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "https://で始まる有効なURLを入力してください"
   },
   "campaignAnalytics": {
     "title": "キャンペーン分析",
@@ -1486,9 +1486,9 @@
     "step3Text": "レベル1で25%、レベル2で15%、レベル3で10%を獲得",
     "step4Text": "39ポジションすべてが埋まると、完了ボーナスを獲得",
     "step5Text": "ネクサスがリセットされます — 収益は自動的に続行",
-    "l1Label": "L1 (3 members × 25%)",
-    "l2Label": "L2 (9 members × 15%)",
-    "l3Label": "L3 (27 members × 10%)",
+    "l1Label": "L1（3名 × 25%）",
+    "l2Label": "L2（9名 × 15%）",
+    "l3Label": "L3（27名 × 10%）",
     "completionBonusLabel": "完了ボーナス",
     "emptySlot": "空き",
     "yourNexusTitle": "あなたの3×3 Nexus",
@@ -1908,7 +1908,7 @@
     "generateMyPage": "マイページを生成 →",
     "cancel": "キャンセル",
     "generationFailed": "生成失敗 — 再試行してください",
-    "errorPrefix": "Error: ",
+    "errorPrefix": "エラー: ",
     "pagesLabel": "ページ",
     "viewsLabel": "閲覧数",
     "leadsLabel": "リード",
@@ -3941,9 +3941,9 @@
     "nudgeButtonSent": "リマインダーを送信しました",
     "nudgeButtonPending": "すでに未読のリマインダーがあります",
     "nudgeButtonError": "送信できませんでした",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "リストを表示",
+    "viewTeam": "チームを表示",
+    "fetchFailed": "コマンドセンターのデータを読み込めませんでした。更新してみてください。"
   },
   "notification": {
     "reengagement_lapsed_title": "あなたの SuperAdPro メンバーシップが失効しました",

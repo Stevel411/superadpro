@@ -46,9 +46,9 @@
     "videoNotSupported": "عنوان URL للفيديو غير مدعوم.",
     "alreadyHaveAccount": "هل لديك حساب بالفعل؟",
     "tapToUnmute": "انقر لتشغيل الصوت",
-    "loading": "Loading…",
-    "notFound": "Not found",
-    "disclaimerLink": "Disclaimer"
+    "loading": "جاري التحميل…",
+    "notFound": "لم يتم العثور عليه",
+    "disclaimerLink": "إخلاء المسؤولية"
   },
   "nav": {
     "dashboard": "لوحة التحكم",
@@ -1069,10 +1069,10 @@
     "liveAnalytics": "تحليلات مباشرة",
     "liveAnalyticsDesc": "تتبع المشاهدات المُسلّمة ومعدل الإكمال وتقدم الحملة في الوقت الفعلي على لوحة التحكم الخاصة بك.",
     "previewLabel": "معاينة",
-    "ctaUrl": "Call-to-action URL",
-    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrl": "عنوان URL للدعوة",
+    "ctaUrlHelp": "اختياري. حيث سينتقل المشاهدون عند النقر على \"زيارة الموقع\" بعد المشاهدة.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "يرجى إدخال عنوان URL صحيح يبدأ بـ https://"
   },
   "campaignAnalytics": {
     "title": "تحليل الحملات",
@@ -1486,9 +1486,9 @@
     "step3Text": "اكسب 25% في المستوى 1، 15% في المستوى 2، 10% في المستوى 3",
     "step4Text": "عندما تمتلئ جميع المواقع الـ39، اكسب مكافأة إتمام",
     "step5Text": "تُعاد نقطة الاتصال — تستمر الأرباح تلقائياً",
-    "l1Label": "L1 (3 members × 25%)",
-    "l2Label": "L2 (9 members × 15%)",
-    "l3Label": "L3 (27 members × 10%)",
+    "l1Label": "L1 (3 أعضاء × 25%)",
+    "l2Label": "L2 (9 أعضاء × 15%)",
+    "l3Label": "L3 (27 عضو × 10%)",
     "completionBonusLabel": "مكافأة الإتمام",
     "emptySlot": "فارغ",
     "yourNexusTitle": "Nexus 3×3 الخاص بك",
@@ -1908,7 +1908,7 @@
     "generateMyPage": "أنشئ صفحتي →",
     "cancel": "إلغاء",
     "generationFailed": "فشل الإنشاء — يرجى المحاولة مرة أخرى",
-    "errorPrefix": "Error: ",
+    "errorPrefix": "خطأ: ",
     "pagesLabel": "الصفحات",
     "viewsLabel": "المشاهدات",
     "leadsLabel": "العملاء المحتملون",
@@ -3941,9 +3941,9 @@
     "nudgeButtonSent": "تم إرسال التذكير",
     "nudgeButtonPending": "لديهم بالفعل تذكير غير مقروء",
     "nudgeButtonError": "تعذّر الإرسال",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "عرض القائمة",
+    "viewTeam": "عرض الفريق",
+    "fetchFailed": "لم يتم تحميل بيانات مركز التحكم. حاول تحديث الصفحة."
   },
   "notification": {
     "reengagement_lapsed_title": "انتهت عضويتك في SuperAdPro",

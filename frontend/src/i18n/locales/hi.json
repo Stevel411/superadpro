@@ -46,9 +46,9 @@
     "videoNotSupported": "वीडियो URL समर्थित नहीं है।",
     "alreadyHaveAccount": "पहले से खाता है?",
     "tapToUnmute": "ध्वनि चालू करने के लिए टैप करें",
-    "loading": "Loading…",
-    "notFound": "Not found",
-    "disclaimerLink": "Disclaimer"
+    "loading": "लोड हो रहा है…",
+    "notFound": "नहीं मिला",
+    "disclaimerLink": "अस्वीकरण"
   },
   "nav": {
     "dashboard": "डैशबोर्ड",
@@ -1069,10 +1069,10 @@
     "liveAnalytics": "लाइव एनालिटिक्स",
     "liveAnalyticsDesc": "अपने डैशबोर्ड पर वास्तविक समय में वितरित दृश्य, समाप्ति दर और अभियान प्रगति ट्रैक करें।",
     "previewLabel": "पूर्वावलोकन",
-    "ctaUrl": "Call-to-action URL",
-    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrl": "कॉल-टू-एक्शन URL",
+    "ctaUrlHelp": "वैकल्पिक। वह स्थान जहां दर्शक 'वेबसाइट पर जाएं' पर क्लिक करने के बाद जाते हैं।",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "कृपया https:// से शुरू होने वाला वैध URL दर्ज करें"
   },
   "campaignAnalytics": {
     "title": "कैम्पेन विश्लेषण",
@@ -1486,9 +1486,9 @@
     "step3Text": "लेवल 1 पर 25%, लेवल 2 पर 15%, लेवल 3 पर 10% कमाएं",
     "step4Text": "जब सभी 39 पोजीशन भर जाएं, पूर्णता बोनस प्राप्त करें",
     "step5Text": "नेक्सस रीसेट होता है — कमाई अपने आप जारी रहती है",
-    "l1Label": "L1 (3 members × 25%)",
-    "l2Label": "L2 (9 members × 15%)",
-    "l3Label": "L3 (27 members × 10%)",
+    "l1Label": "L1 (3 सदस्य × 25%)",
+    "l2Label": "L2 (9 सदस्य × 15%)",
+    "l3Label": "L3 (27 सदस्य × 10%)",
     "completionBonusLabel": "पूर्णता बोनस",
     "emptySlot": "खाली",
     "yourNexusTitle": "आपका 3×3 Nexus",
@@ -1908,7 +1908,7 @@
     "generateMyPage": "मेरा पेज जेनरेट करें →",
     "cancel": "रद्द करें",
     "generationFailed": "जेनरेशन विफल — कृपया पुनः प्रयास करें",
-    "errorPrefix": "Error: ",
+    "errorPrefix": "त्रुटि: ",
     "pagesLabel": "पेज",
     "viewsLabel": "व्यू",
     "leadsLabel": "लीड्स",
@@ -3941,9 +3941,9 @@
     "nudgeButtonSent": "अनुस्मारक भेजा गया",
     "nudgeButtonPending": "उनके पास पहले से एक अपठित अनुस्मारक है",
     "nudgeButtonError": "भेज नहीं सका",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "सूची देखें",
+    "viewTeam": "टीम देखें",
+    "fetchFailed": "कमांड सेंटर डेटा लोड नहीं हो सका। रीफ्रेश करने का प्रयास करें।"
   },
   "notification": {
     "reengagement_lapsed_title": "आपकी SuperAdPro सदस्यता समाप्त हो गई है",

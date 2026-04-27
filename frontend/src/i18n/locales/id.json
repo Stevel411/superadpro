@@ -46,8 +46,8 @@
     "videoNotSupported": "URL video tidak didukung.",
     "alreadyHaveAccount": "Sudah punya akun?",
     "tapToUnmute": "Ketuk untuk mengaktifkan suara",
-    "loading": "Loading…",
-    "notFound": "Not found",
+    "loading": "Memuat…",
+    "notFound": "Tidak ditemukan",
     "disclaimerLink": "Disclaimer"
   },
   "nav": {
@@ -1069,10 +1069,10 @@
     "liveAnalytics": "Analitik Langsung",
     "liveAnalyticsDesc": "Lacak tampilan yang terkirim, tingkat penyelesaian, dan kemajuan kampanye secara real-time di dasbor Anda.",
     "previewLabel": "pratinjau",
-    "ctaUrl": "Call-to-action URL",
-    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrl": "URL Call-to-action",
+    "ctaUrlHelp": "Opsional. Kemana penonton pergi saat mereka mengklik 'Kunjungi Website' setelah menonton.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "Masukkan URL yang valid dimulai dengan https://"
   },
   "campaignAnalytics": {
     "title": "Analisis Kampanye",
@@ -1486,9 +1486,9 @@
     "step3Text": "Dapatkan 25% di Level 1, 15% di Level 2, 10% di Level 3",
     "step4Text": "Ketika semua 39 posisi terisi, dapatkan bonus penyelesaian",
     "step5Text": "Nexus direset — pendapatan berlanjut otomatis",
-    "l1Label": "L1 (3 members × 25%)",
-    "l2Label": "L2 (9 members × 15%)",
-    "l3Label": "L3 (27 members × 10%)",
+    "l1Label": "L1 (3 anggota × 25%)",
+    "l2Label": "L2 (9 anggota × 15%)",
+    "l3Label": "L3 (27 anggota × 10%)",
     "completionBonusLabel": "Bonus penyelesaian",
     "emptySlot": "Kosong",
     "yourNexusTitle": "Nexus 3×3 Anda",
@@ -3941,9 +3941,9 @@
     "nudgeButtonSent": "Pengingat terkirim",
     "nudgeButtonPending": "Mereka sudah memiliki pengingat yang belum dibaca",
     "nudgeButtonError": "Tidak dapat mengirim",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "Lihat daftar",
+    "viewTeam": "Lihat tim",
+    "fetchFailed": "Tidak dapat memuat data command centre. Coba segarkan."
   },
   "notification": {
     "reengagement_lapsed_title": "Keanggotaan SuperAdPro Anda telah berakhir",

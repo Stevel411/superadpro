@@ -46,8 +46,8 @@
     "videoNotSupported": "Hindi suportado ang URL ng video.",
     "alreadyHaveAccount": "May account ka na?",
     "tapToUnmute": "I-tap para i-unmute",
-    "loading": "Loading…",
-    "notFound": "Not found",
+    "loading": "Nag-load…",
+    "notFound": "Hindi nahanap",
     "disclaimerLink": "Disclaimer"
   },
   "nav": {
@@ -383,7 +383,7 @@
     "campaignWallet": "Kampanya Wallet",
     "totalEarned": "Kabuuang Kita",
     "totalWithdrawn": "Kabuuang Na-withdraw",
-    "membership": "Membership",
+    "membership": "Miyembro",
     "incomeGrid": "Income Grid",
     "coursesMarket": "Mga Kurso at Market",
     "earnedFromReferralCredits": "Kinita mula sa paggamit ng referral credits",
@@ -410,7 +410,7 @@
     "directSponsor": "Direktang Sponsor",
     "uniLevel": "Uni-Level",
     "gridBonus": "Grid Bonus",
-    "membershipComm": "Membership",
+    "membershipComm": "Miyembro",
     "renewal": "Pag-renew",
     "creativeStudioComm": "Creative Studio",
     "withdrawal": "Pag-withdraw",
@@ -1070,9 +1070,9 @@
     "liveAnalyticsDesc": "Subaybayan ang mga inihatid na view, rate ng pagkumpleto, at pag-unlad ng campaign sa real-time sa iyong dashboard.",
     "previewLabel": "preview",
     "ctaUrl": "Call-to-action URL",
-    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrlHelp": "Opsyonal. Kung saan napupunta ang mga manonood kapag nag-click sila ng 'Bisitahin ang Website' pagkatapos manood.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "Mangyaring magpasok ng valid na URL na nagsisimula sa https://"
   },
   "campaignAnalytics": {
     "title": "Campaign Analytics",
@@ -1991,11 +1991,11 @@
   "myLeads": {
     "title": "Mga Contact",
     "subtitle": "Pamahalaan ang iyong mga lead, email sequence, at broadcast",
-    "contact": "CONTACT",
+    "contact": "KONTAKTE",
     "email": "EMAIL",
     "status": "STATUS",
-    "list": "LIST",
-    "emails": "EMAILS",
+    "list": "LISTAHAN",
+    "emails": "MGA EMAIL",
     "sequence": "SEQUENCE",
     "noLeadsDesc": "Leads are captured from your SuperPages funnel forms",
     "sequenceName": "Pangalan ng sequence",
@@ -2036,8 +2036,8 @@
     "boostCreditsDesc": "Ang boost credits ay binabayaran mula sa balanse ng iyong wallet. Hindi nag-e-expire ang credits.",
     "importDescFull": "Mag-upload ng leads mula sa CSV, ibang autoresponder, o mag-paste nang manual.",
     "sequenceNamePlaceholder": "hal. Fitness Welcome Series",
-    "subjectPlaceholder": "Subject line",
-    "bodyPlaceholder": "Email body...",
+    "subjectPlaceholder": "Linya ng paksa",
+    "bodyPlaceholder": "Email na katawan...",
     "broadcastBodyPlaceholder": "Isulat ang iyong broadcast email...",
     "superLeadsTitle": "SuperLeads",
     "crmSubtitle": "CRM at Email Autoresponder",
@@ -2155,7 +2155,7 @@
           ]
         },
         "import": {
-          "category": "Import",
+          "category": "Mag-import",
           "items": [
             {
               "title": "Mga tinatanggap na format",
@@ -2216,7 +2216,7 @@
     "tabLeads": "Mga Lead",
     "tabSequences": "Mga Sequence",
     "tabBroadcast": "Broadcast",
-    "tabImport": "Import",
+    "tabImport": "Mag-import",
     "tabBoost": "Boost",
     "statusUnsubscribed": "Nag-unsubscribe"
   },
@@ -2990,7 +2990,7 @@
     "streamMembershipDesc": "50% ng buwanang bayarin sa membership ng bawat direktang referral",
     "streamGridName": "Grid / Mga Campaign",
     "streamGridDesc": "40% direktang + 50% uni-level mula sa mga pagbili ng tier ng campaign",
-    "streamCourseName": "Course Academy",
+    "streamCourseName": "Akademya ng Kurso",
     "streamCourseDesc": "100% komisyon sa pamamagitan ng 4 na walang hanggang Income Chain",
     "streamNexusName": "Credit Nexus",
     "streamNexusDesc": "Kita ng 3×3 matrix sa mga pagbili ng credit pack ng downline",
@@ -3013,14 +3013,14 @@
     "directReferralsList": "Mga Direktang Referral",
     "totalCount": "{{count}} sa kabuuan",
     "colMember": "Miyembro",
-    "colStatus": "Status",
+    "colStatus": "Katayuan",
     "colTheirTeam": "Kanilang Team",
     "colJoined": "Sumali",
     "statusActive": "Aktibo",
     "statusInactive": "Hindi aktibo",
     "noReferralsTitle": "Wala pang mga referral",
     "noReferralsSubtitle": "Ibahagi ang iyong link sa itaas para magsimula ng network",
-    "streamCategoryMembership": "Membership",
+    "streamCategoryMembership": "Miyembro",
     "streamCategoryGrid": "Grid",
     "streamCategoryCourses": "Mga Kurso",
     "streamCategoryCreditNexus": "Credit Nexus",
@@ -3898,7 +3898,7 @@
     "directsHeader": "Mga direktang referral mo",
     "structuresHeader": "Mga istruktura ng kita mo",
     "manageHeader": "Pamahalaan ang iyong negosyo",
-    "performanceHeader": "Performance",
+    "performanceHeader": "Pagganap",
     "activeDirectsLabel": "Aktibo",
     "activeDirectsSublabel": "mga miyembrong nagbabayad",
     "lapsedDirectsLabel": "Nag-expire",
@@ -3941,9 +3941,9 @@
     "nudgeButtonSent": "Naipadala ang paalala",
     "nudgeButtonPending": "May hindi pa nababasang paalala sila",
     "nudgeButtonError": "Hindi maipadala",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "Tingnan ang listahan",
+    "viewTeam": "Tingnan ang koponan",
+    "fetchFailed": "Hindi makapag-load ng command centre data. Subukan ang pag-refresh."
   },
   "notification": {
     "reengagement_lapsed_title": "Nag-expire na ang iyong SuperAdPro membership",

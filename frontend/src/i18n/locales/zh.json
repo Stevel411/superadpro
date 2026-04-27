@@ -46,9 +46,9 @@
     "videoNotSupported": "不支持该视频URL。",
     "alreadyHaveAccount": "已有账号？",
     "tapToUnmute": "点击取消静音",
-    "loading": "Loading…",
-    "notFound": "Not found",
-    "disclaimerLink": "Disclaimer"
+    "loading": "加载中…",
+    "notFound": "未找到",
+    "disclaimerLink": "免责声明"
   },
   "nav": {
     "dashboard": "控制面板",
@@ -1069,10 +1069,10 @@
     "liveAnalytics": "实时分析",
     "liveAnalyticsDesc": "在您的控制面板上实时跟踪已传递的观看次数、完成率和活动进度。",
     "previewLabel": "预览",
-    "ctaUrl": "Call-to-action URL",
+    "ctaUrl": "行动号召URL",
     "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "请输入以 https:// 开头的有效网址"
   },
   "campaignAnalytics": {
     "title": "广告分析",
@@ -1486,9 +1486,9 @@
     "step3Text": "一级赚25%，二级赚15%，三级赚10%",
     "step4Text": "当所有39个位置填满时，获得完成奖金",
     "step5Text": "枢纽重置 — 收入自动继续",
-    "l1Label": "L1 (3 members × 25%)",
-    "l2Label": "L2 (9 members × 15%)",
-    "l3Label": "L3 (27 members × 10%)",
+    "l1Label": "L1（3名成员 × 25%）",
+    "l2Label": "L2（9 个成员 × 15%）",
+    "l3Label": "L3 (27 名成员 × 10%)",
     "completionBonusLabel": "完成奖金",
     "emptySlot": "空",
     "yourNexusTitle": "您的 3×3 Nexus",
@@ -1810,7 +1810,7 @@
     "viz3L2": "L2 · 自动放置",
     "viz3L3": "L3 · 完成",
     "stream4Num": "收入流 04",
-    "stream4Name": "Course Academy",
+    "stream4Name": "课程学院",
     "stream4Badge": "2026 Q2",
     "stream4HeadVal": "100%",
     "stream4HeadValSmall": "的销售额",
@@ -1908,7 +1908,7 @@
     "generateMyPage": "生成我的页面 →",
     "cancel": "取消",
     "generationFailed": "生成失败 — 请重试",
-    "errorPrefix": "Error: ",
+    "errorPrefix": "错误：",
     "pagesLabel": "页面",
     "viewsLabel": "浏览量",
     "leadsLabel": "潜在客户",
@@ -3941,9 +3941,9 @@
     "nudgeButtonSent": "提醒已发送",
     "nudgeButtonPending": "他们已经有一条未读提醒",
     "nudgeButtonError": "无法发送",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "查看列表",
+    "viewTeam": "查看团队",
+    "fetchFailed": "无法加载命令中心数据。请尝试刷新。"
   },
   "notification": {
     "reengagement_lapsed_title": "您的 SuperAdPro 会员已过期",

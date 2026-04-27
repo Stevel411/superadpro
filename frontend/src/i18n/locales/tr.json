@@ -46,9 +46,9 @@
     "videoNotSupported": "Video URL'si desteklenmiyor.",
     "alreadyHaveAccount": "Zaten hesabınız var mı?",
     "tapToUnmute": "Sesi açmak için dokunun",
-    "loading": "Loading…",
-    "notFound": "Not found",
-    "disclaimerLink": "Disclaimer"
+    "loading": "Yükleniyor…",
+    "notFound": "Bulunamadı",
+    "disclaimerLink": "Sorumluluk Reddi"
   },
   "nav": {
     "dashboard": "Panel",
@@ -1069,10 +1069,10 @@
     "liveAnalytics": "Canlı Analizler",
     "liveAnalyticsDesc": "Panonuzda gerçek zamanlı olarak teslim edilen görüntüleme sayısı, tamamlanma oranı ve kampanya ilerlemesini takip edin.",
     "previewLabel": "önizleme",
-    "ctaUrl": "Call-to-action URL",
-    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrl": "Harekete Geçirici URL",
+    "ctaUrlHelp": "İsteğe bağlı. İzleyicilerin 'Web Sitesini Ziyaret Et'e tıkladıktan sonra gittikleri yer.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "Lütfen https:// ile başlayan geçerli bir URL girin"
   },
   "campaignAnalytics": {
     "title": "Kampanya Analizi",
@@ -1486,9 +1486,9 @@
     "step3Text": "Seviye 1'de %25, Seviye 2'de %15, Seviye 3'de %10 kazanın",
     "step4Text": "39 pozisyonun tamamı dolduğunda tamamlama bonusu kazanın",
     "step5Text": "Nexus sıfırlanır — kazançlar otomatik devam eder",
-    "l1Label": "L1 (3 members × 25%)",
-    "l2Label": "L2 (9 members × 15%)",
-    "l3Label": "L3 (27 members × 10%)",
+    "l1Label": "L1 (3 üye × %25)",
+    "l2Label": "L2 (9 üye × %15)",
+    "l3Label": "L3 (27 üye × %10)",
     "completionBonusLabel": "Tamamlama bonusu",
     "emptySlot": "Boş",
     "yourNexusTitle": "3×3 Nexus'unuz",
@@ -1908,7 +1908,7 @@
     "generateMyPage": "Sayfamı Oluştur →",
     "cancel": "İptal",
     "generationFailed": "Oluşturma başarısız — lütfen tekrar deneyin",
-    "errorPrefix": "Error: ",
+    "errorPrefix": "Hata: ",
     "pagesLabel": "Sayfalar",
     "viewsLabel": "Görüntülemeler",
     "leadsLabel": "Müşteri adayları",
@@ -3941,9 +3941,9 @@
     "nudgeButtonSent": "Hatırlatma gönderildi",
     "nudgeButtonPending": "Zaten okunmamış bir hatırlatmaları var",
     "nudgeButtonError": "Gönderilemedi",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "Listeyi görüntüle",
+    "viewTeam": "Takımı görüntüle",
+    "fetchFailed": "Komut merkezi verileri yüklenemedi. Sayfayı yenilemeyi deneyin."
   },
   "notification": {
     "reengagement_lapsed_title": "SuperAdPro üyeliğiniz sona erdi",

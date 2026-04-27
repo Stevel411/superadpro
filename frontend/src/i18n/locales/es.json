@@ -46,9 +46,9 @@
     "videoNotSupported": "URL de video no compatible.",
     "alreadyHaveAccount": "¿Ya tienes una cuenta?",
     "tapToUnmute": "Toca para activar el sonido",
-    "loading": "Loading…",
-    "notFound": "Not found",
-    "disclaimerLink": "Disclaimer"
+    "loading": "Cargando…",
+    "notFound": "No encontrado",
+    "disclaimerLink": "Aviso legal"
   },
   "nav": {
     "dashboard": "Panel",
@@ -1069,10 +1069,10 @@
     "liveAnalytics": "Analíticas en Vivo",
     "liveAnalyticsDesc": "Sigue las vistas entregadas, la tasa de finalización y el progreso de la campaña en tiempo real en tu panel.",
     "previewLabel": "vista previa",
-    "ctaUrl": "Call-to-action URL",
-    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrl": "URL de llamada a la acción",
+    "ctaUrlHelp": "Opcional. Dónde van los espectadores cuando hacen clic en 'Visitar sitio web' después de ver.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "Por favor ingresa una URL válida que comience con https://"
   },
   "campaignAnalytics": {
     "title": "Analíticas de Campaña",
@@ -1486,9 +1486,9 @@
     "step3Text": "Gana 25% en Nivel 1, 15% en Nivel 2, 10% en Nivel 3",
     "step4Text": "Cuando las 39 posiciones se llenan, gana un bono de finalización",
     "step5Text": "El nexus se reinicia — las ganancias continúan automáticamente",
-    "l1Label": "L1 (3 members × 25%)",
-    "l2Label": "L2 (9 members × 15%)",
-    "l3Label": "L3 (27 members × 10%)",
+    "l1Label": "L1 (3 miembros × 25%)",
+    "l2Label": "L2 (9 miembros × 15%)",
+    "l3Label": "L3 (27 miembros × 10%)",
     "completionBonusLabel": "Bono de finalización",
     "emptySlot": "Vacío",
     "yourNexusTitle": "Tu Nexus 3×3",
@@ -3949,9 +3949,9 @@
     "nudgeButtonSent": "Recordatorio enviado",
     "nudgeButtonPending": "Ya tienen un recordatorio sin leer",
     "nudgeButtonError": "No se pudo enviar",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "Ver lista",
+    "viewTeam": "Ver equipo",
+    "fetchFailed": "No se pudieron cargar los datos del centro de control. Intenta actualizar."
   },
   "notification": {
     "reengagement_lapsed_title": "Tu membresía SuperAdPro caducó",

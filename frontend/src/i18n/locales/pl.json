@@ -46,8 +46,8 @@
     "videoNotSupported": "URL wideo nie jest obsługiwany.",
     "alreadyHaveAccount": "Masz już konto?",
     "tapToUnmute": "Dotknij, aby włączyć dźwięk",
-    "loading": "Loading…",
-    "notFound": "Not found",
+    "loading": "Wczytywanie…",
+    "notFound": "Nie znaleziono",
     "disclaimerLink": "Disclaimer"
   },
   "nav": {
@@ -1069,10 +1069,10 @@
     "liveAnalytics": "Analizy na Żywo",
     "liveAnalyticsDesc": "Śledź wyświetlenia, współczynnik ukończenia i postęp kampanii w czasie rzeczywistym na swoim panelu.",
     "previewLabel": "podgląd",
-    "ctaUrl": "Call-to-action URL",
-    "ctaUrlHelp": "Optional. Where viewers go when they click 'Visit Website' after watching.",
+    "ctaUrl": "URL wezwania do działania",
+    "ctaUrlHelp": "Opcjonalnie. Gdzie przejdą widzowie po kliknięciu przycisku 'Odwiedź stronę' po obejrzeniu.",
     "ctaUrlPlaceholder": "https://yoursite.com/landing",
-    "errCtaUrl": "Please enter a valid URL starting with https://"
+    "errCtaUrl": "Wpisz prawidłowy adres URL zaczynający się od https://"
   },
   "campaignAnalytics": {
     "title": "Analityka Kampanii",
@@ -1486,9 +1486,9 @@
     "step3Text": "Zarabiaj 25% na Poziomie 1, 15% na Poziomie 2, 10% na Poziomie 3",
     "step4Text": "Gdy wszystkie 39 pozycji się zapełni, otrzymasz bonus za ukończenie",
     "step5Text": "Nexus się resetuje — zarobki kontynuują automatycznie",
-    "l1Label": "L1 (3 members × 25%)",
-    "l2Label": "L2 (9 members × 15%)",
-    "l3Label": "L3 (27 members × 10%)",
+    "l1Label": "L1 (3 członków × 25%)",
+    "l2Label": "L2 (9 członków × 15%)",
+    "l3Label": "L3 (27 członków × 10%)",
     "completionBonusLabel": "Bonus za ukończenie",
     "emptySlot": "Puste",
     "yourNexusTitle": "Twój Nexus 3×3",
@@ -1908,7 +1908,7 @@
     "generateMyPage": "Wygeneruj moją stronę →",
     "cancel": "Anuluj",
     "generationFailed": "Generowanie nie powiodło się — spróbuj ponownie",
-    "errorPrefix": "Error: ",
+    "errorPrefix": "Błąd: ",
     "pagesLabel": "Strony",
     "viewsLabel": "Wyświetlenia",
     "leadsLabel": "Leady",
@@ -2155,7 +2155,7 @@
           ]
         },
         "import": {
-          "category": "Import",
+          "category": "Importuj",
           "items": [
             {
               "title": "Akceptowane formaty",
@@ -3941,9 +3941,9 @@
     "nudgeButtonSent": "Przypomnienie wysłane",
     "nudgeButtonPending": "Mają już nieprzeczytane przypomnienie",
     "nudgeButtonError": "Nie udało się wysłać",
-    "viewList": "View list",
-    "viewTeam": "View team",
-    "fetchFailed": "Couldn't load command centre data. Try refreshing."
+    "viewList": "Wyświetl listę",
+    "viewTeam": "Wyświetl zespół",
+    "fetchFailed": "Nie udało się załadować danych centrum dowodzenia. Spróbuj odświeżyć."
   },
   "notification": {
     "reengagement_lapsed_title": "Twoje członkostwo SuperAdPro wygasło",
