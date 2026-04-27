@@ -226,6 +226,18 @@ export default function Watch() {
   const isCurrentWatched = current?.is_watched;
   const allWatched = videos.length > 0 && videos.every(v => v.is_watched);
   const quotaComplete = d.quota_reached || watched >= limit;
+  // Live progress fraction for the "Today's Progress" ring. Combines:
+  //   - videos completed (watched / limit)
+  //   - in-progress fraction of the CURRENT video's 30-second timer
+  // So the ring fills smoothly as a member watches rather than sitting
+  // at 0 for 30 seconds then jumping to 100% on click. Only counts the
+  // in-progress fraction if the current video isn't already watched
+  // (else the timer's secondsLeft starts at 30 between videos and
+  // would visually "rewind" the ring).
+  const inProgressFrac = (current && !isCurrentWatched && !quotaComplete)
+    ? (30 - secondsLeft) / 30
+    : 0;
+  const liveProgress = Math.min(1, (watched + inProgressFrac) / limit);
   const btnReady = timerDone && !isCurrentWatched && !submitted;
   const statusText = isCurrentWatched ? t('watch.statusWatched') : timerDone ? t('watch.statusReady') : paused ? t('watch.statusPaused') : t('watch.statusWatching');
   const statusColor = isCurrentWatched || timerDone ? 'var(--sap-green)' : paused ? 'var(--sap-amber-dark)' : 'var(--sap-accent)';
@@ -663,7 +675,7 @@ export default function Watch() {
                   {/* Progress stroke — starts at a visible dot even at 0% */}
                   <circle cx="45" cy="45" r={ringR} fill="none" stroke="url(#pGrad)" strokeWidth="7"
                     strokeLinecap="round"
-                    strokeDasharray={`${Math.max(3, ringC * Math.min(1, watched / limit))} ${ringC}`}
+                    strokeDasharray={`${Math.max(3, ringC * liveProgress)} ${ringC}`}
                     className={watched === 0 ? 'ring-pulse' : ''}
                     style={{transition:'stroke-dasharray .6s'}}/>
                 </svg>
